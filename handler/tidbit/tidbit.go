@@ -138,7 +138,7 @@ func tidbits() Tidbit {
 		2: "Five-O and BCC were a US based game release groups that merged in December 1988. " +
 			"The next month they joined with Pirates R Us and changed their name to The Firm, who became the first prolific game release group on the PC.",
 		3: "Fairlight, founded on the Commodore 64 in 1987 is one of the oldest brands in the scene. " +
-			"Fairlight PC first released in February 1991 but immediately worked with USA to form the successful USA/FLT collboration. " +
+			"Fairlight PC first released in February 1991 but immediately worked with USA to form the successful <strong>USA/FLT</strong> collboration. " +
 			"Late January 1992 saw a major piracy bust in Detroit that forced USA to disband and Fairlight to go solo.",
 		4: "In 1992 Fairlight briefly ran the artgroup Artists In Revolt, sometimes referenced as the Fairlight Art Division. ",
 		5: "Fairlight DOX (FLTDOX) was a sub-group of Fairlight that specialised in releasing documentation and trainers for games.",
@@ -173,7 +173,8 @@ func tidbits() Tidbit {
 			`<a href="https://textfiles.meulie.net/magazines/LOL/lol-20.phk">Legions of Lucifer</a> ` +
 			"founded by Digitone Cypher in 1990 and became LoL-Phuck in 1991.",
 		23: "BCC were founded in October 1987 as a game release group based in the state of Virgina.",
-		24: "Fairlight PC only released games published on floppy disks. The group faded away the mid-1990s as the game industry moved exclusively to CD ROM, and piracy to CD RIPs. It wasn't until November 1998 that Fairlight returned as one of the earlier ISO groups releasing complete CD images of games. In the 2000s the Fairlight brand went in two unrelated directions, with a demoscene component seeing great success in that community that weirdly, was juxtaposed with a now criminal piracy group that was getting unwanted attention due to the rise of BitTorrent and sites like The Pirate Bay.",
+		24: "<strong>Fairlight PC</strong> only released games published on floppy disks. The group faded away the mid-1990s as the game industry moved exclusively to CD ROM, and piracy to CD RIPs. It wasn't until November 1998 that Fairlight returned as one of the earlier ISO groups releasing complete CD images of games. " +
+			"In the 2000s the Fairlight brand went in two unrelated directions, with a demoscene component seeing great success in that community that weirdly, was juxtaposed with a <a href=\"https://www.copyright.gov/docs/2265_stat.html\">now criminal</a> piracy group that was getting unwanted attention due to the rise of BitTorrent and sites like The Pirate Bay.",
 		25: "Future Crew was the most famous demoscene group on the PC in the 1990s. The PC was primarily a business platform and games or multimedia were always secondary. But early demos by the Future Crew helped to change the mindset some, that the PC wasn't only for productivity and would become the platform of the future for general computing, gaming and multimedia." +
 			"<br>The founding information on the Future Crew has been muddled over the years by incorrect and conflicting dates put out by the group themselves in different documents. Their first release, <strong>GR8</strong> came out in July 1989 and their second <strong>Yo!</strong> sometime in 1990.",
 		26: "The first CD RIP was probably created by INC with their March 1992 release of " +
@@ -188,13 +189,17 @@ func tidbits() Tidbit {
 		31: "According to BAD News #7, ERKle was a brief, pretend group created by The Pieman of The Humble Guys.",
 		32: "Xerox was a German release group that rebranded as Extasy before merging with Fairlight.",
 		33: "NCC would focus in Europe and collaborate with US groups for cracked software exchanges, first with INC, and eventually with The Humble Guys. ",
-		34: "SCD-DoX was a shortlived documentation group created by the Software Chronicles Digest Magazine.",
-		35: "For its first 5 issues, SCD stood for Southern Califoria Distribution and was part of a larger regional release group.",
-		36: "<p>According to a public <a href=\"/f/b144a1\">retirement letter</a>, The Humble Guys were founded on the 22 Jan 1990.</p><p>We believe THG is the source of the <strong><code>.NFO</code></strong> file extension " +
-			"with the minimal textfile <code>KNIGHTS.NFO</code> found in the release of Knights of Legend from the 23rd of January 1990. " +
+		34: "SCD-Dox was a shortlived documentation group created by Software Chronicles Digest Productions.",
+		35: "SCD started out as <strong>Southern California Distribution</strong> and was part of a larger regional release group. As such, in November 1990 they published a newsletter for DOS known as <strong>The SCD Report</strong> to inform the pirate community. Over a span of two years, 14 issues of The SCD Report were published and the magazine was well received. However, December 1992 saw some changes, with not only seeing a rewrite of the magazine application, user interface and a re-branding to Software Chronicles Digest, but also it became the final issue.",
+		36: "<p>According to Fabulous Furlough's <a href=\"/f/b144a1\">retirement letter</a>, The Humble Guys were founded on the 22 Jan 1990.</p>" +
+			"<p>The Humble Guys had a bit of a reputation, partly because they were <a href=\"/f/a93245\">outspoken</a> plus were quite happy to give <a href=\"https://wayback.defacto2.net/the-scene-news-from-1999-september-14/interview-002.html\">interviews</a> or write down their thoughts. And if you believe what is sometimes said, there was virtually no Scene on the PC until they came around and revolutionised the community using their hard earned experience from the competitive Commodore online communities. Personally, I think this view is over sensationalised, and the Scene on the PC was fine before THG. Rather, people online using PCs in the 1980s, were possibly older, cared less about games than on the other microcomputers, so were more relaxed.</p>" +
+			"<p>But in saying that, THG really ramp up the release schedule for games and made it a more aggressive and competitive community, for good or ill. They were a major force throughout 1990 and 1991 but became a shell of themselves during 1992 after their main competitor of 1991 <a href=\"/g/united-software-association*fairlight\">United Software Association</a> (USA) and some key people quit the scene due to the <a href=\"/f/ab232ca\">February arrest</a> of some notable personalities.</p>" +
+			// nfo extension
+			"<p>We believe THG is the source of the <strong><code>.NFO</code></strong> file extension " +
+			"with the minimal textfile <code>KNIGHTS.NFO</code> found in the release of <a href=\"/f/ab3945\">Knights of Legend</a> from the 23rd of January 1990. " +
 			"Knights of Legend required <a href=\"/f/b02d22e\">a fix</a> due to <a href=\"/f/b228b1a\">an installation quirk</a> and maybe that is why it is forgotten. " +
-			"The following day, the release of White Death would include a tiny <code>WHITEDET.NFO</code> textfile and so too <code>STUNT.NFO</code> for Stunt Track Racer on the 25th. " +
-			"By early February the <code>BUBBLE.NFO</code> textfile for Bubble Bobble had become bloated, with additional group greets, a big yahoo, multiple boards, a Nashville voicemail phone number and PO BOX." +
+			"The following day, the release of <a href=\"/f/aa24d74\">White Death</a> would include a tiny <code>WHITEDET.NFO</code> textfile and so too <code>STUNT.NFO</code> for <a href=\"/f/aa1e84e\">Stunt Track Racer</a> on the 25th. " +
+			"By early February the <code>BUBBLE.NFO</code> textfile for <a href=\"/f/ab1eca6\">Bubble Bobble</a> had become bloated, with additional group greets, a big yahoo, multiple boards, a Nashville voicemail phone number and PO BOX." +
 			"</p><p>A 1991 backup from the HMS Bounty BBS had the following listings, but note, these 1990 uploads were before the era of <em>0-day</em> wares:</p>" +
 			"<pre>" +
 			"FAERY-1.ZIP  246086 09/18/89 Faery Tale Adventure.  1 of 3\n" +
@@ -272,7 +277,9 @@ func tidbits() Tidbit {
 			"That was until September when it was publicly <a href=\"/f/af2c09f\">announced by TDT</a> that this cooperation “is now broken”. And within a month, TDT were opting to instead co-release with fellow Europeans, Skid Row.",
 		67: "The remainder of the early 1990s saw TRSi mostly releasing European published titles despite wanting to pivot to to North America where the AAA tier PC development was occurring. Unfortunately in Europe, the PC was a secondary platform for many game developers, often used to dump quick ports of games developed for the Commodore or Atari microcomputers." +
 			" And this meant the quality of TRSi brand suffered, though there were <a href=\"/f/ae466d\">exceptions</a>.",
-		68: "The Dream Team was based in Sweden and was a name frequently associated with its founder, Hard Core. A programmer who had somewhat of an infamous reputation for creating second-rate intros on the PC on behalf of the group. Though, we do credit him with creating the first contemporary PC cracktro with this great <a href=\"/f/b01ca10\">musical skull intro</a> from November 1991. As a side note, his intros are the most annoying pieces of shit to preserve, as they have numerous dependencies that were intentionally hidden in releases. If an intro on this page doesn't work right, it is probably missing a file or two.",
+		68: "<p>The Dream Team was based in Sweden and was a name frequently associated with its founder, Hard Core. A programmer who had somewhat of an early reputation for creating second-rate intros on the PC on behalf of the group. Though, we do credit him with creating the first contemporary PC cracktro with this great <a href=\"/f/b01ca10\">musical skull intro</a> from November 1991. As a side note, his intros are the most annoying pieces of shit to preserve, as they have numerous dependencies that were intentionally hidden in releases. If an intro on this page doesn't work right, it is probably missing a hidden file or two.</p>" +
+			"The Dream Team enjoyed success and remained active for much of the early 1990s, despite the occasional <a href=\"/f/b5261b0\">hiccup</a>, until quietly retiring at the end of 1993. " +
+			"With only the occasional <a href=\"/f/a93193\">guest release</a>, the TDT name disappeared from the scene for 16 months before <a href=\"/f/b72e5db\">returning</a> in 1995 and tried rebuilding itself from the ground up with only four members. But this second attempt wasn't as successful and the group for the most part stopped releasing after four months, and completely vanished in November.",
 	}
 }
 
