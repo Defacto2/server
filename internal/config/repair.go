@@ -3,6 +3,7 @@ package config
 // Package file repair.go contains the repair functions for assets and downloads.
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -400,7 +401,7 @@ func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logge
 	if err != nil {
 		return fmt.Errorf("config %w", err)
 	}
-	dizes := 0
+	dupes := 0
 	for _, v := range uuids {
 		name := filepath.Join(c.AbsExtra, v.UUID.String)
 		diz := name + ".diz"
@@ -424,20 +425,69 @@ func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logge
 		if err != nil {
 			continue
 		}
-		if dizSI == txtSI {
-			dizes++
-			// generally the diz file is the bad duplicate
-			if err = os.Remove(diz); err != nil {
-				logger.Errorf("Could not remove duplicate diz file: %s", diz)
-				continue
-			}
-			logger.Infoln("Removed duplicate diz file:", diz)
+		if identical := dizSI == txtSI; !identical {
+			continue
 		}
+		dupes++
+		dupe, err := Remove(diz, txt)
+		if err != nil {
+			logger.Errorf("Could not remove duplicate file_id.diz = readme files: %s %s", diz, txt)
+			continue
+		}
+		logger.Infoln("Removed duplicate file_id.diz = readme file:", dupe)
 	}
-	if dizes > 0 {
-		logger.Infof("Found %d diz text files that are duplicates of the readme texts", dizes)
+	if dupes > 0 {
+		logger.Infof("Found %d text files that are duplicate texts: file_id.diz = readme", dupes)
 	}
 	return nil
+}
+
+// Remove either the named diz or txt file that are idential duplicates.
+// The file deleted depends on if the pair look to be a FILE_ID.DIZ or a longer form text file.
+//
+// If successful, the basename of the file removed is returned.
+func Remove(diz, txt string) (string, error) {
+	file, err := os.Open(diz)
+	if err != nil {
+		return "", fmt.Errorf("remove open %w: %s", err, diz)
+	}
+	defer file.Close()
+
+	if !FileID(file) {
+		if err := os.Remove(diz); err != nil {
+			return "", fmt.Errorf("remove diz %w: %s", err, diz)
+		}
+		return filepath.Base(diz), nil
+	}
+	if err := os.Remove(txt); err != nil {
+		return "", fmt.Errorf("remove readme %w: %s", err, txt)
+	}
+	return filepath.Base(txt), nil
+}
+
+// FileID will return true if there are less than 10 lines of text
+// and the maximum width of each line is no more than 45 characters.
+// This is not a guarantee of a [FILE_ID.DIZ] but it is true for many situations.
+//
+// [FILE_ID.DIZ]: http://www.textfiles.com/computers/fileid.txt
+func FileID(r io.Reader) bool {
+	scanner := bufio.NewScanner(r)
+	const (
+		maximumLines = 10
+		maximumWidth = 45
+	)
+	lines := 0
+	for scanner.Scan() {
+		lines++
+		if lines > maximumLines {
+			return false
+		}
+		line := scanner.Text()
+		if len(line) > maximumWidth {
+			return false
+		}
+	}
+	return true
 }
 
 // MagicNumbers checks the magic numbers of the artifacts and replaces any missing or
