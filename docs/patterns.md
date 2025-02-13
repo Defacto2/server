@@ -4,10 +4,220 @@
 
 This is a collection of patterns and idioms that could be useful with the new releases of Go.
 
+- https://antonz.org/go-1-24
+- https://antonz.org/go-1-23
 - https://go.dev/blog/go1.22
 - https://tip.golang.org/doc/go1.22
 - https://go.dev/blog/go1.21
 - https://tip.golang.org/doc/go1.21
+
+### Tool dependencies in Go 1.24
+
+```sh
+# install the tool
+go get -tool golang.org/x/tools/cmd/stringer
+
+# run the tool
+go tool stringer
+```
+
+> go.mod
+
+```
+module sandbox
+
+go 1.24
+
+tool golang.org/x/tools/cmd/stringer
+
+require (
+    golang.org/x/mod v0.22.0 // indirect
+    golang.org/x/sync v0.10.0 // indirect
+    golang.org/x/tools v0.29.0 // indirect
+)
+```
+
+### Weak pointers in Go 1.24
+
+Weak pointers are pointers that do not prevent the garbage collector from reclaiming the object.
+
+```go
+type Blob []byte
+
+func (b Blod) String() string {
+	return fmt.Sprintf("Blob(%d KB)", len(b)/1024)
+}
+
+func newBlob(size int) *Blob {
+    b := make([]byte, size*1024)
+    for i := range size {
+        b[i] = byte(i) % 255
+    }
+    return (*Blob)(&b)
+}
+
+b := newBlob(1000) // keep alive
+fmt.Println(b)
+
+wb := weak.Make(newBlob(1000)) // allow GC reclaim
+fmt.Println(wb)
+
+```
+
+### String and byte iteration in Go 1.24
+
+```go
+// lines
+s := "line 1.\nline 2.\nline 3."
+for line := range strings.Lines(s) {
+	fmt.Println(line)
+}
+
+// split
+s := "one-two-three"
+for part := range strings.SplitSeq(s, "-") {
+	fmt.Println(part)
+}
+
+// split after sequence
+s := "one-two-three-"
+for part := range strings.SplitAfterSeq(s, "-") {
+	fmt.Println(part)
+}
+// one-
+// two-
+// three-
+
+// split white space!
+s := "one two\nthree"
+for part := range strings.FieldsSeq(s) {
+	fmt.Println(part)
+}
+// one
+// two
+// three
+
+
+f := func(r rune) bool {
+	return !unicode.IsLetter(r) && !unicode.IsNumber(r)
+}
+s := "one,two;six..."
+for part := range strings.FieldsFuncSeq(s, f) {
+	fmt.Println(part)
+}
+// one
+// two
+// six
+```
+
+### Omit zero values in JSON in Go 1.24
+
+```go
+type Person struct {
+	Name string	`json:"name"`
+	Age  int	`json:"age,omitzero"`
+}
+alice := Person{Name: "Alice", Age: 0}
+b, _ := json.Marshal(alice)
+fmt.Println(string(b)) // {"name":"Alice"}
+```
+
+### Appender interfaces in Go 1.24
+
+```go
+t := time.Date(2021, 2, 3, 4, 5, 6, 0, time.UTC)
+
+var b []byte
+b, err := t.AppendText(b)
+fmt.Println(string(b), err)
+// 2021-02-03T04:05:06Z <nil>
+```
+
+### Directory scoped filesystem access in Go 1.24!
+
+```go
+dir, err := os.OpenRoot("/home/bob")
+if err != nil {
+	log.Fatal(err)
+}
+defer dir.Close() // always close the directory
+
+f, _ := dir.Open("file.txt") // this is okay
+f.Close()
+
+f, err = os.Open("../file.txt") // this is not okay
+if err != nil {
+	log.Fatal(err) // openat ../file.txt: path escapes from parent
+}
+
+// Options for OpenRoot
+dir.Create("file.txt")
+dir.Open("file.txt")
+dir.Stat("file.txt")
+dir.Remove("file.txt")
+```
+
+### Random text in Go 1.24
+
+```go
+// crypto/rand.Text
+text := rand.Text()
+fmt.Println(text) // DYTSHZN2XZSBRLN5WNJDH3J7Y5
+```
+
+### Copy directories in Go 1.23
+
+```go
+src := os.DirFS("/home/bob")
+dst := os.TempDir()
+
+err := os.CopyFS(dst, src)
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println("copied")
+```
+
+### Map iteration in Go 1.23
+
+```go
+var m sync.Map
+m.Store("alice", 11)
+m.Store("bob", 12)
+m.Store("cindy", 13)
+
+for key, value := range m.Range {
+	fmt.Println(key, value)
+}
+
+for key := range maps.Keys(m){
+	fmt.Println(key)
+}
+
+for value := range maps.Values(m){
+	fmt.Println(value)
+}
+
+```
+
+### Slice iterators in Go 1.23
+
+```go
+s := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m"}
+
+for i, v := range slices.All(s) {
+	fmt.Println(i, v)
+}
+
+for i, v := range slices.Backward(s) {
+	fmt.Println(i, v)
+}
+
+for v := range slices.Values(s) {
+	fmt.Println(i, v)
+}
+
+```
 
 ### Randomization in Go 1.22
 
