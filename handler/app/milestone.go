@@ -220,7 +220,7 @@ func Collection() Milestones {
 			Lead: "An Open Letter to Hobbyists", LinkTitle: "the letter",
 			Link: "https://archive.org/details/hcc0201/Homebrew.Computer.Club.Volume.02.Issue.01.Len.Shustek/page/n1/mode/2up",
 			Content: "<p>Bill Gates of <em>Micro-Soft</em> writes a letter to the hobbyists of the Homebrew Computer Club requesting they <u>stop stealing</u> <strong>Altair&nbsp;BASIC</strong>. " +
-				"However, US copyright law generally did not apply to software then. Copying an application was the same as sharing the instructions of a cooking recipe.</p>" +
+				"However, US copyright law generally did not apply to software then. Copying computer code was viewed the same as sharing the instructions of a cooking recipe or a cocktail.</p>" +
 				"<p><q>As the majority of hobbyists must be aware, most of you steal your software. Hardware must be paid for, but software is something to share. Who cares if the people who worked on it get paid.</q></p>",
 			Picture: Picture{
 				Title:       "An Open Letter to Hobbyists",
@@ -1815,8 +1815,7 @@ func Collection() Milestones {
 				{LinkTitle: "CD Images For the Elite", Link: "/g/cd-images-for-the-elite", SubTitle: "CiFE"},
 				{LinkTitle: "Class", Link: "/g/class", SubTitle: "CLS", Forward: "Prestige"},
 				{LinkTitle: "RomLight", Link: "/g/romlight", SubTitle: "RLT", Forward: "Fairlight"},
-				{LinkTitle: "Zeus", Link: "/g/zeus", Forward: "Eclipse"},
-				{LinkTitle: "Paradigm", Link: "/g/paradigm", SubTitle: "PDM", Forward: "Zeus"},
+				{LinkTitle: "Paradigm", Link: "/g/paradigm", SubTitle: "PDM", Forward: "Eclipse"},
 			},
 		},
 		{

@@ -1298,7 +1298,12 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	slices.Sort(tidbits)
 	htm := ""
 	for _, v := range tidbits {
-		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, v.String(), v.URL(uri))
+		s := v.String()
+		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
+			htm += fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, v.URL(uri))
+			continue
+		}
+		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, s, v.URL(uri))
 	}
 	data["tidbits"] = template.HTML(htm)
 	if strings.HasSuffix(uri, "-bbs") {

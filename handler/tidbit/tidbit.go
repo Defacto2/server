@@ -125,6 +125,7 @@ func groups() Tibits {
 		66: []URI{"tristar-ampersand-red-sector-inc", "pe*trsi*tdt", "the-dream-team", "skid-row", "coop"},
 		67: []URI{"tristar-ampersand-red-sector-inc"},
 		68: []URI{"the-dream-team"},
+		69: []URI{"rom-1911", "razor-1911"},
 	}
 }
 
@@ -154,11 +155,11 @@ func tidbits() Tidbit {
 		11: "The Illinois Pirates release of their King's Quest walkthrough is the earliest known scene documentation for a PC exclusive game.",
 		12: "Buckaroo Banzai was a prolific game hacker and trainer maker who was most famous for his 1980s cracking tutorials on the PC and Apple II." +
 			" The series was republished and revised as the Ancient Art of Cracking for NUEA and under Buck Naked Productions.",
-		13: "ESP Pirates seems to be a label used by the cracker Mr Peace who was the sysop of the Phoenix based ESP Headquarters BBS." +
-			" A number of the ESP releases were later repacked by Mr Peace to include advertisements for his BBS.",
-		14: "Silicon Valley Swappe Shoppe looks to be a personal label used by Mr. Turbo who probably started on the Apple II and later moved onto the console scene.",
+		13: "ESP Pirates seems to be a cracking brand used by the cracker Mr Peace who was the sysop of the Phoenix based ESP Headquarters BBS." +
+			" A number of the ESP releases were later repacked by Mr Peace to include advertisements for his pirate BBS that started in 1987.",
+		14: "Silicon Valley Swappe Shoppe looks to be a personal brand used by Mr. Turbo who probably started on the Apple II and later moved onto the console scene.",
 		15: "March 1986 saw both TOADS and Five-O release custom CGA loader screens for their game releases. " +
-			"These screens were probably done in PC Paint from Mouse Systems and were the first known scene art for the PC. " +
+			"These screens were probably done in <a href=\"https://winworldpc.com/product/pc-paint/100a\">PC Paint</a> from Mouse Systems and were the first known scene art for the PC. " +
 			"It is unsure if the images were drawn by the credited crackers or by a separate artist.",
 		16: "There is no information on C&M other than the credited cracker and CGA artist Zanna Martin would join BCC at the end of 1987.",
 		17: "Canadian Pirates Inc were an early Ontario, Canada group that was active in the 1980s and often collaborated with PTL Club from Illinois before eventually merging.",
@@ -263,7 +264,7 @@ func tidbits() Tidbit {
 			"Before finally <a href=\"/f/a8222bc\">listing a reduced membership</a> but with useful roles for the group. However, the original Norwegian members faded into the background and references to the Razor's European origins were removed.</p>" +
 			"<p>March 1994 saw the release of the <strong>first demo</strong> by Razor on the PC, named <a href=\"/f/ab445e\">RED</a>. " +
 			"It was well received and saw a new <em>Razor 1911 Coding/Training/Art Departments</em> in the <a href=\"/f/af2e8ab\">NFO listings</a> and the return of the PO Box in Norway. " +
-			"The famous text Razor 1911 logo by &ltJED> of ACiD was prototyped in <a href=\"/f/b31a533\">Battle Isle 2</a> and revised into its final form for the release of <a href=\"/f/b31a533\">Doom II</a> in August.</p>" +
+			"The famous text Razor 1911 logo by &ltJED> of ACiD was prototyped in <a href=\"/f/b31a533\">Battle Isle 2</a> and revised into its final form for the release of <a href=\"/f/b31a533\">Doom 2</a> in August.</p>" +
 			"<p>The start of 1995 saw the outspoken The Renegade Chemist leave Razor and <a href=\"/f/ab3a82\">attempt to kill the group</a> as he departed, but apparently he forgot to get consensus and <a href=\"/f/af1aaf1\">Razor happily continued</a>." +
 			" Yet he saw a couple of issues including a lack of money to obtain new games and the reduced number of game releases being published to floppy disks which Razor 1911 worked with." +
 			" To raise funds, and decades before the mainstream influencers did the same, Razor 1911 created, advertised and sold merch directly to its online fans. " +
@@ -280,6 +281,8 @@ func tidbits() Tidbit {
 		68: "<p>The Dream Team was based in Sweden and was a name frequently associated with its founder, Hard Core. A programmer who had somewhat of an early reputation for creating second-rate intros on the PC on behalf of the group. Though, we do credit him with creating the first contemporary PC cracktro with this great <a href=\"/f/b01ca10\">musical skull intro</a> from November 1991. As a side note, his intros are the most annoying pieces of shit to preserve, as they have numerous dependencies that were intentionally hidden in releases. If an intro on this page doesn't work right, it is probably missing a hidden file or two.</p>" +
 			"The Dream Team enjoyed success and remained active for much of the early 1990s, despite the occasional <a href=\"/f/b5261b0\">hiccup</a>, until quietly retiring at the end of 1993. " +
 			"With only the occasional <a href=\"/f/a93193\">guest release</a>, the TDT name disappeared from the scene for 16 months before <a href=\"/f/b72e5db\">returning</a> in 1995 and tried rebuilding itself from the ground up with only four members. But this second attempt wasn't as successful and the group for the most part stopped releasing after four months, and completely vanished in November.",
+		69: "<p>ROM 1911 was founded by The Renegade Chemist and Zeus as a dumping ground for PC CD titles that were becoming common place in 1994. At the time Razor 1911 had always been a cracking group that removed (floppy) disk copy protection and the newer CD titles were out of its scope. Zeus had joined Razor in August with the supply of <a href=\"/f/b31a533\">Doom 2</a> and possibly had fast access to PC CD titles that were looking for release. The first iteration of the group was presented as <em>ROM 1911 : Razor 1911 CD-ROM Division</em>.</p>" +
+			"<p>It is assumed the group died when The Renegade Chemist had <a href=\"/f/ab3a82\">quit</a> Razor at the end of January 1995. However, months later it was <a href=\"/f/a839dd\">restarted</a> as <em>ROM 1911</em> by Malicious Intent as another small, three member, one board group.  The group ballooned though and in late July, Malicious Intent <a href=\"/f/aa3e2d\">wound it up</a>, and in annoyance with the Razor leadership, quit to start a new group known as RETRiBUTiON.</p>",
 	}
 }
 
