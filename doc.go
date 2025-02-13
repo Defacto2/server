@@ -35,6 +35,8 @@ The commands are:
 			List the IP, hostname and port addresses the server is listening on.
 	config
 			List the server configuration options and settings.
+   	fix
+			Fix the database and assets.
 
 # Flags
 
