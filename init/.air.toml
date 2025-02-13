@@ -1,9 +1,9 @@
 # .air.toml
 #
 # A config file for Air, the live reload server for Go apps.
-# https://github.com/cosmtrek/air
+# https://github.com/air-verse/air
 #
-# $ go install github.com/cosmtrek/air@latest
+# $ go install github.com/air-verse/air@latest
 # $ air
 
 # Working directory
