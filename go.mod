@@ -3,10 +3,10 @@ module github.com/Defacto2/server
 go 1.24.0 // latest: https://go.dev/dl/
 
 require (
-	github.com/Defacto2/archive v1.0.9
-	github.com/Defacto2/helper v1.3.0
-	github.com/Defacto2/magicnumber v1.0.6
-	github.com/Defacto2/releaser v1.2.7
+	github.com/Defacto2/archive v1.1.0
+	github.com/Defacto2/helper v1.4.0
+	github.com/Defacto2/magicnumber v1.0.7
+	github.com/Defacto2/releaser v1.3.0
 	github.com/bengarrett/bbs v1.0.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/carlmjohnson/versioninfo v0.22.5
