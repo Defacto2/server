@@ -428,6 +428,25 @@ func LinkRemote(href, name string) template.HTML {
 	return template.HTML(a)
 }
 
+// LinkRemoteTip returns a HTML link with an embedded SVG icon to an external website.
+// If the href or name values are empty then an error message is returned.
+// If the tooltip is empty then LinkRemote is returned.
+func LinkRemoteTip(href, name, tooltip string) template.HTML {
+	if href == "" {
+		return errVal("href")
+	}
+	if name == "" {
+		return errVal("name")
+	}
+	if tooltip == "" {
+		return LinkRemote(href, name)
+	}
+	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" `+
+		`data-bs-toggle="tooltip" data-bs-title="%s" href="%s">%s %s</a>`,
+		tooltip, href, name, arrowLink)
+	return template.HTML(a)
+}
+
 // LinkScnr returns a link to the named scener page.
 // If the name is empty then an empty string is returned with no error.
 // An example of providing "some scener" would return:
@@ -466,6 +485,8 @@ func LinkScnrs(s string) template.HTML {
 	return template.HTML(strings.Join(x, ", "))
 }
 
+const wikiBase = "https://github.com/Defacto2/defacto2.net/wiki"
+
 // LinkWiki returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
 // The uri must be a valid URI path to a wiki page and the name must not be empty.
 func LinkWiki(uri, name string) template.HTML {
@@ -476,16 +497,42 @@ func LinkWiki(uri, name string) template.HTML {
 		return errVal("name")
 	}
 	var href string
-	base := "https://github.com/Defacto2/defacto2.net/wiki"
-	href, err := url.JoinPath(base, uri)
+	href, err := url.JoinPath(wikiBase, uri)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
 	if strings.HasPrefix(uri, "#") {
-		href = fmt.Sprintf("%s%s", base, uri)
+		href = fmt.Sprintf("%s%s", wikiBase, uri)
 	}
 	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`,
 		href, name, arrowLink)
+	return template.HTML(a)
+}
+
+// LinkWikiTip returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
+// The uri must be a valid URI path to a wiki page and the name must not be empty.
+// If the tooltip is empty then LinkWiki is returned.
+func LinkWikiTip(uri, name, tooltip string) template.HTML {
+	if uri == "" {
+		return errVal("uri")
+	}
+	if name == "" {
+		return errVal("name")
+	}
+	if tooltip == "" {
+		return LinkWiki(uri, name)
+	}
+	var href string
+	href, err := url.JoinPath(wikiBase, uri)
+	if err != nil {
+		return template.HTML(err.Error())
+	}
+	if strings.HasPrefix(uri, "#") {
+		href = fmt.Sprintf("%s%s", wikiBase, uri)
+	}
+	a := fmt.Sprintf(`<a class="dropdown-item icon-link icon-link-hover link-light" `+
+		`data-bs-toggle="tooltip" data-bs-title="%s" href="%s">%s %s</a>`,
+		tooltip, href, name, arrowLink)
 	return template.HTML(a)
 }
 
@@ -610,11 +657,10 @@ func SafeBBS(a any) template.HTML {
 	case string:
 		b := []byte(val)
 		b = bytes.ReplaceAll(b, []byte(lessThan), []byte(ltEntity))
-		s := string(b)
 		if !bbs.IsPCBoard(b) {
 			return SafeHTML(string(b))
 		}
-		s = string(RemovePCBoard(b))
+		s := string(RemovePCBoard(b))
 		clear(b)
 		return SafeHTML(s)
 	default:

@@ -24,10 +24,10 @@ func TestRemove(t *testing.T) {
 			want: "readme.txt",
 			setup: func() error {
 				data := []byte("FILE_ID.DIZ content")
-				if err := os.WriteFile(tmpdiz, data, 0644); err != nil {
+				if err := os.WriteFile(tmpdiz, data, 0o644); err != nil {
 					return err
 				}
-				return os.WriteFile(tmptxt, data, 0644)
+				return os.WriteFile(tmptxt, data, 0o644)
 			},
 		},
 		{
@@ -38,10 +38,10 @@ func TestRemove(t *testing.T) {
 			setup: func() error {
 				const x = "1234567890"
 				data := []byte(strings.Repeat(x, 100))
-				if err := os.WriteFile(tmpdiz, data, 0644); err != nil {
+				if err := os.WriteFile(tmpdiz, data, 0o644); err != nil {
 					return err
 				}
-				return os.WriteFile(tmptxt, data, 0644)
+				return os.WriteFile(tmptxt, data, 0o644)
 			},
 		},
 		{
@@ -55,10 +55,10 @@ func TestRemove(t *testing.T) {
 				for range 15 {
 					data = append(data, x...)
 				}
-				if err := os.WriteFile(tmpdiz, data, 0644); err != nil {
+				if err := os.WriteFile(tmpdiz, data, 0o644); err != nil {
 					return err
 				}
-				return os.WriteFile(tmptxt, data, 0644)
+				return os.WriteFile(tmptxt, data, 0o644)
 			},
 		},
 	}

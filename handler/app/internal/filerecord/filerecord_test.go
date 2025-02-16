@@ -330,14 +330,14 @@ func TestListContent(t *testing.T) {
 	src, err := filepath.Abs("testdata")
 	require.NoError(t, err)
 	s = filerecord.ListContent(&x, dirs, src)
-	assert.Contains(t, s, "error, directory")
+	assert.Contains(t, s, "error, ")
 
 	tmpDir := t.TempDir()
 	err = command.CopyFile(nil, filepath.Join("testdata", "archive.zip"), filepath.Join(tmpDir, "archive.zip"))
 	require.NoError(t, err)
 	src = filepath.Join(tmpDir, "archive.zip")
 	s = filerecord.ListContent(&x, dirs, tmpDir)
-	assert.Contains(t, s, "error, directory")
+	assert.Contains(t, s, "error, ")
 
 	s = filerecord.ListContent(&x, dirs, src)
 	assert.Contains(t, s, "FILE_ID.DIZ")

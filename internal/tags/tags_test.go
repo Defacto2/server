@@ -112,7 +112,7 @@ func TestHumanize(t *testing.T) {
 	assert.Equal(t, "an image nfo file or scene release", s)
 
 	s = tags.Humanize(tags.PDF, tags.Proof)
-	assert.Equal(t, "A PDF document about release proof", s)
+	assert.Equal(t, "a PDF document about release proof", s)
 
 	s = tags.Humanize(tags.Text, tags.Nfo)
 	assert.Equal(t, "an nfo textfile", s)

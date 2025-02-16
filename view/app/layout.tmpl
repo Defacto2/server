@@ -100,7 +100,7 @@
     <div class="container-xxl p-0">
     <nav class="navbar bg-dark sticky-top navbar-expand-lg bg-body-tertiary rounded-bottom-1" data-bs-theme="dark">
       <div class="container-fluid">
-        <a href="/files/new-uploads">
+        <a href="/files/new-uploads" data-bs-toggle="tooltip" data-bs-title="Jump to the new uploads">
           <img class="me-3 rounded-1" type="image/svg+xml" style="border-right:1px solid gray; background-color:gray;" src="/image/layout/favicon.svg" alt="Defacto2 floppy disc logo" width="40" height="40">
         </a>
         <span class="navbar-brand mb-0 h1"><a class="nav-link active" aria-current="page" href="/">Defacto2</a></span>
@@ -123,16 +123,16 @@
                 {{- end }}
                 <li><a class="dropdown-item" href="/files/new-uploads">New uploads</a></li>
                 <li><a class="dropdown-item" href="/files/new-updates">New changes</a></li>
-                <li><a class="dropdown-item" href="/files/oldest">Oldest</a></li>
-                <li><a class="dropdown-item" href="/files/newest">Newest</a></li>
-                <li><a class="dropdown-item" href="/files/intro">Intros</a></li>
-                <li><a class="dropdown-item" href="/files/nfo">Releases</a></li>
-                <li><a class="dropdown-item" href="/files/ansi">Ansi art</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The oldest scene artifacts" href="/files/oldest">Oldest</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The newer scene artifacts" href="/files/newest">Newest</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Vanity demos, cracktros and intros" href="/files/intro">Intros</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Scene releases texts and NFO files" href="/files/nfo">Releases</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Text art of the 1990s" href="/files/ansi">Ansi art</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">More</h6></li>
-                <li><a class="dropdown-item" href="/file">Categories</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Artifact topics, tags, and classifications" href="/file">Categories</a></li>
                 <li><a class="dropdown-item" href="/file/stats">Statistics</a></li>  
-                <li><a class="dropdown-item" href="/html3">Use tables</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A retro imagining of this website from 2006" href="/html3">Use tables</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -175,10 +175,10 @@
                 Websites
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/website">List the sites</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Scene webpages, videos, books, films, podcast" href="/website">List the sites</a></li>
                 <li><a class="dropdown-item" href="/website/hide">Categories</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="https://wayback.defacto2.net/">Wayback mirrors</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A wayback machine for defunct Scene webpages" href="https://wayback.defacto2.net/">Wayback mirrors</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -186,13 +186,13 @@
                 Search
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/search/file">Filenames</a></li>
-                <li><a class="dropdown-item" href="/search/desc">Descriptions</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for filenames or file extensions" href="/search/file">Filenames</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search the artifact titles or comments" href="/search/desc">Descriptions</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Lookup</h6></li>
-                <li><a class="dropdown-item" href="/search/releaser">Releasers</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup groups, magazines, BBS names, etc." href="/search/releaser">Releasers</a></li>
                 {{- if eq $lock true }}
-                <li><a class="dropdown-item" href="/editor/search/id"><em>ID</em> or <em>UUID</em></a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup an artifact by its database keys" href="/editor/search/id"><em>ID</em> or <em>UUID</em></a></li>
                 {{- end }}
                 <li><a class="dropdown-item" href="/areacodes">BBS area codes</a></li>
               </ul>
@@ -204,15 +204,17 @@
                 Contacts
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">
+                <li><h6 class="dropdown-header">Recommended</h6></li>
+                <li data-bs-toggle="tooltip" data-bs-title="Email is the best way to contact us"><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">
                   <svg class="bi bi-envelope" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#envelope"/>
                   </svg> Email</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-discord-modal">
+                <li data-bs-toggle="tooltip" data-bs-title="Like IRC but without the klines and desyncing"><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-discord-modal">
                   <svg class="bi bi-discord" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#discord"/>
                   </svg> Discord</a>
                 </li>
+                <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-mastodon-modal">
                   <svg class="bi bi-mastodon" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#mastodon"/>
@@ -226,6 +228,7 @@
                     <use xlink:href="/svg/bootstrap-icons.svg#facebook"/>
                   </svg> Facebook</a></li>
                 <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Retired</h6></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-twitter-modal">
                   <svg class="bi bi-twitter" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#twitter"/>
@@ -241,17 +244,11 @@
                 About
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/new">What's new</a></li>
-                <li><a class="dropdown-item" href="/history">Brand history</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A casual list of updates to the website" href="/new">What's new</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacy-modal">Privacy</a></li>
+                <li><a class="dropdown-item" href="/history" data-bs-toggle="tooltip" data-bs-title="Who or what is Defacto2?">Brand history</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#credits-modal">Credits</a></li>
                 <li class="d-xl-none"><a class="dropdown-item" href="/thanks">Thanks</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyright-modal">Copyright</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacy-modal">Privacy</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Source code</h6></li>
-                <li>{{ linkRemote "https://github.com/Defacto2/server" "Server" }}</li>
-                <li>{{ linkRemote "https://github.com/Defacto2/database" "Database" }}</li>
-                <li>{{ linkRemote "https://github.com/sceners" "Sceners" }}</li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -262,12 +259,18 @@
                 <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#terms-modal">Glossary of terms</a></li>
                 <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Source code &amp; data</h6></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyright-modal">Copyright</a></li>
+                <li>{{ linkRemoteTip "https://github.com/Defacto2/server" "Website" "Our GitHub repository for this site" }}</li>
+                <li>{{ linkRemoteTip "https://github.com/Defacto2/database" "Database" "Instructions for our PostgreSQL exports" }}</li>
+                <li>{{ linkRemoteTip "https://github.com/sceners" "Artifacts" "Over 150 repositories for scene demos, tools and apps" }}</li>
+                <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Using the downloads</h6></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#t-a-v-modal">Trojans and viruses</a></li>
-                <li>{{ linkWiki "#troubleshoot-error-messages" "Common problems" }}</li>
-                <li>{{ linkWiki "What-are-DOS-Programs" "DOS programs" }}</li>
-                <li>{{ linkWiki "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" }}</li>
-                <li>{{ linkWiki "What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files" "NFO and DIZ files" }}</li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#t-a-v-modal">Trojans and viruses?!</a></li>
+                <li>{{ linkWikiTip "#troubleshoot-error-messages" "Common problems" "Tips for using file artifact downloads" }}</li>
+                <li>{{ linkWikiTip "What-are-DOS-Programs" "DOS programs" "What are MS-DOS programs" }}</li>
+                <li>{{ linkWikiTip "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" "What are RAR, 7z, ZIP, and ACE files" }}</li>
+                <li>{{ linkWikiTip "What-are-the-best-tools-for-viewing-and-editing-NFO-DIZ-files" "NFO and DIZ files" "The best options for viewing NFO and DIZ textfiles" }}</li>
               </ul>
             </li>
             <li class="nav-item d-none d-xl-block">
