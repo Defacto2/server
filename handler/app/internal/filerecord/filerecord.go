@@ -577,6 +577,7 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		}
 		return nil
 	}
+
 	if err = filepath.WalkDir(dst, walkerFunc); err != nil {
 		b.Reset()
 		return template.HTML(err.Error())
@@ -588,6 +589,7 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		src:           src,
 		unid:          unid,
 	}
+	names = helper.SortNames("/", names)
 	return c.renderContent(&b, names...)
 }
 
