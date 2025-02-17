@@ -102,7 +102,39 @@ import { getElmById } from "./helper.mjs";
     const approveRecord = "ArrowUp";
     const approveRecord2 = "ArrowDown";
     let approve = document.getElementById("editor-online-true");
+    let download = document.getElementById("artifact-download-link");
+    let emulator = document.getElementById("js-dos-run-app");
+    let viewcontent = document.getElementById("artifact-view-content");
+    let enlargeImage = document.getElementById("artifact-enlarge-screenshot");
     switch (event.key) {
+      case "E":
+      case "e":
+        if (enlargeImage) {
+          event.preventDefault();
+          enlargeImage.click();
+        }
+        break;
+      case "D":
+      case "d":
+        if (download) {
+          event.preventDefault();
+          download.click();
+        }
+        break;
+      case "R":
+      case "r":
+        if (emulator) {
+          event.preventDefault();
+          emulator.click();
+        }
+        break;
+      case "V":
+      case "v":
+        if (viewcontent) {
+          event.preventDefault();
+          viewcontent.click();
+        }
+        break;
       case approveRecord:
       case approveRecord2:
         if (approve) {

@@ -75,8 +75,8 @@
             <div class="row row-cols-1 row-cols-lg-2 g-1">
             {{- if eq $alertURL "" }}
                 {{- /*  standard download  */}}
-                <div class="col d-grid">
-                    <a class="btn btn-success btn-lg" href="/d/{{$download}}" rel="nofollow" role="button">{{$downloadText | safeHTML}}</a>
+                <div class="col d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + d">
+                    <a class="btn btn-success btn-lg" id="artifact-download-link" href="/d/{{$download}}" rel="nofollow" role="button">{{$downloadText | safeHTML}}</a>
                 </div>
                 {{- if eq $extraZip true }}
                 <div class="col d-grid">
@@ -110,7 +110,7 @@
             {{- end }}
             {{- if eq $jsdos6 true}}
             {{- if eq $extraZip true }}<div class="col d-grid"></div>{{end}}
-            <div class="col d-grid">
+            <div class="col d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + r">
                 <a href="#" id="js-dos-run-app" class="btn btn-outline-dark btn-lg" data-bs-toggle="modal" data-bs-target="#js-dos-modal">Run app in browser</a>
             </div>
             {{- end}}
@@ -126,8 +126,8 @@
                 </div>
             {{- end}}
             {{- if $content}}
-                <div class="col d-grid">
-                    <a class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#view-content-modal">view content</a>
+                <div class="col d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + v">
+                    <a id="artifact-view-content" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#view-content-modal">view content</a>
                 </div>
             {{- end}}
             {{- if ne "" $preview}}
