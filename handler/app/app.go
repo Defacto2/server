@@ -366,7 +366,10 @@ func LinkInterview(href string) template.HTML {
 // The id needs to be a valid integer. For example providing 1 would return:
 //
 //	<a class="card-link" href="/f/9b1c6">Artifact</a>
-func LinkPage(id any) template.HTML {
+//
+// The keyboard shortcut is "kboard" and is used to link to the file page with the keyboard focus.
+// It can be left empty to not include the keyboard shortcut.
+func LinkPage(id, kboard any) template.HTML {
 	if id == nil {
 		return ""
 	}
@@ -374,7 +377,14 @@ func LinkPage(id any) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Artifact</a>`, s))
+	kb, valid := kboard.(int64)
+	if !valid {
+		return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Artifact</a>`, s))
+	}
+	keypress := strconv.FormatInt(kb, 10)
+	return template.HTML(fmt.Sprintf(`<a data-bs-toggle="tooltip" data-bs-title="control + alt + %s" `+
+		`id="artifact-card-link-%s" class="card-link" href="%s">Artifact</a>`,
+		keypress, keypress, s))
 }
 
 // LinkRunApp creates a URL anchor element to link to the artifact page to launch the js-dos emulator.

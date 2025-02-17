@@ -99,7 +99,7 @@
         {{- if ne $attr ""}}
         <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
         {{- end}}
-        {{- linkPage .ID}}
+        {{if and (gt $counter 0) (lt $counter 10)}}{{- linkPage .ID $counter}}{{else}}{{- linkPage .ID ""}}{{end}}
         {{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}
         {{- linkPreview .ID .Filename.String .Platform.String}}
         {{- if eq $jsdos true}} {{- linkRunApp .ID}}{{end}}

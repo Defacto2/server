@@ -101,11 +101,11 @@ import { getElmById } from "./helper.mjs";
     const closeEditors = "Backspace";
     const approveRecord = "ArrowUp";
     const approveRecord2 = "ArrowDown";
-    let approve = document.getElementById("editor-online-true");
-    let download = document.getElementById("artifact-download-link");
-    let emulator = document.getElementById("js-dos-run-app");
-    let viewcontent = document.getElementById("artifact-view-content");
-    let enlargeImage = document.getElementById("artifact-enlarge-screenshot");
+    const approve = document.getElementById("editor-online-true");
+    const download = document.getElementById("artifact-download-link");
+    const emulator = document.getElementById("js-dos-run-app");
+    const viewcontent = document.getElementById("artifact-view-content");
+    const enlargeImage = document.getElementById("artifact-enlarge-screenshot");
     switch (event.key) {
       case "E":
       case "e":

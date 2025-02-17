@@ -59,7 +59,70 @@ export function keyboardShortcuts() {
       return;
     }
     const gotoRecord = document.getElementById("go-to-the-new-artifact-record");
+    const card1 = document.getElementById("artifact-card-link-1");
+    const card2 = document.getElementById("artifact-card-link-2");
+    const card3 = document.getElementById("artifact-card-link-3");
+    const card4 = document.getElementById("artifact-card-link-4");
+    const card5 = document.getElementById("artifact-card-link-5");
+    const card6 = document.getElementById("artifact-card-link-6");
+    const card7 = document.getElementById("artifact-card-link-7");
+    const card8 = document.getElementById("artifact-card-link-8");
+    const card9 = document.getElementById("artifact-card-link-9");
     switch (event.key) {
+      case "1":
+        event.preventDefault();
+        if (card1) {
+          openNewTab(card1.href);
+        }
+        break;
+      case "2":
+        event.preventDefault();
+        if (card2) {
+          openNewTab(card2.href);
+        }
+        break;
+      case "3":
+        event.preventDefault();
+        if (card3) {
+          openNewTab(card3.href);
+        }
+        break;
+      case "4":
+        event.preventDefault();
+        if (card4) {
+          openNewTab(card4.href);
+        }
+        break;
+      case "5":
+        event.preventDefault();
+        if (card5) {
+          openNewTab(card5.href);
+        }
+        break;
+      case "6":
+        event.preventDefault();
+        if (card6) {
+          openNewTab(card6.href);
+        }
+        break;
+      case "7":
+        event.preventDefault();
+        if (card7) {
+          openNewTab(card7.href);
+        }
+        break;
+      case "8":
+        event.preventDefault();
+        if (card8) {
+          openNewTab(card8.href);
+        }
+        break;
+      case "9":
+        event.preventDefault();
+        if (card9) {
+          openNewTab(card9.href);
+        }
+        break;
       case bs:
         event.preventDefault();
         demozooModal.hide();
@@ -115,4 +178,9 @@ export function keyboardShortcuts() {
         break;
     }
   });
+}
+
+function openNewTab(url) {
+  const newTab = window.open(url, "_blank");
+  newTab.focus();
 }
