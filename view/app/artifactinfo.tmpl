@@ -115,18 +115,26 @@
             </div>
             {{- end}}
             </div>
-            <div class="mt-2 mb-2 d-grid gap-2 d-xl-flex justify-content-xl-end">
+            <div class="row row-cols-1 row-cols-sm-2 g-2 m-1">
             {{- if ne "" $checksum}}
-                <a class="d-none d-sm-inline btn btn-outline-secondary" href="/sum/{{$download}}" role="button" 
-                    data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
-                <a class="d-inline d-sm-none btn btn-outline-secondary" href="/sum/{{$download}}" role="button">Checksum</a>
+                <div class="col d-none d-sm-grid">
+                    <a class="btn btn-outline-secondary" href="/sum/{{$download}}" role="button" 
+                        data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
+                </div>
+                <div class="col d-grid d-sm-none">
+                    <a class="btn btn-outline-secondary" href="/sum/{{$download}}" role="button">Checksum</a>
+                </div>
             {{- end}}
             {{- if $content}}
-                <a class="d-inline btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#view-content-modal">view content</a>
+                <div class="col d-grid">
+                    <a class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#view-content-modal">view content</a>
+                </div>
             {{- end}}
             {{- if ne "" $preview}}
-                <a class="d-inline btn btn-outline-secondary" href="{{$preview}}" role="button" 
-                    data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}">view the artifact</a>
+                <div class="col d-grid">
+                    <a class="btn btn-outline-secondary" href="{{$preview}}" role="button" 
+                        data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}">view the artifact</a>
+                </div>
             {{- end}}
             </div>
             {{- /*  Comment on the artifact  */}}
