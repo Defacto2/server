@@ -12,10 +12,10 @@
 {{- $modID := index . "modID"}}
 <div class="alert alert-light">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-2">
-        <div class="col d-grid"><a href="#artifact-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Data editor</a></div>
-        <div class="col d-grid"><a href="#asset-editor-modal" data-bs-toggle="modal" class="btn btn-primary">File editor</a></div>
-        <div class="col d-grid"><a href="#emulate-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Emulate editor</a></div>
-        <div class="col d-grid"><a href="#artifact-delete-forever-modal" data-bs-toggle="modal" class="btn btn-warning">Delete forever</a></div>
+        <div data-bs-toggle="tooltip" data-bs-title="alt + shift + home" class="col d-grid"><a href="#artifact-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Data editor</a></div>
+        <div data-bs-toggle="tooltip" data-bs-title="alt + shift + pgdn" class="col d-grid"><a href="#asset-editor-modal" data-bs-toggle="modal" class="btn btn-primary">File editor</a></div>
+        <div data-bs-toggle="tooltip" data-bs-title="alt + shift + pgup" class="col d-grid"><a href="#emulate-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Emulate editor</a></div>
+        <div data-bs-toggle="tooltip" data-bs-title="alt + shift + del" class="col d-grid"><a href="#artifact-delete-forever-modal" data-bs-toggle="modal" class="btn btn-warning">Delete forever</a></div>
     </div>
     <hr class="my-2">
     {{- if $disableRecord}}
@@ -24,7 +24,7 @@
     <p class="{{$alertCls}} text-primary-emphasis" id="record-is-hidden">
         ⛔ This new record is hidden from public access.<br>
         {{- if eq $disableApproval ""}}
-        <span data-bs-toggle="tooltip" data-bs-title="alt + shift + DownArrow">If the data and images are correct, <a href="#" id="editor-online-true" hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden" autofocus>it can be approved</a>.</span>
+        <span data-bs-toggle="tooltip" data-bs-title="alt + shift + &#11123;">If the data and images are correct, <a href="#" id="editor-online-true" hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden" autofocus>it can be approved</a>.</span>
         {{- end}}
     </p>
     {{- else}}

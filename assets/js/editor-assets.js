@@ -100,9 +100,11 @@ import { getElmById } from "./helper.mjs";
     const deleteEditor = "Delete";
     const closeEditors = "Backspace";
     const approveRecord = "ArrowUp";
+    const approveRecord2 = "ArrowDown";
     let approve = document.getElementById("editor-online-true");
     switch (event.key) {
       case approveRecord:
+      case approveRecord2:
         if (approve) {
           event.preventDefault();
           approve.click();
