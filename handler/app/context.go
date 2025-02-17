@@ -1659,7 +1659,7 @@ func TheScene(c echo.Context) error {
 	const name = "thescene"
 	const h1 = "The Scene?"
 	const lead = "Collectively referred to as The Scene," +
-		" it is a subculture of different computer activities where participants" +
+		" this is a subculture of different computer activities where participants" +
 		" actively share ideas and creations."
 	data := empty(c)
 	data["description"] = fmt.Sprint(h1, " ", lead)

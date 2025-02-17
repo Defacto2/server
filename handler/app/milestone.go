@@ -420,9 +420,9 @@ func Collection() Milestones {
 			Title: "The birth of wares", Year: 1980, Highlight: true,
 			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
 			Content: // kids with micros
-			"<p>Without good software, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were mostly pointless machines, " +
-				"and getting them online with modems was challenging<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup><sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup>. " +
-				"So understandably, the computer owners who were into microcomputing would befriend like-minded people to form communities to exchange information and share software.</p>" +
+			"<p>Without good software, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were mostly pointless hobby machines, " +
+				"and getting them online with modems was challenging.<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup><sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup> " +
+				"So understandably, the owners who were into microcomputing would befriend fellow hobbyists and form communities to exchange information and share software.</p>" +
 				"<strong>How did this come about?</strong><br>" +
 				// apple modems
 				"<p>1979 saw the sale of the first Apple&nbsp;II <a href=\"https://www.apple2history.org/history/ah13/#09\">modem peripheral</a>, the Hayes&nbsp;Micromodem&nbsp;II and later, the Novation&nbsp;CAT. " +
