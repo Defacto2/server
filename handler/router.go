@@ -107,7 +107,7 @@ func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 }
 
 // embed serves the miscellaneous embedded files for the website layout.
-// This includes the favicon, robots.txt, site.webmanifest, osd.xml, and the SVG icons.
+// This includes the favicon, robots.txt, osd.xml, and the SVG icons.
 func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for embed router", ErrRoutes))
@@ -115,7 +115,6 @@ func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
-	e.FileFS("/site.webmanifest", "public/text/site.webmanifest.json", public)
 	e.FileFS("/js/wdosbox.wasm.js", "public/js/wdosbox.wasm", public) // this is required by `js-dos.js`
 	return e
 }
