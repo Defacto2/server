@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 	"sync"
 
@@ -43,9 +44,9 @@ func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
 		return TagData{}, fmt.Errorf("tags by name %w", ErrT)
 	}
-	for _, m := range t.List {
-		if strings.EqualFold(m.Name, name) {
-			return m, nil
+	for val := range slices.Values(t.List) {
+		if strings.EqualFold(val.Name, name) {
+			return val, nil
 		}
 	}
 	return TagData{}, nil
@@ -219,7 +220,7 @@ func IsCategory(name string) bool {
 	if name == "" {
 		return false
 	}
-	for _, tag := range List() {
+	for tag := range slices.Values(List()) {
 		if strings.EqualFold(tag.String(), name) {
 			return tag >= FirstCategory && tag <= LastCategory
 		}
@@ -233,7 +234,7 @@ func IsPlatform(name string) bool {
 	if name == "" {
 		return false
 	}
-	for _, tag := range List() {
+	for tag := range slices.Values(List()) {
 		if strings.EqualFold(tag.String(), name) {
 			return tag >= FirstPlatform && tag <= LastPlatform
 		}
@@ -247,7 +248,7 @@ func IsTag(name string) bool {
 	if name == "" {
 		return false
 	}
-	for _, tag := range List() {
+	for tag := range slices.Values(List()) {
 		if strings.EqualFold(tag.String(), name) {
 			return true
 		}

@@ -9,6 +9,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -95,7 +96,7 @@ func (p *Production) Get(id int) (int, error) {
 
 func PlatformsValid(s string) bool {
 	platforms := strings.Split(strings.ToLower(s), ",")
-	for _, platform := range platforms {
+	for platform := range slices.Values(platforms) {
 		switch strings.TrimSpace(platform) {
 		case "msdosgus", "msdos", "windows":
 			return true
@@ -106,9 +107,9 @@ func PlatformsValid(s string) bool {
 
 func TypesValid(s string) bool {
 	types := strings.Split(strings.ToLower(s), ",")
-	for _, t := range types {
-		s := Type(strings.TrimSpace(t))
-		if s.Valid() {
+	for val := range slices.Values(types) {
+		t := Type(strings.TrimSpace(val))
+		if t.Valid() {
 			return true
 		}
 	}
@@ -145,7 +146,8 @@ func (p *Production) Released() (int16, int16, int16) {
 // and returns the corresponding platform and section tags.
 // It returns -1 for an unknown platform or section.
 func (p *Production) PlatformType() (tags.Tag, tags.Tag) {
-	var platform tags.Tag = -1
+	const unknown = -1
+	var platform tags.Tag = unknown
 	switch {
 	case p.Platforms.Windows.Slug != "":
 		platform = tags.Windows
@@ -154,10 +156,10 @@ func (p *Production) PlatformType() (tags.Tag, tags.Tag) {
 	case p.Platforms.DosGus.Slug != "":
 		platform = tags.DOS
 	}
-	var section tags.Tag = -1
+	var section tags.Tag = unknown
 	types := strings.Split(p.Types.String(), ",")
-	for _, t := range types {
-		switch strings.TrimSpace(t) {
+	for val := range slices.Values(types) {
+		switch strings.TrimSpace(val) {
 		case "artpack":
 			section = tags.Pack
 		case "bbstro":
@@ -169,7 +171,7 @@ func (p *Production) PlatformType() (tags.Tag, tags.Tag) {
 		default:
 			section = tags.Intro
 		}
-		if section != -1 {
+		if section != unknown {
 			break
 		}
 	}
@@ -280,8 +282,8 @@ func (t Type) Valid() bool {
 type Types []Type
 
 func (t Types) Valid() bool {
-	for _, t := range t {
-		if t.Valid() {
+	for _, val := range t {
+		if val.Valid() {
 			return true
 		}
 	}
@@ -290,8 +292,8 @@ func (t Types) Valid() bool {
 
 func (t Types) String() string {
 	s := []string{}
-	for _, t := range t {
-		s = append(s, string(t))
+	for _, val := range t {
+		s = append(s, string(val))
 	}
 	return strings.Join(s, ", ")
 }

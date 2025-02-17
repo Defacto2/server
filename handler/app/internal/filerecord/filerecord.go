@@ -748,8 +748,8 @@ func skippedEmpty(zeroByteFiles int) string {
 }
 
 func isImage(sign magicnumber.Signature) bool {
-	for _, v := range magicnumber.Images() {
-		if v == sign {
+	for val := range slices.Values(magicnumber.Images()) {
+		if val == sign {
 			return true
 		}
 	}
@@ -757,11 +757,11 @@ func isImage(sign magicnumber.Signature) bool {
 }
 
 func isProgram(sign magicnumber.Signature, platform string) bool {
-	for _, v := range magicnumber.Programs() {
+	for val := range slices.Values(magicnumber.Programs()) {
 		if strings.EqualFold(platform, tags.DOS.String()) {
 			break
 		}
-		if v == sign {
+		if val == sign {
 			return true
 		}
 	}
@@ -769,8 +769,8 @@ func isProgram(sign magicnumber.Signature, platform string) bool {
 }
 
 func isText(sign magicnumber.Signature) bool {
-	for _, v := range magicnumber.Texts() {
-		if v == sign {
+	for val := range slices.Values(magicnumber.Texts()) {
+		if val == sign {
 			return true
 		}
 	}
@@ -1346,16 +1346,16 @@ func RecordProblems(art *models.File) string {
 	if validate == nil {
 		return ""
 	}
-	x := strings.Split(validate.Error(), ",")
-	s := make([]string, 0, len(x))
-	for _, v := range x {
-		if strings.TrimSpace(v) == "" {
+	s := strings.Split(validate.Error(), ",")
+	vals := make([]string, 0, len(s))
+	for val := range slices.Values(s) {
+		if strings.TrimSpace(val) == "" {
 			continue
 		}
-		s = append(s, v)
+		vals = append(vals, val)
 	}
-	s = slices.Clip(s)
-	return strings.Join(s, " + ")
+	vals = slices.Clip(vals)
+	return strings.Join(vals, " + ")
 }
 
 // Relations returns the list of relationships for the file record.
@@ -1363,23 +1363,23 @@ func Relations(art *models.File) template.HTML {
 	if art == nil {
 		return ""
 	}
-	s := art.ListRelations.String
-	if s == "" {
+	rels := art.ListRelations.String
+	if rels == "" {
 		return ""
 	}
-	links := strings.Split(s, "|")
+	links := strings.Split(rels, "|")
 	if len(links) == 0 {
 		return ""
 	}
 	rows := ""
 	const expected = 2
 	const route = "/f/"
-	for _, link := range links {
-		x := strings.Split(link, ";")
-		if len(x) != expected {
+	for link := range slices.Values(links) {
+		s := strings.Split(link, ";")
+		if len(s) != expected {
 			continue
 		}
-		name, href := x[0], x[1]
+		name, href := s[0], s[1]
 		id := helper.DeObfuscate(href)
 		if invalidID := id == href; invalidID {
 			continue
@@ -1498,23 +1498,23 @@ func Websites(art *models.File) template.HTML {
 	if art == nil {
 		return ""
 	}
-	s := art.ListLinks.String
-	if s == "" {
+	lls := art.ListLinks.String
+	if lls == "" {
 		return ""
 	}
-	links := strings.Split(s, "|")
+	links := strings.Split(lls, "|")
 	if len(links) == 0 {
 		return ""
 	}
 	rows := ""
 	const expected = 2
-	for _, link := range links {
-		x := strings.Split(link, ";")
-		if len(x) != expected {
+	for link := range slices.Values(links) {
+		s := strings.Split(link, ";")
+		if len(s) != expected {
 			continue
 		}
-		name, href := x[0], x[1]
-		if x, err := url.Parse(href); err != nil || x.Host == "" {
+		name, href := s[0], s[1]
+		if val, err := url.Parse(href); err != nil || val.Host == "" {
 			continue
 		}
 		if !strings.HasPrefix(href, "http") {

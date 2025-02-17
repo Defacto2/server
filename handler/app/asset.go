@@ -57,10 +57,10 @@ func Hrefs() Paths {
 // relative to the [embed.FS] root.
 func Names() Paths {
 	const public = "public"
-	href := Hrefs()
-	paths := make(Paths, len(href))
-	for k, v := range href {
-		paths[k] = public + v
+	hrefs := Hrefs()
+	paths := make(Paths, len(hrefs))
+	for key, href := range hrefs {
+		paths[key] = public + href
 	}
 	return paths
 }
@@ -87,10 +87,10 @@ const (
 // relative to the embed.FS root.
 func FontNames() Fonts {
 	const public = "public/font"
-	href := FontRefs()
-	paths := make(Fonts, len(href))
-	for k, v := range href {
-		paths[k] = public + v
+	hrefs := FontRefs()
+	paths := make(Fonts, len(hrefs))
+	for key, href := range hrefs {
+		paths[key] = public + href
 	}
 	return paths
 }

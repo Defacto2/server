@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -179,11 +180,13 @@ func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, b
 		qm.Select(models.FileColumns.UUID, models.FileColumns.ID, models.FileColumns.FileMagicType),
 		models.FileWhere.FileMagicType.IsNull(),
 	}
-	for _, s := range equals {
-		mods = append(mods, qm.Or2(models.FileWhere.FileMagicType.EQ(null.StringFrom(s))))
+	for s := range slices.Values(equals) {
+		mods = append(mods,
+			qm.Or2(models.FileWhere.FileMagicType.EQ(null.StringFrom(s))))
 	}
-	for _, s := range ilikes {
-		mods = append(mods, qm.Or2(models.FileWhere.FileMagicType.ILIKE(null.StringFrom(s))))
+	for s := range slices.Values(ilikes) {
+		mods = append(mods,
+			qm.Or2(models.FileWhere.FileMagicType.ILIKE(null.StringFrom(s))))
 	}
 	if binaryData {
 		mods = append(mods,
@@ -319,13 +322,13 @@ func (f *Artifacts) ID(
 		return models.FileSlice{}, nil
 	}
 	mods := []qm.QueryMod{}
-	for _, id := range ids {
+	for id := range slices.Values(ids) {
 		if id < 1 {
 			continue
 		}
 		mods = append(mods, qm.Or("id = ?", id))
 	}
-	for _, uuid := range uuids {
+	for uuid := range slices.Values(uuids) {
 		mods = append(mods, qm.Or("uuid = ?", uuid.String()))
 	}
 	mods = append(mods, qm.Limit(Maximum), qm.WithDeleted())

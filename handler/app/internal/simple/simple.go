@@ -147,7 +147,8 @@ func DownloadB(i any) template.HTML {
 // The previewDir is the directory where the preview images are stored.
 func ImageSample(unid, previewDir string) template.HTML {
 	ext, name, src := "", "", ""
-	for _, ext = range []string{avif, webp, png} {
+	exts := []string{avif, webp, png}
+	for ext = range slices.Values(exts) {
 		name = filepath.Join(previewDir, unid+ext)
 		src = strings.Join([]string{config.StaticOriginal(), unid + ext}, "/")
 		if helper.Stat(name) {
@@ -167,7 +168,8 @@ func ImageSample(unid, previewDir string) template.HTML {
 // The previewDir is the directory where the preview images are stored.
 func ImageSampleStat(unid, previewDir string) bool {
 	name := ""
-	for _, ext := range []string{avif, webp, png} {
+	exts := []string{avif, webp, png}
+	for ext := range slices.Values(exts) {
 		name = filepath.Join(previewDir, unid+ext)
 		if helper.Stat(name) {
 			break
@@ -284,7 +286,7 @@ func LinkRelations(val string) template.HTML {
 	links := strings.Split(val, "|")
 	hrefs := []string{}
 	const expected = 2
-	for _, link := range links {
+	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
 		if len(s) != expected {
 			continue
@@ -325,7 +327,7 @@ func LinkSites(val string) template.HTML {
 	links := strings.Split(val, "|")
 	hrefs := []string{}
 	const expected = 2
-	for _, link := range links {
+	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
 		if len(s) != expected {
 			continue
@@ -609,7 +611,8 @@ func thumb(src, alt, class, style string) template.HTML {
 // The thumbDir is the directory where the thumbnail images are stored.
 func ThumbSample(unid, thumbDir string) template.HTML {
 	ext, name, src := "", "", ""
-	for _, ext = range []string{avif, webp, png} {
+	exts := []string{avif, webp, png}
+	for ext = range slices.Values(exts) {
 		name = filepath.Join(thumbDir, unid+ext)
 		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
 		if helper.Stat(name) {

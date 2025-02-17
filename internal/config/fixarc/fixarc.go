@@ -47,7 +47,7 @@ func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...
 		logger.Errorf("%s: %s", err, path)
 		return ""
 	}
-	for _, method := range methods {
+	for method := range slices.Values(methods) {
 		if !method.Zip() {
 			return uid
 		}

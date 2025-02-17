@@ -49,9 +49,9 @@ func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
 		return nil, fmt.Errorf("app templates verify, %w", err)
 	}
 	tmpls := make(map[string]*template.Template)
-	for k, name := range t.Pages() {
+	for key, name := range t.Pages() {
 		tmpl := t.parseFS(db, name)
-		tmpls[k] = tmpl
+		tmpls[key] = tmpl
 	}
 	return tmpls, nil
 }
@@ -434,11 +434,11 @@ func (t *Templ) Elements() template.FuncMap {
 // FuncMap returns a map of all the template functions.
 func (t *Templ) FuncMap(db *sql.DB) template.FuncMap {
 	funcs := t.Funcs()
-	for k, v := range t.FuncClosures(db) {
-		funcs[k] = v
+	for key, val := range t.FuncClosures(db) {
+		funcs[key] = val
 	}
-	for k, v := range t.Elements() {
-		funcs[k] = v
+	for key, val := range t.Elements() {
+		funcs[key] = val
 	}
 	return funcs
 }

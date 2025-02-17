@@ -3,6 +3,7 @@ package fileslice_test
 import (
 	"context"
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
@@ -64,7 +65,7 @@ func TestFileInfo(t *testing.T) {
 	assert.Equal(t, "unknown uri", a)
 	assert.Equal(t, "unknown uri", b)
 	assert.Equal(t, "", c)
-	for _, uri := range Slices() {
+	for uri := range slices.Values(Slices()) {
 		a, b, c = fileslice.FileInfo(uri.String())
 		assert.NotEmpty(t, a)
 		assert.NotEmpty(t, b)
@@ -87,7 +88,7 @@ func TestRecords(t *testing.T) {
 	for i := range fileslice.WindowsPack {
 		uris = append(uris, i)
 	}
-	for _, uri := range uris {
+	for uri := range slices.Values(uris) {
 		if uri.String() == "" {
 			continue
 		}

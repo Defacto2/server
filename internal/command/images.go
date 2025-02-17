@@ -21,10 +21,10 @@ import (
 
 const (
 	ANSICap = 350000    // CapBytes is the maximum file size in bytes for an ANSI encoded text file.
-	X400    = "400x400" // X400 returns a  400 x 400 pixel image size
+	X400    = "400x400" // X400 returns args  400 x 400 pixel image size
 )
 
-// ImagesExt returns a slice of image file extensions used by the website
+// ImagesExt returns args slice of image file extensions used by the website
 // preview and thumbnail images, including the legacy and modern formats.
 func ImagesExt() []string {
 	return []string{gif, jpg, jpeg, png, webp, ".avif"}
@@ -34,7 +34,7 @@ func ImagesExt() []string {
 // The unid is the unique identifier for the image file and shared between the preview
 // and thumbnail images.
 func ImagesDelete(unid string, dirs ...string) error {
-	for _, dir := range dirs {
+	for dir := range slices.Values(dirs) {
 		st, err := os.Stat(dir)
 		if err != nil {
 			return fmt.Errorf("images delete %w", err)
@@ -42,7 +42,7 @@ func ImagesDelete(unid string, dirs ...string) error {
 		if !st.IsDir() {
 			return fmt.Errorf("images delete %w", ErrIsFile)
 		}
-		for _, ext := range ImagesExt() {
+		for ext := range slices.Values(ImagesExt()) {
 			name := filepath.Join(dir, unid+ext)
 			if _, err := os.Stat(name); err != nil {
 				fmt.Fprint(io.Discard, err)
@@ -54,21 +54,21 @@ func ImagesDelete(unid string, dirs ...string) error {
 	return nil
 }
 
-// Pixelate appends the command line arguments for the convert command to transform an image into a PNG image.
-func (a *Args) Pixelate() {
-	// Create a canvas the size of the first images virtual canvas using the
+// Pixelate appends the command line arguments for the convert command to transform an image into args PNG image.
+func (args *Args) Pixelate() {
+	// Create args canvas the size of the first images virtual canvas using the
 	// current -background color, and -compose each image in turn onto that canvas.
 	scale5 := []string{"-scale", "5%"}
-	*a = append(*a, scale5...)
+	*args = append(*args, scale5...)
 	scale2K := []string{"-scale", "2000%"}
-	*a = append(*a, scale2K...)
+	*args = append(*args, scale2K...)
 }
 
 // ImagesPixelate converts the images in the specified directories to pixelated images.
 // The unid is the unique identifier for the image file and shared between the preview
 // and thumbnail images.
 func ImagesPixelate(unid string, dirs ...string) error {
-	for _, dir := range dirs {
+	for dir := range slices.Values(dirs) {
 		st, err := os.Stat(dir)
 		if err != nil {
 			return fmt.Errorf("images delete %w", err)
@@ -76,7 +76,7 @@ func ImagesPixelate(unid string, dirs ...string) error {
 		if !st.IsDir() {
 			return fmt.Errorf("images delete %w", ErrIsFile)
 		}
-		for _, ext := range ImagesExt() {
+		for ext := range slices.Values(ImagesExt()) {
 			name := filepath.Join(dir, unid+ext)
 			if _, err := os.Stat(name); err != nil {
 				fmt.Fprint(io.Discard, err)
@@ -95,7 +95,7 @@ func ImagesPixelate(unid string, dirs ...string) error {
 	return nil
 }
 
-// Thumb is a type that represents the type of thumbnail image to create.
+// Thumb is args type that represents the type of thumbnail image to create.
 type Thumb int
 
 const (
@@ -103,12 +103,12 @@ const (
 	Photo              // Photographs or images with gradients
 )
 
-// Thumbs creates a thumbnail image for the preview image based on the type of image.
+// Thumbs creates args thumbnail image for the preview image based on the type of image.
 func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
 	if err := ImagesDelete(unid, dir.Thumbnail); err != nil {
 		return fmt.Errorf("dirs thumbs %w", err)
 	}
-	for _, ext := range ImagesExt() {
+	for ext := range slices.Values(ImagesExt()) {
 		src := filepath.Join(dir.Preview, unid+ext)
 		_, err := os.Stat(src)
 		if err != nil {
@@ -127,7 +127,7 @@ func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
 	return nil
 }
 
-// Align is a type that represents the alignment of the thumbnail image.
+// Align is args type that represents the alignment of the thumbnail image.
 type Align int
 
 const (
@@ -138,7 +138,7 @@ const (
 	Right               // Right uses the right alignment of the preview image
 )
 
-// Thumbs creates a thumbnail image for the preview image based on the crop position of the image.
+// Thumbs creates args thumbnail image for the preview image based on the crop position of the image.
 func (align Align) Thumbs(unid, previewDir, thumbnailDir string) error {
 	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-thumb-" + unid
@@ -155,7 +155,7 @@ func (align Align) Thumbs(unid, previewDir, thumbnailDir string) error {
 	if err := ImagesDelete(unid, thumbnailDir); err != nil {
 		return fmt.Errorf("dirs thumbs %w", err)
 	}
-	for _, ext := range ImagesExt() {
+	for ext := range slices.Values(ImagesExt()) {
 		args := Args{}
 		switch align {
 		case Top:
@@ -190,13 +190,13 @@ func (align Align) Thumbs(unid, previewDir, thumbnailDir string) error {
 	return nil
 }
 
-// Crop is a type that represents the crop position of the preview image.
+// Crop is args type that represents the crop position of the preview image.
 type Crop int
 
 const (
-	SqaureTop Crop = iota // SquareTop crops the top of the image using a 1:1 ratio
-	FourThree             // FourThree crops the top of the image using a 4:3 ratio
-	OneTwo                // OneTwo crops the top of the image using a 1:2 ratio
+	SqaureTop Crop = iota // SquareTop crops the top of the image using args 1:1 ratio
+	FourThree             // FourThree crops the top of the image using args 4:3 ratio
+	OneTwo                // OneTwo crops the top of the image using args 1:2 ratio
 )
 
 // Images crops the preview image based on the crop position and ratio of the image.
@@ -220,7 +220,7 @@ func (crop Crop) Images(unid, previewDir string) error {
 	} else if !st.IsDir() {
 		return fmt.Errorf("crop images %w", ErrIsFile)
 	}
-	for _, ext := range ImagesExt() {
+	for ext := range slices.Values(ImagesExt()) {
 		args := Args{}
 		switch crop {
 		case SqaureTop:
@@ -251,12 +251,12 @@ func (crop Crop) Images(unid, previewDir string) error {
 	return nil
 }
 
-// PictureImager converts the src image file and creates a image in the preview directory
-// and a thumbnail image in the thumbnail directory.
+// PictureImager converts the src image file and creates args image in the preview directory
+// and args thumbnail image in the thumbnail directory.
 //
 // The image formats created depend on the type of image file. But thumbnails will always
-// either be a .webp or .png image. While the preview image will be legacy
-// .png, .jpeg images or modern .avif or .webp images or a combination of both.
+// either be args .webp or .png image. While the preview image will be legacy
+// .png, .jpeg images or modern .avif or .webp images or args combination of both.
 func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error {
 	r, err := os.Open(src)
 	if err != nil {
@@ -307,9 +307,9 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 //
 // If an ANSI file is detected, the function returns without writing to the dst file.
 //
-// The function is useful for creating a preview of text files in the 80x29 format that
-// can be used by the ANSILOVE command to create a PNG image. 80 columns and 29 rows are
-// works well with a 400x400 pixel thumbnail.
+// The function is useful for creating args preview of text files in the 80x29 format that
+// can be used by the ANSILOVE command to create args PNG image. 80 columns and 29 rows are
+// works well with args 400x400 pixel thumbnail.
 func TextCrop(src, dst string) error {
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
@@ -354,7 +354,7 @@ func TextCrop(src, dst string) error {
 		if err != nil {
 			return fmt.Errorf("text crop writer string %w", err)
 		}
-		// intentionally skip the first line in a file
+		// intentionally skip the first line in args file
 		// as sometimes these contain non-printable characters and control codes.
 		fileLine := rowCount == 0
 		if skipNL && !fileLine {
@@ -401,7 +401,7 @@ func textCropperErr(src string, err error) error {
 	return fmt.Errorf("text crop %w", err)
 }
 
-// TextImager converts the src text file and creates a PNG image in the preview directory.
+// TextImager converts the src text file and creates args PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // If the amigaFont is true, the image is created using an Amiga Topaz+ font.
 func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string, amigaFont bool) error {
@@ -496,7 +496,7 @@ func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
 	return errs
 }
 
-// PreviewPixels converts the src image to a PNG and webp images in the screenshot directory.
+// PreviewPixels converts the src image to args PNG and webp images in the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // The conversion is useful for screenshots of text, terminals interfaces and pixel art.
 //
@@ -526,7 +526,7 @@ func (dir Dirs) PreviewPixels(debug *zap.SugaredLogger, src, unid string) error 
 	return dir.textImagers(debug, unid, tmp)
 }
 
-// PreviewPhoto converts the src image to lossy jpeg or a webp image in the screenshot directory.
+// PreviewPhoto converts the src image to lossy jpeg or args webp image in the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // The lossy conversion is useful for photographs.
 //
@@ -583,7 +583,7 @@ func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 	return nil
 }
 
-// PreviewGIF converts the src GIF image to a webp image the screenshot directory.
+// PreviewGIF converts the src GIF image to args webp image the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
 	args := Args{}
@@ -651,7 +651,7 @@ func (dir Dirs) PreviewPNG(debug *zap.SugaredLogger, src, unid string) error {
 	return errs
 }
 
-// PreviewWebP runs cwebp text preset on a supported image and copies the result to the screenshot directory.
+// PreviewWebP runs cwebp text preset on args supported image and copies the result to the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 //
 // While the src image can be .png, .jpg, .tiff or .webp.
@@ -676,242 +676,242 @@ func (dir Dirs) PreviewWebP(debug *zap.SugaredLogger, src, unid string) error {
 // ansilove may find -extent and -extract useful
 // https://imagemagick.org/script/command-line-options.php#extent
 
-// Args is a slice of strings that represents the command line arguments.
-// Each argument and its value is a separate string in the slice.
+// Args is args slice of strings that represents the command line arguments.
+// Each argument and its value is args separate string in the slice.
 type Args []string
 
 // Topx400 appends the command line arguments for the magick command to transform
-// an image into a 400x400 pixel image using the "North" top alignment.
-func (a *Args) Topx400() {
+// an image into args 400x400 pixel image using the "North" top alignment.
+func (args *Args) Topx400() {
 	// Set the gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "North"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-trim", "-extent", X400}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
 // Middlex400 appends the command line arguments for the magick command to transform
-// an image into a 400x400 pixel image using the "Center" alignment.
-func (a *Args) Middlex400() {
+// an image into args 400x400 pixel image using the "Center" alignment.
+func (args *Args) Middlex400() {
 	// Set the gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "center"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-trim", "-extent", X400}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
 // Bottomx400 appends the command line arguments for the magick command to transform
-// an image into a 400x400 pixel image using the "South" bottom alignment.
-func (a *Args) Bottomx400() {
+// an image into args 400x400 pixel image using the "South" bottom alignment.
+func (args *Args) Bottomx400() {
 	// Set the gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "South"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-trim", "-extent", X400}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
 // Leftx400 appends the command line arguments for the magick command to transform
-// an image into a 400x400 pixel image using the "South" bottom alignment.
-func (a *Args) Leftx400() {
+// an image into args 400x400 pixel image using the "South" bottom alignment.
+func (args *Args) Leftx400() {
 	// Set the gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "West"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-trim", "-extent", X400}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
 // Rightx400 appends the command line arguments for the magick command to transform
-// an image into a 400x400 pixel image using the "South" bottom alignment.
-func (a *Args) Rightx400() {
+// an image into args 400x400 pixel image using the "South" bottom alignment.
+func (args *Args) Rightx400() {
 	// Set the gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "East"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-trim", "-extent", X400}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
 // CropTop appends the command line arguments for the magick command to transform
-// an image into a 1:1 square image using the "North" top alignment.
-func (a *Args) CropTop() {
+// an image into args 1:1 square image using the "North" top alignment.
+func (args *Args) CropTop() {
 	// Set the gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "North"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-extent", "1:1"}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
 // FourThree appends the command line arguments for the magick command to transform
-// an image into a 4:3 image using the "North" top alignment.
-func (a *Args) FourThree() {
+// an image into args 4:3 image using the "North" top alignment.
+func (args *Args) FourThree() {
 	// Set the gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "North"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-extent", "4:3"}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
 // OneTwo appends the command line arguments for the magick command to transform
-// an image into a 1:2 image using the "North" top alignment.
-func (a *Args) OneTwo() {
+// an image into args 1:2 image using the "North" top alignment.
+func (args *Args) OneTwo() {
 	// Set the gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "North"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-extent", "1:2"}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
 // AnsiAmiga appends the command line arguments for the [ansilove command]
-// to transform an Commodore Amiga ANSI text file into a PNG image.
+// to transform an Commodore Amiga ANSI text file into args PNG image.
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
-func (a *Args) AnsiAmiga() {
+func (args *Args) AnsiAmiga() {
 	// Output font.
 	f := []string{"-f", "topaz+"}
-	*a = append(*a, f...)
+	*args = append(*args, f...)
 	// Rendering mode set to Amiga palette.
 	m := []string{"-m", "ced"}
-	*a = append(*a, m...)
+	*args = append(*args, m...)
 	// Use SAUCE record for render options.
 	const s = "-S"
-	*a = append(*a, s)
+	*args = append(*args, s)
 }
 
 // AnsiMsDos appends the command line arguments for the [ansilove command] to
-// transform an ANSI text file into a PNG image.
+// transform an ANSI text file into args PNG image.
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
-func (a *Args) AnsiMsDos() {
+func (args *Args) AnsiMsDos() {
 	// DOS aspect ratio.
 	const d = "-d"
-	*a = append(*a, d)
+	*args = append(*args, d)
 	// Output font.
 	f := []string{"-f", "80x25"}
-	*a = append(*a, f...)
+	*args = append(*args, f...)
 	// Use iCE colors.
 	const i = "-i"
-	*a = append(*a, i)
+	*args = append(*args, i)
 	// Use SAUCE record for render options.
 	const s = "-S"
-	*a = append(*a, s)
+	*args = append(*args, s)
 }
 
 // JpegPhoto appends the command line arguments for the convert command to
-// transform an image into a JPEG image.
-func (a *Args) JpegPhoto() {
+// transform an image into args JPEG image.
+func (args *Args) JpegPhoto() {
 	// Horizontal and vertical sampling factors to be used by the JPEG encoder for chroma downsampling.
 	sampleFactor := []string{"-sampling-factor", "4:2:0"}
-	*a = append(*a, sampleFactor...)
+	*args = append(*args, sampleFactor...)
 	// Strip the image of any profiles and comments.
 	const strip = "-strip"
-	*a = append(*a, strip)
+	*args = append(*args, strip)
 	// See: https://imagemagick.org/script/command-line-options.php#quality
 	quality := []string{"-quality", "90"}
-	*a = append(*a, quality...)
+	*args = append(*args, quality...)
 	// Type of interlacing scheme, see: https://imagemagick.org/script/command-line-options.php#interlace
 	interlace := []string{"-interlace", "plane"}
-	*a = append(*a, interlace...)
-	// Blur the image with a Gaussian operator.
+	*args = append(*args, interlace...)
+	// Blur the image with args Gaussian operator.
 	gaussianBlur := []string{"-gaussian-blur", "0.05"}
-	*a = append(*a, gaussianBlur...)
+	*args = append(*args, gaussianBlur...)
 	// Set the image colorspace.
 	colorspace := []string{"-colorspace", "RGB"}
-	*a = append(*a, colorspace...)
+	*args = append(*args, colorspace...)
 }
 
-// PortablePixel appends the command line arguments for the convert command to transform an image into a PNG image.
-func (a *Args) PortablePixel() {
+// PortablePixel appends the command line arguments for the convert command to transform an image into args PNG image.
+func (args *Args) PortablePixel() {
 	// Defined PNG compression options, these replace the -quality option.
 	const define = "-define"
-	*a = append(*a,
+	*args = append(*args,
 		define, "png:compression-filter=5",
 		define, "png:compression-level=9",
 		define, "png:compression-strategy=1",
 		define, "png:exclude-chunk=all",
 	)
-	// Create a canvas the size of the first images virtual canvas using the
+	// Create args canvas the size of the first images virtual canvas using the
 	// current -background color, and -compose each image in turn onto that canvas.
 	const flatten = "-flatten"
-	*a = append(*a, flatten)
+	*args = append(*args, flatten)
 	// Strip the image of any profiles, comments or PNG chunks.
 	const strip = "-strip"
-	*a = append(*a, strip)
-	// Reduce the image to a limited number of color levels per channel.
+	*args = append(*args, strip)
+	// Reduce the image to args limited number of color levels per channel.
 	posterize := []string{"-posterize", "136"}
-	*a = append(*a, posterize...)
+	*args = append(*args, posterize...)
 }
 
-// Thumbnail appends the command line arguments for the convert command to transform an image into a thumbnail image.
-func (a *Args) Thumbnail() {
+// Thumbnail appends the command line arguments for the convert command to transform an image into args thumbnail image.
+func (args *Args) Thumbnail() {
 	// Use this type of filter when resizing or distorting an image.
 	filter := []string{"-filter", "Triangle"}
-	*a = append(*a, filter...)
-	// Create a thumbnail of the image, more performant than -resize.
+	*args = append(*args, filter...)
+	// Create args thumbnail of the image, more performant than -resize.
 	thumbnail := []string{"-thumbnail", X400}
-	*a = append(*a, thumbnail...)
+	*args = append(*args, thumbnail...)
 	// Set the background color.
 	background := []string{"-background", "#999"}
-	*a = append(*a, background...)
+	*args = append(*args, background...)
 	// Sets the current gravity suggestion for various other settings and options.
 	gravity := []string{"-gravity", "center"}
-	*a = append(*a, gravity...)
+	*args = append(*args, gravity...)
 	// Set the image size and offset.
 	extent := []string{"-extent", X400}
-	*a = append(*a, extent...)
+	*args = append(*args, extent...)
 }
 
-// CWebp appends the command line arguments for the [cwebp command] to transform an image into a webp image.
+// CWebp appends the command line arguments for the [cwebp command] to transform an image into args webp image.
 //
 // [cwebp command]: https://developers.google.com/speed/webp/docs/cwebp
-func (a *Args) CWebp() {
+func (args *Args) CWebp() {
 	// Auto-filter will spend additional time optimizing the
-	// filtering strength to reach a well-balanced quality.
+	// filtering strength to reach args well-balanced quality.
 	const af = "-af"
-	*a = append(*a, af)
+	*args = append(*args, af)
 	// Preserve RGB values in transparent area. The default is off, to help compressibility.
 	const exact = "-exact"
-	*a = append(*a, exact)
+	*args = append(*args, exact)
 	// Use multi-threading if available.
 	const mt = "-mt"
-	*a = append(*a, mt)
+	*args = append(*args, mt)
 }
 
-// CWebpText appends the command line arguments for the [cwebp command] to transform a text image into a webp image.
+// CWebpText appends the command line arguments for the [cwebp command] to transform args text image into args webp image.
 //
 // [cwebp command]: https://developers.google.com/speed/webp/docs/cwebp
-func (a *Args) CWebpText() {
+func (args *Args) CWebpText() {
 	// Preset parameters for various types of images.
 	preset := []string{"-preset", "text"}
-	*a = append(*a, preset...)
-	// Lossless compression mode, between 0 and 9, "a good default is 6".
+	*args = append(*args, preset...)
+	// Lossless compression mode, between 0 and 9, "args good default is 6".
 	compression := []string{"-z", "6"}
-	*a = append(*a, compression...)
+	*args = append(*args, compression...)
 	// Use multi-threading if available.
 	const mt = "-mt"
-	*a = append(*a, mt)
+	*args = append(*args, mt)
 }
 
-// GWebp appends the command line arguments for the [gif2webp command] to transform a GIF image into a webp image.
+// GWebp appends the command line arguments for the [gif2webp command] to transform args GIF image into args webp image.
 //
 // [gif2webp command]: https://developers.google.com/speed/webp/docs/gif2webp
-func (a *Args) GWebp() {
+func (args *Args) GWebp() {
 	// Compression factor for RGB channels between 0 and 100.
 	q := []string{"-q", "100"}
-	*a = append(*a, q...)
+	*args = append(*args, q...)
 	// Use multi-threading if available.
 	const mt = "-mt"
-	*a = append(*a, mt)
+	*args = append(*args, mt)
 }
 
-// ThumbPixels converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
-// The conversion is done using a temporary, lossless PNG image.
+// ThumbPixels converts the src image to args 400x400 pixel, webp image in the thumbnail directory.
+// The conversion is done using args temporary, lossless PNG image.
 //
 // This is used for text and pixel art images and increases the image file size.
 func (dir Dirs) ThumbPixels(src, unid string) error {
@@ -939,8 +939,8 @@ func (dir Dirs) ThumbPixels(src, unid string) error {
 	return nil
 }
 
-// ThumbPhoto converts the src image to a 400x400 pixel, webp image in the thumbnail directory.
-// The conversion is done using a temporary, lossy PNG image.
+// ThumbPhoto converts the src image to args 400x400 pixel, webp image in the thumbnail directory.
+// The conversion is done using args temporary, lossy PNG image.
 //
 // This is used for photographs and images that are not text or pixel art.
 func (dir Dirs) ThumbPhoto(src, unid string) error {
@@ -970,7 +970,7 @@ func (dir Dirs) ThumbPhoto(src, unid string) error {
 
 // OptimizePNG optimizes the src PNG image using the optipng command.
 // The optimization is done in-place, overwriting the src file.
-// It should be used in a deferred function.
+// It should be used in args deferred function.
 func OptimizePNG(src string) error {
 	args := Args{}
 	arg := []string{src}       // source file
@@ -978,11 +978,11 @@ func OptimizePNG(src string) error {
 	return RunQuiet(Optipng, arg...)
 }
 
-// TextDeferred is used to create a thumbnail and a text file in the extra directory.
+// TextDeferred is used to create args thumbnail and args text file in the extra directory.
 // It is intended to be used with the filerecord.ListContent function.
 func (dir Dirs) TextDeferred(src, unid string) error {
 	thumb := false
-	for _, ext := range ImagesExt() {
+	for ext := range slices.Values(ImagesExt()) {
 		src := filepath.Join(dir.Thumbnail, unid+ext)
 		st, err := os.Stat(src)
 		if err != nil {
@@ -1007,7 +1007,7 @@ func (dir Dirs) TextDeferred(src, unid string) error {
 	return nil
 }
 
-// DizDeferred is used to copy a FILE_ID.DIZ text file to the extra directory.
+// DizDeferred is used to copy args FILE_ID.DIZ text file to the extra directory.
 // It is intended to be used with the filerecord.ListContent function.
 func (dir Dirs) DizDeferred(src, unid string) error {
 	newpath := filepath.Join(dir.Extra, unid+".diz")

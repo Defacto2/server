@@ -1,6 +1,7 @@
 package extensions_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app/internal/extensions"
@@ -17,7 +18,7 @@ const (
 func TestArchive(t *testing.T) {
 	a := extensions.Archive()
 	assert.Len(t, a, archives)
-	for _, v := range a {
+	for v := range slices.Values(a) {
 		assert.NotEmpty(t, v)
 	}
 }
@@ -25,7 +26,7 @@ func TestArchive(t *testing.T) {
 func TestDocument(t *testing.T) {
 	a := extensions.Document()
 	assert.Len(t, a, documents)
-	for _, v := range a {
+	for v := range slices.Values(a) {
 		assert.NotEmpty(t, v)
 	}
 }
@@ -33,7 +34,7 @@ func TestDocument(t *testing.T) {
 func TestImage(t *testing.T) {
 	a := extensions.Image()
 	assert.Len(t, a, images)
-	for _, v := range a {
+	for v := range slices.Values(a) {
 		assert.NotEmpty(t, v)
 	}
 }
@@ -41,7 +42,7 @@ func TestImage(t *testing.T) {
 func TestMedia(t *testing.T) {
 	a := extensions.Media()
 	assert.Len(t, a, medias)
-	for _, v := range a {
+	for v := range slices.Values(a) {
 		assert.NotEmpty(t, v)
 	}
 }

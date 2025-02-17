@@ -235,8 +235,8 @@ func ValidSceners(s string) null.String {
 	}
 	const sep = ","
 	ts := strings.Split(t, sep)
-	for i, v := range ts {
-		ts[i] = releaser.Clean(strings.TrimSpace(v))
+	for i, val := range ts {
+		ts[i] = releaser.Clean(strings.TrimSpace(val))
 	}
 	t = strings.Join(ts, sep)
 	return null.StringFrom(t)

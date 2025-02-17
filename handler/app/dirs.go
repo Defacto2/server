@@ -148,11 +148,11 @@ func detectANSI(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string
 }
 
 func repackZIP(name string) bool {
-	x, err := pkzip.Methods(name)
+	methods, err := pkzip.Methods(name)
 	if err != nil {
 		return false
 	}
-	for _, method := range x {
+	for method := range slices.Values(methods) {
 		if !method.Zip() {
 			return true
 		}
@@ -720,7 +720,7 @@ func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[st
 // The maxWidth should usually be a value of 80 representing the standard terminal column value.
 func lockWidth(maxWidth int, b []byte) []byte {
 	var builder strings.Builder
-	for _, line := range strings.Split(string(b), "\n") {
+	for line := range strings.Lines(string(b)) {
 		for len(line) > maxWidth {
 			s := line[:maxWidth]
 			builder.WriteString(s + "\n")

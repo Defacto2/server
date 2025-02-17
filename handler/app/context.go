@@ -1295,13 +1295,13 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
 	htm := ""
-	for _, v := range tidbits {
-		s := v.String()
+	for value := range slices.Values(tidbits) {
+		s := value.String()
 		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
-			htm += fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, v.URL(uri))
+			htm += fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, value.URL(uri))
 			continue
 		}
-		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, s, v.URL(uri))
+		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, s, value.URL(uri))
 	}
 	data["tidbits"] = template.HTML(htm)
 	if strings.HasSuffix(uri, "-bbs") {
@@ -1720,14 +1720,14 @@ func Website(c echo.Context, open string) error {
 	const logo = "Videos, Books, Films, Sites, Podcasts"
 	data["logo"] = logo
 	data["description"] = "A collection of " + logo + " about the scene."
-	acc := List()
+	accordion := List()
 	// Open the accordion section.
 	closeAll := true
-	for i, site := range acc {
+	for i, site := range accordion {
 		if site.ID == open || open == "" {
 			site.Open = true
 			closeAll = false
-			acc[i] = site
+			accordion[i] = site
 			if open == "" {
 				continue
 			}
@@ -1742,7 +1742,7 @@ func Website(c echo.Context, open string) error {
 		return StatusErr(c, http.StatusNotFound, open)
 	}
 	// Render the page.
-	data["accordion"] = acc
+	data["accordion"] = accordion
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, fmt.Sprint("render open website,", open), err)

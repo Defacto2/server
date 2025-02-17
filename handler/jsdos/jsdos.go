@@ -363,7 +363,7 @@ func Binaries(paths ...string) []string {
 	}
 	programs := []string{".bat", ".com", ".exe"}
 	executables := []string{}
-	for _, path := range paths {
+	for path := range slices.Values(paths) {
 		p := strings.ToLower(path)
 		if slices.Contains(programs, filepath.Ext(p)) {
 			executables = append(executables, path)
@@ -373,7 +373,7 @@ func Binaries(paths ...string) []string {
 }
 
 // Binary returns a path to the most likely executable file from the archive paths.
-// The search order is .bat, .com, .exe. with the root paths having priority.
+// The search order is .bat, .exe, .com, with the root paths having priority.
 // If no executable is found then an empty string is returned.
 func Binary(paths ...string) string {
 	if len(paths) == 0 {
@@ -384,19 +384,18 @@ func Binary(paths ...string) string {
 		return len(filepath.SplitList(paths[i])) < len(filepath.SplitList(paths[j]))
 	})
 	// in the future we could limit the directory depth of the search
-
-	for _, path := range paths {
-		if strings.ToLower(filepath.Ext(path)) == ".bat" {
+	for path := range slices.Values(paths) {
+		if strings.EqualFold(filepath.Ext(path), ".bat") {
 			return path
 		}
 	}
-	for _, path := range paths {
-		if strings.ToLower(filepath.Ext(path)) == ".com" {
+	for path := range slices.Values(paths) {
+		if strings.EqualFold(filepath.Ext(path), ".exe") {
 			return path
 		}
 	}
-	for _, path := range paths {
-		if strings.ToLower(filepath.Ext(path)) == ".exe" {
+	for path := range slices.Values(paths) {
+		if strings.EqualFold(filepath.Ext(path), ".com") {
 			return path
 		}
 	}
@@ -457,10 +456,10 @@ func Finds(filename string, paths ...string) string {
 	}
 	base := filepath.Base(filename)
 	name := strings.TrimSuffix(base, filepath.Ext(base))
-	priority := []string{name + ".exe", name + ".com", name + ".bat"}
-	for _, name := range priority {
-		for _, path := range root {
-			if strings.ToLower(path) == name {
+	priorities := []string{name + ".exe", name + ".com", name + ".bat"}
+	for priority := range slices.Values(priorities) {
+		for path := range slices.Values(root) {
+			if strings.EqualFold(path, priority) {
 				return path
 			}
 		}
@@ -491,10 +490,10 @@ func Valid(s string) bool {
 	value := strings.ToUpper(s)
 	cmds := strings.Split(value, "&&")
 	const dosArg, linuxArg = '/', '-'
-	for _, cmd := range cmds {
+	for cmd := range slices.Values(cmds) {
 		cmd := strings.TrimSpace(cmd)
 		args := strings.Split(cmd, " ")
-		for _, arg := range args {
+		for arg := range slices.Values(args) {
 			if arg == "" || arg[0] == dosArg || arg[0] == linuxArg {
 				continue
 			}

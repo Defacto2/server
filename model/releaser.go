@@ -173,7 +173,7 @@ func (r *Releasers) similar(
 	}
 
 	likes := names
-	for _, name := range names {
+	for name := range slices.Values(names) {
 		likes = append(likes, releaser.Title(name))
 		likes = append(likes, releaser.Cell(name))
 	}
@@ -208,10 +208,10 @@ func (r *Releasers) similar(
 func removeDuplicates(strings []string) []string {
 	unique := make(map[string]struct{})
 	var result []string
-	for _, str := range strings {
-		if _, exists := unique[str]; !exists {
-			unique[str] = struct{}{}
-			result = append(result, str)
+	for s := range slices.Values(strings) {
+		if _, exists := unique[s]; !exists {
+			unique[s] = struct{}{}
+			result = append(result, s)
 		}
 	}
 	return result

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -185,13 +186,13 @@ func Uploader() api.BuildOptions {
 }
 
 func main() {
-	for _, name := range NamedCSS() {
+	for name := range slices.Values(NamedCSS()) {
 		result := api.Build(CSS(name))
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(os.Stderr, "CSS build failed: %v\n", result.Errors)
 		}
 	}
-	for _, name := range NamedJS() {
+	for name := range slices.Values(NamedJS()) {
 		result := api.Build(JS(name))
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)

@@ -473,26 +473,28 @@ func LinkScnr(name string) (string, error) {
 	return href, nil
 }
 
-// LinkScnr...
-func LinkScnrs(s string) template.HTML {
-	x := []string{}
-	y := strings.Split(s, ",")
+// LinkScnrs returns a list of links to the named scener pages.
+// Multiple names can be provided as a comma separated string.
+// If the name is empty then an empty string is returned with no error.
+func LinkScnrs(names string) template.HTML {
+	links := []string{}
+	vals := strings.Split(names, ",")
 	cls := "link-dark link-offset-2 link-offset-3-hover link-underline " +
 		"link-underline-opacity-0 link-underline-opacity-75-hover"
-	for _, z := range y {
-		z = strings.TrimSpace(z)
-		if z == "" {
+	for val := range slices.Values(vals) {
+		val = strings.TrimSpace(val)
+		if val == "" {
 			continue
 		}
-		scnr, err := LinkScnr(z)
+		scnr, err := LinkScnr(val)
 		if err != nil {
 			fmt.Fprint(io.Discard, err)
 			continue
 		}
-		linkr := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, cls, scnr, z)
-		x = append(x, linkr)
+		linkr := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, cls, scnr, val)
+		links = append(links, linkr)
 	}
-	return template.HTML(strings.Join(x, ", "))
+	return template.HTML(strings.Join(links, ", "))
 }
 
 const wikiBase = "https://github.com/Defacto2/defacto2.net/wiki"

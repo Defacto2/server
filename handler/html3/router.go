@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/labstack/echo/v4"
@@ -67,7 +68,7 @@ func Routes(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) *echo.Group {
 // getTags creates the get routes for the category and platform tags.
 func getTags(s Sugared, db *sql.DB, g *echo.Group) *echo.Group {
 	category := g.Group("/category")
-	for _, tag := range tags.List() {
+	for tag := range slices.Values(tags.List()) {
 		if tags.IsCategory(tag.String()) {
 			category.GET(fmt.Sprintf("/%s:offset", tag), func(c echo.Context) error {
 				return s.Category(c, db)
@@ -78,7 +79,7 @@ func getTags(s Sugared, db *sql.DB, g *echo.Group) *echo.Group {
 		}
 	}
 	platform := g.Group("/platform")
-	for _, tag := range tags.List() {
+	for tag := range slices.Values(tags.List()) {
 		if tags.IsPlatform(tag.String()) {
 			platform.GET(fmt.Sprintf("/%s:offset", tag), func(c echo.Context) error {
 				return s.Platform(c, db)

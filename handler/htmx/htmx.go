@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -41,17 +42,17 @@ func Areacodes(c echo.Context) error {
 		return c.HTML(http.StatusOK, "")
 	}
 	searches := strings.Split(search, ",")
-	r := areacode.Queries(searches...)
-	if len(r) == 0 {
+	query := areacode.Queries(searches...)
+	if len(query) == 0 {
 		return c.HTML(http.StatusOK, "<small>No results.</small><br>")
 	}
-	for _, v := range r {
-		if v.AreaCode.Valid() {
-			htm += v.AreaCode.HTML() + "<br>"
+	for val := range slices.Values(query) {
+		if val.AreaCode.Valid() {
+			htm += val.AreaCode.HTML() + "<br>"
 		}
-		if len(v.Terr) > 0 {
-			for _, t := range v.Terr {
-				htm += t.HTML() + "<br>"
+		if len(val.Terr) > 0 {
+			for terr := range slices.Values(val.Terr) {
+				htm += terr.HTML() + "<br>"
 			}
 		}
 	}
@@ -96,8 +97,8 @@ func DemozooLookup(c echo.Context, prodMode bool, db *sql.DB) error {
 	info := []string{prod.Title, "<br>"}
 	if len(prod.Authors) > 0 {
 		info = append(info, "by")
-		for _, a := range prod.Authors {
-			name := strings.TrimSpace(a.Name)
+		for _, val := range prod.Authors {
+			name := strings.TrimSpace(val.Name)
 			if name == "" {
 				continue
 			}
@@ -108,8 +109,8 @@ func DemozooLookup(c echo.Context, prodMode bool, db *sql.DB) error {
 		info = append(info, "on", relDate)
 	}
 	if prod.Platforms != nil {
-		for _, p := range prod.Platforms {
-			name := strings.TrimSpace(p.Name)
+		for _, val := range prod.Platforms {
+			name := strings.TrimSpace(val.Name)
 			if name == "" {
 				continue
 			}
@@ -159,11 +160,11 @@ func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, er
 	plat, sect := prod.SuperType()
 	if plat == -1 || sect == -1 {
 		s := []string{}
-		for _, p := range prod.Platforms {
-			s = append(s, p.Name)
+		for _, val := range prod.Platforms {
+			s = append(s, val.Name)
 		}
-		for _, t := range prod.Types {
-			s = append(s, t.Name)
+		for _, val := range prod.Types {
+			s = append(s, val.Name)
 		}
 		sid := strconv.Itoa(id)
 		_ = cache.DemozooProduction.WriteNoExpire(sid, strings.Join(s, " - "))
@@ -318,7 +319,7 @@ func pings() []string {
 func Pings(c echo.Context, proto string, port int) error {
 	pings := pings()
 	results := make([]string, 0, len(pings))
-	for _, ping := range pings {
+	for ping := range slices.Values(pings) {
 		code, size, err := helper.LocalHostPing(ping, proto, port)
 		if err != nil {
 			results = append(results, fmt.Sprintf("%s: %v", ping, err))
@@ -391,8 +392,8 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 	info := []string{prod.Title}
 	if len(prod.Groups) > 0 {
 		info = append(info, "by")
-		for _, a := range prod.Groups {
-			info = append(info, a.Name)
+		for _, val := range prod.Groups {
+			info = append(info, val.Name)
 		}
 	}
 	if prod.ReleaseDate != "" {
@@ -401,8 +402,8 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 	platforms := strings.Split(prod.Platforms.String(), ",")
 	if len(platforms) > 0 {
 		info = append(info, "for")
-		for _, s := range platforms {
-			info = append(info, " ", strings.TrimSpace(s))
+		for val := range slices.Values(platforms) {
+			info = append(info, " ", strings.TrimSpace(val))
 		}
 	}
 	return c.HTML(http.StatusOK, htmler(id, info...))
@@ -447,8 +448,8 @@ func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
 	}
 	platOkay := pouet.PlatformsValid(prod.Prod.Platforms.String())
 	typeOkay := false
-	for _, typ := range prod.Prod.Types {
-		if typ.Valid() {
+	for _, val := range prod.Prod.Types {
+		if val.Valid() {
 			typeOkay = true
 			break
 		}
@@ -510,7 +511,7 @@ func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	uuids := []uuid.UUID{}
 	search := c.FormValue("htmx-search")
 	inputs := strings.Split(search, " ")
-	for _, input := range inputs {
+	for input := range slices.Values(inputs) {
 		x := strings.ToLower(strings.TrimSpace(input))
 		if id, _ := strconv.Atoi(x); id > 0 {
 			ids = append(ids, id)
@@ -566,7 +567,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	lookup := []string{}
 	// example key and values: "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	for key, values := range initialism.Initialisms() {
-		for _, value := range values {
+		for value := range slices.Values(values) {
 			name := releaser.Humanize(string(key))
 			if strings.EqualFold(value, slug) {
 				lookup = append(lookup, name)
@@ -638,7 +639,7 @@ func datalist(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input strin
 	}
 	lookups := []string{releaser.Cell(input)}
 	if inits := initialism.Match(slug); len(inits) > 0 {
-		for _, uri := range inits {
+		for uri := range slices.Values(inits) {
 			val := releaser.Humanize(string(uri))
 			lookups = append(lookups, val)
 		}

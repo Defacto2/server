@@ -38,11 +38,11 @@ func (id ID) URL(uri string) template.HTML {
 	urls := id.URI()
 	slices.Sort(urls)
 	html := []string{}
-	for _, u := range urls {
-		if u == URI(uri) {
+	for val := range slices.Values(urls) {
+		if val == URI(uri) {
 			continue
 		}
-		s := string(u)
+		s := string(val)
 		html = append(html, `<a href="/g/`+s+`">`+releaser.Link(s)+`</a>`)
 	}
 	s := strings.Join(html, " &nbsp; ")
@@ -293,8 +293,8 @@ func tidbits() Tidbit {
 func Find(uri string) []ID {
 	ids := []ID{}
 	for id, uris := range groups() {
-		for _, u := range uris {
-			if u == URI(uri) {
+		for val := range slices.Values(uris) {
+			if val == URI(uri) {
 				ids = append(ids, id)
 			}
 		}

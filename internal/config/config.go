@@ -208,7 +208,7 @@ func (c Config) Values() []string {
 		return fields[i].Name < fields[j].Name
 	})
 	values := make([]string, 0, len(fields))
-	for _, field := range fields {
+	for field := range slices.Values(fields) {
 		if !field.IsExported() {
 			continue
 		}
@@ -244,7 +244,7 @@ func (c Config) fprint(b *strings.Builder) *strings.Builder {
 		strings.Repeat(line, len(h3)),
 		strings.Repeat(line, len(h2)))
 
-	for _, field := range fields {
+	for field := range slices.Values(fields) {
 		if !field.IsExported() {
 			continue
 		}
@@ -383,7 +383,7 @@ func (c Config) addresses(b *strings.Builder, help bool) error {
 		return ErrNoPort
 	}
 	const disable, text, secure = 0, 80, 443
-	for _, host := range hosts {
+	for host := range slices.Values(hosts) {
 		if c.MatchHost != "" && host != c.MatchHost {
 			continue
 		}
@@ -415,7 +415,7 @@ func localIPs(b *strings.Builder, port uint64, pad string) error {
 	if err != nil {
 		return fmt.Errorf("the server cannot get the local IP addresses: %w", err)
 	}
-	for _, ip := range ips {
+	for ip := range slices.Values(ips) {
 		if port == 0 {
 			break
 		}
@@ -590,7 +590,7 @@ func (c Config) UseTLSLocal() bool {
 func (c *Config) Override() {
 	// hash and delete any supplied google ids
 	ids := strings.Split(c.GoogleIDs, ",")
-	for _, id := range ids {
+	for id := range slices.Values(ids) {
 		sum := sha512.Sum384([]byte(id))
 		c.GoogleAccounts = append(c.GoogleAccounts, sum)
 	}

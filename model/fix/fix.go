@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/Defacto2/helper"
@@ -443,7 +444,7 @@ func nullifyEmpty(exec boil.ContextExecutor) error {
 		"credit_text", "credit_program", "credit_illustration", "credit_audio", "comment",
 		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
 	}
-	for _, column := range columns {
+	for column := range slices.Values(columns) {
 		query += UpdateSet + column + " = NULL WHERE " + column + " = ''; "
 	}
 	if _, err := queries.Raw(query).Exec(exec); err != nil {
@@ -458,7 +459,7 @@ func nullifyZero(exec boil.ContextExecutor) error {
 		"web_id_pouet", "web_id_demozoo",
 		"date_issued_year", "date_issued_month", "date_issued_day",
 	}
-	for _, column := range columns {
+	for column := range slices.Values(columns) {
 		query += UpdateSet + column + " = NULL WHERE " + column + " = 0; "
 	}
 	if _, err := queries.Raw(query).Exec(exec); err != nil {
@@ -470,7 +471,7 @@ func nullifyZero(exec boil.ContextExecutor) error {
 func trimFwdSlash(exec boil.ContextExecutor) error {
 	query := ""
 	columns := []string{"web_id_16colors"}
-	for _, column := range columns {
+	for column := range slices.Values(columns) {
 		query += UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
 	}
 	if _, err := queries.Raw(query).Exec(exec); err != nil {

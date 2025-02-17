@@ -29,22 +29,22 @@ func (c NAN) HTML() template.HTML {
 	if !c.Valid() {
 		return empty
 	}
-	ts := TerritoryByCode(c)
-	if len(ts) == 0 {
+	territories := TerritoryByCode(c)
+	if len(territories) == 0 {
 		return empty
 	}
 	html := "<span>"
-	for i, t := range ts {
-		ac := t.Abbreviation
+	for i, val := range territories {
+		ac := val.Abbreviation
 		if i == 0 {
-			s := fmt.Sprintf(`%d - %s`, c, t.Name)
+			s := fmt.Sprintf(`%d - %s`, c, val.Name)
 			if len(ac) > 0 {
 				s += fmt.Sprintf(` (%s)`, ac)
 			}
 			html += s
 			continue
 		}
-		html += " + " + t.Name
+		html += " + " + val.Name
 		if len(ac) > 0 {
 			html += fmt.Sprintf(` (%s)`, ac)
 		}
@@ -392,7 +392,7 @@ func Lookups(a ...any) []Territory {
 		if len(finds) == 0 {
 			continue
 		}
-		for _, find := range finds {
+		for find := range slices.Values(finds) {
 			if Contains(find, t...) {
 				continue
 			}
@@ -468,8 +468,8 @@ func Queries(s ...string) []Result {
 
 // Contains returns true if the territory is in the list of territories.
 func Contains(t Territory, ts ...Territory) bool {
-	for _, x := range ts {
-		if t.Name == x.Name {
+	for val := range slices.Values(ts) {
+		if t.Name == val.Name {
 			return true
 		}
 	}
@@ -480,11 +480,11 @@ func Contains(t Territory, ts ...Territory) bool {
 // in the North American Numbering Plan sorted in ascending order.
 func Abbreviations() []Abbreviation {
 	abbr := make([]Abbreviation, 0, len(territories()))
-	for _, t := range territories() {
-		if t.Abbreviation == "" {
+	for val := range slices.Values(territories()) {
+		if val.Abbreviation == "" {
 			continue
 		}
-		abbr = append(abbr, t.Abbreviation)
+		abbr = append(abbr, val.Abbreviation)
 	}
 	slices.Sort(abbr)
 	abbr = slices.Compact(abbr) // remove empty strings
@@ -494,8 +494,8 @@ func Abbreviations() []Abbreviation {
 // AreaCodes returns a list of all NANP area codes sorted in ascending order.
 func AreaCodes() []NAN {
 	codes := make([]NAN, 0, len(territories()))
-	for _, t := range territories() {
-		codes = append(codes, t.AreaCodes...)
+	for val := range slices.Values(territories()) {
+		codes = append(codes, val.AreaCodes...)
 	}
 	slices.Sort(codes)
 	codes = slices.Compact(codes)
@@ -507,9 +507,9 @@ func TerritoryByAbbr(abbr Abbreviation) Territory {
 	if len(abbr) == 0 {
 		return Territory{}
 	}
-	for _, t := range territories() {
-		if strings.EqualFold(string(t.Abbreviation), string(abbr)) {
-			return t
+	for val := range slices.Values(territories()) {
+		if strings.EqualFold(string(val.Abbreviation), string(abbr)) {
+			return val
 		}
 	}
 	return Territory{}
@@ -524,10 +524,10 @@ func TerritoryByCode(code NAN) []Territory {
 		return nil
 	}
 	var finds []Territory
-	for _, t := range territories() {
-		for _, ac := range t.AreaCodes {
+	for val := range slices.Values(territories()) {
+		for ac := range slices.Values(val.AreaCodes) {
 			if ac == code {
-				finds = append(finds, t)
+				finds = append(finds, val)
 			}
 		}
 	}
@@ -537,9 +537,9 @@ func TerritoryByCode(code NAN) []Territory {
 // TerritoryByName returns the territory with the given name.
 // The name can be a US state, Canadian province, or other territory.
 func TerritoryByName(name string) Territory {
-	for _, t := range territories() {
-		if strings.EqualFold(t.Name, name) {
-			return t
+	for val := range slices.Values(territories()) {
+		if strings.EqualFold(val.Name, name) {
+			return val
 		}
 	}
 	return Territory{}
@@ -547,12 +547,12 @@ func TerritoryByName(name string) Territory {
 
 // TerritoryContains returns a list of territories with names that contain the given string.
 func TerritoryContains(s string) []Territory {
-	m := []Territory{}
-	for _, t := range territories() {
+	vals := []Territory{}
+	for val := range slices.Values(territories()) {
 		substr := strings.ToLower(s)
-		if strings.Contains(strings.ToLower(t.Name), substr) {
-			m = append(m, t)
+		if strings.Contains(strings.ToLower(val.Name), substr) {
+			vals = append(vals, val)
 		}
 	}
-	return m
+	return vals
 }

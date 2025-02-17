@@ -110,17 +110,17 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor) error 
 		return nil
 	}
 
-	for _, r := range repairs() {
-		if err := r.lookPath(); err != nil {
-			logger.Errorf("repair %s archives: %s", r.String(), err)
+	for repair := range slices.Values(repairs()) {
+		if err := repair.lookPath(); err != nil {
+			logger.Errorf("repair %s archives: %s", repair.String(), err)
 			continue
 		}
-		artifacts, err = r.artifacts(ctx, exec, logger)
+		artifacts, err = repair.artifacts(ctx, exec, logger)
 		if err != nil {
-			logger.Errorf("repair %s archives: %s", r.String(), err)
+			logger.Errorf("repair %s archives: %s", repair.String(), err)
 			continue
 		}
-		switch r {
+		switch repair {
 		case Zip:
 			err = filepath.WalkDir(downloadDir, zipWalker)
 		case LHA:
@@ -336,8 +336,8 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 
 	wg.Wait()
 	sum := 0
-	for _, count := range counters {
-		sum += count
+	for val := range slices.Values(counters) {
+		sum += val
 	}
 	logger.Infof("Checked %d files for %d UUIDs in %.1fs", sum, size, time.Since(d).Seconds())
 	return nil
@@ -402,8 +402,8 @@ func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logge
 		return fmt.Errorf("config %w", err)
 	}
 	dupes := 0
-	for _, v := range uuids {
-		name := filepath.Join(c.AbsExtra, v.UUID.String)
+	for val := range slices.Values(uuids) {
+		name := filepath.Join(c.AbsExtra, val.UUID.String)
 		diz := name + ".diz"
 		txt := name + ".txt"
 		dizF, err := os.Stat(diz)
@@ -508,8 +508,8 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, lo
 		logger.Warnf("Check %d magic number values for artifacts, this could take a while", len(magics))
 	}
 	count := 0
-	for _, v := range magics {
-		name := filepath.Join(c.AbsDownload, v.UUID.String)
+	for val := range slices.Values(magics) {
+		name := filepath.Join(c.AbsDownload, val.UUID.String)
 		r, err := os.Open(name)
 		if err != nil {
 			_ = r.Close()
@@ -517,7 +517,7 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, lo
 		}
 		magic := magicnumber.Find(r)
 		count++
-		_ = model.UpdateMagic(ctx, exec, v.ID, magic.Title())
+		_ = model.UpdateMagic(ctx, exec, val.ID, magic.Title())
 		_ = r.Close()
 	}
 	if count == 0 || logger == nil {
@@ -538,8 +538,8 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger
 		return fmt.Errorf("nopreview %w", err)
 	}
 	var count, totals int64
-	for _, v := range artifacts {
-		png := filepath.Join(c.AbsPreview, v.UUID.String) + ".png"
+	for val := range slices.Values(artifacts) {
+		png := filepath.Join(c.AbsPreview, val.UUID.String) + ".png"
 		st, err := os.Stat(png)
 		if err != nil {
 			fmt.Fprintln(io.Discard, err)
@@ -549,8 +549,8 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger
 		count++
 		totals += st.Size()
 	}
-	for _, v := range artifacts {
-		webp := filepath.Join(c.AbsPreview, v.UUID.String) + ".webp"
+	for val := range slices.Values(artifacts) {
+		webp := filepath.Join(c.AbsPreview, val.UUID.String) + ".webp"
 		st, err := os.Stat(webp)
 		if err != nil {
 			fmt.Fprintln(io.Discard, err)
@@ -576,7 +576,7 @@ func (c *Config) ImageDirs(logger *zap.SugaredLogger) error {
 	}
 	// remove any invalid files
 	p, t := 0, 0
-	for _, dir := range dirs {
+	for dir := range slices.Values(dirs) {
 		if _, err := os.Stat(dir); err != nil {
 			continue
 		}
@@ -615,7 +615,7 @@ func (c *Config) ImageDirs(logger *zap.SugaredLogger) error {
 
 // removeSub removes any subdirectories found in the specified directories.
 func removeSub(dirs ...string) error {
-	for _, dir := range dirs {
+	for dir := range slices.Values(dirs) {
 		if _, err := os.Stat(dir); err != nil {
 			continue
 		}

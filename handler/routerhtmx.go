@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/labstack/echo/v4"
@@ -104,7 +105,7 @@ func releaser1(c echo.Context) string {
 		"uploader-image-releaser1",
 		"uploader-advanced-releaser1",
 	}
-	for _, lookup := range lookups {
+	for lookup := range slices.Values(lookups) {
 		if val := c.FormValue(lookup); val != "" {
 			return val
 		}
@@ -121,7 +122,7 @@ func releaser2(c echo.Context) string {
 		"uploader-image-releaser2",
 		"uploader-advanced-releaser2",
 	}
-	for _, lookup := range lookups {
+	for lookup := range slices.Values(lookups) {
 		if val := c.FormValue(lookup); val != "" {
 			return val
 		}

@@ -42,8 +42,8 @@ func Suggest(filename, group string, content ...string) string {
 	// match either the filename or the group name with a priority extension
 	// e.g. .nfo, .txt, .unp, .doc
 	base := filepath.Base(filename)
-	for _, ext := range priority() {
-		for _, name := range finds {
+	for ext := range slices.Values(priority()) {
+		for name := range slices.Values(finds) {
 			if strings.EqualFold(base+ext, name) {
 				return name
 			}
@@ -53,8 +53,8 @@ func Suggest(filename, group string, content ...string) string {
 		}
 	}
 	// match either the filename or the group name with a candidate extension
-	for _, ext := range candidate() {
-		for _, name := range finds {
+	for ext := range slices.Values(candidate()) {
+		for name := range slices.Values(finds) {
 			if strings.EqualFold(base+ext, name) {
 				return name
 			}
@@ -64,7 +64,7 @@ func Suggest(filename, group string, content ...string) string {
 		}
 	}
 	// match any finds that use a priority extension
-	for _, name := range finds {
+	for name := range slices.Values(finds) {
 		s := strings.ToLower(name)
 		ext := filepath.Ext(s)
 		if slices.Contains(priority(), ext) {
@@ -72,7 +72,7 @@ func Suggest(filename, group string, content ...string) string {
 		}
 	}
 	// match the first file in the list
-	for _, name := range finds {
+	for name := range slices.Values(finds) {
 		return name
 	}
 	return ""
@@ -82,7 +82,7 @@ func Suggest(filename, group string, content ...string) string {
 func List(content ...string) []string {
 	finds := []string{}
 	skip := []string{"scene.org", "scene.org.txt"}
-	for _, name := range content {
+	for name := range slices.Values(content) {
 		if name == "" {
 			continue
 		}
@@ -191,7 +191,8 @@ func RemoveCtrls(b []byte) []byte {
 		nlWindows = "\r\n"                  // Windows line endings
 		nlUnix    = "\n"                    // Unix line endings
 	)
-	controlCodes := regexp.MustCompile(reAnsi + `|` + reDEC + `|` + reAmiga + `|` + reSauce)
+	const sep = `|`
+	controlCodes := regexp.MustCompile(reAnsi + sep + reDEC + sep + reAmiga + sep + reSauce)
 	b = controlCodes.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
 	return b
