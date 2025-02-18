@@ -105,11 +105,11 @@ const (
 
 // Thumbs creates args thumbnail image for the preview image based on the type of image.
 func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
-	if err := ImagesDelete(unid, dir.Thumbnail); err != nil {
+	if err := ImagesDelete(unid, dir.Thumbnail.Path()); err != nil {
 		return fmt.Errorf("dirs thumbs %w", err)
 	}
 	for ext := range slices.Values(ImagesExt()) {
-		src := filepath.Join(dir.Preview, unid+ext)
+		src := filepath.Join(dir.Preview.Path(), unid+ext)
 		_, err := os.Stat(src)
 		if err != nil {
 			continue
@@ -268,7 +268,7 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 	if !slices.Contains(imgs, magic) {
 		return fmt.Errorf("dir picture imager %w, %s", ErrImg, magic.Title())
 	}
-	if err = ImagesDelete(unid, dir.Preview, dir.Thumbnail); err != nil {
+	if err = ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path()); err != nil {
 		return fmt.Errorf("picture imager pre-delete %w", err)
 	}
 
@@ -452,7 +452,7 @@ func (dir Dirs) textAmigaImager(debug *zap.SugaredLogger, src, unid string) erro
 }
 
 func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
-	_ = ImagesDelete(unid, dir.Preview, dir.Thumbnail)
+	_ = ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path())
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var errs error
@@ -460,7 +460,7 @@ func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
 	wg.Add(groups)
 	go func() { // PNG optimization of the ansilove PNG image
 		defer wg.Done()
-		dst := filepath.Join(dir.Preview, unid+png)
+		dst := filepath.Join(dir.Preview.Path(), unid+png)
 		if err := CopyFile(debug, tmp, dst); err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("ansilove copy file %w", err))
@@ -519,7 +519,7 @@ func (dir Dirs) PreviewPixels(debug *zap.SugaredLogger, src, unid string) error 
 	if err := RunQuiet(Magick, arg...); err != nil {
 		return fmt.Errorf("preview pixel run convert %w", err)
 	}
-	dst := filepath.Join(dir.Preview, unid+png)
+	dst := filepath.Join(dir.Preview.Path(), unid+png)
 	if err := CopyFile(debug, tmp, dst); err != nil {
 		return fmt.Errorf("preview pixel copy file %w", err)
 	}
@@ -562,10 +562,10 @@ func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 	jst, _ := os.Stat(jtmp)
 	wst, _ := os.Stat(wtmp)
 	srcPath := wtmp
-	dst := filepath.Join(dir.Preview, unid+webp)
+	dst := filepath.Join(dir.Preview.Path(), unid+webp)
 	if jpegSmaller := jst.Size() < wst.Size(); jpegSmaller {
 		srcPath = jtmp
-		dst = filepath.Join(dir.Preview, unid+jpg)
+		dst = filepath.Join(dir.Preview.Path(), unid+jpg)
 	}
 	if err := CopyFile(debug, srcPath, dst); err != nil {
 		return fmt.Errorf("preview photo copy file %w", err)
@@ -595,7 +595,7 @@ func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
 	if err := Run(debug, Gwebp, arg...); err != nil {
 		return fmt.Errorf("gif2webp run %w", err)
 	}
-	dst := filepath.Join(dir.Preview, unid+webp)
+	dst := filepath.Join(dir.Preview.Path(), unid+webp)
 	if err := CopyFile(debug, tmp, dst); err != nil {
 		return fmt.Errorf("gif2webp copy file %w", err)
 	}
@@ -620,7 +620,7 @@ func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
 // PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 func (dir Dirs) PreviewPNG(debug *zap.SugaredLogger, src, unid string) error {
-	dst := filepath.Join(dir.Preview, unid+png)
+	dst := filepath.Join(dir.Preview.Path(), unid+png)
 	if err := CopyFile(debug, src, dst); err != nil {
 		return fmt.Errorf("preview png copy file %w", err)
 	}
@@ -665,7 +665,7 @@ func (dir Dirs) PreviewWebP(debug *zap.SugaredLogger, src, unid string) error {
 	if err := Run(debug, Cwebp, arg...); err != nil {
 		return fmt.Errorf("cwebp run %w", err)
 	}
-	dst := filepath.Join(dir.Preview, unid+webp)
+	dst := filepath.Join(dir.Preview.Path(), unid+webp)
 	if err := CopyFile(debug, tmp, dst); err != nil {
 		return fmt.Errorf("preview webp copy file %w", err)
 	}
@@ -915,7 +915,7 @@ func (args *Args) GWebp() {
 //
 // This is used for text and pixel art images and increases the image file size.
 func (dir Dirs) ThumbPixels(src, unid string) error {
-	tmp := filepath.Join(dir.Thumbnail, unid+png)
+	tmp := filepath.Join(dir.Thumbnail.Path(), unid+png)
 	args := Args{}
 	args.Thumbnail()
 	args.PortablePixel()
@@ -926,7 +926,7 @@ func (dir Dirs) ThumbPixels(src, unid string) error {
 		return fmt.Errorf("run ansi convert %w", err)
 	}
 
-	dst := filepath.Join(dir.Thumbnail, unid+webp)
+	dst := filepath.Join(dir.Thumbnail.Path(), unid+webp)
 	args = Args{}
 	args.CWebp()
 	arg = []string{tmp}          // source file
@@ -955,7 +955,7 @@ func (dir Dirs) ThumbPhoto(src, unid string) error {
 		return fmt.Errorf("run webp convert %w", err)
 	}
 
-	dst := filepath.Join(dir.Thumbnail, unid+webp)
+	dst := filepath.Join(dir.Thumbnail.Path(), unid+webp)
 	args = Args{}
 	args.CWebp()
 	arg = []string{tmp}          // source file
@@ -983,7 +983,7 @@ func OptimizePNG(src string) error {
 func (dir Dirs) TextDeferred(src, unid string) error {
 	thumb := false
 	for ext := range slices.Values(ImagesExt()) {
-		src := filepath.Join(dir.Thumbnail, unid+ext)
+		src := filepath.Join(dir.Thumbnail.Path(), unid+ext)
 		st, err := os.Stat(src)
 		if err != nil {
 			continue
@@ -998,7 +998,7 @@ func (dir Dirs) TextDeferred(src, unid string) error {
 			return fmt.Errorf("text deferred, %w: %s", err, src)
 		}
 	}
-	newpath := filepath.Join(dir.Extra, unid+".txt")
+	newpath := filepath.Join(dir.Extra.Path(), unid+".txt")
 	if st, err := os.Stat(newpath); err != nil || st.Size() == 0 {
 		if _, err1 := helper.DuplicateOW(src, newpath); err1 != nil {
 			return fmt.Errorf("text deferred, %w: %s", err1, src)
@@ -1010,7 +1010,7 @@ func (dir Dirs) TextDeferred(src, unid string) error {
 // DizDeferred is used to copy args FILE_ID.DIZ text file to the extra directory.
 // It is intended to be used with the filerecord.ListContent function.
 func (dir Dirs) DizDeferred(src, unid string) error {
-	newpath := filepath.Join(dir.Extra, unid+".diz")
+	newpath := filepath.Join(dir.Extra.Path(), unid+".diz")
 	if st, err := os.Stat(newpath); err != nil || st.Size() == 0 {
 		if _, err1 := helper.DuplicateOW(src, newpath); err1 != nil {
 			return fmt.Errorf("text deferred, %w: %s", err1, src)

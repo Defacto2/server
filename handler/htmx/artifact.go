@@ -117,7 +117,7 @@ func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = align.Thumbs(unid, dirs.Preview, dirs.Thumbnail)
+	err = align.Thumbs(unid, dirs.Preview.Path(), dirs.Thumbnail.Path())
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -131,7 +131,7 @@ func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) er
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = crop.Images(unid, dirs.Preview)
+	err = crop.Images(unid, dirs.Preview.Path())
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -210,7 +210,7 @@ func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not copied.")
 	}
-	dst := filepath.Join(dirs.Extra, unid+".diz")
+	dst := filepath.Join(dirs.Extra.Path(), unid+".diz")
 	if _, err = helper.DuplicateOW(src, dst); err != nil {
 		return badRequest(c, err)
 	}
@@ -236,12 +236,12 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not copied.")
 	}
-	dst := filepath.Join(dirs.Extra, unid+".txt")
+	dst := filepath.Join(dirs.Extra.Path(), unid+".txt")
 	if _, err = helper.DuplicateOW(src, dst); err != nil {
 		return badRequest(c, err)
 	}
-	if !helper.File(filepath.Join(dirs.Thumbnail, unid+".png")) &&
-		!helper.File(filepath.Join(dirs.Thumbnail, unid+".webp")) {
+	if !helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".png")) &&
+		!helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".webp")) {
 		if err := dirs.TextImager(nil, src, unid, false); err != nil {
 			return badRequest(c, err)
 		}

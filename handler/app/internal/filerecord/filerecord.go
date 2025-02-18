@@ -26,6 +26,7 @@ import (
 	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -875,13 +876,13 @@ func DownloadID(art *models.File) string {
 //
 // The original artifact must always be preserved and offered as the primary download.
 // But the extra zip file is a convenience for users who may not have the tools to decompress the original.
-func ExtraZip(art *models.File, extraDir string) bool {
+func ExtraZip(art *models.File, extra dir.Directory) bool {
 	if art == nil {
 		return false
 	}
 	extraZip := 0
 	unid := UnID(art)
-	st, err := os.Stat(filepath.Join(extraDir, unid+".zip"))
+	st, err := os.Stat(filepath.Join(extra.Path(), unid+".zip"))
 	if err == nil && !st.IsDir() {
 		extraZip = int(st.Size())
 	}

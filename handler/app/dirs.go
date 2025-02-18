@@ -29,6 +29,7 @@ import (
 	"github.com/Defacto2/server/handler/render"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -66,11 +67,11 @@ func Artifact404(c echo.Context, id string) error {
 
 // Dirs contains the directories used by the artifact pages.
 type Dirs struct {
-	Download  string // path to the artifact download directory
-	Preview   string // path to the preview and screenshot directory
-	Thumbnail string // path to the file thumbnail directory
-	Extra     string // path to the extra files directory
-	URI       string // the URI of the file record
+	Download  dir.Directory // path to the artifact download directory
+	Preview   dir.Directory // path to the preview and screenshot directory
+	Thumbnail dir.Directory // path to the file thumbnail directory
+	Extra     dir.Directory // path to the extra files directory
+	URI       string        // the URI of the file record
 }
 
 // Artifact is the handler for the of the file record.
@@ -107,7 +108,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	data["linkpreview"] = filerecord.LinkPreview(art)
 	data["linkpreviewTip"] = filerecord.LinkPreviewTip(art)
 	data["filentry"] = filerecord.FileEntry(art)
-	if skip := render.NoScreenshot(art, dir.Preview); skip {
+	if skip := render.NoScreenshot(art, dir.Preview.Path()); skip {
 		data["noScreenshot"] = true
 	}
 	if filerecord.EmbedReadme(art) {
@@ -163,7 +164,7 @@ func repackZIP(name string) bool {
 func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 	basename := uid + ".zip"
 	src := filepath.Join(helper.TmpDir(), basename)
-	dest := filepath.Join(dir.Extra, basename)
+	dest := filepath.Join(dir.Extra.Path(), basename)
 	_ = os.Remove(dest)
 	_, err := rezip.CompressDir(root, src)
 	if err != nil {
@@ -234,7 +235,7 @@ func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 	modMagic interface{},
 	data map[string]interface{},
 ) map[string]interface{} {
-	name := filepath.Join(dir.Download, uid)
+	name := filepath.Join(dir.Download.Path(), uid)
 	switch {
 	case redundantArchive(modMagic):
 	case modMagic == magicnumber.PKWAREZip.Title():
@@ -261,14 +262,14 @@ func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 func (dir Dirs) plainTexts(logger *zap.SugaredLogger,
 	uid, platform string, data map[string]interface{},
 ) map[string]interface{} {
-	name := filepath.Join(dir.Download, uid)
+	name := filepath.Join(dir.Download.Path(), uid)
 	dirs := command.Dirs{
 		Download:  dir.Download,
 		Preview:   dir.Preview,
 		Thumbnail: dir.Thumbnail,
 	}
-	if helper.File(filepath.Join(dirs.Thumbnail, uid+".png")) ||
-		helper.File(filepath.Join(dirs.Thumbnail, uid+".webp")) {
+	if helper.File(filepath.Join(dirs.Thumbnail.Path(), uid+".png")) ||
+		helper.File(filepath.Join(dirs.Thumbnail.Path(), uid+".webp")) {
 		return data
 	}
 	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String())
@@ -328,7 +329,7 @@ func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string
 	if art == nil {
 		return data, nil
 	}
-	p, err := readme.Read(art, dir.Download, dir.Extra)
+	p, err := readme.Read(art, dir.Download.Path(), dir.Extra.Path())
 	if err != nil {
 		if errors.Is(err, render.ErrDownload) {
 			data["noDownload"] = true
@@ -358,7 +359,7 @@ func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string
 		Extra:     dir.Extra,
 	}
 	unid := filerecord.UnID(art)
-	abs := filepath.Join(dir.Download, unid)
+	abs := filepath.Join(dir.Download.Path(), unid)
 	data["epochYear"] = epoch
 	data["readonlymode"] = false
 	data["modID"] = art.ID
@@ -426,10 +427,10 @@ func (dir Dirs) modelsFile(c echo.Context, db *sql.DB) (*models.File, error) {
 // Up to four preview assets are returned, JPEG, PNG, WebP and AVIF.
 func (dir Dirs) previews(unid string) map[string][2]string {
 	unid = strings.ToLower(unid)
-	avif := filepath.Join(dir.Preview, unid+".avif")
-	jpg := filepath.Join(dir.Preview, unid+".jpg")
-	png := filepath.Join(dir.Preview, unid+".png")
-	webp := filepath.Join(dir.Preview, unid+".webp")
+	avif := filepath.Join(dir.Preview.Path(), unid+".avif")
+	jpg := filepath.Join(dir.Preview.Path(), unid+".jpg")
+	png := filepath.Join(dir.Preview.Path(), unid+".png")
+	webp := filepath.Join(dir.Preview.Path(), unid+".webp")
 	const size = 4
 	matches := make(map[string][2]string, size)
 	matches["Jpeg"] = simple.ImageXY(jpg)
@@ -445,8 +446,8 @@ func (dir Dirs) previews(unid string) map[string][2]string {
 // Two thumbnail assets are returned, PNG and WebP.
 func (dir Dirs) thumbnails(unid string) map[string][2]string {
 	unid = strings.ToLower(unid)
-	png := filepath.Join(dir.Thumbnail, unid+".png")
-	webp := filepath.Join(dir.Thumbnail, unid+".webp")
+	png := filepath.Join(dir.Thumbnail.Path(), unid+".png")
+	webp := filepath.Join(dir.Thumbnail.Path(), unid+".webp")
 	const size = 2
 	matches := make(map[string][2]string, size)
 	matches["PNG"] = simple.ImageXY(png)
@@ -460,17 +461,17 @@ func (dir Dirs) extras(unid string) map[string][2]string {
 	unid = strings.ToLower(unid)
 	size := 3
 	matches := make(map[string][2]string, size)
-	diz := filepath.Join(dir.Extra, unid+".diz")
+	diz := filepath.Join(dir.Extra.Path(), unid+".diz")
 	if st, err := os.Stat(diz); err == nil {
 		i, _ := helper.Lines(diz)
 		matches["FILE_ID"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 	}
-	txt := filepath.Join(dir.Extra, unid+".txt")
+	txt := filepath.Join(dir.Extra.Path(), unid+".txt")
 	if st, err := os.Stat(txt); err == nil {
 		i, _ := helper.Lines(txt)
 		matches["README"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 	}
-	zip := filepath.Join(dir.Extra, unid+".zip")
+	zip := filepath.Join(dir.Extra.Path(), unid+".zip")
 	if st, err := os.Stat(zip); err == nil {
 		matches["Repacked ZIP"] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
 	}
@@ -484,11 +485,11 @@ func (dir Dirs) missingAssets(art *models.File) string {
 	}
 	uid := art.UUID.String
 	missing := []string{}
-	dl := helper.File(filepath.Join(dir.Download, uid))
-	pv := helper.File(filepath.Join(dir.Preview, uid+".png")) ||
-		helper.File(filepath.Join(dir.Preview, uid+".webp"))
-	th := helper.File(filepath.Join(dir.Thumbnail, uid+".png")) ||
-		helper.File(filepath.Join(dir.Thumbnail, uid+".webp"))
+	dl := helper.File(filepath.Join(dir.Download.Path(), uid))
+	pv := helper.File(filepath.Join(dir.Preview.Path(), uid+".png")) ||
+		helper.File(filepath.Join(dir.Preview.Path(), uid+".webp"))
+	th := helper.File(filepath.Join(dir.Thumbnail.Path(), uid+".png")) ||
+		helper.File(filepath.Join(dir.Thumbnail.Path(), uid+".webp"))
 	if dl && pv && th {
 		return ""
 	}

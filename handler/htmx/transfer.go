@@ -472,13 +472,13 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
 	case Demozoo:
-		if err := app.GetDemozoo(c, db, id, unid, download.Path()); err != nil {
+		if err := app.GetDemozoo(c, db, id, unid, download); err != nil {
 			logger.Error(err)
 			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
-		if err := app.GetPouet(c, db, id, unid, download.Path()); err != nil {
+		if err := app.GetPouet(c, db, id, unid, download); err != nil {
 			logger.Error(err)
 			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
@@ -544,7 +544,7 @@ func UploadPreview(c echo.Context, preview, thumbnail dir.Directory) error {
 	}
 	defer os.Remove(dst.Name())
 
-	dirs := command.Dirs{Preview: preview.Path(), Thumbnail: thumbnail.Path()}
+	dirs := command.Dirs{Preview: preview, Thumbnail: thumbnail}
 	src, err = file.Open()
 	if err != nil {
 		return checkFileOpen(c, nil, name, err)

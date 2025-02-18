@@ -14,6 +14,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -37,10 +38,10 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.Sugare
 	}
 	app.Caching.Records(c.RecordCount)
 	dir := app.Dirs{
-		Download:  c.Environment.AbsDownload,
-		Preview:   c.Environment.AbsPreview,
-		Thumbnail: c.Environment.AbsThumbnail,
-		Extra:     c.Environment.AbsExtra,
+		Download:  dir.Directory(c.Environment.AbsDownload),
+		Preview:   dir.Directory(c.Environment.AbsPreview),
+		Thumbnail: dir.Directory(c.Environment.AbsThumbnail),
+		Extra:     dir.Directory(c.Environment.AbsExtra),
 	}
 	nonce, err := c.nonce(e)
 	if err != nil {

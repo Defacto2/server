@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -178,9 +179,9 @@ func TestRunWD(t *testing.T) {
 func Test_PreviewPixels(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{
-		Download:  t.TempDir(), // this prefixes to UUID
-		Preview:   t.TempDir(), // this is the output dest
-		Thumbnail: t.TempDir(), // this is the cropped output dest
+		Download:  dir.Directory(t.TempDir()), // this prefixes to UUID
+		Preview:   dir.Directory(t.TempDir()), // this is the output dest
+		Thumbnail: dir.Directory(t.TempDir()), // this is the cropped output dest
 	}
 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
 	for _, name := range imgs {

@@ -30,6 +30,7 @@ import (
 	"github.com/Defacto2/server/handler/sixteen"
 	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
@@ -649,7 +650,7 @@ func ForApproval(c echo.Context, db *sql.DB, page string) error {
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func GetDemozooParam(c echo.Context, db *sql.DB, downloadDir string) error {
+func GetDemozooParam(c echo.Context, db *sql.DB, download dir.Directory) error {
 	got := remote.DemozooLink{}
 	sid := c.Param("id")
 	id, err := strconv.Atoi(sid)
@@ -664,31 +665,31 @@ func GetDemozooParam(c echo.Context, db *sql.DB, downloadDir string) error {
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = unid
-	return got.Download(c, db, downloadDir)
+	return got.Download(c, db, download)
 }
 
 // GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 //
 // This function is a wrapper for the remote.DemozooLink.Download method.
-func GetDemozoo(c echo.Context, db *sql.DB, demozooID int, defacto2UNID, downloadDir string) error {
+func GetDemozoo(c echo.Context, db *sql.DB, demozooID int, defacto2UNID string, download dir.Directory) error {
 	got := remote.DemozooLink{
 		ID:   demozooID,
 		UUID: defacto2UNID,
 	}
-	return got.Download(c, db, downloadDir)
+	return got.Download(c, db, download)
 }
 
 // GetPouet fetches the download link from Pouet and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Pouet record API data.
 //
 // This function is a wrapper for the remote.PouetLink.Download method.
-func GetPouet(c echo.Context, db *sql.DB, pouetID int, defacto2UNID, downloadDir string) error {
+func GetPouet(c echo.Context, db *sql.DB, pouetID int, defacto2UNID string, download dir.Directory) error {
 	got := remote.PouetLink{
 		ID:   pouetID,
 		UUID: defacto2UNID,
 	}
-	return got.Download(c, db, downloadDir)
+	return got.Download(c, db, download)
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify

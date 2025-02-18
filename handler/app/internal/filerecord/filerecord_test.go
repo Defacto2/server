@@ -9,6 +9,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -256,13 +257,13 @@ func TestExtraZip(t *testing.T) {
 	s = filerecord.ExtraZip(&x, "")
 	assert.Empty(t, s)
 
-	extraDir := t.TempDir()
+	extra := dir.Directory(t.TempDir())
 	err := command.CopyFile(nil,
 		filepath.Join("testdata", "archive.zip"),
-		filepath.Join(extraDir, r0+".zip"))
+		filepath.Join(extra.Path(), r0+".zip"))
 	require.NoError(t, err)
 
-	ok := filerecord.ExtraZip(&x, extraDir)
+	ok := filerecord.ExtraZip(&x, extra)
 	assert.True(t, ok)
 }
 

@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/server/internal/dir"
 	"go.uber.org/zap"
 )
 
@@ -51,10 +52,10 @@ var (
 
 // Dirs is a struct of the download, preview and thumbnail directories.
 type Dirs struct {
-	Download  string // Download is the directory path for the file downloads.
-	Preview   string // Preview is the directory path for the image previews.
-	Thumbnail string // Thumbnail is the directory path for the image thumbnails.
-	Extra     string // Extra is the directory path for the extra files.
+	Download  dir.Directory // Download is the directory path for the file downloads.
+	Preview   dir.Directory // Preview is the directory path for the image previews.
+	Thumbnail dir.Directory // Thumbnail is the directory path for the image thumbnails.
+	Extra     dir.Directory // Extra is the directory path for the extra files.
 }
 
 const (

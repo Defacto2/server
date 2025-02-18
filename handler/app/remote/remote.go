@@ -18,6 +18,7 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -61,7 +62,7 @@ type DemozooLink struct {
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
-func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string) error {
+func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Directory) error {
 	var prod demozoo.Production
 	statusCode, err := prod.Get(got.ID)
 	if err != nil {
@@ -81,7 +82,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 			continue
 		}
 		base := filepath.Base(link.URL)
-		dst := filepath.Join(downloadDir, got.UUID)
+		dst := filepath.Join(download.Path(), got.UUID)
 		got.Filename = base
 		if err := helper.RenameFileOW(dlr.Path, dst); err != nil {
 			sameFiles, err := helper.FileMatch(dlr.Path, dst)
@@ -117,7 +118,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, downloadDir string)
 		plat, sect := prod.SuperType()
 		got.Platform = plat.String()
 		got.Section = sect.String()
-		return got.Stat(c, db, downloadDir)
+		return got.Stat(c, db, download)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
 	return c.JSON(http.StatusNotModified, got)
@@ -146,8 +147,8 @@ func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResp
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
-func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, downloadDir string) error {
-	name := filepath.Join(downloadDir, got.UUID)
+func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) error {
+	name := filepath.Join(download.Path(), got.UUID)
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
 		if err != nil {
@@ -289,7 +290,7 @@ type PouetLink struct {
 	Error       string `json:"error"`        // Error is the error message if the download or record update failed.
 }
 
-func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) error {
+func (got *PouetLink) Download(c echo.Context, db *sql.DB, download dir.Directory) error {
 	var prod pouet.Production
 	if _, err := prod.Get(got.ID); err != nil {
 		return fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err)
@@ -303,7 +304,7 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 		return fmt.Errorf("could not get file, %s: %w", downloadURL, err)
 	}
 	base := filepath.Base(downloadURL)
-	dst := filepath.Join(downloadDir, got.UUID)
+	dst := filepath.Join(download.Path(), got.UUID)
 	got.Filename = base
 	if err := helper.RenameFileOW(df.Path, dst); err != nil {
 		sameFiles, err := helper.FileMatch(df.Path, dst)
@@ -330,13 +331,13 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, downloadDir string) e
 	plat, sect := prod.PlatformType()
 	got.Platform = plat.String()
 	got.Section = sect.String()
-	return got.Stat(c, db, downloadDir)
+	return got.Stat(c, db, download)
 }
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
-func (got *PouetLink) Stat(c echo.Context, db *sql.DB, downloadDir string) error {
-	name := filepath.Join(downloadDir, got.UUID)
+func (got *PouetLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) error {
+	name := filepath.Join(download.Path(), got.UUID)
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
 		if err != nil {

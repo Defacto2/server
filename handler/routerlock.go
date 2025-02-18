@@ -298,7 +298,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 	})
 }
 
-func get(g *echo.Group, db *sql.DB, dir app.Dirs) {
+func get(g *echo.Group, db *sql.DB, dirs app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for get router", ErrRoutes))
 	}
@@ -308,7 +308,7 @@ func get(g *echo.Group, db *sql.DB, dir app.Dirs) {
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(cx echo.Context) error {
-			return app.GetDemozooParam(cx, db, dir.Download)
+			return app.GetDemozooParam(cx, db, dirs.Download)
 		})
 	g.GET("/for-approval",
 		func(cx echo.Context) error {
