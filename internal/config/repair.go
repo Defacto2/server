@@ -25,6 +25,7 @@ import (
 	"github.com/Defacto2/server/internal/config/fixarj"
 	"github.com/Defacto2/server/internal/config/fixlha"
 	"github.com/Defacto2/server/internal/config/fixzip"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -53,19 +54,19 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor) error 
 		return fmt.Errorf("config repair archives %w", ErrCE)
 	}
 	d := time.Now()
-	downloadDir, logger := c.AbsDownload, helper.Logger(ctx)
+	logger := helper.Logger(ctx)
 	artifacts := []string{}
 	var err error
-
+	extra := dir.Directory(c.AbsExtra)
 	zipWalker := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixzip.Check(ctx, path, c.AbsExtra, d, artifacts...)
+		uid := fixzip.Check(ctx, path, extra, d, artifacts...)
 		if uid == "" || fixzip.Invalid(ctx, path) {
 			return nil
 		}
-		if err := Zip.ReArchive(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := Zip.ReArchive(ctx, path, uid, extra); err != nil {
 			return fmt.Errorf("zip repair and re-archive: %w", err)
 		}
 		return nil
@@ -74,11 +75,11 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor) error 
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixlha.Check(c.AbsExtra, d, artifacts...)
+		uid := fixlha.Check(extra, d, artifacts...)
 		if uid == "" || fixlha.Invalid(ctx, path) {
 			return nil
 		}
-		if err := LHA.ReArchive(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := LHA.ReArchive(ctx, path, uid, extra); err != nil {
 			return fmt.Errorf("lha/lzh repair and re-archive: %w", err)
 		}
 		return nil
@@ -87,11 +88,11 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor) error 
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixarc.Check(ctx, path, c.AbsExtra, d, artifacts...)
+		uid := fixarc.Check(ctx, path, extra, d, artifacts...)
 		if uid == "" || fixarc.Invalid(ctx, path) {
 			return nil
 		}
-		if err := Arc.ReArchive(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := Arc.ReArchive(ctx, path, uid, extra); err != nil {
 			return fmt.Errorf("arc repair and re-archive: %w", err)
 		}
 		return nil
@@ -100,16 +101,17 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor) error 
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixarj.Check(c.AbsExtra, d, artifacts...)
+		uid := fixarj.Check(extra, d, artifacts...)
 		if uid == "" || fixarj.Invalid(ctx, path) {
 			return nil
 		}
-		if err := Arj.ReArchive(ctx, path, c.AbsExtra, uid); err != nil {
+		if err := Arj.ReArchive(ctx, path, uid, extra); err != nil {
 			return fmt.Errorf("arj repair and re-archive: %w", err)
 		}
 		return nil
 	}
 
+	download := dir.Directory(c.AbsDownload)
 	for repair := range slices.Values(repairs()) {
 		if err := repair.lookPath(); err != nil {
 			logger.Errorf("repair %s archives: %s", repair.String(), err)
@@ -122,16 +124,16 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor) error 
 		}
 		switch repair {
 		case Zip:
-			err = filepath.WalkDir(downloadDir, zipWalker)
+			err = filepath.WalkDir(download.Path(), zipWalker)
 		case LHA:
-			err = filepath.WalkDir(downloadDir, lhaWalker)
+			err = filepath.WalkDir(download.Path(), lhaWalker)
 		case Arc:
-			err = filepath.WalkDir(downloadDir, arcWalker)
+			err = filepath.WalkDir(download.Path(), arcWalker)
 		case Arj:
-			err = filepath.WalkDir(downloadDir, arjWalker)
+			err = filepath.WalkDir(download.Path(), arjWalker)
 		}
 		if err != nil {
-			logger.Errorf("walk directory %s: %s", err, downloadDir)
+			logger.Errorf("walk directory %s: %s", err, download.Path())
 		}
 	}
 	logger.Infof("Completed UUID archive checks in %.1fs", time.Since(d).Seconds())
@@ -214,9 +216,12 @@ func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, logger
 // The source file is extracted to a temporary directory, then re-compressed
 // and saved to the destination directory using the uid as the new named file.
 // The original src file is not removed.
-func (r Repair) ReArchive(ctx context.Context, src, destDir, uid string) error {
-	if src == "" || destDir == "" || uid == "" {
-		return fmt.Errorf("rearchive %s %w: %q %q %q", r, ErrEmpty, src, destDir, uid)
+func (r Repair) ReArchive(ctx context.Context, src, uid string, dest dir.Directory) error {
+	if src == "" || uid == "" {
+		return fmt.Errorf("rearchive %s %w: %q %q", r, ErrEmpty, src, uid)
+	}
+	if err := dest.IsDir(); err != nil {
+		return fmt.Errorf("rearchive %s %w: %q", r, err, dest)
 	}
 	logger := helper.Logger(ctx)
 	tmp, err := os.MkdirTemp(helper.TmpDir(), "rearchive-")
@@ -262,7 +267,7 @@ func (r Repair) ReArchive(ctx context.Context, src, destDir, uid string) error {
 		return nil
 	}
 
-	finalArc := filepath.Join(destDir, basename)
+	finalArc := dest.Join(basename)
 	if err = helper.RenameCrossDevice(tmpArc, finalArc); err != nil {
 		defer os.RemoveAll(tmpArc)
 		return fmt.Errorf("rearchive rename %w: %s", err, tmpArc)
@@ -311,6 +316,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 	counters := make([]int, len(dirs))
 	var wg sync.WaitGroup
 	wg.Add(len(dirs))
+	orphaned := dir.Directory(c.AbsOrphaned)
 	for i, dir := range dirs {
 		go func(dir string) {
 			defer wg.Done()
@@ -324,7 +330,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 				counters[i]++
 				uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
 				if _, found := slices.BinarySearch(artifacts, uid); !found {
-					unknownAsset(logger, path, c.AbsOrphaned, d.Name(), uid)
+					unknownAsset(logger, path, d.Name(), uid, orphaned)
 				}
 				return nil
 			})
@@ -344,11 +350,11 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 // unknownAsset logs a warning message for an unknown asset file.
-func unknownAsset(logger *zap.SugaredLogger, oldpath, orphanedDir, name, uid string) {
+func unknownAsset(logger *zap.SugaredLogger, oldpath, name, uid string, orphaned dir.Directory) {
 	logger.Warnf("Unknown file: %s, no matching artifact for UUID: %q", name, uid)
 	defer func() {
 		now := time.Now().Format("2006-01-02_15-04-05")
-		dest := filepath.Join(orphanedDir, fmt.Sprintf("%s_%s", now, name))
+		dest := orphaned.Join(fmt.Sprintf("%s_%s", now, name))
 		if err := helper.RenameCrossDevice(oldpath, dest); err != nil {
 			logger.Errorf("could not move orphaned artifact asset for %q: %s", name, err)
 		}
@@ -362,16 +368,18 @@ func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) er
 		return fmt.Errorf("config repair assets %w", ErrCE)
 	}
 	logger := helper.Logger(ctx)
-	backupDir := c.AbsOrphaned
-	if st, err := os.Stat(backupDir); err != nil {
-		return fmt.Errorf("repair backup directory %w: %s", err, backupDir)
+	backup := dir.Directory(c.AbsOrphaned)
+	if st, err := os.Stat(backup.Path()); err != nil {
+		return fmt.Errorf("repair backup directory %w: %s", err, backup.Path())
 	} else if !st.IsDir() {
-		return fmt.Errorf("repair backup directory %w: %s", ErrNotDir, backupDir)
+		return fmt.Errorf("repair backup directory %w: %s", ErrNotDir, backup.Path())
 	}
 	if err := c.ImageDirs(logger); err != nil {
 		return fmt.Errorf("repair the images directories %w", err)
 	}
-	if err := DownloadDir(logger, c.AbsDownload, c.AbsOrphaned, c.AbsExtra); err != nil {
+	src := dir.Directory(c.AbsDownload)
+	extra := dir.Directory(c.AbsExtra)
+	if err := DownloadDir(logger, src, backup, extra); err != nil {
 		return fmt.Errorf("repair the download directory %w", err)
 	}
 	if err := c.Assets(ctx, exec); err != nil {
@@ -569,7 +577,7 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger
 
 // ImageDirs, on startup check the image directories for any invalid or unknown files.
 func (c *Config) ImageDirs(logger *zap.SugaredLogger) error {
-	backupDir := c.AbsOrphaned
+	backup := dir.Directory(c.AbsOrphaned)
 	dirs := []string{c.AbsPreview, c.AbsThumbnail}
 	if err := removeSub(dirs...); err != nil {
 		return fmt.Errorf("remove subdirectories %w", err)
@@ -598,7 +606,7 @@ func (c *Config) ImageDirs(logger *zap.SugaredLogger) error {
 					t++
 				}
 			}
-			return RemoveImage(name, path, backupDir)
+			return RemoveImage(name, path, backup)
 		})
 		if err != nil {
 			return fmt.Errorf("walk directory %w: %s", err, dir)
@@ -650,20 +658,26 @@ func containsInfo(logger *zap.SugaredLogger, name string, count int) {
 }
 
 // DownloadDir, on startup check the download directory for any invalid or unknown files.
-func DownloadDir(logger *zap.SugaredLogger, srcDir, destDir, extraDir string) error {
-	if srcDir == "" || destDir == "" || extraDir == "" {
-		return fmt.Errorf("%w: %s %s", ErrEmpty, srcDir, destDir)
+func DownloadDir(logger *zap.SugaredLogger, src, dest, extra dir.Directory) error {
+	if err := src.Check(); err != nil {
+		return fmt.Errorf("download directory %w: %s", err, src)
+	}
+	if err := dest.Check(); err != nil {
+		return fmt.Errorf("download directory %w: %s", err, dest)
+	}
+	if err := extra.Check(); err != nil {
+		return fmt.Errorf("download directory %w: %s", err, extra)
 	}
 	count := 0
-	err := filepath.WalkDir(srcDir, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(src.Path(), func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("walk path %w: %s", err, path)
 		}
 		name := d.Name()
 		if d.IsDir() {
-			return RemoveDir(name, path, srcDir)
+			return RemoveDir(name, path, src.Path())
 		}
-		if err = RemoveDownload(name, path, destDir, extraDir); err != nil {
+		if err = RemoveDownload(name, path, dest, extra); err != nil {
 			return fmt.Errorf("remove download: %w", err)
 		}
 		if filepath.Ext(name) == "" {
@@ -672,7 +686,7 @@ func DownloadDir(logger *zap.SugaredLogger, srcDir, destDir, extraDir string) er
 		return RenameDownload(name, path)
 	})
 	if err != nil {
-		return fmt.Errorf("walk directory %w: %s", err, srcDir)
+		return fmt.Errorf("walk directory %w: %s", err, src.Path())
 	}
 	containsInfo(logger, "downloads", count)
 	return nil
@@ -731,10 +745,9 @@ func RemoveDir(name, path, root string) error {
 // Basename must be the name of the file with a valid file extension.
 //
 // Valid file extensions are none, .chiptune, .txt, and .zip.
-func RemoveDownload(basename, path, destDir, extraDir string) error {
-	if basename == "" || path == "" || destDir == "" || extraDir == "" {
-		return fmt.Errorf("remove download %w: %s %s %s %s",
-			ErrEmpty, basename, path, destDir, extraDir)
+func RemoveDownload(basename, path string, backup, extra dir.Directory) error {
+	if basename == "" || path == "" {
+		return fmt.Errorf("remove download %w: %s %s", ErrEmpty, basename, path)
 	}
 	const filedownload = ""
 	ext := filepath.Ext(basename)
@@ -742,9 +755,9 @@ func RemoveDownload(basename, path, destDir, extraDir string) error {
 	case filedownload:
 		return nil
 	case ".txt", ".zip", ".chiptune":
-		rename(path, "rename valid ext", filepath.Join(extraDir, basename))
+		rename(path, "rename valid ext", extra.Join(basename))
 	default:
-		remove(basename, "remove invalid ext", path, destDir)
+		remove(basename, "remove invalid ext", path, backup)
 	}
 	return nil
 }
@@ -755,9 +768,12 @@ func RemoveDownload(basename, path, destDir, extraDir string) error {
 //
 // Valid file extensions are .png and .webp, and basename must be a
 // valid uuid or cfid with the correct length.
-func RemoveImage(basename, path, backupDir string) error {
-	if basename == "" || path == "" || backupDir == "" {
-		return fmt.Errorf("remove image %w: %s %s %s", ErrEmpty, basename, path, backupDir)
+func RemoveImage(basename, path string, backup dir.Directory) error {
+	if basename == "" || path == "" {
+		return fmt.Errorf("remove image %w: %s %s", ErrEmpty, basename, path)
+	}
+	if err := backup.Check(); err != nil {
+		return fmt.Errorf("remove image %w: %s", err, backup)
 	}
 	const (
 		png   = ".png"    // png file extension
@@ -765,7 +781,6 @@ func RemoveImage(basename, path, backupDir string) error {
 		valid = len(unid) // valid uuid length
 		cflen = len(cfid) // coldfusion uuid length
 	)
-
 	ext := filepath.Ext(basename)
 	if filename, found := strings.CutSuffix(basename, ext); found {
 		if len(filename) == cflen {
@@ -778,7 +793,7 @@ func RemoveImage(basename, path, backupDir string) error {
 			}
 		}
 		if err := uuid.Validate(filename); err != nil {
-			remove(basename, "remove invalid uuid image", path, backupDir)
+			remove(basename, "remove invalid uuid image", path, backup)
 			return nil //nolint:nilerr
 		}
 	}
@@ -786,19 +801,19 @@ func RemoveImage(basename, path, backupDir string) error {
 	case png, webp:
 		return nil
 	default:
-		remove(basename, "remove invalid uuid ext", path, backupDir)
+		remove(basename, "remove invalid uuid ext", path, backup)
 	}
 	return nil
 }
 
 // remove the file without warning.
-func remove(name, info, path, destDir string) {
+func remove(name, info, path string, backup dir.Directory) {
 	w := os.Stderr
 	fmt.Fprintf(w, "%s: %s\n", info, name)
 	defer func() {
 		now := time.Now().Format("2006-01-02_15-04-05")
-		dest := filepath.Join(destDir, fmt.Sprintf("%s_%s", now, name))
-		err := helper.RenameCrossDevice(path, dest)
+		newpath := backup.Join(fmt.Sprintf("%s_%s", now, name))
+		err := helper.RenameCrossDevice(path, newpath)
 		if err != nil {
 			fmt.Fprintf(w, "defer repair file remove: %s\n", err)
 		}

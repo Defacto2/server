@@ -14,6 +14,7 @@ import (
 	"github.com/Defacto2/archive/pkzip"
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -22,11 +23,11 @@ import (
 
 var ErrNoExecutor = errors.New("no context executor")
 
-// Check returns the UUID of the zipped file if it requires re-archiving because it uses a
+// Check returns the UUID of the name zipped file if it requires re-archiving because it uses a
 // legacy compression method that is not supported by Go or JS libraries.
 //
 // Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...string) string {
+func Check(ctx context.Context, name string, extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
 	if d.IsDir() {
 		return ""
 	}
@@ -38,13 +39,13 @@ func Check(ctx context.Context, path, extra string, d fs.DirEntry, artifacts ...
 		return ""
 	}
 	logger := helper.Logger(ctx)
-	extraZip := filepath.Join(extra, uid+".zip")
+	extraZip := extra.Join(uid + ".zip")
 	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
 		return ""
 	}
-	methods, err := pkzip.Methods(path)
+	methods, err := pkzip.Methods(name)
 	if err != nil {
-		logger.Errorf("%s: %s", err, path)
+		logger.Errorf("%s: %s", err, name)
 		return ""
 	}
 	for method := range slices.Values(methods) {

@@ -400,7 +400,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 func (c *Configuration) downloader(cx echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	d := download.Download{
 		Inline: false,
-		Path:   c.Environment.AbsDownload,
+		Dir:    dir.Directory(c.Environment.AbsDownload),
 	}
 	if err := d.HTTPSend(cx, db, logger); err != nil {
 		return fmt.Errorf("d.HTTPSend: %w", err)

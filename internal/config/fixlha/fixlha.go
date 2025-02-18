@@ -14,6 +14,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -26,7 +27,7 @@ var ErrNoExecutor = errors.New("no context executor")
 // legacy compression method that is not supported by Go or JS libraries.
 //
 // Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(extra string, d fs.DirEntry, artifacts ...string) string {
+func Check(extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
 	if d.IsDir() {
 		return ""
 	}
@@ -37,7 +38,7 @@ func Check(extra string, d fs.DirEntry, artifacts ...string) string {
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
 	}
-	extraZip := filepath.Join(extra, uid+".zip")
+	extraZip := extra.Join(uid + ".zip")
 	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
 		return ""
 	}

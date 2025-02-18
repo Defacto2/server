@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -48,23 +49,23 @@ func (c *Config) Checks(logger *zap.SugaredLogger) error {
 	c.production(logger)
 
 	// Check the download, preview and thumbnail directories.
-	if err := CheckDir(c.AbsDownload, "downloads"); err != nil {
+	if err := CheckDir(dir.Directory(c.AbsDownload), "downloads"); err != nil {
 		s := helper.Capitalize(err.Error())
 		logger.Error(s)
 	}
-	if err := CheckDir(c.AbsPreview, "previews"); err != nil {
+	if err := CheckDir(dir.Directory(c.AbsPreview), "previews"); err != nil {
 		s := helper.Capitalize(err.Error())
 		logger.Error(s)
 	}
-	if err := CheckDir(c.AbsThumbnail, "thumbnails"); err != nil {
+	if err := CheckDir(dir.Directory(c.AbsThumbnail), "thumbnails"); err != nil {
 		s := helper.Capitalize(err.Error())
 		logger.Error(s)
 	}
-	if err := CheckDir(c.AbsOrphaned, "orphaned"); err != nil {
+	if err := CheckDir(dir.Directory(c.AbsOrphaned), "orphaned"); err != nil {
 		s := helper.Capitalize(err.Error())
 		logger.Error(s)
 	}
-	if err := CheckDir(c.AbsExtra, "extra"); err != nil {
+	if err := CheckDir(dir.Directory(c.AbsExtra), "extra"); err != nil {
 		s := helper.Capitalize(err.Error())
 		logger.Error(s)
 	}
@@ -196,16 +197,9 @@ func (c *Config) SetupLogDir(logger *zap.SugaredLogger) error {
 // CheckDir runs checks against the named directory,
 // including whether it exists, is a directory, and contains a minimum number of files.
 // Problems will either log warnings or fatal errors.
-func CheckDir(name, desc string) error {
-	if name == "" {
-		return fmt.Errorf("%w: %s", ErrDir, desc)
-	}
-	dir, err := os.Stat(name)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("%w, %s: %s", ErrDir404, desc, name)
-	}
-	if !dir.IsDir() {
-		return fmt.Errorf("%w, %s: %s", ErrDirIs, desc, dir.Name())
+func CheckDir(name dir.Directory, desc string) error {
+	if err := name.IsDir(); err != nil {
+		return fmt.Errorf("%w, %s: %s", err, desc, name)
 	}
 	return nil
 }

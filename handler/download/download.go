@@ -12,6 +12,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/sess"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -63,8 +64,8 @@ func Checksum(c echo.Context, db *sql.DB, id string) error {
 
 // Download configuration.
 type Download struct {
-	Path   string // Path is the absolute path to the download directory.
-	Inline bool   // Inline is true if the file should attempt to display in the browser.
+	Dir    dir.Directory // Dir is the absolute path to the download directory.
+	Inline bool          // Inline is true if the file should attempt to display in the browser.
 }
 
 // HTTPSend serves files to the client and prompts for a save location.
@@ -84,7 +85,7 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger
 	}
 	name := art.Filename.String
 	uid := strings.TrimSpace(art.UUID.String)
-	file := filepath.Join(d.Path, uid)
+	file := d.Dir.Join(uid)
 	if !helper.Stat(file) {
 		if logger != nil {
 			logger.Warnf("The hosted file download %q, for record %d does not exist.\n"+
@@ -125,8 +126,8 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger
 
 // ExtraZip configuration.
 type ExtraZip struct {
-	ExtraPath    string // ExtraPath is the absolute path to the extra directory.
-	DownloadPath string // DownloadPath is the absolute path to the download directory.
+	Extra    dir.Directory // Extra is the absolute path to the extra directory.
+	Download dir.Directory // Download is the absolute path to the download directory.
 }
 
 // HTTPSend looks for any zip files in the extra directory and serves them to the client,
@@ -149,10 +150,10 @@ func (e ExtraZip) HTTPSend(c echo.Context, db *sql.DB) error {
 	ext := ".zip"
 	name := filepath.Base(art.Filename.String) + ext
 	uid := strings.TrimSpace(art.UUID.String)
-	file := filepath.Join(e.ExtraPath, uid) + ext
+	file := e.Extra.Join(uid + ext)
 	if !helper.Stat(file) {
 		name = art.Filename.String
-		file = filepath.Join(e.DownloadPath, uid)
+		file = e.Download.Join(uid)
 	}
 	if err := c.Attachment(file, name); err != nil {
 		return fmt.Errorf("http extra send attachment: %w", err)

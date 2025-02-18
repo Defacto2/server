@@ -37,7 +37,7 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.Sugare
 		return nil, fmt.Errorf("%w: %s", ErrFS, "handler files routes")
 	}
 	app.Caching.Records(c.RecordCount)
-	dir := app.Dirs{
+	dirs := app.Dirs{
 		Download:  dir.Directory(c.Environment.AbsDownload),
 		Preview:   dir.Directory(c.Environment.AbsPreview),
 		Thumbnail: dir.Directory(c.Environment.AbsThumbnail),
@@ -55,8 +55,8 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.Sugare
 	e = c.font(e, public)
 	e = c.embed(e, public)
 	e = c.search(e, db, logger)
-	e = c.website(e, db, logger, dir)
-	e = c.lock(e, db, logger, dir)
+	e = c.website(e, db, logger, dirs)
+	e = c.lock(e, db, logger, dirs)
 	return e, nil
 }
 
@@ -187,7 +187,7 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 }
 
 // website routes for the main site.
-func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
+func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for website router", ErrRoutes))
 	}
@@ -213,15 +213,15 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLog
 		return app.Coder(c, db)
 	})
 	s.GET(Downloader, func(cx echo.Context) error {
-		return app.Download(cx, db, logger, c.Environment.AbsDownload)
+		return app.Download(cx, db, logger, dir.Directory(c.Environment.AbsDownload))
 	})
 	s.GET("/f/:id", func(cx echo.Context) error {
 		uri := cx.Param("id")
 		if qs := cx.QueryString(); qs != "" {
 			return cx.Redirect(http.StatusMovedPermanently, "/f/"+uri)
 		}
-		dir.URI = uri
-		return dir.Artifact(cx, db, logger, c.Environment.ReadOnly)
+		dirs.URI = uri
+		return dirs.Artifact(cx, db, logger, c.Environment.ReadOnly)
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {
 		return app.Categories(cx, db, logger, true)
@@ -256,7 +256,8 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLog
 	s.GET("/interview", app.Interview)
 	s.GET("/jsdos/:id", func(cx echo.Context) error {
 		return app.DownloadJsDos(cx, db,
-			c.Environment.AbsExtra, c.Environment.AbsDownload)
+			dir.Directory(c.Environment.AbsExtra),
+			dir.Directory(c.Environment.AbsDownload))
 	})
 	s.GET("/magazine", func(c echo.Context) error {
 		return app.Magazine(c, db)
@@ -311,7 +312,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLog
 		return app.Writer(c, db)
 	})
 	s.GET("/v/:id", func(cx echo.Context) error {
-		return app.Inline(cx, db, logger, c.Environment.AbsDownload)
+		return app.Inline(cx, db, logger, dir.Directory(c.Environment.AbsDownload))
 	})
 	return e
 }

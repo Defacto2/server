@@ -430,7 +430,8 @@ func Configurations(cx echo.Context, db *sql.DB, conf config.Config) error {
 }
 
 func configurations(data map[string]interface{}, conf config.Config) map[string]interface{} {
-	check := config.CheckDir(conf.AbsDownload, "downloads")
+	download := dir.Directory(conf.AbsDownload)
+	check := config.CheckDir(download, "downloads")
 	data["checkDownloads"] = check
 	data["countDownloads"] = 0
 	data["extsDownloads"] = []helper.Extension{}
@@ -439,7 +440,8 @@ func configurations(data map[string]interface{}, conf config.Config) map[string]
 		exts, _ := helper.CountExts(conf.AbsDownload)
 		data["extsDownloads"] = exts
 	}
-	check = config.CheckDir(conf.AbsPreview, "previews")
+	preview := dir.Directory(conf.AbsPreview)
+	check = config.CheckDir(preview, "previews")
 	data["checkPreviews"] = check
 	data["countPreviews"] = 0
 	data["extsPreviews"] = []helper.Extension{}
@@ -448,7 +450,8 @@ func configurations(data map[string]interface{}, conf config.Config) map[string]
 		exts, _ := helper.CountExts(conf.AbsPreview)
 		data["extsPreviews"] = exts
 	}
-	check = config.CheckDir(conf.AbsThumbnail, "thumbnails")
+	thumbnail := dir.Directory(conf.AbsThumbnail)
+	check = config.CheckDir(thumbnail, "thumbnails")
 	data["checkThumbnails"] = check
 	data["countThumbnails"] = 0
 	data["extsThumbnails"] = []helper.Extension{}
@@ -457,7 +460,8 @@ func configurations(data map[string]interface{}, conf config.Config) map[string]
 		exts, _ := helper.CountExts(conf.AbsThumbnail)
 		data["extsThumbnails"] = exts
 	}
-	check = config.CheckDir(conf.AbsExtra, "extra")
+	extra := dir.Directory(conf.AbsExtra)
+	check = config.CheckDir(extra, "extra")
 	data["checkExtras"] = check
 	data["countExtras"] = 0
 	data["extsExtras"] = []helper.Extension{}
@@ -466,7 +470,8 @@ func configurations(data map[string]interface{}, conf config.Config) map[string]
 		exts, _ := helper.CountExts(conf.AbsExtra)
 		data["extsExtras"] = exts
 	}
-	check = config.CheckDir(conf.AbsOrphaned, "orphaned")
+	orphaned := dir.Directory(conf.AbsOrphaned)
+	check = config.CheckDir(orphaned, "orphaned")
 	data["checkOrphaned"] = check
 	data["countOrphaned"] = 0
 	data["extsOrphaned"] = []helper.Extension{}
@@ -482,10 +487,10 @@ func configurations(data map[string]interface{}, conf config.Config) map[string]
 // mounted as a C: hard drive in the emulation. js-dos only supports common zip compression methods,
 // so this func first attempts to offer a re-archived zip file found in the extra directory, and
 // only if that fails does it offer the original download file.
-func DownloadJsDos(c echo.Context, db *sql.DB, extraPath, downloadPath string) error {
+func DownloadJsDos(c echo.Context, db *sql.DB, extra, downl dir.Directory) error {
 	e := download.ExtraZip{
-		ExtraPath:    extraPath,
-		DownloadPath: downloadPath,
+		Extra:    extra,
+		Download: downl,
 	}
 	const uri = "jsdos"
 	if err := e.HTTPSend(c, db); err != nil {
@@ -498,10 +503,10 @@ func DownloadJsDos(c echo.Context, db *sql.DB, extraPath, downloadPath string) e
 }
 
 // Download is the handler for the Download file record page.
-func Download(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, path string) error {
+func Download(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downl dir.Directory) error {
 	d := download.Download{
 		Inline: false,
-		Path:   path,
+		Dir:    downl,
 	}
 	const uri = "d"
 	if id := c.Param("id"); id != "" {
@@ -838,10 +843,10 @@ func Index(c echo.Context) error {
 }
 
 // Inline is the handler for the Download file record page.
-func Inline(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, path string) error {
+func Inline(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downl dir.Directory) error {
 	d := download.Download{
 		Inline: true,
-		Path:   path,
+		Dir:    downl,
 	}
 	const uri = "v"
 	if err := d.HTTPSend(c, db, logger); err != nil {

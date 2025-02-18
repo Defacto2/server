@@ -10,6 +10,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -156,14 +157,14 @@ func TestReArchiveImplode(t *testing.T) {
 
 	err = r.ReArchive(ctx, src, "", "")
 	require.Error(t, err)
-	dst := filepath.Dir(src)
-	err = r.ReArchive(ctx, src, dst, "")
+	dst := dir.Directory(filepath.Dir(src))
+	err = r.ReArchive(ctx, src, "", dst)
 	require.Error(t, err)
-	err = r.ReArchive(ctx, src, dst, "newfile")
+	err = r.ReArchive(ctx, src, "newfile", dst)
 	require.NoError(t, err)
 
 	// test the new, re-created archive that uses the common deflate method
-	name := filepath.Join(dst, "newfile.zip")
+	name := dst.Join("newfile.zip")
 	readr, err = os.Open(name)
 	require.NoError(t, err)
 	defer readr.Close()

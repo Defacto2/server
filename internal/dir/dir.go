@@ -1,15 +1,17 @@
 package dir
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	"slices"
 )
 
 var (
-	ErrFile = fmt.Errorf("file error")
-	ErrSave = fmt.Errorf("save error")
+	ErrFile = errors.New("file error")
+	ErrSave = errors.New("save error")
+	ErrDir  = errors.New("the directory path is not set")
+	Err404  = errors.New("the directory path does not exist")
 )
 
 // Directory is a string type that represents an internal server directory path.
@@ -20,26 +22,42 @@ func (d Directory) Join(name string) string {
 	return filepath.Clean(filepath.Join(d.Path(), name))
 }
 
+// Path returns the directory path as a string.
 func (d Directory) Path() string {
 	return string(d)
 }
 
 // Check confirms that the directory exists and is writable.
 func (d Directory) Check() error {
-	name := d.Path()
-	st, err := os.Stat(name)
+	if err := d.IsDir(); err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(d.Path(), "uploader-*.zip")
 	if err != nil {
+		return ErrSave
+	}
+	defer func() {
+		tmp.Close()
+		os.Remove(tmp.Name())
+	}()
+	return nil
+}
+
+// IsDir returns an error if the path does not exists or is not a directory.
+func (d Directory) IsDir() error {
+	if d.Path() == "" {
+		return ErrDir
+	}
+	st, err := os.Stat(d.Path())
+	if err != nil {
+		if os.IsNotExist(err) {
+			return Err404
+		}
 		return err
 	}
 	if !st.IsDir() {
 		return ErrFile
 	}
-	f, err := os.CreateTemp(name, "uploader-*.zip")
-	if err != nil {
-		return ErrSave
-	}
-	defer f.Close()
-	defer os.Remove(f.Name())
 	return nil
 }
 
