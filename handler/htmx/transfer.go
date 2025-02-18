@@ -526,8 +526,8 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 	if s, err := checkDest(thumbnailDir); err != nil {
 		return c.HTML(http.StatusInternalServerError, s)
 	}
-	up := upIDs{}
-	if s := up.get(c); s != "" {
+	upload := values{}
+	if s := upload.formValues(c); s != "" {
 		return c.HTML(http.StatusBadRequest, s)
 	}
 	file, err := c.FormFile(name)
@@ -560,7 +560,7 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 	defer src.Close()
 	magic := magicnumber.Find(src)
 	if imagers(magic) {
-		if err := dirs.PictureImager(nil, dst.Name(), up.unid); err != nil {
+		if err := dirs.PictureImager(nil, dst.Name(), upload.unid); err != nil {
 			return c.HTML(http.StatusBadRequest,
 				err.Error()+
 					"\nThe uploaded image file could not be converted, "+
@@ -569,8 +569,8 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 		return reloader(c, file.Filename)
 	}
 	if texters(magic) {
-		amigaFont := strings.EqualFold(up.platform, tags.TextAmiga.String())
-		err = dirs.TextImager(nil, dst.Name(), up.unid, amigaFont)
+		amigaFont := strings.EqualFold(upload.platform, tags.TextAmiga.String())
+		err = dirs.TextImager(nil, dst.Name(), upload.unid, amigaFont)
 		if err != nil {
 			return badRequest(c, err)
 		}
@@ -608,8 +608,8 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 	if s, err := checkDest(downloadDir); err != nil {
 		return c.HTML(http.StatusInternalServerError, s)
 	}
-	up := upIDs{}
-	if s := up.get(c); s != "" {
+	upload := values{}
+	if s := upload.formValues(c); s != "" {
 		return c.HTML(http.StatusBadRequest, s)
 	}
 	file, err := c.FormFile(name)
@@ -640,7 +640,7 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 	}
 	sign := magicnumber.Find(src)
 	fu.MagicNumber = sign.Title()
-	dst, err := copier(c, nil, file, up.key)
+	dst, err := copier(c, nil, file, upload.key)
 	if err != nil || dst == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
 	}
@@ -651,10 +651,10 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
-	if err := fu.Update(context.Background(), tx, up.id); err != nil {
+	if err := fu.Update(context.Background(), tx, upload.id); err != nil {
 		return badRequest(c, ErrUpdate)
 	}
-	abs := filepath.Join(downloadDir, up.unid)
+	abs := filepath.Join(downloadDir, upload.unid)
 	if _, err = helper.DuplicateOW(dst, abs); err != nil {
 		_ = tx.Rollback()
 		return badRequest(c, err)
@@ -662,7 +662,7 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 	if err := tx.Commit(); err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database commit failed")
 	}
-	repack := filepath.Join(extraDir, up.unid+".zip")
+	repack := filepath.Join(extraDir, upload.unid+".zip")
 	repack = filepath.Clean(repack)
 	defer os.Remove(repack)
 	if mkc, err := helper.MkContent(abs); err == nil {
@@ -672,17 +672,19 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 		fmt.Sprintf("The new file %s is in use, about to reload this page", file.Filename))
 }
 
-type upIDs struct {
+type values struct {
 	unid     string
 	key      string
 	platform string
 	id       int64
 }
 
-func (i *upIDs) get(c echo.Context) string {
+// formValues reads the form values from the context and validates the unique identifier and record key.
+// The return value is an error message if the unique identifier or record key is invalid.
+func (i *values) formValues(c echo.Context) string {
 	i.unid = c.FormValue("artifact-editor-unid")
-	if i.unid == "" {
-		return "The editor file upload is missing the unique identifier"
+	if err := uuid.Validate(i.unid); err != nil {
+		return "The editor file upload unique identifier is invalid"
 	}
 	i.key = c.FormValue("artifact-editor-record-key")
 	id, err := strconv.ParseInt(i.key, 10, 64)
