@@ -30,6 +30,7 @@ import (
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
@@ -102,50 +103,63 @@ func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 }
 
 // ImageSubmit is a handler for the /uploader/image route.
-func ImageSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+func ImageSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
 	const key = "uploader-image"
 	c.Set(key+"-operating-system", tags.Image.String())
-	return transfer(c, db, logger, key, downloadDir)
+	return transfer(c, db, logger, key, download)
 }
 
 // IntroSubmit is a handler for the /uploader/intro route.
-func IntroSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+func IntroSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
-	return transfer(c, db, logger, key, downloadDir)
+	return transfer(c, db, logger, key, download)
 }
 
 // MagazineSubmit is a handler for the /uploader/magazine route.
-func MagazineSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+func MagazineSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
 	const key = "uploader-magazine"
 	c.Set(key+"-category", tags.Mag.String())
-	return transfer(c, db, logger, key, downloadDir)
+	return transfer(c, db, logger, key, download)
 }
 
 // TextSubmit is a handler for the /uploader/text route.
-func TextSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+func TextSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
 	const key = "uploader-text"
-	return transfer(c, db, logger, key, downloadDir)
+	return transfer(c, db, logger, key, download)
 }
 
 // TrainerSubmit is a handler for the /uploader/trainer route.
-func TrainerSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+func TrainerSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
 	const key = "uploader-trainer"
-	return transfer(c, db, logger, key, downloadDir)
+	return transfer(c, db, logger, key, download)
 }
 
 // AdvancedSubmit is a handler for the /uploader/advanced route.
-func AdvancedSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
+func AdvancedSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
 	const key = "uploader-advanced"
-	return transfer(c, db, logger, key, downloadDir)
+	return transfer(c, db, logger, key, download)
+}
+
+func uploader(err error) string {
+	if errors.Is(err, ErrFile) {
+		return "The uploader is misconfigured and cannot save your file"
+	}
+	if errors.Is(err, ErrSave) {
+		return "The uploader is misconfigured and cannot save your file"
+	}
+	if err != nil {
+		return "The uploader cannot save your file to the host system"
+	}
+	return ""
 }
 
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
-func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key, downloadDir string) error {
-	if s, err := checkDest(downloadDir); err != nil {
-		return c.HTML(http.StatusInternalServerError, s)
+func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string, download dir.Directory) error {
+	if err := download.Check(); err != nil {
+		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	name := key + "file"
 	file, err := c.FormFile(name)
@@ -202,7 +216,7 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key, downlo
 	} else if id == 0 {
 		return nil
 	}
-	defer Duplicate(logger, uid, dst, downloadDir)
+	defer Duplicate(logger, uid, dst, download.Path())
 	return success(c, file.Filename, id)
 }
 
@@ -255,28 +269,6 @@ func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, srcPath, dstDir string)
 	if logger != nil {
 		logger.Infof("Uploader copied %d bytes for %s, to the destination dir", i, uid.String())
 	}
-}
-
-// checkDest validates the destination directory for the chosen file upload,
-// and confirms that the directory exists and is writable.
-func checkDest(dest string) (string, error) {
-	st, err := os.Stat(dest)
-	if err != nil {
-		return "The uploader is misconfigured and cannot save your file",
-			fmt.Errorf("invalid uploader destination, %w", err)
-	}
-	if !st.IsDir() {
-		return "The uploader is misconfigured and cannot save your file",
-			fmt.Errorf("invalid uploader destination, %w", ErrFile)
-	}
-	f, err := os.CreateTemp(dest, "uploader-*.zip")
-	if err != nil {
-		return "The uploader cannot save your file to the host system.",
-			fmt.Errorf("%w: %w", ErrSave, err)
-	}
-	defer f.Close()
-	defer os.Remove(f.Name())
-	return "", nil
 }
 
 func checkFormFile(c echo.Context, logger *zap.SugaredLogger, name string, err error) error {
@@ -420,7 +412,7 @@ func (prod Submission) String() string {
 }
 
 func (prod Submission) Submit( //nolint:cyclop,funlen
-	c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string,
+	c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory,
 ) error {
 	if db == nil {
 		return c.String(http.StatusInternalServerError, "error, the database connection is nil")
@@ -480,13 +472,13 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
 	case Demozoo:
-		if err := app.GetDemozoo(c, db, id, unid, downloadDir); err != nil {
+		if err := app.GetDemozoo(c, db, id, unid, download.Path()); err != nil {
 			logger.Error(err)
 			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
-		if err := app.GetPouet(c, db, id, unid, downloadDir); err != nil {
+		if err := app.GetPouet(c, db, id, unid, download.Path()); err != nil {
 			logger.Error(err)
 			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
@@ -518,13 +510,13 @@ func sanitizeID(c echo.Context, name, prod string) (int, error) {
 	return id, nil
 }
 
-func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
+func UploadPreview(c echo.Context, preview, thumbnail dir.Directory) error {
 	name := "artifact-editor-replace-preview"
-	if s, err := checkDest(previewDir); err != nil {
-		return c.HTML(http.StatusInternalServerError, s)
+	if err := preview.Check(); err != nil {
+		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
-	if s, err := checkDest(thumbnailDir); err != nil {
-		return c.HTML(http.StatusInternalServerError, s)
+	if err := thumbnail.Check(); err != nil {
+		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	upload := values{}
 	if s := upload.formValues(c); s != "" {
@@ -552,7 +544,7 @@ func UploadPreview(c echo.Context, previewDir, thumbnailDir string) error {
 	}
 	defer os.Remove(dst.Name())
 
-	dirs := command.Dirs{Preview: previewDir, Thumbnail: thumbnailDir}
+	dirs := command.Dirs{Preview: preview.Path(), Thumbnail: thumbnail.Path()}
 	src, err = file.Open()
 	if err != nil {
 		return checkFileOpen(c, nil, name, err)
@@ -600,13 +592,13 @@ func reloader(c echo.Context, filename string) error {
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 // The logger is optional and if nil then the function will not log any debug information.
-func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string) error { //nolint:cyclop,funlen
+func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory) error { //nolint:cyclop,funlen
 	if db == nil {
 		return c.HTML(http.StatusInternalServerError, "error, the database connection is nil")
 	}
 	name := "artifact-editor-replace-file"
-	if s, err := checkDest(downloadDir); err != nil {
-		return c.HTML(http.StatusInternalServerError, s)
+	if err := download.Check(); err != nil {
+		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	upload := values{}
 	if s := upload.formValues(c); s != "" {
@@ -654,7 +646,7 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 	if err := fu.Update(context.Background(), tx, upload.id); err != nil {
 		return badRequest(c, ErrUpdate)
 	}
-	abs := filepath.Join(downloadDir, upload.unid)
+	abs := filepath.Join(download.Path(), upload.unid)
 	if _, err = helper.DuplicateOW(dst, abs); err != nil {
 		_ = tx.Rollback()
 		return badRequest(c, err)
@@ -662,7 +654,7 @@ func UploadReplacement(c echo.Context, db *sql.DB, downloadDir, extraDir string)
 	if err := tx.Commit(); err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database commit failed")
 	}
-	repack := filepath.Join(extraDir, upload.unid+".zip")
+	repack := filepath.Join(extra.Path(), upload.unid+".zip")
 	repack = filepath.Clean(repack)
 	defer os.Remove(repack)
 	if mkc, err := helper.MkContent(abs); err == nil {

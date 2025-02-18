@@ -30,6 +30,7 @@ import (
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/labstack/echo-contrib/pprof"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -113,7 +114,7 @@ func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.
 
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmxGroup(e, db, logger, configs.ProdMode, c.Environment.AbsDownload)
+	e = htmxGroup(e, db, logger, configs.ProdMode, dir.Directory(c.Environment.AbsDownload))
 	e, err = c.FilesRoutes(e, db, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)

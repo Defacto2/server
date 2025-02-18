@@ -8,6 +8,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -24,7 +25,7 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
-func (c *Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) *echo.Echo {
+func (c *Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for lock router", ErrRoutes))
 	}
@@ -33,8 +34,8 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger
 	c.configurations(lock, db)
 	creator(lock, db)
 	date(lock, db)
-	editor(lock, db, logger, dir)
-	get(lock, db, dir)
+	editor(lock, db, logger, dirs)
+	get(lock, db, dirs)
 	online(lock, db)
 	search(lock, db, logger)
 	return e
@@ -100,7 +101,7 @@ func date(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) {
+func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for editor router", ErrRoutes))
 	}
@@ -205,95 +206,95 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dir app.Dirs) 
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c echo.Context) error {
-		return htmx.UploadReplacement(c, db, dir.Download, dir.Extra)
+		return htmx.UploadReplacement(c, db, dir.Directory(dirs.Download), dir.Directory(dirs.Extra))
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c echo.Context) error {
-		return htmx.UploadPreview(c, dir.Preview, dir.Thumbnail)
+		return htmx.UploadPreview(c, dir.Directory(dirs.Preview), dir.Directory(dirs.Thumbnail))
 	})
-	dirs := command.Dirs{
-		Download:  dir.Download,
-		Preview:   dir.Preview,
-		Thumbnail: dir.Thumbnail,
-		Extra:     dir.Extra,
+	paths := command.Dirs{
+		Download:  dirs.Download,
+		Preview:   dirs.Preview,
+		Thumbnail: dirs.Thumbnail,
+		Extra:     dirs.Extra,
 	}
 	diz := g.Group("/diz")
 	diz.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordDizCopier(c, dirs)
+		return htmx.RecordDizCopier(c, paths)
 	})
 	diz.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordDizDeleter(c, dir.Extra)
+		return htmx.RecordDizDeleter(c, dir.Directory(dirs.Extra))
 	})
 	readme := g.Group("/readme")
 	readme.PATCH("/disable/:id", func(c echo.Context) error {
 		return htmx.RecordReadmeDisable(c, db)
 	})
 	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeCopier(c, dirs)
+		return htmx.RecordReadmeCopier(c, paths)
 	})
 	// /editor/readme/preview
 	readme.PATCH("/preview/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, logger, false, dirs)
+		return htmx.RecordReadmeImager(c, logger, false, paths)
 	})
 	// /editor/readme/preview-amiga
 	readme.PATCH("/preview-amiga/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, logger, true, dirs)
+		return htmx.RecordReadmeImager(c, logger, true, paths)
 	})
 	readme.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordReadmeDeleter(c, dir.Extra)
+		return htmx.RecordReadmeDeleter(c, dir.Directory(dirs.Extra))
 	})
 	pre := g.Group("/preview")
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, logger, dirs)
+		return htmx.RecordImageCopier(c, logger, paths)
 	})
 	pre.PATCH("/crop11/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.SqaureTop, dirs)
+		return htmx.RecordImageCropper(c, command.SqaureTop, paths)
 	})
 	pre.PATCH("/crop43/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.FourThree, dirs)
+		return htmx.RecordImageCropper(c, command.FourThree, paths)
 	})
 	pre.PATCH("/crop12/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.OneTwo, dirs)
+		return htmx.RecordImageCropper(c, command.OneTwo, paths)
 	})
 	pre.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dir.Preview)
+		return htmx.RecordImagesDeleter(c, dir.Directory(dirs.Preview))
 	})
 
 	thumb := g.Group("/thumbnail")
 	thumb.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, logger, dirs)
+		return htmx.RecordImageCopier(c, logger, paths)
 	})
 	thumb.PATCH("/top/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Top, dirs)
+		return htmx.RecordThumbAlignment(c, command.Top, paths)
 	})
 	thumb.PATCH("/middle/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Middle, dirs)
+		return htmx.RecordThumbAlignment(c, command.Middle, paths)
 	})
 	thumb.PATCH("/bottom/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Bottom, dirs)
+		return htmx.RecordThumbAlignment(c, command.Bottom, paths)
 	})
 	thumb.PATCH("/left/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Left, dirs)
+		return htmx.RecordThumbAlignment(c, command.Left, paths)
 	})
 	thumb.PATCH("/right/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Right, dirs)
+		return htmx.RecordThumbAlignment(c, command.Right, paths)
 	})
 	thumb.PATCH("/pixel/:unid", func(c echo.Context) error {
-		return htmx.RecordThumb(c, command.Pixel, dirs)
+		return htmx.RecordThumb(c, command.Pixel, paths)
 	})
 	thumb.PATCH("/photo/:unid", func(c echo.Context) error {
-		return htmx.RecordThumb(c, command.Photo, dirs)
+		return htmx.RecordThumb(c, command.Photo, paths)
 	})
 	thumb.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dir.Thumbnail)
+		return htmx.RecordImagesDeleter(c, dir.Directory(dirs.Thumbnail))
 	})
 
 	imgs := g.Group("/images")
 	imgs.PATCH("/pixelate/:unid", func(c echo.Context) error {
-		return htmx.RecordImagePixelator(c, dir.Preview, dir.Thumbnail)
+		return htmx.RecordImagePixelator(c, dir.Directory(dirs.Preview), dir.Directory(dirs.Thumbnail))
 	})
 	imgs.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dir.Preview, dir.Thumbnail)
+		return htmx.RecordImagesDeleter(c, dir.Directory(dirs.Preview), dir.Directory(dirs.Thumbnail))
 	})
 }
 

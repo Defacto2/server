@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/htmx"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -144,9 +145,9 @@ func TestTransfer(t *testing.T) {
 	t.Parallel()
 	err := htmx.AdvancedSubmit(newContext(), nil, nil, "")
 	require.NoError(t, err)
-	dir, err := os.Getwd()
+	wd, err := os.Getwd()
 	require.NoError(t, err)
-	err = htmx.AdvancedSubmit(newContext(), nil, nil, dir)
+	err = htmx.AdvancedSubmit(newContext(), nil, nil, dir.Directory(wd))
 	require.NoError(t, err)
 }
 
@@ -161,9 +162,9 @@ func TestUploadPreview(t *testing.T) {
 	t.Parallel()
 	err := htmx.UploadPreview(newContext(), "", "")
 	require.NoError(t, err)
-	dir, err := os.Getwd()
+	wd, err := os.Getwd()
 	require.NoError(t, err)
-	err = htmx.UploadPreview(newContext(), dir, dir)
+	err = htmx.UploadPreview(newContext(), dir.Directory(wd), dir.Directory(wd))
 	require.NoError(t, err)
 }
 
@@ -171,8 +172,8 @@ func TestUploadReplacement(t *testing.T) {
 	t.Parallel()
 	err := htmx.UploadReplacement(newContext(), nil, "", "")
 	require.NoError(t, err)
-	dir, err := os.Getwd()
+	wd, err := os.Getwd()
 	require.NoError(t, err)
-	err = htmx.UploadReplacement(newContext(), nil, dir, "")
+	err = htmx.UploadReplacement(newContext(), nil, dir.Directory(wd), "")
 	require.NoError(t, err)
 }

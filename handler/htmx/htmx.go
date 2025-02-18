@@ -20,6 +20,7 @@ import (
 	"github.com/Defacto2/server/handler/cache"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
@@ -192,8 +193,8 @@ func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, er
 // This will attempt to insert a new file record into the database using
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
-func DemozooSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
-	return Demozoo.Submit(c, db, logger, downloadDir)
+func DemozooSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
+	return Demozoo.Submit(c, db, logger, download)
 }
 
 // DBConnections is the handler for the database connections page.
@@ -499,8 +500,8 @@ func validation(prod pouet.Response) string {
 // This will attempt to insert a new file record into the database using
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
-func PouetSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downloadDir string) error {
-	return Pouet.Submit(c, db, logger, downloadDir)
+func PouetSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
+	return Pouet.Submit(c, db, logger, download)
 }
 
 // SearchByID is a handler for the /editor/search/id route.

@@ -21,6 +21,7 @@ import (
 	"github.com/Defacto2/server/handler/jsdos"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -267,11 +268,12 @@ func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
 }
 
-func RecordImagePixelator(c echo.Context, dirs ...string) error {
+func RecordImagePixelator(c echo.Context, directory ...dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
+	dirs := dir.Paths(directory...)
 	if err := command.ImagesPixelate(unid, dirs...); err != nil {
 		return badRequest(c, err)
 	}
@@ -280,10 +282,14 @@ func RecordImagePixelator(c echo.Context, dirs ...string) error {
 		`Images pixelated, the browser will refresh.`)
 }
 
-func RecordImagesDeleter(c echo.Context, dirs ...string) error {
+func RecordImagesDeleter(c echo.Context, directory ...dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
+	}
+	dirs := make([]string, len(directory))
+	for i, d := range directory {
+		dirs[i] = d.Path()
 	}
 	if err := command.ImagesDelete(unid, dirs...); err != nil {
 		return badRequest(c, err)
@@ -293,12 +299,12 @@ func RecordImagesDeleter(c echo.Context, dirs ...string) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func RecordDizDeleter(c echo.Context, extraDir string) error {
+func RecordDizDeleter(c echo.Context, extra dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	dst := filepath.Join(extraDir, unid+".diz")
+	dst := filepath.Join(extra.Path(), unid+".diz")
 	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
 	if err != nil {
@@ -314,12 +320,12 @@ func RecordDizDeleter(c echo.Context, extraDir string) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func RecordReadmeDeleter(c echo.Context, extraDir string) error {
+func RecordReadmeDeleter(c echo.Context, extra dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	dst := filepath.Join(extraDir, unid+".txt")
+	dst := filepath.Join(extra.Path(), unid+".txt")
 	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
 	if err != nil {
