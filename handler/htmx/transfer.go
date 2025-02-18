@@ -216,7 +216,7 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string,
 	} else if id == 0 {
 		return nil
 	}
-	defer Duplicate(logger, uid, dst, download.Path())
+	defer Duplicate(logger, uid, dst, download)
 	return success(c, file.Filename, id)
 }
 
@@ -237,32 +237,32 @@ func success(c echo.Context, filename string, id int64,
 // The UUID needs be provided as a unique identifier for the filename.
 // The source path is the temporary file that was uploaded.
 // The destination directory is where the file will be copied to.
-func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, srcPath, dstDir string) {
+func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, src string, dst dir.Directory) {
 	if uid.String() == "" {
 		if logger != nil {
 			logger.Errorf("htmx transfer duplicate file: %w, %s", ErrUUID, uid)
 		}
 		return
 	}
-	st, err := os.Stat(srcPath)
+	st, err := os.Stat(src)
 	if err != nil {
 		if logger != nil {
-			logger.Errorf("htmx transfer duplicate file: %w, %s", err, srcPath)
+			logger.Errorf("htmx transfer duplicate file: %w, %s", err, src)
 		}
 		return
 	}
 	if st.IsDir() {
 		if logger != nil {
-			logger.Errorf("htmx transfer duplicate file, %w: %s", ErrDir, srcPath)
+			logger.Errorf("htmx transfer duplicate file, %w: %s", ErrDir, src)
 		}
 		return
 	}
-	newPath := filepath.Join(dstDir, uid.String())
-	i, err := helper.Duplicate(srcPath, newPath)
+	newPath := dst.Join(uid.String())
+	i, err := helper.Duplicate(src, newPath)
 	if err != nil {
 		if logger != nil {
 			logger.Errorf("htmx transfer duplicate file: %w,%q,  %s",
-				err, uid.String(), srcPath)
+				err, uid.String(), src)
 		}
 		return
 	}

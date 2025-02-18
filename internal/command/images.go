@@ -16,6 +16,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
+	"github.com/Defacto2/server/internal/dir"
 	"go.uber.org/zap"
 )
 
@@ -139,7 +140,7 @@ const (
 )
 
 // Thumbs creates args thumbnail image for the preview image based on the crop position of the image.
-func (align Align) Thumbs(unid, previewDir, thumbnailDir string) error {
+func (align Align) Thumbs(unid string, preview, thumbnail dir.Directory) error {
 	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-thumb-" + unid
 	path := filepath.Join(tmpDir, pattern)
@@ -152,7 +153,7 @@ func (align Align) Thumbs(unid, previewDir, thumbnailDir string) error {
 	} else if !st.IsDir() {
 		return fmt.Errorf("align thumbs %w", ErrIsFile)
 	}
-	if err := ImagesDelete(unid, thumbnailDir); err != nil {
+	if err := ImagesDelete(unid, thumbnail.Path()); err != nil {
 		return fmt.Errorf("dirs thumbs %w", err)
 	}
 	for ext := range slices.Values(ImagesExt()) {
@@ -169,7 +170,7 @@ func (align Align) Thumbs(unid, previewDir, thumbnailDir string) error {
 		case Right:
 			args.Rightx400()
 		}
-		src := filepath.Join(previewDir, unid+ext)
+		src := preview.Join(unid + ext)
 		if _, err := os.Stat(src); err != nil {
 			continue
 		}
@@ -181,7 +182,7 @@ func (align Align) Thumbs(unid, previewDir, thumbnailDir string) error {
 		if err != nil {
 			return fmt.Errorf("align thumbs run %w", err)
 		}
-		dst := filepath.Join(thumbnailDir, unid+ext)
+		dst := thumbnail.Join(unid + ext)
 		if err := CopyFile(nil, tmp, dst); err != nil {
 			fmt.Fprint(io.Discard, err)
 			return nil
@@ -200,13 +201,9 @@ const (
 )
 
 // Images crops the preview image based on the crop position and ratio of the image.
-func (crop Crop) Images(unid, previewDir string) error {
-	st, err := os.Stat(previewDir)
-	if err != nil {
+func (crop Crop) Images(unid string, preview dir.Directory) error {
+	if err := preview.Check(); err != nil {
 		return fmt.Errorf("crop images %w", err)
-	}
-	if !st.IsDir() {
-		return fmt.Errorf("crop images %w", ErrIsFile)
 	}
 	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-crop-" + unid
@@ -230,7 +227,7 @@ func (crop Crop) Images(unid, previewDir string) error {
 		case OneTwo:
 			args.OneTwo()
 		}
-		src := filepath.Join(previewDir, unid+ext)
+		src := preview.Join(unid + ext)
 		if _, err := os.Stat(src); err != nil {
 			continue
 		}
@@ -242,7 +239,7 @@ func (crop Crop) Images(unid, previewDir string) error {
 		if err != nil {
 			return fmt.Errorf("crop images %w", err)
 		}
-		dst := filepath.Join(previewDir, unid+ext)
+		dst := preview.Join(unid + ext)
 		if err := CopyFile(nil, tmp, dst); err != nil {
 			fmt.Fprint(io.Discard, err)
 			return nil

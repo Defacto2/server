@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/volatiletech/null/v8"
@@ -145,12 +146,12 @@ func TestImageSample(t *testing.T) {
 	x := simple.ImageSample("", "")
 	assert.Contains(t, x, missing)
 	// note: the filename extension is case-sensitive.
-	x = simple.ImageSample("", filepath.Join("testdata", "TEST.png"))
+	x = simple.ImageSample("", dir.Directory(filepath.Join("testdata", "TEST.png")))
 	assert.Contains(t, x, missing)
 	abs, err := filepath.Abs("testdata")
 	require.NoError(t, err)
 	const filenameNoExt = "TEST"
-	x = simple.ImageSample(filenameNoExt, abs)
+	x = simple.ImageSample(filenameNoExt, dir.Directory(abs))
 	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
 }
 
@@ -160,8 +161,8 @@ func TestImageSampleStat(t *testing.T) {
 	assert.False(t, x)
 	name := filepath.Base(imagefiler(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	dir := filepath.Dir(imagefiler(t))
-	x = simple.ImageSampleStat(name, dir)
+	prev := filepath.Dir(imagefiler(t))
+	x = simple.ImageSampleStat(name, dir.Directory(prev))
 	assert.True(t, x)
 }
 
@@ -254,8 +255,8 @@ func TestScreenshot(t *testing.T) {
 	t.Parallel()
 	s := simple.Screenshot("", "", "")
 	assert.Empty(t, s)
-	dir := filepath.Dir(imagefiler(t))
-	s = simple.Screenshot("TEST", "test", dir)
+	prev := filepath.Dir(imagefiler(t))
+	s = simple.Screenshot("TEST", "test", dir.Directory(prev))
 	assert.Contains(t, s, `alt="test screenshot"`)
 	assert.Contains(t, s, `<img src="/public/image`)
 }
@@ -279,8 +280,8 @@ func TestThumb(t *testing.T) {
 	assert.Contains(t, "<!-- no thumbnail found -->", s)
 	name := filepath.Base(imagefiler(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	dir := filepath.Dir(imagefiler(t))
-	s = simple.Thumb(name, "a description", dir, false)
+	thumb := dir.Directory(filepath.Dir(imagefiler(t)))
+	s = simple.Thumb(name, "a description", thumb, false)
 	assert.Contains(t, s, `alt="a description thumbnail"`)
 }
 
@@ -291,7 +292,7 @@ func TestThumbSample(t *testing.T) {
 	assert.Contains(t, x, missing)
 	name := filepath.Base(imagefiler(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	dir := filepath.Dir(imagefiler(t))
-	x = simple.ThumbSample(name, dir)
+	thumb := filepath.Dir(imagefiler(t))
+	x = simple.ThumbSample(name, dir.Directory(thumb))
 	assert.Contains(t, x, "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI")
 }

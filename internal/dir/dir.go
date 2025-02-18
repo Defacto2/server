@@ -3,6 +3,7 @@ package dir
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 )
 
@@ -13,6 +14,11 @@ var (
 
 // Directory is a string type that represents an internal server directory path.
 type Directory string
+
+// Join combines the directory path with the given file or directory name.
+func (d Directory) Join(name string) string {
+	return filepath.Clean(filepath.Join(d.Path(), name))
+}
 
 func (d Directory) Path() string {
 	return string(d)

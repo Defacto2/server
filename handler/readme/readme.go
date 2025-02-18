@@ -16,6 +16,7 @@ import (
 
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/render"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 )
 
@@ -132,11 +133,11 @@ func SortContent(content ...string) []string {
 }
 
 // Read returns the content of the readme file or the text of the file download.
-func Read(art *models.File, downloadPath, extraPath string) ([]byte, error) {
+func Read(art *models.File, download, extra dir.Directory) ([]byte, error) {
 	if art == nil {
 		return nil, fmt.Errorf("art in read, %w", ErrNoModel)
 	}
-	b, err := render.Read(art, downloadPath, extraPath)
+	b, err := render.Read(art, download, extra)
 	if err != nil {
 		if errors.Is(err, render.ErrFilename) {
 			return nil, nil
@@ -171,7 +172,7 @@ func Read(art *models.File, downloadPath, extraPath string) ([]byte, error) {
 		b = nil
 	}
 	// insert the file_id.diz content into the readme text
-	diz, err := render.Diz(art, extraPath)
+	diz, err := render.Diz(art, extra)
 	if err != nil {
 		return nil, fmt.Errorf("render.Diz: %w", err)
 	}

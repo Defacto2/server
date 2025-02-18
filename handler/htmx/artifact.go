@@ -117,7 +117,7 @@ func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = align.Thumbs(unid, dirs.Preview.Path(), dirs.Thumbnail.Path())
+	err = align.Thumbs(unid, dirs.Preview, dirs.Thumbnail)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -131,7 +131,7 @@ func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) er
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = crop.Images(unid, dirs.Preview.Path())
+	err = crop.Images(unid, dirs.Preview)
 	if err != nil {
 		return badRequest(c, err)
 	}

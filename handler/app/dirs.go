@@ -214,24 +214,24 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 	if findRepack {
 		return data
 	}
-	decompDir, valid := data["modDecompressLoc"].(string)
+	root, valid := data["modDecompressLoc"].(string)
 	if !valid {
 		if logger != nil {
 			logger.Error(errorWithID(ErrType, "modDecompressLoc is string", uid))
 		}
 		return data
 	}
-	if st, err := os.Stat(decompDir); err != nil || !st.IsDir() {
+	if st, err := os.Stat(root); err != nil || !st.IsDir() {
 		if logger != nil {
 			logger.Error(errorWithID(err, "decompress directory", uid))
 		}
 		return data
 	}
-	return dir.checkMagics(logger, uid, decompDir, platform, modMagic, data)
+	return dir.checkMagics(logger, uid, root, platform, modMagic, data)
 }
 
 func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
-	uid, decompDir, platform string,
+	uid, root, platform string,
 	modMagic interface{},
 	data map[string]interface{},
 ) map[string]interface{} {
@@ -247,7 +247,7 @@ func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 	default:
 		return data
 	}
-	if i, err := dir.compressZIP(decompDir, uid); err != nil {
+	if i, err := dir.compressZIP(root, uid); err != nil {
 		if logger != nil {
 			logger.Error(errorWithID(err, "compress directory", uid))
 		}
@@ -329,7 +329,7 @@ func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string
 	if art == nil {
 		return data, nil
 	}
-	p, err := readme.Read(art, dir.Download.Path(), dir.Extra.Path())
+	p, err := readme.Read(art, dir.Download, dir.Extra)
 	if err != nil {
 		if errors.Is(err, render.ErrDownload) {
 			data["noDownload"] = true

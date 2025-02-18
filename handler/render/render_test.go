@@ -8,6 +8,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/render"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -101,26 +102,26 @@ func TestRead(t *testing.T) {
 	require.Error(t, err)
 	assert.Nil(t, r)
 
-	dir := t.TempDir()
-	err = helper.Touch(filepath.Join(dir, unid+txt))
+	tmp := t.TempDir()
+	err = helper.Touch(filepath.Join(tmp, unid+txt))
 	require.NoError(t, err)
-	err = helper.Touch(filepath.Join(dir, unid))
+	err = helper.Touch(filepath.Join(tmp, unid))
 	require.NoError(t, err)
 
-	r, err = render.Read(&art, dir, dir)
+	r, err = render.Read(&art, dir.Directory(tmp), dir.Directory(tmp))
 	require.NoError(t, err)
 	assert.Nil(t, r)
 	assert.Empty(t, r)
 
-	err = os.Remove(filepath.Join(dir, unid+txt))
+	err = os.Remove(filepath.Join(tmp, unid+txt))
 	require.NoError(t, err)
 
 	s := []byte("This is a test file.\n")
-	i, err := helper.TouchW(filepath.Join(dir, unid+txt), s...)
+	i, err := helper.TouchW(filepath.Join(tmp, unid+txt), s...)
 	require.NoError(t, err)
 	l := len(s)
 	assert.Equal(t, i, l)
-	b, err := render.Read(&art, dir, dir)
+	b, err := render.Read(&art, dir.Directory(tmp), dir.Directory(tmp))
 	require.NoError(t, err)
 	assert.NotNil(t, b)
 	assert.Equal(t, string(b), string(s))

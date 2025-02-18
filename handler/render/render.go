@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
@@ -54,7 +54,7 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-func Read(art *models.File, downloadDir, extraDir string) ([]byte, error) {
+func Read(art *models.File, download, extra dir.Directory) ([]byte, error) {
 	if art == nil {
 		return nil, ErrFileModel
 	}
@@ -75,13 +75,13 @@ func Read(art *models.File, downloadDir, extraDir string) ([]byte, error) {
 		uutxtOk bool
 		filepOk bool
 	}
-	files.uuidTxt = filepath.Join(extraDir, unid+".txt")
+	files.uuidTxt = extra.Join(unid + ".txt")
 	files.uutxtOk = helper.Stat(files.uuidTxt)
-	files.filepth = filepath.Join(downloadDir, unid)
+	files.filepth = extra.Join(unid)
 	files.filepOk = helper.Stat(files.filepth)
 
 	if !files.uutxtOk && !files.filepOk {
-		return nil, fmt.Errorf("render read %w: %s", ErrDownload, filepath.Join(downloadDir, unid))
+		return nil, fmt.Errorf("render read %w: %s", ErrDownload, download.Join(unid))
 	}
 
 	if !files.uutxtOk && !Viewer(art) {
@@ -106,7 +106,7 @@ func Read(art *models.File, downloadDir, extraDir string) ([]byte, error) {
 
 // Diz returns the content of the FILE_ID.DIZ file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-func Diz(art *models.File, extraDir string) ([]byte, error) {
+func Diz(art *models.File, extra dir.Directory) ([]byte, error) {
 	if art == nil {
 		return nil, ErrFileModel
 	}
@@ -116,7 +116,7 @@ func Diz(art *models.File, extraDir string) ([]byte, error) {
 		return nil, ErrUUID
 	}
 
-	diz := filepath.Join(extraDir, unid+".diz")
+	diz := extra.Join(unid + ".diz")
 	if !helper.Stat(diz) {
 		return nil, nil
 	}

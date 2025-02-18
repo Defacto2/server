@@ -22,6 +22,7 @@ import (
 	"github.com/Defacto2/server/handler/form"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/volatiletech/null/v8"
 )
@@ -324,16 +325,16 @@ func (t *Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 			return hrefs[Readme]
 		},
 		"recordImgSampleStat": func(unid string) bool {
-			return simple.ImageSampleStat(unid, t.Environment.AbsPreview)
+			return simple.ImageSampleStat(unid, dir.Directory(t.Environment.AbsPreview))
 		},
 		"recordImgSample": func(unid string) template.HTML {
-			return simple.ImageSample(unid, t.Environment.AbsPreview)
+			return simple.ImageSample(unid, dir.Directory(t.Environment.AbsPreview))
 		},
 		"recordThumbSample": func(unid string) template.HTML {
-			return simple.ThumbSample(unid, t.Environment.AbsThumbnail)
+			return simple.ThumbSample(unid, dir.Directory(t.Environment.AbsThumbnail))
 		},
 		"screenshot": func(unid, desc string) template.HTML {
-			return simple.Screenshot(unid, desc, t.Environment.AbsPreview)
+			return simple.Screenshot(unid, desc, dir.Directory(t.Environment.AbsPreview))
 		},
 		"sri_bootstrap5": func() string {
 			return t.Subresource.Bootstrap5
@@ -396,7 +397,7 @@ func (t *Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 		"tagText":      func() string { return tags.Text.String() },
 		"tagTextAmiga": func() string { return tags.TextAmiga.String() },
 		"thumb": func(unid, desc string, bottom bool) template.HTML {
-			return simple.Thumb(unid, desc, t.Environment.AbsThumbnail, bottom)
+			return simple.Thumb(unid, desc, dir.Directory(t.Environment.AbsThumbnail), bottom)
 		},
 		"recordPreviewSrc": func(unid, ext string) string {
 			return simple.AssetSrc(config.Prev, t.Environment.AbsPreview, unid, ext)

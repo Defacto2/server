@@ -24,6 +24,7 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/extensions"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
@@ -144,12 +145,12 @@ func DownloadB(i any) template.HTML {
 }
 
 // ImageSample returns a HTML image tag for the given unid.
-// The previewDir is the directory where the preview images are stored.
-func ImageSample(unid, previewDir string) template.HTML {
+// The preview is the directory where the preview images are stored.
+func ImageSample(unid string, preview dir.Directory) template.HTML {
 	ext, name, src := "", "", ""
 	exts := []string{avif, webp, png}
 	for ext = range slices.Values(exts) {
-		name = filepath.Join(previewDir, unid+ext)
+		name = preview.Join(unid + ext)
 		src = strings.Join([]string{config.StaticOriginal(), unid + ext}, "/")
 		if helper.Stat(name) {
 			break
@@ -165,12 +166,12 @@ func ImageSample(unid, previewDir string) template.HTML {
 }
 
 // ImageSampleStat returns true if the image sample file exists and is not a 0 byte file.
-// The previewDir is the directory where the preview images are stored.
-func ImageSampleStat(unid, previewDir string) bool {
+// The preview is the directory where the preview images are stored.
+func ImageSampleStat(unid string, preview dir.Directory) bool {
 	name := ""
 	exts := []string{avif, webp, png}
 	for ext := range slices.Values(exts) {
-		name = filepath.Join(previewDir, unid+ext)
+		name = preview.Join(unid + ext)
 		if helper.Stat(name) {
 			break
 		}
@@ -476,10 +477,10 @@ func ReleaserPair(a, b any) [2]string {
 //
 // The unid is the filename of the screenshot image without an extension.
 // The desc is the description of the image used for the alt attribute in the img tag.
-// The previewDir is the directory where the preview images are stored.
+// The preview is the directory where the preview images are stored.
 //
 // Supported formats are webp, png, jpg and avif.
-func Screenshot(unid, desc, previewDir string) template.HTML {
+func Screenshot(unid, desc string, preview dir.Directory) template.HTML {
 	const separator = "/"
 	alt := strings.ToLower(desc) + " screenshot"
 
@@ -488,15 +489,15 @@ func Screenshot(unid, desc, previewDir string) template.HTML {
 	srcJ := strings.Join([]string{config.StaticOriginal(), unid + jpg}, separator)
 	srcA := strings.Join([]string{config.StaticOriginal(), unid + avif}, separator)
 
-	sizeW := helper.Size(filepath.Join(previewDir, unid+webp))
-	sizeP := helper.Size(filepath.Join(previewDir, unid+png))
-	sizeJ := helper.Size(filepath.Join(previewDir, unid+jpg))
-	sizeA := helper.Size(filepath.Join(previewDir, unid+avif))
+	sizeW := helper.Size(preview.Join(unid + webp))
+	sizeP := helper.Size(preview.Join(unid + png))
+	sizeJ := helper.Size(preview.Join(unid + jpg))
+	sizeA := helper.Size(preview.Join(unid + avif))
 
-	hashW, _ := helper.IntegrityFile(filepath.Join(previewDir, unid+webp))
-	hashP, _ := helper.IntegrityFile(filepath.Join(previewDir, unid+png))
-	hashJ, _ := helper.IntegrityFile(filepath.Join(previewDir, unid+jpg))
-	hashA, _ := helper.IntegrityFile(filepath.Join(previewDir, unid+avif))
+	hashW, _ := helper.IntegrityFile(preview.Join(unid + webp))
+	hashP, _ := helper.IntegrityFile(preview.Join(unid + png))
+	hashJ, _ := helper.IntegrityFile(preview.Join(unid + jpg))
+	hashA, _ := helper.IntegrityFile(preview.Join(unid + avif))
 
 	usePicture := (sizeA > 0 || sizeW > 0) && (sizeJ > 0 || sizeP > 0)
 	if usePicture {
@@ -563,11 +564,11 @@ func StatHumanize(name string) (string, string, string) {
 // Thumb returns a HTML image tag or picture element for the given unid.
 // The unid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
-// The thumbDir is the directory where the thumbnail images are stored.
+// The thumbnail is the directory where the thumbnail images are stored.
 // The bottom flag is true if the image should be displayed at the bottom of the container element.
-func Thumb(unid, desc, thumbDir string, bottom bool) template.HTML {
-	fw := filepath.Join(thumbDir, unid+webp)
-	fp := filepath.Join(thumbDir, unid+png)
+func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTML {
+	fw := thumbnail.Join(unid + webp)
+	fp := thumbnail.Join(unid + png)
 	webp := strings.Join([]string{config.StaticThumb(), unid + webp}, "/")
 	png := strings.Join([]string{config.StaticThumb(), unid + png}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
@@ -609,11 +610,11 @@ func thumb(src, alt, class, style string) template.HTML {
 // ThumbSample returns a HTML image tag for the given unid.
 // The unid is the filename of the thumbnail image without an extension.
 // The thumbDir is the directory where the thumbnail images are stored.
-func ThumbSample(unid, thumbDir string) template.HTML {
+func ThumbSample(unid string, thumbnail dir.Directory) template.HTML {
 	ext, name, src := "", "", ""
 	exts := []string{avif, webp, png}
 	for ext = range slices.Values(exts) {
-		name = filepath.Join(thumbDir, unid+ext)
+		name = thumbnail.Join(unid + ext)
 		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
 		if helper.Stat(name) {
 			break

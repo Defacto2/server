@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -42,9 +43,9 @@ func TestCrop(t *testing.T) {
 	t.Parallel()
 	err := command.OneTwo.Images("", "")
 	require.Error(t, err)
-	dir, err := os.Getwd()
+	wd, err := os.Getwd()
 	require.NoError(t, err)
-	err = command.OneTwo.Images("", dir)
+	err = command.OneTwo.Images("", dir.Directory(wd))
 	require.NoError(t, err)
 }
 
