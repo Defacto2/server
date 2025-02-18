@@ -22,6 +22,7 @@ import (
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/model"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -29,8 +30,63 @@ import (
 var (
 	ErrIsDir = errors.New("the file is a directory")
 	ErrName  = errors.New("the file name is invalid")
+	ErrPath  = errors.New("the file path is invalid")
 	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
 )
+
+const (
+	editorKey = "artifact-editor-key"
+)
+
+// Validate checks that the path is not absolute and does not allow
+// for any path traversal. It returns an error if the path is invalid.
+func Validate(path string) error {
+	path = strings.TrimSuffix(path, "/")
+	if filepath.IsAbs(path) {
+		return fmt.Errorf("%w: %q", ErrPath, path)
+	}
+	if s := filepath.Clean(path); s != path {
+		return fmt.Errorf("%w: %q", ErrPath, path)
+	}
+	return nil
+}
+
+// Path returns the uuid and directory path, named unid and path from the URL parameters.
+// It returns an error if the unid or name is invalid.
+func Path(c echo.Context) (string, string, error) {
+	unid := c.Param("unid")
+	if err := uuid.Validate(unid); err != nil {
+		return "", "", err
+	}
+	path := c.Param("path")
+	name, err := url.QueryUnescape(path)
+	if err != nil {
+		return "", "", err
+	}
+	if err := Validate(name); err != nil {
+		return "", "", err
+	}
+	return unid, name, nil
+}
+
+// UUID returns the uuid from the URL parameters and returns an error if it is invalid.
+func UUID(c echo.Context) (string, error) {
+	unid := c.Param("unid")
+	if err := uuid.Validate(unid); err != nil {
+		return "", err
+	}
+	return unid, nil
+}
+
+// ID returns the id from the URL parameters and returns an error if it is invalid.
+func ID(c echo.Context) (int, error) {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return 0, fmt.Errorf("%w: %w: %q", ErrKey, err, key)
+	}
+	return id, nil
+}
 
 // pageRefresh is a helper function to set the HTTP [HTMX header] for the browser to refresh the page.
 //
@@ -42,8 +98,11 @@ func pageRefresh(c echo.Context) echo.Context {
 }
 
 func RecordThumb(c echo.Context, thumb command.Thumb, dirs command.Dirs) error {
-	unid := c.Param("unid")
-	err := dirs.Thumbs(unid, thumb)
+	unid, err := UUID(c)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	err = dirs.Thumbs(unid, thumb)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -53,8 +112,11 @@ func RecordThumb(c echo.Context, thumb command.Thumb, dirs command.Dirs) error {
 }
 
 func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs) error {
-	unid := c.Param("unid")
-	err := align.Thumbs(unid, dirs.Preview, dirs.Thumbnail)
+	unid, err := UUID(c)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	err = align.Thumbs(unid, dirs.Preview, dirs.Thumbnail)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -64,8 +126,11 @@ func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs
 }
 
 func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) error {
-	unid := c.Param("unid")
-	err := crop.Images(unid, dirs.Preview)
+	unid, err := UUID(c)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	err = crop.Images(unid, dirs.Preview)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -75,13 +140,11 @@ func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) er
 }
 
 func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Dirs) error {
-	path := c.Param("path")
-	name, err := url.QueryUnescape(path)
+	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 	name = filepath.Clean(name)
-	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
 	if err != nil {
 		return badRequest(c, err)
@@ -103,13 +166,11 @@ func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Di
 }
 
 func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont bool, dirs command.Dirs) error {
-	path := c.Param("path")
-	name, err := url.QueryUnescape(path)
+	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 	name = filepath.Clean(name)
-	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
 	if err != nil {
 		return badRequest(c, err)
@@ -131,13 +192,11 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont boo
 }
 
 func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
-	path := c.Param("path")
-	name, err := url.QueryUnescape(path)
+	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 	name = filepath.Clean(name)
-	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
 	if err != nil {
 		return badRequest(c, err)
@@ -160,13 +219,10 @@ func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
 }
 
 func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
-	path := c.Param("path")
-	name, err := url.QueryUnescape(path)
+	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	name = filepath.Clean(name)
-	unid := c.Param("unid")
 	tmp, err := helper.MkContent(unid)
 	if err != nil {
 		return badRequest(c, err)
@@ -197,10 +253,9 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 // RecordReadmeDisable handles the patch submission to disable the display of
 // the readme and diz texts for a file artifact.
 func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
-	key := c.Param("id")
-	id, err := strconv.Atoi(key)
+	id, err := ID(c)
 	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+		return badRequest(c, err)
 	}
 	value := true
 	if c.FormValue("readme-is-off") == "on" {
@@ -213,7 +268,10 @@ func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
 }
 
 func RecordImagePixelator(c echo.Context, dirs ...string) error {
-	unid := c.Param("unid")
+	unid, err := UUID(c)
+	if err != nil {
+		return badRequest(c, err)
+	}
 	if err := command.ImagesPixelate(unid, dirs...); err != nil {
 		return badRequest(c, err)
 	}
@@ -223,7 +281,10 @@ func RecordImagePixelator(c echo.Context, dirs ...string) error {
 }
 
 func RecordImagesDeleter(c echo.Context, dirs ...string) error {
-	unid := c.Param("unid")
+	unid, err := UUID(c)
+	if err != nil {
+		return badRequest(c, err)
+	}
 	if err := command.ImagesDelete(unid, dirs...); err != nil {
 		return badRequest(c, err)
 	}
@@ -233,7 +294,10 @@ func RecordImagesDeleter(c echo.Context, dirs ...string) error {
 }
 
 func RecordDizDeleter(c echo.Context, extraDir string) error {
-	unid := c.Param("unid")
+	unid, err := UUID(c)
+	if err != nil {
+		return badRequest(c, err)
+	}
 	dst := filepath.Join(extraDir, unid+".diz")
 	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
@@ -251,7 +315,10 @@ func RecordDizDeleter(c echo.Context, extraDir string) error {
 }
 
 func RecordReadmeDeleter(c echo.Context, extraDir string) error {
-	unid := c.Param("unid")
+	unid, err := UUID(c)
+	if err != nil {
+		return badRequest(c, err)
+	}
 	dst := filepath.Join(extraDir, unid+".txt")
 	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
@@ -271,7 +338,7 @@ func RecordReadmeDeleter(c echo.Context, extraDir string) error {
 // RecordToggle handles the post submission for the file artifact record toggle.
 // The return value is either "online" or "offline" depending on the state.
 func RecordToggle(c echo.Context, db *sql.DB, state bool) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.ParseInt(key, 10, 64)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -314,7 +381,7 @@ func RecordToggleByID(c echo.Context, db *sql.DB, key string, state bool) error 
 func RecordClassification(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	section := c.FormValue("artifact-editor-categories")
 	platform := c.FormValue("artifact-editor-operatingsystem")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	if invalid := section == "" || platform == ""; invalid {
 		html, err := form.HumanizeCount(db, section, platform)
 		if err != nil {
@@ -341,7 +408,7 @@ func RecordClassification(c echo.Context, db *sql.DB, logger *zap.SugaredLogger)
 // RecordFilename handles the post submission for the file artifact filename.
 func RecordFilename(c echo.Context, db *sql.DB) error {
 	name := c.FormValue("artifact-editor-filename")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -356,7 +423,7 @@ func RecordFilename(c echo.Context, db *sql.DB) error {
 // RecordFilenameReset handles the post submission for the file artifact filename reset.
 func RecordFilenameReset(c echo.Context, db *sql.DB) error {
 	val := c.FormValue("artifact-editor-filename-undo")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -370,7 +437,7 @@ func RecordFilenameReset(c echo.Context, db *sql.DB) error {
 // RecordVirusTotal handles the post submission for the file artifact VirusTotal report link.
 func RecordVirusTotal(c echo.Context, db *sql.DB) error {
 	link := c.FormValue("artifact-editor-virustotal")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -387,7 +454,7 @@ func RecordVirusTotal(c echo.Context, db *sql.DB) error {
 // RecordTitle handles the post submission for the file artifact title.
 func RecordTitle(c echo.Context, db *sql.DB) error {
 	title := c.FormValue("artifact-editor-title")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -401,7 +468,7 @@ func RecordTitle(c echo.Context, db *sql.DB) error {
 // RecordTitleReset handles the post submission for the file artifact title reset.
 func RecordTitleReset(c echo.Context, db *sql.DB) error {
 	val := c.FormValue("artifact-editor-titleundo")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -415,7 +482,7 @@ func RecordTitleReset(c echo.Context, db *sql.DB) error {
 // RecordComment handles the post submission for the file artifact comment.
 func RecordComment(c echo.Context, db *sql.DB) error {
 	comment := c.FormValue("artifact-editor-comment")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -429,7 +496,7 @@ func RecordComment(c echo.Context, db *sql.DB) error {
 // RecordCommentReset handles the post submission for the file artifact comment reset.
 func RecordCommentReset(c echo.Context, db *sql.DB) error {
 	val := c.FormValue("artifact-editor-comment-resetter")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -448,7 +515,7 @@ func RecordReleasers(c echo.Context, db *sql.DB) error {
 	val2 := c.FormValue("releaser2")
 	rel1 := c.FormValue("artifact-editor-releaser1")
 	rel2 := c.FormValue("artifact-editor-releaser2")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	unchanged := (rel1 == val1 && rel2 == val2)
 	if unchanged {
 		return c.NoContent(http.StatusNoContent)
@@ -467,7 +534,7 @@ func RecordReleasersReset(c echo.Context, db *sql.DB) error {
 	val2 := c.FormValue("releaser2")
 	rel1 := c.FormValue("artifact-editor-releaser1")
 	rel2 := c.FormValue("artifact-editor-releaser2")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	unchanged := (rel1 == val1 && rel2 == val2)
 	if unchanged {
 		return c.String(http.StatusNoContent, "")
@@ -498,7 +565,7 @@ func RecordDateIssued(c echo.Context, db *sql.DB) error {
 	year := c.FormValue("artifact-editor-year")
 	month := c.FormValue("artifact-editor-month")
 	day := c.FormValue("artifact-editor-day")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	yearval := c.FormValue("artifact-editor-yearval")
 	monthval := c.FormValue("artifact-editor-monthval")
 	dayval := c.FormValue("artifact-editor-dayval")
@@ -523,7 +590,7 @@ func RecordDateIssued(c echo.Context, db *sql.DB) error {
 // RecordDateIssuedReset handles the post submission for the file artifact date of release reset.
 func RecordDateIssuedReset(c echo.Context, db *sql.DB, elmID string) error {
 	reset := c.FormValue(elmID)
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -547,7 +614,7 @@ func RecordDateIssuedReset(c echo.Context, db *sql.DB, elmID string) error {
 // RecordCreatorText handles the post submission for the file artifact creator text.
 func RecordCreatorText(c echo.Context, db *sql.DB) error {
 	creator := c.FormValue("artifact-editor-credittext")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -562,7 +629,7 @@ func RecordCreatorText(c echo.Context, db *sql.DB) error {
 // RecordCreatorIll handles the post submission for the file artifact creator illustrator.
 func RecordCreatorIll(c echo.Context, db *sql.DB) error {
 	creator := c.FormValue("artifact-editor-creditill")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -577,7 +644,7 @@ func RecordCreatorIll(c echo.Context, db *sql.DB) error {
 // RecordCreatorProg handles the post submission for the file artifact creator programmer.
 func RecordCreatorProg(c echo.Context, db *sql.DB) error {
 	creator := c.FormValue("artifact-editor-creditprog")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -592,7 +659,7 @@ func RecordCreatorProg(c echo.Context, db *sql.DB) error {
 // RecordCreatorAudio handles the post submission for the file artifact creator musician.
 func RecordCreatorAudio(c echo.Context, db *sql.DB) error {
 	creator := c.FormValue("artifact-editor-creditaudio")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -619,7 +686,7 @@ func RecordCreatorReset(c echo.Context, db *sql.DB) error {
 	illval := c.FormValue("artifact-editor-creditill")
 	progval := c.FormValue("artifact-editor-creditprog")
 	audioval := c.FormValue("artifact-editor-creditaudio")
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
@@ -645,7 +712,7 @@ func RecordCreatorReset(c echo.Context, db *sql.DB) error {
 
 // RecordYouTube handles the post submission for the file artifact YouTube watch video link.
 func RecordYouTube(c echo.Context, db *sql.DB) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	newVideo := strings.TrimSpace(c.FormValue("artifact-editor-youtube"))
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -663,7 +730,7 @@ func RecordYouTube(c echo.Context, db *sql.DB) error {
 
 // RecordDemozoo handles the post submission for the file artifact Demozoo production link.
 func RecordDemozoo(c echo.Context, db *sql.DB) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	newProd := c.FormValue("artifact-editor-demozoo")
 	if newProd == "" {
 		newProd = "0"
@@ -680,7 +747,7 @@ func RecordDemozoo(c echo.Context, db *sql.DB) error {
 
 // RecordPouet handles the post submission for the file artifact Pouet production link.
 func RecordPouet(c echo.Context, db *sql.DB) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	newProd := c.FormValue("artifact-editor-pouet")
 	if newProd == "" {
 		newProd = "0"
@@ -697,7 +764,7 @@ func RecordPouet(c echo.Context, db *sql.DB) error {
 
 // Record16Colors handles the post submission for the file artifact 16 Colors link.
 func Record16Colors(c echo.Context, db *sql.DB) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	newURL := c.FormValue("artifact-editor-16colors")
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -712,7 +779,7 @@ func Record16Colors(c echo.Context, db *sql.DB) error {
 
 // RecordGitHub handles the post submission for the file artifact GitHub repository link.
 func RecordGitHub(c echo.Context, db *sql.DB) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	newRepo := c.FormValue("artifact-editor-github")
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -727,7 +794,7 @@ func RecordGitHub(c echo.Context, db *sql.DB) error {
 
 // RecordRelations handles the post submission for the file artifact releaser relationships.
 func RecordRelations(c echo.Context, db *sql.DB) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	newRelations := c.FormValue("artifact-editor-relations")
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -741,7 +808,7 @@ func RecordRelations(c echo.Context, db *sql.DB) error {
 
 // RecordSites handles the post submission for the file artifact website links.
 func RecordSites(c echo.Context, db *sql.DB) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	newSites := c.FormValue("artifact-editor-websites")
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -772,7 +839,7 @@ func RecordLinks(c echo.Context) error {
 
 // RecordLinksReset handles the post submission for the file artifact links reset.
 func RecordLinksReset(c echo.Context, db *sql.DB) error {
-	key := c.FormValue("artifact-editor-key")
+	key := c.FormValue(editorKey)
 	youtube := c.FormValue("artifact-editor-youtubeval")
 	demozooS := c.FormValue("artifact-editor-demozooval")
 	pouetS := c.FormValue("artifact-editor-pouetval")
@@ -826,10 +893,9 @@ func RecordLinksReset(c echo.Context, db *sql.DB) error {
 }
 
 func recordEmulateRAM(c echo.Context, db *sql.DB, name string) error {
-	key := c.Param("id")
-	id, err := strconv.Atoi(key)
+	id, err := ID(c)
 	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+		return badRequest(c, err)
 	}
 	value := false
 	if c.FormValue(name) == "on" {
@@ -863,10 +929,9 @@ func RecordEmulateXMS(c echo.Context, db *sql.DB) error {
 
 // RecordEmulateBroken handles the patch submission for the broken emulation for a file artifact.
 func RecordEmulateBroken(c echo.Context, db *sql.DB) error {
-	key := c.Param("id")
-	id, err := strconv.Atoi(key)
+	id, err := ID(c)
 	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+		return badRequest(c, err)
 	}
 	value := true
 	if c.FormValue("emulate-is-broken") == "on" {
@@ -880,10 +945,9 @@ func RecordEmulateBroken(c echo.Context, db *sql.DB) error {
 
 // RecordEmulateRunProgram handles the patch submission for the run program emulation.
 func RecordEmulateRunProgram(c echo.Context, db *sql.DB) error {
-	key := c.Param("id")
-	id, err := strconv.Atoi(key)
+	id, err := ID(c)
 	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+		return badRequest(c, err)
 	}
 	value := strings.ToUpper(c.FormValue("emulate-run-program"))
 	if !jsdos.Valid(value) {
@@ -903,10 +967,9 @@ func RecordEmulateRunProgram(c echo.Context, db *sql.DB) error {
 
 // RecordEmulateMachine handles the patch submission for the machine and graphic emulation for a file artifact.
 func RecordEmulateMachine(c echo.Context, db *sql.DB) error {
-	key := c.Param("id")
-	id, err := strconv.Atoi(key)
+	id, err := ID(c)
 	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+		return badRequest(c, err)
 	}
 	value := c.FormValue("emulate-machine")
 	if err := model.UpdateEmulateMachine(db, int64(id), value); err != nil {
@@ -917,10 +980,9 @@ func RecordEmulateMachine(c echo.Context, db *sql.DB) error {
 
 // RecordEmulateCPU handles the patch submission for the CPU emulation for a file artifact.
 func RecordEmulateCPU(c echo.Context, db *sql.DB) error {
-	key := c.Param("id")
-	id, err := strconv.Atoi(key)
+	id, err := ID(c)
 	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+		return badRequest(c, err)
 	}
 	value := c.FormValue("emulate-cpu")
 	if err := model.UpdateEmulateCPU(db, int64(id), value); err != nil {
@@ -931,10 +993,9 @@ func RecordEmulateCPU(c echo.Context, db *sql.DB) error {
 
 // RecordEmulateSFX handles the patch submission for the audio emulation for a file artifact.
 func RecordEmulateSFX(c echo.Context, db *sql.DB) error {
-	key := c.Param("id")
-	id, err := strconv.Atoi(key)
+	id, err := ID(c)
 	if err != nil {
-		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
+		return badRequest(c, err)
 	}
 	value := c.FormValue("emulate-sfx")
 	if err := model.UpdateEmulateSfx(db, int64(id), value); err != nil {

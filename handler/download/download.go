@@ -70,12 +70,12 @@ type Download struct {
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
-	id := c.Param("id")
+	key := c.Param("id")
 	ctx := context.Background()
-	art, err := model.OneFileByKey(ctx, db, id)
+	art, err := model.OneFileByKey(ctx, db, key)
 	switch {
 	case err != nil && sess.Editor(c):
-		art, err = model.OneEditByKey(ctx, db, id)
+		art, err = model.OneEditByKey(ctx, db, key)
 		if err != nil {
 			return fmt.Errorf("http send, one edit by key: %w", err)
 		}
@@ -134,12 +134,12 @@ type ExtraZip struct {
 //
 // This is used for obsolute file types that have been rearchived into a standard zip file.
 func (e ExtraZip) HTTPSend(c echo.Context, db *sql.DB) error {
-	id := c.Param("id")
+	key := c.Param("id")
 	ctx := context.Background()
-	art, err := model.OneFileByKey(ctx, db, id)
+	art, err := model.OneFileByKey(ctx, db, key)
 	switch {
 	case err != nil && sess.Editor(c):
-		art, err = model.OneEditByKey(ctx, db, id)
+		art, err = model.OneEditByKey(ctx, db, key)
 		if err != nil {
 			return fmt.Errorf("http extra send, one edit by key: %w", err)
 		}

@@ -356,14 +356,13 @@ func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c echo.Context
 		return dbErr()
 	}
 	order := Clauses(c.QueryString())
-	id := c.Param("id")
-	records, err := order.ByGroup(ctx, exec, id)
+	name := c.Param("id")
+	records, err := order.ByGroup(ctx, exec, name)
 	if err != nil {
 		return queryErr("by group:", err)
 	}
 	total := len(records)
-	byteSum, err := model.ReleaserByteSum(ctx, exec, id)
-	// name := releaser.Clean(id)
+	byteSum, err := model.ReleaserByteSum(ctx, exec, name)
 	if err != nil {
 		return statErr("bytes by group:", err)
 	}

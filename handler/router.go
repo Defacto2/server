@@ -215,11 +215,11 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLog
 		return app.Download(cx, db, logger, c.Environment.AbsDownload)
 	})
 	s.GET("/f/:id", func(cx echo.Context) error {
-		id := cx.Param("id")
+		uri := cx.Param("id")
 		if qs := cx.QueryString(); qs != "" {
-			return cx.Redirect(http.StatusMovedPermanently, "/f/"+id)
+			return cx.Redirect(http.StatusMovedPermanently, "/f/"+uri)
 		}
-		dir.URI = id
+		dir.URI = uri
 		return dir.Artifact(cx, db, logger, c.Environment.ReadOnly)
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {

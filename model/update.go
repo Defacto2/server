@@ -132,12 +132,12 @@ func UpdateEmulateRunProgram(db *sql.DB, id int64, val string) error {
 }
 
 func UpdateEmulateMachine(db *sql.DB, id int64, val string) error {
-	s := strings.TrimSpace(strings.ToLower(val))
-	switch s {
+	validate := strings.TrimSpace(strings.ToLower(val))
+	switch validate {
 	case "cga", "ega", "vga", "tandy", "nolfb", "et3000", "paradise", "et4000", "oldvbe":
-	// do nothing
+		// success
 	case auto:
-		s = emulateAuto
+		validate = emulateAuto
 	default:
 		return fmt.Errorf("%s: %w", val, ErrMachine)
 	}
@@ -150,9 +150,9 @@ func UpdateEmulateMachine(db *sql.DB, id int64, val string) error {
 	if err != nil {
 		return fmt.Errorf("find file for: %w", err)
 	}
-	f.DoseeHardwareGraphic = null.StringFrom(s)
+	f.DoseeHardwareGraphic = null.StringFrom(validate)
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s: %w", s, err)
+		return fmt.Errorf("%s: %w", validate, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("updatestringfrom: %w", err)
@@ -161,12 +161,12 @@ func UpdateEmulateMachine(db *sql.DB, id int64, val string) error {
 }
 
 func UpdateEmulateCPU(db *sql.DB, id int64, val string) error {
-	s := strings.TrimSpace(strings.ToLower(val))
-	switch s {
+	validate := strings.TrimSpace(strings.ToLower(val))
+	switch validate {
 	case "8086", "386", "486":
-	// do nothing
+		// success
 	case auto:
-		s = emulateAuto
+		validate = emulateAuto
 	default:
 		return fmt.Errorf("%s: %w", val, ErrCPU)
 	}
@@ -179,9 +179,9 @@ func UpdateEmulateCPU(db *sql.DB, id int64, val string) error {
 	if err != nil {
 		return fmt.Errorf("find file for: %w", err)
 	}
-	f.DoseeHardwareCPU = null.StringFrom(s)
+	f.DoseeHardwareCPU = null.StringFrom(validate)
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s: %w", s, err)
+		return fmt.Errorf("%s: %w", validate, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("updatestringfrom: %w", err)
@@ -190,12 +190,12 @@ func UpdateEmulateCPU(db *sql.DB, id int64, val string) error {
 }
 
 func UpdateEmulateSfx(db *sql.DB, id int64, val string) error {
-	s := strings.TrimSpace(strings.ToLower(val))
-	switch s {
+	validate := strings.TrimSpace(strings.ToLower(val))
+	switch validate {
 	case "covox", "sb1", "sb16", "gus", "pcspeaker", "none":
-		// do nothing
+		// success
 	case auto:
-		s = emulateAuto
+		validate = emulateAuto
 	default:
 		return fmt.Errorf("%s: %w", val, ErrSfx)
 	}
@@ -208,9 +208,9 @@ func UpdateEmulateSfx(db *sql.DB, id int64, val string) error {
 	if err != nil {
 		return fmt.Errorf("find file for: %w", err)
 	}
-	f.DoseeHardwareAudio = null.StringFrom(s)
+	f.DoseeHardwareAudio = null.StringFrom(validate)
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s: %w", s, err)
+		return fmt.Errorf("%s: %w", validate, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("updatestringfrom: %w", err)

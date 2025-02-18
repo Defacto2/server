@@ -68,11 +68,11 @@ func Areacodes(c echo.Context) error {
 // This also acts as the string constructor for the summary of a successful lookup
 // for the "Demozoo production or graphic" form.
 func DemozooLookup(c echo.Context, prodMode bool, db *sql.DB) error {
-	sid := c.FormValue("demozoo-submission")
-	id, err := strconv.Atoi(sid)
+	zoo := c.FormValue("demozoo-submission")
+	id, err := strconv.Atoi(zoo)
 	if err != nil {
 		return c.String(http.StatusNotAcceptable,
-			"The Demozoo production ID must be a numeric value, "+sid)
+			"The Demozoo production ID must be a numeric value, "+zoo)
 	}
 	ctx := context.Background()
 	deleted, key, err := model.OneDemozoo(ctx, db, int64(id))
@@ -353,11 +353,11 @@ func Pings(c echo.Context, proto string, port int) error {
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
 func PouetLookup(c echo.Context, db *sql.DB) error {
-	sid := c.FormValue("pouet-submission")
-	id, err := strconv.Atoi(sid)
+	pouet := c.FormValue("pouet-submission")
+	id, err := strconv.Atoi(pouet)
 	if err != nil {
 		return c.String(http.StatusNotAcceptable,
-			"The Pouet production ID must be a numeric value, "+sid)
+			"The Pouet production ID must be a numeric value, "+pouet)
 	}
 	ctx := context.Background()
 	deleted, key, err := model.OnePouet(ctx, db, int64(id))
