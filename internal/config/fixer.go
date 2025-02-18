@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"os"
+	"io"
 	"strings"
 	"time"
 
@@ -17,7 +17,10 @@ import (
 )
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
-func (c *Config) Fixer(d time.Time) error {
+func (c *Config) Fixer(w io.Writer, d time.Time) error {
+	if w == nil {
+		w = io.Discard
+	}
 	logger := zaplog.Timestamp().Sugar()
 	db, err := postgres.Open()
 	if err != nil {
@@ -28,7 +31,7 @@ func (c *Config) Fixer(d time.Time) error {
 	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
-	fmt.Fprintf(os.Stdout, "\n%+v\n", c)
+	fmt.Fprintf(w, "\n%+v\n", c)
 	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
 	count := RecordCount(ctx, db)
 	const welcome = "Defacto2 web application"

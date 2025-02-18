@@ -242,15 +242,15 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	defer func() {
 		const alert = "Detected Ctrl + C, server will shutdown"
 		_ = logger.Sync() // do not check Sync errors as there can be false positives
-		dst := os.Stdout
-		w := bufio.NewWriter(dst)
-		fmt.Fprintf(w, "\n%s in %v ", alert, waitDuration)
-		w.Flush()
+		out := os.Stdout
+		buf := bufio.NewWriter(out)
+		fmt.Fprintf(buf, "\n%s in %v ", alert, waitDuration)
+		buf.Flush()
 		count := waitCount
 		pause := time.NewTicker(ticker)
 		for range pause.C {
 			count--
-			w := bufio.NewWriter(dst)
+			w := bufio.NewWriter(out)
 			if count <= 0 {
 				fmt.Fprintf(w, "\r%s %s\n", alert, "now     ")
 				w.Flush()

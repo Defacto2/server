@@ -56,7 +56,7 @@ func main() {
 	const exit = 0
 	// initialize a temporary logger, get and print the environment variable configurations.
 	logger, configs := environmentVars()
-	if exitCode := parseFlags(logger, configs); exitCode >= exit {
+	if exitCode := parseFlags(os.Stdout, logger, configs); exitCode >= exit {
 		os.Exit(exitCode)
 	}
 	var w io.Writer = os.Stdout
@@ -155,11 +155,11 @@ func newInstance(ctx context.Context, db *sql.DB, configs config.Config) handler
 // parseFlags is used to parse the commandline arguments.
 // If an error is returned, the application will exit with the error code.
 // Otherwise, a negative value is returned to indicate the application should continue.
-func parseFlags(logger *zap.SugaredLogger, configs config.Config) int {
+func parseFlags(w io.Writer, logger *zap.SugaredLogger, configs config.Config) int {
 	if logger == nil {
 		return -1
 	}
-	code, err := flags.Run(version, &configs)
+	code, err := flags.Run(w, version, &configs)
 	if err != nil {
 		logger.Errorf("run command, parse flags: %s", err)
 		return int(code)

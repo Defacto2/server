@@ -186,52 +186,53 @@ func Uploader() api.BuildOptions {
 }
 
 func main() {
+	w := os.Stderr
 	for name := range slices.Values(NamedCSS()) {
 		result := api.Build(CSS(name))
 		if len(result.Errors) > 0 {
-			fmt.Fprintf(os.Stderr, "CSS build failed: %v\n", result.Errors)
+			fmt.Fprintf(w, "CSS build failed: %v\n", result.Errors)
 		}
 	}
 	for name := range slices.Values(NamedJS()) {
 		result := api.Build(JS(name))
 		if len(result.Errors) > 0 {
-			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
 	{
 		result := api.Build(EditorAssets())
 		if len(result.Errors) > 0 {
-			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
 	{
 		result := api.Build(Artifact())
 		if len(result.Errors) > 0 {
-			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
 	{
 		result := api.Build(HtmxExts())
 		if len(result.Errors) > 0 {
-			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
 	{
 		result := api.Build(Layout())
 		if len(result.Errors) > 0 {
-			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
 	{
 		result := api.Build(Readme())
 		if len(result.Errors) > 0 {
-			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
 	{
 		result := api.Build(Uploader())
 		if len(result.Errors) > 0 {
-			fmt.Fprintf(os.Stderr, "JS build failed: %v\n", result.Errors)
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
 }

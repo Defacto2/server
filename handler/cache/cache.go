@@ -39,14 +39,12 @@ const (
 // If the directory does not exist it will be created.
 func (c Cache) Path() (string, error) {
 	tmp := filepath.Join(os.TempDir(), SubDir, c.String())
-	_, err := os.Stat(tmp)
-	if err != nil && !os.IsNotExist(err) {
+	if _, err := os.Stat(tmp); err != nil && !os.IsNotExist(err) {
 		return "", fmt.Errorf("cache path %s: %w", tmp, err)
-	}
-	if err == nil {
+	} else if err == nil {
 		return tmp, nil
 	}
-	err = os.MkdirAll(tmp, helper.DirWriteReadRead)
+	err := os.MkdirAll(tmp, helper.DirWriteReadRead)
 	if err != nil {
 		return "", fmt.Errorf("cache path, make directory %w", err)
 	}

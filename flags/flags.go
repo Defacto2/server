@@ -6,6 +6,7 @@ package flags
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"strconv"
@@ -34,7 +35,7 @@ var ErrCmd = errors.New("cannot run command as config is nil")
 // It uses the [github.com/urfave.cli/v2] package.
 //
 // [github.com/urfave.cli/v2]: https://github.com/urfave/cli
-func App(ver string, c *config.Config) *cli.App {
+func App(w io.Writer, ver string, c *config.Config) *cli.App {
 	app := &cli.App{
 		Name:    Title,
 		Version: Version(ver),
@@ -53,14 +54,19 @@ func App(ver string, c *config.Config) *cli.App {
 			},
 		},
 		Commands: []*cli.Command{
-			Config(c), Address(c), Fix(c),
+			Config(w, c),
+			Address(w, c),
+			Fix(w, c),
 		},
 	}
 	return app
 }
 
 // Fix command the database and assets.
-func Fix(c *config.Config) *cli.Command {
+func Fix(w io.Writer, c *config.Config) *cli.Command {
+	if w == nil {
+		w = io.Discard
+	}
 	return &cli.Command{
 		Name:        "fix",
 		Aliases:     []string{"f"},
@@ -68,7 +74,7 @@ func Fix(c *config.Config) *cli.Command {
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Action: func(_ *cli.Context) error {
 			d := time.Now()
-			if err := c.Fixer(d); err != nil {
+			if err := c.Fixer(w, d); err != nil {
 				return fmt.Errorf("command fix: %w", err)
 			}
 			return nil
@@ -77,7 +83,10 @@ func Fix(c *config.Config) *cli.Command {
 }
 
 // Address command lists the server addresses.
-func Address(c *config.Config) *cli.Command {
+func Address(w io.Writer, c *config.Config) *cli.Command {
+	if w == nil {
+		w = io.Discard
+	}
 	return &cli.Command{
 		Name:        "address",
 		Aliases:     []string{"a"},
@@ -88,24 +97,27 @@ func Address(c *config.Config) *cli.Command {
 			if err != nil {
 				return fmt.Errorf("command address: %w", err)
 			}
-			defer fmt.Fprintf(os.Stdout, "%s\n", s)
+			defer fmt.Fprintf(w, "%s\n", s)
 			return nil
 		},
 	}
 }
 
 // Config command lists the server configuration.
-func Config(c *config.Config) *cli.Command {
+func Config(w io.Writer, c *config.Config) *cli.Command {
+	if w == nil {
+		w = io.Discard
+	}
 	return &cli.Command{
 		Name:        "config",
 		Aliases:     []string{"c"},
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
-			defer fmt.Fprintf(os.Stdout, "%s\n", c.String())
+			defer fmt.Fprintf(w, "%s\n", c.String())
 			defer func() {
 				b := new(strings.Builder)
-				fmt.Fprintf(os.Stdout, "%s\n", b.String())
+				fmt.Fprintf(w, "%s\n", b.String())
 			}()
 			return nil
 		},
@@ -213,14 +225,14 @@ const (
 )
 
 // Run parses optional command line arguments for this program.
-func Run(ver string, c *config.Config) (ExitCode, error) {
+func Run(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	if c == nil {
 		return UsageError, ErrCmd
 	}
 	args := os.Args[1:]
 	useArguments := len(args) > 0
 	if useArguments {
-		return setup(ver, c)
+		return setup(w, ver, c)
 	}
 	return Continue, nil
 }
@@ -239,11 +251,11 @@ defaults for poor usability. Without the downloads and image directories, the se
 will not display any thumbnails or previews or serve the file downloads.`, c.HTTPPort)
 }
 
-func setup(ver string, c *config.Config) (ExitCode, error) {
+func setup(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	if c == nil {
 		return UsageError, ErrCmd
 	}
-	app := App(ver, c)
+	app := App(w, ver, c)
 	app.EnableBashCompletion = true
 	app.HideHelpCommand = true
 	app.HideVersion = false

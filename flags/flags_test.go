@@ -11,11 +11,11 @@ import (
 
 func TestRun(t *testing.T) {
 	t.Parallel()
-	ec, err := flags.Run("", nil)
+	ec, err := flags.Run(nil, "", nil)
 	require.Error(t, err)
 	assert.Equal(t, flags.UsageError, ec)
 	c := config.Config{}
-	ec, err = flags.Run("", &c)
+	ec, err = flags.Run(nil, "", &c)
 	require.Error(t, err)
 	assert.Equal(t, flags.GenericError, ec)
 }

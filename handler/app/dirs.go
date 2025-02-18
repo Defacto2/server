@@ -164,7 +164,7 @@ func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 	basename := uid + ".zip"
 	src := filepath.Join(helper.TmpDir(), basename)
 	dest := filepath.Join(dir.Extra, basename)
-	os.Remove(dest)
+	_ = os.Remove(dest)
 	_, err := rezip.CompressDir(root, src)
 	if err != nil {
 		return 0, fmt.Errorf("dirs compress zip: %w", err)
@@ -435,8 +435,8 @@ func (dir Dirs) previews(unid string) map[string][2]string {
 	matches["Jpeg"] = simple.ImageXY(jpg)
 	matches["PNG"] = simple.ImageXY(png)
 	matches["WebP"] = simple.ImageXY(webp)
-	if s, err := os.Stat(avif); err == nil {
-		matches["AVIF"] = [2]string{humanize.Comma(s.Size()), ""}
+	if st, err := os.Stat(avif); err == nil {
+		matches["AVIF"] = [2]string{humanize.Comma(st.Size()), ""}
 	}
 	return matches
 }
@@ -461,18 +461,18 @@ func (dir Dirs) extras(unid string) map[string][2]string {
 	size := 3
 	matches := make(map[string][2]string, size)
 	diz := filepath.Join(dir.Extra, unid+".diz")
-	if s, err := os.Stat(diz); err == nil {
+	if st, err := os.Stat(diz); err == nil {
 		i, _ := helper.Lines(diz)
-		matches["FILE_ID"] = [2]string{humanize.Comma(s.Size()), fmt.Sprintf("%d lines", i)}
+		matches["FILE_ID"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 	}
 	txt := filepath.Join(dir.Extra, unid+".txt")
-	if s, err := os.Stat(txt); err == nil {
+	if st, err := os.Stat(txt); err == nil {
 		i, _ := helper.Lines(txt)
-		matches["README"] = [2]string{humanize.Comma(s.Size()), fmt.Sprintf("%d lines", i)}
+		matches["README"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 	}
 	zip := filepath.Join(dir.Extra, unid+".zip")
-	if s, err := os.Stat(zip); err == nil {
-		matches["Repacked ZIP"] = [2]string{humanize.Comma(s.Size()), "Deflate compression"}
+	if st, err := os.Stat(zip); err == nil {
+		matches["Repacked ZIP"] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
 	}
 	return matches
 }

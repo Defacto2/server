@@ -550,13 +550,13 @@ func img(src, alt, integrity string) template.HTML {
 //
 //	"2024-Sep-03", "4,163", "4.2 kB"
 func StatHumanize(name string) (string, string, string) {
-	stat, err := os.Stat(name)
+	st, err := os.Stat(name)
 	if err != nil {
 		return noFile, noFile, noFile
 	}
-	u := uint64(math.Abs(float64(stat.Size())))
-	return stat.ModTime().Format(YYYYMMDD),
-		humanize.Comma(stat.Size()),
+	u := uint64(math.Abs(float64(st.Size())))
+	return st.ModTime().Format(YYYYMMDD),
+		humanize.Comma(st.Size()),
 		humanize.Bytes(u)
 }
 
