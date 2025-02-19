@@ -723,13 +723,13 @@ func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[st
 func lockWidth(maxWidth int, b []byte) []byte {
 	var builder strings.Builder
 	for line := range strings.Lines(string(b)) {
-		for len(line) > maxWidth {
-			s := line[:maxWidth]
-			builder.WriteString(s + "\n")
-			line = line[maxWidth:]
-		}
 		// note if there are missing newline issues,
 		// it is likely due to the line endings with this variable
+		for len(line) > maxWidth {
+			s := line[:maxWidth]
+			builder.WriteString(s)
+			line = line[maxWidth:]
+		}
 		builder.WriteString(line)
 	}
 	return []byte(builder.String())
