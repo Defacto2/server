@@ -744,7 +744,6 @@ func decode(src io.Reader) (string, error) {
 	if !strings.HasSuffix(out.String(), "\n\n") {
 		out.WriteString("\n")
 	}
-	fmt.Fprintln(os.Stderr, out.String())
 	return out.String(), nil
 }
 

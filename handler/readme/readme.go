@@ -137,49 +137,56 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 	if art == nil {
 		return nil, nil, fmt.Errorf("art in read, %w", ErrNoModel)
 	}
-	b, r, err := render.Read(art, download, extra)
-	if err != nil {
-		if errors.Is(err, render.ErrFilename) {
-			return nil, nil, nil
-		}
-		if errors.Is(err, render.ErrDownload) {
-			return nil, nil, err
-		}
-		return nil, nil, err
+	var errs error
+	diz, err1 := render.Diz(art, extra)
+	b, r, err2 := render.Read(art, download, extra)
+
+	if err1 != nil {
+		errs = errors.Join(errs, fmt.Errorf("render diz: %w", err1))
 	}
-	if b == nil {
-		return nil, nil, nil
+	if err2 != nil {
+		if errors.Is(err2, render.ErrFilename) {
+			err2 = nil
+		}
+		if err2 != nil {
+			errs = errors.Join(errs, fmt.Errorf("render read: %w", err2))
+		}
 	}
-	nr := bytes.NewReader(b)
+	if b == nil && diz == nil {
+		return nil, nil, errs
+	}
 	// check the bytes are plain text but not utf16 or utf32
-	if sign, err := magicnumber.Text(nr); err != nil {
-		return nil, nil, fmt.Errorf("magicnumber.Text: %w", err)
-	} else if sign == magicnumber.Unknown ||
-		sign == magicnumber.UTF16Text ||
-		sign == magicnumber.UTF32Text {
-		return nil, nil, nil
-	}
-	// trim trailing whitespace and MS-DOS era EOF marker
-	b = bytes.TrimRightFunc(b, uni.IsSpace)
-	const endOfFile = 0x1a // Ctrl+Z
-	if bytes.HasSuffix(b, []byte{endOfFile}) {
-		b = bytes.TrimSuffix(b, []byte{endOfFile})
-	}
-	incompatible, err := IncompatibleANSI(nr)
+	nr := bytes.NewReader(b)
+	sign, err := magicnumber.Text(nr)
 	if err != nil {
-		return nil, nil, fmt.Errorf("incompatibleANSI: %w", err)
+		clear(b)
+		errs = errors.Join(errs, fmt.Errorf("magicnumber.Text: %w", err))
+	}
+	if sign == magicnumber.Unknown || sign == magicnumber.UTF16Text || sign == magicnumber.UTF32Text {
+		clear(b)
+	}
+	if incompatible, err := IncompatibleANSI(nr); err != nil {
+		errs = errors.Join(errs, fmt.Errorf("incompatible ansi: %w", err))
+		clear(b)
 	} else if incompatible {
-		b = nil
+		clear(b)
 	}
-	// insert the file_id.diz content into the readme text
-	diz, err := render.Diz(art, extra)
-	if err != nil {
-		return nil, nil, fmt.Errorf("render.Diz: %w", err)
+	if b != nil {
+		// trim trailing whitespace and MS-DOS era EOF marker
+		b = bytes.TrimRightFunc(b, uni.IsSpace)
+		const endOfFile = 0x1a // Ctrl+Z
+		if bytes.HasSuffix(b, []byte{endOfFile}) {
+			b = bytes.TrimSuffix(b, []byte{endOfFile})
+		}
 	}
 	if diz != nil {
 		b = render.InsertDiz(b, diz)
 	}
-	return RemoveCtrls(b), r, nil
+	b = RemoveCtrls(b)
+	if b == nil {
+		return nil, nil, errs
+	}
+	return b, r, nil
 }
 
 // RemoveCtrls removes ANSI escape codes and converts Windows line endings to Unix.

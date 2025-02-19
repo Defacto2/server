@@ -460,15 +460,14 @@ func Remove(diz, txt string) (string, error) {
 		return "", fmt.Errorf("remove open %w: %s", err, diz)
 	}
 	defer file.Close()
-
 	if !FileID(file) {
 		if err := os.Remove(diz); err != nil {
-			return "", fmt.Errorf("remove diz %w: %s", err, diz)
+			return "", fmt.Errorf("remove diz %w: %q", err, diz)
 		}
 		return filepath.Base(diz), nil
 	}
 	if err := os.Remove(txt); err != nil {
-		return "", fmt.Errorf("remove readme %w: %s", err, txt)
+		return "", fmt.Errorf("remove readme %w: %q", err, txt)
 	}
 	return filepath.Base(txt), nil
 }

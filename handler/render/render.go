@@ -113,6 +113,8 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 
 // Diz returns the content of the FILE_ID.DIZ file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
+//
+// If the FILE_ID.DIZ file is missing then it will return nil.
 func Diz(art *models.File, extra dir.Directory) ([]byte, error) {
 	if art == nil {
 		return nil, ErrFileModel
