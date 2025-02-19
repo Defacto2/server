@@ -143,9 +143,9 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 			return nil, nil, nil
 		}
 		if errors.Is(err, render.ErrDownload) {
-			return nil, nil, render.ErrDownload
+			return nil, nil, err
 		}
-		return nil, nil, fmt.Errorf("render.Read: %w", err)
+		return nil, nil, err
 	}
 	if b == nil {
 		return nil, nil, nil

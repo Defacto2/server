@@ -61,45 +61,47 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 	}
 
 	fname := art.Filename.String
-	unid := art.UUID.String
-
 	if fname == "" {
 		return nil, nil, ErrFilename
 	}
+	unid := art.UUID.String
 	if unid == "" {
 		return nil, nil, ErrUUID
 	}
 
 	var files struct {
-		uuidTxt string
-		filepth string
-		uutxtOk bool
-		filepOk bool
+		artifact struct {
+			okay bool
+			path string
+		}
+		readmeText struct {
+			okay bool
+			path string
+		}
 	}
-	files.uuidTxt = extra.Join(unid + ".txt")
-	files.uutxtOk = helper.Stat(files.uuidTxt)
-	files.filepth = extra.Join(unid)
-	files.filepOk = helper.Stat(files.filepth)
+	files.readmeText.path = extra.Join(unid + ".txt")
+	files.readmeText.okay = helper.Stat(files.readmeText.path)
 
-	if !files.uutxtOk && !files.filepOk {
-		return nil, nil, fmt.Errorf("render read %w: %s", ErrDownload, download.Join(unid))
+	files.artifact.path = download.Join(unid)
+	files.artifact.okay = helper.Stat(files.artifact.path)
+
+	if !files.artifact.okay && !files.readmeText.okay {
+		return nil, nil,
+			fmt.Errorf("render read %w: %q", ErrDownload, download.Join(unid))
+	}
+	if !files.readmeText.okay && !Viewer(art) {
+		quit := []byte{}
+		return quit, nil, nil
 	}
 
-	if !files.uutxtOk && !Viewer(art) {
-		doNothing := []byte{}
-		return doNothing, nil, nil
+	name := files.artifact.path
+	if files.readmeText.okay {
+		name = files.readmeText.path
 	}
-
-	name := files.filepth
-	if files.uutxtOk {
-		name = files.uuidTxt
-	}
-
 	b, err := os.ReadFile(name)
 	if err != nil {
 		b = []byte("error could not read the readme text file")
 	}
-
 	r := []rune{}
 	if utf8.Valid(b) {
 		r = bytes.Runes(b)
