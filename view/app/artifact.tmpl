@@ -15,6 +15,7 @@
 {{- $readmeLS := index . "readmeLatin1Cls"}}
 {{- $readmeC := index . "readmeCP437" | safeBBS}}
 {{- $readmeCS := index . "readmeCP437Cls"}}
+{{- $readmeU := index . "readmeUTF8" | safeBBS}}
 {{- $alertURL := index . "alertURL"}}
 {{- $noDownload := index . "noDownload"}}
 {{- $readmeName := index . "readmeName"}}
@@ -83,7 +84,7 @@
                     data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy text</button> &nbsp;
                 <input type="radio" class="btn-check" name="readme-base" id="monoFont" autocomplete="off">
                 <label class="btn btn-sm btn-outline-dark" for="monoFont" 
-                    data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with OEM-US encoding">Cascadia</label>
+                    data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with UTF-8 encoding">Cascadia</label>
                 <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
                 <label class="btn btn-sm btn-outline-dark" for="topazFont" 
                     data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
@@ -92,6 +93,9 @@
                     data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
             </div>
             <hr>
+        {{- if $readmeU -}}
+            <pre id="readmeUTF8" class="d-none font-cascadia {{$readmeCls}}">{{$readmeU}}</pre>
+        {{- end -}}
         {{- if $readmeL -}}
             <pre id="readmeLatin1" class="{{$readmeLS}}font-amiga {{$readmeCls}}">{{$readmeL}}</pre>
         {{- end -}}

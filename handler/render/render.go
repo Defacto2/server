@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/dir"
@@ -54,19 +55,19 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-func Read(art *models.File, download, extra dir.Directory) ([]byte, error) {
+func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, error) {
 	if art == nil {
-		return nil, ErrFileModel
+		return nil, nil, ErrFileModel
 	}
 
 	fname := art.Filename.String
 	unid := art.UUID.String
 
 	if fname == "" {
-		return nil, ErrFilename
+		return nil, nil, ErrFilename
 	}
 	if unid == "" {
-		return nil, ErrUUID
+		return nil, nil, ErrUUID
 	}
 
 	var files struct {
@@ -81,12 +82,12 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, error) {
 	files.filepOk = helper.Stat(files.filepth)
 
 	if !files.uutxtOk && !files.filepOk {
-		return nil, fmt.Errorf("render read %w: %s", ErrDownload, download.Join(unid))
+		return nil, nil, fmt.Errorf("render read %w: %s", ErrDownload, download.Join(unid))
 	}
 
 	if !files.uutxtOk && !Viewer(art) {
 		doNothing := []byte{}
-		return doNothing, nil
+		return doNothing, nil, nil
 	}
 
 	name := files.filepth
@@ -99,9 +100,13 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, error) {
 		b = []byte("error could not read the readme text file")
 	}
 
+	r := []rune{}
+	if utf8.Valid(b) {
+		r = bytes.Runes(b)
+	}
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
-	return b, nil
+	return b, r, nil
 }
 
 // Diz returns the content of the FILE_ID.DIZ file.

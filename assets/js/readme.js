@@ -11,30 +11,19 @@ import { clipText, getElmById } from "./helper.mjs";
   const latin = "readmeLatin1",
     preLatin1 = getElmById(latin),
     cp437 = "readmeCP437",
-    pre437 = getElmById(cp437);
+    pre437 = getElmById(cp437),
+    utf8 = "readmeUTF8",
+    preUTF8 = getElmById(utf8);
 
-  const defaultFont = document.querySelector(
-    `input[name="readme-base"]:checked`
-  );
-  const cascadiaMono = document.getElementById(`monoFont`);
-  if (cascadiaMono !== null) {
-    cascadiaMono.addEventListener("click", useMono);
+  const cascadia = document.getElementById(`monoFont`);
+  if (cascadia !== null) {
+    cascadia.addEventListener("click", useCascadia);
   }
-  function useMono() {
-    switch (defaultFont.id) {
-      case `vgaFont`:
-        preLatin1.classList.add(none);
-        pre437.classList.remove(none, "font-dos", ...blackBG);
-        pre437.classList.add("font-cascadia-mono");
-        break;
-      case `topazFont`:
-        pre437.classList.add(none);
-        preLatin1.classList.remove(none, "font-amiga", ...blackBG);
-        preLatin1.classList.add("font-cascadia-mono");
-        break;
-      default:
-        throw new Error(`no default font found for the readme`);
-    }
+  function useCascadia() {
+    pre437.classList.add(none);
+    preLatin1.classList.add(none);
+    preUTF8.classList.add("font-cascadia-mono", ...blackBG);
+    preUTF8.classList.remove(none);
   }
 
   const topaz = document.getElementById(`topazFont`);
@@ -43,8 +32,9 @@ import { clipText, getElmById } from "./helper.mjs";
   }
   function useAmiga() {
     pre437.classList.add(none);
-    preLatin1.classList.remove(none, "font-cascadia-mono");
+    preUTF8.classList.add(none);
     preLatin1.classList.add("font-amiga", ...blackBG);
+    preLatin1.classList.remove(none);
   }
 
   const vga = document.getElementById(`vgaFont`);
@@ -53,8 +43,9 @@ import { clipText, getElmById } from "./helper.mjs";
   }
   function useIBM() {
     preLatin1.classList.add(none);
-    pre437.classList.remove(none, "font-cascadia-mono");
+    preUTF8.classList.add(none);
     pre437.classList.add("font-dos", ...blackBG);
+    pre437.classList.remove(none);
   }
 
   const copier = getElmById(`artifact-copy-readme-body`);
@@ -66,6 +57,6 @@ import { clipText, getElmById } from "./helper.mjs";
   function copyText() {
     if (topaz !== null && topaz.checked) clipText(latin);
     else if (vga !== null && vga.checked) clipText(cp437);
-    else clipText(cp437);
+    else clipText(utf8);
   }
 })();

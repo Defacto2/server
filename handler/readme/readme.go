@@ -133,31 +133,31 @@ func SortContent(content ...string) []string {
 }
 
 // Read returns the content of the readme file or the text of the file download.
-func Read(art *models.File, download, extra dir.Directory) ([]byte, error) {
+func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, error) {
 	if art == nil {
-		return nil, fmt.Errorf("art in read, %w", ErrNoModel)
+		return nil, nil, fmt.Errorf("art in read, %w", ErrNoModel)
 	}
-	b, err := render.Read(art, download, extra)
+	b, r, err := render.Read(art, download, extra)
 	if err != nil {
 		if errors.Is(err, render.ErrFilename) {
-			return nil, nil
+			return nil, nil, nil
 		}
 		if errors.Is(err, render.ErrDownload) {
-			return nil, render.ErrDownload
+			return nil, nil, render.ErrDownload
 		}
-		return nil, fmt.Errorf("render.Read: %w", err)
+		return nil, nil, fmt.Errorf("render.Read: %w", err)
 	}
 	if b == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
-	r := bytes.NewReader(b)
+	nr := bytes.NewReader(b)
 	// check the bytes are plain text but not utf16 or utf32
-	if sign, err := magicnumber.Text(r); err != nil {
-		return nil, fmt.Errorf("magicnumber.Text: %w", err)
+	if sign, err := magicnumber.Text(nr); err != nil {
+		return nil, nil, fmt.Errorf("magicnumber.Text: %w", err)
 	} else if sign == magicnumber.Unknown ||
 		sign == magicnumber.UTF16Text ||
 		sign == magicnumber.UTF32Text {
-		return nil, nil
+		return nil, nil, nil
 	}
 	// trim trailing whitespace and MS-DOS era EOF marker
 	b = bytes.TrimRightFunc(b, uni.IsSpace)
@@ -165,21 +165,21 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, error) {
 	if bytes.HasSuffix(b, []byte{endOfFile}) {
 		b = bytes.TrimSuffix(b, []byte{endOfFile})
 	}
-	incompatible, err := IncompatibleANSI(r)
+	incompatible, err := IncompatibleANSI(nr)
 	if err != nil {
-		return nil, fmt.Errorf("incompatibleANSI: %w", err)
+		return nil, nil, fmt.Errorf("incompatibleANSI: %w", err)
 	} else if incompatible {
 		b = nil
 	}
 	// insert the file_id.diz content into the readme text
 	diz, err := render.Diz(art, extra)
 	if err != nil {
-		return nil, fmt.Errorf("render.Diz: %w", err)
+		return nil, nil, fmt.Errorf("render.Diz: %w", err)
 	}
 	if diz != nil {
 		b = render.InsertDiz(b, diz)
 	}
-	return RemoveCtrls(b), nil
+	return RemoveCtrls(b), r, nil
 }
 
 // RemoveCtrls removes ANSI escape codes and converts Windows line endings to Unix.
@@ -189,8 +189,8 @@ func RemoveCtrls(b []byte) []byte {
 		reAmiga   = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
 		reDEC     = `\x1b\[\?[0-9+]h`       // DEC control codes
 		reSauce   = `SAUCE00.*`             // SAUCE metadata that is appended to some files
-		nlWindows = "\r\n"                  // Windows line endings
-		nlUnix    = "\n"                    // Unix line endings
+		nlWindows = "\x01\x0a"              // Windows line endings
+		nlUnix    = "\x0a"                  // Unix line endings
 	)
 	const sep = `|`
 	controlCodes := regexp.MustCompile(reAnsi + sep + reDEC + sep + reAmiga + sep + reSauce)

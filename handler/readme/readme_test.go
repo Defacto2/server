@@ -126,7 +126,7 @@ func TestReadmeSuggest(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	t.Parallel()
-	p, err := readme.Read(nil, "", "")
+	p, _, err := readme.Read(nil, "", "")
 	require.Error(t, err)
 	assert.Empty(t, p)
 }

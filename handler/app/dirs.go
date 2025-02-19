@@ -329,7 +329,7 @@ func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string
 	if art == nil {
 		return data, nil
 	}
-	p, err := readme.Read(art, dir.Download, dir.Extra)
+	p, r, err := readme.Read(art, dir.Download, dir.Extra)
 	if err != nil {
 		if errors.Is(err, render.ErrDownload) {
 			data["noDownload"] = true
@@ -342,6 +342,12 @@ func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string
 		return data, fmt.Errorf("dirs.embed text: %w", err)
 	}
 	maps.Copy(data, d)
+	d["readmeUTF8"] = ""
+	if len(r) > 0 {
+		d["readmeUTF8"] = string(r)
+	} else {
+		d["readmeUTF8"] = string(p)
+	}
 	return d, nil
 }
 
@@ -675,16 +681,11 @@ func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[st
 		data["topazCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp}, []byte{sp})
 		b = bytes.ReplaceAll(b, []byte{shy}, []byte{hyphen})
-	case charmap.CodePage437:
+	case charmap.CodePage437, unicode.UTF8:
 		data["readmeLatin1Cls"] = "d-none" + space
 		data["readmeCP437Cls"] = ""
 		data["vgaCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
-	case unicode.UTF8:
-		// use Cad font as default
-		data["readmeLatin1Cls"] = "d-none" + space
-		data["readmeCP437Cls"] = ""
-		data["vgaCheck"] = chk
 	}
 	var readme string
 	var err error
@@ -727,7 +728,9 @@ func lockWidth(maxWidth int, b []byte) []byte {
 			builder.WriteString(s + "\n")
 			line = line[maxWidth:]
 		}
-		builder.WriteString(line + "\n")
+		// note if there are missing newline issues,
+		// it is likely due to the line endings with this variable
+		builder.WriteString(line)
 	}
 	return []byte(builder.String())
 }
@@ -741,6 +744,7 @@ func decode(src io.Reader) (string, error) {
 	if !strings.HasSuffix(out.String(), "\n\n") {
 		out.WriteString("\n")
 	}
+	fmt.Fprintln(os.Stderr, out.String())
 	return out.String(), nil
 }
 
