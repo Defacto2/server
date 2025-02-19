@@ -21,12 +21,12 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/releaser"
-	"github.com/Defacto2/server/handler/app/internal/extensions"
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -1212,10 +1212,7 @@ func LastModificationAgo(art *models.File) string {
 // A preview link is only available for certain file types such as images, text, documents,
 // and renders the whole item in its own browser tab without any HTML or CSS from the website.
 func LinkPreview(art *models.File) string {
-	if art == nil {
-		return ""
-	}
-	if art.ID == 0 {
+	if art == nil || art.ID == 0 {
 		return ""
 	}
 	id := art.ID

@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/Defacto2/server/handler/app/internal/extensions"
+	"github.com/Defacto2/server/internal/extensions"
 	"github.com/stretchr/testify/assert"
 )
 

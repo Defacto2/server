@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -99,7 +101,15 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger
 		}
 		name = file
 	}
-	if d.Inline && tags.IsText(art.Platform.String) {
+	text := tags.IsText(art.Platform.String)
+	ext := filepath.Ext(art.Filename.String)
+	if text && slices.Contains(extensions.Image(), ext) {
+		text = false
+	}
+	if text && slices.Contains(extensions.Media(), ext) {
+		text = false
+	}
+	if text && d.Inline {
 		modernText, err := helper.UTF8(file)
 		if err != nil {
 			return fmt.Errorf("http send utf-8: %w", err)
