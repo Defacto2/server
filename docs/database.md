@@ -4,6 +4,58 @@ Previous iterations of the Defacto2 web application relied on MySQL for its data
 
 Postgre is more strict about data types than MySQL. For example, inserting a string into a numeric column in Postgre will throw an error, whereas MySQL will convert the string to a number. Postgre has a more powerful query optimizer meaning queries often run faster with complex joins and subqueries.
 
+## Troubleshoot
+
+Troubleshoot after syncing the database with an backed up sql file.
+
+> f.Insert: models: unable to insert into files: ERROR: duplicate key value violates unique constraint "idx_16386_primary" (SQLSTATE 23505) 5454
+
+To fix on Docker, run the following command:
+
+The Docker container name is `postgres16` and the database name is `defacto2_ps`.
+The default username is `root` and the password is `example`.
+
+```sh
+docker exec -it postgres16 psql --username=root --dbname=defacto2_ps
+
+> \connect defacto2_ps
+```
+
+In the PostgreSQL shell, run the following SQL commands:
+
+```sql
+SELECT nextval('files_id_seq'), max(id) FROM files;
+
+ nextval |  max
+---------+-------
+   52779 | 55297
+(1 row)
+```
+
+The nextval is **less** than the max value, so we need to reset the sequence.
+
+
+```sql
+SELECT nextval('files_id_seq'), max(id) FROM files;
+
+ setval
+--------
+  55297
+(1 row)
+```
+
+Check the sequence value again to ensure it has been reset.
+
+```sql
+SELECT nextval('files_id_seq'), max(id) FROM files;
+
+ nextval |  max
+---------+-------
+   52779 | 55297
+(1 row)
+
+```
+
 # Table and data <small>changes to implement</small>
 
 These are only suggestions and may not be necessary if they create too much work or complexity.
