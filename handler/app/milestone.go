@@ -652,6 +652,7 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title: "Mr. Xerox's Star Blaster cracktro",
 				Png:   "starblaster-mr-xerox.png",
+				Webp:  "starblaster-mr-xerox.webp",
 			},
 		},
 		{

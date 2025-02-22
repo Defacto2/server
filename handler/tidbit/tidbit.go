@@ -126,6 +126,21 @@ func groups() Tibits {
 		67: []URI{"tristar-ampersand-red-sector-inc"},
 		68: []URI{"the-dream-team"},
 		69: []URI{"rom-1911", "razor-1911"},
+		70: []URI{"high-society"},
+		71: []URI{"trinity-reviews", "lancelot-2"},
+		72: []URI{"real-pirates-guide"},
+		73: []URI{"the-amatuer-crackist-tutorial"},
+		74: []URI{"church-chat", "ptl-club"},
+		75: []URI{"corrupted-programming-international", "cpi-newsletter"},
+		76: []URI{"official-unprotection-scheme-library", "copycats-inc"},
+		77: []URI{"the-elementals-piratelist"},
+		78: []URI{"game-release-list"},
+		79: []URI{"gif-news"},
+		80: []URI{"hackers-unlimited", "mickey-mouse-club"},
+		81: []URI{"national-pirate-list"},
+		82: []URI{"phreakers-handbook"},
+		83: []URI{"spectrum"},
+		84: []URI{"the-pirate-world", "the-pirate-syndicate"},
 	}
 }
 
@@ -283,6 +298,23 @@ func tidbits() Tidbit {
 			"With only the occasional <a href=\"/f/a93193\">guest release</a>, the TDT name disappeared from the scene for 16 months before <a href=\"/f/b72e5db\">returning</a> in 1995 and tried rebuilding itself from the ground up with only four members. But this second attempt wasn't as successful and the group for the most part stopped releasing after four months, and completely vanished in November.",
 		69: "<p>ROM 1911 was founded by The Renegade Chemist and Zeus as a dumping ground for PC CD titles that were becoming common place in 1994. At the time Razor 1911 had always been a cracking group that removed (floppy) disk copy protection and the newer CD titles were out of its scope. Zeus had joined Razor in August with the supply of <a href=\"/f/b31a533\">Doom 2</a> and possibly had fast access to PC CD titles that were looking for release. The first iteration of the group was presented as <em>ROM 1911 : Razor 1911 CD-ROM Division</em>.</p>" +
 			"<p>It is assumed the group died when The Renegade Chemist had <a href=\"/f/ab3a82\">quit</a> Razor at the end of January 1995. However, months later it was <a href=\"/f/a839dd\">restarted</a> as <em>ROM 1911</em> by Malicious Intent as another small, three member, one board group.  The group ballooned though and in late July, Malicious Intent <a href=\"/f/aa3e2d\">wound it up</a>, and in annoyance with the Razor leadership, quit to start a new group known as RETRiBUTiON.</p>",
+		70: "<p>According to a 2008 High Society <a href=\"https://www.high-society.at/history.php\">history page</a>, the group name came about in 1996. However the team were previously known as The Future Boys, who were founded in Austria on the Commodore 64 way back in 1986. Some members of the group later released on the Commodore Amiga as the Home Boys after the Commodore 64 as a viable platform faded from relevance. The Future Boys brand returned in 1995 but moved away from its microcomputer roots and instead released console software for the SNES. It was this entity that renamed itself in 1996 to High Society, and the following year exclusively focused on the PC and consoles such as the N64 and PlayStation.</p>" +
+			"<p>The same website mentions that put together, the members have programmed on a huge variety of platforms including the Commodore 16, 64, Amiga; NeoGeo; NES, SNES Gameboy, N64; PC Engine; PlayStation; Dreamcast; PC and cellular phones (pre-iOS/Android).</p>",
+		71: "<p>Trinity Reviews were a long running PC-release review group that might have first appeared late 1992 as a subsection of the scene magazine Lancelot 2, <a href=\"/f/a57c2\">issue 3</a>. " +
+			"The reviews continued on for years, long after Lancelot 2 stopped publishing and were mostly comprised of an ANSI text file, a viewer and sometimes some attach screenshots.</p>",
+		72: "The Real Pirates Guide was a document shared around BBSes of the mid-1980s. While written for the Apple II Scene, it was more broadly applicable to any online Scene of that era. And mostly it is an attempt to get kid-pirates to act more mature while online.",
+		73: "According to the introduction, The Amatuer Crackist Tutorial from 1988 was created by PTL Club during a time when there was a shortage of crackers on the PC. It’s a tutorial series that is designed to educate readers new to the basics of software cracking and using unprotect text documents.",
+		74: "Church Chat was a newsletter published by PTL Club covering the group activities. The name PTL Club was taken from a <a href=\"https://www.imdb.com/title/tt0125638/\">televangelist talk show</a> and the newsletter’s title also reflects this.",
+		75: "Corrupted Programming’s newsletter was an attempt to promote the worthiness of computer viruses and software Trojans as viable topic for the underground online communities of the time.",
+		76: "The Official Unprotection Scheme Library were combinations of unprotect documents compiled and republished in a newsletter. Unprotects are texts describing the methods and techniques needed to crack a specific software title.",
+		77: "The Elemental's Pirate BBS List was a large collection numbers to pirate bulletin boards online in the USA in 1989. The lists seem to be specific to the PC pirate scene and includes details such as the software in use by the board (Soft), the speed (Baad) and sometimes group affiliations (Comment).",
+		78: "Before the era of the world wide web and online news media, knowledge of the release dates for most games were kept to industry, such as software retailers, distributors and game magazines. Using these closed industry sources, Claude Rains RELEASES texts would compile lists of new game releases on PC and their expected release date. Information that was useful for game release groups who often still relied on retailers for software supply.",
+		79: "While not Scene related, GIF News is a curiosity of its time. It tries to create a digital game-review magazine using the formatting of a traditional print magazine in providing varied layouts, screenshots, color and multiple fonts in a time before the world wide web and multimedia PC software.",
+		80: "While The Mickey Mouse Club was a cracking group, it published the hack and phreak newsletter Hackers Unlimited.",
+		81: "Bounty Hunter's National Pirate List was a large list of PC (and occasional Amiga) pirate or warez bulletin boards from the USA in 1990.",
+		82: "The Phreakers Handbook was a compilation of texts about phreaking written by other people and probably reused without permission of the original authors. This compilation is the sort of text that would get replaced by subject specific websites of the 1990s.",
+		83: "Spectrum was a review magazine for the PC Scene during 1990 and 1991. Scene game releases, cracking groups, and bulletin boards were all review subjects.",
+		84: "The Pirate World published by The Pirate Syndicate was a piracy Scene newsletter from 1990 that often reviewed groups of bulletin boards from a specific telephone area code region as well as news and articles on the scene.",
 	}
 }
 

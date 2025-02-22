@@ -587,6 +587,13 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen
 	return Groups{
+		"the-cracking-clan":                     77776,
+		"distorted":                             46790,
+		"really-awful-music":                    123618,
+		"association-of-software-conspiracy":    77544,
+		"trial":                                 54203,
+		"trinity-reviews":                       85467,
+		"high-society":                          10164,
 		"red-sector-inc":                        4737,
 		"inter-active":                          53952,
 		"the-newcomers":                         147961,
