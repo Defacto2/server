@@ -449,6 +449,9 @@ func fixes(e *echo.Echo) *echo.Echo {
 	fixes.GET("/"+releaser.Obfuscate("DARKSIDE INC"), func(c echo.Context) error {
 		return c.Redirect(code, g+releaser.Obfuscate("DARKSIDE INCORPORATED"))
 	})
+	fixes.GET("/united-software-association", func(c echo.Context) error {
+		return c.Redirect(code, g+"united-software-association*fairlight")
+	})
 	// THESE ARE NOT WORKING, public-enemy/ and the-dream-team/ get redirected
 	// fixes.GET(`/public-enemy*tristar-ampersand-red-sector-inc*the-dream-team`, func(c echo.Context) error {
 	// 	return c.Redirect(code, g+"pe*trsi*tdt")

@@ -775,7 +775,6 @@ func groups() Groups { //nolint:funlen
 		"ultra-tech":                            75375,
 		"union":                                 58739,
 		"united-artist-association":             118271,
-		"united-software-association":           45881,
 		"united-software-association*fairlight": 45881,
 		"velocity-couriers":                     83317,
 		"visions-of-reality":                    86454,

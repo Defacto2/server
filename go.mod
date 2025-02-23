@@ -6,7 +6,7 @@ require (
 	github.com/Defacto2/archive v1.1.0
 	github.com/Defacto2/helper v1.4.1
 	github.com/Defacto2/magicnumber v1.0.7
-	github.com/Defacto2/releaser v1.3.0
+	github.com/Defacto2/releaser v1.3.1
 	github.com/bengarrett/bbs v1.0.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/carlmjohnson/versioninfo v0.22.5

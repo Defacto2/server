@@ -1609,7 +1609,7 @@ func Collection() Milestones {
 				{LinkTitle: "The Humble Guys F/X", Link: "/g/thg-fx", SubTitle: "THG-FX"},
 				{LinkTitle: "Ultra Tech", Link: "/g/ultra-tech", SubTitle: "UT"},
 				{
-					LinkTitle: "United Software Association", Link: "/g/united-software-association",
+					LinkTitle: "United Software Association", Link: "/g/united-software-association*fairlight",
 					SubTitle: "USA", Forward: "The Humble Guys",
 				},
 			},

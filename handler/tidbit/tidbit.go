@@ -57,90 +57,91 @@ type Tidbit map[ID]string
 
 func groups() Tibits {
 	return Tibits{
-		1:  []URI{"untouchables", "the-untouchables"},
-		2:  []URI{"five-o", "boys-from-company-c", "pirates-r-us", "the-firm"},
-		3:  []URI{"fairlight", "united-software-association", "united-software-association*fairlight"},
-		4:  []URI{"fairlight", "artists-in-revolt"},
-		5:  []URI{"fairlight", "fairlight-dox"},
-		6:  []URI{"aces-of-ansi-art", "acid-productions"},
-		7:  []URI{"the-duplicators"},
-		8:  []URI{"pirates-club-inc"},
-		9:  []URI{"against-software-protection"},
-		10: []URI{"software-pirates-inc"},
-		11: []URI{"the-illinois-pirates"},
-		12: []URI{"cracking-101", "national-elite-underground-alliance", "buck-naked-productions"},
-		13: []URI{"esp-pirates", "esp-headquarters-bbs"},
-		14: []URI{"silicon-valley-swappe-shoppe"},
-		15: []URI{"five-o", "toads"},
-		16: []URI{"c-ampersand-m", "boys-from-company-c"},
-		17: []URI{"canadian-pirates-inc", "ptl-club"},
-		18: []URI{"canadian-pirates-inc", "kgb", "ptl-club"},
-		19: []URI{"ptl-club", "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
-		20: []URI{"new-york-crackers", "miami-cracking-machine", "international-network-of-crackers"},
-		21: []URI{"public-domain"},
-		22: []URI{"bentley-sidwell-productions", "the-firm"},
-		23: []URI{"boys-from-company-c"},
-		24: []URI{"fairlight"},
-		25: []URI{"future-crew"},
-		26: []URI{"international-network-of-crackers"},
-		28: []URI{"the-firm", "mutual-assured-destruction", "public-enemy"},
-		27: []URI{"the-firm", "swat", "national-underground-application-alliance", "fairlight"},
-		29: []URI{"international-network-of-crackers", "triad"},
-		30: []URI{"cmen"},
-		31: []URI{"erkle"},
-		32: []URI{"extasy", "xerox", "fairlight"},
-		33: []URI{"norwegian-cracking-company", "international-network-of-crackers", "the-humble-guys"},
-		34: []URI{"scd_dox", "software-chronicles-digest"},
-		35: []URI{"software-chronicles-digest"},
-		36: []URI{"the-humble-guys"},
-		37: []URI{"netrunners", "minor-threat", "nexus"},
-		38: []URI{"mai-review", "sda-review", "silicon-dream-artists"},
-		39: []URI{"silicon-dream-artists"},
-		40: []URI{"hype"},
-		41: []URI{"alpha-flight", "outlaws", "storm-inc"},
-		42: []URI{"thhg"},
-		43: []URI{"tmh"},
-		44: []URI{"the-racketeers"},
-		45: []URI{"crackers-in-action"},
-		46: []URI{"legion-of-doom"},
-		47: []URI{"the-grand-council"},
-		48: []URI{"untouchables", "uniq", "xap", "pentagram"},
-		49: []URI{"italsoft"},
-		50: []URI{"future-brain-inc", "the-humble-guys"},
-		51: []URI{"pirate"},
-		52: []URI{"creators-of-intense-art", "art-creation-enterprise"},
-		53: []URI{"vla"},
-		54: []URI{"the-north-west-connection"},
-		55: []URI{"the-sysops-association-network"},
-		56: []URI{"american-pirate-industries"},
-		57: []URI{"pirates-sick-of-initials"},
-		58: []URI{"byte-bandits-bbs"},
-		59: []URI{"sorcerers"},
-		60: []URI{"katharsis"},
-		61: []URI{"national-elite-underground-alliance"},
-		62: []URI{"public-enemy", "pe*trsi*tdt", "north-american-society-of-anarchists", "red-sector-inc", "the-dream-team"},
-		63: []URI{"public-enemy"},
-		64: []URI{"razor-1911"},
-		65: []URI{"tristar-ampersand-red-sector-inc", "red-sector-inc"},
-		66: []URI{"tristar-ampersand-red-sector-inc", "pe*trsi*tdt", "the-dream-team", "skid-row", "coop"},
-		67: []URI{"tristar-ampersand-red-sector-inc"},
-		68: []URI{"the-dream-team"},
-		69: []URI{"rom-1911", "razor-1911"},
-		70: []URI{"high-society"},
-		71: []URI{"trinity-reviews", "lancelot-2"},
-		72: []URI{"real-pirates-guide"},
-		73: []URI{"the-amatuer-crackist-tutorial"},
-		74: []URI{"church-chat", "ptl-club"},
-		75: []URI{"corrupted-programming-international", "cpi-newsletter"},
-		76: []URI{"official-unprotection-scheme-library", "copycats-inc"},
-		77: []URI{"the-elementals-piratelist"},
-		78: []URI{"game-release-list"},
-		79: []URI{"gif-news"},
-		80: []URI{"hackers-unlimited", "mickey-mouse-club"},
-		81: []URI{"national-pirate-list"},
-		82: []URI{"phreakers-handbook"},
-		83: []URI{"spectrum"},
-		84: []URI{"the-pirate-world", "the-pirate-syndicate"},
+		1:   []URI{"untouchables", "the-untouchables"},
+		2:   []URI{"five-o", "boys-from-company-c", "pirates-r-us", "the-firm"},
+		3:   []URI{"fairlight", "united-software-association*fairlight"},
+		400: []URI{"fairlight", "artists-in-revolt"},
+		500: []URI{"fairlight", "fairlight-dox"},
+		6:   []URI{"aces-of-ansi-art", "acid-productions"},
+		7:   []URI{"the-duplicators"},
+		8:   []URI{"pirates-club-inc"},
+		9:   []URI{"against-software-protection"},
+		10:  []URI{"software-pirates-inc"},
+		11:  []URI{"the-illinois-pirates"},
+		12:  []URI{"cracking-101", "national-elite-underground-alliance", "buck-naked-productions"},
+		13:  []URI{"esp-pirates", "esp-headquarters-bbs"},
+		14:  []URI{"silicon-valley-swappe-shoppe"},
+		15:  []URI{"five-o", "toads"},
+		16:  []URI{"c-ampersand-m", "boys-from-company-c"},
+		17:  []URI{"canadian-pirates-inc", "ptl-club"},
+		18:  []URI{"canadian-pirates-inc", "kgb", "ptl-club"},
+		19:  []URI{"ptl-club", "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
+		20:  []URI{"new-york-crackers", "miami-cracking-machine", "international-network-of-crackers"},
+		21:  []URI{"public-domain"},
+		22:  []URI{"bentley-sidwell-productions", "the-firm"},
+		23:  []URI{"boys-from-company-c"},
+		24:  []URI{"fairlight"},
+		25:  []URI{"future-crew"},
+		26:  []URI{"international-network-of-crackers"},
+		28:  []URI{"the-firm", "mutual-assured-destruction", "public-enemy"},
+		27:  []URI{"the-firm", "swat", "national-underground-application-alliance", "fairlight"},
+		29:  []URI{"international-network-of-crackers", "triad"},
+		30:  []URI{"cmen"},
+		31:  []URI{"erkle"},
+		32:  []URI{"extasy", "xerox", "fairlight"},
+		33:  []URI{"norwegian-cracking-company", "international-network-of-crackers", "the-humble-guys"},
+		34:  []URI{"scd_dox", "software-chronicles-digest"},
+		35:  []URI{"software-chronicles-digest"},
+		36:  []URI{"the-humble-guys"},
+		37:  []URI{"netrunners", "minor-threat", "nexus"},
+		38:  []URI{"mai-review", "sda-review", "silicon-dream-artists"},
+		39:  []URI{"silicon-dream-artists"},
+		40:  []URI{"hype"},
+		41:  []URI{"alpha-flight", "outlaws", "storm-inc"},
+		42:  []URI{"thhg"},
+		43:  []URI{"tmh"},
+		44:  []URI{"the-racketeers"},
+		45:  []URI{"crackers-in-action"},
+		46:  []URI{"legion-of-doom"},
+		47:  []URI{"the-grand-council"},
+		48:  []URI{"untouchables", "uniq", "xap", "pentagram"},
+		49:  []URI{"italsoft"},
+		50:  []URI{"future-brain-inc", "the-humble-guys"},
+		51:  []URI{"pirate"},
+		52:  []URI{"creators-of-intense-art", "art-creation-enterprise"},
+		53:  []URI{"vla"},
+		54:  []URI{"the-north-west-connection"},
+		55:  []URI{"the-sysops-association-network"},
+		56:  []URI{"american-pirate-industries"},
+		57:  []URI{"pirates-sick-of-initials"},
+		58:  []URI{"byte-bandits-bbs"},
+		59:  []URI{"sorcerers"},
+		60:  []URI{"katharsis"},
+		61:  []URI{"national-elite-underground-alliance"},
+		62:  []URI{"public-enemy", "pe*trsi*tdt", "north-american-society-of-anarchists", "red-sector-inc", "the-dream-team"},
+		63:  []URI{"public-enemy"},
+		64:  []URI{"razor-1911"},
+		65:  []URI{"tristar-ampersand-red-sector-inc", "red-sector-inc"},
+		66:  []URI{"tristar-ampersand-red-sector-inc", "pe*trsi*tdt", "the-dream-team", "skid-row", "coop"},
+		67:  []URI{"tristar-ampersand-red-sector-inc"},
+		68:  []URI{"the-dream-team"},
+		69:  []URI{"rom-1911", "razor-1911"},
+		70:  []URI{"high-society"},
+		71:  []URI{"trinity-reviews", "lancelot-2"},
+		72:  []URI{"real-pirates-guide"},
+		73:  []URI{"the-amatuer-crackist-tutorial"},
+		74:  []URI{"church-chat", "ptl-club"},
+		75:  []URI{"corrupted-programming-international", "cpi-newsletter"},
+		76:  []URI{"official-unprotection-scheme-library", "copycats-inc"},
+		77:  []URI{"the-elementals-piratelist"},
+		78:  []URI{"game-release-list"},
+		79:  []URI{"gif-news"},
+		80:  []URI{"hackers-unlimited", "mickey-mouse-club"},
+		81:  []URI{"national-pirate-list"},
+		82:  []URI{"phreakers-handbook"},
+		83:  []URI{"spectrum"},
+		84:  []URI{"the-pirate-world", "the-pirate-syndicate"},
+		85:  []URI{"fairlight"},
 	}
 }
 
@@ -153,11 +154,16 @@ func tidbits() Tidbit {
 			`3. A Dutch PC release group from 1994-95`,
 		2: "Five-O and BCC were a US based game release groups that merged in December 1988. " +
 			"The next month they joined with Pirates R Us and changed their name to The Firm, who became the first prolific game release group on the PC.",
-		3: "Fairlight, founded on the Commodore 64 in 1987 is one of the oldest brands in the scene. " +
-			"Fairlight PC first released in February 1991 but immediately worked with USA to form the successful <strong>USA/FLT</strong> collboration. " +
-			"Late January 1992 saw a major piracy bust in Detroit that forced USA to disband and Fairlight to go solo.",
-		4: "In 1992 Fairlight briefly ran the artgroup Artists In Revolt, sometimes referenced as the Fairlight Art Division. ",
-		5: "Fairlight DOX (FLTDOX) was a sub-group of Fairlight that specialised in releasing documentation and trainers for games.",
+		3: "<p>In an <a href=\"/f/a93540\">interview</a> with Insanity, Genesis discusses the founding of USA/Fairlight stating that it took just 12 hours from the initial idea to their first release which occurred on Thursday, 12th September 1991. The name <strong>United Software Association</strong>, he admits is a bit on then nose and rushed but they liked the catchy USA initialism.</p>" +
+			"<p>The group management included The NotSoHumble Babe, Silencer and Genesis. Many of the initial members were formerly of <a href=\"/g/the-humble-guys\">The Humble Guys</a>, including The Humble Babe. However, when <a href=\"/f/a93ed4\">THG abruptly kicked out</a> a dozen or so people for no specific reason, a number of those and other members decided to leave for USA. And as a protest, The Humble Babe became The NotSoHumble Babe for the remainder of her time in the scene.</p>" +
+			"<p>The very first and second USA release was a beta release of the adventure game, <a href=\"/f/ac27bd8\">Spellcasting 201</a> and the title's documentation. Their third release was a freeware preview of <a href=\"/f/ad2a0e8\">Shadow Sorcerer</a>. These initial releases must have caused some bad feedback because in their following release, <a href=\"/f/b62d133\">Might and Magic 3</a>, a major CRPG series of the time, they state, <q>For those of you who though we were capable of only betas and demos, this release should convince you we're not some lame wannabe group - we're here to stay.</q></p>" +
+			"<p>Here to stay they did, at least for the following number of months. USA rapidly became one of the most prolific PC cracking groups quickly overtaking their <a href=\"/f/b24832\">arch-rivals</a> The Humble Guys for the duration of their brief existence. " +
+			"Yet this all came to a crashing halt at the end of January 1991 when The NotSoHumble Babe and The Grim Reaper (of <a href=\"/g/international-network-of-crackers\">INC</a>) were <a href=\"/f/aa20a3a\">arrested</a> for credit card fraud while meeting up in a Detroit car park. Back in 1991, software cracking and the sharing of commercial software wasn't criminal but using stolen or fake credit and telephone calling cards <a href=\"/f/a819b62\">definitely was</a> and usually involved The Secret Service or the FBI. These very public arrests <a href=\"/f/ab3a95\">caused panic</a> within the piracy scene in the United States and led to a number of people quitting and a week later the abrupt end to United Software Association.</p>" +
+			"<p>The Fairlight connection of USA/Fairlight seems somewhat tenuous, as initially <strong>Fairlight PC</strong> had release <a href=\"/f/b32488a\">a single PC game</a> back in February of 1991. When they reemerged in September together as USA/Fairlight PC, the Fairlight side was to be the source of European published PC games. Yet it seems Fairlight PC had little impact, with only (Fairlight <a href=\"http://janeway.exotica.org.uk/target.php?idp=6375&idr=1940&tgt=1\">co-founder</a>) Strider generally being the sole member and the majority of releases of the cooperation being from the United States and not Europe.</p>" +
+			"<p>Fairlight on the PC returned in March 1992 but without the “PC” suffix in its name. Much of the initial membership comprised of former members of USA, however with the new leadership comprising of Strider, Nemesis Enforcer and Riverndell sysop Trick Lord. Their <a href=\"/f/ac232a6\">return release</a> quietly mentions <q>please note that there is no more coop USA/FLT</q> " +
+			" and boldly claims they're the world's oldest group, though that is not true.</p>",
+		400: "In 1992 Fairlight briefly ran the artgroup Artists In Revolt, sometimes referenced as the Fairlight Art Division. ",
+		500: "Fairlight DOX (FLTDOX) was a sub-group of Fairlight that specialised in releasing documentation and trainers for games.",
 		6: "Aces of ANSI Art is credited as one of the first organized art groups in the elite BBS scene. " +
 			"After becoming disorganized and demotivated, key members in mid-1990 reformed as the ANSi Creators in Demand, and later known as ACiD Productions, the most prolific art group of the era in the North American scene.",
 		7: "The Duplicators are the earliest game crackers on the PC that offer reliable dated releases.",
@@ -189,8 +195,13 @@ func tidbits() Tidbit {
 			`<a href="https://textfiles.meulie.net/magazines/LOL/lol-20.phk">Legions of Lucifer</a> ` +
 			"founded by Digitone Cypher in 1990 and became LoL-Phuck in 1991.",
 		23: "BCC were founded in October 1987 as a game release group based in the state of Virgina.",
-		24: "<strong>Fairlight PC</strong> only released games published on floppy disks. The group faded away the mid-1990s as the game industry moved exclusively to CD ROM, and piracy to CD RIPs. It wasn't until November 1998 that Fairlight returned as one of the earlier ISO groups releasing complete CD images of games. " +
-			"In the 2000s the Fairlight brand went in two unrelated directions, with a demoscene component seeing great success in that community that weirdly, was juxtaposed with a <a href=\"https://www.copyright.gov/docs/2265_stat.html\">now criminal</a> piracy group that was getting unwanted attention due to the rise of BitTorrent and sites like The Pirate Bay.",
+		24: "<p>1992 saw lots of success for <strong>Fairlight</strong> and the group <a href=\"/f/b42ec96\">ballooning</a> with a large membership including many former members of <a href=\"/g/international-network-of-crackers\">INC</a>, " +
+			"and the US side of the group being run by Ford Perfect. Yet thanks to some <a href=\"/f/b528606\">immature drama</a> at his instigation, by years end the group <a href=\"/f/b0411d\">collapsed</a>, with many parting ways to form <a href=\"/g/sinister\">Sinister</a>. " +
+			"Ford Perfect continued on with the name for a brief time before <a href=\"/f/a72d0b#:~:text=Ford Perfect just  may have left\">possibly quitting</a> the scene and finally ending the group.</p>" +
+			"<p>All this must have been to the dismay of Strider who restored the group in March 1993 with <a href=\"/f/b047d2\">a release</a> of the sequel of one of the best reviewed microcomputer games of all time, Lemmings. This new Fairlight was tiny in comparison to the one from the previous year and only comprised of Swedish members. In this first release they state <q>Time to focus on Quality, and bring the honor to the name FairLight on PC again.</q></p>" +
+			"<p>Fairlight on the PC was a cracking group that only released games published to <a href=\"/f/b52d81d\">floppy disks</a>. While not unusual, this narrow scope caused the group faded away the before 1996 as the game industry moved exclusively to CD ROM, and piracy to CD RIPs. It wasn't until November 1998 that <a href=\"/f/ac2be5\">Fairlight returned</a> with JBM and Holy Beast, as one of the earlier <strong>ISO groups</strong> releasing complete CD images of games.</p>" +
+			"<p>In the 2000s the Fairlight brand went in two unrelated directions, with the <a href=\"/f/ab3caf\"><strong>Demoscene</strong> component</a> seeing great success in that community. Which weirdly, was <a href=\"/f/ac33f8\">juxtaposed</a> with a <a href=\"https://www.copyright.gov/docs/2265_stat.html\">now criminal</a> piracy group that was getting unwanted attention due to the rise of BitTorrent and sites like The Pirate Bay." +
+			" March 2011 saw <a href=\"/f/ad4991\">1,000 ISO releases</a> under Fairlight and its 25th anniversary in 2012 with both unrelated Demoscene and piracy activities going strong.</p>",
 		25: "Future Crew was the most famous demoscene group on the PC in the 1990s. The PC was primarily a business platform and games or multimedia were always secondary. But early demos by the Future Crew helped to change the mindset some, that the PC wasn't only for productivity and would become the platform of the future for general computing, gaming and multimedia." +
 			"<br>The founding information on the Future Crew has been muddled over the years by incorrect and conflicting dates put out by the group themselves in different documents. Their first release, <strong>GR8</strong> came out in July 1989 and their second <strong>Yo!</strong> sometime in 1990.",
 		26: "The first CD RIP was probably created by INC with their March 1992 release of " +
@@ -198,7 +209,7 @@ func tidbits() Tidbit {
 			" Though the packaging of the release was so jank that Fairlight felt the need to create their " +
 			`<a href="/f/a91e0ae">own custom fix</a> to simplify the install process.`,
 		27: "CyberChrist of SWAT briefly stole the FiRM brand in October 1993 for use as a game release group, while NUAA was to be used for productivity and utility software. " +
-			"This was short-lived and a week later the game group became the USA based division of Fairlight PC.",
+			"This was short-lived and a week later the game group became the USA side of Fairlight, but again only for a very brief time.",
 		28: "In August 1994, Public Enemy and MAD join under the unauthorized name of The FiRM, though this only lasted a few months.",
 		29: `TRIAD went quiet in early 1990 but with some key members <a href="/f/a9229aa">turning up in INC</a>.`,
 		30: "CMEN was a parody group that pretended to be Australian, but was run out of the Midnite Oil BBS in 214 (Dallas).",
@@ -209,7 +220,8 @@ func tidbits() Tidbit {
 		35: "SCD started out as <strong>Southern California Distribution</strong> and was part of a larger regional release group. As such, in November 1990 they published a newsletter for DOS known as <strong>The SCD Report</strong> to inform the pirate community. Over a span of two years, 14 issues of The SCD Report were published and the magazine was well received. However, December 1992 saw some changes, with not only seeing a rewrite of the magazine application, user interface and a re-branding to Software Chronicles Digest, but also it became the final issue.",
 		36: "<p>According to Fabulous Furlough's <a href=\"/f/b144a1\">retirement letter</a>, The Humble Guys were founded on the 22 Jan 1990.</p>" +
 			"<p>The Humble Guys had a bit of a reputation, partly because they were <a href=\"/f/a93245\">outspoken</a> plus were quite happy to give <a href=\"https://wayback.defacto2.net/the-scene-news-from-1999-september-14/interview-002.html\">interviews</a> or write down their thoughts. And if you believe what is sometimes said, there was virtually no Scene on the PC until they came around and revolutionised the community using their hard earned experience from the competitive Commodore online communities. Personally, I think this view is over sensationalised, and the Scene on the PC was fine before THG. Rather, people online using PCs in the 1980s, were possibly older, cared less about games than on the other microcomputers, so were more relaxed.</p>" +
-			"<p>But in saying that, THG really ramp up the release schedule for games and made it a more aggressive and competitive community, for good or ill. They were a major force throughout 1990 and 1991 but became a shell of themselves during 1992 after their main competitor of 1991 <a href=\"/g/united-software-association*fairlight\">United Software Association</a> (USA) and some key people quit the scene due to the <a href=\"/f/ab232ca\">February arrest</a> of some notable personalities.</p>" +
+			"<p>But in saying that, THG really ramp up the release schedule for games and made it a more aggressive and competitive community, for good or ill. " +
+			"Many would argue they were the major force throughout 1990 and much of 1991. But became a shell of themselves after a number of people left to form <a href=\"/g/united-software-association*fairlight\">United Software Association</a> (USA) in September and later after more people quit the scene due to the <a href=\"/f/ab232ca\">late January 1992 public arrests</a> of two notable Scene personalities.</p>" +
 			// nfo extension
 			"<p>We believe THG is the source of the <strong><code>.NFO</code></strong> file extension " +
 			"with the minimal textfile <code>KNIGHTS.NFO</code> found in the release of <a href=\"/f/ab3945\">Knights of Legend</a> from the 23rd of January 1990. " +
@@ -314,7 +326,11 @@ func tidbits() Tidbit {
 		81: "Bounty Hunter's National Pirate List was a large list of PC (and occasional Amiga) pirate or warez bulletin boards from the USA in 1990.",
 		82: "The Phreakers Handbook was a compilation of texts about phreaking written by other people and probably reused without permission of the original authors. This compilation is the sort of text that would get replaced by subject specific websites of the 1990s.",
 		83: "Spectrum was a review magazine for the PC Scene during 1990 and 1991. Scene game releases, cracking groups, and bulletin boards were all review subjects.",
-		84: "The Pirate World published by The Pirate Syndicate was a piracy Scene newsletter from 1990 that often reviewed groups of bulletin boards from a specific telephone area code region as well as news and articles on the scene.",
+		84: "The Pirate World published by The Pirate Syndicate was a piracy Scene newsletter from 1990 that often reviewed groups of bulletin boards from a specific telephone area code region as well as news and articles on the scene.",
+		85: "<p>In a December 1988 <a href=\"http://janeway.exotica.org.uk/target.php?idp=6375&idr=1940&tgt=1\">interview</a>, Fairlight co-founder Strider states his age was 18, and got serious about piracy in 1985. He goes on to say Fairlight was founded on the Commodore 64 and Amiga microcomputer platforms in March 1987 by himself, Gollum and Black Shadow.</p>" +
+			"<p>In an April 2008 <a href=\"https://alt.politics.republicans.narkive.com/I7xN7Xnp/san-diego-gop-chairman-co-founded-international-piracy-ring\">article</a> (original is lost) published on <a href=\"https://www.rawstory.com/\">Raw Story</a>, it was revealed that the San Diego GOP chairman was indeed Strider, who had immigrated to the US 1992 on a H1B visa and became a US citizen in 2003. <q>Online research reveals that Krvaric is the co-founder of Fairlight, a band of software crackers which later evolved into an international video and software piracy group that law enforcement authorities say is among the world's largest such crime rings.</q></p>" +
+			"<p>More controversy occurred in August 2020, when the local San Diego PBS television affiliate <a href=\"https://www.kpbs.org/news/evening-edition/2020/08/21/video-surfaces-images-hitler-and-tony-krvaric\">reported</a> on the Fairlight demo <a href=\"https://www.youtube.com/watch?v=X6SS8TE6c4o\">Space Age</a>, released for the Commodore Amiga <a href=\"https://demozoo.org/productions/243679/\">in 1989</a> that displays a few photos of Strider, and some other members plus an animated Hitler sprite bouncing around the screen. Strider's individual photo appears 25 seconds into the demo with the text, <q>Kill a commie, coz here's Strider!</q>, " +
+			"though <a href=\"https://www.thesun.co.uk/news/14342020/when-prince-harry-nazi-uniform-why-apology/\">stupid</a>, this probably was tounge in cheek.</p>",
 	}
 }
 
