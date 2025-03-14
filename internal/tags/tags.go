@@ -389,6 +389,8 @@ func humText(platform, section Tag) string {
 		return "a textfile advert"
 	case Ftp:
 		return "a text advert for an FTP site"
+	case Job:
+		return "a job or role application textfile"
 	case Mag:
 		return "a magazine textfile"
 	case Nfo:
@@ -431,6 +433,8 @@ func humDOS(platform, section Tag) string {
 		return "a " + msDos + " installer"
 	case Intro:
 		return "an intro for " + msDos
+	case Job:
+		return "an job or role application generator for " + msDos
 	case Pack:
 		return "a filepack of " + msDos + " programs"
 	default:
