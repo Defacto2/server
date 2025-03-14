@@ -156,8 +156,7 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 		return nil, nil, errs
 	}
 	// check the bytes are plain text but not utf16 or utf32
-	nr := bytes.NewReader(b)
-	sign, err := magicnumber.Text(nr)
+	sign, err := magicnumber.Text(bytes.NewReader(b))
 	if err != nil {
 		clear(b)
 		errs = errors.Join(errs, fmt.Errorf("magicnumber.Text: %w", err))
@@ -165,7 +164,7 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 	if sign == magicnumber.Unknown || sign == magicnumber.UTF16Text || sign == magicnumber.UTF32Text {
 		clear(b)
 	}
-	if incompatible, err := IncompatibleANSI(nr); err != nil {
+	if incompatible, err := IncompatibleANSI(bytes.NewReader(b)); err != nil {
 		errs = errors.Join(errs, fmt.Errorf("incompatible ansi: %w", err))
 		clear(b)
 	} else if incompatible {
@@ -183,7 +182,7 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 		b = render.InsertDiz(b, diz)
 	}
 	b = RemoveCtrls(b)
-	if b == nil {
+	if bytes.TrimSpace(b) == nil {
 		return nil, nil, errs
 	}
 	return b, r, nil
@@ -198,11 +197,13 @@ func RemoveCtrls(b []byte) []byte {
 		reSauce   = `SAUCE00.*`             // SAUCE metadata that is appended to some files
 		nlWindows = "\x01\x0a"              // Windows line endings
 		nlUnix    = "\x0a"                  // Unix line endings
+		nil       = "\x00"                  // null byte
 	)
 	const sep = `|`
 	controlCodes := regexp.MustCompile(reAnsi + sep + reDEC + sep + reAmiga + sep + reSauce)
 	b = controlCodes.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
+	b = bytes.ReplaceAll(b, []byte(nil), []byte(" "))
 	return b
 }
 

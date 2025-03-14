@@ -102,12 +102,12 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 	if err != nil {
 		b = []byte("error could not read the readme text file")
 	}
+	const nul = 0x00
+	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	r := []rune{}
 	if utf8.Valid(b) {
 		r = bytes.Runes(b)
 	}
-	const nul = 0x00
-	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	return b, r, nil
 }
 
