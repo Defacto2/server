@@ -1,3 +1,4 @@
+// Package fixzip checks for legacy ZIP files with out-of-date compression that require re-archiving.
 package fixzip
 
 import (

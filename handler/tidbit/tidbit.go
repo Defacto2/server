@@ -1,3 +1,4 @@
+// Package tidbit offeres hyperlinked historical information about the Scene releasers and groups.
 package tidbit
 
 import (

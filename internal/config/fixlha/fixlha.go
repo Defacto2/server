@@ -1,3 +1,4 @@
+// Package fixlha checks for legacy LHA files that require re-archiving.
 package fixlha
 
 import (

@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.24.0 // latest: https://go.dev/dl/
+go 1.24.1 // latest: https://go.dev/dl/
 
 require (
 	github.com/Defacto2/archive v1.1.0
@@ -28,9 +28,17 @@ require (
 	github.com/volatiletech/strmangle v0.0.8
 	go.uber.org/zap v1.27.0
 	golang.org/x/image v0.24.0
-	golang.org/x/text v0.22.0
+	golang.org/x/text v0.23.0
 	google.golang.org/api v0.221.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
+)
+
+replace (
+	github.com/Defacto2/archive => ../archive
+	github.com/Defacto2/helper => ../helper
+	github.com/Defacto2/magicnumber => ../magicnumber
+	github.com/Defacto2/releaser => ../releaser
+	github.com/bengarrett/bbs => ../bbs
 )
 
 require (
@@ -76,7 +84,7 @@ require (
 	golang.org/x/crypto v0.33.0 // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/oauth2 v0.26.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/time v0.10.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect

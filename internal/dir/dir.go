@@ -1,3 +1,5 @@
+// Package dir handles the directories in use by the internal server.
+// Such as the download, extra, and preview directories.
 package dir
 
 import (

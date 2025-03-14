@@ -1,3 +1,4 @@
+// Package fixarj checks for legacy ARJ files that require re-archiving.
 package fixarj
 
 import (

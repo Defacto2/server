@@ -1,3 +1,4 @@
+// Package areacode provides information about North American Numbering Plan telephone area codes.
 package areacode
 
 import (
