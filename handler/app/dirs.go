@@ -126,7 +126,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	return nil
 }
 
-func detectANSI(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string]interface{}) map[string]interface{} {
+func detectANSI(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string]any) map[string]any {
 	if db == nil {
 		return data
 	}
@@ -184,8 +184,8 @@ func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 // updateMagics updates the magic number for the file record of the artifact.
 // It must be called after both the dir.filemetadata and dir.Editor functions.
 func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
-	id int64, uid, platform string, data map[string]interface{},
-) map[string]interface{} {
+	id int64, uid, platform string, data map[string]any,
+) map[string]any {
 	if db == nil {
 		return data
 	}
@@ -233,8 +233,8 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 	uid, root, platform string,
 	modMagic interface{},
-	data map[string]interface{},
-) map[string]interface{} {
+	data map[string]any,
+) map[string]any {
 	name := filepath.Join(dir.Download.Path(), uid)
 	switch {
 	case redundantArchive(modMagic):
@@ -260,8 +260,8 @@ func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 }
 
 func (dir Dirs) plainTexts(logger *zap.SugaredLogger,
-	uid, platform string, data map[string]interface{},
-) map[string]interface{} {
+	uid, platform string, data map[string]any,
+) map[string]any {
 	name := filepath.Join(dir.Download.Path(), uid)
 	dirs := command.Dirs{
 		Download:  dir.Download,
@@ -325,7 +325,7 @@ func plainText(modMagic interface{}) bool {
 	}
 }
 
-func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string]interface{}, error) {
+func (dir Dirs) embed(art *models.File, data map[string]any) (map[string]any, error) {
 	if art == nil {
 		return data, nil
 	}
@@ -354,7 +354,7 @@ func (dir Dirs) embed(art *models.File, data map[string]interface{}) (map[string
 // Editor returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) Editor(art *models.File, data map[string]interface{}) map[string]interface{} {
+func (dir Dirs) Editor(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -517,7 +517,7 @@ func (dir Dirs) missingAssets(art *models.File) string {
 }
 
 // attributions returns the author attributions for the file record of the artifact.
-func (dir Dirs) attributions(art *models.File, data map[string]interface{}) map[string]interface{} {
+func (dir Dirs) attributions(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -529,7 +529,7 @@ func (dir Dirs) attributions(art *models.File, data map[string]interface{}) map[
 }
 
 // filemetadata returns the file metadata for the file record of the artifact.
-func (dir Dirs) filemetadata(art *models.File, data map[string]interface{}) map[string]interface{} {
+func (dir Dirs) filemetadata(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -550,7 +550,7 @@ func (dir Dirs) filemetadata(art *models.File, data map[string]interface{}) map[
 }
 
 // otherRelations returns the other relations and external links for the file record of the artifact.
-func (dir Dirs) otherRelations(art *models.File, data map[string]interface{}) map[string]interface{} {
+func (dir Dirs) otherRelations(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -565,8 +565,8 @@ func (dir Dirs) otherRelations(art *models.File, data map[string]interface{}) ma
 }
 
 // jsdos returns the js-dos emulator data for the file record of the artifact.
-func jsdos(art *models.File, data map[string]interface{}, logger *zap.SugaredLogger,
-) map[string]interface{} {
+func jsdos(art *models.File, data map[string]any, logger *zap.SugaredLogger,
+) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -610,7 +610,7 @@ func jsdos(art *models.File, data map[string]interface{}, logger *zap.SugaredLog
 }
 
 // content returns the archive content for the file download of the artifact.
-func content(art *models.File, data map[string]interface{}) map[string]interface{} {
+func content(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -666,7 +666,7 @@ const (
 )
 
 // embedText embeds the readme or file download text content for the file record of the artifact.
-func embedText(art *models.File, data map[string]interface{}, b ...byte) (map[string]interface{}, error) {
+func embedText(art *models.File, data map[string]any, b ...byte) (map[string]any, error) {
 	if len(b) == 0 || art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
