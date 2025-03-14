@@ -33,7 +33,7 @@ func (s *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor, 
 	}
 	sum := string(postgres.Summary())
 	for i := range terms {
-		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ to_tsquery"
+		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ websearch_to_tsquery"
 		if i == 0 {
 			sum = fmt.Sprintf("%s%s($%d) ", sum, clauseT, i+1)
 			continue

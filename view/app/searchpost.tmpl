@@ -10,7 +10,13 @@
                     {{index . "title"}}<br>
                     <small class="fs-5 fw-lighter">{{index . "info"}}</small>
                     <p class="fs-6">
-                        globs are not supported, use: <code>.gif</code> instead of <code>*.gif</code>
+                        {{- if eq (index . "title") "Game and program titles"}}
+                            supported operators: quote text <code>""</code>, or statements <code>OR</code>, ignore statements <code>-</code>
+                            <br>
+                            usage example: <code>"battle chess" -unprotect</code>
+                        {{- else}}
+                            use commas for multiple queries: <code>.iff, .tif, read.me</code>
+                        {{- end}}
                     </p>
                 </h5>
                 <p class="card-text p-0">

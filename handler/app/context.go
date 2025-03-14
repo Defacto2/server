@@ -1032,11 +1032,12 @@ func PostDesc(c echo.Context, db *sql.DB, input string) error {
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
-	data["title"] = "Title and description results"
-	data["h1"] = "Title and description search"
-	data["lead"] = fmt.Sprintf("Results for %q", s)
+	const brief = "Game and program title"
+	data["title"] = brief + " results"
+	data["h1"] = brief + " search"
+	data["lead"] = fmt.Sprintf("Results for %s", s)
 	data["logo"] = s + " results"
-	data["description"] = "Title and description search results for " + s + "."
+	data["description"] = brief + " search results for " + s + "."
 	data["unknownYears"] = false
 	data[records] = fs
 	data["stats"] = d
@@ -1066,7 +1067,7 @@ func PostName(c echo.Context, db *sql.DB, mode FileSearch) error {
 	data := emptyFiles(c)
 	data["title"] = "Filename results"
 	data["h1"] = "Filename search"
-	data["lead"] = fmt.Sprintf("Results for %q", s)
+	data["lead"] = fmt.Sprintf("Results for %s", s)
 	data["logo"] = s + " results"
 	data["description"] = "Filename search results for " + s + "."
 	data["unknownYears"] = false
@@ -1446,12 +1447,12 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 
 // SearchDesc is the handler for the Search for file descriptions page.
 func SearchDesc(c echo.Context) error {
-	const title, name = "Search titles and descriptions", "searchpost"
+	const title, name = "Game and program titles", "searchpost"
 	data := empty(c)
 	data["description"] = "Search form to scan through file descriptions."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "search the metadata descriptions of file artifacts"
+	data["info"] = "search the names, titles, and comments of artifacts"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)
@@ -1478,12 +1479,12 @@ func SearchID(c echo.Context) error {
 
 // SearchFile is the handler for the Search for files page.
 func SearchFile(c echo.Context) error {
-	const title, name = "Search for filenames", "searchpost"
+	const title, name = "Search filenames", "searchpost"
 	data := empty(c)
 	data["description"] = "Search form to discover files."
 	data["logo"] = title
 	data["title"] = title
-	data["info"] = "search for filenames or extensions"
+	data["info"] = "search for filenames and filename extensions"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, name, err)

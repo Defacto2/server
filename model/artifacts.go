@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
 
 	"github.com/Defacto2/server/internal/postgres"
@@ -259,8 +260,8 @@ func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, 
 	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Where(ClauseNoSoftDel))
-	const clauseT = "to_tsvector(record_title) @@ to_tsquery(?)"
-	const clauseC = "to_tsvector(comment) @@ to_tsquery(?)"
+	const clauseT = "to_tsvector(record_title) @@ websearch_to_tsquery(?)"
+	const clauseC = "to_tsvector(comment) @@ websearch_to_tsquery(?)"
 	for i, term := range terms {
 		term = fmt.Sprintf("'%s'", term) // the single quotes are required for terms containing spaces
 		if i == 0 {
@@ -272,6 +273,7 @@ func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, 
 		mods = append(mods, qm.Or(clauseC, term))
 	}
 	mods = append(mods, qm.Limit(Maximum))
+	fmt.Fprintln(os.Stderr, mods)
 	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("models all files by description search: %w", err)
