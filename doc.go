@@ -146,7 +146,7 @@ Read-only mode blocks any website feature that writes to the server database, in
 
 To turn off the read-only mode:
 
-	D2_READ_ONLY=true
+	D2_READ_ONLY=false
 
 # No crawl mode
 
