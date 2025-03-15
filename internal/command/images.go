@@ -996,10 +996,11 @@ func (dir Dirs) TextDeferred(src, unid string) error {
 		}
 	}
 	newpath := filepath.Join(dir.Extra.Path(), unid+".txt")
-	if st, err := os.Stat(newpath); err != nil || st.Size() == 0 {
-		if _, err1 := helper.DuplicateOW(src, newpath); err1 != nil {
-			return fmt.Errorf("text deferred, %w: %s", err1, src)
-		}
+	if st, err := os.Stat(newpath); err == nil && st.Size() > 0 {
+		return nil
+	}
+	if _, err := helper.DuplicateOW(src, newpath); err != nil {
+		return subdirDuplicate(err, src, newpath, "text")
 	}
 	return nil
 }
@@ -1008,10 +1009,41 @@ func (dir Dirs) TextDeferred(src, unid string) error {
 // It is intended to be used with the filerecord.ListContent function.
 func (dir Dirs) DizDeferred(src, unid string) error {
 	newpath := filepath.Join(dir.Extra.Path(), unid+".diz")
-	if st, err := os.Stat(newpath); err != nil || st.Size() == 0 {
-		if _, err1 := helper.DuplicateOW(src, newpath); err1 != nil {
-			return fmt.Errorf("text deferred, %w: %s", err1, src)
-		}
+	if st, err := os.Stat(newpath); err == nil && st.Size() > 0 {
+		return nil
+	}
+	if _, err := helper.DuplicateOW(src, newpath); err != nil {
+		return subdirDuplicate(err, src, newpath, "diz")
 	}
 	return nil
+}
+
+func subdirDuplicate(err error, src, newpath, msg string) error {
+	if !errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("%s deferred 1st, %w: %s", msg, err, src)
+	}
+	oldDir, oldName := filepath.Dir(src), filepath.Base(src)
+	find := findName(oldDir, oldName)
+	if find == "" {
+		return fmt.Errorf("file not found: %s", src)
+	}
+	if _, err1 := helper.DuplicateOW(find, newpath); err1 != nil {
+		return fmt.Errorf("%s deferred 2nd, %w: %s", msg, err1, find)
+	}
+	return nil
+}
+
+func findName(root, name string) string {
+	result := ""
+	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		if filepath.Base(path) == name {
+			result = path
+			return filepath.SkipAll
+		}
+		return nil
+	})
+	return result
 }
