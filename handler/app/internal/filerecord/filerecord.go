@@ -1512,11 +1512,15 @@ func Websites(art *models.File) template.HTML {
 			continue
 		}
 		name, href := s[0], s[1]
-		if val, err := url.Parse(href); err != nil || val.Host == "" {
-			continue
-		}
+		// Generally a stored URL will not include the protocol,
+		// and will need to be prefixed with "https://".
+		// There are some exceptions for websites that refuse to
+		// implement HTTPS, such as http://textfiles.com.
 		if !strings.HasPrefix(href, "http") {
 			href = "https://" + href
+		}
+		if val, err := url.Parse(href); err != nil || val.Host == "" {
+			continue
 		}
 		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
 			"<td><small><a class=\"link-offset-3 icon-link icon-link-hover\" "+
