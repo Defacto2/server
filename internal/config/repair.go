@@ -835,7 +835,7 @@ func rename(oldpath, info, newpath string) {
 //
 // This is a safety measure to ensure that the server does not run out of disk space.
 func TmpCleaner() {
-	const threeDays = 3 * 24 * time.Second
+	const threeDays = 3 * 24 * time.Hour
 	w := os.Stderr
 	name := helper.TmpDir()
 	dir, err := os.OpenRoot(name)
