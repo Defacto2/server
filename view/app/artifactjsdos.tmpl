@@ -55,14 +55,17 @@
     const mountApp = [{ url: "/jsdos/{{$download}}", mountPoint: "/" }];
     const mountDOS4GW = { url: "/jsdos/bin/DOS4GW.EXE", mountPoint: "/dos4gw" };
     const startDOS = [
-      "-conf", "dosbox.conf", 
-      "-c", "{{$runProgram}}",
-      ];
+      "-conf", "dosbox.conf"
+    ];
     const startWithDOS4GW = [
       "-conf", "dosbox.conf", 
-      "-c", "SET PATH=%PATH%;C:\\DOS4GW",
-      "-c", "{{$runProgram}}",
-      ];
+      "-c", "SET PATH=%PATH%;C:\\DOS4GW"
+    ];
+    const runCommands = "{{$runProgram}}".split("&&");
+    runCommands.forEach(cmd => {
+      startDOS.push("-c", cmd.trim());
+      startWithDOS4GW.push("-c", cmd.trim());
+    });
     ctx.font = "14px serif";
     ctx.fillText("Stuck and not loading?", 10, 50);
     ctx.fillText("1) try refreshing this tab.", 13, 70);

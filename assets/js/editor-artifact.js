@@ -72,9 +72,9 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
       throw new Error("The guess program input is missing.");
     }
     erp.addEventListener("input", () => {
-      erp.value = erp.value.trim().toUpperCase();
+      erp.value = erp.value.toUpperCase().replace(/\s{2,}/g, " ");
       const val = erp.value;
-      if (val !== "") {
+      if (val !== "" && val !== " ") {
         egp.disabled = true;
         return;
       }
