@@ -389,7 +389,6 @@ func (dir Dirs) Editor(art *models.File, data map[string]any) map[string]any {
 	data["modAssetThumbnail"] = dir.thumbnails(unid)
 	data["modAssetExtra"] = dir.extras(unid)
 	data["missingAssets"] = dir.missingAssets(art)
-	//
 	data["modReadmeSuggest"] = filerecord.Readme(art)
 	data["disableReadme"] = filerecord.DisableReadme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)

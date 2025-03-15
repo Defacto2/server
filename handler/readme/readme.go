@@ -82,7 +82,7 @@ func Suggest(filename, group string, content ...string) string {
 // List returns a list of readme text files found in the file archive.
 func List(content ...string) []string {
 	finds := []string{}
-	skip := []string{"scene.org", "scene.org.txt"}
+	skip := []string{"file_id.diz", "scene.org", "scene.org.txt"}
 	for name := range slices.Values(content) {
 		if name == "" {
 			continue
