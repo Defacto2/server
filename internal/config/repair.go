@@ -829,3 +829,40 @@ func rename(oldpath, info, newpath string) {
 		}
 	}()
 }
+
+// TmpCleaner will remove any temporary directories created by this web applcation
+// that are older than 3 days.
+//
+// This is a safety measure to ensure that the server does not run out of disk space.
+func TmpCleaner() {
+	const threeDays = 3 * 24 * time.Second
+	w := os.Stderr
+	name := helper.TmpDir()
+	dir, err := os.OpenRoot(name)
+	if err != nil {
+		fmt.Fprintf(w, "repair tmp cleaner %s: %s", err, name)
+		return
+	}
+	defer dir.Close()
+	fs.WalkDir(dir.FS(), ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !d.IsDir() || !strings.HasPrefix(d.Name(), "artifact-content-") {
+			return nil
+		}
+		inf, err := d.Info()
+		if err != nil {
+			fmt.Fprintf(w, "repair tmp cleaner %s: %s", err, d.Name())
+			return nil
+		}
+		if time.Since(inf.ModTime()) < threeDays {
+			return nil
+		}
+		rmpath := filepath.Join(name, d.Name())
+		if err := os.RemoveAll(rmpath); err != nil {
+			fmt.Fprintf(w, "repair tmp cleaner %s: %s", err, rmpath)
+		}
+		return nil
+	})
+}

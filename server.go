@@ -76,6 +76,7 @@ func main() {
 	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
+	config.TmpCleaner()
 	config.SanityTmpDir()
 	fmt.Fprintln(w)
 
