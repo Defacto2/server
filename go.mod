@@ -6,7 +6,7 @@ require (
 	github.com/Defacto2/archive v1.1.0
 	github.com/Defacto2/helper v1.4.1
 	github.com/Defacto2/magicnumber v1.0.7
-	github.com/Defacto2/releaser v1.3.2
+	github.com/Defacto2/releaser v1.3.3
 	github.com/bengarrett/bbs v1.0.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/carlmjohnson/versioninfo v0.22.5
@@ -31,14 +31,6 @@ require (
 	golang.org/x/text v0.23.0
 	google.golang.org/api v0.226.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
-)
-
-replace (
-	github.com/Defacto2/archive => ../archive
-	github.com/Defacto2/helper => ../helper
-	github.com/Defacto2/magicnumber => ../magicnumber
-	github.com/Defacto2/releaser => ../releaser
-	github.com/bengarrett/bbs => ../bbs
 )
 
 require (
