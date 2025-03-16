@@ -26,6 +26,9 @@ const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEm
 
 // Markdown returns the markdown content of the tidbit that is stored in the directory
 // in the provided file system. If the file does not exist or is empty then nil is returned.
+//
+// Generally the String method should be used to get the description of the tidbit instead
+// of this Markdown method.
 func (id ID) Markdown(fs embed.FS, dir string) []byte {
 	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
 	b, err := fs.ReadFile(name)
@@ -116,7 +119,7 @@ func Groups() Tibits {
 		30:  []URI{"cmen"},
 		31:  []URI{"erkle"},
 		32:  []URI{"extasy", "xerox", "fairlight"},
-		33:  []URI{"norwegian-cracking-company", "international-network-of-crackers", "the-humble-guys"},
+		333: []URI{"norwegian-cracking-company", "international-network-of-crackers", "the-humble-guys"},
 		34:  []URI{"scd_dox", "software-chronicles-digest"},
 		35:  []URI{"software-chronicles-digest"},
 		36:  []URI{"the-humble-guys"},
@@ -133,7 +136,7 @@ func Groups() Tibits {
 		47:  []URI{"the-grand-council"},
 		48:  []URI{"untouchables", "uniq", "xap", "pentagram"},
 		49:  []URI{"italsoft"},
-		50:  []URI{"future-brain-inc", "the-humble-guys"},
+		50:  []URI{"future-brain-inc"},
 		51:  []URI{"pirate"},
 		52:  []URI{"creators-of-intense-art", "art-creation-enterprise"},
 		53:  []URI{"vla"},

@@ -20,7 +20,7 @@ bin = "tmp/main"
 full_bin = "REQUESTS=true ./tmp/main"
 
 # Watch these filename extensions.
-include_ext = ["go", "tpl", "tmpl", "html", "css", "js"]
+include_ext = ["go", "tpl", "tmpl", "html", "css", "js", "md"]
 # Ignore these filename extensions or directories.
 exclude_dir = [".git/", "dist/", "docs", "init/", "tmp/", "vendor/"]
 # Watch these directories if you specified.
