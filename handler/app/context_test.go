@@ -3,6 +3,7 @@ package app_test
 // Most of these tests are for nil values to ensure there are no panics.
 
 import (
+	"embed"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -254,7 +255,7 @@ func TestReleaser404(t *testing.T) {
 
 func TestReleasers(t *testing.T) {
 	t.Parallel()
-	x := app.Releasers(newContext(), nil, nil, "")
+	x := app.Releasers(newContext(), nil, nil, "", embed.FS{})
 	require.Error(t, x)
 }
 

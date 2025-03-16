@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/sha512"
 	"database/sql"
+	"embed"
 	"errors"
 	"fmt"
 	"html/template"
@@ -1273,7 +1274,7 @@ func Releaser404(c echo.Context, invalidID string) error {
 }
 
 // Releasers is the handler for the list and preview of files credited to a releaser.
-func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string) error {
+func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string, public embed.FS) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("releasers page for, ", uri)
 	ctx := context.Background()
@@ -1303,7 +1304,7 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	slices.Sort(tidbits)
 	htm := ""
 	for value := range slices.Values(tidbits) {
-		s := value.String()
+		s := value.String(public)
 		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
 			htm += fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, value.URL(uri))
 			continue

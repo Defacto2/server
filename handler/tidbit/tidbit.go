@@ -2,6 +2,7 @@
 package tidbit
 
 import (
+	"embed"
 	"fmt"
 	"html/template"
 	"os"
@@ -23,15 +24,11 @@ type ID int
 
 const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
 
-// Markdown returns the markdown content of the tidbit that is stored in the assets/md/tidbit directory.
-// If the file does not exist or is empty then nil is returned.
-func (id ID) Markdown() []byte {
-	assets := filepath.Join("assets", "md", "tidbit")
-	name := filepath.Join(assets, fmt.Sprintf("%d.md", id))
-	if st, err := os.Stat(name); err != nil || st.IsDir() || st.Size() == 0 {
-		return nil
-	}
-	b, err := os.ReadFile(name)
+// Markdown returns the markdown content of the tidbit that is stored in the directory
+// in the provided file system. If the file does not exist or is empty then nil is returned.
+func (id ID) Markdown(fs embed.FS, dir string) []byte {
+	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
+	b, err := fs.ReadFile(name)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "tidbit: %d.md read error: %v\n", id, err)
 		return nil
@@ -43,9 +40,9 @@ func (id ID) Markdown() []byte {
 	return markdown.Render(doc, renderer)
 }
 
-// String returns the tidbit description.
-func (id ID) String() string {
-	if b := id.Markdown(); b != nil {
+// String returns the tidbit description that is stored as a markdown file in the provided file system.
+func (id ID) String(fs embed.FS) string {
+	if b := id.Markdown(fs, "public/md/tidbit"); b != nil {
 		return string(b)
 	}
 	return ""
@@ -53,7 +50,7 @@ func (id ID) String() string {
 
 // URI returns the URIs of the tidbit.
 func (id ID) URI() []URI {
-	if x := groups()[id]; x != nil {
+	if x := Groups()[id]; x != nil {
 		return x
 	}
 	return nil
@@ -84,7 +81,8 @@ type Tibits map[ID][]URI
 // Tidbit is a map of tidbits mapped to their descriptions.
 type Tidbit map[ID]string
 
-func groups() Tibits {
+// Groups returns the tidbit IDs and their matching URIs.
+func Groups() Tibits {
 	return Tibits{
 		1:   []URI{"untouchables", "the-untouchables"},
 		2:   []URI{"five-o", "boys-from-company-c", "pirates-r-us", "the-firm"},
@@ -180,7 +178,7 @@ func groups() Tibits {
 // The ID can also be used to get the URIs of the tidbit.
 func Find(uri string) []ID {
 	ids := []ID{}
-	for id, uris := range groups() {
+	for id, uris := range Groups() {
 		for val := range slices.Values(uris) {
 			if val == URI(uri) {
 				ids = append(ids, id)

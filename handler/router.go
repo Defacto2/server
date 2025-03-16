@@ -250,7 +250,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLog
 		if qs := cx.QueryString(); qs != "" {
 			return cx.Redirect(http.StatusMovedPermanently, "/g/"+cx.Param("id"))
 		}
-		return app.Releasers(cx, db, logger, cx.Param("id"))
+		return app.Releasers(cx, db, logger, cx.Param("id"), c.Public)
 	})
 	s.GET("/history", app.History)
 	s.GET("/interview", app.Interview)
