@@ -90,6 +90,8 @@ func Groups() Tibits {
 		1:   []URI{"untouchables", "the-untouchables"},
 		2:   []URI{"five-o", "boys-from-company-c", "pirates-r-us", "the-firm"},
 		3:   []URI{"fairlight", "united-software-association*fairlight"},
+		4:   []URI{"the-zapper"},
+		5:   []URI{"ipl"},
 		400: []URI{"fairlight", "artists-in-revolt"},
 		500: []URI{"fairlight", "fairlight-dox"},
 		6:   []URI{"aces-of-ansi-art", "acid-productions"},
@@ -172,6 +174,9 @@ func Groups() Tibits {
 		83:  []URI{"spectrum"},
 		84:  []URI{"the-pirate-world", "the-pirate-syndicate"},
 		85:  []URI{"fairlight"},
+		86:  []URI{"scb"},
+		87:  []URI{"imperial-warlords"},
+		88:  []URI{"public-brand-software"},
 	}
 }
 

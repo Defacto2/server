@@ -1344,7 +1344,7 @@ func releaserLead(uri string, data map[string]interface{}) map[string]interface{
 	case "none":
 		data["lead"] = "None, are files which were never intended for the scene." +
 			`<br><small class="fw-lighter">These can include commercial or free software` +
-			` applications or online texts for public forums.</small>`
+			` applications, articles for the general public, and are often credited to a real name author.</small>`
 	default:
 		// placeholder to handle other releaser types
 	}

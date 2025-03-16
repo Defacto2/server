@@ -1,5 +1,5 @@
 
-This is a transcription taken from ALL CAPS, rainbow colored screenshots of the magazine using ChatGTP v4. Parts of the text maybe incorrect due to the quality of the source or AI halucinations, but some obvious broken parts have been manually corrected by a human 😉
+This transcription is taken from all-caps, rainbow colored text screenshots of the magazine using ChatGTP v4. Parts of the text maybe incorrect due to the quality of the source material and ChatGTP halucinations.
 
 ---
 

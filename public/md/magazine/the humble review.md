@@ -1,5 +1,5 @@
 
-This is a transcription taken from ALL CAPS, rainbow colored screenshots of the magazine using ChatGTP v4. Parts of the text will be wrong due to the quality of the source, AI halucinations, and AI self-censorship. The game and movie reviews were not transcribed.
+This transcription is taken from all-caps, rainbow colored text screenshots of the magazine using ChatGTP v4. Parts of the text will be wrong due to the quality of the source, AI halucinations, and ChatGTP self-censorship. The game and movie reviews were not transcribed.
 
 ---
 
