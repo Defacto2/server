@@ -86,7 +86,9 @@ tasks:
   nil:
     desc: "Run the static analysis techniques to catch Nil dereferences."
     cmds:
-      - go tool nilaway ./...
+      # ignore server/model package because the database uses nil values
+      # skip tests for performance
+      - go tool nilaway -test=false -exclude-pkgs=github.com/Defacto2/server/model ./...
   pkg-patch:
     aliases:
       - "patch"

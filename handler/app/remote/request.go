@@ -110,6 +110,9 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	if err != nil {
 		return DownloadResponse{}, fmt.Errorf("get file client do: %w", err)
 	}
+	if res == nil {
+		return DownloadResponse{}, http.ErrBodyNotAllowed
+	}
 	if res.Body == nil {
 		return DownloadResponse{}, fmt.Errorf("get file %w, status code: %d", ErrBodyNil, res.StatusCode)
 	}

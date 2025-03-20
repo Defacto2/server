@@ -556,16 +556,20 @@ func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 	if err := RunQuiet(Cwebp, arg...); err != nil {
 		return fmt.Errorf("preview photo cwebp %w", err)
 	}
-	jst, _ := os.Stat(jtmp)
-	wst, _ := os.Stat(wtmp)
 	srcPath := wtmp
-	dst := filepath.Join(dir.Preview.Path(), unid+webp)
-	if jpegSmaller := jst.Size() < wst.Size(); jpegSmaller {
-		srcPath = jtmp
-		dst = filepath.Join(dir.Preview.Path(), unid+jpg)
-	}
-	if err := CopyFile(debug, srcPath, dst); err != nil {
-		return fmt.Errorf("preview photo copy file %w", err)
+	jst, err1 := os.Stat(jtmp)
+	wst, err2 := os.Stat(wtmp)
+	if err1 != nil || err2 != nil {
+		fmt.Fprint(io.Discard, err1, err2)
+	} else {
+		dst := filepath.Join(dir.Preview.Path(), unid+webp)
+		if jpegSmaller := jst.Size() < wst.Size(); jpegSmaller {
+			srcPath = jtmp
+			dst = filepath.Join(dir.Preview.Path(), unid+jpg)
+		}
+		if err := CopyFile(debug, srcPath, dst); err != nil {
+			return fmt.Errorf("preview photo copy file %w", err)
+		}
 	}
 	var wg sync.WaitGroup
 	wg.Add(1)

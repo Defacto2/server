@@ -364,6 +364,9 @@ var (
 
 func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger *zap.SugaredLogger,
 ) (int64, uuid.UUID, error) {
+	if cr.file == nil {
+		return 0, uuid.UUID{}, ErrMultiHead
+	}
 	noID := uuid.UUID{}
 	values, err := c.FormParams()
 	if err != nil {

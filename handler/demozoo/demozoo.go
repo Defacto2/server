@@ -158,6 +158,9 @@ func (p *Production) Get(id int) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("get demozoo production client do %w", err)
 	}
+	if res == nil {
+		return 0, http.ErrBodyNotAllowed
+	}
 	if res.Body == nil {
 		return res.StatusCode, fmt.Errorf("get demozoo production client do returned nothing %w: %s", ErrStatus, res.Status)
 	}
@@ -492,6 +495,9 @@ func (p *Production) Groups() (string, string) {
 // otherwise an empty string is returned.
 func Site(title string) string {
 	s := strings.Split(title, " ")
+	if len(s) == 0 {
+		return ""
+	}
 	if strings.EqualFold(s[0], "the") {
 		s = s[1:]
 	}

@@ -109,6 +109,11 @@ func (c Connection) Validate(logger *zap.SugaredLogger) error {
 	u, err := url.Parse(c.URL)
 	if err != nil {
 		logger.Warn("The database connection URL is invalid, ", err)
+		return nil
+	}
+	if u == nil {
+		logger.Warn("The database connection URL is nil")
+		return nil
 	}
 	if u.Scheme != Protocol {
 		logger.Warnf("The database connection scheme is not: %s", Protocol)

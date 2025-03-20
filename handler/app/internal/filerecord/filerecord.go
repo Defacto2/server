@@ -608,11 +608,14 @@ func (c content) renderContent(b *strings.Builder, names ...string) template.HTM
 	l := len(names)
 	if l == 0 {
 		b.WriteString(skippedEmpty(c.zeroByteFiles))
-		// b.Reset()
 		return template.HTML(b.String())
 	}
 	if useDiz := diz > -1; useDiz {
-		srcDiz := filepath.Join(c.dst, names[diz])
+		elms := ""
+		if len(names) > diz {
+			elms = names[diz]
+		}
+		srcDiz := filepath.Join(c.dst, elms)
 		if err := c.dirs.DizDeferred(srcDiz, c.unid); err != nil {
 			b.Reset()
 			return template.HTML(err.Error())
@@ -626,12 +629,20 @@ func (c content) renderContent(b *strings.Builder, names ...string) template.HTM
 	// excluding any file_id.diz files
 	srcNFO := ""
 	if onlyNFO := diz == -1 && l == 1; onlyNFO {
-		srcNFO = filepath.Join(c.dst, names[0])
+		elms := ""
+		if len(names) > 0 {
+			elms = names[0]
+		}
+		srcNFO = filepath.Join(c.dst, elms)
 	}
 	const maxItems = 2
 	if textPair := diz != -1 && l == maxItems; textPair {
 		invert := 1 - diz
-		srcNFO = filepath.Join(c.dst, names[invert])
+		elms := ""
+		if len(names) > invert {
+			elms = names[invert]
+		}
+		srcNFO = filepath.Join(c.dst, elms)
 	}
 	if srcNFO != "" {
 		if err := c.dirs.TextDeferred(srcNFO, c.unid); err != nil {

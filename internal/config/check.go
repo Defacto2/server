@@ -170,6 +170,9 @@ func (c *Config) SetupLogDir(logger *zap.SugaredLogger) error {
 	if os.IsNotExist(err) {
 		return fmt.Errorf("log directory %w: %s", ErrDirNotExist, c.AbsLog)
 	}
+	if err != nil {
+		return fmt.Errorf("log directory: %w", err)
+	}
 	if !dir.IsDir() {
 		return fmt.Errorf("log directory %w: %s", ErrNotDir, dir.Name())
 	}

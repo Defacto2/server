@@ -174,7 +174,11 @@ func Copyright() string {
 // OS returns the program operating system.
 func OS() string {
 	t := cases.Title(language.English)
-	os := strings.Split(runtime.GOOS, "/")[0]
+	x := strings.Split(runtime.GOOS, "/")
+	if len(x) == 0 {
+		return t.String(runtime.GOOS)
+	}
+	os := x[0]
 	switch os {
 	case "darwin":
 		return "macOS"
@@ -228,6 +232,10 @@ const (
 func Run(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	if c == nil {
 		return UsageError, ErrCmd
+	}
+	const minArgs = 2
+	if len(os.Args) < minArgs {
+		return Continue, nil
 	}
 	args := os.Args[1:]
 	useArguments := len(args) > 0
