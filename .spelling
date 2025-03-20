@@ -1,0 +1,60 @@
+# markdown-spellcheck spelling configuration file
+# Format - lines beginning # are comments
+# global dictionary is at the start, file overrides afterwards
+# one word per line, to define a file override use ' - filename'
+# where filename is relative to this configuration file
+initialism
+Softbeard
+textfiles
+textfile
+unprotect
+snatchit
+walkthrough
+unprotects
+CP-437
+Zanna
+Boland
+Phortune
+phone-phreak
+Billionarre
+Spiker
+Jenetic
+Bytemare
+Emulex
+v2
+Camaro
+Baggins
+Ferndox
+Kloey
+Xpax
+Neff
+Madd
+M.Y.T.H.
+Ironman
+Fairlight
+demoscene
+1980s
+1990s
+Sidwell
+cracktro
+cracktros
+scroller
+tagline
+Bently
+Blix
+TRSi
+Tristar
+Defjam
+Murry
+NotSoHumble
+Riverndell
+artgroup
+demogroup
+MobyGames
+phreak
+phreaking
+phreaker
+phreakers
+timestamp
+unprotect
+unprotects

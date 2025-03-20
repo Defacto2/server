@@ -161,6 +161,12 @@ tasks:
       D2_PROD_MODE: true
     cmds:
       - go tool air -c init/.air.toml
+  spell:
+    desc: "Run the spell checker on the markdown tidbits."
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: find public/md/tidbit/ -name "*.md" | xargs pnpm exec mdspell --report --ignore-numbers --ignore-acronyms --en-us
   test:
     desc: "Run the test suite."
     cmds:
