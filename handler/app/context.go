@@ -1036,7 +1036,7 @@ func PostDesc(c echo.Context, db *sql.DB, input string) error {
 	const brief = "Game and program title"
 	data["title"] = brief + " results"
 	data["h1"] = brief + " search"
-	data["lead"] = fmt.Sprintf("Results for %s", s)
+	data["lead"] = "Results for " + s
 	data["logo"] = s + " results"
 	data["description"] = brief + " search results for " + s + "."
 	data["unknownYears"] = false
@@ -1068,7 +1068,7 @@ func PostName(c echo.Context, db *sql.DB, mode FileSearch) error {
 	data := emptyFiles(c)
 	data["title"] = "Filename results"
 	data["h1"] = "Filename search"
-	data["lead"] = fmt.Sprintf("Results for %s", s)
+	data["lead"] = "Results for " + s
 	data["logo"] = s + " results"
 	data["description"] = "Filename search results for " + s + "."
 	data["unknownYears"] = false

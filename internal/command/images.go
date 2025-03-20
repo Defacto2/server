@@ -880,7 +880,8 @@ func (args *Args) CWebp() {
 	*args = append(*args, mt)
 }
 
-// CWebpText appends the command line arguments for the [cwebp command] to transform args text image into args webp image.
+// CWebpText appends the command line arguments for the [cwebp command] to transform
+// args text image into args webp image.
 //
 // [cwebp command]: https://developers.google.com/speed/webp/docs/cwebp
 func (args *Args) CWebpText() {
@@ -1035,7 +1036,7 @@ func subdirDuplicate(err error, src, newpath, msg string) error {
 
 func findName(root, name string) string {
 	result := ""
-	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(root, func(path string, _ os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}

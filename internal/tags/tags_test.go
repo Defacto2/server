@@ -1,7 +1,6 @@
 package tags_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/Defacto2/server/internal/tags"
@@ -28,7 +27,7 @@ func TestByName(t *testing.T) {
 func TestTBuild(t *testing.T) {
 	t.Parallel()
 	tt := tags.T{}
-	err := tt.Build(context.TODO(), nil)
+	err := tt.Build(t.Context(), nil)
 	require.Error(t, err)
 }
 

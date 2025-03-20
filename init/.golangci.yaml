@@ -13,7 +13,7 @@ linters:
   # Disable specific linters.
   disable:
     # deprecated
-    - exportloopref
+    - tenv
     # disabled
     - depguard # imports are in a list of acceptable packages.
     - exhaustive # checks exhaustiveness of enum switch statements.

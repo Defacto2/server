@@ -1,24 +1,13 @@
-package htmx
+package htmx_test
 
 import (
 	"errors"
-	"net/http"
-	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
-	"github.com/labstack/echo/v4"
+	"github.com/Defacto2/server/handler/htmx"
 	"github.com/stretchr/testify/assert"
 )
-
-func newContext() echo.Context {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("{}"))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	return e.NewContext(req, rec)
-}
 
 func TestValidate(t *testing.T) {
 	tests := []struct {
@@ -29,7 +18,7 @@ func TestValidate(t *testing.T) {
 		{
 			name:    "absolute path",
 			path:    "/absolute/path",
-			wantErr: ErrPath,
+			wantErr: htmx.ErrPath,
 		},
 		{
 			name:    "clean path",
@@ -44,18 +33,18 @@ func TestValidate(t *testing.T) {
 		{
 			name:    "unclean path 1",
 			path:    "relative/../path",
-			wantErr: ErrPath,
+			wantErr: htmx.ErrPath,
 		},
 		{
 			name:    "unclean path 2",
 			path:    "./relative/path",
-			wantErr: ErrPath,
+			wantErr: htmx.ErrPath,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := Validate(tt.path)
+			err := htmx.Validate(tt.path)
 			if err != nil && !errors.Is(err, tt.wantErr) {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -107,7 +96,7 @@ func TestPath(t *testing.T) {
 			c.SetParamNames("unid", "path")
 			c.SetParamValues(tt.unid, url.QueryEscape(tt.path))
 
-			gotUnid, gotName, err := Path(c)
+			gotUnid, gotName, err := htmx.Path(c)
 			got := (err != nil)
 			if !assert.Equal(t, tt.wantErr, got) {
 				t.Errorf("Path() error = %v, wantErr %v", got, tt.wantErr)

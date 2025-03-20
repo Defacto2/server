@@ -684,7 +684,7 @@ func groups() Groups { //nolint:funlen
 		"anoxia":                                28055,
 		"no-lamerz-allowed":                     147875,
 		"187":                                   60731,
-		"corosion":                              78035,
+		"corosion":                              78035, //nolint:misspell
 		"shallow-grounds":                       108955,
 		"wildsider":                             146120,
 		"lucifer-enterprises":                   123274,

@@ -1,7 +1,6 @@
 package fileslice_test
 
 import (
-	"context"
 	"fmt"
 	"slices"
 	"testing"
@@ -75,12 +74,12 @@ func TestFileInfo(t *testing.T) {
 
 func TestRecords(t *testing.T) {
 	t.Parallel()
-	x, err := fileslice.Records(context.TODO(), nil, "", 0, 0)
+	x, err := fileslice.Records(t.Context(), nil, "", 0, 0)
 	require.Error(t, err)
 	assert.Nil(t, x)
 
 	proof := fileslice.URI(45).String()
-	x, err = fileslice.Records(context.TODO(), nil, proof, 1, 1)
+	x, err = fileslice.Records(t.Context(), nil, proof, 1, 1)
 	require.Error(t, err)
 	assert.Nil(t, x)
 
@@ -92,7 +91,7 @@ func TestRecords(t *testing.T) {
 		if uri.String() == "" {
 			continue
 		}
-		_, err = fileslice.Records(context.TODO(), nil, uri.String(), 1, 1)
+		_, err = fileslice.Records(t.Context(), nil, uri.String(), 1, 1)
 		msg := fmt.Sprintf("this uri caused an issue: %q %d", uri, uri)
 		assert.Equal(t, model.ErrDB.Error(), err.Error(), msg)
 	}

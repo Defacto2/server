@@ -197,7 +197,7 @@ func RemoveCtrls(b []byte) []byte {
 		reSauce   = `SAUCE00.*`             // SAUCE metadata that is appended to some files
 		nlWindows = "\x01\x0a"              // Windows line endings
 		nlUnix    = "\x0a"                  // Unix line endings
-		nil       = "\x00"                  // null byte
+		null      = "\x00"                  // null byte
 	)
 	const sep = `|`
 	controlCodes := regexp.MustCompile(reAnsi + sep + reDEC + sep + reAmiga + sep + reSauce)

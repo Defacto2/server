@@ -8,7 +8,6 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/dir"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -206,11 +205,11 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c echo.Context) error {
-		return htmx.UploadReplacement(c, db, dir.Directory(dirs.Download), dir.Directory(dirs.Extra))
+		return htmx.UploadReplacement(c, db, dirs.Download, dirs.Extra)
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c echo.Context) error {
-		return htmx.UploadPreview(c, dir.Directory(dirs.Preview), dir.Directory(dirs.Thumbnail))
+		return htmx.UploadPreview(c, dirs.Preview, dirs.Thumbnail)
 	})
 	paths := command.Dirs{
 		Download:  dirs.Download,
@@ -223,7 +222,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 		return htmx.RecordDizCopier(c, paths)
 	})
 	diz.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordDizDeleter(c, dir.Directory(dirs.Extra))
+		return htmx.RecordDizDeleter(c, dirs.Extra)
 	})
 	readme := g.Group("/readme")
 	readme.PATCH("/disable/:id", func(c echo.Context) error {
@@ -241,7 +240,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 		return htmx.RecordReadmeImager(c, logger, true, paths)
 	})
 	readme.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordReadmeDeleter(c, dir.Directory(dirs.Extra))
+		return htmx.RecordReadmeDeleter(c, dirs.Extra)
 	})
 	pre := g.Group("/preview")
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
@@ -257,7 +256,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 		return htmx.RecordImageCropper(c, command.OneTwo, paths)
 	})
 	pre.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dir.Directory(dirs.Preview))
+		return htmx.RecordImagesDeleter(c, dirs.Preview)
 	})
 
 	thumb := g.Group("/thumbnail")
@@ -286,15 +285,15 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 		return htmx.RecordThumb(c, command.Photo, paths)
 	})
 	thumb.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dir.Directory(dirs.Thumbnail))
+		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)
 	})
 
 	imgs := g.Group("/images")
 	imgs.PATCH("/pixelate/:unid", func(c echo.Context) error {
-		return htmx.RecordImagePixelator(c, dir.Directory(dirs.Preview), dir.Directory(dirs.Thumbnail))
+		return htmx.RecordImagePixelator(c, dirs.Preview, dirs.Thumbnail)
 	})
 	imgs.DELETE("/:unid", func(c echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dir.Directory(dirs.Preview), dir.Directory(dirs.Thumbnail))
+		return htmx.RecordImagesDeleter(c, dirs.Preview, dirs.Thumbnail)
 	})
 }
 

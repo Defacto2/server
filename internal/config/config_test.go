@@ -57,7 +57,7 @@ func TestCheckDir(t *testing.T) {
 
 func TestRecordCount(t *testing.T) {
 	t.Parallel()
-	i := config.RecordCount(context.TODO(), nil)
+	i := config.RecordCount(t.Context(), nil)
 	assert.Zero(t, i)
 }
 
@@ -102,17 +102,17 @@ func TestError(t *testing.T) {
 func TestRepair(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	err := c.Archives(context.TODO(), nil)
+	err := c.Archives(t.Context(), nil)
 	require.Error(t, err)
 
 	r := config.Zip
 	assert.Equal(t, "zip", r.String())
 
-	err = c.Assets(context.TODO(), nil)
+	err = c.Assets(t.Context(), nil)
 	require.Error(t, err)
-	err = c.MagicNumbers(context.TODO(), nil, nil)
+	err = c.MagicNumbers(t.Context(), nil, nil)
 	require.Error(t, err)
-	err = c.Previews(context.TODO(), nil, nil)
+	err = c.Previews(t.Context(), nil, nil)
 	require.Error(t, err)
 
 	err = c.ImageDirs(nil)
@@ -134,7 +134,7 @@ func TestReArchive(t *testing.T) {
 	r := config.Zip
 	logger, _ := zap.NewProduction()
 	_ = logger.Sync()
-	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
+	ctx := context.WithValue(t.Context(), helper.LoggerKey, logger)
 	err := r.ReArchive(ctx, "", "", "")
 	require.Error(t, err)
 }
@@ -144,7 +144,7 @@ func TestReArchiveImplode(t *testing.T) {
 	l, _ := zap.NewProduction()
 	_ = l.Sync()
 	logger := l.Sugar()
-	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
+	ctx := context.WithValue(t.Context(), helper.LoggerKey, logger)
 
 	// test the archive that uses the defunct implode method
 	src, err := filepath.Abs(filepath.Join("testdata", "IMPLODE.ZIP"))

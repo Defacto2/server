@@ -1,11 +1,15 @@
-package config
+package config_test
 
 import (
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/Defacto2/server/internal/config"
 )
+
+const perm = 0o600
 
 func TestRemove(t *testing.T) {
 	tmpdiz := filepath.Join(t.TempDir(), "file_id.diz")
@@ -24,10 +28,10 @@ func TestRemove(t *testing.T) {
 			want: "readme.txt",
 			setup: func() error {
 				data := []byte("FILE_ID.DIZ content")
-				if err := os.WriteFile(tmpdiz, data, 0o644); err != nil {
+				if err := os.WriteFile(tmpdiz, data, perm); err != nil {
 					return err
 				}
-				return os.WriteFile(tmptxt, data, 0o644)
+				return os.WriteFile(tmptxt, data, perm)
 			},
 		},
 		{
@@ -38,10 +42,10 @@ func TestRemove(t *testing.T) {
 			setup: func() error {
 				const x = "1234567890"
 				data := []byte(strings.Repeat(x, 100))
-				if err := os.WriteFile(tmpdiz, data, 0o644); err != nil {
+				if err := os.WriteFile(tmpdiz, data, perm); err != nil {
 					return err
 				}
-				return os.WriteFile(tmptxt, data, 0o644)
+				return os.WriteFile(tmptxt, data, perm)
 			},
 		},
 		{
@@ -55,10 +59,10 @@ func TestRemove(t *testing.T) {
 				for range 15 {
 					data = append(data, x...)
 				}
-				if err := os.WriteFile(tmpdiz, data, 0o644); err != nil {
+				if err := os.WriteFile(tmpdiz, data, perm); err != nil {
 					return err
 				}
-				return os.WriteFile(tmptxt, data, 0o644)
+				return os.WriteFile(tmptxt, data, perm)
 			},
 		},
 	}
@@ -68,7 +72,7 @@ func TestRemove(t *testing.T) {
 			if err := tt.setup(); err != nil {
 				t.Fatalf("setup failed: %v", err)
 			}
-			got, err := Remove(tt.diz, tt.txt)
+			got, err := config.Remove(tt.diz, tt.txt)
 			if err != nil {
 				t.Errorf("Remove() error = %v, wantErr %v", err, false)
 				return

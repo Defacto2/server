@@ -167,7 +167,7 @@ func Groups() Tibits {
 		70:   []URI{"high-society"},
 		71:   []URI{"trinity-reviews", "lancelot-2"},
 		72:   []URI{"real-pirates-guide"},
-		73:   []URI{"the-amatuer-crackist-tutorial"},
+		73:   []URI{"the-amatuer-crackist-tutorial"}, //nolint:misspell
 		74:   []URI{"church-chat", "ptl-club"},
 		75:   []URI{"corrupted-programming-international", "cpi-newsletter"},
 		76:   []URI{"official-unprotection-scheme-library", "copycats-inc"},

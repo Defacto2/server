@@ -129,7 +129,8 @@ const (
 	minYear SQL = "MIN(files.date_issued_year) AS min_year "
 	// combine the group_brand_for and group_brand_by columns as releasers.
 	combineGroup SQL = "CROSS JOIN LATERAL (values(group_brand_for),(group_brand_by)) AS T(releaser) "
-	// only group is a replacement for combineGroup when only the group_brand_for column is required such as for magazines titles.
+	// only group is a replacement for combineGroup when only the group_brand_for column
+	// is required such as for magazines titles.
 	onlyGroup = SQL("CROSS JOIN LATERAL (values(group_brand_for)) AS T(releaser) ")
 	// filter the results by the file count and the oldest year,
 	// this is to exclude releasers with less than 1 file or an unknown release year.

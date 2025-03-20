@@ -6,14 +6,13 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"slices"
 )
 
 var (
 	ErrFile = errors.New("file error")
 	ErrSave = errors.New("save error")
 	ErrDir  = errors.New("the directory path is not set")
-	Err404  = errors.New("the directory path does not exist")
+	ErrNF   = errors.New("the directory path does not exist")
 )
 
 // Directory is a string type that represents an internal server directory path.
@@ -53,7 +52,7 @@ func (d Directory) IsDir() error {
 	st, err := os.Stat(d.Path())
 	if err != nil {
 		if os.IsNotExist(err) {
-			return Err404
+			return ErrNF
 		}
 		return err
 	}
@@ -66,9 +65,9 @@ func (d Directory) IsDir() error {
 // Paths converts the slice of Directory types to a slice of strings
 // representing the directory paths.
 func Paths(d ...Directory) []string {
-	var paths []string
-	for val := range slices.Values(d) {
-		paths = append(paths, val.Path())
+	paths := make([]string, len(d))
+	for i, dir := range d {
+		paths[i] = dir.Path()
 	}
 	return paths
 }
