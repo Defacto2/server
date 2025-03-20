@@ -2,6 +2,7 @@ package remote
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -89,6 +90,11 @@ func GetFile10sec(rawURL string) (DownloadResponse, error) {
 	return GetFile(rawURL, client10sec())
 }
 
+var (
+	ErrBodyNil = errors.New("body is nil")
+	ErrStatus  = errors.New("wrong status code")
+)
+
 // GetFile downloads a file from a remote URL and saves it to the default temp directory.
 // It returns the path to the downloaded file and it should be removed after use.
 func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
@@ -105,12 +111,12 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 		return DownloadResponse{}, fmt.Errorf("get file client do: %w", err)
 	}
 	if res.Body == nil {
-		return DownloadResponse{}, fmt.Errorf("get file body is nil, status code: %d", res.StatusCode)
+		return DownloadResponse{}, fmt.Errorf("get file %w, status code: %d", ErrBodyNil, res.StatusCode)
 	}
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
 		res.Body.Close()
-		return DownloadResponse{}, fmt.Errorf("get file status code: %d", res.StatusCode)
+		return DownloadResponse{}, fmt.Errorf("get file %w: %d", ErrStatus, res.StatusCode)
 	}
 	defer res.Body.Close()
 

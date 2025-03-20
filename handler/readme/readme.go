@@ -170,14 +170,7 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 	} else if incompatible {
 		clear(b)
 	}
-	if b != nil {
-		// trim trailing whitespace and MS-DOS era EOF marker
-		b = bytes.TrimRightFunc(b, uni.IsSpace)
-		const endOfFile = 0x1a // Ctrl+Z
-		if bytes.HasSuffix(b, []byte{endOfFile}) {
-			b = bytes.TrimSuffix(b, []byte{endOfFile})
-		}
-	}
+	b = trimBytes(b)
 	if diz != nil {
 		b = render.InsertDiz(b, diz)
 	}
@@ -186,6 +179,19 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 		return nil, nil, errs
 	}
 	return b, r, nil
+}
+
+func trimBytes(b []byte) []byte {
+	if b == nil {
+		return nil
+	}
+	// trim trailing whitespace and MS-DOS era EOF marker
+	b = bytes.TrimRightFunc(b, uni.IsSpace)
+	const endOfFile = 0x1a // Ctrl+Z
+	if bytes.HasSuffix(b, []byte{endOfFile}) {
+		b = bytes.TrimSuffix(b, []byte{endOfFile})
+	}
+	return b
 }
 
 // RemoveCtrls removes ANSI escape codes and converts Windows line endings to Unix.
@@ -203,7 +209,7 @@ func RemoveCtrls(b []byte) []byte {
 	controlCodes := regexp.MustCompile(reAnsi + sep + reDEC + sep + reAmiga + sep + reSauce)
 	b = controlCodes.ReplaceAll(b, []byte{})
 	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
-	b = bytes.ReplaceAll(b, []byte(nil), []byte(" "))
+	b = bytes.ReplaceAll(b, []byte(null), []byte(" "))
 	return b
 }
 

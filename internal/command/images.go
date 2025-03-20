@@ -1026,7 +1026,7 @@ func subdirDuplicate(err error, src, newpath, msg string) error {
 	oldDir, oldName := filepath.Dir(src), filepath.Base(src)
 	find := findName(oldDir, oldName)
 	if find == "" {
-		return fmt.Errorf("file not found: %s", src)
+		return fmt.Errorf("%w: %s", os.ErrNotExist, src)
 	}
 	if _, err1 := helper.DuplicateOW(find, newpath); err1 != nil {
 		return fmt.Errorf("%s deferred 2nd, %w: %s", msg, err1, find)
@@ -1038,6 +1038,7 @@ func findName(root, name string) string {
 	result := ""
 	_ = filepath.Walk(root, func(path string, _ os.FileInfo, err error) error {
 		if err != nil {
+			fmt.Fprint(io.Discard, err)
 			return nil
 		}
 		if filepath.Base(path) == name {

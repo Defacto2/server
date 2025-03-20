@@ -586,7 +586,7 @@ const (
 )
 
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
-func groups() Groups { //nolint:funlen
+func groups() Groups { //nolint:funlen,maintidx
 	return Groups{
 		"god-network":                           146552,
 		"the-knights-of-the-round-table":        148479,

@@ -229,7 +229,6 @@ func (r Repair) ReArchive(ctx context.Context, src, uid string, dest dir.Directo
 		return fmt.Errorf("rearchive mkdir temp %w: %s", err, src)
 	}
 	defer os.RemoveAll(tmp)
-
 	extractCmd, extractArg := "", ""
 	switch r {
 	case Zip:
@@ -258,7 +257,6 @@ func (r Repair) ReArchive(ctx context.Context, src, uid string, dest dir.Directo
 	if err != nil {
 		return fmt.Errorf("rearchive tmp stat %w: %s", err, tmp)
 	}
-
 	basename := uid + ".zip"
 	tmpArc := filepath.Join(helper.TmpDir(), basename)
 	if written, err := rezip.CompressDir(tmp, tmpArc); err != nil {
@@ -266,13 +264,11 @@ func (r Repair) ReArchive(ctx context.Context, src, uid string, dest dir.Directo
 	} else if written == 0 {
 		return nil
 	}
-
 	finalArc := dest.Join(basename)
 	if err = helper.RenameCrossDevice(tmpArc, finalArc); err != nil {
 		defer os.RemoveAll(tmpArc)
 		return fmt.Errorf("rearchive rename %w: %s", err, tmpArc)
 	}
-
 	st, err := os.Stat(finalArc)
 	if err != nil {
 		return fmt.Errorf("rearchive zip stat %w: %s", err, finalArc)
@@ -844,8 +840,9 @@ func TmpCleaner() {
 		return
 	}
 	defer dir.Close()
-	fs.WalkDir(dir.FS(), ".", func(path string, d fs.DirEntry, err error) error {
+	_ = fs.WalkDir(dir.FS(), ".", func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
+			fmt.Fprint(io.Discard, err)
 			return nil
 		}
 		if !d.IsDir() || !strings.HasPrefix(d.Name(), "artifact-content-") {

@@ -29,6 +29,7 @@ import (
 var (
 	ErrDB    = errors.New("database connection is nil")
 	ErrExist = errors.New("file already exists")
+	ErrNF    = errors.New("could not get record from demozoo api")
 )
 
 // DemozooLink is the response from the task of GetDemozooFile.
@@ -69,7 +70,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Direct
 		return fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err)
 	}
 	if statusCode > 0 {
-		return fmt.Errorf("could not find record %d from demozoo api, returned: %d", got.ID, statusCode)
+		return fmt.Errorf("record %d, status code: %d: %w", got.ID, statusCode, ErrNF)
 	}
 	for i, link := range prod.DownloadLinks {
 		if link.URL == "" {
@@ -84,14 +85,8 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Direct
 		base := filepath.Base(link.URL)
 		dst := filepath.Join(download.Path(), got.UUID)
 		got.Filename = base
-		if err := helper.RenameFileOW(dlr.Path, dst); err != nil {
-			sameFiles, err := helper.FileMatch(dlr.Path, dst)
-			if err != nil {
-				return fmt.Errorf("could not rename file, %s: %w", dst, err)
-			}
-			if !sameFiles {
-				return fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst)
-			}
+		if err := renfow(dlr.Path, dst); err != nil {
+			return err
 		}
 		size, err := strconv.Atoi(dlr.ContentLength)
 		if err == nil {
@@ -122,6 +117,19 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Direct
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
 	return c.JSON(http.StatusNotModified, got)
+}
+
+func renfow(src, dst string) error {
+	if err := helper.RenameFileOW(src, dst); err != nil {
+		sameFiles, err := helper.FileMatch(src, dst)
+		if err != nil {
+			return fmt.Errorf("could not rename file, %s: %w", dst, err)
+		}
+		if !sameFiles {
+			return fmt.Errorf("%w, will not overwrite, %s", ErrExist, dst)
+		}
+	}
+	return nil
 }
 
 // getRemoteFile fetches the download link from Demozoo and saves it to the download directory.

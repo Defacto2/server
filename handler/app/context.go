@@ -100,8 +100,8 @@ const (
 // These keys are autofilled:
 //   - "cachefiles" is the total number of records and used by the defacto2:file-count meta element.
 //   - "editor" is true if the editor mode is enabled for the browser session.
-func empty(c echo.Context) map[string]interface{} {
-	return map[string]interface{}{
+func empty(c echo.Context) map[string]any {
+	return map[string]any{
 		"cachefiles":   Caching.RecordCount,
 		"canonical":    "",
 		"carousel":     "",
@@ -119,7 +119,7 @@ func empty(c echo.Context) map[string]interface{} {
 }
 
 // EmptyTester is a map of defaults for the app template tests.
-func EmptyTester(c echo.Context) map[string]interface{} {
+func EmptyTester(c echo.Context) map[string]any {
 	return empty(c)
 }
 
@@ -259,7 +259,7 @@ func Artist(c echo.Context, db *sql.DB) error {
 
 // scener is the handler for the scener pages.
 func scener(c echo.Context, db *sql.DB, r postgres.Role,
-	data map[string]interface{},
+	data map[string]any,
 ) error {
 	const name = "scener"
 	s := model.Sceners{}
@@ -430,7 +430,7 @@ func Configurations(cx echo.Context, db *sql.DB, conf config.Config) error {
 	return nil
 }
 
-func configurations(data map[string]interface{}, conf config.Config) map[string]interface{} {
+func configurations(data map[string]any, conf config.Config) map[string]any { //nolint:funlen
 	download := dir.Directory(conf.AbsDownload)
 	check := config.CheckDir(download, "downloads")
 	data["checkDownloads"] = check
@@ -583,7 +583,7 @@ func Categories(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, stats boo
 }
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
-func fileWStats(db *sql.DB, data map[string]interface{}, stats bool) (map[string]interface{}, error) {
+func fileWStats(db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
 	if !stats {
 		return data, nil
 	}
@@ -765,7 +765,7 @@ func GoogleCallback(c echo.Context, clientID string, maxAge int, accounts ...[48
 //
 // [new session]: https://pkg.go.dev/github.com/gorilla/sessions
 // [ID Tokens for Google HTTP APIs]: https://pkg.go.dev/google.golang.org/api/idtoken
-func sessionHandler(c echo.Context, maxAge int, claims map[string]interface{},
+func sessionHandler(c echo.Context, maxAge int, claims map[string]any,
 ) error {
 	session, err := session.Get(sess.Name, c)
 	if err != nil {
@@ -1302,15 +1302,7 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	data["website"] = site.Find(uri)
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
-	htm := ""
-	for value := range slices.Values(tidbits) {
-		s := value.String(public)
-		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
-			htm += fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, value.URL(uri))
-			continue
-		}
-		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, s, value.URL(uri))
-	}
+	htm := tibits(uri, public)
 	data["tidbits"] = template.HTML(htm)
 	if strings.HasSuffix(uri, "-bbs") {
 		data["bbs"] = true
@@ -1333,7 +1325,22 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	return nil
 }
 
-func releaserLead(uri string, data map[string]interface{}) map[string]interface{} {
+func tibits(uri string, public embed.FS) string {
+	htm := ""
+	tidbits := tidbit.Find(uri)
+	slices.Sort(tidbits)
+	for value := range slices.Values(tidbits) {
+		s := value.String(public)
+		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
+			htm += fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, value.URL(uri))
+			continue
+		}
+		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, s, value.URL(uri))
+	}
+	return htm
+}
+
+func releaserLead(uri string, data map[string]any) map[string]any {
 	switch uri {
 	case "independent":
 		data["lead"] = initialism.Join(initialism.Path(uri)) +
@@ -1581,7 +1588,7 @@ func Signin(c echo.Context, clientID, nonce string) error {
 }
 
 // remove is a helper function to remove the session cookie by setting the MaxAge to -1.
-func remove(c echo.Context, name string, data map[string]interface{}) error {
+func remove(c echo.Context, name string, data map[string]any) error {
 	sess, err := session.Get(sess.Name, c)
 	if err == nil {
 		const remove = -1
@@ -1824,7 +1831,7 @@ func steps(lastPage float64) int {
 }
 
 // emptyFiles is a map of default values specific to the files templates.
-func emptyFiles(c echo.Context) map[string]interface{} {
+func emptyFiles(c echo.Context) map[string]any {
 	data := empty(c)
 	data["bbs"] = false
 	data["demozoo"] = "0"

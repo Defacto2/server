@@ -4,6 +4,7 @@ package dir
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -54,7 +55,7 @@ func (d Directory) IsDir() error {
 		if os.IsNotExist(err) {
 			return ErrNF
 		}
-		return err
+		return fmt.Errorf("isdir error: %w", err)
 	}
 	if !st.IsDir() {
 		return ErrFile

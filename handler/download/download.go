@@ -101,35 +101,39 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger
 		}
 		name = file
 	}
-	text := tags.IsText(art.Platform.String)
-	ext := filepath.Ext(art.Filename.String)
+	if d.Inline {
+		text := tags.IsText(art.Platform.String)
+		ext := filepath.Ext(art.Filename.String)
+		return inline(c, text, file, name, ext)
+	}
+	if err := c.Attachment(file, name); err != nil {
+		return fmt.Errorf("http send attachment: %w", err)
+	}
+	return nil
+}
+
+func inline(c echo.Context, text bool, file, name, ext string) error {
 	if text && slices.Contains(extensions.Image(), ext) {
 		text = false
 	}
 	if text && slices.Contains(extensions.Media(), ext) {
 		text = false
 	}
-	if text && d.Inline {
-		modernText, err := helper.UTF8(file)
-		if err != nil {
-			return fmt.Errorf("http send utf-8: %w", err)
-		}
-		if !modernText {
-			c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=iso-8859-1")
-		}
-		if err := c.Inline(file, name); err != nil {
-			return fmt.Errorf("http send text as inline: %w", err)
-		}
-		return nil
-	}
-	if d.Inline {
+	if !text {
 		if err := c.Inline(file, name); err != nil {
 			return fmt.Errorf("http send inline: %w", err)
 		}
 		return nil
 	}
-	if err := c.Attachment(file, name); err != nil {
-		return fmt.Errorf("http send attachment: %w", err)
+	modernText, err := helper.UTF8(file)
+	if err != nil {
+		return fmt.Errorf("http send utf-8: %w", err)
+	}
+	if !modernText {
+		c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=iso-8859-1")
+	}
+	if err := c.Inline(file, name); err != nil {
+		return fmt.Errorf("http send text as inline: %w", err)
 	}
 	return nil
 }

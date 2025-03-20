@@ -282,6 +282,17 @@ func Humanize(platform, section Tag) string {
 	if PPE := platform == PCB && section == Tool; PPE {
 		return "a PCBoard application (PPE)"
 	}
+	if s := humSection(platform, section); s != "" {
+		return s
+	}
+	if s := humPlatform(platform, section); s != "" {
+		return s
+	}
+	return fmt.Sprintf("%s %s %s",
+		Determiner()[platform], Names()[platform], Names()[section])
+}
+
+func humSection(platform, section Tag) string {
 	switch section {
 	case Bust:
 		return takedown(platform)
@@ -290,6 +301,10 @@ func Humanize(platform, section Tag) string {
 	case Restrict:
 		return restrict(platform)
 	}
+	return ""
+}
+
+func humPlatform(platform, section Tag) string {
 	switch platform {
 	case ANSI:
 		return humAnsi(platform, section)
@@ -318,7 +333,7 @@ func Humanize(platform, section Tag) string {
 	case Windows:
 		return humWin(platform, section)
 	}
-	return fmt.Sprintf("%s %s %s", Determiner()[platform], Names()[platform], Names()[section])
+	return ""
 }
 
 func other(platform, section Tag) string {
