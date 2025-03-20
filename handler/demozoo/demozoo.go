@@ -588,6 +588,8 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen
 	return Groups{
+		"god-network":                           146552,
+		"the-knights-of-the-round-table":        148479,
 		"the-racketeers":                        61765,
 		"artists-without-loyality":              118665,
 		"united-traders-of-germany":             78995,
