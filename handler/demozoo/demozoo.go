@@ -109,18 +109,18 @@ type Production struct {
 		ID   int    `json:"id"`
 	} `json:"types"`
 	Credits []struct {
-		Nick struct {
+		Category string `json:"category"`
+		Role     string `json:"role"`
+		Nick     struct {
 			Name         string `json:"name"`
 			Abbreviation string `json:"abbreviation"`
 			Releaser     struct {
 				URL     string `json:"url"`
-				ID      int    `json:"id"`
 				Name    string `json:"name"`
+				ID      int    `json:"id"`
 				IsGroup bool   `json:"is_group"`
 			} `json:"releaser"`
 		} `json:"nick"`
-		Category string `json:"category"`
-		Role     string `json:"role"`
 	} `json:"credits"`
 	// Download links to the remotely hosted files.
 	DownloadLinks []struct {

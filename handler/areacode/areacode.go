@@ -405,8 +405,8 @@ func Lookups(a ...any) []Territory {
 
 // Result represents the result of a query, which can be an area code or a list of territories.
 type Result struct {
-	AreaCode NAN
 	Terr     []Territory
+	AreaCode NAN
 }
 
 // Query returns the result of a query from a form input.

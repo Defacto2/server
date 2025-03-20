@@ -731,12 +731,12 @@ func UpdateMagic(ctx context.Context, exec boil.ContextExecutor, id int64, magic
 // FileUpload is a struct that contains the values needed to update an existing file record
 // after a new file has been uploaded to the server.
 type FileUpload struct {
+	LastMod     time.Time
 	Filename    string
 	Integrity   string
 	MagicNumber string
 	Content     string
 	Filesize    int64
-	LastMod     time.Time
 }
 
 // Update the file record with the values provided in the FileUpload struct.

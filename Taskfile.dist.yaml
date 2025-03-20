@@ -77,7 +77,7 @@ tasks:
       - cmd: golangci-lint run -c init/.golangci.yaml
   lint+:
     silent: false
-    desc: Runs the deadcode and betteralign linters on the source code.
+    desc: Runs the betteralign linter on the source code.
     ignore_error: true
     cmds:
       - cmd: clear

@@ -36,29 +36,29 @@ var (
 //
 //nolint:tagliatelle
 type DemozooLink struct {
-	ID          int      `json:"id"`            // ID is the Demozoo production ID.
 	UUID        string   `json:"uuid"`          // UUID is the file production UUID.
 	Github      string   `json:"github_repo"`   // GitHub is the GitHub repository URI.
 	YouTube     string   `json:"youtube_video"` // YouTube is the YouTube watch video URI.
-	Pouet       int      `json:"pouet_prod"`    // Pouet is the Pouet production ID.
 	Releaser1   string   `json:"releaser1"`     // Releaser1 is the first releaser of the file.
 	Releaser2   string   `json:"releaser2"`     // Releaser2 is the second releaser of the file.
 	Title       string   `json:"title"`         // Title is the file title.
-	IssuedYear  int16    `json:"issued_year"`   // Year is the year the file was issued.
-	IssuedMonth int16    `json:"issued_month"`  // Month is the month the file was issued.
-	IssuedDay   int16    `json:"issued_day"`    // Day is the day the file was issued.
-	CreditText  []string `json:"credit_text"`   // credit_text, writer
-	CreditCode  []string `json:"credit_code"`   // credit_program, programmer/coder
-	CreditArt   []string `json:"credit_art"`    // credit_illustration, artist/graphics
-	CreditAudio []string `json:"credit_audio"`  // credit_audio, musician/sound
 	Filename    string   `json:"filename"`      // Filename is the file name of the download.
-	FileSize    int      `json:"file_size"`     // Size is the file size in bytes.
 	Content     string   `json:"content"`       // Content is the file archive content.
 	FileType    string   `json:"file_type"`     // Type is the file type.
 	FileHash    string   `json:"file_hash"`     // Hash is the file integrity hash.
 	Platform    string   `json:"platform"`      // Platform is the file platform.
 	Section     string   `json:"section"`       // Section is the file section.
 	Error       string   `json:"error"`         // Error is the error message if the download or record update failed.
+	CreditText  []string `json:"credit_text"`   // credit_text, writer
+	CreditCode  []string `json:"credit_code"`   // credit_program, programmer/coder
+	CreditArt   []string `json:"credit_art"`    // credit_illustration, artist/graphics
+	CreditAudio []string `json:"credit_audio"`  // credit_audio, musician/sound
+	ID          int      `json:"id"`            // ID is the Demozoo production ID.
+	Pouet       int      `json:"pouet_prod"`    // Pouet is the Pouet production ID.
+	FileSize    int      `json:"file_size"`     // Size is the file size in bytes.
+	IssuedYear  int16    `json:"issued_year"`   // Year is the year the file was issued.
+	IssuedMonth int16    `json:"issued_month"`  // Month is the month the file was issued.
+	IssuedDay   int16    `json:"issued_day"`    // Day is the day the file was issued.
 }
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
@@ -279,23 +279,23 @@ func (got *DemozooLink) updates(f *models.File) { //nolint:cyclop
 //
 //nolint:tagliatelle
 type PouetLink struct {
-	ID          int    `json:"id"`           // ID is the Demozoo production ID.
 	UUID        string `json:"uuid"`         // UUID is the file production UUID.
-	Demozoo     int    `json:"demozoo_prod"` // Demozoo production ID.
 	Releaser1   string `json:"releaser1"`    // Releaser1 is the first releaser of the file.
 	Releaser2   string `json:"releaser2"`    // Releaser2 is the second releaser of the file.
 	Title       string `json:"title"`        // Title is the file title.
-	IssuedYear  int16  `json:"issued_year"`  // Year is the year the file was issued.
-	IssuedMonth int16  `json:"issued_month"` // Month is the month the file was issued.
-	IssuedDay   int16  `json:"issued_day"`   // Day is the day the file was issued.
 	Filename    string `json:"filename"`     // Filename is the file name of the download.
-	FileSize    int    `json:"file_size"`    // Size is the file size in bytes.
 	Content     string `json:"content"`      // Content is the file archive content.
 	FileType    string `json:"file_type"`    // Type is the file type.
 	FileHash    string `json:"file_hash"`    // Hash is the file integrity hash.
 	Platform    string `json:"platform"`     // Platform is the file platform.
 	Section     string `json:"section"`      // Section is the file section.
 	Error       string `json:"error"`        // Error is the error message if the download or record update failed.
+	ID          int    `json:"id"`           // ID is the Demozoo production ID.
+	Demozoo     int    `json:"demozoo_prod"` // Demozoo production ID.
+	FileSize    int    `json:"file_size"`    // Size is the file size in bytes.
+	IssuedYear  int16  `json:"issued_year"`  // Year is the year the file was issued.
+	IssuedMonth int16  `json:"issued_month"` // Month is the month the file was issued.
+	IssuedDay   int16  `json:"issued_day"`   // Day is the day the file was issued.
 }
 
 func (got *PouetLink) Download(c echo.Context, db *sql.DB, download dir.Directory) error {

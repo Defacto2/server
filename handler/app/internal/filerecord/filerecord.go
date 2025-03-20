@@ -59,12 +59,12 @@ type ListEntry struct {
 	ImageConfig             string
 	MusicConfig             string
 	UniqueID                string
-	Executable              magicnumber.Windows
-	Images, Programs, Texts bool
 	name                    string
 	platform                string
 	section                 string
+	Executable              magicnumber.Windows
 	bytes                   int64
+	Images, Programs, Texts bool
 }
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
@@ -596,10 +596,10 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 
 type content struct {
 	dirs          command.Dirs
-	zeroByteFiles int
 	dst           string
 	src           string
 	unid          string
+	zeroByteFiles int
 }
 
 func (c content) renderContent(b *strings.Builder, names ...string) template.HTML {

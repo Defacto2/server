@@ -42,22 +42,22 @@ const (
 // The Pouet API returns values as null or string, so this struct
 // is used to normalize the data types.
 type Production struct {
-	ID          int    `json:"id"`           // ID is the prod ID.
-	Title       string `json:"title"`        // Title is the prod title.
-	ReleaseDate string `json:"release_date"` // ReleaseDate is the prod release date.
-	Download    string `json:"download"`     // Download is the first download link.
-	Demozoo     string `json:"demozoo"`      // Demozoo is the Demozoo identifier.
+	Platforms   Platforms `json:"platforms"`    // Platforms are the platforms the prod runs on.
+	Title       string    `json:"title"`        // Title is the prod title.
+	ReleaseDate string    `json:"release_date"` // ReleaseDate is the prod release date.
+	Download    string    `json:"download"`     // Download is the first download link.
+	Demozoo     string    `json:"demozoo"`      // Demozoo is the Demozoo identifier.
+	Platform    string    `json:"platform"`     // Platform is the prod platforms as a string.
 	Groups      []struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
 	} `json:"groups"` // Groups are the releasers that produced the prod.
-	Platforms Platforms `json:"platforms"` // Platforms are the platforms the prod runs on.
-	Platform  string    `json:"platform"`  // Platform is the prod platforms as a string.
-	Types     Types     `json:"types"`     // Types are the prod types.
-	Links     []struct {
+	Types Types `json:"types"` // Types are the prod types.
+	Links []struct {
 		Type string `json:"type"`
 		Link string `json:"link"`
 	} `json:"downloads"` // Downloads are the additional download links.
+	ID    int  `json:"id"`    // ID is the prod ID.
 	Valid bool `json:"valid"` // Valid is true if this prod is a supported type and platform.
 }
 
