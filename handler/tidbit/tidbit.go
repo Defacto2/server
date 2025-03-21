@@ -89,7 +89,7 @@ type Tidbit map[ID]string
 func Groups() Tibits {
 	return Tibits{
 		1:    []URI{"untouchables", "the-untouchables"},
-		1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance"},
+		1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance", "byt"},
 		2:    []URI{"five-o"},
 		200:  []URI{"five-o", "boys-from-company-c", "pirates-r-us", "the-firm"},
 		3:    []URI{"fairlight", "united-software-association*fairlight"},
@@ -114,6 +114,7 @@ func Groups() Tibits {
 		19:   []URI{"the-underground-council"},
 		199:  []URI{"ptl-club", "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
 		20:   []URI{"new-york-crackers", "miami-cracking-machine", "international-network-of-crackers"},
+		201:  []URI{"miami-cracking-machine"},
 		21:   []URI{"public-domain"},
 		22:   []URI{"bentley-sidwell-productions"},
 		23:   []URI{"boys-from-company-c"},
@@ -200,6 +201,7 @@ func Groups() Tibits {
 		101:  []URI{"the-stealth-pirate-network"},
 		102:  []URI{"state-of-the-art"},
 		103:  []URI{"psycho-corporate-productions"},
+		104:  []URI{"association-of-software-conspiracy"},
 	}
 }
 
