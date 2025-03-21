@@ -111,6 +111,7 @@ func Groups() Tibits {
 		16:   []URI{"c-ampersand-m"},
 		17:   []URI{"the-billionarre-boys-club"},
 		18:   []URI{"canadian-pirates-inc", "kgb", "ptl-club"},
+		19:   []URI{"the-underground-council"},
 		199:  []URI{"ptl-club", "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
 		20:   []URI{"new-york-crackers", "miami-cracking-machine", "international-network-of-crackers"},
 		21:   []URI{"public-domain"},
@@ -154,6 +155,7 @@ func Groups() Tibits {
 		57:   []URI{"pirates-sick-of-initials"},
 		58:   []URI{"byte-bandits-bbs"},
 		59:   []URI{"sorcerers"},
+		590:  []URI{"sorcerers", "future-brain-inc"},
 		60:   []URI{"katharsis"},
 		61:   []URI{"national-elite-underground-alliance"},
 		62:   []URI{"public-enemy", "pe*trsi*tdt", "north-american-society-of-anarchists", "red-sector-inc", "the-dream-team"},
@@ -193,6 +195,11 @@ func Groups() Tibits {
 		96:   []URI{"myth-inc"},
 		97:   []URI{"crime-syndicate-net"},
 		98:   []URI{"ecp"},
+		99:   []URI{"west-coast-alliance"},
+		100:  []URI{"warriors-against-copy-protection"},
+		101:  []URI{"the-stealth-pirate-network"},
+		102:  []URI{"state-of-the-art"},
+		103:  []URI{"psycho-corporate-productions"},
 	}
 }
 
