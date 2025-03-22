@@ -218,6 +218,7 @@ func Groups() Tibits {
 		117:  []URI{"acme"},
 		118:  []URI{"acronym"},
 		119:  []URI{"bad-ass-dudes", "bad-news"},
+		120:  []URI{"bad-association"},
 	}
 }
 
