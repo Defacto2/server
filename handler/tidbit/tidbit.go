@@ -90,6 +90,7 @@ func Groups() Tibits {
 	return Tibits{
 		1:    []URI{"untouchables", "the-untouchables"},
 		1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance", "byt"},
+		111:  []URI{"the-firm"},
 		2:    []URI{"five-o"},
 		200:  []URI{"five-o", "boys-from-company-c", "pirates-r-us", "the-firm"},
 		3:    []URI{"fairlight", "united-software-association*fairlight"},
@@ -115,6 +116,7 @@ func Groups() Tibits {
 		199:  []URI{"ptl-club", "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
 		20:   []URI{"new-york-crackers", "miami-cracking-machine", "international-network-of-crackers"},
 		201:  []URI{"miami-cracking-machine"},
+		202:  []URI{"new-york-crackers"},
 		21:   []URI{"public-domain"},
 		22:   []URI{"bentley-sidwell-productions"},
 		23:   []URI{"boys-from-company-c"},
@@ -202,6 +204,17 @@ func Groups() Tibits {
 		102:  []URI{"state-of-the-art"},
 		103:  []URI{"psycho-corporate-productions"},
 		104:  []URI{"association-of-software-conspiracy"},
+		105:  []URI{"north-american-pirate_phreak-association"},
+		106:  []URI{"the-union"},
+		107:  []URI{"the-sure-logic-syndicate"},
+		108:  []URI{"the-alternative"},
+		109:  []URI{"quartex"},
+		110:  []URI{"gainseville-pirates-association"},
+		112:  []URI{"ffa"},
+		113:  []URI{"eagle-soft-incorporated"},
+		114:  []URI{"digital-exchange-pirate-board-alliance"},
+		115:  []URI{"bdp"},
+		116:  []URI{"assembly-language-magazine"},
 	}
 }
 
