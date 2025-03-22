@@ -215,6 +215,9 @@ func Groups() Tibits {
 		114:  []URI{"digital-exchange-pirate-board-alliance"},
 		115:  []URI{"bdp"},
 		116:  []URI{"assembly-language-magazine"},
+		117:  []URI{"acme"},
+		118:  []URI{"acronym"},
+		119:  []URI{"bad-ass-dudes", "bad-news"},
 	}
 }
 
