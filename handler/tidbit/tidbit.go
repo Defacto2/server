@@ -246,6 +246,17 @@ func Groups() Tibits {
 		144: []URI{"powr"},
 		145: []URI{"psycho"},
 		146: []URI{"roach"},
+		147: []URI{"west-coast-cracking-production"},
+		148: []URI{"warez"},
+		149: []URI{"unit-173"},
+		150: []URI{"union-of-crackers"},
+		151: []URI{"tired-of-protection"},
+		152: []URI{"the-warez-alliance"},
+		153: []URI{"the-syndicate"},
+		154: []URI{"strike"},
+		155: []URI{"software-in-danger"},
+		156: []URI{"roi-production", "warez-houze-bbs"},
+		157: []URI{"the-ware-report"},
 	}
 }
 
