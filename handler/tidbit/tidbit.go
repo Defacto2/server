@@ -257,6 +257,13 @@ func Groups() Tibits {
 		155: []URI{"software-in-danger"},
 		156: []URI{"roi-production", "warez-houze-bbs"},
 		157: []URI{"the-ware-report"},
+		158: []URI{"copyright-infiltration-agency"},
+		159: []URI{"copyright-infiltration-agency", "crackers-in-action"},
+		160: []URI{"god-network"},
+		161: []URI{"corporation-for-public-cybercasting-2001"},
+		162: []URI{"defjam"},
+		163: []URI{"amateur-crackist-tutorial"},
+		164: []URI{"phoenix"},
 	}
 }
 
