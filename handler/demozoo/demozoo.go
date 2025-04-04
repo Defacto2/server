@@ -594,6 +594,7 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen,maintidx
 	return Groups{
+		"imphobia":                              11375,
 		"roach":                                 112842,
 		"east-coast-connection":                 48254,
 		"dutch-computer-enterprise":             70357,

@@ -264,6 +264,13 @@ func Groups() Tibits {
 		162: []URI{"defjam"},
 		163: []URI{"amateur-crackist-tutorial"},
 		164: []URI{"phoenix"},
+		165: []URI{"advanced-pirate-technology"},
+		166: []URI{"censor", "rabid"},
+		167: []URI{"cosmic-press"},
+		168: []URI{"dune-newsletter", "deadly-underground-network-of-elites"},
+		169: []URI{"fear-newsletter"},
+		170: []URI{"galactic-review"},
+		171: []URI{"illuminatus"},
 	}
 }
 
