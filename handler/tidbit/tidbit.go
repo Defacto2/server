@@ -271,6 +271,14 @@ func Groups() Tibits {
 		169: []URI{"fear-newsletter"},
 		170: []URI{"galactic-review"},
 		171: []URI{"illuminatus"},
+		172: []URI{"victoria-independent-piracy"},
+		173: []URI{"tsan-newsletter"},
+		174: []URI{"toxic-shock"},
+		175: []URI{"the-humble-review", "thg-fx"},
+		176: []URI{"radiant"},
+		177: []URI{"quasar-magazine"},
+		178: []URI{"propaganda"},
+		179: []URI{"prevues"},
 	}
 }
 
