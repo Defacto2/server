@@ -279,6 +279,11 @@ func Groups() Tibits {
 		177: []URI{"quasar-magazine"},
 		178: []URI{"propaganda"},
 		179: []URI{"prevues"},
+		180: []URI{"nuke-infojournal"},
+		181: []URI{"micropirates-inc"},
+		182: []URI{"legion-of-dynamic-discord"},
+		183: []URI{"lancelot"},
+		184: []URI{"insanity"},
 	}
 }
 
