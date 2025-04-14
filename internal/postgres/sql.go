@@ -324,9 +324,9 @@ func SimilarToMagazine(like ...string) SQL {
 		" ORDER BY sub.count_sum DESC"
 }
 
-// SimilarInitialism selects an exact list of distinct releasers or groups,
+// SimilarToExact selects an exact list of distinct releasers or groups,
 // like the query strings and ordered by the file count.
-func SimilarInitialism(like ...string) SQL {
+func SimilarToExact(like ...string) SQL {
 	query := like
 	for i, val := range query {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))

@@ -560,48 +560,59 @@ func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	return nil
 }
 
-// SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
-	const minChars, maxResults = 4, 14
-	ctx := context.Background()
-	input := c.FormValue("htmx-search")
-	slug := helper.Slug(helper.TrimRoundBraket(input))
-	if slug == "" {
-		return c.HTML(http.StatusOK, "<!-- empty search query -->")
-	}
+func Lookup(s string) []string {
+	const minChars = 4
 	lookup := []string{}
-	// example key and values: "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
+	// examples of key and values:
+	// "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	for key, values := range initialism.Initialisms() {
 		for value := range slices.Values(values) {
-			name := releaser.Humanize(string(key))
-			if strings.EqualFold(value, slug) {
+			name := releaser.Index(string(key))
+			if name == "" {
+				continue
+			}
+			if strings.EqualFold(value, s) {
 				lookup = append(lookup, name)
 				continue
 			}
-			if len(slug) < minChars {
+			if len(s) < minChars {
 				continue
 			}
-			if strings.Contains(strings.ToLower(value), strings.ToLower(slug)) {
+			if strings.Contains(strings.ToLower(value), strings.ToLower(s)) {
 				lookup = append(lookup, name)
 			}
 		}
 	}
-	if name := releaser.Humanize(slug); !strings.EqualFold(name, slug) {
-		lookup = append(lookup, name)
+	t := releaser.Humanize(s)
+	if t != "" && !strings.EqualFold(s, t) {
+		lookup = append(lookup, t)
 	}
-	lookup = append(lookup, slug)
+	lookup = append(lookup, s)
+	return lookup
+}
+
+// SearchReleaser is a handler for the /search/releaser route.
+func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
+	const limit = 14
+	ctx := context.Background()
+	input := c.FormValue("htmx-search")
+	name := helper.TrimRoundBraket(input)
+	if name == "" {
+		return c.HTML(http.StatusOK, "<!-- empty search query -->")
+	}
+	lookup := Lookup(name)
 	var r model.Releasers
-	if len(slug) <= minChars {
-		if err := r.Initialism(ctx, db, maxResults, lookup...); err != nil {
-			if logger != nil {
-				logger.Error(err)
-			}
-			return c.String(http.StatusServiceUnavailable,
-				"the search query failed")
+	// lookup extact match initialisms
+	if err := r.Initialism(ctx, db, limit, lookup...); err != nil {
+		if logger != nil {
+			logger.Error(err)
 		}
+		return c.String(http.StatusServiceUnavailable,
+			"the search query failed")
 	}
+	// lookup similar named releasers
 	if len(r) == 0 {
-		if err := r.Similar(ctx, db, maxResults, lookup...); err != nil {
+		if err := r.Similar(ctx, db, limit, lookup...); err != nil {
 			if logger != nil {
 				logger.Error(err)
 			}
@@ -609,12 +620,13 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 				"the search query failed")
 		}
 	}
+	// no results
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "No initialisms or releasers found.")
 	}
-	err := c.Render(http.StatusOK, "searchreleasers", map[string]interface{}{
-		"maximum": maxResults,
-		"name":    slug,
+	err := c.Render(http.StatusOK, "searchreleasers", map[string]any{
+		"maximum": limit,
+		"name":    name,
 		"result":  r,
 	})
 	if err != nil {

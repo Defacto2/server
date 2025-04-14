@@ -128,6 +128,14 @@ func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order 
 	return nil
 }
 
+type lookup int
+
+const (
+	toReleasers lookup = iota
+	toReleasersExact
+	toMagazines
+)
+
 // Similar finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
@@ -135,7 +143,7 @@ func (r *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limi
 	if invalidExec(exec) {
 		return ErrDB
 	}
-	return r.similar(ctx, exec, limit, "releaser", names...)
+	return r.similar(ctx, exec, limit, toReleasers, names...)
 }
 
 // Initialism finds the unique releaser names that match the named strings.
@@ -145,7 +153,7 @@ func (r *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, l
 	if invalidExec(exec) {
 		return ErrDB
 	}
-	return r.similar(ctx, exec, limit, "initialism", names...)
+	return r.similar(ctx, exec, limit, toReleasersExact, names...)
 }
 
 // SimilarMagazine finds the unique releaser names that are similar to the named strings.
@@ -155,11 +163,11 @@ func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecut
 	if invalidExec(exec) {
 		return ErrDB
 	}
-	return r.similar(ctx, exec, limit, "magazine", names...)
+	return r.similar(ctx, exec, limit, toMagazines, names...)
 }
 
 func (r *Releasers) similar(
-	ctx context.Context, exec boil.ContextExecutor, limit int, lookup string, names ...string,
+	ctx context.Context, exec boil.ContextExecutor, limit int, look lookup, names ...string,
 ) error {
 	boil.DebugMode = false // Enable to see the raw SQL queries.
 	if len(names) == 0 {
@@ -184,12 +192,12 @@ func (r *Releasers) similar(
 	likes = removeDuplicates(likes)
 	likes = slices.Compact(likes)
 	var query string
-	switch lookup {
-	case "initialism":
-		query = string(postgres.SimilarInitialism(likes...))
-	case "magazine":
+	switch look {
+	case toReleasersExact:
+		query = string(postgres.SimilarToExact(likes...))
+	case toMagazines:
 		query = string(postgres.SimilarToMagazine(likes...))
-	default:
+	case toReleasers:
 		query = string(postgres.SimilarToReleaser(likes...))
 	}
 	{
