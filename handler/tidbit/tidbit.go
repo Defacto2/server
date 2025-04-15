@@ -230,7 +230,7 @@ func Groups() Tibits {
 		128:  []URI{"dutch-computer-enterprise"},
 		129:  []URI{"east-coast-connection"},
 		130:  []URI{"electro-magnetic-crackers", "ultra-tech*electro-magnetic-crackers"},
-		//131:  []URI{"ultra-tech*electro-magnetic-crackers"},
+		// 131:  []URI{"ultra-tech*electro-magnetic-crackers"},
 		132: []URI{"game_busters"},
 		133: []URI{"gcl"},
 		134: []URI{"heavenly-hackers-group"},
@@ -284,6 +284,7 @@ func Groups() Tibits {
 		182: []URI{"legion-of-dynamic-discord"},
 		183: []URI{"lancelot"},
 		184: []URI{"insanity"},
+		185: []URI{"imphobia"},
 	}
 }
 

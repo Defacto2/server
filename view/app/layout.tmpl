@@ -367,7 +367,7 @@
 {{- template "layoutjs" . }}
 {{- /*  Layout JS  */}}
 <script defer src="{{ layoutJS }}?{{ sri_layoutJS }}" integrity="{{ sri_layoutJS }}" crossorigin="anonymous"></script>
-{{- /*  Bootstrap carousel initalizer (relies on the template and cannot be moved to a JS file)  */}}
+{{- /*  Bootstrap carousel initializer (relies on the template and cannot be moved to a JS file)  */}}
 {{- if ne $carousel ""}}
 <script async="false">
   (() => {
