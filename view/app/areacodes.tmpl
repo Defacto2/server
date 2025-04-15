@@ -1,14 +1,16 @@
 {{- define "content" }}
 {{- $telephonecodes := index . "telephonecodes"}}
 {{- $hcls := "h4 my-3"}}
-{{- $placeholder := "Lookup area codes, states, provinces, and abbreviations"}}
+{{- $placeholder := "Lookup multiple area codes and states; use comma separators"}}
+{{/*former input value: hx-trigger="input delay:50ms, keyup[key=='Enter'], load"*/}}
+{{/*delay:150ms is probably the lowest value, as anything lower and the changes can be skipped*/}}
 <form class="row">
     <div class="col">
       <input type="search" class="form-control" name="htmx-search" 
         id="areacodes-search"
         placeholder="{{$placeholder}}" 
         aria-label="{{$placeholder}} and display the results below"
-        hx-trigger="input delay:25ms, keyup[key=='Enter'], load"
+        hx-trigger="keyup changed delay:150ms"
         hx-post="/areacodes"
         hx-target="#areacodes-results" autofocus>
     </div>

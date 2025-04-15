@@ -955,7 +955,7 @@ func New(c echo.Context) error {
 	data["description"] = "What is new on the Defacto2 website?"
 	data["logo"] = "New stuff"
 	data["h1"] = "What is new?"
-	data["lead"] = "This quaint what-is-new page does not appeal to algorithms, so probably, no one will see it."
+	data["lead"] = "This quaint page does not appeal to algorithms, so maybe no one will see it?"
 	data["title"] = "New stuff"
 	data["carousel"] = "#carouselWhatsNew"
 	err := c.Render(http.StatusOK, name, data)
