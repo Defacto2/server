@@ -29,7 +29,7 @@ func TestLookups(t *testing.T) {
 	t.Parallel()
 	t1 := command.Lookups()
 	t2 := command.Infos()
-	assert.Equal(t, len(t1), len(t2))
+	assert.Len(t, t1, len(t2))
 	assert.Contains(t, t2[0], command.Arc)
 }
 

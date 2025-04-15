@@ -184,9 +184,9 @@ func TestLastModified(t *testing.T) {
 	assert.Equal(t, "1985-Jan-01", s)
 
 	a, b, c := filerecord.LastModifications(&x)
-	assert.EqualValues(t, 1985, a)
-	assert.EqualValues(t, 1, b)
-	assert.EqualValues(t, 1, c)
+	assert.Equal(t, 1985, a)
+	assert.Equal(t, 1, b)
+	assert.Equal(t, 1, c)
 
 	s = filerecord.LastModificationAgo(&x)
 	assert.Contains(t, s, "years ago")

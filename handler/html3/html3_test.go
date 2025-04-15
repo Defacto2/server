@@ -2,7 +2,6 @@ package html3_test
 
 import (
 	"embed"
-	"math"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -99,7 +98,7 @@ func TestError(t *testing.T) {
 
 func TestID(t *testing.T) {
 	s := html3.ID(newContext())
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 }
 
 func TestLeadFS(t *testing.T) {
@@ -146,19 +145,19 @@ func TestQuery(t *testing.T) {
 func TestListInfo(t *testing.T) {
 	a, b := html3.ListInfo(0, "", "")
 	assert.Equal(t, "Index of /html3/", a)
-	assert.Equal(t, "", b)
+	assert.Empty(t, b)
 	a, b = html3.ListInfo(10, "aaa", "bbb")
 	assert.Equal(t, "Index of /html3/aaa", a)
-	assert.Equal(t, "", b)
+	assert.Empty(t, b)
 }
 
 func TestRecordsBy(t *testing.T) {
 	by := html3.Everything
 	assert.Equal(t, "html3_all", by.String())
-	assert.Equal(t, "", by.Parent())
+	assert.Empty(t, by.Parent())
 	by = html3.AsSoftware
 	assert.Equal(t, "html3_software", by.String())
-	assert.Equal(t, "", by.Parent())
+	assert.Empty(t, by.Parent())
 	by = html3.BySection
 	assert.Equal(t, "html3_category", by.String())
 	assert.Equal(t, "categories", by.Parent())
@@ -289,7 +288,7 @@ func TestFileHref(t *testing.T) {
 func TestFileLinkPad(t *testing.T) {
 	n := null.String{}
 	s := html3.FileLinkPad(0, n)
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = html3.FileLinkPad(20, null.StringFrom("file"))
 	assert.Equal(t, "                ", s)
 }
@@ -304,9 +303,9 @@ func TestFormattings(t *testing.T) {
 	assert.Equal(t, html3.File{Size: 1}.LeadFS(3), " 1B", "1 size")
 	assert.Equal(t, html3.File{Size: 1000}.LeadFS(0), "1000B", "1000 size")
 	assert.Equal(t, html3.File{Size: 1024}.LeadFS(0), "1k", "1k size")
-	assert.Equal(t, html3.File{Size: int64(math.Pow(1024, 2))}.LeadFS(0), "1M", "1MB size")
-	assert.Equal(t, html3.File{Size: int64(math.Pow(1024, 3))}.LeadFS(0), "1G", "1GB size")
-	assert.Equal(t, html3.File{Size: int64(math.Pow(1024, 4))}.LeadFS(0), "1T", "1TB size")
+	assert.Equal(t, html3.File{Size: int64(1024 * 1024)}.LeadFS(0), "1M", "1MB size")
+	assert.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024)}.LeadFS(0), "1G", "1GB size")
+	assert.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024 * 1024)}.LeadFS(0), "1T", "1TB size")
 	assert.Equal(t, html3.LeadInt(0, 1), "1")
 	assert.Equal(t, html3.LeadInt(1, 1), "1")
 	assert.Equal(t, html3.LeadInt(3, 1), "  1")

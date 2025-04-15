@@ -2,10 +2,9 @@ version: "2"
 linters:
   default: all
   disable:
-    - depguard
-    - exhaustive
-    - exhaustruct
-    - ireturn
+    - depguard # too much maintenance.
+    - exhaustive # this creates too much boilerplate.
+    - exhaustruct # fixing this creates too much boilerplate.
     - nlreturn
     - paralleltest
     - varnamelen
@@ -152,6 +151,13 @@ linters:
       - linters:
           - cyclop
         path: (.+)_test\.go
+      - linters:
+          - ireturn
+        path: model/querymod/querymod.go
+      - linters:
+          - ireturn
+        path: model/html3/html3.go
+
     paths:
       - third_party$
       - builtin$

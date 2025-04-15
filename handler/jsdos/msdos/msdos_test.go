@@ -9,7 +9,7 @@ import (
 
 func TestDirName(t *testing.T) {
 	s := msdos.DirName("")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = msdos.DirName("dirname.xyz")
 	assert.Equal(t, "DIRNAME.XYZ", s)
 	s = msdos.DirName("résumés-99")
@@ -21,7 +21,7 @@ func TestDirName(t *testing.T) {
 func TestRename(t *testing.T) {
 	t.Parallel()
 	s := msdos.Rename("")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = msdos.Rename("filename.xyz")
 	assert.Equal(t, "FILENAME.XYZ", s)
 	s = msdos.Rename("résumé-01.zip")
@@ -45,7 +45,7 @@ func TestRename(t *testing.T) {
 func TestTruncate(t *testing.T) {
 	t.Parallel()
 	s := msdos.Truncate("")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 
 	s = msdos.Truncate("filename")
 	assert.Equal(t, "filename", s)

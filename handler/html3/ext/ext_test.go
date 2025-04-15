@@ -29,7 +29,7 @@ func TestIcon(t *testing.T) {
 
 func TestIconName(t *testing.T) {
 	s := ext.IconName("myfile")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = ext.IconName("myimage.png")
 	assert.Equal(t, ext.Pic, s)
 	s = ext.IconName("double.ext.avi")

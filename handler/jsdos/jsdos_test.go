@@ -215,7 +215,7 @@ func TestFindBinary(t *testing.T) {
 
 	t.Parallel()
 	s := jsdos.FindBinary("", "")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 
 	s = jsdos.FindBinary("filename", "")
 	assert.Equal(t, "filename", s)
@@ -224,10 +224,10 @@ func TestFindBinary(t *testing.T) {
 	assert.Equal(t, "filename.xyz", s)
 
 	s = jsdos.FindBinary("filename.zip", "zipcontent")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 
 	s = jsdos.FindBinary("filename.zip", "readme.txt")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 
 	s = jsdos.FindBinary("filename.zip", example)
 	assert.Equal(t, "RUN.BAT", s)

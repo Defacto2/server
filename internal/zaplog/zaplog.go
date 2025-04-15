@@ -143,14 +143,14 @@ func Store(enc zapcore.Encoder, logPath string) *zap.Logger {
 }
 
 // JSON returns a logger in JSON format.
-func JSON() zapcore.Encoder {
+func JSON() zapcore.Encoder { //nolint:ireturn
 	config := zap.NewProductionEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("Jan-02-15:04:05.00")
 	return zapcore.NewJSONEncoder(config)
 }
 
 // Text returns a logger in color and time.
-func Text() zapcore.Encoder {
+func Text() zapcore.Encoder { //nolint:ireturn
 	config := zap.NewDevelopmentEncoderConfig()
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("15:04:05")
 	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
@@ -158,7 +158,7 @@ func Text() zapcore.Encoder {
 }
 
 // TextNoTime returns a logger in color but without the time.
-func TextNoTime() zapcore.Encoder {
+func TextNoTime() zapcore.Encoder { //nolint:ireturn
 	config := zap.NewDevelopmentEncoderConfig()
 	// config.EncodeTime = nil  // use nil to remove the leading console separator
 	config.EncodeTime = zapcore.TimeEncoderOfLayout("")

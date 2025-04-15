@@ -23,7 +23,7 @@ func TestHumanizeCount(t *testing.T) {
 func TestSanitizeFilename(t *testing.T) {
 	t.Parallel()
 	s := form.SanitizeFilename("")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = form.SanitizeFilename(`c:\Windows\System32\cmd.exe`)
 	assert.Equal(t, "c:-Windows-System32-cmd.exe", s)
 	s = form.SanitizeFilename(`../tmp/somefile.txt`)
@@ -33,7 +33,7 @@ func TestSanitizeFilename(t *testing.T) {
 func TestSanitizePath(t *testing.T) {
 	t.Parallel()
 	s := form.SanitizeSeparators("")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = form.SanitizeSeparators(`///some//messy/path////`)
 	assert.Equal(t, "some/messy/path", s)
 }
@@ -41,9 +41,9 @@ func TestSanitizePath(t *testing.T) {
 func TestSanitizeURLPath(t *testing.T) {
 	t.Parallel()
 	s := form.SanitizeURLPath("")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = form.SanitizeURLPath("https://example.com/some/messy/path")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 
 	s = form.SanitizeURLPath(`///some//messy/path////`)
 	assert.Equal(t, "some/messy/path", s)

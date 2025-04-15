@@ -13,7 +13,7 @@ import (
 )
 
 func TestCreated(t *testing.T) {
-	loc := time.Local
+	loc := time.Local //nolint:gosmopolitan
 	tests := []struct {
 		arg       time.Time
 		expect    string
@@ -49,7 +49,7 @@ func TestIcon(t *testing.T) {
 
 func TestLeadStr(t *testing.T) {
 	s := html3.LeadStr(0, "")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = html3.LeadStr(10, "Hello")
 	assert.Equal(t, "     ", s)
 }

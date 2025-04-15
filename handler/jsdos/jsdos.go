@@ -153,20 +153,20 @@ const (
 func (j *Jsdos) CPU(value string) {
 	switch strings.ToLower(value) {
 	case "8086":
-		j.Processor.Model = I386Slow
-		j.Processor.Core = Simple
-		j.Processor.Cycles = Fix5Mhz
+		j.Model = I386Slow
+		j.Core = Simple
+		j.Cycles = Fix5Mhz
 	case "386":
-		j.Processor.Model = I386Slow
-		j.Processor.Core = Normal
+		j.Model = I386Slow
+		j.Core = Normal
 	case "486":
-		j.Processor.Model = IAuto
-		j.Processor.Core = Normal
-		j.Processor.Cycles = Max
+		j.Model = IAuto
+		j.Core = Normal
+		j.Cycles = Max
 	case "auto":
-		j.Processor.Model = IAuto
-		j.Processor.Core = AutoCore
-		j.Processor.Cycles = AutoCycles
+		j.Model = IAuto
+		j.Core = AutoCore
+		j.Cycles = AutoCycles
 	default:
 		// use the js-dos defaults
 	}
@@ -180,35 +180,35 @@ func (j *Jsdos) Machine(value string) {
 	switch strings.ToLower(value) {
 	case "vga":
 		j.Dosbox.Machine = VGAOnly
-		j.Dosbox.MemSize = Mem486
+		j.MemSize = Mem486
 	case "tandy":
 		j.Dosbox.Machine = Tandy
-		j.Dosbox.MemSize = Mem286
+		j.MemSize = Mem286
 		j.Tandy()
 	case "svga":
 		j.Dosbox.Machine = SuperVgaS3
-		j.Dosbox.MemSize = Mem486
+		j.MemSize = Mem486
 	case "paradise":
 		j.Dosbox.Machine = SuperVgaParadise
-		j.Dosbox.MemSize = Mem486
+		j.MemSize = Mem486
 	case "oldvbe":
 		j.Dosbox.Machine = VesaV1
-		j.Dosbox.MemSize = Mem486
+		j.MemSize = Mem486
 	case "nolfb":
 		j.Dosbox.Machine = VesaNoFrameBuff
-		j.Dosbox.MemSize = Mem486
+		j.MemSize = Mem486
 	case "et4000":
 		j.Dosbox.Machine = SuperVgaET4000
-		j.Dosbox.MemSize = Mem486
+		j.MemSize = Mem486
 	case "et3000":
 		j.Dosbox.Machine = SuperVgaET3000
-		j.Dosbox.MemSize = Mem486
+		j.MemSize = Mem486
 	case "ega":
 		j.Dosbox.Machine = EGA
-		j.Dosbox.MemSize = Mem386
+		j.MemSize = Mem386
 	case "cga":
 		j.Dosbox.Machine = CGA
-		j.Dosbox.MemSize = Mem286
+		j.MemSize = Mem286
 	default:
 		// use the js-dos defaults
 	}
@@ -224,23 +224,23 @@ func (j *Jsdos) Sound(value string) {
 		j.FM()
 		j.NoGUS()
 		j.Beeper()
-		j.SBlaster.Type = SoundBlaster16
+		j.Type = SoundBlaster16
 		j.SBlaster.Base = "220"
 		j.SBlaster.IRQ = "7"
 		j.SBlaster.DMA = "1"
-		j.SBlaster.HDMA = "5"
-		j.SBlaster.Mixer = yes
+		j.HDMA = "5"
+		j.Mixer = yes
 	case "sb1":
 		// s = append(s, "[autoexec]", "PATH=S:\\DRIVERS\\CT-1320C\\;S:\\DRIVERS\\ADLIB\\;%PATH%", "SET SOUND=S:\\DRIVERS\\CT-1320C\\")
 		j.NoMIDI()
 		j.FM()
 		j.NoGUS()
 		j.Beeper()
-		j.SBlaster.Type = SoundBlasterV1
+		j.Type = SoundBlasterV1
 		j.SBlaster.Base = "220"
 		j.SBlaster.IRQ = "7"
 		j.SBlaster.DMA = "1"
-		j.SBlaster.Mixer = yes
+		j.Mixer = yes
 	case "pcspeaker":
 		j.Beeper()
 	case none:
@@ -257,7 +257,7 @@ func (j *Jsdos) Sound(value string) {
 		j.GUS.Base = "240"
 		j.GUS.IRQ = "5"
 		j.GUS.DMA = "1"
-		j.GUS.Dir = "" // "C:\\ULTRASND"
+		j.Dir = "" // "C:\\ULTRASND"
 	case "covox":
 		j.NoMIDI()
 		j.NoBlaster()
@@ -272,7 +272,7 @@ func (j *Jsdos) Beeper() {
 	j.Speaker.Enable = yes
 	j.Speaker.Rate = AudioRate
 	j.Speaker.Tandy = off
-	j.Speaker.Disney = no
+	j.Disney = no
 }
 
 // Covox enables the Covox Speech Thing audio also sold as the Disney Sound Source.
@@ -280,7 +280,7 @@ func (j *Jsdos) Covox() {
 	j.Speaker.Enable = yes
 	j.Speaker.Rate = AudioRate
 	j.Speaker.Tandy = off
-	j.Speaker.Disney = yes
+	j.Disney = yes
 }
 
 // FM enables FM synthesis music aka the AdLib range of cards.
@@ -295,8 +295,8 @@ func (j *Jsdos) Tandy() {
 	j.Speaker.Enable = yes
 	j.Speaker.Rate = AudioRate
 	j.Speaker.Tandy = yes
-	j.Speaker.TandyRate = AudioRate
-	j.Speaker.Disney = no
+	j.TandyRate = AudioRate
+	j.Disney = no
 }
 
 // NoEMS disables the use of the EMS memory.
@@ -304,7 +304,7 @@ func (j *Jsdos) Tandy() {
 func (j *Jsdos) NoEMS(value bool) {
 	switch value {
 	case true:
-		j.DOS.EMS = no
+		j.EMS = no
 	case false:
 		return
 	}
@@ -315,7 +315,7 @@ func (j *Jsdos) NoEMS(value bool) {
 func (j *Jsdos) NoXMS(value bool) {
 	switch value {
 	case true:
-		j.DOS.XMS = no
+		j.XMS = no
 	case false:
 		return
 	}
@@ -326,7 +326,7 @@ func (j *Jsdos) NoXMS(value bool) {
 func (j *Jsdos) NoUMB(value bool) {
 	switch value {
 	case true:
-		j.DOS.UMB = no
+		j.UMB = no
 	case false:
 		return
 	}
@@ -336,12 +336,12 @@ func (j *Jsdos) NoUMB(value bool) {
 func (j *Jsdos) NoBeeper() {
 	j.Speaker.Enable = no
 	j.Speaker.Tandy = off
-	j.Speaker.Disney = no
+	j.Disney = no
 }
 
 // NoBlaster disables the use of the Sound Blaster card.
 func (j *Jsdos) NoBlaster() {
-	j.SBlaster.Type = none
+	j.Type = none
 	j.OplMode = none
 }
 
@@ -352,8 +352,8 @@ func (j *Jsdos) NoGUS() {
 
 // NoMIDI disables the use of the MIDI devices for music.
 func (j *Jsdos) NoMIDI() {
-	j.Midi.MPU401 = none
-	j.Midi.Device = none
+	j.MPU401 = none
+	j.Device = none
 }
 
 // Binaries returns a list of the executable files from the archive paths.

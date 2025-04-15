@@ -30,7 +30,7 @@ const textamiga = "textamiga"
 // Encoder returns the encoding for the model file entry.
 // Based on the platform and section.
 // Otherwise it will attempt to determine the encoding from the file byte content.
-func Encoder(art *models.File, r io.Reader) encoding.Encoding {
+func Encoder(art *models.File, r io.Reader) encoding.Encoding { //nolint:ireturn
 	if art == nil {
 		return nil
 	}

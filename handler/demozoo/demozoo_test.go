@@ -80,7 +80,7 @@ func TestExternalLinks(t *testing.T) {
 	})
 	assert.Equal(t, "/Defacto2/server", d.GithubRepo())
 
-	assert.Equal(t, "", d.YouTubeVideo())
+	assert.Empty(t, d.YouTubeVideo())
 	d.ExternalLinks = append(d.ExternalLinks, struct {
 		LinkClass string `json:"link_class"`
 		URL       string `json:"url"`
@@ -121,14 +121,14 @@ func TestGroups(t *testing.T) {
 	t.Parallel()
 	prod := demozoo.Production{}
 	a, b := prod.Groups()
-	assert.Equal(t, "", a)
-	assert.Equal(t, "", b)
+	assert.Empty(t, a)
+	assert.Empty(t, b)
 }
 
 func TestSite(t *testing.T) {
 	t.Parallel()
 	s := demozoo.Site("")
-	assert.Equal(t, "", s)
+	assert.Empty(t, s)
 	s = demozoo.Site("the cool bbs")
 	assert.Equal(t, "cool BBS", s)
 	s = demozoo.Site("Cool BBS")

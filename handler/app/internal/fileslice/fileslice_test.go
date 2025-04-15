@@ -63,7 +63,7 @@ func TestFileInfo(t *testing.T) {
 	a, b, c := fileslice.FileInfo("")
 	assert.Equal(t, "unknown uri", a)
 	assert.Equal(t, "unknown uri", b)
-	assert.Equal(t, "", c)
+	assert.Empty(t, c)
 	for uri := range slices.Values(Slices()) {
 		a, b, c = fileslice.FileInfo(uri.String())
 		assert.NotEmpty(t, a)

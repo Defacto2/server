@@ -92,7 +92,7 @@ func ID(c echo.Context) (int, error) {
 // pageRefresh is a helper function to set the HTTP [HTMX header] for the browser to refresh the page.
 //
 // [HTMX header]: https://htmx.org/reference/#response_headers
-func pageRefresh(c echo.Context) echo.Context {
+func pageRefresh(c echo.Context) echo.Context { //nolint:ireturn
 	c.Response().Header().Set("HX-Refresh", "true")
 	c.Response().WriteHeader(http.StatusFound)
 	return c
@@ -258,10 +258,7 @@ func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
-	value := true
-	if c.FormValue("readme-is-off") == "on" {
-		value = false
-	}
+	value := c.FormValue("readme-is-off") != "on"
 	if err = model.UpdateReadmeDisable(db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
@@ -903,10 +900,7 @@ func recordEmulateRAM(c echo.Context, db *sql.DB, name string) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
-	value := false
-	if c.FormValue(name) == "on" {
-		value = true
-	}
+	value := c.FormValue(name) == "on"
 	switch name {
 	case "emulate-ram-umb":
 		err = model.UpdateEmulateUMB(db, int64(id), value)
@@ -939,10 +933,7 @@ func RecordEmulateBroken(c echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
-	value := true
-	if c.FormValue("emulate-is-broken") == "on" {
-		value = false
-	}
+	value := c.FormValue("emulate-is-broken") != "on"
 	if err = model.UpdateEmulateBroken(db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
