@@ -61,13 +61,13 @@ func (c Cache) Write(key, value string, ttl time.Duration) error {
 	if err != nil {
 		return fmt.Errorf("cache write %w", err)
 	}
-	db, err := rosedb.Open(options)
+	cacheDB, err := rosedb.Open(options)
 	if err != nil {
 		return fmt.Errorf("cache write open rosedb %w", err)
 	}
-	defer db.Close()
+	defer cacheDB.Close()
 
-	if err := db.PutWithTTL([]byte(key), []byte(value), ttl); err != nil {
+	if err := cacheDB.PutWithTTL([]byte(key), []byte(value), ttl); err != nil {
 		return fmt.Errorf("cache write save to rosedb %w", err)
 	}
 	return nil
@@ -82,13 +82,13 @@ func (c Cache) WriteNoExpire(key, value string) error {
 	if err != nil {
 		return fmt.Errorf("cache write no expire %w", err)
 	}
-	db, err := rosedb.Open(options)
+	cacheDB, err := rosedb.Open(options)
 	if err != nil {
 		return fmt.Errorf("cache write no expire open rosedb %w", err)
 	}
-	defer db.Close()
+	defer cacheDB.Close()
 
-	if err := db.Put([]byte(key), []byte(value)); err != nil {
+	if err := cacheDB.Put([]byte(key), []byte(value)); err != nil {
 		return fmt.Errorf("cache write no expire save to rosedb %w", err)
 	}
 	return nil
@@ -102,13 +102,13 @@ func (c Cache) Read(id string) (string, error) {
 	}
 	options := rosedb.DefaultOptions
 	options.DirPath = path
-	db, err := rosedb.Open(options)
+	cacheDB, err := rosedb.Open(options)
 	if err != nil {
 		return "", fmt.Errorf("cache read open rosedb %w", err)
 	}
-	defer db.Close()
+	defer cacheDB.Close()
 	key := []byte(id)
-	value, err := db.Get(key)
+	value, err := cacheDB.Get(key)
 	if err != nil {
 		return "", fmt.Errorf("cache read from rosedb %q: %w", key, err)
 	}
@@ -123,14 +123,14 @@ func (c Cache) Delete(id string) error {
 	}
 	options := rosedb.DefaultOptions
 	options.DirPath = path
-	db, err := rosedb.Open(options)
+	cacheDB, err := rosedb.Open(options)
 	if err != nil {
 		return fmt.Errorf("cache delete open rosedb %w", err)
 	}
-	defer db.Close()
+	defer cacheDB.Close()
 
 	key := []byte(id)
-	if err := db.Delete(key); err != nil {
+	if err := cacheDB.Delete(key); err != nil {
 		return fmt.Errorf("cache delete %q: %w", key, err)
 	}
 	return nil

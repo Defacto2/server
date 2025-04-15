@@ -5,10 +5,10 @@ linters:
     - depguard # too much maintenance.
     - exhaustive # this creates too much boilerplate.
     - exhaustruct # fixing this creates too much boilerplate.
-    - nlreturn
-    - paralleltest
-    - varnamelen
-    - wsl
+    - nlreturn # fussy.
+    - paralleltest # too much work.
+    - varnamelen # too much work.
+    - wsl # fussy.
   settings:
     cyclop:
       max-complexity: 17

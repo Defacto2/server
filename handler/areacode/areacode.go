@@ -36,18 +36,18 @@ func (c NAN) HTML() template.HTML {
 	}
 	html := "<span>"
 	for i, val := range territories {
-		ac := val.Abbreviation
+		abbr := val.Abbreviation
 		if i == 0 {
 			s := fmt.Sprintf(`%d - %s`, c, val.Name)
-			if len(ac) > 0 {
-				s += fmt.Sprintf(` (%s)`, ac)
+			if len(abbr) > 0 {
+				s += fmt.Sprintf(` (%s)`, abbr)
 			}
 			html += s
 			continue
 		}
 		html += " + " + val.Name
-		if len(ac) > 0 {
-			html += fmt.Sprintf(` (%s)`, ac)
+		if len(abbr) > 0 {
+			html += fmt.Sprintf(` (%s)`, abbr)
 		}
 	}
 	if note, ok := Notes()[c]; ok {
