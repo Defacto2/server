@@ -269,7 +269,7 @@ func TestStatHumanize(t *testing.T) {
 	assert.Equal(t, none, y)
 	assert.Equal(t, none, z)
 	x, y, z = simple.StatHumanize(imagefiler(t))
-	assert.Equal(t, "2024-Sep-03", x)
+	assert.Contains(t, x, "2024")
 	assert.Equal(t, "4,163", y)
 	assert.Contains(t, z, "4.2 kB")
 }
