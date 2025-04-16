@@ -138,10 +138,14 @@ func CopyFile(debug *zap.SugaredLogger, src, dst string) error {
 	}
 	defer d.Close()
 
-	i, err := io.Copy(d, s)
+	// io.CopyBuffer is faster than io.Copy
+	const size = 4 * 1024
+	buf := make([]byte, size)
+	i, err := io.CopyBuffer(d, s, buf)
 	if err != nil {
-		return fmt.Errorf("copy file io.copy %w", err)
+		return fmt.Errorf("copy file io.copybuffer %w", err)
 	}
+
 	if debug != nil {
 		debug.Infof("copyfile: copied %d bytes to %s\n", i, dst)
 	}

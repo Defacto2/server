@@ -172,7 +172,9 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string,
 	}
 	defer src.Close()
 	hasher := sha512.New384()
-	if _, err := io.Copy(hasher, src); err != nil {
+	size := 4 * 1024
+	buf := make([]byte, size)
+	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
 		return checkHasher(c, logger, name, err)
 	}
 	checksum := hasher.Sum(nil)
@@ -336,8 +338,9 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 			"The temporary save cannot be created")
 	}
 	defer dst.Close()
-
-	if _, err = io.Copy(dst, src); err != nil {
+	size := 4 * 1024
+	buf := make([]byte, size)
+	if _, err = io.CopyBuffer(dst, src, buf); err != nil {
 		if logger != nil {
 			s := fmt.Sprintf("Cannot copy to the temporary destination file, %s: %s", name, err)
 			logger.Error(s)
@@ -541,7 +544,9 @@ func UploadPreview(c echo.Context, preview, thumbnail dir.Directory) error {
 			"The temporary save cannot be created")
 	}
 	defer dst.Close()
-	if _, err := io.Copy(dst, src); err != nil {
+	size := 4 * 1024
+	buf := make([]byte, size)
+	if _, err := io.CopyBuffer(dst, src, buf); err != nil {
 		return c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be written")
 	}
@@ -618,7 +623,9 @@ func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory
 	defer src.Close()
 	fu := model.FileUpload{Filename: file.Filename, Filesize: file.Size}
 	hasher := sha512.New384()
-	if _, err := io.Copy(hasher, src); err != nil {
+	size := 4 * 1024
+	buf := make([]byte, size)
+	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
 		return checkHasher(c, nil, name, err)
 	}
 	fu.Integrity = hex.EncodeToString(hasher.Sum(nil))
