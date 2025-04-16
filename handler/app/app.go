@@ -931,7 +931,7 @@ type SRI struct {
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
 // The fs is the embedded file system that contains the public facing file assets.
 func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
-	names := Names()
+	names := *Names()
 	var err error
 	name := names[Bootstrap5]
 	s.Bootstrap5, err = helper.Integrity(name, fs)

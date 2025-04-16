@@ -290,17 +290,17 @@ func TestList(t *testing.T) {
 func TestNames(t *testing.T) {
 	t.Parallel()
 
-	x := app.Names()
+	x := *app.Names()
 	assert.Equal(t, "public/css/bootstrap.min.css", x[0])
 }
 
 func TestFontRefs(t *testing.T) {
 	t.Parallel()
 
-	x := app.FontRefs()
+	x := *app.FontRefs()
 	assert.Equal(t, "/pxplus_ibm_vga8.woff2", x[app.VGA8])
 
-	n := app.FontNames()
+	n := *app.FontNames()
 	assert.Equal(t, "public/font/pxplus_ibm_vga8.woff2", n[app.VGA8])
 }
 

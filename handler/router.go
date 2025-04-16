@@ -82,7 +82,7 @@ func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for html router", ErrRoutes))
 	}
-	hrefs, names := app.Hrefs(), app.Names()
+	hrefs, names := *app.Hrefs(), *app.Names()
 	for key, href := range hrefs {
 		e.FileFS(href, names[key], public)
 	}
@@ -99,7 +99,7 @@ func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for font router", ErrRoutes))
 	}
-	paths, names := app.FontRefs(), app.FontNames()
+	paths, names := *app.FontRefs(), *app.FontNames()
 	font := e.Group("/font")
 	for key, href := range paths {
 		font.FileFS(href, names[key], public)

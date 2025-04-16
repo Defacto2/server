@@ -115,29 +115,48 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 // The text is intended to be used as a readme, preview or an in-browser viewer.
 //
 // If the FILE_ID.DIZ file is missing then it will return nil.
-func Diz(art *models.File, extra dir.Directory) ([]byte, error) {
+func Diz(art *models.File, buf *bytes.Buffer, extra dir.Directory) error {
 	if art == nil {
-		return nil, ErrFileModel
+		return ErrFileModel
 	}
 
 	unid := art.UUID.String
 	if unid == "" {
-		return nil, ErrUUID
+		return ErrUUID
 	}
 
 	diz := extra.Join(unid + ".diz")
 	if !helper.Stat(diz) {
-		return nil, nil
+		return nil
 	}
 
-	b, err := os.ReadFile(diz)
+	f, err := os.Open(diz)
 	if err != nil {
-		b = []byte("error could not read the diz file")
+		b := []byte("error could not read the diz file")
+		buf.Write(b)
 	}
+	defer f.Close()
 
+	buf.Reset()
+	_, err = io.Copy(buf, f)
+	if err != nil {
+		return err
+	}
+	b := buf.Bytes()
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
-	return b, nil
+	buf.Reset()
+	buf.Write(b)
+
+	// b, err := os.ReadFile(diz)
+	// if err != nil {
+	// 	b = []byte("error could not read the diz file")
+	// }
+
+	// const nul = 0x00
+	// b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
+	// return b, nil
+	return nil
 }
 
 // InsertDiz inserts the FILE_ID.DIZ content into the extisting byte content.

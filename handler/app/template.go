@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"maps"
+
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/releaser/initialism"
@@ -50,7 +52,7 @@ func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
 		return nil, fmt.Errorf("app templates verify, %w", err)
 	}
 	tmpls := make(map[string]*template.Template)
-	for key, name := range t.Pages() {
+	for key, name := range *t.Pages() {
 		tmpl := t.parseFS(db, name)
 		tmpls[key] = tmpl
 	}
@@ -71,8 +73,8 @@ type filename string // filename is the name of the template file in the view di
 type Page map[string]filename
 
 // Pages returns a map of the template names and their corresponding filenames.
-func (t *Templ) Pages() Page {
-	return Page{
+func (t *Templ) Pages() *Page {
+	return &Page{
 		"areacodes":     "areacodes.tmpl",
 		"artifact":      artifactTmpl,
 		"artifacts":     artifactsTmpl,
@@ -134,7 +136,7 @@ func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 		files = append(files, GlobTo(individualWebsite))
 	}
 	return template.Must(template.New("").Funcs(
-		t.FuncMap(db)).ParseFS(t.View, files...))
+		*t.FuncMap(db)).ParseFS(t.View, files...))
 }
 
 func (t *Templ) locked(lock bool, files ...string) []string {
@@ -240,9 +242,9 @@ func (t *Templ) Funcs() template.FuncMap {
 }
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
-func (t *Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
-	hrefs := Hrefs()
-	return template.FuncMap{
+func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
+	hrefs := *Hrefs()
+	return &template.FuncMap{
 		"bootstrap5": func() string {
 			return hrefs[Bootstrap5]
 		},
@@ -409,8 +411,8 @@ func (t *Templ) FuncClosures(db *sql.DB) template.FuncMap { //nolint:funlen
 }
 
 // Elements returns a map of functions that return HTML elements.
-func (t *Templ) Elements() template.FuncMap {
-	return template.FuncMap{
+func (t *Templ) Elements() *template.FuncMap {
+	return &template.FuncMap{
 		"az": func() template.HTML {
 			return template.HTML(`<small><small class="fw-lighter">A-Z</small></small>`)
 		},
@@ -433,15 +435,11 @@ func (t *Templ) Elements() template.FuncMap {
 }
 
 // FuncMap returns a map of all the template functions.
-func (t *Templ) FuncMap(db *sql.DB) template.FuncMap {
+func (t *Templ) FuncMap(db *sql.DB) *template.FuncMap {
 	funcs := t.Funcs()
-	for key, val := range t.FuncClosures(db) {
-		funcs[key] = val
-	}
-	for key, val := range t.Elements() {
-		funcs[key] = val
-	}
-	return funcs
+	maps.Copy(funcs, *t.FuncClosures(db))
+	maps.Copy(funcs, *t.Elements())
+	return &funcs
 }
 
 func recordLastMod(b bool) template.HTML {

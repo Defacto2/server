@@ -32,8 +32,8 @@ type Paths map[Asset]string
 // Hrefs returns the relative path of the public facing CSS, JS and WASM files.
 // The strings are intended for href attributes in HTML link elements and
 // the src attribute in HTML script elements.
-func Hrefs() Paths {
-	return Paths{
+func Hrefs() *Paths {
+	return &Paths{
 		Bootstrap5:      "/css/bootstrap.min.css",
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
 		BootstrapIcons:  "/svg/bootstrap-icons.svg",
@@ -55,14 +55,14 @@ func Hrefs() Paths {
 
 // Names returns the absolute path of the public facing CSS, JS and WASM files
 // relative to the [embed.FS] root.
-func Names() Paths {
+func Names() *Paths {
 	const public = "public"
 	hrefs := Hrefs()
-	paths := make(Paths, len(hrefs))
-	for key, href := range hrefs {
+	paths := make(Paths, len(*hrefs))
+	for key, href := range *hrefs {
 		paths[key] = public + href
 	}
-	return paths
+	return &paths
 }
 
 // Fonts are a map of the public facing font files.
@@ -85,21 +85,21 @@ const (
 
 // Names returns the absolute path of the public facing font files
 // relative to the embed.FS root.
-func FontNames() Fonts {
+func FontNames() *Fonts {
 	const public = "public/font"
 	hrefs := FontRefs()
-	paths := make(Fonts, len(hrefs))
-	for key, href := range hrefs {
+	paths := make(Fonts, len(*hrefs))
+	for key, href := range *hrefs {
 		paths[key] = public + href
 	}
-	return paths
+	return &paths
 }
 
 // FontRefs returns the relative path of the public facing font files.
 // The strings are intended for href attributes in HTML link elements and
 // the src attribute in HTML script elements.
-func FontRefs() Fonts {
-	return Fonts{
+func FontRefs() *Fonts {
+	return &Fonts{
 		VGA8:             "/pxplus_ibm_vga8.woff2",
 		VGA8Woff:         "/pxplus_ibm_vga8.woff",
 		VGA8TT:           "/pxplus_ibm_vga8.ttf",

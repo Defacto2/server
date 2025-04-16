@@ -43,7 +43,7 @@ func TestTempls(t *testing.T) {
 	view, err := filepath.Abs(p)
 	require.NoError(t, err)
 
-	for _, page := range pages {
+	for _, page := range *pages {
 		assert.NotNil(t, page)
 		ext := filepath.Ext(string(page))
 		assert.Equal(t, ".tmpl", ext)

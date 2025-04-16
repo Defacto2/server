@@ -56,7 +56,7 @@ func main() {
 	const exit = 0
 	// initialize a temporary logger, get and print the environment variable configurations.
 	logger, configs := environmentVars()
-	if exitCode := parseFlags(os.Stdout, logger, configs); exitCode >= exit {
+	if exitCode := parseFlags(os.Stdout, logger, *configs); exitCode >= exit {
 		os.Exit(exitCode)
 	}
 	var w io.Writer = os.Stdout
@@ -82,11 +82,11 @@ func main() {
 
 	// start the web server and the sugared logger.
 	ctx := context.Background()
-	website := newInstance(ctx, db, configs)
-	logger = serverLog(configs, website.RecordCount)
+	website := newInstance(ctx, db, *configs)
+	logger = serverLog(*configs, website.RecordCount)
 	router := website.Controller(db, logger)
 	website.Info(logger, w)
-	if err := website.Start(router, logger, configs); err != nil {
+	if err := website.Start(router, logger, *configs); err != nil {
 		logger.Fatalf("%s: please check the environment variables", err)
 	}
 
@@ -115,7 +115,9 @@ func main() {
 
 // environmentVars is used to parse the environment variables and set the Go runtime.
 // Defaults are used if the environment variables are not set.
-func environmentVars() (*zap.SugaredLogger, config.Config) {
+//
+// The configuration uses reference types to make the values immutable.
+func environmentVars() (*zap.SugaredLogger, *config.Config) {
 	logger := zaplog.Status().Sugar()
 	configs := config.Config{
 		Compression:   true,
@@ -132,11 +134,13 @@ func environmentVars() (*zap.SugaredLogger, config.Config) {
 	if i := configs.MaxProcs; i > 0 {
 		runtime.GOMAXPROCS(int(math.Abs(float64(i))))
 	}
-	return logger, configs
+	return logger, &configs
 }
 
 // newInstance is used to create the server controller instance.
-func newInstance(ctx context.Context, db *sql.DB, configs config.Config) handler.Configuration {
+//
+// The configuration returns a reference type to make the values immutable.
+func newInstance(ctx context.Context, db *sql.DB, configs config.Config) *handler.Configuration {
 	c := handler.Configuration{
 		Brand:       brand,
 		Environment: configs,
@@ -150,7 +154,7 @@ func newInstance(ctx context.Context, db *sql.DB, configs config.Config) handler
 	if ctx != nil && db != nil {
 		c.RecordCount = config.RecordCount(ctx, db)
 	}
-	return c
+	return &c
 }
 
 // parseFlags is used to parse the commandline arguments.
