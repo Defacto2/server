@@ -26,6 +26,9 @@ builds:
     main: server.go
     env:
       - CGO_ENABLED=0
+    ldflags:
+      # omit the symbol table and the DRAWF debugging information.
+      - -s -w
     targets:
       # keep the number of targets to a minimum to improve the build time.
       - linux_amd64
