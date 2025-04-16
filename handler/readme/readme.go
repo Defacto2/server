@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"sync"
 	uni "unicode"
 
 	"github.com/Defacto2/magicnumber"
@@ -132,7 +133,95 @@ func SortContent(content ...string) []string {
 	return content
 }
 
+// bufferPool is a sync.Pool for reusing bytes.Buffer objects.
+// This is used to reduce memory allocations and improve performance.
+var bufferPool = sync.Pool{
+	New: func() any {
+		return new(bytes.Buffer)
+	},
+}
+
+// ReadPool returns the content of the readme file or the text of the file download.
+// The first buffer is used for CP1252 and ISO-8859-1 texts while the second buffer
+// is used for UTF-8 texts.
+func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, error) {
+	buf := bufferPool.Get().(*bytes.Buffer)
+	diz := bufferPool.Get().(*bytes.Buffer)
+	ruf := bufferPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	diz.Reset()
+	ruf.Reset()
+
+	err1 := render.DizPool(diz, art, extra)
+	err2 := render.ReadmePool(buf, ruf, art, download, extra)
+
+	var errs error
+	if err1 != nil {
+		errs = errors.Join(errs, fmt.Errorf("render diz: %w", err1))
+	}
+	if err2 != nil {
+		if errors.Is(err2, render.ErrFilename) {
+			err2 = nil
+		}
+		if err2 != nil {
+			errs = errors.Join(errs, fmt.Errorf("render read: %w", err2))
+		}
+	}
+	if diz.Len() == 0 && buf.Len() == 0 && ruf.Len() == 0 {
+		bufferPool.Put(diz)
+		bufferPool.Put(buf)
+		bufferPool.Put(ruf)
+		return nil, nil, errs
+	}
+	// check the bytes to confirm they can be displayed as text
+	sign, err := magicnumber.Text(bytes.NewReader(buf.Bytes()))
+	if err != nil {
+		buf.Reset()
+		bufferPool.Put(buf)
+		errs = errors.Join(errs, fmt.Errorf("magicnumber.Text: %w", err))
+	}
+	// reset buffer for unknown, utf-16 or utf-32 text which won't be displayed
+	if sign == magicnumber.Unknown || sign == magicnumber.UTF16Text || sign == magicnumber.UTF32Text {
+		buf.Reset()
+		bufferPool.Put(buf)
+	}
+	// reset buffer for any embedded ANSI cursor escape codes
+	if incompatible, err := IncompatibleANSI(bytes.NewReader(buf.Bytes())); err != nil {
+		errs = errors.Join(errs, fmt.Errorf("incompatible ansi: %w", err))
+		buf.Reset()
+		bufferPool.Put(buf)
+	} else if incompatible {
+		buf.Reset()
+		bufferPool.Put(buf)
+	}
+	// modify the buffer bytes for cleanup
+	b := trimBytes(buf.Bytes())
+	if diz.Len() > 0 {
+		b = render.InsertDiz(b, diz.Bytes())
+		diz.Reset()
+		bufferPool.Put(diz)
+	}
+	b = RemoveCtrls(b)
+	if bytes.TrimSpace(b) == nil {
+		buf.Reset()
+		diz.Reset()
+		ruf.Reset()
+		bufferPool.Put(buf)
+		bufferPool.Put(diz)
+		bufferPool.Put(ruf)
+		return nil, nil, errs
+	}
+	if len(b) > 0 {
+		buf.Reset()
+		buf.Write(b)
+	}
+	defer bufferPool.Put(buf)
+	defer bufferPool.Put(ruf)
+	return buf, ruf, nil
+}
+
 // Read returns the content of the readme file or the text of the file download.
+// TODO: this could be removed and replaced with ReadPool
 func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, error) {
 	if art == nil {
 		return nil, nil, fmt.Errorf("art in read, %w", ErrNoModel)

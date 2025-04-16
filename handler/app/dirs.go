@@ -112,7 +112,8 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 		data["noScreenshot"] = true
 	}
 	if filerecord.EmbedReadme(art) {
-		data, err = dir.embed(art, data)
+		data, err = dir.embedPool(art, data)
+		// data, err = dir.embed(art, data)
 		if err != nil {
 			defer clear(data)
 			logger.Error(errorWithID(err, dir.URI, art.ID))
@@ -325,6 +326,38 @@ func plainText(modMagic interface{}) bool {
 	}
 }
 
+func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any, error) {
+	if art == nil {
+		return data, nil
+	}
+	buf, ruf, err := readme.ReadPool(art, dir.Download, dir.Extra)
+	if err != nil {
+		if errors.Is(err, render.ErrDownload) {
+			data["noDownload"] = true
+			return data, nil
+		}
+		return data, fmt.Errorf("dirs.embed read: %w", err)
+	}
+	if buf == nil {
+		return data, nil
+	}
+	d, err := embedText(art, data, buf.Bytes()...)
+	if err != nil {
+		return data, fmt.Errorf("dirs.embed text: %w", err)
+	}
+	maps.Copy(data, d)
+	// use the appropriate buffer for the "Web style" UTF-8 readme
+	d["readmeUTF8"] = ""
+	if ruf.Len() > 0 {
+		d["readmeUTF8"] = ruf.String()
+	} else {
+		d["readmeUTF8"] = buf.String()
+	}
+	return d, nil
+}
+
+// embed
+// TODO: remove this function and use embedPool
 func (dir Dirs) embed(art *models.File, data map[string]any) (map[string]any, error) {
 	if art == nil {
 		return data, nil

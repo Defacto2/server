@@ -7,12 +7,11 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
+	"maps"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
-
-	"maps"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"

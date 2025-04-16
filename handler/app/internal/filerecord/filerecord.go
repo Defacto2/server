@@ -1313,12 +1313,12 @@ func Readme(r *models.File) string {
 	if group == "" {
 		group = r.GroupBrandBy.String
 	}
-	if x := strings.Split(group, " "); len(x) > 1 {
-		group = x[0]
+	if x := strings.IndexByte(group, ' '); x > 0 {
+		group = group[:x]
 	}
 	cont := strings.ReplaceAll(r.FileZipContent.String, "\r\n", "\n")
-	content := strings.Split(cont, "\n")
-	return readme.Suggest(filename, group, content...)
+	// Avoid splitting the entire content into a slice to save memory
+	return readme.Suggest(filename, group, cont)
 }
 
 // RecordIsNew returns true if the file record is a new upload.

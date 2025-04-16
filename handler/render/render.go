@@ -19,6 +19,7 @@ import (
 )
 
 var (
+	ErrBuffer    = errors.New("buffer is nil")
 	ErrDownload  = errors.New("download file cannot be stat")
 	ErrFileModel = errors.New("file model is nil")
 	ErrFilename  = errors.New("file model filename is empty")
@@ -55,6 +56,7 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding { //nolint:ireturn
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
+// TODO: this might be removed in the future
 func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, error) {
 	if art == nil {
 		return nil, nil, ErrFileModel
@@ -111,25 +113,89 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 	return b, r, nil
 }
 
-// Diz returns the content of the FILE_ID.DIZ file.
+// ReadmePool writes the content of either the file download or an extracted text file to the buffers.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
 //
-// If the FILE_ID.DIZ file is missing then it will return nil.
-func Diz(art *models.File, buf *bytes.Buffer, extra dir.Directory) error {
+// Both the buf buffer and the ruf rune buffer are reset before writing.
+func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Directory) error {
 	if art == nil {
 		return ErrFileModel
 	}
-
+	fname := art.Filename.String
+	if fname == "" {
+		return ErrFilename
+	}
 	unid := art.UUID.String
 	if unid == "" {
 		return ErrUUID
 	}
+	var files struct {
+		artifact struct {
+			okay bool
+			path string
+		}
+		readmeText struct {
+			okay bool
+			path string
+		}
+	}
+	files.readmeText.path = extra.Join(unid + ".txt")
+	files.readmeText.okay = helper.Stat(files.readmeText.path)
+	files.artifact.path = download.Join(unid)
+	files.artifact.okay = helper.Stat(files.artifact.path)
+	if !files.artifact.okay && !files.readmeText.okay {
+		return fmt.Errorf("render read %w: %q", ErrDownload, download.Join(unid))
+	}
+	if !files.readmeText.okay && !Viewer(art) {
+		buf.Reset()
+		return nil
+	}
 
+	name := files.artifact.path
+	if files.readmeText.okay {
+		name = files.readmeText.path
+	}
+	f, err := os.Open(name)
+	if err != nil {
+		b := []byte("error could not read the readme text file")
+		buf.Write(b)
+	}
+	defer f.Close()
+
+	buf.Reset()
+	_, err = io.Copy(buf, f)
+	if err != nil {
+		return err
+	}
+	b := buf.Bytes()
+	const nul = 0x00
+	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
+	buf.Reset()
+	buf.Write(b)
+	if utf8.Valid(b) {
+		ruf.Reset()
+		ruf.Write(b)
+	}
+	return nil
+}
+
+// DizPool returns the content of the FILE_ID.DIZ file.
+// The text is intended to be used as a readme, preview or an in-browser viewer.
+func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
+	if buf == nil {
+		return ErrBuffer
+	}
+	if art == nil {
+		return ErrFileModel
+	}
+	unid := art.UUID.String
+	if unid == "" {
+		return ErrUUID
+	}
 	diz := extra.Join(unid + ".diz")
 	if !helper.Stat(diz) {
 		return nil
 	}
-
 	f, err := os.Open(diz)
 	if err != nil {
 		b := []byte("error could not read the diz file")
@@ -147,16 +213,33 @@ func Diz(art *models.File, buf *bytes.Buffer, extra dir.Directory) error {
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	buf.Reset()
 	buf.Write(b)
-
-	// b, err := os.ReadFile(diz)
-	// if err != nil {
-	// 	b = []byte("error could not read the diz file")
-	// }
-
-	// const nul = 0x00
-	// b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
-	// return b, nil
 	return nil
+}
+
+// Diz returns the content of the FILE_ID.DIZ file.
+// The text is intended to be used as a readme, preview or an in-browser viewer.
+//
+// If the FILE_ID.DIZ file is missing then it will return nil.
+// TODO: this should be removed in the future
+func Diz(art *models.File, extra dir.Directory) ([]byte, error) {
+	if art == nil {
+		return nil, ErrFileModel
+	}
+	unid := art.UUID.String
+	if unid == "" {
+		return nil, ErrUUID
+	}
+	diz := extra.Join(unid + ".diz")
+	if !helper.Stat(diz) {
+		return nil, nil
+	}
+	b, err := os.ReadFile(diz)
+	if err != nil {
+		b = []byte("error could not read the diz file")
+	}
+	const nul = 0x00
+	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
+	return b, nil
 }
 
 // InsertDiz inserts the FILE_ID.DIZ content into the extisting byte content.
@@ -164,13 +247,16 @@ func InsertDiz(b []byte, diz []byte) []byte {
 	if bytes.TrimSpace(diz) == nil {
 		return b
 	}
-	x := diz
 	if bytes.TrimSpace(b) == nil {
-		return x
+		return diz
 	}
-	x = append(x, []byte("\n\n")...)
-	x = append(x, b...)
-	return x
+	sep := []byte("\n\n")
+	size := len(diz) + len(sep) + len(b)
+	buf := bytes.NewBuffer(make([]byte, 0, size))
+	buf.Write(diz)
+	buf.Write(sep)
+	buf.Write(b)
+	return buf.Bytes()
 }
 
 // Viewer returns true if the file entry should display the file download in the browser plain text viewer.
