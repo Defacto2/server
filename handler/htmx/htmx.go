@@ -566,7 +566,7 @@ func Lookup(s string) []string {
 	lookup := []string{}
 	// examples of key and values:
 	// "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
-	for key, values := range initialism.Initialisms() {
+	for key, values := range *initialism.Initialisms() {
 		for value := range slices.Values(values) {
 			name := releaser.Index(string(key))
 			if name == "" {
