@@ -310,22 +310,22 @@ func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error 
 func TextCrop(src, dst string) error {
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
-	srcFile, err := os.Open(src)
+	scan, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("text crop open %w", err)
 	}
-	defer srcFile.Close()
-	if magicnumber.CSI(srcFile) {
+	defer scan.Close()
+	if magicnumber.CSI(scan) {
 		return fmt.Errorf("text crop %w: %s", ErrANSI, src)
 	}
-	dstFile, err := os.Create(dst)
+	create, err := os.Create(dst)
 	if err != nil {
 		return fmt.Errorf("text crop create %w", err)
 	}
-	defer dstFile.Close()
+	defer create.Close()
 
-	scanner := bufio.NewScanner(srcFile)
-	writer := bufio.NewWriter(dstFile)
+	scanner := bufio.NewScanner(scan)
+	writer := bufio.NewWriter(create)
 	defer writer.Flush()
 
 	const maxColumns, maxRows = 80, 29
