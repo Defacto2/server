@@ -162,6 +162,139 @@ func repackZIP(name string) bool {
 	return false
 }
 
+func redundantArchive(modMagic interface{}) bool {
+	switch modMagic.(type) {
+	case string:
+	default:
+		return false
+	}
+	val, valid := modMagic.(string)
+	if !valid {
+		return false
+	}
+	switch val {
+	case
+		magicnumber.ARChiveSEA.Title(),
+		magicnumber.YoshiLHA.Title(),
+		magicnumber.ArchiveRobertJung.Title(),
+		magicnumber.PKWAREZipImplode.Title(),
+		magicnumber.PKWAREZipReduce.Title(),
+		magicnumber.PKWAREZipShrink.Title():
+		return true
+	default:
+		return false
+	}
+}
+
+func plainText(modMagic interface{}) bool {
+	switch modMagic.(type) {
+	case string:
+	default:
+		return false
+	}
+	val, valid := modMagic.(string)
+	if !valid {
+		return false
+	}
+	switch val {
+	case
+		magicnumber.UTF8Text.Title(),
+		magicnumber.ANSIEscapeText.Title(),
+		magicnumber.PlainText.Title():
+		return true
+	default:
+		return false
+	}
+}
+
+// Editor returns the editor data for the file record of the artifact.
+// These are the editable fields for the file record that are only visible to the editor
+// after they have logged in.
+func (dir Dirs) Editor(art *models.File, data map[string]any) map[string]any {
+	if art == nil {
+		return data
+	}
+	d := command.Dirs{
+		Download:  dir.Download,
+		Preview:   dir.Preview,
+		Thumbnail: dir.Thumbnail,
+		Extra:     dir.Extra,
+	}
+	unid := filerecord.UnID(art)
+	abs := filepath.Join(dir.Download.Path(), unid)
+	data["epochYear"] = epoch
+	data["readonlymode"] = false
+	data["modID"] = art.ID
+	data["modTitle"] = filerecord.Title(art)
+	data["modOnline"] = filerecord.RecordOnline(art)
+	data["modReleasers"] = RecordRels(art.GroupBrandBy, art.GroupBrandFor)
+	data["modReleaser1"], data["modReleaser2"] = filerecord.ReleaserPair(art)
+	data["modYear"], data["modMonth"], data["modDay"] = filerecord.Dates(art)
+	data["modLMYear"], data["modLMMonth"], data["modLMDay"] = filerecord.LastModifications(art)
+	data["modAbsDownload"] = abs
+	data["modMagicMime"] = simple.MIME(abs)
+	data["modMagicNumber"] = simple.MagicAsTitle(abs)
+	data["modDBModify"] = filerecord.LastModificationDate(art)
+	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
+	data["modDecompress"] = filerecord.ListContent(art, d, abs)
+	data["modDecompressLoc"] = simple.MkContent(abs)
+	// These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
+	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
+	// the site was under heavy load.
+	data["modAssetPreview"] = dir.previews(unid)
+	data["modAssetThumbnail"] = dir.thumbnails(unid)
+	data["modAssetExtra"] = dir.extras(unid)
+	data["missingAssets"] = dir.missingAssets(art)
+	data["modReadmeSuggest"] = filerecord.Readme(art)
+	data["disableReadme"] = filerecord.DisableReadme(art)
+	data["modZipContent"] = filerecord.ZipContent(art)
+	data["modRelations"] = filerecord.RelationsStr(art)
+	data["modWebsites"] = filerecord.WebsitesStr(art)
+	data["modOS"] = filerecord.TagProgram(art)
+	data["modTag"] = filerecord.TagCategory(art)
+	data["alertURL"] = filerecord.AlertURL(art)
+	data["forApproval"] = filerecord.RecordIsNew(art)
+	data["disableApproval"] = filerecord.RecordProblems(art)
+	data["disableRecord"] = filerecord.RecordOffline(art)
+	data["modEmulateXMS"], data["modEmulateEMS"], data["modEmulateUMB"] = filerecord.JsdosMemory(art)
+	data["modEmulateBroken"] = filerecord.JsdosBroken(art)
+	data["modEmulateRun"] = filerecord.JsdosRun(art)
+	data["modEmulateCPU"] = filerecord.JsdosCPU(art)
+	data["modEmulateMachine"] = filerecord.JsdosMachine(art)
+	data["modEmulateAudio"] = filerecord.JsdosSound(art)
+	return data
+}
+
+func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any, error) {
+	if art == nil {
+		return data, nil
+	}
+	buf, ruf, err := readme.ReadPool(art, dir.Download, dir.Extra)
+	if err != nil {
+		if errors.Is(err, render.ErrDownload) {
+			data["noDownload"] = true
+			return data, nil
+		}
+		return data, fmt.Errorf("dirs.embed read: %w", err)
+	}
+	if buf == nil {
+		return data, nil
+	}
+	d, err := embedText(art, data, buf.Bytes()...)
+	if err != nil {
+		return data, fmt.Errorf("dirs.embed text: %w", err)
+	}
+	maps.Copy(data, d)
+	// use the appropriate buffer for the "Web style" UTF-8 readme
+	d["readmeUTF8"] = ""
+	if ruf.Len() > 0 {
+		d["readmeUTF8"] = ruf.String()
+	} else {
+		d["readmeUTF8"] = buf.String()
+	}
+	return d, nil
+}
+
 func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 	basename := uid + ".zip"
 	src := filepath.Join(helper.TmpDir(), basename)
@@ -278,167 +411,6 @@ func (dir Dirs) plainTexts(logger *zap.SugaredLogger,
 		logger.Error(errorWithID(err, "text imager", uid))
 	}
 	data["missingAssets"] = ""
-	return data
-}
-
-func redundantArchive(modMagic interface{}) bool {
-	switch modMagic.(type) {
-	case string:
-	default:
-		return false
-	}
-	val, valid := modMagic.(string)
-	if !valid {
-		return false
-	}
-	switch val {
-	case
-		magicnumber.ARChiveSEA.Title(),
-		magicnumber.YoshiLHA.Title(),
-		magicnumber.ArchiveRobertJung.Title(),
-		magicnumber.PKWAREZipImplode.Title(),
-		magicnumber.PKWAREZipReduce.Title(),
-		magicnumber.PKWAREZipShrink.Title():
-		return true
-	default:
-		return false
-	}
-}
-
-func plainText(modMagic interface{}) bool {
-	switch modMagic.(type) {
-	case string:
-	default:
-		return false
-	}
-	val, valid := modMagic.(string)
-	if !valid {
-		return false
-	}
-	switch val {
-	case
-		magicnumber.UTF8Text.Title(),
-		magicnumber.ANSIEscapeText.Title(),
-		magicnumber.PlainText.Title():
-		return true
-	default:
-		return false
-	}
-}
-
-func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any, error) {
-	if art == nil {
-		return data, nil
-	}
-	buf, ruf, err := readme.ReadPool(art, dir.Download, dir.Extra)
-	if err != nil {
-		if errors.Is(err, render.ErrDownload) {
-			data["noDownload"] = true
-			return data, nil
-		}
-		return data, fmt.Errorf("dirs.embed read: %w", err)
-	}
-	if buf == nil {
-		return data, nil
-	}
-	d, err := embedText(art, data, buf.Bytes()...)
-	if err != nil {
-		return data, fmt.Errorf("dirs.embed text: %w", err)
-	}
-	maps.Copy(data, d)
-	// use the appropriate buffer for the "Web style" UTF-8 readme
-	d["readmeUTF8"] = ""
-	if ruf.Len() > 0 {
-		d["readmeUTF8"] = ruf.String()
-	} else {
-		d["readmeUTF8"] = buf.String()
-	}
-	return d, nil
-}
-
-// embed
-// TODO: remove this function and use embedPool
-func (dir Dirs) embed(art *models.File, data map[string]any) (map[string]any, error) {
-	if art == nil {
-		return data, nil
-	}
-	p, r, err := readme.Read(art, dir.Download, dir.Extra)
-	if err != nil {
-		if errors.Is(err, render.ErrDownload) {
-			data["noDownload"] = true
-			return data, nil
-		}
-		return data, fmt.Errorf("dirs.embed read: %w", err)
-	}
-	d, err := embedText(art, data, p...)
-	if err != nil {
-		return data, fmt.Errorf("dirs.embed text: %w", err)
-	}
-	maps.Copy(data, d)
-	d["readmeUTF8"] = ""
-	if len(r) > 0 {
-		d["readmeUTF8"] = string(r)
-	} else {
-		d["readmeUTF8"] = string(p)
-	}
-	return d, nil
-}
-
-// Editor returns the editor data for the file record of the artifact.
-// These are the editable fields for the file record that are only visible to the editor
-// after they have logged in.
-func (dir Dirs) Editor(art *models.File, data map[string]any) map[string]any {
-	if art == nil {
-		return data
-	}
-	d := command.Dirs{
-		Download:  dir.Download,
-		Preview:   dir.Preview,
-		Thumbnail: dir.Thumbnail,
-		Extra:     dir.Extra,
-	}
-	unid := filerecord.UnID(art)
-	abs := filepath.Join(dir.Download.Path(), unid)
-	data["epochYear"] = epoch
-	data["readonlymode"] = false
-	data["modID"] = art.ID
-	data["modTitle"] = filerecord.Title(art)
-	data["modOnline"] = filerecord.RecordOnline(art)
-	data["modReleasers"] = RecordRels(art.GroupBrandBy, art.GroupBrandFor)
-	data["modReleaser1"], data["modReleaser2"] = filerecord.ReleaserPair(art)
-	data["modYear"], data["modMonth"], data["modDay"] = filerecord.Dates(art)
-	data["modLMYear"], data["modLMMonth"], data["modLMDay"] = filerecord.LastModifications(art)
-	data["modAbsDownload"] = abs
-	data["modMagicMime"] = simple.MIME(abs)
-	data["modMagicNumber"] = simple.MagicAsTitle(abs)
-	data["modDBModify"] = filerecord.LastModificationDate(art)
-	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
-	data["modDecompress"] = filerecord.ListContent(art, d, abs)
-	data["modDecompressLoc"] = simple.MkContent(abs)
-	// These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
-	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
-	// the site was under heavy load.
-	data["modAssetPreview"] = dir.previews(unid)
-	data["modAssetThumbnail"] = dir.thumbnails(unid)
-	data["modAssetExtra"] = dir.extras(unid)
-	data["missingAssets"] = dir.missingAssets(art)
-	data["modReadmeSuggest"] = filerecord.Readme(art)
-	data["disableReadme"] = filerecord.DisableReadme(art)
-	data["modZipContent"] = filerecord.ZipContent(art)
-	data["modRelations"] = filerecord.RelationsStr(art)
-	data["modWebsites"] = filerecord.WebsitesStr(art)
-	data["modOS"] = filerecord.TagProgram(art)
-	data["modTag"] = filerecord.TagCategory(art)
-	data["alertURL"] = filerecord.AlertURL(art)
-	data["forApproval"] = filerecord.RecordIsNew(art)
-	data["disableApproval"] = filerecord.RecordProblems(art)
-	data["disableRecord"] = filerecord.RecordOffline(art)
-	data["modEmulateXMS"], data["modEmulateEMS"], data["modEmulateUMB"] = filerecord.JsdosMemory(art)
-	data["modEmulateBroken"] = filerecord.JsdosBroken(art)
-	data["modEmulateRun"] = filerecord.JsdosRun(art)
-	data["modEmulateCPU"] = filerecord.JsdosCPU(art)
-	data["modEmulateMachine"] = filerecord.JsdosMachine(art)
-	data["modEmulateAudio"] = filerecord.JsdosSound(art)
 	return data
 }
 

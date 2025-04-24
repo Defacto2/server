@@ -115,79 +115,6 @@ func (t *Templ) Layout(name filename) []string {
 	}
 }
 
-// parseFS returns a layout template for the given named view.
-// Note that the name is relative to the view/defaults directory.
-func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
-	files := t.Layout(name)
-	config := t.Environment
-	files = t.locked(config.ReadOnly, files...)
-	files = t.lockLayout(config.ReadOnly, files...)
-	// append any additional and embedded templates
-	switch name {
-	case artifactTmpl:
-		files = t.artifact(config.ReadOnly, files...)
-	case artifactsTmpl:
-		files = append(files, GlobTo("artifactsedit.tmpl"))
-	case categoriesTmpl:
-		files = append(files, GlobTo("categoriesmore.tmpl"))
-	case websitesTmpl:
-		const individualWebsite = "website.tmpl"
-		files = append(files, GlobTo(individualWebsite))
-	}
-	return template.Must(template.New("").Funcs(
-		*t.FuncMap(db)).ParseFS(t.View, files...))
-}
-
-func (t *Templ) locked(lock bool, files ...string) []string {
-	if lock {
-		return append(files,
-			GlobTo("layoutlock_null.tmpl"),
-			GlobTo("layoutjs_null.tmpl"),
-		)
-	}
-	return append(files,
-		GlobTo("layoutlock.tmpl"),
-		GlobTo("layoutjs.tmpl"),
-	)
-}
-
-func (t *Templ) lockLayout(lock bool, files ...string) []string {
-	if lock {
-		return append(files,
-			GlobTo("layoutup_null.tmpl"),
-			GlobTo("layoutjsup_null.tmpl"),
-			GlobTo("uploader_null.tmpl"),
-		)
-	}
-	return append(files,
-		GlobTo("layoutup.tmpl"),
-		GlobTo("layoutjsup.tmpl"),
-		GlobTo("uploader.tmpl"),
-		GlobTo("uploader_modal.tmpl"),
-	)
-}
-
-func (t *Templ) artifact(lock bool, files ...string) []string {
-	files = append(files,
-		GlobTo("artifactinfo.tmpl"),
-		GlobTo("artifactjsdos.tmpl"),
-	)
-	if lock {
-		return append(files,
-			GlobTo("artifactedit_null.tmpl"),
-			GlobTo("artifacteditjsdos_null.tmpl"),
-			GlobTo("artifactlock_null.tmpl"),
-		)
-	}
-	return append(files,
-		GlobTo("artifactfile.tmpl"),
-		GlobTo("artifactedit.tmpl"),
-		GlobTo("artifacteditjsdos.tmpl"),
-		GlobTo("artifactfooter.tmpl"),
-		GlobTo("artifactlock.tmpl"),
-	)
-}
-
 // Funcs are a collection of mapped functions that can be used in a template.
 //
 // The "fmtURI" function is not performant for large lists,
@@ -439,6 +366,79 @@ func (t *Templ) FuncMap(db *sql.DB) *template.FuncMap {
 	maps.Copy(funcs, *t.FuncClosures(db))
 	maps.Copy(funcs, *t.Elements())
 	return &funcs
+}
+
+func (t *Templ) artifact(lock bool, files ...string) []string {
+	files = append(files,
+		GlobTo("artifactinfo.tmpl"),
+		GlobTo("artifactjsdos.tmpl"),
+	)
+	if lock {
+		return append(files,
+			GlobTo("artifactedit_null.tmpl"),
+			GlobTo("artifacteditjsdos_null.tmpl"),
+			GlobTo("artifactlock_null.tmpl"),
+		)
+	}
+	return append(files,
+		GlobTo("artifactfile.tmpl"),
+		GlobTo("artifactedit.tmpl"),
+		GlobTo("artifacteditjsdos.tmpl"),
+		GlobTo("artifactfooter.tmpl"),
+		GlobTo("artifactlock.tmpl"),
+	)
+}
+
+func (t *Templ) locked(lock bool, files ...string) []string {
+	if lock {
+		return append(files,
+			GlobTo("layoutlock_null.tmpl"),
+			GlobTo("layoutjs_null.tmpl"),
+		)
+	}
+	return append(files,
+		GlobTo("layoutlock.tmpl"),
+		GlobTo("layoutjs.tmpl"),
+	)
+}
+
+func (t *Templ) lockLayout(lock bool, files ...string) []string {
+	if lock {
+		return append(files,
+			GlobTo("layoutup_null.tmpl"),
+			GlobTo("layoutjsup_null.tmpl"),
+			GlobTo("uploader_null.tmpl"),
+		)
+	}
+	return append(files,
+		GlobTo("layoutup.tmpl"),
+		GlobTo("layoutjsup.tmpl"),
+		GlobTo("uploader.tmpl"),
+		GlobTo("uploader_modal.tmpl"),
+	)
+}
+
+// parseFS returns a layout template for the given named view.
+// Note that the name is relative to the view/defaults directory.
+func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
+	files := t.Layout(name)
+	config := t.Environment
+	files = t.locked(config.ReadOnly, files...)
+	files = t.lockLayout(config.ReadOnly, files...)
+	// append any additional and embedded templates
+	switch name {
+	case artifactTmpl:
+		files = t.artifact(config.ReadOnly, files...)
+	case artifactsTmpl:
+		files = append(files, GlobTo("artifactsedit.tmpl"))
+	case categoriesTmpl:
+		files = append(files, GlobTo("categoriesmore.tmpl"))
+	case websitesTmpl:
+		const individualWebsite = "website.tmpl"
+		files = append(files, GlobTo(individualWebsite))
+	}
+	return template.Must(template.New("").Funcs(
+		*t.FuncMap(db)).ParseFS(t.View, files...))
 }
 
 func recordLastMod(b bool) template.HTML {

@@ -134,21 +134,6 @@ func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, off
 		qm.Limit(limit)).All(ctx, exec)
 }
 
-func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
-	if f.Bytes > 0 && f.Count > 0 {
-		return nil
-	}
-	return models.NewQuery(
-		models.FileWhere.Deletedat.IsNotNull(),
-		models.FileWhere.Deletedby.IsNotNull(),
-		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, exec, f)
-}
-
 // ByMagicErr returns all of the file records that require new magic numbers.
 func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, binaryData bool) (
 	models.FileSlice, error,
@@ -230,20 +215,6 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, o
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, exec)
-}
-
-func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
-	if f.Bytes > 0 && f.Count > 0 {
-		return nil
-	}
-	return models.NewQuery(
-		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
-		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, exec, f)
 }
 
 // Description returns a list of files that match the search terms.
@@ -339,6 +310,35 @@ func (f *Artifacts) ID(
 		return nil, fmt.Errorf("models all files by id search: %w", err)
 	}
 	return fs, nil
+}
+
+func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
+	if f.Bytes > 0 && f.Count > 0 {
+		return nil
+	}
+	return models.NewQuery(
+		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
+		qm.From(From)).Bind(ctx, exec, f)
+}
+
+func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
+	if invalidExec(exec) {
+		return ErrDB
+	}
+	if f.Bytes > 0 && f.Count > 0 {
+		return nil
+	}
+	return models.NewQuery(
+		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
+		qm.WithDeleted(),
+		qm.Select(postgres.Columns()...),
+		qm.From(From)).Bind(ctx, exec, f)
 }
 
 // ByForApproval returns all of the file records that are waiting to be marked for approval.

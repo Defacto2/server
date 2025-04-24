@@ -166,53 +166,6 @@ func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecut
 	return r.similar(ctx, exec, limit, toMagazines, names...)
 }
 
-func (r *Releasers) similar(
-	ctx context.Context, exec boil.ContextExecutor, limit int, look lookup, names ...string,
-) error {
-	boil.DebugMode = false // Enable to see the raw SQL queries.
-	if len(names) == 0 {
-		return nil
-	}
-	if r != nil && len(*r) > 0 {
-		return nil
-	}
-	if invalidExec(exec) {
-		return ErrDB
-	}
-
-	likes := names
-	for name := range slices.Values(names) {
-		likes = append(likes, releaser.Title(name))
-		likes = append(likes, releaser.Cell(name))
-	}
-	for i := range likes {
-		likes[i] = strings.ToUpper(likes[i])
-	}
-	slices.Sort(likes)
-	likes = removeDuplicates(likes)
-	likes = slices.Compact(likes)
-	var query string
-	switch look {
-	case toReleasersExact:
-		query = string(postgres.SimilarToExact(likes...))
-	case toMagazines:
-		query = string(postgres.SimilarToMagazine(likes...))
-	case toReleasers:
-		query = string(postgres.SimilarToReleaser(likes...))
-	}
-	{
-		const page, maxPages = 1, 10
-		size := limit | maxPages
-		val, offset := calculateLimitAndOffset(page, size)
-		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
-	}
-	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("similar magazine queries raw: %w", err)
-	}
-	r.Slugs()
-	return nil
-}
-
 func removeDuplicates(strings []string) []string {
 	unique := make(map[string]struct{})
 	var result []string
@@ -307,4 +260,51 @@ func (r *Releasers) Slugs() {
 	for _, releaser := range *r {
 		releaser.Unique.URI = helper.Slug(releaser.Unique.Name)
 	}
+}
+
+func (r *Releasers) similar(
+	ctx context.Context, exec boil.ContextExecutor, limit int, look lookup, names ...string,
+) error {
+	boil.DebugMode = false // Enable to see the raw SQL queries.
+	if len(names) == 0 {
+		return nil
+	}
+	if r != nil && len(*r) > 0 {
+		return nil
+	}
+	if invalidExec(exec) {
+		return ErrDB
+	}
+
+	likes := names
+	for name := range slices.Values(names) {
+		likes = append(likes, releaser.Title(name))
+		likes = append(likes, releaser.Cell(name))
+	}
+	for i := range likes {
+		likes[i] = strings.ToUpper(likes[i])
+	}
+	slices.Sort(likes)
+	likes = removeDuplicates(likes)
+	likes = slices.Compact(likes)
+	var query string
+	switch look {
+	case toReleasersExact:
+		query = string(postgres.SimilarToExact(likes...))
+	case toMagazines:
+		query = string(postgres.SimilarToMagazine(likes...))
+	case toReleasers:
+		query = string(postgres.SimilarToReleaser(likes...))
+	}
+	{
+		const page, maxPages = 1, 10
+		size := limit | maxPages
+		val, offset := calculateLimitAndOffset(page, size)
+		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
+	}
+	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
+		return fmt.Errorf("similar magazine queries raw: %w", err)
+	}
+	r.Slugs()
+	return nil
 }

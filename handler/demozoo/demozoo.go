@@ -273,167 +273,6 @@ func (p *Production) SuperType() (tags.Tag, tags.Tag) {
 	return platform, section
 }
 
-// platforms returns the platform and section tags for "platforms".
-// A list of the types can be found at https://demozoo.org/api/v1/platforms/?ordering=id
-func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	const (
-		Windows = 1
-		MsDos   = 4
-		Linux   = 7
-		MacOS   = 10
-		Browser = 12
-		// Javascript = 46 was removed from the api list of platforms.
-		AdobeFlash = 47
-		Java       = 48
-		Macintosh  = 94
-	)
-	// Handle platforms.
-	for _, item := range p.Platforms {
-		switch item.ID {
-		case Windows:
-			platform = tags.Windows
-		case MsDos:
-			platform = tags.DOS
-		case Linux:
-			platform = tags.Linux
-		case MacOS, Macintosh:
-			platform = tags.Mac
-		case Browser, AdobeFlash, Java:
-			platform = tags.Markup
-		}
-		if platform > -1 {
-			break
-		}
-	}
-	return platform, section
-}
-
-// prodSuperType returns the platform and section tags for the "production" supertype.
-// A list of the types can be found at https://demozoo.org/api/v1/production_types/?ordering=id
-//
-// Example productions:
-//   - https://demozoo.org/api/v1/productions/354298/ (demo)
-//   - https://demozoo.org/api/v1/productions/338041/ (intro 256B)
-//   - https://demozoo.org/api/v1/productions/366489/ (musicdisk)
-//   - https://demozoo.org/api/v1/productions/280982/ (textmag)
-func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	for _, item := range p.Types {
-		switch item.ID {
-		case Demo:
-			section = tags.Demo
-		case Intro64K, Intro4K, Intro, Intro40K, Intro32b,
-			Intro64b, Intro128b, Intro256b, Intro512b, Intro1K,
-			Intro32K, Intro16K, Intro2K, Intro100K, Intro8K,
-			Intro96K, Intro8b, Intro16b:
-			section = tags.Intro
-		case DiskMag, Magazine:
-			section = tags.Mag
-		case TextMag:
-			section = tags.Mag
-			platform = tags.Text
-		case Tool:
-			section = tags.Tool
-		case MusicDisk, ChipMusicPack:
-			section = tags.Pack
-			platform = tags.Audio
-		case ProductionPack:
-			section = tags.Pack
-		case Cracktro:
-			section = tags.Intro
-		case Music:
-			platform = tags.Audio
-			section = tags.Intro
-		case Game:
-			section = tags.Demo
-		case BBStro:
-			section = tags.BBS
-		case BBSDoor:
-			section = tags.Tool
-			platform = tags.PCB
-		}
-		if section > -1 {
-			break
-		}
-	}
-	return platform, section
-}
-
-// graphicsSuperType returns the platform and section tags for the "graphics" supertype.
-//
-// Example productions:
-//   - https://demozoo.org/api/v1/productions/269595/ (artpack)
-//   - https://demozoo.org/api/v1/productions/270473/ (artpack)
-//   - https://demozoo.org/api/v1/productions/30570/ (graphics)
-func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	const (
-		Graphics   = 23
-		ASCII      = 24
-		PackASCII  = 25
-		Ansi       = 26
-		ExeGFX     = 27
-		ExeGFX4K   = 28
-		ArtPack    = 51
-		ExeGFX256b = 56
-		ExeGFX1K   = 58
-	)
-	for _, item := range p.Types {
-		switch item.ID {
-		case Graphics:
-			platform = tags.Image
-			section = tags.Logo
-		case ASCII:
-			platform = tags.Text
-			section = tags.Logo
-		case PackASCII:
-			platform = tags.Text
-			section = tags.Pack
-		case Ansi:
-			platform = tags.Text
-			section = tags.Logo
-		case ExeGFX, ExeGFX4K, ExeGFX256b, ExeGFX1K:
-			section = tags.Logo
-		case ArtPack:
-			platform = tags.Image
-			section = tags.Pack
-		}
-		if section > -1 {
-			break
-		}
-	}
-	return platform, section
-}
-
-// musicSuperType returns the platform and section tags for the "music" supertype.
-//
-// Example productions:
-//   - https://demozoo.org/api/v1/productions/192593/ (chipmusic)
-//   - https://demozoo.org/api/v1/productions/205797/ (chipmusic but with no download link)
-func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	const (
-		ChipMusic   = 29
-		ExeMusic    = 31
-		ExeMusic32K = 32
-		ExeMusic64K = 38
-		MusicPack   = 52
-	)
-	for _, item := range p.Types {
-		switch item.ID {
-		case ChipMusic:
-			platform = tags.Audio
-			section = tags.Intro
-		case ExeMusic, ExeMusic32K, ExeMusic64K:
-			section = tags.Intro
-		case MusicPack:
-			platform = tags.Audio
-			section = tags.Pack
-		}
-		if section > -1 {
-			break
-		}
-	}
-	return platform, section
-}
-
 // YouTubeVideo returns the ID of a video on YouTube. It searches the external links
 // for a link class that matches YoutubeVideo.
 // An empty string is returned whenever the production does not have a recognized
@@ -533,6 +372,167 @@ func (p *Production) Releasers() ([]string, []string, []string, []string) {
 		}
 	}
 	return tx, co, gx, mu
+}
+
+// platforms returns the platform and section tags for "platforms".
+// A list of the types can be found at https://demozoo.org/api/v1/platforms/?ordering=id
+func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	const (
+		Windows = 1
+		MsDos   = 4
+		Linux   = 7
+		MacOS   = 10
+		Browser = 12
+		// Javascript = 46 was removed from the api list of platforms.
+		AdobeFlash = 47
+		Java       = 48
+		Macintosh  = 94
+	)
+	// Handle platforms.
+	for _, item := range p.Platforms {
+		switch item.ID {
+		case Windows:
+			platform = tags.Windows
+		case MsDos:
+			platform = tags.DOS
+		case Linux:
+			platform = tags.Linux
+		case MacOS, Macintosh:
+			platform = tags.Mac
+		case Browser, AdobeFlash, Java:
+			platform = tags.Markup
+		}
+		if platform > -1 {
+			break
+		}
+	}
+	return platform, section
+}
+
+// musicSuperType returns the platform and section tags for the "music" supertype.
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/192593/ (chipmusic)
+//   - https://demozoo.org/api/v1/productions/205797/ (chipmusic but with no download link)
+func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	const (
+		ChipMusic   = 29
+		ExeMusic    = 31
+		ExeMusic32K = 32
+		ExeMusic64K = 38
+		MusicPack   = 52
+	)
+	for _, item := range p.Types {
+		switch item.ID {
+		case ChipMusic:
+			platform = tags.Audio
+			section = tags.Intro
+		case ExeMusic, ExeMusic32K, ExeMusic64K:
+			section = tags.Intro
+		case MusicPack:
+			platform = tags.Audio
+			section = tags.Pack
+		}
+		if section > -1 {
+			break
+		}
+	}
+	return platform, section
+}
+
+// graphicsSuperType returns the platform and section tags for the "graphics" supertype.
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/269595/ (artpack)
+//   - https://demozoo.org/api/v1/productions/270473/ (artpack)
+//   - https://demozoo.org/api/v1/productions/30570/ (graphics)
+func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	const (
+		Graphics   = 23
+		ASCII      = 24
+		PackASCII  = 25
+		Ansi       = 26
+		ExeGFX     = 27
+		ExeGFX4K   = 28
+		ArtPack    = 51
+		ExeGFX256b = 56
+		ExeGFX1K   = 58
+	)
+	for _, item := range p.Types {
+		switch item.ID {
+		case Graphics:
+			platform = tags.Image
+			section = tags.Logo
+		case ASCII:
+			platform = tags.Text
+			section = tags.Logo
+		case PackASCII:
+			platform = tags.Text
+			section = tags.Pack
+		case Ansi:
+			platform = tags.Text
+			section = tags.Logo
+		case ExeGFX, ExeGFX4K, ExeGFX256b, ExeGFX1K:
+			section = tags.Logo
+		case ArtPack:
+			platform = tags.Image
+			section = tags.Pack
+		}
+		if section > -1 {
+			break
+		}
+	}
+	return platform, section
+}
+
+// prodSuperType returns the platform and section tags for the "production" supertype.
+// A list of the types can be found at https://demozoo.org/api/v1/production_types/?ordering=id
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/354298/ (demo)
+//   - https://demozoo.org/api/v1/productions/338041/ (intro 256B)
+//   - https://demozoo.org/api/v1/productions/366489/ (musicdisk)
+//   - https://demozoo.org/api/v1/productions/280982/ (textmag)
+func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	for _, item := range p.Types {
+		switch item.ID {
+		case Demo:
+			section = tags.Demo
+		case Intro64K, Intro4K, Intro, Intro40K, Intro32b,
+			Intro64b, Intro128b, Intro256b, Intro512b, Intro1K,
+			Intro32K, Intro16K, Intro2K, Intro100K, Intro8K,
+			Intro96K, Intro8b, Intro16b:
+			section = tags.Intro
+		case DiskMag, Magazine:
+			section = tags.Mag
+		case TextMag:
+			section = tags.Mag
+			platform = tags.Text
+		case Tool:
+			section = tags.Tool
+		case MusicDisk, ChipMusicPack:
+			section = tags.Pack
+			platform = tags.Audio
+		case ProductionPack:
+			section = tags.Pack
+		case Cracktro:
+			section = tags.Intro
+		case Music:
+			platform = tags.Audio
+			section = tags.Intro
+		case Game:
+			section = tags.Demo
+		case BBStro:
+			section = tags.BBS
+		case BBSDoor:
+			section = tags.Tool
+			platform = tags.PCB
+		}
+		if section > -1 {
+			break
+		}
+	}
+	return platform, section
 }
 
 // Category are tags for production imports.

@@ -227,68 +227,6 @@ func (c Config) String() string {
 	return b.String()
 }
 
-// fprint prints a list of active configurations options.
-func (c Config) fprint(b *strings.Builder) *strings.Builder {
-	fields := reflect.VisibleFields(reflect.TypeOf(c))
-	sort.Slice(fields, func(i, j int) bool {
-		return fields[i].Name < fields[j].Name
-	})
-	values := reflect.ValueOf(c)
-
-	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
-	fmt.Fprint(b, "The Defacto2 server configuration:\n\n")
-	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
-		h1, h3, h2)
-	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
-		strings.Repeat(line, len(h1)),
-		strings.Repeat(line, len(h3)),
-		strings.Repeat(line, len(h2)))
-
-	for field := range slices.Values(fields) {
-		if !field.IsExported() {
-			continue
-		}
-		switch field.Name {
-		case "GoogleAccounts":
-			continue
-		default:
-		}
-		val := values.FieldByName(field.Name)
-		id := field.Name
-		name := field.Tag.Get("env")
-		if before, found := strings.CutSuffix(name, ",unset"); found {
-			name = before
-		}
-		c.fprintField(w, id, name, val)
-	}
-	w.Flush()
-	return b
-}
-
-// fprintField prints the id, name, value and help text to the tabwriter.
-func (c Config) fprintField(w *tabwriter.Writer,
-	id, name string,
-	val reflect.Value,
-) {
-	fmt.Fprintf(w, "\t\t\t\t\n")
-	switch id {
-	case "HTTPPort":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueHTTP(val))
-	case "TLSPort":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueTLS(val))
-	case "TLSCert", "TLSKey":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueCert(val, c.TLSPort))
-	case Down, Prev, Thumb, Logger:
-		fprintDirs(w, id, name, val.String())
-	case "MaxProcs":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueProcs(val))
-	case "GoogleIDs":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueGoogles(c.GoogleAccounts))
-	default:
-		fprintField2(w, id, name, val)
-	}
-}
-
 // fprintDirs prints the directory path to the tabwriter or a warning if the path is empty.
 func fprintDirs(w *tabwriter.Writer, id, name, val string) {
 	fmt.Fprintf(w, "\t%s\t%s", Format(id), name)
@@ -364,50 +302,6 @@ func addressesHelper(b *strings.Builder) {
 	fmt.Fprintf(b, "%s\n",
 		"this web server could be accessible from the following addresses:")
 	fmt.Fprintf(b, "\n")
-}
-
-// addresses prints a list of urls that the server is accessible from.
-func (c Config) addresses(b *strings.Builder, help bool) error {
-	pad := strings.Repeat(string(padchar), padding)
-	values := reflect.ValueOf(c)
-	if help {
-		addressesHelper(b)
-	}
-	hosts, err := helper.LocalHosts()
-	if err != nil {
-		return fmt.Errorf("the server cannot get the local host names: %w", err)
-	}
-	port := values.FieldByName("HTTPPort").Uint()
-	tls := values.FieldByName("TLSPort").Uint()
-	if port == 0 && tls == 0 {
-		return ErrNoPort
-	}
-	const disable, text, secure = 0, 80, 443
-	for host := range slices.Values(hosts) {
-		if c.MatchHost != "" && host != c.MatchHost {
-			continue
-		}
-		switch port {
-		case text:
-			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
-		case disable:
-			continue
-		default:
-			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
-		}
-		switch tls {
-		case secure:
-			fmt.Fprintf(b, "%shttps://%s\n", pad, host)
-		case disable:
-			continue
-		default:
-			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, tls)
-		}
-	}
-	if c.MatchHost == "" {
-		return localIPs(b, port, pad)
-	}
-	return nil
 }
 
 func localIPs(b *strings.Builder, port uint64, pad string) error {
@@ -600,5 +494,111 @@ func (c *Config) Override() {
 	// set the default HTTP port if both ports are configured to zero
 	if c.HTTPPort == 0 && c.TLSPort == 0 {
 		c.HTTPPort = HTTPPort
+	}
+}
+
+// addresses prints a list of urls that the server is accessible from.
+func (c Config) addresses(b *strings.Builder, help bool) error {
+	pad := strings.Repeat(string(padchar), padding)
+	values := reflect.ValueOf(c)
+	if help {
+		addressesHelper(b)
+	}
+	hosts, err := helper.LocalHosts()
+	if err != nil {
+		return fmt.Errorf("the server cannot get the local host names: %w", err)
+	}
+	port := values.FieldByName("HTTPPort").Uint()
+	tls := values.FieldByName("TLSPort").Uint()
+	if port == 0 && tls == 0 {
+		return ErrNoPort
+	}
+	const disable, text, secure = 0, 80, 443
+	for host := range slices.Values(hosts) {
+		if c.MatchHost != "" && host != c.MatchHost {
+			continue
+		}
+		switch port {
+		case text:
+			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
+		case disable:
+			continue
+		default:
+			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
+		}
+		switch tls {
+		case secure:
+			fmt.Fprintf(b, "%shttps://%s\n", pad, host)
+		case disable:
+			continue
+		default:
+			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, tls)
+		}
+	}
+	if c.MatchHost == "" {
+		return localIPs(b, port, pad)
+	}
+	return nil
+}
+
+// fprint prints a list of active configurations options.
+func (c Config) fprint(b *strings.Builder) *strings.Builder {
+	fields := reflect.VisibleFields(reflect.TypeOf(c))
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Name < fields[j].Name
+	})
+	values := reflect.ValueOf(c)
+
+	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
+	fmt.Fprint(b, "The Defacto2 server configuration:\n\n")
+	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
+		h1, h3, h2)
+	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
+		strings.Repeat(line, len(h1)),
+		strings.Repeat(line, len(h3)),
+		strings.Repeat(line, len(h2)))
+
+	for field := range slices.Values(fields) {
+		if !field.IsExported() {
+			continue
+		}
+		switch field.Name {
+		case "GoogleAccounts":
+			continue
+		default:
+		}
+		val := values.FieldByName(field.Name)
+		id := field.Name
+		name := field.Tag.Get("env")
+		if before, found := strings.CutSuffix(name, ",unset"); found {
+			name = before
+		}
+		c.fprintField(w, id, name, val)
+	}
+	w.Flush()
+	return b
+}
+
+// fprintField prints the id, name, value and help text to the tabwriter.
+func (c Config) fprintField(w *tabwriter.Writer,
+	id, name string,
+	val reflect.Value,
+) {
+	fmt.Fprintf(w, "\t\t\t\t\n")
+	switch id {
+	case "HTTPPort":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueHTTP(val))
+	case "TLSPort":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueTLS(val))
+	case "TLSCert", "TLSKey":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueCert(val, c.TLSPort))
+	case Down, Prev, Thumb, Logger:
+		fprintDirs(w, id, name, val.String())
+	case "MaxProcs":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueProcs(val))
+	case "GoogleIDs":
+		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueGoogles(c.GoogleAccounts))
+	default:
+		fprintField2(w, id, name, val)
 	}
 }

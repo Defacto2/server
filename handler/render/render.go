@@ -56,7 +56,7 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding { //nolint:ireturn
 
 // Read returns the content of either the file download or an extracted text file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
-// TODO: this might be removed in the future
+// TODO: this might be removed in the future.
 func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, error) {
 	if art == nil {
 		return nil, nil, ErrFileModel
@@ -165,7 +165,7 @@ func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Di
 	buf.Reset()
 	_, err = io.Copy(buf, f)
 	if err != nil {
-		return err
+		return fmt.Errorf("readme copy %w: %q", err, name)
 	}
 	b := buf.Bytes()
 	const nul = 0x00
@@ -206,7 +206,7 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	buf.Reset()
 	_, err = io.Copy(buf, f)
 	if err != nil {
-		return err
+		return fmt.Errorf("diz copy %w: %q", err, diz)
 	}
 	b := buf.Bytes()
 	const nul = 0x00
@@ -220,7 +220,7 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 // The text is intended to be used as a readme, preview or an in-browser viewer.
 //
 // If the FILE_ID.DIZ file is missing then it will return nil.
-// TODO: this should be removed in the future
+// TODO: this should be removed in the future.
 func Diz(art *models.File, extra dir.Directory) ([]byte, error) {
 	if art == nil {
 		return nil, ErrFileModel

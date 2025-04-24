@@ -324,17 +324,6 @@ func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	}
 }
 
-func (c *Configuration) address(port uint) string {
-	if port == 0 {
-		return ""
-	}
-	address := fmt.Sprintf(":%d", port)
-	if c.Environment.MatchHost != "" {
-		address = fmt.Sprintf("%s:%d", c.Environment.MatchHost, port)
-	}
-	return address
-}
-
 // StartTLS starts the encrypted TLS web server.
 func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
@@ -394,6 +383,17 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 	if err := e.StartTLS(address, certB, keyB); err != nil {
 		c.PortErr(logger, port, err)
 	}
+}
+
+func (c *Configuration) address(port uint) string {
+	if port == 0 {
+		return ""
+	}
+	address := fmt.Sprintf(":%d", port)
+	if c.Environment.MatchHost != "" {
+		address = fmt.Sprintf("%s:%d", c.Environment.MatchHost, port)
+	}
+	return address
 }
 
 // downloader route for the file download handler under the html3 group.

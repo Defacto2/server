@@ -172,7 +172,7 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string,
 	}
 	defer src.Close()
 	hasher := sha512.New384()
-	size := 4 * 1024
+	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
 		return checkHasher(c, logger, name, err)
@@ -197,8 +197,7 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string,
 		return fmt.Errorf("copier: %w", err)
 	}
 	if dst == "" {
-		return c.HTML(http.StatusInternalServerError,
-			"The temporary save cannot be created")
+		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be created")
 	}
 	content, _ := archive.List(dst, file.Filename)
 	readme := archive.Readme(file.Filename, content...)
@@ -338,7 +337,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 			"The temporary save cannot be created")
 	}
 	defer dst.Close()
-	size := 4 * 1024
+	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err = io.CopyBuffer(dst, src, buf); err != nil {
 		if logger != nil {
@@ -544,14 +543,13 @@ func UploadPreview(c echo.Context, preview, thumbnail dir.Directory) error {
 			"The temporary save cannot be created")
 	}
 	defer dst.Close()
-	size := 4 * 1024
+	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(dst, src, buf); err != nil {
 		return c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be written")
 	}
 	defer os.Remove(dst.Name())
-
 	dirs := command.Dirs{Preview: preview, Thumbnail: thumbnail}
 	src, err = file.Open()
 	if err != nil {
@@ -576,8 +574,7 @@ func UploadPreview(c echo.Context, preview, thumbnail dir.Directory) error {
 		}
 		return reloader(c, file.Filename)
 	}
-	return c.HTML(http.StatusBadRequest,
-		"The chosen file is not a valid image or text file")
+	return c.HTML(http.StatusBadRequest, "The chosen file is not a valid image or text file")
 }
 
 func imagers(magic magicnumber.Signature) bool {
@@ -623,7 +620,7 @@ func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory
 	defer src.Close()
 	fu := model.FileUpload{Filename: file.Filename, Filesize: file.Size}
 	hasher := sha512.New384()
-	size := 4 * 1024
+	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
 		return checkHasher(c, nil, name, err)

@@ -158,60 +158,6 @@ func (r Repair) String() string {
 	return [...]string{"zip", "lha", "arc", "arj"}[r]
 }
 
-func (r Repair) lookPath() error {
-	switch r {
-	case Zip:
-		if _, err := exec.LookPath(command.HWZip); err != nil {
-			return fmt.Errorf("cannot find hwzip executable: %w", err)
-		}
-	case LHA:
-		if _, err := exec.LookPath(command.Lha); err != nil {
-			return fmt.Errorf("cannot find lha executable: %w", err)
-		}
-	case Arc:
-		if _, err := exec.LookPath(command.Arc); err != nil {
-			return fmt.Errorf("cannot find arc executable: %w", err)
-		}
-	case Arj:
-		if _, err := exec.LookPath(command.Zip7); err != nil {
-			return fmt.Errorf("cannot find arj executable: %w", err)
-		}
-	default:
-	}
-	return nil
-}
-
-func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) ([]string, error) {
-	var files models.FileSlice
-	var err error
-	switch r {
-	case Zip:
-		files, err = fixzip.Files(ctx, exec)
-	case LHA:
-		files, err = fixlha.Files(ctx, exec)
-	case Arc:
-		files, err = fixarc.Files(ctx, exec)
-	case Arj:
-		files, err = fixarj.Files(ctx, exec)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("artifacts %s files, %w", r.String(), err)
-	}
-
-	size := len(files)
-	logger.Infof("Check %d %s %s archives", size, tags.DOS.String(), r.String())
-	artifacts := make([]string, size)
-	for i, f := range files {
-		if !f.UUID.Valid || f.UUID.String == "" {
-			continue
-		}
-		artifacts[i] = f.UUID.String
-	}
-	artifacts = slices.Clip(artifacts)
-	slices.Sort(artifacts)
-	return artifacts, nil
-}
-
 // ReArchive, re-archive the file using the specified compression method.
 // The source file is extracted to a temporary directory, then re-compressed
 // and saved to the destination directory using the uid as the new named file.
@@ -275,6 +221,60 @@ func (r Repair) ReArchive(ctx context.Context, src, uid string, dest dir.Directo
 	}
 	logger.Infof("Extra deflated zipfile created %d bytes: %s", st.Size(), finalArc)
 	return nil
+}
+
+func (r Repair) lookPath() error {
+	switch r {
+	case Zip:
+		if _, err := exec.LookPath(command.HWZip); err != nil {
+			return fmt.Errorf("cannot find hwzip executable: %w", err)
+		}
+	case LHA:
+		if _, err := exec.LookPath(command.Lha); err != nil {
+			return fmt.Errorf("cannot find lha executable: %w", err)
+		}
+	case Arc:
+		if _, err := exec.LookPath(command.Arc); err != nil {
+			return fmt.Errorf("cannot find arc executable: %w", err)
+		}
+	case Arj:
+		if _, err := exec.LookPath(command.Zip7); err != nil {
+			return fmt.Errorf("cannot find arj executable: %w", err)
+		}
+	default:
+	}
+	return nil
+}
+
+func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, logger *zap.SugaredLogger) ([]string, error) {
+	var files models.FileSlice
+	var err error
+	switch r {
+	case Zip:
+		files, err = fixzip.Files(ctx, exec)
+	case LHA:
+		files, err = fixlha.Files(ctx, exec)
+	case Arc:
+		files, err = fixarc.Files(ctx, exec)
+	case Arj:
+		files, err = fixarj.Files(ctx, exec)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("artifacts %s files, %w", r.String(), err)
+	}
+
+	size := len(files)
+	logger.Infof("Check %d %s %s archives", size, tags.DOS.String(), r.String())
+	artifacts := make([]string, size)
+	for i, f := range files {
+		if !f.UUID.Valid || f.UUID.String == "" {
+			continue
+		}
+		artifacts[i] = f.UUID.String
+	}
+	artifacts = slices.Clip(artifacts)
+	slices.Sort(artifacts)
+	return artifacts, nil
 }
 
 // Assets, on startup check the file system directories for any invalid or unknown files.

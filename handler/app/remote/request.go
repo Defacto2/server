@@ -138,7 +138,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	defer dst.Close()
 
 	// Write the body to file
-	size := 4 * 1024
+	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(dst, res.Body, buf); err != nil {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client

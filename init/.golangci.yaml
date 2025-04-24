@@ -150,6 +150,7 @@ linters:
         path: handler/areacode/areacode.go
       - linters:
           - cyclop
+          - ireturn
         path: (.+)_test\.go
       - linters:
           - ireturn

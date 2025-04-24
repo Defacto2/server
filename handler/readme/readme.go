@@ -21,7 +21,10 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 )
 
-var ErrNoModel = errors.New("no model")
+var (
+	ErrNoModel = errors.New("no model")
+	ErrBufPool = errors.New("buffer pool get returned unexpected type")
+)
 
 // Suggest returns a suggested readme file name for the record.
 // It prioritizes the filename and group name with a priority extension,
@@ -135,7 +138,7 @@ func SortContent(content ...string) []string {
 
 // bufferPool is a sync.Pool for reusing bytes.Buffer objects.
 // This is used to reduce memory allocations and improve performance.
-var bufferPool = sync.Pool{
+var bufferPool = sync.Pool{ //nolint:gochecknoglobals
 	New: func() any {
 		return new(bytes.Buffer)
 	},
@@ -144,10 +147,22 @@ var bufferPool = sync.Pool{
 // ReadPool returns the content of the readme file or the text of the file download.
 // The first buffer is used for CP1252 and ISO-8859-1 texts while the second buffer
 // is used for UTF-8 texts.
-func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, error) {
-	buf := bufferPool.Get().(*bytes.Buffer)
-	diz := bufferPool.Get().(*bytes.Buffer)
-	ruf := bufferPool.Get().(*bytes.Buffer)
+func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, error) { //nolint:cyclop,funlen,lll
+	bufAny := bufferPool.Get()
+	buf, ok := bufAny.(*bytes.Buffer)
+	if !ok {
+		return nil, nil, fmt.Errorf("bufany: %w", ErrBufPool)
+	}
+	dizAny := bufferPool.Get()
+	diz, ok := dizAny.(*bytes.Buffer)
+	if !ok {
+		return nil, nil, fmt.Errorf("dizany: %w", ErrBufPool)
+	}
+	rufAny := bufferPool.Get()
+	ruf, ok := rufAny.(*bytes.Buffer)
+	if !ok {
+		return nil, nil, fmt.Errorf("rufany: %w", ErrBufPool)
+	}
 	buf.Reset()
 	diz.Reset()
 	ruf.Reset()
@@ -221,7 +236,7 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 }
 
 // Read returns the content of the readme file or the text of the file download.
-// TODO: this could be removed and replaced with ReadPool
+// TODO: this could be removed and replaced with ReadPool.
 func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, error) {
 	if art == nil {
 		return nil, nil, fmt.Errorf("art in read, %w", ErrNoModel)
