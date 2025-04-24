@@ -1620,7 +1620,9 @@ func Collection() Milestones {
 			Content: "<p>The first known release of a game on CD was probably Battle Chess MPC (multimedia PC) released by International Network of Crackers on the 3rd of March 1992. " +
 				"Being a novel medium for software distribution, the INC release was a mess requiring the user to have access to 28 floppy disks and then a third party tool to copy and \"splice\" the disks to a hard drive. " +
 				"Copying to this many floppy disks for a single game would have been slow, tedious, and expensive, both in time and hardware.</p>" +
-				"<p>Later in the month $yndicate would release the " +
+				"<p>Later in the month " +
+				"Razor 1911 would release Stellar 7 CD-ROM (now lost) that was reviewed in <a href=\"/f/b42bdee\">DMZ Review #4</a> and " +
+				"$yndicate would release the " +
 				`<a href="/f/b126bd6">CD ROM edition</a> ` + "of Wing Commander that didn't have complex installation process, and INC would attempt some other MPC titles. But in 1992, CD piracy didn't make sense or take off.</p>" +
 				"<p>However in late 1994, scene personalities, The Renegade Chemist and Zeus would team up to form ROM 1911 : Razor 1911 CD-ROM Division. An early or possibly the first CD release from this pair was a game named " +
 				`<a href="/f/ab3e0b">Slob Zone</a>` + ", an 8 floppy disk release. But because game publishers often didn't add copy protection on their CD titles, Razor 1911 didn't want any scene credit for the release.</p>",

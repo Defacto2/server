@@ -952,5 +952,7 @@ func groups() Groups { //nolint:funlen,maintidx
 		"the-buyers-group":                      146471,
 		"new-age":                               70338,
 		"the-codeblasters":                      16503,
+		"the-software-review":                   120706,
+		"ware-report":                           90861,
 	}
 }
