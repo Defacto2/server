@@ -584,6 +584,9 @@ func Categories(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, stats boo
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
 func fileWStats(db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
+	if data == nil {
+		data = make(map[string]any) // avoid nil map
+	}
 	if !stats {
 		return data, nil
 	}

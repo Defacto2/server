@@ -7,7 +7,7 @@ require (
 	github.com/Defacto2/helper v1.4.2
 	github.com/Defacto2/magicnumber v1.0.8
 	github.com/Defacto2/releaser v1.3.4
-	github.com/bengarrett/bbs v1.0.2
+	github.com/bengarrett/bbs v1.0.4
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
@@ -30,12 +30,12 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/image v0.26.0
 	golang.org/x/text v0.24.0
-	google.golang.org/api v0.229.0
+	google.golang.org/api v0.230.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
-	cloud.google.com/go/auth v0.16.0 // indirect
+	cloud.google.com/go/auth v0.16.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	dario.cat/mergo v1.0.1 // indirect
@@ -110,8 +110,8 @@ require (
 	golang.org/x/time v0.11.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250414145226-207652e42e2e // indirect
-	google.golang.org/grpc v1.71.1 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250422160041-2d3770c4ea7f // indirect
+	google.golang.org/grpc v1.72.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mvdan.cc/gofumpt v0.7.0 // indirect
