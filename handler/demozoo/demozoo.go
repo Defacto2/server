@@ -970,5 +970,12 @@ func groups() Groups { //nolint:funlen,maintidx
 		"the-cutting-edge":                      130681,
 		"the-illustrator":                       122579,
 		"prognosis":                             123306,
+		"altered-reality":                       115047,
+		"kraftschlag":                           104986,
+		"matrix":                                83139,
+		"criminal-intent":                       115069,
+		"corruption":                            115219,
+		"iridium-magazine":                      114226,
+		"hijack":                                108517,
 	}
 }

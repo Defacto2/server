@@ -315,6 +315,21 @@ func Groups() Tibits {
 		217: []URI{"ware-report"},
 		218: []URI{"wildsider"},
 		219: []URI{"world-elite-bbs-list"},
+		220: []URI{"adrenalin"},
+		221: []URI{"brumus-bear-review"},
+		222: []URI{"apex-reviewers"},
+		223: []URI{"anti-warez-association"},
+		224: []URI{"altered-reality"},
+		225: []URI{"globelist-world-bbs-listing"},
+		226: []URI{"elite-underground"},
+		227: []URI{"elite-bbs-listing"},
+		228: []URI{"demented-review-crew"},
+		229: []URI{"cybercrime-international-network"},
+		230: []URI{"criminals-of-radical-extremes"},
+		231: []URI{"criminal-intent"},
+		232: []URI{"corruption"},
+		233: []URI{"iridium-magazine"},
+		234: []URI{"hijack"},
 	}
 }
 
