@@ -977,5 +977,15 @@ func groups() Groups { //nolint:funlen,maintidx
 		"corruption":                            115219,
 		"iridium-magazine":                      114226,
 		"hijack":                                108517,
+		"immortal-riot":                         114227,
+		"insane-reality":                        114227,
+		"maniac-magazine":                       135390,
+		"osmium":                                117429,
+		"pc-charts":                             129568,
+		"phantasy-magazine":                     135385,
+		"review-inc":                            130050,
+		"spetznas":                              128862,
+		"spreadpoint":                           132148,
+		"unreal-magazine":                       131354,
 	}
 }
