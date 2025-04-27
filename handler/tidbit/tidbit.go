@@ -416,6 +416,12 @@ func Groups() Tibits {
 		319: []URI{"monthly-competition"},
 		320: []URI{"psxdox"},
 		321: []URI{"pure-console"},
+		322: []URI{"swedish-elite-bbs-list"},
+		323: []URI{"the-jargon-file"},
+		324: []URI{"the-dreamcharts-release"},
+		325: []URI{"sony-playstation-report"},
+		326: []URI{"inquisition"},
+		327: []URI{"the-week-in-warez"},
 	}
 }
 
