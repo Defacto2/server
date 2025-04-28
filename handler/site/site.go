@@ -301,6 +301,11 @@ func Websites() Groups {
 				Name:       "Reality Check Network",
 				NotWorking: true,
 			},
+			{
+				URL:        "www.shu.edu/~importmi/rcn",
+				Name:       "RATM",
+				NotWorking: true,
+			},
 		},
 		"rebels": []Website{
 			{
