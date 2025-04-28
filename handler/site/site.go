@@ -441,6 +441,20 @@ func Websites() Groups {
 				Name: "Phrack Magazine",
 			},
 		},
+		"the-naked-truth-magazine": []Website{
+			{
+				URL:        "ftp.giga.or.at/pub/pcmags/ntm",
+				Name:       "FTP",
+				NotWorking: true,
+			},
+		},
+		"inquisition": []Website{
+			{
+				URL:        "http://www.openix.com/~apd/inq",
+				Name:       "Inquisition",
+				NotWorking: true,
+			},
+		},
 	}
 }
 

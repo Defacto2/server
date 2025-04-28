@@ -1011,5 +1011,9 @@ func groups() Groups { //nolint:funlen,maintidx
 		"virus-laboratories-and-distribution":   130617,
 		"lisence":                               5540,
 		"higher-mental-plane":                   123325,
+		"request-to-send":                       46615,
+		"tdu_jam":                               46640,
+		"tyranny":                               65696,
+		"the-naked-truth-magazine":              127080,
 	}
 }
