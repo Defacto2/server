@@ -135,6 +135,11 @@ func Websites() Groups {
 				Name:       "Drink Or Die",
 				NotWorking: true,
 			},
+			{
+				URL:        "spl.co.il/zino",
+				Name:       "INQ ad",
+				NotWorking: true,
+			},
 		},
 		"empress": []Website{
 			{
@@ -196,6 +201,11 @@ func Websites() Groups {
 			{
 				URL:        "www.hybrid.to",
 				Name:       "Hybrid",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.tripnet.se/~electro/home",
+				Name:       "Hoson in INQ",
 				NotWorking: true,
 			},
 		},
@@ -265,6 +275,11 @@ func Websites() Groups {
 			{
 				URL:        "www.laric.com/razor",
 				Name:       "Razor 1911 Europe",
+				NotWorking: true,
+			},
+			{
+				URL:        "ionet.net/~razor/razor1911.html",
+				Name:       "INQ ad",
 				NotWorking: true,
 			},
 		},
@@ -382,6 +397,11 @@ func Websites() Groups {
 				Name:       "The Game Review",
 				NotWorking: true,
 			},
+			{
+				URL:        "www.aych-dee.com/tgr.html ",
+				Name:       "INQ ad",
+				NotWorking: true,
+			},
 		},
 		"the-humble-guys": []Website{
 			{
@@ -450,8 +470,34 @@ func Websites() Groups {
 		},
 		"inquisition": []Website{
 			{
-				URL:        "http://www.openix.com/~apd/inq",
+				URL:        "www.openix.com/~apd/inq",
 				Name:       "Inquisition",
+				NotWorking: true,
+			},
+		},
+		"the-week-in-warez": []Website{
+			{
+				URL:        "www.crl.com/~tails/wiw.html",
+				Name:       "WWN",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.hooked.net/users/tails/wwn",
+				Name:       "WWN",
+				NotWorking: true,
+			},
+		},
+		"zillionz": []Website{
+			{
+				URL:        "www1.minn.net/~zillionz",
+				Name:       "INQ ad",
+				NotWorking: true,
+			},
+		},
+		"fast-action-trading-elite": []Website{
+			{
+				URL:        "www.ceic.com/fate",
+				Name:       "INQ ad",
 				NotWorking: true,
 			},
 		},

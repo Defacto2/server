@@ -1015,5 +1015,10 @@ func groups() Groups { //nolint:funlen,maintidx
 		"tdu_jam":                               46640,
 		"tyranny":                               65696,
 		"the-naked-truth-magazine":              127080,
+		"the-week-in-warez":                     149303,
+		"the-cartel":                            115024,
+		"inquisition":                           149302,
+		"fast-action-trading-elite":             88422,
+		"reality-check-network":                 46614,
 	}
 }
