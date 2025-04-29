@@ -121,6 +121,11 @@ func Websites() Groups {
 				Name:       "Devotion",
 				NotWorking: true,
 			},
+			{
+				URL:        "www.dataplus.se/devotion",
+				Name:       "by Strooper and Spy",
+				NotWorking: true,
+			},
 		},
 		"divine": []Website{
 			{
@@ -204,6 +209,11 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 			{
+				URL:        "www.hybreed.com",
+				Name:       "Hybreed",
+				NotWorking: true,
+			},
+			{
 				URL:        "www.tripnet.se/~electro/home",
 				Name:       "Hoson in INQ",
 				NotWorking: true,
@@ -226,6 +236,13 @@ func Websites() Groups {
 				Name:       "Motiv8",
 				NotWorking: true,
 			},
+			{
+				URL:        "hipsworld.bridge.net/~tribal",
+				Name:       "June 1996",
+				NotWorking: true,
+			},
+
+			//http://chipsworld.bridge.net/~tribal
 		},
 		"paradigm": []Website{
 			{
@@ -252,6 +269,11 @@ func Websites() Groups {
 			{
 				URL:        "www.laker.net/prestige",
 				Name:       "Prestige",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.jet.laker.net/prestige",
+				Name:       "June 1996",
 				NotWorking: true,
 			},
 		},
@@ -282,6 +304,11 @@ func Websites() Groups {
 				Name:       "INQ ad",
 				NotWorking: true,
 			},
+			{
+				URL:        "www.ifi.unit.no/razor",
+				Name:       "June 1996",
+				NotWorking: true,
+			},
 		},
 		"razor-1911-demo": []Website{
 			{
@@ -297,6 +324,16 @@ func Websites() Groups {
 		},
 		"reality-check-network": []Website{
 			{
+				URL:        "web.archive.org/web/19961223125210/http://rcn.org/",
+				Name:       "December 1996",
+				NotWorking: false,
+			},
+			{
+				URL:        "web.archive.org/web/19970219163852/http://rcn.org/",
+				Name:       "1997 redesign",
+				NotWorking: false,
+			},
+			{
 				URL:        "www.rcn.org",
 				Name:       "Reality Check Network",
 				NotWorking: true,
@@ -304,6 +341,11 @@ func Websites() Groups {
 			{
 				URL:        "www.shu.edu/~importmi/rcn",
 				Name:       "RATM",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.halcyon.com/sbecker",
+				Name:       "File mirror #1",
 				NotWorking: true,
 			},
 		},
@@ -318,8 +360,18 @@ func Websites() Groups {
 				Name:       "Rebels",
 				NotWorking: true,
 			},
+			{
+				URL:        "www.geocities.com/SunsetStrip/3491",
+				Name:       "Geocities",
+				NotWorking: true,
+			},
 		},
 		"relativity": []Website{
+			{
+				URL:        "revp.home.ml.org",
+				Name:       "Relativity",
+				NotWorking: true,
+			},
 			{
 				URL:        "www.cyberbeach.net/~jester/relativity",
 				Name:       "Relativity",
@@ -403,8 +455,13 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 			{
-				URL:        "www.aych-dee.com/tgr.html ",
+				URL:        "www.aych-dee.com/tgr.html",
 				Name:       "INQ ad",
+				NotWorking: true,
+			},
+			{
+				URL:        "ns2.clever.net/~ionizer",
+				Name:       "RCN 17 ad",
 				NotWorking: true,
 			},
 		},
@@ -412,6 +469,11 @@ func Websites() Groups {
 			{
 				URL:  "https://fabulousfurlough.blogspot.com",
 				Name: "Fabulous Furlough's - My Life Behind The Patch",
+			},
+			{
+				URL:        "www.thg.net",
+				Name:       "1997 reunion",
+				NotWorking: true,
 			},
 		},
 		"tristar-ampersand-red-sector-inc": []Website{
@@ -437,6 +499,26 @@ func Websites() Groups {
 			{
 				URL:        "www.ucf2000.com",
 				Name:       "United Cracking Force",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.ucf97.com",
+				Name:       "UCF97",
+				NotWorking: true,
+			},
+			{
+				URL:        "ccnux.utm.my/ucf",
+				Name:       "1996 #1",
+				NotWorking: true,
+			},
+			{
+				URL:        "ccnux.utm.my/edison",
+				Name:       "1996 #2",
+				NotWorking: true,
+			},
+			{
+				URL:        "w3.darknet.com/~ucf96/ucf96.htm",
+				Name:       "1996 #3",
 				NotWorking: true,
 			},
 		},
@@ -501,8 +583,86 @@ func Websites() Groups {
 		},
 		"fast-action-trading-elite": []Website{
 			{
+				URL:        "www.fatenet.net",
+				Name:       "RCN 33 ad",
+				NotWorking: true,
+			},
+			{
 				URL:        "www.ceic.com/fate",
 				Name:       "INQ ad",
+				NotWorking: true,
+			},
+		},
+		"sodom": []Website{
+			{
+				URL:        "https://wayback.defacto2.net/sodom-from-1998-january-5/",
+				Name:       "thesodom mirrored",
+				NotWorking: false,
+			},
+			{
+				URL:        "www.thesodom.com",
+				Name:       "Sodom",
+				NotWorking: true,
+			},
+			{
+				URL:        "jicom.jinr.ru/sodom",
+				Name:       "1996",
+				NotWorking: true,
+			},
+		},
+		"request-to-send": []Website{
+			{
+				URL:        "www.request2send.com",
+				Name:       "RTS",
+				NotWorking: true,
+			},
+		},
+		"reflux": []Website{
+			{
+				URL:        "addiction.altered.com/carbon8/reflux",
+				Name:       "Reflux",
+				NotWorking: true,
+			},
+		},
+		"legends-never-die": []Website{
+			{
+				URL:        "awww.legendsneverdie.com",
+				Name:       "Legends Never Die",
+				NotWorking: true,
+			},
+		},
+		"heritage": []Website{
+			{
+				URL:        "www.htg.net",
+				Name:       "Heritage",
+				NotWorking: true,
+			},
+		},
+		"syndicate": []Website{
+			{
+				URL:        "www.syn.org",
+				Name:       "Syndicate",
+				NotWorking: true,
+			},
+		},
+		"old-warez-inc": []Website{
+			{
+				URL:        "oldwarezinc.home.ml.org",
+				Name:       "Old Warez Inc.",
+				NotWorking: true,
+			},
+		},
+		"karma": []Website{
+			{
+				URL:        "www.karmanet.net",
+				Name:       "Karma",
+				NotWorking: true,
+			},
+		},
+		"the-reviewers-guild": []Website{
+			{
+				URL:        "trguild.ml.org",
+				Name:       "tGR",
 				NotWorking: true,
 			},
 		},
