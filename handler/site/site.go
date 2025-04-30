@@ -260,6 +260,11 @@ func Websites() Groups {
 		},
 		"premiere": []Website{
 			{
+				URL:        "premiere97.com",
+				Name:       "Premiere 97",
+				NotWorking: true,
+			},
+			{
 				URL:        "premiere.ttlc.net",
 				Name:       "Premiere",
 				NotWorking: true,
@@ -306,7 +311,7 @@ func Websites() Groups {
 			},
 			{
 				URL:        "www.ifi.unit.no/razor",
-				Name:       "June 1996",
+				Name:       "Razor 1911 Founder's website",
 				NotWorking: true,
 			},
 		},
@@ -683,6 +688,23 @@ func Websites() Groups {
 			{
 				URL:        "www.gil.net/~bleys/trg.html",
 				Name:       "1997",
+				NotWorking: true,
+			},
+		},
+		"affinity": []Website{
+			{
+				URL:        "pages.ripco.com:8080/~devoid",
+				Name:       "Devoid",
+				NotWorking: true,
+			},
+			{
+				URL:        "206.245.196.81/affinity/affinity.htm",
+				Name:       "Issue 5",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.iceonline.com/home/rahimk/aft.htm",
+				Name:       "Rahimk",
 				NotWorking: true,
 			},
 		},

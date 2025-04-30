@@ -1020,5 +1020,6 @@ func groups() Groups { //nolint:funlen,maintidx
 		"inquisition":                           149302,
 		"fast-action-trading-elite":             88422,
 		"reality-check-network":                 46614,
+		"affinity":                              46922,
 	}
 }

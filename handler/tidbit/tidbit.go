@@ -428,6 +428,8 @@ func Groups() Tibits {
 		331: []URI{"the-reviewers-guild"},
 		332: []URI{"trc-ware-report"},
 		334: []URI{"the-warez-magazine"},
+		335: []URI{"3rd-world-paki-report"},
+		336: []URI{"affinity"},
 	}
 }
 
