@@ -424,6 +424,7 @@ func Groups() Tibits {
 		327: []URI{"the-week-in-warez"},
 		328: []URI{"the-naked-truth-magazine"},
 		329: []URI{"reality-check-network"},
+		330: []URI{"the-game-review"},
 	}
 }
 

@@ -450,6 +450,11 @@ func Websites() Groups {
 		},
 		"the-game-review": []Website{
 			{
+				URL:        "www.thegamereview.com",
+				Name:       "The Game Review #58",
+				NotWorking: true,
+			},
+			{
 				URL:        "www.monmouth.com/~jionin",
 				Name:       "The Game Review",
 				NotWorking: true,
@@ -463,6 +468,11 @@ func Websites() Groups {
 				URL:        "ns2.clever.net/~ionizer",
 				Name:       "RCN 17 ad",
 				NotWorking: true,
+			},
+			{
+				URL:        "https://web.archive.org/web/19990302094306/http://www.lookup.com/homepages/65443/tgr.htm",
+				Name:       "incomplete 1995 mirror",
+				NotWorking: false,
 			},
 		},
 		"the-humble-guys": []Website{
