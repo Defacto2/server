@@ -167,7 +167,7 @@ func Interviewees() Groups {
 				{
 					Scener: "The Grim Reaper",
 					Year:   1993, Month: 2,
-					Content: "Member of The Dream Team and a coodinator of the ViSiON-X BBS software.",
+					Content: "Member of The Dream Team and a coordinator of the ViSiON-X BBS software.",
 					Link:    "/f/a1377e",
 				},
 				{
@@ -232,7 +232,7 @@ func Interviewees() Groups {
 				{
 					Scener: "Strider",
 					Year:   1988, Month: 12,
-					Content: "The cofounder of Fairlight talks about the group in its first year.",
+					Content: "The co-founder of Fairlight talks about the group in its first year.",
 					Link:    "http://janeway.exotica.org.uk/target.php?idp=6375&idr=1940&tgt=1",
 				},
 			},

@@ -671,8 +671,18 @@ func Websites() Groups {
 		},
 		"the-reviewers-guild": []Website{
 			{
+				URL:        "www.trguild.com",
+				Name:       "TRGuild",
+				NotWorking: true,
+			},
+			{
 				URL:        "trguild.ml.org",
-				Name:       "tGR",
+				Name:       "ml.org",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.gil.net/~bleys/trg.html",
+				Name:       "1997",
 				NotWorking: true,
 			},
 		},

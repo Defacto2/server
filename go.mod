@@ -6,7 +6,7 @@ require (
 	github.com/Defacto2/archive v1.1.1
 	github.com/Defacto2/helper v1.4.2
 	github.com/Defacto2/magicnumber v1.0.8
-	github.com/Defacto2/releaser v1.3.4
+	github.com/Defacto2/releaser v1.3.5
 	github.com/bengarrett/bbs v1.0.4
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/carlmjohnson/versioninfo v0.22.5
@@ -30,7 +30,7 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/image v0.26.0
 	golang.org/x/text v0.24.0
-	google.golang.org/api v0.230.0
+	google.golang.org/api v0.231.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
@@ -46,7 +46,7 @@ require (
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cli/safeexec v1.0.1 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/creack/pty v1.1.23 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dkorunic/betteralign v0.6.7 // indirect
@@ -110,7 +110,7 @@ require (
 	golang.org/x/time v0.11.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250422160041-2d3770c4ea7f // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250428153025-10db94c68c34 // indirect
 	google.golang.org/grpc v1.72.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
