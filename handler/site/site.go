@@ -53,6 +53,11 @@ func Websites() Groups {
 				URL:  "https://en.wikipedia.org/wiki/Future_Crew",
 				Name: "Wikipedia - Future Crew",
 			},
+			{
+				URL:        "www.futurecrew.com",
+				Name:       "Future Crew",
+				NotWorking: true,
+			},
 		},
 		"eagle-soft-incorporated": []Website{
 			{
@@ -107,6 +112,31 @@ func Websites() Groups {
 			{
 				URL:  "https://defacto2.net",
 				Name: "Defacto2",
+			},
+			{
+				URL:  "https://wayback.defacto2.net/defacto2-from-2000-july-11/",
+				Name: "July 2000",
+			},
+			{
+				URL:  "https://wayback.defacto2.net/defacto2-from-1999-september-26/",
+				Name: "September 1999",
+			},
+			{
+				URL:  "https://wayback.defacto2.net/defacto2-from-1998-september-8/",
+				Name: "September 1998",
+			},
+
+			{
+				URL:        "www.defacto2.com",
+				Name:       "First domain",
+				NotWorking: true,
+			},
+		},
+		"defacto": []Website{
+			{
+				URL:        "www.jicom.jinr.ru/sodom",
+				Name:       "Defacto",
+				NotWorking: true,
 			},
 		},
 		"deviance": []Website{
@@ -180,6 +210,10 @@ func Websites() Groups {
 				Name:       "Fairlight Sweden",
 				NotWorking: true,
 			},
+			{
+				URL:  "https://web.archive.org/web/19981201194626/http://www.fairlight.org/",
+				Name: "1997 mirror",
+			},
 		},
 		"fire-site-ftp": []Website{
 			{
@@ -241,13 +275,16 @@ func Websites() Groups {
 				Name:       "June 1996",
 				NotWorking: true,
 			},
-
-			//http://chipsworld.bridge.net/~tribal
 		},
 		"paradigm": []Website{
 			{
 				URL:        "www.pdmworld.com",
 				Name:       "Paradigm",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.pdmworld.com/dac",
+				Name:       "DAC Paradigm art",
 				NotWorking: true,
 			},
 		},
@@ -300,6 +337,11 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 			{
+				URL:        "www.razor-1911.com",
+				Name:       "Razor 1911",
+				NotWorking: true,
+			},
+			{
 				URL:        "www.laric.com/razor",
 				Name:       "Razor 1911 Europe",
 				NotWorking: true,
@@ -313,6 +355,14 @@ func Websites() Groups {
 				URL:        "www.ifi.unit.no/razor",
 				Name:       "Razor 1911 Founder's website",
 				NotWorking: true,
+			},
+			{
+				URL:  "https://wayback.defacto2.net/razor-1911-from-2002-july-1/",
+				Name: "Flash site from 2002",
+			},
+			{
+				URL:  "web.archive.org/web/19961227152420/http://www.razor1911.com/",
+				Name: "Razor 1911 in 1995",
 			},
 		},
 		"razor-1911-demo": []Website{
@@ -403,6 +453,11 @@ func Websites() Groups {
 			},
 			{
 				URL:        "www.scenelink.org",
+				Name:       "SceneLink",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.scene-link.org",
 				Name:       "SceneLink",
 				NotWorking: true,
 			},
@@ -501,6 +556,10 @@ func Websites() Groups {
 				URL:        "www.trsi.org",
 				Name:       "TRSI WHQ",
 				NotWorking: true,
+			},
+			{
+				URL:  "https://web.archive.org/web/19961227014238/http://www.trsi.de/",
+				Name: "1996 mirror",
 			},
 		},
 		"weapon": []Website{
@@ -698,6 +757,11 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 			{
+				URL:        "affinity.cns.net",
+				Name:       "Mr. Mister",
+				NotWorking: true,
+			},
+			{
 				URL:        "futureone.com/~damftp/AFT",
 				Name:       "DC hosted",
 				NotWorking: true,
@@ -715,6 +779,25 @@ func Websites() Groups {
 			{
 				URL:        "www.iceonline.com/home/rahimk/aft.htm",
 				Name:       "Rahimk",
+				NotWorking: true,
+			},
+		},
+		"cybermail": []Website{
+			{
+				URL:        "cybermail.home.ml.org",
+				Name:       "ml.org",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.dmn.com.au/~warez",
+				Name:       "Cybermail",
+				NotWorking: true,
+			},
+		},
+		"email-compilation": []Website{
+			{
+				URL:        "www.xs4all.nl/~blahh",
+				Name:       "Source Compilation",
 				NotWorking: true,
 			},
 		},

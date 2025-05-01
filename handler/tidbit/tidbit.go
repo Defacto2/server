@@ -430,6 +430,15 @@ func Groups() Tibits {
 		334: []URI{"the-warez-magazine"},
 		335: []URI{"3rd-world-paki-report"},
 		336: []URI{"affinity"},
+		337: []URI{"cybermail"},
+		338: []URI{"defacto"},
+		339: []URI{"the-gamers-edge", "the-reviewers-guild"},
+		340: []URI{"rebels"},
+		341: []URI{"defacto2"},
+		342: []URI{"the-council"},
+		343: []URI{"core"},
+		344: []URI{"chemical-reaction"},
+		345: []URI{"email-compilation"},
 	}
 }
 
