@@ -693,6 +693,16 @@ func Websites() Groups {
 		},
 		"affinity": []Website{
 			{
+				URL:        "www.scenelink.org/aft",
+				Name:       "Scenelink",
+				NotWorking: true,
+			},
+			{
+				URL:        "futureone.com/~damftp/AFT",
+				Name:       "DC hosted",
+				NotWorking: true,
+			},
+			{
 				URL:        "pages.ripco.com:8080/~devoid",
 				Name:       "Devoid",
 				NotWorking: true,
