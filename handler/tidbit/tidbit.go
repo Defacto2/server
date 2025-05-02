@@ -442,6 +442,16 @@ func Groups() Tibits {
 		347: []URI{"aesthetic"},
 		348: []URI{"core-reviews", "core"},
 		349: []URI{"hybrid-christmas-e_mag"},
+		350: []URI{"monthly-console-scene-charts-international"},
+		351: []URI{"most-complete-psx-cheat-list-ever"},
+		352: []URI{"pc-hacking-faq"},
+		353: []URI{"console-release-dates"},
+		354: []URI{"zenith-zine", "kirra"},
+		355: []URI{"scooby-snack-magazine"},
+		356: []URI{"sony-playstation-game-reviews"},
+		357: []URI{"tfw"},
+		358: []URI{"the-reservoir-warez-report", "the-reservoir-dogs"},
+		360: []URI{"wave"},
 	}
 }
 

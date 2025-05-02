@@ -457,7 +457,7 @@ func Collection() Milestones {
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/bezmanc.gif\">2</a>, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/borgc.gif\">3</a>, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/torax.gif\">4</a>.</div>" +
-				"<div id=\"the-birth-of-warez-fn5\">[5] Early microcomputer peripherals' included software was often barebones and only intended to confirm the hardware's operation. " +
+				"<div id=\"the-birth-of-warez-fn5\">[5] Early microcomputer peripherals' included software was often bare bones and only intended to confirm the hardware's operation. " +
 				"New owners were expected to <a href=\"https://mirrors.apple2.org.za/ftp.apple.asimov.net/documentation/hardware/io/Hayes%20Micromodem%20II%20Manual.pdf\">program their own software</a> to use with their purchase.</div>" +
 				"<div id=\"the-birth-of-warez-fn6\">[6] " +
 				"<a href=\"https://defacto2.net/f/a56d0\">The Humble Review</a> issue #1, an interview with byter (1/2)." +

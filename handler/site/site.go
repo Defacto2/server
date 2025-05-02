@@ -808,6 +808,13 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 		},
+		"scooby-snack-magazine": []Website{
+			{
+				URL:        "www.cris.com/~shadowkn",
+				Name:       "Scooby Snack Magazine",
+				NotWorking: true,
+			},
+		},
 	}
 }
 
