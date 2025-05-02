@@ -253,6 +253,13 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 		},
+		"hybrid-christmas-e_mag": []Website{
+			{
+				URL:        "www.hybreed.com",
+				Name:       "Hybreed",
+				NotWorking: true,
+			},
+		},
 		"insane-creators-enterprise": []Website{{
 			URL:  "https://www.ice.org",
 			Name: "iCE Advertisements",

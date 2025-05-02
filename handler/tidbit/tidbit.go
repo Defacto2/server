@@ -439,6 +439,9 @@ func Groups() Tibits {
 		343: []URI{"core"},
 		344: []URI{"chemical-reaction"},
 		345: []URI{"email-compilation"},
+		347: []URI{"aesthetic"},
+		348: []URI{"core-reviews", "core"},
+		349: []URI{"hybrid-christmas-e_mag"},
 	}
 }
 
