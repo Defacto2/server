@@ -594,6 +594,15 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen,maintidx
 	return Groups{
+		"defacto":                               10000,
+		"zenith-zine":                           106654,
+		"cybermail":                             84828,
+		"wave":                                  81961,
+		"the-gamers-edge":                       118725,
+		"anemia":                                47049,
+		"relativity":                            123434,
+		"just-the-facts":                        142404,
+		"eclipse-interactive":                   47062,
 		"core":                                  67975,
 		"aesthetic":                             15803,
 		"dark":                                  15803,

@@ -37,6 +37,13 @@ func Websites() Groups {
 				Name: "Wikipedia - Paradox",
 			},
 		},
+		"light-speed-warez": []Website{
+			{
+				URL:        "www.lsw.org",
+				Name:       "Light Speed Warez",
+				NotWorking: true,
+			},
+		},
 		"high-society": []Website{
 			{
 				URL:        "www.high-society.org",
@@ -235,8 +242,22 @@ func Websites() Groups {
 				Name:       "Just The Facts",
 				NotWorking: true,
 			},
+			{
+				URL:        "www.multimania.com/jtf98/",
+				Name:       "Just The Facts",
+				NotWorking: true,
+			},
+			{
+				URL:  "https://web.archive.org/web/20010223130305/http://www.multimania.com/jtf98/index.html",
+				Name: "JTF mirror",
+			},
 		},
 		"hybrid": []Website{
+			{
+				URL:        "www.hybridism.com",
+				Name:       "Hybrid 1998",
+				NotWorking: true,
+			},
 			{
 				URL:        "www.hybrid.to",
 				Name:       "Hybrid",
@@ -480,6 +501,11 @@ func Websites() Groups {
 				Name:       "Shock",
 				NotWorking: true,
 			},
+			{
+				URL:        "www.shock.org",
+				Name:       "Shock",
+				NotWorking: true,
+			},
 		},
 		"superior-art-creations": []Website{
 			{
@@ -669,6 +695,11 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 			{
+				URL:        "www.fate.net",
+				Name:       "Original domain",
+				NotWorking: true,
+			},
+			{
 				URL:        "www.ceic.com/fate",
 				Name:       "INQ ad",
 				NotWorking: true,
@@ -812,6 +843,23 @@ func Websites() Groups {
 			{
 				URL:        "www.cris.com/~shadowkn",
 				Name:       "Scooby Snack Magazine",
+				NotWorking: true,
+			},
+		},
+		"anemia": []Website{
+			{
+				URL:        "www.anemia.org",
+				Name:       "Anemia",
+				NotWorking: true,
+			},
+			{
+				URL:        "anemia.base.org",
+				Name:       "Anemia 97",
+				NotWorking: true,
+			},
+			{
+				URL:        "www.geocities.com/SunsetStrip/Towers/5435",
+				Name:       "Anemia 96",
 				NotWorking: true,
 			},
 		},

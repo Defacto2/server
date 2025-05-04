@@ -452,6 +452,17 @@ func Groups() Tibits {
 		357: []URI{"tfw"},
 		358: []URI{"the-reservoir-warez-report", "the-reservoir-dogs"},
 		360: []URI{"wave"},
+		361: []URI{"top-telnet-traders-weekly"},
+		362: []URI{"weekly-courier-report"},
+		363: []URI{"the-warez-loop"},
+		364: []URI{"the-legendary-report"},
+		365: []URI{"how-to-crack"},
+		366: []URI{"madwizards"},
+		367: []URI{"mp3"},
+		368: []URI{"new-dtl"},
+		369: []URI{"anemia"},
+		370: []URI{"just-the-facts"},
+		371: []URI{""},
 	}
 }
 
