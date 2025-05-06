@@ -41,8 +41,7 @@ require (
 	dario.cat/mergo v1.0.1 // indirect
 	github.com/KimMachineGun/automemlimit v0.7.1 // indirect
 	github.com/air-verse/air v1.61.7 // indirect
-	github.com/bep/godartsass v1.2.0 // indirect
-	github.com/bep/godartsass/v2 v2.1.0 // indirect
+	github.com/bep/godartsass/v2 v2.3.2 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cli/safeexec v1.0.1 // indirect
@@ -50,15 +49,16 @@ require (
 	github.com/creack/pty v1.1.23 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dkorunic/betteralign v0.6.7 // indirect
-	github.com/fatih/color v1.17.0 // indirect
+	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
-	github.com/gohugoio/hugo v0.134.3 // indirect
+	github.com/gohugoio/hugo v0.139.4 // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/licensecheck v0.3.1 // indirect
@@ -69,6 +69,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/gorilla/context v1.1.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/invopop/yaml v0.3.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
