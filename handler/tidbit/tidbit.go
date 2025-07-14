@@ -462,7 +462,6 @@ func Groups() Tibits {
 		368: []URI{"new-dtl"},
 		369: []URI{"anemia"},
 		370: []URI{"just-the-facts"},
-		371: []URI{""},
 	}
 }
 
