@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"html"
 	"html/template"
 	"net/http"
 	"slices"
