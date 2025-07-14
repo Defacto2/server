@@ -116,7 +116,7 @@
               hx-post="/editor/upload/file"
               hx-target="#artifact-editor-dl-feedback"
               {{- if ne $notFound $statSizeB}} hx-confirm="OK, to replace the existing artifact file download on the server?"{{end}}
-              hx-validate="true">
+              hx-validate="true" class="border-top border-bottom border-2 border-danger-subtle pt-3">
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
               <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">
