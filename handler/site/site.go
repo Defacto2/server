@@ -1,10 +1,10 @@
-// Package web proves links and titles for recommended websites.
+// Package site proves links and titles for recommended websites.
 package site
 
 // URI is the URL slug of the releaser.
 type URI string
 
-// URL is the historical URL of the releaser website.
+// Website is the historical URL of the releaser website.
 type Website struct {
 	// URL of the website, not working sites should exclude the protocol, e.g. www.example.com.
 	// While working sites MUST include the protocol, e.g. https://www.example.com.
@@ -389,7 +389,7 @@ func Websites() Groups {
 				Name: "Flash site from 2002",
 			},
 			{
-				URL:  "web.archive.org/web/19961227152420/http://www.razor1911.com/",
+				URL:  "https://web.archive.org/web/19961227152420/http://www.razor1911.com/",
 				Name: "Razor 1911 in 1995",
 			},
 		},
@@ -407,12 +407,12 @@ func Websites() Groups {
 		},
 		"reality-check-network": []Website{
 			{
-				URL:        "web.archive.org/web/19961223125210/http://rcn.org/",
+				URL:        "https://web.archive.org/web/19961223125210/http://rcn.org/",
 				Name:       "December 1996",
 				NotWorking: false,
 			},
 			{
-				URL:        "web.archive.org/web/19970219163852/http://rcn.org/",
+				URL:        "https://web.archive.org/web/19970219163852/http://rcn.org/",
 				Name:       "1997 redesign",
 				NotWorking: false,
 			},

@@ -1,8 +1,6 @@
 package site_test
 
 import (
-	"maps"
-	"slices"
 	"strings"
 	"testing"
 
@@ -14,7 +12,7 @@ func TestFind(t *testing.T) {
 	t.Parallel()
 	website := site.Find("defacto2")
 	assert.NotEmpty(t, website)
-	assert.Len(t, website, 1)
+	assert.Len(t, website, 5)
 	assert.Equal(t, "https://defacto2.net", website[0].URL)
 	assert.Equal(t, "Defacto2", website[0].Name)
 	assert.False(t, website[0].NotWorking)
@@ -30,7 +28,6 @@ func TestFind(t *testing.T) {
 func TestWebsites(t *testing.T) {
 	t.Parallel()
 	w := site.Websites()
-	slices.Sorted(maps.Keys(w))
 	for _, key := range w {
 		for _, site := range key {
 			assert.NotEmpty(t, site.URL)

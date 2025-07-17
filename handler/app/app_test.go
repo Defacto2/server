@@ -2,6 +2,8 @@ package app_test
 
 import (
 	"embed"
+	"maps"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -193,10 +195,11 @@ func TestFuncMap(t *testing.T) {
 	t.Parallel()
 	w := app.Templ{}
 	x := w.FuncMap(nil)
-	assert.Contains(t, x, "editArtifact")
-	assert.Contains(t, x, "version")
-	assert.Contains(t, x, "az")
-	assert.Contains(t, x, "msdos")
+	keys := slices.Sorted(maps.Keys(*x))
+	assert.Contains(t, keys, "add")
+	assert.Contains(t, keys, "version")
+	assert.Contains(t, keys, "az")
+	assert.Contains(t, keys, "msdos")
 }
 
 func TestLinkSamples(t *testing.T) {
