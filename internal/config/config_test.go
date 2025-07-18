@@ -71,7 +71,9 @@ func TestSanityTmpDir(t *testing.T) {
 	require.NoError(t, err)
 	os.Stdout = w
 	config.SanityTmpDir()
-	w.Close()
+	if err := w.Close(); err != nil {
+		t.Error(err)
+	}
 	_, err = stderrBuf.ReadFrom(r)
 	require.NoError(t, err)
 	expectedMessage := "Temporary directory using"
@@ -151,7 +153,9 @@ func TestReArchiveImplode(t *testing.T) {
 	require.NoError(t, err)
 	readr, err := os.Open(src)
 	require.NoError(t, err)
-	defer readr.Close()
+	defer func() {
+		_ = readr.Close()
+	}()
 	sign := magicnumber.Find(readr)
 	assert.Equal(t, magicnumber.PKWAREZipImplode, sign)
 
@@ -167,8 +171,14 @@ func TestReArchiveImplode(t *testing.T) {
 	name := dst.Join("newfile.zip")
 	readr, err = os.Open(name)
 	require.NoError(t, err)
-	defer readr.Close()
+	defer func() {
+		err := readr.Close()
+		require.NoError(t, err)
+	}()
 	sign = magicnumber.Find(readr)
 	assert.Equal(t, magicnumber.PKWAREZip, sign)
-	defer os.Remove(name)
+	defer func() {
+		err := os.Remove(name)
+		require.NoError(t, err)
+	}()
 }

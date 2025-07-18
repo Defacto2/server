@@ -26,12 +26,12 @@ func (c *Config) Fixer(w io.Writer, d time.Time) error {
 	if err != nil {
 		logger.Errorf("fix could not initialize the database data: %s", err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
-	fmt.Fprintf(w, "\n%+v\n", c)
+	_, _ = fmt.Fprintf(w, "\n%+v\n", c)
 	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
 	count := RecordCount(ctx, db)
 	const welcome = "Defacto2 web application"

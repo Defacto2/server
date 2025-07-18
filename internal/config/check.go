@@ -183,7 +183,7 @@ func (c *Config) SetupLogDir(logger *zap.SugaredLogger) error {
 			return fmt.Errorf("log directory %w: %w", ErrTouch, err)
 		}
 		defer func(f *os.File) {
-			f.Close()
+			_ = f.Close()
 			if err := os.Remove(empty); err != nil {
 				logger.Warnf("Could not remove the empty test file in the log directory path: %s: %s", err, empty)
 				return
@@ -228,7 +228,7 @@ func SanityTmpDir() {
 		return
 	}
 	hdu := helper.ByteCountFloat(du)
-	fmt.Fprintf(os.Stdout, "Temporary directory using, %s: %s\n", hdu, tmpdir)
+	_, _ = fmt.Fprintf(os.Stdout, "Temporary directory using, %s: %s\n", hdu, tmpdir)
 }
 
 // Validate returns an error if the HTTP or TLS port is invalid.

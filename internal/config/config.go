@@ -229,60 +229,60 @@ func (c Config) String() string {
 
 // fprintDirs prints the directory path to the tabwriter or a warning if the path is empty.
 func fprintDirs(w *tabwriter.Writer, id, name, val string) {
-	fmt.Fprintf(w, "\t%s\t%s", Format(id), name)
+	_, _ = fmt.Fprintf(w, "\t%s\t%s", Format(id), name)
 	if val != "" {
 		if st, err := os.Stat(val); err != nil && os.IsNotExist(err) {
-			fmt.Fprintf(w, "\t%s\n\t\t\tProblem: DIRECTORY DOES NOT EXIST\n", val)
+			_, _ = fmt.Fprintf(w, "\t%s\n\t\t\tProblem: DIRECTORY DOES NOT EXIST\n", val)
 			return
 		} else if err != nil {
-			fmt.Fprintf(w, "\t%s\n\t\t\tError: %s\n", val, err)
+			_, _ = fmt.Fprintf(w, "\t%s\n\t\t\tError: %s\n", val, err)
 			return
 		} else if !st.IsDir() {
-			fmt.Fprintf(w, "\t%s\n\t\t\tProblem: PATH POINTS TO A FILE\n", val)
+			_, _ = fmt.Fprintf(w, "\t%s\n\t\t\tProblem: PATH POINTS TO A FILE\n", val)
 			return
 		}
-		fmt.Fprintf(w, "\t%s\n", val)
+		_, _ = fmt.Fprintf(w, "\t%s\n", val)
 		return
 	}
 	switch id {
 	case Down:
-		fmt.Fprintf(w, "\tEmpty, no downloads will be served\n")
+		_, _ = fmt.Fprintf(w, "\tEmpty, no downloads will be served\n")
 	case Prev:
-		fmt.Fprintf(w, "\tEmpty, no preview images will be shown\n")
+		_, _ = fmt.Fprintf(w, "\tEmpty, no preview images will be shown\n")
 	case Thumb:
-		fmt.Fprintf(w, "\tEmpty, no thumbnails will be shown\n")
+		_, _ = fmt.Fprintf(w, "\tEmpty, no thumbnails will be shown\n")
 	case Logger:
-		fmt.Fprintf(w, "\tEmpty, logs print to the terminal (stdout)\n")
+		_, _ = fmt.Fprintf(w, "\tEmpty, logs print to the terminal (stdout)\n")
 	default:
-		fmt.Fprintln(w)
+		_, _ = fmt.Fprintln(w)
 	}
 }
 
 // fprintField2 prints the id, name, value and help text to the tabwriter.
 func fprintField2(w *tabwriter.Writer, id, name string, val reflect.Value) {
 	if val.Kind() == reflect.Bool {
-		fmt.Fprintf(w, "\t%s\t%s\t%v\n", Format(id), name, valueBool(val))
+		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%v\n", Format(id), name, valueBool(val))
 		return
 	}
-	fmt.Fprintf(w, "\t%s\t%s\t", Format(id), name)
+	_, _ = fmt.Fprintf(w, "\t%s\t%s\t", Format(id), name)
 	switch id {
 	case "GoogleClientID":
-		fmt.Fprintln(w, valueGoogleIDs(val))
+		_, _ = fmt.Fprintln(w, valueGoogleIDs(val))
 	case "MatchHost":
-		fmt.Fprintln(w, valueMatchHost(val))
+		_, _ = fmt.Fprintln(w, valueMatchHost(val))
 	case "SessionKey":
-		fmt.Fprintln(w, valueSessionKey(val))
+		_, _ = fmt.Fprintln(w, valueSessionKey(val))
 	case "SessionMaxAge":
-		fmt.Fprintln(w, valueHours(val))
+		_, _ = fmt.Fprintln(w, valueHours(val))
 	case "DatabaseURL":
-		fmt.Fprintln(w, valueDatabase(val.String()))
+		_, _ = fmt.Fprintln(w, valueDatabase(val.String()))
 	default:
 		if val.String() == "" {
-			fmt.Fprintln(w, "Empty")
+			_, _ = fmt.Fprintln(w, "Empty")
 			return
 		}
 		if val.IsValid() {
-			fmt.Fprintf(w, "%v\n", val)
+			_, _ = fmt.Fprintf(w, "%v\n", val)
 		}
 	}
 }
@@ -550,10 +550,10 @@ func (c Config) fprint(b *strings.Builder) *strings.Builder {
 	values := reflect.ValueOf(c)
 
 	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
-	fmt.Fprint(b, "The Defacto2 server configuration:\n\n")
-	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
+	_, _ = fmt.Fprint(b, "The Defacto2 server configuration:\n\n")
+	_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n",
 		h1, h3, h2)
-	fmt.Fprintf(w, "\t%s\t%s\t%s\n",
+	_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n",
 		strings.Repeat(line, len(h1)),
 		strings.Repeat(line, len(h3)),
 		strings.Repeat(line, len(h2)))
@@ -575,7 +575,9 @@ func (c Config) fprint(b *strings.Builder) *strings.Builder {
 		}
 		c.fprintField(w, id, name, val)
 	}
-	w.Flush()
+	if err := w.Flush(); err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+	}
 	return b
 }
 
@@ -584,20 +586,20 @@ func (c Config) fprintField(w *tabwriter.Writer,
 	id, name string,
 	val reflect.Value,
 ) {
-	fmt.Fprintf(w, "\t\t\t\t\n")
+	_, _ = fmt.Fprintf(w, "\t\t\t\t\n")
 	switch id {
 	case "HTTPPort":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueHTTP(val))
+		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueHTTP(val))
 	case "TLSPort":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueTLS(val))
+		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueTLS(val))
 	case "TLSCert", "TLSKey":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueCert(val, c.TLSPort))
+		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueCert(val, c.TLSPort))
 	case Down, Prev, Thumb, Logger:
 		fprintDirs(w, id, name, val.String())
 	case "MaxProcs":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueProcs(val))
+		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueProcs(val))
 	case "GoogleIDs":
-		fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueGoogles(c.GoogleAccounts))
+		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueGoogles(c.GoogleAccounts))
 	default:
 		fprintField2(w, id, name, val)
 	}
