@@ -63,7 +63,10 @@ func main() {
 	if configs.Quiet {
 		w = io.Discard
 	}
-	fmt.Fprintf(w, "%s\n", configs)
+	_, err := fmt.Fprintf(w, "%s\n", configs)
+	if err != nil {
+		panic(err)
+	}
 
 	// connect to the database and perform some repairs and sanity checks.
 	// if the database is cannot connect, the web server will continue.
@@ -71,14 +74,14 @@ func main() {
 	if err != nil {
 		logger.Errorf("main could not initialize the database data: %s", err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
 		logger.Errorf("postgres version query: %w", err)
 	}
 	config.TmpCleaner()
 	config.SanityTmpDir()
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 
 	// start the web server and the sugared logger.
 	ctx := context.Background()
@@ -99,14 +102,14 @@ func main() {
 		clean := slices.DeleteFunc(groups, func(e string) bool {
 			return e == ""
 		})
-		fmt.Fprintf(w, "Running as %s for the groups, %s.\n",
+		_, _ = fmt.Fprintf(w, "Running as %s for the groups, %s.\n",
 			usr, strings.Join(clean, ","))
 		// get the local IP addresses and print them to the console.
 		localIPs, err := configs.Addresses()
 		if err != nil {
 			logger.Errorf("configs addresses in main: %s", err)
 		}
-		fmt.Fprintf(w, "%s\n", localIPs)
+		_, _ = fmt.Fprintf(w, "%s\n", localIPs)
 	}()
 
 	// shutdown the web server after a signal is received.

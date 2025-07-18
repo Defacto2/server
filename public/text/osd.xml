@@ -8,7 +8,7 @@
   <Image height="16" width="16" type="image/x-icon">https://defacto2.net/favicon.ico</Image>
   <Url type="application/opensearchdescription+xml" rel="self" template="https://defacto2.net/osd.xml" />
   <Url type="text/html" rel="results" template="https://defacto2.net/search/result?query={searchTerms}" />
-  <LongName>Search tiltes and descriptions.</LongName>
+  <LongName>Search titles and descriptions.</LongName>
   <Query role="example" searchTerms="hello world" />
   <Query role="example" searchTerms="hello,world" />
   <Attribution>

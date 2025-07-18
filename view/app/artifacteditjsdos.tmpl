@@ -49,7 +49,7 @@
                     name="emulate-is-broken"
                     id="emulate-is-broken"{{if eq true (index . "modEmulateBroken")}} checked{{end}}>
                 <span id="emulate-is-broken-result"></span>
-                <label class="form-check-label text-warning-emphasis" for="emulate-is-broken">Flag this artifact as unworking or broken.</label>
+                <label class="form-check-label text-warning-emphasis" for="emulate-is-broken">Flag this artifact as nonworking or broken.</label>
                 Some programs cannot be emulated in js-dos and require virtualization or real hardware.
             </div>
         </div>
@@ -102,7 +102,7 @@
                 <div class="form-check">
                     <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="auto" id="emulate-machine-auto" checked>
                     <label class="form-check-label" for="emulate-machine-auto">Automatic</label>
-                    <div class="form-text">The default and recommanded setting, which emulates a machine with the very compatible S3, Trio64 graphic chip from 1994.</div>
+                    <div class="form-text">The default and recommended setting, which emulates a machine with the very compatible S3, Trio64 graphic chip from 1994.</div>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" autocomplete="off" name="emulate-machine" value="cga" id="emulate-machine-cga"{{if eq "cga" $machine}} checked{{end}}>
@@ -217,7 +217,7 @@
                 <div class="form-check">
                     <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="sb1" id="emulate-sfx-sb1"{{if eq "sb1" $audio}} checked{{end}}>
                     <label class="form-check-label" for="emulate-sfx-sb1">AdLib, Sound Blaster 1 or Pro</label>
-                    <div class="form-text">Intercompatible addon sound cards from the late 1980s and popular in the early 1990s.</div>
+                    <div class="form-text">Inter-compatible addon sound cards from the late 1980s and popular in the early 1990s.</div>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" autocomplete="off" name="emulate-sfx" value="sb16" id="emulate-sfx-sb16"{{if eq "sb16" $audio}} checked{{end}}>

@@ -1,4 +1,4 @@
-// Package htm3 is a sub-package of the model package that should only be used by the html3 handler.
+// Package html3 is a sub-package of the model package that should only be used by the html3 handler.
 // It contains the database queries for the HTML3 templates used to display the file lists in a table format.
 package html3
 

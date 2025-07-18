@@ -34,7 +34,6 @@ SELECT nextval('files_id_seq'), max(id) FROM files;
 
 The nextval is **less** than the max value, so we need to reset the sequence.
 
-
 ```sql
 SELECT nextval('files_id_seq'), max(id) FROM files;
 
@@ -63,7 +62,7 @@ These are only suggestions and may not be necessary if they create too much work
 - [ ] Rename `files` table to `release` or `releases`
 - [ ] Create a `release_tests` table with a selection of 20 read-only records
 - [ ] Rename `files.createdat`, `deleteat`, `updatedat` etc to `[name]_at` aka `create_at`...
-- - [ ] __OR__ break convention and use `date_created`, `date_deleted`, `date_updated` etc.
+- - [ ] **OR** break convention and use `date_created`, `date_deleted`, `date_updated` etc.
 - [ ] DROP `dosee_no_aspect_ratio_fix`.
 - - > `ALTER TABLE "files" DROP "dosee_no_aspect_ratio_fix"; COMMENT ON TABLE "files" IS '';`
 
@@ -76,29 +75,28 @@ These are only suggestions and may not be necessary if they create too much work
 
 ### Indexes
 
-- [ ] Create PostgreSQL *indexes* with case-sensitive strings for [optimal performance](https://wirekat.com/optimizing-sql-based-on-postgresql/)?
-- [ ] Partial Indexes: Use partial indexes when you only need to index a subset of rows, such as, 
+- [ ] Create PostgreSQL _indexes_ with case-sensitive strings for [optimal performance](https://wirekat.com/optimizing-sql-based-on-postgresql/)?
+- [ ] Partial Indexes: Use partial indexes when you only need to index a subset of rows, such as,
 - - `CREATE INDEX ON orders (order_date) WHERE status = 'SHIPPED'`;
 - [ ] Over-Indexing: Creating too many indexes can slow down write operations, as each index needs to be updated on `INSERT`, `UPDATE`, or `DELETE` operations.
 - [ ] Index Maintenance: Rebuild indexes periodically to deal with bloat using `REINDEX`.
 - [ ] Indexing Join Columns: Index columns that are used in JOIN conditions to improve join performance.
   > `combineGroup` and `(r Role) Distinct()`
-   
 
 ### Future idea, _file archive content_ relationship table
 
-Create a relationship files table that contains the filename content within of every archive release. 
+Create a relationship files table that contains the filename content within of every archive release.
 
-We could also include columns containing size in bytes, sha256 hash, text body for full text searching. 
+We could also include columns containing size in bytes, sha256 hash, text body for full text searching.
 
-This would replace the `file_zip_content` column and also, create a CLI tool to scan the archives to fill out this data. For saftey and code maintenance, the tool would need to be a separate program from the web server application.
+This would replace the `file_zip_content` column and also, create a CLI tool to scan the archives to fill out this data. For safety and code maintenance, the tool would need to be a separate program from the web server application.
 
 ## Migration from MySQL to PostgreSQL
 
 This document describes how to migrate the Defacto2 MySQL database to PostgreSQL using [pgloader](https://pgloader.io/). Note, the migration is a one-time operation and should be run on a development or staging server before running on the production server.
 
 - `defacto2-inno` is the name of the MySQL database.
-- `defacto2_ps` is the name of the PostgreSQL database, note the `_` in the name as opposed to `-`. 
+- `defacto2_ps` is the name of the PostgreSQL database, note the `_` in the name as opposed to `-`.
 
 Create a migration loader file named `migrate.load` with the following content, replacing the connection strings with your own database credentials:
 

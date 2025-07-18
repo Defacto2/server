@@ -13,8 +13,11 @@ func TestMagics(t *testing.T) {
 	t.Parallel()
 	db, err := postgres.Open()
 	require.NoError(t, err)
-	defer db.Close()
-
+	defer func() {
+		if err := db.Close(); err != nil {
+			require.NoError(t, err)
+		}
+	}()
 	if err := db.Ping(); err != nil {
 		// skip the test if the database is not available
 		return
