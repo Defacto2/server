@@ -61,7 +61,7 @@
   {{- $forApproval := and (eq .Deletedat.IsZero false) (eq .Deletedby.String "")}}
   {{- if and (ne $forApproval true) (eq $unYears true) (eq $noYears false) (eq .DateIssuedYear.Int16 0)}}
     {{- /*  
-        Create a break in the the iteration of the records when $noYears is true.
+        Create a break in the iteration of the records when $noYears is true.
         This should never display with search or order by date of records listings.
     */ -}}
     {{- $noYears = true}}
