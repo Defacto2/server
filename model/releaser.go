@@ -225,7 +225,7 @@ func (r *Releasers) FTP(ctx context.Context, exec boil.ContextExecutor) error {
 	return nil
 }
 
-// Magazine gets the unique magazine titles and their total issue count and file sizes.
+// MagazineAZ gets the unique magazine titles and their total issue count and file sizes.
 func (r *Releasers) MagazineAZ(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*r) > 0 {
 		return nil

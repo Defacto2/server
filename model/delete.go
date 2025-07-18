@@ -9,7 +9,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// One retrieves a single file record from the database using the record key.
+// DeleteOne retrieves a single file record from the database using the record key.
 // This function can return records that have been marked as deleted.
 func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key int64) error {
 	if invalidExec(exec) {

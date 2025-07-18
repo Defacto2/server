@@ -22,7 +22,7 @@
 {{- $editor := index .editor}}
 {{- $group := hasSuffix (index .title) " artifacts"}}
 {{- if eq $cnt 0}}<p class="text-start lead"><small>There are no artifacts to display.</small></p>{{else -}}
-<p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if ne $years "0 - 0"}} from {{$years | safeHTML}}{{end}}.</small></p>
+<p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if and (ne $years "0 - 0") (ne $years "the year 0")}} from {{$years | safeHTML}}{{end}}.</small></p>
 {{- end}}
 {{- if $linkTidbit}}
   <small class="fw-light">Additional information</small>
