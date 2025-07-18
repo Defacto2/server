@@ -164,16 +164,16 @@ func (p *Production) Get(id int) (int, error) {
 	if res.Body == nil {
 		return res.StatusCode, fmt.Errorf("get demozoo production client do returned nothing %w: %s", ErrStatus, res.Status)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
-		res.Body.Close()
+		_ = res.Body.Close()
 		return res.StatusCode, fmt.Errorf("get demozoo production %w: %s", ErrStatus, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body)
-		res.Body.Close()
+		_ = res.Body.Close()
 		return 0, fmt.Errorf("get demozoo production read all %w", err)
 	}
 	err = json.Unmarshal(body, &p)
@@ -351,7 +351,7 @@ func Site(title string) string {
 	return ""
 }
 
-// Authors parses Demozoo authors and reclassifies them into Defacto2 people rolls.
+// Releasers parses Demozoo authors and reclassifies them into Defacto2 people rolls.
 func (p *Production) Releasers() ([]string, []string, []string, []string) {
 	tx, co, gx, mu := []string{}, []string{}, []string{}, []string{}
 	for _, c := range p.Credits {

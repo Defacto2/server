@@ -5,7 +5,7 @@ package sixteen
 // URI is a the URL slug of the releaser.
 type URI string
 
-// Grouptag is the 16colors group tag.
+// GroupTag is the 16colors group tag.
 type GroupTag string
 
 // Groups is a map of releasers URIs mapped to their 16colors group tag.

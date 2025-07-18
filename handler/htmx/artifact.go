@@ -358,7 +358,7 @@ func RecordToggle(c echo.Context, db *sql.DB, state bool) error {
 	return c.String(http.StatusOK, "offline")
 }
 
-// RecordToggle handles the post submission for the file artifact record toggle.
+// RecordToggleByID handles the post submission for the file artifact record toggle.
 // The key string is converted into an integer and used as the artifact id.
 // The return value is either "online" or "offline" depending on the state.
 func RecordToggleByID(c echo.Context, db *sql.DB, key string, state bool) error {

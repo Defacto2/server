@@ -546,7 +546,7 @@ func LinkRelsPerf(a, b any) template.HTML {
 	return LinkReleasers(true, false, a, b)
 }
 
-// LinkBothReleasers returns the groups associated with a release and a link to each group.
+// LinkReleasers returns the groups associated with a release and a link to each group.
 // The performant flag will use the group name instead of the much slower group slug formatter.
 func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"

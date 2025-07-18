@@ -214,7 +214,7 @@ func ImageXY(name string) [2]string {
 	} else if err != nil {
 		return [2]string{err.Error(), ""}
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 	st, err := reader.Stat()
 	if err != nil {
 		return [2]string{err.Error(), ""}
@@ -371,7 +371,7 @@ func MagicAsTitle(name string) string {
 	if err != nil {
 		return noFile
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 	sign := magicnumber.Find(r)
 	return sign.Title()
 }
@@ -384,7 +384,7 @@ func MIME(name string) string {
 	if err != nil {
 		return noFile
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	const sample = 512
 	head := make([]byte, sample)

@@ -162,7 +162,7 @@ func repackZIP(name string) bool {
 	return false
 }
 
-func redundantArchive(modMagic interface{}) bool {
+func redundantArchive(modMagic any) bool {
 	switch modMagic.(type) {
 	case string:
 	default:
@@ -186,7 +186,7 @@ func redundantArchive(modMagic interface{}) bool {
 	}
 }
 
-func plainText(modMagic interface{}) bool {
+func plainText(modMagic any) bool {
 	switch modMagic.(type) {
 	case string:
 	default:
@@ -305,7 +305,7 @@ func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 		return 0, fmt.Errorf("dirs compress zip: %w", err)
 	}
 	if err = helper.RenameCrossDevice(src, dest); err != nil {
-		defer os.RemoveAll(src)
+		defer func() { _ = os.RemoveAll(src) }()
 		return 0, fmt.Errorf("dirs compress zip: %w", err)
 	}
 	st, err := os.Stat(dest)

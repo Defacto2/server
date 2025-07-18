@@ -170,7 +170,7 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string,
 	if err != nil {
 		return checkFileOpen(c, logger, name, err)
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 	hasher := sha512.New384()
 	const size = 4 * 1024
 	buf := make([]byte, size)
@@ -325,7 +325,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 		return "", c.HTML(http.StatusInternalServerError,
 			"The chosen file input cannot be opened")
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 
 	dst, err := os.CreateTemp(helper.TmpDir(), pattern)
 	if err != nil {
@@ -336,7 +336,7 @@ func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeade
 		return "", c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be created")
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err = io.CopyBuffer(dst, src, buf); err != nil {
@@ -535,27 +535,27 @@ func UploadPreview(c echo.Context, preview, thumbnail dir.Directory) error {
 	if err != nil {
 		return checkFileOpen(c, nil, name, err)
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 	pattern := name + "-*"
 	dst, err := os.CreateTemp(helper.TmpDir(), pattern)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be created")
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(dst, src, buf); err != nil {
 		return c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be written")
 	}
-	defer os.Remove(dst.Name())
+	defer func() { _ = os.Remove(dst.Name()) }()
 	dirs := command.Dirs{Preview: preview, Thumbnail: thumbnail}
 	src, err = file.Open()
 	if err != nil {
 		return checkFileOpen(c, nil, name, err)
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 	magic := magicnumber.Find(src)
 	if imagers(magic) {
 		if err := dirs.PictureImager(nil, dst.Name(), upload.unid); err != nil {
@@ -617,7 +617,7 @@ func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory
 	if err != nil {
 		return checkFileOpen(c, nil, name, err)
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 	fu := model.FileUpload{Filename: file.Filename, Filesize: file.Size}
 	hasher := sha512.New384()
 	const size = 4 * 1024
@@ -630,7 +630,7 @@ func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory
 	if err != nil {
 		return checkFileOpen(c, nil, name, err)
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 	lastmod := c.FormValue("artifact-editor-lastmodified")
 	lm, err := strconv.ParseInt(lastmod, 10, 64)
 	if err == nil && lm > 0 {
@@ -663,9 +663,9 @@ func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory
 	}
 	repack := filepath.Join(extra.Path(), upload.unid+".zip")
 	repack = filepath.Clean(repack)
-	defer os.Remove(repack)
+	defer func() { _ = os.Remove(repack) }()
 	if mkc, err := helper.MkContent(abs); err == nil {
-		defer os.RemoveAll(mkc)
+		defer func() { _ = os.RemoveAll(mkc) }()
 	}
 	return c.String(http.StatusOK,
 		fmt.Sprintf("The new file %s is in use, about to reload this page", file.Filename))

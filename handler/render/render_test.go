@@ -149,6 +149,6 @@ func TestNoScreenshot(t *testing.T) {
 	name := filepath.Join(helper.TmpDir(), unid) + ".webp"
 	err := helper.Touch(name)
 	require.NoError(t, err)
-	defer os.Remove(name)
+	defer func() { _ = os.Remove(name) }()
 	assert.False(t, render.NoScreenshot(&art, helper.TmpDir()))
 }

@@ -302,7 +302,7 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", "app", name}, pathSeparator)
 }
 
-// HasPrefix returns true if the string s ends with the suffix.
+// HasSuffix returns true if the string s ends with the suffix.
 func HasSuffix(s, suffix string) bool {
 	return strings.HasSuffix(s, suffix)
 }
@@ -488,7 +488,7 @@ func LinkScnrs(names string) template.HTML {
 		}
 		scnr, err := LinkScnr(val)
 		if err != nil {
-			fmt.Fprint(io.Discard, err)
+			_, _ = fmt.Fprint(io.Discard, err)
 			continue
 		}
 		linkr := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, cls, scnr, val)

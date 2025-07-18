@@ -65,7 +65,7 @@ func (c Cache) Write(key, value string, ttl time.Duration) error {
 	if err != nil {
 		return fmt.Errorf("cache write open rosedb %w", err)
 	}
-	defer cacheDB.Close()
+	defer func() { _ = cacheDB.Close() }()
 
 	if err := cacheDB.PutWithTTL([]byte(key), []byte(value), ttl); err != nil {
 		return fmt.Errorf("cache write save to rosedb %w", err)
@@ -86,7 +86,7 @@ func (c Cache) WriteNoExpire(key, value string) error {
 	if err != nil {
 		return fmt.Errorf("cache write no expire open rosedb %w", err)
 	}
-	defer cacheDB.Close()
+	defer func() { _ = cacheDB.Close() }()
 
 	if err := cacheDB.Put([]byte(key), []byte(value)); err != nil {
 		return fmt.Errorf("cache write no expire save to rosedb %w", err)
@@ -106,7 +106,7 @@ func (c Cache) Read(id string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cache read open rosedb %w", err)
 	}
-	defer cacheDB.Close()
+	defer func() { _ = cacheDB.Close() }()
 	key := []byte(id)
 	value, err := cacheDB.Get(key)
 	if err != nil {
@@ -127,7 +127,7 @@ func (c Cache) Delete(id string) error {
 	if err != nil {
 		return fmt.Errorf("cache delete open rosedb %w", err)
 	}
-	defer cacheDB.Close()
+	defer func() { _ = cacheDB.Close() }()
 
 	key := []byte(id)
 	if err := cacheDB.Delete(key); err != nil {

@@ -83,7 +83,7 @@ const (
 	CascadiaMonoTT               // CascadiaMonoTT is the path to the Cascadia Mono TrueType format font file.
 )
 
-// Names returns the absolute path of the public facing font files
+// FontNames returns the absolute path of the public facing font files
 // relative to the embed.FS root.
 func FontNames() *Fonts {
 	const public = "public/font"

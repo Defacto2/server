@@ -160,7 +160,7 @@ func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Di
 		b := []byte("error could not read the readme text file")
 		buf.Write(b)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	buf.Reset()
 	_, err = io.Copy(buf, f)
@@ -201,7 +201,7 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 		b := []byte("error could not read the diz file")
 		buf.Write(b)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	buf.Reset()
 	_, err = io.Copy(buf, f)

@@ -383,7 +383,7 @@ func Lookup(a any) []Territory {
 	}
 }
 
-// Lookup returns a list of territories that match the given inputs.
+// Lookups returns a list of territories that match the given inputs.
 //
 // See Lookup for more information.
 func Lookups(a ...any) []Territory {

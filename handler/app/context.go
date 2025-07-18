@@ -377,7 +377,7 @@ func Checksum(c echo.Context, db *sql.DB, id string) error {
 	return nil
 }
 
-// Code is the handler for the Coder sceners page.
+// Coder is the handler for the Coder sceners page.
 func Coder(c echo.Context, db *sql.DB) error {
 	data := empty(c)
 	title := "Coder and programmers"

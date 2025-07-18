@@ -53,7 +53,7 @@ func Checksum(c echo.Context, db *sql.DB, id string) error {
 	if err != nil {
 		return fmt.Errorf("file download checksum create tempdir: %w", err)
 	}
-	defer os.Remove(file.Name())
+	defer func() { _ = os.Remove(file.Name()) }()
 	if _, err := file.Write(body); err != nil {
 		return fmt.Errorf("file download checksum write: %w", err)
 	}

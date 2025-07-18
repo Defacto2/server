@@ -118,10 +118,10 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	}
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
-		res.Body.Close()
+		_ = res.Body.Close()
 		return DownloadResponse{}, fmt.Errorf("get file %w: %d", ErrStatus, res.StatusCode)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	download := DownloadResponse{
 		ContentLength: res.Header.Get("Content-Length"),
@@ -132,18 +132,18 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	dst, err := os.CreateTemp(helper.TmpDir(), "get-remotefile-*")
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
-		res.Body.Close()
+		_ = res.Body.Close()
 		return DownloadResponse{}, fmt.Errorf("get file create temp: %w", err)
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 
 	// Write the body to file
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(dst, res.Body, buf); err != nil {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
-		res.Body.Close()
-		defer os.Remove(dst.Name())
+		_ = res.Body.Close()
+		defer func() { _ = os.Remove(dst.Name()) }()
 		return DownloadResponse{}, fmt.Errorf("get file io copy: %w", err)
 	}
 	download.Path = dst.Name()

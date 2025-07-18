@@ -179,7 +179,7 @@ func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, download dir.Directory)
 func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) error {
 	files, err := archive.List(src, got.Filename)
 	if err != nil {
-		fmt.Fprint(io.Discard, err)
+		_, _ = fmt.Fprint(io.Discard, err)
 		return nil
 	}
 	got.Content = strings.Join(files, "\n")

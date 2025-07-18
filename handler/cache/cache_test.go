@@ -13,7 +13,10 @@ func TestCache(t *testing.T) {
 	t.Cleanup(func() {
 		// Remove cacheDB directory
 		path := filepath.Join(helper.TmpDir(), cache.SubDir)
-		os.RemoveAll(path)
+		err := os.RemoveAll(path)
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	const key = "key"

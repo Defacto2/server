@@ -43,7 +43,7 @@ func (t RecordsBy) Parent() string {
 	}[t]
 }
 
-// RecordsBy are the record groupings.
+// String RecordsBy are the record groupings.
 func (t RecordsBy) String() string {
 	const l = 7
 	if t >= l {

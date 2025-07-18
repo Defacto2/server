@@ -319,16 +319,16 @@ func (r *Response) Get(id int) (int, error) {
 	if res == nil {
 		return 0, http.ErrBodyNotAllowed
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
-		res.Body.Close()
+		_ = res.Body.Close()
 		return res.StatusCode, fmt.Errorf("get pouet production %w: %s", ErrStatus, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body)
-		res.Body.Close()
+		_ = res.Body.Close()
 		return 0, fmt.Errorf("get pouet production read all %w", err)
 	}
 	err = json.Unmarshal(body, &r)

@@ -235,7 +235,7 @@ func TestMkContent(t *testing.T) {
 	assert.Empty(t, s)
 	s = simple.MkContent("a string")
 	assert.Contains(t, s, "a string")
-	defer os.Remove(s)
+	defer func() { _ = os.Remove(s) }()
 }
 
 func TestReleasers(t *testing.T) {

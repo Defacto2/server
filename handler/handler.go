@@ -160,19 +160,25 @@ func (c *Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 			logger.Warnf("Could not print the brand logo: %s.", err)
 		}
 	} else if l > 0 {
-		fmt.Fprint(w, "\n\n")
+		_, err := fmt.Fprint(w, "\n\n")
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	fmt.Fprintf(w, "  %s.\n", flags.Copyright())
-	fmt.Fprintf(w, "%s\n", c.versionBrief())
+	_, err := fmt.Fprintf(w, "  %s.\n", flags.Copyright())
+	if err != nil {
+		panic(err)
+	}
+	_, _ = fmt.Fprintf(w, "%s\n", c.versionBrief())
 
 	cpuInfo := fmt.Sprintf("  %d active routines sharing %d usable threads on %d CPU cores.",
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
-	fmt.Fprintln(w, cpuInfo)
+	_, _ = fmt.Fprintln(w, cpuInfo)
 
 	golangInfo := fmt.Sprintf("  Compiled on Go %s for %s with %s.\n",
 		runtime.Version()[2:], flags.OS(), flags.Arch())
-	fmt.Fprintln(w, golangInfo)
+	_, _ = fmt.Fprintln(w, golangInfo)
 	//
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//
@@ -245,20 +251,38 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 		_ = logger.Sync() // do not check Sync errors as there can be false positives
 		out := os.Stdout
 		buf := bufio.NewWriter(out)
-		fmt.Fprintf(buf, "\n%s in %v ", alert, waitDuration)
-		buf.Flush()
+		_, err := fmt.Fprintf(buf, "\n%s in %v ", alert, waitDuration)
+		if err != nil {
+			panic(err)
+		}
+		err = buf.Flush()
+		if err != nil {
+			panic(err)
+		}
 		count := waitCount
 		pause := time.NewTicker(ticker)
 		for range pause.C {
 			count--
 			w := bufio.NewWriter(out)
 			if count <= 0 {
-				fmt.Fprintf(w, "\r%s %s\n", alert, "now     ")
-				w.Flush()
+				_, err := fmt.Fprintf(w, "\r%s %s\n", alert, "now     ")
+				if err != nil {
+					panic(err)
+				}
+				err = w.Flush()
+				if err != nil {
+					panic(err)
+				}
 				break
 			}
-			fmt.Fprintf(w, "\r%s in %ds ", alert, count)
-			w.Flush()
+			_, err = fmt.Fprintf(w, "\r%s in %ds ", alert, count)
+			if err != nil {
+				panic(err)
+			}
+			err = w.Flush()
+			if err != nil {
+				panic(err)
+			}
 		}
 		select {
 		case <-quit:

@@ -409,7 +409,7 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 	if r == nil {
 		return skipEntry
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 	e.sign = magicnumber.Find(r)
 	platform = strings.TrimSpace(platform)
 	e.image = isImage(e.sign)
@@ -440,7 +440,7 @@ func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
 	if r == nil {
 		return skipEntry
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 	config, format, err := image.DecodeConfig(r)
 	if err == nil {
 		e.format = fmt.Sprintf("%s image, %dx%d", format, config.Width, config.Height)
@@ -452,7 +452,7 @@ func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
 		if r == nil {
 			return skipEntry
 		}
-		defer r.Close()
+		defer func() { _ = r.Close() }()
 		x, y := magicnumber.IlbmDecode(r)
 		e.format = fmt.Sprintf("ILBM image, %dx%d", x, y)
 	default:
@@ -467,7 +467,7 @@ func (e *entry) parseProgram(path string) bool {
 	if r == nil {
 		return skipEntry
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 	exec, err := magicnumber.FindExecutable(r)
 	if err == nil {
 		e.exec = exec
@@ -481,7 +481,7 @@ func (e *entry) parseMusicMod(path string) bool {
 	if r == nil {
 		return skipEntry
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 	e.module = magicnumber.MusicTracker(r)
 	return !skipEntry
 }
@@ -499,7 +499,7 @@ func (e *entry) parseMusicID3(path string) bool {
 	if id3 == nil {
 		return skipEntry
 	}
-	defer id3.Close()
+	defer func() { _ = id3.Close() }()
 	if s := magicnumber.MusicID3v2(id3); s != "" {
 		e.module = s
 		return !skipEntry
@@ -1091,7 +1091,7 @@ func JsdosSound(art *models.File) string {
 	return ""
 }
 
-// jsdosUse returns true if the file record is a known, MS-DOS executable.
+// JsdosUse returns true if the file record is a known, MS-DOS executable.
 // The supported file types are .zip archives and .exe, .com. binaries.
 // Script files such as .bat and .cmd are not supported.
 func JsdosUse(art *models.File) bool {
