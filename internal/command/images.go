@@ -46,10 +46,12 @@ func ImagesDelete(unid string, dirs ...string) error {
 		for ext := range slices.Values(ImagesExt()) {
 			name := filepath.Join(dir, unid+ext)
 			if _, err := os.Stat(name); err != nil {
-				fmt.Fprint(io.Discard, err)
+				_, _ = fmt.Fprint(io.Discard, err)
 				continue
 			}
-			os.Remove(name)
+			if err := os.Remove(name); err != nil {
+				_, _ = fmt.Fprintln(os.Stderr, err)
+			}
 		}
 	}
 	return nil
@@ -80,7 +82,7 @@ func ImagesPixelate(unid string, dirs ...string) error {
 		for ext := range slices.Values(ImagesExt()) {
 			name := filepath.Join(dir, unid+ext)
 			if _, err := os.Stat(name); err != nil {
-				fmt.Fprint(io.Discard, err)
+				_, _ = fmt.Fprint(io.Discard, err)
 				continue
 			}
 			args := Args{}
@@ -184,7 +186,7 @@ func (align Align) Thumbs(unid string, preview, thumbnail dir.Directory) error {
 		}
 		dst := thumbnail.Join(unid + ext)
 		if err := CopyFile(nil, tmp, dst); err != nil {
-			fmt.Fprint(io.Discard, err)
+			_, _ = fmt.Fprint(io.Discard, err)
 			return nil
 		}
 	}
@@ -241,7 +243,7 @@ func (crop Crop) Images(unid string, preview dir.Directory) error {
 		}
 		dst := preview.Join(unid + ext)
 		if err := CopyFile(nil, tmp, dst); err != nil {
-			fmt.Fprint(io.Discard, err)
+			_, _ = fmt.Fprint(io.Discard, err)
 			return nil
 		}
 	}
@@ -314,7 +316,7 @@ func TextCrop(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("text crop open %w", err)
 	}
-	defer scan.Close()
+	defer func() { _ = scan.Close() }()
 	if magicnumber.CSI(scan) {
 		return fmt.Errorf("text crop %w: %s", ErrANSI, src)
 	}
@@ -322,11 +324,11 @@ func TextCrop(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("text crop create %w", err)
 	}
-	defer create.Close()
+	defer func() { _ = create.Close() }()
 
 	scanner := bufio.NewScanner(scan)
 	writer := bufio.NewWriter(create)
-	defer writer.Flush()
+	defer func() { _ = writer.Flush() }()
 
 	const maxColumns, maxRows = 80, 29
 	rowCount := 0
@@ -489,7 +491,12 @@ func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
 	}()
 	// Wait for the goroutines to finish before deleting the temp file
 	wg.Wait()
-	defer os.Remove(tmp)
+	defer func() {
+		err := os.Remove(tmp)
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+		}
+	}()
 	return errs
 }
 
@@ -510,7 +517,12 @@ func (dir Dirs) PreviewPixels(debug *zap.SugaredLogger, src, unid string) error 
 	if err != nil {
 		return fmt.Errorf("preview pixel make dir temp %w", err)
 	}
-	defer os.RemoveAll(tmpDir)         // remove temp dir
+	defer func() {
+		err := os.RemoveAll(tmpDir) // remove temp dir
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+		}
+	}()
 	tmp := filepath.Join(tmpDir, name) // temp output file target
 	arg = append(arg, tmp)
 	if err := RunQuiet(Magick, arg...); err != nil {
@@ -540,8 +552,12 @@ func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 	if err != nil {
 		return fmt.Errorf("preview photo make dir temp %w", err)
 	}
-	defer os.RemoveAll(tmpDir) // remove temp dir
-
+	defer func() {
+		err := os.RemoveAll(tmpDir) // remove temp dir
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+		}
+	}()
 	jtmp := filepath.Join(tmpDir, name) // temp output file target
 	arg = append(arg, jtmp)             // destination
 	if err := RunQuiet(Magick, arg...); err != nil {
@@ -560,7 +576,7 @@ func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 	jst, err1 := os.Stat(jtmp)
 	wst, err2 := os.Stat(wtmp)
 	if err1 != nil || err2 != nil {
-		fmt.Fprint(io.Discard, err1, err2)
+		_, _ = fmt.Fprint(io.Discard, err1, err2)
 	} else {
 		dst := filepath.Join(dir.Preview.Path(), unid+webp)
 		if jpegSmaller := jst.Size() < wst.Size(); jpegSmaller {
@@ -611,7 +627,12 @@ func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
 		err = dir.ThumbPixels(tmp, unid)
 	}()
 	wg.Wait()
-	defer os.Remove(tmp)
+	defer func() {
+		err := os.Remove(tmp)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+	}()
 	if err != nil {
 		return fmt.Errorf("gif2webp thumbnail %w", err)
 	}
@@ -670,7 +691,12 @@ func (dir Dirs) PreviewWebP(debug *zap.SugaredLogger, src, unid string) error {
 	if err := CopyFile(debug, tmp, dst); err != nil {
 		return fmt.Errorf("preview webp copy file %w", err)
 	}
-	defer os.Remove(tmp)
+	defer func() {
+		err := os.Remove(tmp)
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+		}
+	}()
 	return nil
 }
 
@@ -937,7 +963,12 @@ func (dir Dirs) ThumbPixels(src, unid string) error {
 	if err := RunQuiet(Cwebp, arg...); err != nil {
 		return fmt.Errorf("ansi to cwebp %w", err)
 	}
-	defer os.Remove(tmp)
+	defer func() {
+		err := os.Remove(tmp)
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+		}
+	}()
 	return nil
 }
 
@@ -966,7 +997,12 @@ func (dir Dirs) ThumbPhoto(src, unid string) error {
 	if err := RunQuiet(Cwebp, arg...); err != nil {
 		return fmt.Errorf("run cwebp %w", err)
 	}
-	defer os.Remove(tmp)
+	defer func() {
+		err := os.Remove(tmp)
+		if err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+		}
+	}()
 	return nil
 }
 
@@ -1042,7 +1078,7 @@ func findName(root, name string) string {
 	result := ""
 	_ = filepath.Walk(root, func(path string, _ os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Fprint(io.Discard, err)
+			_, _ = fmt.Fprint(io.Discard, err)
 			return nil
 		}
 		if filepath.Base(path) == name {
