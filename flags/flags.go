@@ -97,7 +97,12 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 			if err != nil {
 				return fmt.Errorf("command address: %w", err)
 			}
-			defer fmt.Fprintf(w, "%s\n", s)
+			defer func() {
+				_, err := fmt.Fprintf(w, "%s\n", s)
+				if err != nil {
+					panic(err)
+				}
+			}()
 			return nil
 		},
 	}
@@ -114,10 +119,18 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
-			defer fmt.Fprintf(w, "%s\n", c.String())
+			defer func() {
+				_, err := fmt.Fprintf(w, "%s\n", c.String())
+				if err != nil {
+					panic(err)
+				}
+			}()
 			defer func() {
 				b := new(strings.Builder)
-				fmt.Fprintf(w, "%s\n", b.String())
+				_, err := fmt.Fprintf(w, "%s\n", b.String())
+				if err != nil {
+					panic(err)
+				}
 			}()
 			return nil
 		},
