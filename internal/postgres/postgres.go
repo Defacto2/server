@@ -43,7 +43,9 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	if err := rows.Err(); err != nil {
 		return 0, 0, fmt.Errorf("postgres rows, %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 	count := int64(0)
 	for rows.Next() {
 		count++
@@ -55,7 +57,9 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	if err := maxConn.Err(); err != nil {
 		return 0, 0, fmt.Errorf("postgres rows, %w", err)
 	}
-	defer maxConn.Close()
+	defer func() {
+		_ = maxConn.Close()
+	}()
 	var maxConnections int64
 	for maxConn.Next() {
 		if err := maxConn.Scan(&maxConnections); err != nil {
@@ -65,9 +69,9 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	return count, maxConnections, nil
 }
 
-// Opens a new connection to the PostgreSQL database.
+// Open a new connection to the PostgreSQL database.
 // Only one connection is needed for the entire application as it is thread-safe
-// and can be used repeatedly used.
+// and can be used repeatedly.
 //
 // The connection should be closed after the application exits.
 func Open() (*sql.DB, error) {

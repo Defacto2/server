@@ -39,8 +39,10 @@ func (d Directory) Check() error {
 		return ErrSave
 	}
 	defer func() {
-		tmp.Close()
-		os.Remove(tmp.Name())
+		_ = tmp.Close()
+		if err := os.Remove(tmp.Name()); err != err {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+		}
 	}()
 	return nil
 }
