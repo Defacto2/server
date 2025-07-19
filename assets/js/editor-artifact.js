@@ -38,7 +38,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
   }
   const artifactEditor = document.getElementById("artifact-editor-modal");
   const artifactEditors = document.getElementsByName(
-    "artifact-editor-dataeditor"
+    "artifact-editor-dataeditor",
   );
   artifactEditor.addEventListener("shown.bs.modal", () => {
     activeBtn(artifactEditors)();
@@ -56,7 +56,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
   });
   const emulateEditor = document.getElementById("emulate-editor-modal");
   const emulateEditors = document.getElementsByName(
-    "artifact-editor-emueditor"
+    "artifact-editor-emueditor",
   );
   emulateEditor.addEventListener("shown.bs.modal", () => {
     activeBtn(emulateEditors)();
@@ -91,7 +91,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     throw new Error("The key label is missing.");
   }
   aekl.addEventListener(`click`, () =>
-    clipValue(`artifact-dataeditor-key-value`)
+    clipValue(`artifact-dataeditor-key-value`),
   );
 
   const afkv = getElmById(`artifact-fileeditor-key-value`);
@@ -103,7 +103,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     throw new Error("The key label is missing.");
   }
   afkl.addEventListener(`click`, () =>
-    clipValue(`artifact-fileeditor-key-value`)
+    clipValue(`artifact-fileeditor-key-value`),
   );
 
   const udid = getElmById(`artifact-dataeditor-unique-id-value`);
@@ -115,7 +115,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     throw new Error("The unique id label is missing.");
   }
   udidl.addEventListener(`click`, () =>
-    clipValue(`artifact-dataeditor-unique-id-value`)
+    clipValue(`artifact-dataeditor-unique-id-value`),
   );
 
   const ufid = getElmById(`artifact-fileeditor-unique-id-value`);
@@ -127,7 +127,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     throw new Error("The unique id label is missing.");
   }
   ufidl.addEventListener(`click`, () =>
-    clipValue(`artifact-fileeditor-unique-id-value`)
+    clipValue(`artifact-fileeditor-unique-id-value`),
   );
 
   const locv = getElmById(`artifact-editor-location-value`);
@@ -139,7 +139,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     throw new Error("The location label is missing.");
   }
   locvl.addEventListener(`click`, () =>
-    clipValue(`artifact-editor-location-value`)
+    clipValue(`artifact-editor-location-value`),
   );
 
   const tmploc = getElmById(`artifact-editor-templocation`);
@@ -147,7 +147,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     const tmplocl = getElmById(`artifact-editor-templocation-label`);
     if (tmplocl !== null) {
       tmplocl.addEventListener(`click`, () =>
-        clipValue(`artifact-editor-templocation`)
+        clipValue(`artifact-editor-templocation`),
       );
     }
   }
@@ -275,7 +275,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     const revert1 = rel1.getAttribute("data-reset-rel1");
     if (revert1 === null) {
       throw new Error(
-        "data-reset-rel1 attribute is required for artifact-editor-releaser-1."
+        "data-reset-rel1 attribute is required for artifact-editor-releaser-1.",
       );
     }
     rel1.value = revert1;
@@ -283,7 +283,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     const revert2 = rel2.getAttribute("data-reset-rel2");
     if (revert2 === null) {
       throw new Error(
-        "data-reset-rel2 attribute is required for artifact-editor-releaser-2."
+        "data-reset-rel2 attribute is required for artifact-editor-releaser-2.",
       );
     }
     rel2.value = revert2;
@@ -410,23 +410,27 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     if (val >= 79 && val <= 99) {
       year.value = 1900 + val;
     }
-    validateDate(year, month, day);
+    validateDate(year, month, day, unknownDate);
   });
   const month = document.getElementById("artifact-editor-month");
   if (month === null) {
     throw new Error("The month input is missing.");
   }
   month.addEventListener("input", () => {
-    validateDate(year, month, day);
+    validateDate(year, month, day, unknownDate);
   });
   const day = document.getElementById("artifact-editor-day");
   if (day === null) {
     throw new Error("The day input is missing.");
   }
   day.addEventListener("input", () => {
-    validateDate(year, month, day);
+    validateDate(year, month, day, unknownDate);
   });
 
+  let unknownDate = false;
+  if (year.value == 0 && month.value == 0 && day.value == 0) {
+    unknownDate = true;
+  }
   const dateReset = document.getElementById("artifact-editor-date-reset");
   if (dateReset === null) {
     throw new Error("The date reset is missing.");
@@ -480,7 +484,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
       month.value = mm;
       day.value = md;
       const submitValues = document.getElementById(
-        "artifact-editor-date-update"
+        "artifact-editor-date-update",
       );
       if (submitValues !== null) {
         submitValues.click();
@@ -492,7 +496,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     throw new Error("The comment reset is missing.");
   }
   const cmmtResetter = document.getElementById(
-    "artifact-editor-comment-resetter"
+    "artifact-editor-comment-resetter",
   );
   if (cmmtResetter === null) {
     throw new Error("The comment resetter is missing.");
@@ -507,7 +511,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     // do nothing as the date last mod input is optional
   } else {
     const dateLastModder = document.getElementById(
-      "artifact-editor-date-lastmodder"
+      "artifact-editor-date-lastmodder",
     );
     if (dateLastModder === null) {
       throw new Error("The date last modder input is missing.");
@@ -548,7 +552,7 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
   }
   const colors16 = document.getElementById("artifact-editor-16colors");
   const colors16Reset = document.getElementById(
-    "artifact-editor-16colors-reset"
+    "artifact-editor-16colors-reset",
   );
   if (colors16 === null || colors16Reset === null) {
     throw new Error("A 16colors input is missing.");
@@ -560,14 +564,14 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
   }
   const relations = document.getElementById("artifact-editor-relations");
   const relationsReset = document.getElementById(
-    "artifact-editor-relations-reset"
+    "artifact-editor-relations-reset",
   );
   if (relations === null || relationsReset === null) {
     throw new Error("A relations input is missing.");
   }
   const websites = document.getElementById("artifact-editor-websites");
   const websitesReset = document.getElementById(
-    "artifact-editor-websites-reset"
+    "artifact-editor-websites-reset",
   );
   if (websites === null || websitesReset === null) {
     throw new Error("A websites input is missing.");
@@ -603,13 +607,13 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
     setTimeout(() => {
       youtube.value = youtube.value.replace(
         /https?:\/\/www\.youtube\.com\/watch\?v=/,
-        ""
+        "",
       );
     }, 0);
   });
   youtube.addEventListener("input", (e) => validateYouTube(e.target));
   demozoo.addEventListener("input", (e) =>
-    validateNumber(e.target, demozooSanity)
+    validateNumber(e.target, demozooSanity),
   );
   pouet.addEventListener("input", (e) => validateNumber(e.target, pouetSanity));
   // on paste event for websites remove the https://16colo.rs/ URL

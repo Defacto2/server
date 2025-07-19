@@ -9,9 +9,10 @@
  * @param {HTMLInputElement} yearInput - The input element for the year.
  * @param {HTMLInputElement} monthInput - The input element for the month.
  * @param {HTMLInputElement} dayInput - The input element for the day.
+ * @param {Boolean} unknown - Are year, month, day loaded as 0 values.
  * @throws {Error} If any of the input elements are null.
  */
-export function date(yearInput, monthInput, dayInput) {
+export function date(yearInput, monthInput, dayInput, unknown) {
   if (yearInput == null) {
     throw new Error("The year input element is null.");
   }
@@ -64,6 +65,16 @@ export function date(yearInput, monthInput, dayInput) {
   }
   if ((month == none || isNaN(month)) && validDay) {
     monthInput.classList.add("is-invalid");
+  }
+
+  // This is a little modification to automatically submit the date whenever
+  // the following occures. The form is loaded with year, month, day values of 0
+  // and that the year, month, day have been updated with valid values.
+  if (unknown == false) return;
+  if (validYear == false || validMonth == false || validDay == false) return;
+  const submitValues = document.getElementById("artifact-editor-date-update");
+  if (submitValues !== null) {
+    submitValues.click();
   }
 }
 
