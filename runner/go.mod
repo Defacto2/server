@@ -1,6 +1,6 @@
 module github.com/Defacto2/server/runner
 
-go 1.24.1
+go 1.24.5
 
 require github.com/evanw/esbuild v0.25.1
 
