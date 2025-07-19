@@ -366,7 +366,7 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 
 func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 	uid, root, platform string,
-	modMagic interface{},
+	modMagic any,
 	data map[string]any,
 ) map[string]any {
 	name := filepath.Join(dir.Download.Path(), uid)
@@ -691,33 +691,35 @@ func embedText(art *models.File, data map[string]any, b ...byte) (map[string]any
 		data["vgaCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	}
-	var readme string
+	var readme1, readme2 string
 	var err error
 	switch textEncoding {
 	case unicode.UTF8:
 		// unicode should apply to both latin1 and cp437
-		readme, err = decode(bytes.NewReader(b))
+		readme1, err = decode(bytes.NewReader(b))
 		if err != nil {
 			return data, fmt.Errorf("unicode utf8 decode: %w", err)
 		}
-		data["readmeLatin1"] = readme
-		data["readmeCP437"] = readme
+		data["readmeLatin1"] = readme1
+		data["readmeCP437"] = readme1
+		data["readmeLines"] = strings.Count(readme1, "\n")
+		data["readmeRows"] = helper.MaxLineLength(readme1)
 	default:
 		d := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
-		readme, err = decode(d)
+		readme2, err = decode(d)
 		if err != nil {
 			return data, fmt.Errorf("iso8859_1 decode: %w", err)
 		}
-		data["readmeLatin1"] = readme
+		data["readmeLatin1"] = readme2
 		d = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
-		readme, err = decode(d)
+		readme2, err = decode(d)
 		if err != nil {
 			return data, fmt.Errorf("codepage437 decode: %w", err)
 		}
-		data["readmeCP437"] = readme
+		data["readmeCP437"] = readme2
+		data["readmeLines"] = strings.Count(readme2, "\n")
+		data["readmeRows"] = helper.MaxLineLength(readme2)
 	}
-	data["readmeLines"] = strings.Count(readme, "\n")
-	data["readmeRows"] = helper.MaxLineLength(readme)
 	return data, nil
 }
 

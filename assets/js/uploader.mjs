@@ -85,7 +85,7 @@ export async function checkSHA(file) {
   });
   if (!response.ok) {
     throw new Error(
-      `Hashing is not possible, server response: ${response.status}`
+      `Hashing is not possible, server response: ${response.status}`,
     );
   }
   const responseText = await response.text();
@@ -131,7 +131,7 @@ export function progress(formId, elementId) {
       .find(`#${elementId}`)
       .setAttribute(
         "value",
-        (event.detail.loaded / event.detail.total) * percentage
+        (event.detail.loaded / event.detail.total) * percentage,
       );
   });
 }
@@ -261,7 +261,9 @@ export async function checkDuplicate(file, alert, fileInput, results) {
   try {
     const alreadyExists = await checkSHA(file);
     if (alreadyExists == "") {
-      alert.innerText = ``;
+      // 19-Jul-25: This resetting of the innerText was causing issue #35.
+      // https://github.com/Defacto2/server/issues/35
+      //alert.innerText = ``;
       return;
     }
     uriID = alreadyExists;
