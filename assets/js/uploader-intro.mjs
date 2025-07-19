@@ -9,7 +9,6 @@ import {
   checkErrors,
   checkSize,
   checkMonth,
-  checkYear,
   checkValue,
   checkYouTube,
   hiddenDetails,
@@ -45,9 +44,36 @@ form.addEventListener("reset", function () {
 fileInput.addEventListener("change", checkFile);
 title.addEventListener("paste", formatPaste);
 releaser1.addEventListener("input", checkValue);
-year.addEventListener("input", checkYear);
 month.addEventListener("input", checkMonth);
 youtube.addEventListener("input", checkYouTube);
+year.addEventListener("input", function () {
+  const currentYear = new Date().getFullYear();
+  // year values of 80-99 will automatically be prefixed with a 19, aka 1980-1999.
+  const comp19 = parseInt(this.value) + 1900;
+  if (comp19 >= 1980 && comp19 < 2000 && year.value.length == 2) {
+    year.value = comp19;
+    year.classList.remove(invalid);
+    return;
+  }
+  // year values of 00 through to the current year will automatically be prefixed with a 20, aka 2000-2025.
+  // however, year values of 19(xx) and 20(xx) are ignored as they create a weird UI situation when users edit year values.
+  const comp20 = parseInt(this.value) + 2000;
+  if (
+    comp20 >= 2000 &&
+    comp20 <= currentYear &&
+    comp20 != 2019 &&
+    comp20 != 2020 &&
+    year.value.length == 2
+  ) {
+    year.value = comp20;
+    year.classList.remove(invalid);
+    return;
+  }
+  if (validYear(this.value) == false) {
+    this.classList.add(invalid);
+  }
+  this.classList.remove(invalid);
+});
 
 /**
  * After performing input validations this submits the form when the specified element is clicked.
