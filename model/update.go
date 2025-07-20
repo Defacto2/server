@@ -328,6 +328,9 @@ func UpdateInt64From(db *sql.DB, column int64From, id int64, val string) error {
 	if err != nil {
 		return fmt.Errorf("find file for %q: %w", column, err)
 	}
+	if strings.TrimSpace(val) == "" {
+		val = "0"
+	}
 	i64, err := strconv.ParseInt(val, 10, 64)
 	if err != nil {
 		return fmt.Errorf("%s: %w", val, err)
@@ -339,10 +342,10 @@ func UpdateInt64From(db *sql.DB, column int64From, id int64, val string) error {
 	case i64 == 0 && column == pouetProd:
 		f.WebIDPouet = null.Int64FromPtr(nil)
 	case column == demozooProd:
-		invalid = i64 < 0 || i64 > DemozooSanity
+		invalid = i64 < 1 || i64 > DemozooSanity
 		f.WebIDDemozoo = null.Int64From(i64)
 	case column == pouetProd:
-		invalid = i64 < 0 || i64 > pouet.Sanity
+		invalid = i64 < 1 || i64 > pouet.Sanity
 		f.WebIDPouet = null.Int64From(i64)
 	default:
 		return fmt.Errorf("updateint64from: %w", ErrColumn)

@@ -1700,7 +1700,6 @@ func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-
 	cp := cache.PouetVote
 	if s, err := cp.Read(id); err == nil {
 		if err := PouetCache(c, s); err == nil {

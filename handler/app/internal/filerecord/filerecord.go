@@ -988,7 +988,9 @@ func IdenficationPouet(art *models.File) string {
 	}
 	if art.WebIDPouet.Valid {
 		id := art.WebIDPouet.Int64
-		return strconv.FormatInt(id, 10)
+		if valid := id > 0; valid {
+			return strconv.FormatInt(id, 10)
+		}
 	}
 	return ""
 }

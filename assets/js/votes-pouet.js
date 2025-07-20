@@ -24,6 +24,9 @@
     return;
 
   const prodID = element.innerHTML.trim();
+  if (prodID == 0) {
+    return;
+  }
   console.info(`Requesting the Pouët API for production #${prodID}`);
   fetch(url(prodID), {
     method: `GET`,

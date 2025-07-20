@@ -753,9 +753,6 @@ func RecordDemozoo(c echo.Context, db *sql.DB) error {
 func RecordPouet(c echo.Context, db *sql.DB) error {
 	key := c.FormValue(editorKey)
 	newProd := c.FormValue("artifact-editor-pouet")
-	if newProd == "" {
-		newProd = "0"
-	}
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
