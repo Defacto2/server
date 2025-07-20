@@ -311,6 +311,7 @@ func (p *Production) Groups() (string, string) {
 	var a, b string
 	if s := Site(p.Title); s != "" {
 		a = s
+		p.Title = "" // delete the title if it matches or is similar to the site name.
 	}
 	// range through author nicks for any group matches
 	for _, nick := range p.Authors {
