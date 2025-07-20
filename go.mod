@@ -20,6 +20,7 @@ require (
 	github.com/labstack/echo-contrib v0.17.4
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/lib/pq v1.10.9
+	github.com/nalgeon/be v0.2.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
 	github.com/stretchr/testify v1.10.0
 	github.com/subpop/go-ini v0.1.5

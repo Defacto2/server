@@ -10,11 +10,13 @@ import (
 	"io"
 	"math"
 	"net/url"
+	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/google/uuid"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -156,7 +158,6 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	creditI := ValidSceners(values.Get(key + "-creditill"))
 	creditP := ValidSceners(values.Get(key + "-creditprog"))
 	creditA := ValidSceners(values.Get(key + "-creditaudio"))
-
 	f.WebIDYoutube = youtube
 	f.GroupBrandFor = releaser1
 	f.GroupBrandBy = releaser2
@@ -172,12 +173,28 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	f.FileLastModified = lastMod
 	f.FileZipContent = fileZipFix(content)
 	f.Platform = platform
-	f.Section = section
+	f.Section = SiteAd(releaser1, section)
 	f.CreditText = creditT
 	f.CreditIllustration = creditI
 	f.CreditProgram = creditP
 	f.CreditAudio = creditA
 	return f, nil
+}
+
+// SiteAd will replace a tags.Nfo section to either tags.BBS or tags.Ftp if the releaser
+// is a known BBS board or FTP site. Otherwise the supplied section is returned.
+func SiteAd(releaser, section null.String) null.String {
+	if !strings.EqualFold(section.String, tags.Nfo.String()) {
+		return section
+	}
+	rel := strings.TrimSpace(strings.ToLower(releaser.String))
+	if strings.HasSuffix(rel, " ftp") {
+		return null.StringFrom(tags.Ftp.String())
+	}
+	if strings.HasSuffix(rel, " bbs") {
+		return null.StringFrom(tags.BBS.String())
+	}
+	return section
 }
 
 // fileZipFix fixes the file content for ZIP files that have DOS file or directory names
