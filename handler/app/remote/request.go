@@ -18,6 +18,7 @@ const (
 	// User-Agent to send with the HTTP request.
 	UserAgent = "Defacto2 Uploader form submission, thanks!"
 
+	zero = 0 // timeouts in seconds, a 0 value means no timeout
 	five = 5
 	ten  = 10
 )

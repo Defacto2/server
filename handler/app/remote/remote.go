@@ -72,28 +72,18 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Direct
 	if statusCode > 0 {
 		return fmt.Errorf("record %d, status code: %d: %w", got.ID, statusCode, ErrNF)
 	}
+	// Originally we would return an error and abort the database record update if the download link
+	// could not be fetched. However, this happens too frequently with some of the more popular Scene
+	// websites such as scene.org frequently timing out with requests. So, as of 20-Jul-25, the
+	// behavior now updates the record even when the download fails.
 	for i, link := range prod.DownloadLinks {
 		if link.URL == "" {
 			continue
 		}
-		dlr, err := getRemoteFile(prod, i, link.URL)
-		if err != nil {
-			return err
-		} else if dlr == (DownloadResponse{}) {
-			continue
-		}
+		// append demozoo record metadata
 		base := filepath.Base(link.URL)
 		dst := filepath.Join(download.Path(), got.UUID)
 		got.Filename = base
-		if err := renfow(dlr.Path, dst); err != nil {
-			return err
-		}
-		size, err := strconv.Atoi(dlr.ContentLength)
-		if err == nil {
-			got.FileSize = size
-		}
-		got.Filename = base
-		got.Error = ""
 		got.Github = prod.GithubRepo()
 		got.Pouet = prod.PouetProd()
 		got.YouTube = prod.YouTubeVideo()
@@ -113,6 +103,27 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Direct
 		plat, sect := prod.SuperType()
 		got.Platform = plat.String()
 		got.Section = sect.String()
+		// attempt to download the remote file, if this task fails however, we update the record
+		// with the demozoo metadata.
+		dlr, errDlr := getRemoteFile(prod, i, link.URL)
+		if errDlr != nil {
+			if errUp := got.Update(c, db); errUp != nil {
+				return errUp
+			}
+			return errDlr
+		} else if dlr == (DownloadResponse{}) {
+			continue
+		}
+		// assuming the download link was successful in being fetched,
+		// we now obtain the file's metadata and incorporate those into the database record.
+		if err := renfow(dlr.Path, dst); err != nil {
+			return err
+		}
+		size, err := strconv.Atoi(dlr.ContentLength)
+		if err == nil {
+			got.FileSize = size
+		}
+		got.Error = ""
 		return got.Stat(c, db, download)
 	}
 	got.Error = "no usable download links found, they returned 404 or were empty"
