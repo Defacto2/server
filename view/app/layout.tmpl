@@ -220,7 +220,7 @@
                   </svg> Mastodon</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-bluesky-modal">
                     <svg class="bi bi-bluesky" width="16" height="16" fill="currentColor">
-                      {{/*  <use xlink:href="/svg/bootstrap-icons.svg#bluesky"/>  */}}
+                    <use xlink:href="/svg/bootstrap-icons.svg#bluesky"/>
                   </svg> Bluesky</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-facebook-modal">
                   <svg class="bi bi-facebook" width="16" height="16" fill="currentColor">
@@ -258,14 +258,16 @@
                 <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#terms-modal">Glossary of terms</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Source code &amp; data</h6></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyright-modal">Copyright</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">GitHub &amp; data</h6></li>
                 <li>{{ linkRemoteTip "https://github.com/Defacto2/server" "Website" "Our GitHub repository for this site" }}</li>
                 <li>{{ linkRemoteTip "https://github.com/Defacto2/database" "Database" "Instructions for our PostgreSQL exports" }}</li>
                 <li>{{ linkRemoteTip "https://github.com/sceners" "Artifacts" "Over 150 repositories for scene demos, tools and apps" }}</li>
                 <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#t-a-v-modal">Trojans and viruses?</a></li>
+                <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Using the downloads</h6></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#t-a-v-modal">Trojans and viruses?!</a></li>
                 <li>{{ linkWikiTip "#troubleshoot-error-messages" "Common problems" "Tips for using file artifact downloads" }}</li>
                 <li>{{ linkWikiTip "What-are-DOS-Programs" "DOS programs" "What are MS-DOS programs" }}</li>
                 <li>{{ linkWikiTip "What-are-RAR-7z-ZIP-ACE-files" "Compressed files" "What are RAR, 7z, ZIP, and ACE files" }}</li>
