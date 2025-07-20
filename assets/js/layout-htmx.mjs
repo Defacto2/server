@@ -82,7 +82,7 @@ export function htmxEvents() {
     afterReset(
       event,
       `artifact-editor-filename-reset`,
-      `artifact-editor-filename`
+      `artifact-editor-filename`,
     );
     // record virustotal.
     afterUpdate(event, `artifact-editor-virustotal`);
@@ -101,7 +101,7 @@ export function htmxEvents() {
     afterReset(
       event,
       `artifact-editor-comment-undo`,
-      `artifact-editor-comment`
+      `artifact-editor-comment`,
     );
     // record links.
     afterUpdate(event, `artifact-editor-youtube`);
@@ -470,7 +470,10 @@ function resetFile(event, selector) {
  */
 function errorXhr(alertElm, event) {
   const xhr = event.detail.xhr;
-  alertElm.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
+  alertElm.innerText = `Our server is not working at the moment.`;
+  console.log(
+    `XHR request did not work, ${xhr.status} status: ${xhr.responseText}.`,
+  );
   alertElm.classList.remove("d-none");
 }
 
