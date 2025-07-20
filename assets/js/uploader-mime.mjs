@@ -10,6 +10,7 @@ const arc = "application/x-freearc",
   rar = "application/vnd.rar",
   tar = "application/x-tar",
   zip = "application/zip",
+  zipx = "application/x-zip-compressed",
   zip7 = "application/x-7z-compressed";
 
 const dos = "application/x-msdos-program";
@@ -45,7 +46,7 @@ export function apps() {
 }
 
 export function archives() {
-  const allowedTypes = [arc, arj, bz, bz2, gzip, rar, tar, zip, zip7];
+  const allowedTypes = [arc, arj, bz, bz2, gzip, rar, tar, zip, zipx, zip7];
   return allowedTypes;
 }
 
