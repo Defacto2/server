@@ -684,7 +684,8 @@ func creatorFix(s string) string {
 
 // RecordCreatorReset handles the post submission for the file artifact creators reset.
 func RecordCreatorReset(c echo.Context, db *sql.DB) error {
-	reset := c.FormValue("artifact-editor-credit-undo")
+	// form values must be the "name" value of html elements
+	reset := c.FormValue("artifact-editor-creditsundo")
 	textval := c.FormValue("artifact-editor-credittext")
 	illval := c.FormValue("artifact-editor-creditill")
 	progval := c.FormValue("artifact-editor-creditprog")

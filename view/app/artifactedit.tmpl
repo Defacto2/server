@@ -151,6 +151,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-classifications-undo" type="button" 
                 data-preset-os="{{$os}}" data-preset-tag="{{$tag}}"
                 hx-patch="/editor/classifications" 
+                hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
                   Reset<small class="link-dark"> classifications to <q>{{$os}}</q> + <q>{{$tag}}</q></small></button>
@@ -501,10 +502,11 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div>
           <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, for example: <q>Name,Name two,Name3</q>.</div>
           <div>
+            {{- /* NOTE: the "-creditsundo" with an "s" */}}
             <button type="button" class="btn btn-link" id="artifact-editor-credit-undo"
                 hx-patch="/editor/creator/reset"
                 hx-include="[name='artifact-editor-key'],
-                [name='artifact-editor-creditundo'],
+                [name='artifact-editor-creditsundo'],
                 [name='artifact-editor-credittext'],
                 [name='artifact-editor-creditill'],
                 [name='artifact-editor-creditprog'],
@@ -512,7 +514,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
         </div>
         <div class="btn-group" role="group">
-          <input type="hidden" id="artifact-editor-credits-undo" name="artifact-editor-credits-undo" 
+          <input type="hidden" id="artifact-editor-credits-undo" name="artifact-editor-creditsundo" 
             value="{{$writers}};{{$artists}};{{$programmers}};{{$musicians}}" readonly>
         </div>
         <hr class="d-block d-lg-none">
