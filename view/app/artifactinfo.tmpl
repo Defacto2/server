@@ -95,9 +95,10 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body text-start">
-                                Google Search has flagged this download as an unsafe or unwanted download. 
-                                It can be a false positive, but we recommend carefully running the file in a virtualized environment or an emulator.
-                                <p class="m-3 text-center"><a class="link-offset-2" href="{{$alertURL}}">You should read this scan report before downloading</a></p>
+                                Google Search or Microsoft Defender flags this download as unsafe or as an unwanted download. 
+                                It maybe be a false positive, however we recommend being careful! 
+                                Either run the file in a virtualized environment or in an isolated emulator.
+                                <p class="m-3 text-center h6"><a class="link-offset-2" href="{{$alertURL}}">You should read this scan report before downloading</a></p>
                                 <p class="m-5 text-center">
                                     <small><a class="link-secondary link-offset-3" href="/d/{{$download}}" rel="nofollow" role="button">I understand, download anyway</a></small></p>
                             </div>

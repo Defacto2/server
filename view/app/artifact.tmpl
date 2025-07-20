@@ -31,7 +31,7 @@
         {{- /*  End user alerts  */}}
         <div class="alert alert-light" role="alert">
             {{- if ne $alertURL "" }}
-            This artifact download has been flagged by Google with an <a href="{{$alertURL}}">unwanted software alert</a>.{{end}}
+            Google or Microsoft Defender flags this artifact download as <a href="{{$alertURL}}">unwanted software</a>.{{end}}
             {{- if and (ne $alertURL "") ($noDownload) }}<br>{{end}}
             {{- if $noDownload}}Error, the the server cannot locate the file download.{{end}}
             <hr>
