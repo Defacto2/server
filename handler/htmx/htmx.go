@@ -562,35 +562,40 @@ func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	return nil
 }
 
-func Lookup(s string) []string {
+// Alternatives returns a slice of possible matching alternative names,
+// spellings, acronyms and initialisms for the s string.
+func Alternatives(s string) []string {
 	const minChars = 4
-	lookup := []string{}
+	lookups := []string{s}
 	// examples of key and values:
 	// "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
-	for key, values := range *initialism.Initialisms() {
-		for value := range slices.Values(values) {
-			name := releaser.Index(string(key))
-			if name == "" {
-				continue
-			}
+	key := ""
+	for path, initialisms := range *initialism.Initialisms() {
+		key = releaser.Index(string(path))
+		if key == "" {
+			continue
+		}
+		// value is usually an initialism, however it can be alternative spellings etc.
+		for value := range slices.Values(initialisms) {
+			//	if s and value are an exact match, use the key as a lookup
+			//	ie: s = "trs" and value is "TRS" and key is "tristar-ampersand-red-sector-inc"
 			if strings.EqualFold(value, s) {
-				lookup = append(lookup, name)
+				lookups = append(lookups, key)
 				continue
 			}
 			if len(s) < minChars {
 				continue
 			}
 			if strings.Contains(strings.ToLower(value), strings.ToLower(s)) {
-				lookup = append(lookup, name)
+				lookups = append(lookups, key, value)
 			}
 		}
 	}
 	t := releaser.Humanize(s)
 	if t != "" && !strings.EqualFold(s, t) {
-		lookup = append(lookup, t)
+		lookups = append(lookups, t)
 	}
-	lookup = append(lookup, s)
-	return lookup
+	return lookups
 }
 
 // SearchReleaser is a handler for the /search/releaser route.
@@ -599,10 +604,19 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	ctx := context.Background()
 	input := c.FormValue("htmx-search")
 	name := helper.TrimRoundBraket(input)
+	name = releaser.Clean(name) // required to stop 503 errors with invalid characters
 	if name == "" {
 		return c.HTML(http.StatusOK, "<!-- empty search query -->")
 	}
-	lookup := Lookup(name)
+	// Obtain a list of alternative lookups and remove any possible duplicates.
+	lookup := Alternatives(name)
+	slices.Sort(lookup)
+	lookup = slices.Compact(lookup)
+	// matchZeroOrMore is an SQL "LIKE" expression, to return zero (exact match) or more matches.
+	// see: https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE
+	const matchZeroOrMore = "%"
+	lookup = slices.Insert(lookup, 0, name+matchZeroOrMore)
+
 	var r model.Releasers
 	// lookup extact match initialisms
 	if err := r.Initialism(ctx, db, limit, lookup...); err != nil {
