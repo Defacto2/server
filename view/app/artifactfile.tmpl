@@ -42,15 +42,7 @@
       <div class="modal-body">
         <div class="row row-cols-4 g-1 mb-3">
           {{- /*  Public or hidden record */}}
-          <div class="col-12 col-xl-2 col-lg-6 d-grid">
-            {{radioPublic ($online)}}
-            <label class="btn btn-outline-danger" for="artifact-editor-public">Recreate assets</label>
-          </div>
-          <div class="col-12 col-xl-2 col-lg-6 d-grid">
-            {{radioHidden ($online)}}
-            <label class="btn btn-outline-danger" for="artifact-editor-hidden">Delete assets</label>
-          </div>
-          <div class="col-12 col-xl-2 col-lg-6 offset-xl-1">
+          <div class="col-12 col-xl-2 col-lg-6 offset-xl-5">
             <div class="input-group">
               <button type="button" class="btn btn-secondary" id="artifact-fileeditor-key-label"
                 data-bs-toggle="tooltip" data-bs-title="Copy the key">Record key</button>
