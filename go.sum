@@ -79,8 +79,8 @@ github.com/Defacto2/helper v1.4.2 h1:3FHQWKm7oIBy18tG7tk9cD8mNSNkJx7An3pPlcd5piM
 github.com/Defacto2/helper v1.4.2/go.mod h1:NXK2n6DBngxeL15AU1wW03szDFFqBSw1R9kexcCT3cY=
 github.com/Defacto2/magicnumber v1.0.8 h1:fIdT5SpyyItERrAsoGfZ8mTWALugPj4Cj30MiHgq75M=
 github.com/Defacto2/magicnumber v1.0.8/go.mod h1:NY7t+7E4Yc3V2CpvEV2CR/EVA+sCUpt2ofY0n2/TkuA=
-github.com/Defacto2/releaser v1.3.5 h1:R8S6Td6IHpiXGp7ZczP4jzojQMJFKHdaj+m+8HhnvO0=
-github.com/Defacto2/releaser v1.3.5/go.mod h1:AmRhSDwSNxH8ATC1K1CXQbyT01Vfdpjl3JhT8TaYPTM=
+github.com/Defacto2/releaser v1.3.7 h1:xfPWWg0d30d0ZMTBltU8C7fRKGwqxnKe3dZUdOfUssw=
+github.com/Defacto2/releaser v1.3.7/go.mod h1:9sR6voo5Uyx97ujcarMZTDGV9KJRtDy+J4CMDtXmeck=
 github.com/KimMachineGun/automemlimit v0.7.2 h1:DyfHI7zLWmZPn2Wqdy2AgTiUvrGPmnYWgwhHXtAegX4=
 github.com/KimMachineGun/automemlimit v0.7.2/go.mod h1:QZxpHaGOQoYvFhv/r4u3U0JTC2ZcOwbSr11UZF46UBM=
 github.com/Masterminds/goutils v1.1.1/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
