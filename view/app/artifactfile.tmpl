@@ -370,6 +370,10 @@
                             hx-delete="/editor/diz/{{$unid}}">
                             Delete FILE_ID.DIZ</button>
                         </div>
+                      <div class="form-text">
+                        After deletion, text files may automatically get re-extracted or reused.
+                        Instead, use the Never display toggle to hide readme and file_id from the artifact page.
+                      </div>
                       {{- end}}
                       {{- if ne "" (index . "modReadmeSuggest")}}
                         <div class="col-6">

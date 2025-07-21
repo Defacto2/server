@@ -325,36 +325,26 @@ func RecordImagesDeleter(c echo.Context, directories ...dir.Directory) error {
 // RecordDizDeleter handles the request to remove the uuid named file_id.diz text file
 // from the provided extra directory.
 func RecordDizDeleter(c echo.Context, extra dir.Directory) error {
-	unid, err := UUID(c)
-	if err != nil {
-		return badRequest(c, err)
-	}
-	dst := filepath.Join(extra.Path(), unid+".diz")
-	dst = filepath.Clean(dst)
-	st, err := os.Stat(dst)
-	if err != nil {
-		return badRequest(c, err)
-	}
-	if st.IsDir() {
-		return badRequest(c, ErrIsDir)
-	}
-	if err := os.Remove(dst); err != nil {
-		return badRequest(c, err)
-	}
-	c = pageRefresh(c)
-	return c.NoContent(http.StatusOK)
+	return extrasDeleter(c, ".diz", extra)
 }
 
 // RecordReadmeDeleter handles the request to remove the uuid named readme text file
 // from the provided extra directory.
 func RecordReadmeDeleter(c echo.Context, extra dir.Directory) error {
+	return extrasDeleter(c, ".txt", extra)
+}
+
+func extrasDeleter(c echo.Context, ext string, extra dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	dst := filepath.Join(extra.Path(), unid+".txt")
+	dst := filepath.Join(extra.Path(), unid+ext)
 	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
+	if errors.Is(err, os.ErrNotExist) {
+		return c.NoContent(http.StatusOK)
+	}
 	if err != nil {
 		return badRequest(c, err)
 	}
