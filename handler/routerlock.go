@@ -255,7 +255,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 	pre.PATCH("/crop12/:unid", func(c echo.Context) error {
 		return htmx.RecordImageCropper(c, command.OneTwo, paths)
 	})
-	pre.DELETE("/:unid", func(c echo.Context) error {
+	pre.PATCH("/remove/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview)
 	})
 
@@ -284,7 +284,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 	thumb.PATCH("/photo/:unid", func(c echo.Context) error {
 		return htmx.RecordThumb(c, command.Photo, paths)
 	})
-	thumb.DELETE("/:unid", func(c echo.Context) error {
+	thumb.PATCH("/remove/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)
 	})
 
@@ -292,7 +292,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 	imgs.PATCH("/pixelate/:unid", func(c echo.Context) error {
 		return htmx.RecordImagePixelator(c, dirs.Preview, dirs.Thumbnail)
 	})
-	imgs.DELETE("/:unid", func(c echo.Context) error {
+	imgs.PATCH("/remove/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview, dirs.Thumbnail)
 	})
 }

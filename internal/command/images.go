@@ -25,6 +25,8 @@ const (
 	X400    = "400x400" // X400 returns args  400 x 400 pixel image size
 )
 
+var ErrNoImages = errors.New("no images found")
+
 // ImagesExt returns args slice of image file extensions used by the website
 // preview and thumbnail images, including the legacy and modern formats.
 func ImagesExt() []string {
@@ -35,6 +37,7 @@ func ImagesExt() []string {
 // The unid is the unique identifier for the image file and shared between the preview
 // and thumbnail images.
 func ImagesDelete(unid string, dirs ...string) error {
+	noImagesFound := true
 	for dir := range slices.Values(dirs) {
 		st, err := os.Stat(dir)
 		if err != nil {
@@ -49,10 +52,14 @@ func ImagesDelete(unid string, dirs ...string) error {
 				_, _ = fmt.Fprint(io.Discard, err)
 				continue
 			}
+			noImagesFound = false
 			if err := os.Remove(name); err != nil {
-				_, _ = fmt.Fprintln(os.Stderr, err)
+				return err
 			}
 		}
+	}
+	if noImagesFound {
+		return fmt.Errorf("cannot remove assets, %w", ErrNoImages)
 	}
 	return nil
 }
@@ -74,10 +81,10 @@ func ImagesPixelate(unid string, dirs ...string) error {
 	for dir := range slices.Values(dirs) {
 		st, err := os.Stat(dir)
 		if err != nil {
-			return fmt.Errorf("images delete %w", err)
+			return fmt.Errorf("images pixelate %w", err)
 		}
 		if !st.IsDir() {
-			return fmt.Errorf("images delete %w", ErrIsFile)
+			return fmt.Errorf("images pixelate %w", ErrIsFile)
 		}
 		for ext := range slices.Values(ImagesExt()) {
 			name := filepath.Join(dir, unid+ext)
@@ -108,9 +115,7 @@ const (
 
 // Thumbs creates args thumbnail image for the preview image based on the type of image.
 func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
-	if err := ImagesDelete(unid, dir.Thumbnail.Path()); err != nil {
-		return fmt.Errorf("dirs thumbs %w", err)
-	}
+	_ = ImagesDelete(unid, dir.Thumbnail.Path())
 	for ext := range slices.Values(ImagesExt()) {
 		src := filepath.Join(dir.Preview.Path(), unid+ext)
 		_, err := os.Stat(src)
@@ -124,7 +129,7 @@ func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
 			err = dir.ThumbPhoto(src, unid)
 		}
 		if err != nil {
-			return fmt.Errorf("dirs thumbs %w", err)
+			return err
 		}
 	}
 	return nil
@@ -155,9 +160,8 @@ func (align Align) Thumbs(unid string, preview, thumbnail dir.Directory) error {
 	} else if !st.IsDir() {
 		return fmt.Errorf("align thumbs %w", ErrIsFile)
 	}
-	if err := ImagesDelete(unid, thumbnail.Path()); err != nil {
-		return fmt.Errorf("dirs thumbs %w", err)
-	}
+	_ = ImagesDelete(unid, thumbnail.Path())
+	imagesNotFound := true
 	for ext := range slices.Values(ImagesExt()) {
 		args := Args{}
 		switch align {
@@ -176,6 +180,7 @@ func (align Align) Thumbs(unid string, preview, thumbnail dir.Directory) error {
 		if _, err := os.Stat(src); err != nil {
 			continue
 		}
+		imagesNotFound = false
 		arg := []string{src}
 		arg = append(arg, args...)
 		tmp := filepath.Join(path, unid+ext)
@@ -189,6 +194,9 @@ func (align Align) Thumbs(unid string, preview, thumbnail dir.Directory) error {
 			_, _ = fmt.Fprint(io.Discard, err)
 			return nil
 		}
+	}
+	if imagesNotFound {
+		return fmt.Errorf("cannot use alignment, %w", ErrNoImages)
 	}
 	return nil
 }
@@ -211,7 +219,7 @@ func (crop Crop) Images(unid string, preview dir.Directory) error {
 	pattern := "images-crop-" + unid
 	path := filepath.Join(tmpDir, pattern)
 	if st, err := os.Stat(path); err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			if err := os.MkdirAll(path, os.ModePerm); err != nil {
 				return fmt.Errorf("crop images %w", err)
 			}
@@ -219,6 +227,7 @@ func (crop Crop) Images(unid string, preview dir.Directory) error {
 	} else if !st.IsDir() {
 		return fmt.Errorf("crop images %w", ErrIsFile)
 	}
+	imagesNotFound := true
 	for ext := range slices.Values(ImagesExt()) {
 		args := Args{}
 		switch crop {
@@ -233,6 +242,7 @@ func (crop Crop) Images(unid string, preview dir.Directory) error {
 		if _, err := os.Stat(src); err != nil {
 			continue
 		}
+		imagesNotFound = false
 		arg := []string{src}
 		arg = append(arg, args...)
 		tmp := filepath.Join(path, unid+ext)
@@ -247,6 +257,9 @@ func (crop Crop) Images(unid string, preview dir.Directory) error {
 			return nil
 		}
 	}
+	if imagesNotFound {
+		return fmt.Errorf("cannot use crop, %w", ErrNoImages)
+	}
 	return nil
 }
 
@@ -259,17 +272,15 @@ func (crop Crop) Images(unid string, preview dir.Directory) error {
 func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error {
 	r, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("dir picture imager %w", err)
+		return fmt.Errorf("picture imager %w", err)
 	}
 	magic := magicnumber.Find(r)
 	imgs := magicnumber.Images()
 	slices.Sort(imgs)
 	if !slices.Contains(imgs, magic) {
-		return fmt.Errorf("dir picture imager %w, %s", ErrImg, magic.Title())
+		return fmt.Errorf("picture imager %w, %s", ErrImg, magic.Title())
 	}
-	if err = ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path()); err != nil {
-		return fmt.Errorf("picture imager pre-delete %w", err)
-	}
+	_ = ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path())
 
 	// Signature aliases for common file type signatures.
 	const (
@@ -416,19 +427,19 @@ func (dir Dirs) textDOSImager(debug *zap.SugaredLogger, src, unid string) error 
 	args.AnsiMsDos()
 	srcPath, err := textCropper(src, unid)
 	if err != nil {
-		return fmt.Errorf("dirs text imager %w", err)
+		return fmt.Errorf("dos text imager %w", err)
 	}
 	if st, err := os.Stat(srcPath); err != nil {
-		return fmt.Errorf("dirs text imager, stat %w", err)
+		return fmt.Errorf("dos text imager, stat %w", err)
 	} else if st.Size() == 0 {
-		return fmt.Errorf("dirs text imager, %w", ErrEmpty)
+		return fmt.Errorf("dos text imager, %w", ErrEmpty)
 	}
 	arg := []string{srcPath}       // source text file
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
 	if err := Run(debug, Ansilove, arg...); err != nil {
-		return fmt.Errorf("dirs text imager %w", err)
+		return fmt.Errorf("dos text imager %w", err)
 	}
 	return dir.textImagers(debug, unid, tmp)
 }
@@ -438,14 +449,14 @@ func (dir Dirs) textAmigaImager(debug *zap.SugaredLogger, src, unid string) erro
 	args.AnsiAmiga()
 	srcPath, err := textCropper(src, unid)
 	if err != nil {
-		return fmt.Errorf("dirs text imager %w", err)
+		return fmt.Errorf("amiga text imager %w", err)
 	}
 	arg := []string{srcPath}       // source text file
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
 	if err := Run(debug, Ansilove, arg...); err != nil {
-		return fmt.Errorf("dirs ami text imager %w", err)
+		return fmt.Errorf("amiga text imager %w", err)
 	}
 	return dir.textImagers(debug, unid, tmp)
 }
@@ -833,21 +844,26 @@ func (args *Args) AnsiMsDos() {
 // JpegPhoto appends the command line arguments for the convert command to
 // transform an image into args JPEG image.
 func (args *Args) JpegPhoto() {
-	// Horizontal and vertical sampling factors to be used by the JPEG encoder for chroma downsampling.
-	sampleFactor := []string{"-sampling-factor", "4:2:0"}
-	*args = append(*args, sampleFactor...)
+	// This options will vary based on the type of screenshot being used as a thumbnail.
+	// A test with a DOS VGA image screenshot that was 11,074B in size at 400x400 pixels,
+	// has the following results when reprocessed into a Jpeg with the following options:
+	// 6,012B with gaussianBlur and quality at 75.
+	// 6,334B with gaussianBlur and quality at 90.
+	// 8,824B with no gaussianBlur config and quality at 75.
+	// 9,234B with no gaussianBlur config and quality at 90.
+	const jpegQuality = "90"
+	const gaussian = true
 	// Strip the image of any profiles and comments.
 	const strip = "-strip"
 	*args = append(*args, strip)
 	// See: https://imagemagick.org/script/command-line-options.php#quality
-	quality := []string{"-quality", "90"}
+	quality := []string{"-quality", jpegQuality}
 	*args = append(*args, quality...)
-	// Type of interlacing scheme, see: https://imagemagick.org/script/command-line-options.php#interlace
-	interlace := []string{"-interlace", "plane"}
-	*args = append(*args, interlace...)
-	// Blur the image with args Gaussian operator.
-	gaussianBlur := []string{"-gaussian-blur", "0.05"}
-	*args = append(*args, gaussianBlur...)
+	if gaussian {
+		// Blur the image with args Gaussian operator.
+		gaussianBlur := []string{"-gaussian-blur", "0.05"}
+		*args = append(*args, gaussianBlur...)
+	}
 	// Set the image colorspace.
 	colorspace := []string{"-colorspace", "RGB"}
 	*args = append(*args, colorspace...)

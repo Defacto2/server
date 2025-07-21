@@ -166,9 +166,10 @@ func readmepreview(uniqueID, name, platform string) string {
 	if strings.EqualFold(platform, tags.TextAmiga.String()) {
 		uri = "preview-amiga"
 	}
+	// the "#file-editor" href anchor will relaunch the File editor dialog.
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
-		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
+		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
 			`hx-patch="/editor/readme/%s/%s/%s">`, uri, uniqueID, name) +
@@ -178,7 +179,7 @@ func readmepreview(uniqueID, name, platform string) string {
 
 func readmecopy(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="Use file as readme">` +
+		`data-bs-toggle="tooltip" data-bs-title="Use file as the readme">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+

@@ -36,6 +36,7 @@ var (
 )
 
 const (
+	checkMark = "&#x2713;"
 	editorKey = "artifact-editor-key"
 )
 
@@ -52,7 +53,7 @@ func Validate(path string) error {
 	return nil
 }
 
-// Path returns the uuid and directory path, named unid and path from the URL parameters.
+// Path returns the uuid and directory path, the named unid, plus the path from the URL parameters.
 // It returns an error if the unid or name is invalid.
 func Path(c echo.Context) (string, string, error) {
 	unid := c.Param("unid")
@@ -98,12 +99,16 @@ func pageRefresh(c echo.Context) echo.Context { //nolint:ireturn
 	return c
 }
 
+// RecordThumb handles the htmx request for the thumbnail quality.
 func RecordThumb(c echo.Context, thumb command.Thumb, dirs command.Dirs) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 	err = dirs.Thumbs(unid, thumb)
+	if errors.Is(err, command.ErrNoImages) {
+		return c.String(http.StatusOK, err.Error())
+	}
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -112,12 +117,16 @@ func RecordThumb(c echo.Context, thumb command.Thumb, dirs command.Dirs) error {
 		`Thumb created, the browser will refresh.`)
 }
 
+// RecordThumbAlignment handles the htmx request for the thumbnail crop alignment.
 func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 	err = align.Thumbs(unid, dirs.Preview, dirs.Thumbnail)
+	if errors.Is(err, command.ErrNoImages) {
+		return c.String(http.StatusOK, err.Error())
+	}
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -126,12 +135,16 @@ func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs
 		`Thumb realigned, the browser will refresh.`)
 }
 
+// RecordImageCropper handles the htmx request for the preview image cropping.
 func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 	err = crop.Images(unid, dirs.Preview)
+	if errors.Is(err, command.ErrNoImages) {
+		return c.String(http.StatusOK, err.Error())
+	}
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -140,6 +153,7 @@ func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) er
 		`Images cropped, the browser will refresh.`)
 }
 
+// RecordImageCopier handles the htmx request to use an image file artifact as a preview.
 func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Dirs) error {
 	unid, name, err := Path(c)
 	if err != nil {
@@ -166,6 +180,7 @@ func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Di
 		`Images copied, the browser will refresh.`)
 }
 
+// RecordReadmeImager handles the htmx request to use the text file artifact as a preview.
 func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont bool, dirs command.Dirs) error {
 	unid, name, err := Path(c)
 	if err != nil {
@@ -192,6 +207,7 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont boo
 		`Text filed imaged, the browser will refresh.`)
 }
 
+// RecordDizCopier handles the htmx request to use the file_id.diz artifact as a preview.
 func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
 	unid, name, err := Path(c)
 	if err != nil {
@@ -251,8 +267,8 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 		`Images copied, the browser will refresh.`)
 }
 
-// RecordReadmeDisable handles the patch submission to disable the display of
-// the readme and diz texts for a file artifact.
+// RecordReadmeDisable handles the htmx request to disable the in
+// page display of both the text files readme and file_id.diz for the file artifact.
 func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
 	id, err := ID(c)
 	if err != nil {
@@ -265,6 +281,9 @@ func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
 }
 
+// RecordImagePixelator handles the htmx request to pixelate both the preview and
+// thumbnails, if they are not suitable for a general audience. This also has an
+// added benefit of reducing the file sizes of both images and reducing page load.
 func RecordImagePixelator(c echo.Context, directory ...dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
@@ -274,28 +293,37 @@ func RecordImagePixelator(c echo.Context, directory ...dir.Directory) error {
 	if err := command.ImagesPixelate(unid, dirs...); err != nil {
 		return badRequest(c, err)
 	}
-	c = pageRefresh(c)
+	// do not use pageRefresh as it returns an error
+	// c = pageRefresh(c)
 	return c.String(http.StatusOK,
 		`Images pixelated, the browser will refresh.`)
 }
 
-func RecordImagesDeleter(c echo.Context, directory ...dir.Directory) error {
+// RecordImagesDeleter handles the request to remove the uuid named
+// image files from the directories provided.
+func RecordImagesDeleter(c echo.Context, directories ...dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	dirs := make([]string, len(directory))
-	for i, d := range directory {
-		dirs[i] = d.Path()
+	dirs := make([]string, len(directories))
+	for i, directory := range directories {
+		dirs[i] = directory.Path()
 	}
 	if err := command.ImagesDelete(unid, dirs...); err != nil {
+		if errors.Is(err, command.ErrNoImages) {
+			return c.String(http.StatusOK, err.Error())
+		}
 		return badRequest(c, err)
 	}
-	// HTMX requires an empty response to confirm a successful deletion.
-	// It also doesn't support the HX-Refresh header, so that is handled in JS.
-	return c.NoContent(http.StatusOK)
+	// do not use pageRefresh as it returns an error
+	// c = pageRefresh(c)
+	return c.String(http.StatusOK, "Images are gone, please refresh the tab. "+
+		"However, depending on the download type, these assets may be recreated automatically.")
 }
 
+// RecordDizDeleter handles the request to remove the uuid named file_id.diz text file
+// from the provided extra directory.
 func RecordDizDeleter(c echo.Context, extra dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
@@ -317,6 +345,8 @@ func RecordDizDeleter(c echo.Context, extra dir.Directory) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// RecordReadmeDeleter handles the request to remove the uuid named readme text file
+// from the provided extra directory.
 func RecordReadmeDeleter(c echo.Context, extra dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
@@ -545,7 +575,7 @@ func RecordReleasersReset(c echo.Context, db *sql.DB) error {
 	if err := recordReleases(db, val1, val2, key); err != nil {
 		return badRequest(c, err)
 	}
-	return c.HTML(http.StatusOK, "&#x2713;")
+	return c.HTML(http.StatusOK, checkMark)
 }
 
 func recordReleases(db *sql.DB, rel1, rel2, key string) error {
@@ -611,7 +641,7 @@ func RecordDateIssuedReset(c echo.Context, db *sql.DB, elmID string) error {
 	if err := model.UpdateDateIssued(db, int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
 	}
-	return c.String(http.StatusOK, " &#x2713;")
+	return c.String(http.StatusOK, " "+checkMark)
 }
 
 // RecordCreatorText handles the post submission for the file artifact creator text.

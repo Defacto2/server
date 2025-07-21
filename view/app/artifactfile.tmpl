@@ -155,12 +155,19 @@
           <div class="col-xl-6 pb-3 bg-light">
             {{- /*  Image assets  */}}
             <legend>Image assets</legend>
+            <div id="artifact-editor-image-assets-feedback"></div>
             <div>
-              <button id="artifact-editor-image-delete" hx-target="#artifact-editor-image-feedback" 
-              hx-delete="/editor/images/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Delete</strong> images</button>
-              <button id="artifact-editor-image-pixelate" hx-target="#artifact-editor-image-feedback" 
-                hx-patch="/editor/images/pixelate/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Pixelate</strong> NSFW images</button>
-              <button hx-patch="/editor/thumbnail/pixel/{{$unid}}" class="btn btn-link m-0 p-0"><strong>Good</strong> quality thumbnail</button> 
+              {{- /* Delete images button */}}
+              <a href="#file-editor" 
+                hx-target="#artifact-editor-image-assets-feedback" 
+                hx-patch="/editor/images/remove/{{$unid}}" 
+                class="m-0 p-0"><strong>Delete</strong> or redo previews and thumbnails</a>
+              {{- /* Pixelate NSFW images button */}}
+              &nbsp;
+              <a href="#file-editor" id="artifact-editor-image-pixelate" 
+                hx-target="#artifact-editor-image-assets-feedback" 
+                hx-patch="/editor/images/pixelate/{{$unid}}" 
+                class="m-0 p-0"><strong>Pixelate</strong> NSFW images</a>
               <div class="form-text">The delete and pixelate options are irreversible</div>
             </div>
             {{- /*  Upload a new image  */}}
@@ -172,7 +179,7 @@
             <form id="artifact-editor-preview-form" 
               hx-encoding="multipart/form-data" 
               hx-post="/editor/upload/preview"
-              hx-target="#artifact-editor-preview-feedback"
+              hx-target="#artifact-editor-image-assets-feedback"
               {{- if eq $previewImgStat true}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
               hx-validate="true">
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
@@ -182,15 +189,13 @@
               <div class="input-group input-group-sm mb-1 has-validation">
                 <input type="file" name="artifact-editor-replace-preview" 
                   class="form-control w-50" id="artifact-editor-replace-preview" autocomplete="on" 
-                    aria-describedby="artifact-editor-preview-feedback" required>
+                    aria-describedby="artifact-editor-image-assets-feedback" required>
                 <button class="btn btn-outline-secondary w-25" id="artifact-editor-preview-submit">Upload</button> 
                 <button class="btn btn-outline-secondary" id="artifact-editor-preview-reset">Clear</button>
-                <div id="artifact-editor-preview-feedback"></div>
               </div>
               <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image asset samples.</div>
               <progress class="w-100" id="artifact-editor-preview-progress" value="0" max="100"></progress>
             </form>
-            <div class="form-text" id="artifact-editor-image-feedback"></div>
             <div class="row row-cols-2 g-1">
               <div class="col-6">
                 <div class="card">
@@ -206,17 +211,32 @@
                         <tbody>
                           {{- with .modAssetPreview }}{{- if . }}
                           {{- range $name, $info := . }}
+                          {{- $imagesize := index $info 0}}
+                          {{- if ne $imagesize "0"}}
                           <tr>
                             <th scope="row">{{$name}}</th>
-                            <td>{{index $info 0}}B</td>
+                            <td>{{$imagesize}}B</td>
                             {{- $ext := printf ".%s" $name}}
                             <td><a href="{{recordPreviewSrc $unid $ext}}">{{index $info 1}}</a></td>
-                          </tr>{{- end}}{{- end}}{{- end}}
+                          </tr>{{- end}}{{- end}}{{- end}}{{- end}}
                       </table>
-                      <div><a href="#file-editor" hx-patch="/editor/preview/crop11/{{$unid}}">1:1 crop</a> <small>square</small></div>
-                      <div><a href="#file-editor" hx-patch="/editor/preview/crop12/{{$unid}}">1:2 crop</a> <small>i.e. 640x1280</small></div>
-                      <div><a href="#file-editor" hx-patch="/editor/preview/crop43/{{$unid}}">4:3 crop</a> <small>i.e. 640x480</small></div>
-                      <div><a href="#file-editor" id="artifact-editor-imagepreview-delete" hx-delete="/editor/preview/{{$unid}}">Delete</a></div>
+                      <div>
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/preview/crop11/{{$unid}}">1:1 crop</a> <small>ie. 400x400</small></div>
+                      <div>
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/preview/crop43/{{$unid}}">4:3 crop</a> <small>ie. 400x300</small></div>
+                      <div>
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/preview/crop12/{{$unid}}">1:2 crop</a> <small>ie. 200x400</small></div>
+                      <div>
+                        <a href="#file-editor" 
+                          id="artifact-editor-imagepreview-delete" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/preview/remove/{{$unid}}">Delete previews</a></div>
                     </p>
                   </div>
                   {{$previewImg}}
@@ -232,26 +252,48 @@
                       <table class="table table-hover">
                         <tbody>
                           {{- with .modAssetThumbnail }}{{- if . }}
-                          {{- range $name, $info := .modAssetThumbnail}}
+                          {{- range $name, $info := .}}
+                          {{- $imagesize := index $info 0}}
+                          {{- if ne $imagesize "0"}}
                           <tr>
                             <th scope="row">{{$name}}</th>
-                            <td>{{index $info 0}}B</td>
+                            <td>{{$imagesize}}B</td>
                             {{- $ext := printf ".%s" $name}}
                             <td><a href="{{recordThumbnailSrc $unid $ext}}">{{index $info 1}}</a></td>
-                          </tr>{{- end}}{{- end}}{{- end}}
+                          </tr>{{- end}}{{- end}}{{- end}}{{- end}}
                       </table>
                       <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/pixel/{{$unid}}">Good</a> &nbsp;
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/photo/{{$unid}}">Poor</a> <small>quality</small>
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel</a> <small>lossless quality</small></div>
+                      <div>
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/thumbnail/photo/{{$unid}}">Photo</a> <small>lossy quality</small></div>
+                      <div>
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/thumbnail/middle/{{$unid}}">Middle</a> <small>or center alignment</small></div> 
+                      <div>
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/thumbnail/left/{{$unid}}">Left</a> <small>or</small> 
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/thumbnail/right/{{$unid}}">Right</a> <small>crop alignment</small></div>
+                      <div>
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/thumbnail/top/{{$unid}}">Top</a> <small>or</small> 
+                        <a href="#file-editor" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/thumbnail/bottom/{{$unid}}">Bottom</a> <small>crop alignment</small> 
                       </div>
                       <div>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/left/{{$unid}}">Left</a> 
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/right/{{$unid}}">Right</a> &nbsp;
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/top/{{$unid}}">Top</a>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/middle/{{$unid}}">Middle</a>
-                        <a href="#file-editor" hx-patch="/editor/thumbnail/bottom/{{$unid}}">Bottom</a>
-                      </div>
-                      <div><a href="#file-editor" id="artifact-editor-imagethumb-delete" hx-delete="/editor/thumbnail/{{$unid}}">Delete</a></div>
+                        <a href="#file-editor" 
+                          id="artifact-editor-imagethumb-delete" 
+                          hx-target="#artifact-editor-image-assets-feedback"
+                          hx-patch="/editor/thumbnail/remove/{{$unid}}">Delete thumbs</a></div>
                     </p>
                   </div>
                   {{$thumbImg}}
@@ -267,7 +309,9 @@
                   <div class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" autocomplete="off" role="switch" 
                           hx-patch="/editor/readme/disable/{{$key}}"
-                          hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('readme-is-off-result').textContent=''"
+                          hx-trigger="click delay:50ms" 
+                          hx-swap="swap:50ms" 
+                          hx-on:click="document.getElementById('readme-is-off-result').textContent=''"
                           hx-include="[name='readme-is-off']"
                           hx-target="#readme-is-off-result"
                           name="readme-is-off"

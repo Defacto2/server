@@ -190,58 +190,43 @@ import { getElmById } from "./helper.mjs";
       event,
       `artifact-editor-dl-form`,
       `artifact-editor-dl-up`,
-      `artifact-editor-dl-feedback`
+      `artifact-editor-dl-feedback`,
     );
     afterFormRequest(
       event,
       `artifact-editor-preview-form`,
       `artifact-editor-replace-preview`,
-      `artifact-editor-preview-feedback`
+      `artifact-editor-image-assets-feedback`,
     );
-    afterDeleteRequest(
-      event,
-      "artifact-editor-image-delete",
-      "artifact-editor-image-feedback"
-    );
-    afterDeleteRequest(
-      event,
-      "artifact-editor-imagepreview-delete",
-      "artifact-editor-image-feedback"
-    );
-    afterDeleteRequest(
-      event,
-      "artifact-editor-imagethumb-delete",
-      "artifact-editor-image-feedback"
-    );
-    afterDeleteRequest(
+    afterRefreshRequest(
       event,
       "artifact-editor-image-pixelate",
-      "artifact-editor-preview-feedback"
+      "artifact-editor-image-assets-feedback",
     );
     afterLinkRequest(
       event,
       "artifact-editor-link-delete",
-      "artifact-editor-link-feedback"
+      "artifact-editor-link-feedback",
     );
     afterLinkRequest(
       event,
       "artifact-editor-comp-previewcopy",
-      "artifact-editor-comp-feedback"
+      "artifact-editor-comp-feedback",
     );
     afterLinkRequest(
       event,
       "artifact-editor-comp-previewtext",
-      "artifact-editor-comp-feedback"
+      "artifact-editor-comp-feedback",
     );
     afterLinkRequest(
       event,
       "artifact-editor-comp-textcopy",
-      "artifact-editor-comp-feedback"
+      "artifact-editor-comp-feedback",
     );
     afterLinkRequest(
       event,
       "artifact-editor-comp-dizcopy",
-      "artifact-editor-comp-feedback"
+      "artifact-editor-comp-feedback",
     );
   });
 
@@ -263,7 +248,7 @@ import { getElmById } from "./helper.mjs";
     const feedback = document.getElementById(feedbackId);
     if (feedback === null) {
       throw new Error(
-        `The htmx successful feedback element ${feedbackId} is null`
+        `The htmx successful feedback element ${feedbackId} is null`,
       );
     }
     const errClass = "text-danger";
@@ -292,20 +277,20 @@ import { getElmById } from "./helper.mjs";
       " please try again or refresh the page.";
   }
 
-  function afterDeleteRequest(event, inputId, feedbackId) {
+  function afterRefreshRequest(event, inputId, feedbackId) {
     if (event.detail.elt === null) return;
     if (event.detail.elt.id !== `${inputId}`) return;
     const feedback = document.getElementById(feedbackId);
     if (feedback === null) {
       throw new Error(
-        `The htmx successful feedback element ${feedbackId} is null`
+        `The htmx successful feedback element ${feedbackId} is null`,
       );
     }
     const errClass = "text-danger";
     const okClass = "text-success";
     const xhr = event.detail.xhr;
     if (event.detail.successful) {
-      feedback.innerText = `The delete request was successful, about to refresh the page.`;
+      feedback.innerText = `About to refresh the page.`;
       feedback.classList.remove(errClass);
       feedback.classList.add(okClass);
       setTimeout(() => {
@@ -344,7 +329,7 @@ import { getElmById } from "./helper.mjs";
     const feedback = document.getElementById(feedbackName);
     if (feedback === null) {
       throw new Error(
-        `The htmx successful feedback element ${feedbackName} is null`
+        `The htmx successful feedback element ${feedbackName} is null`,
       );
     }
     if (event.detail.successful) {
