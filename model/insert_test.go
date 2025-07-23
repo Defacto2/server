@@ -5,8 +5,8 @@ import (
 
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
-	"github.com/volatiletech/null/v8"
 )
 
 func TestSiteAd(t *testing.T) {

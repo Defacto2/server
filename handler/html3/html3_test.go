@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/html3"
+	"github.com/aarondl/null/v8"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/volatiletech/null/v8"
 	"go.uber.org/zap"
 )
 

@@ -2,7 +2,7 @@ package main
 
 /*
 	SQLBoiler command to generate Go code from a PostgreSQL database schema.
-	https://github.com/volatiletech/sqlboiler
+	https://github.com/aarondl/sqlboiler
 
 	It requires an active PostgreSQL server to be running.
 

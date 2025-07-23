@@ -7,12 +7,9 @@
 # $ task --list
 #
 version: "3"
-
 vars:
   BINNAME: dist/defacto2-server # build output, binary filename (without any extensions)
-
 dotenv: ["./init/.env.local"]
-
 tasks:
   _init:
     silent: false
@@ -20,8 +17,8 @@ tasks:
     cmds:
       - cmd: go install github.com/goreleaser/goreleaser/v2@latest
       #- cmd: go install github.com/evanw/esbuild/cmd/esbuild@latest
-      - cmd: go install github.com/volatiletech/sqlboiler/v4@latest
-      - cmd: go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
+      - cmd: go install github.com/aarondl/sqlboiler/v4@latest
+      - cmd: go install github.com/aarondl/sqlboiler/v4/drivers/sqlboiler-psql@latest
       - cmd: go mod tidy
   assets:
     desc: "Build, compile and compress the web serve CSS and JS assets."

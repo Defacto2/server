@@ -10,11 +10,11 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
+	"github.com/aarondl/null/v8"
+	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func TestValidDateIssue(t *testing.T) {

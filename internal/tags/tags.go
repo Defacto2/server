@@ -11,8 +11,8 @@ import (
 	"sync"
 
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
 var (

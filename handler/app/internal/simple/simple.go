@@ -26,9 +26,9 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/aarondl/null/v8"
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
-	"github.com/volatiletech/null/v8"
 	_ "golang.org/x/image/webp" // webp format decoder
 )
 

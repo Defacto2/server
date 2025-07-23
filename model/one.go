@@ -10,10 +10,10 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/aarondl/null/v8"
+	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/aarondl/sqlboiler/v4/queries/qm"
 	"github.com/google/uuid"
-	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // One retrieves a single file record from the database using the record key.

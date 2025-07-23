@@ -9,9 +9,9 @@ import (
 
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/volatiletech/null/v8"
-	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"github.com/aarondl/null/v8"
+	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
 // Order the query using a table column.

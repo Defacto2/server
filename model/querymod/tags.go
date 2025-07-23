@@ -4,7 +4,7 @@ package querymod
 
 import (
 	"github.com/Defacto2/server/internal/tags"
-	"github.com/volatiletech/null/v8"
+	"github.com/aarondl/null/v8"
 )
 
 // funcs that begin with S are for the section column.
