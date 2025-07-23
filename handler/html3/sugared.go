@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Sugared logger passthrough.
+// Sugared logger pass-through.
 type Sugared struct {
 	Log *zap.SugaredLogger
 }
@@ -37,7 +37,7 @@ func (s *Sugared) Art(c echo.Context, db *sql.DB) error {
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func (s *Sugared) Categories(c echo.Context) error {
 	start := helper.Latency()
-	err := c.Render(http.StatusOK, string(tag), map[string]interface{}{
+	err := c.Render(http.StatusOK, string(tag), map[string]any{
 		"title":       title + "/categories",
 		"description": "Artifact categories and classification tags.",
 		"latency":     time.Since(*start).String() + ".",
@@ -112,7 +112,7 @@ func (s *Sugared) Groups(c echo.Context, db *sql.DB) error {
 		}
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
-	err := c.Render(http.StatusOK, "html3_groups", map[string]interface{}{
+	err := c.Render(http.StatusOK, "html3_groups", map[string]any{
 		"title": title + "/groups",
 		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between" +
@@ -161,7 +161,7 @@ func (s *Sugared) Index(c echo.Context, db *sql.DB) error {
 		helper.Capitalize(textSof),
 		helper.Capitalize(textAll),
 	}
-	err := c.Render(http.StatusOK, "html3_index", map[string]interface{}{
+	err := c.Render(http.StatusOK, "html3_index", map[string]any{
 		"title":       title,
 		"description": desc,
 		"descs":       descs,
@@ -234,7 +234,7 @@ func (s *Sugared) List(c echo.Context, db *sql.DB, tt RecordsBy) error { //nolin
 	// string based values for use in templates
 	stat := fmt.Sprintf("%d files, %s", count, helper.ByteCountFloat(byteSum))
 	title, desc := ListInfo(tt, current, id)
-	err = c.Render(http.StatusOK, tt.String(), map[string]interface{}{
+	err = c.Render(http.StatusOK, tt.String(), map[string]any{
 		"title":       title,
 		"home":        "",
 		"description": desc,
@@ -262,7 +262,7 @@ func (s *Sugared) Platform(c echo.Context, db *sql.DB) error {
 // Platforms lists the names, descriptions and sums of the platform tags.
 func (s *Sugared) Platforms(c echo.Context) error {
 	start := helper.Latency()
-	err := c.Render(http.StatusOK, string(tag), map[string]interface{}{
+	err := c.Render(http.StatusOK, string(tag), map[string]any{
 		"title":       title + "/platforms",
 		"description": "File platforms, operating systems and media types.",
 		"latency":     time.Since(*start).String() + ".",

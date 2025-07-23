@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/areacode"
-	"github.com/stretchr/testify/assert"
+	"github.com/nalgeon/be"
 )
 
 func ExampleQuery() {
@@ -138,6 +138,6 @@ func TestTerritories(t *testing.T) {
 	notes := areacode.Notes()
 	for nan := range notes {
 		terr := areacode.TerritoryByCode(nan)
-		assert.GreaterOrEqual(t, len(terr), 1, "%d should return at least one []Territory", nan)
+		be.True(t, len(terr) >= 1)
 	}
 }

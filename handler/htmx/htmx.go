@@ -547,7 +547,7 @@ func SearchByID(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	if len(fs) == 0 {
 		return c.HTML(http.StatusOK, "No artifacts found.")
 	}
-	err = c.Render(http.StatusOK, "searchids", map[string]interface{}{
+	err = c.Render(http.StatusOK, "searchids", map[string]any{
 		"maximum": maxResults,
 		"name":    search,
 		"result":  fs,
@@ -618,7 +618,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error
 	lookup = slices.Insert(lookup, 0, name+matchZeroOrMore)
 
 	var r model.Releasers
-	// lookup extact match initialisms
+	// lookup exact match initialisms
 	if err := r.Initialism(ctx, db, limit, lookup...); err != nil {
 		if logger != nil {
 			logger.Error(err)
@@ -695,7 +695,7 @@ func datalist(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, input strin
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "")
 	}
-	err = c.Render(http.StatusOK, "datalistreleasers", map[string]interface{}{
+	err = c.Render(http.StatusOK, "datalistreleasers", map[string]any{
 		"maximum": maxResults,
 		"name":    slug,
 		"result":  r,

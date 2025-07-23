@@ -470,7 +470,7 @@ func ReleaserPair(a, b any) [2]string {
 	return [2]string{}
 }
 
-// Screenshot returns a image elment with screenshots for the given unid.
+// Screenshot returns a image element with screenshots for the given unid.
 // If a webp or avif image is available, and a legacy png or jpg image is available,
 // a picture element is used to provide multiple sources for the image. Otherwise,
 // a single img element is used.

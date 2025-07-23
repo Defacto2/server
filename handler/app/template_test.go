@@ -1,37 +1,37 @@
 package app_test
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/nalgeon/be"
 )
 
 func TestTemplTemplates(t *testing.T) {
 	t.Parallel()
 	tpl := app.Templ{}
 	x, err := tpl.Templates(nil)
-	require.Error(t, err)
-	assert.Nil(t, x)
+	be.Err(t, err)
+	be.True(t, x == nil)
 }
 
 func TestFuncClosures(t *testing.T) {
 	t.Parallel()
 	tpl := app.Templ{}
 	x := tpl.FuncClosures(nil)
-	assert.NotNil(t, x)
+	be.True(t, x != nil)
 }
 
 func TestLinkRelrs(t *testing.T) {
 	t.Parallel()
-	x := app.LinkRelrs(false, nil, nil)
-	assert.NotNil(t, x)
-	x = app.LinkRelsPerf(nil, nil)
-	assert.NotNil(t, x)
-	x = app.LinkReleasers(false, false, nil, nil)
-	assert.NotNil(t, x)
+	x := string(app.LinkRelrs(false, nil, nil))
+	be.True(t, x == "")
+	x = string(app.LinkRelsPerf(nil, nil))
+	be.True(t, x == "")
+	x = string(app.LinkReleasers(false, false, nil, nil))
+	be.True(t, x == "")
 }
 
 func TestTempls(t *testing.T) {
@@ -41,12 +41,14 @@ func TestTempls(t *testing.T) {
 
 	p := filepath.Join("../", "../", "view", "app")
 	view, err := filepath.Abs(p)
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 
 	for _, page := range *pages {
-		assert.NotNil(t, page)
+		be.True(t, page != "")
 		ext := filepath.Ext(string(page))
-		assert.Equal(t, ".tmpl", ext)
-		assert.FileExists(t, filepath.Join(view, string(page)))
+		be.Equal(t, ".tmpl", ext)
+		stat, err := os.Stat(filepath.Join(view, string(page)))
+		be.Err(t, err, nil)
+		be.True(t, stat.Size() > 0)
 	}
 }

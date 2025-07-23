@@ -79,8 +79,8 @@ func youtube() []Site {
 			"Modern Vintage Gamer on the hardware copy protection of Ocean's Robocop 3 for the Commodore Amiga that was broken by Fairlight.",
 		},
 		Site{
-			"Codewheels, early Anti-Piracy that was easy to bypass", "https://www.youtube.com/watch?v=S_Tz0YpDa6o",
-			"Modern Vintage Gamer covers the gimmic, paper codewheel copy protection of the 1980s.",
+			"Code-wheels, early Anti-Piracy that was easy to bypass", "https://www.youtube.com/watch?v=S_Tz0YpDa6o",
+			"Modern Vintage Gamer covers the gimmick, paper code-wheel copy protection of the 1980s.",
 		},
 		Site{
 			"Datel Action Replay", "https://www.youtube.com/watch?v=WH3ja70_okA",
@@ -116,7 +116,7 @@ func youtube() []Site {
 		},
 		Site{
 			"The lost art of video game anti-piracy", "https://www.youtube.com/watch?v=ha7w96FQ-y4",
-			"nimk covers the anti-piracy ingame death and warning screens both modern and old.",
+			"nimk covers the anti-piracy in-game death and warning screens both modern and old.",
 		},
 		Site{
 			"Anti-piracy screens are unnerving. But, why?", "https://www.youtube.com/watch?v=dL9gUli_7L0",
@@ -128,7 +128,7 @@ func youtube() []Site {
 		},
 		Site{
 			"The horror of anti-piracy screens", "https://www.youtube.com/watch?v=wUUZFu0YmXw",
-			"lzzzyzzz dives into the bizzarre world of video game anti-piracy screens.",
+			"lzzzyzzz dives into the bizarre world of video game anti-piracy screens.",
 		},
 		Site{
 			"7 crazy ways video game pirates were punished", "https://www.youtube.com/watch?v=FVVx5WYmO2s",

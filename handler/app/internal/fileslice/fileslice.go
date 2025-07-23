@@ -209,7 +209,7 @@ func FileInfo(uri string) (string, string, string) {
 	case Sensenstahl:
 		logo = "sensenstahl 🎁"
 		h1sub = "the bbstros for sensenstahl"
-		lead = "These are the newest BBStros addded to the collection."
+		lead = "These are the newest BBStros added to the collection."
 	default:
 		s := RecordsSub(uri)
 		h1sub = s

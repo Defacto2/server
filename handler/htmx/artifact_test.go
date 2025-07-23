@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/htmx"
-	"github.com/stretchr/testify/assert"
+	"github.com/nalgeon/be"
 )
 
 func TestValidate(t *testing.T) {
@@ -98,11 +98,9 @@ func TestPath(t *testing.T) {
 
 			gotUnid, gotName, err := htmx.Path(c)
 			got := (err != nil)
-			if !assert.Equal(t, tt.wantErr, got) {
-				t.Errorf("Path() error = %v, wantErr %v", got, tt.wantErr)
-			}
-			assert.Equal(t, tt.wantUnid, gotUnid)
-			assert.Equal(t, tt.wantName, gotName)
+			be.Equal(t, got, tt.wantErr)
+			be.Equal(t, tt.wantUnid, gotUnid)
+			be.Equal(t, tt.wantName, gotName)
 		})
 	}
 }

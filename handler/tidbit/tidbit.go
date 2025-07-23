@@ -1,4 +1,4 @@
-// Package tidbit offeres hyperlinked historical information about the Scene releasers and groups.
+// Package tidbit offers hyperlinked historical information about the Scene releasers and groups.
 package tidbit
 
 import (
@@ -16,7 +16,7 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 )
 
-// URI is a the URL slug of the releaser.
+// URI is the URL slug of the releaser.
 type URI string
 
 // ID is the identifier of the tidbit.

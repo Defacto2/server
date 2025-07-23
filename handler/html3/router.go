@@ -15,7 +15,7 @@ import (
 
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
-// and the custom /html3, group errror template.
+// and the custom /html3, group error template.
 func Routes(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) *echo.Group {
 	if e == nil {
 		panic(ErrRoutes)

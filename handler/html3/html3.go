@@ -114,7 +114,7 @@ func Error(c echo.Context, err error) error {
 		code = httpError.Code
 		msg = fmt.Sprint(httpError.Message)
 	}
-	return c.Render(code, "html3_error", map[string]interface{}{
+	return c.Render(code, "html3_error", map[string]any{
 		"title":       fmt.Sprintf("%d error, there is a complication", code),
 		"description": msg + ".",
 		"latency":     time.Since(*start).String() + ".",
@@ -189,9 +189,7 @@ func LeadInt(width, i int) string {
 		return s
 	}
 	count := width - l
-	if count > maxPad {
-		count = maxPad
-	}
+	count = min(count, maxPad)
 	return strings.Repeat(padding, count) + s
 }
 

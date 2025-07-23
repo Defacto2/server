@@ -5,8 +5,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/readme"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/nalgeon/be"
 )
 
 func TestSortContent(t *testing.T) {
@@ -58,7 +57,7 @@ func TestSortContent(t *testing.T) {
 			sortedContent := readme.SortContent(tt.content...)
 
 			for i, v := range sortedContent {
-				assert.Equal(t, tt.expected[i], v)
+				be.Equal(t, tt.expected[i], v)
 			}
 		})
 	}
@@ -119,7 +118,7 @@ func TestReadmeSuggest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.filename+"_"+tt.group, func(t *testing.T) {
 			result := readme.Suggest(tt.filename, tt.group, tt.content...)
-			assert.Equal(t, tt.expected, result)
+			be.Equal(t, tt.expected, result)
 		})
 	}
 }
@@ -127,28 +126,28 @@ func TestReadmeSuggest(t *testing.T) {
 func TestRead(t *testing.T) {
 	t.Parallel()
 	p, _, err := readme.Read(nil, "", "")
-	require.Error(t, err)
-	assert.Empty(t, p)
+	be.Err(t, err)
+	be.True(t, len(p) == 0)
 }
 
 func TestRemoveCtrls(t *testing.T) {
 	t.Parallel()
 	p := []byte("a\x1b[1;cabc")
 	r := readme.RemoveCtrls(p)
-	assert.Equal(t, []byte("aabc"), r)
+	be.Equal(t, []byte("aabc"), r)
 }
 
 func TestIncompatibleANSI(t *testing.T) {
 	t.Parallel()
 	b, err := readme.IncompatibleANSI(nil)
-	require.NoError(t, err)
-	assert.False(t, b)
+	be.Err(t, err, nil)
+	be.True(t, !b)
 	r := strings.NewReader("a\x1b[1;cabc")
 	b, err = readme.IncompatibleANSI(r)
-	require.NoError(t, err)
-	assert.False(t, b)
+	be.Err(t, err, nil)
+	be.True(t, !b)
 	r = strings.NewReader("a\x1b[Acabc")
 	b, err = readme.IncompatibleANSI(r)
-	require.NoError(t, err)
-	assert.True(t, b)
+	be.Err(t, err, nil)
+	be.True(t, b)
 }

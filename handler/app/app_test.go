@@ -11,8 +11,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/nalgeon/be"
 )
 
 //go:embed*
@@ -26,169 +25,169 @@ const (
 func TestTrimSpace(t *testing.T) {
 	t.Parallel()
 	s := app.TrimSpace(nil)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.TrimSpace("")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.TrimSpace("  ")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.TrimSpace("  a  ")
-	assert.Equal(t, "a", s)
+	be.Equal(t, "a", s)
 	x := null.StringFrom("  a  ")
 	s = app.TrimSpace(x)
-	assert.Equal(t, "a", s)
+	be.Equal(t, "a", s)
 }
 
 func TestTagOption(t *testing.T) {
 	t.Parallel()
 	s := app.TagOption(nil, nil)
-	assert.Contains(t, `<option value="">`, s)
+	be.True(t, strings.Contains(`<option value="">`, string(s)))
 	s = app.TagOption("", tags.Interview.String())
-	assert.Contains(t, s, `<option value="interview">`)
+	be.True(t, strings.Contains(string(s), `<option value="interview">`))
 	s = app.TagOption(tags.Interview.String(), tags.Interview.String())
-	assert.Contains(t, s, `<option value="interview" selected>`)
+	be.True(t, strings.Contains(string(s), `<option value="interview" selected>`))
 }
 
 func TestTagBrief(t *testing.T) {
 	t.Parallel()
 	s := app.TagBrief("")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.TagBrief(tags.Interview.String())
-	assert.Contains(t, s, "conversations with")
+	be.True(t, strings.Contains(string(s), "conversations with"))
 }
 
 func TestSubTitle(t *testing.T) {
 	t.Parallel()
 	x := null.StringFrom("")
 	s := app.SubTitle(x, nil, false)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 
 	const sub = "A second title."
 	s = app.SubTitle(x, sub, false)
-	assert.Contains(t, s, sub)
+	be.True(t, strings.Contains(string(s), sub))
 
 	mag := null.StringFrom("magazine")
 	s = app.SubTitle(mag, "1", false)
-	assert.Contains(t, s, "Issue 1")
+	be.True(t, strings.Contains(string(s), "Issue 1"))
 
 	s = app.SubTitle(mag, 1, false)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 }
 
 func TestRecordRels(t *testing.T) {
 	t.Parallel()
 	s := app.RecordRels(nil, nil)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.RecordRels("1", "2")
-	assert.Equal(t, "1 + 2", s)
+	be.Equal(t, "1 + 2", s)
 }
 
 func TestMonth(t *testing.T) {
 	t.Parallel()
 	s := app.Month(nil)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.Month(0)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.Month(1)
-	assert.Contains(t, s, "Jan")
+	be.True(t, strings.Contains(string(s), "Jan"))
 	s = app.Month(13)
-	assert.Contains(t, s, "error")
+	be.True(t, strings.Contains(string(s), "error"))
 }
 
 func TestLinkRelsPerf(t *testing.T) {
 	t.Parallel()
 	s := app.LinkRelsPerf("", "")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.LinkRelsPerf("Group 1", "Group 2")
-	assert.Contains(t, s, "Group 1")
-	assert.Contains(t, s, "Group 2")
-	assert.Contains(t, s, `href="/g/group-1"`)
-	assert.Contains(t, s, `href="/g/group-2"`)
+	be.True(t, strings.Contains(string(s), "Group 1"))
+	be.True(t, strings.Contains(string(s), "Group 2"))
+	be.True(t, strings.Contains(string(s), `href="/g/group-1"`))
+	be.True(t, strings.Contains(string(s), `href="/g/group-2"`))
 }
 
 func TestLastUpdated(t *testing.T) {
 	t.Parallel()
 	s := app.LastUpdated(nil)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	oneHourAgo := time.Now().Add(-time.Hour)
 	s = app.LastUpdated(oneHourAgo)
-	assert.Equal(t, "Last updated about 1 hour ago", s)
+	be.Equal(t, "Last updated about 1 hour ago", s)
 }
 
 func TestLinkHref(t *testing.T) {
 	t.Parallel()
 	s, err := app.LinkHref(nil)
-	assert.Empty(t, s)
-	require.Error(t, err)
+	be.Equal(t, s, "")
+	be.Err(t, err)
 
 	s, err = app.LinkHref(0)
-	assert.Empty(t, s)
-	require.Error(t, err)
+	be.Equal(t, s, "")
+	be.Err(t, err)
 
 	s, err = app.LinkHref(1)
-	assert.Contains(t, s, "/f/9b1c6")
-	require.NoError(t, err)
+	be.True(t, strings.Contains(string(s), "/f/9b1c6"))
+	be.Err(t, err, nil)
 }
 
 func TestDescribe(t *testing.T) {
 	t.Parallel()
 	s := app.Describe("", "", "", "")
-	assert.Contains(t, s, "error")
+	be.True(t, strings.Contains(string(s), "error"))
 	s = app.Describe("", "", 1900, 50)
-	assert.Contains(t, s, "unknown release")
+	be.True(t, strings.Contains(string(s), "unknown release"))
 	s = app.Describe("x", "y", 1980, 1)
-	assert.Contains(t, s, "Unknown platform")
-	assert.Contains(t, s, "Jan, 1980")
+	be.True(t, strings.Contains(string(s), "Unknown platform"))
+	be.True(t, strings.Contains(string(s), "Jan, 1980"))
 	plat := null.StringFrom(tags.ANSI.String())
 	s = app.Describe(plat, "y", 1980, 1)
-	assert.Contains(t, s, "Unknown section")
+	be.True(t, strings.Contains(string(s), "Unknown section"))
 	sect := null.StringFrom(tags.BBS.String())
 	year := null.Int16From(1990)
 	month := null.Int16From(12)
 	s = app.Describe(plat, sect, year, month)
-	assert.Contains(t, s, "BBS ansi advert published in")
-	assert.Contains(t, s, "Dec, 1990")
+	be.True(t, strings.Contains(string(s), "BBS ansi advert published in"))
+	be.True(t, strings.Contains(string(s), "Dec, 1990"))
 }
 
 func TestDay(t *testing.T) {
 	t.Parallel()
 	x := app.Day("")
-	assert.Contains(t, x, "error")
+	be.True(t, strings.Contains(x, "error"))
 	x = app.Day("1")
-	assert.Contains(t, x, "error")
+	be.True(t, strings.Contains(x, "error"))
 	x = app.Day(1)
-	assert.Contains(t, x, " 1")
+	be.True(t, strings.Contains(x, " 1"))
 	x = app.Day(100)
-	assert.Contains(t, x, "error")
+	be.True(t, strings.Contains(x, "error"))
 }
 
 func TestByteFile(t *testing.T) {
 	t.Parallel()
 	s := app.ByteFile("", "")
-	assert.Contains(t, s, "error")
+	be.True(t, strings.Contains(string(s), "error"))
 	s = app.ByteFile(1, "")
-	assert.Contains(t, s, "error")
+	be.True(t, strings.Contains(string(s), "error"))
 	s = app.ByteFile("", 1)
-	assert.Contains(t, s, "error")
+	be.True(t, strings.Contains(string(s), "error"))
 	s = app.ByteFile(12, 1023)
-	assert.Contains(t, s, "12 ")
-	assert.Contains(t, s, "(1023B)")
+	be.True(t, strings.Contains(string(s), "12 "))
+	be.True(t, strings.Contains(string(s), "(1023B)"))
 }
 
 func TestByteFileS(t *testing.T) {
 	t.Parallel()
 	const intro = "intro"
 	s := app.ByteFileS("", "", "")
-	assert.Contains(t, s, "error")
+	be.True(t, strings.Contains(string(s), "error"))
 	s = app.ByteFileS(intro, 1, "")
-	assert.Contains(t, s, "error")
+	be.True(t, strings.Contains(string(s), "error"))
 	s = app.ByteFileS(intro, "", 1)
-	assert.Contains(t, s, "error")
+	be.True(t, strings.Contains(string(s), "error"))
 	s = app.ByteFileS(intro, 1, 50000)
-	assert.Contains(t, s, "1 intro ")
-	assert.Contains(t, s, "(49k)")
+	be.True(t, strings.Contains(string(s), "1 intro "))
+	be.True(t, strings.Contains(string(s), "(49k)"))
 	s = app.ByteFileS(intro, 12, 1023)
-	assert.Contains(t, s, "12 intros ")
-	assert.Contains(t, s, "(1023B)")
+	be.True(t, strings.Contains(string(s), "12 intros "))
+	be.True(t, strings.Contains(string(s), "(1023B)"))
 }
 
 func TestFuncMap(t *testing.T) {
@@ -196,18 +195,18 @@ func TestFuncMap(t *testing.T) {
 	w := app.Templ{}
 	x := w.FuncMap(nil)
 	keys := slices.Sorted(maps.Keys(*x))
-	assert.Contains(t, keys, "add")
-	assert.Contains(t, keys, "version")
-	assert.Contains(t, keys, "az")
-	assert.Contains(t, keys, "msdos")
+	be.True(t, slices.Contains(keys, "add"))
+	be.True(t, slices.Contains(keys, "version"))
+	be.True(t, slices.Contains(keys, "az"))
+	be.True(t, slices.Contains(keys, "msdos"))
 }
 
 func TestLinkSamples(t *testing.T) {
 	t.Parallel()
 	x := app.LinkPreviews("1", "2", "3", "4", "5", "6", "7")
-	assert.Len(t, x, 7)
-	assert.Contains(t, x[0], "youtube.com/watch?v=1")
-	assert.Contains(t, x[1], "demozoo.org/productions/2")
+	be.True(t, len(x) == 7)
+	be.True(t, strings.Contains(x[0], "youtube.com/watch?v=1"))
+	be.True(t, strings.Contains(x[1], "demozoo.org/productions/2"))
 }
 
 func TestMilestone(t *testing.T) {
@@ -215,15 +214,15 @@ func TestMilestone(t *testing.T) {
 	ms := app.Collection()
 
 	const expectedMileStones = 100
-	assert.Greater(t, ms.Len(), expectedMileStones)
+	be.True(t, ms.Len() > expectedMileStones)
 
 	one := ms[0]
 	const expectedYear = 1971
-	assert.Equal(t, expectedYear, one.Year)
-	assert.Equal(t, "Secrets of the Little Blue Box", one.Title)
+	be.Equal(t, expectedYear, one.Year)
+	be.Equal(t, "Secrets of the Little Blue Box", one.Title)
 
 	for _, record := range ms {
-		assert.NotEqual(t, 0, record.Year)
+		be.True(t, record.Year != 0)
 	}
 }
 
@@ -232,31 +231,31 @@ func TestInterviewees(t *testing.T) {
 	i := app.Interviewees()
 	l := len(i)
 	const expectedInterviewees = 11
-	assert.Equal(t, expectedInterviewees, l)
+	be.Equal(t, expectedInterviewees, l)
 
 	for _, x := range i {
-		assert.NotEmpty(t, x.Name)
+		be.True(t, x.Name != "")
 	}
 }
 
 func TestExternalLink(t *testing.T) {
 	t.Parallel()
-	x := app.LinkRemote("", "")
-	assert.Contains(t, x, "error")
-	x = app.LinkRemote(exampleURL, "")
-	assert.Contains(t, x, "error")
-	x = app.LinkRemote(exampleURL, "Example")
-	assert.Contains(t, x, exampleURL)
+	s := app.LinkRemote("", "")
+	be.True(t, strings.Contains(string(s), "error"))
+	s = app.LinkRemote(exampleURL, "")
+	be.True(t, strings.Contains(string(s), "error"))
+	s = app.LinkRemote(exampleURL, "Example")
+	be.True(t, strings.Contains(string(s), exampleURL))
 }
 
 func TestWikiLink(t *testing.T) {
 	t.Parallel()
-	x := app.LinkWiki("", "")
-	assert.Contains(t, x, "error")
-	x = app.LinkWiki(exampleWiki, "")
-	assert.Contains(t, x, "error")
-	x = app.LinkWiki(exampleWiki, "Example")
-	assert.Contains(t, x, exampleWiki)
+	s := app.LinkWiki("", "")
+	be.True(t, strings.Contains(string(s), "error"))
+	s = app.LinkWiki(exampleWiki, "")
+	be.True(t, strings.Contains(string(s), "error"))
+	s = app.LinkWiki(exampleWiki, "Example")
+	be.True(t, strings.Contains(string(s), exampleWiki))
 }
 
 func TestLogoText(t *testing.T) {
@@ -268,50 +267,50 @@ func TestLogoText(t *testing.T) {
 	const wantR = "      : ·· I'M MEANT TO BE WRITING AT THIS MOMENT. WHAT I MEAN IS, I ·· ·"
 	x := app.LogoText("")
 	want := strings.Repeat(" ", leftPad) + app.Welcome
-	assert.Equal(t, want, x)
+	be.Equal(t, want, x)
 	x = app.LogoText("X")
-	assert.Equal(t, want1, x)
+	be.Equal(t, want1, x)
 	x = app.LogoText("XY")
-	assert.Equal(t, want2, x)
+	be.Equal(t, want2, x)
 	x = app.LogoText("xyz")
-	assert.Equal(t, want3, x)
+	be.Equal(t, want3, x)
 	const rand = "I'm meant to be writing at this moment. " +
 		"What I mean is, I'm meant to be writing something else at this moment."
 	x = app.LogoText(rand)
-	assert.Equal(t, wantR, x)
+	be.Equal(t, wantR, x)
 	x = app.LogoText("abc")
-	assert.Contains(t, x, "      :                            ·· ABC ··                            ·")
+	be.True(t, strings.Contains(x, "      :                            ·· ABC ··                            ·"))
 }
 
 func TestList(t *testing.T) {
 	t.Parallel()
 	list := app.List()
 	const expectedCount = 9
-	assert.Len(t, list, expectedCount)
+	be.True(t, len(list) == expectedCount)
 }
 
 func TestNames(t *testing.T) {
 	t.Parallel()
 
 	x := *app.Names()
-	assert.Equal(t, "public/css/bootstrap.min.css", x[0])
+	be.Equal(t, "public/css/bootstrap.min.css", x[0])
 }
 
 func TestFontRefs(t *testing.T) {
 	t.Parallel()
 
 	x := *app.FontRefs()
-	assert.Equal(t, "/pxplus_ibm_vga8.woff2", x[app.VGA8])
+	be.Equal(t, "/pxplus_ibm_vga8.woff2", x[app.VGA8])
 
 	n := *app.FontNames()
-	assert.Equal(t, "public/font/pxplus_ibm_vga8.woff2", n[app.VGA8])
+	be.Equal(t, "public/font/pxplus_ibm_vga8.woff2", n[app.VGA8])
 }
 
 func TestGlobTo(t *testing.T) {
 	t.Parallel()
 
 	x := app.GlobTo("file.css")
-	assert.Equal(t, "view/app/file.css", x)
+	be.Equal(t, "view/app/file.css", x)
 }
 
 func TestTemplates(t *testing.T) {
@@ -319,120 +318,120 @@ func TestTemplates(t *testing.T) {
 
 	w := app.Templ{}
 	_, err := w.Templates(nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestAttribute(t *testing.T) {
 	t.Parallel()
 	s := app.Attribute("", "", "", "", "")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.Attribute("writer1",
 		"", "", "", "")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.Attribute("writer",
 		"", "", "", "some scener")
-	assert.Contains(t, s, "error:")
+	be.True(t, strings.Contains(string(s), "error:"))
 	s = app.Attribute("another person,writer,some scener",
 		"", "", "", "some scener")
-	require.Equal(t, "Writer attribution", s)
+	be.Equal(t, "Writer attribution", s)
 	s = app.Attribute("another person,writer,some scener",
 		"", "some scener", "", "some scener")
-	assert.Equal(t, "Writer and artist attributions", s)
+	be.Equal(t, "Writer and artist attributions", s)
 	s = app.Attribute("another person,writer,ben",
 		"ben", "", "", "ben")
-	assert.Equal(t, "Writer and programmer attributions", s)
+	be.Equal(t, "Writer and programmer attributions", s)
 }
 
 func TestBrief(t *testing.T) {
 	t.Parallel()
 	s := app.Brief("", "")
-	assert.Equal(t, "an unknown release", s)
+	be.Equal(t, "an unknown release", s)
 
 	s = app.Brief("a string", "")
-	assert.Contains(t, s, "unknown platform")
+	be.True(t, strings.Contains(string(s), "unknown platform"))
 	plat := null.StringFrom("windows")
 
 	s = app.Brief(plat, "")
-	assert.Contains(t, s, "unknown section")
+	be.True(t, strings.Contains(string(s), "unknown section"))
 
 	sect := null.StringFrom(tags.Intro.String())
 	s = app.Brief(plat, sect)
-	assert.Contains(t, s, "a Windows intro")
+	be.True(t, strings.Contains(string(s), "a Windows intro"))
 }
 
 func TestLinkDownload(t *testing.T) {
 	t.Parallel()
-	s := app.LinkDownload("", "")
-	assert.Contains(t, s, "invalid")
-	s = app.LinkDownload(1, "")
-	assert.Contains(t, s, "/d/9b1c6")
+	s := string(app.LinkDownload("", ""))
+	be.True(t, strings.Contains(string(s), "invalid"))
+	s = string(app.LinkDownload(1, ""))
+	be.True(t, strings.Contains(string(s), "/d/9b1c6"))
 }
 
 func TestLinkInterview(t *testing.T) {
 	t.Parallel()
-	s := app.LinkInterview("")
-	assert.Contains(t, s, "error")
-	s = app.LinkInterview("x")
-	assert.Empty(t, s)
-	s = app.LinkInterview("https://example.com")
-	assert.Contains(t, s, "#arrow-right")
+	s := string(app.LinkInterview(""))
+	be.True(t, strings.Contains(string(s), "error"))
+	s = string(app.LinkInterview("x"))
+	be.Equal(t, s, "")
+	s = string(app.LinkInterview("https://example.com"))
+	be.True(t, strings.Contains(string(s), "#arrow-right"))
 }
 
 func TestLinkPreview(t *testing.T) {
 	t.Parallel()
 	s := app.LinkPreview("", "", "")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.LinkPreview(1, "readme.txt", "text")
-	assert.Contains(t, s, "Preview")
+	be.True(t, strings.Contains(string(s), "Preview"))
 }
 
 func TestLinkScnr(t *testing.T) {
 	t.Parallel()
 	s, err := app.LinkScnr("")
-	require.NoError(t, err)
-	assert.Empty(t, s)
+	be.Err(t, err, nil)
+	be.Equal(t, s, "")
 	s, err = app.LinkScnr("some scener")
-	require.NoError(t, err)
-	assert.Equal(t, "/p/some-scener", s)
+	be.Err(t, err, nil)
+	be.Equal(t, "/p/some-scener", s)
 }
 
 func TestTagWithOS(t *testing.T) {
 	t.Parallel()
 	s := app.TagWithOS("", "")
-	assert.Contains(t, s, "unknown")
+	be.True(t, strings.Contains(string(s), "unknown"))
 	s = app.TagWithOS("windows", "")
-	assert.Contains(t, s, "unknown")
+	be.True(t, strings.Contains(string(s), "unknown"))
 	s = app.TagWithOS("dos", "magazine")
-	assert.Equal(t, "a Dos magazine", s)
+	be.Equal(t, "a Dos magazine", s)
 }
 
 func TestTrimSiteSuffix(t *testing.T) {
 	t.Parallel()
 	s := app.TrimSiteSuffix("Some text")
-	assert.Equal(t, "Some text", s)
+	be.Equal(t, "Some text", s)
 	s = app.TrimSiteSuffix("abc")
-	assert.Equal(t, "abc", s)
+	be.Equal(t, "abc", s)
 	s = app.TrimSiteSuffix("My super BBS")
-	assert.Equal(t, "My super", s)
+	be.Equal(t, "My super", s)
 }
 
 func TestURLEncode(t *testing.T) {
 	t.Parallel()
 	s := app.URLEncode("")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = app.URLEncode("Some text.txt")
-	assert.Equal(t, "Some+text.txt", s)
+	be.Equal(t, "Some+text.txt", s)
 }
 
 func TestYMDEdit(t *testing.T) {
 	t.Parallel()
 	s := app.YMDEdit(nil, nil)
-	require.Error(t, s)
+	be.Err(t, s)
 }
 
 func TestVerify(t *testing.T) {
 	t.Parallel()
 	sri := app.SRI{}
 	err := sri.Verify(emptyFS)
-	require.Error(t, err)
+	be.Err(t, err)
 }

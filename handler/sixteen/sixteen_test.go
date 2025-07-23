@@ -4,13 +4,13 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/sixteen"
-	"github.com/stretchr/testify/assert"
+	"github.com/nalgeon/be"
 )
 
 func TestFind(t *testing.T) {
 	t.Parallel()
 	tag := sixteen.Find("defacto2")
-	assert.Equal(t, tag, sixteen.GroupTag("group/defacto 2"))
+	be.Equal(t, tag, sixteen.GroupTag("group/defacto 2"))
 	tag = sixteen.Find("notfound")
-	assert.Equal(t, tag, sixteen.GroupTag(""))
+	be.Equal(t, tag, sixteen.GroupTag(""))
 }

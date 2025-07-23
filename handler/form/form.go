@@ -59,7 +59,7 @@ func humanizeCount(db *sql.DB, section, platform string) (int64, string, error) 
 	if strings.HasPrefix(tag, "unknown") {
 		switch {
 		case p.String() == "" && s.String() == "":
-			return 0, "please choose both classifcations", nil
+			return 0, "please choose both classifications", nil
 		case s.String() == "":
 			return 0, "please choose a tag as category", nil
 		case p.String() == "":

@@ -270,7 +270,7 @@ func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any
 		return data, nil
 	}
 	// NOTE: readme.Pool should not be used here, 20-July-25.
-	// Using the ReadPool (sync.Pool) function causes unsual text duplication behavior in production.
+	// Using the ReadPool (sync.Pool) function causes unusual text duplication behavior in production.
 	// After research, sync pooling is better used for small, fixed width data.
 	buf, ruf, err := readme.ReadPool(art, dir.Download, dir.Extra)
 	if err != nil {

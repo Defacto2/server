@@ -10,8 +10,7 @@ import (
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/aarondl/null/v8"
 	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/nalgeon/be"
 	"go.uber.org/zap"
 )
 
@@ -30,137 +29,137 @@ func newContext() echo.Context {
 func TestSugared(t *testing.T) {
 	sug := html3.Sugared{}
 	err := sug.Category(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 	err = sug.Documents(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 	err = sug.Group(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 	err = sug.Platform(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 	err = sug.Platforms(newContext())
-	require.Error(t, err)
+	be.Err(t, err)
 	err = sug.Software(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestGroups(t *testing.T) {
 	sug := html3.Sugared{}
 	err := sug.Groups(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestIndex(t *testing.T) {
 	sug := html3.Sugared{}
 	err := sug.Index(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestRoutes(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 	g := html3.Routes(e, nil, nil)
-	assert.NotNil(t, g)
+	be.True(t, g != nil)
 }
 
 func TestSugaredAll(t *testing.T) {
 	sug := html3.Sugared{}
 	err := sug.All(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestSugaredArt(t *testing.T) {
 	sug := html3.Sugared{}
 	err := sug.Art(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestIsCategories(t *testing.T) {
 	sug := html3.Sugared{}
 	err := sug.Categories(newContext())
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestGlobTo(t *testing.T) {
 	s := html3.GlobTo("file")
-	assert.Equal(t, "view/html3/file", s)
+	be.Equal(t, "view/html3/file", s)
 }
 
 func TestTemplates(t *testing.T) {
 	t.Parallel()
 	x := html3.Templates(nil, nil, embed.FS{})
-	assert.NotEmpty(t, x)
+	be.Equal(t, len(x), 11)
 }
 
 func TestError(t *testing.T) {
 	err := html3.Error(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestID(t *testing.T) {
 	s := html3.ID(newContext())
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 }
 
 func TestLeadFS(t *testing.T) {
 	x := html3.LeadFS(0, null.Int64From(0))
-	assert.Equal(t, "0B", x)
+	be.Equal(t, "0B", x)
 	x = html3.LeadFS(10, null.Int64From(3))
-	assert.Equal(t, strings.Repeat(" ", 8)+"3B", x)
+	be.Equal(t, strings.Repeat(" ", 8)+"3B", x)
 }
 
 func TestLeadInt(t *testing.T) {
 	x := html3.LeadInt(0, 0)
-	assert.Equal(t, "-", x)
+	be.Equal(t, "-", x)
 	x = html3.LeadInt(10, 3)
-	assert.Equal(t, strings.Repeat(" ", 9)+"3", x)
+	be.Equal(t, strings.Repeat(" ", 9)+"3", x)
 }
 
 func TestQuery(t *testing.T) {
 	a, b, c, fs, err := html3.Query(newContext(), nil, -1, -1)
-	assert.Empty(t, a)
-	assert.Empty(t, b)
-	assert.Empty(t, c)
-	assert.Empty(t, fs)
-	require.Error(t, err)
+	be.True(t, a == 0)
+	be.True(t, b == 0)
+	be.True(t, c == 0)
+	be.Equal(t, len(fs), 0)
+	be.Err(t, err)
 	a, b, c, fs, err = html3.Query(newContext(), nil, html3.Everything, -1)
-	assert.Empty(t, a)
-	assert.Empty(t, b)
-	assert.Empty(t, c)
-	assert.Empty(t, fs)
-	require.Error(t, err)
+	be.True(t, a == 0)
+	be.True(t, b == 0)
+	be.True(t, c == 0)
+	be.Equal(t, len(fs), 0)
+	be.Err(t, err)
 	_, _, _, _, err = html3.Query(newContext(), nil, html3.BySection, -1)
-	require.Error(t, err)
+	be.Err(t, err)
 	_, _, _, _, err = html3.Query(newContext(), nil, html3.ByPlatform, -1)
-	require.Error(t, err)
+	be.Err(t, err)
 	_, _, _, _, err = html3.Query(newContext(), nil, html3.ByGroup, -1)
-	require.Error(t, err)
+	be.Err(t, err)
 	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsArt, -1)
-	require.Error(t, err)
+	be.Err(t, err)
 	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsDocument, -1)
-	require.Error(t, err)
+	be.Err(t, err)
 	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsSoftware, -1)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestListInfo(t *testing.T) {
 	a, b := html3.ListInfo(0, "", "")
-	assert.Equal(t, "Index of /html3/", a)
-	assert.Empty(t, b)
+	be.Equal(t, "Index of /html3/", a)
+	be.Equal(t, b, "")
 	a, b = html3.ListInfo(10, "aaa", "bbb")
-	assert.Equal(t, "Index of /html3/aaa", a)
-	assert.Empty(t, b)
+	be.Equal(t, "Index of /html3/aaa", a)
+	be.Equal(t, b, "")
 }
 
 func TestRecordsBy(t *testing.T) {
 	by := html3.Everything
-	assert.Equal(t, "html3_all", by.String())
-	assert.Empty(t, by.Parent())
+	be.Equal(t, "html3_all", by.String())
+	be.Equal(t, by.Parent(), "")
 	by = html3.AsSoftware
-	assert.Equal(t, "html3_software", by.String())
-	assert.Empty(t, by.Parent())
+	be.Equal(t, "html3_software", by.String())
+	be.Equal(t, by.Parent(), "")
 	by = html3.BySection
-	assert.Equal(t, "html3_category", by.String())
-	assert.Equal(t, "categories", by.Parent())
+	be.Equal(t, "html3_category", by.String())
+	be.Equal(t, "categories", by.Parent())
 }
 
 func TestClauses(t *testing.T) {
@@ -177,10 +176,10 @@ func TestClauses(t *testing.T) {
 		html3.DescDes,
 	}
 	for i, s := range tests {
-		assert.Equal(t, int(html3.Clauses(s)), i)
+		be.Equal(t, int(html3.Clauses(s)), i)
 	}
-	assert.Equal(t, int(html3.Clauses("")),
-		int(html3.Clauses(html3.NameAsc)), "default should be name asc")
+	be.Equal(t, int(html3.Clauses("")),
+		int(html3.Clauses(html3.NameAsc)))
 }
 
 func TestSorter(t *testing.T) {
@@ -200,25 +199,25 @@ func TestSorter(t *testing.T) {
 	for _, s := range tests {
 		switch s {
 		case html3.NameAsc:
-			assert.Equal(t, d, html3.Sorter(s)[string(html3.Name)])
+			be.Equal(t, d, html3.Sorter(s)[string(html3.Name)])
 		case html3.NameDes:
-			assert.Equal(t, a, html3.Sorter(s)[string(html3.Name)])
+			be.Equal(t, a, html3.Sorter(s)[string(html3.Name)])
 		case html3.PublAsc:
-			assert.Equal(t, d, html3.Sorter(s)[string(html3.Publish)])
+			be.Equal(t, d, html3.Sorter(s)[string(html3.Publish)])
 		case html3.PublDes:
-			assert.Equal(t, a, html3.Sorter(s)[string(html3.Publish)])
+			be.Equal(t, a, html3.Sorter(s)[string(html3.Publish)])
 		case html3.PostAsc:
-			assert.Equal(t, d, html3.Sorter(s)[string(html3.Posted)])
+			be.Equal(t, d, html3.Sorter(s)[string(html3.Posted)])
 		case html3.PostDes:
-			assert.Equal(t, a, html3.Sorter(s)[string(html3.Posted)])
+			be.Equal(t, a, html3.Sorter(s)[string(html3.Posted)])
 		case html3.SizeAsc:
-			assert.Equal(t, d, html3.Sorter(s)[string(html3.Size)])
+			be.Equal(t, d, html3.Sorter(s)[string(html3.Size)])
 		case html3.SizeDes:
-			assert.Equal(t, a, html3.Sorter(s)[string(html3.Size)])
+			be.Equal(t, a, html3.Sorter(s)[string(html3.Size)])
 		case html3.DescAsc:
-			assert.Equal(t, d, html3.Sorter(s)[string(html3.Desc)])
+			be.Equal(t, d, html3.Sorter(s)[string(html3.Desc)])
 		case html3.DescDes:
-			assert.Equal(t, a, html3.Sorter(s)[string(html3.Desc)])
+			be.Equal(t, a, html3.Sorter(s)[string(html3.Desc)])
 		}
 	}
 }
@@ -238,18 +237,17 @@ func TestFile_Description(t *testing.T) {
 		m = "magazine"
 	)
 	tests := []struct {
-		name      string
-		fields    fields
-		expect    string
-		assertion assert.ComparisonAssertionFunc
+		name   string
+		fields fields
+		expect string
 	}{
-		{"empty", fields{}, "", assert.Exactly},
-		{"only title", fields{Title: x}, "", assert.Exactly},
-		{"req group", fields{Title: x, Platform: p}, "", assert.Exactly},
-		{"default", fields{x, g, "", ""}, "Hello world from Defacto2.", assert.Exactly},
-		{"with platform", fields{x, g, "", p}, "Hello world from Defacto2 for Dos.", assert.Exactly},
-		{"no title", fields{"", g, "", p}, "A release from Defacto2 for Dos.", assert.Exactly},
-		{"magazine", fields{"1", g, m, p}, "Defacto2 issue 1 for Dos.", assert.Exactly},
+		{"empty", fields{}, ""},
+		{"only title", fields{Title: x}, ""},
+		{"req group", fields{Title: x, Platform: p}, ""},
+		{"default", fields{x, g, "", ""}, "Hello world from Defacto2."},
+		{"with platform", fields{x, g, "", p}, "Hello world from Defacto2 for Dos."},
+		{"no title", fields{"", g, "", p}, "A release from Defacto2 for Dos."},
+		{"magazine", fields{"1", g, m, p}, "Defacto2 issue 1 for Dos."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -260,7 +258,7 @@ func TestFile_Description(t *testing.T) {
 				Platform: tt.fields.Platform,
 			}
 			t.Run(tt.name, func(t *testing.T) {
-				tt.assertion(t, tt.expect, f.Description())
+				be.Equal(t, f.Description(), tt.expect)
 			})
 		})
 	}
@@ -269,48 +267,48 @@ func TestFile_Description(t *testing.T) {
 func TestDescription(t *testing.T) {
 	empty := null.String{}
 	s := html3.Description(empty, empty, empty, empty)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = html3.Description(
 		null.StringFrom("intro"),
 		null.StringFrom("dos"),
 		null.StringFrom("Defacto2"),
 		null.StringFrom("Hello world"))
-	assert.Equal(t, "Hello world from Defacto2 for Dos.", s)
+	be.Equal(t, "Hello world from Defacto2 for Dos.", s)
 }
 
 func TestFileHref(t *testing.T) {
 	s := html3.FileHref(nil, 0)
-	assert.Equal(t, "zap logger is nil", s)
+	be.Equal(t, "zap logger is nil", s)
 	s = html3.FileHref(logr(), 0)
-	assert.Equal(t, "/html3/d/0", s)
+	be.Equal(t, "/html3/d/0", s)
 }
 
 func TestFileLinkPad(t *testing.T) {
 	n := null.String{}
 	s := html3.FileLinkPad(0, n)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = html3.FileLinkPad(20, null.StringFrom("file"))
-	assert.Equal(t, "                ", s)
+	be.Equal(t, "                ", s)
 }
 
 //nolint:testifylint
 func TestFormattings(t *testing.T) {
-	assert.Equal(t, html3.File{Filename: ""}.FileLinkPad(0), "", "empty")
-	assert.Equal(t, html3.File{Filename: ""}.FileLinkPad(4), "    ", "4 pads")
-	assert.Equal(t, html3.File{Filename: "file"}.FileLinkPad(6), "  ", "2 pads")
-	assert.Equal(t, html3.File{Filename: "file.txt"}.FileLinkPad(6), "", "too big")
-	assert.Equal(t, html3.File{Size: 0}.LeadFS(0), "0B", "0 size")
-	assert.Equal(t, html3.File{Size: 1}.LeadFS(3), " 1B", "1 size")
-	assert.Equal(t, html3.File{Size: 1000}.LeadFS(0), "1000B", "1000 size")
-	assert.Equal(t, html3.File{Size: 1024}.LeadFS(0), "1k", "1k size")
-	assert.Equal(t, html3.File{Size: int64(1024 * 1024)}.LeadFS(0), "1M", "1MB size")
-	assert.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024)}.LeadFS(0), "1G", "1GB size")
-	assert.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024 * 1024)}.LeadFS(0), "1T", "1TB size")
-	assert.Equal(t, html3.LeadInt(0, 1), "1")
-	assert.Equal(t, html3.LeadInt(1, 1), "1")
-	assert.Equal(t, html3.LeadInt(3, 1), "  1")
-	assert.True(t, html3.File{Platform: "java"}.IsOS())
-	assert.Equal(t, html3.File{Platform: "java"}.OS(), " for Java")
+	be.Equal(t, html3.File{Filename: ""}.FileLinkPad(0), "", "empty")
+	be.Equal(t, html3.File{Filename: ""}.FileLinkPad(4), "    ", "4 pads")
+	be.Equal(t, html3.File{Filename: "file"}.FileLinkPad(6), "  ", "2 pads")
+	be.Equal(t, html3.File{Filename: "file.txt"}.FileLinkPad(6), "", "too big")
+	be.Equal(t, html3.File{Size: 0}.LeadFS(0), "0B", "0 size")
+	be.Equal(t, html3.File{Size: 1}.LeadFS(3), " 1B", "1 size")
+	be.Equal(t, html3.File{Size: 1000}.LeadFS(0), "1000B", "1000 size")
+	be.Equal(t, html3.File{Size: 1024}.LeadFS(0), "1k", "1k size")
+	be.Equal(t, html3.File{Size: int64(1024 * 1024)}.LeadFS(0), "1M", "1MB size")
+	be.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024)}.LeadFS(0), "1G", "1GB size")
+	be.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024 * 1024)}.LeadFS(0), "1T", "1TB size")
+	be.Equal(t, html3.LeadInt(0, 1), "1")
+	be.Equal(t, html3.LeadInt(1, 1), "1")
+	be.Equal(t, html3.LeadInt(3, 1), "  1")
+	be.True(t, html3.File{Platform: "java"}.IsOS())
+	be.Equal(t, html3.File{Platform: "java"}.OS(), " for Java")
 }
 
 func TestPagi(t *testing.T) {
@@ -338,9 +336,9 @@ func TestPagi(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1, got2 := html3.Pagi(tt.args.page, tt.args.maxPage)
-			assert.Equal(t, tt.want, got, "value a")
-			assert.Equal(t, tt.want1, got1, "value b")
-			assert.Equal(t, tt.want2, got2, "value c")
+			be.Equal(t, tt.want, got)
+			be.Equal(t, tt.want1, got1)
+			be.Equal(t, tt.want2, got2)
 		})
 	}
 }
@@ -372,5 +370,5 @@ func TestNavi(t *testing.T) {
 func TestTemplateFuncMap(t *testing.T) {
 	t.Parallel()
 	fm := html3.TemplateFuncMap(nil, nil)
-	assert.Nil(t, fm)
+	be.True(t, fm == nil)
 }

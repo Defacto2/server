@@ -5,8 +5,7 @@ import (
 
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/tags"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/nalgeon/be"
 )
 
 // Set to true to test against the remote servers.
@@ -20,8 +19,8 @@ func TestPlatforms(t *testing.T) {
 			Slug: "msdosgus",
 		},
 	}
-	assert.Equal(t, "msdosgus", p.String())
-	assert.True(t, p.Valid())
+	be.Equal(t, "msdosgus", p.String())
+	be.True(t, p.Valid())
 }
 
 func TestType(t *testing.T) {
@@ -29,19 +28,19 @@ func TestType(t *testing.T) {
 	var pt pouet.Type = "demo"
 	var fd pouet.Type = "fastdemo"
 	var prods pouet.Types = []pouet.Type{pt, fd}
-	assert.True(t, prods.Valid())
-	assert.Equal(t, "demo, fastdemo", prods.String())
+	be.True(t, prods.Valid())
+	be.Equal(t, "demo, fastdemo", prods.String())
 }
 
 func TestResponseGet(t *testing.T) {
 	t.Parallel()
 	r := pouet.Response{}
 	_, err := r.Get(0)
-	require.Error(t, err)
+	be.Err(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		_, err = r.Get(1)
-		require.NoError(t, err)
+		be.Err(t, err, nil)
 	}
 }
 
@@ -49,11 +48,11 @@ func TestPouet(t *testing.T) {
 	t.Parallel()
 	p := pouet.Production{}
 	_, err := p.Get(0)
-	require.Error(t, err)
+	be.Err(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		_, err = p.Get(1)
-		require.NoError(t, err)
+		be.Err(t, err, nil)
 	}
 }
 
@@ -61,11 +60,11 @@ func TestVotes(t *testing.T) {
 	t.Parallel()
 	v := pouet.Votes{}
 	err := v.Votes(0)
-	require.Error(t, err)
+	be.Err(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
 		err = v.Votes(1)
-		require.NoError(t, err)
+		be.Err(t, err, nil)
 	}
 }
 
@@ -93,36 +92,36 @@ func TestStars(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := pouet.Stars(tt.args.up, tt.args.meh, tt.args.down)
-			assert.InEpsilon(t, tt.want, f, 2)
+			be.True(t, f == tt.want)
 		})
 	}
 }
 
 func TestValids(t *testing.T) {
 	t.Parallel()
-	assert.False(t, pouet.PlatformsValid(""))
-	assert.True(t, pouet.PlatformsValid("msdos"))
-	assert.True(t, pouet.TypesValid(""))
-	assert.False(t, pouet.TypesValid("fastdemo"))
-	assert.True(t, pouet.TypesValid("msdos,random,placeholder"))
+	be.True(t, !pouet.PlatformsValid(""))
+	be.True(t, pouet.PlatformsValid("msdos"))
+	be.True(t, pouet.TypesValid(""))
+	be.True(t, !pouet.TypesValid("fastdemo"))
+	be.True(t, pouet.TypesValid("msdos,random,placeholder"))
 }
 
 func TestReleasers(t *testing.T) {
 	t.Parallel()
 	pp := pouet.Production{}
 	a, b := pp.Releasers()
-	assert.Empty(t, a)
-	assert.Empty(t, b)
+	be.True(t, a == "")
+	be.True(t, b == "")
 	x, y, z := pp.Released()
-	assert.Empty(t, x)
-	assert.Empty(t, y)
-	assert.Empty(t, z)
+	be.True(t, x == 0)
+	be.True(t, y == 0)
+	be.True(t, z == 0)
 }
 
 func TestPlatformType(t *testing.T) {
 	t.Parallel()
 	pp := pouet.Production{}
 	a, b := pp.PlatformType()
-	assert.Equal(t, tags.Tag(-1), a)
-	assert.Equal(t, tags.Intro, b)
+	be.Equal(t, tags.Tag(-1), a)
+	be.Equal(t, tags.Intro, b)
 }

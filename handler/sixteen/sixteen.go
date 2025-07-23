@@ -2,7 +2,7 @@
 // [16colors]: https://16colo.rs
 package sixteen
 
-// URI is a the URL slug of the releaser.
+// URI is the URL slug of the releaser.
 type URI string
 
 // GroupTag is the 16colors group tag.

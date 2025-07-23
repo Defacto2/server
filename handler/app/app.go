@@ -320,7 +320,7 @@ func LastUpdated(t any) string {
 
 // LinkDownload creates a URL to link to the file download of the record.
 // The id needs to be a valid integer.
-// If the security alert is not empty, then a strikethrough warning is returned.
+// If the security alert is not empty, then a strike-through warning is returned.
 // For example providing 1 and an empty security alert would return:
 //
 //	<a class="card-link" href="/d/9b1c6">Download</a>
@@ -908,7 +908,7 @@ type Cache struct {
 	RecordCount int // The total number of file records in the database.
 }
 
-// SRI are the Subresource Integrity hashes for the layout.
+// SRI are the Sub-Resource Integrity hashes for the layout.
 type SRI struct {
 	Bootstrap5      string // Bootstrap CSS verification hash.
 	Bootstrap5JS    string // Bootstrap JS verification hash.
@@ -1051,7 +1051,7 @@ type Form struct {
 	Month    int16  `query:"month"`    // Month of the release.
 	Day      int16  `query:"day"`      // Day of the release.
 	Online   bool   `query:"online"`   // Online is the record online and public toggle.
-	Readme   bool   `query:"readme"`   // Readme hides the readme textfile from the artifact page.
+	Readme   bool   `query:"readme"`   // Readme hides the readme text file from the artifact page.
 }
 
 const (

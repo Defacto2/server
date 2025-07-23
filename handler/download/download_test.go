@@ -8,7 +8,7 @@ import (
 
 	"github.com/Defacto2/server/handler/download"
 	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/require"
+	"github.com/nalgeon/be"
 )
 
 func newContext() echo.Context {
@@ -22,19 +22,19 @@ func newContext() echo.Context {
 func TestChecksum(t *testing.T) {
 	t.Parallel()
 	err := download.Checksum(newContext(), nil, "")
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestHTTPSend(t *testing.T) {
 	t.Parallel()
 	d := download.Download{}
 	err := d.HTTPSend(newContext(), nil, nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestEZHTTPSend(t *testing.T) {
 	t.Parallel()
 	ez := download.ExtraZip{}
 	err := ez.HTTPSend(newContext(), nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }

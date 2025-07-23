@@ -242,7 +242,7 @@ func Diz(art *models.File, extra dir.Directory) ([]byte, error) {
 	return b, nil
 }
 
-// InsertDiz inserts the FILE_ID.DIZ content into the extisting byte content.
+// InsertDiz inserts the FILE_ID.DIZ content into the existing byte content.
 func InsertDiz(b []byte, diz []byte) []byte {
 	if bytes.TrimSpace(diz) == nil {
 		return b

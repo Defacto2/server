@@ -567,7 +567,7 @@ func category(s string) Category {
 	return -1
 }
 
-// URI is a the URL slug of the releaser.
+// URI is the URL slug of the releaser.
 type URI string
 
 // GroupID is the Demozoo ID of the group.

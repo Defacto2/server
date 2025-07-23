@@ -3,52 +3,67 @@ package remote_test
 // This is a test file is to confirm there's no panics with nil values.
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app/remote"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/nalgeon/be"
 )
 
 func TestDownload(t *testing.T) {
+	t.Parallel()
 	dl := remote.DemozooLink{}
 	err := dl.Download(nil, nil, "")
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestStat(t *testing.T) {
+	t.Parallel()
 	dl := remote.DemozooLink{}
 	err := dl.Stat(nil, nil, "")
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestArchiveContent(t *testing.T) {
+	t.Parallel()
 	dl := remote.DemozooLink{}
 	err := dl.ArchiveContent(nil, nil, "")
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 }
 
 func TestUpdate(t *testing.T) {
+	t.Parallel()
 	dl := remote.DemozooLink{}
 	err := dl.Update(nil, nil)
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestFixSceneOrg(t *testing.T) {
+	t.Parallel()
 	s := "http://files.scene.org/view/demos/groups/trsi/ms-dos/trsiscxt.zip"
 	w := remote.FixSceneOrg(s)
-	assert.Equal(t, "https://files.scene.org/get/demos/groups/trsi/ms-dos/trsiscxt.zip", w)
+	be.Equal(t, "https://files.scene.org/get/demos/groups/trsi/ms-dos/trsiscxt.zip", w)
 }
 
-func TestGetExampleCom(t *testing.T) {
+func TestGetExampleCom1(t *testing.T) {
 	t.Parallel()
-	r, err := remote.GetFile5sec("http://example.com")
-	assert.NotEmpty(t, r.Path)
-	assert.Equal(t, "text/html", r.ContentType)
-	require.NoError(t, err)
-	_, err = remote.GetFile("http://example.com", *http.DefaultClient)
-	require.NoError(t, err)
-	_, err = remote.GetFile("://example.com", *http.DefaultClient)
-	require.Error(t, err)
+	r, err := remote.GetFile5sec("https://example.com")
+	be.True(t, r.Path != "")
+	be.Equal(t, "text/html", r.ContentType)
+	be.True(t, (err == nil || errors.Is(err, context.DeadlineExceeded)))
+	be.Err(t, err, nil)
+}
+
+func TestGetExampleCom2(t *testing.T) {
+	t.Parallel()
+	_, err := remote.GetFile("http://example.com", *http.DefaultClient)
+	be.Err(t, err, nil)
+}
+
+func TestGetExampleCom3(t *testing.T) {
+	t.Parallel()
+	_, err := remote.GetFile("://example.com", *http.DefaultClient)
+	be.Err(t, err)
 }

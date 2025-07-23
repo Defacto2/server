@@ -147,7 +147,7 @@ type ExtraZip struct {
 // HTTPSend looks for any zip files in the extra directory and serves them to the client,
 // otherwise it will serve the standard download file.
 //
-// This is used for obsolute file types that have been rearchived into a standard zip file.
+// This is used for obsolete file types that have been re-archived into a standard zip file.
 func (e ExtraZip) HTTPSend(c echo.Context, db *sql.DB) error {
 	key := c.Param("id")
 	ctx := context.Background()

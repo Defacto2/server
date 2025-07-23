@@ -28,7 +28,7 @@ var (
 // Suggest returns a suggested readme file name for the record.
 // It prioritizes the filename and group name with a priority extension,
 // such as ".nfo", ".txt", etc. If no priority extension is found,
-// it will return the first textfile in the content list.
+// it will return the first text file in the content list.
 //
 // The filename should be the name of the file archive artifact.
 // The group should be a name or common abbreviation of the group that
