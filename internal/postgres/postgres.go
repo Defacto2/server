@@ -99,7 +99,7 @@ func New() (Connection, error) {
 
 // Connection details of the PostgreSQL database connection.
 type Connection struct {
-	URL string `env:"D2_DATABASE_URL"` // unsetting this value will cause the default to be used after a single use
+	URL string `env:"D2_DATABASE_URL"` // removing this value will cause the default to be used after a single use
 }
 
 // Validate the connection URL and print any issues to the logger.

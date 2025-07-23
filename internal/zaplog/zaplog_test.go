@@ -4,22 +4,22 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/zaplog"
-	"github.com/stretchr/testify/assert"
+	"github.com/nalgeon/be"
 )
 
 func TestCLI(t *testing.T) {
 	logr := zaplog.Status()
-	assert.NotNil(t, logr)
+	be.True(t, logr != nil)
 }
 
 func TestLog(t *testing.T) {
 	logr := zaplog.Debug()
-	assert.NotNil(t, logr)
+	be.True(t, logr != nil)
 	logr = zaplog.Timestamp()
-	assert.NotNil(t, logr)
+	be.True(t, logr != nil)
 }
 
 func TestProduction(t *testing.T) {
 	logr := zaplog.Store(zaplog.JSON(), "")
-	assert.NotNil(t, logr)
+	be.True(t, logr != nil)
 }

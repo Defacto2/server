@@ -25,7 +25,7 @@ const (
 	Down         = "AbsDownload"  // AbsDownload means the absolute download asset directory.
 	Logger       = "AbsLog"       // AbsLog means the absolute log directory.
 	Prev         = "AbsPreview"   // AbsPreview means the absolute preview assets directory.
-	Thumb        = "AbsThumbnail" // AbsThumbnail means the absolute thumbnanil assets directory.
+	Thumb        = "AbsThumbnail" // AbsThumbnail means the absolute thumbnail assets directory.
 )
 
 const (

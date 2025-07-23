@@ -27,7 +27,7 @@ const (
 const (
 	// TotalCnt is a partial SQL statement to count the number of records.
 	TotalCnt = "COUNT(*) AS count_total"
-	// SumSize is a partial SQL statement to sum the filesize values of multiple records.
+	// SumSize is a partial SQL statement to sum the file size values of multiple records.
 	SumSize = "SUM(filesize) AS size_total"
 	// MinYear is a partial SQL statement to select the minimum year value.
 	MinYear = "MIN(date_issued_year) AS min_year"
@@ -84,7 +84,7 @@ func Stat() []string {
 }
 
 const (
-	// releaserSEL is a partial SQL statement to select the releasers name, file count and filesize sum.
+	// releaserSEL is a partial SQL statement to select the releasers name, file count and file size sum.
 	releaserSEL SQL = distReleaser +
 		countSum +
 		sumSize +
@@ -92,7 +92,7 @@ const (
 		combineGroup +
 		whereRelNull
 
-	// releaserForSEL is a partial SQL statement to select the releasers for name, file count, filesize sum,
+	// releaserForSEL is a partial SQL statement to select the releasers for name, file count, file size sum,
 	// and is used for magazine titles.
 	releaserForSEL SQL = distReleaser +
 		countSum +

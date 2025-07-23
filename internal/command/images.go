@@ -22,7 +22,7 @@ import (
 
 const (
 	ANSICap = 350000    // CapBytes is the maximum file size in bytes for an ANSI encoded text file.
-	X400    = "400x400" // X400 returns args  400 x 400 pixel image size
+	X400    = "400x400" // X400 returns args 400 x 400 pixel image size
 )
 
 var ErrNoImages = errors.New("no images found")
@@ -114,6 +114,7 @@ const (
 )
 
 // Thumbs creates args thumbnail image for the preview image based on the type of image.
+// If an invalid thumb is used, a nil value is returned.
 func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
 	_ = ImagesDelete(unid, dir.Thumbnail.Path())
 	for ext := range slices.Values(ImagesExt()) {

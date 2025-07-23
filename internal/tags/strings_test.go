@@ -1,11 +1,10 @@
 package tags_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/Defacto2/server/internal/tags"
-	"github.com/stretchr/testify/assert"
+	"github.com/nalgeon/be"
 )
 
 const expectedCount = 42
@@ -16,20 +15,19 @@ func TestTagStrings(t *testing.T) {
 	determiner := tags.Determiner()
 	infos := tags.Infos()
 
-	assert.Len(t, uris, expectedCount)
-	assert.Len(t, names, expectedCount)
-	assert.Len(t, determiner, expectedCount)
-	assert.Len(t, infos, expectedCount)
+	be.True(t, len(uris) == expectedCount)
+	be.True(t, len(names) == expectedCount)
+	be.True(t, len(determiner) == expectedCount)
+	be.True(t, len(infos) == expectedCount)
 
 	for i := range expectedCount {
 		if i == 0 {
 			continue
 		}
 		x := tags.Tag(i)
-		msg := fmt.Sprintf("tag %d, '%s' should not be empty", x, x)
-		assert.NotEmpty(t, uris[x], msg)
-		assert.NotEmpty(t, names[x], msg)
-		assert.NotEmpty(t, determiner[x], msg)
-		assert.NotEmpty(t, infos[x], msg)
+		be.True(t, uris[x] != "")
+		be.True(t, names[x] != "")
+		be.True(t, determiner[x] != "")
+		be.True(t, infos[x] != "")
 	}
 }

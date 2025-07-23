@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/extensions"
-	"github.com/stretchr/testify/assert"
+	"github.com/nalgeon/be"
 )
 
 const (
@@ -16,33 +16,37 @@ const (
 )
 
 func TestArchive(t *testing.T) {
+	t.Parallel()
 	a := extensions.Archive()
-	assert.Len(t, a, archives)
+	be.True(t, len(a) == archives)
 	for v := range slices.Values(a) {
-		assert.NotEmpty(t, v)
+		be.True(t, v != "")
 	}
 }
 
 func TestDocument(t *testing.T) {
+	t.Parallel()
 	a := extensions.Document()
-	assert.Len(t, a, documents)
+	be.True(t, len(a) == documents)
 	for v := range slices.Values(a) {
-		assert.NotEmpty(t, v)
+		be.True(t, v != "")
 	}
 }
 
 func TestImage(t *testing.T) {
+	t.Parallel()
 	a := extensions.Image()
-	assert.Len(t, a, images)
+	be.True(t, len(a) == images)
 	for v := range slices.Values(a) {
-		assert.NotEmpty(t, v)
+		be.True(t, v != "")
 	}
 }
 
 func TestMedia(t *testing.T) {
+	t.Parallel()
 	a := extensions.Media()
-	assert.Len(t, a, medias)
+	be.True(t, len(a) == medias)
 	for v := range slices.Values(a) {
-		assert.NotEmpty(t, v)
+		be.True(t, v != "")
 	}
 }

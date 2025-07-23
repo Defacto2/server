@@ -8,6 +8,7 @@ import (
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/nalgeon/be"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -42,8 +43,10 @@ func TestCopyFile(t *testing.T) {
 	td := t.TempDir()
 	tmp, err := os.CreateTemp(td, "command_test")
 	require.NoError(t, err)
-	defer os.Remove(tmp.Name())
-
+	defer func() {
+		err := os.Remove(tmp.Name())
+		be.Err(t, err, nil)
+	}()
 	logr := zap.NewExample().Sugar()
 	err = command.CopyFile(logr, "", "")
 	require.Error(t, err)
@@ -53,7 +56,10 @@ func TestCopyFile(t *testing.T) {
 	dst := tmp.Name() + ".txt"
 	err = command.CopyFile(logr, tmp.Name(), dst)
 	require.NoError(t, err)
-	defer os.Remove(dst)
+	defer func() {
+		err := os.Remove(dst)
+		be.Err(t, err, nil)
+	}()
 }
 
 func TestBaseName(t *testing.T) {

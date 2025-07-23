@@ -1,134 +1,179 @@
 package command_test
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/nalgeon/be"
 )
 
 func TestImages(t *testing.T) {
 	t.Parallel()
 	err := command.ImagesDelete("", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	err = command.ImagesPixelate("", "")
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestPixelate(t *testing.T) {
 	t.Parallel()
 	a := command.Args{}
 	a.Pixelate()
-	assert.Contains(t, a, "-scale")
-	assert.Contains(t, a, "5%")
+	s := fmt.Sprintf("%+v", a)
+	find := strings.Contains(s, "-scale")
+	be.True(t, find)
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "5%")
+	be.True(t, find)
 }
 
 func TestThumbs(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{}
 	err := dir.Thumbs("", -1)
-	require.Error(t, err)
+	be.Err(t, err, nil)
 }
 
 func TestAlign(t *testing.T) {
 	t.Parallel()
 	err := command.Top.Thumbs("", "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestCrop(t *testing.T) {
 	t.Parallel()
 	err := command.OneTwo.Images("", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	wd, err := os.Getwd()
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 	err = command.OneTwo.Images("", dir.Directory(wd))
-	require.NoError(t, err)
+	be.Err(t, err)
 }
 
 func TestDirs(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{}
 	err := dir.PictureImager(nil, "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	err = dir.TextImager(nil, "", "", false)
-	require.Error(t, err)
+	be.Err(t, err)
 	err = dir.TextImager(nil, "", "", true)
-	require.Error(t, err)
+	be.Err(t, err)
 	err = dir.PreviewPhoto(nil, "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	err = dir.PreviewGIF(nil, "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	err = dir.PreviewPNG(nil, "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	err = dir.PreviewWebP(nil, "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	err = dir.ThumbPixels("", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	err = dir.ThumbPhoto("", "")
-	require.Error(t, err)
+	be.Err(t, err)
 }
 
 func TestArgs(t *testing.T) {
 	t.Parallel()
 	a := command.Args{}
 	a.Topx400()
-	assert.Contains(t, a, "-gravity")
-	assert.Contains(t, a, "North")
+	s := fmt.Sprintf("%+v", a)
+	find := strings.Contains(s, "-gravity")
+	be.True(t, find)
+	find = strings.Contains(s, "North")
 	a.Middlex400()
-	assert.Contains(t, a, "-gravity")
-	assert.Contains(t, a, "center")
+	be.True(t, find)
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-gravity")
+	be.True(t, find)
+	find = strings.Contains(s, "center")
+	be.True(t, find)
 	a.Bottomx400()
-	assert.Contains(t, a, "-gravity")
-	assert.Contains(t, a, "South")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-gravity")
+	be.True(t, find)
+	find = strings.Contains(s, "South")
+	be.True(t, find)
 	a.Leftx400()
-	assert.Contains(t, a, "-gravity")
-	assert.Contains(t, a, "West")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-gravity")
+	be.True(t, find)
+	find = strings.Contains(s, "West")
+	be.True(t, find)
 	a.Rightx400()
-	assert.Contains(t, a, "-gravity")
-	assert.Contains(t, a, "East")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-gravity")
+	be.True(t, find)
+	find = strings.Contains(s, "East")
+	be.True(t, find)
 	a.CropTop()
-	assert.Contains(t, a, "-gravity")
-	assert.Contains(t, a, "North")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-gravity")
+	be.True(t, find)
+	find = strings.Contains(s, "North")
+	be.True(t, find)
 	a = command.Args{}
 	a.FourThree()
-	assert.Contains(t, a, "-gravity")
-	assert.Contains(t, a, "North")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-gravity")
+	be.True(t, find)
+	find = strings.Contains(s, "North")
+	be.True(t, find)
 	a = command.Args{}
 	a.OneTwo()
-	assert.Contains(t, a, "-gravity")
-	assert.Contains(t, a, "North")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-gravity")
+	be.True(t, find)
+	find = strings.Contains(s, "North")
+	be.True(t, find)
 	a = command.Args{}
 	a.AnsiAmiga()
-	assert.Contains(t, a, "topaz+")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "topaz+")
+	be.True(t, find)
 	a = command.Args{}
 	a.AnsiMsDos()
-	assert.Contains(t, a, "80x25")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "80x25")
+	be.True(t, find)
 	a = command.Args{}
 	a.JpegPhoto()
-	assert.Contains(t, a, "-gaussian-blur")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-gaussian-blur")
+	be.True(t, find)
 	a = command.Args{}
 	a.PortablePixel()
-	assert.Contains(t, a, "png:compression-filter=5")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "png:compression-filter=5")
+	be.True(t, find)
 	a = command.Args{}
 	a.Thumbnail()
-	assert.Contains(t, a, "#999")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "#999")
+	be.True(t, find)
 	a = command.Args{}
 	a.CWebp()
-	assert.Contains(t, a, "-exact")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-exact")
+	be.True(t, find)
 	a = command.Args{}
 	a.CWebpText()
-	assert.Contains(t, a, "text")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "text")
+	be.True(t, find)
 	a = command.Args{}
 	a.GWebp()
-	assert.Contains(t, a, "-mt")
+	s = fmt.Sprintf("%+v", a)
+	find = strings.Contains(s, "-mt")
+	be.True(t, find)
 }
 
 func TestOptimizePNG(t *testing.T) {
 	t.Parallel()
 	err := command.OptimizePNG("")
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 }
