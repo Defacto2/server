@@ -49,7 +49,7 @@ const (
 )
 
 var (
-	ErrFS      = errors.New("embed filesystem instance is empty")
+	ErrFS      = errors.New("embed file system instance is empty")
 	ErrName    = errors.New("name is empty")
 	ErrName404 = errors.New("named template cannot be found")
 	ErrPorts   = errors.New("the server ports are not configured")
@@ -454,7 +454,7 @@ type TemplateRegistry struct {
 }
 
 // Render the layout template with the core HTML, META and BODY elements.
-func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+func (t *TemplateRegistry) Render(w io.Writer, name string, data any, c echo.Context) error {
 	const layout, info = "layout", "template registry render"
 	if name == "" {
 		return fmt.Errorf("%s layout: %w", info, ErrName)

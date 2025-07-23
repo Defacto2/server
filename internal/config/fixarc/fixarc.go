@@ -13,11 +13,11 @@ import (
 	"strings"
 
 	"github.com/Defacto2/archive/pkzip"
-	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
@@ -39,7 +39,7 @@ func Check(ctx context.Context, name string, extra dir.Directory, d fs.DirEntry,
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
 	}
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	extraZip := extra.Join(uid + ".zip")
 	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
 		return ""
@@ -77,7 +77,7 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 // Invalid returns true if the arc file fails the arc test command.
 // The path is the path to the arc archive file.
 func Invalid(ctx context.Context, path string) bool {
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	const name = command.Arc
 	cmd := exec.Command(name, "t", path)
 	b, err := cmd.Output()

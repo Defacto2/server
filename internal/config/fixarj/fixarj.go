@@ -12,11 +12,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
@@ -65,7 +65,7 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 // Invalid returns true if the arj file fails the 7zz list command.
 // The path is the path to the arj archive file.
 func Invalid(ctx context.Context, path string) bool {
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	// use 7-ZIP to test and extract the .arj file.
 	const name = command.Zip7
 	cmd := exec.Command(name, "t", path)

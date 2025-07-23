@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -136,7 +136,7 @@ func TestReArchive(t *testing.T) {
 	r := config.Zip
 	logger, _ := zap.NewProduction()
 	_ = logger.Sync()
-	ctx := context.WithValue(t.Context(), helper.LoggerKey, logger)
+	ctx := context.WithValue(t.Context(), zaplog.LoggerKey, logger)
 	err := r.ReArchive(ctx, "", "", "")
 	require.Error(t, err)
 }
@@ -146,7 +146,7 @@ func TestReArchiveImplode(t *testing.T) {
 	l, _ := zap.NewProduction()
 	_ = l.Sync()
 	logger := l.Sugar()
-	ctx := context.WithValue(t.Context(), helper.LoggerKey, logger)
+	ctx := context.WithValue(t.Context(), zaplog.LoggerKey, logger)
 
 	// test the archive that uses the defunct implode method
 	src, err := filepath.Abs(filepath.Join("testdata", "IMPLODE.ZIP"))
@@ -164,6 +164,8 @@ func TestReArchiveImplode(t *testing.T) {
 	dst := dir.Directory(filepath.Dir(src))
 	err = r.ReArchive(ctx, src, "", dst)
 	require.Error(t, err)
+
+	// TODO: panics
 	err = r.ReArchive(ctx, src, "newfile", dst)
 	require.NoError(t, err)
 

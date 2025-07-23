@@ -28,6 +28,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
@@ -54,7 +55,7 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor) error 
 		return fmt.Errorf("config repair archives %w", ErrCE)
 	}
 	d := time.Now()
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	artifacts := []string{}
 	var err error
 	extra := dir.Directory(c.AbsExtra)
@@ -169,7 +170,7 @@ func (r Repair) ReArchive(ctx context.Context, src, uid string, dest dir.Directo
 	if err := dest.IsDir(); err != nil {
 		return fmt.Errorf("rearchive %s %w: %q", r, err, dest)
 	}
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	tmp, err := os.MkdirTemp(helper.TmpDir(), "rearchive-")
 	if err != nil {
 		return fmt.Errorf("rearchive mkdir temp %w: %s", err, src)
@@ -297,7 +298,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 		return fmt.Errorf("config repair assets %w", ErrCE)
 	}
 	d := time.Now()
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.WithDeleted())
@@ -372,7 +373,7 @@ func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor) er
 	if exec == nil {
 		return fmt.Errorf("config repair assets %w", ErrCE)
 	}
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	backup := dir.Directory(c.AbsOrphaned)
 	if st, err := os.Stat(backup.Path()); err != nil {
 		return fmt.Errorf("repair backup directory %w: %s", err, backup.Path())

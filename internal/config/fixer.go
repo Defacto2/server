@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/zaplog"
@@ -32,7 +31,7 @@ func (c *Config) Fixer(w io.Writer, d time.Time) error {
 		logger.Errorf("postgres version query: %w", err)
 	}
 	_, _ = fmt.Fprintf(w, "\n%+v\n", c)
-	ctx := context.WithValue(context.Background(), helper.LoggerKey, logger)
+	ctx := context.WithValue(context.Background(), zaplog.LoggerKey, logger)
 	count := RecordCount(ctx, db)
 	const welcome = "Defacto2 web application"
 	switch {
@@ -56,7 +55,7 @@ func (c *Config) repairer(ctx context.Context, db *sql.DB) {
 	if db == nil {
 		panic(fmt.Errorf("%w: repairer", ErrPointer))
 	}
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	if err := repairDatabase(ctx, db); err != nil {
 		if errors.Is(err, ErrVer) {
 			logger.Warnf("A %s, is the database server down?", ErrVer)
@@ -81,7 +80,7 @@ func repairDatabase(ctx context.Context, db *sql.DB) error {
 	if err := fix.Artifacts.Run(ctx, db, tx); err != nil {
 		defer func() {
 			if err := tx.Rollback(); err != nil {
-				logger := helper.Logger(ctx)
+				logger := zaplog.Logger(ctx)
 				logger.Error(err)
 			}
 		}()
@@ -93,7 +92,7 @@ func repairDatabase(ctx context.Context, db *sql.DB) error {
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production mode environment variable is set.to false.
 func (c *Config) sanityChecks(ctx context.Context) {
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	if err := c.Checks(logger); err != nil {
 		logger.Errorf("sanity checks could not read the environment variable, "+
 			"it probably contains an invalid value: %s", err)
@@ -112,7 +111,7 @@ func (c *Config) sanityChecks(ctx context.Context) {
 // checks is used to confirm the required commands are available.
 // These are skipped if readonly is true.
 func cmdChecks(ctx context.Context) {
-	logger := helper.Logger(ctx)
+	logger := zaplog.Logger(ctx)
 	var buf strings.Builder
 	for i, name := range command.Lookups() {
 		if err := command.LookCmd(name); err != nil {

@@ -5,6 +5,7 @@
 package zaplog
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
@@ -165,4 +166,20 @@ func TextNoTime() zapcore.Encoder { //nolint:ireturn
 	config.ConsoleSeparator = "  "
 	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	return zapcore.NewConsoleEncoder(config)
+}
+
+type contextKey string
+
+const LoggerKey contextKey = "logger"
+
+// Logger returns the logger from the context.
+// If the logger is not found, it panics.
+//
+// zaplog.Logger was previously referenced as helper.Logger
+func Logger(ctx context.Context) *zap.SugaredLogger {
+	logger, loggerExists := ctx.Value(LoggerKey).(*zap.SugaredLogger)
+	if !loggerExists {
+		panic("zaplog context named '" + LoggerKey + "' does not exist")
+	}
+	return logger
 }
