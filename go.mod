@@ -25,7 +25,6 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nalgeon/be v0.2.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
-	github.com/stretchr/testify v1.10.0
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
 	go.uber.org/zap v1.27.0
@@ -112,7 +111,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250715232539-7130f93afb79 // indirect
 	google.golang.org/grpc v1.73.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mvdan.cc/gofumpt v0.8.0 // indirect
 	rsc.io/markdown v0.0.0-20231214224604-88bb533a6020 // indirect
 )

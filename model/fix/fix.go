@@ -347,12 +347,12 @@ func demozooTitles(exec boil.ContextExecutor) error {
 	_, err := queries.Raw(`UPDATE files SET record_title = NULL ` +
 		`WHERE record_title ILIKE group_brand_for || ' (%)';`).Exec(exec)
 	if err != nil {
-		return fmt.Errorf("set title reduntant group for: %w", err)
+		return fmt.Errorf("set title redundant group for: %w", err)
 	}
 	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
 		`WHERE record_title ILIKE group_brand_by || ' (%)';`).Exec(exec)
 	if err != nil {
-		return fmt.Errorf("set title reduntant group by: %w", err)
+		return fmt.Errorf("set title redundant group by: %w", err)
 	}
 	// cleanup the XXX == titles
 	// UPDATE files
@@ -361,12 +361,12 @@ func demozooTitles(exec boil.ContextExecutor) error {
 	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
 		`WHERE record_title ILIKE group_brand_for;`).Exec(exec)
 	if err != nil {
-		return fmt.Errorf("set title reduntant title = group for: %w", err)
+		return fmt.Errorf("set title redundant title = group for: %w", err)
 	}
 	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
 		`WHERE record_title ILIKE group_brand_by;`).Exec(exec)
 	if err != nil {
-		return fmt.Errorf("set title reduntant title = group by: %w", err)
+		return fmt.Errorf("set title redundant title = group by: %w", err)
 	}
 	// cleanup the The XXX (?) titles
 	// UPDATE files
@@ -375,19 +375,19 @@ func demozooTitles(exec boil.ContextExecutor) error {
 	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
 		`WHERE record_title ILIKE 'the ' || group_brand_for || ' (%)';`).Exec(exec)
 	if err != nil {
-		return fmt.Errorf("set title reduntant the group for: %w", err)
+		return fmt.Errorf("set title redundant the group for: %w", err)
 	}
 	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
 		`WHERE record_title ILIKE 'the ' || group_brand_by || ' (%)';`).Exec(exec)
 	if err != nil {
-		return fmt.Errorf("set title reduntant the group by: %w", err)
+		return fmt.Errorf("set title redundant the group by: %w", err)
 	}
 	return nil
 }
 
 // Magics will set invalid file_magic_type to NULL.
 // Invalid file_magic_type values are those that start with "ERROR: " or contain a "/"
-// such as a mimetype.
+// such as a mime-type.
 func Magics(exec boil.ContextExecutor) error {
 	_, err := queries.Raw(`UPDATE files SET file_magic_type = NULL ` +
 		`WHERE file_magic_type ILIKE ANY(ARRAY['ERROR: %', '%/%']);`).Exec(exec)

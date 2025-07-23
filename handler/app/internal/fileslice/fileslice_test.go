@@ -8,7 +8,6 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestRecordsSubs(t *testing.T) {
@@ -63,7 +62,7 @@ func TestFileInfo(t *testing.T) {
 	a, b, c := fileslice.FileInfo("")
 	be.Equal(t, "unknown uri", a)
 	be.Equal(t, "unknown uri", b)
-	assert.Empty(t, c)
+	be.Equal(t, c, "")
 	for uri := range slices.Values(Slices()) {
 		a, b, c = fileslice.FileInfo(uri.String())
 		be.True(t, a != "")

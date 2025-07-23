@@ -34,7 +34,7 @@ var (
 	ErrTime     = errors.New("time value is invalid")
 	ErrTx       = errors.New("transaction value is nil")
 	ErrURI      = errors.New("uri value is invalid")
-	ErrUUID     = errors.New("could not create a new universial unique identifier")
+	ErrUUID     = errors.New("could not create a new universal unique identifier")
 	ErrYear     = errors.New("invalid year")
 )
 

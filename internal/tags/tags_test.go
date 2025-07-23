@@ -1,12 +1,12 @@
 package tags_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/nalgeon/be"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -52,7 +52,7 @@ func TestDescription(t *testing.T) {
 	be.Equal(t, expected, desc)
 
 	desc, err = tags.Description(noname)
-	require.ErrorIs(t, err, tags.ErrTag)
+	be.True(t, errors.Is(err, tags.ErrTag))
 	be.Equal(t, desc, "")
 }
 
@@ -66,15 +66,15 @@ func TestPlatform(t *testing.T) {
 	be.Equal(t, expected, desc)
 
 	desc, err = tags.Platform(platform, noname)
-	require.ErrorIs(t, err, tags.ErrTag)
+	be.True(t, errors.Is(err, tags.ErrTag))
 	be.Equal(t, desc, "")
 
 	desc, err = tags.Platform(noname, platform)
-	require.ErrorIs(t, err, tags.ErrPlatform)
+	be.True(t, errors.Is(err, tags.ErrPlatform))
 	be.Equal(t, desc, "")
 
 	desc, err = tags.Platform(noname, noname)
-	require.ErrorIs(t, err, tags.ErrPlatform)
+	be.True(t, errors.Is(err, tags.ErrPlatform))
 	be.Equal(t, desc, "")
 }
 

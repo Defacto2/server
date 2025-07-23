@@ -13,7 +13,7 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
-// Advert is a the model for the for sale.
+// Advert is the model for the for sale.
 type Advert struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -46,7 +46,7 @@ func (a *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 	).All(ctx, exec)
 }
 
-// Announcement is a the model for the public and community announcements.
+// Announcement is the model for the public and community announcements.
 type Announcement struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -79,7 +79,7 @@ func (a *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offs
 	).All(ctx, exec)
 }
 
-// Ansi is a the model for the ANSI formatted text and art files.
+// Ansi is the model for the ANSI formatted text and art files.
 type Ansi struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -111,7 +111,7 @@ func (a *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 	).All(ctx, exec)
 }
 
-// AnsiBrand is a the model for the brand logos created in ANSI text.
+// AnsiBrand is the model for the brand logos created in ANSI text.
 type AnsiBrand struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -144,7 +144,7 @@ func (a *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset,
 	).All(ctx, exec)
 }
 
-// AnsiBBS is a the model for the BBS advertisements created in ANSI text.
+// AnsiBBS is the model for the BBS advertisements created in ANSI text.
 type AnsiBBS struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -177,7 +177,7 @@ func (a *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 	).All(ctx, exec)
 }
 
-// AnsiFTP is a the model for the FTP advertisements created in ANSI text.
+// AnsiFTP is the model for the FTP advertisements created in ANSI text.
 type AnsiFTP struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -210,7 +210,7 @@ func (a *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 	).All(ctx, exec)
 }
 
-// AnsiNfo is a the model for the NFO files created in ANSI text.
+// AnsiNfo is the model for the NFO files created in ANSI text.
 type AnsiNfo struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -243,7 +243,7 @@ func (a *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 	).All(ctx, exec)
 }
 
-// AnsiPack is a the model for the ANSI file packs.
+// AnsiPack is the model for the ANSI file packs.
 type AnsiPack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -276,7 +276,7 @@ func (a *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// BBS is a the model for the Bulletin Board System files.
+// BBS is the model for the Bulletin Board System files.
 type BBS struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -309,7 +309,7 @@ func (b *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit
 	).All(ctx, exec)
 }
 
-// BBStro is a the model for the Bulletin Board System intro files.
+// BBStro is the model for the Bulletin Board System intro files.
 type BBStro struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -357,7 +357,7 @@ func (b *BBStro) Sensenstahl(ctx context.Context, exec boil.ContextExecutor, off
 	).All(ctx, exec)
 }
 
-// BBSImage is a the model for the Bulletin Board System image files.
+// BBSImage is the model for the Bulletin Board System image files.
 type BBSImage struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -390,7 +390,7 @@ func (b *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// BBSText is a the model for the Bulletin Board System text files.
+// BBSText is the model for the Bulletin Board System text files.
 type BBSText struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -423,7 +423,7 @@ func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 	).All(ctx, exec)
 }
 
-// Database is a the model for the database releases.
+// Database is the model for the database releases.
 type Database struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -456,7 +456,7 @@ func (d *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// Demoscene is a the model for the demoscene releases.
+// Demoscene is the model for the demoscene releases.
 type Demoscene struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -522,7 +522,7 @@ func (d *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 	).All(ctx, exec)
 }
 
-// FTP is a the model for the FTP files.
+// FTP is the model for the FTP files.
 type FTP struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -555,7 +555,7 @@ func (f *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit
 	).All(ctx, exec)
 }
 
-// Hack is a the model for the game hacks.
+// Hack is the model for the game hacks.
 type Hack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -588,7 +588,7 @@ func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 	).All(ctx, exec)
 }
 
-// HowTo is a the model for the guides and how-tos.
+// HowTo is the model for the guides and how-tos.
 type HowTo struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -621,7 +621,7 @@ func (h *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 	).All(ctx, exec)
 }
 
-// HTML is a the model for the HTML and markdown files.
+// HTML is the model for the HTML and markdown files.
 type HTML struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -654,7 +654,7 @@ func (h *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 	).All(ctx, exec)
 }
 
-// Image is a the model for the images.
+// Image is the model for the images.
 type Image struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -687,7 +687,7 @@ func (i *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 	).All(ctx, exec)
 }
 
-// ImagePack is a the model for the image file packs.
+// ImagePack is the model for the image file packs.
 type ImagePack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -853,7 +853,7 @@ func (i *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset,
 	).All(ctx, exec)
 }
 
-// Java is a the model for the Java operating system.
+// Java is the model for the Java operating system.
 type Java struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -886,7 +886,7 @@ func (j *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 	).All(ctx, exec)
 }
 
-// JobAdvert is a the model for group job advertisements.
+// JobAdvert is the model for group job advertisements.
 type JobAdvert struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -919,7 +919,7 @@ func (j *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset,
 	).All(ctx, exec)
 }
 
-// Linux is a the model for the Linux operating system.
+// Linux is the model for the Linux operating system.
 type Linux struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -952,7 +952,7 @@ func (l *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 	).All(ctx, exec)
 }
 
-// Magazine is a the model for the magazine files.
+// Magazine is the model for the magazine files.
 type Magazine struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -985,7 +985,7 @@ func (m *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// Macos is a the model for the Macintosh operating system.
+// Macos is the model for the Macintosh operating system.
 type Macos struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1018,7 +1018,7 @@ func (m *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 	).All(ctx, exec)
 }
 
-// MsDos is a the model for the MS-DOS operating system.
+// MsDos is the model for the MS-DOS operating system.
 type MsDos struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1051,7 +1051,7 @@ func (d *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 	).All(ctx, exec)
 }
 
-// MsDosPack is a the model for the DOS file packs.
+// MsDosPack is the model for the DOS file packs.
 type MsDosPack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1084,7 +1084,7 @@ func (d *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset,
 	).All(ctx, exec)
 }
 
-// Music is a the model for the music.
+// Music is the model for the music.
 type Music struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1117,7 +1117,7 @@ func (m *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 	).All(ctx, exec)
 }
 
-// NewsArticle is a the model for mainstream news articles.
+// NewsArticle is the model for mainstream news articles.
 type NewsArticle struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1150,7 +1150,7 @@ func (n *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offse
 	).All(ctx, exec)
 }
 
-// Nfo is a the model for the NFO files.
+// Nfo is the model for the NFO files.
 type Nfo struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1183,7 +1183,7 @@ func (n *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit
 	).All(ctx, exec)
 }
 
-// NfoTool is a the model for the NFO tools.
+// NfoTool is the model for the NFO tools.
 type NfoTool struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1216,7 +1216,7 @@ func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 	).All(ctx, exec)
 }
 
-// PDF is a the model for the documents in PDF format.
+// PDF is the model for the documents in PDF format.
 type PDF struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1249,7 +1249,7 @@ func (p *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit
 	).All(ctx, exec)
 }
 
-// Proof is a the model for the file proofs.
+// Proof is the model for the file proofs.
 type Proof struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1314,7 +1314,7 @@ func (r *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// Script is a the model for the script and interpreted languages.
+// Script is the model for the script and interpreted languages.
 type Script struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1347,7 +1347,7 @@ func (s *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 	).All(ctx, exec)
 }
 
-// Standard is a the model for community standards.
+// Standard is the model for community standards.
 type Standard struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1380,7 +1380,7 @@ func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// Takedown is a the model for the bust and takedowns.
+// Takedown is the model for the bust and takedowns.
 type Takedown struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1413,7 +1413,7 @@ func (t *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// Text is a the model for the text files.
+// Text is the model for the text files.
 type Text struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1446,7 +1446,7 @@ func (t *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 	).All(ctx, exec)
 }
 
-// TextAmiga is a the model for the text files for the Amiga operating system.
+// TextAmiga is the model for the text files for the Amiga operating system.
 type TextAmiga struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1479,7 +1479,7 @@ func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset,
 	).All(ctx, exec)
 }
 
-// TextApple2 is a the model for the text files for the Apple II operating system.
+// TextApple2 is the model for the text files for the Apple II operating system.
 type TextApple2 struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1512,7 +1512,7 @@ func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset
 	).All(ctx, exec)
 }
 
-// TextAtariST is a the model for the text files for the Atari ST operating system.
+// TextAtariST is the model for the text files for the Atari ST operating system.
 type TextAtariST struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1545,7 +1545,7 @@ func (t *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offse
 	).All(ctx, exec)
 }
 
-// TextPack is a the model for the text file packs.
+// TextPack is the model for the text file packs.
 type TextPack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1578,7 +1578,7 @@ func (t *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// Tool is a the model for the computer tools.
+// Tool is the model for the computer tools.
 type Tool struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1611,7 +1611,7 @@ func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 	).All(ctx, exec)
 }
 
-// TrialCrackme is a the model for group job trial crackme releases.
+// TrialCrackme is the model for group job trial crackme releases.
 type TrialCrackme struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1644,7 +1644,7 @@ func (t *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offs
 	).All(ctx, exec)
 }
 
-// Video is a the model for the videos.
+// Video is the model for the videos.
 type Video struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1677,7 +1677,7 @@ func (v *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, lim
 	).All(ctx, exec)
 }
 
-// Windows is a the model for the Windows operating system.
+// Windows is the model for the Windows operating system.
 type Windows struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1710,7 +1710,7 @@ func (w *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 	).All(ctx, exec)
 }
 
-// WindowsPack is a the model for the Windows file packs.
+// WindowsPack is the model for the Windows file packs.
 type WindowsPack struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`

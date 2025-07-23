@@ -3,6 +3,7 @@ package config_test
 import (
 	"bytes"
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,7 +14,6 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/nalgeon/be"
-	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )
 
@@ -31,7 +31,7 @@ func TestConfig(t *testing.T) {
 	s = c.Values()
 	be.True(t, len(s) != 0)
 	cs := c.String()
-	assert.Contains(t, cs, "configuration")
+	be.True(t, strings.Contains(cs, "configuration"))
 	cs, err := c.Addresses()
 	be.Err(t, err)
 	be.True(t, cs == "")
@@ -95,10 +95,10 @@ func TestError(t *testing.T) {
 	t.Parallel()
 	i, s, err := config.StringErr(nil)
 	be.True(t, i == 0)
-	assert.Zero(t, i)
 	be.Equal(t, s, "")
 	be.Err(t, err, nil)
-	i, s, err = config.StringErr(assert.AnError)
+	anErr := errors.New("an error")
+	i, s, err = config.StringErr(anErr)
 	be.True(t, i == 500)
 	x := strings.Contains(s, "internal server error")
 	be.True(t, x)
@@ -174,7 +174,7 @@ func TestReArchiveImplode(t *testing.T) {
 		be.Err(t, err, nil)
 	}()
 	sign = magicnumber.Find(readr)
-	assert.Equal(t, magicnumber.PKWAREZip, sign)
+	be.Equal(t, magicnumber.PKWAREZip, sign)
 	defer func() {
 		err := os.Remove(name)
 		be.Err(t, err, nil)

@@ -10,6 +10,7 @@ import (
 )
 
 func TestSiteAd(t *testing.T) {
+	t.Parallel()
 	empty := null.StringFrom("")
 	rsomeone := null.StringFrom("someone")
 	rftp := null.StringFrom("some site fTp ") // test case and whitespace

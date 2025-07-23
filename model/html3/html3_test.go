@@ -9,19 +9,18 @@ import (
 	"github.com/Defacto2/server/model/html3"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/stretchr/testify/assert"
+	"github.com/nalgeon/be"
 )
 
 func TestCreated(t *testing.T) {
 	loc := time.Local //nolint:gosmopolitan
 	tests := []struct {
-		arg       time.Time
-		expect    string
-		assertion assert.ComparisonAssertionFunc
+		arg    time.Time
+		expect string
 	}{
-		{time.Time{}, "-- --- ----", assert.Equal},
-		{time.Date(2022, time.December, 31, 0, 0, 0, 0, loc), "31-Dec-2022", assert.Equal},
-		{time.Date(2022, time.January, 31, 0, 0, 0, 0, loc), "31-Jan-2022", assert.Equal},
+		{time.Time{}, "-- --- ----"},
+		{time.Date(2022, time.December, 31, 0, 0, 0, 0, loc), "31-Dec-2022"},
+		{time.Date(2022, time.January, 31, 0, 0, 0, 0, loc), "31-Jan-2022"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.expect, func(t *testing.T) {
@@ -31,27 +30,27 @@ func TestCreated(t *testing.T) {
 					Valid: true,
 				},
 			}
-			tt.assertion(t, tt.expect, html3.Created(&f))
+			be.Equal(t, tt.expect, html3.Created(&f))
 		})
 	}
 }
 
 func TestIcon(t *testing.T) {
 	s := html3.Icon(nil)
-	assert.Equal(t, "error, no file model", s)
+	be.Equal(t, "error, no file model", s)
 	f := models.File{}
 	s = html3.Icon(&f)
-	assert.Equal(t, "unknown", s)
+	be.Equal(t, "unknown", s)
 	f.Filename = null.StringFrom("file.txt")
 	s = html3.Icon(&f)
-	assert.Equal(t, "doc", s)
+	be.Equal(t, "doc", s)
 }
 
 func TestLeadStr(t *testing.T) {
 	s := html3.LeadStr(0, "")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = html3.LeadStr(10, "Hello")
-	assert.Equal(t, "     ", s)
+	be.Equal(t, "     ", s)
 }
 
 func TestPublished(t *testing.T) {
@@ -62,18 +61,17 @@ func TestPublished(t *testing.T) {
 		d int
 	}
 	tests := []struct {
-		name      string
-		args      args
-		expect    string
-		assertion assert.ComparisonAssertionFunc
+		name   string
+		args   args
+		expect string
 	}{
-		{"-1s", args{-1, -1, -1}, errS, assert.Equal},
-		{"0s", args{0, 0, 0}, errS, assert.Equal},
-		{"1980", args{1980, 0, 0}, "       1980", assert.Equal},
-		{"1280", args{1980, 12, 0}, "   Dec-1980", assert.Equal},
-		{"1980", args{1980, 13, 0}, "       1980", assert.Equal},
-		{"1980", args{1980, 13, 13}, "13-???-1980", assert.Equal},
-		{"1980", args{1980, 1, 13}, "13-Jan-1980", assert.Equal},
+		{"-1s", args{-1, -1, -1}, errS},
+		{"0s", args{0, 0, 0}, errS},
+		{"1980", args{1980, 0, 0}, "       1980"},
+		{"1280", args{1980, 12, 0}, "   Dec-1980"},
+		{"1980130", args{1980, 13, 0}, "       1980"},
+		{"19801313", args{1980, 13, 13}, "13-???-1980"},
+		{"1980113", args{1980, 1, 13}, "13-Jan-1980"},
 	}
 
 	for _, tt := range tests {
@@ -86,48 +84,47 @@ func TestPublished(t *testing.T) {
 				DateIssuedMonth: m,
 				DateIssuedDay:   d,
 			}
-			tt.assertion(t, tt.expect, html3.Published(&f))
+			be.Equal(t, html3.Published(&f), tt.expect)
 		})
 	}
 }
 
 func TestPublishedFW(t *testing.T) {
 	s := html3.PublishedFW(0, nil)
-	assert.Equal(t, "error, no file model", s)
+	be.Equal(t, "error, no file model", s)
 	f := models.File{}
 	s = html3.PublishedFW(0, &f)
-	assert.Equal(t, "       ????", s)
+	be.Equal(t, "       ????", s)
 	f.DateIssuedYear = null.Int16From(1980)
 	s = html3.PublishedFW(0, &f)
-	assert.Equal(t, "       1980", s)
+	be.Equal(t, "       1980", s)
 }
 
 func TestSelectHTML3(t *testing.T) {
 	qm := html3.SelectHTML3()
-	assert.NotEmpty(t, qm)
+	be.True(t, qm != nil)
 }
 
 func TestOrder_String(t *testing.T) {
 	tests := []struct {
-		o         html3.Order
-		expect    string
-		assertion assert.ComparisonAssertionFunc
+		o      html3.Order
+		expect string
 	}{
-		{-1, "", assert.Equal},
-		{html3.NameAsc, "filename asc", assert.Equal},
-		{html3.DescDes, "record_title desc", assert.Equal},
+		{-1, ""},
+		{html3.NameAsc, "filename asc"},
+		{html3.DescDes, "record_title desc"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.expect, func(t *testing.T) {
-			tt.assertion(t, tt.expect, tt.o.String())
+			be.Equal(t, tt.o.String(), tt.expect)
 		})
 	}
 }
 
 func TestInvalidExec(t *testing.T) {
-	assert.True(t, html3.InvalidExec(nil))
+	be.True(t, html3.InvalidExec(nil))
 	var x boil.ContextExecutor
-	assert.True(t, html3.InvalidExec(x))
+	be.True(t, html3.InvalidExec(x))
 	db := sql.DB{}
-	assert.False(t, html3.InvalidExec(&db))
+	be.True(t, !html3.InvalidExec(&db))
 }

@@ -4,13 +4,12 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
@@ -30,32 +29,32 @@ func TestLookups(t *testing.T) {
 	t.Parallel()
 	t1 := command.Lookups()
 	t2 := command.Infos()
-	assert.Len(t, t1, len(t2))
-	assert.Contains(t, t2[0], command.Arc)
+	be.Equal(t, len(t1), len(t2))
+	be.True(t, strings.Contains(t2[0], command.Arc))
 }
 
 func TestCopyFile(t *testing.T) {
 	t.Parallel()
 	err := command.CopyFile(nil, "", "")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "no such file or directory")
+	be.Err(t, err)
+	be.True(t, strings.Contains(err.Error(), "no such file or directory"))
 
 	td := t.TempDir()
 	tmp, err := os.CreateTemp(td, "command_test")
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 	defer func() {
 		err := os.Remove(tmp.Name())
 		be.Err(t, err, nil)
 	}()
 	logr := zap.NewExample().Sugar()
 	err = command.CopyFile(logr, "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 
 	err = command.CopyFile(logr, tmp.Name(), "")
-	require.Error(t, err)
+	be.Err(t, err)
 	dst := tmp.Name() + ".txt"
 	err = command.CopyFile(logr, tmp.Name(), dst)
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 	defer func() {
 		err := os.Remove(dst)
 		be.Err(t, err, nil)
@@ -78,7 +77,7 @@ func TestBaseName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, command.BaseName(tt.path))
+			be.Equal(t, tt.expected, command.BaseName(tt.path))
 		})
 	}
 }
@@ -99,7 +98,7 @@ func TestBaseNamePath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, command.BaseNamePath(tt.path))
+			be.Equal(t, tt.expected, command.BaseNamePath(tt.path))
 		})
 	}
 }
@@ -107,66 +106,65 @@ func TestBaseNamePath(t *testing.T) {
 func TestLookCmd(t *testing.T) {
 	t.Parallel()
 	err := command.LookCmd("")
-	require.Error(t, err)
+	be.Err(t, err)
 
 	err = command.LookCmd("thiscommanddoesnotexist")
-	require.Error(t, err)
+	be.Err(t, err)
 
 	err = command.LookCmd("go")
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 }
 
 func TestLookVersion(t *testing.T) {
 	t.Parallel()
 	err := command.LookVersion("", "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 
 	err = command.LookVersion("thiscommanddoesnotexist", "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 
 	err = command.LookVersion("go", "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 
 	// version arg output example:
 	// go version go1.16.5 linux/amd64
 	err = command.LookVersion("go", "version", "go version go1.")
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 }
 
 func TestRun(t *testing.T) {
 	t.Parallel()
 	err := command.Run(nil, "", "")
-	require.Error(t, err)
-	require.ErrorContains(t, err, "executable file not found in $PATH")
-
+	be.Err(t, err)
+	be.True(t, strings.Contains(err.Error(), "executable file not found in $PATH"))
 	logr := zap.NewExample().Sugar()
 	err = command.Run(logr, "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 
 	err = command.Run(logr, "thiscommanddoesnotexist", "")
-	require.Error(t, err)
+	be.Err(t, err)
 
 	const noArgs = ""
 	err = command.Run(logr, "go", noArgs)
 	// go without args will return an unknown command error
-	require.Error(t, err)
+	be.Err(t, err)
 
 	err = command.Run(logr, "go", "version")
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 }
 
 func TestRunQuiet(t *testing.T) {
 	t.Parallel()
 	err := command.RunQuiet("", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	err = command.RunQuiet("thiscommanddoesnotexist", "")
-	require.Error(t, err)
+	be.Err(t, err)
 	const noArgs = ""
 	err = command.RunQuiet("go", noArgs)
 	// go without args will return an unknown command error
-	require.Error(t, err)
+	be.Err(t, err)
 	err = command.RunQuiet("go", "version")
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 }
 
 func TestRunWD(t *testing.T) {
@@ -174,12 +172,12 @@ func TestRunWD(t *testing.T) {
 	const noWD = ""
 	err := command.RunWorkdir(logr(), "go", noWD, "")
 	// go without args will return an unknown command error
-	require.Error(t, err)
+	be.Err(t, err)
 
 	wd, err := os.Getwd()
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 	err = command.RunWorkdir(logr(), "go", wd, "version")
-	require.NoError(t, err)
+	be.Err(t, err, nil)
 }
 
 func Test_PreviewPixels(t *testing.T) {
@@ -193,8 +191,8 @@ func Test_PreviewPixels(t *testing.T) {
 	for _, name := range imgs {
 		fp := testdata(name)
 		err := dir.PreviewPixels(logr(), fp, "000000ABCDE")
-		require.NoError(t, err)
+		be.Err(t, err, nil)
 	}
 	err := dir.PreviewPixels(logr(), "", "")
-	require.Error(t, err)
+	be.Err(t, err)
 }

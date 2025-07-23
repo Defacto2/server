@@ -291,7 +291,6 @@ func TestFileLinkPad(t *testing.T) {
 	be.Equal(t, "                ", s)
 }
 
-//nolint:testifylint
 func TestFormattings(t *testing.T) {
 	be.Equal(t, html3.File{Filename: ""}.FileLinkPad(0), "", "empty")
 	be.Equal(t, html3.File{Filename: ""}.FileLinkPad(4), "    ", "4 pads")

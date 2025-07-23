@@ -12,7 +12,6 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
-	"github.com/stretchr/testify/assert"
 )
 
 func imagefiler(t *testing.T) string {
@@ -83,9 +82,9 @@ func TestLinkSites(t *testing.T) {
 func TestLinkPreviewTip(t *testing.T) {
 	t.Parallel()
 	s := simple.LinkPreviewTip("", "")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = simple.LinkPreviewTip(".zip", "windows")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = simple.LinkPreviewTip(".txt", "windows")
 	be.Equal(t, "Read this as text", s)
 }
@@ -93,19 +92,19 @@ func TestLinkPreviewTip(t *testing.T) {
 func TestReleaserPair(t *testing.T) {
 	t.Parallel()
 	s := simple.ReleaserPair(nil, nil)
-	assert.Empty(t, s)
+	be.Equal(t, s, [2]string{})
 	s = simple.ReleaserPair("1", "2")
 	be.Equal(t, "1", s[0])
 	be.Equal(t, "2", s[1])
 	s = simple.ReleaserPair(nil, "2")
 	be.Equal(t, "2", s[0])
-	assert.Empty(t, s[1])
+	be.Equal(t, s[1], "")
 }
 
 func TestUpdated(t *testing.T) {
 	t.Parallel()
 	s := simple.Updated(nil, "")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = simple.Updated("9:30pm", "")
 	be.True(t, strings.Contains(s, "error"))
 	s = simple.Updated(time.Now(), "")
@@ -115,29 +114,29 @@ func TestUpdated(t *testing.T) {
 func TestDemozooGetLink(t *testing.T) {
 	t.Parallel()
 	html := simple.DemozooGetLink("", "", "", "")
-	assert.Empty(t, html)
+	be.Equal(t, html, "")
 	fn := null.String{}
 	fs := null.Int64{}
 	dz := null.Int64{}
 	un := null.String{}
 	html = simple.DemozooGetLink(fn, fs, dz, un)
-	assert.Empty(t, html)
+	be.Equal(t, html, "")
 
 	fn = null.StringFrom("file")
 	html = simple.DemozooGetLink(fn, fs, dz, un)
-	assert.Empty(t, html)
+	be.Equal(t, html, "")
 
 	fn = null.String{}
 	fs = null.Int64From(1000)
 	html = simple.DemozooGetLink(fn, fs, dz, un)
-	assert.Empty(t, html)
+	be.Equal(t, html, "")
 
 	fn = null.String{}
 	fs = null.Int64{}
 	dz = null.Int64From(1)
 	un = null.StringFrom("user")
 	html = simple.DemozooGetLink(fn, fs, dz, un)
-	assert.NotEmpty(t, html)
+	be.True(t, html != "")
 }
 
 func TestImageSample(t *testing.T) {
@@ -181,10 +180,10 @@ func TestLinkID(t *testing.T) {
 	t.Parallel()
 	s, err := simple.LinkID("", "")
 	be.Err(t, err)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s, err = simple.LinkID("a string", "a string")
 	be.Err(t, err)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s, err = simple.LinkID(1, "")
 	be.Err(t, err, nil)
 	be.Equal(t, "/9b1c6", s)
@@ -194,7 +193,7 @@ func TestLinkRelr(t *testing.T) {
 	t.Parallel()
 	s, err := simple.LinkRelr("")
 	be.Err(t, err)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s, err = simple.LinkRelr("a string")
 	be.Err(t, err, nil)
 	be.Equal(t, "/g/a-string", s)
@@ -204,7 +203,7 @@ func TestMakeLink(t *testing.T) {
 	t.Parallel()
 	s, err := simple.MakeLink("", "", true)
 	be.Err(t, err)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s, err = simple.MakeLink("tport", "", true)
 	be.Err(t, err, nil)
 	be.True(t, strings.Contains(s, "Tport"))
@@ -232,7 +231,7 @@ func TestMIME(t *testing.T) {
 func TestMkContent(t *testing.T) {
 	t.Parallel()
 	s := simple.MkContent("")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = simple.MkContent("a string")
 	be.True(t, strings.Contains(s, "a string"))
 	defer func() { _ = os.Remove(s) }()
@@ -241,7 +240,7 @@ func TestMkContent(t *testing.T) {
 func TestReleasers(t *testing.T) {
 	t.Parallel()
 	s := simple.Releasers("", "", true)
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	s = simple.Releasers("group 1", "group 2", false)
 	be.True(t, strings.Contains(string(s), "group 1"))
 	be.True(t, strings.Contains(string(s), "group 2"))
@@ -254,7 +253,7 @@ func TestReleasers(t *testing.T) {
 func TestScreenshot(t *testing.T) {
 	t.Parallel()
 	s := simple.Screenshot("", "", "")
-	assert.Empty(t, s)
+	be.Equal(t, s, "")
 	prev := filepath.Dir(imagefiler(t))
 	s = simple.Screenshot("TEST", "test", dir.Directory(prev))
 	be.True(t, strings.Contains(string(s), `alt="test screenshot"`))
