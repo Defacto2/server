@@ -25,7 +25,7 @@ import (
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/tags"
-	"github.com/volatiletech/null/v8"
+	"github.com/aarondl/null/v8"
 )
 
 const (

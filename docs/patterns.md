@@ -285,7 +285,7 @@ fmt.Println(smallInts)
 
 ## Database queries
 
-The web application relies on an Object-relational mapping (ORM) implementation provided by [SQLBoiler](https://github.com/volatiletech/sqlboiler) to simplify development.
+The web application relies on an Object-relational mapping (ORM) implementation provided by [SQLBoiler](https://github.com/aarondl/sqlboiler) to simplify development.
 
 Some tutorials for SQLBoiler include:
 
@@ -328,7 +328,7 @@ The above code snippet demonstrates how to query a single record from the `files
 ```go
 import(
 	"github.com/Defacto2/server/internal/postgres/models"
-    "github.com/volatiletech/sqlboiler/v4/queries/qm"
+    "github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
 found, err := models.Files(qm.Where("id = ?", 1)).One(ctx, db)

@@ -391,7 +391,7 @@ The resulting built package is found in the `dist/` directory in the repository 
 
 ### Modifying the database schema
 
-The web application relies on an Object-relational mapping (ORM) implementation provided by [SQLBoiler](https://github.com/volatiletech/sqlboiler) to simplify development. If the database schema ever changes with a new table column, a modification of an existing column type, or a name change, the ORM code generation requires a rerun.
+The web application relies on an Object-relational mapping (ORM) implementation provided by [SQLBoiler](https://github.com/aarondl/sqlboiler) to simplify development. If the database schema ever changes with a new table column, a modification of an existing column type, or a name change, the ORM code generation requires a rerun.
 
 After modifying the database schema, confirm the local development database connection settings are correct in the SQLBoiler [settings file](../init/.sqlboiler.toml) `init/.sqlboiler.toml`.
 
