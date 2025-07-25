@@ -86,7 +86,7 @@ func (c *Config) httpPort(logger *zap.SugaredLogger) {
 	if c.HTTPPort == 0 {
 		return
 	}
-	if err := Validate(c.HTTPPort); err != nil {
+	if err := c.HTTPPort.Okay(); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
 			logger.Fatalf("The server could not use the HTTP port %d, %s.",
@@ -103,7 +103,7 @@ func (c *Config) tlsPort(logger *zap.SugaredLogger) {
 	if c.TLSPort == 0 {
 		return
 	}
-	if err := Validate(c.TLSPort); err != nil {
+	if err := c.TLSPort.Okay(); err != nil {
 		switch {
 		case errors.Is(err, ErrPortMax):
 			logger.Fatalf("The server could not use the HTTPS port %d, %s.",
@@ -231,8 +231,16 @@ func SanityTmpDir() {
 	_, _ = fmt.Fprintf(os.Stdout, "Temporary directory using, %s: %s\n", hdu, tmpdir)
 }
 
+func (p TlsPort) Okay() error {
+	return validate(uint(p))
+}
+
+func (p HttpPort) Okay() error {
+	return validate(uint(p))
+}
+
 // Validate returns an error if the HTTP or TLS port is invalid.
-func Validate(port uint) error {
+func validate(port uint) error {
 	const disabled = 0
 	if port == disabled {
 		return nil

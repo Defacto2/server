@@ -191,7 +191,7 @@ func (c *Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error)
 		defer func() { _ = logger.Sync() }()
 	}
 	s := "HTTP"
-	if port == c.Environment.TLSPort {
+	if port == c.Environment.TLSPort.Value() {
 		s = "TLS"
 	}
 	var portErr *net.OpError
@@ -338,7 +338,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
 		panic(fmt.Errorf("%w for the HTTP startup", ErrRoutes))
 	}
-	port := c.Environment.HTTPPort
+	port := c.Environment.HTTPPort.Value()
 	address := c.address(port)
 	if address == "" {
 		return
@@ -357,7 +357,7 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 		logger, _ := zap.NewProduction()
 		defer func() { _ = logger.Sync() }()
 	}
-	port := c.Environment.TLSPort
+	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
 	if address == "" {
 		return
@@ -389,7 +389,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 		logger, _ := zap.NewProduction()
 		defer func() { _ = logger.Sync() }()
 	}
-	port := c.Environment.TLSPort
+	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
 	if address == "" {
 		return

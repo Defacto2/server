@@ -5,6 +5,7 @@ import (
 	"crypto/sha512"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"os"
 	"reflect"
@@ -75,16 +76,46 @@ type Config struct { //nolint:recvcheck
 	// GoogleAccounts is a slice of Google OAuth2 accounts that are allowed to login.
 	// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
 	GoogleAccounts [][48]byte
-	HTTPPort       uint `env:"D2_HTTP_PORT" help:"The port number to be used by the unencrypted HTTP web server"`
-	MaxProcs       uint `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
-	SessionMaxAge  int  `env:"D2_SESSION_MAX_AGE" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
-	TLSPort        uint `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
-	Quiet          bool `env:"D2_QUIET" help:"Suppress most startup output to the terminal, intended for use with systemd or other process managers"`
-	Compression    bool `env:"D2_COMPRESSION" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
-	ProdMode       bool `env:"D2_PROD_MODE" help:"Use the production mode to log errors to files and recover from panics"`
-	ReadOnly       bool `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
-	NoCrawl        bool `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
-	LogAll         bool `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
+	HTTPPort       HttpPort `env:"D2_HTTP_PORT" help:"The port number to be used by the unencrypted HTTP web server"`
+	MaxProcs       uint     `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
+	SessionMaxAge  int      `env:"D2_SESSION_MAX_AGE" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
+	TLSPort        TlsPort  `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
+	Quiet          bool     `env:"D2_QUIET" help:"Suppress most startup output to the terminal, intended for use with systemd or other process managers"`
+	Compression    bool     `env:"D2_COMPRESSION" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
+	ProdMode       bool     `env:"D2_PROD_MODE" help:"Use the production mode to log errors to files and recover from panics"`
+	ReadOnly       bool     `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
+	NoCrawl        bool     `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
+	LogAll         bool     `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
+}
+
+type (
+	HttpPort uint
+	TlsPort  uint
+)
+
+func (p HttpPort) LogValue() slog.Value {
+	return slog.IntValue(int(p))
+}
+
+func (p HttpPort) String() string {
+	s := "the web server will use HTTP, example: http://localhost"
+	const stdport = 80
+	if p != stdport {
+		s = fmt.Sprintf("the web server will use HTTP, example: http://localhost:%d", p)
+	}
+	return s
+}
+
+func (p HttpPort) Value() uint {
+	return uint(p)
+}
+
+func (TlsPort) LogValue() slog.Value {
+	return slog.StringValue("XXXX")
+}
+
+func (p TlsPort) Value() uint {
+	return uint(p)
 }
 
 // List returns a list of the configuration options.
@@ -411,7 +442,7 @@ func valueTLS(val reflect.Value) string {
 }
 
 // valueCert prints the TLS certificate and key locations to the tabwriter.
-func valueCert(val reflect.Value, tlsport uint) string {
+func valueCert(val reflect.Value, tlsport TlsPort) string {
 	if tlsport == 0 {
 		return "Not in use"
 	}

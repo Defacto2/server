@@ -53,9 +53,9 @@ func (c *Configuration) configurations(g *echo.Group, db *sql.DB) {
 	})
 	conf.GET("/pings", func(cx echo.Context) error {
 		proto := "http"
-		port := c.Environment.HTTPPort
+		port := c.Environment.HTTPPort.Value()
 		if port == 0 {
-			port = c.Environment.TLSPort
+			port = c.Environment.TLSPort.Value()
 			proto = "https"
 		}
 		return htmx.Pings(cx, proto, int(math.Abs(float64(port))))

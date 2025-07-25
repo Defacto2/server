@@ -84,10 +84,12 @@ func TestSanityTmpDir(t *testing.T) {
 
 func TestValidate(t *testing.T) {
 	t.Parallel()
-	err := config.Validate(0)
+	c := config.Config{}
+	err := c.HTTPPort.Okay()
 	be.Err(t, err, nil)
 	const tooLarge = 10000000
-	err = config.Validate(tooLarge)
+	c.HTTPPort = tooLarge
+	err = c.HTTPPort.Okay()
 	be.Err(t, err)
 }
 

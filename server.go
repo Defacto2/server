@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"math"
 	"os"
 	"runtime"
@@ -30,6 +31,7 @@ import (
 	"github.com/Defacto2/server/flags"
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/out"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/caarlos0/env/v11"
@@ -56,6 +58,11 @@ func main() {
 	const exit = 0
 	// initialize a temporary logger, get and print the environment variable configurations.
 	logger, configs := environmentVars()
+	// logger := out.Sugar()
+	tracer := out.Tracer()
+	cli := out.Printer()
+	_ = environmentVarS(tracer)
+	tracer.Log(context.Background(), out.LevelFatal, "database connection lost")
 	if exitCode := parseFlags(os.Stdout, logger, *configs); exitCode >= exit {
 		os.Exit(exitCode)
 	}
@@ -67,6 +74,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// TODO playholder for printing
+	tracer.Info("HTTP Port", slog.Any("D2_HTTP_PORT", configs.HTTPPort))
+	tracer.Debug("TLS Port", slog.Any("D2_TLS_PORT", configs.TLSPort))
+	cli.Info("HTTP Port", slog.Any("D2_HTTP_PORT", configs.HTTPPort),
+		slog.String("Help", configs.HTTPPort.String()))
 
 	// connect to the database and perform some repairs and sanity checks.
 	// if the database is cannot connect, the web server will continue.
@@ -114,6 +127,26 @@ func main() {
 
 	// shutdown the web server after a signal is received.
 	website.ShutdownHTTP(router, logger)
+}
+
+func environmentVarS(l *slog.Logger) *config.Config {
+	// logger := zaplog.Status().Sugar()
+	configs := config.Config{
+		Compression:   true,
+		DatabaseURL:   postgres.DefaultURL,
+		HTTPPort:      config.HTTPPort,
+		ProdMode:      true,
+		ReadOnly:      true,
+		SessionMaxAge: config.SessionHours,
+	}
+	if err := env.Parse(&configs); err != nil {
+		out.Fatal(l, "env vars", slog.Any("error", err))
+	}
+	configs.Override()
+	if i := configs.MaxProcs; i > 0 {
+		runtime.GOMAXPROCS(int(math.Abs(float64(i))))
+	}
+	return &configs
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.

@@ -10,6 +10,10 @@ linters:
     - varnamelen # too much work.
     - wsl # fussy.
   settings:
+    sloglint:
+      # Enforce using attributes only.
+      # This will raise an error for any key-value pair arguments.
+      attr-only: true
     cyclop:
       max-complexity: 17
     funlen:
@@ -158,7 +162,6 @@ linters:
       - linters:
           - ireturn
         path: model/html3/html3.go
-
     paths:
       - third_party$
       - builtin$
