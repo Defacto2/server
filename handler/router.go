@@ -221,7 +221,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLog
 			return cx.Redirect(http.StatusMovedPermanently, "/f/"+uri)
 		}
 		dirs.URI = uri
-		return dirs.Artifact(cx, db, logger, c.Environment.ReadOnly)
+		return dirs.Artifact(cx, db, logger, bool(c.Environment.ReadOnly))
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {
 		return app.Categories(cx, db, logger, true)

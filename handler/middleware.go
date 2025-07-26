@@ -43,7 +43,7 @@ func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 // of the database and any related user interface.
 func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(e echo.Context) error {
-		s := strconv.FormatBool(c.Environment.ReadOnly)
+		s := strconv.FormatBool(bool(c.Environment.ReadOnly))
 		e.Response().Header().Set("X-Read-Only-Lock", s)
 		if c.Environment.ReadOnly {
 			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
@@ -108,7 +108,7 @@ func (c *Configuration) configZapLogger() middleware.RequestLoggerConfig {
 	logger := zaplog.Status().Sugar()
 	if c.Environment.ProdMode {
 		logPath := c.Environment.AbsLog
-		logger = zaplog.Store(zaplog.Text(), logPath).Sugar()
+		logger = zaplog.Store(zaplog.Text(), string(logPath)).Sugar()
 	}
 	defer func() {
 		_ = logger.Sync()

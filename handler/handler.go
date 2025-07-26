@@ -114,7 +114,7 @@ func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.
 
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmxGroup(e, db, logger, configs.ProdMode, dir.Directory(c.Environment.AbsDownload))
+	e = htmxGroup(e, db, logger, bool(configs.ProdMode), dir.Directory(c.Environment.AbsDownload))
 	e, err = c.FilesRoutes(e, db, logger, c.Public)
 	if err != nil {
 		logger.Fatal(err)
@@ -196,7 +196,7 @@ func (c *Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error)
 	}
 	var portErr *net.OpError
 	switch {
-	case !c.Environment.ProdMode && errors.As(err, &portErr):
+	case !bool(c.Environment.ProdMode) && errors.As(err, &portErr):
 		logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
 	case errors.Is(err, net.ErrClosed),
 		errors.Is(err, http.ErrServerClosed):

@@ -58,11 +58,6 @@ func main() {
 	const exit = 0
 	// initialize a temporary logger, get and print the environment variable configurations.
 	logger, configs := environmentVars()
-	// logger := out.Sugar()
-	tracer := out.Tracer()
-	cli := out.Printer()
-	_ = environmentVarS(tracer)
-	tracer.Log(context.Background(), out.LevelFatal, "database connection lost")
 	if exitCode := parseFlags(os.Stdout, logger, *configs); exitCode >= exit {
 		os.Exit(exitCode)
 	}
@@ -75,11 +70,11 @@ func main() {
 		panic(err)
 	}
 
-	// TODO playholder for printing
-	tracer.Info("HTTP Port", slog.Any("D2_HTTP_PORT", configs.HTTPPort))
-	tracer.Debug("TLS Port", slog.Any("D2_TLS_PORT", configs.TLSPort))
-	cli.Info("HTTP Port", slog.Any("D2_HTTP_PORT", configs.HTTPPort),
-		slog.String("Help", configs.HTTPPort.String()))
+	// WARN: slog branch beging
+	logging := out.Printout()
+	configs.Print(logging)
+	_ = environmentVarS(logging)
+	// WARN: slog branh end
 
 	// connect to the database and perform some repairs and sanity checks.
 	// if the database is cannot connect, the web server will continue.
@@ -129,6 +124,7 @@ func main() {
 	website.ShutdownHTTP(router, logger)
 }
 
+// WARN: slog branch
 func environmentVarS(l *slog.Logger) *config.Config {
 	// logger := zaplog.Status().Sugar()
 	configs := config.Config{
@@ -228,7 +224,7 @@ func serverLog(configs config.Config, count int) *zap.SugaredLogger {
 		if err := configs.LogStore(); err != nil {
 			logger.Fatalf("%w using server log: %s", ErrLog, err)
 		}
-		logger = zaplog.Store(zaplog.Text(), configs.AbsLog).Sugar()
+		logger = zaplog.Store(zaplog.Text(), string(configs.AbsLog)).Sugar()
 	}
 	return logger
 }

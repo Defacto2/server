@@ -1,4 +1,4 @@
-// Package out uses the slog package for the application logs.
+// Package out uses the slog and tint packages for the application logs.
 // There are two logging modes, development and production.
 // The production mode saves the logs to file and automatically rotates
 // older files. While the development mode prints all feedback to stdout.
@@ -43,9 +43,19 @@ const (
 	TracePurple = 206            // #ff5fff
 )
 
-// replace DefaultAttr with PrintAttr and TraceAttr
+// Devel is the default development mode logger that prints to the
+// termminal standard error (stdout). The date/time and source path
+// are included as are levels using colored three letter codes.
+func Devel() *slog.Logger {
+	w := os.Stdout
+	// Create a new logger
+	opts := options()
+	opts.ReplaceAttr = defaultAttr
+	logger := slog.New(tint.NewHandler(w, &opts))
+	return logger
+}
 
-func DefaultAttr(groups []string, a slog.Attr) slog.Attr {
+func defaultAttr(groups []string, a slog.Attr) slog.Attr {
 	// Remove time.
 	// if a.Key == slog.TimeKey && len(groups) == 0 {
 	// 	return slog.Attr{}
@@ -68,18 +78,44 @@ func DefaultAttr(groups []string, a slog.Attr) slog.Attr {
 	return custom(a)
 }
 
-func PrintAttr(groups []string, a slog.Attr) slog.Attr {
+// Printout is a text only logger for terminal output using the
+// terminal standard output. It gets used for displaying the server
+// startup configuration and the output of flags and application commands.
+func Printout() *slog.Logger {
+	w := os.Stdout
+	// Create a new logger
+	opts := options()
+	opts.AddSource = false
+	opts.ReplaceAttr = printAttr
+	logger := slog.New(tint.NewHandler(w, &opts))
+	return logger
+}
+
+func printAttr(groups []string, a slog.Attr) slog.Attr {
 	if a.Key == slog.TimeKey && len(groups) == 0 {
 		return slog.Attr{}
 	}
-	print(fmt.Sprintf("\n%s ~ %s\n", a, groups))
 	if a.Key == slog.LevelKey {
-		a.Value = slog.StringValue(">\t")
+		a = tint.Attr(6, slog.String(a.Key, "INF  "))
+		//	a.Value = slog.StringValue("\t")
+	}
+	if a.Key == "msg" {
+		a.Value = slog.StringValue(fmt.Sprintf("%s\n      ", a.Value))
 	}
 	return a
 }
 
-func TraceAttr(groups []string, a slog.Attr) slog.Attr {
+// TODO: this maybe removed and instead consolidated with Devel()?
+func Tracer() *slog.Logger {
+	w := os.Stdout
+	// Create a new logger
+	opts := options()
+	opts.ReplaceAttr = traceAttr
+	logger := slog.New(tint.NewHandler(w, &opts))
+	return logger
+}
+
+func traceAttr(groups []string, a slog.Attr) slog.Attr {
 	return custom(a)
 }
 
@@ -95,34 +131,6 @@ func custom(a slog.Attr) slog.Attr {
 		}
 	}
 	return a
-}
-
-func Sugar() *slog.Logger {
-	w := os.Stdout
-	// Create a new logger
-	opts := options()
-	opts.ReplaceAttr = DefaultAttr
-	logger := slog.New(tint.NewHandler(w, &opts))
-	return logger
-}
-
-func Printer() *slog.Logger {
-	w := os.Stdout
-	// Create a new logger
-	opts := options()
-	opts.AddSource = false
-	opts.ReplaceAttr = PrintAttr
-	logger := slog.New(tint.NewHandler(w, &opts))
-	return logger
-}
-
-func Tracer() *slog.Logger {
-	w := os.Stdout
-	// Create a new logger
-	opts := options()
-	opts.ReplaceAttr = TraceAttr
-	logger := slog.New(tint.NewHandler(w, &opts))
-	return logger
 }
 
 func options() tint.Options {
@@ -142,6 +150,17 @@ func Fatal(l *slog.Logger, msg string, args ...slog.Attr) {
 func Trace(l *slog.Logger, msg string, args ...slog.Attr) {
 	l.LogAttrs(context.Background(), LevelTrace, msg, args...)
 }
+
+// 	logFile, err := os.OpenFile("application.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	defer logFile.Close()
+//
+// var logLevel = new(slog.LevelVar)
+// 	logger := slog.NewJSONHandler(logFile, &slog.HandlerOptions{Level: logLevel})
+// 	slog.SetDefault(slog.New(logger))
+// 	logLevel.Set(slog.LevelDebug)
 
 // func x() {
 // 	wl := slog.LevelDebug

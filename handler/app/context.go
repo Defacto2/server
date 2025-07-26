@@ -437,8 +437,8 @@ func configurations(data map[string]any, conf config.Config) map[string]any { //
 	data["countDownloads"] = 0
 	data["extsDownloads"] = []helper.Extension{}
 	if check == nil {
-		data["countDownloads"], _ = helper.Count(conf.AbsDownload)
-		exts, _ := helper.CountExts(conf.AbsDownload)
+		data["countDownloads"], _ = helper.Count(string(conf.AbsDownload))
+		exts, _ := helper.CountExts(string(conf.AbsDownload))
 		data["extsDownloads"] = exts
 	}
 	preview := dir.Directory(conf.AbsPreview)

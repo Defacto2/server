@@ -423,12 +423,13 @@ func (t *Templ) lockLayout(lock bool, files ...string) []string {
 func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 	files := t.Layout(name)
 	config := t.Environment
-	files = t.locked(config.ReadOnly, files...)
-	files = t.lockLayout(config.ReadOnly, files...)
+	readonly := bool(config.ReadOnly)
+	files = t.locked(readonly, files...)
+	files = t.lockLayout(readonly, files...)
 	// append any additional and embedded templates
 	switch name {
 	case artifactTmpl:
-		files = t.artifact(config.ReadOnly, files...)
+		files = t.artifact(readonly, files...)
 	case artifactsTmpl:
 		files = append(files, GlobTo("artifactsedit.tmpl"))
 	case categoriesTmpl:

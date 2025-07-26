@@ -119,7 +119,7 @@ func (c *Config) tlsPort(logger *zap.SugaredLogger) {
 // expects the server to be configured with OAuth2 and Google IDs.
 // The server should be running over HTTPS and not unencrypted HTTP.
 func (c *Config) production(logger *zap.SugaredLogger) {
-	if !c.ProdMode || c.ReadOnly {
+	if !bool(c.ProdMode) || bool(c.ReadOnly) {
 		return
 	}
 	if c.GoogleClientID == "" {
@@ -166,7 +166,8 @@ func (c *Config) SetupLogDir(logger *zap.SugaredLogger) error {
 			return fmt.Errorf("%w: %w", ErrLog, err)
 		}
 	}
-	dir, err := os.Stat(c.AbsLog)
+	logs := string(c.AbsLog)
+	dir, err := os.Stat(logs)
 	if os.IsNotExist(err) {
 		return fmt.Errorf("log directory %w: %s", ErrDirNotExist, c.AbsLog)
 	}
@@ -176,7 +177,7 @@ func (c *Config) SetupLogDir(logger *zap.SugaredLogger) error {
 	if !dir.IsDir() {
 		return fmt.Errorf("log directory %w: %s", ErrNotDir, dir.Name())
 	}
-	empty := filepath.Join(c.AbsLog, ".defacto2_touch_test")
+	empty := filepath.Join(logs, ".defacto2_touch_test")
 	if _, err := os.Stat(empty); os.IsNotExist(err) {
 		f, err := os.Create(empty)
 		if err != nil {
@@ -229,27 +230,4 @@ func SanityTmpDir() {
 	}
 	hdu := helper.ByteCountFloat(du)
 	_, _ = fmt.Fprintf(os.Stdout, "Temporary directory using, %s: %s\n", hdu, tmpdir)
-}
-
-func (p TlsPort) Okay() error {
-	return validate(uint(p))
-}
-
-func (p HttpPort) Okay() error {
-	return validate(uint(p))
-}
-
-// Validate returns an error if the HTTP or TLS port is invalid.
-func validate(port uint) error {
-	const disabled = 0
-	if port == disabled {
-		return nil
-	}
-	if port > PortMax {
-		return ErrPortMax
-	}
-	if port <= PortSys {
-		return ErrPortSys
-	}
-	return nil
 }

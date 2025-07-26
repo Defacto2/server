@@ -120,10 +120,11 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
 			defer func() {
-				_, err := fmt.Fprintf(w, "%s\n", c.String())
-				if err != nil {
-					panic(err)
-				}
+				// TODO: fix
+				//_, err := fmt.Fprintf(w, "%s\n", c.String())
+				//if err != nil {
+				//:panic(err)
+				//}
 			}()
 			defer func() {
 				b := new(strings.Builder)

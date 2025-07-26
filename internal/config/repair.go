@@ -318,7 +318,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 	artifacts = slices.Clip(artifacts)
 	slices.Sort(artifacts)
 
-	dirs := []string{c.AbsDownload, c.AbsPreview, c.AbsThumbnail}
+	dirs := []string{string(c.AbsDownload), string(c.AbsPreview), c.AbsThumbnail}
 	counters := make([]int, len(dirs))
 	var wg sync.WaitGroup
 	wg.Add(len(dirs))
@@ -522,7 +522,7 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, lo
 	}
 	count := 0
 	for val := range slices.Values(magics) {
-		name := filepath.Join(c.AbsDownload, val.UUID.String)
+		name := filepath.Join(string(c.AbsDownload), val.UUID.String)
 		r, err := os.Open(name)
 		if err != nil {
 			_ = r.Close()
