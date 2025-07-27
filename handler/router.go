@@ -69,7 +69,7 @@ func (c *Configuration) nonce(e *echo.Echo) (string, error) {
 	if c.Environment.ReadOnly {
 		return "", nil
 	}
-	b, err := helper.CookieStore(c.Environment.SessionKey)
+	b, err := helper.CookieStore(c.Environment.SessionKey.String())
 	if err != nil {
 		return "", fmt.Errorf("none cookie store: %w", err)
 	}
@@ -125,8 +125,8 @@ func (c *Configuration) static(e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for static router", ErrRoutes))
 	}
-	e.Static(config.StaticThumb(), c.Environment.AbsThumbnail)
-	e.Static(config.StaticOriginal(), c.Environment.AbsPreview)
+	e.Static(config.StaticThumb(), c.Environment.AbsThumbnail.String())
+	e.Static(config.StaticOriginal(), c.Environment.AbsPreview.String())
 	return e
 }
 
@@ -363,7 +363,7 @@ func (c *Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 	google.POST("/callback", func(cx echo.Context) error {
 		return app.GoogleCallback(cx,
 			c.Environment.GoogleClientID,
-			c.Environment.SessionMaxAge,
+			c.Environment.SessionMaxAge.Int(),
 			c.Environment.GoogleAccounts...)
 	})
 	return e

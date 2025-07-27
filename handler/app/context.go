@@ -431,14 +431,14 @@ func Configurations(cx echo.Context, db *sql.DB, conf config.Config) error {
 }
 
 func configurations(data map[string]any, conf config.Config) map[string]any { //nolint:funlen
-	download := dir.Directory(conf.AbsDownload)
+	download := dir.Directory(conf.AbsDownload.String())
 	check := config.CheckDir(download, "downloads")
 	data["checkDownloads"] = check
 	data["countDownloads"] = 0
 	data["extsDownloads"] = []helper.Extension{}
 	if check == nil {
-		data["countDownloads"], _ = helper.Count(string(conf.AbsDownload))
-		exts, _ := helper.CountExts(string(conf.AbsDownload))
+		data["countDownloads"], _ = helper.Count(string(conf.AbsDownload.String()))
+		exts, _ := helper.CountExts(string(conf.AbsDownload.String()))
 		data["extsDownloads"] = exts
 	}
 	preview := dir.Directory(conf.AbsPreview)
@@ -447,8 +447,8 @@ func configurations(data map[string]any, conf config.Config) map[string]any { //
 	data["countPreviews"] = 0
 	data["extsPreviews"] = []helper.Extension{}
 	if check == nil {
-		data["countPreviews"], _ = helper.Count(conf.AbsPreview)
-		exts, _ := helper.CountExts(conf.AbsPreview)
+		data["countPreviews"], _ = helper.Count(conf.AbsPreview.String())
+		exts, _ := helper.CountExts(conf.AbsPreview.String())
 		data["extsPreviews"] = exts
 	}
 	thumbnail := dir.Directory(conf.AbsThumbnail)
@@ -457,8 +457,8 @@ func configurations(data map[string]any, conf config.Config) map[string]any { //
 	data["countThumbnails"] = 0
 	data["extsThumbnails"] = []helper.Extension{}
 	if check == nil {
-		data["countThumbnails"], _ = helper.Count(conf.AbsThumbnail)
-		exts, _ := helper.CountExts(conf.AbsThumbnail)
+		data["countThumbnails"], _ = helper.Count(conf.AbsThumbnail.String())
+		exts, _ := helper.CountExts(conf.AbsThumbnail.String())
 		data["extsThumbnails"] = exts
 	}
 	extra := dir.Directory(conf.AbsExtra)
@@ -467,18 +467,18 @@ func configurations(data map[string]any, conf config.Config) map[string]any { //
 	data["countExtras"] = 0
 	data["extsExtras"] = []helper.Extension{}
 	if check == nil {
-		data["countExtras"], _ = helper.Count(conf.AbsExtra)
-		exts, _ := helper.CountExts(conf.AbsExtra)
+		data["countExtras"], _ = helper.Count(conf.AbsExtra.String())
+		exts, _ := helper.CountExts(conf.AbsExtra.String())
 		data["extsExtras"] = exts
 	}
-	orphaned := dir.Directory(conf.AbsOrphaned)
+	orphaned := dir.Directory(conf.AbsOrphaned.String())
 	check = config.CheckDir(orphaned, "orphaned")
 	data["checkOrphaned"] = check
 	data["countOrphaned"] = 0
 	data["extsOrphaned"] = []helper.Extension{}
 	if check == nil {
-		data["countOrphaned"], _ = helper.Count(conf.AbsOrphaned)
-		exts, _ := helper.CountExts(conf.AbsOrphaned)
+		data["countOrphaned"], _ = helper.Count(conf.AbsOrphaned.String())
+		exts, _ := helper.CountExts(conf.AbsOrphaned.String())
 		data["extsOrphaned"] = exts
 	}
 	return data

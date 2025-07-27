@@ -137,7 +137,7 @@ func (c *Config) production(logger *zap.SugaredLogger) {
 
 // LogStore determines the local storage path for all log files created by this web application.
 func (c *Config) LogStore() error {
-	logs := c.AbsLog
+	logs := c.AbsLog.String()
 	if logs == "" {
 		dir, err := os.UserConfigDir()
 		if err != nil {
@@ -150,7 +150,7 @@ func (c *Config) LogStore() error {
 			return fmt.Errorf("%w: %s", err, logs)
 		}
 	}
-	c.AbsLog = logs
+	c.AbsLog = Abslog(logs)
 	return nil
 }
 

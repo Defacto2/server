@@ -368,10 +368,10 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 	if certFile == "" || keyFile == "" {
 		logger.Fatalf("%s, missing certificate or key file.", failure)
 	}
-	if !helper.File(certFile) {
+	if !helper.File(certFile.String()) {
 		logger.Fatalf("%s, certificate file does not exist: %s.", failure, certFile)
 	}
-	if !helper.File(keyFile) {
+	if !helper.File(keyFile.String()) {
 		logger.Fatalf("%s, key file does not exist: %s.", failure, keyFile)
 	}
 	if err := e.StartTLS(address, certFile, keyFile); err != nil {

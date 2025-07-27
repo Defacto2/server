@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/lmittmann/tint"
@@ -92,15 +93,40 @@ func Printout() *slog.Logger {
 }
 
 func printAttr(groups []string, a slog.Attr) slog.Attr {
+	// time=2025-07-27 16:57:30.227148346 +1000 AEST
+	// level=INFO
+	// msg=Google Accounts
+	// =<nil
+	// fmt.Printf("%+v ~ %+v\n", a, groups)
+	if a.Key == "" {
+		return slog.Attr{}
+	}
 	if a.Key == slog.TimeKey && len(groups) == 0 {
 		return slog.Attr{}
+	}
+	if a.Key == "help" && a.Value.String() == "" {
+		return slog.Attr{}
+	}
+	if strings.HasSuffix(a.Key, "") {
+		a.Key = strings.TrimSuffix(a.Key, ",unset")
 	}
 	if a.Key == slog.LevelKey {
 		a = tint.Attr(6, slog.String(a.Key, "INF  "))
 		//	a.Value = slog.StringValue("\t")
 	}
 	if a.Key == "msg" {
+		if a.Value.String() == "Google Accounts" {
+			return slog.Attr{}
+		}
 		a.Value = slog.StringValue(fmt.Sprintf("%s\n      ", a.Value))
+	}
+	if a.Key == "issue" {
+		if a.Value.String() == "" {
+			return slog.Attr{}
+		}
+		a.Key = "ISSUE"
+		a = tint.Attr(9, slog.String(a.Key, a.Value.String()))
+		return tint.Attr(9, a)
 	}
 	return a
 }

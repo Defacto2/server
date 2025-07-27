@@ -318,7 +318,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 	artifacts = slices.Clip(artifacts)
 	slices.Sort(artifacts)
 
-	dirs := []string{string(c.AbsDownload), string(c.AbsPreview), c.AbsThumbnail}
+	dirs := []string{string(c.AbsDownload.String()), string(c.AbsPreview.String()), c.AbsThumbnail.String()}
 	counters := make([]int, len(dirs))
 	var wg sync.WaitGroup
 	wg.Add(len(dirs))
@@ -417,7 +417,7 @@ func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, logge
 	}
 	dupes := 0
 	for val := range slices.Values(uuids) {
-		name := filepath.Join(c.AbsExtra, val.UUID.String)
+		name := filepath.Join(c.AbsExtra.String(), val.UUID.String)
 		diz := name + ".diz"
 		txt := name + ".txt"
 		dizF, err := os.Stat(diz)
@@ -552,7 +552,7 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger
 	}
 	var count, totals int64
 	for val := range slices.Values(artifacts) {
-		png := filepath.Join(c.AbsPreview, val.UUID.String) + ".png"
+		png := filepath.Join(c.AbsPreview.String(), val.UUID.String) + ".png"
 		st, err := os.Stat(png)
 		if err != nil {
 			_, _ = fmt.Fprintln(io.Discard, err)
@@ -563,7 +563,7 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger
 		totals += st.Size()
 	}
 	for val := range slices.Values(artifacts) {
-		webp := filepath.Join(c.AbsPreview, val.UUID.String) + ".webp"
+		webp := filepath.Join(c.AbsPreview.String(), val.UUID.String) + ".webp"
 		st, err := os.Stat(webp)
 		if err != nil {
 			_, _ = fmt.Fprintln(io.Discard, err)
@@ -582,8 +582,8 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, logger
 
 // ImageDirs on startup check the image directories for any invalid or unknown files.
 func (c *Config) ImageDirs(logger *zap.SugaredLogger) error {
-	backup := dir.Directory(c.AbsOrphaned)
-	dirs := []string{c.AbsPreview, c.AbsThumbnail}
+	backup := dir.Directory(c.AbsOrphaned.String())
+	dirs := []string{c.AbsPreview.String(), c.AbsThumbnail.String()}
 	if err := removeSub(dirs...); err != nil {
 		return fmt.Errorf("remove subdirectories %w", err)
 	}
@@ -602,11 +602,11 @@ func (c *Config) ImageDirs(logger *zap.SugaredLogger) error {
 				return nil
 			}
 			switch dir {
-			case c.AbsPreview:
+			case c.AbsPreview.String():
 				if filepath.Ext(name) == ".png" {
 					p++
 				}
-			case c.AbsThumbnail:
+			case c.AbsThumbnail.String():
 				if filepath.Ext(name) == ".png" {
 					t++
 				}
@@ -617,9 +617,9 @@ func (c *Config) ImageDirs(logger *zap.SugaredLogger) error {
 			return fmt.Errorf("walk directory %w: %s", err, dir)
 		}
 		switch dir {
-		case c.AbsPreview:
+		case c.AbsPreview.String():
 			containsInfo(logger, "preview", p)
-		case c.AbsThumbnail:
+		case c.AbsThumbnail.String():
 			containsInfo(logger, "thumb", t)
 		}
 	}
