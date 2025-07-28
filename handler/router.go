@@ -354,7 +354,7 @@ func (c *Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 	signings.Use(c.ReadOnlyLock)
 	signings.GET("/signedout", app.SignedOut)
 	signings.GET("/signin", func(cx echo.Context) error {
-		return app.Signin(cx, c.Environment.GoogleClientID, nonce)
+		return app.Signin(cx, c.Environment.GoogleClientID.String(), nonce)
 	})
 	signings.GET("/operator/signin", func(cx echo.Context) error {
 		return cx.Redirect(http.StatusMovedPermanently, "/signin")
@@ -362,7 +362,7 @@ func (c *Configuration) signin(e *echo.Echo, nonce string) *echo.Echo {
 	google := signings.Group("/google")
 	google.POST("/callback", func(cx echo.Context) error {
 		return app.GoogleCallback(cx,
-			c.Environment.GoogleClientID,
+			c.Environment.GoogleClientID.String(),
 			c.Environment.SessionMaxAge.Int(),
 			c.Environment.GoogleAccounts...)
 	})

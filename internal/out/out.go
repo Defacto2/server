@@ -93,39 +93,46 @@ func Printout() *slog.Logger {
 }
 
 func printAttr(groups []string, a slog.Attr) slog.Attr {
-	// time=2025-07-27 16:57:30.227148346 +1000 AEST
-	// level=INFO
-	// msg=Google Accounts
-	// =<nil
-	// fmt.Printf("%+v ~ %+v\n", a, groups)
-	if a.Key == "" {
+	const unset = ",unset"
+	key := a.Key
+	value := a.Value.String()
+	// comp := strings.ToLower(value)
+	// fix keys
+	if strings.HasSuffix(key, unset) {
+		fix := strings.TrimSuffix(key, unset)
+		key = fix
+		a.Key = fix
+	}
+	// cases for skipping
+	switch key {
+	case "":
 		return slog.Attr{}
-	}
-	if a.Key == slog.TimeKey && len(groups) == 0 {
-		return slog.Attr{}
-	}
-	if a.Key == "help" && a.Value.String() == "" {
-		return slog.Attr{}
-	}
-	if strings.HasSuffix(a.Key, "") {
-		a.Key = strings.TrimSuffix(a.Key, ",unset")
-	}
-	if a.Key == slog.LevelKey {
-		a = tint.Attr(6, slog.String(a.Key, "INF  "))
-		//	a.Value = slog.StringValue("\t")
-	}
-	if a.Key == "msg" {
-		if a.Value.String() == "Google Accounts" {
+	case "help":
+		if value == "" {
 			return slog.Attr{}
 		}
-		a.Value = slog.StringValue(fmt.Sprintf("%s\n      ", a.Value))
+	case slog.TimeKey:
+		if len(groups) == 0 {
+			return slog.Attr{}
+		}
+	case "msg":
+		switch strings.ToLower(value) {
+		case "googleaccounts":
+			return slog.Attr{}
+		default:
+			a.Value = slog.StringValue(fmt.Sprintf("%s\n      ", a.Value))
+		}
 	}
-	if a.Key == "issue" {
-		if a.Value.String() == "" {
+	// formatting
+	if key == slog.LevelKey {
+		a = tint.Attr(6, slog.String(a.Key, "INF  "))
+	}
+	if key == "issue" {
+		if value == "" {
 			return slog.Attr{}
 		}
 		a.Key = "ISSUE"
-		a = tint.Attr(9, slog.String(a.Key, a.Value.String()))
+		a = tint.Attr(9, slog.String(key, value))
 		return tint.Attr(9, a)
 	}
 	return a

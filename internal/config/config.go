@@ -70,7 +70,7 @@ type Config struct { //nolint:recvcheck
 	AbsOrphaned    Absorphan  `env:"D2_DIR_ORPHANED" help:"The directory path that holds the UUID named files that are not linked to any database records"`
 	DatabaseURL    Connection `env:"D2_DATABASE_URL" help:"Provide the URL of the database to which to connect"`
 	SessionKey     Sessionkey `env:"D2_SESSION_KEY,unset" help:"Use a fixed session key for the cookie store, which can be left blank to generate a random key"`
-	GoogleClientID string     `env:"D2_GOOGLE_CLIENT_ID,unset" help:"The Google OAuth2 client ID"`
+	GoogleClientID Googleauth `env:"D2_GOOGLE_CLIENT_ID,unset" help:"The Google OAuth2 client ID"`
 	GoogleIDs      Googleids  `env:"D2_GOOGLE_IDS,unset" help:"Create a comma-separated list of Google account IDs to permit access to the editor mode"`
 	MatchHost      Matchhost  `env:"D2_MATCH_HOST" help:"Limits connections to the specific host or domain name; leave blank to permit connections from anywhere"`
 	TLSCert        Tlsconfig  `env:"D2_TLS_CERT" help:"An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate"`
@@ -87,6 +87,102 @@ type Config struct { //nolint:recvcheck
 	NoCrawl        Toggle     `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogAll         Toggle     `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
 }
+
+// OAuth2s is a slice of Google OAuth2 accounts that are allowed to login.
+// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
+type OAuth2s [][48]byte
+
+func (o OAuth2s) LogValue() slog.Value {
+	return slog.Value{}
+}
+
+func (o OAuth2s) Values() [][48]byte {
+	return o
+}
+
+func (o OAuth2s) String() string {
+	cnt := len(o)
+	switch cnt {
+	case 0:
+		return ""
+	case 1:
+		return "one sign-in account"
+	default:
+		return "multiple sign-in accounts"
+
+	}
+}
+
+func (o OAuth2s) Help() string {
+	return Googles(o)
+}
+
+// Googles TODO:
+func Googles(ids [][48]byte) string {
+	const none = "No accounts configured for the web administration"
+	if ids == nil {
+		return none
+	}
+	cnt := len(ids)
+	switch cnt {
+	case 0:
+		return none
+	case 1:
+		return "1 Google account in use for the web administration"
+	default:
+		return fmt.Sprintf("%d Google accounts in use for the web administration", cnt)
+	}
+}
+
+type Googleauth string
+
+func (g Googleauth) LogValue() slog.Value {
+	if string(g) == "" {
+		return slog.StringValue("Empty")
+	}
+	return slog.StringValue(hide)
+}
+
+func (g Googleauth) Help() string {
+	if string(g) == "" {
+		return "No accounts for web administration"
+	}
+	return ""
+}
+
+func (g Googleauth) String() string {
+	return string(g)
+}
+
+type Googleids string
+
+func (g Googleids) LogValue() slog.Value {
+	if g == "" {
+		return slog.StringValue("")
+	}
+	return slog.StringValue(hide)
+}
+
+func (g Googleids) Help() string {
+	const none = "No accounts configured for the web administration"
+	if g == "" {
+		return none
+	}
+	cnt := len(strings.Split(g.String(), ","))
+	switch cnt {
+	case 0:
+		return none
+	case 1:
+		return "1 Google account in use for sign-in"
+	default:
+		return fmt.Sprintf("%d Google accounts in use for sign-ins", cnt)
+	}
+}
+
+func (g Googleids) String() string {
+	return string(g)
+}
+
 type Directory string
 
 func (d Directory) LogValue() slog.Value {
@@ -251,18 +347,6 @@ func (a Absorphan) String() string {
 	return Directory(a).String()
 }
 
-// OAuth2s is a slice of Google OAuth2 accounts that are allowed to login.
-// Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
-type OAuth2s [][48]byte
-
-func (o OAuth2s) LogValue() slog.Value {
-	return slog.Value{}
-}
-
-func (o OAuth2s) Values() [][48]byte {
-	return o
-}
-
 type PortHttp uint
 
 func (p PortHttp) LogValue() slog.Value {
@@ -301,57 +385,24 @@ func (p PortTls) Okay() error {
 
 func protoPort(p, stdport uint, proto string) string {
 	if p == 0 {
-		return "Unused, the web server will not use http"
+		return "The web server is not using " + strings.ToUpper(proto)
 	}
-	s := "The web server will use " + strings.ToUpper(proto) +
+	s := "The web server is using " + strings.ToUpper(proto) +
 		", example: " + strings.ToLower(proto) + "://localhost"
 	if p != stdport {
-		s = fmt.Sprintf("The web server will use %s, example: %s://localhost:%d",
+		s = fmt.Sprintf("The web server is using %s, example: %s://localhost:%d",
 			strings.ToUpper(proto), strings.ToLower(proto), p)
 	}
 	return s
 }
 
-type Googleids string
-
-func (g Googleids) LogValue() slog.Value {
-	if g == "" {
-		return slog.StringValue("Unused")
-	}
-	return slog.StringValue(hide)
-}
-
-func (g Googleids) Help() string {
-	if g == "" {
-		return "No accounts configured for web administration."
-	}
-	return ""
-}
-
-func (g Googleids) String() string {
-	return string(g)
-}
-
-// Googles(ids [][48]byte) string {
-// 	l := len(ids)
-// 	switch l {
-// 	case 0:
-// 		return "Empty, no accounts for web administration"
-// 	case 1:
-// 		return "1 Google account allowed to sign-in"
-// 	default:
-// 		return fmt.Sprintf("%d Google accounts allowed to sign-in", l)
-// 	}
-// }
-//
-
 type Matchhost string
 
 func (m Matchhost) LogValue() slog.Value {
 	if m == "" {
-		return slog.StringValue("Unused")
+		return slog.StringValue("")
 	}
-	return slog.StringValue(hide)
+	return slog.StringValue(string(m))
 }
 
 func (m Matchhost) Help() string {
@@ -369,7 +420,7 @@ type Sessionkey string
 
 func (s Sessionkey) LogValue() slog.Value {
 	if s == "" {
-		return slog.StringValue("Unused")
+		return slog.StringValue("")
 	}
 	return slog.StringValue(hide)
 }
@@ -424,10 +475,14 @@ func (c Connection) LogValue() slog.Value {
 type Threads uint
 
 func (t Threads) LogValue() slog.Value {
+	return slog.Uint64Value(uint64(t))
+}
+
+func (t Threads) String() string {
 	if t == 0 {
-		return slog.StringValue("Unused")
+		return "are not set"
 	}
-	return slog.StringValue(fmt.Sprintf("%d CPU threads", t))
+	return fmt.Sprintf("%d CPU threads", t)
 }
 
 func (t Threads) Help() string {
@@ -457,9 +512,9 @@ type Toggle bool // Toggle is a boolean value that returns a humanized string
 
 func (t Toggle) LogValue() slog.Value {
 	if t {
-		return slog.StringValue("On")
+		return slog.StringValue("TRUE")
 	}
-	return slog.StringValue("Off")
+	return slog.StringValue("FALSE")
 }
 
 func (t Toggle) Bool() bool {
@@ -469,10 +524,14 @@ func (t Toggle) Bool() bool {
 type Hours int // Hours is a duration value
 
 func (h Hours) LogValue() slog.Value {
+	return slog.IntValue(int(h))
+}
+
+func (h Hours) String() string {
 	if h == 1 {
-		return slog.StringValue("1 hour")
+		return "1 hour"
 	}
-	return slog.StringValue(fmt.Sprintf("%v hours", h))
+	return fmt.Sprintf("%d hours", h)
 }
 
 func (h Hours) Int() int {
@@ -480,44 +539,72 @@ func (h Hours) Int() int {
 }
 
 func (c Config) Print(l *slog.Logger) {
-	l.Info("The Defacto2 server configuration:")
-
+	l.Info("The Defacto2 server configuration :")
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
 	names := c.Names()
 	for i, name := range slices.All(names) {
-		if name == "GoogleAccounts" {
+		if skip(name) {
 			continue
 		}
-		// logenv obtains the `env:` value from the struct
-		logenv := fields[i].Tag.Get("env")
+		// tag obtains the `env:` value from the struct
+		tag := fields[i].Tag.Get("env")
 		// logval must pass in the interface value for the slog.LogValue filter to work
-		valof := reflect.ValueOf(c)
-		logval := valof.FieldByName(name).Interface()
-		// TODO: error method lookup
-		issue := valof.FieldByName(name).MethodByName("Issue")
+		vof := reflect.ValueOf(c)
+		val := vof.FieldByName(name).Interface()
+		inf := Info(name, val)
+		// println(">>", inf)
+		issue := vof.FieldByName(name).MethodByName("Issue")
 		if issue.IsValid() {
 			issuer := issue.Call(nil)[0].String()
-			l.Error(Format(name),
-				slog.Any(logenv, logval),
+			l.Error(inf,
+				slog.Any(tag, val),
 				slog.String("issue", issuer))
 			continue
 		}
-
 		// help includes the result of the Help() method, when it exists
-		help := valof.FieldByName(name).MethodByName("Help")
+		help := vof.FieldByName(name).MethodByName("Help")
 		helper := ""
-		if help.IsValid() {
-			helper = help.Call(nil)[0].String()
-			l.Info(Format(name),
-				slog.Any(logenv, logval),
+
+		if name == "GoogleIDs" && help.IsValid() {
+			const n = "GoogleAccounts"
+			swap := vof.FieldByName(n).MethodByName("Help")
+			if !swap.IsValid() {
+				continue
+			}
+			helper = swap.Call(nil)[0].String()
+			swap = vof.FieldByName(n).MethodByName("String")
+			vals := swap.Call(nil)[0]
+			inf = Info(n, vals)
+			l.Info(inf,
+				slog.Any(tag, hide),
 				slog.String("help", helper))
 			continue
 		}
-		l.Info(Format(name),
-			slog.Any(logenv, logval))
+
+		if help.IsValid() {
+			// handle edge cases like googleids using GoogleAccounts data
+			helper = help.Call(nil)[0].String()
+			l.Info(inf,
+				slog.Any(tag, val),
+				slog.String("help", helper))
+			continue
+		}
+		l.Info(inf,
+			slog.Any(tag, val))
 	}
 }
 
+func skip(name string) bool {
+	name = strings.ToLower(name)
+	switch name {
+	case "googleaccounts":
+		return true
+	default:
+		return false
+	}
+}
+
+// TODO: confirm usage
 // List returns a list of the configuration options.
 func (c Config) List() []Configuration {
 	skip := []string{"GoogleAccounts"}
@@ -546,6 +633,7 @@ func (c Config) List() []Configuration {
 	return configs
 }
 
+// TODO: this is used by the List() method.
 func reflectValue(f reflect.StructField, v reflect.Value) string {
 	// special values that require formatting or hiding
 	switch f.Name {
@@ -772,7 +860,7 @@ func Format(name string) string {
 		"Quiet":          "Quiet mode",
 		"ReadOnly":       "Read-only mode",
 		"SessionKey":     "Session encryption key",
-		"SessionMaxAge":  "Session, maximum age",
+		"SessionMaxAge":  "Maximum age of a session for the web administration",
 		"TLSCert":        "TLS certificate, file path",
 		"TLSHost":        "TLS hostname",
 		"TLSKey":         "TLS key, file path",
@@ -783,6 +871,23 @@ func Format(name string) string {
 	return helper.SplitAsSpaces(name)
 }
 
+func Info(name string, value any) string {
+	s := Format(name)
+	v := reflect.ValueOf(value)
+	switch name {
+	case "GoogleAccounts", "SessionMaxAge":
+		return fmt.Sprintf("%s, %s", s, v)
+	case "MaxProcs":
+		return fmt.Sprintf("%s %s", s, v)
+	}
+	switch v.Kind() {
+	case reflect.Bool:
+		return fmt.Sprintf("%s is %s", s, valueBool(v))
+	default:
+		return s
+	}
+}
+
 // WARN: temp function?
 func Name(val reflect.Value) string {
 	return ""
@@ -791,9 +896,9 @@ func Name(val reflect.Value) string {
 // TODO: remove
 func valueBool(val reflect.Value) string {
 	if val.Bool() {
-		return "On"
+		return "on"
 	}
-	return "Off"
+	return "off"
 }
 
 // TODO: remove
