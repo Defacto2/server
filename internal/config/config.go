@@ -10,22 +10,22 @@ import (
 	"os"
 	"reflect"
 	"slices"
-	"sort"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/Defacto2/helper"
 )
 
 const (
-	ConfigDir    = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
-	HTTPPort     = 1323           // HTTPPort is the default port number for the unencrypted HTTP server.
-	SessionHours = 3              // SessionHours is the default number of hours for the session cookie to remain active.
-	MinimumFiles = 40000          // MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
-	Down         = "AbsDownload"  // AbsDownload means the absolute download asset directory.
-	Logger       = "AbsLog"       // AbsLog means the absolute log directory.
-	Prev         = "AbsPreview"   // AbsPreview means the absolute preview assets directory.
-	Thumb        = "AbsThumbnail" // AbsThumbnail means the absolute thumbnail assets directory.
+	ConfigDir         = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
+	SessionHours      = 3              // SessionHours is the default number of hours for the session cookie to remain active.
+	MinimumFiles      = 40000          // MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
+	AbsDownload       = "AbsDownload"  // AbsDownload means the absolute download asset directory.
+	AbsLog            = "AbsLog"       // AbsLog means the absolute log directory.
+	AbsPreview        = "AbsPreview"   // AbsPreview means the absolute preview assets directory.
+	AbsThumbnail      = "AbsThumbnail" // AbsThumbnail means the absolute thumbnail assets directory.
+	StdHTTP      Port = 80             // StdHTTP is the standard port used for a legacy unencrypted HTTP connection.
+	StdHTTPS     Port = 443            // StdHTTPS is the standard port used for a HTTP web connection.
+	StdCustom         = 1323           // StdCustom is the default port number used by this application for an unencrypted HTTP connection.
 )
 
 const (
@@ -45,18 +45,9 @@ var (
 	ErrNoPort  = errors.New("the server cannot start without a http or a tls port")
 	ErrPointer = errors.New("pointer is nil")
 	ErrVer     = errors.New("postgresql version request failed")
-	// ErrDirNil  = errors.New("directory does not exist")
 	ErrDirNot  = errors.New("path points to a file")
 	ErrFileNot = errors.New("path points to a directory")
 )
-
-// Configuration is a struct that holds the configuration options.
-type Configuration struct {
-	Title       string // Title is the name of the configuration option.
-	Variable    string // Variable is the environment variable name.
-	Value       string // Value of the configuration option that is safe to print.
-	Description string // Description is the help text for the configuration option.
-}
 
 // Config options for the Defacto2 server using the [caarlos0/env] package.
 //
@@ -75,7 +66,7 @@ type Config struct { //nolint:recvcheck
 	MatchHost      Matchhost  `env:"D2_MATCH_HOST" help:"Limits connections to the specific host or domain name; leave blank to permit connections from anywhere"`
 	TLSCert        Abstlscrt  `env:"D2_TLS_CERT" help:"An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate"`
 	TLSKey         Abstlskey  `env:"D2_TLS_KEY" help:"An absolute file path to the TLS key, or leave blank to use a self-signed, localhost key"`
-	GoogleAccounts OAuth2s    //[][48]byte
+	GoogleAccounts OAuth2s    // GoogleAccounts is the data store for the GoogleIDs.
 	HTTPPort       PortHttp   `env:"D2_HTTP_PORT" help:"The port number to be used by the unencrypted HTTP web server"`
 	MaxProcs       Threads    `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
 	SessionMaxAge  Hours      `env:"D2_SESSION_MAX_AGE" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
@@ -86,6 +77,96 @@ type Config struct { //nolint:recvcheck
 	ReadOnly       Toggle     `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
 	NoCrawl        Toggle     `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogAll         Toggle     `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
+}
+
+type Port uint // Port is a network port number.
+
+func (p Port) LogValue() slog.Value {
+	return slog.IntValue(int(p))
+}
+
+func (p Port) Value() uint {
+	return uint(p)
+}
+
+func (p Port) Check() error {
+	return Validate(uint(p))
+}
+
+type File string // File contains an absolute path to a file.
+
+func (f File) Check() error {
+	st, err := os.Stat(string(f))
+	if err != nil {
+		return err
+	}
+	if st.IsDir() {
+		return ErrFileNot
+	}
+	return nil
+}
+
+func (f File) Issue() string {
+	if f == "" {
+		return ""
+	}
+	err := f.Check()
+	if errors.Is(err, os.ErrNotExist) {
+		return "File does not exist"
+	}
+	if errors.Is(err, ErrDirNot) {
+		return "File path points to a file and cannot be used"
+	}
+	return ""
+}
+
+func (f File) LogValue() slog.Value {
+	if f == "" {
+		return slog.StringValue("")
+	}
+	return slog.StringValue(string(f))
+}
+
+func (f File) String() string {
+	return string(f)
+}
+
+type Directory string // Directory contains an absolute path to a directory.
+
+func (d Directory) Check() error {
+	st, err := os.Stat(string(d))
+	if err != nil {
+		return err
+	}
+	if !st.IsDir() {
+		return ErrDirNot
+	}
+	return nil
+}
+
+func (d Directory) Issue() string {
+	if d == "" {
+		return ""
+	}
+	err := d.Check()
+	if errors.Is(err, os.ErrNotExist) {
+		return "Directory does not exist"
+	}
+	if errors.Is(err, ErrDirNot) {
+		return "Directory path points to a file and cannot be used"
+	}
+	return ""
+}
+
+func (d Directory) LogValue() slog.Value {
+	if d == "" {
+		return slog.StringValue("")
+	}
+	return slog.StringValue(string(d))
+}
+
+func (d Directory) String() string {
+	return string(d)
 }
 
 type Abstlskey File
@@ -128,44 +209,6 @@ func (a Abstlscrt) LogValue() slog.Value {
 
 func (a Abstlscrt) String() string {
 	return Directory(a).String()
-}
-
-type File string
-
-func (f File) LogValue() slog.Value {
-	if f == "" {
-		return slog.StringValue("")
-	}
-	return slog.StringValue(string(f))
-}
-
-func (f File) Okay() error {
-	st, err := os.Stat(string(f))
-	if err != nil {
-		return err
-	}
-	if !st.IsDir() {
-		return nil
-	}
-	return ErrFileNot
-}
-
-func (f File) String() string {
-	return string(f)
-}
-
-func (f File) Issue() string {
-	if f == "" {
-		return ""
-	}
-	err := f.Okay()
-	if errors.Is(err, os.ErrNotExist) {
-		return "File does not exist"
-	}
-	if errors.Is(err, ErrDirNot) {
-		return "File path points to a file and cannot be used"
-	}
-	return ""
 }
 
 // OAuth2s is a slice of Google OAuth2 accounts that are allowed to login.
@@ -263,42 +306,34 @@ func (g Googleids) String() string {
 	return string(g)
 }
 
-type Directory string
+type Toggle bool // Toggle is a boolean value that returns a humanized string.
 
-func (d Directory) LogValue() slog.Value {
-	if d == "" {
-		return slog.StringValue("")
+func (t Toggle) LogValue() slog.Value {
+	if t {
+		return slog.StringValue("TRUE")
 	}
-	return slog.StringValue(string(d))
+	return slog.StringValue("FALSE")
 }
 
-func (d Directory) Okay() error {
-	st, err := os.Stat(string(d))
-	if err != nil {
-		return err
-	}
-	if st.IsDir() {
-		return nil
-	}
-	return ErrDirNot
+func (t Toggle) Bool() bool {
+	return bool(t)
 }
 
-func (d Directory) String() string {
-	return string(d)
+type Hours int // Hours is a duration value
+
+func (h Hours) LogValue() slog.Value {
+	return slog.IntValue(int(h))
 }
 
-func (d Directory) Issue() string {
-	if d == "" {
-		return ""
+func (h Hours) String() string {
+	if h == 1 {
+		return "1 hour"
 	}
-	err := d.Okay()
-	if errors.Is(err, os.ErrNotExist) {
-		return "Directory does not exist"
-	}
-	if errors.Is(err, ErrDirNot) {
-		return "Directory path points to a file and cannot be used"
-	}
-	return ""
+	return fmt.Sprintf("%d hours", h)
+}
+
+func (h Hours) Int() int {
+	return int(h)
 }
 
 type Abslog Directory
@@ -427,43 +462,43 @@ func (a Absorphan) String() string {
 	return Directory(a).String()
 }
 
-type PortHttp uint
+type PortHttp Port
 
 func (p PortHttp) LogValue() slog.Value {
-	return slog.IntValue(int(p))
+	return Port(p).LogValue()
 }
 
 func (p PortHttp) Help() string {
-	return protoPort(uint(p), 80, "http")
+	return protoPort(Port(p), StdHTTP, "http")
 }
 
 func (p PortHttp) Value() uint {
-	return uint(p)
+	return Port(p).Value()
 }
 
-func (p PortHttp) Okay() error {
-	return Validate(uint(p))
+func (p PortHttp) Check() error {
+	return Port(p).Check()
 }
 
-type PortTls uint
+type PortTls Port
 
 func (p PortTls) LogValue() slog.Value {
-	return slog.IntValue(int(p))
+	return Port(p).LogValue()
 }
 
 func (p PortTls) Help() string {
-	return protoPort(uint(p), 443, "https")
+	return protoPort(Port(p), StdHTTPS, "https")
 }
 
 func (p PortTls) Value() uint {
-	return uint(p)
+	return Port(p).Value()
 }
 
-func (p PortTls) Okay() error {
-	return Validate(uint(p))
+func (p PortTls) Check() error {
+	return Port(p).Check()
 }
 
-func protoPort(p, stdport uint, proto string) string {
+func protoPort(p, stdport Port, proto string) string {
 	if p == 0 {
 		return "The web server is not using " + strings.ToUpper(proto)
 	}
@@ -568,36 +603,6 @@ func Validate(port uint) error {
 	return nil
 }
 
-type Toggle bool // Toggle is a boolean value that returns a humanized string
-
-func (t Toggle) LogValue() slog.Value {
-	if t {
-		return slog.StringValue("TRUE")
-	}
-	return slog.StringValue("FALSE")
-}
-
-func (t Toggle) Bool() bool {
-	return bool(t)
-}
-
-type Hours int // Hours is a duration value
-
-func (h Hours) LogValue() slog.Value {
-	return slog.IntValue(int(h))
-}
-
-func (h Hours) String() string {
-	if h == 1 {
-		return "1 hour"
-	}
-	return fmt.Sprintf("%d hours", h)
-}
-
-func (h Hours) Int() int {
-	return int(h)
-}
-
 func (c Config) Print(l *slog.Logger) {
 	l.Info("The Defacto2 server configuration :")
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
@@ -674,76 +679,6 @@ func (c Config) Names() []string {
 	return fieldNames
 }
 
-// String returns a string representation of the Config struct.
-// The output is formatted as a table with the following columns:
-// Environment variable and Value.
-func (c Config) String() string {
-	b := new(strings.Builder)
-	c.fprint(b)
-	return b.String()
-}
-
-// fprintDirs prints the directory path to the tabwriter or a warning if the path is empty.
-// TODO: rm
-func fprintDirs(w *tabwriter.Writer, id, name, val string) {
-	_, _ = fmt.Fprintf(w, "\t%s\t%s", Format(id), name)
-	if val != "" {
-		if st, err := os.Stat(val); err != nil && os.IsNotExist(err) {
-			_, _ = fmt.Fprintf(w, "\t%s\n\t\t\tProblem: DIRECTORY DOES NOT EXIST\n", val)
-			return
-		} else if err != nil {
-			_, _ = fmt.Fprintf(w, "\t%s\n\t\t\tError: %s\n", val, err)
-			return
-		} else if !st.IsDir() {
-			_, _ = fmt.Fprintf(w, "\t%s\n\t\t\tProblem: PATH POINTS TO A FILE\n", val)
-			return
-		}
-		_, _ = fmt.Fprintf(w, "\t%s\n", val)
-		return
-	}
-	switch id {
-	case Down:
-		_, _ = fmt.Fprintf(w, "\tEmpty, no downloads will be served\n")
-	case Prev:
-		_, _ = fmt.Fprintf(w, "\tEmpty, no preview images will be shown\n")
-	case Thumb:
-		_, _ = fmt.Fprintf(w, "\tEmpty, no thumbnails will be shown\n")
-	case Logger:
-		_, _ = fmt.Fprintf(w, "\tEmpty, logs print to the terminal (stdout)\n")
-	default:
-		_, _ = fmt.Fprintln(w)
-	}
-}
-
-// fprintField2 prints the id, name, value and help text to the tabwriter.
-func fprintField2(w *tabwriter.Writer, id, name string, val reflect.Value) {
-	if val.Kind() == reflect.Bool {
-		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%v\n", Format(id), name, valueBool(val))
-		return
-	}
-	_, _ = fmt.Fprintf(w, "\t%s\t%s\t", Format(id), name)
-	switch id {
-	case "GoogleClientID":
-		_, _ = fmt.Fprintln(w, valueGoogleIDs(val))
-	case "MatchHost":
-		_, _ = fmt.Fprintln(w, valueMatchHost(val))
-	case "SessionKey":
-		_, _ = fmt.Fprintln(w, valueSessionKey(val))
-	case "SessionMaxAge":
-		_, _ = fmt.Fprintln(w, valueHours(val))
-	case "DatabaseURL":
-		_, _ = fmt.Fprintln(w, valueDatabase(val.String()))
-	default:
-		if val.String() == "" {
-			_, _ = fmt.Fprintln(w, "Empty")
-			return
-		}
-		if val.IsValid() {
-			_, _ = fmt.Fprintf(w, "%v\n", val)
-		}
-	}
-}
-
 // Addresses returns a list of urls that the server is accessible from.
 func (c Config) Addresses() (string, error) {
 	b := new(strings.Builder)
@@ -778,10 +713,10 @@ func localIPs(b *strings.Builder, port uint64, pad string) error {
 // Format returns a human readable description of the named configuration identifier.
 func Format(name string) string {
 	m := map[string]string{
-		Down:             "Downloads, directory path",
-		Prev:             "Previews, directory path",
-		Thumb:            "Thumbnails, directory path",
-		Logger:           "Logs, directory path",
+		AbsDownload:      "Downloads, directory path",
+		AbsPreview:       "Previews, directory path",
+		AbsThumbnail:     "Thumbnails, directory path",
+		AbsLog:           "Logs, directory path",
 		"AbsExtra":       "Extras, directory path",
 		"AbsOrphaned":    "Orphaned, directory path",
 		"Compression":    "Gzip compression",
@@ -824,127 +759,12 @@ func Info(name string, value any) string {
 	}
 }
 
-// WARN: temp function?
-func Name(val reflect.Value) string {
-	return ""
-}
-
 // TODO: remove
 func valueBool(val reflect.Value) string {
 	if val.Bool() {
 		return "on"
 	}
 	return "off"
-}
-
-// TODO: remove
-func valueGoogleIDs(val reflect.Value) string {
-	if val.String() == "" {
-		return "Empty, no accounts for web administration"
-	}
-	return hide
-}
-
-// TODO: rm
-func valueMatchHost(val reflect.Value) string {
-	if val.String() == "" {
-		return "Empty, no address restrictions"
-	}
-	return val.String()
-}
-
-// TODO: rm
-func valueSessionKey(val reflect.Value) string {
-	if val.String() == "" {
-		return "Empty, a random key will be generated during the server start"
-	}
-	return hide
-}
-
-// TODO: rm
-func valueHours(val reflect.Value) string {
-	i := val.Int()
-	if i == 1 {
-		return "1 hour"
-	}
-	return fmt.Sprintf("%v hours", i)
-}
-
-// valueHTTP prints the HTTP port number to the tabwriter.
-// TODO: remove
-func valueHTTP(val reflect.Value) string {
-	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		return "Unused, the web server will not use HTTP"
-	}
-	port := val.Uint()
-	const common = 80
-	if port == common {
-		return fmt.Sprintf("%d, the web server will use HTTP, example: http://localhost", port)
-	}
-	return fmt.Sprintf("%d, the web server will use HTTP, example: http://localhost:%d", port, port)
-}
-
-// valueTLS prints the HTTPS port number to the tabwriter.
-// TODO: remove
-func valueTLS(val reflect.Value) string {
-	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		return "Unused, the web server will not use HTTPS"
-	}
-	port := val.Uint()
-	const common = 443
-	if port == common {
-		return fmt.Sprintf("%d, the web server will use HTTPS, example: https://localhost", port)
-	}
-	return fmt.Sprintf("%d, the web server will use HTTPS, example: https://localhost:%d", port, port)
-}
-
-// valueCert prints the TLS certificate and key locations to the tabwriter.
-// TODO: rm
-func valueCert(val reflect.Value, tlsport uint) string {
-	if tlsport == 0 {
-		return "Not in use"
-	}
-	if val.String() == "" {
-		return "Empty, will use a placeholder configuration"
-	}
-	return val.String()
-}
-
-// valueProcs prints the number of CPU cores to the tabwriter.
-// TODO: rm
-func valueProcs(val reflect.Value) string {
-	if val.Kind() == reflect.Uint && val.Uint() == 0 {
-		return "Unused, the application will use all available CPU threads"
-	}
-	return fmt.Sprintf("%d, the application will limit access to CPU threads\n", val.Uint())
-}
-
-// valueDatabase replaces the password in the database connection URL with XXXXXs.
-// TODO: rm
-func valueDatabase(rawURL string) string {
-	u, err := url.Parse(rawURL)
-	if err != nil {
-		return rawURL
-	}
-	_, exists := u.User.Password()
-	if !exists {
-		return rawURL
-	}
-	u.User = url.UserPassword(u.User.Username(), hide)
-	return u.String()
-}
-
-// TODO: rm
-func valueGoogles(ids [][48]byte) string {
-	l := len(ids)
-	switch l {
-	case 0:
-		return "Empty, no accounts for web administration"
-	case 1:
-		return "1 Google account allowed to sign-in"
-	default:
-		return fmt.Sprintf("%d Google accounts allowed to sign-in", l)
-	}
 }
 
 // StaticThumb returns the path to the thumbnail directory.
@@ -985,7 +805,7 @@ func (c *Config) Override() {
 
 	// set the default HTTP port if both ports are configured to zero
 	if c.HTTPPort == 0 && c.TLSPort == 0 {
-		c.HTTPPort = HTTPPort
+		c.HTTPPort = StdCustom
 	}
 }
 
@@ -1031,68 +851,4 @@ func (c Config) addresses(b *strings.Builder, help bool) error {
 		return localIPs(b, port, pad)
 	}
 	return nil
-}
-
-// fprint prints a list of active configurations options.
-func (c Config) fprint(b *strings.Builder) *strings.Builder {
-	fields := reflect.VisibleFields(reflect.TypeOf(c))
-	sort.Slice(fields, func(i, j int) bool {
-		return fields[i].Name < fields[j].Name
-	})
-	values := reflect.ValueOf(c)
-
-	w := tabwriter.NewWriter(b, minwidth, tabwidth, padding, padchar, flags)
-	_, _ = fmt.Fprint(b, "The Defacto2 server configuration:\n\n")
-	_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n",
-		h1, h3, h2)
-	_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n",
-		strings.Repeat(line, len(h1)),
-		strings.Repeat(line, len(h3)),
-		strings.Repeat(line, len(h2)))
-
-	for field := range slices.Values(fields) {
-		if !field.IsExported() {
-			continue
-		}
-		switch field.Name {
-		case "GoogleAccounts":
-			continue
-		default:
-		}
-		val := values.FieldByName(field.Name)
-		id := field.Name
-		name := field.Tag.Get("env")
-		if before, found := strings.CutSuffix(name, ",unset"); found {
-			name = before
-		}
-		c.fprintField(w, id, name, val)
-	}
-	if err := w.Flush(); err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-	}
-	return b
-}
-
-// fprintField prints the id, name, value and help text to the tabwriter.
-func (c Config) fprintField(w *tabwriter.Writer,
-	id, name string,
-	val reflect.Value,
-) {
-	_, _ = fmt.Fprintf(w, "\t\t\t\t\n")
-	switch id {
-	case "HTTPPort":
-		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueHTTP(val))
-	case "TLSPort":
-		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueTLS(val))
-	case "TLSCert", "TLSKey":
-		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueCert(val, c.TLSPort.Value()))
-	case Down, Prev, Thumb, Logger:
-		fprintDirs(w, id, name, val.String())
-	case "MaxProcs":
-		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueProcs(val))
-	case "GoogleIDs":
-		_, _ = fmt.Fprintf(w, "\t%s\t%s\t%s\n", Format(id), name, valueGoogles(c.GoogleAccounts))
-	default:
-		fprintField2(w, id, name, val)
-	}
 }

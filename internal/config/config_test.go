@@ -20,18 +20,8 @@ import (
 func TestConfig(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	// x := c.List()
-	// be.True(t, len(x) != 0)
-	s := c.Envs()
+	s := c.Names()
 	be.True(t, len(s) != 0)
-	s = c.Helps()
-	be.True(t, len(s) != 0)
-	s = c.Names()
-	be.True(t, len(s) != 0)
-	s = c.Values()
-	be.True(t, len(s) != 0)
-	cs := c.String()
-	be.True(t, strings.Contains(cs, "configuration"))
 	cs, err := c.Addresses()
 	be.Err(t, err)
 	be.True(t, cs == "")
@@ -85,11 +75,11 @@ func TestSanityTmpDir(t *testing.T) {
 func TestValidate(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	err := c.HTTPPort.Okay()
+	err := c.HTTPPort.Check()
 	be.Err(t, err, nil)
 	const tooLarge = 10000000
 	c.HTTPPort = tooLarge
-	err = c.HTTPPort.Okay()
+	err = c.HTTPPort.Check()
 	be.Err(t, err)
 }
 

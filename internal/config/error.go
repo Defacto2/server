@@ -21,6 +21,8 @@ var (
 	ErrTouch       = errors.New("the server cannot create a file in the directory")
 )
 
+// TODO: drop zaplog
+
 // CustomErrorHandler handles customer error templates.
 func (c *Config) CustomErrorHandler(err error, ctx echo.Context) {
 	if ctx == nil {

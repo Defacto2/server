@@ -328,10 +328,10 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 			return simple.Thumb(unid, desc, dir.Directory(t.Environment.AbsThumbnail), bottom)
 		},
 		"recordPreviewSrc": func(unid, ext string) string {
-			return simple.AssetSrc(config.Prev, t.Environment.AbsPreview.String(), unid, ext)
+			return simple.AssetSrc(config.AbsPreview, t.Environment.AbsPreview.String(), unid, ext)
 		},
 		"recordThumbnailSrc": func(unid, ext string) string {
-			return simple.AssetSrc(config.Thumb, t.Environment.AbsThumbnail.String(), unid, ext)
+			return simple.AssetSrc(config.AbsThumbnail, t.Environment.AbsThumbnail.String(), unid, ext)
 		},
 	}
 }

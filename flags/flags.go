@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/out"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -73,8 +74,9 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Action: func(_ *cli.Context) error {
+			logger := out.Printout(w)
 			d := time.Now()
-			if err := c.Fixer(w, d); err != nil {
+			if err := c.Fixer(w, logger, d); err != nil {
 				return fmt.Errorf("command fix: %w", err)
 			}
 			return nil
@@ -119,12 +121,8 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
-			defer func() {
-				_, err := fmt.Fprintf(w, "%s\n", c.String())
-				if err != nil {
-					panic(err)
-				}
-			}()
+			l := out.Printout(w)
+			c.Print(l)
 			return nil
 		},
 	}

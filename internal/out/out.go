@@ -7,6 +7,7 @@ package out
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -82,8 +83,10 @@ func defaultAttr(groups []string, a slog.Attr) slog.Attr {
 // Printout is a text only logger for terminal output using the
 // terminal standard output. It gets used for displaying the server
 // startup configuration and the output of flags and application commands.
-func Printout() *slog.Logger {
-	w := os.Stdout
+func Printout(w io.Writer) *slog.Logger {
+	if w == nil {
+		w = os.Stdout
+	}
 	// Create a new logger
 	opts := options()
 	opts.AddSource = false
@@ -176,8 +179,10 @@ func options() tint.Options {
 	}
 }
 
+// Fatal logs any issues and exits to the operating system.
 func Fatal(l *slog.Logger, msg string, args ...slog.Attr) {
 	l.LogAttrs(context.Background(), LevelFatal, msg, args...)
+	os.Exit(1)
 }
 
 func Trace(l *slog.Logger, msg string, args ...slog.Attr) {

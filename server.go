@@ -65,16 +65,10 @@ func main() {
 	if configs.Quiet {
 		w = io.Discard
 	}
-	_, err := fmt.Fprintf(w, "%s\n", configs)
-	if err != nil {
-		panic(err)
-	}
-
-	// WARN: slog branch beging
-	logging := out.Printout()
+	logging := out.Printout(w)
 	configs.Print(logging)
+	// WARN: REPLACE
 	_ = environmentVarS(logging)
-	// WARN: slog branh end
 
 	// connect to the database and perform some repairs and sanity checks.
 	// if the database is cannot connect, the web server will continue.
@@ -130,7 +124,7 @@ func environmentVarS(l *slog.Logger) *config.Config {
 	configs := config.Config{
 		Compression:   true,
 		DatabaseURL:   postgres.DefaultURL,
-		HTTPPort:      config.HTTPPort,
+		HTTPPort:      config.StdCustom,
 		ProdMode:      true,
 		ReadOnly:      true,
 		SessionMaxAge: config.SessionHours,
@@ -154,7 +148,7 @@ func environmentVars() (*zap.SugaredLogger, *config.Config) {
 	configs := config.Config{
 		Compression:   true,
 		DatabaseURL:   postgres.DefaultURL,
-		HTTPPort:      config.HTTPPort,
+		HTTPPort:      config.StdCustom,
 		ProdMode:      true,
 		ReadOnly:      true,
 		SessionMaxAge: config.SessionHours,

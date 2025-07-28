@@ -9,17 +9,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 
 	"github.com/caarlos0/env/v11"
 	_ "github.com/jackc/pgx/v5/stdlib" // Use a lowlevel PostgreSQL driver.
-	"go.uber.org/zap"
 )
 
 var (
-	ErrDB  = errors.New("database connection is nil")
-	ErrEnv = errors.New("environment variable probably contains an invalid value")
-	ErrZap = errors.New("zap logger instance is nil")
+	ErrDB   = errors.New("database connection is nil")
+	ErrEnv  = errors.New("environment variable probably contains an invalid value")
+	ErrSlog = errors.New("slog logger instance is nil")
+	ErrZap  = errors.New("zap logger instance is nil")
 )
 
 const (
@@ -103,24 +104,30 @@ type Connection struct {
 }
 
 // Validate the connection URL and print any issues to the logger.
-func (c Connection) Validate(logger *zap.SugaredLogger) error {
+func (c Connection) Validate(logger *slog.Logger) error {
 	if logger == nil {
-		return ErrZap
+		return ErrSlog
 	}
+	const msg, key = "validate", "issue"
 	if c.URL == "" {
-		logger.Warn("The database connection host name is empty")
+		logger.Warn(msg, slog.String(key, "The database connection host name is empty"))
 	}
 	u, err := url.Parse(c.URL)
 	if err != nil {
-		logger.Warn("The database connection URL is invalid, ", err)
+		logger.Warn(msg,
+			slog.String(key, "The database connection URL is invalid"),
+			slog.String("error", err.Error()))
 		return nil
 	}
 	if u == nil {
-		logger.Warn("The database connection URL is nil")
+		logger.Warn(msg, slog.String(key, "The database connection URL is nil"))
 		return nil
 	}
 	if u.Scheme != Protocol {
-		logger.Warnf("The database connection scheme is not: %s", Protocol)
+		logger.Warn(msg,
+			slog.String(key, "The database connection scheme is invalid"),
+			slog.String("requirement", Protocol),
+			slog.String("scheme in use", u.Scheme))
 	}
 	return nil
 }
