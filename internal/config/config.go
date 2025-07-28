@@ -11,7 +11,6 @@ import (
 	"reflect"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -46,8 +45,9 @@ var (
 	ErrNoPort  = errors.New("the server cannot start without a http or a tls port")
 	ErrPointer = errors.New("pointer is nil")
 	ErrVer     = errors.New("postgresql version request failed")
-	ErrDirNil  = errors.New("directory does not exist")
-	ErrDirNot  = errors.New("directory points to a file")
+	// ErrDirNil  = errors.New("directory does not exist")
+	ErrDirNot  = errors.New("path points to a file")
+	ErrFileNot = errors.New("path points to a directory")
 )
 
 // Configuration is a struct that holds the configuration options.
@@ -73,8 +73,8 @@ type Config struct { //nolint:recvcheck
 	GoogleClientID Googleauth `env:"D2_GOOGLE_CLIENT_ID,unset" help:"The Google OAuth2 client ID"`
 	GoogleIDs      Googleids  `env:"D2_GOOGLE_IDS,unset" help:"Create a comma-separated list of Google account IDs to permit access to the editor mode"`
 	MatchHost      Matchhost  `env:"D2_MATCH_HOST" help:"Limits connections to the specific host or domain name; leave blank to permit connections from anywhere"`
-	TLSCert        Tlsconfig  `env:"D2_TLS_CERT" help:"An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate"`
-	TLSKey         Tlsconfig  `env:"D2_TLS_KEY" help:"An absolute file path to the TLS key, or leave blank to use a self-signed, localhost key"`
+	TLSCert        Abstlscrt  `env:"D2_TLS_CERT" help:"An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate"`
+	TLSKey         Abstlskey  `env:"D2_TLS_KEY" help:"An absolute file path to the TLS key, or leave blank to use a self-signed, localhost key"`
 	GoogleAccounts OAuth2s    //[][48]byte
 	HTTPPort       PortHttp   `env:"D2_HTTP_PORT" help:"The port number to be used by the unencrypted HTTP web server"`
 	MaxProcs       Threads    `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
@@ -86,6 +86,86 @@ type Config struct { //nolint:recvcheck
 	ReadOnly       Toggle     `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
 	NoCrawl        Toggle     `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogAll         Toggle     `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
+}
+
+type Abstlskey File
+
+func (a Abstlskey) Help() string {
+	if a == "" {
+		return "No TLS key is in use"
+	}
+	return ""
+}
+
+func (a Abstlskey) Issue() string {
+	return Directory(a).Issue()
+}
+
+func (a Abstlskey) LogValue() slog.Value {
+	return Directory(a).LogValue()
+}
+
+func (a Abstlskey) String() string {
+	return Directory(a).String()
+}
+
+type Abstlscrt File
+
+func (a Abstlscrt) Help() string {
+	if a == "" {
+		return "No TLS certificate is in use"
+	}
+	return ""
+}
+
+func (a Abstlscrt) Issue() string {
+	return Directory(a).Issue()
+}
+
+func (a Abstlscrt) LogValue() slog.Value {
+	return Directory(a).LogValue()
+}
+
+func (a Abstlscrt) String() string {
+	return Directory(a).String()
+}
+
+type File string
+
+func (f File) LogValue() slog.Value {
+	if f == "" {
+		return slog.StringValue("")
+	}
+	return slog.StringValue(string(f))
+}
+
+func (f File) Okay() error {
+	st, err := os.Stat(string(f))
+	if err != nil {
+		return err
+	}
+	if !st.IsDir() {
+		return nil
+	}
+	return ErrFileNot
+}
+
+func (f File) String() string {
+	return string(f)
+}
+
+func (f File) Issue() string {
+	if f == "" {
+		return ""
+	}
+	err := f.Okay()
+	if errors.Is(err, os.ErrNotExist) {
+		return "File does not exist"
+	}
+	if errors.Is(err, ErrDirNot) {
+		return "File path points to a file and cannot be used"
+	}
+	return ""
 }
 
 // OAuth2s is a slice of Google OAuth2 accounts that are allowed to login.
@@ -187,7 +267,7 @@ type Directory string
 
 func (d Directory) LogValue() slog.Value {
 	if d == "" {
-		return slog.StringValue("Empty")
+		return slog.StringValue("")
 	}
 	return slog.StringValue(string(d))
 }
@@ -436,26 +516,6 @@ func (s Sessionkey) String() string {
 	return string(s)
 }
 
-type Tlsconfig string
-
-func (t Tlsconfig) LogValue() slog.Value {
-	if t == "" {
-		return slog.StringValue("Unused")
-	}
-	return slog.StringValue(hide)
-}
-
-func (t Tlsconfig) Help() string {
-	if t == "" {
-		return "An placeholder configuration is in use."
-	}
-	return ""
-}
-
-func (t Tlsconfig) String() string {
-	return string(t)
-}
-
 type Connection string
 
 func (c Connection) LogValue() slog.Value {
@@ -604,112 +664,6 @@ func skip(name string) bool {
 	}
 }
 
-// TODO: confirm usage
-// List returns a list of the configuration options.
-func (c Config) List() []Configuration {
-	skip := []string{"GoogleAccounts"}
-	t := reflect.TypeOf(c)
-	configs := make([]Configuration, t.NumField())
-	for i := range t.NumField() {
-		name := t.Field(i).Name
-		switch {
-		case slices.Contains(skip, name):
-			continue
-		case name == "TLSCert", name == "TLSKey":
-
-			configs[i].Value = valueCert(reflect.ValueOf(c).Field(i), c.TLSPort.Value())
-		case name == "GoogleIDs":
-			configs[i].Value = valueGoogles(c.GoogleAccounts)
-		default:
-			configs[i].Value = reflectValue(t.Field(i), reflect.ValueOf(c).Field(i))
-		}
-		configs[i].Title = Format(name)
-		configs[i].Variable = t.Field(i).Tag.Get("env")
-		configs[i].Description = t.Field(i).Tag.Get("help")
-		if configs[i].Value == hide {
-			configs[i].Value = "In use, but hidden for security"
-		}
-	}
-	return configs
-}
-
-// TODO: this is used by the List() method.
-func reflectValue(f reflect.StructField, v reflect.Value) string {
-	// special values that require formatting or hiding
-	switch f.Name {
-	case "GoogleClientID":
-		return valueGoogleIDs(v)
-	case "MatchHost":
-		return valueMatchHost(v)
-	case "SessionKey":
-		return valueSessionKey(v)
-	case "SessionMaxAge":
-		return valueHours(v)
-	case "DatabaseURL":
-		return valueDatabase(v.String())
-	case "HTTPPort":
-		return valueHTTP(v)
-	case "MaxProcs":
-		return valueProcs(v)
-	case "TLSPort":
-		return valueTLS(v)
-	}
-	// empty cases
-	if v.String() == "" {
-		if s := emptyCases(f.Name); s != "" {
-			return s
-		}
-	}
-	// generic values
-	switch f.Type.Kind() {
-	case reflect.Bool:
-		return valueBool(v)
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return strconv.FormatUint(v.Uint(), 10)
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return strconv.FormatInt(v.Int(), 10)
-	case reflect.String:
-		return v.String()
-	default:
-		return fmt.Sprintf("%v", v.Interface())
-	}
-}
-
-func emptyCases(name string) string {
-	switch name {
-	case Down:
-		return "Empty, no downloads will be served"
-	case Prev:
-		return "Empty, no preview images will be shown"
-	case Thumb:
-		return "Empty, no thumbnails will be shown"
-	case Logger:
-		return "Empty, logs print to the terminal (stdout)"
-	default:
-		return ""
-	}
-}
-
-// Envs returns a list of the environment variable names in the Config struct.
-func (c Config) Envs() []string {
-	t := reflect.TypeOf(c)
-	envNames := make([]string, t.NumField())
-	for i := range t.NumField() {
-		envNames[i] = t.Field(i).Tag.Get("env")
-	}
-	return envNames
-}
-
-// Helps returns a list of the help text in the Config struct.
-func (c Config) Helps() []string {
-	t := reflect.TypeOf(c)
-	helpVals := make([]string, t.NumField())
-	for i := range t.NumField() {
-		helpVals[i] = t.Field(i).Tag.Get("help")
-	}
-	return helpVals
-}
-
 // Names returns a list of the field names in the Config struct.
 func (c Config) Names() []string {
 	t := reflect.TypeOf(c)
@@ -718,24 +672,6 @@ func (c Config) Names() []string {
 		fieldNames[i] = t.Field(i).Name
 	}
 	return fieldNames
-}
-
-// Values returns a list of the values in the Config struct.
-// These are not safe to print meaning that they may contain sensitive information.
-func (c Config) Values() []string {
-	fields := reflect.VisibleFields(reflect.TypeOf(c))
-	sort.Slice(fields, func(i, j int) bool {
-		return fields[i].Name < fields[j].Name
-	})
-	values := make([]string, 0, len(fields))
-	for field := range slices.Values(fields) {
-		if !field.IsExported() {
-			continue
-		}
-		val := reflect.ValueOf(c).FieldByName(field.Name)
-		values = append(values, val.String())
-	}
-	return values
 }
 
 // String returns a string representation of the Config struct.
