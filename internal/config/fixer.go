@@ -19,6 +19,9 @@ import (
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
 func (c *Config) Fixer(w io.Writer, sl *slog.Logger, d time.Time) error {
+	if sl == nil {
+		return ErrNoSlog
+	}
 	if w == nil {
 		w = io.Discard
 	}

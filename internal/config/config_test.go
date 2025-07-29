@@ -104,7 +104,7 @@ func TestRepair(t *testing.T) {
 	be.Err(t, err)
 	r := config.Zip
 	be.Equal(t, "zip", r.String())
-	err = c.Assets(t.Context(), nil)
+	err = c.Assets(t.Context(), nil, nil)
 	be.Err(t, err)
 	err = c.MagicNumbers(t.Context(), nil, nil)
 	be.Err(t, err)

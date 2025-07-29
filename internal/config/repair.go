@@ -28,12 +28,10 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
-	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
 )
 
 const (
@@ -46,11 +44,8 @@ const (
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
 func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error { //nolint:cyclop,funlen,gocognit
-	if sl == nil {
-		return ErrNoSlog
-	}
-	if exec == nil {
-		return fmt.Errorf("config repair archives %w", ErrNoCtx)
+	if err := argspanic(ctx, exec, sl); err != nil {
+		return err
 	}
 	d := time.Now()
 	artifacts := []string{}
@@ -312,12 +307,11 @@ func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, sl *sl
 // to the orphaned directory without warning.
 //
 // There are no checks on the 3 directories that get scanned.
-func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
-	if exec == nil {
-		return fmt.Errorf("config repair assets %w", ErrNoCtx)
+func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+	if err := argspanic(ctx, exec, sl); err != nil {
+		return err
 	}
 	d := time.Now()
-	logger := zaplog.Logger(ctx)
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.WithDeleted())
@@ -326,7 +320,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 		return fmt.Errorf("config repair select all uuids: %w", err)
 	}
 	size := len(files)
-	logger.Infof("Check %d UUIDs", size)
+	sl.Info("assets", slog.Int("checking uuid count", size))
 	artifacts := make([]string, size)
 	for i, f := range files {
 		if !f.UUID.Valid || f.UUID.String == "" {
@@ -355,12 +349,12 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 				counters[i]++
 				uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
 				if _, found := slices.BinarySearch(artifacts, uid); !found {
-					unknownAsset(logger, path, d.Name(), uid, orphaned)
+					unknownAsset(sl, path, d.Name(), uid, orphaned)
 				}
 				return nil
 			})
 			if err != nil {
-				logger.Errorf("walk directory %w: %s", err, dir)
+				sl.Error("assets", slog.String("walk directory", dir), slog.Any("error", err))
 			}
 		}(dir)
 	}
@@ -370,18 +364,24 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor) error {
 	for val := range slices.Values(counters) {
 		sum += val
 	}
-	logger.Infof("Checked %d files for %d UUIDs in %.1fs", sum, size, time.Since(d).Seconds())
+	sl.Info("assets", slog.String("done", "checked files for uuids"),
+		slog.Int("files checked", sum), slog.Int("uuids", size), slog.Duration("time taken", time.Since(d)))
 	return nil
 }
 
 // unknownAsset logs a warning message for an unknown asset file.
-func unknownAsset(logger *zap.SugaredLogger, oldpath, name, uid string, orphaned dir.Directory) {
-	logger.Warnf("Unknown file: %s, no matching artifact for UUID: %q", name, uid)
+func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Directory) {
+	sl.Warn("unknown file",
+		slog.String("issue", "no matching artifact in the database for the found file"),
+		slog.String("uuid", uid), slog.String("filename", name))
 	defer func() {
 		now := time.Now().Format("2006-01-02_15-04-05")
 		dest := orphaned.Join(fmt.Sprintf("%s_%s", now, name))
 		if err := helper.RenameCrossDevice(oldpath, dest); err != nil {
-			logger.Errorf("could not move orphaned artifact asset for %q: %s", name, err)
+			sl.Error("unknown file",
+				slog.String("issue", "could not move the file to the orphaned directory"),
+				slog.String("source path", oldpath), slog.String("destination path", dest),
+				slog.Any("error", err))
 		}
 	}()
 }
@@ -389,11 +389,8 @@ func unknownAsset(logger *zap.SugaredLogger, oldpath, name, uid string, orphaned
 // RepairAssets on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
 func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if sl == nil {
-		return ErrNoSlog
-	}
-	if exec == nil {
-		return fmt.Errorf("config repair assets %w", ErrNoCtx)
+	if err := argspanic(ctx, exec, sl); err != nil {
+		return err
 	}
 	backup := dir.Directory(c.AbsOrphaned)
 	if st, err := os.Stat(backup.Path()); err != nil {
@@ -409,7 +406,7 @@ func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor, sl
 	if err := DownloadDir(sl, src, backup, extra); err != nil {
 		return fmt.Errorf("repair the download directory %w", err)
 	}
-	if err := c.Assets(ctx, exec); err != nil {
+	if err := c.Assets(ctx, exec, sl); err != nil {
 		return fmt.Errorf("repair assets %w", err)
 	}
 	if err := c.Archives(ctx, exec, sl); err != nil {
@@ -429,12 +426,6 @@ func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor, sl
 
 // TextFiles on startup check the extra directory for any readme text files that are duplicates of the diz text files.
 func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if sl == nil {
-		return ErrNoSlog
-	}
-	if exec == nil {
-		return fmt.Errorf("config %w", ErrNoCtx)
-	}
 	uuids, err := model.UUID(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("config %w", err)
@@ -538,8 +529,8 @@ func FileID(r io.Reader) bool {
 // legacy values with the current method of detection. Previous detection methods were
 // done using the `file` command line utility, which is a bit to verbose for our needs.
 func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if exec == nil {
-		return fmt.Errorf("config repair magic numbers %w", ErrNoCtx)
+	if err := argspanic(ctx, exec, sl); err != nil {
+		return err
 	}
 	tick := time.Now()
 	r := model.Artifacts{}
@@ -578,11 +569,8 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl
 
 // Previews on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
 func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if sl == nil {
-		return ErrNoSlog
-	}
-	if exec == nil {
-		return fmt.Errorf("config repair previews %w", ErrNoCtx)
+	if err := argspanic(ctx, exec, sl); err != nil {
+		return err
 	}
 	r := model.Artifacts{}
 	artifacts, err := r.ByTextPlatform(ctx, exec)

@@ -3,21 +3,25 @@ package config
 // Package file error.go contains the custom error middleware for the web application.
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/internal/zaplog"
+	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/labstack/echo/v4"
 )
 
 var (
 	ErrLog        = errors.New("the server cannot log to files")
 	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
-	ErrNoCtx      = errors.New("nil context executor")
+	ErrNoBoil     = errors.New("the boilier context executor is nil")
 	ErrNoDir      = errors.New("directory does not exist or incorrectly typed")
+	ErrNoCtx      = errors.New("no context interface")
 	ErrNoEcho     = errors.New("echo instance is nil")
 	ErrNoOAuth2   = errors.New("the production server requires a google, oauth2 client id to allow admin logins")
 	ErrNoPort     = errors.New("the server cannot start without a http or a tls port")
@@ -31,6 +35,19 @@ var (
 	ErrNotDir     = errors.New("path points to a file")
 	ErrNotFile    = errors.New("path points to a directory")
 )
+
+func argspanic(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+	if ctx == nil {
+		return ErrNoCtx
+	}
+	if exec == nil {
+		return ErrNoBoil
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
 
 // TODO: drop zaplog
 
