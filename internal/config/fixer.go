@@ -7,13 +7,10 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"strings"
 	"time"
 
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/out"
 	"github.com/Defacto2/server/internal/postgres"
-	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/Defacto2/server/model/fix"
 )
 
@@ -61,7 +58,7 @@ func (c *Config) Fixer(w io.Writer, sl *slog.Logger, d time.Time) error {
 		sl.Info("fixer", slog.String("info", s))
 	}
 	c.repairer(ctx, db, sl)
-	c.sanityChecks(ctx)
+	c.sanityChecks(sl)
 	SanityTmpDir()
 	sl.Info("fixer", slog.Float64("time to completed", time.Since(d).Seconds()))
 	return nil
@@ -73,7 +70,6 @@ func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
 	if db == nil {
 		panic(fmt.Errorf("%w: repairer", ErrPointer))
 	}
-	// logger := zaplog.Logger(ctx)
 	if err := repairDatabase(ctx, db, sl); err != nil {
 		if errors.Is(err, ErrVer) {
 			sl.Warn("repair",
@@ -111,50 +107,50 @@ func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production mode environment variable is set.to false.
-func (c *Config) sanityChecks(ctx context.Context) {
-	logger := out.Devel()
-	if err := c.Checks(logger); err != nil {
-		logger.Error("check",
+func (c *Config) sanityChecks(sl *slog.Logger) {
+	if err := c.Checks(sl); err != nil {
+		sl.Error("check",
 			slog.String("issue", "sanity checks could not read the environment variable, "+
 				"it probably contains an invalid value"),
 			slog.Any("error", err))
 	}
-	cmdChecks(ctx)
+	cmdChecks(sl)
 	conn, err := postgres.New()
 	if err != nil {
-		logger.Error("check",
+		sl.Error("check",
 			slog.String("issue", "sanity checks could not initialize the database data"),
 			slog.Any("error", err))
 		return
 	}
-	if err := conn.Validate(logger); err != nil {
+	if err := conn.Validate(sl); err != nil {
 		panic(fmt.Errorf("sanity check conn validate: %w", err))
 	}
 }
 
 // checks is used to confirm the required commands are available.
 // These are skipped if readonly is true.
-func cmdChecks(ctx context.Context) {
-	logger := zaplog.Logger(ctx)
-	var buf strings.Builder
+func cmdChecks(sl *slog.Logger) {
+	var attrs []slog.Attr
 	for i, name := range command.Lookups() {
 		if err := command.LookCmd(name); err != nil {
-			buf.WriteString("\n\t\t\tmissing: " + name)
-			buf.WriteString("\t" + command.Infos()[i])
+			attrs = append(attrs, slog.String(name, command.Infos()[i]))
 		}
 	}
-	if buf.Len() > 0 {
-		logger.Warnln("The following commands are required for the server to run in WRITE MODE",
-			"\n\t\t\tThese need to be installed and accessible on the system path:"+
-				"\t\t\t"+buf.String())
+	if len(attrs) > 0 {
+		s := "The following commands are required for the server to run in WRITE MODE. " +
+			"These need to be installed and accessible on the system path."
+		sl.Warn("command lookups", slog.String("issue", s))
+		for _, attr := range attrs {
+			sl.Warn("missing command", slog.String(attr.Key, attr.Value.String()))
+		}
 	}
 	if err := command.LookupUnrar(); err != nil {
 		if errors.Is(err, command.ErrVers) {
-			logger.Warnf("Found unrar but " +
-				"could not find unrar by Alexander Roshal, " +
-				"is unrar-free mistakenly installed?")
+			sl.Warn("command unrar",
+				slog.String("invalid", "Found unrar but it is not authored by Alexander Roshal"),
+				slog.String("incorrect application", "Is unrar-free mistakenly installed?"))
 			return
 		}
-		logger.Warnf("lookup unrar check: %s", err)
+		sl.Warn("command unrar", slog.Any("error", err))
 	}
 }

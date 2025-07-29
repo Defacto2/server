@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,18 +18,23 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
-	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
-var ErrNoExecutor = errors.New("no context executor")
+var (
+	ErrNoBoil = errors.New("the boilier context executor is nil")
+	ErrNoSlog = errors.New("the slog logger instance is nil")
+)
 
 // Check returns the UUID of the named zipped file if it requires re-archiving because it uses a
 // legacy compression method that is not supported by Go or JS libraries.
 //
 // Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(ctx context.Context, name string, extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
+func Check(sl *slog.Logger, name string, extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
+	if sl == nil {
+		panic(ErrNoSlog)
+	}
 	if d.IsDir() {
 		return ""
 	}
@@ -39,14 +45,13 @@ func Check(ctx context.Context, name string, extra dir.Directory, d fs.DirEntry,
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
 	}
-	logger := zaplog.Logger(ctx)
 	extraZip := extra.Join(uid + ".zip")
 	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
 		return ""
 	}
 	methods, err := pkzip.Methods(name)
 	if err != nil {
-		logger.Errorf("%s: %s", err, name)
+		sl.Error("pkzip method", slog.String("named file", name), slog.Any("error", err))
 		return ""
 	}
 	for method := range slices.Values(methods) {
@@ -60,7 +65,7 @@ func Check(ctx context.Context, name string, extra dir.Directory, d fs.DirEntry,
 // Files returns all the DOS platform artifacts using a .arc extension filename.
 func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
 	if exec == nil {
-		return nil, fmt.Errorf("config fixarc files %w", ErrNoExecutor)
+		return nil, ErrNoBoil
 	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
@@ -76,13 +81,17 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 
 // Invalid returns true if the arc file fails the arc test command.
 // The path is the path to the arc archive file.
-func Invalid(ctx context.Context, path string) bool {
-	logger := zaplog.Logger(ctx)
+func Invalid(sl *slog.Logger, path string) bool {
+	if sl == nil {
+		panic(ErrNoSlog)
+	}
 	const name = command.Arc
 	cmd := exec.Command(name, "t", path)
 	b, err := cmd.Output()
 	if err != nil {
-		logger.Errorf("fixarc invalid %s: %s", err, path)
+		sl.Error("test arc archive",
+			slog.String("arc file path", path),
+			slog.Any("error", err))
 		return true
 	}
 	return strings.Contains(string(b), "is not an archive")

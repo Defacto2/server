@@ -55,8 +55,8 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *sl
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixzip.Check(ctx, path, extra, d, artifacts...)
-		if uid == "" || fixzip.Invalid(ctx, path) {
+		uid := fixzip.Check(sl, path, extra, d, artifacts...)
+		if uid == "" || fixzip.Invalid(sl, path) {
 			return nil
 		}
 		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
@@ -70,7 +70,7 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *sl
 			return fmt.Errorf("%w: %s", err, path)
 		}
 		uid := fixlha.Check(extra, d, artifacts...)
-		if uid == "" || fixlha.Invalid(ctx, path) {
+		if uid == "" || fixlha.Invalid(sl, path) {
 			return nil
 		}
 		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
@@ -83,8 +83,8 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *sl
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixarc.Check(ctx, path, extra, d, artifacts...)
-		if uid == "" || fixarc.Invalid(ctx, path) {
+		uid := fixarc.Check(sl, path, extra, d, artifacts...)
+		if uid == "" || fixarc.Invalid(sl, path) {
 			return nil
 		}
 		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
@@ -98,7 +98,7 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *sl
 			return fmt.Errorf("%w: %s", err, path)
 		}
 		uid := fixarj.Check(extra, d, artifacts...)
-		if uid == "" || fixarj.Invalid(ctx, path) {
+		if uid == "" || fixarj.Invalid(sl, path) {
 			return nil
 		}
 		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
