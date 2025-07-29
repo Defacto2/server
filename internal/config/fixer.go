@@ -18,7 +18,7 @@ import (
 )
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
-func (c *Config) Fixer(w io.Writer, l *slog.Logger, d time.Time) error {
+func (c *Config) Fixer(w io.Writer, sl *slog.Logger, d time.Time) error {
 	if w == nil {
 		w = io.Discard
 	}
@@ -26,17 +26,17 @@ func (c *Config) Fixer(w io.Writer, l *slog.Logger, d time.Time) error {
 	db, err := postgres.Open()
 	if err != nil {
 		s := "fix could not initialize the database data"
-		l.Error(msg,
+		sl.Error(msg,
 			slog.String("issue", s),
-			slog.String("error", err.Error()))
+			slog.Any("error", err))
 	}
 	defer func() { _ = db.Close() }()
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
 		s := "version query problem"
-		l.Error(msg,
+		sl.Error(msg,
 			slog.String("issue", s),
-			slog.String("error", err.Error()))
+			slog.Any("error", err))
 	}
 	_, _ = fmt.Fprintf(w, "\n%+v\n", c)
 	ctx := context.Background()
@@ -45,50 +45,49 @@ func (c *Config) Fixer(w io.Writer, l *slog.Logger, d time.Time) error {
 	switch {
 	case count == 0:
 		s := welcome + " with no database records"
-		l.Error(msg,
+		sl.Error(msg,
 			slog.String("issue", s),
-			slog.String("error", fmt.Sprint(err)))
+			slog.Any("error", err))
 	case MinimumFiles > count:
 		s := welcome + " too few database records"
-		l.Warn(msg,
+		sl.Warn(msg,
 			slog.String("issue", s),
 			slog.Int("record count", count))
 	default:
 		s := fmt.Sprintf("%s using %d records", welcome, count)
-		l.Info("fixer", slog.String("info", s))
+		sl.Info("fixer", slog.String("info", s))
 	}
-	c.repairer(ctx, db, l)
+	c.repairer(ctx, db, sl)
 	c.sanityChecks(ctx)
 	SanityTmpDir()
-	l.Info("fixer", slog.Float64("time to completed", time.Since(d).Seconds()))
+	sl.Info("fixer", slog.Float64("time to completed", time.Since(d).Seconds()))
 	return nil
 }
 
 // repairer is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func (c *Config) repairer(ctx context.Context, db *sql.DB, l *slog.Logger) {
+func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
 	if db == nil {
 		panic(fmt.Errorf("%w: repairer", ErrPointer))
 	}
 	// logger := zaplog.Logger(ctx)
-	if err := repairDatabase(ctx, db, l); err != nil {
+	if err := repairDatabase(ctx, db, sl); err != nil {
 		if errors.Is(err, ErrVer) {
-			l.Warn("repair",
+			sl.Warn("repair",
 				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrVer)))
 		}
-		l.Error("repair",
+		sl.Error("repair",
 			slog.String("database", "could not initialize the database data"),
-			slog.String("error", err.Error()))
+			slog.Any("error", err))
 	}
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
-	if err := c.RepairAssets(ctx, db); err != nil {
-		l.Error("repair assets",
-			slog.String("error", err.Error()))
+	if err := c.RepairAssets(ctx, db, sl); err != nil {
+		sl.Error("repair", slog.Any("error", err))
 	}
 }
 
 // repairDatabase on startup checks the database connection and make any data corrections.
-func repairDatabase(ctx context.Context, db *sql.DB, l *slog.Logger) error {
+func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 	if db == nil {
 		panic(fmt.Errorf("%w: repair database", ErrPointer))
 	}
@@ -99,7 +98,7 @@ func repairDatabase(ctx context.Context, db *sql.DB, l *slog.Logger) error {
 	if err := fix.Artifacts.Run(ctx, db, tx); err != nil {
 		defer func() {
 			if err := tx.Rollback(); err != nil {
-				l.Error("repair database", slog.String("error", err.Error()))
+				sl.Error("repair database", slog.Any("error", err))
 			}
 		}()
 		return fmt.Errorf("repair database could not fix all artifacts: %w", err)
@@ -115,14 +114,14 @@ func (c *Config) sanityChecks(ctx context.Context) {
 		logger.Error("check",
 			slog.String("issue", "sanity checks could not read the environment variable, "+
 				"it probably contains an invalid value"),
-			slog.String("error", err.Error()))
+			slog.Any("error", err))
 	}
 	cmdChecks(ctx)
 	conn, err := postgres.New()
 	if err != nil {
 		logger.Error("check",
 			slog.String("issue", "sanity checks could not initialize the database data"),
-			slog.String("error", err.Error()))
+			slog.Any("error", err))
 		return
 	}
 	if err := conn.Validate(logger); err != nil {

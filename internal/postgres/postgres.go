@@ -116,7 +116,7 @@ func (c Connection) Validate(logger *slog.Logger) error {
 	if err != nil {
 		logger.Warn(msg,
 			slog.String(key, "The database connection URL is invalid"),
-			slog.String("error", err.Error()))
+			slog.Any("error", err))
 		return nil
 	}
 	if u == nil {

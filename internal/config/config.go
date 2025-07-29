@@ -16,37 +16,20 @@ import (
 )
 
 const (
-	ConfigDir         = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
-	SessionHours      = 3              // SessionHours is the default number of hours for the session cookie to remain active.
-	MinimumFiles      = 40000          // MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
-	AbsDownload       = "AbsDownload"  // AbsDownload means the absolute download asset directory.
-	AbsLog            = "AbsLog"       // AbsLog means the absolute log directory.
 	AbsPreview        = "AbsPreview"   // AbsPreview means the absolute preview assets directory.
 	AbsThumbnail      = "AbsThumbnail" // AbsThumbnail means the absolute thumbnail assets directory.
+	ConfigDir         = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
+	MinimumFiles      = 40000          // MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
+	SessionHours      = 3              // SessionHours is the default number of hours for the session cookie to remain active.
 	StdHTTP      Port = 80             // StdHTTP is the standard port used for a legacy unencrypted HTTP connection.
 	StdHTTPS     Port = 443            // StdHTTPS is the standard port used for a HTTP web connection.
 	StdCustom         = 1323           // StdCustom is the default port number used by this application for an unencrypted HTTP connection.
 )
 
 const (
-	minwidth = 2
-	tabwidth = 4
-	padding  = 2
-	padchar  = ' '
-	flags    = 0
-	hide     = "xxxxx"
-	h1       = "Configuration"
-	h2       = "Value"
-	h3       = "Environment variable"
-	line     = "─"
-)
-
-var (
-	ErrNoPort  = errors.New("the server cannot start without a http or a tls port")
-	ErrPointer = errors.New("pointer is nil")
-	ErrVer     = errors.New("postgresql version request failed")
-	ErrDirNot  = errors.New("path points to a file")
-	ErrFileNot = errors.New("path points to a directory")
+	padding = 2
+	padchar = ' '
+	hide    = "xxxxx"
 )
 
 // Config options for the Defacto2 server using the [caarlos0/env] package.
@@ -101,7 +84,7 @@ func (f File) Check() error {
 		return err
 	}
 	if st.IsDir() {
-		return ErrFileNot
+		return ErrNotFile
 	}
 	return nil
 }
@@ -114,7 +97,7 @@ func (f File) Issue() string {
 	if errors.Is(err, os.ErrNotExist) {
 		return "File does not exist"
 	}
-	if errors.Is(err, ErrDirNot) {
+	if errors.Is(err, ErrNotDir) {
 		return "File path points to a file and cannot be used"
 	}
 	return ""
@@ -139,7 +122,7 @@ func (d Directory) Check() error {
 		return err
 	}
 	if !st.IsDir() {
-		return ErrDirNot
+		return ErrNotDir
 	}
 	return nil
 }
@@ -152,7 +135,7 @@ func (d Directory) Issue() string {
 	if errors.Is(err, os.ErrNotExist) {
 		return "Directory does not exist"
 	}
-	if errors.Is(err, ErrDirNot) {
+	if errors.Is(err, ErrNotDir) {
 		return "Directory path points to a file and cannot be used"
 	}
 	return ""
@@ -603,8 +586,11 @@ func Validate(port uint) error {
 	return nil
 }
 
-func (c Config) Print(l *slog.Logger) {
-	l.Info("The Defacto2 server configuration :")
+func (c Config) Print(sl *slog.Logger) {
+	if sl == nil {
+		panic(ErrNoSlog)
+	}
+	sl.Info("The Defacto2 server configuration :")
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
 	names := c.Names()
 	for i, name := range slices.All(names) {
@@ -621,7 +607,7 @@ func (c Config) Print(l *slog.Logger) {
 		issue := vof.FieldByName(name).MethodByName("Issue")
 		if issue.IsValid() {
 			issuer := issue.Call(nil)[0].String()
-			l.Error(inf,
+			sl.Error(inf,
 				slog.Any(tag, val),
 				slog.String("issue", issuer))
 			continue
@@ -640,7 +626,7 @@ func (c Config) Print(l *slog.Logger) {
 			swap = vof.FieldByName(n).MethodByName("String")
 			vals := swap.Call(nil)[0]
 			inf = Info(n, vals)
-			l.Info(inf,
+			sl.Info(inf,
 				slog.Any(tag, hide),
 				slog.String("help", helper))
 			continue
@@ -649,12 +635,12 @@ func (c Config) Print(l *slog.Logger) {
 		if help.IsValid() {
 			// handle edge cases like googleids using GoogleAccounts data
 			helper = help.Call(nil)[0].String()
-			l.Info(inf,
+			sl.Info(inf,
 				slog.Any(tag, val),
 				slog.String("help", helper))
 			continue
 		}
-		l.Info(inf,
+		sl.Info(inf,
 			slog.Any(tag, val))
 	}
 }
@@ -713,10 +699,10 @@ func localIPs(b *strings.Builder, port uint64, pad string) error {
 // Format returns a human readable description of the named configuration identifier.
 func Format(name string) string {
 	m := map[string]string{
-		AbsDownload:      "Downloads, directory path",
+		"AbsDownload":    "Downloads, directory path",
 		AbsPreview:       "Previews, directory path",
 		AbsThumbnail:     "Thumbnails, directory path",
-		AbsLog:           "Logs, directory path",
+		"AbsLog":         "Logs, directory path",
 		"AbsExtra":       "Extras, directory path",
 		"AbsOrphaned":    "Orphaned, directory path",
 		"Compression":    "Gzip compression",

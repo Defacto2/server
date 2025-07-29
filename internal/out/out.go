@@ -122,12 +122,17 @@ func printAttr(groups []string, a slog.Attr) slog.Attr {
 		switch strings.ToLower(value) {
 		case "googleaccounts":
 			return slog.Attr{}
-		default:
-			a.Value = slog.StringValue(fmt.Sprintf("%s\n      ", a.Value))
+		case "postgres", "repair":
+			a.Value = slog.StringValue(strings.ToUpper(a.Value.String()))
 		}
+		a.Value = slog.StringValue(fmt.Sprintf("%s\n      ", a.Value))
 	}
 	// formatting
 	if key == slog.LevelKey {
+		switch key {
+		case "postgres", "repair":
+			a.Key = strings.ToUpper(a.Key)
+		}
 		a = tint.Attr(6, slog.String(a.Key, "INF  "))
 	}
 	if key == "issue" {

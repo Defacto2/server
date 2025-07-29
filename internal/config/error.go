@@ -14,11 +14,22 @@ import (
 )
 
 var (
-	ErrDirNotExist = errors.New("directory does not exist or incorrectly typed")
-	ErrEchoNil     = errors.New("echo instance is nil")
-	ErrLog         = errors.New("the server cannot log to files")
-	ErrNotDir      = errors.New("directory path points to the file")
-	ErrTouch       = errors.New("the server cannot create a file in the directory")
+	ErrLog        = errors.New("the server cannot log to files")
+	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
+	ErrNoCtx      = errors.New("nil context executor")
+	ErrNoDir      = errors.New("directory does not exist or incorrectly typed")
+	ErrNoEcho     = errors.New("echo instance is nil")
+	ErrNoOAuth2   = errors.New("the production server requires a google, oauth2 client id to allow admin logins")
+	ErrNoPort     = errors.New("the server cannot start without a http or a tls port")
+	ErrNoSlog     = errors.New("the slog logger instance is nil")
+	ErrNoPath     = errors.New("empty path or name")
+	ErrPointer    = errors.New("pointer is nil")
+	ErrPortMax    = fmt.Errorf("http port value must be between 1-%d", PortMax)
+	ErrPortSys    = fmt.Errorf("http port values between 1-%d require system access", PortSys)
+	ErrTouch      = errors.New("the server cannot create a file in the directory")
+	ErrVer        = errors.New("postgresql version request failed")
+	ErrNotDir     = errors.New("path points to a file")
+	ErrNotFile    = errors.New("path points to a directory")
 )
 
 // TODO: drop zaplog
@@ -26,7 +37,7 @@ var (
 // CustomErrorHandler handles customer error templates.
 func (c *Config) CustomErrorHandler(err error, ctx echo.Context) {
 	if ctx == nil {
-		panic(ErrEchoNil)
+		panic(ErrNoEcho)
 	}
 	logger := zaplog.Debug().Sugar()
 	if c.ProdMode {

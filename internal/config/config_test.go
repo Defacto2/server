@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,9 +13,8 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/zaplog"
+	"github.com/Defacto2/server/internal/out"
 	"github.com/nalgeon/be"
-	"go.uber.org/zap"
 )
 
 func TestConfig(t *testing.T) {
@@ -100,7 +100,7 @@ func TestError(t *testing.T) {
 func TestRepair(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	err := c.Archives(t.Context(), nil)
+	err := c.Archives(t.Context(), nil, nil)
 	be.Err(t, err)
 	r := config.Zip
 	be.Equal(t, "zip", r.String())
@@ -110,7 +110,8 @@ func TestRepair(t *testing.T) {
 	be.Err(t, err)
 	err = c.Previews(t.Context(), nil, nil)
 	be.Err(t, err)
-	err = c.ImageDirs(nil)
+	sl := out.Printout(io.Discard)
+	err = c.ImageDirs(sl)
 	be.Err(t, err, nil)
 	err = config.DownloadDir(nil, "", "", "")
 	be.Err(t, err)
@@ -127,19 +128,13 @@ func TestRepair(t *testing.T) {
 func TestReArchive(t *testing.T) {
 	t.Parallel()
 	r := config.Zip
-	logger, _ := zap.NewProduction()
-	_ = logger.Sync()
-	ctx := context.WithValue(t.Context(), zaplog.LoggerKey, logger)
-	err := r.ReArchive(ctx, "", "", "")
+	err := r.ReArchive(context.TODO(), nil, config.Rearchiving{})
 	be.Err(t, err)
 }
 
 func TestReArchiveImplode(t *testing.T) {
 	r := config.Zip
-	l, _ := zap.NewProduction()
-	_ = l.Sync()
-	logger := l.Sugar()
-	ctx := context.WithValue(t.Context(), zaplog.LoggerKey, logger)
+	ctx := context.TODO()
 	// test the archive that uses the defunct implode method
 	src, err := filepath.Abs(filepath.Join("testdata", "IMPLODE.ZIP"))
 	be.Err(t, err, nil)
@@ -150,20 +145,23 @@ func TestReArchiveImplode(t *testing.T) {
 	}()
 	sign := magicnumber.Find(readr)
 	be.Equal(t, magicnumber.PKWAREZipImplode, sign)
-	err = r.ReArchive(ctx, src, "", "")
+	ra0 := config.Rearchiving{}
+	err = r.ReArchive(ctx, nil, ra0)
 	be.Err(t, err)
 	dst := dir.Directory(filepath.Dir(src))
-	err = r.ReArchive(ctx, src, "", dst)
+	ra1 := config.Rearchiving{Source: src, Destination: dst}
+	err = r.ReArchive(ctx, nil, ra1)
 	be.Err(t, err)
-	err = r.ReArchive(ctx, src, "newfile", dst)
+	ra1.UID = "newfile"
+	sl := out.Printout(io.Discard)
+	err = r.ReArchive(ctx, sl, ra1)
 	be.Err(t, err, nil)
 	// test the new, re-created archive that uses the common deflate method
 	name := dst.Join("newfile.zip")
 	readr, err = os.Open(name)
 	be.Err(t, err, nil)
 	defer func() {
-		err := readr.Close()
-		be.Err(t, err, nil)
+		_ = readr.Close()
 	}()
 	sign = magicnumber.Find(readr)
 	be.Equal(t, magicnumber.PKWAREZip, sign)
