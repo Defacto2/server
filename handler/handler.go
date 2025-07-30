@@ -32,6 +32,7 @@ import (
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/out"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo-contrib/pprof"
 	"github.com/labstack/echo/v4"
@@ -67,12 +68,14 @@ type Configuration struct {
 }
 
 // Controller is the primary instance of the Echo router.
-func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger, sl *slog.Logger) *echo.Echo {
+func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
+	const msg = "controller handler"
 	configs := c.Environment
-	if logger == nil {
-		logger, _ := zap.NewProduction()
-		defer func() { _ = logger.Sync() }()
-	}
+	// TODO: remove
+	// if logger == nil {
+	// 	logger, _ := zap.NewProduction()
+	// 	defer func() { _ = logger.Sync() }()
+	// }
 
 	e := echo.New()
 	if configs.LogAll {
@@ -81,9 +84,9 @@ func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger, sl *sl
 	e.HideBanner = true
 	e.HTTPErrorHandler = configs.CustomErrorHandler
 
-	tmpl, err := c.Registry(db, logger)
+	tmpl, err := c.Registry(db, sl)
 	if err != nil {
-		logger.Fatal(err)
+		out.Fatal(sl, msg, slog.String("template", "could not register the templates"), slog.Any("fatal", err))
 	}
 	e.Renderer = tmpl
 	middlewares := []echo.MiddlewareFunc{
@@ -110,15 +113,14 @@ func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger, sl *sl
 		middlewares = append(middlewares, middleware.Recover())
 	}
 	e.Use(middlewares...)
-
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
 	e = htmxGroup(e, db, sl, bool(configs.ProdMode), dir.Directory(c.Environment.AbsDownload))
 	e, err = c.FilesRoutes(e, db, sl, c.Public)
 	if err != nil {
-		logger.Fatal(err)
+		out.Fatal(sl, msg, slog.String("file routes", "could not register the routes"), slog.Any("fatal", err))
 	}
-	group := html3.Routes(e, db, logger)
+	group := html3.Routes(e, db, sl)
 	group.GET(Downloader, func(cx echo.Context) error {
 		return c.downloader(cx, db, sl)
 	})
@@ -207,7 +209,7 @@ func (c *Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error)
 }
 
 // Registry returns the template renderer.
-func (c *Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*TemplateRegistry, error) {
+func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry, error) {
 	webapp := app.Templ{
 		Environment: c.Environment,
 		Brand:       c.Brand,
@@ -220,7 +222,7 @@ func (c *Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*Templa
 	if err != nil {
 		return nil, fmt.Errorf("handler registry, %w", err)
 	}
-	src := html3.Templates(db, logger, c.View)
+	src := html3.Templates(db, sl, c.View)
 	maps.Copy(tmpls, src)
 	src = htmx.Templates(c.View)
 	maps.Copy(tmpls, src)

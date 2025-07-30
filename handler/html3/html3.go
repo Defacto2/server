@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -18,6 +19,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -25,7 +27,6 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 // Sort and order the records by the column name.
@@ -122,14 +123,16 @@ func Error(c echo.Context, err error) error {
 }
 
 // FileHref creates a URL to link to the file download of the ID.
-func FileHref(logger *zap.SugaredLogger, id int64) string {
-	if logger == nil {
-		return ErrZap.Error()
+func FileHref(sl *slog.Logger, id int64) string {
+	const msg = "html3 file href"
+	if sl == nil {
+		return panics.ErrNoSlog.Error()
 	}
 	href, err := url.JoinPath("/", "html3", "d",
 		helper.ObfuscateID(id))
 	if err != nil {
-		logger.Error("FileHref ID %d could not be made into a valid URL: %s", err)
+		sl.Error(msg, slog.String("invalid id", "could not make id into a valid url"),
+			slog.Int64("id", id), slog.Any("error", err))
 		return ""
 	}
 	return href
@@ -489,30 +492,29 @@ func Sortings() map[Sort]string {
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) map[string]*template.Template {
+func Templates(db *sql.DB, sl *slog.Logger, fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	t["html3_index"] = index(db, logger, fs)
-	t["html3_all"] = list(db, logger, fs)
-	t["html3_art"] = list(db, logger, fs)
-	t["html3_documents"] = list(db, logger, fs)
-	t["html3_software"] = list(db, logger, fs)
-	t["html3_groups"] = listGroups(db, logger, fs)
-	t["html3_group"] = list(db, logger, fs)
-	t[string(tag)] = listTags(db, logger, fs)
-	t["html3_platform"] = list(db, logger, fs)
-	t["html3_category"] = list(db, logger, fs)
-	t["html3_error"] = httpErr(db, logger, fs)
+	t["html3_index"] = index(db, sl, fs)
+	t["html3_all"] = list(db, sl, fs)
+	t["html3_art"] = list(db, sl, fs)
+	t["html3_documents"] = list(db, sl, fs)
+	t["html3_software"] = list(db, sl, fs)
+	t["html3_groups"] = listGroups(db, sl, fs)
+	t["html3_group"] = list(db, sl, fs)
+	t[string(tag)] = listTags(db, sl, fs)
+	t["html3_platform"] = list(db, sl, fs)
+	t["html3_category"] = list(db, sl, fs)
+	t["html3_error"] = httpErr(db, sl, fs)
 	return t
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func TemplateFuncMap(db *sql.DB, logger *zap.SugaredLogger) template.FuncMap {
+func TemplateFuncMap(db *sql.DB, sl *slog.Logger) template.FuncMap {
+	const msg = "html3 template func map"
 	ctx := context.Background()
 	t := tags.T{}
 	if err := t.Build(ctx, db); err != nil {
-		if logger != nil {
-			logger.Errorf("html3 template func map could not build the tags %s", err)
-		}
+		sl.Error(msg, slog.String("build", "could not map the template tags"), slog.Any("error", err))
 		return nil
 	}
 	return template.FuncMap{
@@ -529,12 +531,12 @@ func TemplateFuncMap(db *sql.DB, logger *zap.SugaredLogger) template.FuncMap {
 		"publish":  html3.PublishedFW,
 		"posted":   html3.Created,
 		"linkHref": func(id int64) string {
-			return FileHref(logger, id)
+			return FileHref(sl, id)
 		},
 		"metaByName": func(s string) tags.TagData {
 			data, err := tagByName(&t, s)
 			if err != nil {
-				logger.Errorw("tag", "error", err)
+				sl.Error(msg, slog.String("tag by name", "could not create the meta by name func"), slog.Any("error", err))
 				return tags.TagData{}
 			}
 			return data

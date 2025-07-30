@@ -89,7 +89,7 @@ func main() {
 	ctx := context.Background()
 	website := newInstance(ctx, db, *configs)
 	logger = serverLog(*configs, website.RecordCount)
-	router := website.Controller(db, logger, sl)
+	router := website.Controller(db, sl)
 	website.Info(logger, w)
 	if err := website.Start(router, logger, *configs); err != nil {
 		logger.Fatalf("%s: please check the environment variables", err)

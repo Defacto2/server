@@ -7,10 +7,10 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
+	"log/slog"
 	"strings"
 
 	"github.com/Defacto2/server/internal/tags"
-	"go.uber.org/zap"
 )
 
 type Templ string // Template name
@@ -38,47 +38,47 @@ func GlobTo(name string) string {
 }
 
 // Index template.
-func index(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+func index(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
 }
 
 // List file records template.
-func list(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+func list(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
 // List and filter the tags template.
-func listTags(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+func listTags(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
 		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
-func listGroups(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+func listGroups(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.
-func httpErr(db *sql.DB, logger *zap.SugaredLogger, fs embed.FS) *template.Template {
+func httpErr(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, logger)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
 		GlobTo(layout)))
 }
 
