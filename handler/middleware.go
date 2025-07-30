@@ -9,6 +9,7 @@ package handler
 import (
 	"crypto/sha512"
 	"fmt"
+	"log/slog"
 	"math"
 	"net/http"
 	"runtime"
@@ -41,13 +42,13 @@ func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 
 // ReadOnlyLock disables all PATCH, POST, PUT and DELETE requests for the modification
 // of the database and any related user interface.
-func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
+func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
 	const msg = "middleware read only lock"
 	return func(e echo.Context) error {
 		s := strconv.FormatBool(bool(c.Environment.ReadOnly))
 		e.Response().Header().Set("X-Read-Only-Lock", s)
 		if c.Environment.ReadOnly {
-			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
+			if err := app.StatusErr(e, sl, http.StatusForbidden, ""); err != nil {
 				return fmt.Errorf("%s status: %w", msg, err)
 			}
 			return nil
@@ -57,7 +58,7 @@ func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 // SessionLock middleware checks the session cookie for a valid signed in client.
-func (c *Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
+func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
 	const msg = "middleware session lock"
 	return func(e echo.Context) error {
 		// Help, https://pkg.go.dev/github.com/gorilla/sessions#Session
@@ -67,7 +68,7 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		id, subExists := sess.Values["sub"].(string)
 		if !subExists || id == "" {
-			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
+			if err := app.StatusErr(e, sl, http.StatusForbidden, ""); err != nil {
 				return fmt.Errorf("%s subexists forbid: %w", msg, err)
 			}
 			return nil
@@ -80,7 +81,7 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		if !check {
-			if err := app.StatusErr(e, http.StatusForbidden, ""); err != nil {
+			if err := app.StatusErr(e, sl, http.StatusForbidden, ""); err != nil {
 				return fmt.Errorf("%s check forbid: %w", msg, err)
 			}
 			return nil

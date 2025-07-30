@@ -12,7 +12,6 @@ import (
 	"syscall"
 
 	"github.com/Defacto2/server/internal/panics"
-	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/labstack/echo/v4"
 )
 
@@ -34,12 +33,6 @@ func BadRequestErr(c echo.Context, sl *slog.Logger, uri string, err error) error
 	if err != nil {
 		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
 	}
-	if nilContext := c == nil; nilContext {
-		const code = http.StatusInternalServerError
-		sl.Error(msg, slog.Int("code", code), slog.String("tmpl", ErrTmpl.Error()), slog.String("context", ErrCxt.Error()))
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
-	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
 	data["title"] = "400 error, there is a complication"
@@ -58,16 +51,14 @@ func BadRequestErr(c echo.Context, sl *slog.Logger, uri string, err error) error
 // DatabaseErr is the handler for database connection issues.
 // A HTTP 503 Service Unavailable error is returned, to reflect the database
 // connection issue but where the server is still running and usable for the client.
-func DatabaseErr(c echo.Context, uri string, err error) error {
+func DatabaseErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+	const msg = "database connection handler"
 	const unavailable = http.StatusServiceUnavailable
-	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d database error for the URL, %q: %s", unavailable, uri, err))
-	}
-	if nilContext := c == nil; nilContext {
-		logger.Warn(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
+		sl.Error(msg,
+			slog.String("connection", "cannot connect to the database"),
+			slog.Int("code", unavailable), slog.String("uri", uri),
+			slog.Any("error", err))
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", unavailable)
@@ -78,24 +69,23 @@ func DatabaseErr(c echo.Context, uri string, err error) error {
 	data["uriErr"] = ""
 	data["probl"] = "This is not your fault, but the server cannot communicate with the database to display this page."
 	if err := c.Render(unavailable, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%d database render error for the URL, %q: %s", unavailable, uri, err))
+		sl.Error(msg, slog.Int("code", unavailable), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(unavailable, ErrTmpl)
 	}
 	return nil
 }
 
 // DownloadErr is the handler for missing download files and database ID errors.
-func DownloadErr(c echo.Context, uri string, err error) error {
+func DownloadErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+	const msg = "download not found"
+	if err := panics.Slog(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const code = http.StatusNotFound
 	id := c.Param("id")
-	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d download error for the URL, %q: %s", code, id, err))
-	}
-	if nilContext := c == nil; nilContext {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
+		sl.Error(msg, slog.Int("code", code), slog.String("id", id),
+			slog.String("uri", uri), slog.Any("error", err))
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
@@ -108,24 +98,23 @@ func DownloadErr(c echo.Context, uri string, err error) error {
 		"Is the URL correct?"
 	data["uriErr"] = strings.Join([]string{uri, id}, "/")
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%d download render error for the URL, %q: %s", code, id, err))
+		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // FileMissingErr is the handler for missing download files and database ID errors.
-func FileMissingErr(c echo.Context, uri string, err error) error {
+func FileMissingErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+	const msg = "file missing"
+	if err := panics.Slog(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const code = http.StatusServiceUnavailable
 	id := c.Param("id")
-	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d file missing error for the URL, %q: %s", code, id, err))
-	}
-	if nilContext := c == nil; nilContext {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
+		sl.Error(msg, slog.Int("code", code), slog.String("id", id),
+			slog.String("uri", uri), slog.Any("error", err))
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
@@ -137,7 +126,7 @@ func FileMissingErr(c echo.Context, uri string, err error) error {
 		"otherwise, there may be a problem with the server configuration, or the file may be lost."
 	data["uriErr"] = strings.Join([]string{uri, id}, "/")
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%d file missing render error for the URL, %q: %s", code, id, err))
+		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -145,16 +134,15 @@ func FileMissingErr(c echo.Context, uri string, err error) error {
 
 // ForbiddenErr is the handler for handling Forbidden Errors, caused by clients requesting
 // pages that they do not have permission to access.
-func ForbiddenErr(c echo.Context, uri string, err error) error {
-	const code = http.StatusForbidden
-	logger := zaplog.Debug()
-	if err != nil {
-		logger.Error(fmt.Sprintf("%d forbidden error for the URL, %q: %s", code, uri, err))
+func ForbiddenErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+	const msg = "forbidden access"
+	if err := panics.Slog(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
-	if nilContext := c == nil; nilContext {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
+	const code = http.StatusForbidden
+	if err != nil {
+		sl.Error(msg, slog.Int("code", code),
+			slog.String("uri", uri), slog.Any("error", err))
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
@@ -167,7 +155,7 @@ func ForbiddenErr(c echo.Context, uri string, err error) error {
 	}
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Info(fmt.Sprintf("%d forbidden render error for the URL, %q: %s", code, uri, err))
+		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -177,25 +165,24 @@ func ForbiddenErr(c echo.Context, uri string, err error) error {
 // The uri string is the part of the URL that caused the error.
 // The optional error value is logged using the zap sugared logger.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
-func InternalErr(c echo.Context, uri string, err error) error {
+func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+	const msg = "internal server error"
+	if err := panics.Slog(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const code = http.StatusInternalServerError
 	if errors.Is(err, syscall.EPIPE) {
 		// This is a common error when the client disconnects before the response is sent,
 		// and commonly happens when using developer hot reloading.
 		_, _ = fmt.Fprintf(io.Discard, "nothing to render due to the \"write: broken pipe\" error\n")
 		return nil
 	}
-	const code = http.StatusInternalServerError
-	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d internal error for the URL, %q: %s", code, uri, err))
+		sl.Error(msg, slog.Int("code", code),
+			slog.String("uri", uri), slog.Any("error", err))
 	}
 	if errors.Is(err, echo.ErrRendererNotRegistered) {
 		return echo.NewHTTPError(code, err)
-	}
-	if nilContext := c == nil; nilContext {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
@@ -207,7 +194,7 @@ func InternalErr(c echo.Context, uri string, err error) error {
 		" but the server encountered an internal error or misconfiguration and cannot display this page."
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%d internal render error for the URL, %q: %s", code, uri, ErrTmpl))
+		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -216,12 +203,10 @@ func InternalErr(c echo.Context, uri string, err error) error {
 // StatusErr is the handler for the HTTP status pages such as the 404 - not found.
 // If the zap logger is nil then the error page is returned but no error is logged.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
-func StatusErr(c echo.Context, code int, uri string) error {
-	logger := zaplog.Debug()
-	if nilContext := c == nil; nilContext {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
-		return echo.NewHTTPError(http.StatusInternalServerError,
-			fmt.Errorf("%w: handler app status", ErrCxt))
+func StatusErr(c echo.Context, sl *slog.Logger, code int, uri string) error {
+	const msg = "http status"
+	if err := panics.Slog(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
@@ -238,12 +223,13 @@ func StatusErr(c echo.Context, code int, uri string) error {
 		alert = "The page is locked"
 		probl = "You don't have permission to access this resource."
 	case http.StatusInternalServerError:
-		return InternalErr(c, uri, nil)
+		return InternalErr(c, sl, uri, nil)
 	default:
 		s := http.StatusText(code)
 		if s == "" {
 			err := fmt.Errorf("%d status error for the URL, %s: %w", code, uri, ErrCode)
-			logger.Error(err.Error())
+			sl.Error(msg, slog.String("status", "unknown and unsupported status code"),
+				slog.Int("code", code), slog.String("uri", uri))
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
 		title = fmt.Sprintf("%d error, %s", code, s)
@@ -258,7 +244,7 @@ func StatusErr(c echo.Context, code int, uri string) error {
 	data["probl"] = probl
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%d status code render error for the URL, %s: %s", code, uri, ErrCode))
+		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

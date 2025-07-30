@@ -29,25 +29,32 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app
 	if e == nil {
 		panic(fmt.Errorf("%w for lock router", panics.ErrNoEchoE))
 	}
+	// TODO: TEST
+	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {
+		return c.ReadOnlyLock(cx, sl)
+	}
+	sessionlock := func(cx echo.HandlerFunc) echo.HandlerFunc {
+		return c.SessionLock(cx, sl)
+	}
 	lock := e.Group("/editor")
-	lock.Use(c.ReadOnlyLock, c.SessionLock)
-	c.configurations(lock, db)
+	lock.Use(readonlylock, sessionlock)
+	c.configurations(lock, db, sl)
 	creator(lock, db)
 	date(lock, db)
 	editor(lock, db, sl, dirs)
-	get(lock, db, dirs)
+	get(lock, db, sl, dirs)
 	online(lock, db)
 	search(lock, db, sl)
 	return e
 }
 
-func (c *Configuration) configurations(g *echo.Group, db *sql.DB) {
+func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 	if g == nil {
 		panic(fmt.Errorf("%w for configurations router", panics.ErrNoEchoE))
 	}
 	conf := g.Group("/configurations")
 	conf.GET("", func(cx echo.Context) error {
-		return app.Configurations(cx, db, c.Environment)
+		return app.Configurations(cx, db, sl, c.Environment)
 	})
 	conf.GET("/dbconns", func(c echo.Context) error {
 		return htmx.DBConnections(c, db)
@@ -137,7 +144,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		return htmx.RecordLinksReset(c, db)
 	})
 	g.PATCH("/platform", func(c echo.Context) error {
-		return app.PlatformEdit(c, db)
+		return app.PlatformEdit(c, db, sl)
 	})
 	g.PATCH("/platform+tag", app.PlatformTagInfo)
 	g.PATCH("/pouet", func(c echo.Context) error {
@@ -156,7 +163,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		return htmx.RecordSites(c, db)
 	})
 	g.PATCH("/tag", func(c echo.Context) error {
-		return app.TagEdit(c, db)
+		return app.TagEdit(c, db, sl)
 	})
 	g.PATCH("/tag/info", app.TagInfo)
 	g.PATCH("/title", func(c echo.Context) error {
@@ -298,13 +305,13 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	})
 }
 
-func get(g *echo.Group, db *sql.DB, dirs app.Dirs) {
+func get(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for get router", panics.ErrNoEchoE))
 	}
 	g.GET("/deletions",
 		func(cx echo.Context) error {
-			return app.Deletions(cx, db, "1")
+			return app.Deletions(cx, db, sl, "1")
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(cx echo.Context) error {
@@ -312,11 +319,11 @@ func get(g *echo.Group, db *sql.DB, dirs app.Dirs) {
 		})
 	g.GET("/for-approval",
 		func(cx echo.Context) error {
-			return app.ForApproval(cx, db, "1")
+			return app.ForApproval(cx, db, sl, "1")
 		})
 	g.GET("/unwanted",
 		func(cx echo.Context) error {
-			return app.Unwanted(cx, db, "1")
+			return app.Unwanted(cx, db, sl, "1")
 		})
 }
 
@@ -341,7 +348,9 @@ func search(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 		panic(fmt.Errorf("%w for search router", panics.ErrNoEchoE))
 	}
 	search := g.Group("/search")
-	search.GET("/id", app.SearchID)
+	search.GET("/id", func(cx echo.Context) error {
+		return app.SearchID(cx, sl)
+	})
 	search.POST("/id", func(cx echo.Context) error {
 		return htmx.SearchByID(cx, db, sl)
 	})

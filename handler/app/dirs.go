@@ -44,10 +44,10 @@ import (
 const epoch = model.EpochYear // epoch is the default year for MS-DOS files without a timestamp
 
 // Artifact404 renders the error page for the artifact links.
-func Artifact404(c echo.Context, id string) error {
+func Artifact404(c echo.Context, sl *slog.Logger, id string) error {
 	const name = "status"
 	if c == nil {
-		return InternalErr(c, name, errorWithID(ErrCxt, id, nil))
+		return InternalErr(c, sl, name, errorWithID(ErrCxt, id, nil))
 	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, artifact page not found", http.StatusNotFound)
@@ -60,7 +60,7 @@ func Artifact404(c echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, name, errorWithID(err, id, nil))
+		return InternalErr(c, sl, name, errorWithID(err, id, nil))
 	}
 	return nil
 }
@@ -77,7 +77,7 @@ type Dirs struct {
 // Artifact is the handler for the of the file record.
 func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
 	const name = "artifact"
-	art, err := dir.modelsFile(c, db)
+	art, err := dir.modelsFile(c, db, sl)
 	if art404 := art == nil || err != nil; art404 {
 		return err
 	}
@@ -125,7 +125,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	err = c.Render(http.StatusOK, name, data)
 	defer clear(data)
 	if err != nil {
-		return InternalErr(c, name, errorWithID(err, dir.URI, art.ID))
+		return InternalErr(c, sl, name, errorWithID(err, dir.URI, art.ID))
 	}
 	return nil
 }
@@ -438,7 +438,7 @@ func (dir Dirs) plainTexts(sl *slog.Logger,
 }
 
 // modelsFile returns the URI artifact record from the file table.
-func (dir Dirs) modelsFile(c echo.Context, db *sql.DB) (*models.File, error) {
+func (dir Dirs) modelsFile(c echo.Context, db *sql.DB, sl *slog.Logger) (*models.File, error) {
 	ctx := context.Background()
 	var art *models.File
 	var err error
@@ -449,9 +449,9 @@ func (dir Dirs) modelsFile(c echo.Context, db *sql.DB) (*models.File, error) {
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
-			return nil, Artifact404(c, dir.URI)
+			return nil, Artifact404(c, sl, dir.URI)
 		}
-		return nil, DatabaseErr(c, "f/"+dir.URI, err)
+		return nil, DatabaseErr(c, sl, "f/"+dir.URI, err)
 	}
 	return art, nil
 }
