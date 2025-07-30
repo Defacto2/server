@@ -9,6 +9,7 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,7 +27,7 @@ import (
 
 func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
 	if e == nil {
-		panic(fmt.Errorf("%w for lock router", ErrRoutes))
+		panic(fmt.Errorf("%w for lock router", panics.ErrNoEchoE))
 	}
 	lock := e.Group("/editor")
 	lock.Use(c.ReadOnlyLock, c.SessionLock)
@@ -42,7 +43,7 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app
 
 func (c *Configuration) configurations(g *echo.Group, db *sql.DB) {
 	if g == nil {
-		panic(fmt.Errorf("%w for configurations router", ErrRoutes))
+		panic(fmt.Errorf("%w for configurations router", panics.ErrNoEchoE))
 	}
 	conf := g.Group("/configurations")
 	conf.GET("", func(cx echo.Context) error {
@@ -64,7 +65,7 @@ func (c *Configuration) configurations(g *echo.Group, db *sql.DB) {
 
 func creator(g *echo.Group, db *sql.DB) {
 	if g == nil {
-		panic(ErrRoutes)
+		panic(panics.ErrNoEchoE)
 	}
 	creator := g.Group("/creator")
 	creator.PATCH("/text", func(c echo.Context) error {
@@ -86,7 +87,7 @@ func creator(g *echo.Group, db *sql.DB) {
 
 func date(g *echo.Group, db *sql.DB) {
 	if g == nil {
-		panic(fmt.Errorf("%w for date router", ErrRoutes))
+		panic(fmt.Errorf("%w for date router", panics.ErrNoEchoE))
 	}
 	date := g.Group("/date")
 	date.PATCH("", func(c echo.Context) error {
@@ -102,7 +103,7 @@ func date(g *echo.Group, db *sql.DB) {
 
 func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	if g == nil {
-		panic(fmt.Errorf("%w for editor router", ErrRoutes))
+		panic(fmt.Errorf("%w for editor router", panics.ErrNoEchoE))
 	}
 	g.DELETE("/delete/forever/:key", func(c echo.Context) error {
 		return htmx.DeleteForever(c, db, sl, c.Param("key"))
@@ -299,7 +300,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 
 func get(g *echo.Group, db *sql.DB, dirs app.Dirs) {
 	if g == nil {
-		panic(fmt.Errorf("%w for get router", ErrRoutes))
+		panic(fmt.Errorf("%w for get router", panics.ErrNoEchoE))
 	}
 	g.GET("/deletions",
 		func(cx echo.Context) error {
@@ -321,7 +322,7 @@ func get(g *echo.Group, db *sql.DB, dirs app.Dirs) {
 
 func online(g *echo.Group, db *sql.DB) {
 	if g == nil {
-		panic(fmt.Errorf("%w for online router", ErrRoutes))
+		panic(fmt.Errorf("%w for online router", panics.ErrNoEchoE))
 	}
 	online := g.Group("/online")
 	online.PATCH("/true", func(cx echo.Context) error {
@@ -337,7 +338,7 @@ func online(g *echo.Group, db *sql.DB) {
 
 func search(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 	if g == nil {
-		panic(fmt.Errorf("%w for search router", ErrRoutes))
+		panic(fmt.Errorf("%w for search router", panics.ErrNoEchoE))
 	}
 	search := g.Group("/search")
 	search.GET("/id", app.SearchID)

@@ -6,24 +6,37 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"strings"
 	"syscall"
 
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/labstack/echo/v4"
 )
 
+var (
+	ErrNoDB    = errors.New("database pointer db is nil")
+	ErrNoEcho  = errors.New("echo context pointer c is nil")
+	ErrNoEmbed = errors.New("embed file system instance is empty")
+	ErrNoSlog  = errors.New("logger pointer sl is nil")
+)
+
 // BadRequestErr is the handler for handling Bad Request Errors, caused by invalid user input
 // or a malformed client requests.
-func BadRequestErr(c echo.Context, uri string, err error) error {
+func BadRequestErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+	const msg = "bad request handler"
+	if err1 := panics.Slog(c, sl); err1 != nil {
+		return fmt.Errorf("%s: %w", msg, err1)
+	}
 	const code = http.StatusBadRequest
-	logger := zaplog.Debug()
 	if err != nil {
-		logger.Error(fmt.Sprintf("%d bad request error for the URL, %q: %s", code, uri, err))
+		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
 	}
 	if nilContext := c == nil; nilContext {
-		logger.Error(fmt.Sprintf("%s: %s", ErrTmpl, ErrCxt))
+		const code = http.StatusInternalServerError
+		sl.Error(msg, slog.Int("code", code), slog.String("tmpl", ErrTmpl.Error()), slog.String("context", ErrCxt.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Errorf("%w: handler app status", ErrCxt))
 	}
@@ -36,7 +49,7 @@ func BadRequestErr(c echo.Context, uri string, err error) error {
 	data["probl"] = "It might be a settings or configuration problem or a legacy browser issue."
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
-		logger.Error(fmt.Sprintf("%d bad request render error for the URL, %q: %s", code, uri, err))
+		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

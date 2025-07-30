@@ -58,8 +58,6 @@ var (
 	ErrUser     = errors.New("unknown user")
 	ErrVal      = errors.New("value is empty")
 	ErrZap      = errors.New("the zap logger cannot be nil")
-
-	ErrNoSlog = errors.New("the slog logger instance is nil")
 )
 
 func errVal(name string) template.HTML {

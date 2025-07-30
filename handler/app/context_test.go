@@ -301,7 +301,7 @@ func TestSearchReleaser(t *testing.T) {
 
 func TestSignedOut(t *testing.T) {
 	t.Parallel()
-	x := app.SignedOut(newContext())
+	x := app.SignedOut(newContext(), nil)
 	be.Err(t, x)
 }
 

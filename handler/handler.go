@@ -32,6 +32,7 @@ import (
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo-contrib/pprof"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -47,6 +48,12 @@ const (
 
 	// Downloader is the route for the file download handler.
 	Downloader = "/d/:id"
+)
+
+var (
+	ErrNoName = errors.New("name is empty")
+	ErrNoTmpl = errors.New("named template cannot be found")
+	ErrNoPort = errors.New("web server ports are not configured")
 )
 
 // Configuration of the handler.
@@ -121,7 +128,7 @@ func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger, sl *sl
 // EmbedDirs serves the static files from the directories embed to the binary.
 func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	if e == nil {
-		panic(fmt.Errorf("%w for the embed directories binary", ErrRoutes))
+		panic(fmt.Errorf("%w for the embed directories binary", panics.ErrNoEchoE))
 	}
 	dirs := map[string]string{
 		"/image/artpack":   "public/image/artpack",
@@ -224,7 +231,7 @@ func (c *Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*Templa
 // The shutdown procedure occurs a few seconds after the key press.
 func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
-		panic(fmt.Errorf("%w for the HTTP shutdown", ErrRoutes))
+		panic(fmt.Errorf("%w for the HTTP shutdown", panics.ErrNoEchoE))
 	}
 	if logger == nil {
 		logger, _ := zap.NewProduction()
@@ -294,7 +301,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 // Start the HTTP, and-or the TLS servers.
 func (c *Configuration) Start(e *echo.Echo, logger *zap.SugaredLogger, configs config.Config) error {
 	if e == nil {
-		panic(fmt.Errorf("%w for the web application startup", ErrRoutes))
+		panic(fmt.Errorf("%w for the web application startup", panics.ErrNoEchoE))
 	}
 	if logger == nil {
 		logger, _ := zap.NewProduction()
@@ -320,7 +327,7 @@ func (c *Configuration) Start(e *echo.Echo, logger *zap.SugaredLogger, configs c
 	case configs.UseTLSLocal():
 		go c.StartTLSLocal(e, logger)
 	default:
-		return ErrPorts
+		return ErrNoPort
 	}
 	return nil
 }
@@ -328,7 +335,7 @@ func (c *Configuration) Start(e *echo.Echo, logger *zap.SugaredLogger, configs c
 // StartHTTP starts the insecure HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
-		panic(fmt.Errorf("%w for the HTTP startup", ErrRoutes))
+		panic(fmt.Errorf("%w for the HTTP startup", panics.ErrNoEchoE))
 	}
 	port := c.Environment.HTTPPort.Value()
 	address := c.address(port)
@@ -343,7 +350,7 @@ func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 // StartTLS starts the encrypted TLS web server.
 func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
-		panic(fmt.Errorf("%w for the TLS startup", ErrRoutes))
+		panic(fmt.Errorf("%w for the TLS startup", panics.ErrNoEchoE))
 	}
 	if logger == nil {
 		logger, _ := zap.NewProduction()
@@ -375,7 +382,7 @@ func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
 // This should only be triggered when the server is running in local mode.
 func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
 	if e == nil {
-		panic(fmt.Errorf("%w for the TLS local mode startup", ErrRoutes))
+		panic(fmt.Errorf("%w for the TLS local mode startup", panics.ErrNoEchoE))
 	}
 	if logger == nil {
 		logger, _ := zap.NewProduction()
@@ -449,7 +456,7 @@ type TemplateRegistry struct {
 func (t *TemplateRegistry) Render(w io.Writer, name string, data any, c echo.Context) error {
 	const layout, info = "layout", "template registry render"
 	if name == "" {
-		return fmt.Errorf("%s layout: %w", info, ErrName)
+		return fmt.Errorf("%s layout: %w", info, ErrNoName)
 	}
 	if w == nil {
 		return fmt.Errorf("%s io.writer is nil: %w", info, echo.ErrRendererNotRegistered)
@@ -462,7 +469,7 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data any, c echo.Con
 	}
 	tmpl, exists := t.Templates[name]
 	if !exists {
-		return fmt.Errorf("registry render %w: %q", ErrName404, name)
+		return fmt.Errorf("registry render %w: %q", ErrNoTmpl, name)
 	}
 	if err := tmpl.ExecuteTemplate(w, layout, data); err != nil {
 		return fmt.Errorf("%s execute: %w", info, err)

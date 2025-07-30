@@ -16,6 +16,7 @@ import (
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -27,11 +28,11 @@ const code = http.StatusMovedPermanently
 func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS,
 ) (*echo.Echo, error) {
 	const msg = "files routes"
-	if err := embedpanic(e, db, sl, public); err != nil {
+	if err := panics.EchoEmbed(e, db, sl, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
-		return nil, fmt.Errorf("%s: %w", msg, ErrNoEmbed)
+		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoEmbed)
 	}
 	app.Caching.Records(c.RecordCount)
 	dirs := app.Dirs{
@@ -62,7 +63,7 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, p
 func (c *Configuration) nonce(e *echo.Echo) (string, error) {
 	const msg = "nonce cookie store"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	if c.Environment.ReadOnly {
 		return "", nil
@@ -79,7 +80,7 @@ func (c *Configuration) nonce(e *echo.Echo) (string, error) {
 func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 	const msg = "html routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	hrefs, names := *app.Hrefs(), *app.Names()
 	for key, href := range hrefs {
@@ -96,7 +97,7 @@ func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 // font serves the embedded woff2, woff, and ttf font files for the website layout.
 func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 	const msg = "font routes"
-	if err := htmlpanic(e, public); err != nil {
+	if err := panics.EchoHtml(e, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	paths, names := *app.FontRefs(), *app.FontNames()
@@ -111,7 +112,7 @@ func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 // This includes the favicon, robots.txt, osd.xml, and the SVG icons.
 func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	const msg = "embed routes"
-	if err := htmlpanic(e, public); err != nil {
+	if err := panics.EchoHtml(e, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
@@ -125,7 +126,7 @@ func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 func (c *Configuration) static(e *echo.Echo) *echo.Echo {
 	const msg = "static routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	e.Static(config.StaticThumb(), c.Environment.AbsThumbnail.String())
 	e.Static(config.StaticOriginal(), c.Environment.AbsPreview.String())
@@ -137,7 +138,7 @@ func (c *Configuration) static(e *echo.Echo) *echo.Echo {
 func (c *Configuration) custom404(e *echo.Echo) *echo.Echo {
 	const msg = "custom 404 error routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	e.GET("/:uri", func(cx echo.Context) error {
 		return app.StatusErr(cx, http.StatusNotFound, cx.Param("uri"))
@@ -149,7 +150,7 @@ func (c *Configuration) custom404(e *echo.Echo) *echo.Echo {
 func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	const msg = "debug info routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	if c.Environment.ProdMode {
 		return e
@@ -193,7 +194,7 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 // website routes for the main site.
 func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
 	const msg = "website routes"
-	if err := dbpanic(e, db, sl); err != nil {
+	if err := panics.EchoDbslog(e, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.GET("/health-check", func(c echo.Context) error {
@@ -325,7 +326,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 // search forms and the results for database queries.
 func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.Echo {
 	const msg = "search routes"
-	if err := dbpanic(e, db, sl); err != nil {
+	if err := panics.EchoDbslog(e, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	search := e.Group("/search")
@@ -354,12 +355,14 @@ func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.
 // signin for operators.
 func (c *Configuration) signin(e *echo.Echo, sl *slog.Logger, nonce string) *echo.Echo {
 	const msg = "signin routes"
-	if err := slpanic(e, sl); err != nil {
+	if err := panics.EchoSlog(e, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	signings := e.Group("")
 	signings.Use(c.ReadOnlyLock)
-	signings.GET("/signedout", app.SignedOut)
+	signings.GET("/signedout", func(cx echo.Context) error {
+		return app.SignedOut(cx, sl)
+	})
 	signings.GET("/signin", func(cx echo.Context) error {
 		return app.Signin(cx, c.Environment.GoogleClientID.String(), nonce)
 	})
@@ -380,7 +383,7 @@ func (c *Configuration) signin(e *echo.Echo, sl *slog.Logger, nonce string) *ech
 func MovedPermanently(e *echo.Echo) *echo.Echo {
 	const msg = "moved permanently routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	e = nginx(e)
 	e = fixes(e)
@@ -391,7 +394,7 @@ func MovedPermanently(e *echo.Echo) *echo.Echo {
 func nginx(e *echo.Echo) *echo.Echo {
 	const msg = "nginx redirects"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	nginx := e.Group("")
 	nginx.GET("/file/detail/:id", func(c echo.Context) error {
@@ -419,7 +422,7 @@ func nginx(e *echo.Echo) *echo.Echo {
 func fixes(e *echo.Echo) *echo.Echo {
 	const msg = "fixes routers"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	fixes := e.Group("/g")
 	const g = "/g/"

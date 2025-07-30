@@ -33,6 +33,7 @@ import (
 	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
@@ -715,14 +716,14 @@ func GoogleCallback(c echo.Context, sl *slog.Logger, clientID string, maxAge int
 		if errors.Is(err, http.ErrNoCookie) {
 			return c.Redirect(http.StatusForbidden, "/signin")
 		}
-		return BadRequestErr(c, name, err)
+		return BadRequestErr(c, sl, name, err)
 	}
 	token := cookie.Value
 
 	// Cross-Site Request Forgery post token
 	bodyToken := c.FormValue(csrf)
 	if token != bodyToken {
-		return BadRequestErr(c, name, ErrMisMatch)
+		return BadRequestErr(c, sl, name, ErrMisMatch)
 	}
 
 	// Create a new token verifier.
@@ -730,14 +731,14 @@ func GoogleCallback(c echo.Context, sl *slog.Logger, clientID string, maxAge int
 	ctx := context.Background()
 	validator, err := idtoken.NewValidator(ctx)
 	if err != nil {
-		return BadRequestErr(c, name, err)
+		return BadRequestErr(c, sl, name, err)
 	}
 
 	// Verify the ID token and using the client ID from the Google API.
 	credential := c.FormValue("credential")
 	playload, err := validator.Validate(ctx, credential, clientID)
 	if err != nil {
-		return BadRequestErr(c, name, err)
+		return BadRequestErr(c, sl, name, err)
 	}
 
 	// Verify the sub value against the list of allowed accounts.
@@ -758,7 +759,7 @@ func GoogleCallback(c echo.Context, sl *slog.Logger, clientID string, maxAge int
 	}
 
 	if err = sessionHandler(c, maxAge, playload.Claims); err != nil {
-		return BadRequestErr(c, name, err)
+		return BadRequestErr(c, sl, name, err)
 	}
 	return c.Redirect(http.StatusFound, "/")
 }
@@ -1278,6 +1279,10 @@ func Releaser404(c echo.Context, invalidID string) error {
 
 // Releasers is the handler for the list and preview of files credited to a releaser.
 func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public embed.FS) error {
+	const msg = "releasers context handler"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const name = "artifacts"
 	errs := fmt.Sprint("releasers page for, ", uri)
 	ctx := context.Background()
@@ -1285,9 +1290,8 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
-		if sl != nil {
-			sl.Error(errs, err)
-		}
+		sl.Error(msg, slog.String("database", "releasers lookup problem"),
+			slog.String("uri", uri), slog.Any("error", err))
 		return Releaser404(c, uri)
 	}
 	if len(fs) == 0 {
@@ -1315,9 +1319,8 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 	data = releaserLead(uri, data)
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		if sl != nil {
-			sl.Error(errs, err)
-		}
+		sl.Error(msg, slog.String("database", "releasers statistics problem"),
+			slog.String("uri", uri), slog.Any("error", err))
 		return Releaser404(c, uri)
 	}
 	data["stats"] = d
@@ -1523,12 +1526,12 @@ func SearchReleaser(c echo.Context) error {
 }
 
 // SignedOut is the handler to sign out and remove the current session.
-func SignedOut(c echo.Context) error {
+func SignedOut(c echo.Context, sl *slog.Logger) error {
 	const name = "signedout"
 	{ // get any existing session
 		sess, err := session.Get(sess.Name, c)
 		if err != nil {
-			return BadRequestErr(c, name, err)
+			return BadRequestErr(c, sl, name, err)
 		}
 		id, subExists := sess.Values["sub"]
 		if !subExists || id == "" {
