@@ -64,7 +64,6 @@ var (
 	ErrSQL    = errors.New("database connection problem or a SQL error")
 	ErrTag    = errors.New("no database query was for the tag")
 	ErrTmpl   = errors.New("cannot render the template")
-	ErrZap    = errors.New("zap logger is nil")
 )
 
 // Clauses for ordering file record queries.

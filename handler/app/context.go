@@ -560,9 +560,10 @@ func FTP(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Categories is the handler for the artifact categories page.
 func Categories(c echo.Context, db *sql.DB, sl *slog.Logger, stats bool) error {
 	const title, name = "Artifact categories", "categories"
-	if sl == nil {
-		return InternalErr(c, sl, "name", ErrZap)
-	}
+	// TODO: panics
+	// if sl == nil {
+	// 	return InternalErr(c, sl, "name", ErrZap)
+	// }
 	data := empty(c)
 	data["title"] = title
 	data["description"] = "A table of contents for the collection."

@@ -47,7 +47,6 @@ var (
 	ErrMatch  = errors.New("no match value is present")
 	ErrPath   = errors.New("path is not permitted")
 	ErrVers   = errors.New("version mismatch")
-	ErrZap    = errors.New("zap logger instance is nil")
 )
 
 // Dirs is a struct of the download, preview and thumbnail directories.

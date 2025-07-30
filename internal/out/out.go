@@ -39,13 +39,91 @@ type Logging slog.Logger
 // LevelError Level = 8
 
 const (
-	LevelTrace  = slog.Level(-3) // More verbose than DEBUG
-	LevelFatal  = slog.Level(12) // More severe than ERROR
-	FatalRed    = 196            // #ff0000
-	TracePurple = 206            // #ff5fff
+	LevelDebug   = slog.LevelDebug
+	LevelInfo    = slog.LevelInfo
+	LevelNotice  = slog.Level(2)
+	LevelWarning = slog.LevelWarn
+	LevelError   = slog.LevelError
+	LevelFatal   = slog.Level(12) // More severe than ERROR
+
+	FatalRed    = 196 // #ff0000
+	TracePurple = 206 // #ff5fff
 )
 
-// Devel is the default development mode logger that prints to the
+// options is a placeholder
+func options() tint.Options {
+	w := os.Stdout
+	return tint.Options{
+		AddSource:  true,
+		Level:      slog.LevelDebug,
+		TimeFormat: time.Kitchen,
+		NoColor:    !isatty.IsTerminal(w.Fd()),
+	}
+}
+
+func Startup() *slog.Logger {
+	opts := startup()
+	sl := slog.New(tint.NewHandler(
+		os.Stdout,
+		&opts,
+	))
+	return sl
+}
+
+func startup() tint.Options {
+	w := os.Stdout
+	return tint.Options{
+		AddSource:  false,
+		Level:      slog.LevelInfo,
+		TimeFormat: time.Kitchen,
+		NoColor:    !isatty.IsTerminal(w.Fd()),
+	}
+}
+
+// Discard all logger output.
+func Discard() *slog.Logger {
+	sl := slog.New(slog.DiscardHandler)
+	return sl
+}
+
+// Raw displays all logs to stdout but without timestamps.
+func Raw() *slog.Logger {
+	opts := raw()
+	sl := slog.New(slog.NewTextHandler(
+		os.Stdout,
+		&opts,
+	))
+	return sl
+}
+
+func raw() slog.HandlerOptions {
+	return slog.HandlerOptions{
+		AddSource: true,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			a = notime(groups, a)
+			return a
+		},
+	}
+}
+
+// notime removes the time key from the logs.
+func notime(groups []string, a slog.Attr) slog.Attr {
+	if a.Key == slog.TimeKey && len(groups) == 0 {
+		return slog.Attr{}
+	}
+	return a
+}
+
+func nosrcdir(a slog.Attr) slog.Attr {
+	// Remove the directory from the source's filename.
+	if a.Key == slog.SourceKey {
+		source := a.Value.Any().(*slog.Source)
+		source.File = filepath.Base(source.File)
+	}
+	return a
+}
+
+// Devel is the default development mode ogger that prints to the
 // termminal standard error (stdout). The date/time and source path
 // are included as are levels using colored three letter codes.
 func Devel() *slog.Logger {
@@ -71,7 +149,7 @@ func defaultAttr(groups []string, a slog.Attr) slog.Attr {
 	if a.Key == slog.SourceKey {
 		source := a.Value.Any().(*slog.Source)
 		switch level {
-		case LevelTrace:
+		case LevelDebug:
 			// skip
 		default:
 			source.File = filepath.Base(source.File)
@@ -165,23 +243,13 @@ func custom(a slog.Attr) slog.Attr {
 	if a.Key == slog.LevelKey {
 		level := a.Value.Any().(slog.Level)
 		switch level {
-		case LevelTrace:
-			a = tint.Attr(TracePurple, slog.String(a.Key, "TRACE"))
+		case LevelDebug:
+			a = tint.Attr(TracePurple, slog.String(a.Key, "DEBUG"))
 		case LevelFatal:
 			a = tint.Attr(FatalRed, slog.String(a.Key, "FATAL"))
 		}
 	}
 	return a
-}
-
-func options() tint.Options {
-	w := os.Stdout
-	return tint.Options{
-		AddSource:  true,
-		Level:      slog.LevelDebug,
-		TimeFormat: time.Kitchen,
-		NoColor:    !isatty.IsTerminal(w.Fd()),
-	}
 }
 
 // Fatal logs any issues and exits to the operating system.
@@ -191,7 +259,7 @@ func Fatal(l *slog.Logger, msg string, args ...slog.Attr) {
 }
 
 func Trace(l *slog.Logger, msg string, args ...slog.Attr) {
-	l.LogAttrs(context.Background(), LevelTrace, msg, args...)
+	l.LogAttrs(context.Background(), LevelDebug, msg, args...)
 }
 
 // 	logFile, err := os.OpenFile("application.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

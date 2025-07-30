@@ -20,7 +20,6 @@ var (
 	ErrDB   = errors.New("database connection is nil")
 	ErrEnv  = errors.New("environment variable probably contains an invalid value")
 	ErrSlog = errors.New("slog logger instance is nil")
-	ErrZap  = errors.New("zap logger instance is nil")
 )
 
 const (

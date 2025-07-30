@@ -57,7 +57,6 @@ var (
 	ErrType     = errors.New("value is the wrong type")
 	ErrUser     = errors.New("unknown user")
 	ErrVal      = errors.New("value is empty")
-	ErrZap      = errors.New("the zap logger cannot be nil")
 )
 
 func errVal(name string) template.HTML {

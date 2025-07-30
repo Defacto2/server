@@ -9,6 +9,7 @@ package handler
 import (
 	"crypto/sha512"
 	"fmt"
+	"io"
 	"log/slog"
 	"math"
 	"net/http"
@@ -18,7 +19,6 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
-	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -97,11 +97,8 @@ func configRTS() middleware.TrailingSlashConfig {
 	}
 }
 
-// TODO: remove or repurpose to use slog?
-// configZapLogger returns the RequestLogger middleware configuration
-// based on the application configuration. The logger is set to the CLI
-// logger for development mode and the Production logger for production mode.
-func (c *Configuration) configZapLogger() middleware.RequestLoggerConfig {
+// TODO: comment this
+func (c *Configuration) configSlog() middleware.RequestLoggerConfig {
 	noLogging := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
 		return nil
 	}
@@ -109,33 +106,38 @@ func (c *Configuration) configZapLogger() middleware.RequestLoggerConfig {
 		return middleware.RequestLoggerConfig{LogValuesFunc: noLogging}
 	}
 
-	logger := zaplog.Status().Sugar()
-	if c.Environment.ProdMode {
-		logPath := c.Environment.AbsLog
-		logger = zaplog.Store(zaplog.Text(), string(logPath)).Sugar()
-	}
-	defer func() {
-		_ = logger.Sync()
-	}()
+	// logger := zaplog.Status().Sugar()
+	// if c.Environment.ProdMode {
+	// 	logPath := c.Environment.AbsLog
+	// 	logger = zaplog.Store(zaplog.Text(), string(logPath)).Sugar()
+	// }
+	// defer func() {
+	// 	_ = logger.Sync()
+	// }()
 
 	logValues := func(_ echo.Context, v middleware.RequestLoggerValues) error {
 		// memory usage
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
-		rsize := uint64(math.Abs(float64(v.ResponseSize)))
-		alloc := humanize.Bytes(m.Alloc)
-		// cpu usage
-		numCPU := runtime.NumCPU()
-		numGoroutine := runtime.NumGoroutine()
+
+		{
+			rsize := uint64(math.Abs(float64(v.ResponseSize)))
+			alloc := humanize.Bytes(m.Alloc)
+			// cpu usage
+			numCPU := runtime.NumCPU()
+			numGoroutine := runtime.NumGoroutine()
+			_, _ = fmt.Fprintln(io.Discard, rsize, alloc, numCPU, numGoroutine) // placeholder
+		}
+
 		// log template
-		const template = "%d %s %s > %s [%s][%s][%s][CPU %d of %d] %s"
+		// const template = "%d %s %s > %s [%s][%s][%s][CPU %d of %d] %s"
 		if v.Status > http.StatusAlreadyReported {
-			logger.Warnf(template, v.Status, v.Method, v.URI,
-				v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
+			// logger.Warnf(template, v.Status, v.Method, v.URI,
+			// 	v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
 			return nil
 		}
-		logger.Infof(template, v.Status, v.Method, v.URIPath,
-			v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
+		// logger.Infof(template, v.Status, v.Method, v.URIPath,
+		// 	v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
 		return nil
 	}
 	return middleware.RequestLoggerConfig{
@@ -162,6 +164,71 @@ func (c *Configuration) configZapLogger() middleware.RequestLoggerConfig {
 	}
 }
 
+// TODO: remove or repurpose to use slog?
+// configZapLogger returns the RequestLogger middleware configuration
+// based on the application configuration. The logger is set to the CLI
+// logger for development mode and the Production logger for production mode.
+//
+//	func (c *Configuration) configZapLogger() middleware.RequestLoggerConfig {
+//		noLogging := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
+//			return nil
+//		}
+//		if logAllRequests := c.Environment.LogAll; !logAllRequests {
+//			return middleware.RequestLoggerConfig{LogValuesFunc: noLogging}
+//		}
+//
+//		logger := zaplog.Status().Sugar()
+//		if c.Environment.ProdMode {
+//			logPath := c.Environment.AbsLog
+//			logger = zaplog.Store(zaplog.Text(), string(logPath)).Sugar()
+//		}
+//		defer func() {
+//			_ = logger.Sync()
+//		}()
+//
+//		logValues := func(_ echo.Context, v middleware.RequestLoggerValues) error {
+//			// memory usage
+//			var m runtime.MemStats
+//			runtime.ReadMemStats(&m)
+//			rsize := uint64(math.Abs(float64(v.ResponseSize)))
+//			alloc := humanize.Bytes(m.Alloc)
+//			// cpu usage
+//			numCPU := runtime.NumCPU()
+//			numGoroutine := runtime.NumGoroutine()
+//			// log template
+//			const template = "%d %s %s > %s [%s][%s][%s][CPU %d of %d] %s"
+//			if v.Status > http.StatusAlreadyReported {
+//				logger.Warnf(template, v.Status, v.Method, v.URI,
+//					v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
+//				return nil
+//			}
+//			logger.Infof(template, v.Status, v.Method, v.URIPath,
+//				v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
+//			return nil
+//		}
+//		return middleware.RequestLoggerConfig{
+//			Skipper:          skipPaths,
+//			LogLatency:       true,
+//			LogProtocol:      false,
+//			LogRemoteIP:      false,
+//			LogHost:          false,
+//			LogMethod:        true,
+//			LogURI:           true,
+//			LogURIPath:       true,
+//			LogRoutePath:     true,
+//			LogRequestID:     false,
+//			LogReferer:       false,
+//			LogUserAgent:     true,
+//			LogStatus:        true,
+//			LogError:         false,
+//			LogContentLength: false,
+//			LogResponseSize:  true,
+//			LogHeaders:       nil,
+//			LogQueryParams:   nil,
+//			LogFormValues:    nil,
+//			LogValuesFunc:    logValues,
+//		}
+//	}
 func skipPaths(e echo.Context) bool {
 	if redirect := e.Response().Status == http.StatusMovedPermanently; redirect {
 		return true

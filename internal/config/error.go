@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/handler/html3"
-	"github.com/Defacto2/server/internal/zaplog"
+	"github.com/Defacto2/server/internal/out"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/labstack/echo/v4"
 )
@@ -51,26 +51,27 @@ func argspanic(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 
 // TODO: drop zaplog
 
-// CustomErrorHandler handles customer error templates.
-func (c *Config) CustomErrorHandler(err error, ctx echo.Context) {
+func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger) {
+	const msg = "custom error handler"
 	if ctx == nil {
 		panic(ErrNoEcho)
 	}
-	logger := zaplog.Debug().Sugar()
+	// TODO: debug mode
+	// logger := zaplog.Debug().Sugar()
 	if c.ProdMode {
-		root := string(c.AbsLog)
-		logger = zaplog.Store(zaplog.Text(), root).Sugar()
+		// TODO: store log mode
+		// root := string(c.AbsLog)
+		// logger = zaplog.Store(zaplog.Text(), root).Sugar()
 	}
-	defer func() {
-		_ = logger.Sync()
-	}()
+	// defer func() {
+	// 	_ = logger.Sync()
+	// }()
 	if IsHTML3(ctx.Path()) {
 		if err := html3.Error(ctx, err); err != nil {
-			logger.DPanic("Custom HTML3 response handler broke: %s", err)
+			out.Fatal(sl, msg, slog.Any("html3 error", err))
 		}
 		return
 	}
-
 	statusCode := http.StatusInternalServerError
 	var httpError *echo.HTTPError
 	if errors.As(err, &httpError) {
@@ -81,14 +82,53 @@ func (c *Config) CustomErrorHandler(err error, ctx echo.Context) {
 		// fallback to a string error if templates break
 		code, s, err1 := StringErr(err)
 		if err1 != nil {
-			logger.DPanic("Custom response handler broke: %s", err1)
+			out.Fatal(sl, msg, slog.Any("custom response error", err))
 		}
 		if err2 := ctx.String(code, s); err2 != nil {
-			logger.DPanic("Custom response handler broke: %s", err2)
+			out.Fatal(sl, msg, slog.Any("custom response error", err))
 		}
 	}
 }
 
+// CustomErrorHandler handles customer error templates.
+//
+//	func (c *Config) CustomErrorHandler(err error, ctx echo.Context) {
+//		if ctx == nil {
+//			panic(ErrNoEcho)
+//		}
+//		logger := zaplog.Debug().Sugar()
+//		if c.ProdMode {
+//			root := string(c.AbsLog)
+//			logger = zaplog.Store(zaplog.Text(), root).Sugar()
+//		}
+//		defer func() {
+//			_ = logger.Sync()
+//		}()
+//		if IsHTML3(ctx.Path()) {
+//			if err := html3.Error(ctx, err); err != nil {
+//				logger.DPanic("Custom HTML3 response handler broke: %s", err)
+//			}
+//			return
+//		}
+//
+//		statusCode := http.StatusInternalServerError
+//		var httpError *echo.HTTPError
+//		if errors.As(err, &httpError) {
+//			statusCode = httpError.Code
+//		}
+//		errorPage := fmt.Sprintf("%d.html", statusCode)
+//		if err := ctx.File(errorPage); err != nil {
+//			// fallback to a string error if templates break
+//			code, s, err1 := StringErr(err)
+//			if err1 != nil {
+//				logger.DPanic("Custom response handler broke: %s", err1)
+//			}
+//			if err2 := ctx.String(code, s); err2 != nil {
+//				logger.DPanic("Custom response handler broke: %s", err2)
+//			}
+//		}
+//	}
+//
 // StringErr sends the error and code as a string.
 func StringErr(err error) (int, string, error) {
 	if err == nil {
