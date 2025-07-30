@@ -125,7 +125,7 @@ func TestGetDemozoo(t *testing.T) {
 
 func TestGoogleCallback(t *testing.T) {
 	t.Parallel()
-	x := app.GoogleCallback(newContext(), "", -1, [48]byte{})
+	x := app.GoogleCallback(newContext(), nil, "", -1, [48]byte{})
 	be.Err(t, x)
 }
 

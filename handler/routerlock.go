@@ -3,13 +3,13 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"math"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 // Package file routerlock.go contains the custom router URIs for the website
@@ -24,7 +24,7 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
-func (c *Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs) *echo.Echo {
+func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%w for lock router", ErrRoutes))
 	}
@@ -33,10 +33,10 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger
 	c.configurations(lock, db)
 	creator(lock, db)
 	date(lock, db)
-	editor(lock, db, logger, dirs)
+	editor(lock, db, sl, dirs)
 	get(lock, db, dirs)
 	online(lock, db)
-	search(lock, db, logger)
+	search(lock, db, sl)
 	return e
 }
 
@@ -100,18 +100,18 @@ func date(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs) {
+func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for editor router", ErrRoutes))
 	}
 	g.DELETE("/delete/forever/:key", func(c echo.Context) error {
-		return htmx.DeleteForever(c, db, logger, c.Param("key"))
+		return htmx.DeleteForever(c, db, sl, c.Param("key"))
 	})
 	g.PATCH("/16colors", func(c echo.Context) error {
 		return htmx.Record16Colors(c, db)
 	})
 	g.PATCH("/classifications", func(c echo.Context) error {
-		return htmx.RecordClassification(c, db, logger)
+		return htmx.RecordClassification(c, db, sl)
 	})
 	g.PATCH("/comment", func(c echo.Context) error {
 		return htmx.RecordComment(c, db)
@@ -233,18 +233,18 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 	})
 	// /editor/readme/preview
 	readme.PATCH("/preview/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, logger, false, paths)
+		return htmx.RecordReadmeImager(c, sl, false, paths)
 	})
 	// /editor/readme/preview-amiga
 	readme.PATCH("/preview-amiga/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, logger, true, paths)
+		return htmx.RecordReadmeImager(c, sl, true, paths)
 	})
 	readme.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dirs.Extra)
 	})
 	pre := g.Group("/preview")
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, logger, paths)
+		return htmx.RecordImageCopier(c, sl, paths)
 	})
 	pre.PATCH("/crop11/:unid", func(c echo.Context) error {
 		return htmx.RecordImageCropper(c, command.SqaureTop, paths)
@@ -261,7 +261,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 
 	thumb := g.Group("/thumbnail")
 	thumb.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, logger, paths)
+		return htmx.RecordImageCopier(c, sl, paths)
 	})
 	thumb.PATCH("/top/:unid", func(c echo.Context) error {
 		return htmx.RecordThumbAlignment(c, command.Top, paths)
@@ -335,13 +335,13 @@ func online(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func search(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger) {
+func search(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 	if g == nil {
 		panic(fmt.Errorf("%w for search router", ErrRoutes))
 	}
 	search := g.Group("/search")
 	search.GET("/id", app.SearchID)
 	search.POST("/id", func(cx echo.Context) error {
-		return htmx.SearchByID(cx, db, logger)
+		return htmx.SearchByID(cx, db, sl)
 	})
 }

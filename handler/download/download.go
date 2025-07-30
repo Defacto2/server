@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -18,13 +19,14 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 var (
 	ErrNone = errors.New("not found")
 	ErrStat = errors.New("file download stored on this server cannot be found")
 )
+
+const msg = "download"
 
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
@@ -72,7 +74,7 @@ type Download struct {
 
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
+func (d Download) HTTPSend(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	key := c.Param("id")
 	ctx := context.Background()
 	art, err := model.OneFileByKey(ctx, db, key)
@@ -89,16 +91,19 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, logger *zap.SugaredLogger
 	uid := strings.TrimSpace(art.UUID.String)
 	file := d.Dir.Join(uid)
 	if !helper.Stat(file) {
-		if logger != nil {
-			logger.Warnf("The hosted file download %q, for record %d does not exist.\n"+
-				"Absolute path: %q", art.Filename.String, art.ID, file)
-		}
+		sl.Warn(msg,
+			slog.String("issue", "http send could not find the file download"),
+			slog.String("path", file),
+			slog.Int64("id", art.ID),
+			slog.String("filename", art.Filename.String))
 		return fmt.Errorf("http send, %w: %s", ErrStat, name)
 	}
 	if name == "" {
-		if logger != nil {
-			logger.Warnf("No filename exists for the record %d.", art.ID)
-		}
+		sl.Warn(msg,
+			slog.String("issue", "http send does not have a filename for the record"),
+			slog.String("path", file),
+			slog.Int64("id", art.ID),
+			slog.String("filename", art.Filename.String))
 		name = file
 	}
 	if d.Inline {

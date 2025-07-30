@@ -29,7 +29,7 @@ func newContext() echo.Context {
 func TestDemozooLookup(t *testing.T) {
 	t.Parallel()
 	c := newContext()
-	err := htmx.DemozooLookup(c, false, nil)
+	err := htmx.DemozooLookup(c, nil, false)
 	be.Err(t, err, nil)
 }
 

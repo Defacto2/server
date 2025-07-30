@@ -6,13 +6,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"slices"
 	"strings"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries"
@@ -22,8 +22,15 @@ import (
 var (
 	ErrCtxLog = errors.New("context logger is invalid")
 	ErrDB     = errors.New("database connection is nil")
+
 	ErrLog    = errors.New("the server cannot save any logs")
 	ErrRepair = errors.New("invalid repair option")
+
+	ErrNoCtx  = errors.New("no context interface")
+	ErrNoDB   = errors.New("the database db pointer is nil")
+	ErrNoBoil = errors.New("the boilier context executor is nil")
+	ErrNoSlog = errors.New("the slog logger instance is nil")
+	ErrNoTx   = errors.New("the transaction tx pointer is nil")
 )
 
 // Repair a column or type of data within the database.
@@ -53,30 +60,76 @@ func (r Repair) String() string {
 
 const (
 	UpdateSet = "UPDATE files SET "
+	msg       = "database repair"
 )
 
 // In the future we may want to add a Debug or TestRun func.
 
+func argspanic(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) error {
+	if ctx == nil {
+		return ErrNoCtx
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	if tx == nil {
+		return ErrNoTx
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
+
+func argpanic(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+	if ctx == nil {
+		return ErrNoCtx
+	}
+	if exec == nil {
+		return ErrNoBoil
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
+
+func argtxpanic(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
+	if ctx == nil {
+		return ErrNoCtx
+	}
+	if tx == nil {
+		return ErrNoTx
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
+
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
-	logger := zaplog.Logger(ctx)
-	logger.Infof("Check for records with invalid UUID values")
-	logger.Infoln("Run a cleanup of the database", r)
+func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) error {
+	if err := argspanic(ctx, db, tx, sl); err != nil {
+		return fmt.Errorf("cannot run database repair: %w", err)
+	}
+	sl.Info(msg,
+		slog.String("startup", "check for records with invalid uuid values"),
+		slog.String("task", "run a cleanup of the database"))
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)
 	}
 	if r == None {
 		return nil
 	}
-	if err := invalidUUIDs(ctx, db); err != nil {
+	if err := invalidUUIDs(ctx, db, sl); err != nil {
 		return fmt.Errorf("invalid UUIDs: %w", err)
 	}
-	if err := coldfusionIDs(ctx, db); err != nil {
+	if err := coldfusionIDs(ctx, db, sl); err != nil {
 		return fmt.Errorf("coldfusion IDs: %w", err)
 	}
 	switch r {
 	case Artifacts:
-		logger.Infoln("Clean the artifacts whitespace and null values")
+		sl.Info(msg, slog.String("task", "clean the artifacts whitespace and null values"))
 		if err := contentWhiteSpace(tx); err != nil {
 			return fmt.Errorf("content white space: %w", err)
 		}
@@ -89,7 +142,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 		if err := trimFwdSlash(tx); err != nil {
 			return fmt.Errorf("trim forward slash: %w", err)
 		}
-		if err := trainers(ctx, tx); err != nil {
+		if err := trainers(ctx, tx, sl); err != nil {
 			return fmt.Errorf("trainers: %w", err)
 		}
 		if err := tx.Commit(); err != nil {
@@ -97,7 +150,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 		}
 		fallthrough
 	case Releaser:
-		if err := releasers(ctx, db); err != nil {
+		if err := releasers(ctx, db, sl); err != nil {
 			return fmt.Errorf("releasers: %w", err)
 		}
 	}
@@ -114,15 +167,16 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx) error {
 //
 // This will only work with the correct database account permissions.
 func SyncFilesIDSeq(db *sql.DB) error {
+	const msg = "fix synchronize id sequence"
 	if db == nil {
-		return fmt.Errorf("fix sync ID: %w", ErrDB)
+		return fmt.Errorf("%s: %w", msg, ErrNoDB)
 	}
 	query := `SELECT MAX(id) FROM files;` +
 		`SELECT nextVal('"files_id_seq"');` +
 		`SELECT setval('"files_id_seq"', (SELECT MAX(id) FROM files)+1);`
 	_, err := queries.Raw(query).Exec(db)
 	if err != nil {
-		return fmt.Errorf("execute setval: %w", err)
+		return fmt.Errorf("%s execute: %w", msg, err)
 	}
 	return nil
 }
@@ -137,20 +191,25 @@ func SyncFilesIDSeq(db *sql.DB) error {
 // A blank CFID is "00000000-0000-0000-0000000000000000".
 //
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
-func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
-	logger := zaplog.Logger(ctx)
-	logger.Infoln("Check for invalid UUIDs using the ColdFusion syntax")
+func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+	m := "coldfusion id fixes"
+	if err := argpanic(ctx, exec, sl); err != nil {
+		return fmt.Errorf("%s: %w", m, err)
+	}
+	sl.Info(msg, slog.String("task", "check for invalid UUIDs using the ColdFusion syntax"))
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
 	fs, err := models.Files(mods).All(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("models.Files: %w", err)
+		return fmt.Errorf("%s models files: %w", m, err)
 	}
 	i := len(fs)
 	if i == 0 {
 		return nil
 	}
-	logger.Infoln(i, "invalid UUIDs found using the ColdFusion syntax")
-	for i, f := range fs {
+	sl.Info(msg,
+		slog.String("task", "found records using the retired ColdFusion UUID syntax"),
+		slog.Int("finds", i))
+	for _, f := range fs {
 		if !f.UUID.Valid {
 			continue
 		}
@@ -158,28 +217,34 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor) error {
 		old := strings.TrimSpace(f.UUID.String)
 		newid, err := helper.CfUUID(old)
 		if err != nil {
-			logger.Warnf("%d. %q is invalid, %s", i, newid, err)
+			sl.Warn(msg, slog.String("invalid id syntax", old), slog.Any("error", err))
 			continue
 		}
 		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, exec)
 		if err != nil {
-			logger.Warnf("%d. %q failed to find, %s", i, old, err)
+			sl.Warn(msg, slog.String("database", "failed to find a record using the uuid"),
+				slog.String("uuid", old), slog.Any("error", err))
 			continue
 		}
 		file.UUID = null.StringFrom(newid)
 		_, err = file.Update(ctx, exec, boil.Infer())
 		if err != nil {
-			logger.Warnf("%d. %q failed to update, %s", i, old, err)
+			sl.Warn(msg, "database update", "could not update the record",
+				slog.String("uuid", old), slog.Any("error", err))
 			continue
 		}
 	}
 	return nil
 }
 
-func trainers(ctx context.Context, tx *sql.Tx) error {
-	logger := zaplog.Logger(ctx)
+func trainers(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
+	const m = "trainers not using gamehack fix"
+	if err := argtxpanic(ctx, tx, sl); err != nil {
+		return fmt.Errorf("%s: %w", m, err)
+	}
 	const trainer = "gamehack"
-	logger.Infof("Check for trainers that are not categorized as %q", trainer)
+	sl.Info(msg,
+		slog.String("task", "check trainers that are not correctly categorized"))
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("id"))
 	mods = append(mods, qm.Where(fmt.Sprintf("section != '%s'", trainer)))
@@ -188,7 +253,7 @@ func trainers(ctx context.Context, tx *sql.Tx) error {
 	mods = append(mods, qm.Where("platform = 'dos' OR platform = 'windows'"))
 	fs, err := models.Files(mods...).All(ctx, tx)
 	if err != nil {
-		return fmt.Errorf("models.Files: %w", err)
+		return fmt.Errorf("%s models files select: %w", m, err)
 	}
 	l := len(fs)
 	if l == 0 {
@@ -206,9 +271,9 @@ func trainers(ctx context.Context, tx *sql.Tx) error {
 	}
 	rowsAff, err := models.Files(mods...).UpdateAll(ctx, tx, models.M{"section": trainer})
 	if err != nil {
-		return fmt.Errorf("models.Files: %w", err)
+		return fmt.Errorf("%s models files update all: %w", m, err)
 	}
-	logger.Infof("Updated %d trainers", rowsAff)
+	sl.Info(msg, slog.Int64("records fixed", rowsAff))
 	return nil
 }
 
@@ -260,9 +325,13 @@ func fixes() map[string]string {
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
-func releasers(ctx context.Context, exec boil.ContextExecutor) error {
-	logger := zaplog.Logger(ctx)
-	logger.Infoln("Cleaning up the releasers group_brand_by and group_brand_for")
+func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+	const m = "releaser database fixer"
+	if err := argpanic(ctx, exec, sl); err != nil {
+		return fmt.Errorf("%s: %w", m, err)
+	}
+	sl.Info(msg,
+		slog.String("task", "clean up the releasers such as group_brand_by and .._for"))
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
 		qm.WithDeleted()).All(ctx, exec)
@@ -276,7 +345,9 @@ func releasers(ctx context.Context, exec boil.ContextExecutor) error {
 			return fmt.Errorf("update all to null group_brand_by: %w", err)
 		}
 		if rowsAff > 0 {
-			logger.Infof("Updated %d group_brand_by to NULL", rowsAff)
+			sl.Info(msg,
+				slog.String("task", "update group_brand_by to null"),
+				slog.Int64("updated", rowsAff))
 		}
 	}
 	for bad, fix := range fixes() {
@@ -294,7 +365,9 @@ func releasers(ctx context.Context, exec boil.ContextExecutor) error {
 				return fmt.Errorf("update all group_brand_for fix: %w", err)
 			}
 			if rowsAff > 0 {
-				logger.Infof("Updated %d groups for to %q", rowsAff, fix)
+				sl.Info(msg,
+					slog.String("task", "update group_brand_for fixes"),
+					slog.Int64("updated", rowsAff))
 			}
 		}
 		f, err = models.Files(
@@ -309,11 +382,16 @@ func releasers(ctx context.Context, exec boil.ContextExecutor) error {
 				return fmt.Errorf("update all to null group_brand_by fix: %w", err)
 			}
 			if rowsAff > 0 {
-				logger.Infof("Updated %d groups by to %q", rowsAff, fix)
+				sl.Info(msg,
+					slog.String("task", "update group_brand_by fixes"),
+					slog.Int64("updated", rowsAff))
 			}
 		}
 	}
-	return moreReleases(exec)
+	if err := moreReleases(exec); err != nil {
+		return fmt.Errorf("%s: %w", m, err)
+	}
+	return nil
 }
 
 func moreReleases(exec boil.ContextExecutor) error {
@@ -422,8 +500,11 @@ func optimize(db *sql.DB) error {
 
 // invalidUUIDs will count the number of invalid UUIDs in the database.
 // This should be part of a future function to repair the UUIDs and rename the file assets.
-func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor) error {
-	logger := zaplog.Logger(ctx)
+func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+	const m = "invalid uuid"
+	if err := argpanic(ctx, exec, sl); err != nil {
+		return fmt.Errorf("%s: %w", m, err)
+	}
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
 	i, err := models.Files(mods).Count(ctx, exec)
@@ -433,7 +514,9 @@ func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor) error {
 	if i == 0 {
 		return nil
 	}
-	logger.Warnf("%d invalid UUIDs found", i)
+	sl.Warn(msg,
+		slog.String("task", "invalid uuids found"),
+		slog.Int64("finds", i))
 	return nil
 }
 

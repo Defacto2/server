@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -25,7 +26,6 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 var (
@@ -154,7 +154,7 @@ func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) er
 }
 
 // RecordImageCopier handles the htmx request to use an image file artifact as a preview.
-func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Dirs) error {
+func RecordImageCopier(c echo.Context, debug *slog.Logger, dirs command.Dirs) error {
 	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -181,7 +181,7 @@ func RecordImageCopier(c echo.Context, debug *zap.SugaredLogger, dirs command.Di
 }
 
 // RecordReadmeImager handles the htmx request to use the text file artifact as a preview.
-func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont bool, dirs command.Dirs) error {
+func RecordReadmeImager(c echo.Context, debug *slog.Logger, amigaFont bool, dirs command.Dirs) error {
 	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -199,7 +199,7 @@ func RecordReadmeImager(c echo.Context, logger *zap.SugaredLogger, amigaFont boo
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not used.")
 	}
-	if err := dirs.TextImager(logger, src, unid, amigaFont); err != nil {
+	if err := dirs.TextImager(debug, src, unid, amigaFont); err != nil {
 		return badRequest(c, err)
 	}
 	c = pageRefresh(c)
@@ -401,14 +401,14 @@ func RecordToggleByID(c echo.Context, db *sql.DB, key string, state bool) error 
 // RecordClassification handles the post submission for the file artifact classifications,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func RecordClassification(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
+func RecordClassification(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	section := c.FormValue("artifact-editor-categories")
 	platform := c.FormValue("artifact-editor-operatingsystem")
 	key := c.FormValue(editorKey)
 	if invalid := section == "" || platform == ""; invalid {
 		html, err := form.HumanizeCount(db, section, platform)
 		if err != nil {
-			logger.Error(err)
+			sl.Error("record classification", slog.Any("error", err))
 			return badRequest(c, err)
 		}
 		return c.HTML(http.StatusOK, string(html)+" did not update")
@@ -422,7 +422,7 @@ func RecordClassification(c echo.Context, db *sql.DB, logger *zap.SugaredLogger)
 	}
 	html, err := form.HumanizeCount(db, section, platform)
 	if err != nil {
-		logger.Error(err)
+		sl.Error("record classification", slog.Any("error", err))
 		return badRequest(c, err)
 	}
 	return c.HTML(http.StatusOK, string(html))

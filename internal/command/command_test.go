@@ -1,6 +1,7 @@
 package command_test
 
 import (
+	"log/slog"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -10,11 +11,10 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
-	"go.uber.org/zap"
 )
 
-func logr() *zap.SugaredLogger {
-	return zap.NewExample().Sugar()
+func logr() *slog.Logger {
+	return slog.Default() // TODO: text and change this?
 }
 
 func testdata(name string) string {
@@ -46,7 +46,7 @@ func TestCopyFile(t *testing.T) {
 		err := os.Remove(tmp.Name())
 		be.Err(t, err, nil)
 	}()
-	logr := zap.NewExample().Sugar()
+	logr := logr()
 	err = command.CopyFile(logr, "", "")
 	be.Err(t, err)
 
@@ -137,7 +137,7 @@ func TestRun(t *testing.T) {
 	err := command.Run(nil, "", "")
 	be.Err(t, err)
 	be.True(t, strings.Contains(err.Error(), "executable file not found in $PATH"))
-	logr := zap.NewExample().Sugar()
+	logr := logr()
 	err = command.Run(logr, "", "")
 	be.Err(t, err)
 

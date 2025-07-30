@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"log/slog"
 	"math"
 	"net/http"
 	"slices"
@@ -41,7 +42,6 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 	"google.golang.org/api/idtoken"
 )
 
@@ -504,7 +504,7 @@ func DownloadJsDos(c echo.Context, db *sql.DB, extra, downl dir.Directory) error
 }
 
 // Download is the handler for the Download file record page.
-func Download(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downl dir.Directory) error {
+func Download(c echo.Context, db *sql.DB, sl *slog.Logger, downl dir.Directory) error {
 	d := download.Download{
 		Inline: false,
 		Dir:    downl,
@@ -514,7 +514,7 @@ func Download(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downl dir.D
 		r := c.Response()
 		r.Header().Set("Link", fmt.Sprintf(`<https://defacto2.net/%s/%s; rel="canonical">`, uri, id))
 	}
-	if err := d.HTTPSend(c, db, logger); err != nil {
+	if err := d.HTTPSend(c, db, sl); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, uri, err)
 		}
@@ -557,9 +557,9 @@ func FTP(c echo.Context, db *sql.DB) error {
 }
 
 // Categories is the handler for the artifact categories page.
-func Categories(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, stats bool) error {
+func Categories(c echo.Context, db *sql.DB, sl *slog.Logger, stats bool) error {
 	const title, name = "Artifact categories", "categories"
-	if logger == nil {
+	if sl == nil {
 		return InternalErr(c, "name", ErrZap)
 	}
 	data := empty(c)
@@ -572,7 +572,7 @@ func Categories(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, stats boo
 	data["counter"] = fileslice.Statistics()
 	data, err := fileWStats(db, data, stats)
 	if err != nil {
-		logger.Warn(err)
+		sl.Warn("context categories", slog.Any("error", err))
 		data["databaseErr"] = true
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -705,7 +705,7 @@ func GetPouet(c echo.Context, db *sql.DB, pouetID int, defacto2UNID string, down
 // the [Google ID token].
 //
 // [Google ID token]: https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
-func GoogleCallback(c echo.Context, clientID string, maxAge int, accounts ...[48]byte) error {
+func GoogleCallback(c echo.Context, sl *slog.Logger, clientID string, maxAge int, accounts ...[48]byte) error {
 	const name = "google/callback"
 
 	// Cross-Site Request Forgery cookie token
@@ -847,13 +847,13 @@ func Index(c echo.Context) error {
 }
 
 // Inline is the handler for the Download file record page.
-func Inline(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, downl dir.Directory) error {
+func Inline(c echo.Context, db *sql.DB, sl *slog.Logger, downl dir.Directory) error {
 	d := download.Download{
 		Inline: true,
 		Dir:    downl,
 	}
 	const uri = "v"
-	if err := d.HTTPSend(c, db, logger); err != nil {
+	if err := d.HTTPSend(c, db, sl); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, uri, err)
 		}
@@ -1277,7 +1277,7 @@ func Releaser404(c echo.Context, invalidID string) error {
 }
 
 // Releasers is the handler for the list and preview of files credited to a releaser.
-func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string, public embed.FS) error {
+func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public embed.FS) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("releasers page for, ", uri)
 	ctx := context.Background()
@@ -1285,8 +1285,8 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
-		if logger != nil {
-			logger.Error(errs, err)
+		if sl != nil {
+			sl.Error(errs, err)
 		}
 		return Releaser404(c, uri)
 	}
@@ -1315,8 +1315,8 @@ func Releasers(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, uri string
 	data = releaserLead(uri, data)
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		if logger != nil {
-			logger.Error(errs, err)
+		if sl != nil {
+			sl.Error(errs, err)
 		}
 		return Releaser404(c, uri)
 	}
@@ -1693,7 +1693,7 @@ func TheScene(c echo.Context) error {
 }
 
 // VotePouet is the handler for the Pouet production votes JSON page.
-func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
+func VotePouet(c echo.Context, sl *slog.Logger, id string) error {
 	const title, name, sep = "Pouet", "pouet", ";"
 	pv := pouet.Votes{}
 	i, err := strconv.Atoi(id)
@@ -1703,14 +1703,14 @@ func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 	cp := cache.PouetVote
 	if s, err := cp.Read(id); err == nil {
 		if err := PouetCache(c, s); err == nil {
-			if logger != nil {
-				logger.Debugf("cache hit for pouet id %s", id)
+			if sl != nil {
+				sl.Debug("vote pouet", slog.String("cache hit id", id))
 			}
 			return nil
 		}
 	}
-	if logger != nil {
-		logger.Debugf("cache miss for pouet id %s", id)
+	if sl != nil {
+		sl.Debug("vote pouet", slog.String("cache miss for pouet id", id))
 	}
 	if err = pv.Votes(i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -1721,8 +1721,10 @@ func VotePouet(c echo.Context, logger *zap.SugaredLogger, id string) error {
 	val := fmt.Sprintf("%.1f%s%d%s%d%s%d",
 		pv.Stars, sep, pv.VotesDown, sep, pv.VotesUp, sep, pv.VotesMeh)
 	if err := cp.Write(id, val, cache.ExpiredAt); err != nil {
-		if logger != nil {
-			logger.Errorf("failed to write pouet id %s to cache db: %s", id, err)
+		if sl != nil {
+			sl.Error("vote pouet",
+				slog.String("failed", "could not write to the cache database"),
+				slog.String("id", id), slog.Any("error", err))
 		}
 	}
 	return nil

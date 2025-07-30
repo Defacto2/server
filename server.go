@@ -65,10 +65,10 @@ func main() {
 	if configs.Quiet {
 		w = io.Discard
 	}
-	logging := out.Printout(w)
-	configs.Print(logging)
+	sl := out.Printout(w)
+	configs.Print(sl)
 	// WARN: REPLACE
-	_ = environmentVarS(logging)
+	_ = environmentVarS(sl)
 
 	// connect to the database and perform some repairs and sanity checks.
 	// if the database is cannot connect, the web server will continue.
@@ -89,7 +89,7 @@ func main() {
 	ctx := context.Background()
 	website := newInstance(ctx, db, *configs)
 	logger = serverLog(*configs, website.RecordCount)
-	router := website.Controller(db, logger)
+	router := website.Controller(db, logger, sl)
 	website.Info(logger, w)
 	if err := website.Start(router, logger, *configs); err != nil {
 		logger.Fatalf("%s: please check the environment variables", err)

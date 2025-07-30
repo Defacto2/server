@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
@@ -17,7 +18,6 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/dir"
-	"go.uber.org/zap"
 )
 
 const (
@@ -270,7 +270,7 @@ func (crop Crop) Images(unid string, preview dir.Directory) error {
 // The image formats created depend on the type of image file. But thumbnails will always
 // either be args .webp or .png image. While the preview image will be legacy
 // .png, .jpeg images or modern .avif or .webp images or args combination of both.
-func (dir Dirs) PictureImager(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) PictureImager(debug *slog.Logger, src, unid string) error {
 	r, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("picture imager %w", err)
@@ -415,14 +415,14 @@ func textCropperErr(src string, err error) error {
 // TextImager converts the src text file and creates args PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // If the amigaFont is true, the image is created using an Amiga Topaz+ font.
-func (dir Dirs) TextImager(debug *zap.SugaredLogger, src, unid string, amigaFont bool) error {
+func (dir Dirs) TextImager(debug *slog.Logger, src, unid string, amigaFont bool) error {
 	if amigaFont {
 		return dir.textAmigaImager(debug, src, unid)
 	}
 	return dir.textDOSImager(debug, src, unid)
 }
 
-func (dir Dirs) textDOSImager(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) textDOSImager(debug *slog.Logger, src, unid string) error {
 	src = filepath.Clean(src)
 	args := Args{}
 	args.AnsiMsDos()
@@ -445,7 +445,7 @@ func (dir Dirs) textDOSImager(debug *zap.SugaredLogger, src, unid string) error 
 	return dir.textImagers(debug, unid, tmp)
 }
 
-func (dir Dirs) textAmigaImager(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) textAmigaImager(debug *slog.Logger, src, unid string) error {
 	args := Args{}
 	args.AnsiAmiga()
 	srcPath, err := textCropper(src, unid)
@@ -462,7 +462,7 @@ func (dir Dirs) textAmigaImager(debug *zap.SugaredLogger, src, unid string) erro
 	return dir.textImagers(debug, unid, tmp)
 }
 
-func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
+func (dir Dirs) textImagers(debug *slog.Logger, unid, tmp string) error {
 	_ = ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path())
 	var wg sync.WaitGroup
 	var mu sync.Mutex
@@ -519,7 +519,7 @@ func (dir Dirs) textImagers(debug *zap.SugaredLogger, unid, tmp string) error {
 // The lossless conversion is done using the ImageMagick [convert] command.
 //
 // [convert]: https://imagemagick.org/script/convert.php
-func (dir Dirs) PreviewPixels(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) PreviewPixels(debug *slog.Logger, src, unid string) error {
 	args := Args{}
 	args.PortablePixel()
 	arg := []string{src}                                          // source file
@@ -554,7 +554,7 @@ func (dir Dirs) PreviewPixels(debug *zap.SugaredLogger, src, unid string) error 
 // The lossy conversion is done using the ImageMagick [convert] command.
 //
 // [convert]: https://imagemagick.org/script/convert.php
-func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) PreviewPhoto(debug *slog.Logger, src, unid string) error {
 	jargs := Args{}
 	jargs.JpegPhoto()
 	arg := []string{src}                                         // source file
@@ -614,7 +614,7 @@ func (dir Dirs) PreviewPhoto(debug *zap.SugaredLogger, src, unid string) error {
 
 // PreviewGIF converts the src GIF image to args webp image the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) PreviewGIF(debug *slog.Logger, src, unid string) error {
 	args := Args{}
 	args.GWebp()
 	arg := []string{src}            // source file
@@ -653,7 +653,7 @@ func (dir Dirs) PreviewGIF(debug *zap.SugaredLogger, src, unid string) error {
 
 // PreviewPNG copies and optimizes the src PNG image to the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) PreviewPNG(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) PreviewPNG(debug *slog.Logger, src, unid string) error {
 	dst := filepath.Join(dir.Preview.Path(), unid+png)
 	if err := CopyFile(debug, src, dst); err != nil {
 		return fmt.Errorf("preview png copy file %w", err)
@@ -689,7 +689,7 @@ func (dir Dirs) PreviewPNG(debug *zap.SugaredLogger, src, unid string) error {
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 //
 // While the src image can be .png, .jpg, .tiff or .webp.
-func (dir Dirs) PreviewWebP(debug *zap.SugaredLogger, src, unid string) error {
+func (dir Dirs) PreviewWebP(debug *slog.Logger, src, unid string) error {
 	args := Args{}
 	args.CWebpText()
 	arg := []string{src}            // source file

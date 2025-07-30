@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,7 +15,6 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/dir"
-	"go.uber.org/zap"
 )
 
 const (
@@ -125,7 +125,7 @@ func LookupUnrar() error {
 }
 
 // CopyFile copies the src file to the dst file and path.
-func CopyFile(debug *zap.SugaredLogger, src, dst string) error {
+func CopyFile(debug *slog.Logger, src, dst string) error {
 	s, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("copy file open %w", err)
@@ -145,9 +145,8 @@ func CopyFile(debug *zap.SugaredLogger, src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("copy file io.copybuffer %w", err)
 	}
-
 	if debug != nil {
-		debug.Infof("copyfile: copied %d bytes to %s\n", i, dst)
+		debug.Debug("copyfile", slog.String("path", dst), slog.Int64("bytes copied", i))
 	}
 	if err := d.Sync(); err != nil {
 		return fmt.Errorf("copy file sync %w", err)
@@ -215,7 +214,7 @@ func LookVersion(name, flag, match string) error {
 
 // Run looks for the command in the system path and executes it with the arguments.
 // Any output to stderr is logged as a debug message.
-func Run(debug *zap.SugaredLogger, name string, arg ...string) error {
+func Run(debug *slog.Logger, name string, arg ...string) error {
 	return run(debug, name, "", arg...)
 }
 
@@ -256,11 +255,11 @@ func RunQuiet(name string, arg ...string) error {
 // RunWorkdir looks for the command in the system path and executes it with the arguments.
 // An optional working directory is set for the command.
 // Any output to stderr is logged as a debug message.
-func RunWorkdir(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
+func RunWorkdir(debug *slog.Logger, name, wdir string, arg ...string) error {
 	return run(debug, name, wdir, arg...)
 }
 
-func run(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
+func run(debug *slog.Logger, name, wdir string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf("run %w", err)
 	}
@@ -273,7 +272,9 @@ func run(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
 		if err != nil {
 			return fmt.Errorf("run could not start command %w", err)
 		}
-		debug.Debugf("run %q: %s\n", cmd, string(p))
+		debug.Debug("run command",
+			slog.String("command name", cmd.String()),
+			slog.String("output", string(p)))
 		return nil
 	}
 	if err := cmd.Run(); err != nil {

@@ -15,6 +15,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"log/slog"
 	"maps"
 	"net"
 	"net/http"
@@ -48,15 +49,6 @@ const (
 	Downloader = "/d/:id"
 )
 
-var (
-	ErrFS      = errors.New("embed file system instance is empty")
-	ErrName    = errors.New("name is empty")
-	ErrName404 = errors.New("named template cannot be found")
-	ErrPorts   = errors.New("the server ports are not configured")
-	ErrRoutes  = errors.New("echo instance is nil")
-	ErrZap     = errors.New("zap logger instance is nil")
-)
-
 // Configuration of the handler.
 type Configuration struct {
 	Public      embed.FS      // Public facing files.
@@ -68,7 +60,7 @@ type Configuration struct {
 }
 
 // Controller is the primary instance of the Echo router.
-func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
+func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger, sl *slog.Logger) *echo.Echo {
 	configs := c.Environment
 	if logger == nil {
 		logger, _ := zap.NewProduction()
@@ -114,14 +106,14 @@ func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.
 
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmxGroup(e, db, logger, bool(configs.ProdMode), dir.Directory(c.Environment.AbsDownload))
-	e, err = c.FilesRoutes(e, db, logger, c.Public)
+	e = htmxGroup(e, db, sl, bool(configs.ProdMode), dir.Directory(c.Environment.AbsDownload))
+	e, err = c.FilesRoutes(e, db, sl, c.Public)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	group := html3.Routes(e, db, logger)
 	group.GET(Downloader, func(cx echo.Context) error {
-		return c.downloader(cx, db, logger)
+		return c.downloader(cx, db, sl)
 	})
 	return e
 }
@@ -421,12 +413,12 @@ func (c *Configuration) address(port uint) string {
 }
 
 // downloader route for the file download handler under the html3 group.
-func (c *Configuration) downloader(cx echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
+func (c *Configuration) downloader(cx echo.Context, db *sql.DB, sl *slog.Logger) error {
 	d := download.Download{
 		Inline: false,
 		Dir:    dir.Directory(c.Environment.AbsDownload),
 	}
-	if err := d.HTTPSend(cx, db, logger); err != nil {
+	if err := d.HTTPSend(cx, db, sl); err != nil {
 		return fmt.Errorf("d.HTTPSend: %w", err)
 	}
 	return nil

@@ -12,6 +12,7 @@ import (
 	_ "image/jpeg" // jpeg format decoder
 	_ "image/png"  // png format decoder
 	"io"
+	"log/slog"
 	"maps"
 	"net/http"
 	"os"
@@ -35,7 +36,6 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 	_ "golang.org/x/image/webp" // webp format decoder
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/encoding/unicode"
@@ -75,7 +75,7 @@ type Dirs struct {
 }
 
 // Artifact is the handler for the of the file record.
-func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, readonly bool) error {
+func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
 	const name = "artifact"
 	art, err := dir.modelsFile(c, db)
 	if art404 := art == nil || err != nil; art404 {
@@ -84,7 +84,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	data := empty(c)
 	if !readonly {
 		data = dir.Editor(art, data)
-		data = detectANSI(db, logger, art.ID, data)
+		data = detectANSI(db, sl, art.ID, data)
 	}
 	// page metadata
 	uri := filerecord.DownloadID(art)
@@ -99,11 +99,11 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	data = dir.filemetadata(art, data)
 	if !readonly {
 		platform := filerecord.TagProgram(art)
-		data = dir.updateMagics(db, logger, art.ID, art.UUID.String, platform, data)
+		data = dir.updateMagics(db, sl, art.ID, art.UUID.String, platform, data)
 	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
-	data = jsdos(art, data, logger)
+	data = jsdos(art, data, sl)
 	data = content(art, data)
 	data["linkpreview"] = filerecord.LinkPreview(art)
 	data["linkpreviewTip"] = filerecord.LinkPreviewTip(art)
@@ -116,7 +116,10 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 		// data, err = dir.embed(art, data)
 		if err != nil {
 			defer clear(data)
-			logger.Error(errorWithID(err, dir.URI, art.ID))
+			sl.Error("dirs artifact",
+				slog.String("uri", dir.URI),
+				slog.Int64("id", art.ID),
+				slog.Any("error", err))
 		}
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -127,7 +130,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, 
 	return nil
 }
 
-func detectANSI(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string]any) map[string]any {
+func detectANSI(db *sql.DB, sl *slog.Logger, id int64, data map[string]any) map[string]any {
 	if db == nil {
 		return data
 	}
@@ -141,8 +144,11 @@ func detectANSI(db *sql.DB, logger *zap.SugaredLogger, id int64, data map[string
 	}
 	textfile := strings.EqualFold(mos, tags.Text.String())
 	if textfile && numb == magicnumber.ANSIEscapeText.Title() {
-		if err := model.UpdatePlatform(db, id, tags.ANSI.String()); err != nil && logger != nil {
-			logger.Error(errorWithID(err, "update artifact editor platform", id))
+		if err := model.UpdatePlatform(db, id, tags.ANSI.String()); err != nil && sl != nil {
+			sl.Error("detect ansi",
+				slog.String("update platform", "there is an issue updating the artifact editor platform"),
+				slog.Int64("id", id),
+				slog.Any("error", err))
 		}
 		data["platform"] = tags.ANSI.String()
 	}
@@ -320,31 +326,38 @@ func (dir Dirs) compressZIP(root, uid string) (int64, error) {
 
 // updateMagics updates the magic number for the file record of the artifact.
 // It must be called after both the dir.filemetadata and dir.Editor functions.
-func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
+func (dir Dirs) updateMagics(db *sql.DB, sl *slog.Logger,
 	id int64, uid, platform string, data map[string]any,
 ) map[string]any {
 	if db == nil {
 		return data
 	}
+	const msg = "update magic number"
 	recMagic, modMagic := data["magic"], data["modMagicNumber"]
 	if recMagic != modMagic {
 		data["magic"] = modMagic
 		magic, valid := modMagic.(string)
 		if !valid {
-			if logger != nil {
-				logger.Error(errorWithID(ErrType, "modMagicNumber is string", uid))
+			if sl != nil {
+				sl.Error(msg, slog.String("error", "wrong type, mod magic number is a string"),
+					slog.String("uuid", uid))
 			}
 			return data
 		}
 		ctx := context.Background()
-		if err := model.UpdateMagic(ctx, db, id, magic); err != nil && logger != nil {
-			logger.Error(errorWithID(err, "update artifact editor magic", id))
+		if err := model.UpdateMagic(ctx, db, id, magic); err != nil && sl != nil {
+			sl.Error(msg,
+				slog.String("update", "could not update the database record"),
+				slog.Int64("database id", id),
+				slog.String("uuid", uid),
+				slog.Any("error", err))
 		}
 	}
 	findRepack, valid := data["extraZip"].(bool)
 	if !valid {
-		if logger != nil {
-			logger.Error(errorWithID(ErrType, "extraZip is bool", uid))
+		if sl != nil {
+			sl.Error(msg, slog.String("error", "wrong type, extrazip is a boolean"),
+				slog.String("uuid", uid))
 		}
 		return data
 	}
@@ -353,25 +366,28 @@ func (dir Dirs) updateMagics(db *sql.DB, logger *zap.SugaredLogger,
 	}
 	root, valid := data["modDecompressLoc"].(string)
 	if !valid {
-		if logger != nil {
-			logger.Error(errorWithID(ErrType, "modDecompressLoc is string", uid))
+		if sl != nil {
+			sl.Error(msg, slog.String("error", "wrong type, moddecompressloc is a string"),
+				slog.String("uuid", uid))
 		}
 		return data
 	}
 	if st, err := os.Stat(root); err != nil || !st.IsDir() {
-		if logger != nil {
-			logger.Error(errorWithID(err, "decompress directory", uid))
+		if sl != nil {
+			sl.Error(msg, slog.String("file issue", "archive decompress and extraction directory"),
+				slog.String("uuid", uid), slog.Any("error", err))
 		}
 		return data
 	}
-	return dir.checkMagics(logger, uid, root, platform, modMagic, data)
+	return dir.checkMagics(sl, uid, root, platform, modMagic, data)
 }
 
-func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
+func (dir Dirs) checkMagics(sl *slog.Logger,
 	uid, root, platform string,
 	modMagic any,
 	data map[string]any,
 ) map[string]any {
+	const msg = "update magic number"
 	name := filepath.Join(dir.Download.Path(), uid)
 	switch {
 	case redundantArchive(modMagic):
@@ -380,25 +396,28 @@ func (dir Dirs) checkMagics(logger *zap.SugaredLogger,
 			return data
 		}
 	case plainText(modMagic):
-		return dir.plainTexts(logger, uid, platform, data)
+		return dir.plainTexts(sl, uid, platform, data)
 	default:
 		return data
 	}
 	if i, err := dir.compressZIP(root, uid); err != nil {
-		if logger != nil {
-			logger.Error(errorWithID(err, "compress directory", uid))
+		if sl != nil {
+			sl.Error(msg, slog.String("file issue", "zip archive compressor"),
+				slog.String("uuid", uid), slog.Any("error", err))
 		}
 		return data
-	} else if logger != nil {
-		logger.Infof("Extra deflated zipfile created %d bytes: %s", i, uid)
+	} else if sl != nil {
+		slog.Info(msg, slog.String("success", "extra deflated zipfile created"),
+			slog.String("uuid", uid), slog.Int64("bytes extracted", i))
 	}
 	data["extraZip"] = true
 	return data
 }
 
-func (dir Dirs) plainTexts(logger *zap.SugaredLogger,
+func (dir Dirs) plainTexts(sl *slog.Logger,
 	uid, platform string, data map[string]any,
 ) map[string]any {
+	const msg = "update magic number"
 	name := filepath.Join(dir.Download.Path(), uid)
 	dirs := command.Dirs{
 		Download:  dir.Download,
@@ -410,8 +429,9 @@ func (dir Dirs) plainTexts(logger *zap.SugaredLogger,
 		return data
 	}
 	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String())
-	if err := dirs.TextImager(logger, name, uid, amigaFont); err != nil {
-		logger.Error(errorWithID(err, "text imager", uid))
+	if err := dirs.TextImager(sl, name, uid, amigaFont); err != nil {
+		sl.Error(msg, slog.String("text imager", "conversion error"),
+			slog.String("uuid", uid), slog.Any("error", err))
 	}
 	data["missingAssets"] = ""
 	return data
@@ -572,7 +592,7 @@ func (dir Dirs) otherRelations(art *models.File, data map[string]any) map[string
 }
 
 // jsdos returns the js-dos emulator data for the file record of the artifact.
-func jsdos(art *models.File, data map[string]any, logger *zap.SugaredLogger,
+func jsdos(art *models.File, data map[string]any, sl *slog.Logger,
 ) map[string]any {
 	if art == nil {
 		return data
@@ -589,24 +609,30 @@ func jsdos(art *models.File, data map[string]any, logger *zap.SugaredLogger,
 	data["jsdos6"] = true
 	cmd, err := model.JsDosCommand(art)
 	if err != nil {
-		if logger != nil {
-			logger.Error(errorWithID(err, "js-dos command", art.ID))
+		if sl != nil {
+			sl.Error("jsdos6 command",
+				slog.Int64("id", art.ID),
+				slog.Any("error", err))
 		}
 		return data
 	}
 	data["jsdos6Run"] = cmd
 	guess, err := model.JsDosBinary(art)
 	if err != nil {
-		if logger != nil {
-			logger.Error(errorWithID(err, "js-dos binary", art.ID))
+		if sl != nil {
+			sl.Error("jsdos6 binary",
+				slog.Int64("id", art.ID),
+				slog.Any("error", err))
 		}
 		return data
 	}
 	data["jsdos6RunGuess"] = guess
 	cfg, err := model.JsDosConfig(art)
 	if err != nil {
-		if logger != nil {
-			logger.Error(errorWithID(err, "js-dos config", art.ID))
+		if sl != nil {
+			sl.Error("jsdos6 config",
+				slog.Int64("id", art.ID),
+				slog.Any("error", err))
 		}
 		return data
 	}

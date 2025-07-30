@@ -19,19 +19,23 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 const code = http.StatusMovedPermanently
 
 // FilesRoutes defines the file locations and routes for the web server.
-func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS,
+func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger,
+	public embed.FS,
 ) (*echo.Echo, error) {
-	const msg = "files routes"
-	if err := embedpanic(e, db, sl, public); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+	if e == nil {
+		panic(fmt.Errorf("%w for files routes router", ErrRoutes))
+	}
+	if logger == nil {
+		return nil, fmt.Errorf("%w: %s", ErrZap, "handler files routes")
 	}
 	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
-		return nil, fmt.Errorf("%s: %w", msg, ErrNoEmbed)
+		return nil, fmt.Errorf("%w: %s", ErrFS, "handler files routes")
 	}
 	app.Caching.Records(c.RecordCount)
 	dirs := app.Dirs{
@@ -42,7 +46,7 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, p
 	}
 	nonce, err := c.nonce(e)
 	if err != nil {
-		return nil, fmt.Errorf("%s nonce session key: %w", msg, err)
+		return nil, fmt.Errorf("files routes nonce session key: %w", err)
 	}
 	e = c.signin(e, sl, nonce)
 	e = c.custom404(e)
@@ -51,25 +55,24 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, p
 	e = c.html(e, public)
 	e = c.font(e, public)
 	e = c.embed(e, public)
-	e = c.search(e, db, sl)
-	e = c.website(e, db, sl, dirs)
-	e = c.lock(e, db, sl, dirs)
+	e = c.search(e, db, logger)
+	e = c.website(e, db, logger, dirs)
+	e = c.lock(e, db, logger, dirs)
 	return e, nil
 }
 
 // nonce configures and returns the session key for the cookie store.
 // If the read mode is enabled then an empty session key is returned.
 func (c *Configuration) nonce(e *echo.Echo) (string, error) {
-	const msg = "nonce cookie store"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%w for router nonce", ErrRoutes))
 	}
 	if c.Environment.ReadOnly {
 		return "", nil
 	}
 	b, err := helper.CookieStore(c.Environment.SessionKey.String())
 	if err != nil {
-		return "", fmt.Errorf("%s: %w", msg, err)
+		return "", fmt.Errorf("none cookie store: %w", err)
 	}
 	e.Use(session.Middleware(sessions.NewCookieStore(b)))
 	return string(b), nil
@@ -77,9 +80,8 @@ func (c *Configuration) nonce(e *echo.Echo) (string, error) {
 
 // html serves the embedded CSS, JS, WASM, and source map files for the HTML website layout.
 func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
-	const msg = "html routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%w for html router", ErrRoutes))
 	}
 	hrefs, names := *app.Hrefs(), *app.Names()
 	for key, href := range hrefs {
@@ -95,9 +97,8 @@ func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 
 // font serves the embedded woff2, woff, and ttf font files for the website layout.
 func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
-	const msg = "font routes"
-	if err := htmlpanic(e, public); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+	if e == nil {
+		panic(fmt.Errorf("%w for font router", ErrRoutes))
 	}
 	paths, names := *app.FontRefs(), *app.FontNames()
 	font := e.Group("/font")
@@ -110,9 +111,8 @@ func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 // embed serves the miscellaneous embedded files for the website layout.
 // This includes the favicon, robots.txt, osd.xml, and the SVG icons.
 func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
-	const msg = "embed routes"
-	if err := htmlpanic(e, public); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+	if e == nil {
+		panic(fmt.Errorf("%w for embed router", ErrRoutes))
 	}
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
@@ -123,9 +123,8 @@ func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 
 // static serves the static assets for the website such as the thumbnail and preview images.
 func (c *Configuration) static(e *echo.Echo) *echo.Echo {
-	const msg = "static routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%w for static router", ErrRoutes))
 	}
 	e.Static(config.StaticThumb(), c.Environment.AbsThumbnail.String())
 	e.Static(config.StaticOriginal(), c.Environment.AbsPreview.String())
@@ -135,9 +134,8 @@ func (c *Configuration) static(e *echo.Echo) *echo.Echo {
 // custom404 is a custom 404 error handler for the website,
 // "The page cannot be found".
 func (c *Configuration) custom404(e *echo.Echo) *echo.Echo {
-	const msg = "custom 404 error routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(ErrRoutes)
 	}
 	e.GET("/:uri", func(cx echo.Context) error {
 		return app.StatusErr(cx, http.StatusNotFound, cx.Param("uri"))
@@ -147,9 +145,8 @@ func (c *Configuration) custom404(e *echo.Echo) *echo.Echo {
 
 // debugInfo returns detailed information about the HTTP request.
 func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
-	const msg = "debug info routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%w for debug info router", ErrRoutes))
 	}
 	if c.Environment.ProdMode {
 		return e
@@ -191,10 +188,9 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 }
 
 // website routes for the main site.
-func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
-	const msg = "website routes"
-	if err := dbpanic(e, db, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+func (c *Configuration) website(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs) *echo.Echo {
+	if e == nil {
+		panic(fmt.Errorf("%w for website router", ErrRoutes))
 	}
 	e.GET("/health-check", func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
@@ -218,7 +214,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		return app.Coder(c, db)
 	})
 	s.GET(Downloader, func(cx echo.Context) error {
-		return app.Download(cx, db, sl, dir.Directory(c.Environment.AbsDownload))
+		return app.Download(cx, db, logger, dir.Directory(c.Environment.AbsDownload))
 	})
 	s.GET("/f/:id", func(cx echo.Context) error {
 		uri := cx.Param("id")
@@ -226,10 +222,10 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 			return cx.Redirect(http.StatusMovedPermanently, "/f/"+uri)
 		}
 		dirs.URI = uri
-		return dirs.Artifact(cx, db, sl, bool(c.Environment.ReadOnly))
+		return dirs.Artifact(cx, db, logger, bool(c.Environment.ReadOnly))
 	})
 	s.GET("/file/stats", func(cx echo.Context) error {
-		return app.Categories(cx, db, sl, true)
+		return app.Categories(cx, db, logger, true)
 	})
 	s.GET("/files/:id/:page", func(cx echo.Context) error {
 		switch cx.Param("id") {
@@ -246,7 +242,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		return app.Artifacts(cx, db, cx.Param("id"), "1")
 	})
 	s.GET("/file", func(cx echo.Context) error {
-		return app.Categories(cx, db, sl, false)
+		return app.Categories(cx, db, logger, false)
 	})
 	s.GET("/ftp", func(c echo.Context) error {
 		return app.FTP(c, db)
@@ -255,7 +251,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		if qs := cx.QueryString(); qs != "" {
 			return cx.Redirect(http.StatusMovedPermanently, "/g/"+cx.Param("id"))
 		}
-		return app.Releasers(cx, db, sl, cx.Param("id"), c.Public)
+		return app.Releasers(cx, db, logger, cx.Param("id"), c.Public)
 	})
 	s.GET("/history", app.History)
 	s.GET("/interview", app.Interview)
@@ -281,7 +277,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		return app.Sceners(cx, db, cx.Param("id"))
 	})
 	s.GET("/pouet/vote/:id", func(cx echo.Context) error {
-		return app.VotePouet(cx, sl, cx.Param("id"))
+		return app.VotePouet(cx, logger, cx.Param("id"))
 	})
 	s.GET("/pouet/prod/:id", func(cx echo.Context) error {
 		return app.ProdPouet(cx, cx.Param("id"))
@@ -317,16 +313,15 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		return app.Writer(c, db)
 	})
 	s.GET("/v/:id", func(cx echo.Context) error {
-		return app.Inline(cx, db, sl, dir.Directory(c.Environment.AbsDownload))
+		return app.Inline(cx, db, logger, dir.Directory(c.Environment.AbsDownload))
 	})
 	return e
 }
 
 // search forms and the results for database queries.
-func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.Echo {
-	const msg = "search routes"
-	if err := dbpanic(e, db, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+func (c *Configuration) search(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
+	if e == nil {
+		panic(fmt.Errorf("%w for search router", ErrRoutes))
 	}
 	search := e.Group("/search")
 	search.GET("/desc", app.SearchDesc)
@@ -346,16 +341,15 @@ func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.
 		return app.PostFilename(c, db)
 	})
 	search.POST("/releaser", func(cx echo.Context) error {
-		return htmx.SearchReleaser(cx, db, sl)
+		return htmx.SearchReleaser(cx, db, logger)
 	})
 	return e
 }
 
 // signin for operators.
 func (c *Configuration) signin(e *echo.Echo, sl *slog.Logger, nonce string) *echo.Echo {
-	const msg = "signin routes"
-	if err := slpanic(e, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+	if e == nil {
+		panic(fmt.Errorf("%w for signin router", ErrRoutes))
 	}
 	signings := e.Group("")
 	signings.Use(c.ReadOnlyLock)
@@ -378,9 +372,8 @@ func (c *Configuration) signin(e *echo.Echo, sl *slog.Logger, nonce string) *ech
 
 // MovedPermanently redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
 func MovedPermanently(e *echo.Echo) *echo.Echo {
-	const msg = "moved permanently routes"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%w for move permanently router", ErrRoutes))
 	}
 	e = nginx(e)
 	e = fixes(e)
@@ -389,9 +382,8 @@ func MovedPermanently(e *echo.Echo) *echo.Echo {
 
 // nginx redirects.
 func nginx(e *echo.Echo) *echo.Echo {
-	const msg = "nginx redirects"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%w for nginx router", ErrRoutes))
 	}
 	nginx := e.Group("")
 	nginx.GET("/file/detail/:id", func(c echo.Context) error {
@@ -417,9 +409,8 @@ func nginx(e *echo.Echo) *echo.Echo {
 
 // fixes redirects repaired, releaser database entry redirects that are contained in the model fix package.
 func fixes(e *echo.Echo) *echo.Echo {
-	const msg = "fixes routers"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, ErrNoEcho))
+		panic(fmt.Errorf("%w for fixes router", ErrRoutes))
 	}
 	fixes := e.Group("/g")
 	const g = "/g/"

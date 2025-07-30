@@ -94,7 +94,7 @@ func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("repair database could not begin a transaction: %w", err)
 	}
-	if err := fix.Artifacts.Run(ctx, db, tx); err != nil {
+	if err := fix.Artifacts.Run(ctx, db, tx, sl); err != nil {
 		defer func() {
 			if err := tx.Rollback(); err != nil {
 				sl.Error("repair database", slog.Any("error", err))
