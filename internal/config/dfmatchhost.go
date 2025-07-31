@@ -1,6 +1,8 @@
 package config
 
-import "log/slog"
+import (
+	"log/slog"
+)
 
 type Matchhost string
 
@@ -13,7 +15,7 @@ func (m Matchhost) LogValue() slog.Value {
 
 func (m Matchhost) Help() string {
 	if m == "" {
-		return "No host address restrictions."
+		return "No host address restrictions"
 	}
 	return ""
 }

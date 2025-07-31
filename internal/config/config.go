@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/panics"
 )
 
 const (
@@ -88,6 +89,8 @@ func Format(name string) string {
 	return helper.SplitAsSpaces(name)
 }
 
+// Info returns the results of the optional Info method for the named configuration identifier.
+// The value needs to be the interface results of the field by name reflection.
 func Info(name string, value any) string {
 	s := Format(name)
 	v := reflect.ValueOf(value)
@@ -122,9 +125,13 @@ func skip(name string) bool {
 	}
 }
 
+// Print the configuration using the sl logger.
+// Configurations names are obtained from the Config struct and are parsed
+// with custom help and issue reports.
 func (c Config) Print(sl *slog.Logger) {
+	const msg = "config print"
 	if sl == nil {
-		panic(ErrNoSlog)
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	fields := reflect.VisibleFields(reflect.TypeOf(c))
 	names := c.Names()
@@ -132,51 +139,46 @@ func (c Config) Print(sl *slog.Logger) {
 		if skip(name) {
 			continue
 		}
-		// tag obtains the `env:` value from the struct
-		tag := fields[i].Tag.Get("env")
-		// logval must pass in the interface value for the slog.LogValue filter to work
+		tag := fields[i].Tag.Get("env") // tag obtains the `env:` value from the struct
 		vof := reflect.ValueOf(c)
 		val := vof.FieldByName(name).Interface()
 		inf := Info(name, val)
 		issue := vof.FieldByName(name).MethodByName("Issue")
 		if issue.IsValid() {
-			issuer := issue.Call(nil)[0].String()
-			sl.Error(inf,
-				slog.Any(tag, val),
-				slog.String("issue", issuer))
-			continue
-		}
-		// help includes the result of the Help() method, when it exists
-		help := vof.FieldByName(name).MethodByName("Help")
-		helper := ""
-
-		if name == "GoogleIDs" && help.IsValid() {
-			const n = "GoogleAccounts"
-			swap := vof.FieldByName(n).MethodByName("Help")
-			if !swap.IsValid() {
+			issuer := strings.TrimSpace(issue.Call(nil)[0].String())
+			if issuer != "" {
+				sl.Error(inf, slog.Any(tag, val), slog.String("issue", issuer))
 				continue
 			}
-			helper = swap.Call(nil)[0].String()
-			swap = vof.FieldByName(n).MethodByName("String")
-			vals := swap.Call(nil)[0]
-			inf = Info(n, vals)
-			sl.Info(inf,
-				slog.Any(tag, hide),
-				slog.String("help", helper))
+		}
+		// help includes the result of the Help() method, when it exists for the named configuration
+		help := vof.FieldByName(name).MethodByName("Help")
+		helper := ""
+		if name == "GoogleIDs" && help.IsValid() {
+			googleIDs(vof, sl, tag)
 			continue
 		}
-
 		if help.IsValid() {
 			// handle edge cases like googleids using GoogleAccounts data
 			helper = help.Call(nil)[0].String()
-			sl.Info(inf,
-				slog.Any(tag, val),
-				slog.String("help", helper))
+			sl.Info(inf, slog.Any(tag, val), slog.String("help", helper))
 			continue
 		}
-		sl.Info(inf,
-			slog.Any(tag, val))
+		sl.Info(inf, slog.Any(tag, val))
 	}
+}
+
+func googleIDs(vof reflect.Value, sl *slog.Logger, tag string) {
+	const n = "GoogleAccounts"
+	swap := vof.FieldByName(n).MethodByName("Help")
+	if !swap.IsValid() {
+		return
+	}
+	helper := swap.Call(nil)[0].String()
+	swap = vof.FieldByName(n).MethodByName("String")
+	vals := swap.Call(nil)[0]
+	inf := Info(n, vals)
+	sl.Info(inf, slog.Any(tag, hide), slog.String("help", helper))
 }
 
 // Names returns a list of the field names in the Config struct.

@@ -13,7 +13,7 @@ func (s Sessionkey) LogValue() slog.Value {
 
 func (s Sessionkey) Help() string {
 	if s == "" {
-		return "A random key will be generated during the server start."
+		return "A random key will be generated during the server startup"
 	}
 	return ""
 }

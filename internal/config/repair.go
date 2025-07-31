@@ -26,6 +26,7 @@ import (
 	"github.com/Defacto2/server/internal/config/fixlha"
 	"github.com/Defacto2/server/internal/config/fixzip"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -44,7 +45,7 @@ const (
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
 func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error { //nolint:cyclop,funlen,gocognit
-	if err := argspanic(ctx, exec, sl); err != nil {
+	if err := panics.CBS(ctx, exec, sl); err != nil {
 		return err
 	}
 	d := time.Now()
@@ -169,18 +170,19 @@ type Rearchiving struct {
 // ReArchive the file using the specified compression method.
 // The original ra.Source file is not removed.
 func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) error {
-	if sl == nil {
-		return ErrNoSlog
+	const msg = "rearchive"
+	if err := panics.CS(ctx, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if ra.Source == "" || ra.UID == "" {
-		return fmt.Errorf("rearchive %s %w: %q %q", r, ErrNoPath, ra.Source, ra.UID)
+		return fmt.Errorf("%s %s %w: %q %q", msg, r, ErrNoPath, ra.Source, ra.UID)
 	}
 	if err := ra.Destination.IsDir(); err != nil {
-		return fmt.Errorf("rearchive %s %w: %q", r, err, ra.Destination)
+		return fmt.Errorf("%s %s %w: %q", msg, r, err, ra.Destination)
 	}
 	tmp, err := os.MkdirTemp(helper.TmpDir(), "rearchive-")
 	if err != nil {
-		return fmt.Errorf("rearchive mkdir temp %w: %s", err, ra.Source)
+		return fmt.Errorf("%s mkdir temp %w: %s", msg, err, ra.Source)
 	}
 	defer func() {
 		err := os.RemoveAll(tmp)
@@ -204,24 +206,24 @@ func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) 
 	cmd := exec.CommandContext(ctx1min, extractCmd, extractArg, ra.Source)
 	cmd.Dir = tmp
 	if stdoutStderr, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("rearchive run %w: %s: dump: %q",
-			err, ra.Source, stdoutStderr)
+		return fmt.Errorf("%s run %w: %s: dump: %q",
+			msg, err, ra.Source, stdoutStderr)
 	}
 	c, err := helper.Count(tmp)
 	if err != nil {
-		return fmt.Errorf("rearchive tmp count %w: %s", err, tmp)
+		return fmt.Errorf("%s tmp count %w: %s", msg, err, tmp)
 	}
-	sl.Info("rearchive",
+	sl.Info(msg,
 		slog.String("count", fmt.Sprintf("rezipped %d files for %s", c, ra.UID)),
 		slog.String("tmp", tmp))
 	_, err = os.Stat(tmp)
 	if err != nil {
-		return fmt.Errorf("rearchive tmp stat %w: %s", err, tmp)
+		return fmt.Errorf("%s tmp stat %w: %s", msg, err, tmp)
 	}
 	basename := ra.UID + ".zip"
 	tmpArc := filepath.Join(helper.TmpDir(), basename)
 	if written, err := rezip.CompressDir(tmp, tmpArc); err != nil {
-		return fmt.Errorf("rearchive dir %w: %s", err, tmp)
+		return fmt.Errorf("%s dir %w: %s", msg, err, tmp)
 	} else if written == 0 {
 		return nil
 	}
@@ -232,13 +234,13 @@ func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) 
 				_, _ = fmt.Fprintln(os.Stderr, err)
 			}
 		}()
-		return fmt.Errorf("rearchive rename %w: %s", err, tmpArc)
+		return fmt.Errorf("%s rename %w: %s", msg, err, tmpArc)
 	}
 	st, err := os.Stat(finalArc)
 	if err != nil {
-		return fmt.Errorf("rearchive zip stat %w: %s", err, finalArc)
+		return fmt.Errorf("%s zip stat %w: %s", msg, err, finalArc)
 	}
-	sl.Info("rearchive",
+	sl.Info(msg,
 		slog.String("new", "extra deflated zipfile created"),
 		slog.Int("size as bytes", int(st.Size())),
 		slog.String("path", finalArc))
@@ -269,6 +271,10 @@ func (r Repair) lookPath() error {
 }
 
 func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) ([]string, error) {
+	const msg = "repair artifacts"
+	if err := panics.CBS(ctx, exec, sl); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
+	}
 	var files models.FileSlice
 	var err error
 	switch r {
@@ -282,11 +288,11 @@ func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, sl *sl
 		files, err = fixarj.Files(ctx, exec)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("artifacts %s files, %w", r.String(), err)
+		return nil, fmt.Errorf("%s %s files, %w", msg, r.String(), err)
 	}
 	size := len(files)
 	s := fmt.Sprintf("%s %s", tags.DOS, r)
-	sl.Info("repair",
+	sl.Info(msg,
 		slog.String("archives", s),
 		slog.Int("count", size))
 	artifacts := make([]string, size)
@@ -308,8 +314,9 @@ func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, sl *sl
 //
 // There are no checks on the 3 directories that get scanned.
 func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if err := argspanic(ctx, exec, sl); err != nil {
-		return err
+	const msg = "repair assets"
+	if err := panics.CBS(ctx, exec, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := time.Now()
 	mods := []qm.QueryMod{}
@@ -317,10 +324,10 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog
 	mods = append(mods, qm.WithDeleted())
 	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("config repair select all uuids: %w", err)
+		return fmt.Errorf("%s select all uuids: %w", msg, err)
 	}
 	size := len(files)
-	sl.Info("assets", slog.Int("checking uuid count", size))
+	sl.Info(msg, slog.Int("checking uuid count", size))
 	artifacts := make([]string, size)
 	for i, f := range files {
 		if !f.UUID.Valid || f.UUID.String == "" {
@@ -341,7 +348,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog
 			defer wg.Done()
 			err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 				if err != nil {
-					return fmt.Errorf("walk path %w: %s", err, path)
+					return fmt.Errorf("%s walk path %w: %s", msg, err, path)
 				}
 				if d.IsDir() {
 					return nil
@@ -354,7 +361,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog
 				return nil
 			})
 			if err != nil {
-				sl.Error("assets", slog.String("walk directory", dir), slog.Any("error", err))
+				sl.Error(msg, slog.String("walk directory", dir), slog.Any("error", err))
 			}
 		}(dir)
 	}
@@ -364,21 +371,27 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog
 	for val := range slices.Values(counters) {
 		sum += val
 	}
-	sl.Info("assets", slog.String("done", "checked files for uuids"),
-		slog.Int("files checked", sum), slog.Int("uuids", size), slog.Duration("time taken", time.Since(d)))
+	sl.Info(msg,
+		slog.String("done", "checked files for uuids"),
+		slog.Int("files checked", sum), slog.Int("uuids", size),
+		slog.Duration("time taken", time.Since(d)))
 	return nil
 }
 
 // unknownAsset logs a warning message for an unknown asset file.
 func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Directory) {
-	sl.Warn("unknown file",
+	const msg = "unknown file"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
+	sl.Warn(msg,
 		slog.String("issue", "no matching artifact in the database for the found file"),
 		slog.String("uuid", uid), slog.String("filename", name))
 	defer func() {
 		now := time.Now().Format("2006-01-02_15-04-05")
 		dest := orphaned.Join(fmt.Sprintf("%s_%s", now, name))
 		if err := helper.RenameCrossDevice(oldpath, dest); err != nil {
-			sl.Error("unknown file",
+			sl.Error(msg,
 				slog.String("issue", "could not move the file to the orphaned directory"),
 				slog.String("source path", oldpath), slog.String("destination path", dest),
 				slog.Any("error", err))
@@ -389,46 +402,51 @@ func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Direc
 // RepairAssets on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
 func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if err := argspanic(ctx, exec, sl); err != nil {
-		return err
+	const msg = "repair assets"
+	if err := panics.CBS(ctx, exec, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	backup := dir.Directory(c.AbsOrphaned)
 	if st, err := os.Stat(backup.Path()); err != nil {
-		return fmt.Errorf("repair backup directory %w: %s", err, backup.Path())
+		return fmt.Errorf("%s backup directory %w: %s", msg, err, backup.Path())
 	} else if !st.IsDir() {
-		return fmt.Errorf("repair backup directory %w: %s", ErrNotDir, backup.Path())
+		return fmt.Errorf("%s backup directory %w: %s", msg, ErrNotDir, backup.Path())
 	}
 	if err := c.ImageDirs(sl); err != nil {
-		return fmt.Errorf("repair the images directories %w", err)
+		return fmt.Errorf("%s the images directories %w", msg, err)
 	}
 	src := dir.Directory(c.AbsDownload)
 	extra := dir.Directory(c.AbsExtra)
 	if err := DownloadDir(sl, src, backup, extra); err != nil {
-		return fmt.Errorf("repair the download directory %w", err)
+		return fmt.Errorf("%s the download directory %w", msg, err)
 	}
 	if err := c.Assets(ctx, exec, sl); err != nil {
-		return fmt.Errorf("repair assets %w", err)
+		return fmt.Errorf("%s %w", msg, err)
 	}
 	if err := c.Archives(ctx, exec, sl); err != nil {
-		return fmt.Errorf("repair archives %w", err)
+		return fmt.Errorf("%s archives %w", msg, err)
 	}
 	if err := c.Previews(ctx, exec, sl); err != nil {
-		return fmt.Errorf("repair previews %w", err)
+		return fmt.Errorf("%s previews %w", msg, err)
 	}
 	if err := c.MagicNumbers(ctx, exec, sl); err != nil {
-		return fmt.Errorf("repair magics %w", err)
+		return fmt.Errorf("%s magics %w", msg, err)
 	}
 	if err := c.TextFiles(ctx, exec, sl); err != nil {
-		return fmt.Errorf("repair textfiles %w", err)
+		return fmt.Errorf("%s textfiles %w", msg, err)
 	}
 	return nil
 }
 
 // TextFiles on startup check the extra directory for any readme text files that are duplicates of the diz text files.
 func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+	const msg = "text files"
+	if err := panics.CBS(ctx, exec, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	uuids, err := model.UUID(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("config %w", err)
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	dupes := 0
 	for val := range slices.Values(uuids) {
@@ -460,18 +478,18 @@ func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, sl *s
 		dupes++
 		dupe, err := Remove(diz, txt)
 		if err != nil {
-			sl.Error("remove",
+			sl.Error(msg,
 				slog.String("problem", "cannot remove file duplicates"),
 				slog.String("file_id.diz", diz),
 				slog.String("readme text", txt))
 			continue
 		}
-		sl.Info("remove",
+		sl.Info(msg,
 			slog.String("success", "removed duplicate file_id.diz = readme text"),
 			slog.String("filename", dupe))
 	}
 	if dupes > 0 {
-		sl.Info("remove",
+		sl.Info(msg,
 			slog.String("duplicates", "discovered text files that are duplicates of the file_id.diz files"),
 			slog.Int("finds", dupes))
 	}
@@ -529,18 +547,19 @@ func FileID(r io.Reader) bool {
 // legacy values with the current method of detection. Previous detection methods were
 // done using the `file` command line utility, which is a bit to verbose for our needs.
 func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if err := argspanic(ctx, exec, sl); err != nil {
-		return err
+	const msg = "magic numbers"
+	if err := panics.CBS(ctx, exec, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	tick := time.Now()
 	r := model.Artifacts{}
 	magics, err := r.ByMagicErr(ctx, exec, false)
 	if err != nil {
-		return fmt.Errorf("magicnumbers %w", err)
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const large = 1000
 	if len(magics) > large && sl != nil {
-		sl.Warn("magic numbers",
+		sl.Warn(msg,
 			slog.String("issue", "there are a large number of artifacts to check, it could take a while"),
 			slog.Int("task count", len(magics)))
 	}
@@ -560,7 +579,7 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl
 	if count == 0 || sl == nil {
 		return nil
 	}
-	sl.Info("magic numbers complete",
+	sl.Info(msg,
 		slog.String("success", ""),
 		slog.Int("values update", count),
 		slog.Duration("time taken", time.Since(tick)))
@@ -569,13 +588,14 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl
 
 // Previews on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
 func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if err := argspanic(ctx, exec, sl); err != nil {
-		return err
+	const msg = "previews"
+	if err := panics.CBS(ctx, exec, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	r := model.Artifacts{}
 	artifacts, err := r.ByTextPlatform(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("nopreview %w", err)
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	var count, totals int64
 	for val := range slices.Values(artifacts) {
@@ -603,7 +623,7 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *sl
 	if count == 0 {
 		return nil
 	}
-	sl.Info("previews",
+	sl.Info(msg,
 		slog.String("success", "erased textfile previews"),
 		slog.Int64("count", count), slog.String("totaling", helper.ByteCountFloat(totals)))
 	return nil
@@ -611,13 +631,14 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *sl
 
 // ImageDirs on startup check the image directories for any invalid or unknown files.
 func (c *Config) ImageDirs(sl *slog.Logger) error {
+	const msg = "image directories"
 	if sl == nil {
-		return ErrNoSlog
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
 	backup := dir.Directory(c.AbsOrphaned.String())
 	dirs := []string{c.AbsPreview.String(), c.AbsThumbnail.String()}
 	if err := removeSub(dirs...); err != nil {
-		return fmt.Errorf("remove subdirectories %w", err)
+		return fmt.Errorf("%s remove subdirectories %w", msg, err)
 	}
 	// remove any invalid files
 	p, t := 0, 0
@@ -627,7 +648,7 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 		}
 		err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
-				return fmt.Errorf("walk path %w: %s", err, path)
+				return fmt.Errorf("%s walk path %w: %s", msg, err, path)
 			}
 			name := d.Name()
 			if d.IsDir() {
@@ -646,7 +667,7 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 			return RemoveImage(name, path, backup)
 		})
 		if err != nil {
-			return fmt.Errorf("walk directory %w: %s", err, dir)
+			return fmt.Errorf("%s walk directory %w: %s", msg, err, dir)
 		}
 		switch dir {
 		case c.AbsPreview.String():
@@ -683,8 +704,9 @@ func removeSub(dirs ...string) error {
 
 // containsInfo logs the number of files found in the directory.
 func containsInfo(sl *slog.Logger, name string, count int) {
+	const msg = "contains info"
 	if sl == nil {
-		return
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	if MinimumFiles > count {
 		sl.Warn(name+" images",
@@ -698,29 +720,30 @@ func containsInfo(sl *slog.Logger, name string, count int) {
 
 // DownloadDir on startup check the download directory for any invalid or unknown files.
 func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
+	const msg = "download directory"
 	if sl == nil {
-		return ErrNoSlog
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
 	if err := src.Check(); err != nil {
-		return fmt.Errorf("download directory %w: %s", err, src)
+		return fmt.Errorf("%s %w: %s", msg, err, src)
 	}
 	if err := dest.Check(); err != nil {
-		return fmt.Errorf("download directory %w: %s", err, dest)
+		return fmt.Errorf("%s %w: %s", msg, err, dest)
 	}
 	if err := extra.Check(); err != nil {
-		return fmt.Errorf("download directory %w: %s", err, extra)
+		return fmt.Errorf("%s %w: %s", msg, err, extra)
 	}
 	count := 0
 	err := filepath.WalkDir(src.Path(), func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return fmt.Errorf("walk path %w: %s", err, path)
+			return fmt.Errorf("%s walk path %w: %s", msg, err, path)
 		}
 		name := d.Name()
 		if d.IsDir() {
 			return RemoveDir(name, path, src.Path())
 		}
 		if err = RemoveDownload(name, path, dest, extra); err != nil {
-			return fmt.Errorf("remove download: %w", err)
+			return fmt.Errorf("%s remove download: %w", msg, err)
 		}
 		if filepath.Ext(name) == "" {
 			count++
@@ -728,7 +751,7 @@ func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
 		return RenameDownload(name, path)
 	})
 	if err != nil {
-		return fmt.Errorf("walk directory %w: %s", err, src.Path())
+		return fmt.Errorf("%s walk directory %w: %s", msg, err, src.Path())
 	}
 	containsInfo(sl, "downloads", count)
 	return nil
@@ -880,7 +903,11 @@ func rename(oldpath, info, newpath string) {
 // that are older than 3 days.
 //
 // This is a safety measure to ensure that the server does not run out of disk space.
-func TmpCleaner() {
+func TmpCleaner(sl *slog.Logger) {
+	const msg = "tmp cleaner"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	const threeDays = 3 * 24 * time.Hour
 	w := os.Stderr
 	name := helper.TmpDir()

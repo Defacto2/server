@@ -84,7 +84,7 @@ func main() {
 			slog.String("postgres", "could not run the version query"),
 			slog.Any("error", err))
 	}
-	config.TmpCleaner()
+	config.TmpCleaner(sl)
 	config.TmpInfo(sl)
 	// start the web server
 	instance := newInstance(context.Background(), db, *configs)

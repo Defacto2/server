@@ -2,7 +2,6 @@ package config
 
 import (
 	"crypto/sha512"
-	"fmt"
 	"log/slog"
 	"slices"
 	"strings"
@@ -54,7 +53,7 @@ func (o OAuth2s) Help() string {
 	return Googles(o)
 }
 
-// Googles TODO:
+// Googles returns human readable help about the ids.
 func Googles(ids [][48]byte) string {
 	const none = "No accounts configured for the web administration"
 	if ids == nil {
@@ -64,10 +63,8 @@ func Googles(ids [][48]byte) string {
 	switch cnt {
 	case 0:
 		return none
-	case 1:
-		return "1 Google account in use for the web administration"
 	default:
-		return fmt.Sprintf("%d Google accounts in use for the web administration", cnt)
+		return "Google account(s) in use for the web administration"
 	}
 }
 
@@ -109,10 +106,8 @@ func (g Googleids) Help() string {
 	switch cnt {
 	case 0:
 		return none
-	case 1:
-		return "1 Google account in use for sign-in"
 	default:
-		return fmt.Sprintf("%d Google accounts in use for sign-ins", cnt)
+		return "Google account(s) in use for sign-ins"
 	}
 }
 

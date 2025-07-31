@@ -3,7 +3,6 @@ package config
 // Package file error.go contains the custom error middleware for the web application.
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -12,7 +11,7 @@ import (
 
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/internal/out"
-	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,55 +21,23 @@ const (
 )
 
 var (
-	ErrLog        = errors.New("the server cannot log to files")
 	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
-	ErrNoBoil     = errors.New("the boilier context executor is nil")
 	ErrNoDir      = errors.New("directory does not exist or incorrectly typed")
-	ErrNoCtx      = errors.New("no context interface")
-	ErrNoEcho     = errors.New("echo instance is nil")
-	ErrNoOAuth2   = errors.New("the production server requires a google, oauth2 client id to allow admin logins")
-	ErrNoPort     = errors.New("the server cannot start without a http or a tls port")
-	ErrNoSlog     = errors.New("the slog logger instance is nil")
+	ErrNoOAuth2   = errors.New("production server requires a google, oauth2 client id to allow admin logins")
+	ErrNoPort     = errors.New("server cannot start without a http or a tls port")
 	ErrNoPath     = errors.New("empty path or name")
-	ErrPointer    = errors.New("pointer is nil")
-	ErrPortMax    = fmt.Errorf("http port value must be between 1-%d", PortMax)
-	ErrPortSys    = fmt.Errorf("http port values between 1-%d require system access", PortSys)
-	ErrTouch      = errors.New("the server cannot create a file in the directory")
-	ErrVer        = errors.New("postgresql version request failed")
+	ErrPSqlVer    = errors.New("postgres did not return a version value")
+	ErrTouch      = errors.New("server cannot create a file in the directory")
 	ErrNotDir     = errors.New("path points to a file")
 	ErrNotFile    = errors.New("path points to a directory")
 )
 
-func argspanic(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	if ctx == nil {
-		return ErrNoCtx
-	}
-	if exec == nil {
-		return ErrNoBoil
-	}
-	if sl == nil {
-		return ErrNoSlog
-	}
-	return nil
-}
-
-// TODO: drop zaplog
-
+// CustomErrorHandler handles customer error templates.
 func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger) {
 	const msg = "custom error handler"
-	if ctx == nil {
-		panic(ErrNoEcho)
+	if err := panics.Slog(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	// TODO: debug mode
-	// logger := zaplog.Debug().Sugar()
-	if c.ProdMode {
-		// TODO: store log mode
-		// root := string(c.AbsLog)
-		// logger = zaplog.Store(zaplog.Text(), root).Sugar()
-	}
-	// defer func() {
-	// 	_ = logger.Sync()
-	// }()
 	if IsHTML3(ctx.Path()) {
 		if err := html3.Error(ctx, err); err != nil {
 			out.Fatal(sl, msg, slog.Any("html3 error", err))
@@ -95,45 +62,6 @@ func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger
 	}
 }
 
-// CustomErrorHandler handles customer error templates.
-//
-//	func (c *Config) CustomErrorHandler(err error, ctx echo.Context) {
-//		if ctx == nil {
-//			panic(ErrNoEcho)
-//		}
-//		logger := zaplog.Debug().Sugar()
-//		if c.ProdMode {
-//			root := string(c.AbsLog)
-//			logger = zaplog.Store(zaplog.Text(), root).Sugar()
-//		}
-//		defer func() {
-//			_ = logger.Sync()
-//		}()
-//		if IsHTML3(ctx.Path()) {
-//			if err := html3.Error(ctx, err); err != nil {
-//				logger.DPanic("Custom HTML3 response handler broke: %s", err)
-//			}
-//			return
-//		}
-//
-//		statusCode := http.StatusInternalServerError
-//		var httpError *echo.HTTPError
-//		if errors.As(err, &httpError) {
-//			statusCode = httpError.Code
-//		}
-//		errorPage := fmt.Sprintf("%d.html", statusCode)
-//		if err := ctx.File(errorPage); err != nil {
-//			// fallback to a string error if templates break
-//			code, s, err1 := StringErr(err)
-//			if err1 != nil {
-//				logger.DPanic("Custom response handler broke: %s", err1)
-//			}
-//			if err2 := ctx.String(code, s); err2 != nil {
-//				logger.DPanic("Custom response handler broke: %s", err2)
-//			}
-//		}
-//	}
-//
 // StringErr sends the error and code as a string.
 func StringErr(err error) (int, string, error) {
 	if err == nil {

@@ -25,15 +25,17 @@ import (
 
 // Checks runs a number of sanity checks for the environment variable configurations.
 func (c *Config) Checks(sl *slog.Logger) error {
+	const msg, key = "config directory", "check"
 	if sl == nil {
-		return ErrNoSlog
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
 	c.checkHTTP(sl)
 	c.checkHTTPS(sl)
 	c.production(sl)
-	msg, key := "directory", "check"
 	// Check the download, preview and thumbnail directories.
+	println("CHECK DIRECTORY")
 	if err := CheckDir(dir.Directory(c.AbsDownload), "downloads"); err != nil {
+		println(">> ", err.Error())
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
 	}
@@ -53,15 +55,15 @@ func (c *Config) Checks(sl *slog.Logger) error {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
 	}
-	msg = "information"
+	msgi := "information"
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {
 		s := "Disallow search engine crawling is enabled"
-		sl.Warn(msg, slog.String(key, s))
+		sl.Warn(msgi, slog.String(key, s))
 	}
 	if c.ReadOnly {
 		s := "The server is running in read-only mode, edits to the database are not allowed"
-		sl.Warn(msg, slog.String(key, s))
+		sl.Warn(msgi, slog.String(key, s))
 	}
 	return c.SetupLogDir(sl)
 }
@@ -69,13 +71,14 @@ func (c *Config) Checks(sl *slog.Logger) error {
 // SetupLogDir runs checks against the configured log directory.
 // If no log directory is configured, a default directory is used.
 // Problems will either log warnings or fatal errors.
-func (c *Config) SetupLogDir(ls *slog.Logger) error {
-	if ls == nil {
-		return ErrNoSlog
+func (c *Config) SetupLogDir(sl *slog.Logger) error {
+	const msg = "setup log directory"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
 	if c.AbsLog == "" {
 		if err := c.LogStore(); err != nil {
-			return fmt.Errorf("%w: %w", ErrLog, err)
+			return fmt.Errorf("%s: %w", msg, err)
 		}
 	}
 	logs := string(c.AbsLog)
@@ -89,7 +92,7 @@ func (c *Config) SetupLogDir(ls *slog.Logger) error {
 	if !dir.IsDir() {
 		return fmt.Errorf("log directory %w: %s", ErrNotDir, dir.Name())
 	}
-	const msg, issue = "touch test", "Could not remove the empty test file in the log directory path"
+	const issue = "could not remove the empty test file in the log directory path"
 	empty := filepath.Join(logs, ".defacto2_touch_test")
 	if _, err := os.Stat(empty); os.IsNotExist(err) {
 		f, err := os.Create(empty)
@@ -99,7 +102,7 @@ func (c *Config) SetupLogDir(ls *slog.Logger) error {
 		defer func(f *os.File) {
 			_ = f.Close()
 			if err := os.Remove(empty); err != nil {
-				ls.Warn(msg,
+				sl.Warn(msg,
 					slog.String("issue", issue),
 					slog.String("error", err.Error()),
 					slog.String("path", empty))
@@ -109,7 +112,7 @@ func (c *Config) SetupLogDir(ls *slog.Logger) error {
 		return nil
 	}
 	if err := os.Remove(empty); err != nil {
-		ls.Warn(msg,
+		sl.Warn(msg,
 			slog.String("issue", issue),
 			slog.String("error", err.Error()),
 			slog.String("path", empty))
@@ -119,10 +122,13 @@ func (c *Config) SetupLogDir(ls *slog.Logger) error {
 
 // checkHTTP logs a fatal error if the HTTP port is invalid.
 func (c *Config) checkHTTP(sl *slog.Logger) {
+	const msg, key = "check http port", "port"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	if c.HTTPPort == 0 {
 		return
 	}
-	const msg, key = "http port", "port"
 	if err := c.HTTPPort.Check(); err != nil {
 		c.fatalPort(sl, msg, key, err)
 	}
@@ -130,16 +136,22 @@ func (c *Config) checkHTTP(sl *slog.Logger) {
 
 // checkHTTPS logs a fatal error if the HTTPS port is invalid.
 func (c *Config) checkHTTPS(sl *slog.Logger) {
+	const msg, key = "check https port", "port"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	if c.TLSPort == 0 {
 		return
 	}
-	const msg, key = "https port", "port"
 	if err := c.TLSPort.Check(); err != nil {
 		c.fatalPort(sl, msg, key, err)
 	}
 }
 
 func (c *Config) fatalPort(sl *slog.Logger, msg, key string, err error) {
+	if sl == nil {
+		panic(fmt.Errorf("config fatal port: %w", panics.ErrNoSlog))
+	}
 	inf := "HTTP"
 	if msg == "https port" {
 		inf = "HTTPS"
@@ -162,10 +174,13 @@ func (c *Config) fatalPort(sl *slog.Logger, msg, key string, err error) {
 // expects the server to be configured with OAuth2 and Google IDs.
 // The server should be running over HTTPS and not unencrypted HTTP.
 func (c *Config) production(sl *slog.Logger) {
+	const msg, key = "production mode", "check"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	if !bool(c.ProdMode) || bool(c.ReadOnly) {
 		return
 	}
-	const msg, key = "production mode", "check"
 	if c.GoogleClientID == "" {
 		s := helper.Capitalize(ErrNoOAuth2.Error())
 		sl.Warn(msg, slog.String(key, s))
@@ -182,13 +197,13 @@ func (c *Config) production(sl *slog.Logger) {
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
 func (c *Config) Fixer(w io.Writer, sl *slog.Logger, d time.Time) error {
+	msg := "postgres"
 	if sl == nil {
-		return ErrNoSlog
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
 	if w == nil {
 		w = io.Discard
 	}
-	msg := "postgres"
 	db, err := postgres.Open()
 	if err != nil {
 		s := "fix could not initialize the database data"
@@ -259,8 +274,9 @@ func CheckDir(name dir.Directory, desc string) error {
 
 // RecordCount returns the number of records in the database.
 func RecordCount(ctx context.Context, db *sql.DB) int {
-	if db == nil {
-		return 0
+	const msg = "record count"
+	if err := panics.CD(ctx, db); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
 	if err != nil {
@@ -272,40 +288,42 @@ func RecordCount(ctx context.Context, db *sql.DB) int {
 // repairer is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
 func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
-	if db == nil {
-		panic(fmt.Errorf("%w: repairer", ErrPointer))
+	const msg = "repairer"
+	if err := panics.CDS(ctx, db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if err := repairDatabase(ctx, db, sl); err != nil {
-		if errors.Is(err, ErrVer) {
-			sl.Warn("repair",
-				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrVer)))
+		if errors.Is(err, ErrPSqlVer) {
+			sl.Warn("repairer",
+				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrPSqlVer)))
 		}
-		sl.Error("repair",
+		sl.Error("repairer",
 			slog.String("database", "could not initialize the database data"),
 			slog.Any("error", err))
 	}
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
 	if err := c.RepairAssets(ctx, db, sl); err != nil {
-		sl.Error("repair", slog.Any("error", err))
+		sl.Error("repairer", slog.Any("error", err))
 	}
 }
 
 // repairDatabase on startup checks the database connection and make any data corrections.
 func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
-	if db == nil {
-		panic(fmt.Errorf("%w: repair database", ErrPointer))
+	const msg = "repair database"
+	if err := panics.CDS(ctx, db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	tx, err := db.Begin()
 	if err != nil {
-		return fmt.Errorf("repair database could not begin a transaction: %w", err)
+		return fmt.Errorf("%s could not begin a transaction: %w", msg, err)
 	}
 	if err := fix.Artifacts.Run(ctx, db, tx, sl); err != nil {
 		defer func() {
 			if err := tx.Rollback(); err != nil {
-				sl.Error("repair database", slog.Any("error", err))
+				sl.Error(msg, slog.Any("error", err))
 			}
 		}()
-		return fmt.Errorf("repair database could not fix all artifacts: %w", err)
+		return fmt.Errorf("%s could not fix all artifacts: %w", msg, err)
 	}
 	return nil
 }
@@ -313,8 +331,12 @@ func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production mode environment variable is set.to false.
 func (c *Config) sanityChecks(sl *slog.Logger) {
+	const msg = "sanity check"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	if err := c.Checks(sl); err != nil {
-		sl.Error("check",
+		sl.Error(msg,
 			slog.String("issue", "sanity checks could not read the environment variable, "+
 				"it probably contains an invalid value"),
 			slog.Any("error", err))
@@ -322,19 +344,23 @@ func (c *Config) sanityChecks(sl *slog.Logger) {
 	cmdChecks(sl)
 	conn, err := postgres.New()
 	if err != nil {
-		sl.Error("check",
+		sl.Error(msg,
 			slog.String("issue", "sanity checks could not initialize the database data"),
 			slog.Any("error", err))
 		return
 	}
 	if err := conn.Validate(sl); err != nil {
-		panic(fmt.Errorf("sanity check conn validate: %w", err))
+		panic(fmt.Errorf("%s conn validate: %w", msg, err))
 	}
 }
 
 // checks is used to confirm the required commands are available.
 // These are skipped if readonly is true.
 func cmdChecks(sl *slog.Logger) {
+	const msg = "command checks"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	var attrs []slog.Attr
 	for i, name := range command.Lookups() {
 		if err := command.LookCmd(name); err != nil {

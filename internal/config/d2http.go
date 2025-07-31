@@ -1,6 +1,14 @@
 package config
 
-import "log/slog"
+import (
+	"fmt"
+	"log/slog"
+)
+
+var (
+	ErrPortMax = fmt.Errorf("http port value must be between 1-%d", PortMax)
+	ErrPortSys = fmt.Errorf("http port values between 1-%d require system access", PortSys)
+)
 
 // UseHTTP returns true if the server is configured to use HTTP.
 func (c Config) UseHTTP() bool {

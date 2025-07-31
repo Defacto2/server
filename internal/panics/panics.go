@@ -3,20 +3,24 @@
 package panics
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"errors"
 	"log/slog"
 
+	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/labstack/echo/v4"
 )
 
 var (
-	ErrNoDB    = errors.New("db database pointer is nil")
-	ErrNoEchoE = errors.New("e echo pointer is nil")
-	ErrNoEchoC = errors.New("c echo context pointer is nil")
-	ErrNoEmbed = errors.New("embed file system instance is empty")
-	ErrNoSlog  = errors.New("sl slog logger pointer is nil")
+	ErrNoBoil    = errors.New("exec boil context executor is nil")
+	ErrNoContext = errors.New("ctx context is nil")
+	ErrNoDB      = errors.New("db database pointer is nil")
+	ErrNoEchoE   = errors.New("e echo pointer is nil")
+	ErrNoEchoC   = errors.New("c echo context pointer is nil")
+	ErrNoEmbed   = errors.New("embed file system instance is empty")
+	ErrNoSlog    = errors.New("sl slog logger pointer is nil")
 )
 
 func Db(c echo.Context, db *sql.DB) error {
@@ -45,6 +49,52 @@ func Dbslog(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 func Slog(c echo.Context, sl *slog.Logger) error {
 	if c == nil {
 		return ErrNoEchoC
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
+
+func CBS(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+	if ctx == nil {
+		return ErrNoContext
+	}
+	if exec == nil {
+		return ErrNoBoil
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
+
+func CDS(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
+	if ctx == nil {
+		return ErrNoContext
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
+
+func CD(ctx context.Context, db *sql.DB) error {
+	if ctx == nil {
+		return ErrNoContext
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	return nil
+}
+
+func CS(ctx context.Context, sl *slog.Logger) error {
+	if ctx == nil {
+		return ErrNoContext
 	}
 	if sl == nil {
 		return ErrNoSlog
