@@ -21,9 +21,8 @@ func TestConfig(t *testing.T) {
 	c := config.Config{}
 	s := c.Names()
 	be.True(t, len(s) != 0)
-	cs, err := c.Addresses()
+	err := c.Addresses(nil)
 	be.Err(t, err)
-	be.True(t, cs == "")
 }
 
 func TestChecks(t *testing.T) {

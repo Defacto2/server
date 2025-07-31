@@ -98,7 +98,7 @@ func main() {
 			slog.String("environment vars", "could not startup the server, please check the configuration"))
 	}
 	go func() {
-		groupUsers(w, sl, msg)
+		groupUsers(sl, msg)
 		locAddresses(w, sl, configs, msg)
 	}()
 	// shutdown the web server after a signal is received.
@@ -124,7 +124,7 @@ func logtoFiles(sl *slog.Logger, configs *config.Config) {
 
 // groupUsers returns the owner and group of the current process and
 // writes them to the w io.writer.
-func groupUsers(w io.Writer, sl *slog.Logger, msg string) {
+func groupUsers(sl *slog.Logger, msg string) {
 	groups, usr, err := helper.Owner()
 	if err != nil {
 		sl.Error(msg,
@@ -134,21 +134,20 @@ func groupUsers(w io.Writer, sl *slog.Logger, msg string) {
 	clean := slices.DeleteFunc(groups, func(e string) bool {
 		return e == ""
 	})
-	_, _ = fmt.Fprintf(w, "Running as %s for the groups, %s.\n",
-		usr, strings.Join(clean, ","))
+	sl.Info(msg, slog.String("permissions", "Server running as the following user and groups"),
+		slog.String("User", usr), slog.String("Groups", strings.Join(clean, ",")))
 }
 
 // locAddresses returns the local IP addresses in use by the application and
 // writes them to the w io.writer.
 func locAddresses(w io.Writer, sl *slog.Logger, configs *config.Config, msg string) {
 	// get the local IP addresses and print them to the console.
-	localIPs, err := configs.Addresses()
+	err := configs.Addresses(sl)
 	if err != nil {
 		sl.Error(msg,
 			slog.String("local address", "could not obtain the usable addresses"),
 			slog.Any("error", err))
 	}
-	_, _ = fmt.Fprintf(w, "%s\n", localIPs)
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.
@@ -228,7 +227,7 @@ func welcomeMsg(sl *slog.Logger, count int) {
 	help := ""
 	switch {
 	case count == 0:
-		help = " with no database records"
+		help = ", but with no access to the database records"
 		sl.Error(welcome + help)
 	case config.MinimumFiles > count:
 		help = " with too few records"

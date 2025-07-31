@@ -192,20 +192,12 @@ func (c Config) Names() []string {
 }
 
 // Addresses returns a list of urls that the server is accessible from.
-func (c Config) Addresses() (string, error) {
-	b := new(strings.Builder)
-	if err := c.addresses(b, true); err != nil {
-		return "", fmt.Errorf("list of server addresses: %w", err)
+func (c Config) Addresses(sl *slog.Logger) error {
+	const msg = "configuration"
+	if err := c.addresses(sl, true); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
-	return b.String(), nil
-}
-
-func addressesHelper(b *strings.Builder) {
-	fmt.Fprintf(b, "%s\n",
-		"Depending on your firewall, network and certificate setup,")
-	fmt.Fprintf(b, "%s\n",
-		"this web server could be accessible from the following addresses:")
-	fmt.Fprintf(b, "\n")
+	return nil
 }
 
 func localIPs(b *strings.Builder, port uint64, pad string) error {
@@ -223,11 +215,13 @@ func localIPs(b *strings.Builder, port uint64, pad string) error {
 }
 
 // addresses prints a list of urls that the server is accessible from.
-func (c Config) addresses(b *strings.Builder, help bool) error {
-	pad := strings.Repeat(string(padchar), padding)
+func (c Config) addresses(sl *slog.Logger, help bool) error {
+	const msg = "addresses"
 	values := reflect.ValueOf(c)
 	if help {
-		addressesHelper(b)
+		s := "Depending on the firewall and network setup, " +
+			"the web server maybe accessible from these links"
+		sl.Info(msg, slog.String("Help", s))
 	}
 	hosts, err := helper.LocalHosts()
 	if err != nil {
@@ -243,25 +237,39 @@ func (c Config) addresses(b *strings.Builder, help bool) error {
 		if c.MatchHost != "" && host != c.MatchHost.String() {
 			continue
 		}
+		s := ""
 		switch port {
 		case text:
-			fmt.Fprintf(b, "%shttp://%s\n", pad, host)
+			s = fmt.Sprintf("http://%s", host)
 		case disable:
 			continue
 		default:
-			fmt.Fprintf(b, "%shttp://%s:%d\n", pad, host, port)
+			s = fmt.Sprintf("http://%s:%d", host, port)
 		}
+		sl.Info(msg, slog.String("link", s))
 		switch tls {
 		case secure:
-			fmt.Fprintf(b, "%shttps://%s\n", pad, host)
+			s = fmt.Sprintf("https://%s", host)
 		case disable:
 			continue
 		default:
-			fmt.Fprintf(b, "%shttps://%s:%d\n", pad, host, tls)
+			s = fmt.Sprintf("https://%s:%d", host, tls)
 		}
+		sl.Info(msg, slog.String("link", s))
 	}
-	if c.MatchHost == "" {
-		return localIPs(b, port, pad)
+	if c.MatchHost != "" {
+		return nil
+	}
+	ips, err := helper.LocalIPs()
+	if err != nil {
+		return fmt.Errorf("the server cannot get the local IP addresses: %w", err)
+	}
+	for ip := range slices.Values(ips) {
+		if port == 0 {
+			break
+		}
+		s := fmt.Sprintf("http://%s:%d", ip, port)
+		sl.Info(msg, slog.String("address", s))
 	}
 	return nil
 }

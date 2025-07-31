@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/helper"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
 )
@@ -83,11 +84,11 @@ func defaultOptions(w io.Writer) (io.Writer, tint.Options) {
 		w = os.Stdout
 	}
 	return w, tint.Options{
-		AddSource: false,
-		Level:     slog.LevelInfo,
-		// ReplaceAttr: startAttr,
-		TimeFormat: time.Kitchen,
-		NoColor:    !Color(w),
+		AddSource:   false,
+		Level:       slog.LevelInfo,
+		ReplaceAttr: defaultAttr,
+		TimeFormat:  time.Kitchen,
+		NoColor:     !Color(w),
 	}
 }
 
@@ -171,8 +172,25 @@ func startOptions(w io.Writer) (io.Writer, tint.Options) {
 	}
 }
 
+func defaultAttr(groups []string, a slog.Attr) slog.Attr {
+	switch strings.ToLower(a.Key) {
+	case "":
+		return slog.Attr{}
+	case "help", "problem":
+		a.Key = helper.Capitalize(a.Key)
+	case "error":
+		a.Key = strings.ToUpper(a.Key)
+		val := a.Value.Any()
+		if err, ok := val.(error); ok {
+			a = tint.Attr(9, slog.String(a.Key, err.Error()))
+		}
+	case "postgres":
+		a.Key = "PostgreSQL"
+	}
+	return a
+}
+
 func startAttr(groups []string, a slog.Attr) slog.Attr {
-	// fmt.Printf("\t%+v [%q]\n", a, a.Key)
 	a = configUnsetAttr(a)
 	switch strings.ToLower(a.Key) {
 	case "":

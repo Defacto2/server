@@ -199,8 +199,9 @@ func (c *Configuration) PortErr(sl *slog.Logger, port uint, err error) {
 	var portErr *net.OpError
 	switch {
 	case !bool(c.Environment.ProdMode) && errors.As(err, &portErr):
-		sl.Info("air or task",
-			slog.String("startup", "could not startup air or task, however this probably can be ignored"),
+		sl.Warn("air or task",
+			slog.String("problem", "could not startup air or task"),
+			slog.String("help", "however, this issue can probably be ignored"),
 			slog.Any("error", err))
 	case errors.Is(err, net.ErrClosed),
 		errors.Is(err, http.ErrServerClosed):

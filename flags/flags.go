@@ -95,16 +95,11 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
-			s, err := c.Addresses()
+			sl := out.Start(w)
+			err := c.Addresses(sl)
 			if err != nil {
 				return fmt.Errorf("command address: %w", err)
 			}
-			defer func() {
-				_, err := fmt.Fprintf(w, "%s\n", s)
-				if err != nil {
-					panic(err)
-				}
-			}()
 			return nil
 		},
 	}
