@@ -12,6 +12,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
@@ -32,8 +33,9 @@ const textamiga = "textamiga"
 // Based on the platform and section.
 // Otherwise it will attempt to determine the encoding from the file byte content.
 func Encoder(art *models.File, r io.Reader) encoding.Encoding { //nolint:ireturn
+	const msg = "render encoder"
 	if art == nil {
-		return nil
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoArtM))
 	}
 	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))
 	section := strings.ToLower(strings.TrimSpace(art.Section.String))
@@ -54,63 +56,17 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding { //nolint:ireturn
 	return guess
 }
 
-// Read returns the content of either the file download or an extracted text file.
-// The text is intended to be used as a readme, preview or an in-browser viewer.
-// TODO: this might be removed in the future.
-func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, error) {
+func readmepanic(buf, ruf *bytes.Buffer, art *models.File, msg string) error {
+	if buf == nil {
+		return fmt.Errorf("%s: buf %w", msg, panics.ErrNoBuffer)
+	}
+	if ruf == nil {
+		return fmt.Errorf("%s: ruf %w", msg, panics.ErrNoBuffer)
+	}
 	if art == nil {
-		return nil, nil, ErrFileModel
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
 	}
-
-	fname := art.Filename.String
-	if fname == "" {
-		return nil, nil, ErrFilename
-	}
-	unid := art.UUID.String
-	if unid == "" {
-		return nil, nil, ErrUUID
-	}
-
-	var files struct {
-		artifact struct {
-			okay bool
-			path string
-		}
-		readmeText struct {
-			okay bool
-			path string
-		}
-	}
-	files.readmeText.path = extra.Join(unid + ".txt")
-	files.readmeText.okay = helper.Stat(files.readmeText.path)
-
-	files.artifact.path = download.Join(unid)
-	files.artifact.okay = helper.Stat(files.artifact.path)
-
-	if !files.artifact.okay && !files.readmeText.okay {
-		return nil, nil,
-			fmt.Errorf("render read %w: %q", ErrDownload, download.Join(unid))
-	}
-	if !files.readmeText.okay && !Viewer(art) {
-		quit := []byte{}
-		return quit, nil, nil
-	}
-
-	name := files.artifact.path
-	if files.readmeText.okay {
-		name = files.readmeText.path
-	}
-	b, err := os.ReadFile(name)
-	if err != nil {
-		b = []byte("error could not read the readme text file")
-	}
-	const nul = 0x00
-	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
-	r := []rune{}
-	if utf8.Valid(b) {
-		r = bytes.Runes(b)
-	}
-	return b, r, nil
+	return nil
 }
 
 // ReadmePool writes the content of either the file download or an extracted text file to the buffers.
@@ -118,8 +74,9 @@ func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, erro
 //
 // Both the buf buffer and the ruf rune buffer are reset before writing.
 func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Directory) error {
-	if art == nil {
-		return ErrFileModel
+	const msg = "render readme pool"
+	if err := readmepanic(buf, ruf, art, msg); err != nil {
+		return err
 	}
 	fname := art.Filename.String
 	if fname == "" {
@@ -144,13 +101,12 @@ func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Di
 	files.artifact.path = download.Join(unid)
 	files.artifact.okay = helper.Stat(files.artifact.path)
 	if !files.artifact.okay && !files.readmeText.okay {
-		return fmt.Errorf("render read %w: %q", ErrDownload, download.Join(unid))
+		return fmt.Errorf("%s: %w %q", msg, ErrDownload, download.Join(unid))
 	}
 	if !files.readmeText.okay && !Viewer(art) {
 		buf.Reset()
 		return nil
 	}
-
 	name := files.artifact.path
 	if files.readmeText.okay {
 		name = files.readmeText.path
@@ -161,7 +117,6 @@ func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Di
 		buf.Write(b)
 	}
 	defer func() { _ = f.Close() }()
-
 	buf.Reset()
 	_, err = io.Copy(buf, f)
 	if err != nil {
@@ -182,11 +137,12 @@ func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Di
 // DizPool returns the content of the FILE_ID.DIZ file.
 // The text is intended to be used as a readme, preview or an in-browser viewer.
 func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
+	const msg = "file_id.diz pool"
 	if buf == nil {
-		return ErrBuffer
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoBuffer)
 	}
 	if art == nil {
-		return ErrFileModel
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
 	}
 	unid := art.UUID.String
 	if unid == "" {
@@ -206,7 +162,7 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	buf.Reset()
 	_, err = io.Copy(buf, f)
 	if err != nil {
-		return fmt.Errorf("diz copy %w: %q", err, diz)
+		return fmt.Errorf("%s copy %w: %q", msg, err, diz)
 	}
 	b := buf.Bytes()
 	const nul = 0x00
@@ -214,32 +170,6 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	buf.Reset()
 	buf.Write(b)
 	return nil
-}
-
-// Diz returns the content of the FILE_ID.DIZ file.
-// The text is intended to be used as a readme, preview or an in-browser viewer.
-//
-// If the FILE_ID.DIZ file is missing then it will return nil.
-// TODO: this should be removed in the future.
-func Diz(art *models.File, extra dir.Directory) ([]byte, error) {
-	if art == nil {
-		return nil, ErrFileModel
-	}
-	unid := art.UUID.String
-	if unid == "" {
-		return nil, ErrUUID
-	}
-	diz := extra.Join(unid + ".diz")
-	if !helper.Stat(diz) {
-		return nil, nil
-	}
-	b, err := os.ReadFile(diz)
-	if err != nil {
-		b = []byte("error could not read the diz file")
-	}
-	const nul = 0x00
-	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
-	return b, nil
 }
 
 // InsertDiz inserts the FILE_ID.DIZ content into the existing byte content.

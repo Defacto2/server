@@ -14,14 +14,40 @@ import (
 )
 
 var (
+	ErrNoArtM    = errors.New("art models file is nil")
 	ErrNoBoil    = errors.New("exec boil context executor is nil")
+	ErrNoBuffer  = errors.New("bytes buffer pointer is nil")
 	ErrNoContext = errors.New("ctx context is nil")
 	ErrNoDB      = errors.New("db database pointer is nil")
 	ErrNoEchoE   = errors.New("e echo pointer is nil")
 	ErrNoEchoC   = errors.New("c echo context pointer is nil")
 	ErrNoEmbed   = errors.New("embed file system instance is empty")
+	ErrNoGroup   = errors.New("g echo group pointer is nil")
 	ErrNoSlog    = errors.New("sl slog logger pointer is nil")
 )
+
+func GroupD(g *echo.Group, db *sql.DB) error {
+	if g == nil {
+		return ErrNoGroup
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	return nil
+}
+
+func GroupDS(g *echo.Group, db *sql.DB, sl *slog.Logger) error {
+	if g == nil {
+		return ErrNoGroup
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
 
 func EchoContextD(c echo.Context, db *sql.DB) error {
 	if c == nil {

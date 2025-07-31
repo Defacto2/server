@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
@@ -32,6 +33,9 @@ func Art(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func Categories(c echo.Context, sl *slog.Logger) error {
 	const msg = "htm3 categories"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
 		"title":       title + "/categories",
@@ -67,6 +71,9 @@ func Group(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Groups lists the names and sums of all the distinct scene groups.
 func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "html3 groups listings"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	ctx := context.Background()
 	page := 1
@@ -123,6 +130,9 @@ func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Index method is the homepage of the /html3 sub-route.
 func Index(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "html3 index"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	const desc = firefox
 	// Stats are the database statistics.
@@ -170,6 +180,9 @@ func Index(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 // List all the records associated with the RecordsBy grouping.
 func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error { //nolint:funlen
 	const msg = "htm3 list records by"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	var id string
 	switch tt {
@@ -247,6 +260,9 @@ func Platform(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Platforms lists the names, descriptions and sums of the platform tags.
 func Platforms(c echo.Context, sl *slog.Logger) error {
 	const msg = "htm3 platforms"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
 		"title":       title + "/platforms",

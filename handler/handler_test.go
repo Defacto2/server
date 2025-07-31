@@ -27,7 +27,7 @@ func TestRender(t *testing.T) {
 func TestInfo(t *testing.T) {
 	t.Parallel()
 	c := handler.Configuration{}
-	c.Info(nil, nil)
+	c.StartupBranding(nil, nil)
 }
 
 func TestRegistry(t *testing.T) {

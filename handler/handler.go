@@ -69,6 +69,9 @@ type Configuration struct {
 // Controller is the primary instance of the Echo router.
 func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
 	const msg = "controller handler"
+	if err := panics.DS(db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
+	}
 	configs := c.Environment
 	e := echo.New()
 	if configs.LogAll {
@@ -128,8 +131,9 @@ func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
 
 // EmbedDirs serves the static files from the directories embed to the binary.
 func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
+	const msg = "embed dirs handler"
 	if e == nil {
-		panic(fmt.Errorf("%w for the embed directories binary", panics.ErrNoEchoE))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	dirs := map[string]string{
 		"/image/artpack":   "public/image/artpack",
@@ -149,9 +153,12 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	return e
 }
 
-// Info prints the application information to the console.
-func (c *Configuration) Info(sl *slog.Logger, w io.Writer) {
-	const msg = "configuration info"
+// StartupBranding prints the application logo and information to the w io.writer.
+func (c *Configuration) StartupBranding(sl *slog.Logger, w io.Writer) {
+	const msg = "configuration info handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	if w == nil {
 		w = io.Discard
 	}
@@ -161,20 +168,17 @@ func (c *Configuration) Info(sl *slog.Logger, w io.Writer) {
 	} else if l > 0 {
 		_, err := fmt.Fprint(w, "\n\n")
 		if err != nil {
-			panic(err)
+			panic(fmt.Errorf("%s: %w", msg, err))
 		}
 	}
-
 	_, err := fmt.Fprintf(w, "  %s.\n", flags.Copyright())
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	_, _ = fmt.Fprintf(w, "%s\n", c.versionBrief())
-
 	cpuInfo := fmt.Sprintf("  %d active routines sharing %d usable threads on %d CPU cores.",
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	_, _ = fmt.Fprintln(w, cpuInfo)
-
 	golangInfo := fmt.Sprintf("  Compiled on Go %s for %s with %s.\n",
 		runtime.Version()[2:], flags.OS(), flags.Arch())
 	_, _ = fmt.Fprintln(w, golangInfo)
@@ -186,6 +190,9 @@ func (c *Configuration) Info(sl *slog.Logger, w io.Writer) {
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
 func (c *Configuration) PortErr(sl *slog.Logger, port uint, err error) {
 	const msg = "http/https"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	s := "HTTP"
 	if port == c.Environment.TLSPort.Value() {
 		s = "TLS"
@@ -211,6 +218,10 @@ func (c *Configuration) PortErr(sl *slog.Logger, port uint, err error) {
 
 // Registry returns the template renderer.
 func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry, error) {
+	const msg = "template registry handler"
+	if err := panics.DS(db, sl); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
+	}
 	webapp := app.Templ{
 		Environment: c.Environment,
 		Brand:       c.Brand,
@@ -221,7 +232,7 @@ func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry
 	}
 	tmpls, err := webapp.Templates(db)
 	if err != nil {
-		return nil, fmt.Errorf("handler registry, %w", err)
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	src := html3.Templates(db, sl, c.View)
 	maps.Copy(tmpls, src)
@@ -233,9 +244,9 @@ func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry
 // ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
 // The shutdown procedure occurs a few seconds after the key press.
 func (c *Configuration) ShutdownHTTP(e *echo.Echo, sl *slog.Logger) {
-	const msg = "shutdown"
-	if e == nil {
-		panic(fmt.Errorf("%w for the HTTP shutdown", panics.ErrNoEchoE))
+	const msg = "shutdown http handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
@@ -299,8 +310,9 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, sl *slog.Logger) {
 
 // Start the HTTP, and-or the TLS servers.
 func (c *Configuration) Start(e *echo.Echo, sl *slog.Logger, configs config.Config) error {
-	if e == nil {
-		panic(fmt.Errorf("%w for the web application startup", panics.ErrNoEchoE))
+	const msg = "start server handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	switch {
 	case configs.UseTLS() && configs.UseHTTP():
@@ -322,15 +334,16 @@ func (c *Configuration) Start(e *echo.Echo, sl *slog.Logger, configs config.Conf
 	case configs.UseTLSLocal():
 		go c.StartTLSLocal(e, sl)
 	default:
-		return ErrNoPort
+		return fmt.Errorf("%s: %w", msg, ErrNoPort)
 	}
 	return nil
 }
 
 // StartHTTP starts the insecure HTTP web server.
 func (c *Configuration) StartHTTP(e *echo.Echo, sl *slog.Logger) {
-	if e == nil {
-		panic(fmt.Errorf("%w for the HTTP startup", panics.ErrNoEchoE))
+	const msg = "start http handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	port := c.Environment.HTTPPort.Value()
 	address := c.address(port)
@@ -344,9 +357,9 @@ func (c *Configuration) StartHTTP(e *echo.Echo, sl *slog.Logger) {
 
 // StartTLS starts the encrypted TLS web server.
 func (c *Configuration) StartTLS(e *echo.Echo, sl *slog.Logger) {
-	const msg = "tls web server"
-	if e == nil {
-		panic(fmt.Errorf("%w for the TLS startup", panics.ErrNoEchoE))
+	const msg = "start tls handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
@@ -377,9 +390,9 @@ func (c *Configuration) StartTLS(e *echo.Echo, sl *slog.Logger) {
 // StartTLSLocal starts the localhost, encrypted TLS web server.
 // This should only be triggered when the server is running in local mode.
 func (c *Configuration) StartTLSLocal(e *echo.Echo, sl *slog.Logger) {
-	const msg = "tls localhost server"
-	if e == nil {
-		panic(fmt.Errorf("%w for the TLS local mode startup", panics.ErrNoEchoE))
+	const msg = "start local tls handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
@@ -415,12 +428,16 @@ func (c *Configuration) address(port uint) string {
 
 // downloader route for the file download handler under the html3 group.
 func (c *Configuration) downloader(cx echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "downloader htm3 group handler"
+	if err := panics.EchoContextDS(cx, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	d := download.Download{
 		Inline: false,
 		Dir:    dir.Directory(c.Environment.AbsDownload),
 	}
 	if err := d.HTTPSend(cx, db, sl); err != nil {
-		return fmt.Errorf("d.HTTPSend: %w", err)
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return nil
 }
@@ -448,25 +465,25 @@ type TemplateRegistry struct {
 
 // Render the layout template with the core HTML, META and BODY elements.
 func (t *TemplateRegistry) Render(w io.Writer, name string, data any, c echo.Context) error {
-	const layout, info = "layout", "template registry render"
+	const msg = "template registry render handler"
 	if name == "" {
-		return fmt.Errorf("%s layout: %w", info, ErrNoName)
+		return fmt.Errorf("%s name layout: %w", msg, ErrNoName)
 	}
 	if w == nil {
-		return fmt.Errorf("%s io.writer is nil: %w", info, echo.ErrRendererNotRegistered)
+		return fmt.Errorf("%s w io.writer is nil: %w", msg, echo.ErrRendererNotRegistered)
 	}
 	if data == nil {
-		return fmt.Errorf("%s data interface is nil: %w", info, echo.ErrRendererNotRegistered)
+		return fmt.Errorf("%s data interface is nil: %w", msg, echo.ErrRendererNotRegistered)
 	}
 	if c == nil {
-		return fmt.Errorf("%s echo context is nil: %w", info, echo.ErrRendererNotRegistered)
+		return fmt.Errorf("%s c echo context is nil: %w", msg, echo.ErrRendererNotRegistered)
 	}
 	tmpl, exists := t.Templates[name]
 	if !exists {
-		return fmt.Errorf("registry render %w: %q", ErrNoTmpl, name)
+		return fmt.Errorf("%s %q: %w", msg, name, ErrNoTmpl)
 	}
-	if err := tmpl.ExecuteTemplate(w, layout, data); err != nil {
-		return fmt.Errorf("%s execute: %w", info, err)
+	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
+		return fmt.Errorf("%s execute: %w", msg, err)
 	}
 	return nil
 }

@@ -92,7 +92,7 @@ func main() {
 	welcomeMsg(sl, instance.RecordCount)
 	logtoFiles(sl, configs)
 	routing := instance.Controller(db, sl)
-	instance.Info(sl, w)
+	instance.StartupBranding(sl, w)
 	if err := instance.Start(routing, sl, *configs); err != nil {
 		logs.Fatal(sl, msg,
 			slog.String("environment vars", "could not startup the server, please check the configuration"))

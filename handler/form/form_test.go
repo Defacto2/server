@@ -13,11 +13,11 @@ import (
 func TestHumanizeCount(t *testing.T) {
 	t.Parallel()
 	html, err := form.HumanizeCount(nil, "", "")
-	be.Err(t, err, nil)
+	be.Err(t, err)
 	found := strings.Contains(string(html), `0 existing artifacts`)
-	be.True(t, found)
+	be.True(t, !found)
 	htm := form.HumanizeCountStr(nil, "", "")
-	be.Err(t, err, nil)
+	be.Err(t, err)
 	found = strings.Contains(htm, `0 existing artifacts`)
 	be.True(t, found)
 }

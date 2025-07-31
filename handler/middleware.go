@@ -19,6 +19,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -44,6 +45,9 @@ func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 // of the database and any related user interface.
 func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
 	const msg = "middleware read only lock"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	return func(e echo.Context) error {
 		s := strconv.FormatBool(bool(c.Environment.ReadOnly))
 		e.Response().Header().Set("X-Read-Only-Lock", s)
@@ -60,6 +64,9 @@ func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) ech
 // SessionLock middleware checks the session cookie for a valid signed in client.
 func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
 	const msg = "middleware session lock"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	return func(e echo.Context) error {
 		// Help, https://pkg.go.dev/github.com/gorilla/sessions#Session
 		sess, err := session.Get(sess.Name, e)

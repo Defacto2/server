@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 )
@@ -23,6 +24,10 @@ const ReSanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the
 // the count. If the count is 0, the text is red. If the count is 1, the text is blue. If the
 // count is greater than 1, the text is unmodified.
 func HumanizeCount(db *sql.DB, section, platform string) (template.HTML, error) {
+	const msg = "form humanize count"
+	if db == nil {
+		return "", fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	}
 	count, tag, err := humanizeCount(db, section, platform)
 	if err != nil {
 		return "", err

@@ -23,6 +23,7 @@ import (
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
@@ -94,6 +95,10 @@ func Areacodes(c echo.Context) error {
 // This also acts as the string constructor for the summary of a successful lookup
 // for the "Demozoo production or graphic" form.
 func DemozooLookup(c echo.Context, db *sql.DB, prodMode bool) error {
+	const msg = "demozoo lookup htmx context"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	zoo := c.FormValue("demozoo-submission")
 	id, err := strconv.Atoi(zoo)
 	if err != nil {
@@ -228,7 +233,7 @@ func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, er
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
 func DemozooSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
-	const msg = "htmx demozoo submit"
+	const msg = "htmx demozoo submit context"
 	if err := htmxpanic(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -237,7 +242,7 @@ func DemozooSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Dir
 
 // DBConnections is the handler for the database connections page.
 func DBConnections(c echo.Context, db *sql.DB) error {
-	const msg = "htmx db connections"
+	const msg = "htmx db connections context"
 	if err := dbpanic(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -362,7 +367,7 @@ func pings() []string {
 
 // Pings is a handler for the /pings route.
 func Pings(c echo.Context, proto string, port int) error {
-	const msg = "htmx pings"
+	const msg = "htmx pings context"
 	if c == nil {
 		return fmt.Errorf("%s, %w", msg, ErrNoEcho)
 	}
@@ -402,7 +407,7 @@ func Pings(c echo.Context, proto string, port int) error {
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
 func PouetLookup(c echo.Context, db *sql.DB) error {
-	const msg = "htmx pouet lookup"
+	const msg = "htmx pouet lookup context"
 	if err := dbpanic(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -478,7 +483,7 @@ func htmler(id int, info ...string) string {
 // is suitable for Defacto2. If the production is not suitable, an empty
 // production is returned with a htmx message.
 func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
-	const msg = "htmx pouet valid"
+	const msg = "htmx pouet valid context"
 	none := pouet.Response{}
 	if c == nil {
 		return none, fmt.Errorf("%s: %w", msg, ErrNoEcho)
@@ -556,7 +561,7 @@ func validation(prod pouet.Response) string {
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
 func PouetSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
-	const msg = "htmx pouet submit"
+	const msg = "htmx pouet submit context"
 	if err := htmxpanic(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -565,7 +570,7 @@ func PouetSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Direc
 
 // SearchByID is a handler for the /editor/search/id route.
 func SearchByID(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	const msg = "search by id"
+	const msg = "search by id context"
 	if err := htmxpanic(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -657,7 +662,7 @@ func Alternatives(s string) []string {
 
 // SearchReleaser is a handler for the /search/releaser route.
 func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	const msg = "htmx search releaser"
+	const msg = "htmx search releaser context"
 	if err := htmxpanic(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -725,7 +730,7 @@ func dlpanic(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // DataListReleasers is a handler for the /datalist/releasers route.
 func DataListReleasers(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
-	const msg = "htmx datalist releasers"
+	const msg = "htmx datalist releasers context"
 	if err := dlpanic(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -734,7 +739,7 @@ func DataListReleasers(c echo.Context, db *sql.DB, sl *slog.Logger, input string
 
 // DataListMagazines is a handler for the /datalist/magazines route.
 func DataListMagazines(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
-	const msg = "htmx datalist magazines"
+	const msg = "htmx datalist magazines context"
 	if err := dlpanic(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -743,7 +748,7 @@ func DataListMagazines(c echo.Context, db *sql.DB, sl *slog.Logger, input string
 
 // datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
 func datalist(c echo.Context, db *sql.DB, sl *slog.Logger, input string, magazine bool) error {
-	const msg = "htmx datalist"
+	const msg = "htmx datalist context"
 	if err := dlpanic(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}

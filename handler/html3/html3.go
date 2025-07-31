@@ -57,13 +57,10 @@ const (
 )
 
 var (
-	ErrConn   = errors.New("the server cannot connect to the database")
-	ErrDB     = errors.New("database value is nil")
-	ErrPage   = errors.New("unknown records by type")
-	ErrRoutes = errors.New("echo instance is nil")
-	ErrSQL    = errors.New("database connection problem or a SQL error")
-	ErrTag    = errors.New("no database query was for the tag")
-	ErrTmpl   = errors.New("cannot render the template")
+	ErrConn = errors.New("the server cannot connect to the database")
+	ErrPage = errors.New("unknown records by type")
+	ErrSQL  = errors.New("database connection problem or a SQL error")
+	ErrTmpl = errors.New("cannot render the template")
 )
 
 // Clauses for ordering file record queries.
@@ -561,5 +558,5 @@ func statErr(info string, err error) (int, int, int64, models.FileSlice, error) 
 }
 
 func dbErr() (int, int, int64, models.FileSlice, error) {
-	return 0, 0, 0, nil, ErrDB
+	return 0, 0, 0, nil, panics.ErrNoDB
 }

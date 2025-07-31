@@ -26,8 +26,9 @@ import (
 */
 
 func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
-	if e == nil {
-		panic(fmt.Errorf("%w for lock router", panics.ErrNoEchoE))
+	const msg = "configuration router lock"
+	if err := panics.EchoDS(e, db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	// TODO: TEST
 	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {
@@ -49,8 +50,9 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app
 }
 
 func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logger) {
-	if g == nil {
-		panic(fmt.Errorf("%w for configurations router", panics.ErrNoEchoE))
+	const msg = "configurations group router"
+	if err := panics.GroupDS(g, db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	conf := g.Group("/configurations")
 	conf.GET("", func(cx echo.Context) error {
@@ -71,8 +73,9 @@ func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logge
 }
 
 func creator(g *echo.Group, db *sql.DB) {
-	if g == nil {
-		panic(panics.ErrNoEchoE)
+	const msg = "creator group router"
+	if err := panics.GroupD(g, db); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	creator := g.Group("/creator")
 	creator.PATCH("/text", func(c echo.Context) error {

@@ -17,6 +17,7 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/render"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 )
 
@@ -142,29 +143,29 @@ func SortContent(content ...string) []string {
 // The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
 // However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
 func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, error) { //nolint:cyclop,funlen,lll
-
+	const msg = "readme pool"
+	if art == nil {
+		return nil, nil, fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
+	}
 	buf := new(bytes.Buffer)
 	diz := new(bytes.Buffer)
 	ruf := new(bytes.Buffer)
-
 	// This might be useful if we want to force Go to not use the garbage collector.
 	// buf.Reset()
 	// diz.Reset()
 	// ruf.Reset()
-
 	err1 := render.DizPool(diz, art, extra)
 	err2 := render.ReadmePool(buf, ruf, art, download, extra)
-
 	var errs error
 	if err1 != nil {
-		errs = errors.Join(errs, fmt.Errorf("render diz: %w", err1))
+		errs = errors.Join(errs, fmt.Errorf("%s render diz: %w", msg, err1))
 	}
 	if err2 != nil {
 		if errors.Is(err2, render.ErrFilename) {
 			err2 = nil
 		}
 		if err2 != nil {
-			errs = errors.Join(errs, fmt.Errorf("render read: %w", err2))
+			errs = errors.Join(errs, fmt.Errorf("%s render read: %w", msg, err2))
 		}
 	}
 	if diz.Len() == 0 && buf.Len() == 0 && ruf.Len() == 0 {
@@ -174,7 +175,7 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 	sign, err := magicnumber.Text(bytes.NewReader(buf.Bytes()))
 	if err != nil {
 		buf.Reset()
-		errs = errors.Join(errs, fmt.Errorf("magicnumber.Text: %w", err))
+		errs = errors.Join(errs, fmt.Errorf("%s magicnumber text: %w", msg, err))
 	}
 	// reset buffer for unknown, utf-16 or utf-32 text which won't be displayed
 	if sign == magicnumber.Unknown || sign == magicnumber.UTF16Text || sign == magicnumber.UTF32Text {
@@ -182,7 +183,7 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 	}
 	// reset buffer for any embedded ANSI cursor escape codes
 	if incompatible, err := IncompatibleANSI(bytes.NewReader(buf.Bytes())); err != nil {
-		errs = errors.Join(errs, fmt.Errorf("incompatible ansi: %w", err))
+		errs = errors.Join(errs, fmt.Errorf("%s incompatible ansi: %w", msg, err))
 		buf.Reset()
 	} else if incompatible {
 		buf.Reset()
@@ -207,56 +208,6 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 	// defer bufferPool.Put(buf)
 	// defer bufferPool.Put(ruf)
 	return buf, ruf, nil
-}
-
-// Read returns the content of the readme file or the text of the file download.
-// TODO: this could be removed and replaced with ReadPool.
-func Read(art *models.File, download, extra dir.Directory) ([]byte, []rune, error) {
-	if art == nil {
-		return nil, nil, fmt.Errorf("art in read, %w", ErrNoModel)
-	}
-	var errs error
-	diz, err1 := render.Diz(art, extra)
-	b, r, err2 := render.Read(art, download, extra)
-
-	if err1 != nil {
-		errs = errors.Join(errs, fmt.Errorf("render diz: %w", err1))
-	}
-	if err2 != nil {
-		if errors.Is(err2, render.ErrFilename) {
-			err2 = nil
-		}
-		if err2 != nil {
-			errs = errors.Join(errs, fmt.Errorf("render read: %w", err2))
-		}
-	}
-	if b == nil && diz == nil {
-		return nil, nil, errs
-	}
-	// check the bytes are plain text but not utf16 or utf32
-	sign, err := magicnumber.Text(bytes.NewReader(b))
-	if err != nil {
-		clear(b)
-		errs = errors.Join(errs, fmt.Errorf("magicnumber.Text: %w", err))
-	}
-	if sign == magicnumber.Unknown || sign == magicnumber.UTF16Text || sign == magicnumber.UTF32Text {
-		clear(b)
-	}
-	if incompatible, err := IncompatibleANSI(bytes.NewReader(b)); err != nil {
-		errs = errors.Join(errs, fmt.Errorf("incompatible ansi: %w", err))
-		clear(b)
-	} else if incompatible {
-		clear(b)
-	}
-	b = trimBytes(b)
-	if diz != nil {
-		b = render.InsertDiz(b, diz)
-	}
-	b = RemoveCtrls(b)
-	if bytes.TrimSpace(b) == nil {
-		return nil, nil, errs
-	}
-	return b, r, nil
 }
 
 func trimBytes(b []byte) []byte {
@@ -293,6 +244,7 @@ func RemoveCtrls(b []byte) []byte {
 
 // IncompatibleANSI scans for HTML incompatible, ANSI cursor escape codes in the reader.
 func IncompatibleANSI(r io.Reader) (bool, error) {
+	const msg = "incompatible ansi reader"
 	if r == nil {
 		return false, nil
 	}
@@ -311,7 +263,7 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 	}
 	err := scanner.Err()
 	if err != nil && !errors.Is(err, bufio.ErrTooLong) {
-		return false, fmt.Errorf("incompatible ansi cursor scanner: %w", err)
+		return false, fmt.Errorf("%s cursor scanner: %w", msg, err)
 	} else if err == nil {
 		return false, nil
 	}
@@ -332,7 +284,7 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return false, fmt.Errorf("incompatible ansi, file is too large for the 1MB scanner: %w", err)
+		return false, fmt.Errorf("%s, file is too large for the 1MB scanner: %w", msg, err)
 	}
 	return false, nil
 }

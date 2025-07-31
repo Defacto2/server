@@ -123,13 +123,6 @@ func TestReadmeSuggest(t *testing.T) {
 	}
 }
 
-func TestRead(t *testing.T) {
-	t.Parallel()
-	p, _, err := readme.Read(nil, "", "")
-	be.Err(t, err)
-	be.True(t, len(p) == 0)
-}
-
 func TestRemoveCtrls(t *testing.T) {
 	t.Parallel()
 	p := []byte("a\x1b[1;cabc")

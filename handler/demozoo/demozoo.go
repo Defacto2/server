@@ -143,46 +143,47 @@ type Production struct {
 //
 // [Demozoo API]: https://demozoo.org/api/v1/productions/
 func (p *Production) Get(id int) (int, error) {
+	const msg = "get demozoo production"
 	if id < firstID {
-		return 0, fmt.Errorf("get demozoo production %w: %d", ErrID, id)
+		return 0, fmt.Errorf("%s %w: %d", msg, ErrID, id)
 	}
 	url := ProdURL + strconv.Itoa(id)
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return 0, fmt.Errorf("get demozoo production new request %w", err)
+		return 0, fmt.Errorf("%s new request %w", msg, err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	c := client()
 	res, err := c.Do(req)
 	if err != nil {
-		return 0, fmt.Errorf("get demozoo production client do %w", err)
+		return 0, fmt.Errorf("%s client do %w", msg, err)
 	}
 	if res == nil {
 		return 0, http.ErrBodyNotAllowed
 	}
 	if res.Body == nil {
-		return res.StatusCode, fmt.Errorf("get demozoo production client do returned nothing %w: %s", ErrStatus, res.Status)
+		return res.StatusCode, fmt.Errorf("%s client do returned nothing %w: %s", msg, ErrStatus, res.Status)
 	}
 	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
-		return res.StatusCode, fmt.Errorf("get demozoo production %w: %s", ErrStatus, res.Status)
+		return res.StatusCode, fmt.Errorf("%s %w: %s", msg, ErrStatus, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
-		return 0, fmt.Errorf("get demozoo production read all %w", err)
+		return 0, fmt.Errorf("%s read all %w", msg, err)
 	}
 	err = json.Unmarshal(body, &p)
 	clear(body)
 	if err != nil {
-		return 0, fmt.Errorf("get demozoo production json unmarshal %w", err)
+		return 0, fmt.Errorf("%s json unmarshal %w", msg, err)
 	}
 	if p.ID != id {
-		return 0, fmt.Errorf("get demozoo production %w: %d", ErrSuccess, id)
+		return 0, fmt.Errorf("%s %w: %d", msg, ErrSuccess, id)
 	}
 	return 0, nil
 }
