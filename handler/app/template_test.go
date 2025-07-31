@@ -21,7 +21,7 @@ func TestFuncClosures(t *testing.T) {
 	t.Parallel()
 	tpl := app.Templ{}
 	x := tpl.FuncClosures(nil)
-	be.True(t, x != nil)
+	be.True(t, x == nil)
 }
 
 func TestLinkRelrs(t *testing.T) {

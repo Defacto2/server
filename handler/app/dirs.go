@@ -31,6 +31,7 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -45,6 +46,10 @@ const epoch = model.EpochYear // epoch is the default year for MS-DOS files with
 
 // Artifact404 renders the error page for the artifact links.
 func Artifact404(c echo.Context, sl *slog.Logger, id string) error {
+	const msg = "artifact 404 context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const name = "status"
 	if c == nil {
 		return InternalErr(c, sl, name, errorWithID(ErrCxt, id, nil))
@@ -76,6 +81,10 @@ type Dirs struct {
 
 // Artifact is the handler for the of the file record.
 func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
+	const msg = "dir artifact context"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const name = "artifact"
 	art, err := dir.modelsFile(c, db, sl)
 	if art404 := art == nil || err != nil; art404 {

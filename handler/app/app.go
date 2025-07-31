@@ -22,6 +22,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
@@ -873,8 +874,9 @@ func websiteIcon(url string) string {
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
 func YMDEdit(c echo.Context, db *sql.DB) error {
-	if db == nil {
-		return fmt.Errorf("ymdedit: %w", ErrDB)
+	const msg = "year month day edit"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {

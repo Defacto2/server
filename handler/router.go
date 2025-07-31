@@ -28,7 +28,7 @@ const code = http.StatusMovedPermanently
 func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS,
 ) (*echo.Echo, error) {
 	const msg = "files routes"
-	if err := panics.EchoEmbed(e, db, sl, public); err != nil {
+	if err := panics.EchoDSP(e, db, sl, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
@@ -97,7 +97,7 @@ func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 // font serves the embedded woff2, woff, and ttf font files for the website layout.
 func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 	const msg = "font routes"
-	if err := panics.EchoHtml(e, public); err != nil {
+	if err := panics.EchoP(e, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	paths, names := *app.FontRefs(), *app.FontNames()
@@ -112,7 +112,7 @@ func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 // This includes the favicon, robots.txt, osd.xml, and the SVG icons.
 func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	const msg = "embed routes"
-	if err := panics.EchoHtml(e, public); err != nil {
+	if err := panics.EchoP(e, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
@@ -194,7 +194,7 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 // website routes for the main site.
 func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
 	const msg = "website routes"
-	if err := panics.EchoDbslog(e, db, sl); err != nil {
+	if err := panics.EchoDS(e, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.GET("/health-check", func(c echo.Context) error {
@@ -326,7 +326,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 // search forms and the results for database queries.
 func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.Echo {
 	const msg = "search routes"
-	if err := panics.EchoDbslog(e, db, sl); err != nil {
+	if err := panics.EchoDS(e, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	search := e.Group("/search")
@@ -355,7 +355,7 @@ func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.
 // signin for operators.
 func (c *Configuration) signin(e *echo.Echo, sl *slog.Logger, nonce string) *echo.Echo {
 	const msg = "signin routes"
-	if err := panics.EchoSlog(e, sl); err != nil {
+	if err := panics.EchoS(e, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {

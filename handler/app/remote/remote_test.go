@@ -30,7 +30,7 @@ func TestArchiveContent(t *testing.T) {
 	t.Parallel()
 	dl := remote.DemozooLink{}
 	err := dl.ArchiveContent(nil, nil, "")
-	be.Err(t, err, nil)
+	be.Err(t, err)
 }
 
 func TestUpdate(t *testing.T) {

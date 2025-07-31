@@ -24,6 +24,7 @@ import (
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
 )
@@ -47,8 +48,12 @@ type Templ struct {
 
 // Templates returns a map of the templates used by the route.
 func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
+	const msg = "templates mapper"
+	if db == nil {
+		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	}
 	if err := t.Subresource.Verify(t.Public); err != nil {
-		return nil, fmt.Errorf("app templates verify, %w", err)
+		return nil, fmt.Errorf("%s verify: %w", msg, err)
 	}
 	tmpls := make(map[string]*template.Template)
 	for key, name := range *t.Pages() {
@@ -168,7 +173,10 @@ func (t *Templ) Funcs() template.FuncMap {
 }
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
-func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
+func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen	const msg = "templates mapper"
+	if db == nil {
+		return nil
+	}
 	hrefs := *Hrefs()
 	return &template.FuncMap{
 		"bootstrap5": func() string {
@@ -362,6 +370,9 @@ func (t *Templ) Elements() *template.FuncMap {
 
 // FuncMap returns a map of all the template functions.
 func (t *Templ) FuncMap(db *sql.DB) *template.FuncMap {
+	if db == nil {
+		return nil
+	}
 	funcs := t.Funcs()
 	maps.Copy(funcs, *t.FuncClosures(db))
 	maps.Copy(funcs, *t.Elements())
@@ -421,6 +432,9 @@ func (t *Templ) lockLayout(lock bool, files ...string) []string {
 // parseFS returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
+	if db == nil {
+		return nil
+	}
 	files := t.Layout(name)
 	config := t.Environment
 	readonly := bool(config.ReadOnly)

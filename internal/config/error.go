@@ -35,7 +35,7 @@ var (
 // CustomErrorHandler handles customer error templates.
 func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger) {
 	const msg = "custom error handler"
-	if err := panics.Slog(ctx, sl); err != nil {
+	if err := panics.EchoContextS(ctx, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if IsHTML3(ctx.Path()) {

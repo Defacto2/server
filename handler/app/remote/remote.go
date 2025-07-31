@@ -19,6 +19,7 @@ import (
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
@@ -64,6 +65,10 @@ type DemozooLink struct {
 // Download fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Directory) error {
+	const msg = "demozoo link download"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	var prod demozoo.Production
 	statusCode, err := prod.Get(got.ID)
 	if err != nil {
@@ -167,6 +172,10 @@ func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResp
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
 func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) error {
+	const msg = "demozoo link stat"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	name := filepath.Join(download.Path(), got.UUID)
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
@@ -188,6 +197,10 @@ func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, download dir.Directory)
 
 // ArchiveContent sets the archive content and readme text of the source file.
 func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) error {
+	const msg = "demozoo link archive content"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	files, err := archive.List(src, got.Filename)
 	if err != nil {
 		_, _ = fmt.Fprint(io.Discard, err)
@@ -200,8 +213,9 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) e
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
 func (got *DemozooLink) Update(c echo.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
+	const msg = "demozoo link update"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	uid := got.UUID
 	ctx := context.Background()
@@ -310,6 +324,10 @@ type PouetLink struct {
 }
 
 func (got *PouetLink) Download(c echo.Context, db *sql.DB, download dir.Directory) error {
+	const msg = "pouet link download"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	var prod pouet.Production
 	if _, err := prod.Get(got.ID); err != nil {
 		return fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err)
@@ -356,6 +374,10 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, download dir.Director
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
 func (got *PouetLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) error {
+	const msg = "pouet link stat"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	name := filepath.Join(download.Path(), got.UUID)
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
@@ -377,6 +399,10 @@ func (got *PouetLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) e
 
 // ArchiveContent sets the archive content and readme text of the source file.
 func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) error {
+	const msg = "pouet link archive content"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	files, err := archive.List(src, got.Filename)
 	if err != nil {
 		return c.JSON(http.StatusOK, got)
@@ -388,8 +414,9 @@ func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) err
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
 func (got *PouetLink) Update(c echo.Context, db *sql.DB) error {
-	if db == nil {
-		return ErrDB
+	const msg = "pouet link update"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	uid := got.UUID
 	ctx := context.Background()

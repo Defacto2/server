@@ -45,7 +45,7 @@ const (
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
 func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error { //nolint:cyclop,funlen,gocognit
-	if err := panics.CBS(ctx, exec, sl); err != nil {
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
 		return err
 	}
 	d := time.Now()
@@ -171,7 +171,7 @@ type Rearchiving struct {
 // The original ra.Source file is not removed.
 func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) error {
 	const msg = "rearchive"
-	if err := panics.CS(ctx, sl); err != nil {
+	if err := panics.ContextS(ctx, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if ra.Source == "" || ra.UID == "" {
@@ -272,7 +272,7 @@ func (r Repair) lookPath() error {
 
 func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) ([]string, error) {
 	const msg = "repair artifacts"
-	if err := panics.CBS(ctx, exec, sl); err != nil {
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	var files models.FileSlice
@@ -315,7 +315,7 @@ func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, sl *sl
 // There are no checks on the 3 directories that get scanned.
 func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
 	const msg = "repair assets"
-	if err := panics.CBS(ctx, exec, sl); err != nil {
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := time.Now()
@@ -403,7 +403,7 @@ func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Direc
 // If any are found, they are removed without warning.
 func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
 	const msg = "repair assets"
-	if err := panics.CBS(ctx, exec, sl); err != nil {
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	backup := dir.Directory(c.AbsOrphaned)
@@ -441,7 +441,7 @@ func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor, sl
 // TextFiles on startup check the extra directory for any readme text files that are duplicates of the diz text files.
 func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
 	const msg = "text files"
-	if err := panics.CBS(ctx, exec, sl); err != nil {
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	uuids, err := model.UUID(ctx, exec)
@@ -548,7 +548,7 @@ func FileID(r io.Reader) bool {
 // done using the `file` command line utility, which is a bit to verbose for our needs.
 func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
 	const msg = "magic numbers"
-	if err := panics.CBS(ctx, exec, sl); err != nil {
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	tick := time.Now()
@@ -589,7 +589,7 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl
 // Previews on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
 func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
 	const msg = "previews"
-	if err := panics.CBS(ctx, exec, sl); err != nil {
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	r := model.Artifacts{}

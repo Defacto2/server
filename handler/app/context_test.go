@@ -112,7 +112,7 @@ func TestForApproval(t *testing.T) {
 func TestGetDemozooParam(t *testing.T) {
 	t.Parallel()
 	x := app.GetDemozooParam(newContext(), nil, "")
-	be.Err(t, x, nil)
+	be.Err(t, x)
 }
 
 func TestGetDemozoo(t *testing.T) {
@@ -344,13 +344,13 @@ func TestTheScene(t *testing.T) {
 func TestVotePouet(t *testing.T) {
 	t.Parallel()
 	x := app.VotePouet(newContext(), nil, "")
-	be.Err(t, x, nil)
+	be.Err(t, x)
 	const testNoCache = "1"
 	x = app.VotePouet(newContext(), nil, testNoCache)
-	be.Err(t, x, nil)
+	be.Err(t, x)
 	const testNewCache = "1"
 	x = app.VotePouet(newContext(), nil, testNewCache)
-	be.Err(t, x, nil)
+	be.Err(t, x)
 }
 
 func TestWebsite(t *testing.T) {

@@ -26,7 +26,7 @@ var (
 // or a malformed client requests.
 func BadRequestErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 	const msg = "bad request handler"
-	if err1 := panics.Slog(c, sl); err1 != nil {
+	if err1 := panics.EchoContextS(c, sl); err1 != nil {
 		return fmt.Errorf("%s: %w", msg, err1)
 	}
 	const code = http.StatusBadRequest
@@ -78,7 +78,7 @@ func DatabaseErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 // DownloadErr is the handler for missing download files and database ID errors.
 func DownloadErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 	const msg = "download not found"
-	if err := panics.Slog(c, sl); err != nil {
+	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const code = http.StatusNotFound
@@ -107,7 +107,7 @@ func DownloadErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 // FileMissingErr is the handler for missing download files and database ID errors.
 func FileMissingErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 	const msg = "file missing"
-	if err := panics.Slog(c, sl); err != nil {
+	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const code = http.StatusServiceUnavailable
@@ -136,7 +136,7 @@ func FileMissingErr(c echo.Context, sl *slog.Logger, uri string, err error) erro
 // pages that they do not have permission to access.
 func ForbiddenErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 	const msg = "forbidden access"
-	if err := panics.Slog(c, sl); err != nil {
+	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const code = http.StatusForbidden
@@ -167,7 +167,7 @@ func ForbiddenErr(c echo.Context, sl *slog.Logger, uri string, err error) error 
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 	const msg = "internal server error"
-	if err := panics.Slog(c, sl); err != nil {
+	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const code = http.StatusInternalServerError
@@ -205,7 +205,7 @@ func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func StatusErr(c echo.Context, sl *slog.Logger, code int, uri string) error {
 	const msg = "http status"
-	if err := panics.Slog(c, sl); err != nil {
+	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	data := empty(c)

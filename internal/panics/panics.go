@@ -23,7 +23,7 @@ var (
 	ErrNoSlog    = errors.New("sl slog logger pointer is nil")
 )
 
-func Db(c echo.Context, db *sql.DB) error {
+func EchoContextD(c echo.Context, db *sql.DB) error {
 	if c == nil {
 		return ErrNoEchoC
 	}
@@ -33,7 +33,17 @@ func Db(c echo.Context, db *sql.DB) error {
 	return nil
 }
 
-func Dbslog(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func EchoContextS(c echo.Context, sl *slog.Logger) error {
+	if c == nil {
+		return ErrNoEchoC
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
+
+func EchoContextDS(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	if c == nil {
 		return ErrNoEchoC
 	}
@@ -46,17 +56,17 @@ func Dbslog(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return nil
 }
 
-func Slog(c echo.Context, sl *slog.Logger) error {
-	if c == nil {
-		return ErrNoEchoC
+func ContextB(ctx context.Context, exec boil.ContextExecutor) error {
+	if ctx == nil {
+		return ErrNoContext
 	}
-	if sl == nil {
-		return ErrNoSlog
+	if exec == nil {
+		return ErrNoBoil
 	}
 	return nil
 }
 
-func CBS(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func ContextBS(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
 	if ctx == nil {
 		return ErrNoContext
 	}
@@ -69,7 +79,7 @@ func CBS(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error 
 	return nil
 }
 
-func CDS(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
+func ContextDS(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 	if ctx == nil {
 		return ErrNoContext
 	}
@@ -82,7 +92,7 @@ func CDS(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 	return nil
 }
 
-func CD(ctx context.Context, db *sql.DB) error {
+func ContextD(ctx context.Context, db *sql.DB) error {
 	if ctx == nil {
 		return ErrNoContext
 	}
@@ -92,7 +102,7 @@ func CD(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func CS(ctx context.Context, sl *slog.Logger) error {
+func ContextS(ctx context.Context, sl *slog.Logger) error {
 	if ctx == nil {
 		return ErrNoContext
 	}
@@ -102,9 +112,9 @@ func CS(ctx context.Context, sl *slog.Logger) error {
 	return nil
 }
 
-// EchoEmbed checks the arguments for handler package.
+// EchoDSP checks the arguments for handler package.
 // If an error is returned, the calling method or func should abort and return the error.
-func EchoEmbed(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) error {
+func EchoDSP(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) error {
 	if e == nil {
 		return ErrNoEchoE
 	}
@@ -121,9 +131,9 @@ func EchoEmbed(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) error
 	return nil
 }
 
-// EchoHtml checks the arguments for handler package.
+// EchoP checks the arguments for handler package.
 // If an error is returned, the calling method or func should abort and return the error.
-func EchoHtml(e *echo.Echo, public embed.FS) error {
+func EchoP(e *echo.Echo, public embed.FS) error {
 	if e == nil {
 		return ErrNoEchoE
 	}
@@ -134,9 +144,9 @@ func EchoHtml(e *echo.Echo, public embed.FS) error {
 	return nil
 }
 
-// EchoDbslog checks the arguments for handler package.
+// EchoDS checks the arguments for handler package.
 // If an error is returned, the calling method or func should abort and return the error.
-func EchoDbslog(e *echo.Echo, db *sql.DB, sl *slog.Logger) error {
+func EchoDS(e *echo.Echo, db *sql.DB, sl *slog.Logger) error {
 	if e == nil {
 		return ErrNoEchoE
 	}
@@ -149,9 +159,9 @@ func EchoDbslog(e *echo.Echo, db *sql.DB, sl *slog.Logger) error {
 	return nil
 }
 
-// EchoSlog checks the arguments for handler package.
+// EchoS checks the arguments for handler package.
 // If an error is returned, the calling method or func should abort and return the error.
-func EchoSlog(e *echo.Echo, sl *slog.Logger) error {
+func EchoS(e *echo.Echo, sl *slog.Logger) error {
 	if e == nil {
 		return ErrNoEchoE
 	}

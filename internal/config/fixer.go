@@ -275,7 +275,7 @@ func CheckDir(name dir.Directory, desc string) error {
 // RecordCount returns the number of records in the database.
 func RecordCount(ctx context.Context, db *sql.DB) int {
 	const msg = "record count"
-	if err := panics.CD(ctx, db); err != nil {
+	if err := panics.ContextD(ctx, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
@@ -289,7 +289,7 @@ func RecordCount(ctx context.Context, db *sql.DB) int {
 // These are skipped if the Production mode environment variable is set to false.
 func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
 	const msg = "repairer"
-	if err := panics.CDS(ctx, db, sl); err != nil {
+	if err := panics.ContextDS(ctx, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if err := repairDatabase(ctx, db, sl); err != nil {
@@ -310,7 +310,7 @@ func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
 // repairDatabase on startup checks the database connection and make any data corrections.
 func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "repair database"
-	if err := panics.CDS(ctx, db, sl); err != nil {
+	if err := panics.ContextDS(ctx, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	tx, err := db.Begin()

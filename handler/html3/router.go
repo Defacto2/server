@@ -19,7 +19,7 @@ import (
 // and the custom /html3, group error template.
 func Routes(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.Group {
 	const msg = "htm3 routes"
-	if err := panics.EchoDbslog(e, db, sl); err != nil {
+	if err := panics.EchoDS(e, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	g := e.Group(Prefix)

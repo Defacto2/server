@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -284,6 +285,10 @@ func RecordsSub(uri string) string {
 // Records returns the records for the artifacts category URI.
 // Note that the record statistics and counts get cached.
 func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
+	const msg = "file slice records"
+	if err := panics.ContextB(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
+	}
 	switch Match(uri) {
 	// pulldown editor menu matches
 	case ForApproval:
@@ -497,10 +502,14 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 
 // Counter returns the statistics for the artifacts categories.
 func Counter(db *sql.DB) (Stats, error) {
+	const msg = "artifacts categories counter"
+	if db == nil {
+		return Stats{}, fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	ctx := context.Background()
 	counter := Stats{}
 	if err := counter.Get(ctx, db); err != nil {
-		return Stats{}, fmt.Errorf("artifacts categories counter get %w", err)
+		return Stats{}, fmt.Errorf("%s get %w", msg, err)
 	}
 	return counter, nil
 }
@@ -538,6 +547,10 @@ func Statistics() Stats {
 
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
+	const msg = "category get stats"
+	if err := panics.ContextB(ctx, exec); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	v := reflect.ValueOf(exec)
 	switch v.Kind() {
 	case reflect.Ptr, reflect.Interface:
@@ -546,46 +559,46 @@ func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 		}
 	}
 	if err := s.Record.Public(ctx, exec); err != nil {
-		return fmt.Errorf("category get record stat: %w", err)
+		return fmt.Errorf("%s record: %w", msg, err)
 	}
 	if err := s.Ansi.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get ansi stat: %w", err)
+		return fmt.Errorf("%s ansi: %w", msg, err)
 	}
 	if err := s.AnsiBBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get ansiBBS stat: %w", err)
+		return fmt.Errorf("%s ansiBBS: %w", msg, err)
 	}
 	if err := s.BBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get bbs stat: %w", err)
+		return fmt.Errorf("%s bbs: %w", msg, err)
 	}
 	if err := s.BBSText.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get bbs trext stat: %w", err)
+		return fmt.Errorf("%s bbs trext: %w", msg, err)
 	}
 	if err := s.BBStro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get bbstro stat: %w", err)
+		return fmt.Errorf("%s bbstro: %w", msg, err)
 	}
 	if err := s.MsDos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get msdos stat: %w", err)
+		return fmt.Errorf("%s msdos: %w", msg, err)
 	}
 	if err := s.Intro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get intro stat: %w", err)
+		return fmt.Errorf("%s intro: %w", msg, err)
 	}
 	if err := s.IntroD.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get introd stat: %w", err)
+		return fmt.Errorf("%s introd: %w", msg, err)
 	}
 	if err := s.IntroW.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get introw stat: %w", err)
+		return fmt.Errorf("%s introw: %w", msg, err)
 	}
 	if err := s.Installer.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get installer stat: %w", err)
+		return fmt.Errorf("%s installer: %w", msg, err)
 	}
 	if err := s.Java.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get java stat: %w", err)
+		return fmt.Errorf("%s java: %w", msg, err)
 	}
 	if err := s.Linux.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get linux stat: %w", err)
+		return fmt.Errorf("%s linux: %w", msg, err)
 	}
 	if err := s.Demoscene.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get demoscene stat: %w", err)
+		return fmt.Errorf("%s demoscene: %w", msg, err)
 	}
 	return s.get(ctx, exec)
 }
