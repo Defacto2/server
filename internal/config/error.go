@@ -16,6 +16,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const (
+	PortMax = 65534 // PortMax is the highest valid port number.
+	PortSys = 1024  // PortSys is the lowest valid port number that does not require system access.
+)
+
 var (
 	ErrLog        = errors.New("the server cannot log to files")
 	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")

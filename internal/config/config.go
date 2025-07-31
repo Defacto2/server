@@ -2,7 +2,6 @@
 package config
 
 import (
-	"crypto/sha512"
 	"fmt"
 	"log/slog"
 	"reflect"
@@ -55,6 +54,72 @@ type Config struct { //nolint:recvcheck
 	ReadOnly       Toggle     `env:"D2_READ_ONLY" help:"Use the read-only mode to turn off all POST, PUT, and DELETE requests and any related user interface"`
 	NoCrawl        Toggle     `env:"D2_NO_CRAWL" help:"Tell search engines to not crawl any of website pages or assets"`
 	LogAll         Toggle     `env:"D2_LOG_ALL" help:"Log all HTTP and HTTPS client requests including those with 200 OK responses"`
+}
+
+// Format returns a human readable description of the named configuration identifier.
+func Format(name string) string {
+	m := map[string]string{
+		"AbsDownload":    "Downloads, directory path",
+		AbsPreview:       "Previews, directory path",
+		AbsThumbnail:     "Thumbnails, directory path",
+		"AbsLog":         "Logs, directory path",
+		"AbsExtra":       "Extras, directory path",
+		"AbsOrphaned":    "Orphaned, directory path",
+		"Compression":    "Gzip compression",
+		"DatabaseURL":    "Database connection, URL",
+		"GoogleClientID": "Google OAuth2 client ID",
+		"GoogleIDs":      "Google IDs for sign-in",
+		"LogAll":         "Log all HTTP requests",
+		"MaxProcs":       "Maximum CPU processes",
+		"MatchHost":      "Match hostname, domain or IP address",
+		"NoCrawl":        "Disallow search engine crawling",
+		"ProdMode":       "Production mode",
+		"Quiet":          "Quiet mode",
+		"ReadOnly":       "Read-only mode",
+		"SessionKey":     "Session encryption key",
+		"SessionMaxAge":  "Maximum age of a session for the web administration",
+		"TLSCert":        "TLS certificate, file path",
+		"TLSHost":        "TLS hostname",
+		"TLSKey":         "TLS key, file path",
+	}
+	if desc, found := m[name]; found {
+		return desc
+	}
+	return helper.SplitAsSpaces(name)
+}
+
+func Info(name string, value any) string {
+	s := Format(name)
+	v := reflect.ValueOf(value)
+	switch name {
+	case "GoogleAccounts", "SessionMaxAge":
+		return fmt.Sprintf("%s, %s", s, v)
+	case "MaxProcs":
+		return fmt.Sprintf("%s %s", s, v)
+	}
+	switch v.Kind() {
+	case reflect.Bool:
+		return fmt.Sprintf("%s is %s", s, info(v))
+	default:
+		return s
+	}
+}
+
+func info(val reflect.Value) string {
+	if val.Bool() {
+		return "on"
+	}
+	return "off"
+}
+
+func skip(name string) bool {
+	name = strings.ToLower(name)
+	switch name {
+	case "googleaccounts":
+		return true
+	default:
+		return false
+	}
 }
 
 func (c Config) Print(sl *slog.Logger) {
@@ -114,16 +179,6 @@ func (c Config) Print(sl *slog.Logger) {
 	}
 }
 
-func skip(name string) bool {
-	name = strings.ToLower(name)
-	switch name {
-	case "googleaccounts":
-		return true
-	default:
-		return false
-	}
-}
-
 // Names returns a list of the field names in the Config struct.
 func (c Config) Names() []string {
 	t := reflect.TypeOf(c)
@@ -163,90 +218,6 @@ func localIPs(b *strings.Builder, port uint64, pad string) error {
 		fmt.Fprintf(b, "%shttp://%s:%d\n", pad, ip, port)
 	}
 	return nil
-}
-
-// Format returns a human readable description of the named configuration identifier.
-func Format(name string) string {
-	m := map[string]string{
-		"AbsDownload":    "Downloads, directory path",
-		AbsPreview:       "Previews, directory path",
-		AbsThumbnail:     "Thumbnails, directory path",
-		"AbsLog":         "Logs, directory path",
-		"AbsExtra":       "Extras, directory path",
-		"AbsOrphaned":    "Orphaned, directory path",
-		"Compression":    "Gzip compression",
-		"DatabaseURL":    "Database connection, URL",
-		"GoogleClientID": "Google OAuth2 client ID",
-		"GoogleIDs":      "Google IDs for sign-in",
-		"LogAll":         "Log all HTTP requests",
-		"MaxProcs":       "Maximum CPU processes",
-		"MatchHost":      "Match hostname, domain or IP address",
-		"NoCrawl":        "Disallow search engine crawling",
-		"ProdMode":       "Production mode",
-		"Quiet":          "Quiet mode",
-		"ReadOnly":       "Read-only mode",
-		"SessionKey":     "Session encryption key",
-		"SessionMaxAge":  "Maximum age of a session for the web administration",
-		"TLSCert":        "TLS certificate, file path",
-		"TLSHost":        "TLS hostname",
-		"TLSKey":         "TLS key, file path",
-	}
-	if desc, found := m[name]; found {
-		return desc
-	}
-	return helper.SplitAsSpaces(name)
-}
-
-func Info(name string, value any) string {
-	s := Format(name)
-	v := reflect.ValueOf(value)
-	switch name {
-	case "GoogleAccounts", "SessionMaxAge":
-		return fmt.Sprintf("%s, %s", s, v)
-	case "MaxProcs":
-		return fmt.Sprintf("%s %s", s, v)
-	}
-	switch v.Kind() {
-	case reflect.Bool:
-		return fmt.Sprintf("%s is %s", s, valueBool(v))
-	default:
-		return s
-	}
-}
-
-// TODO: remove
-func valueBool(val reflect.Value) string {
-	if val.Bool() {
-		return "on"
-	}
-	return "off"
-}
-
-// StaticThumb returns the path to the thumbnail directory.
-func StaticThumb() string {
-	return "/public/image/thumb"
-}
-
-// StaticOriginal returns the path to the image directory.
-func StaticOriginal() string {
-	return "/public/image/original"
-}
-
-// Override the configuration settings fetched from the environment.
-func (c *Config) Override() {
-	// hash and delete any supplied google ids
-	ids := strings.Split(c.GoogleIDs.String(), ",")
-	for id := range slices.Values(ids) {
-		sum := sha512.Sum384([]byte(id))
-		c.GoogleAccounts = append(c.GoogleAccounts, sum)
-	}
-	c.GoogleIDs = "overwrite placeholder"
-	c.GoogleIDs = "" // empty the string
-
-	// set the default HTTP port if both ports are configured to zero
-	if c.HTTPPort == 0 && c.TLSPort == 0 {
-		c.HTTPPort = StdCustom
-	}
 }
 
 // addresses prints a list of urls that the server is accessible from.
@@ -291,4 +262,14 @@ func (c Config) addresses(b *strings.Builder, help bool) error {
 		return localIPs(b, port, pad)
 	}
 	return nil
+}
+
+// StaticThumb returns the path to the thumbnail directory.
+func StaticThumb() string {
+	return "/public/image/thumb"
+}
+
+// StaticOriginal returns the path to the image directory.
+func StaticOriginal() string {
+	return "/public/image/original"
 }

@@ -1,10 +1,29 @@
 package config
 
 import (
+	"crypto/sha512"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strings"
 )
+
+// Override the configuration settings fetched from the environment.
+func (c *Config) Override() {
+	// hash and delete any supplied google ids
+	ids := strings.Split(c.GoogleIDs.String(), ",")
+	for id := range slices.Values(ids) {
+		sum := sha512.Sum384([]byte(id))
+		c.GoogleAccounts = append(c.GoogleAccounts, sum)
+	}
+	c.GoogleIDs = "overwrite placeholder"
+	c.GoogleIDs = "" // empty the string
+
+	// set the default HTTP port if both ports are configured to zero
+	if c.HTTPPort == 0 && c.TLSPort == 0 {
+		c.HTTPPort = StdCustom
+	}
+}
 
 // OAuth2s is a slice of Google OAuth2 accounts that are allowed to login.
 // Each account is a 48 byte slice of bytes that represents the SHA-384 hash of the unique Google ID.
