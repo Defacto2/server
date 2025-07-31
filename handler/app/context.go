@@ -128,6 +128,10 @@ func EmptyTester(c echo.Context) map[string]any {
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
 func Artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri, page string) error {
+	const msg = "artifacts context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	if !fileslice.Valid(uri) {
 		return Artifacts404(c, sl, uri)
 	}
@@ -249,6 +253,10 @@ func Areacodes(c echo.Context, sl *slog.Logger) error {
 
 // Artist is the handler for the Artist sceners page.
 func Artist(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "artist context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	data := empty(c)
 	title := "Pixel artists and graphic designers"
 	data["title"] = title
@@ -314,6 +322,10 @@ func BBSYear(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // bbsHandler is the handler for the BBS page.
 func bbsHandler(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderBy) error {
+	const msg = "bbs handler context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const title, name = "BBS", "bbs"
 	const lead = "Bulletin Board Systems are historical, " +
 		"networked personal computer servers connected using the landline telephone network and provide forums, " +
@@ -380,6 +392,10 @@ func Checksum(c echo.Context, db *sql.DB, sl *slog.Logger, id string) error {
 
 // Coder is the handler for the Coder sceners page.
 func Coder(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "coder context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	data := empty(c)
 	title := "Coder and programmers"
 	data["title"] = title
@@ -526,6 +542,10 @@ func Download(c echo.Context, db *sql.DB, sl *slog.Logger, downl dir.Directory) 
 
 // FTP is the handler for the FTP page.
 func FTP(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "ftp context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const title, name = "FTP", "ftp"
 	ctx := context.Background()
 	data := empty(c)
@@ -605,6 +625,10 @@ func fileWStats(db *sql.DB, data map[string]any, stats bool) (map[string]any, er
 
 // Deletions is the handler to list the files that have been marked for deletion.
 func Deletions(c echo.Context, db *sql.DB, sl *slog.Logger, page string) error {
+	const msg = "deletions context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	uri := fileslice.Deletions.String()
 	if !fileslice.Valid(uri) {
 		return Artifacts404(c, sl, uri)
@@ -621,6 +645,10 @@ func Deletions(c echo.Context, db *sql.DB, sl *slog.Logger, page string) error {
 
 // Unwanted is the handler to list the files that have been marked as unwanted.
 func Unwanted(c echo.Context, db *sql.DB, sl *slog.Logger, page string) error {
+	const msg = "unwanted context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	uri := fileslice.Unwanted.String()
 	if !fileslice.Valid(uri) {
 		return Artifacts404(c, sl, uri)
@@ -639,6 +667,10 @@ func Unwanted(c echo.Context, db *sql.DB, sl *slog.Logger, page string) error {
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
 func ForApproval(c echo.Context, db *sql.DB, sl *slog.Logger, page string) error {
+	const msg = "for approval context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	uri := fileslice.ForApproval.String()
 	if !fileslice.Valid(uri) {
 		return Artifacts404(c, sl, uri)
@@ -894,6 +926,10 @@ func MagazineAZ(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // magazines is the handler for the magazine page.
 func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) error {
+	const msg = "magazines context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const title, name = "Magazines", "magazine"
 	data := empty(c)
 	const lead = "The magazines are newsletters, reports, " +
@@ -944,6 +980,10 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 
 // Musician is the handler for the Musiciansceners page.
 func Musician(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "musician context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	data := empty(c)
 	title := "Musicians and composers"
 	data["title"] = title
@@ -1204,6 +1244,10 @@ func ReleaserYear(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // releasers is the handler for the Releaser page.
 func releasers(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderBy) error {
+	const msg = "releaser context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	const title, name = "Releaser", "releaser"
 	data := empty(c)
 	const lead = "A releaser is a brand or a collective group of " +
@@ -1380,6 +1424,10 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 
 // Scener is the handler for the page to list all the sceners.
 func Scener(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "scener context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	data := empty(c)
 	title := "Sceners, the people of The Scene"
 	data["title"] = title
@@ -1775,6 +1823,10 @@ func Website(c echo.Context, sl *slog.Logger, open string) error {
 
 // Writer is the handler for the Writer page.
 func Writer(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "writer context"
+	if err := panics.Dbslog(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	data := empty(c)
 	title := "Writers, editors and authors"
 	data["title"] = title

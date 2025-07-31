@@ -160,3 +160,13 @@ func EchoSlog(e *echo.Echo, sl *slog.Logger) error {
 	}
 	return nil
 }
+
+func DS(db *sql.DB, sl *slog.Logger) error {
+	if db == nil {
+		return ErrNoDB
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}

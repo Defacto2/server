@@ -1,6 +1,7 @@
 package html3_test
 
 import (
+	"database/sql"
 	"embed"
 	"net/http"
 	"net/http/httptest"
@@ -8,15 +9,11 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/html3"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/aarondl/null/v8"
 	"github.com/labstack/echo/v4"
 	"github.com/nalgeon/be"
-	"go.uber.org/zap"
 )
-
-func logr() *zap.SugaredLogger {
-	return zap.NewExample().Sugar()
-}
 
 func newContext() echo.Context {
 	e := echo.New()
@@ -26,57 +23,13 @@ func newContext() echo.Context {
 	return e.NewContext(req, rec)
 }
 
-func TestSugared(t *testing.T) {
-	sug := html3.Sugared{}
-	err := sug.Category(newContext(), nil)
-	be.Err(t, err)
-	err = sug.Documents(newContext(), nil)
-	be.Err(t, err)
-	err = sug.Group(newContext(), nil)
-	be.Err(t, err)
-	err = sug.Platform(newContext(), nil)
-	be.Err(t, err)
-	err = sug.Platforms(newContext())
-	be.Err(t, err)
-	err = sug.Software(newContext(), nil)
-	be.Err(t, err)
-}
-
-func TestGroups(t *testing.T) {
-	sug := html3.Sugared{}
-	err := sug.Groups(newContext(), nil)
-	be.Err(t, err)
-}
-
-func TestIndex(t *testing.T) {
-	sug := html3.Sugared{}
-	err := sug.Index(newContext(), nil)
-	be.Err(t, err)
-}
-
 func TestRoutes(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
-	g := html3.Routes(e, nil, nil)
+	sl := logs.Discard()
+	var db sql.DB
+	g := html3.Routes(e, &db, sl)
 	be.True(t, g != nil)
-}
-
-func TestSugaredAll(t *testing.T) {
-	sug := html3.Sugared{}
-	err := sug.All(newContext(), nil)
-	be.Err(t, err)
-}
-
-func TestSugaredArt(t *testing.T) {
-	sug := html3.Sugared{}
-	err := sug.Art(newContext(), nil)
-	be.Err(t, err)
-}
-
-func TestIsCategories(t *testing.T) {
-	sug := html3.Sugared{}
-	err := sug.Categories(newContext())
-	be.Err(t, err)
 }
 
 func TestGlobTo(t *testing.T) {
@@ -278,8 +231,9 @@ func TestDescription(t *testing.T) {
 
 func TestFileHref(t *testing.T) {
 	s := html3.FileHref(nil, 0)
-	be.Equal(t, "zap logger is nil", s)
-	s = html3.FileHref(logr(), 0)
+	be.Equal(t, s, "sl slog logger pointer is nil")
+	sl := logs.Discard()
+	s = html3.FileHref(sl, 0)
 	be.Equal(t, "/html3/d/0", s)
 }
 
@@ -364,10 +318,4 @@ func TestNavi(t *testing.T) {
 	if result != expected {
 		t.Errorf("Navi(%d, %d, %d, %s, %s) = %v; want %v", limit, page, maxPage, current, qs, result, expected)
 	}
-}
-
-func TestTemplateFuncMap(t *testing.T) {
-	t.Parallel()
-	fm := html3.TemplateFuncMap(nil, nil)
-	be.True(t, fm == nil)
 }

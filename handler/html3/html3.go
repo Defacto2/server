@@ -510,6 +510,9 @@ func Templates(db *sql.DB, sl *slog.Logger, fs embed.FS) map[string]*template.Te
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(db *sql.DB, sl *slog.Logger) template.FuncMap {
 	const msg = "html3 template func map"
+	if err := panics.DS(db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
+	}
 	ctx := context.Background()
 	t := tags.T{}
 	if err := t.Build(ctx, db); err != nil {
