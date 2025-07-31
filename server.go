@@ -114,6 +114,7 @@ func logtoFiles(sl *slog.Logger, configs *config.Config) {
 	if mode := configs.ProdMode.Bool(); !mode {
 		return
 	}
+	// TODO: test
 	if err := configs.LogStore(); err != nil {
 		out.Fatal(sl, "production mode",
 			slog.String("store logs", "cannot save and store the web server logs"),

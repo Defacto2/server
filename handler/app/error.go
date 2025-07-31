@@ -163,7 +163,7 @@ func ForbiddenErr(c echo.Context, sl *slog.Logger, uri string, err error) error 
 
 // InternalErr is the handler for handling Internal Server Errors, caused by programming bugs or crashes.
 // The uri string is the part of the URL that caused the error.
-// The optional error value is logged using the zap sugared logger.
+// The optional error value is logged using the logger.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 	const msg = "internal server error"
@@ -201,7 +201,7 @@ func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 }
 
 // StatusErr is the handler for the HTTP status pages such as the 404 - not found.
-// If the zap logger is nil then the error page is returned but no error is logged.
+// If the logger is nil then the error page is returned but no error is logged.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func StatusErr(c echo.Context, sl *slog.Logger, code int, uri string) error {
 	const msg = "http status"

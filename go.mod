@@ -29,11 +29,9 @@ require (
 	github.com/rosedblabs/rosedb/v2 v2.4.0
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
-	go.uber.org/zap v1.27.0
 	golang.org/x/image v0.29.0
 	golang.org/x/text v0.27.0
 	google.golang.org/api v0.243.0
-	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
@@ -97,7 +95,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.36.0 // indirect
 	go.opentelemetry.io/otel/trace v1.36.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
-	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/nilaway v0.0.0-20250722134535-afb472521551 // indirect
 	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/mod v0.26.0 // indirect

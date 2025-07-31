@@ -70,15 +70,9 @@ type Configuration struct {
 func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
 	const msg = "controller handler"
 	configs := c.Environment
-	// TODO: remove
-	// if logger == nil {
-	// 	logger, _ := zap.NewProduction()
-	// 	defer func() { _ = logger.Sync() }()
-	// }
-
 	e := echo.New()
 	if configs.LogAll {
-		pprof.Register(e)
+		pprof.Register(e) // TODO: test the logall flag
 	}
 	e.HideBanner = true
 	// TODO: test
