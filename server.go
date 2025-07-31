@@ -55,23 +55,20 @@ func main() {
 	const msg = "defacto2 startup"
 	const exit = 0
 	// initialize a temporary logger, get and print the environment variable configurations.
-	// logger, configs := environmentVars()
-
 	var w io.Writer = os.Stdout
-	sl := out.Printout(w)
+	sl := out.Default(nil)
 	configs := environmentVars(sl)
-	if exitCode := parseFlags(os.Stdout, sl, *configs); exitCode >= exit {
-		os.Exit(exitCode)
+	if code := flagParser(w, sl, *configs); code >= exit {
+		os.Exit(code)
 	}
-	if configs.Quiet {
+	if quiet := configs.Quiet.Bool(); quiet {
 		w = io.Discard
-		sl = out.Printout(w) // TODO: use slog discarder
+		sl = out.Quiet(nil)
 	}
-	sl = out.Startup()
-	configs.Print(sl)
-	// WARN: REPLACE
-	//_ = environmentVarS(sl)
-
+	// print to standard output the server configuration
+	startup := out.StartCustom(nil,
+		bool(configs.Quiet), bool(configs.ProdMode))
+	configs.Print(startup)
 	// connect to the database and perform some repairs and sanity checks.
 	// if the database is cannot connect, the web server will continue.
 	db, err := postgres.Open()
@@ -88,44 +85,70 @@ func main() {
 			slog.Any("error", err))
 	}
 	config.TmpCleaner()
-	config.SanityTmpDir()
-	_, _ = fmt.Fprintln(w)
-
-	// start the web server and the sugared logger.
-	ctx := context.Background()
-	website := newInstance(ctx, db, *configs)
-	serverLog(sl, *configs, website.RecordCount)
-	router := website.Controller(db, sl)
-	website.Info(sl, w)
-	if err := website.Start(router, sl, *configs); err != nil {
-		out.Fatal(sl, msg, slog.String("environment vars", "could not startup the server, please check the configuration"))
+	config.TmpInfo(sl)
+	// start the web server
+	instance := newInstance(context.Background(), db, *configs)
+	newline(w)
+	welcomeMsg(sl, instance.RecordCount)
+	logtoFiles(sl, configs)
+	routing := instance.Controller(db, sl)
+	instance.Info(sl, w)
+	if err := instance.Start(routing, sl, *configs); err != nil {
+		out.Fatal(sl, msg,
+			slog.String("environment vars", "could not startup the server, please check the configuration"))
 	}
-
 	go func() {
-		// get the owner and group of the current process and print them to the console.
-		groups, usr, err := helper.Owner()
-		if err != nil {
-			sl.Error(msg,
-				slog.String("own and group", "could not obtain the current user of this process"),
-				slog.Any("error", err))
-		}
-		clean := slices.DeleteFunc(groups, func(e string) bool {
-			return e == ""
-		})
-		_, _ = fmt.Fprintf(w, "Running as %s for the groups, %s.\n",
-			usr, strings.Join(clean, ","))
-		// get the local IP addresses and print them to the console.
-		localIPs, err := configs.Addresses()
-		if err != nil {
-			sl.Error(msg,
-				slog.String("local address", "could not obtain the usable addresses"),
-				slog.Any("error", err))
-		}
-		_, _ = fmt.Fprintf(w, "%s\n", localIPs)
+		groupUsers(w, sl, msg)
+		locAddresses(w, sl, configs, msg)
 	}()
-
 	// shutdown the web server after a signal is received.
-	website.ShutdownHTTP(router, sl)
+	instance.ShutdownHTTP(routing, sl)
+}
+
+func newline(w io.Writer) {
+	_, _ = fmt.Fprintln(w)
+}
+
+// logtoFiles saves logs to the file system.
+func logtoFiles(sl *slog.Logger, configs *config.Config) {
+	if mode := configs.ProdMode.Bool(); !mode {
+		return
+	}
+	if err := configs.LogStore(); err != nil {
+		out.Fatal(sl, "production mode",
+			slog.String("store logs", "cannot save and store the web server logs"),
+			slog.Any("error", err))
+	}
+	// logger = zaplog.Store(zaplog.Text(), string(configs.AbsLog)).Sugar()
+}
+
+// groupUsers returns the owner and group of the current process and
+// writes them to the w io.writer.
+func groupUsers(w io.Writer, sl *slog.Logger, msg string) {
+	groups, usr, err := helper.Owner()
+	if err != nil {
+		sl.Error(msg,
+			slog.String("own and group", "could not obtain the current user of this process"),
+			slog.Any("error", err))
+	}
+	clean := slices.DeleteFunc(groups, func(e string) bool {
+		return e == ""
+	})
+	_, _ = fmt.Fprintf(w, "Running as %s for the groups, %s.\n",
+		usr, strings.Join(clean, ","))
+}
+
+// locAddresses returns the local IP addresses in use by the application and
+// writes them to the w io.writer.
+func locAddresses(w io.Writer, sl *slog.Logger, configs *config.Config, msg string) {
+	// get the local IP addresses and print them to the console.
+	localIPs, err := configs.Addresses()
+	if err != nil {
+		sl.Error(msg,
+			slog.String("local address", "could not obtain the usable addresses"),
+			slog.Any("error", err))
+	}
+	_, _ = fmt.Fprintf(w, "%s\n", localIPs)
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.
@@ -174,13 +197,13 @@ func newInstance(ctx context.Context, db *sql.DB, configs config.Config) *handle
 	return &c
 }
 
-// parseFlags is used to parse the commandline arguments.
+// flagParser is used to parse the command line arguments.
 // If an error is returned, the application will exit with the error code.
 // Otherwise, a negative value is returned to indicate the application should continue.
-func parseFlags(w io.Writer, sl *slog.Logger, configs config.Config) int {
+func flagParser(w io.Writer, sl *slog.Logger, configs config.Config) int {
 	const msg = "parse flags"
 	if sl == nil {
-		return -1 // todo:
+		return -1 // TODO:
 	}
 	code, err := flags.Run(w, version, &configs)
 	if err != nil {
@@ -197,8 +220,10 @@ func parseFlags(w io.Writer, sl *slog.Logger, configs config.Config) int {
 	return -1
 }
 
-// serverLog is used to setup the logger for the server and print the startup message.
-func serverLog(sl *slog.Logger, configs config.Config, count int) {
+// welcomeMsg prints the welcome to message and returns the number
+// of artifacts kept in the database. It customizes the log level based
+// on the number of records vs the expected number.
+func welcomeMsg(sl *slog.Logger, count int) {
 	const welcome = "Welcome to the Defacto2 web application"
 	help := ""
 	switch {
@@ -212,13 +237,5 @@ func serverLog(sl *slog.Logger, configs config.Config, count int) {
 			slog.Int("expecting at least", config.MinimumFiles))
 	default:
 		sl.Info(welcome, slog.Int("artifact record count", count))
-	}
-	if configs.ProdMode {
-		if err := configs.LogStore(); err != nil {
-			out.Fatal(sl, "production mode",
-				slog.String("store logs", "cannot save and store the web server logs"),
-				slog.Any("error", err))
-		}
-		// logger = zaplog.Store(zaplog.Text(), string(configs.AbsLog)).Sugar()
 	}
 }

@@ -6,7 +6,6 @@ package out
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -33,11 +32,6 @@ const (
 
 type Logging slog.Logger
 
-// LevelDebug Level = -4
-// LevelInfo  Level = 0
-// LevelWarn  Level = 4
-// LevelError Level = 8
-
 const (
 	LevelDebug   = slog.LevelDebug
 	LevelInfo    = slog.LevelInfo
@@ -50,34 +44,23 @@ const (
 	TracePurple = 206 // #ff5fff
 )
 
-// options is a placeholder
-func options() tint.Options {
-	w := os.Stdout
-	return tint.Options{
-		AddSource:  true,
-		Level:      slog.LevelDebug,
-		TimeFormat: time.Kitchen,
-		NoColor:    !isatty.IsTerminal(w.Fd()),
+// Color returns true when the w io writer is an os.file type
+// and its file descriptor is a terminal.
+func Color(w io.Writer) bool {
+	if w == nil {
+		return false
 	}
+	if _, ok := w.(*os.File); ok {
+		return isatty.IsTerminal(w.(*os.File).Fd())
+	}
+	return false
 }
 
-func Startup() *slog.Logger {
-	opts := startup()
-	sl := slog.New(tint.NewHandler(
-		os.Stdout,
-		&opts,
-	))
+// Default is the recommended logger that returns ...
+func Default(w io.Writer) *slog.Logger {
+	w, opts := defaultOptions(w)
+	sl := slog.New(tint.NewHandler(w, &opts))
 	return sl
-}
-
-func startup() tint.Options {
-	w := os.Stdout
-	return tint.Options{
-		AddSource:  false,
-		Level:      slog.LevelInfo,
-		TimeFormat: time.Kitchen,
-		NoColor:    !isatty.IsTerminal(w.Fd()),
-	}
 }
 
 // Discard all logger output.
@@ -86,35 +69,183 @@ func Discard() *slog.Logger {
 	return sl
 }
 
-// Raw displays all logs to stdout but without timestamps.
-func Raw() *slog.Logger {
-	opts := raw()
-	sl := slog.New(slog.NewTextHandler(
-		os.Stdout,
-		&opts,
-	))
+// Quiet is intended to be used with the Confg.Quiet configuration.
+// It only returns error and fatal log levels and does not display
+// any source file information.
+func Quiet(w io.Writer) *slog.Logger {
+	w, opts := defaultOptions(w)
+	sl := slog.New(tint.NewHandler(w, &opts))
 	return sl
 }
 
-func raw() slog.HandlerOptions {
-	return slog.HandlerOptions{
-		AddSource: true,
-		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-			a = notime(groups, a)
-			return a
-		},
+func defaultOptions(w io.Writer) (io.Writer, tint.Options) {
+	if w == nil {
+		w = os.Stdout
+	}
+	return w, tint.Options{
+		AddSource: false,
+		Level:     slog.LevelInfo,
+		// ReplaceAttr: startAttr,
+		TimeFormat: time.Kitchen,
+		NoColor:    !Color(w),
 	}
 }
 
-// notime removes the time key from the logs.
-func notime(groups []string, a slog.Attr) slog.Attr {
-	if a.Key == slog.TimeKey && len(groups) == 0 {
+// Start is used to print the configurations and loading information
+// during the launch of the application. Unlike a normal logger it has
+// custom formatting for certain keys and their values used in the
+// configuration environment variables and displayed during the
+// server startup.
+//
+// The w io.Writer can usually be left as nil, as the standard output will
+// be used with automatic color detection.
+func Start(w io.Writer) *slog.Logger {
+	w, opts := startOptions(w)
+	sl := slog.New(tint.NewHandler(w, &opts))
+	return sl
+}
+
+// StartCustom runs [Start] using the provided configurations.
+//   - quiet sets the log level to error
+//   - prod also saves the output to a file
+func StartCustom(w io.Writer, quiet, prod bool) *slog.Logger {
+	w, opts := startOptions(w)
+	if quiet {
+		opts.Level = LevelError
+	}
+	if prod {
+		// TODO:
+		//
+		// w := io.MultiWriter(&buf1, &buf2)
+	}
+	sl := slog.New(tint.NewHandler(w, &opts))
+	return sl
+}
+
+// StartDebug runs [Start].
+//
+// However it has
+//   - color output disabled
+//   - the log level is set to debug
+//   - add source filename is enabled
+func StartDebug(w io.Writer) *slog.Logger {
+	w, opts := startOptions(w)
+	opts.NoColor = true
+	opts.AddSource = true
+	opts.Level = LevelDebug
+	opts.ReplaceAttr = func(groups []string, attr slog.Attr) slog.Attr {
+		attr = addsourceNoDirectory(attr)
+		return attr
+	}
+	sl := slog.New(tint.NewHandler(w, &opts))
+	return sl
+}
+
+// StartMono runs [Start], however it has color output disabled.
+func StartMono(w io.Writer) *slog.Logger {
+	w, opts := startOptions(w)
+	opts.NoColor = true
+	sl := slog.New(tint.NewHandler(w, &opts))
+	return sl
+}
+
+// startOptions returns the options and a writer for a text logger handler.
+//
+// The following are configured:
+//   - add source is false
+//   - log level is set to info
+//   - time format is set to kitchen aka 08:43PM
+//   - nocolor is automatically determined by the value of w
+//
+// If the given w io writer is nil then the stdout is returned.
+func startOptions(w io.Writer) (io.Writer, tint.Options) {
+	if w == nil {
+		w = os.Stdout
+	}
+	return w, tint.Options{
+		AddSource:   false,
+		Level:       slog.LevelInfo,
+		ReplaceAttr: startAttr,
+		TimeFormat:  time.Kitchen,
+		NoColor:     !Color(w),
+	}
+}
+
+func startAttr(groups []string, a slog.Attr) slog.Attr {
+	// fmt.Printf("\t%+v [%q]\n", a, a.Key)
+	a = configUnsetAttr(a)
+	switch strings.ToLower(a.Key) {
+	case "":
 		return slog.Attr{}
+	case "postgres", "repair":
+		a.Key = strings.ToUpper(a.Key)
+	case "help":
+		return configHelpAttr(a)
+	case "issue":
+		return configIssueAttr(a)
+	case "msg":
+		return configMsgAttr(a)
 	}
 	return a
 }
 
-func nosrcdir(a slog.Attr) slog.Attr {
+func configUnsetAttr(a slog.Attr) slog.Attr {
+	const unset = ",unset"
+	if !strings.HasSuffix(a.Key, unset) {
+		return a
+	}
+	a.Key = strings.TrimSuffix(a.Key, unset)
+	return a
+}
+
+func configHelpAttr(a slog.Attr) slog.Attr {
+	if a.Value.String() == "" {
+		return slog.Attr{}
+	}
+	a.Key = "Help"
+	return a
+}
+
+func configIssueAttr(a slog.Attr) slog.Attr {
+	if a.Value.String() == "" {
+		return slog.Attr{}
+	}
+	a.Key = strings.ToUpper(a.Key)
+	a = tint.Attr(9, slog.String(a.Key, a.Value.String()))
+	return tint.Attr(9, a)
+}
+
+func configMsgAttr(a slog.Attr) slog.Attr {
+	switch strings.ToLower(a.Value.String()) {
+	case "googleaccounts":
+		return slog.Attr{}
+	default:
+		return a
+	}
+}
+
+// Raw displays all logs to stdout but without timestamps.
+// It is intended for use when troubleshooting.
+func Raw() *slog.Logger {
+	opts := slog.HandlerOptions{
+		AddSource: true,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			a = timeformatRemove(groups, a)
+			return a
+		},
+	}
+	sl := slog.New(slog.NewTextHandler(os.Stdout, &opts))
+	return sl
+}
+
+// addsourceNoDirectory removes the directory path from the log output
+// when AddSource is true.
+//
+// For example, before and after.
+//
+//	`08:43PM /github/server/server.go:501 INF Log stuff`
+//	`08:43PM server.go:501 INF Log stuff`
+func addsourceNoDirectory(a slog.Attr) slog.Attr {
 	// Remove the directory from the source's filename.
 	if a.Key == slog.SourceKey {
 		source := a.Value.Any().(*slog.Source)
@@ -123,119 +254,17 @@ func nosrcdir(a slog.Attr) slog.Attr {
 	return a
 }
 
-// Devel is the default development mode ogger that prints to the
-// termminal standard error (stdout). The date/time and source path
-// are included as are levels using colored three letter codes.
-func Devel() *slog.Logger {
-	w := os.Stdout
-	// Create a new logger
-	opts := options()
-	opts.ReplaceAttr = defaultAttr
-	logger := slog.New(tint.NewHandler(w, &opts))
-	return logger
-}
-
-func defaultAttr(groups []string, a slog.Attr) slog.Attr {
-	// Remove time.
-	// if a.Key == slog.TimeKey && len(groups) == 0 {
-	// 	return slog.Attr{}
-	// }
-	//
-	var level slog.Level
-	if a.Key == slog.LevelKey {
-		level = a.Value.Any().(slog.Level)
-	}
-	// Remove the directory from the source's filename.
-	if a.Key == slog.SourceKey {
-		source := a.Value.Any().(*slog.Source)
-		switch level {
-		case LevelDebug:
-			// skip
-		default:
-			source.File = filepath.Base(source.File)
-		}
-	}
-	return custom(a)
-}
-
-// Printout is a text only logger for terminal output using the
-// terminal standard output. It gets used for displaying the server
-// startup configuration and the output of flags and application commands.
-func Printout(w io.Writer) *slog.Logger {
-	if w == nil {
-		w = os.Stdout
-	}
-	// Create a new logger
-	opts := options()
-	opts.AddSource = false
-	opts.ReplaceAttr = printAttr
-	logger := slog.New(tint.NewHandler(w, &opts))
-	return logger
-}
-
-func printAttr(groups []string, a slog.Attr) slog.Attr {
-	const unset = ",unset"
-	key := a.Key
-	value := a.Value.String()
-	// comp := strings.ToLower(value)
-	// fix keys
-	if strings.HasSuffix(key, unset) {
-		fix := strings.TrimSuffix(key, unset)
-		key = fix
-		a.Key = fix
-	}
-	// cases for skipping
-	switch key {
-	case "":
+// timeformatRemove removes the time key from the logs.
+//
+// For example, before and after.
+//
+//	`08:43PM INF Log stuff`
+//	`INF Log stuff`
+func timeformatRemove(groups []string, a slog.Attr) slog.Attr {
+	if a.Key == slog.TimeKey && len(groups) == 0 {
 		return slog.Attr{}
-	case "help":
-		if value == "" {
-			return slog.Attr{}
-		}
-	case slog.TimeKey:
-		if len(groups) == 0 {
-			return slog.Attr{}
-		}
-	case "msg":
-		switch strings.ToLower(value) {
-		case "googleaccounts":
-			return slog.Attr{}
-		case "postgres", "repair":
-			a.Value = slog.StringValue(strings.ToUpper(a.Value.String()))
-		}
-		a.Value = slog.StringValue(fmt.Sprintf("%s\n      ", a.Value))
-	}
-	// formatting
-	if key == slog.LevelKey {
-		switch key {
-		case "postgres", "repair":
-			a.Key = strings.ToUpper(a.Key)
-		}
-		a = tint.Attr(6, slog.String(a.Key, "INF  "))
-	}
-	if key == "issue" {
-		if value == "" {
-			return slog.Attr{}
-		}
-		a.Key = "ISSUE"
-		a = tint.Attr(9, slog.String(key, value))
-		return tint.Attr(9, a)
 	}
 	return a
-}
-
-// TODO: this maybe removed and instead consolidated with Devel()?
-func Tracer() *slog.Logger {
-	w := os.Stdout
-	// Create a new logger
-	opts := options()
-	opts.ReplaceAttr = traceAttr
-	logger := slog.New(tint.NewHandler(w, &opts))
-	return logger
-}
-
-func traceAttr(groups []string, a slog.Attr) slog.Attr {
-	return custom(a)
 }
 
 func custom(a slog.Attr) slog.Attr {

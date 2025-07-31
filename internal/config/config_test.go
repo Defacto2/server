@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -61,7 +60,7 @@ func TestSanityTmpDir(t *testing.T) {
 	r, w, err := os.Pipe()
 	be.Err(t, err, nil)
 	os.Stdout = w
-	config.SanityTmpDir()
+	config.TmpInfo(nil)
 	if err := w.Close(); err != nil {
 		t.Error(err)
 	}
@@ -110,7 +109,7 @@ func TestRepair(t *testing.T) {
 	be.Err(t, err)
 	err = c.Previews(t.Context(), nil, nil)
 	be.Err(t, err)
-	sl := out.Printout(io.Discard)
+	sl := out.Discard()
 	err = c.ImageDirs(sl)
 	be.Err(t, err, nil)
 	err = config.DownloadDir(nil, "", "", "")
@@ -153,7 +152,7 @@ func TestReArchiveImplode(t *testing.T) {
 	err = r.ReArchive(ctx, nil, ra1)
 	be.Err(t, err)
 	ra1.UID = "newfile"
-	sl := out.Printout(io.Discard)
+	sl := out.Discard()
 	err = r.ReArchive(ctx, sl, ra1)
 	be.Err(t, err, nil)
 	// test the new, re-created archive that uses the common deflate method

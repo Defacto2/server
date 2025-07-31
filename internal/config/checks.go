@@ -14,6 +14,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/out"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
@@ -224,14 +225,19 @@ func RecordCount(ctx context.Context, db *sql.DB) int {
 	return int(fs)
 }
 
-// SanityTmpDir is used to print the temporary directory and its disk usage.
-func SanityTmpDir() {
+// TmpInfo is used to print the temporary directory and its disk usage.
+func TmpInfo(sl *slog.Logger) {
+	const msg = "tmp info check"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	tmpdir := helper.TmpDir()
 	du, err := helper.DiskUsage(tmpdir)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		sl.Error(msg, slog.String("disk usage", "could not obtain the tmp directory"),
+			slog.String("tmp directory", tmpdir), slog.Any("error", err))
 		return
 	}
 	hdu := helper.ByteCountFloat(du)
-	_, _ = fmt.Fprintf(os.Stdout, "Temporary directory using, %s: %s\n", hdu, tmpdir)
+	sl.Info("Temporary directory", slog.String("Path", tmpdir), slog.String("Usage", hdu))
 }

@@ -59,7 +59,7 @@ func (c *Config) Fixer(w io.Writer, sl *slog.Logger, d time.Time) error {
 	}
 	c.repairer(ctx, db, sl)
 	c.sanityChecks(sl)
-	SanityTmpDir()
+	TmpInfo(sl)
 	sl.Info("fixer", slog.Float64("time to completed", time.Since(d).Seconds()))
 	return nil
 }
