@@ -30,7 +30,7 @@ import (
 	"github.com/Defacto2/server/flags"
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/out"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/caarlos0/env/v11"
 	_ "github.com/lib/pq"
@@ -56,17 +56,17 @@ func main() {
 	const exit = 0
 	// initialize a temporary logger, get and print the environment variable configurations.
 	var w io.Writer = os.Stdout
-	sl := out.Default(nil)
+	sl := logs.Default(nil)
 	configs := environmentVars(sl)
 	if code := flagParser(w, sl, *configs); code >= exit {
 		os.Exit(code)
 	}
 	if quiet := configs.Quiet.Bool(); quiet {
 		w = io.Discard
-		sl = out.Quiet(nil)
+		sl = logs.Quiet(nil)
 	}
-	// print to standard output the server configuration
-	startup := out.StartCustom(nil,
+	// print to standard logs.ut the server configuration
+	startup := logs.StartCustom(nil,
 		bool(configs.Quiet), bool(configs.ProdMode))
 	configs.Print(startup)
 	// connect to the database and perform some repairs and sanity checks.
@@ -94,12 +94,12 @@ func main() {
 	routing := instance.Controller(db, sl)
 	instance.Info(sl, w)
 	if err := instance.Start(routing, sl, *configs); err != nil {
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("environment vars", "could not startup the server, please check the configuration"))
 	}
 	go func() {
 		groupUsers(sl, msg)
-		locAddresses(w, sl, configs, msg)
+		locAddresses(sl, configs, msg)
 	}()
 	// shutdown the web server after a signal is received.
 	instance.ShutdownHTTP(routing, sl)
@@ -116,7 +116,7 @@ func logtoFiles(sl *slog.Logger, configs *config.Config) {
 	}
 	// TODO: test
 	if err := configs.LogStore(); err != nil {
-		out.Fatal(sl, "production mode",
+		logs.Fatal(sl, "production mode",
 			slog.String("store logs", "cannot save and store the web server logs"),
 			slog.Any("error", err))
 	}
@@ -141,7 +141,7 @@ func groupUsers(sl *slog.Logger, msg string) {
 
 // locAddresses returns the local IP addresses in use by the application and
 // writes them to the w io.writer.
-func locAddresses(w io.Writer, sl *slog.Logger, configs *config.Config, msg string) {
+func locAddresses(sl *slog.Logger, configs *config.Config, msg string) {
 	// get the local IP addresses and print them to the console.
 	err := configs.Addresses(sl)
 	if err != nil {
@@ -166,7 +166,7 @@ func environmentVars(sl *slog.Logger) *config.Config {
 		SessionMaxAge: config.SessionHours,
 	}
 	if err := env.Parse(&configs); err != nil {
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("parsing error", "does the variable contain an invalid value?"),
 			slog.Any("error", err))
 	}

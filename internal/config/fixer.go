@@ -14,7 +14,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/out"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -158,12 +158,12 @@ func (c *Config) fatalPort(sl *slog.Logger, msg, key string, err error) {
 	}
 	switch {
 	case errors.Is(err, ErrPortMax):
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("issue", "The server cannot use the "+inf+" port"),
 			slog.Int(key, int(c.HTTPPort)),
 			slog.String("error", err.Error()))
 	case errors.Is(err, ErrPortSys):
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("issue", "The server cannot use the system port"),
 			slog.Int(key, int(c.HTTPPort)),
 			slog.String("error", err.Error()))

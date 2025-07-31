@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/handler/html3"
-	"github.com/Defacto2/server/internal/out"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo/v4"
 )
@@ -24,7 +24,7 @@ var (
 	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
 	ErrNoDir      = errors.New("directory does not exist or incorrectly typed")
 	ErrNoOAuth2   = errors.New("production server requires a google, oauth2 client id to allow admin logins")
-	ErrNoPort     = errors.New("server cannot start without a http or a tls port")
+	ErrNoPort     = errors.New("server cannot start withlogs.a http or a tls port")
 	ErrNoPath     = errors.New("empty path or name")
 	ErrPSqlVer    = errors.New("postgres did not return a version value")
 	ErrTouch      = errors.New("server cannot create a file in the directory")
@@ -40,7 +40,7 @@ func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger
 	}
 	if IsHTML3(ctx.Path()) {
 		if err := html3.Error(ctx, err); err != nil {
-			out.Fatal(sl, msg, slog.Any("html3 error", err))
+			logs.Fatal(sl, msg, slog.Any("html3 error", err))
 		}
 		return
 	}
@@ -54,10 +54,10 @@ func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger
 		// fallback to a string error if templates break
 		code, s, err1 := StringErr(err)
 		if err1 != nil {
-			out.Fatal(sl, msg, slog.Any("custom response error", err))
+			logs.Fatal(sl, msg, slog.Any("custom response error", err))
 		}
 		if err2 := ctx.String(code, s); err2 != nil {
-			out.Fatal(sl, msg, slog.Any("custom response error", err))
+			logs.Fatal(sl, msg, slog.Any("custom response error", err))
 		}
 	}
 }
@@ -76,7 +76,7 @@ func StringErr(err error) (int, string, error) {
 	return code, fmt.Sprintf("%d - %s", code, msg), nil
 }
 
-// IsHTML3 returns true if the route is /html3.
+// IsHTML3 returns true if the rlogs. is /html3.
 func IsHTML3(path string) bool {
 	splitPaths := func(r rune) bool {
 		return r == '/'

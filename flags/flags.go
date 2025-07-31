@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/config"
-	"github.com/Defacto2/server/internal/out"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -74,7 +74,7 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Action: func(_ *cli.Context) error {
-			logger := out.Start(w) // TODO: create an use a out.Fix(w)
+			logger := logs.Start(w) // TODO: create an use a out.Fix(w)
 			d := time.Now()
 			if err := c.Fixer(w, logger, d); err != nil {
 				return fmt.Errorf("command fix: %w", err)
@@ -95,7 +95,7 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
-			sl := out.Start(w)
+			sl := logs.Start(w)
 			err := c.Addresses(sl)
 			if err != nil {
 				return fmt.Errorf("command address: %w", err)
@@ -116,7 +116,7 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
-			l := out.Start(w)
+			l := logs.Start(w)
 			c.Print(l)
 			return nil
 		},

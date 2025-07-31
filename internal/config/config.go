@@ -200,20 +200,6 @@ func (c Config) Addresses(sl *slog.Logger) error {
 	return nil
 }
 
-func localIPs(b *strings.Builder, port uint64, pad string) error {
-	ips, err := helper.LocalIPs()
-	if err != nil {
-		return fmt.Errorf("the server cannot get the local IP addresses: %w", err)
-	}
-	for ip := range slices.Values(ips) {
-		if port == 0 {
-			break
-		}
-		fmt.Fprintf(b, "%shttp://%s:%d\n", pad, ip, port)
-	}
-	return nil
-}
-
 // addresses prints a list of urls that the server is accessible from.
 func (c Config) addresses(sl *slog.Logger, help bool) error {
 	const msg = "addresses"

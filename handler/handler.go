@@ -32,7 +32,7 @@ import (
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/out"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo-contrib/pprof"
 	"github.com/labstack/echo/v4"
@@ -85,7 +85,7 @@ func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
 
 	tmpl, err := c.Registry(db, sl)
 	if err != nil {
-		out.Fatal(sl, msg, slog.String("template", "could not register the templates"), slog.Any("fatal", err))
+		logs.Fatal(sl, msg, slog.String("template", "could not register the templates"), slog.Any("fatal", err))
 	}
 	e.Renderer = tmpl
 	middlewares := []echo.MiddlewareFunc{
@@ -117,7 +117,7 @@ func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
 	e = htmxGroup(e, db, sl, bool(configs.ProdMode), dir.Directory(c.Environment.AbsDownload))
 	e, err = c.FilesRoutes(e, db, sl, c.Public)
 	if err != nil {
-		out.Fatal(sl, msg, slog.String("file routes", "could not register the routes"), slog.Any("fatal", err))
+		logs.Fatal(sl, msg, slog.String("file routes", "could not register the routes"), slog.Any("fatal", err))
 	}
 	group := html3.Routes(e, db, sl)
 	group.GET(Downloader, func(cx echo.Context) error {
@@ -202,7 +202,7 @@ func (c *Configuration) PortErr(sl *slog.Logger, port uint, err error) {
 		sl.Info("shutdown",
 			slog.String("success", fmt.Sprintf("the %s server will gracefully shutdown", s)))
 	case errors.Is(err, os.ErrNotExist):
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("port error", "could not startup the server using the configured port"),
 			slog.Int("port", int(port)), slog.Any("error", err))
 	default:
@@ -289,7 +289,7 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, sl *slog.Logger) {
 		case <-ctx.Done():
 		}
 		if err := e.Shutdown(ctx); err != nil {
-			out.Fatal(sl, msg, slog.String("context", "caused an error"), slog.Any("error", err))
+			logs.Fatal(sl, msg, slog.String("context", "caused an error"), slog.Any("error", err))
 		}
 		sl.Info(msg, slog.String("success", "shutdown complete"))
 		signal.Stop(quit)
@@ -356,17 +356,17 @@ func (c *Configuration) StartTLS(e *echo.Echo, sl *slog.Logger) {
 	certFile := c.Environment.TLSCert
 	keyFile := c.Environment.TLSKey
 	if certFile == "" || keyFile == "" {
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("failure", "missing critical file"),
 			slog.String("certificate file", string(certFile)),
 			slog.String("key file", string(keyFile)))
 	}
 	if !helper.File(certFile.String()) {
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("certificate file", "file does not exist"))
 	}
 	if !helper.File(keyFile.String()) {
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("key file", "file does not exist"))
 	}
 	if err := e.StartTLS(address, certFile, keyFile); err != nil {
@@ -389,12 +389,12 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, sl *slog.Logger) {
 	const cert, key = "public/certs/cert.pem", "public/certs/key.pem"
 	certB, err := c.Public.ReadFile(cert)
 	if err != nil {
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("certificate", "read file failure"), slog.Any("error", err))
 	}
 	keyB, err := c.Public.ReadFile(key)
 	if err != nil {
-		out.Fatal(sl, msg,
+		logs.Fatal(sl, msg,
 			slog.String("key", "read file failure"), slog.Any("error", err))
 	}
 	if err := e.StartTLS(address, certB, keyB); err != nil {
