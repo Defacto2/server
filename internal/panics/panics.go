@@ -16,7 +16,7 @@ import (
 
 var (
 	ErrNoArtM    = errors.New("art models file is nil")
-	ErrNoBoil    = errors.New("exec boil context executor is nil")
+	ErrNoBoil    = errors.New("exec boil context executor is nil or invalid")
 	ErrNoBuffer  = errors.New("bytes buffer pointer is nil")
 	ErrNoContext = errors.New("ctx context is nil")
 	ErrNoDB      = errors.New("db database pointer is nil")
@@ -39,6 +39,15 @@ func BoilExec(exec boil.ContextExecutor) bool {
 		return false
 	}
 	return true
+}
+
+// BoilExecCrash panics if the exec boil context extractor is invalid.
+// This is a fallback function intended for the model packages to reduce
+// programmign boilerplate by requiring only the function without conditional statements.
+func BoilExecCrash(exec boil.ContextExecutor) {
+	if BoilExec(exec) {
+		panic(ErrNoBoil)
+	}
 }
 
 func GroupD(g *echo.Group, db *sql.DB) error {
@@ -93,6 +102,16 @@ func EchoContextDS(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	if sl == nil {
 		return ErrNoSlog
+	}
+	return nil
+}
+
+func ContextT(ctx context.Context, tx *sql.Tx) error {
+	if ctx == nil {
+		return ErrNoContext
+	}
+	if tx == nil {
+		return ErrNoTx
 	}
 	return nil
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	namer "github.com/Defacto2/releaser/name"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
@@ -38,18 +39,14 @@ type ReleaserName struct {
 
 // Distinct gets the unique releaser names.
 func (r *ReleaserNames) Distinct(ctx context.Context, exec boil.ContextExecutor) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	query := string(postgres.Releasers())
 	return queries.Raw(query).Bind(ctx, exec, r)
 }
 
 // DistinctGroups gets the unique releaser names that are groups.
 func (r *ReleaserNames) DistinctGroups(ctx context.Context, exec boil.ContextExecutor) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	query := string(postgres.ReleasersAlphabetical())
 	return queries.Raw(query).Bind(ctx, exec, r)
 }
@@ -79,9 +76,7 @@ type Releaser struct {
 
 // Where gets the records that match the named releaser.
 func (r *Releasers) Where(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	s, _ := namer.Humanize(namer.Path(name))
 	if s == "" {
 		return nil, nil
@@ -100,9 +95,7 @@ func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order 
 	if r != nil && len(*r) > 0 {
 		return nil
 	}
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	var query string
 	switch order {
 	case Prolific:
@@ -140,9 +133,6 @@ const (
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
 func (r *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
 	return r.similar(ctx, exec, limit, toReleasers, names...)
 }
 
@@ -150,9 +140,6 @@ func (r *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limi
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
 func (r *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
 	return r.similar(ctx, exec, limit, toReleasersExact, names...)
 }
 
@@ -160,9 +147,6 @@ func (r *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, l
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
 func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
 	return r.similar(ctx, exec, limit, toMagazines, names...)
 }
 
@@ -189,9 +173,7 @@ func (r *Releasers) BBS(ctx context.Context, exec boil.ContextExecutor, order Or
 	if len(*r) > 0 {
 		return nil
 	}
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	var query string
 	switch order {
 	case Prolific:
@@ -215,9 +197,7 @@ func (r *Releasers) FTP(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*r) > 0 {
 		return nil
 	}
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := queries.Raw(string(postgres.FTPsAlphabetical())).Bind(ctx, exec, r); err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
@@ -230,9 +210,7 @@ func (r *Releasers) MagazineAZ(ctx context.Context, exec boil.ContextExecutor) e
 	if len(*r) > 0 {
 		return nil
 	}
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := queries.Raw(string(postgres.MagazinesAlphabetical())).Bind(ctx, exec, r); err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
@@ -245,9 +223,7 @@ func (r *Releasers) Magazine(ctx context.Context, exec boil.ContextExecutor) err
 	if len(*r) > 0 {
 		return nil
 	}
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := queries.Raw(string(postgres.MagazinesOldest())).Bind(ctx, exec, r); err != nil {
 		return fmt.Errorf("queries.Raw: %w", err)
 	}
@@ -272,10 +248,7 @@ func (r *Releasers) similar(
 	if r != nil && len(*r) > 0 {
 		return nil
 	}
-	if invalidExec(exec) {
-		return ErrDB
-	}
-
+	panics.BoilExecCrash(exec)
 	likes := names
 	for name := range slices.Values(names) {
 		likes = append(likes, releaser.Title(name))

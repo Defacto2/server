@@ -32,7 +32,6 @@ var (
 	ErrPlatform = errors.New("invalid platform")
 	ErrSha384   = errors.New("sha384 value is invalid")
 	ErrTime     = errors.New("time value is invalid")
-	ErrTx       = errors.New("transaction value is nil")
 	ErrURI      = errors.New("uri value is invalid")
 	ErrUUID     = errors.New("could not create a new universal unique identifier")
 	ErrYear     = errors.New("invalid year")
@@ -77,8 +76,9 @@ func calc(o, l int) int {
 // If the filename is a .com or .exe then it will return the filename.
 // Otherwise, it will attempt to find the most likely executable in the archive.
 func JsDosCommand(f *models.File) (string, error) {
+	const msg = "jsdos command"
 	if f == nil {
-		return "", ErrModel
+		return "", fmt.Errorf("%s: %w", msg, ErrModel)
 	}
 	if f.DoseeRunProgram.Valid && f.DoseeRunProgram.String != "" {
 		return f.DoseeRunProgram.String, nil
@@ -121,8 +121,9 @@ func JsDosBinary(f *models.File) (string, error) {
 
 // JsDosConfig creates a js-dos .ini configuration for the emulator.
 func JsDosConfig(f *models.File) (string, error) {
+	const msg = "jsdos config"
 	if f == nil {
-		return "", ErrModel
+		return "", fmt.Errorf("%s: %w", msg, ErrModel)
 	}
 	j := jsdos.Jsdos{}
 	cpu := f.DoseeHardwareCPU.String
@@ -151,20 +152,16 @@ func JsDosConfig(f *models.File) (string, error) {
 	}
 	b, err := ini.Marshal(j)
 	if err != nil {
-		return "", fmt.Errorf("ini.Marshal: %w", err)
+		return "", fmt.Errorf("%s ini marshal: %w", msg, err)
 	}
 	return string(b), nil
 }
 
-// invalidExec returns true if the database context executor is invalid such as nil.
-func invalidExec(exec boil.ContextExecutor) bool {
-	return panics.BoilExec(exec)
-}
-
 // UUID returns a slice of all the UUIDs in the database.
 func UUID(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
-	if invalidExec(exec) {
-		return nil, ErrDB
+	const msg = "model uuid"
+	if panics.BoilExec(exec) {
+		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
 	}
 	return models.Files(qm.Select("uuid")).All(ctx, exec)
 }

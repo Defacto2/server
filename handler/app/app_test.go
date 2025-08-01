@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"database/sql"
 	"embed"
 	"maps"
 	"slices"
@@ -193,7 +194,8 @@ func TestByteFileS(t *testing.T) {
 func TestFuncMap(t *testing.T) {
 	t.Parallel()
 	w := app.Templ{}
-	x := w.FuncMap(nil)
+	db := sql.DB{}
+	x := w.FuncMap(&db)
 	keys := slices.Sorted(maps.Keys(*x))
 	be.True(t, slices.Contains(keys, "add"))
 	be.True(t, slices.Contains(keys, "version"))

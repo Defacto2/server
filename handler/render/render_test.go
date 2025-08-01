@@ -15,8 +15,6 @@ import (
 	"golang.org/x/text/encoding/charmap"
 )
 
-const txt = ".txt"
-
 var (
 	latin1 encoding.Encoding = charmap.ISO8859_1   //nolint:gochecknoglobals
 	cp437  encoding.Encoding = charmap.CodePage437 //nolint:gochecknoglobals
@@ -24,7 +22,8 @@ var (
 
 func TestEncoder(t *testing.T) {
 	t.Parallel()
-	ec := render.Encoder(nil, nil)
+	art := models.File{}
+	ec := render.Encoder(&art, nil)
 	be.True(t, ec == nil)
 }
 
