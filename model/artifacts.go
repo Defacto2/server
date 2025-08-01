@@ -5,8 +5,9 @@ package model
 import (
 	"context"
 	"fmt"
-	"os"
+	"log/slog"
 	"slices"
+	"strings"
 
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
@@ -203,12 +204,16 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, o
 // Description returns a list of files that match the search terms.
 // The search terms are matched against the record_title column.
 // The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, terms []string) (
+func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger, terms []string) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	const msg = "artifacts description"
+	none := models.FileSlice{}
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
+		return none, fmt.Errorf("%s: %w", msg, err)
+	}
 	if terms == nil {
-		return models.FileSlice{}, nil
+		return none, nil
 	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Where(ClauseNoSoftDel))
@@ -225,10 +230,12 @@ func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, 
 		mods = append(mods, qm.Or(clauseC, term))
 	}
 	mods = append(mods, qm.Limit(Maximum))
-	fmt.Fprintln(os.Stderr, mods)
+	sl.Debug(msg,
+		slog.String("terms", strings.Join(terms, ",")),
+		slog.String("mods verbose", fmt.Sprintf("%+v", mods)))
 	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
-		return nil, fmt.Errorf("models all files by description search: %w", err)
+		return nil, fmt.Errorf("%s models all files by description search: %w", msg, err)
 	}
 	return fs, nil
 }

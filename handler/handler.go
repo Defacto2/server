@@ -245,7 +245,7 @@ func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry
 // The shutdown procedure occurs a few seconds after the key press.
 func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger) {
 	if w == nil {
-		w = os.Stdin
+		w = os.Stdout
 	}
 	const msg = "shutdown http handler"
 	if err := panics.EchoS(e, sl); err != nil {

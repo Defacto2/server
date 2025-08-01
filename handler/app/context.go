@@ -1131,7 +1131,7 @@ func PostDesc(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
 	ctx := context.Background()
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{}
-	fs, _ := rel.Description(ctx, db, terms)
+	fs, _ := rel.Description(ctx, db, sl, terms)
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
@@ -1431,7 +1431,7 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 	data["website"] = site.Find(uri)
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
-	htm := tibits(uri, public)
+	htm := tibits(sl, uri, public)
 	data["tidbits"] = template.HTML(htm)
 	if strings.HasSuffix(uri, "-bbs") {
 		data["bbs"] = true
@@ -1453,12 +1453,12 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 	return nil
 }
 
-func tibits(uri string, public embed.FS) string {
+func tibits(sl *slog.Logger, uri string, public embed.FS) string {
 	htm := ""
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
 	for value := range slices.Values(tidbits) {
-		s := value.String(public)
+		s := value.String(sl, public)
 		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
 			htm += fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, value.URL(uri))
 			continue

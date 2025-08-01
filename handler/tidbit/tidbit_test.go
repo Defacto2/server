@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/tidbit"
+	"github.com/Defacto2/server/internal/logs"
 )
 
 //go:embed testdata/*
@@ -24,7 +25,7 @@ func TestID(t *testing.T) {
 func TestMarkdown(t *testing.T) {
 	t.Parallel()
 	dir := filepath.Join("testdata", "public", "md", "tidbit")
-	b := tidbit.ID(1).Markdown(testdata, dir)
+	b := tidbit.ID(1).Markdown(logs.Discard(), testdata, dir)
 	if b == nil {
 		t.Error("tidbit: 1 markdown is nil")
 	}

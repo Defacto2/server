@@ -5,12 +5,13 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
-	"os"
+	"log/slog"
 	"path/filepath"
 	"slices"
 	"strings"
 
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
@@ -29,11 +30,16 @@ const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEm
 //
 // Generally the String method should be used to get the description of the tidbit instead
 // of this Markdown method.
-func (id ID) Markdown(fs embed.FS, dir string) []byte {
+func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
+	const msg = "tidbit markdown"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
 	b, err := fs.ReadFile(name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "tidbit: %d.md read error: %v\n", id, err)
+		name := fmt.Sprintf("%d.md", id)
+		sl.Error(msg, slog.String("read error", name), slog.Any("error", err))
 		return nil
 	}
 	p := parser.NewWithExtensions(extensions)
@@ -45,8 +51,8 @@ func (id ID) Markdown(fs embed.FS, dir string) []byte {
 }
 
 // String returns the tidbit description that is stored as a markdown file in the provided file system.
-func (id ID) String(fs embed.FS) string {
-	if b := id.Markdown(fs, "public/md/tidbit"); b != nil {
+func (id ID) String(sl *slog.Logger, fs embed.FS) string {
+	if b := id.Markdown(sl, fs, "public/md/tidbit"); b != nil {
 		return string(b)
 	}
 	return ""
