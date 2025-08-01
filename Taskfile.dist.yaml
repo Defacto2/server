@@ -16,7 +16,6 @@ tasks:
     desc: "Initialize this project for the first time after a git clone."
     cmds:
       - cmd: go install github.com/goreleaser/goreleaser/v2@latest
-      #- cmd: go install github.com/evanw/esbuild/cmd/esbuild@latest
       - cmd: go install github.com/aarondl/sqlboiler/v4@latest
       - cmd: go install github.com/aarondl/sqlboiler/v4/drivers/sqlboiler-psql@latest
       - cmd: go mod tidy
@@ -67,19 +66,10 @@ tasks:
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
-      #- cmd: gci write -s standard -s default .
       - cmd: go tool gofumpt -l -w .
       - cmd: pnpm exec eslint assets/js/*.js
       - cmd: pnpm exec stylelint assets/css/*.css
       - cmd: golangci-lint run -c init/.golangci.yaml
-  lint+:
-    silent: false
-    desc: Runs the betteralign linter on the source code.
-    ignore_error: true
-    cmds:
-      - cmd: clear
-        platforms: [linux, darwin, freebsd]
-      - cmd: go tool betteralign ./...
   nil:
     desc: "Run the static analysis techniques to catch Nil dereferences."
     cmds:
@@ -185,5 +175,3 @@ tasks:
       - cmd: golangci-lint --version
       - cmd: goreleaser --version
       - cmd: go tool air -v
-      #- cmd: esbuild --version
-      - cmd: go tool betteralign -V=full
