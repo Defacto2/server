@@ -17,11 +17,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // Use a lowlevel PostgreSQL driver.
 )
 
-var (
-	ErrDB   = errors.New("database connection is nil")
-	ErrEnv  = errors.New("environment variable probably contains an invalid value")
-	ErrSlog = errors.New("slog logger instance is nil")
-)
+var ErrEnvValue = errors.New("environment variable probably contains an invalid value")
 
 const (
 	// DefaultURL is an example PostgreSQL connection string, it must not be used in production.
@@ -96,7 +92,7 @@ func New() (Connection, error) {
 		URL: DefaultURL,
 	}
 	if err := env.Parse(&c); err != nil {
-		return Connection{}, fmt.Errorf("%s default url: %w: %w", msg, ErrEnv, err)
+		return Connection{}, fmt.Errorf("%s default url: %w: %w", msg, ErrEnvValue, err)
 	}
 	return c, nil
 }

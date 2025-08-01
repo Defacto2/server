@@ -20,34 +20,23 @@ import (
 
 const (
 	cmdTimeout = 10 * time.Second
-	pattern    = "defacto2-" // prefix for temporary directories
 	patternS   = "defacto2-server"
-	arc        = ".arc"  // arc file extension
-	arj        = ".arj"  // arj file extension
-	bmp        = ".bmp"  // bmp file extension
 	gif        = ".gif"  // gif file extension
-	gzip       = ".gz"   // gzip file extension
 	jpg        = ".jpg"  // jpg file extension
 	jpeg       = ".jpeg" // jpeg file extension
 	png        = ".png"  // png file extension
-	rar        = ".rar"  // rar file extension
-	tar        = ".tar"  // tar file extension
-	tiff       = ".tiff" // tiff file extension
-	txt        = ".txt"  // txt file extension
 	webp       = ".webp" // webp file extension
-	zip        = ".zip"  // zip file extension
-	zip7       = ".7z"   // 7zip file extension
 )
 
 var (
-	ErrANSI   = errors.New("text is ansi encoded, cannot crop")
-	ErrEmpty  = errors.New("file is empty")
-	ErrImg    = errors.New("file is not an known image format")
-	ErrIsDir  = errors.New("file is a directory")
-	ErrIsFile = errors.New("directory path points to a file")
-	ErrMatch  = errors.New("no match value is present")
-	ErrPath   = errors.New("path is not permitted")
-	ErrVers   = errors.New("version mismatch")
+	ErrIsAnsi     = errors.New("text is ansi encoded, cannot crop")
+	ErrIsDir      = errors.New("file is a directory")
+	ErrIsEmpty    = errors.New("file is empty")
+	ErrIsFile     = errors.New("directory path points to a file")
+	ErrNoMatch    = errors.New("no match value is present")
+	ErrPath       = errors.New("path is not permitted")
+	ErrUnknownImg = errors.New("file is not an known image format")
+	ErrVersion    = errors.New("application version mismatch")
 )
 
 // Dirs is a struct of the download, preview and thumbnail directories.
@@ -193,7 +182,7 @@ func LookVersion(name, flag, match string) error {
 		return fmt.Errorf("version %w", err)
 	}
 	if match == "" {
-		return ErrMatch
+		return ErrNoMatch
 	}
 	cmd := exec.Command(name, flag)
 	stdout, err := cmd.StdoutPipe()
@@ -208,7 +197,7 @@ func LookVersion(name, flag, match string) error {
 		return fmt.Errorf("%s read all %w", msg, err)
 	}
 	if !bytes.Contains(b, []byte(match)) {
-		return fmt.Errorf("%s %w: %s", msg, ErrVers, name)
+		return fmt.Errorf("%s %w: %s", msg, ErrVersion, name)
 	}
 	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("%s wait %w", msg, err)

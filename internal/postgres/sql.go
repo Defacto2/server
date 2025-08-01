@@ -33,8 +33,8 @@ const (
 	MinYear = "MIN(date_issued_year) AS min_year"
 	// MaxYear is a partial SQL statement to select the maximum year value.
 	MaxYear = "MAX(date_issued_year) AS max_year"
-	// Ver is a SQL statement to select the version of the PostgreSQL database server in use.
-	Ver = "SELECT version();"
+	// SelVersion is a SQL statement to select the version of the PostgreSQL database server in use.
+	SelVersion = "SELECT version();"
 )
 
 // Query the database version.
@@ -43,7 +43,7 @@ func (v *Version) Query(db *sql.DB) error {
 	if db == nil {
 		return nil
 	}
-	rows, err := db.Query(Ver)
+	rows, err := db.Query(SelVersion)
 	if err != nil {
 		return fmt.Errorf("%s connect: %w", msg, err)
 	}

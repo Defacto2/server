@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	ANSICap = 350000    // CapBytes is the maximum file size in bytes for an ANSI encoded text file.
+	AnsiCap = 350000    // ANSICap is the maximum file size in bytes for an ANSI encoded text file.
 	X400    = "400x400" // X400 returns args 400 x 400 pixel image size
 )
 
@@ -296,7 +296,7 @@ func (dir Dirs) PictureImager(sl *slog.Logger, src, unid string) error {
 	imgs := magicnumber.Images()
 	slices.Sort(imgs)
 	if !slices.Contains(imgs, magic) {
-		return fmt.Errorf("%s: %w, %s", msg, ErrImg, magic.Title())
+		return fmt.Errorf("%s: %w, %s", msg, ErrUnknownImg, magic.Title())
 	}
 	_ = ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path())
 	// Signature aliases for common file type signatures.
@@ -347,7 +347,7 @@ func TextCrop(src, dst string) error {
 	}
 	defer func() { _ = scan.Close() }()
 	if magicnumber.CSI(scan) {
-		return fmt.Errorf("%s: %w: %s", msg, ErrANSI, src)
+		return fmt.Errorf("%s: %w: %s", msg, ErrIsAnsi, src)
 	}
 	create, err := os.Create(dst)
 	if err != nil {
@@ -413,13 +413,13 @@ func textCropper(src, unid string) (string, error) {
 }
 
 func textCropperErr(src string, err error) error {
-	if errors.Is(err, ErrANSI) {
+	if errors.Is(err, ErrIsAnsi) {
 		st, err := os.Stat(src)
 		if err != nil {
 			return fmt.Errorf("stat %w", err)
 		}
-		if st.Size() > ANSICap {
-			return fmt.Errorf("%w as the ansi file is too big", ErrANSI)
+		if st.Size() > AnsiCap {
+			return fmt.Errorf("%w as the ansi file is too big", ErrIsAnsi)
 		}
 		// continue with the ANSI file
 		return nil
@@ -452,7 +452,7 @@ func (dir Dirs) textDOSImager(sl *slog.Logger, src, unid string) error {
 	if st, err := os.Stat(srcPath); err != nil {
 		return fmt.Errorf("%s stat: %w", msg, err)
 	} else if st.Size() == 0 {
-		return fmt.Errorf("%s: %w", msg, ErrEmpty)
+		return fmt.Errorf("%s: %w", msg, ErrIsEmpty)
 	}
 	arg := []string{srcPath}       // source text file
 	arg = append(arg, args...)     // command line arguments

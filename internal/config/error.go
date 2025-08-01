@@ -26,7 +26,7 @@ var (
 	ErrNoOAuth2   = errors.New("production server requires a google, oauth2 client id to allow admin logins")
 	ErrNoPort     = errors.New("server cannot start withlogs.a http or a tls port")
 	ErrNoPath     = errors.New("empty path or name")
-	ErrPSqlVer    = errors.New("postgres did not return a version value")
+	ErrPSVersion  = errors.New("postgres did not return a version value")
 	ErrTouch      = errors.New("server cannot create a file in the directory")
 	ErrNotDir     = errors.New("path points to a file")
 	ErrNotFile    = errors.New("path points to a directory")

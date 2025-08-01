@@ -288,9 +288,9 @@ func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if err := repairDatabase(ctx, db, sl); err != nil {
-		if errors.Is(err, ErrPSqlVer) {
+		if errors.Is(err, ErrPSVersion) {
 			sl.Warn("repairer",
-				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrPSqlVer)))
+				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrPSVersion)))
 		}
 		sl.Error("repairer",
 			slog.String("database", "could not initialize the database data"),
@@ -371,7 +371,7 @@ func cmdChecks(sl *slog.Logger) {
 		}
 	}
 	if err := command.LookupUnrar(); err != nil {
-		if errors.Is(err, command.ErrVers) {
+		if errors.Is(err, command.ErrVersion) {
 			sl.Warn("command unrar",
 				slog.String("invalid", "Found unrar but it is not authored by Alexander Roshal"),
 				slog.String("incorrect application", "Is unrar-free mistakenly installed?"))

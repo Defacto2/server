@@ -22,9 +22,7 @@ const (
 )
 
 const (
-	padding = 2
-	padchar = ' '
-	hide    = "xxxxx"
+	hide = "xxxxx" // hide is the placeholder text used to replace sensitive information
 )
 
 // Config options for the Defacto2 server using the [caarlos0/env] package.

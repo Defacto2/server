@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	ErrDB = errors.New("database value is nil")
-	ErrT  = errors.New("lockable tags t is nil")
+	ErrNoDB   = errors.New("database value is nil")
+	ErrNoTags = errors.New("lockable tags t is nil")
 )
 
 // The dos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
@@ -42,7 +42,7 @@ type T struct {
 // It requires the database to be connected to build the tags if they have not already been.
 func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
-		return TagData{}, fmt.Errorf("tags by name %w", ErrT)
+		return TagData{}, fmt.Errorf("tags by name %w", ErrNoTags)
 	}
 	for val := range slices.Values(t.List) {
 		if strings.EqualFold(val.Name, name) {
@@ -56,7 +56,7 @@ func (t *T) ByName(name string) (TagData, error) {
 func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "tags builder"
 	if InvalidExec(exec) {
-		return fmt.Errorf("%s: %w", msg, ErrDB)
+		return fmt.Errorf("%s: %w", msg, ErrNoDB)
 	}
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
