@@ -220,7 +220,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c echo.Context) error {
-		return htmx.UploadPreview(c, dirs.Preview, dirs.Thumbnail)
+		return htmx.UploadPreview(c, sl, dirs.Preview, dirs.Thumbnail)
 	})
 	paths := command.Dirs{
 		Download:  dirs.Download,
@@ -240,7 +240,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		return htmx.RecordReadmeDisable(c, db)
 	})
 	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeCopier(c, paths)
+		return htmx.RecordReadmeCopier(c, sl, paths)
 	})
 	// /editor/readme/preview
 	readme.PATCH("/preview/:unid/:path", func(c echo.Context) error {

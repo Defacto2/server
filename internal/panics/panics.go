@@ -8,6 +8,7 @@ import (
 	"embed"
 	"errors"
 	"log/slog"
+	"reflect"
 
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/labstack/echo/v4"
@@ -24,7 +25,21 @@ var (
 	ErrNoEmbed   = errors.New("embed file system instance is empty")
 	ErrNoGroup   = errors.New("g echo group pointer is nil")
 	ErrNoSlog    = errors.New("sl slog logger pointer is nil")
+	ErrNoTx      = errors.New("tx transaction pointer is nil")
 )
+
+// BoilExec returns true if the database context executor is invalid such as nil.
+func BoilExec(exec boil.ContextExecutor) bool {
+	v := reflect.ValueOf(exec)
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Interface:
+		if v.IsNil() {
+			return true
+		}
+		return false
+	}
+	return true
+}
 
 func GroupD(g *echo.Group, db *sql.DB) error {
 	if g == nil {
@@ -111,6 +126,22 @@ func ContextDS(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	if db == nil {
 		return ErrNoDB
+	}
+	if sl == nil {
+		return ErrNoSlog
+	}
+	return nil
+}
+
+func ContextDTS(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) error {
+	if ctx == nil {
+		return ErrNoContext
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	if tx == nil {
+		return ErrNoTx
 	}
 	if sl == nil {
 		return ErrNoSlog

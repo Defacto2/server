@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 	"strconv"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/html3/ext"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/querymod"
@@ -29,10 +29,7 @@ const (
 	padding = " "
 )
 
-var (
-	ErrDB    = errors.New("database value is nil")
-	ErrModel = errors.New("error, no file model")
-)
+var ErrModel = errors.New("error, no file model")
 
 // ArtExpr returns a query modifier for the digital or pixel art category.
 func ArtExpr() qm.QueryMod {
@@ -46,7 +43,7 @@ func ArtExpr() qm.QueryMod {
 // Created returns the Createdat time to use a dd-mmm-yyyy format.
 func Created(f *models.File) string {
 	if f == nil {
-		return ErrModel.Error()
+		return fmt.Sprint(ErrModel)
 	}
 	if !f.Createdat.Valid {
 		return "-- --- ----"
@@ -75,7 +72,7 @@ func DocumentExpr() qm.QueryMod {
 // for the filename. The icons are found in `public/image/html3/`.
 func Icon(f *models.File) string {
 	if f == nil {
-		return ErrModel.Error()
+		return fmt.Sprint(ErrModel)
 	}
 	const unknown = "unknown"
 	if !f.Filename.Valid {
@@ -101,7 +98,7 @@ func LeadStr(width int, s string) string {
 // values will be left blank or replaced with ?? question marks.
 func Published(f *models.File) string {
 	if f == nil {
-		return ErrModel.Error()
+		return fmt.Sprint(ErrModel)
 	}
 	const (
 		yx       = "????"
@@ -185,8 +182,9 @@ type Arts struct {
 
 // Stat sets the total bytes and total count.
 func (a *Arts) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if InvalidExec(exec) {
-		return ErrDB
+	const msg = "html3 arts statistics"
+	if panics.BoilExec(exec) {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
 	}
 	if a.Bytes > 0 && a.Count > 0 {
 		return nil
@@ -206,8 +204,9 @@ type Documents struct {
 
 // Stat sets the total bytes and total count.
 func (d *Documents) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if InvalidExec(exec) {
-		return ErrDB
+	const msg = "html3 documents statistics"
+	if panics.BoilExec(exec) {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
 	}
 	if d.Bytes > 0 && d.Count > 0 {
 		return nil
@@ -227,8 +226,9 @@ type Softwares struct {
 
 // Stat sets the total bytes and total count.
 func (s *Softwares) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	if InvalidExec(exec) {
-		return ErrDB
+	const msg = "html3 software statistics"
+	if panics.BoilExec(exec) {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
 	}
 	if s.Bytes > 0 && s.Count > 0 {
 		return nil
@@ -238,17 +238,4 @@ func (s *Softwares) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Where(ClauseNoSoftDel),
 		SoftwareExpr(),
 		qm.From(From)).Bind(ctx, exec, s)
-}
-
-// InvalidExec returns true if the database context executor is invalid such as nil.
-func InvalidExec(exec boil.ContextExecutor) bool {
-	v := reflect.ValueOf(exec)
-	switch v.Kind() {
-	case reflect.Ptr, reflect.Interface:
-		if v.IsNil() {
-			return true
-		}
-		return false
-	}
-	return true
 }

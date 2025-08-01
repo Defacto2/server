@@ -15,6 +15,7 @@ import (
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/labstack/echo/v4"
 	"github.com/nalgeon/be"
 )
@@ -163,11 +164,11 @@ func TestProdSubmit(t *testing.T) {
 
 func TestUploadPreview(t *testing.T) {
 	t.Parallel()
-	err := htmx.UploadPreview(newContext(), "", "")
+	err := htmx.UploadPreview(newContext(), logs.Discard(), "", "")
 	be.Err(t, err, nil)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.UploadPreview(newContext(), dir.Directory(wd), dir.Directory(wd))
+	err = htmx.UploadPreview(newContext(), logs.Discard(), dir.Directory(wd), dir.Directory(wd))
 	be.Err(t, err, nil)
 }
 

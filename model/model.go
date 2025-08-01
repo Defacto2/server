@@ -10,8 +10,8 @@ import (
 
 	"github.com/Defacto2/server/handler/jsdos"
 	"github.com/Defacto2/server/handler/jsdos/msdos"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
-	"github.com/Defacto2/server/model/html3"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 	"github.com/subpop/go-ini"
@@ -158,7 +158,7 @@ func JsDosConfig(f *models.File) (string, error) {
 
 // invalidExec returns true if the database context executor is invalid such as nil.
 func invalidExec(exec boil.ContextExecutor) bool {
-	return html3.InvalidExec(exec)
+	return panics.BoilExec(exec)
 }
 
 // UUID returns a slice of all the UUIDs in the database.

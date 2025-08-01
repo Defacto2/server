@@ -282,7 +282,7 @@ func Query(c echo.Context, db *sql.DB, tt RecordsBy, offset int) (int, int, int6
 func QueryAsArt(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if html3.InvalidExec(exec) {
+	if panics.BoilExec(exec) {
 		return dbErr()
 	}
 	const limit = model.Maximum
@@ -304,7 +304,7 @@ func QueryAsArt(ctx context.Context, exec boil.ContextExecutor, clause string, o
 func QueryAsDocument(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if html3.InvalidExec(exec) {
+	if panics.BoilExec(exec) {
 		return dbErr()
 	}
 	const limit = model.Maximum
@@ -326,7 +326,7 @@ func QueryAsDocument(ctx context.Context, exec boil.ContextExecutor, clause stri
 func QueryAsSoftware(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if html3.InvalidExec(exec) {
+	if panics.BoilExec(exec) {
 		return dbErr()
 	}
 	const limit = model.Maximum
@@ -349,7 +349,7 @@ func QueryAsSoftware(ctx context.Context, exec boil.ContextExecutor, clause stri
 func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c echo.Context) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if html3.InvalidExec(exec) {
+	if panics.BoilExec(exec) {
 		return dbErr()
 	}
 	order := Clauses(c.QueryString())
@@ -370,7 +370,7 @@ func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c echo.Context
 func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if html3.InvalidExec(exec) {
+	if panics.BoilExec(exec) {
 		return dbErr()
 	}
 	const limit = model.Maximum
@@ -395,7 +395,7 @@ func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c echo.Conte
 func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if html3.InvalidExec(exec) {
+	if panics.BoilExec(exec) {
 		return dbErr()
 	}
 	const limit = model.Maximum
@@ -420,7 +420,7 @@ func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c echo.Cont
 func QueryEverything(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if html3.InvalidExec(exec) {
+	if panics.BoilExec(exec) {
 		return dbErr()
 	}
 	const limit = model.Maximum

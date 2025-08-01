@@ -38,8 +38,9 @@ var (
 //
 // All found issues will be returned as joined error messages.
 func Validate(art *models.File) error {
+	const msg = "validate models"
 	if art == nil {
-		return fmt.Errorf("model validate: %w", ErrModel)
+		return fmt.Errorf("%s: %w", msg, ErrModel)
 	}
 	var err error
 	if !art.Section.Valid || art.Section.String == "" {
