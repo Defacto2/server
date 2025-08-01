@@ -32,6 +32,7 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
@@ -611,9 +612,10 @@ func sanitizeID(c echo.Context, name, prod string) (int, error) {
 	return id, nil
 }
 
-func UploadPreview(c echo.Context, preview, thumbnail dir.Directory) error {
-	if c == nil {
-		return ErrNoEcho
+func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Directory) error {
+	const msg = "htmx upload preview"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := "artifact-editor-replace-preview"
 	if err := preview.Check(); err != nil {

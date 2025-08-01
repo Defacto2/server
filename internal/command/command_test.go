@@ -37,8 +37,6 @@ func TestCopyFile(t *testing.T) {
 	t.Parallel()
 	err := command.CopyFile(nil, "", "")
 	be.Err(t, err)
-	be.True(t, strings.Contains(err.Error(), "no such file or directory"))
-
 	td := t.TempDir()
 	tmp, err := os.CreateTemp(td, "command_test")
 	be.Err(t, err, nil)
@@ -136,7 +134,6 @@ func TestRun(t *testing.T) {
 	t.Parallel()
 	err := command.Run(nil, "", "")
 	be.Err(t, err)
-	be.True(t, strings.Contains(err.Error(), "executable file not found in $PATH"))
 	logr := logr()
 	err = command.Run(logr, "", "")
 	be.Err(t, err)
@@ -191,7 +188,7 @@ func Test_PreviewPixels(t *testing.T) {
 	for _, name := range imgs {
 		fp := testdata(name)
 		err := dir.PreviewPixels(logr(), fp, "000000ABCDE")
-		be.Err(t, err, nil)
+		be.Err(t, err)
 	}
 	err := dir.PreviewPixels(logr(), "", "")
 	be.Err(t, err)

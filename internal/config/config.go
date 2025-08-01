@@ -193,7 +193,10 @@ func (c Config) Names() []string {
 
 // Addresses returns a list of urls that the server is accessible from.
 func (c Config) Addresses(sl *slog.Logger) error {
-	const msg = "configuration"
+	const msg = "config addresses"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	if err := c.addresses(sl, true); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}

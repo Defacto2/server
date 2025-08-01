@@ -99,28 +99,30 @@ var (
 // GetFile downloads a file from a remote URL and saves it to the default temp directory.
 // It returns the path to the downloaded file and it should be removed after use.
 func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
+	const msg = "http get remove file"
+	none := DownloadResponse{}
 	url := FixSceneOrg(rawURL)
 	// Get the remote file
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return DownloadResponse{}, fmt.Errorf("get file new request: %w", err)
+		return none, fmt.Errorf("%s new request: %w", msg, err)
 	}
 	req.Header.Set("User-Agent", UserAgent)
 	res, err := client.Do(req)
 	if err != nil {
-		return DownloadResponse{}, fmt.Errorf("get file client do: %w", err)
+		return none, fmt.Errorf("%s client do: %w", msg, err)
 	}
 	if res == nil {
-		return DownloadResponse{}, http.ErrBodyNotAllowed
+		return none, http.ErrBodyNotAllowed
 	}
 	if res.Body == nil {
-		return DownloadResponse{}, fmt.Errorf("get file %w, status code: %d", ErrBodyNil, res.StatusCode)
+		return none, fmt.Errorf("%s status code %d: %w", msg, res.StatusCode, ErrBodyNil)
 	}
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
 		_ = res.Body.Close()
-		return DownloadResponse{}, fmt.Errorf("get file %w: %d", ErrStatus, res.StatusCode)
+		return none, fmt.Errorf("%s %d: %w", msg, res.StatusCode, ErrStatus)
 	}
 	defer func() { _ = res.Body.Close() }()
 
@@ -134,7 +136,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
 		_ = res.Body.Close()
-		return DownloadResponse{}, fmt.Errorf("get file create temp: %w", err)
+		return none, fmt.Errorf("%s create temp: %w", msg, err)
 	}
 	defer func() { _ = dst.Close() }()
 
@@ -145,7 +147,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
 		_ = res.Body.Close()
 		defer func() { _ = os.Remove(dst.Name()) }()
-		return DownloadResponse{}, fmt.Errorf("get file io copy: %w", err)
+		return none, fmt.Errorf("%s io copy: %w", msg, err)
 	}
 	download.Path = dst.Name()
 	return download, nil

@@ -54,8 +54,9 @@ func (t *T) ByName(name string) (TagData, error) {
 
 // Build the tags and collect the statistical data sourced from the database.
 func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
+	const msg = "tags builder"
 	if InvalidExec(exec) {
-		return fmt.Errorf("tags build %w", ErrDB)
+		return fmt.Errorf("%s: %w", msg, ErrDB)
 	}
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
@@ -83,7 +84,7 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 			t.Mu.Unlock()
 		}(i, tg)
 		if err != nil {
-			return fmt.Errorf("tags build defer counter %w", err)
+			return fmt.Errorf("%s defer counter: %w", msg, err)
 		}
 	}
 	return nil
@@ -91,13 +92,14 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 
 // counter counts the number of files with the tag.
 func counter(ctx context.Context, exec boil.ContextExecutor, t Tag) (int64, error) {
+	const msg = "tags counter"
 	clause := "section = ?"
 	if t >= FirstPlatform {
 		clause = "platform = ?"
 	}
 	sum, err := models.Files(qm.Where(clause, URIs()[t])).Count(ctx, exec)
 	if err != nil {
-		return -1, fmt.Errorf("tags counter could not count the tag: %w", err)
+		return -1, fmt.Errorf("%s could not count the tag: %w", msg, err)
 	}
 	return sum, nil
 }

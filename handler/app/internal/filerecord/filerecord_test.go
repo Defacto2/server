@@ -1,6 +1,7 @@
 package filerecord_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
@@ -347,7 +349,7 @@ func TestListContent(t *testing.T) {
 	be.True(t, find)
 
 	tmpDir := t.TempDir()
-	err = command.CopyFile(nil, filepath.Join("testdata", "archive.zip"), filepath.Join(tmpDir, "archive.zip"))
+	err = command.CopyFile(logs.Discard(), filepath.Join("testdata", "archive.zip"), filepath.Join(tmpDir, "archive.zip"))
 	be.Err(t, err, nil)
 	src = filepath.Join(tmpDir, "archive.zip")
 	s = filerecord.ListContent(&x, dirs, tmpDir)
@@ -355,6 +357,7 @@ func TestListContent(t *testing.T) {
 	be.True(t, find)
 
 	s = filerecord.ListContent(&x, dirs, src)
+	fmt.Fprintln(os.Stderr, s)
 	find = strings.Contains(string(s), "FILE_ID.DIZ")
 	be.True(t, find)
 	find = strings.Contains(string(s), "/editor/readme/preview/"+r0+"/FILE_ID.DIZ")

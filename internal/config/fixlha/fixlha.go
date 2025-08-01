@@ -4,7 +4,6 @@ package fixlha
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -16,15 +15,11 @@ import (
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
-)
-
-var (
-	ErrNoBoil = errors.New("the boilier context executor is nil")
-	ErrNoSlog = errors.New("the slog logger instance is nil")
 )
 
 // Check returns the UUID of the zipped file if it requires re-archiving because it uses a
@@ -51,8 +46,9 @@ func Check(extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
 
 // Files returns all the DOS platform artifacts using a .zip extension filename.
 func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
-	if exec == nil {
-		return nil, ErrNoBoil
+	const msg = "fix lha files"
+	if err := panics.ContextB(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
@@ -62,7 +58,7 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 	mods = append(mods, qm.WithDeleted())
 	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
-		return nil, fmt.Errorf("fixlha models files: %w", err)
+		return nil, fmt.Errorf("%s models: %w", msg, err)
 	}
 	return files, nil
 }
@@ -70,14 +66,17 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 // Invalid returns true if the lha file fails the lha test command.
 // The path is the path to the lha archive file.
 func Invalid(sl *slog.Logger, path string) bool {
+	const msg = "lha fixer is invalid"
 	if sl == nil {
-		panic(ErrNoSlog)
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	const name = command.Lha
 	cmd := exec.Command(name, "t", path)
 	b, err := cmd.Output()
 	if err != nil {
-		sl.Error("test lha archive", slog.String("lha file path", path), slog.Any("error", err))
+		sl.Error(msg,
+			slog.String("lha file path", path),
+			slog.Any("error", err))
 		return true
 	}
 	return len(bytes.TrimSpace(b)) == 0

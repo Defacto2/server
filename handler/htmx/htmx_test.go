@@ -3,6 +3,7 @@ package htmx_test
 // These tests are mostly for nil checks to ensure the server doesn't panic.
 
 import (
+	"database/sql"
 	"embed"
 	"net/http"
 	"net/http/httptest"
@@ -29,7 +30,8 @@ func newContext() echo.Context {
 func TestDemozooLookup(t *testing.T) {
 	t.Parallel()
 	c := newContext()
-	err := htmx.DemozooLookup(c, nil, false)
+	var db sql.DB
+	err := htmx.DemozooLookup(c, &db, false)
 	be.Err(t, err, nil)
 }
 

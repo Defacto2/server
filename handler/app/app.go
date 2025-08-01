@@ -885,11 +885,11 @@ func YMDEdit(c echo.Context, db *sql.DB) error {
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("ymdedit begin tx %w", err)
+		return fmt.Errorf("%s begin tx: %w", msg, err)
 	}
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("ymdedit model one %w", err)
+		return fmt.Errorf("%s model one %w", msg, err)
 	}
 	y := model.ValidY(f.Year)
 	m := model.ValidM(f.Month)
@@ -898,7 +898,7 @@ func YMDEdit(c echo.Context, db *sql.DB) error {
 		return badRequest(c, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("ymdedit commit %w", err)
+		return fmt.Errorf("%s commit: %w", msg, err)
 	}
 	return c.JSON(http.StatusOK, r)
 }

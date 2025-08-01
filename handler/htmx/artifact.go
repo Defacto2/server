@@ -244,7 +244,11 @@ func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
 		`DIZ copied, the browser will refresh.`)
 }
 
-func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
+func RecordReadmeCopier(c echo.Context, sl *slog.Logger, dirs command.Dirs) error {
+	const msg = "record readme copier"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -267,7 +271,7 @@ func RecordReadmeCopier(c echo.Context, dirs command.Dirs) error {
 	}
 	if !helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".png")) &&
 		!helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".webp")) {
-		if err := dirs.TextImager(nil, src, unid, false); err != nil {
+		if err := dirs.TextImager(sl, src, unid, false); err != nil {
 			return badRequest(c, err)
 		}
 	}

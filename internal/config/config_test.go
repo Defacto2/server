@@ -12,7 +12,7 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/out"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/nalgeon/be"
 )
 
@@ -44,12 +44,6 @@ func TestCheckDir(t *testing.T) {
 	be.Err(t, err)
 }
 
-func TestRecordCount(t *testing.T) {
-	t.Parallel()
-	i := config.RecordCount(t.Context(), nil)
-	be.True(t, i == 0)
-}
-
 func TestSanityTmpDir(t *testing.T) {
 	t.Parallel()
 	var stderrBuf bytes.Buffer
@@ -59,15 +53,12 @@ func TestSanityTmpDir(t *testing.T) {
 	r, w, err := os.Pipe()
 	be.Err(t, err, nil)
 	os.Stdout = w
-	config.TmpInfo(nil)
+	config.TmpInfo(logs.Discard())
 	if err := w.Close(); err != nil {
 		t.Error(err)
 	}
 	_, err = stderrBuf.ReadFrom(r)
 	be.Err(t, err, nil)
-	expectedMessage := "Temporary directory using"
-	x := strings.Contains(stderrBuf.String(), expectedMessage)
-	be.True(t, x)
 }
 
 func TestValidate(t *testing.T) {
@@ -108,7 +99,7 @@ func TestRepair(t *testing.T) {
 	be.Err(t, err)
 	err = c.Previews(t.Context(), nil, nil)
 	be.Err(t, err)
-	sl := out.Discard()
+	sl := logs.Discard()
 	err = c.ImageDirs(sl)
 	be.Err(t, err, nil)
 	err = config.DownloadDir(nil, "", "", "")
@@ -151,7 +142,7 @@ func TestReArchiveImplode(t *testing.T) {
 	err = r.ReArchive(ctx, nil, ra1)
 	be.Err(t, err)
 	ra1.UID = "newfile"
-	sl := out.Discard()
+	sl := logs.Discard()
 	err = r.ReArchive(ctx, sl, ra1)
 	be.Err(t, err, nil)
 	// test the new, re-created archive that uses the common deflate method

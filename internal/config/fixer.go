@@ -33,9 +33,8 @@ func (c *Config) Checks(sl *slog.Logger) error {
 	c.checkHTTPS(sl)
 	c.production(sl)
 	// Check the download, preview and thumbnail directories.
-	println("CHECK DIRECTORY")
+	// TODO: CheckDir tests on shell
 	if err := CheckDir(dir.Directory(c.AbsDownload), "downloads"); err != nil {
-		println(">> ", err.Error())
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
 	}
