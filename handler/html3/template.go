@@ -84,7 +84,7 @@ func httpErr(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 
 func tagByName(t *tags.T, name string) (tags.TagData, error) {
 	if t == nil {
-		return tags.TagData{}, fmt.Errorf("html3 template tag by name %w", tags.ErrT)
+		return tags.TagData{}, fmt.Errorf("html3 template tag by name %w", tags.ErrNoTags)
 	}
 	data, err := t.ByName(name)
 	if err != nil {

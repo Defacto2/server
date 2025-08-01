@@ -49,7 +49,6 @@ func (r Repair) String() string {
 
 const (
 	UpdateSet = "UPDATE files SET "
-	msg       = "database repair"
 )
 
 // In the future we may want to add a Debug or TestRun func.
