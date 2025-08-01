@@ -203,11 +203,15 @@ func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) e
 	}
 	files, err := archive.List(src, got.Filename)
 	if err != nil {
-		_, _ = fmt.Fprint(io.Discard, err)
+		discard(err)
 		return nil
 	}
 	got.Content = strings.Join(files, "\n")
 	return got.Update(c, db)
+}
+
+func discard(err error) {
+	_, _ = fmt.Fprint(io.Discard, err)
 }
 
 // Update modifies the database record using data provided by the DemozooLink struct.

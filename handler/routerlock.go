@@ -216,7 +216,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c echo.Context) error {
-		return htmx.UploadReplacement(c, db, dirs.Download, dirs.Extra)
+		return htmx.UploadReplacement(c, db, sl, dirs.Download, dirs.Extra)
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c echo.Context) error {
@@ -258,13 +258,13 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		return htmx.RecordImageCopier(c, sl, paths)
 	})
 	pre.PATCH("/crop11/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.SqaureTop, paths)
+		return htmx.RecordImageCropper(c, sl, command.SqaureTop, paths)
 	})
 	pre.PATCH("/crop43/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.FourThree, paths)
+		return htmx.RecordImageCropper(c, sl, command.FourThree, paths)
 	})
 	pre.PATCH("/crop12/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.OneTwo, paths)
+		return htmx.RecordImageCropper(c, sl, command.OneTwo, paths)
 	})
 	pre.PATCH("/remove/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview)
@@ -290,10 +290,10 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		return htmx.RecordThumbAlignment(c, command.Right, paths)
 	})
 	thumb.PATCH("/pixel/:unid", func(c echo.Context) error {
-		return htmx.RecordThumb(c, command.Pixel, paths)
+		return htmx.RecordThumb(c, sl, command.Pixel, paths)
 	})
 	thumb.PATCH("/photo/:unid", func(c echo.Context) error {
-		return htmx.RecordThumb(c, command.Photo, paths)
+		return htmx.RecordThumb(c, sl, command.Photo, paths)
 	})
 	thumb.PATCH("/remove/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)

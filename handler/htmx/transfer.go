@@ -187,7 +187,7 @@ func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download 
 	if err := argspanic(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	if err := download.Check(); err != nil {
+	if err := download.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	name := key + "file"
@@ -618,10 +618,10 @@ func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Direc
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := "artifact-editor-replace-preview"
-	if err := preview.Check(); err != nil {
+	if err := preview.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
-	if err := thumbnail.Check(); err != nil {
+	if err := thumbnail.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	upload := values{}
@@ -698,24 +698,15 @@ func reloader(c echo.Context, filename string) error {
 		fmt.Sprintf("The new preview %s is in use, about to reload this page", filename))
 }
 
-func urpanic(c echo.Context, db *sql.DB) error {
-	if c == nil {
-		return ErrNoEcho
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	return nil
-}
-
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
-func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory) error { //nolint:cyclop,funlen
-	if err := urpanic(c, db); err != nil {
-		return fmt.Errorf("upload replacement: %w", err)
+func UploadReplacement(c echo.Context, db *sql.DB, sl *slog.Logger, download, extra dir.Directory) error { //nolint:cyclop,funlen
+	const msg = "htmx upload replacement"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "artifact-editor-replace-file"
-	if err := download.Check(); err != nil {
+	if err := download.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	upload := values{}

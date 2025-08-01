@@ -5,8 +5,11 @@ package dir
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
+
+	"github.com/Defacto2/server/internal/panics"
 )
 
 var (
@@ -30,7 +33,11 @@ func (d Directory) Path() string {
 }
 
 // Check confirms that the directory exists and is writable.
-func (d Directory) Check() error {
+func (d Directory) Check(sl *slog.Logger) error {
+	const msg = "directory check"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	if err := d.IsDir(); err != nil {
 		return err
 	}
@@ -41,7 +48,7 @@ func (d Directory) Check() error {
 	defer func() {
 		_ = tmp.Close()
 		if err := os.Remove(tmp.Name()); err != err {
-			_, _ = fmt.Fprintln(os.Stderr, err)
+			sl.Error(msg, slog.String("name", tmp.Name()), slog.Any("error", err))
 		}
 	}()
 	return nil

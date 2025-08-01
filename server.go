@@ -55,14 +55,14 @@ func main() {
 	const msg = "defacto2 startup"
 	const exit = 0
 	// initialize a temporary logger, get and print the environment variable configurations.
-	var w io.Writer = os.Stdout
 	sl := logs.Default(nil)
 	configs := environmentVars(sl)
-	if code := flagParser(w, sl, *configs); code >= exit {
+	if code := flagParser(os.Stdout, sl, *configs); code >= exit {
 		os.Exit(code)
 	}
+	var branding io.Writer = os.Stdout
 	if quiet := configs.Quiet.Bool(); quiet {
-		w = io.Discard
+		branding = io.Discard
 		sl = logs.Quiet(nil)
 	}
 	// print to standard logs.ut the server configuration
@@ -88,11 +88,11 @@ func main() {
 	config.TmpInfo(sl)
 	// start the web server
 	instance := newInstance(context.Background(), db, *configs)
-	newline(w)
+	newline(branding)
 	welcomeMsg(sl, instance.RecordCount)
 	logtoFiles(sl, configs)
 	routing := instance.Controller(db, sl)
-	instance.StartupBranding(sl, w)
+	instance.StartupBranding(sl, branding)
 	if err := instance.Start(routing, sl, *configs); err != nil {
 		logs.Fatal(sl, msg,
 			slog.String("environment vars", "could not startup the server, please check the configuration"))
@@ -102,7 +102,7 @@ func main() {
 		locAddresses(sl, configs, msg)
 	}()
 	// shutdown the web server after a signal is received.
-	instance.ShutdownHTTP(routing, sl)
+	instance.ShutdownHTTP(os.Stdout, routing, sl)
 }
 
 func newline(w io.Writer) {

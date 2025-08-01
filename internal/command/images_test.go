@@ -8,6 +8,7 @@ import (
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/nalgeon/be"
 )
 
@@ -34,7 +35,8 @@ func TestPixelate(t *testing.T) {
 func TestThumbs(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{}
-	err := dir.Thumbs("", -1)
+	d := logs.Discard()
+	err := dir.Thumbs(d, "", -1)
 	be.Err(t, err, nil)
 }
 
@@ -46,11 +48,12 @@ func TestAlign(t *testing.T) {
 
 func TestCrop(t *testing.T) {
 	t.Parallel()
-	err := command.OneTwo.Images("", "")
+	d := logs.Discard()
+	err := command.OneTwo.Images(d, "", "")
 	be.Err(t, err)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = command.OneTwo.Images("", dir.Directory(wd))
+	err = command.OneTwo.Images(d, "", dir.Directory(wd))
 	be.Err(t, err)
 }
 
@@ -71,9 +74,10 @@ func TestDirs(t *testing.T) {
 	be.Err(t, err)
 	err = dir.PreviewWebP(nil, "", "")
 	be.Err(t, err)
-	err = dir.ThumbPixels("", "")
+	d := logs.Discard()
+	err = dir.ThumbPixels(d, "", "")
 	be.Err(t, err)
-	err = dir.ThumbPhoto("", "")
+	err = dir.ThumbPhoto(d, "", "")
 	be.Err(t, err)
 }
 

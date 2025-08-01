@@ -5,7 +5,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -174,7 +173,7 @@ func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 	if errors.Is(err, syscall.EPIPE) {
 		// This is a common error when the client disconnects before the response is sent,
 		// and commonly happens when using developer hot reloading.
-		_, _ = fmt.Fprintf(io.Discard, "nothing to render due to the \"write: broken pipe\" error\n")
+		discard(err)
 		return nil
 	}
 	if err != nil {

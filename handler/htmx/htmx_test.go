@@ -174,10 +174,11 @@ func TestUploadPreview(t *testing.T) {
 
 func TestUploadReplacement(t *testing.T) {
 	t.Parallel()
-	err := htmx.UploadReplacement(newContext(), nil, "", "")
+	d := logs.Discard()
+	err := htmx.UploadReplacement(newContext(), nil, d, "", "")
 	be.Err(t, err)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.UploadReplacement(newContext(), nil, dir.Directory(wd), "")
+	err = htmx.UploadReplacement(newContext(), nil, d, dir.Directory(wd), "")
 	be.Err(t, err)
 }

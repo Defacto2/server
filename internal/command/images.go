@@ -123,7 +123,7 @@ const (
 
 // Thumbs creates args thumbnail image for the preview image based on the type of image.
 // If an invalid thumb is used, a nil value is returned.
-func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
+func (dir Dirs) Thumbs(sl *slog.Logger, unid string, thumb Thumb) error {
 	_ = ImagesDelete(unid, dir.Thumbnail.Path())
 	for ext := range slices.Values(ImagesExt()) {
 		src := filepath.Join(dir.Preview.Path(), unid+ext)
@@ -133,9 +133,9 @@ func (dir Dirs) Thumbs(unid string, thumb Thumb) error {
 		}
 		switch thumb {
 		case Pixel:
-			err = dir.ThumbPixels(src, unid)
+			err = dir.ThumbPixels(sl, src, unid)
 		case Photo:
-			err = dir.ThumbPhoto(src, unid)
+			err = dir.ThumbPhoto(sl, src, unid)
 		}
 		if err != nil {
 			return err
@@ -221,9 +221,12 @@ const (
 )
 
 // Images crops the preview image based on the crop position and ratio of the image.
-func (crop Crop) Images(unid string, preview dir.Directory) error {
+func (crop Crop) Images(sl *slog.Logger, unid string, preview dir.Directory) error {
 	const msg = "crop images"
-	if err := preview.Check(); err != nil {
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
+	if err := preview.Check(sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	tmpDir := filepath.Join(helper.TmpDir(), patternS)
@@ -519,7 +522,7 @@ func (dir Dirs) textImagers(sl *slog.Logger, unid, tmp string) error {
 	}()
 	go func() { // Thumbnail of the ansilove PNG image
 		defer wg.Done()
-		if err := dir.ThumbPixels(tmp, unid); err != nil {
+		if err := dir.ThumbPixels(sl, tmp, unid); err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("%s thumbnail: %w", msg, err))
 			mu.Unlock()
@@ -560,7 +563,7 @@ func (dir Dirs) PreviewPixels(sl *slog.Logger, src, unid string) error {
 	defer func() {
 		err := os.RemoveAll(tmpDir) // remove temp dir
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
+			sl.Error(msg, slog.Any("error", err))
 		}
 	}()
 	tmp := filepath.Join(tmpDir, name) // temp output file target
@@ -599,7 +602,7 @@ func (dir Dirs) PreviewPhoto(sl *slog.Logger, src, unid string) error {
 	defer func() {
 		err := os.RemoveAll(tmpDir) // remove temp dir
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
+			sl.Error(msg, slog.String("tmp directory", tmpDir), slog.Any("error", err))
 		}
 	}()
 	jtmp := filepath.Join(tmpDir, name) // temp output file target
@@ -636,7 +639,7 @@ func (dir Dirs) PreviewPhoto(sl *slog.Logger, src, unid string) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err = dir.ThumbPhoto(srcPath, unid)
+		err = dir.ThumbPhoto(sl, srcPath, unid)
 	}()
 	wg.Wait()
 	if err != nil {
@@ -673,7 +676,7 @@ func (dir Dirs) PreviewGIF(sl *slog.Logger, src, unid string) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err = dir.ThumbPixels(tmp, unid)
+		err = dir.ThumbPixels(sl, tmp, unid)
 	}()
 	wg.Wait()
 	defer func() {
@@ -715,7 +718,7 @@ func (dir Dirs) PreviewPNG(sl *slog.Logger, src, unid string) error {
 	}()
 	go func() {
 		defer wg.Done()
-		err := dir.ThumbPixels(src, unid)
+		err := dir.ThumbPixels(sl, src, unid)
 		if err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("%s thumbnail: %w", msg, err))
@@ -1004,8 +1007,11 @@ func (args *Args) GWebp() {
 // The conversion is done using args temporary, lossless PNG image.
 //
 // This is used for text and pixel art images and increases the image file size.
-func (dir Dirs) ThumbPixels(src, unid string) error {
+func (dir Dirs) ThumbPixels(sl *slog.Logger, src, unid string) error {
 	const msg = "thumb as pixel capture"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	tmp := filepath.Join(dir.Thumbnail.Path(), unid+png)
 	args := Args{}
 	args.Thumbnail()
@@ -1028,7 +1034,7 @@ func (dir Dirs) ThumbPixels(src, unid string) error {
 	defer func() {
 		err := os.Remove(tmp)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
+			sl.Error(msg, slog.String("tmp", tmp), slog.Any("error", err))
 		}
 	}()
 	return nil
@@ -1038,8 +1044,11 @@ func (dir Dirs) ThumbPixels(src, unid string) error {
 // The conversion is done using args temporary, lossy PNG image.
 //
 // This is used for photographs and images that are not text or pixel art.
-func (dir Dirs) ThumbPhoto(src, unid string) error {
+func (dir Dirs) ThumbPhoto(sl *slog.Logger, src, unid string) error {
 	const msg = "thumb as photograph"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	tmp := BaseNamePath(src) + jpg
 	args := Args{}
 	args.Thumbnail()
@@ -1062,7 +1071,7 @@ func (dir Dirs) ThumbPhoto(src, unid string) error {
 	defer func() {
 		err := os.Remove(tmp)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
+			sl.Error(msg, slog.String("tmp", tmp), slog.Any("error", err))
 		}
 	}()
 	return nil

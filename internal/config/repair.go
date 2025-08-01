@@ -729,13 +729,13 @@ func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
-	if err := src.Check(); err != nil {
+	if err := src.Check(sl); err != nil {
 		return fmt.Errorf("%s %w: %s", msg, err, src)
 	}
-	if err := dest.Check(); err != nil {
+	if err := dest.Check(sl); err != nil {
 		return fmt.Errorf("%s %w: %s", msg, err, dest)
 	}
-	if err := extra.Check(); err != nil {
+	if err := extra.Check(sl); err != nil {
 		return fmt.Errorf("%s %w: %s", msg, err, extra)
 	}
 	count := 0
@@ -851,11 +851,12 @@ func RemoveDownload(sl *slog.Logger, basename, path string, backup, extra dir.Di
 // Valid file extensions are .png and .webp, and basename must be a
 // valid uuid or cfid with the correct length.
 func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) error {
+	const msg = "remove image"
 	if basename == "" || path == "" {
-		return fmt.Errorf("remove image %w: %s %s", ErrNoPath, basename, path)
+		return fmt.Errorf("%s %w: %s %s", msg, ErrNoPath, basename, path)
 	}
-	if err := backup.Check(); err != nil {
-		return fmt.Errorf("remove image %w: %s", err, backup)
+	if err := backup.Check(sl); err != nil {
+		return fmt.Errorf("%s: %w: %s", msg, err, backup)
 	}
 	const (
 		png   = ".png"    // png file extension

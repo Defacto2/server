@@ -488,13 +488,17 @@ func LinkScnrs(names string) template.HTML {
 		}
 		scnr, err := LinkScnr(val)
 		if err != nil {
-			_, _ = fmt.Fprint(io.Discard, err)
+			discard(err)
 			continue
 		}
 		linkr := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, cls, scnr, val)
 		links = append(links, linkr)
 	}
 	return template.HTML(strings.Join(links, ", "))
+}
+
+func discard(err error) {
+	_, _ = fmt.Fprint(io.Discard, err)
 }
 
 const wikiBase = "https://github.com/Defacto2/defacto2.net/wiki"

@@ -243,7 +243,10 @@ func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry
 
 // ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
 // The shutdown procedure occurs a few seconds after the key press.
-func (c *Configuration) ShutdownHTTP(e *echo.Echo, sl *slog.Logger) {
+func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger) {
+	if w == nil {
+		w = os.Stdin
+	}
 	const msg = "shutdown http handler"
 	if err := panics.EchoS(e, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -259,7 +262,6 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, sl *slog.Logger) {
 	defer func() {
 		const alert = "Detected Ctrl + C, server will shutdown"
 		//_ = logger.Sync() // do not check Sync errors as there can be false positives
-		w := os.Stdout
 		buf := bufio.NewWriter(w)
 		_, err := fmt.Fprintf(buf, "\n%s in %v ", alert, waitDuration)
 		if err != nil {

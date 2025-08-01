@@ -101,12 +101,16 @@ func pageRefresh(c echo.Context) echo.Context { //nolint:ireturn
 }
 
 // RecordThumb handles the htmx request for the thumbnail quality.
-func RecordThumb(c echo.Context, thumb command.Thumb, dirs command.Dirs) error {
+func RecordThumb(c echo.Context, sl *slog.Logger, thumb command.Thumb, dirs command.Dirs) error {
+	const msg = "record thumb"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = dirs.Thumbs(unid, thumb)
+	err = dirs.Thumbs(sl, unid, thumb)
 	if errors.Is(err, command.ErrNoImages) {
 		return c.String(http.StatusOK, err.Error())
 	}
@@ -137,12 +141,16 @@ func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs
 }
 
 // RecordImageCropper handles the htmx request for the preview image cropping.
-func RecordImageCropper(c echo.Context, crop command.Crop, dirs command.Dirs) error {
+func RecordImageCropper(c echo.Context, sl *slog.Logger, crop command.Crop, dirs command.Dirs) error {
+	const msg = "record image cropper"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = crop.Images(unid, dirs.Preview)
+	err = crop.Images(sl, unid, dirs.Preview)
 	if errors.Is(err, command.ErrNoImages) {
 		return c.String(http.StatusOK, err.Error())
 	}
