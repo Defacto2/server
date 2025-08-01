@@ -28,6 +28,11 @@ const (
 
 var ErrNoImages = errors.New("no images found")
 
+// discard the error using the io
+func discard(err error) {
+	_, _ = fmt.Fprint(io.Discard, err)
+}
+
 // ImagesExt returns args slice of image file extensions used by the website
 // preview and thumbnail images, including the legacy and modern formats.
 func ImagesExt() []string {
@@ -51,7 +56,7 @@ func ImagesDelete(unid string, dirs ...string) error {
 		for ext := range slices.Values(ImagesExt()) {
 			name := filepath.Join(dir, unid+ext)
 			if _, err := os.Stat(name); err != nil {
-				_, _ = fmt.Fprint(io.Discard, err)
+				discard(err)
 				continue
 			}
 			noImagesFound = false
@@ -92,7 +97,7 @@ func ImagesPixelate(unid string, dirs ...string) error {
 		for ext := range slices.Values(ImagesExt()) {
 			name := filepath.Join(dir, unid+ext)
 			if _, err := os.Stat(name); err != nil {
-				_, _ = fmt.Fprint(io.Discard, err)
+				discard(err)
 				continue
 			}
 			args := Args{}
@@ -196,7 +201,7 @@ func (align Align) Thumbs(unid string, preview, thumbnail dir.Directory) error {
 		}
 		dst := thumbnail.Join(unid + ext)
 		if err := CopyFile(nil, tmp, dst); err != nil {
-			_, _ = fmt.Fprint(io.Discard, err)
+			discard(err)
 			return nil
 		}
 	}
@@ -259,7 +264,7 @@ func (crop Crop) Images(unid string, preview dir.Directory) error {
 		}
 		dst := preview.Join(unid + ext)
 		if err := CopyFile(nil, tmp, dst); err != nil {
-			_, _ = fmt.Fprint(io.Discard, err)
+			discard(err)
 			return nil
 		}
 	}
@@ -615,7 +620,8 @@ func (dir Dirs) PreviewPhoto(sl *slog.Logger, src, unid string) error {
 	jst, err1 := os.Stat(jtmp)
 	wst, err2 := os.Stat(wtmp)
 	if err1 != nil || err2 != nil {
-		_, _ = fmt.Fprint(io.Discard, err1, err2)
+		discard(err1)
+		discard(err2)
 	} else {
 		dst := filepath.Join(dir.Preview.Path(), unid+webp)
 		if jpegSmaller := jst.Size() < wst.Size(); jpegSmaller {
@@ -1135,7 +1141,7 @@ func findName(root, name string) string {
 	result := ""
 	_ = filepath.Walk(root, func(path string, _ os.FileInfo, err error) error {
 		if err != nil {
-			_, _ = fmt.Fprint(io.Discard, err)
+			discard(err)
 			return nil
 		}
 		if filepath.Base(path) == name {

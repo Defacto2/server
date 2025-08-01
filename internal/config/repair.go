@@ -41,6 +41,11 @@ const (
 	syncthing = ".stfolder"                            // syncthing directory name
 )
 
+// discard the error using the io
+func discard(err error) {
+	_, _ = fmt.Fprint(io.Discard, err)
+}
+
 // Archives checks the download directory for any legacy and obsolete archives.
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
@@ -187,7 +192,7 @@ func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) 
 	defer func() {
 		err := os.RemoveAll(tmp)
 		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
+			sl.Error(msg, slog.Any("error", err))
 		}
 	}()
 	extractCmd, extractArg := "", ""
@@ -231,7 +236,7 @@ func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) 
 	if err = helper.RenameCrossDevice(tmpArc, finalArc); err != nil {
 		defer func() {
 			if err := os.RemoveAll(tmpArc); err != nil {
-				_, _ = fmt.Fprintln(os.Stderr, err)
+				sl.Error(msg, slog.Any("error", err))
 			}
 		}()
 		return fmt.Errorf("%s rename %w: %s", msg, err, tmpArc)
@@ -602,7 +607,7 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *sl
 		png := filepath.Join(c.AbsPreview.String(), val.UUID.String) + ".png"
 		st, err := os.Stat(png)
 		if err != nil {
-			_, _ = fmt.Fprintln(io.Discard, err)
+			discard(err)
 			continue
 		}
 		_ = os.Remove(png)
@@ -613,7 +618,7 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *sl
 		webp := filepath.Join(c.AbsPreview.String(), val.UUID.String) + ".webp"
 		st, err := os.Stat(webp)
 		if err != nil {
-			_, _ = fmt.Fprintln(io.Discard, err)
+			discard(err)
 			continue
 		}
 		_ = os.Remove(webp)
@@ -637,7 +642,7 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 	}
 	backup := dir.Directory(c.AbsOrphaned.String())
 	dirs := []string{c.AbsPreview.String(), c.AbsThumbnail.String()}
-	if err := removeSub(dirs...); err != nil {
+	if err := removeSub(sl, dirs...); err != nil {
 		return fmt.Errorf("%s remove subdirectories %w", msg, err)
 	}
 	// remove any invalid files
@@ -664,7 +669,7 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 					t++
 				}
 			}
-			return RemoveImage(name, path, backup)
+			return RemoveImage(sl, name, path, backup)
 		})
 		if err != nil {
 			return fmt.Errorf("%s walk directory %w: %s", msg, err, dir)
@@ -680,7 +685,7 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 }
 
 // removeSub removes any subdirectories found in the specified directories.
-func removeSub(dirs ...string) error {
+func removeSub(sl *slog.Logger, dirs ...string) error {
 	for dir := range slices.Values(dirs) {
 		if _, err := os.Stat(dir); err != nil {
 			continue
@@ -691,7 +696,7 @@ func removeSub(dirs ...string) error {
 			}
 			name := d.Name()
 			if d.IsDir() {
-				return RemoveDir(name, path, dir)
+				return RemoveDir(sl, name, path, dir)
 			}
 			return nil
 		})
@@ -740,15 +745,15 @@ func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
 		}
 		name := d.Name()
 		if d.IsDir() {
-			return RemoveDir(name, path, src.Path())
+			return RemoveDir(sl, name, path, src.Path())
 		}
-		if err = RemoveDownload(name, path, dest, extra); err != nil {
+		if err = RemoveDownload(sl, name, path, dest, extra); err != nil {
 			return fmt.Errorf("%s remove download: %w", msg, err)
 		}
 		if filepath.Ext(name) == "" {
 			count++
 		}
-		return RenameDownload(name, path)
+		return RenameDownload(sl, name, path)
 	})
 	if err != nil {
 		return fmt.Errorf("%s walk directory %w: %s", msg, err, src.Path())
@@ -758,11 +763,14 @@ func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
 }
 
 // RenameDownload rename the download file if the basename uses an invalid coldfusion uuid.
-func RenameDownload(basename, absPath string) error {
-	if basename == "" || absPath == "" {
-		return fmt.Errorf("rename download %w: %s %s", ErrNoPath, basename, absPath)
+func RenameDownload(sl *slog.Logger, basename, absPath string) error {
+	const msg = "rename download"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
-
+	if basename == "" || absPath == "" {
+		return fmt.Errorf("%s %w: %s %s", msg, ErrNoPath, basename, absPath)
+	}
 	ext := filepath.Ext(basename)
 	rawname, found := strings.CutSuffix(basename, ext)
 	if !found {
@@ -772,25 +780,27 @@ func RenameDownload(basename, absPath string) error {
 	if len(rawname) != cflen {
 		return nil
 	}
-
 	newname, _ := helper.CfUUID(rawname)
 	if err := uuid.Validate(newname); err != nil {
-		return fmt.Errorf("uuid.Validate %q: %w", newname, err)
+		return fmt.Errorf("%s uuid validate %q: %w", msg, newname, err)
 	}
 	dir := filepath.Dir(absPath)
 	oldpath := filepath.Join(dir, basename)
 	newpath := filepath.Join(dir, newname+ext)
-
-	rename(oldpath, "renamed invalid cfid", newpath)
+	rename(sl, oldpath, "renamed invalid cfid", newpath)
 	return nil
 }
 
 // RemoveDir check the directory for invalid names.
 // If any are found, they are printed to stderr.
 // Any directory that matches the name ".stfolder" is removed.
-func RemoveDir(name, path, root string) error {
+func RemoveDir(sl *slog.Logger, name, path, root string) error {
+	const msg = "repair remove directory"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	if name == "" || path == "" || root == "" {
-		return fmt.Errorf("remove directory %w: %s %s %s", ErrNoPath, name, path, root)
+		return fmt.Errorf("%s: %w: %s %s %s", msg, ErrNoPath, name, path, root)
 	}
 	rootDir := filepath.Base(root)
 	switch name {
@@ -799,10 +809,10 @@ func RemoveDir(name, path, root string) error {
 	case syncthing:
 		defer func() {
 			err := os.RemoveAll(path)
-			_, _ = fmt.Fprintln(os.Stderr, err)
+			sl.Error(msg, slog.Any("error", err))
 		}()
 	default:
-		fmt.Fprintln(os.Stderr, "unknown dir:", path)
+		sl.Error(msg, slog.String("unknown path", path))
 		return nil
 	}
 	return nil
@@ -813,9 +823,13 @@ func RemoveDir(name, path, root string) error {
 // Basename must be the name of the file with a valid file extension.
 //
 // Valid file extensions are none, .chiptune, .txt, and .zip.
-func RemoveDownload(basename, path string, backup, extra dir.Directory) error {
+func RemoveDownload(sl *slog.Logger, basename, path string, backup, extra dir.Directory) error {
+	const msg = "remove download"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	if basename == "" || path == "" {
-		return fmt.Errorf("remove download %w: %s %s", ErrNoPath, basename, path)
+		return fmt.Errorf("%s %w: %s %s", msg, ErrNoPath, basename, path)
 	}
 	const filedownload = ""
 	ext := filepath.Ext(basename)
@@ -823,9 +837,9 @@ func RemoveDownload(basename, path string, backup, extra dir.Directory) error {
 	case filedownload:
 		return nil
 	case ".txt", ".zip", ".chiptune":
-		rename(path, "rename valid ext", extra.Join(basename))
+		rename(sl, path, "rename valid ext", extra.Join(basename))
 	default:
-		remove(basename, "remove invalid ext", path, backup)
+		remove(sl, basename, "remove invalid ext", path, backup)
 	}
 	return nil
 }
@@ -836,7 +850,7 @@ func RemoveDownload(basename, path string, backup, extra dir.Directory) error {
 //
 // Valid file extensions are .png and .webp, and basename must be a
 // valid uuid or cfid with the correct length.
-func RemoveImage(basename, path string, backup dir.Directory) error {
+func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) error {
 	if basename == "" || path == "" {
 		return fmt.Errorf("remove image %w: %s %s", ErrNoPath, basename, path)
 	}
@@ -856,12 +870,12 @@ func RemoveImage(basename, path string, backup dir.Directory) error {
 			newpath := filepath.Dir(path)
 			switch ext {
 			case png, webp:
-				rename(path, "rename cfid "+ext, filepath.Join(newpath, filename+ext))
+				rename(sl, path, "rename cfid "+ext, filepath.Join(newpath, filename+ext))
 				return nil
 			}
 		}
 		if err := uuid.Validate(filename); err != nil {
-			remove(basename, "remove invalid uuid image", path, backup)
+			remove(sl, basename, "remove invalid uuid image", path, backup)
 			return nil //nolint:nilerr
 		}
 	}
@@ -869,32 +883,33 @@ func RemoveImage(basename, path string, backup dir.Directory) error {
 	case png, webp:
 		return nil
 	default:
-		remove(basename, "remove invalid uuid ext", path, backup)
+		remove(sl, basename, "remove invalid uuid ext", path, backup)
 	}
 	return nil
 }
 
 // remove the file without warning.
-func remove(name, info, path string, backup dir.Directory) {
-	w := os.Stderr
-	_, _ = fmt.Fprintf(w, "%s: %s\n", info, name)
+func remove(sl *slog.Logger, name, info, path string, backup dir.Directory) {
+	const msg = "remove file"
+	sl.Info(msg, slog.String("name", name), slog.String("detail", info))
 	defer func() {
 		now := time.Now().Format("2006-01-02_15-04-05")
 		newpath := backup.Join(fmt.Sprintf("%s_%s", now, name))
 		err := helper.RenameCrossDevice(path, newpath)
 		if err != nil {
-			_, _ = fmt.Fprintf(w, "defer repair file remove: %s\n", err)
+			sl.Error(msg, slog.String("name", name), slog.String("detail", info), slog.Any("error", err))
 		}
 	}()
 }
 
 // rename the file without warning.
-func rename(oldpath, info, newpath string) {
-	w := os.Stderr
-	_, _ = fmt.Fprintf(w, "%s: %s\n", info, oldpath)
+func rename(sl *slog.Logger, oldpath, info, newpath string) {
+	const msg = "rename or move file"
+	sl.Info(msg, slog.String("original path", oldpath), slog.String("new path", newpath), slog.String("detail", info))
 	defer func() {
 		if err := helper.RenameCrossDevice(oldpath, newpath); err != nil {
-			_, _ = fmt.Fprintf(w, "defer repair file rename: %s\n", err)
+			sl.Error(msg, slog.String("original path", oldpath), slog.String("new path", newpath),
+				slog.String("detail", info), slog.Any("error", err))
 		}
 	}()
 }
@@ -909,17 +924,16 @@ func TmpCleaner(sl *slog.Logger) {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	const threeDays = 3 * 24 * time.Hour
-	w := os.Stderr
 	name := helper.TmpDir()
 	dir, err := os.OpenRoot(name)
 	if err != nil {
-		_, _ = fmt.Fprintf(w, "repair tmp cleaner %s: %s", err, name)
+		sl.Error(msg, slog.String("name", name), slog.Any("error", err))
 		return
 	}
 	defer func() { _ = dir.Close() }()
 	_ = fs.WalkDir(dir.FS(), ".", func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
-			_, _ = fmt.Fprint(io.Discard, err)
+			discard(err)
 			return nil
 		}
 		if !d.IsDir() || !strings.HasPrefix(d.Name(), "artifact-content-") {
@@ -927,7 +941,7 @@ func TmpCleaner(sl *slog.Logger) {
 		}
 		inf, err := d.Info()
 		if err != nil {
-			_, _ = fmt.Fprintf(w, "repair tmp cleaner %s: %s", err, d.Name())
+			sl.Error(msg, slog.String("name", d.Name()), slog.Any("error", err))
 			return nil
 		}
 		if time.Since(inf.ModTime()) < threeDays {
@@ -935,7 +949,7 @@ func TmpCleaner(sl *slog.Logger) {
 		}
 		rmpath := filepath.Join(name, d.Name())
 		if err := os.RemoveAll(rmpath); err != nil {
-			_, _ = fmt.Fprintf(w, "repair tmp cleaner %s: %s", err, rmpath)
+			sl.Error(msg, slog.String("target path", rmpath), slog.Any("error", err))
 		}
 		return nil
 	})

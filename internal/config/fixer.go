@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -195,13 +194,10 @@ func (c *Config) production(sl *slog.Logger) {
 }
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
-func (c *Config) Fixer(w io.Writer, sl *slog.Logger, d time.Time) error {
+func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
 	msg := "postgres"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
-	}
-	if w == nil {
-		w = io.Discard
 	}
 	db, err := postgres.Open()
 	if err != nil {
@@ -218,7 +214,7 @@ func (c *Config) Fixer(w io.Writer, sl *slog.Logger, d time.Time) error {
 			slog.String("issue", s),
 			slog.Any("error", err))
 	}
-	_, _ = fmt.Fprintf(w, "\n%+v\n", c)
+	c.Print(sl)
 	ctx := context.Background()
 	count := RecordCount(ctx, db)
 	const welcome = "Defacto2 web application"

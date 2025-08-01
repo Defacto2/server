@@ -133,7 +133,7 @@ func (c *Configuration) configSlog() middleware.RequestLoggerConfig {
 			// cpu usage
 			numCPU := runtime.NumCPU()
 			numGoroutine := runtime.NumGoroutine()
-			_, _ = fmt.Fprintln(io.Discard, rsize, alloc, numCPU, numGoroutine) // placeholder
+			_, _ = fmt.Fprintln(io.Discard, rsize, alloc, numCPU, numGoroutine) // TODO: placeholder
 		}
 
 		// log template

@@ -89,6 +89,7 @@ func TestError(t *testing.T) {
 func TestRepair(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
+	disc := logs.Discard()
 	err := c.Archives(t.Context(), nil, nil)
 	be.Err(t, err)
 	r := config.Zip
@@ -104,13 +105,13 @@ func TestRepair(t *testing.T) {
 	be.Err(t, err, nil)
 	err = config.DownloadDir(nil, "", "", "")
 	be.Err(t, err)
-	err = config.RenameDownload("", "")
+	err = config.RenameDownload(disc, "", "")
 	be.Err(t, err)
-	err = config.RemoveDir("", "", "")
+	err = config.RemoveDir(disc, "", "", "")
 	be.Err(t, err)
-	err = config.RemoveDownload("", "", "", "")
+	err = config.RemoveDownload(disc, "", "", "", "")
 	be.Err(t, err)
-	err = config.RemoveImage("", "", "")
+	err = config.RemoveImage(disc, "", "", "")
 	be.Err(t, err)
 }
 

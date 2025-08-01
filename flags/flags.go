@@ -74,9 +74,9 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Action: func(_ *cli.Context) error {
-			logger := logs.Start(w) // TODO: create an use a out.Fix(w)
+			sl := logs.Start(w)
 			d := time.Now()
-			if err := c.Fixer(w, logger, d); err != nil {
+			if err := c.Fixer(sl, d); err != nil {
 				return fmt.Errorf("command fix: %w", err)
 			}
 			return nil
