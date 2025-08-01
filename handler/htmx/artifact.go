@@ -30,10 +30,9 @@ import (
 )
 
 var (
-	ErrIsDir = errors.New("the file is a directory")
-	ErrName  = errors.New("the file name is invalid")
-	ErrPath  = errors.New("the file path is invalid")
-	ErrYT    = errors.New("youtube watch video id needs to be empty or 11 characters")
+	ErrFileIsDir = errors.New("the file is a directory")
+	ErrPath      = errors.New("the file path is invalid")
+	ErrYouTube   = errors.New("youtube watch video id needs to be empty or 11 characters")
 )
 
 const (
@@ -374,7 +373,7 @@ func extrasDeleter(c echo.Context, ext string, extra dir.Directory) error {
 		return badRequest(c, err)
 	}
 	if st.IsDir() {
-		return badRequest(c, ErrIsDir)
+		return badRequest(c, ErrFileIsDir)
 	}
 	if err := os.Remove(dst); err != nil {
 		return badRequest(c, err)
@@ -683,7 +682,7 @@ func RecordDateIssued(c echo.Context, db *sql.DB) error {
 	y, m, d := form.ValidDate(year, month, day)
 	if !y || !m || !d {
 		return badRequest(c, fmt.Errorf("%w, date failed to validate: Y %q %v ; M %q %v ; D %q %v ",
-			ErrFormat, year, y, month, m, day, d))
+			ErrYMDFormat, year, y, month, m, day, d))
 	}
 	if err := model.UpdateDateIssued(db, int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
@@ -706,12 +705,12 @@ func RecordDateIssuedReset(c echo.Context, db *sql.DB, elmID string) error {
 	vals := strings.Split(reset, "-")
 	const expected = 3
 	if len(vals) != expected {
-		return badRequest(c, fmt.Errorf("%w, record date issued reset requires YYYY-MM-DD", ErrFormat))
+		return badRequest(c, fmt.Errorf("%w, record date issued reset requires YYYY-MM-DD", ErrYMDFormat))
 	}
 	year, month, day := vals[0], vals[1], vals[2]
 	y, m, d := form.ValidDate(year, month, day)
 	if !y || !m || !d {
-		return badRequest(c, fmt.Errorf("%w, record date issued reset requires YYYY-MM-DD", ErrFormat))
+		return badRequest(c, fmt.Errorf("%w, record date issued reset requires YYYY-MM-DD", ErrYMDFormat))
 	}
 	if err := model.UpdateDateIssued(db, int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
@@ -824,7 +823,7 @@ func RecordCreatorReset(c echo.Context, db *sql.DB) error {
 	const expected = 4
 	if len(vals) != expected {
 		return badRequest(c, fmt.Errorf("%w, record creator reset requires string;string;string;string",
-			ErrFormat))
+			ErrYMDFormat))
 	}
 	text := vals[0]
 	ill := vals[1]
@@ -1012,7 +1011,7 @@ func RecordLinksReset(c echo.Context, db *sql.DB) error {
 
 	const requirement = 11
 	if len(youtube) != 0 && len(youtube) != requirement {
-		return badRequest(c, fmt.Errorf("record links reset, %w: %q", ErrYT, youtube))
+		return badRequest(c, fmt.Errorf("record links reset, %w: %q", ErrYouTube, youtube))
 	}
 	colors16 = form.SanitizeURLPath(colors16)
 	github = form.SanitizeGitHub(github)

@@ -27,8 +27,6 @@ var (
 	ErrStat = errors.New("file download stored on this server cannot be found")
 )
 
-const msg = "download"
-
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.

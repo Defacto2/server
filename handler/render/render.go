@@ -20,11 +20,9 @@ import (
 )
 
 var (
-	ErrBuffer    = errors.New("buffer is nil")
-	ErrDownload  = errors.New("download file cannot be stat")
-	ErrFileModel = errors.New("file model is nil")
-	ErrFilename  = errors.New("file model filename is empty")
-	ErrUUID      = errors.New("file model uuid is empty")
+	ErrDownload = errors.New("cannot stat the downloaded file")
+	ErrFilename = errors.New("file model filename is empty")
+	ErrUUID     = errors.New("file model uuid is empty")
 )
 
 const textamiga = "textamiga"

@@ -19,9 +19,9 @@ import (
 )
 
 var (
-	ErrID      = errors.New("id is invalid")
-	ErrSuccess = errors.New("not found")
-	ErrStatus  = errors.New("status is not ok")
+	ErrBadID      = errors.New("id is invalid")
+	ErrSuccess    = errors.New("not found")
+	ErrStatusCode = errors.New("status code is not okay")
 )
 
 func client() http.Client {
@@ -69,7 +69,7 @@ type Production struct {
 // [Pouet API]: https://api.pouet.net/v1/prod/?id=
 func (p *Production) Get(id int) (int, error) {
 	if id < firstID {
-		return 0, fmt.Errorf("get pouet production %w: %d", ErrID, id)
+		return 0, fmt.Errorf("get pouet production %w: %d", ErrBadID, id)
 	}
 	resp := Response{}
 	if code, err := resp.Get(id); err != nil {
@@ -302,7 +302,7 @@ func (t Types) String() string {
 // The id value is the Pouet production ID and must be greater than 0.
 func (r *Response) Get(id int) (int, error) {
 	if id < firstID {
-		return 0, fmt.Errorf("%w: %d", ErrID, id)
+		return 0, fmt.Errorf("%w: %d", ErrBadID, id)
 	}
 	url := ProdURL + strconv.Itoa(id)
 	ctx := context.Background()
@@ -323,7 +323,7 @@ func (r *Response) Get(id int) (int, error) {
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
-		return res.StatusCode, fmt.Errorf("get pouet production %w: %s", ErrStatus, res.Status)
+		return res.StatusCode, fmt.Errorf("get pouet production %w: %s", ErrStatusCode, res.Status)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -347,7 +347,7 @@ func (r *Response) Get(id int) (int, error) {
 // The data is intended for the Artifact page, Pouët reviews section.
 func (v *Votes) Votes(id int) error {
 	if id < firstID {
-		return fmt.Errorf("%w: %d", ErrID, id)
+		return fmt.Errorf("%w: %d", ErrBadID, id)
 	}
 	r := Response{}
 	_, err := r.Get(id)

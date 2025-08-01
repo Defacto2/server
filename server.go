@@ -236,6 +236,6 @@ func welcomeMsg(sl *slog.Logger, count int) {
 			slog.Int("record count", count),
 			slog.Int("expecting at least", config.MinimumFiles))
 	default:
-		sl.Info(welcome, slog.Int("artifact record count", count))
+		sl.Info(welcome, slog.Int("Artifacts", count))
 	}
 }

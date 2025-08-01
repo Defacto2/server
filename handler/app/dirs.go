@@ -51,9 +51,6 @@ func Artifact404(c echo.Context, sl *slog.Logger, id string) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "status"
-	if c == nil {
-		return InternalErr(c, sl, name, errorWithID(ErrCxt, id, nil))
-	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, artifact page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)

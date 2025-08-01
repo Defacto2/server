@@ -31,33 +31,9 @@ import (
 )
 
 var (
-	ErrDB     = errors.New("database connection is nil")
-	ErrFormat = errors.New("invalid format")
-	ErrKey    = errors.New("numeric record key is invalid")
+	ErrYMDFormat = errors.New("invalid ymd format")
+	ErrKey       = errors.New("numeric record key is invalid")
 )
-
-func htmxpanic(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	if c == nil {
-		return ErrNoEcho
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	if sl == nil {
-		return ErrNoSlog
-	}
-	return nil
-}
-
-func dbpanic(c echo.Context, db *sql.DB) error {
-	if c == nil {
-		return ErrNoEcho
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	return nil
-}
 
 // Areacodes is the handler for the /areacodes route.
 func Areacodes(c echo.Context) error {
@@ -177,7 +153,7 @@ func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, er
 	const msg = "htmx demozoo valid"
 	none := demozoo.Production{}
 	if c == nil {
-		return none, fmt.Errorf("%s: %w", msg, ErrNoEcho)
+		return none, fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
 	}
 	if invalid := id < 1; invalid {
 		return none,
@@ -234,7 +210,7 @@ func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, er
 // use, an error message is returned.
 func DemozooSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const msg = "htmx demozoo submit context"
-	if err := htmxpanic(c, db, sl); err != nil {
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return Demozoo.Submit(c, db, sl, download)
@@ -243,7 +219,7 @@ func DemozooSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Dir
 // DBConnections is the handler for the database connections page.
 func DBConnections(c echo.Context, db *sql.DB) error {
 	const msg = "htmx db connections context"
-	if err := dbpanic(c, db); err != nil {
+	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	conns, maxConn, err := postgres.Connections(db)
@@ -258,7 +234,7 @@ func DBConnections(c echo.Context, db *sql.DB) error {
 // DeleteForever is a handler for the /delete/forever route.
 func DeleteForever(c echo.Context, db *sql.DB, sl *slog.Logger, id string) error {
 	const msg = "htmx delete forever"
-	if err := htmxpanic(c, db, sl); err != nil {
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key, err := strconv.ParseInt(id, 10, 64)
@@ -369,7 +345,7 @@ func pings() []string {
 func Pings(c echo.Context, proto string, port int) error {
 	const msg = "htmx pings context"
 	if c == nil {
-		return fmt.Errorf("%s, %w", msg, ErrNoEcho)
+		return fmt.Errorf("%s, %w", msg, panics.ErrNoEchoC)
 	}
 	pings := pings()
 	results := make([]string, 0, len(pings))
@@ -408,7 +384,7 @@ func Pings(c echo.Context, proto string, port int) error {
 // to save the file to the correct filename.
 func PouetLookup(c echo.Context, db *sql.DB) error {
 	const msg = "htmx pouet lookup context"
-	if err := dbpanic(c, db); err != nil {
+	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	pouet := c.FormValue("pouet-submission")
@@ -486,7 +462,7 @@ func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
 	const msg = "htmx pouet valid context"
 	none := pouet.Response{}
 	if c == nil {
-		return none, fmt.Errorf("%s: %w", msg, ErrNoEcho)
+		return none, fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
 	}
 	if invalid := id < 1; invalid {
 		return none,
@@ -562,7 +538,7 @@ func validation(prod pouet.Response) string {
 // use, an error message is returned.
 func PouetSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const msg = "htmx pouet submit context"
-	if err := htmxpanic(c, db, sl); err != nil {
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return Pouet.Submit(c, db, sl, download)
@@ -571,7 +547,7 @@ func PouetSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Direc
 // SearchByID is a handler for the /editor/search/id route.
 func SearchByID(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "search by id context"
-	if err := htmxpanic(c, db, sl); err != nil {
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 50
@@ -663,7 +639,7 @@ func Alternatives(s string) []string {
 // SearchReleaser is a handler for the /search/releaser route.
 func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "htmx search releaser context"
-	if err := htmxpanic(c, db, sl); err != nil {
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const limit = 14
@@ -715,41 +691,20 @@ func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return nil
 }
 
-func dlpanic(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	if c == nil {
-		return ErrNoEcho
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	if sl == nil {
-		return ErrNoSlog
-	}
-	return nil
-}
-
 // DataListReleasers is a handler for the /datalist/releasers route.
 func DataListReleasers(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
-	const msg = "htmx datalist releasers context"
-	if err := dlpanic(c, db, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
 	return datalist(c, db, sl, input, false)
 }
 
 // DataListMagazines is a handler for the /datalist/magazines route.
 func DataListMagazines(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
-	const msg = "htmx datalist magazines context"
-	if err := dlpanic(c, db, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
 	return datalist(c, db, sl, input, true)
 }
 
 // datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
 func datalist(c echo.Context, db *sql.DB, sl *slog.Logger, input string, magazine bool) error {
 	const msg = "htmx datalist context"
-	if err := dlpanic(c, db, sl); err != nil {
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 14

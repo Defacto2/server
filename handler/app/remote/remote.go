@@ -28,9 +28,8 @@ import (
 )
 
 var (
-	ErrDB    = errors.New("database connection is nil")
-	ErrExist = errors.New("file already exists")
-	ErrNF    = errors.New("could not get record from demozoo api")
+	ErrExist    = errors.New("file already exists")
+	ErrNoRecord = errors.New("could not the get record from demozoo api")
 )
 
 // DemozooLink is the response from the task of GetDemozooFile.
@@ -75,7 +74,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Direct
 		return fmt.Errorf("could not get record %d from demozoo api: %w", got.ID, err)
 	}
 	if statusCode > 0 {
-		return fmt.Errorf("record %d, status code: %d: %w", got.ID, statusCode, ErrNF)
+		return fmt.Errorf("record %d, status code: %d: %w", got.ID, statusCode, ErrNoRecord)
 	}
 	// Originally we would return an error and abort the database record update if the download link
 	// could not be fetched. However, this happens too frequently with some of the more popular Scene

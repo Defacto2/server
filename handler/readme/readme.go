@@ -21,11 +21,6 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 )
 
-var (
-	ErrNoModel = errors.New("no model")
-	ErrBufPool = errors.New("buffer pool get returned unexpected type")
-)
-
 // Suggest returns a suggested readme file name for the record.
 // It prioritizes the filename and group name with a priority extension,
 // such as ".nfo", ".txt", etc. If no priority extension is found,

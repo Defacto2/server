@@ -14,13 +14,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var (
-	ErrNoDB    = errors.New("database pointer db is nil")
-	ErrNoEcho  = errors.New("echo context pointer c is nil")
-	ErrNoEmbed = errors.New("embed file system instance is empty")
-	ErrNoSlog  = errors.New("logger pointer sl is nil")
-)
-
 // BadRequestErr is the handler for handling Bad Request Errors, caused by invalid user input
 // or a malformed client requests.
 func BadRequestErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
@@ -226,7 +219,7 @@ func StatusErr(c echo.Context, sl *slog.Logger, code int, uri string) error {
 	default:
 		s := http.StatusText(code)
 		if s == "" {
-			err := fmt.Errorf("%d status error for the URL, %s: %w", code, uri, ErrCode)
+			err := fmt.Errorf("%d status error for the URL, %s: %w", code, uri, ErrStatus)
 			sl.Error(msg, slog.String("status", "unknown and unsupported status code"),
 				slog.Int("code", code), slog.String("uri", uri))
 			return echo.NewHTTPError(http.StatusInternalServerError, err)

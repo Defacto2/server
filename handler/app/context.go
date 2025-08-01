@@ -68,10 +68,8 @@ type Pagination struct {
 const (
 	demo    = "demo"
 	limit   = 198 // per-page record limit
-	page    = 1   // default page number
 	records = "records"
 	sep     = ";"
-	txt     = ".txt" // txt file extension
 	az      = ", a-z"
 	byyear  = ", by year"
 	alpha   = "alphabetically"
@@ -1063,9 +1061,6 @@ func Page404(c echo.Context, sl *slog.Logger, uri, page string) error {
 	}
 	const name = "status"
 	errs := fmt.Sprintf("page not found for %q at %q", page, uri)
-	if c == nil {
-		return InternalErr(c, sl, errs, ErrCxt)
-	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
@@ -1232,7 +1227,7 @@ func PouetCache(c echo.Context, data string) error {
 	x := strings.Split(data, sep)
 	const expect = 4
 	if l := len(x); l != expect {
-		return fmt.Errorf("pouet cache %w: %d, want %d", ErrData, l, expect)
+		return fmt.Errorf("pouet cache %w: %d, want %d", ErrCorrupt, l, expect)
 	}
 	stars, err := strconv.ParseFloat(x[0], 64)
 	if err != nil {
@@ -1380,9 +1375,6 @@ func Releaser404(c echo.Context, sl *slog.Logger, invalidID string) error {
 	}
 	const name = "status"
 	errs := fmt.Sprint("releaser page not found for,", invalidID)
-	if c == nil {
-		return InternalErr(c, sl, errs, ErrCxt)
-	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
@@ -1522,9 +1514,6 @@ func Scener404(c echo.Context, sl *slog.Logger, id string) error {
 	}
 	const name = "status"
 	errs := fmt.Sprint("scener page not found for,", id)
-	if c == nil {
-		return InternalErr(c, sl, errs, ErrCxt)
-	}
 	data := empty(c)
 	data["title"] = fmt.Sprintf("%d error, scener page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
@@ -1781,9 +1770,6 @@ func TagEdit(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
-	}
-	if db == nil {
-		return InternalErr(c, sl, "tag edit", ErrDB)
 	}
 	ctx := context.Background()
 	r, err := model.One(ctx, db, true, f.ID)

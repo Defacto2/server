@@ -44,24 +44,18 @@ const (
 
 var (
 	ErrClaims   = errors.New("no sub id in the claims playload")
-	ErrCode     = errors.New("the http status code is not valid")
-	ErrCxt      = errors.New("the server could not create a context")
-	ErrData     = errors.New("cache data is invalid or corrupt")
-	ErrDB       = errors.New("database connection is nil")
-	ErrExtract  = errors.New("unknown extractor value")
-	ErrLinkType = errors.New("the id value is an invalid type")
+	ErrCorrupt  = errors.New("cache data is invalid or corrupt")
 	ErrMisMatch = errors.New("token mismatch")
 	ErrNegative = errors.New("value cannot be a negative number")
 	ErrSession  = errors.New("no sub id in session")
-	ErrTarget   = errors.New("target not found")
+	ErrStatus   = errors.New("the http status code is not valid")
 	ErrTmpl     = errors.New("the server could not render the html template for this page")
-	ErrType     = errors.New("value is the wrong type")
 	ErrUser     = errors.New("unknown user")
-	ErrVal      = errors.New("value is empty")
+	ErrValue    = errors.New("value is empty")
 )
 
 func errVal(name string) template.HTML {
-	return template.HTML(fmt.Sprintf("error, %s: %s", ErrVal, name))
+	return template.HTML(fmt.Sprintf("error, %s: %s", ErrValue, name))
 }
 
 const (
