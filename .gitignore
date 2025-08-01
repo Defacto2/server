@@ -25,4 +25,4 @@ tmp/
 
 # macOS
 *.DS_Store
-logs/
+/logs/
