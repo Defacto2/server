@@ -3,6 +3,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"log/slog"
 	"reflect"
 	"slices"
@@ -208,7 +209,8 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 	if help {
 		s := "Depending on the firewall and network setup, " +
 			"the web server maybe accessible from these links"
-		sl.Info(msg, slog.String("Help", s))
+		log.Println(s)
+		// sl.Info(msg, slog.String("Help", s))
 	}
 	hosts, err := helper.LocalHosts()
 	if err != nil {

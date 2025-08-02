@@ -49,50 +49,60 @@ var (
 // var ErrLog = errors.New("cannot save logs")
 
 // Main is the entry point for the application.
-// By default the web server runs when no arguments are provided,
-// otherwise, the command-line arguments are parsed and the application exits.
+// By default, the web server can run without any
+// flags or configuration. Otherwise, providing
+// command arguments will be parsed and then the
+// application exits.
 func main() {
 	const msg = "defacto2 startup"
 	const exit = 0
-	// initialize a temporary logger, get and print the environment variable configurations.
-	sl := logs.Default(nil)
+	// Initialize a temporary logger, get and print
+	// the environment variable configurations.
+	sl := logs.Default()
+	slog.SetDefault(sl)
 	configs := environmentVars(sl)
+	// Parse any application commands and flags, and
+	// if appropriate run the request and exit to
+	// the terminal.
 	if code := flagParser(os.Stdout, sl, *configs); code >= exit {
 		os.Exit(code)
 	}
-	var branding io.Writer = os.Stdout
-	if quiet := configs.Quiet.Bool(); quiet {
-		branding = io.Discard
-		sl = logs.Quiet(nil)
-	}
-	// print to standard logs.ut the server configuration
-	startup := logs.StartCustom(nil,
-		bool(configs.Quiet), bool(configs.ProdMode))
-	configs.Print(startup)
-	// connect to the database and perform some repairs and sanity checks.
-	// if the database is cannot connect, the web server will continue.
+	// Configure the application logger, the startup
+	// configuration logger and the logo writer.
+	// Two loggers are used so that the server logs
+	// are not cluttered with starting up information.
+	sl, cl, logo := loggers(*configs)
+	configs.Print(cl)
+	// Connect to the database and perform some repairs
+	// and sanity checks.i If the database is cannot connect,
+	// the web server will continue.
 	db, err := postgres.Open()
 	if err != nil {
-		sl.Error(msg,
-			slog.String("database", "could not initalize the database"),
+		sl.Error(msg, slog.String("database", "could not initalize the database"),
 			slog.Any("error", err))
 	}
-	defer func() { _ = db.Close() }()
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			sl.Warn("database",
+				slog.String("issue", "closing the database connection caused an error"),
+				slog.Any("error", err))
+		}
+	}()
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
-		sl.Error(msg,
-			slog.String("postgres", "could not run the version query"),
+		sl.Error(msg, slog.String("postgres", "could not run the version query"),
 			slog.Any("error", err))
 	}
 	config.TmpCleaner(sl)
 	config.TmpInfo(sl)
-	// start the web server
+	// Start the web server.
 	instance := newInstance(context.Background(), db, *configs)
-	newline(branding)
+	newline(logo)
 	welcomeMsg(sl, instance.RecordCount)
 	logtoFiles(sl, configs)
 	routing := instance.Controller(db, sl)
-	instance.StartupBranding(sl, branding)
+	instance.StartupBranding(sl, logo)
 	if err := instance.Start(routing, sl, *configs); err != nil {
 		logs.Fatal(sl, msg,
 			slog.String("environment vars", "could not startup the server, please check the configuration"))
@@ -101,8 +111,30 @@ func main() {
 		groupUsers(sl, msg)
 		locAddresses(sl, configs, msg)
 	}()
-	// shutdown the web server after a signal is received.
-	instance.ShutdownHTTP(os.Stdout, routing, sl)
+	// Shutdown the web server after a signal is received.
+	instance.ShutdownHTTP(os.Stderr, routing, sl)
+}
+
+func loggers(configs config.Config) (*slog.Logger, *slog.Logger, io.Writer) {
+	// configure logo to stdout so it is ignored by systemd and the operating system
+	var logo io.Writer = os.Stdout
+	// configuration logger flags
+	cflag := logs.Configurations
+	clvl := logs.LevelInfo
+	// general slog and level configuration used by the website
+	sflag := logs.Defaults
+	slvl := logs.LevelInfo
+	if quiet := bool(configs.Quiet); quiet {
+		logo = io.Discard
+		clvl, slvl = logs.LevelError, logs.LevelError
+		sflag = logs.Quiets
+	}
+	// configure the server logger and make it the default
+	sl := logs.New(slvl, nil, sflag)
+	slog.SetDefault(sl)
+	// print the server configuration and commandline flag output to stdout
+	cl := logs.New(clvl, nil, cflag)
+	return sl, cl, logo
 }
 
 func newline(w io.Writer) {
