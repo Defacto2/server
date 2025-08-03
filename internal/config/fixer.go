@@ -24,7 +24,7 @@ import (
 
 // Checks runs a number of sanity checks for the environment variable configurations.
 func (c *Config) Checks(sl *slog.Logger) error {
-	const msg, key = "config directory", "check"
+	const msg, key = "Config directory", "check"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
@@ -53,7 +53,7 @@ func (c *Config) Checks(sl *slog.Logger) error {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
 	}
-	msgi := "information"
+	msgi := "Information"
 	// Reminds for the optional configuration values.
 	if c.NoCrawl {
 		s := "Disallow search engine crawling is enabled"
@@ -195,14 +195,14 @@ func (c *Config) production(sl *slog.Logger) {
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
 func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
-	msg := "postgres"
+	psl := "PostgreSQL"
 	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+		return fmt.Errorf("%s: %w", psl, panics.ErrNoSlog)
 	}
 	db, err := postgres.Open()
 	if err != nil {
 		s := "fix could not initialize the database data"
-		sl.Error(msg,
+		sl.Error(psl,
 			slog.String("issue", s),
 			slog.Any("error", err))
 	}
@@ -210,33 +210,34 @@ func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
 		s := "version query problem"
-		sl.Error(msg,
+		sl.Error(psl,
 			slog.String("issue", s),
 			slog.Any("error", err))
 	}
-	c.Print(sl)
 	ctx := context.Background()
 	count := RecordCount(ctx, db)
 	const welcome = "Defacto2 web application"
+	const msg = "Fixing and repairs"
 	switch {
 	case count == 0:
 		s := welcome + " with no database records"
-		sl.Error(msg,
+		sl.Error(psl,
 			slog.String("issue", s),
 			slog.Any("error", err))
 	case MinimumFiles > count:
 		s := welcome + " too few database records"
-		sl.Warn(msg,
+		sl.Warn(psl,
 			slog.String("issue", s),
 			slog.Int("record count", count))
 	default:
 		s := fmt.Sprintf("%s using %d records", welcome, count)
-		sl.Info("fixer", slog.String("info", s))
+		sl.Info(msg, slog.String("info", s))
 	}
 	c.repairer(ctx, db, sl)
 	c.sanityChecks(sl)
 	TmpInfo(sl)
-	sl.Info("fixer", slog.Float64("time to completed", time.Since(d).Seconds()))
+	sl.Info(msg, slog.String("status", "Complete"),
+		slog.Float64("seconds", time.Since(d).Seconds()))
 	return nil
 }
 
@@ -261,8 +262,11 @@ func TmpInfo(sl *slog.Logger) {
 // including whether it exists, is a directory, and contains a minimum number of files.
 // Problems will either log warnings or fatal errors.
 func CheckDir(name dir.Directory, desc string) error {
+	if name == "" {
+		return fmt.Errorf("%s: %w", desc, ErrNoPath)
+	}
 	if err := name.IsDir(); err != nil {
-		return fmt.Errorf("%w, %s: %s", err, desc, name)
+		return fmt.Errorf("%q %q: %q", name, desc, err)
 	}
 	return nil
 }
@@ -283,22 +287,22 @@ func RecordCount(ctx context.Context, db *sql.DB) int {
 // repairer is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
 func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
-	const msg = "repairer"
+	const msg = "Repairing"
 	if err := panics.ContextDS(ctx, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if err := repairDatabase(ctx, db, sl); err != nil {
 		if errors.Is(err, ErrPSVersion) {
-			sl.Warn("repairer",
+			sl.Warn(msg,
 				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrPSVersion)))
 		}
-		sl.Error("repairer",
+		sl.Error(msg,
 			slog.String("database", "could not initialize the database data"),
 			slog.Any("error", err))
 	}
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
 	if err := c.RepairAssets(ctx, db, sl); err != nil {
-		sl.Error("repairer", slog.Any("error", err))
+		sl.Error(msg, slog.Any("error", err))
 	}
 }
 

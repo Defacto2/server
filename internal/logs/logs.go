@@ -260,6 +260,7 @@ func startOptions(w io.Writer) (io.Writer, tint.Options) {
 
 func flagAttr(groups []string, a slog.Attr) slog.Attr {
 	a = configUnsetAttr(a)
+	println("flag attr", a.Key)
 	switch strings.ToLower(a.Key) {
 	case "":
 		return slog.Attr{}

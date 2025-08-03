@@ -30,6 +30,8 @@ const (
 	Author     = "Ben Garrett"              // Author is the primary programmer of this program.
 	Email      = "contact@defacto2.net"     // Email contact for public display.
 	RecentYear = 2025                       // Most recent year of compilation for this program.
+
+	wsmsg = "Web server configurations"
 )
 
 var ErrNoConfig = errors.New("cannot run command as config is nil")
@@ -74,8 +76,15 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Action: func(_ *cli.Context) error {
-			sl := stdoutput()
+			cl := stdoutput()
+			sl := logs.Default()
+			slog.SetDefault(cl)
 			d := time.Now()
+			log.Printf("%s\n", wsmsg)
+			c.Print(cl)
+			log.Println()
+			slog.SetDefault(sl)
+			log.Println("Running database and asset fixers")
 			if err := c.Fixer(sl, d); err != nil {
 				return fmt.Errorf("%s: %w", msg, err)
 			}
@@ -113,9 +122,8 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
-			const s = "Web server configurations"
 			sl := stdoutput()
-			log.Printf("%s\n", s)
+			log.Printf("%s\n", wsmsg)
 			c.Print(sl)
 			return nil
 		},

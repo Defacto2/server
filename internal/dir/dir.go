@@ -13,10 +13,10 @@ import (
 )
 
 var (
-	ErrFile = errors.New("file error")
-	ErrSave = errors.New("save error")
-	ErrDir  = errors.New("the directory path is not set")
-	ErrNF   = errors.New("the directory path does not exist")
+	ErrFile   = errors.New("file error")
+	ErrSave   = errors.New("save error")
+	ErrNoPath = errors.New("the directory path is not set")
+	ErrNoDir  = errors.New("the directory path does not exist")
 )
 
 // Directory is a string type that represents an internal server directory path.
@@ -57,12 +57,12 @@ func (d Directory) Check(sl *slog.Logger) error {
 // IsDir returns an error if the path does not exists or is not a directory.
 func (d Directory) IsDir() error {
 	if d.Path() == "" {
-		return ErrDir
+		return ErrNoPath
 	}
 	st, err := os.Stat(d.Path())
 	if err != nil {
 		if os.IsNotExist(err) {
-			return ErrNF
+			return ErrNoDir
 		}
 		return fmt.Errorf("isdir error: %w", err)
 	}
