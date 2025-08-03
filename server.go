@@ -65,7 +65,7 @@ func main() {
 	// if appropriate run the request and exit to
 	// the terminal.
 	if code := flagParser(os.Stdout, sl, *configs); code >= exit {
-		os.Exit(code)
+		os.Exit(int(code))
 	}
 	// Configure the application logger, the startup
 	// configuration logger and the logo writer.
@@ -232,24 +232,24 @@ func newInstance(ctx context.Context, db *sql.DB, configs config.Config) *handle
 // flagParser is used to parse the command line arguments.
 // If an error is returned, the application will exit with the error code.
 // Otherwise, a negative value is returned to indicate the application should continue.
-func flagParser(w io.Writer, sl *slog.Logger, configs config.Config) int {
-	const msg = "parse flags"
+func flagParser(w io.Writer, sl *slog.Logger, configs config.Config) flags.ExitCode {
+	const msg = "server flag parser"
 	if sl == nil {
-		return -1 // TODO:
+		return flags.GenericErr
 	}
-	code, err := flags.Run(w, version, &configs)
+	exitc, err := flags.Run(w, version, &configs)
 	if err != nil {
 		sl.Error(msg,
 			slog.String("run", "there was a problem parsing the command arguments"),
-			slog.Int("exit code", int(code)),
+			slog.Int("exit code", int(exitc)),
 			slog.Any("error", err))
-		return int(code)
+		return exitc
 	}
-	useExitCode := code >= flags.ExitOK
-	if useExitCode {
-		return int(code)
+	usec := exitc >= flags.ExitOK
+	if usec {
+		return exitc
 	}
-	return -1
+	return flags.Continue
 }
 
 // welcomeMsg prints the welcome to message and returns the number

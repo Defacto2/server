@@ -204,13 +204,11 @@ func (c Config) Addresses(sl *slog.Logger) error {
 
 // addresses prints a list of urls that the server is accessible from.
 func (c Config) addresses(sl *slog.Logger, help bool) error {
-	const msg = "addresses"
 	values := reflect.ValueOf(c)
 	if help {
-		s := "Depending on the firewall and network setup, " +
+		s := "Depending on the firewall and operating system setup, " +
 			"the web server maybe accessible from these links"
 		log.Println(s)
-		// sl.Info(msg, slog.String("Help", s))
 	}
 	hosts, err := helper.LocalHosts()
 	if err != nil {
@@ -222,6 +220,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		return ErrNoPort
 	}
 	const disable, text, secure = 0, 80, 443
+	const li = " -"
 	for host := range slices.Values(hosts) {
 		if c.MatchHost != "" && host != c.MatchHost.String() {
 			continue
@@ -235,7 +234,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		default:
 			s = fmt.Sprintf("http://%s:%d", host, port)
 		}
-		sl.Info(msg, slog.String("link", s))
+		sl.Info(li, slog.String("link", s))
 		switch tls {
 		case secure:
 			s = fmt.Sprintf("https://%s", host)
@@ -244,7 +243,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		default:
 			s = fmt.Sprintf("https://%s:%d", host, tls)
 		}
-		sl.Info(msg, slog.String("link", s))
+		sl.Info(li, slog.String("link", s))
 	}
 	if c.MatchHost != "" {
 		return nil
@@ -258,7 +257,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 			break
 		}
 		s := fmt.Sprintf("http://%s:%d", ip, port)
-		sl.Info(msg, slog.String("address", s))
+		sl.Info(li, slog.String("link", s))
 	}
 	return nil
 }

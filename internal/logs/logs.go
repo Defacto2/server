@@ -47,6 +47,7 @@ const (
 const (
 	Configurations = Lcolor | Ltime | Lstdout | FlagAttr
 	Defaults       = Lcolor | Lseconds | Lshortfile | Lstderr
+	Flags          = Lcolor | Lstdout | FlagAttr
 	Quiets         = Ltime | Lstderr
 )
 
@@ -61,10 +62,6 @@ func Default() *slog.Logger {
 func Discard() *slog.Logger {
 	sl := slog.New(slog.DiscardHandler)
 	return sl
-}
-
-func Flags() *slog.Logger {
-	return nil
 }
 
 // New creates a new slog logger.
@@ -134,14 +131,14 @@ func writers(logf *LogFile, flag int) io.Writer {
 
 func tintOptions(minimum slog.Level, flag int) tint.Options {
 	attr := func(groups []string, a slog.Attr) slog.Attr {
-		if flag&(FlagAttr) != 0 {
-			return flagAttr(groups, a)
-		}
 		if flag&(Lshortfile) != 0 {
 			a = addsourceNoDirectory(a)
 		}
 		if flag&(Ldate) == 0 && flag&(Ltime) == 0 && flag&(Lseconds) == 0 {
 			a = timeformatRemove(groups, a)
+		}
+		if flag&(FlagAttr) != 0 {
+			return flagAttr(groups, a)
 		}
 		a = replaceAttr(a)
 		return a

@@ -12,11 +12,11 @@ func TestRun(t *testing.T) {
 	t.Parallel()
 	ec, err := flags.Run(nil, "", nil)
 	be.Err(t, err)
-	be.Equal(t, flags.UsageError, ec)
+	be.Equal(t, flags.UsageErr, ec)
 	c := config.Config{}
 	ec, err = flags.Run(nil, "", &c)
 	be.Err(t, err)
-	be.Equal(t, flags.GenericError, ec)
+	be.Equal(t, flags.GenericErr, ec)
 }
 
 func TestVers(t *testing.T) {
