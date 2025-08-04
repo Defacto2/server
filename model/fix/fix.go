@@ -55,12 +55,12 @@ const (
 
 // Run the database repair based on the repair option.
 func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) error {
-	const msg = "repair database runner"
+	const msg = "Database repair"
 	if err := panics.ContextDTS(ctx, db, tx, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Info(msg,
-		slog.String("startup", "check for records with invalid uuid values"),
+		slog.String("startup", "Check records with invalid UUIDs"),
 		slog.String("task", "run a cleanup of the database"))
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)
@@ -76,7 +76,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger
 	}
 	switch r {
 	case Artifacts:
-		sl.Info(msg, slog.String("task", "clean the artifacts whitespace and null values"))
+		sl.Info(msg, slog.String("task", "Clean records of whitespace and null values"))
 		if err := contentWhiteSpace(tx); err != nil {
 			return fmt.Errorf("%s content white space: %w", msg, err)
 		}
@@ -139,8 +139,8 @@ func SyncFilesIDSeq(db *sql.DB) error {
 //
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
 func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	const msg = "coldfusion id fixes"
-	sl.Info(msg, slog.String("task", "check for invalid UUIDs using the ColdFusion syntax"))
+	const msg, key = "Database repair: ColdFusion", "task"
+	sl.Info(msg, slog.String(key, "Check for invalid UUIDs using the ColdFusion syntax"))
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
 	fs, err := models.Files(mods).All(ctx, exec)
 	if err != nil {
@@ -151,7 +151,7 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logg
 		return nil
 	}
 	sl.Info(msg,
-		slog.String("task", "found records using the retired ColdFusion UUID syntax"),
+		slog.String(key, "found records using the retired ColdFusion UUID syntax"),
 		slog.Int("finds", i))
 	for _, f := range fs {
 		if !f.UUID.Valid {
@@ -161,19 +161,19 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logg
 		old := strings.TrimSpace(f.UUID.String)
 		newid, err := helper.CfUUID(old)
 		if err != nil {
-			sl.Warn(msg, slog.String("invalid id syntax", old), slog.Any("error", err))
+			sl.Warn(msg, slog.String(key, old), slog.Any("error", err))
 			continue
 		}
 		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, exec)
 		if err != nil {
-			sl.Warn(msg, slog.String("database", "failed to find a record using the uuid"),
+			sl.Warn(msg, slog.String(key, "Failed to find a record using the uuid"),
 				slog.String("uuid", old), slog.Any("error", err))
 			continue
 		}
 		file.UUID = null.StringFrom(newid)
 		_, err = file.Update(ctx, exec, boil.Infer())
 		if err != nil {
-			sl.Warn(msg, "database update", "could not update the record",
+			sl.Warn(msg, key, "Could not update the record",
 				slog.String("uuid", old), slog.Any("error", err))
 			continue
 		}
@@ -182,10 +182,10 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logg
 }
 
 func trainers(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
-	const msg = "trainers not using gamehack fix"
 	const trainer = "gamehack"
+	const msg = "Database repair: " + trainer
 	sl.Info(msg,
-		slog.String("task", "check trainers that are not correctly categorized"))
+		slog.String("task", "Check for trainers that are incorrectly categorized"))
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("id"))
 	mods = append(mods, qm.Where(fmt.Sprintf("section != '%s'", trainer)))
@@ -267,9 +267,9 @@ func fixes() map[string]string {
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
 func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	const msg = "releaser database fixer"
+	const msg = "Database repair"
 	sl.Info(msg,
-		slog.String("task", "clean up the releasers such as group_brand_by and .._for"))
+		slog.String("task", "Clean up the named releasers in group_brand_by and group_brand_for"))
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
 		qm.WithDeleted()).All(ctx, exec)
@@ -284,7 +284,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 		}
 		if rowsAff > 0 {
 			sl.Info(msg,
-				slog.String("task", "update group_brand_by to null"),
+				slog.String("task", "Update the group_brand_by values to be null"),
 				slog.Int64("updated", rowsAff))
 		}
 	}
@@ -304,7 +304,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 			}
 			if rowsAff > 0 {
 				sl.Info(msg,
-					slog.String("task", "update group_brand_for fixes"),
+					slog.String("task", "Fix the group_brand_for column"),
 					slog.Int64("updated", rowsAff))
 			}
 		}
@@ -321,7 +321,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 			}
 			if rowsAff > 0 {
 				sl.Info(msg,
-					slog.String("task", "update group_brand_by fixes"),
+					slog.String("task", "Fix the group_brand_by column"),
 					slog.Int64("updated", rowsAff))
 			}
 		}
@@ -439,18 +439,18 @@ func optimize(db *sql.DB) error {
 // invalidUUIDs will count the number of invalid UUIDs in the database.
 // This should be part of a future function to repair the UUIDs and rename the file assets.
 func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
-	const msg = "invalid uuid"
+	const msg = "Database repair"
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
 	i, err := models.Files(mods).Count(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("query couunt: %w", err)
+		return fmt.Errorf("query count: %w", err)
 	}
 	if i == 0 {
 		return nil
 	}
 	sl.Warn(msg,
-		slog.String("task", "invalid uuids found"),
+		slog.String("task", "Invalid UUID(s) found"),
 		slog.Int64("finds", i))
 	return nil
 }

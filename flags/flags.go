@@ -31,7 +31,9 @@ const (
 	Email      = "contact@defacto2.net"     // Email contact for public display.
 	RecentYear = 2025                       // Most recent year of compilation for this program.
 
-	wsmsg = "Web server configurations"
+	wsmsg = "Web Server Configurations"
+	fxmsg = "Database and Asset Fixes"
+	admsg = "Web Server Addresses"
 )
 
 var ErrNoConfig = errors.New("cannot run command as config is nil")
@@ -82,9 +84,9 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 			d := time.Now()
 			log.Printf("%s\n", wsmsg)
 			c.Print(cl)
-			log.Println()
+			newline()
 			slog.SetDefault(sl)
-			log.Println("Running database and asset fixers")
+			log.Println(fxmsg)
 			if err := c.Fixer(sl, d); err != nil {
 				return fmt.Errorf("%s: %w", msg, err)
 			}
@@ -102,9 +104,8 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
-			const s = "Web server addresses"
 			sl := stdoutput()
-			log.Printf("%s\n", s)
+			log.Printf("%s\n", admsg)
 			err := c.Addresses(sl)
 			if err != nil {
 				return fmt.Errorf("%s: %w", msg, err)
@@ -264,6 +265,10 @@ or in a container. But will run without a database connection, limiting function
 The server relies on system environment variables for configuration and has limited 
 defaults for poor usability. Without the downloads and image directories, the server 
 will not display any thumbnails or previews or serve the file downloads.`, c.HTTPPort)
+}
+
+func newline() {
+	_, _ = fmt.Fprintln(os.Stdout)
 }
 
 func stdoutput() *slog.Logger {

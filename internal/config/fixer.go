@@ -32,7 +32,6 @@ func (c *Config) Checks(sl *slog.Logger) error {
 	c.checkHTTPS(sl)
 	c.production(sl)
 	// Check the download, preview and thumbnail directories.
-	// TODO: CheckDir tests on shell
 	if err := CheckDir(dir.Directory(c.AbsDownload), "downloads"); err != nil {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
@@ -230,14 +229,14 @@ func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
 			slog.String("issue", s),
 			slog.Int("record count", count))
 	default:
-		s := fmt.Sprintf("%s using %d records", welcome, count)
-		sl.Info(msg, slog.String("info", s))
+		sl.Info(msg, slog.String("info", welcome),
+			slog.Int("records", count))
 	}
 	c.repairer(ctx, db, sl)
 	c.sanityChecks(sl)
 	TmpInfo(sl)
-	sl.Info(msg, slog.String("status", "Complete"),
-		slog.Float64("seconds", time.Since(d).Seconds()))
+	sl.Info(msg, slog.String("task", "Time taken"),
+		slog.Duration("time", time.Since(d).Round(time.Millisecond)))
 	return nil
 }
 

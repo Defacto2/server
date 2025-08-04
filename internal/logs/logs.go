@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/panics"
@@ -45,10 +44,10 @@ const (
 )
 
 const (
-	Configurations = Lcolor | Ltime | Lstdout | FlagAttr
-	Defaults       = Lcolor | Lseconds | Lshortfile | Lstderr
-	Flags          = Lcolor | Lstdout | FlagAttr
 	Quiets         = Ltime | Lstderr
+	Defaults       = Lcolor | Lseconds | Lshortfile | Lstderr
+	Configurations = Lcolor | Lstdout | Ltime | FlagAttr
+	Flags          = Lcolor | Lstdout | FlagAttr
 )
 
 // Default is a general logger intended for use before the configurations
@@ -138,7 +137,7 @@ func tintOptions(minimum slog.Level, flag int) tint.Options {
 			a = timeformatRemove(groups, a)
 		}
 		if flag&(FlagAttr) != 0 {
-			return flagAttr(groups, a)
+			return flagAttr(a)
 		}
 		a = replaceAttr(a)
 		return a
@@ -221,46 +220,9 @@ func timeformat(flag int) string {
 //				slog.String("go version", buildInfo.GoVersion)))
 //		return child
 //	}
-//
-// Start is used to print the configurations and loading information
-// during the launch of the application. Unlike a normal logger it has
-// custom formatting for certain keys and their values used in the
-// configuration environment variables and displayed during the
-// server startup.
-//
-// The w io.Writer can usually be left as nil, as the standard output will
-// be used with automatic color detection.
-func Start(w io.Writer) *slog.Logger {
-	w, opts := startOptions(w)
-	sl := slog.New(tint.NewHandler(w, &opts))
-	return sl
-}
 
-// startOptions returns the options and a writer for a text logger handler.
-//
-// The following are configured:
-//   - add source is false
-//   - log level is set to info
-//   - time format is set to kitchen aka 08:43PM
-//   - nocolor is automatically determined by the value of w
-//
-// If the given w io writer is nil then the stdout is returned.
-func startOptions(w io.Writer) (io.Writer, tint.Options) {
-	if w == nil {
-		w = os.Stdout
-	}
-	return w, tint.Options{
-		AddSource:   false,
-		Level:       slog.LevelInfo,
-		ReplaceAttr: flagAttr,
-		TimeFormat:  time.Kitchen,
-		NoColor:     !Color(w),
-	}
-}
-
-func flagAttr(groups []string, a slog.Attr) slog.Attr {
+func flagAttr(a slog.Attr) slog.Attr {
 	a = configUnsetAttr(a)
-	println("flag attr", a.Key)
 	switch strings.ToLower(a.Key) {
 	case "":
 		return slog.Attr{}
