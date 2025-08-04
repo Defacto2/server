@@ -2,7 +2,6 @@ package logs
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 )
 
@@ -27,10 +26,16 @@ func NewFile(name string) (*LogFile, error) {
 	return &LogFile{file: file}, nil
 }
 
-func (f *LogFile) Write(r slog.Record) error {
-	s := fmt.Sprintf("%s %s: %s\n", r.Time, r.Level, r.Message)
-	_, err := f.file.WriteString(s)
-	return err
+// Write(p []byte) (n int, err error) {
+func (f *LogFile) Write(p []byte) (n int, err error) {
+	if f == nil {
+		return 0, nil
+	}
+	println("write anything?", string(p))
+	fmt.Printf("log file: %+v\n", f)
+	// s := fmt.Sprintf("%s %s: %s\n", r.Time, r.Level, r.Message)
+	// _, err := f.file.WriteString(s)
+	return 0, nil
 }
 
 func (f *LogFile) Close() error {

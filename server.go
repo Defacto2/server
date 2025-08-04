@@ -80,7 +80,7 @@ func main() {
 	// configuration logger and the logo writer.
 	// Two loggers are used so that the server logs
 	// are not cluttered with starting up information.
-	sl, cl, logo := loggers(*configs)
+	_, cl, logo := loggers(*configs) // TODO: SL
 	configs.Print(cl)
 	// Connect to the database and perform some repairs
 	// and sanity checks.i If the database is cannot connect,

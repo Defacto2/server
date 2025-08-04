@@ -17,6 +17,7 @@ import (
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
+	slogmulti "github.com/samber/slog-multi"
 )
 
 const (
@@ -61,6 +62,7 @@ func Default() *slog.Logger {
 }
 
 func DefaultF(logf *LogFile) *slog.Logger {
+	fmt.Printf("def: %+v\n", logf)
 	sl := New(LevelDebug, logf, Defaults)
 	return sl
 }
@@ -80,13 +82,25 @@ func Discard() *slog.Logger {
 // and Lstderr which are not set. For terminal output, at least one
 // of these must be provided.
 func New(level slog.Level, logf *LogFile, flag int) *slog.Logger {
-	sl := slog.New(slog.DiscardHandler)
-	if flag&(Lstdout) == 0 && flag&(Lstderr) == 0 && logf == nil {
-		return sl
-	}
-	w := writers(logf, flag)
+	//	sl := slog.New(slog.DiscardHandler)
+	// if flag&(Lstdout) == 0 && flag&(Lstderr) == 0 && logf == nil {
+	// 	return sl
+	// }
+	//w := writers(logf, flag)
+	//:w http.ResponseWriter, r *http.Requestx := io.MultiWriter(os.Stdout, logRotator)
+	// fmt.Printf("new %+v\n", logf)
 	opts := tintOptions(level, flag)
-	sl = slog.New(tint.NewHandler(w, &opts))
+	// sl := slog.New(tint.NewHandler(logf, &opts))
+	// TODO: flesh out this
+	sl := slog.New(
+		slogmulti.Fanout(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{}), // pass to first handler: logstash over tcp
+			slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{}), // then to second handler: stderr
+			tint.NewHandler(os.Stdout, &opts),
+			// datadogHandler,
+			// ...
+		),
+	)
 	return sl
 }
 
@@ -124,10 +138,13 @@ func writers(logf *LogFile, flag int) io.Writer {
 	if logf != nil {
 		switch {
 		case flag&(Lstderr) != 0 && flag&(Lstdout) != 0:
+			println("log 3")
 			return io.MultiWriter(os.Stderr, os.Stdout, logf.file)
 		case flag&(Lstderr) != 0:
+			println("log f & err")
 			return io.MultiWriter(os.Stderr, logf.file)
 		case flag&(Lstdout) != 0:
+			println("log f & out")
 			return io.MultiWriter(os.Stdout, logf.file)
 		default:
 			return logf.file

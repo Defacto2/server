@@ -54,10 +54,10 @@ func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger
 		// fallback to a string error if templates break
 		code, s, err1 := StringErr(err)
 		if err1 != nil {
-			logs.Fatal(sl, msg, slog.Any("custom response error", err))
+			logs.Fatal(sl, msg, slog.Any("error", err))
 		}
 		if err2 := ctx.String(code, s); err2 != nil {
-			logs.Fatal(sl, msg, slog.Any("custom response error", err))
+			logs.Fatal(sl, msg, slog.Any("error", err))
 		}
 	}
 }

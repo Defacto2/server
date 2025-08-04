@@ -1,0 +1,5 @@
+[2m16:20:31[0m [92mINF[0m [2mfixer.go:257[0m Temporary directory [2mPath=[0m/tmp/defacto2-server [2mUsage=[0m"702 kB"
+[2m16:20:31[0m [92mINF[0m [2mserver.go:280[0m Welcome to the Defacto2 web application [2mArtifacts=[0m53033
+[2m16:20:34[0m [92mINF[0m [2mserver.go:179[0m defacto2 startup [2mpermissions=[0m"Server running as the following user and groups" [2mUser=[0mben [2mGroups=[0m"Ben Garrett"
+[2m16:20:34[0m [92mINF[0m [2mconfig.go:237[0m  - [2mlink=[0mhttp://localhost:1323
+[2m16:35:42[0m [92mINF[0m [2mmiddleware.go:173[0m HTTP GET 200 [2mlatency=[0m59.892187ms [2muri=[0m/f/b427d51 [2mresponse.size=[0m209532 [2mresponse.humanize=[0m"210 kB" [2mcpu.cores=[0m8 [2mcpu.go_routines=[0m7 [2mallocation=[0m"21 MB" [2mrequest.agent=[0m"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" [2mrequest.path=[0m/f/b427d51 [2mrequest.route=[0m/f/:id [2mrequest.uri=[0m/f/b427d51
