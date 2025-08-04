@@ -31,29 +31,37 @@ const (
 )
 
 const (
-	Ldate      = 1 << iota // the date in the local time zone: 2009/01/23
-	Ltime                  // the time in the local time zone: 1:23AM
-	Lseconds               // second resolution: 01:23:23.  assumes Ltime.
+	Ldate      = 1 << iota // the date as year/month/day: 2009/01/23
+	Ltime                  // the time using US syntax: 1:23PM
+	Lseconds               // the time using 24-hour syntax: 13:23:23. overrides Ltime
 	Llongfile              // full file name and line number: /a/b/c/d.go:23
 	Lshortfile             // final file name element and line number: d.go:23. overrides Llongfile
-	LUTC                   // if Ldate or Ltime is set, use UTC rather than the local time zone
-	Lcolor
-	Lstdout
-	Lstderr
-	FlagAttr
+	Lcolor                 // use color output by providing ansi escape codes
+	Lstdout                // output to the standard output (stdout)
+	Lstderr                // output to the standard error (stderr)
+	FlagAttr               // an internal flag to toggle a custom output for the environment configurations
 )
 
 const (
-	Quiets         = Ltime | Lstderr
-	Defaults       = Lcolor | Lseconds | Lshortfile | Lstderr
+	// Quiets flag for the config.Quiet toggle that outputs to stderr but without color or a source file.
+	Quiets = Ltime | Lstderr
+	// Defaults flag for the Default slog logger that outputs to stderr and includes the time and source filename.
+	Defaults = Lcolor | Lseconds | Lshortfile | Lstderr
+	// Configurations flag for the Config.Print method to style the log output with a time but no source file.
 	Configurations = Lcolor | Lstdout | Ltime | FlagAttr
-	Flags          = Lcolor | Lstdout | FlagAttr
+	// Flags flag for the flags package to style the log output without the date and time.
+	Flags = Lcolor | Lstdout | FlagAttr
 )
 
 // Default is a general logger intended for use before the configurations
 // environment variables have been read and parsed.
 func Default() *slog.Logger {
 	sl := New(LevelDebug, nil, Defaults)
+	return sl
+}
+
+func DefaultF(logf *LogFile) *slog.Logger {
+	sl := New(LevelDebug, logf, Defaults)
 	return sl
 }
 
@@ -103,6 +111,15 @@ func Color(w io.Writer) bool {
 	return false
 }
 
+// Writers returns a writer that duplicates to multiple writers.
+// For example, if provided with an opened LogFile, it can write
+// to both the file and a standard output or standard error, or all three.
+//
+// If the logf is nil, and both the Lstdout or Lstdout flag are not
+// set, an io.Discard will be returned.
+//
+// If both Lstdout and Lstderr are set, a terminal will probably duplicate
+// the output.
 func writers(logf *LogFile, flag int) io.Writer {
 	if logf != nil {
 		switch {
@@ -128,6 +145,9 @@ func writers(logf *LogFile, flag int) io.Writer {
 	}
 }
 
+// tintOptions applies the flag toggles and rewrites the slog attributes before they're returned.
+//
+// tint is a package that colors the log output.
 func tintOptions(minimum slog.Level, flag int) tint.Options {
 	attr := func(groups []string, a slog.Attr) slog.Attr {
 		if flag&(Lshortfile) != 0 {
@@ -151,6 +171,7 @@ func tintOptions(minimum slog.Level, flag int) tint.Options {
 	}
 }
 
+// replaceAttr formats specific keys and values for readability.
 func replaceAttr(a slog.Attr) slog.Attr {
 	switch strings.ToLower(a.Key) {
 	case "":
@@ -170,6 +191,8 @@ func replaceAttr(a slog.Attr) slog.Attr {
 	return a
 }
 
+// levelAttr formats the custom log levels.
+// It also rewrites the debug level to give a greater emphasis of its verboseness.
 func levelAttr(a slog.Attr) slog.Attr {
 	// Format the custom level keys to use color
 	if a.Key == slog.LevelKey {
@@ -184,14 +207,17 @@ func levelAttr(a slog.Attr) slog.Attr {
 	return a
 }
 
+// addsource returns true if the AddSource Option is flagged for use.
 func addsource(flag int) bool {
 	return flag&(Llongfile|Lshortfile) != 0
 }
 
+// nocolor returns true if the NoColor Option is flagged for use.
 func nocolor(flag int) bool {
 	return flag&(Lcolor) == 0
 }
 
+// timeformat customizes the date and time of the log output based on the flag sets.
 func timeformat(flag int) string {
 	if flag&(Ldate) != 0 {
 		if flag&(Lseconds) != 0 {
@@ -221,6 +247,7 @@ func timeformat(flag int) string {
 //		return child
 //	}
 
+// flagAttr formats the keys and values used by the config.Config struct.
 func flagAttr(a slog.Attr) slog.Attr {
 	a = configUnsetAttr(a)
 	switch strings.ToLower(a.Key) {
@@ -238,6 +265,7 @@ func flagAttr(a slog.Attr) slog.Attr {
 	return a
 }
 
+// configUnsetAttr drops the ',unset' suffix found in some keys.
 func configUnsetAttr(a slog.Attr) slog.Attr {
 	const unset = ",unset"
 	if !strings.HasSuffix(a.Key, unset) {
@@ -255,6 +283,7 @@ func configHelpAttr(a slog.Attr) slog.Attr {
 	return a
 }
 
+// configIssueAttr applies formatting for the optional "issue" key.
 func configIssueAttr(a slog.Attr) slog.Attr {
 	if a.Value.String() == "" {
 		return slog.Attr{}
@@ -264,6 +293,7 @@ func configIssueAttr(a slog.Attr) slog.Attr {
 	return tint.Attr(9, a)
 }
 
+// configMsgAttr drops values that are not intended for logging.
 func configMsgAttr(a slog.Attr) slog.Attr {
 	switch strings.ToLower(a.Value.String()) {
 	case "googleaccounts":

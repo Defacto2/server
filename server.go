@@ -58,8 +58,17 @@ func main() {
 	const exit = 0
 	// Initialize a temporary logger, get and print
 	// the environment variable configurations.
-	sl := logs.Default()
+
+	// TODO:
+	logf, err := logs.NewFile(logs.InfoLog)
+	if err != nil {
+		slog.Error(msg, slog.Any("error", err))
+	}
+	defer logf.Close()
+
+	sl := logs.DefaultF(logf)
 	slog.SetDefault(sl)
+
 	configs := environmentVars(sl)
 	// Parse any application commands and flags, and
 	// if appropriate run the request and exit to

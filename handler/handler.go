@@ -75,38 +75,37 @@ func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
 	configs := c.Environment
 	e := echo.New()
 	if configs.LogAll {
-		pprof.Register(e) // TODO: test the logall flag
+		// echo prefix options that get used by RequestLoggerConfig
+		pprof.Register(e)
 	}
-	e.HideBanner = true
-	// TODO: test
-	customerrorhandler := func(err error, ctx echo.Context) {
+	e.HTTPErrorHandler = func(err error, ctx echo.Context) {
 		configs.CustomErrorHandler(err, ctx, sl)
 	}
-	e.HTTPErrorHandler = customerrorhandler
-	// configs.CustomErrorHandler
-	// e.HTTPErrorHandler = configs.CustomErrorHandler
-
+	e.HideBanner = true
 	tmpl, err := c.Registry(db, sl)
 	if err != nil {
-		logs.Fatal(sl, msg, slog.String("template", "could not register the templates"), slog.Any("fatal", err))
+		logs.Fatal(sl, msg,
+			slog.String("template", "could not register the templates"),
+			slog.Any("fatal", err))
 	}
 	e.Renderer = tmpl
-	middlewares := []echo.MiddlewareFunc{
+	preMiddlewares := []echo.MiddlewareFunc{
 		middleware.Rewrite(rewrites()),
 		middleware.NonWWWRedirect(),
 	}
-	e.Pre(middlewares...)
+	e.Pre(preMiddlewares...)
 
 	// *************************************************
-	//  NOTE: NEVER USE the middleware.Timeout()
-	//   It is broken and should not be in the
-	//   labstack/echo library, as it can easily crash!
+	// WARN: NEVER USE the middleware.Timeout()
+	// It is completely broken and readily crashes.
+	// IMO should not be in the labstack/echo package.
 	// *************************************************
-	middlewares = []echo.MiddlewareFunc{
+
+	middlewares := []echo.MiddlewareFunc{
 		middleware.Secure(),
-		middleware.RequestLoggerWithConfig(c.configSlog()),
+		middleware.RequestLoggerWithConfig(c.RequestLoggerConfig(sl)),
 		c.NoCrawl,
-		middleware.RemoveTrailingSlashWithConfig(configRTS()),
+		middleware.RemoveTrailingSlashWithConfig(trailSlash()),
 	}
 	if configs.Compression {
 		middlewares = append(middlewares, middleware.Gzip())
@@ -120,7 +119,9 @@ func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
 	e = htmxGroup(e, db, sl, bool(configs.ProdMode), dir.Directory(c.Environment.AbsDownload))
 	e, err = c.FilesRoutes(e, db, sl, c.Public)
 	if err != nil {
-		logs.Fatal(sl, msg, slog.String("file routes", "could not register the routes"), slog.Any("fatal", err))
+		logs.Fatal(sl, msg,
+			slog.String("file routes", "could not register the routes"),
+			slog.Any("fatal", err))
 	}
 	group := html3.Routes(e, db, sl)
 	group.GET(Downloader, func(cx echo.Context) error {

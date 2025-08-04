@@ -9,7 +9,6 @@ package handler
 import (
 	"crypto/sha512"
 	"fmt"
-	"io"
 	"log/slog"
 	"math"
 	"net/http"
@@ -26,6 +25,29 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+// SkipPaths are parent route paths that should not be logged,
+// to reduce the logging output. Otherwise every image
+// or required resource for every page request would be returned.
+func skipPaths(e echo.Context) bool {
+	if redirect := e.Response().Status == http.StatusMovedPermanently; redirect {
+		return true
+	}
+	uri := e.Request().RequestURI
+	statusOk := e.Response().Status == http.StatusOK
+	switch {
+	case strings.HasPrefix(uri, "/public/"),
+		strings.HasPrefix(uri, "/css/"),
+		strings.HasPrefix(uri, "/js/"),
+		strings.HasPrefix(uri, "/image/"),
+		strings.HasPrefix(uri, "/svg/"),
+		strings.HasPrefix(uri, "/font/"):
+		if statusOk {
+			return true
+		}
+	}
+	return false
+}
+
 // NoCrawl middleware adds a `X-Robots-Tag` header to the response.
 // The header contains the noindex and nofollow values that tell search engine
 // crawlers to not index or crawl the page or asset.
@@ -35,8 +57,8 @@ func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 		return next
 	}
 	return func(e echo.Context) error {
-		const HeaderXRobotsTag = "X-Robots-Tag"
-		e.Response().Header().Set(HeaderXRobotsTag, "none")
+		const xrobotstag = "X-Robots-Tag"
+		e.Response().Header().Set(xrobotstag, "none")
 		return next(e)
 	}
 }
@@ -49,12 +71,14 @@ func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) ech
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	return func(e echo.Context) error {
+		const xreadonlylock = "X-Read-Only-Lock"
 		s := strconv.FormatBool(bool(c.Environment.ReadOnly))
-		e.Response().Header().Set("X-Read-Only-Lock", s)
+		e.Response().Header().Set(xreadonlylock, s)
 		if c.Environment.ReadOnly {
 			if err := app.StatusErr(e, sl, http.StatusForbidden, ""); err != nil {
 				return fmt.Errorf("%s status: %w", msg, err)
 			}
+			// do not run next(e)
 			return nil
 		}
 		return next(e)
@@ -97,54 +121,62 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo
 	}
 }
 
-// configRTS return the TrailingSlash middleware configuration.
-func configRTS() middleware.TrailingSlashConfig {
+// trailSlash return the TrailingSlash middleware configuration.
+func trailSlash() middleware.TrailingSlashConfig {
 	return middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}
 }
 
-// TODO: comment this
-func (c *Configuration) configSlog() middleware.RequestLoggerConfig {
-	noLogging := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
-		return nil
+// RequestLoggerConfig handles logging for HTTP page requests.
+// A slog Logger is required otherwise it will panic.
+//
+// If Configuration.LogAll is false then this returns a nil.
+// Otherwise it logs all web server HTTP requests to info logs.
+func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig {
+	if logall := c.Environment.LogAll; !logall {
+		exitRequest := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
+			return nil
+		}
+		return middleware.RequestLoggerConfig{LogValuesFunc: exitRequest}
 	}
-	if logAllRequests := c.Environment.LogAll; !logAllRequests {
-		return middleware.RequestLoggerConfig{LogValuesFunc: noLogging}
+	const msg = "request logger config handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-
-	// logger := zaplog.Status().Sugar()
-	// if c.Environment.ProdMode {
-	// 	logPath := c.Environment.AbsLog
-	// 	logger = zaplog.Store(zaplog.Text(), string(logPath)).Sugar()
-	// }
-	// defer func() {
-	// 	_ = logger.Sync()
-	// }()
-
+	// logValues is used by the returned middleware.RequestLoggerConfig().LogValuesFunc
 	logValues := func(_ echo.Context, v middleware.RequestLoggerValues) error {
 		// memory usage
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
-
-		{
-			rsize := uint64(math.Abs(float64(v.ResponseSize)))
-			alloc := humanize.Bytes(m.Alloc)
-			// cpu usage
-			numCPU := runtime.NumCPU()
-			numGoroutine := runtime.NumGoroutine()
-			_, _ = fmt.Fprintln(io.Discard, rsize, alloc, numCPU, numGoroutine) // TODO: placeholder
+		rsize := uint64(math.Abs(float64(v.ResponseSize)))
+		alloc := humanize.Bytes(m.Alloc)
+		// use funcs to maintain the readability of the nested slog arguments
+		response := func() slog.Attr {
+			return slog.Group("response",
+				slog.Int64("size", v.ResponseSize),
+				slog.String("humanize", humanize.Bytes(rsize)))
 		}
-
-		// log template
-		// const template = "%d %s %s > %s [%s][%s][%s][CPU %d of %d] %s"
-		if v.Status > http.StatusAlreadyReported {
-			// logger.Warnf(template, v.Status, v.Method, v.URI,
-			// 	v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
-			return nil
+		cpuinfo := func() slog.Attr {
+			return slog.Group("cpu",
+				slog.Int("cores", runtime.NumCPU()),
+				slog.Int("go_routines", runtime.NumGoroutine()))
 		}
-		// logger.Infof(template, v.Status, v.Method, v.URIPath,
-		// 	v.RoutePath, v.Latency, humanize.Bytes(rsize), alloc, numGoroutine, numCPU, v.UserAgent)
+		requests := func() slog.Attr {
+			return slog.Group("request",
+				slog.String("agent", v.UserAgent), // browser agent used for debugging
+				slog.String("path", v.URIPath),    // uri path without any params
+				slog.String("route", v.RoutePath), // internal route path with values
+				slog.String("uri", v.URI),         // complete url request
+			)
+		}
+		sl.Info(fmt.Sprintf("HTTP %s %d", v.Method, v.Status),
+			slog.Duration("latency", v.Latency),
+			slog.String("uri", v.URIPath),
+			response(), cpuinfo(),
+			slog.String("allocation", alloc),
+			// slog.Any("request", v), // uncomment for verbose & debugging
+			requests())
 		return nil
 	}
 	return middleware.RequestLoggerConfig{
@@ -169,23 +201,4 @@ func (c *Configuration) configSlog() middleware.RequestLoggerConfig {
 		LogFormValues:    nil,
 		LogValuesFunc:    logValues,
 	}
-}
-
-func skipPaths(e echo.Context) bool {
-	if redirect := e.Response().Status == http.StatusMovedPermanently; redirect {
-		return true
-	}
-	uri := e.Request().RequestURI
-	statusOk := e.Response().Status == http.StatusOK
-	switch {
-	case strings.HasPrefix(uri, "/public/"),
-		strings.HasPrefix(uri, "/css/"),
-		strings.HasPrefix(uri, "/js/"),
-		strings.HasPrefix(uri, "/image/"),
-		strings.HasPrefix(uri, "/svg/"):
-		if statusOk {
-			return true
-		}
-	}
-	return false
 }

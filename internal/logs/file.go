@@ -11,12 +11,6 @@ const (
 	ServerLog = "defacto2_server_panics.log"
 	// InfoLog is the filename of the Warn and Info level log.
 	InfoLog = "defacto2_server_info.log"
-	// MaxSizeMB is the maximum file size in megabytes before a log rotation is triggered.
-	MaxSizeMB = 100
-	// MaxBackups is the maximum number of rotated logs to keep, older logs are deleted.
-	MaxBackups = 5
-	// MaxDays is the maximum days a log is kept before a log rotation.
-	MaxDays = 45
 )
 
 type LogFile struct {
