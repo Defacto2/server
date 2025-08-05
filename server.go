@@ -74,7 +74,7 @@ func main() {
 	// Two loggers are used so that the system and file logs
 	// are not cluttered with server startup information.
 	const nothing = ""
-	lf, err := logs.OpenFiles(".", logs.NameErr, logs.NameInfo, nothing)
+	lf, err := logs.OpenFiles(string(configs.AbsLog), logs.NameErr, logs.NameInfo, nothing)
 	if err != nil {
 		log.Println(fmt.Errorf("%s: %w", ErrLog, err))
 	}
@@ -128,8 +128,8 @@ func main() {
 			slog.String("environment vars", "could not startup the server, please check the configuration"))
 	}
 	go func() {
-		groupUsers(sl, msg)
-		locAddresses(sl, configs, msg)
+		groupUsers(cl, msg)
+		locAddresses(cl, configs, msg)
 	}()
 	// Shutdown the web server after a signal is received.
 	instance.ShutdownHTTP(os.Stderr, routing, sl)
