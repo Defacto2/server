@@ -97,28 +97,44 @@ func NoFiles() Files {
 // [Files.New] method. Multiple files can be opened together and all
 // files must closed a after use using the [Files.Close] method.
 //
-//   - errname will be used to write fatal and error reports.
-//   - infname will be used to write fatal, error, warnings and info reports.
-//   - debname will be used to write all reports including debug level reports.
+//   - ename will be used to write fatal and error reports.
+//   - iname will be used to write fatal, error, warnings and info reports.
+//   - dname will be used to write all reports including debug level reports.
+//
+// The root should be the named directory to store the logs. If root is left empty
+// the home directory of the user account will be used.
 //
 // If any errors occur they will be returned as a wrapped error and
 // must be handled appropriately.
-func OpenFiles(errname, infname, debname string) (Files, error) {
+func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	const flag = os.O_CREATE | os.O_APPEND | os.O_WRONLY
 	const perm = 0666
 	f := Files{}
+	// handle the root directory
+	if root == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return f, err
+		}
+		root = home
+	}
+	r, err := os.OpenRoot(root)
+	if err != nil {
+		return f, err
+	}
+	// open files
 	var errr error
+	if ename != "" {
+		f.errlevel, errr = r.OpenFile(ename, flag, perm)
+	}
 	var erri error
+	if iname != "" {
+		f.infolevel, erri = r.OpenFile(iname, flag, perm)
+	}
 	var errd error
-	if errname != "" {
-		f.errlevel, errr = os.OpenFile(errname, flag, perm)
+	if dname != "" {
+		f.debuglevel, errd = r.OpenFile(dname, flag, perm)
 	}
-	if infname != "" {
-		f.infolevel, erri = os.OpenFile(infname, flag, perm)
-	}
-	if debname != "" {
-		f.debuglevel, errd = os.OpenFile(debname, flag, perm)
-	}
-	err := errors.Join(errr, erri, errd)
+	err = errors.Join(errr, erri, errd)
 	return f, err
 }

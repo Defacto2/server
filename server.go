@@ -74,16 +74,24 @@ func main() {
 	// Two loggers are used so that the system and file logs
 	// are not cluttered with server startup information.
 	const nothing = ""
-	lf, err := logs.OpenFiles(logs.NameErr, logs.NameInfo, nothing)
+	lf, err := logs.OpenFiles(".", logs.NameErr, logs.NameInfo, nothing)
 	if err != nil {
 		log.Println(fmt.Errorf("%s: %w", ErrLog, err))
 	}
-	defer func() {
-		err := lf.Close()
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+	if prod := configs.ProdMode.Bool(); prod {
+		defer func() {
+			err := lf.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}()
+	} else {
+		// We only use the log files in production mode. However
+		// it is good to create, open and close the files indevelopment
+		// mode to confirm the functionality of the loggers.
+		_ = lf.Close()
+		lf = logs.NoFiles()
+	}
 	sl, cl, logo := setupWriters(*configs, lf)
 	configs.Print(cl)
 	// Connect to the database and perform some repairs
@@ -113,7 +121,6 @@ func main() {
 	instance := newInstance(context.Background(), db, *configs)
 	newline(logo)
 	welcomeMsg(sl, instance.RecordCount)
-	logtoFiles(sl, configs)
 	routing := instance.Controller(db, sl)
 	instance.StartupBranding(sl, logo)
 	if err := instance.Start(routing, sl, *configs); err != nil {
@@ -146,26 +153,13 @@ func setupWriters(configs config.Config, lf logs.Files) (*slog.Logger, *slog.Log
 	sl := lf.New(slvl, sflag)
 	slog.SetDefault(sl)
 	// print the server configuration and commandline flag output to stdout
-	cl := lf.New(clvl, cflag)
+	cf := logs.NoFiles()
+	cl := cf.New(clvl, cflag)
 	return sl, cl, logo
 }
 
 func newline(w io.Writer) {
 	_, _ = fmt.Fprintln(w)
-}
-
-// logtoFiles saves logs to the file system.
-func logtoFiles(sl *slog.Logger, configs *config.Config) {
-	if mode := configs.ProdMode.Bool(); !mode {
-		return
-	}
-	// TODO: test
-	if err := configs.LogStore(); err != nil {
-		logs.Fatal(sl, "production mode",
-			slog.String("store logs", "cannot save and store the web server logs"),
-			slog.Any("error", err))
-	}
-	// logger = zaplog.Store(zaplog.Text(), string(configs.AbsLog)).Sugar()
 }
 
 // groupUsers returns the owner and group of the current process and
