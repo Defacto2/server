@@ -272,7 +272,8 @@ func newline() {
 }
 
 func stdoutput() *slog.Logger {
-	sl := logs.New(logs.LevelInfo, nil, logs.Flags)
+	lf := logs.NoFiles()
+	sl := lf.New(logs.LevelInfo, logs.Flags)
 	slog.SetDefault(sl)
 	return sl
 }

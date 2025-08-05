@@ -17,7 +17,6 @@ import (
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
-	slogmulti "github.com/samber/slog-multi"
 )
 
 const (
@@ -26,9 +25,6 @@ const (
 	LevelWarning = slog.LevelWarn
 	LevelError   = slog.LevelError
 	LevelFatal   = slog.Level(12) // A more serious ERROR that aborts the application.
-
-	FatalRed    = 196 // #ff0000
-	DebugPurple = 206 // #ff5fff
 )
 
 const (
@@ -52,55 +48,25 @@ const (
 	Configurations = Lcolor | Lstdout | Ltime | FlagAttr
 	// Flags flag for the flags package to style the log output without the date and time.
 	Flags = Lcolor | Lstdout | FlagAttr
+
+	FatalRed    = 196 // #ff0000
+	DebugPurple = 206 // #ff5fff
 )
 
 // Default is a general logger intended for use before the configurations
 // environment variables have been read and parsed.
+//
+// It prints all log levels including debugging to the stdout and
+// does not write to any files.
 func Default() *slog.Logger {
-	sl := New(LevelDebug, nil, Defaults)
-	return sl
-}
-
-func DefaultF(logf *LogFile) *slog.Logger {
-	fmt.Printf("def: %+v\n", logf)
-	sl := New(LevelDebug, logf, Defaults)
+	lf := NoFiles()
+	sl := lf.New(LevelDebug, Defaults)
 	return sl
 }
 
 // Discard is a logger intended for use with tests and discards all log output.
 func Discard() *slog.Logger {
 	sl := slog.New(slog.DiscardHandler)
-	return sl
-}
-
-// New creates a new slog logger.
-//
-// The logf LogFile is an optional opened log file writer or can be
-// set to nil to leave unused.
-//
-// The flag provide customizations including the options Lstdout
-// and Lstderr which are not set. For terminal output, at least one
-// of these must be provided.
-func New(level slog.Level, logf *LogFile, flag int) *slog.Logger {
-	//	sl := slog.New(slog.DiscardHandler)
-	// if flag&(Lstdout) == 0 && flag&(Lstderr) == 0 && logf == nil {
-	// 	return sl
-	// }
-	//w := writers(logf, flag)
-	//:w http.ResponseWriter, r *http.Requestx := io.MultiWriter(os.Stdout, logRotator)
-	// fmt.Printf("new %+v\n", logf)
-	opts := tintOptions(level, flag)
-	// sl := slog.New(tint.NewHandler(logf, &opts))
-	// TODO: flesh out this
-	sl := slog.New(
-		slogmulti.Fanout(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{}), // pass to first handler: logstash over tcp
-			slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{}), // then to second handler: stderr
-			tint.NewHandler(os.Stdout, &opts),
-			// datadogHandler,
-			// ...
-		),
-	)
 	return sl
 }
 
@@ -123,43 +89,6 @@ func Color(w io.Writer) bool {
 		return isatty.IsTerminal(w.(*os.File).Fd())
 	}
 	return false
-}
-
-// Writers returns a writer that duplicates to multiple writers.
-// For example, if provided with an opened LogFile, it can write
-// to both the file and a standard output or standard error, or all three.
-//
-// If the logf is nil, and both the Lstdout or Lstdout flag are not
-// set, an io.Discard will be returned.
-//
-// If both Lstdout and Lstderr are set, a terminal will probably duplicate
-// the output.
-func writers(logf *LogFile, flag int) io.Writer {
-	if logf != nil {
-		switch {
-		case flag&(Lstderr) != 0 && flag&(Lstdout) != 0:
-			println("log 3")
-			return io.MultiWriter(os.Stderr, os.Stdout, logf.file)
-		case flag&(Lstderr) != 0:
-			println("log f & err")
-			return io.MultiWriter(os.Stderr, logf.file)
-		case flag&(Lstdout) != 0:
-			println("log f & out")
-			return io.MultiWriter(os.Stdout, logf.file)
-		default:
-			return logf.file
-		}
-	}
-	switch {
-	case flag&(Lstderr) != 0 && flag&(Lstdout) != 0:
-		return io.MultiWriter(os.Stderr, os.Stdout)
-	case flag&(Lstderr) != 0:
-		return os.Stderr
-	case flag&(Lstdout) != 0:
-		return os.Stdout
-	default:
-		return io.Discard
-	}
 }
 
 // tintOptions applies the flag toggles and rewrites the slog attributes before they're returned.
@@ -253,16 +182,6 @@ func timeformat(flag int) string {
 	}
 	return ""
 }
-
-//	func DefaultMore(w io.Writer, level *slog.LevelVar) *slog.Logger {
-//		buildInfo, _ := debug.ReadBuildInfo()
-//		sl := Default(w, level)
-//		child := sl.With(
-//			slog.Group("program",
-//				slog.Int("pid", os.Getpid()),
-//				slog.String("go version", buildInfo.GoVersion)))
-//		return child
-//	}
 
 // flagAttr formats the keys and values used by the config.Config struct.
 func flagAttr(a slog.Attr) slog.Attr {

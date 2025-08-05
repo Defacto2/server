@@ -27,6 +27,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/nalgeon/be v0.2.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
+	github.com/samber/slog-multi v1.4.1
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/image v0.29.0
@@ -80,7 +81,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/samber/lo v1.51.0 // indirect
 	github.com/samber/slog-common v0.19.0 // indirect
-	github.com/samber/slog-multi v1.4.1 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
 	github.com/tdewolff/parse/v2 v2.8.1 // indirect
