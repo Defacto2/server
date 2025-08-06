@@ -487,7 +487,7 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data any, c echo.Con
 		return fmt.Errorf("%s %q: %w", msg, name, ErrNoTmpl)
 	}
 	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
-		return fmt.Errorf("%s execute: %w", msg, err)
+		return fmt.Errorf("%s execute of '%s': %w", msg, name, err)
 	}
 	return nil
 }
