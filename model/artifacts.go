@@ -32,10 +32,15 @@ func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	return models.NewQuery(
+	const msg = "artifacts public"
+	err := models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, exec, f)
+	if err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return nil
 }
 
 // ByKey returns the public files reversed ordered by the ID, key column.
@@ -301,12 +306,17 @@ func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) err
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	return models.NewQuery(
+	const msg = "artifacts by hidden"
+	err := models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, exec, f)
+	if err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return nil
 }
 
 func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
@@ -314,11 +324,16 @@ func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) e
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	return models.NewQuery(
+	const msg = "artifacts by unwanted"
+	err := models.NewQuery(
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, exec, f)
+	if err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return nil
 }
 
 // ByForApproval returns all of the file records that are waiting to be marked for approval.

@@ -430,7 +430,7 @@ func UpdateStringFrom(db *sql.DB, column stringFrom, id int64, val string) error
 	return nil
 }
 
-func updateStringCases(f *models.File, column stringFrom, val string) error { //nolint:cyclop
+func updateStringCases(f *models.File, column stringFrom, val string) error {
 	s := null.StringFrom(strings.TrimSpace(val))
 	switch column {
 	case colors16:

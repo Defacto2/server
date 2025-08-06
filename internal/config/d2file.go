@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 )
@@ -9,12 +10,13 @@ import (
 type File string // File contains an absolute path to a file.
 
 func (f File) Check() error {
+	const msg = "file check"
 	st, err := os.Stat(string(f))
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if st.IsDir() {
-		return ErrNotFile
+		return fmt.Errorf("%s: %w", msg, ErrNotFile)
 	}
 	return nil
 }

@@ -265,7 +265,7 @@ func Notes() map[NAN]string { //nolint:funlen
 
 // territories is a list of territories in the North American Numbering Plan.
 // These can be checked against official lists to ensure accuracy.
-func territories() []Territory { //nolint:funlen
+func territories() []Territory {
 	return []Territory{
 		// Miscellaneous
 		{"Caribbean Islands", "", []NAN{809}},

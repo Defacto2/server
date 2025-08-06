@@ -2,6 +2,7 @@ package logs
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -107,6 +108,7 @@ func NoFiles() Files {
 // If any errors occur they will be returned as a wrapped error and
 // must be handled appropriately.
 func OpenFiles(root string, ename, iname, dname string) (Files, error) {
+	const msg = "logs open file"
 	const flag = os.O_CREATE | os.O_APPEND | os.O_WRONLY
 	const perm = 0o666
 	f := Files{}
@@ -114,13 +116,13 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	if root == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return f, err
+			return f, fmt.Errorf("%s: %w", msg, err)
 		}
 		root = home
 	}
 	r, err := os.OpenRoot(root)
 	if err != nil {
-		return f, err
+		return f, fmt.Errorf("%s: %w", msg, err)
 	}
 	// open files
 	var errr error
@@ -136,5 +138,5 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 		f.debuglevel, errd = r.OpenFile(dname, flag, perm)
 	}
 	err = errors.Join(errr, erri, errd)
-	return f, err
+	return f, fmt.Errorf("%s: %w", msg, err)
 }

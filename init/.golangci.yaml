@@ -6,28 +6,23 @@ linters:
     - exhaustive # this creates too much boilerplate.
     - exhaustruct # fixing this creates too much boilerplate.
     - nlreturn # fussy.
+    - noctx # redundant, requires db.BeginTx(context.Background.. while db.Begin(.. functions the same
+    - noinlineerr # opinionated
+    - nosprintfhostport # opinionated
     - paralleltest # too much work.
     - varnamelen # too much work.
     - wsl # fussy
     - wsl_v5 # fussy
-    - wrapcheck
-    - dupl
-    - cyclop
-    - funlen
-    - wastedassign
-    - nosprintfhostport
-    - noinlineerr # opinionated
-    - noctx # redundant, requires db.BeginTx(context.Background.. while db.Begin(.. functions the same
   settings:
     sloglint:
       # Enforce using attributes only.
       # This will raise an error for any key-value pair arguments.
       attr-only: true
     cyclop:
-      max-complexity: 17
+      max-complexity: 20
     funlen:
-      lines: 60
-      statements: 45
+      lines: 70
+      statements: 50
       ignore-comments: true
     gosec:
       excludes:
@@ -62,7 +57,8 @@ linters:
         - .Text(
         - app.StatusErr(
       ignore-package-globs:
-        - github.com/volatiletech/sqlboiler/*
+        - github.com/aarondl/sqlboiler/v4/*
+        - github.com/arrondl/sqlboiler/*
         - github.com/Defacto2/server/internal/postgres/*
   exclusions:
     generated: lax
@@ -171,6 +167,12 @@ linters:
       - linters:
           - ireturn
         path: model/html3/html3.go
+      - linters:
+          - dupl
+        path: handler/app/remote/remote.go
+      - linters:
+          - ireturn
+        path: handler/render/render.go
     paths:
       - third_party$
       - builtin$

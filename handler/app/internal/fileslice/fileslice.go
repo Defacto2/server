@@ -86,7 +86,7 @@ const (
 	WindowsPack // last value needs to be a global to allow testing
 )
 
-func (u URI) String() string { //nolint:funlen
+func (u URI) String() string {
 	return [...]string{
 		"",
 		"advert",

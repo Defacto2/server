@@ -137,7 +137,7 @@ func SortContent(content ...string) []string {
 //
 // The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
 // However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
-func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, error) { //nolint:cyclop,funlen,lll
+func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, error) {
 	const msg = "readme pool"
 	if art == nil {
 		return nil, nil, fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)

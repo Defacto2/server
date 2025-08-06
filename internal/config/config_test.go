@@ -16,6 +16,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+var ErrTest = errors.New("an error")
+
 func TestConfig(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
@@ -78,8 +80,7 @@ func TestError(t *testing.T) {
 	be.True(t, i == 0)
 	be.Equal(t, s, "")
 	be.Err(t, err, nil)
-	anErr := errors.New("an error")
-	i, s, err = config.StringErr(anErr)
+	i, s, err = config.StringErr(ErrTest)
 	be.True(t, i == 500)
 	x := strings.Contains(s, "internal server error")
 	be.True(t, x)

@@ -265,7 +265,7 @@ func CheckDir(name dir.Directory, desc string) error {
 		return fmt.Errorf("%s: %w", desc, ErrNoPath)
 	}
 	if err := name.IsDir(); err != nil {
-		return fmt.Errorf("%q %q: %q", name, desc, err)
+		return fmt.Errorf("%q %q: %w", name, desc, err)
 	}
 	return nil
 }

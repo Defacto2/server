@@ -455,7 +455,7 @@ func (prod Submission) String() string {
 	return [...]string{dz, pt}[prod]
 }
 
-func (prod Submission) Submit( //nolint:cyclop,funlen
+func (prod Submission) Submit( //nolint:funlen
 	c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory,
 ) error {
 	const msg = "htmx transfer submit"
@@ -651,7 +651,10 @@ func reloader(c echo.Context, filename string) error {
 
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
-func UploadReplacement(c echo.Context, db *sql.DB, sl *slog.Logger, download, extra dir.Directory) error { //nolint:cyclop,funlen
+func UploadReplacement( //nolint:funlen
+	c echo.Context, db *sql.DB, sl *slog.Logger,
+	download, extra dir.Directory,
+) error {
 	const msg = "htmx upload replacement"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

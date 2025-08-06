@@ -171,14 +171,14 @@ func Index(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		"latency":     time.Since(*start).String() + ".",
 	})
 	if err != nil {
-		sl.Error(msg, "template", slog.String("info", ErrTmpl.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // List all the records associated with the RecordsBy grouping.
-func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error { //nolint:funlen
+func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
 	const msg = "htm3 list records by"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

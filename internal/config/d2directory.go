@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 )
@@ -9,12 +10,13 @@ import (
 type Directory string // Directory contains an absolute path to a directory.
 
 func (d Directory) Check() error {
+	const msg = "directory check"
 	st, err := os.Stat(string(d))
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if !st.IsDir() {
-		return ErrNotDir
+		return fmt.Errorf("%s: %w", msg, ErrNotDir)
 	}
 	return nil
 }

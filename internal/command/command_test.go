@@ -14,7 +14,7 @@ import (
 )
 
 func logr() *slog.Logger {
-	return slog.Default() // TODO: text and change this?
+	return slog.Default()
 }
 
 func testdata(name string) string {

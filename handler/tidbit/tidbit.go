@@ -370,7 +370,7 @@ func Groups() Tibits { //nolint:maintidx
 		267: []URI{"bizarre-types-of-wares"},
 		268: []URI{"ralph-productions", "coming-soon"},
 		269: []URI{"console-news"},
-		270: []URI{"corpse", "corosion"},
+		270: []URI{"corpse", "corosion"}, //nolint:misspell
 		271: []URI{"consolitation"},
 		272: []URI{"doyadigm"},
 		273: []URI{"digital-press", "console-gaming-informers"},
@@ -413,7 +413,7 @@ func Groups() Tibits { //nolint:maintidx
 		310: []URI{"a_list"},
 		311: []URI{"amiga-major-games-release-charts"},
 		312: []URI{"bbs-and-users-digest"},
-		313: []URI{"cyberspace-chart", "lisence"},
+		313: []URI{"cyberspace-chart", "lisence"}, //nolint:misspell
 		314: []URI{"dutch-trader-charts"},
 		315: []URI{"fake-list"},
 		316: []URI{"higher-mental-plane"},

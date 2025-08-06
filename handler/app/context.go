@@ -458,7 +458,7 @@ func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Co
 	return nil
 }
 
-func configurations(data map[string]any, conf config.Config) map[string]any { //nolint:funlen
+func configurations(data map[string]any, conf config.Config) map[string]any {
 	download := dir.Directory(string(conf.AbsDownload))
 	check := config.CheckDir(download, "downloads")
 	data["checkDownloads"] = check

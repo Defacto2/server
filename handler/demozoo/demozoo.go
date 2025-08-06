@@ -1023,7 +1023,7 @@ func groups() Groups { //nolint:funlen,maintidx
 		"stellar-7":                             49681,
 		"toxin":                                 129384,
 		"virus-laboratories-and-distribution":   130617,
-		"lisence":                               5540,
+		"lisence":                               5540, //nolint:misspell
 		"higher-mental-plane":                   123325,
 		"request-to-send":                       46615,
 		"tdu_jam":                               46640,

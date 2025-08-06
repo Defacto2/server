@@ -148,7 +148,10 @@ func replaceAttr(a slog.Attr) slog.Attr {
 func levelAttr(a slog.Attr) slog.Attr {
 	// Format the custom level keys to use color
 	if a.Key == slog.LevelKey {
-		level := a.Value.Any().(slog.Level)
+		level, ok := a.Value.Any().(slog.Level)
+		if !ok {
+			return a
+		}
 		switch level {
 		case LevelDebug:
 			a = tint.Attr(DebugPurple, slog.String(a.Key, "debug"))
@@ -255,7 +258,10 @@ func configMsgAttr(a slog.Attr) slog.Attr {
 func addsourceNoDirectory(a slog.Attr) slog.Attr {
 	// Remove the directory from the source's filename.
 	if a.Key == slog.SourceKey {
-		source := a.Value.Any().(*slog.Source)
+		source, ok := a.Value.Any().(*slog.Source)
+		if !ok {
+			return a
+		}
 		source.File = filepath.Base(source.File)
 	}
 	return a

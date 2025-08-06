@@ -30,7 +30,6 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app
 	if err := panics.EchoDS(e, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	// TODO: TEST
 	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {
 		return c.ReadOnlyLock(cx, sl)
 	}

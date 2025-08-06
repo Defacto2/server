@@ -76,7 +76,7 @@ func main() {
 	const nothing = "" // replace the dname nothing argument with logs.NameDebug, to write debug log reports
 	lf, err := logs.OpenFiles(string(configs.AbsLog), logs.NameErr, logs.NameInfo, nothing)
 	if err != nil {
-		log.Println(fmt.Errorf("%s: %w", ErrLog, err))
+		log.Println(fmt.Errorf("%w: %w", ErrLog, err))
 	}
 	if prod := configs.ProdMode.Bool(); prod {
 		defer func() {

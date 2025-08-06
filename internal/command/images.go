@@ -61,7 +61,7 @@ func ImagesDelete(unid string, dirs ...string) error {
 			}
 			noImagesFound = false
 			if err := os.Remove(name); err != nil {
-				return err
+				return fmt.Errorf("%s: %w", msg, err)
 			}
 		}
 	}

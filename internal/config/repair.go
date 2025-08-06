@@ -48,9 +48,12 @@ func discard(err error) {
 // Archives checks the download directory for any legacy and obsolete archives.
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
-func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error { //nolint:cyclop,funlen,gocognit
+func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
+	ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger,
+) error {
+	const msg = "config archives repair"
 	if err := panics.ContextBS(ctx, exec, sl); err != nil {
-		return err
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := time.Now()
 	artifacts := []string{}
@@ -112,7 +115,6 @@ func (c *Config) Archives(ctx context.Context, exec boil.ContextExecutor, sl *sl
 		}
 		return nil
 	}
-
 	download := dir.Directory(c.AbsDownload.String())
 	for repair := range slices.Values(repairs()) {
 		if err := repair.lookPath(); err != nil {
@@ -175,7 +177,7 @@ type Rearchiving struct {
 
 // ReArchive the file using the specified compression method.
 // The original ra.Source file is not removed.
-func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) error {
+func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) error { //nolint:funlen
 	const msg = "rearchive"
 	if err := panics.ContextS(ctx, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -209,7 +211,7 @@ func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) 
 	}
 	ctx1min, cancel := context.WithTimeout(ctx, 1*time.Minute)
 	defer cancel()
-	cmd := exec.CommandContext(ctx1min, extractCmd, extractArg, ra.Source)
+	cmd := exec.CommandContext(ctx1min, extractCmd, extractArg, ra.Source) //nolint:gosec
 	cmd.Dir = tmp
 	if stdoutStderr, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("%s run %w: %s: dump: %q",
@@ -720,7 +722,7 @@ func containsInfo(sl *slog.Logger, name string, count int) {
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	s := ""
+	s := "" //nolint:wastedassign
 	switch strings.ToLower(name) {
 	case "thumb":
 		s = " thumbnails"

@@ -152,7 +152,6 @@ func (c Config) Print(sl *slog.Logger) {
 		}
 		// help includes the result of the Help() method, when it exists for the named configuration
 		help := vof.FieldByName(name).MethodByName("Help")
-		helper := ""
 		if name == "GoogleIDs" && help.IsValid() {
 			googleIDs(vof, sl, tag)
 			continue
@@ -162,7 +161,7 @@ func (c Config) Print(sl *slog.Logger) {
 			if len(h) == 0 || h[0].String() == "" {
 				continue
 			}
-			helper = h[0].String()
+			helper := h[0].String()
 			sl.Info(inf, slog.Any(tag, val), slog.String("help", helper))
 			continue
 		}
@@ -236,7 +235,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		if c.MatchHost != "" && host != c.MatchHost.String() {
 			continue
 		}
-		s := ""
+		s := "" //nolint:wastedassign
 		switch port {
 		case text:
 			s = "http://" + host

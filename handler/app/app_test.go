@@ -41,7 +41,7 @@ func TestTrimSpace(t *testing.T) {
 func TestTagOption(t *testing.T) {
 	t.Parallel()
 	s := app.TagOption(nil, nil)
-	be.True(t, strings.Contains(`<option value="">`, string(s)))
+	be.True(t, strings.Contains(string(s), `<option value="">`))
 	s = app.TagOption("", tags.Interview.String())
 	be.True(t, strings.Contains(string(s), `<option value="interview">`))
 	s = app.TagOption(tags.Interview.String(), tags.Interview.String())
