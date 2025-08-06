@@ -144,9 +144,10 @@ func (c Config) Print(sl *slog.Logger) {
 		inf := Info(name, val)
 		issue := vof.FieldByName(name).MethodByName("Issue")
 		if issue.IsValid() {
-			issuer := strings.TrimSpace(issue.Call(nil)[0].String())
-			if issuer != "" {
-				sl.Error(inf, slog.Any(tag, val), slog.String("issue", issuer))
+			issuer := issue.Call([]reflect.Value{})
+			if len(issuer) != 0 && issuer[0].String() != "" {
+				fmt.Printf("%q", issuer)
+				sl.Error(inf, slog.Any(tag, val), slog.String("issue", issuer[0].String()))
 				continue
 			}
 		}
@@ -158,8 +159,11 @@ func (c Config) Print(sl *slog.Logger) {
 			continue
 		}
 		if help.IsValid() {
-			// handle edge cases like googleids using GoogleAccounts data
-			helper = help.Call(nil)[0].String()
+			h := help.Call([]reflect.Value{})
+			if len(h) == 0 || h[0].String() == "" {
+				continue
+			}
+			helper = h[0].String()
 			sl.Info(inf, slog.Any(tag, val), slog.String("help", helper))
 			continue
 		}
@@ -173,9 +177,17 @@ func googleIDs(vof reflect.Value, sl *slog.Logger, tag string) {
 	if !swap.IsValid() {
 		return
 	}
-	helper := swap.Call(nil)[0].String()
+	h := swap.Call([]reflect.Value{})
+	if len(h) == 0 || h[0].String() == "" {
+		return
+	}
+	helper := h[0].String()
 	swap = vof.FieldByName(n).MethodByName("String")
-	vals := swap.Call(nil)[0]
+	v := swap.Call([]reflect.Value{})
+	if len(v) == 0 {
+		return
+	}
+	vals := v[0]
 	inf := Info(n, vals)
 	sl.Info(inf, slog.Any(tag, hide), slog.String("help", helper))
 }

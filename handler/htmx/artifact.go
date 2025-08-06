@@ -111,7 +111,7 @@ func RecordThumb(c echo.Context, sl *slog.Logger, thumb command.Thumb, dirs comm
 	}
 	err = dirs.Thumbs(sl, unid, thumb)
 	if errors.Is(err, command.ErrNoImages) {
-		return c.String(http.StatusOK, err.Error())
+		return c.String(http.StatusOK, fmt.Sprint(err))
 	}
 	if err != nil {
 		return badRequest(c, err)
@@ -129,7 +129,7 @@ func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs
 	}
 	err = align.Thumbs(unid, dirs.Preview, dirs.Thumbnail)
 	if errors.Is(err, command.ErrNoImages) {
-		return c.String(http.StatusOK, err.Error())
+		return c.String(http.StatusOK, fmt.Sprint(err))
 	}
 	if err != nil {
 		return badRequest(c, err)
@@ -151,7 +151,7 @@ func RecordImageCropper(c echo.Context, sl *slog.Logger, crop command.Crop, dirs
 	}
 	err = crop.Images(sl, unid, dirs.Preview)
 	if errors.Is(err, command.ErrNoImages) {
-		return c.String(http.StatusOK, err.Error())
+		return c.String(http.StatusOK, fmt.Sprint(err))
 	}
 	if err != nil {
 		return badRequest(c, err)

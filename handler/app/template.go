@@ -373,10 +373,18 @@ func (t *Templ) FuncMap(db *sql.DB) *template.FuncMap {
 	if db == nil {
 		return nil
 	}
-	funcs := t.Funcs()
-	maps.Copy(funcs, *t.FuncClosures(db))
-	maps.Copy(funcs, *t.Elements())
-	return &funcs
+	dst := t.Funcs()
+	src := t.FuncClosures(db)
+	if src == nil {
+		return nil
+	}
+	maps.Copy(dst, *src)
+	src = t.Elements()
+	if src == nil {
+		return nil
+	}
+	maps.Copy(dst, *src)
+	return &dst
 }
 
 func (t *Templ) artifact(lock bool, files ...string) []string {
@@ -452,8 +460,12 @@ func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 		const individualWebsite = "website.tmpl"
 		files = append(files, GlobTo(individualWebsite))
 	}
+	funcMap := t.FuncMap(db)
+	if funcMap == nil {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(
-		*t.FuncMap(db)).ParseFS(t.View, files...))
+		*funcMap).ParseFS(t.View, files...))
 }
 
 func recordLastMod(b bool) template.HTML {
