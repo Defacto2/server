@@ -743,9 +743,13 @@ func (i *values) formValues(c echo.Context) string {
 		return fmt.Sprintf("The editor file upload is broken, %s",
 			panics.ErrNoEchoC)
 	}
+	const msg = "The editor file upload unique identifier is invalid"
 	i.unid = c.FormValue("artifact-editor-unid")
+	if err := form.Checkname(i.unid); err != nil {
+		return msg
+	}
 	if err := uuid.Validate(i.unid); err != nil {
-		return "The editor file upload unique identifier is invalid"
+		return msg
 	}
 	i.key = c.FormValue("artifact-editor-record-key")
 	id, err := strconv.ParseInt(i.key, 10, 64)

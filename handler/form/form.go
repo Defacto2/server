@@ -4,6 +4,7 @@ package form
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/url"
@@ -17,7 +18,20 @@ import (
 	"github.com/Defacto2/server/model"
 )
 
+var ErrFilename = errors.New("invalid filename")
+
 const ReSanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the URL path.
+
+// Checkname returns an error if the named file contains any
+// directory traversal characters.
+func Checkname(name string) error {
+	if strings.Contains(name, "/") ||
+		strings.Contains(name, "\\") ||
+		strings.Contains(name, "..") {
+		return ErrFilename
+	}
+	return nil
+}
 
 // HumanizeCount returns the human readable name of the platform and section tags combined
 // and the number of existing artifacts. The number of existing artifacts is colored based on
