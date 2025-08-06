@@ -57,6 +57,9 @@ func Validate(path string) error {
 // It returns an error if the unid or name is invalid.
 func Path(c echo.Context) (string, string, error) {
 	unid := c.Param("unid")
+	if err := form.Checkname(unid); err != nil {
+		return "", "", err
+	}
 	if err := uuid.Validate(unid); err != nil {
 		return "", "", err
 	}
@@ -74,6 +77,9 @@ func Path(c echo.Context) (string, string, error) {
 // UUID returns the uuid from the URL parameters and returns an error if it is invalid.
 func UUID(c echo.Context) (string, error) {
 	unid := c.Param("unid")
+	if err := form.Checkname(unid); err != nil {
+		return "", err
+	}
 	if err := uuid.Validate(unid); err != nil {
 		return "", err
 	}
