@@ -22,6 +22,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
@@ -43,25 +44,18 @@ const (
 
 var (
 	ErrClaims   = errors.New("no sub id in the claims playload")
-	ErrCode     = errors.New("the http status code is not valid")
-	ErrCxt      = errors.New("the server could not create a context")
-	ErrData     = errors.New("cache data is invalid or corrupt")
-	ErrDB       = errors.New("database connection is nil")
-	ErrExtract  = errors.New("unknown extractor value")
-	ErrLinkType = errors.New("the id value is an invalid type")
+	ErrCorrupt  = errors.New("cache data is invalid or corrupt")
 	ErrMisMatch = errors.New("token mismatch")
 	ErrNegative = errors.New("value cannot be a negative number")
 	ErrSession  = errors.New("no sub id in session")
-	ErrTarget   = errors.New("target not found")
+	ErrStatus   = errors.New("the http status code is not valid")
 	ErrTmpl     = errors.New("the server could not render the html template for this page")
-	ErrType     = errors.New("value is the wrong type")
 	ErrUser     = errors.New("unknown user")
-	ErrVal      = errors.New("value is empty")
-	ErrZap      = errors.New("the zap logger cannot be nil")
+	ErrValue    = errors.New("value is empty")
 )
 
 func errVal(name string) template.HTML {
-	return template.HTML(fmt.Sprintf("error, %s: %s", ErrVal, name))
+	return template.HTML(fmt.Sprintf("error, %s: %s", ErrValue, name))
 }
 
 const (
@@ -488,13 +482,17 @@ func LinkScnrs(names string) template.HTML {
 		}
 		scnr, err := LinkScnr(val)
 		if err != nil {
-			_, _ = fmt.Fprint(io.Discard, err)
+			discard(err)
 			continue
 		}
 		linkr := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, cls, scnr, val)
 		links = append(links, linkr)
 	}
 	return template.HTML(strings.Join(links, ", "))
+}
+
+func discard(err error) {
+	_, _ = fmt.Fprint(io.Discard, err)
 }
 
 const wikiBase = "https://github.com/Defacto2/defacto2.net/wiki"
@@ -874,8 +872,9 @@ func websiteIcon(url string) string {
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
 func YMDEdit(c echo.Context, db *sql.DB) error {
-	if db == nil {
-		return fmt.Errorf("ymdedit: %w", ErrDB)
+	const msg = "year month day edit"
+	if err := panics.EchoContextD(c, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -884,11 +883,11 @@ func YMDEdit(c echo.Context, db *sql.DB) error {
 	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("ymdedit begin tx %w", err)
+		return fmt.Errorf("%s begin tx: %w", msg, err)
 	}
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("ymdedit model one %w", err)
+		return fmt.Errorf("%s model one %w", msg, err)
 	}
 	y := model.ValidY(f.Year)
 	m := model.ValidM(f.Month)
@@ -897,7 +896,7 @@ func YMDEdit(c echo.Context, db *sql.DB) error {
 		return badRequest(c, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("ymdedit commit %w", err)
+		return fmt.Errorf("%s commit: %w", msg, err)
 	}
 	return c.JSON(http.StatusOK, r)
 }

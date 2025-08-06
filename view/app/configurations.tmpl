@@ -2,7 +2,6 @@
     configurations.tmpl ~ Configurations page template.
 */ -}}
 {{- define "content" }}
-{{- $configs := index . "configurations"}}
 {{- $checkDownloads := index . "checkDownloads"}}
 {{- $checkPreviews := index . "checkPreviews"}}
 {{- $checkThumbnails := index . "checkThumbnails"}}
@@ -152,6 +151,7 @@
 </table>
 </div>
 {{- /*  Settings  */}}
+{{- /*  has been disabled after the rewrite of the internal/config/config package.
 <h1 class="lead mt-5">Web application settings</h1>
 <div class="table-responsive">
 <table class="table align-middle table-striped-columns">
@@ -163,6 +163,7 @@
       <th scope="col"><span class="d-none d-lg-block">Description</span></th>
     </tr>
   </thead>
+  {{ $configs }}
   <tbody class="table-group-divider">
     {{- range $config := $configs.List}}
     {{- if ne $config.Title ""}}
@@ -174,6 +175,7 @@
     {{- end}}{{end}}
   </tbody>
 </table>
+*/}}
 </div>
 {{- /*  Links to records  */}}
 <h1 class="lead mt-5">Links to special records</h1>

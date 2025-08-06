@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"log/slog"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -31,20 +32,19 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 var (
-	ErrDir       = errors.New("cannot be a directory")
-	ErrFile      = errors.New("cannot be a file")
-	ErrSave      = errors.New("cannot save a file")
-	ErrMultiHead = errors.New("multipart file header is nil")
-	ErrUUID      = errors.New("invalid or an empty UUID")
+	ErrFormRead     = errors.New("form parameters could not be read")
+	ErrFormInsert   = errors.New("form submission could not be inserted into the database")
+	ErrFormUpdate   = errors.New("form submission could not update the database record")
+	ErrNoFileHeader = errors.New("multipart file header is nil")
 )
 
 const (
@@ -56,7 +56,11 @@ const (
 // HumanizeCount handles the post submission for the Uploader classification,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func HumanizeCount(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, name string) error {
+func HumanizeCount(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
+	const msg = "transfer humanized count"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	section := c.FormValue(name + category)
 	platform := c.FormValue(name + "-operatingsystem")
 	if platform == "" {
@@ -64,9 +68,8 @@ func HumanizeCount(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, name s
 	}
 	html, err := form.HumanizeCount(db, section, platform)
 	if err != nil {
-		if logger != nil {
-			logger.Error(err)
-		}
+		sl.Error(msg,
+			slog.String("issue", "could not create the html template"), slog.Any("error", err))
 		return badRequest(c, err)
 	}
 	return c.HTML(http.StatusOK, string(html))
@@ -75,16 +78,20 @@ func HumanizeCount(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, name s
 // LookupSHA384 is a handler for the /uploader/sha384 route. It checks the SHA-384 hash
 // against the database to see if the file already exists, and returns the URI if it does.
 // Otherwise, if it does not exist, it returns an empty string.
-func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
+func LookupSHA384(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "tranfer lookup sha384"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	hash := c.Param("hash")
 	if hash == "" {
 		return c.String(http.StatusBadRequest, "empty hash error")
 	}
-	match, err := regexp.MatchString("^[a-fA-F0-9]{96}$", hash)
+	const pattern = "^[a-fA-F0-9]{96}$"
+	match, err := regexp.MatchString(pattern, hash)
 	if err != nil {
-		if logger != nil {
-			logger.Error(err)
-		}
+		slog.Error(msg, slog.String("regexp", "could not run the pattern to string match"),
+			slog.String("pattern", pattern), slog.String("hash", hash), slog.Any("error", err))
 		return c.String(http.StatusBadRequest, "regex match error")
 	}
 	if !match {
@@ -93,9 +100,7 @@ func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 	ctx := context.Background()
 	uri, err := model.HashFind(ctx, db, hash)
 	if err != nil {
-		if logger != nil {
-			logger.Error(err)
-		}
+		slog.Error(msg, slog.String("database", "could not lookup the hash"), slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"cannot confirm the hash with the database")
 	}
@@ -103,51 +108,45 @@ func LookupSHA384(c echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
 }
 
 // ImageSubmit is a handler for the /uploader/image route.
-func ImageSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
+func ImageSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-image"
 	c.Set(key+"-operating-system", tags.Image.String())
-	return transfer(c, db, logger, key, download)
+	return transfer(c, db, sl, key, download)
 }
 
 // IntroSubmit is a handler for the /uploader/intro route.
-func IntroSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
+func IntroSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
-	return transfer(c, db, logger, key, download)
+	return transfer(c, db, sl, key, download)
 }
 
 // MagazineSubmit is a handler for the /uploader/magazine route.
-func MagazineSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
+func MagazineSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-magazine"
 	c.Set(key+"-category", tags.Mag.String())
-	return transfer(c, db, logger, key, download)
+	return transfer(c, db, sl, key, download)
 }
 
 // TextSubmit is a handler for the /uploader/text route.
-func TextSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
+func TextSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-text"
-	return transfer(c, db, logger, key, download)
+	return transfer(c, db, sl, key, download)
 }
 
 // TrainerSubmit is a handler for the /uploader/trainer route.
-func TrainerSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
+func TrainerSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-trainer"
-	return transfer(c, db, logger, key, download)
+	return transfer(c, db, sl, key, download)
 }
 
 // AdvancedSubmit is a handler for the /uploader/advanced route.
-func AdvancedSubmit(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory) error {
+func AdvancedSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-advanced"
-	return transfer(c, db, logger, key, download)
+	return transfer(c, db, sl, key, download)
 }
 
 func uploader(err error) string {
-	if errors.Is(err, ErrFile) {
-		return "The uploader is misconfigured and cannot save your file"
-	}
-	if errors.Is(err, ErrSave) {
-		return "The uploader is misconfigured and cannot save your file"
-	}
 	if err != nil {
 		return "The uploader cannot save your file to the host system"
 	}
@@ -157,25 +156,29 @@ func uploader(err error) string {
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
-func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string, download dir.Directory) error {
-	if err := download.Check(); err != nil {
+func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download dir.Directory) error {
+	const msg = "transfer file handler"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	if err := download.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	name := key + "file"
 	file, err := c.FormFile(name)
 	if err != nil {
-		return checkFormFile(c, logger, name, err)
+		return checkFormFile(c, sl, name, err)
 	}
 	src, err := file.Open()
 	if err != nil {
-		return checkFileOpen(c, logger, name, err)
+		return checkFileOpen(c, sl, name, err)
 	}
 	defer func() { _ = src.Close() }()
 	hasher := sha512.New384()
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
-		return checkHasher(c, logger, name, err)
+		return checkHasher(c, sl, name, err)
 	}
 	checksum := hasher.Sum(nil)
 	ctx := context.Background()
@@ -185,14 +188,14 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string,
 	}
 	exist, err := model.SHA384Exists(ctx, tx, checksum)
 	if err != nil {
-		return checkExist(c, logger, err)
+		return checkExist(c, sl, err)
 	}
 	if exist {
 		return c.HTML(http.StatusOK,
 			"<p>Thanks, but the chosen file already exists on Defacto2.</p>"+
 				html.EscapeString(file.Filename))
 	}
-	dst, err := copier(c, logger, file, key)
+	dst, err := copier(c, sl, file, key)
 	if err != nil {
 		return fmt.Errorf("copier: %w", err)
 	}
@@ -204,20 +207,20 @@ func transfer(c echo.Context, db *sql.DB, logger *zap.SugaredLogger, key string,
 	creator := creator{
 		file: file, readme: readme, key: key, checksum: checksum, content: content,
 	}
-	id, uid, err := creator.insert(ctx, c, tx, logger)
+	id, uid, err := creator.insert(ctx, c, tx, sl)
 	if err != nil {
 		// resync the files table sequence if the insert failed and try again
 		if err := fix.SyncFilesIDSeq(db); err != nil {
 			return c.HTML(http.StatusInternalServerError, err.Error())
 		}
-		id, uid, err = creator.insert(ctx, c, tx, logger)
+		id, uid, err = creator.insert(ctx, c, tx, sl)
 		if err != nil {
 			return c.HTML(http.StatusInternalServerError, err.Error())
 		}
 	} else if id == 0 {
 		return nil
 	}
-	defer Duplicate(logger, uid, dst, download)
+	defer Duplicate(sl, uid, dst, download)
 	return success(c, file.Filename, id)
 }
 
@@ -238,112 +241,135 @@ func success(c echo.Context, filename string, id int64,
 // The UUID needs be provided as a unique identifier for the filename.
 // The source path is the temporary file that was uploaded.
 // The destination directory is where the file will be copied to.
-func Duplicate(logger *zap.SugaredLogger, uid uuid.UUID, src string, dst dir.Directory) {
+func Duplicate(sl *slog.Logger, uid uuid.UUID, src string, dst dir.Directory) {
+	const msg = "htmx transfer duplication"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	if uid.String() == "" {
-		if logger != nil {
-			logger.Errorf("htmx transfer duplicate file: %w, %s", ErrUUID, uid)
-		}
+		sl.Error(msg,
+			slog.String("issue", "uuid is in an invalid syntax or empty"),
+			slog.String("uuid", uid.String()))
 		return
 	}
 	st, err := os.Stat(src)
 	if err != nil {
-		if logger != nil {
-			logger.Errorf("htmx transfer duplicate file: %w, %s", err, src)
-		}
+		sl.Error(msg, slog.String("issue", "cannot stat the named source file"),
+			slog.String("name", src),
+			slog.String("uuid", uid.String()),
+			slog.Any("error", err))
 		return
 	}
 	if st.IsDir() {
-		if logger != nil {
-			logger.Errorf("htmx transfer duplicate file, %w: %s", ErrDir, src)
-		}
+		sl.Error(msg, slog.String("issue", "named source file cannot be a directory"),
+			slog.String("uuid", uid.String()), slog.String("name", src))
 		return
 	}
 	newPath := dst.Join(uid.String())
 	i, err := helper.Duplicate(src, newPath)
 	if err != nil {
-		if logger != nil {
-			logger.Errorf("htmx transfer duplicate file: %w,%q,  %s",
-				err, uid.String(), src)
-		}
+		sl.Error(msg, slog.String("issue", "could not duplicate the file"),
+			slog.String("uuid", uid.String()),
+			slog.String("source file", src), slog.String("destination", newPath),
+			slog.Any("error", err))
 		return
 	}
-	if logger != nil {
-		logger.Infof("Uploader copied %d bytes for %s, to the destination dir", i, uid.String())
-	}
+	sl.Info(msg,
+		slog.String("success", "uploader transfer to the destination directory"),
+		slog.String("uuid", uid.String()), slog.Int64("bytes tranfered", i))
 }
 
-func checkFormFile(c echo.Context, logger *zap.SugaredLogger, name string, err error) error {
-	if logger != nil {
-		s := fmt.Sprintf("The chosen file input caused an error, %s: %s", name, err)
-		logger.Error(s)
+func checkFormFile(c echo.Context, sl *slog.Logger, name string, err error) error {
+	const msg = "check form file"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
+	sl.Error("transfer check form file",
+		slog.String("form", "the file input caused an error"),
+		slog.String("name", name), slog.Any("error", err))
 	return c.HTML(http.StatusBadRequest,
 		"The chosen file form input caused an error")
 }
 
-func checkFileOpen(c echo.Context, logger *zap.SugaredLogger, name string, err error) error {
-	if logger != nil {
-		s := fmt.Sprintf("The chosen file input could not be opened, %s: %s", name, err)
-		logger.Error(s)
+func checkFileOpen(c echo.Context, sl *slog.Logger, name string, err error) error {
+	const msg = "check file open"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
+	sl.Error("transfer check file open",
+		slog.String("form", "the file input could not be opened"),
+		slog.String("named file", name),
+		slog.Any("error", err))
 	return c.HTML(http.StatusBadRequest,
 		"The chosen file input cannot be opened")
 }
 
-func checkHasher(c echo.Context, logger *zap.SugaredLogger, name string, err error) error {
-	if logger != nil {
-		s := fmt.Sprintf("The chosen file input could not be hashed, %s: %s", name, err)
-		logger.Error(s)
+func checkHasher(c echo.Context, sl *slog.Logger, name string, err error) error {
+	const msg = "check hasher"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
+	sl.Error("transfer check hasher",
+		slog.String("form", "the file input could not be hashed"),
+		slog.String("named file", name),
+		slog.Any("error", err))
 	return c.HTML(http.StatusInternalServerError,
 		"The chosen file input cannot be hashed")
 }
 
-func checkExist(c echo.Context, logger *zap.SugaredLogger, err error) error {
-	if logger != nil {
-		s := fmt.Sprintf("%s: %s", ErrDB, err)
-		logger.Error(s)
+func checkExist(c echo.Context, sl *slog.Logger, err error) error {
+	const msg = "check exist"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
+	sl.Error("transfer check exist",
+		slog.String("form", "could not connect"),
+		slog.Any("error", err))
 	return c.HTML(http.StatusServiceUnavailable,
 		"Cannot confirm the hash with the database")
 }
 
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
-func copier(c echo.Context, logger *zap.SugaredLogger, file *multipart.FileHeader, key string) (string, error) {
-	if file == nil {
-		return "", fmt.Errorf("htmx copier: %w", ErrMultiHead)
+func copier(c echo.Context, sl *slog.Logger, file *multipart.FileHeader, key string) (string, error) {
+	const msg = "transfer generic file copier"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return "", fmt.Errorf("%s: %w", msg, err)
 	}
+	if file == nil {
+		return "", fmt.Errorf("%s: %w", msg, ErrNoFileHeader)
+	}
+	// open uploaded file
 	const pattern = "upload-*.zip"
 	name := key + "file"
-
 	src, err := file.Open()
 	if err != nil {
-		if logger != nil {
-			s := fmt.Sprintf("The chosen file input could not be opened, %s: %s", name, err)
-			logger.Error(s)
-		}
+		sl.Error(msg,
+			slog.String("task", "the file input could not be opened"),
+			slog.String("named file", name),
+			slog.Any("error", err))
 		return "", c.HTML(http.StatusInternalServerError,
 			"The chosen file input cannot be opened")
 	}
 	defer func() { _ = src.Close() }()
-
+	// create temporary destination file
 	dst, err := os.CreateTemp(helper.TmpDir(), pattern)
 	if err != nil {
-		if logger != nil {
-			s := fmt.Sprintf("Cannot create a temporary destination file, %s: %s", name, err)
-			logger.Error(s)
-		}
+		sl.Error(msg,
+			slog.String("task", "the file input could not create a temporary destination file"),
+			slog.String("named file", name),
+			slog.Any("error", err))
 		return "", c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be created")
 	}
 	defer func() { _ = dst.Close() }()
+	// buffer copier
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err = io.CopyBuffer(dst, src, buf); err != nil {
-		if logger != nil {
-			s := fmt.Sprintf("Cannot copy to the temporary destination file, %s: %s", name, err)
-			logger.Error(s)
-		}
+		sl.Error(msg,
+			slog.String("task", "the file input could not be copied to the temporary destination file"),
+			slog.String("named file", name),
+			slog.Any("error", err))
 		return "", c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be written")
 	}
@@ -358,31 +384,43 @@ type creator struct {
 	content  []string
 }
 
-var (
-	ErrForm   = errors.New("form parameters could not be read")
-	ErrInsert = errors.New("form submission could not be inserted into the database")
-	ErrUpdate = errors.New("form submission could not update the database record")
-)
-
-func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger *zap.SugaredLogger,
-) (int64, uuid.UUID, error) {
-	if cr.file == nil {
-		return 0, uuid.UUID{}, ErrMultiHead
+func insertpanic(ctx context.Context, c echo.Context, tx *sql.Tx, sl *slog.Logger, file *multipart.FileHeader) error {
+	if ctx == nil {
+		return panics.ErrNoContext
 	}
-	noID := uuid.UUID{}
+	if c == nil {
+		return panics.ErrNoEchoC
+	}
+	if tx == nil {
+		return panics.ErrNoTx
+	}
+	if sl == nil {
+		return panics.ErrNoSlog
+	}
+	if file == nil {
+		return ErrNoFileHeader
+	}
+	return nil
+}
+
+func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, sl *slog.Logger,
+) (int64, uuid.UUID, error) {
+	const msg = "transfer creator insert"
+	empty := uuid.UUID{}
+	if err := insertpanic(ctx, c, tx, sl, cr.file); err != nil {
+		return 0, empty, fmt.Errorf("%s: %w", msg, err)
+	}
+	// form parameters
 	values, err := c.FormParams()
 	if err != nil {
-		if logger != nil {
-			logger.Error(err)
-		}
-		return 0, noID, ErrForm
+		sl.Error(msg, slog.String("form", "could not obtain the form parameters"), slog.Any("error", err))
+		return 0, empty, ErrFormRead
 	}
 	values.Add(cr.key+"-filename", cr.file.Filename)
 	values.Add(cr.key+"-integrity", hex.EncodeToString(cr.checksum))
 	values.Add(cr.key+"-size", strconv.FormatInt(cr.file.Size, 10))
 	values.Add(cr.key+"-content", strings.Join(cr.content, "\n"))
 	values.Add(cr.key+"-readme", cr.readme)
-
 	if os := values.Get(cr.key + "-operating-system"); os == "" {
 		s, fallback := c.Get(cr.key + "-operating-system").(string)
 		if fallback {
@@ -395,12 +433,13 @@ func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, logger
 			values.Add(cr.key+"-category", s)
 		}
 	}
+	// database record
 	id, uid, err := model.InsertUpload(ctx, tx, values, cr.key)
 	if err != nil {
-		if logger != nil {
-			logger.Error(err)
-		}
-		return 0, noID, ErrInsert
+		sl.Error(msg, slog.String("form", "could not insert a new database record for the file upload"),
+			slog.String("filename", cr.file.Filename), slog.String("cr key", cr.key),
+			slog.Any("error", err))
+		return 0, empty, ErrFormInsert
 	}
 	return id, uid, nil
 }
@@ -416,17 +455,14 @@ func (prod Submission) String() string {
 	return [...]string{dz, pt}[prod]
 }
 
-func (prod Submission) Submit( //nolint:cyclop,funlen
-	c echo.Context, db *sql.DB, logger *zap.SugaredLogger, download dir.Directory,
+func (prod Submission) Submit( //nolint:funlen
+	c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory,
 ) error {
-	if db == nil {
-		return c.String(http.StatusInternalServerError, "error, the database connection is nil")
+	const msg = "htmx transfer submit"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := strings.ToTitle(prod.String())
-	if logger == nil {
-		return c.String(http.StatusInternalServerError,
-			"error, "+prod.String()+" submit logger is nil")
-	}
 	id, err := sanitizeID(c, name, prod.String())
 	if err != nil {
 		return err
@@ -434,7 +470,8 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 	ctx := context.Background()
 	tx, err := db.Begin()
 	if err != nil {
-		logger.Error(err)
+		sl.Error(msg,
+			slog.String("problem", "the database transaction could not start"), slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable, "error, the database transaction could not begin")
 	}
 	var exist bool
@@ -459,12 +496,16 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 		key, unid, err = model.InsertPouet(ctx, tx, id)
 	}
 	if err != nil || key == 0 {
-		logger.Error(err, id)
+		sl.Error(msg,
+			slog.String("problem", "cannot insert a record to the database"),
+			slog.Int("record id", id),
+			slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database insert failed")
 	}
 	if err := tx.Commit(); err != nil {
-		logger.Error(err)
+		sl.Error(msg,
+			slog.String("problem", "the database transaction commit failed"), slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database commit failed")
 	}
@@ -478,23 +519,30 @@ func (prod Submission) Submit( //nolint:cyclop,funlen
 	switch prod {
 	case Demozoo:
 		if err := app.GetDemozoo(c, db, id, unid, download); err != nil {
-			logger.Error(err)
+			sl.Error(msg,
+				slog.String("problem", "could not fetch the remote demozoo api"), slog.Any("error", err))
 			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
 		if err := app.GetPouet(c, db, id, unid, download); err != nil {
-			logger.Error(err)
+			sl.Error(msg,
+				slog.String("problem", "could not fetch the remote pouet api"), slog.Any("error", err))
 			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	}
-	logger.Infof("The %s production %d has been submitted", name, id)
+	sl.Info(msg,
+		slog.String("success", "the production has been submitted"),
+		slog.String("remote", name), slog.Int("new record id", id))
 	return c.String(http.StatusOK, html)
 }
 
 // sanitizeID validates the production ID and ensures that it is a valid numeric value.
 func sanitizeID(c echo.Context, name, prod string) (int, error) {
+	if c == nil {
+		return 0, panics.ErrNoEchoC
+	}
 	sid := c.Param("id")
 	id, err := strconv.Atoi(sid)
 	if err != nil {
@@ -515,12 +563,16 @@ func sanitizeID(c echo.Context, name, prod string) (int, error) {
 	return id, nil
 }
 
-func UploadPreview(c echo.Context, preview, thumbnail dir.Directory) error {
+func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Directory) error {
+	const msg = "htmx upload preview"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	name := "artifact-editor-replace-preview"
-	if err := preview.Check(); err != nil {
+	if err := preview.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
-	if err := thumbnail.Check(); err != nil {
+	if err := thumbnail.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	upload := values{}
@@ -590,19 +642,25 @@ func texters(magic magicnumber.Signature) bool {
 }
 
 func reloader(c echo.Context, filename string) error {
+	if c == nil {
+		return panics.ErrNoEchoC
+	}
 	return c.String(http.StatusOK,
 		fmt.Sprintf("The new preview %s is in use, about to reload this page", filename))
 }
 
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
-// The logger is optional and if nil then the function will not log any debug information.
-func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory) error { //nolint:cyclop,funlen
-	if db == nil {
-		return c.HTML(http.StatusInternalServerError, "error, the database connection is nil")
+func UploadReplacement( //nolint:funlen
+	c echo.Context, db *sql.DB, sl *slog.Logger,
+	download, extra dir.Directory,
+) error {
+	const msg = "htmx upload replacement"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
-	name := "artifact-editor-replace-file"
-	if err := download.Check(); err != nil {
+	const name = "artifact-editor-replace-file"
+	if err := download.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
 	upload := values{}
@@ -651,7 +709,7 @@ func UploadReplacement(c echo.Context, db *sql.DB, download, extra dir.Directory
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
 	if err := fu.Update(context.Background(), tx, upload.id); err != nil {
-		return badRequest(c, ErrUpdate)
+		return badRequest(c, ErrFormUpdate)
 	}
 	abs := filepath.Join(download.Path(), upload.unid)
 	if _, err = helper.DuplicateOW(dst, abs); err != nil {
@@ -681,6 +739,10 @@ type values struct {
 // formValues reads the form values from the context and validates the unique identifier and record key.
 // The return value is an error message if the unique identifier or record key is invalid.
 func (i *values) formValues(c echo.Context) string {
+	if c == nil {
+		return fmt.Sprintf("The editor file upload is broken, %s",
+			panics.ErrNoEchoC)
+	}
 	i.unid = c.FormValue("artifact-editor-unid")
 	if err := uuid.Validate(i.unid); err != nil {
 		return "The editor file upload unique identifier is invalid"

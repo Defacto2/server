@@ -10,6 +10,7 @@ server
 
 # debug and log files
 profile*.*
+defacto2_serve_*.log
 
 # temp directories
 dist/
@@ -25,4 +26,4 @@ tmp/
 
 # macOS
 *.DS_Store
-logs/
+/logs/

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/labstack/echo/v4"
 	"github.com/nalgeon/be"
 )
@@ -27,7 +28,7 @@ func TestRender(t *testing.T) {
 func TestInfo(t *testing.T) {
 	t.Parallel()
 	c := handler.Configuration{}
-	c.Info(nil, nil)
+	c.StartupBranding(logs.Discard(), nil)
 }
 
 func TestRegistry(t *testing.T) {

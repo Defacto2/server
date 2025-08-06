@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
+	"log/slog"
 	"os"
 	"runtime"
 	"strconv"
@@ -14,6 +16,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
@@ -27,9 +30,13 @@ const (
 	Author     = "Ben Garrett"              // Author is the primary programmer of this program.
 	Email      = "contact@defacto2.net"     // Email contact for public display.
 	RecentYear = 2025                       // Most recent year of compilation for this program.
+
+	wsmsg = "Web Server Configurations"
+	fxmsg = "Database and Asset Fixes"
+	admsg = "Web Server Addresses"
 )
 
-var ErrCmd = errors.New("cannot run command as config is nil")
+var ErrNoConfig = errors.New("cannot run command as config is nil")
 
 // App returns the command line interface for this program.
 // It uses the [github.com/urfave.cli/v2] package.
@@ -63,19 +70,25 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 }
 
 // Fix command the database and assets.
-func Fix(w io.Writer, c *config.Config) *cli.Command {
-	if w == nil {
-		w = io.Discard
-	}
+func Fix(_ io.Writer, c *config.Config) *cli.Command {
+	const msg = "fix command"
 	return &cli.Command{
 		Name:        "fix",
 		Aliases:     []string{"f"},
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Action: func(_ *cli.Context) error {
+			cl := stdoutput()
+			sl := logs.Default()
+			slog.SetDefault(cl)
 			d := time.Now()
-			if err := c.Fixer(w, d); err != nil {
-				return fmt.Errorf("command fix: %w", err)
+			log.Printf("%s\n", wsmsg)
+			c.Print(cl)
+			newline()
+			slog.SetDefault(sl)
+			log.Println(fxmsg)
+			if err := c.Fixer(sl, d); err != nil {
+				return fmt.Errorf("%s: %w", msg, err)
 			}
 			return nil
 		},
@@ -83,55 +96,36 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 }
 
 // Address command lists the server addresses.
-func Address(w io.Writer, c *config.Config) *cli.Command {
-	if w == nil {
-		w = io.Discard
-	}
+func Address(_ io.Writer, c *config.Config) *cli.Command {
+	const msg = "address command"
 	return &cli.Command{
 		Name:        "address",
 		Aliases:     []string{"a"},
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
-			s, err := c.Addresses()
+			sl := stdoutput()
+			log.Printf("%s\n", admsg)
+			err := c.Addresses(sl)
 			if err != nil {
-				return fmt.Errorf("command address: %w", err)
+				return fmt.Errorf("%s: %w", msg, err)
 			}
-			defer func() {
-				_, err := fmt.Fprintf(w, "%s\n", s)
-				if err != nil {
-					panic(err)
-				}
-			}()
 			return nil
 		},
 	}
 }
 
 // Config command lists the server configuration.
-func Config(w io.Writer, c *config.Config) *cli.Command {
-	if w == nil {
-		w = io.Discard
-	}
+func Config(_ io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "config",
 		Aliases:     []string{"c"},
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
-			defer func() {
-				_, err := fmt.Fprintf(w, "%s\n", c.String())
-				if err != nil {
-					panic(err)
-				}
-			}()
-			defer func() {
-				b := new(strings.Builder)
-				_, err := fmt.Fprintf(w, "%s\n", b.String())
-				if err != nil {
-					panic(err)
-				}
-			}()
+			sl := stdoutput()
+			log.Printf("%s\n", wsmsg)
+			c.Print(sl)
 			return nil
 		},
 	}
@@ -157,6 +151,7 @@ func Arch() string {
 // Commit returns a formatted, git commit description for the repository,
 // including git tag version and git commit date.
 func Commit(ver string) string {
+	const msg = "n/a (not a build)"
 	x := []string{}
 	s := versioninfo.Short()
 	if ver != "" {
@@ -165,7 +160,7 @@ func Commit(ver string) string {
 		x = append(x, s)
 	}
 	if len(x) == 0 || x[0] == "devel" {
-		return "n/a (not a build)"
+		return msg
 	}
 	return strings.Join(x, ", ")
 }
@@ -227,32 +222,32 @@ func Vers(version string) string {
 // Version returns a formatted version string for this program
 // including the [Commit], [OS] and CPU [Arch].
 func Version(s string) string {
-	x := []string{Commit(s)}
-	x = append(x, fmt.Sprintf("%s on %s", OS(), Arch()))
-	return strings.Join(x, " for ")
+	elems := []string{Commit(s)}
+	elems = append(elems, fmt.Sprintf("%s on %s", OS(), Arch()))
+	return strings.Join(elems, " for ")
 }
 
 type ExitCode int // ExitCode is the exit code for this program.
 
 const (
-	Continue     ExitCode = iota - 1 // Continue is a special case to indicate the program should not exit.
-	ExitOK                           // ExitOK is the exit code for a successful run.
-	GenericError                     // GenericError is the exit code for a generic error.
-	UsageError                       // UsageError is the exit code for an incorrect command line argument or usage.
+	Continue   ExitCode = iota - 1 // Continue is a special case to indicate the program should not exit.
+	ExitOK                         // ExitOK is the exit code for a successful run.
+	GenericErr                     // GenericError represents a generic error.
+	UsageErr                       // UsageError is used for incorrect arguments or usage.
 )
 
 // Run parses optional command line arguments for this program.
 func Run(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	if c == nil {
-		return UsageError, ErrCmd
+		return UsageErr, ErrNoConfig
 	}
 	const minArgs = 2
 	if len(os.Args) < minArgs {
 		return Continue, nil
 	}
 	args := os.Args[1:]
-	useArguments := len(args) > 0
-	if useArguments {
+	useArgs := len(args) > 0
+	if useArgs {
 		return setup(w, ver, c)
 	}
 	return Continue, nil
@@ -272,9 +267,20 @@ defaults for poor usability. Without the downloads and image directories, the se
 will not display any thumbnails or previews or serve the file downloads.`, c.HTTPPort)
 }
 
+func newline() {
+	_, _ = fmt.Fprintln(os.Stdout)
+}
+
+func stdoutput() *slog.Logger {
+	lf := logs.NoFiles()
+	sl := lf.New(logs.LevelInfo, logs.Flags)
+	slog.SetDefault(sl)
+	return sl
+}
+
 func setup(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	if c == nil {
-		return UsageError, ErrCmd
+		return UsageErr, ErrNoConfig
 	}
 	app := App(w, ver, c)
 	app.EnableBashCompletion = true
@@ -282,7 +288,7 @@ func setup(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	app.HideVersion = false
 	app.Suggest = true
 	if err := app.Run(os.Args); err != nil {
-		return GenericError, fmt.Errorf("application setup and run: %w", err)
+		return GenericErr, fmt.Errorf("application setup and run: %w", err)
 	}
 	return ExitOK, nil
 }

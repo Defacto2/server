@@ -6,36 +6,36 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
-// Sugared logger pass-through.
-type Sugared struct {
-	Log *zap.SugaredLogger
-}
-
 // All method lists every release.
-func (s *Sugared) All(c echo.Context, db *sql.DB) error {
-	return s.List(c, db, Everything)
+func All(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(c, db, sl, Everything)
 }
 
 // Art lists the file records described as art are digital + pixel art files.
-func (s *Sugared) Art(c echo.Context, db *sql.DB) error {
-	return s.List(c, db, AsArt)
+func Art(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(c, db, sl, AsArt)
 }
 
 // Categories lists the names, descriptions and sums of the category (section) tags.
-func (s *Sugared) Categories(c echo.Context) error {
+func Categories(c echo.Context, sl *slog.Logger) error {
+	const msg = "htm3 categories"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
 		"title":       title + "/categories",
@@ -47,31 +47,33 @@ func (s *Sugared) Categories(c echo.Context) error {
 		"tags":        tags.Names(),
 	})
 	if err != nil {
-		if s.Log != nil {
-			s.Log.Errorf("html3 categories %s: %s", ErrTmpl, err)
-		}
+		sl.Error(msg, slog.String("render", ErrTmpl.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
-func (s *Sugared) Category(c echo.Context, db *sql.DB) error {
-	return s.List(c, db, BySection)
+func Category(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(c, db, sl, BySection)
 }
 
 // Documents lists the file records described as document + text art files.
-func (s *Sugared) Documents(c echo.Context, db *sql.DB) error {
-	return s.List(c, db, AsDocument)
+func Documents(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(c, db, sl, AsDocument)
 }
 
 // Group lists the file records associated with the group that is provided by the ID param in the URL.
-func (s *Sugared) Group(c echo.Context, db *sql.DB) error {
-	return s.List(c, db, ByGroup)
+func Group(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(c, db, sl, ByGroup)
 }
 
 // Groups lists the names and sums of all the distinct scene groups.
-func (s *Sugared) Groups(c echo.Context, db *sql.DB) error {
+func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "html3 groups listings"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	ctx := context.Background()
 	page := 1
@@ -87,9 +89,7 @@ func (s *Sugared) Groups(c echo.Context, db *sql.DB) error {
 	// releasers are the distinct groups from the file table.
 	var unique model.ReleaserNames
 	if err := unique.DistinctGroups(ctx, db); err != nil {
-		if s.Log != nil {
-			s.Log.Errorf("%s: %w", ErrSQL, err)
-		}
+		sl.Error(msg, slog.String("distinct", ErrSQL.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	count := len(unique)
@@ -107,9 +107,7 @@ func (s *Sugared) Groups(c echo.Context, db *sql.DB) error {
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
 	if err := releasers.Limit(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
-		if s.Log != nil {
-			s.Log.Errorf("html3 group and releaser list: %w", err)
-		}
+		sl.Error(msg, slog.String("alphabetical", ErrSQL.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	err := c.Render(http.StatusOK, "html3_groups", map[string]any{
@@ -123,16 +121,18 @@ func (s *Sugared) Groups(c echo.Context, db *sql.DB) error {
 		"navigate":  navi,
 	})
 	if err != nil {
-		if s.Log != nil {
-			s.Log.Errorf("html3 group and releaser list %w: %s", ErrTmpl, err)
-		}
+		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Index method is the homepage of the /html3 sub-route.
-func (s *Sugared) Index(c echo.Context, db *sql.DB) error {
+func Index(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "html3 index"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	const desc = firefox
 	// Stats are the database statistics.
@@ -143,17 +143,17 @@ func (s *Sugared) Index(c echo.Context, db *sql.DB) error {
 		Software html3.Softwares
 	}
 	ctx := context.Background()
-	if err := stats.All.Public(ctx, db); err != nil && s.Log != nil {
-		s.Log.Warnf("index stats all: %s", err)
+	if err := stats.All.Public(ctx, db); err != nil {
+		sl.Warn(msg, slog.String("statistics", "results for all"), slog.Any("error", err))
 	}
-	if err := stats.Art.Stat(ctx, db); err != nil && s.Log != nil {
-		s.Log.Warnf("index stats art: %s", err)
+	if err := stats.Art.Stat(ctx, db); err != nil {
+		sl.Warn(msg, slog.String("statistics", "results for art"), slog.Any("error", err))
 	}
-	if err := stats.Document.Stat(ctx, db); err != nil && s.Log != nil {
-		s.Log.Warnf("index stats document: %s", err)
+	if err := stats.Document.Stat(ctx, db); err != nil {
+		sl.Warn(msg, slog.String("statistics", "results for documents"), slog.Any("error", err))
 	}
-	if err := stats.Software.Stat(ctx, db); err != nil && s.Log != nil {
-		s.Log.Warnf("index stats software: %s", err)
+	if err := stats.Software.Stat(ctx, db); err != nil {
+		sl.Warn(msg, slog.String("statistics", "results for software"), slog.Any("error", err))
 	}
 	descs := [4]string{
 		helper.Capitalize(textArt),
@@ -171,16 +171,18 @@ func (s *Sugared) Index(c echo.Context, db *sql.DB) error {
 		"latency":     time.Since(*start).String() + ".",
 	})
 	if err != nil {
-		if s.Log != nil {
-			s.Log.Errorf("html3 index %w: %s", ErrTmpl, err)
-		}
+		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // List all the records associated with the RecordsBy grouping.
-func (s *Sugared) List(c echo.Context, db *sql.DB, tt RecordsBy) error { //nolint:funlen
+func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
+	const msg = "htm3 list records by"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	var id string
 	switch tt {
@@ -203,9 +205,7 @@ func (s *Sugared) List(c echo.Context, db *sql.DB, tt RecordsBy) error { //nolin
 	// query database to return records and statistics
 	limit, count, byteSum, records, err := Query(c, db, tt, page)
 	if err != nil {
-		if s.Log != nil {
-			s.Log.Warnf("html3 list %s query error: %s", tt, err)
-		}
+		sl.Error(msg, slog.String("database", "record and statistics query problem"), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
 	}
 	if limit > 0 && count == 0 {
@@ -246,21 +246,23 @@ func (s *Sugared) List(c echo.Context, db *sql.DB, tt RecordsBy) error { //nolin
 		"navigate":    navi,
 	})
 	if err != nil {
-		if s.Log != nil {
-			s.Log.Errorf("html3 list %s: %s", ErrTmpl, err, tt)
-		}
+		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Platform lists the file records associated with the platform tag that is provided by the ID param in the URL.
-func (s *Sugared) Platform(c echo.Context, db *sql.DB) error {
-	return s.List(c, db, ByPlatform)
+func Platform(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(c, db, sl, ByPlatform)
 }
 
 // Platforms lists the names, descriptions and sums of the platform tags.
-func (s *Sugared) Platforms(c echo.Context) error {
+func Platforms(c echo.Context, sl *slog.Logger) error {
+	const msg = "htm3 platforms"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
 		"title":       title + "/platforms",
@@ -272,15 +274,13 @@ func (s *Sugared) Platforms(c echo.Context) error {
 		"tags":        tags.Names(),
 	})
 	if err != nil {
-		if s.Log != nil {
-			s.Log.Errorf("html3 platforms %w: %s", ErrTmpl, err)
-		}
+		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Software lists the file records described as software files.
-func (s *Sugared) Software(c echo.Context, db *sql.DB) error {
-	return s.List(c, db, AsSoftware)
+func Software(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(c, db, sl, AsSoftware)
 }

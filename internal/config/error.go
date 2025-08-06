@@ -5,42 +5,45 @@ package config
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
 	"github.com/Defacto2/server/handler/html3"
-	"github.com/Defacto2/server/internal/zaplog"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo/v4"
 )
 
+const (
+	PortMax = 65534 // PortMax is the highest valid port number.
+	PortSys = 1024  // PortSys is the lowest valid port number that does not require system access.
+)
+
 var (
-	ErrDirNotExist = errors.New("directory does not exist or incorrectly typed")
-	ErrEchoNil     = errors.New("echo instance is nil")
-	ErrLog         = errors.New("the server cannot log to files")
-	ErrNotDir      = errors.New("directory path points to the file")
-	ErrTouch       = errors.New("the server cannot create a file in the directory")
+	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
+	ErrNoDir      = errors.New("directory does not exist or incorrectly typed")
+	ErrNoOAuth2   = errors.New("production server requires a google, oauth2 client id to allow admin logins")
+	ErrNoPort     = errors.New("server cannot start withlogs.a http or a tls port")
+	ErrNoPath     = errors.New("empty path or name")
+	ErrPSVersion  = errors.New("postgres did not return a version value")
+	ErrTouch      = errors.New("server cannot create a file in the directory")
+	ErrNotDir     = errors.New("path points to a file")
+	ErrNotFile    = errors.New("path points to a directory")
 )
 
 // CustomErrorHandler handles customer error templates.
-func (c *Config) CustomErrorHandler(err error, ctx echo.Context) {
-	if ctx == nil {
-		panic(ErrEchoNil)
+func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger) {
+	const msg = "custom error handler"
+	if err := panics.EchoContextS(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	logger := zaplog.Debug().Sugar()
-	if c.ProdMode {
-		root := c.AbsLog
-		logger = zaplog.Store(zaplog.Text(), root).Sugar()
-	}
-	defer func() {
-		_ = logger.Sync()
-	}()
 	if IsHTML3(ctx.Path()) {
 		if err := html3.Error(ctx, err); err != nil {
-			logger.DPanic("Custom HTML3 response handler broke: %s", err)
+			logs.Fatal(sl, msg, slog.Any("html3 error", err))
 		}
 		return
 	}
-
 	statusCode := http.StatusInternalServerError
 	var httpError *echo.HTTPError
 	if errors.As(err, &httpError) {
@@ -51,10 +54,10 @@ func (c *Config) CustomErrorHandler(err error, ctx echo.Context) {
 		// fallback to a string error if templates break
 		code, s, err1 := StringErr(err)
 		if err1 != nil {
-			logger.DPanic("Custom response handler broke: %s", err1)
+			logs.Fatal(sl, msg, slog.Any("error", err))
 		}
 		if err2 := ctx.String(code, s); err2 != nil {
-			logger.DPanic("Custom response handler broke: %s", err2)
+			logs.Fatal(sl, msg, slog.Any("error", err))
 		}
 	}
 }
@@ -73,7 +76,7 @@ func StringErr(err error) (int, string, error) {
 	return code, fmt.Sprintf("%d - %s", code, msg), nil
 }
 
-// IsHTML3 returns true if the route is /html3.
+// IsHTML3 returns true if the rlogs. is /html3.
 func IsHTML3(path string) bool {
 	splitPaths := func(r rune) bool {
 		return r == '/'

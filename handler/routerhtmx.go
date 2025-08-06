@@ -3,13 +3,14 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"slices"
 
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"go.uber.org/zap"
 )
 
 // Package file routerhtmx.go contains the custom router URIs for the website
@@ -19,9 +20,10 @@ const rateLimit = 2
 
 // htmxGroup is the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, prodMode bool, download dir.Directory) *echo.Echo {
-	if e == nil {
-		panic(fmt.Errorf("%w for htmx group router", ErrRoutes))
+func htmxGroup(e *echo.Echo, db *sql.DB, sl *slog.Logger, prodMode bool, download dir.Directory) *echo.Echo {
+	const msg = "router htmx group"
+	if err := panics.EchoDS(e, db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)
 	// htmx/
@@ -30,15 +32,15 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, prodMode boo
 	g.POST("/areacodes", htmx.Areacodes)
 	// htmx/search/releaser
 	g.POST("/search/releaser", func(c echo.Context) error {
-		return htmx.SearchReleaser(c, db, logger)
+		return htmx.SearchReleaser(c, db, sl)
 	})
 	// htmx/demozoo/production
 	demozoo := g.Group("/demozoo")
 	demozoo.GET("/production", func(c echo.Context) error {
-		return htmx.DemozooLookup(c, prodMode, db)
+		return htmx.DemozooLookup(c, db, prodMode)
 	})
 	demozoo.PUT("/production/:id", func(c echo.Context) error {
-		return htmx.DemozooSubmit(c, db, logger, download)
+		return htmx.DemozooSubmit(c, db, sl, download)
 	})
 	// htmx/pouet/production
 	pouet := g.Group("/pouet")
@@ -46,53 +48,53 @@ func htmxGroup(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, prodMode boo
 		return htmx.PouetLookup(c, db)
 	})
 	pouet.PUT("/production/:id", func(c echo.Context) error {
-		return htmx.PouetSubmit(c, db, logger, download)
+		return htmx.PouetSubmit(c, db, sl, download)
 	})
 	// htmx/uploader
 	upload := g.Group("/uploader")
 	// htmx/uploader/classifications
 	upload.GET("/classifications", func(c echo.Context) error {
-		return htmx.HumanizeCount(c, db, logger, "uploader-advanced")
+		return htmx.HumanizeCount(c, db, sl, "uploader-advanced")
 	})
 	// htmx/uploader/releaser
 	upload.PATCH("/releaser/1", func(c echo.Context) error {
-		return htmx.DataListReleasers(c, db, logger, releaser1(c))
+		return htmx.DataListReleasers(c, db, sl, releaser1(c))
 	})
 	upload.PATCH("/releaser/2", func(c echo.Context) error {
-		return htmx.DataListReleasers(c, db, logger, releaser2(c))
+		return htmx.DataListReleasers(c, db, sl, releaser2(c))
 	})
 	// htmx/releaser/magazine
 	upload.PATCH("/releaser/magazine", func(c echo.Context) error {
 		lookup := c.FormValue("uploader-magazine-releaser1")
-		return htmx.DataListMagazines(c, db, logger, lookup)
+		return htmx.DataListMagazines(c, db, sl, lookup)
 	})
 	// htmx/uploader/sha384
 	upload.PATCH("/sha384/:hash", func(c echo.Context) error {
-		return htmx.LookupSHA384(c, db, logger)
+		return htmx.LookupSHA384(c, db, sl)
 	})
 	// htmx/uploader/advanced
 	upload.POST("/advanced", func(c echo.Context) error {
-		return htmx.AdvancedSubmit(c, db, logger, download)
+		return htmx.AdvancedSubmit(c, db, sl, download)
 	})
 	// htmx/uploader/image
 	upload.POST("/image", func(c echo.Context) error {
-		return htmx.ImageSubmit(c, db, logger, download)
+		return htmx.ImageSubmit(c, db, sl, download)
 	})
 	// htmx/uploader/intro
 	upload.POST("/intro", func(c echo.Context) error {
-		return htmx.IntroSubmit(c, db, logger, download)
+		return htmx.IntroSubmit(c, db, sl, download)
 	})
 	// htmx/uploader/magazine
 	upload.POST("/magazine", func(c echo.Context) error {
-		return htmx.MagazineSubmit(c, db, logger, download)
+		return htmx.MagazineSubmit(c, db, sl, download)
 	})
 	// htmx/uploader/text
 	upload.POST("/text", func(c echo.Context) error {
-		return htmx.TextSubmit(c, db, logger, download)
+		return htmx.TextSubmit(c, db, sl, download)
 	})
 	// htmx/uploader/trainer
 	upload.POST("/trainer", func(c echo.Context) error {
-		return htmx.TrainerSubmit(c, db, logger, download)
+		return htmx.TrainerSubmit(c, db, sl, download)
 	})
 	return e
 }

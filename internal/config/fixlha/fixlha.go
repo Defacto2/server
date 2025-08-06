@@ -4,9 +4,9 @@ package fixlha
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -15,14 +15,12 @@ import (
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
-	"github.com/Defacto2/server/internal/zaplog"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
-
-var ErrNoExecutor = errors.New("no context executor")
 
 // Check returns the UUID of the zipped file if it requires re-archiving because it uses a
 // legacy compression method that is not supported by Go or JS libraries.
@@ -48,8 +46,9 @@ func Check(extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
 
 // Files returns all the DOS platform artifacts using a .zip extension filename.
 func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
-	if exec == nil {
-		return nil, fmt.Errorf("config fixlha files %w", ErrNoExecutor)
+	const msg = "fix lha files"
+	if err := panics.ContextB(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Select("uuid"))
@@ -59,20 +58,25 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 	mods = append(mods, qm.WithDeleted())
 	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
-		return nil, fmt.Errorf("fixlha models files: %w", err)
+		return nil, fmt.Errorf("%s models: %w", msg, err)
 	}
 	return files, nil
 }
 
 // Invalid returns true if the lha file fails the lha test command.
 // The path is the path to the lha archive file.
-func Invalid(ctx context.Context, path string) bool {
-	logger := zaplog.Logger(ctx)
+func Invalid(sl *slog.Logger, path string) bool {
+	const msg = "lha fixer is invalid"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	const name = command.Lha
 	cmd := exec.Command(name, "t", path)
 	b, err := cmd.Output()
 	if err != nil {
-		logger.Errorf("fixlha invalid %s: %s", err, path)
+		sl.Error(msg,
+			slog.String("lha file path", path),
+			slog.Any("error", err))
 		return true
 	}
 	return len(bytes.TrimSpace(b)) == 0

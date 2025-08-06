@@ -12,29 +12,19 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/zaplog"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/nalgeon/be"
-	"go.uber.org/zap"
 )
+
+var ErrTest = errors.New("an error")
 
 func TestConfig(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	x := c.List()
-	be.True(t, len(x) != 0)
-	s := c.Envs()
+	s := c.Names()
 	be.True(t, len(s) != 0)
-	s = c.Helps()
-	be.True(t, len(s) != 0)
-	s = c.Names()
-	be.True(t, len(s) != 0)
-	s = c.Values()
-	be.True(t, len(s) != 0)
-	cs := c.String()
-	be.True(t, strings.Contains(cs, "configuration"))
-	cs, err := c.Addresses()
+	err := c.Addresses(nil)
 	be.Err(t, err)
-	be.True(t, cs == "")
 }
 
 func TestChecks(t *testing.T) {
@@ -56,12 +46,6 @@ func TestCheckDir(t *testing.T) {
 	be.Err(t, err)
 }
 
-func TestRecordCount(t *testing.T) {
-	t.Parallel()
-	i := config.RecordCount(t.Context(), nil)
-	be.True(t, i == 0)
-}
-
 func TestSanityTmpDir(t *testing.T) {
 	t.Parallel()
 	var stderrBuf bytes.Buffer
@@ -71,23 +55,22 @@ func TestSanityTmpDir(t *testing.T) {
 	r, w, err := os.Pipe()
 	be.Err(t, err, nil)
 	os.Stdout = w
-	config.SanityTmpDir()
+	config.TmpInfo(logs.Discard())
 	if err := w.Close(); err != nil {
 		t.Error(err)
 	}
 	_, err = stderrBuf.ReadFrom(r)
 	be.Err(t, err, nil)
-	expectedMessage := "Temporary directory using"
-	x := strings.Contains(stderrBuf.String(), expectedMessage)
-	be.True(t, x)
 }
 
 func TestValidate(t *testing.T) {
 	t.Parallel()
-	err := config.Validate(0)
+	c := config.Config{}
+	err := c.HTTPPort.Check()
 	be.Err(t, err, nil)
-	const tooLarge = 10000000
-	err = config.Validate(tooLarge)
+	const tooLarge = 10000
+	c.HTTPPort = tooLarge
+	err = c.HTTPPort.Check()
 	be.Err(t, err)
 }
 
@@ -97,8 +80,7 @@ func TestError(t *testing.T) {
 	be.True(t, i == 0)
 	be.Equal(t, s, "")
 	be.Err(t, err, nil)
-	anErr := errors.New("an error")
-	i, s, err = config.StringErr(anErr)
+	i, s, err = config.StringErr(ErrTest)
 	be.True(t, i == 500)
 	x := strings.Contains(s, "internal server error")
 	be.True(t, x)
@@ -108,46 +90,42 @@ func TestError(t *testing.T) {
 func TestRepair(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	err := c.Archives(t.Context(), nil)
+	disc := logs.Discard()
+	err := c.Archives(t.Context(), nil, nil)
 	be.Err(t, err)
 	r := config.Zip
 	be.Equal(t, "zip", r.String())
-	err = c.Assets(t.Context(), nil)
+	err = c.Assets(t.Context(), nil, nil)
 	be.Err(t, err)
 	err = c.MagicNumbers(t.Context(), nil, nil)
 	be.Err(t, err)
 	err = c.Previews(t.Context(), nil, nil)
 	be.Err(t, err)
-	err = c.ImageDirs(nil)
+	sl := logs.Discard()
+	err = c.ImageDirs(sl)
 	be.Err(t, err, nil)
 	err = config.DownloadDir(nil, "", "", "")
 	be.Err(t, err)
-	err = config.RenameDownload("", "")
+	err = config.RenameDownload(disc, "", "")
 	be.Err(t, err)
-	err = config.RemoveDir("", "", "")
+	err = config.RemoveDir(disc, "", "", "")
 	be.Err(t, err)
-	err = config.RemoveDownload("", "", "", "")
+	err = config.RemoveDownload(disc, "", "", "", "")
 	be.Err(t, err)
-	err = config.RemoveImage("", "", "")
+	err = config.RemoveImage(disc, "", "", "")
 	be.Err(t, err)
 }
 
 func TestReArchive(t *testing.T) {
 	t.Parallel()
 	r := config.Zip
-	logger, _ := zap.NewProduction()
-	_ = logger.Sync()
-	ctx := context.WithValue(t.Context(), zaplog.LoggerKey, logger)
-	err := r.ReArchive(ctx, "", "", "")
+	err := r.ReArchive(context.TODO(), nil, config.Rearchiving{})
 	be.Err(t, err)
 }
 
 func TestReArchiveImplode(t *testing.T) {
 	r := config.Zip
-	l, _ := zap.NewProduction()
-	_ = l.Sync()
-	logger := l.Sugar()
-	ctx := context.WithValue(t.Context(), zaplog.LoggerKey, logger)
+	ctx := context.TODO()
 	// test the archive that uses the defunct implode method
 	src, err := filepath.Abs(filepath.Join("testdata", "IMPLODE.ZIP"))
 	be.Err(t, err, nil)
@@ -158,20 +136,23 @@ func TestReArchiveImplode(t *testing.T) {
 	}()
 	sign := magicnumber.Find(readr)
 	be.Equal(t, magicnumber.PKWAREZipImplode, sign)
-	err = r.ReArchive(ctx, src, "", "")
+	ra0 := config.Rearchiving{}
+	err = r.ReArchive(ctx, nil, ra0)
 	be.Err(t, err)
 	dst := dir.Directory(filepath.Dir(src))
-	err = r.ReArchive(ctx, src, "", dst)
+	ra1 := config.Rearchiving{Source: src, Destination: dst}
+	err = r.ReArchive(ctx, nil, ra1)
 	be.Err(t, err)
-	err = r.ReArchive(ctx, src, "newfile", dst)
+	ra1.UID = "newfile"
+	sl := logs.Discard()
+	err = r.ReArchive(ctx, sl, ra1)
 	be.Err(t, err, nil)
 	// test the new, re-created archive that uses the common deflate method
 	name := dst.Join("newfile.zip")
 	readr, err = os.Open(name)
 	be.Err(t, err, nil)
 	defer func() {
-		err := readr.Close()
-		be.Err(t, err, nil)
+		_ = readr.Close()
 	}()
 	sign = magicnumber.Find(readr)
 	be.Equal(t, magicnumber.PKWAREZip, sign)

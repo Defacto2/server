@@ -65,9 +65,9 @@ func AssetSrc(abs, dir, unid, ext string) string {
 	}
 	root := ""
 	switch abs {
-	case config.Prev:
+	case config.AbsPreview:
 		root = config.StaticOriginal()
-	case config.Thumb:
+	case config.AbsThumbnail:
 		root = config.StaticThumb()
 	}
 	src := strings.Join([]string{root, unid + ext}, "/")

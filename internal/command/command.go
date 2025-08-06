@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,40 +15,28 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/dir"
-	"go.uber.org/zap"
+	"github.com/Defacto2/server/internal/panics"
 )
 
 const (
 	cmdTimeout = 10 * time.Second
-	pattern    = "defacto2-" // prefix for temporary directories
 	patternS   = "defacto2-server"
-	arc        = ".arc"  // arc file extension
-	arj        = ".arj"  // arj file extension
-	bmp        = ".bmp"  // bmp file extension
 	gif        = ".gif"  // gif file extension
-	gzip       = ".gz"   // gzip file extension
 	jpg        = ".jpg"  // jpg file extension
 	jpeg       = ".jpeg" // jpeg file extension
 	png        = ".png"  // png file extension
-	rar        = ".rar"  // rar file extension
-	tar        = ".tar"  // tar file extension
-	tiff       = ".tiff" // tiff file extension
-	txt        = ".txt"  // txt file extension
 	webp       = ".webp" // webp file extension
-	zip        = ".zip"  // zip file extension
-	zip7       = ".7z"   // 7zip file extension
 )
 
 var (
-	ErrANSI   = errors.New("text is ansi encoded, cannot crop")
-	ErrEmpty  = errors.New("file is empty")
-	ErrImg    = errors.New("file is not an known image format")
-	ErrIsDir  = errors.New("file is a directory")
-	ErrIsFile = errors.New("directory path points to a file")
-	ErrMatch  = errors.New("no match value is present")
-	ErrPath   = errors.New("path is not permitted")
-	ErrVers   = errors.New("version mismatch")
-	ErrZap    = errors.New("zap logger instance is nil")
+	ErrIsAnsi     = errors.New("text is ansi encoded, cannot crop")
+	ErrIsDir      = errors.New("file is a directory")
+	ErrIsEmpty    = errors.New("file is empty")
+	ErrIsFile     = errors.New("directory path points to a file")
+	ErrNoMatch    = errors.New("no match value is present")
+	ErrPath       = errors.New("path is not permitted")
+	ErrUnknownImg = errors.New("file is not an known image format")
+	ErrVersion    = errors.New("application version mismatch")
 )
 
 // Dirs is a struct of the download, preview and thumbnail directories.
@@ -125,16 +114,20 @@ func LookupUnrar() error {
 }
 
 // CopyFile copies the src file to the dst file and path.
-func CopyFile(debug *zap.SugaredLogger, src, dst string) error {
+func CopyFile(sl *slog.Logger, src, dst string) error {
+	const msg = "command copy file"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	s, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("copy file open %w", err)
+		return fmt.Errorf("%s open %w", msg, err)
 	}
 	defer func() { _ = s.Close() }()
 
 	d, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf("copy file create %w", err)
+		return fmt.Errorf("%s create %w", msg, err)
 	}
 	defer func() { _ = d.Close() }()
 
@@ -143,14 +136,11 @@ func CopyFile(debug *zap.SugaredLogger, src, dst string) error {
 	buf := make([]byte, size)
 	i, err := io.CopyBuffer(d, s, buf)
 	if err != nil {
-		return fmt.Errorf("copy file io.copybuffer %w", err)
+		return fmt.Errorf("%s io.copybuffer %w", msg, err)
 	}
-
-	if debug != nil {
-		debug.Infof("copyfile: copied %d bytes to %s\n", i, dst)
-	}
+	sl.Debug(msg, slog.String("path", dst), slog.Int64("bytes copied", i))
 	if err := d.Sync(); err != nil {
-		return fmt.Errorf("copy file sync %w", err)
+		return fmt.Errorf("%s sync %w", msg, err)
 	}
 	return nil
 }
@@ -174,56 +164,59 @@ func BaseNamePath(path string) string {
 
 // LookCmd returns an error if the named command is not found in the system path.
 func LookCmd(name string) error {
+	const msg = "command lookup"
 	_, err := exec.LookPath(name)
 	if errors.Is(err, exec.ErrDot) {
 		err = nil
 	}
 	if err != nil {
-		return fmt.Errorf("exec look path %w", err)
+		return fmt.Errorf("%s path %w", msg, err)
 	}
 	return nil
 }
 
 // LookVersion returns an error when the match string is not found in the named command output.
 func LookVersion(name, flag, match string) error {
+	const msg = "command version lookup"
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("look version %w", err)
+		return fmt.Errorf("version %w", err)
 	}
 	if match == "" {
-		return ErrMatch
+		return ErrNoMatch
 	}
 	cmd := exec.Command(name, flag)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return fmt.Errorf("look version stdout pipe %w", err)
+		return fmt.Errorf("%s stdout pipe %w", msg, err)
 	}
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("look version start %w", err)
+		return fmt.Errorf("%s start %w", msg, err)
 	}
 	b, err := io.ReadAll(stdout)
 	if err != nil {
-		return fmt.Errorf("look version read all %w", err)
+		return fmt.Errorf("%s read all %w", msg, err)
 	}
 	if !bytes.Contains(b, []byte(match)) {
-		return fmt.Errorf("look version %w: %s", ErrVers, name)
+		return fmt.Errorf("%s %w: %s", msg, ErrVersion, name)
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("look version wait %w", err)
+		return fmt.Errorf("%s wait %w", msg, err)
 	}
 	return nil
 }
 
 // Run looks for the command in the system path and executes it with the arguments.
 // Any output to stderr is logged as a debug message.
-func Run(debug *zap.SugaredLogger, name string, arg ...string) error {
-	return run(debug, name, "", arg...)
+func Run(sl *slog.Logger, name string, arg ...string) error {
+	return run(sl, name, "", arg...)
 }
 
 // RunStdOut looks for the command in the system path and executes it with the arguments.
 // Any output is sent to the stdout buffer.
 func RunStdOut(name string, arg ...string) ([]byte, error) {
+	const msg = "command to stdout run"
 	if err := LookCmd(name); err != nil {
-		return nil, fmt.Errorf("run output %w", err)
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	var out bytes.Buffer
 	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
@@ -231,24 +224,25 @@ func RunStdOut(name string, arg ...string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("run output cmd.run %w", err)
+		return nil, fmt.Errorf("%s cmd.run: %w", msg, err)
 	}
 	return out.Bytes(), nil
 }
 
 // RunQuiet looks for the command in the system path and executes it with the arguments.
 func RunQuiet(name string, arg ...string) error {
+	const msg = "command to discard run"
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("run quiet %w", err)
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, name, arg...)
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("run quiet start %w", err)
+		return fmt.Errorf("%s start: %w", msg, err)
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("run quiet wait %w", err)
+		return fmt.Errorf("%s wait: %w", msg, err)
 	}
 	return nil
 }
@@ -256,29 +250,32 @@ func RunQuiet(name string, arg ...string) error {
 // RunWorkdir looks for the command in the system path and executes it with the arguments.
 // An optional working directory is set for the command.
 // Any output to stderr is logged as a debug message.
-func RunWorkdir(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
-	return run(debug, name, wdir, arg...)
+func RunWorkdir(sl *slog.Logger, name, wdir string, arg ...string) error {
+	return run(sl, name, wdir, arg...)
 }
 
-func run(debug *zap.SugaredLogger, name, wdir string, arg ...string) error {
+func run(sl *slog.Logger, name, wdir string, arg ...string) error {
+	const msg = "command run"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("run %w", err)
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Dir = wdir
-	if debug != nil {
-		p, err := cmd.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("run could not start command %w", err)
-		}
-		debug.Debugf("run %q: %s\n", cmd, string(p))
-		return nil
+	p, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%s %q cannot start: %w", msg, name, err)
 	}
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("run could not start command %w", err)
-	}
+	sl.Debug(msg,
+		slog.String("command name", cmd.String()),
+		slog.String("output", string(p)))
+	// if err := cmd.Run(); err != nil {
+	// 	return fmt.Errorf("%s %q cannot run: %w", msg, name, err)
+	// }
 	return nil
 }
 

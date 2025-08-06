@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/aarondl/null/v8"
@@ -122,9 +123,9 @@ func TestOrder_String(t *testing.T) {
 }
 
 func TestInvalidExec(t *testing.T) {
-	be.True(t, html3.InvalidExec(nil))
+	be.True(t, panics.BoilExec(nil))
 	var x boil.ContextExecutor
-	be.True(t, html3.InvalidExec(x))
+	be.True(t, panics.BoilExec(x))
 	db := sql.DB{}
-	be.True(t, !html3.InvalidExec(&db))
+	be.True(t, !panics.BoilExec(&db))
 }

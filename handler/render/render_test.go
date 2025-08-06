@@ -8,15 +8,12 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/render"
-	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
 )
-
-const txt = ".txt"
 
 var (
 	latin1 encoding.Encoding = charmap.ISO8859_1   //nolint:gochecknoglobals
@@ -25,7 +22,8 @@ var (
 
 func TestEncoder(t *testing.T) {
 	t.Parallel()
-	ec := render.Encoder(nil, nil)
+	art := models.File{}
+	ec := render.Encoder(&art, nil)
 	be.True(t, ec == nil)
 }
 
@@ -75,58 +73,6 @@ func TestEncoderUTF8(t *testing.T) {
 	// Currently we cannot determine CP437 vs UTF8.
 	// So the priority is to render legacy text.
 	be.Equal(t, ec, cp437)
-}
-
-func TestRead(t *testing.T) {
-	t.Parallel()
-	r, _, err := render.Read(nil, "", "")
-	be.Err(t, err)
-	be.Equal(t, err, render.ErrFileModel)
-	be.Equal(t, len(r), 0)
-
-	art := models.File{
-		Filename: null.StringFrom(""),
-		UUID:     null.StringFrom(""),
-	}
-	r, _, err = render.Read(&art, "", "")
-	be.Err(t, err)
-	be.Equal(t, err, render.ErrFilename)
-	be.Equal(t, len(r), 0)
-
-	art.Filename = null.StringFrom(filepath.Join("testdata", "TEST.DOC"))
-	r, _, err = render.Read(&art, "", "")
-	be.Err(t, err)
-	be.Equal(t, err, render.ErrUUID)
-	be.Equal(t, len(r), 0)
-
-	const unid = "5b4c5f6e-8a1e-11e9-9f0e-000000000000"
-	art.UUID = null.StringFrom(unid)
-	r, _, err = render.Read(&art, "", "")
-	be.Err(t, err)
-	be.Equal(t, len(r), 0)
-
-	tmp := t.TempDir()
-	err = helper.Touch(filepath.Join(tmp, unid+txt))
-	be.Err(t, err, nil)
-	err = helper.Touch(filepath.Join(tmp, unid))
-	be.Err(t, err, nil)
-
-	r, _, err = render.Read(&art, dir.Directory(tmp), dir.Directory(tmp))
-	be.Err(t, err, nil)
-	be.Equal(t, len(r), 0)
-
-	err = os.Remove(filepath.Join(tmp, unid+txt))
-	be.Err(t, err, nil)
-
-	s := []byte("This is a test file.\n")
-	i, err := helper.TouchW(filepath.Join(tmp, unid+txt), s...)
-	be.Err(t, err, nil)
-	l := len(s)
-	be.Equal(t, i, l)
-	b, _, err := render.Read(&art, dir.Directory(tmp), dir.Directory(tmp))
-	be.Err(t, err, nil)
-	be.True(t, len(b) > 0)
-	be.Equal(t, string(b), string(s))
 }
 
 func TestViewer(t *testing.T) {

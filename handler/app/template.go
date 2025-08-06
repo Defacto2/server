@@ -24,6 +24,7 @@ import (
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
 )
@@ -47,8 +48,12 @@ type Templ struct {
 
 // Templates returns a map of the templates used by the route.
 func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
+	const msg = "templates mapper"
+	if db == nil {
+		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	}
 	if err := t.Subresource.Verify(t.Public); err != nil {
-		return nil, fmt.Errorf("app templates verify, %w", err)
+		return nil, fmt.Errorf("%s verify: %w", msg, err)
 	}
 	tmpls := make(map[string]*template.Template)
 	for key, name := range *t.Pages() {
@@ -169,6 +174,10 @@ func (t *Templ) Funcs() template.FuncMap {
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
 func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
+	// const msg = "templates mapper"
+	if db == nil {
+		return nil
+	}
 	hrefs := *Hrefs()
 	return &template.FuncMap{
 		"bootstrap5": func() string {
@@ -328,10 +337,10 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 			return simple.Thumb(unid, desc, dir.Directory(t.Environment.AbsThumbnail), bottom)
 		},
 		"recordPreviewSrc": func(unid, ext string) string {
-			return simple.AssetSrc(config.Prev, t.Environment.AbsPreview, unid, ext)
+			return simple.AssetSrc(config.AbsPreview, t.Environment.AbsPreview.String(), unid, ext)
 		},
 		"recordThumbnailSrc": func(unid, ext string) string {
-			return simple.AssetSrc(config.Thumb, t.Environment.AbsThumbnail, unid, ext)
+			return simple.AssetSrc(config.AbsThumbnail, t.Environment.AbsThumbnail.String(), unid, ext)
 		},
 	}
 }
@@ -362,10 +371,21 @@ func (t *Templ) Elements() *template.FuncMap {
 
 // FuncMap returns a map of all the template functions.
 func (t *Templ) FuncMap(db *sql.DB) *template.FuncMap {
-	funcs := t.Funcs()
-	maps.Copy(funcs, *t.FuncClosures(db))
-	maps.Copy(funcs, *t.Elements())
-	return &funcs
+	if db == nil {
+		return nil
+	}
+	dst := t.Funcs()
+	src := t.FuncClosures(db)
+	if src == nil {
+		return nil
+	}
+	maps.Copy(dst, *src)
+	src = t.Elements()
+	if src == nil {
+		return nil
+	}
+	maps.Copy(dst, *src)
+	return &dst
 }
 
 func (t *Templ) artifact(lock bool, files ...string) []string {
@@ -421,14 +441,18 @@ func (t *Templ) lockLayout(lock bool, files ...string) []string {
 // parseFS returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
 func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
+	if db == nil {
+		return nil
+	}
 	files := t.Layout(name)
 	config := t.Environment
-	files = t.locked(config.ReadOnly, files...)
-	files = t.lockLayout(config.ReadOnly, files...)
+	readonly := bool(config.ReadOnly)
+	files = t.locked(readonly, files...)
+	files = t.lockLayout(readonly, files...)
 	// append any additional and embedded templates
 	switch name {
 	case artifactTmpl:
-		files = t.artifact(config.ReadOnly, files...)
+		files = t.artifact(readonly, files...)
 	case artifactsTmpl:
 		files = append(files, GlobTo("artifactsedit.tmpl"))
 	case categoriesTmpl:
@@ -437,8 +461,12 @@ func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 		const individualWebsite = "website.tmpl"
 		files = append(files, GlobTo(individualWebsite))
 	}
+	funcMap := t.FuncMap(db)
+	if funcMap == nil {
+		return nil
+	}
 	return template.Must(template.New("").Funcs(
-		*t.FuncMap(db)).ParseFS(t.View, files...))
+		*funcMap).ParseFS(t.View, files...))
 }
 
 func recordLastMod(b bool) template.HTML {

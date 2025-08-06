@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	ErrDB = errors.New("database value is nil")
-	ErrT  = errors.New("lockable tags t is nil")
+	ErrNoDB   = errors.New("database value is nil")
+	ErrNoTags = errors.New("lockable tags t is nil")
 )
 
 // The dos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
@@ -42,7 +42,7 @@ type T struct {
 // It requires the database to be connected to build the tags if they have not already been.
 func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
-		return TagData{}, fmt.Errorf("tags by name %w", ErrT)
+		return TagData{}, fmt.Errorf("tags by name %w", ErrNoTags)
 	}
 	for val := range slices.Values(t.List) {
 		if strings.EqualFold(val.Name, name) {
@@ -54,8 +54,9 @@ func (t *T) ByName(name string) (TagData, error) {
 
 // Build the tags and collect the statistical data sourced from the database.
 func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
+	const msg = "tags builder"
 	if InvalidExec(exec) {
-		return fmt.Errorf("tags build %w", ErrDB)
+		return fmt.Errorf("%s: %w", msg, ErrNoDB)
 	}
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
@@ -83,7 +84,7 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 			t.Mu.Unlock()
 		}(i, tg)
 		if err != nil {
-			return fmt.Errorf("tags build defer counter %w", err)
+			return fmt.Errorf("%s defer counter: %w", msg, err)
 		}
 	}
 	return nil
@@ -91,13 +92,14 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 
 // counter counts the number of files with the tag.
 func counter(ctx context.Context, exec boil.ContextExecutor, t Tag) (int64, error) {
+	const msg = "tags counter"
 	clause := "section = ?"
 	if t >= FirstPlatform {
 		clause = "platform = ?"
 	}
 	sum, err := models.Files(qm.Where(clause, URIs()[t])).Count(ctx, exec)
 	if err != nil {
-		return -1, fmt.Errorf("tags counter could not count the tag: %w", err)
+		return -1, fmt.Errorf("%s could not count the tag: %w", msg, err)
 	}
 	return sum, nil
 }

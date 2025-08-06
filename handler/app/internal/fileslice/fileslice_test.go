@@ -1,12 +1,10 @@
 package fileslice_test
 
 import (
-	"fmt"
 	"slices"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
-	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
 
@@ -68,30 +66,6 @@ func TestFileInfo(t *testing.T) {
 		be.True(t, a != "")
 		be.True(t, b != "")
 		be.True(t, c != "")
-	}
-}
-
-func TestRecords(t *testing.T) {
-	t.Parallel()
-	x, err := fileslice.Records(t.Context(), nil, "", 0, 0)
-	be.Err(t, err)
-	be.True(t, x == nil)
-	proof := fileslice.URI(45).String()
-	x, err = fileslice.Records(t.Context(), nil, proof, 1, 1)
-	be.Err(t, err)
-	be.True(t, x == nil)
-
-	uris := []fileslice.URI{}
-	for i := range fileslice.WindowsPack {
-		uris = append(uris, i)
-	}
-	for uri := range slices.Values(uris) {
-		if uri.String() == "" {
-			continue
-		}
-		_, err = fileslice.Records(t.Context(), nil, uri.String(), 1, 1)
-		msg := fmt.Sprintf("this uri caused an issue: %q %d", uri, uri)
-		be.Equal(t, model.ErrDB.Error(), err.Error(), msg)
 	}
 }
 

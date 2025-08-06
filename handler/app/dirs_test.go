@@ -9,7 +9,7 @@ import (
 
 func TestArtifact404(t *testing.T) {
 	t.Parallel()
-	err := app.Artifact404(newContext(), "")
+	err := app.Artifact404(newContext(), nil, "")
 	be.Err(t, err)
 }
 
@@ -29,24 +29,24 @@ func TestEditor(t *testing.T) {
 
 func TestFileMissingErr(t *testing.T) {
 	t.Parallel()
-	err := app.FileMissingErr(newContext(), "", nil)
+	err := app.FileMissingErr(newContext(), nil, "", nil)
 	be.Err(t, err)
 }
 
 func TestForbiddenErr(t *testing.T) {
 	t.Parallel()
-	err := app.ForbiddenErr(newContext(), "", nil)
+	err := app.ForbiddenErr(newContext(), nil, "", nil)
 	be.Err(t, err)
 }
 
 func TestInternalErr(t *testing.T) {
 	t.Parallel()
-	err := app.InternalErr(newContext(), "", nil)
+	err := app.InternalErr(newContext(), nil, "", nil)
 	be.Err(t, err)
 }
 
 func TestStatusErr(t *testing.T) {
 	t.Parallel()
-	err := app.StatusErr(newContext(), -1, "")
+	err := app.StatusErr(newContext(), nil, -1, "")
 	be.Err(t, err)
 }

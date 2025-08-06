@@ -3,13 +3,14 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"math"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 // Package file routerlock.go contains the custom router URIs for the website
@@ -24,38 +25,46 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
-func (c *Configuration) lock(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs) *echo.Echo {
-	if e == nil {
-		panic(fmt.Errorf("%w for lock router", ErrRoutes))
+func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
+	const msg = "configuration router lock"
+	if err := panics.EchoDS(e, db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
+	}
+	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {
+		return c.ReadOnlyLock(cx, sl)
+	}
+	sessionlock := func(cx echo.HandlerFunc) echo.HandlerFunc {
+		return c.SessionLock(cx, sl)
 	}
 	lock := e.Group("/editor")
-	lock.Use(c.ReadOnlyLock, c.SessionLock)
-	c.configurations(lock, db)
+	lock.Use(readonlylock, sessionlock)
+	c.configurations(lock, db, sl)
 	creator(lock, db)
 	date(lock, db)
-	editor(lock, db, logger, dirs)
-	get(lock, db, dirs)
+	editor(lock, db, sl, dirs)
+	get(lock, db, sl, dirs)
 	online(lock, db)
-	search(lock, db, logger)
+	search(lock, db, sl)
 	return e
 }
 
-func (c *Configuration) configurations(g *echo.Group, db *sql.DB) {
-	if g == nil {
-		panic(fmt.Errorf("%w for configurations router", ErrRoutes))
+func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logger) {
+	const msg = "configurations group router"
+	if err := panics.GroupDS(g, db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	conf := g.Group("/configurations")
 	conf.GET("", func(cx echo.Context) error {
-		return app.Configurations(cx, db, c.Environment)
+		return app.Configurations(cx, db, sl, c.Environment)
 	})
 	conf.GET("/dbconns", func(c echo.Context) error {
 		return htmx.DBConnections(c, db)
 	})
 	conf.GET("/pings", func(cx echo.Context) error {
 		proto := "http"
-		port := c.Environment.HTTPPort
+		port := c.Environment.HTTPPort.Value()
 		if port == 0 {
-			port = c.Environment.TLSPort
+			port = c.Environment.TLSPort.Value()
 			proto = "https"
 		}
 		return htmx.Pings(cx, proto, int(math.Abs(float64(port))))
@@ -63,8 +72,9 @@ func (c *Configuration) configurations(g *echo.Group, db *sql.DB) {
 }
 
 func creator(g *echo.Group, db *sql.DB) {
-	if g == nil {
-		panic(ErrRoutes)
+	const msg = "creator group router"
+	if err := panics.GroupD(g, db); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	creator := g.Group("/creator")
 	creator.PATCH("/text", func(c echo.Context) error {
@@ -86,7 +96,7 @@ func creator(g *echo.Group, db *sql.DB) {
 
 func date(g *echo.Group, db *sql.DB) {
 	if g == nil {
-		panic(fmt.Errorf("%w for date router", ErrRoutes))
+		panic(fmt.Errorf("%w for date router", panics.ErrNoEchoE))
 	}
 	date := g.Group("/date")
 	date.PATCH("", func(c echo.Context) error {
@@ -100,18 +110,18 @@ func date(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs) {
+func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	if g == nil {
-		panic(fmt.Errorf("%w for editor router", ErrRoutes))
+		panic(fmt.Errorf("%w for editor router", panics.ErrNoEchoE))
 	}
 	g.DELETE("/delete/forever/:key", func(c echo.Context) error {
-		return htmx.DeleteForever(c, db, logger, c.Param("key"))
+		return htmx.DeleteForever(c, db, sl, c.Param("key"))
 	})
 	g.PATCH("/16colors", func(c echo.Context) error {
 		return htmx.Record16Colors(c, db)
 	})
 	g.PATCH("/classifications", func(c echo.Context) error {
-		return htmx.RecordClassification(c, db, logger)
+		return htmx.RecordClassification(c, db, sl)
 	})
 	g.PATCH("/comment", func(c echo.Context) error {
 		return htmx.RecordComment(c, db)
@@ -136,7 +146,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 		return htmx.RecordLinksReset(c, db)
 	})
 	g.PATCH("/platform", func(c echo.Context) error {
-		return app.PlatformEdit(c, db)
+		return app.PlatformEdit(c, db, sl)
 	})
 	g.PATCH("/platform+tag", app.PlatformTagInfo)
 	g.PATCH("/pouet", func(c echo.Context) error {
@@ -155,7 +165,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 		return htmx.RecordSites(c, db)
 	})
 	g.PATCH("/tag", func(c echo.Context) error {
-		return app.TagEdit(c, db)
+		return app.TagEdit(c, db, sl)
 	})
 	g.PATCH("/tag/info", app.TagInfo)
 	g.PATCH("/title", func(c echo.Context) error {
@@ -205,11 +215,11 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c echo.Context) error {
-		return htmx.UploadReplacement(c, db, dirs.Download, dirs.Extra)
+		return htmx.UploadReplacement(c, db, sl, dirs.Download, dirs.Extra)
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c echo.Context) error {
-		return htmx.UploadPreview(c, dirs.Preview, dirs.Thumbnail)
+		return htmx.UploadPreview(c, sl, dirs.Preview, dirs.Thumbnail)
 	})
 	paths := command.Dirs{
 		Download:  dirs.Download,
@@ -229,31 +239,31 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 		return htmx.RecordReadmeDisable(c, db)
 	})
 	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeCopier(c, paths)
+		return htmx.RecordReadmeCopier(c, sl, paths)
 	})
 	// /editor/readme/preview
 	readme.PATCH("/preview/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, logger, false, paths)
+		return htmx.RecordReadmeImager(c, sl, false, paths)
 	})
 	// /editor/readme/preview-amiga
 	readme.PATCH("/preview-amiga/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, logger, true, paths)
+		return htmx.RecordReadmeImager(c, sl, true, paths)
 	})
 	readme.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dirs.Extra)
 	})
 	pre := g.Group("/preview")
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, logger, paths)
+		return htmx.RecordImageCopier(c, sl, paths)
 	})
 	pre.PATCH("/crop11/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.SqaureTop, paths)
+		return htmx.RecordImageCropper(c, sl, command.SqaureTop, paths)
 	})
 	pre.PATCH("/crop43/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.FourThree, paths)
+		return htmx.RecordImageCropper(c, sl, command.FourThree, paths)
 	})
 	pre.PATCH("/crop12/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, command.OneTwo, paths)
+		return htmx.RecordImageCropper(c, sl, command.OneTwo, paths)
 	})
 	pre.PATCH("/remove/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview)
@@ -261,7 +271,7 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 
 	thumb := g.Group("/thumbnail")
 	thumb.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, logger, paths)
+		return htmx.RecordImageCopier(c, sl, paths)
 	})
 	thumb.PATCH("/top/:unid", func(c echo.Context) error {
 		return htmx.RecordThumbAlignment(c, command.Top, paths)
@@ -279,10 +289,10 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 		return htmx.RecordThumbAlignment(c, command.Right, paths)
 	})
 	thumb.PATCH("/pixel/:unid", func(c echo.Context) error {
-		return htmx.RecordThumb(c, command.Pixel, paths)
+		return htmx.RecordThumb(c, sl, command.Pixel, paths)
 	})
 	thumb.PATCH("/photo/:unid", func(c echo.Context) error {
-		return htmx.RecordThumb(c, command.Photo, paths)
+		return htmx.RecordThumb(c, sl, command.Photo, paths)
 	})
 	thumb.PATCH("/remove/:unid", func(c echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)
@@ -297,13 +307,13 @@ func editor(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger, dirs app.Dirs)
 	})
 }
 
-func get(g *echo.Group, db *sql.DB, dirs app.Dirs) {
+func get(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	if g == nil {
-		panic(fmt.Errorf("%w for get router", ErrRoutes))
+		panic(fmt.Errorf("%w for get router", panics.ErrNoEchoE))
 	}
 	g.GET("/deletions",
 		func(cx echo.Context) error {
-			return app.Deletions(cx, db, "1")
+			return app.Deletions(cx, db, sl, "1")
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(cx echo.Context) error {
@@ -311,17 +321,17 @@ func get(g *echo.Group, db *sql.DB, dirs app.Dirs) {
 		})
 	g.GET("/for-approval",
 		func(cx echo.Context) error {
-			return app.ForApproval(cx, db, "1")
+			return app.ForApproval(cx, db, sl, "1")
 		})
 	g.GET("/unwanted",
 		func(cx echo.Context) error {
-			return app.Unwanted(cx, db, "1")
+			return app.Unwanted(cx, db, sl, "1")
 		})
 }
 
 func online(g *echo.Group, db *sql.DB) {
 	if g == nil {
-		panic(fmt.Errorf("%w for online router", ErrRoutes))
+		panic(fmt.Errorf("%w for online router", panics.ErrNoEchoE))
 	}
 	online := g.Group("/online")
 	online.PATCH("/true", func(cx echo.Context) error {
@@ -335,13 +345,15 @@ func online(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func search(g *echo.Group, db *sql.DB, logger *zap.SugaredLogger) {
+func search(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 	if g == nil {
-		panic(fmt.Errorf("%w for search router", ErrRoutes))
+		panic(fmt.Errorf("%w for search router", panics.ErrNoEchoE))
 	}
 	search := g.Group("/search")
-	search.GET("/id", app.SearchID)
+	search.GET("/id", func(cx echo.Context) error {
+		return app.SearchID(cx, sl)
+	})
 	search.POST("/id", func(cx echo.Context) error {
-		return htmx.SearchByID(cx, db, logger)
+		return htmx.SearchByID(cx, db, sl)
 	})
 }

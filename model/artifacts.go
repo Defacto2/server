@@ -5,9 +5,11 @@ package model
 import (
 	"context"
 	"fmt"
-	"os"
+	"log/slog"
 	"slices"
+	"strings"
 
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
@@ -26,25 +28,26 @@ type Artifacts struct {
 
 // Public returns the total number of artifacts and the summed filesize of all artifacts that are not hidden.
 func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	return models.NewQuery(
+	const msg = "artifacts public"
+	err := models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, exec, f)
+	if err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return nil
 }
 
 // ByKey returns the public files reversed ordered by the ID, key column.
 func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := f.Public(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Public: %w", err)
 	}
@@ -60,9 +63,7 @@ func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset
 func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := f.Public(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Public: %w", err)
 	}
@@ -80,9 +81,7 @@ func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, off
 func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := f.Public(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Public: %w", err)
 	}
@@ -100,9 +99,7 @@ func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, off
 func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := f.Public(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Public: %w", err)
 	}
@@ -118,9 +115,7 @@ func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, of
 func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := f.byHidden(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.Stat: %w", err)
 	}
@@ -138,9 +133,7 @@ func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, off
 func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, binaryData bool) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	/*
 		SELECT DISTINCT "file_magic_type"
 		FROM "files"
@@ -186,9 +179,7 @@ func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, b
 func (f *Artifacts) ByTextPlatform(ctx context.Context, exec boil.ContextExecutor) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	return models.Files(
 		qm.Select(models.FileColumns.UUID, models.FileColumns.ID),
 		models.FileWhere.Platform.EQ(null.StringFrom("text")),
@@ -200,9 +191,7 @@ func (f *Artifacts) ByTextPlatform(ctx context.Context, exec boil.ContextExecuto
 func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if err := f.byUnwanted(ctx, exec); err != nil {
 		return nil, fmt.Errorf("f.StatUnwanted: %w", err)
 	}
@@ -220,14 +209,16 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, o
 // Description returns a list of files that match the search terms.
 // The search terms are matched against the record_title column.
 // The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, terms []string) (
+func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger, terms []string) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
+	const msg = "artifacts description"
+	none := models.FileSlice{}
+	if err := panics.ContextBS(ctx, exec, sl); err != nil {
+		return none, fmt.Errorf("%s: %w", msg, err)
 	}
 	if terms == nil {
-		return models.FileSlice{}, nil
+		return none, nil
 	}
 	mods := []qm.QueryMod{}
 	mods = append(mods, qm.Where(ClauseNoSoftDel))
@@ -244,10 +235,12 @@ func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, 
 		mods = append(mods, qm.Or(clauseC, term))
 	}
 	mods = append(mods, qm.Limit(Maximum))
-	fmt.Fprintln(os.Stderr, mods)
+	sl.Debug(msg,
+		slog.String("terms", strings.Join(terms, ",")),
+		slog.String("mods verbose", fmt.Sprintf("%+v", mods)))
 	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
-		return nil, fmt.Errorf("models all files by description search: %w", err)
+		return nil, fmt.Errorf("%s models all files by description search: %w", msg, err)
 	}
 	return fs, nil
 }
@@ -258,9 +251,7 @@ func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, 
 func (f *Artifacts) Filename(ctx context.Context, exec boil.ContextExecutor, terms []string) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if terms == nil {
 		return models.FileSlice{}, nil
 	}
@@ -288,9 +279,7 @@ func (f *Artifacts) ID(
 	ctx context.Context, exec boil.ContextExecutor, ids []int, uuids ...uuid.UUID) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if (ids == nil && uuids == nil) || (len(ids) == 0 && len(uuids) == 0) {
 		return models.FileSlice{}, nil
 	}
@@ -313,32 +302,38 @@ func (f *Artifacts) ID(
 }
 
 func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	return models.NewQuery(
+	const msg = "artifacts by hidden"
+	err := models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, exec, f)
+	if err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return nil
 }
 
 func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
-	if invalidExec(exec) {
-		return ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if f.Bytes > 0 && f.Count > 0 {
 		return nil
 	}
-	return models.NewQuery(
+	const msg = "artifacts by unwanted"
+	err := models.NewQuery(
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
 		qm.From(From)).Bind(ctx, exec, f)
+	if err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return nil
 }
 
 // ByForApproval returns all of the file records that are waiting to be marked for approval.
@@ -348,9 +343,7 @@ func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) e
 func ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	if invalidExec(exec) {
-		return nil, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	const clause = "id DESC"
 	return models.Files(
 		qm.WithDeleted(),

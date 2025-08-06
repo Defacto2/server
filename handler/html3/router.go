@@ -5,76 +5,81 @@ package html3
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"slices"
 
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group error template.
-func Routes(e *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) *echo.Group {
-	if e == nil {
-		panic(ErrRoutes)
+func Routes(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.Group {
+	const msg = "htm3 routes"
+	if err := panics.EchoDS(e, db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	s := Sugared{Log: logger}
 	g := e.Group(Prefix)
 	g.GET("", func(c echo.Context) error {
-		return s.Index(c, db)
+		return Index(c, db, sl)
 	})
 	g.GET("/all:offset", func(c echo.Context) error {
-		return s.All(c, db)
+		return All(c, db, sl)
 	})
 	g.GET("/all", func(c echo.Context) error {
-		return s.All(c, db)
+		return All(c, db, sl)
 	})
-	g.GET("/categories", s.Categories)
-	g.GET("/platforms", s.Platforms)
-	g = getTags(s, db, g)
+	g.GET("/categories", func(c echo.Context) error {
+		return Categories(c, sl)
+	})
+	g.GET("/platforms", func(c echo.Context) error {
+		return Platforms(c, sl)
+	})
+	g = getTags(db, sl, g)
 	g.GET("/groups:offset", func(c echo.Context) error {
-		return s.Groups(c, db)
+		return Groups(c, db, sl)
 	})
 	g.GET("/groups", func(c echo.Context) error {
-		return s.Groups(c, db)
+		return Groups(c, db, sl)
 	})
 	g.GET("/group/:id", func(c echo.Context) error {
-		return s.Group(c, db)
+		return Group(c, db, sl)
 	})
 	g.GET("/art:offset", func(c echo.Context) error {
-		return s.Art(c, db)
+		return Art(c, db, sl)
 	})
 	g.GET("/art", func(c echo.Context) error {
-		return s.Art(c, db)
+		return Art(c, db, sl)
 	})
 	g.GET("/documents:offset", func(c echo.Context) error {
-		return s.Documents(c, db)
+		return Documents(c, db, sl)
 	})
 	g.GET("/documents", func(c echo.Context) error {
-		return s.Documents(c, db)
+		return Documents(c, db, sl)
 	})
 	g.GET("/software:offset", func(c echo.Context) error {
-		return s.Software(c, db)
+		return Software(c, db, sl)
 	})
 	g.GET("/software", func(c echo.Context) error {
-		return s.Software(c, db)
+		return Software(c, db, sl)
 	})
 	g = moved(g)
 	return custom404(g)
 }
 
 // getTags creates the get routes for the category and platform tags.
-func getTags(s Sugared, db *sql.DB, g *echo.Group) *echo.Group {
+func getTags(db *sql.DB, sl *slog.Logger, g *echo.Group) *echo.Group {
 	category := g.Group("/category")
 	for tag := range slices.Values(tags.List()) {
 		if tags.IsCategory(tag.String()) {
 			category.GET(fmt.Sprintf("/%s:offset", tag), func(c echo.Context) error {
-				return s.Category(c, db)
+				return Category(c, db, sl)
 			})
 			category.GET(fmt.Sprintf("/%s", tag), func(c echo.Context) error {
-				return s.Category(c, db)
+				return Category(c, db, sl)
 			})
 		}
 	}
@@ -82,10 +87,10 @@ func getTags(s Sugared, db *sql.DB, g *echo.Group) *echo.Group {
 	for tag := range slices.Values(tags.List()) {
 		if tags.IsPlatform(tag.String()) {
 			platform.GET(fmt.Sprintf("/%s:offset", tag), func(c echo.Context) error {
-				return s.Platform(c, db)
+				return Platform(c, db, sl)
 			})
 			platform.GET(fmt.Sprintf("/%s", tag), func(c echo.Context) error {
-				return s.Platform(c, db)
+				return Platform(c, db, sl)
 			})
 		}
 	}

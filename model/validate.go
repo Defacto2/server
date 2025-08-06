@@ -24,13 +24,13 @@ const (
 )
 
 var (
-	ErrTag        = errors.New("category tag or section is missing")
-	ErrTagInvalid = errors.New("category tag or section is invalid")
-	ErrOS         = errors.New("operating system or platform is missing")
-	ErrOSInvalid  = errors.New("operating system or platform is invalid")
-	ErrFile       = errors.New("the filename is missing")
-	ErrRel        = errors.New("at least one releaser is required")
-	ErrMag        = errors.New("a magazine requires an issue number or a title")
+	ErrBadOS  = errors.New("operating system or platform is invalid")
+	ErrBadTag = errors.New("category tag or section is invalid")
+	ErrNoOS   = errors.New("operating system or platform is missing")
+	ErrNoTag  = errors.New("category tag or section is missing")
+	ErrNoName = errors.New("the filename is missing")
+	ErrNoRelr = errors.New("at least one releaser is required")
+	ErrNoMag  = errors.New("a magazine requires an issue number or a title")
 )
 
 // Validate checks the artifact record for any missing or invalid values
@@ -38,30 +38,31 @@ var (
 //
 // All found issues will be returned as joined error messages.
 func Validate(art *models.File) error {
+	const msg = "validate models"
 	if art == nil {
-		return fmt.Errorf("model validate: %w", ErrModel)
+		return fmt.Errorf("%s: %w", msg, ErrModel)
 	}
 	var err error
 	if !art.Section.Valid || art.Section.String == "" {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrTag))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrNoTag))
 	} else if !tags.IsCategory(art.Section.String) {
-		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrTagInvalid, art.Section.String))
+		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrBadTag, art.Section.String))
 	}
 	if !art.Platform.Valid || art.Platform.String == "" {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrOS))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrNoOS))
 	} else if !tags.IsPlatform(art.Platform.String) {
-		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrOSInvalid, art.Platform.String))
+		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrBadOS, art.Platform.String))
 	}
 	if !art.Filename.Valid || art.Filename.String == "" {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrFile))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrNoName))
 	}
 	if (!art.GroupBrandBy.Valid && !art.GroupBrandFor.Valid) ||
 		(art.GroupBrandBy.String == "" && art.GroupBrandFor.String == "") {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrRel))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrNoRelr))
 	}
 	if art.Section.String == tags.Mag.String() &&
 		(!art.RecordTitle.Valid || art.RecordTitle.String == "") {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrMag))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrNoMag))
 	}
 	return err
 }

@@ -276,7 +276,7 @@ func TestStatHumanize(t *testing.T) {
 func TestThumb(t *testing.T) {
 	t.Parallel()
 	s := simple.Thumb("", "", "", false)
-	be.True(t, strings.Contains("<!-- no thumbnail found -->", string(s)))
+	be.True(t, strings.Contains(string(s), "<!-- no thumbnail found -->"))
 	name := filepath.Base(imagefiler(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
 	thumb := dir.Directory(filepath.Dir(imagefiler(t)))

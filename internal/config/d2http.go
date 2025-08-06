@@ -1,0 +1,63 @@
+package config
+
+import (
+	"fmt"
+	"log/slog"
+)
+
+var (
+	ErrPortMax = fmt.Errorf("http port value must be between 1-%d", PortMax)
+	ErrPortSys = fmt.Errorf("http port values between 1-%d require system access", PortSys)
+)
+
+// UseHTTP returns true if the server is configured to use HTTP.
+func (c Config) UseHTTP() bool {
+	return c.HTTPPort > 0
+}
+
+type Port uint16 // Port is a network port number.
+
+func (p Port) LogValue() slog.Value {
+	return slog.IntValue(int(p))
+}
+
+func (p Port) Value() uint16 {
+	return uint16(p)
+}
+
+func (p Port) Check() error {
+	return Validate(uint16(p))
+}
+
+type PortHTTP Port
+
+func (p PortHTTP) LogValue() slog.Value {
+	return Port(p).LogValue()
+}
+
+func (p PortHTTP) Help() string {
+	return protoPort(Port(p), StdHTTP, "http")
+}
+
+func (p PortHTTP) Value() uint16 {
+	return Port(p).Value()
+}
+
+func (p PortHTTP) Check() error {
+	return Port(p).Check()
+}
+
+// Validate returns an error if the HTTP or TLS port is invalid.
+func Validate(port uint16) error {
+	const disabled = 0
+	if port == disabled {
+		return nil
+	}
+	if port > PortMax {
+		return ErrPortMax
+	}
+	if port <= PortSys {
+		return ErrPortSys
+	}
+	return nil
+}

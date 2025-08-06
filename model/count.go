@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	namer "github.com/Defacto2/releaser/name"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
@@ -20,9 +21,7 @@ import (
 // the second is the number of non-public records.
 // The final number is the number of new uploads waiting for approval.
 func Counts(ctx context.Context, exec boil.ContextExecutor) (int64, int64, int64, error) {
-	if invalidExec(exec) {
-		return 0, 0, 0, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	all, err := models.Files(qm.WithDeleted()).Count(ctx, exec)
 	if err != nil {
 		return 0, 0, 0, err
@@ -40,9 +39,7 @@ func Counts(ctx context.Context, exec boil.ContextExecutor) (int64, int64, int64
 
 // CategoryCount counts the files that match the named category.
 func CategoryCount(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	if invalidExec(exec) {
-		return 0, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if name == "" {
 		return 0, ErrName
 	}
@@ -56,9 +53,7 @@ func CategoryCount(ctx context.Context, exec boil.ContextExecutor, name string) 
 
 // CategoryByteSum sums the byte file sizes for all the files that match the named category.
 func CategoryByteSum(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	if invalidExec(exec) {
-		return 0, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if name == "" {
 		return 0, ErrName
 	}
@@ -72,9 +67,7 @@ func CategoryByteSum(ctx context.Context, exec boil.ContextExecutor, name string
 
 // ClassificationCount counts the files that match the named category and platform.
 func ClassificationCount(ctx context.Context, exec boil.ContextExecutor, section, platform string) (int64, error) {
-	if invalidExec(exec) {
-		return 0, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if section == "" || platform == "" {
 		return 0, ErrName
 	}
@@ -89,9 +82,7 @@ func ClassificationCount(ctx context.Context, exec boil.ContextExecutor, section
 
 // PlatformCount counts the files that match the named platform.
 func PlatformCount(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	if invalidExec(exec) {
-		return 0, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if name == "" {
 		return 0, ErrName
 	}
@@ -105,9 +96,7 @@ func PlatformCount(ctx context.Context, exec boil.ContextExecutor, name string) 
 
 // PlatformByteSum sums the byte filesizes for all the files that match the category name.
 func PlatformByteSum(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	if invalidExec(exec) {
-		return 0, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if name == "" {
 		return 0, ErrName
 	}
@@ -121,9 +110,7 @@ func PlatformByteSum(ctx context.Context, exec boil.ContextExecutor, name string
 
 // ReleaserByteSum sums the byte file sizes for all the files that match the group name.
 func ReleaserByteSum(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	if invalidExec(exec) {
-		return 0, ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if name == "" {
 		return 0, ErrName
 	}

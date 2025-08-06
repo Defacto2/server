@@ -15,6 +15,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"log/slog"
 	"maps"
 	"net"
 	"net/http"
@@ -31,10 +32,11 @@ import (
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/labstack/echo-contrib/pprof"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"go.uber.org/zap"
 )
 
 const (
@@ -49,12 +51,9 @@ const (
 )
 
 var (
-	ErrFS      = errors.New("embed file system instance is empty")
-	ErrName    = errors.New("name is empty")
-	ErrName404 = errors.New("named template cannot be found")
-	ErrPorts   = errors.New("the server ports are not configured")
-	ErrRoutes  = errors.New("echo instance is nil")
-	ErrZap     = errors.New("zap logger instance is nil")
+	ErrNoName = errors.New("name is empty")
+	ErrNoTmpl = errors.New("named template cannot be found")
+	ErrNoPort = errors.New("web server ports are not configured")
 )
 
 // Configuration of the handler.
@@ -68,41 +67,45 @@ type Configuration struct {
 }
 
 // Controller is the primary instance of the Echo router.
-func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.Echo {
-	configs := c.Environment
-	if logger == nil {
-		logger, _ := zap.NewProduction()
-		defer func() { _ = logger.Sync() }()
+func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
+	const msg = "controller handler"
+	if err := panics.DS(db, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-
+	configs := c.Environment
 	e := echo.New()
 	if configs.LogAll {
+		// echo prefix options that get used by RequestLoggerConfig
 		pprof.Register(e)
 	}
+	e.HTTPErrorHandler = func(err error, ctx echo.Context) {
+		configs.CustomErrorHandler(err, ctx, sl)
+	}
 	e.HideBanner = true
-	e.HTTPErrorHandler = configs.CustomErrorHandler
-
-	tmpl, err := c.Registry(db, logger)
+	tmpl, err := c.Registry(db, sl)
 	if err != nil {
-		logger.Fatal(err)
+		logs.Fatal(sl, msg,
+			slog.String("template", "could not register the templates"),
+			slog.Any("fatal", err))
 	}
 	e.Renderer = tmpl
-	middlewares := []echo.MiddlewareFunc{
+	preMiddlewares := []echo.MiddlewareFunc{
 		middleware.Rewrite(rewrites()),
 		middleware.NonWWWRedirect(),
 	}
-	e.Pre(middlewares...)
+	e.Pre(preMiddlewares...)
 
 	// *************************************************
-	//  NOTE: NEVER USE the middleware.Timeout()
-	//   It is broken and should not be in the
-	//   labstack/echo library, as it can easily crash!
+	// WARN: NEVER USE the middleware.Timeout()
+	// It is completely broken and readily crashes.
+	// IMO should not be in the labstack/echo package.
 	// *************************************************
-	middlewares = []echo.MiddlewareFunc{
+
+	middlewares := []echo.MiddlewareFunc{
 		middleware.Secure(),
-		middleware.RequestLoggerWithConfig(c.configZapLogger()),
+		middleware.RequestLoggerWithConfig(c.RequestLoggerConfig(sl)),
 		c.NoCrawl,
-		middleware.RemoveTrailingSlashWithConfig(configRTS()),
+		middleware.RemoveTrailingSlashWithConfig(trailSlash()),
 	}
 	if configs.Compression {
 		middlewares = append(middlewares, middleware.Gzip())
@@ -111,25 +114,27 @@ func (c *Configuration) Controller(db *sql.DB, logger *zap.SugaredLogger) *echo.
 		middlewares = append(middlewares, middleware.Recover())
 	}
 	e.Use(middlewares...)
-
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmxGroup(e, db, logger, configs.ProdMode, dir.Directory(c.Environment.AbsDownload))
-	e, err = c.FilesRoutes(e, db, logger, c.Public)
+	e = htmxGroup(e, db, sl, bool(configs.ProdMode), dir.Directory(c.Environment.AbsDownload))
+	e, err = c.FilesRoutes(e, db, sl, c.Public)
 	if err != nil {
-		logger.Fatal(err)
+		logs.Fatal(sl, msg,
+			slog.String("file routes", "could not register the routes"),
+			slog.Any("fatal", err))
 	}
-	group := html3.Routes(e, db, logger)
+	group := html3.Routes(e, db, sl)
 	group.GET(Downloader, func(cx echo.Context) error {
-		return c.downloader(cx, db, logger)
+		return c.downloader(cx, db, sl)
 	})
 	return e
 }
 
 // EmbedDirs serves the static files from the directories embed to the binary.
 func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
+	const msg = "embed dirs handler"
 	if e == nil {
-		panic(fmt.Errorf("%w for the embed directories binary", ErrRoutes))
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	dirs := map[string]string{
 		"/image/artpack":   "public/image/artpack",
@@ -149,33 +154,32 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	return e
 }
 
-// Info prints the application information to the console.
-func (c *Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
+// StartupBranding prints the application logo and information to the w io.writer.
+func (c *Configuration) StartupBranding(sl *slog.Logger, w io.Writer) {
+	const msg = "configuration info handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
 	if w == nil {
 		w = io.Discard
 	}
 	nr := bytes.NewReader(c.Brand)
 	if l, err := io.Copy(w, nr); err != nil {
-		if logger != nil {
-			logger.Warnf("Could not print the brand logo: %s.", err)
-		}
+		sl.Warn(msg, slog.String("brand", "could not print the startup logo"), slog.Any("error", err))
 	} else if l > 0 {
 		_, err := fmt.Fprint(w, "\n\n")
 		if err != nil {
-			panic(err)
+			panic(fmt.Errorf("%s: %w", msg, err))
 		}
 	}
-
 	_, err := fmt.Fprintf(w, "  %s.\n", flags.Copyright())
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	_, _ = fmt.Fprintf(w, "%s\n", c.versionBrief())
-
 	cpuInfo := fmt.Sprintf("  %d active routines sharing %d usable threads on %d CPU cores.",
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	_, _ = fmt.Fprintln(w, cpuInfo)
-
 	golangInfo := fmt.Sprintf("  Compiled on Go %s for %s with %s.\n",
 		runtime.Version()[2:], flags.OS(), flags.Arch())
 	_, _ = fmt.Fprintln(w, golangInfo)
@@ -185,30 +189,40 @@ func (c *Configuration) Info(logger *zap.SugaredLogger, w io.Writer) {
 }
 
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
-func (c *Configuration) PortErr(logger *zap.SugaredLogger, port uint, err error) {
-	if logger == nil {
-		logger, _ := zap.NewProduction()
-		defer func() { _ = logger.Sync() }()
+func (c *Configuration) PortErr(sl *slog.Logger, port uint16, err error) {
+	const msg = "http/https"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	s := "HTTP"
-	if port == c.Environment.TLSPort {
+	if port == c.Environment.TLSPort.Value() {
 		s = "TLS"
 	}
 	var portErr *net.OpError
 	switch {
-	case !c.Environment.ProdMode && errors.As(err, &portErr):
-		logger.Infof("air or task server could not start (this can probably be ignored): %s.", err)
+	case !bool(c.Environment.ProdMode) && errors.As(err, &portErr):
+		sl.Warn("air or task",
+			slog.String("problem", "could not startup air or task"),
+			slog.String("help", "however, this issue can probably be ignored"),
+			slog.Any("error", err))
 	case errors.Is(err, net.ErrClosed),
 		errors.Is(err, http.ErrServerClosed):
-		logger.Infof("%s server shutdown gracefully.", s)
+		sl.Info("shutdown",
+			slog.String("success", fmt.Sprintf("the %s server will gracefully shutdown", s)))
 	case errors.Is(err, os.ErrNotExist):
-		logger.Fatalf("%s server on port %d could not start: %w.", s, port, err)
+		logs.Fatal(sl, msg,
+			slog.String("port error", "could not startup the server using the configured port"),
+			slog.Int("port", int(port)), slog.Any("error", err))
 	default:
 	}
 }
 
 // Registry returns the template renderer.
-func (c *Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*TemplateRegistry, error) {
+func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry, error) {
+	const msg = "template registry handler"
+	if err := panics.DS(db, sl); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
+	}
 	webapp := app.Templ{
 		Environment: c.Environment,
 		Brand:       c.Brand,
@@ -219,9 +233,9 @@ func (c *Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*Templa
 	}
 	tmpls, err := webapp.Templates(db)
 	if err != nil {
-		return nil, fmt.Errorf("handler registry, %w", err)
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
-	src := html3.Templates(db, logger, c.View)
+	src := html3.Templates(db, sl, c.View)
 	maps.Copy(tmpls, src)
 	src = htmx.Templates(c.View)
 	maps.Copy(tmpls, src)
@@ -230,13 +244,13 @@ func (c *Configuration) Registry(db *sql.DB, logger *zap.SugaredLogger) (*Templa
 
 // ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
 // The shutdown procedure occurs a few seconds after the key press.
-func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
-	if e == nil {
-		panic(fmt.Errorf("%w for the HTTP shutdown", ErrRoutes))
+func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger) {
+	if w == nil {
+		w = os.Stderr
 	}
-	if logger == nil {
-		logger, _ := zap.NewProduction()
-		defer func() { _ = logger.Sync() }()
+	const msg = "shutdown http handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
@@ -248,9 +262,8 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
 	defer func() {
 		const alert = "Detected Ctrl + C, server will shutdown"
-		_ = logger.Sync() // do not check Sync errors as there can be false positives
-		out := os.Stdout
-		buf := bufio.NewWriter(out)
+		// _ = logger.Sync() // do not check Sync errors as there can be false positives
+		buf := bufio.NewWriter(w)
 		_, err := fmt.Fprintf(buf, "\n%s in %v ", alert, waitDuration)
 		if err != nil {
 			panic(err)
@@ -263,23 +276,23 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 		pause := time.NewTicker(ticker)
 		for range pause.C {
 			count--
-			w := bufio.NewWriter(out)
+			buf := bufio.NewWriter(w)
 			if count <= 0 {
-				_, err := fmt.Fprintf(w, "\r%s %s\n", alert, "now     ")
+				_, err := fmt.Fprintf(buf, "\r%s %s\n", alert, "now     ")
 				if err != nil {
 					panic(err)
 				}
-				err = w.Flush()
+				err = buf.Flush()
 				if err != nil {
 					panic(err)
 				}
 				break
 			}
-			_, err = fmt.Fprintf(w, "\r%s in %ds ", alert, count)
+			_, err = fmt.Fprintf(buf, "\r%s in %ds ", alert, count)
 			if err != nil {
 				panic(err)
 			}
-			err = w.Flush()
+			err = buf.Flush()
 			if err != nil {
 				panic(err)
 			}
@@ -290,126 +303,123 @@ func (c *Configuration) ShutdownHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
 		case <-ctx.Done():
 		}
 		if err := e.Shutdown(ctx); err != nil {
-			logger.Fatalf("Server shutdown caused an error: %w.", err)
+			logs.FatalTx(ctx, sl, msg,
+				slog.String("context", "caused an error"), slog.Any("error", err))
 		}
-		logger.Infoln("Server shutdown complete.")
-		_ = logger.Sync()
+		sl.Info(msg, slog.String("success", "shutdown complete"))
 		signal.Stop(quit)
 		cancel()
 	}()
 }
 
 // Start the HTTP, and-or the TLS servers.
-func (c *Configuration) Start(e *echo.Echo, logger *zap.SugaredLogger, configs config.Config) error {
-	if e == nil {
-		panic(fmt.Errorf("%w for the web application startup", ErrRoutes))
-	}
-	if logger == nil {
-		logger, _ := zap.NewProduction()
-		defer func() { _ = logger.Sync() }()
+func (c *Configuration) Start(e *echo.Echo, sl *slog.Logger, configs config.Config) error {
+	const msg = "start server handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	switch {
 	case configs.UseTLS() && configs.UseHTTP():
 		go func() {
 			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
-			c.StartHTTP(e2, logger)
+			c.StartHTTP(e2, sl)
 		}()
-		go c.StartTLS(e, logger)
+		go c.StartTLS(e, sl)
 	case configs.UseTLSLocal() && configs.UseHTTP():
 		go func() {
 			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
-			c.StartHTTP(e2, logger)
+			c.StartHTTP(e2, sl)
 		}()
-		go c.StartTLSLocal(e, logger)
+		go c.StartTLSLocal(e, sl)
 	case configs.UseTLS():
-		go c.StartTLS(e, logger)
+		go c.StartTLS(e, sl)
 	case configs.UseHTTP():
-		go c.StartHTTP(e, logger)
+		go c.StartHTTP(e, sl)
 	case configs.UseTLSLocal():
-		go c.StartTLSLocal(e, logger)
+		go c.StartTLSLocal(e, sl)
 	default:
-		return ErrPorts
+		return fmt.Errorf("%s: %w", msg, ErrNoPort)
 	}
 	return nil
 }
 
 // StartHTTP starts the insecure HTTP web server.
-func (c *Configuration) StartHTTP(e *echo.Echo, logger *zap.SugaredLogger) {
-	if e == nil {
-		panic(fmt.Errorf("%w for the HTTP startup", ErrRoutes))
+func (c *Configuration) StartHTTP(e *echo.Echo, sl *slog.Logger) {
+	const msg = "start http handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	port := c.Environment.HTTPPort
+	port := c.Environment.HTTPPort.Value()
 	address := c.address(port)
 	if address == "" {
 		return
 	}
 	if err := e.Start(address); err != nil {
-		c.PortErr(logger, port, err)
+		c.PortErr(sl, port, err)
 	}
 }
 
 // StartTLS starts the encrypted TLS web server.
-func (c *Configuration) StartTLS(e *echo.Echo, logger *zap.SugaredLogger) {
-	if e == nil {
-		panic(fmt.Errorf("%w for the TLS startup", ErrRoutes))
+func (c *Configuration) StartTLS(e *echo.Echo, sl *slog.Logger) {
+	const msg = "start tls handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if logger == nil {
-		logger, _ := zap.NewProduction()
-		defer func() { _ = logger.Sync() }()
-	}
-	port := c.Environment.TLSPort
+	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
 	if address == "" {
 		return
 	}
 	certFile := c.Environment.TLSCert
 	keyFile := c.Environment.TLSKey
-	const failure = "Could not start the TLS server"
 	if certFile == "" || keyFile == "" {
-		logger.Fatalf("%s, missing certificate or key file.", failure)
+		logs.Fatal(sl, msg,
+			slog.String("failure", "missing critical file"),
+			slog.String("certificate file", string(certFile)),
+			slog.String("key file", string(keyFile)))
 	}
-	if !helper.File(certFile) {
-		logger.Fatalf("%s, certificate file does not exist: %s.", failure, certFile)
+	if !helper.File(certFile.String()) {
+		logs.Fatal(sl, msg,
+			slog.String("certificate file", "file does not exist"))
 	}
-	if !helper.File(keyFile) {
-		logger.Fatalf("%s, key file does not exist: %s.", failure, keyFile)
+	if !helper.File(keyFile.String()) {
+		logs.Fatal(sl, msg,
+			slog.String("key file", "file does not exist"))
 	}
 	if err := e.StartTLS(address, certFile, keyFile); err != nil {
-		c.PortErr(logger, port, err)
+		c.PortErr(sl, port, err)
 	}
 }
 
 // StartTLSLocal starts the localhost, encrypted TLS web server.
 // This should only be triggered when the server is running in local mode.
-func (c *Configuration) StartTLSLocal(e *echo.Echo, logger *zap.SugaredLogger) {
-	if e == nil {
-		panic(fmt.Errorf("%w for the TLS local mode startup", ErrRoutes))
+func (c *Configuration) StartTLSLocal(e *echo.Echo, sl *slog.Logger) {
+	const msg = "start local tls handler"
+	if err := panics.EchoS(e, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if logger == nil {
-		logger, _ := zap.NewProduction()
-		defer func() { _ = logger.Sync() }()
-	}
-	port := c.Environment.TLSPort
+	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
 	if address == "" {
 		return
 	}
 	const cert, key = "public/certs/cert.pem", "public/certs/key.pem"
-	const failure = "Could not read the internal localhost"
 	certB, err := c.Public.ReadFile(cert)
 	if err != nil {
-		logger.Fatalf("%s, TLS certificate: %s.", failure, err)
+		logs.Fatal(sl, msg,
+			slog.String("certificate", "read file failure"), slog.Any("error", err))
 	}
 	keyB, err := c.Public.ReadFile(key)
 	if err != nil {
-		logger.Fatalf("%s, TLS key: %s.", failure, err)
+		logs.Fatal(sl, msg,
+			slog.String("key", "read file failure"), slog.Any("error", err))
 	}
 	if err := e.StartTLS(address, certB, keyB); err != nil {
-		c.PortErr(logger, port, err)
+		c.PortErr(sl, port, err)
 	}
 }
 
-func (c *Configuration) address(port uint) string {
+func (c *Configuration) address(port uint16) string {
 	if port == 0 {
 		return ""
 	}
@@ -421,13 +431,17 @@ func (c *Configuration) address(port uint) string {
 }
 
 // downloader route for the file download handler under the html3 group.
-func (c *Configuration) downloader(cx echo.Context, db *sql.DB, logger *zap.SugaredLogger) error {
+func (c *Configuration) downloader(cx echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "downloader htm3 group handler"
+	if err := panics.EchoContextDS(cx, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
 	d := download.Download{
 		Inline: false,
 		Dir:    dir.Directory(c.Environment.AbsDownload),
 	}
-	if err := d.HTTPSend(cx, db, logger); err != nil {
-		return fmt.Errorf("d.HTTPSend: %w", err)
+	if err := d.HTTPSend(cx, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return nil
 }
@@ -455,25 +469,25 @@ type TemplateRegistry struct {
 
 // Render the layout template with the core HTML, META and BODY elements.
 func (t *TemplateRegistry) Render(w io.Writer, name string, data any, c echo.Context) error {
-	const layout, info = "layout", "template registry render"
+	const msg = "template registry render handler"
 	if name == "" {
-		return fmt.Errorf("%s layout: %w", info, ErrName)
+		return fmt.Errorf("%s name layout: %w", msg, ErrNoName)
 	}
 	if w == nil {
-		return fmt.Errorf("%s io.writer is nil: %w", info, echo.ErrRendererNotRegistered)
+		return fmt.Errorf("%s w io.writer is nil: %w", msg, echo.ErrRendererNotRegistered)
 	}
 	if data == nil {
-		return fmt.Errorf("%s data interface is nil: %w", info, echo.ErrRendererNotRegistered)
+		return fmt.Errorf("%s data interface is nil: %w", msg, echo.ErrRendererNotRegistered)
 	}
 	if c == nil {
-		return fmt.Errorf("%s echo context is nil: %w", info, echo.ErrRendererNotRegistered)
+		return fmt.Errorf("%s c echo context is nil: %w", msg, echo.ErrRendererNotRegistered)
 	}
 	tmpl, exists := t.Templates[name]
 	if !exists {
-		return fmt.Errorf("registry render %w: %q", ErrName404, name)
+		return fmt.Errorf("%s %q: %w", msg, name, ErrNoTmpl)
 	}
-	if err := tmpl.ExecuteTemplate(w, layout, data); err != nil {
-		return fmt.Errorf("%s execute: %w", info, err)
+	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
+		return fmt.Errorf("%s execute of '%s': %w", msg, name, err)
 	}
 	return nil
 }

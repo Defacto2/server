@@ -15,6 +15,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/Defacto2/server/handler/pouet"
+	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
@@ -28,18 +29,14 @@ import (
 // This will not check if the Demozoo production ID already exists in the database.
 // When successful the function will return the new record ID.
 func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int64, string, error) {
-	if invalidExec(exec) {
-		return 0, "", ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if id < startID || id > DemozooSanity {
 		return 0, "", fmt.Errorf("%w: %d", ErrID, id)
 	}
-
 	now, uid, err := NewV7()
 	if err != nil {
 		return 0, "", fmt.Errorf("uuid.NewV7: %w", err)
 	}
-
 	f := models.File{
 		UUID:         null.StringFrom(uid.String()),
 		WebIDDemozoo: null.Int64From(int64(math.Abs(float64(id)))),
@@ -55,18 +52,14 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int6
 // This will not check if the Pouet production ID already exists in the database.
 // When successful the function will return the new record ID.
 func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64, string, error) {
-	if invalidExec(exec) {
-		return 0, "", ErrDB
-	}
+	panics.BoilExecCrash(exec)
 	if id < startID || id > pouet.Sanity {
 		return 0, "", fmt.Errorf("%w: %d", ErrID, id)
 	}
-
 	now, uid, err := NewV7()
 	if err != nil {
 		return 0, "", fmt.Errorf("uuid.NewV7: %w", err)
 	}
-
 	f := models.File{
 		UUID:       null.StringFrom(uid.String()),
 		WebIDPouet: null.Int64From(int64(math.Abs(float64(id)))),
@@ -83,27 +76,31 @@ func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64,
 // Invalid values will be ignored, but will not prevent the record from being inserted.
 // When successful the function will return the new record ID key and the UUID.
 func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string) (int64, uuid.UUID, error) {
+	const msg = "insert upload"
 	noID := uuid.UUID{}
+	if err := panics.ContextT(ctx, tx); err != nil {
+		return 0, noID, fmt.Errorf("%s: %w", msg, err)
+	}
 	if tx == nil {
 		return 0, noID, ErrDB
 	}
 	now, uid, err := NewV7()
 	if err != nil {
-		return 0, noID, fmt.Errorf("uuid.NewV7: %w", err)
+		return 0, noID, fmt.Errorf("%s uuid newv7: %w", msg, err)
 	}
 	unique := null.StringFrom(uid.String())
 	if exist, err := UUIDExists(ctx, tx, uid.String()); err != nil {
-		return 0, noID, fmt.Errorf("UUIDExists: %w", err)
+		return 0, noID, fmt.Errorf("%s uuid exists: %w", msg, err)
 	} else if exist {
-		return 0, noID, fmt.Errorf("insert uload %w, does the uuid already exist in the table?: %s", ErrUUID, uid.String())
+		return 0, noID, fmt.Errorf("%s %w, does the uuid already exist in the table?: %s", msg, ErrUUID, uid.String())
 	}
 	deleteT := null.TimeFromPtr(&now)
 	if !deleteT.Valid || deleteT.Time.IsZero() {
-		return 0, noID, fmt.Errorf("%w: %v", ErrTime, deleteT.Time)
+		return 0, noID, fmt.Errorf("%s: %w: %v", msg, ErrTime, deleteT.Time)
 	}
 	createT := null.TimeFromPtr(&now)
 	if !createT.Valid || createT.Time.IsZero() {
-		return 0, noID, fmt.Errorf("%w: %v", ErrTime, createT.Time)
+		return 0, noID, fmt.Errorf("%s: %w: %v", msg, ErrTime, createT.Time)
 	}
 	f := models.File{
 		UUID:      unique,
@@ -112,13 +109,13 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	}
 	f, err = upload(f, values, key)
 	if err != nil {
-		return 0, noID, fmt.Errorf("upload: %w", err)
+		return 0, noID, fmt.Errorf("%s uploader: %w", msg, err)
 	}
 	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
-		return 0, noID, fmt.Errorf("insert upload key %q: %w", key, err)
+		return 0, noID, fmt.Errorf("%s key %q: %w", msg, key, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return 0, noID, fmt.Errorf("insert upload key %q tx.commit: %w", key, err)
+		return 0, noID, fmt.Errorf("%s key %q tx.commit: %w", msg, key, err)
 	}
 	return f.ID, uid, nil
 }
