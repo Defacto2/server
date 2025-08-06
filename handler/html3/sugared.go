@@ -89,7 +89,7 @@ func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	// releasers are the distinct groups from the file table.
 	var unique model.ReleaserNames
 	if err := unique.DistinctGroups(ctx, db); err != nil {
-		sl.Error(msg, "distinct", slog.String("info", ErrSQL.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("distinct", ErrSQL.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	count := len(unique)
@@ -107,7 +107,7 @@ func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
 	if err := releasers.Limit(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
-		sl.Error(msg, "alphabetical", slog.String("info", ErrSQL.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("alphabetical", ErrSQL.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	err := c.Render(http.StatusOK, "html3_groups", map[string]any{
@@ -121,7 +121,7 @@ func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		"navigate":  navi,
 	})
 	if err != nil {
-		sl.Error(msg, "template", slog.String("info", ErrTmpl.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil

@@ -189,7 +189,7 @@ func (c *Configuration) StartupBranding(sl *slog.Logger, w io.Writer) {
 }
 
 // PortErr handles the error when the HTTP or HTTPS server cannot start.
-func (c *Configuration) PortErr(sl *slog.Logger, port uint, err error) {
+func (c *Configuration) PortErr(sl *slog.Logger, port uint16, err error) {
 	const msg = "http/https"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
@@ -303,7 +303,8 @@ func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger)
 		case <-ctx.Done():
 		}
 		if err := e.Shutdown(ctx); err != nil {
-			logs.Fatal(sl, msg, slog.String("context", "caused an error"), slog.Any("error", err))
+			logs.FatalTx(ctx, sl, msg,
+				slog.String("context", "caused an error"), slog.Any("error", err))
 		}
 		sl.Info(msg, slog.String("success", "shutdown complete"))
 		signal.Stop(quit)
@@ -418,7 +419,7 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, sl *slog.Logger) {
 	}
 }
 
-func (c *Configuration) address(port uint) string {
+func (c *Configuration) address(port uint16) string {
 	if port == 0 {
 		return ""
 	}

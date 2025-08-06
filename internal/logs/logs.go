@@ -49,6 +49,7 @@ const (
 	// Flags flag for the flags package to style the log output without the date and time.
 	Flags = Lcolor | Lstdout | FlagAttr
 
+	ErrorRed    = 9
 	FatalRed    = 196 // #ff0000
 	DebugPurple = 206 // #ff5fff
 )
@@ -72,10 +73,15 @@ func Discard() *slog.Logger {
 
 // Fatal logs any issues and exits to the operating system.
 func Fatal(sl *slog.Logger, msg string, args ...slog.Attr) {
+	FatalTx(context.Background(), sl, msg, args...)
+}
+
+// FatalTx logs any issues and exits to the operating system.
+func FatalTx(ctx context.Context, sl *slog.Logger, msg string, args ...slog.Attr) {
 	if sl == nil {
 		panic(fmt.Errorf("fatal logger: %w", panics.ErrNoSlog))
 	}
-	sl.LogAttrs(context.Background(), LevelFatal, msg, args...)
+	sl.LogAttrs(ctx, LevelFatal, msg, args...)
 	os.Exit(1)
 }
 
@@ -85,8 +91,8 @@ func Color(w io.Writer) bool {
 	if w == nil {
 		return false
 	}
-	if _, ok := w.(*os.File); ok {
-		return isatty.IsTerminal(w.(*os.File).Fd())
+	if descriptor, ok := w.(*os.File); ok {
+		return isatty.IsTerminal(descriptor.Fd())
 	}
 	return false
 }
@@ -128,7 +134,7 @@ func replaceAttr(a slog.Attr) slog.Attr {
 		a.Key = strings.ToUpper(a.Key)
 		val := a.Value.Any()
 		if err, ok := val.(error); ok {
-			a = tint.Attr(9, slog.String(a.Key, err.Error()))
+			a = tint.Attr(ErrorRed, slog.String(a.Key, err.Error()))
 		}
 	case "postgres":
 		a.Key = "PostgreSQL"
@@ -225,8 +231,8 @@ func configIssueAttr(a slog.Attr) slog.Attr {
 		return slog.Attr{}
 	}
 	a.Key = strings.ToUpper(a.Key)
-	a = tint.Attr(9, slog.String(a.Key, a.Value.String()))
-	return tint.Attr(9, a)
+	a = tint.Attr(ErrorRed, slog.String(a.Key, a.Value.String()))
+	return tint.Attr(ErrorRed, a)
 }
 
 // configMsgAttr drops values that are not intended for logging.

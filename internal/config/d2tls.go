@@ -68,7 +68,7 @@ func (p PortTLS) Help() string {
 	return protoPort(Port(p), StdHTTPS, "https")
 }
 
-func (p PortTLS) Value() uint {
+func (p PortTLS) Value() uint16 {
 	return Port(p).Value()
 }
 

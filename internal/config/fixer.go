@@ -187,7 +187,7 @@ func (c *Config) production(sl *slog.Logger) {
 		sl.Warn(msg, slog.String(key, s))
 	}
 	if c.SessionMaxAge == 0 {
-		s := "Sign-in client sessions last indefinately, this is a security risk"
+		s := "Sign-in client sessions last indefinitely, this is a security risk"
 		sl.Warn(msg, slog.String(key, s))
 	}
 }

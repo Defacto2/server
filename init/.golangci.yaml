@@ -8,15 +8,16 @@ linters:
     - nlreturn # fussy.
     - paralleltest # too much work.
     - varnamelen # too much work.
-    - wsl # fussy.
-    - wsl_v5
+    - wsl # fussy
+    - wsl_v5 # fussy
     - wrapcheck
     - dupl
     - cyclop
     - funlen
     - wastedassign
     - nosprintfhostport
-    - noinlineerr
+    - noinlineerr # opinionated
+    - noctx # redundant, requires db.BeginTx(context.Background.. while db.Begin(.. functions the same
   settings:
     sloglint:
       # Enforce using attributes only.

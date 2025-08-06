@@ -28,7 +28,7 @@ const (
 
 var ErrNoImages = errors.New("no images found")
 
-// discard the error using the io
+// discard the error using the io.
 func discard(err error) {
 	_, _ = fmt.Fprint(io.Discard, err)
 }

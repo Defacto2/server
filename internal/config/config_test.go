@@ -66,7 +66,7 @@ func TestValidate(t *testing.T) {
 	c := config.Config{}
 	err := c.HTTPPort.Check()
 	be.Err(t, err, nil)
-	const tooLarge = 10000000
+	const tooLarge = 10000
 	c.HTTPPort = tooLarge
 	err = c.HTTPPort.Check()
 	be.Err(t, err)

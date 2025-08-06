@@ -146,7 +146,6 @@ func (c Config) Print(sl *slog.Logger) {
 		if issue.IsValid() {
 			issuer := issue.Call([]reflect.Value{})
 			if len(issuer) != 0 && issuer[0].String() != "" {
-				fmt.Printf("%q", issuer)
 				sl.Error(inf, slog.Any(tag, val), slog.String("issue", issuer[0].String()))
 				continue
 			}

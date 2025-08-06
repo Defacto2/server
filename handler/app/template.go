@@ -173,7 +173,8 @@ func (t *Templ) Funcs() template.FuncMap {
 }
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
-func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen	const msg = "templates mapper"
+func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
+	// const msg = "templates mapper"
 	if db == nil {
 		return nil
 	}

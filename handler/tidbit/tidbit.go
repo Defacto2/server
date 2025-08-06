@@ -92,7 +92,7 @@ type Tibits map[ID][]URI
 type Tidbit map[ID]string
 
 // Groups returns the tidbit IDs and their matching URIs.
-func Groups() Tibits {
+func Groups() Tibits { //nolint:maintidx
 	return Tibits{
 		1:    []URI{"untouchables", "the-untouchables"},
 		1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance", "byt"},

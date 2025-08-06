@@ -40,7 +40,7 @@ const (
 	syncthing = ".stfolder"                            // syncthing directory name
 )
 
-// discard the error using the io
+// discard the error using the io.
 func discard(err error) {
 	_, _ = fmt.Fprint(io.Discard, err)
 }
@@ -249,7 +249,7 @@ func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) 
 		return fmt.Errorf("%s zip stat %w: %s", msg, err, newArchive)
 	}
 	sl.Info(msg,
-		slog.String("Re-archive", "Contempory 'deflate' zip archive created"),
+		slog.String("Re-archive", "Contemporary 'deflate' zip archive created"),
 		slog.Int("bytes", int(st.Size())),
 		slog.String("path", newArchive))
 	return nil

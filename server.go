@@ -71,7 +71,7 @@ func main() {
 	}
 	// Configure the sl application logger, the cl startup
 	// configuration logger and the logo writer.
-	// Two seperate loggers are used to avoid the system and file logs
+	// Two separate loggers are used to avoid the system and file logs
 	// being cluttered with server startup information.
 	const nothing = "" // replace the dname nothing argument with logs.NameDebug, to write debug log reports
 	lf, err := logs.OpenFiles(string(configs.AbsLog), logs.NameErr, logs.NameInfo, nothing)
@@ -87,7 +87,7 @@ func main() {
 		}()
 	} else {
 		// We only use the log files in production mode. However
-		// it is good to create, open and close the files indevelopment
+		// it is good to create, open and close the files in development
 		// mode to confirm the functionality of the loggers.
 		_ = lf.Close()
 		lf = logs.NoFiles()
@@ -99,7 +99,7 @@ func main() {
 	// the web server will continue to run with limited functionality.
 	db, err := postgres.Open()
 	if err != nil {
-		sl.Error(msg, slog.String("database", "could not initalize the database"),
+		sl.Error(msg, slog.String("database", "could not initialize the database"),
 			slog.Any("error", err))
 	}
 	defer func() {
