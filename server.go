@@ -69,11 +69,11 @@ func main() {
 	if code := flagParser(os.Stdout, tl, *configs); code >= exit {
 		os.Exit(int(code))
 	}
-	// Configure the application logger, the startup
+	// Configure the sl application logger, the cl startup
 	// configuration logger and the logo writer.
-	// Two loggers are used so that the system and file logs
-	// are not cluttered with server startup information.
-	const nothing = ""
+	// Two seperate loggers are used to avoid the system and file logs
+	// being cluttered with server startup information.
+	const nothing = "" // replace the dname nothing argument with logs.NameDebug, to write debug log reports
 	lf, err := logs.OpenFiles(string(configs.AbsLog), logs.NameErr, logs.NameInfo, nothing)
 	if err != nil {
 		log.Println(fmt.Errorf("%s: %w", ErrLog, err))
@@ -94,7 +94,7 @@ func main() {
 	}
 	sl, cl, logo := setupWriters(*configs, lf)
 	configs.Print(cl)
-	// Connect to the database and perform some repairs
+	// Connect to the database and perform some record repairs
 	// and sanity checks. Even if the database cannot connect
 	// the web server will continue to run with limited functionality.
 	db, err := postgres.Open()
@@ -115,6 +115,7 @@ func main() {
 		sl.Error(msg, slog.String("postgres", "could not run the version query"),
 			slog.Any("error", err))
 	}
+	// Cleanup any previous temporary directories created by this application.
 	config.TmpCleaner(sl)
 	config.TmpInfo(sl)
 	// Start the web server.
