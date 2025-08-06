@@ -221,7 +221,7 @@ func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) 
 	}
 	sl.Info(msg,
 		slog.String("Re-archive",
-			fmt.Sprintf("Recompressed %s", ra.UID)),
+			"Recompressed "+ra.UID),
 		slog.Int("file(s)", c),
 		slog.String("tmp", tmp))
 	_, err = os.Stat(tmp)
@@ -346,7 +346,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog
 	artifacts = slices.Clip(artifacts)
 	slices.Sort(artifacts)
 
-	dirs := []string{string(c.AbsDownload.String()), string(c.AbsPreview.String()), c.AbsThumbnail.String()}
+	dirs := []string{string(c.AbsDownload), string(c.AbsPreview), string(c.AbsThumbnail)}
 	counters := make([]int, len(dirs))
 	var wg sync.WaitGroup
 	wg.Add(len(dirs))

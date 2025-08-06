@@ -459,14 +459,14 @@ func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Co
 }
 
 func configurations(data map[string]any, conf config.Config) map[string]any { //nolint:funlen
-	download := dir.Directory(conf.AbsDownload.String())
+	download := dir.Directory(string(conf.AbsDownload))
 	check := config.CheckDir(download, "downloads")
 	data["checkDownloads"] = check
 	data["countDownloads"] = 0
 	data["extsDownloads"] = []helper.Extension{}
 	if check == nil {
-		data["countDownloads"], _ = helper.Count(string(conf.AbsDownload.String()))
-		exts, _ := helper.CountExts(string(conf.AbsDownload.String()))
+		data["countDownloads"], _ = helper.Count(string(conf.AbsDownload))
+		exts, _ := helper.CountExts(string(conf.AbsDownload))
 		data["extsDownloads"] = exts
 	}
 	preview := dir.Directory(conf.AbsPreview)

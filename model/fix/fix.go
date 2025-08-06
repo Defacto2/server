@@ -173,7 +173,7 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logg
 		file.UUID = null.StringFrom(newid)
 		_, err = file.Update(ctx, exec, boil.Infer())
 		if err != nil {
-			sl.Warn(msg, key, "Could not update the record",
+			sl.Warn(msg, slog.String(key, "Could not update the record"),
 				slog.String("uuid", old), slog.Any("error", err))
 			continue
 		}

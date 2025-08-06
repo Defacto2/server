@@ -70,7 +70,7 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 }
 
 // Fix command the database and assets.
-func Fix(w io.Writer, c *config.Config) *cli.Command {
+func Fix(_ io.Writer, c *config.Config) *cli.Command {
 	const msg = "fix command"
 	return &cli.Command{
 		Name:        "fix",
@@ -96,7 +96,7 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 }
 
 // Address command lists the server addresses.
-func Address(w io.Writer, c *config.Config) *cli.Command {
+func Address(_ io.Writer, c *config.Config) *cli.Command {
 	const msg = "address command"
 	return &cli.Command{
 		Name:        "address",
@@ -116,7 +116,7 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 }
 
 // Config command lists the server configuration.
-func Config(w io.Writer, c *config.Config) *cli.Command {
+func Config(_ io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "config",
 		Aliases:     []string{"c"},

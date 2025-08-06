@@ -108,7 +108,7 @@ func NoFiles() Files {
 // must be handled appropriately.
 func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	const flag = os.O_CREATE | os.O_APPEND | os.O_WRONLY
-	const perm = 0666
+	const perm = 0o666
 	f := Files{}
 	// handle the root directory
 	if root == "" {

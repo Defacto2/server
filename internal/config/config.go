@@ -44,10 +44,10 @@ type Config struct { //nolint:recvcheck
 	TLSCert        Abstlscrt  `env:"D2_TLS_CERT" help:"An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate"`
 	TLSKey         Abstlskey  `env:"D2_TLS_KEY" help:"An absolute file path to the TLS key, or leave blank to use a self-signed, localhost key"`
 	GoogleAccounts OAuth2s    // GoogleAccounts is the data store for the GoogleIDs.
-	HTTPPort       PortHttp   `env:"D2_HTTP_PORT" help:"The port number to be used by the unencrypted HTTP web server"`
+	HTTPPort       PortHTTP   `env:"D2_HTTP_PORT" help:"The port number to be used by the unencrypted HTTP web server"`
 	MaxProcs       Threads    `env:"D2_MAX_PROCS" help:"Limit the number of operating system threads the program can use"`
 	SessionMaxAge  Hours      `env:"D2_SESSION_MAX_AGE" help:"List the maximum number of hours for the session cookie to remain active before expiring and requiring a new login"`
-	TLSPort        PortTls    `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
+	TLSPort        PortTLS    `env:"D2_TLS_PORT" help:"The port number to be used by the encrypted, HTTPS web server"`
 	Quiet          Toggle     `env:"D2_QUIET" help:"Suppress most startup output to the terminal, intended for use with systemd or other process managers"`
 	Compression    Toggle     `env:"D2_COMPRESSION" help:"Enable gzip compression of the HTTP/HTTPS responses; you may turn this off when using a reverse proxy"`
 	ProdMode       Toggle     `env:"D2_PROD_MODE" help:"Use the production mode to log errors to files and recover from panics"`
@@ -240,7 +240,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		s := ""
 		switch port {
 		case text:
-			s = fmt.Sprintf("http://%s", host)
+			s = "http://" + host
 		case disable:
 			continue
 		default:
@@ -249,7 +249,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		sl.Info(li, slog.String("link", s))
 		switch tls {
 		case secure:
-			s = fmt.Sprintf("https://%s", host)
+			s = "https://" + host
 		case disable:
 			continue
 		default:

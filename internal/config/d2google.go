@@ -45,7 +45,6 @@ func (o OAuth2s) String() string {
 		return "one sign-in account"
 	default:
 		return "multiple sign-in accounts"
-
 	}
 }
 

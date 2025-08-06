@@ -58,21 +58,21 @@ func (a Abstlscrt) String() string {
 	return Directory(a).String()
 }
 
-type PortTls Port
+type PortTLS Port
 
-func (p PortTls) LogValue() slog.Value {
+func (p PortTLS) LogValue() slog.Value {
 	return Port(p).LogValue()
 }
 
-func (p PortTls) Help() string {
+func (p PortTLS) Help() string {
 	return protoPort(Port(p), StdHTTPS, "https")
 }
 
-func (p PortTls) Value() uint {
+func (p PortTLS) Value() uint {
 	return Port(p).Value()
 }
 
-func (p PortTls) Check() error {
+func (p PortTLS) Check() error {
 	return Port(p).Check()
 }
 

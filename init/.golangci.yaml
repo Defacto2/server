@@ -9,6 +9,14 @@ linters:
     - paralleltest # too much work.
     - varnamelen # too much work.
     - wsl # fussy.
+    - wsl_v5
+    - wrapcheck
+    - dupl
+    - cyclop
+    - funlen
+    - wastedassign
+    - nosprintfhostport
+    - noinlineerr
   settings:
     sloglint:
       # Enforce using attributes only.

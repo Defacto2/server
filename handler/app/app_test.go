@@ -53,7 +53,7 @@ func TestTagBrief(t *testing.T) {
 	s := app.TagBrief("")
 	be.Equal(t, s, "")
 	s = app.TagBrief(tags.Interview.String())
-	be.True(t, strings.Contains(string(s), "conversations with"))
+	be.True(t, strings.Contains(s, "conversations with"))
 }
 
 func TestSubTitle(t *testing.T) {
@@ -89,9 +89,9 @@ func TestMonth(t *testing.T) {
 	s = app.Month(0)
 	be.Equal(t, s, "")
 	s = app.Month(1)
-	be.True(t, strings.Contains(string(s), "Jan"))
+	be.True(t, strings.Contains(s, "Jan"))
 	s = app.Month(13)
-	be.True(t, strings.Contains(string(s), "error"))
+	be.True(t, strings.Contains(s, "error"))
 }
 
 func TestLinkRelsPerf(t *testing.T) {
@@ -125,7 +125,7 @@ func TestLinkHref(t *testing.T) {
 	be.Err(t, err)
 
 	s, err = app.LinkHref(1)
-	be.True(t, strings.Contains(string(s), "/f/9b1c6"))
+	be.True(t, strings.Contains(s, "/f/9b1c6"))
 	be.Err(t, err, nil)
 }
 
@@ -332,7 +332,7 @@ func TestAttribute(t *testing.T) {
 	be.Equal(t, s, "")
 	s = app.Attribute("writer",
 		"", "", "", "some scener")
-	be.True(t, strings.Contains(string(s), "error:"))
+	be.True(t, strings.Contains(s, "error:"))
 	s = app.Attribute("another person,writer,some scener",
 		"", "", "", "some scener")
 	be.Equal(t, "Writer attribution", s)
@@ -350,33 +350,33 @@ func TestBrief(t *testing.T) {
 	be.Equal(t, "an unknown release", s)
 
 	s = app.Brief("a string", "")
-	be.True(t, strings.Contains(string(s), "unknown platform"))
+	be.True(t, strings.Contains(s, "unknown platform"))
 	plat := null.StringFrom("windows")
 
 	s = app.Brief(plat, "")
-	be.True(t, strings.Contains(string(s), "unknown section"))
+	be.True(t, strings.Contains(s, "unknown section"))
 
 	sect := null.StringFrom(tags.Intro.String())
 	s = app.Brief(plat, sect)
-	be.True(t, strings.Contains(string(s), "a Windows intro"))
+	be.True(t, strings.Contains(s, "a Windows intro"))
 }
 
 func TestLinkDownload(t *testing.T) {
 	t.Parallel()
 	s := string(app.LinkDownload("", ""))
-	be.True(t, strings.Contains(string(s), "invalid"))
+	be.True(t, strings.Contains(s, "invalid"))
 	s = string(app.LinkDownload(1, ""))
-	be.True(t, strings.Contains(string(s), "/d/9b1c6"))
+	be.True(t, strings.Contains(s, "/d/9b1c6"))
 }
 
 func TestLinkInterview(t *testing.T) {
 	t.Parallel()
 	s := string(app.LinkInterview(""))
-	be.True(t, strings.Contains(string(s), "error"))
+	be.True(t, strings.Contains(s, "error"))
 	s = string(app.LinkInterview("x"))
 	be.Equal(t, s, "")
 	s = string(app.LinkInterview("https://example.com"))
-	be.True(t, strings.Contains(string(s), "#arrow-right"))
+	be.True(t, strings.Contains(s, "#arrow-right"))
 }
 
 func TestLinkPreview(t *testing.T) {
@@ -400,9 +400,9 @@ func TestLinkScnr(t *testing.T) {
 func TestTagWithOS(t *testing.T) {
 	t.Parallel()
 	s := app.TagWithOS("", "")
-	be.True(t, strings.Contains(string(s), "unknown"))
+	be.True(t, strings.Contains(s, "unknown"))
 	s = app.TagWithOS("windows", "")
-	be.True(t, strings.Contains(string(s), "unknown"))
+	be.True(t, strings.Contains(s, "unknown"))
 	s = app.TagWithOS("dos", "magazine")
 	be.Equal(t, "a Dos magazine", s)
 }

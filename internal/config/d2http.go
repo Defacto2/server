@@ -29,21 +29,21 @@ func (p Port) Check() error {
 	return Validate(uint(p))
 }
 
-type PortHttp Port
+type PortHTTP Port
 
-func (p PortHttp) LogValue() slog.Value {
+func (p PortHTTP) LogValue() slog.Value {
 	return Port(p).LogValue()
 }
 
-func (p PortHttp) Help() string {
+func (p PortHTTP) Help() string {
 	return protoPort(Port(p), StdHTTP, "http")
 }
 
-func (p PortHttp) Value() uint {
+func (p PortHTTP) Value() uint {
 	return Port(p).Value()
 }
 
-func (p PortHttp) Check() error {
+func (p PortHTTP) Check() error {
 	return Port(p).Check()
 }
 

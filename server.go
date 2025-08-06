@@ -265,14 +265,13 @@ func flagParser(w io.Writer, sl *slog.Logger, configs config.Config) flags.ExitC
 // on the number of records vs the expected number.
 func welcomeMsg(sl *slog.Logger, count int) {
 	const welcome = "Welcome to the Defacto2 web application"
-	help := ""
 	switch {
 	case count == 0:
-		help = ", but with no access to the database records"
-		sl.Error(welcome + help)
+		s := ", but with no access to the database records"
+		sl.Error(welcome + s)
 	case config.MinimumFiles > count:
-		help = " with too few records"
-		sl.Warn(welcome+help,
+		s := " with too few records"
+		sl.Warn(welcome+s,
 			slog.Int("record count", count),
 			slog.Int("expecting at least", config.MinimumFiles))
 	default:
