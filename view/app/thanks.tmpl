@@ -4,29 +4,31 @@
 {{- define "content" }}
 {{- $lsMoney := " bg-light" }}
 {{- $padding := "p-0 m-0 px-5 pb-1" }}
-<p class="lead">
+<p>
     As the Defacto2 website costs over a hundred dollars annually, all tips are greatly appreciated and go to the website's operations, no matter how large or small.
 </p>
 <div class="card card border-success mx-1 my-5">
     <div class="card-body">
-        <p class="card-text mb-2 text-center lead">No signup or accounts are required, and no financial details are given to us<sup>*</sup></p>
+        <p class="card-text mb-2 text-center lead">No signup or accounts are required, and no financial details are given to us</p>
         <p class="card-title fs-1 text-center text-secondary">Tip with</p>
-        <div class="container text-center">
+        <div class="container text-center pt-3">
             <div class="row">
+                <div class="col">
+                    <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-outline-success text-nowrap fs-1 {{$padding}}" role="button">Buyme a Coffee</a>
+                </div>
+                <div class="col">
+                    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-outline-primary fs-1 {{$padding}}" role="button">PayPal<sup>*</sup></a>
+                </div>
                 <div class="col">
                     <a href="https://ko-fi.com/codebyben" class="btn btn-outline-success text-nowrap fs-1 {{$padding}}" role="button">Ko-fi</a>
                 </div>
-                <div class="col">
-                    <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-outline-primary text-nowrap fs-1 {{$padding}}" role="button">Buy me a coffee!</a>
-                </div>
-                <div class="col">
-                    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-outline-success fs-1 {{$padding}}" role="button">PayPal<sup>*</sup></a>
-                </div>
             </div>
             <div class="row">
-                <div class="col lead mt-5">
-                    Spend $25 or more at <a href="https://m.do.co/c/a9270bdb9e74" class="link-offset-2 link-underline link-underline-opacity-25">DigitalOcean with this affiliate link</a> 
-                    <br>You'll get $200 of bonus credit for 60 days, and we'll get a $25 hosting discount
+                <div class="col mt-5">
+                  Merchant fees:<br>
+                  PayPal, 2.9% fee plus a 30¢ flat fee<br>
+                  Ko-fi + Stripe, 3.5% plus a 30¢ flat fee<br>
+                  Buymeacoffee + Stripe, 8.5% plus a 30¢ flat fee<br>
                 </div>
             </div>
         </div>
@@ -44,8 +46,14 @@
         </dl>
         <div class="container text-center">
             <div class="row">
-                <div class="col lead mb-5">
-                    <sup>*</sup> PayPal will share the name and email of the account holder<br>
+                <div class="col mt-0">
+                    <sup>*</sup> PayPal will share the name of the account holder<br>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col lead mt-4">
+                    Spend $25 or more at <a href="https://m.do.co/c/a9270bdb9e74" class="link-offset-2 link-underline link-underline-opacity-25">DigitalOcean with this affiliate link</a> 
+                    <br>You'll get $200 of bonus credit for 60 days, and we'll get a $25 hosting discount
                 </div>
             </div>
         </div>
