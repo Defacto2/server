@@ -381,6 +381,29 @@ func bbsHandler(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.Order
 	return nil
 }
 
+// BrokenTexts is the handler for the Broken texts page.
+func BrokenTexts(c echo.Context, sl *slog.Logger) error {
+	const msg = "broken texts context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "brokentexts"
+	const h1 = "Broken text files"
+	const lead = "Unfortunately, there are large numbers of incomplete, inaccurate, or corrupted information texts (NFOs). " +
+		"While we'd prefer to offer a pristine copy of a Scene text, hosting a broken text is more useful than offering nothing."
+	data := empty(c)
+	data["description"] = fmt.Sprint(h1, " ", lead)
+	data["logo"] = "Broken text files and NFOs"
+	data["h1"] = h1
+	data["lead"] = lead
+	data["title"] = h1
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, name, err)
+	}
+	return nil
+}
+
 // Checksum is the handler for the Checksum file record page.
 func Checksum(c echo.Context, db *sql.DB, sl *slog.Logger, id string) error {
 	const msg = "checksum context"

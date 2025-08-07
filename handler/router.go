@@ -215,6 +215,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/bbs/year", func(c echo.Context) error {
 		return app.BBSYear(c, db, sl)
 	})
+	s.GET("/brokentexts", func(c echo.Context) error { return app.BrokenTexts(c, sl) })
 	s.GET("/coder", func(c echo.Context) error {
 		return app.Coder(c, db, sl)
 	})

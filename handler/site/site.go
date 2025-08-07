@@ -26,6 +26,13 @@ type Groups map[URI][]Website
 //   - NotWorking will not apply a hyperlink to the URL.
 func Websites() Groups {
 	return Groups{
+		"dead-pirates-society": []Website{
+			{
+				URL:        "www.cinecan.com/dps",
+				Name:       "DSP by |Swine|",
+				NotWorking: true,
+			},
+		},
 		"paradox": []Website{
 			{
 				URL:        "www.paradogs.com",
@@ -761,6 +768,11 @@ func Websites() Groups {
 			{
 				URL:        "oldwarezinc.home.ml.org",
 				Name:       "Old Warez Inc.",
+				NotWorking: true,
+			},
+			{
+				URL:        "emulation-world.ml.org/owi",
+				Name:       "1998 site",
 				NotWorking: true,
 			},
 		},
