@@ -158,12 +158,11 @@ func (c Config) Print(sl *slog.Logger) {
 		}
 		if help.IsValid() {
 			h := help.Call([]reflect.Value{})
-			if len(h) == 0 || h[0].String() == "" {
+			if len(h) > 0 && h[0].String() != "" {
+				helper := h[0].String()
+				sl.Info(inf, slog.Any(tag, val), slog.String("help", helper))
 				continue
 			}
-			helper := h[0].String()
-			sl.Info(inf, slog.Any(tag, val), slog.String("help", helper))
-			continue
 		}
 		sl.Info(inf, slog.Any(tag, val))
 	}
