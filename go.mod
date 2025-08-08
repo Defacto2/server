@@ -6,7 +6,7 @@ require (
 	github.com/Defacto2/archive v1.1.2
 	github.com/Defacto2/helper v1.5.0
 	github.com/Defacto2/magicnumber v1.0.10
-	github.com/Defacto2/releaser v1.3.7
+	github.com/Defacto2/releaser v1.3.8
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
@@ -31,7 +31,7 @@ require (
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/image v0.29.0
-	golang.org/x/text v0.27.0
+	golang.org/x/text v0.28.0
 	google.golang.org/api v0.245.0
 )
 
