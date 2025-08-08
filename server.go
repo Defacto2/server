@@ -35,7 +35,7 @@ import (
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/caarlos0/env/v11"
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5"
 )
 
 var (
