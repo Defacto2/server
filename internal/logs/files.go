@@ -116,13 +116,13 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	if root == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return f, fmt.Errorf("%s: %w", msg, err)
+			return f, fmt.Errorf("%s user home dir: %w", msg, err)
 		}
 		root = home
 	}
 	r, err := os.OpenRoot(root)
 	if err != nil {
-		return f, fmt.Errorf("%s: %w", msg, err)
+		return f, fmt.Errorf("%s open root: %w", msg, err)
 	}
 	// open files
 	var errr error
@@ -138,5 +138,8 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 		f.debuglevel, errd = r.OpenFile(dname, flag, perm)
 	}
 	err = errors.Join(errr, erri, errd)
-	return f, fmt.Errorf("%s: %w", msg, err)
+	if err != nil {
+		return f, fmt.Errorf("%s: %w", msg, err)
+	}
+	return f, nil
 }

@@ -66,7 +66,6 @@ const (
 	sect1 = "</section>"
 	ul0   = "<ul>"
 	ul1   = "</ul>"
-	fzip  = ".zip"
 )
 
 // Caching are values that are used throughout the app or layouts.
@@ -1054,14 +1053,7 @@ type Form struct {
 }
 
 const (
-	avif                    = ".avif"
-	gif                     = ".gif"
-	jpeg                    = ".jpeg"
-	jpg                     = ".jpg"
-	png                     = ".png"
-	textamiga               = "textamiga"
 	typeErr                 = "error: received an invalid type to "
-	webp                    = ".webp"
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
 )

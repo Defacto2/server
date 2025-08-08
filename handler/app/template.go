@@ -84,6 +84,7 @@ func (t *Templ) Pages() *Page {
 		"artifacts":     artifactsTmpl,
 		"bbs":           releaserTmpl,
 		"bbs-year":      "releaseryear.tmpl",
+		"brokentexts":   "brokentexts.tmpl",
 		"categories":    categoriesTmpl,
 		"configs":       "configurations.tmpl",
 		"coder":         scenerTmpl,
