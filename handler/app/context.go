@@ -1248,25 +1248,25 @@ func PouetCache(c echo.Context, data string) error {
 	}
 	pv := pouet.Votes{}
 	x := strings.Split(data, sep)
-	const expect = 4
-	if l := len(x); l != expect {
-		return fmt.Errorf("pouet cache %w: %d, want %d", ErrCorrupt, l, expect)
+	const req = 4
+	if len(x) < req {
+		return fmt.Errorf("%s %w: %d, want %d", msg, ErrCorrupt, len(x), req)
 	}
 	stars, err := strconv.ParseFloat(x[0], 64)
 	if err != nil {
-		return fmt.Errorf("pouet cache %w: %s", err, x[0])
+		return fmt.Errorf("%s %w: %s", msg, err, x[0])
 	}
 	vd, err := strconv.Atoi(x[1])
 	if err != nil {
-		return fmt.Errorf("pouet cache %w: %s", err, x[1])
+		return fmt.Errorf("%s %w: %s", msg, err, x[1])
 	}
 	vu, err := strconv.Atoi(x[2])
 	if err != nil {
-		return fmt.Errorf("pouet cache %w: %s", err, x[2])
+		return fmt.Errorf("%s %w: %s", msg, err, x[2])
 	}
 	vm, err := strconv.Atoi(x[3])
 	if err != nil {
-		return fmt.Errorf("pouet cache %w: %s", err, x[3])
+		return fmt.Errorf("%s %w: %s", msg, err, x[3])
 	}
 	pv.Stars = stars
 	pv.VotesDown = uint64(math.Abs(float64(vd)))
