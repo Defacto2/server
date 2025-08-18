@@ -63,44 +63,6 @@ og:image	https://defacto2.net/image/layout/favicon.svg
 og:description	Hard Hat Mack released by The Duplicators in 1984
 og:updated_time	1755392511
 og:image:alt	Defacto2 floppy disc logo
-3)
-og:url	https://defacto2.net/files/new-uploads
-og:title	The new uploads artifacts | Defacto2
-og:image	https://defacto2.net/image/layout/favicon.svg
-og:description	Table of contents for the files.
-og:updated_time	1755393172
-og:image:alt	Defacto2 floppy disc logo
-4)
-og:url	https://defacto2.net/releaser/year
-og:title	Releaser, by year | Defacto2
-og:image	https://defacto2.net/image/layout/favicon.svg
-og:description	Releaser A releaser is a brand or a collective group of sceners responsible for releasing or distributing products.
-og:updated_time	1755393242
-og:image:alt	Defacto2 floppy disc logo
-5)
-og:url	https://defacto2.net/g/boys-from-company-c
-og:title	Boys from Company C artifacts | Defacto2
-og:image	https://defacto2.net/image/layout/favicon.svg
-og:description	The collection of files for Boys from Company C.
-og:updated_time	1755393373
-og:image:alt	Defacto2 floppy disc logo
-6)
-og:url	https://defacto2.net/p/4_mat
-og:title	4-Mat attributions | Defacto2
-og:image	https://defacto2.net/image/layout/favicon.svg
-og:description	The collection of files attributed to 4-Mat.
-og:updated_time	1755393554
-og:image:alt	Defacto2 floppy disc logo
-7)
-og:url	https://defacto2.net/areacodes
-og:title	BBS and telephone area codes | Defacto2
-og:image	https://defacto2.net/image/layout/favicon.svg
-og:description	North American Numbering Plan area codes until 1994.
-og:updated_time	1755394478
-og:image:alt	Defacto2 floppy disc logo
-
-{{- if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}}
-
 */ -}}
 {{- $metatitle := .title}}
 {{- $subheading := index . "subheading"}}
@@ -110,4 +72,4 @@ og:image:alt	Defacto2 floppy disc logo
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{$ogimage}}">
     <meta property="og:site_name" content="Defacto2">
-{{- end }}
+{{ end }}

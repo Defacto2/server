@@ -150,7 +150,7 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 	data := emptyFiles(c)
 	data["title"] = title
 	data["canonical"] = strings.Join([]string{"files", uri}, "/")
-	data["description"] = "Table of contents for the files."
+	data["description"] = "Table of contents for the collection of artifacts."
 	data["logo"] = logo
 	data["h1"] = title
 	data["subheading"] = subhead
@@ -158,37 +158,7 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true
 	data["forApproval"] = false
-	switch fileslice.Match(uri) {
-	case fileslice.NewUploads:
-		data["description"] = "These are the most recent additions of scene history to the site."
-		data["title"] = "New additions"
-		data["unknownyears"] = false
-	case fileslice.NewUpdates:
-		data["description"] = "Artifacts that have been recently updated or revised."
-		data["title"] = "Artifact revisions and changes"
-		data["unknownyears"] = false
-	case fileslice.Deletions:
-		data["title"] = "Deleted artifacts"
-		data["unknownYears"] = false
-	case fileslice.Unwanted:
-		data["title"] = "Dangerous files artifacts"
-		data["unknownYears"] = false
-	case fileslice.ForApproval:
-		data["title"] = "For Approval artifacts"
-		data["forApproval"] = true
-	case fileslice.Oldest:
-		data["description"] = "These are the oldest known artifacts held by the site."
-		data["title"] = "Oldest artifacts"
-	case fileslice.Newest:
-		data["description"] = "These are more recent artifacts held by the site."
-		data["title"] = "Recent artifacts"
-	case -1:
-	// do nothing
-	default:
-		// catch all other matches
-		s := strings.TrimSpace(fileslice.RecordsSub(uri))
-		data["title"] = helper.Capitalize(s) + " artifacts"
-	}
+	data = artifactsDesc(uri, data)
 	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
 	r, err := fileslice.Records(ctx, db, uri, page, limit)
@@ -227,6 +197,41 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 		return InternalErr(c, sl, errs, err)
 	}
 	return nil
+}
+
+func artifactsDesc(uri string, data map[string]any) map[string]any {
+	switch fileslice.Match(uri) {
+	case fileslice.NewUploads:
+		data["description"] = "These are the most recent additions of scene history to the site."
+		data["title"] = "New additions"
+		data["unknownyears"] = false
+	case fileslice.NewUpdates:
+		data["description"] = "Artifacts that have been recently updated or revised."
+		data["title"] = "Artifact revisions and changes"
+		data["unknownyears"] = false
+	case fileslice.Deletions:
+		data["title"] = "Deleted artifacts"
+		data["unknownYears"] = false
+	case fileslice.Unwanted:
+		data["title"] = "Dangerous files artifacts"
+		data["unknownYears"] = false
+	case fileslice.ForApproval:
+		data["title"] = "For Approval artifacts"
+		data["forApproval"] = true
+	case fileslice.Oldest:
+		data["description"] = "These are the oldest known artifacts held by the site."
+		data["title"] = "Oldest artifacts"
+	case fileslice.Newest:
+		data["description"] = "These are more recent artifacts held by the site."
+		data["title"] = "Recent artifacts"
+	case -1:
+	// do nothing
+	default:
+		// catch all other matches
+		s := strings.TrimSpace(fileslice.RecordsSub(uri))
+		data["title"] = helper.Capitalize(s) + " artifacts"
+	}
+	return data
 }
 
 // Artifacts404 renders the files error page for the Artifacts menu and categories.
@@ -412,8 +417,10 @@ func BrokenTexts(c echo.Context, sl *slog.Logger) error {
 	}
 	const name = "brokentexts"
 	const h1 = "Broken text files"
-	const lead = "Unfortunately, there are large numbers of incomplete, inaccurate, or corrupted information texts (NFOs). " +
-		"While we'd prefer to offer a pristine copy of a Scene text, hosting a broken text is more useful than offering nothing."
+	const lead = "Unfortunately, there are large numbers of incomplete, inaccurate," +
+		" or corrupted information texts (NFOs). " +
+		"While we'd prefer to offer a pristine copy of a Scene text, " +
+		"hosting a broken text is more useful than offering nothing."
 	data := empty(c)
 	data["title"] = "Broken texts!?"
 	data["description"] = "Learn why there are broken encodings, unreadable texts and corrupted nfo files."
@@ -1487,14 +1494,25 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 			slog.String("uri", uri), slog.Any("error", err))
 		return Releaser404(c, sl, uri)
 	}
+	data = releasersDesc(relname, altnames, d, data)
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, errs, err)
+	}
+	return nil
+}
+
+// releasersDesc appends stats to the description.
+func releasersDesc(relname, altnames string,
+	d map[string]string, data map[string]any,
+) map[string]any {
 	data["stats"] = d
 	// append stats to the description
 	dfiles := d["sum"]
 	dyears := d["years"]
-	desc := ""
+	var desc string
 	switch {
 	case strings.EqualFold(relname, "independent"):
-		relname = strings.ToLower(relname)
 		desc = "The collection of " + dfiles + " unaffiliated artifacts"
 	case strings.EqualFold(relname, "none"):
 		desc = "The collection of the " + dfiles + " artifacts that were not authored by the Scene,"
@@ -1514,12 +1532,7 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 		desc += " from " + dyears
 	}
 	data["description"] = desc + "."
-
-	err = c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, sl, errs, err)
-	}
-	return nil
+	return data
 }
 
 func tibits(sl *slog.Logger, uri string, public embed.FS) string {

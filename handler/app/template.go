@@ -79,23 +79,22 @@ type Page map[string]filename
 // Pages returns a map of the template names and their corresponding filenames.
 func (t *Templ) Pages() *Page {
 	return &Page{
-		"areacodes":   "areacodes.tmpl",
-		"artifact":    artifactTmpl,
-		"artifacts":   artifactsTmpl,
-		"bbs":         releaserTmpl,
-		"bbs-year":    "releaseryear.tmpl",
-		"brokentexts": "brokentexts.tmpl",
-		"categories":  categoriesTmpl,
-		"configs":     "configurations.tmpl",
-		"coder":       scenerTmpl,
-		"ftp":         releaserTmpl,
-		"history":     "history.tmpl",
-		"index":       "index.tmpl",
-		"interview":   "interview.tmpl",
-		"magazine":    "releaseryear.tmpl",
-		"magazine-az": releaserTmpl,
-		"new":         "new.tmpl",
-		//"opengraph":     "opengraph.tmpl",
+		"areacodes":     "areacodes.tmpl",
+		"artifact":      artifactTmpl,
+		"artifacts":     artifactsTmpl,
+		"bbs":           releaserTmpl,
+		"bbs-year":      "releaseryear.tmpl",
+		"brokentexts":   "brokentexts.tmpl",
+		"categories":    categoriesTmpl,
+		"configs":       "configurations.tmpl",
+		"coder":         scenerTmpl,
+		"ftp":           releaserTmpl,
+		"history":       "history.tmpl",
+		"index":         "index.tmpl",
+		"interview":     "interview.tmpl",
+		"magazine":      "releaseryear.tmpl",
+		"magazine-az":   releaserTmpl,
+		"new":           "new.tmpl",
 		"releaser":      releaserTmpl,
 		"releaser-year": "releaseryear.tmpl",
 		"scener":        scenerTmpl,
@@ -347,17 +346,14 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		},
 		"og_image": func(unid any) string {
 			const favicon = "/image/layout/favicon.svg"
-			val := ""
-			switch unid.(type) {
-			case string:
-				val = unid.(string)
-			default:
+			val, ok := unid.(string)
+			if !ok {
 				return favicon
 			}
 			if val == "" {
 				return favicon
 			}
-			return simple.ThumbGraph(val, dir.Directory(t.Environment.AbsThumbnail))
+			return simple.OpenGraphImg(val, dir.Directory(t.Environment.AbsThumbnail))
 		},
 	}
 }

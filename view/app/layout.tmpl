@@ -38,12 +38,10 @@
     <meta name="description" content="{{$metadesc}}">
     <meta name="theme-color" content="rgb(153, 153, 153)">
     <meta name="defacto2:file-count" content="{{$cachefiles}}">
+    <meta name="defacto2:version" content="{{ version }}">
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
-{{- /*
-        open graph meta data for copy-paste link previews in social posts and live chats
-*/}}
 {{- template "opengraph" . }}
 {{- /*  https://schema.org linked data, see:
         - https://json-ld.org/playground/
@@ -62,7 +60,9 @@
         { "@id": "https://twitter.com/Defacto2" },
         { "@id": "https://www.youtube.com/defacto2" },
         { "@id": "https://mas.to/@defacto2" },
-        { "@id": "https://github.com/defacto2" },
+        { "@id": "https://bsky.app/profile/defacto2.bsky.social" },
+        { "@id": "https://github.com/Defacto2" },
+        { "@id": "https://github.com/sceners" },
         { "@id": "https://defacto2.wordpress.com" }
       ],
       "url": { "@id": "https://defacto2.net/" }

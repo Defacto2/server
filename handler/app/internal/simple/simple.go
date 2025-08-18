@@ -438,6 +438,25 @@ func Releasers(prime, second string, magazine bool) template.HTML {
 	return template.HTML(s)
 }
 
+// OpenGraphImg returns a URI for a thumbnail that is intended
+// to be used in the 'og:image' content metadata attribute.
+func OpenGraphImg(unid string, thumbnail dir.Directory) string {
+	ext, name, src := "", "", ""
+	exts := []string{avif, webp, png}
+	for ext = range slices.Values(exts) {
+		name = thumbnail.Join(unid + ext)
+		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
+		if helper.Stat(name) {
+			break
+		}
+	}
+	hash, err := helper.IntegrityFile(name)
+	if err != nil {
+		return "/image/layout/favicon.svg"
+	}
+	return src + "?" + hash
+}
+
 // ReleaserPair returns the primary and secondary releaser groups as two strings.
 func ReleaserPair(a, b any) [2]string {
 	av, bv := "", ""
@@ -627,24 +646,6 @@ func ThumbSample(unid string, thumbnail dir.Directory) template.HTML {
 	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
 		"class=\"p-2 img-fluid rounded mx-auto d-block\" alt=\"%s sample\" integrity=\"%s\" />",
 		src, hash, ext, hash))
-}
-
-// TODO: comment and rename
-func ThumbGraph(unid string, thumbnail dir.Directory) string {
-	ext, name, src := "", "", ""
-	exts := []string{avif, webp, png}
-	for ext = range slices.Values(exts) {
-		name = thumbnail.Join(unid + ext)
-		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
-		if helper.Stat(name) {
-			break
-		}
-	}
-	_, err := helper.IntegrityFile(name)
-	if err != nil {
-		return "/image/layout/favicon.svg"
-	}
-	return src
 }
 
 // Updated returns a string of the time since the given time t.
