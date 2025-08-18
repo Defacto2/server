@@ -629,6 +629,24 @@ func ThumbSample(unid string, thumbnail dir.Directory) template.HTML {
 		src, hash, ext, hash))
 }
 
+// TODO: comment and rename
+func ThumbGraph(unid string, thumbnail dir.Directory) string {
+	ext, name, src := "", "", ""
+	exts := []string{avif, webp, png}
+	for ext = range slices.Values(exts) {
+		name = thumbnail.Join(unid + ext)
+		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
+		if helper.Stat(name) {
+			break
+		}
+	}
+	_, err := helper.IntegrityFile(name)
+	if err != nil {
+		return "/image/layout/favicon.svg"
+	}
+	return src
+}
+
 // Updated returns a string of the time since the given time t.
 // If the time is not valid, an empty string is returned.
 // An example of the returned string is:

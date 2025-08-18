@@ -1,0 +1,111 @@
+{{- define "opengraph" }}
+{{- /*
+The Open Graph protocol, https://ogp.me
+
+Basic Metadata
+og:title 
+  - The title of your object as it should appear within the graph, e.g., "The Rock".
+
+og:image 
+  - An image URL which should represent your object within the graph.
+    og:image:alt - A description of what is in the image (not a caption). If the page specifies an og:image it should specify og:image:alt.
+
+og:url 
+  - The canonical URL of your object that will be used as its permanent ID 
+    in the graph, e.g., "https://www.imdb.com/title/tt0117500/".
+
+og:type 
+  - The type of your object, e.g., "video.movie". Depending on the type you specify, 
+    other properties may also be required.
+  - "article"
+      article:published_time - datetime - When the article was first published.
+      article:modified_time - datetime - When the article was last changed.
+      article:expiration_time - datetime - When the article is out of date after.
+      article:author - profile array - Writers of the article.
+      article:section - string - A high-level section name. E.g. Technology
+      article:tag - string array - Tag words associated with this article.
+  - "book"
+      book:author - profile array - Who wrote this book.
+      book:isbn - string - The ISBN
+      book:release_date - datetime - The date the book was released.
+      book:tag - string array - Tag words associated with this book.
+  - "profile"
+      profile:first_name - string - A name normally given to an individual by a parent or self-chosen.
+      profile:last_name - string - A name inherited from a family or marriage and by which the individual is commonly known.
+      profile:username - string - A short unique string to identify them.
+      profile:gender - enum(male, female) - Their gender.
+  - "website"
+
+Optional Metadata
+og:description 
+  - A one to two sentence description of your object.
+og:determiner 
+  - The word that appears before this object's title in a sentence. 
+    An enum of (a, an, the, "", auto). If auto is chosen, the consumer of your data 
+    should choose between "a" or "an". Default is "" (blank).
+og:site_name 
+  - If your object is part of a larger web site, the name which should be 
+    displayed for the overall site. e.g., "IMDb".
+
+With no metadata Facebook responds
+Based on the raw tags, we constructed the following Open Graph properties
+1)
+og:url	https://defacto2.net/
+og:title	Welcome | Defacto2
+og:image	https://defacto2.net/image/layout/favicon.svg
+og:description	Defacto2, preserving the historic and defunct software cracking, wares, and Warez Scene subcultures on obsolete personal computers
+og:updated_time	1755392340
+og:image:alt	Defacto2 floppy disc logo
+2)
+og:url	https://defacto2.net/f/a319104
+og:title	HHM.zip | Defacto2
+og:image	https://defacto2.net/image/layout/favicon.svg
+og:description	Hard Hat Mack released by The Duplicators in 1984
+og:updated_time	1755392511
+og:image:alt	Defacto2 floppy disc logo
+3)
+og:url	https://defacto2.net/files/new-uploads
+og:title	The new uploads artifacts | Defacto2
+og:image	https://defacto2.net/image/layout/favicon.svg
+og:description	Table of contents for the files.
+og:updated_time	1755393172
+og:image:alt	Defacto2 floppy disc logo
+4)
+og:url	https://defacto2.net/releaser/year
+og:title	Releaser, by year | Defacto2
+og:image	https://defacto2.net/image/layout/favicon.svg
+og:description	Releaser A releaser is a brand or a collective group of sceners responsible for releasing or distributing products.
+og:updated_time	1755393242
+og:image:alt	Defacto2 floppy disc logo
+5)
+og:url	https://defacto2.net/g/boys-from-company-c
+og:title	Boys from Company C artifacts | Defacto2
+og:image	https://defacto2.net/image/layout/favicon.svg
+og:description	The collection of files for Boys from Company C.
+og:updated_time	1755393373
+og:image:alt	Defacto2 floppy disc logo
+6)
+og:url	https://defacto2.net/p/4_mat
+og:title	4-Mat attributions | Defacto2
+og:image	https://defacto2.net/image/layout/favicon.svg
+og:description	The collection of files attributed to 4-Mat.
+og:updated_time	1755393554
+og:image:alt	Defacto2 floppy disc logo
+7)
+og:url	https://defacto2.net/areacodes
+og:title	BBS and telephone area codes | Defacto2
+og:image	https://defacto2.net/image/layout/favicon.svg
+og:description	North American Numbering Plan area codes until 1994.
+og:updated_time	1755394478
+og:image:alt	Defacto2 floppy disc logo
+*/ -}}
+{{- $metatitle := .title}}
+{{- $subheading := index . "subheading"}}
+{{- if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}}
+{{- $unid := index . "unid"}}
+{{- $ogimage := og_image $unid}}
+    <meta property="og:title" content="{{$metatitle}}">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{$ogimage}}">
+    <meta property="og:site_name" content="Defacto2">
+{{- end }}

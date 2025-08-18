@@ -2,7 +2,7 @@
     layout.tmpl ~ Template layout page for the website.
 */ -}}
 {{define "layout" -}}<!doctype html>
-{{- $descDefault  := "Defacto2, preserving the historic and defunct software cracking, wares, and Warez Scene subcultures on obsolete personal computers"}}
+{{- $descDefault  := "Preserving the historic and defunct software cracking and wares Scene subcultures on obsolete personal computers."}}
 {{- $cc           := "https://creativecommons.org/licenses/by/4.0/"}}
 {{- $github       := "https://github.com/defacto2"}}
 {{- $h1sub := index . "subheading"}}
@@ -41,6 +41,10 @@
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
+{{- /*
+        open graph meta data for copy-paste link previews in social posts and live chats
+*/}}
+{{- template "opengraph" . }}
 {{- /*  https://schema.org linked data, see:
         - https://json-ld.org/playground/
         - https://developers.google.com/search/docs/appearance/structured-data/search-gallery

@@ -71,7 +71,7 @@ const (
 	records = "records"
 	sep     = ";"
 	az      = ", a-z"
-	byyear  = ", by year"
+	byyear  = " by year"
 	alpha   = "alphabetically"
 	year    = "by year"
 )
@@ -240,7 +240,7 @@ func Areacodes(c echo.Context, sl *slog.Logger) error {
 	}
 	data := empty(c)
 	data["title"] = "BBS and telephone area codes"
-	data["description"] = "North American Numbering Plan area codes until 1994."
+	data["description"] = "Lookup and list the North American Numbering Plan (NANP) area codes in common use until 1994."
 	data["logo"] = "BBS area codes"
 	data["h1"] = "BBS area codes"
 	data["lead"] = "North American Numbering Plan (+1-XXX) telephone area codes until 1994."
@@ -293,7 +293,8 @@ func scener(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role,
 		return DatabaseErr(c, sl, name, err)
 	}
 	data["sceners"] = s.Sort()
-	data["description"] = "Sceners and people who have been credited for their work in The Scene."
+	data["description"] = "This is a massive but incomplete list of aliases and pseudonyms used " +
+		"in the Scene and offers links to individual profiles."
 	data["lead"] = "This page shows the sceners and people credited for their work in The Scene." +
 		`<br><small class="fw-lighter">` +
 		"The list will never be complete or accurate due to the amount of data and the lack of a" +
@@ -330,13 +331,13 @@ func bbsHandler(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.Order
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const title, name = "BBS", "bbs"
-	const lead = "Bulletin Board Systems are historical, " +
-		"networked personal computer servers connected using the landline telephone network and provide forums, " +
-		"real-time chat, mail, and file sharing for The Scene \"elites.\""
+	// FTP sites were Internet-based file exchange servers that would host and share Scene releases.
+	const lead = "Bulletin Board Systems were personal computers networked using the copper telephone network " +
+		"and provided communication services, file hosting and exchanges."
 	const logo = "Bulletin Board Systems"
 	const key = "releasers"
 	data := empty(c)
-	data["title"] = title
+	data["title"] = "Former " + title
 	data["description"] = lead
 	data["logo"] = logo
 	data["h1"] = title
@@ -392,11 +393,11 @@ func BrokenTexts(c echo.Context, sl *slog.Logger) error {
 	const lead = "Unfortunately, there are large numbers of incomplete, inaccurate, or corrupted information texts (NFOs). " +
 		"While we'd prefer to offer a pristine copy of a Scene text, hosting a broken text is more useful than offering nothing."
 	data := empty(c)
-	data["description"] = fmt.Sprint(h1, " ", lead)
+	data["title"] = "Broken texts!?"
+	data["description"] = "Learn why there are broken encodings, unreadable texts and corrupted nfo files."
 	data["logo"] = "Broken text files and NFOs"
 	data["h1"] = h1
 	data["lead"] = lead
-	data["title"] = h1
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, sl, name, err)
@@ -591,10 +592,9 @@ func FTP(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const title, name = "FTP", "ftp"
 	ctx := context.Background()
 	data := empty(c)
-	const lead = "FTP sites are historical, internet-based file servers for uploading " +
-		"and downloading \"elite\" scene releases."
+	const lead = "FTP sites were Internet-based file exchange servers that would host and share Scene releases."
 	const key = "releasers"
-	data["title"] = title
+	data["title"] = "Former " + title + " sites"
 	data["description"] = lead
 	data["logo"] = "FTP sites, A-Z"
 	data["h1"] = title
@@ -895,7 +895,7 @@ func History(c echo.Context, sl *slog.Logger) error {
 	const h1 = "The history of the brand"
 	data := empty(c)
 	data["carousel"] = "#carouselDf2Artpacks"
-	data["description"] = lead
+	data["description"] = "Learn about the many iterations of Defacto2 and the original DeFacto magazine from 1996."
 	data["logo"] = "The history of Defacto"
 	data["h1"] = h1
 	data["lead"] = lead
@@ -963,14 +963,14 @@ func Interview(c echo.Context, sl *slog.Logger) error {
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	const title, name = "Interviews with sceners", "interview"
+	const title, name = "Interviews with former Sceners", "interview"
 	data := empty(c)
 	data["title"] = title
-	data["description"] = "Discussions with scene members."
+	data["description"] = "A collection of historical interviews and discussions with former members of the Scene."
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = "Here is a centralized page for the site's discussions and unedited" +
-		" interviews with sceners, crackers, and demo makers."
+	data["lead"] = "Here is a centralized page for the discussions and unedited" +
+		" interviews with former sceners, crackers, and demo makers."
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -997,8 +997,8 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 	}
 	const title, name = "Magazines", "magazine"
 	data := empty(c)
-	const lead = "The magazines are newsletters, reports, " +
-		"and publications about activities within The Scene subculture."
+	const lead = "Scene magazines are the newsletters, reports, " +
+		"and publications on the activities of the subculture community."
 	const issue = "issue"
 	const key = "releasers"
 	data["title"] = title
@@ -1343,10 +1343,11 @@ func releasers(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderB
 	data := empty(c)
 	const lead = "A releaser is a brand or a collective group of " +
 		"sceners responsible for releasing or distributing products."
-	const logo = "Groups and releasers"
+	const logo = "Former groups and releasers"
 	const key = "releasers"
-	data["title"] = title
-	data["description"] = fmt.Sprint(title, " ", lead)
+	data["title"] = title + "s and groups"
+	data["description"] = "A linked list of the former Scene releasers and groups, that were collectives of people " +
+		"who would work together and operate under a common brand."
 	data["logo"] = logo
 	data["h1"] = title
 	data["lead"] = lead
@@ -1423,7 +1424,7 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 	const name = "artifacts"
 	errs := fmt.Sprint("releasers page for, ", uri)
 	ctx := context.Background()
-	s := releaser.Link(uri)
+	relname := releaser.Link(uri)
 	rel := model.Releasers{}
 	fs, err := rel.Where(ctx, db, uri)
 	if err != nil {
@@ -1435,12 +1436,12 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 		return Releaser404(c, sl, uri)
 	}
 	data := emptyFiles(c)
-	data["title"] = s + " artifacts"
+	data["title"] = relname + " artifacts"
 	data["canonical"] = strings.Join([]string{"g", uri}, "/")
-	data["h1"] = s
-	data["lead"] = initialism.Join(initialism.Path(uri))
-	data["logo"] = s
-	data["description"] = "The collection of files for " + s + "."
+	data["h1"] = relname
+	altnames := initialism.Join(initialism.Path(uri))
+	data["lead"] = altnames
+	data["logo"] = relname
 	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
 	data["website"] = site.Find(uri)
@@ -1450,6 +1451,10 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 	data["tidbits"] = template.HTML(htm)
 	if strings.HasSuffix(uri, "-bbs") {
 		data["bbs"] = true
+		relname = "the " + relname
+	}
+	if strings.HasSuffix(uri, "-ftp") {
+		relname = "the " + relname
 	}
 	data["uploader-releaser-index"] = releaser.Index(uri)
 	data[records] = fs
@@ -1461,6 +1466,35 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 		return Releaser404(c, sl, uri)
 	}
 	data["stats"] = d
+	// append stats to the description
+	dfiles := d["sum"]
+	dyears := d["years"]
+	desc := ""
+	switch {
+	case strings.EqualFold(relname, "independent"):
+		relname = strings.ToLower(relname)
+		desc = "The collection of " + dfiles + " unaffiliated artifacts"
+	case strings.EqualFold(relname, "none"):
+		desc = "The collection of the " + dfiles + " artifacts that were not authored by the Scene,"
+		data["title"] = "Non-Scene artifacts"
+		data["h1"] = "Non-Scene artifacts"
+	case dfiles == "1":
+		desc = "The single artifact for " + relname
+	case dfiles != "":
+		desc = "The collection of " + dfiles + " artifacts for " + relname
+	default:
+		desc = "The collection of artifacts for " + relname
+	}
+	if altnames != "" {
+		desc += " (" + altnames + ")"
+	}
+	if dyears != "" {
+		desc += " from " + dyears + "."
+	} else {
+		desc += "."
+	}
+	data["description"] = desc
+
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, sl, errs, err)
@@ -1510,6 +1544,7 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 	d := map[string]string{
 		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
+		"sum":   strconv.Itoa(int(m.SumCount.Int64)),
 	}
 	return d, nil
 }
@@ -1521,7 +1556,7 @@ func Scener(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	data := empty(c)
-	title := "Sceners, the people of The Scene"
+	title := "Sceners, people who were apart of the Scene"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
@@ -1577,7 +1612,7 @@ func Sceners(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error {
 	data["h1"] = s
 	data["lead"] = "Artifacts attributed to " + s + "."
 	data["logo"] = s
-	data["description"] = "The collection of files attributed to " + s + "."
+	data["description"] = "These are the documented artifacts attributed to the person known as " + s + "."
 	data["scener"] = s
 	data[records] = fs
 	d, err := scenerSum(ctx, db, uri)
@@ -1611,9 +1646,9 @@ func SearchDesc(c echo.Context, sl *slog.Logger) error {
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	const title, name = "Game and program titles", "searchpost"
+	const title, name = "Game and program title search", "searchpost"
 	data := empty(c)
-	data["description"] = "Search form to scan through file descriptions."
+	data["description"] = "Use this search to uncover named applications, games, and descriptions of artifacts."
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "search the names, titles, and comments of artifacts"
@@ -1630,9 +1665,9 @@ func SearchID(c echo.Context, sl *slog.Logger) error {
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	const title, name = "Search for artifacts", "searchhtmx"
+	const title, name = "Search the IDs of artifacts", "searchhtmx"
 	data := empty(c)
-	data["description"] = "Search form to discover artifacts by ID."
+	data["description"] = "Use this search to lookup artifacts by their database identities."
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "search for artifacts by their record id, uuid or URL key"
@@ -1651,9 +1686,9 @@ func SearchFile(c echo.Context, sl *slog.Logger) error {
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	const title, name = "Search filenames", "searchpost"
+	const title, name = "Filename search", "searchpost"
 	data := empty(c)
-	data["description"] = "Search form to discover files."
+	data["description"] = "Use this search to lookup artifacts by their filenames."
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "search for filenames and filename extensions"
@@ -1672,7 +1707,7 @@ func SearchReleaser(c echo.Context, sl *slog.Logger) error {
 	}
 	const title, name = "Search for releasers", "searchhtmx"
 	data := empty(c)
-	data["description"] = "Search form to discover releasers."
+	data["description"] = "Use this search to lookup releasers, groups, magazines, boards and sites by their names."
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "search for a group, initialism, magazine, board, or site"
@@ -1849,7 +1884,7 @@ func Thanks(c echo.Context, sl *slog.Logger) error {
 	}
 	const name = "thanks"
 	data := empty(c)
-	data["description"] = "Defacto2 thankyous."
+	data["description"] = "A special thanks to the hundreds of contributors and the thousands of contributions."
 	data["h1"] = "Thank you!"
 	data["lead"] = "Thanks to the hundreds of people who have contributed to" +
 		" Defacto2 over the decades with file submissions, " +
@@ -1874,7 +1909,7 @@ func TheScene(c echo.Context, sl *slog.Logger) error {
 		" this is a subculture of different computer activities where participants" +
 		" actively share ideas and creations."
 	data := empty(c)
-	data["description"] = fmt.Sprint(h1, " ", lead)
+	data["description"] = "A short introduction on The Scene and its underground, digital subcultures."
 	data["logo"] = "The underground"
 	data["h1"] = h1
 	data["lead"] = lead
@@ -1940,7 +1975,7 @@ func Website(c echo.Context, sl *slog.Logger, open string) error {
 	data["title"] = "Websites"
 	const logo = "Videos, Books, Films, Sites, Podcasts"
 	data["logo"] = logo
-	data["description"] = "A collection of " + logo + " about the scene."
+	data["description"] = "Our curated collection of " + strings.ToLower(logo) + ", with topics about the Scene."
 	accordion := List()
 	// Open the accordion section.
 	closeAll := true

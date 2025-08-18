@@ -79,22 +79,23 @@ type Page map[string]filename
 // Pages returns a map of the template names and their corresponding filenames.
 func (t *Templ) Pages() *Page {
 	return &Page{
-		"areacodes":     "areacodes.tmpl",
-		"artifact":      artifactTmpl,
-		"artifacts":     artifactsTmpl,
-		"bbs":           releaserTmpl,
-		"bbs-year":      "releaseryear.tmpl",
-		"brokentexts":   "brokentexts.tmpl",
-		"categories":    categoriesTmpl,
-		"configs":       "configurations.tmpl",
-		"coder":         scenerTmpl,
-		"ftp":           releaserTmpl,
-		"history":       "history.tmpl",
-		"index":         "index.tmpl",
-		"interview":     "interview.tmpl",
-		"magazine":      "releaseryear.tmpl",
-		"magazine-az":   releaserTmpl,
-		"new":           "new.tmpl",
+		"areacodes":   "areacodes.tmpl",
+		"artifact":    artifactTmpl,
+		"artifacts":   artifactsTmpl,
+		"bbs":         releaserTmpl,
+		"bbs-year":    "releaseryear.tmpl",
+		"brokentexts": "brokentexts.tmpl",
+		"categories":  categoriesTmpl,
+		"configs":     "configurations.tmpl",
+		"coder":       scenerTmpl,
+		"ftp":         releaserTmpl,
+		"history":     "history.tmpl",
+		"index":       "index.tmpl",
+		"interview":   "interview.tmpl",
+		"magazine":    "releaseryear.tmpl",
+		"magazine-az": releaserTmpl,
+		"new":         "new.tmpl",
+		//"opengraph":     "opengraph.tmpl",
 		"releaser":      releaserTmpl,
 		"releaser-year": "releaseryear.tmpl",
 		"scener":        scenerTmpl,
@@ -118,6 +119,7 @@ func (t *Templ) Layout(name filename) []string {
 		GlobTo("option_tag.tmpl"),
 		GlobTo(string(name)),
 		GlobTo("pagination.tmpl"),
+		GlobTo("opengraph.tmpl"),
 	}
 }
 
@@ -342,6 +344,20 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		},
 		"recordThumbnailSrc": func(unid, ext string) string {
 			return simple.AssetSrc(config.AbsThumbnail, t.Environment.AbsThumbnail.String(), unid, ext)
+		},
+		"og_image": func(unid any) string {
+			const favicon = "/image/layout/favicon.svg"
+			val := ""
+			switch unid.(type) {
+			case string:
+				val = unid.(string)
+			default:
+				return favicon
+			}
+			if val == "" {
+				return favicon
+			}
+			return simple.ThumbGraph(val, dir.Directory(t.Environment.AbsThumbnail))
 		},
 	}
 }
