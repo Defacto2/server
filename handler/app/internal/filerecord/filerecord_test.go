@@ -283,12 +283,12 @@ func TestDescription(t *testing.T) {
 	t.Parallel()
 	x := models.File{}
 	s := filerecord.Description(&x)
-	be.Equal(t, " released by ", s)
+	be.Equal(t, s, " released by .")
 
 	x.Filename = null.StringFrom("myfile.txt")
 	x.GroupBrandBy = null.StringFrom("my group")
 	s = filerecord.Description(&x)
-	be.Equal(t, "myfile.txt released by My Group", s)
+	be.Equal(t, s, "myfile.txt released by My Group.")
 }
 
 func TestDate(t *testing.T) {
