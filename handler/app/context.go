@@ -159,13 +159,35 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 	data["unknownYears"] = true
 	data["forApproval"] = false
 	switch fileslice.Match(uri) {
-	case fileslice.NewUploads,
-		fileslice.NewUpdates,
-		fileslice.Deletions,
-		fileslice.Unwanted:
+	case fileslice.NewUploads:
+		data["description"] = "These are the most recent additions of scene history to the site."
+		data["title"] = "New additions"
+		data["unknownyears"] = false
+	case fileslice.NewUpdates:
+		data["description"] = "Artifacts that have been recently updated or revised."
+		data["title"] = "Artifact revisions and changes"
+		data["unknownyears"] = false
+	case fileslice.Deletions:
+		data["title"] = "Deleted artifacts"
+		data["unknownYears"] = false
+	case fileslice.Unwanted:
+		data["title"] = "Dangerous files artifacts"
 		data["unknownYears"] = false
 	case fileslice.ForApproval:
+		data["title"] = "For Approval artifacts"
 		data["forApproval"] = true
+	case fileslice.Oldest:
+		data["description"] = "These are the oldest known artifacts held by the site."
+		data["title"] = "Oldest artifacts"
+	case fileslice.Newest:
+		data["description"] = "These are more recent artifacts held by the site."
+		data["title"] = "Recent artifacts"
+	case -1:
+	// do nothing
+	default:
+		// catch all other matches
+		s := strings.TrimSpace(fileslice.RecordsSub(uri))
+		data["title"] = helper.Capitalize(s) + " artifacts"
 	}
 	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
@@ -915,7 +937,7 @@ func Index(c echo.Context, sl *slog.Logger) error {
 	}
 	const name = "index"
 	data := empty(c)
-	data["title"] = "Welcome"
+	data["title"] = "Introduction and milestones"
 	data["canonical"] = "/"
 	data["h1"] = "Welcome,"
 	data["milestones"] = Collection()
@@ -1489,11 +1511,9 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 		desc += " (" + altnames + ")"
 	}
 	if dyears != "" {
-		desc += " from " + dyears + "."
-	} else {
-		desc += "."
+		desc += " from " + dyears
 	}
-	data["description"] = desc
+	data["description"] = desc + "."
 
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {

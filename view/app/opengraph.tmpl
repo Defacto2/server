@@ -98,10 +98,12 @@ og:image	https://defacto2.net/image/layout/favicon.svg
 og:description	North American Numbering Plan area codes until 1994.
 og:updated_time	1755394478
 og:image:alt	Defacto2 floppy disc logo
+
+{{- if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}}
+
 */ -}}
 {{- $metatitle := .title}}
 {{- $subheading := index . "subheading"}}
-{{- if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}}
 {{- $unid := index . "unid"}}
 {{- $ogimage := og_image $unid}}
     <meta property="og:title" content="{{$metatitle}}">

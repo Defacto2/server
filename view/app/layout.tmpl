@@ -21,7 +21,7 @@
 {{- $databaseErr := index . "databaseErr"}}
 {{- $subheading := index . "subheading"}}
 {{- $metatitle := .title}}
-{{- if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}}
+{{- /* if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}} */ -}}
 {{- $metadesc := $desc}}
 {{- if eq $desc ""}}{{$metadesc = $descDefault}}{{end}}
 {{- $alertURL := index . "alertURL"}}

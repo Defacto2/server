@@ -865,12 +865,16 @@ func Description(art *models.File) string {
 	case r2 != "":
 		r = r2
 	}
-	s = fmt.Sprintf("%s released by %s", s, r)
+	if strings.EqualFold(r, "independent") {
+		s += " independently released"
+	} else if !strings.EqualFold(r, "none") {
+		s = fmt.Sprintf("%s released by %s", s, r)
+	}
 	y := art.DateIssuedYear.Int16
 	if y > 0 {
 		s = fmt.Sprintf("%s in %d", s, y)
 	}
-	return s
+	return s + "."
 }
 
 // DownloadID returns the obfuscated ID for the file record.
