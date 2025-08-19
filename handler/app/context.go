@@ -101,12 +101,12 @@ const (
 //   - "editor" is true if the editor mode is enabled for the browser session.
 func empty(c echo.Context) map[string]any {
 	return map[string]any{
-		"cachefiles":   Caching.RecordCount,
+		"cachefiles":   Caching.RecordCount, // autofilled
 		"canonical":    "",
 		"carousel":     "",
 		"databaseErr":  false,
 		"description":  "",
-		"editor":       sess.Editor(c),
+		"editor":       sess.Editor(c), // autofilled
 		"h1":           "",
 		"subheading":   "",
 		"jsdos6":       false,
@@ -114,7 +114,8 @@ func empty(c echo.Context) map[string]any {
 		"logo":         "",
 		"readonlymode": true,
 		"title":        "",
-		"ogtitle":      "",
+		"ogtitle":      "", // opengraph title
+		"alertURL":     "", // used by the layout.tmpl, robots=noindex metatag
 	}
 }
 

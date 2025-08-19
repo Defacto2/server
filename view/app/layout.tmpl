@@ -24,11 +24,11 @@
 {{- /* if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}} */ -}}
 {{- $metadesc := $desc}}
 {{- if eq $desc ""}}{{$metadesc = $descDefault}}{{end}}
-{{- $alertURL := index . "alertURL"}}
+{{- $alertURL := index . "alertURL" }}
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    {{- if ne $alertURL ""}}
+    {{- if ne (len $alertURL) 0}}
     <meta name="robots" content="noindex">{{end}}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{$metatitle}} | Defacto2</title>
