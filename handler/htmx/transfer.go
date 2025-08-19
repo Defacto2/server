@@ -610,7 +610,7 @@ func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Direc
 	defer func() { _ = src.Close() }()
 	magic := magicnumber.Find(src)
 	if imagers(magic) {
-		if err := dirs.PictureImager(nil, dst.Name(), upload.unid); err != nil {
+		if err := dirs.PictureImager(sl, dst.Name(), upload.unid); err != nil {
 			return c.HTML(http.StatusBadRequest,
 				err.Error()+
 					"\nThe uploaded image file could not be converted, "+
