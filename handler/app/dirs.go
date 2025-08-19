@@ -99,7 +99,9 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	data["download"] = uri
 	data["title"] = filerecord.Basename(art)
 	data["description"] = filerecord.Description(art)
-	data["h1"] = filerecord.FirstHeader(art)
+	h1 := filerecord.FirstHeader(art)
+	data["h1"] = h1
+	data["ogtitle"] = h1
 	data["lead"] = firstLead(art)
 	data["comment"] = filerecord.Comment(art)
 	data = dir.filemetadata(art, data)

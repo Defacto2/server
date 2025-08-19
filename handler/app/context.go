@@ -114,8 +114,14 @@ func empty(c echo.Context) map[string]any {
 		"logo":         "",
 		"readonlymode": true,
 		"title":        "",
+		"ogtitle":      "",
 	}
 }
+
+// NOTE:
+// - The Artifacts handler below is for multiple artifacts with pagination.
+// - The releasers handler are for the releasers and groups without pagination.
+// - The individual artifact hander is Dirs.Artifact and is found in the dirs.go file.
 
 // EmptyTester is a map of defaults for the app template tests.
 func EmptyTester(c echo.Context) map[string]any {
@@ -158,7 +164,6 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true
 	data["forApproval"] = false
-	data = artifactsDesc(uri, data)
 	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
 	ctx := context.Background()
 	r, err := fileslice.Records(ctx, db, uri, page, limit)
@@ -170,6 +175,7 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 	if err != nil {
 		return DatabaseErr(c, sl, errs, err)
 	}
+	data = artifactsDesc(uri, d["years"], sum, data)
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))
 	if len(r) == 0 {
@@ -199,7 +205,7 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 	return nil
 }
 
-func artifactsDesc(uri string, data map[string]any) map[string]any {
+func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]any {
 	switch fileslice.Match(uri) {
 	case fileslice.NewUploads:
 		data["description"] = "These are the most recent additions of scene history to the site."
@@ -225,11 +231,17 @@ func artifactsDesc(uri string, data map[string]any) map[string]any {
 		data["description"] = "These are more recent artifacts held by the site."
 		data["title"] = "Recent artifacts"
 	case -1:
-	// do nothing
+		return data
 	default:
 		// catch all other matches
 		s := strings.TrimSpace(fileslice.RecordsSub(uri))
 		data["title"] = helper.Capitalize(s) + " artifacts"
+		desc := "The collection of " +
+			strconv.Itoa(sum) + " " + s + " artifacts"
+		if years != "" {
+			desc += " from " + years
+		}
+		data["description"] = desc + "."
 	}
 	return data
 }

@@ -64,11 +64,13 @@ og:description	Hard Hat Mack released by The Duplicators in 1984
 og:updated_time	1755392511
 og:image:alt	Defacto2 floppy disc logo
 */ -}}
+{{- $ogtitle := index . "ogtitle"}}
+{{- if eq $ogtitle ""}}{{$ogtitle = .title}}{{end}}
 {{- $metatitle := .title}}
 {{- $subheading := index . "subheading"}}
 {{- $unid := index . "unid"}}
 {{- $ogimage := og_image $unid}}
-    <meta property="og:title" content="{{$metatitle}}">
+    <meta property="og:title" content="{{$ogtitle}}">
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{$ogimage}}">
     <meta property="og:site_name" content="Defacto2">

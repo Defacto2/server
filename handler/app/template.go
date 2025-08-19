@@ -345,7 +345,7 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 			return simple.AssetSrc(config.AbsThumbnail, t.Environment.AbsThumbnail.String(), unid, ext)
 		},
 		"og_image": func(unid any) string {
-			const favicon = "/image/layout/favicon.svg"
+			const favicon = "/image/layout/defacto2-ascii.png"
 			val, ok := unid.(string)
 			if !ok {
 				return favicon
@@ -353,7 +353,9 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 			if val == "" {
 				return favicon
 			}
-			return simple.OpenGraphImg(val, dir.Directory(t.Environment.AbsThumbnail))
+			return simple.OpenGraphImg(val,
+				dir.Directory(t.Environment.AbsPreview),
+				dir.Directory(t.Environment.AbsThumbnail))
 		},
 	}
 }

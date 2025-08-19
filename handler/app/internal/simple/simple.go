@@ -440,21 +440,31 @@ func Releasers(prime, second string, magazine bool) template.HTML {
 
 // OpenGraphImg returns a URI for a thumbnail that is intended
 // to be used in the 'og:image' content metadata attribute.
-func OpenGraphImg(unid string, thumbnail dir.Directory) string {
+func OpenGraphImg(unid string, preview, thumbnail dir.Directory) string {
+	name, src := ogImage(unid, config.StaticOriginal(), preview)
+	hash, err := helper.IntegrityFile(name)
+	if err != nil {
+		name, src := ogImage(unid, config.StaticThumb(), thumbnail)
+		hash, err := helper.IntegrityFile(name)
+		if err != nil {
+			return "/image/layout/defacto2-ascii.png"
+		}
+		return src + "?" + hash
+	}
+	return src + "?" + hash
+}
+
+func ogImage(unid, path string, dd dir.Directory) (string, string) {
 	ext, name, src := "", "", ""
 	exts := []string{avif, webp, png}
 	for ext = range slices.Values(exts) {
-		name = thumbnail.Join(unid + ext)
-		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
+		name = dd.Join(unid + ext)
+		src = strings.Join([]string{path, unid + ext}, "/")
 		if helper.Stat(name) {
 			break
 		}
 	}
-	hash, err := helper.IntegrityFile(name)
-	if err != nil {
-		return "/image/layout/favicon.svg"
-	}
-	return src + "?" + hash
+	return name, src
 }
 
 // ReleaserPair returns the primary and secondary releaser groups as two strings.
