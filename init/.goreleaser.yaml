@@ -16,7 +16,6 @@
 # $ goreleaser build --clean --snapshot --config init/.goreleaser.yaml
 #
 version: 2
-
 project_name: defacto2-server
 before:
   hooks:
@@ -29,8 +28,9 @@ builds:
     targets:
       # keep the number of targets to a minimum to improve the build time.
       - linux_amd64
+      - darwin_arm64_v8.0 # apple silicon
 archives:
-  - format: zip # create a zip archive for simplicity
+  - formats: ['zip'] # create a zip archive for simplicity
     name_template: >-
       {{ tolower .ProjectName }}_{{- tolower .Os }}
     files:
@@ -51,7 +51,7 @@ archives:
           mode: 0644 # rw-r--r--
 nfpms:
   - id: deb # create a .deb package for use with dpkg
-    builds: ["server"]
+    ids: ["server"]
     package_name: defacto2-server
     file_name_template: "{{ tolower .ProjectName }}_{{- tolower .Os }}"
     vendor: Defacto2
@@ -69,8 +69,6 @@ nfpms:
       - postgresql
 checksum:
   name_template: "{{ .ProjectName }}_checksums.txt"
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
@@ -78,3 +76,8 @@ changelog:
       - "^docs:"
       - "^test:"
       - "^tmp:"
+release:
+  footer: >-
+    ---
+
+    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).

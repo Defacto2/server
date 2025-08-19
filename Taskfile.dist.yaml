@@ -25,16 +25,14 @@ tasks:
       - echo "Building assets..."
       - go run -modfile=runner/go.mod runner/runner.go
       - echo "Done!"
-  build:
+  binary:
     desc: "Build the binary of the web server."
     deps: [assets]
     cmds:
       - cmd: echo "Building..."
       - cmd: go build -o {{.BINNAME}} -v server.go
         platforms: [linux, darwin, freebsd]
-  build-race:
-    aliases:
-      - "buildx"
+  binaryr:
     desc: "Build the binary of the web server with race detection."
     deps: [assets]
     cmds:
@@ -44,7 +42,7 @@ tasks:
       - cmd: ./{{.BINNAME}} --version
         platforms: [linux, darwin]
       - cmd: echo "Done!"
-  build-run:
+  binary-run:
     desc: "Run the previously built binary."
     cmds:
       - ./dist/defacto2-server
@@ -85,9 +83,9 @@ tasks:
       - cmd: go get -u=patch -x
       - cmd: go mod verify
       - cmd: go mod tidy
-  pkg-release:
+  build-release:
     aliases:
-      - "release"
+      - "br"
     desc: "Build the release package of the web server embeded with the git version tag."
     deps: [assets]
     cmds:
@@ -96,9 +94,9 @@ tasks:
       - cmd: echo "Building snapshot..."
       - cmd: goreleaser build --clean --config init/.goreleaser.yaml
       - cmd: echo "Done!"
-  pkg-snapshot:
+  build-snapshot:
     aliases:
-      - "snap"
+      - "bs"
     desc: "Build the release package of the web server without a git version tag."
     deps: [assets]
     cmds:
