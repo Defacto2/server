@@ -1,5 +1,32 @@
 # TODOs and tasks
 
+## sitemap tree
+
+- welcome page
+- https://defacto2.net/interview
+- https://defacto2.net/website
+- https://defacto1.net/areacodes
+- https://defacto2.net/new
+- https://defacto2.net/history
+- https://defacto2.net/thescene
+- https://defacto2.net/brokentexts
+- https://defacto2.net/thanks
+
+~~~
+
+- /files/oldest ~ 1 - 273 ~ /files/oldest/2
+- https://defacto2.net/releaser/year
+- https://defacto2.net/magazine
+- https://defacto2.net/ftp
+- https://defacto2.net/bbs
+- https://defacto2.net/scener
+- 
+
+~ https://wayback.defacto2.net
+~ https://defacto2.net/website/hide
+~ https://defacto2.net/search/*
+
+
 ### Stuff to do
 
 * n/a

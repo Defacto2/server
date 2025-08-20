@@ -5,6 +5,7 @@ package handler
 import (
 	"database/sql"
 	"embed"
+	"encoding/xml"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
+	"github.com/Defacto2/server/handler/sitemap"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/panics"
@@ -191,6 +193,37 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	return e
 }
 
+type SitemapIndex struct {
+	XMLName  xml.Name `xml:"sitemapindex"`
+	XMLNS    string   `xml:"xmlns,attr"`
+	Sitemaps []Locations
+}
+
+type Locations struct {
+	XMLName  xml.Name `xml:"sitemap"`
+	Location string   `xml:"loc"`
+	LastMod  string   `xml:"lastmod"`
+}
+
+type Sitemap struct {
+	XMLName xml.Name `xml:"urlset"`
+	XMLNS   string   `xml:"xmlns,attr"`
+	Urls    []SiteUrl
+}
+
+type SiteUrl struct {
+	XMLName  xml.Name `xml:"urlset"`
+	Location string   `xml:"loc"`
+	LastMod  string   `xml:"lastmod"`
+}
+
+// <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+//   <url>
+//     <loc>https://www.example.com/foo.html</loc>
+//     <lastmod>2022-06-04</lastmod>
+//   </url>
+// </urlset>
+
 // website routes for the main site.
 func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
 	const msg = "website routes"
@@ -199,6 +232,14 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	}
 	e.GET("/health-check", func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
+	})
+	e.GET("/sitemap_index.xml", func(c echo.Context) error {
+		i := sitemap.MapIndex()
+		return c.XMLPretty(http.StatusOK, i, "  ")
+	})
+	e.GET("/sitemap.xml", func(c echo.Context) error {
+		i := sitemap.MapSite(db)
+		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	s := e.Group("")
 	s.GET("/", func(c echo.Context) error { return app.Index(c, sl) })
