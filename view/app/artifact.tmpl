@@ -81,14 +81,14 @@
             {{- end}}
             <div class="m-3">
                 <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-readme-body" 
-                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard">Copy text</button> &nbsp;
-                <input type="radio" class="btn-check" name="readme-base" id="monoFont" autocomplete="off">
+                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button> &nbsp;
+                <input type="radio" class="btn-check" name="readme-base" id="monoFont" rel="nofollow" autocomplete="off">
                 <label class="btn btn-sm btn-outline-dark" for="monoFont" 
                     data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with UTF-8 encoding">Web style</label>
-                <input type="radio" class="btn-check" name="readme-base" id="topazFont" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
+                <input type="radio" class="btn-check" name="readme-base" id="topazFont" rel="nofollow" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
                 <label class="btn btn-sm btn-outline-dark" for="topazFont" 
                     data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
-                <input type="radio" class="btn-check" name="readme-base" id="vgaFont" autocomplete="off"{{if ne $vga ""}} {{$vga}}{{end}}>
+                <input type="radio" class="btn-check" name="readme-base" id="vgaFont" rel="nofollow" autocomplete="off"{{if ne $vga ""}} {{$vga}}{{end}}>
                 <label class="btn btn-sm btn-outline-dark" for="vgaFont"
                     data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
             </div>

@@ -24,11 +24,11 @@
 {{- /* if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}} */ -}}
 {{- $metadesc := $desc}}
 {{- if eq $desc ""}}{{$metadesc = $descDefault}}{{end}}
-{{- $alertURL := index . "alertURL" }}
+{{- $noindex := index . "noindex" }}
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    {{- if ne (len $alertURL) 0}}
+    {{- if eq $noindex true}}
     <meta name="robots" content="noindex">{{end}}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{$metatitle}} | Defacto2</title>
@@ -122,20 +122,20 @@
               <ul class="dropdown-menu">
                 <li><h6 class="dropdown-header">Artifacts</h6></li>
                 {{- if eq $lock true }}
-                <li><a class="dropdown-item" href="/editor/for-approval">New <em>for approval</em></a></li>
+                <li><a class="dropdown-item" href="/editor/for-approval" rel="nofollow">New <em>for approval</em></a></li>
                 {{- end }}
-                <li><a class="dropdown-item" href="/files/new-uploads">New uploads</a></li>
-                <li><a class="dropdown-item" href="/files/new-updates">New changes</a></li>
+                <li><a class="dropdown-item" href="/files/new-uploads" rel="nofollow">New uploads</a></li>
+                <li><a class="dropdown-item" href="/files/new-updates" rel="nofollow">New changes</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The oldest scene artifacts" href="/files/oldest">Oldest</a></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The newer scene artifacts" href="/files/newest">Newest</a></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Vanity demos, cracktros and intros" href="/files/intro">Intros</a></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Scene releases texts and NFO files" href="/files/nfo">Releases</a></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Text art of the 1990s" href="/files/ansi">Ansi art</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The newer scene artifacts" href="/files/newest" rel="nofollow">Newest</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Vanity demos, cracktros and intros" href="/files/intro" rel="nofollow">Intros</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Scene releases texts and NFO files" href="/files/nfo" rel="nofollow">Releases</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Text art of the 1990s" href="/files/ansi" rel="nofollow">Ansi art</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">More</h6></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Artifact topics, tags, and classifications" href="/file">Categories</a></li>
-                <li><a class="dropdown-item" href="/file/stats">Statistics</a></li>  
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A retro imagining of this website from 2006" href="/html3">Use tables</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Artifact topics, tags, and classifications" href="/file" rel="nofollow">Categories</a></li>
+                <li><a class="dropdown-item" href="/file/stats" rel="nofollow">Statistics</a></li>  
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A retro imagining of this website from 2006" href="/html3" rel="nofollow">Use tables</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -144,18 +144,18 @@
               </a>
               <ul class="dropdown-menu">
                 <li><h6 class="dropdown-header">Scene</h6></li>
-                <li><a class="dropdown-item" href="/releaser">Releasers</a></li>
-                <li><a class="dropdown-item" href="/releaser/a-z">Releasers {{az}}</a></li>
+                <li><a class="dropdown-item" href="/releaser" rel="nofollow">Releasers</a></li>
+                <li><a class="dropdown-item" href="/releaser/a-z" rel="nofollow">Releasers {{az}}</a></li>
                 <li><a class="dropdown-item" href="/releaser/year">Releasers {{year}}</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Products</h6></li>
                 <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
-                <li><a class="dropdown-item" href="/magazine/a-z">Magazines {{az}}</a></li>
+                <li><a class="dropdown-item" href="/magazine/a-z" rel="nofollow">Magazines {{az}}</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="/ftp">FTP sites {{az}}</a></li>
                 <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
-                <li><a class="dropdown-item" href="/bbs/a-z">BBS sites {{az}}</a></li>
-                <li><a class="dropdown-item" href="/bbs/year">BBS sites {{year}}</a></li>
+                <li><a class="dropdown-item" href="/bbs/a-z" rel="nofollow">BBS sites {{az}}</a></li>
+                <li><a class="dropdown-item" href="/bbs/year" rel="nofollow">BBS sites {{year}}</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -167,10 +167,10 @@
                 <li><a class="dropdown-item" href="/interview">Interviews</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Roles</h6></li>
-                <li><a class="dropdown-item" href="/artist">Artists</a></li>
-                <li><a class="dropdown-item" href="/coder">Coders</a></li>
-                <li><a class="dropdown-item" href="/musician">Musicians</a></li>
-                <li><a class="dropdown-item" href="/writer">Writers</a></li>
+                <li><a class="dropdown-item" href="/artist" rel="nofollow">Artists</a></li>
+                <li><a class="dropdown-item" href="/coder" rel="nofollow">Coders</a></li>
+                <li><a class="dropdown-item" href="/musician" rel="nofollow">Musicians</a></li>
+                <li><a class="dropdown-item" href="/writer" rel="nofollow">Writers</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -179,9 +179,9 @@
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Scene webpages, videos, books, films, podcast" href="/website">List the sites</a></li>
-                <li><a class="dropdown-item" href="/website/hide">Categories</a></li>
+                <li><a class="dropdown-item" href="/website/hide" rel="nofollow">Categories</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A wayback machine for defunct Scene webpages" href="https://wayback.defacto2.net/">Wayback mirrors</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A wayback machine for defunct Scene webpages" href="https://wayback.defacto2.net/" rel="nofollow">Wayback mirrors</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -189,13 +189,13 @@
                 Search
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for the name of a game or app, or the artifact comment" href="/search/desc">Game or program</a></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for filenames or file extensions" href="/search/file">Filenames</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for the name of a game or app, or the artifact comment" href="/search/desc" rel="nofollow">Game or program</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for filenames or file extensions" href="/search/file" rel="nofollow">Filenames</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Lookup</h6></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup groups, magazines, BBS names, etc." href="/search/releaser">Groups<small> or releasers</small></a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup groups, magazines, BBS names, etc." href="/search/releaser" rel="nofollow">Groups<small> or releasers</small></a></li>
                 {{- if eq $lock true }}
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup an artifact by its database keys" href="/editor/search/id"><em>ID</em> or <em>UUID</em></a></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup an artifact by its database keys" href="/editor/search/id" rel="nofollow"><em>ID</em> or <em>UUID</em></a></li>
                 {{- end }}
                 <li><a class="dropdown-item" href="/areacodes">BBS area codes</a></li>
               </ul>
@@ -203,40 +203,40 @@
           </ul>
           <ul class="navbar-nav">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" rel="nofollow" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Contacts
               </a>
               <ul class="dropdown-menu">
                 <li><h6 class="dropdown-header">Recommended</h6></li>
-                <li data-bs-toggle="tooltip" data-bs-title="Email is the best way to contact us"><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">
+                <li data-bs-toggle="tooltip" data-bs-title="Email is the best way to contact us"><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">
                   <svg class="bi bi-envelope" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#envelope"/>
                   </svg> Email</a></li>
-                <li data-bs-toggle="tooltip" data-bs-title="Like IRC but without the klines and desyncing"><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-discord-modal">
+                <li data-bs-toggle="tooltip" data-bs-title="Like IRC but without the klines and desyncing"><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#contacts-discord-modal">
                   <svg class="bi bi-discord" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#discord"/>
                   </svg> Discord</a>
                 </li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-mastodon-modal">
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#contacts-mastodon-modal">
                   <svg class="bi bi-mastodon" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#mastodon"/>
                   </svg> Mastodon</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-bluesky-modal">
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#contacts-bluesky-modal">
                     <svg class="bi bi-bluesky" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#bluesky"/>
                   </svg> Bluesky</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-facebook-modal">
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#contacts-facebook-modal">
                   <svg class="bi bi-facebook" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#facebook"/>
                   </svg> Facebook</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Retired</h6></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-twitter-modal">
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#contacts-twitter-modal">
                   <svg class="bi bi-twitter" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#twitter"/>
                   </svg> Twitter</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#contacts-youtube-modal">
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#contacts-youtube-modal">
                   <svg class="bi bi-youtube" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
                   </svg> YouTube</a></li>
@@ -247,10 +247,10 @@
                 About
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A casual list of updates to the website" href="/new">What's new</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#privacy-modal">Privacy</a></li>
+                <li><a class="dropdown-item" href="/new" rel="nofollow" data-bs-toggle="tooltip" data-bs-title="A casual list of updates to the website">What's new</a></li>
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#privacy-modal">Privacy</a></li>
                 <li><a class="dropdown-item" href="/history" data-bs-toggle="tooltip" data-bs-title="Who or what is Defacto2?">Brand history</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#credits-modal">Credits</a></li>
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#credits-modal">Credits</a></li>
                 <li class="d-xl-none"><a class="dropdown-item" href="/thanks">Thanks</a></li>
               </ul>
             </li>
@@ -260,11 +260,11 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><h6 class="dropdown-header">FAQ</h6></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#copyright-modal">Copyright</a></li>
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#copyright-modal">Copyright</a></li>
                 <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#terms-modal">Glossary of terms</a></li>
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#terms-modal">Glossary of terms</a></li>
                 <li><a class="dropdown-item" href="/brokentexts">Broken NFO and texts</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#t-a-v-modal">Trojans and viruses</a></li>
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#t-a-v-modal">Trojans and viruses</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">GitHub</h6></li>
                 <li>{{ linkRemoteTip "https://github.com/Defacto2/server" "Website" "Our GitHub repository for this site" }}</li>

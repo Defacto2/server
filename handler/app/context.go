@@ -114,8 +114,8 @@ func empty(c echo.Context) map[string]any {
 		"logo":         "",
 		"readonlymode": true,
 		"title":        "",
-		"ogtitle":      "", // opengraph title
-		"alertURL":     "", // used by the layout.tmpl, robots=noindex metatag
+		"ogtitle":      "",    // opengraph title
+		"noindex":      false, // flag the layout to include robots=noindex metatag
 	}
 }
 
@@ -207,6 +207,7 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 }
 
 func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]any {
+	data["noindex"] = true
 	switch fileslice.Match(uri) {
 	case fileslice.NewUploads:
 		data["description"] = "These are the most recent additions of scene history to the site."
@@ -228,6 +229,7 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 	case fileslice.Oldest:
 		data["description"] = "These are the oldest known artifacts held by the site."
 		data["title"] = "Oldest artifacts"
+		data["noindex"] = false
 	case fileslice.Newest:
 		data["description"] = "These are more recent artifacts held by the site."
 		data["title"] = "Recent artifacts"
@@ -306,6 +308,7 @@ func Artist(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
+	data["noindex"] = true
 	return scener(c, db, sl, postgres.Artist, data)
 }
 
@@ -377,6 +380,7 @@ func bbsHandler(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.Order
 	const logo = "Bulletin Board Systems"
 	const key = "releasers"
 	data := empty(c)
+	data["noindex"] = true
 	data["title"] = "Former " + title
 	data["description"] = lead
 	data["logo"] = logo
@@ -401,6 +405,7 @@ func bbsHandler(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.Order
 		data["title"] = title + az
 		order = alpha
 	case model.Prolific:
+		data["noindex"] = false
 		s := logo + ", by count"
 		data["logo"] = s
 		order = "by file artifact count"
@@ -475,6 +480,7 @@ func Coder(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
+	data["noindex"] = true
 	return scener(c, db, sl, postgres.Writer, data)
 }
 
@@ -669,6 +675,7 @@ func Categories(c echo.Context, db *sql.DB, sl *slog.Logger, stats bool) error {
 	}
 	const title, name = "Artifact categories", "categories"
 	data := empty(c)
+	data["noindex"] = true
 	data["title"] = title
 	data["description"] = "A table of contents for the collection."
 	data["logo"] = title
@@ -1068,6 +1075,7 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 		if err := r.MagazineAZ(ctx, db); err != nil {
 			return DatabaseErr(c, sl, name, err)
 		}
+		data["noindex"] = true
 		s := title + az
 		data["logo"] = s
 		data["title"] = title + az
@@ -1097,6 +1105,7 @@ func Musician(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
+	data["noindex"] = true
 	return scener(c, db, sl, postgres.Musician, data)
 }
 
@@ -1104,6 +1113,7 @@ func Musician(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 func New(c echo.Context, sl *slog.Logger) error {
 	const name = "new"
 	data := empty(c)
+	data["noindex"] = true // apply noindex to what's new, so we don't have to worry using about <a href rel="nofollow">
 	data["description"] = "What is new on the Defacto2 website?"
 	data["logo"] = "New stuff"
 	data["h1"] = "What is new?"
@@ -1387,6 +1397,7 @@ func releasers(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderB
 		"sceners responsible for releasing or distributing products."
 	const logo = "Former groups and releasers"
 	const key = "releasers"
+	data["noindex"] = true
 	data["title"] = title + "s and groups"
 	data["description"] = "A linked list of the former Scene releasers and groups, that were collectives of people " +
 		"who would work together and operate under a common brand."
@@ -1416,6 +1427,7 @@ func releasers(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderB
 		data["logo"] = s
 		order = "by file artifact count"
 	case model.Oldest:
+		data["noindex"] = false
 		tmpl = "releaser-year"
 		s := logo + byyear
 		data["logo"] = s
@@ -1694,6 +1706,7 @@ func SearchDesc(c echo.Context, sl *slog.Logger) error {
 	}
 	const title, name = "Game and program title search", "searchpost"
 	data := empty(c)
+	data["noindex"] = true
 	data["description"] = "Use this search to uncover named applications, games, and descriptions of artifacts."
 	data["logo"] = title
 	data["title"] = title
@@ -1713,6 +1726,7 @@ func SearchID(c echo.Context, sl *slog.Logger) error {
 	}
 	const title, name = "Search the IDs of artifacts", "searchhtmx"
 	data := empty(c)
+	data["noindex"] = true
 	data["description"] = "Use this search to lookup artifacts by their database identities."
 	data["logo"] = title
 	data["title"] = title
@@ -1734,6 +1748,7 @@ func SearchFile(c echo.Context, sl *slog.Logger) error {
 	}
 	const title, name = "Filename search", "searchpost"
 	data := empty(c)
+	data["noindex"] = true
 	data["description"] = "Use this search to lookup artifacts by their filenames."
 	data["logo"] = title
 	data["title"] = title
@@ -1753,6 +1768,7 @@ func SearchReleaser(c echo.Context, sl *slog.Logger) error {
 	}
 	const title, name = "Search for releasers", "searchhtmx"
 	data := empty(c)
+	data["noindex"] = true
 	data["description"] = "Use this search to lookup releasers, groups, magazines, boards and sites by their names."
 	data["logo"] = title
 	data["title"] = title
@@ -1802,6 +1818,7 @@ func SignOut(c echo.Context, sl *slog.Logger) error {
 	}
 	const name = "signout"
 	data := empty(c)
+	data["noindex"] = true
 	data["title"] = "Sign out"
 	data["description"] = "Sign out of Defacto2."
 	data["h1"] = "Sign out"
@@ -1820,6 +1837,7 @@ func Signin(c echo.Context, sl *slog.Logger, clientID, nonce string) error {
 	}
 	const name = "signin"
 	data := empty(c)
+	data["noindex"] = true
 	data["title"] = "Sign in"
 	data["description"] = "Sign in to Defacto2."
 	data["h1"] = "Sign in"
@@ -2037,6 +2055,7 @@ func Website(c echo.Context, sl *slog.Logger, open string) error {
 		}
 	}
 	if closeAll {
+		data["noindex"] = true
 		data["title"] = "Website categories"
 	}
 	// If a section was requested but not found, return a 404.
@@ -2064,6 +2083,7 @@ func Writer(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
+	data["noindex"] = true
 	return scener(c, db, sl, postgres.Writer, data)
 }
 

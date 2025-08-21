@@ -5,15 +5,15 @@
 {{- $syncLink := demozooGetLink .Filename .Filesize .WebIDDemozoo .UUID}}
   <div class="card-footer">
     <strong>Editor</strong>, 
-    <a class="{{$editorLink}}" href="{{linkHref .ID}}#data-editor">metadata</a>, 
-    <a class="{{$editorLink}}" href="{{linkHref .ID}}#file-editor">file assets</a>, 
-    <a class="{{$editorLink}}" href="{{linkHref .ID}}#emulate-editor">emulator</a> settings
+    <a class="{{$editorLink}}" href="{{linkHref .ID}}#data-editor" rel="nofollow">metadata</a>, 
+    <a class="{{$editorLink}}" href="{{linkHref .ID}}#file-editor" rel="nofollow">file assets</a>, 
+    <a class="{{$editorLink}}" href="{{linkHref .ID}}#emulate-editor" rel="nofollow">emulator</a> settings
     <br>
   {{- if gt $zooID 0}}
     {{- /*  Demozoo production ID  */}}
     <div class="card-text"><small class="text-body-info" id="editorFeedback{{ .WebIDDemozoo.Int64 }}">
-      Demozoo production <a class="{{$editorLink}}" href="https://demozoo.org/productions/{{ .WebIDDemozoo.Int64 }}">{{ .WebIDDemozoo.Int64 }}</a>
-      {{- if ne $syncLink ""}}, <a class="{{$editorLink}}" href="">{{$syncLink}}</a>{{end}}</small>
+      Demozoo production <a class="{{$editorLink}}" href="https://demozoo.org/productions/{{ .WebIDDemozoo.Int64 }}" rel="nofollow">{{ .WebIDDemozoo.Int64 }}</a>
+      {{- if ne $syncLink ""}}, <a class="{{$editorLink}}" href="" rel="nofollow">{{$syncLink}}</a>{{end}}</small>
     </div>
   {{- end}}
   </div>

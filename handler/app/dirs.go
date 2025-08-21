@@ -579,7 +579,11 @@ func (dir Dirs) filemetadata(art *models.File, data map[string]any) map[string]a
 	data["published"] = filerecord.Date(art)
 	data["section"] = filerecord.TagCategory(art)
 	data["platform"] = filerecord.TagProgram(art)
-	data["alertURL"] = filerecord.AlertURL(art)
+	alert := filerecord.AlertURL(art)
+	data["alertURL"] = alert
+	if strings.TrimSpace(alert) != "" {
+		data["noindex"] = true
+	}
 	data["extraZip"] = filerecord.ExtraZip(art, dir.Extra)
 	return data
 }

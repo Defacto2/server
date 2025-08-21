@@ -5,7 +5,6 @@ package handler
 import (
 	"database/sql"
 	"embed"
-	"encoding/xml"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -193,37 +192,6 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	return e
 }
 
-type SitemapIndex struct {
-	XMLName  xml.Name `xml:"sitemapindex"`
-	XMLNS    string   `xml:"xmlns,attr"`
-	Sitemaps []Locations
-}
-
-type Locations struct {
-	XMLName  xml.Name `xml:"sitemap"`
-	Location string   `xml:"loc"`
-	LastMod  string   `xml:"lastmod"`
-}
-
-type Sitemap struct {
-	XMLName xml.Name `xml:"urlset"`
-	XMLNS   string   `xml:"xmlns,attr"`
-	Urls    []SiteUrl
-}
-
-type SiteUrl struct {
-	XMLName  xml.Name `xml:"urlset"`
-	Location string   `xml:"loc"`
-	LastMod  string   `xml:"lastmod"`
-}
-
-// <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-//   <url>
-//     <loc>https://www.example.com/foo.html</loc>
-//     <lastmod>2022-06-04</lastmod>
-//   </url>
-// </urlset>
-
 // website routes for the main site.
 func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
 	const msg = "website routes"
@@ -233,12 +201,28 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	e.GET("/health-check", func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
-	e.GET("/sitemap_index.xml", func(c echo.Context) error {
+	e.GET("/sitemaps.xml", func(c echo.Context) error {
 		i := sitemap.MapIndex()
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
-	e.GET("/sitemap.xml", func(c echo.Context) error {
-		i := sitemap.MapSite(db)
+	e.GET("/"+sitemap.Website, func(c echo.Context) error {
+		i := sitemap.MapSite(db, sl)
+		return c.XMLPretty(http.StatusOK, i, "  ")
+	})
+	e.GET("/"+sitemap.Releaser, func(c echo.Context) error {
+		i := sitemap.MapReleaser(db, sl)
+		return c.XMLPretty(http.StatusOK, i, "  ")
+	})
+	e.GET("/"+sitemap.Magazine, func(c echo.Context) error {
+		i := sitemap.MapMagzine(db, sl)
+		return c.XMLPretty(http.StatusOK, i, "  ")
+	})
+	e.GET("/"+sitemap.BBS, func(c echo.Context) error {
+		i := sitemap.MapBBS(db, sl)
+		return c.XMLPretty(http.StatusOK, i, "  ")
+	})
+	e.GET("/"+sitemap.FTP, func(c echo.Context) error {
+		i := sitemap.MapFTP(db, sl)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	s := e.Group("")

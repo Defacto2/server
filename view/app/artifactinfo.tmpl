@@ -112,7 +112,7 @@
             {{- if eq $jsdos6 true}}
             {{- if eq $extraZip true }}<div class="col d-grid"></div>{{end}}
             <div class="col d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + r">
-                <a href="#" id="js-dos-run-app" class="btn btn-outline-dark btn-lg" data-bs-toggle="modal" data-bs-target="#js-dos-modal">Run app in browser</a>
+                <a href="#" id="js-dos-run-app" class="btn btn-outline-dark btn-lg" data-bs-toggle="modal" data-bs-target="#js-dos-modal" rel="nofollow">Run app in browser</a>
             </div>
             {{- end}}
             </div>
@@ -120,21 +120,21 @@
             {{- if ne "" $checksum}}
                 <div class="col d-none d-sm-grid">
                     <a class="btn btn-outline-secondary" href="/sum/{{$download}}" role="button" 
-                        data-bs-toggle="tooltip" data-bs-title="Checksum download">#sum</a>
+                        data-bs-toggle="tooltip" data-bs-title="Checksum download" rel="nofollow">#sum</a>
                 </div>
                 <div class="col d-grid d-sm-none">
-                    <a class="btn btn-outline-secondary" href="/sum/{{$download}}" role="button">Checksum</a>
+                    <a class="btn btn-outline-secondary" href="/sum/{{$download}}" role="button" rel="nofollow">Checksum</a>
                 </div>
             {{- end}}
             {{- if $content}}
                 <div class="col d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + v">
-                    <a id="artifact-view-content" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#view-content-modal">view content</a>
+                    <a id="artifact-view-content" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#view-content-modal" rel="nofollow">view content</a>
                 </div>
             {{- end}}
             {{- if ne "" $preview}}
                 <div class="col d-grid">
                     <a class="btn btn-outline-secondary" href="{{$preview}}" role="button" 
-                        data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}">view the artifact</a>
+                        data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}" rel="nofollow">view the artifact</a>
                 </div>
             {{- end}}
             </div>

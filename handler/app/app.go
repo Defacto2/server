@@ -329,7 +329,7 @@ func LinkDownload(id any, securityAlert string) template.HTML {
 		return template.HTML(`<s class="card-link text-warning-emphasis" data-bs-toggle="tooltip" ` +
 			`data-bs-title="Use the link to access this file download">Download</s>`)
 	}
-	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Download</a>`, s))
+	return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s" rel="nofollow">Download</a>`, s))
 }
 
 // LinkHref creates a URL path to link to the file page for the record.
@@ -358,8 +358,6 @@ func LinkInterview(href string) template.HTML {
 // LinkPage creates a URL anchor element to link to the file page for the record.
 // The id needs to be a valid integer. For example providing 1 would return:
 //
-//	<a class="card-link" href="/f/9b1c6">Artifact</a>
-//
 // The keyboard shortcut is "kboard" and is used to link to the file page with the keyboard focus.
 // It can be left empty to not include the keyboard shortcut.
 func LinkPage(id, kboard any) template.HTML {
@@ -372,11 +370,11 @@ func LinkPage(id, kboard any) template.HTML {
 	}
 	kb, valid := kboard.(int64)
 	if !valid {
-		return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s">Artifact</a>`, s))
+		return template.HTML(fmt.Sprintf(`<a class="card-link" href="%s" rel="nofollow">Artifact</a>`, s))
 	}
 	keypress := strconv.FormatInt(kb, 10)
 	return template.HTML(fmt.Sprintf(`<a data-bs-toggle="tooltip" data-bs-title="control + alt + %s" `+
-		`id="artifact-card-link-%s" class="card-link" href="%s">Artifact</a>`,
+		`id="artifact-card-link-%s" class="card-link" href="%s" rel="nofollow">Artifact</a>`,
 		keypress, keypress, s))
 }
 
@@ -392,7 +390,7 @@ func LinkRunApp(id any) template.HTML {
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	return template.HTML(fmt.Sprintf(`&nbsp; &nbsp; <a class="card-link" href="%s#runapp">Run app</a>`, s))
+	return template.HTML(fmt.Sprintf(`&nbsp; &nbsp; <a class="card-link" href="%s#runapp" rel="nofollow">Run app</a>`, s))
 }
 
 // LinkPreview creates a URL to link to the file record in-tab to use as a preview.
