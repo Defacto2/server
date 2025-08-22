@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"image"
 	"io/fs"
+	"log/slog"
 	"math"
 	"net/url"
 	"os"
@@ -515,8 +516,8 @@ func (e *entry) parseMusicID3(path string) bool {
 
 // ListContent returns a list of the files contained in the archive file.
 // This is used to generate the HTML for the "Download content" section of the File editor.
-func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML { //nolint:funlen
-	if art == nil {
+func ListContent(sl *slog.Logger, art *models.File, dirs command.Dirs, src string) template.HTML { //nolint:funlen
+	if sl == nil || art == nil {
 		return ""
 	}
 	entries, files, zeroByteFiles := 0, 0, 0
@@ -592,7 +593,7 @@ func ListContent(art *models.File, dirs command.Dirs, src string) template.HTML 
 		unid:          unid,
 	}
 	names = helper.SortNames("/", names)
-	return c.renderContent(&b, names...)
+	return c.renderContent(sl, &b, names...)
 }
 
 type content struct {
@@ -603,7 +604,7 @@ type content struct {
 	zeroByteFiles int
 }
 
-func (c content) renderContent(b *strings.Builder, names ...string) template.HTML {
+func (c content) renderContent(sl *slog.Logger, b *strings.Builder, names ...string) template.HTML {
 	// always render a file_id.diz if it is found
 	diz := indexDiz(names...)
 	l := len(names)
@@ -646,7 +647,7 @@ func (c content) renderContent(b *strings.Builder, names ...string) template.HTM
 		srcNFO = filepath.Join(c.dst, elms)
 	}
 	if srcNFO != "" {
-		if err := c.dirs.TextDeferred(srcNFO, c.unid); err != nil {
+		if err := c.dirs.TextDeferred(sl, srcNFO, c.unid); err != nil {
 			b.Reset()
 			return template.HTML(err.Error())
 		}

@@ -23,7 +23,7 @@ func TestArtifact(t *testing.T) {
 func TestEditor(t *testing.T) {
 	t.Parallel()
 	dir := app.Dirs{}
-	x := dir.Editor(nil, nil)
+	x := dir.Editor(nil, nil, nil)
 	be.True(t, len(x) == 0)
 }
 

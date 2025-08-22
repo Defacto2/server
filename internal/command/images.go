@@ -1089,8 +1089,11 @@ func OptimizePNG(src string) error {
 
 // TextDeferred is used to create args thumbnail and args text file in the extra directory.
 // It is intended to be used with the filerecord.ListContent function.
-func (dir Dirs) TextDeferred(src, unid string) error {
+func (dir Dirs) TextDeferred(sl *slog.Logger, src, unid string) error {
 	const msg = "text deferred"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
 	thumb := false
 	for ext := range slices.Values(ImagesExt()) {
 		src := filepath.Join(dir.Thumbnail.Path(), unid+ext)
@@ -1104,7 +1107,7 @@ func (dir Dirs) TextDeferred(src, unid string) error {
 		}
 	}
 	if !thumb {
-		if err := dir.TextImager(nil, src, unid, false); err != nil {
+		if err := dir.TextImager(sl, src, unid, false); err != nil {
 			return fmt.Errorf("%s: %w: %s", msg, err, src)
 		}
 	}

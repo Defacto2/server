@@ -89,7 +89,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	}
 	data := empty(c)
 	if !readonly {
-		data = dir.Editor(art, data)
+		data = dir.Editor(sl, art, data)
 		data = detectANSI(db, sl, art.ID, data)
 	}
 	// page metadata
@@ -224,8 +224,8 @@ func plainText(modMagic any) bool {
 // Editor returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) Editor(art *models.File, data map[string]any) map[string]any {
-	if art == nil {
+func (dir Dirs) Editor(sl *slog.Logger, art *models.File, data map[string]any) map[string]any {
+	if sl == nil || art == nil {
 		return data
 	}
 	d := command.Dirs{
@@ -250,7 +250,7 @@ func (dir Dirs) Editor(art *models.File, data map[string]any) map[string]any {
 	data["modMagicNumber"] = simple.MagicAsTitle(abs)
 	data["modDBModify"] = filerecord.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
-	data["modDecompress"] = filerecord.ListContent(art, d, abs)
+	data["modDecompress"] = filerecord.ListContent(sl, art, d, abs)
 	data["modDecompressLoc"] = simple.MkContent(abs)
 	// These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
 	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
