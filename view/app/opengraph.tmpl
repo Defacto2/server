@@ -63,6 +63,8 @@ og:image	https://defacto2.net/image/layout/favicon.svg
 og:description	Hard Hat Mack released by The Duplicators in 1984
 og:updated_time	1755392511
 og:image:alt	Defacto2 floppy disc logo
+
+The "twitter:card" is used by Discord.
 */ -}}
 {{- $ogtitle := index . "ogtitle"}}
 {{- if eq $ogtitle ""}}{{$ogtitle = .title}}{{end}}
@@ -70,8 +72,12 @@ og:image:alt	Defacto2 floppy disc logo
 {{- $subheading := index . "subheading"}}
 {{- $unid := index . "unid"}}
 {{- $ogimage := og_image $unid}}
+{{- $desc := index . "description"}}
     <meta property="og:title" content="{{$ogtitle}}">
+    <meta property="og:site_name" content="Defacto2">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://defacto2.net{{$ogimage}}">
-    <meta property="og:site_name" content="Defacto2">
+{{- if ne $desc ""}}
+    <meta property="og:description" content="{{$desc}}">{{end}}
+    <meta name="twitter:card" content="summary_large_image">
 {{ end }}
