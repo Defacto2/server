@@ -64,7 +64,9 @@ og:description	Hard Hat Mack released by The Duplicators in 1984
 og:updated_time	1755392511
 og:image:alt	Defacto2 floppy disc logo
 
-The "twitter:card" is used by Discord.
+- "twitter:card" is used by Discord.
+- "fediverse:creator" is used by Mastodon.
+
 */ -}}
 {{- $ogtitle := index . "ogtitle"}}
 {{- if eq $ogtitle ""}}{{$ogtitle = .title}}{{end}}
@@ -80,4 +82,6 @@ The "twitter:card" is used by Discord.
 {{- if ne $desc ""}}
     <meta property="og:description" content="{{$desc}}">{{end}}
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="fediverse:creator" content="@defacto2@mas.to">
 {{ end }}
+
