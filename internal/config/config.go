@@ -3,7 +3,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"log/slog"
 	"reflect"
 	"slices"
@@ -216,8 +215,8 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 	values := reflect.ValueOf(c)
 	if help {
 		s := "Depending on the firewall and operating system setup, " +
-			"the web server maybe accessible from these links"
-		log.Println(s)
+			"the defacto2 web server maybe accessible from these links"
+		sl.Info("urls", slog.String("about", s))
 	}
 	hosts, err := helper.LocalHosts()
 	if err != nil {
@@ -229,7 +228,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		return ErrNoPort
 	}
 	const disable, text, secure = 0, 80, 443
-	const li = " -"
+	const li = "urls"
 	for host := range slices.Values(hosts) {
 		if c.MatchHost != "" && host != c.MatchHost.String() {
 			continue

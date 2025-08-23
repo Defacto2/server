@@ -494,10 +494,7 @@ func (dir Dirs) textImagers(sl *slog.Logger, unid, tmp string) error {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var errs error
-	const groups = 3
-	wg.Add(groups)
-	go func() { // PNG optimization of the ansilove PNG image
-		defer wg.Done()
+	wg.Go(func() { // PNG optimization of the ansilove PNG image
 		dst := filepath.Join(dir.Preview.Path(), unid+png)
 		if err := CopyFile(sl, tmp, dst); err != nil {
 			mu.Lock()
@@ -511,23 +508,21 @@ func (dir Dirs) textImagers(sl *slog.Logger, unid, tmp string) error {
 			mu.Unlock()
 			return
 		}
-	}()
-	go func() { // WebP preview of the ansilove PNG image
-		defer wg.Done()
+	})
+	wg.Go(func() { // WebP preview of the ansilove PNG image
 		if err := dir.PreviewWebP(nil, tmp, unid); err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("%s webp preview: %w", msg, err))
 			mu.Unlock()
 		}
-	}()
-	go func() { // Thumbnail of the ansilove PNG image
-		defer wg.Done()
+	})
+	wg.Go(func() { // Thumbnail of the ansilove PNG image
 		if err := dir.ThumbPixels(sl, tmp, unid); err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("%s thumbnail: %w", msg, err))
 			mu.Unlock()
 		}
-	}()
+	})
 	// Wait for the goroutines to finish before deleting the temp file
 	wg.Wait()
 	defer func() {
@@ -636,11 +631,10 @@ func (dir Dirs) PreviewPhoto(sl *slog.Logger, src, unid string) error {
 		}
 	}
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		defer wg.Done()
 		err = dir.ThumbPhoto(sl, srcPath, unid)
-	}()
+	})
 	wg.Wait()
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -673,11 +667,10 @@ func (dir Dirs) PreviewGIF(sl *slog.Logger, src, unid string) error {
 	}()
 	var err error
 	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		defer wg.Done()
 		err = dir.ThumbPixels(sl, tmp, unid)
-	}()
+	})
 	wg.Wait()
 	defer func() {
 		err := os.Remove(tmp)
@@ -705,9 +698,7 @@ func (dir Dirs) PreviewPNG(sl *slog.Logger, src, unid string) error {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var errs error
-	const groups = 2
-	wg.Add(groups)
-	go func() {
+	wg.Go(func() {
 		defer wg.Done()
 		err := OptimizePNG(dst)
 		if err != nil {
@@ -715,8 +706,8 @@ func (dir Dirs) PreviewPNG(sl *slog.Logger, src, unid string) error {
 			errs = errors.Join(errs, fmt.Errorf("%s optimize: %w", msg, err))
 			mu.Unlock()
 		}
-	}()
-	go func() {
+	})
+	wg.Go(func() {
 		defer wg.Done()
 		err := dir.ThumbPixels(sl, src, unid)
 		if err != nil {
@@ -724,7 +715,7 @@ func (dir Dirs) PreviewPNG(sl *slog.Logger, src, unid string) error {
 			errs = errors.Join(errs, fmt.Errorf("%s thumbnail: %w", msg, err))
 			mu.Unlock()
 		}
-	}()
+	})
 	wg.Wait()
 	return errs
 }
