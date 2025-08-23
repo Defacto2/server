@@ -78,15 +78,4 @@ changelog:
       - "^test:"
       - "^tmp:"
 release:
-  footer: >-
-    `defacto2-server` is a standalone, web server application. It works out of the box without installation or configuration.\ However, to browse any records such as the artifacts, releasers and sceners, a running [defacto2 database](https://github.com/Defacto2/database) is required.
-
-    > [!IMPORTANT]\ > Artifact thumbnails, screenshots and downloads are missing and won't display.
-
-    macos users will probably need to remove the quarantine attribute before use:\ `$ xattr -d com.apple.quarantine retrotxt`
-
-    Windows support is limited to browsing. Features such as image regeneration or file uploading are untested and will probably not work.
-
-    ---
-
-    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
+  footer: "---\n_defacto2-server_ is a standalone web server application.  It works out of the box without installation or configuration. However, to browse any records such as the artifacts, releasers and sceners, a running [defacto2 database](https://github.com/Defacto2/database) is required.\n\nmacos users will probably need to remove the quarantine attribute before use: \n`$ xattr -d com.apple.quarantine defacto2-server`\n\nWindows support is limited to browsing. Features such as image regeneration or file uploading are untested and will probably not work.\n\nReleased by [GoReleaser](https://github.com/goreleaser/goreleaser)."
