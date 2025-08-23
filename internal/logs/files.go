@@ -33,11 +33,31 @@ type Files struct {
 // Close the open file descriptors in use by Files.
 // Any errors will be joined and returned.
 func (f Files) Close() error {
-	err1 := f.errlevel.Close()
-	err2 := f.infolevel.Close()
-	err3 := f.debuglevel.Close()
+	const msg = "logs files close"
+	var err1, err2, err3 error
+	if f.errlevel != nil {
+		err1 = f.errlevel.Close()
+	}
+	if f.infolevel != nil {
+		err2 = f.infolevel.Close()
+	}
+	if f.debuglevel != nil {
+		err3 = f.debuglevel.Close()
+	}
+	if err1 != nil {
+		err1 = fmt.Errorf("error level %w", err1)
+	}
+	if err2 != nil {
+		err2 = fmt.Errorf("info level %w", err2)
+	}
+	if err3 != nil {
+		err3 = fmt.Errorf("debug level %w", err3)
+	}
 	err := errors.Join(err1, err2, err3)
-	return err
+	if err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return nil
 }
 
 // New creates a slog logger that can write to multiple writers.
@@ -111,35 +131,35 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	const msg = "logs open file"
 	const flag = os.O_CREATE | os.O_APPEND | os.O_WRONLY
 	const perm = 0o666
-	f := Files{}
+	none, files := Files{}, Files{}
 	// handle the root directory
 	if root == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return f, fmt.Errorf("%s user home dir: %w", msg, err)
+			return none, fmt.Errorf("%s user home dir: %w", msg, err)
 		}
 		root = home
 	}
 	r, err := os.OpenRoot(root)
 	if err != nil {
-		return f, fmt.Errorf("%s open root: %w", msg, err)
+		return none, fmt.Errorf("%s open root: %w", msg, err)
 	}
 	// open files
 	var errr error
 	if ename != "" {
-		f.errlevel, errr = r.OpenFile(ename, flag, perm)
+		files.errlevel, errr = r.OpenFile(ename, flag, perm)
 	}
 	var erri error
 	if iname != "" {
-		f.infolevel, erri = r.OpenFile(iname, flag, perm)
+		files.infolevel, erri = r.OpenFile(iname, flag, perm)
 	}
 	var errd error
 	if dname != "" {
-		f.debuglevel, errd = r.OpenFile(dname, flag, perm)
+		files.debuglevel, errd = r.OpenFile(dname, flag, perm)
 	}
 	err = errors.Join(errr, erri, errd)
 	if err != nil {
-		return f, fmt.Errorf("%s: %w", msg, err)
+		return files, fmt.Errorf("%s: %w", msg, err)
 	}
-	return f, nil
+	return files, nil
 }

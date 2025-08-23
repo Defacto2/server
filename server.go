@@ -77,20 +77,21 @@ func main() {
 	lf, err := logs.OpenFiles(string(configs.AbsLog), logs.NameErr, logs.NameInfo, nothing)
 	if err != nil {
 		log.Println(fmt.Errorf("%w: %w", ErrLog, err))
-	}
-	if prod := configs.ProdMode.Bool(); prod {
-		defer func() {
-			err := lf.Close()
-			if err != nil {
-				log.Println(err)
-			}
-		}()
 	} else {
-		// We only use the log files in production mode. However
-		// it is good to create, open and close the files in development
-		// mode to confirm the functionality of the loggers.
-		_ = lf.Close()
-		lf = logs.NoFiles()
+		if prod := configs.ProdMode.Bool(); prod {
+			defer func() {
+				err := lf.Close()
+				if err != nil {
+					log.Println(err)
+				}
+			}()
+		} else {
+			// We only use the log files in production mode. However
+			// it is good to create, open and close the files in development
+			// mode to confirm the functionality of the loggers.
+			_ = lf.Close()
+			lf = logs.NoFiles()
+		}
 	}
 	sl, cl, logo := setupWriters(*configs, lf)
 	configs.Print(cl)

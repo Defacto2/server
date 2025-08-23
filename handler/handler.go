@@ -41,7 +41,7 @@ import (
 
 const (
 	// ShutdownCounter is the number of iterations to wait before shutting down the server.
-	ShutdownCounter = 3
+	ShutdownCounter = 1
 
 	// ShutdownWait is the number of seconds to wait before shutting down the server.
 	ShutdownWait = ShutdownCounter * time.Second
