@@ -14,52 +14,40 @@
 ```
 
 The Defacto2 website is a self-contained application first devised in 2023.
-It is built with the Go language and can be easily compiled for significant server operating systems.
-The application relies on a [PostgreSQL](https://www.postgresql.org/) database setup for data queries using a PostgreSQL [database connection](https://www.postgresql.org/docs/current/ecpg-sql-connect.html).
+It is built with the Go language and can be easily compiled for many platforms and operating systems.
 
-All configurations and modifications to this web application's default settings are through system environment variables.
+The application uses an optional [PostgreSQL](https://www.postgresql.org/) [database connection](https://www.postgresql.org/docs/current/ecpg-sql-connect.html) for data queries.
+
+All configurations are optional and any changes to the defaults are made through system environment variables.
 
 ## Download
 
-Currently the application is available as a [standalone binary for Linux](https://github.com/Defacto2/server/releases/latest/download/defacto2-server_linux.zip).
+[There are downloads available](https://github.com/Defacto2/server/releases/latest) for Linux, macOS and Windows.
 
 ## Installation
 
-Installation instructions are provided for [Ubuntu Server](https://ubuntu.com/server). 
+No installation is required to play around with the web server.
+
+> [!NOTE]
+> Currently the artifact screenshots, thumbnails and files are not available for download or display. 
+> This due to the additional hosting costs.
+
+## Installation for the Debian Package
 
 ```sh
 # download the latest release
-wget https://github.com/Defacto2/server/releases/latest/download/defacto2-server_linux.deb
+$ wget https://github.com/Defacto2/server/releases/latest/download/defacto2-server_linux.deb
 
 # install (or update) the package
-sudo dpkg -i defacto2-server_linux.deb
+$ sudo dpkg -i defacto2-server_linux.deb
 
 # confirm the binary is executable
-defacto2-server --version
-```
-
-For other Linux distributions, the binary can be installed manually to a directory in the system's PATH.
-
-```sh
-# download the latest release
-wget https://github.com/Defacto2/server/releases/latest/download/defacto2-server_linux.zip
-
-# unzip the archive
-unzip defacto2-server_linux.zip
-
-# make the binary executable
-sudo chmod +x defacto2-server
-
-# move the binary to a system path
-sudo mv defacto2-server /usr/local/bin
-
-# confirm the binary is executable
-defacto2-server --version
+$ defacto2-server --version
 ```
 
 ## Usage
 
-The web server will run with out any arguments and will be available on the _[localhost](http://localhost)_ with port `1323`.
+The web server will run with out any arguments and will be available on the _[localhost](http://localhost)_ over port `1323`.
 
 ```sh
 defacto2-server
@@ -75,16 +63,13 @@ There are examples of the environment variables in the [example .env](../init/ex
 
 ## Source code
 
-The source code requires a local [installation](https://go.dev/doc/install) of [Go version 1.x](https://github.com/Defacto2/server/blob/main/go.mod).
+The source code requires a local [installation](https://go.dev/doc/install) of the Go language.
 
 ```sh
 $ go version
 
 > go version go1.23.4 linux/amd64
 ```
-
-> [!IMPORTANT]
-> While you can compile the application to target Windows environments, it will not function correctly with NTFS file paths. Instead, it is advisable to use Windows Subsystem for Linux.
 
 Clone the source code repository and download the dependencies.
 
