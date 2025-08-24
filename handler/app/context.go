@@ -1969,7 +1969,7 @@ func TheScene(c echo.Context, sl *slog.Logger) error {
 	}
 	const name = "thescene"
 	const h1 = "The Scene"
-	const lead = "A board church of people and online communities that is collectively grouped;" +
+	const lead = "The Scene is broad church of people and online communities that is collectively grouped;" +
 		" it is subculture of niche activities using personal computers, where the participants share creations and exchange ideas."
 	data := empty(c)
 	data["description"] = "A short introduction on The Scene, the online subcultures and its underground origins."

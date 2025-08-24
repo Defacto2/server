@@ -669,11 +669,11 @@ func UploadReplacement( //nolint:funlen
 	}
 	file, err := c.FormFile(name)
 	if err != nil {
-		return checkFormFile(c, nil, name, err)
+		return checkFormFile(c, sl, name, err)
 	}
 	src, err := file.Open()
 	if err != nil {
-		return checkFileOpen(c, nil, name, err)
+		return checkFileOpen(c, sl, name, err)
 	}
 	defer func() { _ = src.Close() }()
 	fu := model.FileUpload{Filename: file.Filename, Filesize: file.Size}
@@ -681,12 +681,12 @@ func UploadReplacement( //nolint:funlen
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
-		return checkHasher(c, nil, name, err)
+		return checkHasher(c, sl, name, err)
 	}
 	fu.Integrity = hex.EncodeToString(hasher.Sum(nil))
 	src, err = file.Open()
 	if err != nil {
-		return checkFileOpen(c, nil, name, err)
+		return checkFileOpen(c, sl, name, err)
 	}
 	defer func() { _ = src.Close() }()
 	lastmod := c.FormValue("artifact-editor-lastmodified")
@@ -697,7 +697,7 @@ func UploadReplacement( //nolint:funlen
 	}
 	sign := magicnumber.Find(src)
 	fu.MagicNumber = sign.Title()
-	dst, err := copier(c, nil, file, upload.key)
+	dst, err := copier(c, sl, file, upload.key)
 	if err != nil || dst == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
 	}
