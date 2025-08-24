@@ -1968,12 +1968,11 @@ func TheScene(c echo.Context, sl *slog.Logger) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "thescene"
-	const h1 = "The Scene?"
-	const lead = "Collectively referred to as The Scene," +
-		" this is a subculture of different computer activities where participants" +
-		" actively share ideas and creations."
+	const h1 = "The Scene"
+	const lead = "A board church of people and online communities that is collectively grouped;" +
+		" it is subculture of niche activities using personal computers, where the participants share creations and exchange ideas."
 	data := empty(c)
-	data["description"] = "A short introduction on The Scene and its underground, digital subcultures."
+	data["description"] = "A short introduction on The Scene, the online subcultures and its underground origins."
 	data["logo"] = "The underground"
 	data["h1"] = h1
 	data["lead"] = lead
