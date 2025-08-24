@@ -128,12 +128,12 @@ func RecordThumb(c echo.Context, sl *slog.Logger, thumb command.Thumb, dirs comm
 }
 
 // RecordThumbAlignment handles the htmx request for the thumbnail crop alignment.
-func RecordThumbAlignment(c echo.Context, align command.Align, dirs command.Dirs) error {
+func RecordThumbAlignment(c echo.Context, sl *slog.Logger, align command.Align, dirs command.Dirs) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = align.Thumbs(unid, dirs.Preview, dirs.Thumbnail)
+	err = align.Thumbs(sl, unid, dirs.Preview, dirs.Thumbnail)
 	if errors.Is(err, command.ErrNoImages) {
 		return c.String(http.StatusOK, fmt.Sprint(err))
 	}

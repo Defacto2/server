@@ -274,19 +274,19 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		return htmx.RecordImageCopier(c, sl, paths)
 	})
 	thumb.PATCH("/top/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Top, paths)
+		return htmx.RecordThumbAlignment(c, sl, command.Top, paths)
 	})
 	thumb.PATCH("/middle/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Middle, paths)
+		return htmx.RecordThumbAlignment(c, sl, command.Middle, paths)
 	})
 	thumb.PATCH("/bottom/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Bottom, paths)
+		return htmx.RecordThumbAlignment(c, sl, command.Bottom, paths)
 	})
 	thumb.PATCH("/left/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Left, paths)
+		return htmx.RecordThumbAlignment(c, sl, command.Left, paths)
 	})
 	thumb.PATCH("/right/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, command.Right, paths)
+		return htmx.RecordThumbAlignment(c, sl, command.Right, paths)
 	})
 	thumb.PATCH("/pixel/:unid", func(c echo.Context) error {
 		return htmx.RecordThumb(c, sl, command.Pixel, paths)

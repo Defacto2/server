@@ -156,7 +156,7 @@ const (
 )
 
 // Thumbs creates args thumbnail image for the preview image based on the crop position of the image.
-func (align Align) Thumbs(unid string, preview, thumbnail dir.Directory) error {
+func (align Align) Thumbs(sl *slog.Logger, unid string, preview, thumbnail dir.Directory) error {
 	const msg = "thumbnail realignment"
 	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-thumb-" + unid
@@ -200,7 +200,7 @@ func (align Align) Thumbs(unid string, preview, thumbnail dir.Directory) error {
 			return fmt.Errorf("%s run: %w", msg, err)
 		}
 		dst := thumbnail.Join(unid + ext)
-		if err := CopyFile(nil, tmp, dst); err != nil {
+		if err := CopyFile(sl, tmp, dst); err != nil {
 			discard(err)
 			return nil
 		}
@@ -261,12 +261,12 @@ func (crop Crop) Images(sl *slog.Logger, unid string, preview dir.Directory) err
 		arg = append(arg, args...)
 		tmp := filepath.Join(path, unid+ext)
 		arg = append(arg, tmp)
-		err := Run(nil, Magick, arg...)
+		err := Run(sl, Magick, arg...)
 		if err != nil {
 			return fmt.Errorf("%s: %w", msg, err)
 		}
 		dst := preview.Join(unid + ext)
-		if err := CopyFile(nil, tmp, dst); err != nil {
+		if err := CopyFile(sl, tmp, dst); err != nil {
 			discard(err)
 			return nil
 		}
@@ -510,7 +510,7 @@ func (dir Dirs) textImagers(sl *slog.Logger, unid, tmp string) error {
 		}
 	})
 	wg.Go(func() { // WebP preview of the ansilove PNG image
-		if err := dir.PreviewWebP(nil, tmp, unid); err != nil {
+		if err := dir.PreviewWebP(sl, tmp, unid); err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("%s webp preview: %w", msg, err))
 			mu.Unlock()
