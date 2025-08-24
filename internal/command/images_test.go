@@ -42,7 +42,7 @@ func TestThumbs(t *testing.T) {
 
 func TestAlign(t *testing.T) {
 	t.Parallel()
-	err := command.Top.Thumbs("", "", "")
+	err := command.Top.Thumbs(nil, "", "", "")
 	be.Err(t, err)
 }
 

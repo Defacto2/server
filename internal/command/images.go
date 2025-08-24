@@ -632,7 +632,6 @@ func (dir Dirs) PreviewPhoto(sl *slog.Logger, src, unid string) error {
 	}
 	var wg sync.WaitGroup
 	wg.Go(func() {
-		defer wg.Done()
 		err = dir.ThumbPhoto(sl, srcPath, unid)
 	})
 	wg.Wait()
@@ -668,7 +667,6 @@ func (dir Dirs) PreviewGIF(sl *slog.Logger, src, unid string) error {
 	var err error
 	var wg sync.WaitGroup
 	wg.Go(func() {
-		defer wg.Done()
 		err = dir.ThumbPixels(sl, tmp, unid)
 	})
 	wg.Wait()
@@ -699,7 +697,6 @@ func (dir Dirs) PreviewPNG(sl *slog.Logger, src, unid string) error {
 	var mu sync.Mutex
 	var errs error
 	wg.Go(func() {
-		defer wg.Done()
 		err := OptimizePNG(dst)
 		if err != nil {
 			mu.Lock()
@@ -708,7 +705,6 @@ func (dir Dirs) PreviewPNG(sl *slog.Logger, src, unid string) error {
 		}
 	})
 	wg.Go(func() {
-		defer wg.Done()
 		err := dir.ThumbPixels(sl, src, unid)
 		if err != nil {
 			mu.Lock()

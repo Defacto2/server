@@ -188,7 +188,7 @@ func Test_PreviewPixels(t *testing.T) {
 	for _, name := range imgs {
 		fp := testdata(name)
 		err := dir.PreviewPixels(logr(), fp, "000000ABCDE")
-		be.Err(t, err)
+		be.Err(t, err, nil)
 	}
 	err := dir.PreviewPixels(logr(), "", "")
 	be.Err(t, err)
