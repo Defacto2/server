@@ -16,10 +16,11 @@
 The Defacto2 website is a self-contained application first devised in 2023.
 It is built with the Go language and can be easily compiled for many platforms and operating systems.
 
-The application uses an _optional_ [PostgreSQL](https://www.postgresql.org/) database connection for data queries.
-While optional, you'll [need this database](https://github.com/Defacto2/database) running and [configured](https://pkg.go.dev/github.com/Defacto2/server#hdr-Database) if you wish to browse the artifacts, releasers, and sceners.
-
 All configurations are optional and any changes to the defaults are made through system environment variables.
+
+> [!NOTE]
+> The application uses an _optional_ [PostgreSQL](https://www.postgresql.org/) database connection for data queries.
+> While optional, you'll [need this database](https://github.com/Defacto2/database) running and [configured](https://pkg.go.dev/github.com/Defacto2/server#hdr-Database) if you wish to browse the artifacts, releasers, and sceners.
 
 ## Download
 
