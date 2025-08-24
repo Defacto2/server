@@ -31,7 +31,10 @@ builds:
       - darwin_arm64_v8.0 # apple silicon
       - windows_amd64
 archives:
-  - formats: ['zip'] # create a zip archive for simplicity
+  - formats: ['tgz'] # create a zip archive for simplicity
+    format_overrides:
+      - goos: windows
+        formats: ['zip']
     name_template: >-
       {{ tolower .ProjectName }}_{{- tolower .Os }}
     files:

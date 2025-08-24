@@ -47,13 +47,20 @@ $ defacto2-server --version
 
 ## Usage
 
-The web server will run with out any arguments and will be available on the _[localhost](http://localhost)_ over port `1323`.
+The web server will run with out any arguments and will be available on the _[localhost](http://localhost:1323)_ over port `1323`.
 
 ```sh
-defacto2-server
+$ defacto2-server
+
+> ⇨ http server started on [::]:1323
 ```
 
 To stop the server, press `CTRL+C`.
+
+```
+> Detected Ctrl + C, server will shutdown now
+```
+
 
 ## Configuration
 
