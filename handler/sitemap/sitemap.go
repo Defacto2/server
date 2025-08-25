@@ -171,7 +171,7 @@ func MapReleaser(db *sql.DB, sl *slog.Logger) *Sitemap {
 	}
 	maps := make([]Loc, len(r))
 	for i, rel := range r {
-		maps[i].Loc = RootURL + "/" + rel.Unique.URI
+		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
 		XMLNS: Namespace,
@@ -192,7 +192,7 @@ func MapMagzine(db *sql.DB, sl *slog.Logger) *Sitemap {
 	}
 	maps := make([]Loc, len(r))
 	for i, rel := range r {
-		maps[i].Loc = RootURL + "/" + rel.Unique.URI
+		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
 		XMLNS: Namespace,
@@ -213,7 +213,7 @@ func MapBBS(db *sql.DB, sl *slog.Logger) *Sitemap {
 	}
 	maps := make([]Loc, len(r))
 	for i, rel := range r {
-		maps[i].Loc = RootURL + "/" + rel.Unique.URI
+		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
 		XMLNS: Namespace,
@@ -234,7 +234,7 @@ func MapFTP(db *sql.DB, sl *slog.Logger) *Sitemap {
 	}
 	maps := make([]Loc, len(r))
 	for i, rel := range r {
-		maps[i].Loc = RootURL + "/" + rel.Unique.URI
+		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
 		XMLNS: Namespace,
