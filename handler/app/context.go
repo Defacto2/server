@@ -966,7 +966,7 @@ func Index(c echo.Context, sl *slog.Logger) error {
 	data := empty(c)
 	data["title"] = "Introduction and milestones"
 	data["canonical"] = "/"
-	data["h1"] = "Welcome,"
+	data["h1"] = "The subcultures of obsolete microcomputers"
 	data["milestones"] = Collection()
 	{
 		// get the signed in given name
