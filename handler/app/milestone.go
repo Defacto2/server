@@ -284,9 +284,9 @@ func Collection() Milestones {
 				"The <strong>Zilog Z-80</strong> <sup>1976</sup> is in use with the TRS-80.</p>",
 		},
 		{
-			Year: 1978, Month: 2, Title: "The first Bulletin Board System",
+			Year: 1978, Month: 2, Title: "The first computerized bulletin board system",
 			Lead: "CBBS", LinkTitle: "the Byte Magazine article", Link: "https://vintagecomputer.net/cisc367/byte%20nov%201978%20computerized%20BBS%20-%20ward%20christensen.pdf",
-			Content: "<a href=\"https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs\">Ward Christensen</a> and Randy Suess create the first Bulletin Board System (<strong>BBS</strong>), the <em>Computerized Bulletin Board System</em> (<strong>CBBS</strong>) in Chicago. " +
+			Content: "<a href=\"https://portcommodore.com/dokuwiki/doku.php?id=larry:comp:bbs:about_cbbs\">Ward Christensen</a> and Randy Suess create the first bulletin board system (<strong>BBS</strong>), the <em>Computerized Bulletin Board System</em> (<strong>CBBS</strong>) in Chicago. " +
 				"The software was custom written in 8080 assembler language which ran on a <strong>S-100 bus</strong> computer together with the brand new $300, <a href=\"http://www.s100computers.com/Hardware%20Folder/DC%20Hayes/103/103%20Modem.htm\">Hayes 110/300</a> baud modem. " +
 				"The digital bulletin board became extremely popular, with callers from around the world after articles and logs were published in both Byte and Dr.&nbsp;Dobb's Journal magazines later in the year.",
 			Picture: Picture{
@@ -606,12 +606,12 @@ func Collection() Milestones {
 				"<br><span title=\"The common input prompt for an IBM or Microsoft disk operating system\"><strong>A>_</strong></span></p>",
 		},
 		{
-			Title: "Earliest dated crack and Scene text art", Year: 1980, Month: 11,
+			Title: "The earliest dated software crack and text art", Year: 1980, Month: 11,
 			Lead:      "Cyber Strike broken by The Tornato ?",
 			LinkTitle: "about and emulate the crack", Link: "https://archive.org/details/Sabotage_Reversal_Cyber_Strike_Dungeons",
 			Content: // dung beetles
 			"<p>The earliest-dated crack is probably on the Apple&nbsp;II. An example is " +
-				"<q>Cyber Strike broken by The Tornato</q> in <strong>November 1980</strong> and published by Sirius Software. " +
+				"<q><a href=\"https://www.ebay.com/itm/204747521812\">Cyber Strike</a> broken by The Tornato</q> in <strong>November 1980</strong> and published by Sirius Software. " +
 				"The static crack credit and text art is loaded at the start of the game before the game's title screen.</p>" +
 				"Other early dated cracks include" +
 				ul0 +
