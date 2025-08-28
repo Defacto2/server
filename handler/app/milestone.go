@@ -540,10 +540,10 @@ func Collection() Milestones {
 		{
 			Title: "8BBS", Year: 1980, Month: 3, Day: 15, Highlight: true,
 			Lead: "(408) 296-5799", LinkTitle: "the thousands of message logs", Link: "https://archive.org/details/8BBSArchiveP1V1/mode/1up",
-			Content: "<p>Nearby San Jose, CA, <strong>8BBS#1</strong> <small>(eight-BBS number one)</small> came online in March 1980. It is one of the first electronic <a href=\"https://everything2.com/title/8BBS\">message boards</a>" +
+			Content: "<p>Nearby San Jose, CA, <strong>8BBS#1</strong> <small>(eight-BBS number one)</small> came online in March 1980. It is one of the first electronic message boards" +
 				" that early microcomputer hobbyists used, and is home to posts by some early hackers, pirates, and named-drop phreaker personalities of the era<sup><a href=\"#8bbs-fn1\">[1]</a></sup>. " +
 				// message logs
-				"But what stands out about the board today is that we have survived <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">thousands of posts</a> " +
+				"But what stands out about the board today is that we have survived thousands of posts " +
 				"from the earliest open online community that anyone in 1980 with the proper hardware could access from home—allowing for a more relaxed conversation that may not have been available in a work or academic environment. " +
 				"These posts exist before Reddit, the web, Usenet, or the Internet.</p>" +
 				"<pre>8BBS VER 5.5\n03-FEB-81 19:53:44\nPHONE: (408) 296-5799, 24 HOURS A DAY, EVERY DAY.\n" +
@@ -556,9 +556,13 @@ func Collection() Milestones {
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n185/mode/1up\">Message number 7303 from DAVID LEE</a><br>To APPLE USERS at 16:51 on 15-Mar-81. Subject: APPLE SOFTWARE</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n197/mode/1up\">Message number 7434 from WALTER HORAT</a><br>To DAVID LEE at 22:22 on 18-Mar-81. Subject: SOFTWARE</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n259/mode/1up\">Message number 7853 from Sara Moore</a><br>To DAVID LEE at 05:08 on 02-Apr-81. Subject: SOFTWARE</p>" +
-				"<ul><li><a href=\"http://www.flyingsnail.com/missingbbs/login-8BBS.html\">A login capture from 3-Feb-1981.</a></li>" +
+				"<ul>" +
+				"<li><a href=\"http://www.flyingsnail.com/missingbbs/login-8BBS.html\">A login capture from 3-Feb-1981.</a></li>" +
 				"<li><a href=\"http://www.flyingsnail.com/missingbbs/CHAT-8BBS.html\">Realtime text chat with the system operator.</a></li>" +
-				"<li><a href=\"http://www.flyingsnail.com/missingbbs/6116.html\">The ridiculous costs of calling from long-distance.</a></li></ul>" +
+				"<li><a href=\"http://www.flyingsnail.com/missingbbs/6116.html\">The ridiculous costs of calling from long-distance.</a></li>" +
+				"<li><a href=\"https://everything2.com/user/FTCnet/writeups/8BBS\">8BBS (thing) writeup from 2006.</a></li>" +
+				"<li><a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">tl;dr: I was given some old BBS session logs and I scanned them.</a></li>" +
+				"</ul>" +
 				sect0 +
 				"<div id=\"8bbs-fn1\">[1] Phreaker personalities who mention 8BBS, " +
 				"<a href=\"https://privacy-pc.com/articles/history-of-hacking-john-captain-crunch-drapers-perspective.html#Early_BBS_Days\">Captain&nbsp;Crunch</a>, " +
