@@ -538,21 +538,24 @@ func Collection() Milestones {
 				sect1,
 		},
 		{
-			Title: "8BBS", Year: 1980, Month: 3, Highlight: true,
-			Lead: "+408-296-5799", LinkTitle: "the thousands of message logs", Link: "https://archive.org/details/8BBSArchiveP1V1/mode/1up",
-			Content: "<p>In San Jose, CA, <strong>8BBS</strong> (+408-296-5799) came online in March 1980. It is one of the first electronic <a href=\"https://everything2.com/title/8BBS\">message boards</a>," +
-				" that early microcomputer hobbyists used, including posts by some early hackers, pirates, and named-drop phreaker personalities of the era<sup><a href=\"#8bbs-fn1\">[1]</a></sup>. " +
+			Title: "8BBS", Year: 1980, Month: 3, Day: 15, Highlight: true,
+			Lead: "(408) 296-5799", LinkTitle: "the thousands of message logs", Link: "https://archive.org/details/8BBSArchiveP1V1/mode/1up",
+			Content: "<p>Nearby San Jose, CA, <strong>8BBS#1</strong> <small>(eight-BBS number one)</small> came online in March 1980. It is one of the first electronic <a href=\"https://everything2.com/title/8BBS\">message boards</a>" +
+				" that early microcomputer hobbyists used, and is home to posts by some early hackers, pirates, and named-drop phreaker personalities of the era<sup><a href=\"#8bbs-fn1\">[1]</a></sup>. " +
 				// message logs
 				"But what stands out about the board today is that we have survived <a href=\"https://silent700.blogspot.com/2014/12/is-this-something.html\">thousands of posts</a> " +
 				"from the earliest open online community that anyone in 1980 with the proper hardware could access from home—allowing for a more relaxed conversation that may not have been available in a work or academic environment. " +
-				"These posts existed before Reddit, the web, Usenet, and the Internet.</p>" +
-				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n30/mode/1up\">Message number 3964 from CHUCK HUBERT</a><br>To ALL at 12:52 on 20-Nov-80.<br>Subject! CP/M BBS AND SOFTWARE EXCHANGE</p>" +
-				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n43/mode/1up\">Message number 4177 from Kevin O'Hare</a><br>To SF (SAN FRANCISCO) PHREAKS at 23:54 on 28-Nov-80.<br>Subject: HELP?</p>" +
-				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n54/mode/1up\">Message number 4311 from Len Freedman</a><br>To RICK BYRNE at 11:02 on 02-Dec-80.<br>Subject: PROG. TRADING</p>" +
+				"These posts exist before Reddit, the web, Usenet, or the Internet.</p>" +
+				"<pre>8BBS VER 5.5\n03-FEB-81 19:53:44\nPHONE: (408) 296-5799, 24 HOURS A DAY, EVERY DAY.\n" +
+				"110, 150 & 300 BAUD SUPPORTED.\n* * * WELCOME TO BERNARD AND DICK'S\n* * * 8BBS#1 / SANTA CLARA, CA\n" +
+				"* * * THE WORLD'S FIRST PDP8 BASED BULLETIN BOARD SYSTEM.\n* * * IN OPERATION SINCE MARCH 15, 1980</pre>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n30/mode/1up\">Message number 3964 from CHUCK HUBERT</a><br>To ALL at 12:52 on 20-Nov-80. Subject: CP/M BBS AND SOFTWARE EXCHANGE</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n43/mode/1up\">Message number 4177 from Kevin O'Hare</a><br>To SF (SAN FRANCISCO) PHREAKS at 23:54 on 28-Nov-80. Subject: HELP?</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n54/mode/1up\">Message number 4311 from Len Freedman</a><br>To RICK BYRNE at 11:02 on 02-Dec-80. Subject: PROG. TRADING</p>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n76/mode/1up\">Message number 4496 from Susan Thunder</a><br>To Keith Johnson at 03:39 on 07-Dec-80.<br><small>I HAVE BEEN A PHONE PHREAK FOR MANY YEARS AND I WOULD LOVE TO TRADE INFO WITH YOU!!</small></p>" +
-				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n185/mode/1up\">Message number 7303 from DAVID LEE</a><br>To APPLE USERS at 16:51 on 15-Mar-81.<br>Subject: APPLE SOFTWARE</p>" +
-				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n197/mode/1up\">Message number 7434 from WALTER HORAT</a><br>To DAVID LEE at 22:22 on 18-Mar-81.<br>Subject: SOFTWARE</p>" +
-				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n259/mode/1up\">Message number 7853 from Sara Moore</a><br>To DAVID LEE at 05:08 on 02-Apr-81.<br>Subject: SOFTWARE</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n185/mode/1up\">Message number 7303 from DAVID LEE</a><br>To APPLE USERS at 16:51 on 15-Mar-81. Subject: APPLE SOFTWARE</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n197/mode/1up\">Message number 7434 from WALTER HORAT</a><br>To DAVID LEE at 22:22 on 18-Mar-81. Subject: SOFTWARE</p>" +
+				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n259/mode/1up\">Message number 7853 from Sara Moore</a><br>To DAVID LEE at 05:08 on 02-Apr-81. Subject: SOFTWARE</p>" +
 				"<ul><li><a href=\"http://www.flyingsnail.com/missingbbs/login-8BBS.html\">A login capture from 3-Feb-1981.</a></li>" +
 				"<li><a href=\"http://www.flyingsnail.com/missingbbs/CHAT-8BBS.html\">Realtime text chat with the system operator.</a></li>" +
 				"<li><a href=\"http://www.flyingsnail.com/missingbbs/6116.html\">The ridiculous costs of calling from long-distance.</a></li></ul>" +
