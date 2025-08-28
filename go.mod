@@ -28,7 +28,7 @@ require (
 	github.com/Defacto2/archive v1.1.3
 	github.com/Defacto2/helper v1.5.1
 	github.com/Defacto2/magicnumber v1.0.12
-	github.com/Defacto2/releaser v1.3.9
+	github.com/Defacto2/releaser v1.3.10
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
@@ -124,7 +124,7 @@ require (
 	golang.org/x/time v0.12.0 // indirect
 	golang.org/x/tools v0.35.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250826171959-ef028d996bc1 // indirect
 	google.golang.org/grpc v1.75.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 	mvdan.cc/gofumpt v0.8.0 // indirect

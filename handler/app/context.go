@@ -212,11 +212,11 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 	case fileslice.NewUploads:
 		data["description"] = "These are the most recent additions of scene history to the site."
 		data["title"] = "New additions"
-		data["unknownyears"] = false
+		data["unknownYears"] = false
 	case fileslice.NewUpdates:
 		data["description"] = "Artifacts that have been recently updated or revised."
 		data["title"] = "Artifact revisions and changes"
-		data["unknownyears"] = false
+		data["unknownYears"] = false
 	case fileslice.Deletions:
 		data["title"] = "Deleted artifacts"
 		data["unknownYears"] = false
