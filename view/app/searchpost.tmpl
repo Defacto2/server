@@ -10,10 +10,8 @@
                     {{index . "title"}}<br>
                     <small class="fs-5 fw-lighter">{{index . "info"}}</small>
                     <p class="fs-6">
-                        {{- if eq (index . "title") "Game and program titles"}}
-                            supported operators: quote text <code>""</code>, or statements <code>OR</code>, ignore statements <code>-</code>
-                            <br>
-                            usage example: <code>"battle chess" -unprotect</code>
+                        {{- if eq (index . "title") "Game and program title search"}}
+                            use commas for multiple queries: <code>ultima 7, ultima 8</code>
                         {{- else}}
                             use commas for multiple queries: <code>.iff, .tif, read.me</code>
                         {{- end}}
