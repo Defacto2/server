@@ -28,7 +28,7 @@ require (
 	github.com/Defacto2/archive v1.1.3
 	github.com/Defacto2/helper v1.5.1
 	github.com/Defacto2/magicnumber v1.0.12
-	github.com/Defacto2/releaser v1.3.10
+	github.com/Defacto2/releaser v1.3.11
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
@@ -46,7 +46,7 @@ require (
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/lmittmann/tint v1.1.2
 	github.com/mattn/go-isatty v0.0.20
-	github.com/nalgeon/be v0.2.0
+	github.com/nalgeon/be v0.3.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
 	github.com/samber/slog-multi v1.4.1
 	github.com/subpop/go-ini v0.1.5
@@ -109,10 +109,10 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0 // indirect
-	go.opentelemetry.io/otel v1.37.0 // indirect
-	go.opentelemetry.io/otel/metric v1.37.0 // indirect
-	go.opentelemetry.io/otel/trace v1.37.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect
+	go.opentelemetry.io/otel v1.38.0 // indirect
+	go.opentelemetry.io/otel/metric v1.38.0 // indirect
+	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.uber.org/nilaway v0.0.0-20250805202745-8ad05f089790 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/mod v0.26.0 // indirect
