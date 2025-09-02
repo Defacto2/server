@@ -10,7 +10,8 @@
 {{- $missingAssets := index . "missingAssets"}}
 {{- $disableRecord := index . "disableRecord"}}
 {{- $modID := index . "modID"}}
-<div class="alert alert-light">
+<div class="alert alert-light py-1">
+    <div class="mb-1 text-end"><kbd>alt+shift</kbd> <kbd>home</kbd> <kbd>pgdn</kbd> <kbd>pgup</kbd> <kbd>del</kbd></div>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-2">
         <div data-bs-toggle="tooltip" data-bs-title="alt + shift + home" class="col d-grid"><a href="#artifact-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Data editor</a></div>
         <div data-bs-toggle="tooltip" data-bs-title="alt + shift + pgdn" class="col d-grid"><a href="#asset-editor-modal" data-bs-toggle="modal" class="btn btn-primary">File editor</a></div>

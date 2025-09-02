@@ -192,11 +192,11 @@
                 Search
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for the name of a game or app, or the artifact comment" href="/search/desc" rel="nofollow">Game or program</a></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for filenames or file extensions" href="/search/file" rel="nofollow">Filenames</a></li>
+                <li><a id="layout-search-program" class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for the name of a game or app, or the artifact comment" href="/search/desc" rel="nofollow">Game or <u>p</u>rogram</a></li>
+                <li><a id="layout-search-filename" class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for filenames or file extensions" href="/search/file" rel="nofollow">File<u>n</u>ames</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Lookup</h6></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup groups, magazines, BBS names, etc." href="/search/releaser" rel="nofollow">Groups<small> or releasers</small></a></li>
+                <li><a id="layout-search-groups" class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup <groups, magazines, BBS names, etc." href="/search/releaser" rel="nofollow"><u>G</u>roups<small> or releasers</small></a></li>
                 {{- if eq $lock true }}
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup an artifact by its database keys" href="/editor/search/id" rel="nofollow"><em>ID</em> or <em>UUID</em></a></li>
                 {{- end }}

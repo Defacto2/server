@@ -10,7 +10,10 @@ const start = document.getElementById("paginationStart"),
   previousPair = document.getElementById("paginationPrev2"),
   next = document.getElementById("paginationNext"),
   nextPair = document.getElementById("paginationNext2"),
-  end = document.getElementById("paginationEnd");
+  end = document.getElementById("paginationEnd"),
+  srchP = document.getElementById("layout-search-program"),
+  srchN = document.getElementById("layout-search-filename"),
+  srchG = document.getElementById("layout-search-groups");
 
 /**
  * Binds keyboard shortcuts to specific actions.
@@ -40,6 +43,31 @@ export function keyboardShortcuts() {
     if (event.key == right) {
       if (next != null) next.click();
       return;
+    }
+    if (event.altKey && event.shiftKey) {
+      // note the follow keys are in use by editor-assets.js: e, d, r, v
+      switch (event.key) {
+        case "P":
+        case "p":
+          if (srchP) {
+            event.preventDefault();
+            srchP.click();
+          }
+          break;
+        case "G":
+        case "g":
+          if (srchG) {
+            event.preventDefault();
+            srchG.click();
+          }
+          break;
+        case "N":
+        case "n":
+          if (srchN) {
+            event.preventDefault();
+            srchN.click();
+          }
+      }
     }
   });
 }

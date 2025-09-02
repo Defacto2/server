@@ -106,7 +106,109 @@ import { getElmById } from "./helper.mjs";
     const emulator = document.getElementById("js-dos-run-app");
     const viewcontent = document.getElementById("artifact-view-content");
     const enlargeImage = document.getElementById("artifact-enlarge-screenshot");
+
+    const datey = document.getElementById("artifact-editor-year");
+    const datem = document.getElementById("artifact-editor-month");
+    const dated = document.getElementById("artifact-editor-day");
+    const title = document.getElementById("artifact-editor-title");
+    const relr1 = document.getElementById("artifact-editor-releaser-1");
+    const relr2 = document.getElementById("artifact-editor-releaser-2");
+    const fname = document.getElementById("artifact-editor-filename");
+    const commt = document.getElementById("artifact-editor-comment");
+
+    console.log("key", event.key);
     switch (event.key) {
+      case "|":
+        if (commt) {
+          commt.focus();
+        }
+        break;
+      case "ArrowLeft":
+        if (!datey) {
+          break;
+        }
+        event.preventDefault();
+        switch (document.activeElement) {
+          case datey:
+            dated.focus();
+            break;
+          case datem:
+            datey.focus();
+            break;
+          case dated:
+            datem.focus();
+            break;
+          default:
+            datey.focus();
+            break;
+        }
+        break;
+      case "ArrowRight":
+        if (!datey) {
+          break;
+        }
+        event.preventDefault();
+        switch (document.activeElement) {
+          case datey:
+            datem.focus();
+            break;
+          case datem:
+            dated.focus();
+            break;
+          case dated:
+            datey.focus();
+            break;
+          default:
+            datey.focus();
+            break;
+        }
+        break;
+      case "ArrowDown":
+        if (!title) {
+          break;
+        }
+        event.preventDefault();
+        switch (document.activeElement) {
+          case title:
+            relr1.focus();
+            break;
+          case relr1:
+            relr2.focus();
+            break;
+          case relr2:
+            fname.focus();
+            break;
+          case fname:
+            title.focus();
+            break;
+          default:
+            fname.focus();
+            break;
+        }
+        break;
+      case "ArrowUp":
+        if (!title) {
+          break;
+        }
+        event.preventDefault();
+        switch (document.activeElement) {
+          case title:
+            fname.focus();
+            break;
+          case relr1:
+            title.focus();
+            break;
+          case relr2:
+            relr1.focus();
+            break;
+          case fname:
+            relr2.focus();
+            break;
+          default:
+            title.focus();
+            break;
+        }
+        break;
       case "E":
       case "e":
         if (enlargeImage) {

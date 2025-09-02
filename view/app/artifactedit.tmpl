@@ -267,8 +267,8 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           {{/*  Comments  */}}
           <div class="col-xl-6">
             <label class="form-label col-form-label-lg">
-                Comment
-              </label>
+              Comment
+            </label>
               <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
                 style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help"                
                 hx-patch="/editor/comment" 
@@ -276,12 +276,15 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
               <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
               <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
-              <div>
+              <div class="row">
+              <div class="col-12 col-lg-6">
                 <button type="button" class="btn btn-link" id="artifact-editor-comment-undo"
                 hx-patch="/editor/comment/reset"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-comment'],
                             [name='artifact-editor-comment-resetter']">Undo<small class="link-dark"> changes</small></button>
+              </div>
+              <div class="col-12 col-lg-6 text-end align-text-bottom"><kbd>alt+shift</kbd> <kbd>\</kbd></div>
               </div>
           </div>
         </div>
@@ -305,7 +308,8 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                     hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                     hx-target="#artifact-editor-list-1" minlength="2" maxlength="{{$hundred}}" required>
               </div>
-              <div class="col-12 col-lg-8 offset-lg-4">
+              <div class="col-6 col-lg-4 text-center"><kbd>alt+shift</kbd> <kbd>🢁</kbd> <kbd>🢃</kbd></div>
+              <div class="col-6 col-lg-8">
                 <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
                     aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" class="form-control" 
                     value="{{$rel2}}" data-reset-rel2="{{$rel2}}"
@@ -353,6 +357,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                             [name='artifact-editor-month'],
                             [name='artifact-editor-day']">Save</button>
               </div>
+              <div class="col-6 col-lg-4 text-center"><kbd>alt+shift</kbd> <kbd>🡸</kbd> <kbd>🢂</kbd></div>
               <div class="w-100 d-none d-lg-block"></div>
               <div class="col-6 col-lg-4">
                 <div class="input-group">

@@ -119,8 +119,8 @@
             <div class="row row-cols-1 row-cols-sm-2 g-2 m-1">
             {{- if ne "" $checksum}}
                 <div class="col d-none d-sm-grid">
-                    <a class="btn btn-outline-secondary" href="/sum/{{$download}}" role="button" 
-                        data-bs-toggle="tooltip" data-bs-title="Checksum download" rel="nofollow">#sum</a>
+                    <a class="btn btn-outline-secondary text-truncate" href="/sum/{{$download}}" role="button" 
+                        data-bs-toggle="tooltip" data-bs-title="{{$checksum}}" rel="nofollow">checksum {{$checksum}}</a>
                 </div>
                 <div class="col d-grid d-sm-none">
                     <a class="btn btn-outline-secondary" href="/sum/{{$download}}" role="button" rel="nofollow">Checksum</a>
