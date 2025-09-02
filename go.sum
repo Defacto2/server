@@ -223,8 +223,8 @@ github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 h1:RWengNIwukTxcDr9
 github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826/go.mod h1:TaXosZuwdSHYgviHp1DAtfrULt5eUgsSMsZf+YrPgl8=
 github.com/muesli/smartcrop v0.3.0 h1:JTlSkmxWg/oQ1TcLDoypuirdE8Y/jzNirQeLkxpA6Oc=
 github.com/muesli/smartcrop v0.3.0/go.mod h1:i2fCI/UorTfgEpPPLWiFBv4pye+YAG78RwcQLUkocpI=
-github.com/nalgeon/be v0.2.0 h1:i1Rsh0F+aNnHdbgph5Cy8Xm5uMVeWrUpm1olgzlPsMo=
-github.com/nalgeon/be v0.2.0/go.mod h1:PMwMuBLopwKJkSHnr2qHyLcZYUTqNejN7A8RAqNWO3E=
+github.com/nalgeon/be v0.3.0 h1:QsPANqEtcOD5qT2S3KAtIkDBBn8SXUf/Lb5Bi/z4UqM=
+github.com/nalgeon/be v0.3.0/go.mod h1:PMwMuBLopwKJkSHnr2qHyLcZYUTqNejN7A8RAqNWO3E=
 github.com/niklasfasching/go-org v1.8.0 h1:WyGLaajLLp8JbQzkmapZ1y0MOzKuKV47HkZRloi+HGY=
 github.com/niklasfasching/go-org v1.8.0/go.mod h1:e2A9zJs7cdONrEGs3gvxCcaAEpwwPNPG7csDpXckMNg=
 github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 h1:G7ERwszslrBzRxj//JalHPu/3yz+De2J+4aLtSRlHiY=

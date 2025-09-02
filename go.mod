@@ -46,7 +46,7 @@ require (
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/lmittmann/tint v1.1.2
 	github.com/mattn/go-isatty v0.0.20
-	github.com/nalgeon/be v0.2.0
+	github.com/nalgeon/be v0.3.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
 	github.com/samber/slog-multi v1.4.1
 	github.com/subpop/go-ini v0.1.5
