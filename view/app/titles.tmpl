@@ -4,7 +4,10 @@
 {{- define "content" }}
 <p class="lead">
     Titles are important, <u>bad titles make it hard to dupe check future uploads</u>.<br>
-    <span class="text-primary-emphasis">Keep titles simple, concise and clean.</span>
+    <span class="text-primary-emphasis">
+      The current site policy is to keep titles simple, concise and clean.<br>
+      Game titles should match the publisher's official name.
+    </span>
 </p>
 <div>
     <p class="lead">Bad examples:</p>
@@ -24,23 +27,32 @@
         <li><q>NFL 98 fix</q></li>
     </ol>
 </div>
-<hr class="ms-1 w-25">
-<div class="lead">
-    <ul class="list-unstyled">
-        <li>Don't use ALL CAPS, copy.pasted.directory.names, 1337 text, or filenames.</li>
-        <li>List the <strong>name</strong> of the game or application <strong>before</strong> any supplementary info.</li>
-    </ul>
-    <ul class="list-unstyled">
-        <li>Do not include the publisher as these can attract DMCA take downs when shown on search engines.<br><small class="text-body-secondary">Exceptions for generic named products, ie: <q>Norton Backup</q> <q>Atari Football</q>.</small></li>
-        <li>Use the prefix <q>fix</q> when needed.<br><small class="text-body-secondary">But avoid too specific terms like <q>cracked</q>, <q>patched</q>, <q>bytecrack</q>, <q>hack</q>, etc.</small></li>
-        <li>Don't include unnecessary information.<br><small class="text-body-secondary">Semantic software versions, build numbers; or release justifications, <q>100% final</q>, <q>US release</q>, <q>multilanguage</q>, etc.</small></li>
-        <li>Don't include redundant information.<br><small class="text-body-secondary">Words such as <q>trainer</q>, <q>installer</q>, <q>cracktro</q>, <q>keymaker</q>, <q>serial generator</q>, using the group name, etc.</small></li>
-    </ul>
-    <ul class="list-unstyled">
-        <li>Only ignore the above when it is required for the clarity of the artifact.</li>
-        <li>It's fine to have an empty title if the other artifact metadata or screenshot provides enough information.
-            <br><small class="text-body-secondary">Text and image art, courier group NFOs, BBS ads, etc., often don't need a title.</small>
-        </li>
-    </ul>
+<div>
+  <em>Why not copy and paste the NFO, file_diz.diz, or directory path?</em>
+  <p>
+  It's pretty common for packaged releases to have incorrect or mismatched information, 
+  spelling mistakes, or to use lazy acronyms.
+  And it is much better to be able to run a single search for "Sim City 2000" and get all the results,
+  rather than needing to guess the possible name variations, "simcity 2000" "sim city 2000" "simcity 2k" etc.
+  </p>
+  <p>
+    For example, this <a href="/f/aa1d41e">release</a> has <em>TINTIN</em> for the diz and the incorrect title <em>Spirou</em> for the NFO, but the proper name is <em>The Adventures of Tintin : Prisoners of the Sun</em>.
+    <br>This <a href="/f/ad24ace">release</a> for the reprinting of the two first X-com games forgot to include a title in the NFO.
+    <br>This <a href="/f/ae273de">release</a> uses the meaningless, <em>JNG 4 Course Addon</em> in the diz and a spelling mistake for the NFO, <em>Jack <mark>Nickalaus</mark> Golf 4</em>, which wouldn't result with a 
+    <a href="/search/desc">search</a> for <q>Jack&nbsp;Nicklaus</q>.
+  </p>
 </div>
+<h4>Our naming and title guide</h4>
+<ul class="list-group list-group-flush">
+    <li class="list-group-item">Don't use any of these text styles:<br>ALL CAPS<br>copy_and_pasted.directory.names<br>illegible 1337 text<br>filenames</li>
+    <li class="list-group-item">List the <strong>name</strong> of the game or application <strong>before</strong> any supplementary info.</li>
+    <li class="list-group-item">Do not include the publisher as these can attract DMCA take downs when shown on search engines.<br><small class="text-body-secondary">Exceptions for generic named products, ie: <q>Norton Backup</q> <q>Atari Football</q>.</small></li>
+    <li class="list-group-item">Use the prefix <q>fix</q> when needed.<br><small class="text-body-secondary">But avoid too specific terms like <q>cracked</q>, <q>patched</q>, <q>bytecrack</q>, <q>hack</q>, etc.</small></li>
+    <li class="list-group-item">Don't include unnecessary information.<br><small class="text-body-secondary">Semantic software versions, build numbers; or release justifications, <q>100% final</q>, <q>US release</q>, <q>multilanguage</q>, etc.</small></li>
+    <li class="list-group-item">Don't include redundant information.<br><small class="text-body-secondary">Words such as <q>trainer</q>, <q>installer</q>, <q>cracktro</q>, <q>keymaker</q>, <q>serial generator</q>, using the group name, etc.</small></li>
+    <li class="list-group-item">Only ignore the above when it is required for the clarity of the artifact.</li>
+    <li class="list-group-item">It's fine to have an empty title if the other artifact metadata or screenshot provides enough information.
+        <br><small class="text-body-secondary">Text and image art, courier group NFOs, BBS ads, etc., often don't need a title.</small>
+    </li>
+</ul>
 {{- end}}
