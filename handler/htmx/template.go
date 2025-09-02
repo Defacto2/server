@@ -6,6 +6,7 @@ import (
 	"embed"
 	"html/template"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/Defacto2/helper"
@@ -95,6 +96,7 @@ func TemplateFuncMap() template.FuncMap {
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)
 		},
+		"searchResult": SearchResult,
 		"state": func(deleteat, deleteby bool) template.HTML {
 			if !deleteat && deleteby {
 				return "<span title=\"Not approved\">⛔</span>"
@@ -105,6 +107,34 @@ func TemplateFuncMap() template.FuncMap {
 			return ""
 		},
 		"suggestion": Suggestion,
+	}
+}
+
+func SearchResult(index any) template.HTML {
+	ind := -1
+	switch v := index.(type) {
+	case int:
+		ind = v
+	default:
+		return ""
+	}
+	const max = 13
+	if ind < 0 || ind > max {
+		return ""
+	}
+	switch ind {
+	case 9:
+		return "0"
+	case 10:
+		return "-"
+	case 11:
+		return "="
+	case 12:
+		return "["
+	case 13:
+		return "]"
+	default:
+		return template.HTML(strconv.Itoa(ind + 1))
 	}
 }
 
