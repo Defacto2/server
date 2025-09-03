@@ -255,12 +255,17 @@ import { getElmById } from "./helper.mjs";
         deleteModal.hide();
         dataModal.show();
         break;
+      case "i":
+      case "I":
       case assetEditor:
         event.preventDefault();
         dataModal.hide();
         emulateModal.hide();
         deleteModal.hide();
         assetModal.show();
+        if (event.key == "I" || event.key == "i") {
+          previewInput.click();
+        }
         break;
       case emulateEditor:
         event.preventDefault();

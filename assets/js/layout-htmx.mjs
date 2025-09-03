@@ -24,9 +24,12 @@ export function htmxEvents() {
     removeSelectsValid(event, `artifact-editor-trainer-for-dos`);
     removeSelectsValid(event, `artifact-editor-trainer-for-win`);
     removeSelectsValid(event, `artifact-editor-ansi-for-bbs`);
+    removeSelectsValid(event, `artifact-editor-ansi-for-text`);
     removeSelectsValid(event, `artifact-editor-magazine-for-text`);
     removeSelectsValid(event, `artifact-editor-magazine-for-dos`);
     removeSelectsValid(event, `artifact-editor-dox`);
+    removeSelectsValid(event, `artifact-editor-inst-for-dos`);
+    removeSelectsValid(event, `artifact-editor-inst-for-win`);
   });
   // This event is triggered after an AJAX request has finished.
   // https://htmx.org/events/#htmx:afterRequest
@@ -68,9 +71,12 @@ export function htmxEvents() {
     afterClassifications(event, `artifact-editor-trainer-for-dos`);
     afterClassifications(event, `artifact-editor-trainer-for-win`);
     afterClassifications(event, `artifact-editor-ansi-for-bbs`);
+    afterClassifications(event, `artifact-editor-ansi-for-text`);
     afterClassifications(event, `artifact-editor-magazine-for-text`);
     afterClassifications(event, `artifact-editor-magazine-for-dos`);
     afterClassifications(event, `artifact-editor-dox`);
+    afterClassifications(event, `artifact-editor-inst-for-dos`);
+    afterClassifications(event, `artifact-editor-inst-for-win`);
     // record releaser.
     afterUpdate(event, `artifact-editor-releaser-undo`);
     afterUpdateRels(event, `artifact-editor-releaser-update`);

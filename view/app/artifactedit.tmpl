@@ -128,7 +128,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <small id="artifact-editor-classification-help">{{classification $tag $os | safeHTML}}</small>.
             </label>
             <div class="input-group mb-1">
-              <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">Operating system</label>
+              <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">System or type</label>
               <select name="artifact-editor-operatingsystem" id="artifact-editor-operating-system" class="form-select"
                 aria-describedby="artifact-editor-os-label" autocomplete="off"
                 hx-patch="/editor/classifications" 
@@ -166,7 +166,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Text or NFO</button>
+                hx-include="{{$hxClassification}}">Text or <strong>NFO</strong></button>
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-text-for-amiga" type="button"
                 data-preset-os="textamiga" data-preset-tag="releaseinformation"
                 hx-patch="/editor/classifications" 
@@ -178,13 +178,13 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Text magazine</button>
+                hx-include="{{$hxClassification}}">Text <strong>magazine</strong></button>
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-dox" type="button"
                 data-preset-os="text" data-preset-tag="guide"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Text <small>DOX & how-tos</small></button>
+                hx-include="{{$hxClassification}}"><small>Text</small> <strong>documentation</strong></button>
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-proof-of-release" type="button"
                 data-preset-os="image" data-preset-tag="releaseproof"
                 hx-patch="/editor/classifications" 
@@ -196,43 +196,61 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">MsDos magazine</button>
+                hx-include="{{$hxClassification}}">Dos <strong>magazine</strong></button>
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-trainer-for-dos" type="button"
                 data-preset-os="dos" data-preset-tag="gamehack"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">MsDos trainer</button>
+                hx-include="{{$hxClassification}}">Dos <strong>trainer</strong></button>
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-dos" type="button"
                 data-preset-os="dos" data-preset-tag="releaseadvert"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">MsDos-tro</button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-bbs" type="button"
-                data-preset-os="dos" data-preset-tag="bbs"
+                hx-include="{{$hxClassification}}">Dos <strong>intro</strong></button>
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-inst-for-dos" type="button"
+                data-preset-os="dos" data-preset-tag="releaseinstall"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">BBS-tro</button>
+                hx-include="{{$hxClassification}}">Dos <strong>installer</strong></button>
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-trainer-for-win" type="button"
                 data-preset-os="windows" data-preset-tag="gamehack"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Windows trainer</button>
+                hx-include="{{$hxClassification}}">Windows <strong>trainer</strong></button>
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-win" type="button"
                 data-preset-os="windows" data-preset-tag="releaseadvert"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Windows-tro</button>
+                hx-include="{{$hxClassification}}">Windows <strong>intro</strong></button>
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-inst-for-win" type="button"
+                data-preset-os="windows" data-preset-tag="releaseinstall"
+                hx-patch="/editor/classifications" 
+                hx-trigger="click delay:500ms"
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Windows <strong>installer</strong></button>
               <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
                 data-preset-os="ansi" data-preset-tag="bbs"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">BBS ANSI</button>
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-bbs" type="button"
+                data-preset-os="dos" data-preset-tag="bbs"
+                hx-patch="/editor/classifications" 
+                hx-trigger="click delay:500ms"
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}"><strong>BBS</strong> intro</button>
+              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-ansi-for-text" type="button"
+                data-preset-os="ansi" data-preset-tag="releaseinformation"
+                hx-patch="/editor/classifications" 
+                hx-trigger="click delay:500ms"
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">ANSI text or NFO</button>
             </div>
           </div>
         </div>

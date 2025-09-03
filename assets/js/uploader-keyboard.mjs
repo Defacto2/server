@@ -8,40 +8,48 @@ export default keyboardShortcuts;
 const pouetModal = focusModalById("uploader-pouet-modal", "pouet-submission");
 const demozooModal = focusModalById(
   "uploader-demozoo-modal",
-  "demozoo-submission"
+  "demozoo-submission",
 );
 const introModal = focusModalById(
   "uploader-intro-modal",
-  "uploader-intro-file"
+  "uploader-intro-file",
 );
 const trainerModal = focusModalById(
   "uploader-trainer-modal",
-  "uploader-trainer-file"
+  "uploader-trainer-file",
 );
 const textModal = focusModalById("uploader-text-modal", "uploader-text-file");
 const graphicModal = focusModalById(
   "uploader-image-modal",
-  "uploader-image-file"
+  "uploader-image-file",
 );
 const magazineModal = focusModalById(
   "uploader-magazine-modal",
-  "uploader-magazine-file"
+  "uploader-magazine-file",
 );
 const advancedModal = focusModalById(
   "uploader-advanced-modal",
-  "uploader-advanced-file"
+  "uploader-advanced-file",
 );
+
+const radioHack = document.getElementById("uploader-trainer-gamehack"),
+  radioInst = document.getElementById("uploader-trainer-installer"),
+  radioDos = document.getElementById("uploader-intro-msdos"),
+  radioWin = document.getElementById("uploader-intro-windows");
 
 const bs = "Backspace",
   enter = "Enter",
-  demozoo = "d",
-  pouet = "p",
-  intro = "i",
+  bbstro = "b",
+  demozoo = "z",
+  intro = "c",
+  installer = "i",
   trainer = "t",
   nfo = "n",
-  graphic = "g",
+  photo = "p",
   magazine = "m",
   advanced = "a",
+  dos = "d",
+  windows = "w",
   releasers = "r",
   files = "f",
   descriptions = "x";
@@ -143,19 +151,28 @@ export function keyboardShortcuts() {
       case demozoo:
         demozooModal.show();
         break;
-      case pouet:
-        pouetModal.show();
+      case windows:
+        introModal.show();
+        radioWin.checked = true;
         break;
       case intro:
+      case bbstro:
+      case dos:
         introModal.show();
+        radioDos.checked = true;
         break;
       case trainer:
         trainerModal.show();
+        radioHack.checked = true;
+        break;
+      case installer:
+        trainerModal.show();
+        radioInst.checked = true;
         break;
       case nfo:
         textModal.show();
         break;
-      case graphic:
+      case photo:
         graphicModal.show();
         break;
       case magazine:
