@@ -195,7 +195,7 @@ func (align Align) Thumbs(sl *slog.Logger, unid string, preview, thumbnail dir.D
 		arg = append(arg, args...)
 		tmp := filepath.Join(path, unid+ext)
 		arg = append(arg, tmp)
-		err := Run(nil, Magick, arg...)
+		err := Run(sl, Magick, arg...)
 		if err != nil {
 			return fmt.Errorf("%s run: %w", msg, err)
 		}
