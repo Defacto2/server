@@ -348,7 +348,7 @@ func LinkSites(val string) template.HTML {
 // For example supplying the name "tport"
 //   - with performant false will return a link displaying "tPORt"
 //   - with performant true will return a link displaying "Tport"
-func MakeLink(name, class string, performant bool) (string, error) {
+func MakeLink(id, name, class string, performant bool) (string, error) {
 	ref, err := LinkRelr(name)
 	if err != nil {
 		return "", fmt.Errorf("app make link %w", err)
@@ -358,7 +358,7 @@ func MakeLink(name, class string, performant bool) (string, error) {
 	if !performant {
 		title = releaser.Link(helper.Slug(name))
 	}
-	s := fmt.Sprintf(`<a class="%s" href="%s">%s</a>`, class, ref, title)
+	s := fmt.Sprintf(`<a id="named-group-page-%s" class="%s" href="%s">%s</a>`, id, class, ref, title)
 	if capt != "" && title == "" {
 		s = "error: could not link group"
 	}

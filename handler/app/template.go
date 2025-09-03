@@ -620,13 +620,13 @@ func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 	var prime, second string
 	var err error
 	if av != "" {
-		prime, err = simple.MakeLink(av, class, performant)
+		prime, err = simple.MakeLink("1", av, class, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}
 	}
 	if bv != "" {
-		second, err = simple.MakeLink(bv, class, performant)
+		second, err = simple.MakeLink("2", bv, class, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf("error: %s", err))
 		}

@@ -116,8 +116,25 @@ import { getElmById } from "./helper.mjs";
     const fname = document.getElementById("artifact-editor-filename");
     const commt = document.getElementById("artifact-editor-comment");
 
+    const rlnk1 = document.getElementById("named-group-page-1");
+    const rlnk2 = document.getElementById("named-group-page-2");
+
     console.log("key", event.key);
     switch (event.key) {
+      case "1":
+      case "!":
+        if (rlnk1) {
+          event.preventDefault();
+          rlnk1.click();
+        }
+        break;
+      case "2":
+      case "@":
+        if (rlnk2) {
+          event.preventDefault();
+          rlnk2.click();
+        }
+        break;
       case "|":
         if (commt) {
           commt.focus();

@@ -201,13 +201,13 @@ func TestLinkRelr(t *testing.T) {
 
 func TestMakeLink(t *testing.T) {
 	t.Parallel()
-	s, err := simple.MakeLink("", "", true)
+	s, err := simple.MakeLink("", "", "", true)
 	be.Err(t, err)
 	be.Equal(t, s, "")
-	s, err = simple.MakeLink("tport", "", true)
+	s, err = simple.MakeLink("", "tport", "", true)
 	be.Err(t, err, nil)
 	be.True(t, strings.Contains(s, "Tport"))
-	s, err = simple.MakeLink("tport", "", false)
+	s, err = simple.MakeLink("", "tport", "", false)
 	be.Err(t, err, nil)
 	be.True(t, strings.Contains(s, "tPORt"))
 }
