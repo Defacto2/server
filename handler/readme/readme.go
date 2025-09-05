@@ -186,7 +186,16 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 	// modify the buffer bytes for cleanup
 	b := trimBytes(buf.Bytes())
 	if diz.Len() > 0 {
-		b = render.InsertDiz(b, diz.Bytes())
+		if diz.Len() == buf.Len() {
+			// for performance we want to use the bytes equal as a last resort.
+			// do not use the diz buffer if it is identical the existing buf buffer.
+			if !bytes.Equal(diz.Bytes(), buf.Bytes()) {
+				b = render.InsertDiz(b, diz.Bytes())
+			}
+		} else {
+			println(diz.Len(), buf.Len(), len(b))
+			// b = render.InsertDiz(b, diz.Bytes())
+		}
 		diz.Reset()
 	}
 	b = RemoveCtrls(b)

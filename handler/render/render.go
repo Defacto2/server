@@ -123,6 +123,8 @@ func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Di
 	b := buf.Bytes()
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
+	// normalize the line feeds to attempt to fix any breakages with the layout
+	b = bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
 	buf.Reset()
 	buf.Write(b)
 	if utf8.Valid(b) {
@@ -165,6 +167,8 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	b := buf.Bytes()
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
+	// normalize the line feeds as often courier groups injecting their tags would break the layout
+	b = bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
 	buf.Reset()
 	buf.Write(b)
 	return nil
