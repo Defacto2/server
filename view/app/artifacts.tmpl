@@ -39,12 +39,17 @@
   <small><small>ANSI and text artworks</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a></small><br>
   {{- end}}
   {{- if $linkWeb}}
+    {{ $notworkings := false }}
     {{- range $web }}
       {{- if and (ne .URL "") (eq .NotWorking false ) }}
       <small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a></small><br>
       {{- end}}
       {{- if and (ne .URL "") (eq .NotWorking true ) }}
-      <small><strong>{{.Name}}</strong></a> ex-site, <span class="text-decoration-line-through fw-lighter">{{.URL}}</span></small><br>
+      {{ if eq $notworkings false }}
+        {{ $notworkings = true }}
+        <small><small> &nbsp; ex-sites &nbsp; </small></small>
+      {{ end }}
+      <small class="text-nowrap"><small><strong>{{.Name}}</strong></a> <span class="text-body-tertiary fw-lighter">{{.URL}}</span>.</small></small>
       {{- end}}
     {{- end}}
   {{- end}}

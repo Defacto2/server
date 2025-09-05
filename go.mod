@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.25.0 // latest: https://go.dev/dl/
+go 1.25.1 // latest: https://go.dev/dl/
 
 // INFO: Usage of the packages
 // Defacto2/ named packages are all internal but kept out of the main application.
@@ -26,7 +26,7 @@ go 1.25.0 // latest: https://go.dev/dl/
 //
 require (
 	github.com/Defacto2/archive v1.1.3
-	github.com/Defacto2/helper v1.5.1
+	github.com/Defacto2/helper v1.5.2
 	github.com/Defacto2/magicnumber v1.0.12
 	github.com/Defacto2/releaser v1.3.11
 	github.com/aarondl/null/v8 v8.1.3
@@ -55,6 +55,10 @@ require (
 	golang.org/x/text v0.28.0
 	google.golang.org/api v0.248.0
 )
+
+// replace (
+// 	github.com/Defacto2/helper => ../helper
+// )
 
 require (
 	cloud.google.com/go/auth v0.16.5 // indirect

@@ -1,6 +1,8 @@
 // Package site proves links and titles for recommended websites.
 package site
 
+import "sort"
+
 // URI is the URL slug of the releaser.
 type URI string
 
@@ -148,20 +150,19 @@ func Websites() Groups {
 			},
 			{
 				URL:  "https://wayback.defacto2.net/defacto2-from-2000-july-11/",
-				Name: "July 2000",
+				Name: "from July 2000",
 			},
 			{
 				URL:  "https://wayback.defacto2.net/defacto2-from-1999-september-26/",
-				Name: "September 1999",
+				Name: "from September 1999",
 			},
 			{
 				URL:  "https://wayback.defacto2.net/defacto2-from-1998-september-8/",
-				Name: "September 1998",
+				Name: "from September 1998",
 			},
-
 			{
 				URL:        "www.defacto2.com",
-				Name:       "First domain",
+				Name:       "launch address",
 				NotWorking: true,
 			},
 		},
@@ -900,8 +901,13 @@ func Websites() Groups {
 // Find returns the website for the given uri.
 // It returns an empty string if the uri is not known.
 func Find(uri string) []Website {
-	if _, groupExists := Websites()[URI(uri)]; groupExists {
-		return Websites()[URI(uri)]
+	sites, groupExists := Websites()[URI(uri)]
+	if !groupExists {
+		return []Website{}
 	}
-	return []Website{}
+	// sort using notworking listing as last
+	sort.Slice(sites, func(i, j int) bool {
+		return !sites[i].NotWorking && sites[j].NotWorking
+	})
+	return sites
 }

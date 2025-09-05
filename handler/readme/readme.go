@@ -193,8 +193,7 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 				b = render.InsertDiz(b, diz.Bytes())
 			}
 		} else {
-			println(diz.Len(), buf.Len(), len(b))
-			// b = render.InsertDiz(b, diz.Bytes())
+			b = render.InsertDiz(b, diz.Bytes())
 		}
 		diz.Reset()
 	}

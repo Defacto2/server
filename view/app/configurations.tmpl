@@ -176,11 +176,11 @@
     {{- end}}{{end}}
   </tbody>
 </table>
-*/}}
 </div>
+*/}}
 {{- /*  Links to records  */}}
 <h2 class="lead mt-5">Links to special records</h2>
-<div>These are highlighted artifacts that have unusual edge cases.<br>Items with a ❎ icon means they need fixing.</div>
+<div>These are highlighted artifacts that have unusual edge cases.<br>Items with a ❎ icon means they need fixing, and ✅ marks confirmation.</div>
 <dl class="row row-cols-1 row-cols-md-2 g-2 p-2 bg-body-tertiary mt-2">
   <div class="col">
   <dt>Readme duplication</dt>
@@ -196,16 +196,26 @@
     <a href="/f/b12d05f">b12d05f</a> · <a href="/f/b228a8e">b228a8e</a> · <a href="/f/b53028e">b53028e</a>
   </dd>
   </div><div class="col">
-  <dt>Readme with unknown encodings</dt>
+  <dt>Readme with unknown or corrupt encodings</dt>
   <dd>
-    These are textfiles that are probably corrupt<br>
+    These are textfiles that are probably corrupt ✅<br>
     <a href="/f/ac2319e">ac2319e</a> · <a href="/f/b0269ca">b0269ca</a> <small>vs</small> <a href="/f/ac1d9d3">ac1d9d3</a>
   </dd>  
+  </div><div class="col">
+  <dt>Readme duplicate FILE_ID.DIZ</dt>
+  <dd>
+    <a href="/ab232a7">ab232a7</a> · 
+    <a href="/b53028e">b53028e</a>
+  </dd>
   </div><div class="col">
   <dt>Readme CP-437</dt>
   <dd>
     These are textfiles encoded in the IBM PC code page 437<br>
-    <a href="/f/ab2f2b4">ab2f2b4</a> · <a href="/f/ba2db9e">ba2db9e</a> · <a href="/f/ab43cb">ab43cb</a> · <a href="/f/b42ccd8">b42ccd8</a>
+    <a href="/f/ab2f2b4">ab2f2b4</a> · 
+    <a href="/f/ba2db9e">ba2db9e</a> · 
+    <a href="/f/ab43cb">ab43cb</a> · 
+    <a href="/f/b42ccd8">b42ccd8</a> · 
+    <a href="/f/af2c260">af2c260</a>
   </dd>  
   </div><div class="col">
   <dt>Readme ISO-8859-1</dt>
@@ -216,7 +226,7 @@
   </div><div class="col">
   <dt>Readme UTF-16</dt>
   <dd>
-    These are textfiles would need transformation<br>
+    These are textfiles would need transformation ❎<br>
     <a href="/f/b22e849">b22e849</a>
   </dd>
   </div><div class="col">
@@ -259,7 +269,7 @@
   <dt>Images <code>.PNG</code></dt>
   <dd>
     Images categorized as text should not preview in the readme app<br>
-    <small>These images should be previewed</small><br>
+    <small>These images should be previewed ✅</small><br>
     <a href="/f/af20fcb">af20fcb</a> · <a href="/f/a73208">a73208</a> · <a href="/f/b34c2a">b34c2a</a>
   </dd>
   </div><div class="col">
@@ -303,7 +313,7 @@
   <dt>js-dos unsupported <code>.ZIP</code></dt>
   <dd>
     The JS emulator only supports zip archives using the <var>DEFLATE</var> method<br>
-    <small>To fix, these archives need to be recompressed and stored as extras</small><br>
+    <small>To fix, these archives need to be recompressed and stored as extras ✅</small><br>
     <a href="/f/a22af8">a22af8</a> · <a href="/f/b72d52b">b72d52b</a> · <a href="/f/b52e058">b52e058</a> · <a href="/f/b3286a2">b3286a2</a>
   </dd>
   </div><div class="col">
