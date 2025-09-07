@@ -469,6 +469,7 @@ func Groups() Tibits { //nolint:maintidx
 		368: []URI{"new-dtl"},
 		369: []URI{"anemia"},
 		370: []URI{"just-the-facts"},
+		371: []URI{"the-flame-arrows"},
 		372: []URI{"impact"},
 	}
 }
