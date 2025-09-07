@@ -457,6 +457,7 @@ func Groups() Tibits { //nolint:maintidx
 		356: []URI{"sony-playstation-game-reviews"},
 		357: []URI{"tfw"},
 		358: []URI{"the-reservoir-warez-report", "the-reservoir-dogs"},
+		359: []URI{"sneakers"},
 		360: []URI{"wave"},
 		361: []URI{"top-telnet-traders-weekly"},
 		362: []URI{"weekly-courier-report"},
