@@ -219,8 +219,9 @@ func Collection() Milestones {
 			Year: 1976, Month: 1, Title: "Software piracy", Highlight: true,
 			Lead: "An Open Letter to Hobbyists", LinkTitle: "the letter",
 			Link: "https://archive.org/details/hcc0201/Homebrew.Computer.Club.Volume.02.Issue.01.Len.Shustek/page/n1/mode/2up",
-			Content: "<p>Bill Gates of <em>Micro-Soft</em> writes a letter to the hobbyists of the Homebrew Computer Club requesting they <u>stop stealing</u> <strong>Altair&nbsp;BASIC</strong>. " +
-				"However, US copyright law generally did not apply to software then. Copying computer code was viewed the same as sharing the instructions of a cooking recipe or a cocktail.</p>" +
+			Content: "<p>Bill Gates of <em>Micro-Soft</em> pens a letter to the hobbyists of the Homebrew Computer Club requesting they <u>stop stealing</u> <strong>Altair&nbsp;BASIC</strong>. " +
+				"However, while US copyright law protected the software author from plagiarism, it did not allow for restrictions to be placed on software usage. " +
+				"For many hobbyists, the copying and sharing of retail software got viewed the same as copying to paper the instructions of a great recipe taken from a cookbook.</p>" +
 				"<p><q>As the majority of hobbyists must be aware, most of you steal your software. Hardware must be paid for, but software is something to share. Who cares if the people who worked on it get paid.</q></p>",
 			Picture: Picture{
 				Title:       "An Open Letter to Hobbyists",
@@ -340,7 +341,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The early underground", Year: 1979, Highlight: true,
-			Lead: "CBBS, ABBS, and the Apple II",
+			Lead: "CBBS, ABBS, and the Apple II microcomputer",
 			Content: "<p>Before the Internet, the <em>Computerized Bulletin Board System</em> was the primary tool for communication between microcomputer owners. In these early days, the setups allowed people to dial in using their computers to share and read public or private messages with other callers.</p>" +
 				"<p>The earliest <strong>CBBS</strong> setups ran off <a href=\"http://www.s100computers.com/\">S-100 bus-based computers</a>. " +
 				"These systems shared the same S-100 interface bus but were incompatible microcomputers and motherboards of the 1970s fabricated by various manufacturers. When the Apple&nbsp;II received CBBS-like software in 1979, it was typically called ABBS or the Apple Bulletin Board System. " +
@@ -365,8 +366,10 @@ func Collection() Milestones {
 				"was <a href=\"http://artscene.textfiles.com/intros/APPLEII/cyclod.gif\">first announced</a> in 1981.</p>" +
 				// 8BBS
 				"<strong>8BBS</strong><br>" +
-				"<p>There is also the renowned <strong>8BBS</strong> out of San Jose, CA, which ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a> " +
-				"in 1980-82 and <a href=\"#8bbs\">has its own individual article</a>.</p>" +
+				"<p>There is also the renowned <strong>8BBS</strong> that operated near San Jose, CA, from 1980 to 1982 and ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a>. " +
+				"Unlike the other early underground boards, a chunk of the message base has been paperprinted, scanned, and preserved online! So it has its own <a href=\"#8bbs\">8BBS milestone article</a>.</p>" +
+				// "<p>There is also the renowned <strong>8BBS</strong> out of San Jose, CA, which ran on a <a href=\"https://www.computerhistory.org/revolution/minicomputers/11/331\">PDP-8 minicomputer</a> " +
+				// "in 1980-82 and <a href=\"#8bbs\">has its own individual article</a>.</p>" +
 				sect0 +
 				"<div id=\"the-early-underground-fn1\">[1] See page 3 under <em>MODEMania</em> in the <a href=\"https://mirrors.apple2.org.za/ftp.apple.asimov.net/documentation/magazines/washington_apple_journal/washingtonapplepijournal1979v1no8sep79.pdf\">Washington Apple Journal</a>.</div>" +
 				"<div id=\"the-early-underground-fn2\">[2] In the Innovative Bulletin Boards list, InfoWorld mislabels <strong>8</strong>BBS as BBBS.</div>" +
@@ -375,17 +378,18 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The first crackers", Year: 1979, Highlight: true,
-			Content: "<p>We have yet to learn when or who started cracking, or why. But it must have been after the discovery of disk copy protection in Apple&nbsp;II software. " +
-				"Andrew McFadden wrote about early <a href=\"https://fadden.com/apple2/cassette-protect.html\">copy protection on cassette tapes</a>. " +
-				"This form of copy protection was uncommon, but the games include Microchess 2 from Personal Software, Module 6 from Softape in 1978, and 1979's Sargon II from Hayden.</p>" +
+			Lead: "Of software disk copy protections",
+			Content: "<p>We have yet to learn when or who started <em>cracking</em>, or why. But it must have been after the discovery of disk copy protection in Apple&nbsp;II software and a desire by users to <em>unlock</em> these restrictions. " +
+				"While not new, Andrew McFadden wrote about early <a href=\"https://fadden.com/apple2/cassette-protect.html\">copy protection on software cassette tapes</a> in 1978 and 1979, the earlier forms of copy protection were unusual.</p>" +
 				// disk ii drive
 				"<p>However, the July 1978 retail debut of the <a href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II</a> floppy drive with the first " +
-				"<a href=\"https://www.apple2history.org/history/ah14/#01\">Apple operating system</a> was a significant point. " +
-				"For the moneyed Apple&nbsp;II hobbyists, the drive and software became a must-have piece of kit that significantly improved the functionality of their machines and quickly caught on. " +
+				"<a href=\"https://www.apple2history.org/history/ah14/#01\">Apple Disk Operating System</a> was a significant point. " +
+				"For the moneyed Apple&nbsp;II hobbyists, the drive and software became a must-have piece of kit that significantly improved the functionality of their expensive machines and quickly caught on. " +
 				// disk copy protection
-				"The drive offered new benefits for software developers, including speed and reliability and complete control of the floppy drive hardware using software that the developers could write themselves. " +
-				"This ability encouraged them to embed <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> into software that are " +
-				"<a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today!</p>" +
+				"It offered new benefits for software developers, including speed, reliability and complete control of the floppy drive hardware using custom software. " +
+				"A critical mass of floppy drive owners with the new capabilities encouraged developers to use the media and embed novel <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> into their software intended for sale. " +
+				"While microcomputer enthusiasts were very much in the habit of duplicating and sharing software collections with friends and fellow users, and would have immediately desired the removal of any new restrictions on program usage.</p>" +
+				"<p>Interestingly, these protection schemes are <a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today.</p>" +
 				"<hr>" +
 				"<strong>Early possible examples</strong><br>" +
 				// yahtzee
@@ -418,7 +422,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The birth of wares", Year: 1980, Highlight: true,
-			Lead: "The Apple II", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
+			Lead: "On the Apple II microcomputer", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
 			Content: // kids with micros
 			"<p>Without good software, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were mostly pointless hobby machines, " +
 				"and getting them online with modems was challenging.<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup><sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup> " +
@@ -473,13 +477,14 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The first group", Year: 1980, Highlight: true,
-			Lead: "The Apple Mafia, Super Pirates of Minneapolis, or ?",
-			Content: "<p>Discussions of the groups from the Apple II era often mention they existed in 1981 or even 1980. " +
-				"Yet, from the cracked Scene releases that exist online today, the earliest groups only have releases from 1982 onwards. " +
-				"While there are many 1980 and 1981 cracks, the surviving evidence says they all were released by individuals rather than formal collaborations.</p>" +
-				"<p>The famous cracking groups of the era, Super Pirates of Minneapolis, The Apple Mafia, The Software Pirates, Digital Gang, The Dirty Dozen, Untouchables, and Apple Pirated Program Library Exchange earliest releases are for games first sold in 1982.</p>" +
+			Lead: "In 1980, unlikely, but in late 1981, maybe",
+			Content: "<p>Discussions of groups from the Apple II era often mention they were around in 1981 or even 1980. " +
+				"Yet, from the cracked games that survive today, these groups only have releases going back to <strong>1982</strong>. " +
+				"While there are many 1980 and 1981 cracks, the digital evidence says they all were released by individuals rather than as formal collaborations.</p>" +
+				"<p>Of the famous cracking groups from the early Apple era, Super Pirates of Minneapolis, The Apple Mafia, The Software Pirates, Digital Gang, The Dirty Dozen, Untouchables, and Apple Pirated Program Library Exchange. " +
+				"The earliest known released cracks are for games first sold in 1982.</p>" +
 				// byter interview
-				`<p>In a 1991 interview<sup><a href="#the-first-group-fn7">[7]</a></sup> for The Humble Review, Byter talks about the early Apple II scene. He confirms, "In those days (1981-) there wasn't any such thing as cracking groups... most everything which was cracked was credited solely to individuals."` +
+				`<p>In a 1991 interview<sup><a href="#the-first-group-fn7">[7]</a></sup> for The Humble Review, Byter talks about the early Apple II scene. He confirms, "In those days [a decade ago] there wasn't any such thing as cracking groups... most everything which was cracked was credited solely to individuals."` +
 				` He continues, "As for cracking groups, they're changed as well. Apple ][ cracking groups (when they weren't simply individuals), were always small. Only members essential to the groups activities were members. This included (at times) a leader, a cracker or two and sometimes an artist and a programmer. ` +
 				`It was rare for a group to have more than five members. Suppliers were never part of the group, nor were sysops or boards."</p>` +
 				// the apple marfia story
@@ -487,7 +492,7 @@ func Collection() Milestones {
 				"In 1986, Red Ghost posted <a href=\"/f/a430f7\">The Apple Mafia Story</a>, claiming " +
 				"The&nbsp;Untouchables<sup><a href=\"#the-first-group-fn1\">[1]</a></sup>, The&nbsp;Apple&nbsp;Mafia<sup><a href=\"#the-first-group-fn2\">[2]</a></sup>, and&nbsp;The&nbsp;Dirty&nbsp;Dozen<sup><a href=\"#the-first-group-fn3\">[3]</a></sup> " +
 				"were some of the first-ever pirate groups. But he admits he wasn't there and wasn't even into computers then. He grew up in Queens, New York, and suggests that is where many <q>original</q> phreakers and pirates originated. " +
-				"But we know in the 1970s, people were <a href=\"http://www.flyingsnail.com/images/YIPL/YIPL_002.jpg\">phone freaking nationwide</a>, and these pirate groups mentioned only hit their stride in 1982-83.</p>" +
+				"But that is debatable, as we know in the 1970s, people were <a href=\"http://www.flyingsnail.com/images/YIPL/YIPL_002.jpg\">phone freaking nationwide</a>. And these pirate groups he mentions only hit their stride in 1982 and 1983.</p>" +
 				// godfather quote
 				"<p>In the same post, an early 1984 quote from The Godfather states he founded The Apple Mafia in 1980, initially as a joke, but it became a more serious project in 1981. Strangely, Godfather states that it is the oldest active group rather than simply the oldest group. " +
 				"<q style=\"text-transform: lowercase;\">BRIEF HISTORY OF THE APPLE MAFIA. FOUNDED IN 1980 BY THE GODFATHER AS A JOKE. REDONE IN 1981 AS A SEMI SERIOUS GROUP. " +
@@ -500,17 +505,17 @@ func Collection() Milestones {
 				"starting to get into computers, most of them comprising the main attendees of " +
 				"the soon-to-be-defunct TAP<sup><a href=\"#the-first-group-fn4\">[4]</a></sup> meetings in NYC, a pretty eclectic collection of " +
 				"dudes who have long since gone their separate ways to meet with whatever " +
-				"destinies life had in store for them. <u>Around 1980 there was an Apple Fest</u> that " +
+				"destinies life had in store for them. Around 1980 there was an Apple Fest that " +
 				"we went to, and found even more people with Apples and, from this, formed the " +
 				"Apple Mafia, which was, in our minds, really cool sounding and actually became " +
 				"the first WAreZ gRoUP to exist for the Apple&nbsp;II.</q>" +
-				"<p>However, the first AppleFest was held in Boston on the weekend of June 6-7, 1981<sup><a href=\"#the-first-group-fn5\">[5]</a></sup>. " +
-				"Given the inconsistencies in the various stories about The Apple Mafia, it is safe to suggest that they were an early group formed in late 1981.</p>" +
+				"<p>However, Lord Digital is mistaken, the first AppleFest was held in Boston on the weekend of June 6-7, 1981<sup><a href=\"#the-first-group-fn5\">[5]</a></sup>. " +
+				"Given the inconsistencies in the various stories about The Apple Mafia, it is safe to suggest that they were an early group formed in late 1981. Or even in 1982, the year that The Godfather claimed that they <q>kicked some ass</q>.</p>" +
 				// super pirates
 				"<p><strong>Super Pirates of Minneapolis</strong><sup><a href=\"#the-first-group-fn6\">[6]</a></sup>" +
 				"<br>The Super Pirates were a famous, early group outside of New York. " +
 				"Claims suggest the Super Pirates were around in 1980, the same year the game <a href=\"https://www.mobygames.com/game/47942/cyber-strike/\">Cyber&nbsp;Strike</a> from Sirius Software was published; " +
-				"however the year should be viewed with skepticism, and the <a href=\"https://archive.org/details/B-29AP_Japanese_Twerps_Horizon_V\">known releases</a> present a 1982 date.</p>" +
+				"however the year should be viewed with skepticism, as their known early cracks, such as <a href=\"https://archive.org/details/B-29AP_Japanese_Twerps_Horizon_V\">Horizon V</a> have a 1982 <a href=\"https://www.mobygames.com/game/17995/horizon-v/screenshots/apple2/113190/\">copyright</a>.</p>" +
 				"<p><q>The 1st ware I got was back in 1980. It was Cyber Strike. Along with about 35 other disks, most cracked by the Super Pirates!</q> " +
 				"The quote is from Pirate History by The Incognito reposted on the Red Sector A BBS <small>(313) 591-1024</small> and found in the <a href=\"http://www.textfiles.com/bbs/boardsims2.txt\">Board Simulations 2</a> text from 1987.</p>" +
 				// midwest guild
@@ -607,7 +612,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest dated software crack and text art", Year: 1980, Month: 11,
-			Lead:      "Cyber Strike broken by The Tornato ?",
+			Lead:      "So far, Cyber Strike broken by The Tornato",
 			LinkTitle: "about and emulate the crack", Link: "https://archive.org/details/Sabotage_Reversal_Cyber_Strike_Dungeons",
 			Content: // dung beetles
 			"<p>The earliest-dated crack is probably on the Apple&nbsp;II. An example is " +
@@ -640,21 +645,24 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest cracktro", Year: 1981, Highlight: true,
-			Lead: "STARBLASTER cracked by: Mr. Xerox, from 1981 ?",
-			Content: "Our definition of a cracktro or <strong>crack-intro</strong> is a programmed and animated vanity title screen, giving credit to the cracker(s) of a pirated piece of software. " +
-				"But this means the common static <q><a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken&nbsp;by</a></q> texts and <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">hacked</a> game title screens do not apply.</p>" +
+			Lead: "So far, STARBLASTER cracked by: Mr. Xerox",
+			Content: "A definition of a <strong>cracktro</strong> or crack intro is a programmed and animated vanity title screen that gives credit to the cracker(s) of a pirated piece of software. However, " +
+				"these need to be animated, so the static <a href=\"http://artscene.textfiles.com/intros/APPLEII/thepirate.gif\">broken</a> or <a href=\"http://artscene.textfiles.com/intros/APPLEII/flockland.gif\">hacked</a> by game title screens are not included.</p>" +
 				// apple ii
-				"<p>Unfortunately, it is challenging to place early pirated releases for the PC, Commodore&nbsp;64, or Apple&nbsp;II. " +
+				"<p>It is challenging to place early pirated releases for the Apple&nbsp;II, PC, or Commodore&nbsp;64. " +
 				"Many early crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
-				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks by Apple&nbsp;II crackers based in the USA during 1980-82, the early cracktro probably evolved there.</p>" +
+				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken by</q> texts and graphic hacks by Apple&nbsp;II crackers based in the USA during 1980, 1981, and 1982, " +
+				"it can be assumed the early cracktro evolved on that system.</p>" +
 				// mr xerox
 				"<strong>Candidates</strong><br>" +
 				"<p>The prolific, early Apple cracker <strong>Mr. Xerox</strong> probably created one of the first crack-intros and scroller in his animated " +
-				"<a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">crack by introduction</a> " +
-				"for <strong>Star Blaster</strong> (c) 1981. When compared to the <a href=\"https://archive.org/details/Starblaster4amCrack\">startup of the original</a> game, this Mr. Xerox animation clearly involved additional code injected by the cracker.</p>" +
+				"<a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">cracked-by introduction</a> " +
+				"for <strong>StarBlaster</strong> (c) 1981. When compared to the <a href=\"https://archive.org/details/Starblaster4amCrack\">startup of the original</a> game, " +
+				"the Mr. Xerox animation clearly involved additional code injected by the cracker. Confusing, there were at least two games named StarBlaster. The one cracked by Xerox is from Piccadilly Software and may have been reprinted in 1982.</p>" +
 				// others
-				"<p>Or, cracker <strong>Copycatter</strong> <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">may have created</a> the first scroller in a release of <strong>Pro Football</strong> (c) 1982.</p>" +
-				"<p>While younger, the February 1984 <strong>Black Belt</strong> release is from <strong>The Apple Mafia</strong> is a <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">candidate</a> for an early dated crack-intro, given it is animated, timestamp and from a well-known group.</p>" +
+				"<p>The cracker <strong>Copycatter</strong> <a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">may have created</a> the first scroller in a release of " +
+				"<strong>Pro&nbsp;Football</strong>&nbsp;(c)&nbsp;1982.</p>" +
+				"<p>While younger, the February 1984 <strong>Black Belt</strong> release is from <strong>The Apple Mafia</strong> is a <a href=\"https://archive.org/details/3d0g_022b_Black_Belt\">candidate</a> for an early <q>dated</q> crack-intro, given it is animated, timestamped, and from a well-known group.</p>" +
 				"<p>Penqueriel Mazes by Electronic Dimension initially looked like a <a href=\"https://archive.org/details/a2_Penqueriel_Mazes_19xx_Sadistic_cr_Electronic_Dimension\">candidate</a>, but the intro-loader effects are far too modern for the <q>(c) 1982</q> notice.</p>",
 			Picture: Picture{
 				Title: "Mr. Xerox's Star Blaster cracktro",
@@ -711,7 +719,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The first demo", Year: 1981, Month: 12, Highlight: true,
-			Lead:      "Merry Christmas CB'81 ?",
+			Lead:      "So far, Merry Christmas by CB'81, on the Atari 400/800",
 			LinkTitle: "the Demozoo entry with a YouTube link",
 			Link:      "https://demozoo.org/productions/144652/",
 			Content: "<p>The earliest known demo or demonstration program is probably this great but untitled animated Christmas greeting created on the Atari 400 or 800 and signed as <q>CB'81</q>. " +
@@ -748,6 +756,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The Berlin Bear controversy", Year: 1982,
+			Lead: "Commodore 64, or Apple and Atari",
 			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> " +
 				"Berlin Cracking Service image <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
 				"But this seems far-fetched, and anecdotal proof suggests it originates from 1984.</p>" +
@@ -769,7 +778,7 @@ func Collection() Milestones {
 				"It is more believable that the kids formed these Berlin-based cracking groups at the earliest, in Christmas/New Years 1983-84, " +
 				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
 				// citations
-				"</p><strong>Some of the controversial <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">citations</a></strong>" +
+				"</p><strong>Some of the confusing <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">citations</a></strong>" +
 				ul0 +
 				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by <abbr title=\"Berlin Cracking Service\">BCS</abbr> in <strong>1982</strong>. " +
 				"It was a kind of co-production by several people...</q></li>" +
@@ -872,7 +881,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest Unprotect texts", Year: 1983, Highlight: true,
-			Lead: "Unprotects for Lotus 1-2-3", LinkTitle: "the Unprotect texts",
+			Lead: "So far, Unprotects for Lotus 1-2-3", LinkTitle: "the Unprotect texts",
 			Link: "/files/how-to",
 			Content: "<code>123.UNP</code><br>" +
 				"<p>The January release of <a href=\"https://www.wired.com/2009/01/jan-26-1983-spreadsheet-as-easy-as-1-2-3-2/\">1-2-3</a> from Lotus " +
@@ -895,7 +904,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest information text", Year: 1984, Month: 10, Day: 17, Highlight: true,
-			Lead:      "SOFTWARE PIRATES Inc. - ZORKTOOLS 1.0 ?",
+			Lead:      "So far, SOFTWARE PIRATES Inc. - ZORKTOOLS 1.0",
 			LinkTitle: "the information text",
 			Link:      "/f/ae2da98",
 			Content: "<code>INFOCOM.DOC</code><br>" +
@@ -920,6 +929,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest PC cracked releases", Year: 1984, Highlight: true,
+			Lead: "So far, The Duplicators and 'public domain'",
 			Content: "<p>This modified, tagged, or graffitied title screen is a <strong>crack&nbsp;screen</strong> " +
 				"and was a typical way for crackers on the Apple, Atari microcomputers, and the IBM PC to credit themselves. " +
 				"Crackers altered games and removed disk copy protection from software to permit copying and redistribution.</p>" +
@@ -963,7 +973,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest text loader on PC", Year: 1985, Month: 5, Day: 26, Highlight: true,
-			Lead:      "Spy Hunter cracked by Spartacus ?",
+			Lead:      "So far, Spy Hunter cracked by Spartacus",
 			LinkTitle: "and view the text loader",
 			Link:      "/f/aa2be75",
 			Content: "<p><strong>Loaders</strong> are bits of code that crackers and pirate groups insert to promote themselves and their game releases. As the name suggests, they are loaded and shown before the game starts. " +
@@ -980,7 +990,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest ANSI ad", Year: 1985, Month: 8, Highlight: false,
-			Lead: "The Game Gallery 300 1200 ?", LinkTitle: "and view the file",
+			Lead: "So far, The Game Gallery", LinkTitle: "and view the file",
 			Link: "/f/ba2bcbb",
 			Content: "<p>The earliest <strong>ANSI ad</strong>vertisement is for the Manhattan based BBS, <strong>The&nbsp;Game&nbsp;Gallery</strong>&nbsp;(+212-799-6987). ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems.</p>" +
 				"<p>The output uses ANSI escape codes, a standard Digital Equipment Corporation (DEC) pioneered for its minicomputer <a href=\"https://vt100.net/dec/vt_history\">video terminals</a>. Later, it was used on IBM and other PCs using software drivers and video <a href=\"https://vt100.net/emu/\">terminal emulators</a>.</p>",
@@ -1023,7 +1033,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest \"DOX\"", Year: 1986, Highlight: true,
-			Lead: "Dam Buster documentation by Brew Associates ?", LinkTitle: "the documentation",
+			Lead: "So far, Dam Buster documentation by Brew Associates", LinkTitle: "the documentation",
 			Link: "/f/a61db76",
 			Content: "<code>DAMBUST1.DOC</code><br>" +
 				"<p><strong>DOX</strong> is an abbreviation for documentation, which are text files that provide instructions on playing more complicated games. " +
@@ -1198,7 +1208,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest, standalone elite BBS advert", Year: 1988, Month: 4, Day: 4, Highlight: false,
-			Lead: "Swashbucklers II ?", LinkTitle: "the file",
+			Lead: "So far, Swashbucklers II", LinkTitle: "the file",
 			Link: "/f/b844ef",
 			Content: "<p>While novel in 1988, <strong>BBS adverts</strong> like these would plague releases as spam in the years to come, " +
 				"with boards injecting numerous texts and tagging the releases with their names, often under the guise of documentation or readme texts.</p>" +
@@ -1218,7 +1228,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest, proto NFO text", Year: 1988, Month: 7, Day: 30, Highlight: false,
-			Lead: "Bentley Sidwell Productions ?", LinkTitle: "the file", Link: "/f/ad417f",
+			Lead: "So far, Bentley Sidwell Productions", LinkTitle: "the file", Link: "/f/ad417f",
 			Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
 				"<p>Bentley Sidwell Productions may have released the earliest NFO-like document for the 1988 <a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a> game.</p>" +
 				"<pre>" +
@@ -1244,7 +1254,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest ASCII art on PC", Year: 1988, Month: 10, Day: 6, Highlight: true,
-			Lead: "Another quality ware from $print ?", LinkTitle: "and view the file", Link: "/f/ab3dc1",
+			Lead: "So far, Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
 			Content: "<strong>$print</strong> for the game Fire Power released the earliest known <strong>ASCII art</strong>. " +
 				"The ASCII text logo is relatively crude and less detailed than later ASCII art. " +
 				"<pre> ╔═══════════════════════════════╗<br>" +
@@ -1267,7 +1277,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest PC Scene drama", Year: 1988, Month: 11, Day: 25,
-			Lead: "TNWC accusing PTL of stealing a release ?", LinkTitle: "and view the file",
+			Lead: "So far, TNWC accusing PTL of stealing a release", LinkTitle: "and view the file",
 			Link: "/f/aa356d",
 			Content: "<p>The earliest <strong>scene drama</strong> known so far involves a release by " +
 				"<a href=\"/g/the-north-west-connection\">The&nbsp;North&nbsp;West&nbsp;Connection</a>&nbsp;(TNWC) for the game Paladin. " +
@@ -1324,7 +1334,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest ANSI loader", Year: 1989, Month: 3,
-			Lead: "The Rogues Gallery ?", LinkTitle: "and view the loader",
+			Lead: "So far, The Rogues Gallery", LinkTitle: "and view the loader",
 			Link: "/f/ad21da8",
 			Content: "<p><strong>ANSI loaders</strong> were text files with ASCII escape control characters to provide color and cursor movement. " +
 				"However, a specific display driver on IBM and other PCs often needed to load at boot before viewing the texts. " +
@@ -1339,7 +1349,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest PC intro", Year: 1989, Month: 4, Highlight: true,
-			Lead: "First intro by Sorcerers ?", LinkTitle: "and run the intro",
+			Lead: "So far, First intro by Sorcerers", LinkTitle: "and run the intro",
 			Link: "/f/ab2843",
 			Content: "<p>An <strong>intro</strong>, or the later cracktro, is a small, usually short, demonstration program designed to display text with graphics or animations. " +
 				"Oddly, the <q>First Intro</q> was written by some teenagers in Finland, a country not known for using expensive PC platforms.</p>" +
@@ -1353,7 +1363,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest PC cracktro", Year: 1989, Month: 4, Day: 29, Highlight: true,
-			Lead: "Future Brain Inc. ?", LinkTitle: "and run the cracktro",
+			Lead: "So far, Future Brain Inc.", LinkTitle: "and run the cracktro",
 			Link: "/f/b83fd7",
 			Content: "<p><strong>Future Brain Inc.</strong>, a group from the <strong>Netherlands</strong> that was among the first to release a cracktro on the PC platform, " +
 				"released this for the game <a href=\"https://www.mobygames.com/game/2161/lombard-rac-rally/cover/group-99392/cover-270796/\">Lombard RAC Rally</a>.</p>" +
@@ -1449,7 +1459,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest PC cracktro with music", Year: 1990, Month: 12, Day: 2,
-			Lead: "The Cat, M1 Tank Plattoon ?", LinkTitle: "about and view cractrko",
+			Lead: "So far, The Cat's M1 Tank Platoon", LinkTitle: "about and view cractrko",
 			Link: "/f/ab25f0e",
 			Content: "<p>The Cat released this cracktro for the game <a class=\"text-nowrap\" href=\"https://www.mobygames.com/game/1499/m1-tank-platoon/cover/group-3004/cover-230986/\">M1 Tank Platoon</a>. " +
 				"It is the first known cracktro on the PC platform to feature music. But music is in a loose sense, as it relies on the terrible internal PC speaker to produce the melody.</p>" +
@@ -1543,7 +1553,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest BBS VGA loader", Year: 1991, Month: 3,
-			Lead: "XTC Systems BBS ?", LinkTitle: "the loader", Link: "/f/a41dcd9",
+			Lead: "So far, XTC Systems BBS", LinkTitle: "the loader", Link: "/f/a41dcd9",
 			Content: "<p><code>XTC-AD.COM</code></p>" +
 				"<p>This <strong>VGA loader</strong> is an advert for the well-known bulletin board <a href=\"https://demozoo.org/bbs/4009/\">XTC Systems</a> in Dallas, Texas. " +
 				"It served as the <em>World Headquarters</em> for the famed art group <a href=\"/g/acid-productions\">ACiD Productions</a> and as a distribution board for <a href=\"/g/fairlight\">Fairlight</a>, <a href=\"/g/razor-1911\">Razor 1911</a>, and some popular magazines.",
@@ -1580,7 +1590,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest elite BBStro", Year: 1991, Month: 10, Day: 21,
-			Lead: "Splatterhouse BBS ?", LinkTitle: "about and view the BBStro", Link: "/f/b11acdf",
+			Lead: "So far, Splatterhouse BBS", LinkTitle: "about and view the BBStro", Link: "/f/b11acdf",
 			Content: "<p><a href=\"https://demozoo.org/bbs/7179/\">Splatterhouse, or Splatter House</a>, was a San Jose, California bulletin board " +
 				"heavily affiliated with the <a href=\"/g/international-network-of-crackers\">International Network of Crackers</a>, the art group <a href=\"/g/acid-productions\">ACiD Productions</a>, " +
 				"and the designers of this <strong>BBStro</strong>, <a href=\"/g/insane-creators-enterprise\">Insane Creators Enterprise</a>.",
@@ -1715,7 +1725,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest use of the expression \"CD-RIP\"", Year: 1995, Month: 6, Day: 3, Highlight: true,
-			Lead: "Hybrid ?", LinkTitle: "about the release", Link: "/f/a938e5",
+			Lead: "So far, Hybrid", LinkTitle: "about the release", Link: "/f/a938e5",
 			Content: "<p>A play on the media, CD-ROM, the earliest known <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, was by Hybrid for the game <a href=\"https://www.mobygames.com/game/3328/virtual-pool/cover/group-119259/cover-316591/\">Virtual Pool</a> from Interplay. " +
 				"Hybrid was a group formed by ex-members of <a href=\"/g/pyradical\">Pyradical</a> and <a href=\"/g/pentagram\">Pentagram</a>.</p>" +
 				"The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
@@ -1841,7 +1851,7 @@ func Collection() Milestones {
 		},
 		{
 			Title: "Earliest ISO release", Year: 1997, Month: 11, Day: 27, Highlight: true,
-			Lead: "CD Images For the Elite ~ CiFE ?", LinkTitle: "the release", Link: "/f/ad40ce",
+			Lead: "So far, CD Images For the Elite (CiFE)", LinkTitle: "the release", Link: "/f/ad40ce",
 			Content: "An <a href=\"https://www.loc.gov/preservation/digital/formats/fdd/fdd000348.shtml\">ISO</a> is a standard file archive format containing the entire CD and later DVD data. It enables the copying and exact replication of data onto consumable blank discs. " +
 				"Trading <strong>ISO images</strong> between individuals has happened for years prior, but <a href=\"https://www.mobygames.com/game/2082/lords-of-magic/covers/\">Lords of Magic</a> was the earliest known ISO release pushed to the Scene.</p>" +
 				"<p>A formalization of an ISO trading scene occurred sometime in late 1997, but it took years before the medium became the dominant format in the Scene.</p>",
