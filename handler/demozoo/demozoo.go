@@ -596,6 +596,8 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen,maintidx
 	return Groups{
+		"god-damn-warez":                        85215,
+		"fantastic-4-cracking-group":            6508,
 		"sneakers":                              16321,
 		"demolition-warez":                      128319,
 		"bios-systems":                          151312,

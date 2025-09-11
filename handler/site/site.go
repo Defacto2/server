@@ -28,6 +28,13 @@ type Groups map[URI][]Website
 //   - NotWorking will not apply a hyperlink to the URL.
 func Websites() Groups {
 	return Groups{
+		"fantastic-4-cracking-group": []Website{
+			{URL: "www.f4cg.com", Name: "advertised in 1998", NotWorking: true},
+			{
+				URL:  "https://web.archive.org/web/20001204211300/http://www.f4cg.com/",
+				Name: "f4cg.com mirror in 2000, used by the Hitmen",
+			},
+		},
 		"trc-ware-report": []Website{
 			{URL: "http://falcon.laker.net/chemist", Name: "1997 ad in CLASS.NFO", NotWorking: true},
 		},
