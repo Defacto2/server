@@ -402,9 +402,9 @@ func Websites() Groups {
 		},
 		"razor-1911": []Website{
 			{
-				URL:        "www.razor1911.com",
+				URL:        "https://www.razor1911.com",
 				Name:       "Razor 1911",
-				NotWorking: true,
+				NotWorking: false,
 			},
 			{
 				URL:        "www.razor-1911.com",
@@ -427,12 +427,37 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 			{
+				URL:        "gplus.to/razor1911",
+				Name:       "Google+",
+				NotWorking: true,
+			},
+			{
 				URL:  "https://wayback.defacto2.net/razor-1911-from-2002-july-1/",
 				Name: "Flash site from 2002",
 			},
 			{
 				URL:  "https://web.archive.org/web/19961227152420/http://www.razor1911.com/",
 				Name: "Razor 1911 in 1995",
+			},
+			{
+				URL:  "https://razor-1911.tumblr.com/",
+				Name: "Tumblr",
+			},
+			{
+				URL:  "https://vimeo.com/groups/razor1911",
+				Name: "Vimeo",
+			},
+			{
+				URL:  "http://en.wikipedia.org/wiki/Razor_1911",
+				Name: "Wikipedia",
+			},
+			{
+				URL:  "https://twitter.com/razor",
+				Name: "Twitter",
+			},
+			{
+				URL:  "http://www.textfiles.com/piracy/RAZOR/",
+				Name: "textfiles.com",
 			},
 		},
 		"razor-1911-demo": []Website{
