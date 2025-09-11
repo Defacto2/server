@@ -31,6 +31,7 @@ type Picture struct {
 	Png         string // Png is the filename of the PNG screenshot.
 	Jpg         string // Jpg is the filename of the JPG photo.
 	Avif        string // Avif is the filename of the AVIF photo.
+	Webm        string // Webm is the filename of the WebM multimedia container, such as a video.
 }
 
 // Links is a collection of Links.
@@ -668,6 +669,7 @@ func Collection() Milestones {
 				Title: "Mr. Xerox's Star Blaster cracktro",
 				Png:   "starblaster-mr-xerox.png",
 				Webp:  "starblaster-mr-xerox.webp",
+				Webm:  "starblaster-mr-xerox.webm",
 			},
 		},
 		{
@@ -759,24 +761,24 @@ func Collection() Milestones {
 			Lead: "Commodore 64, or Apple and Atari",
 			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> " +
 				"Berlin Cracking Service image <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
-				"But this seems far-fetched, and anecdotal proof suggests it originates from 1984.</p>" +
+				"But this always seemed far-fetched, and it likely originates from 1984, not 1982. " +
+				"A fabricated year that could originate from the &#169;1982 notice <a href=\"https://www.c64-wiki.com/wiki/File:C64_PCBA.jpg\">printed</a> on the Commodore 64 mainboards.</p>" +
 				// us and japan
 				"<p>But even taking the claim at its face value, back in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> business users in the USA and Japan. " +
 				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year<sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup>. " +
 				// germany and uk
-				"By all accounts, the Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
-				"ready for retail <a href=\"https://www.zock.com/8-Bit/D_C64.HTML\">until&nbsp;1983</a>. " +
-				"Advertising in the UK first hit Commodore&nbsp;Computing<sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup> in February 1983, " +
-				"and throughout that year focused on developers but primarily on the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>" +
-				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a>.</p>" +
-				// C64 ad quotes
-				"<p><q>Interface adaptors will allow the use of a complete range of hardware peripherals including disk units, plotter, dot matrix and daisy wheel printers, Prestel communications, networking and much, much more.</q> " +
+				"By all accounts, the German Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
+				"ready for retail <a href=\"https://www.zock.com/8-Bit/D_C64.HTML\">until&nbsp;1983</a>.</p>" +
+				// C64 ads and quotes
+				"<p>For those PAL machines, advertising in the UK first hit Commodore&nbsp;Computing<sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup> in February 1983, " +
+				"and throughout that year focused on developers and the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>" +
+				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup>. " +
+				"<q>Interface adaptors will allow the use of a complete range of hardware peripherals including disk units, plotter, dot matrix and daisy wheel printers, Prestel communications, networking and much, much more.</q> " +
 				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" + //nolint:misspell
 				// west berlin kids
-				"<p>West Berlin was an isolated city deep within the Soviet-controlled East German Democratic Republic, and its economy depended on mass subsidies from the West German Federal Republic. " +
-				"It is unlikely that several kids from here had early access to the European PAL Commodore&nbsp;64 at the end 1982. " +
-				"It is more believable that the kids formed these Berlin-based cracking groups at the earliest, in Christmas/New Years 1983-84, " +
-				"after the Commodore 64 dropped massively in price and became readily available.</p>" +
+				"<p>It is unlikely that several kids from West-Berlin had early access to the European PAL Commodore&nbsp;64 at the end 1982. " +
+				"It is more believable that the kids formed these <q>cracking</q> groups, at the earliest around Christmas 1983, but more likely in 1984. " +
+				"After the machine dropped massively in price, changed its marketing towards consumer sales, and disk&nbsp;copy-protected games became readily available.</p>" +
 				// citations
 				"</p><strong>Some of the confusing <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">citations</a></strong>" +
 				ul0 +

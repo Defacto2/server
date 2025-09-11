@@ -33,5 +33,5 @@ func Image() []string {
 //
 // [media file extensions]: https://developer.mozilla.org/en-US/docs/Web/Media/Formats
 func Media() []string {
-	return []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".wmv"}
+	return []string{".mpeg", ".mp1", ".mp2", ".mp3", ".mp4", ".ogg", ".webm", ".wmv"}
 }

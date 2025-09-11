@@ -287,7 +287,16 @@ Curiously, this has led to a mistaken mythologization of the Scene in Europe, w
       </ul> 
       {{- end}}   
       {{- /*  Footer  */}}
-      {{- if or (ne "" .Picture.Png) (ne "" .Picture.Jpg)}}
+      {{- if ne "" .Picture.Webm }}
+      <div class="card-footer">
+        <video autoplay loop controls playsinline>
+          <source src="/image/milestone/{{.Picture.Webm}}" type="video/webm" />
+                {{- if ne "" .Picture.Png}}
+                <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-bottom" alt="{{.Picture.Alt}}">
+                {{- end}}
+        </video>
+      </div>
+      {{- else if or (ne "" .Picture.Png) (ne "" .Picture.Jpg)}}
       <div class="card-footer">
       <picture title="{{.Picture.Title}}">
         {{- if ne "" .Picture.Avif}}
