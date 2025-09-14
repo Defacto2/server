@@ -79,6 +79,7 @@ type Page map[string]filename
 // Pages returns a map of the template names and their corresponding filenames.
 func (t *Templ) Pages() *Page {
 	return &Page{
+		"apps":          "apps.tmpl",
 		"areacodes":     "areacodes.tmpl",
 		"artifact":      artifactTmpl,
 		"artifacts":     artifactsTmpl,

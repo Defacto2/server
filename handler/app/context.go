@@ -274,6 +274,28 @@ func Artifacts404(c echo.Context, sl *slog.Logger, uri string) error {
 	return nil
 }
 
+// Apps is the handler for the modern applications and tools page.
+func Apps(c echo.Context, sl *slog.Logger) error {
+	const msg = "apps context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "apps"
+	const h1 = "Applications"
+	const lead = "Here are some software suggestions and Windows, Linux, macOS tools for running out-of-date programs and using legacy media formats."
+	data := empty(c)
+	data["title"] = "Use current apps"
+	data["description"] = "Software and application suggestions for using the historic artifacts and file downloads on modern systems."
+	data["logo"] = "Software suggestions"
+	data["h1"] = h1
+	data["lead"] = lead
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, name, err)
+	}
+	return nil
+}
+
 // Areacodes is the handler for the BBS and telephone area codes page.
 func Areacodes(c echo.Context, sl *slog.Logger) error {
 	const msg = "areacodes context"
