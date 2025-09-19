@@ -28,7 +28,7 @@ require (
 	github.com/Defacto2/archive v1.1.3
 	github.com/Defacto2/helper v1.5.2
 	github.com/Defacto2/magicnumber v1.0.12
-	github.com/Defacto2/releaser v1.3.12
+	github.com/Defacto2/releaser v1.3.13
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
