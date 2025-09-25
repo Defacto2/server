@@ -1,0 +1,74 @@
+{{- /*
+  compression.tmpl ~ Modern applications and tools.
+*/ -}}
+{{- define "content" }}
+<p class="lead">Squeeze</p>
+<p>
+One of the original compression formats used on the PC was known as File Squeezer, which was introduced in May 1981 for the CP/M systems and later ported to the Microsoft disk operating systems by various authors. 
+<a href="http://fileformats.archiveteam.org/wiki/Squeeze">Squeezing</a> comprises two programs, <code>SQ.COM</code>, the file squeezer for compression, and <code>USQ.COM</code>, the file unsqueezer for decompression. 
+Squeeze cannot group collections of files into archives; instead, this was handled separately by an unrelated program, Library Utility (<code>LU.EXE</code>), which created ".LBR" files.
+</p>
+<p class="lead">ARC</p>
+<p>
+This process was convoluted, and several solutions arrived on the PC to simplify the archiving and sharing of software online. 
+But the one that first caught on was ARC, "File Archive Utility" by Thom Henderson under System Enhancement Associates. 
+This tool archived and compressed groups of files using a single command, and caught on in the PC BBS community, with many boards adopting it as a standard and re-packaging their existing file offerings.
+</p>
+<p>
+Unfortunately, this means today there are no known original PC scene releases compressed with File Squeezer or packaged with the Library Utility. 
+They have all been repackaged using the ARC tool. 
+For example, a release by the Duplicators for the game Bluebush Chess (BBCHESS.COM) was modified in September 1984; 
+however, the package we have (<a href="https://defacto2.net/f/b627a2c">BLUEBUSH.ARC</a>) was created in June 1986. 
+Another example is the SPI release of Shamus, which proclaims "<span class="font-monospace">(C) Copyright invalid in 1984</span>"; however, our <a href="https://defacto2.net/f/b92e146">SHAMUS.ARC</a> package was made in December 1985. 
+Both examples were probably repackaged by a third party to use the new ARC tools, which didn't exist in 1984.
+</p>
+<p>
+The author of UNARC for the CP/M systems <a href="https://www.cpc-power.com/index.php?page=detail&onglet=notices&num=13880">notes</a>, 
+<q>The files which UNARC processes are the product of a utility program, ARC, which executes on 16-bit computers running the MS-DOS (or PC-DOS) operating system. 
+This program has achieved widespread popularity since it was first introduced in March 1985.</q>
+</p>
+<p class="lead">Zoo</p>
+<p>
+A competing compression format known as <a href="http://fileformats.archiveteam.org/wiki/Zoo">Zoo</a>, "A Fast File Archiver," by Rahul Dhesi, was released on the PC in August 1986. 
+And, while it never caught on with the PC scene due to ARC, it did prove to be more popular on the Commodore Amiga microcomputer and Unix systems.
+</p>
+<p class="lead">PKARC</p>
+<p>
+ARC had evolved into a standard on the PC by offering its source code for porting to other microcomputers and systems. 
+And while free, Thom, the author of ARC, asked for payments from users who thought the tools or the standard were useful.
+</p>
+<p>
+In late 1985, a programmer by the name of Phil Katz took a look at the source code and created a set of more optimized tools named PKARC and PKXARC, "Fast! Archive Create/Update/Extract Utility" that would handle ARC archives. 
+He, too, asked for payments from the users who thought his more performant tools were useful, which put him in competition with Thom, the original author of ARC.
+</p>
+<p>
+Phil kept improving his tools and ultimately introduced new compression methods that broke compatibility with the ARC standard; however, he kept using the ARC branding and ".ARC" file extension. 
+This confused users, forcing the adoption of Phil's tools over Thom's originals by following the later Microsoft playbook of embrace, extend, and extinguish. 
+SEA responded by suing Phil for trademark and software likeness violations, where they ultimately settled.
+</p>
+<p>
+Paul Homchick, in October 1988, <a href="http://bbsdocumentary.com/library/CONTROVERSY/LAWSUITS/SEA/arc-hist.txt">wrote</a>, 
+<q>Phil Katz continued to produced new versions of PKARC, finally, in the latter part of 1987, introducing "SQUASHING" which was similar to zoo's 13-bit LZW compression. 
+Although PKARC was no longer "ARC-compatible" it retained the .ARC extension.
+This caused confusion for novice users and a lot of grief for BBS operators.
+This policy was regarding by many as "standard busting," and likely was a factor in the litigation that followed in the summer of 1988.</q>
+</p>
+<p>
+Unfortunately for Thom, the litigation initiated an online <a href="http://www.bbsdocumentary.com/library/CONTROVERSY/LAWSUITS/SEA/">flame war</a> and the cancellation of the SEA brand. 
+Many ARC users and BBS system operators sided with Phil, who presented himself as an underdog in a David and Goliath battle. 
+With his supporters ditching the use of tools by SEA, eventually leading to the demise of the tiny company, and the abandonment of the ARC standard.
+</p>
+<p class="lead">PKPAK &amp; PKZIP</p>
+<p>
+In the settlement, Phil agreed to rename his PKARC tools to PKPAK and PKUNPAK, but later retired them after introducing a new set of programs that were free of any source code or trademark violations. 
+These tools were released as PKZIP and PKUNZIP and became the standard compression for online boards and later the web.
+</p>
+<p>
+Unfortunately, much like Phil had done earlier with his PKARC toolset, newer releases of PKZIP would introduce incompatible compression methods while keeping to the ".ZIP" file extension. 
+This again led to confusion, with the users not always knowing which archiving tool version to use for a particular ZIP archive.
+</p>
+<p>
+The ZIP standard eventually settled on the "deflate" compression method first introduced in 1990, and is still used today. 
+However, some of the more esoteric compression techniques that are found in the ZIP files created in the 1980s are usually not usable with modern archiving tools or operating systems.
+</p>
+{{- end }}

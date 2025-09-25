@@ -506,6 +506,28 @@ func Coder(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return scener(c, db, sl, postgres.Writer, data)
 }
 
+// Compression is the handler for information on historic compression tools page.
+func Compression(c echo.Context, sl *slog.Logger) error {
+	const msg = "compression context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "compression"
+	const h1 = "Compression"
+	const lead = "Compression and archiving formats of the 1980s were evolving by the month, and today are hard to parse."
+	data := empty(c)
+	data["title"] = "Compression and archiving formats"
+	data["description"] = "Old file archives and compression methods used in the 1980s on the PC."
+	data["logo"] = "Old file archives"
+	data["h1"] = h1
+	data["lead"] = lead
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, name, err)
+	}
+	return nil
+}
+
 // Configurations is the handler for the Configuration page.
 func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Config) error {
 	const msg = "configurations context"

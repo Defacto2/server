@@ -245,6 +245,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/coder", func(c echo.Context) error {
 		return app.Coder(c, db, sl)
 	})
+	s.GET("/compression", func(c echo.Context) error { return app.Compression(c, sl) })
 	s.GET(Downloader, func(cx echo.Context) error {
 		return app.Download(cx, db, sl, dir.Directory(c.Environment.AbsDownload))
 	})
