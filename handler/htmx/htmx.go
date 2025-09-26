@@ -608,7 +608,7 @@ func Alternatives(s string) []string {
 	// examples of key and values:
 	// "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	key := ""
-	for path, initialisms := range initialism.Initialisms() {
+	for path, initialisms := range *initialism.Initialisms() {
 		key = releaser.Index(string(path))
 		if key == "" {
 			continue
