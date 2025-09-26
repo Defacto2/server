@@ -169,6 +169,8 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	// normalize the line feeds as often courier groups injecting their tags would break the layout
 	b = bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
+	b = bytes.ReplaceAll(b, []byte("\r\r"), []byte("\n"))
+	b = bytes.ReplaceAll(b, []byte("\n\n"), []byte("\n"))
 	buf.Reset()
 	buf.Write(b)
 	return nil
