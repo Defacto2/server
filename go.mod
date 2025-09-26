@@ -28,7 +28,7 @@ require (
 	github.com/Defacto2/archive v1.1.3
 	github.com/Defacto2/helper v1.5.2
 	github.com/Defacto2/magicnumber v1.0.12
-	github.com/Defacto2/releaser v1.3.13
+	github.com/Defacto2/releaser v1.3.14
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
@@ -53,7 +53,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/image v0.31.0
 	golang.org/x/text v0.29.0
-	google.golang.org/api v0.249.0
+	google.golang.org/api v0.250.0
 )
 
 // replace (
@@ -63,11 +63,11 @@ require (
 require (
 	cloud.google.com/go/auth v0.16.5 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
-	cloud.google.com/go/compute/metadata v0.8.0 // indirect
+	cloud.google.com/go/compute/metadata v0.8.4 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/aarondl/inflect v0.0.2 // indirect
 	github.com/aarondl/randomize v0.0.2 // indirect
-	github.com/air-verse/air v1.62.0 // indirect
+	github.com/air-verse/air v1.63.0 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
@@ -82,7 +82,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
-	github.com/gohugoio/hugo v0.148.2 // indirect
+	github.com/gohugoio/hugo v0.149.1 // indirect
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/licensecheck v0.3.1 // indirect
@@ -108,7 +108,7 @@ require (
 	github.com/samber/slog-common v0.19.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
-	github.com/tdewolff/parse/v2 v2.8.1 // indirect
+	github.com/tdewolff/parse/v2 v2.8.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
@@ -117,21 +117,21 @@ require (
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
-	go.uber.org/nilaway v0.0.0-20250805202745-8ad05f089790 // indirect
+	go.uber.org/nilaway v0.0.0-20250821055425-361559d802f0 // indirect
 	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/oauth2 v0.31.0 // indirect
-	golang.org/x/pkgsite v0.0.0-20250721174030-d4de6668b910 // indirect
+	golang.org/x/pkgsite v0.0.0-20250911091732-133263251ca1 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/time v0.13.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/tools v0.37.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250908214217-97024824d090 // indirect
 	google.golang.org/grpc v1.75.1 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
-	mvdan.cc/gofumpt v0.8.0 // indirect
+	mvdan.cc/gofumpt v0.9.1 // indirect
 	rsc.io/markdown v0.0.0-20241212154241-6bf72452917f // indirect
 )
 
