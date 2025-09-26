@@ -3,6 +3,9 @@
 */ -}}
 {{- define "content" }}
 <hr>
+<div class="container">
+<div class="row">
+<div class="col-12 col-xxl-6">
 <p class="lead">
   Easily identify files
 </p>
@@ -12,7 +15,8 @@
 </p>
 <pre>
 $ file ART.GRP
-> ART.GRP: ISO-8859 text, with CRLF line terminators, with escape sequences
+> ART.GRP: ISO-8859 text, with CRLF line terminators, 
+> with escape sequences
 
 $ file VAL.DAT
 > VAL.DAT: LHa (2.x) archive data
@@ -20,6 +24,31 @@ $ file VAL.DAT
 $ file image.iff
 > image.iff: IFF data, ILBM interleaved image, 320 x 54
 </pre>
+</div>
+<div class="col-12 col-xxl-6">
+<p class="lead">
+  Obscure files
+</p>
+<p>
+While the <code>file</code> tool is great, it is not always useful for ancient file content created on the microcomputers or PCs of the 1980s. 
+For this, the best tool is <a href="https://github.com/jsummers/deark">Deark</a>, <q>a utility for file format and metadata analysis</q>.
+</p>
+<p>
+This example is an image created in 1984's <a href="https://winworldpc.com/product/pc-paint/100a">PCPaint</a>. 
+Modern tools cannot recognize it, while Deark identifies the picture and converts it to a PNG image, <a href="/image/new/output.000.png">output.000.png</a>.
+</p>
+<pre>
+$ file VIEW2KIL.PIC
+> VIEW2KIL.PIC: data
+</pre>
+<pre>
+$ deark VIEW2KIL.PIC
+> Module: bsave
+> Format: BSAVE-PC 4-color, 320×200
+> Warning: BSAVE formats can't be reliably identified. 
+> Writing output.000.png
+</pre>
+</div></div>
 <hr>
 <p class="lead">
   Reading <strong>texts</strong>, <a href="https://vscodium.com">VSCodium</a>
