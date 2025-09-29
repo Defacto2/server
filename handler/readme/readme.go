@@ -87,6 +87,7 @@ func List(content ...string) []string {
 			continue
 		}
 		s := strings.ToLower(name)
+		s = strings.TrimSpace(s)
 		if slices.Contains(skip, s) {
 			continue
 		}

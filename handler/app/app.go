@@ -849,7 +849,8 @@ func WebsiteIcon(url string) template.HTML {
 
 func websiteIcon(url string) string {
 	switch {
-	case strings.Contains(url, "archive.org"):
+	case strings.Contains(url, "archive.org"),
+		strings.Contains(url, "wayback.defacto2.net"):
 		return "bank2"
 	case strings.Contains(url, "reddit.com"):
 		return "reddit"
@@ -863,6 +864,12 @@ func websiteIcon(url string) string {
 		return "vimeo"
 	case strings.Contains(url, "slashdot.org"):
 		return "slash-circle"
+	case strings.Contains(url, "twitter"):
+		return "twitter"
+	case strings.Contains(url, "wikipedia.org"):
+		return "wikipedia"
+	case strings.Contains(url, "textfiles.com"):
+		return "textfiles"
 	}
 	return "arrow-right"
 }

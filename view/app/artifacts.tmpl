@@ -21,6 +21,7 @@
 {{- $unYears := index .unknownYears }}
 {{- $editor := index .editor}}
 {{- $group := hasSuffix (index .title) " artifacts"}}
+{{- $breakline := false}}
 {{- if eq $cnt 0}}<p class="text-start lead"><small>There are no artifacts to display.</small></p>{{else -}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if and (ne $years "0 - 0") (ne $years "the year 0")}} from {{$years | safeHTML}}{{end}}.</small></p>
 {{- end}}
@@ -42,12 +43,13 @@
     {{ $notworkings := false }}
     {{- range $web }}
       {{- if and (ne .URL "") (eq .NotWorking false ) }}
-      <small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a></small><br>
+      {{- $breakline = true }}
+      <small><small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a></small> &nbsp; </small>
       {{- end}}
       {{- if and (ne .URL "") (eq .NotWorking true ) }}
       {{ if eq $notworkings false }}
         {{ $notworkings = true }}
-        <small><small> &nbsp; ex-sites &nbsp; </small></small>
+        {{ if eq $breakline true }}<br>{{- end}}<small><small> &nbsp; ex-sites &nbsp; </small></small>
       {{ end }}
       <small class="text-nowrap"><small><strong>{{.Name}}</strong></a> <span class="text-body-tertiary fw-lighter">{{.URL}}</span>.</small></small>
       {{- end}}
