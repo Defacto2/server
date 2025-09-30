@@ -761,10 +761,10 @@ func Collection() Milestones {
 			Lead: "Commodore 64, or Apple and Atari",
 			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> " +
 				"Berlin Cracking Service image <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
-				"But this always seemed far-fetched, and it likely originates from 1984, not 1982. " +
-				"A fabricated year that could originate from the &#169;1982 notice <a href=\"https://www.c64-wiki.com/wiki/File:C64_PCBA.jpg\">printed</a> on the Commodore 64 mainboards.</p>" +
+				"But this always seemed far-fetched, and it likely originates from 1984. Not 1982, " +
+				"a fabricated year that could originate from the &#169;1982 notice <a href=\"https://www.c64-wiki.com/wiki/File:C64_PCBA.jpg\">printed</a> on the Commodore 64 mainboards.</p>" +
 				// us and japan
-				"<p>But even taking the claim at its face value, back in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> business users in the USA and Japan. " +
+				"<p>Even taking the claim at face value, releasing in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> business users in the USA and Japan. " +
 				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year<sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup>. " +
 				// germany and uk
 				"By all accounts, the German Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
@@ -959,22 +959,33 @@ func Collection() Milestones {
 				"<br>In 1987, Rick would also go on to found one of the earliest ISPs, UUNET. " +
 				"Which in the following year would offer the first commercial connection to the Internet.",
 		},
-		{
-			Title: "Major game publishers enter the PC market", Year: 1984,
-			Content: "<p>Electronic Arts, Activision, Sega, and MicroProse Software publish on the platform.</p>" +
-				ul0 +
-				"<li><a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a> was founded in 1982 by former Apple employee Trip Hawkins and initially developed for the Atari&nbsp;400/800 and later Commodore&nbsp;64.</li>" +
-				"<li><a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a> originated in late 1979 as the first 3rd-party developer for the Atari&nbsp;2600, comprising former Atari employees.</li>" +
-				"<li><a href=\"//segaretro.org/IBM_PC\">Sega</a> was a significant arcade game developer.</li>" +
-				"<li><a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a> was the company founded by Sid Meier and Bill Stealey in 1982 to create games for the Atari&nbsp;400/800.</li>" +
-				ul1,
-		},
+		// {
+		// 	Title: "Major game publishers enter the PC market", Year: 1984,
+		// 	Content: "<p>Electronic Arts, Activision, Sega, and MicroProse Software publish on the platform.</p>" +
+		// 		ul0 +
+		// 		"<li><a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a> was founded in 1982 by former Apple employee Trip Hawkins and initially developed for the Atari&nbsp;400/800 and later Commodore&nbsp;64.</li>" +
+		// 		"<li><a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a> originated in late 1979 as the first 3rd-party developer for the Atari&nbsp;2600, comprising former Atari employees.</li>" +
+		// 		"<li><a href=\"//segaretro.org/IBM_PC\">Sega</a> was a significant arcade game developer.</li>" +
+		// 		"<li><a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a> was the company founded by Sid Meier and Bill Stealey in 1982 to create games for the Atari&nbsp;400/800.</li>" +
+		// 		ul1,
+		// },
 		{
 			Prefix: "The earliest PC groups,", Year: 1984,
 			List: Links{
 				{LinkTitle: "Against Software Protection <small>ASP</small>", Link: "/g/against-software-protection"},
 				{LinkTitle: "Software Pirates Inc <small>SPi</small>", Link: "/g/software-pirates-inc", Forward: "Texas"},
 			},
+		},
+		{
+			Title: "The release of ARC", Year: 1985, Month: 3,
+			Lead:      "The file ARChive utility",
+			LinkTitle: "about the tool",
+			Link:      "/compression",
+			Content: "<p>Authored by Thom Henderson and released sometime in March 1995, " +
+				"ARC quickly took the PC BBS scene by storm by allowing boards and users to use a single application to both archive and compress a directory of files into a single package. " +
+				"The adoption was rapid, with contemporary texts claiming it was in widespread use by the year's end.</p>" +
+				"<p>Its impact on the scene allowed groups like Software Pirates Inc. to bundle additional help and description files in their releases and would later leave the opinion of including separate BBS ads, intros, cracktros with the release.</p>" +
+				"<code>ARC - Archive utility, Version 3.10, created on 05/01/85 at 22:34:50<br>(C) COPYRIGHT 1985 by System Enhancement Associates; ALL RIGHTS RESERVED</code>",
 		},
 		{
 			Title: "The earliest text loader on PC", Year: 1985, Month: 5, Day: 26, Highlight: true,
