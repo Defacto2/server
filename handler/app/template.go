@@ -106,6 +106,7 @@ func (t *Templ) Pages() *Page {
 		"signin":        "signin.tmpl",
 		"signout":       "signout.tmpl",
 		"status":        "status.tmpl",
+		"terms":         "terms.tmpl",
 		"thanks":        "thanks.tmpl",
 		"thescene":      "thescene.tmpl",
 		"titles":        "titles.tmpl",

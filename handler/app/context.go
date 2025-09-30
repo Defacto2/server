@@ -296,28 +296,6 @@ func Apps(c echo.Context, sl *slog.Logger) error {
 	return nil
 }
 
-// Fixes is the handler for the problems and fixes page.
-func Fixes(c echo.Context, sl *slog.Logger) error {
-	const msg = "apps context"
-	if err := panics.EchoContextS(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-	const name = "fixes"
-	const h1 = "Problems and fixes"
-	const lead = "Shrinker dispatcher or runtime 200 errors, or missing NPMOD32.DLL or D3DRM.DLL files?"
-	data := empty(c)
-	data["title"] = "Problems and fixes"
-	data["description"] = "Fix common errors found in applications and tools authored by the Scene for Windows and DOS."
-	data["logo"] = "Problems and fixes"
-	data["h1"] = h1
-	data["lead"] = lead
-	err := c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(c, sl, name, err)
-	}
-	return nil
-}
-
 // Areacodes is the handler for the BBS and telephone area codes page.
 func Areacodes(c echo.Context, sl *slog.Logger) error {
 	const msg = "areacodes context"
@@ -798,6 +776,50 @@ func Deletions(c echo.Context, db *sql.DB, sl *slog.Logger, page string) error {
 		return Page404(c, sl, uri, page)
 	}
 	return artifacts(c, db, sl, uri, p)
+}
+
+// Fixes is the handler for the problems and fixes page.
+func Fixes(c echo.Context, sl *slog.Logger) error {
+	const msg = "apps context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "fixes"
+	const h1 = "Problems and fixes"
+	const lead = "Shrinker dispatcher or runtime 200 errors, or missing NPMOD32.DLL or D3DRM.DLL files?"
+	data := empty(c)
+	data["title"] = "Problems and fixes"
+	data["description"] = "Fix common errors found in applications and tools authored by the Scene for Windows and DOS."
+	data["logo"] = "Problems and fixes"
+	data["h1"] = h1
+	data["lead"] = lead
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, name, err)
+	}
+	return nil
+}
+
+// Terms is the handler for the problems and fixes page.
+func Terms(c echo.Context, sl *slog.Logger) error {
+	const msg = "apps context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "terms"
+	const h1 = "Glossary of common terms"
+	const lead = "A glossary of the unique and common terms used in the scene."
+	data := empty(c)
+	data["title"] = "Common terms"
+	data["description"] = "This is a list of the unique and common terms used in the scene."
+	data["logo"] = "Glossary of terms"
+	data["h1"] = h1
+	data["lead"] = lead
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, name, err)
+	}
+	return nil
 }
 
 // Unwanted is the handler to list the files that have been marked as unwanted.

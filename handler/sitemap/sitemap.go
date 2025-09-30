@@ -141,6 +141,7 @@ func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 		"apps",
 		"fixes",
 		"compression",
+		"terms",
 		"thescene",
 		"thanks",
 		"files/oldest", // page 1 (doesn't append the page number)

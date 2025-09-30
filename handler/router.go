@@ -227,7 +227,6 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	})
 	s := e.Group("")
 	s.GET("/", func(c echo.Context) error { return app.Index(c, sl) })
-	s.GET("/fixes", func(c echo.Context) error { return app.Fixes(c, sl) })
 	s.GET("/apps", func(c echo.Context) error { return app.Apps(c, sl) })
 	s.GET("/areacodes", func(c echo.Context) error { return app.Areacodes(c, sl) })
 	s.GET("/artist", func(c echo.Context) error {
@@ -278,6 +277,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/file", func(cx echo.Context) error {
 		return app.Categories(cx, db, sl, false)
 	})
+	s.GET("/fixes", func(c echo.Context) error { return app.Fixes(c, sl) })
 	s.GET("/ftp", func(c echo.Context) error {
 		return app.FTP(c, db, sl)
 	})
@@ -334,6 +334,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/sum/:id", func(cx echo.Context) error {
 		return app.Checksum(cx, db, sl, cx.Param("id"))
 	})
+	s.GET("/terms", func(c echo.Context) error { return app.Terms(c, sl) })
 	s.GET("/thanks", func(c echo.Context) error { return app.Thanks(c, sl) })
 	s.GET("/thescene", func(c echo.Context) error { return app.TheScene(c, sl) })
 	s.GET("/titles", func(c echo.Context) error { return app.Titles(c, sl) })
