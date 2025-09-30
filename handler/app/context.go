@@ -513,7 +513,7 @@ func Compression(c echo.Context, sl *slog.Logger) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "compression"
-	const h1 = "Compression"
+	const h1 = "Archiving"
 	const lead = "Compression and archiving formats of the 1980s were evolving by the month, and today are hard to parse."
 	data := empty(c)
 	data["title"] = "Compression and archiving formats"

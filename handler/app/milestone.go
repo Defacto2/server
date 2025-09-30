@@ -911,8 +911,11 @@ func Collection() Milestones {
 			Link:      "/f/ae2da98",
 			Content: "<code>INFOCOM.DOC</code><br>" +
 				"<p><strong>Information texts</strong> were documents stored as plain text and included in a release describing how to use a utility program or game.</p>" +
-				"<p>The author of this document is part of <a href=\"http://localhost:1323/g/software-pirates-inc\">Software Pirates Inc.</a>, one of the earliest known groups on the PC underground, dating back to at least 1984. " +
-				"Whether an individual or collective, the brand was prolific in writing documentation and coding utilities for the PC but kept themselves anonymous.</p>",
+				"<p>The author of this document is part of <a href=\"/g/software-pirates-inc\">Software Pirates Inc.</a>, one of the earliest known groups on the PC underground, dating back to at least 1984. " +
+				"Whether an individual or collective, the brand was prolific in writing documentation and coding utilities for the PC but kept themselves anonymous.</p>" +
+				"<p>May 1985 saw the release of the <strong>ARC archiving and compression tool</strong> that immediately caught on with the PC BBS community. " +
+				"It also allowed pirate groups to package releases with multiple files, such as information texts. " +
+				"This <a href=\"/f/b32077c\">SPI release</a> of The World's Greatest Baseball Game packed in December 1985 includes a <code>BASEBALL.DOC</code> textfile describing the game and how to run it.</p>",
 		},
 		{
 			Title: "EGA graphics standard", Year: 1984, Month: 10,
