@@ -91,6 +91,7 @@ func (t *Templ) Pages() *Page {
 		"coder":         scenerTmpl,
 		"compression":   "compression.tmpl",
 		"ftp":           releaserTmpl,
+		"fixes":         "fixes.tmpl",
 		"history":       "history.tmpl",
 		"index":         "index.tmpl",
 		"interview":     "interview.tmpl",

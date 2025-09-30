@@ -227,6 +227,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	})
 	s := e.Group("")
 	s.GET("/", func(c echo.Context) error { return app.Index(c, sl) })
+	s.GET("/fixes", func(c echo.Context) error { return app.Fixes(c, sl) })
 	s.GET("/apps", func(c echo.Context) error { return app.Apps(c, sl) })
 	s.GET("/areacodes", func(c echo.Context) error { return app.Areacodes(c, sl) })
 	s.GET("/artist", func(c echo.Context) error {

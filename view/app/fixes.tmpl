@@ -1,0 +1,92 @@
+{{- /*
+  fixes.tmpl ~ Problems and fixes.
+*/ -}}
+{{- define "content" }}
+<hr>
+<p class="lead">Shrinker.err Dispatcher initialization errors</p>
+<p>
+An ancient Windows program crashes with the cryptic error message.
+</p>
+<p>
+This is a common error that occurs with Windows 9x applications that are compressed with earlier versions of the Shrinker compression library. 
+Fortunately, there is an easy solution with decompressing the application using either DeShrink 1.6 or UnShrinker. 
+DeShrink is a standard Windows application, while UnShrinker uses the command prompt.
+</p>
+<p>
+There will be occasions where these solutions cannot decrypt or fix the affected programs. 
+In these circumstances, you will not be able to solve this issue other than to run the applications generating the Dispatcher error on a Windows 95, 98, or ME system.
+</p>
+<ul>
+  <li><a href="/f/a12f23">DeShrink 1.6</a></li>
+  <li><a href="/f/a2331b">UnShrinker</a></li>
+</ul>
+<hr>
+<p class="lead">Runtime error 200</p>
+<p>
+An ancient DOS program crashed with the cryptic error message.
+</p>
+<p>
+A runtime error 200 message usually occurs with old DOS applications written in Turbo and Borland Pascal. 
+Turbo Pascal had a timing bug that caused its compiled programs to crash when they were executed on machines running at 200 MHz or faster. 
+It is known as the <q>CRT unit issue</q> and can be fixed by applying a patch to the affected application. 
+Otherwise, you can run the application in DOSBox, which can artificially slow down the speed of the emulated DOS session.
+</p>
+<p>
+If you wish to patch the application we have created a guide to help you through it using the Windows Command Prompt.
+</p>
+<div class="container">
+<ol class="list-group list-group-numbered">
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto"><div class="fw-bold">Download <a href="/f/a43b6b">UNP 4.11</a></div>A Turbo Pascal decompression program.</div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto"><div class="fw-bold">Download <a href="/f/a33773">CRTFix 1.16</a></div>A CRT bug patching program.</div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto"><div class="fw-bold">Create a temporary directory</div>
+    <code>> MKDIR C:\TPATCH</code></div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto"><div class="fw-bold">Unzip</div>Unzip both downloaded packages into the temporary directory.
+    <br><code>> PKUNZIP TurboPascal-Unpack.zip C:\TPATCH<br>> PKUNZIP crtfix16.zip C:\TPATCH</code></div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto"><div class="fw-bold">Decompress</div>
+    In our example, we are going to patch <code>defacto.exe</code>, which is the binary from an early Defacto magazine that suffers from this bug. 
+    Use the UNP program to decompress the binary.
+    <br><code>> UNP DEFACTO.EXE</code></div>
+  </li>
+  <li class="list-group-item d-flex justify-content-between align-items-start">
+    <div class="ms-2 me-auto"><div class="fw-bold">Apply fix</div>
+    Once the decompression is complete run the crtfix program to patch the binary.
+    <br><code>> CRTFIX DEFACTO.EXE</code><br>
+    That is it, if the crtfix returned a <q>Fixing code... Fixed</q> response then the binary is now patched and in future those annoying runtime error 200 messages should be gone.
+    </div>
+  </li>
+</ol>
+</div>
+<hr>
+<p class="lead">NPMOD32.DLL is missing from your computer</p>
+<p>
+An ancient Windows program crashes with the cryptic error message.
+</p>
+<p>
+NPMOD32.DLL is a Windows development library file designed to play older <a href="https://www.modarchive.com/">module music</a> files that were popular in the demo and music scenes. 
+Sometimes coders would forget to include this file while packaging their application. 
+Fortunately, we have a copy of <q>NPMOD32.DLL</q> for download. 
+To use, copy the DLL file to the same directory as the application.
+</p>
+<ul><li><a href="/f/a53f43">NPMOD32.DLL</a></li></ul>
+<hr>
+<p class="lead">D3DRM.DLL not loaded</p>
+<p>
+An ancient Windows program crashes with the cryptic error message.
+</p>
+<p>
+D3DRM.DLL is a Windows Direct-X library file that was included in the original versions of the API. 
+Newer editions of DirectX found in Windows XP and later removed these libraries. 
+Fortunately, we have a copy of the D3DRM.DLL for download. 
+To use, copy the DLL file into the same directory as the application.
+</p>
+<ul><li><a href="/f/a643bb">D3DRM.DLL</a></li></ul>
+{{- end }}

@@ -139,6 +139,7 @@ func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 		"history",
 		"brokentexts",
 		"apps",
+		"fixes",
 		"compression",
 		"thescene",
 		"thanks",

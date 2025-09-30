@@ -915,7 +915,7 @@ func Collection() Milestones {
 				"Whether an individual or collective, the brand was prolific in writing documentation and coding utilities for the PC but kept themselves anonymous.</p>" +
 				"<p>May 1985 saw the release of the <strong>ARC archiving and compression tool</strong> that immediately caught on with the PC BBS community. " +
 				"It also allowed pirate groups to package releases with multiple files, such as information texts. " +
-				"This <a href=\"/f/b32077c\">SPI release</a> of The World's Greatest Baseball Game packed in December 1985 includes a <code>BASEBALL.DOC</code> textfile describing the game and how to run it.</p>",
+				"This <a href=\"/f/b32077c\">SPI release</a> of The World's Greatest Baseball Game, packed in December 1985, includes a <code>BASEBALL.DOC</code> textfile describing the game and how to run it.</p>",
 		},
 		{
 			Title: "EGA graphics standard", Year: 1984, Month: 10,
