@@ -819,6 +819,15 @@ func Collection() Milestones {
 				"<li><a href=\"//www.uvlist.net/companies/info/1023-Windmill+Software\">Windmill Software</a> was one of the first developers to create games exclusively on the PC.</li>" +
 				"<li><a href=\"//retro365.blog/2019/09/23/bits-from-my-personal-collection-the-original-ibm-pc-and-orion-software/\">Orion Software</a> created some of the earliest games on the PC.</li>" +
 				"<li><a href=\"//www.uvlist.net/companies/info/1029-Spinnaker+Software\">Spinnaker Software</a>" +
+				ul1 +
+				"<p>The following year saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software sold on a floppy disk was a popular seller. " +
+				"For publishers, it is less risky than manufacturing the expensive cartridges required by some other game systems.</p>" +
+				ul0 +
+				"<li><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a> was the publishing arm of the computer, console, and arcade game maker.</li>" +
+				"<li><a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a> founded by the Massachusetts Institute of Technology staff and students to create story narrative games.</li>" +
+				"<li><a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a> created licensed film, television assets, and arcade ports.</li>" +
+				"<li><a href=\"//www.uvlist.net/companies/info/83-Mattel%20Electronics\">Mattel</a> was the creator of the Intellivision console and numerous games.</li>" +
+				"<li><a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a> became one of the biggest PC publishers of the 1980s and the flag-barrier of the graphic adventure genre.</li>" +
 				ul1,
 		},
 		{
@@ -871,18 +880,18 @@ func Collection() Milestones {
 				"<p>It took a decade before graphical interfaces on the PC replaced text in business computing with Windows&nbsp;NT&nbsp;<sup>1993</sup> and even longer with Windows&nbsp;95&nbsp;<sup>1995</sup> before it became commonplace in the home." +
 				" Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple&nbsp;Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore&nbsp;Amiga</span> and <span class=\"text-nowrap\">Atari&nbsp;ST&nbsp;<sup>1985</sup></span> came with a GUI as standard.</p>",
 		},
-		{
-			Title: "Major videogame publishers enter the PC market", Year: 1983,
-			Content: "<p>1983 saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software sold on a floppy disk was a popular seller. " +
-				"For publishers, it is less risky than manufacturing the expensive cartridges required by some other game systems.</p>" +
-				ul0 +
-				"<li><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a> was the publishing arm of the computer, console, and arcade game maker.</li>" +
-				"<li><a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a> founded by the Massachusetts Institute of Technology staff and students to create story narrative games.</li>" +
-				"<li><a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a> created licensed film, television assets, and arcade ports.</li>" +
-				"<li><a href=\"//www.uvlist.net/companies/info/83-Mattel%20Electronics\">Mattel</a> was the creator of the Intellivision console and numerous games.</li>" +
-				"<li><a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a> became one of the biggest PC publishers of the 1980s and the flag-barrier of the graphic adventure genre.</li>" +
-				ul1,
-		},
+		// {
+		// 	Title: "Major videogame publishers enter the PC market", Year: 1983,
+		// 	Content: "<p>1983 saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software sold on a floppy disk was a popular seller. " +
+		// 		"For publishers, it is less risky than manufacturing the expensive cartridges required by some other game systems.</p>" +
+		// 		ul0 +
+		// 		"<li><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a> was the publishing arm of the computer, console, and arcade game maker.</li>" +
+		// 		"<li><a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a> founded by the Massachusetts Institute of Technology staff and students to create story narrative games.</li>" +
+		// 		"<li><a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a> created licensed film, television assets, and arcade ports.</li>" +
+		// 		"<li><a href=\"//www.uvlist.net/companies/info/83-Mattel%20Electronics\">Mattel</a> was the creator of the Intellivision console and numerous games.</li>" +
+		// 		"<li><a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a> became one of the biggest PC publishers of the 1980s and the flag-barrier of the graphic adventure genre.</li>" +
+		// 		ul1,
+		// },
 		{
 			Title: "Earliest Unprotect texts", Year: 1983, Highlight: true,
 			Lead: "So far, Unprotects for Lotus 1-2-3", LinkTitle: "the Unprotect texts",
@@ -975,7 +984,9 @@ func Collection() Milestones {
 			Prefix: "The earliest PC groups,", Year: 1984,
 			List: Links{
 				{LinkTitle: "Against Software Protection <small>ASP</small>", Link: "/g/against-software-protection"},
-				{LinkTitle: "Software Pirates Inc <small>SPi</small>", Link: "/g/software-pirates-inc", Forward: "Texas"},
+				{LinkTitle: "The Duplicators", Link: "/g/the-duplicators"},
+				{LinkTitle: "The IPL", Link: "/g/ipl"},
+				{LinkTitle: "Software Pirates Inc <small>SPi</small>", Link: "/g/software-pirates-inc"},
 			},
 			Picture: Picture{
 				Title: "Copyright invalid in 1984",
@@ -1107,6 +1118,17 @@ func Collection() Milestones {
 				"...</pre>",
 		},
 		{
+			Prefix: "The earliest PC groups,", Year: 1985,
+			List: Links{
+				{LinkTitle: "The Illinois Pirates <small>TIP</small>", Link: "/g/the-illinois-pirates"},
+			},
+			Picture: Picture{
+				Title: "The Illinois Pirates hack",
+				Alt:   "The Illinois Pirates in-game hack on the PC screenshot",
+				Png:   "ad1d67e.png",
+			},
+		},
+		{
 			Title: "The earliest PC \"DOX\"", Year: 1986, Highlight: true,
 			Lead: "So far, Dam Buster documentation by Brew Associates", LinkTitle: "the documentation",
 			Link: "/f/a61db76",
@@ -1193,6 +1215,7 @@ func Collection() Milestones {
 			List: Links{
 				{LinkTitle: "ESP Pirates", Link: "/g/esp-pirates", Forward: "Arizona"},
 				{LinkTitle: "Five-O", Link: "/g/five-o", Forward: "Minnesota"},
+				{LinkTitle: "T.O.A.D.S. <small>TOADS</small>", Link: "/g/toads"},
 			},
 			Picture: Picture{
 				Title: "Five O Presents",
@@ -1241,13 +1264,18 @@ func Collection() Milestones {
 			Year: 1987, Prefix: notable,
 			List: Links{
 				{
-					LinkTitle: `Boys from Company C <small>(BBC)</small>`, Link: "/g/boys-from-company-c",
+					LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions",
+					SubTitle: "BSP", Forward: "Texas",
+				},
+				{
+					LinkTitle: `Boys from Company C <small>(BCC)</small>`, Link: "/g/boys-from-company-c",
 					Forward: "Virginia and D.C. region",
 				},
 				{
-					LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "g/canadian-pirates-inc",
+					LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "/g/canadian-pirates-inc",
 					Forward: "🇨🇦 Ontario",
 				},
+				{LinkTitle: "-=C&M=-", Link: "/g/c-ampersand-m"},
 				{
 					LinkTitle: "KGB", Link: "/g/kgb",
 					Forward: "🇨🇦 Ontario",
@@ -1370,12 +1398,12 @@ func Collection() Milestones {
 			Year: 1988, Prefix: notable,
 			List: Links{
 				{
-					LinkTitle: "Bentley Sidwell Productions", Link: "/g/bentley-sidwell-productions",
-					SubTitle: "BSP", Forward: "Texas",
-				},
-				{
 					LinkTitle: "Crackers in Action", Link: "/g/crackers-in-action",
 					SubTitle: "CIA", Forward: "Colorado",
+				},
+				{
+					LinkTitle: "Future Brain Inc.", Link: "/g/future-brain-inc",
+					SubTitle: "FBi", Forward: "🇳🇱 First Dutch group on the PC",
 				},
 				{
 					LinkTitle: "Miami Cracking Machine", Link: "/g/miami-cracking-machine",
@@ -1478,10 +1506,6 @@ func Collection() Milestones {
 					SubTitle: "API", Forward: "California",
 				},
 				{
-					LinkTitle: "Future Brain Inc.", Link: "/g/future-brain-inc",
-					SubTitle: "FBi", Forward: "🇳🇱 First Dutch group on the PC",
-				},
-				{
 					LinkTitle: "Future Crew", Link: "/g/future-crew",
 					SubTitle: "FC", Forward: "🇫🇮 The first mainstream PC group",
 				},
@@ -1580,7 +1604,6 @@ func Collection() Milestones {
 					SubTitle: "NEUA", Forward: "New York",
 				},
 				{LinkTitle: "🇺🇸 Public Enemy", Link: "/g/public-enemy", SubTitle: "PE", Forward: "🇩🇪 First German PC group, Red Sector Inc."},
-				{LinkTitle: "🇺🇸 Razor 1911", Link: "/g/razor-1911", SubTitle: "RZR", Forward: "🇳🇴 Razor / 🇪🇺 Skillion"},
 				{
 					LinkTitle: "Software Chronicles Digest", Link: "/g/software-chronicles-digest",
 					SubTitle: "SCD", Forward: "California",
@@ -1594,6 +1617,7 @@ func Collection() Milestones {
 					LinkTitle: "🇩🇪 Tristar & Red Sector Inc.", Link: "/g/tristar-ampersand-red-sector-inc",
 					SubTitle: "TRSi", Forward: "🇩🇪 Red Sector, then in 1991 Skid Row, TDT",
 				},
+				{LinkTitle: "Ultra Tech", Link: "/g/ultra-tech", SubTitle: "UT"},
 			},
 		},
 		{
@@ -1687,6 +1711,7 @@ func Collection() Milestones {
 				{LinkTitle: "Insane Creators Enterprise", Link: "/g/insane-creators-enterprise", SubTitle: "iCE"},
 				{LinkTitle: "🇸🇪 Fairlight PC", Link: "/g/fairlight", SubTitle: "FLT"},
 				{LinkTitle: "Licensed to Draw", Link: "/g/licensed-to-draw", SubTitle: "LTD"},
+				{LinkTitle: "Mirage", Link: "/g/mirage", Forward: "Licensed to Draw"},
 				{
 					LinkTitle: "Nokturnal Trading Alliance", Link: "/g/nokturnal-trading-alliance",
 					SubTitle: "NTA", Forward: "California",
@@ -1695,15 +1720,16 @@ func Collection() Milestones {
 					LinkTitle: "Pirates with Attitude", Link: "/g/pirates-with-attitude",
 					SubTitle: "PWA", Forward: "Michigan and Minnesota",
 				},
+				{LinkTitle: "🇺🇸 Razor 1911 (on PC)", Link: "/g/razor-1911", SubTitle: "RZR", Forward: "🇳🇴 Razor / 🇪🇺 Skillion"},
+				{LinkTitle: "Razor Dox", Link: "/g/razordox", SubTitle: "RZR"},
 				{LinkTitle: "Relentless Pursuit of Magnificence", Link: "/g/relentless-pursuit-of-magnificence", SubTitle: "RPM"},
-				{LinkTitle: "🇪🇺 Skid Row", Link: "/g/skid-row", SubTitle: "SR"},
-				{LinkTitle: "🇩🇪🇨🇭 Scoopex", Link: "/g/scoopex"},
+				{LinkTitle: "🇪🇺 Skid Row (on PC)", Link: "/g/skid-row", SubTitle: "SR"},
+				{LinkTitle: "🇩🇪🇨🇭 Scoopex (IBM)", Link: "/g/scoopex"},
 				{
 					LinkTitle: "The Cracking Lords", Link: "/g/the-cracking-lords", SubTitle: "TCL",
 					Forward: "🇮🇹 First PC group from Italy",
 				},
 				{LinkTitle: "The Humble Guys F/X", Link: "/g/thg-fx", SubTitle: "THG-FX"},
-				{LinkTitle: "Ultra Tech", Link: "/g/ultra-tech", SubTitle: "UT"},
 				{
 					LinkTitle: "United Software Association", Link: "/g/united-software-association*fairlight",
 					SubTitle: "USA", Forward: "The Humble Guys",
@@ -1745,9 +1771,7 @@ func Collection() Milestones {
 			Year: 1992, Prefix: notable,
 			List: Links{
 				{LinkTitle: "Artists in Revolt", Link: "/g/artists-in-revolt", Forward: "Fairlight"},
-				{LinkTitle: "Mirage", Link: "/g/mirage", Forward: "Licensed to Draw"},
 				{LinkTitle: "Pyradical", Link: "/g/pyradical"},
-				{LinkTitle: "Razor Dox", Link: "/g/razordox", SubTitle: "RZR"},
 				{LinkTitle: "🇩🇪 Superior Art Creations", Link: "/g/superior-art-creations", SubTitle: "SAC"},
 				{
 					LinkTitle: "The One and Only", Link: "/g/the-one-and-only",
@@ -1766,11 +1790,11 @@ func Collection() Milestones {
 				{LinkTitle: "🇷🇺 Drink or Die", Link: "/g/drink-or-die", SubTitle: "DOD"},
 				{LinkTitle: "Hybrid", Link: "/g/hybrid", SubTitle: "HBD", Forward: "Pyradical"},
 				{LinkTitle: "Legend", Link: "/g/legend", SubTitle: "LND"},
-				{LinkTitle: "Paradox", Link: "/g/paradox", SubTitle: "PDX"},
+				{LinkTitle: "Paradox (on PC)", Link: "/g/paradox", SubTitle: "PDX"},
 				{LinkTitle: "Pentagram", Link: "/g/pentagram", SubTitle: "PTG", Forward: "Legend"},
 				{LinkTitle: "Rise in Superior Couriering", Link: "/g/rise-in-superior-couriering", SubTitle: "RiSC"},
 				{
-					LinkTitle: "🇳🇱 The Untouchables", Link: "/g/the-untouchables",
+					LinkTitle: "Untouchables", Link: "/g/untouchables",
 					SubTitle: "UNT", Forward: "UNiQ, XAP",
 				},
 			},
@@ -1847,14 +1871,13 @@ func Collection() Milestones {
 			Year: 1995, Prefix: notable,
 			List: Links{
 				{LinkTitle: "Eclipse", Link: "/g/eclipse", SubTitle: "ECL", Forward: "Hybrid"},
-				{LinkTitle: "Hoodlum", Link: "/g/hoodlum", SubTitle: "HLM"},
+				{LinkTitle: "Hoodlum (on PC)", Link: "/g/hoodlum", SubTitle: "HLM"},
 				{
-					LinkTitle: "Prestige", Link: "/g/prestige",
+					LinkTitle: "Prestige (on PC)", Link: "/g/prestige",
 					SubTitle: "PTG", Forward: "Ohio and 🇳🇱 The Netherlands",
 				},
 				{LinkTitle: "Inquisition", Link: "/g/inquisition", SubTitle: "INQ", Forward: "Week in Warez"},
 				{LinkTitle: "The Naked Truth", Link: "/g/the-naked-truth-magazine", SubTitle: "NTM"},
-				{LinkTitle: "Razor 1911 CD Division", Link: "/g/razor-1911-cd-division", SubTitle: "RZR", Forward: "Razor 1911"},
 				{LinkTitle: "Reality Check Network", Link: "/g/reality-check-network", SubTitle: "RCN"},
 				{LinkTitle: "The Week in Warez", Link: "/g/the-week-in-warez", SubTitle: "WWW"},
 			},
@@ -1912,7 +1935,7 @@ func Collection() Milestones {
 		{
 			Year: 1996, Prefix: notable,
 			List: Links{
-				{LinkTitle: "CD Images For the Elite", Link: "/g/cd-images-for-the-elite", SubTitle: "CiFE"},
+				//	{LinkTitle: "CD Images For the Elite", Link: "/g/cd-images-for-the-elite", SubTitle: "CiFE"},
 				{LinkTitle: "Class", Link: "/g/class", SubTitle: "CLS", Forward: "Prestige"},
 				{LinkTitle: "RomLight", Link: "/g/romlight", SubTitle: "RLT", Forward: "Fairlight"},
 				{LinkTitle: "Paradigm", Link: "/g/paradigm", SubTitle: "PDM", Forward: "Eclipse"},
@@ -2009,6 +2032,7 @@ func Collection() Milestones {
 		{
 			Year: 1998, Prefix: notable,
 			List: Links{
+				{LinkTitle: "DVNiSO / Deviance", Link: "/g/dvniso"},
 				{LinkTitle: "Fairlight", Link: "/g/fairlight", SubTitle: "FTL", Forward: "Fairlight returns after a few years absent"},
 				{LinkTitle: "Origin", Link: "/g/origin", SubTitle: "OGN"},
 				{LinkTitle: "RiSCiSO", Link: "/g/risciso", Forward: "Rise in Superior Couriering"},
