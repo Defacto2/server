@@ -614,11 +614,11 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The earliest dated software crack and text art", Year: 1980, Month: 11,
-			Lead:      "So far, Cyber Strike broken by The Tornato",
+			Lead:      "So far, Cyber Strike broken by The Tornado",
 			LinkTitle: "about and emulate the crack", Link: "https://archive.org/details/Sabotage_Reversal_Cyber_Strike_Dungeons",
 			Content: // dung beetles
 			"<p>The earliest-dated crack is probably on the Apple&nbsp;II. An example is " +
-				"<q><a href=\"https://www.ebay.com/itm/204747521812\">Cyber Strike</a> broken by The Tornato</q> in <strong>November 1980</strong> and published by Sirius Software. " +
+				"<q><a href=\"https://www.ebay.com/itm/204747521812\">Cyber Strike</a> broken by The Tornado</q> in <strong>November 1980</strong> and published by Sirius Software. " +
 				"The static crack credit and text art is loaded at the start of the game before the game's title screen.</p>" +
 				"Other early dated cracks include" +
 				ul0 +
@@ -632,7 +632,7 @@ func Collection() Milestones {
 				"<li><a href=\"http://artscene.textfiles.com/intros/APPLEII/sinterceptm.gif\">Shuttle Intercept</a> Copy/OK (B) 1982 <abbr title=\"Apple Pirated Program Library Exchange\">A.P.P.L.E.</abbr> by The Clone Stranger</li>" +
 				ul1,
 			Picture: Picture{
-				Title: "Cyber Strike broken by The Tornato - Nov '80",
+				Title: "Cyber Strike broken by The Tornado - Nov '80",
 				Alt:   "Cyber Strike broken by screenshot on the Apple II",
 				Png:   "cyber_strike_the_tornato.png",
 				Webp:  "cyber_strike_the_tornato.webp",
@@ -1667,11 +1667,12 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest elite BBStro", Year: 1991, Month: 10, Day: 21,
+			Title: "Earliest \"elite\" PC BBStro", Year: 1991, Month: 10, Day: 21,
 			Lead: "So far, Splatterhouse BBS", LinkTitle: "about and view the BBStro", Link: "/f/b11acdf",
 			Content: "<p><a href=\"https://demozoo.org/bbs/7179/\">Splatterhouse, or Splatter House</a>, was a San Jose, California bulletin board " +
 				"heavily affiliated with the <a href=\"/g/international-network-of-crackers\">International Network of Crackers</a>, the art group <a href=\"/g/acid-productions\">ACiD Productions</a>, " +
-				"and the designers of this <strong>BBStro</strong>, <a href=\"/g/insane-creators-enterprise\">Insane Creators Enterprise</a>.",
+				"and the designers of this <strong>BBStro</strong>, <a href=\"/g/insane-creators-enterprise\">Insane Creators Enterprise</a>.</p>" +
+				"<p>While there were many earlier PC BBS ads, this was the first that combined music and animation.</p>",
 			Picture: Picture{
 				Title: "Splatterhouse BBS BBStro",
 				Alt:   "Splatterhouse BBS BBStro screenshot",
@@ -1806,9 +1807,9 @@ func Collection() Milestones {
 				{LinkTitle: "TDU-Jam", Link: "/g/tdu_jam", SubTitle: "TDU", Forward: "Genesis"},
 			},
 			Picture: Picture{
-				Title: "Genesis brand",
-				Webp:  "a228ca.webp",
-				Png:   "a228ca.png",
+				Title: "TDU-Jam! branding",
+				Webp:  "af2b6a5.webp",
+				Png:   "af2b6a5.png",
 			},
 		},
 		{
