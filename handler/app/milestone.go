@@ -470,6 +470,7 @@ func Collection() Milestones {
 				sect1,
 			Picture: Picture{
 				Title: "Tank Command - Kraked By Copy/Cat - No Rights Reserved",
+				Alt:   "Tank Command kracked by screenshot on the Apple II",
 				Png:   "tcommand.png",
 				// License:     "CC BY-SA 4.0",
 				// LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
@@ -632,7 +633,7 @@ func Collection() Milestones {
 				ul1,
 			Picture: Picture{
 				Title: "Cyber Strike broken by The Tornato - Nov '80",
-				Alt:   "Cyber Strike broken screenshot",
+				Alt:   "Cyber Strike broken by screenshot on the Apple II",
 				Png:   "cyber_strike_the_tornato.png",
 				Webp:  "cyber_strike_the_tornato.webp",
 			},
@@ -667,6 +668,7 @@ func Collection() Milestones {
 				"<p>Penqueriel Mazes by Electronic Dimension initially looked like a <a href=\"https://archive.org/details/a2_Penqueriel_Mazes_19xx_Sadistic_cr_Electronic_Dimension\">candidate</a>, but the intro-loader effects are far too modern for the <q>(c) 1982</q> notice.</p>",
 			Picture: Picture{
 				Title: "Mr. Xerox's Star Blaster cracktro",
+				Alt:   "Mr. Xerox's Star Blaster cracktro on the Apple II",
 				Png:   "starblaster-mr-xerox.png",
 				Webp:  "starblaster-mr-xerox.webp",
 				Webm:  "starblaster-mr-xerox.webm",
@@ -735,7 +737,7 @@ func Collection() Milestones {
 				"<p>The untitled Christmas greeting by CB is the earliest known demonstration software created by a hobbyist with no commercial intent.</p>",
 			Picture: Picture{
 				Title: "The untitled Christmas greeting by CB",
-				Alt:   "A photo of the 1981, Christmas greeting for the Atari.",
+				Alt:   "A screenshot of the 1981 Christmas greeting, on the Atari 400/800.",
 				Png:   "cb-81.png",
 			},
 		},
@@ -938,16 +940,16 @@ func Collection() Milestones {
 			Content: "<p>This modified, tagged, or graffitied title screen is a <strong>crack&nbsp;screen</strong> " +
 				"and was a typical way for crackers on the Apple, Atari microcomputers, and the IBM PC to credit themselves. " +
 				"Crackers altered games and removed disk copy protection from software to permit copying and redistribution.</p>" +
-				"<p>The earliest examples (we have) on the IBM PC are cracked games from late 1984, attributed to <a href=\"/g/the-duplicators\">(C) 1984 The Duplicators</a>. " +
-				"The plurality in the name suggests it was a group, but it could have been a solo cracker.</p>" +
-				"<p>An oddity on the IBM PC is anonymous cracked games where the copyright information gets replaced with text proclaiming the game is public domain, such as this 1984 " +
+				"<p>The earliest examples we have on the IBM PC are cracked games from mid-1984, attributed to <a href=\"/g/the-duplicators\">(C) 1984 The Duplicators</a>. " +
+				"The plurality in the name suggests it was a small group, but it could have been a solo cracker.</p>" +
+				"<p>Also, an oddity on the PC are the anonymous cracked games where the copyright information gets replaced with text proclaiming the game is public domain, such as this 1984 " +
 				"<a href=\"/f/ab27d16\">example of Stargate</a>. " +
 				"The reasoning for this is uncertain.</p>",
 			Picture: Picture{
-				Title: "Galaxian broken by Koyote Kid",
-				Alt:   "Galaxian broken screenshot",
-				Webp:  "ab2edbc.webp",
-				Png:   "ab2edbc.png",
+				Title: "HHM broken by the Duplicators",
+				Alt:   "Copyright 1984 the Duplicators screenshot on the PC",
+				Webp:  "a319104.webp",
+				Png:   "a319104.png",
 			},
 		},
 		{
@@ -974,6 +976,11 @@ func Collection() Milestones {
 			List: Links{
 				{LinkTitle: "Against Software Protection <small>ASP</small>", Link: "/g/against-software-protection"},
 				{LinkTitle: "Software Pirates Inc <small>SPi</small>", Link: "/g/software-pirates-inc", Forward: "Texas"},
+			},
+			Picture: Picture{
+				Title: "Copyright invalid in 1984",
+				Alt:   "Copyright invalid in 1984 by SPI screenshot on the PC",
+				Png:   "b92e146.png",
 			},
 		},
 		{
@@ -1002,6 +1009,30 @@ func Collection() Milestones {
 				Alt:   "Spy Hunter by Imperial Warlords screenshot",
 				Webp:  "aa2be75.webp",
 				Png:   "aa2be75.png",
+			},
+		},
+		{
+			Title: "The earliest PC ASCII art", Year: 1985, Month: 7, Day: 24, Highlight: true,
+			Lead: "So far, How to WIN at KING's QUEST from The Illinois Pirates", LinkTitle: "and view the file", Link: "/f/bc30a5b",
+			Content: "<p><strong>The Illinois Pirates</strong> walk-through for the PC exclusive game King's Quest released the earliest known PC <strong>ASCII art</strong> or Codepage 437 art. " +
+				"The ASCII text logo uses block and line art characters that were exclusive to the IBM PC platform.</p>" +
+				"<pre> The    ███████  █    █    ▀ ██    █ ██████ ▀ █████<br>" +
+				"           █     █    █    █ █ █   █ █    █ █ █<br>" +
+				"           █     █    █    █ █  █  █ █    █ █ █████<br>" +
+				"           █     █    █    █ █   █ █ █    █ █     █<br>" +
+				"        ███████  ████ ████ █ █    ██ ██████ █ █████<br>" +
+				"           ╔════╗                          ╔═════╕<br>" +
+				"           ║    ║          ══════╦══════   ║     │<br>" +
+				"           ║    ║ ║              ║         ║<br>" +
+				"           ╠════╝   ╠══╗ ╔═══╗   ║   ╔═══  ║<br>" +
+				"           ║      ║ ║    ║   ║   ║   ║     ╚═════╗<br>" +
+				"           ║      ║ ║    ╠═══╣   ║   ╠═          ║<br>" +
+				"           ║      ║ ║    ║   ║   ║   ║     │     ║<br>" +
+				"                                     ╚═══  ╘═════╝</pre>",
+			Picture: Picture{
+				Title: "How to WIN at KING's QUEST on the IBM PC/PCjr as tabulated by The Illinois Pirates",
+				Alt:   "A screenshot of The Illinois Pirates text logo",
+				Png:   "bc30a5b.png",
 			},
 		},
 		{
@@ -1048,16 +1079,48 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The earliest \"DOX\"", Year: 1986, Highlight: true,
+			Title: "Earliest, \"proto\" NFO text", Year: 1985, Month: 12, Day: 26, Highlight: false,
+			Lead: "So far, Software Pirates Inc", LinkTitle: "the file", Link: "/f/b32077c",
+			Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
+				"<p>Software Pirates Inc may have released the earliest NFO-like document for the late 1985 packaged release of " +
+				"<a href=\"https://www.mobygames.com/game/22398/the-worlds-greatest-baseball-game/\">The World's Greatest Baseball Game</a>.</p>" +
+				"<pre>" +
+				"Welcome to the Software Pirates, Inc.  version of Baseball" + br +
+				"If you are new to the Software Pirates concept of DOS" + br +
+				"files of your favorite protected program then you can help" + br +
+				"us.  Send us your favorite protected diskette and we will" + br +
+				"return it as DOS compatible file(s).  We hope you can help" + br +
+				"this worthy cause.  We offer an exclusive money back" + br +
+				"guarantee and warranty for the life of the program, if it" + br +
+				"should ever fail you.  If you are not new to the SPI" + br +
+				"concept, we still welcome donations of your protected" + br +
+				"diskettes." + br + br +
+				"Instructions for playing Baseball." + br +
+				"Baseball is a 3 file set, including this documentation" + br +
+				"file.  The other two files are 1.  BASEBALL.COM, the" + br +
+				"loader and diskette emulator, 2.  BASEBALL.SPI, the" + br +
+				"diskette image These files are distributed under the ARC" + br +
+				"format, to retain their consistency." + br + br +
+				"Starting" + br +
+				"Change the DOS default prompt to the drive containing" + br +
+				"BASEBALL.SPI and execute the command BASEBALL." + br +
+				"...</pre>",
+		},
+		{
+			Title: "The earliest PC \"DOX\"", Year: 1986, Highlight: true,
 			Lead: "So far, Dam Buster documentation by Brew Associates", LinkTitle: "the documentation",
 			Link: "/f/a61db76",
 			Content: "<code>DAMBUST1.DOC</code><br>" +
 				"<p><strong>DOX</strong> is an abbreviation for documentation, which are text files that provide instructions on playing more complicated games. " +
-				"Games not in the arcade or action genre were usually unintuitive and relied on printed gameplay instruction manuals sold with the purchased game box to be usable. " +
-				"These titles often relied on printed <a href=\"https://archive.org/details/extras_msdos_Microsoft_Flight_Simulator_v1.0_1982/mode/2up\">instruction manuals</a> included in the purchased game box to be usable.</p>" +
-				"<p>Piracy groups had been including forms of gameplay instructions as text documents for the more complicated game releases for years, so it is unlikely this example is the first DOX.</p>" +
-				"<p><q>The primary reason for the writing of this file is the fact that people may not be fully appreciating the Dam Buster game.  I have seen some documentation out, but it is lame at best. What I have given you here is the actual text of the actual documentation distributed with the game. Enjoy!</q></p>" +
-				"<p>Dam Buster is a misname of <a href=\"https://archive.org/details/msdos_The_Dam_Busters_1985\">The Dam Busters</a>, a 1984-85 game published by Accolade.</p>",
+				"Games not in the arcade or action genre were usually unintuitive and relied on printed gameplay " +
+				"<a href=\"https://archive.org/details/extras_msdos_Microsoft_Flight_Simulator_v1.0_1982/mode/2up\">instruction manuals</a> sold with the purchased game box to be usable.</p>" +
+				"<p><q>The primary reason for the writing of this file is the fact that people may not be fully appreciating the Dam Buster game.  " +
+				"I have seen some documentation out, but it is lame at best. What I have given you here is the actual text of the actual documentation distributed with the game. Enjoy!</q> " +
+				"Dam Buster is a misname of <a href=\"https://archive.org/details/msdos_The_Dam_Busters_1985\">The Dam Busters</a>, a 1984-85 game published by Accolade.</p>" +
+				"<p>Piracy groups had been including forms of gameplay instructions as text documents for the more complicated game releases for years, so it is unlikely this example is the first PC DOX. " +
+				"An oddity is that for much of the 1980s, the PC was not the primary development platform for games. " +
+				"This instead occurred on the Apple, Atari, and later the Commodore microcomputers, and afterwards the games were ported to the PC. " +
+				"Pirates on the PC would often <a href=\"/f/b5258ae\">reuse</a> the \"DOX\" documents that got authored for those microcomputers rather than writing their own.</p>",
 		},
 		{
 			Title: "PC clone sales pickup in Europe", Year: 1986,
@@ -1111,7 +1174,7 @@ func Collection() Milestones {
 		{
 			Title: "The earliest PC loaders", Year: 1986, Month: 3, Highlight: true,
 			Content: "<p><strong>Loaders</strong> acted as they were named, given that they would be the first thing to load and display each time the cracked game was run. " +
-				"These screens were static images in the early days and sometimes contained ripped screens from other games. Some users found these annoying and a cause of unwanted file bloat.</p>" +
+				"These screens were static images created in <a href=\"https://winworldpc.com/product/pc-paint/100a\">PC Paint</a> in the early days, and sometimes contained ripped screens from other games. Some users found these annoying and a cause of unwanted file bloat.</p>" +
 				"<p>The first static loaders originated on the Apple&nbsp;II underground, such as <a href=\"http://artscene.textfiles.com/intros/APPLEII/cbaseball.gif\">this example</a> " +
 				"by The&nbsp;Digital&nbsp;Gang for the crack release of Championship&nbsp;Baseball that likely came out in 1983.</p>",
 			List: Links{
@@ -1122,8 +1185,7 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title: "Software Pirates, Inc presents",
 				Alt:   "Software Pirates, Inc presents Frogger II  screenshot",
-				Webp:  "b33404.webp",
-				Png:   "b33404.png",
+				Png:   "a6197ae.png",
 			},
 		},
 		{
@@ -1135,8 +1197,7 @@ func Collection() Milestones {
 			Picture: Picture{
 				Title: "Five O Presents",
 				Alt:   "Five O Presents screenshot",
-				Webp:  "five-o.webp",
-				Png:   "five-o.png",
+				Png:   "ac1b5ea.png",
 			},
 		},
 		{
@@ -1223,18 +1284,19 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Earliest, standalone elite BBS advert", Year: 1988, Month: 4, Day: 4, Highlight: false,
+			Title: "Earliest, standalone \"elite\" BBS ad", Year: 1988, Month: 4, Day: 4, Highlight: false,
 			Lead: "So far, Swashbucklers II", LinkTitle: "the file",
 			Link: "/f/b844ef",
-			Content: "<p>While novel in 1988, <strong>BBS adverts</strong> like these would plague releases as spam in the years to come, " +
+			Content: "<p>While novel in 1988, <strong>BBS adverts</strong> like this <code>README.!!!</code> text file would plague releases as spam in the years to come, " +
 				"with boards injecting numerous texts and tagging the releases with their names, often under the guise of documentation or readme texts.</p>" +
-				"<pre>Another Quality Ware Downloaded off:<br>" +
-				"S W A S H B U C K L E R S   I I<br>" + "Home of PTL/CPI<br>" +
-				"100 megs Online!<br>" +
-				"85 megs Offline, Request!<br>" +
-				"All PTL/CPI Cracks FREE<br>" +
-				"All other Major Groups cracks Always Online<br>" +
-				"Ask your local Sysop for the number..</pre>",
+				"<pre>Another Quality Ware Downloaded off:<br><br>" +
+				"           S W A S H B U C K L E R S   I I<br>" +
+				"                 Home of PTL/CPI<br>" +
+				"                 100 megs Online!<br>" +
+				"             85 megs Offline, Request!<br>" +
+				"              All PTL/CPI Cracks FREE<br>" +
+				"    All other Major Groups cracks Always Online<br>" +
+				"       Ask your local Sysop for the number..</pre>",
 			Picture: Picture{
 				Title: "Swashbucklers II",
 				Alt:   "Swashbucklers II text advert screenshot",
@@ -1242,55 +1304,55 @@ func Collection() Milestones {
 				Png:   "b844ef.png",
 			},
 		},
-		{
-			Title: "Earliest, proto NFO text", Year: 1988, Month: 7, Day: 30, Highlight: false,
-			Lead: "So far, Bentley Sidwell Productions", LinkTitle: "the file", Link: "/f/ad417f",
-			Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
-				"<p>Bentley Sidwell Productions may have released the earliest NFO-like document for the 1988 <a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a> game.</p>" +
-				"<pre>" +
-				"************************************************************************" + br +
-				br +
-				"  Romance of The Three Kingdoms" + br +
-				"    - (KOEI) -" + br +
-				"  \"We Supply The Past, You Make The History\"" + br +
-				br +
-				"***********************************************************************" + br +
-				br +
-				"Welcome to the wonderful world of second century China.. China's" + br +
-				"second dynasty has collapsed and the entire nation battles itself for" + br +
-				"supremacy in this most interesting action game from Koei.." + br +
-				br +
-				"Floppy users: UnARC - ROTK-1.ARC onto Disk #1..." + br +
-				"                      ROTK-2.ARC onto Disk #2..." + br +
-				"                      ROTK-3.ARC onto Disk #3..." + br +
-				br +
-				"Hard Drive:   UnARC - All Files Into One Directory..." + br +
-				br +
-				"Nothing to edit... nothing.</pre>",
-		},
-		{
-			Title: "The earliest ASCII art on PC", Year: 1988, Month: 10, Day: 6, Highlight: true,
-			Lead: "So far, Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
-			Content: "<strong>$print</strong> for the game Fire Power released the earliest known <strong>ASCII art</strong>. " +
-				"The ASCII text logo is relatively crude and less detailed than later ASCII art. " +
-				"<pre> ╔═══════════════════════════════╗<br>" +
-				"╔╝      Another Quality Ware     ╚╗<br>" +
-				"║          F  R  O  M             ║<br>" +
-				"║                                 ║<br>" +
-				"║   ┌┼┼┼ ┌─┐┌──┐ ─┬─ │\\  │──┬──   ║<br>" +
-				"║   └┼┼┼┐┼─┘│─┬┘  │  │ \\ │  │     ║<br>" +
-				"║   ─┼┼┼┘│  │ └─ ─┴─ │  \\│  │     ║<br>" +
-				"╚═════════════════════════════════╝<br>" +
-				"║  The Ultimate Empire [USA]      ║<br>" +
-				"║  Warez R Us          [CAN]      ║<br>" +
-				"╚═════════════════════════════════╝</pre>",
-			Picture: Picture{
-				Title: "Another quality ware from $print",
-				Alt:   "Fire Power by $print ASCII screenshot",
-				Webp:  "ab3dc1.webp",
-				Png:   "ab3dc1.png",
-			},
-		},
+		// {
+		// 	Title: "Earliest, proto NFO text", Year: 1988, Month: 7, Day: 30, Highlight: false,
+		// 	Lead: "So far, Bentley Sidwell Productions", LinkTitle: "the file", Link: "/f/ad417f",
+		// 	Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
+		// 		"<p>Bentley Sidwell Productions may have released the earliest NFO-like document for the 1988 <a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a> game.</p>" +
+		// 		"<pre>" +
+		// 		"************************************************************************" + br +
+		// 		br +
+		// 		"  Romance of The Three Kingdoms" + br +
+		// 		"    - (KOEI) -" + br +
+		// 		"  \"We Supply The Past, You Make The History\"" + br +
+		// 		br +
+		// 		"***********************************************************************" + br +
+		// 		br +
+		// 		"Welcome to the wonderful world of second century China.. China's" + br +
+		// 		"second dynasty has collapsed and the entire nation battles itself for" + br +
+		// 		"supremacy in this most interesting action game from Koei.." + br +
+		// 		br +
+		// 		"Floppy users: UnARC - ROTK-1.ARC onto Disk #1..." + br +
+		// 		"                      ROTK-2.ARC onto Disk #2..." + br +
+		// 		"                      ROTK-3.ARC onto Disk #3..." + br +
+		// 		br +
+		// 		"Hard Drive:   UnARC - All Files Into One Directory..." + br +
+		// 		br +
+		// 		"Nothing to edit... nothing.</pre>",
+		// },
+		// {
+		// 	Title: "The earliest ASCII art on PC", Year: 1988, Month: 10, Day: 6, Highlight: true,
+		// 	Lead: "So far, Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
+		// 	Content: "<strong>$print</strong> for the game Fire Power released the earliest known <strong>ASCII art</strong>. " +
+		// 		"The ASCII text logo is relatively crude and less detailed than later ASCII art. " +
+		// 		"<pre> ╔═══════════════════════════════╗<br>" +
+		// 		"╔╝      Another Quality Ware     ╚╗<br>" +
+		// 		"║          F  R  O  M             ║<br>" +
+		// 		"║                                 ║<br>" +
+		// 		"║   ┌┼┼┼ ┌─┐┌──┐ ─┬─ │\\  │──┬──   ║<br>" +
+		// 		"║   └┼┼┼┐┼─┘│─┬┘  │  │ \\ │  │     ║<br>" +
+		// 		"║   ─┼┼┼┘│  │ └─ ─┴─ │  \\│  │     ║<br>" +
+		// 		"╚═════════════════════════════════╝<br>" +
+		// 		"║  The Ultimate Empire [USA]      ║<br>" +
+		// 		"║  Warez R Us          [CAN]      ║<br>" +
+		// 		"╚═════════════════════════════════╝</pre>",
+		// 	Picture: Picture{
+		// 		Title: "Another quality ware from $print",
+		// 		Alt:   "Fire Power by $print ASCII screenshot",
+		// 		Webp:  "ab3dc1.webp",
+		// 		Png:   "ab3dc1.png",
+		// 	},
+		// },
 		{
 			Title: "The earliest PC Scene drama", Year: 1988, Month: 11, Day: 25,
 			Lead: "So far, TNWC accusing PTL of stealing a release", LinkTitle: "and view the file",
@@ -1713,6 +1775,16 @@ func Collection() Milestones {
 			},
 		},
 		{
+			Title: "First mention of \"CD-RIP\"", Year: 1994, Month: 9, Day: 4, Highlight: true,
+			Lead: "So far, Hybrid", LinkTitle: "about the release", Link: "/f/ab27459",
+			Content: "<p>A play on the media, CD-ROM, the earliest mention of <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, " +
+				"was by Hybrid for the game Shanghai: Great Moments. " +
+				"Hybrid was a group formed by ex-members of <a href=\"/g/pyradical\">Pyradical</a> and <a href=\"/g/pentagram\">Pentagram</a>.</p>" +
+				"The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
+				"CD-ROMs were cheaper to produce and had far more storage capacity than the standard floppy disks. However, large hard drives were too expensive to store the content of complete CD images. " +
+				"So, for many pirates to play a game published on CD, the disc's content had to be ripped and repackaged to a hard drive, but with the removal of the game's fluff, such as intro videos, music, and speech.",
+		},
+		{
 			Title: "Copyright infringement legal precedent", Year: 1994, Month: 12, Day: 28, Highlight: true,
 			Lead: "No criminal liability for the sharing of software", LinkTitle: "the David LaMacchia Defense Fund with press releases", Link: "https://web.archive.org/web/19990224000548/http://photo.net/dldf/home.html",
 			Content: "<p>In April 1994, David LaMacchia, a 20-year-old junior at the Massachusetts Institute of Technology, was <a href=\"/f/b628640\">indicted</a> for conspiring to commit wire fraud. " +
@@ -1738,15 +1810,6 @@ func Collection() Milestones {
 				Webp:  "a228ca.webp",
 				Png:   "a228ca.png",
 			},
-		},
-		{
-			Title: "Earliest use of the expression \"CD-RIP\"", Year: 1995, Month: 6, Day: 3, Highlight: true,
-			Lead: "So far, Hybrid", LinkTitle: "about the release", Link: "/f/a938e5",
-			Content: "<p>A play on the media, CD-ROM, the earliest known <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, was by Hybrid for the game <a href=\"https://www.mobygames.com/game/3328/virtual-pool/cover/group-119259/cover-316591/\">Virtual Pool</a> from Interplay. " +
-				"Hybrid was a group formed by ex-members of <a href=\"/g/pyradical\">Pyradical</a> and <a href=\"/g/pentagram\">Pentagram</a>.</p>" +
-				"The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
-				"CD-ROMs were cheaper to produce and had far more storage capacity than the standard floppy disks. However, large hard drives were too expensive to store the content of complete CD images. " +
-				"So, for many pirates to play a game published on CD, the disc's content had to be ripped and repackaged to a hard drive, but with the removal of the game's fluff, such as intro videos, music, and speech.",
 		},
 		{
 			Title: "Windows 95 warez release", Year: 1995, Month: 8, Day: 12,
