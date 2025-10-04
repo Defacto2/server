@@ -2023,16 +2023,20 @@ func Collection() Milestones {
 				"<li>Razor 1911 merges the separate <a href=\"/f/a82c49\">ISO division</a> back into the Razor 1911 label.</li>" +
 				"<li><a href=\"/f/ac2be5\">Fairlight returns</a> after 4-years and is exclusively released with the format.</li>" +
 				"<li>The famed couriers RiSC created <a href=\"/f/b04dac\">RiSCiSO</a> to become one of the largest ISO release groups.</li>" +
-				"<li><a href=\"/f/ae48b0\">PDM ISO</a> becomes the ISO division of <a href=\"/g/paradigm\">Paradigm</a> and Zeus.</li>" +
-				"<li><a href=\"/g/dvniso\">DVNiSO</a> becomes an ISO division of Divine and Deviance.</li>" +
+				"<li><a href=\"/f/b3202e0\">PDM ISO</a> is the ISO division of <a href=\"/g/paradigm\">Paradigm</a> and Zeus.</li>" +
+				"<li><a href=\"/g/deviance\">DVNiSO</a> is the ISO division of Divine.</li>" +
+				"<li><a href=\"/f/a94b94\">SHOCKiSO</a> is the ISO division of Shock.</li>" +
 				ul1 +
-				"<p>Other early users of the format include <a class=\"text-nowrap\" href=\"/g/cd-images-for-the-elite\">CD Images for the Elite</a> (CiFE), <a href=\"/g/kalisto\">Kalisto</a>, <a href=\"/g/isolation\">ISOlation</a>, <a class=\"text-nowrap\" href=\"/g/in-search-of-cd\">In Search of CD</a>, and CaLiSO.</p>" +
+				"<p>Other early users of the format include " +
+				"<a class=\"text-nowrap\" href=\"/g/cd-images-for-the-elite\">CD Images for the Elite</a> (CiFE), " +
+				"<a href=\"/g/kalisto\">Kalisto</a>, <a href=\"/g/isolation\">ISOlation</a>, " +
+				"<a class=\"text-nowrap\" href=\"/g/in-search-of-cd\">In Search of CD</a>, and CaLiSO.</p>" +
 				"<p><q>Paradigm - we do rips, we do ISO - we do it all with style</q></p>",
 		},
 		{
 			Year: 1998, Prefix: notable,
 			List: Links{
-				{LinkTitle: "DVNiSO / Deviance", Link: "/g/dvniso"},
+				{LinkTitle: "DVNiSO / Deviance", Link: "/g/deviance"},
 				{LinkTitle: "Fairlight", Link: "/g/fairlight", SubTitle: "FTL", Forward: "Fairlight returns after a few years absent"},
 				{LinkTitle: "Origin", Link: "/g/origin", SubTitle: "OGN"},
 				{LinkTitle: "RiSCiSO", Link: "/g/risciso", Forward: "Rise in Superior Couriering"},

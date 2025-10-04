@@ -225,11 +225,8 @@ func Websites() Groups {
 			},
 		},
 		"divine": []Website{
-			{
-				URL:        "dvn.org",
-				Name:       "Divine",
-				NotWorking: true,
-			},
+			{URL: "dvn.org", Name: "Divine", NotWorking: true},
+			{URL: "www.divinegods.com", Name: "Divine Gods", NotWorking: true},
 		},
 		"drink-or-die": []Website{
 			{
@@ -370,6 +367,8 @@ func Websites() Groups {
 				Name:       "Paradigm",
 				NotWorking: true,
 			},
+			{URL: "www.pdm97.com", NotWorking: true},
+			{URL: "www.paradigm.org", NotWorking: true},
 			{
 				URL:        "www.pdmworld.com/dac",
 				Name:       "DAC Paradigm art",
@@ -547,11 +546,8 @@ func Websites() Groups {
 			},
 		},
 		"risciso": []Website{
-			{
-				URL:        "www.risc98.org",
-				Name:       "RISCISO",
-				NotWorking: true,
-			},
+			{URL: "www.risc98.org", NotWorking: true},
+			{URL: "www.risciso.com", NotWorking: true},
 		},
 		"scoopex": []Website{
 			{
