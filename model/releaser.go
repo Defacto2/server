@@ -254,8 +254,11 @@ func (r *Releasers) similar(
 		likes = append(likes, releaser.Title(name))
 		likes = append(likes, releaser.Cell(name))
 	}
+	const escapedChar = "''"
 	for i := range likes {
-		likes[i] = strings.ToUpper(likes[i])
+		liked := likes[i]
+		liked = strings.ReplaceAll(liked, "'", escapedChar)
+		likes[i] = strings.ToUpper(liked)
 	}
 	slices.Sort(likes)
 	likes = removeDuplicates(likes)

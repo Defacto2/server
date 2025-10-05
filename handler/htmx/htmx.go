@@ -579,7 +579,7 @@ func SearchByID(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			sl.Error(msg, slog.String("lookup", "something went wrong with the search"), slog.Any("error", err))
 		}
 		return c.String(http.StatusServiceUnavailable,
-			"the search query failed")
+			"the search by id query failed")
 	}
 
 	if len(fs) == 0 {
@@ -664,7 +664,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		sl.Error(msg, slog.String("task", "releaser match initialisms"),
 			slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
-			"the search query failed")
+			"the search exact query failed")
 	}
 	// lookup similar named releasers
 	if len(r) == 0 {
@@ -672,7 +672,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			sl.Error(msg, slog.String("task", "similar named releaser matches"),
 				slog.Any("error", err))
 			return c.String(http.StatusServiceUnavailable,
-				"the search query failed")
+				"the search similar query failed")
 		}
 	}
 	// no results
