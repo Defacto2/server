@@ -26,7 +26,7 @@ go 1.25.1 // latest: https://go.dev/dl/
 //
 require (
 	github.com/Defacto2/archive v1.1.3
-	github.com/Defacto2/helper v1.5.2
+	github.com/Defacto2/helper v1.6.0
 	github.com/Defacto2/magicnumber v1.0.12
 	github.com/Defacto2/releaser v1.3.15
 	github.com/aarondl/null/v8 v8.1.3

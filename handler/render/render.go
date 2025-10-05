@@ -125,6 +125,7 @@ func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Di
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	// normalize the line feeds to attempt to fix any breakages with the layout
 	b = bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
+	b = helper.Mask(b...)
 	buf.Reset()
 	buf.Write(b)
 	if utf8.Valid(b) {
