@@ -271,6 +271,8 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <a href="/titles">please follow this guide</a>.</div>
             </div>
             <div class="btn-group" role="group">
+              <button class="btn btn-link" type="button" id="artifact-editor-titleize">Capitalize</button>
+              <button class="btn btn-link" type="button" id="artifact-editor-title-delete">Delete</button>
               <input type="hidden" name="artifact-editor-titleundo" value="{{$title}}" readonly>
               <button class="btn btn-link" type="button" id="artifact-editor-title-undo"
                 hx-patch="/editor/title/reset"
@@ -278,8 +280,6 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-titleundo']">
                   Reset<small class="link-dark"> title to <q id="artifact-editor-title-quote">{{$title}}</q></small></button>
-              <button class="btn btn-link" type="button" id="artifact-editor-title-delete">Delete</button>
-              <button class="btn btn-link" type="button" id="artifact-editor-titleize">Capitalize</button>
             </div>
           </div>
           {{/*  Comments  */}}

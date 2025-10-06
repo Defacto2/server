@@ -262,8 +262,11 @@ export function titleize(text) {
   text = text.replace(/(including\skeymaker)/gi, "");
   text = text.replace(/(including\skeygen)/gi, "");
   text = text.replace(/(keymaker\sonly)/gi, "");
+  text = text.replace(/(winnt2kxp)/gi, "");
+  text = text.replace(/(win9xme)/gi, "");
+  text = text.replace(/(\swinall)/gi, "");
+  text = text.replace(/(\s\s)/g, " ");
   text = text.trim();
-
   return text;
 }
 
