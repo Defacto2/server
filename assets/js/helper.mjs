@@ -256,6 +256,13 @@ export function titleize(text) {
   text = text.replace(/\[([^)]+)\]/g, function (match) {
     return match.toUpperCase();
   });
+  // remove problematic keywords
+  text = text.replace(/(including\spatch\sand\skeymaker)/gi, "");
+  text = text.replace(/(including\skeyfilemaker)/gi, "");
+  text = text.replace(/(including\skeymaker)/gi, "");
+  text = text.replace(/(including\skeygen)/gi, "");
+  text = text.replace(/(keymaker\sonly)/gi, "");
+  text = text.trim();
 
   return text;
 }
