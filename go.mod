@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.25.1 // latest: https://go.dev/dl/
+go 1.25.2 // latest: https://go.dev/dl/
 
 // INFO: Usage of the packages
 // Defacto2/ named packages are all internal but kept out of the main application.
@@ -28,7 +28,7 @@ require (
 	github.com/Defacto2/archive v1.1.3
 	github.com/Defacto2/helper v1.6.0
 	github.com/Defacto2/magicnumber v1.0.12
-	github.com/Defacto2/releaser v1.3.15
+	github.com/Defacto2/releaser v1.3.16
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
