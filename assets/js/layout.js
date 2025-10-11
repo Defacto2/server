@@ -14,6 +14,7 @@ import htmxEvents from "./layout-htmx.mjs";
   layoutKeys();
   pagination("paginationRange");
   toolTips();
+  fluidColumns();
 })();
 
 /**
@@ -34,4 +35,40 @@ function toolTips() {
   const tooltipList = [...tooltipTriggerList].map(
     (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
   );
+}
+
+/**
+  * Fluid columns between a fix number of fluid number of artifact columns.
+  */
+function fluidColumns() {
+  const fbn = "fluid-button"
+  const key = "fluid"
+  const btn = document.getElementById(fbn)
+  const box = "box-container"
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.querySelector('#fluid-artifacts');
+    if (el) {
+      const fluid = localStorage.getItem(key);
+      const bc = document.getElementById(box)
+      if (fluid === "1" && box) {
+        bc.classList.toggle('container-xxl');
+        bc.classList.toggle('container-fluid');
+        btn.textContent = 'Fix columns'
+      }
+    }
+  });
+  if (btn) {
+    btn.addEventListener('click', () => {
+      document.getElementById(box).classList.toggle('container-xxl');
+      document.getElementById(box).classList.toggle('container-fluid');
+      const item = localStorage.getItem(key);
+      if (item === "1") {
+        localStorage.removeItem(key)
+        document.getElementById(fbn).textContent = 'Unlock columns'
+      } else {
+        localStorage.setItem(key, "1");
+        document.getElementById(fbn).textContent = 'Fix columns'
+      }
+    });
+  }
 }

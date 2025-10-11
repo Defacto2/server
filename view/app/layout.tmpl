@@ -290,7 +290,7 @@
       </div>
     </nav>
   </div>
-  <div class="container-xxl">
+  <div class="container-xxl" id="box-container">
   {{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
   {{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
   {{- block "uploadermodal" . -}}{{ "<!-- Uploader modal content here -->" | safeHTML -}}{{end}}
@@ -309,6 +309,11 @@
 {{logoText $logo -}}
 </pre>
 </div>
+{{- end}}
+{{- if (.Pagination) }}
+  <div class="text-end">
+      <a href="#" id="fluid-button">Unlock columns</a>
+  </div>
 {{- end}}
 {{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
 <nav aria-label="Compact pagination navigation at the header">

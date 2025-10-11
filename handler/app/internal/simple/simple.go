@@ -612,7 +612,7 @@ func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTM
 		return template.HTML("<!-- no thumbnail found -->")
 	}
 	const style = "max-height:400px;"
-	class := "m-2 img-fluid rounded mx-auto d-block"
+	class := "card-img-bottom" // m-2 img-fluid rounded mx-auto d-block"
 	if !bottom {
 		class = "card-img-top"
 	}

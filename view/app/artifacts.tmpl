@@ -57,8 +57,8 @@
   {{- end}}
 </p>
 {{- end}}
-{{- $rowCols := "row-cols-1 row-cols-md-2 row-cols-lg-3"}}
-<div class="row justify-content-md-center {{$rowCols}} g-4 mt-1">
+{{- $rowCols := "d-grid gap-3 justify-content-center" }}
+<div id="fluid-artifacts" class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(auto, 400px));">
   {{- /*  Begin the iteration of the records  */}}
   {{- range .records }}
   {{- if eq true $editor}}{{- $counter = add $counter}}{{end}}
@@ -74,7 +74,7 @@
     {{- $noYears = true}}
 </div>
 <hr class="mt-5 mb-4"><p class="text-center lead"><small>These are files from an unknown year</small></p>
-<div class="row justify-content-md-center {{$rowCols}} g-4 mt-1">
+<div class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(auto, 400px));">
   {{- end}}
   {{- /*  Card for an individual artifact record  */}}
   {{- $attr := attribute .CreditText.String .CreditProgram.String .CreditIllustration.String .CreditAudio.String $scener}}
