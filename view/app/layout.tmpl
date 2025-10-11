@@ -310,11 +310,6 @@
 </pre>
 </div>
 {{- end}}
-{{- if (.Pagination) }}
-  <div class="text-end">
-      <a href="#" id="fluid-button">Unlock columns</a>
-  </div>
-{{- end}}
 {{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
 <nav aria-label="Compact pagination navigation at the header">
   <ul class="pagination pagination-sm justify-content-end mb-0">
@@ -329,10 +324,10 @@
 {{- end }}
 <main>
     {{- if ne $h1 ""}}
-    <h1 class="fs-1 fw-light">{{$h1}}{{if ne $h1sub ""}} <small>{{$h1sub}}</small>{{end}}</h1>
+    <h1 class="fs-1 fw-light container-xxl">{{$h1}}{{if ne $h1sub ""}} <small>{{$h1sub}}</small>{{end}}</h1>
     {{- end}}
     {{- if ne $lead ""}}
-    <p class="lead">
+    <p class="lead container-xxl">
       {{ $lead | safeHTML }}
     </p>
     {{- end}}

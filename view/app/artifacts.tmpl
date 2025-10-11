@@ -22,6 +22,7 @@
 {{- $editor := index .editor}}
 {{- $group := hasSuffix (index .title) " artifacts"}}
 {{- $breakline := false}}
+<div class="container-xxl">
 {{- if eq $cnt 0}}<p class="text-start lead"><small>There are no artifacts to display.</small></p>{{else -}}
 <p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if and (ne $years "0 - 0") (ne $years "the year 0")}} from {{$years | safeHTML}}{{end}}.</small></p>
 {{- end}}
@@ -30,7 +31,7 @@
   <ul class="list-group list-group-flush">{{$tidbit}}</ul>
 {{- end}}
 {{- if or $linkZoo $link16C $linkWeb}}
-<p class="text-start text-sm-center text-md-end lead">
+<div class="text-start text-sm-center text-md-end lead">
   {{-  if and (eq $bbs false) (eq $linkZoo true)}}
   <small><small>Production and member lists</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
   {{- else if and (eq $bbs true) (eq $linkZoo true)}}
@@ -55,7 +56,13 @@
       {{- end}}
     {{- end}}
   {{- end}}
-</p>
+</div>
+{{- end}}
+</div>
+{{- if eq $cnt 0}}{{else -}}
+<div class="text-end mb-2 d-none d-lg-block">
+  <a href="#" id="fluid-button">Unlock columns</a>
+</div>
 {{- end}}
 {{- $rowCols := "d-grid gap-3 justify-content-center" }}
 <div id="fluid-artifacts" class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(auto, 400px));">
