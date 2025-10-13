@@ -121,6 +121,7 @@ export function titleize(text) {
     "cga",
     "dos",
     "dox",
+    "dps",
     "dvd",
     "ega",
     "ehq",
@@ -235,9 +236,7 @@ export function titleize(text) {
   text = text.replace(/(Falcon at )/g, "Falcon AT ");
   text = text.replace(/(the Games)/g, "The Games");
   // Move "Unprotect for" to the suffix if it is the prefix
-  text = text.replace(/^(Unprotect for )(.+)/, "$2 unprotect");
-  text = text.replace(/^(Unprotecting )(.+)/, "$2 unprotect");
-  text = text.replace(/^(Unprotect )(.+)/, "$2 unprotect");
+  text = text.replace(/^(Unprotect for|Unprotecting|Unprotect)\s(.+)/, "$2 unprotect");
   // replace formatting quirks
   text = text.replace(/( : a)/g, " : A");
   text = text.replace(/( - a)/g, " - A");
@@ -247,8 +246,14 @@ export function titleize(text) {
   text = text.replace(/(3-d)/g, "3D");
   text = text.replace(/(Pfs-)/g, "PFS-");
   text = text.replace(/(Mean-18)/g, "Mean 18");
-  // replace v1.0 with v1, v2.0 with v2 etc.
-  text = text.replace(/(v\d+)\.0/g, "$1");
+  // replace verbose version numbers
+  text = versionNormalize(text)
+  // cleanup rubbish from copy/pasted directories
+  text = text.replace(/[\s]*(WORKING READ NFO|repack)\s*$/i, ' fix');
+  text = text.replace(/[\s]*(inc|incl|including)\s(keygen|keymaker|keyfilemaker)\s*$/i, '');
+  text = text.replace(/\bincluding\s(?:patch|patched)\s+and\s+key(?:gen|maker)\b/gi, '');
+  text = text.replace(/(keymaker\sonly)/gi, '');
+  text = text.replace(/\b(?:macosx|x86|x64|winnt2kxp|win9xme|multilang|winall|readnfo|proper)\b/gi, '')
   // remove temporary space between parentheses
   text = text.replace(/\( /g, "(");
   text = text.replace(/ \)/g, ")");
@@ -256,18 +261,32 @@ export function titleize(text) {
   text = text.replace(/\[([^)]+)\]/g, function (match) {
     return match.toUpperCase();
   });
-  // remove problematic keywords
-  text = text.replace(/(including\spatch\sand\skeymaker)/gi, "");
-  text = text.replace(/(including\skeyfilemaker)/gi, "");
-  text = text.replace(/(including\skeymaker)/gi, "");
-  text = text.replace(/(including\skeygen)/gi, "");
-  text = text.replace(/(keymaker\sonly)/gi, "");
-  text = text.replace(/(winnt2kxp)/gi, "");
-  text = text.replace(/(win9xme)/gi, "");
-  text = text.replace(/(\swinall)/gi, "");
   text = text.replace(/(\s\s)/g, " ");
   text = text.trim();
   return text;
+}
+
+export function versionNormalize(s) {
+  // This function is AI generated
+  return String(s)
+    // clean the leading v for version prefixes
+    .replace(/(?<sep>[\s\-_–—]|^)[V](?=\d)/g, (m, _, offset, str) => ' v')
+    // remove pointless versions: v1, v1.0, v1.0.x
+    .replace(/([\s\-_–—]|^)(v?1(?:\.0(?:\.\d+)?)?)(?=([\s\-_–—]|$))/gi, (m, sep, ver) => sep ? '' : '')
+    // remove patches: v1.2.3 becomes v1.2
+    .replace(/(?<=^|[\s\-_–—])v?(\d+)\.(\d+)\.(\d+)(?=$|[\s\-_–—\.,])/g, (m) => {
+      return m.replace(/v?/i, match => match.toLowerCase()).replace(/(\d+\.\d+)\.\d+/, '$1');
+    })
+    // remove pointless minors: v2.0 becomes v2
+    .replace(/(?<=^|[\s\-_–—])v?(\d+)\.0(?:\.0)?(?=$|[\s\-_–—\.,])/g, (m) => {
+      return m.replace(/v?/i, match => match ? 'v' : '').replace(/(\d+)\.0(?:\.0)?/, '$1');
+    })
+    // lowercase any leading V version prefixes
+    .replace(/(?<=^|[\s\-_–—])V(?=\d)/g, 'v')
+    // cleanup whitespacing
+    .replace(/[\s\-_–—]{2,}/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 
 // Matches a version string.
