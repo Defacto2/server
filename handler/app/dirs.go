@@ -661,7 +661,12 @@ func content(art *models.File, data map[string]any) map[string]any {
 	}
 	data["content"] = ""
 	data["contentDesc"] = ""
+	// NOTE: using strings.Split seems more memory friendly than using strings.SplitN()
 	items := strings.Split(art.FileZipContent.String, "\n")
+	const maxItems = 5_000
+	if len(items) > maxItems {
+		items = items[:maxItems]
+	}
 	items = slices.DeleteFunc(items, func(s string) bool {
 		return strings.TrimSpace(s) == ""
 	})
