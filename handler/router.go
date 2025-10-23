@@ -117,6 +117,7 @@ func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
+	e.FileFS("/license.xml", "public/text/license.xml", public)
 	e.FileFS("/osd.xml", "public/text/osd.xml", public)
 	e.FileFS("/robots.txt", "public/text/robots.txt", public)
 	e.FileFS("/js/wdosbox.wasm.js", "public/js/wdosbox.wasm", public) // this is required by `js-dos.js`
