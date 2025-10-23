@@ -170,6 +170,7 @@ export function titleize(text) {
     "ushq",
     "uss",
     "vga",
+    "vr",
     "whq",
     "ww1",
     "ww2",
@@ -251,11 +252,11 @@ export function titleize(text) {
   text = versionNormalize(text)
   text = text.replace(/\b([vV]?)(\d+)\.00\b/g, '$1$2'); // x.00
   // cleanup rubbish from copy/pasted directories
-  text = text.replace(/[\s]*(WORKING\s+READ\s+NFO|fix\s+only|repack|working)\s*$/i, ' fix');
-  text = text.replace(/[\s]*(inc|incl|including)\s(keygen|keymaker|keyfilemaker)\s*$/i, '');
+  text = text.replace(/[\s]*(WORKING\s+READ\s+NFO|fix\s+only|repack|working|fixed)\s*$/i, ' fix');
+  text = text.replace(/[\s]*(inc|incl|including)\s(keygen|keymaker|keyfilemaker|serial)\s*$/i, '');
   text = text.replace(/\bincluding\s(?:patch|patched)\s+and\s+key(?:gen|maker)\b/gi, '');
   text = text.replace(/\b(keymaker\s+only|read\s+nfo|mac\s+osx)\b/gi, '');
-  text = text.replace(/\b(?:macosx|x86|x64|winnt2kxp|win9xme|multilang|winall|readnfo|proper|standalone)\b/gi, '')
+  text = text.replace(/\b(?:macosx|x86|x64|winnt2kxp|win9xme|multilang|winall|readnfo|retail|proper|standalone)\b/gi, '')
   text = text.replace(/\b(?:rc[1-9])\b/gi, ' beta')
   // remove temporary space between parentheses
   text = text.replace(/\( /g, "(");
