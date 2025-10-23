@@ -1,3 +1,4 @@
+License: https://defacto2.net/license.xml
 # How to manually block common AI crawlers
 # https://help.raptive.com/hc/en-us/articles/25756415800987-How-to-manually-block-common-AI-crawlers
 User-agent: anthropic-ai
