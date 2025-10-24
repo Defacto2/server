@@ -148,7 +148,7 @@ func DownloadB(i any) template.HTML {
 // The preview is the directory where the preview images are stored.
 func ImageSample(unid string, preview dir.Directory) template.HTML {
 	ext, name, src := "", "", ""
-	exts := []string{avif, webp, png}
+	exts := []string{avif, webp, png, jpg}
 	for ext = range slices.Values(exts) {
 		name = preview.Join(unid + ext)
 		src = strings.Join([]string{config.StaticOriginal(), unid + ext}, "/")
@@ -198,6 +198,7 @@ func ImageXY(name string) [2]string {
 	zero := [2]string{"0", ""}
 	switch filepath.Ext(strings.ToLower(name)) {
 	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
+	// okay, do nothing
 	default:
 		st, err := os.Stat(name)
 		// open /mnt/volume_sfo3_01/assets/images000/ca6cf279-3758-4e1e-8e8b-f60871e877be.jpg: no such file or directoryB

@@ -474,7 +474,7 @@ func (dir Dirs) previews(unid string) map[string][2]string {
 	webp := filepath.Join(dir.Preview.Path(), unid+".webp")
 	const size = 4
 	matches := make(map[string][2]string, size)
-	matches["Jpeg"] = simple.ImageXY(jpg)
+	matches["JPG"] = simple.ImageXY(jpg)
 	matches["PNG"] = simple.ImageXY(png)
 	matches["WebP"] = simple.ImageXY(webp)
 	if st, err := os.Stat(avif); err == nil {
@@ -528,7 +528,8 @@ func (dir Dirs) missingAssets(art *models.File) string {
 	missing := []string{}
 	dl := helper.File(filepath.Join(dir.Download.Path(), uid))
 	pv := helper.File(filepath.Join(dir.Preview.Path(), uid+".png")) ||
-		helper.File(filepath.Join(dir.Preview.Path(), uid+".webp"))
+		helper.File(filepath.Join(dir.Preview.Path(), uid+".webp")) ||
+		helper.File(filepath.Join(dir.Preview.Path(), uid+".jpg"))
 	th := helper.File(filepath.Join(dir.Thumbnail.Path(), uid+".png")) ||
 		helper.File(filepath.Join(dir.Thumbnail.Path(), uid+".webp"))
 	if dl && pv && th {

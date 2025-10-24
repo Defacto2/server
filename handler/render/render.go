@@ -228,7 +228,8 @@ func NoScreenshot(art *models.File, previewPath string) bool {
 	unid := art.UUID.String
 	webp := strings.Join([]string{previewPath, unid + ".webp"}, "/")
 	png := strings.Join([]string{previewPath, unid + ".png"}, "/")
-	if helper.Stat(webp) || helper.Stat(png) {
+	jpg := strings.Join([]string{previewPath, unid + ".jpg"}, "/")
+	if helper.Stat(webp) || helper.Stat(png) || helper.Stat(jpg) {
 		return false
 	}
 	return true
