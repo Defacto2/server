@@ -50,6 +50,7 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 	if strings.Contains(magic, "utf-8") {
 		return unicode.UTF8
 	}
+	// Guess and determine CP437 or Latin1, etc
 	guess := helper.Determine(r)
 	return guess
 }
@@ -169,12 +170,13 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	// normalize the line feeds as often courier groups injecting their tags would break the layout
+	b = bytes.ReplaceAll(b, []byte("\r\r"), []byte("\n")) // this should be before \r\n
 	b = bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
 	b = bytes.ReplaceAll(b, []byte("\n\r"), []byte("\n"))
-	b = bytes.ReplaceAll(b, []byte("\r\r"), []byte("\n"))
-	b = bytes.ReplaceAll(b, []byte("\n\n"), []byte("\n"))
+	b = bytes.ReplaceAll(b, []byte("\n\n"), []byte("\n")) // this should be after all \r replacements
 	buf.Reset()
 	buf.Write(b)
+	fmt.Println(string(b))
 	return nil
 }
 
