@@ -186,7 +186,7 @@ func MapReleaser(db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapMagazine generates the sitemap that links to every magazine page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapMagzine(db *sql.DB, sl *slog.Logger) *Sitemap {
+func MapMagazine(db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map magazine"
 	ctx := context.Background()
 	var r model.Releasers

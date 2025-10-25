@@ -280,19 +280,31 @@ func (dir Dirs) Editor(sl *slog.Logger, art *models.File, data map[string]any) m
 }
 
 func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any, error) {
+	data["readmeSAUCE"] = false
+	data["sauceTitle"] = ""
+	data["sauceAuthor"] = ""
+	data["sauceGroup"] = ""
+	data["sauceDate"] = ""
 	if art == nil {
 		return data, nil
 	}
 	// NOTE: readme.Pool should not be used here, 20-July-25.
 	// Using the ReadPool (sync.Pool) function causes unusual text duplication behavior in production.
 	// After research, sync pooling is better used for small, fixed width data.
-	buf, ruf, err := readme.ReadPool(art, dir.Download, dir.Extra)
+	buf, ruf, rec, err := readme.ReadPool(art, dir.Download, dir.Extra)
 	if err != nil {
 		if errors.Is(err, render.ErrDownload) {
 			data["noDownload"] = true
 			return data, nil
 		}
 		return data, fmt.Errorf("dirs.embed read: %w", err)
+	}
+	if rec.ID == "SAUCE" {
+		data["readmeSAUCE"] = true
+		data["sauceTitle"] = rec.Title
+		data["sauceAuthor"] = rec.Author
+		data["sauceGroup"] = rec.Group
+		data["sauceDate"] = rec.Date.Time.Format("2006 Jan 02")
 	}
 	if buf == nil {
 		return data, nil

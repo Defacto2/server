@@ -19,6 +19,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/bengarrett/sauce"
 )
 
 // Suggest returns a suggested readme file name for the record.
@@ -138,10 +139,11 @@ func SortContent(content ...string) []string {
 //
 // The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
 // However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
-func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, error) {
+func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) { //nolint:cyclop,lll
 	const msg = "readme pool"
+	nosauce := sauce.Record{}
 	if art == nil {
-		return nil, nil, fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
+		return nil, nil, nosauce, fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
 	}
 	buf := new(bytes.Buffer)
 	diz := new(bytes.Buffer)
@@ -165,8 +167,9 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 		}
 	}
 	if diz.Len() == 0 && buf.Len() == 0 && ruf.Len() == 0 {
-		return nil, nil, errs
+		return nil, nil, nosauce, errs
 	}
+
 	// check the bytes to confirm they can be displayed as text
 	sign, err := magicnumber.Text(bytes.NewReader(buf.Bytes()))
 	if err != nil {
@@ -177,6 +180,11 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 	if sign == magicnumber.Unknown || sign == magicnumber.UTF16Text || sign == magicnumber.UTF32Text {
 		buf.Reset()
 	}
+	b := buf.Bytes()
+	rec := sauce.Record{}
+	if sauce.Contains(b) {
+		rec = sauce.Decode(b)
+	}
 	// reset buffer for any embedded ANSI cursor escape codes
 	if incompatible, err := IncompatibleANSI(bytes.NewReader(buf.Bytes())); err != nil {
 		errs = errors.Join(errs, fmt.Errorf("%s incompatible ansi: %w", msg, err))
@@ -185,7 +193,7 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 		buf.Reset()
 	}
 	// modify the buffer bytes for cleanup
-	b := trimBytes(buf.Bytes())
+	b = trimBytes(buf.Bytes())
 	if diz.Len() > 0 {
 		if diz.Len() == buf.Len() {
 			// for performance we want to use the bytes equal as a last resort.
@@ -203,7 +211,7 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 		buf.Reset()
 		diz.Reset()
 		ruf.Reset()
-		return nil, nil, errs
+		return nil, nil, rec, errs
 	}
 	if len(b) > 0 {
 		buf.Reset()
@@ -211,7 +219,7 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 	}
 	// defer bufferPool.Put(buf)
 	// defer bufferPool.Put(ruf)
-	return buf, ruf, nil
+	return buf, ruf, rec, nil
 }
 
 func trimBytes(b []byte) []byte {

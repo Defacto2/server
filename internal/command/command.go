@@ -47,6 +47,11 @@ type Dirs struct {
 	Extra     dir.Directory // Extra is the directory path for the extra files.
 }
 
+// NOTE: For unrar on linux, the installation cannot use the unrar-free package,
+// which is a poor substitute for the files this application needs to handle.
+// The unrar binary should return:
+// "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
+
 const (
 	Arc      = "arc"      // Arc is the arc decompression command.
 	Arj      = "arj"      // Arj is the arj decompression command.
@@ -58,14 +63,10 @@ const (
 	Magick   = "magick"   // Magick is the ImageMagick v7+ command.
 	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
 	Tar      = "tar"      // Tar is the tar decompression command.
-	// A note about unrar on linux, the installation cannot use the unrar-free package,
-	// which is a poor substitute for the files this application needs to handle.
-	// The unrar binary should return:
-	// "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
-	Unrar   = "unrar"   // Unrar is the rar decompression command.
-	Unzip   = "unzip"   // Unzip is the zip decompression command.
-	Zip7    = "7zz"     // Zip7 is the 7-Zip decompression command.
-	ZipInfo = "zipinfo" // ZipInfo is the zip information command.
+	Unrar    = "unrar"    // Unrar is the rar decompression command.
+	Unzip    = "unzip"    // Unzip is the zip decompression command.
+	Zip7     = "7zz"      // Zip7 is the 7-Zip decompression command.
+	ZipInfo  = "zipinfo"  // ZipInfo is the zip information command.
 )
 
 // Lookups returns a list of the execute command names used by the application.

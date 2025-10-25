@@ -177,7 +177,6 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	b = bytes.ReplaceAll(b, []byte(eof), []byte(""))      // there maybe more than one injected end-of-file char
 	buf.Reset()
 	buf.Write(b)
-	fmt.Println(string(b))
 	return nil
 }
 

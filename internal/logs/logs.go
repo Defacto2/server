@@ -1,4 +1,4 @@
-// Package out uses the slog and tint packages for the application logs.
+// Package logs uses the slog and tint packages for the application logs.
 // There are two logging modes, development and production.
 // The production mode saves the logs to file and automatically rotates
 // older files. While the development mode prints all feedback to stdout.

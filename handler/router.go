@@ -215,7 +215,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.Magazine, func(c echo.Context) error {
-		i := sitemap.MapMagzine(db, sl)
+		i := sitemap.MapMagazine(db, sl)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.BBS, func(c echo.Context) error {

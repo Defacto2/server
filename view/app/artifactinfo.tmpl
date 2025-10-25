@@ -33,6 +33,11 @@
 {{- $downloadText := print "Download &nbsp; " print $filesize}}
 {{- $fileEntry := index . "filentry"}}
 {{- $extraZip := index . "extraZip"}}
+{{- $sauce := index . "readmeSAUCE"}}
+{{- $sauceTitle := index . "sauceTitle"}}
+{{- $sauceAuthor := index . "sauceAuthor"}}
+{{- $sauceGroup := index . "sauceGroup"}}
+{{- $sauceDate := index . "sauceDate"}}
 {{- if $noDownload}}{{$downloadText = print `<span class="text-decoration-line-through">` print $downloadText print "</span>"}}{{end}}
             {{- /*  [FILENAME] Content  */}}
             {{- if $content}}
@@ -174,6 +179,28 @@
                         <th scope="row"><span class="text-nowrap">Text dimensions</span></th>
                         <td><span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{$readmeLines}}</span> x 
                             <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{$readmeRows}}</span></td>
+                    </tr>
+                    {{- end}}
+                    {{- if $sauce}}
+                    {{- if ne $sauceTitle ""}}
+                    <tr>
+                        <th scope="row"><span class="text-nowrap">Embed title</span></th>
+                        <td>{{$sauceTitle}}</td>
+                    </tr>
+                    {{- end}}{{ if ne $sauceAuthor ""}}
+                    <tr>
+                        <th scope="row"><span class="text-nowrap">Embed author</span></th>
+                        <td>{{$sauceAuthor}}</td>
+                    </tr>
+                    {{- end}}{{ if ne $sauceGroup ""}}
+                    <tr>
+                        <th scope="row"><span class="text-nowrap">Embed group</span></th>
+                        <td>{{$sauceGroup}}</td>
+                    </tr>
+                    {{- end}}
+                    <tr>
+                        <th scope="row"><span class="text-nowrap">Embed date</span></th>
+                        <td>{{$sauceDate}}</td>
                     </tr>
                     {{- end}}
                     <tr>

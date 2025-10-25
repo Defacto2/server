@@ -282,10 +282,12 @@ func Apps(c echo.Context, sl *slog.Logger) error {
 	}
 	const name = "apps"
 	const h1 = "Applications"
-	const lead = "Here are some software suggestions and Windows, Linux, macOS tools for running out-of-date programs and using legacy media formats."
+	const lead = "Here are some software suggestions and Windows, Linux, macOS tools for running out-of-date programs " +
+		"and using legacy media formats."
 	data := empty(c)
 	data["title"] = "Use current apps"
-	data["description"] = "Software and application suggestions for using the historic artifacts and file downloads on modern systems."
+	data["description"] = "Software and application suggestions for using the historic artifacts and " +
+		"file downloads on modern systems."
 	data["logo"] = "Software suggestions"
 	data["h1"] = h1
 	data["lead"] = lead
@@ -2058,7 +2060,8 @@ func TheScene(c echo.Context, sl *slog.Logger) error {
 	const name = "thescene"
 	const h1 = "The Scene"
 	const lead = "The Scene is broad church of people and online communities that is collectively grouped;" +
-		" it is subculture of niche activities using personal computers, where the participants share creations and exchange ideas."
+		" it is subculture of niche activities using personal computers, " +
+		"where the participants share creations and exchange ideas."
 	data := empty(c)
 	data["description"] = "A short introduction on The Scene, the online subcultures and its underground origins."
 	data["logo"] = "The underground"

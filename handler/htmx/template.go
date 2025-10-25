@@ -111,27 +111,28 @@ func TemplateFuncMap() template.FuncMap {
 }
 
 func SearchResult(index any) template.HTML {
-	ind := -1
+	ind := 0 //nolint:wastedassign
 	switch v := index.(type) {
 	case int:
 		ind = v
 	default:
 		return ""
 	}
-	const max = 13
-	if ind < 0 || ind > max {
+	const limit = 13
+	if ind < 0 || ind > limit {
 		return ""
 	}
+	const i9, i10, i11, i12, i13 = 9, 10, 11, 12, 13
 	switch ind {
-	case 9:
+	case i9:
 		return "0"
-	case 10:
+	case i10:
 		return "-"
-	case 11:
+	case i11:
 		return "="
-	case 12:
+	case i12:
 		return "["
-	case 13:
+	case i13:
 		return "]"
 	default:
 		return template.HTML(strconv.Itoa(ind + 1))

@@ -889,7 +889,6 @@ func (args *Args) JpegPhoto() {
 	// 9,234B with no gaussianBlur config and quality at 90.
 	const jpegQuality = "75"
 	const gaussian = false
-	fmt.Println("doing the photo thing")
 	// Strip the image of any profiles and comments.
 	const strip = "-strip"
 	*args = append(*args, strip)
@@ -903,8 +902,8 @@ func (args *Args) JpegPhoto() {
 	}
 	// NOTE: Oct-25, this has been disabled as it breaks certain images causing them to be far too.
 	// Set the image colorspace.
-	//colorspace := []string{"-colorspace", "RGB"}
-	//*args = append(*args, colorspace...)
+	// colorspace := []string{"-colorspace", "RGB"}
+	// *args = append(*args, colorspace...)
 }
 
 // PortablePixel appends the command line arguments for the convert command to transform an image into args PNG image.
@@ -954,8 +953,8 @@ func (args *Args) Thumbnail() {
 func (args *Args) CWebp() {
 	// Auto-filter will spend additional time optimizing the
 	// filtering strength to reach args well-balanced quality.
-	const af = "-lossless" //"-af"
-	*args = append(*args, af)
+	const ll = "-lossless"
+	*args = append(*args, ll)
 	// Preserve RGB values in transparent area. The default is off, to help compressibility.
 	const exact = "-exact"
 	*args = append(*args, exact)
