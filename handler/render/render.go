@@ -167,13 +167,14 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 		return fmt.Errorf("%s copy %w: %q", msg, err, diz)
 	}
 	b := buf.Bytes()
-	const nul = 0x00
+	const nul, eof = 0x00, "\x1a"
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	// normalize the line feeds as often courier groups injecting their tags would break the layout
 	b = bytes.ReplaceAll(b, []byte("\r\r"), []byte("\n")) // this should be before \r\n
 	b = bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
 	b = bytes.ReplaceAll(b, []byte("\n\r"), []byte("\n"))
 	b = bytes.ReplaceAll(b, []byte("\n\n"), []byte("\n")) // this should be after all \r replacements
+	b = bytes.ReplaceAll(b, []byte(eof), []byte(""))      // there maybe more than one injected end-of-file char
 	buf.Reset()
 	buf.Write(b)
 	fmt.Println(string(b))
