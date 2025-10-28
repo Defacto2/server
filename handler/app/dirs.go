@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"html/template"
 	_ "image/gif"  // gif format decoder
 	_ "image/jpeg" // jpeg format decoder
 	_ "image/png"  // png format decoder
@@ -280,6 +281,7 @@ func (dir Dirs) Editor(sl *slog.Logger, art *models.File, data map[string]any) m
 }
 
 func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any, error) {
+	data["ansiMe"] = ""
 	data["readmeSAUCE"] = false
 	data["sauceTitle"] = ""
 	data["sauceAuthor"] = ""
@@ -309,6 +311,12 @@ func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any
 	if buf == nil {
 		return data, nil
 	}
+	ansimode := ruf == nil
+	if ansimode {
+		data["ansiMe"] = template.HTML(buf.String())
+		return data, nil
+	}
+
 	d, err := embedText(art, data, buf.Bytes()...)
 	if err != nil {
 		return data, fmt.Errorf("dirs.embed text: %w", err)

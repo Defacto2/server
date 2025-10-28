@@ -19,7 +19,9 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/bengarrett/ansibump"
 	"github.com/bengarrett/sauce"
+	"golang.org/x/text/encoding/charmap"
 )
 
 // Suggest returns a suggested readme file name for the record.
@@ -185,12 +187,25 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 	if sauce.Contains(b) {
 		rec = sauce.Decode(b)
 	}
-	// reset buffer for any embedded ANSI cursor escape codes
-	if incompatible, err := IncompatibleANSI(bytes.NewReader(buf.Bytes())); err != nil {
+	// text with ANSI escape codes use a custom readme template
+	if match, err := MatchANSI(bytes.NewReader(buf.Bytes())); err != nil {
 		errs = errors.Join(errs, fmt.Errorf("%s incompatible ansi: %w", msg, err))
 		buf.Reset()
-	} else if incompatible {
+	} else if match {
+		const width = 80 // TODO: add SAUCE width
+		ansi, err := ansibump.Buffer(
+			bytes.NewReader(buf.Bytes()), width, false,
+			ansibump.CGA16,
+			charmap.CodePage437)
+		if err != nil {
+			errs = errors.Join(errs, err)
+			return nil, nil, rec, errs
+		}
+		// for now we reset all other buffers
 		buf.Reset()
+		diz.Reset()
+		ruf.Reset()
+		return ansi, nil, rec, nil
 	}
 	// modify the buffer bytes for cleanup
 	b = trimBytes(buf.Bytes())
@@ -254,15 +269,16 @@ func RemoveCtrls(b []byte) []byte {
 	return b
 }
 
-// IncompatibleANSI scans for HTML incompatible, ANSI cursor escape codes in the reader.
-func IncompatibleANSI(r io.Reader) (bool, error) {
-	const msg = "incompatible ansi reader"
+// MatchANSI scans for HTML incompatible, ANSI cursor escape codes in the reader.
+func MatchANSI(r io.Reader) (bool, error) {
+	const msg = "match ansi reader"
 	if r == nil {
 		return false, nil
 	}
-	mcur, mpos := moveCursor(), moveCursorToPos()
+	mcur, mpos, sgr := moveCursor(), moveCursorToPos(), sgrWithoutReset()
 	reMoveCursor := regexp.MustCompile(mcur)
 	reMoveCursorToPos := regexp.MustCompile(mpos)
+	reSGR := regexp.MustCompile(sgr)
 
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
@@ -270,6 +286,9 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 			return true, nil
 		}
 		if reMoveCursorToPos.Match(scanner.Bytes()) {
+			return true, nil
+		}
+		if reSGR.Match(scanner.Bytes()) {
 			return true, nil
 		}
 	}
@@ -292,6 +311,9 @@ func IncompatibleANSI(r io.Reader) (bool, error) {
 			return true, nil
 		}
 		if reMoveCursorToPos.Match(scanner.Bytes()) {
+			return true, nil
+		}
+		if reSGR.Match(scanner.Bytes()) {
 			return true, nil
 		}
 	}
@@ -319,4 +341,8 @@ func moveCursor() string {
 //   - match "H" cursor position or "f" cursor position
 func moveCursorToPos() string {
 	return `\x1b\[\d+;\d+[Hf]`
+}
+
+func sgrWithoutReset() string {
+	return `\x1b\[`
 }

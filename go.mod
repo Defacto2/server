@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.25.2 // latest: https://go.dev/dl/
+go 1.25.3 // latest: https://go.dev/dl/
 
 // INFO: Usage of the packages
 // Defacto2/ named packages are all internal but kept out of the main application.
@@ -32,6 +32,7 @@ require (
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
+	github.com/bengarrett/ansibump v1.0.0
 	github.com/bengarrett/bbs v1.0.6
 	github.com/bengarrett/sauce v1.2.4
 	github.com/caarlos0/env/v11 v11.3.1
@@ -52,19 +53,20 @@ require (
 	github.com/samber/slog-multi v1.5.0
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
-	golang.org/x/image v0.31.0
+	golang.org/x/image v0.32.0
 	golang.org/x/text v0.30.0
-	google.golang.org/api v0.251.0
+	google.golang.org/api v0.253.0
 )
 
 // Uncomment to use the local repository
 //	replace github.com/Defacto2/helper => ../helper
 //	replace github.com/Defacto2/magicnumber => ../magicnumber
 //	replace github.com/Defacto2/releaser => ../releaser
+// replace github.com/bengarrett/ansibump => ../ansibump
 //	replace github.com/bengarrett/sauce => ../sauce
 
 require (
-	cloud.google.com/go/auth v0.16.5 // indirect
+	cloud.google.com/go/auth v0.17.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
@@ -121,20 +123,20 @@ require (
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.uber.org/nilaway v0.0.0-20251021214447-34f56b8c16b9 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/mod v0.28.0 // indirect
-	golang.org/x/net v0.44.0 // indirect
-	golang.org/x/oauth2 v0.31.0 // indirect
-	golang.org/x/pkgsite v0.0.0-20250911091732-133263251ca1 // indirect
+	golang.org/x/crypto v0.43.0 // indirect
+	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/net v0.46.0 // indirect
+	golang.org/x/oauth2 v0.32.0 // indirect
+	golang.org/x/pkgsite v0.0.0-20251024141022-4bd6c634f204 // indirect
 	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/time v0.13.0 // indirect
-	golang.org/x/tools v0.37.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/time v0.14.0 // indirect
+	golang.org/x/tools v0.38.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250929231259-57b25ae835d4 // indirect
-	google.golang.org/grpc v1.75.1 // indirect
-	google.golang.org/protobuf v1.36.9 // indirect
-	mvdan.cc/gofumpt v0.9.1 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251014184007-4626949a642f // indirect
+	google.golang.org/grpc v1.76.0 // indirect
+	google.golang.org/protobuf v1.36.10 // indirect
+	mvdan.cc/gofumpt v0.9.2 // indirect
 	rsc.io/markdown v0.0.0-20241212154241-6bf72452917f // indirect
 )
 

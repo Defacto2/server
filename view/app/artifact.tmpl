@@ -16,6 +16,7 @@
 {{- $readmeC := index . "readmeCP437" | safeBBS}}
 {{- $readmeCS := index . "readmeCP437Cls"}}
 {{- $readmeU := index . "readmeUTF8" | safeBBS}}
+{{- $ansime := index . "ansiMe" }}
 {{- $alertURL := index . "alertURL"}}
 {{- $noDownload := index . "noDownload"}}
 {{- $readmeName := index . "readmeName"}}
@@ -71,6 +72,18 @@
             </div>
         </div>
         {{- end}}
+        {{- if $ansime -}}
+        <div class="col-12">
+            <h6 class="fs-6 fw-lighter">ANSI textfile content</small></h6>
+            {{- /*
+            <div class="m-3">
+                <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-readme-body" 
+                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button>
+            </div>
+            */}}
+            <pre id="ansiMe" class="font-dos {{$readmeCls}}">{{$ansime}}</pre>
+        </div>
+        {{- end -}}
         {{- if or ($readmeL) ($readmeC)}}
         <div class="col-12">
         {{- if not $screenNone}}
