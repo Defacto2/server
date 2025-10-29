@@ -62,8 +62,7 @@ require (
 //	replace github.com/Defacto2/helper => ../helper
 //	replace github.com/Defacto2/magicnumber => ../magicnumber
 //	replace github.com/Defacto2/releaser => ../releaser
-replace github.com/bengarrett/ansibump => ../ansibump
-
+//	replace github.com/bengarrett/ansibump => ../ansibump
 //	replace github.com/bengarrett/sauce => ../sauce
 
 require (
