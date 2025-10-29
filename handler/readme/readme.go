@@ -193,10 +193,13 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 		buf.Reset()
 	} else if match {
 		const width = 80 // TODO: add SAUCE width
+		charset := charmap.CodePage437
+		platform := strings.TrimSpace(strings.ToLower(art.Platform.String))
+		if platform == "textamiga" {
+			charset = charmap.ISO8859_1
+		}
 		ansi, err := ansibump.Buffer(
-			bytes.NewReader(buf.Bytes()), width, false,
-			ansibump.CGA16,
-			charmap.CodePage437)
+			bytes.NewReader(buf.Bytes()), width, false, ansibump.CGA16, charset)
 		if err != nil {
 			errs = errors.Join(errs, err)
 			return nil, nil, rec, errs

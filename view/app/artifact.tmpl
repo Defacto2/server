@@ -73,6 +73,8 @@
         </div>
         {{- end}}
         {{- if $ansime -}}
+        {{ $ansifont := "font-dos" }}
+        {{- if eq (index . "platform") "textamiga" }}{{ $ansifont = "font-amiga" }}{{end}}
         <div class="col-12">
             <h6 class="fs-6 fw-lighter">ANSI textfile content</small></h6>
             {{- /*
@@ -81,7 +83,7 @@
                     data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button>
             </div>
             */}}
-            <pre id="ansiMe" class="font-dos {{$readmeCls}}">{{$ansime}}</pre>
+            <pre id="ansiMe" class="{{$ansifont}} {{$readmeCls}}">{{$ansime}}</pre>
         </div>
         {{- end -}}
         {{- if or ($readmeL) ($readmeC)}}
