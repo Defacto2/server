@@ -94,7 +94,7 @@ func (m *ListEntry) Column1(htm string) string {
 	case m.Images:
 		htm += previewcopy(m.UniqueID, m.name)
 	case m.Texts:
-		htm += readmepreview(m.UniqueID, m.name, m.platform)
+		htm += readmepreview(m.UniqueID, m.name, m.platform, m.Signature)
 	default:
 		htm += blank
 	}
@@ -162,9 +162,10 @@ func previewcopy(uniqueID, name string) string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }
 
-func readmepreview(uniqueID, name, platform string) string {
+func readmepreview(uniqueID, name, platform, sign string) string {
 	uri := "preview"
-	if strings.EqualFold(platform, tags.TextAmiga.String()) {
+	if strings.EqualFold(platform, tags.TextAmiga.String()) &&
+		!strings.Contains(strings.ToLower(sign), "ansi") {
 		uri = "preview-amiga"
 	}
 	// the "#file-editor" href anchor will relaunch the File editor dialog.
