@@ -473,6 +473,8 @@ func Groups() Tibits { //nolint:maintidx
 		372: []URI{"impact"},
 		373: []URI{"emporio"},
 		374: []URI{"vengeance"},
+		375: []URI{"outlaws-exchange"},
+		376: []URI{"spirit-of-illusion"},
 	}
 }
 
