@@ -70,7 +70,7 @@
   {{- range .records }}
   {{- if eq true $editor}}{{- $counter = add $counter}}{{end}}
   {{- $jsdos := jsdosUsage .Filename.String .Platform.String}}
-  {{- $filename := .Filename.String}}
+  {{- $filename := mask .Filename.String}}
   {{- if eq $filename ""}}{{$filename = "no filename provided"}}{{end}}
   {{- $forApproval := and (eq .Deletedat.IsZero false) (eq .Deletedby.String "")}}
   {{- if and (ne $forApproval true) (eq $unYears true) (eq $noYears false) (eq .DateIssuedYear.Int16 0)}}

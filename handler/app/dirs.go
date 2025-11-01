@@ -104,7 +104,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	data["h1"] = h1
 	data["ogtitle"] = h1
 	data["lead"] = firstLead(art)
-	data["comment"] = filerecord.Comment(art)
+	data["comment"] = string(helper.MaskTerm([]byte(filerecord.Comment(art))...))
 	data = dir.filemetadata(art, data)
 	if !readonly {
 		platform := filerecord.TagProgram(art)
@@ -826,7 +826,7 @@ func firstLead(art *models.File) string {
 		return ""
 	}
 	fname := art.Filename.String
-	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", fname)
+	span := fmt.Sprintf("<span class=\"font-monospace fs-6 fw-light\">%s</span> ", helper.MaskTerm([]byte(fname)...))
 	return fmt.Sprintf("%s<br>%s", releasersHrefs(art), span)
 }
 

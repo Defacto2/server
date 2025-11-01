@@ -162,6 +162,7 @@ func (t *Templ) Funcs() template.FuncMap {
 		"linkWiki":           LinkWiki,
 		"linkWikiTip":        LinkWikiTip,
 		"logoText":           LogoText,
+		"mask":               Mask,
 		"jsdosUsage":         filerecord.JsdosUsage,
 		"recordInfoOSTag":    TagWithOS,
 		"recordLinkPreviews": LinkPreviews,
@@ -636,4 +637,8 @@ func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 		}
 	}
 	return simple.Releasers(prime, second, magazine)
+}
+
+func Mask(s string) string {
+	return string(helper.MaskTerm([]byte(s)...))
 }

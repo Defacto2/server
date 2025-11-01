@@ -175,6 +175,7 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	b = bytes.ReplaceAll(b, []byte("\n\r"), []byte("\n"))
 	b = bytes.ReplaceAll(b, []byte("\n\n"), []byte("\n")) // this should be after all \r replacements
 	b = bytes.ReplaceAll(b, []byte(eof), []byte(""))      // there maybe more than one injected end-of-file char
+	b = helper.MaskTerm(b...)
 	buf.Reset()
 	buf.Write(b)
 	return nil

@@ -26,7 +26,7 @@ go 1.25.3 // latest: https://go.dev/dl/
 //
 require (
 	github.com/Defacto2/archive v1.1.3
-	github.com/Defacto2/helper v1.6.2
+	github.com/Defacto2/helper v1.6.4
 	github.com/Defacto2/magicnumber v1.0.13
 	github.com/Defacto2/releaser v1.3.16
 	github.com/aarondl/null/v8 v8.1.3
@@ -105,7 +105,6 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rosedblabs/wal v1.3.8 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
@@ -127,7 +126,7 @@ require (
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/net v0.46.0 // indirect
 	golang.org/x/oauth2 v0.32.0 // indirect
-	golang.org/x/pkgsite v0.0.0-20251028184029-917c7a43f8b9 // indirect
+	golang.org/x/pkgsite v0.0.0-20251029141209-950d5ec0f5e9 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
