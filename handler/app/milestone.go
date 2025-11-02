@@ -1011,7 +1011,12 @@ func Collection() Milestones {
 			Lead: "So far, How to WIN at KING's QUEST from The Illinois Pirates", LinkTitle: "and view the file", Link: "/f/bc30a5b",
 			Content: "<p><strong>The Illinois Pirates</strong> walk-through for the PC exclusive game King's Quest released the earliest known PC <strong>ASCII art</strong> or Codepage 437 art. " +
 				"The ASCII text logo uses block and line art characters that were exclusive to the IBM PC platform.</p>" +
-				"<pre> The    ███████  █    █    ▀ ██    █ ██████ ▀ █████<br>" +
+				`<pre class="font-dos reader reader-invert border border-black rounded-1 p-1">` +
+				"<br>" +
+				`/////////// How to WIN at KING's QUEST \\\\\\\\\\\\\\\<br>` +
+				`\\\\\\\\\\\    on the IBM PC/PCjr      ///////////////<br><br>` +
+				"                             as tabulated by<br>" +
+				" The    ███████  █    █    ▀ ██    █ ██████ ▀ █████<br>" +
 				"           █     █    █    █ █ █   █ █    █ █ █<br>" +
 				"           █     █    █    █ █  █  █ █    █ █ █████<br>" +
 				"           █     █    █    █ █   █ █ █    █ █     █<br>" +
@@ -1023,25 +1028,48 @@ func Collection() Milestones {
 				"           ║      ║ ║    ║   ║   ║   ║     ╚═════╗<br>" +
 				"           ║      ║ ║    ╠═══╣   ║   ╠═          ║<br>" +
 				"           ║      ║ ║    ║   ║   ║   ║     │     ║<br>" +
-				"                                     ╚═══  ╘═════╝</pre>",
-			Picture: Picture{
-				Title: "How to WIN at KING's QUEST on the IBM PC/PCjr as tabulated by The Illinois Pirates",
-				Alt:   "A screenshot of The Illinois Pirates text logo",
-				Png:   "bc30a5b.png",
-			},
+				"                                     ╚═══  ╘═════╝<br>" +
+				"</pre>",
+			// Picture: Picture{
+			// 	Title: "How to WIN at KING's QUEST on the IBM PC/PCjr as tabulated by The Illinois Pirates",
+			// 	Alt:   "A screenshot of The Illinois Pirates text logo",
+			// 	Png:   "bc30a5b.png",
+			// },
 		},
 		{
 			Title: "Earliest ANSI ad", Year: 1985, Month: 8, Highlight: false,
 			Lead: "So far, The Game Gallery", LinkTitle: "and view the file",
 			Link: "/f/ba2bcbb",
 			Content: "<p>The earliest <strong>ANSI ad</strong>vertisement is for the Manhattan based BBS, <strong>The&nbsp;Game&nbsp;Gallery</strong>&nbsp;(+212-799-6987). ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems.</p>" +
-				"<p>The output uses ANSI escape codes, a standard Digital Equipment Corporation (DEC) pioneered for its minicomputer <a href=\"https://vt100.net/dec/vt_history\">video terminals</a>. Later, it was used on IBM and other PCs using software drivers and video <a href=\"https://vt100.net/emu/\">terminal emulators</a>.</p>",
-			Picture: Picture{
-				Title: "The Game Gallery",
-				Alt:   "The Game Gallery ad screenshot",
-				Webp:  "ba2bcbb.webp",
-				Png:   "ba2bcbb.png",
-			},
+				"<p>The output uses ANSI escape codes, a standard Digital Equipment Corporation (DEC) pioneered for its minicomputer <a href=\"https://vt100.net/dec/vt_history\">video terminals</a>. Later, it was used on IBM and other PCs using software drivers and video <a href=\"https://vt100.net/emu/\">terminal emulators</a>.</p>" +
+				`<pre class="font-dos reader reader-invert border border-black rounded-1 p-1"><div style="color:#aaa;background-color:#000;">` +
+				`<span style="color:#aaa;">         </span><span style="color:#fff;background-color:#00a;">Hi score </span><span style="color:#fff;background-color:#a00;">212-799-6987</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">╔════════════════════════════════════╗</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙ █ ∙  ██ THE GAME GALLERY∙ ██ ∙ █ ■║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║ ∙██ ∙  █  ∙∙∙ 300 1200 ∙∙∙ ███∙ █ .║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙ ██ ∙∙∙∙∙∙∙∙∙∙ ██████ . ███ ∙ ∙█ .║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙ ███ █∙ ██████ ∙∙∙ ██ ...∙∙∙ ███ .║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙ █∙∙█∙∙  █∙∙ ████ ∙ ∙ ██████  </span><span style="color:#fff;background-color:#0aa;"></span><span style="color:#fff;background-color:#00a;"> .║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║</span><span style="color:#aaa;">               </span><span style="color:#fff;background-color:#00a;">......</span><span style="color:#fff;background-color:#a00;"></span><span style="color:#fff;background-color:#00a;">.............║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙   ∙∙∙∙∙ ∙ .███ ███.█.... █ .███ .║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙█∙    ████ ∙.█  </span><span style="color:#ff5;background-color:#a0a;"></span><span style="color:#fff;background-color:#00a;">  █.███████ .█ ...║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙██     ███∙ .█  </span><span style="color:#fff;background-color:#aaa;"></span><span style="color:#fff;background-color:#00a;"> </span><span style="color:#fff;background-color:#000;"></span><span style="color:#fff;background-color:#00a;">█.█ .......█████║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙███     ██∙∙.███████.....█ .█......║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙∙ ██  ∙∙∙∙.........█████ .█. ████║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙∙∙ █    █∙███████████ ....█......║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙█  ███</span><span style="color:#aaa;">                </span><span style="color:#fff;background-color:#00a;">█ ..... ███.║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙█∙∙∙∙∙∙     300 1200    ...██... █.║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║ ∙ ██ ██   212-799-6987  █████. ███.║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙∙ █∙∙  24HRS WEEKDAYS   .......■.║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">╚════════════════════════════════════╝</span><br>` +
+				`<span style="color:#aaa;">        </span><span style="color:#fff;background-color:#00a;">For those who use the computer for</span><br>` +
+				`<span style="color:#aaa;">        </span><span style="color:#fff;background-color:#00a;">recreation. </span><span style="color:#fff;background-color:#a00;">THE GAME</span><span style="color:#fff;background-color:#00a;"> </span><span style="color:#fff;background-color:#a00;">GALLERY.</span></div></pre>`,
+			// Picture: Picture{
+			// 	Title: "The Game Gallery",
+			// 	Alt:   "The Game Gallery ad screenshot",
+			// 	Webp:  "ba2bcbb.webp",
+			// 	Png:   "ba2bcbb.png",
+			// },
 		},
 		{
 			Title: "Razor 1911 is named", Year: 1985, Month: 11,
@@ -1300,21 +1328,27 @@ func Collection() Milestones {
 			Lead: "So far, Swashbucklers II", LinkTitle: "the file",
 			Link: "/f/b844ef",
 			Content: "<p>While novel in 1988, <strong>BBS adverts</strong> like this <code>README.!!!</code> text file would plague releases as spam in the years to come, " +
-				"with boards injecting numerous texts and tagging the releases with their names, often under the guise of documentation or readme texts.</p>" +
-				"<pre>Another Quality Ware Downloaded off:<br><br>" +
+				"with boards injecting numerous texts and tagging the releases with their names, often under the guise of documentation or readme texts.<br><br></p>" +
+				`<pre class="font-dos reader reader-invert border border-black rounded-1 p-1">` +
+				"Another Quality Ware Downloaded off:<br><br>" +
 				"           S W A S H B U C K L E R S   I I<br>" +
 				"                 Home of PTL/CPI<br>" +
 				"                 100 megs Online!<br>" +
 				"             85 megs Offline, Request!<br>" +
 				"              All PTL/CPI Cracks FREE<br>" +
 				"    All other Major Groups cracks Always Online<br>" +
-				"       Ask your local Sysop for the number..</pre>",
-			Picture: Picture{
-				Title: "Swashbucklers II",
-				Alt:   "Swashbucklers II text advert screenshot",
-				Webp:  "b844ef.webp",
-				Png:   "b844ef.png",
-			},
+				"       Ask your local Sysop for the number..<br>" +
+				"We are a private system, but do accept the occasional new GOOD user. If " +
+				"you have something to offer, call us. Once on, you won't have to call any " +
+				"further.<br><br>" +
+				"If all you want are the Latest warez FIRST call us we have them, or " +
+				"we've just cracked them.<br></pre>",
+			// Picture: Picture{
+			// 	Title: "Swashbucklers II",
+			// 	Alt:   "Swashbucklers II text advert screenshot",
+			// 	Webp:  "b844ef.webp",
+			// 	Png:   "b844ef.png",
+			// },
 		},
 		// {
 		// 	Title: "Earliest, proto NFO text", Year: 1988, Month: 7, Day: 30, Highlight: false,
