@@ -760,37 +760,17 @@ func Collection() Milestones {
 		},
 		{
 			Title: "The Berlin Bear controversy", Year: 1982,
-			Lead: "Commodore 64, or Apple and Atari",
-			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> " +
-				"Berlin Cracking Service image <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> of the <a href=\"https://www.atlantis-prophecy.org/recollection/gfx/BCS.png\">Berlin&nbsp;Bear</a> was the first cracktro. " +
-				"But this always seemed far-fetched, and it likely originates from 1984. Not 1982, " +
-				"a fabricated year that could originate from the &#169;1982 notice <a href=\"https://www.c64-wiki.com/wiki/File:C64_PCBA.jpg\">printed</a> on the Commodore 64 mainboards.</p>" +
-				// us and japan
-				"<p>Even taking the claim at face value, releasing in late 1982 and selling at $595<sup><a href=\"#berlin-bear-controversy-fn9\">[9]</a></sup>, the Commodore&nbsp;64 was a pricey machine that <a href=\"https://www.power8bit.com/assets/images/screen-shot-2023-03-27-at-5.27.40-pm-508x698.webp\">targeted</a> business users in the USA and Japan. " +
-				"Due to last-minute design changes and poor quality assurance issues, the machine had limited distribution and software that year<sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup>. " +
-				// germany and uk
-				"By all accounts, the German Commodore Braunschweig factory didn't have the European PAL Commodore&nbsp;64 machines " +
-				"ready for retail <a href=\"https://www.zock.com/8-Bit/D_C64.HTML\">until&nbsp;1983</a>.</p>" +
-				// C64 ads and quotes
-				"<p>For those PAL machines, advertising in the UK first hit Commodore&nbsp;Computing<sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup> in February 1983, " +
-				"and throughout that year focused on developers and the <a href=\"https://static.nosher.net/archives/computers/images/comm64_comci_1983-02-m.jpg\">business&nbsp;market</a>" +
-				"<sup><a href=\"#berlin-bear-controversy-fn6\">[6]</a></sup>. " +
-				"<q>Interface adaptors will allow the use of a complete range of hardware peripherals including disk units, plotter, dot matrix and daisy wheel printers, Prestel communications, networking and much, much more.</q> " +
-				"<q>A complete range of business software including word processing, information handling, financial modelling, accounting and many more specific application packages will be available.</q></p>" + //nolint:misspell
-				// west berlin kids
-				"<p>It is unlikely that several kids from West-Berlin had early access to the European PAL Commodore&nbsp;64 at the end 1982. " +
-				"It is more believable that the kids formed these <q>cracking</q> groups, at the earliest around Christmas 1983, but more likely in 1984. " +
-				"After the machine dropped massively in price, changed its marketing towards consumer sales, and disk&nbsp;copy-protected games became readily available.</p>" +
-				// citations
-				"</p><strong>Some of the confusing <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">citations</a></strong>" +
-				ul0 +
-				"<li><q>The first intro was a picture of the Berlin Bear from the city flag and was released by <abbr title=\"Berlin Cracking Service\">BCS</abbr> in <strong>1982</strong>. " +
-				"It was a kind of co-production by several people...</q></li>" +
-				"<li><q>Some of our close friends/posse in Berlin started their C64 scene-careers nearly at the same time. " +
-				"I'm speaking of Cracking Force Berlin (CFB)... and&nbsp;Berlin&nbsp;Cracking&nbsp;Service&nbsp;(BCS).</q> <sup><a href=\"#berlin-bear-controversy-fn7\">[7]</a></sup></li>" +
-				"<li><q>We were primarily cracking games from 1982 until late 1987.</q> <sup><a href=\"#berlin-bear-controversy-fn8\">[8]</a></sup></li>" +
-				"<li><q>Copying games wasn't really illegal in most countries back in 1982 or 1983. ... Most early releases weren't <q>cracked</q>, they were just released or spread.</q></li>" +
-				ul1 +
+			Lead: "Commodore 64",
+			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> Berlin Cracking Service image of the Berlin Bear" +
+				" <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a></sup> " +
+				"was the first ever intro or cracktro. " +
+				"However, this conveniently ignores the crack screens found on the Apple II from 1980 and 1981. The claim was always ridiculous and the Berlin Bear image likely originates from 1984 <sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> or later.</p>" +
+				"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
+				", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
+				"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
+				"<p>However, some \"cracking\" groups, such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\", claim to have appeared on the platform in 1982 and operated in isolated West Berlin. " +
+				"Why would German kids in 1982 (or even 1983) adopt a business computer, import a concept discovered in the USA, and band together to brand themselves as cracking groups? " +
+				"There were no machines in Europe, nor were there floppy disk drives, so there was no software with disk copy protections to crack.</p>" +
 				sect0 +
 				"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
 				"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
@@ -798,15 +778,19 @@ func Collection() Milestones {
 				"<a href=\"https://m.pouet.net/prod.php?which=17555\">conversation on Pouët</a>, and " +
 				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
 				div1 +
-				"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the image was created in an paint application that first came out in 1983.</div>" +
-				"<div id=\"berlin-bear-controversy-fn3\">[3] Commodore Business Machines <a href=\"https://www.power8bit.com/C64.html\">advertises the $595</a> Commodore&nbsp;64.</div>" +
-				"<div id=\"berlin-bear-controversy-fn4\">[4] Commodore: a company on the edge.</div>" +
-				"<div id=\"berlin-bear-controversy-fn5\">[5] See the February 1983 issue of Commodore Computing, <a href=\"https://web.archive.org/web/20160611085947if_/http://archive.6502.org/publications/commodore_computing_intl/commodore_computing_intl_1983_02.pdf\">pages 36-37</a>.</div>" +
-				"<div id=\"berlin-bear-controversy-fn6\">[6] Advert source <a href=\"https://nosher.net/archives/computers/comm64_comci_1983-02?idx=Designed\">nosher.net</a>. See the October 1993 issue of Practical Computing, <a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>.</div>" +
-				"<div id=\"berlin-bear-controversy-fn7\">[7] The machine was unavailable in West and East Germany.</div>" +
-				"<div id=\"berlin-bear-controversy-fn8\">[8] Cracking means removing <q>disk</q> copy protection. But the German VC-1541 disk drive manual is dated June 1983 and many games in the era came on cartridges.</div>" +
-				"<div id=\"berlin-bear-controversy-fn9\">[9] With inflation, that's $1,900 USD in mid-2024 without accessories, software or a screen.</div>" +
+				"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the Berlin Bear logo was created in Paint Magic by Datasoft, " +
+				"a floppy disk paint application published in the USA in 1983, that saw a <a href=\"http://www.mycommodore64.com/2011/07/22/the-magic-in-paint-magic/\">cracked release</a> in 1984.</div>" +
+				"<div id=\"berlin-bear-controversy-fn3\">[3] \"In August 1982, Commodore finally produced (ed: in Santa Clara, CA) enough C64 computers to start making small shipments to dealers.\", Commodore: a company on the edge.</div>" +
+				"<div id=\"berlin-bear-controversy-fn4\">[4] \"None of the advertising touted the superior sound and graphics capabilites of the Commodore 64 since the in-house software from Commodore in late 1982 did little to exploit the abilities of these chips\", Commodore: a company on the edge.</div>" +
+				"<div id=\"berlin-bear-controversy-fn5\">[5] \"For the office. Or the home office\" advert, found in the October 1983 issue of Practical Computing UK, " +
+				"<a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>." +
 				sect1,
+			Picture: Picture{
+				Title:       "Berlin Bear upside down",
+				Alt:         "A screenshot of the Berlin Bear image for the Commodore 64.",
+				Png:         "berlin-bear.png",
+				Attribution: "Jazzcat",
+			},
 		},
 		{
 			Title: "Third-party PC games", Year: 1982,
