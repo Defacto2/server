@@ -105,6 +105,7 @@ func Groups() Tibits { //nolint:maintidx
 		400:  []URI{"fairlight", "artists-in-revolt"},
 		500:  []URI{"fairlight", "fairlight-dox"},
 		6:    []URI{"aces-of-ansi-art", "acid-productions"},
+		666:  []URI{"acid-productions"},
 		7:    []URI{"the-duplicators"},
 		8:    []URI{"pirates-club-inc"},
 		9:    []URI{"against-software-protection"},

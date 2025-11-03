@@ -163,8 +163,32 @@ func Websites() Groups {
 		},
 		"acid-productions": []Website{
 			{
+				URL:  "http://artscene.textfiles.com/acid/",
+				Name: "The ACiD Collection",
+			},
+			{
 				URL:  "https://www.acid.org",
-				Name: "ACiD Productions",
+				Name: "1996 ACiD webpage",
+			},
+			{
+				URL:  "https://en.wikipedia.org/wiki/ACiD_Productions",
+				Name: "Wikipedia",
+			},
+			{
+				URL:  "https://www.youtube.com/watch?v=oQrBbm5ZMlo",
+				Name: "BBS The Documentary: Episode 5: Artscene",
+			},
+			{
+				URL:  "https://archive.org/details/bbs-20020727-radman",
+				Name: "Interview: RaD Man/ACiD",
+			},
+			{
+				URL:  "https://archive.org/details/20040308-bbs-tracer",
+				Name: "Interview: Tracer/ACiD",
+			},
+			{
+				URL:  "https://archive.org/details/bbs-20030520-jed",
+				Name: "Interview: JED/ACiD",
 			},
 		},
 		"assault": []Website{
