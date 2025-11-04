@@ -1615,7 +1615,7 @@ func Collection() Milestones {
 			Year: 1990, Prefix: notable,
 			List: Links{
 				{LinkTitle: "ANSI Creators in Demand", Link: "/g/acid-productions", SubTitle: "ACiD", Forward: "Aces of ANSI Art"},
-				{LinkTitle: "Damn Excellent ANSI Design", Link: "/g/damn-excellent-ansi-design", SubTitle: "Damn"},
+				{LinkTitle: "Damn Excellent Art Designers", Link: "/g/damn-excellent-ansi-design", SubTitle: "DeAD", Forward: "Damn Excellent ANSI Design"},
 				{LinkTitle: "Katharsis", Link: "/g/katharsis", Forward: "🇵🇱 First Polish group on the PC"},
 				{
 					LinkTitle: "National Elite Underground Alliance", Link: "/g/national-elite-underground-alliance",
