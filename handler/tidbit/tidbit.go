@@ -144,7 +144,7 @@ func Groups() Tibits { //nolint:maintidx
 		36:   []URI{"the-humble-guys"},
 		37:   []URI{"netrunners", "minor-threat", "nexus"},
 		38:   []URI{"mai-review", "sda-review", "silicon-dream-artists"},
-		39:   []URI{"silicon-dream-artists"},
+		39:   []URI{"silicon-dream-artists", "masters-of-abstractions-and-illusions", "maximized-ansi-designers"},
 		40:   []URI{"hype"},
 		41:   []URI{"alpha-flight", "outlaws", "storm-inc"},
 		42:   []URI{"thhg"},
@@ -477,6 +477,10 @@ func Groups() Tibits { //nolint:maintidx
 		375: []URI{"outlaws-exchange"},
 		376: []URI{"spirit-of-illusion"},
 		377: []URI{"ultra-tech"},
+		378: []URI{"graphics-rendered-in-magnificence", "silicon-dream-artists"},
+		379: []URI{"graphics-rendered-in-magnificence", "nc_17"},
+		380: []URI{"master-artists-guild-for-the-elite"},
+		381: []URI{"graphics-rendered-in-magnificence", "gaming-review-international-magazine"},
 	}
 }
 
