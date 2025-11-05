@@ -106,6 +106,7 @@ func Groups() Tibits { //nolint:maintidx
 		500:  []URI{"fairlight", "fairlight-dox"},
 		6:    []URI{"aces-of-ansi-art", "acid-productions"},
 		666:  []URI{"acid-productions"},
+		667:  []URI{"acid-productions", "relentless-pursuit-of-magnificence"},
 		7:    []URI{"the-duplicators"},
 		8:    []URI{"pirates-club-inc"},
 		9:    []URI{"against-software-protection"},
@@ -230,6 +231,7 @@ func Groups() Tibits { //nolint:maintidx
 		121:  []URI{"classic-vocs"},
 		122:  []URI{"club-elan"},
 		123:  []URI{"damn-excellent-ansi-design"},
+		1234: []URI{"damn-excellent-ansi-design", "international-network-of-crackers"},
 		124:  []URI{"digital-noise-alliance"},
 		125:  []URI{"disassemblers-of-america"},
 		126:  []URI{"dragon-clan"},
@@ -303,7 +305,7 @@ func Groups() Tibits { //nolint:maintidx
 		194: []URI{"euro_bbs_list"},
 		195: []URI{"excretion-anarchy"},
 		196: []URI{"graphically-enhanced-magazine"},
-		197: []URI{"hype-magazine"},
+		197: []URI{"hype-magazine", "hype"},
 		198: []URI{"lancelot-2"},
 		203: []URI{"mac_pirate-list"},
 		204: []URI{"mr-bane-800-number-list"},
@@ -481,6 +483,10 @@ func Groups() Tibits { //nolint:maintidx
 		379: []URI{"graphics-rendered-in-magnificence", "nc_17"},
 		380: []URI{"master-artists-guild-for-the-elite"},
 		381: []URI{"graphics-rendered-in-magnificence", "gaming-review-international-magazine"},
+		382: []URI{"hipe"},
+		383: []URI{"licensed-to-draw"},
+		384: []URI{"mirage"},
+		385: []URI{"the-cracking-lords", "dead-memory"},
 	}
 }
 

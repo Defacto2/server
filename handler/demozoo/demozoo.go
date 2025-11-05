@@ -596,6 +596,13 @@ const (
 // groups returns a map of releasers URIs mapped to their Demozoo IDs.
 func groups() Groups { //nolint:funlen,maintidx
 	return Groups{
+		"the-cracking-lords":                    78172,
+		"ansi-factory":                          89284,
+		"tribe":                                 43814,
+		"maximized-ansi-designers":              147332,
+		"nc_17":                                 25791,
+		"hipe":                                  131628,
+		"artists-in-revolt":                     108416,
 		"master-artists-guild-for-the-elite":    131371,
 		"vengeance":                             120880,
 		"shade":                                 138682,

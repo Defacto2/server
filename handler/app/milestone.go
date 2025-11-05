@@ -1615,7 +1615,6 @@ func Collection() Milestones {
 			Year: 1990, Prefix: notable,
 			List: Links{
 				{LinkTitle: "ANSI Creators in Demand", Link: "/g/acid-productions", SubTitle: "ACiD", Forward: "Aces of ANSI Art"},
-				{LinkTitle: "Damn Excellent Art Designers", Link: "/g/damn-excellent-ansi-design", SubTitle: "DeAD", Forward: "Damn Excellent ANSI Design"},
 				{LinkTitle: "Katharsis", Link: "/g/katharsis", Forward: "🇵🇱 First Polish group on the PC"},
 				{
 					LinkTitle: "National Elite Underground Alliance", Link: "/g/national-elite-underground-alliance",
@@ -1725,9 +1724,10 @@ func Collection() Milestones {
 		{
 			Year: 1991, Prefix: notable,
 			List: Links{
+				{LinkTitle: "HiPE", Link: "/g/hipe"},
 				{LinkTitle: "Insane Creators Enterprise", Link: "/g/insane-creators-enterprise", SubTitle: "iCE"},
 				{LinkTitle: "🇸🇪 Fairlight PC", Link: "/g/fairlight", SubTitle: "FLT"},
-				{LinkTitle: "Licensed to Draw", Link: "/g/licensed-to-draw", SubTitle: "LTD"},
+				{LinkTitle: "Licensed to Draw", Link: "/g/licensed-to-draw", SubTitle: "LTD", Forward: "DREAM"},
 				{LinkTitle: "Mirage", Link: "/g/mirage", Forward: "Licensed to Draw"},
 				{
 					LinkTitle: "Nokturnal Trading Alliance", Link: "/g/nokturnal-trading-alliance",
@@ -1742,6 +1742,7 @@ func Collection() Milestones {
 				{LinkTitle: "Relentless Pursuit of Magnificence", Link: "/g/relentless-pursuit-of-magnificence", SubTitle: "RPM"},
 				{LinkTitle: "🇪🇺 Skid Row (on PC)", Link: "/g/skid-row", SubTitle: "SR"},
 				{LinkTitle: "🇩🇪🇨🇭 Scoopex (IBM)", Link: "/g/scoopex"},
+				{LinkTitle: "Silicon Dream Artists", Link: "/g/silicon-dream-artists", SubTitle: "SdA", Forward: "MAi / Maximized ANSi Designers"},
 				{
 					LinkTitle: "The Cracking Lords", Link: "/g/the-cracking-lords", SubTitle: "TCL",
 					Forward: "🇮🇹 First PC group from Italy",
@@ -1788,7 +1789,9 @@ func Collection() Milestones {
 			Year: 1992, Prefix: notable,
 			List: Links{
 				{LinkTitle: "Artists in Revolt", Link: "/g/artists-in-revolt", Forward: "Fairlight"},
-				{LinkTitle: "Graphics Rendered in Magnificence", Link: "/g/graphics-rendered-in-magnificence", SubTitle: "GRiM"},
+				{LinkTitle: "Damn Excellent Art Designers", Link: "/g/damn-excellent-ansi-design", SubTitle: "DeAD", Forward: "Damn Excellent ANSI Design"},
+				{LinkTitle: "Graphics Rendered in Magnificence", Link: "/g/graphics-rendered-in-magnificence", SubTitle: "GRiM", Forward: "Silicon Dream Artists / NC-17"},
+				{LinkTitle: "HYPE", Link: "/g/hype"},
 				{LinkTitle: "Pyradical", Link: "/g/pyradical"},
 				{LinkTitle: "🇩🇪 Superior Art Creations", Link: "/g/superior-art-creations", SubTitle: "SAC"},
 				{
