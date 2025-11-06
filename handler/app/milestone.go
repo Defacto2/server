@@ -930,6 +930,7 @@ func Collection() Milestones {
 		{
 			Title: "The earliest PC cracked releases", Year: 1984, Highlight: true,
 			Lead: "So far, The Duplicators and 'public domain'",
+			Link: "/g/the-duplicators", LinkTitle: "about these pioneering crackers",
 			Content: "<p>This modified, tagged, or graffitied title screen is a <strong>crack&nbsp;screen</strong> " +
 				"and was a typical way for crackers on the Apple, Atari microcomputers, and the IBM PC to credit themselves. " +
 				"Crackers altered games and removed disk copy protection from software to permit copying and redistribution.</p>" +
@@ -967,10 +968,19 @@ func Collection() Milestones {
 		{
 			Prefix: "The earliest PC groups,", Year: 1984,
 			List: Links{
-				{LinkTitle: "Against Software Protection <small>ASP</small>", Link: "/g/against-software-protection"},
+				{
+					LinkTitle: "Against Software Protection <small>ASP</small>",
+					Link:      "/g/against-software-protection",
+					Forward:   "Atlanta, Connecticut, Miami",
+				},
 				{LinkTitle: "The Duplicators", Link: "/g/the-duplicators"},
-				{LinkTitle: "The IPL", Link: "/g/ipl"},
-				{LinkTitle: "Software Pirates Inc <small>SPi</small>", Link: "/g/software-pirates-inc"},
+				{LinkTitle: "The IPL", Link: "/g/ipl", Forward: "Chicago"},
+				{
+					LinkTitle: "Software Pirates Inc <small>SPi</small>",
+					Link:      "/g/software-pirates-inc",
+					Forward:   "Texas and Sunnyvale, CA (?)",
+				},
+				{LinkTitle: "Faked 'public domain' releases", Link: "/g/public-domain"},
 			},
 			Picture: Picture{
 				Title: "Copyright invalid in 1984",
@@ -1132,7 +1142,8 @@ func Collection() Milestones {
 		{
 			Prefix: "The earliest PC groups,", Year: 1985,
 			List: Links{
-				{LinkTitle: "The Illinois Pirates <small>TIP</small>", Link: "/g/the-illinois-pirates"},
+				{LinkTitle: "Imperial Warlords", Link: "/g/imperial-warlords", Forward: "San Francisco and Minnesota"},
+				{LinkTitle: "The Illinois Pirates <small>TIP</small>", Link: "/g/the-illinois-pirates", Forward: "Chicago"},
 			},
 			Picture: Picture{
 				Title: "The Illinois Pirates hack",
@@ -1227,7 +1238,12 @@ func Collection() Milestones {
 			List: Links{
 				{LinkTitle: "ESP Pirates", Link: "/g/esp-pirates", Forward: "Arizona"},
 				{LinkTitle: "Five-O", Link: "/g/five-o", Forward: "Minnesota"},
-				{LinkTitle: "T.O.A.D.S. <small>TOADS</small>", Link: "/g/toads"},
+				{
+					LinkTitle: "T.O.A.D.S. <small>TOADS</small>",
+					Link:      "/g/toads",
+					Forward:   "Chicago and San Francisco",
+				},
+				{LinkTitle: "Cracking On the IBMpc", Link: "/g/cracking-101", Forward: "Buckaroo Banzai"},
 			},
 			Picture: Picture{
 				Title: "Five O Presents",
@@ -1287,7 +1303,11 @@ func Collection() Milestones {
 					LinkTitle: "Canadian Pirates Inc <small>(CPI)</small>", Link: "/g/canadian-pirates-inc",
 					Forward: "🇨🇦 Ontario",
 				},
-				{LinkTitle: "-=C&M=-", Link: "/g/c-ampersand-m"},
+				{
+					LinkTitle: "-=C&M=-",
+					Link:      "/g/c-ampersand-m",
+					Forward:   "Maryland",
+				},
 				{
 					LinkTitle: "KGB", Link: "/g/kgb",
 					Forward: "🇨🇦 Ontario",
@@ -1542,7 +1562,7 @@ func Collection() Milestones {
 				{LinkTitle: "Pirates Sick of Initials", Link: "/g/pirates-sick-of-initials", SubTitle: "PSi"},
 				{
 					LinkTitle: "Sorcerers", Link: "/g/sorcerers",
-					Forward: "🇫🇮 First demo and Finnish group on the PC",
+					Forward: "🇫🇮 First PC demo group and Finnish group on the PC",
 				},
 				{LinkTitle: "The Firm", Link: "/g/the-firm", Forward: "BCC, Bentley Sidwell Productions"},
 				{LinkTitle: "The Underground Council", Link: "/g/the-underground-council", SubTitle: "UGC"},
@@ -1760,7 +1780,7 @@ func Collection() Milestones {
 			Content: "<p>The first known release of a game on CD was probably Battle Chess MPC (multimedia PC) released by International Network of Crackers on the 3rd of March 1992. " +
 				"Being a novel medium for software distribution, the INC release was a mess requiring the user to have access to 28 floppy disks and then a third party tool to copy and \"splice\" the disks to a hard drive. " +
 				"Copying to this many floppy disks for a single game would have been slow, tedious, and expensive, both in time and hardware.</p>" +
-				"<p>Later in the month " +
+				"<p>Later in the month on the 22nd, " +
 				"Razor 1911 would release Stellar 7 CD-ROM (now lost) that was reviewed in <a href=\"/f/b42bdee\">DMZ Review #4</a> and " +
 				"$yndicate would release the " +
 				`<a href="/f/b126bd6">CD ROM edition</a> ` + "of Wing Commander that didn't have complex installation process, and INC would attempt some other MPC titles. But in 1992, CD piracy didn't make sense or take off.</p>" +

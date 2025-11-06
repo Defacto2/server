@@ -122,15 +122,18 @@ func Groups() Tibits { //nolint:maintidx
 		18:   []URI{"canadian-pirates-inc", "kgb", "ptl-club"},
 		19:   []URI{"the-underground-council"},
 		199:  []URI{"ptl-club", "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
-		20:   []URI{"new-york-crackers", "miami-cracking-machine", "international-network-of-crackers"},
-		201:  []URI{"miami-cracking-machine"},
-		202:  []URI{"new-york-crackers"},
+		// MCM / INC / NYC etc require a sequential order
+		20:  []URI{"miami-cracking-machine"},                                                           // 201
+		26:  []URI{"new-york-crackers"},                                                                // 202
+		201: []URI{"new-york-crackers", "miami-cracking-machine", "international-network-of-crackers"}, // 20
+		202: []URI{"international-network-of-crackers"},                                                // 26
+		333: []URI{"norwegian-cracking-company", "international-network-of-crackers", "the-humble-guys"},
+		// end
 		21:   []URI{"public-domain"},
 		22:   []URI{"bentley-sidwell-productions"},
 		23:   []URI{"boys-from-company-c"},
 		24:   []URI{"fairlight"},
 		25:   []URI{"future-crew"},
-		26:   []URI{"international-network-of-crackers"},
 		27:   []URI{"vortex-software"},
 		28:   []URI{"opyright-infiltration-agency"},
 		2700: []URI{"the-firm", "swat", "national-underground-application-alliance", "fairlight"},
@@ -139,7 +142,6 @@ func Groups() Tibits { //nolint:maintidx
 		30:   []URI{"cmen"},
 		31:   []URI{"erkle"},
 		32:   []URI{"extasy", "xerox", "fairlight"},
-		333:  []URI{"norwegian-cracking-company", "international-network-of-crackers", "the-humble-guys"},
 		34:   []URI{"scd_dox", "software-chronicles-digest"},
 		35:   []URI{"software-chronicles-digest"},
 		36:   []URI{"the-humble-guys"},
@@ -487,6 +489,7 @@ func Groups() Tibits { //nolint:maintidx
 		383: []URI{"licensed-to-draw"},
 		384: []URI{"mirage"},
 		385: []URI{"the-cracking-lords", "dead-memory"},
+		386: []URI{"insane-creators-enterprise"},
 	}
 }
 

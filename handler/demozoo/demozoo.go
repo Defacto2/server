@@ -855,7 +855,7 @@ func groups() Groups { //nolint:funlen,maintidx
 		"hype":                                  47074,
 		"illuminatus":                           120174,
 		"international-network-of-crackers":     12175,
-		"insane-creators-enterprise":            2169,
+		"insane-creators-enterprise":            2196,
 		"insanity":                              130208,
 		"katharsis":                             37053,
 		"kgb":                                   69323,
