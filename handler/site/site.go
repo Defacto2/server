@@ -374,10 +374,21 @@ func Websites() Groups {
 				NotWorking: true,
 			},
 		},
-		"insane-creators-enterprise": []Website{{
-			URL:  "https://www.ice.org",
-			Name: "iCE Advertisements",
-		}},
+		"insane-creators-enterprise": []Website{
+			{
+				URL:  "https://www.ice.org",
+				Name: "iCE Advertisements",
+			}, {
+				URL:  "http://artscene.textfiles.com/ice",
+				Name: "The iCE Collection",
+			}, {
+				URL:  "https://en.wikipedia.org/wiki/ICE_Advertisements",
+				Name: "Wikipedia",
+			}, {
+				URL:  "https://www.youtube.com/watch?v=oQrBbm5ZMlo",
+				Name: "BBS The Documentary: Episode 5: Artscene",
+			},
+		},
 		"level4": []Website{
 			{
 				URL:        "www.level4.ml.org",
