@@ -490,6 +490,7 @@ func Groups() Tibits { //nolint:maintidx
 		384: []URI{"mirage"},
 		385: []URI{"the-cracking-lords", "dead-memory"},
 		386: []URI{"insane-creators-enterprise"},
+		387: []URI{"icepack"},
 	}
 }
 
