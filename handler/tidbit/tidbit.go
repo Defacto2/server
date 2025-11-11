@@ -106,7 +106,9 @@ func Groups() Tibits { //nolint:maintidx
 		500:  []URI{"fairlight", "fairlight-dox"},
 		6:    []URI{"aces-of-ansi-art", "acid-productions"},
 		666:  []URI{"acid-productions"},
-		667:  []URI{"acid-productions", "relentless-pursuit-of-magnificence"},
+		667:  []URI{"acid-productions", "the-acquisition"},
+		669:  []URI{"acid-productions", "relentless-pursuit-of-magnificence"},
+		668:  []URI{"acid-newsletter"},
 		7:    []URI{"the-duplicators"},
 		8:    []URI{"pirates-club-inc"},
 		9:    []URI{"against-software-protection"},
@@ -494,6 +496,9 @@ func Groups() Tibits { //nolint:maintidx
 		387:  []URI{"icepack"},
 		388:  []URI{"the-phoney-coders"},
 		389:  []URI{"creators-of-revolutionary-pictures"},
+		399:  []URI{"valiant"},
+		401:  []URI{"gothic"},
+		402:  []URI{"skill"},
 	}
 }
 

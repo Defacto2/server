@@ -908,6 +908,7 @@ func groups() Groups { //nolint:funlen,maintidx
 		"rise-in-superior-couriering":           45969,
 		"skillion":                              46362,
 		"skill":                                 86878,
+		"relentless":                            131845,
 		"skid-row":                              14943,
 		"silicon-dream-artists":                 25795,
 		"sma-posse":                             58173,

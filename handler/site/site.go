@@ -161,6 +161,12 @@ func Websites() Groups {
 				Name: "The Legion of Doom/Hackers Technical Journal",
 			},
 		},
+		"the-acquisition": []Website{
+			{
+				URL:  "http://artscene.textfiles.com/acid/ARTPACKS/",
+				Name: "ACiD Art Packs",
+			},
+		},
 		"acid-productions": []Website{
 			{
 				URL:  "http://artscene.textfiles.com/acid/",

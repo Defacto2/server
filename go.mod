@@ -28,7 +28,7 @@ require (
 	github.com/Defacto2/archive v1.1.3
 	github.com/Defacto2/helper v1.6.4
 	github.com/Defacto2/magicnumber v1.0.13
-	github.com/Defacto2/releaser v1.3.16
+	github.com/Defacto2/releaser v1.3.17
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
@@ -53,9 +53,9 @@ require (
 	github.com/samber/slog-multi v1.5.0
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
-	golang.org/x/image v0.32.0
-	golang.org/x/text v0.30.0
-	google.golang.org/api v0.254.0
+	golang.org/x/image v0.33.0
+	golang.org/x/text v0.31.0
+	google.golang.org/api v0.256.0
 )
 
 // Uncomment to use the local repository
@@ -93,7 +93,7 @@ require (
 	github.com/google/licensecheck v0.3.1 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/safehtml v0.1.0 // indirect
-	github.com/googleapis/enterprise-certificate-proxy v0.3.6 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/gorilla/context v1.1.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
@@ -121,18 +121,18 @@ require (
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
-	go.uber.org/nilaway v0.0.0-20251021214447-34f56b8c16b9 // indirect
+	go.uber.org/nilaway v0.0.0-20251107192516-561521d33d7b // indirect
 	golang.org/x/crypto v0.43.0 // indirect
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/net v0.46.0 // indirect
-	golang.org/x/oauth2 v0.32.0 // indirect
-	golang.org/x/pkgsite v0.0.0-20251029141209-950d5ec0f5e9 // indirect
-	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/oauth2 v0.33.0 // indirect
+	golang.org/x/pkgsite v0.0.0-20251110163304-1dd39b1136d1 // indirect
+	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251103181224-f26f9409b101 // indirect
 	google.golang.org/grpc v1.76.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	mvdan.cc/gofumpt v0.9.2 // indirect
