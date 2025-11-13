@@ -905,6 +905,7 @@ func groups() Groups { //nolint:funlen,maintidx
 		"razor-1911":                            519,
 		"rebels":                                628,
 		"relentless-pursuit-of-magnificence":    45917,
+		"critic-magazine":                       269557,
 		"rise-in-superior-couriering":           45969,
 		"skillion":                              46362,
 		"skill":                                 86878,
