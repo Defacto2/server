@@ -141,7 +141,7 @@ func SortContent(content ...string) []string {
 //
 // The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
 // However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
-func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) { //nolint:cyclop,lll
+func ReadPool(art *models.File, sizeLimit int64, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) { //nolint:cyclop,lll
 	const msg = "readme pool"
 	nosauce := sauce.Record{}
 	if art == nil {
@@ -155,7 +155,7 @@ func ReadPool(art *models.File, download, extra dir.Directory) (*bytes.Buffer, *
 	// diz.Reset()
 	// ruf.Reset()
 	err1 := render.DizPool(diz, art, extra)
-	err2 := render.ReadmePool(buf, ruf, art, download, extra)
+	err2 := render.ReadmePool(buf, ruf, sizeLimit, art, download, extra)
 	var errs error
 	if err1 != nil {
 		errs = errors.Join(errs, fmt.Errorf("%s render diz: %w", msg, err1))
