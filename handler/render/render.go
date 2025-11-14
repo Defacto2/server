@@ -72,7 +72,7 @@ func readmepanic(buf, ruf *bytes.Buffer, art *models.File, msg string) error {
 // The text is intended to be used as a readme, preview or an in-browser viewer.
 //
 // Both the buf buffer and the ruf rune buffer are reset before writing.
-func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Directory) error {
+func ReadmePool(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, download, extra dir.Directory) error {
 	const msg = "render readme pool"
 	if err := readmepanic(buf, ruf, art, msg); err != nil {
 		return err
@@ -110,10 +110,22 @@ func ReadmePool(buf, ruf *bytes.Buffer, art *models.File, download, extra dir.Di
 	if files.readmeText.okay {
 		name = files.readmeText.path
 	}
+	st, err := os.Stat(name)
+	if err != nil {
+		b := []byte("error could not describe the readme text file")
+		buf.Write(b)
+		return nil
+	}
+	if st.Size() > sizeLimit {
+		b := []byte("skipped, file is too large")
+		buf.Write(b)
+		return nil
+	}
 	f, err := os.Open(name)
 	if err != nil {
 		b := []byte("error could not read the readme text file")
 		buf.Write(b)
+		return nil
 	}
 	defer func() { _ = f.Close() }()
 	buf.Reset()
