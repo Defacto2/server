@@ -8,61 +8,6 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestSortContent(t *testing.T) {
-	tests := []struct {
-		content  []string
-		expected []string
-	}{
-		{
-			content:  nil,
-			expected: nil,
-		},
-		{
-			content: []string{
-				"dir1/file1",
-				"dir2/file2",
-				"dir1/subdir/file3",
-				"file4",
-			},
-			expected: []string{
-				"file4",
-				"dir1/file1",
-				"dir2/file2",
-				"dir1/subdir/file3",
-			},
-		},
-		{
-			content: []string{
-				"dir1/file1",
-				"dir1/subdir/file2",
-				"dir2/file3",
-				"file4",
-			},
-			expected: []string{
-				"file4",
-				"dir1/file1",
-				"dir2/file3",
-				"dir1/subdir/file2",
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(strings.Join(tt.content, ","), func(t *testing.T) {
-			// Make a copy of the original content
-			originalContent := make([]string, len(tt.content))
-			copy(originalContent, tt.content)
-
-			// Sort the content using the SortContent function
-			sortedContent := readme.SortContent(tt.content...)
-
-			for i, v := range sortedContent {
-				be.Equal(t, tt.expected[i], v)
-			}
-		})
-	}
-}
-
 func TestReadmeSuggest(t *testing.T) {
 	tests := []struct {
 		filename string
@@ -117,7 +62,7 @@ func TestReadmeSuggest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.filename+"_"+tt.group, func(t *testing.T) {
-			result := readme.Suggest(tt.filename, tt.group, tt.content...)
+			result := readme.Suggest(tt.filename, tt.group, strings.Join(tt.content, "\n"))
 			be.Equal(t, tt.expected, result)
 		})
 	}

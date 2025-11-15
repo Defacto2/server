@@ -29,44 +29,52 @@ import (
 // such as ".nfo", ".txt", etc. If no priority extension is found,
 // it will return the first text file in the content list.
 //
-// The filename should be the name of the file archive artifact.
+// The archive should be the filename of the archive artifact such as the
+// zip filename.
 // The group should be a name or common abbreviation of the group that
 // released the artifact. The content should be a list of files contained
 // in the artifact.
 //
+// To save memory, content is not split into a slice until we need to handle it.
+//
 // This is a port of the CFML function, variables.findTextfile found in File.cfc.
-func Suggest(filename, group string, content ...string) string {
-	finds := List(content...)
+func Suggest(archive, group string, content string) string {
+	finds := SortList(content)
+	if len(finds) == 0 {
+		return ""
+	}
 	if len(finds) == 1 {
 		return finds[0]
 	}
-	finds = SortContent(finds...)
+	base := filepath.Base(archive)
 
-	// match either the filename or the group name with a priority extension
-	// e.g. .nfo, .txt, .unp, .doc
-	base := filepath.Base(filename)
+	// match priority file extensions, ".nfo", ".txt", etc
 	for ext := range slices.Values(priority()) {
 		for name := range slices.Values(finds) {
-			if strings.EqualFold(base+ext, name) {
+			// use the group name as the base name
+			// ie: group = "Defacto2" will match "defacto2.nfo", "DeFacto2.txt", etc
+			if strings.EqualFold(group+ext, name) {
 				return name
 			}
-			if strings.EqualFold(group+ext, name) {
+			// use the archive filename as the base name
+			// ie: archive = "mycollection.zip" will match "mycollection.nfo", etc
+			if strings.EqualFold(base+ext, name) {
 				return name
 			}
 		}
 	}
-	// match either the filename or the group name with a candidate extension
+	// match candidate filename extensions, ".diz", ".asc", etc
 	for ext := range slices.Values(candidate()) {
 		for name := range slices.Values(finds) {
-			if strings.EqualFold(base+ext, name) {
+			if strings.EqualFold(group+ext, name) {
 				return name
 			}
-			if strings.EqualFold(group+ext, name) {
+			if strings.EqualFold(base+ext, name) {
 				return name
 			}
 		}
 	}
-	// match any finds that use a priority extension
+	// match any other filenames that use a priority extension
 	for name := range slices.Values(finds) {
 		s := strings.ToLower(name)
 		ext := filepath.Ext(s)
@@ -74,36 +82,59 @@ func Suggest(filename, group string, content ...string) string {
 			return name
 		}
 	}
-	// match the first file in the list
-	for name := range slices.Values(finds) {
-		return name
-	}
-	return ""
+	// else, return the first text filename on the list
+	return finds[0]
 }
 
-// List returns a list of readme text files found in the file archive.
-func List(content ...string) []string {
-	finds := []string{}
-	skip := []string{"file_id.diz", "scene.org", "scene.org.txt"}
-	for name := range slices.Values(content) {
-		if name == "" {
+// SortList returns a sorted list of possible readme text files found in the file archive.
+// The first result is the closes filename to root that has a priority
+// filename extension such as ".nfo", then ordered alphabetically.
+//
+// To save memory, content is not split into a slice until we need to handle it.
+func SortList(content string) []string {
+	list := strings.Split(content, "\n")
+	slices.SortFunc(list, func(a, b string) int {
+		a = strings.ToLower(a)
+		b = strings.ToLower(b)
+		aExt := strings.ToLower(filepath.Ext(a))
+		ap := slices.Index(priority(), aExt)
+		ac := slices.Index(candidate(), aExt)
+		bExt := strings.ToLower(filepath.Ext(b))
+		bp := slices.Index(priority(), bExt)
+		bc := slices.Index(candidate(), bExt)
+		aPaths := strings.Count(a, "/")
+		bPaths := strings.Count(b, "/")
+		return cmp.Or(
+			cmp.Compare(aPaths, bPaths), // compare the depth of sub-directories, less is better
+			cmp.Compare(ap, bp),         // compare which filename uses a priority file extension
+			cmp.Compare(ac, bc),         // compare which filename uses a candidate file extension
+			strings.Compare(aExt, bExt), // order all other file extensions alphabetically
+			strings.Compare(a, b),       // order all other file paths alphabetically
+		)
+	})
+	// filter out known bad filenames, such as file_id.diz or website advertising injections
+	paths := make([]string, len(list))
+	index := -1
+	for s := range slices.Values(list) {
+		path := strings.TrimSpace(s)
+		if path == "" {
 			continue
 		}
-		s := strings.ToLower(name)
-		s = strings.TrimSpace(s)
-		if slices.Contains(skip, s) {
+		switch filepath.Base(path) {
+		case
+			"file_id.diz",
+			"scene.org",
+			"scene.org.txt":
 			continue
 		}
-		ext := filepath.Ext(s)
-		if slices.Contains(priority(), ext) {
-			finds = append(finds, name)
+		v := strings.ToLower(filepath.Ext(path))
+		if !slices.Contains(priority(), v) && !slices.Contains(candidate(), v) {
 			continue
 		}
-		if slices.Contains(candidate(), ext) {
-			finds = append(finds, name)
-		}
+		index++
+		paths[index] = path
 	}
-	return finds
+	return paths
 }
 
 // priority returns a list of readme text file extensions in priority order.
@@ -114,25 +145,6 @@ func priority() []string {
 // candidate returns a list of other, common text file extensions in priority order.
 func candidate() []string {
 	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
-}
-
-// SortContent sorts the content list by the number of slashes in each string.
-// It prioritizes strings with fewer slashes (i.e., closer to the root).
-// If the number of slashes is the same, it sorts alphabetically.
-func SortContent(content ...string) []string {
-	const windowsPath = "\\"
-	const pathSeparator = "/"
-	slices.SortFunc(content, func(a, b string) int {
-		a = strings.ReplaceAll(a, windowsPath, pathSeparator)
-		b = strings.ReplaceAll(b, windowsPath, pathSeparator)
-		aCount := strings.Count(a, pathSeparator)
-		bCount := strings.Count(b, pathSeparator)
-		if aCount != bCount {
-			return aCount - bCount
-		}
-		return cmp.Compare(strings.ToLower(a), strings.ToLower(b))
-	})
-	return content
 }
 
 // ReadPool returns the content of the readme file or the text of the file download.
