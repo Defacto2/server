@@ -10,7 +10,7 @@ import {
   youtube as validateYouTube,
   number as validateNumber,
 } from "./artifact-validate.mjs";
-import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
+import { clipContent, clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
 
 (() => {
   "use strict";
@@ -80,6 +80,25 @@ import { clipValue, formatPaste, getElmById, titleize } from "./helper.mjs";
       }
       egp.disabled = false;
     });
+  }
+
+  const embTitle = document.getElementById(`artifact-embed-title`)
+  if (embTitle != null) {
+    embTitle.addEventListener(`click`, () =>
+      clipContent(`artifact-embed-title-value`),
+    );
+  }
+  const embAuthor = document.getElementById(`artifact-embed-author`)
+  if (embAuthor != null) {
+    embAuthor.addEventListener(`click`, () =>
+      clipContent(`artifact-embed-author-value`),
+    );
+  }
+  const embGroup = document.getElementById(`artifact-embed-group`)
+  if (embGroup != null) {
+    embGroup.addEventListener(`click`, () =>
+      clipContent(`artifact-embed-group-value`),
+    );
   }
 
   const aekv = getElmById(`artifact-dataeditor-key-value`);

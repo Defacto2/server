@@ -183,19 +183,20 @@
                     {{- end}}
                     {{- if $sauce}}
                     {{- if ne $sauceTitle ""}}
-                    <tr>
+                    <style>.selection:hover { cursor: pointer; }</style>
+                    <tr class="selection" id="artifact-embed-title">
                         <th scope="row"><span class="text-nowrap">Embed title</span></th>
-                        <td>{{$sauceTitle}}</td>
+                        <td id="artifact-embed-title-value">{{$sauceTitle}}</td>
                     </tr>
                     {{- end}}{{ if ne $sauceAuthor ""}}
-                    <tr>
+                    <tr class="selection" id="artifact-embed-author">
                         <th scope="row"><span class="text-nowrap">Embed author</span></th>
-                        <td>{{$sauceAuthor}}</td>
+                        <td id="artifact-embed-author-value">{{$sauceAuthor}}</td>
                     </tr>
                     {{- end}}{{ if ne $sauceGroup ""}}
-                    <tr>
+                    <tr class="selection" id="artifact-embed-group">
                         <th scope="row"><span class="text-nowrap">Embed group</span></th>
-                        <td>{{$sauceGroup}}</td>
+                        <td id="artifact-embed-group-value">{{$sauceGroup}}</td>
                     </tr>
                     {{- end}}
                     <tr>

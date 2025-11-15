@@ -473,6 +473,29 @@ export async function clipText(elementId) {
 }
 
 /**
+ * Copies the text content value of an HTML element to the clipboard.
+ * @async
+ * @function clipContent
+ * @param {string} elementId - The ID of the HTML element to copy the value from.
+ * @throws {Error} Throws an error if the specified element is missing.
+ * @returns {Promise<void>} A Promise that resolves when the value has been copied to the clipboard.
+ */
+export async function clipContent(elementId) {
+  const element = getElmById(elementId);
+  element.focus(); // select the element to avoid NotAllowedError: Clipboard write is not allowed in this context
+  await navigator.clipboard.writeText(`${element.textContent}`).then(
+    function () {
+      console.log(
+        `Copied ${humanFilesize(element.textContent.length)} to the clipboard`
+      );
+    },
+    function (err) {
+      console.error(`could not save any text to the clipboard: ${err}`);
+    }
+  );
+}
+
+/**
  * Copies the value of an HTML element to the clipboard.
  * @async
  * @function clipValue

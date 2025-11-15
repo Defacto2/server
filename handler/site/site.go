@@ -177,6 +177,11 @@ func Websites() Groups {
 				Name: "1996 ACiD webpage",
 			},
 			{
+				URL:        "http://www.cyberspace.com/~aciddraw",
+				Name:       "Original webpage",
+				NotWorking: true,
+			},
+			{
 				URL:  "https://en.wikipedia.org/wiki/ACiD_Productions",
 				Name: "Wikipedia",
 			},
