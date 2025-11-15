@@ -584,7 +584,7 @@ func ListContent(sl *slog.Logger, maxItems int, art *models.File, dirs command.D
 	if len(elms) > maxItems {
 		elms = elms[:maxItems]
 	}
-	results := readme.SortList(strings.Join(elms, "\n"))
+	results := readme.SortList(false, strings.Join(elms, "\n"))
 
 	var b strings.Builder
 	name := ""

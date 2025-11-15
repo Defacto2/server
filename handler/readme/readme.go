@@ -39,7 +39,7 @@ import (
 //
 // This is a port of the CFML function, variables.findTextfile found in File.cfc.
 func Suggest(archive, group string, content string) string {
-	finds := SortList(content)
+	finds := SortList(true, content)
 	if len(finds) == 0 {
 		return ""
 	}
@@ -90,8 +90,11 @@ func Suggest(archive, group string, content string) string {
 // The first result is the closes filename to root that has a priority
 // filename extension such as ".nfo", then ordered alphabetically.
 //
+// When compact is true all filenames using extensions that are not known textfiles,
+// are removed from the slice.
+//
 // To save memory, content is not split into a slice until we need to handle it.
-func SortList(content string) []string {
+func SortList(compact bool, content string) []string {
 	list := strings.Split(content, "\n")
 	slices.SortFunc(list, func(a, b string) int {
 		a = strings.ToLower(a)
@@ -128,7 +131,7 @@ func SortList(content string) []string {
 			continue
 		}
 		v := strings.ToLower(filepath.Ext(path))
-		if !slices.Contains(priority(), v) && !slices.Contains(candidate(), v) {
+		if compact && !slices.Contains(priority(), v) && !slices.Contains(candidate(), v) {
 			continue
 		}
 		index++
