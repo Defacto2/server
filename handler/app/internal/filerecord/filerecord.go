@@ -515,9 +515,13 @@ func (e *entry) parseMusicID3(path string) bool {
 	return !skipEntry
 }
 
-// ListContent returns a list of the files contained in the archive file.
+// ListContent returns a list of the files contained in the stored archive file.
 // This is used to generate the HTML for the "Download content" section of the File editor.
-func ListContent(sl *slog.Logger, art *models.File, dirs command.Dirs, src string) template.HTML { //nolint:funlen
+//
+// This should only ever be used by the admin editor mode qw it extracts the file archve
+// to a temporary directory, to allow its extracted content can be parsed to determine usability
+// using magicfile techniques and other metadata.
+func ListContent(sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string) template.HTML { //nolint:funlen
 	if sl == nil || art == nil {
 		return ""
 	}
@@ -531,23 +535,57 @@ func ListContent(sl *slog.Logger, art *models.File, dirs command.Dirs, src strin
 		return "error, invalid platform"
 	}
 	section := strings.TrimSpace(strings.ToLower(art.Section.String))
-	dst, err := archive.ExtractSource(src, art.Filename.String)
+
+	tmpRoot, err := archive.ExtractSource(src, art.Filename.String)
 	if err != nil {
 		return extractErr(src, platform, section, zeroByteFiles, err)
 	}
-	walkerCount := func(_ string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
+	walkerCount := func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
 			return fs.SkipDir
 		}
-		files++
+		if !d.IsDir() {
+			files++
+		}
 		return nil
 	}
-	if err := filepath.WalkDir(dst, walkerChmod); err != nil {
+	if err := filepath.WalkDir(tmpRoot, walkerChmod); err != nil {
 		return template.HTML(err.Error())
 	}
-	if err := filepath.WalkDir(dst, walkerCount); err != nil {
+	if err := filepath.WalkDir(tmpRoot, walkerCount); err != nil {
 		return template.HTML(err.Error())
 	}
+
+	elms := make([]string, files)
+	index := -1
+	listFunc := func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return filepath.SkipDir
+		}
+		var skipEntry error
+		if d.IsDir() {
+			return skipEntry
+		}
+		rel, err := filepath.Rel(tmpRoot, path)
+		if err != nil {
+			return skipEntry
+		}
+		rel = strings.TrimSpace(rel)
+		if rel == "" {
+			return skipEntry
+		}
+		index++
+		elms[index] = rel
+		return nil
+	}
+	if err = filepath.WalkDir(tmpRoot, listFunc); err != nil {
+		return template.HTML(err.Error())
+	}
+	if len(elms) > maxItems {
+		elms = elms[:maxItems]
+	}
+	results := readme.SortList(strings.Join(elms, "\n"))
+
 	var b strings.Builder
 	name := ""
 	names := []string{}
@@ -556,10 +594,11 @@ func ListContent(sl *slog.Logger, art *models.File, dirs command.Dirs, src strin
 			return filepath.SkipDir
 		}
 		var skipEntry error
-		rel, err := filepath.Rel(dst, path)
+		rel, err := filepath.Rel(tmpRoot, path)
 		if err != nil {
-			debug := fmt.Sprintf(`<div class="border-bottom row mb-1">... %v more files</div>`, err)
-			b.WriteString(debug)
+			return skipEntry
+		}
+		if usefile := slices.Contains(results, rel); !usefile {
 			return skipEntry
 		}
 		e := entry{zeros: zeroByteFiles}
@@ -574,22 +613,23 @@ func ListContent(sl *slog.Logger, art *models.File, dirs command.Dirs, src strin
 		}
 		le := listEntry(e, rel, unid)
 		b.WriteString(le.HTML(e.bytes, platform, section))
-		if maxItems := 200; entries > maxItems {
-			more := fmt.Sprintf(`<div class="border-bottom row mb-1">... %d more files</div>`, files-entries)
-			b.WriteString(more)
+		if entries > maxItems {
 			return filepath.SkipAll
 		}
 		return nil
 	}
-
-	if err = filepath.WalkDir(dst, walkerFunc); err != nil {
+	if files > maxItems {
+		more := fmt.Sprintf(`<div class="border-bottom row mb-1">skipped %d other files</div>`, files-maxItems)
+		b.WriteString(more)
+	}
+	if err = filepath.WalkDir(tmpRoot, walkerFunc); err != nil {
 		b.Reset()
 		return template.HTML(err.Error())
 	}
 	c := content{
 		dirs:          dirs,
 		zeroByteFiles: zeroByteFiles,
-		dst:           dst,
+		dst:           tmpRoot,
 		src:           src,
 		unid:          unid,
 	}

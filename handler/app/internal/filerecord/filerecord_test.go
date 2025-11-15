@@ -326,30 +326,30 @@ func TestListContent(t *testing.T) {
 	x := models.File{}
 	dirs := command.Dirs{}
 	sl := slog.Default()
-	s := filerecord.ListContent(sl, &x, dirs, "")
+	s := filerecord.ListContent(sl, -1, &x, dirs, "")
 	find := strings.Contains(string(s), "no UUID")
 	be.True(t, find)
 
 	x.UUID = null.StringFrom(r0)
-	s = filerecord.ListContent(sl, &x, dirs, "")
+	s = filerecord.ListContent(sl, -1, &x, dirs, "")
 	find = strings.Contains(string(s), "invalid platform")
 	be.True(t, find)
 
 	x.Platform = null.StringFrom("dos")
-	s = filerecord.ListContent(sl, &x, dirs, "")
+	s = filerecord.ListContent(sl, -1, &x, dirs, "")
 	find = strings.Contains(string(s), "cannot stat file")
 	be.True(t, find)
 
 	src, err := filepath.Abs("testdata")
 	be.Err(t, err, nil)
-	s = filerecord.ListContent(sl, &x, dirs, src)
+	s = filerecord.ListContent(sl, -1, &x, dirs, src)
 	find = strings.Contains(string(s), "error, ")
 	be.True(t, find)
 
 	tmpDir := t.TempDir()
 	err = command.CopyFile(logs.Discard(), filepath.Join("testdata", "archive.zip"), filepath.Join(tmpDir, "archive.zip"))
 	be.Err(t, err, nil)
-	s = filerecord.ListContent(sl, &x, dirs, tmpDir)
+	s = filerecord.ListContent(sl, -1, &x, dirs, tmpDir)
 	find = strings.Contains(string(s), "error, ")
 	be.True(t, find)
 }

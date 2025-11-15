@@ -25,7 +25,7 @@ go 1.25.3 // latest: https://go.dev/dl/
 // urface/cli is used with the flags package for command line interactions.
 //
 require (
-	github.com/Defacto2/archive v1.1.3
+	github.com/Defacto2/archive v1.1.4
 	github.com/Defacto2/helper v1.6.4
 	github.com/Defacto2/magicnumber v1.0.13
 	github.com/Defacto2/releaser v1.3.17
@@ -59,6 +59,7 @@ require (
 )
 
 // Uncomment to use the local repository
+//replace github.com/Defacto2/archive => ../archive
 //	replace github.com/Defacto2/helper => ../helper
 //	replace github.com/Defacto2/magicnumber => ../magicnumber
 //	replace github.com/Defacto2/releaser => ../releaser
@@ -121,16 +122,16 @@ require (
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
-	go.uber.org/nilaway v0.0.0-20251107192516-561521d33d7b // indirect
-	golang.org/x/crypto v0.43.0 // indirect
-	golang.org/x/mod v0.29.0 // indirect
-	golang.org/x/net v0.46.0 // indirect
+	go.uber.org/nilaway v0.0.0-20251113014939-1941227e2c57 // indirect
+	golang.org/x/crypto v0.44.0 // indirect
+	golang.org/x/mod v0.30.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
-	golang.org/x/pkgsite v0.0.0-20251110163304-1dd39b1136d1 // indirect
+	golang.org/x/pkgsite v0.0.0-20251114215028-9f629f032eec // indirect
 	golang.org/x/sync v0.18.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
-	golang.org/x/tools v0.38.0 // indirect
+	golang.org/x/tools v0.39.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251103181224-f26f9409b101 // indirect
 	google.golang.org/grpc v1.76.0 // indirect

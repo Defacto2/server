@@ -117,7 +117,7 @@ func ReadmePool(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, downl
 		return nil
 	}
 	if st.Size() > sizeLimit {
-		b := []byte("skipped, file is too large")
+		b := []byte("skipped, text is too long")
 		buf.Write(b)
 		return nil
 	}
@@ -219,6 +219,10 @@ func Viewer(art *models.File) bool {
 	}
 	if strings.EqualFold(art.Filename.String, "file_id.diz") {
 		// avoid displaying the file_id.diz twice in the browser viewer
+		return false
+	}
+	section := strings.ToLower(strings.TrimSpace(art.Section.String))
+	if section == "package" {
 		return false
 	}
 	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))

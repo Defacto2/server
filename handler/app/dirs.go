@@ -4,6 +4,7 @@ package app
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"database/sql"
 	"errors"
@@ -79,6 +80,7 @@ type Dirs struct {
 
 // Artifact is the handler for the of the file record.
 func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
+	const maxArchiveItems = 200 // NOTE: a high value with large archives will slow the page render
 	const msg = "dir artifact context"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -90,7 +92,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	}
 	data := empty(c)
 	if !readonly {
-		data = dir.Editor(sl, art, data)
+		data = dir.Editor(sl, maxArchiveItems, art, data)
 		data = detectANSI(db, sl, art.ID, data)
 	}
 	// page metadata
@@ -113,7 +115,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
 	data = jsdos(art, data, sl)
-	data = content(art, data)
+	data = content(art, maxArchiveItems, data)
 	data["linkpreview"] = filerecord.LinkPreview(art)
 	data["linkpreviewTip"] = filerecord.LinkPreviewTip(art)
 	data["filentry"] = filerecord.FileEntry(art)
@@ -121,8 +123,8 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 		data["noScreenshot"] = true
 	}
 	if filerecord.EmbedReadme(art) {
-		data, err = dir.embedPool(art, data)
-		// data, err = dir.embed(art, data)
+		const sizeLimitBytes = 1_000_000
+		data, err = dir.embedPool(art, sizeLimitBytes, data)
 		if err != nil {
 			defer clear(data)
 			sl.Error("dirs artifact",
@@ -225,7 +227,7 @@ func plainText(modMagic any) bool {
 // Editor returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) Editor(sl *slog.Logger, art *models.File, data map[string]any) map[string]any {
+func (dir Dirs) Editor(sl *slog.Logger, maxItems int, art *models.File, data map[string]any) map[string]any {
 	if sl == nil || art == nil {
 		return data
 	}
@@ -251,7 +253,7 @@ func (dir Dirs) Editor(sl *slog.Logger, art *models.File, data map[string]any) m
 	data["modMagicNumber"] = simple.MagicAsTitle(abs)
 	data["modDBModify"] = filerecord.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
-	data["modDecompress"] = filerecord.ListContent(sl, art, d, abs)
+	data["modDecompress"] = filerecord.ListContent(sl, maxItems, art, d, abs)
 	data["modDecompressLoc"] = simple.MkContent(abs)
 	// These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
 	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
@@ -260,7 +262,9 @@ func (dir Dirs) Editor(sl *slog.Logger, art *models.File, data map[string]any) m
 	data["modAssetThumbnail"] = dir.thumbnails(unid)
 	data["modAssetExtra"] = dir.extras(unid)
 	data["missingAssets"] = dir.missingAssets(art)
+	// FIX: order and limit Readme(art)
 	data["modReadmeSuggest"] = filerecord.Readme(art)
+	// FIX:
 	data["disableReadme"] = filerecord.DisableReadme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)
 	data["modRelations"] = filerecord.RelationsStr(art)
@@ -280,7 +284,7 @@ func (dir Dirs) Editor(sl *slog.Logger, art *models.File, data map[string]any) m
 	return data
 }
 
-func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any, error) {
+func (dir Dirs) embedPool(art *models.File, sizeLimit int64, data map[string]any) (map[string]any, error) {
 	data["ansiMe"] = ""
 	data["readmeSAUCE"] = false
 	data["sauceTitle"] = ""
@@ -293,7 +297,7 @@ func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any
 	// NOTE: readme.Pool should not be used here, 20-July-25.
 	// Using the ReadPool (sync.Pool) function causes unusual text duplication behavior in production.
 	// After research, sync pooling is better used for small, fixed width data.
-	buf, ruf, rec, err := readme.ReadPool(art, dir.Download, dir.Extra)
+	buf, ruf, rec, err := readme.ReadPool(art, sizeLimit, dir.Download, dir.Extra)
 	if err != nil {
 		if errors.Is(err, render.ErrDownload) {
 			data["noDownload"] = true
@@ -316,7 +320,6 @@ func (dir Dirs) embedPool(art *models.File, data map[string]any) (map[string]any
 		data["ansiMe"] = template.HTML(buf.String())
 		return data, nil
 	}
-
 	d, err := embedText(art, data, buf.Bytes()...)
 	if err != nil {
 		return data, fmt.Errorf("dirs.embed text: %w", err)
@@ -675,25 +678,52 @@ func jsdos(art *models.File, data map[string]any, sl *slog.Logger,
 	return data
 }
 
+func sortContent(content string) []string {
+	x := strings.Split(content, "\n")
+	slices.SortFunc(x, func(a, b string) int {
+		// behave like Windows and ignore case ordering
+		a = strings.TrimSpace(strings.ToLower(a))
+		b = strings.TrimSpace(strings.ToLower(b))
+		aLen := strings.Count(a, "/")
+		bLen := strings.Count(b, "/")
+		aExt := filepath.Ext(a)
+		bExt := filepath.Ext(b)
+		return cmp.Or(
+			cmp.Compare(aLen, bLen),     // sort by directory length
+			strings.Compare(aExt, bExt), // sort by filename extension
+			strings.Compare(a, b),       // sort by filename
+		)
+	})
+	items := make([]string, len(x))
+	index := -1
+	for s := range slices.Values(x) {
+		if strings.HasSuffix(s, "/") {
+			continue
+		}
+		index++
+		items[index] = s
+	}
+	items = slices.Compact(items)
+	return items
+}
+
 // content returns the archive content for the file download of the artifact.
-func content(art *models.File, data map[string]any) map[string]any {
+func content(art *models.File, maxItems int, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
-	data["content"] = ""
-	data["contentDesc"] = ""
-	// NOTE: using strings.Split seems more memory friendly than using strings.SplitN()
-	items := strings.Split(art.FileZipContent.String, "\n")
-	const maxItems = 1_000
-	if len(items) > maxItems {
-		items = items[:maxItems]
-	}
+	items := sortContent(art.FileZipContent.String)
 	items = slices.DeleteFunc(items, func(s string) bool {
 		return strings.TrimSpace(s) == ""
 	})
+	count := len(items)
+	// Cap the number of items to avoid generating HTML output that's too large
+	if len(items) > maxItems {
+		items = items[:maxItems]
+	}
 	paths := slices.Compact(items)
-	data["content"] = paths
-	data["contentDesc"] = ""
+	data["content"] = paths  // This is displayed as "#	Filename or path"
+	data["contentDesc"] = "" // This is used by "Download info"
 	l := len(paths)
 	switch l {
 	case 0:
@@ -701,7 +731,7 @@ func content(art *models.File, data map[string]any) map[string]any {
 	case 1:
 		data["contentDesc"] = "contains one file"
 	default:
-		data["contentDesc"] = fmt.Sprintf("contains %d files", l)
+		data["contentDesc"] = fmt.Sprintf("contains %d files", count)
 	}
 	return data
 }
