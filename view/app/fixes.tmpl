@@ -3,6 +3,26 @@
 */ -}}
 {{- define "content" }}
 <hr>
+<p class="lead">How to preserve the file last modification date?</p>
+<p>
+Unfortunately, web browsers ignore the last modification date metadata when it is attached to a file download.
+However, you can use other tools such as wget or curl for downloading to preserve the date.
+</p>
+<p>
+For example, the artifact "<a href="/f/b32455c">SYMCOLOR.COR</a>" was last modified in November 1985, to download and preserve it on your system,
+</p>
+wget <code>--content-disposition https://defacto2.net/d/b32455c</code><br> 
+curl <code>-LOJR https://defacto2.net/d/b32455c</code>
+</p>
+<pre>
+  Saving 'SYMCOLOR.COR'
+  HTTP response 200 OK [https://defacto2.net/d/b32455c]
+  SYMCOLOR.COR         100%
+
+$ ls -l SYMCOLOR.COR
+  2560 Nov 28  1985  SYMCOLOR.COR
+</pre>
+<hr>
 <p class="lead">Shrinker.err Dispatcher initialization errors</p>
 <p>
 An ancient Windows program crashes with the cryptic error message.

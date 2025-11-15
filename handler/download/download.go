@@ -10,13 +10,16 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
@@ -69,6 +72,34 @@ func Checksum(c echo.Context, db *sql.DB, id string) error {
 	return nil
 }
 
+// LastModified returns the last modification date and time that can be used
+// with a HTTP Last-Modified [header].
+//
+//	RFC1123     = "Mon, 02 Jan 2006 15:04:05 MST"
+//
+// example output: Wed, 21 Oct 2015 07:28:00 GMT
+// [header]:https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Last-Modified
+func LastModified(art *models.File) string {
+	const none = ""
+	if art == nil {
+		return none
+	}
+	if !art.FileLastModified.Valid {
+		return none
+	}
+	const epoch = 1980
+	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
+	if year <= epoch {
+		return none
+	}
+	t := art.FileLastModified.Time.UTC()
+	lm := t.Format(time.RFC1123)
+	// if lm == "0001 Jan 1, 00:00" {
+	// 	return none
+	// }
+	return lm
+}
+
 // Download configuration.
 type Download struct {
 	Dir    dir.Directory // Dir is the absolute path to the download directory.
@@ -117,6 +148,12 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		text := tags.IsText(art.Platform.String)
 		ext := filepath.Ext(art.Filename.String)
 		return inline(c, text, file, name, ext)
+	}
+	lastmod := LastModified(art)
+	if lastmod != "" {
+		c.Response().Before(func() {
+			c.Response().Header().Set(echo.HeaderLastModified, lastmod)
+		})
 	}
 	if err := c.Attachment(file, name); err != nil {
 		return fmt.Errorf("%s attachment: %w", msg, err)
