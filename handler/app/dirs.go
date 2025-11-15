@@ -80,7 +80,9 @@ type Dirs struct {
 
 // Artifact is the handler for the of the file record.
 func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
-	const maxArchiveItems = 200 // NOTE: a high value with large archives will slow the page render
+	const maxArchiveItems = 200      // NOTE: limit to 200 items for display, "view content" + "Download content", high limits take longer to render
+	const sizeLimitBytes = 1_000_000 // NOTE: skip the rendering of readme text files that are larger than 1MB
+	const maxZipContent = 1_000_000  // NOTE: skip the render of the "view content" button for 1MB > zip content textdata, limit is ignored by Editors
 	const msg = "dir artifact context"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -91,10 +93,10 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 		return err
 	}
 	data := empty(c)
-	if !readonly {
-		data = dir.Editor(sl, maxArchiveItems, art, data)
-		data = detectANSI(db, sl, art.ID, data)
+	if !readonly && sess.Editor(c) {
+		data = dir.Editor(c, sl, maxArchiveItems, art, data)
 	}
+	data = detectANSI(db, sl, art.ID, data)
 	// page metadata
 	uri := filerecord.DownloadID(art)
 	data["canonical"] = strings.Join([]string{"f", uri}, "/")
@@ -108,14 +110,22 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	data["lead"] = firstLead(art)
 	data["comment"] = string(helper.MaskTerm([]byte(filerecord.Comment(art))...))
 	data = dir.filemetadata(art, data)
-	if !readonly {
+	if !readonly && sess.Editor(c) {
+		// this can be a performance issue on large files
 		platform := filerecord.TagProgram(art)
 		data = dir.updateMagics(db, sl, art.ID, art.UUID.String, platform, data)
 	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
 	data = jsdos(art, data, sl)
-	data = content(art, maxArchiveItems, data)
+	// performance sanity check for everyone other than Editors
+	zipToBig := len(art.FileZipContent.String) > maxZipContent
+	if !zipToBig || sess.Editor(c) {
+		// this can cause a performance hit with archives with 10,000+ items
+		data = content(art, maxArchiveItems, data)
+	} else if zipToBig {
+		data["contentDesc"] = "contains many files"
+	}
 	data["linkpreview"] = filerecord.LinkPreview(art)
 	data["linkpreviewTip"] = filerecord.LinkPreviewTip(art)
 	data["filentry"] = filerecord.FileEntry(art)
@@ -123,7 +133,6 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 		data["noScreenshot"] = true
 	}
 	if filerecord.EmbedReadme(art) {
-		const sizeLimitBytes = 1_000_000
 		data, err = dir.embedPool(art, sizeLimitBytes, data)
 		if err != nil {
 			defer clear(data)
@@ -133,6 +142,8 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 				slog.Any("error", err))
 		}
 	}
+	// TODO:sauce for non-embed readme files such as single images
+	//
 	err = c.Render(http.StatusOK, name, data)
 	defer clear(data)
 	if err != nil {
@@ -227,7 +238,7 @@ func plainText(modMagic any) bool {
 // Editor returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) Editor(sl *slog.Logger, maxItems int, art *models.File, data map[string]any) map[string]any {
+func (dir Dirs) Editor(c echo.Context, sl *slog.Logger, maxItems int, art *models.File, data map[string]any) map[string]any {
 	if sl == nil || art == nil {
 		return data
 	}
@@ -254,7 +265,9 @@ func (dir Dirs) Editor(sl *slog.Logger, maxItems int, art *models.File, data map
 	data["modDBModify"] = filerecord.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
 	data["modDecompress"] = filerecord.ListContent(sl, maxItems, art, d, abs)
-	data["modDecompressLoc"] = simple.MkContent(abs)
+	if sess.Editor(c) {
+		data["modDecompressLoc"] = simple.MkContent(abs)
+	}
 	// These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
 	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
 	// the site was under heavy load.
@@ -262,9 +275,7 @@ func (dir Dirs) Editor(sl *slog.Logger, maxItems int, art *models.File, data map
 	data["modAssetThumbnail"] = dir.thumbnails(unid)
 	data["modAssetExtra"] = dir.extras(unid)
 	data["missingAssets"] = dir.missingAssets(art)
-	// FIX: order and limit Readme(art)
 	data["modReadmeSuggest"] = filerecord.Readme(art)
-	// FIX:
 	data["disableReadme"] = filerecord.DisableReadme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)
 	data["modRelations"] = filerecord.RelationsStr(art)
