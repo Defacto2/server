@@ -60,6 +60,7 @@
   <thead>
     <tr>
       <th scope="col"></th>
+      <th scope="col">Usage</th>
       <th scope="col">Total</th>
       <th scope="col">Assets</th>
       <th scope="col">Other finds</th>
@@ -68,6 +69,7 @@
   <tbody class="table-group-divider">
     <tr>
       <th scope="row">Downloads</th>
+      <td class="text-end">{{index . "usageDownloads"}}</td>
       <td>{{index . "countDownloads"}}</td>
       <td>
         {{- if gt (len $extsDownloads) 0 }}{{- $first := index $extsDownloads 0 }}
@@ -86,6 +88,7 @@
     </tr>
     <tr>
       <th scope="row">Previews</th>
+      <td class="text-end">{{index . "usagePreviews"}}</td>
       <td>{{index . "countPreviews"}}</td>
       <td>
         {{- if gt (len $extsPreviews) 0 }}{{- $first := index $extsPreviews 0 }}
@@ -104,6 +107,7 @@
       </tr>
     <tr>
       <th scope="row">Thumbnails</th>
+      <td class="text-end">{{index . "usageThumbnails"}}</td>
       <td>{{index . "countThumbnails"}}</td>
       <td>
         {{- if gt (len $extsThumbnails) 0 }}{{- $first := index $extsThumbnails 0 }}
@@ -122,6 +126,7 @@
     </tr>
     <tr>
       <th scope="row">Extras</th>
+      <td class="text-end">{{index . "usageExtras"}}</td>
       <td>{{index . "countExtras"}}</td>
       <td></td>
       <td>
@@ -136,6 +141,7 @@
     </tr>
     <tr>
       <th scope="row">Orphaned</th>
+      <td class="text-end">{{index . "usageOrphaned"}}</td>
       <td>{{index . "countOrphaned"}}</td>
       <td></td>
       <td>
@@ -150,6 +156,7 @@
     </tr>
   </tbody>
 </table>
+<p>Disk (<var>/assets</var>) {{index . "wdUsage"}} / {{index . "wdTotal"}} ({{index . "wdPercent"}})</p>
 </div>
 {{- /*  Settings  */}}
 {{- /*  has been disabled after the rewrite of the internal/config/config package.

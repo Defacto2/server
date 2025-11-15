@@ -180,9 +180,20 @@ func (c *Configuration) StartupBranding(sl *slog.Logger, w io.Writer) {
 	cpuInfo := fmt.Sprintf("  %d active routines sharing %d usable threads on %d CPU cores.",
 		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	_, _ = fmt.Fprintln(w, cpuInfo)
-	golangInfo := fmt.Sprintf("  Compiled on Go %s for %s with %s.\n",
+	golangInfo := fmt.Sprintf("  Compiled on Go %s for %s with %s.",
 		runtime.Version()[2:], flags.OS(), flags.Arch())
 	_, _ = fmt.Fprintln(w, golangInfo)
+	to, fr, _, s, err := helper.DiskStat("/")
+	if err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
+	}
+	total := int64(to)
+	free := int64(fr)
+	// Disk (/): 300.28 GiB / 464.17 GiB (65%)
+	diskInfo := fmt.Sprintf("  Disk (/) %s / %s (%s).\n",
+		helper.ByteCount(free), helper.ByteCount(total),
+		s)
+	_, _ = fmt.Fprintln(w, diskInfo)
 	//
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//

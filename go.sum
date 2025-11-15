@@ -12,8 +12,8 @@ github.com/DATA-DOG/go-sqlmock v1.4.1 h1:ThlnYciV1iM/V0OSF/dtkqWb6xo5qITT1TJBG1M
 github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/Defacto2/archive v1.1.4 h1:T8kyhh5+BHPkQUtLb4A/JvwEmDK+i1igATSr5UDvpOk=
 github.com/Defacto2/archive v1.1.4/go.mod h1:WNc6o0TL8+qgqV/qu7gXtUBdderlffs93+bc/+4082o=
-github.com/Defacto2/helper v1.6.4 h1:PUT8RGFw3lVRBYBA+h3UeFvZfq6B59K7Mjp2/tFDHBM=
-github.com/Defacto2/helper v1.6.4/go.mod h1:wNS/xm0JEPK1TWlwB9gMTCTZKvcXKxVRaX8dS3v4WM4=
+github.com/Defacto2/helper v1.6.5 h1:Iq9V5S+oltemTzdAPudfyhEJfrWj/p6JNXLdrUyWClo=
+github.com/Defacto2/helper v1.6.5/go.mod h1:5vFt3fA2xO3fP7UlYq8c8pCGWIlTmAosV64GE7ROJC0=
 github.com/Defacto2/magicnumber v1.0.13 h1:jFHdzH0MVHuN30erU3DEjkIH+myZlZ/OCvsXTrwGLgU=
 github.com/Defacto2/magicnumber v1.0.13/go.mod h1:aMwtAJ3WSyJp7F9+j1IPh5iKwn9zNaAE1RI82VM3FAQ=
 github.com/Defacto2/releaser v1.3.17 h1:KUFh2EVhL5Q7uE+mNjlzQaJO+wiAMjHIAy0ObC3e5ls=

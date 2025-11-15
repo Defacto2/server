@@ -26,7 +26,7 @@ go 1.25.3 // latest: https://go.dev/dl/
 //
 require (
 	github.com/Defacto2/archive v1.1.4
-	github.com/Defacto2/helper v1.6.4
+	github.com/Defacto2/helper v1.6.5
 	github.com/Defacto2/magicnumber v1.0.13
 	github.com/Defacto2/releaser v1.3.17
 	github.com/aarondl/null/v8 v8.1.3
@@ -59,12 +59,14 @@ require (
 )
 
 // Uncomment to use the local repository
-//replace github.com/Defacto2/archive => ../archive
+//	replace github.com/Defacto2/archive => ../archive
 //	replace github.com/Defacto2/helper => ../helper
 //	replace github.com/Defacto2/magicnumber => ../magicnumber
 //	replace github.com/Defacto2/releaser => ../releaser
 //	replace github.com/bengarrett/ansibump => ../ansibump
 //	replace github.com/bengarrett/sauce => ../sauce
+
+require golang.org/x/sys v0.38.0 // indirect
 
 require (
 	cloud.google.com/go/auth v0.17.0 // indirect
@@ -129,7 +131,6 @@ require (
 	golang.org/x/oauth2 v0.33.0 // indirect
 	golang.org/x/pkgsite v0.0.0-20251114215028-9f629f032eec // indirect
 	golang.org/x/sync v0.18.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect

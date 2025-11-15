@@ -579,11 +579,18 @@ func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Co
 func configurations(data map[string]any, conf config.Config) map[string]any {
 	download := dir.Directory(string(conf.AbsDownload))
 	check := config.CheckDir(download, "downloads")
+	wdu, wdt, _, wdp, _ := helper.DiskStat(conf.AbsDownload.String())
+	data["wdUsage"] = helper.ByteCount(int64(wdu))
+	data["wdTotal"] = helper.ByteCount(int64(wdt))
+	data["wdPercent"] = wdp
 	data["checkDownloads"] = check
 	data["countDownloads"] = 0
+	data["usageDownloads"] = 0
 	data["extsDownloads"] = []helper.Extension{}
 	if check == nil {
 		data["countDownloads"], _ = helper.Count(string(conf.AbsDownload))
+		b, _ := helper.DiskUsage(string(conf.AbsDownload))
+		data["usageDownloads"] = helper.ByteCount(b)
 		exts, _ := helper.CountExts(string(conf.AbsDownload))
 		data["extsDownloads"] = exts
 	}
@@ -591,9 +598,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 	check = config.CheckDir(preview, "previews")
 	data["checkPreviews"] = check
 	data["countPreviews"] = 0
+	data["usagePreviews"] = 0
 	data["extsPreviews"] = []helper.Extension{}
 	if check == nil {
 		data["countPreviews"], _ = helper.Count(conf.AbsPreview.String())
+		b, _ := helper.DiskUsage(string(conf.AbsPreview))
+		data["usagePreviews"] = helper.ByteCount(b)
 		exts, _ := helper.CountExts(conf.AbsPreview.String())
 		data["extsPreviews"] = exts
 	}
@@ -601,9 +611,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 	check = config.CheckDir(thumbnail, "thumbnails")
 	data["checkThumbnails"] = check
 	data["countThumbnails"] = 0
+	data["usageThumbnails"] = 0
 	data["extsThumbnails"] = []helper.Extension{}
 	if check == nil {
 		data["countThumbnails"], _ = helper.Count(conf.AbsThumbnail.String())
+		b, _ := helper.DiskUsage(string(conf.AbsThumbnail))
+		data["usageThumbnails"] = helper.ByteCount(b)
 		exts, _ := helper.CountExts(conf.AbsThumbnail.String())
 		data["extsThumbnails"] = exts
 	}
@@ -611,9 +624,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 	check = config.CheckDir(extra, "extra")
 	data["checkExtras"] = check
 	data["countExtras"] = 0
+	data["usageExtras"] = 0
 	data["extsExtras"] = []helper.Extension{}
 	if check == nil {
 		data["countExtras"], _ = helper.Count(conf.AbsExtra.String())
+		b, _ := helper.DiskUsage(string(conf.AbsExtra))
+		data["usageExtras"] = helper.ByteCount(b)
 		exts, _ := helper.CountExts(conf.AbsExtra.String())
 		data["extsExtras"] = exts
 	}
@@ -621,9 +637,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 	check = config.CheckDir(orphaned, "orphaned")
 	data["checkOrphaned"] = check
 	data["countOrphaned"] = 0
+	data["usageOrphaned"] = 0
 	data["extsOrphaned"] = []helper.Extension{}
 	if check == nil {
 		data["countOrphaned"], _ = helper.Count(conf.AbsOrphaned.String())
+		b, _ := helper.DiskUsage(string(conf.AbsOrphaned))
+		data["usageOrphaned"] = helper.ByteCount(b)
 		exts, _ := helper.CountExts(conf.AbsOrphaned.String())
 		data["extsOrphaned"] = exts
 	}
