@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -156,7 +157,9 @@ func candidate() []string {
 //
 // The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
 // However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
-func ReadPool(art *models.File, sizeLimit int64, download, extra dir.Directory) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) { //nolint:cyclop,lll
+func ReadPool( //nolint:gocognit,cyclop,funlen
+	art *models.File, sizeLimit int64, download, extra dir.Directory,
+) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
 	const msg = "readme pool"
 	nosauce := sauce.Record{}
 	if art == nil {
@@ -166,9 +169,7 @@ func ReadPool(art *models.File, sizeLimit int64, download, extra dir.Directory) 
 	diz := new(bytes.Buffer)
 	ruf := new(bytes.Buffer)
 	// This might be useful if we want to force Go to not use the garbage collector.
-	// buf.Reset()
-	// diz.Reset()
-	// ruf.Reset()
+	// buf.Reset() diz.Reset() ruf.Reset()
 	err1 := render.DizPool(diz, art, extra)
 	err2 := render.ReadmePool(buf, ruf, sizeLimit, art, download, extra)
 	var errs error
@@ -183,10 +184,21 @@ func ReadPool(art *models.File, sizeLimit int64, download, extra dir.Directory) 
 			errs = errors.Join(errs, fmt.Errorf("%s render read: %w", msg, err2))
 		}
 	}
-	if diz.Len() == 0 && buf.Len() == 0 && ruf.Len() == 0 {
-		return nil, nil, nosauce, errs
+	notText := diz.Len() == 0 && buf.Len() == 0 && ruf.Len() == 0
+	if notText {
+		name := download.Join(art.UUID.String)
+		file, err := os.Open(name)
+		if err != nil {
+			errs = errors.Join(errs, fmt.Errorf("%s not text open: %w", msg, err))
+			return nil, nil, nosauce, errs
+		}
+		defer file.Close()
+		rec, err := sauce.Read(file)
+		if err != nil {
+			errs = errors.Join(errs, fmt.Errorf("%s not text sauce read: %w", msg, err))
+		}
+		return nil, nil, *rec, errs
 	}
-
 	// check the bytes to confirm they can be displayed as text
 	sign, err := magicnumber.Text(bytes.NewReader(buf.Bytes()))
 	if err != nil {
@@ -196,6 +208,11 @@ func ReadPool(art *models.File, sizeLimit int64, download, extra dir.Directory) 
 	// reset buffer for unknown, utf-16 or utf-32 text which won't be displayed
 	if sign == magicnumber.Unknown || sign == magicnumber.UTF16Text || sign == magicnumber.UTF32Text {
 		buf.Reset()
+	}
+	// reset buffers for known non-images
+	if slices.Contains(magicnumber.Images(), sign) {
+		buf.Reset()
+		ruf.Reset()
 	}
 	b := buf.Bytes()
 	rec := sauce.Record{}
@@ -262,9 +279,7 @@ func trimBytes(b []byte) []byte {
 	// trim trailing whitespace and MS-DOS era EOF marker
 	b = bytes.TrimRightFunc(b, uni.IsSpace)
 	const endOfFile = 0x1a // Ctrl+Z
-	if bytes.HasSuffix(b, []byte{endOfFile}) {
-		b = bytes.TrimSuffix(b, []byte{endOfFile})
-	}
+	b, _ = bytes.CutSuffix(b, []byte{endOfFile})
 	return b
 }
 

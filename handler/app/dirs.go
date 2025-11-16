@@ -37,6 +37,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/bengarrett/sauce"
 	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v4"
 	_ "golang.org/x/image/webp" // webp format decoder
@@ -80,9 +81,12 @@ type Dirs struct {
 
 // Artifact is the handler for the of the file record.
 func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
-	const maxArchiveItems = 200      // NOTE: limit to 200 items for display, "view content" + "Download content", high limits take longer to render
-	const sizeLimitBytes = 1_000_000 // NOTE: skip the rendering of readme text files that are larger than 1MB
-	const maxZipContent = 1_000_000  // NOTE: skip the render of the "view content" button for 1MB > zip content textdata, limit is ignored by Editors
+	// NOTE: limit to 200 items for display, "view content" + "Download content", high limits take longer to render.
+	const maxArchiveItems = 200
+	// NOTE: skip the rendering of readme text files that are larger than 1MB.
+	const sizeLimitBytes = 1_000_000
+	// NOTE: skip the render of the "view content" button for 1MB > zip content textdata, limit is ignored by Editors.
+	const maxZipContent = 1_000_000
 	const msg = "dir artifact context"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -110,8 +114,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	data["lead"] = firstLead(art)
 	data["comment"] = string(helper.MaskTerm([]byte(filerecord.Comment(art))...))
 	data = dir.filemetadata(art, data)
-	if !readonly && sess.Editor(c) {
-		// this can be a performance issue on large files
+	if !readonly && sess.Editor(c) { // NOTE: this can be a performance issue on large files
 		platform := filerecord.TagProgram(art)
 		data = dir.updateMagics(db, sl, art.ID, art.UUID.String, platform, data)
 	}
@@ -120,8 +123,7 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	data = jsdos(art, data, sl)
 	// performance sanity check for everyone other than Editors
 	zipToBig := len(art.FileZipContent.String) > maxZipContent
-	if !zipToBig || sess.Editor(c) {
-		// this can cause a performance hit with archives with 10,000+ items
+	if !zipToBig || sess.Editor(c) { // NOTE: this can cause a performance hit for archives with 10,000+ items
 		data = content(art, maxArchiveItems, data)
 	} else if zipToBig {
 		data["contentDesc"] = "contains many files"
@@ -132,18 +134,17 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	if skip := render.NoScreenshot(art, dir.Preview.Path()); skip {
 		data["noScreenshot"] = true
 	}
-	if filerecord.EmbedReadme(art) {
+	if binary := !filerecord.EmbedReadme(art); binary {
+		data = dir.detectBinarySAUCE(art, data)
+	} else {
 		data, err = dir.embedPool(art, sizeLimitBytes, data)
 		if err != nil {
 			defer clear(data)
 			sl.Error("dirs artifact",
 				slog.String("uri", dir.URI),
-				slog.Int64("id", art.ID),
-				slog.Any("error", err))
+				slog.Int64("id", art.ID), slog.Any("error", err))
 		}
 	}
-	// TODO:sauce for non-embed readme files such as single images
-	//
 	err = c.Render(http.StatusOK, name, data)
 	defer clear(data)
 	if err != nil {
@@ -238,7 +239,8 @@ func plainText(modMagic any) bool {
 // Editor returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) Editor(c echo.Context, sl *slog.Logger, maxItems int, art *models.File, data map[string]any) map[string]any {
+func (dir Dirs) Editor(c echo.Context, sl *slog.Logger, maxItems int, art *models.File, data map[string]any,
+) map[string]any {
 	if sl == nil || art == nil {
 		return data
 	}
@@ -344,6 +346,30 @@ func (dir Dirs) embedPool(art *models.File, sizeLimit int64, data map[string]any
 		d["readmeUTF8"] = buf.String()
 	}
 	return d, nil
+}
+
+func (dir Dirs) detectBinarySAUCE(art *models.File, data map[string]any) map[string]any {
+	if art == nil {
+		return data
+	}
+	name := filepath.Join(dir.Download.Path(), art.UUID.String)
+	file, err := os.Open(name)
+	if err != nil {
+		return data
+	}
+	defer file.Close()
+	rec, err := sauce.Read(file)
+	if err != nil {
+		return data
+	}
+	if rec.ID == "SAUCE" {
+		data["readmeSAUCE"] = true
+		data["sauceTitle"] = rec.Title
+		data["sauceAuthor"] = rec.Author
+		data["sauceGroup"] = rec.Group
+		data["sauceDate"] = rec.Date.Time.Format("2006 Jan 02")
+	}
+	return data
 }
 
 func (dir Dirs) compressZIP(root, uid string) (int64, error) {

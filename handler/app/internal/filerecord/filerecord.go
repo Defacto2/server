@@ -521,7 +521,9 @@ func (e *entry) parseMusicID3(path string) bool {
 // This should only ever be used by the admin editor mode qw it extracts the file archve
 // to a temporary directory, to allow its extracted content can be parsed to determine usability
 // using magicfile techniques and other metadata.
-func ListContent(sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string) template.HTML { //nolint:funlen
+func ListContent( //nolint:cyclop,gocognit,funlen
+	sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string,
+) template.HTML {
 	if sl == nil || art == nil {
 		return ""
 	}
@@ -540,7 +542,7 @@ func ListContent(sl *slog.Logger, maxItems int, art *models.File, dirs command.D
 	if err != nil {
 		return extractErr(src, platform, section, zeroByteFiles, err)
 	}
-	walkerCount := func(path string, d fs.DirEntry, err error) error {
+	walkerCount := func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fs.SkipDir
 		}
@@ -568,7 +570,7 @@ func ListContent(sl *slog.Logger, maxItems int, art *models.File, dirs command.D
 		}
 		rel, err := filepath.Rel(tmpRoot, path)
 		if err != nil {
-			return skipEntry
+			return skipEntry //nolint:nilerr
 		}
 		rel = strings.TrimSpace(rel)
 		if rel == "" {
@@ -596,7 +598,7 @@ func ListContent(sl *slog.Logger, maxItems int, art *models.File, dirs command.D
 		var skipEntry error
 		rel, err := filepath.Rel(tmpRoot, path)
 		if err != nil {
-			return skipEntry
+			return skipEntry //nolint:nilerr
 		}
 		if usefile := slices.Contains(results, rel); !usefile {
 			return skipEntry
@@ -1429,7 +1431,7 @@ func Relations(art *models.File) template.HTML {
 	if len(links) == 0 {
 		return ""
 	}
-	rows := ""
+	var rows strings.Builder
 	const expected = 2
 	const route = "/f/"
 	for link := range slices.Values(links) {
@@ -1445,10 +1447,10 @@ func Relations(art *models.File) template.HTML {
 		if !strings.HasPrefix(href, route) {
 			href = route + href
 		}
-		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
-			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
+		rows.WriteString(fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
+			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name))
 	}
-	return template.HTML(rows)
+	return template.HTML(rows.String())
 }
 
 // RelationsStr returns the list of relationships for the file record as a string.
@@ -1539,6 +1541,18 @@ func EmbedReadme(art *models.File) bool {
 	case "markup", "pdf":
 		return false
 	}
+	magic := strings.ToLower(strings.TrimSpace(art.FileMagicType.String))
+	skips := slices.Concat(
+		magicnumber.Images(),
+		magicnumber.Programs(),
+		magicnumber.Videos(),
+	)
+	skips = append(skips, magicnumber.Unknown) // "Binary data"
+	for skip := range slices.Values(skips) {
+		if strings.EqualFold(skip.Title(), magic) {
+			return false
+		}
+	}
 	return true
 }
 
@@ -1564,7 +1578,7 @@ func Websites(art *models.File) template.HTML {
 	if len(links) == 0 {
 		return ""
 	}
-	rows := ""
+	var rows strings.Builder
 	const expected = 2
 	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
@@ -1582,11 +1596,11 @@ func Websites(art *models.File) template.HTML {
 		if val, err := url.Parse(href); err != nil || val.Host == "" {
 			continue
 		}
-		rows += fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
+		rows.WriteString(fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
 			"<td><small><a class=\"link-offset-3 icon-link icon-link-hover\" "+
-			"href=\"%s\">%s %s</a></small></td></tr>", href, name, LinkSVG())
+			"href=\"%s\">%s %s</a></small></td></tr>", href, name, LinkSVG()))
 	}
-	return template.HTML(rows)
+	return template.HTML(rows.String())
 }
 
 // WebsitesStr returns the list of links for the file record as a string.

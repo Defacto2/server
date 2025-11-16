@@ -213,8 +213,8 @@ func Vers(version string) string {
 		return fmt.Sprintf("%s0.0.0 %slpha", pref, alpha)
 	}
 	const next = "-next"
-	if strings.HasSuffix(version, next) {
-		return fmt.Sprintf("%s%s %seta", pref, strings.TrimSuffix(version, next), beta)
+	if before, found := strings.CutSuffix(version, next); found {
+		return fmt.Sprintf("%s%s %seta", pref, before, beta)
 	}
 	return pref + version
 }

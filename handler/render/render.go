@@ -133,19 +133,24 @@ func ReadmePool(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, downl
 	if err != nil {
 		return fmt.Errorf("readme copy %w: %q", err, name)
 	}
+	p := normalize(buf)
+	buf.Reset()
+	buf.Write(p)
+	if utf8.Valid(p) {
+		ruf.Reset()
+		ruf.Write(p)
+	}
+	return nil
+}
+
+func normalize(buf *bytes.Buffer) []byte {
 	b := buf.Bytes()
 	const nul = 0x00
 	b = bytes.ReplaceAll(b, []byte{nul}, []byte(" "))
 	// normalize the line feeds to attempt to fix any breakages with the layout
 	b = bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
 	b = helper.Mask(b...)
-	buf.Reset()
-	buf.Write(b)
-	if utf8.Valid(b) {
-		ruf.Reset()
-		ruf.Write(b)
-	}
-	return nil
+	return b
 }
 
 // DizPool returns the content of the FILE_ID.DIZ file.

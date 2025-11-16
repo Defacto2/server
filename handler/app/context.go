@@ -16,6 +16,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
@@ -548,14 +549,26 @@ func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Co
 	data["countNewUpload"] = 0
 	data["countHidden"] = 0
 	ctx := context.Background()
-	ca, cp, cnu, err := model.Counts(ctx, db)
-	if err == nil {
-		data["countArtifacts"] = ca
-		data["countPublic"] = cp
-		data["countNewUpload"] = cnu
-		data["countHidden"] = ca - cp - cnu
-	}
-	data = configurations(data, conf)
+	// As we are collecting stats of both the file system and database, we may as well do it cocurrently
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	wg.Go(func() {
+		mu.Lock()
+		ca, cp, cnu, err := model.Counts(ctx, db)
+		if err == nil {
+			data["countArtifacts"] = ca
+			data["countPublic"] = cp
+			data["countNewUpload"] = cnu
+			data["countHidden"] = ca - cp - cnu
+		}
+		mu.Unlock()
+	})
+	wg.Go(func() {
+		mu.Lock()
+		data = configurations(data, conf)
+		mu.Unlock()
+	})
+	wg.Wait()
 	if db == nil {
 		data["dbConnections"] = "database not set"
 		err := cx.Render(http.StatusOK, name, data)
@@ -576,13 +589,50 @@ func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Co
 	return nil
 }
 
+// configurations handles the host system drive queries for free and used space.
 func configurations(data map[string]any, conf config.Config) map[string]any {
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	wg.Go(func() {
+		mu.Lock()
+		data = downloader(data, conf)
+		mu.Unlock()
+	})
+	wg.Go(func() {
+		mu.Lock()
+		data = previewer(data, conf)
+		mu.Unlock()
+	})
+	wg.Go(func() {
+		mu.Lock()
+		data = thumbnailer(data, conf)
+		mu.Unlock()
+	})
+	wg.Go(func() {
+		mu.Lock()
+		data = extraer(data, conf)
+		mu.Unlock()
+	})
+	wg.Go(func() {
+		mu.Lock()
+		data = orphaneder(data, conf)
+		mu.Unlock()
+	})
+	wg.Go(func() {
+		mu.Lock()
+		wdu, wdt, _, wdp, _ := helper.DiskStat(conf.AbsDownload.String())
+		data["wdUsage"] = helper.ByteCount(int64(wdu))
+		data["wdTotal"] = helper.ByteCount(int64(wdt))
+		data["wdPercent"] = wdp
+		mu.Unlock()
+	})
+	wg.Wait()
+	return data
+}
+
+func downloader(data map[string]any, conf config.Config) map[string]any {
 	download := dir.Directory(string(conf.AbsDownload))
 	check := config.CheckDir(download, "downloads")
-	wdu, wdt, _, wdp, _ := helper.DiskStat(conf.AbsDownload.String())
-	data["wdUsage"] = helper.ByteCount(int64(wdu))
-	data["wdTotal"] = helper.ByteCount(int64(wdt))
-	data["wdPercent"] = wdp
 	data["checkDownloads"] = check
 	data["countDownloads"] = 0
 	data["usageDownloads"] = 0
@@ -594,8 +644,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(string(conf.AbsDownload))
 		data["extsDownloads"] = exts
 	}
+	return data
+}
+
+func previewer(data map[string]any, conf config.Config) map[string]any {
 	preview := dir.Directory(conf.AbsPreview)
-	check = config.CheckDir(preview, "previews")
+	check := config.CheckDir(preview, "previews")
 	data["checkPreviews"] = check
 	data["countPreviews"] = 0
 	data["usagePreviews"] = 0
@@ -607,8 +661,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(conf.AbsPreview.String())
 		data["extsPreviews"] = exts
 	}
+	return data
+}
+
+func thumbnailer(data map[string]any, conf config.Config) map[string]any {
 	thumbnail := dir.Directory(conf.AbsThumbnail)
-	check = config.CheckDir(thumbnail, "thumbnails")
+	check := config.CheckDir(thumbnail, "thumbnails")
 	data["checkThumbnails"] = check
 	data["countThumbnails"] = 0
 	data["usageThumbnails"] = 0
@@ -620,8 +678,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(conf.AbsThumbnail.String())
 		data["extsThumbnails"] = exts
 	}
+	return data
+}
+
+func extraer(data map[string]any, conf config.Config) map[string]any {
 	extra := dir.Directory(conf.AbsExtra)
-	check = config.CheckDir(extra, "extra")
+	check := config.CheckDir(extra, "extra")
 	data["checkExtras"] = check
 	data["countExtras"] = 0
 	data["usageExtras"] = 0
@@ -633,8 +695,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(conf.AbsExtra.String())
 		data["extsExtras"] = exts
 	}
+	return data
+}
+
+func orphaneder(data map[string]any, conf config.Config) map[string]any {
 	orphaned := dir.Directory(conf.AbsOrphaned.String())
-	check = config.CheckDir(orphaned, "orphaned")
+	check := config.CheckDir(orphaned, "orphaned")
 	data["checkOrphaned"] = check
 	data["countOrphaned"] = 0
 	data["usageOrphaned"] = 0

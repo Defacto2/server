@@ -55,8 +55,8 @@ func (s *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, ter
 				term, term+"%", "%"+term, "%"+term+"%"))
 			continue
 		}
-		sum.WriteString(fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
-			term, term+"%", "%"+term, "%"+term+"%"))
+		sum.WriteString(fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' "+
+			"OR filename ILIKE '%s'", term, term+"%", "%"+term, "%"+term+"%"))
 	}
 	sum.WriteString("AND " + ClauseNoSoftDel)
 	query := strings.TrimSpace(sum.String())
