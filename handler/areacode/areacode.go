@@ -34,7 +34,8 @@ func (c NAN) HTML() template.HTML {
 	if len(territories) == 0 {
 		return empty
 	}
-	html := "<span>"
+	var html strings.Builder
+	html.WriteString("<span>")
 	for i, val := range territories {
 		abbr := val.Abbreviation
 		if i == 0 {
@@ -42,18 +43,19 @@ func (c NAN) HTML() template.HTML {
 			if len(abbr) > 0 {
 				s += fmt.Sprintf(` (%s)`, abbr)
 			}
-			html += s
+			html.WriteString(s)
 			continue
 		}
-		html += " + " + val.Name
+		html.WriteString(" + " + val.Name)
 		if len(abbr) > 0 {
-			html += fmt.Sprintf(` (%s)`, abbr)
+			html.WriteString(fmt.Sprintf(` (%s)`, abbr))
 		}
 	}
 	if note, ok := Notes()[c]; ok {
-		html += fmt.Sprintf(" <small><em>%s</em></small>", note)
+		html.WriteString(fmt.Sprintf(" <small><em>%s</em></small>", note))
 	}
-	return template.HTML(html + "</span><br>")
+	html.WriteString("</span><br>")
+	return template.HTML(html.String())
 }
 
 // Abbreviation represents a two-letter abbreviation for a territory in the North American Numbering Plan.
@@ -61,20 +63,22 @@ type Abbreviation string
 
 func (a Abbreviation) HTML() template.HTML {
 	t := TerritoryByAbbr(a)
-	html := "<span>"
-	html += string(t.Abbreviation) + " (" + t.Name + ")"
+	var html strings.Builder
+	html.WriteString("<span>")
+	html.WriteString(string(t.Abbreviation) + " (" + t.Name + ")")
 	if len(t.AreaCodes) == 0 {
-		html += " - n/a</span><br>"
-		return template.HTML(html)
+		html.WriteString(" - n/a</span><br>")
+		return template.HTML(html.String())
 	}
-	html += " - "
+	html.WriteString(" - ")
 	for i, ac := range t.AreaCodes {
 		if i > 0 {
-			html += ", "
+			html.WriteString(", ")
 		}
-		html += strconv.Itoa(int(ac))
+		html.WriteString(strconv.Itoa(int(ac)))
 	}
-	return template.HTML(html + "</span><br>")
+	html.WriteString("</span><br>")
+	return template.HTML(html.String())
 }
 
 // Territory represents a territory in the North American Numbering Plan.
@@ -85,24 +89,25 @@ type Territory struct {
 }
 
 func (t Territory) HTML() template.HTML {
-	html := "<span>" + t.Name
+	var html strings.Builder
+	html.WriteString("<span>" + t.Name)
 	if len(t.Abbreviation) > 0 {
-		html += " (" + string(t.Abbreviation) + ") "
+		html.WriteString(" (" + string(t.Abbreviation) + ") ")
 	}
 	// join area codes with commas
 	if len(t.AreaCodes) == 0 {
-		html += "- n/a</span><br>"
-		return template.HTML(html)
+		html.WriteString("- n/a</span><br>")
+		return template.HTML(html.String())
 	}
-	html += " - "
+	html.WriteString(" - ")
 	for i, ac := range t.AreaCodes {
 		if i > 0 {
-			html += ", "
+			html.WriteString(", ")
 		}
-		html += strconv.Itoa(int(ac))
+		html.WriteString(strconv.Itoa(int(ac)))
 	}
-	html += "</span><br>"
-	return template.HTML(html)
+	html.WriteString("</span><br>")
+	return template.HTML(html.String())
 }
 
 const (

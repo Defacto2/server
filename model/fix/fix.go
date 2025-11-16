@@ -456,7 +456,7 @@ func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logge
 }
 
 func nullifyEmpty(exec boil.ContextExecutor) error {
-	query := ""
+	var query strings.Builder
 	columns := []string{
 		"list_relations", "web_id_github", "web_id_youtube",
 		"group_brand_for", "group_brand_by", "record_title",
@@ -464,36 +464,36 @@ func nullifyEmpty(exec boil.ContextExecutor) error {
 		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
 	}
 	for column := range slices.Values(columns) {
-		query += UpdateSet + column + " = NULL WHERE " + column + " = ''; "
+		query.WriteString(UpdateSet + column + " = NULL WHERE " + column + " = ''; ")
 	}
-	if _, err := queries.Raw(query).Exec(exec); err != nil {
+	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
 	}
 	return nil
 }
 
 func nullifyZero(exec boil.ContextExecutor) error {
-	query := ""
+	var query strings.Builder
 	columns := []string{
 		"web_id_pouet", "web_id_demozoo",
 		"date_issued_year", "date_issued_month", "date_issued_day",
 	}
 	for column := range slices.Values(columns) {
-		query += UpdateSet + column + " = NULL WHERE " + column + " = 0; "
+		query.WriteString(UpdateSet + column + " = NULL WHERE " + column + " = 0; ")
 	}
-	if _, err := queries.Raw(query).Exec(exec); err != nil {
+	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
 	}
 	return nil
 }
 
 func trimFwdSlash(exec boil.ContextExecutor) error {
-	query := ""
+	var query strings.Builder
 	columns := []string{"web_id_16colors"}
 	for column := range slices.Values(columns) {
-		query += UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
+		query.WriteString(UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; ")
 	}
-	if _, err := queries.Raw(query).Exec(exec); err != nil {
+	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
 	}
 	return nil

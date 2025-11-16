@@ -47,19 +47,20 @@ func (s *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor, 
 // ByFilename saves the summary statistics for the filename search.
 func (s *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, terms []string) error {
 	panics.BoilExecCrash(exec)
-	sum := string(postgres.Summary())
+	var sum strings.Builder
+	sum.WriteString(string(postgres.Summary()))
 	for i, term := range terms {
 		if i == 0 {
-			sum += fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
-				term, term+"%", "%"+term, "%"+term+"%")
+			sum.WriteString(fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+				term, term+"%", "%"+term, "%"+term+"%"))
 			continue
 		}
-		sum += fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
-			term, term+"%", "%"+term, "%"+term+"%")
+		sum.WriteString(fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+			term, term+"%", "%"+term, "%"+term+"%"))
 	}
-	sum += "AND " + ClauseNoSoftDel
-	sum = strings.TrimSpace(sum)
-	return queries.Raw(sum).Bind(ctx, exec, s)
+	sum.WriteString("AND " + ClauseNoSoftDel)
+	query := strings.TrimSpace(sum.String())
+	return queries.Raw(query).Bind(ctx, exec, s)
 }
 
 // ByForApproval returns the summary statistics for files that require approval.

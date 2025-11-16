@@ -1670,18 +1670,18 @@ func releasersDesc(relname, altnames string,
 }
 
 func tibits(sl *slog.Logger, uri string, public embed.FS) string {
-	htm := ""
+	var htm strings.Builder
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
 	for value := range slices.Values(tidbits) {
 		s := value.String(sl, public)
 		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
-			htm += fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, value.URL(uri))
+			htm.WriteString(fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, value.URL(uri)))
 			continue
 		}
-		htm += fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, s, value.URL(uri))
+		htm.WriteString(fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, s, value.URL(uri)))
 	}
-	return htm
+	return htm.String()
 }
 
 func releaserLead(uri string, data map[string]any) map[string]any {
