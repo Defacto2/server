@@ -33,6 +33,7 @@
 {{- $downloadText := print "Download &nbsp; " print $filesize}}
 {{- $fileEntry := index . "filentry"}}
 {{- $extraZip := index . "extraZip"}}
+{{- $editor := index . "editor"}}
 {{- $sauce := index . "readmeSAUCE"}}
 {{- $sauceTitle := index . "sauceTitle"}}
 {{- $sauceAuthor := index . "sauceAuthor"}}
@@ -183,7 +184,9 @@
                     {{- end}}
                     {{- if $sauce}}
                     {{- if ne $sauceTitle ""}}
+                    {{- if eq $editor true }}
                     <style>.selection:hover { cursor: pointer; }</style>
+                    {{- end }}
                     <tr class="selection" id="artifact-embed-title">
                         <th scope="row"><span class="text-nowrap">Embed title</span></th>
                         <td id="artifact-embed-title-value">{{$sauceTitle}}</td>
