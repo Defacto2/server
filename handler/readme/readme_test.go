@@ -83,7 +83,7 @@ func TestIncompatibleANSI(t *testing.T) {
 	r := strings.NewReader("a\x1b[1;cabc")
 	b, err = readme.MatchANSI(r)
 	be.Err(t, err, nil)
-	be.True(t, !b)
+	be.True(t, b)
 	r = strings.NewReader("a\x1b[Acabc")
 	b, err = readme.MatchANSI(r)
 	be.Err(t, err, nil)

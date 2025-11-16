@@ -12,7 +12,7 @@ const (
 	archives  = 10
 	documents = 15
 	images    = 10
-	medias    = 7
+	medias    = 8
 )
 
 func TestArchive(t *testing.T) {

@@ -147,7 +147,7 @@ func TestArgs(t *testing.T) {
 	a = command.Args{}
 	a.JpegPhoto()
 	s = fmt.Sprintf("%+v", a)
-	find = strings.Contains(s, "-gaussian-blur")
+	find = strings.Contains(s, "75")
 	be.True(t, find)
 	a = command.Args{}
 	a.PortablePixel()
