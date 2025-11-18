@@ -343,10 +343,13 @@ func Collection() Milestones {
 		{
 			Title: "The early underground", Year: 1979, Highlight: true,
 			Lead: "CBBS, ABBS, and the Apple II microcomputer",
-			Content: "<p>Before the Internet, the <em>Computerized Bulletin Board System</em> was the primary tool for communication between microcomputer owners. In these early days, the setups allowed people to dial in using their computers to share and read public or private messages with other callers.</p>" +
+			Content: "<p>Before the Internet, the <em>Computerized Bulletin Board System</em> was the primary tool for communication between microcomputer owners. " +
+				"In these early days, the setups allowed people to dial in using their computers to share and read public or private messages with other callers.</p>" +
 				"<p>The earliest <strong>CBBS</strong> setups ran off <a href=\"http://www.s100computers.com/\">S-100 bus-based computers</a>. " +
-				"These systems shared the same S-100 interface bus but were incompatible microcomputers and motherboards of the 1970s fabricated by various manufacturers. When the Apple&nbsp;II received CBBS-like software in 1979, it was typically called ABBS or the Apple Bulletin Board System. " +
+				"These systems shared a common \"S-100 interface bus\" but otherwise, were incompatible platforms fabricated by many manufacturers of the 1970s . When the Apple&nbsp;II received CBBS-like software in 1979, it was typically called <strong>ABBS</strong> or an Apple Bulletin Board System. " +
 				"By September 1979, nationwide listings<sup><a href=\"#the-early-underground-fn1\">[1]</a></sup> for dozens of bulletin boards were running on ABBS, CBBS, and other platforms.</p>" +
+				"<p>1979 also saw the introduction of Corvus Systems and their 10MB hard drive solutions for these same microcomputers. " +
+				"While the drives were prohibitively expensive, in 1981, the units could be shared between numerous microcomputers using a local area network configuration named <a href=\"http://www.bitsavers.org/pdf/corvus/brochures/PC_Omninet_Brochure.pdf\">Omninet</a>.</p>" +
 				// press attention
 				"<p>In the early days of the BBS, the mainstream computer press paid attention to boards, " +
 				"<a href=\" https://books.google.com.au/books?id=3j4EAAAAMBAJ&pg=PA10&lpg=PA10&dq=%22Modem+Over+Manhattan%22&source=bl&ots=smYwZj_okV&sig=ACfU3U0kYG9RX-3uPfGTakGgtP_mVDcAhA&hl=en&sa=X&ved=2ahUKEwiVs-yi6-qEAxX-oWMGHYpwAPA4ChDoAXoECAIQAw#v=onepage&q=%22Modem%20Over%20Manhattan%22&f=false\">including write-ups</a>" +
@@ -383,14 +386,14 @@ func Collection() Milestones {
 			Content: "<p>We have yet to learn when or who started <em>cracking</em>, or why. But it must have been after the discovery of disk copy protection in Apple&nbsp;II software and a desire by users to <em>unlock</em> these restrictions. " +
 				"While not new, Andrew McFadden wrote about early <a href=\"https://fadden.com/apple2/cassette-protect.html\">copy protection on software cassette tapes</a> in 1978 and 1979, the earlier forms of copy protection were unusual.</p>" +
 				// disk ii drive
-				"<p>However, the July 1978 retail debut of the <a href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II</a> floppy drive with the first " +
-				"<a href=\"https://www.apple2history.org/history/ah14/#01\">Apple Disk Operating System</a> was a significant point. " +
+				"<p>However, the July 1978 retail debut of the <a href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II</a> floppy drive ecosystem with the first Apple " +
+				"<a href=\"https://www.apple2history.org/history/ah14/#01\">Disk Operating System</a> was a significant point. " +
 				"For the moneyed Apple&nbsp;II hobbyists, the drive and software became a must-have piece of kit that significantly improved the functionality of their expensive machines and quickly caught on. " +
 				// disk copy protection
 				"It offered new benefits for software developers, including speed, reliability and complete control of the floppy drive hardware using custom software. " +
 				"A critical mass of floppy drive owners with the new capabilities encouraged developers to use the media and embed novel <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> into their software intended for sale. " +
 				"While microcomputer enthusiasts were very much in the habit of duplicating and sharing software collections with friends and fellow users, and would have immediately desired the removal of any new restrictions on program usage.</p>" +
-				"<p>Interestingly, these protection schemes are <a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today.</p>" +
+				"<p>Interestingly, these ancient protection schemes are <a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today.</p>" +
 				"<hr>" +
 				"<strong>Early possible examples</strong><br>" +
 				// yahtzee
@@ -425,9 +428,9 @@ func Collection() Milestones {
 			Title: "The birth of wares", Year: 1980, Highlight: true,
 			Lead: "On the Apple II microcomputer", Link: "http://artscene.textfiles.com/intros/APPLEII/", LinkTitle: "and browse the Apple II crack screens",
 			Content: // kids with micros
-			"<p>Without good software, the <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were mostly pointless hobby machines, " +
-				"and getting them online with modems was challenging.<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup><sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup> " +
-				"So understandably, the owners who were into microcomputing would befriend fellow hobbyists and form communities to exchange information and share software.</p>" +
+			"<p>Without software, <a href=\"http://www.apple-iigs.info/doc/fichiers/Apple%20Price%20List%201978-08.pdf\">expensive</a> microcomputers of the era were mostly useless machines. " +
+				"Getting them online with modems was also challenging.<sup><a href=\"#the-birth-of-warez-fn2\">[2]</a></sup><sup><a href=\"#the-birth-of-warez-fn5\">[5]</a></sup> " +
+				"So understandably, the micro owners who were into computing would befriend fellow hobbyists, form communities, share information, and exchange software.</p>" +
 				"<strong>How did this come about?</strong><br>" +
 				// apple modems
 				"<p>1979 saw the sale of the first Apple&nbsp;II <a href=\"https://www.apple2history.org/history/ah13/#09\">modem peripheral</a>, the Hayes&nbsp;Micromodem&nbsp;II and later, the Novation&nbsp;CAT. " +
@@ -442,7 +445,7 @@ func Collection() Milestones {
 				"There's no exact answer, but a good guess would be <strong>sometime&nbsp;in&nbsp;1980</strong> in the USA, maybe in the New York tri-state area, Massachusetts, California, or elsewhere. " +
 				"By then, microcomputer owners exchanged details to meet in real life and online to duplicate and exchange software collections. And, importantly, to find ways to remove Apple II disk copy protections and show off the results. " +
 				// warez dating
-				"The pirates, also often identified as phone phreaks, removed or cracked disk copy protection on the Apple&nbsp;II and were dating their activity towards the end of 1980<sup><a href=\"#the-birth-of-warez-fn4\">[4]</a></sup> and in 1981. " +
+				"The pirates, also often identified as phone phreaks, removed or cracked disk copy protection on the Apple&nbsp;II and were dating their activity towards the end of 1980<sup><a href=\"#the-birth-of-warez-fn4\">[3]</a></sup> and in 1981. " +
 				"Likewise, many modified, <q>cracked</q>, or <q>broken</q> ingame title screens exist for games published in those years.</p>" +
 				// byter interview
 				`<p>In a 1991 interview<sup><a href="#the-birth-of-warez-fn6">[6]</a></sup> for The Humble Review, Byter briefly talks about his early time on the Apple II scene he discovered in 1981. ` +
@@ -456,7 +459,7 @@ func Collection() Milestones {
 				sect0 +
 				"<div id=\"the-birth-of-warez-fn1\">[1] Warez was originally spelt with an <q>s</q> after the dictionary spelling.</div>" +
 				"<div id=\"the-birth-of-warez-fn2\">[2] <a href=\"https://www.apple2history.org/history/ah18/#07\">VisiCalc</a>, the first useful <q>killer app</q>, was only published in the last few months of 1979.</div>" +
-				"<div id=\"the-birth-of-warez-fn3\">[3] Mars Cars!! <q>(C) CRACKED 1982</q> <a href=\"http://artscene.textfiles.com/intros/APPLEII/marscars.gif\">crack screen</a>.</div>" +
+				"<div id=\"the-birth-of-warez-fn3\">[3] See, \"The earliest dated software crack and text art\"</div>" +
 				"<div id=\"the-birth-of-warez-fn4\">[4] Crack screens with a Copyright 1980 and 1981 notice " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/tcommand.gif\">1</a>, " +
 				"<a href=\"http://artscene.textfiles.com/intros/APPLEII/bezmanc.gif\">2</a>, " +
@@ -764,13 +767,13 @@ func Collection() Milestones {
 			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> Berlin Cracking Service image of the Berlin Bear" +
 				" <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a></sup> " +
 				"was the first ever intro or cracktro. " +
-				"However, this conveniently ignores the crack screens found on the Apple II from 1980 and 1981. The claim was always ridiculous and the Berlin Bear image likely originates from 1984 <sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> or later.</p>" +
+				"However, this conveniently ignores the crack screens and animations found on the Apple II from 1980, 1981, and 1982. The claim was always ridiculous, and also, the Berlin Bear image likely originates from 1984 <sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> or later.</p>" +
 				"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
 				", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
 				"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
 				"<p>However, some \"cracking\" groups, such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\", claim to have appeared on the platform in 1982 and operated in isolated West Berlin. " +
 				"Why would German kids in 1982 (or even 1983) adopt a business computer, import a concept discovered in the USA, and band together to brand themselves as cracking groups? " +
-				"There were no machines in Europe, nor were there floppy disk drives, so there was no software with disk copy protections to crack.</p>" +
+				"There were no machines in Europe, nor were there floppy disk drives, there was no software with disk copy protections and nothing to crack.</p>" +
 				sect0 +
 				"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
 				"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
