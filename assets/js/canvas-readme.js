@@ -1,5 +1,5 @@
 /**
- * @file readme.js
+ * @file canvas-readme.js
  * Provides functions for handling readme and NFO file rendering within a pre element.
  */
 import { clipText, getElmById } from "./helper.mjs";
@@ -13,7 +13,7 @@ import { clipText, getElmById } from "./helper.mjs";
     cp437 = "readmeCP437",
     pre437 = getElmById(cp437),
     utf8 = "readmeUTF8",
-    preUTF8 = getElmById(utf8);
+    preUTF8 = getElmById(utf8)
 
   const cascadia = document.getElementById(`monoFont`);
   if (cascadia !== null) {
@@ -48,7 +48,7 @@ import { clipText, getElmById } from "./helper.mjs";
     pre437.classList.remove(none);
   }
 
-  const copier = getElmById(`artifact-copy-readme-body`);
+  const copier = getElmById(`artifact-copy-textbody`);
   if (typeof navigator.clipboard === `undefined`) {
     copier.classList.add(none);
   } else {

@@ -197,6 +197,12 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 			return hrefs[BootstrapIcons]
 		},
 		"capitalize": helper.Capitalize,
+		"canvasAnsi": func() string {
+			return hrefs[CanvasAnsi]
+		},
+		"canvasReadme": func() string {
+			return hrefs[CanvasReadme]
+		},
 		"classification": func(s, p string) string {
 			count, _ := form.HumanizeCount(db, s, p)
 			return string(count)
@@ -265,9 +271,6 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		"pouetSanity": func() string {
 			return strconv.Itoa(pouet.Sanity)
 		},
-		"readme": func() string {
-			return hrefs[Readme]
-		},
 		"recordImgSampleStat": func(unid string) bool {
 			return simple.ImageSampleStat(unid, dir.Directory(t.Environment.AbsPreview))
 		},
@@ -288,6 +291,12 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		},
 		"sri_bootstrapIcons": func() string {
 			return t.Subresource.BootstrapIcons
+		},
+		"sri_canvasAnsi": func() string {
+			return t.Subresource.CanvasAnsi
+		},
+		"sri_canvasReadme": func() string {
+			return t.Subresource.CanvasReadme
 		},
 		"sri_editArtifact": func() string {
 			return t.Subresource.EditArtifact
@@ -318,9 +327,6 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		},
 		"sri_pouet": func() string {
 			return t.Subresource.Pouet
-		},
-		"sri_readme": func() string {
-			return t.Subresource.Readme
 		},
 		"sri_uploader": func() string {
 			return t.Subresource.Uploader

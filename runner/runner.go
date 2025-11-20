@@ -35,6 +35,44 @@ func NamedJS() []string {
 	}
 }
 
+func CanvasAnsi() api.BuildOptions {
+	min := "canvas-ansi.min.js"
+	entryjs := filepath.Join("assets", "js", "canvas-ansi.js")
+	output := filepath.Join("public", "js", min)
+	return api.BuildOptions{
+		EntryPoints:       []string{entryjs},
+		Outfile:           output,
+		Target:            ECMAScript,
+		Write:             true,
+		Bundle:            true,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": fmt.Sprintf("/* %s %s %s */", min, C, time.Now().Format("2006")),
+		},
+	}
+}
+
+func CanvasReadme() api.BuildOptions {
+	min := "canvas-readme.min.js"
+	entryjs := filepath.Join("assets", "js", "canvas-readme.js")
+	output := filepath.Join("public", "js", min)
+	return api.BuildOptions{
+		EntryPoints:       []string{entryjs},
+		Outfile:           output,
+		Target:            ECMAScript,
+		Write:             true,
+		Bundle:            true,
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Banner: map[string]string{
+			"js": fmt.Sprintf("/* %s %s %s */", min, C, time.Now().Format("2006")),
+		},
+	}
+}
+
 // CSS are the options to build the minified CSS files.
 func CSS(name string) api.BuildOptions {
 	min := name + ".min.css"
@@ -147,25 +185,6 @@ func HtmxExts() api.BuildOptions {
 	}
 }
 
-func Readme() api.BuildOptions {
-	min := "readme.min.js"
-	entryjs := filepath.Join("assets", "js", "readme.js")
-	output := filepath.Join("public", "js", min)
-	return api.BuildOptions{
-		EntryPoints:       []string{entryjs},
-		Outfile:           output,
-		Target:            ECMAScript,
-		Write:             true,
-		Bundle:            true,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Banner: map[string]string{
-			"js": fmt.Sprintf("/* %s %s %s */", min, C, time.Now().Format("2006")),
-		},
-	}
-}
-
 func Uploader() api.BuildOptions {
 	min := "uploader.min.js"
 	entryjs := filepath.Join("assets", "js", "uploader.js")
@@ -200,6 +219,18 @@ func main() {
 		}
 	}
 	{
+		result := api.Build(CanvasAnsi())
+		if len(result.Errors) > 0 {
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
+		}
+	}
+	{
+		result := api.Build(CanvasReadme())
+		if len(result.Errors) > 0 {
+			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
+		}
+	}
+	{
 		result := api.Build(EditorAssets())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
@@ -219,12 +250,6 @@ func main() {
 	}
 	{
 		result := api.Build(Layout())
-		if len(result.Errors) > 0 {
-			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
-		}
-	}
-	{
-		result := api.Build(Readme())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}

@@ -916,6 +916,8 @@ type SRI struct {
 	Bootstrap5      string // Bootstrap CSS verification hash.
 	Bootstrap5JS    string // Bootstrap JS verification hash.
 	BootstrapIcons  string // Bootstrap Icons SVG verification hash.
+	CanvasAnsi      string // ANSI JS verification hash.
+	CanvasReadme    string // Readme JS verification hash.
 	EditArtifact    string // Artifact Editor JS verification hash.
 	EditAssets      string // Editor Assets JS verification hash.
 	EditForApproval string // Editor For Approval JS verification hash.
@@ -924,7 +926,6 @@ type SRI struct {
 	Layout          string // Layout CSS verification hash.
 	LayoutJS        string // Layout JS verification hash.
 	Pouet           string // Pouet JS verification hash.
-	Readme          string // Readme JS verification hash.
 	Uploader        string // Uploader JS verification hash.
 	Htmx            string // htmx JS verification hash.
 	HtmxRespTargets string // htmx response targets extension JS verification hash.
@@ -951,6 +952,18 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}
+
+	name = names[CanvasAnsi]
+	s.CanvasAnsi, err = helper.Integrity(name, fs)
+	if err != nil {
+		return fmt.Errorf("%s: %w", name, err)
+	}
+	name = names[CanvasReadme]
+	s.CanvasReadme, err = helper.Integrity(name, fs)
+	if err != nil {
+		return fmt.Errorf("%s: %w", name, err)
+	}
+
 	name = names[LayoutJS]
 	s.LayoutJS, err = helper.Integrity(name, fs)
 	if err != nil {
@@ -988,11 +1001,6 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	}
 	name = names[Pouet]
 	s.Pouet, err = helper.Integrity(name, fs)
-	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
-	}
-	name = names[Readme]
-	s.Readme, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}

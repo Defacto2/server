@@ -57,6 +57,23 @@
 }
 
 @font-face {
+  font-family: font-vga-fifty;
+  font-display: swap;
+  src:
+    url("/font/ibm_vga_9x8.woff2") format("woff2"),
+    url("/font/ibm_vga_9x8.woff") format("woff"),
+    url("/font/ibm_vga_9x8.ttf") format("truetype");
+}
+
+.font-ansi {
+  font-family: font-vga-fifty, monospace;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 8px; /* line height value is required by the logo-container and logo-text ids */
+}
+
+@font-face {
   font-family: font-vga-eight;
   font-display: swap;
   src:
@@ -95,6 +112,13 @@
 .reader {
   font-size: 133%;
   line-height: 1;
+  white-space: pre-wrap;
+  hyphens: manual;
+}
+
+.reader-hires {
+  font-size: 8px;
+  line-height: 8px;
   white-space: pre-wrap;
   hyphens: manual;
 }

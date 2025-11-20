@@ -11,6 +11,8 @@ const (
 	Bootstrap5      Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
 	Bootstrap5JS                 // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
 	BootstrapIcons               // BootstrapIcons is the path to the custom Bootstrap Icons SVG sprites file.
+	CanvasAnsi                   // CanvasAnsi is the path to the minified ansi JS file.
+	CanvasReadme                 // CanvasReadme is the path to the minified readme JS file.
 	DosboxJS                     // DosboxJS is the js-dos v6 default variant compiled with emscripten.
 	DosboxWasm                   // DosboxWasm is the js-dos v6 WASM binary file.
 	EditArtifact                 // EditArtifact is the path to the minified Artifact Editor JS file.
@@ -22,7 +24,6 @@ const (
 	Layout                       // Layout is the path to the minified layout CSS file.
 	LayoutJS                     // LayoutJS is the path to the minified layout JS file.
 	Pouet                        // Pouet is the path to the minified Pouet JS file.
-	Readme                       // Readme is the path to the minified Readme JS file.
 	Uploader                     // Uploader is the path to the minified Uploader JS file.
 )
 
@@ -37,6 +38,8 @@ func Hrefs() *Paths {
 		Bootstrap5:      "/css/bootstrap.min.css",
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
 		BootstrapIcons:  "/svg/bootstrap-icons.svg",
+		CanvasAnsi:      "/js/canvas-ansi.min.js",
+		CanvasReadme:    "/js/canvas-readme.min.js",
 		DosboxJS:        "/js/wdosbox.js",
 		DosboxWasm:      "/js/wdosbox.wasm",
 		EditArtifact:    "/js/editor-artifact.min.js",
@@ -48,7 +51,6 @@ func Hrefs() *Paths {
 		Layout:          "/css/layout.min.css",
 		LayoutJS:        "/js/layout.min.js",
 		Pouet:           "/js/votes-pouet.min.js",
-		Readme:          "/js/readme.min.js",
 		Uploader:        "/js/uploader.min.js",
 	}
 }
@@ -75,6 +77,9 @@ const (
 	VGA8             Font = iota // VGA8 is the path to the IBM VGA 8px font file.
 	VGA8Woff                     // VGA8Woff is the path to the IBM VGA 8px legacy WOFF format font file.
 	VGA8TT                       // VGA8TT is the path to the IBM VGA 8px legacy TrueType format font file.
+	VGA50                        // VGA50 is the path to the IBM VGA 9x8 font file.
+	VGA50Woff                    // VGA50Woff is the path to the IBM VGA 9x8 legacy WOFF format font file.
+	VGA50TT                      // VGA50TT is the path to the IBM VGA 8px legacy TrueType format font file.
 	A1200                        // A1200 is the path to the Topaz Plus font file.
 	A1200Woff                    // A1200Woff is the path to the Topaz Plus legacy WOFF format font file.
 	A1200TT                      // A1200TT is the path to the Topaz Plus legacy TrueType format font file.
@@ -103,6 +108,9 @@ func FontRefs() *Fonts {
 		VGA8:             "/pxplus_ibm_vga8.woff2",
 		VGA8Woff:         "/pxplus_ibm_vga8.woff",
 		VGA8TT:           "/pxplus_ibm_vga8.ttf",
+		VGA50:            "/ibm_vga_9x8.woff2",
+		VGA50Woff:        "/ibm_vga_9x8.woff",
+		VGA50TT:          "/ibm_vga_9x8.ttf",
 		A1200:            "/topazplus_a1200.woff2",
 		A1200Woff:        "/topazplus_a1200.woff",
 		A1200TT:          "/topazplus_a1200.ttf",
