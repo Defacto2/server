@@ -8,11 +8,11 @@ import { clipText, getElmById } from "./helper.mjs";
   const none = `d-none`;
   const blackBG = ["reader-invert", "border", "border-black", "rounded-1"];
 
-  const latin = "readmeLatin1",
+  const latin = "precontentLatin1",
     preLatin1 = getElmById(latin),
-    cp437 = "readmeCP437",
-    pre437 = getElmById(cp437),
-    utf8 = "readmeUTF8",
+    cp437 = "precontentCP437",
+    preCP437 = getElmById(cp437),
+    utf8 = "precontentUTF8",
     preUTF8 = getElmById(utf8)
 
   const cascadia = document.getElementById(`monoFont`);
@@ -20,7 +20,7 @@ import { clipText, getElmById } from "./helper.mjs";
     cascadia.addEventListener("click", useCascadia);
   }
   function useCascadia() {
-    pre437.classList.add(none);
+    preCP437.classList.add(none);
     preLatin1.classList.add(none);
     preUTF8.classList.add("font-cascadia-mono", ...blackBG);
     preUTF8.classList.remove(none);
@@ -31,7 +31,7 @@ import { clipText, getElmById } from "./helper.mjs";
     topaz.addEventListener("click", useAmiga);
   }
   function useAmiga() {
-    pre437.classList.add(none);
+    preCP437.classList.add(none);
     preUTF8.classList.add(none);
     preLatin1.classList.add("font-amiga", ...blackBG);
     preLatin1.classList.remove(none);
@@ -44,8 +44,8 @@ import { clipText, getElmById } from "./helper.mjs";
   function useIBM() {
     preLatin1.classList.add(none);
     preUTF8.classList.add(none);
-    pre437.classList.add("font-dos", ...blackBG);
-    pre437.classList.remove(none);
+    preCP437.classList.add("font-dos", ...blackBG);
+    preCP437.classList.remove(none);
   }
 
   const copier = getElmById(`artifact-copy-textbody`);

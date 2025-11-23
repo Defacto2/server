@@ -77,15 +77,15 @@ func TestRemoveCtrls(t *testing.T) {
 
 func TestIncompatibleANSI(t *testing.T) {
 	t.Parallel()
-	b, err := readme.MatchANSI(nil)
+	b, err := readme.UseANSICodes(nil)
 	be.Err(t, err, nil)
 	be.True(t, !b)
 	r := strings.NewReader("a\x1b[1;cabc")
-	b, err = readme.MatchANSI(r)
+	b, err = readme.UseANSICodes(r)
 	be.Err(t, err, nil)
 	be.True(t, b)
 	r = strings.NewReader("a\x1b[Acabc")
-	b, err = readme.MatchANSI(r)
+	b, err = readme.UseANSICodes(r)
 	be.Err(t, err, nil)
 	be.True(t, b)
 }

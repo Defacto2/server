@@ -3,35 +3,33 @@
  * Provides functions for handling ansi and binary text rendering within a pre element.
  */
 import { clipText, getElmById } from "./helper.mjs";
-//import { getElmById } from "./helper.mjs";
 (() => {
   "use strict";
-  //const none = `d-none`;
-  //const blackBG = ["reader-invert", "border", "border-black", "rounded-1"];
+  const elementId = "precontentBinary",
+    preElm = getElmById(elementId);
 
-  const ansiMe = "ansiMe",
-    preANSI = getElmById(ansiMe);
-
-  const vgaStd = document.getElementById(`ansiVGA`);
-  if (vgaStd !== null) {
-    vgaStd.addEventListener("mouseover", useDOS);
+  const standard = document.getElementById(`ansiVGA`);
+  if (standard !== null) {
+    standard.addEventListener("mouseover", useDOS);
   }
-  const vga50 = document.getElementById(`ansiVGA50`)
-  if (vga50 !== null) {
-    vga50.addEventListener("mouseover", useANSI)
+  const hires = document.getElementById(`ansiVGA50`)
+  if (hires !== null) {
+    hires.addEventListener("mouseover", useANSI)
   }
 
   function useANSI() {
-    preANSI.classList.replace("font-dos", "font-ansi");
-    preANSI.classList.replace("reader", "reader-hires");
-    vga50.classList.add("active");
-    vgaStd.classList.remove("active");
+    preElm.classList.replace("font-dos", "font-ansi");
+    preElm.classList.replace("reader", "reader-hires");
+    preElm.classList.toggle("font-large");
+    hires.classList.add("active");
+    standard.classList.remove("active");
   }
   function useDOS() {
-    preANSI.classList.replace("font-ansi", "font-dos");
-    preANSI.classList.replace("reader-hires", "reader");
-    vga50.classList.remove("active");
-    vgaStd.classList.add("active");
+    preElm.classList.replace("font-ansi", "font-dos");
+    preElm.classList.replace("reader-hires", "reader");
+    preElm.classList.toggle("font-large");
+    hires.classList.remove("active");
+    standard.classList.add("active");
   }
 
   const copier = getElmById(`artifact-copy-textbody`);
@@ -41,7 +39,7 @@ import { clipText, getElmById } from "./helper.mjs";
     copier.addEventListener(`click`, copyText);
   }
   function copyText() {
-    clipText(ansiMe);
+    clipText(elementId);
   }
 })();
 

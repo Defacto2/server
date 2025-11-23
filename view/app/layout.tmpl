@@ -16,9 +16,9 @@
 {{- $jsdos := index . "jsdos6"}}
 {{- $logo := index . "logo"}}
 {{- $pouet := index . "pouet"}}
-{{- $ansiMe := index . "ansiMe"}}
-{{- $readmeL := index . "readmeLatin1"}}
-{{- $readmeC := index . "readmeCP437"}}
+{{- $contentBinary := index . "contentBinary"}}
+{{- $contentLatin1 := index . "contentLatin1"}}
+{{- $contentCP437 := index . "contentCP437"}}
 {{- $databaseErr := index . "databaseErr"}}
 {{- $subheading := index . "subheading"}}
 {{- $metatitle := .title}}
@@ -353,10 +353,10 @@
 {{- if $pouet}}
 <script async src="{{ pouet }}?{{ sri_pouet }}" integrity="{{ sri_pouet }}" crossorigin="anonymous"></script>
 {{- end}}
-{{- if $ansiMe }}
+{{- if $contentBinary }}
 <script async src="{{ canvasAnsi }}?{{ sri_canvasAnsi }}" integrity="{{ sri_canvasAnsi }}" crossorigin="anonymous"></script>
 {{- end}}
-{{- if or $readmeL $readmeC}}
+{{- if or $contentLatin1 $contentCP437}}
 <script async src="{{ canvasReadme }}?{{ sri_canvasReadme }}" integrity="{{ sri_canvasReadme }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- /*  js-dos v6.22  */}}

@@ -1525,21 +1525,24 @@ func UnID(art *models.File) string {
 	return ""
 }
 
-// EmbedReadme returns false if a text file artifact should not be displayed in the page as a readme or textfile.
-// This includes artifacts that are set as documents such a HTML, PDF or BBS RIP images.
-func EmbedReadme(art *models.File) bool {
+// UnsupportedFile returns true if an artifact should not be processed by the
+// binary text or plain text file templates shown in the artifact pages.
+//
+// This includes artifacts that are classified as "documents" but include rich syntax
+// such a HTML markup, PDF documents, or BBS RIP images.
+func UnsupportedFile(art *models.File) bool {
 	if art == nil {
-		return false
+		return true
 	}
 	const bbsRipImage = ".rip"
 	if filepath.Ext(strings.ToLower(art.Filename.String)) == bbsRipImage {
 		// the bbs era, remote images protcol is not supported
 		// example: /f/b02392f
-		return false
+		return true
 	}
 	switch strings.TrimSpace(art.Platform.String) {
 	case "markup", "pdf":
-		return false
+		return true
 	}
 	magic := strings.ToLower(strings.TrimSpace(art.FileMagicType.String))
 	skips := slices.Concat(
@@ -1547,13 +1550,13 @@ func EmbedReadme(art *models.File) bool {
 		magicnumber.Programs(),
 		magicnumber.Videos(),
 	)
-	skips = append(skips, magicnumber.Unknown) // "Binary data"
+	// skips = append(skips, magicnumber.Unknown) // "Binary data"
 	for skip := range slices.Values(skips) {
 		if strings.EqualFold(skip.Title(), magic) {
-			return false
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 // DisableReadme returns true if the readme or diz text files should not be displayed in the artifact page.

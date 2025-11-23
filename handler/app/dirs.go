@@ -92,15 +92,15 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "artifact"
-	art, err := dir.modelsFile(c, db, sl)
+	art, err := dir.artifactByURI(c, db, sl)
 	if art404 := art == nil || err != nil; art404 {
 		return err
 	}
 	data := empty(c)
 	if !readonly && sess.Editor(c) {
-		data = dir.Editor(c, sl, maxArchiveItems, art, data)
+		data = dir.EditorContent(c, sl, maxArchiveItems, art, data)
 	}
-	data = detectANSI(db, sl, art.ID, data)
+	data = classifyANSICheck(db, sl, art.ID, data)
 	// page metadata
 	uri := filerecord.DownloadID(art)
 	data["canonical"] = strings.Join([]string{"f", uri}, "/")
@@ -114,18 +114,20 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	data["lead"] = firstLead(art)
 	data["comment"] = string(helper.MaskTerm([]byte(filerecord.Comment(art))...))
 	data = dir.filemetadata(art, data)
-	if !readonly && sess.Editor(c) { // NOTE: this can be a performance issue on large files
+	if editorLoggedIn := !readonly && sess.Editor(c); editorLoggedIn {
+		// NOTE: this can be a performance issue on large files
 		platform := filerecord.TagProgram(art)
-		data = dir.updateMagics(db, sl, art.ID, art.UUID.String, platform, data)
+		data = dir.updateMagicNumber(db, sl, art.ID, art.UUID.String, platform, data)
 	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
-	data = jsdos(art, data, sl)
+	data = jsdosEmulator(art, data, sl)
 	// performance sanity check for everyone other than Editors
-	zipToBig := len(art.FileZipContent.String) > maxZipContent
-	if !zipToBig || sess.Editor(c) { // NOTE: this can cause a performance hit for archives with 10,000+ items
+	tooManyItems := len(art.FileZipContent.String) > maxZipContent
+	if !tooManyItems || sess.Editor(c) {
+		// NOTE: this can cause a performance hit for archives with 10,000+ items
 		data = content(art, maxArchiveItems, data)
-	} else if zipToBig {
+	} else if tooManyItems {
 		data["contentDesc"] = "contains many files"
 	}
 	data["linkpreview"] = filerecord.LinkPreview(art)
@@ -134,10 +136,10 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	if skip := render.NoScreenshot(art, dir.Preview.Path()); skip {
 		data["noScreenshot"] = true
 	}
-	if binary := !filerecord.EmbedReadme(art); binary {
-		data = dir.detectBinarySAUCE(art, data)
+	if unsupported := filerecord.UnsupportedFile(art); unsupported {
+		data = dir.findBinarySAUCE(art, data)
 	} else {
-		data, err = dir.embedPool(art, sizeLimitBytes, data)
+		data, err = dir.textfiles(art, sizeLimitBytes, data)
 		if err != nil {
 			defer clear(data)
 			sl.Error("dirs artifact",
@@ -153,7 +155,9 @@ func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly b
 	return nil
 }
 
-func detectANSI(db *sql.DB, sl *slog.Logger, id int64, data map[string]any) map[string]any {
+// classifyANSICheck uses the artifact's magicnumber value to match ansi texts and update
+// the artifact platform classification.
+func classifyANSICheck(db *sql.DB, sl *slog.Logger, id int64, data map[string]any) map[string]any {
 	if db == nil {
 		return data
 	}
@@ -178,43 +182,6 @@ func detectANSI(db *sql.DB, sl *slog.Logger, id int64, data map[string]any) map[
 	return data
 }
 
-func repackZIP(name string) bool {
-	methods, err := pkzip.Methods(name)
-	if err != nil {
-		return false
-	}
-	for method := range slices.Values(methods) {
-		if !method.Zip() {
-			return true
-		}
-	}
-	return false
-}
-
-func redundantArchive(modMagic any) bool {
-	switch modMagic.(type) {
-	case string:
-	default:
-		return false
-	}
-	val, valid := modMagic.(string)
-	if !valid {
-		return false
-	}
-	switch val {
-	case
-		magicnumber.ARChiveSEA.Title(),
-		magicnumber.YoshiLHA.Title(),
-		magicnumber.ArchiveRobertJung.Title(),
-		magicnumber.PKWAREZipImplode.Title(),
-		magicnumber.PKWAREZipReduce.Title(),
-		magicnumber.PKWAREZipShrink.Title():
-		return true
-	default:
-		return false
-	}
-}
-
 func plainText(modMagic any) bool {
 	switch modMagic.(type) {
 	case string:
@@ -236,10 +203,10 @@ func plainText(modMagic any) bool {
 	}
 }
 
-// Editor returns the editor data for the file record of the artifact.
+// EditorContent returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) Editor(c echo.Context, sl *slog.Logger, maxItems int, art *models.File, data map[string]any,
+func (dir Dirs) EditorContent(c echo.Context, sl *slog.Logger, maxItems int, art *models.File, data map[string]any,
 ) map[string]any {
 	if sl == nil || art == nil {
 		return data
@@ -297,8 +264,11 @@ func (dir Dirs) Editor(c echo.Context, sl *slog.Logger, maxItems int, art *model
 	return data
 }
 
-func (dir Dirs) embedPool(art *models.File, sizeLimit int64, data map[string]any) (map[string]any, error) {
-	data["ansiMe"] = ""
+// textfiles can append either a plain textfile, ansi encoded text file, or binary text file to the data map.
+// Also handled is any embedded SAUCE metadata, that will be shown as "embed" information on the artifact page.
+func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any) (map[string]any, error) {
+	// these are required by the template and must always be set
+	data["contentBinary"] = ""
 	data["readmeSAUCE"] = false
 	data["sauceTitle"] = ""
 	data["sauceAuthor"] = ""
@@ -307,10 +277,9 @@ func (dir Dirs) embedPool(art *models.File, sizeLimit int64, data map[string]any
 	if art == nil {
 		return data, nil
 	}
-	// NOTE: readme.Pool should not be used here, 20-July-25.
-	// Using the ReadPool (sync.Pool) function causes unusual text duplication behavior in production.
-	// After research, sync pooling is better used for small, fixed width data.
-	buf, ruf, rec, err := readme.ReadPool(art, sizeLimit, dir.Download, dir.Extra)
+	// INFO: The "sync.Pool" method should not be used in this func. It can cause an unintended effect of
+	// text duplication rendering. In July 2025, after research, sync pooling is better used for small, fixed width data.
+	buf, ruf, rec, err := readme.PlainTextBuffers(art, sizeLimit, dir.Download, dir.Extra)
 	if err != nil {
 		if errors.Is(err, render.ErrDownload) {
 			data["noDownload"] = true
@@ -318,37 +287,82 @@ func (dir Dirs) embedPool(art *models.File, sizeLimit int64, data map[string]any
 		}
 		return data, fmt.Errorf("dirs.embed read: %w", err)
 	}
-	if rec.ID == "SAUCE" {
+	if includeSauce := rec.ID == "SAUCE"; includeSauce {
 		data["readmeSAUCE"] = true
 		data["sauceTitle"] = rec.Title
 		data["sauceAuthor"] = rec.Author
 		data["sauceGroup"] = rec.Group
 		data["sauceDate"] = rec.Date.Time.Format("2006 Jan 02")
 	}
-	if buf == nil {
+	// there are edge cases where the plaintext could be unsable, for exampling using the incorrect encoding,
+	// or maybe the source used a known text filename extension (.nfo, .txt, etc) but is actually a program or is image data.
+	if unusableText := buf == nil; unusableText {
 		return data, nil
 	}
-	ansimode := ruf == nil
-	if ansimode {
-		data["ansiMe"] = template.HTML(buf.String())
+	elems := []string{"reader-invert", "border", "border-black", "rounded-1", "p-1"}
+	data["preElementClass"] = strings.Join(elems, " ")
+	// font-dos reader reader-invert border border-black rounded-1 p-1
+	// escape encoded ansi and binary text files are handled by a different template
+	if ansiEncoded := ruf == nil; ansiEncoded {
+		d := binaryTexts(art, buf, elems, data)
+		maps.Copy(data, d)
 		return data, nil
 	}
-	d, err := embedText(art, data, buf.Bytes()...)
+	d, err := simpleCharmapEncodings(art, data, buf.Bytes()...)
 	if err != nil {
 		return data, fmt.Errorf("dirs.embed text: %w", err)
 	}
 	maps.Copy(data, d)
-	// use the appropriate buffer for the "Web style" UTF-8 readme
-	d["readmeUTF8"] = ""
-	if ruf.Len() > 0 {
-		d["readmeUTF8"] = ruf.String()
-	} else {
-		d["readmeUTF8"] = buf.String()
-	}
+	d = unicodeEncodings(buf, ruf, data)
+	maps.Copy(data, d)
 	return d, nil
 }
 
-func (dir Dirs) detectBinarySAUCE(art *models.File, data map[string]any) map[string]any {
+func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[string]any) map[string]any {
+	year, _, _ := filerecord.Dates(art)
+	const epoch = 1993
+	data["contentBinary"] = template.HTML(buf.String())
+	data["contentBinarySwappers"] = true
+	// ansi encoded texts
+	if data["magic"] != "Binary data or binary text" {
+		fontname := "font-dos"
+		if data["platform"] == "textamiga" {
+			fontname = "font-amiga"
+		}
+		class := append([]string{fontname, "font-large", "render"}, elems...)
+		data["preElementClass"] = strings.Join(class, " ")
+		return data
+	}
+	// binary text and (in the future) extended binary text
+	data["contentBinarySwappers"] = false
+	class := append(elems, "text-bg-dark", "text-center")
+	if year < epoch && year != 0 {
+		// TODO: CGA font?
+		class = append([]string{"font-dos", "font-large", "reader"}, class...)
+	} else {
+		class = append([]string{"font-ansi"}, class...)
+		class = slices.Replace(class, 1, 3, "reader-hires")
+	}
+	data["preElementClass"] = strings.Join(class, " ")
+	return data
+}
+
+// unicodeEncodings adds the appropriate buffer for the "Web style" text.
+// The use of the buf Buffer is for legacy "ISO-8859-1" encoded text that is backwards compatible with UTF-8.
+// The use of the ruf Buffer is for multi-byte, Unicode runes.
+func unicodeEncodings(buf *bytes.Buffer, ruf *bytes.Buffer, data map[string]any) map[string]any {
+	data["contentUTF8"] = ""
+	if ruf.Len() > 0 {
+		data["contentUTF8"] = ruf.String()
+		return data
+	}
+	data["contentUTF8"] = buf.String()
+	return data
+}
+
+// findBinarySAUCE is used to read the SAUCE metadata embed into data files such
+// as pictures and image files.
+func (dir Dirs) findBinarySAUCE(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -357,44 +371,28 @@ func (dir Dirs) detectBinarySAUCE(art *models.File, data map[string]any) map[str
 	if err != nil {
 		return data
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	rec, err := sauce.Read(file)
 	if err != nil {
 		return data
 	}
-	if rec.ID == "SAUCE" {
-		data["readmeSAUCE"] = true
-		data["sauceTitle"] = rec.Title
-		data["sauceAuthor"] = rec.Author
-		data["sauceGroup"] = rec.Group
-		data["sauceDate"] = rec.Date.Time.Format("2006 Jan 02")
+	if useSAUCE := rec.ID == "SAUCE"; !useSAUCE {
+		return data
 	}
+	data["readmeSAUCE"] = true
+	data["sauceTitle"] = rec.Title
+	data["sauceAuthor"] = rec.Author
+	data["sauceGroup"] = rec.Group
+	data["sauceDate"] = rec.Date.Time.Format("2006 Jan 02")
 	return data
 }
 
-func (dir Dirs) compressZIP(root, uid string) (int64, error) {
-	basename := uid + ".zip"
-	src := filepath.Join(helper.TmpDir(), basename)
-	dest := filepath.Join(dir.Extra.Path(), basename)
-	_ = os.Remove(dest)
-	_, err := rezip.CompressDir(root, src)
-	if err != nil {
-		return 0, fmt.Errorf("dirs compress zip: %w", err)
-	}
-	if err = helper.RenameCrossDevice(src, dest); err != nil {
-		defer func() { _ = os.RemoveAll(src) }()
-		return 0, fmt.Errorf("dirs compress zip: %w", err)
-	}
-	st, err := os.Stat(dest)
-	if err != nil {
-		return 0, fmt.Errorf("dirs compress zip: %w", err)
-	}
-	return st.Size(), nil
-}
-
-// updateMagics updates the magic number for the file record of the artifact.
+// updateMagicNumber updates the magic number for the file record of the artifact.
 // It must be called after both the dir.filemetadata and dir.Editor functions.
-func (dir Dirs) updateMagics(db *sql.DB, sl *slog.Logger,
+//
+// Due to potential performance issues with extra large filedownloads, this update
+// should only be used by logged-in editors.
+func (dir Dirs) updateMagicNumber(db *sql.DB, sl *slog.Logger,
 	id int64, uid, platform string, data map[string]any,
 ) map[string]any {
 	if db == nil {
@@ -447,34 +445,40 @@ func (dir Dirs) updateMagics(db *sql.DB, sl *slog.Logger,
 		}
 		return data
 	}
-	return dir.checkMagics(sl, uid, root, platform, modMagic, data)
+	return dir.makeAssets(sl, uid, root, platform, modMagic, data)
 }
 
-func (dir Dirs) checkMagics(sl *slog.Logger,
+// makeAssets will create repackaged archives and images of textfiles if they're required.
+func (dir Dirs) makeAssets(sl *slog.Logger,
 	uid, root, platform string,
 	modMagic any,
 	data map[string]any,
 ) map[string]any {
 	const msg = "update magic number"
 	name := filepath.Join(dir.Download.Path(), uid)
+	zipArchiving := modMagic == magicnumber.PKWAREZip.Title()
 	switch {
-	case redundantArchive(modMagic):
-	case modMagic == magicnumber.PKWAREZip.Title():
-		if !repackZIP(name) {
+	case legacyArchiving(modMagic):
+		// requires repacking
+	case zipArchiving:
+		if !requireReplacementZip(name) {
+			// does not require repacking
 			return data
 		}
 	case plainText(modMagic):
-		return dir.plainTexts(sl, uid, platform, data)
+		return dir.makeTextfileImgs(sl, uid, platform, data)
 	default:
 		return data
 	}
-	if i, err := dir.compressZIP(root, uid); err != nil {
+	i, err := dir.makeReplacementZip(root, uid)
+	if err != nil {
 		if sl != nil {
 			sl.Error(msg, slog.String("file issue", "zip archive compressor"),
 				slog.String("uuid", uid), slog.Any("error", err))
 		}
 		return data
-	} else if sl != nil {
+	}
+	if sl != nil {
 		slog.Info(msg, slog.String("success", "extra deflated zipfile created"),
 			slog.String("uuid", uid), slog.Int64("bytes extracted", i))
 	}
@@ -482,7 +486,64 @@ func (dir Dirs) checkMagics(sl *slog.Logger,
 	return data
 }
 
-func (dir Dirs) plainTexts(sl *slog.Logger,
+func legacyArchiving(modMagic any) bool {
+	switch modMagic.(type) {
+	case string:
+	default:
+		return false
+	}
+	val, valid := modMagic.(string)
+	if !valid {
+		return false
+	}
+	switch val {
+	case
+		magicnumber.ARChiveSEA.Title(),
+		magicnumber.YoshiLHA.Title(),
+		magicnumber.ArchiveRobertJung.Title(),
+		magicnumber.PKWAREZipImplode.Title(),
+		magicnumber.PKWAREZipReduce.Title(),
+		magicnumber.PKWAREZipShrink.Title():
+		return true
+	default:
+		return false
+	}
+}
+
+func requireReplacementZip(name string) bool {
+	methods, err := pkzip.Methods(name)
+	if err != nil {
+		return false
+	}
+	for method := range slices.Values(methods) {
+		if !method.Zip() {
+			return true
+		}
+	}
+	return false
+}
+
+func (dir Dirs) makeReplacementZip(root, uid string) (int64, error) {
+	basename := uid + ".zip"
+	src := filepath.Join(helper.TmpDir(), basename)
+	dest := filepath.Join(dir.Extra.Path(), basename)
+	_ = os.Remove(dest)
+	_, err := rezip.CompressDir(root, src)
+	if err != nil {
+		return 0, fmt.Errorf("dirs compress zip: %w", err)
+	}
+	if err = helper.RenameCrossDevice(src, dest); err != nil {
+		defer func() { _ = os.RemoveAll(src) }()
+		return 0, fmt.Errorf("dirs compress zip: %w", err)
+	}
+	st, err := os.Stat(dest)
+	if err != nil {
+		return 0, fmt.Errorf("dirs compress zip: %w", err)
+	}
+	return st.Size(), nil
+}
+
+func (dir Dirs) makeTextfileImgs(sl *slog.Logger,
 	uid, platform string, data map[string]any,
 ) map[string]any {
 	const msg = "update magic number"
@@ -505,8 +566,8 @@ func (dir Dirs) plainTexts(sl *slog.Logger,
 	return data
 }
 
-// modelsFile returns the URI artifact record from the file table.
-func (dir Dirs) modelsFile(c echo.Context, db *sql.DB, sl *slog.Logger) (*models.File, error) {
+// artifactByURI returns the URI artifact record from the file table.
+func (dir Dirs) artifactByURI(c echo.Context, db *sql.DB, sl *slog.Logger) (*models.File, error) {
 	ctx := context.Background()
 	var art *models.File
 	var err error
@@ -664,8 +725,8 @@ func (dir Dirs) otherRelations(art *models.File, data map[string]any) map[string
 	return data
 }
 
-// jsdos returns the js-dos emulator data for the file record of the artifact.
-func jsdos(art *models.File, data map[string]any, sl *slog.Logger,
+// jsdosEmulator returns the js-dos emulator data for the file record of the artifact.
+func jsdosEmulator(art *models.File, data map[string]any, sl *slog.Logger,
 ) map[string]any {
 	if art == nil {
 		return data
@@ -803,8 +864,14 @@ const (
 	maxWidth = 80
 )
 
-// embedText embeds the readme or file download text content for the file record of the artifact.
-func embedText(art *models.File, data map[string]any, b ...byte) (map[string]any, error) {
+// simpleCharmapEncodings appends the text content for files that are encoded using the
+// legacy character map encodings IBM CodePage 437 or ISO-8859-1 (Latin-1). In the case of
+// CP437, the encoding goes through a conversion to modern Unicode (UTF-8). Allowing the text to be
+// served correctly by the web server and viewable in a standard browser.
+//
+// All text content, either CP437, ISO, or UTF-8, also goes through a normalization process,
+// to replace any "special" characters, such as non-breaking-spaces with standard spaces.
+func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (map[string]any, error) {
 	if len(b) == 0 || art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
@@ -814,14 +881,14 @@ func embedText(art *models.File, data map[string]any, b ...byte) (map[string]any
 	data["vgaCheck"] = ""
 	switch textEncoding {
 	case charmap.ISO8859_1:
-		data["readmeLatin1Cls"] = ""
-		data["readmeCP437Cls"] = "d-none" + space
+		data["preClassLatin1"] = ""
+		data["preClassCP437"] = "d-none" + space
 		data["topazCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp}, []byte{sp})
 		b = bytes.ReplaceAll(b, []byte{shy}, []byte{hyphen})
 	case charmap.CodePage437, unicode.UTF8:
-		data["readmeLatin1Cls"] = "d-none" + space
-		data["readmeCP437Cls"] = ""
+		data["preClassLatin1"] = "d-none" + space
+		data["preClassCP437"] = ""
 		data["vgaCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	}
@@ -834,25 +901,25 @@ func embedText(art *models.File, data map[string]any, b ...byte) (map[string]any
 		if err != nil {
 			return data, fmt.Errorf("unicode utf8 decode: %w", err)
 		}
-		data["readmeLatin1"] = readme1
-		data["readmeCP437"] = readme1
-		data["readmeLines"] = strings.Count(readme1, "\n")
-		data["readmeRows"] = helper.MaxLineLength(readme1)
+		data["contentLatin1"] = readme1
+		data["contentCP437"] = readme1
+		data["contentLines"] = strings.Count(readme1, "\n")
+		data["contentRows"] = helper.MaxLineLength(readme1)
 	default:
 		d := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
 		readme2, err = decode(d)
 		if err != nil {
 			return data, fmt.Errorf("iso8859_1 decode: %w", err)
 		}
-		data["readmeLatin1"] = readme2
+		data["contentLatin1"] = readme2
 		d = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 		readme2, err = decode(d)
 		if err != nil {
 			return data, fmt.Errorf("codepage437 decode: %w", err)
 		}
-		data["readmeCP437"] = readme2
-		data["readmeLines"] = strings.Count(readme2, "\n")
-		data["readmeRows"] = helper.MaxLineLength(readme2)
+		data["contentCP437"] = readme2
+		data["contentLines"] = strings.Count(readme2, "\n")
+		data["contentRows"] = helper.MaxLineLength(readme2)
 	}
 	return data, nil
 }

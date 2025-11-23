@@ -43,21 +43,21 @@ func TestWebsites(t *testing.T) {
 	be.Equal(t, s, "")
 }
 
-func TestEmbedReadme(t *testing.T) {
+func TestUnsupportedFile(t *testing.T) {
 	t.Parallel()
 	x := models.File{}
-	b := filerecord.EmbedReadme(&x)
-	be.True(t, b)
-	x.Filename = null.StringFrom("filename.txt")
-	b = filerecord.EmbedReadme(&x)
-	be.True(t, b)
-	x.Filename = null.StringFrom("filename.rip")
-	b = filerecord.EmbedReadme(&x)
+	b := filerecord.UnsupportedFile(&x)
 	be.True(t, !b)
+	x.Filename = null.StringFrom("filename.txt")
+	b = filerecord.UnsupportedFile(&x)
+	be.True(t, !b)
+	x.Filename = null.StringFrom("filename.rip")
+	b = filerecord.UnsupportedFile(&x)
+	be.True(t, b)
 	x.Filename = null.StringFrom("filename.pdf")
 	x.Platform = null.StringFrom("pdf")
-	b = filerecord.EmbedReadme(&x)
-	be.True(t, !b)
+	b = filerecord.UnsupportedFile(&x)
+	be.True(t, b)
 }
 
 func TestRelations(t *testing.T) {

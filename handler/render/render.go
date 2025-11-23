@@ -11,6 +11,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -55,7 +56,60 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding {
 	return guess
 }
 
-func readmepanic(buf, ruf *bytes.Buffer, art *models.File, msg string) error {
+// InformationText writes the content of either the file download or an extracted text file to the buffers.
+// The text is intended to be used as a readme, preview or an in-browser viewer.
+//
+// Both the buf buffer and the ruf rune buffer are reset before writing.
+func InformationText(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, download, extra dir.Directory) error {
+	const msg = "render information text"
+	if err := infopanic(buf, ruf, art, msg); err != nil {
+		return err
+	}
+	name, err := infoFilename(buf, art, download, extra)
+	if err != nil {
+		return err
+	} else if name == "" {
+		return nil
+	}
+	st, err := os.Stat(name)
+	if err != nil {
+		b := []byte("error could not describe the information text file")
+		buf.Write(b)
+		return nil
+	}
+	if st.Size() > sizeLimit {
+		b := []byte("skipped, text is too long")
+		buf.Write(b)
+		return nil
+	}
+	f, err := os.Open(name)
+	if err != nil {
+		b := []byte("error could not read the information text file")
+		buf.Write(b)
+		return nil
+	}
+	defer func() { _ = f.Close() }()
+	buf.Reset()
+	_, err = io.Copy(buf, f)
+	if err != nil {
+		return fmt.Errorf("information text copy %w: %q", err, name)
+	}
+	var p []byte
+	if sign, _ := magicnumber.Text(f); sign != magicnumber.Unknown {
+		p = normalize(buf)
+	} else {
+		p = buf.Bytes()
+	}
+	buf.Reset()
+	buf.Write(p)
+	if utf8.Valid(p) {
+		ruf.Reset()
+		ruf.Write(p)
+	}
+	return nil
+}
+
+func infopanic(buf, ruf *bytes.Buffer, art *models.File, msg string) error {
 	if buf == nil {
 		return fmt.Errorf("%s: buf %w", msg, panics.ErrNoBuffer)
 	}
@@ -68,22 +122,15 @@ func readmepanic(buf, ruf *bytes.Buffer, art *models.File, msg string) error {
 	return nil
 }
 
-// ReadmePool writes the content of either the file download or an extracted text file to the buffers.
-// The text is intended to be used as a readme, preview or an in-browser viewer.
-//
-// Both the buf buffer and the ruf rune buffer are reset before writing.
-func ReadmePool(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, download, extra dir.Directory) error {
+func infoFilename(buf *bytes.Buffer, art *models.File, download, extra dir.Directory) (string, error) {
 	const msg = "render readme pool"
-	if err := readmepanic(buf, ruf, art, msg); err != nil {
-		return err
-	}
 	fname := art.Filename.String
 	if fname == "" {
-		return ErrFilename
+		return "", ErrFilename
 	}
 	unid := art.UUID.String
 	if unid == "" {
-		return ErrUUID
+		return "", ErrUUID
 	}
 	var files struct {
 		artifact struct {
@@ -100,47 +147,17 @@ func ReadmePool(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, downl
 	files.artifact.path = download.Join(unid)
 	files.artifact.okay = helper.Stat(files.artifact.path)
 	if !files.artifact.okay && !files.readmeText.okay {
-		return fmt.Errorf("%s: %w %q", msg, ErrDownload, download.Join(unid))
+		return "", fmt.Errorf("%s: %w %q", msg, ErrDownload, download.Join(unid))
 	}
 	if !files.readmeText.okay && !Viewer(art) {
 		buf.Reset()
-		return nil
+		return "", nil
 	}
 	name := files.artifact.path
 	if files.readmeText.okay {
 		name = files.readmeText.path
 	}
-	st, err := os.Stat(name)
-	if err != nil {
-		b := []byte("error could not describe the readme text file")
-		buf.Write(b)
-		return nil
-	}
-	if st.Size() > sizeLimit {
-		b := []byte("skipped, text is too long")
-		buf.Write(b)
-		return nil
-	}
-	f, err := os.Open(name)
-	if err != nil {
-		b := []byte("error could not read the readme text file")
-		buf.Write(b)
-		return nil
-	}
-	defer func() { _ = f.Close() }()
-	buf.Reset()
-	_, err = io.Copy(buf, f)
-	if err != nil {
-		return fmt.Errorf("readme copy %w: %q", err, name)
-	}
-	p := normalize(buf)
-	buf.Reset()
-	buf.Write(p)
-	if utf8.Valid(p) {
-		ruf.Reset()
-		ruf.Write(p)
-	}
-	return nil
+	return name, nil
 }
 
 func normalize(buf *bytes.Buffer) []byte {
@@ -153,10 +170,13 @@ func normalize(buf *bytes.Buffer) []byte {
 	return b
 }
 
-// DizPool returns the content of the FILE_ID.DIZ file.
-// The text is intended to be used as a readme, preview or an in-browser viewer.
-func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
-	const msg = "file_id.diz pool"
+// DescriptionInZIP returns the content of the description in archive file.
+// Usually this brief summary text is named 'file_id.diz' and is a legacy of the BBS
+// era of file hosting.
+//
+// The summary text can be used as a readme, preview, or viewed in the browser.
+func DescriptionInZIP(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
+	const msg = "description in zip"
 	if buf == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoBuffer)
 	}
@@ -167,13 +187,14 @@ func DizPool(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	if unid == "" {
 		return ErrUUID
 	}
-	diz := extra.Join(unid + ".diz")
+	const extension = ".diz"
+	diz := extra.Join(unid + extension)
 	if !helper.Stat(diz) {
 		return nil
 	}
 	f, err := os.Open(diz)
 	if err != nil {
-		b := []byte("error could not read the diz file")
+		b := []byte("error could not read the description file")
 		buf.Write(b)
 	}
 	defer func() { _ = f.Close() }()

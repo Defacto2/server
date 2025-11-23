@@ -10,9 +10,9 @@
 {{- $jsdos6 := index . "jsdos6"}}
 {{- $writers := trimSpace (index . "writers") }}
 {{- $artists := trimSpace (index . "artists") }}
-{{- $readmeL := index . "readmeLatin1"}}
-{{- $readmeLines := index . "readmeLines"}}
-{{- $readmeRows := index . "readmeRows"}}
+{{- $contentLatin1 := index . "contentLatin1"}}
+{{- $contentLines := index . "contentLines"}}
+{{- $contentRows := index . "contentRows"}}
 {{- $programmers := trimSpace (index . "programmers") }}
 {{- $musicians := trimSpace (index . "musicians") }}
 {{- $demozoo := (index . "demozoo")}}
@@ -175,11 +175,11 @@
                         <td>{{$mimetype}}</td>
                     </tr>
                     {{- end}}
-                    {{- if $readmeL}}
+                    {{- if $contentLatin1}}
                     <tr>
                         <th scope="row"><span class="text-nowrap">Text dimensions</span></th>
-                        <td><span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{$readmeLines}}</span> x 
-                            <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{$readmeRows}}</span></td>
+                        <td><span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{$contentLines}}</span> x 
+                            <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{$contentRows}}</span></td>
                     </tr>
                     {{- end}}
                     {{- if $sauce}}

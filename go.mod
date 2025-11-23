@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.25.3 // latest: https://go.dev/dl/
+go 1.25.4 // latest: https://go.dev/dl/
 
 // INFO: Usage of the packages
 // Defacto2/ named packages are all internal but kept out of the main application.
@@ -27,7 +27,7 @@ go 1.25.3 // latest: https://go.dev/dl/
 require (
 	github.com/Defacto2/archive v1.1.4
 	github.com/Defacto2/helper v1.6.5
-	github.com/Defacto2/magicnumber v1.1.1
+	github.com/Defacto2/magicnumber v1.2.1
 	github.com/Defacto2/releaser v1.3.18
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
@@ -50,7 +50,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/nalgeon/be v0.3.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
-	github.com/samber/slog-multi v1.5.0
+	github.com/samber/slog-multi v1.6.0
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/image v0.33.0
@@ -65,8 +65,11 @@ require (
 //	replace github.com/Defacto2/releaser => ../releaser
 //	replace github.com/bengarrett/ansibump => ../ansibump
 //	replace github.com/bengarrett/sauce => ../sauce
+//	replace github.com/bengarrett/binbump => ../binbump
 
 require golang.org/x/sys v0.38.0 // indirect
+
+require github.com/bengarrett/binbump v1.0.0
 
 require (
 	cloud.google.com/go/auth v0.17.0 // indirect
@@ -75,12 +78,11 @@ require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/aarondl/inflect v0.0.2 // indirect
 	github.com/aarondl/randomize v0.0.2 // indirect
-	github.com/air-verse/air v1.63.0 // indirect
+	github.com/air-verse/air v1.63.1 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
-	github.com/creack/pty v1.1.24 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -111,7 +113,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rosedblabs/wal v1.3.8 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/samber/lo v1.51.0 // indirect
+	github.com/samber/lo v1.52.0 // indirect
 	github.com/samber/slog-common v0.19.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
@@ -124,12 +126,12 @@ require (
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
-	go.uber.org/nilaway v0.0.0-20251113014939-1941227e2c57 // indirect
+	go.uber.org/nilaway v0.0.0-20251119034912-44f92224c998 // indirect
 	golang.org/x/crypto v0.44.0 // indirect
 	golang.org/x/mod v0.30.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
-	golang.org/x/pkgsite v0.0.0-20251114215028-9f629f032eec // indirect
+	golang.org/x/pkgsite v0.0.0-20251120203232-84333735ffe1 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect

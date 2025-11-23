@@ -15,12 +15,14 @@ import (
 	"strings"
 	uni "unicode"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/render"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/bengarrett/ansibump"
+	"github.com/bengarrett/binbump"
 	"github.com/bengarrett/sauce"
 	"golang.org/x/text/encoding/charmap"
 )
@@ -151,13 +153,13 @@ func candidate() []string {
 	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
 }
 
-// ReadPool returns the content of the readme file or the text of the file download.
+// PlainTextBuffers returns the content of the readme file or the text of the file download.
 // The first buffer is used for CP1252 and ISO-8859-1 texts while the second buffer
 // is used for UTF-8 texts.
 //
 // The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
 // However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
-func ReadPool( //nolint:gocognit,cyclop,funlen
+func PlainTextBuffers(
 	art *models.File, sizeLimit int64, download, extra dir.Directory,
 ) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
 	const msg = "readme pool"
@@ -170,8 +172,8 @@ func ReadPool( //nolint:gocognit,cyclop,funlen
 	ruf := new(bytes.Buffer)
 	// This might be useful if we want to force Go to not use the garbage collector.
 	// buf.Reset() diz.Reset() ruf.Reset()
-	err1 := render.DizPool(diz, art, extra)
-	err2 := render.ReadmePool(buf, ruf, sizeLimit, art, download, extra)
+	err1 := render.DescriptionInZIP(diz, art, extra)
+	err2 := render.InformationText(buf, ruf, sizeLimit, art, download, extra)
 	var errs error
 	if err1 != nil {
 		errs = errors.Join(errs, fmt.Errorf("%s render diz: %w", msg, err1))
@@ -184,66 +186,81 @@ func ReadPool( //nolint:gocognit,cyclop,funlen
 			errs = errors.Join(errs, fmt.Errorf("%s render read: %w", msg, err2))
 		}
 	}
-	notText := diz.Len() == 0 && buf.Len() == 0 && ruf.Len() == 0
-	if notText {
+	knownData := diz.Len() == 0 && buf.Len() == 0 && ruf.Len() == 0
+	if knownData {
 		name := download.Join(art.UUID.String)
-		file, err := os.Open(name)
-		if err != nil {
-			errs = errors.Join(errs, fmt.Errorf("%s not text open: %w", msg, err))
-			return nil, nil, nosauce, errs
-		}
-		defer file.Close()
-		rec, err := sauce.Read(file)
-		if err != nil {
-			errs = errors.Join(errs, fmt.Errorf("%s not text sauce read: %w", msg, err))
-		}
-		return nil, nil, *rec, errs
+		return knownBinaries(msg, name, errs)
 	}
 	// check the bytes to confirm they can be displayed as text
-	sign, err := magicnumber.Text(bytes.NewReader(buf.Bytes()))
-	if err != nil {
+	r := bytes.NewReader(buf.Bytes())
+	sign := magicnumber.Find(r)
+	// reset text buffer for utf-16 or utf-32 text which won't be displayed
+	if incompatible := sign == magicnumber.UTF16Text ||
+		sign == magicnumber.UTF32Text; incompatible {
 		buf.Reset()
-		errs = errors.Join(errs, fmt.Errorf("%s magicnumber text: %w", msg, err))
+	} else {
+		// reset buffers for known images
+		skip := magicnumber.Images()
+		skip = append(skip, magicnumber.XBinaryText)
+		if slices.Contains(skip, sign) {
+			buf.Reset()
+			ruf.Reset()
+		}
 	}
-	// reset buffer for unknown, utf-16 or utf-32 text which won't be displayed
-	if sign == magicnumber.Unknown || sign == magicnumber.UTF16Text || sign == magicnumber.UTF32Text {
-		buf.Reset()
-	}
-	// reset buffers for known non-images
-	if slices.Contains(magicnumber.Images(), sign) {
-		buf.Reset()
-		ruf.Reset()
-	}
-	b := buf.Bytes()
-	rec := sauce.Record{}
-	if sauce.Contains(b) {
-		rec = sauce.Decode(b)
-	}
+	sr := sauceData(buf)
 	// text with ANSI escape codes use a custom readme template
-	if match, err := MatchANSI(bytes.NewReader(buf.Bytes())); err != nil {
+	if match, err := UseANSICodes(bytes.NewReader(buf.Bytes())); err != nil {
 		errs = errors.Join(errs, fmt.Errorf("%s incompatible ansi: %w", msg, err))
 		buf.Reset()
 	} else if match {
-		const width = 80 // TODO: add SAUCE width
-		charset := charmap.CodePage437
 		platform := strings.TrimSpace(strings.ToLower(art.Platform.String))
-		if platform == "textamiga" {
-			charset = charmap.ISO8859_1
-		}
-		ansi, err := ansibump.Buffer(
-			bytes.NewReader(buf.Bytes()), width, false, ansibump.CGA16, charset)
-		if err != nil {
-			errs = errors.Join(errs, err)
-			return nil, nil, rec, errs
-		}
-		// for now we reset all other buffers
-		buf.Reset()
-		diz.Reset()
-		ruf.Reset()
-		return ansi, nil, rec, nil
+		return ansiTexts(buf, diz, ruf, platform, sr, errs)
+	}
+	// binary texts can also cause false positives
+	if binaryText := sign == magicnumber.Unknown; binaryText {
+		y := art.DateIssuedYear.Int16
+		return binaryTexts(buf, diz, ruf, y, sr, errs)
 	}
 	// modify the buffer bytes for cleanup
-	b = trimBytes(buf.Bytes())
+	return plainTexts(buf, diz, ruf, sr, errs)
+}
+
+func knownBinaries(msg, name string, errs error) (
+	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
+) {
+	nosauce := sauce.Record{}
+	file, err := os.Open(name)
+	if err != nil {
+		errs = errors.Join(errs, fmt.Errorf("%s not text open: %w", msg, err))
+		return nil, nil, nosauce, errs
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+	rec, err := sauce.Read(file)
+	if err != nil {
+		errs = errors.Join(errs, fmt.Errorf("%s not text sauce read: %w", msg, err))
+	}
+	if rec == nil {
+		rec = &nosauce
+	}
+	return nil, nil, *rec, errs
+}
+
+func sauceData(buf *bytes.Buffer) sauce.Record {
+	b := buf.Bytes()
+	if sauce.Contains(b) {
+		return sauce.Decode(b)
+	}
+	return sauce.Record{}
+}
+
+func plainTexts(
+	buf *bytes.Buffer, diz *bytes.Buffer, ruf *bytes.Buffer,
+	sr sauce.Record, errs error) (
+	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
+) {
+	b := trimBytes(buf.Bytes())
 	if diz.Len() > 0 {
 		if diz.Len() == buf.Len() {
 			// for performance we want to use the bytes equal as a last resort.
@@ -261,15 +278,62 @@ func ReadPool( //nolint:gocognit,cyclop,funlen
 		buf.Reset()
 		diz.Reset()
 		ruf.Reset()
-		return nil, nil, rec, errs
+		return nil, nil, sr, errs
 	}
 	if len(b) > 0 {
 		buf.Reset()
 		buf.Write(b)
 	}
-	// defer bufferPool.Put(buf)
-	// defer bufferPool.Put(ruf)
-	return buf, ruf, rec, nil
+	return buf, ruf, sr, nil
+}
+
+func ansiTexts(
+	buf *bytes.Buffer, diz *bytes.Buffer, ruf *bytes.Buffer,
+	platform string, sr sauce.Record, errs error) (
+	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
+) {
+	width := 80 // TODO: add SAUCE width, this needs changes to the sauce package
+	charset := charmap.CodePage437
+	if platform == "textamiga" {
+		charset = charmap.ISO8859_1
+	}
+	ansi, err := ansibump.Buffer(
+		bytes.NewReader(buf.Bytes()), width, false, ansibump.CGA16, charset)
+	if err != nil {
+		errs = errors.Join(errs, err)
+		return nil, nil, sr, errs
+	}
+	// for now we reset all other buffers
+	buf.Reset()
+	diz.Reset()
+	ruf.Reset()
+	return ansi, nil, sr, nil
+}
+
+func binaryTexts(
+	buf *bytes.Buffer, diz *bytes.Buffer, ruf *bytes.Buffer,
+	year int16, sr sauce.Record, errs error) (
+	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
+) {
+	width := 0 // use default
+	maxRows := 0
+	pal := binbump.StandardCGA
+	if y := int(year); helper.Year(y) && y < 1992 {
+		width = 80
+		maxRows = 25
+		pal = binbump.RevisedCGA
+	}
+	binbuf, err := binbump.Buffer(
+		bytes.NewReader(buf.Bytes()), width, maxRows, pal, nil)
+	if err != nil {
+		errs = errors.Join(errs, err)
+		return nil, nil, sr, errs
+	}
+	// for now we reset all other buffers
+	buf.Reset()
+	diz.Reset()
+	ruf.Reset()
+	return binbuf, nil, sr, nil
 }
 
 func trimBytes(b []byte) []byte {
@@ -302,8 +366,10 @@ func RemoveCtrls(b []byte) []byte {
 	return b
 }
 
-// MatchANSI scans for HTML incompatible, ANSI cursor escape codes in the reader.
-func MatchANSI(r io.Reader) (bool, error) {
+// UseANSICodes scans the reader and returns true if ANSI escape codes are found.
+// If the reader is too large to render in a HTML template, an error is returned.
+func UseANSICodes(r io.Reader) (bool, error) {
+	const maximumBytes = 1024 * 1024
 	const msg = "match ansi reader"
 	if r == nil {
 		return false, nil
@@ -336,8 +402,7 @@ func MatchANSI(r io.Reader) (bool, error) {
 	scanner = bufio.NewScanner(r)
 	const sixtyfourK = 64 * 1024
 	buf := make([]byte, 0, sixtyfourK)
-	const oneMegabyte = 1024 * 1024
-	scanner.Buffer(buf, oneMegabyte)
+	scanner.Buffer(buf, maximumBytes)
 	scanner = bufio.NewScanner(r)
 	for scanner.Scan() {
 		if reMoveCursor.Match(scanner.Bytes()) {
