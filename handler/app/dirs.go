@@ -323,6 +323,7 @@ func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[s
 	const epoch = 1993
 	data["contentBinary"] = template.HTML(buf.String())
 	data["contentBinarySwappers"] = true
+	data["contentBinarySwapper"] = 0 // placeholder, for possible VGA50 font option as default
 	// ansi encoded texts
 	if data["magic"] != "Binary data or binary text" {
 		fontname := "font-dos"

@@ -86,8 +86,9 @@
                     data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button>
                 {{- if eq true $contentBinarySwappers }}
                 &nbsp;
-                <button type="button" id="ansiVGA" class="btn btn-outline-dark btn-sm">16 pixel</button>
-                <button type="button" id="ansiVGA50" class="btn btn-outline-dark btn-sm">8 pixel</button>
+                <button type="button" id="textcontBtnZoom" class="btn btn-outline-dark btn-sm active">Zoom</button>
+                <button type="button" id="textcontBtn16px" class="btn btn-outline-dark btn-sm">16 pixels</button>
+                <button type="button" id="textcontBtn08px" class="btn btn-outline-dark btn-sm">8 pixels</button>
                 {{- end }}
             </div>
             <h6 class="fs-6 fw-lighter">ANSI or binary textfile</h6>
@@ -99,14 +100,14 @@
             <div class="m-3">
                 <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-textbody" 
                     data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button> &nbsp;
-                <input type="radio" class="btn-check" name="readme-base" id="monoFont" rel="nofollow" autocomplete="off">
-                <label class="btn btn-sm btn-outline-dark" for="monoFont" 
+                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnWeb" rel="nofollow" autocomplete="off">
+                <label class="btn btn-sm btn-outline-dark" for="textcontBtnWeb" 
                     data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with UTF-8 encoding">Web style</label>
-                <input type="radio" class="btn-check" name="readme-base" id="topazFont" rel="nofollow" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
-                <label class="btn btn-sm btn-outline-dark" for="topazFont" 
+                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnAmiga" rel="nofollow" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
+                <label class="btn btn-sm btn-outline-dark" for="textcontBtnAmiga" 
                     data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
-                <input type="radio" class="btn-check" name="readme-base" id="vgaFont" rel="nofollow" autocomplete="off"{{if ne $vga ""}} {{$vga}}{{end}}>
-                <label class="btn btn-sm btn-outline-dark" for="vgaFont"
+                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnDOS" rel="nofollow" autocomplete="off"{{if ne $vga ""}} {{$vga}}{{end}}>
+                <label class="btn btn-sm btn-outline-dark" for="textcontBtnDOS"
                     data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
             </div>
             {{- if not $screenNone}}

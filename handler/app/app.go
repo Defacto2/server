@@ -953,12 +953,12 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 		return fmt.Errorf("%s: %w", name, err)
 	}
 
-	name = names[CanvasAnsi]
+	name = names[ContentBinary]
 	s.CanvasAnsi, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}
-	name = names[CanvasReadme]
+	name = names[ContentText]
 	s.CanvasReadme, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)

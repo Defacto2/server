@@ -198,10 +198,10 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		},
 		"capitalize": helper.Capitalize,
 		"canvasAnsi": func() string {
-			return hrefs[CanvasAnsi]
+			return hrefs[ContentBinary]
 		},
 		"canvasReadme": func() string {
-			return hrefs[CanvasReadme]
+			return hrefs[ContentText]
 		},
 		"classification": func(s, p string) string {
 			count, _ := form.HumanizeCount(db, s, p)

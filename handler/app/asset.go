@@ -11,8 +11,8 @@ const (
 	Bootstrap5      Asset = iota // Bootstrap is the path to the minified Bootstrap 5.3 CSS file.
 	Bootstrap5JS                 // BootstrapJS is the path to the minified Bootstrap 5.3 JS file.
 	BootstrapIcons               // BootstrapIcons is the path to the custom Bootstrap Icons SVG sprites file.
-	CanvasAnsi                   // CanvasAnsi is the path to the minified ansi JS file.
-	CanvasReadme                 // CanvasReadme is the path to the minified readme JS file.
+	ContentBinary                // ContentBinary is the path to the minified ansi JS file.
+	ContentText                  // ContentText is the path to the minified readme JS file.
 	DosboxJS                     // DosboxJS is the js-dos v6 default variant compiled with emscripten.
 	DosboxWasm                   // DosboxWasm is the js-dos v6 WASM binary file.
 	EditArtifact                 // EditArtifact is the path to the minified Artifact Editor JS file.
@@ -38,8 +38,8 @@ func Hrefs() *Paths {
 		Bootstrap5:      "/css/bootstrap.min.css",
 		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
 		BootstrapIcons:  "/svg/bootstrap-icons.svg",
-		CanvasAnsi:      "/js/canvas-ansi.min.js",
-		CanvasReadme:    "/js/canvas-readme.min.js",
+		ContentBinary:   "/js/content-binary.min.js",
+		ContentText:     "/js/content-text.min.js",
 		DosboxJS:        "/js/wdosbox.js",
 		DosboxWasm:      "/js/wdosbox.wasm",
 		EditArtifact:    "/js/editor-artifact.min.js",

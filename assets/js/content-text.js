@@ -1,5 +1,5 @@
 /**
- * @file canvas-readme.js
+ * @file content-text.js
  * Provides functions for handling readme and NFO file rendering within a pre element.
  */
 import { clipText, getElmById } from "./helper.mjs";
@@ -8,14 +8,14 @@ import { clipText, getElmById } from "./helper.mjs";
   const none = `d-none`;
   const blackBG = ["reader-invert", "border", "border-black", "rounded-1"];
 
-  const latin = "precontentLatin1",
-    preLatin1 = getElmById(latin),
-    cp437 = "precontentCP437",
-    preCP437 = getElmById(cp437),
-    utf8 = "precontentUTF8",
-    preUTF8 = getElmById(utf8)
+  const latinId = "precontentLatin1",
+    preLatin1 = getElmById(latinId),
+    cp437Id = "precontentCP437",
+    preCP437 = getElmById(cp437Id),
+    utf8Id = "precontentUTF8",
+    preUTF8 = getElmById(utf8Id)
 
-  const cascadia = document.getElementById(`monoFont`);
+  const cascadia = document.getElementById(`textcontBtnWeb`);
   if (cascadia !== null) {
     cascadia.addEventListener("click", useCascadia);
   }
@@ -26,7 +26,7 @@ import { clipText, getElmById } from "./helper.mjs";
     preUTF8.classList.remove(none);
   }
 
-  const topaz = document.getElementById(`topazFont`);
+  const topaz = document.getElementById(`textcontBtnAmiga`);
   if (topaz !== null) {
     topaz.addEventListener("click", useAmiga);
   }
@@ -37,7 +37,7 @@ import { clipText, getElmById } from "./helper.mjs";
     preLatin1.classList.remove(none);
   }
 
-  const vga = document.getElementById(`vgaFont`);
+  const vga = document.getElementById(`textcontBtnDOS`);
   if (vga !== null) {
     vga.addEventListener("click", useIBM);
   }
@@ -55,8 +55,8 @@ import { clipText, getElmById } from "./helper.mjs";
     copier.addEventListener(`click`, copyText);
   }
   function copyText() {
-    if (topaz !== null && topaz.checked) clipText(latin);
-    else if (vga !== null && vga.checked) clipText(cp437);
-    else clipText(utf8);
+    if (topaz !== null && topaz.checked) clipText(latinId);
+    else if (vga !== null && vga.checked) clipText(cp437Id);
+    else clipText(utf8Id);
   }
 })();

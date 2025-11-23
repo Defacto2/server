@@ -35,9 +35,9 @@ func NamedJS() []string {
 	}
 }
 
-func CanvasAnsi() api.BuildOptions {
-	min := "canvas-ansi.min.js"
-	entryjs := filepath.Join("assets", "js", "canvas-ansi.js")
+func ContentBinary() api.BuildOptions {
+	min := "content-binary.min.js"
+	entryjs := filepath.Join("assets", "js", "content-binary.js")
 	output := filepath.Join("public", "js", min)
 	return api.BuildOptions{
 		EntryPoints:       []string{entryjs},
@@ -54,9 +54,9 @@ func CanvasAnsi() api.BuildOptions {
 	}
 }
 
-func CanvasReadme() api.BuildOptions {
-	min := "canvas-readme.min.js"
-	entryjs := filepath.Join("assets", "js", "canvas-readme.js")
+func ContentText() api.BuildOptions {
+	min := "content-text.min.js"
+	entryjs := filepath.Join("assets", "js", "content-text.js")
 	output := filepath.Join("public", "js", min)
 	return api.BuildOptions{
 		EntryPoints:       []string{entryjs},
@@ -219,13 +219,13 @@ func main() {
 		}
 	}
 	{
-		result := api.Build(CanvasAnsi())
+		result := api.Build(ContentBinary())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
 	{
-		result := api.Build(CanvasReadme())
+		result := api.Build(ContentText())
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
