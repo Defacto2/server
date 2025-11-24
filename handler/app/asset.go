@@ -74,18 +74,18 @@ type Fonts map[Font]string
 type Font int
 
 const (
-	VGA8             Font = iota // VGA8 is the path to the IBM VGA 8px font file.
-	VGA8Woff                     // VGA8Woff is the path to the IBM VGA 8px legacy WOFF format font file.
-	VGA8TT                       // VGA8TT is the path to the IBM VGA 8px legacy TrueType format font file.
-	VGA50                        // VGA50 is the path to the IBM VGA 9x8 font file.
-	VGA50Woff                    // VGA50Woff is the path to the IBM VGA 9x8 legacy WOFF format font file.
-	VGA50TT                      // VGA50TT is the path to the IBM VGA 8px legacy TrueType format font file.
-	A1200                        // A1200 is the path to the Topaz Plus font file.
+	A1200            Font = iota // A1200 is the path to the Topaz Plus font file.
 	A1200Woff                    // A1200Woff is the path to the Topaz Plus legacy WOFF format font file.
 	A1200TT                      // A1200TT is the path to the Topaz Plus legacy TrueType format font file.
 	CascadiaMono                 // CascadiaMono is the path to the Cascadia Mono font file.
 	CascadiaMonoWoff             // CascadiaMonoWoff is the path to the Cascadia Mono WOFF format font file.
 	CascadiaMonoTT               // CascadiaMonoTT is the path to the Cascadia Mono TrueType format font file.
+	IBMVGA8x16tt
+	IBMVGA8x16
+	IBMEGA8x8tt
+	IBMEGA8x8
+	IBMCGAtt
+	IBMCGA
 )
 
 // FontNames returns the absolute path of the public facing font files
@@ -105,17 +105,17 @@ func FontNames() *Fonts {
 // the src attribute in HTML script elements.
 func FontRefs() *Fonts {
 	return &Fonts{
-		VGA8:             "/pxplus_ibm_vga8.woff2",
-		VGA8Woff:         "/pxplus_ibm_vga8.woff",
-		VGA8TT:           "/pxplus_ibm_vga8.ttf",
-		VGA50:            "/ibm_vga_9x8.woff2",
-		VGA50Woff:        "/ibm_vga_9x8.woff",
-		VGA50TT:          "/ibm_vga_9x8.ttf",
 		A1200:            "/topazplus_a1200.woff2",
 		A1200Woff:        "/topazplus_a1200.woff",
 		A1200TT:          "/topazplus_a1200.ttf",
 		CascadiaMono:     "/CascadiaMono.woff2",
 		CascadiaMonoWoff: "/CascadiaMono.woff",
 		CascadiaMonoTT:   "/CascadiaMono.ttf",
+		IBMVGA8x16tt:     "/Ac437_IBM_VGA_8x16.ttf",
+		IBMVGA8x16:       "/Ac437_IBM_VGA_8x16.woff2",
+		IBMEGA8x8tt:      "/Ac437_IBM_EGA_8x8.ttf",
+		IBMEGA8x8:        "/Ac437_IBM_EGA_8x8.woff2",
+		IBMCGAtt:         "/Ac437_IBM_CGA.ttf",
+		IBMCGA:           "/Ac437_IBM_CGA.woff2",
 	}
 }

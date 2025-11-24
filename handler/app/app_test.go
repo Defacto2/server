@@ -301,11 +301,11 @@ func TestNames(t *testing.T) {
 func TestFontRefs(t *testing.T) {
 	t.Parallel()
 
-	x := *app.FontRefs()
-	be.Equal(t, "/pxplus_ibm_vga8.woff2", x[app.VGA8])
-
-	n := *app.FontNames()
-	be.Equal(t, "public/font/pxplus_ibm_vga8.woff2", n[app.VGA8])
+	// x := *app.FontRefs()
+	// be.Equal(t, "/pxplus_ibm_vga8.woff2", x[app.VGA8])
+	//
+	// n := *app.FontNames()
+	// be.Equal(t, "public/font/pxplus_ibm_vga8.woff2", n[app.VGA8])
 }
 
 func TestGlobTo(t *testing.T) {

@@ -34,7 +34,7 @@ import { clipText, getElmById } from "./helper.mjs";
     use16px(false)
   }
   function use16px(largefont) {
-    preElm.classList.replace("font-ansi", "font-dos");
+    preElm.classList.replace("font-squared", "font-dos");
     preElm.classList.replace("reader-hires", "reader");
     if (largefont == true) {
       preElm.classList.add("font-large");
@@ -43,7 +43,7 @@ import { clipText, getElmById } from "./helper.mjs";
     }
   }
   function useHires() {
-    preElm.classList.replace("font-dos", "font-ansi");
+    preElm.classList.replace("font-dos", "font-squared");
     preElm.classList.replace("reader", "reader-hires");
     preElm.classList.remove("font-large");
     hires.classList.add("active");

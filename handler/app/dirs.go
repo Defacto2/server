@@ -341,7 +341,7 @@ func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[s
 		// TODO: CGA font?
 		class = append([]string{"font-dos", "font-large", "reader"}, class...)
 	} else {
-		class = append([]string{"font-ansi"}, class...)
+		class = append([]string{"font-squared"}, class...)
 		class = slices.Replace(class, 1, 3, "reader-hires")
 	}
 	data["preElementClass"] = strings.Join(class, " ")
