@@ -107,8 +107,10 @@ func (m *ListEntry) Column1Btn(htm string) string {
 		htm += blank
 	case m.Images:
 		htm += prevImageCopyBtn(m.UniqueID, m.name)
-	case m.Texts, m.BINtexts, m.xbinary():
+	case m.Texts:
 		htm += prevTextContentBtn(m.UniqueID, m.name, m.platform, m.Signature)
+	case m.BINtexts, m.xbinary():
+		htm += prevBinaryContentBtn(m.UniqueID, m.name)
 	default:
 		htm += blank
 	}
@@ -220,6 +222,22 @@ func prevTextContentBtn(uniqueID, name, platform, sign string) string {
 		!strings.Contains(strings.ToLower(sign), "ansi") {
 		uri = "preview-amiga"
 	}
+	// the "#file-editor" href anchor will relaunch the File editor dialog.
+	return `<div class="col col-1 text-end" ` +
+		`data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
+		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
+			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/readme/%s/%s/%s">`, uri, uniqueID, name) +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+}
+
+// prevBinaryContentBtn creates a link to "/editor/readme/URI/ID/FILENAME".
+//
+// The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager]
+func prevBinaryContentBtn(uniqueID, name string) string {
+	uri := "preview-binary"
 	// the "#file-editor" href anchor will relaunch the File editor dialog.
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
