@@ -54,18 +54,18 @@ const (
 
 // ListEntry is a struct for the directory item that is used to generate the HTML.
 type ListEntry struct {
-	RelativeName            string
-	Signature               string
-	Filesize                string
-	ImageConfig             string
-	MusicConfig             string
-	UniqueID                string
-	name                    string
-	platform                string
-	section                 string
-	Executable              magicnumber.Windows
-	bytes                   int64
-	Images, Programs, Texts bool
+	RelativeName                      string
+	Signature                         string
+	Filesize                          string
+	ImageConfig                       string
+	MusicConfig                       string
+	UniqueID                          string
+	name                              string
+	platform                          string
+	section                           string
+	Executable                        magicnumber.Windows
+	bytes                             int64
+	Images, Programs, Texts, BINtexts bool
 }
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
@@ -82,57 +82,103 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	}
 	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate">%s</div>`,
 		displayname)
-	return m.Column1(htm)
+	return m.Column1Btn(htm)
 }
 
-func (m *ListEntry) Column1(htm string) string {
+// systemfile returns true if the file extension matches the known operating system tools.
+// This includes batch scripts, executables, commands and ini configurations files.
+//
+// This is to stop the preview text content button being displayed for known false-positives.
+func systemfile(ext string) bool {
+	switch ext {
+	case bat, exe, com, ini:
+		return true
+	default:
+		return false
+	}
+}
+
+// Column1Btn is the list entry, first column button of the "Download content" list.
+func (m *ListEntry) Column1Btn(htm string) string {
 	const blank = `<div class="col col-1"></div>`
 	ext := strings.ToLower(filepath.Ext(m.name))
 	switch {
-	case osTool(ext):
+	case systemfile(ext):
 		htm += blank
 	case m.Images:
-		htm += previewcopy(m.UniqueID, m.name)
-	case m.Texts:
-		htm += readmepreview(m.UniqueID, m.name, m.platform, m.Signature)
+		htm += prevImageCopyBtn(m.UniqueID, m.name)
+	case m.Texts, m.BINtexts, m.xbinary():
+		htm += prevTextContentBtn(m.UniqueID, m.name, m.platform, m.Signature)
 	default:
 		htm += blank
 	}
-	return m.Column2(htm)
+	return m.Column2Btn(htm)
 }
 
-func (m *ListEntry) Column2(htm string) string {
-	soloText := func() bool {
-		if !strings.EqualFold(m.platform, tags.Text.String()) &&
-			!strings.EqualFold(m.platform, textamiga) {
-			return false
-		}
-		return strings.EqualFold(m.section, tags.Nfo.String())
-	}
+// Column2Btn is the list entry, second column button of the "Download content" list.
+func (m *ListEntry) Column2Btn(htm string) string {
 	const blank = `<div class="col col-1"></div>`
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
 	switch {
-	case strings.EqualFold(m.RelativeName, "file_id.diz"):
-		htm += dizcopy(m.UniqueID, name)
-	case m.Programs, ext == exe, ext == com:
-		htm += `<div class="col col-1 text-end" ` +
-			`data-bs-toggle="tooltip" data-bs-title="Known program or executable">` +
-			`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-			`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
-	case osTool(ext):
+	case systemfile(ext):
 		htm += blank
-	case m.Texts || soloText():
-		htm += readmecopy(m.UniqueID, name)
+	case m.briefDescription():
+		htm += dizContentBtn(m.UniqueID, name)
+	case m.Programs, ext == exe, ext == com:
+		htm += knownProgram()
+	case m.Texts || m.BINtexts || m.iNFOtext():
+		htm += textContentBtn(m.UniqueID, name)
 	default:
 		htm += blank
 	}
 	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`,
 		m.bytes, m.Filesize)
-	return m.Column1and2(ext, htm)
+	return m.ColumnsAsMeta(ext, htm)
 }
 
-func (m *ListEntry) Column1and2(ext, htm string) string {
+// knownProgram returns a non-interactive terminal icon.
+func knownProgram() string {
+	return `<div class="col col-1 text-end" ` +
+		`data-bs-toggle="tooltip" data-bs-title="Known program or executable">` +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
+}
+
+// xbinary, xbin or extended binary text is only partially supported.
+func (m *ListEntry) xbinary() bool {
+	return strings.EqualFold(m.Signature, magicnumber.XBinaryText.String())
+}
+
+// infotext returns true if the artifact is set as a "Text" or "Amiga text" platform,
+// and the section is set to "NFO".
+//
+// Note, the following unsupported assets will always return false, "xbinary".
+func (m *ListEntry) iNFOtext() bool {
+	if m.xbinary() {
+		return false // unsupported
+	}
+	simpleText := strings.EqualFold(m.platform, tags.Text.String()) || strings.EqualFold(m.platform, textamiga)
+	if !simpleText {
+		return false
+	}
+	return strings.EqualFold(m.section, tags.Nfo.String())
+}
+
+// briefDescription returns true for known BBS/FTP site descriptor files.
+func (m *ListEntry) briefDescription() bool {
+	name := m.RelativeName
+	names := []string{"file_id.diz"}
+	for valid := range slices.Values(names) {
+		if strings.EqualFold(name, valid) {
+			return true
+		}
+	}
+	return false
+}
+
+// ColumnsAsMeta returns the brief metadata descriptions of the list entry.
+func (m *ListEntry) ColumnsAsMeta(ext, htm string) string {
 	switch {
 	case m.Texts && (ext == bat || ext == cmd):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")
@@ -151,7 +197,10 @@ func (m *ListEntry) Column1and2(ext, htm string) string {
 	return htm
 }
 
-func previewcopy(uniqueID, name string) string {
+// prevImageCopyBtn creates a link to "/editor/preview/copy/ID/FILENAME".
+//
+// The funcs called: [htmx.RecordImageCopier] and [dirs.PictureImager]
+func prevImageCopyBtn(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use image for preview">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" `+
@@ -162,7 +211,10 @@ func previewcopy(uniqueID, name string) string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }
 
-func readmepreview(uniqueID, name, platform, sign string) string {
+// prevTextContentBtn creates a link to "/editor/readme/URI/ID/FILENAME".
+//
+// The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager]
+func prevTextContentBtn(uniqueID, name, platform, sign string) string {
 	uri := "preview"
 	if strings.EqualFold(platform, tags.TextAmiga.String()) &&
 		!strings.Contains(strings.ToLower(sign), "ansi") {
@@ -179,7 +231,10 @@ func readmepreview(uniqueID, name, platform, sign string) string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
 }
 
-func readmecopy(uniqueID, name string) string {
+// textContentBtn creates a link to "/editor/readme/copy/ID/FILENAME".
+//
+// The funcs called: [htmx.RecordReadmeCopier] and [dirs.TextImager]
+func textContentBtn(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as the readme">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" `+
@@ -190,7 +245,10 @@ func readmecopy(uniqueID, name string) string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
 }
 
-func dizcopy(uniqueID, name string) string {
+// dizContentBtn creates a link to "/editor/diz/copy/ID/FILENAME"
+//
+// The funcs called: [htmx.RecordDizCopier]
+func dizContentBtn(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as the FILE_ID.DIZ">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" `+
@@ -234,17 +292,6 @@ func progrDos(x8086 int, bytes int64) string {
 		return "Dos command"
 	}
 	return "Dos executable"
-}
-
-// osTool returns true if the file extension matches the known operating system tools.
-// This includes batch scripts, executables, commands and ini configurations files.
-func osTool(ext string) bool {
-	switch ext {
-	case bat, exe, com, ini:
-		return true
-	default:
-		return false
-	}
 }
 
 // AlertURL returns the VirusTotal URL for the security alert for the file record.
@@ -357,6 +404,7 @@ type entry struct {
 	bytes   int64
 	image   bool
 	text    bool
+	bintext bool
 	program bool
 }
 
@@ -417,6 +465,7 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 	platform = strings.TrimSpace(platform)
 	e.image = isImage(e.sign)
 	e.text = isText(e.sign)
+	e.bintext = isBinaryText(e.sign, platform)
 	e.program = isProgram(e.sign, platform)
 	switch {
 	case e.image:
@@ -435,6 +484,65 @@ func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
 		return e.parseMusicID3(path)
 	}
 	return !skipEntry
+}
+
+// isImage returns truf if the magic signature is a known image format,
+// both web friendly formats as well as obsolute formats.
+func isImage(sign magicnumber.Signature) bool {
+	// unsupported formats that cannot be converted to browser friendly, .png,.webp,etc.
+	if sign == magicnumber.RIPscrip {
+		return false
+	}
+	for val := range slices.Values(magicnumber.Images()) {
+		if val == sign {
+			return true
+		}
+	}
+	return false
+}
+
+func isProgram(sign magicnumber.Signature, platform string) bool {
+	for val := range slices.Values(magicnumber.Programs()) {
+		if strings.EqualFold(platform, tags.DOS.String()) {
+			break
+		}
+		if val == sign {
+			return true
+		}
+	}
+	return false
+}
+
+// isBinaryText returns true if the magic signature is binary data that does not match
+// a known signature, and the platform is set to ANSI or Text.
+//
+// If unsupported XBIN binary text is detected, false is returned.
+func isBinaryText(sign magicnumber.Signature, platform string) bool {
+	if sign == magicnumber.XBinaryText {
+		return false
+	}
+	s := []tags.Tag{tags.Text, tags.ANSI}
+	for tag := range slices.Values(s) {
+		if strings.EqualFold(platform, tag.String()) {
+			// magicnumber.Unknown matches unknown binary data
+			if sign == magicnumber.Unknown {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// isText returns true if the magic signature is a
+// simple character encoded text file, or a
+// unicoded encoded text file, or a text file with ansi escape codes.
+func isText(sign magicnumber.Signature) bool {
+	for val := range slices.Values(magicnumber.Texts()) {
+		if val == sign {
+			return true
+		}
+	}
+	return false
 }
 
 func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
@@ -747,6 +855,7 @@ func listErr(e entry) ListEntry {
 		Images:       e.image,
 		Programs:     e.program,
 		Texts:        e.text,
+		BINtexts:     e.bintext,
 		MusicConfig:  e.module,
 		ImageConfig:  e.format,
 		RelativeName: "",
@@ -762,6 +871,7 @@ func listEntry(e entry, rel, unid string) ListEntry {
 		Images:       e.image,
 		Programs:     e.program,
 		Texts:        e.text,
+		BINtexts:     e.bintext,
 		MusicConfig:  e.module,
 		ImageConfig:  e.format,
 		RelativeName: LegacyString(rel),
@@ -802,36 +912,6 @@ func skippedEmpty(zeroByteFiles int) string {
 		return ""
 	}
 	return fmt.Sprintf(`<div class="border-bottom row mb-1">... skipped %d empty (0 B) files</div>`, zeroByteFiles)
-}
-
-func isImage(sign magicnumber.Signature) bool {
-	for val := range slices.Values(magicnumber.Images()) {
-		if val == sign {
-			return true
-		}
-	}
-	return false
-}
-
-func isProgram(sign magicnumber.Signature, platform string) bool {
-	for val := range slices.Values(magicnumber.Programs()) {
-		if strings.EqualFold(platform, tags.DOS.String()) {
-			break
-		}
-		if val == sign {
-			return true
-		}
-	}
-	return false
-}
-
-func isText(sign magicnumber.Signature) bool {
-	for val := range slices.Values(magicnumber.Texts()) {
-		if val == sign {
-			return true
-		}
-	}
-	return false
 }
 
 // Date returns a formatted date string for the published date for the artifact.

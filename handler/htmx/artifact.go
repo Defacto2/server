@@ -198,6 +198,37 @@ func RecordImageCopier(c echo.Context, debug *slog.Logger, dirs command.Dirs) er
 		`Images copied, the browser will refresh.`)
 }
 
+// RecordBinTextImager handles the htmx request to use the text file artifact as a preview.
+func RecordBinTextImager(c echo.Context, debug *slog.Logger, dirs command.Dirs) error {
+	const msg = "record binary text readme imager"
+	if err := panics.EchoContextS(c, debug); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	unid, name, err := Path(c)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	name = filepath.Clean(name)
+	tmp, err := helper.MkContent(unid)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	src := filepath.Join(tmp, name)
+	st, err := os.Stat(src)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if st.Size() == 0 {
+		return c.String(http.StatusOK, "The file is empty and was not used.")
+	}
+	if err := dirs.BinTextImager(debug, src, unid); err != nil {
+		return badRequest(c, err)
+	}
+	c = pageRefresh(c)
+	return c.String(http.StatusOK,
+		`Binary text imaged, the browser will refresh.`)
+}
+
 // RecordReadmeImager handles the htmx request to use the text file artifact as a preview.
 func RecordReadmeImager(c echo.Context, debug *slog.Logger, amigaFont bool, dirs command.Dirs) error {
 	const msg = "record readme imager"

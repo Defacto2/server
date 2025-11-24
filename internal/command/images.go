@@ -427,6 +427,28 @@ func textCropperErr(src string, err error) error {
 	return err
 }
 
+func (dir Dirs) BinTextImager(sl *slog.Logger, src, unid string) error {
+	const msg = "binary text imager"
+	if sl == nil {
+		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	}
+	srcPath := filepath.Clean(src)
+	args := Args{}
+	if st, err := os.Stat(srcPath); err != nil {
+		return fmt.Errorf("%s stat: %w", msg, err)
+	} else if st.Size() == 0 {
+		return fmt.Errorf("%s: %w", msg, ErrIsEmpty)
+	}
+	arg := []string{srcPath}       // source text file
+	arg = append(arg, args...)     // command line arguments
+	tmp := BaseNamePath(src) + png // destination file
+	arg = append(arg, "-o", tmp)
+	if err := Run(sl, Ansilove, arg...); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return dir.textImagers(sl, unid, tmp)
+}
+
 // TextImager converts the src text file and creates args PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // If the amigaFont is true, the image is created using an Amiga Topaz+ font.

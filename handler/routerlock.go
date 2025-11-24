@@ -228,6 +228,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		Extra:     dirs.Extra,
 	}
 	diz := g.Group("/diz")
+	// /editor/diz/copy
 	diz.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordDizCopier(c, paths)
 	})
@@ -238,6 +239,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	readme.PATCH("/disable/:id", func(c echo.Context) error {
 		return htmx.RecordReadmeDisable(c, db)
 	})
+	// /editor/readme/copy
 	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordReadmeCopier(c, sl, paths)
 	})
@@ -249,10 +251,15 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 	readme.PATCH("/preview-amiga/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordReadmeImager(c, sl, true, paths)
 	})
+	// /editor/readme/preview-binary
+	readme.PATCH("/preview-binary/:unid/:path", func(c echo.Context) error {
+		return htmx.RecordBinTextImager(c, sl, paths)
+	})
 	readme.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dirs.Extra)
 	})
 	pre := g.Group("/preview")
+	// /editor/preview/copy
 	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
 		return htmx.RecordImageCopier(c, sl, paths)
 	})
