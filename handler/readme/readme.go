@@ -358,22 +358,31 @@ func trimBytes(b []byte) []byte {
 	return b
 }
 
-// RemoveCtrls removes ANSI escape codes and converts Windows line endings to Unix.
+// RemoveCtrls removes known problematic characters and controls, including:
+//   - ASCII control codes, NULL, SUB
+//   - Amiga control operators
+//   - DEC control codes
+//   - ANSI escape codes
+//   - Windows and PC DOS newlines
 func RemoveCtrls(b []byte) []byte {
 	const (
-		reAnsi    = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
-		reAmiga   = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
-		reDEC     = `\x1b\[\?[0-9+]h`       // DEC control codes
-		reSauce   = `SAUCE00.*`             // SAUCE metadata that is appended to some files
-		nlWindows = "\x01\x0a"              // Windows line endings
-		nlUnix    = "\x0a"                  // Unix line endings
-		null      = "\x00"                  // null byte
+		reAnsi  = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
+		reAmiga = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
+		reDEC   = `\x1b\[\?[0-9+]h`       // DEC control codes
+		reSauce = `SAUCE00.*`             // SAUCE metadata that is appended to some files
+		crlf    = "\x01\x0a"              // Windows and PC DOS line endings
+		newline = "\x0a"                  // Unix line endings
+		null    = "\x00"                  // null byte
+		space   = "\x20"
+		sub     = "\x1a"
 	)
 	const sep = `|`
 	controlCodes := regexp.MustCompile(reAnsi + sep + reDEC + sep + reAmiga + sep + reSauce)
 	b = controlCodes.ReplaceAll(b, []byte{})
-	b = bytes.ReplaceAll(b, []byte(nlWindows), []byte(nlUnix))
+	b = bytes.ReplaceAll(b, []byte(crlf), []byte(newline))
 	b = bytes.ReplaceAll(b, []byte(null), []byte(" "))
+	b = bytes.TrimRight(b, space)
+	b = bytes.TrimRight(b, sub)
 	return b
 }
 

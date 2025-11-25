@@ -45,7 +45,10 @@ import (
 	"golang.org/x/text/encoding/unicode"
 )
 
-const epoch = model.EpochYear // epoch is the default year for MS-DOS files without a timestamp
+const (
+	PcEpoch  = model.EpochYear // pc epoch is the default year for PC/MS-DOS files without a timestamp
+	CgaEpoch = 1988            // cga epoch is the final year to use the IBM PC CGA font for viewing textfiles
+)
 
 // Artifact404 renders the error page for the artifact links.
 func Artifact404(c echo.Context, sl *slog.Logger, id string) error {
@@ -219,7 +222,7 @@ func (dir Dirs) EditorContent(c echo.Context, sl *slog.Logger, maxItems int, art
 	}
 	unid := filerecord.UnID(art)
 	abs := filepath.Join(dir.Download.Path(), unid)
-	data["epochYear"] = epoch
+	data["epochYear"] = PcEpoch
 	data["readonlymode"] = false
 	data["modID"] = art.ID
 	data["modTitle"] = filerecord.Title(art)
@@ -318,31 +321,38 @@ func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any
 	return d, nil
 }
 
+// binarText prepares the viewer for both ansi encoded text and binary text files.
 func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[string]any) map[string]any {
 	year, _, _ := filerecord.Dates(art)
-	const epoch = 1993
 	data["contentBinary"] = template.HTML(buf.String())
 	data["contentAmigaAnsi"] = ""
 	data["contentBinarySwappers"] = true
 	data["contentBinarySwapper"] = 0 // placeholder, for possible VGA50 font option as default
+	fontname := "font-dos"
+	fontlarge := "font-large"
+	switch {
+	case data["platform"] == "textamiga":
+		fontname = "font-amiga"
+	case year != 0 && year <= CgaEpoch:
+		data["contentBinarySwappers"] = false
+		fontname = "font-dos-cga"
+		fontlarge = ""
+	}
 	// ansi encoded texts
 	if data["magic"] != "Binary data or binary text" {
-		fontname := "font-dos"
-		if data["platform"] == "textamiga" {
-			fontname = "font-amiga"
-		}
-		class := append([]string{fontname, "font-large", "render"}, elems...)
+		class := append([]string{fontname, fontlarge, "render"}, elems...)
 		data["preElementClass"] = strings.Join(class, " ")
 		return data
 	}
 	// binary text and (in the future) extended binary text
 	data["contentBinarySwappers"] = false
 	class := append(elems, "text-bg-dark", "text-center")
-	if year < epoch && year != 0 {
-		class = append([]string{"font-dos-cga", "reader"}, class...)
-	} else {
-		class = append([]string{"font-squared"}, class...)
+	if year != 0 && year > CgaEpoch {
+		fontname = "font-squared"
+		class = append([]string{fontname}, class...)
 		class = slices.Replace(class, 1, 3, "reader-hires")
+	} else {
+		class = append([]string{fontname, "reader"}, class...)
 	}
 	data["preElementClass"] = strings.Join(class, " ")
 	return data
@@ -876,6 +886,11 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 	if len(b) == 0 || art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
+	year, _, _ := filerecord.Dates(art)
+	fontname := "font-dos font-large"
+	if year != 0 && year <= CgaEpoch {
+		fontname = "font-dos-cga"
+	}
 	b = lockWidth(maxWidth, b)
 	textEncoding := render.Encoder(art, bytes.NewReader(b))
 	data["topazCheck"] = ""
@@ -883,16 +898,17 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 	switch textEncoding {
 	case charmap.ISO8859_1:
 		data["preClassLatin1"] = ""
-		data["preClassCP437"] = "d-none" + space
+		fontname = "d-none " + fontname
 		data["topazCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp}, []byte{sp})
 		b = bytes.ReplaceAll(b, []byte{shy}, []byte{hyphen})
 	case charmap.CodePage437, unicode.UTF8:
 		data["preClassLatin1"] = "d-none" + space
-		data["preClassCP437"] = ""
 		data["vgaCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	}
+
+	data["preClassCP437"] = fontname
 	var readme1, readme2 string
 	var err error
 	switch textEncoding {
@@ -918,11 +934,20 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 		if err != nil {
 			return data, fmt.Errorf("codepage437 decode: %w", err)
 		}
-		data["contentCP437"] = readme2
 		data["contentLines"] = strings.Count(readme2, "\n")
 		data["contentRows"] = helper.MaxLineLength(readme2)
+		data["contentCP437"] = readme2
 	}
 	return data, nil
+}
+
+// FixColorLeak does work to fix full block background color leaking,
+// however other sized blocks still suffer from the issue.
+func FixColorLeak(s string) template.HTML {
+	const fullblock = '\u2588'
+	const fb = string(fullblock)
+	fix := strings.ReplaceAll(s, fb, "<span style=\"background-color:currentColor;\">"+fb+"</span>")
+	return template.HTML(fix)
 }
 
 // lockWidth returns the byte array with an enforced maximum width of printed characters per line.

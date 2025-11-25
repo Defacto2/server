@@ -96,10 +96,8 @@ func InformationText(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, 
 	}
 	var p []byte
 	if sign, _ := magicnumber.Text(f); sign != magicnumber.Unknown {
-		fmt.Println("NORMALIZE")
 		p = normalize(buf)
 	} else {
-		fmt.Println("BYTERS")
 		p = buf.Bytes()
 	}
 	buf.Reset()
@@ -171,9 +169,7 @@ func normalize(buf *bytes.Buffer) []byte {
 	b = bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
 	// occasionally, some texts used the substitute character (␚) control code to
 	// identify the end of a document.
-	fmt.Println("B", len(b))
 	b = bytes.TrimSuffix(b, []byte{substitute})
-	fmt.Println("B", len(b))
 	b = helper.Mask(b...)
 	return b
 }

@@ -869,11 +869,25 @@ func (args *Args) OneTwo() {
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
 func (args *Args) AnsiAmiga() {
+	type font string // amiga font
+	const (
+		microknight font = "microknight+"
+		mosoul      font = "mosoul"
+		potnoodle   font = "pot-noodle"
+		topaz       font = "topaz+"
+		topaz500    font = "topaz500+"
+	)
+	type mode string // rendering mode
+	const (
+		ced         mode = "ced"         // black on gray
+		transparent mode = "transparent" // transparent background
+		workbench   mode = "workbench"   // Amiga Workbench colors
+	)
 	// Output font.
-	f := []string{"-f", "topaz+"}
+	f := []string{"-f", string(topaz)}
 	*args = append(*args, f...)
 	// Rendering mode set to Amiga palette.
-	m := []string{"-m", "ced"}
+	m := []string{"-m", string(workbench)}
 	*args = append(*args, m...)
 	// Use SAUCE record for render options.
 	const s = "-S"
@@ -885,11 +899,18 @@ func (args *Args) AnsiAmiga() {
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
 func (args *Args) AnsiMsDos() {
+	type font string // pc font
+	const (
+		f80x25   font = "80x25" // vga 80x25
+		f80x50   font = "80x50" // vga 80x50 (hires)
+		spleen   font = "spleen"
+		terminus font = "terminus"
+	)
 	// DOS aspect ratio.
 	const d = "-d"
 	*args = append(*args, d)
 	// Output font.
-	f := []string{"-f", "80x25"}
+	f := []string{"-f", string(f80x50)}
 	*args = append(*args, f...)
 	// Use iCE colors.
 	const i = "-i"

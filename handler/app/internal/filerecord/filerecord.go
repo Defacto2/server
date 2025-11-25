@@ -218,9 +218,12 @@ func prevImageCopyBtn(uniqueID, name string) string {
 // The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager]
 func prevTextContentBtn(uniqueID, name, platform, sign string) string {
 	uri := "preview"
-	if strings.EqualFold(platform, tags.TextAmiga.String()) &&
-		!strings.Contains(strings.ToLower(sign), "ansi") {
-		uri = "preview-amiga"
+	if strings.EqualFold(platform, tags.TextAmiga.String()) {
+		// ansilove does not color ANSI using the "ced" or "workbench" Rendering Modes
+		// instead, it treats them as ASCII text files
+		if !strings.Contains(strings.ToLower(sign), "ansi") {
+			uri = "preview-amiga"
+		}
 	}
 	// the "#file-editor" href anchor will relaunch the File editor dialog.
 	return `<div class="col col-1 text-end" ` +
