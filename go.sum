@@ -36,8 +36,8 @@ github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c h1:651/eoCRnQ7YtS
 github.com/armon/go-radix v1.0.1-0.20221118154546-54df44f2176c/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuPk=
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
-github.com/bengarrett/ansibump v1.0.3 h1:mdzNhKp72xDHeeD/ItE/UNMYp9Tl6Hm3X60vVfIjt3o=
-github.com/bengarrett/ansibump v1.0.3/go.mod h1:ZZHzZDxbkTbPiU5AP609ieVNl03Hyre+wOv8ooiz358=
+github.com/bengarrett/ansibump v1.1.0 h1:daB1JmuD0U7iEpW8kiAQMB4sF84D1PX0fgaYLktNqrk=
+github.com/bengarrett/ansibump v1.1.0/go.mod h1:ZZHzZDxbkTbPiU5AP609ieVNl03Hyre+wOv8ooiz358=
 github.com/bengarrett/bbs v1.0.6 h1:hK5VJZJeAwZVyJ/2CIl8B4Y/hGGMuJPkb28uAmafiEM=
 github.com/bengarrett/bbs v1.0.6/go.mod h1:zn8MbGYa97pLuiCEyZQs851+uKC8m8RhMKNkeHc7BfY=
 github.com/bengarrett/binbump v1.0.0 h1:T7jtYzw62ZB6CM1yhktjdVB1MIT4tQdxRUa/+jHmvgo=
