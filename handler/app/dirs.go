@@ -322,6 +322,7 @@ func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[s
 	year, _, _ := filerecord.Dates(art)
 	const epoch = 1993
 	data["contentBinary"] = template.HTML(buf.String())
+	data["contentAmigaAnsi"] = ""
 	data["contentBinarySwappers"] = true
 	data["contentBinarySwapper"] = 0 // placeholder, for possible VGA50 font option as default
 	// ansi encoded texts
@@ -338,8 +339,7 @@ func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[s
 	data["contentBinarySwappers"] = false
 	class := append(elems, "text-bg-dark", "text-center")
 	if year < epoch && year != 0 {
-		// TODO: CGA font?
-		class = append([]string{"font-dos", "font-large", "reader"}, class...)
+		class = append([]string{"font-dos-cga", "reader"}, class...)
 	} else {
 		class = append([]string{"font-squared"}, class...)
 		class = slices.Replace(class, 1, 3, "reader-hires")

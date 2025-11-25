@@ -32,8 +32,9 @@ require (
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.5
 	github.com/aarondl/strmangle v0.0.9
-	github.com/bengarrett/ansibump v1.0.1
+	github.com/bengarrett/ansibump v1.0.3
 	github.com/bengarrett/bbs v1.0.6
+	github.com/bengarrett/binbump v1.0.0
 	github.com/bengarrett/sauce v1.2.4
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/carlmjohnson/versioninfo v0.22.5
@@ -66,10 +67,6 @@ require (
 //	replace github.com/bengarrett/ansibump => ../ansibump
 //	replace github.com/bengarrett/sauce => ../sauce
 //	replace github.com/bengarrett/binbump => ../binbump
-
-require golang.org/x/sys v0.38.0 // indirect
-
-require github.com/bengarrett/binbump v1.0.0
 
 require (
 	cloud.google.com/go/auth v0.17.0 // indirect
@@ -133,6 +130,7 @@ require (
 	golang.org/x/oauth2 v0.33.0 // indirect
 	golang.org/x/pkgsite v0.0.0-20251120203232-84333735ffe1 // indirect
 	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect

@@ -74,12 +74,14 @@ type Fonts map[Font]string
 type Font int
 
 const (
-	A1200            Font = iota // A1200 is the path to the Topaz Plus font file.
-	A1200Woff                    // A1200Woff is the path to the Topaz Plus legacy WOFF format font file.
-	A1200TT                      // A1200TT is the path to the Topaz Plus legacy TrueType format font file.
-	CascadiaMono                 // CascadiaMono is the path to the Cascadia Mono font file.
-	CascadiaMonoWoff             // CascadiaMonoWoff is the path to the Cascadia Mono WOFF format font file.
-	CascadiaMonoTT               // CascadiaMonoTT is the path to the Cascadia Mono TrueType format font file.
+	A1200     Font = iota // A1200 is the path to the Topaz Plus font file.
+	A1200Woff             // A1200Woff is the path to the Topaz Plus legacy WOFF format font file.
+	A1200TT               // A1200TT is the path to the Topaz Plus legacy TrueType format font file.
+	MicroKnight
+	MicroKnighttt
+	CascadiaMono     // CascadiaMono is the path to the Cascadia Mono font file.
+	CascadiaMonoWoff // CascadiaMonoWoff is the path to the Cascadia Mono WOFF format font file.
+	CascadiaMonoTT   // CascadiaMonoTT is the path to the Cascadia Mono TrueType format font file.
 	IBMVGA8x16tt
 	IBMVGA8x16
 	IBMEGA8x8tt
@@ -108,6 +110,8 @@ func FontRefs() *Fonts {
 		A1200:            "/topazplus_a1200.woff2",
 		A1200Woff:        "/topazplus_a1200.woff",
 		A1200TT:          "/topazplus_a1200.ttf",
+		MicroKnight:      "/MicroKnightPlus_v1.0.woff2",
+		MicroKnighttt:    "/MicroKnightPlus_v1.0.ttf",
 		CascadiaMono:     "/CascadiaMono.woff2",
 		CascadiaMonoWoff: "/CascadiaMono.woff",
 		CascadiaMonoTT:   "/CascadiaMono.ttf",

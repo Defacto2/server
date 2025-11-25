@@ -294,11 +294,13 @@ func ansiTexts(
 ) {
 	width := 80 // TODO: add SAUCE width, this needs changes to the sauce package
 	charset := charmap.CodePage437
+	pal := ansibump.CGA16
 	if platform == "textamiga" {
 		charset = charmap.ISO8859_1
+		pal = ansibump.DP2
 	}
 	ansi, err := ansibump.Buffer(
-		bytes.NewReader(buf.Bytes()), width, false, ansibump.CGA16, charset)
+		bytes.NewReader(buf.Bytes()), width, false, pal, charset)
 	if err != nil {
 		errs = errors.Join(errs, err)
 		return nil, nil, sr, errs

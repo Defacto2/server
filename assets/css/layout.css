@@ -50,6 +50,14 @@
 }
 
 @font-face {
+  font-family: font-microknight;
+  font-display: swap;
+  src:
+    url("/font/MicroKnightPlus_v1.0.woff2") format("woff2"),
+    url("/font/MicroKnightPlus_v1.0.ttf") format("truetype");
+}
+
+@font-face {
   font-family: font-cascadia-mono;
   font-display: swap;
   src:
@@ -82,16 +90,26 @@
     url("/font/Ac437_IBM_CGA.ttf") format("truetype");
 }
 
-.font-cascadia-mono {
-  font-family: font-cascadia-mono, sans-serif;
+.font-amiga {
+  font-family: font-topazplus, monospace;
   font-size: 1em;
+  line-height: normal;
   font-style: normal;
   font-weight: normal;
 }
 
-.font-amiga {
-  font-family: font-topazplus, 'font-vga-8x16', monospace;
+.font-amiga-mk {
+  font-family: font-microknight, monospace;
   font-size: 1em;
+  line-height: normal;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.font-cascadia-mono {
+  font-family: font-cascadia-mono, sans-serif;
+  font-size: 1em;
+  line-height: normal;
   font-style: normal;
   font-weight: normal;
 }
@@ -113,6 +131,14 @@
   font-weight: normal;
 }
 
+.font-dos-cga {
+  font-family: 'font-cga', monospace;
+  font-size: 16px;
+  line-height: 16px; /* line height value is required by the logo-container and logo-text ids */
+  font-style: normal;
+  font-weight: normal;
+}
+
 .pre-wrap {
   white-space: pre-wrap;
 }
@@ -120,7 +146,7 @@
 .reader {
   white-space: pre-wrap;
   hyphens: manual;
-  line-height: 1;
+  line-height: normal;
 }
 
 .reader-hires {

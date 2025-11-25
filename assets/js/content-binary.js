@@ -8,6 +8,7 @@ import { clipText, getElmById } from "./helper.mjs";
   const elementId = "precontentBinary",
     preElm = getElmById(elementId);
 
+  // ansi and binary text buttons
   const zoom = document.getElementById(`textcontBtnZoom`);
   if (zoom !== null) {
     zoom.addEventListener("mouseover", useZoom);
@@ -19,6 +20,26 @@ import { clipText, getElmById } from "./helper.mjs";
   const hires = document.getElementById(`textcontBtn08px`)
   if (hires !== null) {
     hires.addEventListener("mouseover", useHires)
+  }
+  // amiga ansi buttons
+  const microknight = document.getElementById(`textcontBtnMicroKnight`);
+  if (microknight !== null) {
+    microknight.addEventListener("mouseover", useMicroKnight);
+  }
+  const topaz = document.getElementById(`textcontBtnTopaz`);
+  if (topaz !== null) {
+    topaz.addEventListener("mouseover", useTopaz);
+  }
+
+  function useMicroKnight() {
+    microknight.classList.add("active");
+    topaz.classList.remove("active");
+    preElm.classList.replace("font-amiga", "font-amiga-mk");
+  }
+  function useTopaz() {
+    microknight.classList.remove("active");
+    topaz.classList.add("active");
+    preElm.classList.replace("font-amiga-mk", "font-amiga");
   }
 
   function useZoom() {
