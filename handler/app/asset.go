@@ -88,6 +88,8 @@ const (
 	IBMEGA8x8
 	IBMCGAtt
 	IBMCGA
+	IBMMDAtt
+	IBMMDA
 )
 
 // FontNames returns the absolute path of the public facing font files
@@ -121,5 +123,7 @@ func FontRefs() *Fonts {
 		IBMEGA8x8:        "/Ac437_IBM_EGA_8x8.woff2",
 		IBMCGAtt:         "/Ac437_IBM_CGA.ttf",
 		IBMCGA:           "/Ac437_IBM_CGA.woff2",
+		IBMMDAtt:         "/Ac437_IBM_MDA.ttf",
+		IBMMDA:           "/Ac437_IBM_MDA.woff2",
 	}
 }

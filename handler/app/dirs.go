@@ -886,57 +886,64 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 	if len(b) == 0 || art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}
+
 	year, _, _ := filerecord.Dates(art)
 	fontname := "font-dos font-large"
 	if year != 0 && year <= CgaEpoch {
-		fontname = "font-dos-cga"
+		fontname = "font-dos-mda"
 	}
-	b = lockWidth(maxWidth, b)
-	textEncoding := render.Encoder(art, bytes.NewReader(b))
+
 	data["topazCheck"] = ""
 	data["vgaCheck"] = ""
+	data["preClassLatin1"] = "d-none "
+	data["preClassCP437"] = "d-none " + fontname
+	if data["platform"] == "textamiga" {
+		data["topazCheck"] = chk
+		data["preClassLatin1"] = ""
+	} else {
+		data["vgaCheck"] = chk
+		data["preClassCP437"] = fontname
+	}
+
+	b = lockWidth(maxWidth, b)
+	textEncoding := render.Encoder(art, bytes.NewReader(b))
 	switch textEncoding {
 	case charmap.ISO8859_1:
-		data["preClassLatin1"] = ""
-		fontname = "d-none " + fontname
-		data["topazCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp}, []byte{sp})
 		b = bytes.ReplaceAll(b, []byte{shy}, []byte{hyphen})
 	case charmap.CodePage437, unicode.UTF8:
-		data["preClassLatin1"] = "d-none" + space
-		data["vgaCheck"] = chk
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	}
 
-	data["preClassCP437"] = fontname
-	var readme1, readme2 string
+	var body string
 	var err error
 	switch textEncoding {
 	case unicode.UTF8:
 		// unicode should apply to both latin1 and cp437
-		readme1, err = decode(bytes.NewReader(b))
+		body, err = decode(bytes.NewReader(b))
 		if err != nil {
 			return data, fmt.Errorf("unicode utf8 decode: %w", err)
 		}
-		data["contentLatin1"] = readme1
-		data["contentCP437"] = readme1
-		data["contentLines"] = strings.Count(readme1, "\n")
-		data["contentRows"] = helper.MaxLineLength(readme1)
+		data["contentLatin1"] = body
+		data["contentCP437"] = body
+		data["contentLines"] = strings.Count(body, "\n")
+		data["contentRows"] = helper.MaxLineLength(body)
+		return data, nil
 	default:
 		d := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
-		readme2, err = decode(d)
+		body, err = decode(d)
 		if err != nil {
 			return data, fmt.Errorf("iso8859_1 decode: %w", err)
 		}
-		data["contentLatin1"] = readme2
+		data["contentLatin1"] = body
 		d = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
-		readme2, err = decode(d)
+		body, err = decode(d)
 		if err != nil {
 			return data, fmt.Errorf("codepage437 decode: %w", err)
 		}
-		data["contentLines"] = strings.Count(readme2, "\n")
-		data["contentRows"] = helper.MaxLineLength(readme2)
-		data["contentCP437"] = readme2
+		data["contentLines"] = strings.Count(body, "\n")
+		data["contentRows"] = helper.MaxLineLength(body)
+		data["contentCP437"] = body
 	}
 	return data, nil
 }
@@ -951,21 +958,58 @@ func FixColorLeak(s string) template.HTML {
 }
 
 // lockWidth returns the byte array with an enforced maximum width of printed characters per line.
+// If there are 3 or more tabs found in the byte array, it will be returned unmodified.
 //
 // The maxWidth should usually be a value of 80 representing the standard terminal column value.
 func lockWidth(maxWidth int, b []byte) []byte {
-	var builder strings.Builder
-	for line := range strings.Lines(string(b)) {
-		// note if there are missing newline issues,
-		// it is likely due to the line endings with this variable
-		for len(line) > maxWidth {
-			s := line[:maxWidth]
-			builder.WriteString(s)
-			line = line[maxWidth:]
+	tabs := 0
+	index := 0
+	for index < len(b) {
+		if tabs >= 3 {
+			return b
 		}
-		builder.WriteString(line)
+		index = bytes.IndexByte(b[index:], byte('\t'))
+		if index < 0 {
+			break
+		}
+		tabs++
 	}
-	return []byte(builder.String())
+	var builder bytes.Buffer
+	for line := range bytes.Lines(b) {
+		builder.Write(line)
+		total := len(line) - 1
+		if total <= maxWidth {
+			builder.Write(line)
+			continue
+		}
+		cut := 0
+		for n := range line {
+			if n%maxWidth == 0 {
+				p := []byte{byte('\n')}
+				p = append(p, line[cut:n]...)
+				builder.Write(p)
+				cut = n
+				continue
+			}
+			if n >= total {
+				p := []byte{byte('\n')}
+				p = append(p, line[cut:n]...)
+				p = append(p, byte('\n'))
+				builder.Write(p)
+				break
+			}
+		}
+	}
+	return builder.Bytes()
+}
+
+// ReplaceTabs replaces tabs with 8 space characters.
+//
+// For text documents this is generally undisirable and it is better to let the browser handle the tabs.
+func ReplaceTabs(b []byte) []byte {
+	const space = 0x20
+	const count = 8
+	return bytes.ReplaceAll(b, []byte("\t"), bytes.Repeat([]byte{space}, count))
 }
 
 // decode decodes the text content from the reader.

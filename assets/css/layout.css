@@ -90,6 +90,14 @@
     url("/font/Ac437_IBM_CGA.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: font-mda;
+  font-display: swap;
+  src:
+    url("/font/Ac437_IBM_MDA.woff2") format("woff2"),
+    url("/font/Ac437_IBM_MDA.ttf") format("truetype");
+}
+
 .font-amiga {
   font-family: font-topazplus, monospace;
   font-size: 1em;
@@ -135,6 +143,15 @@
   font-family: 'font-cga', monospace;
   font-size: 16px;
   line-height: 16px; /* line height value is required by the logo-container and logo-text ids */
+  font-style: normal;
+  font-weight: normal;
+}
+
+
+.font-dos-mda {
+  font-family: 'font-mda', monospace;
+  font-size: 28px;
+  line-height: 24px; /* line height value is required by the logo-container and logo-text ids */
   font-style: normal;
   font-weight: normal;
 }
@@ -200,4 +217,14 @@ canvas,
   margin: 0;
   padding: 0;
   overflow: hidden;
+}
+
+.blinking {
+  display: inline-block;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  0% { color: revert-layer; }
+  50% { color: transparent; }
+  100% { color: revert-layer; }
 }

@@ -556,7 +556,8 @@ func Collection() Milestones {
 				"But what stands out about the board today is that we have survived thousands of posts " +
 				"from the earliest open online community that anyone in 1980 with the proper hardware could access from home—allowing for a more relaxed conversation that may not have been available in a work or academic environment. " +
 				"These posts exist before Reddit, the web, Usenet, or the Internet.</p>" +
-				"<pre>8BBS VER 5.5\n03-FEB-81 19:53:44\nPHONE: (408) 296-5799, 24 HOURS A DAY, EVERY DAY.\n" +
+				`<pre style="font-size:22px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+				"8BBS VER 5.5\n03-FEB-81 19:53:44\nPHONE: (408) 296-5799, 24 HOURS A DAY, EVERY DAY.\n" +
 				"110, 150 & 300 BAUD SUPPORTED.\n* * * WELCOME TO BERNARD AND DICK'S\n* * * 8BBS#1 / SANTA CLARA, CA\n" +
 				"* * * THE WORLD'S FIRST PDP8 BASED BULLETIN BOARD SYSTEM.\n* * * IN OPERATION SINCE MARCH 15, 1980</pre>" +
 				"<p><a href=\"https://archive.org/details/8BBSArchiveP1V1/page/n30/mode/1up\">Message number 3964 from CHUCK HUBERT</a><br>To ALL at 12:52 on 20-Nov-80. Subject: CP/M BBS AND SOFTWARE EXCHANGE</p>" +
@@ -593,14 +594,31 @@ func Collection() Milestones {
 				"Needing an operating system for the 16-bit Intel CPU, he programmed a half-complete, unauthorized clone of the CP/M operating system within four months. " +
 				"He called it <strong>QDOS</strong> (Quick and Dirty OS), and it sold few copies.</p>" +
 				"<p>Initially, QDOS got bundled with an Intel&nbsp;8086 CPU and hardware <a href=\"http://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm\">package</a> for the S-100 bus. " +
-				"But after poor sales, the OS was promptly renamed with the more business-friendly <a href=\"https://archive.org/details/bitsavers_seattleComanual1980_2120639/mode/2up\">86-DOS</a>.</p>",
-			Picture: Picture{
-				Title:       "Seattle Computer Products 86-DOS startup",
-				Png:         "86-dos.png",
-				License:     "CC BY-SA 4.0",
-				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
-				Attribution: "WinWorld",
-			},
+				"But after poor sales, the OS was promptly renamed with the more business-friendly <a href=\"https://archive.org/details/bitsavers_seattleComanual1980_2120639/mode/2up\">86-DOS</a>.</p>" +
+
+				`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+				"<br><p>SCP 8086 Monitor 1.5<br>>B<br>☺︎<br>" +
+				"86-DOS version 1.00<br>" +
+				"Copyright 1980,81 Seattle Computer Products, Inc.<br>" +
+				"Enter today's date (m-d-y): 01-01-80<br>" +
+				"<br>COMMAND v. 1.00<br>" +
+				"<br>A:chkdsk a:<br>" +
+				"              19 disk files<br>" +
+				"          245760 bytes total disk space<br>" +
+				"          146944 bytes remain available<br>" +
+				"<br>               0 bytes total system RAM<br>" +
+				"         1036448 bytes free<br>" +
+				"<br>A:edlin news.doc<br>" +
+				"<br>EDLIN version 1.00<br>" +
+				`End of input file<br>*<span class="blinking">_</span><br>` +
+				`</p></pre>`,
+			// Picture: Picture{
+			// 	Title:       "Seattle Computer Products 86-DOS startup",
+			// 	Png:         "86-dos.png",
+			// 	License:     "CC BY-SA 4.0",
+			// 	LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
+			// 	Attribution: "WinWorld",
+			// },
 		},
 		{
 			Title: "Motorola 68000 16-bit CPU", Year: 1980, Month: 11,
@@ -767,7 +785,7 @@ func Collection() Milestones {
 			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> Berlin Cracking Service image of the Berlin Bear" +
 				" <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a></sup> " +
 				"was the first ever intro or cracktro. " +
-				"However, this conveniently ignores the crack screens and animations found on the Apple II from 1980, 1981, and 1982. The claim was always ridiculous, and also, the Berlin Bear image likely originates from 1984 <sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> or later.</p>" +
+				"However, this conveniently ignores the crack screens and animations found on the Apple II from 1980, 1981, and 1982. The claim was always ridiculous, plus, the Berlin Bear image likely originates from 1984+, <sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup> not 1982.</p>" +
 				"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
 				", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
 				"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
@@ -1000,7 +1018,10 @@ func Collection() Milestones {
 				"ARC quickly took the PC BBS scene by storm by allowing boards and users to use a single application to both archive and compress a directory of files into a single package. " +
 				"The adoption was rapid, with contemporary texts claiming it was in widespread use by the year's end.</p>" +
 				"<p>Its impact on the scene allowed groups like Software Pirates Inc. to bundle additional help and description files in their releases and would later leave the opinion of including separate BBS ads, intros, cracktros with the release.</p>" +
-				"<code>ARC - Archive utility, Version 3.10, created on 05/01/85 at 22:34:50<br>(C) COPYRIGHT 1985 by System Enhancement Associates; ALL RIGHTS RESERVED</code>",
+				`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+				"<br><p>ARC - Archive utility, Version 3.10, created on 05/01/85 at 22:34:50<br>" +
+				"(C) COPYRIGHT 1985 by System Enhancement Associates; ALL RIGHTS RESERVED" +
+				`</p></pre>`,
 		},
 		{
 			Title: "The earliest text loader on PC", Year: 1985, Month: 5, Day: 26, Highlight: true,
@@ -1011,7 +1032,34 @@ func Collection() Milestones {
 				"Loaders originated on the Apple&nbsp;II and later the Commodore&nbsp;64 piracy Scenes.</p>" +
 				"<p>While text loaders and ANSI art look similar, the execution is entirely different. ANSI art relies on plain text files encoded with ASCII escape control codes. " +
 				"In contrast, text loaders are computer applications that use the computer's text characters stored in the system graphics card <a href=\"https://minuszerodegrees.net/video/bios_video_modes.htm\">ROM</a>, acting as a text programming interface.</p>" +
-				"<p>Little is known about the Imperial Warlords that released this 1984 PC game port, though the two BBS advertised are from San Francisco and Minneapolis, which suggests a national group.</p>",
+				"<p>Little is known about the Imperial Warlords that released this 1984 PC game port, though the two BBS advertised are from San Francisco and Minneapolis, which suggests a national group.</p>" +
+				`<pre style="font-size:9px;" class="font-dos-cga reader reader-invert border border-black rounded-1 p-1">` +
+				`<br><div><span style="color:#00c400;background-color:#000;">                                                                                </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">              </span><span style="color:#4ef3f3;background-color:#000;">And now... Presenting... the fourth of the series...</span><br><span style="color:#00c400;background-color:#000;">              </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                                                                </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">              </span><span style="color:#00c4c4;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">                  </span><span style="color:#c47e00;background-color:#000;">          </span><span style="color:#4ef3f3;background-color:#000;">    </span><span style="color:#00c400;background-color:#000;">           \/\/\/\/\/\/          </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                     ▓▓▓▓▓▓▓     </span><span style="color:#c47e00;background-color:#000;">─┬─</span><span style="color:#00c400;background-color:#000;">      </span><span style="color:#c47e00;background-color:#000;">─┬─ </span><span style="color:#4ef3f3;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">            \/ / \  \/           </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                     ▓▓▓▓▓▓▓▓▓▓  </span><span style="color:#4ef3f3;background-color:#000;"> </span><span style="color:#c47e00;background-color:#000;">├────────┴─┐</span><span style="color:#4ef3f3;background-color:#000;"> </span><span style="color:#c40000;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#4ef3f3;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">          \/ \/\ /\           </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                     ▓▓▓▓▓▓▓▓▓▓▓▓</span><span style="color:#4ef3f3;background-color:#000;"> </span><span style="color:#c47e00;background-color:#000;">│</span><span style="color:#f3f34e;background-color:#000;">SPY</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#4edc4e;background-color:#000;">HUNTER</span><span style="color:#c47e00;background-color:#000;">│</span><span style="color:#4ef3f3;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">═ ═ ═ ═ ═ ═   \/ / / /           </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                     ▓▓▓▓▓▓▓▓▓▓  </span><span style="color:#4ef3f3;background-color:#000;"> </span><span style="color:#c47e00;background-color:#000;">├────────┬─┘</span><span style="color:#0000c4;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">               \ \/ /            </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                     ▓▓▓▓▓▓▓    </span><span style="color:#c47e00;background-color:#000;"> ─┴─</span><span style="color:#00c400;background-color:#000;">      </span><span style="color:#c47e00;background-color:#000;">─┴─ </span><span style="color:#00c400;background-color:#000;">                 \//\             </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                                                                </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                                                                </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                   </span><span style="color:#4ef3f3;background-color:#000;">Cracked by</span><span style="color:#00c400;background-color:#000;">                                   </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                                                                </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                               </span><span style="color:#f34ef3;background-color:#000;">!</span><span style="color:#00c400;background-color:#000;">   </span><span style="color:#4edc4e;background-color:#000;">_________</span><span style="color:#00c400;background-color:#000;">   </span><span style="color:#f34ef3;background-color:#000;">!</span><span style="color:#00c400;background-color:#000;">                                </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                </span><span style="color:#f34ef3;background-color:#000;">\</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#4edc4e;background-color:#000;">/</span><span style="color:#00c400;background-color:#000;">         </span><span style="color:#4edc4e;background-color:#000;">\</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#f34ef3;background-color:#000;">/</span><span style="color:#00c400;background-color:#000;">                                 </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">       </span><span style="color:#0000c4;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">                      </span><span style="color:#f34ef3;background-color:#000;">!--</span><span style="color:#4edc4e;background-color:#000;">X</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#fff;background-color:#000;">SPARTACUS</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#f34ef3;background-color:#000;">X--!</span><span style="color:#4e4e4e;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">                              </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                </span><span style="color:#f34ef3;background-color:#000;">/</span><span style="color:#4e4e4e;background-color:#000;"> </span><span style="color:#4edc4e;background-color:#000;">\_________/</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#f34ef3;background-color:#000;">\</span><span style="color:#4e4e4e;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">                                </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">     </span><span style="color:#00c4c4;background-color:#000;">┌───────────────┐</span><span style="color:#00c400;background-color:#000;">         </span><span style="color:#f34ef3;background-color:#000;">!</span><span style="color:#00c400;background-color:#000;">           </span><span style="color:#f34ef3;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">   </span><span style="color:#f34ef3;background-color:#000;">!</span><span style="color:#00c400;background-color:#000;">           </span><span style="color:#f34ef3;background-color:#000;"> </span><span style="color:#00c400;background-color:#000;">                    </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">   </span><span style="color:#00c4c4;background-color:#000;">┌─┘</span><span style="color:#c47e00;background-color:#000;"> </span><span style="color:#c47e00;background-color:#000;">LOADING  GAME</span><span style="color:#00c4c4;background-color:#000;"> └─┐</span><span style="color:#00c400;background-color:#000;">                                                        </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">   </span><span style="color:#00c4c4;background-color:#000;">│</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#c47e00;background-color:#000;">PLEASE  STAND  BY</span><span style="color:#c47e00;background-color:#000;"> </span><span style="color:#00c4c4;background-color:#000;">│</span><span style="color:#00c400;background-color:#000;">             </span><span style="color:#4ef3f3;background-color:#000;">Of the</span><span style="color:#00c400;background-color:#000;">                                     </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">   </span><span style="color:#00c4c4;background-color:#000;">└───────────────────┘</span><span style="color:#00c400;background-color:#000;">                                                        </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                  </span><span style="color:#f34ef3;background-color:#000;">╔══════════╗</span><span style="color:#00c400;background-color:#000;">                                  </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                  </span><span style="color:#f34ef3;background-color:#000;">║</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#4ef3f3;background-color:#000;">IMPERIAL</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#f34ef3;background-color:#000;">║</span><span style="color:#00c400;background-color:#000;">                                  </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                  </span><span style="color:#f34ef3;background-color:#000;">║</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#f3f34e;background-color:#000;">WARLORDS</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#f34ef3;background-color:#000;">║</span><span style="color:#00c400;background-color:#000;">                                  </span><br>` +
+				`<span style="color:#00c400;background-color:#000;">                                  </span><span style="color:#f34ef3;background-color:#000;">╚══════════╝</span><span style="color:#00c400;background-color:#000;">                                  </span><br>` +
+				`</div><br></pre>`,
 			Picture: Picture{
 				Title: "Spy Hunter",
 				Alt:   "Spy Hunter by Imperial Warlords screenshot",
@@ -1024,7 +1072,7 @@ func Collection() Milestones {
 			Lead: "So far, How to WIN at KING's QUEST from The Illinois Pirates", LinkTitle: "and view the file", Link: "/f/bc30a5b",
 			Content: "<p><strong>The Illinois Pirates</strong> walk-through for the PC exclusive game King's Quest released the earliest known PC <strong>ASCII art</strong> or Codepage 437 art. " +
 				"The ASCII text logo uses block and line art characters that were exclusive to the IBM PC platform.</p>" +
-				`<pre class="font-dos reader reader-invert border border-black rounded-1 p-1">` +
+				`<pre style="font-size:28px;line-height:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
 				"<br>" +
 				`/////////// How to WIN at KING's QUEST \\\\\\\\\\\\\\\<br>` +
 				`\\\\\\\\\\\    on the IBM PC/PCjr      ///////////////<br><br>` +
@@ -1055,7 +1103,7 @@ func Collection() Milestones {
 			Link: "/f/ba2bcbb",
 			Content: "<p>The earliest <strong>ANSI ad</strong>vertisement is for the Manhattan based BBS, <strong>The&nbsp;Game&nbsp;Gallery</strong>&nbsp;(+212-799-6987). ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems.</p>" +
 				"<p>The output uses ANSI escape codes, a standard Digital Equipment Corporation (DEC) pioneered for its minicomputer <a href=\"https://vt100.net/dec/vt_history\">video terminals</a>. Later, it was used on IBM and other PCs using software drivers and video <a href=\"https://vt100.net/emu/\">terminal emulators</a>.</p>" +
-				`<pre class="font-dos reader reader-invert border border-black rounded-1 p-1"><div style="color:#aaa;background-color:#000;">` +
+				`<pre style="font-size:inherit;" class="font-dos-cga reader reader-invert border border-black rounded-1 p-1"><div style="color:#aaa;background-color:#000;"><br>` +
 				`<span style="color:#aaa;">         </span><span style="color:#fff;background-color:#00a;">Hi score </span><span style="color:#fff;background-color:#a00;">212-799-6987</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">╔════════════════════════════════════╗</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙ █ ∙  ██ THE GAME GALLERY∙ ██ ∙ █ ■║</span><br>` +
@@ -1076,7 +1124,7 @@ func Collection() Milestones {
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙∙ █∙∙  24HRS WEEKDAYS   .......■.║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">╚════════════════════════════════════╝</span><br>` +
 				`<span style="color:#aaa;">        </span><span style="color:#fff;background-color:#00a;">For those who use the computer for</span><br>` +
-				`<span style="color:#aaa;">        </span><span style="color:#fff;background-color:#00a;">recreation. </span><span style="color:#fff;background-color:#a00;">THE GAME</span><span style="color:#fff;background-color:#00a;"> </span><span style="color:#fff;background-color:#a00;">GALLERY.</span></div></pre>`,
+				`<span style="color:#aaa;">        </span><span style="color:#fff;background-color:#00a;">recreation. </span><span style="color:#fff;background-color:#a00;">THE GAME</span><span style="color:#fff;background-color:#00a;"> </span><span style="color:#fff;background-color:#a00;">GALLERY.</span><br><br></div></pre>`,
 			// Picture: Picture{
 			// 	Title: "The Game Gallery",
 			// 	Alt:   "The Game Gallery ad screenshot",
@@ -1120,7 +1168,7 @@ func Collection() Milestones {
 			Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
 				"<p>Software Pirates Inc may have released the earliest NFO-like document for the late 1985 packaged release of " +
 				"<a href=\"https://www.mobygames.com/game/22398/the-worlds-greatest-baseball-game/\">The World's Greatest Baseball Game</a>.</p>" +
-				"<pre>" +
+				`<pre style="font-size:24px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
 				"Welcome to the Software Pirates, Inc.  version of Baseball" + br +
 				"If you are new to the Software Pirates concept of DOS" + br +
 				"files of your favorite protected program then you can help" + br +
@@ -1352,7 +1400,7 @@ func Collection() Milestones {
 			Link: "/f/b844ef",
 			Content: "<p>While novel in 1988, <strong>BBS adverts</strong> like this <code>README.!!!</code> text file would plague releases as spam in the years to come, " +
 				"with boards injecting numerous texts and tagging the releases with their names, often under the guise of documentation or readme texts.<br><br></p>" +
-				`<pre class="font-dos reader reader-invert border border-black rounded-1 p-1">` +
+				`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><br>` +
 				"Another Quality Ware Downloaded off:<br><br>" +
 				"           S W A S H B U C K L E R S   I I<br>" +
 				"                 Home of PTL/CPI<br>" +
@@ -1365,7 +1413,7 @@ func Collection() Milestones {
 				"you have something to offer, call us. Once on, you won't have to call any " +
 				"further.<br><br>" +
 				"If all you want are the Latest warez FIRST call us we have them, or " +
-				"we've just cracked them.<br></pre>",
+				"we've just cracked them.<br><br></pre>",
 			// Picture: Picture{
 			// 	Title: "Swashbucklers II",
 			// 	Alt:   "Swashbucklers II text advert screenshot",
@@ -1430,10 +1478,12 @@ func Collection() Milestones {
 				"<a href=\"/g/the-north-west-connection\">The&nbsp;North&nbsp;West&nbsp;Connection</a>&nbsp;(TNWC) for the game Paladin. " +
 				"The drama accuses <a href=\"/g/ptl-club?\">PTL Club</a> of stealing and <q>re-releasing</q> an early game released by TNWC. " +
 				"Scene drama often involves texts that call out other groups for poor behavior, breaking commonly accepted rules, or being <q>lame.</q></p>" +
-				"<p><q>DO NOT TAKE THIS FILE FROM THE ARCHIVE!!!!<br>" +
+				`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><br>` +
+				"<p>DO NOT TAKE THIS FILE FROM THE ARCHIVE!!!!<br>" +
 				"Well unlike PTL I won't sacrifice some game code to put up a fancy title screen for the group that released this (TNWC). " +
 				"This is officially out third release, but really it's our second major one since PTL took Paladin and \"re-released\" it by taking off the doc check.<br>" +
-				"Anyway - on with the game.  This game is a great role-playing game with some of the best graphics I've seen in an RPG (which is not what you'd expect from Infocom) so enjoy it.</q></p>",
+				"Anyway - on with the game.  This game is a great role-playing game with some of the best graphics I've seen in an RPG (which is not what you'd expect from Infocom) so enjoy it.</p>" +
+				"</pre>",
 		},
 		{
 			Year: 1988, Prefix: notable,
@@ -1529,11 +1579,15 @@ func Collection() Milestones {
 			Link: "/g/pirate",
 			Content: "<p>Created in Chicago, Pirate magazine was a bi-monthly text newsletter for the Scene on the PC platform and distributed through bulletin boards. " +
 				"It ran for at least five issues between June 1989 and April 1990.</p>" +
-				"<p><q>What's a pirate? COMPUTER PIRACY is copying and distribution of copyright software (warez). Pirates are hobbyists who enjoy collecting and playing with the latest programs. " +
+				`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><br>` +
+				"<p>What's a pirate? COMPUTER PIRACY is copying and distribution of copyright software (warez). Pirates are hobbyists who enjoy collecting and playing with the latest programs. " +
 				"Most pirates enjoy collecting warez, getting them running, and then generally archive them, or store them away. A PIRATE IS NOT A BOOTLEGGER. " +
 				"Bootleggers are to piracy what a chop-shop is to a home auto mechanic. Bootleggers are people who DEAL stolen merchandise for personal gain. " +
-				"Bootleggers are crooks. They sell stolen goods. Pirates are not crooks, and most pirates consider bootleggers to be lower life forms...</q>" +
-				"<br><q>Pirates SHARE warez to learn, trade information, and have fun! But, being a pirate is more than swapping warez. It's a life style and a passion.</q></p>",
+				"Bootleggers are crooks. They sell stolen goods. Pirates are not crooks, and most pirates consider bootleggers to be lower life forms..." +
+				"</pre>" +
+				`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><br>` +
+				"Pirates SHARE warez to learn, trade information, and have fun! But, being a pirate is more than swapping warez. It's a life style and a passion." +
+				"<br><br></pre>",
 		},
 		{
 			Year: 1989, Prefix: notable,
@@ -1672,7 +1726,7 @@ func Collection() Milestones {
 				"Was this solo anonymity the legacy of do-it-yourself cracking and <a href=\"/files/how-to\">Unprotection documentation</a> common on the PC in the 1980s, or maybe a fear of big tech and their lawyers?</p>" +
 				"<p>The most famous application group, <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> (PWA), also was founded in 1991 but focused on game titles for their first two years.</p>" +
 				"<p>A typical PC piracy BBS from the 1980s would mostly have system utilities and the occasional application uploaded with no individual or group credited and no additional help textfiles." +
-				"<p><pre>" +
+				`<p><pre style="font-size:21px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
 				"IBMSPLIT.ARC   9200 01/05/89 Get WARPUTIL instead - handles MFM too!!\n" +
 				"COPY606.ARC   28672 01/18/89 \n" +
 				"NODMON25.ZIP  45028 01/18/89 \n" +
