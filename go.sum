@@ -16,8 +16,8 @@ github.com/Defacto2/helper v1.6.5 h1:Iq9V5S+oltemTzdAPudfyhEJfrWj/p6JNXLdrUyWClo
 github.com/Defacto2/helper v1.6.5/go.mod h1:5vFt3fA2xO3fP7UlYq8c8pCGWIlTmAosV64GE7ROJC0=
 github.com/Defacto2/magicnumber v1.2.1 h1:G3RUixxKdfVt6iyH6HcbOzgUs9ytPnWtHLhF4CwPSQY=
 github.com/Defacto2/magicnumber v1.2.1/go.mod h1:I4UNqXk5kDUeXaXpUAn4R67bKP2bxTY8FuarLov2z8w=
-github.com/Defacto2/releaser v1.3.18 h1:EGhjySt9c8UK++n24nnI0NIl0awnURzVut4PWUyx2iY=
-github.com/Defacto2/releaser v1.3.18/go.mod h1:nEgZQh5pEMjpWsMhy4MrjU2oE70XRBYAuBJxETowvAo=
+github.com/Defacto2/releaser v1.3.19 h1:NC0q5NORaXamQkSY12UYNAksGfOr57vdxJvAu7TsZao=
+github.com/Defacto2/releaser v1.3.19/go.mod h1:OXtPwi+Zl2lfVj29YA95bOJsSn+VswErJZ+2mSbceAY=
 github.com/aarondl/inflect v0.0.2 h1:XvH8K5g1wKS921tMmDOUsZ3zS1Eo8WwK5RHC0IGGT2s=
 github.com/aarondl/inflect v0.0.2/go.mod h1:zjmCfdXHUDQ9jFOV6SeHknpo0Au6rQhV8GchS4Vzv/0=
 github.com/aarondl/null/v8 v8.1.3 h1:ZJcvvj34BkXAguqU7xzDqEmzG86cSBgM8HYxcqeK0+8=
