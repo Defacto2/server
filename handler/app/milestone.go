@@ -1646,7 +1646,7 @@ func Collection() Milestones {
 			Title: "\".NFO\" file extension origins", Year: 1990, Month: 1, Day: 23, Highlight: true,
 			Lead: "The Humble Guys", LinkTitle: "the list of THG releases",
 			Link: "/g/the-humble-guys",
-			Content: "<p><code>KNIGHTS.NFO WHITEDET.NFO STUNT.NFO TRUMP.NFO DEJAVUII.NFO AJAX.NFO TERRAIN.NFO BUBBLE.NFO TREK.NFO CRMEWAVE.NFO STRIDER.NFO GUNBOAT.NFO 1989STAT.NFO ...</code></p>" +
+			Content: "" +
 				// extension
 				"<p>The <strong>.NFO</strong> file extension denotes a text file containing information about a release. " +
 				"Still in use today, the dot nfo file contains information about the release group, the release itself, and how to install.</p>" +
@@ -1662,7 +1662,10 @@ func Collection() Milestones {
 				"<q>I need some file to put the info about the crack in. Hmmm.. Info, NFO!</q>, and that was it.</small></q></blockquote>" +
 				"<figcaption class=\"blockquote-footer\">Founder of The&nbsp;Humble&nbsp;Guys, Fabulous&nbsp;Furlough recalls Bubble Bobble as the first THG release that used the .NFO file extension.</figcaption></figure>" +
 				// bubble bobble
-				"<p>Bubble Bobble was the more notable game of the period and may have been a more memorable game title when recalling the event.</p>",
+				"<p>Bubble Bobble was the more notable game of the period and may have been a more memorable game title when recalling the event.</p>" +
+				`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+				"KNIGHTS.NFO WHITEDET.NFO STUNT.NFO TRUMP.NFO DEJAVUII.NFO AJAX.NFO TERRAIN.NFO BUBBLE.NFO TREK.NFO CRMEWAVE.NFO STRIDER.NFO GUNBOAT.NFO 1989STAT.NFO ..." +
+				"</pre>",
 		},
 		{
 			Title: "Earliest PC cracktro with music", Year: 1990, Month: 12, Day: 2,
@@ -2187,18 +2190,18 @@ func Collection() Milestones {
 				"Less than a week later, Christian Morley, aka <q>Mercy,</q> a former senior organizer of PWA, became the first person to be " +
 				"<a href=\"https://ipmall.law.unh.edu/sites/default/files/hosted_resources/CyberCrime/pwa_verdict.pdf\">found guilty</a> under the No Electronic Theft (NET) Act and " +
 				"the first to be guilty of <u>conspiracy to infringe software copyrights</u>.</p>" +
-				"<hr><pre>" +
-				"                                 PWA Sites<sup><a href=\"#the-copy-party-is-over-fn1\">[1]</a></sup><br>" +
-				"┌──────────────────────┬─────────────────────────────┬──────────────────────┐<br>" +
-				"│ FTP Site Names       │ Status ···················· │ SiteOP ············· │<br>" +
-				"├──────────────────────┼─────────────────────────────┼──────────────────────┤<br>" +
-				"│ Sentinel ··········  │ World HQ ·················· │ Xxxxxxx ············ │<br>" +
-				"│ The Rock      ·····  │ US HQ ····················· │ Xxxxxxx ············ │<br>" +
-				"│ Major Malfunction ·  │ EURO HQ ··················· │ Xxxxxxx ············ │<br>" +
-				"│ MidNite Resistence·  │ World Courier HQ ·········· │ Xxxxxxx ············ │<br>" + //nolint:misspell
+				`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+				"                         PWA Sites<sup><a href=\"#the-copy-party-is-over-fn1\">[1]</a></sup><br>" +
+				"┌──────────────────────┬─────────────────────┬────────────┐<br>" +
+				"│ FTP Site Names       │ Status ············ │ SiteOP ··· │<br>" +
+				"├──────────────────────┼─────────────────────┼────────────┤<br>" +
+				"│ Sentinel ··········  │ World HQ ·········· │ Xxxxxxx ·· │<br>" +
+				"│ The Rock      ·····  │ US HQ ············· │ Xxxxxxx ·· │<br>" +
+				"│ Major Malfunction ·  │ EURO HQ ··········· │ Xxxxxxx ·· │<br>" +
+				"│ MidNite Resistence·  │ World Courier HQ ·· │ Xxxxxxx ·· │<br>" + //nolint:misspell
 				"</pre>" +
 				sect0 +
-				"<div id=\"the-copy-party-is-over-fn1\">[1] PWA were <a href=\"/f/ac38f0\">advertising</a> sites in 1999.</div>" +
+				"<div id=\"the-copy-party-is-over-fn1\">[1] Unlike other groups, PWA were still <a href=\"/f/ac38f0\">advertising</a> their sites in 1999.</div>" +
 				sect1,
 			//
 		},
