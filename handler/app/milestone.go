@@ -387,17 +387,22 @@ func Collection() Milestones {
 		{
 			Title: "The first software crackers", Year: 1979, Highlight: true,
 			Lead: "Disk copy protection hackers and crackers",
-			Content: "<p>We have yet to learn when or who started <em>cracking</em>, or why. But it must have been after the discovery of disk copy protection in Apple&nbsp;II software and a desire by users to <em>unlock</em> these restrictions. " +
-				"While not new, Andrew McFadden wrote about early <a href=\"https://fadden.com/apple2/cassette-protect.html\">copy protection on software cassette tapes</a> in 1978 and 1979, the earlier forms of copy protection were unusual.</p>" +
-				// disk ii drive
-				"<p>However, the July 1978 retail debut of the <a href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II</a> floppy drive ecosystem with the first Apple " +
+			Content: "<p>We have yet to learn when or who started <em>cracking</em>, or why, but it was probably curiosity and the technical challenge. " +
+				"Yet it must have been after the discovery of copy protection in Apple&nbsp;II software and a desire by users to <em>break</em> and <em>unlock</em> these artificial restrictions.</p>" +
+				// early examples
+				"<p>Andrew McFadden wrote about early <a href=\"https://fadden.com/apple2/cassette-protect.html\">copy protection on software cassette tapes</a> in 1978 and 1979, the earlier forms of copy protection were unusual. " +
+				"However, the July 1978 retail debut of the <a href=\"https://collections.museumsvictoria.com.au/articles/2787\">Disk II</a> floppy drive ecosystem with the first Apple " +
 				"<a href=\"https://www.apple2history.org/history/ah14/#01\">Disk Operating System</a> was a significant point. " +
-				"For the moneyed Apple&nbsp;II hobbyists, the drive and software became a must-have piece of kit that significantly improved the functionality of their expensive machines and quickly caught on. " +
 				// disk copy protection
 				"It offered new benefits for software developers, including speed, reliability and complete control of the floppy drive hardware using custom software. " +
 				"A critical mass of floppy drive owners with the new capabilities encouraged developers to use the media and embed novel <a href=\"https://www.bigmessowires.com/2015/08/27/apple-ii-copy-protection/\">disk copy protection methods</a> into their software intended for sale. " +
-				"While microcomputer enthusiasts were very much in the habit of duplicating and sharing software collections with friends and fellow users, and would have immediately desired the removal of any new restrictions on program usage.</p>" +
-				"<p>Interestingly, these ancient protection schemes are <a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today.</p>",
+				"Interestingly, these ancient protection schemes are <a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today.</p>" +
+				"<p>The December 1980 issue of Softalk magazine has Jeffrey Stanton <a href=\"http://underground2e.free.fr/Underground/Deplombage/Interviews/The_Wizard/Scans/Softalk_198012_Thief_p03.jpg\">penning</a>, <br><em>" +
+				"An interesting sidelight to the computer piracy game has resulting in people buying protected software for the challenge of breaking it. This concept may seem strange considering the price of software, but these people thrive on the most sophisticated protection schemes. To them, it is the ultimate \"adventure game.\"<br><br>" +
+				"I've met many Apple owners who have spent much more time breaking a game disk than they ever spent playing the game. And a good portion of these people purchased that disk. In some cases, particularly among the more addicted experts, <strong>friends will gladly loan them any program in exchange for an unprotected copy that they can use for trading purposes</strong>. Hence, the danger of widespread trading or piracy of a disk doesn't always lie wtih the person who breaks the disk, but with their loss of control once their friends obtain a copy." +
+				"</em></p>" +
+				"<p>Jeffrey's portrayal of a loss of control could help to explain why some crackers started to inject their name or persona into their unprotected software in the form of " +
+				"<a href=\"/image/milestone/tcommand.png\">digital graffiti</a>.</p>",
 		},
 		{
 			Title: "Examples of 'broken' protections?", Year: 1979,
