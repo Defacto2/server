@@ -10,6 +10,8 @@
 <h2 class="fs-3 lead mt-5 mb-5 text-center">
 {{- if eq $releaser.Link ""}}
 Retirements
+{{- else if eq $releaser.Link "appleii"}}
+Apple //
 {{- else}}
 <a class="link-offset-2 link-underline link-underline-opacity-25" href="/g/{{$releaser.Link}}">{{$releaser.Name}}</a>
 {{- end}}

@@ -238,6 +238,30 @@ func Interviewees() Groups {
 			},
 		},
 		{
+			Name: "Apple II",
+			Link: "appleii",
+			Interviews: Interviews{
+				Interviewee{
+					Scener: "The Wizard",
+					Year:   2012, Month: 10,
+					Content: "Roland Gustafsson freelanced for Brøderbund and Strategic Simulations supplying some of the first disk copy protections.",
+					Link:    "http://underground2e.free.fr/Underground/Deplombage/Interviews/The_Wizard/Roland_Gustafsson.html",
+				},
+				Interviewee{
+					Scener: "Aldo Reset",
+					Year:   2008, Month: 5,
+					Content: "Beginning in 1982, he is one of the earliest crackers on any Scene, Aldo Reset was both media savy and a famous French cracker.",
+					Link:    "https://textfiles.meulie.net/exhibits/frenchunderground/Deplombage/Interviews/Aldo_Reset/Interview_Aldo_Reset.html",
+				},
+				Interviewee{
+					Scener:  "JPL",
+					Year:    2006,
+					Content: "Another early French cracker who got their start in 1983, JPL often kept his cracks and self-branding to a minimum.",
+					Link:    "https://textfiles.meulie.net/exhibits/frenchunderground/Deplombage/Interviews/Jpl/Interview_JPL.html",
+				},
+			},
+		},
+		{
 			Name: "Retirements",
 			Link: "",
 			Interviews: Interviews{

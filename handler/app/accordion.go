@@ -323,6 +323,10 @@ func pir8() []Site {
 			"ReScene", "https://rescene.wikidot.com/",
 			"ReScene is a mechanism for backing up and restoring the metadata from Scene RAR and music releases.",
 		},
+		Site{
+			"Interviews de Pirates", "https://textfiles.meulie.net/exhibits/frenchunderground/Deplombage/Interviews/Introduction_Interviews.html",
+			"Covering the French Apple II Scene of the early and mid-1980s, it has interviews with key Sceners, some of who were active in the USA.",
+		},
 	}
 }
 

@@ -592,7 +592,9 @@ func Collection() Milestones {
 				"<li><a href=\"https://demozoo.org/productions/381276\">Apple World</a> <small>for Apple II, <q>(c) cracked 1982 by The Mulcher ][</q></small></li>" +
 				"<li><a href=\"https://demozoo.org/productions/380878\">Flockland Island Crisis</a> <small>for Apple II, <q>cracked (c) 1982 by mr. krac-man</q></small></li>" +
 				"<li><a href=\"https://demozoo.org/productions/290088\">Type Attack</a> <small>for Apple II, <q>(B)1982 Broken by Krakowicz NY</q></small></li>" +
-				"<li><a href=\"https://demozoo.org/productions/380811\">Bolo</a> <small>for Apple II, <q>Cracked -- 1982 Trystan II</q></small></li>" +
+				//"<li><a href=\"https://demozoo.org/productions/380811\">Bolo</a> <small>for Apple II, <q>Cracked -- 1982 Trystan II</q></small></li>" +
+				"<li><a href=\"https://demozoo.org/productions/382776\">Hard Hat Mack</a> <small>for Commodore 64, <q>cracked AD 1983 by Oleander</q></small></li>" +
+				"<li><a href=\"https://demozoo.org/productions/383213\">Space Sentinel</a> <small>for Commodore 64, <q>broken by mike freeze 830915</q></small></li>" +
 				ul1,
 			Picture: Picture{
 				Title: "Cyber Strike broken by The Tornado - Nov '80",
@@ -606,7 +608,15 @@ func Collection() Milestones {
 			Lead: "Software is defined in US copyright laws", LinkTitle: "about the act",
 			Link: "https://www.c2st.org/the-computer-software-copyright-act-of-1980/",
 			Content: "<p>Signed as an amendment to law by President Jimmy Carter, computer programs are defined by copyright law and enable authors to control the copying, selling, and leasing of their software.</p>" +
-				"<p>But the law was <a href=\"https://repository.law.uic.edu/cgi/viewcontent.cgi?article=1571&context=jitpl\">confusing</a> as software documentation and software source code are protected, but the object code or the compiled software that ran on the computer hardware is probably not.</p>",
+				"<p>But the law was <a href=\"https://repository.law.uic.edu/cgi/viewcontent.cgi?article=1571&context=jitpl\">confusing</a> as software documentation and software source code are protected, but the object code or the compiled software that ran on the computer hardware is probably not.</p>" +
+				"<p>The screenshot shows a heavy-handed copyright 1979 notice for an Apple Computer published game. It is missing the notices that software copyright infringement is illegal and criminal. In the day, Apple could only threaten to sue for civil damages; however, even that is mostly scaremongering.</p>" +
+				"<p>The <a href=\"https://www.mobygames.com/game/125083/apple-bowl/cover/group-243846/cover-621747/\">game was sold</a> on an audio cassette tape, making it feasible for a radio or TV station to broadcast the software over the air for duplication, so Apple included the \"duplicated or transmitted\" assertion.</p>",
+			Picture: Picture{
+				Title: "© 1979 notice for an Apple Computer published game",
+				Alt:   "A screenshot of the copyright notice from the game Apple Bowl",
+				Png:   "1979-apple-bowl-copyright.png",
+				Webp:  "1979-apple-bowl-copyright.webp",
+			},
 		},
 		{
 			Title: "The first groups", Year: 1981, Highlight: true,
@@ -797,9 +807,9 @@ func Collection() Milestones {
 				"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
 				", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
 				"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
-				"<p>However, some \"cracking\" groups, such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\", claim to have appeared on the platform in 1982 and operated in isolated West Berlin. " +
-				"Why would German kids in 1982 (or even 1983) adopt a business computer, import a concept discovered in the USA or France, and band together to brand themselves as cracking groups? " +
-				"There were no machines in Europe, nor were there floppy disk drives, there was no software with disk copy protections and nothing to crack.</p>" +
+				"<p>However, it is claimed some crackers such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\" appeared on the platform in 1982 and operated in West Berlin. " +
+				"Why would German hacker kids in 1982, in isolation, import business computers, and use English-language \"elite\" vocabulary to brand themselves as crackers? " +
+				"There were no machines in Europe, nor were there floppy disk drives; so there was no software to \"crack\".</p>" +
 				sect0 +
 				"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
 				"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
