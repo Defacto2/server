@@ -298,7 +298,8 @@ func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any
 		data["sauceDate"] = rec.Date.Time.Format("2006 Jan 02")
 	}
 	// there are edge cases where the plaintext could be unsable, for exampling using the incorrect encoding,
-	// or maybe the source used a known text filename extension (.nfo, .txt, etc) but is actually a program or is image data.
+	// or maybe the source used a known text filename extension (.nfo, .txt, etc)
+	// but is actually a program or is image data.
 	if unusableText := buf == nil; unusableText {
 		return data, nil
 	}
@@ -346,11 +347,13 @@ func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[s
 	}
 	// binary text and (in the future) extended binary text
 	data["contentBinarySwappers"] = false
-	class := append(elems, "text-bg-dark", "text-center")
+	class := elems
+	class = append(class, "text-bg-dark", "text-center")
 	if year != 0 && year > CgaEpoch {
 		fontname = "font-squared"
 		class = append([]string{fontname}, class...)
-		class = slices.Replace(class, 1, 3, "reader-hires")
+		i, j := 1, 3
+		class = slices.Replace(class, i, j, "reader-hires")
 	} else {
 		class = append([]string{fontname, "reader"}, class...)
 	}
@@ -964,8 +967,9 @@ func FixColorLeak(s string) template.HTML {
 func lockWidth(maxWidth int, b []byte) []byte {
 	tabs := 0
 	index := 0
+	const unmod = 3
 	for index < len(b) {
-		if tabs >= 3 {
+		if tabs >= unmod {
 			return b
 		}
 		index = bytes.IndexByte(b[index:], byte('\t'))

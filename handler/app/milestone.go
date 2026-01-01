@@ -399,7 +399,7 @@ func Collection() Milestones {
 				"Interestingly, these ancient protection schemes are <a href=\"https://paleotronic.com/2024/01/28/confessions-of-a-disk-cracker-the-secrets-of-4am/\">still problematic</a> for computer historians today.</p>" +
 				"<p>The December 1980 issue of Softalk magazine has Jeffrey Stanton <a href=\"http://underground2e.free.fr/Underground/Deplombage/Interviews/The_Wizard/Scans/Softalk_198012_Thief_p03.jpg\">penning</a>, <br><em>" +
 				"An interesting sidelight to the computer piracy game has resulting in people buying protected software for the challenge of breaking it. This concept may seem strange considering the price of software, but these people thrive on the most sophisticated protection schemes. To them, it is the ultimate \"adventure game.\"<br><br>" +
-				"I've met many Apple owners who have spent much more time breaking a game disk than they ever spent playing the game. And a good portion of these people purchased that disk. In some cases, particularly among the more addicted experts, <strong>friends will gladly loan them any program in exchange for an unprotected copy that they can use for trading purposes</strong>. Hence, the danger of widespread trading or piracy of a disk doesn't always lie wtih the person who breaks the disk, but with their loss of control once their friends obtain a copy." +
+				"I've met many Apple owners who have spent much more time breaking a game disk than they ever spent playing the game. And a good portion of these people purchased that disk. In some cases, particularly among the more addicted experts, <strong>friends will gladly loan them any program in exchange for an unprotected copy that they can use for trading purposes</strong>. Hence, the danger of widespread trading or piracy of a disk doesn't always lie with the person who breaks the disk, but with their loss of control once their friends obtain a copy." +
 				"</em></p>" +
 				"<p>Jeffrey's portrayal of a loss of control could help to explain why some crackers started to inject their name or persona into their unprotected software in the form of " +
 				"<a href=\"/image/milestone/tcommand.png\">digital graffiti</a>.</p>",
@@ -597,7 +597,6 @@ func Collection() Milestones {
 				"<li><a href=\"https://demozoo.org/productions/381276\">Apple World</a> <small>for Apple II, <q>(c) cracked 1982 by The Mulcher ][</q></small></li>" +
 				"<li><a href=\"https://demozoo.org/productions/380878\">Flockland Island Crisis</a> <small>for Apple II, <q>cracked (c) 1982 by mr. krac-man</q></small></li>" +
 				"<li><a href=\"https://demozoo.org/productions/290088\">Type Attack</a> <small>for Apple II, <q>(B)1982 Broken by Krakowicz NY</q></small></li>" +
-				//"<li><a href=\"https://demozoo.org/productions/380811\">Bolo</a> <small>for Apple II, <q>Cracked -- 1982 Trystan II</q></small></li>" +
 				"<li><a href=\"https://demozoo.org/productions/382776\">Hard Hat Mack</a> <small>for Commodore 64, <q>cracked AD 1983 by Oleander</q></small></li>" +
 				"<li><a href=\"https://demozoo.org/productions/383213\">Space Sentinel</a> <small>for Commodore 64, <q>broken by mike freeze 830915</q></small></li>" +
 				ul1,

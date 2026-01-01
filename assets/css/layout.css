@@ -70,7 +70,7 @@
   font-family: 'font-vga-8x16';
   font-display: swap;
   src:
-    url("/font/Ac437_IBM_VGA_8x16.woff2") format("woff2");
+    url("/font/Ac437_IBM_VGA_8x16.woff2") format("woff2"),
     url("/font/Ac437_IBM_VGA_8x16.ttf") format("truetype");
 }
 
@@ -128,7 +128,6 @@
   line-height: 8px; /* line height value is required by the logo-container and logo-text ids */
   font-style: normal;
   font-weight: normal;
-  /*transform: scaleX(0.6667);*/
 }
 
 .font-dos {
@@ -140,7 +139,7 @@
 }
 
 .font-dos-cga {
-  font-family: 'font-cga', monospace;
+  font-family: font-cga, monospace;
   font-size: 16px;
   line-height: 16px; /* line height value is required by the logo-container and logo-text ids */
   font-style: normal;
@@ -149,7 +148,7 @@
 
 
 .font-dos-mda {
-  font-family: 'font-mda', monospace;
+  font-family: font-mda, monospace;
   font-size: 28px;
   line-height: 24px; /* line height value is required by the logo-container and logo-text ids */
   font-style: normal;
@@ -223,6 +222,7 @@ canvas,
   display: inline-block;
   animation: blink 1s steps(1) infinite;
 }
+
 @keyframes blink {
   0% { color: revert-layer; }
   50% { color: transparent; }

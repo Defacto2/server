@@ -147,38 +147,6 @@ func knownProgram() string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 }
 
-// xbinary, xbin or extended binary text is only partially supported.
-func (m *ListEntry) xbinary() bool {
-	return strings.EqualFold(m.Signature, magicnumber.XBinaryText.String())
-}
-
-// infotext returns true if the artifact is set as a "Text" or "Amiga text" platform,
-// and the section is set to "NFO".
-//
-// Note, the following unsupported assets will always return false, "xbinary".
-func (m *ListEntry) iNFOtext() bool {
-	if m.xbinary() {
-		return false // unsupported
-	}
-	simpleText := strings.EqualFold(m.platform, tags.Text.String()) || strings.EqualFold(m.platform, textamiga)
-	if !simpleText {
-		return false
-	}
-	return strings.EqualFold(m.section, tags.Nfo.String())
-}
-
-// briefDescription returns true for known BBS/FTP site descriptor files.
-func (m *ListEntry) briefDescription() bool {
-	name := m.RelativeName
-	names := []string{"file_id.diz"}
-	for valid := range slices.Values(names) {
-		if strings.EqualFold(name, valid) {
-			return true
-		}
-	}
-	return false
-}
-
 // ColumnsAsMeta returns the brief metadata descriptions of the list entry.
 func (m *ListEntry) ColumnsAsMeta(ext, htm string) string {
 	switch {
@@ -199,9 +167,41 @@ func (m *ListEntry) ColumnsAsMeta(ext, htm string) string {
 	return htm
 }
 
+// briefDescription returns true for known BBS/FTP site descriptor files.
+func (m *ListEntry) briefDescription() bool {
+	name := m.RelativeName
+	names := []string{"file_id.diz"}
+	for valid := range slices.Values(names) {
+		if strings.EqualFold(name, valid) {
+			return true
+		}
+	}
+	return false
+}
+
+// xbinary, xbin or extended binary text is only partially supported.
+func (m *ListEntry) xbinary() bool {
+	return strings.EqualFold(m.Signature, magicnumber.XBinaryText.String())
+}
+
+// infotext returns true if the artifact is set as a "Text" or "Amiga text" platform,
+// and the section is set to "NFO".
+//
+// Note, the following unsupported assets will always return false, "xbinary".
+func (m *ListEntry) iNFOtext() bool {
+	if m.xbinary() {
+		return false // unsupported
+	}
+	simpleText := strings.EqualFold(m.platform, tags.Text.String()) || strings.EqualFold(m.platform, textamiga)
+	if !simpleText {
+		return false
+	}
+	return strings.EqualFold(m.section, tags.Nfo.String())
+}
+
 // prevImageCopyBtn creates a link to "/editor/preview/copy/ID/FILENAME".
 //
-// The funcs called: [htmx.RecordImageCopier] and [dirs.PictureImager]
+// The funcs called: [htmx.RecordImageCopier] and [dirs.PictureImager].
 func prevImageCopyBtn(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use image for preview">` +
@@ -215,7 +215,7 @@ func prevImageCopyBtn(uniqueID, name string) string {
 
 // prevTextContentBtn creates a link to "/editor/readme/URI/ID/FILENAME".
 //
-// The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager]
+// The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager].
 func prevTextContentBtn(uniqueID, name, platform, sign string) string {
 	uri := "preview"
 	if strings.EqualFold(platform, tags.TextAmiga.String()) {
@@ -238,7 +238,7 @@ func prevTextContentBtn(uniqueID, name, platform, sign string) string {
 
 // prevBinaryContentBtn creates a link to "/editor/readme/URI/ID/FILENAME".
 //
-// The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager]
+// The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager].
 func prevBinaryContentBtn(uniqueID, name string) string {
 	uri := "preview-binary"
 	// the "#file-editor" href anchor will relaunch the File editor dialog.
@@ -254,7 +254,7 @@ func prevBinaryContentBtn(uniqueID, name string) string {
 
 // textContentBtn creates a link to "/editor/readme/copy/ID/FILENAME".
 //
-// The funcs called: [htmx.RecordReadmeCopier] and [dirs.TextImager]
+// The funcs called: [htmx.RecordReadmeCopier] and [dirs.TextImager].
 func textContentBtn(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as the readme">` +
@@ -268,7 +268,7 @@ func textContentBtn(uniqueID, name string) string {
 
 // dizContentBtn creates a link to "/editor/diz/copy/ID/FILENAME"
 //
-// The funcs called: [htmx.RecordDizCopier]
+// The funcs called: [htmx.RecordDizCopier].
 func dizContentBtn(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as the FILE_ID.DIZ">` +

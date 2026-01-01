@@ -131,7 +131,7 @@ func (c Config) Print(sl *slog.Logger) {
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	fields := reflect.VisibleFields(reflect.TypeOf(c))
+	fields := reflect.VisibleFields(reflect.TypeFor[Config]())
 	names := c.Names()
 	for i, name := range slices.All(names) {
 		if skip(name) {
@@ -190,7 +190,7 @@ func googleIDs(vof reflect.Value, sl *slog.Logger, tag string) {
 
 // Names returns a list of the field names in the Config struct.
 func (c Config) Names() []string {
-	t := reflect.TypeOf(c)
+	t := reflect.TypeFor[Config]()
 	fieldNames := make([]string, t.NumField())
 	for i := range t.NumField() {
 		fieldNames[i] = t.Field(i).Name

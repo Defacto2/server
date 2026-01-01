@@ -667,8 +667,15 @@ func SafeBBS(a any) template.HTML {
 		if !bbs.IsPCBoard(b) {
 			return SafeHTML(string(b))
 		}
-		s := string(RemovePCBoard(b))
-		clear(b)
+		var buf bytes.Buffer
+		if err := bbs.PCBoardHTML(&buf, b...); err != nil {
+			fmt.Print(err)
+		}
+		// FIX: temp block
+		// s := string(RemovePCBoard(b))
+		// clear(b)
+		// s := string(b)
+		s := buf.String()
 		return SafeHTML(s)
 	default:
 		return template.HTML("")
