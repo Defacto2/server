@@ -30,7 +30,7 @@ require (
 	github.com/Defacto2/magicnumber v1.2.1
 	github.com/Defacto2/releaser v1.3.20
 	github.com/aarondl/null/v8 v8.1.3
-	github.com/aarondl/sqlboiler/v4 v4.19.5
+	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
 	github.com/bengarrett/ansibump v1.1.0
 	github.com/bengarrett/bbs v1.0.6
@@ -44,9 +44,9 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.4.0
 	github.com/h2non/filetype v1.1.3
-	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jackc/pgx/v5 v5.8.0
 	github.com/labstack/echo-contrib v0.17.4
-	github.com/labstack/echo/v4 v4.14.0
+	github.com/labstack/echo/v4 v4.15.0
 	github.com/lmittmann/tint v1.1.2
 	github.com/mattn/go-isatty v0.0.20
 	github.com/nalgeon/be v0.3.0
