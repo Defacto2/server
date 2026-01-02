@@ -232,8 +232,8 @@ func TestInterviewees(t *testing.T) {
 	t.Parallel()
 	i := app.Interviewees()
 	l := len(i)
-	const expectedInterviewees = 11
-	be.Equal(t, expectedInterviewees, l)
+	const expected = 12
+	be.Equal(t, l, expected)
 
 	for _, x := range i {
 		be.True(t, x.Name != "")

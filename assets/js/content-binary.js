@@ -6,6 +6,7 @@ import { clipText, getElmById } from "./helper.mjs";
 (() => {
   "use strict";
   const elementId = "precontentBinary",
+    none = "d-none",
     preElm = getElmById(elementId);
 
   // ansi and binary text buttons

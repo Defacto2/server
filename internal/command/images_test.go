@@ -142,7 +142,7 @@ func TestArgs(t *testing.T) {
 	a = command.Args{}
 	a.AnsiMsDos()
 	s = fmt.Sprintf("%+v", a)
-	find = strings.Contains(s, "80x25")
+	find = strings.Contains(s, "80x50")
 	be.True(t, find)
 	a = command.Args{}
 	a.JpegPhoto()
