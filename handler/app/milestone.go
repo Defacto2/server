@@ -395,24 +395,29 @@ func Collection() Milestones {
 				"</ul><small><u>Month</u>, found in a Softalk magazine advert or review.</small>",
 		},
 		{
-			Title: "The first popular x86 CPU", Year: 1979, Month: 6,
-			Lead: "Intel 8088", LinkTitle: "about the Intel 8088",
+			Title: "The first popular x86 CPU and commercial software", Year: 1979, Month: 6,
+			Lead: "Intel 8088 + Microsoft BASIC-86", LinkTitle: "about the Intel 8088",
 			Link: "https://spectrum.ieee.org/chip-hall-of-fame-intel-8088-microprocessor",
 			Content: "Intel releases a lesser 16-bit microprocessor, the <strong>Intel&nbsp;8088</strong>. " +
 				"While <u>fully compatible</u> with the earlier Intel&nbsp;8086 CPU, this model is intentionally \"castrated\" with an 8-bit external data bus. " +
 				"The revision is an improvement for some buyers as it needs less expensive mainboard support chips and is compatible with the more readily available 8-bit hardware. " +
-				"<p>Software written for either CPU often gets quoted as <a href=\"https://archive.org/details/msdos-200-users-guide-1983/page/n3/mode/2up\">8086/8088 compatible</a>.</p>",
-		},
-		{
-			Title: "First commercial software for x86",
-			Year:  1979, Month: 6, Day: 18,
-			Lead: "Microsoft BASIC-86", LinkTitle: "Microsoft introduces BASIC-86",
-			Link: "https://thisdayintechhistory.com/06/18/microsoft-introduces-basic-for-8086/",
-			Content: "<a href=\"https://www.computerhistory.org/collections/catalog/102623976\">Microsoft BASIC</a> and its many revisions were the first killer applications for Microsoft in its early years. " +
+				"<p>Software written for either CPU often gets quoted as <a href=\"https://archive.org/details/msdos-200-users-guide-1983/page/n3/mode/2up\">8086/8088 compatible</a>.</p>" +
+				"<p>Also in June on the 18th, Microsoft <a href=\"https://thisdayintechhistory.com/06/18/microsoft-introduces-basic-for-8086/\">published</a> BASIC on the x86 platform. " +
+				"<a href=\"https://www.computerhistory.org/collections/catalog/102623976\">Microsoft BASIC</a> and its many revisions were the first killer applications for Microsoft in its early years. " +
 				"Microcomputers were often sold to enthusiasts or businesses, but the software availability for these machines was lacking. " +
 				"So many owners resorted to building software, and the BASIC programming language had an easy learning curve. " +
-				"Though Microsoft didn't invent the language, its implementation was considered the gold standard.",
+				"Though Microsoft didn't invent the language, its implementation was considered the gold standard.</p>",
 		},
+		// {
+		// 	title: "first commercial software for x86",
+		// 	year:  1979, month: 6, day: 18,
+		// 	lead: "microsoft basic-86", linktitle: "microsoft introduces basic-86",
+		// 	link: "https://thisdayintechhistory.com/06/18/microsoft-introduces-basic-for-8086/",
+		// 	content: "<a href=\"https://www.computerhistory.org/collections/catalog/102623976\">microsoft basic</a> and its many revisions were the first killer applications for microsoft in its early years. " +
+		// 		"microcomputers were often sold to enthusiasts or businesses, but the software availability for these machines was lacking. " +
+		// 		"so many owners resorted to building software, and the basic programming language had an easy learning curve. " +
+		// 		"though microsoft didn't invent the language, its implementation was considered the gold standard.",
+		// },
 		{
 			Title: "The early online underground", Year: 1979, Highlight: true,
 			Lead: "CBBS, ABBS, and the Apple II microcomputer",
@@ -906,42 +911,6 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "The Berlin Bear controversy", Year: 1982,
-			Lead: "Commodore 64",
-			Content: "<p>Many long argued in the Demoscene that a <q>1982</q> Berlin Cracking Service image of the Berlin Bear" +
-				" <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a></sup> " +
-				"was the first ever intro or cracktro. " +
-				"However, this conveniently ignores the crack screens and animations found on the Apple II from 1980 onwards, " +
-				"like the <strong><a href=\"https://demozoo.org/productions/381802\">April&nbsp;1981&nbsp;intro</a></strong> by The Razor. " +
-				"The claim was always ridiculous, plus, the Berlin Bear image likely originates from 1984, and not 1982<sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup>.</p>" +
-				"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
-				", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
-				"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
-				"<p>However, it is claimed some crackers such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\" appeared on the platform in 1982 and operated in West Berlin. " +
-				"Why would German hacker kids in 1982, in isolation, import business computers, and use English-language \"elite\" vocabulary to brand themselves as crackers? " +
-				"There were no machines in Europe, nor were there floppy disk drives; so there was no software to \"crack\".</p>" +
-				sect0 +
-				"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
-				"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
-				"<a href=\"https://csdb.dk/release/?id=35670\">conversation on CSDb</a>, " +
-				"<a href=\"https://m.pouet.net/prod.php?which=17555\">conversation on Pouët</a>, and " +
-				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
-				div1 +
-				"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the Berlin Bear logo was created in Paint Magic by Datasoft, " +
-				"a floppy disk paint application published in the USA in 1983, that saw a <a href=\"http://www.mycommodore64.com/2011/07/22/the-magic-in-paint-magic/\">cracked release</a> in 1984.</div>" +
-				"<div id=\"berlin-bear-controversy-fn3\">[3] \"In August 1982, Commodore finally produced (ed: in Santa Clara, CA) enough C64 computers to start making small shipments to dealers.\", Commodore: a company on the edge.</div>" +
-				"<div id=\"berlin-bear-controversy-fn4\">[4] \"None of the advertising touted the superior sound and graphics capabilities of the Commodore 64 since the in-house software from Commodore in late 1982 did little to exploit the abilities of these chips\", Commodore: a company on the edge.</div>" +
-				"<div id=\"berlin-bear-controversy-fn5\">[5] \"For the office. Or the home office\" advert, found in the October 1983 issue of Practical Computing UK, " +
-				"<a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>." +
-				sect1,
-			Picture: Picture{
-				Title:       "Berlin Bear upside down",
-				Alt:         "A screenshot of the Berlin Bear image for the Commodore 64.",
-				Png:         "berlin-bear.png",
-				Attribution: "Jazzcat",
-			},
-		},
-		{
 			Title: "Third-party PC games", Year: 1982,
 			Content: "<p>The first set of published games on the PC platform is sold without IBM's involvement.</p>" +
 				"Some early publishers include" +
@@ -979,16 +948,6 @@ func Collection() Milestones {
 				"<li>Janet <sup>1984</sup>, an extensive UK academic network.</li>" +
 				"<li>Corporate networks from Xerox Internet, DEC Easynet and IBM VNET.</li>" +
 				ul1,
-		},
-		{
-			Title: "The year of the Commodore 64", Year: 1983, Month: 1,
-			Lead: "Computers goes mainstream", LinkTitle: "about the Commodore 64", Link: "http://variantpress.com/books/commodore-a-company-on-the-edge/",
-			Content: "<p>January 1983 saw the beginning of the juggernaut, the <strong>Commodore&nbsp;64</strong> microcomputer, a platform that became the world's best-selling computer for decades. " +
-				"It was released in limited numbers in August 1982 for the US market, but sales blew up in the lead to Christmas, and with multiple mass price cuts, it became a massive worldwide success in the following years.</p>" +
-				"<p>The Commodore&nbsp;64 became the first mass-market computer and piracy platform.</p>" +
-				"Ironically, it is a Scene that at least partly materialized out of Commodore itself, according to Brian Bagnall's book On the Edge. For <a href=\"https://computerhistory.org/profile/bil-herd/\">Bil Herd</a>, " +
-				"<q>The worst thing you could do was submit a copy of something to the (Commodore) games and applications group.</q> " +
-				"He felt several bad actors were employed in that department, claiming that by late 1983, <q>There were a few nefarious types that would generally make sure a cracked version of the game was available within a week.</q>",
 		},
 		{
 			Title: "The first PC clone", Year: 1983, Month: 3,
@@ -1068,13 +1027,8 @@ func Collection() Milestones {
 			Link: "https://www.custompc.com/retro-tech/ega-graphics",
 			Content: "The Enhanced Graphics Adapter standard includes 16 colors, 640×350 resolution and 80×25 text mode." +
 				"<p><a href=\"http://nerdlypleasures.blogspot.com/2014/01/simcity-for-dos-swiss-army-knife-of.html\">With the odd exception</a>, most PC games that use <strong>EGA</strong> only ever support 160x200 or 320x200 resolutions with 4 or 16 colors on screen. " +
-				"There were complications with EGA and its expensive monitor displays, plus the expensive memory requirements needed for higher resolution graphic modes with <strong>16 colors</strong>.</p>",
-		},
-		{
-			Title: "An early demonstration on the PC", Year: 1984, Month: 10,
-			Lead: "Fantasy Land EGA demo by IBM", LinkTitle: "and run the demo",
-			Link: "https://www.pcjs.org/software/pcx86/demo/ibm/ega/",
-			Content: "The first <strong>demo program</strong> on the PC, Fantasy Land, is created by IBM to demonstrate the new <strong>EGA</strong> graphics standard. " +
+				"There were complications with EGA and its expensive monitor displays, plus the expensive memory requirements needed for higher resolution graphic modes with <strong>16 colors</strong>.</p>" +
+				"<p>IBM would also create the first <strong>demo program</strong> on the PC, <a href=\"https://www.pcjs.org/software/pcx86/demo/ibm/ega/\">Fantasy Land EGA</a>, is released to demonstrate the new <strong>EGA</strong> graphics standard. " +
 				"The idea of a demo is to have the program run automatically, without user input, to show off the capabilities of the hardware.",
 		},
 		{
@@ -1095,6 +1049,83 @@ func Collection() Milestones {
 				Alt:   "Copyright 1984 the Duplicators screenshot on the PC",
 				Webp:  "a319104.webp",
 				Png:   "a319104.png",
+			},
+		},
+		{
+			Title: "The year of the Commodore 64", Year: 1984,
+			Lead: "Computers goes mainstream", LinkTitle: "about the Commodore 64", Link: "http://variantpress.com/books/commodore-a-company-on-the-edge/",
+			Content: "<p>" +
+				"While the Commodore 64, or C&hyphen;64, would first hit the market in August 1982, manufacturing constraints and quality control issues would result in a tiny number of machines solely in the USA and Japan. " +
+				"At year's end, there were around 50,000 Commodore 64s worldwide or back-ordered, and one million Commodore VIC&hyphen;20 microcomputers, the less capable precursor. " +
+				"Of that million, 800,000 were sold in the USA, almost 200,000 in Europe, with half in the UK.</p>" +
+				"<p>The C&hyphen;64 problems are reflected in the press of the time, with Creative Computing <a href=\"https://archive.org/details/CreativeComputingbetterScan198301/page/n22/mode/1up\">reviewing</a> a pre-production unit for the January 1983 magazine, which praised the machine but complained about build quality, especially the television output. " +
+				"The issue features a prime C&hyphen;64 <a href=\"https://archive.org/details/CreativeComputingbetterScan198301/page/n346/mode/1up\">advert</a> from Commodore. However, in the subsequent magazine issues, Commodore <a href=\"https://archive.org/details/CreativeComputingbetterScan198303/page/n112/mode/1up\">replaced</a> the new C&hyphen;64 ad with advertising for the older VIC&hyphen;20. " +
+				"A <a href=\"https://archive.org/details/CreativeComputingbetterScan198304/page/n293/mode/1up\">citation</a> in the April 1983 issue may suggest why, <em>According to Neil Harris, in 1980, 10,000 Vic 20 units were sold nationwide. Toward the end of 1982, Commodore was manufacturing 10,000 Vic 20 units per day. And the new machine, the 64, is back-ordered in the tens of thousands of units.</em>" +
+				"</p><p>" +
+				"Another issue that plagued the C&hyphen;64 in North America was the unavailability of the disk drive. Creative Computing <a href=\"https://archive.org/details/CreativeComputingbetterScan198308/page/n230/mode/1up\">wrote</a> in August 1983, " +
+				"<em>You could make an investment in the speed, convenience, and reliability of a disk drive. The only problem with this approach is cost, which in some cases exceeds that of the computer itself. " +
+				"But if you chose not to part with $400 for a drive, you were stuck with the very dreary prospect of cassette storage.</em> " +
+				"Compute! December 1983 would <a href=\"https://archive.org/details/1983-12-computegazette/page/n7/mode/1up\">report</a>, <em>We are hearing that 1541 drives are virtually unavailable, and that many drives purchased before the supply dried up suffer from reliability problems</em> " +
+				"and later confirming <em>the nearly total absence of 1541s from dealers' shelves in August and September.</em> " +
+				"This was a problem for the nine of every ten C-64 buyers who were after the drive." +
+				"</p><p>" +
+				"However, the biggest problem for the platform throughout 1983 was the lack of software availability, which was emphasized in many publications. " +
+				"Compute! <a href=\"https://archive.org/details/1983-08-computegazette/page/n25/mode/1up\">wrote</a> in August, <em>Although the Commodore 64 has been around for almost a year now, software is still scarce. There are many good programs available, but merchants and customers are frustrated that there aren't more.</em> " +
+				"Ahoy! of January 1984 <a href=\"https://archive.org/details/ahoy-magazine-01/page/n38/mode/1up\">claimed</a>, " +
+				"<em>The C-64's main failing point has been the relative scarcity of software, and while the computer's sales success is changing all that, the gap between a 64 owner's selection and a IBM PCJr/PC's is wide and not soon to be bridged-if ever.</em>" +
+				"</p><p>" +
+				"But Creative Computing was more optimistic, in October 1983 <a href=\"https://archive.org/details/CreativeComputingbetterScan198311/page/n135/mode/1up\">reporting</a>, <em>Sierra On-Line has entered the slowly maturing Commodore 64 software market with three converted Apple games</em>. " +
+				"And in December <a href=\"https://archive.org/details/CreativeComputingbetterScan198312/page/n328/mode/1up\">writing</a>, " +
+				"<em>Not to slight original efforts for the 64, but frankly, the best software packages available for the Commodore 64 right now are translations from the Apple and Atari</em> [game ports]. " +
+				"<em>The top-notch houses, including Sierra On-Line, Sirius, and Synapse, are working night and day to translate their hits for the 64.</em> " +
+				"</p><p>" +
+				"While 1983 was an amazing year for Commodore, it was likely due to massive sales of the VIC&hyphen;20. It would take until 1984 for the Commodore 64 to solve many of the supply issues, to improve quality control, and  continue to see reductions in prices. " +
+				"1984 would launch or see the start of several dedicated magazines, including RUN and Ahoy! in the USA; 64'er and Input 64 in Germany, and UK's Your Commodore. But importantly, in 1984, the Commodore 64 would see wider support from software publishers, with the year starting with " +
+				"<em><a href=\"https://archive.org/details/1984-01-computegazette/page/n3/mode/2up\">Electronics Arts Comes To The Commodore</a></em> and other majors, like Strategic Simulations Inc., <a href=\"https://archive.org/details/1984-01-computegazette/page/n84/mode/1up\">following</a>." +
+				"</p><p>" +
+				"The Commodore 64 became the all time, best-selling microcomputer, with many millions sold.</p>",
+
+			// "<p>January 1983 saw the beginning of the juggernaut, the <strong>Commodore&nbsp;64</strong> microcomputer, a platform that became the world's best-selling computer for decades. " +
+			// 	"It was released in limited numbers in August 1982 for the US market, but sales blew up in the lead to Christmas, and with multiple mass price cuts, it became a massive worldwide success in the following years.</p>" +
+			// 	"<p>The Commodore&nbsp;64 became the first mass-market computer and piracy platform.</p>" +
+			// 	"Ironically, it is a Scene that at least partly materialized out of Commodore itself, according to Brian Bagnall's book On the Edge. For <a href=\"https://computerhistory.org/profile/bil-herd/\">Bil Herd</a>, " +
+			// 	"<q>The worst thing you could do was submit a copy of something to the (Commodore) games and applications group.</q> " +
+			// 	"He felt several bad actors were employed in that department, claiming that by late 1983, <q>There were a few nefarious types that would generally make sure a cracked version of the game was available within a week.</q>",
+		},
+		{
+			Title: "The Berlin Bear controversy", Year: 1984,
+			Lead: "Commodore 64",
+			Content: "<p>Many long argued in the Demoscene that <em>a <q>1982</q> Berlin Cracking Service image</em> of the Berlin Bear" +
+				" <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a></sup> " +
+				"was the first ever intro or cracktro. " +
+				"However, this conveniently ignores the crack screens and animations found on the Apple II from 1980 onwards, " +
+				"like the <strong><a href=\"https://demozoo.org/productions/381802\">April&nbsp;1981&nbsp;intro</a></strong> by The Razor. " +
+				"The claim was always ridiculous, plus, the Berlin Bear image likely originates from 1984, and not 1982<sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup>.</p>" +
+				"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
+				", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
+				"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
+				"<p>However, it is claimed some crackers such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\" appeared on the platform in 1982 and operated in West Berlin. " +
+				"Why would German hacker kids in 1982, in isolation, import business computers, and use English-language \"elite\" vocabulary to brand themselves as crackers? " +
+				"There were no machines in Europe, nor were there floppy disk drives; so there was no software to \"crack\".</p>" +
+				sect0 +
+				"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
+				"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
+				"<a href=\"https://csdb.dk/release/?id=35670\">conversation on CSDb</a>, " +
+				"<a href=\"https://m.pouet.net/prod.php?which=17555\">conversation on Pouët</a>, and " +
+				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
+				div1 +
+				"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the Berlin Bear logo was created in Paint Magic by Datasoft, " +
+				"a floppy disk paint application published in the USA in 1983, that saw a <a href=\"http://www.mycommodore64.com/2011/07/22/the-magic-in-paint-magic/\">cracked release</a> in 1984.</div>" +
+				"<div id=\"berlin-bear-controversy-fn3\">[3] \"In August 1982, Commodore finally produced (ed: in Santa Clara, CA) enough C64 computers to start making small shipments to dealers.\", Commodore: a company on the edge.</div>" +
+				"<div id=\"berlin-bear-controversy-fn4\">[4] \"None of the advertising touted the superior sound and graphics capabilities of the Commodore 64 since the in-house software from Commodore in late 1982 did little to exploit the abilities of these chips\", Commodore: a company on the edge.</div>" +
+				"<div id=\"berlin-bear-controversy-fn5\">[5] \"For the office. Or the home office\" advert, found in the October 1983 issue of Practical Computing UK, " +
+				"<a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>." +
+				sect1,
+			Picture: Picture{
+				Title:       "Berlin Bear upside down",
+				Alt:         "A screenshot of the Berlin Bear image for the Commodore 64.",
+				Png:         "berlin-bear.png",
+				Attribution: "Jazzcat",
 			},
 		},
 		{
