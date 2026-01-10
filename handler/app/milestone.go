@@ -1062,12 +1062,13 @@ func Collection() Milestones {
 				"The issue features a prime C&hyphen;64 <a href=\"https://archive.org/details/CreativeComputingbetterScan198301/page/n346/mode/1up\">advert</a> from Commodore. However, in the subsequent magazine issues, Commodore <a href=\"https://archive.org/details/CreativeComputingbetterScan198303/page/n112/mode/1up\">replaced</a> the new C&hyphen;64 ad with advertising for the older VIC&hyphen;20. " +
 				"A <a href=\"https://archive.org/details/CreativeComputingbetterScan198304/page/n293/mode/1up\">citation</a> in the April 1983 issue may suggest why, <em>According to Neil Harris, in 1980, 10,000 Vic 20 units were sold nationwide. Toward the end of 1982, Commodore was manufacturing 10,000 Vic 20 units per day. And the new machine, the 64, is back-ordered in the tens of thousands of units.</em>" +
 				"</p><p>" +
-				"Another issue that plagued the C&hyphen;64 in North America was the unavailability of the disk drive. Creative Computing <a href=\"https://archive.org/details/CreativeComputingbetterScan198308/page/n230/mode/1up\">wrote</a> in August 1983, " +
+				"Another issue that plagued the C&hyphen;64 in the USA was the unavailability of the disk drive. Creative Computing <a href=\"https://archive.org/details/CreativeComputingbetterScan198308/page/n230/mode/1up\">wrote</a> in August 1983, " +
 				"<em>You could make an investment in the speed, convenience, and reliability of a disk drive. The only problem with this approach is cost, which in some cases exceeds that of the computer itself. " +
 				"But if you chose not to part with $400 for a drive, you were stuck with the very dreary prospect of cassette storage.</em> " +
 				"Compute! December 1983 would <a href=\"https://archive.org/details/1983-12-computegazette/page/n7/mode/1up\">report</a>, <em>We are hearing that 1541 drives are virtually unavailable, and that many drives purchased before the supply dried up suffer from reliability problems</em> " +
 				"and later confirming <em>the nearly total absence of 1541s from dealers' shelves in August and September.</em> " +
-				"This was a problem for the nine of every ten C-64 buyers who were after the drive." +
+				"A problem for the 9-of-10 buyers wanting the drive, " +
+				"[C-64] <em>sales with disk drives are running at 90 percent.</em>" +
 				"</p><p>" +
 				"However, the biggest problem for the platform throughout 1983 was the lack of software availability, which was emphasized in many publications. " +
 				"Compute! <a href=\"https://archive.org/details/1983-08-computegazette/page/n25/mode/1up\">wrote</a> in August, <em>Although the Commodore 64 has been around for almost a year now, software is still scarce. There are many good programs available, but merchants and customers are frustrated that there aren't more.</em> " +
@@ -1080,7 +1081,7 @@ func Collection() Milestones {
 				"<em>The top-notch houses, including Sierra On-Line, Sirius, and Synapse, are working night and day to translate their hits for the 64.</em> " +
 				"</p><p>" +
 				"While 1983 was an amazing year for Commodore, it was likely due to massive sales of the VIC&hyphen;20. It would take until 1984 for the Commodore 64 to solve many of the supply issues, to improve quality control, and  continue to see reductions in prices. " +
-				"1984 would launch or see the start of several dedicated magazines, including RUN and Ahoy! in the USA; 64'er and Input 64 in Germany, and UK's Your Commodore. But importantly, in 1984, the Commodore 64 would see wider support from software publishers, with the year starting with " +
+				"1984 would launch or see the start of several dedicated magazines, including RUN and Ahoy! in the USA; 64'er and Input 64 in Germany, and UK's Your Commodore. But importantly, in 1984, the Commodore 64 would see wider support from software publishers, with the new year opening with " +
 				"<em><a href=\"https://archive.org/details/1984-01-computegazette/page/n3/mode/2up\">Electronics Arts Comes To The Commodore</a></em> and other majors, like Strategic Simulations Inc., <a href=\"https://archive.org/details/1984-01-computegazette/page/n84/mode/1up\">following</a>." +
 				"</p><p>" +
 				"The Commodore 64 became the all time, best-selling microcomputer, with many millions sold.</p>",
@@ -1095,37 +1096,61 @@ func Collection() Milestones {
 		{
 			Title: "The Berlin Bear controversy", Year: 1984,
 			Lead: "Commodore 64",
-			Content: "<p>Many long argued in the Demoscene that <em>a <q>1982</q> Berlin Cracking Service image</em> of the Berlin Bear" +
-				" <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a></sup> " +
-				"was the first ever intro or cracktro. " +
-				"However, this conveniently ignores the crack screens and animations found on the Apple II from 1980 onwards, " +
-				"like the <strong><a href=\"https://demozoo.org/productions/381802\">April&nbsp;1981&nbsp;intro</a></strong> by The Razor. " +
-				"The claim was always ridiculous, plus, the Berlin Bear image likely originates from 1984, and not 1982<sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup>.</p>" +
-				"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
-				", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
-				"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
-				"<p>However, it is claimed some crackers such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\" appeared on the platform in 1982 and operated in West Berlin. " +
-				"Why would German hacker kids in 1982, in isolation, import business computers, and use English-language \"elite\" vocabulary to brand themselves as crackers? " +
-				"There were no machines in Europe, nor were there floppy disk drives; so there was no software to \"crack\".</p>" +
-				sect0 +
-				"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
-				"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
-				"<a href=\"https://csdb.dk/release/?id=35670\">conversation on CSDb</a>, " +
-				"<a href=\"https://m.pouet.net/prod.php?which=17555\">conversation on Pouët</a>, and " +
-				"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
-				div1 +
-				"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the Berlin Bear logo was created in Paint Magic by Datasoft, " +
-				"a floppy disk paint application published in the USA in 1983, that saw a <a href=\"http://www.mycommodore64.com/2011/07/22/the-magic-in-paint-magic/\">cracked release</a> in 1984.</div>" +
-				"<div id=\"berlin-bear-controversy-fn3\">[3] \"In August 1982, Commodore finally produced (ed: in Santa Clara, CA) enough C64 computers to start making small shipments to dealers.\", Commodore: a company on the edge.</div>" +
-				"<div id=\"berlin-bear-controversy-fn4\">[4] \"None of the advertising touted the superior sound and graphics capabilities of the Commodore 64 since the in-house software from Commodore in late 1982 did little to exploit the abilities of these chips\", Commodore: a company on the edge.</div>" +
-				"<div id=\"berlin-bear-controversy-fn5\">[5] \"For the office. Or the home office\" advert, found in the October 1983 issue of Practical Computing UK, " +
-				"<a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>." +
-				sect1,
+			Content: "<p>" +
+				"Way back in the 2000s, many in the Demoscene <a href=\"\">argued</a> that a 1982 Berlin Bear image drawn for the Commodore 64 cracker group " +
+				"<a href=\"\">Berlin Cracking Service</a> was the first ever Scene intro and cracktro. However, the <a href=\"\">claim</a> was outlandish for multiple reasons, and either it was fabricated or a memory bias. Unfortunately, memory bias and conjecture are quite common when reflecting on the early Scene." +
+				"</p><p>" +
+				"The Scener, Jazzcat <a href=\"\">wrote</a> of the cracktro, [the group] <em>for some time claimed the glory of having the first real crack intro which was the famous screen</em>. Of the image itself, <em>the picture was discovered to be in Paint Magic format which did not appear until 1983.</em> " +
+				"</p><p>" +
+				"Paint Magic, authored by Mark Riley, was a drawing tool that sold for $50 by the Californian company Datamost for the Commodore 64. " +
+				"However, despite the &copy;1983 in the <a href=\"https://archive.org/details/game_manual_Paint_Magic/page/n3/mode/2up\">manual</a>, it was likely released in 1984. " +
+				"Given that it was <a href=\"https://archive.org/details/cbm_magazine_index-power_play/power_play/1984/power_play-08-198403/page/n21/mode/1up?q=datamost+paint+magic\">showcased</a> at January's CES '84, " +
+				"and the <a href=\"https://archive.org/details/ahoy-magazine-08/page/n48/mode/1up\">reviews</a> and " +
+				"<a href=\"https://archive.org/details/the-everything-book-for-the-commodor-c-64-vic-20-home-computer-summer-1984/page/22/mode/1up?q=datamost+paint+magic\">reseller ads</a> are only found in magazines of 1984 and 1985." +
+				"</p><p>" +
+				"So far, the image itself has only been discovered in cracks of games that were published in mid-1984. These happen to be ports of Activision titles that were advertised as <em><a href=\"https://archive.org/details/computes-gazette-issue-015-september-1984/page/18/mode/2up\">Introducing Activision For Your Commodore 64</a></em> in the August and September issues of various Commodore magazines. " +
+				"Ahoy <u>September 1984</u> <a href=\"https://archive.org/details/ahoy-magazine-09/page/n8/mode/1up\">writes</a> under New Games Update, " +
+				"<em>Activision's Pitfall II: Lost Caverns, forecast in these pages in July, is now available</em>, which dates <a href=\"https://demozoo.org/productions/382466/\">this</a> Berlin Bear usage." +
+				"</p><p>" +
+				"And assuming the Berlin Bear artwork is from early or late 1984, there are dozens of examples of prior Scene art on the Commodore." +
+				"</p><p>" +
+				"Today, the most obvious counterpoint to <q>being first</q> is the Apple II cracking Scene productions that existed years before the Commodore 64. " +
+				"There's the text artwork <a href=\"https://demozoo.org/productions/380718/\">loader</a> by The Tornado that is self-dated to November 1980. " +
+				"As well as the animated <a href=\"https://demozoo.org/productions/381802/\">loader</a> created by &hyphen;The Razor&hyphen; for a game repack self-dated to April 1981. " +
+				"And Apple cracking groups such as the Midwest Pirate Guild were using custom art in their 1983 <a href=\"https://demozoo.org/productions/288324/\">loaders</a>." +
+				"</p>",
+
+			// "<p>Many long argued in the Demoscene that <em>a <q>1982</q> Berlin Cracking Service image</em> of the Berlin Bear" +
+			// 	" <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a></sup> " +
+			// 	"was the first ever intro or cracktro. " +
+			// 	"However, this conveniently ignores the crack screens and animations found on the Apple II from 1980 onwards, " +
+			// 	"like the <strong><a href=\"https://demozoo.org/productions/381802\">April&nbsp;1981&nbsp;intro</a></strong> by The Razor. " +
+			// 	"The claim was always ridiculous, plus, the Berlin Bear image likely originates from 1984, and not 1982<sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup>.</p>" +
+			// 	"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
+			// 	", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
+			// 	"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
+			// 	"<p>However, it is claimed some crackers such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\" appeared on the platform in 1982 and operated in West Berlin. " +
+			// 	"Why would German hacker kids in 1982, in isolation, import business computers, and use English-language \"elite\" vocabulary to brand themselves as crackers? " +
+			// 	"There were no machines in Europe, nor were there floppy disk drives; so there was no software to \"crack\".</p>" +
+			// 	sect0 +
+			// 	"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
+			// 	"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
+			// 	"<a href=\"https://csdb.dk/release/?id=35670\">conversation on CSDb</a>, " +
+			// 	"<a href=\"https://m.pouet.net/prod.php?which=17555\">conversation on Pouët</a>, and " +
+			// 	"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
+			// 	div1 +
+			// 	"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the Berlin Bear logo was created in Paint Magic by Datasoft, " +
+			// 	"a floppy disk paint application published in the USA in 1983, that saw a <a href=\"http://www.mycommodore64.com/2011/07/22/the-magic-in-paint-magic/\">cracked release</a> in 1984.</div>" +
+			// 	"<div id=\"berlin-bear-controversy-fn3\">[3] \"In August 1982, Commodore finally produced (ed: in Santa Clara, CA) enough C64 computers to start making small shipments to dealers.\", Commodore: a company on the edge.</div>" +
+			// 	"<div id=\"berlin-bear-controversy-fn4\">[4] \"None of the advertising touted the superior sound and graphics capabilities of the Commodore 64 since the in-house software from Commodore in late 1982 did little to exploit the abilities of these chips\", Commodore: a company on the edge.</div>" +
+			// 	"<div id=\"berlin-bear-controversy-fn5\">[5] \"For the office. Or the home office\" advert, found in the October 1983 issue of Practical Computing UK, " +
+			// 	"<a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>." +
+			// 	sect1,
 			Picture: Picture{
 				Title:       "Berlin Bear upside down",
 				Alt:         "A screenshot of the Berlin Bear image for the Commodore 64.",
 				Png:         "berlin-bear.png",
-				Attribution: "Jazzcat",
+				Attribution: "Jazzcat but flipped by us",
 			},
 		},
 		{
