@@ -1035,7 +1035,7 @@ func Collection() Milestones {
 				"But if you chose not to part with $400 for a drive, you were stuck with the very dreary prospect of cassette storage.</em> " +
 				"Compute! December 1983 would <a href=\"https://archive.org/details/1983-12-computegazette/page/n7/mode/1up\">report</a>, <em>We are hearing that 1541 drives are virtually unavailable, and that many drives purchased before the supply dried up suffer from reliability problems</em> " +
 				"and later confirming <em>the nearly total absence of 1541s from dealers' shelves in August and September.</em> " +
-				"A problem for the 9-of-10 buyers wanting the drive, " +
+				"A problem for most buyers wanting the drive, " +
 				"[C-64] <em>sales with disk drives are running at 90 percent.</em>" +
 				"</p><p>" +
 				"However, the biggest problem for the platform throughout 1983 was the lack of software availability, which was emphasized in many publications. " +
