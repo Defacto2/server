@@ -101,7 +101,7 @@ func Collection() Milestones {
 				License:     "CC BY-SA 4.0",
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/",
 			},
-		}, // https://umedia.lib.umn.edu/item/p16022coll91:193
+		},
 		{
 			Year: 1972, Title: "The first user-focused platform",
 			Lead: "The PLATO IV", LinkTitle: "about the PLATO", Link: "https://arstechnica.com/gadgets/2023/03/plato-how-an-educational-computer-system-from-the-60s-shaped-the-future/",
@@ -408,16 +408,6 @@ func Collection() Milestones {
 				"So many owners resorted to building software, and the BASIC programming language had an easy learning curve. " +
 				"Though Microsoft didn't invent the language, its implementation was considered the gold standard.</p>",
 		},
-		// {
-		// 	title: "first commercial software for x86",
-		// 	year:  1979, month: 6, day: 18,
-		// 	lead: "microsoft basic-86", linktitle: "microsoft introduces basic-86",
-		// 	link: "https://thisdayintechhistory.com/06/18/microsoft-introduces-basic-for-8086/",
-		// 	content: "<a href=\"https://www.computerhistory.org/collections/catalog/102623976\">microsoft basic</a> and its many revisions were the first killer applications for microsoft in its early years. " +
-		// 		"microcomputers were often sold to enthusiasts or businesses, but the software availability for these machines was lacking. " +
-		// 		"so many owners resorted to building software, and the basic programming language had an easy learning curve. " +
-		// 		"though microsoft didn't invent the language, its implementation was considered the gold standard.",
-		// },
 		{
 			Title: "The early online underground", Year: 1979, Highlight: true,
 			Lead: "CBBS, ABBS, and the Apple II microcomputer",
@@ -474,7 +464,6 @@ func Collection() Milestones {
 		{
 			Title: "Widespread disk copying leads to copy protections", Year: 1979,
 			Link: "https://vintageapple.org/softalk/pdf/SOFTALK_8010_v1_n02.pdf", LinkTitle: "the October 1980 issue of Softalk",
-			// Lead: "Some possible early examples of broken disk copy protections",
 			Content: "" +
 				"<p>It's easy to imagine software piracy in the early microcomputer era as online exchanges. " +
 				"Online digital services existed in the late 1970s ~ early 1980s, and one might assume that is how piracy was always done. " +
@@ -594,11 +583,9 @@ func Collection() Milestones {
 				div1 +
 				sect1,
 			Picture: Picture{
-				Title: "Tank Command - Kraked By Copy/Cat - No Rights Reserved",
-				Alt:   "Tank Command kracked by screenshot on the Apple II",
-				Png:   "tcommand.png",
-				// License:     "CC BY-SA 4.0",
-				// LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
+				Title:       "Tank Command - Kraked By Copy/Cat - No Rights Reserved",
+				Alt:         "Tank Command kracked by screenshot on the Apple II",
+				Png:         "tcommand.png",
 				Attribution: "Jason Scott",
 			},
 		},
@@ -667,13 +654,6 @@ func Collection() Milestones {
 				"<br>EDLIN version 1.00<br>" +
 				`End of input file<br>*<span class="blinking">_</span><br>` +
 				`</p></pre>`,
-			// Picture: Picture{
-			// 	Title:       "Seattle Computer Products 86-DOS startup",
-			// 	Png:         "86-dos.png",
-			// 	License:     "CC BY-SA 4.0",
-			// 	LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
-			// 	Attribution: "WinWorld",
-			// },
 		},
 		{
 			Title: "Motorola 68000 16-bit CPU", Year: 1980, Month: 11,
@@ -972,18 +952,6 @@ func Collection() Milestones {
 				"<p>It took a decade before graphical interfaces on the PC replaced text in business computing with Windows&nbsp;NT&nbsp;<sup>1993</sup> and even longer with Windows&nbsp;95&nbsp;<sup>1995</sup> before it became commonplace in the home." +
 				" Other microcomputer platforms, such as the <span class=\"text-nowrap\">Apple&nbsp;Macintosh <sup>1984</sup></span>, <span class=\"text-nowrap\">Commodore&nbsp;Amiga</span> and <span class=\"text-nowrap\">Atari&nbsp;ST&nbsp;<sup>1985</sup></span> came with a GUI as standard.</p>",
 		},
-		// {
-		// 	Title: "Major videogame publishers enter the PC market", Year: 1983,
-		// 	Content: "<p>1983 saw some major arcade and video game publishers release software on the PC. Despite the business-centric marketing of the platform, game software sold on a floppy disk was a popular seller. " +
-		// 		"For publishers, it is less risky than manufacturing the expensive cartridges required by some other game systems.</p>" +
-		// 		ul0 +
-		// 		"<li><a href=\"//dfarq.homeip.net/atarisoft-if-you-cant-beat-em-join-em/\">Atarisoft</a> was the publishing arm of the computer, console, and arcade game maker.</li>" +
-		// 		"<li><a href=\"//www.uvlist.net/companies/info/243-Infocom\">Infocom</a> founded by the Massachusetts Institute of Technology staff and students to create story narrative games.</li>" +
-		// 		"<li><a href=\"//www.resetera.com/threads/lets-look-back-at-game-company-datasoft.587093/##post-87110411\">Datasoft</a> created licensed film, television assets, and arcade ports.</li>" +
-		// 		"<li><a href=\"//www.uvlist.net/companies/info/83-Mattel%20Electronics\">Mattel</a> was the creator of the Intellivision console and numerous games.</li>" +
-		// 		"<li><a href=\"//www.wired.com/story/sierra-online-ken-williams-interview-memoir/\">Sierra On-Line</a> became one of the biggest PC publishers of the 1980s and the flag-barrier of the graphic adventure genre.</li>" +
-		// 		ul1,
-		// },
 		{
 			Title: "Earliest Unprotect texts", Year: 1983, Highlight: true,
 			Lead: "So far, Unprotects for Lotus 1-2-3", LinkTitle: "the Unprotect texts",
@@ -1085,25 +1053,18 @@ func Collection() Milestones {
 				"<em><a href=\"https://archive.org/details/1984-01-computegazette/page/n3/mode/2up\">Electronics Arts Comes To The Commodore</a></em> and other majors, like Strategic Simulations Inc., <a href=\"https://archive.org/details/1984-01-computegazette/page/n84/mode/1up\">following</a>." +
 				"</p><p>" +
 				"The Commodore 64 became the all time, best-selling microcomputer, with many millions sold.</p>",
-
-			// "<p>January 1983 saw the beginning of the juggernaut, the <strong>Commodore&nbsp;64</strong> microcomputer, a platform that became the world's best-selling computer for decades. " +
-			// 	"It was released in limited numbers in August 1982 for the US market, but sales blew up in the lead to Christmas, and with multiple mass price cuts, it became a massive worldwide success in the following years.</p>" +
-			// 	"<p>The Commodore&nbsp;64 became the first mass-market computer and piracy platform.</p>" +
-			// 	"Ironically, it is a Scene that at least partly materialized out of Commodore itself, according to Brian Bagnall's book On the Edge. For <a href=\"https://computerhistory.org/profile/bil-herd/\">Bil Herd</a>, " +
-			// 	"<q>The worst thing you could do was submit a copy of something to the (Commodore) games and applications group.</q> " +
-			// 	"He felt several bad actors were employed in that department, claiming that by late 1983, <q>There were a few nefarious types that would generally make sure a cracked version of the game was available within a week.</q>",
 		},
 		{
 			Title: "The Berlin Bear controversy", Year: 1984,
 			Lead: "Commodore 64",
 			Content: "<p>" +
-				"Way back in the 2000s, many in the Demoscene <a href=\"\">argued</a> that a 1982 Berlin Bear image drawn for the Commodore 64 cracker group " +
-				"<a href=\"\">Berlin Cracking Service</a> was the first ever Scene intro and cracktro. However, the <a href=\"\">claim</a> was outlandish for multiple reasons, and either it was fabricated or a memory bias. Unfortunately, memory bias and conjecture are quite common when reflecting on the early Scene." +
+				"Way back in the 2000s, many in the Demoscene <a href=\"https://www.pouet.net/prod.php?which=17555\">argued</a> that a 1982 Berlin Bear image drawn for the Commodore 64 cracker group " +
+				"<a href=\"https://csdb.dk/group/?id=2845\">Berlin Cracking Service</a> was the first ever Scene intro and cracktro. However, the <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">claim</a> was outlandish for multiple reasons, and either it was fabricated or a memory bias. Unfortunately, memory bias and conjecture are quite common when reflecting on the early Scene." +
 				"</p><p>" +
-				"The Scener, Jazzcat <a href=\"\">wrote</a> of the cracktro, [the group] <em>for some time claimed the glory of having the first real crack intro which was the famous screen</em>. Of the image itself, <em>the picture was discovered to be in Paint Magic format which did not appear until 1983.</em> " +
+				"The Scener, Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">wrote</a> of the cracktro, [the group] <em>for some time claimed the glory of having the first real crack intro which was the famous screen</em>. Of the image itself, <em>the picture was discovered to be in Paint Magic format which did not appear until 1983.</em> " +
 				"</p><p>" +
-				"Paint Magic, authored by Mark Riley, was a drawing tool that sold for $50 by the Californian company Datamost for the Commodore 64. " +
-				"However, despite the &copy;1983 in the <a href=\"https://archive.org/details/game_manual_Paint_Magic/page/n3/mode/2up\">manual</a>, it was likely released in 1984. " +
+				"Paint Magic, authored by Mark Riley, was a drawing tool for the Commodore 64 that sold for $50 by the Californian company Datamost. " +
+				"However, despite the &copy;1983 in the print <a href=\"https://archive.org/details/game_manual_Paint_Magic/page/n3/mode/2up\">manual</a>, it was likely released in 1984. " +
 				"Given that it was <a href=\"https://archive.org/details/cbm_magazine_index-power_play/power_play/1984/power_play-08-198403/page/n21/mode/1up?q=datamost+paint+magic\">showcased</a> at January's CES '84, " +
 				"and the <a href=\"https://archive.org/details/ahoy-magazine-08/page/n48/mode/1up\">reviews</a> and " +
 				"<a href=\"https://archive.org/details/the-everything-book-for-the-commodor-c-64-vic-20-home-computer-summer-1984/page/22/mode/1up?q=datamost+paint+magic\">reseller ads</a> are only found in magazines of 1984 and 1985." +
@@ -1119,33 +1080,6 @@ func Collection() Milestones {
 				"As well as the animated <a href=\"https://demozoo.org/productions/381802/\">loader</a> created by &hyphen;The Razor&hyphen; for a game repack self-dated to April 1981. " +
 				"And Apple cracking groups such as the Midwest Pirate Guild were using custom art in their 1983 <a href=\"https://demozoo.org/productions/288324/\">loaders</a>." +
 				"</p>",
-
-			// "<p>Many long argued in the Demoscene that <em>a <q>1982</q> Berlin Cracking Service image</em> of the Berlin Bear" +
-			// 	" <sup><a href=\"#berlin-bear-controversy-fn1\">[1]</a></sup> " +
-			// 	"was the first ever intro or cracktro. " +
-			// 	"However, this conveniently ignores the crack screens and animations found on the Apple II from 1980 onwards, " +
-			// 	"like the <strong><a href=\"https://demozoo.org/productions/381802\">April&nbsp;1981&nbsp;intro</a></strong> by The Razor. " +
-			// 	"The claim was always ridiculous, plus, the Berlin Bear image likely originates from 1984, and not 1982<sup><a href=\"#berlin-bear-controversy-fn2\">[2]</a></sup>.</p>" +
-			// 	"<p>While there were Commodore 64 computers in the wild in 1982. They were only available in limited numbers in Japan and the USA" +
-			// 	", <sup><a href=\"#berlin-bear-controversy-fn3\">[3]</a></sup> " +
-			// 	"and the machine was marketed for work use. <sup><a href=\"#berlin-bear-controversy-fn4\">[4]</a></sup> <sup><a href=\"#berlin-bear-controversy-fn5\">[5]</a></sup></p>" +
-			// 	"<p>However, it is claimed some crackers such as \"Cracking Force Berlin\" and \"Berlin Cracking Service\" appeared on the platform in 1982 and operated in West Berlin. " +
-			// 	"Why would German hacker kids in 1982, in isolation, import business computers, and use English-language \"elite\" vocabulary to brand themselves as crackers? " +
-			// 	"There were no machines in Europe, nor were there floppy disk drives; so there was no software to \"crack\".</p>" +
-			// 	sect0 +
-			// 	"<div id=\"berlin-bear-controversy-fn1\">[1] Conversations on the Berlin Bear, " +
-			// 	"<a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">Interview in Vandalism News #46</a>, " +
-			// 	"<a href=\"https://csdb.dk/release/?id=35670\">conversation on CSDb</a>, " +
-			// 	"<a href=\"https://m.pouet.net/prod.php?which=17555\">conversation on Pouët</a>, and " +
-			// 	"<a href=\"https://intros.c64.org/main.php?module=showintro&iid=156\">conversation on intros.c64.org</a>." +
-			// 	div1 +
-			// 	"<div id=\"berlin-bear-controversy-fn2\">[2] Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">writes</a> the Berlin Bear logo was created in Paint Magic by Datasoft, " +
-			// 	"a floppy disk paint application published in the USA in 1983, that saw a <a href=\"http://www.mycommodore64.com/2011/07/22/the-magic-in-paint-magic/\">cracked release</a> in 1984.</div>" +
-			// 	"<div id=\"berlin-bear-controversy-fn3\">[3] \"In August 1982, Commodore finally produced (ed: in Santa Clara, CA) enough C64 computers to start making small shipments to dealers.\", Commodore: a company on the edge.</div>" +
-			// 	"<div id=\"berlin-bear-controversy-fn4\">[4] \"None of the advertising touted the superior sound and graphics capabilities of the Commodore 64 since the in-house software from Commodore in late 1982 did little to exploit the abilities of these chips\", Commodore: a company on the edge.</div>" +
-			// 	"<div id=\"berlin-bear-controversy-fn5\">[5] \"For the office. Or the home office\" advert, found in the October 1983 issue of Practical Computing UK, " +
-			// 	"<a href=\"https://worldradiohistory.com/UK/Practical-Computing/80s/Practical-Computing-1983-10-S-OCR.pdf\">pages 74-75</a>." +
-			// 	sect1,
 			Picture: Picture{
 				Title:       "Berlin Bear upside down",
 				Alt:         "A screenshot of the Berlin Bear image for the Commodore 64.",
@@ -1162,16 +1096,6 @@ func Collection() Milestones {
 				"<br>In 1987, Rick would also go on to found one of the earliest ISPs, UUNET. " +
 				"Which in the following year would offer the first commercial connection to the Internet.",
 		},
-		// {
-		// 	Title: "Major game publishers enter the PC market", Year: 1984,
-		// 	Content: "<p>Electronic Arts, Activision, Sega, and MicroProse Software publish on the platform.</p>" +
-		// 		ul0 +
-		// 		"<li><a href=\"//www.polygon.com/a/how-ea-lost-its-soul/\">Electronic Arts</a> was founded in 1982 by former Apple employee Trip Hawkins and initially developed for the Atari&nbsp;400/800 and later Commodore&nbsp;64.</li>" +
-		// 		"<li><a href=\"//www.ign.com/articles/2010/10/01/the-history-of-activision\">Activision</a> originated in late 1979 as the first 3rd-party developer for the Atari&nbsp;2600, comprising former Atari employees.</li>" +
-		// 		"<li><a href=\"//segaretro.org/IBM_PC\">Sega</a> was a significant arcade game developer.</li>" +
-		// 		"<li><a href=\"//corporate-ient.com/microprose/\">MicroProse Software</a> was the company founded by Sid Meier and Bill Stealey in 1982 to create games for the Atari&nbsp;400/800.</li>" +
-		// 		ul1,
-		// },
 		{
 			Prefix: "The earliest PC groups,", Year: 1984,
 			List: Links{
@@ -1277,11 +1201,6 @@ func Collection() Milestones {
 				"           ║      ║ ║    ║   ║   ║   ║     │     ║<br>" +
 				"                                     ╚═══  ╘═════╝<br>" +
 				"</pre>",
-			// Picture: Picture{
-			// 	Title: "How to WIN at KING's QUEST on the IBM PC/PCjr as tabulated by The Illinois Pirates",
-			// 	Alt:   "A screenshot of The Illinois Pirates text logo",
-			// 	Png:   "bc30a5b.png",
-			// },
 		},
 		{
 			Title: "Earliest ANSI ad", Year: 1985, Month: 8, Highlight: false,
@@ -1311,12 +1230,6 @@ func Collection() Milestones {
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">╚════════════════════════════════════╝</span><br>` +
 				`<span style="color:#aaa;">        </span><span style="color:#fff;background-color:#00a;">For those who use the computer for</span><br>` +
 				`<span style="color:#aaa;">        </span><span style="color:#fff;background-color:#00a;">recreation. </span><span style="color:#fff;background-color:#a00;">THE GAME</span><span style="color:#fff;background-color:#00a;"> </span><span style="color:#fff;background-color:#a00;">GALLERY.</span><br><br></div></pre>`,
-			// Picture: Picture{
-			// 	Title: "The Game Gallery",
-			// 	Alt:   "The Game Gallery ad screenshot",
-			// 	Webp:  "ba2bcbb.webp",
-			// 	Png:   "ba2bcbb.png",
-			// },
 		},
 		{
 			Title: "Razor 1911 is named", Year: 1985, Month: 11,
@@ -1600,62 +1513,7 @@ func Collection() Milestones {
 				"further.<br><br>" +
 				"If all you want are the Latest warez FIRST call us we have them, or " +
 				"we've just cracked them.<br><br></pre>",
-			// Picture: Picture{
-			// 	Title: "Swashbucklers II",
-			// 	Alt:   "Swashbucklers II text advert screenshot",
-			// 	Webp:  "b844ef.webp",
-			// 	Png:   "b844ef.png",
-			// },
 		},
-		// {
-		// 	Title: "Earliest, proto NFO text", Year: 1988, Month: 7, Day: 30, Highlight: false,
-		// 	Lead: "So far, Bentley Sidwell Productions", LinkTitle: "the file", Link: "/f/ad417f",
-		// 	Content: "<p><strong>NFO</strong> information text files are usually distributed with pirated software to provide usage instructions, promote the release group, and occasionally encourage group propaganda.</p>" +
-		// 		"<p>Bentley Sidwell Productions may have released the earliest NFO-like document for the 1988 <a href=\"https://www.mobygames.com/game/9093/romance-of-the-three-kingdoms/cover/group-9976/cover-249195/\">Romance of The Three Kingdoms</a> game.</p>" +
-		// 		"<pre>" +
-		// 		"************************************************************************" + br +
-		// 		br +
-		// 		"  Romance of The Three Kingdoms" + br +
-		// 		"    - (KOEI) -" + br +
-		// 		"  \"We Supply The Past, You Make The History\"" + br +
-		// 		br +
-		// 		"***********************************************************************" + br +
-		// 		br +
-		// 		"Welcome to the wonderful world of second century China.. China's" + br +
-		// 		"second dynasty has collapsed and the entire nation battles itself for" + br +
-		// 		"supremacy in this most interesting action game from Koei.." + br +
-		// 		br +
-		// 		"Floppy users: UnARC - ROTK-1.ARC onto Disk #1..." + br +
-		// 		"                      ROTK-2.ARC onto Disk #2..." + br +
-		// 		"                      ROTK-3.ARC onto Disk #3..." + br +
-		// 		br +
-		// 		"Hard Drive:   UnARC - All Files Into One Directory..." + br +
-		// 		br +
-		// 		"Nothing to edit... nothing.</pre>",
-		// },
-		// {
-		// 	Title: "The earliest ASCII art on PC", Year: 1988, Month: 10, Day: 6, Highlight: true,
-		// 	Lead: "So far, Another quality ware from $print", LinkTitle: "and view the file", Link: "/f/ab3dc1",
-		// 	Content: "<strong>$print</strong> for the game Fire Power released the earliest known <strong>ASCII art</strong>. " +
-		// 		"The ASCII text logo is relatively crude and less detailed than later ASCII art. " +
-		// 		"<pre> ╔═══════════════════════════════╗<br>" +
-		// 		"╔╝      Another Quality Ware     ╚╗<br>" +
-		// 		"║          F  R  O  M             ║<br>" +
-		// 		"║                                 ║<br>" +
-		// 		"║   ┌┼┼┼ ┌─┐┌──┐ ─┬─ │\\  │──┬──   ║<br>" +
-		// 		"║   └┼┼┼┐┼─┘│─┬┘  │  │ \\ │  │     ║<br>" +
-		// 		"║   ─┼┼┼┘│  │ └─ ─┴─ │  \\│  │     ║<br>" +
-		// 		"╚═════════════════════════════════╝<br>" +
-		// 		"║  The Ultimate Empire [USA]      ║<br>" +
-		// 		"║  Warez R Us          [CAN]      ║<br>" +
-		// 		"╚═════════════════════════════════╝</pre>",
-		// 	Picture: Picture{
-		// 		Title: "Another quality ware from $print",
-		// 		Alt:   "Fire Power by $print ASCII screenshot",
-		// 		Webp:  "ab3dc1.webp",
-		// 		Png:   "ab3dc1.png",
-		// 	},
-		// },
 		{
 			Title: "The earliest PC Scene drama", Year: 1988, Month: 11, Day: 25,
 			Lead: "So far, TNWC accusing PTL of stealing a release", LinkTitle: "and view the file",
