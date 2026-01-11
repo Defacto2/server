@@ -253,19 +253,6 @@ func Collection() Milestones {
 				ul1,
 		},
 		{
-			Year: 1977, Month: 1, Title: "CP/M operating system",
-			LinkTitle: "about CP/M", Link: "https://landley.net/history/mirror/cpm/history.html",
-			Content: "<p>Gary Kildall forms Digital Research to sell his hobbyist operating system, <strong>CP/M</strong>, for the Intel 8080. " +
-				"Gary was an occasional consultant for Intel's microprocessor division, which gave him access to hardware and personnel. " +
-				"CP/M became the first successful microcomputer operating system. " +
-				"It dominated the remainder of the 1970s and is the default platform for most computers running an <strong>Intel 8080</strong>, <strong>8085</strong> or its compatible competitor, the <strong>Zilog Z-80</strong>.</p>" +
-				"<p>IBM's PC-DOS and later, Microsoft's MS-DOS took a lot of inspiration from CP/M<sup><a href=\"#cpm-operating-system-fn1\">[1]</a></sup>, " +
-				"with DOS supplanting it as the dominant, open hardware, microcomputing operating system.</p>" +
-				sect0 +
-				"<div id=\"cpm-operating-system-fn1\">[1] <a href=\"https://www.wired.com/2012/08/ms-dos-examined-for-thef/\">Many argue</a> the design of DOS and even parts of the source code was stolen from CP/M.</div>" +
-				sect1,
-		},
-		{
 			Year: 1977, Title: "Apple II, Commodore PET, Tandy TRS-80",
 			Lead: "The second generation of microcomputers", LinkTitle: "about the Apple II, Commodore PET and Tandy TRS-80",
 			Link: "https://cybernews.com/editorial/the-1977-trinity-and-other-era-defining-pcs/",
@@ -286,6 +273,38 @@ func Collection() Milestones {
 				"As if the low price isn’t enough, the real marketing con is the instant availability of five prerecorded programs. For a complete library Radio Shack is still the premier purveyor of ready-to-run systems with something to run. " +
 				"Applications software so far includes the demonstration blackjack and backgammon cassette that comes with the unit as well as a payroll program, a math education program, and a personal finance program. More on the way. All on prerecorded cassettes. At your local Radio Shack.</em></p>" +
 				"<p>Creative Computing would <a href=\"https://archive.org/details/CreativeComputingbetterScan197809/page/n37/mode/1up\">report</a> on the sales up to mid-1978, saying Commodore had shipped 15000 PETS, Tandy had shipped somewhere between 8000-20000 TRS-80 machines, and calculated that the secretive Apple had shipped 25000 units.</p>",
+		},
+		{
+			Year: 1978, Title: "CP/M operating system",
+			Lead:      "The forgotten origins of Microsoft Windows",
+			LinkTitle: "The History of CP/M", Link: "https://archive.org/details/CreativeComputingbetterScan198311/page/n205/mode/2up",
+			Content: "<p>" +
+				"Digital Research releases version 1.4 of CP/M, the operating system for the Intel 8080 CPU." +
+				"</p><p>" +
+				"In 1973, <a href=\"https://www.youtube.com/watch?v=V5S8kFvXpo4\">Gary Kildall</a>, an occasional consultant for Intel's microprocessor division, began collecting hardware that would form a complete microcomputer system based on the new Intel 8080 CPU. This was in the era before off-the-shelf systems could be found." +
+				"</p><p>" +
+				"Gary needed a way to link all the hardware components together in software, so he wrote a simple operating system in a high-level programming language he had created for Intel, the Program Language for Microcomputers or PL/M. " +
+				"The new operating system was later given the name <strong>C</strong>ontrol <strong>P</strong>rogram/<strong>M</strong>onitor, more commonly called CP/M." +
+				"</p><p>" +
+				"Gary attempted to get Intel involved in his pet project, but they showed no interest. This wasn't surprising, given the limited availability of microcomputers and Intel's own operating system development for the 8080 CPU, the Intel System Implementation Supervisor." +
+				"</p><p>" +
+				"After the rejection, Gary and his wife Dorothy went out on their own in 1974, forming Intergalactic Digital Research to further develop and market the software. Initially, marketing it directly to hobbyists, but later discovered the new market of hardware manufacturers. " +
+				"In 1975, several small companies were selling microcomputers to hobbyists, which included both custom hardware and their own simple operating systems. However, developing system software was time-consuming and expensive, so many of these small companies adopted Gary's CP/M. " +
+				"By doing so, they could focus on the hardware, and the CP/M platform evolved into a de facto standard." +
+				"</p><p>" +
+				"CP/M was an 8-bit operating system that worked on 8-bit microprocessors like Intel's 8080 and the Z80 by Zilog. " +
+				"However, in 1980, a couple of years after Intel's first 16-bit processor entered the market. " +
+				"It was not Digital Research, but a small hardware manufacturer named Seattle Computer Products, that was one the first to release a purpose-built 16-bit microcomputer operating system, 86-DOS. " +
+				"A scrapy and rushed system that was patterned after CP/M version 1.4, but was incompatible due to the methods it used to handle disk data." +
+				"</p><p>" +
+				"86-DOS would be purchased by Microsoft for an IBM contract, and rebranded as PC-DOS for the IBM&nbsp;PC. " +
+				"Microsoft would rewrite the software from scratch and release it as Microsoft DOS&nbsp;v2, but it still kept the same CP/M patterns and commands. " +
+				"Controversially, MS-DOS would take over the market of both Digital Research and IBM, and become the basis of Microsoft Windows, later evolving into the Windows Command Prompt. " +
+				"And while there were hundreds of enhancements to MS-DOS, the Command Prompt and the more recent Windows Terminal, " +
+				"for backward compatibility and user muscle memory, Microsoft always kept the original CP/M design patterns. " +
+				"Modern annoyances or features such as drive letters, the use of back slashes, three-letter filename extensions, CR+LF newlines, the end-of-file marker, and " +
+				"commands: DIR, REN, TYPE, etc." +
+				"</p>",
 		},
 		{
 			Year: 1978, Month: 2, Title: "The first computerized bulletin board system",
