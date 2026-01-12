@@ -295,11 +295,11 @@ func Collection() Milestones {
 				"CP/M was an 8-bit operating system that worked on 8-bit microprocessors like Intel's 8080 and the Z80 by Zilog. " +
 				"However, in 1980, a couple of years after Intel's first 16-bit processor entered the market. " +
 				"It was not Digital Research, but a small hardware manufacturer named Seattle Computer Products, that was one the first to release a purpose-built 16-bit microcomputer operating system, 86-DOS. " +
-				"A scrapy and rushed system that was patterned after CP/M version 1.4, but was incompatible due to the methods it used to handle disk data." +
+				"A scrapy and rushed system that was patterned after CP/M&nbsp;version&nbsp;1.4, but was incompatible due to the methods it used to handle disk data." +
 				"</p><p>" +
-				"86-DOS would be purchased by Microsoft for an IBM contract, and rebranded as PC-DOS for the IBM&nbsp;PC. " +
-				"Microsoft would rewrite the software from scratch and release it as Microsoft DOS&nbsp;v2, but it still kept the same CP/M patterns and commands. " +
-				"Controversially, MS-DOS would take over the market of both Digital Research and IBM, and become the basis of Microsoft Windows, later evolving into the Windows Command Prompt. " +
+				"86-DOS would be purchased by Microsoft for a secret IBM contract, and rebranded as PC-DOS for the IBM&nbsp;PC. " +
+				"Microsoft would rewrite the software from scratch and release it as Microsoft&nbsp;MS-DOS&nbsp;v2, but it still kept the same CP/M patterns and commands. " +
+				"Controversially, MS&hyphen;DOS would take over the markets of both Digital Research and IBM, and become the basis of Microsoft Windows, later evolving into the Windows Command Prompt. " +
 				"And while there were hundreds of enhancements to MS-DOS, the Command Prompt and the more recent Windows Terminal, " +
 				"for backward compatibility and user muscle memory, Microsoft always kept the original CP/M design patterns. " +
 				"Modern annoyances or features such as drive letters, the use of back slashes, three-letter filename extensions, CR+LF newlines, the end-of-file marker, and " +
