@@ -735,54 +735,61 @@ func Collection() Milestones {
 		{
 			Title: "The first groups", Year: 1981, Highlight: true,
 			Lead: "Possibly late 1981, but probably 1982",
-			Content: "<p>Discussions of groups from the Apple II era often mention they were around in 1981 or even 1980. " +
-				"Yet, from the cracked games that survive today, these groups only have releases going back to <strong>1982</strong>. " +
-				"While there are many 1980 and 1981 cracks, the digital evidence says they all were released by individuals rather than as formal collaborations.</p>" +
-				"<p>Of the famous cracking groups from the early Apple era, " +
+			Content: "<p>Discussions of cracking groups from the Apple II era often claim they were around in 1980. " +
+				"However, of the cracks that survive today, the ones by cracking groups are for games that got published for Christmas 1981 and in <strong>1982</strong>. " +
+				"While there are many 1980 and 1981 cracks with authorship, these were released by individual crackers rather than in a collaboration as part of a cracking group.</p>" +
+				"<p>Some of the famous, <q>first</q> cracking groups from the Apple II era are, " +
 				"<a href=\"https://demozoo.org/groups/153053\">Super Pirates of Minneapolis</a>, " +
 				"<a href=\"https://demozoo.org/groups/61767\">The Apple Mafia</a>, " +
 				"The Software Pirates, <a href=\"https://demozoo.org/groups/61754\">Digital Gang</a>, " +
 				"<a href=\"https://demozoo.org/groups/153120\">The Dirty Dozen</a>, " +
 				"<a href=\"https://demozoo.org/groups/153093\">The Untouchables</a>, " +
-				"and <a href=\"https://demozoo.org/groups/153047\">Apple Pirated Program Library Exchange</a>. " +
-				"The earliest known released cracks are for games first sold in 1982.</p>" +
+				"and <a href=\"https://demozoo.org/groups/153047\">Apple Pirated Program Library Exchange</a> <small>aka A.P.P.L.E.</small>." +
+				"</p>" +
 				// byter interview
 				`<p>In a 1991 interview<sup><a href="#the-first-group-fn1">[1]</a></sup> for The Humble Review, Byter talks about the early Apple II scene. He confirms, "In those days [a decade ago] there wasn't any such thing as cracking groups... most everything which was cracked was credited solely to individuals."` +
 				` He continues, "As for cracking groups, they're changed as well. Apple ][ cracking groups (when they weren't simply individuals), were always small. Only members essential to the groups activities were members. This included (at times) a leader, a cracker or two and sometimes an artist and a programmer. ` +
 				`It was rare for a group to have more than five members. Suppliers were never part of the group, nor were sysops or boards."</p>` +
 				// the apple marfia story
-				"<p><strong>The Apple Mafia</strong><br>" +
+				"<p><strong>The Apple Mafia</strong>, <strong>The Untouchables</strong>, <strong>The Dirty Dozen</strong><br>" +
 				"In 1986, Red Ghost posted <a href=\"/f/a430f7\">The Apple Mafia Story</a>, claiming " +
 				"The&nbsp;Untouchables, The&nbsp;Apple&nbsp;Mafia, and&nbsp;The&nbsp;Dirty&nbsp;Dozen " +
-				"were some of the first-ever pirate groups. But he admits he wasn't there and wasn't even into computers then. He grew up in Queens, New York, and suggests that is where many <q>original</q> phreakers and pirates originated. " +
-				"But that is debatable, as we know in the 1970s, people were <a href=\"http://www.flyingsnail.com/images/YIPL/YIPL_002.jpg\">phone freaking nationwide</a>. And these pirate groups he mentions only hit their stride in 1982 and 1983.</p>" +
+				"were some of the first-ever pirate groups. But he admits he wasn't there and wasn't even into computers then. He grew up in Queens, New York, and suggests that is where many original phreakers and pirates originated. " +
+				"But that is debatable, as he was probably unaware that phone freaking was a <a href=\"http://www.flyingsnail.com/images/YIPL/YIPL_002.jpg\">nationwide</a> activity in the 1960s and 1970s. " +
+				"The YIPL July 1971 newsletter wrote, <em>Blue Box is linked to phone call fraud - After interviewing engineering students <u>around the country</u>, I found that the blue box...</em>. " +
+				"<br>And of the pirate groups mentioned, they only show cracks for games from 1982 and 1983.</p>" +
 				// godfather quote
-				"<p>In the same post, an early 1984 quote from The Godfather states he founded The Apple Mafia in 1980, initially as a joke, but it became a more serious project in 1981. Strangely, Godfather states that it is the oldest active group rather than simply the oldest group. " +
-				"<q style=\"text-transform: lowercase;\">BRIEF HISTORY OF THE APPLE MAFIA. FOUNDED IN 1980 BY THE GODFATHER AS A JOKE. REDONE IN 1981 AS A SEMI SERIOUS GROUP. " +
-				"KICKED SOME ASS IN '82. BLEW EVERYONE AWAY IN 83, AND WILL DO MUCH BETTER IN 84. SINCE THE BEGINNING THE GROUP HAS DIED OUT AND BEEN REBORN SEVERAL TIMES, THIS TIME LETS KEEP IT GOING. " +
+				"<p><strong><q>A Brief History of the Apple Mafia</q></strong><br>" +
+				"In the named post from late 1983 or early 1984, The Godfather states he founded The Apple Mafia in 1980, first as a joke, then as a serious project in 1981. " +
+				"Maybe the name was used for phone phreaking and later shifted towards piracy? Or maybe he was suffering from some memory bias? " +
+				"<em style=\"text-transform: lowercase;\">BRIEF HISTORY OF THE APPLE MAFIA. FOUNDED IN 1980 BY THE GODFATHER AS A JOKE. REDONE IN 1981 AS A SEMI SERIOUS GROUP. " +
+				"KICKED SOME ASS IN '82. BLEW EVERYONE AWAY IN 83, AND WILL DO MUCH BETTER IN 84. ..." +
 				"IS CURRENTLY THE OLDEST <u>ACTIVE</u> GROUP, NEXT (OF PEOPLE WHO WOULD STILL BE AROUND) ARE " +
 				"<a href=\"https://demozoo.org/groups/118450\">THE WARE LORDS</a> ('83 I BEILIEVE) AND " +
-				"<a href=\"https://demozoo.org/groups/115539\">THE 1200 CLUB</a> ('83 ALSO, I THINK). THAT'S IT.</q></p>" +
+				"<a href=\"https://demozoo.org/groups/115539\">THE 1200 CLUB</a> ('83 ALSO, I THINK). THAT'S IT.</em></p>" +
 				// phrack magazine quote
-				"<p>Phrack Magazine issue 42 has a 1993 <a href=\"http://phrack.org/issues/42/3.html\">interview</a> with <a href=\"https://en.wikipedia.org/wiki/Patrick_K._Kroupa\">Lord Digital</a>, who attempts to clarify the Apple Mafia founding." +
-				" <q>I played around with various things, ... until " +
+				"<p><strong>The Apple Mafia, <q>the first WAreZ gRoUP</q></strong><br>" +
+				"Phrack Magazine issue 42 has a 1993 <a href=\"http://phrack.org/issues/42/3.html\">interview</a> with hacker and former Apple pirate <a href=\"https://en.wikipedia.org/wiki/Patrick_K._Kroupa\">Lord&nbsp;Digital</a>. " +
+				"The interview claims in 1980, he and some New York friends travelled to the AppleFest conference, discovered some other Apple owners. And afterwards, formed The Apple Mafia to make it the first warez group for the Apple II. " +
+				"However, the story is inaccurate, as AppleFest was first held on June 1981<sup><a href=\"#the-first-group-fn3\">[3]</a></sup>, in Boston. " +
+				"<q>I played around with various things, ... until " +
 				"I got an Apple&nbsp;II+ in 1978. I hung out with a group of people who were also " +
 				"starting to get into computers, most of them comprising the main attendees of " +
-				"the soon-to-be-defunct TAP<sup><a href=\"#the-first-group-fn2\">[2]</a></sup> meetings in NYC, a pretty eclectic collection of " +
-				"dudes who have long since gone their separate ways to meet with whatever " +
-				"destinies life had in store for them. Around 1980 there was an Apple Fest that " +
-				"we went to, and found even more people with Apples and, from this, formed the " +
-				"Apple Mafia, which was, in our minds, really cool sounding and actually became " +
-				"the first WAreZ gRoUP to exist for the Apple&nbsp;II.</q>" +
-				"<p>However, Lord Digital is mistaken, the first AppleFest was held in Boston on the weekend of June 6-7, 1981<sup><a href=\"#the-first-group-fn3\">[3]</a></sup>. " +
-				"Given the inconsistencies in the various stories about The Apple Mafia, it is safe to suggest that they were an early group formed in late 1981. Or even in 1982, the year that The Godfather claimed that they <q>kicked some ass</q>.</p>" +
+				"the soon-to-be-defunct TAP<sup><a href=\"#the-first-group-fn2\">[2]</a></sup> meetings in NYC... " +
+				"Around 1980 there was an Apple Fest that we went to, and found even more people with Apples and, from this, formed the " +
+				"Apple Mafia, which was, in our minds, really cool sounding and actually became the first WAreZ gRoUP to exist for the Apple&nbsp;II.</q>" +
+				"<p></p>" +
+				"Given the inconsistencies about The Apple Mafia, a guess would be they formed in the second half of 1981, post the first AppleFest conference. " +
+				"But, probably as a phone or computer phreaking clique that later got into cracking software on the Apple II, after being inspired by <a href=\"/image/milestone/cyber_strike_the_tornato.webp\">others</a>. " +
+				"Did this switch make them the <q>first</q> cracking group, who knows?" +
+				"</p>" +
 				// super pirates
 				"<p><strong>Super Pirates of Minneapolis</strong>" +
-				"<br>The Super Pirates were a famous, early group outside of New York. " +
-				"Claims suggest the Super Pirates were around in 1980, the same year the game <a href=\"https://www.mobygames.com/game/47942/cyber-strike\">Cyber&nbsp;Strike</a> from Sirius Software was published; " +
-				"however the year should be viewed with skepticism, as their known early cracks, such as <a href=\"https://archive.org/details/B-29AP_Japanese_Twerps_Horizon_V\">Horizon V</a> have a 1982 <a href=\"https://www.mobygames.com/game/17995/horizon-v/screenshots/apple2/113190/\">copyright</a>.</p>" +
-				"<p><q>The 1st ware I got was back in 1980. <a href=\"https://demozoo.org/productions/380718\">It was Cyber Strike</a>. Along with about 35 other disks, most cracked by the Super Pirates!</q> " +
-				"The quote is from Pirate History by <a href=\"https://demozoo.org/sceners/153128\">The Incognito</a> reposted on the <a href=\"https://demozoo.org/bbs/240\">Red Sector A</a> BBS <small>(313) 591-1024</small> and found in the <a href=\"http://www.textfiles.com/bbs/boardsims2.txt\">Board Simulations 2</a> text from 1987.</p>" +
+				"<br>The Super Pirates were a famous, early group from outside of New York. " +
+				"A claim suggests the Super Pirates were around in 1980, the same year the game <a href=\"https://www.mobygames.com/game/47942/cyber-strike\">Cyber&nbsp;Strike</a> from Sirius Software was published (in the forth quarter). " +
+				"However, this year should be viewed with skepticism, as their <a href=\"https://demozoo.org/groups/153053/\">known cracks</a> are for games with <a href=\"https://www.mobygames.com/game/17995/horizon-v/screenshots/apple2/113190/\">&copy;1982</a>.<br>" +
+				"<em>The 1st ware I got was back in 1980. <a href=\"https://demozoo.org/productions/380718\">It was Cyber Strike</a>. Along with about 35 other disks, most cracked by the Super Pirates!</em> " +
+				"says <a href=\"https://demozoo.org/sceners/153128\">The Incognito</a> in the <q>Pirate History</q> repost found on the <a href=\"https://demozoo.org/bbs/240\">Red Sector A BBS</a> <small>(313) 591-1024</small> and also in the <a href=\"http://www.textfiles.com/bbs/boardsims2.txt\">Board Simulations 2</a> text from 1987.</p>" +
 				// midwest guild
 				"<p>Anecdotal evidence suggests the Super Pirates were involved in the first-ever BBS bust. The members left to form or joined the <a href=\"https://demozoo.org/groups/86223\">Midwest Pirate's Guild</a>, " +
 				"a group strongly associated with the cracker <a href=\"https://demozoo.org/sceners/118462\">Apple Bandit</a> and his Minneapolis-based board, <a href=\"https://demozoo.org/bbs/359\">The&nbsp;Safehouse</a>&nbsp;<small>(612) 724-7066</small>.</p>" +
@@ -796,27 +803,39 @@ func Collection() Milestones {
 				sect1,
 		},
 		{
-			Title: "The earliest cracktros", Year: 1981, Highlight: true,
+			Title: "The earliest cracktros", Year: 1981, Month: 4, Highlight: true,
 			Lead: "Mr. Xerox's Starblaster, and Sliced by -The Razor-",
 			Content: "<p><strong>Cracktros</strong> and crack intros are programmed and animated vanity title screens " +
-				"that gives credit to the removal of disk copy protection schemes.</p>" +
+				"that gives credit to the removal of disk copy protection schemes." +
+				"</p><p>" +
 				// apple ii
-				"<p>It is challenging to place early pirated releases for the Apple&nbsp;II, Atari, or PC. " +
+				"It is challenging to place early pirated releases for the Apple&nbsp;II, Atari, or PC. " +
 				"Many early crackers didn't date their releases, and the systems themselves didn't track time or stamp the files. " +
 				"But given the <a href=\"http://artscene.textfiles.com/intros/APPLEII/.thumbs.html\">proliferation</a> of <q>broken</q> and <q>cracked</q> by texts injected into Apple&nbsp;II software during 1980, 1981, and 1982, " +
-				"it can be assumed the early cracktro evolved on this system.</p>" +
+				"it can be assumed the early cracktro evolved on this system." +
+				"</p><p>" +
 				// mr xerox
 				"<strong>Candidates</strong><br>" +
-				"<p>1) The prolific Apple cracker <strong>Mr. Xerox</strong> probably created one of the first crack-intros and scroller in his animated " +
-				"<a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">cracked-by introduction</a> " +
-				"for <strong>StarBlaster</strong> (c) 1981. When compared to the <a href=\"https://archive.org/details/Starblaster4amCrack\">startup of the original</a> game, " +
-				"the Mr. Xerox animation clearly involved additional code injected by the cracker. Confusing, there were at least two games named StarBlaster. The one cracked by Xerox is from Piccadilly Software and may have been reprinted in 1982.</p>" +
-				// the razor
-				"<p>2) <a href=\"https://demozoo.org/productions/381802/\">A two-framed animated loader</a> for a pair of Apple II games, so far is the earliest dated intro ever known. Credited to <strong>-THE RAZOR-</strong> and dated to April 1981, it was used for the games Pulsar II and Worm Wall, both of which were sold as a single floppy at retail. The Razor <q>sliced</q> the games into separate titles.</p>" +
+				"The prolific Apple II cracker <strong><a href=\"https://demozoo.org/sceners/153043/\">Mr. Xerox</a></strong> probably created one of the <u>first proper crack-intros</u> and uses a vertical scroller in his animated cracked-by " +
+				"<a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">introduction</a> for StarBlaster &copy; 1981. " +
+				"When compared to the <a href=\"https://archive.org/details/Starblaster4amCrack\">startup</a> of the original game, the Mr. Xerox animation clearly involved additional code injected by the cracker. Confusing, there were at least two games named StarBlaster. " +
+				"The game cracked by Xerox is from Piccadilly Software and was announced as available in retail by <strong>June 1982</strong> in the " +
+				"<a href=\"https://archive.org/details/softalkv2n10jun1982/page/n101/mode/2up?q=%22Star+Blaster%22\">computing press</a>." +
+				"</p><p>" +
 				// the copycatter
-				"<p>3) The cracker <strong>Copycatter</strong> may have created " +
-				"<a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">the first scroller</a> " +
-				"in a 1982 release of <strong>Pro&nbsp;Football</strong>. It scrolls <q>BROKEN BY -\\[THE COPYCATTER]/-  THANKS STOSH</q>.</p>",
+				"The Apple II cracker <strong><a href=\"https://demozoo.org/sceners/153624/\">The Copycatter</a></strong> may have vibed the first <u>horizontal scroller</u> found in a " +
+				"<a href=\"https://archive.org/details/a2_Pro_Football_The_Gold_Edition_1982_System_Design_Lab_cr_Copycatter\">release</a> of Pro&nbsp;Football The Gold Edition, " +
+				"however, it is not a true crack-intro, but a text edit using a hex editor. " +
+				"Pro Football was not a game, but an expensive application to predict the results of Gridiron football matches. " +
+				"The Gold Edition update was announced and <a href=\"https://archive.org/details/softalkv2n11jul1982/page/126/mode/2up?q=%22pro+football%22\">advertised</a> in Softalk <strong>June 1982</strong>. " +
+				"The crack scrolls the following message, <br><em>BROKEN BY -\\[THE COPYCATTER]/-  THANKS STOSH</em>." +
+				"</p><p>" +
+				// the razor
+				"A two-framed animated <a href=\"https://demozoo.org/productions/381802/\">loader</a> for a pair of Apple II games, so far is the <u>earliest dated intro</u> known. " +
+				"Credited to <strong><a href=\"https://demozoo.org/sceners/153666/\">-THE RAZOR-</a></strong> and dated to <strong>April 1981</strong>, the intro was used for the games Pulsar II and Worm Wall, both of which were sold as a single floppy at retail. " +
+				"-The Razor- <q>sliced</q> and likely cracked the games as two separate releases. " +
+				"The games are authored by Nasir Gebelli and published by Sirius Software, both were have known to do early copy protections on the Apple II so this is likely also a crack-intro. " +
+				"</p>",
 			Picture: Picture{
 				Title: "Mr. Xerox's Star Blaster cracktro",
 				Alt:   "Mr. Xerox's Star Blaster cracktro on the Apple II",
