@@ -770,7 +770,7 @@ func Collection() Milestones {
 				// phrack magazine quote
 				"<p><strong>The Apple Mafia, <q>the first WAreZ gRoUP</q></strong><br>" +
 				"Phrack Magazine issue 42 has a 1993 <a href=\"http://phrack.org/issues/42/3.html\">interview</a> with hacker and former Apple pirate <a href=\"https://en.wikipedia.org/wiki/Patrick_K._Kroupa\">Lord&nbsp;Digital</a>. " +
-				"The interview claims in 1980, he and some New York friends travelled to the AppleFest conference, discovered some other Apple owners. And afterwards, formed The Apple Mafia to make it the first warez group for the Apple II. " +
+				"The interview claims around 1980, he and some New York friends travelled to the AppleFest conference, discovered some other Apple owners. And afterwards, formed The Apple Mafia to make it the first warez group for the Apple II. " +
 				"However, the story is inaccurate, as AppleFest was first held on June 1981<sup><a href=\"#the-first-group-fn3\">[3]</a></sup>, in Boston. " +
 				"<q>I played around with various things, ... until " +
 				"I got an Apple&nbsp;II+ in 1978. I hung out with a group of people who were also " +
@@ -787,7 +787,7 @@ func Collection() Milestones {
 				"<p><strong>Super Pirates of Minneapolis</strong>" +
 				"<br>The Super Pirates were a famous, early group from outside of New York. " +
 				"A claim suggests the Super Pirates were around in 1980, the same year the game <a href=\"https://www.mobygames.com/game/47942/cyber-strike\">Cyber&nbsp;Strike</a> from Sirius Software was published (in the forth quarter). " +
-				"However, this year should be viewed with skepticism, as their <a href=\"https://demozoo.org/groups/153053/\">known cracks</a> are for games with <a href=\"https://www.mobygames.com/game/17995/horizon-v/screenshots/apple2/113190/\">&copy;1982</a>.<br>" +
+				"However, associating Super Pirates with this year should be viewed with skepticism, as their <a href=\"https://demozoo.org/groups/153053/\">known cracks</a> are for games with <a href=\"https://www.mobygames.com/game/17995/horizon-v/screenshots/apple2/113190/\">&copy;1982</a>.<br>" +
 				"<em>The 1st ware I got was back in 1980. <a href=\"https://demozoo.org/productions/380718\">It was Cyber Strike</a>. Along with about 35 other disks, most cracked by the Super Pirates!</em> " +
 				"says <a href=\"https://demozoo.org/sceners/153128\">The Incognito</a> in the <q>Pirate History</q> repost found on the <a href=\"https://demozoo.org/bbs/240\">Red Sector A BBS</a> <small>(313) 591-1024</small> and also in the <a href=\"http://www.textfiles.com/bbs/boardsims2.txt\">Board Simulations 2</a> text from 1987.</p>" +
 				// midwest guild
@@ -816,10 +816,10 @@ func Collection() Milestones {
 				"</p><p>" +
 				// mr xerox
 				"<strong>Candidates</strong><br>" +
-				"The prolific Apple II cracker <strong><a href=\"https://demozoo.org/sceners/153043/\">Mr. Xerox</a></strong> probably created one of the <u>first proper crack-intros</u> and uses a vertical scroller in his animated cracked-by " +
-				"<a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">introduction</a> for StarBlaster &copy; 1981. " +
+				"The prolific Apple II cracker <strong><a href=\"https://demozoo.org/sceners/153043/\">Mr. Xerox</a></strong> probably created one of the <u>first proper crack-intros</u> and uses a vertical and horizontal scroller in his animated cracked-by " +
+				"<a href=\"https://archive.org/details/a2_Starblaster_19xx_C_G_cr_Star_Trek_1983_Sega_cr_Shuttle_Intercept_19xx__cr\">introduction</a> for StarBlaster. " +
 				"When compared to the <a href=\"https://archive.org/details/Starblaster4amCrack\">startup</a> of the original game, the Mr. Xerox animation clearly involved additional code injected by the cracker. Confusing, there were at least two games named StarBlaster. " +
-				"The game cracked by Xerox is from Piccadilly Software and was announced as available in retail by <strong>June 1982</strong> in the " +
+				"The game cracked by Xerox is from Piccadilly Software and has &copy;1981 but was announced as available at retail by <strong>June 1982</strong> in the " +
 				"<a href=\"https://archive.org/details/softalkv2n10jun1982/page/n101/mode/2up?q=%22Star+Blaster%22\">computing press</a>." +
 				"</p><p>" +
 				// the copycatter
@@ -831,10 +831,10 @@ func Collection() Milestones {
 				"The crack scrolls the following message, <br><em>BROKEN BY -\\[THE COPYCATTER]/-  THANKS STOSH</em>." +
 				"</p><p>" +
 				// the razor
-				"A two-framed animated <a href=\"https://demozoo.org/productions/381802/\">loader</a> for a pair of Apple II games, so far is the <u>earliest dated intro</u> known. " +
+				"So far, a two-frame animated <a href=\"https://demozoo.org/productions/381802/\">loader</a> for a pair of Apple II games is the <u>earliest dated intro</u> known. " +
 				"Credited to <strong><a href=\"https://demozoo.org/sceners/153666/\">-THE RAZOR-</a></strong> and dated to <strong>April 1981</strong>, the intro was used for the games Pulsar II and Worm Wall, both of which were sold as a single floppy at retail. " +
 				"-The Razor- <q>sliced</q> and likely cracked the games as two separate releases. " +
-				"The games are authored by Nasir Gebelli and published by Sirius Software, both were have known to do early copy protections on the Apple II so this is likely also a crack-intro. " +
+				"The games are authored by Nasir Gebelli and published by Sirius Software, both were known to do early copy protection, also making this is a possible crack-intro. " +
 				"</p>",
 			Picture: Picture{
 				Title: "Mr. Xerox's Star Blaster cracktro",
@@ -912,7 +912,7 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "Initial release of MS-DOS", Year: 1982, Month: 8,
+			Title: "MS-DOS", Year: 1982, Month: 8,
 			Lead: "MicroSoft Disk Operating System v1.25", LinkTitle: "about MS-DOS 1 and 1.25",
 			Link: "https://www.os2museum.com/wp/dos/dos-1-0-and-1-1/",
 			Content: "Microsoft releases the first edition of <strong>MS-DOS</strong> v1.25, <a href=\"https://www.os2museum.com/wp/dos/dos-1-0-and-1-1/msdos-ad-1982/\">readily available</a> to all OEM computer manufacturers. " +
@@ -951,8 +951,8 @@ func Collection() Milestones {
 				ul1,
 		},
 		{
-			Title: "The great online reboot", Year: 1983, Month: 1, Day: 1,
-			Lead: "Internetworking", LinkTitle: "the Notable computer networks", Link: "https://dl.acm.org/doi/pdf/10.1145/6617.6618",
+			Title: "The great online reboot - the birth of an inter-network", Year: 1983, Month: 1, Day: 1,
+			Lead: "APRA Internet", LinkTitle: "the Notable computer networks", Link: "https://dl.acm.org/doi/pdf/10.1145/6617.6618",
 			Content: "On January 1, 1983, the US Department of Defense coordinated the massive shutdown of its existing experimental wide-area network, <abbr title=\"Advanced Research Projects Agency Network\">ARPAnet</abbr>. " +
 				"Referred to as <q>Flag Day,</q> the event required all systems associated with the US military network to reconnect using a new <abbr title=\"Transfer Control Protocol\">TCP</abbr>/<abbr title=\"Internetwork Protocol\">IP</abbr> protocol. " +
 				"The replacement protocol decentralized the network's operations and is somewhat inspired by the earlier French " +
@@ -968,18 +968,45 @@ func Collection() Milestones {
 				ul1,
 		},
 		{
-			Title: "The first PC clone", Year: 1983, Month: 3,
-			Lead: "COMPAQ Portable", LinkTitle: "the advertisement",
-			Link: "https://www.computerhistory.org/revolution/personal-computers/17/302/1194",
-			Content: "Compaq Computer Corporation releases the first <strong>IBM&nbsp;PC compatible</strong> computer, the Compaq Portable. " +
-				"It is the first PC clone to use the same software and expansion cards as the IBM&nbsp;PC.",
+			Title: "Commercial Disk Copy Protections", Year: 1983, Month: 1,
+			Lead: "PROLOK and the end of software piracy", LinkTitle: "the PROLOK deep-dive for MartyPC",
+			Link: "https://martypc.blogspot.com/2024/09/pc-floppy-copy-protection-vault-prolok.html",
+			Content: "<p>" +
+				"PROLOK, the first <a href=\"https://archive.org/details/byte-magazine-1984-10-rescan/mode/2up?q=prolok\">heavily marketed</a> " +
+				"disk copy protection ecosystem for Apple and PCs, was shown at the CP/M '83 conference held in January 1983 in San Francisco. CP/M by Digital Research was a major PC operating system predominantly used by businesses." +
+				"</p><p>" +
+				"Creative Computing <a href=\"https://archive.org/details/CreativeComputingbetterScan198308/page/n199/mode/2up?q=prolok\">reports</a>, " +
+				"<em>Urban Pacific Data Service came out with Prolok, which they say will <q>all but eliminate piracy</q>. Here's how it works. Software producers and others buy Prolock disks, which have a built-in fingerprint, that is, a series of random program encryptions <q>and other devious programming techniques,</q> which protect the program.</em>" +
+				"</p><p>" +
+				"There's no confirmation of this, but it seems likely Urban Pacific Data Service was or became Vault Corporation, and in May 1983, filed the " +
+				"<a href=\"https://tsdr.uspto.gov/#caseNumber=73425657&caseSearchType=US_APPLICATION&caseType=DEFAULT&searchType=statusSearch\">trademark</a> for Prolok. " +
+				"The ecosystem was heavily advertised in the tech press, often with the bold claims of <q>the end of software piracy</q>, and became very popular, with thousands of customers at its peak. However, at the end of 1984, the reputation of Prolok was " +
+				"<a href=\"https://archive.org/details/PC-Mag-1985-01-22/mode/2up?q=prolok\">destroyed</a> after the company began promoting the idea of a <q>Plus</q> update to the tool, which enabled malware-like behavior." +
+				"</p><p>" +
+				"Other tools, duplication services and protections from the era," +
+				ul0 +
+				"<li><a href=\"https://martypc.blogspot.com/2024/08/pc-floppy-copy-protection-formaster.html\">Copy-Lock</a> by Formaster <small>for Apple, Commodore, IBM PC</small></li>" +
+				"<li><a href=\"https://martypc.blogspot.com/2024/08/pc-floppy-copy-protection-softguard.html\">SUPERLoK</a> by Softguard Systems <small>used by Lotus, Ashton Tate, Sierra On-line</small></il>" +
+				"<li><a href=\"https://martypc.blogspot.com/2024/10/pc-floppy-copy-protection-xemag-xelok.html\">Xelok</a> by XEMAG <small>for Apple, Commodore, IBM PC</small></li>" +
+				"<li><a href=\"https://archive.org/details/PC_Tech_Journal_vol01_n05/page/n75/mode/2up?q=%22SECURE-WARE%22\">SECURE-WARE</a> by Remote Systems Inc.</li>" +
+				"<li>COPYLOCK by Export Software International (UK)</li>" +
+				"<li>Software Protection Device by <a href=\"https://archive.org/details/PC_Tech_Journal_vol01_n05/page/n75/mode/2up?q=cslabs\">CSLabs</a></li>" +
+				"<li><a href=\"https://martypc.blogspot.com/2024/09/pc-floppy-copy-protection-electronic.html\">Interlock</a> by Electronic Arts <small>used internally for their PC games of 1984-87</small></li>" +
+				ul1 +
+				"</p>",
 		},
 		{
-			Title: "ANSI.SYS, the unfinished software that leads to ANSI art", Year: 1983, Month: 3,
-			Lead: "PC-DOS and MS-DOS version 2 are released", LinkTitle: "about MS-DOS ANSI.SYS",
+			Title: "Microsoft DOS v2, ANSI, and the PC clones", Year: 1983, Month: 3,
+			Lead: "Origins of ansi art on microcomputers", LinkTitle: "about MS-DOS ANSI.SYS",
 			Link: "https://github.com/microsoft/MS-DOS/blob/master/v2.0/source/ANSI.txt",
-			Content: "<p>For the first time, the IBM&nbsp;PC includes a device driver to view <strong>ANSI text graphics</strong> in color on a microcomputer.</p>" +
-				"<p>ANSI was a text terminal display standard from the mid-1970s that formatted onscreen text and controlled cursor movement. The implementation in DOS was only partially complete but became its own sub-standard over time.</p>",
+			Content: "<p>" +
+				"March saw the release of the Microsoft DOS version 2. Reprogrammed from scratch to ultimately distance Microsoft from its 86-DOS licensing contract with Seattle Computer Products, as well as any conceivable claims of code theft of Digital Research's CP/M operating system, which was the inspiration for 86-DOS." +
+				"</p><p>" +
+				"MS-DOS 2 included a new special device driver, ANSI.SYS, to allow the IBM PC to view ANSI escape control formatting and color text on the microcomputer. However, the implementation was incomplete, and in typical Microsoft fashion, future updates deviated from the documented standard." +
+				"</p><p>" +
+				"Also, the month saw Compaq Computer Corporation release the first unauthorised IBM PC compatible computer, the <a href=\"https://www.computerhistory.org/revolution/personal-computers/17/302/1194\">Compaq Portable</a>. " +
+				"And Compaq would use Microsoft's operating system." +
+				"</p>",
 		},
 		{
 			Title: "Microsoft Windows announced", Year: 1983, Month: 11, Day: 10,
@@ -1009,9 +1036,12 @@ func Collection() Milestones {
 			Title: "The first 16 color PC game", Year: 1984, Month: 8,
 			Lead: "King's Quest", LinkTitle: "the game manual",
 			Link: "http://www.sierrahelp.com/Documents/Manuals/Kings_Quest_1_IBM_-_Manual.pdf",
-			Content: "The first PC game to use 16 colors, <a href=\"https://www.mobygames.com/game/122/kings-quest/screenshots/pc-booter/\">King's Quest</a>, is created by Sierra On-Line and released by IBM. " +
+			Content: "<p>" +
+				"The first PC game to use 16 colors, <a href=\"https://www.mobygames.com/game/122/kings-quest/screenshots/pc-booter/\">King's Quest</a>, is created by Sierra On-Line and released by IBM. " +
 				"IBM&nbsp;PC graphics cards are limited to monochrome or 4 colors, but the game is released for the new <strong>IBM&nbsp;PCjr</strong> that displays upto <strong>16 colors</strong>. " +
-				"The other pioneering aspect of the game was the pseudo-3D landscape. The player controlled a human avatar from a 3rd person perspective and could use it to walk around set pieces, both in front and from behind, and interact with the onscreen objects.",
+				"The other pioneering aspect of the game was the pseudo-3D landscape. The player controlled a human avatar from a 3rd person perspective and could use it to walk around set pieces, both in front and from behind, and interact with the onscreen objects." +
+				"</p><p>" +
+				"King's Quest did not run off the PC's disk operating system; instead, the game floppy disk had its own self-booting loader, today referred to as a PC booter. For the time, the game had aggressive <a href=\"https://martypc.blogspot.com/2024/08/pc-floppy-copy-protection-formaster.html\">copy protection</a> using Formaster's Copy-Lock.</p>",
 		},
 		{
 			Title: "The earliest information text on PC", Year: 1984, Month: 10, Day: 17, Highlight: true,
@@ -1029,13 +1059,25 @@ func Collection() Milestones {
 		},
 		{
 			Title: "EGA graphics standard", Year: 1984, Month: 10,
-			Lead: "16 color, 64 color palette, 640x350 resolution!?", LinkTitle: "How 16 colors saved PC gaming",
-			Link: "https://www.custompc.com/retro-tech/ega-graphics",
-			Content: "The Enhanced Graphics Adapter standard includes 16 colors, 640×350 resolution and 80×25 text mode." +
+			// Lead: "16 color, 64 color palette, 640x350 resolution!?",
+			LinkTitle: "How 16 colors saved PC gaming",
+			Link:      "https://www.custompc.com/retro-tech/ega-graphics",
+			Content: "<p>The new Enhanced Graphics Adapter standard from IBM uses: </p>" +
+				ul0 +
+				"<li>16 colors onscreen</li>" +
+				"<li>64 color palette</li>" +
+				"<li>maximum 640 x 350 resolution</li>" +
+				"<li>80x25 character text mode</li>" +
+				ul1 +
 				"<p><a href=\"http://nerdlypleasures.blogspot.com/2014/01/simcity-for-dos-swiss-army-knife-of.html\">With the odd exception</a>, most PC games that use <strong>EGA</strong> only ever support 160x200 or 320x200 resolutions with 4 or 16 colors on screen. " +
 				"There were complications with EGA and its expensive monitor displays, plus the expensive memory requirements needed for higher resolution graphic modes with <strong>16 colors</strong>.</p>" +
 				"<p>IBM would also create the first <strong>demo program</strong> on the PC, <a href=\"https://www.pcjs.org/software/pcx86/demo/ibm/ega/\">Fantasy Land EGA</a>, is released to demonstrate the new <strong>EGA</strong> graphics standard. " +
 				"The idea of a demo is to have the program run automatically, without user input, to show off the capabilities of the hardware.",
+			Picture: Picture{
+				Title: "The 1984 PC game, Ancient Art of War, updated in 1987 with EGA colors",
+				Alt:   "Character selection screenshot for the EGA update to Ancient Art of War",
+				Png:   "ega-ancient_art_of_war.png",
+			},
 		},
 		{
 			Title: "The earliest PC cracked releases", Year: 1984, Highlight: true,
@@ -1129,10 +1171,27 @@ func Collection() Milestones {
 			Title: "First, dial-up Internet connections", Year: 1984,
 			Link:      "https://networkencyclopedia.com/serial-line-internet-protocol-slip/",
 			LinkTitle: "about SLIP",
-			Content: "Rick Adams created the Serial Line Internet Protocol (<strong>SLIP</strong>), the industry-standard protocol to connect dial-up modems to the Internet. " +
+			Content: "<p>" +
+				"Rick Adams created the Serial Line Internet Protocol (<strong>SLIP</strong>), the industry-standard protocol to connect dial-up modems to the Internet. " +
 				"This protocol allowed for the creation of Internet Service Providers, which provided Internet connections over standard copper telephone lines." +
 				"<br>In 1987, Rick would also go on to found one of the earliest ISPs, UUNET. " +
-				"Which in the following year would offer the first commercial connection to the Internet.",
+				"Which in the following year would offer the first commercial connection to the Internet.</p>" +
+				"<p>Below is a <a href=\"https://www.ascilite.org/archived-journals/aset/confs/edtech94/rw/rehn.html\">mockup</a>, using SLIP in 1993 to connect to a Western Australian university provider.</p>" +
+				`<pre style="font-size:1.5em;line-height:1em;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><p>` +
+				"<br>		WELCOME<br><br>" +
+				"login: defacto2<br>" +
+				"Password:<br>" +
+				"Last login: Tue June 28 18:44:50<br>" +
+				"SunOS Release 4.1.3 (CSI) #2: Mon Mar 8 13:58:16 WST 1993<br><br>" +
+				"Welcome to cleo.murdoch.edu.au, Academic Services Unit, Murdoch<br><br>" +
+				"For user support via email, email to userhelp@cleo<br><br>" +
+				"ELECTRONIC MAIL: To access your email, type the command \"pine\".<br>" +
+				"LIBRARY CATALOGUES: To access remote library catalogues, type \"nis\".<br>" +
+				"GOPHER SERVER: To access the gopher information server, type \"gopher\".<br>" +
+				"WWW SERVER: To access Murdoch's WWW servers, type \"lynx\".<br><br>" +
+				"You have new mail.<br><br>" +
+				"cleo><span class=\"blinking\">█</a>" +
+				`</p></pre>`,
 		},
 		{
 			Prefix: "The earliest PC groups,", Year: 1984,
@@ -1456,9 +1515,22 @@ func Collection() Milestones {
 		},
 		{
 			Title: "VGA graphics standard", Year: 1987, Month: 4, Day: 2,
-			Lead: "256 color graphics", LinkTitle: "about the VGA graphics standard",
-			Link:    "https://www.computer.org/publications/tech-news/chasing-pixels/Famous-Graphics-Chips-IBMs-VGA",
-			Content: "The Video Graphics Array (<strong>VGA</strong>) graphics standard is released. It is the first graphics standard to support <strong>256 colors</strong> and resolutions up to 640x480.",
+			// Lead: "256 color graphics",
+			LinkTitle: "about the VGA graphics standard",
+			Link:      "https://www.computer.org/publications/tech-news/chasing-pixels/Famous-Graphics-Chips-IBMs-VGA",
+			Content: "<p>The new Video Graphics Array standard from IBM uses: </p>" +
+				ul0 +
+				"<li>256 colors onscreen</li>" +
+				"<li>262144 color palette</li>" +
+				"<li>maximum 640 x 480 resolution</li>" +
+				"<li>80x25 character text mode</li>" +
+				ul1 +
+				"Unlike IBM's other 18-bit color standards, VGA is the first standard to support <strong>256 colors</strong> onscreen, resolutions up to 640x480, but also maintain backwards compatibility with software for CGA <u>and EGA</u>. " +
+				"However, it would be years before game developers fully adopted the improved color palettes. " +
+				"Initially it was used to mimick the Commodore Amiga, 32 of 4096 colors in game ports, " +
+				"before games on PC embraced all 256 colors onscreen around 1990, give or take a year. " +
+				"Both, with the use of digitalized photography, scanned images in game, and later multimedia games released on CD-ROM. " +
+				"But VGA games using the 640x480 resolution would be less common.",
 		},
 		{
 			Title: "Music audio standard", Year: 1987,
