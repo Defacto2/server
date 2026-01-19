@@ -45,8 +45,8 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/h2non/filetype v1.1.3
 	github.com/jackc/pgx/v5 v5.8.0
-	github.com/labstack/echo-contrib v0.50.0
-	github.com/labstack/echo/v4 v4.15.0
+	github.com/labstack/echo-contrib v0.17.3
+	github.com/labstack/echo/v4 v4.14.0
 	github.com/lmittmann/tint v1.1.2
 	github.com/mattn/go-isatty v0.0.20
 	github.com/nalgeon/be v0.3.0
@@ -103,7 +103,6 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
-	github.com/labstack/echo/v5 v5.0.0-20260118161441-9500f2745481 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
