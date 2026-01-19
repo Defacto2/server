@@ -212,16 +212,13 @@ func decodeDOSNames(b []byte) ([]byte, error) {
 	if utf8.Valid(b) {
 		return b, nil
 	}
-	decoder := charmap.CodePage437.NewDecoder()
+	// decoder := charmap.CodePage437.NewDecoder()
+	decoder := charmap.Windows1252.NewDecoder()
 	p, err := io.ReadAll(transform.NewReader(bytes.NewReader(b), decoder))
-	if err == nil {
-		return p, nil
-	}
-	decoder = charmap.Windows1252.NewDecoder()
-	p, err = io.ReadAll(transform.NewReader(bytes.NewReader(b), decoder))
 	if err != nil {
 		return nil, fmt.Errorf("decode dos names: %w", err)
 	}
+	p = bytes.ToValidUTF8(p, []byte("?"))
 	return p, nil
 }
 
