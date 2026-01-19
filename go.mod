@@ -30,7 +30,7 @@ require (
 	github.com/Defacto2/magicnumber v1.2.1
 	github.com/Defacto2/releaser v1.3.20
 	github.com/aarondl/null/v8 v8.1.3
-	github.com/aarondl/sqlboiler/v4 v4.19.5
+	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
 	github.com/bengarrett/ansibump v1.1.0
 	github.com/bengarrett/bbs v1.0.6
@@ -44,19 +44,19 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.4.0
 	github.com/h2non/filetype v1.1.3
-	github.com/jackc/pgx/v5 v5.7.6
-	github.com/labstack/echo-contrib v0.17.4
-	github.com/labstack/echo/v4 v4.14.0
+	github.com/jackc/pgx/v5 v5.8.0
+	github.com/labstack/echo-contrib v0.50.0
+	github.com/labstack/echo/v4 v4.15.0
 	github.com/lmittmann/tint v1.1.2
 	github.com/mattn/go-isatty v0.0.20
 	github.com/nalgeon/be v0.3.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
-	github.com/samber/slog-multi v1.6.0
+	github.com/samber/slog-multi v1.7.0
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
-	golang.org/x/image v0.34.0
-	golang.org/x/text v0.32.0
-	google.golang.org/api v0.258.0
+	golang.org/x/image v0.35.0
+	golang.org/x/text v0.33.0
+	google.golang.org/api v0.260.0
 )
 
 // Uncomment to use the local repository
@@ -69,13 +69,13 @@ require (
 //	replace github.com/bengarrett/binbump => ../binbump
 
 require (
-	cloud.google.com/go/auth v0.17.0 // indirect
+	cloud.google.com/go/auth v0.18.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/aarondl/inflect v0.0.2 // indirect
 	github.com/aarondl/randomize v0.0.2 // indirect
-	github.com/air-verse/air v1.63.1 // indirect
+	github.com/air-verse/air v1.64.0 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
@@ -95,14 +95,15 @@ require (
 	github.com/google/licensecheck v0.3.1 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/safehtml v0.1.0 // indirect
-	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
-	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.3.9 // indirect
+	github.com/googleapis/gax-go/v2 v2.16.0 // indirect
 	github.com/gorilla/context v1.1.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
+	github.com/labstack/echo/v5 v5.0.0-20260118161441-9500f2745481 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
@@ -123,19 +124,19 @@ require (
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
-	go.uber.org/nilaway v0.0.0-20251119034912-44f92224c998 // indirect
-	golang.org/x/crypto v0.46.0 // indirect
-	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/net v0.48.0 // indirect
+	go.uber.org/nilaway v0.0.0-20251208195206-89df5f7e6199 // indirect
+	golang.org/x/crypto v0.47.0 // indirect
+	golang.org/x/mod v0.32.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
-	golang.org/x/pkgsite v0.0.0-20251120203232-84333735ffe1 // indirect
+	golang.org/x/pkgsite v0.0.0-20260116214158-550788255d99 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
-	golang.org/x/tools v0.39.0 // indirect
+	golang.org/x/tools v0.41.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251213004720-97cd9d5aeac2 // indirect
-	google.golang.org/grpc v1.77.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect
+	google.golang.org/grpc v1.78.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	mvdan.cc/gofumpt v0.9.2 // indirect
 	rsc.io/markdown v0.0.0-20241212154241-6bf72452917f // indirect
