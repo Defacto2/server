@@ -96,7 +96,6 @@ function validate(input, sanity) {
 }
 
 function beforeReset(alert, results) {
-  results.innerHTML = "";
   alert.innerText = "";
   alert.classList.add(none);
 }

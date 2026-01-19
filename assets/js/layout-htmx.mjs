@@ -10,7 +10,8 @@ export default htmxEvents;
  * Initializes the htmx event listeners.
  */
 export function htmxEvents() {
-  //htmx.logAll();
+  //htmx.logAll(); // uncomment, to debug but spam
+
   searchEvents();
 
   document.body.addEventListener("htmx:beforeRequest", function (event) {

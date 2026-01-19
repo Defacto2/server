@@ -124,22 +124,27 @@ func DemozooLookup(c echo.Context, db *sql.DB, prodMode bool) error {
 			info = append(info, "for", name)
 		}
 	}
-	return c.HTML(http.StatusOK, btn(id, info...))
+	return c.HTML(http.StatusOK, demozooBtn(id, info...))
 }
 
 // Submit ID button saves the Demozoo production ID to the database and fetches the file.
 // htmx.DemozooSubmit is the handler for the /demozoo/production put route,
 // which uses htmx.submit, found in transfer.go, to insert the new file record into the database.
-func btn(id int, info ...string) string {
-	htm := `<div class="d-grid gap-2">`
+func demozooBtn(id int, info ...string) string {
+	htm := `<form class="d-grid">`
 	htm += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
 		`hx-put="/demozoo/production/%d" `+
-		`hx-indicator="#demozoo-indicator" `+
-		`hx-target="#demozoo-submission-results" hx-trigger="click once delay:500ms" `+
+		`hx-indicator="#demozoo-remote-indicator" `+
+		`hx-target="#demozoo-submission-results" `+
+		`hx-swap="innerHTML" `+
+		`hx-trigger="click once delay:500ms" `+
 		`hx-target-error="#demozoo-submission-error" `+
 		`autofocus>Submit ID %d</button>`, id, id)
+	htm += `<div id="demozoo-remote-indicator" class="htmx-indicator text-secondary pt-2" role="status">` +
+		`  <span class="spinner-border spinner-border-sm"></span> <span>Fetching Download linked by Demozoo...</span>`
 	htm += `</div>`
-	htm += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))
+	htm += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
+	htm += `</form>`
 	return htm
 }
 
@@ -438,20 +443,22 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 			info = append(info, " ", strings.TrimSpace(val))
 		}
 	}
-	return c.HTML(http.StatusOK, htmler(id, info...))
+	return c.HTML(http.StatusOK, pouetBtn(id, info...))
 }
 
-func htmler(id int, info ...string) string {
-	s := `<div class="d-grid gap-2">`
-	s += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
+func pouetBtn(id int, info ...string) string {
+	htm := `<form class="d-grid">`
+	htm += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
 		`hx-put="/pouet/production/%d" `+
-		`hx-indicator="#pouet-indicator" `+
+		`hx-indicator="#pouet-remote-indicator" `+
 		`hx-target="#pouet-submission-results" hx-trigger="click once delay:500ms" `+
 		`hx-target-error="#pouet-submission-error" `+
 		`autofocus>Submit ID %d</button>`, id, id)
-	s += `</div>`
-	s += fmt.Sprintf(`<p class="mt-3">%s</p>`, strings.Join(info, " "))
-	return s
+	htm += `<div id="pouet-remote-indicator" class="htmx-indicator text-secondary pt-2" role="status">` +
+		`  <span class="spinner-border spinner-border-sm"></span> <span>Fetching Download linked by Pouet...</span>`
+	htm += `</div>`
+	htm += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
+	return htm
 }
 
 // PouetValid fetches the first usable download link from the Pouet API.

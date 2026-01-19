@@ -36,25 +36,24 @@
                 </p>
                 <label for="demozoo-submission" id="demozoo-submission-label" class="form-label">Demozoo production ID</label>
                 <div class="input-group">
-                    <div class="input-group-text">
-                        <div id="demozoo-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
                     <input type="number" spellcheck="false" autofocus required min="1" max="{{ demozooSanity }}" value=""
                         class="form-control" id="demozoo-submission" name="demozoo-submission" 
                         hx-get="/demozoo/production" 
                         hx-target-error="#demozoo-submission-error"
                         hx-target="#demozoo-submission-results" 
+                        hx-swap="innerHTML"
                         hx-trigger="input changed delay:{{$delay}}, search" 
                         hx-indicator="#demozoo-indicator"
                         hx-validate="true"
                         placeholder="Lookup a production…">
                     <button type="reset" id="demozoo-submission-clear" class="btn btn-outline-dark">Clear</button>
                 </div>
+                <div id="demozoo-indicator" class="htmx-indicator text-secondary pt-2" role="status">
+                    <span class="spinner-border spinner-border-sm"></span> <span>Fetching data from Demozoo...</span>
+                </div>
               </form>
-              <div id="demozoo-submission-error" class="text-danger mt-3"></div>
-              <div id="demozoo-submission-results" class="justify-content-center mt-3"></div>
+              <div id="demozoo-submission-error" class="text-danger"></div>
+              <div id="demozoo-submission-results" class="justify-content-center"></div>
             </div>
             <div class="modal-footer"></div>
           </div>
@@ -77,11 +76,6 @@
               </p>
               <label for="pouet-submission" id="pouet-submission-label" class="form-label">Pouët production ID</label>
               <div class="input-group">
-                  <div class="input-group-text">
-                      <div id="pouet-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
-                          <span class="visually-hidden">Loading...</span>
-                      </div>
-                  </div>
                   <input type="number" spellcheck="false" autofocus required min="1" max="{{ pouetSanity }}" value=""
                       class="form-control" id="pouet-submission" name="pouet-submission" 
                       hx-get="/pouet/production" 
@@ -93,9 +87,12 @@
                       placeholder="Lookup a production…">
                   <button type="reset" id="pouet-submission-clear" class="btn btn-outline-dark">Clear</button>
               </div>
+              <div id="pouet-indicator" class="htmx-indicator text-secondary pt-2" role="status">
+                <span class="spinner-border spinner-border-sm"></span> <span>Fetching data from Pouët...</span>
+              </div>
             </form>
-            <div id="pouet-submission-error" class="text-danger mt-3"></div>
-            <div id="pouet-submission-results" class="justify-content-center mt-3"></div>
+            <div id="pouet-submission-error" class="text-danger"></div>
+            <div id="pouet-submission-results" class="justify-content-center"></div>
           </div>
           <div class="modal-footer"></div>
         </div>

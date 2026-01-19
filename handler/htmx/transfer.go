@@ -521,14 +521,14 @@ func (prod Submission) Submit( //nolint:funlen
 		if err := app.GetDemozoo(c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote demozoo api"), slog.Any("error", err))
-			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
+			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
 		if err := app.GetPouet(c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote pouet api"), slog.Any("error", err))
-			html += fmt.Sprintf(`<p class="text-danger">error, the %s download failed</p>`, prod.String())
+			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	}
@@ -709,7 +709,7 @@ func UploadReplacement( //nolint:funlen
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
 	if err := fu.Update(context.Background(), tx, upload.id); err != nil {
-		return badRequest(c, ErrFormUpdate)
+		return badRequest(c, fmt.Errorf("file upload update, %w: %w", ErrFormUpdate, err))
 	}
 	abs := filepath.Join(download.Path(), upload.unid)
 	if _, err = helper.DuplicateOW(dst, abs); err != nil {
