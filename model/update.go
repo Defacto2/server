@@ -797,7 +797,7 @@ func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id i
 	f.Filesize = null.Int64From(fu.Filesize)
 	f.FileLastModified = null.TimeFrom(fu.LastMod)
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
-		return fmt.Errorf("%s update record %d: %w", msg, id, err)
+		return fmt.Errorf("%s onefile().update record %d: %w", msg, id, err)
 	}
 	return nil
 }
