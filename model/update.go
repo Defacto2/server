@@ -431,6 +431,9 @@ func UpdateStringFrom(db *sql.DB, column stringFrom, id int64, val string) error
 }
 
 func updateStringCases(f *models.File, column stringFrom, val string) error {
+	// strings must be sanitized otherwise there is a possibility of invalid
+	// characters being injected via FileZipContent, which will error the SQL update
+	val = strings.ToValidUTF8(val, "?")
 	s := null.StringFrom(strings.TrimSpace(val))
 	switch column {
 	case colors16:
