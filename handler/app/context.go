@@ -25,8 +25,10 @@ import (
 	"github.com/Defacto2/server/handler/app/remote"
 	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/handler/cache"
+	"github.com/Defacto2/server/handler/csdb"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/download"
+	"github.com/Defacto2/server/handler/janeway"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/handler/site"
@@ -1673,6 +1675,8 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 	data["logo"] = relname
 	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
+	data["csdb"] = csdb.Find(uri)
+	data["janeway"] = janeway.Find(uri)
 	data["website"] = site.Find(uri)
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
@@ -2322,6 +2326,7 @@ func emptyFiles(c echo.Context) map[string]any {
 	data["bbs"] = false
 	data["demozoo"] = "0"
 	data["sixteen"] = ""
+	data["csdb"] = ""
 	data["scener"] = ""
 	data["tidbits"] = ""
 	data["website"] = ""

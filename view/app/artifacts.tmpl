@@ -14,6 +14,10 @@
 {{- $linkZoo := ne $zoo "0"}}
 {{- $sixteen := index .sixteen }}
 {{- $link16C := ne $sixteen ""}}
+{{- $csdb := index .csdb }}
+{{- $linkcsdb := gt $csdb 0}}
+{{- $janeway := index .janeway}}
+{{- $linkjaneway := gt $janeway 0}}
 {{- $tidbit := index .tidbits}}
 {{- $linkTidbit := gt (len $tidbit) 0}}
 {{- $scener := index .scener }}
@@ -39,6 +43,12 @@
   {{- end}}
   {{- if $link16C}}
   <small><small>ANSI and text artworks</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a></small><br>
+  {{- end}}
+  {{- if $linkjaneway}}
+  <small><small>Amiga releases</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://janeway.exotica.org.uk/author.php?id={{$janeway}}"><strong>Kestra</strong>{{linkSVG}}</a></small><br>
+  {{- end}}
+  {{- if $linkcsdb}}
+  <small><small>C-64 releases</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://csdb.dk/group/?id={{$csdb}}"><strong>csdb</strong>{{linkSVG}}</a></small><br>
   {{- end}}
   {{- if $linkWeb}}
     {{ $notworkings := false }}

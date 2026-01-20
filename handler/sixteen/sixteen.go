@@ -1,4 +1,4 @@
-// Package sixteen provides data about releasers and groups on the 16colors website.
+// Package sixteen provides data about releasers and groups on the [16colors] website.
 // [16colors]: https://16colo.rs
 package sixteen
 
