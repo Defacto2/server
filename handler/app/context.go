@@ -2325,9 +2325,10 @@ func emptyFiles(c echo.Context) map[string]any {
 	data := empty(c)
 	data["bbs"] = false
 	data["demozoo"] = "0"
-	data["sixteen"] = ""
-	data["csdb"] = ""
+	data["csdb"] = 0
+	data["janeway"] = 0
 	data["scener"] = ""
+	data["sixteen"] = ""
 	data["tidbits"] = ""
 	data["website"] = ""
 	data["unknownYears"] = true

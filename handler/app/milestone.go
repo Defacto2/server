@@ -1267,19 +1267,19 @@ func Collection() Milestones {
 				`<span style="color:#00c400;background-color:#000;">                                  </span><span style="color:#f34ef3;background-color:#000;">║</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#f3f34e;background-color:#000;">WARLORDS</span><span style="color:#00c400;background-color:#000;"> </span><span style="color:#f34ef3;background-color:#000;">║</span><span style="color:#00c400;background-color:#000;">                                  </span><br>` +
 				`<span style="color:#00c400;background-color:#000;">                                  </span><span style="color:#f34ef3;background-color:#000;">╚══════════╝</span><span style="color:#00c400;background-color:#000;">                                  </span><br>` +
 				`</div><br></pre>`,
-			Picture: Picture{
-				Title: "Spy Hunter",
-				Alt:   "Spy Hunter by Imperial Warlords screenshot",
-				Webp:  "aa2be75.webp",
-				Png:   "aa2be75.png",
-			},
+			// Picture: Picture{
+			// 	Title: "Spy Hunter",
+			// 	Alt:   "Spy Hunter by Imperial Warlords screenshot",
+			// 	Webp:  "aa2be75.webp",
+			// 	Png:   "aa2be75.png",
+			// },
 		},
 		{
 			Title: "The earliest PC ASCII art", Year: 1985, Month: 7, Day: 24, Highlight: true,
 			Lead: "So far, How to WIN at KING's QUEST from The Illinois Pirates", LinkTitle: "and view the file", Link: "/f/bc30a5b",
 			Content: "<p><strong>The Illinois Pirates</strong> walk-through for the PC exclusive game King's Quest released the earliest known PC <strong>ASCII art</strong> or Codepage 437 art. " +
 				"The ASCII text logo uses block and line art characters that were exclusive to the IBM PC platform.</p>" +
-				`<pre style="font-size:28px;line-height:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+				`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
 				"<br>" +
 				`/////////// How to WIN at KING's QUEST \\\\\\\\\\\\\\\<br>` +
 				`\\\\\\\\\\\    on the IBM PC/PCjr      ///////////////<br><br>` +
@@ -1312,15 +1312,15 @@ func Collection() Milestones {
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║ ∙██ ∙  █  ∙∙∙ 300 1200 ∙∙∙ ███∙ █ .║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙ ██ ∙∙∙∙∙∙∙∙∙∙ ██████ . ███ ∙ ∙█ .║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙ ███ █∙ ██████ ∙∙∙ ██ ...∙∙∙ ███ .║</span><br>` +
-				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙ █∙∙█∙∙  █∙∙ ████ ∙ ∙ ██████  </span><span style="color:#fff;background-color:#0aa;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;"> .║</span><br>` +
-				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║</span><span style="color:#aaa;">               </span><span style="color:#fff;background-color:#00a;">` + "\x02" + `......</span><span style="color:#fff;background-color:#a00;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;">.............║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙ █∙∙█∙∙  █∙∙ ████ ∙ ∙ ██████  </span><span class="blinking" style="color:#fff;background-color:#0aa;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;"> .║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║</span><span style="color:#aaa;">               </span><span style="color:#fff;background-color:#00a;">` + "\x02" + `......</span><span class="blinking" style="color:#fff;background-color:#a00;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;">.............║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙   ∙∙∙∙∙ ∙ .███ ███.█.... █ .███ .║</span><br>` +
-				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙█∙    ████ ∙.█  </span><span style="color:#ff5;background-color:#a0a;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;">  █.███████ .█ ...║</span><br>` +
-				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙██     ███∙ .█  </span><span style="color:#fff;background-color:#aaa;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;"> </span><span style="color:#fff;background-color:#000;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;">█.█ .......█████║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙█∙    ████ ∙.█  </span><span class="blinking" style="color:#ff5;background-color:#a0a;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;">  █.███████ .█ ...║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙██     ███∙ .█  </span><span class="blinking" style="color:#fff;background-color:#aaa;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;"> </span><span class="blinking" style="color:#fff;background-color:#000;">` + "\x01" + `</span><span style="color:#fff;background-color:#00a;">█.█ .......█████║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙███     ██∙∙.███████.....█ .█......║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙∙ ██  ∙∙∙∙.........█████ .█. ████║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙∙∙ █    █∙███████████ ....█......║</span><br>` +
-				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙█  ███</span><span style="color:#aaa;">                </span><span style="color:#fff;background-color:#00a;">█ ` + "\x01" + `..... ███.║</span><br>` +
+				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙█  ███</span><span style="color:#aaa;">                </span><span style="color:#fff;background-color:#00a;">█ <span class="blinking">` + "\x01" + `</span>..... ███.║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙█∙∙∙∙∙∙     300 1200    ...██... █.║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║ ∙ ██ ██   212-799-6987  █████. ███.║</span><br>` +
 				`<span style="color:#aaa;">       </span><span style="color:#fff;background-color:#00a;">║∙∙∙∙ █∙∙  24HRS WEEKDAYS   .......■.║</span><br>` +
