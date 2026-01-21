@@ -648,7 +648,7 @@ func Websites() Groups {
 		},
 		"superior-art-creations": []Website{
 			{
-				URL:  "http://www.roysac.com/sac.html",
+				URL:  "https://www.roysac.com/sac.html",
 				Name: "RoySAC",
 			},
 			{
@@ -660,6 +660,10 @@ func Websites() Groups {
 				URL:        "www.sac2000.home.ml.org",
 				Name:       "SAC2000",
 				NotWorking: true,
+			},
+			{
+				URL:  "https://www.flickr.com/photos/cumbrowski/collections/72157612320706642/",
+				Name: "Art releases",
 			},
 		},
 		"titan": []Website{
