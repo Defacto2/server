@@ -28,6 +28,11 @@ type Groups map[URI][]Website
 //   - NotWorking will not apply a hyperlink to the URL.
 func Websites() Groups {
 	return Groups{
+		"class": {
+			{URL: "class101.com", NotWorking: true, Name: "former domain"},
+			{URL: "www.multimania.com/atm9x", NotWorking: true, Name: "coder ATM/Class"},
+			{URL: "https://en.wikipedia.org/wiki/Class_(pirating_group)", Name: "Class (pirating group)"},
+		},
 		"shade": {
 			{URL: "www.suburbia.net/~shade", NotWorking: true},
 		},
