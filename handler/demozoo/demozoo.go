@@ -646,6 +646,8 @@ func groups() Groups { //nolint:funlen,maintidx
 		"the-digital-afterlife":                 83228,
 		"sea-shell-commando":                    83166,
 		"prestige":                              1434,
+		"cream":                                 90461,
+		"reaction":                              65041,
 		"hybrid":                                18751,
 		"devotion":                              83145,
 		"the-reservoir-dogs":                    81680,

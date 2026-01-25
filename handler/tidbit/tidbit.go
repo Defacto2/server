@@ -503,6 +503,8 @@ func Groups() Tibits { //nolint:maintidx
 		404:  []URI{"paradigm"},
 		405:  []URI{"class"},
 		406:  []URI{"prestige"},
+		407:  []URI{"reaction", "cream", "prestige"},
+		408:  []URI{"reaction", "forgive-us-crazy-kids"},
 	}
 }
 
