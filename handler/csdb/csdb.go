@@ -15,6 +15,7 @@ func groups() Groups {
 	return Groups{
 		"2000ad":                           261,
 		"alpha-flight":                     215,
+		"dynamix":                          751,
 		"dytec":                            257,
 		"fairlight":                        20,
 		"fantastic-4-cracking-group":       148,

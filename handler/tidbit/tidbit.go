@@ -505,6 +505,7 @@ func Groups() Tibits { //nolint:maintidx
 		406:  []URI{"prestige"},
 		407:  []URI{"reaction", "cream", "prestige"},
 		408:  []URI{"reaction", "forgive-us-crazy-kids"},
+		409:  []URI{"dynamix"},
 	}
 }
 

@@ -14,6 +14,7 @@ type Groups map[string]GroupID
 func groups() Groups {
 	return Groups{
 		"alpha-flight":                     2276,
+		"dynamix":                          23611,
 		"dynasty":                          20956,
 		"dytec":                            13810,
 		"fairlight":                        252,
