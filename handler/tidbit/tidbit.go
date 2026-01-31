@@ -510,6 +510,10 @@ func Groups() Tibits { //nolint:maintidx
 		411:  []URI{"hybrid"},
 		4110: []URI{"hybrid", "eclipse", "dynamix"},
 		4111: []URI{"hybrid", "tdu_jam", "razor-1911", "dynamix", "genesis"},
+		412:  []URI{"legend"},
+		413:  []URI{"pentagram"},
+		414:  []URI{"legend", "pentagram", "genesis"},
+		415:  []URI{"genesis"},
 	}
 }
 
