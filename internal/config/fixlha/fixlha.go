@@ -50,7 +50,8 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 	if err := panics.ContextB(ctx, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
-	mods := []qm.QueryMod{}
+	const size = 5
+	mods := make([]qm.QueryMod, 0, size)
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
 	mods = append(mods, qm.Where("filename ILIKE ?", "%.lha"))

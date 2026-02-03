@@ -173,6 +173,12 @@ linters:
       - linters:
           - ireturn
         path: handler/render/render.go
+      - linters:
+          - mnd
+        path: handler/csdb/csdb.go
+      - linters:
+          - mnd
+        path: handler/janeway/janeway.go
     paths:
       - third_party$
       - builtin$

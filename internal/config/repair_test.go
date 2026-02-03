@@ -55,7 +55,7 @@ func TestRemove(t *testing.T) {
 			want: "file_id.diz",
 			setup: func() error {
 				const x = "1234567890\n"
-				data := []byte{}
+				data := make([]byte, 0, len(x)*15)
 				for range 15 {
 					data = append(data, x...)
 				}

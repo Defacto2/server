@@ -37,6 +37,7 @@ func groups() Groups {
 		"art-creation-enterprise":            "group/ace",
 		"ansi-factory":                       "group/afc",
 		"relentless-pursuit-of-magnificence": "group/rpm",
+		"untouchable-art":                    "group/untouchable%20art",
 	}
 }
 

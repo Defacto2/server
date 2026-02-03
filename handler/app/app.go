@@ -669,7 +669,7 @@ func SafeBBS(a any) template.HTML {
 		}
 		var buf bytes.Buffer
 		if err := bbs.PCBoardHTML(&buf, b...); err != nil {
-			fmt.Print(err)
+			fmt.Print(err) // TODO: replace with a log
 		}
 		// FIX: temp block
 		// s := string(RemovePCBoard(b))

@@ -329,16 +329,17 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := time.Now()
-	mods := []qm.QueryMod{}
+	const size = 2
+	mods := make([]qm.QueryMod, 0, size)
 	mods = append(mods, qm.Select("uuid"))
 	mods = append(mods, qm.WithDeleted())
 	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("%s select all uuids: %w", msg, err)
 	}
-	size := len(files)
-	sl.Info(msg, slog.String("task", "Check UUID count"), slog.Int("result", size))
-	artifacts := make([]string, size)
+	count := len(files)
+	sl.Info(msg, slog.String("task", "Check UUID count"), slog.Int("result", count))
+	artifacts := make([]string, count)
 	for i, f := range files {
 		if !f.UUID.Valid || f.UUID.String == "" {
 			continue
@@ -383,7 +384,7 @@ func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog
 	}
 	sl.Info(msg,
 		slog.String("task", "Time taken"),
-		slog.Int("checks", sum), slog.Int("uuids", size),
+		slog.Int("checks", sum), slog.Int("uuids", count),
 		slog.Duration("time", time.Since(d).Round(time.Millisecond)))
 	return nil
 }

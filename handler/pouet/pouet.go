@@ -291,7 +291,7 @@ func (t Types) Valid() bool {
 }
 
 func (t Types) String() string {
-	s := []string{}
+	s := make([]string, 0, len(t))
 	for _, val := range t {
 		s = append(s, string(val))
 	}

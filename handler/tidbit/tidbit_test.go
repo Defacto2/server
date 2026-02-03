@@ -58,7 +58,7 @@ func TestID_URL(t *testing.T) {
 
 func TestFind(t *testing.T) {
 	t.Parallel()
-	const want = 2
+	const want = 3
 	if got := tidbit.Find("untouchables"); len(got) != want {
 		t.Errorf("tidbit: wanted %d untouchables matches, but got %d", want, len(got))
 	}

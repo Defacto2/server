@@ -222,7 +222,9 @@ func Vers(version string) string {
 // Version returns a formatted version string for this program
 // including the [Commit], [OS] and CPU [Arch].
 func Version(s string) string {
-	elems := []string{Commit(s)}
+	const size = 2
+	elems := make([]string, 0, size)
+	elems = append(elems, Commit(s))
 	elems = append(elems, fmt.Sprintf("%s on %s", OS(), Arch()))
 	return strings.Join(elems, " for ")
 }

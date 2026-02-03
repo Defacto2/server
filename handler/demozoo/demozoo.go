@@ -941,6 +941,7 @@ func groups() Groups { //nolint:funlen,maintidx
 		"tristar-ampersand-red-sector-inc":      69,
 		"triad":                                 131111,
 		"untouchables":                          112780,
+		"untouchable-art":                       83922,
 		"ultra-force":                           37076,
 		"ultra-tech":                            75375,
 		"union":                                 58739,

@@ -159,6 +159,7 @@ func Groups() Tibits { //nolint:maintidx
 		46:   []URI{"legion-of-doom"},
 		47:   []URI{"the-grand-council"},
 		48:   []URI{"untouchables", "uniq", "xap", "pentagram"},
+		488:  []URI{"untouchables", "untouchable-art"},
 		49:   []URI{"italsoft"},
 		50:   []URI{"future-brain-inc"},
 		51:   []URI{"pirate"},

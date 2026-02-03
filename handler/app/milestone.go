@@ -770,7 +770,7 @@ func Collection() Milestones {
 				// phrack magazine quote
 				"<p><strong>The Apple Mafia, <q>the first WAreZ gRoUP</q></strong><br>" +
 				"Phrack Magazine issue 42 has a 1993 <a href=\"http://phrack.org/issues/42/3.html\">interview</a> with hacker and former Apple pirate <a href=\"https://en.wikipedia.org/wiki/Patrick_K._Kroupa\">Lord&nbsp;Digital</a>. " +
-				"The interview claims around 1980, he and some New York friends travelled to the AppleFest conference, discovered some other Apple owners. And afterwards, formed The Apple Mafia to make it the first warez group for the Apple II. " +
+				"The interview claims around 1980, he and some New York friends traveled to the AppleFest conference, discovered some other Apple owners. And afterwards, formed The Apple Mafia to make it the first warez group for the Apple II. " +
 				"However, the story is inaccurate, as AppleFest was first held on June 1981<sup><a href=\"#the-first-group-fn3\">[3]</a></sup>, in Boston. " +
 				"<q>I played around with various things, ... until " +
 				"I got an Apple&nbsp;II+ in 1978. I hung out with a group of people who were also " +

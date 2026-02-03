@@ -186,7 +186,8 @@ func trainers(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
 	const msg = "Database repair: " + trainer
 	sl.Info(msg,
 		slog.String("task", "Check for trainers that are incorrectly categorized"))
-	mods := []qm.QueryMod{}
+	const size = 5
+	mods := make([]qm.QueryMod, 0, size)
 	mods = append(mods, qm.Select("id"))
 	mods = append(mods, qm.Where(fmt.Sprintf("section != '%s'", trainer)))
 	mods = append(mods, qm.Where("section != 'magazine'"))
