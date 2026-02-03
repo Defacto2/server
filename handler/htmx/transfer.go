@@ -79,7 +79,7 @@ func HumanizeCount(c echo.Context, db *sql.DB, sl *slog.Logger, name string) err
 // against the database to see if the file already exists, and returns the URI if it does.
 // Otherwise, if it does not exist, it returns an empty string.
 func LookupSHA384(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	const msg = "tranfer lookup sha384"
+	const msg = "transfer lookup sha384"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}

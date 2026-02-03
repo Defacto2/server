@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"math"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
@@ -67,7 +66,7 @@ func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logge
 			port = c.Environment.TLSPort.Value()
 			proto = "https"
 		}
-		return htmx.Pings(cx, proto, int(math.Abs(float64(port))))
+		return htmx.Pings(cx, proto, int(port))
 	})
 }
 

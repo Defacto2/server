@@ -37,7 +37,7 @@ type Picture struct {
 // Links is a collection of Links.
 type Links []struct {
 	LinkTitle string // LinkTitle is the title of the Link.
-	SubTitle  string // SublTitle is the title of the Link in a smaller font and in brackets.
+	SubTitle  string // SubTitle is the title of the Link in a smaller font and in brackets.
 	Link      string // Link is the URL to an article about the milestone or the product.
 	Forward   string // Forward is an optional name of a group that is prefixed before the link to indicate a merger.
 }

@@ -95,7 +95,7 @@ func InformationText(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, 
 		return fmt.Errorf("information text copy %w: %q", err, name)
 	}
 	var p []byte
-	if sign, _ := magicnumber.Text(f); sign != magicnumber.Unknown {
+	if sign, _ := magicnumber.Text(bytes.NewReader(buf.Bytes())); sign != magicnumber.Unknown {
 		p = normalize(buf)
 	} else {
 		p = buf.Bytes()

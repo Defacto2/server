@@ -790,7 +790,7 @@ func jsdosEmulator(art *models.File, data map[string]any, sl *slog.Logger,
 	return data
 }
 
-func sortContent(content string) []string {
+func SortContent(content string) []string {
 	x := strings.Split(content, "\n")
 	slices.SortFunc(x, func(a, b string) int {
 		// behave like Windows and ignore case ordering
@@ -815,8 +815,7 @@ func sortContent(content string) []string {
 		index++
 		items[index] = s
 	}
-	items = slices.Compact(items)
-	return items
+	return items[:index+1]
 }
 
 // content returns the archive content for the file download of the artifact.
@@ -824,7 +823,7 @@ func content(art *models.File, maxItems int, data map[string]any) map[string]any
 	if art == nil {
 		return data
 	}
-	items := sortContent(art.FileZipContent.String)
+	items := SortContent(art.FileZipContent.String)
 	items = slices.DeleteFunc(items, func(s string) bool {
 		return strings.TrimSpace(s) == ""
 	})

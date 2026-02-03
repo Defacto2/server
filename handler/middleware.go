@@ -10,11 +10,11 @@ import (
 	"crypto/sha512"
 	"fmt"
 	"log/slog"
-	"math"
 	"net/http"
 	"runtime"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
@@ -24,6 +24,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+var requestCounter atomic.Int64
 
 // SkipPaths are parent route paths that should not be logged,
 // to reduce the logging output. Otherwise every image
@@ -134,7 +136,7 @@ func trailSlash() middleware.TrailingSlashConfig {
 // If Configuration.LogAll is false then this returns a nil.
 // Otherwise it logs all web server HTTP requests to info logs.
 func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig {
-	if logall := c.Environment.LogAll; !logall {
+	if !c.Environment.LogAll {
 		exitRequest := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
 			return nil
 		}
@@ -146,11 +148,15 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 	}
 	// logValues is used by the returned middleware.RequestLoggerConfig().LogValuesFunc
 	logValues := func(_ echo.Context, v middleware.RequestLoggerValues) error {
-		// memory usage
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		rsize := uint64(math.Abs(float64(v.ResponseSize)))
-		alloc := humanize.Bytes(m.Alloc)
+		// memory usage - sample every 10th request to avoid stop-the-world pauses
+		var alloc string
+		count := requestCounter.Add(1)
+		if count%10 == 0 {
+			var m runtime.MemStats
+			runtime.ReadMemStats(&m)
+			alloc = humanize.Bytes(m.Alloc)
+		}
+		rsize := uint64(v.ResponseSize)
 		// use funcs to maintain the readability of the nested slog arguments
 		response := func() slog.Attr {
 			return slog.Group("response",
@@ -172,7 +178,6 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 		}
 		sl.Info(fmt.Sprintf("HTTP %s %d", v.Method, v.Status),
 			slog.Duration("latency", v.Latency),
-			slog.String("uri", v.URIPath),
 			response(), cpuinfo(),
 			slog.String("allocation", alloc),
 			// slog.Any("request", v), // uncomment for verbose & debugging

@@ -599,8 +599,8 @@ func StatHumanize(name string) (string, string, string) {
 func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTML {
 	fw := thumbnail.Join(unid + webp)
 	fp := thumbnail.Join(unid + png)
-	webp := strings.Join([]string{config.StaticThumb(), unid + webp}, "/")
-	png := strings.Join([]string{config.StaticThumb(), unid + png}, "/")
+	webpSrc := strings.Join([]string{config.StaticThumb(), unid + webp}, "/")
+	pngSrc := strings.Join([]string{config.StaticThumb(), unid + png}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
 	w, p := false, false
 	if helper.Stat(fw) {
@@ -619,14 +619,14 @@ func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTM
 	}
 	if w && p {
 		elm := "<picture class=\"" + class + "\">" +
-			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webp) +
-			string(thumb(png, alt, class, style)) +
+			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webpSrc) +
+			string(thumb(pngSrc, alt, class, style)) +
 			"</picture>"
 		return template.HTML(elm)
 	}
-	src := webp
+	src := webpSrc
 	if p {
-		src = png
+		src = pngSrc
 	}
 	return thumb(src, alt, class, style)
 }

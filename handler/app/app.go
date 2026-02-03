@@ -43,7 +43,7 @@ const (
 )
 
 var (
-	ErrClaims   = errors.New("no sub id in the claims playload")
+	ErrClaims   = errors.New("no sub id in the claims payload")
 	ErrCorrupt  = errors.New("cache data is invalid or corrupt")
 	ErrMisMatch = errors.New("token mismatch")
 	ErrNegative = errors.New("value cannot be a negative number")

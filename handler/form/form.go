@@ -207,9 +207,9 @@ func ValidVT(link string) bool {
 	if len(link) > 0 && !strings.HasPrefix(link, expect) {
 		return false
 	}
-	const hash = 64
-	if len(link) > (len(expect) + hash) {
-		return true
-	}
+	// const hash = 64
+	// if len(link) > (len(expect) + hash) {
+	// 	return true
+	// }
 	return true
 }

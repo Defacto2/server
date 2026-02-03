@@ -140,7 +140,7 @@ func SortList(compact bool, content string) []string {
 		index++
 		paths[index] = path
 	}
-	return paths
+	return paths[:index+1]
 }
 
 // priority returns a list of readme text file extensions in priority order.
@@ -370,7 +370,7 @@ func RemoveCtrls(b []byte) []byte {
 		reAmiga = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
 		reDEC   = `\x1b\[\?[0-9+]h`       // DEC control codes
 		reSauce = `SAUCE00.*`             // SAUCE metadata that is appended to some files
-		crlf    = "\x01\x0a"              // Windows and PC DOS line endings
+		crlf    = "\x0d\x0a"              // Windows and PC DOS line endings
 		newline = "\x0a"                  // Unix line endings
 		null    = "\x00"                  // null byte
 		space   = "\x20"

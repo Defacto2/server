@@ -130,7 +130,7 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	file := d.Dir.Join(uid)
 	if !helper.Stat(file) {
 		sl.Warn(msg,
-			slog.String("issue", "%could not find the file download"),
+			slog.String("issue", "could not find the file download"),
 			slog.String("path", file),
 			slog.Int64("id", art.ID),
 			slog.String("filename", art.Filename.String))

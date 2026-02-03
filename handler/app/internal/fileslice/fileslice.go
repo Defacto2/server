@@ -17,7 +17,17 @@ import (
 	"github.com/aarondl/sqlboiler/v4/boil"
 )
 
-var ErrCategory = errors.New("unknown artifacts categories")
+var (
+	ErrCategory = errors.New("unknown artifacts categories")
+	uriMap      = func() map[string]URI {
+		m := make(map[string]URI)
+		for val := range int(WindowsPack) {
+			i := val + 1
+			m[URI(i).String()] = URI(i)
+		}
+		return m
+	}()
+)
 
 // URI is a type for the files URI path.
 type URI int
@@ -154,24 +164,16 @@ func (u URI) String() string {
 
 // Match path to a URI type or return -1 if not found.
 func Match(path string) URI {
-	for val := range int(WindowsPack) {
-		i := val + 1
-		if URI(i).String() == path {
-			return URI(i)
-		}
+	if uri, ok := uriMap[path]; ok {
+		return uri
 	}
 	return -1
 }
 
 // Valid returns true if path is a valid URI for the list of files.
 func Valid(path string) bool {
-	for val := range int(WindowsPack) {
-		i := val + 1
-		if URI(i).String() == path {
-			return true
-		}
-	}
-	return false
+	_, ok := uriMap[path]
+	return ok
 }
 
 // FileInfo is a helper function for Files that returns the page title, h1 title and lead text.

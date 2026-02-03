@@ -715,7 +715,7 @@ func ListContent( //nolint:cyclop,gocognit,funlen
 	if len(elms) > maxItems {
 		elms = elms[:maxItems]
 	}
-	results := readme.SortList(false, strings.Join(elms, "\n"))
+	results := readme.SortList(false, strings.Join(elms[:index+1], "\n"))
 
 	var b strings.Builder
 	name := ""

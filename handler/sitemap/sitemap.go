@@ -147,7 +147,7 @@ func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 		"files/oldest", // page 1 (doesn't append the page number)
 	}
 	page := 1
-	for page < int(lastPage) {
+	for page <= int(lastPage)-1 {
 		page++
 		locs = append(locs, "files/oldest/"+strconv.Itoa(page))
 	}

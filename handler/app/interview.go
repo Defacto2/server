@@ -227,7 +227,7 @@ func Interviewees() Groups {
 					Year:    1991,
 					Month:   10,
 					Content: "Member of USA and Fairlight and the siteop of BBS-A-Holic (213).",
-					Link:    "f/ad4af8",
+					Link:    "/f/ad4af8",
 				},
 				{
 					Scener: "Strider",

@@ -19,7 +19,7 @@ const (
 	EditAssets                   // EditAssets is the path to the minified Editor assets JS file.
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
 	Htmx                         // Htmx is the path to the minified htmx AJAX JS file.
-	HtmxRespTargets              // Htmx is the path to the minified response targets extension file.
+	HtmxRespTargets              // HtmxRespTargets is the path to the minified response targets extension file.
 	Jsdos6JS                     // Jsdos6JS is the path to the minified js-dos v6 JS file.
 	Layout                       // Layout is the path to the minified layout CSS file.
 	LayoutJS                     // LayoutJS is the path to the minified layout JS file.
@@ -76,19 +76,19 @@ type Font int
 const (
 	A1200     Font = iota // A1200 is the path to the Topaz Plus font file.
 	A1200Woff             // A1200Woff is the path to the Topaz Plus legacy WOFF format font file.
-	A1200TT               // A1200TT is the path to the Topaz Plus legacy TrueType format font file.
+	A1200_tt              // A1200_tt is the path to the Topaz Plus legacy TrueType format font file.
 	MicroKnight
-	MicroKnighttt
+	MicroKnight_tt
 	CascadiaMono     // CascadiaMono is the path to the Cascadia Mono font file.
 	CascadiaMonoWoff // CascadiaMonoWoff is the path to the Cascadia Mono WOFF format font file.
-	CascadiaMonoTT   // CascadiaMonoTT is the path to the Cascadia Mono TrueType format font file.
-	IBMVGA8x16tt
+	CascadiaMono_tt  // CascadiaMono_tt is the path to the Cascadia Mono TrueType format font file.
+	IBMVGA8x16_tt
 	IBMVGA8x16
-	IBMEGA8x8tt
+	IBMEGA8x8_tt
 	IBMEGA8x8
-	IBMCGAtt
+	IBMCGA_tt
 	IBMCGA
-	IBMMDAtt
+	IBMMDA_tt
 	IBMMDA
 )
 
@@ -111,19 +111,19 @@ func FontRefs() *Fonts {
 	return &Fonts{
 		A1200:            "/topazplus_a1200.woff2",
 		A1200Woff:        "/topazplus_a1200.woff",
-		A1200TT:          "/topazplus_a1200.ttf",
+		A1200_tt:         "/topazplus_a1200.ttf",
 		MicroKnight:      "/MicroKnightPlus_v1.0.woff2",
-		MicroKnighttt:    "/MicroKnightPlus_v1.0.ttf",
+		MicroKnight_tt:   "/MicroKnightPlus_v1.0.ttf",
 		CascadiaMono:     "/CascadiaMono.woff2",
 		CascadiaMonoWoff: "/CascadiaMono.woff",
-		CascadiaMonoTT:   "/CascadiaMono.ttf",
-		IBMVGA8x16tt:     "/Ac437_IBM_VGA_8x16.ttf",
+		CascadiaMono_tt:  "/CascadiaMono.ttf",
+		IBMVGA8x16_tt:    "/Ac437_IBM_VGA_8x16.ttf",
 		IBMVGA8x16:       "/Ac437_IBM_VGA_8x16.woff2",
-		IBMEGA8x8tt:      "/Ac437_IBM_EGA_8x8.ttf",
+		IBMEGA8x8_tt:     "/Ac437_IBM_EGA_8x8.ttf",
 		IBMEGA8x8:        "/Ac437_IBM_EGA_8x8.woff2",
-		IBMCGAtt:         "/Ac437_IBM_CGA.ttf",
+		IBMCGA_tt:        "/Ac437_IBM_CGA.ttf",
 		IBMCGA:           "/Ac437_IBM_CGA.woff2",
-		IBMMDAtt:         "/Ac437_IBM_MDA.ttf",
+		IBMMDA_tt:        "/Ac437_IBM_MDA.ttf",
 		IBMMDA:           "/Ac437_IBM_MDA.woff2",
 	}
 }

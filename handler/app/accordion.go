@@ -92,7 +92,7 @@ func youtube() []Site {
 		},
 		Site{
 			"LensLock DRM", "https://www.youtube.com/watch?v=Wpn9sLNg-6k",
-			"Modern Vintage Gamer covers the LensLock, an odd, platic hardware copy protection device that was used on the Commodore 64.",
+			"Modern Vintage Gamer covers the LensLock, an odd, plastic hardware copy protection device that was used on the Commodore 64.",
 		},
 		Site{
 			"StarForce", "https://www.youtube.com/watch?v=p-wyIalhdPU",

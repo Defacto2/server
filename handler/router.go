@@ -264,14 +264,14 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/files/:id/:page", func(cx echo.Context) error {
 		switch cx.Param("id") {
 		case "for-approval", "deletions", "unwanted":
-			return app.StatusErr(cx, sl, http.StatusNotFound, cx.Param("uri"))
+			return app.StatusErr(cx, sl, http.StatusNotFound, cx.Param("id"))
 		}
 		return app.Artifacts(cx, db, sl, cx.Param("id"), cx.Param("page"))
 	})
 	s.GET("/files/:id", func(cx echo.Context) error {
 		switch cx.Param("id") {
 		case "for-approval", "deletions", "unwanted":
-			return app.StatusErr(cx, sl, http.StatusNotFound, cx.Param("uri"))
+			return app.StatusErr(cx, sl, http.StatusNotFound, cx.Param("id"))
 		}
 		return app.Artifacts(cx, db, sl, cx.Param("id"), "1")
 	})

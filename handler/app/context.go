@@ -534,13 +534,13 @@ func Compression(c echo.Context, sl *slog.Logger) error {
 }
 
 // Configurations is the handler for the Configuration page.
-func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Config) error {
+func Configurations(c echo.Context, db *sql.DB, sl *slog.Logger, conf config.Config) error {
 	const msg = "configurations context"
-	if err := panics.EchoContextDS(cx, db, sl); err != nil {
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "configs"
-	data := empty(cx)
+	data := empty(c)
 	data["description"] = "Defacto2 configurations."
 	data["h1"] = "Configurations"
 	data["lead"] = "The web application configurations, tools and links to special records."
@@ -573,9 +573,9 @@ func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Co
 	wg.Wait()
 	if db == nil {
 		data["dbConnections"] = "database not set"
-		err := cx.Render(http.StatusOK, name, data)
+		err := c.Render(http.StatusOK, name, data)
 		if err != nil {
-			return InternalErr(cx, sl, name, err)
+			return InternalErr(c, sl, name, err)
 		}
 		return nil
 	}
@@ -584,9 +584,9 @@ func Configurations(cx echo.Context, db *sql.DB, sl *slog.Logger, conf config.Co
 		data["dbConnections"] = err.Error()
 	}
 	data["dbConnections"] = fmt.Sprintf("%d of %d", conns, maxConn)
-	err = cx.Render(http.StatusOK, name, data)
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(cx, sl, name, err)
+		return InternalErr(c, sl, name, err)
 	}
 	return nil
 }

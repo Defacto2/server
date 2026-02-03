@@ -147,6 +147,7 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	}
 	for path, fsRoot := range dirs {
 		e.StaticFS(path, echo.MustSubFS(currentFs, fsRoot))
+		// Block directory listing; allows files to be served but returns 404 for directory itself
 		e.GET(path, func(_ echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound)
 		})
@@ -225,6 +226,8 @@ func (c *Configuration) PortErr(sl *slog.Logger, port uint16, err error) {
 			slog.String("port error", "could not startup the server using the configured port"),
 			slog.Int("port", int(port)), slog.Any("error", err))
 	default:
+		sl.Warn(fmt.Sprintf("%s server startup failed", s),
+			slog.Any("error", err))
 	}
 }
 
@@ -287,7 +290,7 @@ func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger)
 		pause := time.NewTicker(ticker)
 		for range pause.C {
 			count--
-			buf := bufio.NewWriter(w)
+			buf.Reset(w)
 			if count <= 0 {
 				_, err := fmt.Fprintf(buf, "\r%s %s\n", alert, "now     ")
 				if err != nil {
@@ -297,6 +300,7 @@ func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger)
 				if err != nil {
 					panic(err)
 				}
+				pause.Stop()
 				break
 			}
 			_, err = fmt.Fprintf(buf, "\r%s in %ds ", alert, count)
@@ -313,8 +317,10 @@ func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger)
 			cancel()
 		case <-ctx.Done():
 		}
-		if err := e.Shutdown(ctx); err != nil {
-			logs.FatalTx(ctx, sl, msg,
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer shutdownCancel()
+		if err := e.Shutdown(shutdownCtx); err != nil {
+			logs.FatalTx(shutdownCtx, sl, msg,
 				slog.String("context", "caused an error"), slog.Any("error", err))
 		}
 		sl.Info(msg, slog.String("success", "shutdown complete"))
@@ -332,13 +338,13 @@ func (c *Configuration) Start(e *echo.Echo, sl *slog.Logger, configs config.Conf
 	switch {
 	case configs.UseTLS() && configs.UseHTTP():
 		go func() {
-			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
+			e2 := e // local binding to clarify the Echo instance used in this goroutine
 			c.StartHTTP(e2, sl)
 		}()
 		go c.StartTLS(e, sl)
 	case configs.UseTLSLocal() && configs.UseHTTP():
 		go func() {
-			e2 := e // we need a new echo instance, otherwise the server may use the wrong port
+			e2 := e // local binding to clarify the Echo instance used in this goroutine
 			c.StartHTTP(e2, sl)
 		}()
 		go c.StartTLSLocal(e, sl)
@@ -414,13 +420,12 @@ func (c *Configuration) StartTLSLocal(e *echo.Echo, sl *slog.Logger) {
 	if address == "" {
 		return
 	}
-	const cert, key = "public/certs/cert.pem", "public/certs/key.pem"
-	certB, err := c.Public.ReadFile(cert)
+	certB, err := c.Public.ReadFile("public/certs/cert.pem")
 	if err != nil {
 		logs.Fatal(sl, msg,
 			slog.String("certificate", "read file failure"), slog.Any("error", err))
 	}
-	keyB, err := c.Public.ReadFile(key)
+	keyB, err := c.Public.ReadFile("public/certs/key.pem")
 	if err != nil {
 		logs.Fatal(sl, msg,
 			slog.String("key", "read file failure"), slog.Any("error", err))
