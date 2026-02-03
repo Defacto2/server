@@ -967,7 +967,7 @@ func FixColorLeak(s string) template.HTML {
 func lockWidth(maxWidth int, b []byte) []byte {
 	tabs := 0
 	index := 0
-	const unmod = 3
+	const size, unmod = 2, 3
 	for index < len(b) {
 		if tabs >= unmod {
 			return b
@@ -989,14 +989,16 @@ func lockWidth(maxWidth int, b []byte) []byte {
 		cut := 0
 		for n := range line {
 			if n%maxWidth == 0 {
-				p := []byte{byte('\n')}
+				p := make([]byte, 1, len(line[cut:n])+1)
+				p[0] = '\n'
 				p = append(p, line[cut:n]...)
 				builder.Write(p)
 				cut = n
 				continue
 			}
 			if n >= total {
-				p := []byte{byte('\n')}
+				p := make([]byte, 1, len(line[cut:n])+size)
+				p[0] = '\n'
 				p = append(p, line[cut:n]...)
 				p = append(p, byte('\n'))
 				builder.Write(p)

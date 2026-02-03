@@ -310,7 +310,7 @@ func SimilarToReleaser(like ...string) SQL {
 	for i, val := range query {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
-	return "SELECT * FROM (" + releaserSEL + releaserBy +
+	return "SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + releaserSEL + releaserBy +
 		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
 		" ORDER BY sub.count_sum DESC"
 }
@@ -322,7 +322,7 @@ func SimilarToMagazine(like ...string) SQL {
 	for i, val := range query {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
-	return "SELECT * FROM (" + releaserSEL + magazine + releaserBy +
+	return "SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + releaserSEL + magazine + releaserBy +
 		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
 		" ORDER BY sub.count_sum DESC"
 }
@@ -334,7 +334,7 @@ func SimilarToExact(like ...string) SQL {
 	for i, val := range query {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
-	return "SELECT * FROM (" + releaserSEL + releaserBy +
+	return "SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + releaserSEL + releaserBy +
 		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '(%s)'", strings.Join(query, "|"))) +
 		" ORDER BY sub.count_sum DESC"
 }

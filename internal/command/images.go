@@ -24,6 +24,7 @@ import (
 const (
 	AnsiCap = 350000    // ANSICap is the maximum file size in bytes for an ANSI encoded text file.
 	X400    = "400x400" // X400 returns args 400 x 400 pixel image size
+	argCap  = 2         // argCap is the fixed buffer size for command arguments (source + destination)
 )
 
 var ErrNoImages = errors.New("no images found")
@@ -102,7 +103,8 @@ func ImagesPixelate(unid string, dirs ...string) error {
 			}
 			args := Args{}
 			args.Pixelate()
-			arg := []string{name}      // source file
+			arg := make([]string, 1, argCap+len(args))
+			arg[0] = name
 			arg = append(arg, args...) // command line arguments
 			arg = append(arg, name)    // destination
 			if err := RunQuiet(Magick, arg...); err != nil {
@@ -191,7 +193,8 @@ func (align Align) Thumbs(sl *slog.Logger, unid string, preview, thumbnail dir.D
 			continue
 		}
 		imagesNotFound = false
-		arg := []string{src}
+		arg := make([]string, 1, argCap+len(args))
+		arg[0] = src
 		arg = append(arg, args...)
 		tmp := filepath.Join(path, unid+ext)
 		arg = append(arg, tmp)
@@ -257,7 +260,8 @@ func (crop Crop) Images(sl *slog.Logger, unid string, preview dir.Directory) err
 			continue
 		}
 		imagesNotFound = false
-		arg := []string{src}
+		arg := make([]string, 1, argCap+len(args))
+		arg[0] = src
 		arg = append(arg, args...)
 		tmp := filepath.Join(path, unid+ext)
 		arg = append(arg, tmp)
@@ -439,7 +443,8 @@ func (dir Dirs) BinTextImager(sl *slog.Logger, src, unid string) error {
 	} else if st.Size() == 0 {
 		return fmt.Errorf("%s: %w", msg, ErrIsEmpty)
 	}
-	arg := []string{srcPath}       // source text file
+	arg := make([]string, 1, argCap+len(args))
+	arg[0] = srcPath
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
@@ -476,7 +481,8 @@ func (dir Dirs) textDOSImager(sl *slog.Logger, src, unid string) error {
 	} else if st.Size() == 0 {
 		return fmt.Errorf("%s: %w", msg, ErrIsEmpty)
 	}
-	arg := []string{srcPath}       // source text file
+	arg := make([]string, 1, argCap+len(args))
+	arg[0] = srcPath
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
@@ -497,7 +503,8 @@ func (dir Dirs) textAmigaImager(sl *slog.Logger, src, unid string) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	arg := []string{srcPath}       // source text file
+	arg := make([]string, 1, argCap+len(args))
+	arg[0] = srcPath
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
@@ -570,7 +577,8 @@ func (dir Dirs) PreviewPixels(sl *slog.Logger, src, unid string) error {
 	}
 	args := Args{}
 	args.PortablePixel()
-	arg := []string{src}                                          // source file
+	arg := make([]string, 1, argCap+len(args))
+	arg[0] = src
 	arg = append(arg, args...)                                    // command line arguments
 	name := filepath.Base(src) + png                              // temp file name
 	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "previewpixels") // create temp dir
@@ -609,7 +617,8 @@ func (dir Dirs) PreviewPhoto(sl *slog.Logger, src, unid string) error {
 	}
 	jargs := Args{}
 	jargs.JpegPhoto()
-	arg := []string{src}                                         // source file
+	arg := make([]string, 1, argCap+len(jargs))
+	arg[0] = src
 	arg = append(arg, jargs...)                                  // command line arguments
 	name := filepath.Base(src) + jpg                             // temp file name
 	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "previewphoto") // create temp dir
@@ -630,7 +639,8 @@ func (dir Dirs) PreviewPhoto(sl *slog.Logger, src, unid string) error {
 	wtmp := filepath.Join(tmpDir, unid+webp)
 	wargs := Args{}
 	wargs.CWebp()
-	arg = []string{jtmp}          // source file
+	arg = make([]string, 1, argCap+len(wargs)+1)
+	arg[0] = jtmp
 	arg = append(arg, wargs...)   // command line arguments
 	arg = append(arg, "-o", wtmp) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
@@ -672,7 +682,8 @@ func (dir Dirs) PreviewGIF(sl *slog.Logger, src, unid string) error {
 	}
 	args := Args{}
 	args.GWebp()
-	arg := []string{src}            // source file
+	arg := make([]string, 1, argCap+len(args)+1)
+	arg[0] = src
 	arg = append(arg, args...)      // command line arguments
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
@@ -749,7 +760,8 @@ func (dir Dirs) PreviewWebP(sl *slog.Logger, src, unid string) error {
 	}
 	args := Args{}
 	args.CWebpText()
-	arg := []string{src}            // source file
+	arg := make([]string, 1, argCap+len(args)+1)
+	arg[0] = src
 	arg = append(arg, args...)      // command line arguments
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
@@ -1047,7 +1059,8 @@ func (dir Dirs) ThumbPixels(sl *slog.Logger, src, unid string) error {
 	args := Args{}
 	args.Thumbnail()
 	args.PortablePixel()
-	arg := []string{src}       // source file
+	arg := make([]string, 1, argCap+len(args))
+	arg[0] = src
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
 	if err := RunQuiet(Magick, arg...); err != nil {
@@ -1056,7 +1069,8 @@ func (dir Dirs) ThumbPixels(sl *slog.Logger, src, unid string) error {
 	dst := filepath.Join(dir.Thumbnail.Path(), unid+webp)
 	args = Args{}
 	args.CWebp()
-	arg = []string{tmp}          // source file
+	arg = make([]string, 1, argCap+len(args)+1)
+	arg[0] = tmp
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
@@ -1084,7 +1098,8 @@ func (dir Dirs) ThumbPhoto(sl *slog.Logger, src, unid string) error {
 	args := Args{}
 	args.Thumbnail()
 	args.JpegPhoto()
-	arg := []string{src}       // source file
+	arg := make([]string, 1, argCap+len(args))
+	arg[0] = src
 	arg = append(arg, args...) // command line arguments
 	arg = append(arg, tmp)     // destination
 	if err := RunQuiet(Magick, arg...); err != nil {
@@ -1093,7 +1108,8 @@ func (dir Dirs) ThumbPhoto(sl *slog.Logger, src, unid string) error {
 	dst := filepath.Join(dir.Thumbnail.Path(), unid+webp)
 	args = Args{}
 	args.CWebp()
-	arg = []string{tmp}          // source file
+	arg = make([]string, 1, argCap+len(args)+1)
+	arg[0] = tmp
 	arg = append(arg, args...)   // command line arguments
 	arg = append(arg, "-o", dst) // destination
 	if err := RunQuiet(Cwebp, arg...); err != nil {
@@ -1113,7 +1129,8 @@ func (dir Dirs) ThumbPhoto(sl *slog.Logger, src, unid string) error {
 // It should be used in args deferred function.
 func OptimizePNG(src string) error {
 	args := Args{}
-	arg := []string{src}       // source file
+	arg := make([]string, 1, argCap+len(args))
+	arg[0] = src
 	arg = append(arg, args...) // command line arguments
 	return RunQuiet(Optipng, arg...)
 }
