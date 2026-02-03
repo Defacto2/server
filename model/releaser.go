@@ -264,13 +264,17 @@ func (r *Releasers) similar(
 	likes = removeDuplicates(likes)
 	likes = slices.Compact(likes)
 	var query string
+	var params []any
 	switch look {
 	case toReleasersExact:
-		query = string(postgres.SimilarToExact(likes...))
+		sqlStr, p := postgres.SimilarToExact(likes...)
+		query, params = string(sqlStr), p
 	case toMagazines:
-		query = string(postgres.SimilarToMagazine(likes...))
+		sqlStr, p := postgres.SimilarToMagazine(likes...)
+		query, params = string(sqlStr), p
 	case toReleasers:
-		query = string(postgres.SimilarToReleaser(likes...))
+		sqlStr, p := postgres.SimilarToReleaser(likes...)
+		query, params = string(sqlStr), p
 	}
 	{
 		const page, maxPages = 1, 10
@@ -278,7 +282,7 @@ func (r *Releasers) similar(
 		val, offset := calculateLimitAndOffset(page, size)
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
 	}
-	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
+	if err := queries.Raw(query, params...).Bind(ctx, exec, r); err != nil {
 		return fmt.Errorf("similar magazine queries raw: %w", err)
 	}
 	r.Slugs()

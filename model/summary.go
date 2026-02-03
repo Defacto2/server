@@ -97,9 +97,10 @@ func (s *Summary) ByPublic(ctx context.Context, exec boil.ContextExecutor) error
 // ByScener selects the summary statistics for the named sceners.
 func (s *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, name string) error {
 	panics.BoilExecCrash(exec)
+	query, params := postgres.ScenerSQL(name)
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
-		qm.Where(postgres.ScenerSQL(name)),
+		qm.Where(query, params...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From)).Bind(ctx, exec, s)
 }

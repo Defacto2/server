@@ -34,28 +34,24 @@ type Files struct {
 // Any errors will be joined and returned.
 func (f Files) Close() error {
 	const msg = "logs files close"
-	var err1, err2, err3 error
+	var errs []error
 	if f.errlevel != nil {
-		err1 = f.errlevel.Close()
+		if err := f.errlevel.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("error level: %w", err))
+		}
 	}
 	if f.infolevel != nil {
-		err2 = f.infolevel.Close()
+		if err := f.infolevel.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("info level: %w", err))
+		}
 	}
 	if f.debuglevel != nil {
-		err3 = f.debuglevel.Close()
+		if err := f.debuglevel.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("debug level: %w", err))
+		}
 	}
-	if err1 != nil {
-		err1 = fmt.Errorf("error level %w", err1)
-	}
-	if err2 != nil {
-		err2 = fmt.Errorf("info level %w", err2)
-	}
-	if err3 != nil {
-		err3 = fmt.Errorf("debug level %w", err3)
-	}
-	err := errors.Join(err1, err2, err3)
-	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	if len(errs) > 0 {
+		return fmt.Errorf("%s: %w", msg, errors.Join(errs...))
 	}
 	return nil
 }
@@ -78,7 +74,7 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 	if f.errlevel == nil && f.infolevel == nil && f.debuglevel == nil && !useStderr && !useStdout {
 		return Discard()
 	}
-	handlers := []slog.Handler{}
+	handlers := make([]slog.Handler, 0, 5)
 	if f.errlevel != nil {
 		handlers = append(handlers, slog.NewJSONHandler(f.errlevel, &slog.HandlerOptions{
 			Level: LevelError, AddSource: true,
@@ -144,6 +140,7 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	if err != nil {
 		return none, fmt.Errorf("%s open root: %w", msg, err)
 	}
+	defer r.Close()
 	// open files
 	var errr error
 	if ename != "" {
@@ -159,7 +156,8 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	}
 	err = errors.Join(errr, erri, errd)
 	if err != nil {
-		return files, fmt.Errorf("%s: %w", msg, err)
+		files.Close()
+		return none, fmt.Errorf("%s: %w", msg, err)
 	}
 	return files, nil
 }

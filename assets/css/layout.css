@@ -1,7 +1,20 @@
-/* 
+/*
  * File: layout.css
- * This is the main stylesheet for the website.
+ * Main stylesheet for the Defacto2 website.
+ *
+ * This file contains:
+ * - Icon styles for social media links
+ * - Custom font definitions for retro computing
+ * - Font utility classes for different display contexts
+ * - Text rendering and layout utilities
+ * - Canvas and emulator container styles
+ * - Animation effects
  */
+
+/* ============================================================
+ * ICON STYLES
+ * Social media icon colors and styling
+ * ============================================================ */
 
 .bi::before {
   display: inline-block;
@@ -39,6 +52,11 @@
 .bi-youtube {
   color: #cd201f;
 }
+
+/* ============================================================
+ * FONT DEFINITIONS
+ * Custom web fonts for retro computing display
+ * ============================================================ */
 
 @font-face {
   font-family: font-topazplus;
@@ -98,6 +116,11 @@
     url("/font/Ac437_IBM_MDA.ttf") format("truetype");
 }
 
+/* ============================================================
+ * FONT UTILITY CLASSES
+ * Apply custom fonts to elements
+ * ============================================================ */
+
 .font-amiga {
   font-family: font-topazplus, monospace;
   font-size: 1em;
@@ -122,6 +145,7 @@
   font-weight: normal;
 }
 
+/* IBM-style DOS fonts for retro displays */
 .font-squared {
   font-family: 'font-ega-8x8', monospace;
   font-size: 8px;
@@ -146,7 +170,6 @@
   font-weight: normal;
 }
 
-
 .font-dos-mda {
   font-family: font-mda, monospace;
   font-size: 28px;
@@ -154,6 +177,11 @@
   font-style: normal;
   font-weight: normal;
 }
+
+/* ============================================================
+ * TEXT RENDERING UTILITIES
+ * Text formatting and display helpers
+ * ============================================================ */
 
 .pre-wrap {
   white-space: pre-wrap;
@@ -172,6 +200,21 @@
   font-size: 8px;
 }
 
+.reader-invert {
+  background-color: #000;
+  color: #fff;
+}
+
+.input-date::placeholder {
+  opacity: 0.3;
+  color: red;
+}
+
+/* ============================================================
+ * LOGO AND CONTAINER STYLES
+ * Container queries and layout for logo display
+ * ============================================================ */
+
 #logo-container {
   container-type: inline-size;
   container-name: cardcontainer;
@@ -181,11 +224,7 @@
   overflow: hidden;
 }
 
-.reader-invert {
-  background-color: #000;
-  color: #fff;
-}
-
+/* Responsive text scaling based on container width */
 @container cardcontainer (width > 575px) {
   pre {
     font-size: 100%;
@@ -204,10 +243,10 @@
   }
 }
 
-.input-date::placeholder {
-  opacity: 0.3;
-  color: red;
-}
+/* ============================================================
+ * CANVAS AND EMULATOR STYLES
+ * DOS emulation and canvas container styling
+ * ============================================================ */
 
 canvas,
 .dosbox-container {
@@ -218,13 +257,16 @@ canvas,
   overflow: hidden;
 }
 
+/* ============================================================
+ * ANIMATIONS
+ * Visual effects and transitions
+ * ============================================================ */
+
 .blinking {
   display: inline-block;
   animation: blink 1s steps(1) infinite;
 }
 
 @keyframes blink {
-  0% { color: revert-layer; }
   50% { color: transparent; }
-  100% { color: revert-layer; }
 }

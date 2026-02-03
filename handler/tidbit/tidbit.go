@@ -72,9 +72,20 @@ func (id ID) URL(uri string) template.HTML {
 		return template.HTML("")
 	}
 	urls := id.URI()
-	slices.Sort(urls)
+	if urls == nil {
+		return template.HTML("")
+	}
+	sorted := slices.SortedFunc(slices.Values(urls), func(a, b URI) int {
+		if a < b {
+			return -1
+		}
+		if a > b {
+			return 1
+		}
+		return 0
+	})
 	html := []string{}
-	for val := range slices.Values(urls) {
+	for _, val := range sorted {
 		if val == URI(uri) {
 			continue
 		}

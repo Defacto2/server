@@ -35,7 +35,7 @@ The commands are:
 			List the IP, hostname and port addresses the server is listening on.
 	config
 			List the server configuration options and settings.
-   	fix
+	fix
 			Fix the database and assets.
 
 # Flags
@@ -66,7 +66,9 @@ A partial example of a defacto2.service unit file:
 	[Service]
 	Environment="D2_MATCH_HOST=localhost"
 	Environment="D2_DATABASE_URL=postgres://root:example@localhost:5432/defacto2_ps"
-	Environment="D2_PROD_MODE=true" "D2_READ_ONLY=false" "D2_NO_CRAWL=true"
+	Environment="D2_PROD_MODE=true"
+	Environment="D2_READ_ONLY=false"
+	Environment="D2_NO_CRAWL=true"
 
 # Database
 
@@ -119,7 +121,7 @@ The web server uses [Google OAuth2] for administrator logins.
 The server requires a Google OAuth2 client ID to validate admin logins, which is provided in the D2_GOOGLE_CLIENT_ID environment variable.
 
 The server also requires a list of Google OAuth2 user accounts, which is provided in the D2_GOOGLE_ACCOUNTS environment variable.
-A user account is the JWT ["sub"] field assertion in the form of a unique integer.
+A user account is identified by a unique integer from the JWT 'sub' field.
 
 An example accounts setting:
 

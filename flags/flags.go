@@ -69,7 +69,7 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 	return app
 }
 
-// Fix command the database and assets.
+// Fix command fixes the database and assets.
 func Fix(_ io.Writer, c *config.Config) *cli.Command {
 	const msg = "fix command"
 	return &cli.Command{
@@ -172,8 +172,8 @@ func Copyright() string {
 	const initYear = 2023
 	years := strconv.Itoa(initYear)
 	if RecentYear > initYear {
-		const endDigits = RecentYear % 100
-		years += "-" + strconv.Itoa(endDigits)
+		endDigits := RecentYear % 100
+		years += "-" + fmt.Sprintf("%02d", endDigits)
 	}
 	s := fmt.Sprintf("© %s Defacto2 & %s", years, Author)
 	return s
@@ -247,12 +247,7 @@ func Run(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	if len(os.Args) < minArgs {
 		return Continue, nil
 	}
-	args := os.Args[1:]
-	useArgs := len(args) > 0
-	if useArgs {
-		return setup(w, ver, c)
-	}
-	return Continue, nil
+	return setup(w, ver, c)
 }
 
 // desc returns the description for this program.

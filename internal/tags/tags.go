@@ -20,6 +20,15 @@ var (
 	ErrNoTags = errors.New("lockable tags t is nil")
 )
 
+// nameToTag is a reverse lookup map from tag name to Tag for O(1) lookups.
+var nameToTag = func() map[string]Tag {
+	m := make(map[string]Tag, 43)
+	for _, tag := range List() {
+		m[strings.ToLower(tag.String())] = tag
+	}
+	return m
+}()
+
 // The dos, app funcmap handler must match the format and syntax of MS-DOS that's used here.
 const msDos = "MS Dos"
 
@@ -60,10 +69,13 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 	}
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
-	var err error
 	for key, val := range URIs() {
 		i++
-		count := sums()[key]
+		count64, err := counter(ctx, exec, key)
+		if err != nil {
+			return fmt.Errorf("%s counter: %w", msg, err)
+		}
+		count := int(count64)
 		t.Mu.Lock()
 		t.List[i] = TagData{
 			URI:   val,
@@ -72,20 +84,6 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 			Count: count,
 		}
 		t.Mu.Unlock()
-		if count > 0 {
-			continue
-		}
-		tg := key
-		defer func(i int, tg Tag) {
-			t.Mu.Lock()
-			var val int64
-			val, err = counter(ctx, exec, tg)
-			t.List[i].Count = int(val)
-			t.Mu.Unlock()
-		}(i, tg)
-		if err != nil {
-			return fmt.Errorf("%s defer counter: %w", msg, err)
-		}
 	}
 	return nil
 }
@@ -117,7 +115,7 @@ const (
 	// LastPlatform is the final tag marked as a platform.
 	LastPlatform Tag = Windows
 	// CategoryCount is the number of tags used as a category.
-	CategoryCount = int(FirstCategory + LastCategory + 1)
+	CategoryCount = int(LastCategory - FirstCategory + 1)
 	// PlatformCount is the number of tags used as a platform.
 	PlatformCount = int(LastPlatform - FirstPlatform + 1)
 )
@@ -218,44 +216,32 @@ func List() []Tag {
 
 // IsCategory returns true if the named tag is a category.
 func IsCategory(name string) bool {
-	name = strings.TrimSpace(name)
+	name = strings.TrimSpace(strings.ToLower(name))
 	if name == "" {
 		return false
 	}
-	for tag := range slices.Values(List()) {
-		if strings.EqualFold(tag.String(), name) {
-			return tag >= FirstCategory && tag <= LastCategory
-		}
-	}
-	return false
+	tag, ok := nameToTag[name]
+	return ok && tag >= FirstCategory && tag <= LastCategory
 }
 
 // IsPlatform returns true if the named tag is a platform.
 func IsPlatform(name string) bool {
-	name = strings.TrimSpace(name)
+	name = strings.TrimSpace(strings.ToLower(name))
 	if name == "" {
 		return false
 	}
-	for tag := range slices.Values(List()) {
-		if strings.EqualFold(tag.String(), name) {
-			return tag >= FirstPlatform && tag <= LastPlatform
-		}
-	}
-	return false
+	tag, ok := nameToTag[name]
+	return ok && tag >= FirstPlatform && tag <= LastPlatform
 }
 
 // IsTag returns true if the named tag is a category or platform.
 func IsTag(name string) bool {
-	name = strings.TrimSpace(name)
+	name = strings.TrimSpace(strings.ToLower(name))
 	if name == "" {
 		return false
 	}
-	for tag := range slices.Values(List()) {
-		if strings.EqualFold(tag.String(), name) {
-			return true
-		}
-	}
-	return false
+	_, ok := nameToTag[name]
+	return ok
 }
 
 // IsText returns true if the named tag is a raw or plain text category.
@@ -726,16 +712,6 @@ func emptyPlatform(section Tag) string {
 		return "software tools by the scene"
 	}
 	return Names()[section] + "s"
-}
-
-// Sum the numbers of files with the tag.
-type Sum map[Tag]int
-
-// Sums stores the results of file count query for each tag.
-func sums() Sum {
-	s := make(Sum, Windows+1)
-	// var sums = make(Sum, Windows+1)
-	return s
 }
 
 // OSTags returns the tags that flag an operating system.

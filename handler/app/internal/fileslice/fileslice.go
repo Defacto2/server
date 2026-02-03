@@ -506,7 +506,7 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 func Counter(db *sql.DB) (Stats, error) {
 	const msg = "artifacts categories counter"
 	if db == nil {
-		return Stats{}, fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+		return Stats{}, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
 	ctx := context.Background()
 	counter := Stats{}

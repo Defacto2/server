@@ -22,7 +22,6 @@ import (
 	"io"
 	"log"
 	"log/slog"
-	"math"
 	"os"
 	"runtime"
 	"slices"
@@ -213,7 +212,7 @@ func environmentVars(sl *slog.Logger) *config.Config {
 	}
 	configs.Override()
 	if i := configs.MaxProcs; i > 0 {
-		runtime.GOMAXPROCS(int(math.Abs(float64(i))))
+		runtime.GOMAXPROCS(int(i))
 	}
 	return &configs
 }

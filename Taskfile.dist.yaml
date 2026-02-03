@@ -45,7 +45,7 @@ tasks:
   binary-run:
     desc: "Run the previously built binary."
     cmds:
-      - ./dist/defacto2-server
+      - ./{{.BINNAME}}
     platforms: [linux, darwin, freebsd]
   default:
     desc: "Task runner for the Defacto2 web server source code."

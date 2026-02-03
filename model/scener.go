@@ -26,8 +26,9 @@ type Sceners []*struct {
 // Where gets the records of all files that have been credited to the named scener.
 func (s *Scener) Where(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
 	panics.BoilExecCrash(exec)
+	query, params := postgres.ScenerSQL(name)
 	return models.Files(
-		qm.Where(postgres.ScenerSQL(name)),
+		qm.Where(query, params...),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, exec)
 }

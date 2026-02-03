@@ -200,8 +200,7 @@ func EchoDSP(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) error {
 	if sl == nil {
 		return ErrNoSlog
 	}
-	var empty embed.FS
-	if public == empty {
+	if public == (embed.FS{}) {
 		return ErrNoEmbed
 	}
 	return nil
@@ -213,8 +212,7 @@ func EchoP(e *echo.Echo, public embed.FS) error {
 	if e == nil {
 		return ErrNoEchoE
 	}
-	var empty embed.FS
-	if public == empty {
+	if public == (embed.FS{}) {
 		return ErrNoEmbed
 	}
 	return nil

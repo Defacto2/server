@@ -125,7 +125,8 @@ func tintOptions(minimum slog.Level, flag int) tint.Options {
 
 // replaceAttr formats specific keys and values for readability.
 func replaceAttr(a slog.Attr) slog.Attr {
-	switch strings.ToLower(a.Key) {
+	key := strings.ToLower(a.Key)
+	switch key {
 	case "":
 		return slog.Attr{}
 	case "help", "problem":
@@ -213,10 +214,9 @@ func flagAttr(a slog.Attr) slog.Attr {
 // configUnsetAttr drops the ',unset' suffix found in some keys.
 func configUnsetAttr(a slog.Attr) slog.Attr {
 	const unset = ",unset"
-	if !strings.HasSuffix(a.Key, unset) {
-		return a
+	if trimmed, ok := strings.CutSuffix(a.Key, unset); ok {
+		a.Key = trimmed
 	}
-	a.Key = strings.TrimSuffix(a.Key, unset)
 	return a
 }
 
@@ -234,8 +234,7 @@ func configIssueAttr(a slog.Attr) slog.Attr {
 		return slog.Attr{}
 	}
 	a.Key = strings.ToUpper(a.Key)
-	a = tint.Attr(ErrorRed, slog.String(a.Key, a.Value.String()))
-	return tint.Attr(ErrorRed, a)
+	return tint.Attr(ErrorRed, slog.String(a.Key, a.Value.String()))
 }
 
 // configMsgAttr drops values that are not intended for logging.

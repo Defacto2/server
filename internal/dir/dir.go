@@ -24,7 +24,7 @@ type Directory string
 
 // Join combines the directory path with the given file or directory name.
 func (d Directory) Join(name string) string {
-	return filepath.Clean(filepath.Join(d.Path(), name))
+	return filepath.Join(d.Path(), name)
 }
 
 // Path returns the directory path as a string.
@@ -47,7 +47,7 @@ func (d Directory) Check(sl *slog.Logger) error {
 	}
 	defer func() {
 		_ = tmp.Close()
-		if err := os.Remove(tmp.Name()); !errors.Is(err, err) {
+		if err := os.Remove(tmp.Name()); err != nil {
 			sl.Error(msg, slog.String("name", tmp.Name()), slog.Any("error", err))
 		}
 	}()
@@ -56,10 +56,11 @@ func (d Directory) Check(sl *slog.Logger) error {
 
 // IsDir returns an error if the path does not exists or is not a directory.
 func (d Directory) IsDir() error {
-	if d.Path() == "" {
+	path := d.Path()
+	if path == "" {
 		return ErrNoPath
 	}
-	st, err := os.Stat(d.Path())
+	st, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return ErrNoDir

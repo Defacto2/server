@@ -245,3 +245,31 @@ func TestOSTags(t *testing.T) {
 	be.Equal(t, "dos", oses[0])
 	be.Equal(t, "mac10", oses[4])
 }
+
+func TestCategoryCounts(t *testing.T) {
+	t.Parallel()
+	// Verify that all categories from FirstCategory to LastCategory fit in CategoryCount
+	categoryCount := tags.CategoryCount
+	list := tags.List()
+	categories := 0
+	for _, tag := range list {
+		if tags.IsCategory(tag.String()) {
+			categories++
+		}
+	}
+	be.Equal(t, categories, categoryCount)
+}
+
+func TestPlatformCounts(t *testing.T) {
+	t.Parallel()
+	// Verify that all platforms from FirstPlatform to LastPlatform fit in PlatformCount
+	platformCount := tags.PlatformCount
+	list := tags.List()
+	platforms := 0
+	for _, tag := range list {
+		if tags.IsPlatform(tag.String()) {
+			platforms++
+		}
+	}
+	be.Equal(t, platforms, platformCount)
+}

@@ -34,35 +34,33 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	if db == nil {
 		return 0, 0, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	rows, err := db.Query("SELECT 'dataname' FROM pg_stat_activity WHERE datname='defacto2_ps';")
+	rows, err := db.Query("SELECT COUNT(*) FROM pg_stat_activity WHERE datname='defacto2_ps';")
 	if err != nil {
 		return 0, 0, fmt.Errorf("%s query: %w", msg, err)
 	}
-	if err := rows.Err(); err != nil {
-		return 0, 0, fmt.Errorf("%s rows: %w", msg, err)
+	defer rows.Close()
+	var count int64
+	if rows.Next() {
+		if err := rows.Scan(&count); err != nil {
+			return 0, 0, fmt.Errorf("%s scan: %w", msg, err)
+		}
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
-	count := int64(0)
-	for rows.Next() {
-		count++
+	if err := rows.Err(); err != nil {
+		return 0, 0, fmt.Errorf("%s row iteration: %w", msg, err)
 	}
 	maxConn, err := db.Query("SHOW max_connections;")
 	if err != nil {
 		return 0, 0, fmt.Errorf("%s query: %w", msg, err)
 	}
-	if err := maxConn.Err(); err != nil {
-		return 0, 0, fmt.Errorf("%s rows: %w", msg, err)
-	}
-	defer func() {
-		_ = maxConn.Close()
-	}()
+	defer maxConn.Close()
 	var maxConnections int64
 	for maxConn.Next() {
 		if err := maxConn.Scan(&maxConnections); err != nil {
 			return 0, 0, fmt.Errorf("%s scan: %w", msg, err)
 		}
+	}
+	if err := maxConn.Err(); err != nil {
+		return 0, 0, fmt.Errorf("%s row iteration: %w", msg, err)
 	}
 	return count, maxConnections, nil
 }

@@ -218,44 +218,18 @@ func main() {
 			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
-	{
-		result := api.Build(ContentBinary())
-		if len(result.Errors) > 0 {
-			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
-		}
+	// Build bundled JavaScript files
+	bundles := []api.BuildOptions{
+		ContentBinary(),
+		ContentText(),
+		EditorAssets(),
+		Artifact(),
+		HtmxExts(),
+		Layout(),
+		Uploader(),
 	}
-	{
-		result := api.Build(ContentText())
-		if len(result.Errors) > 0 {
-			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
-		}
-	}
-	{
-		result := api.Build(EditorAssets())
-		if len(result.Errors) > 0 {
-			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
-		}
-	}
-	{
-		result := api.Build(Artifact())
-		if len(result.Errors) > 0 {
-			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
-		}
-	}
-	{
-		result := api.Build(HtmxExts())
-		if len(result.Errors) > 0 {
-			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
-		}
-	}
-	{
-		result := api.Build(Layout())
-		if len(result.Errors) > 0 {
-			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
-		}
-	}
-	{
-		result := api.Build(Uploader())
+	for _, build := range bundles {
+		result := api.Build(build)
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}

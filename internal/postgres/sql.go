@@ -47,29 +47,27 @@ func (v *Version) Query(db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("%s connect: %w", msg, err)
 	}
-	if rows.Err() != nil {
-		return fmt.Errorf("%s rows: %w", msg, rows.Err())
-	}
-	defer func() {
-		_ = rows.Close()
-	}()
+	defer rows.Close()
 	for rows.Next() {
 		if err := rows.Scan(v); err != nil {
 			return fmt.Errorf("%s rows scan: %w", msg, err)
 		}
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("%s row iteration: %w", msg, err)
 	}
 	return nil
 }
 
 func (v *Version) String() string {
 	s := string(*v)
-	const invalid = 2
-	if x := strings.Split(s, " "); len(x) > invalid {
-		_, err := strconv.ParseFloat(x[1], 32)
+	parts := strings.SplitN(s, " ", 3)
+	if len(parts) > 2 {
+		_, err := strconv.ParseFloat(parts[1], 32)
 		if err != nil {
 			return s
 		}
-		return "and using " + strings.Join(x[0:2], " ")
+		return "and using " + parts[0] + " " + parts[1]
 	}
 	return s
 }
@@ -261,26 +259,29 @@ func MagazinesOldest() SQL {
 		orderMinYearRel
 }
 
-// ScenerSQL is the SQL query for getting sceners.
-func ScenerSQL(name string) string {
+// ScenerSQL returns a parameterized SQL query for getting sceners and their parameters.
+// This prevents SQL injection by separating the query structure from user input.
+func ScenerSQL(name string) (string, []any) {
 	n := strings.ToUpper(releaser.Humanize(name))
-	exact := fmt.Sprintf("(upper(credit_text) = '%s')"+
-		" OR (upper(credit_program) = '%s')"+
-		" OR (upper(credit_illustration) = '%s')"+
-		" OR (upper(credit_audio) = '%s')", n, n, n, n)
-	first := fmt.Sprintf("(upper(credit_text) LIKE '%s,%%')"+
-		" OR (upper(credit_program) LIKE '%s,%%')"+
-		" OR (upper(credit_illustration) LIKE '%s,%%')"+
-		" OR (upper(credit_audio) LIKE '%s,%%')", n, n, n, n)
-	middle := fmt.Sprintf("(upper(credit_text) LIKE '%%,%s,%%')"+
-		" OR (upper(credit_program) LIKE '%%,%s,%%')"+
-		" OR (upper(credit_illustration) LIKE '%%,%s,%%')"+
-		" OR (upper(credit_audio) LIKE '%%,%s,%%')", n, n, n, n)
-	last := fmt.Sprintf("(upper(credit_text) LIKE '%%,%s')"+
-		" OR (upper(credit_program) LIKE '%%,%s')"+
-		" OR (upper(credit_illustration) LIKE '%%,%s')"+
-		" OR (upper(credit_audio) LIKE '%%,%s')", n, n, n, n)
-	return fmt.Sprintf("(%s) OR (%s) OR (%s) OR (%s)", exact, first, middle, last)
+	// Use $1 placeholders for parameterized queries (safe from injection)
+	exact := "(upper(credit_text) = $1)" +
+		" OR (upper(credit_program) = $1)" +
+		" OR (upper(credit_illustration) = $1)" +
+		" OR (upper(credit_audio) = $1)"
+	first := "(upper(credit_text) LIKE $1||',%')" +
+		" OR (upper(credit_program) LIKE $1||',%')" +
+		" OR (upper(credit_illustration) LIKE $1||',%')" +
+		" OR (upper(credit_audio) LIKE $1||',%')"
+	middle := "(upper(credit_text) LIKE '%'||$1||',%')" +
+		" OR (upper(credit_program) LIKE '%'||$1||',%')" +
+		" OR (upper(credit_illustration) LIKE '%'||$1||',%')" +
+		" OR (upper(credit_audio) LIKE '%'||$1||',%')"
+	last := "(upper(credit_text) LIKE '%,'||$1)" +
+		" OR (upper(credit_program) LIKE '%,'||$1)" +
+		" OR (upper(credit_illustration) LIKE '%,'||$1)" +
+		" OR (upper(credit_audio) LIKE '%,'||$1)"
+	query := fmt.Sprintf("(%s) OR (%s) OR (%s) OR (%s)", exact, first, middle, last)
+	return query, []any{n}
 }
 
 func Releasers() SQL {
@@ -303,40 +304,49 @@ func Summary() SQL {
 		"WHERE "
 }
 
-// SimilarToReleaser selects a similar list of distinct releasers or groups,
-// like the query strings and ordered by the file count.
-func SimilarToReleaser(like ...string) SQL {
-	query := like
-	for i, val := range query {
+// SimilarToReleaser returns a parameterized SQL query for finding similar releasers.
+func SimilarToReleaser(like ...string) (SQL, []any) {
+	if len(like) == 0 {
+		return "", nil
+	}
+	query := make([]string, len(like))
+	for i, val := range like {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
-	return "SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + releaserSEL + releaserBy +
-		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
-		" ORDER BY sub.count_sum DESC"
+	// Build the pattern as a single parameter containing alternation
+	pattern := strings.Join(query, "|")
+	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + string(releaserSEL) + string(releaserBy) +
+		") sub WHERE sub.releaser SIMILAR TO ('(' || $1 || ')') ORDER BY sub.count_sum DESC"), []any{pattern}
 }
 
-// SimilarToMagazine selects a similar list of distinct magazine titles,
-// like the query strings and ordered by the file count.
-func SimilarToMagazine(like ...string) SQL {
-	query := like
-	for i, val := range query {
+// SimilarToMagazine returns a parameterized SQL query for finding similar magazines.
+func SimilarToMagazine(like ...string) (SQL, []any) {
+	if len(like) == 0 {
+		return "", nil
+	}
+	query := make([]string, len(like))
+	for i, val := range like {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
-	return "SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + releaserSEL + magazine + releaserBy +
-		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '%%(%s)%%'", strings.Join(query, "|"))) +
-		" ORDER BY sub.count_sum DESC"
+	// Build the pattern as a single parameter containing alternation
+	pattern := strings.Join(query, "|")
+	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + string(releaserSEL) + string(magazine) + string(releaserBy) +
+		") sub WHERE sub.releaser SIMILAR TO ('(' || $1 || ')') ORDER BY sub.count_sum DESC"), []any{pattern}
 }
 
-// SimilarToExact selects an exact list of distinct releasers or groups,
-// like the query strings and ordered by the file count.
-func SimilarToExact(like ...string) SQL {
-	query := like
-	for i, val := range query {
+// SimilarToExact returns a parameterized SQL query for exact releaser matches.
+func SimilarToExact(like ...string) (SQL, []any) {
+	if len(like) == 0 {
+		return "", nil
+	}
+	query := make([]string, len(like))
+	for i, val := range like {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
-	return "SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + releaserSEL + releaserBy +
-		SQL(fmt.Sprintf(") sub WHERE sub.releaser SIMILAR TO '(%s)'", strings.Join(query, "|"))) +
-		" ORDER BY sub.count_sum DESC"
+	// Build the pattern as a single parameter containing alternation
+	pattern := strings.Join(query, "|")
+	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + string(releaserSEL) + string(releaserBy) +
+		") sub WHERE sub.releaser SIMILAR TO ('(' || $1 || ')') ORDER BY sub.count_sum DESC"), []any{pattern}
 }
 
 // Roles returns all of the sceners reguardless of the attribution.

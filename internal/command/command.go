@@ -35,7 +35,7 @@ var (
 	ErrIsFile     = errors.New("directory path points to a file")
 	ErrNoMatch    = errors.New("no match value is present")
 	ErrPath       = errors.New("path is not permitted")
-	ErrUnknownImg = errors.New("file is not an known image format")
+	ErrUnknownImg = errors.New("file is not a known image format")
 	ErrVersion    = errors.New("application version mismatch")
 )
 
@@ -152,7 +152,8 @@ func BaseName(path string) string {
 	if path == "" {
 		return ""
 	}
-	return strings.TrimSuffix(filepath.Base(path), filepath.Ext(filepath.Base(path)))
+	base := filepath.Base(path)
+	return strings.TrimSuffix(base, filepath.Ext(base))
 }
 
 // BaseNamePath returns the directory and base name of the file without the extension.
@@ -239,11 +240,8 @@ func RunQuiet(name string, arg ...string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, name, arg...)
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("%s start: %w", msg, err)
-	}
-	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("%s wait: %w", msg, err)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("%s run: %w", msg, err)
 	}
 	return nil
 }
@@ -274,9 +272,6 @@ func run(sl *slog.Logger, name, wdir string, arg ...string) error {
 	sl.Debug(msg,
 		slog.String("command name", cmd.String()),
 		slog.String("output", string(p)))
-	// if err := cmd.Run(); err != nil {
-	// 	return fmt.Errorf("%s %q cannot run: %w", msg, name, err)
-	// }
 	return nil
 }
 
@@ -287,7 +282,7 @@ func run(sl *slog.Logger, name, wdir string, arg ...string) error {
 //
 // This is to prevent directory traversal attacks.
 func UncontrolledPath(path string) error {
-	if strings.Contains(path, "/") || strings.Contains(path, "\\") || strings.Contains(path, "..") {
+	if strings.ContainsAny(path, "/\\") || strings.Contains(path, "..") {
 		return ErrPath
 	}
 	return nil

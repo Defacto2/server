@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	archives  = 10
+	archives  = 9
 	documents = 15
 	images    = 10
 	medias    = 8
@@ -49,4 +49,56 @@ func TestMedia(t *testing.T) {
 	for v := range slices.Values(a) {
 		be.True(t, v != "")
 	}
+}
+
+func TestNoDuplicateArchive(t *testing.T) {
+	t.Parallel()
+	a := extensions.Archive()
+	unique := make(map[string]bool)
+	for _, ext := range a {
+		if unique[ext] {
+			t.Errorf("duplicate extension found: %s", ext)
+		}
+		unique[ext] = true
+	}
+	be.Equal(t, len(unique), len(a))
+}
+
+func TestNoDuplicateDocument(t *testing.T) {
+	t.Parallel()
+	a := extensions.Document()
+	unique := make(map[string]bool)
+	for _, ext := range a {
+		if unique[ext] {
+			t.Errorf("duplicate extension found: %s", ext)
+		}
+		unique[ext] = true
+	}
+	be.Equal(t, len(unique), len(a))
+}
+
+func TestNoDuplicateImage(t *testing.T) {
+	t.Parallel()
+	a := extensions.Image()
+	unique := make(map[string]bool)
+	for _, ext := range a {
+		if unique[ext] {
+			t.Errorf("duplicate extension found: %s", ext)
+		}
+		unique[ext] = true
+	}
+	be.Equal(t, len(unique), len(a))
+}
+
+func TestNoDuplicateMedia(t *testing.T) {
+	t.Parallel()
+	a := extensions.Media()
+	unique := make(map[string]bool)
+	for _, ext := range a {
+		if unique[ext] {
+			t.Errorf("duplicate extension found: %s", ext)
+		}
+		unique[ext] = true
+	}
+	be.Equal(t, len(unique), len(a))
 }
