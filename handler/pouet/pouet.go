@@ -75,13 +75,13 @@ func (p *Production) Get(id int) (int, error) {
 	if code, err := resp.Get(id); err != nil {
 		return code, fmt.Errorf("pouet uploader get %w", err)
 	}
-	id, err := strconv.Atoi(resp.Prod.ID)
+	parsedID, err := strconv.Atoi(resp.Prod.ID)
 	if err != nil {
 		return 0, fmt.Errorf("pouet uploader atoi %w", err)
 	}
 	platOkay := PlatformsValid(resp.Prod.Platforms.String())
 	typeOkay := TypesValid(resp.Prod.Types.String())
-	p.ID = id
+	p.ID = parsedID
 	p.Title = resp.Prod.Title
 	p.ReleaseDate = resp.Prod.ReleaseDate
 	p.Download = resp.Prod.Download

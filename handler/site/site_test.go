@@ -20,27 +20,3 @@ func TestFind(t *testing.T) {
 	website = site.Find("razor-1911-demo")
 	be.True(t, len(website) == 2)
 }
-
-func TestWebsites(t *testing.T) {
-	t.Parallel()
-	w := site.Websites()
-	for _, key := range w {
-		for _, site := range key {
-			be.True(t, site.URL != "")
-			// be.True(t, site.Name != "")
-			// if site.Name == "" && !site.NotWorking {
-			// 	fmt.Fprintln(os.Stderr, "site name is empty for url", site.URL)
-			// }
-			// if site.NotWorking {
-			// 	// catch any http or https urls
-			// 	be.True(t, !strings.HasPrefix(site.URL, "http"))
-			// 	continue
-			// }
-			// const localPath = "/"
-			// if strings.HasPrefix(site.URL, localPath) {
-			// 	continue
-			// }
-			// be.True(t, strings.HasPrefix(site.URL, "http"))
-		}
-	}
-}

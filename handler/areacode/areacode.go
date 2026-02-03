@@ -5,11 +5,12 @@ import (
 	"cmp"
 	"fmt"
 	"html/template"
-	"math"
 	"slices"
 	"strconv"
 	"strings"
 )
+
+const limit = 999
 
 // NAN represents a North American Numbering Plan area code.
 type NAN int
@@ -377,8 +378,10 @@ func Lookup(a any) []Territory {
 			return TerritoryByCode(NAN(c))
 		}
 		if c, ok := a.(uint); ok {
-			x := int(math.Abs(float64(c)))
-			return TerritoryByCode(NAN(x))
+			if c > limit {
+				return nil
+			}
+			return TerritoryByCode(NAN(int(c)))
 		}
 		return nil
 	case NAN:
@@ -428,8 +431,10 @@ func Query(a any) Result {
 			return Result{AreaCode: NAN(c)}
 		}
 		if c, ok := a.(uint); ok {
-			x := int(math.Abs(float64(c)))
-			return Result{AreaCode: NAN(x)}
+			if c > limit {
+				return Result{}
+			}
+			return Result{AreaCode: NAN(int(c))}
 		}
 		return Result{}
 	case NAN:
