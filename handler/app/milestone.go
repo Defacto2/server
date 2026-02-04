@@ -2055,11 +2055,14 @@ func Collection() Milestones {
 			},
 		},
 		{
-			Title: "First mention of \"CD-RIP\"", Year: 1994, Month: 9, Day: 4, Highlight: true,
-			Lead: "So far, Hybrid", LinkTitle: "about the release", Link: "/f/ab27459",
+			Title: "First mention of \"CD-RIP\"", Year: 1994, Month: 11, Day: 24, Highlight: true,
+			Lead: "So far, TDU-Jam!", LinkTitle: "about the release", Link: "/f/b61d166",
 			Content: "<p>A play on the media, CD-ROM, the earliest mention of <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, " +
-				"was by Hybrid for the game Shanghai: Great Moments. " +
-				"Hybrid was a group formed by ex-members of <a href=\"/g/pyradical\">Pyradical</a> and <a href=\"/g/pentagram\">Pentagram</a>.</p>" +
+				"was by TDU-Jam! for the game Great Naval Battles 3 \"CD-RIP\" <a href=\"/f/ae413f\">released</a> on 8th February 1995. " +
+				"But, this was probably derived from the word strip, where in the November 1994 <a href=\"/f/b61d166\">release</a> of Lemmings they wrote " +
+				"<em>In order to send you this CD release, we took the liberty to st<u>rip</u> a couple of the large animations.</em>" +
+				"<p>Great Navel Battles would describe, <em>What is this CD-RIP? Contains the full game, with sound effects</em>, and " +
+				"<em>What is a FULL CD? The full game, including EVERYTHING, playable from the hard disk (and cracked, of course).</em></p>" +
 				"The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
 				"CD-ROMs were cheaper to produce and had far more storage capacity than the standard floppy disks. However, large hard drives were too expensive to store the content of complete CD images. " +
 				"So, for many pirates to play a game published on CD, the disc's content had to be ripped and repackaged to a hard drive, but with the removal of the game's fluff, such as intro videos, music, and speech.",
