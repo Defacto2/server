@@ -23,7 +23,7 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h2 class="modal-title fs-5" id="uploader-demozoo-label">Demozoo production or graphic</h2>
+              <h5 class="modal-title" id="uploader-demozoo-label">Demozoo production or graphic</h5>
               <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" hx-ext="response-targets">
@@ -64,7 +64,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title fs-5" id="uploader-pouet-label">Pouët production</h2>
+            <h5 class="modal-title" id="uploader-pouet-label">Pouët production</h5>
             <button type="button" id="pouet-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" hx-ext="response-targets">
@@ -103,7 +103,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title fs-5" id="uploader-intro-label">Intro, Cracktro, BBStro, Sitetro</h2>
+            <h5 class="modal-title" id="uploader-intro-label">Intro, Cracktro, BBStro, Sitetro</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -191,7 +191,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title fs-5" id="uploader-trainer-label">Trainer, game hack or installer app</h2>
+            <h5 class="modal-title" id="uploader-trainer-label">Trainer, game hack or installer app</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -283,7 +283,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title fs-5" id="uploader-text-label">Text, ANSI or NFO</h2>
+            <h5 class="modal-title" id="uploader-text-label">Text, ANSI or NFO</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -382,7 +382,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title fs-5" id="uploader-image-label">Image, photo or artwork</h2>
+            <h5 class="modal-title" id="uploader-image-label">Image, photo or artwork</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -469,7 +469,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title fs-5" id="uploader-magazine-label">Magazine <small>or a newsletter</small></h2>
+            <h5 class="modal-title" id="uploader-magazine-label">Magazine <span class="small text-muted">(or a newsletter)</span></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -553,7 +553,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title fs-5" id="uploader-advanced-label">Advanced uploader</h2>
+            <h5 class="modal-title" id="uploader-advanced-label">Advanced uploader</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -646,17 +646,17 @@
                 </select>
               </div>
               <div id="uploader-advanced-classification-help" class="form-text mb-3"></div>
+              <div class="form-text mb-3">{{$screenshot}}</div>
               <div class="row g-2">
-                <div class="input-group mt-3">
+                <div class="col-12">
                   <input type="file" name="uploader-advancedfile" id="uploader-advanced-file" class="form-control" required>
                 </div>
                 <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-advanced-alert"></div>
                 <progress id="uploader-advanced-progress" value="0" max="100"></progress>
-                <button id="uploader-advanced-submit" class="btn btn-success">Upload</button>     
-                <div class="col-8 form-text">{{$screenshot}}</div>
-                <div class="col-4 text-end">
+                <div class="col-12 d-flex gap-2">
+                  <button id="uploader-advanced-submit" class="btn btn-success">Upload</button>
                   <button type="reset" id="uploader-advanced-reset" class="btn btn-outline-danger">Reset</button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="modal">Close</button>
                 </div>
               </div>
               <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-advanced-results"></div>

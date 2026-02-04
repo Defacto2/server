@@ -69,18 +69,24 @@ og:image:alt	Defacto2 floppy disc logo
 
 */ -}}
 {{- $ogtitle := index . "ogtitle"}}
-{{- if eq $ogtitle ""}}{{$ogtitle = .title}}{{end}}
+{{- if eq $ogtitle ""}}{{- $ogtitle = index . "title"}}{{end}}
 {{- $metatitle := .title}}
 {{- $subheading := index . "subheading"}}
 {{- $unid := index . "unid"}}
 {{- $ogimage := og_image $unid}}
 {{- $desc := index . "description"}}
-    <meta property="og:title" content="{{$ogtitle}}">
+{{- $canonical := index . "canonical"}}
+    <meta property="og:title" content="{{$ogtitle | safeHTML}}">
     <meta property="og:site_name" content="Defacto2">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://defacto2.net{{$ogimage}}">
+{{- if ne $canonical ""}}
+    <meta property="og:url" content="{{$canonical | safeHTML}}">
+{{- end}}
+    <meta property="og:image" content="{{$ogimage | safeHTML}}">
+    <meta property="og:image:alt" content="Defacto2 scene artifact">
 {{- if ne $desc ""}}
-    <meta property="og:description" content="{{$desc}}">{{end}}
+    <meta property="og:description" content="{{$desc | safeHTML}}">
+{{- end}}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="fediverse:creator" content="@defacto2@mas.to">
 {{ end }}

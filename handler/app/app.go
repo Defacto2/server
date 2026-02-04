@@ -881,6 +881,19 @@ func websiteIcon(url string) string {
 	return "arrow-right"
 }
 
+// StripSup removes <sup>...</sup> tags from a string and returns the cleaned string.
+// The sup tags are returned separately if present, otherwise empty string.
+// Usage in templates: {{ $result := stripSup .Title }} returns a map with "text" and "sup" keys.
+func StripSup(s string) (map[string]template.HTML, error) {
+	re := regexp.MustCompile(`<sup>.*?</sup>`)
+	sup := template.HTML(re.FindString(s))
+	cleaned := strings.TrimSpace(re.ReplaceAllString(s, ""))
+	return map[string]template.HTML{
+		"text": template.HTML(cleaned),
+		"sup":  sup,
+	}, nil
+}
+
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
 func YMDEdit(c echo.Context, db *sql.DB) error {
 	const msg = "year month day edit"

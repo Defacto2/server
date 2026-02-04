@@ -270,3 +270,82 @@ canvas,
 @keyframes blink {
   50% { color: transparent; }
 }
+
+/* ============================================================
+ * BADGE HOVER EFFECTS
+ * Interactive styling for category badges
+ * ============================================================ */
+
+.badge {
+  text-decoration: none;
+  transition: text-decoration 0.2s ease-in-out;
+  opacity: 0.85;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.badge:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.5px;
+  opacity: 1;
+}
+
+.badge.bg-primary {
+  background-color: #6c8fb8 !important;
+}
+
+.badge.bg-success {
+  background-color: #7a9d7e !important;
+}
+
+.badge.bg-warning {
+  background-color: #b8a86c !important;
+}
+
+.badge.bg-danger {
+  background-color: #b86c6c !important;
+}
+
+.badge.bg-info {
+  background-color: #6cb8b8 !important;
+}
+
+.badge.bg-secondary {
+  background-color: #8a8a8a !important;
+}
+
+/* ============================================================
+ * CARD STYLING
+ * Improved card appearance with shadows and borders
+ * ============================================================ */
+
+.card-hover {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* ============================================================
+ * LINK STYLING
+ * Thin underlines for better appearance
+ * ============================================================ */
+
+a {
+  text-decoration-thickness: 0.5px;
+}
+
+/* ============================================================
+ * TAB STYLING
+ * Improve tab appearance and active state
+ * ============================================================ */
+
+.nav-underline .nav-link.active {
+  font-weight: 700;
+  color: var(--bs-primary);
+  border-bottom: 3px solid var(--bs-primary);
+}
+
+.nav-underline .nav-link:hover:not(.active) {
+  color: var(--bs-secondary);
+}

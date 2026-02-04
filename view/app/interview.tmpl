@@ -2,32 +2,36 @@
     interview.tmpl ~ Generates the content for the people interviews page.
 */ -}}
 {{- define "content" -}}
-<div>This list of interviews and discussions is incomplete, and some of these interviews are amateur and cringe.</div>
+<div class="mb-5 text-center">
+    This list of interviews and discussions is incomplete, and some of these interviews are amateur and cringe.
+</div>
 {{- range $relIndex, $releaser := .interviews }}
-{{- if gt $relIndex 0}}
-<br>
-{{- end}}
-<h2 class="fs-3 lead mt-5 mb-5 text-center">
+<h2 class="fs-2 fw-bold {{if gt $relIndex 0}}mt-5{{else}}mt-4{{end}} mb-2 text-center py-4 border-top">
 {{- if eq $releaser.Link ""}}
 Retirements
 {{- else if eq $releaser.Link "appleii"}}
 Apple //
 {{- else}}
-<a class="link-offset-2 link-underline link-underline-opacity-25" href="/g/{{$releaser.Link}}">{{$releaser.Name}}</a>
+{{$releaser.Name}}
 {{- end}}
 </h2>
-<div class="container">
+{{- if and (ne $releaser.Link "") (ne $releaser.Link "appleii")}}
+<div class="text-center mb-4">
+    <a class="link-offset-2 link-underline link-underline-opacity-25" href="/g/{{$releaser.Link}}">View group</a>
+</div>
+{{- end}}
+<div class="container mt-4">
     <div class="row justify-content-md-center row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {{- range $index, $interview := $releaser.Interviews }}
       <div class="col">
-        <div class="card h-100">           
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title text-center">{{$interview.Scener}}</h5>     
-                <h6 class="card-subtitle mb-2 text-body-secondary text-center">{{$interview.Year}} {{fmtMonth $interview.Month}}</h6>       
-                <p class="card-text">{{$interview.Content}}</p>          
+                <h5 class="card-title text-center fw-600 mb-3">{{$interview.Scener}}</h5>     
+                <h6 class="card-subtitle mb-3 text-body-secondary text-center fs-6">{{$interview.Year}} {{fmtMonth $interview.Month}}</h6>       
+                <p class="card-text lh-lg">{{$interview.Content}}</p>
             </div>
-            <div class="card-footer text-center">
-                <a href="{{$interview.Link}}" class="icon-link icon-link-hover">Read the interview{{linkInterview $interview.Link}}</a>  
+            <div class="card-footer text-center pt-3">
+                <a href="{{$interview.Link}}" class="icon-link icon-link-hover fw-500">Read the interview {{linkInterview $interview.Link}}</a>  
             </div>
           </div>
       </div>

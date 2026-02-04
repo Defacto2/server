@@ -5,9 +5,10 @@
             <div class="col">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">{{ .Title | safeHTML }}</h5>
-                        <p class="card-text">{{ .Info }}</p>
-                        <a href="{{ .URL }}" class="icon-link icon-link-hover">{{websiteIcon .URL}} Go surf</a>
+                        {{- $parts := stripSup .Title }}
+                        <h5 class="card-title mb-3">{{ $parts.text }}</h5>
+                        <p class="card-text lh-lg mb-4">{{ .Info }}</p>
+                        <a href="{{ .URL }}" class="icon-link icon-link-hover">{{websiteIcon .URL}} Visit {{ $parts.text }}</a> {{ $parts.sup }}
                     </div>
                 </div>
             </div>

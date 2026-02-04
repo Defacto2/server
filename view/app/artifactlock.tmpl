@@ -2,44 +2,114 @@
     artifactlock.tmpl ~ Buttons to launch the artifact editor modals.
 */ -}}
 {{- define "artifactlock" }}
+<style scoped>
+  .artifactlock-shortcuts {
+    background: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.75rem 1rem;
+  }
+  .artifactlock-shortcuts kbd {
+    background: #2d3748;
+    color: #fff;
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+  }
+  .artifactlock-message {
+    border-left: 4px solid;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin: 0.5rem 0;
+  }
+  .artifactlock-message.disabled {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+  }
+  .artifactlock-message.approval {
+    border-left-color: #0d6efd;
+    background: #f0f6ff;
+  }
+  .artifactlock-message.success {
+    border-left-color: #198754;
+    background: #f0fdf4;
+  }
+  .artifactlock-message.error {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+    margin-top: 0.5rem;
+  }
+  .artifactlock-message.warning {
+    border-left-color: #ffc107;
+    background: #fffbf0;
+    margin-top: 0.5rem;
+  }
+</style>
 {{- $locked := index . "editor"}}
-{{- if ne true $locked}}{{/*  render nothing  */}}{{else}}
+{{- if $locked}}
 {{- $alertCls := "w-100 my-0 text-center"}}
 {{- $forApproval := index . "forApproval"}}
 {{- $disableApproval := index . "disableApproval"}}
 {{- $missingAssets := index . "missingAssets"}}
 {{- $disableRecord := index . "disableRecord"}}
 {{- $modID := index . "modID"}}
-<div class="alert alert-light py-1">
-    <div class="mb-1 text-end">
-      <kbd>alt+shift</kbd> <kbd>home</kbd> <kbd>pgdn</kbd> <kbd>pgup</kbd> <kbd>del</kbd>
-      <span class="ms-3">releasers <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd></span>
+<div class="alert alert-light py-2">
+    <div class="row g-3">
+      <div class="col-12 col-lg-5">
+        <div class="artifactlock-shortcuts">
+          <strong class="d-block mb-1">Shortcuts and Editors:</strong>
+          <div><small class="text-muted">Editor:</small> <kbd>alt+shift</kbd> <kbd>home</kbd> <kbd>pgdn</kbd> <kbd>pgup</kbd> <kbd>del</kbd><br>
+          <small class="text-muted">Releasers:</small> <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd></div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-7 d-flex align-items-center">
+        <div class="row row-cols-2 row-cols-sm-4 g-2 w-100">
+          <div class="col">
+              <button data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" data-bs-toggle="tooltip" data-bs-title="alt + shift + home" class="btn btn-primary btn-lg w-100">📋 Data</button>
+              <small class="d-block text-center text-muted mt-1">Record &amp; status</small>
+              </div>
+          <div class="col">
+              <button data-bs-toggle="modal" data-bs-target="#asset-editor-modal" data-bs-toggle="tooltip" data-bs-title="alt + shift + pgdn" class="btn btn-primary btn-lg w-100">📁 File</button>
+              <small class="d-block text-center text-muted mt-1">Download &amp; screens</small>
+          </div>
+          <div class="col">
+              <button data-bs-toggle="modal" data-bs-target="#emulate-editor-modal" data-bs-toggle="tooltip" data-bs-title="alt + shift + pgup" class="btn btn-primary btn-lg w-100">🎮 Emulate</button>
+              <small class="d-block text-center text-muted mt-1">Configure DOSBox</small>
+          </div>
+          <div class="col">
+              <button data-bs-toggle="modal" data-bs-target="#artifact-delete-forever-modal" data-bs-toggle="tooltip" data-bs-title="alt + shift + del" class="btn btn-warning btn-lg w-100">Delete</button>
+              <small class="d-block text-center text-muted mt-1">Erase record &amp; assets</small>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-2">
-        <div data-bs-toggle="tooltip" data-bs-title="alt + shift + home" class="col d-grid"><a href="#artifact-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Data editor</a></div>
-        <div data-bs-toggle="tooltip" data-bs-title="alt + shift + pgdn" class="col d-grid"><a href="#asset-editor-modal" data-bs-toggle="modal" class="btn btn-primary">File editor</a></div>
-        <div data-bs-toggle="tooltip" data-bs-title="alt + shift + pgup" class="col d-grid"><a href="#emulate-editor-modal" data-bs-toggle="modal" class="btn btn-primary">Emulate editor</a></div>
-        <div data-bs-toggle="tooltip" data-bs-title="alt + shift + del" class="col d-grid"><a href="#artifact-delete-forever-modal" data-bs-toggle="modal" class="btn btn-warning">Delete forever</a></div>
-    </div>
-    <hr class="my-2">
     {{- if $disableRecord}}
-    <p class="{{$alertCls}} text-danger-emphasis">🚫 Record is disabled and hidden from public access. 🚫</p>
+    <div class="artifactlock-message disabled">
+      <strong>🚫 Record is disabled and hidden from public access.</strong>
+    </div>
     {{- else if $forApproval}}
-    <p class="{{$alertCls}} text-primary-emphasis" id="record-is-hidden">
-        ⛔ This new record is hidden from public access.<br>
+    <div class="artifactlock-message approval" id="record-is-hidden">
+        <div class="mb-2">⛔ This new record is hidden from public access.</div>
         {{- if eq $disableApproval ""}}
-        <span data-bs-toggle="tooltip" data-bs-title="alt + shift + &#11123;">If the data and images are correct, <a href="#" id="editor-online-true" hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden" autofocus>it can be approved</a>.</span>
+        <div>
+          <span data-bs-toggle="tooltip" data-bs-title="alt + shift + enter">If the data and images are correct, <a href="#" id="editor-online-true" hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden" autofocus class="link-primary fw-semibold">it can be approved</a>.</span>
+        </div>
         {{- end}}
-    </p>
+    </div>
     {{- else}}
-    <p class="{{$alertCls}} text-success-emphasis">Record is visible to the public.</p>
+    <div class="artifactlock-message success">
+      <strong>✓ Record is visible to the public.</strong>
+    </div>
     {{- end}}
     {{- if ne $disableApproval ""}}
-    <div class="text-center"><a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal">The artifact is missing some required data</a> and should not be public.</div>
-    <div class="text-danger-emphasis text-center">some problems: {{$disableApproval}}.</div>
+    <div class="artifactlock-message error">
+      <div class="mb-2">⚠️ <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="link-danger fw-semibold">The artifact is missing some required data</a> and should not be public.</div>
+      <div><strong>Problems:</strong> {{$disableApproval}}</div>
+    </div>
     {{- end}}
     {{- if ne $missingAssets ""}}
-    <div class="text-warning-emphasis text-center">a suggestion, use the <a href="#asset-editor-modal" data-bs-toggle="modal">File editor</a> to: {{$missingAssets}}.</div>
+    <div class="artifactlock-message warning">
+      <strong>💡 Suggestion:</strong> Use the <a href="#asset-editor-modal" data-bs-toggle="modal" data-bs-target="#asset-editor-modal" class="link-warning fw-semibold">File editor</a> to {{$missingAssets}}.
+    </div>
     {{- end}}
 </div>
 {{- end}}

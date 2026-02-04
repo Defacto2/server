@@ -10,7 +10,7 @@ Repository: 	https://github.com/Defacto2/server
 Website:		https://defacto2.net
 License:		GPL-3.0
 
-© Defacto2, 2024-25
+© Defacto2, 2024-26
 */
 
 import (

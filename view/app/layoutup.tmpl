@@ -2,17 +2,16 @@
     layoutup.tmpl ~ Uploader pull-down menu.
 */ -}}
 {{- define "layoutup" }}
-{{- $lock := index . "editor" }}
-{{- $buttonClass := "btn-link"}}
-{{- if ne true $lock}}{{ $buttonClass = "btn-link"}}{{end}}
+{{- $editor := index . "editor" }}
+{{- if not $editor}}{{/* not an editor, render nothing */}}{{else}}
 <div class="btn-group">
-  <button class="btn {{$buttonClass}} dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    {{- if ne true $lock}}Uploader{{else}}Site editor{{end}}
+  <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    {{- if not $editor}}Uploader{{else}}Site editor{{end}}
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
     {{- template "layoutlock" . }}
-    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-about">{{if ne true $lock}}About{{else}}Uploader shortcuts{{end}}</a></li>
-    {{- if ne true $lock}}<li><hr class="dropdown-divider"></li>{{end}}
+    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-about">{{if not $editor}}About{{else}}Uploader shortcuts{{end}}</a></li>
+    {{- if not $editor}}<li><hr class="dropdown-divider"></li>{{end}}
     <li><h6 class="dropdown-header">Submit a production</h6></li>
     <li data-bs-toggle="tooltip" data-bs-title="control + alt + z">
       <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-demozoo-modal">Demo<u>z</u>oo</a></li>
@@ -40,4 +39,5 @@
       <u>A</u>dvanced uploader</a></li>
   </ul>
 </div>
+{{- end}}
 {{- end}}

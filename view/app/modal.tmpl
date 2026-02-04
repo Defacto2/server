@@ -7,15 +7,15 @@
     <div class="modal fade" id="contacts-email-modal" tabindex="-1" aria-labelledby="contacts-email-modal-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header fs-5">
+          <div class="modal-header">
             <svg class="bi bi-envelope" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
               <use xlink:href="/svg/bootstrap-icons.svg#envelope"/>
             </svg>
-            <div class="modal-title fs-3 ps-2" id="contacts-email-modal-label">Email</div>
+            <div class="modal-title fs-4 ps-2" id="contacts-email-modal-label">Email</div>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <h2 class="user-select-all"><span>contact</span><span>@</span><span>defacto2</span><span>.</span><span>net</span></h2>
+            <h3 class="user-select-all"><span>contact</span><span>@</span><span>defacto2</span><span>.</span><span>net</span></h3>
             <p>Emails to this address are checked regularly.</p>
           </div>
           <div class="modal-footer">
@@ -167,9 +167,70 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p class="fs-3 fw-lighter text-center">Defacto2 does not track visitors to the site</p>
-            <p>We use the privacy first, <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Analytics</a>, which does not use any form of client-side state or fingerprinting.</p>
-            <p>There are no web server sessions for anonymous visitors and no remotely hosted software tools or assets.</p>
+            <div class="alert alert-success mb-4" role="alert">
+              <svg class="bi me-2" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="/svg/bootstrap-icons.svg#shield-check"/>
+              </svg>
+              <strong>Defacto2 does not track visitors to this site</strong>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="card h-100 border-0 bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-muted text-uppercase small fw-bold mb-3">
+                      <svg class="bi text-success me-2" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <use xlink:href="/svg/bootstrap-icons.svg#eye-slash"/>
+                      </svg>Privacy First Analytics
+                    </h6>
+                    <p class="card-text small mb-0">
+                      We use <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Analytics</a>, which respects your privacy. No client-side tracking, no fingerprinting, no personal data collection.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card h-100 border-0 bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-muted text-uppercase small fw-bold mb-3">
+                      <svg class="bi text-success me-2" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <use xlink:href="/svg/bootstrap-icons.svg#lock"/>
+                      </svg>No Sessions
+                    </h6>
+                    <p class="card-text small mb-0">
+                      Anonymous visitors do not create server sessions. No cookies are set unless you sign in to the admin panel.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card h-100 border-0 bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-muted text-uppercase small fw-bold mb-3">
+                      <svg class="bi text-success me-2" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <use xlink:href="/svg/bootstrap-icons.svg#cloud-slash"/>
+                      </svg>Self-Hosted Assets
+                    </h6>
+                    <p class="card-text small mb-0">
+                      No remotely hosted scripts, trackers, or third-party analytics. All assets are served directly from our servers.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card h-100 border-0 bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-muted text-uppercase small fw-bold mb-3">
+                      <svg class="bi text-success me-2" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <use xlink:href="/svg/bootstrap-icons.svg#code-square"/>
+                      </svg>Open Source
+                    </h6>
+                    <p class="card-text small mb-0">
+                      Our privacy practices are transparent. The <a href="https://github.com/Defacto2/server">source code</a> is publicly available for review.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -204,11 +265,12 @@
             </p>
             <p>
               But to be safe, 
-              <ol>
+            </p>
+            <ol>
               <li>Scan any application software downloads with <a href="https://www.virustotal.com/">VirusTotal</a></li>
               <li>Do not run the applications on your primary Windows system</li>
               <li>Use an isolated, virtualized or emulated Windows (or MSDOS) operating system</li>
-            </p>
+            </ol>
             <ul>
               <li><a href="https://www.parallels.com/products/desktop">Parallels Desktop</a> 18.1 or earlier, for easy Windows 2000 and newer support on macOS</li>
               <li>
@@ -239,54 +301,85 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p class="lead">
-              This site uses the Creative Commons Attribution 4.0 International license.<br>
-              It enables you to use much of the website content with your projects.
+            <div class="mb-4">
+              <p class="lead mb-3">
+                This site uses the <strong>Creative Commons Attribution 4.0 International</strong> license.
+              </p>
+              <p class="mb-3">
+                It enables you to use much of the website content with your projects. The license is a liberal implementation of copyright—you are free to use the original content as-is or modify it to your needs.
+              </p>
+              <p class="mb-0">
+                <strong>The only requirement:</strong> Give credit to defacto2.net for each piece of content you use. This attribution can be placed on the content itself or in a separate file.
+              </p>
+            </div>
+            <div class="text-center mb-4">
+              <p class="mb-0">
+                <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                  <use xlink:href="/svg/bootstrap-icons.svg#cc-circle"/>
+                </svg> 
+                <a href="https://creativecommons.org/licenses/by/4.0/" class="fs-4 icon-link icon-link-hover link-underline link-underline-opacity-25">Read the CC BY 4.0 licence deed</a>
+              </p>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-3">
+                  <svg class="bi text-success me-2" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                    <use xlink:href="/svg/bootstrap-icons.svg#check-circle-fill"/>
+                  </svg>
+                  <h5 class="text-success mb-0">Included</h5>
+                </div>
+                <ul class="list-unstyled ps-4">
+                  <li class="mb-3">
+                    <svg class="bi text-success me-2" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
+                    </svg><span>Text and <a href="https://github.com/Defacto2/database">database</a> website content</span>
+                  </li>
+                  <li class="mb-3">
+                    <svg class="bi text-success me-2" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
+                    </svg><span>Images, previews, and screenshots of artifacts</span>
+                  </li>
+                  <li class="mb-0">
+                    <svg class="bi text-success me-2" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
+                    </svg><span>Videos on the <a href="https://www.youtube.com/defacto2">defacto2 YouTube</a> channel</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-3">
+                  <svg class="bi text-danger me-2" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                    <use xlink:href="/svg/bootstrap-icons.svg#x-circle-fill"/>
+                  </svg>
+                  <h5 class="text-danger mb-0">Not Included</h5>
+                </div>
+                <ul class="list-unstyled ps-4">
+                  <li class="mb-3">
+                    <svg class="bi text-danger me-2" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <use xlink:href="/svg/bootstrap-icons.svg#x"/>
+                    </svg><span>File artifacts and downloads <span class="text-muted small">(© authors)</span></span>
+                  </li>
+                  <li class="mb-3">
+                    <svg class="bi text-danger me-2" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <use xlink:href="/svg/bootstrap-icons.svg#x"/>
+                    </svg><span>Website <a href="https://github.com/Defacto2/server">source code</a> and dependencies</span>
+                  </li>
+                  <li class="mb-0">
+                    <svg class="bi text-danger me-2" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <use xlink:href="/svg/bootstrap-icons.svg#x"/>
+                    </svg><span>Third party assets: art, icons, fonts, libraries</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <hr class="my-4">
+            <p class="text-muted small mb-0">
+              <svg class="bi text-muted" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 0.25rem; margin-bottom: 0.125rem;">
+                <use xlink:href="/svg/bootstrap-icons.svg#info-circle"/>
+              </svg>
+              In some countries, screenshots of computer software are held under copyright by the software author or © owner.
             </p>
-            <p>The Creative Commons Attribution 4.0 International license applied to defacto2.net is a liberal implementation of copyright. You are free to use the original content as is or modify it to your needs.</p>
-            <p>The only requirement we impose is that you attribute, that is, give credit to defacto2.net for each piece of content you use. This attribution can either be placed on the content itself or distributed in a separate file within the content.</p>
-            <p>
-              <svg class="bi" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                <use xlink:href="/svg/bootstrap-icons.svg#cc-circle"/>
-              </svg> 
-              <a href="https://creativecommons.org/licences/by/4.0/" class="icon-link icon-link-hover link-underline link-underline-opacity-25">The CC BY 4.0 licence deed</a></p>
-            <ul class="list-unstyled">
-              <li>
-                <p><span class="lead">The license includes</span></p>
-                <ul class="list-unstyled">
-                  <li><svg class="bi text-success" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
-                  </svg> Text and <a href="https://github.com/Defacto2/database">database</a> website content</li>
-                  <li><svg class="bi text-success" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
-                  </svg> Images including previews and screenshots of the file artifacts*</li>
-                  <li><svg class="bi text-success" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
-                  </svg> Videos hosted on the <a href="https://www.youtube.com/defacto2">defacto2</a> YouTube channel</li>
-                </ul>
-              </li>
-            </ul>
-            <ul class="list-unstyled">
-              <li>
-                <p><span class="lead">But the license <u>does not include</u></span></p>
-                <ul class="list-unstyled">
-                  <li><svg class="bi text-danger" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <use xlink:href="/svg/bootstrap-icons.svg#x"/>
-                  </svg> File artifacts and downloads,
-                    <small>which are &copy; by their authors</small>
-                  </li>
-                  <li><svg class="bi text-danger" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <use xlink:href="/svg/bootstrap-icons.svg#x"/>
-                  </svg> Website <a href="https://github.com/Defacto2/server">source code</a> and dependencies, 
-                    <small>these use other open licences</small></li>
-                  <li><svg class="bi text-danger" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <use xlink:href="/svg/bootstrap-icons.svg#x"/>
-                  </svg> Third party assets such as art, icons, fonts, and libraries
-                  </li>
-                </ul>
-              </li>
-            </ul>
-            <p class="mt-2">* <small>In some countries, the copyright for screenshots of computer software are held by the software author or the &copy; owner.</small></p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -303,50 +396,64 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p class="lead">
-              <span class="text-info-emphasis">The file artifacts come from hundreds of online donations</span> or are from various digital and physical collections.
-              Ben Garrett programs the website, and a small anonymous volunteer team maintains it.
+            <div class="mb-4">
+              <p class="lead mb-3">
+                <span class="text-info-emphasis">The file artifacts come from hundreds of online donations</span> or from various digital and physical collections.
+              </p>
+              <p class="mb-0">
+                <strong>Core team:</strong> Ben Garrett programs the website, and a small anonymous volunteer team maintains it.
+              </p>
+            </div>
+            <div class="alert alert-info mb-4" role="alert">
+              <svg class="bi me-2" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                <use xlink:href="/svg/bootstrap-icons.svg#github"/>
+              </svg>
+              <strong>Open Source:</strong> The website is <a href="https://github.com/Defacto2/server" class="alert-link">available on GitHub</a>
+            </div>
+            <hr class="my-4">
+            <h5 class="mb-3">Built with</h5>
+            <p class="text-muted small mb-4">
+              The core site uses <a href="https://go.dev/">Go</a>, the <a href="https://echo.labstack.com/">Echo</a> framework, and <a href="https://github.com/aarondl/sqlboiler">SQLBoiler</a> ORM for type-safe database queries.
             </p>
-            <hr>
-            <p>
-              The core site gets built using the
-              <a class="fw-light" href="https://go.dev/">Go</a> programming language,
-              the <a class="fw-light" href="https://echo.labstack.com/">Echo</a> framework,
-              <a class="fw-light" href="https://github.com/aarondl/sqlboiler">SQLBoiler</a>,
-              <br>and the following libraries and dependencies.
-              <br>Do you know that the website is open-sourced and <a href="https://github.com/Defacto2/server">available on GitHub</a>?
-            </p>
-            <dl class="row">
-              <dt class="col-sm-4"><a class="fw-light" href="https://getbootstrap.com/">Bootstrap</a></dt>
-              <dd class="col-sm-8">The frontend, the user interface and icons</dd>
-              <dt class="col-sm-4"><a class="fw-light" href="https://www.dosbox.com/">DOSBox</a></dt>
-              <dd class="col-sm-8">The PC Disk Operating System (DOS) emulator</dd>
-              <dt class="col-sm-4"><a class="fw-light" href="https://js-dos.com/">js-dos</a></dt>
-              <dd class="col-sm-8">The DOS emulation frontend</dd>
-              <dt class="col-sm-4"><a class="fw-light" href="https://www.postgresql.org/">PostgreSQL</a></dt>
-              <dd class="col-sm-8">The database</dd>
-              <dt class="col-sm-4"><a class="fw-light" href="https://m.do.co/c/a9270bdb9e74">DigitalOcean</a> *</dt>
-              <dd class="col-sm-8">The web host<br><small>* Referral link, spend $25, you'll get up to $200 credit, and we'll get $25.</small></dd>
-            </dl>
-            <p>
-              The Sceners who have assets used by this website:
-            </p>
-            <dl class="row">
-              <dt class="col-sm-4"><a class="fw-light" href="https://www.ansilove.org/">AnsiLove/C</a></dt>
-              <dd class="col-sm-8">The tool used to generate images from ANSI and text art</dd>
-              <dt class="col-sm-4"><a class="fw-light" href="https://demozoo.org/sceners/47321/">Antibody</a></dt>
-              <dd class="col-sm-8">The Defacto2 (ASCII) text logo</dd>
-              <dt class="col-sm-4"><a class="fw-light" href="https://int10h.org/oldschool-pc-fonts/">VileR</a></dt>
-              <dd class="col-sm-8">The web ports of the multiple IBM PC system fonts</dd>
-              <dt class="col-sm-4"><a class="fw-light" href="https://www.trueschool.se/">dMG</a></dt>
-              <dd class="col-sm-8">The web ports of the Amiga Topaz2 and MicroKnight fonts</dd>
-            </dl>
-            <p>
-              The Corpos who have assets used by this website:
-            </p>
-            <dl class="row">
-              <dt class="col-sm-4"><a class="fw-light" href="https://github.com/microsoft/cascadia-code">Microsoft</a></dt>
-              <dd class="col-sm-8">The Cascadia Code font</dd>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="mb-4">
+                  <h6 class="text-muted text-uppercase small fw-bold mb-3">Core Technologies</h6>
+                  <dl class="row g-2 mb-0">
+                    <dt class="col-sm-5"><a href="https://getbootstrap.com/" class="fw-semibold">Bootstrap</a></dt>
+                    <dd class="col-sm-7 text-muted small">Frontend & UI</dd>
+                    <dt class="col-sm-5"><a href="https://www.dosbox.com/" class="fw-semibold">DOSBox</a></dt>
+                    <dd class="col-sm-7 text-muted small">DOS emulator</dd>
+                    <dt class="col-sm-5"><a href="https://js-dos.com/" class="fw-semibold">js-dos</a></dt>
+                    <dd class="col-sm-7 text-muted small">Emulation frontend</dd>
+                    <dt class="col-sm-5"><a href="https://www.postgresql.org/" class="fw-semibold">PostgreSQL</a></dt>
+                    <dd class="col-sm-7 text-muted small">Database</dd>
+                    <dt class="col-sm-5"><a href="https://m.do.co/c/a9270bdb9e74" class="fw-semibold">DigitalOcean</a> *</dt>
+                    <dd class="col-sm-7 text-muted small">Web hosting</dd>
+                  </dl>
+                  <p class="small text-muted mt-2 mb-0">* Referral link: spend $25, get $200 credit, we get $25</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-4">
+                  <h6 class="text-muted text-uppercase small fw-bold mb-3">Scene Contributors</h6>
+                  <dl class="row g-2 mb-0">
+                    <dt class="col-sm-5"><a href="https://www.ansilove.org/" class="fw-semibold">AnsiLove/C</a></dt>
+                    <dd class="col-sm-7 text-muted small">ANSI art renderer</dd>
+                    <dt class="col-sm-5"><a href="https://demozoo.org/sceners/47321/" class="fw-semibold">Antibody</a></dt>
+                    <dd class="col-sm-7 text-muted small">ASCII logo</dd>
+                    <dt class="col-sm-5"><a href="https://int10h.org/oldschool-pc-fonts/" class="fw-semibold">VileR</a></dt>
+                    <dd class="col-sm-7 text-muted small">PC fonts</dd>
+                    <dt class="col-sm-5"><a href="https://www.trueschool.se/" class="fw-semibold">dMG</a></dt>
+                    <dd class="col-sm-7 text-muted small">Amiga fonts</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+            <h6 class="text-muted text-uppercase small fw-bold mb-3">Corporate Licenses</h6>
+            <dl class="row g-2">
+              <dt class="col-sm-5"><a href="https://github.com/microsoft/cascadia-code" class="fw-semibold">Microsoft</a></dt>
+              <dd class="col-sm-7 text-muted small">Cascadia Code font</dd>
             </dl>
           </div>
           <div class="modal-footer">

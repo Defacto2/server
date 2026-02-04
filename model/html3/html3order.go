@@ -77,8 +77,8 @@ func (o Order) ByCategory(
 		qm.Limit(limit)).All(ctx, exec)
 }
 
-// ByGroup returns all the files that match an exact named group.
-func (o Order) ByGroup(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
+// ByGroup returns all the files that match an exact named group with optional pagination.
+func (o Order) ByGroup(ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (models.FileSlice, error) {
 	const msg = "html3 all by group"
 	if panics.BoilExec(exec) {
 		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
@@ -89,9 +89,16 @@ func (o Order) ByGroup(ctx context.Context, exec boil.ContextExecutor, name stri
 	}
 	n := strings.ToUpper(s)
 	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(n))
+	if limit == all {
+		return models.Files(mods,
+			qm.Where(ClauseNoSoftDel),
+			qm.OrderBy(o.String())).All(ctx, exec)
+	}
 	return models.Files(mods,
 		qm.Where(ClauseNoSoftDel),
-		qm.OrderBy(o.String())).All(ctx, exec)
+		qm.OrderBy(o.String()),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit)).All(ctx, exec)
 }
 
 // ByPlatform returns all the files that match the named platform.
@@ -116,7 +123,7 @@ func (o Order) ByPlatform(
 		qm.Limit(limit)).All(ctx, exec)
 }
 
-// Document returns all the files that  are considered to be documents.
+// Document returns all the files that are considered to be documents.
 func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
 	const msg = "html3 all documents"
 	if panics.BoilExec(exec) {
@@ -149,7 +156,7 @@ func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset
 		qm.Limit(limit)).All(ctx, exec)
 }
 
-// Software returns all the files that  are considered to be software.
+// Software returns all the files that are considered to be software.
 func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
 	const msg = "html3 all software"
 	if panics.BoilExec(exec) {
@@ -168,20 +175,9 @@ func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, 
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, exec)
 }
 
-func (o Order) String() string {
-	return orderClauses()[o]
-}
+var orderClausesMap map[Order]string
 
-// calc returns the offset value.
-func calc(o, l int) int {
-	if o < 1 {
-		o = 1
-	}
-	return (o - 1) * l
-}
-
-// orderClauses returns a map of all the SQL, ORDER BY clauses.
-func orderClauses() map[Order]string {
+func init() {
 	const a, d = "asc", "desc"
 	ca := models.FileColumns.Createdat
 	dy := models.FileColumns.DateIssuedYear
@@ -190,16 +186,27 @@ func orderClauses() map[Order]string {
 	fn := models.FileColumns.Filename
 	fs := models.FileColumns.Filesize
 	rt := models.FileColumns.RecordTitle
-	m := make(map[Order]string, DescDes+1)
-	m[NameAsc] = fn + " " + a
-	m[NameDes] = fn + " " + d
-	m[PublAsc] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, a, dm, a, dd, a)
-	m[PublDes] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, d, dm, d, dd, d)
-	m[PostAsc] = ca + " " + a
-	m[PostDes] = ca + " " + d
-	m[SizeAsc] = fs + " " + a
-	m[SizeDes] = fs + " " + d
-	m[DescAsc] = rt + " " + a
-	m[DescDes] = rt + " " + d
-	return m
+	orderClausesMap = make(map[Order]string, DescDes+1)
+	orderClausesMap[NameAsc] = fn + " " + a
+	orderClausesMap[NameDes] = fn + " " + d
+	orderClausesMap[PublAsc] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, a, dm, a, dd, a)
+	orderClausesMap[PublDes] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, d, dm, d, dd, d)
+	orderClausesMap[PostAsc] = ca + " " + a
+	orderClausesMap[PostDes] = ca + " " + d
+	orderClausesMap[SizeAsc] = fs + " " + a
+	orderClausesMap[SizeDes] = fs + " " + d
+	orderClausesMap[DescAsc] = rt + " " + a
+	orderClausesMap[DescDes] = rt + " " + d
+}
+
+func (o Order) String() string {
+	return orderClausesMap[o]
+}
+
+// calc returns the offset value.
+func calc(o, l int) int {
+	if o < 1 {
+		o = 1
+	}
+	return (o - 1) * l
 }

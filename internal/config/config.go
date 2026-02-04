@@ -25,6 +25,31 @@ const (
 	hide = "xxxxx" // hide is the placeholder text used to replace sensitive information
 )
 
+var formatMap = map[string]string{
+	"AbsDownload":    "Downloads, directory path",
+	"AbsPreview":     "Previews, directory path",
+	"AbsThumbnail":   "Thumbnails, directory path",
+	"AbsLog":         "Logs, directory path",
+	"AbsExtra":       "Extras, directory path",
+	"AbsOrphaned":    "Orphaned, directory path",
+	"Compression":    "Gzip compression",
+	"DatabaseURL":    "Database connection, URL",
+	"GoogleClientID": "Google OAuth2 client ID",
+	"GoogleIDs":      "Google IDs for sign-in",
+	"LogAll":         "Log all HTTP requests",
+	"MaxProcs":       "Maximum CPU processes",
+	"MatchHost":      "Match hostname, domain or IP address",
+	"NoCrawl":        "Disallow search engine crawling",
+	"ProdMode":       "Production mode",
+	"Quiet":          "Quiet mode",
+	"ReadOnly":       "Read-only mode",
+	"SessionKey":     "Session encryption key",
+	"SessionMaxAge":  "Maximum age of a session for the web administration",
+	"TLSCert":        "TLS certificate, file path",
+	"TLSHost":        "TLS hostname",
+	"TLSKey":         "TLS key, file path",
+}
+
 // Config options for the Defacto2 server using the [caarlos0/env] package.
 //
 // [caarlos0/env]:https://github.com/caarlos0/env
@@ -57,31 +82,7 @@ type Config struct { //nolint:recvcheck
 
 // Format returns a human readable description of the named configuration identifier.
 func Format(name string) string {
-	m := map[string]string{
-		"AbsDownload":    "Downloads, directory path",
-		AbsPreview:       "Previews, directory path",
-		AbsThumbnail:     "Thumbnails, directory path",
-		"AbsLog":         "Logs, directory path",
-		"AbsExtra":       "Extras, directory path",
-		"AbsOrphaned":    "Orphaned, directory path",
-		"Compression":    "Gzip compression",
-		"DatabaseURL":    "Database connection, URL",
-		"GoogleClientID": "Google OAuth2 client ID",
-		"GoogleIDs":      "Google IDs for sign-in",
-		"LogAll":         "Log all HTTP requests",
-		"MaxProcs":       "Maximum CPU processes",
-		"MatchHost":      "Match hostname, domain or IP address",
-		"NoCrawl":        "Disallow search engine crawling",
-		"ProdMode":       "Production mode",
-		"Quiet":          "Quiet mode",
-		"ReadOnly":       "Read-only mode",
-		"SessionKey":     "Session encryption key",
-		"SessionMaxAge":  "Maximum age of a session for the web administration",
-		"TLSCert":        "TLS certificate, file path",
-		"TLSHost":        "TLS hostname",
-		"TLSKey":         "TLS key, file path",
-	}
-	if desc, found := m[name]; found {
+	if desc, found := formatMap[name]; found {
 		return desc
 	}
 	return helper.SplitAsSpaces(name)
@@ -233,7 +234,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		if c.MatchHost != "" && host != c.MatchHost.String() {
 			continue
 		}
-		s := "" //nolint:wastedassign
+		var s string
 		switch port {
 		case text:
 			s = "http://" + host

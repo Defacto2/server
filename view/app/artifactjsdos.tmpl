@@ -27,9 +27,12 @@
 <div class="modal fade" id="js-dos-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-              {{- if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
-              {{- if eq true (index . "modEmulateBroken")}}<div class="text-danger-emphasis">This application may not run correctly in the emulator</div>{{end}}
+            <div class="modal-header bg-dark text-white">
+              <h5 class="modal-title">
+                🎮 &nbsp; {{- if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
+              </h5>
+              {{- if eq true (index . "modEmulateBroken")}}<span class="badge bg-danger ms-2">⚠️ Incompatible</span>{{end}}
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">  
                 {{- if eq "covox" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for a sound device option, choose "LPT1" for Covox, Disney, Soundplayer or Soundthing</p>{{end}}
@@ -39,10 +42,10 @@
                 <canvas id="jsdos6"></canvas>  
             </div>
             <div class="modal-footer">
-                <button id="jsdosFullscreen" class="btn btn-dark">Full screen</button>
-                <button id="jsdosScreenshot" class="btn btn-dark">Screenshot</button>
-                <button id="jsdosStop" class="btn btn-danger">Stop</button>
-                <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="jsdosFullscreen" class="btn btn-outline-info">&#x2922; Full Screen</button>
+                <button id="jsdosScreenshot" class="btn btn-outline-info">&#x26F6; Screenshot</button>
+                <button id="jsdosStop" class="btn btn-danger">&#x25A0; Stop</button>
+                <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">✕ Close</button>
             </div>
         </div>
     </div>
@@ -69,7 +72,7 @@
     ctx.font = "14px serif";
     ctx.fillText("Stuck and not loading?", 10, 50);
     ctx.fillText("1) try refreshing this tab.", 13, 70);
-    ctx.fillText("2) view the the tab Console for errors.", 13, 90);
+    ctx.fillText("2) view the tab Console for errors.", 13, 90);
     const stopButton = document.getElementById("jsdosStop");
     stopButton.addEventListener("click", () => {
       try {
@@ -105,7 +108,7 @@
             main(startDOS).then((ci) => {
               window.ci = ci;
               console.log(
-                `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`
+                `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
               );
             });
           });
@@ -126,7 +129,7 @@
           main(params).then((ci) => {                     // start the application
             window.ci = ci;
             console.log(
-              `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.width}`
+              `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
             );
           });
         });
@@ -141,11 +144,7 @@
         cycles: "auto", // int value, "max" or "auto"
         autolock: false,
       };
-      {
-        {
-          {{$runJS | safeJS}};
-        }
-      }
+      {{$runJS | safeJS}}
     });
     const jsQuit = document.getElementById("jsdosCloser");
     jsQuit.addEventListener("click", () => {

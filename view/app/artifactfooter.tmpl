@@ -3,15 +3,27 @@
 */ -}}
 {{- define "artifactfooter" }}
 {{- $download := index . "download"}}
+<style>
+    .editor-btn:hover,
+    .editor-btn.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+    .editor-btn.active {
+        font-weight: 600;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+</style>
 <div class="modal-footer bg-dark-subtle g-3 mt-1">
     <div id="artifact-editor-alert" class="d-none alert alert-warning w-100" role="alert">
         <div class="d-none">This is a placeholder <strong>alert text</strong>!</div>
     </div>
-    <div class="text-end"><kbd>alt+shift</kbd> <kbd>del</kbd> <kbd>enter</kbd> <kbd>pgdn</kbd> <kbd>pgup</kbd> <kbd>⌫</kbd></div>
+    <div class="text-end"><span class="me-2 text-muted">Keyboard shortcuts:</span><kbd>alt+shift</kbd> <kbd>del</kbd> <kbd>enter</kbd> <kbd>pgdn</kbd> <kbd>pgup</kbd> <kbd>⌫</kbd></div>
     <div class="row col-12 gy-1 text-center">
         <div class="col-lg-4 text-lg-start d-none d-lg-inline">
             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + del">
-                <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-delete-forever-modal" class="btn btn-warning">Delete forever</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-delete-forever-modal" class="btn btn-warning">&#x2717; Delete forever</a>
             </span>
         </div>
         <div class="col-lg-8 text-lg-end">
@@ -19,13 +31,13 @@
                 <a href="/f/{{$download}}" class="btn btn-link d-none d-xl-inline">Refresh &amp; view artifact</a>
             </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + home">
-                <button name="artifact-editor-dataeditor" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-outline-primary">Data editor</button>
+                <button name="artifact-editor-dataeditor" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-outline-primary editor-btn">Data editor</button>
             </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + pgdn">
-                <button name="artifact-editor-fileeditor" data-bs-toggle="modal" data-bs-target="#asset-editor-modal" class="btn btn-outline-primary">File editor</button>
+                <button name="artifact-editor-fileeditor" data-bs-toggle="modal" data-bs-target="#asset-editor-modal" class="btn btn-outline-primary editor-btn">File editor</button>
             </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + pgup">
-                <button name="artifact-editor-emueditor" data-bs-toggle="modal" data-bs-target="#emulate-editor-modal" class="btn btn-outline-primary">Emulate editor</button>
+                <button name="artifact-editor-emueditor" data-bs-toggle="modal" data-bs-target="#emulate-editor-modal" class="btn btn-outline-primary editor-btn">Emulate editor</button>
             </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + backspace">
                 <button type="button" data-bs-dismiss="modal"                               

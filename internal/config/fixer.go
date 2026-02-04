@@ -150,19 +150,22 @@ func (c *Config) fatalPort(sl *slog.Logger, msg, key string, err error) {
 		panic(fmt.Errorf("config fatal port: %w", panics.ErrNoSlog))
 	}
 	inf := "HTTP"
-	if msg == "https port" {
+	var port uint16
+	port = uint16(c.HTTPPort)
+	if msg == "check https port" {
 		inf = "HTTPS"
+		port = uint16(c.TLSPort)
 	}
 	switch {
 	case errors.Is(err, ErrPortMax):
 		logs.Fatal(sl, msg,
 			slog.String("issue", "The server cannot use the "+inf+" port"),
-			slog.Int(key, int(c.HTTPPort)),
+			slog.Int(key, int(port)),
 			slog.String("error", err.Error()))
 	case errors.Is(err, ErrPortSys):
 		logs.Fatal(sl, msg,
 			slog.String("issue", "The server cannot use the system port"),
-			slog.Int(key, int(c.HTTPPort)),
+			slog.Int(key, int(port)),
 			slog.String("error", err.Error()))
 	}
 }
@@ -316,18 +319,19 @@ func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 		return fmt.Errorf("%s could not begin a transaction: %w", msg, err)
 	}
 	if err := fix.Artifacts.Run(ctx, db, tx, sl); err != nil {
-		defer func() {
-			if err := tx.Rollback(); err != nil {
-				sl.Error(msg, slog.Any("error", err))
-			}
-		}()
+		if err := tx.Rollback(); err != nil {
+			sl.Error(msg, slog.Any("error", err))
+		}
 		return fmt.Errorf("%s could not fix all artifacts: %w", msg, err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("%s could not commit the transaction: %w", msg, err)
 	}
 	return nil
 }
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
-// These are skipped if the Production mode environment variable is set.to false.
+// These are skipped if the Production mode environment variable is set to false.
 func (c *Config) sanityChecks(sl *slog.Logger) {
 	const msg = "sanity check"
 	if sl == nil {
@@ -359,10 +363,12 @@ func cmdChecks(sl *slog.Logger) {
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
+	lookups := command.Lookups()
+	infos := command.Infos()
 	var attrs []slog.Attr
-	for i, name := range command.Lookups() {
+	for i, name := range lookups {
 		if err := command.LookCmd(name); err != nil {
-			attrs = append(attrs, slog.String(name, command.Infos()[i]))
+			attrs = append(attrs, slog.String(name, infos[i]))
 		}
 	}
 	if len(attrs) > 0 {

@@ -7,14 +7,14 @@
 {{- $helper := index . "helpText"}}
 <div class="row justify-content-md-center">
     <div class="col-md-8 col-lg-6">
-        <div class="card border-dark mb-3">      
+        <div class="card border-dark mb-3">
             <div class="card-body">
                 <h5 class="card-title text-info-emphasis fs-2 lead">
                     {{index . "title"}}<br>
                     <small class="fs-5 fw-lighter">{{index . "info"}}</small>
                 </h5>
                 <p class="card-text">
-                {{- if ne "" $helper}}<small class="text-muted">{{index . "helpText"}}</small>{{end}}
+                {{- if ne $helper ""}}<small class="text-muted">{{$helper}}</small>{{end}}
                 <div class="input-group">
                     <div class="input-group-text">
                         <div id="search-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
@@ -39,11 +39,11 @@
                         hx-indicator="#search-htmx-indicator">
                     <button type="button" id="search-htmx-clear" class="btn btn-dark">Clear</button>
                 </div>
-                </p>
+                </div>
             </div>
         </div>
         <div id="search-htmx-alert" class="alert alert-danger d-none" role="alert"></div>
     </div>
-    <div class="col-lg-12" id="search-htmx-results"></div>
+    <div class="col-md-8 col-lg-12" id="search-htmx-results"></div>
 </div>
 {{- end }}

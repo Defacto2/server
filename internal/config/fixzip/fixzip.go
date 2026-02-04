@@ -34,15 +34,17 @@ func Check(sl *slog.Logger, name string, extra dir.Directory, d fs.DirEntry, art
 	if d.IsDir() {
 		return ""
 	}
-	if ext := filepath.Ext(strings.ToLower(d.Name())); ext != ".zip" && ext != "" {
+	ext := filepath.Ext(d.Name())
+	lowerExt := strings.ToLower(ext)
+	if lowerExt != ".zip" && lowerExt != "" {
 		return ""
 	}
-	uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+	uid := strings.TrimSuffix(d.Name(), ext)
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
 	}
 	extraZip := extra.Join(uid + ".zip")
-	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
+	if _, err := os.Stat(extraZip); err == nil {
 		return ""
 	}
 	methods, err := pkzip.Methods(name)
@@ -67,10 +69,12 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 	}
 	const size = 4
 	mods := make([]qm.QueryMod, 0, size)
-	mods = append(mods, qm.Select("uuid"))
-	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
-	mods = append(mods, qm.Where("filename ILIKE ?", "%.zip"))
-	mods = append(mods, qm.WithDeleted())
+	mods = append(mods,
+		qm.Select("uuid"),
+		qm.Where("platform = ?", tags.DOS.String()),
+		qm.Where("filename ILIKE ?", "%.zip"),
+		qm.WithDeleted(),
+	)
 	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("%s models: %w", msg, err)
@@ -80,21 +84,21 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 
 // Invalid returns true if the zip file fails the hwzip list command.
 // The path is the path to the zip file.
-func Invalid(sl *slog.Logger, path string) bool {
+func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	const msg = "hwzip fixer is invalid"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	const name = command.HWZip
-	cmd := exec.Command(name, "list", path)
-	b, err := cmd.Output()
+	cmd := exec.CommandContext(ctx, name, "list", path)
+	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,
 			slog.String("file path", path),
 			slog.Any("error", err))
 		return true
 	}
-	if !strings.Contains(string(b), "Failed to parse ") {
+	if strings.Contains(string(b), "Failed to parse ") {
 		return true
 	}
 	return false

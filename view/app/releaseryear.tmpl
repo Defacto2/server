@@ -5,10 +5,10 @@
 */ -}}
 {{- define "content" }}
 {{- $path := "g" }}
-{{- $name := index .itemName}}
+{{- $name := .itemName }}
 {{- $pubs := index .stats.pubs }}
 {{- $orderBy := index .stats.orderBy }}
-{{- $class := "row row-cols-1 row-cols-sm-2 row-col-md-3 g-2"}}
+{{- $class := "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2"}}
 <div class="container px-4 text-center">
     <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
 {{- $prevYear := 0 }}
@@ -18,15 +18,12 @@
     {{ if eq $index 0}}
         {{ if (gt $year 0) }}<h3 class="text-start lead p-3">The first release in {{$year}}</h3>{{end}}
         <div class="{{$class}}">
-    {{- end}}
-    {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
-        {{- $prevYear = $rel.Unique.Year.Int }}
-        </div>
-        <h3 class="text-start lead mt-3 p-3">{{$prevYear}}</h3>
-        <div class="{{$class}}">
-    {{- end}}
-    {{- if eq $prevYear 0}}
-    {{- $prevYear = $rel.Unique.Year.Int }}
+    {{- else}}
+        {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
+            </div>
+            <h3 class="text-start lead mt-3 p-3">{{$year}}</h3>
+            <div class="{{$class}}">
+        {{- end}}
     {{- end}}
         <div class="col">
             <div class="p-3 border bg-light h-100"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a></h5>
@@ -34,6 +31,7 @@
             {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
             </div>
         </div>
+{{- $prevYear = $year }}
 {{- end}}
     </div>
 </div>

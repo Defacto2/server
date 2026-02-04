@@ -171,6 +171,7 @@ func (t *Templ) Funcs() template.FuncMap {
 		"safeHTML":           SafeHTML,
 		"safeJS":             SafeJS,
 		"slugify":            helper.Slug,
+		"stripSup":           StripSup,
 		"subTitle":           SubTitle,
 		"tagOption":          TagOption,
 		"trimSpace":          TrimSpace,

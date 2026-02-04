@@ -24,7 +24,7 @@ var (
 	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
 	ErrNoDir      = errors.New("directory does not exist or incorrectly typed")
 	ErrNoOAuth2   = errors.New("production server requires a google, oauth2 client id to allow admin logins")
-	ErrNoPort     = errors.New("server cannot start withlogs.a http or a tls port")
+	ErrNoPort     = errors.New("server cannot start with a http or a tls port")
 	ErrNoPath     = errors.New("empty path or name")
 	ErrPSVersion  = errors.New("postgres did not return a version value")
 	ErrTouch      = errors.New("server cannot create a file in the directory")
@@ -76,11 +76,7 @@ func StringErr(err error) (int, string, error) {
 	return code, fmt.Sprintf("%d - %s", code, msg), nil
 }
 
-// IsHTML3 returns true if the rlogs. is /html3.
+// IsHTML3 returns true if the path is /html3.
 func IsHTML3(path string) bool {
-	splitPaths := func(r rune) bool {
-		return r == '/'
-	}
-	rel := strings.FieldsFunc(path, splitPaths)
-	return len(rel) > 0 && rel[0] == "html3"
+	return strings.Contains(path, "/html3/") || strings.HasSuffix(path, "/html3")
 }

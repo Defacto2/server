@@ -24,7 +24,7 @@ type Milestone struct {
 type Picture struct {
 	Title       string // Title of the picture.
 	Alt         string // Alt is the alternative text for the picture.
-	Attribution string // attribution is the name of the author of the picture.
+	Attribution string // Attribution is the name of the author of the picture.
 	License     string // License is the license of the picture.
 	LicenseLink string // LicenseLink is the URL to the license of the picture.
 	Webp        string // Webp is the filename of the WebP screenshot.
@@ -107,8 +107,8 @@ func Collection() Milestones {
 			Lead: "The PLATO IV", LinkTitle: "about the PLATO", Link: "https://arstechnica.com/gadgets/2023/03/plato-how-an-educational-computer-system-from-the-60s-shaped-the-future/",
 			Content: "<p>In 1972, the PLATO system IV network came online as the second iteration of the University of Illinois's class-room education platform. " +
 				"Its concept is to provide computer-based education on various broad subjects, not just computer literacy. This objective affected the network's design, end-user terminals, and software, leading to many computing and computer game design firsts.</p>" +
-				"<p>The terminals connect to a supercomputer mainframe that eventually could support over 1,000 simultaneous users in various universities, colleges, and schools throughout Illinois and later setups out of state. However, the terminals and the special-purpose programming language used to develop the software make the network unusually special. One can not understate how advanced this platform and software is in its time.</p>" +
-				"<p>Each monochrome terminal supports vector and bitmap graphics and offers an exceedingly high resolution of 512x512 pixels! This was over a decade before the Apple Macintosh System&nbsp;1 operating system, which only provided 512x342 resolution. The terminals and software provided keyboard text and user-friendly touchscreen input almost 40 years before the modern tablet.</p>" +
+				"<p>The terminals connect to a supercomputer mainframe that eventually could support over 1,000 simultaneous users in various universities, colleges, and schools throughout Illinois and later setups out of state. However, the terminals and the special-purpose programming language used to develop the software make the network unusually special. One cannot overstate how advanced this platform and software is in its time.</p>" +
+				"<p>Each monochrome terminal supports vector and bitmap graphics and offers an exceedingly high resolution of 512x512 pixels! This was twelve years before the Apple Macintosh System&nbsp;1 operating system, which only provided 512x342 resolution. The terminals and software provided keyboard text and user-friendly touchscreen input almost 40 years before the modern tablet.</p>" +
 				"<p>Equally as important was the " +
 				`<a href="https://distributedmuseum.illinois.edu/exhibit/tutor-programming-language/">TUTOR programming language</a> ` +
 				"used to develop software on the platform. Designed for non-programmers and educators to build coursework delivered on the network, the language allowed easy access to all terminal and network hardware elements, such as vector and sprite graphics, custom fonts, communication, and touch input.</p>" +

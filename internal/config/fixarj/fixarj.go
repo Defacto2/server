@@ -2,6 +2,7 @@
 package fixarj
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io/fs"
@@ -11,6 +12,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
@@ -29,15 +31,16 @@ func Check(extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
 	if d.IsDir() {
 		return ""
 	}
-	if ext := filepath.Ext(strings.ToLower(d.Name())); ext != ".zip" && ext != "" {
+	ext := filepath.Ext(d.Name())
+	if strings.ToLower(ext) != ".zip" && ext != "" {
 		return ""
 	}
-	uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+	uid := strings.TrimSuffix(d.Name(), ext)
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
 	}
 	extraZip := extra.Join(uid + ".zip")
-	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
+	if _, err := os.Stat(extraZip); err == nil {
 		return ""
 	}
 	return uid
@@ -51,13 +54,15 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 	}
 	const size = 4
 	mods := make([]qm.QueryMod, 0, size)
-	mods = append(mods, qm.Select("uuid"))
-	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
-	mods = append(mods, qm.Where("filename ILIKE ?", "%.arj"))
-	mods = append(mods, qm.WithDeleted())
+	mods = append(mods,
+		qm.Select("uuid"),
+		qm.Where("platform = ?", tags.DOS.String()),
+		qm.Where("filename ILIKE ?", "%.arj"),
+		qm.WithDeleted(),
+	)
 	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf("%s models: %w", msg, err)
 	}
 	return files, nil
 }
@@ -69,16 +74,18 @@ func Invalid(sl *slog.Logger, path string) bool {
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	// use 7-ZIP to test and extract the .arj file.
-	const name = command.Zip7
-	cmd := exec.Command(name, "t", path)
-	b, err := cmd.Output()
+	cmd := exec.CommandContext(ctx, command.Zip7, "t", path)
+	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,
-			slog.String("command in use", name),
+			slog.String("command in use", command.Zip7),
 			slog.String("arj file path", path),
 			slog.Any("error", err))
 		return true
 	}
-	return !strings.Contains(string(b), "Everything is Ok")
+	return !bytes.Contains(b, []byte("Everything is Ok"))
 }

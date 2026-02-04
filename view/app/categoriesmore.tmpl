@@ -48,7 +48,7 @@
                 <div class="card-body tab-content" id="nav-tabContent">
                     <div class="tab-pane fade show active" id="dos-tab-pane" role="tabpanel" aria-labelledby="dos-tab"
                         tabindex="0">
-                        <h5 class="otherClass">{{msdos}} <small>PC</small></h5>
+                        <h5 class="{{$otherClass}}">{{msdos}} <small>PC</small></h5>
                         <p>
                             Microsoft MS-DOS and IBM PC DOS were interoperable operating systems for the Intel x86 <u>P</u>ersonal <u>C</u>omputer platform of the 1980s. 
                             In the early days, games listed the platform as <q>IBM</q> or <q>IBM PC</q>, but this naming evolved to <q>IBM/Tandy and compatibles</q> before eventually settling on <q>MS-DOS</q> in the 1990s.
@@ -59,7 +59,7 @@
                     </div>
                     <div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab"
                         tabindex="0">
-                        <h5 class="otherClass">Windows <small>PC</small></h5>
+                        <h5 class="{{$otherClass}}">Windows <small>PC</small></h5>
                         <p>
                             Microsoft Windows became the unavoidable replacement for MS-DOS on the Intel x86 <u>P</u>ersonal <u>C</u>omputer platform. 
                             Most of the Windows software hosted on this site released in the 1990s will target Windows 95 or 98, while the releases from the 2000s should be for Windows XP or 7.
@@ -70,7 +70,7 @@
                     </div>
                     <div class="tab-pane fade" id="mac-tab-pane" role="tabpanel" aria-labelledby="mac-tab"
                         tabindex="0">
-                        <h5 class="otherClass">macOS</h5>
+                        <h5 class="{{$otherClass}}">macOS</h5>
                         <p>
                             Software for the proprietary line of computers by Apple, initially created for the Apple Macintosh System Software, but has been renamed to Mac OS and now macOS. 
                             Unlike Microsoft Windows, Apple has used different hardware architectures over the years, so the Apple platforms lack backward compatibility.
@@ -81,7 +81,7 @@
                     </div>
                     <div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab"
                         tabindex="0">
-                        <h5 class="otherClass">Linux</h5>
+                        <h5 class="{{$otherClass}}">Linux</h5>
                         <p>
                             Software created for Linux or Unix platforms. Obsolete software targeting the desktop will likely fail on modern distributions, but terminal apps may still work.
                         </p>
@@ -91,7 +91,7 @@
                     </div>
                     <div class="tab-pane fade" id="script-tab-pane" role="tabpanel" aria-labelledby="script-tab"
                         tabindex="0">
-                        <h5 class="otherClass">Scripts</h5>
+                        <h5 class="{{$otherClass}}">Scripts</h5>
                         <p>
                             Shell scripts and software created in interpreted programming languages such as PHP, Perl, TCL, Python and Ruby.
                         </p>
@@ -101,7 +101,7 @@
                     </div>
                     <div class="tab-pane fade" id="java-tab-pane" role="tabpanel" aria-labelledby="java-tab"
                         tabindex="0">
-                        <h5 class="otherClass">Java</h5>
+                        <h5 class="{{$otherClass}}">Java</h5>
                         <p>
                             Software written in Java is a popular language for cross-platform applications, though unrelated to JavaScript.
                         </p>
@@ -113,7 +113,7 @@
             </div>
         </div>
     </div>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4 mt-4">
         <div class="col">
             <div class="card{{$cardClass}}">
                 <div class="card-body">
@@ -151,33 +151,23 @@
         <div class="col">
             <div class="card{{$cardClass}}">
                 <div class="card-body">
-                    <h2 class="card-title {{$otherClass}}">Job application</h2>
+                        <h2 class="card-title {{$otherClass}}">Job application</h2>
                     <p class="card-text">
                         Before Apple repurposed the word with the App Store, The Scene used an app or application to describe a form to apply for a role in a group or to gain access to a board or a site. 
                         But to avoid confusion, we'll call these jobs or adverts.
                     </p>
-                    <span class="{{$linkClass}}">Browse the</span>
-                    <div class="container text-left">
-                        <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
-                            <div class="col">
-                    <a href="/files/job-advert" class="card-link">job adverts</a>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="card-text">
+                        Browse the <a href="/files/job-advert" class="card-link">job adverts</a>
+                    </p>
                     <hr>
-                    <span class="{{$linkClass}}">Browse the</span>
-                    <div class="container text-left">
-                        <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
-                            <div class="col">
-                    <a href="/files/trial-crackme" class="card-link">trial crackme(s)</a>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="card-text">
+                        Browse the <a href="/files/trial-crackme" class="card-link">trial crackme(s)</a>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-1">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-5">
         <div class="col">
             <div class="card{{$cardClass}}">
                 <div class="card-body">
@@ -224,7 +214,7 @@
             </div>
         </div>
     </div>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-1">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-5">
         <div class="col">
             <div class="card{{$cardClass}}">
                 <div class="card-body">
@@ -270,7 +260,7 @@
             </div>
         </div>
     </div>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-1">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-5">
         <div class="col">
             <div class="card{{$cardClass}}">
                 <div class="card-body">

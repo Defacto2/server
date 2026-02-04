@@ -64,7 +64,7 @@ func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
 			return fmt.Errorf("%w: %s", err, path)
 		}
 		uid := fixzip.Check(sl, path, extra, d, artifacts...)
-		if uid == "" || fixzip.Invalid(sl, path) {
+		if uid == "" || fixzip.Invalid(ctx, sl, path) {
 			return nil
 		}
 		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
@@ -77,8 +77,8 @@ func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
-		uid := fixlha.Check(extra, d, artifacts...)
-		if uid == "" || fixlha.Invalid(sl, path) {
+		uid := fixlha.Check(sl, extra, d, artifacts...)
+		if uid == "" || fixlha.Invalid(ctx, sl, path) {
 			return nil
 		}
 		ra := Rearchiving{Source: path, UID: uid, Destination: extra}

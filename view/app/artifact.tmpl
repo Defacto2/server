@@ -40,7 +40,7 @@
             {{- if ne $alertURL "" }}
             Google or Microsoft Defender flags this artifact download as <a href="{{$alertURL}}">unwanted software</a>.{{end}}
             {{- if and (ne $alertURL "") ($noDownload) }}<br>{{end}}
-            {{- if $noDownload}}Error, the the server cannot locate the file download.{{end}}
+            {{- if $noDownload}}Error, the server cannot locate the file download.{{end}}
             <hr>
         </div>
         {{- end}}
@@ -66,27 +66,33 @@
         <div class="modal fade" id="artifact-screenshot-modal" tabindex="-1" aria-labelledby="artifact-screenshot-modal-label" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
-                    <div class="modal-header">
-                    <h5 class="modal-title" id="artifact-screenshot-modal-label">{{$description}} screenshot</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="artifact-screenshot-modal-label">🖼️ Preview, {{$description}}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">{{$screenElm}}</div>
+                    <div class="modal-body d-flex justify-content-center align-items-center">{{$screenElm}}</div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">✕ Close</button>
                     </div>
                 </div>  
             </div>
         </div>
         {{- end}}
-        <style>.font-large{font-size:131%;line-height:100%;}<</style>
+        <style>.font-large{font-size:131%;line-height:100%;}</style>
         {{if and (eq (index . "platform") "textamiga") ($textcontentBinary) }}
         <div class="col-12">
             <div class="m-3">
-                <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-textbody" 
-                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button>
-                &nbsp;
-                <button type="button" id="textcontBtnTopaz" class="btn btn-outline-dark btn-sm active">Topaz</button>
-                <button type="button" id="textcontBtnMicroKnight" class="btn btn-outline-dark btn-sm">MicroKnight</button>
+                <div class="mb-3">
+                    <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-textbody" 
+                        data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">📋 Copy text</button>
+                </div>
+                <div>
+                    <small class="text-body-secondary d-block mb-2"><strong>Font:</strong></small>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" id="textcontBtnTopaz" class="btn btn-outline-dark active">Topaz</button>
+                        <button type="button" id="textcontBtnMicroKnight" class="btn btn-outline-dark">MicroKnight</button>
+                    </div>
+                </div>
             </div>
             <h6 class="fs-6 fw-lighter">Commodore Amiga ANSI text</h6>
             <pre id="precontentBinary" class="{{$preClass}}">{{$textcontentBinary}}</pre>
@@ -94,13 +100,19 @@
         {{- else if $textcontentBinary -}}
         <div class="col-12">
             <div class="m-3">
-                <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-textbody" 
-                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button>
+                <div class="mb-3">
+                    <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-textbody" 
+                        data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">📋 Copy text</button>
+                </div>
                 {{- if eq true $contentBinarySwappers }}
-                &nbsp;
-                <button type="button" id="textcontBtnZoom" class="btn btn-outline-dark btn-sm active">Zoom</button>
-                <button type="button" id="textcontBtn16px" class="btn btn-outline-dark btn-sm">16 pixels</button>
-                <button type="button" id="textcontBtn08px" class="btn btn-outline-dark btn-sm">8 pixels</button>
+                <div>
+                    <small class="text-body-secondary d-block mb-2"><strong>Zoom level:</strong></small>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" id="textcontBtnZoom" class="btn btn-outline-dark active">Zoom</button>
+                        <button type="button" id="textcontBtn16px" class="btn btn-outline-dark">16 pixels</button>
+                        <button type="button" id="textcontBtn08px" class="btn btn-outline-dark">8 pixels</button>
+                    </div>
+                </div>
                 {{- end }}
             </div>
             <h6 class="fs-6 fw-lighter">ANSI encoded or binary text</h6>
@@ -110,29 +122,36 @@
         {{- if or ($textcontentLatin1) ($textcontentCP437)}}
         <div class="col-12">
             <div class="m-3">
-                <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-textbody" 
-                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button> &nbsp;
-                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnWeb" rel="nofollow" autocomplete="off">
-                <label class="btn btn-sm btn-outline-dark" for="textcontBtnWeb" 
-                    data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with UTF-8 encoding">Web style</label>
-                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnAmiga" rel="nofollow" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
-                <label class="btn btn-sm btn-outline-dark" for="textcontBtnAmiga" 
-                    data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
-                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnDOS" rel="nofollow" autocomplete="off"{{if ne $vga ""}} {{$vga}}{{end}}>
-                <label class="btn btn-sm btn-outline-dark" for="textcontBtnDOS"
-                    data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
+                <div class="mb-3">
+                    <button class="btn btn-sm btn-outline-secondary" id="artifact-copy-textbody" 
+                        data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">📋 Copy text</button>
+                </div>
+                <div>
+                    <small class="text-body-secondary d-block mb-2"><strong>Display style:</strong></small>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="readme-base" id="textcontBtnWeb" rel="nofollow" autocomplete="off">
+                        <label class="btn btn-outline-dark" for="textcontBtnWeb" 
+                            data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with UTF-8 encoding">Web style</label>
+                        <input type="radio" class="btn-check" name="readme-base" id="textcontBtnAmiga" rel="nofollow" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
+                        <label class="btn btn-outline-dark" for="textcontBtnAmiga" 
+                            data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
+                        <input type="radio" class="btn-check" name="readme-base" id="textcontBtnDOS" rel="nofollow" autocomplete="off"{{if ne $vga ""}} {{$vga}}{{end}}>
+                        <label class="btn btn-outline-dark" for="textcontBtnDOS"
+                            data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
+                    </div>
+                </div>
             </div>
             {{- if not $screenNone}}
             <h6 class="fs-6 fw-lighter">Readme or information text <small>{{$readmeName}}</small></h6>
             {{- end}}
             {{- if $screenNone}}
-            <h6 class="fs-6 fw-lighter">Textfile content</small></h6>
+            <h6 class="fs-6 fw-lighter">Textfile content</h6>
             {{- end}}
         {{- if $textcontentUTF8 -}}
             <pre id="precontentUTF8" class="d-none font-cascadia-mono render {{$preClass}}">{{$textcontentUTF8}}</pre>
         {{- end -}}
         {{- if $textcontentLatin1 -}}
-            <pre id="precontentLatin1" style="background-color:#999;color:#000;" class="{{$preclassLatin1}}font-amiga font-large render {{$preClass}}">{{$textcontentLatin1}}</pre>
+            <pre id="precontentLatin1" style="background-color:#999;color:#000;" class="{{$preclassLatin1}} font-amiga font-large render {{$preClass}}">{{$textcontentLatin1}}</pre>
         {{- end -}}
         {{- if $textcontentCP437 -}}
             <pre id="precontentCP437" class="{{$preclassCP437}} render {{$preClass}}">{{$textcontentCP437}}</pre>

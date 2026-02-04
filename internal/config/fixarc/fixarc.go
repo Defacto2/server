@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
@@ -34,10 +35,11 @@ func Check(sl *slog.Logger, name string, extra dir.Directory, d fs.DirEntry, art
 	if d.IsDir() {
 		return ""
 	}
-	if ext := filepath.Ext(strings.ToLower(d.Name())); ext != ".zip" && ext != "" {
+	ext := filepath.Ext(d.Name())
+	if strings.ToLower(ext) != ".zip" && ext != "" {
 		return ""
 	}
-	uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+	uid := strings.TrimSuffix(d.Name(), ext)
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
 	}
@@ -84,9 +86,11 @@ func Invalid(sl *slog.Logger, path string) bool {
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	const name = command.Arc
-	cmd := exec.Command(name, "t", path)
-	b, err := cmd.Output()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, command.Arc, "t", path)
+	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,
 			slog.String("arc file path", path),

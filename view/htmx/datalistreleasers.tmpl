@@ -4,9 +4,10 @@
 {{define "content"}}
 {{- $slug := index . "name" }}
     {{- range $index, $rel := .result -}}
-        {{- $title := fmtPath $rel.Unique.URI }}
-        {{- $value := releaserIndex $rel.Unique.URI }}
-        {{- $initialism := initialisms $rel.Unique.URI }}
+        {{- $uri := $rel.Unique.URI }}
+        {{- $title := fmtPath $uri }}
+        {{- $value := releaserIndex $uri }}
+        {{- $initialism := initialisms $uri }}
         <option value="{{ $value }}">{{ suggestion $title $initialism $rel.Unique.Count }}</option>
     {{- end}}
 {{end}}

@@ -2,9 +2,9 @@
     layoutlock.tmpl ~ Artifact editor pull-down menu.
 */ -}}
 {{- define "layoutlock" }}
-{{- $lock := index . "editor" }}
-{{- if ne true $lock}}{{/*  render nothing  */}}{{else}}
-    <li><a class="dropdown-item" href="/signedout">Sign out</a></li>    
+{{- $editor := index . "editor" }}
+{{- if not $editor}}{{/* not an editor, render nothing */}}{{else}}
+    <li><a class="dropdown-item" href="/signedout">Sign out</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Artifacts</h6></li>
     <li><a class="dropdown-item" href="/editor/for-approval">List <em>for approval</em></a></li>

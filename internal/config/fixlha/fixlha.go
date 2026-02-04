@@ -26,19 +26,21 @@ import (
 // legacy compression method that is not supported by Go or JS libraries.
 //
 // Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
+func Check(sl *slog.Logger, extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
 	if d.IsDir() {
 		return ""
 	}
-	if ext := filepath.Ext(strings.ToLower(d.Name())); ext != ".zip" && ext != "" {
+	ext := filepath.Ext(d.Name())
+	lowerExt := strings.ToLower(ext)
+	if lowerExt != ".zip" && lowerExt != "" {
 		return ""
 	}
-	uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
+	uid := strings.TrimSuffix(d.Name(), ext)
 	if _, found := slices.BinarySearch(artifacts, uid); !found {
 		return ""
 	}
 	extraZip := extra.Join(uid + ".zip")
-	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
+	if _, err := os.Stat(extraZip); err == nil {
 		return ""
 	}
 	return uid
@@ -50,13 +52,14 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 	if err := panics.ContextB(ctx, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
-	const size = 5
+	const size = 4
 	mods := make([]qm.QueryMod, 0, size)
-	mods = append(mods, qm.Select("uuid"))
-	mods = append(mods, qm.Where("platform = ?", tags.DOS.String()))
-	mods = append(mods, qm.Where("filename ILIKE ?", "%.lha"))
-	mods = append(mods, qm.Or("filename ILIKE ?", "%.lzh"))
-	mods = append(mods, qm.WithDeleted())
+	mods = append(mods,
+		qm.Select("uuid"),
+		qm.Where("platform = ?", tags.DOS.String()),
+		qm.Where("filename ILIKE ? OR filename ILIKE ?", "%.lha", "%.lzh"),
+		qm.WithDeleted(),
+	)
 	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("%s models: %w", msg, err)
@@ -66,14 +69,14 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 
 // Invalid returns true if the lha file fails the lha test command.
 // The path is the path to the lha archive file.
-func Invalid(sl *slog.Logger, path string) bool {
+func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	const msg = "lha fixer is invalid"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	const name = command.Lha
-	cmd := exec.Command(name, "t", path)
-	b, err := cmd.Output()
+	cmd := exec.CommandContext(ctx, name, "t", path)
+	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,
 			slog.String("lha file path", path),

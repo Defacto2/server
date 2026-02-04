@@ -2,7 +2,21 @@
     signout.tmpl ~ Sign-out template.
 */ -}}
 {{- define "content" }}
-<div class="lead text-center py-5">
-    <a href="/signedout" class="link-offset-3 link-underline link-underline-opacity-25">Sign out of Defacto2 and exit the editor mode</a>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-3">Sign Out</h5>
+                    <p class="card-text mb-4">
+                        You will be signed out of Defacto2 and exit the editor mode.
+                    </p>
+                    <form method="post" action="/signedout">
+                        <button type="submit" class="btn btn-primary">Sign Out</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {{- end }}

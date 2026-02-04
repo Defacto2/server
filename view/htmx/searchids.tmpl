@@ -30,7 +30,7 @@
         </td>
         <td>{{ byteCount $rel.Filesize.Int64 }}</td>
         <td>{{ linkRelrs false false $rel.GroupBrandFor $rel.GroupBrandBy }}</td>
-        <td>{{ describe $rel.Platform.String $rel.Section.String $rel.DateIssuedYear.Int16 $rel.DateIssuedYear.Int16 }}</td>
+        <td>{{ describe $rel.Platform.String $rel.Section.String $rel.DateIssuedYear.Int16 $rel.DateIssuedMonth.Int16 }}</td>
       </tr>
     </tbody>
 {{- end}}

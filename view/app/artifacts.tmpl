@@ -51,18 +51,18 @@
   <small><small>C-64 releases</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://csdb.dk/group/?id={{$csdb}}"><strong>csdb</strong>{{linkSVG}}</a></small><br>
   {{- end}}
   {{- if $linkWeb}}
-    {{ $notworkings := false }}
+    {{- $notworking := false }}
     {{- range $web }}
       {{- if and (ne .URL "") (eq .NotWorking false ) }}
       {{- $breakline = true }}
       <small><small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a></small> &nbsp; </small>
       {{- end}}
       {{- if and (ne .URL "") (eq .NotWorking true ) }}
-      {{ if eq $notworkings false }}
-        {{ $notworkings = true }}
-        {{ if eq $breakline true }}<br>{{- end}}<small><small> &nbsp; ex-sites &nbsp; </small></small>
-      {{ end }}
-      <small class="text-nowrap"><small><strong>{{.Name}}</strong></a> <span class="text-body-tertiary fw-lighter">{{.URL}}</span>.</small></small>
+      {{- if eq $notworking false }}
+        {{- $notworking = true }}
+        {{- if eq $breakline true }}<br>{{- end}}<small><small> &nbsp; ex-sites &nbsp; </small></small>
+      {{- end }}
+      <small class="text-nowrap"><small><strong>{{.Name}}</strong> <span class="text-body-tertiary fw-lighter">{{.URL}}</span>.</small></small>
       {{- end}}
     {{- end}}
   {{- end}}
@@ -70,15 +70,15 @@
 {{- end}}
 </div>
 {{- if eq $cnt 0}}{{else -}}
-<div class="text-end mb-2 d-none d-lg-block">
-  <a href="#" id="fluid-button">Unlock columns</a>
+<div class="text-center mb-2 d-none d-lg-block">
+  <a href="#" id="fluid-button" class="btn btn-sm btn-light" onclick="event.preventDefault()">Unlock columns</a>
 </div>
 {{- end}}
 {{- $rowCols := "d-grid gap-3 justify-content-center" }}
 <div id="fluid-artifacts" class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(auto, 400px));">
   {{- /*  Begin the iteration of the records  */}}
   {{- range .records }}
-  {{- if eq true $editor}}{{- $counter = add $counter}}{{end}}
+  {{- if eq true $editor}}{{- $counter = add $counter }}{{end}}
   {{- $jsdos := jsdosUsage .Filename.String .Platform.String}}
   {{- $filename := mask .Filename.String}}
   {{- if eq $filename ""}}{{$filename = "no filename provided"}}{{end}}
@@ -97,13 +97,13 @@
   {{- $attr := attribute .CreditText.String .CreditProgram.String .CreditIllustration.String .CreditAudio.String $scener}}
   {{- $cardClass := "h-100"}}
   {{- $forClass := " border border-1 border-info"}}
-  {{- if $forApproval}}{{$cardClass = print $cardClass print $forClass}}{{end}}
+  {{- if $forApproval}}{{$cardClass = print $cardClass $forClass}}{{end}}
   {{- $removedClass := " border border-2 border-danger"}}
   {{- $removed := and (eq .Deletedat.IsZero false) (ne .Deletedby.String "")}}
-  {{- if $removed}}{{$cardClass = print $cardClass print $removedClass}}{{end}}
+  {{- if $removed}}{{$cardClass = print $cardClass $removedClass}}{{end}}
   {{- $unwantedClass := " border border-1 border-warning"}}
   {{- $unwanted := (ne .FileSecurityAlertURL.String "")}}
-  {{- if $unwanted}}{{$cardClass = print $cardClass print $unwantedClass}}{{end}}
+  {{- if $unwanted}}{{$cardClass = print $cardClass $unwantedClass}}{{end}}
   <div class="col">
     <div class="card {{$cardClass}}">
       <div class="card-header text-body-secondary text-center">
@@ -112,10 +112,10 @@
       {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
       <div class="card-body">
         {{- if eq $group true}}
-        <h2 class="card-title text-truncate fs-6">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
+        <h6 class="card-title text-truncate fs-6">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h6>
         {{subTitle .Section .RecordTitle true}}
         {{- else}}
-        <h2 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
+        <h5 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h5>
         {{subTitle .Section .RecordTitle false}}
         {{- end}}
         <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
@@ -123,7 +123,7 @@
         {{- if ne $attr ""}}
         <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
         {{- end}}
-        {{if and (gt $counter 0) (lt $counter 10)}}{{- linkPage .ID $counter}}{{else}}{{- linkPage .ID ""}}{{end}}
+        {{if and (gt $counter 0) (le $counter 9)}}{{- linkPage .ID $counter}}{{else}}{{- linkPage .ID ""}}{{end}}
         {{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}
         {{- linkPreview .ID .Filename.String .Platform.String}}
         {{- if eq $jsdos true}} {{- linkRunApp .ID}}{{end}}

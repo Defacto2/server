@@ -2,8 +2,6 @@
     categories.tmpl ~ the categories template is for the files, browse categories menu.
 */ -}}
 {{- define "content" }}
-{{- $titleClass := " h3" }}
-{{- $otherClass := " h5" }}
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
 {{- $linkClass := "lead card-link text-nowrap"}}
@@ -12,89 +10,91 @@
 {{/*  hashtags  */}}
 <div class="row row-cols-1 g-1">
     <div class="h-100">
-        <div class="card-body fs-6 fw-light">
-            <div class="d-flex flex-wrap mb-3">
-                <div class="p-1"><a rel="nofollow" href="/files/text-amiga">amiga text</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/announcement">announcement</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ansi">ansi</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ansi-bbs">ansi bbs advert</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ansi-ftp">ansi ftp advert</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ansi-brand">ansi logo</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ansi-nfo">ansi nfo</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ansi-pack">ansi pack</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/text-apple2">apple 2</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/job-advert">application ad</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/image">art</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/text-atari-st">atari</a></div> 
-                <div class="p-1"><a rel="nofollow" href="/files/bbs">BBS</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/bbstro">BBStro</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/restrict">behind the scenes</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/bbs">board</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/takedown">bust</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/hack">cheat</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ansi">color text</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/trial-crackme">crackme</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/intro">cracktro</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/intro">crack intro</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/intro">crack screen</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/database">database</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/database">db</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/demoscene">demo</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/demoscene">demoscene</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/magazine">disk mag</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/msdos">dos</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/msdos-pack">dos pack</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/drama">drama</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/magazine">emag</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/hack">exploit</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/advert">for sale</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ftp">FTP</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/hack">game hack</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/how-to">guide</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/how-to">how-to</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/html">html</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/image-pack">image pack</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/nfo">information text</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/restrict">insider</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/installer">installer</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/installer">installation app</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/how-to">instruction</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/intro">intro</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/java">java</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/job-advert">job ad</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/linux">linux</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/intro">loader</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/macos">macOS</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/magazine">magazine</a></div>
-                <div class="p-1"><a rel="nofollow" href="/magazine">magazine title</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/music">mod</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/msdos">ms-dos</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/music">music</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/news-article">news media</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/nfo">NFO</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/macos">os x</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/msdos">pc-dos</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/pdf">pdf</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/image">picture</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/proof">proof</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/nfo">readme</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/proof">release proof</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/restrict">restricted</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/standards">scene rules</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/script">script</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/script">shell</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/ftp">site</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/standards">standards</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/takedown">takedown</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/text">text</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/text-pack">text pack</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/music">tracker</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/hack">trainer</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/how-to">unprotect</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/video">video</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/windows">windows</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/windows-pack">windows pack</a></div>
-                <div class="p-1"><a rel="nofollow" href="/files/magazine">zine</a></div>
+        <div class="card">
+            <div class="card-body fs-6 fw-light">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a class="badge bg-success" rel="nofollow" href="/files/text-amiga">amiga text</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/announcement">announcement</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/ansi">ansi</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/ansi-bbs">ansi bbs advert</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/ansi-ftp">ansi ftp advert</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/ansi-brand">ansi logo</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/ansi-nfo">ansi nfo</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/ansi-pack">ansi pack</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/text-apple2">apple 2</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/job-advert">application ad</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/image">art</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/text-atari-st">atari</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/bbs">BBS</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/bbstro">BBStro</a>
+                <a class="badge bg-danger" rel="nofollow" href="/files/restrict">behind the scenes</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/bbs">board</a>
+                <a class="badge bg-danger" rel="nofollow" href="/files/takedown">bust</a>
+                <a class="badge bg-info" rel="nofollow" href="/files/hack">cheat</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/ansi">color text</a>
+                <a class="badge bg-info" rel="nofollow" href="/files/trial-crackme">crackme</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/intro">cracktro</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/intro">crack intro</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/intro">crack screen</a>
+                <a class="badge bg-info" rel="nofollow" href="/files/database">database</a>
+                <a class="badge bg-info" rel="nofollow" href="/files/database">db</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/demoscene">demo</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/demoscene">demoscene</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/magazine">disk mag</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/msdos">dos</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/msdos-pack">dos pack</a>
+                <a class="badge bg-danger" rel="nofollow" href="/files/drama">drama</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/magazine">emag</a>
+                <a class="badge bg-info" rel="nofollow" href="/files/hack">exploit</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/advert">for sale</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/ftp">FTP</a>
+                <a class="badge bg-info" rel="nofollow" href="/files/hack">game hack</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/how-to">guide</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/how-to">how-to</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/html">html</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/image-pack">image pack</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/nfo">information text</a>
+                <a class="badge bg-danger" rel="nofollow" href="/files/restrict">insider</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/installer">installer</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/installer">installation app</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/how-to">instruction</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/intro">intro</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/java">java</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/job-advert">job ad</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/linux">linux</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/intro">loader</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/macos">macOS</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/magazine">magazine</a>
+                <a class="badge bg-warning" rel="nofollow" href="/magazine">magazine title</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/music">mod</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/msdos">ms-dos</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/music">music</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/news-article">news media</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/nfo">NFO</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/macos">os x</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/msdos">pc-dos</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/pdf">pdf</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/image">picture</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/proof">proof</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/nfo">readme</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/proof">release proof</a>
+                <a class="badge bg-danger" rel="nofollow" href="/files/restrict">restricted</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/standards">scene rules</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/script">script</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/script">shell</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/ftp">site</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/standards">standards</a>
+                <a class="badge bg-danger" rel="nofollow" href="/files/takedown">takedown</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/text">text</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/text-pack">text pack</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/music">tracker</a>
+                <a class="badge bg-info" rel="nofollow" href="/files/hack">trainer</a>
+                <a class="badge bg-secondary" rel="nofollow" href="/files/how-to">unprotect</a>
+                <a class="badge bg-success" rel="nofollow" href="/files/video">video</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/windows">windows</a>
+                <a class="badge bg-primary" rel="nofollow" href="/files/windows-pack">windows pack</a>
+                <a class="badge bg-warning" rel="nofollow" href="/files/magazine">zine</a>
+            </div>
             </div>
         </div>
     </div>
@@ -104,67 +104,59 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="card-title h5">Count and filesize</h2>
-                <p class="card-text">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item lead">
-                            totals {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
-                        </li>
-                        <li class="list-group-item lead">
-                            <small>
-                                ansi art: {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}<br>
-                                ansi art and texts: {{ byteFile $rels.Ansi.Count $rels.Ansi.Bytes }}<br>
-                                BBS adverts: {{ byteFile $rels.BBS.Count $rels.BBS.Bytes }}<br>
-                                BBStros: {{ byteFile $rels.BBStro.Count $rels.BBStro.Bytes }}<br>
-                                cracktros and intros: {{ byteFile $rels.Intro.Count $rels.Intro.Bytes }}<br>
-                                cracktros and intros on {{msdos}}: {{ byteFile $rels.IntroD.Count $rels.IntroD.Bytes }}<br>
-                                cracktros and intros on Windows: {{ byteFile $rels.IntroW.Count $rels.IntroW.Bytes }}<br>
-                                Demoscene productions: {{ byteFile $rels.Demoscene.Count $rels.Demoscene.Bytes }}<br>
-                                editors: {{ byteFile $rels.NfoTool.Count $rels.NfoTool.Bytes }}<br>
-                                installers: {{ byteFile $rels.Installer.Count $rels.Installer.Bytes }}<br>
-                                Java files: {{ byteFile $rels.Java.Count $rels.Java.Bytes }}<br>
-                                Linux files: {{ byteFile $rels.Linux.Count $rels.Linux.Bytes }}<br>
-                                MacOS files: {{ byteFile $rels.Macos.Count $rels.Macos.Bytes }}<br>
-                                {{msdos}} files: {{ byteFile $rels.MsDos.Count $rels.MsDos.Bytes }}<br>
-                                nfo texts: {{ byteFile $rels.Nfo.Count $rels.Nfo.Bytes }}<br>
-                                proofs: {{ byteFile $rels.Proof.Count $rels.Proof.Bytes }}<br>
-                                scripts: {{ byteFile $rels.Script.Count $rels.Script.Bytes }}<br>
-                                text files: {{ byteFile $rels.BBSText.Count $rels.BBSText.Bytes }}<br>
-                                Windows files: {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}<br>
-                            </small>
-                        </li>
-                    </ul>
-                </p>
+                <h5 class="card-title">Count and filesize</h5>
+                <div class="fs-6">
+                    <div class="mb-3 pb-2 border-bottom">
+                        <strong>Totals:</strong> {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
+                    </div>
+                    <div class="lh-lg" style="font-size: 0.95rem;">
+                        <div>ansi art: {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}</div>
+                        <div>ansi art and texts: {{ byteFile $rels.Ansi.Count $rels.Ansi.Bytes }}</div>
+                        <div>BBS adverts: {{ byteFile $rels.BBS.Count $rels.BBS.Bytes }}</div>
+                        <div>BBStros: {{ byteFile $rels.BBStro.Count $rels.BBStro.Bytes }}</div>
+                        <div>cracktros and intros: {{ byteFile $rels.Intro.Count $rels.Intro.Bytes }}</div>
+                        <div>cracktros and intros on {{msdos}}: {{ byteFile $rels.IntroD.Count $rels.IntroD.Bytes }}</div>
+                        <div>cracktros and intros on Windows: {{ byteFile $rels.IntroW.Count $rels.IntroW.Bytes }}</div>
+                        <div>Demoscene productions: {{ byteFile $rels.Demoscene.Count $rels.Demoscene.Bytes }}</div>
+                        <div>editors: {{ byteFile $rels.NfoTool.Count $rels.NfoTool.Bytes }}</div>
+                        <div>installers: {{ byteFile $rels.Installer.Count $rels.Installer.Bytes }}</div>
+                        <div>Java files: {{ byteFile $rels.Java.Count $rels.Java.Bytes }}</div>
+                        <div>Linux files: {{ byteFile $rels.Linux.Count $rels.Linux.Bytes }}</div>
+                        <div>MacOS files: {{ byteFile $rels.Macos.Count $rels.Macos.Bytes }}</div>
+                        <div>{{msdos}} files: {{ byteFile $rels.MsDos.Count $rels.MsDos.Bytes }}</div>
+                        <div>nfo texts: {{ byteFile $rels.Nfo.Count $rels.Nfo.Bytes }}</div>
+                        <div>proofs: {{ byteFile $rels.Proof.Count $rels.Proof.Bytes }}</div>
+                        <div>scripts: {{ byteFile $rels.Script.Count $rels.Script.Bytes }}</div>
+                        <div>text files: {{ byteFile $rels.BBSText.Count $rels.BBSText.Bytes }}</div>
+                        <div>Windows files: {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="card-title h5">Publish dates</h2>
-                <p class="card-text">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item lead">
-                            years {{$rels.Record.MinYear}} - {{$rels.Record.MaxYear }}
-                        </li>
-                        <li class="list-group-item lead">
-                            <small>
-                            ansi art: {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}<br>
-                            BBS adverts: {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}<br>
-                            cracktros and intros: {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}<br>
-                            Java files: {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}}<br>
-                            Linux files: {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}}<br>
-                            magazines: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}<br>
-                            MacOS files: {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}}<br>
-                            {{msdos}} files: {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}}<br>
-                            nfo texts: {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}<br>
-                            scripts: {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}}<br>
-                            text files: {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}<br>
-                            Windows files: {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}}<br>
-                            </small>
-                        </li>
-                    </ul>
-                </p>
+                <h5 class="card-title">Publish dates</h5>
+                <div class="fs-6">
+                    <div class="mb-3 pb-2 border-bottom">
+                        <strong>Overall:</strong> {{$rels.Record.MinYear}} - {{$rels.Record.MaxYear}}
+                    </div>
+                    <div class="lh-lg" style="font-size: 0.95rem;">
+                        <div>ansi art: {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}</div>
+                        <div>BBS adverts: {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}</div>
+                        <div>cracktros and intros: {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}</div>
+                        <div>Java files: {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}}</div>
+                        <div>Linux files: {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}}</div>
+                        <div>magazines: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}</div>
+                        <div>MacOS files: {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}}</div>
+                        <div>{{msdos}} files: {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}}</div>
+                        <div>nfo texts: {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}</div>
+                        <div>scripts: {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}}</div>
+                        <div>text files: {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}</div>
+                        <div>Windows files: {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -173,7 +165,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">cracktro, loader, intro, crack-screen</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">cracktro, loader, intro, crack-screen</h5>
                 <p class="card-text">
                     Cracktros and loaders are mini adverts created by cracking groups to announce their
                     releases to the community.
@@ -194,7 +186,7 @@
                     </div>
                 </div>
                 <hr>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">installation program</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">installation program</h5>
                 <p class="card-text">
                     As software repackaging by Scene groups became more complicated, there was a need to develop installation programs that walk the users through installing their ill-gotten wares.
                 </p>
@@ -205,8 +197,8 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="card-title h5">Release text</h2>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">NFO, information text, README</h6>
+                <h5 class="card-title">Release text</h5>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">NFO, information text, README</h5>
                 <p class="card-text">
                     Text files are generally in every scene release.
                     Often, they are stylised with text art and arranged in a standard format.
@@ -215,13 +207,13 @@
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/nfo" class="{{$linkClass}}">nfo files</a></span>
                 <hr>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">release proof</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">release proof</h5>
                 <p class="card-text">
                     A proof of a release is usually a photograph to verify that physical media sold in retail stores is the source of the warez release.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/proof" class="{{$linkClass}}">proofs</a></span>
                 <hr>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">Demoscene production</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">Demoscene production</h5>
                 <p class="card-text">
                     Demoscene productions are artistic apps that generate visuals and audio to show the creators' programming, audio, and graphic abilities. Early demo productions developed within warez scene before they distanced themselves and spun into their own community.
                 </p>
@@ -232,22 +224,22 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">ANSI color text</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">ANSI color text</h5>
                 <p class="card-text">
                     Stylized ANSI text art was commonly created for the theming and advertising of Bulletin Board Systems.
                 </p>
                 <span class="{{$linkClass}}">Browse all the <a href="/files/ansi" class="{{$linkClass}}">ansi files</a></span>
                 <hr>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">branding &amp; logo</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">branding &amp; logo</h5>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-brand" class="{{$linkClass}}">ansi logos</a></span>
                 <hr>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">BBS board advert</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">BBS board advert</h5>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-bbs" class="{{$linkClass}}">ansi board ads</a></span>
                 <hr>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">FTP site advert</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">FTP site advert</h5>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-ftp" class="{{$linkClass}}">ansi site ads</a></span>
                 <hr>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">ANSI color NFO</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">ANSI color NFO</h5>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-nfo" class="{{$linkClass}}">ansi nfos</a></span>
             </div>
         </div>
@@ -255,15 +247,15 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="card-title h5">BBS</h2>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">bulletin board system</h6>
+                <h5 class="card-title">BBS</h5>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">bulletin board system</h5>
                 <p class="card-text">
                     Bulletin Board Systems were like proto-websites that offered message forums, real-time chat, and file sharing but used a text user interface and ran on the landline telephone network. 
                     Users had to use their PCs or microcomputers with a modem peripheral to dial and connect to the individual boards.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/bbs" class="{{$linkClass}}">adverts</a></span>
                 <hr>
-                <span class="{{$linkClass}}">Or only the</span>
+                <p class="{{$linkClass}}">Or only the</p>
                 <div class="container text-left">
                     <div class="{{$rowCols}}">
                       <div class="col-sm">
@@ -281,8 +273,8 @@
                     </div>
                 </div>
                 <hr>
-                <h2 class="card-title h5">FTP</h2>
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">file site</h6>
+                <h5 class="card-title">FTP</h5>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">file site</h5>
                 <p class="card-text">
                     FTP sites eventually supplanted BBS boards as The Scene moved onto the Internet in the early to mid-1990s. The utilitarian sites were more efficient at organizing and transferring files but lacked the social features of the earlier boards.
                 </p>
@@ -295,40 +287,22 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">Magazine</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">Magazine</h5>
                 <p class="card-text">
                     Before the web and social media existed, groups and individuals used to exchange ideas and write articles on their communities in digitally distributed magazines and newsletters.
                 </p>
-                <span class="{{$linkClass}}">Browse the</span>
-                <div class="d-none d-sm-inline">
-                    <a href="/files/magazine" class="{{$linkClass}}">issues</a>
-                </div>
-                <div class="container text-left d-inline d-sm-none">
-                    <div class="{{$rowCols}}">
-                        <div class="col-sm">
-                <a href="/files/magazine" class="{{$linkClass}}">issues</a>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <span class="{{$linkClass}}">Or the</span>
-                <div class="container text-left d-inline d-sm-none">
-                    <div class="{{$rowCols}}">
-                        <div class="col-sm">
-                <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
-                        </div>
-                    </div>
-                </div>                
-                <div class="d-none d-sm-inline">
-                    <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
-                </div>
+                <p class="{{$linkClass}}">Browse the</p>
+                 <a href="/files/magazine" class="{{$linkClass}}">issues</a>
+                 <hr>
+                 <p class="{{$linkClass}}">Or the</p>
+                 <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">File pack</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">File pack</h5>
                 <p class="card-text">
                     Curated file packs are collections of files with a common theme.
                 </p>
@@ -358,7 +332,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h6 class="card-subtitle lead mb-2 text-body-secondary">Database</h6>
+                <h5 class="card-subtitle lead mb-2 text-body-secondary">Database</h5>
                 <p class="card-text">
                     Scene databases are often private datasets of cracked software titles, release dates and
                     associated groups.
@@ -373,7 +347,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="card-title h5">Text file</h2>
+                <h5 class="card-title">Text file</h5>
                 <p class="card-text">
                     The vast majority of scene releases involve text and documents.
                     Plain text files have the advantage of being platform-agnostic and small in file size.

@@ -97,12 +97,12 @@ func TemplateFuncMap() template.FuncMap {
 			return template.HTML(s)
 		},
 		"searchResult": SearchResult,
-		"state": func(deleteat, deleteby bool) template.HTML {
-			if !deleteat && deleteby {
-				return "<span title=\"Not approved\">⛔</span>"
-			}
-			if !deleteat && !deleteby {
+		"state": func(isNotDeleted, noDeleterInfo bool) template.HTML {
+			if !isNotDeleted && !noDeleterInfo {
 				return "<span title=\"Removed from public\">🚫</span>"
+			}
+			if !isNotDeleted && noDeleterInfo {
+				return "<span title=\"Not approved\">⛔</span>"
 			}
 			return ""
 		},

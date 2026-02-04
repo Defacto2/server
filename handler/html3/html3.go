@@ -354,7 +354,7 @@ func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c echo.Context
 	}
 	order := Clauses(c.QueryString())
 	name := c.Param("id")
-	records, err := order.ByGroup(ctx, exec, name)
+	records, err := order.ByGroup(ctx, exec, 0, 0, name)
 	if err != nil {
 		return queryErr("by group:", err)
 	}

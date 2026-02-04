@@ -12,7 +12,7 @@
 {{- $carousel := index . "carousel"}}
 {{- $h1 := index . "h1"}}
 {{- $lead := index . "lead"}}
-{{- $lock := index . "editor"}}
+{{- $editor := index . "editor"}}
 {{- $jsdos := index . "jsdos6"}}
 {{- $logo := index . "logo"}}
 {{- $pouet := index . "pouet"}}
@@ -125,7 +125,7 @@
               </a>
               <ul class="dropdown-menu">
                 <li><h6 class="dropdown-header">Artifacts</h6></li>
-                {{- if eq $lock true }}
+                {{- if $editor }}
                 <li><a class="dropdown-item" href="/editor/for-approval" rel="nofollow">New <em>for approval</em></a></li>
                 <li><a class="dropdown-item" href="/files/new-updates" rel="nofollow">New <em>edits</em></a></li>
                 {{- end }}
@@ -200,7 +200,7 @@
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Lookup</h6></li>
                 <li><a id="layout-search-groups" class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup groups, magazines, BBS names, etc." href="/search/releaser" rel="nofollow"><u>G</u>roups<small> or releasers</small></a></li>
-                {{- if eq $lock true }}
+                {{- if $editor }}
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup an artifact by its database keys" href="/editor/search/id" rel="nofollow"><em>ID</em> or <em>UUID</em></a></li>
                 {{- end }}
                 <li><a class="dropdown-item" href="/areacodes">BBS area codes</a></li>
@@ -365,7 +365,7 @@
 {{- if $jsdos}}
 <script async src="{{ jsdos6JS }}?{{ sri_jsdos6JS }}" integrity="{{ sri_jsdos6JS }}" crossorigin="anonymous"></script>
 <script async src="{{ dosboxJS }}?{{ sri_dosboxJS }}" integrity="{{ sri_dosboxJS }}" crossorigin="anonymous"></script>
-<script async="false">
+<script>
   document.addEventListener("DOMContentLoaded", () => {
     const jsdosModal = document.getElementById("js-dos-modal");
     if (jsdosModal != null) {
@@ -387,7 +387,7 @@
 <script defer src="{{ layoutJS }}?{{ sri_layoutJS }}" integrity="{{ sri_layoutJS }}" crossorigin="anonymous"></script>
 {{- /*  Bootstrap carousel initializer (relies on the template and cannot be moved to a JS file)  */}}
 {{- if ne $carousel ""}}
-<script async="false">
+<script>
   (() => {
     const myCarouselElement = document.querySelector('{{$carousel}}');
     if (myCarouselElement === null) {

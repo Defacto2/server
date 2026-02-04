@@ -253,7 +253,7 @@ $ task doc
 ```
 
 ```go
-// Copyright © 2023-2025 Ben Garrett. All rights reserved.
+// Copyright © 2023-2026 Ben Garrett. All rights reserved.
 
 /*
 

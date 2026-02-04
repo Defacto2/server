@@ -129,3 +129,81 @@ func TestInvalidExec(t *testing.T) {
 	db := sql.DB{}
 	be.True(t, !panics.BoilExec(&db))
 }
+
+func TestOrderStringConsistent(t *testing.T) {
+	// Test that String() returns consistent results
+	s1 := html3.NameAsc.String()
+	s2 := html3.NameAsc.String()
+	be.Equal(t, s1, s2)
+	be.True(t, len(s1) > 0)
+}
+
+func TestOrderStringAllValues(t *testing.T) {
+	// Test all Order values return non-empty strings
+	orders := []html3.Order{
+		html3.NameAsc, html3.NameDes,
+		html3.PublAsc, html3.PublDes,
+		html3.PostAsc, html3.PostDes,
+		html3.SizeAsc, html3.SizeDes,
+		html3.DescAsc, html3.DescDes,
+	}
+	for _, o := range orders {
+		s := o.String()
+		be.True(t, len(s) > 0)
+	}
+}
+
+func TestOrderStringValues(t *testing.T) {
+	// Test specific order string values
+	tests := []struct {
+		o      html3.Order
+		expect string
+	}{
+		{html3.NameAsc, "filename asc"},
+		{html3.NameDes, "filename desc"},
+		{html3.SizeAsc, "filesize asc"},
+		{html3.SizeDes, "filesize desc"},
+	}
+	for _, tt := range tests {
+		be.Equal(t, tt.o.String(), tt.expect)
+	}
+}
+
+func TestLeadStrCaching(t *testing.T) {
+// Test that common widths use cached padding
+s1 := html3.LeadStr(3, "x")
+s2 := html3.LeadStr(3, "y")
+be.Equal(t, s1, s2)
+be.Equal(t, len(s1), 2)
+}
+
+func TestLeadStrWidth7(t *testing.T) {
+// Test width 7 cache
+s := html3.LeadStr(7, "test")
+be.Equal(t, len(s), 3)
+}
+
+func TestPublishedStateFlags(t *testing.T) {
+// Test that Published works with new state flag approach
+f := models.File{}
+s := html3.Published(&f)
+be.True(t, len(s) > 0)
+}
+
+func TestStatsDRYRefactoring(t *testing.T) {
+// Test that Arts, Documents, Softwares work correctly
+a := &html3.Arts{}
+be.Equal(t, a.GetBytes(), 0)
+a.SetBytes(100)
+be.Equal(t, a.GetBytes(), 100)
+
+d := &html3.Documents{}
+be.Equal(t, d.GetCount(), 0)
+d.SetCount(50)
+be.Equal(t, d.GetCount(), 50)
+
+s := &html3.Softwares{}
+be.Equal(t, s.GetBytes(), 0)
+s.SetBytes(200)
+be.Equal(t, s.GetBytes(), 200)
+}

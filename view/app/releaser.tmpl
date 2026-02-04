@@ -3,13 +3,13 @@
 */ -}}
 {{- define "content" }}
 {{- $path := "g" }}
-{{- $name := index .itemName}}
+{{- $name := .itemName }}
 {{- $pubs := index .stats.pubs }}
 {{- $orderBy := index .stats.orderBy }}
 <div class="container px-4 text-center">
     <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
-    <div class="row row-cols-1 row-cols-sm-2 row-col-md-3 g-2">
-{{- range $index, $rel := .releasers -}}
+    <div class="row row-cols-1 row-cols-sm-2 g-2">
+{{- range $rel := .releasers -}}
 {{- $initialism := initialisms $rel.Unique.URI }}
         <div class="col">
             <div class="p-3 border bg-light h-100"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a></h5>

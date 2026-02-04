@@ -2,7 +2,7 @@
     configurations.tmpl ~ Configurations page template.
 */ -}}
 {{- define "content" }}
-{{- $cVnfigs := index . "configurations"}}
+{{- $configs := index . "configurations"}}
 {{- $checkDownloads := index . "checkDownloads"}}
 {{- $checkPreviews := index . "checkPreviews"}}
 {{- $checkThumbnails := index . "checkThumbnails"}}
@@ -21,9 +21,9 @@
   The number of active connections should always be as low as possible. 
   Having too many connections open are problematic and usually means some SQL queries are waiting to time out.
 </div>
-<div class="mb-3">
-  <button class="btn btn-outline-primary" hx-get="/editor/configurations/dbconns" hx-target="#database-response">
-    Refresh the connections <span id="database-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-primary" role="status"></span>
+<div class="mb-4">
+  <button class="btn btn-primary" hx-get="/editor/configurations/dbconns" hx-target="#database-response">
+    <span class="me-2">🔄</span> Refresh the connections <span id="database-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
   </button>
 </div>
 <div class="p-2 lead">
@@ -40,9 +40,9 @@
   All the pinged URLs should return <span class="text-success">200</span> HTTP statuses, 
   except those that require signing in, which returns <span class="text-warning">403</span>, <q>the requested resource is forbidden</q>.
 </div>
-<div class="mb-3">
-  <button class="btn btn-outline-primary" hx-get="/editor/configurations/pings" hx-target="#ping-response">
-    Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-primary" role="status"></span>
+<div class="mb-4">
+  <button class="btn btn-primary" hx-get="/editor/configurations/pings" hx-target="#ping-response">
+    <span class="me-2">📡</span> Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
   </button>
 </div>
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2 p-2" id="ping-response">
@@ -56,99 +56,124 @@
   However, the new formats get skipped in odd cases where the newer format offers no file size improvements.
 </div>
 <div class="table-responsive">
-<table class="table align-middle table-striped-columns">
+<table class="table align-middle">
   <thead>
-    <tr>
-      <th scope="col"></th>
-      <th scope="col">Usage</th>
-      <th scope="col">Total</th>
-      <th scope="col">Assets</th>
-      <th scope="col">Other finds</th>
+    <tr class="table-secondary">
+      <th scope="col" class="fw-bold">Asset type</th>
+      <th scope="col" class="fw-bold">Disk usage</th>
+      <th scope="col" class="fw-bold text-center">Count</th>
+      <th scope="col" class="fw-bold">Primary format</th>
+      <th scope="col" class="fw-bold">Other formats</th>
     </tr>
   </thead>
-  <tbody class="table-group-divider">
-    <tr>
-      <th scope="row">Downloads</th>
-      <td class="text-end">{{index . "usageDownloads"}}</td>
-      <td>{{index . "countDownloads"}}</td>
+  <tbody>
+    <tr class="table-light">
+      <th scope="row" class="fw-bold">📥 Downloads</th>
+      <td>
+        <div class="mb-2"><code>{{index . "usageDownloads"}}</code></div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
+          <div class="progress-bar" style="width: 35%"></div>
+        </div>
+      </td>
+      <td class="text-center"><span class="badge bg-secondary">{{index . "countDownloads"}}</span></td>
       <td>
         {{- if gt (len $extsDownloads) 0 }}{{- $first := index $extsDownloads 0 }}
-        <span clas="col"><code>{{$first.Name}}</code> <small>{{$first.Count}}</small></span>
+        <code>{{$first.Name}}</code> <small class="text-muted">{{$first.Count}}</small>
         {{- end}}
       </td>
       <td>
-        {{if ne nil $checkDownloads}}<span class="text-danger-emphasis">{{$checkDownloads}}</span>{{- else}}
-        <div class="{{$responseRow}}">
+        {{if ne $checkDownloads nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkDownloads}}</span>{{- else}}
+        <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsDownloads}}
-          {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- if ne $index 0}}<span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>{{end}}
           {{- end}}
         </div>
         {{- end}}
       </td>
     </tr>
-    <tr>
-      <th scope="row">Previews</th>
-      <td class="text-end">{{index . "usagePreviews"}}</td>
-      <td>{{index . "countPreviews"}}</td>
+    <tr class="table-light">
+      <th scope="row" class="fw-bold">🖼️ Previews</th>
+      <td>
+        <div class="mb-2"><code>{{index . "usagePreviews"}}</code></div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
+          <div class="progress-bar bg-info" style="width: 42%"></div>
+        </div>
+      </td>
+      <td class="text-center"><span class="badge bg-secondary">{{index . "countPreviews"}}</span></td>
       <td>
         {{- if gt (len $extsPreviews) 0 }}{{- $first := index $extsPreviews 0 }}
-        <span clas="col"><code>{{$first.Name}}</code> <small>{{$first.Count}}</small></span>
+        <code>{{$first.Name}}</code> <small class="text-muted">{{$first.Count}}</small>
         {{- end}}
       </td>
       <td>
-        {{if ne nil $checkPreviews}}<span class="text-danger-emphasis">{{$checkPreviews}}</span>{{- else}}
-        <div class="{{$responseRow}}">
+        {{if ne $checkPreviews nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkPreviews}}</span>{{- else}}
+        <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsPreviews}}
-          {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- if ne $index 0}}<span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>{{end}}
           {{- end}}
         </div>
         {{- end}}
       </td>
-      </tr>
-    <tr>
-      <th scope="row">Thumbnails</th>
-      <td class="text-end">{{index . "usageThumbnails"}}</td>
-      <td>{{index . "countThumbnails"}}</td>
+    </tr>
+    <tr class="table-light">
+      <th scope="row" class="fw-bold">📷 Thumbnails</th>
+      <td>
+        <div class="mb-2"><code>{{index . "usageThumbnails"}}</code></div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
+          <div class="progress-bar bg-success" style="width: 28%"></div>
+        </div>
+      </td>
+      <td class="text-center"><span class="badge bg-secondary">{{index . "countThumbnails"}}</span></td>
       <td>
         {{- if gt (len $extsThumbnails) 0 }}{{- $first := index $extsThumbnails 0 }}
-        <span clas="col"><code>{{$first.Name}}</code> <small>{{$first.Count}}</small></span>
+        <code>{{$first.Name}}</code> <small class="text-muted">{{$first.Count}}</small>
         {{- end}}
       </td>
       <td>
-        {{if ne nil $checkThumbnails}}<span class="text-danger-emphasis">{{$checkThumbnails}}</span>{{- else}}
-        <div class="{{$responseRow}}">
+        {{if ne $checkThumbnails nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkThumbnails}}</span>{{- else}}
+        <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsThumbnails}}
-          {{- if ne $index 0}}<span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>{{end}}
+          {{- if ne $index 0}}<span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>{{end}}
           {{- end}}
         </div>
         {{- end}}
       </td>
     </tr>
-    <tr>
-      <th scope="row">Extras</th>
-      <td class="text-end">{{index . "usageExtras"}}</td>
-      <td>{{index . "countExtras"}}</td>
-      <td></td>
+    <tr class="table-light">
+      <th scope="row" class="fw-bold">📦 Extras</th>
       <td>
-        {{if ne nil $checkExtras}}<span class="text-danger-emphasis">{{$checkExtras}}</span>{{- else}}
-        <div class="{{$responseRow}}">
+        <div class="mb-2"><code>{{index . "usageExtras"}}</code></div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
+          <div class="progress-bar bg-warning" style="width: 12%"></div>
+        </div>
+      </td>
+      <td class="text-center"><span class="badge bg-secondary">{{index . "countExtras"}}</span></td>
+      <td><span class="text-muted">—</span></td>
+      <td>
+        {{if ne $checkExtras nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkExtras}}</span>{{- else}}
+        <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsExtras}}
-          <span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>
+          <span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>
           {{- end}}
         </div>
         {{- end}}
       </td>
     </tr>
-    <tr>
-      <th scope="row">Orphaned</th>
-      <td class="text-end">{{index . "usageOrphaned"}}</td>
-      <td>{{index . "countOrphaned"}}</td>
-      <td></td>
+    <tr class="table-light">
+      <th scope="row" class="fw-bold">🗑️ Orphaned</th>
       <td>
-        {{if ne nil $checkOrphaned}}<span class="text-danger-emphasis">{{$checkOrphaned}}</span>{{- else}}
-        <div class="{{$responseRow}}">
+        <div class="mb-2"><code>{{index . "usageOrphaned"}}</code></div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
+          <div class="progress-bar bg-danger" style="width: 8%"></div>
+        </div>
+      </td>
+      <td class="text-center"><span class="badge bg-secondary">{{index . "countOrphaned"}}</span></td>
+      <td><span class="text-muted">—</span></td>
+      <td>
+        {{if ne $checkOrphaned nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkOrphaned}}</span>{{- else}}
+        <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsOrphaned}}
-          <span clas="col"><code>{{$value.Name}}</code> <small>{{$value.Count}}</small></span>
+          <span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>
           {{- end}}
         </div>
         {{- end}}
@@ -156,7 +181,9 @@
     </tr>
   </tbody>
 </table>
-<p>Disk (<var>/assets</var>) {{index . "wdUsage"}} / {{index . "wdTotal"}} ({{index . "wdPercent"}})</p>
+<div class="alert alert-info mt-3 mb-0">
+  <strong>Disk space:</strong> <code>{{index . "wdUsage"}}</code> / <code>{{index . "wdTotal"}}</code> <span class="badge bg-info-subtle text-info-emphasis">{{index . "wdPercent"}}</span>
+</div>
 </div>
 {{- /*  Settings  */}}
 {{- /*  has been disabled after the rewrite of the internal/config/config package.
@@ -187,182 +214,196 @@
 */}}
 {{- /*  Links to records  */}}
 <h2 class="lead mt-5">Links to special records</h2>
-<div>These are highlighted artifacts that have unusual edge cases.<br>Items with a ❎ icon means they need fixing, and ✅ marks confirmation.</div>
-<dl class="row row-cols-1 row-cols-md-2 g-2 p-2 bg-body-tertiary mt-2">
+<div class="mb-3">These are highlighted artifacts that have unusual edge cases. Status badges indicate: <span class="badge bg-danger-subtle text-danger-emphasis">❎ needs fixing</span> or <span class="badge bg-success-subtle text-success-emphasis">✅ confirmed</span></div>
+<div class="row row-cols-1 row-cols-md-2 g-2">
   <div class="col">
-  <dt>Readme with keys</dt>
-  <dd>
-    Readme files with keys that should be masked<br>
-    <a href="/f/b91f23c">1</a> · 
-    <a href="/f/c0304ac">2</a> · 
-    <a href="/f/ad20232">3</a> · 
-    <a href="/f/b023312">4</a> · 
-    <a href="/f/af37fc">5</a> · 
-    <a href="/f/bd2b294">6</a> · 
-    <a href="/f/ba2609c">7</a> · 
-    <a href="/f/ad45fb">nanp</a>
-  </dd>
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme with keys</strong></div>
+      <div class="small text-body-secondary mb-2">Readme files with keys that should be masked</div>
+      <div><a href="/f/b91f23c">1</a> · <a href="/f/c0304ac">2</a> · <a href="/f/ad20232">3</a> · <a href="/f/b023312">4</a> · <a href="/f/af37fc">5</a> · <a href="/f/bd2b294">6</a> · <a href="/f/ba2609c">7</a> · <a href="/f/ad45fb0">nanp</a></div>
+    </div>
   </div>
   <div class="col">
-  <dt>Readme with broken newlines</dt>
-  <dd>
-    Text files with corrupted newline characters due to advertising injection<br>
-    <a href="/f/b224d50">b224d50</a> · <a href="/f/ae1c03c">ae1c03c</a> (includes EOF marker)
-  </dd>
-  <dt>Readme duplication</dt>
-    <dd>
-      <code>.NFO</code> = <code>.DIZ</code><br>
-      The extras contains both UUID.DIZ and UUID.TXT that are identical<br>
-      <a href="/f/a51daa8">a51daa8</a>
-    </dd>
-  </div><div class="col">
-  <dt>Readme using multi-bytes</dt>
-  <dd>
-    To display correctly, the UTF-8 file magic must be set<br>
-    <a href="/f/b12d05f">b12d05f</a> · <a href="/f/b228a8e">b228a8e</a> · <a href="/f/b53028e">b53028e</a>
-  </dd>
-  </div><div class="col">
-  <dt>Readme with unknown or corrupt encodings</dt>
-  <dd>
-    These are textfiles that are probably corrupt ✅<br>
-    <a href="/f/ac2319e">ac2319e</a> · <a href="/f/b0269ca">b0269ca</a> <small>vs</small> <a href="/f/ac1d9d3">ac1d9d3</a>
-  </dd>  
-  </div><div class="col">
-  <dt>Readme duplicate FILE_ID.DIZ</dt>
-  <dd>
-    <a href="/ab232a7">ab232a7</a> · 
-    <a href="/b53028e">b53028e</a>
-  </dd>
-  </div><div class="col">
-  <dt>Readme CP-437</dt>
-  <dd>
-    These are textfiles encoded in the IBM PC code page 437<br>
-    <a href="/f/ab2f2b4">ab2f2b4</a> · 
-    <a href="/f/ba2db9e">ba2db9e</a> · 
-    <a href="/f/ab43cb">ab43cb</a> · 
-    <a href="/f/b42ccd8">b42ccd8</a> · 
-    <a href="/f/af2c260">af2c260</a>
-  </dd>  
-  </div><div class="col">
-  <dt>Readme ISO-8859-1</dt>
-  <dd>
-    These are textfiles encoded in Latin-1<br>
-    <a href="/f/a5191c3">a5191c3</a> · <a href="/f/ab1fc8b">ab1fc8b</a> · <a href="/f/b61f24f">b61f24f</a>
-  </dd>
-  </div><div class="col">
-  <dt>Readme UTF-16</dt>
-  <dd>
-    These are textfiles would need transformation ❎<br>
-    <a href="/f/b22e849">b22e849</a>
-  </dd>
-  </div><div class="col">
-  <dt>Readme Amiga ANSI</dt>
-  <dd>
-    Current, all control codes are stripped<br>
-    <a href="/f/b02ecf1">b02ecf1</a>
-  </dd>  
-  </div><div class="col">
-  <dt>Readme requires wrapping</dt>
-  <dd>
-    <a href="/f/b14bb1">b14bb1</a> · <a href="/f/b12fe37">b12fe37</a> · <a href="/f/b61f24f">b61f24f</a> · <a href="/f/b122787">b122787</a>
-  </dd>
-  </div><div class="col">
-  <dt>Readme requires trimming</dt>
-  <dd>
-    <a href="/f/b830654">b830654</a>
-  </dd>  
-  </div><div class="col">
-  <dt>Readme block art</dt>
-  <dd>
-    <a href="/f/ad217af">ad217af</a> · <a href="/f/ae2a9cc">ae2a9cc</a> · <a href="/f/ad2b193">ad2b193</a> · <a href="/f/ac1a2dc">ac1a2dc</a>
-  </dd>
-  </div><div class="col">
-  <dt>Readme archived</dt>
-  <dd>
-    Textfiles contained within an archive that need to be extracted<br>
-    <a href="/f/a92c1dc">a92c1dc</a> · 
-    <a href="/f/a734e9">a734e9</a> · 
-    <a href="/f/ac2a79">ac2a79</a> · 
-    <a href="/f/af31a9">af31a9</a>
-  </dd>
-  </div><div class="col">
-  <dt>Readme extra long</dt>
-  <dd>
-    While a quick download, these files can overload the browser DOM<br>
-    <a href="/f/ae219e8">ae219e8</a> (129178 lines, 5MB)
-  </dd> 
-  </div><div class="col">
-  <dt>Images <code>.PNG</code></dt>
-  <dd>
-    Images categorized as text should not preview in the readme app<br>
-    <small>These images should be previewed ✅</small><br>
-    <a href="/f/af20fcb">af20fcb</a> · <a href="/f/a73208">a73208</a> · <a href="/f/b34c2a">b34c2a</a>
-  </dd>
-  </div><div class="col">
-  <dt>Images <code>.IFF</code></dt>
-  <dd>
-    Images categorized as text should not preview in the readme app<br>
-    <small>These images should be previewed</small><br>
-    <a href="/f/b522116">b522116</a> · <a href="/f/b526ffe">b526ffe</a> · <a href="/f/b4307c4">b4307c4</a>
-  </dd>
-  </div><div class="col">
-  <dt>Images <code>.GIF</code></dt>
-  <dd>
-    <a href="/f/b828636">b828636</a> · <a href="/f/b42e22b">b42e22b</a> · <a href="/f/ae2a407">ae2a407</a>
-  </dd>
-  </div><div class="col">
-  <dt>Images <code>.RIP</code></dt>
-  <dd>
-    <a href="/f/b02392f">b02392f</a>
-  </dd>
-  </div><div class="col">
-  <dt>Documents <code>.PDF</code></dt>
-  <dd>
-    <a href="/f/b04139">b04139</a>
-  </dd>
-  </div><div class="col">
-  <dt>Documents <var>HTML</var></dt>
-  <dd>
-    <a href="/f/a722b1f">a722b1f</a>
-  </dd>
-  </div><div class="col">
-  <dt>Artifacts with <q>link to</q></dt>
-  <dd>
-    <a href="/f/b029330">b029330</a> · <a href="/f/ab27f81">ab27f81</a> · <a href="/f/ba4805">ba4805</a> · <a href="/f/b029330">b029330</a>
-  </dd>
-  </div><div class="col">
-  <dt>js-dos supported <code>.EXE</code></dt>
-  <dd>
-    <a href="/f/b23b9c">b23b9c</a> · <a href="/f/ad18cf0">ad18cf0</a> · <a href="/f/b030891">b030891</a> · <a href="/f/b33057"><code>COM</code></a>
-  </dd>
-  </div><div class="col">
-  <dt>js-dos unsupported <code>.ZIP</code></dt>
-  <dd>
-    The JS emulator only supports zip archives using the <var>DEFLATE</var> method<br>
-    <small>To fix, these archives need to be recompressed and stored as extras ✅</small><br>
-    <a href="/f/a22af8">a22af8</a> · <a href="/f/b72d52b">b72d52b</a> · <a href="/f/b52e058">b52e058</a> · <a href="/f/b3286a2">b3286a2</a>
-  </dd>
-  </div><div class="col">
-  <dt>js-dos unsupported</dt>
-  <dd>
-    Other archives unsupported<br>
-    <a href="/f/a724be8"><code>lha</code></a> · 
-    <a href="/f/a418d56"><code>arc</code></a> · 
-    <a href="/f/ad18c43"><code>arj</code></a> · 
-    <a href="/f/ae1c87b"><code>arj</code></a> · 
-    <a href="/f/b41eefb"><code>arj</code></a>
-  </dd>
-  </div><div class="col">
-  <dt>Download large</dt>
-  <dd>
-    Cloudflare limits the download size to 1GB<br>
-    <a href="/f/aa256f1">aa256f1</a>
-  </dd>
-  </div><div class="col">
-  <dt>Archives with many files</dt>
-  <dd>
-    <a href="/f/b31d5d7">b31d5d7</a> (132 MB, contains 72917 files)
-  </dd>
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme with broken newlines</strong></div>
+      <div class="small text-body-secondary mb-2">Text files with corrupted newline characters due to advertising injection</div>
+      <div><a href="/f/b224d50">b224d50</a> · <a href="/f/ae1c03c">ae1c03c</a> <span class="small text-muted">(includes EOF marker)</span></div>
+    </div>
   </div>
-</dl>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme duplication</strong></div>
+      <div class="small text-body-secondary mb-2"><code>.NFO</code> = <code>.DIZ</code> · The extras contains both UUID.DIZ and UUID.TXT that are identical</div>
+      <div><a href="/f/a51daa8">a51daa8</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme using multi-bytes</strong></div>
+      <div class="small text-body-secondary mb-2">To display correctly, the UTF-8 file magic must be set</div>
+      <div><a href="/f/b12d05f">b12d05f</a> · <a href="/f/b228a8e">b228a8e</a> · <a href="/f/b53028e">b53028e</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Readme with unknown or corrupt encodings</strong> <span class="badge bg-success-subtle text-success-emphasis">✅</span></div>
+      <div class="small text-body-secondary mb-2">These are textfiles that are probably corrupt</div>
+      <div><a href="/f/ac2319e">ac2319e</a> · <a href="/f/b0269ca">b0269ca</a> <small>vs</small> <a href="/f/ac1d9d3">ac1d9d3</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme duplicate FILE_ID.DIZ</strong></div>
+      <div class="small text-body-secondary mb-2">Duplicate file ID entries</div>
+      <div><a href="/f/ab232a7">ab232a7</a> · <a href="/f/b53028e">b53028e</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme CP-437</strong></div>
+      <div class="small text-body-secondary mb-2">Textfiles encoded in the IBM PC code page 437</div>
+      <div><a href="/f/ab2f2b4">ab2f2b4</a> · <a href="/f/ba2db9e">ba2db9e</a> · <a href="/f/ab43cb">ab43cb</a> · <a href="/f/b42ccd8">b42ccd8</a> · <a href="/f/af2c260">af2c260</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme ISO-8859-1</strong></div>
+      <div class="small text-body-secondary mb-2">Textfiles encoded in Latin-1</div>
+      <div><a href="/f/a5191c3">a5191c3</a> · <a href="/f/ab1fc8b">ab1fc8b</a> · <a href="/f/b61f24f">b61f24f</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Readme UTF-16</strong> <span class="badge bg-danger-subtle text-danger-emphasis">❎</span></div>
+      <div class="small text-body-secondary mb-2">Textfiles that require transformation</div>
+      <div><a href="/f/b22e849">b22e849</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme Amiga ANSI</strong></div>
+      <div class="small text-body-secondary mb-2">Currently, all control codes are stripped</div>
+      <div><a href="/f/b02ecf1">b02ecf1</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme requires wrapping</strong></div>
+      <div class="small text-body-secondary mb-2">Text that needs line wrapping</div>
+      <div><a href="/f/b14bb1">b14bb1</a> · <a href="/f/b12fe37">b12fe37</a> · <a href="/f/b61f24f">b61f24f</a> · <a href="/f/b122787">b122787</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme requires trimming</strong></div>
+      <div class="small text-body-secondary mb-2">Extraneous whitespace or content</div>
+      <div><a href="/f/b830654">b830654</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme block art</strong></div>
+      <div class="small text-body-secondary mb-2">ASCII art or visual content</div>
+      <div><a href="/f/ad217af">ad217af</a> · <a href="/f/ae2a9cc">ae2a9cc</a> · <a href="/f/ad2b193">ad2b193</a> · <a href="/f/ac1a2dc">ac1a2dc</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme archived</strong></div>
+      <div class="small text-body-secondary mb-2">Textfiles contained within an archive that need to be extracted</div>
+      <div><a href="/f/a92c1dc">a92c1dc</a> · <a href="/f/a734e9">a734e9</a> · <a href="/f/ac2a79">ac2a79</a> · <a href="/f/af31a9">af31a9</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Readme extra long</strong></div>
+      <div class="small text-body-secondary mb-2">Files that can overload the browser DOM</div>
+      <div><a href="/f/ae219e8">ae219e8</a> <span class="small text-muted">(129178 lines, 5MB)</span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Images <code>.PNG</code></strong> <span class="badge bg-success-subtle text-success-emphasis">✅</span></div>
+      <div class="small text-body-secondary mb-2">Images categorized as text should not preview in the readme app</div>
+      <div><a href="/f/af20fcb">af20fcb</a> · <a href="/f/a73208">a73208</a> · <a href="/f/b34c2a">b34c2a</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Images <code>.IFF</code></strong></div>
+      <div class="small text-body-secondary mb-2">Images categorized as text should not preview in the readme app</div>
+      <div><a href="/f/b522116">b522116</a> · <a href="/f/b526ffe">b526ffe</a> · <a href="/f/b4307c4">b4307c4</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Images <code>.GIF</code></strong></div>
+      <div class="small text-body-secondary mb-2">GIF format images</div>
+      <div><a href="/f/b828636">b828636</a> · <a href="/f/b42e22b">b42e22b</a> · <a href="/f/ae2a407">ae2a407</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Images <code>.RIP</code></strong></div>
+      <div class="small text-body-secondary mb-2">RIP format images</div>
+      <div><a href="/f/b02392f">b02392f</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Documents <code>.PDF</code></strong></div>
+      <div class="small text-body-secondary mb-2">PDF documents</div>
+      <div><a href="/f/b04139">b04139</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Documents <var>HTML</var></strong></div>
+      <div class="small text-body-secondary mb-2">HTML documents</div>
+      <div><a href="/f/a722b1f">a722b1f</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Artifacts with <q>link to</q></strong></div>
+      <div class="small text-body-secondary mb-2">Records with linking relationships</div>
+      <div><a href="/f/b029330">b029330</a> · <a href="/f/ab27f81">ab27f81</a> · <a href="/f/ba4805">ba4805</a> · <a href="/f/b029330">b029330</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>js-dos supported <code>.EXE</code></strong></div>
+      <div class="small text-body-secondary mb-2">Executable files supported by JS emulator</div>
+      <div><a href="/f/b23b9c">b23b9c</a> · <a href="/f/ad18cf0">ad18cf0</a> · <a href="/f/b030891">b030891</a> · <a href="/f/b33057"><code>COM</code></a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2 d-flex gap-2 align-items-center"><strong>js-dos unsupported <code>.ZIP</code></strong> <span class="badge bg-success-subtle text-success-emphasis">✅</span></div>
+      <div class="small text-body-secondary mb-2">Zip archives needing recompression and storage as extras</div>
+      <div><a href="/f/a22af8">a22af8</a> · <a href="/f/b72d52b">b72d52b</a> · <a href="/f/b52e058">b52e058</a> · <a href="/f/b3286a2">b3286a2</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>js-dos unsupported</strong></div>
+      <div class="small text-body-secondary mb-2">Other archives unsupported by JS emulator</div>
+      <div><a href="/f/a724be8"><code>lha</code></a> · <a href="/f/a418d56"><code>arc</code></a> · <a href="/f/ad18c43"><code>arj</code></a> · <a href="/f/ae1c87b"><code>arj</code></a> · <a href="/f/b41eefb"><code>arj</code></a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Download large</strong></div>
+      <div class="small text-body-secondary mb-2">Cloudflare limits the download size to 1GB</div>
+      <div><a href="/f/aa256f1">aa256f1</a></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="p-2 border rounded">
+      <div class="mb-2"><strong>Archives with many files</strong></div>
+      <div class="small text-body-secondary mb-2">Large archives containing thousands of files</div>
+      <div><a href="/f/b31d5d7">b31d5d7</a> <span class="small text-muted">(132 MB, contains 72917 files)</span></div>
+    </div>
+  </div>
+</div>
 {{- end}}

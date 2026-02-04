@@ -18,7 +18,7 @@
         - data-itp_support Whether to enable Intelligent Tracking Prevention (ITP) support. The value can be either true or false.
         - data-use_fedcm_for_prompt Whether to use the federated sign-in prompt. The value can be either true or false.
 */ -}}
-<div class="text-left">
+<div class="container">
     <div id="g_id_onload"
         data-client_id="{{$client}}" 
         data-context="signin"
@@ -28,29 +28,34 @@
         data-itp_support="true"
         data-use_fedcm_for_prompt="true">
     </div>
-    <div>
-        The privacy policy of Defacto2 does not apply to the sign-in page.
-        <br>
-        If you formerly had a Defacto2 operator account, please sign-in to obtain your numeric Google account unique identifier and 
-        <a href="#" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">contact Defacto2</a> for a new signup. 
+    <div class="card mb-4 p-4">
+        <p class="mb-3">
+            The privacy policy of Defacto2 does not apply to this sign-in page. 
+            Google's privacy policies govern the sign-in process.
+        </p>
+        <p>
+            If you formerly had a Defacto2 operator account, please sign-in to obtain your numeric Google account unique identifier and 
+            <a href="#contacts-email-modal" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">contact Defacto2</a> for a new signup. 
+        </p>
     </div>
 {{- /*  Sign In With Google button
         - data-type     The button type. The value can be either standard or (a smaller) icon.
         - data-shape    The button shape. The value can be either rectangular or pill.
         - data-theme    The button theme. The value can be either outline or filled_blue or filled_black.
         - data-text     The button text. The value can be either signin_with or continue_with or signin.
-        - data-shape    The button shape.
         - data-size     The button size. The value can be either large or medium or small.
         - data-logo_alignment The button logo alignment. The value can be either left or center.
         - data-width    The button width in pixels. The value can be a maximum of 400 pixels.
 */ -}}
-    <div class="m-5 g_id_signin"
-        data-type="standard"
-        data-theme="filled_black"
-        data-text="signin_with"
-        data-shape="pill"
-        data-size="large"
-        data-logo_alignment="center">
+    <div class="text-center">
+        <div class="g_id_signin"
+            data-type="standard"
+            data-theme="filled_black"
+            data-text="signin_with"
+            data-shape="pill"
+            data-size="large"
+            data-logo_alignment="center">
+        </div>
     </div>
 </div>
 {{- end }}

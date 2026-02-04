@@ -1,6 +1,7 @@
 {{- define "content" }}
 {{- $telephonecodes := index . "telephonecodes"}}
 {{- $hcls := "h4 my-3"}}
+{{- $leadcls := "lead mt-5"}}
 {{- $placeholder := "Lookup multiple area codes and states; use comma separators"}}
 {{/*former input value: hx-trigger="input delay:50ms, keyup[key=='Enter'], load"*/}}
 {{/*delay:150ms is probably the lowest value, as anything lower and the changes can be skipped*/}}
@@ -15,7 +16,10 @@
         hx-target="#areacodes-results" autofocus>
     </div>
     <div class="col">
-        <button type="reset" class="btn btn-link" onclick="document.getElementById('areacodes-results').innerHTML = '';document.getElementById('areacodes-search').focus({focusVisible:true})">Clear</button>
+        <button type="reset" class="btn btn-link" 
+          hx-post="/areacodes" 
+          hx-target="#areacodes-results" 
+          onclick="document.getElementById('areacodes-search').focus({focusVisible:true})">Clear</button>
     </div>
 </form>
 
@@ -23,20 +27,20 @@
 
 <h2 class="{{$hcls}}">By area code</h2>
 {{- if $telephonecodes}}
-{{- range $index, $code := .telephonecodes }}
+{{- range $code := $telephonecodes }}
 {{$code.HTML}}
 {{- end}}
 {{- end}}
 <h2 class="{{$hcls}}">By state, province, or territory</h2>
-{{- range $index, $territory := index . "territories" }}
+{{- range $territory := .territories }}
 {{$territory.HTML}}
 {{- end}}
 <h2 class="{{$hcls}}">By 2-letter abbreviations</h2>
-{{- range $index, $code := index . "abbreviations" }}
+{{- range $code := .abbreviations }}
 {{$code.HTML}}
 {{- end}}
 
-<h2 class="lead mt-5">About</h2>
+<h2 class="{{$leadcls}}">About</h2>
 <p>
     The telephone numbering plan of 1994 uses a 3-digit area code and a 7-digit telephone number within the United States, Canada, the Caribbean and the U.S. territories.
     Using the format of <em>2xx ... 8xx, 9xx</em>, whereby <u>xx</u> could only be <em>01-19</em>, ie 201-219, 301-319, etc.
@@ -45,7 +49,7 @@
     This page lists the area codes that were in use during the BBS era from the 1970s until the end of 1994. 
     1995 and the following years saw the introduction of new area codes formats and overlay sharing, but they are not covered here.
 </p>
-<h2 class="lead mt-5">Data sources</h2>
+<h2 class="{{$leadcls}}">Data sources</h2>
 <ul class="list-unstyled">
     <li>The initial area code data was sourced from the 1990, <a href="https://defacto2.net/f/ac1cb6a">NAP/PA Area Code Listing</a> which was somewhat incomplete.</li>
     <li>The data was then cross-referenced with a 1991 MS-DOS application titled Find Area Code v1.0 (c) 1991 by MPM Enterprises.</li>

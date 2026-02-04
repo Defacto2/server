@@ -1,22 +1,20 @@
-version: "2"
+version: '2'
 linters:
   default: all
   disable:
-    - depguard # too much maintenance.
-    - exhaustive # this creates too much boilerplate.
-    - exhaustruct # fixing this creates too much boilerplate.
-    - nlreturn # fussy.
-    - noctx # redundant, requires db.BeginTx(context.Background.. while db.Begin(.. functions the same
-    - noinlineerr # opinionated
-    - nosprintfhostport # opinionated
-    - paralleltest # too much work.
-    - varnamelen # too much work.
-    - wsl # fussy
-    - wsl_v5 # fussy
+  - depguard
+  - exhaustive
+  - exhaustruct
+  - nlreturn
+  - noctx
+  - noinlineerr
+  - nosprintfhostport
+  - paralleltest
+  - varnamelen
+  - wsl
+  - wsl_v5
   settings:
     sloglint:
-      # Enforce using attributes only.
-      # This will raise an error for any key-value pair arguments.
       attr-only: true
     cyclop:
       max-complexity: 20
@@ -26,172 +24,173 @@ linters:
       ignore-comments: true
     gosec:
       excludes:
-        - G203
+      - G203
     misspell:
       locale: US
       ignore-rules:
-        - Teh
+      - Teh
     mnd:
       ignored-files:
-        - milestone.go
-        - interview.go
-        - zoo.go
+      - milestone.go
+      - interview.go
+      - zoo.go
     wrapcheck:
       ignore-sigs:
-        - .Errorf(
-        - errors.New(
-        - errors.Unwrap(
-        - errors.Join(
-        - .Wrap(
-        - .Wrapf(
-        - .WithMessage(
-        - .WithMessagef(
-        - .WithStack(
-        - .HTML(
-        - .Inline(
-        - .JSON(
-        - .JSONPretty(
-        - .Redirect(
-        - .Render(
-        - .String(
-        - .Text(
-        - app.StatusErr(
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - errors.Join(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
+      - .HTML(
+      - .Inline(
+      - .JSON(
+      - .JSONPretty(
+      - .Redirect(
+      - .Render(
+      - .String(
+      - .Text(
+      - app.StatusErr(
       ignore-package-globs:
-        - github.com/aarondl/sqlboiler/v4/*
-        - github.com/arrondl/sqlboiler/*
-        - github.com/Defacto2/server/internal/postgres/*
+      - github.com/aarondl/sqlboiler/v4/*
+      - github.com/aarondl/sqlboiler/*
+      - github.com/Defacto2/server/internal/postgres/*
   exclusions:
     generated: lax
     presets:
-      - comments
-      - common-false-positives
-      - legacy
-      - std-error-handling
+    - comments
+    - common-false-positives
+    - legacy
+    - std-error-handling
     rules:
-      - linters:
-          - lll
-        path: doc.go
-      - linters:
-          - dogsled
-          - dupl
-          - funlen
-          - gocyclo
-          - misspell
-          - wrapcheck
-        path: _test\.go$
-      - linters:
-          - dupl
-          - funlen
-          - wrapcheck
-        path: handler/router.go
-      - linters:
-          - dupl
-          - funlen
-          - wrapcheck
-        path: handler/routerhtmx.go
-      - linters:
-          - dupl
-          - funlen
-          - wrapcheck
-        path: handler/routerlock.go
-      - linters:
-          - dupl
-          - wrapcheck
-        path: handler/app/context.go
-      - linters:
-          - funlen
-          - lll
-        path: handler/app/accordion.go
-      - linters:
-          - funlen
-        path: handler/app/interview.go
-      - linters:
-          - funlen
-          - lll
-          - maintidx
-        path: handler/app/milestone.go
-      - linters:
-          - dupl
-          - wrapcheck
-        path: handler/htmx/artifact.go
-      - linters:
-          - dupl
-        path: handler/app/internal/mfs/mfs.go
-      - linters:
-          - dupl
-        path: internal/command/images.go
-      - linters:
-          - lll
-          - tagalign
-        path: internal/config/config.go
-      - linters:
-          - tagliatelle
-        path: handler/demozoo/demozoo.go
-      - linters:
-          - tagliatelle
-        path: handler/demozoo/demozoo_test.go
-      - linters:
-          - lll
-        path: handler/jsdos/jsdos.go
-      - linters:
-          - lll
-          - tagalign
-        path: internal/postgres/postgres.go
-      - linters:
-          - tagliatelle
-        path: handler/pouet/pouet.go
-      - linters:
-          - funlen
-          - maintidx
-        path: handler/site/site.go
-      - linters:
-          - dupl
-        path: model/files.*\.go$
-      - linters:
-          - dupl
-        path: handler/app/internal/fileslice/fileslice.go
-      - linters:
-          - funlen
-          - lll
-        path: handler/tidbit/tidbit.go
-      - linters:
-          - lll
-        path: handler/areacode/areacode.go
-      - linters:
-          - cyclop
-          - ireturn
-        path: (.+)_test\.go
-      - linters:
-          - ireturn
-        path: model/querymod/querymod.go
-      - linters:
-          - ireturn
-        path: model/html3/html3.go
-      - linters:
-          - dupl
-        path: handler/app/remote/remote.go
-      - linters:
-          - ireturn
-        path: handler/render/render.go
-      - linters:
-          - mnd
-        path: handler/csdb/csdb.go
-      - linters:
-          - mnd
-        path: handler/janeway/janeway.go
+    - linters:
+      - dupl
+      path: ^model/files\.go$
+    - linters:
+      - dogsled
+      - dupl
+      - funlen
+      - gocyclo
+      - misspell
+      - mnd
+      - wrapcheck
+      path: _test\.go$
+    - linters:
+      - cyclop
+      - ireturn
+      path: _test\.go$
+    - linters:
+      - lll
+      path: doc.go
+    - linters:
+      - funlen
+      - lll
+      path: handler/app/accordion.go
+    - linters:
+      - dupl
+      - wrapcheck
+      path: handler/app/context.go
+    - linters:
+      - dupl
+      path: handler/app/internal/fileslice/fileslice.go
+    - linters:
+      - dupl
+      path: handler/app/internal/mfs/mfs.go
+    - linters:
+      - funlen
+      path: handler/app/interview.go
+    - linters:
+      - funlen
+      - lll
+      - maintidx
+      path: handler/app/milestone.go
+    - linters:
+      - dupl
+      path: handler/app/remote/remote.go
+    - linters:
+      - lll
+      path: handler/areacode/areacode.go
+    - linters:
+      - mnd
+      path: handler/csdb/csdb.go
+    - linters:
+      - tagliatelle
+      path: handler/demozoo/demozoo.go
+    - linters:
+      - tagliatelle
+      path: handler/demozoo/demozoo_test.go
+    - linters:
+      - dupl
+      - wrapcheck
+      path: handler/htmx/artifact.go
+    - linters:
+      - mnd
+      path: handler/janeway/janeway.go
+    - linters:
+      - lll
+      path: handler/jsdos/jsdos.go
+    - linters:
+      - tagliatelle
+      path: handler/pouet/pouet.go
+    - linters:
+      - ireturn
+      path: handler/render/render.go
+    - linters:
+      - dupl
+      - funlen
+      - wrapcheck
+      path: handler/router.go
+    - linters:
+      - dupl
+      - funlen
+      - wrapcheck
+      path: handler/routerhtmx.go
+    - linters:
+      - dupl
+      - funlen
+      - wrapcheck
+      path: handler/routerlock.go
+    - linters:
+      - funlen
+      - maintidx
+      path: handler/site/site.go
+    - linters:
+      - funlen
+      - lll
+      path: handler/tidbit/tidbit.go
+    - linters:
+      - dupl
+      path: internal/command/images.go
+    - linters:
+      - lll
+      - tagalign
+      path: internal/config/config.go
+    - linters:
+      - lll
+      - tagalign
+      path: internal/postgres/postgres\.go$
+    - linters:
+      - ireturn
+      path: model/html3/html3.go
+    - linters:
+      - ireturn
+      path: model/querymod/querymod.go
     paths:
-      - third_party$
-      - builtin$
-      - examples$
+    - third_party$
+    - builtin$
+    - examples$
 formatters:
   enable:
-    - gci
-    - gofmt
-    - gofumpt
-    - goimports
+  - gci
+  - gofmt
+  - gofumpt
+  - goimports
   exclusions:
     generated: lax
     paths:
-      - third_party$
-      - builtin$
-      - examples$
+    - third_party$
+    - builtin$
+    - examples$

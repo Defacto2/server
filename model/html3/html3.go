@@ -29,7 +29,11 @@ const (
 	padding = " "
 )
 
-var ErrModel = errors.New("error, no file model")
+var (
+	ErrModel = errors.New("error, no file model")
+	pad3     = strings.Repeat(" ", 3)
+	pad7     = strings.Repeat(" ", 7)
+)
 
 // ArtExpr returns a query modifier for the digital or pixel art category.
 func ArtExpr() qm.QueryMod {
@@ -90,7 +94,15 @@ func LeadStr(width int, s string) string {
 	if l >= width {
 		return ""
 	}
-	return strings.Repeat(padding, width-l)
+	needed := width - l
+	switch needed {
+	case 3:
+		return pad3
+	case 7:
+		return pad7
+	default:
+		return strings.Repeat(padding, needed)
+	}
 }
 
 // Published takes optional DateIssuedYear, DateIssuedMonth and DateIssuedDay values and
@@ -104,7 +116,6 @@ func Published(f *models.File) string {
 		yx       = "????"
 		mx       = "???"
 		dx       = "??"
-		sp       = " "
 		yPadding = 7
 		dPadding = 3
 	)
@@ -124,14 +135,17 @@ func Published(f *models.File) string {
 			ds = fmt.Sprintf("%02d", i)
 		}
 	}
-	if isYearOnly := ys != yx && ms == mx && ds == dx; isYearOnly {
-		return fmt.Sprintf("%s%s", strings.Repeat(sp, yPadding), ys)
+	yearValid := ys != yx
+	monthValid := ms != mx
+	dayValid := ds != dx
+	if yearValid && !monthValid && !dayValid {
+		return fmt.Sprintf("%s%s", pad7, ys)
 	}
-	if isInvalidDay := ys != yx && ms != mx && ds == dx; isInvalidDay {
-		return fmt.Sprintf("%s%s-%s", strings.Repeat(sp, dPadding), ms, ys)
+	if yearValid && monthValid && !dayValid {
+		return fmt.Sprintf("%s%s-%s", pad3, ms, ys)
 	}
-	if isInvalid := ys == yx && ms == mx && ds == dx; isInvalid {
-		return fmt.Sprintf("%s%s", strings.Repeat(sp, yPadding), yx)
+	if !yearValid && !monthValid && !dayValid {
+		return fmt.Sprintf("%s%s", pad7, yx)
 	}
 	return fmt.Sprintf("%s-%s-%s", ds, ms, ys)
 }
@@ -174,11 +188,42 @@ func SoftwareExpr() qm.QueryMod {
 	)
 }
 
+// statQuery executes a statistics query using the provided expression.
+func statQuery(ctx context.Context, exec boil.ContextExecutor, stats interface {
+	GetBytes() int
+	SetBytes(int)
+	GetCount() int
+	SetCount(int)
+}, expr qm.QueryMod) error {
+	bytes := stats.GetBytes()
+	count := stats.GetCount()
+	if bytes > 0 && count > 0 {
+		return nil
+	}
+	return models.NewQuery(
+		qm.Select(postgres.Stat()...),
+		qm.Where(ClauseNoSoftDel),
+		expr,
+		qm.From(From)).Bind(ctx, exec, stats)
+}
+
 // Arts statistics for releases that are digital or pixel art.
 type Arts struct {
 	Bytes int `boil:"size_total"`  // the total bytes of all the files
 	Count int `boil:"count_total"` // the total number of files
 }
+
+// GetBytes returns the bytes count.
+func (a *Arts) GetBytes() int { return a.Bytes }
+
+// SetBytes sets the bytes count.
+func (a *Arts) SetBytes(b int) { a.Bytes = b }
+
+// GetCount returns the count.
+func (a *Arts) GetCount() int { return a.Count }
+
+// SetCount sets the count.
+func (a *Arts) SetCount(c int) { a.Count = c }
 
 // Stat sets the total bytes and total count.
 func (a *Arts) Stat(ctx context.Context, exec boil.ContextExecutor) error {
@@ -186,14 +231,7 @@ func (a *Arts) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	if panics.BoilExec(exec) {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
 	}
-	if a.Bytes > 0 && a.Count > 0 {
-		return nil
-	}
-	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
-		qm.Where(ClauseNoSoftDel),
-		ArtExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+	return statQuery(ctx, exec, a, ArtExpr())
 }
 
 // Documents statistics for releases that are documents.
@@ -202,20 +240,25 @@ type Documents struct {
 	Count int `boil:"count_total"` // the total number of files
 }
 
+// GetBytes returns the bytes count.
+func (d *Documents) GetBytes() int { return d.Bytes }
+
+// SetBytes sets the bytes count.
+func (d *Documents) SetBytes(b int) { d.Bytes = b }
+
+// GetCount returns the count.
+func (d *Documents) GetCount() int { return d.Count }
+
+// SetCount sets the count.
+func (d *Documents) SetCount(c int) { d.Count = c }
+
 // Stat sets the total bytes and total count.
 func (d *Documents) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "html3 documents statistics"
 	if panics.BoilExec(exec) {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
 	}
-	if d.Bytes > 0 && d.Count > 0 {
-		return nil
-	}
-	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
-		qm.Where(ClauseNoSoftDel),
-		DocumentExpr(),
-		qm.From(From)).Bind(ctx, exec, d)
+	return statQuery(ctx, exec, d, DocumentExpr())
 }
 
 // Softwares contain statistics for releases that are software.
@@ -224,18 +267,23 @@ type Softwares struct {
 	Count int `boil:"count_total"` // the total number of files
 }
 
+// GetBytes returns the bytes count.
+func (s *Softwares) GetBytes() int { return s.Bytes }
+
+// SetBytes sets the bytes count.
+func (s *Softwares) SetBytes(b int) { s.Bytes = b }
+
+// GetCount returns the count.
+func (s *Softwares) GetCount() int { return s.Count }
+
+// SetCount sets the count.
+func (s *Softwares) SetCount(c int) { s.Count = c }
+
 // Stat sets the total bytes and total count.
 func (s *Softwares) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "html3 software statistics"
 	if panics.BoilExec(exec) {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
 	}
-	if s.Bytes > 0 && s.Count > 0 {
-		return nil
-	}
-	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
-		qm.Where(ClauseNoSoftDel),
-		SoftwareExpr(),
-		qm.From(From)).Bind(ctx, exec, s)
+	return statQuery(ctx, exec, s, SoftwareExpr())
 }

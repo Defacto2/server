@@ -189,10 +189,10 @@ func trainers(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
 	const size = 5
 	mods := make([]qm.QueryMod, 0, size)
 	mods = append(mods, qm.Select("id"))
-	mods = append(mods, qm.Where(fmt.Sprintf("section != '%s'", trainer)))
+	mods = append(mods, qm.Where("section != ?", trainer))
 	mods = append(mods, qm.Where("section != 'magazine'"))
 	mods = append(mods, qm.Where("record_title ILIKE '%trainer%'"))
-	mods = append(mods, qm.Where("platform = 'dos' OR platform = 'windows'"))
+	mods = append(mods, qm.Where("platform = ? OR platform = ?", "dos", "windows"))
 	fs, err := models.Files(mods...).All(ctx, tx)
 	if err != nil {
 		return fmt.Errorf("%s models files select: %w", msg, err)
@@ -201,15 +201,13 @@ func trainers(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
 	if l == 0 {
 		return nil
 	}
-	mods = []qm.QueryMod{}
+	mods = mods[:0]
 	for i, f := range fs {
 		if i == 0 {
 			mods = append(mods, qm.Where("id = ?", f.ID))
 			continue
 		}
-		if i < l {
-			mods = append(mods, qm.Or("id = ?", f.ID))
-		}
+		mods = append(mods, qm.Or("id = ?", f.ID))
 	}
 	rowsAff, err := models.Files(mods...).UpdateAll(ctx, tx, models.M{"section": trainer})
 	if err != nil {
@@ -248,21 +246,28 @@ const (
 	coop1fix  = "COOP"
 )
 
-func fixes() map[string]string {
-	return map[string]string{
-		acidbad: acidfix,
-		ansibad: acidfix,
-		icebad:  icefix,
-		pwabad:  pwafix,
-		trsibad: trsifix,
-		xpress:  xpressfix,
-		damn:    damnfix,
-		ofg:     ofgfix,
-		ofg1:    ofgfix,
-		dsi:     dsifix,
-		rss:     rssfix,
-		coop0:   coop0fix,
-		coop1:   coop1fix,
+var fixesMap = map[string]string{
+	acidbad: acidfix,
+	ansibad: acidfix,
+	icebad:  icefix,
+	pwabad:  pwafix,
+	trsibad: trsifix,
+	xpress:  xpressfix,
+	damn:    damnfix,
+	ofg:     ofgfix,
+	ofg1:    ofgfix,
+	dsi:     dsifix,
+	rss:     rssfix,
+	coop0:   coop0fix,
+	coop1:   coop1fix,
+}
+
+var fixesMapUpper map[string]string
+
+func init() {
+	fixesMapUpper = make(map[string]string, len(fixesMap))
+	for bad, fix := range fixesMap {
+		fixesMapUpper[strings.ToUpper(bad)] = strings.ToUpper(fix)
 	}
 }
 
@@ -289,9 +294,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 				slog.Int64("updated", rowsAff))
 		}
 	}
-	for bad, fix := range fixes() {
-		bad = strings.ToUpper(bad)
-		fix = strings.ToUpper(fix)
+	for bad, fix := range fixesMapUpper {
 		f, err = models.Files(
 			qm.Where("group_brand_for = ?", bad),
 			qm.WithDeleted()).All(ctx, exec)
@@ -327,13 +330,13 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 			}
 		}
 	}
-	if err := moreReleases(exec); err != nil {
+	if err := moreReleases(ctx, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return nil
 }
 
-func moreReleases(exec boil.ContextExecutor) error {
+func moreReleases(ctx context.Context, exec boil.ContextExecutor) error {
 	_, err := queries.Raw(postgres.SetUpper("group_brand_for")).Exec(exec)
 	if err != nil {
 		return fmt.Errorf("set upper group_brand_for: %w", err)
@@ -465,7 +468,7 @@ func nullifyEmpty(exec boil.ContextExecutor) error {
 		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
 	}
 	for column := range slices.Values(columns) {
-		query.WriteString(UpdateSet + column + " = NULL WHERE " + column + " = ''; ")
+		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = ''; ", UpdateSet, column, column)
 	}
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
@@ -480,7 +483,7 @@ func nullifyZero(exec boil.ContextExecutor) error {
 		"date_issued_year", "date_issued_month", "date_issued_day",
 	}
 	for column := range slices.Values(columns) {
-		query.WriteString(UpdateSet + column + " = NULL WHERE " + column + " = 0; ")
+		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = 0; ", UpdateSet, column, column)
 	}
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
