@@ -2,23 +2,30 @@
   brokentexts.tmpl ~ Broken text files
 */ -}}
 {{- define "content" }}
-<p class="fs-4">
-  How did these texts and Scene releases break?
-</p>
-<p class="lead">1) Packaging mistakes</p>
+<h1 class="mb-4">How did these texts and Scene releases break?</h1>
+
+<h4 class="index-section-header">Packaging mistakes</h4>
+<div class="index-intro-section">
 <p>Sometimes, the original packager would have a queue of tasks and would occasionally pack and include the wrong text files in the release. 
 In the era of MS-DOS without application multitasking, this was an easy mistake to make.
 </p>
-<p class="lead">2) BBS mistakes</p>
+</div>
+
+<h4 class="index-section-header">BBS mistakes</h4>
+<div class="index-intro-section">
 <p>
 During the peak BBS era of the 1990s, many bulletin boards utilized scripts and automated tools to help manage the influx of uploads. 
 At times, they would inject advertising into the files, parse, even replace metadata, or rebuild the release archive from scratch. 
 However, these scripts could be buggy and break the packaged release that would get reshared elsewhere.
 </p>
-<p class="lead">3) Oldware and abandonware communities</p>
+</div>
+
+<h4 class="index-section-header">Oldware and abandonware communities</h4>
+<div class="index-intro-section">
 <p>
 It might be surprising today, but even in the mid-1990s, there was an active online community of people who were into old and retro gaming.
-</p><p>
+</p>
+<p>
 At the time, the web was still a relatively new technology and wasn't the most effective way to share files. 
 People would instead share online over ftp servers (<a href="https://en.wikipedia.org/wiki/File_Transfer_Protocol">file transfer protocol</a>) 
 or using IRC (<a href="https://en.wikipedia.org/wiki/IRC">internet relay chat</a>) chatbots with the <a href="https://en.wikipedia.org/wiki/XDCC">XDCC</a> file exchange protocol, with <code>#oldwarez</code> being the primary chat channel.
@@ -40,14 +47,17 @@ It was an issue acknowledged at the time with the 1996 group Old Warez Inc <a hr
 <q>We DO NOT STRIP ANY CREDIT FROM THESE ORIGINAL RELEASERS</q>.
 Unfortunately, these tainted Scene releases are sometimes the ones that survive today.
 </p>
-<p>examples: 
+<p class="text-muted small">examples: 
 <small>(1995-6)</small> <a href="/g/distributors-of-classic-warez">Distributors of Classic Warez</a>,
 <small>(1996)</small> <a href="/g/dead-pirates-society">Dead Pirates Society</a>,
 <small>(1996-7)</small> <a href="/g/8088-state">8088 State</a>, 
 <small>(1996-98)</small> <a href="/g/old-warez-inc">Old Warez Inc</a>,
 <small>(1998)</small> <a href="/g/classic-old-warez">Classic Old Warez</a>, &nbsp; <a href="/f/ab287ee">BloodRose XDCC</a>
 </p>
-<p class="lead">4) Web mistakes</p>
+</div>
+
+<h4 class="index-section-header">Web mistakes</h4>
+<div class="index-intro-section">
 <p>
 English language text files of the DOS and early Windows eras were predominantly saved in a limited character encoding known as 
 <a href="https://en.wikipedia.org/wiki/Code_page_437">CP437</a>. 
@@ -62,8 +72,8 @@ Today when a text file using a legacy CodePage such as 437 is incorrectly downlo
 <p>
 For example, the Defacto2 website hero text-logo was drawn in CP-437.
 </p>
-<p>When converted to Latin 1, it corrupts on view but can be recovered</p>
-<p class="font-monospace text-break">
+<p class="text-muted small mb-2 mt-4">When converted to Latin 1, it corrupts on view but can be recovered</p>
+<p class="font-monospace text-break" style="background-color: #fff; padding: 1rem; border-left: 3px solid #0d6efd; overflow-x: auto;">
       ú      ±ÛÛß ß       ±ÛÛß ß              ß ß±ÛÛ             ß ßÛÛÛ ú
       : ±ÛÛß ²ÛÛ ±ÛÛßßÛÛ² ²ÛÛßß±ÛÛßßÛÛÛ ±ÛÛßßÛÛ² ²ÛÛß ±ÛÛßßÛÛÛ ±ÛÛßßßßß :
  ú úúÄÅÄ²ÛÛÄÄÛÛÛÄ²ÛÛÄÜÛÛÛÄÛÛÛÄÄ²ÛÛÄÄÛÛÛÄ²ÛÛÄÄÄÄÄÄÛÛÛÄÄ²ÛÛÄÄÛÛÛÄ²ÛÛÄÄÛÛÛÄÅÄúú ú
@@ -71,8 +81,8 @@ For example, the Defacto2 website hero text-logo was drawn in CP-437.
 ú úúÄÄÅÄÄÄÄÄÄÄÄÄúú                defacto2.net               úúÄÄÄÄÄÄÄÄÄÅÄÄúú ú
       ³                                                                 :
 </p>
-<p>When saved as Unicode it permanently corrupts and cannot be restored</p>
-<p class="font-monospace text-break">
+<p class="text-muted small mb-2 mt-4">When saved as Unicode it permanently corrupts and cannot be restored</p>
+<p class="font-monospace text-break" style="background-color: #fff3cd; padding: 1rem; border-left: 3px solid #ffc107; overflow-x: auto;">
       ∩┐╜      ∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜       ∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜              ∩┐╜ ▀▒∩┐╜∩┐╜             ∩┐╜ ∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜
       : ∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜∩┐╜∩┐╜ ∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜█▓ ∩┐╜∩┐╜∩┐╜∩┐╜▀▒∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜█▓ ∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜ :
  ∩┐╜ ∩┐╜∩┐╜∩┐╜∩┐╜─▓∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜─▓∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜─▓∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜─▓∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜─▓∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜─▓∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜
@@ -80,4 +90,5 @@ For example, the Defacto2 website hero text-logo was drawn in CP-437.
 ∩┐╜ ∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜                defacto2.net               ∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜∩┐╜ ∩┐╜
       ∩┐╜                                                                 :
 </p>
+</div>
 {{- end}}

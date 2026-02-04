@@ -2,61 +2,83 @@
     thanks.tmpl ~ Thank you page template.
 */ -}}
 {{- define "content" }}
-{{- $lsMoney := " bg-light " }}
-{{- $padding := "p-0 m-0 px-5 pb-1" }}
-<p>
-    As the Defacto2 website costs over a hundred dollars annually, all tips are greatly appreciated and go to the website's operations, no matter how large or small.
+<h1 class="display-5 mb-4">Support Defacto2</h1>
+
+<div class="index-intro-section">
+<p class="lead">
+  As the Defacto2 website costs over a hundred dollars annually, all tips are greatly appreciated and go to the website's operations, no matter how large or small.
 </p>
-<div class="card card border-success mx-1 my-5">
-    <div class="card-body">
-        <p class="card-text mb-2 text-center lead">No signup or accounts are required, and no financial details are given to us</p>
-        <p class="card-title fs-1 text-center text-secondary">Tip with</p>
-        <div class="container text-center pt-3">
-            <div class="row">
-                <div class="col fs-1">
-                    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-link link-offset-2 fs-1" role="button">PayPal</a>
-                </div>
-                <div class="col">
-                    <a href="https://ko-fi.com/codebyben" class="btn btn-link link-offset-2 text-nowrap fs-1 {{$padding}}" role="button">Ko-fi</a>
-                </div>
-                <div class="col">
-                    <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-link link-offset-2 text-nowrap fs-2 {{$padding}}" role="button">Buy me a Coffee</a>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col mt-5">
-                  Merchant fees:<br>
-                  PayPal, 2.9% fee plus a 30¢ flat fee<br>
-                  Ko-fi + Stripe, 3.5% plus a 30¢ flat fee<br>
-                  Buymeacoffee + Stripe, 8.5% plus a 30¢ flat fee<br>
-                </div>
-            </div>
-        </div>
-        <dl class="row fs-5 fw-lighter m-5">
-            <dt class="col-sm-3 fs-3 text-center fw-lighter text-danger{{$lsMoney}} m-0 p-3 rounded-3">$<u class="link-offset-2 link-underline link-underline-opacity-25">11.83</u></dt>
-            <dd class="col-sm-9 fs-3 p-3">Monthly hosting <small>in US dollars</small></dd>
-            <dt class="col-sm-3"></dt>
-            <dd class="col-sm-9"></dd>
-            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}p-3 rounded-3">$7.70</dt>
-            <dd class="col-sm-9 ps-4">Website hosting</dd>
-            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}p-3 rounded-3">$3.30</dt>
-            <dd class="col-sm-9 ps-4">Online hosting of the file downloads and images</dd>
-            <dt class="col-sm-3 text-center fw-lighter{{$lsMoney}}p-3 rounded-bottom-3">$0.83</dt>
-            <dd class="col-sm-9 ps-4">Domain name</dd>
-        </dl>
-        <div class="container text-center">
-            <div class="row">
-                <div class="col mt-0">
-                    <span class="text-muted">*</span> PayPal will share the name of the account holder<br>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col lead mt-4">
-                    Spend $25 or more at <a href="https://m.do.co/c/a9270bdb9e74" class="link-offset-2 link-underline link-underline-opacity-25">DigitalOcean with this affiliate link</a> 
-                    <br>You'll get $200 of bonus credit for 60 days, and we'll get a $25 hosting discount
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
+
+<div class="donation-card">
+  <div class="text-center mb-4">
+    <p class="fs-5 text-muted mb-3">
+      <em>No signup or accounts are required, and no financial details are given to us</em>
+    </p>
+    <h3 class="mb-4">💳 Tip with</h3>
+  </div>
+
+  <div class="container mb-5">
+    <div class="row text-center">
+      <div class="col-12 col-md-4 mb-3">
+        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-outline-primary btn-lg">
+          <span style="font-size: 2rem;">💰</span><br>PayPal
+        </a>
+      </div>
+      <div class="col-12 col-md-4 mb-3">
+        <a href="https://ko-fi.com/codebyben" class="btn btn-outline-primary btn-lg">
+          <span style="font-size: 2rem;">☕</span><br>Ko-fi
+        </a>
+      </div>
+      <div class="col-12 col-md-4 mb-3">
+        <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-outline-primary btn-lg">
+          <span style="font-size: 2rem;">🍪</span><br>Buy Me a Coffee
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="index-intro-section mb-4">
+    <h5 class="mb-3">💸 Merchant Fees</h5>
+    <ul class="list-unstyled">
+      <li><strong>PayPal:</strong> 2.9% fee plus 30¢ flat fee</li>
+      <li><strong>Ko-fi + Stripe:</strong> 3.5% plus 30¢ flat fee</li>
+      <li><strong>Buy Me a Coffee + Stripe:</strong> 8.5% plus 30¢ flat fee</li>
+    </ul>
+  </div>
+
+  <div class="mb-4">
+    <h5 class="mb-3">📊 Monthly Costs (in US dollars)</h5>
+    <div style="background-color: #f8f9fa; padding: 0; border-radius: 0.5rem; overflow: hidden;">
+      <div class="cost-item">
+        <span><strong>Monthly hosting</strong></span>
+        <div class="cost-amount">$11.83</div>
+      </div>
+      <div class="cost-item" style="padding-left: 2rem;">
+        <span>Website hosting</span>
+        <div class="cost-amount" style="color: #495057; background-color: transparent; border: 1px solid #dee2e6;">$7.70</div>
+      </div>
+      <div class="cost-item" style="padding-left: 2rem;">
+        <span>Online hosting of file downloads and images</span>
+        <div class="cost-amount" style="color: #495057; background-color: transparent; border: 1px solid #dee2e6;">$3.30</div>
+      </div>
+      <div class="cost-item" style="padding-left: 2rem;">
+        <span>Domain name</span>
+        <div class="cost-amount" style="color: #495057; background-color: transparent; border: 1px solid #dee2e6;">$0.83</div>
+      </div>
+    </div>
+    <p class="text-muted small mt-2 mb-0">
+      <span class="text-danger">*</span> PayPal will share the name of the account holder
+    </p>
+  </div>
+
+  <div class="index-intro-section">
+    <h5 class="mb-3">Affiliate Bonus</h5>
+    <p class="mb-0">
+      Spend <strong>$25 or more</strong> at <a href="https://m.do.co/c/a9270bdb9e74" class="link-offset-2 link-underline link-underline-opacity-25">DigitalOcean with this affiliate link</a>
+      <br>You'll get <strong>$200 of bonus credit for 60 days</strong>, and we'll get a <strong>$25 hosting discount</strong>
+    </p>
+  </div>
+</div>
+
 {{- end}}

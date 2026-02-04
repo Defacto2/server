@@ -349,3 +349,120 @@ a {
 .nav-underline .nav-link:hover:not(.active) {
   color: var(--bs-secondary);
 }
+
+/* ============================================================
+ * SECTION STYLING
+ * Modern content section headers and containers
+ * ============================================================ */
+
+.index-section-header {
+  font-size: 1.75rem;
+  font-weight: 300;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+  border-bottom: 2px solid #0d6efd;
+  padding-bottom: 0.5rem;
+}
+
+.index-intro-section {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+/* ============================================================
+ * THANKS PAGE STYLING
+ * Donation card and cost display
+ * ============================================================ */
+
+.donation-card {
+  border: 2px solid #28a745;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  background-color: #fff;
+}
+
+.cost-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.cost-item:last-child {
+  border-bottom: none;
+}
+
+.cost-amount {
+  background-color: #f8f9fa;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #dc3545;
+  min-width: 120px;
+  text-align: center;
+}
+
+/* ============================================================
+ * SCENE CARD STYLING
+ * Card-based layout for scene category items
+ * ============================================================ */
+
+.scene-card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-left: 4px solid #0d6efd;
+  border-radius: 0.375rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.scene-card:hover {
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+  border-left-color: #0d6efd;
+  transform: translateY(-2px);
+}
+
+.scene-card-title {
+  font-weight: 600;
+  color: #0d6efd;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.scene-card-tags {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-style: italic;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.scene-card-tags span {
+  background: #e7f1ff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: #0d6efd;
+}
+
+.scene-card-content {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #495057;
+}
+
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}

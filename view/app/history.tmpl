@@ -2,10 +2,29 @@
     history.tmpl ~ The history of the brand.
 */ -}}
 {{- define "content" }}
+<style scoped>
+  .index-intro-section {
+    border-left: 4px solid #0d6efd;
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.375rem;
+    margin-bottom: 2rem;
+  }
+  .index-section-header {
+    color: #0d6efd;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+  }
+</style>
+
 {{- $carouselClass := "carousel-caption d-none d-md-block bg-dark rounded" -}}
 {{- $carouselImg := "d-block w-100 rounded" }}
 {{- $carouselID := "carouselDf2Artpacks" }}
-<p class="display-6"><small>Defacto<br><span class="fs-4 fw-light">1996, an e-mag application</span></small></p>
+<h4 class="index-section-header">Defacto (1996, an e-mag application)</h4>
+<div class="index-intro-section">
 <p>
   The releaser or group <em>Defacto</em> started as a <a href="/magazine">digitally distributed magazine</a> in the last days of February or early March of 1996. 
   As a free title, it wrote about the happenings and gossip on The Scene warez subculture and was shared using <a href="/ftp">FTP sites</a> and <a href="/bbs">online bulletin boards</a>. 
@@ -22,7 +41,9 @@
     <br><small>* There was never a Defacto issue 1, and these magazine issues must run on MS-Dos or DOSBox.</small>
 </p>
 <hr>
-<p class="display-6"><small>Defacto 2<br><span class="fs-4 fw-light">1997, a text e-mag</span></small></p>
+</div>
+<h4 class="index-section-header">Defacto 2 (1997, a text e-mag)</h4>
+<div class="index-intro-section">
 <p>
   The first <em>Defacto 2</em> iteration is a monthly magazine published in an OEM-US text format.
   While plain text wasn't always desirable, other successful magazines, <a href="/g/the-week-in-warez">The Week In Warez</a>, <a href="/g/inquisition">Inquisition</a>, <a href="/g/the-naked-truth-magazine">The Naked Truth</a>, and <a href="/g/the-game-review">The Game Review,</a> used the format. 
@@ -36,7 +57,9 @@
     <br><small>* The magazine text encoding is OEM-US or code page 437; while readable in UTF-8, the text-art logos won't display.</small>
 </p>
 <hr>
-<p class="display-6"><small>Defacto2 Design<br><span class="fs-4 fw-light">1997-99, an art group</span></small></p>
+</div>
+<h4 class="index-section-header">Defacto2 Design (1997-99, an art group)</h4>
+<div class="index-intro-section">
 <p>
     Due to time constraints, the Defacto 2 magazine stopped, but the brand continued. 
     It morphed into a moderately successful <a href="https://demozoo.org/groups/10000/">art group</a> and website. 
@@ -77,7 +100,9 @@
     <li class="list-inline-item text-nowrap"><span class="badge bg-info">1999</span> <a href="/wayback/defacto2-from-1999-september-26/index.html" rel="nofollow" style="text-decoration-thickness: 0.5px;">Defacto 2<small> website</small></a></li>
     <li class="list-inline-item text-nowrap"><span class="badge bg-info">2000</span> <a href="/wayback/defacto2-from-2000-july-11/index.html" rel="nofollow" style="text-decoration-thickness: 0.5px;">Defacto 2<small> website</small></a></li>
 </ul>
-<p class="display-6 mx-auto p-2" style="width: 15rem;"><small><em>The art packs</em></small></p>
+</div>
+<h4 class="index-section-header">The art packs</h4>
+<div class="index-intro-section">
 <div id="{{$carouselID}}" class="carousel slide mx-auto p-2" style="max-width: 50rem;">
     <div class="carousel-indicators">
       <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -192,8 +217,10 @@
       <span class="visually-hidden">Next</span>
     </button>
   </div>
+</div>
   <hr>
-  <p class="display-6"><small>Defacto2<br><span class="fs-4 fw-light">1997-2000s, The Scene Archives</span></small></p>
+  <h4 class="index-section-header">Defacto2 (1997-2000s, The Scene Archives)</h4>
+<div class="index-intro-section">
   <p>
     The genesis for this current website started as <a href="/wayback/defacto2-from-1998-september-8/archive.html" rel="nofollow">The Scene Archives</a>* in around mid-1997, as a subgroup of Defacto 2 (<var class="font-monospace">defacto2.org</var>). 
     Months later, in October, a gossip and news section known as <a href="/wayback/defacto2-from-1998-september-8/news.html" rel="nofollow">The Scene News</a>* joined the site. And in April of 1998 the domain name <var class="font-monospace">defacto2.net</var> was registered. 
@@ -225,6 +252,7 @@
     So, a decision was made to rebrand The Scene Archives collection as <strong>Defacto2</strong> to match the established domain name.
   </p>
   <p>* <small>the link points to an incomplete recreation of the original website</small></p>
+</div>
 <div class="text-center">
   <figure class="figure">
     <img src="/image/artpack/defacto2-1998.png" loading="lazy" style="max-width:800px" class="img-fluid rounded mx-auto d-block" alt="Windows 2000 Internet Explorer viewing the late 1998 Defacto2 website revision">

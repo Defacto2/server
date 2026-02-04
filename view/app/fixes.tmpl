@@ -2,47 +2,54 @@
   fixes.tmpl ~ Problems and fixes.
 */ -}}
 {{- define "content" }}
-<hr>
-<p class="lead">How to preserve the file last modification date?</p>
+<h1 class="display-5 mb-4">Common Problems and Fixes</h1>
+
+<h4 class="index-section-header">📅 Preserve file modification dates</h4>
+<div class="index-intro-section">
 <p>
 Unfortunately, web browsers ignore the last modification date metadata when it is attached to a file download.
 However, you can use other tools such as wget or curl for downloading to preserve the date.
 </p>
 <p>
-For example, the artifact "<a href="/f/b32455c">SYMCOLOR.COR</a>" was last modified in November 1985, to download and preserve it on your system,
+For example, the artifact "<a href="/f/b32455c">SYMCOLOR.COR</a>" was last modified in November 1985, to download and preserve it on your system:
 </p>
 <p>
 wget <code>--content-disposition https://defacto2.net/d/b32455c</code><br>
 curl <code>-LOJR https://defacto2.net/d/b32455c</code>
 </p>
-<pre>
-  Saving 'SYMCOLOR.COR'
+<pre><code>  Saving 'SYMCOLOR.COR'
   HTTP response 200 OK [https://defacto2.net/d/b32455c]
   SYMCOLOR.COR         100%
 
 $ ls -l SYMCOLOR.COR
-  2560 Nov 28  1985  SYMCOLOR.COR
-</pre>
-<hr>
-<p class="lead">Shrinker.err Dispatcher initialization errors</p>
+  2560 Nov 28  1985  SYMCOLOR.COR</code></pre>
+</div>
+
+<h4 class="index-section-header">🔧 Shrinker.err Dispatcher initialization errors</h4>
+<div class="index-intro-section">
 <p>
 An ancient Windows program crashes with the cryptic error message.
 </p>
 <p>
 This is a common error that occurs with Windows 9x applications that are compressed with earlier versions of the Shrinker compression library. 
-Fortunately, there is an easy solution with decompressing the application using either DeShrink 1.6 or UnShrinker. 
+Fortunately, there is an easy solution with decompressing the application using either <strong>DeShrink 1.6</strong> or <strong>UnShrinker</strong>. 
 DeShrink is a standard Windows application, while UnShrinker uses the command prompt.
 </p>
 <p>
 There will be occasions where these solutions cannot decrypt or fix the affected programs. 
 In these circumstances, you will not be able to solve this issue other than to run the applications generating the Dispatcher error on a Windows 95, 98, or ME system.
 </p>
+<p>
+<strong>Available tools:</strong>
+</p>
 <ul>
   <li><a href="/f/a12f23">DeShrink 1.6</a></li>
   <li><a href="/f/a2331b">UnShrinker</a></li>
 </ul>
-<hr>
-<p class="lead">Runtime error 200</p>
+</div>
+
+<h4 class="index-section-header">💥 Runtime error 200</h4>
+<div class="index-intro-section">
 <p>
 An ancient DOS program crashed with the cryptic error message.
 </p>
@@ -53,9 +60,8 @@ It is known as the <q>CRT unit issue</q> and can be fixed by applying a patch to
 Otherwise, you can run the application in DOSBox, which can artificially slow down the speed of the emulated DOS session.
 </p>
 <p>
-If you wish to patch the application we have created a guide to help you through it using the Windows Command Prompt.
+<strong>Step-by-step patching guide:</strong>
 </p>
-<div class="container">
 <ol class="list-group list-group-numbered">
   <li class="list-group-item d-flex justify-content-between align-items-start">
     <div class="ms-2 me-auto"><div class="fw-bold">Download <a href="/f/a43b6b">UNP 4.11</a></div>A Turbo Pascal decompression program.</div>
@@ -86,8 +92,9 @@ If you wish to patch the application we have created a guide to help you through
   </li>
 </ol>
 </div>
-<hr>
-<p class="lead">This program caused an invalid page fault in module</p>
+
+<h4 class="index-section-header">⚠️ Invalid page fault in module</h4>
+<div class="index-intro-section">
 <p>
 The invalid page fault alert is a cryptic error caused by programs compiled for Windows 95 and 98 attempting to access restricted random-access memory. 
 This is commonly an emulation and virtualization error, and often, the only solution is to run the program on real PC hardware.
@@ -96,8 +103,10 @@ Or the program might be corrupt due to antiquated antivirus removal.
 <p>
 <img src="/image/new/pagefault.png" class="rounded mx-auto d-block" alt="A screenshot of a program running in Windows 98 causing an invalid page fault prompt">
 </p>
-<hr>
-<p class="lead">NPMOD32.DLL is missing from your computer</p>
+</div>
+
+<h4 class="index-section-header">🎵 NPMOD32.DLL is missing</h4>
+<div class="index-intro-section">
 <p>
 An ancient Windows program crashes with the cryptic error message.
 </p>
@@ -108,10 +117,12 @@ Fortunately, we have a copy of <q>NPMOD32.DLL</q> for download.
 To use, copy the DLL file to the same directory as the application.
 </p>
 <p>
-<a href="/f/a53f43">NPMOD32.DLL</a>
+<a href="/f/a53f43"><strong>Download NPMOD32.DLL</strong></a>
 </p>
-<hr>
-<p class="lead">D3DRM.DLL not loaded</p>
+</div>
+
+<h4 class="index-section-header">🎮 D3DRM.DLL not loaded</h4>
+<div class="index-intro-section">
 <p>
 An ancient Windows program crashes with the cryptic error message.
 </p>
@@ -122,6 +133,8 @@ Fortunately, we have a copy of the D3DRM.DLL for download.
 To use, copy the DLL file into the same directory as the application.
 </p>
 <p>
-<a href="/f/a643bb">D3DRM.DLL</a>
+<a href="/f/a643bb"><strong>Download D3DRM.DLL</strong></a>
 </p>
+</div>
+
 {{- end }}

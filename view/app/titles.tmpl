@@ -2,33 +2,45 @@
     titles.tmpl ~ Titles are important template.
 */ -}}
 {{- define "content" }}
-<p class="lead">
-    Titles are important, and <em>bad titles make it hard to dupe check future uploads</em>.<br>
-    <span class="text-primary-emphasis">
+<h1 class="mb-4">Titles Are Important</h1>
+
+<div class="index-intro-section">
+  <p class="lead">
+    Titles are important, and <em>bad titles make it hard to dupe check future uploads</em>.
+  </p>
+  <p class="mb-0">
+    <strong class="text-primary">
       The current site policy is to keep titles simple, concise and clean.<br>
       Game titles should match the publisher's official name.
-    </span>
-</p>
-<div>
-    <h3>Bad examples:</h3>
-    <ol>
-        <li><q>Microsoft Visual Studio for WinNT V1.1001.1</q></li>
-        <li><q>INC cracktro for EA's Sim City 2000!</q></li>
-        <li><q>Zool 2 by Virgin Interactive +16 MEGA trainer</q></li>
-        <li><q>Microsoft Windows 95 4.00.950 *STORE RELEASE FINAL*</q></li>
-        <li><q>EA NFL 98 100% BYTE PATCHED AND WORKING</q></li>
-    </ol>
-    <h3>Good examples:</h3>
-    <ol>
-        <li><q>Visual Studio v1.1</q></li>
-        <li><q>Sim City 2000</q></li>
-        <li><q>Zool 2</q></li>
-        <li><q>Windows 95</q></li>
-        <li><q>NFL 98 fix</q></li>
-    </ol>
+    </strong>
+  </p>
 </div>
-<div>
-  <em>Why not copy and paste the NFO, file_diz.diz, or directory path?</em>
+
+<h4 class="index-section-header">❌ Bad examples:</h4>
+<div class="index-intro-section">
+  <ol>
+    <li><q>Microsoft Visual Studio for WinNT V1.1001.1</q></li>
+    <li><q>INC cracktro for EA's Sim City 2000!</q></li>
+    <li><q>Zool 2 by Virgin Interactive +16 MEGA trainer</q></li>
+    <li><q>Microsoft Windows 95 4.00.950 *STORE RELEASE FINAL*</q></li>
+    <li><q>EA NFL 98 100% BYTE PATCHED AND WORKING</q></li>
+  </ol>
+</div>
+
+<h4 class="index-section-header">✅ Good examples:</h4>
+<div class="index-intro-section">
+  <ol>
+    <li><q>Visual Studio v1.1</q></li>
+    <li><q>Sim City 2000</q></li>
+    <li><q>Zool 2</q></li>
+    <li><q>Windows 95</q></li>
+    <li><q>NFL 98 fix</q></li>
+  </ol>
+</div>
+
+<h4 class="index-section-header">❓ Why not copy and paste?</h4>
+<div class="index-intro-section">
+  <p class="text-muted small mb-2"><em>Why not copy and paste the NFO, file_diz.diz, or directory path?</em></p>
   <p>
   It's pretty common for packaged releases to have incorrect or mismatched information, 
   spelling mistakes, or to use lazy acronyms.
@@ -42,8 +54,10 @@
     neither would result with a <a href="/search/desc">search</a> for the game, <q>Jack&nbsp;Nicklaus</q>.
   </p>
 </div>
-<h3>Our naming and title guide:</h3>
-<ul class="list-group list-group-flush">
+
+<h4 class="index-section-header">📋 Naming and title guide:</h4>
+<div class="index-intro-section">
+  <ul class="list-group list-group-flush">
     <li class="list-group-item">Don't use any of these text styles:
       <ul class="list-group list-group-flush">
         <li class="list-group-item">ALL CAPS</li>
@@ -61,5 +75,6 @@
     <li class="list-group-item">It's fine to have an empty title if the other artifact metadata or screenshot provides enough information.
         <br><small class="text-body-secondary">Text and image art, courier group NFOs, BBS ads, etc., often don't need a title.</small>
     </li>
-</ul>
+  </ul>
+</div>
 {{- end}}

@@ -1,14 +1,20 @@
 {{- /*
-  compression.tmpl ~ Modern applications and tools.
+  compression.tmpl ~ File compression formats and history.
 */ -}}
 {{- define "content" }}
-<h3 class="lead">Squeeze</h3>
+<h1 class="mb-4">File Compression Formats</h1>
+
+<h4 class="index-section-header">Squeeze</h4>
+<div class="index-intro-section">
 <p>
 One of the original compression formats used on the PC was known as File Squeezer, which was introduced in May 1981 for the CP/M systems and later ported to the Microsoft disk operating systems by various authors. 
 <a href="http://fileformats.archiveteam.org/wiki/Squeeze">Squeezing</a> comprises two programs, <code>SQ.EXE</code>, the file squeezer for compression, and <code>USQ.EXE</code>, the file unsqueezer for decompression. 
 Squeeze initially did not preserve file modification dates and could not group collections of files into archives; instead, this was handled separately by an unrelated program, Library Utility (<code>LU.EXE</code>), which created ".LBR" files.
 </p>
-<h3 class="lead">ARC</h3>
+</div>
+
+<h4 class="index-section-header">ARC (File Archive Utility)</h4>
+<div class="index-intro-section">
 <p>
 This process was convoluted, and several solutions arrived on the PC to simplify the archiving and sharing of software online. 
 But the one of the first was ARC, "File Archive Utility" by Thom Henderson under the company, System Enhancement Associates. 
@@ -28,12 +34,18 @@ The author of UNARC for the CP/M systems <a href="https://www.cpc-power.com/inde
 <q>The files which UNARC processes are the product of a utility program, ARC, which executes on 16-bit computers running the MS-DOS (or PC-DOS) operating system. 
 This program has achieved widespread popularity since it was first introduced in March 1985.</q>
 </p>
-<h3 class="lead">Zoo</h3>
+</div>
+
+<h4 class="index-section-header">Zoo (A Fast File Archiver)</h4>
+<div class="index-intro-section">
 <p>
 A competing compression format known as <a href="http://fileformats.archiveteam.org/wiki/Zoo">Zoo</a>, "A Fast File Archiver," by Rahul Dhesi, was released on the PC in August 1986. 
 And, while it never caught on with the PC scene due to ARC, it did prove to be more popular on the Commodore Amiga microcomputer and Unix systems.
 </p>
-<h3 class="lead">PKARC</h3>
+</div>
+
+<h4 class="index-section-header">PKARC (The Faster ARC)</h4>
+<div class="index-intro-section">
 <p>
 ARC had evolved into a standard on the PC by offering its source code for porting to other microcomputers and systems. 
 And while free, Thom, the author of ARC, asked for payments from users who thought the tools or the standard were useful.
@@ -60,7 +72,10 @@ Unfortunately for Thom, the litigation initiated an online <a href="http://www.b
 Many ARC users and BBS system operators sided with Phil, who presented himself as an underdog in a David and Goliath battle. 
 With his supporters ditching the use of the tools offered by SEA, and eventually leading to the demise of the tiny company with the abandonment of the ARC standard.
 </p>
-<h3 class="lead">PKPAK &amp; PKZIP</h3>
+</div>
+
+<h4 class="index-section-header">PKPAK & PKZIP</h4>
+<div class="index-intro-section">
 <p>
 In the settlement, Phil agreed to rename his PKARC tools to PKPAK and PKUNPAK, but later retired them after introducing a new set of programs that were free of any source code or trademark violations. 
 These tools were released as PKZIP and PKUNZIP and became the standard archiver for online boards and later the World Wide Web.
@@ -76,23 +91,32 @@ However, some of the more esoteric compression techniques that are found in the 
 <p>
 <img src="/image/new/zip-error.webp" class="rounded mx-auto d-block" alt="There was an error extracting 'CONQUEST.ZIP' screenshot">
 </p>
-<h3 class="lead">RAR</h3>
+</div>
+
+<h4 class="index-section-header">RAR (Roshal Archive)</h4>
+<div class="index-intro-section">
 <p>
 The <a href="http://fileformats.archiveteam.org/wiki/RAR">Roshal Archive</a> is proprietary format developed by a sole engineer in 1994. 
 RAR compressed packages are commonly used with large files on online distributed networks such as BitTorrent where the hosting or transfer may not always be stable. 
 The reason for this is that RAR supports redundancy data that allows the recovery of individual files within a package even when the package itself is not complete. 
 RAR decompression software is free but file compression requires a commercial product.
 </p>
-<h3 class="lead">ACE</h3>
+</div>
+
+<h4 class="index-section-header">ACE</h4>
+<div class="index-intro-section">
 <p>
 ACE is another <a href="http://fileformats.archiveteam.org/wiki/ACE">proprietary</a> format that was developed by a sole engineer and first released in 1997. 
 It offers slightly better compression than RAR and briefly became popular when home Internet speeds were measured in the kbit/s. 
 Like RAR, ACE packages can be decompressed using free software but file compression requires a commercial product.
 </p>
-<hr>
-<div class="container">
+</div>
+
+<h4 class="index-section-header">Historical Examples</h4>
+<div class="index-intro-section">
 <div class="row">
 <div class="col-12 col-xxl-6">
+<p class="text-muted small mb-2"><strong>Squeezing and unsqueezing</strong> a file using MS-DOS, circa 1983:</p>
 <pre style="font-size:22px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">
 C:\>SQ.EXE
 File squeezer version 1.8u    10-10-83 (D. Galorath) by
@@ -131,14 +155,14 @@ C:\>DIR INFO.DOC
  Directory of  C:\
 
 INFO     DOC    28511  12-01-83  1:03p
-        1 File(s)
-</pre>
-<p>
+        1 File(s)</pre>
+<p class="text-muted small">
 <a href="http://cd.textfiles.com/pcsig08/101_200/DISK0115/SQUEEZE.EXE">Squeezing</a> and 
-<a href="http://cd.textfiles.com/pcsig08/101_200/DISK0115/UNSQUEEZ.EXE">unsqueezing</a> a file using MS-DOS, circa 1983.
+<a href="http://cd.textfiles.com/pcsig08/101_200/DISK0115/UNSQUEEZ.EXE">unsqueezing</a> tools
 </p>
 </div>
 <div class="col-12 col-xxl-6">
+<p class="text-muted small mb-2"><strong>Early ARC and PKARC releases:</strong></p>
 <pre style="font-size:22px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">
 C:\>ARC.EXE
 
@@ -174,12 +198,14 @@ If you find PKARC fast, easy, and convenient to use, a contribution of $20
 would be appreciated. With each contribution of $45 or more you will be
 registered to receive a diskette with the next versions of PKARC and 
 PKXARC when available. Please state the current versions of PKARC and 
-PKXARC which you have.  Send contributions to:
-</pre>
-<p>
+PKXARC which you have.  Send contributions to:</pre>
+<p class="text-muted small">
 The partial outputs of an <a href="http://old-dos.ru/index.php?page=files&mode=files&do=show&id=699">early</a> release of ARC,
 an <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkx33a12.com">early</a> release of PKARC,
 and an <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkxarc.zip">early</a> release of PKXARC.
 </p>
-</div></div>
+</div>
+</div>
+</div>
+
 {{- end }}
