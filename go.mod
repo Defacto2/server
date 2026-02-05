@@ -1,5 +1,6 @@
 module github.com/Defacto2/server
 
+// NOTE: Don't forget update the go-version found in .github/workflows/gorelease.yml
 go 1.25.6 // latest: https://go.dev/dl/
 
 // INFO: Usage of the packages
