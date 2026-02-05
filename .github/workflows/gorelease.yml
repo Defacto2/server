@@ -49,7 +49,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Smoke test binary
         run: |
-          ./dist/defacto2-server_linux_amd64/defacto2-server --help > /dev/null
+          ./dist/server_linux_amd64_v1/defacto2-server --help > /dev/null
           echo "✓ Binary smoke test passed"
       - name: Generate SLSA provenance
         uses: actions/attest-build-provenance@v1
