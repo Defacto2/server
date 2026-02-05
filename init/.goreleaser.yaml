@@ -18,8 +18,7 @@
 version: 2
 project_name: defacto2-server
 before:
-  hooks:
-    - go mod tidy
+  hooks: []
 builds:
   - id: server
     main: server.go

@@ -1,6 +1,6 @@
 module github.com/Defacto2/server
 
-go 1.25.5 // latest: https://go.dev/dl/
+go 1.25.6 // latest: https://go.dev/dl/
 
 // INFO: Usage of the packages
 // Defacto2/ named packages are all internal but kept out of the main application.
@@ -25,17 +25,17 @@ go 1.25.5 // latest: https://go.dev/dl/
 // urface/cli is used with the flags package for command line interactions.
 //
 require (
-	github.com/Defacto2/archive v1.1.4
-	github.com/Defacto2/helper v1.6.6
-	github.com/Defacto2/magicnumber v1.2.1
-	github.com/Defacto2/releaser v1.3.21
+	github.com/Defacto2/archive v1.1.5
+	github.com/Defacto2/helper v1.6.7
+	github.com/Defacto2/magicnumber v1.2.2
+	github.com/Defacto2/releaser v1.3.22
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
-	github.com/bengarrett/ansibump v1.1.0
-	github.com/bengarrett/bbs v1.0.6
-	github.com/bengarrett/binbump v1.0.0
-	github.com/bengarrett/sauce v1.2.4
+	github.com/bengarrett/ansibump v1.1.1
+	github.com/bengarrett/bbs v1.0.7
+	github.com/bengarrett/binbump v1.0.1
+	github.com/bengarrett/sauce v1.2.5
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
@@ -124,7 +124,7 @@ require (
 	go.opentelemetry.io/otel v1.39.0 // indirect
 	go.opentelemetry.io/otel/metric v1.39.0 // indirect
 	go.opentelemetry.io/otel/trace v1.39.0 // indirect
-	go.uber.org/nilaway v0.0.0-20251208195206-89df5f7e6199 // indirect
+	go.uber.org/nilaway v0.0.0-20260126174828-99d94caaf043 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/mod v0.32.0 // indirect
 	golang.org/x/net v0.49.0 // indirect
