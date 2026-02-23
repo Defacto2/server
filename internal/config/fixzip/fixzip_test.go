@@ -2,7 +2,6 @@ package fixzip_test
 
 import (
 	"context"
-	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -27,7 +26,7 @@ func (m *MockDirEntry) Info() (fs.FileInfo, error) { return nil, nil }
 
 // TestCheckIsDirectory tests that directories are skipped.
 func TestCheckIsDirectory(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -38,7 +37,7 @@ func TestCheckIsDirectory(t *testing.T) {
 
 // TestCheckWrongExtension tests that non-.zip files are skipped.
 func TestCheckWrongExtension(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -49,7 +48,7 @@ func TestCheckWrongExtension(t *testing.T) {
 
 // TestCheckNoExtension tests that files with no extension are skipped.
 func TestCheckNoExtension(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -60,7 +59,7 @@ func TestCheckNoExtension(t *testing.T) {
 
 // TestCheckUUIDNotInArtifacts tests that UUIDs not in artifacts list are skipped.
 func TestCheckUUIDNotInArtifacts(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -72,7 +71,7 @@ func TestCheckUUIDNotInArtifacts(t *testing.T) {
 
 // TestCheckAlreadyInExtra tests that files already in extra directory are skipped.
 func TestCheckAlreadyInExtra(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 	uid := "12345678-1234-1234-1234-123456789012"
@@ -104,7 +103,7 @@ func TestCheckNilLogger(t *testing.T) {
 
 // TestCheckUppercaseExtension tests that uppercase extensions are handled correctly.
 func TestCheckUppercaseExtension(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -115,7 +114,7 @@ func TestCheckUppercaseExtension(t *testing.T) {
 
 // TestCheckMixedCaseExtension tests that mixed case extensions are handled correctly.
 func TestCheckMixedCaseExtension(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 	uid := "12345678-1234-1234-1234-123456789012"
@@ -128,7 +127,7 @@ func TestCheckMixedCaseExtension(t *testing.T) {
 
 // TestCheckEmptyArtifacts tests that empty artifacts list works correctly.
 func TestCheckEmptyArtifacts(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 	uid := "12345678-1234-1234-1234-123456789012"
@@ -152,7 +151,7 @@ func TestInvalidNilLogger(t *testing.T) {
 
 // TestInvalidContextCancellation tests that Invalid respects context cancellation.
 func TestInvalidContextCancellation(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -163,7 +162,7 @@ func TestInvalidContextCancellation(t *testing.T) {
 
 // TestInvalidNonexistentFile tests that Invalid returns true for nonexistent files.
 func TestInvalidNonexistentFile(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	ctx := context.Background()
 
 	result := fixzip.Invalid(ctx, sl, "/tmp/nonexistent_zip_file_"+t.Name()+".zip")

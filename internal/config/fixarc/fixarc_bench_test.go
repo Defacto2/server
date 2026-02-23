@@ -1,7 +1,6 @@
 package fixarc_test
 
 import (
-	"io"
 	"log/slog"
 	"path/filepath"
 	"strings"
@@ -63,7 +62,7 @@ func BenchmarkExtensionExtractionNew(b *testing.B) {
 
 // BenchmarkCheckFunctionOptimized measures the optimized Check function
 func BenchmarkCheckFunctionOptimized(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)
 

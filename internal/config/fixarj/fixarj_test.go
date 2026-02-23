@@ -2,7 +2,6 @@ package fixarj_test
 
 import (
 	"context"
-	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -179,7 +178,7 @@ func TestInvalidNilLogger(t *testing.T) {
 
 // TestInvalidNonexistentFile tests behavior with non-existent file.
 func TestInvalidNonexistentFile(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	result := fixarj.Invalid(sl, "/nonexistent/file/path.arj")
 	// Command should fail, so result should be true
 	be.Equal(t, result, true)
@@ -187,7 +186,7 @@ func TestInvalidNonexistentFile(t *testing.T) {
 
 // TestInvalidWithTimeout tests that timeout works (shouldn't hang).
 func TestInvalidWithTimeout(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 
 	// Create a dummy arj file
@@ -203,7 +202,7 @@ func TestInvalidWithTimeout(t *testing.T) {
 
 // TestFilesContextNil tests Files with nil context.
 func TestFilesContextNil(t *testing.T) {
-	files, err := fixarj.Files(nil, nil)
+	files, err := fixarj.Files(nil, nil) //nolint:staticcheck
 	be.True(t, err != nil)
 	be.Equal(t, files, nil)
 }
@@ -305,7 +304,7 @@ func BenchmarkCheck(b *testing.B) {
 
 // BenchmarkInvalid measures Invalid function performance.
 func BenchmarkInvalid(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := b.TempDir()
 
 	arjPath := filepath.Join(tmpDir, "test.arj")

@@ -1,7 +1,6 @@
 package fixarj_test
 
 import (
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -28,7 +27,7 @@ func BenchmarkCheckOptimizations(b *testing.B) {
 
 // BenchmarkInvalidBytesOptimization measures string vs bytes.Contains optimization
 func BenchmarkInvalidBytesOptimization(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := b.TempDir()
 
 	arjPath := filepath.Join(tmpDir, "test.arj")

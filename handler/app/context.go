@@ -1746,10 +1746,10 @@ func tibits(sl *slog.Logger, uri string, public embed.FS) string {
 	for value := range slices.Values(tidbits) {
 		s := value.String(sl, public)
 		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
-			htm.WriteString(fmt.Sprintf(`<li class="list-group-item">%s%s</li>`, s, value.URL(uri)))
+			fmt.Fprintf(&htm, `<li class="list-group-item">%s%s</li>`, s, value.URL(uri))
 			continue
 		}
-		htm.WriteString(fmt.Sprintf(`<li class="list-group-item">%s<br>%s</li>`, s, value.URL(uri)))
+		fmt.Fprintf(&htm, `<li class="list-group-item">%s<br>%s</li>`, s, value.URL(uri))
 	}
 	return htm.String()
 }

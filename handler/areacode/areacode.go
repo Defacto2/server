@@ -49,11 +49,11 @@ func (c NAN) HTML() template.HTML {
 		}
 		html.WriteString(" + " + val.Name)
 		if len(abbr) > 0 {
-			html.WriteString(fmt.Sprintf(` (%s)`, abbr))
+			fmt.Fprintf(&html, ` (%s)`, abbr)
 		}
 	}
 	if note, ok := Notes()[c]; ok {
-		html.WriteString(fmt.Sprintf(" <small><em>%s</em></small>", note))
+		fmt.Fprintf(&html, " <small><em>%s</em></small>", note)
 	}
 	html.WriteString("</span><br>")
 	return template.HTML(html.String())

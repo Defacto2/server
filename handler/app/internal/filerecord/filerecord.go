@@ -1548,8 +1548,8 @@ func Relations(art *models.File) template.HTML {
 		if !strings.HasPrefix(href, route) {
 			href = route + href
 		}
-		rows.WriteString(fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
-			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name))
+		fmt.Fprintf(&rows, "<tr><th scope=\"row\"><small>Link to</small></th>"+
+			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
 	}
 	return template.HTML(rows.String())
 }
@@ -1700,9 +1700,9 @@ func Websites(art *models.File) template.HTML {
 		if val, err := url.Parse(href); err != nil || val.Host == "" {
 			continue
 		}
-		rows.WriteString(fmt.Sprintf("<tr><th scope=\"row\"><small>Link to</small></th>"+
+		fmt.Fprintf(&rows, "<tr><th scope=\"row\"><small>Link to</small></th>"+
 			"<td><small><a class=\"link-offset-3 icon-link icon-link-hover\" "+
-			"href=\"%s\">%s %s</a></small></td></tr>", href, name, LinkSVG()))
+			"href=\"%s\">%s %s</a></small></td></tr>", href, name, LinkSVG())
 	}
 	return template.HTML(rows.String())
 }

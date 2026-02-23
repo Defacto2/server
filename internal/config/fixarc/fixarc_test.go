@@ -2,7 +2,6 @@ package fixarc_test
 
 import (
 	"context"
-	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -28,7 +27,7 @@ func (m *MockDirEntry) Info() (fs.FileInfo, error) { return nil, nil }
 // TestCheckIsDirectory tests that directories are skipped.
 func TestCheckIsDirectory(t *testing.T) {
 	t.Parallel()
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -40,7 +39,7 @@ func TestCheckIsDirectory(t *testing.T) {
 // TestCheckWrongExtension tests that non-.zip files are skipped.
 func TestCheckWrongExtension(t *testing.T) {
 	t.Parallel()
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -52,7 +51,7 @@ func TestCheckWrongExtension(t *testing.T) {
 // TestCheckNoExtension tests that files with no extension are skipped.
 func TestCheckNoExtension(t *testing.T) {
 	t.Parallel()
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -64,7 +63,7 @@ func TestCheckNoExtension(t *testing.T) {
 // TestCheckUUIDNotInArtifacts tests that UUIDs not in artifacts list are skipped.
 func TestCheckUUIDNotInArtifacts(t *testing.T) {
 	t.Parallel()
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -77,7 +76,7 @@ func TestCheckUUIDNotInArtifacts(t *testing.T) {
 // TestCheckAlreadyInExtra tests that files already in extra directory are skipped.
 func TestCheckAlreadyInExtra(t *testing.T) {
 	t.Parallel()
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 	uid := "12345678-1234-1234-1234-123456789012"
@@ -95,7 +94,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 
 // TestCheckInvalidArchiveFile tests handling of invalid archive files.
 func TestCheckInvalidArchiveFile(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 	uid := "12345678-1234-1234-1234-123456789012"
@@ -138,7 +137,7 @@ func TestInvalidNilLogger(t *testing.T) {
 
 // TestInvalidNonexistentFile tests behavior with non-existent file.
 func TestInvalidNonexistentFile(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	result := fixarc.Invalid(sl, "/nonexistent/file/path.arc")
 	// Command should fail, so result should be true
 	be.Equal(t, result, true)
@@ -146,7 +145,7 @@ func TestInvalidNonexistentFile(t *testing.T) {
 
 // TestInvalidWithTimeout tests that timeout works (shouldn't hang).
 func TestInvalidWithTimeout(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 
 	// Create a dummy arc file
@@ -162,7 +161,7 @@ func TestInvalidWithTimeout(t *testing.T) {
 
 // TestFilesContextNil tests Files with nil context.
 func TestFilesContextNil(t *testing.T) {
-	files, err := fixarc.Files(nil, nil)
+	files, err := fixarc.Files(nil, nil) //nolint:staticcheck
 	be.True(t, err != nil)
 	be.Equal(t, files, nil)
 }
@@ -177,7 +176,7 @@ func TestFilesExecutorNil(t *testing.T) {
 
 // TestCheckUUIDExtraction tests correct UUID extraction from filename.
 func TestCheckUUIDExtraction(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -197,7 +196,7 @@ func TestCheckUUIDExtraction(t *testing.T) {
 
 // TestCheckCaseInsensitiveExtension tests case-insensitive extension matching.
 func TestCheckCaseInsensitiveExtension(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -222,7 +221,7 @@ func TestCheckCaseInsensitiveExtension(t *testing.T) {
 
 // TestCheckMultipleArtifacts tests that binary search works with multiple artifacts.
 func TestCheckMultipleArtifacts(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -244,7 +243,7 @@ func TestCheckMultipleArtifacts(t *testing.T) {
 
 // TestCheckNoMethodsReturnsEmpty tests handling when no methods are found.
 func TestCheckNoMethodsReturnsEmpty(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 	uid := "12345678-1234-1234-1234-123456789012"
@@ -264,7 +263,7 @@ func TestCheckNoMethodsReturnsEmpty(t *testing.T) {
 
 // BenchmarkCheck measures Check function performance.
 func BenchmarkCheck(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -286,7 +285,7 @@ func BenchmarkCheck(b *testing.B) {
 
 // BenchmarkInvalid measures Invalid function performance.
 func BenchmarkInvalid(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := b.TempDir()
 
 	arcPath := filepath.Join(tmpDir, "test.arc")
@@ -303,7 +302,7 @@ func BenchmarkInvalid(b *testing.B) {
 
 // TestCheckBinarySearchCorrectness tests that binary search finds UUIDs at various positions.
 func TestCheckBinarySearchCorrectness(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -367,7 +366,7 @@ func TestInvalidCommandLineBuilding(t *testing.T) {
 
 // TestCheckExtensionFiltering tests that extension filtering works correctly.
 func TestCheckExtensionFiltering(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
@@ -401,7 +400,7 @@ func TestCheckExtensionFiltering(t *testing.T) {
 
 // TestCheckFileInExtraDirectory tests extra directory file existence check.
 func TestCheckFileInExtraDirectory(t *testing.T) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 	uid := "12345678-1234-1234-1234-123456789012"

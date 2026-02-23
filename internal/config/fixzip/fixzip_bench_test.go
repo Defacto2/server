@@ -1,7 +1,6 @@
 package fixzip_test
 
 import (
-	"io"
 	"log/slog"
 	"testing"
 
@@ -11,7 +10,7 @@ import (
 
 // BenchmarkCheckInvalidExtension benchmarks the Check function with an invalid extension.
 func BenchmarkCheckInvalidExtension(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.rar", isDir: false}
 	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
@@ -24,7 +23,7 @@ func BenchmarkCheckInvalidExtension(b *testing.B) {
 
 // BenchmarkCheckDirectory benchmarks the Check function with a directory.
 func BenchmarkCheckDirectory(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "somedir", isDir: true}
 
@@ -36,7 +35,7 @@ func BenchmarkCheckDirectory(b *testing.B) {
 
 // BenchmarkCheckUppercaseExtension benchmarks the Check function with uppercase extension.
 func BenchmarkCheckUppercaseExtension(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.ZIP", isDir: false}
 
@@ -48,7 +47,7 @@ func BenchmarkCheckUppercaseExtension(b *testing.B) {
 
 // BenchmarkCheckManyArtifacts benchmarks the Check function with many artifacts.
 func BenchmarkCheckManyArtifacts(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
 
@@ -67,7 +66,7 @@ func BenchmarkCheckManyArtifacts(b *testing.B) {
 
 // BenchmarkCheckNoExtension benchmarks the Check function with no extension.
 func BenchmarkCheckNoExtension(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "somefile", isDir: false}
 

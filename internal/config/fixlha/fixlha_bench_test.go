@@ -1,7 +1,6 @@
 package fixlha_test
 
 import (
-	"io"
 	"log/slog"
 	"testing"
 
@@ -11,7 +10,7 @@ import (
 
 // BenchmarkCheckValid benchmarks the Check function with a valid file.
 func BenchmarkCheckValid(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
 	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
@@ -24,7 +23,7 @@ func BenchmarkCheckValid(b *testing.B) {
 
 // BenchmarkCheckInvalidExtension benchmarks the Check function with an invalid extension.
 func BenchmarkCheckInvalidExtension(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.lha", isDir: false}
 	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
@@ -37,7 +36,7 @@ func BenchmarkCheckInvalidExtension(b *testing.B) {
 
 // BenchmarkCheckDirectory benchmarks the Check function with a directory.
 func BenchmarkCheckDirectory(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "somedir", isDir: true}
 
@@ -49,7 +48,7 @@ func BenchmarkCheckDirectory(b *testing.B) {
 
 // BenchmarkCheckUppercaseExtension benchmarks the Check function with uppercase extension.
 func BenchmarkCheckUppercaseExtension(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.ZIP", isDir: false}
 	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
@@ -62,7 +61,7 @@ func BenchmarkCheckUppercaseExtension(b *testing.B) {
 
 // BenchmarkCheckManyArtifacts benchmarks the Check function with many artifacts.
 func BenchmarkCheckManyArtifacts(b *testing.B) {
-	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
 
