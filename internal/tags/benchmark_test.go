@@ -140,4 +140,3 @@ func BenchmarkIsTag(b *testing.B) {
 		}
 	}
 }
-

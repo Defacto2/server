@@ -170,40 +170,40 @@ func TestOrderStringValues(t *testing.T) {
 }
 
 func TestLeadStrCaching(t *testing.T) {
-// Test that common widths use cached padding
-s1 := html3.LeadStr(3, "x")
-s2 := html3.LeadStr(3, "y")
-be.Equal(t, s1, s2)
-be.Equal(t, len(s1), 2)
+	// Test that common widths use cached padding
+	s1 := html3.LeadStr(3, "x")
+	s2 := html3.LeadStr(3, "y")
+	be.Equal(t, s1, s2)
+	be.Equal(t, len(s1), 2)
 }
 
 func TestLeadStrWidth7(t *testing.T) {
-// Test width 7 cache
-s := html3.LeadStr(7, "test")
-be.Equal(t, len(s), 3)
+	// Test width 7 cache
+	s := html3.LeadStr(7, "test")
+	be.Equal(t, len(s), 3)
 }
 
 func TestPublishedStateFlags(t *testing.T) {
-// Test that Published works with new state flag approach
-f := models.File{}
-s := html3.Published(&f)
-be.True(t, len(s) > 0)
+	// Test that Published works with new state flag approach
+	f := models.File{}
+	s := html3.Published(&f)
+	be.True(t, len(s) > 0)
 }
 
 func TestStatsDRYRefactoring(t *testing.T) {
-// Test that Arts, Documents, Softwares work correctly
-a := &html3.Arts{}
-be.Equal(t, a.GetBytes(), 0)
-a.SetBytes(100)
-be.Equal(t, a.GetBytes(), 100)
+	// Test that Arts, Documents, Softwares work correctly
+	a := &html3.Arts{}
+	be.Equal(t, a.GetBytes(), 0)
+	a.SetBytes(100)
+	be.Equal(t, a.GetBytes(), 100)
 
-d := &html3.Documents{}
-be.Equal(t, d.GetCount(), 0)
-d.SetCount(50)
-be.Equal(t, d.GetCount(), 50)
+	d := &html3.Documents{}
+	be.Equal(t, d.GetCount(), 0)
+	d.SetCount(50)
+	be.Equal(t, d.GetCount(), 50)
 
-s := &html3.Softwares{}
-be.Equal(t, s.GetBytes(), 0)
-s.SetBytes(200)
-be.Equal(t, s.GetBytes(), 200)
+	s := &html3.Softwares{}
+	be.Equal(t, s.GetBytes(), 0)
+	s.SetBytes(200)
+	be.Equal(t, s.GetBytes(), 200)
 }

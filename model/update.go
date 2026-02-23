@@ -81,7 +81,7 @@ func UpdateBoolFrom(db *sql.DB, column boolFrom, id int64, val bool) error {
 	}
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
-		return fmt.Errorf("%s find file for %q: %w", msg, column, err)
+		return fmt.Errorf("%s find file for %v: %w", msg, column, err)
 	}
 	const yes, no = int16(1), int16(0)
 	i := yes
@@ -101,7 +101,7 @@ func UpdateBoolFrom(db *sql.DB, column boolFrom, id int64, val bool) error {
 		f.RetrotxtNoReadme = null.NewInt16(i, true)
 	}
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s %q %v: %w", msg, column, val, err)
+		return fmt.Errorf("%s %v %v: %w", msg, column, val, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -342,7 +342,7 @@ func UpdateInt64From(db *sql.DB, column int64From, id int64, val string) error {
 	}
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
-		return fmt.Errorf("%s find file for %q: %w", msg, column, err)
+		return fmt.Errorf("%s find file for %v: %w", msg, column, err)
 	}
 	if strings.TrimSpace(val) == "" {
 		val = "0"
@@ -370,7 +370,7 @@ func UpdateInt64From(db *sql.DB, column int64From, id int64, val string) error {
 		return fmt.Errorf("%s %d: %w", msg, i64, ErrID)
 	}
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s %q %s: %w", msg, column, val, err)
+		return fmt.Errorf("%s %v %s: %w", msg, column, val, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -416,13 +416,13 @@ func UpdateStringFrom(db *sql.DB, column stringFrom, id int64, val string) error
 	}
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
-		return fmt.Errorf("%s find file for %q: %w", msg, column, err)
+		return fmt.Errorf("%s find file for %v: %w", msg, column, err)
 	}
 	if err = updateStringCases(f, column, val); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%q %s: %w", column, val, err)
+		return fmt.Errorf("%v %s: %w", column, val, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

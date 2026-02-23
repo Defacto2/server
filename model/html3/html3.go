@@ -194,7 +194,8 @@ func statQuery(ctx context.Context, exec boil.ContextExecutor, stats interface {
 	SetBytes(int)
 	GetCount() int
 	SetCount(int)
-}, expr qm.QueryMod) error {
+}, expr qm.QueryMod,
+) error {
 	bytes := stats.GetBytes()
 	count := stats.GetCount()
 	if bytes > 0 && count > 0 {

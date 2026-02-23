@@ -379,7 +379,7 @@ func TestListContentHappyPath(t *testing.T) {
 	// Call ListContent - it may error due to extraction issues, but we verify
 	// the function handles the slice bounds correctly (doesn't crash or return nil)
 	result := filerecord.ListContent(sl, -1, &x, dirs, tmpDir)
-	
+
 	// The key test: result is not nil/empty (function executed)
 	// and doesn't have unexpected format issues from the slice bug
 	resultStr := string(result)

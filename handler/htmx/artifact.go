@@ -1060,7 +1060,7 @@ func RecordLinksReset(c echo.Context, db *sql.DB) error {
 			return badRequest(c, fmt.Errorf("the demozoo production id must be an int, %w: %q", err, demozooS))
 		}
 		if demozooI > demozoo.Sanity {
-			return badRequest(c, fmt.Errorf("the demozoo production id doesn't exist, %w: %q", err, demozooI))
+			return badRequest(c, fmt.Errorf("the demozoo production id doesn't exist, %w: %d", err, demozooI))
 		}
 	}
 
@@ -1071,7 +1071,7 @@ func RecordLinksReset(c echo.Context, db *sql.DB) error {
 			return badRequest(c, fmt.Errorf("the pouet production id must be an int, %w: %q", err, pouetS))
 		}
 		if pouetI > pouet.Sanity {
-			return badRequest(c, fmt.Errorf("the pouet production id doesn't exist, %w: %q", err, pouetI))
+			return badRequest(c, fmt.Errorf("the pouet production id doesn't exist, %w: %d", err, pouetI))
 		}
 	}
 

@@ -174,53 +174,53 @@ func BenchmarkStringBuilderFormat(b *testing.B) {
 
 // BenchmarkFixesMapAllocation shows the old approach creating new map each time
 func BenchmarkFixesMapAllocation(b *testing.B) {
-b.ResetTimer()
-for i := 0; i < b.N; i++ {
-// Simulating creating fixes map every repair
-m := map[string]string{
-"a": "A", "b": "B", "c": "C", "d": "D", "e": "E",
-"f": "F", "g": "G", "h": "H", "i": "I", "j": "J",
-"k": "K", "l": "L", "m": "M",
-}
-_ = m
-}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		// Simulating creating fixes map every repair
+		m := map[string]string{
+			"a": "A", "b": "B", "c": "C", "d": "D", "e": "E",
+			"f": "F", "g": "G", "h": "H", "i": "I", "j": "J",
+			"k": "K", "l": "L", "m": "M",
+		}
+		_ = m
+	}
 }
 
 // BenchmarkFixesMapPackageLevel shows optimized approach using package-level map
 func BenchmarkFixesMapPackageLevel(b *testing.B) {
-fixesMapLocal := map[string]string{
-"a": "A", "b": "B", "c": "C", "d": "D", "e": "E",
-"f": "F", "g": "G", "h": "H", "i": "I", "j": "J",
-"k": "K", "l": "L", "m": "M",
-}
-b.ResetTimer()
-for i := 0; i < b.N; i++ {
-_ = fixesMapLocal
-}
+	fixesMapLocal := map[string]string{
+		"a": "A", "b": "B", "c": "C", "d": "D", "e": "E",
+		"f": "F", "g": "G", "h": "H", "i": "I", "j": "J",
+		"k": "K", "l": "L", "m": "M",
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = fixesMapLocal
+	}
 }
 
 // BenchmarkToUpperInLoop shows the old approach with repeated conversions
 func BenchmarkToUpperInLoop(b *testing.B) {
-items := []string{"acid", "ice", "damn", "rss", "dsi"}
-b.ResetTimer()
-for i := 0; i < b.N; i++ {
-for _, item := range items {
-upper := strings.ToUpper(item)
-_ = upper
-}
-}
+	items := []string{"acid", "ice", "damn", "rss", "dsi"}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, item := range items {
+			upper := strings.ToUpper(item)
+			_ = upper
+		}
+	}
 }
 
 // BenchmarkToUpperPrecomputed shows optimized approach with pre-computed values
 func BenchmarkToUpperPrecomputed(b *testing.B) {
-itemsUpper := map[string]string{
-"ACID": "ACID", "ICE": "ICE", "DAMN": "DAMN",
-"RSS": "RSS", "DSI": "DSI",
-}
-b.ResetTimer()
-for i := 0; i < b.N; i++ {
-for _, val := range itemsUpper {
-_ = val
-}
-}
+	itemsUpper := map[string]string{
+		"ACID": "ACID", "ICE": "ICE", "DAMN": "DAMN",
+		"RSS": "RSS", "DSI": "DSI",
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, val := range itemsUpper {
+			_ = val
+		}
+	}
 }

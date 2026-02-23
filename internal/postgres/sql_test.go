@@ -72,7 +72,7 @@ func TestStat(t *testing.T) {
 func TestReleasersAlphabetical(t *testing.T) {
 	query := ReleasersAlphabetical()
 	queryStr := string(query)
-	
+
 	// Should contain key SQL components
 	be.True(t, strings.Contains(queryStr, "SELECT DISTINCT releaser"))
 	be.True(t, strings.Contains(queryStr, "FROM files"))
@@ -85,7 +85,7 @@ func TestReleasersAlphabetical(t *testing.T) {
 func TestBBSsAlphabetical(t *testing.T) {
 	query := BBSsAlphabetical()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "BBS"))
 	be.True(t, strings.Contains(queryStr, "ORDER BY releaser ASC"))
 }
@@ -94,7 +94,7 @@ func TestBBSsAlphabetical(t *testing.T) {
 func TestMagazinesAlphabetical(t *testing.T) {
 	query := MagazinesAlphabetical()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "magazine"))
 	be.True(t, strings.Contains(queryStr, "ORDER BY releaser ASC"))
 }
@@ -103,7 +103,7 @@ func TestMagazinesAlphabetical(t *testing.T) {
 func TestReleasersProlific(t *testing.T) {
 	query := ReleasersProlific()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "ORDER BY count_sum DESC"))
 }
 
@@ -111,7 +111,7 @@ func TestReleasersProlific(t *testing.T) {
 func TestReleasersOldest(t *testing.T) {
 	query := ReleasersOldest()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "MIN(files.date_issued_year)"))
 	be.True(t, strings.Contains(queryStr, "ORDER BY min_year ASC"))
 }
@@ -144,16 +144,16 @@ func TestScenerSQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			query, params := ScenerSQL(tt.input[0])
-			
+
 			// Query should not be empty
 			be.True(t, len(query) > 0)
-			
+
 			// Should have exactly one parameter
 			be.Equal(t, tt.expectedCount, len(params))
-			
+
 			// Query should contain parameterized placeholder
 			be.True(t, strings.Contains(query, "$1"))
-			
+
 			// Query should contain OR conditions for credit types
 			be.True(t, strings.Contains(query, "credit_text"))
 			be.True(t, strings.Contains(query, "credit_program"))
@@ -206,24 +206,24 @@ func TestSimilarToReleaser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			query, params := SimilarToReleaser(tt.input...)
-			
+
 			if tt.shouldBeEmpty {
 				be.Equal(t, "", string(query))
 				be.Equal(t, 0, len(params))
 			} else {
 				// Query should contain SIMILAR TO
 				be.True(t, strings.Contains(string(query), "SIMILAR TO"))
-				
+
 				// Should always have exactly 1 parameter (the combined pattern)
 				be.Equal(t, 1, len(params))
-				
+
 				// Parameter should be a string
 				val, ok := params[0].(string)
 				be.True(t, ok)
-				
+
 				// Parameter should contain the joined values with | separator
 				be.True(t, strings.Contains(val, "|") || len(tt.input) == 1)
-				
+
 				// Query should have $1 placeholder
 				be.True(t, strings.Contains(string(query), "$1"))
 			}
@@ -258,7 +258,7 @@ func TestSimilarToMagazine(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			query, params := SimilarToMagazine(tt.input...)
-			
+
 			if tt.shouldBeEmpty {
 				be.Equal(t, "", string(query))
 				be.Equal(t, 0, len(params))
@@ -300,7 +300,7 @@ func TestSimilarToExact(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			query, params := SimilarToExact(tt.input...)
-			
+
 			if tt.shouldBeEmpty {
 				be.Equal(t, "", string(query))
 				be.Equal(t, 0, len(params))
@@ -340,10 +340,10 @@ func TestSimilarToReleaser_ParameterValidation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, params := SimilarToReleaser(tt.input...)
-			
+
 			// Should always have 1 parameter
 			be.Equal(t, 1, len(params))
-			
+
 			val := params[0].(string)
 			be.Equal(t, tt.expected, val)
 		})
@@ -362,7 +362,7 @@ func TestRolesConstants(t *testing.T) {
 func TestRoles(t *testing.T) {
 	roles := Roles()
 	roleStr := string(roles)
-	
+
 	be.True(t, strings.Contains(roleStr, string(Writer)))
 	be.True(t, strings.Contains(roleStr, string(Artist)))
 	be.True(t, strings.Contains(roleStr, string(Coder)))
@@ -375,7 +375,7 @@ func TestRoleDistinct(t *testing.T) {
 	role := Writer
 	query := role.Distinct()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "SELECT DISTINCT ON"))
 	be.True(t, strings.Contains(queryStr, "scener"))
 	be.True(t, strings.Contains(queryStr, "FROM files"))
@@ -431,7 +431,7 @@ func TestScenersFunctions(t *testing.T) {
 func TestSumSection(t *testing.T) {
 	query := SumSection()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "SUM(files.filesize)"))
 	be.True(t, strings.Contains(queryStr, "section = $1"))
 }
@@ -440,7 +440,7 @@ func TestSumSection(t *testing.T) {
 func TestSumGroup(t *testing.T) {
 	query := SumGroup()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "SUM(filesize)"))
 	be.True(t, strings.Contains(queryStr, "group_brand_for = $1"))
 }
@@ -449,7 +449,7 @@ func TestSumGroup(t *testing.T) {
 func TestSumPlatform(t *testing.T) {
 	query := SumPlatform()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "sum(filesize)"))
 	be.True(t, strings.Contains(queryStr, "platform = $1"))
 }
@@ -492,7 +492,7 @@ func TestSetFilesize0(t *testing.T) {
 func TestSummary(t *testing.T) {
 	query := Summary()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "COUNT(files.id)"))
 	be.True(t, strings.Contains(queryStr, "SUM(files.filesize)"))
 	be.True(t, strings.Contains(queryStr, "MIN(files.date_issued_year)"))
@@ -504,7 +504,7 @@ func TestSummary(t *testing.T) {
 func TestReleasers(t *testing.T) {
 	query := Releasers()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "SELECT DISTINCT releaser"))
 	be.True(t, strings.Contains(queryStr, "GROUP BY releaser"))
 	be.True(t, strings.Contains(queryStr, "ORDER BY releaser ASC"))
@@ -514,7 +514,7 @@ func TestReleasers(t *testing.T) {
 func TestBBSsOldest(t *testing.T) {
 	query := BBSsOldest()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "BBS"))
 	be.True(t, strings.Contains(queryStr, "MIN(files.date_issued_year)"))
 	be.True(t, strings.Contains(queryStr, "ORDER BY min_year ASC"))
@@ -524,7 +524,7 @@ func TestBBSsOldest(t *testing.T) {
 func TestMagazinesOldest(t *testing.T) {
 	query := MagazinesOldest()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "magazine"))
 	be.True(t, strings.Contains(queryStr, "MIN(files.date_issued_year)"))
 	be.True(t, strings.Contains(queryStr, "ORDER BY min_year ASC"))
@@ -534,7 +534,7 @@ func TestMagazinesOldest(t *testing.T) {
 func TestFTPsAlphabetical(t *testing.T) {
 	query := FTPsAlphabetical()
 	queryStr := string(query)
-	
+
 	be.True(t, strings.Contains(queryStr, "FTP"))
 	be.True(t, strings.Contains(queryStr, "ORDER BY releaser ASC"))
 }
@@ -563,9 +563,9 @@ func TestSimilarToFunctions_NoInputCloning(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			input := []string{"test", "  space  "}
 			inputCopy := slices.Clone(input)
-			
+
 			_, _ = tt.fn(input...)
-			
+
 			// Original input should not be modified
 			be.Equal(t, inputCopy, input)
 		})
@@ -601,7 +601,7 @@ func TestSimilarToPlaceholderFormat(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			query, _ := SimilarToReleaser(tt.input...)
 			queryStr := string(query)
-			
+
 			// All queries should have $1 since we now use a single parameter
 			be.True(t, strings.Contains(queryStr, tt.expectedPattern))
 		})

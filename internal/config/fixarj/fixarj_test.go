@@ -221,9 +221,9 @@ func TestCheckExtensionFiltering(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	testCases := []struct {
-		filename      string
-		shouldMatch   bool
-		description   string
+		filename    string
+		shouldMatch bool
+		description string
 	}{
 		{"file.zip", true, "valid .zip extension"},
 		{"file.ZIP", true, "uppercase extension"},

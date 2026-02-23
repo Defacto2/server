@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	archiveExts = []string{fzip, ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace"}
+	archiveExts  = []string{fzip, ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace"}
 	documentExts = []string{
 		".txt", ".nfo", ".diz", ".asc", ".lit", ".rtf", ".doc", ".docx",
 		".pdf", ".unp", ".htm", ".html", ".xml", ".json", ".csv",

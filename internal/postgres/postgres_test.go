@@ -34,7 +34,7 @@ func TestErrEnvValue(t *testing.T) {
 // TestConnectionValidate tests the Connection.Validate method.
 func TestConnectionValidate(t *testing.T) {
 	logger := slog.Default()
-	
+
 	tests := []struct {
 		name        string
 		url         string
@@ -66,7 +66,7 @@ func TestConnectionValidate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			conn := Connection{URL: tt.url}
 			err := conn.Validate(logger)
-			
+
 			if tt.shouldError {
 				be.True(t, err != nil)
 			} else {
@@ -86,7 +86,7 @@ func TestConnectionValidateNilLogger(t *testing.T) {
 // TestNew tests the New connection initialization.
 func TestNew(t *testing.T) {
 	conn, err := New()
-	
+
 	be.Equal(t, nil, err)
 	be.True(t, len(conn.URL) > 0)
 	// Should use default URL when no env var is set

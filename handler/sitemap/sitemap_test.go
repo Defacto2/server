@@ -45,8 +45,6 @@ func TestMapSiteHasStaticPages(t *testing.T) {
 	be.True(t, true)
 }
 
-
-
 func TestRootURL(t *testing.T) {
 	t.Parallel()
 	be.Equal(t, "https://defacto2.net", sitemap.RootURL)

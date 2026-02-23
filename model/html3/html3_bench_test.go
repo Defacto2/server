@@ -13,16 +13,16 @@ func BenchmarkOrderStringOld(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		// Simulating orderClauses() creating new map each call
 		m := map[html3.Order]string{
-			html3.NameAsc:  "filename asc",
-			html3.NameDes:  "filename desc",
-			html3.PublAsc:  "date_issued_year asc, date_issued_month asc, date_issued_day asc",
-			html3.PublDes:  "date_issued_year desc, date_issued_month desc, date_issued_day desc",
-			html3.PostAsc:  "createdat asc",
-			html3.PostDes:  "createdat desc",
-			html3.SizeAsc:  "filesize asc",
-			html3.SizeDes:  "filesize desc",
-			html3.DescAsc:  "record_title asc",
-			html3.DescDes:  "record_title desc",
+			html3.NameAsc: "filename asc",
+			html3.NameDes: "filename desc",
+			html3.PublAsc: "date_issued_year asc, date_issued_month asc, date_issued_day asc",
+			html3.PublDes: "date_issued_year desc, date_issued_month desc, date_issued_day desc",
+			html3.PostAsc: "createdat asc",
+			html3.PostDes: "createdat desc",
+			html3.SizeAsc: "filesize asc",
+			html3.SizeDes: "filesize desc",
+			html3.DescAsc: "record_title asc",
+			html3.DescDes: "record_title desc",
 		}
 		_ = m[html3.NameAsc]
 	}
@@ -89,28 +89,28 @@ func BenchmarkIcon(b *testing.B) {
 
 // BenchmarkLeadStrOld simulates old string allocation every call
 func BenchmarkLeadStrOld(b *testing.B) {
-b.ResetTimer()
-for i := 0; i < b.N; i++ {
-// Simulating old approach: strings.Repeat every call
-_ = strings.Repeat(" ", 3)
-_ = strings.Repeat(" ", 7)
-}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		// Simulating old approach: strings.Repeat every call
+		_ = strings.Repeat(" ", 3)
+		_ = strings.Repeat(" ", 7)
+	}
 }
 
 // BenchmarkLeadStrOptimized uses pre-computed padding
 func BenchmarkLeadStrOptimized(b *testing.B) {
-b.ResetTimer()
-for i := 0; i < b.N; i++ {
-// Optimized: pre-computed constants
-_ = html3.LeadStr(3, "x")
-_ = html3.LeadStr(7, "y")
-}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		// Optimized: pre-computed constants
+		_ = html3.LeadStr(3, "x")
+		_ = html3.LeadStr(7, "y")
+	}
 }
 
 // BenchmarkPublishedWithFlags demonstrates state machine approach
 func BenchmarkPublishedOptimized(b *testing.B) {
-b.ResetTimer()
-for i := 0; i < b.N; i++ {
-_ = html3.Published(nil)
-}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = html3.Published(nil)
+	}
 }
