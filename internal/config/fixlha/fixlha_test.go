@@ -81,7 +81,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 
 	// Create the extra zip file
 	extraZip := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(extraZip, []byte("test"), 0o644)
+	err := os.WriteFile(extraZip, []byte("test"), 0o600)
 	be.True(t, err == nil)
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}

@@ -76,7 +76,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 
 	// Create the extra zip file
 	extraZip := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(extraZip, []byte("test"), 0o644)
+	err := os.WriteFile(extraZip, []byte("test"), 0o600)
 	be.True(t, err == nil)
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
@@ -194,7 +194,7 @@ func TestInvalidWithTimeout(t *testing.T) {
 
 	// Create a dummy arj file
 	arjPath := filepath.Join(tmpDir, "test.arj")
-	err := os.WriteFile(arjPath, []byte("dummy arj"), 0o644)
+	err := os.WriteFile(arjPath, []byte("dummy arj"), 0o600)
 	be.True(t, err == nil)
 
 	// This should complete within the 10-second timeout
@@ -270,7 +270,7 @@ func TestCheckFileInExtraDirectory(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.createFile {
 				extraZip := filepath.Join(tmpDir, uid+".zip")
-				err := os.WriteFile(extraZip, []byte("test"), 0o644)
+				err := os.WriteFile(extraZip, []byte("test"), 0o600)
 				be.True(t, err == nil)
 				defer os.Remove(extraZip)
 
@@ -311,7 +311,7 @@ func BenchmarkInvalid(b *testing.B) {
 	tmpDir := b.TempDir()
 
 	arjPath := filepath.Join(tmpDir, "test.arj")
-	err := os.WriteFile(arjPath, []byte("dummy"), 0o644)
+	err := os.WriteFile(arjPath, []byte("dummy"), 0o600)
 	if err != nil {
 		b.Fatal(err)
 	}

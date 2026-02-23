@@ -47,7 +47,7 @@ func (d Directory) Check(sl *slog.Logger) error {
 	}
 	defer func() {
 		_ = tmp.Close()
-		if err := os.Remove(tmp.Name()); err != nil {
+		if err := os.Remove(tmp.Name()); err != nil { //nolint:gosec // This is safe.
 			sl.Error(msg, slog.String("name", tmp.Name()), slog.Any("error", err))
 		}
 	}()

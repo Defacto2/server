@@ -86,7 +86,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 
 	// Create the extra zip file
 	extraZip := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(extraZip, []byte("test"), 0o644)
+	err := os.WriteFile(extraZip, []byte("test"), 0o600)
 	be.True(t, err == nil)
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
@@ -104,7 +104,7 @@ func TestCheckInvalidArchiveFile(t *testing.T) {
 
 	// Create a dummy (invalid) zip file
 	zipPath := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(zipPath, []byte("not a zip file"), 0o644)
+	err := os.WriteFile(zipPath, []byte("not a zip file"), 0o600)
 	be.True(t, err == nil)
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
@@ -153,7 +153,7 @@ func TestInvalidWithTimeout(t *testing.T) {
 
 	// Create a dummy arc file
 	arcPath := filepath.Join(tmpDir, "test.arc")
-	err := os.WriteFile(arcPath, []byte("dummy arc"), 0o644)
+	err := os.WriteFile(arcPath, []byte("dummy arc"), 0o600)
 	be.True(t, err == nil)
 
 	// This should complete within the 10-second timeout (even though arc command may fail)
@@ -189,7 +189,7 @@ func TestCheckUUIDExtraction(t *testing.T) {
 
 	// Create a minimal valid zip file to test extraction
 	zipPath := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(zipPath, []byte("PK"), 0o644)
+	err := os.WriteFile(zipPath, []byte("PK"), 0o600)
 	be.True(t, err == nil)
 
 	result := fixarc.Check(sl, zipPath, extra, d, artifacts...)
@@ -256,7 +256,7 @@ func TestCheckNoMethodsReturnsEmpty(t *testing.T) {
 
 	// Create invalid zip file
 	zipPath := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(zipPath, []byte("invalid"), 0o644)
+	err := os.WriteFile(zipPath, []byte("invalid"), 0o600)
 	be.True(t, err == nil)
 
 	result := fixarc.Check(sl, zipPath, extra, d, artifacts...)
@@ -275,7 +275,7 @@ func BenchmarkCheck(b *testing.B) {
 	artifacts := []string{uid}
 
 	zipPath := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(zipPath, []byte("not zip"), 0o644)
+	err := os.WriteFile(zipPath, []byte("not zip"), 0o600)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -292,7 +292,7 @@ func BenchmarkInvalid(b *testing.B) {
 	tmpDir := b.TempDir()
 
 	arcPath := filepath.Join(tmpDir, "test.arc")
-	err := os.WriteFile(arcPath, []byte("dummy"), 0o644)
+	err := os.WriteFile(arcPath, []byte("dummy"), 0o600)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -421,7 +421,7 @@ func TestCheckFileInExtraDirectory(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.createFile {
 				extraZip := filepath.Join(tmpDir, uid+".zip")
-				err := os.WriteFile(extraZip, []byte("test"), 0o644)
+				err := os.WriteFile(extraZip, []byte("test"), 0o600)
 				be.True(t, err == nil)
 				defer os.Remove(extraZip)
 			}

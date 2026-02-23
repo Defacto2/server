@@ -31,7 +31,7 @@ func BenchmarkInvalidBytesOptimization(b *testing.B) {
 	tmpDir := b.TempDir()
 
 	arjPath := filepath.Join(tmpDir, "test.arj")
-	err := os.WriteFile(arjPath, []byte("dummy arj content"), 0o644)
+	err := os.WriteFile(arjPath, []byte("dummy arj content"), 0o600)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func BenchmarkCheckWithExtraZip(b *testing.B) {
 
 	// Create the extra zip file (optimization path)
 	extraZip := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(extraZip, []byte("zip"), 0o644)
+	err := os.WriteFile(extraZip, []byte("zip"), 0o600)
 	if err != nil {
 		b.Fatal(err)
 	}
