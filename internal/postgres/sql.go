@@ -335,7 +335,8 @@ func SimilarToMagazine(like ...string) (SQL, []any) {
 	}
 	// Build the pattern as a single parameter containing alternation
 	pattern := strings.Join(query, "|")
-	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + string(releaserSEL) + string(magazine) + string(releaserBy) +
+	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" +
+		string(releaserSEL) + string(magazine) + string(releaserBy) +
 		") sub WHERE sub.releaser SIMILAR TO ('(' || $1 || ')') ORDER BY sub.count_sum DESC"), []any{pattern}
 }
 

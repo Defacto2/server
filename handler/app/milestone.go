@@ -1004,7 +1004,8 @@ func Collection() Milestones {
 				"</p><p>" +
 				"MS-DOS 2 included a new special device driver, ANSI.SYS, to allow the IBM PC to view ANSI escape control formatting and color text on the microcomputer. However, the implementation was incomplete, and in typical Microsoft fashion, future updates deviated from the documented standard." +
 				"</p><p>" +
-				"Also, the month saw Compaq Computer Corporation release the first unauthorised IBM PC compatible computer, the <a href=\"https://www.computerhistory.org/revolution/personal-computers/17/302/1194\">Compaq Portable</a>. " +
+				"Also, the month saw Compaq Computer Corporation release the first unauthorized IBM PC compatible computer, " +
+				"the <a href=\"https://www.computerhistory.org/revolution/personal-computers/17/302/1194\">Compaq Portable</a>. " +
 				"And Compaq would use Microsoft's operating system." +
 				"</p>",
 		},
@@ -1186,7 +1187,7 @@ func Collection() Milestones {
 				"Welcome to cleo.murdoch.edu.au, Academic Services Unit, Murdoch<br><br>" +
 				"For user support via email, email to userhelp@cleo<br><br>" +
 				"ELECTRONIC MAIL: To access your email, type the command \"pine\".<br>" +
-				"LIBRARY CATALOGUES: To access remote library catalogues, type \"nis\".<br>" +
+				"LIBRARY CATALOGUES: To access remote library catalogues, type \"nis\".<br>" + //nolint:misspell
 				"GOPHER SERVER: To access the gopher information server, type \"gopher\".<br>" +
 				"WWW SERVER: To access Murdoch's WWW servers, type \"lynx\".<br><br>" +
 				"You have new mail.<br><br>" +

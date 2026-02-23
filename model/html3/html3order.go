@@ -78,7 +78,9 @@ func (o Order) ByCategory(
 }
 
 // ByGroup returns all the files that match an exact named group with optional pagination.
-func (o Order) ByGroup(ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (models.FileSlice, error) {
+func (o Order) ByGroup(
+	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string,
+) (models.FileSlice, error) {
 	const msg = "html3 all by group"
 	if panics.BoilExec(exec) {
 		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
