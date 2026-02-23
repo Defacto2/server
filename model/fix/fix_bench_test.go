@@ -14,10 +14,10 @@ func BenchmarkStringConcatenation(b *testing.B) {
 	}
 	const updateSet = "UPDATE files SET "
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		var result strings.Builder
-		for column := range len(columns) {
-			result.WriteString(updateSet + columns[column] + " = NULL WHERE " + columns[column] + " = ''; ")
+		for _, column := range columns {
+			result.WriteString(updateSet + column + " = NULL WHERE " + column + " = ''; ")
 		}
 		_ = result.String()
 	}
@@ -30,10 +30,10 @@ func BenchmarkStringBuilder(b *testing.B) {
 	}
 	const updateSet = "UPDATE files SET "
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		var query strings.Builder
-		for column := range len(columns) {
-			query.WriteString(updateSet + columns[column] + " = NULL WHERE " + columns[column] + " = ''; ")
+		for _, column := range columns {
+			query.WriteString(updateSet + column + " = NULL WHERE " + column + " = ''; ")
 		}
 		_ = query.String()
 	}

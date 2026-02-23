@@ -9,25 +9,25 @@ import (
 
 // Benchmark single calls to each function
 func BenchmarkArchive(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = extensions.Archive()
 	}
 }
 
 func BenchmarkDocument(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = extensions.Document()
 	}
 }
 
 func BenchmarkImage(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = extensions.Image()
 	}
 }
 
 func BenchmarkMedia(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = extensions.Media()
 	}
 }
@@ -35,28 +35,28 @@ func BenchmarkMedia(b *testing.B) {
 // Benchmark realistic use case: checking if extension is in archive list
 // This simulates the common pattern in filerecord.go and simple.go
 func BenchmarkContainsArchive(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = slices.Contains(extensions.Archive(), ".rar")
 	}
 }
 
 // Benchmark realistic use case: checking if extension is in document list
 func BenchmarkContainsDocument(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = slices.Contains(extensions.Document(), ".pdf")
 	}
 }
 
 // Benchmark realistic use case: checking if extension is in image list
 func BenchmarkContainsImage(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = slices.Contains(extensions.Image(), ".png")
 	}
 }
 
 // Benchmark realistic use case: checking if extension is in media list
 func BenchmarkContainsMedia(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = slices.Contains(extensions.Media(), ".mp3")
 	}
 }
@@ -78,7 +78,7 @@ func BenchmarkFileListingWith100Files(b *testing.B) {
 
 // Benchmark all four functions called together (simulating type detection)
 func BenchmarkAllFunctionsCalled(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = extensions.Archive()
 		_ = extensions.Document()
 		_ = extensions.Image()

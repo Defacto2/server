@@ -94,11 +94,15 @@ func LeadStr(width int, s string) string {
 	if l >= width {
 		return ""
 	}
+	const (
+		width3 = 3
+		width7 = 7
+	)
 	needed := width - l
 	switch needed {
-	case 3:
+	case width3:
 		return pad3
-	case 7:
+	case width7:
 		return pad7
 	default:
 		return strings.Repeat(padding, needed)

@@ -22,7 +22,8 @@ var (
 
 // nameToTag is a reverse lookup map from tag name to Tag for O(1) lookups.
 var nameToTag = func() map[string]Tag {
-	m := make(map[string]Tag, 43)
+	const size = 43
+	m := make(map[string]Tag, size)
 	for _, tag := range List() {
 		m[strings.ToLower(tag.String())] = tag
 	}

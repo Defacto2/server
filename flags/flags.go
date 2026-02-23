@@ -169,10 +169,13 @@ func Commit(ver string) string {
 //
 // The most recent copyright year is generated from the last commit date.
 func Copyright() string {
-	const initYear = 2023
+	const (
+		initYear = 2023
+		century  = 100
+	)
 	years := strconv.Itoa(initYear)
 	if RecentYear > initYear {
-		endDigits := RecentYear % 100
+		endDigits := RecentYear % century
 		years += "-" + fmt.Sprintf("%02d", endDigits)
 	}
 	s := fmt.Sprintf("© %s Defacto2 & %s", years, Author)

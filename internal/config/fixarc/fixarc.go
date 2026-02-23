@@ -86,7 +86,8 @@ func Invalid(sl *slog.Logger, path string) bool {
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	const arcTimeout = 10 * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), arcTimeout)
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, command.Arc, "t", path)

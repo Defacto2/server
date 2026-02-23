@@ -9,10 +9,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"html/template"
-	_ "image/gif"  // gif format decoder
-	_ "image/jpeg" // jpeg format decoder
-	_ "image/png"  // png format decoder
+	"html/template" // gif format decoder
+	_ "image/gif"   // jpeg format decoder
+	_ "image/jpeg"  // png format decoder
+	_ "image/png"
 	"io"
 	"log/slog"
 	"maps"

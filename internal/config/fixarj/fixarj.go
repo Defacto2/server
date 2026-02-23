@@ -74,7 +74,8 @@ func Invalid(sl *slog.Logger, path string) bool {
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	const arjTimeout = 10 * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), arjTimeout)
 	defer cancel()
 
 	// use 7-ZIP to test and extract the .arj file.

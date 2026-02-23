@@ -60,10 +60,15 @@ func (v *Version) Query(db *sql.DB) error {
 }
 
 func (v *Version) String() string {
+	const (
+		maxParts     = 3
+		minParts     = 2
+		floatBitSize = 32
+	)
 	s := string(*v)
-	parts := strings.SplitN(s, " ", 3)
-	if len(parts) > 2 {
-		_, err := strconv.ParseFloat(parts[1], 32)
+	parts := strings.SplitN(s, " ", maxParts)
+	if len(parts) > minParts {
+		_, err := strconv.ParseFloat(parts[1], floatBitSize)
 		if err != nil {
 			return s
 		}

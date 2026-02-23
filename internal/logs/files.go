@@ -74,7 +74,8 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 	if f.errlevel == nil && f.infolevel == nil && f.debuglevel == nil && !useStderr && !useStdout {
 		return Discard()
 	}
-	handlers := make([]slog.Handler, 0, 5)
+	const maxLogHandlers = 5
+	handlers := make([]slog.Handler, 0, maxLogHandlers)
 	if f.errlevel != nil {
 		handlers = append(handlers, slog.NewJSONHandler(f.errlevel, &slog.HandlerOptions{
 			Level: LevelError, AddSource: true,
