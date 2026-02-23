@@ -46,7 +46,7 @@ func BenchmarkStringBuilderFprintf(b *testing.B) {
 	}
 	const updateSet = "UPDATE files SET "
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		var query strings.Builder
 		for _, column := range columns {
 			query.WriteString(updateSet)
@@ -62,10 +62,8 @@ func BenchmarkStringBuilderFprintf(b *testing.B) {
 // BenchmarkSliceReallocationVsReuse compares slice reallocation vs reuse
 func BenchmarkSliceReallocate(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		mods := make([]string, 0, 5)
-		mods = append(mods, "a", "b", "c")
-		mods = []string{} //nolint:prealloc // This reallocates
+	for range b.N {
+		mods := []string{} //nolint:prealloc // This reallocates
 		mods = append(mods, "d", "e")
 		_ = mods
 	}
@@ -74,7 +72,7 @@ func BenchmarkSliceReallocate(b *testing.B) {
 // BenchmarkSliceReuse shows the optimized approach
 func BenchmarkSliceReuse(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		mods := make([]string, 0, 5)
 		mods = append(mods, "a", "b", "c")
 		mods = mods[:0] // This reuses capacity
@@ -87,7 +85,7 @@ func BenchmarkSliceReuse(b *testing.B) {
 func BenchmarkRedundantCondition(b *testing.B) {
 	size := 1000
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		count := 0
 		for j := range size {
 			if j < size { // Always true, but still checked
@@ -102,7 +100,7 @@ func BenchmarkRedundantCondition(b *testing.B) {
 func BenchmarkNoRedundantCondition(b *testing.B) {
 	size := 1000
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		count := 0
 		for range size {
 			count++ // No redundant check
@@ -115,7 +113,7 @@ func BenchmarkNoRedundantCondition(b *testing.B) {
 func BenchmarkParameterizedQuerySetup(b *testing.B) {
 	trainer := "gamehack"
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		// Using parameterized queries (? placeholder)
 		_ = "section != ?"
 		_ = trainer
@@ -126,7 +124,7 @@ func BenchmarkParameterizedQuerySetup(b *testing.B) {
 func BenchmarkStringFormatQuerySetup(b *testing.B) {
 	trainer := "gamehack"
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		// Using fmt.Sprintf (less ideal)
 		query := "section != '" + trainer + "'"
 		_ = query
@@ -137,7 +135,7 @@ func BenchmarkStringFormatQuerySetup(b *testing.B) {
 func BenchmarkContextPassthrough(b *testing.B) {
 	ctx := context.Background()
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		// Simulating context passthrough in function calls
 		_ = ctx.Err()
 	}
@@ -146,7 +144,7 @@ func BenchmarkContextPassthrough(b *testing.B) {
 // BenchmarkSliceCapacityPreallocation shows allocation efficiency
 func BenchmarkSliceAllocation(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		mods := make([]int, 0, 5)
 		for j := range 5 {
 			mods = append(mods, j)
@@ -159,7 +157,7 @@ func BenchmarkSliceAllocation(b *testing.B) {
 func BenchmarkStringBuilderFormat(b *testing.B) {
 	columns := []string{"a", "b", "c", "d", "e"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		var query strings.Builder
 		for _, col := range columns {
 			query.WriteString("UPDATE files SET ")
@@ -175,7 +173,7 @@ func BenchmarkStringBuilderFormat(b *testing.B) {
 // BenchmarkFixesMapAllocation shows the old approach creating new map each time
 func BenchmarkFixesMapAllocation(b *testing.B) {
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		// Simulating creating fixes map every repair
 		m := map[string]string{
 			"a": "A", "b": "B", "c": "C", "d": "D", "e": "E",
@@ -194,7 +192,7 @@ func BenchmarkFixesMapPackageLevel(b *testing.B) {
 		"k": "K", "l": "L", "m": "M",
 	}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixesMapLocal
 	}
 }
@@ -203,7 +201,7 @@ func BenchmarkFixesMapPackageLevel(b *testing.B) {
 func BenchmarkToUpperInLoop(b *testing.B) {
 	items := []string{"acid", "ice", "damn", "rss", "dsi"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, item := range items {
 			upper := strings.ToUpper(item)
 			_ = upper
@@ -218,7 +216,7 @@ func BenchmarkToUpperPrecomputed(b *testing.B) {
 		"RSS": "RSS", "DSI": "DSI",
 	}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, val := range itemsUpper {
 			_ = val
 		}

@@ -22,7 +22,7 @@ func BenchmarkExtensionExtractionOld(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, name := range names {
 			// Old approach: filepath.Ext(strings.ToLower(name)) called on line 38
 			ext1 := filepath.Ext(strings.ToLower(name))
@@ -48,7 +48,7 @@ func BenchmarkExtensionExtractionNew(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, name := range names {
 			// New approach: filepath.Ext called once, extension cached
 			ext := filepath.Ext(name)
@@ -79,7 +79,7 @@ func BenchmarkCheckFunctionOptimized(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, entry := range entries {
 			d := &MockDirEntry{name: entry.name, isDir: entry.isDir}
 			_ = fixarc.Check(sl, "", extra, d)

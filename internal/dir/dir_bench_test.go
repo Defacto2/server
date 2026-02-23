@@ -9,7 +9,7 @@ import (
 // Benchmark Join function (now without redundant filepath.Clean)
 func BenchmarkJoin(b *testing.B) {
 	d := dir.Directory("/tmp")
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = d.Join("testfile.zip")
 	}
 }
@@ -17,7 +17,7 @@ func BenchmarkJoin(b *testing.B) {
 // Benchmark Join with nested paths
 func BenchmarkJoinNested(b *testing.B) {
 	d := dir.Directory("/var/lib/defacto2/downloads")
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = d.Join("archive/subfolder/file.zip")
 	}
 }
@@ -26,7 +26,7 @@ func BenchmarkJoinNested(b *testing.B) {
 func BenchmarkIsDir(b *testing.B) {
 	d := dir.Directory("/tmp")
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = d.IsDir()
 	}
 }
@@ -34,7 +34,7 @@ func BenchmarkIsDir(b *testing.B) {
 // Benchmark Path() method
 func BenchmarkPath(b *testing.B) {
 	d := dir.Directory("/tmp/test")
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = d.Path()
 	}
 }
@@ -42,7 +42,7 @@ func BenchmarkPath(b *testing.B) {
 // Benchmark Paths() converting multiple directories
 func BenchmarkPaths(b *testing.B) {
 	dirs := []dir.Directory{"/tmp", "/var/lib", "/home/user"}
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = dir.Paths(dirs...)
 	}
 }

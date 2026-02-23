@@ -11,7 +11,7 @@ import (
 func BenchmarkTagByURI(b *testing.B) {
 	slugs := []string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, slug := range slugs {
 			_ = tags.TagByURI(slug)
 		}
@@ -22,7 +22,7 @@ func BenchmarkTagByURI(b *testing.B) {
 func BenchmarkTagByURILinearSearch(b *testing.B) {
 	slugs := []string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, slug := range slugs {
 			oldTagByURI(slug)
 		}
@@ -42,7 +42,7 @@ func oldTagByURI(slug string) tags.Tag {
 // BenchmarkURIsCalls tests the optimized cached map
 func BenchmarkURIsCalls(b *testing.B) {
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = tags.URIs()
 	}
 }
@@ -50,7 +50,7 @@ func BenchmarkURIsCalls(b *testing.B) {
 // BenchmarkNamesCalls tests the optimized cached map
 func BenchmarkNamesCalls(b *testing.B) {
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = tags.Names()
 	}
 }
@@ -58,7 +58,7 @@ func BenchmarkNamesCalls(b *testing.B) {
 // BenchmarkInfosCalls tests the optimized cached map
 func BenchmarkInfosCalls(b *testing.B) {
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = tags.Infos()
 	}
 }
@@ -66,7 +66,7 @@ func BenchmarkInfosCalls(b *testing.B) {
 // BenchmarkDeterminerCalls tests the optimized cached map
 func BenchmarkDeterminerCalls(b *testing.B) {
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = tags.Determiner()
 	}
 }
@@ -74,7 +74,7 @@ func BenchmarkDeterminerCalls(b *testing.B) {
 // BenchmarkBuildSimulation simulates old Build() accessing maps 40+ times each
 func BenchmarkBuildSimulation(b *testing.B) {
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for range 40 {
 			_ = tags.URIs()
 			_ = tags.Names()
@@ -87,7 +87,7 @@ func BenchmarkBuildSimulation(b *testing.B) {
 func BenchmarkIsCategory(b *testing.B) {
 	names := []string{"announcements", "demo", "text", "ansi", "linux"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, name := range names {
 			_ = tags.IsCategory(name)
 		}
@@ -98,7 +98,7 @@ func BenchmarkIsCategory(b *testing.B) {
 func BenchmarkIsCategoryOld(b *testing.B) {
 	names := []string{"announcements", "demo", "text", "ansi", "linux"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, name := range names {
 			oldIsCategory(name)
 		}
@@ -123,7 +123,7 @@ func oldIsCategory(name string) bool {
 func BenchmarkIsPlatform(b *testing.B) {
 	names := []string{"ansi", "dos", "windows", "linux", "java"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, name := range names {
 			_ = tags.IsPlatform(name)
 		}
@@ -134,7 +134,7 @@ func BenchmarkIsPlatform(b *testing.B) {
 func BenchmarkIsTag(b *testing.B) {
 	names := []string{"ansi", "demo", "windows", "text", "java"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, name := range names {
 			_ = tags.IsTag(name)
 		}

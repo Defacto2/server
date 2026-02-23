@@ -11,7 +11,7 @@ import (
 func BenchmarkReplaceAttr(b *testing.B) {
 	a := slog.String("error", "test error message")
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logs.ReplaceAttr(a)
 	}
 }
@@ -21,7 +21,7 @@ func BenchmarkConfigUnsetAttr(b *testing.B) {
 	a := slog.String("postgres,unset", "localhost")
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logs.ConfigUnsetAttr(a)
 	}
 }
@@ -31,7 +31,7 @@ func BenchmarkConfigUnsetAttrNoMatch(b *testing.B) {
 	a := slog.String("postgres", "localhost")
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logs.ConfigUnsetAttr(a)
 	}
 }
@@ -41,7 +41,7 @@ func BenchmarkConfigIssueAttr(b *testing.B) {
 	a := slog.String("issue", "database error")
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		logs.ConfigIssueAttr(a)
 	}
 }
@@ -50,7 +50,7 @@ func BenchmarkConfigIssueAttr(b *testing.B) {
 func BenchmarkFilesNew(b *testing.B) {
 	f := logs.NoFiles()
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		f.New(logs.LevelInfo, logs.Defaults)
 	}
 }

@@ -281,7 +281,7 @@ func BenchmarkCheck(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixarc.Check(sl, zipPath, extra, d, artifacts...)
 	}
 }
@@ -298,7 +298,7 @@ func BenchmarkInvalid(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixarc.Invalid(sl, arcPath)
 	}
 }

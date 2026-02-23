@@ -16,7 +16,7 @@ func BenchmarkCheckInvalidExtension(b *testing.B) {
 	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixzip.Check(sl, "", extra, d, artifacts...)
 	}
 }
@@ -28,7 +28,7 @@ func BenchmarkCheckDirectory(b *testing.B) {
 	d := &MockDirEntry{name: "somedir", isDir: true}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixzip.Check(sl, "", extra, d)
 	}
 }
@@ -40,7 +40,7 @@ func BenchmarkCheckUppercaseExtension(b *testing.B) {
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.ZIP", isDir: false}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixzip.Check(sl, "", extra, d)
 	}
 }
@@ -59,7 +59,7 @@ func BenchmarkCheckManyArtifacts(b *testing.B) {
 	artifacts = append(artifacts, "12345678-1234-1234-1234-123456789012")
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixzip.Check(sl, "", extra, d, artifacts...)
 	}
 }
@@ -71,7 +71,7 @@ func BenchmarkCheckNoExtension(b *testing.B) {
 	d := &MockDirEntry{name: "somefile", isDir: false}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixzip.Check(sl, "", extra, d)
 	}
 }

@@ -195,9 +195,9 @@ func SoftwareExpr() qm.QueryMod {
 // statQuery executes a statistics query using the provided expression.
 func statQuery(ctx context.Context, exec boil.ContextExecutor, stats interface {
 	GetBytes() int
-	SetBytes(int)
+	SetBytes(bytes int)
 	GetCount() int
-	SetCount(int)
+	SetCount(count int)
 }, expr qm.QueryMod,
 ) error {
 	bytes := stats.GetBytes()

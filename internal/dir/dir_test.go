@@ -239,7 +239,7 @@ func TestJoinNormalization(t *testing.T) {
 			fileName: "file.txt",
 			check: func(result string) bool {
 				// Should not have double slashes
-				for i := 0; i < len(result)-1; i++ {
+				for i := range len(result) - 1 {
 					if result[i] == '/' && result[i+1] == '/' {
 						return false
 					}

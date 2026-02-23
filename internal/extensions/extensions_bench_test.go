@@ -66,7 +66,7 @@ func BenchmarkContainsMedia(b *testing.B) {
 func BenchmarkFileListingWith100Files(b *testing.B) {
 	exts := []string{".zip", ".pdf", ".png", ".mp3", ".rar", ".txt", ".jpg", ".gif", ".7z"}
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		for _, ext := range exts {
 			_ = slices.Contains(extensions.Archive(), ext)
 			_ = slices.Contains(extensions.Document(), ext)

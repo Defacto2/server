@@ -16,7 +16,7 @@ func BenchmarkCheckValid(b *testing.B) {
 	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixlha.Check(sl, extra, d, artifacts...)
 	}
 }
@@ -29,7 +29,7 @@ func BenchmarkCheckInvalidExtension(b *testing.B) {
 	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixlha.Check(sl, extra, d, artifacts...)
 	}
 }
@@ -41,7 +41,7 @@ func BenchmarkCheckDirectory(b *testing.B) {
 	d := &MockDirEntry{name: "somedir", isDir: true}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixlha.Check(sl, extra, d)
 	}
 }
@@ -54,7 +54,7 @@ func BenchmarkCheckUppercaseExtension(b *testing.B) {
 	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixlha.Check(sl, extra, d, artifacts...)
 	}
 }
@@ -73,7 +73,7 @@ func BenchmarkCheckManyArtifacts(b *testing.B) {
 	artifacts = append(artifacts, "12345678-1234-1234-1234-123456789012")
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixlha.Check(sl, extra, d, artifacts...)
 	}
 }

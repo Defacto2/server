@@ -300,7 +300,7 @@ func BenchmarkCheck(b *testing.B) {
 	artifacts := []string{uid}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixarj.Check(extra, d, artifacts...)
 	}
 }
@@ -317,7 +317,7 @@ func BenchmarkInvalid(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = fixarj.Invalid(sl, arjPath)
 	}
 }
