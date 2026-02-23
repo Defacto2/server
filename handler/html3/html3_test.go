@@ -33,6 +33,7 @@ func TestRoutes(t *testing.T) {
 }
 
 func TestGlobTo(t *testing.T) {
+	t.Parallel()
 	s := html3.GlobTo("file")
 	be.Equal(t, "view/html3/file", s)
 }
@@ -44,16 +45,19 @@ func TestTemplates(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
+	t.Parallel()
 	err := html3.Error(newContext(), nil)
 	be.Err(t, err)
 }
 
 func TestID(t *testing.T) {
+	t.Parallel()
 	s := html3.ID(newContext())
 	be.Equal(t, s, "")
 }
 
 func TestLeadFS(t *testing.T) {
+	t.Parallel()
 	x := html3.LeadFS(0, null.Int64From(0))
 	be.Equal(t, "0B", x)
 	x = html3.LeadFS(10, null.Int64From(3))
@@ -61,6 +65,7 @@ func TestLeadFS(t *testing.T) {
 }
 
 func TestLeadInt(t *testing.T) {
+	t.Parallel()
 	x := html3.LeadInt(0, 0)
 	be.Equal(t, "-", x)
 	x = html3.LeadInt(10, 3)
@@ -68,6 +73,7 @@ func TestLeadInt(t *testing.T) {
 }
 
 func TestQuery(t *testing.T) {
+	t.Parallel()
 	a, b, c, fs, err := html3.Query(newContext(), nil, -1, -1)
 	be.True(t, a == 0)
 	be.True(t, b == 0)
@@ -95,6 +101,7 @@ func TestQuery(t *testing.T) {
 }
 
 func TestListInfo(t *testing.T) {
+	t.Parallel()
 	a, b := html3.ListInfo(0, "", "")
 	be.Equal(t, "Index of /html3/", a)
 	be.Equal(t, b, "")
@@ -104,6 +111,7 @@ func TestListInfo(t *testing.T) {
 }
 
 func TestRecordsBy(t *testing.T) {
+	t.Parallel()
 	by := html3.Everything
 	be.Equal(t, "html3_all", by.String())
 	be.Equal(t, by.Parent(), "")
@@ -116,6 +124,7 @@ func TestRecordsBy(t *testing.T) {
 }
 
 func TestClauses(t *testing.T) {
+	t.Parallel()
 	tests := []string{
 		html3.NameAsc,
 		html3.NameDes,
@@ -136,6 +145,7 @@ func TestClauses(t *testing.T) {
 }
 
 func TestSorter(t *testing.T) {
+	t.Parallel()
 	tests := []string{
 		html3.NameAsc,
 		html3.NameDes,
@@ -176,6 +186,7 @@ func TestSorter(t *testing.T) {
 }
 
 func TestFile_Description(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		Title    string
 		GroupBy  string
@@ -204,6 +215,7 @@ func TestFile_Description(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			f := html3.File{
 				Title:    tt.fields.Title,
 				GroupBy:  tt.fields.GroupBy,
@@ -211,6 +223,7 @@ func TestFile_Description(t *testing.T) {
 				Platform: tt.fields.Platform,
 			}
 			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
 				be.Equal(t, f.Description(), tt.expect)
 			})
 		})
@@ -218,6 +231,7 @@ func TestFile_Description(t *testing.T) {
 }
 
 func TestDescription(t *testing.T) {
+	t.Parallel()
 	empty := null.String{}
 	s := html3.Description(empty, empty, empty, empty)
 	be.Equal(t, s, "")
@@ -230,6 +244,7 @@ func TestDescription(t *testing.T) {
 }
 
 func TestFileHref(t *testing.T) {
+	t.Parallel()
 	s := html3.FileHref(nil, 0)
 	be.Equal(t, s, "sl slog logger pointer is nil")
 	sl := logs.Discard()
@@ -238,6 +253,7 @@ func TestFileHref(t *testing.T) {
 }
 
 func TestFileLinkPad(t *testing.T) {
+	t.Parallel()
 	n := null.String{}
 	s := html3.FileLinkPad(0, n)
 	be.Equal(t, s, "")
@@ -246,6 +262,7 @@ func TestFileLinkPad(t *testing.T) {
 }
 
 func TestFormattings(t *testing.T) {
+	t.Parallel()
 	be.Equal(t, html3.File{Filename: ""}.FileLinkPad(0), "", "empty")
 	be.Equal(t, html3.File{Filename: ""}.FileLinkPad(4), "    ", "4 pads")
 	be.Equal(t, html3.File{Filename: "file"}.FileLinkPad(6), "  ", "2 pads")
@@ -265,6 +282,7 @@ func TestFormattings(t *testing.T) {
 }
 
 func TestPagi(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		page    int
 		maxPage int
@@ -288,6 +306,7 @@ func TestPagi(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, got1, got2 := html3.Pagi(tt.args.page, tt.args.maxPage)
 			be.Equal(t, tt.want, got)
 			be.Equal(t, tt.want1, got1)
@@ -297,6 +316,7 @@ func TestPagi(t *testing.T) {
 }
 
 func TestNavi(t *testing.T) {
+	t.Parallel()
 	limit := 10
 	page := 2
 	maxPage := 5

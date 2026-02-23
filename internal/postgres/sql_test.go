@@ -1,10 +1,11 @@
-package postgres
+package postgres_test
 
 import (
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/nalgeon/be"
 )
 
@@ -12,32 +13,32 @@ import (
 func TestVersionString(t *testing.T) {
 	tests := []struct {
 		name     string
-		version  Version
+		version  postgres.Version
 		expected string
 	}{
 		{
 			name:     "empty version",
-			version:  Version(""),
+			version:  postgres.Version(""),
 			expected: "",
 		},
 		{
 			name:     "single word",
-			version:  Version("PostgreSQL"),
+			version:  postgres.Version("PostgreSQL"),
 			expected: "PostgreSQL",
 		},
 		{
 			name:     "valid version with 3+ parts",
-			version:  Version("PostgreSQL 13.8 on x86_64-pc-linux-gnu"),
+			version:  postgres.Version("PostgreSQL 13.8 on x86_64-pc-linux-gnu"),
 			expected: "and using PostgreSQL 13.8",
 		},
 		{
 			name:     "version with non-numeric second part",
-			version:  Version("PostgreSQL alpha on x86_64"),
+			version:  postgres.Version("PostgreSQL alpha on x86_64"),
 			expected: "PostgreSQL alpha on x86_64",
 		},
 		{
 			name:     "short version string with 2 parts",
-			version:  Version("PostgreSQL 14"),
+			version:  postgres.Version("PostgreSQL 14"),
 			expected: "PostgreSQL 14",
 		},
 	}
@@ -52,25 +53,25 @@ func TestVersionString(t *testing.T) {
 
 // TestColumns verifies the Columns function returns expected column selections.
 func TestColumns(t *testing.T) {
-	cols := Columns()
+	cols := postgres.Columns()
 	be.Equal(t, 4, len(cols))
-	be.Equal(t, SumSize, cols[0])
-	be.Equal(t, TotalCnt, cols[1])
-	be.Equal(t, MinYear, cols[2])
-	be.Equal(t, MaxYear, cols[3])
+	be.Equal(t, postgres.SumSize, cols[0])
+	be.Equal(t, postgres.TotalCnt, cols[1])
+	be.Equal(t, postgres.MinYear, cols[2])
+	be.Equal(t, postgres.MaxYear, cols[3])
 }
 
 // TestStat verifies the Stat function returns expected column selections.
 func TestStat(t *testing.T) {
-	stats := Stat()
+	stats := postgres.Stat()
 	be.Equal(t, 2, len(stats))
-	be.Equal(t, SumSize, stats[0])
-	be.Equal(t, TotalCnt, stats[1])
+	be.Equal(t, postgres.SumSize, stats[0])
+	be.Equal(t, postgres.TotalCnt, stats[1])
 }
 
 // TestReleasersAlphabetical verifies the SQL query construction.
 func TestReleasersAlphabetical(t *testing.T) {
-	query := ReleasersAlphabetical()
+	query := postgres.ReleasersAlphabetical()
 	queryStr := string(query)
 
 	// Should contain key SQL components
@@ -83,7 +84,7 @@ func TestReleasersAlphabetical(t *testing.T) {
 
 // TestBBSsAlphabetical verifies BBS sites query construction.
 func TestBBSsAlphabetical(t *testing.T) {
-	query := BBSsAlphabetical()
+	query := postgres.BBSsAlphabetical()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "BBS"))
@@ -92,7 +93,7 @@ func TestBBSsAlphabetical(t *testing.T) {
 
 // TestMagazinesAlphabetical verifies magazines query construction.
 func TestMagazinesAlphabetical(t *testing.T) {
-	query := MagazinesAlphabetical()
+	query := postgres.MagazinesAlphabetical()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "magazine"))
@@ -101,7 +102,7 @@ func TestMagazinesAlphabetical(t *testing.T) {
 
 // TestReleasersProlific verifies prolific releasers query ordering.
 func TestReleasersProlific(t *testing.T) {
-	query := ReleasersProlific()
+	query := postgres.ReleasersProlific()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "ORDER BY count_sum DESC"))
@@ -109,7 +110,7 @@ func TestReleasersProlific(t *testing.T) {
 
 // TestReleasersOldest verifies oldest releasers query construction.
 func TestReleasersOldest(t *testing.T) {
-	query := ReleasersOldest()
+	query := postgres.ReleasersOldest()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "MIN(files.date_issued_year)"))
@@ -143,7 +144,7 @@ func TestScenerSQL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			query, params := ScenerSQL(tt.input[0])
+			query, params := postgres.ScenerSQL(tt.input[0])
 
 			// Query should not be empty
 			be.True(t, len(query) > 0)
@@ -205,7 +206,7 @@ func TestSimilarToReleaser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			query, params := SimilarToReleaser(tt.input...)
+			query, params := postgres.SimilarToReleaser(tt.input...)
 
 			if tt.shouldBeEmpty {
 				be.Equal(t, "", string(query))
@@ -257,7 +258,7 @@ func TestSimilarToMagazine(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			query, params := SimilarToMagazine(tt.input...)
+			query, params := postgres.SimilarToMagazine(tt.input...)
 
 			if tt.shouldBeEmpty {
 				be.Equal(t, "", string(query))
@@ -299,7 +300,7 @@ func TestSimilarToExact(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			query, params := SimilarToExact(tt.input...)
+			query, params := postgres.SimilarToExact(tt.input...)
 
 			if tt.shouldBeEmpty {
 				be.Equal(t, "", string(query))
@@ -339,7 +340,7 @@ func TestSimilarToReleaser_ParameterValidation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, params := SimilarToReleaser(tt.input...)
+			_, params := postgres.SimilarToReleaser(tt.input...)
 
 			// Should always have 1 parameter
 			be.Equal(t, 1, len(params))
@@ -352,27 +353,27 @@ func TestSimilarToReleaser_ParameterValidation(t *testing.T) {
 
 // TestRolesConstants verifies Role type constants are defined correctly.
 func TestRolesConstants(t *testing.T) {
-	be.Equal(t, Role("(upper(credit_text))"), Writer)
-	be.Equal(t, Role("(upper(credit_program))"), Coder)
-	be.Equal(t, Role("(upper(credit_illustration))"), Artist)
-	be.Equal(t, Role("(upper(credit_audio))"), Musician)
+	be.Equal(t, postgres.Role("(upper(credit_text))"), postgres.Writer)
+	be.Equal(t, postgres.Role("(upper(credit_program))"), postgres.Coder)
+	be.Equal(t, postgres.Role("(upper(credit_illustration))"), postgres.Artist)
+	be.Equal(t, postgres.Role("(upper(credit_audio))"), postgres.Musician)
 }
 
 // TestRoles verifies the Roles function returns all roles joined.
 func TestRoles(t *testing.T) {
-	roles := Roles()
+	roles := postgres.Roles()
 	roleStr := string(roles)
 
-	be.True(t, strings.Contains(roleStr, string(Writer)))
-	be.True(t, strings.Contains(roleStr, string(Artist)))
-	be.True(t, strings.Contains(roleStr, string(Coder)))
-	be.True(t, strings.Contains(roleStr, string(Musician)))
+	be.True(t, strings.Contains(roleStr, string(postgres.Writer)))
+	be.True(t, strings.Contains(roleStr, string(postgres.Artist)))
+	be.True(t, strings.Contains(roleStr, string(postgres.Coder)))
+	be.True(t, strings.Contains(roleStr, string(postgres.Musician)))
 	be.True(t, strings.Contains(roleStr, ","))
 }
 
 // TestRoleDistinct verifies the Distinct method constructs valid SQL.
 func TestRoleDistinct(t *testing.T) {
-	role := Writer
+	role := postgres.Writer
 	query := role.Distinct()
 	queryStr := string(query)
 
@@ -387,32 +388,32 @@ func TestRoleDistinct(t *testing.T) {
 func TestScenersFunctions(t *testing.T) {
 	tests := []struct {
 		name     string
-		fn       func() SQL
+		fn       func() postgres.SQL
 		roleFind string
 	}{
 		{
 			name:     "Sceners",
-			fn:       Sceners,
+			fn:       postgres.Sceners,
 			roleFind: "credit_text,",
 		},
 		{
 			name:     "Writers",
-			fn:       Writers,
+			fn:       postgres.Writers,
 			roleFind: "credit_text",
 		},
 		{
 			name:     "Artists",
-			fn:       Artists,
+			fn:       postgres.Artists,
 			roleFind: "credit_illustration",
 		},
 		{
 			name:     "Coders",
-			fn:       Coders,
+			fn:       postgres.Coders,
 			roleFind: "credit_program",
 		},
 		{
 			name:     "Musicians",
-			fn:       Musicians,
+			fn:       postgres.Musicians,
 			roleFind: "credit_audio",
 		},
 	}
@@ -429,7 +430,7 @@ func TestScenersFunctions(t *testing.T) {
 
 // TestSumSection verifies SumSection query.
 func TestSumSection(t *testing.T) {
-	query := SumSection()
+	query := postgres.SumSection()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "SUM(files.filesize)"))
@@ -438,7 +439,7 @@ func TestSumSection(t *testing.T) {
 
 // TestSumGroup verifies SumGroup query.
 func TestSumGroup(t *testing.T) {
-	query := SumGroup()
+	query := postgres.SumGroup()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "SUM(filesize)"))
@@ -447,7 +448,7 @@ func TestSumGroup(t *testing.T) {
 
 // TestSumPlatform verifies SumPlatform query.
 func TestSumPlatform(t *testing.T) {
-	query := SumPlatform()
+	query := postgres.SumPlatform()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "sum(filesize)"))
@@ -475,7 +476,7 @@ func TestSetUpper(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			query := SetUpper(tt.column)
+			query := postgres.SetUpper(tt.column)
 			be.Equal(t, tt.expected, query)
 		})
 	}
@@ -483,14 +484,14 @@ func TestSetUpper(t *testing.T) {
 
 // TestSetFilesize0 verifies SetFilesize0 query.
 func TestSetFilesize0(t *testing.T) {
-	query := SetFilesize0()
+	query := postgres.SetFilesize0()
 	expected := "UPDATE files SET filesize = 0 WHERE filesize IS NULL;"
 	be.Equal(t, expected, query)
 }
 
 // TestSummary verifies Summary query construction.
 func TestSummary(t *testing.T) {
-	query := Summary()
+	query := postgres.Summary()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "COUNT(files.id)"))
@@ -502,7 +503,7 @@ func TestSummary(t *testing.T) {
 
 // TestReleasers verifies Releasers query construction.
 func TestReleasers(t *testing.T) {
-	query := Releasers()
+	query := postgres.Releasers()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "SELECT DISTINCT releaser"))
@@ -512,7 +513,7 @@ func TestReleasers(t *testing.T) {
 
 // TestBBSsOldest verifies BBS oldest query construction.
 func TestBBSsOldest(t *testing.T) {
-	query := BBSsOldest()
+	query := postgres.BBSsOldest()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "BBS"))
@@ -522,7 +523,7 @@ func TestBBSsOldest(t *testing.T) {
 
 // TestMagazinesOldest verifies magazines oldest query construction.
 func TestMagazinesOldest(t *testing.T) {
-	query := MagazinesOldest()
+	query := postgres.MagazinesOldest()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "magazine"))
@@ -532,7 +533,7 @@ func TestMagazinesOldest(t *testing.T) {
 
 // TestFTPsAlphabetical verifies FTP sites query construction.
 func TestFTPsAlphabetical(t *testing.T) {
-	query := FTPsAlphabetical()
+	query := postgres.FTPsAlphabetical()
 	queryStr := string(query)
 
 	be.True(t, strings.Contains(queryStr, "FTP"))
@@ -543,19 +544,19 @@ func TestFTPsAlphabetical(t *testing.T) {
 func TestSimilarToFunctions_NoInputCloning(t *testing.T) {
 	tests := []struct {
 		name string
-		fn   func(...string) (SQL, []any)
+		fn   func(...string) (postgres.SQL, []any)
 	}{
 		{
 			name: "SimilarToReleaser",
-			fn:   SimilarToReleaser,
+			fn:   postgres.SimilarToReleaser,
 		},
 		{
 			name: "SimilarToMagazine",
-			fn:   SimilarToMagazine,
+			fn:   postgres.SimilarToMagazine,
 		},
 		{
 			name: "SimilarToExact",
-			fn:   SimilarToExact,
+			fn:   postgres.SimilarToExact,
 		},
 	}
 
@@ -599,7 +600,7 @@ func TestSimilarToPlaceholderFormat(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			query, _ := SimilarToReleaser(tt.input...)
+			query, _ := postgres.SimilarToReleaser(tt.input...)
 			queryStr := string(query)
 
 			// All queries should have $1 since we now use a single parameter
@@ -611,7 +612,7 @@ func TestSimilarToPlaceholderFormat(t *testing.T) {
 // BenchmarkScenerSQL benchmarks the ScenerSQL function.
 func BenchmarkScenerSQL(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, _ = ScenerSQL("John Doe")
+		_, _ = postgres.ScenerSQL("John Doe")
 	}
 }
 
@@ -620,7 +621,7 @@ func BenchmarkSimilarToReleaser(b *testing.B) {
 	input := []string{"Lotus", "Amiga", "Test"}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = SimilarToReleaser(input...)
+		_, _ = postgres.SimilarToReleaser(input...)
 	}
 }
 
@@ -629,7 +630,7 @@ func BenchmarkSimilarToMagazine(b *testing.B) {
 	input := []string{"Amiga World", "PC Zone"}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = SimilarToMagazine(input...)
+		_, _ = postgres.SimilarToMagazine(input...)
 	}
 }
 
@@ -638,6 +639,6 @@ func BenchmarkSimilarToExact(b *testing.B) {
 	input := []string{"Breadbox", "Apogee", "Lotus"}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = SimilarToExact(input...)
+		_, _ = postgres.SimilarToExact(input...)
 	}
 }

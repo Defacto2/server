@@ -1,4 +1,4 @@
-package fixarc
+package fixarc_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/Defacto2/server/internal/config/fixarc"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
 )
@@ -26,51 +27,56 @@ func (m *MockDirEntry) Info() (fs.FileInfo, error) { return nil, nil }
 
 // TestCheckIsDirectory tests that directories are skipped.
 func TestCheckIsDirectory(t *testing.T) {
+	t.Parallel()
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "somedir", isDir: true}
-	result := Check(sl, "", extra, d)
+	result := fixarc.Check(sl, "", extra, d)
 	be.Equal(t, result, "")
 }
 
 // TestCheckWrongExtension tests that non-.zip files are skipped.
 func TestCheckWrongExtension(t *testing.T) {
+	t.Parallel()
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "file123.arc", isDir: false}
-	result := Check(sl, "", extra, d)
+	result := fixarc.Check(sl, "", extra, d)
 	be.Equal(t, result, "")
 }
 
 // TestCheckNoExtension tests that files with no extension are skipped.
 func TestCheckNoExtension(t *testing.T) {
+	t.Parallel()
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "file123", isDir: false}
-	result := Check(sl, "", extra, d)
+	result := fixarc.Check(sl, "", extra, d)
 	be.Equal(t, result, "")
 }
 
 // TestCheckUUIDNotInArtifacts tests that UUIDs not in artifacts list are skipped.
 func TestCheckUUIDNotInArtifacts(t *testing.T) {
+	t.Parallel()
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
 	artifacts := []string{"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
-	result := Check(sl, "", extra, d, artifacts...)
+	result := fixarc.Check(sl, "", extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
 // TestCheckAlreadyInExtra tests that files already in extra directory are skipped.
 func TestCheckAlreadyInExtra(t *testing.T) {
+	t.Parallel()
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
@@ -83,7 +89,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(sl, "", extra, d, artifacts...)
+	result := fixarc.Check(sl, "", extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
@@ -101,7 +107,7 @@ func TestCheckInvalidArchiveFile(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(sl, zipPath, extra, d, artifacts...)
+	result := fixarc.Check(sl, zipPath, extra, d, artifacts...)
 	// pkzip.Methods will return an error, so result should be ""
 	be.Equal(t, result, "")
 }
@@ -117,7 +123,7 @@ func TestCheckNilLogger(t *testing.T) {
 			t.Error("expected panic for nil logger")
 		}
 	}()
-	Check(nil, "", extra, d)
+	fixarc.Check(nil, "", extra, d)
 }
 
 // TestInvalidNilLogger tests that nil logger panics.
@@ -127,13 +133,13 @@ func TestInvalidNilLogger(t *testing.T) {
 			t.Error("expected panic for nil logger")
 		}
 	}()
-	Invalid(nil, "/tmp/test.arc")
+	fixarc.Invalid(nil, "/tmp/test.arc")
 }
 
 // TestInvalidNonexistentFile tests behavior with non-existent file.
 func TestInvalidNonexistentFile(t *testing.T) {
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
-	result := Invalid(sl, "/nonexistent/file/path.arc")
+	result := fixarc.Invalid(sl, "/nonexistent/file/path.arc")
 	// Command should fail, so result should be true
 	be.Equal(t, result, true)
 }
@@ -149,14 +155,14 @@ func TestInvalidWithTimeout(t *testing.T) {
 	be.True(t, err == nil)
 
 	// This should complete within the 10-second timeout (even though arc command may fail)
-	result := Invalid(sl, arcPath)
+	result := fixarc.Invalid(sl, arcPath)
 	// Command will likely fail since we don't have a valid arc file, so result should be true
 	be.Equal(t, result, true)
 }
 
 // TestFilesContextNil tests Files with nil context.
 func TestFilesContextNil(t *testing.T) {
-	files, err := Files(nil, nil)
+	files, err := fixarc.Files(nil, nil)
 	be.True(t, err != nil)
 	be.Equal(t, files, nil)
 }
@@ -164,7 +170,7 @@ func TestFilesContextNil(t *testing.T) {
 // TestFilesExecutorNil tests Files with nil executor.
 func TestFilesExecutorNil(t *testing.T) {
 	ctx := context.Background()
-	files, err := Files(ctx, nil)
+	files, err := fixarc.Files(ctx, nil)
 	be.True(t, err != nil)
 	be.Equal(t, files, nil)
 }
@@ -184,7 +190,7 @@ func TestCheckUUIDExtraction(t *testing.T) {
 	err := os.WriteFile(zipPath, []byte("PK"), 0o644)
 	be.True(t, err == nil)
 
-	result := Check(sl, zipPath, extra, d, artifacts...)
+	result := fixarc.Check(sl, zipPath, extra, d, artifacts...)
 	// Due to invalid zip, pkzip.Methods will error, result will be ""
 	be.Equal(t, result, "")
 }
@@ -207,7 +213,7 @@ func TestCheckCaseInsensitiveExtension(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			d := &MockDirEntry{name: tc.name, isDir: false}
 			artifacts := []string{"12345678-1234-1234-1234-123456789012"}
-			result := Check(sl, "", extra, d, artifacts...)
+			result := fixarc.Check(sl, "", extra, d, artifacts...)
 			// Should not skip due to extension
 			be.Equal(t, result, "")
 		})
@@ -231,7 +237,7 @@ func TestCheckMultipleArtifacts(t *testing.T) {
 		"zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz",
 	}
 
-	result := Check(sl, "", extra, d, artifacts...)
+	result := fixarc.Check(sl, "", extra, d, artifacts...)
 	// UID is in artifacts, but pkzip.Methods will fail on empty path
 	be.Equal(t, result, "")
 }
@@ -251,7 +257,7 @@ func TestCheckNoMethodsReturnsEmpty(t *testing.T) {
 	err := os.WriteFile(zipPath, []byte("invalid"), 0o644)
 	be.True(t, err == nil)
 
-	result := Check(sl, zipPath, extra, d, artifacts...)
+	result := fixarc.Check(sl, zipPath, extra, d, artifacts...)
 	// Should return "" due to error from pkzip.Methods
 	be.Equal(t, result, "")
 }
@@ -274,7 +280,7 @@ func BenchmarkCheck(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(sl, zipPath, extra, d, artifacts...)
+		_ = fixarc.Check(sl, zipPath, extra, d, artifacts...)
 	}
 }
 
@@ -291,7 +297,7 @@ func BenchmarkInvalid(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Invalid(sl, arcPath)
+		_ = fixarc.Invalid(sl, arcPath)
 	}
 }
 
@@ -319,7 +325,7 @@ func TestCheckBinarySearchCorrectness(t *testing.T) {
 				"mmmmmmmm-mmmm-mmmm-mmmm-mmmmmmmmmmmm",
 				"zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz",
 			}
-			result := Check(sl, "", extra, d, artifacts...)
+			result := fixarc.Check(sl, "", extra, d, artifacts...)
 			// Should not skip (empty path means pkzip.Methods will fail)
 			be.Equal(t, result, "")
 		})
@@ -383,7 +389,7 @@ func TestCheckExtensionFiltering(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			d := &MockDirEntry{name: tc.filename, isDir: false}
-			result := Check(sl, "", extra, d)
+			result := fixarc.Check(sl, "", extra, d)
 			if tc.shouldSkip {
 				be.Equal(t, result, "")
 			} else {
@@ -420,7 +426,7 @@ func TestCheckFileInExtraDirectory(t *testing.T) {
 
 			d := &MockDirEntry{name: uid + ".zip", isDir: false}
 			artifacts := []string{uid}
-			result := Check(sl, "", extra, d, artifacts...)
+			result := fixarc.Check(sl, "", extra, d, artifacts...)
 			if tc.expectEmpty {
 				be.Equal(t, result, "")
 			} else {

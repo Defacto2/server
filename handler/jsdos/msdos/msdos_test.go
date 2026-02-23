@@ -8,6 +8,7 @@ import (
 )
 
 func TestDirName(t *testing.T) {
+	t.Parallel()
 	s := msdos.DirName("")
 	be.Equal(t, s, "")
 	s = msdos.DirName("dirname.xyz")

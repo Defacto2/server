@@ -14,6 +14,7 @@ import (
 )
 
 func TestCreated(t *testing.T) {
+	t.Parallel()
 	loc := time.Local //nolint:gosmopolitan
 	tests := []struct {
 		arg    time.Time
@@ -25,6 +26,7 @@ func TestCreated(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.expect, func(t *testing.T) {
+			t.Parallel()
 			f := models.File{
 				Createdat: null.Time{
 					Time:  tt.arg,
@@ -37,6 +39,7 @@ func TestCreated(t *testing.T) {
 }
 
 func TestIcon(t *testing.T) {
+	t.Parallel()
 	s := html3.Icon(nil)
 	be.Equal(t, "error, no file model", s)
 	f := models.File{}
@@ -48,6 +51,7 @@ func TestIcon(t *testing.T) {
 }
 
 func TestLeadStr(t *testing.T) {
+	t.Parallel()
 	s := html3.LeadStr(0, "")
 	be.Equal(t, s, "")
 	s = html3.LeadStr(10, "Hello")
@@ -55,6 +59,7 @@ func TestLeadStr(t *testing.T) {
 }
 
 func TestPublished(t *testing.T) {
+	t.Parallel()
 	const errS = "       ????"
 	type args struct {
 		y int
@@ -77,6 +82,7 @@ func TestPublished(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			y := null.Int16{Int16: int16(tt.args.y), Valid: true} //nolint:gosec
 			m := null.Int16{Int16: int16(tt.args.m), Valid: true} //nolint:gosec
 			d := null.Int16{Int16: int16(tt.args.d), Valid: true} //nolint:gosec
@@ -91,6 +97,7 @@ func TestPublished(t *testing.T) {
 }
 
 func TestPublishedFW(t *testing.T) {
+	t.Parallel()
 	s := html3.PublishedFW(0, nil)
 	be.Equal(t, "error, no file model", s)
 	f := models.File{}
@@ -102,11 +109,13 @@ func TestPublishedFW(t *testing.T) {
 }
 
 func TestSelectHTML3(t *testing.T) {
+	t.Parallel()
 	qm := html3.SelectHTML3()
 	be.True(t, qm != nil)
 }
 
 func TestOrder_String(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		o      html3.Order
 		expect string
@@ -117,12 +126,14 @@ func TestOrder_String(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.expect, func(t *testing.T) {
+			t.Parallel()
 			be.Equal(t, tt.o.String(), tt.expect)
 		})
 	}
 }
 
 func TestInvalidExec(t *testing.T) {
+	t.Parallel()
 	be.True(t, panics.BoilExec(nil))
 	var x boil.ContextExecutor
 	be.True(t, panics.BoilExec(x))
@@ -131,6 +142,7 @@ func TestInvalidExec(t *testing.T) {
 }
 
 func TestOrderStringConsistent(t *testing.T) {
+	t.Parallel()
 	// Test that String() returns consistent results
 	s1 := html3.NameAsc.String()
 	s2 := html3.NameAsc.String()
@@ -139,6 +151,7 @@ func TestOrderStringConsistent(t *testing.T) {
 }
 
 func TestOrderStringAllValues(t *testing.T) {
+	t.Parallel()
 	// Test all Order values return non-empty strings
 	orders := []html3.Order{
 		html3.NameAsc, html3.NameDes,
@@ -154,6 +167,7 @@ func TestOrderStringAllValues(t *testing.T) {
 }
 
 func TestOrderStringValues(t *testing.T) {
+	t.Parallel()
 	// Test specific order string values
 	tests := []struct {
 		o      html3.Order
@@ -170,6 +184,7 @@ func TestOrderStringValues(t *testing.T) {
 }
 
 func TestLeadStrCaching(t *testing.T) {
+	t.Parallel()
 	// Test that common widths use cached padding
 	s1 := html3.LeadStr(3, "x")
 	s2 := html3.LeadStr(3, "y")
@@ -178,12 +193,14 @@ func TestLeadStrCaching(t *testing.T) {
 }
 
 func TestLeadStrWidth7(t *testing.T) {
+	t.Parallel()
 	// Test width 7 cache
 	s := html3.LeadStr(7, "test")
 	be.Equal(t, len(s), 3)
 }
 
 func TestPublishedStateFlags(t *testing.T) {
+	t.Parallel()
 	// Test that Published works with new state flag approach
 	f := models.File{}
 	s := html3.Published(&f)
@@ -191,6 +208,7 @@ func TestPublishedStateFlags(t *testing.T) {
 }
 
 func TestStatsDRYRefactoring(t *testing.T) {
+	t.Parallel()
 	// Test that Arts, Documents, Softwares work correctly
 	a := &html3.Arts{}
 	be.Equal(t, a.GetBytes(), 0)

@@ -1,4 +1,4 @@
-package fixzip
+package fixzip_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/Defacto2/server/internal/config/fixzip"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
 )
@@ -31,7 +32,7 @@ func TestCheckIsDirectory(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "somedir", isDir: true}
-	result := Check(sl, "", extra, d)
+	result := fixzip.Check(sl, "", extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -42,7 +43,7 @@ func TestCheckWrongExtension(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "file123.rar", isDir: false}
-	result := Check(sl, "", extra, d)
+	result := fixzip.Check(sl, "", extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -53,7 +54,7 @@ func TestCheckNoExtension(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "file123", isDir: false}
-	result := Check(sl, "", extra, d)
+	result := fixzip.Check(sl, "", extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -65,7 +66,7 @@ func TestCheckUUIDNotInArtifacts(t *testing.T) {
 
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
 	artifacts := []string{"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
-	result := Check(sl, "", extra, d, artifacts...)
+	result := fixzip.Check(sl, "", extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
@@ -83,7 +84,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(sl, "", extra, d, artifacts...)
+	result := fixzip.Check(sl, "", extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
@@ -98,7 +99,7 @@ func TestCheckNilLogger(t *testing.T) {
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 	d := &MockDirEntry{name: "test.zip", isDir: false}
-	Check(nil, "", extra, d)
+	fixzip.Check(nil, "", extra, d)
 }
 
 // TestCheckUppercaseExtension tests that uppercase extensions are handled correctly.
@@ -108,7 +109,7 @@ func TestCheckUppercaseExtension(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "test.ZIP", isDir: false}
-	result := Check(sl, "", extra, d)
+	result := fixzip.Check(sl, "", extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -121,7 +122,7 @@ func TestCheckMixedCaseExtension(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".Zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(sl, "", extra, d, artifacts...)
+	result := fixzip.Check(sl, "", extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
@@ -133,7 +134,7 @@ func TestCheckEmptyArtifacts(t *testing.T) {
 	uid := "12345678-1234-1234-1234-123456789012"
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
-	result := Check(sl, "", extra, d)
+	result := fixzip.Check(sl, "", extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -146,7 +147,7 @@ func TestInvalidNilLogger(t *testing.T) {
 	}()
 
 	ctx := context.Background()
-	Invalid(ctx, nil, "/tmp/test.zip")
+	fixzip.Invalid(ctx, nil, "/tmp/test.zip")
 }
 
 // TestInvalidContextCancellation tests that Invalid respects context cancellation.
@@ -156,7 +157,7 @@ func TestInvalidContextCancellation(t *testing.T) {
 	cancel()
 
 	// Should return true (invalid) due to context being cancelled
-	result := Invalid(ctx, sl, "/tmp/nonexistent.zip")
+	result := fixzip.Invalid(ctx, sl, "/tmp/nonexistent.zip")
 	be.True(t, result)
 }
 
@@ -165,6 +166,6 @@ func TestInvalidNonexistentFile(t *testing.T) {
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
 	ctx := context.Background()
 
-	result := Invalid(ctx, sl, "/tmp/nonexistent_zip_file_"+t.Name()+".zip")
+	result := fixzip.Invalid(ctx, sl, "/tmp/nonexistent_zip_file_"+t.Name()+".zip")
 	be.True(t, result)
 }

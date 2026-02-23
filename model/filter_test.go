@@ -1,8 +1,9 @@
-package model
+package model_test
 
 import (
 	"testing"
 
+	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
 
@@ -23,12 +24,12 @@ func TestGetColumnsCaching(t *testing.T) {
 	t.Parallel()
 
 	// First call populates cache
-	call1 := getColumns()
+	call1 := model.GetColumns()
 	be.True(t, call1 != nil)
 	be.Equal(t, len(call1), 4)
 
 	// Second call returns same cached reference
-	call2 := getColumns()
+	call2 := model.GetColumns()
 	be.True(t, call2 != nil)
 	be.Equal(t, len(call1), len(call2))
 }

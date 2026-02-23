@@ -323,6 +323,7 @@ func TestDate(t *testing.T) {
 }
 
 func TestListContent(t *testing.T) {
+	t.Parallel()
 	x := models.File{}
 	dirs := command.Dirs{}
 	sl := slog.Default()
@@ -387,6 +388,7 @@ func TestListContentHappyPath(t *testing.T) {
 }
 
 func TestAlertURL(t *testing.T) {
+	t.Parallel()
 	x := models.File{}
 	s := filerecord.AlertURL(&x)
 	be.Equal(t, s, "")

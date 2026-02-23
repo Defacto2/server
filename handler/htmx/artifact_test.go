@@ -10,6 +10,7 @@ import (
 )
 
 func TestValidate(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		path    string
@@ -44,6 +45,7 @@ func TestValidate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			err := htmx.Validate(tt.path)
 			if err != nil && !errors.Is(err, tt.wantErr) {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -56,6 +58,7 @@ func TestValidate(t *testing.T) {
 }
 
 func TestPath(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		unid     string
@@ -92,6 +95,7 @@ func TestPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			c := newContext()
 			c.SetParamNames("unid", "path")
 			c.SetParamValues(tt.unid, url.QueryEscape(tt.path))

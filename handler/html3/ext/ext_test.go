@@ -8,6 +8,7 @@ import (
 )
 
 func TestIcon(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		expect string
@@ -21,12 +22,14 @@ func TestIcon(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.expect, func(t *testing.T) {
+			t.Parallel()
 			be.Equal(t, ext.IconName(tt.name), tt.expect)
 		})
 	}
 }
 
 func TestIconName(t *testing.T) {
+	t.Parallel()
 	s := ext.IconName("myfile")
 	be.Equal(t, s, "")
 	s = ext.IconName("myimage.png")

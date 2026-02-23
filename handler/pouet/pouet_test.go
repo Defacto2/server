@@ -69,6 +69,7 @@ func TestVotes(t *testing.T) {
 }
 
 func TestStars(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		up   uint64
 		meh  uint64
@@ -91,6 +92,7 @@ func TestStars(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			f := pouet.Stars(tt.args.up, tt.args.meh, tt.args.down)
 			be.True(t, f == tt.want)
 		})

@@ -51,12 +51,12 @@ func (s *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, ter
 	sum.WriteString(string(postgres.Summary()))
 	for i, term := range terms {
 		if i == 0 {
-			sum.WriteString(fmt.Sprintf(" filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
-				term, term+"%", "%"+term, "%"+term+"%"))
+			fmt.Fprintf(&sum, " filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' OR filename ILIKE '%s'",
+				term, term+"%", "%"+term, "%"+term+"%")
 			continue
 		}
-		sum.WriteString(fmt.Sprintf(" OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' "+
-			"OR filename ILIKE '%s'", term, term+"%", "%"+term, "%"+term+"%"))
+		fmt.Fprintf(&sum, " OR filename ~ '%s' OR filename ILIKE '%s' OR filename ILIKE '%s' "+
+			"OR filename ILIKE '%s'", term, term+"%", "%"+term, "%"+term+"%")
 	}
 	sum.WriteString("AND " + ClauseNoSoftDel)
 	query := strings.TrimSpace(sum.String())

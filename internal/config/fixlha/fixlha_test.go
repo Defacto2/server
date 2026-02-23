@@ -1,4 +1,4 @@
-package fixlha
+package fixlha_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/Defacto2/server/internal/config/fixlha"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
 )
@@ -31,7 +32,7 @@ func TestCheckIsDirectory(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "somedir", isDir: true}
-	result := Check(sl, extra, d)
+	result := fixlha.Check(sl, extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -42,7 +43,7 @@ func TestCheckWrongExtension(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "file123.lha", isDir: false}
-	result := Check(sl, extra, d)
+	result := fixlha.Check(sl, extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -53,7 +54,7 @@ func TestCheckNoExtension(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "file123", isDir: false}
-	result := Check(sl, extra, d)
+	result := fixlha.Check(sl, extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -65,7 +66,7 @@ func TestCheckUUIDNotInArtifacts(t *testing.T) {
 
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
 	artifacts := []string{"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
-	result := Check(sl, extra, d, artifacts...)
+	result := fixlha.Check(sl, extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
@@ -83,7 +84,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(sl, extra, d, artifacts...)
+	result := fixlha.Check(sl, extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
@@ -96,7 +97,7 @@ func TestCheckValidFile(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(sl, extra, d, artifacts...)
+	result := fixlha.Check(sl, extra, d, artifacts...)
 	be.Equal(t, result, uid)
 }
 
@@ -109,7 +110,7 @@ func TestCheckUppercaseExtension(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".ZIP", isDir: false}
 	artifacts := []string{uid}
-	result := Check(sl, extra, d, artifacts...)
+	result := fixlha.Check(sl, extra, d, artifacts...)
 	be.Equal(t, result, uid)
 }
 
@@ -122,7 +123,7 @@ func TestCheckMixedCaseExtension(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".Zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(sl, extra, d, artifacts...)
+	result := fixlha.Check(sl, extra, d, artifacts...)
 	be.Equal(t, result, uid)
 }
 
@@ -134,7 +135,7 @@ func TestCheckEmptyArtifacts(t *testing.T) {
 	uid := "12345678-1234-1234-1234-123456789012"
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
-	result := Check(sl, extra, d)
+	result := fixlha.Check(sl, extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -147,7 +148,7 @@ func TestInvalidNilLogger(t *testing.T) {
 	}()
 
 	ctx := context.Background()
-	Invalid(ctx, nil, "/tmp/test.lha")
+	fixlha.Invalid(ctx, nil, "/tmp/test.lha")
 }
 
 // TestInvalidContextCancellation tests that Invalid respects context cancellation.
@@ -157,7 +158,7 @@ func TestInvalidContextCancellation(t *testing.T) {
 	cancel()
 
 	// Should return true (invalid) due to context being cancelled
-	result := Invalid(ctx, sl, "/tmp/nonexistent.lha")
+	result := fixlha.Invalid(ctx, sl, "/tmp/nonexistent.lha")
 	be.True(t, result)
 }
 
@@ -166,6 +167,6 @@ func TestInvalidNonexistentFile(t *testing.T) {
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
 	ctx := context.Background()
 
-	result := Invalid(ctx, sl, "/tmp/nonexistent_lha_file_"+t.Name()+".lha")
+	result := fixlha.Invalid(ctx, sl, "/tmp/nonexistent_lha_file_"+t.Name()+".lha")
 	be.True(t, result)
 }

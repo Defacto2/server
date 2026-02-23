@@ -1,51 +1,56 @@
-package logs
+package logs_test
 
 import (
 	"log/slog"
 	"testing"
+
+	"github.com/Defacto2/server/internal/logs"
 )
 
-// Benchmark replaceAttr with the optimization (cached ToLower)
+// Benchmark ReplaceAttr with the optimization (cached ToLower)
 func BenchmarkReplaceAttr(b *testing.B) {
 	a := slog.String("error", "test error message")
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		replaceAttr(a)
+		logs.ReplaceAttr(a)
 	}
 }
 
-// Benchmark configUnsetAttr with strings.CutSuffix optimization
+// Benchmark ConfigUnsetAttr with strings.CutSuffix optimization
 func BenchmarkConfigUnsetAttr(b *testing.B) {
 	a := slog.String("postgres,unset", "localhost")
 	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
-		configUnsetAttr(a)
+		logs.ConfigUnsetAttr(a)
 	}
 }
 
-// Benchmark configUnsetAttr with non-matching suffix (common case)
+// Benchmark ConfigUnsetAttr with non-matching suffix (common case)
 func BenchmarkConfigUnsetAttrNoMatch(b *testing.B) {
 	a := slog.String("postgres", "localhost")
 	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
-		configUnsetAttr(a)
+		logs.ConfigUnsetAttr(a)
 	}
 }
 
-// Benchmark configIssueAttr with the double-wrapping fix
+// Benchmark ConfigIssueAttr with the double-wrapping fix
 func BenchmarkConfigIssueAttr(b *testing.B) {
 	a := slog.String("issue", "database error")
 	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
-		configIssueAttr(a)
+		logs.ConfigIssueAttr(a)
 	}
 }
 
 // Benchmark Files.New with pre-allocated slice
 func BenchmarkFilesNew(b *testing.B) {
-	f := NoFiles()
+	f := logs.NoFiles()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		f.New(LevelInfo, Defaults)
+		f.New(logs.LevelInfo, logs.Defaults)
 	}
 }

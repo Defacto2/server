@@ -52,6 +52,7 @@ func TestJoin(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			d := dir.Directory(tt.dirPath)
 			got := d.Join(tt.fileName)
 			be.Equal(t, got, tt.want)
@@ -74,6 +75,7 @@ func TestPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			d := dir.Directory(tt.path)
 			got := d.Path()
 			be.Equal(t, got, tt.path)
@@ -86,24 +88,28 @@ func TestIsDir(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	t.Run("valid directory", func(t *testing.T) {
+		t.Parallel()
 		d := dir.Directory(tmpDir)
 		err := d.IsDir()
 		be.True(t, err == nil)
 	})
 
 	t.Run("empty path returns ErrNoPath", func(t *testing.T) {
+		t.Parallel()
 		d := dir.Directory("")
 		err := d.IsDir()
 		be.True(t, errors.Is(err, dir.ErrNoPath))
 	})
 
 	t.Run("non-existent directory returns ErrNoDir", func(t *testing.T) {
+		t.Parallel()
 		d := dir.Directory("/nonexistent/path/that/does/not/exist")
 		err := d.IsDir()
 		be.True(t, errors.Is(err, dir.ErrNoDir))
 	})
 
 	t.Run("file instead of directory returns ErrFile", func(t *testing.T) {
+		t.Parallel()
 		// Create a temp file
 		tmpFile, err := os.CreateTemp(tmpDir, "test-*.txt")
 		be.True(t, err == nil)
@@ -147,6 +153,7 @@ func TestPaths(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := dir.Paths(tt.dirs...)
 			be.Equal(t, len(got), len(tt.want))
 			for i, path := range got {
@@ -162,18 +169,21 @@ func TestCheck(t *testing.T) {
 	sl := logs.Discard()
 
 	t.Run("valid writable directory", func(t *testing.T) {
+		t.Parallel()
 		d := dir.Directory(tmpDir)
 		err := d.Check(sl)
 		be.True(t, err == nil)
 	})
 
 	t.Run("non-existent directory returns error", func(t *testing.T) {
+		t.Parallel()
 		d := dir.Directory("/nonexistent/path/for/check")
 		err := d.Check(sl)
 		be.Err(t, err)
 	})
 
 	t.Run("file instead of directory returns error", func(t *testing.T) {
+		t.Parallel()
 		// Create a temp file
 		tmpFile, err := os.CreateTemp(tmpDir, "test-*.txt")
 		be.True(t, err == nil)
@@ -186,6 +196,7 @@ func TestCheck(t *testing.T) {
 	})
 
 	t.Run("nil logger returns error", func(t *testing.T) {
+		t.Parallel()
 		d := dir.Directory(tmpDir)
 		err := d.Check(nil)
 		be.Err(t, err)
@@ -240,6 +251,7 @@ func TestJoinNormalization(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			d := dir.Directory(tt.dirPath)
 			result := d.Join(tt.fileName)
 			be.True(t, tt.check(result))
@@ -261,6 +273,7 @@ func TestErrorTypes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			be.True(t, tt.err != nil)
 			be.True(t, len(tt.err.Error()) > 0)
 		})

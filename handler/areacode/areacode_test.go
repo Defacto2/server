@@ -135,6 +135,7 @@ func ExampleTerritory_HTML() {
 }
 
 func TestTerritories(t *testing.T) {
+	t.Parallel()
 	notes := areacode.Notes()
 	for nan := range notes {
 		terr := areacode.TerritoryByCode(nan)

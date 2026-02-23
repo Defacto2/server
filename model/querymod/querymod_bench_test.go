@@ -1,69 +1,51 @@
-package querymod
+package querymod_test
 
 import (
 	"testing"
+
+	"github.com/Defacto2/server/model/querymod"
 )
 
 // Benchmarks for tag functions with caching optimization.
 
 func BenchmarkSAdvert(b *testing.B) {
 	for range b.N {
-		_ = SAdvert()
+		_ = querymod.SAdvert()
 	}
 }
 
 func BenchmarkPWindows(b *testing.B) {
 	for range b.N {
-		_ = PWindows()
+		_ = querymod.PWindows()
 	}
 }
 
 func BenchmarkPDos(b *testing.B) {
 	for range b.N {
-		_ = PDos()
+		_ = querymod.PDos()
 	}
 }
 
 func BenchmarkAdvertExpr(b *testing.B) {
 	for range b.N {
-		_ = AdvertExpr()
+		_ = querymod.AdvertExpr()
 	}
 }
 
 func BenchmarkDOSExpr(b *testing.B) {
 	for range b.N {
-		_ = DOSExpr()
+		_ = querymod.DOSExpr()
 	}
 }
 
 func BenchmarkAnsiBBSExpr(b *testing.B) {
 	for range b.N {
-		_ = AnsiBBSExpr()
+		_ = querymod.AnsiBBSExpr()
 	}
 }
 
 func BenchmarkWindowsPackExpr(b *testing.B) {
 	for range b.N {
-		_ = WindowsPackExpr()
+		_ = querymod.WindowsPackExpr()
 	}
-}
-
-func BenchmarkURICaching(b *testing.B) {
-	// Benchmark that getURIs() returns cached result on subsequent calls.
-	getURIs() // Prime the cache.
-	b.ResetTimer()
-	for range b.N {
-		_ = getURIs()
-	}
-}
-
-// Parallel benchmark to ensure thread-safe caching.
-func BenchmarkURICachingParallel(b *testing.B) {
-	getURIs() // Prime the cache.
-	b.ResetTimer()
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			_ = getURIs()
-		}
-	})
 }

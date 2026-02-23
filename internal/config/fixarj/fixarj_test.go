@@ -1,4 +1,4 @@
-package fixarj
+package fixarj_test
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/Defacto2/server/internal/config/fixarj"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
 )
@@ -30,7 +31,7 @@ func TestCheckIsDirectory(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "somedir", isDir: true}
-	result := Check(extra, d)
+	result := fixarj.Check(extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -40,7 +41,7 @@ func TestCheckWrongExtension(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "file123.arj", isDir: false}
-	result := Check(extra, d)
+	result := fixarj.Check(extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -50,7 +51,7 @@ func TestCheckNoExtension(t *testing.T) {
 	extra := dir.Directory(tmpDir)
 
 	d := &MockDirEntry{name: "file123", isDir: false}
-	result := Check(extra, d)
+	result := fixarj.Check(extra, d)
 	be.Equal(t, result, "")
 }
 
@@ -61,7 +62,7 @@ func TestCheckUUIDNotInArtifacts(t *testing.T) {
 
 	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
 	artifacts := []string{"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
-	result := Check(extra, d, artifacts...)
+	result := fixarj.Check(extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
@@ -78,7 +79,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(extra, d, artifacts...)
+	result := fixarj.Check(extra, d, artifacts...)
 	be.Equal(t, result, "")
 }
 
@@ -90,7 +91,7 @@ func TestCheckValidFile(t *testing.T) {
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
-	result := Check(extra, d, artifacts...)
+	result := fixarj.Check(extra, d, artifacts...)
 	be.Equal(t, result, uid)
 }
 
@@ -111,7 +112,7 @@ func TestCheckCaseInsensitiveExtension(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			d := &MockDirEntry{name: tc.name, isDir: false}
 			artifacts := []string{"12345678-1234-1234-1234-123456789012"}
-			result := Check(extra, d, artifacts...)
+			result := fixarj.Check(extra, d, artifacts...)
 			be.Equal(t, result, "12345678-1234-1234-1234-123456789012")
 		})
 	}
@@ -133,7 +134,7 @@ func TestCheckMultipleArtifacts(t *testing.T) {
 		"zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz",
 	}
 
-	result := Check(extra, d, artifacts...)
+	result := fixarj.Check(extra, d, artifacts...)
 	be.Equal(t, result, uid)
 }
 
@@ -160,7 +161,7 @@ func TestCheckBinarySearchCorrectness(t *testing.T) {
 				"mmmmmmmm-mmmm-mmmm-mmmm-mmmmmmmmmmmm",
 				"zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz",
 			}
-			result := Check(extra, d, artifacts...)
+			result := fixarj.Check(extra, d, artifacts...)
 			be.Equal(t, result, tc.uid)
 		})
 	}
@@ -173,13 +174,13 @@ func TestInvalidNilLogger(t *testing.T) {
 			t.Error("expected panic for nil logger")
 		}
 	}()
-	Invalid(nil, "/tmp/test.arj")
+	fixarj.Invalid(nil, "/tmp/test.arj")
 }
 
 // TestInvalidNonexistentFile tests behavior with non-existent file.
 func TestInvalidNonexistentFile(t *testing.T) {
 	sl := slog.New(slog.NewTextHandler(io.Discard, nil))
-	result := Invalid(sl, "/nonexistent/file/path.arj")
+	result := fixarj.Invalid(sl, "/nonexistent/file/path.arj")
 	// Command should fail, so result should be true
 	be.Equal(t, result, true)
 }
@@ -195,14 +196,14 @@ func TestInvalidWithTimeout(t *testing.T) {
 	be.True(t, err == nil)
 
 	// This should complete within the 10-second timeout
-	result := Invalid(sl, arjPath)
+	result := fixarj.Invalid(sl, arjPath)
 	// Command will likely fail since we don't have a valid arj file, so result should be true
 	be.Equal(t, result, true)
 }
 
 // TestFilesContextNil tests Files with nil context.
 func TestFilesContextNil(t *testing.T) {
-	files, err := Files(nil, nil)
+	files, err := fixarj.Files(nil, nil)
 	be.True(t, err != nil)
 	be.Equal(t, files, nil)
 }
@@ -210,7 +211,7 @@ func TestFilesContextNil(t *testing.T) {
 // TestFilesExecutorNil tests Files with nil executor.
 func TestFilesExecutorNil(t *testing.T) {
 	ctx := context.Background()
-	files, err := Files(ctx, nil)
+	files, err := fixarj.Files(ctx, nil)
 	be.True(t, err != nil)
 	be.Equal(t, files, nil)
 }
@@ -238,7 +239,7 @@ func TestCheckExtensionFiltering(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			d := &MockDirEntry{name: tc.filename, isDir: false}
-			result := Check(extra, d)
+			result := fixarj.Check(extra, d)
 			if tc.shouldMatch {
 				// Would return "" because no artifacts, but passes extension check
 				be.Equal(t, result, "")
@@ -273,13 +274,13 @@ func TestCheckFileInExtraDirectory(t *testing.T) {
 
 				d := &MockDirEntry{name: uid + ".zip", isDir: false}
 				artifacts := []string{uid}
-				result := Check(extra, d, artifacts...)
+				result := fixarj.Check(extra, d, artifacts...)
 				// Should return "" because file exists in extra
 				be.Equal(t, result, "")
 			} else {
 				d := &MockDirEntry{name: uid + ".zip", isDir: false}
 				artifacts := []string{uid}
-				result := Check(extra, d, artifacts...)
+				result := fixarj.Check(extra, d, artifacts...)
 				// Should return uid because file doesn't exist in extra
 				be.Equal(t, result, uid)
 			}
@@ -298,7 +299,7 @@ func BenchmarkCheck(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(extra, d, artifacts...)
+		_ = fixarj.Check(extra, d, artifacts...)
 	}
 }
 
@@ -315,6 +316,6 @@ func BenchmarkInvalid(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Invalid(sl, arjPath)
+		_ = fixarj.Invalid(sl, arjPath)
 	}
 }

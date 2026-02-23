@@ -1,4 +1,4 @@
-package fixarj
+package fixarj_test
 
 import (
 	"io"
@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/Defacto2/server/internal/config/fixarj"
 	"github.com/Defacto2/server/internal/dir"
 )
 
@@ -21,7 +22,7 @@ func BenchmarkCheckOptimizations(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(extra, d, artifacts...)
+		_ = fixarj.Check(extra, d, artifacts...)
 	}
 }
 
@@ -38,7 +39,7 @@ func BenchmarkInvalidBytesOptimization(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Invalid(sl, arjPath)
+		_ = fixarj.Invalid(sl, arjPath)
 	}
 }
 
@@ -60,7 +61,7 @@ func BenchmarkCheckWithExtraZip(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(extra, d, artifacts...)
+		_ = fixarj.Check(extra, d, artifacts...)
 	}
 }
 
@@ -75,6 +76,6 @@ func BenchmarkCheckWithoutExtraZip(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(extra, d, artifacts...)
+		_ = fixarj.Check(extra, d, artifacts...)
 	}
 }

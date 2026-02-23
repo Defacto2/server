@@ -33,6 +33,7 @@ func TestTBuild(t *testing.T) {
 }
 
 func TestNameByURI(t *testing.T) {
+	t.Parallel()
 	uri := "programmingtool"
 	expected := "computer tool"
 	name := tags.NameByURI(uri)
@@ -44,6 +45,7 @@ func TestNameByURI(t *testing.T) {
 }
 
 func TestDescription(t *testing.T) {
+	t.Parallel()
 	tag := "announcements"
 	expected := "public announcements by Scene groups and organizations"
 
@@ -57,6 +59,7 @@ func TestDescription(t *testing.T) {
 }
 
 func TestPlatform(t *testing.T) {
+	t.Parallel()
 	tag := "announcements"
 	platform := "ansi"
 	expected := "an ansi announcement"
@@ -187,53 +190,67 @@ func TestHumanizes(t *testing.T) {
 }
 
 func TestIsCategory(t *testing.T) {
+	t.Parallel()
 	t.Run("Existing Category", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsCategory(firstCategory)
 		be.True(t, result)
 	})
 	t.Run("Last Category", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsCategory(lastCategory)
 		be.True(t, result)
 	})
 	t.Run("Existing Platform", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsCategory("ansi")
 		be.True(t, !result)
 	})
 	t.Run("Non-existing Category", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsCategory(noname)
 		be.True(t, !result)
 	})
 }
 
 func TestIsPlatform(t *testing.T) {
+	t.Parallel()
 	t.Run("Existing Platform", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsPlatform(firstPlatform)
 		be.True(t, result)
 	})
 	t.Run("Last Platform", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsPlatform(lastPlatform)
 		be.True(t, result)
 	})
 	t.Run("Existing Category", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsPlatform(lastCategory)
 		be.True(t, !result)
 	})
 	t.Run("Non-existing Platform", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsPlatform("non-existing-platform")
 		be.True(t, !result)
 	})
 }
 
 func TestIsTag(t *testing.T) {
+	t.Parallel()
 	t.Run("Existing Category", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsTag(firstCategory)
 		be.True(t, result)
 	})
 	t.Run("Existing Platform", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsTag(lastPlatform)
 		be.True(t, result)
 	})
 	t.Run("Non-existing Tag", func(t *testing.T) {
+		t.Parallel()
 		result := tags.IsTag("non-existing-tag")
 		be.True(t, !result)
 	})

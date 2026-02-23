@@ -1,268 +1,269 @@
-package querymod
+package querymod_test
 
 import (
 	"testing"
 
+	"github.com/Defacto2/server/model/querymod"
 	"github.com/nalgeon/be"
 )
 
 // Test that each Expr function returns a valid QueryMod.
 func TestAdvertExpr(t *testing.T) {
-	expr := AdvertExpr()
+	expr := querymod.AdvertExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAnnouncementExpr(t *testing.T) {
-	expr := AnnouncementExpr()
+	expr := querymod.AnnouncementExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAnsiExpr(t *testing.T) {
-	expr := AnsiExpr()
+	expr := querymod.AnsiExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAnsiBBSExpr(t *testing.T) {
-	expr := AnsiBBSExpr()
+	expr := querymod.AnsiBBSExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAnsiFTPExpr(t *testing.T) {
-	expr := AnsiFTPExpr()
+	expr := querymod.AnsiFTPExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAnsiNfoExpr(t *testing.T) {
-	expr := AnsiNfoExpr()
+	expr := querymod.AnsiNfoExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAnsiPackExpr(t *testing.T) {
-	expr := AnsiPackExpr()
+	expr := querymod.AnsiPackExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAnsiBrandExpr(t *testing.T) {
-	expr := AnsiBrandExpr()
+	expr := querymod.AnsiBrandExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAppleIIExpr(t *testing.T) {
-	expr := AppleIIExpr()
+	expr := querymod.AppleIIExpr()
 	be.True(t, expr != nil)
 }
 
 func TestAtariSTExpr(t *testing.T) {
-	expr := AtariSTExpr()
+	expr := querymod.AtariSTExpr()
 	be.True(t, expr != nil)
 }
 
 func TestBBSExpr(t *testing.T) {
-	expr := BBSExpr()
+	expr := querymod.BBSExpr()
 	be.True(t, expr != nil)
 }
 
 func TestBBSImageExpr(t *testing.T) {
-	expr := BBSImageExpr()
+	expr := querymod.BBSImageExpr()
 	be.True(t, expr != nil)
 }
 
 func TestBBStroExpr(t *testing.T) {
-	expr := BBStroExpr()
+	expr := querymod.BBStroExpr()
 	be.True(t, expr != nil)
 }
 
 func TestBBSTextExpr(t *testing.T) {
-	expr := BBSTextExpr()
+	expr := querymod.BBSTextExpr()
 	be.True(t, expr != nil)
 }
 
 func TestDemoExpr(t *testing.T) {
-	expr := DemoExpr()
+	expr := querymod.DemoExpr()
 	be.True(t, expr != nil)
 }
 
 func TestDramaExpr(t *testing.T) {
-	expr := DramaExpr()
+	expr := querymod.DramaExpr()
 	be.True(t, expr != nil)
 }
 
 func TestFTPExpr(t *testing.T) {
-	expr := FTPExpr()
+	expr := querymod.FTPExpr()
 	be.True(t, expr != nil)
 }
 
 func TestHackExpr(t *testing.T) {
-	expr := HackExpr()
+	expr := querymod.HackExpr()
 	be.True(t, expr != nil)
 }
 
 func TestInstallExpr(t *testing.T) {
-	expr := InstallExpr()
+	expr := querymod.InstallExpr()
 	be.True(t, expr != nil)
 }
 
 func TestIntroExpr(t *testing.T) {
-	expr := IntroExpr()
+	expr := querymod.IntroExpr()
 	be.True(t, expr != nil)
 }
 
 func TestIntroDOSExpr(t *testing.T) {
-	expr := IntroDOSExpr()
+	expr := querymod.IntroDOSExpr()
 	be.True(t, expr != nil)
 }
 
 func TestIntroWindowsExpr(t *testing.T) {
-	expr := IntroWindowsExpr()
+	expr := querymod.IntroWindowsExpr()
 	be.True(t, expr != nil)
 }
 
 func TestJobAdvertExpr(t *testing.T) {
-	expr := JobAdvertExpr()
+	expr := querymod.JobAdvertExpr()
 	be.True(t, expr != nil)
 }
 
 func TestDatabaseExpr(t *testing.T) {
-	expr := DatabaseExpr()
+	expr := querymod.DatabaseExpr()
 	be.True(t, expr != nil)
 }
 
 func TestDOSExpr(t *testing.T) {
-	expr := DOSExpr()
+	expr := querymod.DOSExpr()
 	be.True(t, expr != nil)
 }
 
 func TestDosPackExpr(t *testing.T) {
-	expr := DosPackExpr()
+	expr := querymod.DosPackExpr()
 	be.True(t, expr != nil)
 }
 
 func TestHTMLExpr(t *testing.T) {
-	expr := HTMLExpr()
+	expr := querymod.HTMLExpr()
 	be.True(t, expr != nil)
 }
 
 func TestHowToExpr(t *testing.T) {
-	expr := HowToExpr()
+	expr := querymod.HowToExpr()
 	be.True(t, expr != nil)
 }
 
 func TestLinuxExpr(t *testing.T) {
-	expr := LinuxExpr()
+	expr := querymod.LinuxExpr()
 	be.True(t, expr != nil)
 }
 
 func TestJavaExpr(t *testing.T) {
-	expr := JavaExpr()
+	expr := querymod.JavaExpr()
 	be.True(t, expr != nil)
 }
 
 func TestImageExpr(t *testing.T) {
-	expr := ImageExpr()
+	expr := querymod.ImageExpr()
 	be.True(t, expr != nil)
 }
 
 func TestImagePackExpr(t *testing.T) {
-	expr := ImagePackExpr()
+	expr := querymod.ImagePackExpr()
 	be.True(t, expr != nil)
 }
 
 func TestMacExpr(t *testing.T) {
-	expr := MacExpr()
+	expr := querymod.MacExpr()
 	be.True(t, expr != nil)
 }
 
 func TestMagExpr(t *testing.T) {
-	expr := MagExpr()
+	expr := querymod.MagExpr()
 	be.True(t, expr != nil)
 }
 
 func TestMusicExpr(t *testing.T) {
-	expr := MusicExpr()
+	expr := querymod.MusicExpr()
 	be.True(t, expr != nil)
 }
 
 func TestNewsArticleExpr(t *testing.T) {
-	expr := NewsArticleExpr()
+	expr := querymod.NewsArticleExpr()
 	be.True(t, expr != nil)
 }
 
 func TestNfoExpr(t *testing.T) {
-	expr := NfoExpr()
+	expr := querymod.NfoExpr()
 	be.True(t, expr != nil)
 }
 
 func TestNfoToolExpr(t *testing.T) {
-	expr := NfoToolExpr()
+	expr := querymod.NfoToolExpr()
 	be.True(t, expr != nil)
 }
 
 func TestPDFExpr(t *testing.T) {
-	expr := PDFExpr()
+	expr := querymod.PDFExpr()
 	be.True(t, expr != nil)
 }
 
 func TestProofExpr(t *testing.T) {
-	expr := ProofExpr()
+	expr := querymod.ProofExpr()
 	be.True(t, expr != nil)
 }
 
 func TestRestrictExpr(t *testing.T) {
-	expr := RestrictExpr()
+	expr := querymod.RestrictExpr()
 	be.True(t, expr != nil)
 }
 
 func TestScriptExpr(t *testing.T) {
-	expr := ScriptExpr()
+	expr := querymod.ScriptExpr()
 	be.True(t, expr != nil)
 }
 
 func TestStandardExpr(t *testing.T) {
-	expr := StandardExpr()
+	expr := querymod.StandardExpr()
 	be.True(t, expr != nil)
 }
 
 func TestTakedownExpr(t *testing.T) {
-	expr := TakedownExpr()
+	expr := querymod.TakedownExpr()
 	be.True(t, expr != nil)
 }
 
 func TestTextExpr(t *testing.T) {
-	expr := TextExpr()
+	expr := querymod.TextExpr()
 	be.True(t, expr != nil)
 }
 
 func TestTextAmigaExpr(t *testing.T) {
-	expr := TextAmigaExpr()
+	expr := querymod.TextAmigaExpr()
 	be.True(t, expr != nil)
 }
 
 func TestTextPackExpr(t *testing.T) {
-	expr := TextPackExpr()
+	expr := querymod.TextPackExpr()
 	be.True(t, expr != nil)
 }
 
 func TestToolExpr(t *testing.T) {
-	expr := ToolExpr()
+	expr := querymod.ToolExpr()
 	be.True(t, expr != nil)
 }
 
 func TestTrialCrackmeExpr(t *testing.T) {
-	expr := TrialCrackmeExpr()
+	expr := querymod.TrialCrackmeExpr()
 	be.True(t, expr != nil)
 }
 
 func TestVideoExpr(t *testing.T) {
-	expr := VideoExpr()
+	expr := querymod.VideoExpr()
 	be.True(t, expr != nil)
 }
 
 func TestWindowsExpr(t *testing.T) {
-	expr := WindowsExpr()
+	expr := querymod.WindowsExpr()
 	be.True(t, expr != nil)
 }
 
 func TestWindowsPackExpr(t *testing.T) {
-	expr := WindowsPackExpr()
+	expr := querymod.WindowsPackExpr()
 	be.True(t, expr != nil)
 }

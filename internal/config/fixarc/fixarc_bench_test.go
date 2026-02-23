@@ -1,4 +1,4 @@
-package fixarc
+package fixarc_test
 
 import (
 	"io"
@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Defacto2/server/internal/config/fixarc"
 	"github.com/Defacto2/server/internal/dir"
 )
 
@@ -82,7 +83,7 @@ func BenchmarkCheckFunctionOptimized(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, entry := range entries {
 			d := &MockDirEntry{name: entry.name, isDir: entry.isDir}
-			_ = Check(sl, "", extra, d)
+			_ = fixarc.Check(sl, "", extra, d)
 		}
 	}
 }

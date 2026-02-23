@@ -17,7 +17,7 @@ import (
 // columns is a cached reference to postgres.Columns() to avoid repeated function calls.
 var columns []string
 
-func getColumns() []string {
+func GetColumns() []string {
 	if columns == nil {
 		columns = postgres.Columns()
 	}
@@ -35,7 +35,7 @@ type Advert struct {
 func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AdvertExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
@@ -64,7 +64,7 @@ type Announcement struct {
 func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnnouncementExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
@@ -93,7 +93,7 @@ type Ansi struct {
 func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
@@ -122,7 +122,7 @@ type AnsiBrand struct {
 func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiBrandExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
@@ -151,7 +151,7 @@ type AnsiBBS struct {
 func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiBBSExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
@@ -180,7 +180,7 @@ type AnsiFTP struct {
 func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiFTPExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
@@ -209,7 +209,7 @@ type AnsiNfo struct {
 func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiNfoExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
@@ -238,7 +238,7 @@ type AnsiPack struct {
 func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiPackExpr(),
 		qm.From(From)).Bind(ctx, exec, a)
@@ -267,7 +267,7 @@ type BBS struct {
 func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSExpr(),
 		qm.From(From)).Bind(ctx, exec, b)
@@ -296,7 +296,7 @@ type BBStro struct {
 func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBStroExpr(),
 		qm.From(From)).Bind(ctx, exec, b)
@@ -338,7 +338,7 @@ type BBSImage struct {
 func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSImageExpr(),
 		qm.From(From)).Bind(ctx, exec, b)
@@ -367,7 +367,7 @@ type BBSText struct {
 func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSTextExpr(),
 		qm.From(From)).Bind(ctx, exec, b)
@@ -396,7 +396,7 @@ type Database struct {
 func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DatabaseExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
@@ -425,7 +425,7 @@ type Demoscene struct {
 func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DemoExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
@@ -454,7 +454,7 @@ type Drama struct {
 func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DramaExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
@@ -483,7 +483,7 @@ type FTP struct {
 func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.FTPExpr(),
 		qm.From(From)).Bind(ctx, exec, f)
@@ -512,7 +512,7 @@ type Hack struct {
 func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HackExpr(),
 		qm.From(From)).Bind(ctx, exec, h)
@@ -541,7 +541,7 @@ type HowTo struct {
 func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HowToExpr(),
 		qm.From(From)).Bind(ctx, exec, h)
@@ -570,7 +570,7 @@ type HTML struct {
 func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HTMLExpr(),
 		qm.From(From)).Bind(ctx, exec, h)
@@ -599,7 +599,7 @@ type Image struct {
 func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ImageExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
@@ -628,7 +628,7 @@ type ImagePack struct {
 func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ImagePackExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
@@ -657,7 +657,7 @@ type Intro struct {
 func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
@@ -686,7 +686,7 @@ type IntroMsDos struct {
 func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroDOSExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
@@ -716,7 +716,7 @@ type IntroWindows struct {
 func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroWindowsExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
@@ -745,7 +745,7 @@ type Installer struct {
 func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.InstallExpr(),
 		qm.From(From)).Bind(ctx, exec, i)
@@ -774,7 +774,7 @@ type Java struct {
 func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.JavaExpr(),
 		qm.From(From)).Bind(ctx, exec, j)
@@ -803,7 +803,7 @@ type JobAdvert struct {
 func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.JobAdvertExpr(),
 		qm.From(From)).Bind(ctx, exec, j)
@@ -832,7 +832,7 @@ type Linux struct {
 func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.LinuxExpr(),
 		qm.From(From)).Bind(ctx, exec, l)
@@ -861,7 +861,7 @@ type Magazine struct {
 func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MagExpr(),
 		qm.From(From)).Bind(ctx, exec, m)
@@ -890,7 +890,7 @@ type Macos struct {
 func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MacExpr(),
 		qm.From(From)).Bind(ctx, exec, m)
@@ -919,7 +919,7 @@ type MsDos struct {
 func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DOSExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
@@ -948,7 +948,7 @@ type MsDosPack struct {
 func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DosPackExpr(),
 		qm.From(From)).Bind(ctx, exec, d)
@@ -977,7 +977,7 @@ type Music struct {
 func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MusicExpr(),
 		qm.From(From)).Bind(ctx, exec, m)
@@ -1006,7 +1006,7 @@ type NewsArticle struct {
 func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NewsArticleExpr(),
 		qm.From(From)).Bind(ctx, exec, n)
@@ -1035,7 +1035,7 @@ type Nfo struct {
 func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NfoExpr(),
 		qm.From(From)).Bind(ctx, exec, n)
@@ -1064,7 +1064,7 @@ type NfoTool struct {
 func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NfoToolExpr(),
 		qm.From(From)).Bind(ctx, exec, n)
@@ -1093,7 +1093,7 @@ type PDF struct {
 func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PDFExpr(),
 		qm.From(From)).Bind(ctx, exec, p)
@@ -1122,7 +1122,7 @@ type Proof struct {
 func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ProofExpr(),
 		qm.From(From)).Bind(ctx, exec, p)
@@ -1150,7 +1150,7 @@ type Restrict struct {
 func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.RestrictExpr(),
 		qm.From(From)).Bind(ctx, exec, r)
@@ -1179,7 +1179,7 @@ type Script struct {
 func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ScriptExpr(),
 		qm.From(From)).Bind(ctx, exec, s)
@@ -1208,7 +1208,7 @@ type Standard struct {
 func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.StandardExpr(),
 		qm.From(From)).Bind(ctx, exec, s)
@@ -1237,7 +1237,7 @@ type Takedown struct {
 func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TakedownExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
@@ -1266,7 +1266,7 @@ type Text struct {
 func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
@@ -1295,7 +1295,7 @@ type TextAmiga struct {
 func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextAmigaExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
@@ -1324,7 +1324,7 @@ type TextApple2 struct {
 func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AppleIIExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
@@ -1353,7 +1353,7 @@ type TextAtariST struct {
 func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AtariSTExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
@@ -1382,7 +1382,7 @@ type TextPack struct {
 func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextPackExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
@@ -1411,7 +1411,7 @@ type Tool struct {
 func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ToolExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
@@ -1440,7 +1440,7 @@ type TrialCrackme struct {
 func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TrialCrackmeExpr(),
 		qm.From(From)).Bind(ctx, exec, t)
@@ -1469,7 +1469,7 @@ type Video struct {
 func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.VideoExpr(),
 		qm.From(From)).Bind(ctx, exec, v)
@@ -1498,7 +1498,7 @@ type Windows struct {
 func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.WindowsExpr(),
 		qm.From(From)).Bind(ctx, exec, w)
@@ -1527,7 +1527,7 @@ type WindowsPack struct {
 func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(getColumns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.WindowsPackExpr(),
 		qm.From(From)).Bind(ctx, exec, w)

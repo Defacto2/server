@@ -1,154 +1,155 @@
-package querymod
+package querymod_test
 
 import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/model/querymod"
 	"github.com/nalgeon/be"
 )
 
 // Test section functions return valid null.String values.
 
 func TestSAdvertReturnsValidTag(t *testing.T) {
-	result := SAdvert()
+	result := querymod.SAdvert()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.ForSale])
 }
 
 func TestSAnnouncementReturnsValidTag(t *testing.T) {
-	result := SAnnouncement()
+	result := querymod.SAnnouncement()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Announcement])
 }
 
 func TestSAppleIIReturnsValidTag(t *testing.T) {
-	result := SAppleII()
+	result := querymod.SAppleII()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.AppleII])
 }
 
 func TestSAtariSTReturnsValidTag(t *testing.T) {
-	result := SAtariST()
+	result := querymod.SAtariST()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.AtariST])
 }
 
 func TestSBbsReturnsValidTag(t *testing.T) {
-	result := SBbs()
+	result := querymod.SBbs()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.BBS])
 }
 
 func TestSBrandReturnsValidTag(t *testing.T) {
-	result := SBrand()
+	result := querymod.SBrand()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Logo])
 }
 
 func TestSDemoReturnsValidTag(t *testing.T) {
-	result := SDemo()
+	result := querymod.SDemo()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Demo])
 }
 
 func TestSDramaReturnsValidTag(t *testing.T) {
-	result := SDrama()
+	result := querymod.SDrama()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Drama])
 }
 
 func TestSFtpReturnsValidTag(t *testing.T) {
-	result := SFtp()
+	result := querymod.SFtp()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Ftp])
 }
 
 func TestSHackReturnsValidTag(t *testing.T) {
-	result := SHack()
+	result := querymod.SHack()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.GameHack])
 }
 
 func TestSHowToReturnsValidTag(t *testing.T) {
-	result := SHowTo()
+	result := querymod.SHowTo()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Guide])
 }
 
 func TestSInstallReturnsValidTag(t *testing.T) {
-	result := SInstall()
+	result := querymod.SInstall()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Install])
 }
 
 func TestSIntroReturnsValidTag(t *testing.T) {
-	result := SIntro()
+	result := querymod.SIntro()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Intro])
 }
 
 func TestSJobAdvertReturnsValidTag(t *testing.T) {
-	result := SJobAdvert()
+	result := querymod.SJobAdvert()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Job])
 }
 
 func TestSMagReturnsValidTag(t *testing.T) {
-	result := SMag()
+	result := querymod.SMag()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Mag])
 }
 
 func TestSNewsReturnsValidTag(t *testing.T) {
-	result := SNews()
+	result := querymod.SNews()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.News])
 }
 
 func TestSNfoReturnsValidTag(t *testing.T) {
-	result := SNfo()
+	result := querymod.SNfo()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Nfo])
 }
 
 func TestSNfoToolReturnsValidTag(t *testing.T) {
-	result := SNfoTool()
+	result := querymod.SNfoTool()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.NfoTool])
 }
 
 func TestSPackReturnsValidTag(t *testing.T) {
-	result := SPack()
+	result := querymod.SPack()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Pack])
 }
 
 func TestSProofReturnsValidTag(t *testing.T) {
-	result := SProof()
+	result := querymod.SProof()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Proof])
 }
 
 func TestSRestrictReturnsValidTag(t *testing.T) {
-	result := SRestrict()
+	result := querymod.SRestrict()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Restrict])
 }
 
 func TestSStandardReturnsValidTag(t *testing.T) {
-	result := SStandard()
+	result := querymod.SStandard()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Rule])
 }
 
 func TestSTakedownReturnsValidTag(t *testing.T) {
-	result := STakedown()
+	result := querymod.STakedown()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Bust])
 }
 
 func TestSToolReturnsValidTag(t *testing.T) {
-	result := STool()
+	result := querymod.STool()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Tool])
 }
@@ -156,110 +157,91 @@ func TestSToolReturnsValidTag(t *testing.T) {
 // Test platform functions return valid null.String values.
 
 func TestPAnsiReturnsValidTag(t *testing.T) {
-	result := PAnsi()
+	result := querymod.PAnsi()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.ANSI])
 }
 
 func TestPDatabaseReturnsValidTag(t *testing.T) {
-	result := PDatabase()
+	result := querymod.PDatabase()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.DataB])
 }
 
 func TestPDosReturnsValidTag(t *testing.T) {
-	result := PDos()
+	result := querymod.PDos()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.DOS])
 }
 
 func TestPHtmlReturnsValidTag(t *testing.T) {
-	result := PHtml()
+	result := querymod.PHtml()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Markup])
 }
 
 func TestPImageReturnsValidTag(t *testing.T) {
-	result := PImage()
+	result := querymod.PImage()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Image])
 }
 
 func TestPLinuxReturnsValidTag(t *testing.T) {
-	result := PLinux()
+	result := querymod.PLinux()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Linux])
 }
 
 func TestPJavaReturnsValidTag(t *testing.T) {
-	result := PJava()
+	result := querymod.PJava()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Java])
 }
 
 func TestPMacReturnsValidTag(t *testing.T) {
-	result := PMac()
+	result := querymod.PMac()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Mac])
 }
 
 func TestPMusicReturnsValidTag(t *testing.T) {
-	result := PMusic()
+	result := querymod.PMusic()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Audio])
 }
 
 func TestPPdfReturnsValidTag(t *testing.T) {
-	result := PPdf()
+	result := querymod.PPdf()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.PDF])
 }
 
 func TestPScriptReturnsValidTag(t *testing.T) {
-	result := PScript()
+	result := querymod.PScript()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.PHP])
 }
 
 func TestPTextReturnsValidTag(t *testing.T) {
-	result := PText()
+	result := querymod.PText()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Text])
 }
 
 func TestPTextAmigaReturnsValidTag(t *testing.T) {
-	result := PTextAmiga()
+	result := querymod.PTextAmiga()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.TextAmiga])
 }
 
 func TestPVideoReturnsValidTag(t *testing.T) {
-	result := PVideo()
+	result := querymod.PVideo()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Video])
 }
 
 func TestPWindowsReturnsValidTag(t *testing.T) {
-	result := PWindows()
+	result := querymod.PWindows()
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Windows])
-}
-
-// Test caching optimization.
-
-func TestURICachingOptimization(t *testing.T) {
-	// First call should populate the cache.
-	call1 := getURIs()
-	be.True(t, call1 != nil)
-
-	// Second call should return the same cached reference.
-	call2 := getURIs()
-	be.True(t, call2 != nil)
-	be.Equal(t, len(call1), len(call2))
-
-	// Verify cache contains expected tags.
-	be.True(t, len(call1) > 0)
-	be.True(t, call1[tags.ForSale] != "")
-	be.True(t, call1[tags.Demo] != "")
-	be.True(t, call1[tags.Windows] != "")
 }

@@ -111,7 +111,7 @@ func tintOptions(minimum slog.Level, flag int) tint.Options {
 		if flag&(FlagAttr) != 0 {
 			return flagAttr(a)
 		}
-		a = replaceAttr(a)
+		a = ReplaceAttr(a)
 		return a
 	}
 	return tint.Options{
@@ -123,8 +123,8 @@ func tintOptions(minimum slog.Level, flag int) tint.Options {
 	}
 }
 
-// replaceAttr formats specific keys and values for readability.
-func replaceAttr(a slog.Attr) slog.Attr {
+// ReplaceAttr formats specific keys and values for readability.
+func ReplaceAttr(a slog.Attr) slog.Attr {
 	key := strings.ToLower(a.Key)
 	switch key {
 	case "":
@@ -195,7 +195,7 @@ func timeformat(flag int) string {
 
 // flagAttr formats the keys and values used by the config.Config struct.
 func flagAttr(a slog.Attr) slog.Attr {
-	a = configUnsetAttr(a)
+	a = ConfigUnsetAttr(a)
 	switch strings.ToLower(a.Key) {
 	case "":
 		return slog.Attr{}
@@ -204,15 +204,15 @@ func flagAttr(a slog.Attr) slog.Attr {
 	case "help":
 		return configHelpAttr(a)
 	case "issue":
-		return configIssueAttr(a)
+		return ConfigIssueAttr(a)
 	case "msg":
 		return configMsgAttr(a)
 	}
 	return a
 }
 
-// configUnsetAttr drops the ',unset' suffix found in some keys.
-func configUnsetAttr(a slog.Attr) slog.Attr {
+// ConfigUnsetAttr drops the ',unset' suffix found in some keys.
+func ConfigUnsetAttr(a slog.Attr) slog.Attr {
 	const unset = ",unset"
 	if trimmed, ok := strings.CutSuffix(a.Key, unset); ok {
 		a.Key = trimmed
@@ -228,8 +228,8 @@ func configHelpAttr(a slog.Attr) slog.Attr {
 	return a
 }
 
-// configIssueAttr applies formatting for the optional "issue" key.
-func configIssueAttr(a slog.Attr) slog.Attr {
+// ConfigIssueAttr applies formatting for the optional "issue" key.
+func ConfigIssueAttr(a slog.Attr) slog.Attr {
 	if a.Value.String() == "" {
 		return slog.Attr{}
 	}

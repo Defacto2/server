@@ -10,6 +10,7 @@ import (
 )
 
 func TestCache(t *testing.T) {
+	t.Parallel()
 	t.Cleanup(func() {
 		// Remove cacheDB directory
 		path := filepath.Join(helper.TmpDir(), cache.SubDir)

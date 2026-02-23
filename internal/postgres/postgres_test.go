@@ -1,34 +1,35 @@
-package postgres
+package postgres_test
 
 import (
 	"log/slog"
 	"strings"
 	"testing"
 
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/nalgeon/be"
 )
 
 // TestDefaultURL verifies the default connection URL format.
 func TestDefaultURL(t *testing.T) {
-	be.True(t, strings.HasPrefix(DefaultURL, "postgres://"))
-	be.True(t, strings.Contains(DefaultURL, "localhost"))
-	be.True(t, strings.Contains(DefaultURL, "defacto2_ps"))
+	be.True(t, strings.HasPrefix(postgres.DefaultURL, "postgres://"))
+	be.True(t, strings.Contains(postgres.DefaultURL, "localhost"))
+	be.True(t, strings.Contains(postgres.DefaultURL, "defacto2_ps"))
 }
 
 // TestDriverName verifies the driver name is correct.
 func TestDriverName(t *testing.T) {
-	be.Equal(t, "pgx", DriverName)
+	be.Equal(t, "pgx", postgres.DriverName)
 }
 
 // TestProtocol verifies the protocol name is correct.
 func TestProtocol(t *testing.T) {
-	be.Equal(t, "postgres", Protocol)
+	be.Equal(t, "postgres", postgres.Protocol)
 }
 
 // TestErrEnvValue verifies the error value is defined.
 func TestErrEnvValue(t *testing.T) {
-	be.True(t, len(ErrEnvValue.Error()) > 0)
-	be.True(t, strings.Contains(ErrEnvValue.Error(), "environment"))
+	be.True(t, len(postgres.ErrEnvValue.Error()) > 0)
+	be.True(t, strings.Contains(postgres.ErrEnvValue.Error(), "environment"))
 }
 
 // TestConnectionValidate tests the Connection.Validate method.
@@ -64,7 +65,7 @@ func TestConnectionValidate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			conn := Connection{URL: tt.url}
+			conn := postgres.Connection{URL: tt.url}
 			err := conn.Validate(logger)
 
 			if tt.shouldError {
@@ -78,37 +79,37 @@ func TestConnectionValidate(t *testing.T) {
 
 // TestConnectionValidateNilLogger tests Validate with nil logger.
 func TestConnectionValidateNilLogger(t *testing.T) {
-	conn := Connection{URL: "postgres://localhost"}
+	conn := postgres.Connection{URL: "postgres://localhost"}
 	err := conn.Validate(nil)
 	be.True(t, err != nil)
 }
 
 // TestNew tests the New connection initialization.
 func TestNew(t *testing.T) {
-	conn, err := New()
+	conn, err := postgres.New()
 
 	be.Equal(t, nil, err)
 	be.True(t, len(conn.URL) > 0)
 	// Should use default URL when no env var is set
-	be.True(t, strings.HasPrefix(conn.URL, "postgres://") || conn.URL == DefaultURL)
+	be.True(t, strings.HasPrefix(conn.URL, "postgres://") || conn.URL == postgres.DefaultURL)
 }
 
 // TestConnectionStruct tests the Connection struct fields.
 func TestConnectionStruct(t *testing.T) {
-	conn := Connection{URL: "postgres://test"}
+	conn := postgres.Connection{URL: "postgres://test"}
 	be.Equal(t, "postgres://test", conn.URL)
 }
 
 // TestVersionQuery tests Version with nil database.
 func TestVersionQuery_NilDB(t *testing.T) {
-	var v Version
+	var v postgres.Version
 	err := v.Query(nil)
 	be.Equal(t, nil, err)
 }
 
 // BenchmarkVersionString benchmarks the Version.String method.
 func BenchmarkVersionString(b *testing.B) {
-	v := Version("PostgreSQL 13.8 on x86_64-pc-linux-gnu")
+	v := postgres.Version("PostgreSQL 13.8 on x86_64-pc-linux-gnu")
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = v.String()
@@ -118,21 +119,21 @@ func BenchmarkVersionString(b *testing.B) {
 // BenchmarkColumns benchmarks the Columns function.
 func BenchmarkColumns(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Columns()
+		_ = postgres.Columns()
 	}
 }
 
 // BenchmarkStat benchmarks the Stat function.
 func BenchmarkStat(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Stat()
+		_ = postgres.Stat()
 	}
 }
 
 // BenchmarkConnectionValidate benchmarks the Connection.Validate method.
 func BenchmarkConnectionValidate(b *testing.B) {
 	logger := slog.Default()
-	conn := Connection{URL: "postgres://localhost:5432/test"}
+	conn := postgres.Connection{URL: "postgres://localhost:5432/test"}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = conn.Validate(logger)
@@ -142,125 +143,125 @@ func BenchmarkConnectionValidate(b *testing.B) {
 // BenchmarkRoles benchmarks the Roles function.
 func BenchmarkRoles(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Roles()
+		_ = postgres.Roles()
 	}
 }
 
 // BenchmarkReleasersAlphabetical benchmarks the ReleasersAlphabetical function.
 func BenchmarkReleasersAlphabetical(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = ReleasersAlphabetical()
+		_ = postgres.ReleasersAlphabetical()
 	}
 }
 
 // BenchmarkBBSsAlphabetical benchmarks the BBSsAlphabetical function.
 func BenchmarkBBSsAlphabetical(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = BBSsAlphabetical()
+		_ = postgres.BBSsAlphabetical()
 	}
 }
 
 // BenchmarkMagazinesAlphabetical benchmarks the MagazinesAlphabetical function.
 func BenchmarkMagazinesAlphabetical(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = MagazinesAlphabetical()
+		_ = postgres.MagazinesAlphabetical()
 	}
 }
 
 // BenchmarkReleasersProlific benchmarks the ReleasersProlific function.
 func BenchmarkReleasersProlific(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = ReleasersProlific()
+		_ = postgres.ReleasersProlific()
 	}
 }
 
 // BenchmarkReleasersOldest benchmarks the ReleasersOldest function.
 func BenchmarkReleasersOldest(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = ReleasersOldest()
+		_ = postgres.ReleasersOldest()
 	}
 }
 
 // BenchmarkSceners benchmarks the Sceners function.
 func BenchmarkSceners(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Sceners()
+		_ = postgres.Sceners()
 	}
 }
 
 // BenchmarkWriters benchmarks the Writers function.
 func BenchmarkWriters(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Writers()
+		_ = postgres.Writers()
 	}
 }
 
 // BenchmarkArtists benchmarks the Artists function.
 func BenchmarkArtists(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Artists()
+		_ = postgres.Artists()
 	}
 }
 
 // BenchmarkCoders benchmarks the Coders function.
 func BenchmarkCoders(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Coders()
+		_ = postgres.Coders()
 	}
 }
 
 // BenchmarkMusicians benchmarks the Musicians function.
 func BenchmarkMusicians(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Musicians()
+		_ = postgres.Musicians()
 	}
 }
 
 // BenchmarkSetUpper benchmarks the SetUpper function.
 func BenchmarkSetUpper(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = SetUpper("releaser")
+		_ = postgres.SetUpper("releaser")
 	}
 }
 
 // BenchmarkSetFilesize0 benchmarks the SetFilesize0 function.
 func BenchmarkSetFilesize0(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = SetFilesize0()
+		_ = postgres.SetFilesize0()
 	}
 }
 
 // BenchmarkSumSection benchmarks the SumSection function.
 func BenchmarkSumSection(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = SumSection()
+		_ = postgres.SumSection()
 	}
 }
 
 // BenchmarkSumGroup benchmarks the SumGroup function.
 func BenchmarkSumGroup(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = SumGroup()
+		_ = postgres.SumGroup()
 	}
 }
 
 // BenchmarkSumPlatform benchmarks the SumPlatform function.
 func BenchmarkSumPlatform(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = SumPlatform()
+		_ = postgres.SumPlatform()
 	}
 }
 
 // BenchmarkSummary benchmarks the Summary function.
 func BenchmarkSummary(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Summary()
+		_ = postgres.Summary()
 	}
 }
 
 // BenchmarkReleasers benchmarks the Releasers function.
 func BenchmarkReleasers(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Releasers()
+		_ = postgres.Releasers()
 	}
 }

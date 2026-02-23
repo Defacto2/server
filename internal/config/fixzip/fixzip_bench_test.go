@@ -1,10 +1,11 @@
-package fixzip
+package fixzip_test
 
 import (
 	"io"
 	"log/slog"
 	"testing"
 
+	"github.com/Defacto2/server/internal/config/fixzip"
 	"github.com/Defacto2/server/internal/dir"
 )
 
@@ -17,7 +18,7 @@ func BenchmarkCheckInvalidExtension(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(sl, "", extra, d, artifacts...)
+		_ = fixzip.Check(sl, "", extra, d, artifacts...)
 	}
 }
 
@@ -29,7 +30,7 @@ func BenchmarkCheckDirectory(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(sl, "", extra, d)
+		_ = fixzip.Check(sl, "", extra, d)
 	}
 }
 
@@ -41,7 +42,7 @@ func BenchmarkCheckUppercaseExtension(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(sl, "", extra, d)
+		_ = fixzip.Check(sl, "", extra, d)
 	}
 }
 
@@ -60,7 +61,7 @@ func BenchmarkCheckManyArtifacts(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(sl, "", extra, d, artifacts...)
+		_ = fixzip.Check(sl, "", extra, d, artifacts...)
 	}
 }
 
@@ -72,6 +73,6 @@ func BenchmarkCheckNoExtension(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = Check(sl, "", extra, d)
+		_ = fixzip.Check(sl, "", extra, d)
 	}
 }
