@@ -10,7 +10,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 )
 
-// BenchmarkExtensionExtractionOld simulates the old approach (Ext called twice + full ToLower)
+// BenchmarkExtensionExtractionOld simulates the old approach (Ext called twice + full ToLower).
 func BenchmarkExtensionExtractionOld(b *testing.B) {
 	names := []string{
 		"file123.ZIP",
@@ -36,7 +36,7 @@ func BenchmarkExtensionExtractionOld(b *testing.B) {
 	}
 }
 
-// BenchmarkExtensionExtractionNew simulates the new optimized approach
+// BenchmarkExtensionExtractionNew simulates the new optimized approach.
 func BenchmarkExtensionExtractionNew(b *testing.B) {
 	names := []string{
 		"file123.ZIP",
@@ -60,7 +60,7 @@ func BenchmarkExtensionExtractionNew(b *testing.B) {
 	}
 }
 
-// BenchmarkCheckFunctionOptimized measures the optimized Check function
+// BenchmarkCheckFunctionOptimized measures the optimized Check function.
 func BenchmarkCheckFunctionOptimized(b *testing.B) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := b.TempDir()

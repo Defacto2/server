@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-// BenchmarkStringConcatenation compares string concatenation performance
-// This demonstrates why fmt.Fprintf is better than string concatenation
+// BenchmarkStringConcatenation compares string concatenation performance.
+// This demonstrates why fmt.Fprintf is better than string concatenation.
 func BenchmarkStringConcatenation(b *testing.B) {
 	columns := []string{
 		"col1", "col2", "col3", "col4", "col5",
@@ -23,7 +23,7 @@ func BenchmarkStringConcatenation(b *testing.B) {
 	}
 }
 
-// BenchmarkStringBuilder demonstrates the optimized approach
+// BenchmarkStringBuilder demonstrates the optimized approach.
 func BenchmarkStringBuilder(b *testing.B) {
 	columns := []string{
 		"col1", "col2", "col3", "col4", "col5",
@@ -39,7 +39,7 @@ func BenchmarkStringBuilder(b *testing.B) {
 	}
 }
 
-// BenchmarkStringBuilderFprintf is the best approach with fmt.Fprintf
+// BenchmarkStringBuilderFprintf is the best approach with fmt.Fprintf.
 func BenchmarkStringBuilderFprintf(b *testing.B) {
 	columns := []string{
 		"col1", "col2", "col3", "col4", "col5",
@@ -59,7 +59,7 @@ func BenchmarkStringBuilderFprintf(b *testing.B) {
 	}
 }
 
-// BenchmarkSliceReallocationVsReuse compares slice reallocation vs reuse
+// BenchmarkSliceReallocationVsReuse compares slice reallocation vs reuse.
 func BenchmarkSliceReallocate(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -69,7 +69,7 @@ func BenchmarkSliceReallocate(b *testing.B) {
 	}
 }
 
-// BenchmarkSliceReuse shows the optimized approach
+// BenchmarkSliceReuse shows the optimized approach.
 func BenchmarkSliceReuse(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -81,7 +81,7 @@ func BenchmarkSliceReuse(b *testing.B) {
 	}
 }
 
-// BenchmarkLoopConditionCheck compares redundant condition checks
+// BenchmarkLoopConditionCheck compares redundant condition checks.
 func BenchmarkRedundantCondition(b *testing.B) {
 	size := 1000
 	b.ResetTimer()
@@ -96,7 +96,7 @@ func BenchmarkRedundantCondition(b *testing.B) {
 	}
 }
 
-// BenchmarkNoRedundantCondition shows the optimized version
+// BenchmarkNoRedundantCondition shows the optimized version.
 func BenchmarkNoRedundantCondition(b *testing.B) {
 	size := 1000
 	b.ResetTimer()
@@ -109,7 +109,7 @@ func BenchmarkNoRedundantCondition(b *testing.B) {
 	}
 }
 
-// BenchmarkParameterizedQuerySetup demonstrates the performance of parameterized queries
+// BenchmarkParameterizedQuerySetup demonstrates the performance of parameterized queries.
 func BenchmarkParameterizedQuerySetup(b *testing.B) {
 	trainer := "gamehack"
 	b.ResetTimer()
@@ -120,7 +120,7 @@ func BenchmarkParameterizedQuerySetup(b *testing.B) {
 	}
 }
 
-// BenchmarkStringFormatQuerySetup shows the old fmt.Sprintf approach
+// BenchmarkStringFormatQuerySetup shows the old fmt.Sprintf approach.
 func BenchmarkStringFormatQuerySetup(b *testing.B) {
 	trainer := "gamehack"
 	b.ResetTimer()
@@ -131,7 +131,7 @@ func BenchmarkStringFormatQuerySetup(b *testing.B) {
 	}
 }
 
-// BenchmarkContextPassthrough demonstrates context overhead
+// BenchmarkContextPassthrough demonstrates context overhead.
 func BenchmarkContextPassthrough(b *testing.B) {
 	ctx := context.Background()
 	b.ResetTimer()
@@ -141,7 +141,7 @@ func BenchmarkContextPassthrough(b *testing.B) {
 	}
 }
 
-// BenchmarkSliceCapacityPreallocation shows allocation efficiency
+// BenchmarkSliceCapacityPreallocation shows allocation efficiency.
 func BenchmarkSliceAllocation(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -153,7 +153,7 @@ func BenchmarkSliceAllocation(b *testing.B) {
 	}
 }
 
-// BenchmarkStringBuilderFormatting demonstrates format string efficiency
+// BenchmarkStringBuilderFormatting demonstrates format string efficiency.
 func BenchmarkStringBuilderFormat(b *testing.B) {
 	columns := []string{"a", "b", "c", "d", "e"}
 	b.ResetTimer()
@@ -170,7 +170,7 @@ func BenchmarkStringBuilderFormat(b *testing.B) {
 	}
 }
 
-// BenchmarkFixesMapAllocation shows the old approach creating new map each time
+// BenchmarkFixesMapAllocation shows the old approach creating new map each time.
 func BenchmarkFixesMapAllocation(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -184,7 +184,7 @@ func BenchmarkFixesMapAllocation(b *testing.B) {
 	}
 }
 
-// BenchmarkFixesMapPackageLevel shows optimized approach using package-level map
+// BenchmarkFixesMapPackageLevel shows optimized approach using package-level map.
 func BenchmarkFixesMapPackageLevel(b *testing.B) {
 	fixesMapLocal := map[string]string{
 		"a": "A", "b": "B", "c": "C", "d": "D", "e": "E",
@@ -197,7 +197,7 @@ func BenchmarkFixesMapPackageLevel(b *testing.B) {
 	}
 }
 
-// BenchmarkToUpperInLoop shows the old approach with repeated conversions
+// BenchmarkToUpperInLoop shows the old approach with repeated conversions.
 func BenchmarkToUpperInLoop(b *testing.B) {
 	items := []string{"acid", "ice", "damn", "rss", "dsi"}
 	b.ResetTimer()
@@ -209,7 +209,7 @@ func BenchmarkToUpperInLoop(b *testing.B) {
 	}
 }
 
-// BenchmarkToUpperPrecomputed shows optimized approach with pre-computed values
+// BenchmarkToUpperPrecomputed shows optimized approach with pre-computed values.
 func BenchmarkToUpperPrecomputed(b *testing.B) {
 	itemsUpper := map[string]string{
 		"ACID": "ACID", "ICE": "ICE", "DAMN": "DAMN",

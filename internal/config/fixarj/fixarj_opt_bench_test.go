@@ -10,7 +10,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 )
 
-// BenchmarkCheckOptimizations measures optimization improvements
+// BenchmarkCheckOptimizations measures optimization improvements.
 func BenchmarkCheckOptimizations(b *testing.B) {
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)
@@ -25,7 +25,7 @@ func BenchmarkCheckOptimizations(b *testing.B) {
 	}
 }
 
-// BenchmarkInvalidBytesOptimization measures string vs bytes.Contains optimization
+// BenchmarkInvalidBytesOptimization measures string vs bytes.Contains optimization.
 func BenchmarkInvalidBytesOptimization(b *testing.B) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := b.TempDir()
@@ -42,7 +42,7 @@ func BenchmarkInvalidBytesOptimization(b *testing.B) {
 	}
 }
 
-// BenchmarkCheckWithExtraZip tests the optimization where extra zip exists
+// BenchmarkCheckWithExtraZip tests the optimization where extra zip exists.
 func BenchmarkCheckWithExtraZip(b *testing.B) {
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)
@@ -64,7 +64,7 @@ func BenchmarkCheckWithExtraZip(b *testing.B) {
 	}
 }
 
-// BenchmarkCheckWithoutExtraZip tests the non-optimization path
+// BenchmarkCheckWithoutExtraZip tests the non-optimization path.
 func BenchmarkCheckWithoutExtraZip(b *testing.B) {
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)

@@ -7,7 +7,7 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 )
 
-// BenchmarkTagByURI tests the optimized O(1) lookup
+// BenchmarkTagByURI tests the optimized O(1) lookup.
 func BenchmarkTagByURI(b *testing.B) {
 	slugs := []string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
 	b.ResetTimer()
@@ -18,7 +18,7 @@ func BenchmarkTagByURI(b *testing.B) {
 	}
 }
 
-// BenchmarkTagByURILinearSearch simulates the old O(n) approach for comparison
+// BenchmarkTagByURILinearSearch simulates the old O(n) approach for comparison.
 func BenchmarkTagByURILinearSearch(b *testing.B) {
 	slugs := []string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
 	b.ResetTimer()
@@ -29,7 +29,7 @@ func BenchmarkTagByURILinearSearch(b *testing.B) {
 	}
 }
 
-// oldTagByURI is the original O(n) implementation for benchmarking comparison
+// oldTagByURI is the original O(n) implementation for benchmarking comparison.
 func oldTagByURI(slug string) tags.Tag {
 	for key, value := range tags.URIs() {
 		if strings.ToLower(slug) == value {
@@ -39,7 +39,7 @@ func oldTagByURI(slug string) tags.Tag {
 	return -1
 }
 
-// BenchmarkURIsCalls tests the optimized cached map
+// BenchmarkURIsCalls tests the optimized cached map.
 func BenchmarkURIsCalls(b *testing.B) {
 	b.ReportAllocs()
 	for range b.N {
@@ -47,7 +47,7 @@ func BenchmarkURIsCalls(b *testing.B) {
 	}
 }
 
-// BenchmarkNamesCalls tests the optimized cached map
+// BenchmarkNamesCalls tests the optimized cached map.
 func BenchmarkNamesCalls(b *testing.B) {
 	b.ReportAllocs()
 	for range b.N {
@@ -55,7 +55,7 @@ func BenchmarkNamesCalls(b *testing.B) {
 	}
 }
 
-// BenchmarkInfosCalls tests the optimized cached map
+// BenchmarkInfosCalls tests the optimized cached map.
 func BenchmarkInfosCalls(b *testing.B) {
 	b.ReportAllocs()
 	for range b.N {
@@ -63,7 +63,7 @@ func BenchmarkInfosCalls(b *testing.B) {
 	}
 }
 
-// BenchmarkDeterminerCalls tests the optimized cached map
+// BenchmarkDeterminerCalls tests the optimized cached map.
 func BenchmarkDeterminerCalls(b *testing.B) {
 	b.ReportAllocs()
 	for range b.N {
@@ -71,7 +71,7 @@ func BenchmarkDeterminerCalls(b *testing.B) {
 	}
 }
 
-// BenchmarkBuildSimulation simulates old Build() accessing maps 40+ times each
+// BenchmarkBuildSimulation simulates old Build() accessing maps 40+ times each.
 func BenchmarkBuildSimulation(b *testing.B) {
 	b.ReportAllocs()
 	for range b.N {
@@ -83,7 +83,7 @@ func BenchmarkBuildSimulation(b *testing.B) {
 	}
 }
 
-// BenchmarkIsCategory tests the optimized O(1) lookup
+// BenchmarkIsCategory tests the optimized O(1) lookup.
 func BenchmarkIsCategory(b *testing.B) {
 	names := []string{"announcements", "demo", "text", "ansi", "linux"}
 	b.ResetTimer()
@@ -94,7 +94,7 @@ func BenchmarkIsCategory(b *testing.B) {
 	}
 }
 
-// BenchmarkIsCategoryOld simulates old O(n) implementation
+// BenchmarkIsCategoryOld simulates old O(n) implementation.
 func BenchmarkIsCategoryOld(b *testing.B) {
 	names := []string{"announcements", "demo", "text", "ansi", "linux"}
 	b.ResetTimer()
@@ -105,7 +105,7 @@ func BenchmarkIsCategoryOld(b *testing.B) {
 	}
 }
 
-// oldIsCategory simulates the old O(n) iteration
+// oldIsCategory simulates the old O(n) iteration.
 func oldIsCategory(name string) bool {
 	name = strings.TrimSpace(name)
 	if name == "" {
@@ -119,7 +119,7 @@ func oldIsCategory(name string) bool {
 	return false
 }
 
-// BenchmarkIsPlatform tests the optimized O(1) lookup
+// BenchmarkIsPlatform tests the optimized O(1) lookup.
 func BenchmarkIsPlatform(b *testing.B) {
 	names := []string{"ansi", "dos", "windows", "linux", "java"}
 	b.ResetTimer()
@@ -130,7 +130,7 @@ func BenchmarkIsPlatform(b *testing.B) {
 	}
 }
 
-// BenchmarkIsTag tests the optimized O(1) lookup
+// BenchmarkIsTag tests the optimized O(1) lookup.
 func BenchmarkIsTag(b *testing.B) {
 	names := []string{"ansi", "demo", "windows", "text", "java"}
 	b.ResetTimer()

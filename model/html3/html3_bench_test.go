@@ -7,7 +7,7 @@ import (
 	"github.com/Defacto2/server/model/html3"
 )
 
-// BenchmarkOrderStringOld simulates the old approach creating map each call
+// BenchmarkOrderStringOld simulates the old approach creating map each call.
 func BenchmarkOrderStringOld(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -28,7 +28,7 @@ func BenchmarkOrderStringOld(b *testing.B) {
 	}
 }
 
-// BenchmarkOrderStringNew uses package-level map
+// BenchmarkOrderStringNew uses package-level map.
 func BenchmarkOrderStringNew(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -37,7 +37,7 @@ func BenchmarkOrderStringNew(b *testing.B) {
 	}
 }
 
-// BenchmarkOrderStringLookup tests rapid order lookups
+// BenchmarkOrderStringLookup tests rapid order lookups.
 func BenchmarkOrderStringLookup(b *testing.B) {
 	orders := []html3.Order{
 		html3.NameAsc, html3.NameDes,
@@ -54,7 +54,7 @@ func BenchmarkOrderStringLookup(b *testing.B) {
 	}
 }
 
-// BenchmarkCreated tests the Created() function performance
+// BenchmarkCreated tests the Created() function performance.
 func BenchmarkCreated(b *testing.B) {
 	// This is a fast function, but benchmark for regression detection
 	b.ResetTimer()
@@ -63,7 +63,7 @@ func BenchmarkCreated(b *testing.B) {
 	}
 }
 
-// BenchmarkPublished tests the Published() function performance
+// BenchmarkPublished tests the Published() function performance.
 func BenchmarkPublished(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -71,7 +71,7 @@ func BenchmarkPublished(b *testing.B) {
 	}
 }
 
-// BenchmarkLeadStr tests string padding performance
+// BenchmarkLeadStr tests string padding performance.
 func BenchmarkLeadStr(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -79,7 +79,7 @@ func BenchmarkLeadStr(b *testing.B) {
 	}
 }
 
-// BenchmarkIcon tests icon lookup performance
+// BenchmarkIcon tests icon lookup performance.
 func BenchmarkIcon(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -87,7 +87,7 @@ func BenchmarkIcon(b *testing.B) {
 	}
 }
 
-// BenchmarkLeadStrOld simulates old string allocation every call
+// BenchmarkLeadStrOld simulates old string allocation every call.
 func BenchmarkLeadStrOld(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -97,7 +97,7 @@ func BenchmarkLeadStrOld(b *testing.B) {
 	}
 }
 
-// BenchmarkLeadStrOptimized uses pre-computed padding
+// BenchmarkLeadStrOptimized uses pre-computed padding.
 func BenchmarkLeadStrOptimized(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
@@ -107,7 +107,7 @@ func BenchmarkLeadStrOptimized(b *testing.B) {
 	}
 }
 
-// BenchmarkPublishedWithFlags demonstrates state machine approach
+// BenchmarkPublishedWithFlags demonstrates state machine approach.
 func BenchmarkPublishedOptimized(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {

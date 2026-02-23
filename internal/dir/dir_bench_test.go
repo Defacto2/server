@@ -6,7 +6,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 )
 
-// Benchmark Join function (now without redundant filepath.Clean)
+// Benchmark Join function (now without redundant filepath.Clean).
 func BenchmarkJoin(b *testing.B) {
 	d := dir.Directory("/tmp")
 	for range b.N {
@@ -14,7 +14,7 @@ func BenchmarkJoin(b *testing.B) {
 	}
 }
 
-// Benchmark Join with nested paths
+// Benchmark Join with nested paths.
 func BenchmarkJoinNested(b *testing.B) {
 	d := dir.Directory("/var/lib/defacto2/downloads")
 	for range b.N {
@@ -22,7 +22,7 @@ func BenchmarkJoinNested(b *testing.B) {
 	}
 }
 
-// Benchmark IsDir validation
+// Benchmark IsDir validation.
 func BenchmarkIsDir(b *testing.B) {
 	d := dir.Directory("/tmp")
 	b.ResetTimer()
@@ -31,7 +31,7 @@ func BenchmarkIsDir(b *testing.B) {
 	}
 }
 
-// Benchmark Path() method
+// Benchmark Path() method.
 func BenchmarkPath(b *testing.B) {
 	d := dir.Directory("/tmp/test")
 	for range b.N {
@@ -39,7 +39,7 @@ func BenchmarkPath(b *testing.B) {
 	}
 }
 
-// Benchmark Paths() converting multiple directories
+// Benchmark Paths() converting multiple directories.
 func BenchmarkPaths(b *testing.B) {
 	dirs := []dir.Directory{"/tmp", "/var/lib", "/home/user"}
 	for range b.N {

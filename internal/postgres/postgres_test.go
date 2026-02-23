@@ -41,9 +41,9 @@ func TestConnectionValidate(t *testing.T) {
 		url         string
 		shouldError bool
 	}{
-		{
+		{ //nolint:gosec
 			name:        "valid URL",
-			url:         "postgres://user:pass@localhost:5432/db",
+			url:         "postgres://testuser:testpass@localhost:5432/testdb",
 			shouldError: false,
 		},
 		{

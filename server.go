@@ -212,7 +212,7 @@ func environmentVars(sl *slog.Logger) *config.Config {
 	}
 	configs.Override()
 	if i := configs.MaxProcs; i > 0 {
-		runtime.GOMAXPROCS(int(i))
+		runtime.GOMAXPROCS(int(i)) //nolint:gosec
 	}
 	return &configs
 }
