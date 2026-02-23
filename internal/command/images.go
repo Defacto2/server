@@ -218,7 +218,7 @@ func (align Align) Thumbs(sl *slog.Logger, unid string, preview, thumbnail dir.D
 type Crop int
 
 const (
-	SqaureTop Crop = iota // SquareTop crops the top of the image using args 1:1 ratio
+	SquareTop Crop = iota // SquareTop crops the top of the image using args 1:1 ratio
 	FourThree             // FourThree crops the top of the image using args 4:3 ratio
 	OneTwo                // OneTwo crops the top of the image using args 1:2 ratio
 )
@@ -248,7 +248,7 @@ func (crop Crop) Images(sl *slog.Logger, unid string, preview dir.Directory) err
 	for ext := range slices.Values(ImagesExt()) {
 		args := Args{}
 		switch crop {
-		case SqaureTop:
+		case SquareTop:
 			args.CropTop()
 		case FourThree:
 			args.FourThree()

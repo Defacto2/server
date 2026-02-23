@@ -19,7 +19,7 @@ jobs:
       - name: Setup Go with cache
         uses: actions/setup-go@v6
         with:
-          go-version: "1.25.6"
+          go-version: "1.26.0"
           cache: true
       - name: Cache Go modules
         uses: actions/cache@v5
@@ -54,4 +54,4 @@ jobs:
       - name: Generate SLSA provenance
         uses: actions/attest-build-provenance@v3
         with:
-          subject-path: 'dist/*'
+          subject-path: "dist/*"

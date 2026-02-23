@@ -263,7 +263,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		return htmx.RecordImageCopier(c, sl, paths)
 	})
 	pre.PATCH("/crop11/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, sl, command.SqaureTop, paths)
+		return htmx.RecordImageCropper(c, sl, command.SquareTop, paths)
 	})
 	pre.PATCH("/crop43/:unid", func(c echo.Context) error {
 		return htmx.RecordImageCropper(c, sl, command.FourThree, paths)
