@@ -226,7 +226,7 @@ func (c *Configuration) PortErr(sl *slog.Logger, port uint16, err error) {
 			slog.String("port error", "could not startup the server using the configured port"),
 			slog.Int("port", int(port)), slog.Any("error", err))
 	default:
-		sl.Warn(fmt.Sprintf("%s server startup failed", s),
+		sl.Warn(s+" server startup failed",
 			slog.Any("error", err))
 	}
 }

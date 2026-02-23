@@ -65,7 +65,7 @@ func BenchmarkSliceReallocate(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		mods := make([]string, 0, 5)
 		mods = append(mods, "a", "b", "c")
-		mods = []string{} // This reallocates
+		mods = []string{} //nolint:prealloc // This reallocates
 		mods = append(mods, "d", "e")
 		_ = mods
 	}

@@ -2,6 +2,7 @@ package fixarj_test
 
 import (
 	"context"
+	"errors"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -13,6 +14,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+var errMockInfoNotSupported = errors.New("mock: Info() not supported")
+
 // MockDirEntry implements fs.DirEntry for testing.
 type MockDirEntry struct {
 	name  string
@@ -22,7 +25,7 @@ type MockDirEntry struct {
 func (m *MockDirEntry) Name() string               { return m.name }
 func (m *MockDirEntry) IsDir() bool                { return m.isDir }
 func (m *MockDirEntry) Type() fs.FileMode          { return 0 }
-func (m *MockDirEntry) Info() (fs.FileInfo, error) { return nil, nil }
+func (m *MockDirEntry) Info() (fs.FileInfo, error) { return nil, errMockInfoNotSupported }
 
 // TestCheckIsDirectory tests that directories are skipped.
 func TestCheckIsDirectory(t *testing.T) {

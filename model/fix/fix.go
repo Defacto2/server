@@ -336,7 +336,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 	return nil
 }
 
-func moreReleases(ctx context.Context, exec boil.ContextExecutor) error {
+func moreReleases(_ context.Context, exec boil.ContextExecutor) error {
 	_, err := queries.Raw(postgres.SetUpper("group_brand_for")).Exec(exec)
 	if err != nil {
 		return fmt.Errorf("set upper group_brand_for: %w", err)

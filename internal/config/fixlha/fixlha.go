@@ -26,7 +26,7 @@ import (
 // legacy compression method that is not supported by Go or JS libraries.
 //
 // Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(sl *slog.Logger, extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
+func Check(_ *slog.Logger, extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
 	if d.IsDir() {
 		return ""
 	}

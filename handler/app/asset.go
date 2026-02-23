@@ -76,19 +76,19 @@ type Font int
 const (
 	A1200     Font = iota // A1200 is the path to the Topaz Plus font file.
 	A1200Woff             // A1200Woff is the path to the Topaz Plus legacy WOFF format font file.
-	A1200_tt              // A1200_tt is the path to the Topaz Plus legacy TrueType format font file.
+	A1200Tt               // A1200Tt is the path to the Topaz Plus legacy TrueType format font file.
 	MicroKnight
-	MicroKnight_tt
+	MicroKnightTt
 	CascadiaMono     // CascadiaMono is the path to the Cascadia Mono font file.
 	CascadiaMonoWoff // CascadiaMonoWoff is the path to the Cascadia Mono WOFF format font file.
-	CascadiaMono_tt  // CascadiaMono_tt is the path to the Cascadia Mono TrueType format font file.
-	IBMVGA8x16_tt
+	CascadiaMonoTt   // CascadiaMonoTt is the path to the Cascadia Mono TrueType format font file.
+	IBMVGA8x16Tt
 	IBMVGA8x16
-	IBMEGA8x8_tt
+	IBMEGA8x8Tt
 	IBMEGA8x8
-	IBMCGA_tt
+	IBMCGATt
 	IBMCGA
-	IBMMDA_tt
+	IBMMDATt
 	IBMMDA
 )
 
@@ -111,19 +111,19 @@ func FontRefs() *Fonts {
 	return &Fonts{
 		A1200:            "/topazplus_a1200.woff2",
 		A1200Woff:        "/topazplus_a1200.woff",
-		A1200_tt:         "/topazplus_a1200.ttf",
+		A1200Tt:          "/topazplus_a1200.ttf",
 		MicroKnight:      "/MicroKnightPlus_v1.0.woff2",
-		MicroKnight_tt:   "/MicroKnightPlus_v1.0.ttf",
+		MicroKnightTt:    "/MicroKnightPlus_v1.0.ttf",
 		CascadiaMono:     "/CascadiaMono.woff2",
 		CascadiaMonoWoff: "/CascadiaMono.woff",
-		CascadiaMono_tt:  "/CascadiaMono.ttf",
-		IBMVGA8x16_tt:    "/Ac437_IBM_VGA_8x16.ttf",
+		CascadiaMonoTt:   "/CascadiaMono.ttf",
+		IBMVGA8x16Tt:     "/Ac437_IBM_VGA_8x16.ttf",
 		IBMVGA8x16:       "/Ac437_IBM_VGA_8x16.woff2",
-		IBMEGA8x8_tt:     "/Ac437_IBM_EGA_8x8.ttf",
+		IBMEGA8x8Tt:      "/Ac437_IBM_EGA_8x8.ttf",
 		IBMEGA8x8:        "/Ac437_IBM_EGA_8x8.woff2",
-		IBMCGA_tt:        "/Ac437_IBM_CGA.ttf",
+		IBMCGATt:         "/Ac437_IBM_CGA.ttf",
 		IBMCGA:           "/Ac437_IBM_CGA.woff2",
-		IBMMDA_tt:        "/Ac437_IBM_MDA.ttf",
+		IBMMDATt:         "/Ac437_IBM_MDA.ttf",
 		IBMMDA:           "/Ac437_IBM_MDA.woff2",
 	}
 }
