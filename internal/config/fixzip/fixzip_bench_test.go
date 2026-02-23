@@ -53,7 +53,7 @@ func BenchmarkCheckManyArtifacts(b *testing.B) {
 
 	// Generate many sorted artifacts (binary search requires sorted)
 	artifacts := make([]string, 0, 100)
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		artifacts = append(artifacts, "00000000-0000-0000-0000-000000000000"+string(rune('a'+i%26)))
 	}
 	artifacts = append(artifacts, "12345678-1234-1234-1234-123456789012")

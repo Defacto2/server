@@ -32,7 +32,7 @@ var (
 func BoilExec(exec boil.ContextExecutor) bool {
 	v := reflect.ValueOf(exec)
 	switch v.Kind() {
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			return true
 		}

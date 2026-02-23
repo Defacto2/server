@@ -75,7 +75,7 @@ func BenchmarkDeterminerCalls(b *testing.B) {
 func BenchmarkBuildSimulation(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		for j := 0; j < 40; j++ {
+		for range 40 {
 			_ = tags.URIs()
 			_ = tags.Names()
 			_ = tags.Infos()

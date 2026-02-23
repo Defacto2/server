@@ -320,9 +320,9 @@ canvas,
  * ============================================================ */
 
 .card-hover {
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgb(0 0 0 / 8%);
   border-radius: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
   transition: box-shadow 0.2s ease-in-out;
 }
 
@@ -424,7 +424,7 @@ a {
 }
 
 .scene-card:hover {
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+  box-shadow: 0 4px 12px rgb(13 110 253 / 15%);
   border-left-color: #0d6efd;
   transform: translateY(-2px);
 }

@@ -15,11 +15,11 @@ func BenchmarkStringConcatenation(b *testing.B) {
 	const updateSet = "UPDATE files SET "
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		var result string
+		var result strings.Builder
 		for column := range len(columns) {
-			result += updateSet + columns[column] + " = NULL WHERE " + columns[column] + " = ''; "
+			result.WriteString(updateSet + columns[column] + " = NULL WHERE " + columns[column] + " = ''; ")
 		}
-		_ = result
+		_ = result.String()
 	}
 }
 
@@ -89,7 +89,7 @@ func BenchmarkRedundantCondition(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		count := 0
-		for j := 0; j < size; j++ {
+		for j := range size {
 			if j < size { // Always true, but still checked
 				count++
 			}
@@ -104,7 +104,7 @@ func BenchmarkNoRedundantCondition(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		count := 0
-		for j := 0; j < size; j++ {
+		for range size {
 			count++ // No redundant check
 		}
 		_ = count
@@ -148,7 +148,7 @@ func BenchmarkSliceAllocation(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		mods := make([]int, 0, 5)
-		for j := 0; j < 5; j++ {
+		for j := range 5 {
 			mods = append(mods, j)
 		}
 		_ = mods

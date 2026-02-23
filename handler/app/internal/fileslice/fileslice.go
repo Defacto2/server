@@ -555,7 +555,7 @@ func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	}
 	v := reflect.ValueOf(exec)
 	switch v.Kind() {
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			return model.ErrDB
 		}

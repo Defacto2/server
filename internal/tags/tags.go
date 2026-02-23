@@ -729,7 +729,7 @@ func OSTags() [5]string {
 func InvalidExec(exec boil.ContextExecutor) bool {
 	v := reflect.ValueOf(exec)
 	switch v.Kind() {
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			return true
 		}

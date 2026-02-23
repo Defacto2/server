@@ -65,6 +65,9 @@ tasks:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
       - cmd: go tool gofumpt -l -w .
+      - cmd: go fix -diff ./...
+      - cmd: bash -c 'read -r -p "Press Enter to continue..."'
+      - cmd: go fix ./...
       - cmd: pnpm exec eslint assets/js/*.js
       - cmd: pnpm exec stylelint assets/css/*.css
       - cmd: golangci-lint run -c init/.golangci.yaml
