@@ -52,6 +52,6 @@ jobs:
           ./dist/server_linux_amd64_v1/defacto2-server --help > /dev/null
           echo "✓ Binary smoke test passed"
       - name: Generate SLSA provenance
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: "dist/*"
