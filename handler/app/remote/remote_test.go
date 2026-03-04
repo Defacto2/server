@@ -49,8 +49,9 @@ func TestFixSceneOrg(t *testing.T) {
 
 func TestGetExampleCom1(t *testing.T) {
 	t.Parallel()
-	_, err := remote.GetFile5sec("https://example.com")
-	be.True(t, (err == nil || errors.Is(err, context.DeadlineExceeded)))
+	_, err := remote.GetFile5sec("http://example.com")
+	got := err == nil || errors.Is(err, context.DeadlineExceeded)
+	be.True(t, got)
 }
 
 func TestGetExampleCom2(t *testing.T) {
