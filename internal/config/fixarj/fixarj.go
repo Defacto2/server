@@ -69,17 +69,17 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 
 // Invalid returns true if the arj file fails the 7zz list command.
 // The path is the path to the arj archive file.
-func Invalid(sl *slog.Logger, path string) bool {
+func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	const msg = "arj fixer is invalid"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	const arjTimeout = 10 * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), arjTimeout)
+	subCtx, cancel := context.WithTimeout(ctx, arjTimeout)
 	defer cancel()
 
 	// use 7-ZIP to test and extract the .arj file.
-	cmd := exec.CommandContext(ctx, command.Zip7, "t", path)
+	cmd := exec.CommandContext(subCtx, command.Zip7, "t", path)
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,

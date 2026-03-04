@@ -81,16 +81,16 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 
 // Invalid returns true if the arc file fails the arc test command.
 // The path is the path to the arc archive file.
-func Invalid(sl *slog.Logger, path string) bool {
+func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	const msg = "arc fixer is invalid"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	const arcTimeout = 10 * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), arcTimeout)
+	subCtx, cancel := context.WithTimeout(ctx, arcTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, command.Arc, "t", path)
+	cmd := exec.CommandContext(subCtx, command.Arc, "t", path)
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,

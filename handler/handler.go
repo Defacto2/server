@@ -319,7 +319,7 @@ func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger)
 		case <-ctx.Done():
 		}
 		const shutdownTimeout = 5 * time.Second
-		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
+		shutdownCtx, shutdownCancel := context.WithTimeout(ctx, shutdownTimeout)
 		defer shutdownCancel()
 		if err := e.Shutdown(shutdownCtx); err != nil {
 			logs.FatalTx(shutdownCtx, sl, msg,

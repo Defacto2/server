@@ -1,6 +1,7 @@
 package fixarj_test
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -39,7 +40,7 @@ func BenchmarkInvalidBytesOptimization(b *testing.B) {
 
 	b.ResetTimer()
 	for range b.N {
-		_ = fixarj.Invalid(sl, arjPath)
+		_ = fixarj.Invalid(context.Background(), sl, arjPath)
 	}
 }
 

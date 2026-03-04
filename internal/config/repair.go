@@ -92,7 +92,7 @@ func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
 			return fmt.Errorf("%w: %s", err, path)
 		}
 		uid := fixarc.Check(sl, path, extra, d, artifacts...)
-		if uid == "" || fixarc.Invalid(sl, path) {
+		if uid == "" || fixarc.Invalid(ctx, sl, path) {
 			return nil
 		}
 		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
@@ -106,7 +106,7 @@ func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
 			return fmt.Errorf("%w: %s", err, path)
 		}
 		uid := fixarj.Check(extra, d, artifacts...)
-		if uid == "" || fixarj.Invalid(sl, path) {
+		if uid == "" || fixarj.Invalid(ctx, sl, path) {
 			return nil
 		}
 		ra := Rearchiving{Source: path, UID: uid, Destination: extra}

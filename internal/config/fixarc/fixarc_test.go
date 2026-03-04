@@ -136,13 +136,13 @@ func TestInvalidNilLogger(t *testing.T) {
 			t.Error("expected panic for nil logger")
 		}
 	}()
-	fixarc.Invalid(nil, "/tmp/test.arc")
+	fixarc.Invalid(context.Background(), nil, "/tmp/test.arc")
 }
 
 // TestInvalidNonexistentFile tests behavior with non-existent file.
 func TestInvalidNonexistentFile(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
-	result := fixarc.Invalid(sl, "/nonexistent/file/path.arc")
+	result := fixarc.Invalid(context.Background(), sl, "/nonexistent/file/path.arc")
 	// Command should fail, so result should be true
 	be.Equal(t, result, true)
 }
@@ -158,7 +158,7 @@ func TestInvalidWithTimeout(t *testing.T) {
 	be.True(t, err == nil)
 
 	// This should complete within the 10-second timeout (even though arc command may fail)
-	result := fixarc.Invalid(sl, arcPath)
+	result := fixarc.Invalid(context.Background(), sl, arcPath)
 	// Command will likely fail since we don't have a valid arc file, so result should be true
 	be.Equal(t, result, true)
 }
@@ -300,7 +300,7 @@ func BenchmarkInvalid(b *testing.B) {
 
 	b.ResetTimer()
 	for range b.N {
-		_ = fixarc.Invalid(sl, arcPath)
+		_ = fixarc.Invalid(context.Background(), sl, arcPath)
 	}
 }
 
