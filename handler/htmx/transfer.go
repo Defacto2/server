@@ -691,7 +691,7 @@ func UploadReplacement( //nolint:funlen
 	defer func() { _ = src.Close() }()
 	lastmod := c.FormValue("artifact-editor-lastmodified")
 	lm, err := strconv.ParseInt(lastmod, 10, 64)
-	if err == nil && lm > 0 {
+	if err == nil && lm >= 0 {
 		lmod := time.UnixMilli(lm)
 		fu.LastMod = lmod
 	}

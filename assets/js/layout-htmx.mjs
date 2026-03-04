@@ -451,6 +451,13 @@ function successful(event, alertElm) {
   if (suffix == match) {
     const select = id.replace(match, "-file");
     resetFile(event, `#${select}`);
+    
+    // Show the results div by removing d-none class
+    const resultsId = id.replace(match, "-results");
+    const resultsElm = document.getElementById(resultsId);
+    if (resultsElm) {
+      resultsElm.classList.remove("d-none");
+    }
   }
 }
 

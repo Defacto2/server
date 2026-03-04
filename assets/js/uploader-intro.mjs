@@ -41,6 +41,16 @@ form.addEventListener("reset", function () {
   resetForm();
 });
 
+// Also handle reset button click explicitly
+const resetButton = document.getElementById('uploader-intro-reset');
+if (resetButton) {
+  resetButton.addEventListener('click', function() {
+    lastMod.value = "";
+    magic.value = "";
+    resetForm();
+  });
+}
+
 fileInput.addEventListener("change", checkFile);
 title.addEventListener("paste", formatPaste);
 releaser1.addEventListener("input", checkValue);
@@ -118,7 +128,12 @@ async function checkFile() {
   let errors = [checkSize(file1), checkMime(file1)];
   checkErrors(errors, alert, fileInput, results);
   checkDuplicate(file1, alert, fileInput, results);
-  hiddenDetails(file1, lastMod, magic);
+  try {
+    hiddenDetails(file1, lastMod, magic);
+  } catch (e) {
+    console.error("Error in hiddenDetails:", e);
+    // Continue even if hiddenDetails fails
+  }
   if (errors[0] === "" && errors[1] === "") {
     document
       .getElementById("uploader-intro-submit")
@@ -144,5 +159,12 @@ function resetForm() {
   month.classList.remove(invalid);
   releaser1.classList.remove(invalid);
   youtube.classList.remove(invalid);
+  
+  // Also clear and hide the results div
+  const resultsDiv = document.getElementById('uploader-intro-results');
+  if (resultsDiv) {
+    resultsDiv.innerHTML = "";
+    resultsDiv.classList.add('d-none');
+  }
   fileInput.classList.remove(invalid);
 }

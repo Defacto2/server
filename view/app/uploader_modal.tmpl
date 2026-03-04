@@ -111,7 +111,8 @@
                   hx-encoding="multipart/form-data" 
                   hx-post="/uploader/intro"
                   hx-target="#uploader-intro-results"
-                  hx-validate="true">
+                  hx-validate="true"
+                  hx-swap="innerHTML">
               <input type="hidden" name="uploader-intro-lastmodified" id="uploader-intro-last-modified">
               <input type="hidden" name="uploader-intro-magic" id="uploader-intro-magic">
               <div class="form-floating mb-3">
@@ -175,11 +176,12 @@
                 <button id="uploader-intro-submit" class="btn btn-success">Upload</button>     
                 <div class="col-8 form-text">{{$screenshot}}</div>
                 <div class="col-4 text-end">
-                  <button type="reset" id="uploader-intro-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" id="uploader-intro-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-intro-results"></div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-intro-results"
+                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -199,7 +201,8 @@
                   hx-encoding="multipart/form-data" 
                   hx-post="/uploader/trainer"
                   hx-target="#uploader-trainer-results"
-                  hx-validate="true">
+                  hx-validate="true"
+                  hx-swap="innerHTML">
               <input type="hidden" name="uploader-trainer-lastmodified" id="uploader-trainer-last-modified">
               <input type="hidden" name="uploader-trainer-magic" id="uploader-trainer-magic">
               <div class="form-floating mb-3">
@@ -267,11 +270,12 @@
                 <button id="uploader-trainer-submit" class="btn btn-success">Upload</button>     
                 <div class="col-8 form-text">{{$screenshot}}</div>
                 <div class="col-4 text-end">
-                  <button type="reset" id="uploader-trainer-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" id="uploader-trainer-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-trainer-results"></div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-trainer-results"
+                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -291,7 +295,8 @@
                   hx-encoding="multipart/form-data" 
                   hx-post="/uploader/text"
                   hx-target="#uploader-text-results"
-                  hx-validate="true">
+                  hx-validate="true"
+                  hx-swap="innerHTML">
               <input type="hidden" name="uploader-text-lastmodified" id="uploader-text-last-modified">
               <input type="hidden" name="uploader-text-magic" id="uploader-text-magic">
               <div class="form-floating mb-3">
@@ -366,11 +371,12 @@
                   Keep the texts of a release in a single zip archive and upload that here.
                 </div>
                 <div class="col-4 text-end">
-                  <button type="reset" id="uploader-text-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" id="uploader-text-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-text-results"></div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-text-results"
+                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -390,7 +396,8 @@
                   hx-encoding="multipart/form-data" 
                   hx-post="/uploader/image"
                   hx-target="#uploader-image-results"
-                  hx-validate="true">
+                  hx-validate="true"
+                  hx-swap="innerHTML">
               <input type="hidden" name="uploader-image-lastmodified" id="uploader-image-last-modified">
               <input type="hidden" name="uploader-image-magic" id="uploader-image-magic">
               <div class="form-floating mb-3">
@@ -453,11 +460,12 @@
                 <progress id="uploader-image-progress" value="0" max="100"></progress>
                 <button id="uploader-image-submit" class="btn btn-success">Upload</button>     
                 <div class="col text-end">
-                  <button type="reset" id="uploader-image-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" id="uploader-image-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-image-results"></div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-image-results"
+                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -477,7 +485,8 @@
                   hx-encoding="multipart/form-data" 
                   hx-post="/uploader/magazine"
                   hx-target="#uploader-magazine-results"
-                  hx-validate="true">
+                  hx-validate="true"
+                  hx-swap="innerHTML">
               <input type="hidden" name="uploader-magazine-lastmodified" id="uploader-magazine-last-modified">
               <input type="hidden" name="uploader-magazine-magic" id="uploader-magazine-magic">
               <div class="mb-4">
@@ -537,11 +546,12 @@
                 <button id="uploader-magazine-submit" class="btn btn-success">Upload</button>     
                 <div class="col-8 form-text">{{$screenshot}}</div>
                 <div class="col-4 text-end">
-                  <button type="reset" id="uploader-magazine-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" id="uploader-magazine-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-magazine-results"></div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-magazine-results"
+                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -561,7 +571,8 @@
                   hx-encoding="multipart/form-data" 
                   hx-post="/uploader/advanced"
                   hx-target="#uploader-advanced-results"
-                  hx-validate="true">
+                  hx-validate="true"
+                  hx-swap="innerHTML">
               <input type="hidden" name="uploader-advanced-lastmodified" id="uploader-advanced-last-modified">
               <input type="hidden" name="uploader-advanced-magic" id="uploader-advanced-magic">
               <div class="form-floating mb-3">
@@ -655,11 +666,12 @@
                 <progress id="uploader-advanced-progress" value="0" max="100"></progress>
                 <div class="col-12 d-flex gap-2">
                   <button id="uploader-advanced-submit" class="btn btn-success">Upload</button>
-                  <button type="reset" id="uploader-advanced-reset" class="btn btn-outline-danger">Reset</button>
+                  <button type="button" id="uploader-advanced-reset" class="btn btn-outline-danger">Reset</button>
                   <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="modal">Close</button>
                 </div>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-advanced-results"></div>
+              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-advanced-results"
+                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>

@@ -52,6 +52,16 @@ form.addEventListener("reset", function () {
   resetForm();
 });
 
+// Also handle reset button click explicitly
+const resetButton = document.getElementById('uploader-advanced-reset');
+if (resetButton) {
+  resetButton.addEventListener('click', function() {
+    lastMod.value = "";
+    magic.value = "";
+    resetForm();
+  });
+}
+
 fileInput.addEventListener("change", checkFile);
 title.addEventListener("paste", formatPaste);
 releaser1.addEventListener("input", checkValue);
@@ -116,7 +126,12 @@ async function checkFile() {
   let errors = [checkSize(file1), checkMime(file1)];
   checkErrors(errors, alert, fileInput, results);
   checkDuplicate(file1, alert, fileInput, results);
-  hiddenDetails(file1, lastMod, magic);
+  try {
+    hiddenDetails(file1, lastMod, magic);
+  } catch (e) {
+    console.error("Error in hiddenDetails:", e);
+    // Continue even if hiddenDetails fails
+  }
   if (errors[0] === "" && errors[1] === "") {
     document
       .getElementById("uploader-advanced-submit")
@@ -142,6 +157,13 @@ function resetForm() {
   year.classList.remove(invalid);
   month.classList.remove(invalid);
   day.classList.remove(invalid);
+  
+  // Also clear and hide the results div
+  const resultsDiv = document.getElementById('uploader-advanced-results');
+  if (resultsDiv) {
+    resultsDiv.innerHTML = "";
+    resultsDiv.classList.add('d-none');
+  }
   releaser1.classList.remove(invalid);
   fileInput.classList.remove(invalid);
   os.classList.remove(invalid);

@@ -11,6 +11,8 @@ server
 # debug and log files
 profile*.*
 defacto2_serve_*.log
+/logs/
+.vibe/
 
 # temp directories
 dist/
@@ -26,4 +28,3 @@ tmp/
 
 # macOS
 *.DS_Store
-/logs/
