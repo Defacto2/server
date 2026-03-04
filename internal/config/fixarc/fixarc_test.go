@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/config/fixarc"
+	"github.com/Defacto2/server/internal/config/testconst"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
 )
@@ -70,7 +71,7 @@ func TestCheckUUIDNotInArtifacts(t *testing.T) {
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
-	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
+	d := &MockDirEntry{name: testconst.TestUUID + ".zip", isDir: false}
 	artifacts := []string{"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
 	result := fixarc.Check(sl, "", extra, d, artifacts...)
 	be.Equal(t, result, "")
@@ -82,7 +83,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	// Create the extra zip file
 	extraZip := filepath.Join(tmpDir, uid+".zip")
@@ -100,7 +101,7 @@ func TestCheckInvalidArchiveFile(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	// Create a dummy (invalid) zip file
 	zipPath := filepath.Join(tmpDir, uid+".zip")
@@ -206,15 +207,15 @@ func TestCheckCaseInsensitiveExtension(t *testing.T) {
 	testCases := []struct {
 		name string
 	}{
-		{name: "12345678-1234-1234-1234-123456789012.ZIP"},
-		{name: "12345678-1234-1234-1234-123456789012.Zip"},
-		{name: "12345678-1234-1234-1234-123456789012.zIp"},
+		{name: testconst.TestUUID + ".ZIP"},
+		{name: testconst.TestUUID + ".Zip"},
+		{name: testconst.TestUUID + ".zIp"},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			d := &MockDirEntry{name: tc.name, isDir: false}
-			artifacts := []string{"12345678-1234-1234-1234-123456789012"}
+			artifacts := []string{testconst.TestUUID}
 			result := fixarc.Check(sl, "", extra, d, artifacts...)
 			// Should not skip due to extension
 			be.Equal(t, result, "")
@@ -249,7 +250,7 @@ func TestCheckNoMethodsReturnsEmpty(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
@@ -270,7 +271,7 @@ func BenchmarkCheck(b *testing.B) {
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)
 
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
 
@@ -406,7 +407,7 @@ func TestCheckFileInExtraDirectory(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	testCases := []struct {
 		name        string

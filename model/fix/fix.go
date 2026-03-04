@@ -181,15 +181,16 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logg
 	return nil
 }
 
+const Trainer = "gamehack"
+
 func trainers(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
-	const trainer = "gamehack"
-	const msg = "Database repair: " + trainer
+	const msg = "Database repair: " + Trainer
 	sl.Info(msg,
 		slog.String("task", "Check for trainers that are incorrectly categorized"))
 	const size = 5
 	mods := make([]qm.QueryMod, 0, size)
 	mods = append(mods, qm.Select("id"))
-	mods = append(mods, qm.Where("section != ?", trainer))
+	mods = append(mods, qm.Where("section != ?", Trainer))
 	mods = append(mods, qm.Where("section != 'magazine'"))
 	mods = append(mods, qm.Where("record_title ILIKE '%trainer%'"))
 	mods = append(mods, qm.Where("platform = ? OR platform = ?", "dos", "windows"))
@@ -209,7 +210,7 @@ func trainers(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
 		}
 		mods = append(mods, qm.Or("id = ?", f.ID))
 	}
-	rowsAff, err := models.Files(mods...).UpdateAll(ctx, tx, models.M{"section": trainer})
+	rowsAff, err := models.Files(mods...).UpdateAll(ctx, tx, models.M{"section": Trainer})
 	if err != nil {
 		return fmt.Errorf("%s models files update all: %w", msg, err)
 	}

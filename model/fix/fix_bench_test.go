@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 	"testing"
+
+	"github.com/Defacto2/server/model/fix"
 )
 
 // BenchmarkStringConcatenation compares string concatenation performance.
@@ -111,7 +113,7 @@ func BenchmarkNoRedundantCondition(b *testing.B) {
 
 // BenchmarkParameterizedQuerySetup demonstrates the performance of parameterized queries.
 func BenchmarkParameterizedQuerySetup(b *testing.B) {
-	trainer := "gamehack"
+	trainer := fix.Trainer
 	b.ResetTimer()
 	for range b.N {
 		// Using parameterized queries (? placeholder)
@@ -122,7 +124,7 @@ func BenchmarkParameterizedQuerySetup(b *testing.B) {
 
 // BenchmarkStringFormatQuerySetup shows the old fmt.Sprintf approach.
 func BenchmarkStringFormatQuerySetup(b *testing.B) {
-	trainer := "gamehack"
+	trainer := fix.Trainer
 	b.ResetTimer()
 	for range b.N {
 		// Using fmt.Sprintf (less ideal)

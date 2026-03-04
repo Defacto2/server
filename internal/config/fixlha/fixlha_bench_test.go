@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/config/fixlha"
+	"github.com/Defacto2/server/internal/config/testconst"
 	"github.com/Defacto2/server/internal/dir"
 )
 
@@ -12,8 +13,8 @@ import (
 func BenchmarkCheckValid(b *testing.B) {
 	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
-	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
-	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
+	d := &MockDirEntry{name: testconst.TestUUID + ".zip", isDir: false}
+	artifacts := []string{testconst.TestUUID}
 
 	b.ResetTimer()
 	for range b.N {
@@ -25,8 +26,8 @@ func BenchmarkCheckValid(b *testing.B) {
 func BenchmarkCheckInvalidExtension(b *testing.B) {
 	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
-	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.lha", isDir: false}
-	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
+	d := &MockDirEntry{name: testconst.TestUUID + ".lha", isDir: false}
+	artifacts := []string{testconst.TestUUID}
 
 	b.ResetTimer()
 	for range b.N {
@@ -50,8 +51,8 @@ func BenchmarkCheckDirectory(b *testing.B) {
 func BenchmarkCheckUppercaseExtension(b *testing.B) {
 	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
-	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.ZIP", isDir: false}
-	artifacts := []string{"12345678-1234-1234-1234-123456789012"}
+	d := &MockDirEntry{name: testconst.TestUUID + ".ZIP", isDir: false}
+	artifacts := []string{testconst.TestUUID}
 
 	b.ResetTimer()
 	for range b.N {
@@ -63,14 +64,14 @@ func BenchmarkCheckUppercaseExtension(b *testing.B) {
 func BenchmarkCheckManyArtifacts(b *testing.B) {
 	sl := slog.New(slog.DiscardHandler)
 	extra := dir.Directory(b.TempDir())
-	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
+	d := &MockDirEntry{name: testconst.TestUUID + ".zip", isDir: false}
 
 	// Generate many sorted artifacts (binary search requires sorted)
 	artifacts := make([]string, 0, 100)
 	for i := range 100 {
 		artifacts = append(artifacts, "00000000-0000-0000-0000-000000000000"+string(rune('a'+i%26)))
 	}
-	artifacts = append(artifacts, "12345678-1234-1234-1234-123456789012")
+	artifacts = append(artifacts, testconst.TestUUID)
 
 	b.ResetTimer()
 	for range b.N {

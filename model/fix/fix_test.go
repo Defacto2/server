@@ -141,10 +141,8 @@ func TestFixesMapCompleteness(t *testing.T) {
 
 func TestTrainersConstValues(t *testing.T) {
 	t.Parallel()
-	trainer := "gamehack"
-	magazine := "magazine"
-	be.True(t, len(trainer) > 0)
-	be.True(t, len(magazine) > 0)
+	be.True(t, len(fix.Trainer) > 0)
+	be.True(t, len("magazine") > 0)
 }
 
 func TestDOSPlatformValues(t *testing.T) {

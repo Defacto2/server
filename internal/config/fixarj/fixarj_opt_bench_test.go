@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/config/fixarj"
+	"github.com/Defacto2/server/internal/config/testconst"
 	"github.com/Defacto2/server/internal/dir"
 )
 
@@ -15,7 +16,7 @@ func BenchmarkCheckOptimizations(b *testing.B) {
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)
 
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
 
@@ -46,7 +47,7 @@ func BenchmarkInvalidBytesOptimization(b *testing.B) {
 func BenchmarkCheckWithExtraZip(b *testing.B) {
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	// Create the extra zip file (optimization path)
 	extraZip := filepath.Join(tmpDir, uid+".zip")
@@ -68,7 +69,7 @@ func BenchmarkCheckWithExtraZip(b *testing.B) {
 func BenchmarkCheckWithoutExtraZip(b *testing.B) {
 	tmpDir := b.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}

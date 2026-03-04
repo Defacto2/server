@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/config/fixlha"
+	"github.com/Defacto2/server/internal/config/testconst"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
 )
@@ -66,7 +67,7 @@ func TestCheckUUIDNotInArtifacts(t *testing.T) {
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
 
-	d := &MockDirEntry{name: "12345678-1234-1234-1234-123456789012.zip", isDir: false}
+	d := &MockDirEntry{name: testconst.TestUUID + ".zip", isDir: false}
 	artifacts := []string{"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"}
 	result := fixlha.Check(sl, extra, d, artifacts...)
 	be.Equal(t, result, "")
@@ -77,7 +78,7 @@ func TestCheckAlreadyInExtra(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	// Create the extra zip file
 	extraZip := filepath.Join(tmpDir, uid+".zip")
@@ -95,7 +96,7 @@ func TestCheckValidFile(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
@@ -108,7 +109,7 @@ func TestCheckUppercaseExtension(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	d := &MockDirEntry{name: uid + ".ZIP", isDir: false}
 	artifacts := []string{uid}
@@ -121,7 +122,7 @@ func TestCheckMixedCaseExtension(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	d := &MockDirEntry{name: uid + ".Zip", isDir: false}
 	artifacts := []string{uid}
@@ -134,7 +135,7 @@ func TestCheckEmptyArtifacts(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)
 	tmpDir := t.TempDir()
 	extra := dir.Directory(tmpDir)
-	uid := "12345678-1234-1234-1234-123456789012"
+	uid := testconst.TestUUID
 
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	result := fixlha.Check(sl, extra, d)
