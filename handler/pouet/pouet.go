@@ -45,12 +45,13 @@ const (
 // The Pouet API returns values as null or string, so this struct
 // is used to normalize the data types.
 type Production struct {
-	Platforms   Platforms `json:"platforms"`    // Platforms are the platforms the prod runs on.
-	Title       string    `json:"title"`        // Title is the prod title.
-	ReleaseDate string    `json:"release_date"` // ReleaseDate is the prod release date.
-	Download    string    `json:"download"`     // Download is the first download link.
-	Demozoo     string    `json:"demozoo"`      // Demozoo is the Demozoo identifier.
-	Platform    string    `json:"platform"`     // Platform is the prod platforms as a string.
+	Platforms Platforms `json:"platforms"` // Platforms are the platforms the prod runs on.
+	Title     string    `json:"title"`     // Title is the prod title.
+	//nolint:tagliatelle
+	ReleaseDate string `json:"release_date"` // ReleaseDate is the prod release date.
+	Download    string `json:"download"`     // Download is the first download link.
+	Demozoo     string `json:"demozoo"`      // Demozoo is the Demozoo identifier.
+	Platform    string `json:"platform"`     // Platform is the prod platforms as a string.
 	Groups      []struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
@@ -231,11 +232,15 @@ type Votes struct {
 	// Stars is the production rating using the average votes multiplied by 5.
 	Stars float64 `json:"stars"`
 	// VotesAvg is the average votes, the maximum value is 1.0.
+	//nolint:tagliatelle
 	VotesAvg float64 `json:"votes_avg"`
+	//nolint:tagliatelle
 	// VotesUp is the number of thumbs up votes.
 	VotesUp uint64 `json:"votes_up"`
+	//nolint:tagliatelle
 	// VotesMeh is the number of meh votes otherwise called piggies.
 	VotesMeh uint64 `json:"votes_meh"`
+	//nolint:tagliatelle
 	// VotesDown is the number of thumbs down votes.
 	VotesDown uint64 `json:"votes_down"`
 }

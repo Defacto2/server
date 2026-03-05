@@ -126,36 +126,44 @@ func Notes() map[NAN]string { //nolint:funlen
 		206: "Western Washington state, including Seattle.",
 		509: "Eastern Washington state, including Spokane and the Tri-Cities.",
 		// 209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916
-		209: "Central California, including Fresno and Stockton.",                                                      // 1947
-		213: "Parts of Los Angeles County.",                                                                            // 1947
-		916: "Sacramento.",                                                                                             // 1947
-		714: "Orange County.",                                                                                          // 1951
-		805: "Central California, including Santa Barbara and Ventura Counties.",                                       // 1957
-		415: "San Francisco Bay Area, however in September 1991 East Bay and Oakland split to from the 510 area code.", // 1958
-		408: "Silicon Valley including San Benito, Santa Cruz, Santa Clara.",                                           // 1959
-		707: "Northern California, including Napa and Sonoma.",                                                         // 1959
-		619: "Southern California, including San Diego, however it came online in 1982.",                               // 1982
-		818: "San Fernando Valley within Los Angeles County, however it came online in 1984.",                          // 1984
-		510: "East Bay and Oakland, however it came online in September 1991.",                                         // 1991
-		310: "Northern Los Angeles County, however it came online in November 1991.",                                   // 1991
-		909: "Parts of Los Angeles County and San Bernardino County, however it came online in November 1992.",         // 1992
+		209: "Central California, including Fresno and Stockton.",                // 1947
+		213: "Parts of Los Angeles County.",                                      // 1947
+		916: "Sacramento.",                                                       // 1947
+		714: "Orange County.",                                                    // 1951
+		805: "Central California, including Santa Barbara and Ventura Counties.", // 1957
+		415: "San Francisco Bay Area, however in September 1991 " +
+			"East Bay and Oakland split to from the 510 area code.", // 1958
+		408: "Silicon Valley including San Benito, Santa Cruz, Santa Clara.",                  // 1959
+		707: "Northern California, including Napa and Sonoma.",                                // 1959
+		619: "Southern California, including San Diego, however it came online in 1982.",      // 1982
+		818: "San Fernando Valley within Los Angeles County, however it came online in 1984.", // 1984
+		510: "East Bay and Oakland, however it came online in September 1991.",                // 1991
+		310: "Northern Los Angeles County, however it came online in November 1991.",          // 1991
+		909: "Parts of Los Angeles County and San Bernardino County, " +
+			"however it came online in November 1992.", // 1992
 		// 212, 315, 516, 518, 607, 716, 718, 914
-		212: "New York City, but after December 1984 it split to 212 (Manhattan and the Bronx) and 718 (Brooklyn, Queens, and Staten Island). " + bronx, // 1947
-		315: "Northern New York, including Syracuse.",                                                                                                   // 1947
-		516: "Long Island, including Nassau County.",                                                                                                    // 1951
-		518: "Eastern New York, including Albany.",                                                                                                      // 1947
-		607: "Southern New York, including Binghamton.",                                                                                                 // 1954
-		716: "Western New York, including Buffalo.",                                                                                                     // 1954
-		718: "New York City, created on December 1984 to serve Brooklyn, Queens, and Staten Island. " + bronx,                                           // 1984
-		914: "Southern New York, including Westchester County.",                                                                                         // 1947
-		917: "New York City, coming online in February 1992 and the first overlay area code, however it is exclusive for cellphones.",                   // 1992
+		212: "New York City, but after December 1984 it split to 212 " +
+			"(Manhattan and the Bronx) and 718 (Brooklyn, Queens, and Staten Island). " + bronx, // 1947
+		315: "Northern New York, including Syracuse.",   // 1947
+		516: "Long Island, including Nassau County.",    // 1951
+		518: "Eastern New York, including Albany.",      // 1947
+		607: "Southern New York, including Binghamton.", // 1954
+		716: "Western New York, including Buffalo.",     // 1954
+		718: "New York City, created on December 1984 to serve " +
+			"Brooklyn, Queens, and Staten Island. " + bronx, // 1984
+		914: "Southern New York, including Westchester County.", // 1947
+		917: "New York City, coming online in February 1992 and the first overlay area code, " +
+			"however it is exclusive for cellphones.", // 1992
 		// 210, 214, 409, 512, 713, 806, 817, 903, 915
-		214: "Northern Texas, including Dallas, however after November 1990 it split to form 903.",                                     // 1947
-		409: "Southeastern Texas, including Beaumont and Galveston, however it came online in 1983.",                                   // 1983
-		512: "Central Texas, including Austin, however in November 1992, the Southern region including San Antonio split to form 210.", // 1947
-		713: "Southern Texas, including Houston, however in 1983 it split to from the 409 area code.",                                  // 1947
-		806: "Northern Texas, including Amarillo.",                                                                                     // 1957
-		817: "Western Texas, including Fort Worth.",                                                                                    // 1953
+		214: "Northern Texas, including Dallas, however after November 1990 " +
+			"it split to form 903.", // 1947
+		409: "Southeastern Texas, including Beaumont and Galveston, however " +
+			"it came online in 1983.", // 1983
+		512: "Central Texas, including Austin, however in November 1992, " +
+			"the Southern region including San Antonio split to form 210.", // 1947
+		713: "Southern Texas, including Houston, however in 1983 it split to from the 409 area code.", // 1947
+		806: "Northern Texas, including Amarillo.",                                                    // 1957
+		817: "Western Texas, including Fort Worth.",                                                   // 1953
 		903: "Northeastern Texas, including Tyler, coming online in November 1990. " + // 1990
 			"However, up until October 1980 this area code was used for calling northwestern Mexico.",
 		210: "Southern Texas, including San Antonio, however it came online in November 1992.", // 1992
@@ -165,7 +173,8 @@ func Notes() map[NAN]string { //nolint:funlen
 		412: "Western Pennsylvania, including Pittsburgh.",
 		717: "Central Pennsylvania, including Harrisburg.",
 		814: "Western Pennsylvania, including Erie.",
-		610: "Western suburbs of Philadelphia, Berks County and Lehigh Valley, however it came online in January 1994.", // 1994
+		610: "Western suburbs of Philadelphia, Berks County and Lehigh Valley, " +
+			"however it came online in January 1994.", // 1994
 		// 216, 419, 513, 614
 		216: "Northern Ohio, including Cleveland.",
 		419: "Northwestern Ohio, including Toledo.",
@@ -188,16 +197,18 @@ func Notes() map[NAN]string { //nolint:funlen
 		317: "Central Indiana, including Indianapolis.",
 		812: "Southern Indiana, including Evansville.",
 		// 301, 410
-		301: "Maryland. However in November 1991, Balimore and the Eastern Shore of Maryland were split to create the 410 area code.",
+		301: "Maryland. However in November 1991, Balimore and " +
+			"the Eastern Shore of Maryland were split to create the 410 area code.",
 		410: "Balimore and the Eastern Shore of Maryland, however it came online in November 1991.",
 		// 303, 719
 		303: "Central Colorado, including Denver.",
 		719: "Southern Colorado, including Colorado Springs, however it came online in March 1988.",
 		// 305, 407, 813, 904
-		305: "Southern Florida, including Miami. However, Central Florida was split in 1988 to form the 407 area code.", // 1947
-		407: "Central Florida, including Orlando and Palm Beach, however it came online in 1988.",                       // 1988
-		813: "Western Florida, including Tampa City.",                                                                   // 1953
-		904: "Northern Florida, including Jacksonville.",                                                                // 1965
+		305: "Southern Florida, including Miami. " +
+			"However, Central Florida was split in 1988 to form the 407 area code.", // 1947
+		407: "Central Florida, including Orlando and Palm Beach, however it came online in 1988.", // 1988
+		813: "Western Florida, including Tampa City.",                                             // 1953
+		904: "Northern Florida, including Jacksonville.",                                          // 1965
 		// 313, 517, 616, 906
 		313: "Detroit and Flint, however in December 1993 the Northern region split to form 810.",
 		517: "Central Michigan, including Lansing.",
@@ -222,9 +233,10 @@ func Notes() map[NAN]string { //nolint:funlen
 		308: "Central Nebraska, including Grand Island.",
 		402: "Eastern Nebraska, including Omaha and Lincoln.",
 		// 404, 706, 912
-		404: "Northern Georgia, including Atlanta. However in May 1992, all the areas outside of Atlanta were split to form the 706 area code.", // 1947
-		706: "Northern Georgia, including Columbus, however it came online in May 1992.",                                                        // 1992
-		912: "Southern Georgia, including Savannah.",                                                                                            // 1954
+		404: "Northern Georgia, including Atlanta. " +
+			"However in May 1992, all the areas outside of Atlanta were split to form the 706 area code.", // 1947
+		706: "Northern Georgia, including Columbus, however it came online in May 1992.", // 1992
+		912: "Southern Georgia, including Savannah.",                                     // 1954
 		// 405, 918
 		405: "Central Oklahoma, including Oklahoma City.",
 		918: "Eastern Oklahoma, including Tulsa.",
@@ -233,8 +245,9 @@ func Notes() map[NAN]string { //nolint:funlen
 		608: "Southwestern Wisconsin, including Madison.",
 		715: "Northern Wisconsin, including Eau Claire.",
 		// 416, 519
-		416: "Toronto, however in October 1993 the suburbs surrounding Toronto City split to form the 905 area code.", // 1947
-		519: "Southwestern Ontario, including Windsor and London.",                                                    // 1953
+		416: "Toronto, however in October 1993 the suburbs surrounding " +
+			"Toronto City split to form the 905 area code.", // 1947
+		519: "Southwestern Ontario, including Windsor and London.", // 1953
 		613: "Eastern Ontario, including Ottawa.",
 		705: "Northern Ontario, including Sudbury.",
 		807: "Northwestern Ontario, including Thunder Bay.",
@@ -249,8 +262,10 @@ func Notes() map[NAN]string { //nolint:funlen
 		606: "Eastern Kentucky, including Ashland.",
 		// 413, 508, 617
 		413: "Western Massachusetts, including Springfield.",
-		508: "Southeastern Massachusetts, including Worcester, however it came online in July 1988.",
-		617: "Eastern Massachusetts, including Boston, however the surrounding regions were split in July 1988 to form the 508 area code.", // 1988
+		508: "Southeastern Massachusetts, including Worcester, " +
+			"however it came online in July 1988.",
+		617: "Eastern Massachusetts, including Boston, " +
+			"however the surrounding regions were split in July 1988 to form the 508 area code.", // 1988
 		// 615, 901
 		615: "Central Tennessee, including Nashville.",
 		901: "Western Tennessee, including Memphis.",
@@ -258,13 +273,17 @@ func Notes() map[NAN]string { //nolint:funlen
 		703: "Northern Virginia, including Arlington.",
 		804: "Southern Virginia, including Richmond.",
 		// 704, 919
-		704: "Western North Carolina, including Charlotte.",                                                             // 1947
-		919: "Eastern North Carolina, including Raleigh, however the 910 area code split in November 1993.",             // 1954
-		910: "Southern North Carolina, including Fayetteville and Wilmington, however it came online in November 1993.", // 1993
+		704: "Western North Carolina, including Charlotte.", // 1947
+		919: "Eastern North Carolina, including Raleigh, " +
+			"however the 910 area code split in November 1993.", // 1954
+		910: "Southern North Carolina, including Fayetteville and Wilmington, " +
+			"however it came online in November 1993.", // 1993
 		// 710
-		710: "Federal Government of the United States emergency services, however it came online in 1983.",
+		710: "Federal Government of the United States emergency services, " +
+			"however it came online in 1983.",
 		// 809
-		809: "Bermuda and the Caribbean Islands. However in November 1994 Bermuda received the 441 area code, " +
+		809: "Bermuda and the Caribbean Islands. " +
+			"However in November 1994 Bermuda received the 441 area code, " +
 			"and the other islands obtained their own area codes from 1995 onwards.",
 	}
 }

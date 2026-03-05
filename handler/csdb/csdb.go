@@ -1,5 +1,7 @@
 // Package csdb provides data about releasers and groups on The C-64 Scene Database [website].
 // [website]: https://csdb.dk
+//
+//nolint:mnd
 package csdb
 
 // URI is the URL slug of the releaser.

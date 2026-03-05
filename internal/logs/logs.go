@@ -153,7 +153,7 @@ func levelAttr(a slog.Attr) slog.Attr {
 		if !ok {
 			return a
 		}
-		switch level {
+		switch level { //nolint:exhaustive
 		case LevelDebug:
 			a = tint.Attr(DebugPurple, slog.String(a.Key, "debug"))
 		case LevelFatal:

@@ -185,7 +185,7 @@ func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
 	}
 	start := helper.Latency()
 	var id string
-	switch tt {
+	switch tt { //nolint:exhaustive
 	case BySection, ByPlatform:
 		id = ID(c)
 	default:
@@ -223,7 +223,7 @@ func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
 	}
 	// pagination values
 	current := strings.TrimPrefix(tt.String(), "html3_")
-	switch tt {
+	switch tt { //nolint:exhaustive
 	case BySection:
 		current = "category/" + id
 	case ByPlatform:

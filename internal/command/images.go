@@ -315,7 +315,7 @@ func (dir Dirs) PictureImager(sl *slog.Logger, src, unid string) error {
 		PCX  = magicnumber.PersonalComputereXchange
 		AVI  = magicnumber.MicrosoftAudioVideoInterleave
 	)
-	switch magic {
+	switch magic { //nolint:exhaustive
 	case AVI:
 		return nil
 	case GIF:

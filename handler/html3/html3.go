@@ -219,7 +219,7 @@ func LeadInt(width, i int) string {
 // ListInfo returns the title and description for the RecordsBy grouping.
 func ListInfo(tt RecordsBy, current, id string) (string, string) {
 	var desc string
-	switch tt {
+	switch tt { //nolint:exhaustive
 	case BySection, ByPlatform:
 		key := tags.TagByURI(id)
 		info := tags.Infos()[key]

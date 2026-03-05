@@ -75,7 +75,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger
 	if err := coldfusionIDs(ctx, db, sl); err != nil {
 		return fmt.Errorf("%s coldfusion ids: %w", msg, err)
 	}
-	switch r {
+	switch r { //nolint:exhaustive
 	case Artifacts:
 		sl.Info(msg, slog.String("task", "Clean records of whitespace and null values"))
 		if err := contentWhiteSpace(tx); err != nil {

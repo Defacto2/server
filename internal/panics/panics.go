@@ -31,7 +31,7 @@ var (
 // BoilExec returns true if the database context executor is invalid such as nil.
 func BoilExec(exec boil.ContextExecutor) bool {
 	v := reflect.ValueOf(exec)
-	switch v.Kind() {
+	switch v.Kind() { //nolint:exhaustive
 	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			return true

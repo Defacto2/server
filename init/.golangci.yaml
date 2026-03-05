@@ -9,7 +9,6 @@ linters:
     - varnamelen
     - wsl
     - wsl_v5
-    - exhaustive
   settings:
     sloglint:
       attr-only: true
@@ -88,16 +87,6 @@ linters:
           - lll
         path: handler/app/accordion.go
       - linters:
-          - dupl
-          - wrapcheck
-        path: handler/app/context.go
-      - linters:
-          - dupl
-        path: handler/app/internal/fileslice/fileslice.go
-      - linters:
-          - dupl
-        path: handler/app/internal/mfs/mfs.go
-      - linters:
           - funlen
         path: handler/app/interview.go
       - linters:
@@ -106,16 +95,9 @@ linters:
           - lll
           - maintidx
         path: handler/app/milestone.go
-      - linters:
-          - dupl
-        path: handler/app/remote/remote.go
-      - linters:
-          - lll
-        path: handler/areacode/areacode.go
-      - linters:
-          - exhaustruct
-          - mnd
-        path: handler/csdb/csdb.go
+      #- linters:
+      #    - lll
+      #  path: handler/areacode/areacode.go
       - linters:
           - exhaustruct
         path: handler/site/site.go
@@ -135,12 +117,6 @@ linters:
       - linters:
           - lll
         path: handler/jsdos/jsdos.go
-      - linters:
-          - tagliatelle
-        path: handler/pouet/pouet.go
-      - linters:
-          - ireturn
-        path: handler/render/render.go
       - linters:
           - dupl
           - funlen

@@ -181,7 +181,7 @@ func Valid(path string) bool {
 // FileInfo is a helper function for Files that returns the page title, h1 title and lead text.
 func FileInfo(uri string) (string, string, string) {
 	var logo, h1sub, lead string
-	switch Match(uri) {
+	switch Match(uri) { //nolint:exhaustive //nolint:exhaustive
 	case NewUploads:
 		logo = "new uploads"
 		h1sub = "the new uploads"
@@ -293,7 +293,7 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 	if err := panics.ContextB(ctx, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
-	switch Match(uri) {
+	switch Match(uri) { //nolint:exhaustive
 	// pulldown editor menu matches
 	case ForApproval:
 		return model.ByForApproval(ctx, exec, page, limit)
@@ -321,7 +321,7 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 }
 
 func recordsZ(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
+	switch Match(uri) { //nolint:exhaustive
 	case advert:
 		r := model.Advert{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
@@ -363,7 +363,7 @@ func recordsZ(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 }
 
 func records0(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
+	switch Match(uri) { //nolint:exhaustive
 	case database:
 		r := model.Database{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
@@ -411,7 +411,7 @@ func records0(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 }
 
 func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
+	switch Match(uri) { //nolint:exhaustive
 	case macos:
 		r := model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
@@ -459,7 +459,7 @@ func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 }
 
 func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
+	switch Match(uri) { //nolint:exhaustive
 	case restrict:
 		r := model.Restrict{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
@@ -511,30 +511,7 @@ func Counter(db *sql.DB) (Stats, error) {
 		return Stats{}, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
 	ctx := context.Background()
-	counter := Stats{
-		IntroW:    model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Record:    model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Ansi:      model.Ansi{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		AnsiBBS:   model.AnsiBBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBS:       model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBSText:   model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBStro:    model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Demoscene: model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		MsDos:     model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Intro:     model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		IntroD:    model.IntroMsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Installer: model.Installer{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Java:      model.Java{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Linux:     model.Linux{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Magazine:  model.Magazine{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Macos:     model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Nfo:       model.Nfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		NfoTool:   model.NfoTool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Proof:     model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Script:    model.Script{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Text:      model.Text{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Windows:   model.Windows{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-	}
+	counter := newStats()
 	if err := counter.Get(ctx, db); err != nil {
 		return Stats{}, fmt.Errorf("%s get %w", msg, err)
 	}
@@ -567,8 +544,8 @@ type Stats struct {
 	Windows   model.Windows
 }
 
-// Statistics returns the empty database statistics for the artifacts categories.
-func Statistics() Stats {
+// newStats returns a new Stats struct initialized with zero values.
+func newStats() Stats {
 	return Stats{
 		IntroW:    model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
 		Record:    model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
@@ -595,6 +572,11 @@ func Statistics() Stats {
 	}
 }
 
+// Statistics returns the empty database statistics for the artifacts categories.
+func Statistics() Stats {
+	return newStats()
+}
+
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "category get stats"
@@ -602,7 +584,7 @@ func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	v := reflect.ValueOf(exec)
-	switch v.Kind() {
+	switch v.Kind() { //nolint:exhaustive
 	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			return model.ErrDB

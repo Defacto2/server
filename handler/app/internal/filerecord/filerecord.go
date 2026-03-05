@@ -578,7 +578,7 @@ func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
 		e.format = fmt.Sprintf("%s image, %dx%d", format, config.Width, config.Height)
 		return !skipEntry
 	}
-	switch sign {
+	switch sign { //nolint:exhaustive
 	case magicnumber.InterleavedBitmap:
 		r, _ := os.Open(path)
 		if r == nil {

@@ -102,7 +102,7 @@ func Info(name string, value any) string {
 	case "MaxProcs":
 		return fmt.Sprintf("%s %s", s, v)
 	}
-	switch v.Kind() {
+	switch v.Kind() { //nolint:exhaustive
 	case reflect.Bool:
 		return fmt.Sprintf("%s is %s", s, info(v))
 	default:

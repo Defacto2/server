@@ -236,6 +236,10 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 	case fileslice.Newest:
 		data["description"] = "These are more recent artifacts held by the site."
 		data["title"] = "Recent artifacts"
+	case fileslice.Sensenstahl:
+		data["title"] = "Sensenstahl artifacts"
+	case fileslice.WindowsPack:
+		data["title"] = "Windows Pack artifacts"
 	case -1:
 		return data
 	default:
@@ -360,7 +364,7 @@ func scener(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role,
 		err = s.Distinct(ctx, db)
 	default:
 		// Handle unknown roles gracefully
-		err = fmt.Errorf("unknown role: %s", r)
+		err = fmt.Errorf("unknown role %s: %w", r, model.ErrModel)
 	}
 	if err != nil {
 		return DatabaseErr(c, sl, name, err)
@@ -986,7 +990,7 @@ func GetDemozooParam(c echo.Context, db *sql.DB, download dir.Directory) error {
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = unid
-	return got.Download(c, db, download)
+	return got.Download(c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
@@ -998,7 +1002,7 @@ func GetDemozoo(c echo.Context, db *sql.DB, demozooID int, defacto2UNID string, 
 		ID:   demozooID,
 		UUID: defacto2UNID,
 	}
-	return got.Download(c, db, download)
+	return got.Download(c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GetPouet fetches the download link from Pouet and saves it to the download directory.
@@ -1010,7 +1014,7 @@ func GetPouet(c echo.Context, db *sql.DB, pouetID int, defacto2UNID string, down
 		ID:   pouetID,
 		UUID: defacto2UNID,
 	}
-	return got.Download(c, db, download)
+	return got.Download(c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
@@ -1113,7 +1117,7 @@ func sessionHandler(c echo.Context, maxAge int, claims map[string]any,
 	session.Values["emailVerified"] = claims["email_verified"]
 
 	// save the session
-	return session.Save(c.Request(), c.Response())
+	return session.Save(c.Request(), c.Response()) //nolint:wrapcheck // thin wrapper
 }
 
 // History is the handler for the History page.
@@ -2313,23 +2317,8 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 		return nil, 0, fmt.Errorf("artifacts stats %w: %s", err, uri)
 	}
 	if errors.Is(err, model.ErrURI) {
-		switch fileslice.Match(uri) {
-		case fileslice.ForApproval:
-			if err := m.ByForApproval(ctx, exec); err != nil {
-				return nil, 0, fmt.Errorf("artifacts stats for approval %w: %s", err, uri)
-			}
-		case fileslice.Deletions:
-			if err := m.ByHidden(ctx, exec); err != nil {
-				return nil, 0, fmt.Errorf("artifacts stats by hidden %w: %s", err, uri)
-			}
-		case fileslice.Unwanted:
-			if err := m.ByUnwanted(ctx, exec); err != nil {
-				return nil, 0, fmt.Errorf("artifacts stats unwanted %w: %s", err, uri)
-			}
-		default:
-			if err := m.ByPublic(ctx, exec); err != nil {
-				return nil, 0, fmt.Errorf("artifacts stats by public %w: %s", err, uri)
-			}
+		if err := statsByURI(ctx, exec, uri, &m); err != nil {
+			return nil, 0, err
 		}
 	}
 	d := map[string]string{
@@ -2354,6 +2343,35 @@ func steps(lastPage float64) int {
 	default:
 		return one
 	}
+}
+
+// statsByURI handles the different URI types for statistics calculation.
+func statsByURI(ctx context.Context, exec boil.ContextExecutor, uri string, m *model.Summary) error {
+	switch fileslice.Match(uri) {
+	case fileslice.ForApproval:
+		if err := m.ByForApproval(ctx, exec); err != nil {
+			return fmt.Errorf("artifacts stats for approval %w: %s", err, uri)
+		}
+	case fileslice.Deletions:
+		if err := m.ByHidden(ctx, exec); err != nil {
+			return fmt.Errorf("artifacts stats by hidden %w: %s", err, uri)
+		}
+	case fileslice.Unwanted:
+		if err := m.ByUnwanted(ctx, exec); err != nil {
+			return fmt.Errorf("artifacts stats unwanted %w: %s", err, uri)
+		}
+	case fileslice.NewUploads, fileslice.NewUpdates, fileslice.Oldest,
+		fileslice.Newest, fileslice.Sensenstahl, fileslice.WindowsPack:
+		// For these cases, use the public artifacts method as fallback
+		if err := m.ByPublic(ctx, exec); err != nil {
+			return fmt.Errorf("artifacts stats by public %w: %s", err, uri)
+		}
+	default:
+		if err := m.ByPublic(ctx, exec); err != nil {
+			return fmt.Errorf("artifacts stats by public %w: %s", err, uri)
+		}
+	}
+	return nil
 }
 
 // emptyFiles is a map of default values specific to the files templates.

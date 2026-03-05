@@ -82,7 +82,7 @@ func (f File) LeadFS(width int) string {
 // or an empty string for generic platforms and media.
 func (f File) OS() string {
 	p := tags.TagByURI(strings.TrimSpace(f.Platform))
-	switch p {
+	switch p { //nolint:exhaustive
 	case tags.DOS,
 		tags.Java,
 		tags.Linux,

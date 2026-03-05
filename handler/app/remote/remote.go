@@ -171,6 +171,8 @@ func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResp
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
+//
+//nolint:dupl // intentional similarity
 func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "demozoo link stat"
 	if err := panics.EchoContextD(c, db); err != nil {
@@ -216,6 +218,8 @@ func discard(err error) {
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
+//
+//nolint:dupl // intentional similarity
 func (got *DemozooLink) Update(c echo.Context, db *sql.DB) error {
 	const msg = "demozoo link update"
 	if err := panics.EchoContextD(c, db); err != nil {
@@ -377,6 +381,8 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, download dir.Director
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
+//
+//nolint:dupl // intentional similarity
 func (got *PouetLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "pouet link stat"
 	if err := panics.EchoContextD(c, db); err != nil {
@@ -417,6 +423,8 @@ func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) err
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
+//
+//nolint:dupl // intentional similarity
 func (got *PouetLink) Update(c echo.Context, db *sql.DB) error {
 	const msg = "pouet link update"
 	if err := panics.EchoContextD(c, db); err != nil {
