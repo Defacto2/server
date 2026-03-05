@@ -11,6 +11,7 @@ type GroupID int
 // Groups is a map of releasers URIs mapped to their janeway author/group id.
 type Groups map[string]GroupID
 
+//nolint:gochecknoglobals
 var groups = Groups{
 	"alpha-flight":                     2276,
 	"dynamix":                          23611,

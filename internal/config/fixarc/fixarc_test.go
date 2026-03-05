@@ -393,11 +393,7 @@ func TestCheckExtensionFiltering(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			d := &MockDirEntry{name: tc.filename, isDir: false}
 			result := fixarc.Check(sl, "", extra, d)
-			if tc.shouldSkip {
-				be.Equal(t, result, "")
-			} else {
-				be.Equal(t, result, "") // Will be "" because no artifacts provided
-			}
+			be.Equal(t, result, "")
 		})
 	}
 }
@@ -430,12 +426,7 @@ func TestCheckFileInExtraDirectory(t *testing.T) {
 			d := &MockDirEntry{name: uid + ".zip", isDir: false}
 			artifacts := []string{uid}
 			result := fixarc.Check(sl, "", extra, d, artifacts...)
-			if tc.expectEmpty {
-				be.Equal(t, result, "")
-			} else {
-				// Will be "" because no path provided for pkzip.Methods
-				be.Equal(t, result, "")
-			}
+			be.Equal(t, result, "")
 		})
 	}
 }

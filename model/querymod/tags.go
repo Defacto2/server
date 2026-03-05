@@ -8,6 +8,8 @@ import (
 )
 
 // uris is a cached reference to the tags.URIs() map.
+//
+//nolint:gochecknoglobals
 var uris map[tags.Tag]string
 
 func getURIs() map[tags.Tag]string {

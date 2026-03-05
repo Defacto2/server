@@ -23,6 +23,8 @@ type Name map[Tag]string
 type Info map[Tag]string
 
 // uriToTag is a reverse lookup map from URI string to Tag for O(1) lookups.
+//
+//nolint:gochecknoglobals
 var uriToTag = func() map[string]Tag {
 	m := make(map[string]Tag, len(uris))
 	for tag, uri := range uris {
@@ -32,6 +34,8 @@ var uriToTag = func() map[string]Tag {
 }()
 
 // uris maps Tag to URI slug string.
+//
+//nolint:gochecknoglobals
 var uris = URIS{
 	Announcement: "announcements",
 	ANSIEditor:   "ansieditor",
@@ -78,6 +82,8 @@ var uris = URIS{
 }
 
 // names maps Tag to display name.
+//
+//nolint:gochecknoglobals
 var names = URIS{
 	Announcement: "announcement",
 	ANSIEditor:   "ansi editor",
@@ -124,6 +130,8 @@ var names = URIS{
 }
 
 // infos maps Tag to short description.
+//
+//nolint:gochecknoglobals
 var infos = Info{
 	Announcement: "public announcements by Scene groups and organizations",
 	ANSIEditor:   "programs that enable you to create and edit ansi and text art",
@@ -177,6 +185,8 @@ var infos = Info{
 }
 
 // determiners maps Tag to article (a/an).
+//
+//nolint:gochecknoglobals
 var determiners = URIS{
 	Announcement: "an",
 	ANSIEditor:   "an",

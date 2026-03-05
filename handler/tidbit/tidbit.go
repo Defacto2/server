@@ -102,6 +102,7 @@ type Tibits map[ID][]URI
 // Tidbit is a map of tidbits mapped to their descriptions.
 type Tidbit map[ID]string
 
+//nolint:gochecknoglobals
 var groups = Tibits{
 	1:    []URI{"untouchables", "the-untouchables"},
 	1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance", "byt"},

@@ -26,6 +26,8 @@ type Groups map[URI][]Website
 //     But non-working sites should exclude the protocol, e.g. www.example.com.
 //   - Name should be the name of the website.
 //   - NotWorking will not apply a hyperlink to the URL.
+//
+//nolint:gochecknoglobals
 var websites = Groups{
 	"class": {
 		{URL: "class101.com", NotWorking: true, Name: "former domain"},

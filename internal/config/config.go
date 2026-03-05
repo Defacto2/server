@@ -25,6 +25,7 @@ const (
 	hide = "xxxxx" // hide is the placeholder text used to replace sensitive information
 )
 
+//nolint:gochecknoglobals
 var formatMap = map[string]string{
 	"AbsDownload":    "Downloads, directory path",
 	"AbsPreview":     "Previews, directory path",

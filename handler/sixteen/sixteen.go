@@ -11,6 +11,7 @@ type GroupTag string
 // Groups is a map of releasers URIs mapped to their 16colors group tag.
 type Groups map[string]GroupTag
 
+//nolint:gochecknoglobals
 var groups = Groups{
 	"hype":                               "pack/hype/",
 	"international-network-of-crackers":  "tags/content/inc",

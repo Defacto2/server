@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/panics"
@@ -247,7 +248,8 @@ const (
 	coop1fix  = "COOP"
 )
 
-var fixesMap = map[string]string{
+//nolint:gochecknoglobals
+var FixesMap = map[string]string{
 	acidbad: acidfix,
 	ansibad: acidfix,
 	icebad:  icefix,
@@ -263,13 +265,21 @@ var fixesMap = map[string]string{
 	coop1:   coop1fix,
 }
 
-var fixesMapUpper map[string]string
+//nolint:gochecknoglobals
+var (
+	FixesMapUpper     map[string]string
+	fixesMapUpperOnce sync.Once
+)
 
-func init() {
-	fixesMapUpper = make(map[string]string, len(fixesMap))
-	for bad, fix := range fixesMap {
-		fixesMapUpper[strings.ToUpper(bad)] = strings.ToUpper(fix)
-	}
+// GetFixesMapUpper lazily initializes and returns the uppercase fixes map.
+func GetFixesMapUpper() map[string]string {
+	fixesMapUpperOnce.Do(func() {
+		FixesMapUpper = make(map[string]string, len(FixesMap))
+		for bad, fix := range FixesMap {
+			FixesMapUpper[strings.ToUpper(bad)] = strings.ToUpper(fix)
+		}
+	})
+	return FixesMapUpper
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
@@ -295,7 +305,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 				slog.Int64("updated", rowsAff))
 		}
 	}
-	for bad, fix := range fixesMapUpper {
+	for bad, fix := range GetFixesMapUpper() {
 		f, err = models.Files(
 			qm.Where("group_brand_for = ?", bad),
 			qm.WithDeleted()).All(ctx, exec)

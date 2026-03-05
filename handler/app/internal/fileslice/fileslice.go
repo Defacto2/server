@@ -19,7 +19,8 @@ import (
 
 var (
 	ErrCategory = errors.New("unknown artifacts categories")
-	uriMap      = func() map[string]URI {
+	//nolint:gochecknoglobals
+	uriMap = func() map[string]URI {
 		m := make(map[string]URI)
 		for val := range int(WindowsPack) {
 			i := val + 1

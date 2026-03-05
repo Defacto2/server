@@ -6,34 +6,34 @@
 # To see all available tasks:
 # $ task --list
 #
-version: "3"
+version: '3'
 vars:
   BINNAME: dist/defacto2-server # build output, binary filename (without any extensions)
-dotenv: ["./init/.env.local"]
+dotenv: ['./init/.env.local']
 tasks:
   _init:
     silent: false
-    desc: "Initialize this project for the first time after a git clone."
+    desc: 'Initialize this project for the first time after a git clone.'
     cmds:
       - cmd: go install github.com/goreleaser/goreleaser/v2@latest
       - cmd: go install github.com/aarondl/sqlboiler/v4@latest
       - cmd: go install github.com/aarondl/sqlboiler/v4/drivers/sqlboiler-psql@latest
       - cmd: go mod tidy
   assets:
-    desc: "Build, compile and compress the web serve CSS and JS assets."
+    desc: 'Build, compile and compress the web serve CSS and JS assets.'
     cmds:
       - echo "Building assets..."
       - go run -modfile=runner/go.mod runner/runner.go
       - echo "Done!"
   binary:
-    desc: "Build the binary of the web server."
+    desc: 'Build the binary of the web server.'
     deps: [assets]
     cmds:
       - cmd: echo "Building..."
       - cmd: go build -o {{.BINNAME}} -v server.go
         platforms: [linux, darwin, freebsd]
   binaryr:
-    desc: "Build the binary of the web server with race detection."
+    desc: 'Build the binary of the web server with race detection.'
     deps: [assets]
     cmds:
       - cmd: echo "Building with race conditions..."
@@ -43,17 +43,17 @@ tasks:
         platforms: [linux, darwin]
       - cmd: echo "Done!"
   binary-run:
-    desc: "Run the previously built binary."
+    desc: 'Run the previously built binary.'
     cmds:
       - ./{{.BINNAME}}
     platforms: [linux, darwin, freebsd]
   default:
-    desc: "Task runner for the Defacto2 web server source code."
+    desc: 'Task runner for the Defacto2 web server source code.'
     cmds:
       - task --list-all
     silent: true
   doc:
-    desc: "Generate and browse the application module documentation."
+    desc: 'Generate and browse the application module documentation.'
     cmds:
       - cmd: go tool pkgsite -http localhost:8090
     silent: true
@@ -70,15 +70,23 @@ tasks:
       - cmd: pnpm exec eslint assets/js/*.js
       - cmd: pnpm exec stylelint assets/css/*.css
       - cmd: golangci-lint run -c init/.golangci.yaml
+  linter:
+    silent: false
+    desc: Quickly lint the go source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: golangci-lint run -c init/.golangci.yaml
   nil:
-    desc: "Run the static analysis techniques to catch Nil dereferences."
+    desc: 'Run the static analysis techniques to catch Nil dereferences.'
     cmds:
       # ignore server/model package because the database uses nil values
       # skip tests for performance
       - go tool nilaway -test=false -exclude-pkgs=github.com/Defacto2/server/model ./...
   pkg-patch:
     aliases:
-      - "patch"
+      - 'patch'
     silent: false
     desc: Update and apply patches to the web server dependencies.
     cmds:
@@ -87,8 +95,8 @@ tasks:
       - cmd: go mod tidy
   build-release:
     aliases:
-      - "br"
-    desc: "Build the release package of the web server embeded with the git version tag."
+      - 'br'
+    desc: 'Build the release package of the web server embeded with the git version tag.'
     deps: [assets]
     cmds:
       - cmd: echo "Git status results:"
@@ -98,8 +106,8 @@ tasks:
       - cmd: echo "Done!"
   build-snapshot:
     aliases:
-      - "bs"
-    desc: "Build the release package of the web server without a git version tag."
+      - 'bs'
+    desc: 'Build the release package of the web server without a git version tag.'
     deps: [assets]
     cmds:
       - cmd: echo "Building snapshot..."
@@ -107,7 +115,7 @@ tasks:
       - cmd: echo "Done!"
   pkg-update:
     aliases:
-      - "update"
+      - 'update'
     silent: false
     desc: Update the web server dependencies.
     cmds:
@@ -116,14 +124,14 @@ tasks:
       - cmd: go mod tidy
   serve-dev:
     aliases:
-      - "serve"
-    desc: "Run the internal web server in development mode with live reload."
+      - 'serve'
+    desc: 'Run the internal web server in development mode with live reload.'
     cmds:
       - task: serve-linux
   serve-fix:
     aliases:
-      - "fix"
-    desc: "Run the internal web server with the fix flag."
+      - 'fix'
+    desc: 'Run the internal web server with the fix flag.'
     cmds:
       - cmd: go run server.go fix
   serve-linux:
@@ -137,8 +145,8 @@ tasks:
       - go tool air -c init/.air.toml
   serve-prod:
     aliases:
-      - "server"
-    desc: "Run the internal web server with live reload."
+      - 'server'
+    desc: 'Run the internal web server with live reload.'
     cmds:
       - task: serve-air-prod
   serve-air-prod:
@@ -149,18 +157,18 @@ tasks:
     cmds:
       - go tool air -c init/.air.toml
   spell:
-    desc: "Run the spell checker on the markdown tidbits."
+    desc: 'Run the spell checker on the markdown tidbits.'
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
       - cmd: find public/md/tidbit/ -name "*.md" | xargs pnpm exec mdspell --report --ignore-numbers --ignore-acronyms --en-us
   test:
-    desc: "Run the test suite."
+    desc: 'Run the test suite.'
     cmds:
       #- set -o pipefail && go test ./... -json | tparse -all
       - go test -count 1 ./...
   testr:
-    desc: "Run the test suite with the slower race detection."
+    desc: 'Run the test suite with the slower race detection.'
     cmds:
       #- set -o pipefail && go test ./... -json | tparse -all
       - go test -count 1 -race ./...

@@ -21,6 +21,8 @@ var (
 )
 
 // nameToTag is a reverse lookup map from tag name to Tag for O(1) lookups.
+//
+//nolint:gochecknoglobals
 var nameToTag = func() map[string]Tag {
 	const size = 43
 	m := make(map[string]Tag, size)

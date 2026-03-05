@@ -69,8 +69,7 @@ require (
 //	replace github.com/bengarrett/sauce => ../sauce
 //	replace github.com/bengarrett/binbump => ../binbump
 
-// Pin rsc.io/markdown to version compatible with golang.org/x/pkgsite
-// which is used by the 'task doc' command
+// Lock down the markdown package for 'task doc' command compatibility
 replace rsc.io/markdown => rsc.io/markdown v0.0.0-20231214224604-88bb533a6020
 
 require (

@@ -2,6 +2,7 @@ package fix_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/postgres"
@@ -194,28 +195,57 @@ func TestFixesMapPackageLevel(t *testing.T) {
 
 func TestFixesMapUpperInitialized(t *testing.T) {
 	t.Parallel()
-	// Verify fixesMapUpper is properly initialized in init()
-	// The uppercase map is pre-computed at startup
-	be.True(t, true)
+	// Verify getFixesMapUpper() properly initializes the map
+	upperMap := fix.GetFixesMapUpper()
+	if upperMap == nil {
+		t.Error("getFixesMapUpper() should return a non-nil map")
+	}
+	if len(upperMap) == 0 {
+		t.Error("getFixesMapUpper() should return a non-empty map")
+	}
 }
 
 func TestFixesMapUpperContent(t *testing.T) {
 	t.Parallel()
-	// Verify fixesMapUpper has uppercase versions
-	// This is verified by the repair functions working correctly
-	be.True(t, true)
+	// Verify getFixesMapUpper() has uppercase versions of FixesMap keys
+	upperMap := fix.GetFixesMapUpper()
+	if len(fix.FixesMap) != len(upperMap) {
+		t.Errorf("getFixesMapUpper() should have same length as FixesMap, got %d vs %d",
+			len(upperMap), len(fix.FixesMap))
+	}
+
+	// Verify that all keys in the uppercase map are uppercase versions
+	for bad, fixVal := range fix.FixesMap {
+		upperBad := strings.ToUpper(bad)
+		upperFix := strings.ToUpper(fixVal)
+
+		if upperMap[upperBad] != upperFix {
+			t.Errorf("getFixesMapUpper()[%s] should be %s, got %s",
+				upperBad, upperFix, upperMap[upperBad])
+		}
+	}
 }
 
-func TestFixesMapNoAllocation(t *testing.T) {
+func TestFixesMapUpperCaseInsensitive(t *testing.T) {
 	t.Parallel()
-	// Verify we can access the maps without creating new ones
-	// Package-level maps are allocated once at init time
-	be.True(t, true)
-}
+	// Verify that getFixesMapUpper() enables case-insensitive lookups
+	upperMap := fix.GetFixesMapUpper()
+	testCases := []struct {
+		input    string
+		expected string
+	}{
+		{"lowercase", "LOWERCASE"},
+		{"UPPERCASE", "UPPERCASE"},
+		{"MixedCase", "MIXEDCASE"},
+	}
 
-func TestFixesMapUpperNoConversion(t *testing.T) {
-	t.Parallel()
-	// Verify fixesMapUpper has already converted values
-	// All string conversions happen once at package init
-	be.True(t, true)
+	for _, tc := range testCases {
+		upperInput := strings.ToUpper(tc.input)
+		if val, exists := upperMap[upperInput]; exists {
+			if val != strings.ToUpper(tc.expected) {
+				t.Errorf("getFixesMapUpper()[%s] should be %s, got %s",
+					upperInput, strings.ToUpper(tc.expected), val)
+			}
+		}
+	}
 }

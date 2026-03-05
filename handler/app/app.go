@@ -669,7 +669,7 @@ func SafeBBS(a any) template.HTML {
 		}
 		var buf bytes.Buffer
 		if err := bbs.PCBoardHTML(&buf, b...); err != nil {
-			fmt.Print(err) // TODO: replace with a log
+			return template.HTML(fmt.Sprintf("PCBoard conversion error: %v", err))
 		}
 		// FIX: temp block
 		// s := string(RemovePCBoard(b))

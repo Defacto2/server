@@ -593,6 +593,7 @@ const (
 	uart  = "ultimate-association-of-reckless-talent"
 )
 
+//nolint:gochecknoglobals
 var groups = Groups{
 	"the-cracking-lords":                    78172,
 	"ansi-factory":                          89284,

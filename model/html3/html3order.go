@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/panics"
@@ -177,32 +178,40 @@ func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, 
 		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, exec)
 }
 
-var orderClausesMap map[Order]string
+//nolint:gochecknoglobals
+var (
+	orderClausesMap     map[Order]string
+	orderClausesMapOnce sync.Once
+)
 
-func init() {
-	const a, d = "asc", "desc"
-	ca := models.FileColumns.Createdat
-	dy := models.FileColumns.DateIssuedYear
-	dm := models.FileColumns.DateIssuedMonth
-	dd := models.FileColumns.DateIssuedDay
-	fn := models.FileColumns.Filename
-	fs := models.FileColumns.Filesize
-	rt := models.FileColumns.RecordTitle
-	orderClausesMap = make(map[Order]string, DescDes+1)
-	orderClausesMap[NameAsc] = fn + " " + a
-	orderClausesMap[NameDes] = fn + " " + d
-	orderClausesMap[PublAsc] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, a, dm, a, dd, a)
-	orderClausesMap[PublDes] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, d, dm, d, dd, d)
-	orderClausesMap[PostAsc] = ca + " " + a
-	orderClausesMap[PostDes] = ca + " " + d
-	orderClausesMap[SizeAsc] = fs + " " + a
-	orderClausesMap[SizeDes] = fs + " " + d
-	orderClausesMap[DescAsc] = rt + " " + a
-	orderClausesMap[DescDes] = rt + " " + d
+// getOrderClausesMap lazily initializes and returns the order clauses map.
+func getOrderClausesMap() map[Order]string {
+	orderClausesMapOnce.Do(func() {
+		const a, d = "asc", "desc"
+		ca := models.FileColumns.Createdat
+		dy := models.FileColumns.DateIssuedYear
+		dm := models.FileColumns.DateIssuedMonth
+		dd := models.FileColumns.DateIssuedDay
+		fn := models.FileColumns.Filename
+		fs := models.FileColumns.Filesize
+		rt := models.FileColumns.RecordTitle
+		orderClausesMap = make(map[Order]string, DescDes+1)
+		orderClausesMap[NameAsc] = fn + " " + a
+		orderClausesMap[NameDes] = fn + " " + d
+		orderClausesMap[PublAsc] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, a, dm, a, dd, a)
+		orderClausesMap[PublDes] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, d, dm, d, dd, d)
+		orderClausesMap[PostAsc] = ca + " " + a
+		orderClausesMap[PostDes] = ca + " " + d
+		orderClausesMap[SizeAsc] = fs + " " + a
+		orderClausesMap[SizeDes] = fs + " " + d
+		orderClausesMap[DescAsc] = rt + " " + a
+		orderClausesMap[DescDes] = rt + " " + d
+	})
+	return orderClausesMap
 }
 
 func (o Order) String() string {
-	return orderClausesMap[o]
+	return getOrderClausesMap()[o]
 }
 
 // calc returns the offset value.

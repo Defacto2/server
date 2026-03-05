@@ -11,6 +11,7 @@ const (
 	webp = ".webp"
 )
 
+//nolint:gochecknoglobals
 var (
 	archiveExts  = []string{fzip, ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace"}
 	documentExts = []string{

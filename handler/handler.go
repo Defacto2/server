@@ -259,7 +259,7 @@ func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry
 
 // ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
 // The shutdown procedure occurs a few seconds after the key press.
-func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger) {
+func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger) { //nolint:funlen
 	if w == nil {
 		w = os.Stderr
 	}

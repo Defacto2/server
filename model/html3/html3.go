@@ -27,12 +27,16 @@ const (
 	ClauseNoSoftDel = "deletedat IS NULL"
 
 	padding = " "
+	pad3cnt = 3
+	pad7cnt = 7
 )
 
 var (
 	ErrModel = errors.New("error, no file model")
-	pad3     = strings.Repeat(" ", 3)
-	pad7     = strings.Repeat(" ", 7)
+	//nolint:gochecknoglobals
+	pad3 = strings.Repeat(padding, pad3cnt)
+	//nolint:gochecknoglobals
+	pad7 = strings.Repeat(padding, pad7cnt)
 )
 
 // ArtExpr returns a query modifier for the digital or pixel art category.

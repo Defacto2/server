@@ -243,12 +243,7 @@ func TestCheckExtensionFiltering(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			d := &MockDirEntry{name: tc.filename, isDir: false}
 			result := fixarj.Check(extra, d)
-			if tc.shouldMatch {
-				// Would return "" because no artifacts, but passes extension check
-				be.Equal(t, result, "")
-			} else {
-				be.Equal(t, result, "")
-			}
+			be.Equal(t, result, "")
 		})
 	}
 }

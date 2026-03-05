@@ -25,6 +25,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+//nolint:gochecknoglobals
 var requestCounter atomic.Int64
 
 // SkipPaths are parent route paths that should not be logged,

@@ -15,6 +15,8 @@ import (
 )
 
 // columns is a cached reference to postgres.Columns() to avoid repeated function calls.
+//
+//nolint:gochecknoglobals
 var columns []string
 
 func GetColumns() []string {

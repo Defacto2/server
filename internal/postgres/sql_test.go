@@ -345,7 +345,8 @@ func TestSimilarToReleaser_ParameterValidation(t *testing.T) {
 			// Should always have 1 parameter
 			be.Equal(t, 1, len(params))
 
-			val := params[0].(string)
+			val, ok := params[0].(string)
+			be.True(t, ok)
 			be.Equal(t, tt.expected, val)
 		})
 	}
