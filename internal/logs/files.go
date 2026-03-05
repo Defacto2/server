@@ -78,17 +78,23 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 	handlers := make([]slog.Handler, 0, maxLogHandlers)
 	if f.errlevel != nil {
 		handlers = append(handlers, slog.NewJSONHandler(f.errlevel, &slog.HandlerOptions{
-			Level: LevelError, AddSource: true,
+			Level:       LevelError,
+			AddSource:   true,
+			ReplaceAttr: nil,
 		}))
 	}
 	if f.infolevel != nil {
 		handlers = append(handlers, slog.NewJSONHandler(f.infolevel, &slog.HandlerOptions{
-			Level: LevelInfo, AddSource: false,
+			Level:       LevelInfo,
+			AddSource:   false,
+			ReplaceAttr: nil,
 		}))
 	}
 	if f.debuglevel != nil {
 		handlers = append(handlers, slog.NewJSONHandler(f.debuglevel, &slog.HandlerOptions{
-			Level: LevelDebug, AddSource: false,
+			Level:       LevelDebug,
+			AddSource:   false,
+			ReplaceAttr: nil,
 		}))
 	}
 	if !useStdout && !useStderr {
@@ -108,7 +114,11 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 
 // NoFiles returns an empty Files struct and is available to show usage and intention.
 func NoFiles() Files {
-	return Files{}
+	return Files{
+		errlevel:   nil,
+		infolevel:  nil,
+		debuglevel: nil,
+	}
 }
 
 // OpenFiles creates or opens the named log files for use with the
@@ -128,7 +138,7 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	const msg = "logs open file"
 	const flag = os.O_CREATE | os.O_APPEND | os.O_WRONLY
 	const perm = 0o666
-	none, files := Files{}, Files{}
+	none, files := Files{errlevel: nil, infolevel: nil, debuglevel: nil}, Files{errlevel: nil, infolevel: nil, debuglevel: nil}
 	// handle the root directory
 	if root == "" {
 		home, err := os.UserHomeDir()

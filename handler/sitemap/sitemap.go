@@ -81,7 +81,7 @@ func MapIndex() *Index {
 		// maps[i].LastMod = time.Now().Format(time.DateOnly)
 	}
 	index := &Index{
-		XMLName: xml.Name{},
+		XMLName: xml.Name{Space: "", Local: "sitemapindex"},
 		XMLNS:   Namespace,
 		Maps:    maps,
 	}
@@ -122,10 +122,10 @@ func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map site"
 	ctx := context.Background()
 	m := model.Summary{
-		SumBytes: sql.NullInt64{},
-		SumCount: sql.NullInt64{},
-		MinYear:  sql.NullInt16{},
-		MaxYear:  sql.NullInt16{},
+		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
+		SumCount: sql.NullInt64{Int64: 0, Valid: false},
+		MinYear:  sql.NullInt16{Int16: 0, Valid: false},
+		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
 	}
 	err := m.ByPublic(ctx, db)
 	if err != nil {
@@ -163,7 +163,7 @@ func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 		// maps[i].LastMod = time.Now().Format(time.DateOnly)
 	}
 	sm := &Sitemap{
-		XMLName: xml.Name{},
+		XMLName: xml.Name{Space: "", Local: "urlset"},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -185,7 +185,7 @@ func MapReleaser(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLName: xml.Name{},
+		XMLName: xml.Name{Space: "", Local: "urlset"},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -207,7 +207,7 @@ func MapMagazine(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLName: xml.Name{},
+		XMLName: xml.Name{Space: "", Local: "urlset"},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -229,8 +229,9 @@ func MapBBS(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLNS: Namespace,
-		Locs:  maps,
+		XMLName: xml.Name{Space: "", Local: "urlset"},
+		XMLNS:   Namespace,
+		Locs:    maps,
 	}
 	return sm
 }
@@ -250,8 +251,9 @@ func MapFTP(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLNS: Namespace,
-		Locs:  maps,
+		XMLName: xml.Name{Space: "", Local: "urlset"},
+		XMLNS:   Namespace,
+		Locs:    maps,
 	}
 	return sm
 }

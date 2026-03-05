@@ -163,7 +163,7 @@ func PlainTextBuffers(
 	art *models.File, sizeLimit int64, download, extra dir.Directory,
 ) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
 	const msg = "readme pool"
-	nosauce := sauce.Record{}
+	nosauce := sauce.Record{} //nolint:exhaustruct
 	if art == nil {
 		return nil, nil, nosauce, fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
 	}
@@ -228,7 +228,7 @@ func PlainTextBuffers(
 func knownBinaries(msg, name string, errs error) (
 	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
 ) {
-	nosauce := sauce.Record{}
+	nosauce := sauce.Record{} //nolint:exhaustruct
 	file, err := os.Open(name)
 	if err != nil {
 		errs = errors.Join(errs, fmt.Errorf("%s not text open: %w", msg, err))
@@ -252,7 +252,7 @@ func sauceData(buf *bytes.Buffer) sauce.Record {
 	if sauce.Contains(b) {
 		return sauce.Decode(b)
 	}
-	return sauce.Record{}
+	return sauce.Record{} //nolint:exhaustruct
 }
 
 func plainTexts(

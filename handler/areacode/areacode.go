@@ -427,12 +427,12 @@ func Query(a any) Result {
 	case string:
 		if c, err := strconv.Atoi(val); err == nil {
 			ac := NAN(c)
-			return Result{AreaCode: ac}
+			return Result{AreaCode: ac, Terr: nil}
 		}
-		return Result{Terr: Lookup(val)}
+		return Result{Terr: Lookup(val), AreaCode: 0}
 	case int, uint:
 		if c, ok := a.(int); ok {
-			return Result{AreaCode: NAN(c)}
+			return Result{AreaCode: NAN(c), Terr: nil}
 		}
 		if c, ok := a.(uint); ok {
 			if c > limit {
@@ -451,9 +451,9 @@ func Query(a any) Result {
 			AreaCode: 0,
 		}
 	case NAN:
-		return Result{AreaCode: val}
+		return Result{AreaCode: val, Terr: nil}
 	default:
-		return Result{}
+		return Result{Terr: nil, AreaCode: 0}
 	}
 }
 

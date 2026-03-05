@@ -27,7 +27,10 @@ var (
 func client() http.Client {
 	const ten = 10
 	return http.Client{
-		Timeout: ten * time.Second,
+		Transport:     nil,
+		CheckRedirect: nil,
+		Jar:           nil,
+		Timeout:       ten * time.Second,
 	}
 }
 
@@ -92,7 +95,25 @@ func (p *Production) Get(id int) (int, error) {
 				Type string `json:"type"`
 				Link string `json:"link"`
 			} `json:"downloadLinks"`
-		}{},
+		}{
+			ID:           "",
+			Title:        "",
+			ReleaseDate:  "",
+			Voteup:       "",
+			Votepig:      "",
+			Votedown:     "",
+			Voteavg:      "",
+			Download:     "",
+			Demozoo:      "",
+			Groups:       nil,
+			Platforms: Platforms{
+				DosGus:  Platform{Name: "", Slug: ""},
+				Windows: Platform{Name: "", Slug: ""},
+				MSDos:   Platform{Name: "", Slug: ""},
+			},
+			Types:        nil,
+			DownloadLinks: nil,
+		},
 		Success: false,
 	}
 	if code, err := resp.Get(id); err != nil {
@@ -393,7 +414,25 @@ func (v *Votes) Votes(id int) error {
 				Type string `json:"type"`
 				Link string `json:"link"`
 			} `json:"downloadLinks"`
-		}{},
+		}{
+			ID:           "",
+			Title:        "",
+			ReleaseDate:  "",
+			Voteup:       "",
+			Votepig:      "",
+			Votedown:     "",
+			Voteavg:      "",
+			Download:     "",
+			Demozoo:      "",
+			Groups:       nil,
+			Platforms: Platforms{
+				DosGus:  Platform{Name: "", Slug: ""},
+				Windows: Platform{Name: "", Slug: ""},
+				MSDos:   Platform{Name: "", Slug: ""},
+			},
+			Types:        nil,
+			DownloadLinks: nil,
+		},
 		Success: false,
 	}
 	_, err := r.Get(id)

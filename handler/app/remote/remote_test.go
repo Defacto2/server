@@ -14,28 +14,28 @@ import (
 
 func TestDownload(t *testing.T) {
 	t.Parallel()
-	dl := remote.DemozooLink{}
+	dl := remote.DemozooLink{} //nolint:exhaustruct
 	err := dl.Download(nil, nil, "")
 	be.Err(t, err)
 }
 
 func TestStat(t *testing.T) {
 	t.Parallel()
-	dl := remote.DemozooLink{}
+	dl := remote.DemozooLink{} //nolint:exhaustruct
 	err := dl.Stat(nil, nil, "")
 	be.Err(t, err)
 }
 
 func TestArchiveContent(t *testing.T) {
 	t.Parallel()
-	dl := remote.DemozooLink{}
+	dl := remote.DemozooLink{} //nolint:exhaustruct
 	err := dl.ArchiveContent(nil, nil, "")
 	be.Err(t, err)
 }
 
 func TestUpdate(t *testing.T) {
 	t.Parallel()
-	dl := remote.DemozooLink{}
+	dl := remote.DemozooLink{} //nolint:exhaustruct
 	err := dl.Update(nil, nil)
 	be.Err(t, err)
 }

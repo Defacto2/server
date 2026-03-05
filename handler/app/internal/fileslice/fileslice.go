@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -297,23 +298,23 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 	case ForApproval:
 		return model.ByForApproval(ctx, exec, page, limit)
 	case Deletions:
-		r := model.Artifacts{}
+		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.ByHidden(ctx, exec, page, limit)
 	case Unwanted:
-		r := model.Artifacts{}
+		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.ByUnwanted(ctx, exec, page, limit)
 	// pulldown menu matches
 	case NewUploads:
-		r := model.Artifacts{}
+		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.ByKey(ctx, exec, page, limit)
 	case NewUpdates:
-		r := model.Artifacts{}
+		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.ByUpdated(ctx, exec, page, limit)
 	case Oldest:
-		r := model.Artifacts{}
+		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.ByOldest(ctx, exec, page, limit)
 	case Newest:
-		r := model.Artifacts{}
+		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.ByNewest(ctx, exec, page, limit)
 	}
 	return recordsZ(ctx, exec, uri, page, limit)
@@ -322,40 +323,40 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 func recordsZ(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	case advert:
-		r := model.Advert{}
+		r := model.Advert{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case announcement:
-		r := model.Announcement{}
+		r := model.Announcement{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case ansi:
-		r := model.Ansi{}
+		r := model.Ansi{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case ansiBrand:
-		r := model.AnsiBrand{}
+		r := model.AnsiBrand{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case ansiBBS:
-		r := model.AnsiBBS{}
+		r := model.AnsiBBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case ansiFTP:
-		r := model.AnsiFTP{}
+		r := model.AnsiFTP{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case ansiNfo:
-		r := model.AnsiNfo{}
+		r := model.AnsiNfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case ansiPack:
-		r := model.AnsiPack{}
+		r := model.AnsiPack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case bbs:
-		r := model.BBS{}
+		r := model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case bbsImage:
-		r := model.BBSImage{}
+		r := model.BBSImage{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case bbstro:
-		r := model.BBStro{}
+		r := model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case bbsText:
-		r := model.BBSText{}
+		r := model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	}
 	return records0(ctx, exec, uri, page, limit)
@@ -364,46 +365,46 @@ func recordsZ(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 func records0(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	case database:
-		r := model.Database{}
+		r := model.Database{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case demoscene:
-		r := model.Demoscene{}
+		r := model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case drama:
-		r := model.Drama{}
+		r := model.Drama{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case ftp:
-		r := model.FTP{}
+		r := model.FTP{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case hack:
-		r := model.Hack{}
+		r := model.Hack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case htm:
-		r := model.HTML{}
+		r := model.HTML{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case howTo:
-		r := model.HowTo{}
+		r := model.HowTo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case imageFile:
-		r := model.Image{}
+		r := model.Image{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case imagePack:
-		r := model.ImagePack{}
+		r := model.ImagePack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case installer:
-		r := model.Installer{}
+		r := model.Installer{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case intro:
-		r := model.Intro{}
+		r := model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case linux:
-		r := model.Linux{}
+		r := model.Linux{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case java:
-		r := model.Java{}
+		r := model.Java{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case jobAdvert:
-		r := model.JobAdvert{}
+		r := model.JobAdvert{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	}
 	return records1(ctx, exec, uri, page, limit)
@@ -412,46 +413,46 @@ func records0(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	case macos:
-		r := model.Macos{}
+		r := model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case msdosPack:
-		r := model.MsDosPack{}
+		r := model.MsDosPack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case music:
-		r := model.Music{}
+		r := model.Music{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case newsArticle:
-		r := model.NewsArticle{}
+		r := model.NewsArticle{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case nfo:
-		r := model.Nfo{}
+		r := model.Nfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case nfoTool:
-		r := model.NfoTool{}
+		r := model.NfoTool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case standards:
-		r := model.Standard{}
+		r := model.Standard{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case script:
-		r := model.Script{}
+		r := model.Script{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case introMsdos:
-		r := model.IntroMsDos{}
+		r := model.IntroMsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case introWindows:
-		r := model.IntroWindows{}
+		r := model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case magazine:
-		r := model.Magazine{}
+		r := model.Magazine{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case msdos:
-		r := model.MsDos{}
+		r := model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case pdf:
-		r := model.PDF{}
+		r := model.PDF{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case proof:
-		r := model.Proof{}
+		r := model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	}
 	return records2(ctx, exec, uri, page, limit)
@@ -460,43 +461,43 @@ func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) {
 	case restrict:
-		r := model.Restrict{}
+		r := model.Restrict{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case takedown:
-		r := model.Takedown{}
+		r := model.Takedown{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case text:
-		r := model.Text{}
+		r := model.Text{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case textAmiga:
-		r := model.TextAmiga{}
+		r := model.TextAmiga{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case textApple2:
-		r := model.TextApple2{}
+		r := model.TextApple2{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case textAtariST:
-		r := model.TextAtariST{}
+		r := model.TextAtariST{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case textPack:
-		r := model.TextPack{}
+		r := model.TextPack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case tool:
-		r := model.Tool{}
+		r := model.Tool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case trialCrackme:
-		r := model.TrialCrackme{}
+		r := model.TrialCrackme{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case video:
-		r := model.Video{}
+		r := model.Video{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case windows:
-		r := model.Windows{}
+		r := model.Windows{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case WindowsPack:
-		r := model.WindowsPack{}
+		r := model.WindowsPack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case Sensenstahl:
-		r := model.BBStro{}
+		r := model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.Sensenstahl(ctx, exec, page, limit)
 	default:
 		return nil, fmt.Errorf("artifacts category %w: %s", ErrCategory, uri)
@@ -510,7 +511,30 @@ func Counter(db *sql.DB) (Stats, error) {
 		return Stats{}, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
 	ctx := context.Background()
-	counter := Stats{}
+	counter := Stats{
+		IntroW:    model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Record:    model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Ansi:      model.Ansi{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		AnsiBBS:   model.AnsiBBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBS:       model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBSText:   model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBStro:    model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Demoscene: model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		MsDos:     model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Intro:     model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		IntroD:    model.IntroMsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Installer: model.Installer{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Java:      model.Java{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Linux:     model.Linux{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Magazine:  model.Magazine{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Macos:     model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Nfo:       model.Nfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		NfoTool:   model.NfoTool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Proof:     model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Script:    model.Script{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Text:      model.Text{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Windows:   model.Windows{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+	}
 	if err := counter.Get(ctx, db); err != nil {
 		return Stats{}, fmt.Errorf("%s get %w", msg, err)
 	}
@@ -545,7 +569,30 @@ type Stats struct {
 
 // Statistics returns the empty database statistics for the artifacts categories.
 func Statistics() Stats {
-	return Stats{}
+	return Stats{
+		IntroW:    model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Record:    model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Ansi:      model.Ansi{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		AnsiBBS:   model.AnsiBBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBS:       model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBSText:   model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBStro:    model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Demoscene: model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		MsDos:     model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Intro:     model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		IntroD:    model.IntroMsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Installer: model.Installer{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Java:      model.Java{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Linux:     model.Linux{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Magazine:  model.Magazine{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Macos:     model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Nfo:       model.Nfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		NfoTool:   model.NfoTool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Proof:     model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Script:    model.Script{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Text:      model.Text{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Windows:   model.Windows{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+	}
 }
 
 // Get and store the database statistics for the artifacts categories.

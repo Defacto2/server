@@ -43,6 +43,7 @@ var ErrNoConfig = errors.New("cannot run command as config is nil")
 //
 // [github.com/urfave.cli/v2]: https://github.com/urfave/cli
 func App(w io.Writer, ver string, c *config.Config) *cli.App {
+	//nolint:exhaustruct // External library struct with many optional fields
 	app := &cli.App{
 		Name:    Title,
 		Version: Version(ver),
@@ -72,6 +73,7 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 // Fix command fixes the database and assets.
 func Fix(_ io.Writer, c *config.Config) *cli.Command {
 	const msg = "fix command"
+	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "fix",
 		Aliases:     []string{"f"},
@@ -98,6 +100,7 @@ func Fix(_ io.Writer, c *config.Config) *cli.Command {
 // Address command lists the server addresses.
 func Address(_ io.Writer, c *config.Config) *cli.Command {
 	const msg = "address command"
+	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "address",
 		Aliases:     []string{"a"},
@@ -117,6 +120,7 @@ func Address(_ io.Writer, c *config.Config) *cli.Command {
 
 // Config command lists the server configuration.
 func Config(_ io.Writer, c *config.Config) *cli.Command {
+	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "config",
 		Aliases:     []string{"c"},

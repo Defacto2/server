@@ -241,7 +241,7 @@ func ConfigIssueAttr(a slog.Attr) slog.Attr {
 func configMsgAttr(a slog.Attr) slog.Attr {
 	switch strings.ToLower(a.Value.String()) {
 	case "googleaccounts":
-		return slog.Attr{}
+		return slog.Attr{Key: "", Value: slog.Value{}}
 	default:
 		return a
 	}
@@ -274,7 +274,7 @@ func addsourceNoDirectory(a slog.Attr) slog.Attr {
 //	`INF Log stuff`
 func timeformatRemove(groups []string, a slog.Attr) slog.Attr {
 	if a.Key == slog.TimeKey && len(groups) == 0 {
-		return slog.Attr{}
+		return slog.Attr{Key: "", Value: slog.Value{}}
 	}
 	return a
 }

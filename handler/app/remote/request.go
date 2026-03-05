@@ -25,13 +25,19 @@ const (
 
 func client5sec() http.Client {
 	return http.Client{
-		Timeout: five * time.Second,
+		Transport:     nil,
+		CheckRedirect: nil,
+		Jar:           nil,
+		Timeout:       five * time.Second,
 	}
 }
 
 func client10sec() http.Client {
 	return http.Client{
-		Timeout: ten * time.Second,
+		Transport:     nil,
+		CheckRedirect: nil,
+		Jar:           nil,
+		Timeout:       ten * time.Second,
 	}
 }
 
@@ -59,9 +65,17 @@ func FixSceneOrg(rawURL string) string {
 		if len(x) > 0 && x[1] == "view" {
 			x[1] = "get"
 			newURL := &url.URL{
-				Scheme: "https",
-				Host:   "files.scene.org",
-				Path:   strings.Join(x, "/"),
+				Scheme:      "https",
+				Opaque:      "",
+				User:         nil,
+				Host:        "files.scene.org",
+				Path:        strings.Join(x, "/"),
+				RawQuery:    "",
+				Fragment:    "",
+				RawPath:     "",
+				RawFragment: "",
+				ForceQuery:  false,
+				OmitHost:    false,
 			}
 			return newURL.String()
 		}
@@ -100,7 +114,7 @@ var (
 // It returns the path to the downloaded file and it should be removed after use.
 func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	const msg = "http get remove file"
-	none := DownloadResponse{}
+	none := DownloadResponse{ContentLength: "", ContentType: "", LastModified: "", Path: ""}
 	url := FixSceneOrg(rawURL)
 	// Get the remote file
 	ctx := context.Background()
@@ -130,6 +144,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 		ContentLength: res.Header.Get("Content-Length"),
 		ContentType:   res.Header.Get("Content-Type"),
 		LastModified:  res.Header.Get("Last-Modified"),
+		Path:          "",
 	}
 	// Create the file in the default temp directory
 	dst, err := os.CreateTemp(helper.TmpDir(), "get-remotefile-*")

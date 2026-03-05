@@ -20,12 +20,15 @@ type Navigate struct {
 func Navi(limit, page, maxPage int, current, qs string) Navigate {
 	return Navigate{
 		Current:  current,
+		QueryStr: qs,
 		Limit:    limit,
+		Link1:    0,
+		Link2:    0,
+		Link3:    0,
 		Page:     page,
 		PagePrev: previous(page),
 		PageNext: next(page, maxPage),
 		PageMax:  maxPage,
-		QueryStr: qs,
 	}
 }
 

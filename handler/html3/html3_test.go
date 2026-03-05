@@ -205,22 +205,24 @@ func TestFile_Description(t *testing.T) {
 		fields fields
 		expect string
 	}{
-		{"empty", fields{}, ""},
-		{"only title", fields{Title: x}, ""},
-		{"req group", fields{Title: x, Platform: p}, ""},
-		{"default", fields{x, g, "", ""}, "Hello world from Defacto2."},
-		{"with platform", fields{x, g, "", p}, "Hello world from Defacto2 for Dos."},
-		{"no title", fields{"", g, "", p}, "A release from Defacto2 for Dos."},
-		{"magazine", fields{"1", g, m, p}, "Defacto2 issue 1 for Dos."},
+		{"empty", fields{Title: "", GroupBy: "", Section: "", Platform: ""}, ""},
+		{"only title", fields{Title: x, GroupBy: "", Section: "", Platform: ""}, ""},
+		{"req group", fields{Title: x, GroupBy: "", Section: "", Platform: p}, ""},
+		{"default", fields{Title: x, GroupBy: g, Section: "", Platform: ""}, "Hello world from Defacto2."},
+		{"with platform", fields{Title: x, GroupBy: g, Section: "", Platform: p}, "Hello world from Defacto2 for Dos."},
+		{"no title", fields{Title: "", GroupBy: g, Section: "", Platform: p}, "A release from Defacto2 for Dos."},
+		{"magazine", fields{Title: "1", GroupBy: g, Section: m, Platform: p}, "Defacto2 issue 1 for Dos."},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			f := html3.File{
+				Filename: "",
 				Title:    tt.fields.Title,
 				GroupBy:  tt.fields.GroupBy,
 				Section:  tt.fields.Section,
 				Platform: tt.fields.Platform,
+				Size:     0,
 			}
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
@@ -232,7 +234,7 @@ func TestFile_Description(t *testing.T) {
 
 func TestDescription(t *testing.T) {
 	t.Parallel()
-	empty := null.String{}
+	empty := null.String{String: "", Valid: false}
 	s := html3.Description(empty, empty, empty, empty)
 	be.Equal(t, s, "")
 	s = html3.Description(
@@ -254,7 +256,7 @@ func TestFileHref(t *testing.T) {
 
 func TestFileLinkPad(t *testing.T) {
 	t.Parallel()
-	n := null.String{}
+	n := null.String{String: "", Valid: false}
 	s := html3.FileLinkPad(0, n)
 	be.Equal(t, s, "")
 	s = html3.FileLinkPad(20, null.StringFrom("file"))
@@ -263,22 +265,22 @@ func TestFileLinkPad(t *testing.T) {
 
 func TestFormattings(t *testing.T) {
 	t.Parallel()
-	be.Equal(t, html3.File{Filename: ""}.FileLinkPad(0), "", "empty")
-	be.Equal(t, html3.File{Filename: ""}.FileLinkPad(4), "    ", "4 pads")
-	be.Equal(t, html3.File{Filename: "file"}.FileLinkPad(6), "  ", "2 pads")
-	be.Equal(t, html3.File{Filename: "file.txt"}.FileLinkPad(6), "", "too big")
-	be.Equal(t, html3.File{Size: 0}.LeadFS(0), "0B", "0 size")
-	be.Equal(t, html3.File{Size: 1}.LeadFS(3), " 1B", "1 size")
-	be.Equal(t, html3.File{Size: 1000}.LeadFS(0), "1000B", "1000 size")
-	be.Equal(t, html3.File{Size: 1024}.LeadFS(0), "1k", "1k size")
-	be.Equal(t, html3.File{Size: int64(1024 * 1024)}.LeadFS(0), "1M", "1MB size")
-	be.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024)}.LeadFS(0), "1G", "1GB size")
-	be.Equal(t, html3.File{Size: int64(1024 * 1024 * 1024 * 1024)}.LeadFS(0), "1T", "1TB size")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.FileLinkPad(0), "", "empty")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.FileLinkPad(4), "    ", "4 pads")
+	be.Equal(t, html3.File{Filename: "file", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.FileLinkPad(6), "  ", "2 pads")
+	be.Equal(t, html3.File{Filename: "file.txt", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.FileLinkPad(6), "", "too big")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 0}.LeadFS(0), "0B", "0 size")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 1}.LeadFS(3), " 1B", "1 size")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 1000}.LeadFS(0), "1000B", "1000 size")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: 1024}.LeadFS(0), "1k", "1k size")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: int64(1024 * 1024)}.LeadFS(0), "1M", "1MB size")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: int64(1024 * 1024 * 1024)}.LeadFS(0), "1G", "1GB size")
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "", Size: int64(1024 * 1024 * 1024 * 1024)}.LeadFS(0), "1T", "1TB size")
 	be.Equal(t, html3.LeadInt(0, 1), "1")
 	be.Equal(t, html3.LeadInt(1, 1), "1")
 	be.Equal(t, html3.LeadInt(3, 1), "  1")
-	be.True(t, html3.File{Platform: "java"}.IsOS())
-	be.Equal(t, html3.File{Platform: "java"}.OS(), " for Java")
+	be.True(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "java", Size: 0}.IsOS())
+	be.Equal(t, html3.File{Filename: "", Title: "", GroupBy: "", Section: "", Platform: "java", Size: 0}.OS(), " for Java")
 }
 
 func TestPagi(t *testing.T) {
@@ -294,13 +296,13 @@ func TestPagi(t *testing.T) {
 		want1 int
 		want2 int
 	}{
-		{"empty", args{}, 0, 0, 0},
-		{"1 page", args{1, 1}, 0, 0, 0},
-		{"2 pages", args{1, 2}, 0, 0, 0},
-		{"3 pages", args{1, 3}, 2, 0, 0},
-		{"4 pages", args{1, 4}, 2, 3, 0},
-		{"start of many pages", args{2, 10}, 2, 3, 4},
-		{"middle of many pages", args{5, 10}, 4, 5, 6},
+		{"empty", args{page: 0, maxPage: 0}, 0, 0, 0},
+		{"1 page", args{page: 1, maxPage: 1}, 0, 0, 0},
+		{"2 pages", args{page: 1, maxPage: 2}, 0, 0, 0},
+		{"3 pages", args{page: 1, maxPage: 3}, 2, 0, 0},
+		{"4 pages", args{page: 1, maxPage: 4}, 2, 3, 0},
+		{"start of many pages", args{page: 2, maxPage: 10}, 2, 3, 4},
+		{"middle of many pages", args{page: 5, maxPage: 10}, 4, 5, 6},
 		{"near end of many pages", args{9, 10}, 7, 8, 9},
 		{"last of many pages", args{10, 10}, 7, 8, 9},
 	}
@@ -325,12 +327,15 @@ func TestNavi(t *testing.T) {
 
 	expected := html3.Navigate{
 		Current:  current,
+		QueryStr: qs,
 		Limit:    limit,
+		Link1:    0,
+		Link2:    0,
+		Link3:    0,
 		Page:     page,
 		PagePrev: 1,
 		PageNext: 3,
 		PageMax:  5,
-		QueryStr: qs,
 	}
 
 	result := html3.Navi(limit, page, maxPage, current, qs)

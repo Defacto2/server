@@ -95,10 +95,12 @@ func Clauses(query string) html3.Order {
 // Description returns a HTML3 friendly file description.
 func Description(section, platform, brand, title null.String) string {
 	return File{
+		Filename: "",
 		Section:  section.String,
 		Platform: platform.String,
 		GroupBy:  brand.String,
 		Title:    title.String,
+		Size:     0,
 	}.Description()
 }
 
@@ -140,7 +142,14 @@ func FileLinkPad(width int, name null.String) string {
 	if !name.Valid {
 		return Leading(width)
 	}
-	return File{Filename: name.String}.FileLinkPad(width)
+	return File{
+		Filename: name.String,
+		Title:    "",
+		GroupBy:  "",
+		Section:  "",
+		Platform: "",
+		Size:     0,
+	}.FileLinkPad(width)
 }
 
 // Filename returns a truncated filename with to the w maximum width.
@@ -162,12 +171,26 @@ func ID(c echo.Context) string {
 
 // LeadFS formats the file size to the fixed-width length w value.
 func LeadFS(width int, size null.Int64) string {
-	return File{Size: size.Int64}.LeadFS(width)
+	return File{
+		Filename: "",
+		Title:    "",
+		GroupBy:  "",
+		Section:  "",
+		Platform: "",
+		Size:     size.Int64,
+	}.LeadFS(width)
 }
 
 // LeadFSInt formats the file size to the fixed-width length w value.
 func LeadFSInt(width, size int) string {
-	return File{Size: int64(size)}.LeadFS(width)
+	return File{
+		Filename: "",
+		Title:    "",
+		GroupBy:  "",
+		Section:  "",
+		Platform: "",
+		Size:     int64(size),
+	}.LeadFS(width)
 }
 
 // Leading repeats the number of space characters.

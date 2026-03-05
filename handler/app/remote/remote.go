@@ -115,7 +115,7 @@ func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Direct
 				return errUp
 			}
 			return errDlr
-		} else if dlr == (DownloadResponse{}) {
+		} else if dlr == (DownloadResponse{ContentLength: "", ContentType: "", LastModified: "", Path: ""}) {
 			continue
 		}
 		// assuming the download link was successful in being fetched,
@@ -152,7 +152,7 @@ func renfow(src, dst string) error {
 // then it should be handled as a continue in the calling function.
 func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResponse, error) {
 	var err error
-	dlr := DownloadResponse{}
+	dlr := DownloadResponse{ContentLength: "", ContentType: "", LastModified: "", Path: ""}
 	if len(prod.DownloadLinks) == 1 {
 		dlr, err = GetFile10sec(linkURL)
 	} else {
@@ -161,9 +161,9 @@ func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResp
 	if skip := err != nil || dlr.Path == ""; skip {
 		// If the last link failed then return the error, otherwise this will fail silently.
 		if lastLink := i+1 >= len(prod.DownloadLinks); lastLink {
-			return DownloadResponse{}, fmt.Errorf("could not get file, %s: %w", linkURL, err)
+			return DownloadResponse{ContentLength: "", ContentType: "", LastModified: "", Path: ""}, fmt.Errorf("could not get file, %s: %w", linkURL, err)
 		}
-		return DownloadResponse{}, nil
+		return DownloadResponse{ContentLength: "", ContentType: "", LastModified: "", Path: ""}, nil
 	}
 	return dlr, nil
 }

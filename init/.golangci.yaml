@@ -9,6 +9,7 @@ linters:
     - varnamelen
     - wsl
     - wsl_v5
+    - exhaustive
   settings:
     sloglint:
       attr-only: true
@@ -74,6 +75,7 @@ linters:
           - funlen
           - gocyclo
           - ireturn
+          - lll
           - misspell
           - mnd
           - wrapcheck
@@ -99,6 +101,7 @@ linters:
           - funlen
         path: handler/app/interview.go
       - linters:
+          - exhaustruct
           - funlen
           - lll
           - maintidx
