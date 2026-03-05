@@ -79,7 +79,7 @@ func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	defer cancel()
 
 	// use 7-ZIP to test and extract the .arj file.
-	cmd := exec.CommandContext(subCtx, command.Zip7, "t", path) //nolint:gosec // G204: path is validated internal file path
+	cmd := exec.CommandContext(subCtx, command.Zip7, "t", path) //nolint:gosec // path is okay
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,
