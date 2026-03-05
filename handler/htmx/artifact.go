@@ -58,15 +58,15 @@ func Validate(path string) error {
 func Path(c echo.Context) (string, string, error) {
 	unid := c.Param("unid")
 	if err := form.Checkname(unid); err != nil {
-		return "", "", err
+		return "", "", fmt.Errorf("invalid unid format: %w", err)
 	}
 	if err := uuid.Validate(unid); err != nil {
-		return "", "", err
+		return "", "", fmt.Errorf("invalid uuid: %w", err)
 	}
 	path := c.Param("path")
 	name, err := url.QueryUnescape(path)
 	if err != nil {
-		return "", "", err
+		return "", "", fmt.Errorf("failed to unescape path: %w", err)
 	}
 	if err := Validate(name); err != nil {
 		return "", "", err
@@ -78,10 +78,10 @@ func Path(c echo.Context) (string, string, error) {
 func UUID(c echo.Context) (string, error) {
 	unid := c.Param("unid")
 	if err := form.Checkname(unid); err != nil {
-		return "", err
+		return "", fmt.Errorf("invalid unid format: %w", err)
 	}
 	if err := uuid.Validate(unid); err != nil {
-		return "", err
+		return "", fmt.Errorf("invalid uuid: %w", err)
 	}
 	return unid, nil
 }
@@ -393,7 +393,7 @@ func extrasDeleter(c echo.Context, ext string, extra dir.Directory) error {
 	dst = filepath.Clean(dst)
 	st, err := os.Stat(dst)
 	if errors.Is(err, os.ErrNotExist) {
-		return c.NoContent(http.StatusOK)
+		return c.NoContent(http.StatusOK) //nolint:wrapcheck
 	}
 	if err != nil {
 		return badRequest(c, err)
@@ -405,7 +405,7 @@ func extrasDeleter(c echo.Context, ext string, extra dir.Directory) error {
 		return badRequest(c, err)
 	}
 	c = pageRefresh(c)
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusOK) //nolint:wrapcheck
 }
 
 // RecordToggle handles the post submission for the file artifact record toggle.
@@ -540,7 +540,7 @@ func RecordVirusTotal(c echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	if !form.ValidVT(link) {
-		return c.NoContent(http.StatusNoContent)
+		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
 	if err := model.UpdateVirusTotal(db, int64(id), link); err != nil {
 		return badRequest(c, err)
@@ -635,7 +635,7 @@ func RecordReleasers(c echo.Context, db *sql.DB) error {
 	key := c.FormValue(editorKey)
 	unchanged := (rel1 == val1 && rel2 == val2)
 	if unchanged {
-		return c.NoContent(http.StatusNoContent)
+		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
 	if err := recordReleases(db, rel1, rel2, key); err != nil {
 		return badRequest(c, err)
@@ -699,7 +699,7 @@ func RecordDateIssued(c echo.Context, db *sql.DB) error {
 	monthval := c.FormValue("artifact-editor-monthval")
 	dayval := c.FormValue("artifact-editor-dayval")
 	if year == yearval && month == monthval && day == dayval {
-		return c.NoContent(http.StatusNoContent)
+		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -856,7 +856,7 @@ func RecordCreatorReset(c echo.Context, db *sql.DB) error {
 	prog := vals[2]
 	audio := vals[3]
 	if textval == text && illval == ill && progval == prog && audioval == audio {
-		return c.NoContent(http.StatusNoContent)
+		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
 	if err := model.UpdateCreators(db, int64(id), text, ill, prog, audio); err != nil {
 		return badRequest(c, err)
@@ -878,7 +878,7 @@ func RecordYouTube(c echo.Context, db *sql.DB) error {
 	}
 	const requirement = 11
 	if len(newVideo) != 0 && len(newVideo) != requirement {
-		return c.NoContent(http.StatusNoContent)
+		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
 	if err := model.UpdateYouTube(db, int64(id), newVideo); err != nil {
 		return badRequest(c, err)

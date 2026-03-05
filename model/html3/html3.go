@@ -40,7 +40,7 @@ var (
 )
 
 // ArtExpr returns a query modifier for the digital or pixel art category.
-func ArtExpr() qm.QueryMod {
+func ArtExpr() qm.QueryMod { //nolint:ireturn
 	return qm.Expr(
 		qm.Where(ClauseNoSoftDel),
 		models.FileWhere.Section.NEQ(querymod.SBbs()),
@@ -66,7 +66,7 @@ func Created(f *models.File) string {
 }
 
 // DocumentExpr returns a query modifier for the document category.
-func DocumentExpr() qm.QueryMod {
+func DocumentExpr() qm.QueryMod { //nolint:ireturn
 	return qm.Expr(
 		qm.Where(ClauseNoSoftDel),
 		models.FileWhere.Platform.EQ(querymod.PAnsi()),
@@ -168,7 +168,7 @@ func PublishedFW(width int, f *models.File) string {
 }
 
 // SelectHTML3 selects only the columns required by the HTML3 template.
-func SelectHTML3() qm.QueryMod {
+func SelectHTML3() qm.QueryMod { //nolint:ireturn
 	return qm.Select(
 		models.FileColumns.ID,
 		models.FileColumns.Filename,
@@ -185,7 +185,7 @@ func SelectHTML3() qm.QueryMod {
 }
 
 // SoftwareExpr returns a query modifier for the software category.
-func SoftwareExpr() qm.QueryMod {
+func SoftwareExpr() qm.QueryMod { //nolint:ireturn
 	return qm.Expr(
 		qm.Where(ClauseNoSoftDel),
 		models.FileWhere.Platform.EQ(querymod.PJava()),

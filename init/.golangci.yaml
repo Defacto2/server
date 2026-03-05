@@ -65,7 +65,8 @@ linters:
       - linters:
           - dupl
         path: ^model/files\.go$
-      - linters: # unit tests
+      # UNIT & GO TESTS
+      - linters:
           - cyclop
           - dogsled
           - dupl
@@ -79,26 +80,14 @@ linters:
           - mnd
           - wrapcheck
         path: _test\.go$
-      # BELOW ARE ALL REQUIRED
+      # BELOW EXCLUSIONS ARE ALL REQUIRED
       - linters:
           - lll
         path: doc.go
-      #- linters:
-      #  - funlen
-      #  - lll
-      # path: handler/app/accordion.go
-      - linters:
-          - funlen
-        path: handler/app/interview.go
       - linters:
           - exhaustruct
-          - funlen
           - lll
-          - maintidx
         path: handler/app/milestone.go
-      - linters:
-          - wrapcheck
-        path: handler/htmx/artifact.go
       - linters:
           - mnd
         path: handler/janeway/janeway.go
