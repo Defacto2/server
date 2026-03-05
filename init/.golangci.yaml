@@ -3,12 +3,8 @@ linters:
   default: all
   disable:
     - depguard
-    - exhaustive
-    - exhaustruct
     - nlreturn
-    - noctx
     - noinlineerr
-    - nosprintfhostport
     - paralleltest
     - varnamelen
     - wsl
@@ -69,20 +65,20 @@ linters:
       - linters:
           - dupl
         path: ^model/files\.go$
-      - linters:
+      - linters: # unit tests
+          - cyclop
           - dogsled
           - dupl
+          - exhaustive
+          - exhaustruct
           - funlen
           - gocyclo
+          - ireturn
           - misspell
           - mnd
           - wrapcheck
         path: _test\.go$
-      - linters:
-          - cyclop
-          - ireturn
-        path: _test\.go$
-      - linters:
+      - linters: # documentation
           - lll
         path: doc.go
       - linters:

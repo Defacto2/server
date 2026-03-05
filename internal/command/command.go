@@ -186,7 +186,7 @@ func LookVersion(name, flag, match string) error {
 	if match == "" {
 		return ErrNoMatch
 	}
-	cmd := exec.Command(name, flag)
+	cmd := exec.Command(name, flag) //nolint:noctx // legacy code, context not available in this function signature
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return fmt.Errorf("%s stdout pipe %w", msg, err)

@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -511,7 +512,10 @@ func TemplateFuncMap(db *sql.DB, sl *slog.Logger) template.FuncMap {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	ctx := context.Background()
-	t := tags.T{}
+	t := tags.T{
+		List: nil,
+		Mu:   sync.RWMutex{},
+	}
 	if err := t.Build(ctx, db); err != nil {
 		sl.Error(msg, slog.String("build", "could not map the template tags"), slog.Any("error", err))
 		return nil
@@ -536,7 +540,12 @@ func TemplateFuncMap(db *sql.DB, sl *slog.Logger) template.FuncMap {
 			data, err := tagByName(&t, s)
 			if err != nil {
 				sl.Error(msg, slog.String("tag by name", "could not create the meta by name func"), slog.Any("error", err))
-				return tags.TagData{}
+				return tags.TagData{
+					URI:   "",
+					Name:  "",
+					Info:  "",
+					Count: 0,
+				}
 			}
 			return data
 		},

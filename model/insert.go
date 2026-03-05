@@ -37,6 +37,7 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int6
 	if err != nil {
 		return 0, "", fmt.Errorf("uuid.NewV7: %w", err)
 	}
+	//nolint:exhaustruct // Only setting essential fields for database insertion
 	f := models.File{
 		UUID:         null.StringFrom(uid.String()),
 		WebIDDemozoo: null.Int64From(int64(math.Abs(float64(id)))),
@@ -60,6 +61,7 @@ func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64,
 	if err != nil {
 		return 0, "", fmt.Errorf("uuid.NewV7: %w", err)
 	}
+	//nolint:exhaustruct // Only setting essential fields for database insertion
 	f := models.File{
 		UUID:       null.StringFrom(uid.String()),
 		WebIDPouet: null.Int64From(int64(math.Abs(float64(id)))),
@@ -102,6 +104,7 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 	if !createT.Valid || createT.Time.IsZero() {
 		return 0, noID, fmt.Errorf("%s: %w: %v", msg, ErrTime, createT.Time)
 	}
+	//nolint:exhaustruct // Only setting essential fields for database insertion
 	f := models.File{
 		UUID:      unique,
 		Deletedat: deleteT,

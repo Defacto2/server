@@ -128,7 +128,7 @@ func ReplaceAttr(a slog.Attr) slog.Attr {
 	key := strings.ToLower(a.Key)
 	switch key {
 	case "":
-		return slog.Attr{}
+		return slog.Attr{Key: "", Value: slog.Value{}}
 	case "help", "problem":
 		a.Key = helper.Capitalize(a.Key)
 	case "error":
@@ -198,7 +198,7 @@ func flagAttr(a slog.Attr) slog.Attr {
 	a = ConfigUnsetAttr(a)
 	switch strings.ToLower(a.Key) {
 	case "":
-		return slog.Attr{}
+		return slog.Attr{Key: "", Value: slog.Value{}}
 	case "postgres", "repair":
 		a.Key = strings.ToUpper(a.Key)
 	case "help":
@@ -222,7 +222,7 @@ func ConfigUnsetAttr(a slog.Attr) slog.Attr {
 
 func configHelpAttr(a slog.Attr) slog.Attr {
 	if a.Value.String() == "" {
-		return slog.Attr{}
+		return slog.Attr{Key: "", Value: slog.Value{}}
 	}
 	a.Key = "Help"
 	return a
@@ -231,7 +231,7 @@ func configHelpAttr(a slog.Attr) slog.Attr {
 // ConfigIssueAttr applies formatting for the optional "issue" key.
 func ConfigIssueAttr(a slog.Attr) slog.Attr {
 	if a.Value.String() == "" {
-		return slog.Attr{}
+		return slog.Attr{Key: "", Value: slog.Value{}}
 	}
 	a.Key = strings.ToUpper(a.Key)
 	return tint.Attr(ErrorRed, slog.String(a.Key, a.Value.String()))

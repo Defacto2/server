@@ -54,14 +54,24 @@ type T struct {
 // It requires the database to be connected to build the tags if they have not already been.
 func (t *T) ByName(name string) (TagData, error) {
 	if t.List == nil {
-		return TagData{}, fmt.Errorf("tags by name %w", ErrNoTags)
+		return TagData{
+			URI:   "",
+			Name:  "",
+			Info:  "",
+			Count: 0,
+		}, fmt.Errorf("tags by name %w", ErrNoTags)
 	}
 	for val := range slices.Values(t.List) {
 		if strings.EqualFold(val.Name, name) {
 			return val, nil
 		}
 	}
-	return TagData{}, nil
+	return TagData{
+		URI:   "",
+		Name:  "",
+		Info:  "",
+		Count: 0,
+	}, nil
 }
 
 // Build the tags and collect the statistical data sourced from the database.

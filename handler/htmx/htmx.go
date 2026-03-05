@@ -247,7 +247,7 @@ func DeleteForever(c echo.Context, db *sql.DB, sl *slog.Logger, id string) error
 		return c.String(http.StatusNotFound, err.Error())
 	}
 	ctx := context.Background()
-	tx, err := db.Begin()
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		sl.Error(msg, slog.String("database", "could not start transaction"), slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,

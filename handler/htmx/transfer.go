@@ -182,7 +182,7 @@ func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download 
 	}
 	checksum := hasher.Sum(nil)
 	ctx := context.Background()
-	tx, err := db.Begin()
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
@@ -468,7 +468,7 @@ func (prod Submission) Submit( //nolint:funlen
 		return err
 	}
 	ctx := context.Background()
-	tx, err := db.Begin()
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		sl.Error(msg,
 			slog.String("problem", "the database transaction could not start"), slog.Any("error", err))
@@ -704,7 +704,7 @@ func UploadReplacement( //nolint:funlen
 	if list, err := archive.List(dst, file.Filename); err == nil {
 		fu.Content = strings.Join(list, "\n")
 	}
-	tx, err := db.Begin()
+	tx, err := db.BeginTx(c.Request().Context(), nil)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}

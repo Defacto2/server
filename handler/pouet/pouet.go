@@ -71,7 +71,30 @@ func (p *Production) Get(id int) (int, error) {
 	if id < firstID {
 		return 0, fmt.Errorf("get pouet production %w: %d", ErrBadID, id)
 	}
-	resp := Response{}
+	resp := Response{
+		Prod: struct {
+			ID          string `json:"id"`
+			Title       string `json:"name"`
+			ReleaseDate string `json:"releaseDate"`
+			Voteup      string `json:"voteup"`
+			Votepig     string `json:"votepig"`
+			Votedown    string `json:"votedown"`
+			Voteavg     string `json:"voteavg"`
+			Download    string `json:"download"`
+			Demozoo     string `json:"demozoo"`
+			Groups      []struct {
+				ID   string `json:"id"`
+				Name string `json:"name"`
+			} `json:"groups"`
+			Platforms     Platforms `json:"platforms"`
+			Types         Types     `json:"types"`
+			DownloadLinks []struct {
+				Type string `json:"type"`
+				Link string `json:"link"`
+			} `json:"downloadLinks"`
+		}{},
+		Success: false,
+	}
 	if code, err := resp.Get(id); err != nil {
 		return code, fmt.Errorf("pouet uploader get %w", err)
 	}
@@ -349,7 +372,30 @@ func (v *Votes) Votes(id int) error {
 	if id < firstID {
 		return fmt.Errorf("%w: %d", ErrBadID, id)
 	}
-	r := Response{}
+	r := Response{
+		Prod: struct {
+			ID          string `json:"id"`
+			Title       string `json:"name"`
+			ReleaseDate string `json:"releaseDate"`
+			Voteup      string `json:"voteup"`
+			Votepig     string `json:"votepig"`
+			Votedown    string `json:"votedown"`
+			Voteavg     string `json:"voteavg"`
+			Download    string `json:"download"`
+			Demozoo     string `json:"demozoo"`
+			Groups      []struct {
+				ID   string `json:"id"`
+				Name string `json:"name"`
+			} `json:"groups"`
+			Platforms     Platforms `json:"platforms"`
+			Types         Types     `json:"types"`
+			DownloadLinks []struct {
+				Type string `json:"type"`
+				Link string `json:"link"`
+			} `json:"downloadLinks"`
+		}{},
+		Success: false,
+	}
 	_, err := r.Get(id)
 	if err != nil {
 		return fmt.Errorf("pouet votes get %w", err)

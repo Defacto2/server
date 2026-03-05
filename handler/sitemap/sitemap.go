@@ -81,8 +81,9 @@ func MapIndex() *Index {
 		// maps[i].LastMod = time.Now().Format(time.DateOnly)
 	}
 	index := &Index{
-		XMLNS: Namespace,
-		Maps:  maps,
+		XMLName: xml.Name{},
+		XMLNS:   Namespace,
+		Maps:    maps,
 	}
 	return index
 }
@@ -120,7 +121,12 @@ type Loc struct {
 func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map site"
 	ctx := context.Background()
-	m := model.Summary{}
+	m := model.Summary{
+		SumBytes: sql.NullInt64{},
+		SumCount: sql.NullInt64{},
+		MinYear:  sql.NullInt16{},
+		MaxYear:  sql.NullInt16{},
+	}
 	err := m.ByPublic(ctx, db)
 	if err != nil {
 		sl.Error(msg, slog.String("model", "could not obtain summary by public"),
@@ -157,8 +163,9 @@ func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 		// maps[i].LastMod = time.Now().Format(time.DateOnly)
 	}
 	sm := &Sitemap{
-		XMLNS: Namespace,
-		Locs:  maps,
+		XMLName: xml.Name{},
+		XMLNS:   Namespace,
+		Locs:    maps,
 	}
 	return sm
 }
@@ -178,8 +185,9 @@ func MapReleaser(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLNS: Namespace,
-		Locs:  maps,
+		XMLName: xml.Name{},
+		XMLNS:   Namespace,
+		Locs:    maps,
 	}
 	return sm
 }
@@ -199,8 +207,9 @@ func MapMagazine(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLNS: Namespace,
-		Locs:  maps,
+		XMLName: xml.Name{},
+		XMLNS:   Namespace,
+		Locs:    maps,
 	}
 	return sm
 }

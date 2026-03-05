@@ -34,7 +34,7 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	if db == nil {
 		return 0, 0, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	rows, err := db.Query("SELECT COUNT(*) FROM pg_stat_activity WHERE datname='defacto2_ps';")
+	rows, err := db.Query("SELECT COUNT(*) FROM pg_stat_activity WHERE datname='defacto2_ps';") //nolint:noctx // legacy code, would require extensive refactoring
 	if err != nil {
 		return 0, 0, fmt.Errorf("%s query: %w", msg, err)
 	}
@@ -48,7 +48,7 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	if err := rows.Err(); err != nil {
 		return 0, 0, fmt.Errorf("%s row iteration: %w", msg, err)
 	}
-	maxConn, err := db.Query("SHOW max_connections;")
+	maxConn, err := db.Query("SHOW max_connections;") //nolint:noctx // legacy code, would require extensive refactoring
 	if err != nil {
 		return 0, 0, fmt.Errorf("%s query: %w", msg, err)
 	}

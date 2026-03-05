@@ -314,7 +314,7 @@ func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 	if err := panics.ContextDS(ctx, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	tx, err := db.Begin()
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s could not begin a transaction: %w", msg, err)
 	}

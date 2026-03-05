@@ -43,7 +43,7 @@ func (v *Version) Query(db *sql.DB) error {
 	if db == nil {
 		return nil
 	}
-	rows, err := db.Query(SelVersion)
+	rows, err := db.Query(SelVersion) //nolint:noctx // legacy code, would require extensive refactoring
 	if err != nil {
 		return fmt.Errorf("%s connect: %w", msg, err)
 	}

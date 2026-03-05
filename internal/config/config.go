@@ -4,8 +4,10 @@ package config
 import (
 	"fmt"
 	"log/slog"
+	"net"
 	"reflect"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/Defacto2/helper"
@@ -242,7 +244,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		case disable:
 			continue
 		default:
-			s = fmt.Sprintf("http://%s:%d", host, port)
+			s = "http://" + net.JoinHostPort(host, strconv.FormatUint(port, 10))
 		}
 		sl.Info(li, slog.String("link", s))
 		switch tls {
@@ -251,7 +253,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		case disable:
 			continue
 		default:
-			s = fmt.Sprintf("https://%s:%d", host, tls)
+			s = "https://" + net.JoinHostPort(host, strconv.FormatUint(tls, 10))
 		}
 		sl.Info(li, slog.String("link", s))
 	}
@@ -266,7 +268,7 @@ func (c Config) addresses(sl *slog.Logger, help bool) error {
 		if port == 0 {
 			break
 		}
-		s := fmt.Sprintf("http://%s:%d", ip, port)
+		s := "http://" + net.JoinHostPort(ip.String(), strconv.FormatUint(port, 10))
 		sl.Info(li, slog.String("link", s))
 	}
 	return nil

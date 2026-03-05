@@ -284,7 +284,11 @@ func territories() []Territory {
 		{"Newfoundland and Labrador", "NL", []NAN{709}},
 		{"Northwest Territories", "NT", []NAN{819}},
 		{"Nova Scotia", "NS", []NAN{902}},
-		{"Nunavut", "NU", []NAN{}}, // became a territory in 1999
+		{
+			Name:         "Nunavut",
+			Abbreviation: "NU",
+			AreaCodes:    []NAN{},
+		}, // became a territory in 1999
 		{"Ontario", "ON", []NAN{416, 519, 613, 705, 807, 905}},
 		{"Prince Edward Island", "PE", []NAN{902}},
 		{"Quebec", "QC", []NAN{418, 514, 819}},
@@ -432,11 +436,20 @@ func Query(a any) Result {
 		}
 		if c, ok := a.(uint); ok {
 			if c > limit {
-				return Result{}
+				return Result{
+					Terr:     nil,
+					AreaCode: 0,
+				}
 			}
-			return Result{AreaCode: NAN(int(c))}
+			return Result{
+				Terr:     nil,
+				AreaCode: NAN(int(c)),
+			}
 		}
-		return Result{}
+		return Result{
+			Terr:     nil,
+			AreaCode: 0,
+		}
 	case NAN:
 		return Result{AreaCode: val}
 	default:
@@ -516,14 +529,22 @@ func AreaCodes() []NAN {
 // TerritoryByAbbr returns the territory with the given two-letter abbreviation.
 func TerritoryByAbbr(abbr Abbreviation) Territory {
 	if len(abbr) == 0 {
-		return Territory{}
+		return Territory{
+			Name:         "",
+			Abbreviation: "",
+			AreaCodes:    nil,
+		}
 	}
 	for val := range slices.Values(territories()) {
 		if strings.EqualFold(string(val.Abbreviation), string(abbr)) {
 			return val
 		}
 	}
-	return Territory{}
+	return Territory{
+		Name:         "",
+		Abbreviation: "",
+		AreaCodes:    nil,
+	}
 }
 
 // TerritoryByCode returns the territories for the given North American Numbering code.
@@ -553,7 +574,11 @@ func TerritoryByName(name string) Territory {
 			return val
 		}
 	}
-	return Territory{}
+	return Territory{
+		Name:         "",
+		Abbreviation: "",
+		AreaCodes:    nil,
+	}
 }
 
 // TerritoryContains returns a list of territories with names that contain the given string.
