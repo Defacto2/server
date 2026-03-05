@@ -2,13 +2,13 @@ version: '2'
 linters:
   default: all
   disable:
-    - depguard
-    - nlreturn
-    - noinlineerr
-    - paralleltest
-    - varnamelen
-    - wsl
-    - wsl_v5
+    - depguard # too complex to maintain
+    - nlreturn # don't want
+    - noinlineerr # don't agree with
+    - paralleltest # breaks some tests
+    - varnamelen # don't agree with
+    - wsl # don't want
+    - wsl_v5 # don't want
   settings:
     sloglint:
       attr-only: true
@@ -27,8 +27,9 @@ linters:
         - Teh
     mnd:
       ignored-files:
-        - milestone.go
         - interview.go
+        - janeway.go
+        - milestone.go
         - zoo.go
     wrapcheck:
       ignore-sigs:
@@ -88,9 +89,6 @@ linters:
           - exhaustruct
           - lll
         path: handler/app/milestone.go
-      - linters:
-          - mnd
-        path: handler/janeway/janeway.go
       - linters:
           - lll
         path: handler/jsdos/jsdos.go

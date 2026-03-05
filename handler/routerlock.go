@@ -109,7 +109,7 @@ func date(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
+func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolint:funlen
 	if g == nil {
 		panic(fmt.Errorf("%w for editor router", panics.ErrNoEchoE))
 	}

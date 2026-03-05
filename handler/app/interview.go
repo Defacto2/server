@@ -26,7 +26,7 @@ type Interviewee struct {
 
 // Interviewees returns a list of interviewees and their interviews.
 // These are categorized by the group they were in at the time of the interview.
-func Interviewees() Groups {
+func Interviewees() Groups { //nolint:funlen
 	i := Groups{
 		{
 			Name: "EMPRESS",

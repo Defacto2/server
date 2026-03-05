@@ -64,7 +64,7 @@ func List() Accordion {
 }
 
 // youtube returns a list of YouTube videos.
-func youtube() []Site {
+func youtube() []Site { //nolint:funlen
 	return Sites{
 		Site{
 			"I was a video game software pirate", "https://www.youtube.com/watch?v=ockNRSt3Nsk",

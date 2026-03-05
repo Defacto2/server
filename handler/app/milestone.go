@@ -51,7 +51,7 @@ func (m Milestones) Len() int {
 }
 
 // Collection of Milestones from the 1970s onwards.
-func Collection() Milestones {
+func Collection() Milestones { //nolint:funlen,maintidx
 	m := []Milestone{
 		{
 			Year: 1971, Month: 10, Title: "Secrets of the Little Blue Box", Highlight: true,

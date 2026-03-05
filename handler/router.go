@@ -195,7 +195,7 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 }
 
 // website routes for the main site.
-func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
+func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo { //nolint:funlen
 	const msg = "website routes"
 	if err := panics.EchoDS(e, db, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
