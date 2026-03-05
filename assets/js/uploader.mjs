@@ -110,7 +110,7 @@ async function sha384(file) {
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
   } catch (e) {
-    throw new Error(`Could not use arrayBuffer or crypto.subtle: ${e}`);
+    throw new Error(`Could not use arrayBuffer or crypto.subtle: ${e}`, { cause: e });
   }
 }
 
@@ -257,7 +257,7 @@ export async function checkDuplicate(file, alert, fileInput, results) {
     results.classList.add(none);
   };
 
-  let uriID = ``;
+  let uriID;
   try {
     const alreadyExists = await checkSHA(file);
     if (alreadyExists == "") {

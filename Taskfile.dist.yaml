@@ -75,7 +75,7 @@ tasks:
       - cmd: go tool gofumpt -l -w .
       - cmd: go fix -diff ./...
       - cmd: go fix ./...
-      - cmd: pnpm exec eslint assets/js/*.js
+      - cmd: pnpm exec eslint assets/js/
       - cmd: pnpm exec stylelint assets/css/*.css
       - cmd: golangci-lint run -c init/.golangci.yaml
   linter:

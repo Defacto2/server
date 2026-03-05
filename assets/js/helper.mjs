@@ -12,7 +12,7 @@ export function formatPaste(evt) {
   evt.preventDefault();
 
   // Get the pasted text from the clipboard
-  const pastedText = (evt.clipboardData || window.Clipboard).getData("text");
+  const pastedText = (evt.clipboardData || window.Clipboard).getData('text');
   const title = this;
   const start = title.selectionStart;
   const end = title.selectionEnd;
@@ -39,167 +39,167 @@ export function formatPaste(evt) {
  */
 export function titleize(text) {
   const commonAdverbs = [
-    "a",
-    "addon",
-    "aka",
-    "an",
-    "and",
-    "as",
-    "at",
-    "beta",
-    "betas",
-    "but",
-    "by",
-    "compatibility",
-    "crack",
-    "cracks",
-    "demo",
-    "demos",
-    "doc",
-    "docs",
-    "documentation",
-    "fix",
-    "fixes",
-    "for",
-    "final",
-    "from",
-    "if",
-    "in",
-    "installer",
-    "installers",
-    "is",
-    "hint",
-    "hints",
-    "map",
-    "maps",
-    "mod",
-    "mods",
-    "of",
-    "on",
-    "or",
-    "patch",
-    "patches",
-    "part",
-    "prerelease",
-    "prereleases",
-    "preview",
-    "previews",
-    "proper",
-    "release",
-    "releases",
-    "repack",
-    "repacks",
-    "rip",
-    "rips",
-    "so",
-    "solve",
-    "solves",
-    "the",
-    "trainer",
-    "trainers",
-    "to",
-    "update",
-    "updates",
-    "unprotect",
-    "unprotects",
-    "vs",
-    "with",
+    'a',
+    'addon',
+    'aka',
+    'an',
+    'and',
+    'as',
+    'at',
+    'beta',
+    'betas',
+    'but',
+    'by',
+    'compatibility',
+    'crack',
+    'cracks',
+    'demo',
+    'demos',
+    'doc',
+    'docs',
+    'documentation',
+    'fix',
+    'fixes',
+    'for',
+    'final',
+    'from',
+    'if',
+    'in',
+    'installer',
+    'installers',
+    'is',
+    'hint',
+    'hints',
+    'map',
+    'maps',
+    'mod',
+    'mods',
+    'of',
+    'on',
+    'or',
+    'patch',
+    'patches',
+    'part',
+    'prerelease',
+    'prereleases',
+    'preview',
+    'previews',
+    'proper',
+    'release',
+    'releases',
+    'repack',
+    'repacks',
+    'rip',
+    'rips',
+    'so',
+    'solve',
+    'solves',
+    'the',
+    'trainer',
+    'trainers',
+    'to',
+    'update',
+    'updates',
+    'unprotect',
+    'unprotects',
+    'vs',
+    'with',
   ];
   const uppers = [
-    ".com",
-    ".exe",
-    "2d",
-    "3d",
-    "4d",
-    "abc",
-    "ad&d",
-    "api",
-    "bbs",
-    "bios",
-    "bsa",
-    "cd",
-    "cga",
-    "dos",
-    "dox",
-    "dps",
-    "dvd",
-    "ega",
-    "ehq",
-    "f1",
-    "fbi",
-    "ftp",
-    "hd",
-    "hq",
-    "ibm",
-    "id",
-    "iso",
-    "la",
-    "lego",
-    "ls",
-    "masm",
-    "mbl",
-    "ms",
-    "mtv",
-    "nascar",
-    "nba",
-    "ncaa",
-    "nfl",
-    "nsa",
-    "nfo",
-    "nhl",
-    "nt",
-    "oem",
-    "os",
-    "pc",
-    "pcb",
-    "pga",
-    "ppe",
-    "pfs",
-    "pkarc",
-    "pkzip",
-    "psx",
-    "rac",
-    "rom",
-    "sdk",
-    "sfx",
-    "spa",
-    "tv",
-    "ufo",
-    "usa",
-    "usb",
-    "ushq",
-    "uss",
-    "vga",
-    "vr",
-    "whq",
-    "ww1",
-    "ww2",
-    "ww3",
-    "wwf",
-    "xp",
-    "ys",
+    '.com',
+    '.exe',
+    '2d',
+    '3d',
+    '4d',
+    'abc',
+    'ad&d',
+    'api',
+    'bbs',
+    'bios',
+    'bsa',
+    'cd',
+    'cga',
+    'dos',
+    'dox',
+    'dps',
+    'dvd',
+    'ega',
+    'ehq',
+    'f1',
+    'fbi',
+    'ftp',
+    'hd',
+    'hq',
+    'ibm',
+    'id',
+    'iso',
+    'la',
+    'lego',
+    'ls',
+    'masm',
+    'mbl',
+    'ms',
+    'mtv',
+    'nascar',
+    'nba',
+    'ncaa',
+    'nfl',
+    'nsa',
+    'nfo',
+    'nhl',
+    'nt',
+    'oem',
+    'os',
+    'pc',
+    'pcb',
+    'pga',
+    'ppe',
+    'pfs',
+    'pkarc',
+    'pkzip',
+    'psx',
+    'rac',
+    'rom',
+    'sdk',
+    'sfx',
+    'spa',
+    'tv',
+    'ufo',
+    'usa',
+    'usb',
+    'ushq',
+    'uss',
+    'vga',
+    'vr',
+    'whq',
+    'ww1',
+    'ww2',
+    'ww3',
+    'wwf',
+    'xp',
+    'ys',
   ];
   text = text.trim();
   // Replace all underscores with spaces
-  text = text.replace(/_/g, " ");
+  text = text.replace(/_/g, ' ');
   // if text contains 4 or more periods, place all periods with spaces
   if (text.match(/\./g) && text.match(/\./g).length > 4) {
-    text = text.replace(/\./g, " ");
+    text = text.replace(/\./g, ' ');
   }
   // Replace all single quotes, double quotes and graves with nothing
-  text = text.replace(/['"`]/g, "");
+  text = text.replace(/['"`]/g, '');
   // Remove suffix (1) (2) (3) etc. (a) (b) (c) etc.
-  text = text.replace(/ \([0-9a-z]\)/g, "");
+  text = text.replace(/ \([0-9a-z]\)/g, '');
   // Insert a space after a colon following an alphanumeric string
-  text = text.replace(/([a-zA-Z0-9]): /g, "$1 : ");
+  text = text.replace(/([a-zA-Z0-9]): /g, '$1 : ');
   // Special fixes for specific strings
-  text = text.replace(/([xX][-| ][Mm]en)/g, "X-Men"); // avoid roman numeral conversion
+  text = text.replace(/([xX][-| ][Mm]en)/g, 'X-Men'); // avoid roman numeral conversion
   // Insert temporary spaces between parentheses
-  text = text.replace(/\(/g, "( ");
-  text = text.replace(/\)/g, " )");
-  const wordCount = text.split(" ").length;
+  text = text.replace(/\(/g, '( ');
+  text = text.replace(/\)/g, ' )');
+  const wordCount = text.split(' ').length;
   text = text
-    .split(" ")
+    .split(' ')
     .map((word, index) => {
       var edit = word;
       if (versionMatch(edit) === true) {
@@ -209,7 +209,7 @@ export function titleize(text) {
         return edit.toUpperCase();
       }
       const y = replacementFix(edit);
-      if (y !== "") {
+      if (y !== '') {
         return y;
       }
       const x = romanFix(edit);
@@ -231,66 +231,93 @@ export function titleize(text) {
       }
       return word.toLowerCase();
     })
-    .join(" ")
+    .join(' ')
     .trim();
   // replace word pairs
-  text = text.replace(/(Lotus 123)/g, "Lotus 1-2-3");
-  text = text.replace(/(Falcon at )/g, "Falcon AT ");
-  text = text.replace(/(the Games)/g, "The Games");
+  text = text.replace(/(Lotus 123)/g, 'Lotus 1-2-3');
+  text = text.replace(/(Falcon at )/g, 'Falcon AT ');
+  text = text.replace(/(the Games)/g, 'The Games');
   // Move "Unprotect for" to the suffix if it is the prefix
-  text = text.replace(/^(Unprotect for|Unprotecting|Unprotect)\s(.+)/, "$2 unprotect");
+  text = text.replace(
+    /^(Unprotect for|Unprotecting|Unprotect)\s(.+)/,
+    '$2 unprotect'
+  );
   // replace formatting quirks
-  text = text.replace(/( : a)/g, " : A");
-  text = text.replace(/( - a)/g, " - A");
-  text = text.replace(/( : t)/g, " : T");
-  text = text.replace(/( - t)/g, " - T");
-  text = text.replace(/(f-)/g, "F-");
-  text = text.replace(/(3-d)/g, "3D");
-  text = text.replace(/(Pfs-)/g, "PFS-");
-  text = text.replace(/(Mean-18)/g, "Mean 18");
+  text = text.replace(/( : a)/g, ' : A');
+  text = text.replace(/( - a)/g, ' - A');
+  text = text.replace(/( : t)/g, ' : T');
+  text = text.replace(/( - t)/g, ' - T');
+  text = text.replace(/(f-)/g, 'F-');
+  text = text.replace(/(3-d)/g, '3D');
+  text = text.replace(/(Pfs-)/g, 'PFS-');
+  text = text.replace(/(Mean-18)/g, 'Mean 18');
   // replace verbose version numbers
-  text = versionNormalize(text)
+  text = versionNormalize(text);
   text = text.replace(/\b([vV]?)(\d+)\.00\b/g, '$1$2'); // x.00
   // cleanup rubbish from copy/pasted directories
-  text = text.replace(/[\s]*(WORKING\s+READ\s+NFO|fix\s+only|repack|working|fixed)\s*$/i, ' fix');
-  text = text.replace(/[\s]*(inc|incl|including)\s(keygen|keymaker|keyfilemaker|serial)\s*$/i, '');
-  text = text.replace(/\bincluding\s(?:patch|patched)\s+and\s+key(?:gen|maker)\b/gi, '');
+  text = text.replace(
+    /[\s]*(WORKING\s+READ\s+NFO|fix\s+only|repack|working|fixed)\s*$/i,
+    ' fix'
+  );
+  text = text.replace(
+    /[\s]*(inc|incl|including)\s(keygen|keymaker|keyfilemaker|serial)\s*$/i,
+    ''
+  );
+  text = text.replace(
+    /\bincluding\s(?:patch|patched)\s+and\s+key(?:gen|maker)\b/gi,
+    ''
+  );
   text = text.replace(/\b(keymaker\s+only|read\s+nfo|mac\s+osx)\b/gi, '');
-  text = text.replace(/\b(?:macosx|x86|x64|winnt2kxp|win9xme|multilang|winall|readnfo|retail|proper|standalone)\b/gi, '')
-  text = text.replace(/\b(?:rc[1-9])\b/gi, ' beta')
+  text = text.replace(
+    /\b(?:macosx|x86|x64|winnt2kxp|win9xme|multilang|winall|readnfo|retail|proper|standalone)\b/gi,
+    ''
+  );
+  text = text.replace(/\b(?:rc[1-9])\b/gi, ' beta');
   // remove temporary space between parentheses
-  text = text.replace(/\( /g, "(");
-  text = text.replace(/ \)/g, ")");
+  text = text.replace(/\( /g, '(');
+  text = text.replace(/ \)/g, ')');
   // lowercase all text between square brackets
   text = text.replace(/\[([^)]+)\]/g, function (match) {
     return match.toUpperCase();
   });
-  text = text.replace(/(\s\s)/g, " ");
+  text = text.replace(/(\s\s)/g, ' ');
   text = text.trim();
   return text;
 }
 
 export function versionNormalize(s) {
   // This function is AI generated
-  return String(s)
-    // clean the leading v for version prefixes
-    .replace(/(?<sep>[\s\-_–—]|^)[V](?=\d)/g, (m, _, offset, str) => ' v')
-    // remove pointless versions: v1, v1.0, v1.0.x
-    .replace(/([\s\-_–—]|^)(v?1(?:\.0(?:\.\d+)?)?)(?=([\s\-_–—]|$))/gi, (m, sep, ver) => sep ? '' : '')
-    // remove patches: v1.2.3 becomes v1.2
-    .replace(/(?<=^|[\s\-_–—])v?(\d+)\.(\d+)\.(\d+)(?=$|[\s\-_–—\.,])/g, (m) => {
-      return m.replace(/v?/i, match => match.toLowerCase()).replace(/(\d+\.\d+)\.\d+/, '$1');
-    })
-    // remove pointless minors: v2.0 becomes v2
-    .replace(/(?<=^|[\s\-_–—])v?(\d+)\.0(?:\.0)?(?=$|[\s\-_–—\.,])/g, (m) => {
-      return m.replace(/v?/i, match => match ? 'v' : '').replace(/(\d+)\.0(?:\.0)?/, '$1');
-    })
-    // lowercase any leading V version prefixes
-    .replace(/(?<=^|[\s\-_–—])V(?=\d)/g, 'v')
-    // cleanup whitespacing
-    .replace(/[\s\-_–—]{2,}/g, ' ')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
+  return (
+    String(s)
+      // clean the leading v for version prefixes
+      .replace(/(?<sep>[\s\-_–—]|^)[V](?=\d)/g, () => ' v')
+      // remove pointless versions: v1, v1.0, v1.0.x
+      .replace(
+        /([\s\-_–—]|^)(v?1(?:\.0(?:\.\d+)?)?)(?=([\s\-_–—]|$))/gi,
+        (_, sep) => (sep ? '' : '')
+      )
+      // remove patches: v1.2.3 becomes v1.2
+      .replace(
+        /(?<=^|[\s\-_–—])v?(\d+)\.(\d+)\.(\d+)(?=$|[\s\-_–—.,])/g,
+        (m) => {
+          return m
+            .replace(/v?/i, (match) => match.toLowerCase())
+            .replace(/(\d+\.\d+)\.\d+/, '$1');
+        }
+      )
+      // remove pointless minors: v2.0 becomes v2
+      .replace(/(?<=^|[\s\-_–—])v?(\d+)\.0(?:\.0)?(?=$|[\s\-_–—.,])/g, (m) => {
+        return m
+          .replace(/v?/i, (match) => (match ? 'v' : ''))
+          .replace(/(\d+)\.0(?:\.0)?/, '$1');
+      })
+      // lowercase any leading V version prefixes
+      .replace(/(?<=^|[\s\-_–—])V(?=\d)/g, 'v')
+      // cleanup whitespacing
+      .replace(/[\s\-_–—]{2,}/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+  );
 }
 
 // Matches a version string.
@@ -317,16 +344,16 @@ export function tailFix(word, index, length) {
     return word;
   }
   const removers = [
-    "cheat",
-    "cheater",
-    "cracktro",
-    "loader",
-    "installer",
-    "trainer",
-    "version",
+    'cheat',
+    'cheater',
+    'cracktro',
+    'loader',
+    'installer',
+    'trainer',
+    'version',
   ];
   if (removers.includes(word.toLowerCase())) {
-    return "";
+    return '';
   }
   return word;
 }
@@ -369,75 +396,75 @@ export function romanFix(word) {
 export function replacementFix(word) {
   const s = word.toLowerCase();
   switch (s) {
-    case "dr.":
-      return "Dr";
-    case "jr.":
-      return "Jr";
-    case "ms.":
-      return "Ms";
-    case "u.s.a.":
-      return "USA";
-    case "abcs":
-      return "ABCs";
-    case "cdrip":
-    case "cd-rip":
-      return "CD RIP";
-    case "pre-release":
-      return "prerelease";
-    case "&":
-      return "and";
-    case "ad+d":
-      return "AD&D";
-    case "][":
-    case "||":
-      return "2";
-    case "]|[":
-    case "]I[":
-      return "3";
-    case "]||[":
-    case "]II[":
-      return "4";
-    case " I:":
-      return " 1 :";
-    case " II:":
-      return " 2 :";
-    case " III:":
-      return " 3 :";
-    case "at&t":
-      return "AT&T";
-    case "dbase":
-      return "dBase";
-    case "doubledos":
-      return "DoubleDOS";
-    case "fastback":
-      return "FastBack";
-    case "loadit":
-      return "LoadIt";
-    case "memoryshift":
-      return "Memory Shift";
-    case "multilink":
-      return "MultiLink";
-    case "paperboy":
-      return "PaperBoy";
-    case "pc-draw":
-      return "PC-Draw";
-    case "pcjr":
-      return "PCjr";
-    case "prokey":
-      return "ProKey";
-    case "rbase":
-    case "r:base":
-      return "R:Base";
-    case "sidekick":
-      return "SideKick";
-    case "visicalc":
-      return "VisiCalc";
-    case "war-craft":
-      return "Warcraft";
-    case "wordstar":
-      return "WordStar";
+    case 'dr.':
+      return 'Dr';
+    case 'jr.':
+      return 'Jr';
+    case 'ms.':
+      return 'Ms';
+    case 'u.s.a.':
+      return 'USA';
+    case 'abcs':
+      return 'ABCs';
+    case 'cdrip':
+    case 'cd-rip':
+      return 'CD RIP';
+    case 'pre-release':
+      return 'prerelease';
+    case '&':
+      return 'and';
+    case 'ad+d':
+      return 'AD&D';
+    case '][':
+    case '||':
+      return '2';
+    case ']|[':
+    case ']I[':
+      return '3';
+    case ']||[':
+    case ']II[':
+      return '4';
+    case ' I:':
+      return ' 1 :';
+    case ' II:':
+      return ' 2 :';
+    case ' III:':
+      return ' 3 :';
+    case 'at&t':
+      return 'AT&T';
+    case 'dbase':
+      return 'dBase';
+    case 'doubledos':
+      return 'DoubleDOS';
+    case 'fastback':
+      return 'FastBack';
+    case 'loadit':
+      return 'LoadIt';
+    case 'memoryshift':
+      return 'Memory Shift';
+    case 'multilink':
+      return 'MultiLink';
+    case 'paperboy':
+      return 'PaperBoy';
+    case 'pc-draw':
+      return 'PC-Draw';
+    case 'pcjr':
+      return 'PCjr';
+    case 'prokey':
+      return 'ProKey';
+    case 'rbase':
+    case 'r:base':
+      return 'R:Base';
+    case 'sidekick':
+      return 'SideKick';
+    case 'visicalc':
+      return 'VisiCalc';
+    case 'war-craft':
+      return 'Warcraft';
+    case 'wordstar':
+      return 'WordStar';
     default:
-      return "";
+      return '';
   }
 }
 
@@ -562,7 +589,7 @@ export function humanFilesize(size = 0) {
  * @returns {boolean} - Returns true if the year is valid, false otherwise.
  */
 export function validYear(year) {
-  if (`${year}` == "") {
+  if (`${year}` == '') {
     return true;
   }
   const epochYear = 1980;
@@ -579,7 +606,7 @@ export function validYear(year) {
  * @returns {boolean} - Returns true if the month is valid, false otherwise.
  */
 export function validMonth(month) {
-  if (`${month}` == "") {
+  if (`${month}` == '') {
     return true;
   }
   const jan = 1,
@@ -596,7 +623,7 @@ export function validMonth(month) {
  * @returns {boolean} - Returns true if the day is valid, false otherwise.
  */
 export function validDay(day) {
-  if (`${day}` == "") {
+  if (`${day}` == '') {
     return true;
   }
   const first = 1,
@@ -611,7 +638,7 @@ export function validDay(day) {
 // @param {string} id - The ID to be validated.
 // @returns {boolean} - Returns true if the ID is valid, false otherwise.
 export function validId(id, sanity) {
-  if (id == "") {
+  if (id == '') {
     return true;
   }
   const nid = Number(id),

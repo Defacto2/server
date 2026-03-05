@@ -96,8 +96,16 @@ function validate(input, sanity) {
 }
 
 function beforeReset(alert, results) {
+  // TODO(2026-03-05): Determine if results element should be cleared here
+  // Currently only clearing alert, but results parameter suggests it might need clearing too
+  console.log("beforeReset - results element:", results);
+  console.log("beforeReset - results type:", results?.constructor?.name);
+  console.log("beforeReset - results content:", results?.innerHTML);
+  console.log("beforeReset - results id:", results?.id);
+
   alert.innerText = "";
   alert.classList.add(none);
+  // results.innerHTML = ""; // Uncomment if we want to clear results too
 }
 
 function successful(input) {
