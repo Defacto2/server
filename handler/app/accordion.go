@@ -76,7 +76,8 @@ func youtube() []Site {
 		},
 		Site{
 			"Dongle anti-piracy fail", "https://www.youtube.com/watch?v=W1cryx7TzqM",
-			"Modern Vintage Gamer on the hardware copy protection of Ocean's Robocop 3 for the Commodore Amiga that was broken by Fairlight.",
+			"Modern Vintage Gamer on the hardware copy protection of Ocean's Robocop 3 " +
+				"for the Commodore Amiga that was broken by Fairlight.",
 		},
 		Site{
 			"Code-wheels, early Anti-Piracy that was easy to bypass", "https://www.youtube.com/watch?v=S_Tz0YpDa6o",
@@ -84,7 +85,8 @@ func youtube() []Site {
 		},
 		Site{
 			"Datel Action Replay", "https://www.youtube.com/watch?v=WH3ja70_okA",
-			"Modern Vintage Gamer covers the Datel Action Replay, a cheat device that was also used to bypass copy protection on the Commodore Amiga.",
+			"Modern Vintage Gamer covers the Datel Action Replay, " +
+				"a cheat device that was also used to bypass copy protection on the Commodore Amiga.",
 		},
 		Site{
 			"SecureROM", "https://www.youtube.com/watch?v=u8ltfyqD3lM",
@@ -92,11 +94,13 @@ func youtube() []Site {
 		},
 		Site{
 			"LensLock DRM", "https://www.youtube.com/watch?v=Wpn9sLNg-6k",
-			"Modern Vintage Gamer covers the LensLock, an odd, plastic hardware copy protection device that was used on the Commodore 64.",
+			"Modern Vintage Gamer covers the LensLock, an odd, " +
+				"plastic hardware copy protection device that was used on the Commodore 64.",
 		},
 		Site{
 			"StarForce", "https://www.youtube.com/watch?v=p-wyIalhdPU",
-			"Modern Vintage Gamer talks about the StarForce copy protection that was used on PC CD-ROM games from the mid 2000s.",
+			"Modern Vintage Gamer talks about the StarForce copy protection " +
+				"that was used on PC CD-ROM games from the mid 2000s.",
 		},
 		Site{
 			"History of Denuvo", "https://www.youtube.com/watch?v=y_6zYVcJIKM",
@@ -107,7 +111,8 @@ func youtube() []Site {
 			"Modern Vintage Gamer explores the Xbox 360 piracy scene that used PC DVD drives to rip game discs.",
 		},
 		Site{
-			"Rockstar Games busted selling cracked versions of their games", "https://www.youtube.com/watch?v=XEKPUARYckc",
+			"Rockstar Games busted selling cracked versions of their games",
+			"https://www.youtube.com/watch?v=XEKPUARYckc",
 			"Modern Vintage Gamer discusses Rockstar Games using the No CD Crack by Razor 1911.",
 		},
 		Site{
@@ -143,7 +148,8 @@ func youtube() []Site {
 			"Przle covers the story of the controversial cracker EMPRESS.",
 		},
 		Site{
-			"How old school computers and games work", "https://www.youtube.com/playlist?list=PLfABUWdDse7bfBp4HvkN_RSKdXygMO71Z",
+			"How old school computers and games work",
+			"https://www.youtube.com/playlist?list=PLfABUWdDse7bfBp4HvkN_RSKdXygMO71Z",
 			"A playlist from the 8-bit Guy that covers the technical side of microcomputer hardware and software.",
 		},
 		Site{
@@ -151,7 +157,8 @@ func youtube() []Site {
 			"Al's Geek Lab covers the warez and HPAVCC bulletin board system scene.",
 		},
 		Site{
-			"Bulletin Board System (BBS) - The Internet's first community", "https://www.youtube.com/watch?v=I18ifd8I6P8",
+			"Bulletin Board System (BBS) - The Internet's first community",
+			"https://www.youtube.com/watch?v=I18ifd8I6P8",
 			"Off the Cuff interviews Jason Scott on the origins of the BBS.",
 		},
 		Site{
@@ -165,23 +172,32 @@ func youtube() []Site {
 func ama() []Site {
 	return Sites{
 		Site{
-			"Evil Current <sup>2012</sup>", "https://www.reddit.com/r/IAmA/comments/xusji/iama_former_member_of_razor_1911_amongst_many/",
-			"The former head member of Razor 1911, and ex-member of The Cartel, Drink or Die, SCuM, Tyranny, Napalm, Pirates with Attitudes, and others.",
+			"Evil Current <sup>2012</sup>",
+			"https://www.reddit.com/r/IAmA/comments/xusji/iama_former_member_of_razor_1911_amongst_many/",
+			"The former head member of Razor 1911, and ex-member of The Cartel, Drink or Die, SCuM, " +
+				"Tyranny, Napalm, Pirates with Attitudes, and others.",
 		},
 		Site{
-			"The Playboy <sup>2010</sup>", "https://www.reddit.com/r/IAmA/comments/ckobg/iama_exbbs_warez_scene_guy_ama/",
-			"I worked for a major computer game company and was a member of Razor1911. I supplied and was responsible for releasing MAJOR releases such as C&C Red Alert, Z, and others.",
+			"The Playboy <sup>2010</sup>",
+			"https://www.reddit.com/r/IAmA/comments/ckobg/iama_exbbs_warez_scene_guy_ama/",
+			"I worked for a major computer game company and was a member of Razor1911. " +
+				"I supplied and was responsible for releasing MAJOR releases such as C&C Red Alert, Z, and others.",
 		},
 		Site{
-			"BiGrAr <sup>2004</sup>", "https://yro.slashdot.org/story/02/10/04/144217/former-drinkordie-member-chris-tresco-answers",
-			"Slashdot AMA with ex Drink Or Die member, taken after being busted in Operation Buccaneer but before serving a 33 month jail sentence.",
+			"BiGrAr <sup>2004</sup>",
+			"https://yro.slashdot.org/story/02/10/04/144217/former-drinkordie-member-chris-tresco-answers",
+			"Slashdot AMA with ex Drink Or Die member, taken after being busted in Operation Buccaneer " +
+				"but before serving a 33 month jail sentence.",
 		},
 		Site{
-			"ex-MP3 scener <sup>2010</sup>", "https://www.reddit.com/r/IAmA/comments/c451i/iama_ex_warez_scene_member_ama/",
-			"I didn't have involvement with cracking etc. and was involved in the far less glamorous MP3 side of the scene, which in a way I'd consider to be a now redundant section.",
+			"ex-MP3 scener <sup>2010</sup>",
+			"https://www.reddit.com/r/IAmA/comments/c451i/iama_ex_warez_scene_member_ama/",
+			"I didn't have involvement with cracking etc. and was involved in the far less glamorous MP3 side of the scene, " +
+				"which in a way I'd consider to be a now redundant section.",
 		},
 		Site{
-			"ex-DVD scener <sup>2009</sup>", "https://www.reddit.com/r/IAmA/comments/9l1j3/iama_former_distributor_of_warez_on_the_top_level/",
+			"ex-DVD scener <sup>2009</sup>",
+			"https://www.reddit.com/r/IAmA/comments/9l1j3/iama_former_distributor_of_warez_on_the_top_level/",
 			"I was a member of the DVD ripping scene for a few years.",
 		},
 	}
@@ -214,7 +230,8 @@ func bbses() []Site {
 	return Sites{
 		Site{
 			"BBS Ads Collection", "https://mbox.bz/slurp/ascii/bbsads/",
-			"One of the most complete BBS textmode ad collections, containing over 1,500 single ads from various platforms and scenes.",
+			"One of the most complete BBS textmode ad collections, " +
+				"containing over 1,500 single ads from various platforms and scenes.",
 		},
 		Site{
 			"Break Into Chat", "https://breakintochat.com/blog/",
@@ -234,7 +251,8 @@ func bbses() []Site {
 		},
 		Site{
 			"PLATO History", "http://www.platohistory.org/",
-			"A decade before the first BBS, the far more advanced PLATO IV network of interactive touch terminals existed and birthed today's online culture.",
+			"A decade before the first BBS, the far more advanced PLATO IV network " +
+				"of interactive touch terminals existed and birthed today's online culture.",
 		},
 	}
 }
@@ -243,16 +261,23 @@ func bbses() []Site {
 func books() []Site {
 	return Sites{
 		Site{
-			"The Modem World <sup>2022</sup>", "https://yalebooks.yale.edu/book/9780300248142/modem-world/",
-			"The Modem World is the first book to chronicle the history of the social, political, and technical changes wrought by the invention of the modem.",
+			"The Modem World <sup>2022</sup>",
+			"https://yalebooks.yale.edu/book/9780300248142/modem-world/",
+			"The Modem World is the first book to chronicle the history of the social, political, " +
+				"and technical changes wrought by the invention of the modem.",
 		},
 		Site{
-			"Exploding the Phone <sup>2013</sup>", "http://explodingthephone.com/",
-			"Before smartphones, back even before the Internet and personal computer, a misfit group of technophiles, blind teenagers, hippies, and outlaws figured out how to hack the world's largest machine: the telephone system.",
+			"Exploding the Phone <sup>2013</sup>",
+			"http://explodingthephone.com/",
+			"Before smartphones, back even before the Internet and personal computer, a misfit group of technophiles, " +
+				"blind teenagers, hippies, and outlaws figured out how to hack the world's largest machine: the telephone system.",
 		},
 		Site{
-			"Warez: The Infrastructure and Aesthetics of Piracy <sup>2021</sup>", "https://punctumbooks.pubpub.org/pub/m5fu2twe",
-			"Is the first scholarly research book about this underground subculture, which began life in the pre-internet era Bulletin Board Systems and moved to internet File Transfer Protocol servers (“topsites”) in the mid- to late-1990s.",
+			"Warez: The Infrastructure and Aesthetics of Piracy <sup>2021</sup>",
+			"https://punctumbooks.pubpub.org/pub/m5fu2twe",
+			"Is the first scholarly research book about this underground subculture, " +
+				"which began life in the pre-internet era Bulletin Board Systems and moved to internet " +
+				"File Transfer Protocol servers (“topsites”) in the mid- to late-1990s.",
 		},
 	}
 }
@@ -291,7 +316,8 @@ func demos() []Site {
 		},
 		Site{
 			"Scenery", "https://www.exotica.org.uk/wiki/Scenery",
-			"Scenery is the guide to the C64 and Amiga demoscenes with comprehensive information on releases, parties and groups.",
+			"Scenery is the guide to the C64 and Amiga demoscenes with " +
+				"comprehensive information on releases, parties and groups.",
 		},
 	}
 }
@@ -324,8 +350,10 @@ func pir8() []Site {
 			"ReScene is a mechanism for backing up and restoring the metadata from Scene RAR and music releases.",
 		},
 		Site{
-			"Interviews de Pirates", "https://textfiles.meulie.net/exhibits/frenchunderground/Deplombage/Interviews/Introduction_Interviews.html",
-			"Covering the French Apple II Scene of the early and mid-1980s, it has interviews with key Sceners, some of who were active in the USA.",
+			"Interviews de Pirates",
+			"https://textfiles.meulie.net/exhibits/frenchunderground/Deplombage/Interviews/Introduction_Interviews.html",
+			"Covering the French Apple II Scene of the early and mid-1980s, " +
+				"it has interviews with key Sceners, some of who were active in the USA.",
 		},
 	}
 }
@@ -334,20 +362,29 @@ func pir8() []Site {
 func podcasts() []Site {
 	return Sites{
 		Site{
-			"Modem Mischief Podcast <sup>2021 - ongoing</sup>", "https://modemmischief.com/",
+			"Modem Mischief Podcast <sup>2021 - ongoing</sup>",
+			"https://modemmischief.com/",
 			"Modem Mischief is a true cybercrime podcast.",
 		},
 		Site{
-			"Apple II pirate lore <sup>2003</sup>", "https://archive.org/details/Apple-II-Pirate-Lore",
-			"Overview of the Apple II Piracy Community of the early to mid 1980's, presented by historian Jason Scott at the 5th Rubi-Con conference.",
+			"Apple II pirate lore <sup>2003</sup>",
+			"https://archive.org/details/Apple-II-Pirate-Lore",
+			"Overview of the Apple II Piracy Community of the early to mid 1980's, " +
+				"presented by historian Jason Scott at the 5th Rubi-Con conference.",
 		},
 		Site{
-			"Open Apple #66:Glenda Adams <sup>2016</sup>", "https://www.open-apple.net/2016/12/28/show-066-glenda-the-atom-adams-software-piracy/",
-			"Glenda Adams, also known as The Atom, was a cracker of some note back in the 1980s, and she shares great stories with us of her exploits in boot tracing, cracking, and distributing software in the glory days of the Apple II BBS scene.",
+			"Open Apple #66:Glenda Adams <sup>2016</sup>",
+			"https://www.open-apple.net/2016/12/28/show-066-glenda-the-atom-adams-software-piracy/",
+			"Glenda Adams, also known as The Atom, was a cracker of some note back in the 1980s, " +
+				"and she shares great stories with us of her exploits in boot tracing, cracking, " +
+				"and distributing software in the glory days of the Apple II BBS scene.",
 		},
 		Site{
-			"100 Years of the Computer Art Scene <sup>2004</sup>", "https://archive.org/details/notacon-artscene-2004-04-24",
-			"Historian Jason Scott and ACiD founder RaD Man capture 100 years of computer art, the magic of the art scene, the demo scene, and a dozen other 'scenes' that have been with us as long as computers have.",
+			"100 Years of the Computer Art Scene <sup>2004</sup>",
+			"https://archive.org/details/notacon-artscene-2004-04-24",
+			"Historian Jason Scott and ACiD founder RaD Man capture 100 years of computer art, " +
+				"the magic of the art scene, the demo scene, " +
+				"and a dozen other 'scenes' that have been with us as long as computers have.",
 		},
 	}
 }
@@ -361,7 +398,9 @@ func videos() []Site {
 		},
 		Site{
 			"You're Stealing It Wrong <sup>2010</sup>", "https://vimeo.com/15400820",
-			"Historian Jason Scott walks through the many-years story of software piracy and touches on the tired debates before going into a completely different direction - the interesting, informative, hilarious and occasionally obscene world of inter-pirate-group battles.",
+			"Historian Jason Scott walks through the many-years story of software piracy " +
+				"and touches on the tired debates before going into a completely different direction " +
+				"- the interesting, informative, hilarious and occasionally obscene world of inter-pirate-group battles.",
 		},
 		Site{
 			"Good Copy Bad Copy <sup>2007</sup>", "https://www.youtube.com/watch?v=ByY6j0qzOyM",
@@ -380,7 +419,8 @@ func videos() []Site {
 			"Welcome to the Scene is a 20 part web series about people in the online movie piracy scene.",
 		},
 		Site{
-			"Teh Scene <sup>2005</sup>", "https://archive.org/search?query=%22Teh%20Scene%22%20AND%20collection%3Acomputersandtechvideos",
+			"Teh Scene <sup>2005</sup>",
+			"https://archive.org/search?query=%22Teh%20Scene%22%20AND%20collection%3Acomputersandtechvideos",
 			"Teh Scene is a parody of the online movie piracy scene.",
 		},
 	}

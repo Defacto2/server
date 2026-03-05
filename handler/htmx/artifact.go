@@ -167,9 +167,12 @@ func RecordImageCropper(c echo.Context, sl *slog.Logger, crop command.Crop, dirs
 		`Images cropped, the browser will refresh.`)
 }
 
-// RecordImageCopier handles the htmx request to use an image file artifact as a preview.
-func RecordImageCopier(c echo.Context, debug *slog.Logger, dirs command.Dirs) error {
-	const msg = "record image copier"
+// recordFileProcessor is a helper function that handles the common file processing logic
+// for both image copying and binary text imaging operations.
+func recordFileProcessor(c echo.Context, debug *slog.Logger, _ command.Dirs,
+	msg string, emptyMsg string, successMsg string,
+	processFunc func(*slog.Logger, string, string) error,
+) error {
 	if err := panics.EchoContextS(c, debug); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -188,45 +191,31 @@ func RecordImageCopier(c echo.Context, debug *slog.Logger, dirs command.Dirs) er
 		return badRequest(c, err)
 	}
 	if st.Size() == 0 {
-		return c.String(http.StatusOK, "The file is empty and was not copied.")
+		return c.String(http.StatusOK, emptyMsg)
 	}
-	if err := dirs.PictureImager(debug, src, unid); err != nil {
+	if err := processFunc(debug, src, unid); err != nil {
 		return badRequest(c, err)
 	}
 	c = pageRefresh(c)
-	return c.String(http.StatusOK,
-		`Images copied, the browser will refresh.`)
+	return c.String(http.StatusOK, successMsg)
+}
+
+// RecordImageCopier handles the htmx request to use an image file artifact as a preview.
+func RecordImageCopier(c echo.Context, debug *slog.Logger, dirs command.Dirs) error {
+	return recordFileProcessor(c, debug, dirs,
+		"record image copier",
+		"The file is empty and was not copied.",
+		"Images copied, the browser will refresh.",
+		dirs.PictureImager)
 }
 
 // RecordBinTextImager handles the htmx request to use the text file artifact as a preview.
 func RecordBinTextImager(c echo.Context, debug *slog.Logger, dirs command.Dirs) error {
-	const msg = "record binary text readme imager"
-	if err := panics.EchoContextS(c, debug); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-	unid, name, err := Path(c)
-	if err != nil {
-		return badRequest(c, err)
-	}
-	name = filepath.Clean(name)
-	tmp, err := helper.MkContent(unid)
-	if err != nil {
-		return badRequest(c, err)
-	}
-	src := filepath.Join(tmp, name)
-	st, err := os.Stat(src)
-	if err != nil {
-		return badRequest(c, err)
-	}
-	if st.Size() == 0 {
-		return c.String(http.StatusOK, "The file is empty and was not used.")
-	}
-	if err := dirs.BinTextImager(debug, src, unid); err != nil {
-		return badRequest(c, err)
-	}
-	c = pageRefresh(c)
-	return c.String(http.StatusOK,
-		`Binary text imaged, the browser will refresh.`)
+	return recordFileProcessor(c, debug, dirs,
+		"record binary text readme imager",
+		"The file is empty and was not used.",
+		"Binary text imaged, the browser will refresh.",
+		dirs.BinTextImager)
 }
 
 // RecordReadmeImager handles the htmx request to use the text file artifact as a preview.

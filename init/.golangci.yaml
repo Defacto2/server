@@ -79,13 +79,14 @@ linters:
           - mnd
           - wrapcheck
         path: _test\.go$
-      - linters: # documentation
+      # BELOW ARE ALL REQUIRED
+      - linters:
           - lll
         path: doc.go
-      - linters:
-          - funlen
-          - lll
-        path: handler/app/accordion.go
+      #- linters:
+      #  - funlen
+      #  - lll
+      # path: handler/app/accordion.go
       - linters:
           - funlen
         path: handler/app/interview.go
@@ -96,7 +97,6 @@ linters:
           - maintidx
         path: handler/app/milestone.go
       - linters:
-          - dupl
           - wrapcheck
         path: handler/htmx/artifact.go
       - linters:
@@ -106,40 +106,10 @@ linters:
           - lll
         path: handler/jsdos/jsdos.go
       - linters:
-          - dupl
-          - funlen
-          - wrapcheck
-        path: handler/router.go
-      - linters:
-          - dupl
-          - funlen
-          - wrapcheck
-        path: handler/routerhtmx.go
-      - linters:
-          - dupl
-          - funlen
-          - wrapcheck
-        path: handler/routerlock.go
-      - linters:
-          - funlen
-          - maintidx
-        path: handler/site/site.go
-      - linters:
-          - funlen
-          - lll
-        path: handler/tidbit/tidbit.go
-      - linters:
-          - dupl
-        path: internal/command/images.go
-      #- linters:
-      #    - lll
-      #    - tagalign
-      #  path: internal/config/config.go
-      - linters:
           - lll
           - tagalign
-        path: internal/postgres/postgres\.go$
-      - linters: #requirement
+        path: internal/config/config.go
+      - linters:
           - ireturn
         path: model/querymod/querymod.go
     paths:
