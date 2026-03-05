@@ -358,6 +358,9 @@ func scener(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role,
 		err = s.Coder(ctx, db)
 	case postgres.Roles():
 		err = s.Distinct(ctx, db)
+	default:
+		// Handle unknown roles gracefully
+		err = fmt.Errorf("unknown role: %s", r)
 	}
 	if err != nil {
 		return DatabaseErr(c, sl, name, err)
@@ -442,6 +445,9 @@ func bbsHandler(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.Order
 		data["title"] = title + byyear
 		data["logo"] = s
 		order = year
+	default:
+		// Handle unknown order types
+		order = alpha
 	}
 	data["stats"] = map[string]string{
 		"pubs":    fmt.Sprintf("%d boards", len(r)),
@@ -1258,6 +1264,9 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 		data["logo"] = s
 		data["title"] = title + az
 		order = alpha
+	default:
+		// Handle unknown order types
+		order = alpha
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
@@ -1458,6 +1467,9 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 		if err := m.ByDescription(ctx, db, terms); err != nil {
 			return none()
 		}
+	default:
+		// Handle unknown search modes
+		return none()
 	}
 	if m.SumCount.Int64 == 0 {
 		return none()
@@ -1616,6 +1628,9 @@ func releasers(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderB
 		data["logo"] = s
 		data["title"] = title + byyear
 		order = year
+	default:
+		// Handle unknown order types
+		order = alpha
 	}
 	data["stats"] = map[string]string{
 		"pubs":    fmt.Sprintf("%d releasers and groups", len(r)),
