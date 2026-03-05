@@ -67,7 +67,7 @@ func FixSceneOrg(rawURL string) string {
 			newURL := &url.URL{
 				Scheme:      "https",
 				Opaque:      "",
-				User:         nil,
+				User:        nil,
 				Host:        "files.scene.org",
 				Path:        strings.Join(x, "/"),
 				RawQuery:    "",

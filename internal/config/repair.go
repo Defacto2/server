@@ -567,7 +567,7 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	tick := time.Now()
-	r := model.Artifacts{}
+	r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 	magics, err := r.ByMagicErr(ctx, exec, false)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -607,7 +607,7 @@ func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *sl
 	if err := panics.ContextBS(ctx, exec, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	r := model.Artifacts{}
+	r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 	artifacts, err := r.ByTextPlatform(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

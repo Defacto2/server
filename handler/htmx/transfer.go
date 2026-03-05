@@ -575,7 +575,7 @@ func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Direc
 	if err := thumbnail.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
-	upload := values{}
+	upload := values{unid: "", key: "", platform: "", id: 0}
 	if s := upload.formValues(c); s != "" {
 		return c.HTML(http.StatusBadRequest, s)
 	}
@@ -602,7 +602,7 @@ func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Direc
 			"The temporary save cannot be written")
 	}
 	defer func() { _ = os.Remove(dst.Name()) }() //nolint:gosec // G703: safe temp file
-	dirs := command.Dirs{Preview: preview, Thumbnail: thumbnail}
+	dirs := command.Dirs{Download: "", Preview: preview, Thumbnail: thumbnail, Extra: ""}
 	src, err = file.Open()
 	if err != nil {
 		return checkFileOpen(c, nil, name, err)
@@ -663,7 +663,7 @@ func UploadReplacement( //nolint:funlen
 	if err := download.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
-	upload := values{}
+	upload := values{unid: "", key: "", platform: "", id: 0}
 	if s := upload.formValues(c); s != "" {
 		return c.HTML(http.StatusBadRequest, s)
 	}
@@ -676,7 +676,14 @@ func UploadReplacement( //nolint:funlen
 		return checkFileOpen(c, sl, name, err)
 	}
 	defer func() { _ = src.Close() }()
-	fu := model.FileUpload{Filename: file.Filename, Filesize: file.Size}
+	fu := model.FileUpload{
+		Filename:    file.Filename,
+		Filesize:    file.Size,
+		LastMod:     time.Time{},
+		Integrity:   "",
+		MagicNumber: "",
+		Content:     "",
+	}
 	hasher := sha512.New384()
 	const size = 4 * 1024
 	buf := make([]byte, size)

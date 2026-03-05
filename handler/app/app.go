@@ -69,7 +69,7 @@ const (
 )
 
 // Caching are values that are used throughout the app or layouts.
-var Caching = Cache{} //nolint:gochecknoglobals
+var Caching = Cache{RecordCount: 0} //nolint:gochecknoglobals
 
 // Records caches the database record count.
 func (c *Cache) Records(i int) {

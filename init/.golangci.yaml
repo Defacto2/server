@@ -113,8 +113,12 @@ linters:
           - lll
         path: handler/areacode/areacode.go
       - linters:
+          - exhaustruct
           - mnd
         path: handler/csdb/csdb.go
+      - linters:
+          - exhaustruct
+        path: handler/site/site.go
       - linters:
           - tagliatelle
         path: handler/demozoo/demozoo.go

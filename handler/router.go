@@ -41,6 +41,7 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, p
 		Preview:   dir.Directory(c.Environment.AbsPreview),
 		Thumbnail: dir.Directory(c.Environment.AbsThumbnail),
 		Extra:     dir.Directory(c.Environment.AbsExtra),
+		URI:       "", // URI is set later from route parameter
 	}
 	nonce, err := c.nonce(e)
 	if err != nil {

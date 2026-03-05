@@ -269,14 +269,10 @@ func Notes() map[NAN]string { //nolint:funlen
 	}
 }
 
-// territories is a list of territories in the North American Numbering Plan.
+// ucanadaProvinces is a list of Canadian provinces in the North American Numbering Plan.
 // These can be checked against official lists to ensure accuracy.
-func territories() []Territory {
+func canadaProvinces() []Territory {
 	return []Territory{
-		// Miscellaneous
-		{"Caribbean Islands", "", []NAN{809}},
-		{"United States Government", "", []NAN{710}},
-		// Canada
 		{"Alberta", "AB", []NAN{403}},
 		{"British Columbia", "BC", []NAN{604}},
 		{"Manitoba", "MB", []NAN{204}},
@@ -294,7 +290,13 @@ func territories() []Territory {
 		{"Quebec", "QC", []NAN{418, 514, 819}},
 		{"Saskatchewan", "SK", []NAN{306}},
 		{"Yukon", "YT", []NAN{403}},
-		// United States
+	}
+}
+
+// usaStates is a list of states of the USA in the North American Numbering Plan.
+// These can be checked against official lists to ensure accuracy.
+func usaStates() []Territory {
+	return []Territory{
 		{"Alabama", "AL", []NAN{205}},
 		{"Alaska", "AK", []NAN{907}},
 		{"Arizona", "AZ", []NAN{602}},
@@ -349,10 +351,22 @@ func territories() []Territory {
 	}
 }
 
+// territories is a list of territories in the North American Numbering Plan.
+// These can be checked against official lists to ensure accuracy.
+func territories() []Territory {
+	return []Territory{
+		// Miscellaneous
+		{"Caribbean Islands", "", []NAN{809}},
+		{"United States Government", "", []NAN{710}},
+	}
+}
+
 // Territories returns a list of all territories in the North American Numbering Plan
 // sorted by name in ascending order.
 func Territories() []Territory {
 	terr := territories()
+	terr = append(terr, canadaProvinces()...)
+	terr = append(terr, usaStates()...)
 	slices.SortFunc(terr, func(i, j Territory) int {
 		if n := strings.Compare(i.Name, j.Name); n != 0 {
 			return n
@@ -503,8 +517,8 @@ func Contains(t Territory, ts ...Territory) bool {
 // Abbreviations returns a list of all two-letter abbreviations for territories
 // in the North American Numbering Plan sorted in ascending order.
 func Abbreviations() []Abbreviation {
-	abbr := make([]Abbreviation, 0, len(territories()))
-	for val := range slices.Values(territories()) {
+	abbr := make([]Abbreviation, 0, len(Territories()))
+	for val := range slices.Values(Territories()) {
 		if val.Abbreviation == "" {
 			continue
 		}
@@ -517,8 +531,8 @@ func Abbreviations() []Abbreviation {
 
 // AreaCodes returns a list of all NANP area codes sorted in ascending order.
 func AreaCodes() []NAN {
-	codes := make([]NAN, 0, len(territories()))
-	for val := range slices.Values(territories()) {
+	codes := make([]NAN, 0, len(Territories()))
+	for val := range slices.Values(Territories()) {
 		codes = append(codes, val.AreaCodes...)
 	}
 	slices.Sort(codes)
@@ -535,7 +549,7 @@ func TerritoryByAbbr(abbr Abbreviation) Territory {
 			AreaCodes:    nil,
 		}
 	}
-	for val := range slices.Values(territories()) {
+	for val := range slices.Values(Territories()) {
 		if strings.EqualFold(string(val.Abbreviation), string(abbr)) {
 			return val
 		}
@@ -556,7 +570,7 @@ func TerritoryByCode(code NAN) []Territory {
 		return nil
 	}
 	var finds []Territory
-	for val := range slices.Values(territories()) {
+	for val := range slices.Values(Territories()) {
 		for ac := range slices.Values(val.AreaCodes) {
 			if ac == code {
 				finds = append(finds, val)
@@ -569,7 +583,7 @@ func TerritoryByCode(code NAN) []Territory {
 // TerritoryByName returns the territory with the given name.
 // The name can be a US state, Canadian province, or other territory.
 func TerritoryByName(name string) Territory {
-	for val := range slices.Values(territories()) {
+	for val := range slices.Values(Territories()) {
 		if strings.EqualFold(val.Name, name) {
 			return val
 		}
@@ -584,7 +598,7 @@ func TerritoryByName(name string) Territory {
 // TerritoryContains returns a list of territories with names that contain the given string.
 func TerritoryContains(s string) []Territory {
 	vals := []Territory{}
-	for val := range slices.Values(territories()) {
+	for val := range slices.Values(Territories()) {
 		substr := strings.ToLower(s)
 		if strings.Contains(strings.ToLower(val.Name), substr) {
 			vals = append(vals, val)

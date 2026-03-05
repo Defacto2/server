@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"time"
 
 	namer "github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/internal/panics"
@@ -214,6 +215,7 @@ func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri st
 func (s *Summary) introWindows(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	m := IntroWindows{
+		Cache:   time.Time{},
 		Bytes:   0,
 		Count:   0,
 		MinYear: 0,

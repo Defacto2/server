@@ -653,7 +653,7 @@ func UpdateOnline(db *sql.DB, id int64) error {
 		return fmt.Errorf("%s find file: %w", msg, err)
 	}
 	f.Deletedat = null.TimeFromPtr(nil)
-	f.Deletedby = null.String{}
+	f.Deletedby = null.String{String: "", Valid: false}
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf("%s update: %w", msg, err)
 	}

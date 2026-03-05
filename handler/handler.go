@@ -239,12 +239,13 @@ func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	webapp := app.Templ{
-		Environment: c.Environment,
-		Brand:       c.Brand,
 		Public:      c.Public,
-		RecordCount: c.RecordCount,
-		Version:     c.Version,
 		View:        c.View,
+		Subresource: app.SRI{}, //nolint:exhaustruct // SRI fields are computed via Verify() method
+		Version:     c.Version,
+		Brand:       c.Brand,
+		Environment: c.Environment,
+		RecordCount: c.RecordCount,
 	}
 	tmpls, err := webapp.Templates(db)
 	if err != nil {

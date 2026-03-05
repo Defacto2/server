@@ -966,7 +966,7 @@ func GetDemozooParam(c echo.Context, db *sql.DB, download dir.Directory) error {
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	got := remote.DemozooLink{}
+	got := remote.DemozooLink{} //nolint:exhaustruct
 	sid := c.Param("id")
 	id, err := strconv.Atoi(sid)
 	if err != nil {
@@ -988,7 +988,7 @@ func GetDemozooParam(c echo.Context, db *sql.DB, download dir.Directory) error {
 //
 // This function is a wrapper for the remote.DemozooLink.Download method.
 func GetDemozoo(c echo.Context, db *sql.DB, demozooID int, defacto2UNID string, download dir.Directory) error {
-	got := remote.DemozooLink{
+	got := remote.DemozooLink{ //nolint:exhaustruct
 		ID:   demozooID,
 		UUID: defacto2UNID,
 	}
@@ -1000,7 +1000,7 @@ func GetDemozoo(c echo.Context, db *sql.DB, demozooID int, defacto2UNID string, 
 //
 // This function is a wrapper for the remote.PouetLink.Download method.
 func GetPouet(c echo.Context, db *sql.DB, pouetID int, defacto2UNID string, download dir.Directory) error {
-	got := remote.PouetLink{
+	got := remote.PouetLink{ //nolint:exhaustruct
 		ID:   pouetID,
 		UUID: defacto2UNID,
 	}
@@ -1087,12 +1087,13 @@ func sessionHandler(c echo.Context, maxAge int, claims map[string]any,
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
 	const hour = 60 * 60
 	session.Options = &sessions.Options{
-		Path:     "/",                  // path that must exist in the requested URL to send the Cookie header
-		Domain:   "",                   // which server can receive a cookie
-		MaxAge:   hour * maxAge,        // maximum age for the cookie, in seconds
-		Secure:   true,                 // cookie requires HTTPS except for localhost
-		HttpOnly: true,                 // stops the cookie being read by JS
-		SameSite: http.SameSiteLaxMode, // LaxMode (default) or StrictMode
+		Path:        "/",                  // path that must exist in the requested URL to send the Cookie header
+		Domain:      "",                   // which server can receive a cookie
+		MaxAge:      hour * maxAge,        // maximum age for the cookie, in seconds
+		Secure:      true,                 // cookie requires HTTPS except for localhost
+		HttpOnly:    true,                 // stops the cookie being read by JS
+		SameSite:    http.SameSiteLaxMode, // LaxMode (default) or StrictMode
+		Partitioned: false,
 	}
 
 	const uniqueGoogleID = "sub"
@@ -1377,7 +1378,7 @@ func PostDesc(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
 	errs := fmt.Sprint("post desc search for,", input)
 	ctx := context.Background()
 	terms := helper.SearchTerm(input)
-	rel := model.Artifacts{}
+	rel := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 	fs, _ := rel.Description(ctx, db, sl, terms)
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
@@ -1414,7 +1415,7 @@ func PostName(c echo.Context, db *sql.DB, sl *slog.Logger, mode FileSearch) erro
 	ctx := context.Background()
 	input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
-	rel := model.Artifacts{}
+	rel := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 	fs, _ := rel.Filename(ctx, db, terms)
 	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
@@ -1442,7 +1443,12 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 			"years": "",
 		}
 	}
-	m := model.Summary{}
+	m := model.Summary{
+		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
+		SumCount: sql.NullInt64{Int64: 0, Valid: false},
+		MinYear:  sql.NullInt16{Int16: 0, Valid: false},
+		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
+	}
 	switch mode {
 	case Filenames:
 		if err := m.ByFilename(ctx, db, terms); err != nil {
@@ -1475,7 +1481,7 @@ func PouetCache(c echo.Context, data string) error {
 	if data == "" {
 		return nil
 	}
-	pv := pouet.Votes{}
+	pv := pouet.Votes{ID: 0, Stars: 0.0, VotesAvg: 0.0, VotesUp: 0, VotesMeh: 0, VotesDown: 0}
 	x := strings.Split(data, sep)
 	const req = 4
 	if len(x) < req {
@@ -1513,7 +1519,7 @@ func ProdPouet(c echo.Context, id string) error {
 	if c == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
 	}
-	p := pouet.Production{}
+	p := pouet.Production{} //nolint:exhaustruct
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -1533,7 +1539,7 @@ func ProdZoo(c echo.Context, id string) error {
 	if c == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
 	}
-	prod := demozoo.Production{}
+	prod := demozoo.Production{} //nolint:exhaustruct
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -1774,7 +1780,12 @@ func releaserLead(uri string, data map[string]any) map[string]any {
 
 // releaserSum is a helper function for Releasers that returns the statistics for the files page.
 func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
-	m := model.Summary{}
+	m := model.Summary{
+		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
+		SumCount: sql.NullInt64{Int64: 0, Valid: false},
+		MinYear:  sql.NullInt16{Int16: 0, Valid: false},
+		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
+	}
 	if err := m.ByReleaser(ctx, exec, uri); err != nil {
 		return nil, fmt.Errorf("releaser sum %w: %s", err, uri)
 	}
@@ -1866,7 +1877,12 @@ func Sceners(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error {
 
 // scenerSum is a helper function for Sceners that returns the statistics for the files page.
 func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
-	m := model.Summary{}
+	m := model.Summary{
+		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
+		SumCount: sql.NullInt64{Int64: 0, Valid: false},
+		MinYear:  sql.NullInt16{Int16: 0, Valid: false},
+		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
+	}
 	if err := m.ByScener(ctx, exec, uri); err != nil {
 		return nil, fmt.Errorf("scener sum %w: %s", err, uri)
 	}
@@ -2171,7 +2187,7 @@ func VotePouet(c echo.Context, sl *slog.Logger, id string) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const title, name, sep = "Pouet", "pouet", ";"
-	pv := pouet.Votes{}
+	pv := pouet.Votes{ID: 0, Stars: 0.0, VotesAvg: 0.0, VotesUp: 0, VotesMeh: 0, VotesDown: 0}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -2271,7 +2287,12 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 	if !fileslice.Valid(uri) {
 		return nil, 0, nil
 	}
-	m := model.Summary{}
+	m := model.Summary{
+		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
+		SumCount: sql.NullInt64{Int64: 0, Valid: false},
+		MinYear:  sql.NullInt16{Int16: 0, Valid: false},
+		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
+	}
 	err := m.ByMatch(ctx, exec, uri)
 	if err != nil && !errors.Is(err, model.ErrURI) {
 		return nil, 0, fmt.Errorf("artifacts stats %w: %s", err, uri)

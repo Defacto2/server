@@ -44,7 +44,7 @@ func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
 	}
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse(b)
-	renderer := html.NewRenderer(html.RendererOptions{
+	renderer := html.NewRenderer(html.RendererOptions{ //nolint:exhaustruct // External library with many optional rendering fields
 		Flags: html.CommonFlags | html.HrefTargetBlank,
 	})
 	return markdown.Render(doc, renderer)

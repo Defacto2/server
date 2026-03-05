@@ -156,7 +156,7 @@ func demozooBtn(id int, info ...string) string {
 // such as an intro, demo or cracktro for MS-DOS, Windows etc.
 func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, error) {
 	const msg = "htmx demozoo valid"
-	none := demozoo.Production{}
+	none := demozoo.Production{} //nolint:exhaustruct
 	if c == nil {
 		return none, fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
 	}
@@ -467,7 +467,7 @@ func pouetBtn(id int, info ...string) string {
 // production is returned with a htmx message.
 func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
 	const msg = "htmx pouet valid context"
-	none := pouet.Response{}
+	none := pouet.Response{} //nolint:exhaustruct
 	if c == nil {
 		return none, fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
 	}

@@ -36,7 +36,10 @@ var (
 func client() http.Client {
 	const ten = 10
 	return http.Client{
-		Timeout: ten * time.Second,
+		Transport:     nil,
+		CheckRedirect: nil,
+		Jar:           nil,
+		Timeout:       ten * time.Second,
 	}
 }
 

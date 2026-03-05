@@ -125,7 +125,7 @@ func JsDosConfig(f *models.File) (string, error) {
 	if f == nil {
 		return "", fmt.Errorf("%s: %w", msg, ErrModel)
 	}
-	j := jsdos.Jsdos{}
+	j := jsdos.Jsdos{} //nolint:exhaustruct // External library with many optional configuration fields
 	cpu := f.DoseeHardwareCPU.String
 	if f.DoseeHardwareCPU.Valid && cpu != "" {
 		j.CPU(cpu)

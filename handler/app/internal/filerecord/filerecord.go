@@ -732,7 +732,19 @@ func ListContent( //nolint:cyclop,gocognit,funlen
 		if usefile := slices.Contains(results, rel); !usefile {
 			return skipEntry
 		}
-		e := entry{zeros: zeroByteFiles}
+		e := entry{
+			module:  "",
+			size:    "",
+			format:  "",
+			exec:    magicnumber.Windows{}, //nolint:exhaustruct
+			sign:    0,
+			zeros:   zeroByteFiles,
+			bytes:   0,
+			image:   false,
+			text:    false,
+			bintext: false,
+			program: false,
+		}
 		if e.ParseDirEntry(path, d, platform) {
 			zeroByteFiles = e.zeros
 			return skipEntry
@@ -860,7 +872,19 @@ func extractErr(src, platform, section string, zeroByteFiles int, err error) tem
 	if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
 		return template.HTML(err.Error())
 	}
-	e := entry{zeros: zeroByteFiles}
+	e := entry{
+		module:  "",
+		size:    "",
+		format:  "",
+		exec:    magicnumber.Windows{}, //nolint:exhaustruct
+		sign:    0,
+		zeros:   zeroByteFiles,
+		bytes:   0,
+		image:   false,
+		text:    false,
+		bintext: false,
+		program: false,
+	}
 	if e.ParseFile(src, platform) {
 		return "error, empty byte file"
 	}
@@ -872,33 +896,41 @@ func extractErr(src, platform, section string, zeroByteFiles int, err error) tem
 
 func listErr(e entry) ListEntry {
 	return ListEntry{
+		RelativeName: "",
+		Signature:    e.sign.String(),
+		Filesize:     e.size,
+		ImageConfig:  e.format,
+		MusicConfig:  e.module,
+		UniqueID:     "",
+		name:         "",
+		platform:     "",
+		section:      "",
 		Executable:   e.exec,
+		bytes:        e.bytes,
 		Images:       e.image,
 		Programs:     e.program,
 		Texts:        e.text,
 		BINtexts:     e.bintext,
-		MusicConfig:  e.module,
-		ImageConfig:  e.format,
-		RelativeName: "",
-		Signature:    e.sign.String(),
-		Filesize:     e.size,
-		UniqueID:     "",
 	}
 }
 
 func listEntry(e entry, rel, unid string) ListEntry {
 	return ListEntry{
+		RelativeName: LegacyString(rel),
+		Signature:    e.sign.String(),
+		Filesize:     e.size,
+		ImageConfig:  e.format,
+		MusicConfig:  e.module,
+		UniqueID:     unid,
+		name:         "",
+		platform:     "",
+		section:      "",
 		Executable:   e.exec,
+		bytes:        e.bytes,
 		Images:       e.image,
 		Programs:     e.program,
 		Texts:        e.text,
 		BINtexts:     e.bintext,
-		MusicConfig:  e.module,
-		ImageConfig:  e.format,
-		RelativeName: LegacyString(rel),
-		Signature:    e.sign.String(),
-		Filesize:     e.size,
-		UniqueID:     unid,
 	}
 }
 

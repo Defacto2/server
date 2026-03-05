@@ -128,6 +128,7 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo
 func trailSlash() middleware.TrailingSlashConfig {
 	return middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
+		Skipper:      nil,
 	}
 }
 
@@ -141,7 +142,12 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 		exitRequest := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
 			return nil
 		}
-		return middleware.RequestLoggerConfig{LogValuesFunc: exitRequest}
+		return middleware.RequestLoggerConfig{ //nolint:exhaustruct
+			LogValuesFunc:  exitRequest,
+			Skipper:        nil,
+			BeforeNextFunc: nil,
+			HandleError:    true,
+		}
 	}
 	const msg = "request logger config handler"
 	if sl == nil {
@@ -185,7 +191,7 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 			requests())
 		return nil
 	}
-	return middleware.RequestLoggerConfig{
+	return middleware.RequestLoggerConfig{ //nolint:exhaustruct
 		Skipper:          skipPaths,
 		LogLatency:       true,
 		LogProtocol:      false,

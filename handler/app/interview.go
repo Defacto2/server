@@ -77,6 +77,7 @@ func Interviewees() Groups {
 				{
 					Scener:  "Pitbull",
 					Year:    2005,
+					Month:   0,
 					Content: "The former leader of Razor 1911 talks about life after being busted.",
 					Link:    "/f/ab3914",
 				},
@@ -173,6 +174,7 @@ func Interviewees() Groups {
 				{
 					Scener:  "Hard Core",
 					Year:    1993,
+					Month:   0,
 					Content: "Founder of The Dream Team.",
 					Link:    "/f/a729f9",
 				},
@@ -259,6 +261,7 @@ func Interviewees() Groups {
 				Interviewee{
 					Scener: "JPL",
 					Year:   2006,
+					Month:  0,
 					Content: "Another early French cracker who got their start in 1983, " +
 						"JPL often kept his cracks and self-branding to a minimum.",
 					Link: "https://textfiles.meulie.net/exhibits/frenchunderground/Deplombage/Interviews/Jpl/Interview_JPL.html",

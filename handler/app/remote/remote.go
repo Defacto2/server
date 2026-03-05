@@ -161,7 +161,8 @@ func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResp
 	if skip := err != nil || dlr.Path == ""; skip {
 		// If the last link failed then return the error, otherwise this will fail silently.
 		if lastLink := i+1 >= len(prod.DownloadLinks); lastLink {
-			return DownloadResponse{ContentLength: "", ContentType: "", LastModified: "", Path: ""}, fmt.Errorf("could not get file, %s: %w", linkURL, err)
+			return DownloadResponse{},
+				fmt.Errorf("could not get file, %s: %w", linkURL, err)
 		}
 		return DownloadResponse{ContentLength: "", ContentType: "", LastModified: "", Path: ""}, nil
 	}

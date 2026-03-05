@@ -566,6 +566,7 @@ func (dir Dirs) makeTextfileImgs(sl *slog.Logger,
 		Download:  dir.Download,
 		Preview:   dir.Preview,
 		Thumbnail: dir.Thumbnail,
+		Extra:     dir.Extra,
 	}
 	if helper.File(filepath.Join(dirs.Thumbnail.Path(), uid+".png")) ||
 		helper.File(filepath.Join(dirs.Thumbnail.Path(), uid+".webp")) {

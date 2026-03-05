@@ -32,10 +32,10 @@ var websites = Groups{
 	"class": {
 		{URL: "class101.com", NotWorking: true, Name: "former domain"},
 		{URL: "www.multimania.com/atm9x", NotWorking: true, Name: "coder ATM/Class"},
-		{URL: "https://en.wikipedia.org/wiki/Class_(pirating_group)", Name: "Class (pirating group)"},
+		{URL: "https://en.wikipedia.org/wiki/Class_(pirating_group)", Name: "Class (pirating group)", NotWorking: false},
 	},
 	"shade": {
-		{URL: "www.suburbia.net/~shade", NotWorking: true},
+		{URL: "www.suburbia.net/~shade", NotWorking: true, Name: ""},
 	},
 	"infinite-darkness-bbs": {
 		{URL: "infidark.nws.net", NotWorking: true, Name: "former Telnet"},
@@ -44,31 +44,36 @@ var websites = Groups{
 		{URL: "entropybbs.net", NotWorking: true, Name: "Telnet board"},
 	},
 	"sanctuary-bbs": {
-		{URL: "https://www.brysk.se/sanctuary/index.htm", Name: "Connect to Sanctuary, former Fairlight HQ"},
+		{
+			URL:        "https://www.brysk.se/sanctuary/index.htm",
+			Name:       "Connect to Sanctuary, former Fairlight HQ",
+			NotWorking: false,
+		},
 	},
 	"myth": []Website{
 		{URL: "www.myth.org", NotWorking: true, Name: "Mentioned in 2000"},
 	},
 	"delusions-of-grandeur": []Website{
-		{URL: "delusions.base.org", NotWorking: true},
+		{URL: "delusions.base.org", NotWorking: true, Name: ""},
 	},
 	"celebre": []Website{
-		{URL: "www.celebre.net", NotWorking: true},
+		{URL: "www.celebre.net", NotWorking: true, Name: ""},
 	},
 	"dextrose": []Website{
-		{URL: "www.dextrose.com", NotWorking: true},
-		{URL: "https://web.archive.org/web/19980131194050/http://www.dextrose.com/", Name: "1998 mirror"},
+		{URL: "www.dextrose.com", NotWorking: true, Name: ""},
+		{URL: "https://web.archive.org/web/19980131194050/http://www.dextrose.com/", Name: "1998 mirror", NotWorking: false},
 	},
-	"crc": []Website{{URL: "www.bgnett.no/~xbone", NotWorking: true}},
+	"crc": []Website{{URL: "www.bgnett.no/~xbone", NotWorking: true, Name: ""}},
 	"digital-corruption": []Website{
-		{URL: "dc.denet.co.jp", NotWorking: true},
-		{URL: "https://web.archive.org/web/19971224223854/http://dc.denet.co.jp/", Name: "1997 mirror"},
+		{URL: "dc.denet.co.jp", NotWorking: true, Name: ""},
+		{URL: "https://web.archive.org/web/19971224223854/http://dc.denet.co.jp/", Name: "1997 mirror", NotWorking: false},
 	},
 	"fantastic-4-cracking-group": []Website{
 		{URL: "www.f4cg.com", Name: "advertised in 1998", NotWorking: true},
 		{
-			URL:  "https://web.archive.org/web/20001204211300/http://www.f4cg.com/",
-			Name: "f4cg.com mirror in 2000, used by the Hitmen",
+			URL:        "https://web.archive.org/web/20001204211300/http://www.f4cg.com/",
+			Name:       "f4cg.com mirror in 2000, used by the Hitmen",
+			NotWorking: false,
 		},
 	},
 	"trc-ware-report": []Website{

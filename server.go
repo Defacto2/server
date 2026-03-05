@@ -197,7 +197,7 @@ func locAddresses(sl *slog.Logger, configs *config.Config, msg string) {
 // The configuration uses reference types to make the values immutable.
 func environmentVars(sl *slog.Logger) *config.Config {
 	const msg = "environment variables"
-	configs := config.Config{
+	configs := config.Config{ //nolint:exhaustruct // complex config
 		Compression:   true,
 		DatabaseURL:   postgres.DefaultURL,
 		HTTPPort:      config.StdCustom,
@@ -227,6 +227,7 @@ func newInstance(ctx context.Context, db *sql.DB, configs config.Config) *handle
 		Public:      public,
 		Version:     version,
 		View:        view,
+		RecordCount: 0,
 	}
 	if c.Version == "" {
 		c.Version = flags.Commit("")
