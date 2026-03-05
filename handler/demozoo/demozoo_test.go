@@ -45,7 +45,7 @@ func TestExternalLinks(t *testing.T) {
 	be.Equal(t, 0, d.PouetProd())
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {
-		LinkClass string `json:"link_class"`
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
 		URL       string `json:"url"`
 	}{
 		LinkClass: "class1",
@@ -54,7 +54,7 @@ func TestExternalLinks(t *testing.T) {
 	be.Equal(t, 0, d.PouetProd())
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {
-		LinkClass string `json:"link_class"`
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
 		URL       string `json:"url"`
 	}{
 		LinkClass: "PouetProduction",
@@ -63,7 +63,7 @@ func TestExternalLinks(t *testing.T) {
 	be.Equal(t, 0, d.PouetProd())
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {
-		LinkClass string `json:"link_class"`
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
 		URL       string `json:"url"`
 	}{
 		LinkClass: "PouetProduction",
@@ -73,7 +73,7 @@ func TestExternalLinks(t *testing.T) {
 	be.Equal(t, d.GithubRepo(), "")
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {
-		LinkClass string `json:"link_class"`
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
 		URL       string `json:"url"`
 	}{
 		LinkClass: "GithubRepo",
@@ -82,7 +82,7 @@ func TestExternalLinks(t *testing.T) {
 	be.Equal(t, "/Defacto2/server", d.GithubRepo())
 	be.Equal(t, d.YouTubeVideo(), "")
 	d.ExternalLinks = append(d.ExternalLinks, struct {
-		LinkClass string `json:"link_class"`
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
 		URL       string `json:"url"`
 	}{
 		LinkClass: "YoutubeVideo",

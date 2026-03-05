@@ -95,18 +95,6 @@ linters:
           - lll
           - maintidx
         path: handler/app/milestone.go
-      #- linters:
-      #    - lll
-      #  path: handler/areacode/areacode.go
-      - linters:
-          - exhaustruct
-        path: handler/site/site.go
-      - linters:
-          - tagliatelle
-        path: handler/demozoo/demozoo.go
-      - linters:
-          - tagliatelle
-        path: handler/demozoo/demozoo_test.go
       - linters:
           - dupl
           - wrapcheck
@@ -143,18 +131,15 @@ linters:
       - linters:
           - dupl
         path: internal/command/images.go
-      - linters:
-          - lll
-          - tagalign
-        path: internal/config/config.go
+      #- linters:
+      #    - lll
+      #    - tagalign
+      #  path: internal/config/config.go
       - linters:
           - lll
           - tagalign
         path: internal/postgres/postgres\.go$
-      - linters:
-          - ireturn
-        path: model/html3/html3.go
-      - linters:
+      - linters: #requirement
           - ireturn
         path: model/querymod/querymod.go
     paths:

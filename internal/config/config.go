@@ -15,12 +15,18 @@ import (
 )
 
 const (
-	ConfigDir         = "defacto2-app" // ConfigDir is the subdirectory for the home user ".config".
-	MinimumFiles      = 40000          // MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
-	SessionHours      = 3              // SessionHours is the default number of hours for the session cookie to remain active.
-	StdHTTP      Port = 80             // StdHTTP is the standard port used for a legacy unencrypted HTTP connection.
-	StdHTTPS     Port = 443            // StdHTTPS is the standard port used for a HTTP web connection.
-	StdCustom         = 1323           // StdCustom is the default port number used by this application for an unencrypted HTTP connection.
+	// ConfigDir is the subdirectory for the home user ".config".
+	ConfigDir = "defacto2-app"
+	// MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
+	MinimumFiles = 40000
+	// SessionHours is the default number of hours for the session cookie to remain active.
+	SessionHours = 3
+	// StdHTTP is the standard port used for a legacy unencrypted HTTP connection.
+	StdHTTP Port = 80
+	// StdHTTPS is the standard port used for a HTTP web connection.
+	StdHTTPS Port = 443
+	// StdCustom is the default port number used by this application for an unencrypted HTTP connection.
+	StdCustom = 1323
 )
 
 const (

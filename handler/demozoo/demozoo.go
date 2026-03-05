@@ -90,7 +90,7 @@ type Production struct {
 	// Title is the production title.
 	Title string `json:"title"`
 	// ReleaseDate is the production release date.
-	ReleaseDate string `json:"release_date"`
+	ReleaseDate string `json:"release_date"` //nolint:tagliatelle
 	// Supertype is the production type.
 	Supertype string `json:"supertype"`
 	// Authors
@@ -98,9 +98,9 @@ type Production struct {
 		Name     string `json:"name"`
 		Releaser struct {
 			Name    string `json:"name"`
-			IsGroup bool   `json:"is_group"`
+			IsGroup bool   `json:"is_group"` //nolint:tagliatelle
 		} `json:"releaser"`
-	} `json:"author_nicks"`
+	} `json:"author_nicks"` //nolint:tagliatelle
 	// Platforms is the production platform.
 	Platforms []struct {
 		Name string `json:"name"`
@@ -121,20 +121,20 @@ type Production struct {
 				URL     string `json:"url"`
 				Name    string `json:"name"`
 				ID      int    `json:"id"`
-				IsGroup bool   `json:"is_group"`
+				IsGroup bool   `json:"is_group"` //nolint:tagliatelle
 			} `json:"releaser"`
 		} `json:"nick"`
 	} `json:"credits"`
 	// Download links to the remotely hosted files.
 	DownloadLinks []struct {
-		LinkClass string `json:"link_class"`
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
 		URL       string `json:"url"`
-	} `json:"download_links"`
+	} `json:"download_links"` //nolint:tagliatelle
 	// ExternalLinks links to the remotely hosted files.
 	ExternalLinks []struct {
-		LinkClass string `json:"link_class"`
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
 		URL       string `json:"url"`
-	} `json:"external_links"`
+	} `json:"external_links"` //nolint:tagliatelle
 	// ID is the production ID.
 	ID int `json:"id"`
 }

@@ -82,10 +82,11 @@ var websites = Groups{
 	"the-flame-arrows": []Website{
 		{URL: "www.tfa.org", Name: "TFA", NotWorking: true},
 		{URL: "www.euronet.nl/users/jdm/documents/members.html", Name: "The Flame Arrows", NotWorking: true},
-		{URL: "https://web.archive.org/web/19990117024946/http://www.tfa.org/", Name: "TFA 1999 mirror"},
+		{URL: "https://web.archive.org/web/19990117024946/http://www.tfa.org/", Name: "TFA 1999 mirror", NotWorking: false},
 		{
-			URL:  "https://web.archive.org/web/20000829080106/http://www.euronet.nl/users/jdm/documents/members.html",
-			Name: "The Flame Arrows mirror",
+			URL:        "https://web.archive.org/web/20000829080106/http://www.euronet.nl/users/jdm/documents/members.html",
+			Name:       "The Flame Arrows mirror",
+			NotWorking: false,
 		},
 	},
 	"byte-enforcerz": []Website{
@@ -117,8 +118,9 @@ var websites = Groups{
 			NotWorking: true,
 		},
 		{
-			URL:  "https://en.wikipedia.org/wiki/Paradox_%28warez%29",
-			Name: "Wikipedia - Paradox",
+			URL:        "https://en.wikipedia.org/wiki/Paradox_%28warez%29",
+			Name:       "Wikipedia - Paradox",
+			NotWorking: false,
 		},
 	},
 	"light-speed-warez": []Website{
@@ -135,14 +137,16 @@ var websites = Groups{
 			NotWorking: true,
 		},
 		{
-			URL:  "https://www.high-society.at",
-			Name: "High Society",
+			URL:        "https://www.high-society.at",
+			Name:       "High Society",
+			NotWorking: false,
 		},
 	},
 	"future-crew": []Website{
 		{
-			URL:  "https://en.wikipedia.org/wiki/Future_Crew",
-			Name: "Wikipedia - Future Crew",
+			URL:        "https://en.wikipedia.org/wiki/Future_Crew",
+			Name:       "Wikipedia - Future Crew",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.futurecrew.com",
@@ -152,40 +156,47 @@ var websites = Groups{
 	},
 	"eagle-soft-incorporated": []Website{
 		{
-			URL:  "https://csdb.dk/group/?id=696",
-			Name: "Eagle Soft Incorporated on CSDb",
+			URL:        "https://csdb.dk/group/?id=696",
+			Name:       "Eagle Soft Incorporated on CSDb",
+			NotWorking: false,
 		},
 	},
 	"myth-inc": []Website{
 		{
-			URL:  "https://demozoo.org/bbs/12549",
-			Name: "Myth Inc BBS on Demozoo",
+			URL:        "https://demozoo.org/bbs/12549",
+			Name:       "Myth Inc BBS on Demozoo",
+			NotWorking: false,
 		},
 	},
 	"legion-of-doom": []Website{
 		{
-			URL:  "https://en.wikipedia.org/wiki/Legion_of_Doom_(hacker_group)",
-			Name: "Wikipedia - Legion of Doom (hacker group)",
+			URL:        "https://en.wikipedia.org/wiki/Legion_of_Doom_(hacker_group)",
+			Name:       "Wikipedia - Legion of Doom (hacker group)",
+			NotWorking: false,
 		},
 		{
-			URL:  "http://textfiles.com/magazines/LOD/",
-			Name: "The Legion of Doom/Hackers Technical Journal",
+			URL:        "http://textfiles.com/magazines/LOD/",
+			Name:       "The Legion of Doom/Hackers Technical Journal",
+			NotWorking: false,
 		},
 	},
 	"the-acquisition": []Website{
 		{
-			URL:  "http://artscene.textfiles.com/acid/ARTPACKS/",
-			Name: "ACiD Art Packs",
+			URL:        "http://artscene.textfiles.com/acid/ARTPACKS/",
+			Name:       "ACiD Art Packs",
+			NotWorking: false,
 		},
 	},
 	"acid-productions": []Website{
 		{
-			URL:  "http://artscene.textfiles.com/acid/",
-			Name: "The ACiD Collection",
+			URL:        "http://artscene.textfiles.com/acid/",
+			Name:       "The ACiD Collection",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://www.acid.org",
-			Name: "1996 ACiD webpage",
+			URL:        "https://www.acid.org",
+			Name:       "1996 ACiD webpage",
+			NotWorking: false,
 		},
 		{
 			URL:        "http://www.cyberspace.com/~aciddraw",
@@ -193,24 +204,29 @@ var websites = Groups{
 			NotWorking: true,
 		},
 		{
-			URL:  "https://en.wikipedia.org/wiki/ACiD_Productions",
-			Name: "Wikipedia",
+			URL:        "https://en.wikipedia.org/wiki/ACiD_Productions",
+			Name:       "Wikipedia",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://www.youtube.com/watch?v=oQrBbm5ZMlo",
-			Name: "BBS The Documentary: Episode 5: Artscene",
+			URL:        "https://www.youtube.com/watch?v=oQrBbm5ZMlo",
+			Name:       "BBS The Documentary: Episode 5: Artscene",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://archive.org/details/bbs-20020727-radman",
-			Name: "Interview: RaD Man/ACiD",
+			URL:        "https://archive.org/details/bbs-20020727-radman",
+			Name:       "Interview: RaD Man/ACiD",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://archive.org/details/20040308-bbs-tracer",
-			Name: "Interview: Tracer/ACiD",
+			URL:        "https://archive.org/details/20040308-bbs-tracer",
+			Name:       "Interview: Tracer/ACiD",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://archive.org/details/bbs-20030520-jed",
-			Name: "Interview: JED/ACiD",
+			URL:        "https://archive.org/details/bbs-20030520-jed",
+			Name:       "Interview: JED/ACiD",
+			NotWorking: false,
 		},
 	},
 	"assault": []Website{
@@ -236,20 +252,24 @@ var websites = Groups{
 	},
 	"defacto2": []Website{
 		{
-			URL:  "https://defacto2.net",
-			Name: "Defacto2",
+			URL:        "https://defacto2.net",
+			Name:       "Defacto2",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://wayback.defacto2.net/defacto2-from-2000-july-11/",
-			Name: "from July 2000",
+			URL:        "https://wayback.defacto2.net/defacto2-from-2000-july-11/",
+			Name:       "from July 2000",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://wayback.defacto2.net/defacto2-from-1999-september-26/",
-			Name: "from September 1999",
+			URL:        "https://wayback.defacto2.net/defacto2-from-1999-september-26/",
+			Name:       "from September 1999",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://wayback.defacto2.net/defacto2-from-1998-september-8/",
-			Name: "from September 1998",
+			URL:        "https://wayback.defacto2.net/defacto2-from-1998-september-8/",
+			Name:       "from September 1998",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.defacto2.com",
@@ -266,8 +286,9 @@ var websites = Groups{
 	},
 	"deviance": []Website{
 		{
-			URL:  "https://deviance.untergrund.net",
-			Name: "Deviance Demo Division",
+			URL:        "https://deviance.untergrund.net",
+			Name:       "Deviance Demo Division",
+			NotWorking: false,
 		},
 	},
 	"devotion": []Website{
@@ -300,12 +321,14 @@ var websites = Groups{
 	},
 	"empress": []Website{
 		{
-			URL:  "https://www.reddit.com/r/HobbyDrama/comments/rowk83/digital_piracy_the_rise_of_empress_how_one_woman/",
-			Name: "The rise of EMPRESS",
+			URL:        "https://www.reddit.com/r/HobbyDrama/comments/rowk83/digital_piracy_the_rise_of_empress_how_one_woman/",
+			Name:       "The rise of EMPRESS",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://www.wired.com/story/empress-drm-cracking-denuvo-video-game-piracy/",
-			Name: "WIRED interview",
+			URL:        "https://www.wired.com/story/empress-drm-cracking-denuvo-video-game-piracy/",
+			Name:       "WIRED interview",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.reddit.com/r/EmpressEvolution",
@@ -315,12 +338,14 @@ var websites = Groups{
 	},
 	"fairlight": []Website{
 		{
-			URL:  "https://www.fairlight.to",
-			Name: "Fairlight Commodore 64",
+			URL:        "https://www.fairlight.to",
+			Name:       "Fairlight Commodore 64",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://www.fairlight.fi",
-			Name: "Fairlight Finland",
+			URL:        "https://www.fairlight.fi",
+			Name:       "Fairlight Finland",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.fairlight.org",
@@ -333,8 +358,9 @@ var websites = Groups{
 			NotWorking: true,
 		},
 		{
-			URL:  "https://web.archive.org/web/19981201194626/http://www.fairlight.org/",
-			Name: "1997 mirror",
+			URL:        "https://web.archive.org/web/19981201194626/http://www.fairlight.org/",
+			Name:       "1997 mirror",
+			NotWorking: false,
 		},
 	},
 	"fire-site-ftp": []Website{
@@ -363,8 +389,9 @@ var websites = Groups{
 			NotWorking: true,
 		},
 		{
-			URL:  "https://web.archive.org/web/20010223130305/http://www.multimania.com/jtf98/index.html",
-			Name: "JTF mirror",
+			URL:        "https://web.archive.org/web/20010223130305/http://www.multimania.com/jtf98/index.html",
+			Name:       "JTF mirror",
+			NotWorking: false,
 		},
 	},
 	"hybrid": []Website{
@@ -398,17 +425,21 @@ var websites = Groups{
 	},
 	"insane-creators-enterprise": []Website{
 		{
-			URL:  "https://www.ice.org",
-			Name: "iCE Advertisements",
+			URL:        "https://www.ice.org",
+			Name:       "iCE Advertisements",
+			NotWorking: false,
 		}, {
-			URL:  "http://artscene.textfiles.com/ice",
-			Name: "The iCE Collection",
+			URL:        "http://artscene.textfiles.com/ice",
+			Name:       "The iCE Collection",
+			NotWorking: false,
 		}, {
-			URL:  "https://en.wikipedia.org/wiki/ICE_Advertisements",
-			Name: "Wikipedia",
+			URL:        "https://en.wikipedia.org/wiki/ICE_Advertisements",
+			Name:       "Wikipedia",
+			NotWorking: false,
 		}, {
-			URL:  "https://www.youtube.com/watch?v=oQrBbm5ZMlo",
-			Name: "BBS The Documentary: Episode 5: Artscene",
+			URL:        "https://www.youtube.com/watch?v=oQrBbm5ZMlo",
+			Name:       "BBS The Documentary: Episode 5: Artscene",
+			NotWorking: false,
 		},
 	},
 	"level4": []Website{
@@ -436,8 +467,8 @@ var websites = Groups{
 			Name:       "Paradigm",
 			NotWorking: true,
 		},
-		{URL: "www.pdm97.com", NotWorking: true},
-		{URL: "www.paradigm.org", NotWorking: true},
+		{URL: "www.pdm97.com", Name: "PDM 97", NotWorking: true},
+		{URL: "www.paradigm.org", Name: "Paradigm", NotWorking: true},
 		{
 			URL:        "www.pdmworld.com/dac",
 			Name:       "DAC Paradigm art",
@@ -477,8 +508,9 @@ var websites = Groups{
 	},
 	"quartex": []Website{
 		{
-			URL:  "https://www.quartex.org",
-			Name: "Quartex",
+			URL:        "https://www.quartex.org",
+			Name:       "Quartex",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.quartex.demon.co.uk",
@@ -518,32 +550,39 @@ var websites = Groups{
 			NotWorking: true,
 		},
 		{
-			URL:  "https://wayback.defacto2.net/razor-1911-from-2002-july-1/",
-			Name: "Flash site from 2002",
+			URL:        "https://wayback.defacto2.net/razor-1911-from-2002-july-1/",
+			Name:       "Flash site from 2002",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://web.archive.org/web/19961227152420/http://www.razor1911.com/",
-			Name: "Razor 1911 in 1995",
+			URL:        "https://web.archive.org/web/19961227152420/http://www.razor1911.com/",
+			Name:       "Razor 1911 in 1995",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://razor-1911.tumblr.com/",
-			Name: "Tumblr",
+			URL:        "https://razor-1911.tumblr.com/",
+			Name:       "Tumblr",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://vimeo.com/groups/razor1911",
-			Name: "Vimeo",
+			URL:        "https://vimeo.com/groups/razor1911",
+			Name:       "Vimeo",
+			NotWorking: false,
 		},
 		{
-			URL:  "http://en.wikipedia.org/wiki/Razor_1911",
-			Name: "Wikipedia",
+			URL:        "http://en.wikipedia.org/wiki/Razor_1911",
+			Name:       "Wikipedia",
+			NotWorking: false,
 		},
 		{
-			URL:  "https://twitter.com/razor",
-			Name: "Twitter",
+			URL:        "https://twitter.com/razor",
+			Name:       "Twitter",
+			NotWorking: false,
 		},
 		{
-			URL:  "http://www.textfiles.com/piracy/RAZOR/",
-			Name: "textfiles.com",
+			URL:        "http://www.textfiles.com/piracy/RAZOR/",
+			Name:       "textfiles.com",
+			NotWorking: false,
 		},
 	},
 	"razor-1911-demo": []Website{
@@ -615,19 +654,21 @@ var websites = Groups{
 		},
 	},
 	"risciso": []Website{
-		{URL: "www.risc98.org", NotWorking: true},
-		{URL: "www.risciso.com", NotWorking: true},
+		{URL: "www.risc98.org", Name: "RISC 98", NotWorking: true},
+		{URL: "www.risciso.com", Name: "RISC ISO", NotWorking: true},
 	},
 	"scoopex": []Website{
 		{
-			URL:  "http://www.scoopex1988.org",
-			Name: "Scoopex",
+			URL:        "http://www.scoopex1988.org",
+			Name:       "Scoopex",
+			NotWorking: false,
 		},
 	},
 	"scenelink": []Website{
 		{
-			URL:  "/wayback/scenelink-from-1998-june-25/index.html",
-			Name: "SceneLink mirror",
+			URL:        "/wayback/scenelink-from-1998-june-25/index.html",
+			Name:       "SceneLink mirror",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.scenelink.org",
@@ -659,8 +700,9 @@ var websites = Groups{
 	},
 	"superior-art-creations": []Website{
 		{
-			URL:  "https://www.roysac.com/sac.html",
-			Name: "RoySAC",
+			URL:        "https://www.roysac.com/sac.html",
+			Name:       "RoySAC",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.superiorartcreations.com",
@@ -673,14 +715,16 @@ var websites = Groups{
 			NotWorking: true,
 		},
 		{
-			URL:  "https://www.flickr.com/photos/cumbrowski/collections/72157612320706642/",
-			Name: "Art releases",
+			URL:        "https://www.flickr.com/photos/cumbrowski/collections/72157612320706642/",
+			Name:       "Art releases",
+			NotWorking: false,
 		},
 	},
 	"titan": []Website{
 		{
-			URL:  "https://titandemo.org",
-			Name: "Titan",
+			URL:        "https://titandemo.org",
+			Name:       "Titan",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.titancrew.org",
@@ -724,8 +768,9 @@ var websites = Groups{
 	},
 	"the-humble-guys": []Website{
 		{
-			URL:  "https://fabulousfurlough.blogspot.com",
-			Name: "Fabulous Furlough's - My Life Behind The Patch",
+			URL:        "https://fabulousfurlough.blogspot.com",
+			Name:       "Fabulous Furlough's - My Life Behind The Patch",
+			NotWorking: false,
 		},
 		{
 			URL:        "www.thg.net",
@@ -745,8 +790,9 @@ var websites = Groups{
 			NotWorking: true,
 		},
 		{
-			URL:  "https://web.archive.org/web/19961227014238/http://www.trsi.de/",
-			Name: "1996 mirror",
+			URL:        "https://web.archive.org/web/19961227014238/http://www.trsi.de/",
+			Name:       "1996 mirror",
+			NotWorking: false,
 		},
 	},
 	"weapon": []Website{
@@ -792,8 +838,9 @@ var websites = Groups{
 	},
 	"ultra-force": []Website{
 		{
-			URL:  "https://ultraforce.com/en/demogroup.html",
-			Name: "Ultra Force",
+			URL:        "https://ultraforce.com/en/demogroup.html",
+			Name:       "Ultra Force",
+			NotWorking: false,
 		},
 	},
 	"x_pression-design": []Website{
@@ -805,8 +852,9 @@ var websites = Groups{
 	},
 	"pirates-cove": []Website{
 		{
-			URL:  "https://phrack.org",
-			Name: "Phrack Magazine",
+			URL:        "https://phrack.org",
+			Name:       "Phrack Magazine",
+			NotWorking: false,
 		},
 	},
 	"the-naked-truth-magazine": []Website{

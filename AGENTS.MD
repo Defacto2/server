@@ -1,0 +1,1 @@
+Linting is always done using `golangci-lint run -c init/.golangci.yaml`
