@@ -25,6 +25,8 @@ tasks:
       - echo "Building assets..."
       - go run -modfile=runner/go.mod runner/runner.go
       - echo "Done!"
+    aliases:
+      - 'js'
   binary:
     desc: 'Build the binary of the web server.'
     deps: [assets]
@@ -32,6 +34,8 @@ tasks:
       - cmd: echo "Building..."
       - cmd: go build -o {{.BINNAME}} -v server.go
         platforms: [linux, darwin, freebsd]
+    aliases:
+      - 'bin'
   binaryr:
     desc: 'Build the binary of the web server with race detection.'
     deps: [assets]
@@ -42,11 +46,15 @@ tasks:
       - cmd: ./{{.BINNAME}} --version
         platforms: [linux, darwin]
       - cmd: echo "Done!"
+    aliases:
+      - 'race'
   binary-run:
     desc: 'Run the previously built binary.'
     cmds:
       - ./{{.BINNAME}}
     platforms: [linux, darwin, freebsd]
+    aliases:
+      - 'run'
   default:
     desc: 'Task runner for the Defacto2 web server source code.'
     cmds:
@@ -113,6 +121,10 @@ tasks:
       - cmd: echo "Building snapshot..."
       - cmd: goreleaser build --snapshot --clean --config init/.goreleaser.yaml
       - cmd: echo "Done!"
+  js-update:
+    desc: Update to the latest JavaScript dependencies.
+    cmds:
+      - cmd: pnpm up --interactive --latest
   pkg-update:
     aliases:
       - 'update'
