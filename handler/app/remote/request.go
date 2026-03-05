@@ -146,7 +146,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	if _, err := io.CopyBuffer(dst, res.Body, buf); err != nil {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
 		_ = res.Body.Close()
-		defer func() { _ = os.Remove(dst.Name()) }()
+		defer func() { _ = os.Remove(dst.Name()) }() //nolint:gosec // G703: safe temp file
 		return none, fmt.Errorf("%s io copy: %w", msg, err)
 	}
 	download.Path = dst.Name()

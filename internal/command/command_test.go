@@ -41,7 +41,7 @@ func TestCopyFile(t *testing.T) {
 	tmp, err := os.CreateTemp(td, "command_test")
 	be.Err(t, err, nil)
 	defer func() {
-		err := os.Remove(tmp.Name())
+		err := os.Remove(tmp.Name()) //nolint:gosec // G703: safe temp file
 		be.Err(t, err, nil)
 	}()
 	logr := logr()

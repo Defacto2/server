@@ -61,7 +61,7 @@ func Checksum(c echo.Context, db *sql.DB, id string) error {
 	if err != nil {
 		return fmt.Errorf("%s: create tempdir: %w", msg, err)
 	}
-	defer func() { _ = os.Remove(file.Name()) }()
+	defer func() { _ = os.Remove(file.Name()) }() //nolint:gosec // G703: safe temp file
 	if _, err := file.Write(body); err != nil {
 		return fmt.Errorf("%s: write: %w", msg, err)
 	}

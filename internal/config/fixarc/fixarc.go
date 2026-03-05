@@ -90,7 +90,7 @@ func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	subCtx, cancel := context.WithTimeout(ctx, arcTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(subCtx, command.Arc, "t", path)
+	cmd := exec.CommandContext(subCtx, command.Arc, "t", path) //nolint:gosec // G204: path is validated internal file path
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,

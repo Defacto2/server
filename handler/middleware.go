@@ -157,7 +157,7 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 			runtime.ReadMemStats(&m)
 			alloc = humanize.Bytes(m.Alloc)
 		}
-		rsize := uint64(v.ResponseSize)
+		rsize := uint64(v.ResponseSize) //nolint:gosec // G115: ResponseSize is always non-negative (content length)
 		// use funcs to maintain the readability of the nested slog arguments
 		response := func() slog.Attr {
 			return slog.Group("response",
