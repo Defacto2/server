@@ -109,7 +109,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 		return none, fmt.Errorf("%s new request: %w", msg, err)
 	}
 	req.Header.Set("User-Agent", UserAgent)
-	res, err := client.Do(req)
+	res, err := client.Do(req) //nolint:gosec // urls are processed by FixSceneOrg
 	if err != nil {
 		return none, fmt.Errorf("%s client do: %w", msg, err)
 	}

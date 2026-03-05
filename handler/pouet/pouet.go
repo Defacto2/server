@@ -312,7 +312,7 @@ func (r *Response) Get(id int) (int, error) {
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	c := client()
-	res, err := c.Do(req)
+	res, err := c.Do(req) //nolint:gosec // url is fine, being comprised of a const and a numeric ID
 	if err != nil {
 		return 0, fmt.Errorf("get pouet production client do %w", err)
 	}
