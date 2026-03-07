@@ -873,7 +873,6 @@ const (
 	shy      = 0xad // soft hyphen for ISO8859-1
 	nbsp     = 0xa0 // non-breaking space for ISO8859-1
 	nbsp437  = 0xff // non-breaking space for CP437
-	space    = " "  // intentional space
 	chk      = "checked"
 	maxWidth = 80
 )
