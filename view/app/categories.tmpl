@@ -107,28 +107,28 @@
                 <h5 class="card-title">Count and filesize</h5>
                 <div class="fs-6">
                     <div class="mb-3 pb-2 border-bottom">
-                        <strong>Totals:</strong> {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
+                        <span class="fw-light">Totals</span> {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
                     </div>
                     <div class="lh-lg" style="font-size: 0.95rem;">
-                        <div>ansi art: {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}</div>
-                        <div>ansi art and texts: {{ byteFile $rels.Ansi.Count $rels.Ansi.Bytes }}</div>
-                        <div>BBS adverts: {{ byteFile $rels.BBS.Count $rels.BBS.Bytes }}</div>
-                        <div>BBStros: {{ byteFile $rels.BBStro.Count $rels.BBStro.Bytes }}</div>
-                        <div>cracktros and intros: {{ byteFile $rels.Intro.Count $rels.Intro.Bytes }}</div>
-                        <div>cracktros and intros on {{msdos}}: {{ byteFile $rels.IntroD.Count $rels.IntroD.Bytes }}</div>
-                        <div>cracktros and intros on Windows: {{ byteFile $rels.IntroW.Count $rels.IntroW.Bytes }}</div>
-                        <div>Demoscene productions: {{ byteFile $rels.Demoscene.Count $rels.Demoscene.Bytes }}</div>
-                        <div>editors: {{ byteFile $rels.NfoTool.Count $rels.NfoTool.Bytes }}</div>
-                        <div>installers: {{ byteFile $rels.Installer.Count $rels.Installer.Bytes }}</div>
-                        <div>Java files: {{ byteFile $rels.Java.Count $rels.Java.Bytes }}</div>
-                        <div>Linux files: {{ byteFile $rels.Linux.Count $rels.Linux.Bytes }}</div>
-                        <div>MacOS files: {{ byteFile $rels.Macos.Count $rels.Macos.Bytes }}</div>
-                        <div>{{msdos}} files: {{ byteFile $rels.MsDos.Count $rels.MsDos.Bytes }}</div>
-                        <div>nfo texts: {{ byteFile $rels.Nfo.Count $rels.Nfo.Bytes }}</div>
-                        <div>proofs: {{ byteFile $rels.Proof.Count $rels.Proof.Bytes }}</div>
-                        <div>scripts: {{ byteFile $rels.Script.Count $rels.Script.Bytes }}</div>
-                        <div>text files: {{ byteFile $rels.BBSText.Count $rels.BBSText.Bytes }}</div>
-                        <div>Windows files: {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}</div>
+                        <div><span class="fw-light">ansi art</span> {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}</div>
+                        <div><span class="fw-light">ansi art and texts</span> {{ byteFile $rels.Ansi.Count $rels.Ansi.Bytes }}</div>
+                        <div><span class="fw-light">BBS adverts</span> {{ byteFile $rels.BBS.Count $rels.BBS.Bytes }}</div>
+                        <div><span class="fw-light">BBStros</span> {{ byteFile $rels.BBStro.Count $rels.BBStro.Bytes }}</div>
+                        <div><span class="fw-light">cracktros and intros</span> {{ byteFile $rels.Intro.Count $rels.Intro.Bytes }}</div>
+                        <div><span class="fw-light">cracktros and intros on {{msdos}}</span> {{ byteFile $rels.IntroD.Count $rels.IntroD.Bytes }}</div>
+                        <div><span class="fw-light">cracktros and intros on Windows</span> {{ byteFile $rels.IntroW.Count $rels.IntroW.Bytes }}</div>
+                        <div><span class="fw-light">Demoscene productions</span> {{ byteFile $rels.Demoscene.Count $rels.Demoscene.Bytes }}</div>
+                        <div><span class="fw-light">editors</span> {{ byteFile $rels.NfoTool.Count $rels.NfoTool.Bytes }}</div>
+                        <div><span class="fw-light">installers</span> {{ byteFile $rels.Installer.Count $rels.Installer.Bytes }}</div>
+                        <div><span class="fw-light">Java files</span> {{ byteFile $rels.Java.Count $rels.Java.Bytes }}</div>
+                        <div><span class="fw-light">Linux files</span> {{ byteFile $rels.Linux.Count $rels.Linux.Bytes }}</div>
+                        <div><span class="fw-light">MacOS files</span> {{ byteFile $rels.Macos.Count $rels.Macos.Bytes }}</div>
+                        <div><span class="fw-light">{{msdos}} files</span> {{ byteFile $rels.MsDos.Count $rels.MsDos.Bytes }}</div>
+                        <div><span class="fw-light">nfo texts</span> {{ byteFile $rels.Nfo.Count $rels.Nfo.Bytes }}</div>
+                        <div><span class="fw-light">proofs</span> {{ byteFile $rels.Proof.Count $rels.Proof.Bytes }}</div>
+                        <div><span class="fw-light">scripts</span> {{ byteFile $rels.Script.Count $rels.Script.Bytes }}</div>
+                        <div><span class="fw-light">text files</span> {{ byteFile $rels.BBSText.Count $rels.BBSText.Bytes }}</div>
+                        <div><span class="fw-light">Windows files</span> {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}</div>
                     </div>
                 </div>
             </div>
@@ -140,21 +140,21 @@
                 <h5 class="card-title">Publish dates</h5>
                 <div class="fs-6">
                     <div class="mb-3 pb-2 border-bottom">
-                        <strong>Overall:</strong> {{$rels.Record.MinYear}} - {{$rels.Record.MaxYear}}
+                        <span class="fw-light">Overall</span> {{$rels.Record.MinYear}} - {{$rels.Record.MaxYear}}
                     </div>
                     <div class="lh-lg" style="font-size: 0.95rem;">
-                        <div>ansi art: {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}</div>
-                        <div>BBS adverts: {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}</div>
-                        <div>cracktros and intros: {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}</div>
-                        <div>Java files: {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}}</div>
-                        <div>Linux files: {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}}</div>
-                        <div>magazines: {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}</div>
-                        <div>MacOS files: {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}}</div>
-                        <div>{{msdos}} files: {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}}</div>
-                        <div>nfo texts: {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}</div>
-                        <div>scripts: {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}}</div>
-                        <div>text files: {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}</div>
-                        <div>Windows files: {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}}</div>
+                        <div><span class="fw-light">ansi art</span> {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}</div>
+                        <div><span class="fw-light">BBS adverts</span> {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}</div>
+                        <div><span class="fw-light">cracktros and intros</span> {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}</div>
+                        <div><span class="fw-light">Java files</span> {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}}</div>
+                        <div><span class="fw-light">Linux files</span> {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}}</div>
+                        <div><span class="fw-light">magazines</span> {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}</div>
+                        <div><span class="fw-light">MacOS files</span> {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}}</div>
+                        <div><span class="fw-light">{{msdos}} files</span> {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}}</div>
+                        <div><span class="fw-light">nfo texts</span> {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}</div>
+                        <div><span class="fw-light">scripts</span> {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}}</div>
+                        <div><span class="fw-light">text files</span> {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}</div>
+                        <div><span class="fw-light">Windows files</span> {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}}</div>
                     </div>
                 </div>
             </div>
@@ -165,23 +165,24 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
+                <h5 class="card-title">Included programs</h5>
                 <h5 class="card-subtitle lead mb-2 text-body-secondary">cracktro, loader, intro, crack-screen</h5>
                 <p class="card-text">
                     Cracktros and loaders are mini adverts created by cracking groups to announce their
                     releases to the community.
                     Initially, these inserted ads launched whenever the cracked software was in use.
                 </p>
-                <span class="card-link">Runs on</span>
                 <div class="container text-left">
+                <span class="card-link text-secondary">Runs on Microsoft</span>
                     <div class="{{$rowCols}}">
                         <div class="col-sm">
                 <a href="/files/intro-windows" class="{{$linkClass}}">Windows</a>
                         </div>
                         <div class="col-sm">
-                <a href="/files/intro-msdos" class="{{$linkClass}}">{{msdos}}</a>
+                <a href="/files/intro-msdos" class="{{$linkClass}}">DOS</a>
                         </div>
                         <div class="col-sm">
-                <a href="/files/intro" class="{{$linkClass}}">any platform</a>
+                <a href="/files/intro" class="{{$linkClass}}">show all</a>
                         </div>
                     </div>
                 </div>
@@ -224,6 +225,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
+                <h5 class="card-title">Text art advertisements</h5>
                 <h5 class="card-subtitle lead mb-2 text-body-secondary">ANSI color text</h5>
                 <p class="card-text">
                     Stylized ANSI text art was commonly created for the theming and advertising of Bulletin Board Systems.
@@ -291,11 +293,12 @@
                 <p class="card-text">
                     Before the web and social media existed, groups and individuals used to exchange ideas and write articles on their communities in digitally distributed magazines and newsletters.
                 </p>
-                <p class="{{$linkClass}}">Browse the</p>
+                <p class="{{$linkClass}}">Browse the
                  <a href="/files/magazine" class="{{$linkClass}}">issues</a>
                  <hr>
-                 <p class="{{$linkClass}}">Or the</p>
+                 <p class="{{$linkClass}}">Or the
                  <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
+                </p>
             </div>
         </div>
     </div>
@@ -306,7 +309,7 @@
                 <p class="card-text">
                     Curated file packs are collections of files with a common theme.
                 </p>
-                <p class="{{$linkClass}}">Browse the packs of</p>
+                <p class="{{$linkClass}}">Browse the packs containing</p>
                 <div class="container text-left">
                     <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
                       <div class="col">
@@ -359,19 +362,19 @@
                 <a href="/files/text" class="{{$linkClass}}">files, everything</a>
                         </div>
                         <div class="col">
-                <a href="/files/text-apple2" class="{{$linkClass}}">Apple ][ files, a microcomputer</a>
+                <a href="/files/text-apple2" class="{{$linkClass}}">Apple II files</a><span class="text-secondary">, a popular 8-bit microcomputer from Apple</span>
                         </div>
                         <div class="col">
-                <a href="/files/text-amiga" class="{{$linkClass}}">Amiga files, a microcomputer from Commodore</a>
+                <a href="/files/text-amiga" class="{{$linkClass}}">Amiga files</a><span class="text-secondary">, a 16-bit microcomputer from Commodore</span>
                         </div>
                         <div class="col">
-                <a href="/files/pdf" class="{{$linkClass}}">PDF documents, an alternative format</a>
+                <a href="/files/pdf" class="{{$linkClass}}">PDF documents</a><span class="text-secondary">, an alternative format</span>
                         </div>
                         <div class="col">
-                <a href="/files/text-atari-st" class="{{$linkClass}}">Atari ST files, a microcomputer</a>
+                <a href="/files/text-atari-st" class="{{$linkClass}}">ST files</a><span class="text-secondary">, a 16-bit microcomputer from Atari</span>
                         </div>
                         <div class="col">
-                <a href="/files/html" class="{{$linkClass}}">HTML documents, a web format</a>
+                <a href="/files/html" class="{{$linkClass}}">HTML documents</a><span class="text-secondary">, a web format</span>
                         </div>
                     </div>
                 </div>
