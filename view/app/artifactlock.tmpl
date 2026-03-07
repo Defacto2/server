@@ -56,28 +56,35 @@
     <div class="row g-3">
       <div class="col-12 col-lg-5">
         <div class="artifactlock-shortcuts">
-          <strong class="d-block mb-1">Shortcuts and Editors:</strong>
-          <div><small class="text-muted">Editor:</small> <kbd>alt+shift</kbd> <kbd>home</kbd> <kbd>pgdn</kbd> <kbd>pgup</kbd> <kbd>del</kbd><br>
-          <small class="text-muted">Releasers:</small> <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd></div>
+          <strong class="d-block mb-1">Shortcuts and editors</strong>
+          <div>
+          <kbd>alt+shift</kbd> 
+          <small class="text-muted">plus </small> 
+          <kbd>home</kbd><sup class="text-secondary">1</sup> 
+          <kbd>pgdn</kbd><sup class="text-secondary">2</sup> 
+          <kbd>pgup</kbd><sup class="text-secondary">3</sup> 
+          <kbd>del</kbd><sup class="text-secondary">4</sup> 
+          <sub>groups</sub> <kbd>1</kbd> <kbd>2</kbd>
+        </div>
         </div>
       </div>
       <div class="col-12 col-lg-7 d-flex align-items-center">
         <div class="row row-cols-2 row-cols-sm-4 g-2 w-100">
           <div class="col">
               <button data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" data-bs-toggle="tooltip" data-bs-title="alt + shift + home" class="btn btn-primary btn-lg w-100">📋 Data</button>
-              <small class="d-block text-center text-muted mt-1">Record &amp; status</small>
+              <small class="d-block text-center text-muted mt-1">Record &amp; status<sup>1</sup></small>
               </div>
           <div class="col">
               <button data-bs-toggle="modal" data-bs-target="#asset-editor-modal" data-bs-toggle="tooltip" data-bs-title="alt + shift + pgdn" class="btn btn-primary btn-lg w-100">📁 File</button>
-              <small class="d-block text-center text-muted mt-1">Download &amp; screens</small>
+              <small class="d-block text-center text-muted mt-1">Download &amp; screens<sup>2</sup></small>
           </div>
           <div class="col">
               <button data-bs-toggle="modal" data-bs-target="#emulate-editor-modal" data-bs-toggle="tooltip" data-bs-title="alt + shift + pgup" class="btn btn-primary btn-lg w-100">🎮 Emulate</button>
-              <small class="d-block text-center text-muted mt-1">Configure DOSBox</small>
+              <small class="d-block text-center text-muted mt-1">Configure DOSBox<sup>3</sup></small>
           </div>
           <div class="col">
               <button data-bs-toggle="modal" data-bs-target="#artifact-delete-forever-modal" data-bs-toggle="tooltip" data-bs-title="alt + shift + del" class="btn btn-warning btn-lg w-100">Delete</button>
-              <small class="d-block text-center text-muted mt-1">Erase record &amp; assets</small>
+              <small class="d-block text-center text-muted mt-1">Erase record &amp; assets<sup>4</sup></small>
           </div>
         </div>
       </div>
@@ -88,10 +95,11 @@
     </div>
     {{- else if $forApproval}}
     <div class="artifactlock-message approval" id="record-is-hidden">
-        <div class="mb-2">⛔ This new record is hidden from public access.</div>
+        <div class="mb-2">⛔ This new record is <em>hidden from public access</em>.</div>
         {{- if eq $disableApproval ""}}
         <div>
-          <span data-bs-toggle="tooltip" data-bs-title="alt + shift + enter">If the data and images are correct, <a href="#" id="editor-online-true" hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden" autofocus class="link-primary fw-semibold">it can be approved</a>.</span>
+          <span data-bs-toggle="tooltip" data-bs-title="alt + shift + enter">⛔ If the data and images are correct, 
+          <a href="#" id="editor-online-true" hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden" autofocus class="link-primary">it can be approved</a>.</span>
         </div>
         {{- end}}
     </div>
@@ -108,7 +116,7 @@
     {{- end}}
     {{- if ne $missingAssets ""}}
     <div class="artifactlock-message warning">
-      <strong>💡 Suggestion:</strong> Use the <a href="#asset-editor-modal" data-bs-toggle="modal" data-bs-target="#asset-editor-modal" class="link-warning fw-semibold">File editor</a> to {{$missingAssets}}.
+      <span class="text-secondary">💡 Suggestion</span> Use the <a href="#asset-editor-modal" data-bs-toggle="modal" data-bs-target="#asset-editor-modal" class="link-warning fw-semibold">File editor</a> to {{$missingAssets}}.
     </div>
     {{- end}}
 </div>
