@@ -1393,7 +1393,14 @@ func PostDesc(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
 	const name = "artifacts"
 	errs := fmt.Sprint("post desc search for,", input)
 	ctx := context.Background()
-	terms := helper.SearchTerm(input)
+	inputs := helper.SearchTerm(input)
+	// Clean terms by removing empty strings from trailing commas
+	terms := make([]string, 0, len(inputs))
+	for _, term := range inputs {
+		if trimmed := strings.TrimSpace(term); trimmed != "" {
+			terms = append(terms, trimmed)
+		}
+	}
 	rel := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 	fs, _ := rel.Description(ctx, db, sl, terms)
 	d := Descriptions.postStats(ctx, db, terms)
@@ -1434,7 +1441,14 @@ func PostName(c echo.Context, db *sql.DB, sl *slog.Logger, mode FileSearch) erro
 	const name = "artifacts"
 	errs := fmt.Sprint("post name search for,", mode)
 	ctx := context.Background()
-	terms := helper.SearchTerm(input)
+	inputs := helper.SearchTerm(input)
+	// Clean terms by removing empty strings from trailing commas
+	terms := make([]string, 0, len(inputs))
+	for _, term := range inputs {
+		if trimmed := strings.TrimSpace(term); trimmed != "" {
+			terms = append(terms, trimmed)
+		}
+	}
 	rel := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 	fs, _ := rel.Filename(ctx, db, terms)
 	d := mode.postStats(ctx, db, terms)
