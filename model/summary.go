@@ -32,17 +32,35 @@ type Summary struct {
 func (s *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor, terms []string) error {
 	panics.BoilExecCrash(exec)
 	sum := string(postgres.Summary())
-	for i := range terms {
-		const clauseT = "to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ websearch_to_tsquery"
-		if i == 0 {
-			sum = fmt.Sprintf("%s%s($%d) ", sum, clauseT, i+1)
+
+	var orConditions []string
+	lookups := make([]string, len(terms))
+	for i, term := range terms {
+		term = strings.TrimSpace(term)
+		if term == "" {
 			continue
 		}
-		sum = fmt.Sprintf("%sOR %s($%d) ", sum, clauseT, i+1)
+		lookups[i] = term
+		orConditions = append(
+			orConditions,
+			fmt.Sprintf(
+				"to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ plainto_tsquery('english', $%d)",
+				i+1,
+			),
+		)
 	}
-	sum += "AND " + ClauseNoSoftDel
+	if len(orConditions) == 0 {
+		return fmt.Errorf("no valid search terms after cleaning")
+	}
+	// Combine with proper parentheses for correct operator precedence
+	sum += "(" + strings.Join(orConditions, " OR ") + ") AND " + ClauseNoSoftDel
 	sum = strings.TrimSpace(sum)
-	return queries.Raw(sum, "'"+strings.Join(terms, "','")+"'").Bind(ctx, exec, s)
+	// Create individual parameters for each term
+	params := make([]any, len(lookups))
+	for i, lookup := range lookups {
+		params[i] = lookup
+	}
+	return queries.Raw(sum, params...).Bind(ctx, exec, s)
 }
 
 // ByFilename saves the summary statistics for the filename search.

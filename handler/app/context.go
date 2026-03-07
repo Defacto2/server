@@ -1386,6 +1386,10 @@ func PostDesc(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
+	if s := strings.TrimSpace(input); s == "" {
+		// Redirect back to the search form
+		return c.Redirect(http.StatusFound, "/search/desc")
+	}
 	const name = "artifacts"
 	errs := fmt.Sprint("post desc search for,", input)
 	ctx := context.Background()
@@ -1422,10 +1426,14 @@ func PostName(c echo.Context, db *sql.DB, sl *slog.Logger, mode FileSearch) erro
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
+	input := c.FormValue("search-term-query")
+	if s := strings.TrimSpace(input); s == "" {
+		// Redirect back to the search form
+		return c.Redirect(http.StatusFound, "/search/file")
+	}
 	const name = "artifacts"
 	errs := fmt.Sprint("post name search for,", mode)
 	ctx := context.Background()
-	input := c.FormValue("search-term-query")
 	terms := helper.SearchTerm(input)
 	rel := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 	fs, _ := rel.Filename(ctx, db, terms)
@@ -1455,6 +1463,24 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 			"years": "",
 		}
 	}
+
+	// Validate input: reject empty or whitespace-only search terms
+	if len(terms) == 0 {
+		return none()
+	}
+
+	// Check if all terms are empty after trimming whitespace
+	allEmpty := true
+	for _, term := range terms {
+		if strings.TrimSpace(term) != "" {
+			allEmpty = false
+			break
+		}
+	}
+	if allEmpty {
+		return none()
+	}
+
 	m := model.Summary{
 		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
 		SumCount: sql.NullInt64{Int64: 0, Valid: false},
