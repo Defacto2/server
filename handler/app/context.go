@@ -119,6 +119,7 @@ func empty(c echo.Context) map[string]any {
 		"title":        "",
 		"ogtitle":      "",    // opengraph title
 		"noindex":      false, // flag the layout to include robots=noindex metatag
+		"uploader":     true,  // enable uploader js and keyboard shortcuts
 	}
 }
 
