@@ -16,10 +16,10 @@
         hx-target="#areacodes-results" autofocus>
     </div>
     <div class="col">
-        <button type="reset" class="btn btn-link" 
-          hx-post="/areacodes" 
-          hx-target="#areacodes-results" 
-          onclick="document.getElementById('areacodes-search').focus({focusVisible:true})">Clear</button>
+    <button type="button" class="btn btn-link"
+      hx-post="/areacodes"
+      hx-target="#areacodes-results"
+      onclick="document.getElementById('areacodes-search').value=''; document.getElementById('areacodes-search').focus({focusVisible:true})">Clear</button>
     </div>
 </form>
 
