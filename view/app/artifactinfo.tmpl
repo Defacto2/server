@@ -54,14 +54,14 @@
                             <table class="table table-sm table-striped table-hover align-middle mb-0">
                                 <thead class="table-dark">
                                 <tr>
-                                    <th scope="col" class="fw-semibold">#</th>
-                                    <th scope="col" class="fw-semibold">File Path</th>
+                                    <th scope="col" class="fw-light">#</th>
+                                    <th scope="col" class="fw-light">File path</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {{- range $i, $v := $content }}
                                 <tr>
-                                    <th scope="row" class="text-muted">{{add $i}}</th>
+                                    <th scope="row" class="fw-light text-muted">{{add $i}}</th>
                                     <td><code class="text-info">{{trimSpace $v}}</code></td>
                                 </tr>
                                 {{- end }}
@@ -84,7 +84,7 @@
                 <div class="col">
                     <div class="d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + d">
                         <div>
-                            <a class="btn btn-success btn-lg w-100" id="artifact-download-link" href="/d/{{$download}}" rel="nofollow" role="button">📥 Download File</a>
+                            <a class="btn btn-success btn-lg w-100" id="artifact-download-link" href="/d/{{$download}}" rel="nofollow" role="button">📥 Download file</a>
                             <small class="d-block text-center text-muted mt-1">{{$downloadText | safeHTML}}</small>
                         </div>
                     </div>
@@ -93,7 +93,7 @@
                 <div class="col">
                     <div class="d-grid">
                         <div>
-                            <a class="btn btn-outline-success btn-lg w-100" href="/jsdos/{{$download}}" rel="nofollow" role="button">📦 ZIP Repack</a>
+                            <a class="btn btn-outline-success btn-lg w-100" href="/jsdos/{{$download}}" rel="nofollow" role="button">📦 ZIP repack</a>
                             <small class="d-block text-center text-muted mt-1">Repacked for usability</small>
                         </div>
                     </div>
@@ -104,7 +104,7 @@
                     <div class="d-grid">
                         <div>
                             <a class="btn btn-outline-danger btn-lg w-100" data-bs-toggle="modal" data-bs-target="#download-unwanted-modal">⚠️ Download</a>
-                            <small class="d-block text-center text-danger mt-1">Security Warning</small>
+                            <small class="d-block text-center text-danger mt-1">Security warning</small>
                         </div>
                     </div>
                 </div>
@@ -134,7 +134,7 @@
             <div class="col">
                 <div class="d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + r">
                     <div>
-                        <a href="#" id="js-dos-run-app" class="btn btn-outline-dark btn-lg w-100" data-bs-toggle="modal" data-bs-target="#js-dos-modal" rel="nofollow">🎮 Run in Browser</a>
+                        <a href="#" id="js-dos-run-app" class="btn btn-outline-dark btn-lg w-100" data-bs-toggle="modal" data-bs-target="#js-dos-modal" rel="nofollow">🎮 Run in browser</a>
                         <small class="d-block text-center text-muted mt-1">Using DOSBox</small>
                     </div>
                 </div>
@@ -143,26 +143,26 @@
             </div>
             {{- /*  Additional artifact actions  */}}
             <div class="mt-4 mb-3">
-                <h6 class="fw-semibold text-secondary mb-3">Additional Actions</h6>
+                <h6 class="fw-light text-secondary mb-3">More actions</h6>
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
             {{- if ne "" $checksum}}
                 <div class="col d-none d-sm-grid">
-                    <a class="btn btn-sm btn-outline-secondary text-truncate" href="/sum/{{$download}}" role="button" 
+                    <a class="btn btn-sm btn-link text-truncate" href="/sum/{{$download}}" role="button" 
                         data-bs-toggle="tooltip" data-bs-title="{{$checksum}}" rel="nofollow">🔐 Checksum</a>
                 </div>
                 <div class="col d-grid d-sm-none">
-                    <a class="btn btn-sm btn-outline-secondary" href="/sum/{{$download}}" role="button" rel="nofollow">🔐 Checksum</a>
+                    <a class="btn btn-sm btn-link" href="/sum/{{$download}}" role="button" rel="nofollow">🔐 Checksum</a>
                 </div>
             {{- end}}
             {{- if $content}}
                 <div class="col d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + v">
-                    <a id="artifact-view-content" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#view-content-modal" rel="nofollow">📋 View Content</a>
+                    <a id="artifact-view-content" class="btn btn-sm btn-link" data-bs-toggle="modal" data-bs-target="#view-content-modal" rel="nofollow">📋 View content</a>
                 </div>
             {{- end}}
             {{- if ne "" $preview}}
                 <div class="col d-grid">
-                    <a class="btn btn-sm btn-outline-secondary" href="{{$preview}}" role="button" 
-                        data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}" rel="nofollow">&#x1F5A5; View Artifact</a>
+                    <a class="btn btn-sm btn-link" href="{{$preview}}" role="button" 
+                        data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}" rel="nofollow">🔍 View artifact</a>
                 </div>
             {{- end}}
                 </div>
@@ -177,30 +177,30 @@
             <table class="table table-hover table-sm align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col" class="fw-semibold">Property</th>
-                        <th scope="col" class="fw-semibold">Value</th>
+                        <th scope="col" class="fw-light text-body-tertiary">Property</th>
+                        <th scope="col" class="fw-light text-body-tertiary">Result</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <th scope="row"><span class="text-nowrap fw-semibold text-secondary">Download info</span></th>
+                        <th scope="row"><span class="text-nowrap fw-light text-secondary">Download info</span></th>
                         <td><span data-bs-toggle="tooltip" data-bs-title="{{$filebyte}} bytes">{{$filesize}}</span>
                             {{- if ne "" $contentDesc}}, {{$contentDesc}}{{end -}}
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><span class="text-nowrap fw-semibold text-secondary">Last modification</span></th>
+                        <th scope="row"><span class="text-nowrap fw-light text-secondary">Last modification</span></th>
                         <td><span data-bs-toggle="tooltip" data-bs-title="{{$lastModAgo}}">{{$lastMod}}</span></td>
                     </tr>
                     {{- if ne $mimetype ""}}
                     <tr>
-                        <th scope="row"><span class="text-nowrap fw-semibold text-secondary">Mime or file type</span></th>
+                        <th scope="row"><span class="text-nowrap fw-light text-secondary">Mime or file type</span></th>
                         <td>{{$mimetype}}</td>
                     </tr>
                     {{- end}}
                     {{- if $contentLatin1}}
                     <tr>
-                        <th scope="row"><span class="text-nowrap fw-semibold text-secondary">Text dimensions</span></th>
+                        <th scope="row"><span class="text-nowrap fw-light text-secondary">Text dimensions</span></th>
                         <td><span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{$contentLines}}</span> x 
                             <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{$contentRows}}</span></td>
                     </tr>
@@ -211,22 +211,22 @@
                     <style>.selection:hover { cursor: pointer; }</style>
                     {{- end }}
                     <tr class="selection" id="artifact-embed-title">
-                        <th scope="row"><span class="text-nowrap fw-semibold text-info">Embed title</span></th>
+                        <th scope="row"><span class="text-nowrap fw-light text-info">Embed title</span></th>
                         <td id="artifact-embed-title-value">{{$sauceTitle}}</td>
                     </tr>
                     {{- end}}{{ if ne $sauceAuthor ""}}
                     <tr class="selection" id="artifact-embed-author">
-                        <th scope="row"><span class="text-nowrap fw-semibold text-info">Embed author</span></th>
+                        <th scope="row"><span class="text-nowrap fw-light text-info">Embed author</span></th>
                         <td id="artifact-embed-author-value">{{$sauceAuthor}}</td>
                     </tr>
                     {{- end}}{{ if ne $sauceGroup ""}}
                     <tr class="selection" id="artifact-embed-group">
-                        <th scope="row"><span class="text-nowrap fw-semibold text-info">Embed group</span></th>
+                        <th scope="row"><span class="text-nowrap fw-light text-info">Embed group</span></th>
                         <td id="artifact-embed-group-value">{{$sauceGroup}}</td>
                     </tr>
                     {{- end}}
                     <tr>
-                        <th scope="row"><span class="text-nowrap fw-semibold text-info">Embed date</span></th>
+                        <th scope="row"><span class="text-nowrap fw-light text-info">Embed date</span></th>
                         <td>{{$sauceDate}}</td>
                     </tr>
                     {{- end}}
@@ -237,28 +237,28 @@
                     {{- /*  Authors and attributions  */}}
                     {{- if ne $writers "" }}
                     <tr>
-                        <th scope="row"><span class="fw-semibold text-success">Writers</span></th>
+                        <th scope="row"><span class="fw-light text-secondary">Writers</span></th>
                         <td>{{linkScnrs $writers}}</td>
                     </tr>{{- end}}
                     {{- if ne $artists "" }}
                     <tr>
-                        <th scope="row"><span class="fw-semibold text-success">Artists</span></th>
+                        <th scope="row"><span class="fw-light text-secondary">Artists</span></th>
                         <td>{{linkScnrs $artists}}</td>
                     </tr>{{- end}}
                     {{- if ne $programmers "" }}
                     <tr>
-                        <th scope="row"><span class="fw-semibold text-success">Programmers</span></th>
+                        <th scope="row"><span class="fw-light text-secondary">Programmers</span></th>
                         <td>{{linkScnrs $programmers}}</td>
                     </tr>{{- end}}
                     {{- if ne $musicians "" }}
                     <tr>
-                        <th scope="row"><span class="fw-semibold text-success">Musicians</span></th>
+                        <th scope="row"><span class="fw-light text-secondary">Musicians</span></th>
                         <td>{{linkScnrs $musicians}}</td>
                     </tr>{{- end}}
                     {{- /*  Pouet, Demozoo, 16colors links  */}}
                     {{- if ne $pouet ""}}
                     <tr id="pouetRow" class="d-none">
-                        <th scope="row"><span class="fw-semibold text-warning">Pouët reviews</span></th>
+                        <th scope="row"><small class="fw-light text-secondary">Pouët reviews</small></th>
                         <td>
                             <a id="pouetStars" href="https://www.pouet.net/prod.php?which={{$pouet}}">? stars</a>
                             &nbsp; <small id="pouetVotes">? votes</small>
@@ -267,14 +267,14 @@
                     </tr>{{- end}}
                     {{- if ne $demozoo ""}}
                     <tr>
-                        <th scope="row"><span class="fw-semibold text-warning">Demozoo</span></th>
+                        <th scope="row"><small class="fw-light text-secondary">Demozoo</small></th>
                         <td>
-                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://demozoo.org/productions/{{$demozoo}}">Downloads, links and extras{{linkSVG}}</a></small>
+                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://demozoo.org/productions/{{$demozoo}}">Extras, links and downloads{{linkSVG}}</a></small>
                         </td>
                     </tr>{{- end}}
                     {{- if ne $sixteenColors ""}}
                     <tr>
-                        <th scope="row">16colors</th>
+                        <th scope="row"><small class="fw-light text-secondary">16colors</small></th>
                         <td>
                             <small><a class="link-offset-3 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteenColors}}">Browse art and play animations{{linkSVG}}</a></small>
                         </td>
@@ -282,14 +282,14 @@
                     {{- /*  YouTube, GitHub and other links  */}}
                     {{- if ne $youtube ""}}
                     <tr>
-                        <th scope="row">YouTube</th>
+                        <th scope="row"><small class="fw-light text-secondary">YouTube</small></th>
                         <td>
                             <small><a class="link-offset-3 icon-link icon-link-hover" href="https://www.youtube.com/watch?v={{$youtube}}">Watch on YouTube{{linkSVG}}</a></small>
                         </td>
                     </tr>{{- end}}
                     {{- if ne $github ""}}
                     <tr>
-                        <th scope="row">GitHub</th>
+                        <th scope="row"><small class="fw-light text-secondary">GitHub</small></th>
                         <td>
                             <small><a class="link-offset-3 icon-link icon-link-hover" href="https://github.com/{{$github}}"><var>{{$github}}</var>{{linkSVG}}</a></small>
                         </td>
@@ -300,7 +300,7 @@
                     {{- /*  File created and updated dates  */}}
                     {{- if $fileEntry}}
                     <tr>
-                        <th scope="row"><small>Artifact</small></th>
+                        <th scope="row"><span class="fw-light text-secondary">Artifact</span></th>
                         <td><small>{{$fileEntry | safeHTML}}</small></td>
                     </tr>
                     {{- end}}

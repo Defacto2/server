@@ -428,7 +428,7 @@ func Releasers(prime, second string, magazine bool) template.HTML {
 	case magazine && prime != "" && second != "":
 		s = fmt.Sprintf("%s <small>published by</small> %s", second, prime)
 	case prime != "" && second != "":
-		s = fmt.Sprintf("%s <strong>+</strong><br>%s", prime, second)
+		s = fmt.Sprintf("%s <strong class=\"text-secondary\">+</strong> %s", prime, second)
 	case prime != "":
 		s = prime
 	case second != "":
