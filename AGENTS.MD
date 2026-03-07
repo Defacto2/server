@@ -10,3 +10,5 @@
 
 - Whenever I ask for a review of something, never automatically apply or make any changes.
 - Never undo any changes using git, without first confirming that only the active task will be undone.
+
+- We use Bootstrap 5.3, so it should take priority over bespoke styles.
