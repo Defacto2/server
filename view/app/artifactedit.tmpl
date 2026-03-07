@@ -266,7 +266,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-title-help" class="form-text mb-2">
               An optional brief description or name of the release.<br>
-              Or a magazine issue, example: <q>1</q>, or include a volume, example: <q>1, volume 1</q>.
+              Or a magazine issue, example: <em>1</em>, or include a volume, example: <em>1, volume 1</em>.
               <div><strong>Good titles are important</strong>, 
                 <a href="/titles">please follow this guide</a>.</div>
             </div>
@@ -338,15 +338,15 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               </div>
             </form>
             <datalist id="artifact-editor-list-1"></datalist>
-            <datalist id="artifact-editor-list-2"></datalist>            
+            <datalist id="artifact-editor-list-2"></datalist>
             <div id="artifact-editor-releasers-error" class="invalid-feedback{{if eq $rel1 ""}} d-block{{end}}">
               A releaser is required, for example: <q>Razor 1911</q>.
             </div>
             <div id="artifact-editor-releasers-help" class="form-text">
               A releaser can be a group name, magazine title, bbs name or ftp site,
-              <strong>if unknown or not applicable, use <q>independent</q></strong>. 
-              A bbs or ftp site must end with <q>BBS</q> or <q>FTP</q>,<br>
-              for example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>.
+              <strong>if unknown or not applicable</strong>, use <code>independent</code>. 
+              A bbs or ftp site <u>must</u> end with <code>BBS</code> or <code>FTP</code>,<br>
+              example: <em>Dark Domain BBS</em> or <em>Dark Domain FTP</em>.
             </div>
             <div class="btn-group" role="group">
               <button class="btn btn-link" type="button" id="artifact-editor-releaser-undo"
@@ -450,7 +450,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-filename-help" class="form-text">
               The filename should usually be left unchanged and is required.<br>
-              <span class="text-warning-emphasis">A file extension is always advisable</span>, for example: <q>example.zip</q>.
+              <span class="text-warning-emphasis">A file extension is always advisable</span>, example: <em>example.zip</em>.
             </div>
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-filename-undo" value="{{$filename}}" readonly>
@@ -523,7 +523,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             </div>
           </div>
-          <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, for example: <q>Name,Name two,Name3</q>.</div>
+          <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, format: <code>Name,Name,Name</code>. example: <em>Name,Name Two,Name3</em></div>
           <div>
             {{- /* NOTE: the "-creditsundo" with an "s" */}}
             <button type="button" class="btn btn-link" id="artifact-editor-credit-undo"
@@ -630,9 +630,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-relations">Link to releases</label>
             </div>
-            <div class="form-text" id="artifact-editor-relations-help">Links include a brief title and file ID, for example, 
-              <q>NFO;9f1c2|Intro;a92116e</q>, creates the following two links:<br>
-              <div class="d-none d-lg-block">Link to <a href="/f/9f1c2">NFO</a><br>Link to <a href="/f/a92116e">Intro</a></div>
+            <div class="form-text" id="artifact-editor-relations-help">
+              format: <code>Title;FileID|Title;FileID</code>. 
+              example: <em>NFO;9f1c2|Intro;a92116e</em> 
+              <div class="d-none d-lg-block">creates: • Link to <a href="/f/9f1c2">NFO</a> • Link to <a href="/f/a92116e">Intro</a></div>
             </div>
           </div> 
           <div class="col">
@@ -646,15 +647,17 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-websites">Link to websites</label>
             </div>
-            <div class="form-text" id="artifact-editor-websites-help">Brief title &amp; link, example: 
-              <q>Site;<a href="https://example.com">example.com</a>|Documentation;<a href="https://example.com/doc">example.com/doc</a></q>.
-              <div class="d-none d-lg-block">Link to <a href="https://example.com">Site</a><br>Link to <a href="https://example.com/doc">Documentation</a></div>
+            <div class="form-text" id="artifact-editor-websites-help">
+              format: <code>Title;URL|Title;URL</code>. 
+              example: 
+              <em>Site;example.com|Docs;example.com/doc</em>
+              <div class="d-none d-lg-block">creates: • Link to <a href="https://example.com">Site</a> • Link to <a href="https://example.com/doc">Docs</a></div>
             </div>
           </div>
         </div>
         <div id="artifact-editor-link-examples" class="mt-3">
           {{range $linkExamples}}
-              <small><strong>Link to</strong></small> &nbsp; {{. | safeHTML}}<br>
+              <small><span class="text-secondary">• Link to</span></small> {{. | safeHTML}} &nbsp; 
           {{end}}
         </div>
         <div>
