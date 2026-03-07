@@ -18,7 +18,7 @@
 
 .bi::before {
   display: inline-block;
-  content: "";
+  content: '';
   vertical-align: -0.125em;
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16' fill='%23333' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z' clip-rule='evenodd'/></svg>");
   background-repeat: no-repeat;
@@ -62,58 +62,64 @@
   font-family: font-topazplus;
   font-display: swap;
   src:
-    url("/font/topazplus_a1200.woff2") format("woff2"),
-    url("/font/topazplus_a1200.woff") format("woff"),
-    url("/font/topazplus_a1200.ttf") format("truetype");
+    url('/font/topazplus_a1200.woff2') format('woff2'),
+    url('/font/topazplus_a1200.woff') format('woff'),
+    url('/font/topazplus_a1200.ttf') format('truetype');
 }
 
 @font-face {
   font-family: font-microknight;
   font-display: swap;
   src:
-    url("/font/MicroKnightPlus_v1.0.woff2") format("woff2"),
-    url("/font/MicroKnightPlus_v1.0.ttf") format("truetype");
+    url('/font/MicroKnightPlus_v1.0.woff2') format('woff2'),
+    url('/font/MicroKnightPlus_v1.0.ttf') format('truetype');
 }
 
 @font-face {
   font-family: font-cascadia-mono;
   font-display: swap;
   src:
-    url("/font/CascadiaMono.woff2") format("woff2"),
-    url("/font/CascadiaMono.woff") format("woff"),
-    url("/font/CascadiaMono.ttf") format("truetype");
+    url('/font/CascadiaMono.woff2') format('woff2'),
+    url('/font/CascadiaMono.woff') format('woff'),
+    url('/font/CascadiaMono.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'font-vga-8x16';
   font-display: swap;
   src:
-    url("/font/Ac437_IBM_VGA_8x16.woff2") format("woff2"),
-    url("/font/Ac437_IBM_VGA_8x16.ttf") format("truetype");
+    url('/font/Ac437_IBM_VGA_8x16.woff2') format('woff2'),
+    url('/font/Ac437_IBM_VGA_8x16.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'font-ega-8x8';
   font-display: swap;
   src:
-    url("/font/Ac437_IBM_EGA_8x8.woff2") format("woff2"),
-    url("/font/Ac437_IBM_EGA_8x8.ttf") format("truetype");
+    url('/font/Ac437_IBM_EGA_8x8.woff2') format('woff2'),
+    url('/font/Ac437_IBM_EGA_8x8.ttf') format('truetype');
 }
 
 @font-face {
   font-family: font-cga;
   font-display: swap;
   src:
-    url("/font/Ac437_IBM_CGA.woff2") format("woff2"),
-    url("/font/Ac437_IBM_CGA.ttf") format("truetype");
+    url('/font/Ac437_IBM_CGA.woff2') format('woff2'),
+    url('/font/Ac437_IBM_CGA.ttf') format('truetype');
 }
 
 @font-face {
   font-family: font-mda;
   font-display: swap;
   src:
-    url("/font/Ac437_IBM_MDA.woff2") format("woff2"),
-    url("/font/Ac437_IBM_MDA.ttf") format("truetype");
+    url('/font/Ac437_IBM_MDA.woff2') format('woff2'),
+    url('/font/Ac437_IBM_MDA.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: font-jet;
+  font-display: swap;
+  src: url('/JetBrainsMono-Regular.woff2') format('woff2');
 }
 
 /* ============================================================
@@ -182,6 +188,34 @@
  * TEXT RENDERING UTILITIES
  * Text formatting and display helpers
  * ============================================================ */
+
+.pre-dos-display {
+  font-family: font-mda, monospace;
+  font-size: 28px;
+  line-height: 24px;
+  font-style: normal;
+  font-weight: normal;
+  border: 1px solid #fff;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+  filter: invert(1);
+  background: #fff;
+  color: #000;
+}
+
+.pre-mono-display {
+  font-family: 'font-vga-8x16', monospace;
+  font-size: 20px;
+  line-height: 20px;
+  font-style: normal;
+  font-weight: normal;
+  border: 1px solid #fff;
+  border-radius: 0.25rem;
+  padding: 0.25rem;
+  filter: invert(1);
+  background: #fff;
+  color: #000;
+}
 
 .pre-wrap {
   white-space: pre-wrap;
@@ -268,7 +302,9 @@ canvas,
 }
 
 @keyframes blink {
-  50% { color: transparent; }
+  50% {
+    color: transparent;
+  }
 }
 
 /* ============================================================

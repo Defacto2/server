@@ -2,8 +2,6 @@
   fixes.tmpl ~ Problems and fixes.
 */ -}}
 {{- define "content" }}
-<h1 class="mb-4">Common Problems and Fixes</h1>
-
 <h4 class="index-section-header">📅 Preserve file modification dates</h4>
 <div class="index-intro-section">
 <p>
@@ -13,16 +11,17 @@ However, you can use other tools such as wget or curl for downloading to preserv
 <p>
 For example, the artifact "<a href="/f/b32455c">SYMCOLOR.COR</a>" was last modified in November 1985, to download and preserve it on your system:
 </p>
-<p>
-wget <code>--content-disposition https://defacto2.net/d/b32455c</code><br>
-curl <code>-LOJR https://defacto2.net/d/b32455c</code>
-</p>
-<pre><code>  Saving 'SYMCOLOR.COR'
+<pre class="pre-mono-display">
+wget --content-disposition https://defacto2.net/d/b32455c
+curl -LOJR https://defacto2.net/d/b32455c
+
+  Saving 'SYMCOLOR.COR'
   HTTP response 200 OK [https://defacto2.net/d/b32455c]
   SYMCOLOR.COR         100%
 
 $ ls -l SYMCOLOR.COR
-  2560 Nov 28  1985  SYMCOLOR.COR</code></pre>
+  2560 Nov 28  1985  SYMCOLOR.COR
+</pre>
 </div>
 
 <h4 class="index-section-header">🔧 Shrinker.err Dispatcher initialization errors</h4>
@@ -71,22 +70,23 @@ Otherwise, you can run the application in DOSBox, which can artificially slow do
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-start">
     <div class="ms-2 me-auto"><div class="fw-bold">Create a temporary directory</div>
-    <code>> MKDIR C:\TPATCH</code></div>
+    <code>$ MKDIR C:\TPATCH</code></div>
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-start">
     <div class="ms-2 me-auto"><div class="fw-bold">Unzip</div>Unzip both downloaded packages into the temporary directory.
-    <br><code>> PKUNZIP TurboPascal-Unpack.zip C:\TPATCH<br>> PKUNZIP crtfix16.zip C:\TPATCH</code></div>
+    <br><code>$ PKUNZIP TurboPascal-Unpack.zip C:\TPATCH
+    <br>$ PKUNZIP crtfix16.zip C:\TPATCH</code></div>
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-start">
     <div class="ms-2 me-auto"><div class="fw-bold">Decompress</div>
     In our example, we are going to patch <code>defacto.exe</code>, which is the binary from an early Defacto magazine that suffers from this bug. 
     Use the UNP program to decompress the binary.
-    <br><code>> UNP DEFACTO.EXE</code></div>
+    <br><code>$ UNP DEFACTO.EXE</code></div>
   </li>
   <li class="list-group-item d-flex justify-content-between align-items-start">
     <div class="ms-2 me-auto"><div class="fw-bold">Apply fix</div>
     Once the decompression is complete run the crtfix program to patch the binary.
-    <br><code>> CRTFIX DEFACTO.EXE</code><br>
+    <br><code>$ CRTFIX DEFACTO.EXE</code><br>
     That is it, if the crtfix returned a <q>Fixing code... Fixed</q> response then the binary is now patched and in future those annoying runtime error 200 messages should be gone.
     </div>
   </li>

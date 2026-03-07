@@ -288,7 +288,7 @@ func Apps(c echo.Context, sl *slog.Logger) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "apps"
-	const h1 = "Applications"
+	const h1 = "Modern Applications and Tools"
 	const lead = "Here are some software suggestions and Windows, Linux, macOS tools for running out-of-date programs " +
 		"and using legacy media formats."
 	data := empty(c)
@@ -528,12 +528,12 @@ func Compression(c echo.Context, sl *slog.Logger) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "compression"
-	const h1 = "Archiving"
+	const h1 = "File compression formats"
 	const lead = "Compression and archiving formats of the 1980s were evolving by the month, and today are hard to parse."
 	data := empty(c)
 	data["title"] = "Compression and archiving formats"
 	data["description"] = "Old file archives and compression methods used in the 1980s on the PC."
-	data["logo"] = "Old file archives"
+	data["logo"] = "Old archives"
 	data["h1"] = h1
 	data["lead"] = lead
 	err := c.Render(http.StatusOK, name, data)
@@ -884,13 +884,12 @@ func Fixes(c echo.Context, sl *slog.Logger) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "fixes"
-	const h1 = "Problems and fixes"
 	const lead = "Shrinker dispatcher or runtime 200 errors, or missing NPMOD32.DLL or D3DRM.DLL files?"
 	data := empty(c)
 	data["title"] = "Problems and fixes"
 	data["description"] = "Fix common errors found in applications and tools authored by the Scene for Windows and DOS."
 	data["logo"] = "Problems and fixes"
-	data["h1"] = h1
+	data["h1"] = "Common problems and fixes"
 	data["lead"] = lead
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -901,13 +900,13 @@ func Fixes(c echo.Context, sl *slog.Logger) error {
 
 // Terms is the handler for the problems and fixes page.
 func Terms(c echo.Context, sl *slog.Logger) error {
-	const msg = "apps context"
+	const msg = "apps rcontext"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "terms"
 	const h1 = "Glossary of common terms"
-	const lead = "A glossary of the unique and common terms used in the scene."
+	const lead = "A glossary of unique and common terms used in The Scene."
 	data := empty(c)
 	data["title"] = "Common terms"
 	data["description"] = "This is a list of the unique and common terms used in the scene."
@@ -2145,8 +2144,8 @@ func Titles(c echo.Context, sl *slog.Logger) error {
 	data := empty(c)
 	data["title"] = "Titles"
 	data["description"] = "Titles are important."
-	data["logo"] = "Artifact Titles"
-	data["h1"] = "Titles"
+	data["logo"] = "Titles"
+	data["h1"] = "Titles and naming are important"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, sl, name, err)

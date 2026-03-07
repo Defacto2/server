@@ -2,23 +2,21 @@
   apps.tmpl ~ Modern applications and tools.
 */ -}}
 {{- define "content" }}
-<h1 class="mb-4">Modern Applications and Tools</h1>
-
 <h4 class="index-section-header">Easily identify files</h4>
 <div class="index-intro-section">
 <p>
   In the DOS and Amiga era it was common for groups to use false filename extensions to either brand files with their acronyms or to obfuscate the purpose of the file.
   Linux and Macs have the great but often forgotten, <code>file</code> terminal tool for determining file type.
 </p>
-<pre><code>$ file ART.GRP
-> ART.GRP: ISO-8859 text, with CRLF line terminators, 
-> with escape sequences
+<pre class="pre-mono-display">$ file ART.GRP
+  ART.GRP: ISO-8859 text, with CRLF line terminators, 
+  with escape sequences
 
 $ file VAL.DAT
-> VAL.DAT: LHa (2.x) archive data
+  VAL.DAT: LHa (2.x) archive data
 
 $ file image.iff
-> image.iff: IFF data, ILBM interleaved image, 320 x 54</code></pre>
+  image.iff: IFF data, ILBM interleaved image, 320 x 54</pre>
 </div>
 
 <h4 class="index-section-header">Obscure files with Deark</h4>
@@ -31,20 +29,22 @@ For this, the best tool is <a href="https://github.com/jsummers/deark">Deark</a>
 This example is an image created in 1984's <a href="https://winworldpc.com/product/pc-paint/100a">PCPaint</a>. 
 Modern tools cannot recognize it, while Deark identifies the picture and converts it to a PNG image, <a href="/image/new/output.000.png">output.000.png</a>.
 </p>
-<pre><code>$ file VIEW2KIL.PIC
-> VIEW2KIL.PIC: data
+<pre class="pre-mono-display">$ file VIEW2KIL.PIC
+  VIEW2KIL.PIC: data
 
 $ deark VIEW2KIL.PIC
-> Module: bsave
-> Format: BSAVE-PC 4-color, 320×200
-> Warning: BSAVE formats can't be reliably identified. 
-> Writing output.000.png</code></pre>
+  Module: bsave
+  Format: BSAVE-PC 4-color, 320×200
+  Warning: BSAVE formats can't be reliably identified. 
+  Writing output.000.png</pre>
 </div>
 
 <h4 class="index-section-header">Reading texts with VSCodium</h4>
 <div class="index-intro-section">
 <p class="clearfix">
-  <img src="/image/new/vscodium.webp" class="rounded img-fluid float-end" style="max-width:270px;" alt="VSCodium app screenshot reading a text file">
+  <div class="float-end pe-3 pb-3">
+    <img src="/image/new/vscodium.webp" class="rounded img-fluid" style="max-width:270px;" alt="VSCodium app screenshot reading a text file">
+  </div>
   VSCodium is the free, open source compile of the popular programming IDE, VS Code by Microsoft.
   But without the bloat of the MS programming extensions, telemetry, or clanker AI integration.
   VSCodium supports extremely large files, offers a mini-map preview, and provides <u>the best Code Page text support</u> of any modern editor.
@@ -60,14 +60,16 @@ $ deark VIEW2KIL.PIC
 <h4 class="index-section-header">Reading ANSI text art</h4>
 <div class="index-intro-section">
 <p class="clearfix">
-  <img src="/image/new/moebius.webp" class="rounded img-fluid float-end" style="max-width:300px;" alt="Moebius app screenshot display ansi art">
+  <div class="float-end pe-3 pb-3">
+    <img src="/image/new/moebius.webp" class="rounded img-fluid" style="max-width:300px;" alt="Moebius app screenshot display ansi art">
+  </div>
   <strong><a href="https://blocktronics.github.io/moebius/">Moebius</a></strong> is a feature complete ANSI art editor which is a good choice to use as a viewer on modern systems.
   I do not use it for plain text or NFO text files as it isn't as performant as VSCodium, and does not handle long text files.
 </p>
 <p>
   <strong><a href="https://github.com/bengarrett/retrotxtgo">retrotxtgo</a></strong> is a terminal application that will correctly print legacy CP-437 encoded text and ANSI files in a modern terminal emulator.
+  <br><code>$ retrotxt view RELEASE.NFO</code>
 </p>
-<p class="mb-2"><code>$ retrotxt view RELEASE.NFO</code></p>
 <p>
   There's also the <a href="https://retrotxt.com/">RetroTxt web extension</a> that will render ANSI art and text in the browser like HTML. 
   However, as browsers are very cautious with rendering, not all ANSI art will work. 
@@ -78,7 +80,9 @@ $ deark VIEW2KIL.PIC
 <h4 class="index-section-header">Running DOS programs</h4>
 <div class="index-intro-section">
 <p class="clearfix">
-  <img src="/image/new/dosbox.webp" class="rounded img-fluid float-end" style="max-width:300px;" alt="DOSBox app running an intro screenshot">
+  <div class="float-end pe-3 pb-3">
+    <img src="/image/new/dosbox.webp" class="rounded img-fluid" style="max-width:300px;" alt="DOSBox app running an intro screenshot">
+  </div>
   DOS on the PC is the original operating system for the Intel x86 computer platform 
   and was in wide use from 1981 until the late 1990s, when Microsoft's Windows took over.
   DOS lifted a number of ideas and syntax from the earlier CP/M, a system that was popular in the 1970s!
@@ -115,7 +119,9 @@ $ deark VIEW2KIL.PIC
   <li>For Windows software from the 2000s and some of the 2010s, <strong>Windows XP</strong> will often work, as it was the longest supported edition of Windows from that era.</li>
 </ul>
 <p class="clearfix">
-  <img src="/image/new/parallel.webp" class="rounded img-fluid float-end" style="max-width:300px;" alt="Parallels Desktop app running Windows screenshot">
+  <div class="float-end pe-3 pb-3">
+    <img src="/image/new/parallel.webp" class="rounded img-fluid" style="max-width:300px;" alt="Parallels Desktop app running Windows screenshot">
+  </div>
   I use an old Intel Mac combined with <strong>Parallels Desktop</strong> for running both Windows 2000 and Windows XP. 
   Parallels Desktop <a href="https://kb.parallels.com/129252">up to release</a> 18.x (from 2022) offers sound, graphics, mouse, and networking for both Windows 2000 and XP, 
   as well as clipboard support for the copying of both text and files between the Mac and Windows desktops, and save state snapshots. 
@@ -128,7 +134,7 @@ $ deark VIEW2KIL.PIC
   or at archive.org searching <q>windows xp service pack 3</q>.
 </p>
 <p class="mb-0">
-  <strong class="text-warning">⚠️ Important:</strong> Do not connect your ancient copies of Windows to the Internet. 
+  <strong class="text-warning">Important:</strong> Do not connect your ancient copies of Windows to the Internet. 
   Instead, use the host Mac to download and extract any files and copy/paste those to the desktop of your running Windows 2000 or XP.
 </p>
 </div>
@@ -180,7 +186,9 @@ $ deark VIEW2KIL.PIC
 
 <p><strong>Hex editor: <a href="https://github.com/WerWolv/ImHex">ImHex</a></strong></p>
 <p class="clearfix">
-  <img src="/image/new/imhex.webp" class="rounded img-fluid float-end" style="max-width:250px;" alt="ImHex app viewing a hacked DOS binary screenshot">
+  <div class="float-end pe-3 pb-3">
+    <img src="/image/new/imhex.webp" class="rounded img-fluid" style="max-width:250px;" alt="ImHex app viewing a hacked DOS binary screenshot">
+  </div>
   There are numerous editors on every platform, but I find the open source, multi-platform ImHex useful for browsing, categorising and searching string data in a file.
   It's amazing how much additional information can be gained from the Scene in the 1980s that is discovered hidden in embedding texts injected into binary files.
 </p>
