@@ -15,14 +15,22 @@ tmp_dir = "tmp"
 # Just plain old shell command. You could use `make` as well.
 cmd = "go build -o ./tmp/main ."
 # Binary file yields from `cmd`.
-bin = "tmp/main"
+entrypoint = ["./tmp/main"]
 # Customize binary, can setup environment variables when run your app.
 full_bin = "REQUESTS=true ./tmp/main"
 
 # Watch these filename extensions.
-include_ext = ["go", "tpl", "tmpl", "html", "css", "js", "md"]
+include_ext = ["go", "tpl", "tmpl", "html", "css", "js", "md", "svg"]
 # Ignore these filename extensions or directories.
-exclude_dir = [".git/", "dist/", "docs/", "init/", "node_modules/", "tmp/", "vendor/"]
+exclude_dir = [
+  ".git/",
+  "dist/",
+  "docs/",
+  "init/",
+  "node_modules/",
+  "tmp/",
+  "vendor/",
+]
 # Watch these directories if you specified.
 include_dir = []
 # Watch these files.
