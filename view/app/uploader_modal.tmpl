@@ -8,9 +8,10 @@
     - `uploader.js`, a progress(`uploader-xxxx-form`, `uploader-xxxx-progress`) method to show the upload progress.
     - `layout-htmx.js`, a `afterRequest()` method must be used to handle the server response.
   - */}}
-{{- $screenshot := "A screenshot can be included in the archive."}}
+{{- $screenshot := "A screenshot can be included in the archive"}}
 {{- $releasername := index . "uploader-releaser-index"}}
 {{- $delay := "200ms" }}
+{{- $helpRelr := "A releaser can be a group name, bulletin board or ftp site<br>Boards and ftp sites must end with <code>BBS</code> or <code>FTP</code><br>example: <em>Dark Domain BBS</em> or <em>Dark Domain FTP</em>" }}
     {{- /*  check if the event is a KeyboardEvent to prevent double rendering on datalists
             source: https://turriate.com/articles/using-datalist-for-typeahead-htmx  */ -}}
     <script>
@@ -23,7 +24,7 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="uploader-demozoo-label">Demozoo production or graphic</h5>
+              <h5 class="modal-title" id="uploader-demozoo-label">Demozoo <span class="small text-muted">production, or graphic</span></h5>
               <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" hx-ext="response-targets">
@@ -64,7 +65,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="uploader-pouet-label">Pouët production</h5>
+            <h5 class="modal-title" id="uploader-pouet-label">Pouët <span class="small text-muted">Windows or DOS production</span></h5>
             <button type="button" id="pouet-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" hx-ext="response-targets">
@@ -103,7 +104,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="uploader-intro-label">Intro, Cracktro, BBStro, Sitetro</h5>
+            <h5 class="modal-title" id="uploader-intro-label">Intro <span class="small text-muted">or cracktro, or BBStro, or sitetro</span></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -138,11 +139,7 @@
                 </div>
                 <datalist id="uploader-intro-list-1"></datalist>
                 <datalist id="uploader-intro-list-2"></datalist>
-                <div id="uploader-intro-releasers-help" class="form-text">
-                  A releaser can be a group name, bbs name or ftp site<br>
-                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
-                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
-                </div>
+                <div id="uploader-intro-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
               <div class="input-group mb-3">
                 <span class="input-group-text">Year and month of release</span>
@@ -193,7 +190,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="uploader-trainer-label">Trainer, game hack or installer app</h5>
+            <h5 class="modal-title" id="uploader-trainer-label">Trainer <span class="small text-muted">or game hack, or installer app</small></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -229,11 +226,7 @@
                 </div>
                 <datalist id="uploader-trainer-list-1"></datalist>
                 <datalist id="uploader-trainer-list-2"></datalist>
-                <div id="uploader-trainer-releasers-help" class="form-text">
-                  A releaser can be a group name, bbs name or ftp site<br>
-                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
-                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
-                </div>
+                <div id="uploader-trainer-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
               <div class="input-group mb-3">
                 <span class="input-group-text">Year and month of release</span>
@@ -287,7 +280,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="uploader-text-label">Text, ANSI or NFO</h5>
+            <h5 class="modal-title" id="uploader-text-label">Text <span class="small text-muted">including NFO, or ANSI</small></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -323,11 +316,7 @@
                 </div>
                 <datalist id="uploader-text-list-1"></datalist>
                 <datalist id="uploader-text-list-2"></datalist>
-                <div id="uploader-text-releasers-help" class="form-text">
-                  A releaser can be a group name, bbs name or ftp site<br>
-                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
-                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
-                </div>
+                <div id="uploader-text-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
               <div class="input-group mb-3">
                 <span class="input-group-text">Year and month of release</span>
@@ -388,7 +377,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="uploader-image-label">Image, photo or artwork</h5>
+            <h5 class="modal-title" id="uploader-image-label">Image <span class="small text-muted">or photo, or artwork</span></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -423,11 +412,7 @@
                 </div>
                 <datalist id="uploader-image-list-1"></datalist>
                 <datalist id="uploader-image-list-2"></datalist>
-                <div id="uploader-image-releasers-help" class="form-text">
-                  A releaser can be a group name, bbs name or ftp site<br>
-                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
-                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
-                </div>
+                <div id="uploader-image-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
               <div class="input-group mb-3">
                 <span class="input-group-text">Year and month of release</span>
@@ -477,7 +462,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="uploader-magazine-label">Magazine <span class="small text-muted">(or a newsletter)</span></h5>
+            <h5 class="modal-title" id="uploader-magazine-label">Magazine <span class="small text-muted">or a newsletter</span></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -490,7 +475,7 @@
               <input type="hidden" name="uploader-magazine-lastmodified" id="uploader-magazine-last-modified">
               <input type="hidden" name="uploader-magazine-magic" id="uploader-magazine-magic">
               <div class="mb-4">
-                <label for="uploader-magazine-releaser-1" class="form-label">Title, <small>name of the magazine</small></label>
+                <label for="uploader-magazine-releaser-1" class="form-label">Title <small>name of the magazine</small></label>
                 <div class="input-group mb-3">
                   <input type="text" list="uploader-magazine-list-1" name="uploader-magazine-releaser1" class="form-control" id="uploader-magazine-releaser-1" 
                       aria-describedby="uploader-magazine-releasers-help" placeholder="example: Reality Check Network" value="{{$releasername}}"
@@ -505,9 +490,9 @@
                    aria-describedby="uploader-magazine-title-help" placeholder="example: 500000th release!" required>
                   <label for="uploader-magazine-title">Issue</label>
                   <div id="uploader-magazine-title-help" class="form-text">
-                    An issue number, example: <q>1</q><br>
-                    Or the volume and issue, example: <q>1, volume 1</q><br>
-                    Or a description: <q>The complete collection</q>
+                    Provide an issue number, example: <em>1</em><br>
+                    Or the volume and issue, example: <em>1, volume 1</em><br>
+                    Or a description, example: <em>The complete collection</em>
                   </div>
                 </div>
               </div>
@@ -598,11 +583,7 @@
                 </div>
                 <datalist id="uploader-advanced-list-1"></datalist>
                 <datalist id="uploader-advanced-list-2"></datalist>
-                <div id="uploader-advanced-releasers-help" class="form-text">
-                  A releaser can be a group name, bbs name or ftp site<br>
-                  A bbs name or ftp site must end with <q>BBS</q> or <q>FTP</q><br>
-                  example: <q>Dark Domain BBS</q> or <q>Dark Domain FTP</q>
-                </div>
+                <div id="uploader-advanced-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
               <label class="form-label">Date of release</label>
               <div class="input-group mb-3">

@@ -2095,7 +2095,7 @@ func Signin(c echo.Context, sl *slog.Logger, clientID, nonce string) error {
 	data["title"] = "Sign in"
 	data["description"] = "Sign in to Defacto2."
 	data["h1"] = "Sign in"
-	data["lead"] = "This sign-in is not open to the general public, and no registration is available."
+	data["lead"] = "This is not open to the general public."
 	data["callback"] = "/google/callback"
 	data["clientID"] = clientID
 	data["nonce"] = nonce
