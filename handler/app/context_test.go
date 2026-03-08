@@ -3,6 +3,7 @@ package app_test
 // Most of these tests are for nil values to ensure there are no panics.
 
 import (
+	"context"
 	"embed"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +18,7 @@ import (
 
 func newContext() echo.Context {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("{}"))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader("{}"))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	return e.NewContext(req, rec)

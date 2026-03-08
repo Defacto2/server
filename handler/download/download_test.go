@@ -1,6 +1,7 @@
 package download_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -13,7 +14,7 @@ import (
 
 func newContext() echo.Context {
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("{}"))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader("{}"))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	return e.NewContext(req, rec)

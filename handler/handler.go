@@ -276,6 +276,7 @@ func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger)
 	waitCount := ShutdownCounter
 	ticker := 1 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
+	defer cancel()
 	defer func() {
 		const alert = "Detected Ctrl + C, server will shutdown"
 		// _ = logger.Sync() // do not check Sync errors as there can be false positives

@@ -601,7 +601,7 @@ func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Direc
 		return c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be written")
 	}
-	defer func() { _ = os.Remove(dst.Name()) }() //nolint:gosec // G703: safe temp file
+	defer func() { _ = os.Remove(dst.Name()) }()
 	dirs := command.Dirs{Download: "", Preview: preview, Thumbnail: thumbnail, Extra: ""}
 	src, err = file.Open()
 	if err != nil {

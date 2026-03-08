@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -19,6 +20,8 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
+
+var ErrTrimmedTerms = errors.New("no valid search terms after cleaning")
 
 // Summary counts the total number files, file sizes and the earliest and latest years.
 type Summary struct {
@@ -50,7 +53,7 @@ func (s *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor, 
 		)
 	}
 	if len(orConditions) == 0 {
-		return fmt.Errorf("no valid search terms after cleaning")
+		return ErrTrimmedTerms
 	}
 	// Combine with proper parentheses for correct operator precedence
 	sum += "(" + strings.Join(orConditions, " OR ") + ") AND " + ClauseNoSoftDel

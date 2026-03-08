@@ -40,7 +40,7 @@ var (
 )
 
 // ArtExpr returns a query modifier for the digital or pixel art category.
-func ArtExpr() qm.QueryMod { //nolint:ireturn
+func ArtExpr() qm.QueryMod { //nolint:ireturn //nolint:ireturn
 	return qm.Expr(
 		qm.Where(ClauseNoSoftDel),
 		models.FileWhere.Section.NEQ(querymod.SBbs()),

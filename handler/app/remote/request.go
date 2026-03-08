@@ -123,7 +123,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 		return none, fmt.Errorf("%s new request: %w", msg, err)
 	}
 	req.Header.Set("User-Agent", UserAgent)
-	res, err := client.Do(req) //nolint:gosec // urls are processed by FixSceneOrg
+	res, err := client.Do(req) // urls are processed by FixSceneOrg
 	if err != nil {
 		return none, fmt.Errorf("%s client do: %w", msg, err)
 	}
@@ -161,7 +161,7 @@ func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
 	if _, err := io.CopyBuffer(dst, res.Body, buf); err != nil {
 		_, _ = io.Copy(io.Discard, res.Body) // discard and close the client
 		_ = res.Body.Close()
-		defer func() { _ = os.Remove(dst.Name()) }() //nolint:gosec // G703: safe temp file
+		defer func() { _ = os.Remove(dst.Name()) }()
 		return none, fmt.Errorf("%s io copy: %w", msg, err)
 	}
 	download.Path = dst.Name()
