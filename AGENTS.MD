@@ -12,3 +12,4 @@
 - Never undo any changes using git, without first confirming that only the active task will be undone.
 
 - We use Bootstrap 5.3, so it should take priority over bespoke styles.
+- When making changes to CSS or JS, the command, "task assets" must always be run to rebuild with the changes.
