@@ -42,6 +42,7 @@
 {{- $linkExamples := recordLinkPreviews $youtube $demozoo $pouet $sixteen $github $relations $websites }}
 {{- $replace := "refresh the page to see the changes"}}
 {{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
+{{- $reverter := "badge text-bg-warning"}}
 <div class="modal fade bg-warning-subtle" id="artifact-delete-forever-modal" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" 
 aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -121,7 +122,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div>
         </div>
         <div class="row bg-light mt-3 align-items-center">
-          <div class="col-xl-6">
+          <div class="col-xl-6 pt-1">
             {{- /*  Classifications  */}}
             <label class="form-label">
               <span class="col-form-label-lg">Classifications</span>, 
@@ -154,103 +155,103 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
                 hx-include="{{$hxClassification}}">
-                  Reset<small class="link-dark"> classifications to <q>{{$os}}</q> + <q>{{$tag}}</q></small></button>
+                  <span class="{{$reverter}}">Revert <em>{{$os}}</em> + <em>{{$tag}}</em></span></button>
             </div>
           </div>
           <div class="col-xl-6">
-            <div><label class="col-form-label-lg">Popular</label></div>
             {{- /*  Popular classifications  */}}
             <div class="row row-cols-2 row-cols-md-3">
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-text-for-dos" type="button" 
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-text-for-dos" type="button" 
                 data-preset-os="text" data-preset-tag="releaseinformation"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Text or <strong>NFO</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-text-for-amiga" type="button"
+                hx-include="{{$hxClassification}}">
+                  <span class="badge bg-success me-1">text</span><span class="badge bg-primary">NFO</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-text-for-amiga" type="button"
                 data-preset-os="textamiga" data-preset-tag="releaseinformation"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Text for <strong>Amiga</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-magazine-for-text" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-success me-1">text</span><span class="badge bg-primary">Amiga</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-magazine-for-text" type="button"
                 data-preset-os="text" data-preset-tag="magazine"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Text <strong>magazine</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-dox" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-success me-1">text</span><span class="badge bg-primary">magazine</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-dox" type="button"
                 data-preset-os="text" data-preset-tag="guide"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">dox, <strong>documentation</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-proof-of-release" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-success me-1">text</span><span class="badge bg-dark me-1">docs</span><span class="badge bg-dark">help</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-proof-of-release" type="button"
                 data-preset-os="image" data-preset-tag="releaseproof"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Proof of release</button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-magazine-for-dos" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-dark">proof of release</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-magazine-for-dos" type="button"
                 data-preset-os="dos" data-preset-tag="magazine"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Dos <strong>magazine</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-trainer-for-dos" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-warning me-1">dos</span><span class="badge bg-primary">magazine</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-trainer-for-dos" type="button"
                 data-preset-os="dos" data-preset-tag="gamehack"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Dos <strong>trainer</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-dos" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-warning me-1">dos</span><span class="badge bg-secondary">trainer</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-intro-for-dos" type="button"
                 data-preset-os="dos" data-preset-tag="releaseadvert"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Dos <strong>intro</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-inst-for-dos" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-warning me-1">dos</span><span class="badge bg-secondary">intro</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-inst-for-dos" type="button"
                 data-preset-os="dos" data-preset-tag="releaseinstall"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Dos <strong>installer</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-trainer-for-win" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-warning me-1">dos</span><span class="badge bg-secondary">installer</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-trainer-for-win" type="button"
                 data-preset-os="windows" data-preset-tag="gamehack"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Windows <strong>trainer</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-win" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-info me-1">win</span><span class="badge bg-secondary">trainer</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-intro-for-win" type="button"
                 data-preset-os="windows" data-preset-tag="releaseadvert"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Windows <strong>intro</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-inst-for-win" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-info me-1">win</span><span class="badge bg-secondary">intro</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-inst-for-win" type="button"
                 data-preset-os="windows" data-preset-tag="releaseinstall"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Windows <strong>installer</strong></button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-info me-1">win</span><span class="badge bg-secondary">installer</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-ansi-for-bbs" type="button"
                 data-preset-os="ansi" data-preset-tag="bbs"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}"><strong>ansi</strong>, <strong>xbin</strong> BBS ad</button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-intro-for-bbs" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-danger me-1">ansi</span><span class="badge bg-danger me-1">xbin</span><span class="badge bg-dark">bbs</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-intro-for-bbs" type="button"
                 data-preset-os="dos" data-preset-tag="bbs"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}"><strong>BBS</strong> intro</button>
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-ansi-for-text" type="button"
+                hx-include="{{$hxClassification}}"><span class="badge bg-warning me-1">dos</span><span class="badge bg-secondary me-1">intro</span><span class="badge bg-dark">bbs</span></button>
+              <button class="btn btn-sm btn-link d-block text-start" name="prereset-classifications" id="artifact-editor-ansi-for-text" type="button"
                 data-preset-os="ansi" data-preset-tag="releaseinformation"
                 hx-patch="/editor/classifications" 
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}"><strong>ansi</strong>, <strong>xbin</strong> NFO</button>
+                hx-include="{{$hxClassification}}"><span class="badge bg-danger me-1">ansi</span><span class="badge bg-danger me-1">xbin</span><span class="badge bg-primary">NFO</span></button>
             </div>
           </div>
         </div>
@@ -258,6 +259,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           {{- /*  Title or brief description  */}}
           <div class="col-xl-6">
             <label for="artifact-editor-title" class="col-form-label-lg">Title <small>or magazine issue</small></label>
+            <small class="text-secondary">alt+shift 🢁🢃</small>
             <input type="text" name="artifact-editor-title" id="artifact-editor-title" autocomplete="off" maxlength="{{$hundred}}"
               aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!" class="form-control form-control-lg" 
               value="{{$title}}"
@@ -265,51 +267,49 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-title-help" class="form-text mb-2">
-              An optional brief description or name of the release.<br>
-              Or a magazine issue, example: <em>1</em>, or include a volume, example: <em>1, volume 1</em>.
+              Optional brief or name of the release.<br>
+              Or, a magazine issue, example: <em>1</em>. Or magazine volume, example: <em>1, volume 1</em>.
               <div><strong>Good titles are important</strong>, 
                 <a href="/titles">please follow this guide</a>.</div>
             </div>
             <div class="btn-group" role="group">
-              <button class="btn btn-link" type="button" id="artifact-editor-titleize">Capitalize</button>
-              <button class="btn btn-link" type="button" id="artifact-editor-title-delete">Delete</button>
               <input type="hidden" name="artifact-editor-titleundo" value="{{$title}}" readonly>
               <button class="btn btn-link" type="button" id="artifact-editor-title-undo"
                 hx-patch="/editor/title/reset"
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-titleundo']">
-                  Reset<small class="link-dark"> title to <q id="artifact-editor-title-quote">{{$title}}</q></small></button>
+                  <span class="{{$reverter}}">Revert <em id="artifact-editor-title-quote">{{$title}}</em></button>
+              <button class="btn btn-link" type="button" id="artifact-editor-title-delete"><span class="badge text-bg-dark">None</span></button>
+              <button class="btn btn-link" type="button" id="artifact-editor-titleize"><span class="badge text-bg-primary">Capitalize</span></button>
             </div>
           </div>
           {{/*  Comments  */}}
           <div class="col-xl-6">
-            <label class="form-label col-form-label-lg">
-              Comment
-            </label>
-              <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
-                style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help"                
-                hx-patch="/editor/comment" 
-                hx-trigger="keyup changed delay:{{$lDelay}}"
-                hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
-              <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
-              <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
-              <div class="row">
+            <label class="form-label col-form-label-lg">Comment</label> <small class="text-secondary">alt+shift \</small>
+            <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
+              style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help" 
+              hx-patch="/editor/comment" 
+              hx-trigger="keyup changed delay:{{$lDelay}}"
+              hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
+            <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
+            <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
+            <div class="row">
               <div class="col-12 col-lg-6">
                 <button type="button" class="btn btn-link" id="artifact-editor-comment-undo"
                 hx-patch="/editor/comment/reset"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-comment'],
-                            [name='artifact-editor-comment-resetter']">Undo<small class="link-dark"> changes</small></button>
+                            [name='artifact-editor-comment-resetter']"><span class="badge text-bg-warning">Revert</small></button>
               </div>
-              <div class="col-12 col-lg-6 text-end align-text-bottom"><kbd>alt+shift</kbd> <kbd>\</kbd></div>
-              </div>
+            </div>
           </div>
         </div>
         <div class="row bg-light my-3">
           {{- /*  Releasers  */}}
           <div class="col-xl-6">
             <label for="artifact-editor-releaser-1" class="form-label col-form-label-lg">Releasers <small>maximum of 2</small></label>
+            <small class="text-secondary">alt+shift 🢁🢃</small>
             <form id="artifact-editor-releasers-form" class="row row-cols-2 row-cols-lg-4 gy-1">
               <div class="col-6 col-lg-4 d-grid d-block">
                 <button class="btn btn-success" type="button" id="artifact-editor-releaser-update"
@@ -326,7 +326,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                     hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                     hx-target="#artifact-editor-list-1" minlength="2" maxlength="{{$hundred}}" required>
               </div>
-              <div class="col-6 col-lg-4 text-center"><kbd>alt+shift</kbd> <kbd>🢁</kbd> <kbd>🢃</kbd></div>
+              <div class="col-6 col-lg-4 text-center"><small class="text-secondary">alt+shift 🢁🢃</small></div>
               <div class="col-6 col-lg-8">
                 <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
                     aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" class="form-control" 
@@ -343,10 +343,11 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               A releaser is required, for example: <q>Razor 1911</q>.
             </div>
             <div id="artifact-editor-releasers-help" class="form-text">
-              A releaser can be a group name, magazine title, bbs name or ftp site,
-              <strong>if unknown or not applicable</strong>, use <code>independent</code>. 
-              A bbs or ftp site <u>must</u> end with <code>BBS</code> or <code>FTP</code>,<br>
-              example: <em>Dark Domain BBS</em> or <em>Dark Domain FTP</em>.
+              Releasers can be a group, magazine title, bulletin board or ftp site.<br>
+              If <u>unknown</u>, use <code class="text-uppercase">Independent</code>.
+              If <u>not applicable</u>, use <code class="text-uppercase">None</code>.<br>
+              BBS/FTP <u>must</u> end with <code>BBS</code> &amp; <code>FTP</code>, 
+              examples: <em class="text-uppercase">Dark&nbsp;Domain&nbsp;BBS</em>, <em class="text-uppercase">Dark&nbsp;Domain&nbsp;FTP</em>.
             </div>
             <div class="btn-group" role="group">
               <button class="btn btn-link" type="button" id="artifact-editor-releaser-undo"
@@ -356,16 +357,17 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                             [name='artifact-editor-releaser1'],
                             [name='artifact-editor-releaser2']"
                 hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>
-                Reset<small class="link-dark"> releasers to 
-                  <q>{{$rel1}}</q>{{if ne $rel2 ""}}+<q>{{$rel2}}</q>{{end}}</small>
-                  <span><!-- reset releasers --></span>
+                <small class="badge text-bg-warning">Revert  
+                  <em>{{$rel1}}</em>{{if ne $rel2 ""}}+<em>{{$rel2}}</em>{{end}}
+                  <span><!-- reset releasers --></span></small>
               </button>
             </div>
           </div>
           {{- /*  Date of release  */}}
           <div class="col-xl-6">
             <label class="form-label col-form-label-lg">Date of release</label>
-            <div class="row row-cols-2 row-cols-lg-4 gy-1">
+            <small class="text-secondary">alt+shift 🡸🢂</small>
+            <div class="row row-cols-2 row-cols-lg-4 g-1">
               <div class="col-6 col-lg-4 d-grid d-block">
                 <button class="btn btn-success" type="button" id="artifact-editor-date-update"
                 hx-patch="/editor/date"
@@ -375,7 +377,6 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                             [name='artifact-editor-month'],
                             [name='artifact-editor-day']">Save</button>
               </div>
-              <div class="col-6 col-lg-4 text-center"><kbd>alt+shift</kbd> <kbd>🡸</kbd> <kbd>🢂</kbd></div>
               <div class="w-100 d-none d-lg-block"></div>
               <div class="col-6 col-lg-4">
                 <div class="input-group">
@@ -408,18 +409,15 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div id="artifact-editor-date-help" class="form-text">
               A year of release is recommended.
             </div>
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-row">
               <input type="hidden" id="artifact-editor-date-resetter" name="artifact-editor-date-resetter" 
                 value="{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}" readonly>
               <button type="button" class="btn btn-link" id="artifact-editor-date-reset"
                   hx-patch="/editor/date/reset"
                   hx-target="find span"
                   hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-resetter']">
-                  Reset<small class="link-dark"> date to 
-                <q>{{- if ne $dateYear 0}}{{$dateYear}}{{end}}
-                {{- if ne $dateMonth 0}}-{{$dateMonth}}{{end}}
-                {{- if ne $dateDay 0}}-{{$dateDay}}{{end}}</q></small>
-                <span><!-- reset target --></span>
+                  <small class="{{$reverter}}">Revert <em>{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}</em>
+                <span><!-- reset target --></span></small>
               </button>
               {{- if gt $lmYear $epochY}}
               <input type="hidden" id="artifact-editor-date-lastmodder" name="artifact-editor-date-lastmodder" 
@@ -428,11 +426,11 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   hx-patch="/editor/date/lastmod"
                   hx-target="find span"
                   hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-lastmodder']">
-                  Use<small class="link-dark"> the last modification date 
-                {{- if ne $lmYear 0}}<small><q>{{$lmYear}}
+                  <small class="badge text-bg-primary">Use last modification&nbsp;
+                {{- if ne $lmYear 0}}<em>{{$lmYear}}
                 {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
-                {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</q></small>{{end}}
-                <span><!-- lastmod target --></span>
+                {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</em>{{end}}
+                <span><!-- lastmod target --></span></small>
               </button>
               {{- end}}
             </div>
@@ -442,6 +440,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           {{/*  Filename  */}}
           <div class="col-xl-6">
             <label for="artifact-editor-filename" class="col-form-label-lg">Filename</label>
+            <small class="text-secondary">alt+shift 🢁🢃</small>
             <input type="text" class="form-control{{if eq $filename ""}} is-invalid{{end}}" 
               name="artifact-editor-filename" id="artifact-editor-filename" autocomplete="off" maxlength="255"
               value="{{$filename}}" aria-describedby="artifact-editor-filename-help"
@@ -450,7 +449,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-filename-help" class="form-text">
               The filename should usually be left unchanged and is required.<br>
-              <span class="text-warning-emphasis">A file extension is always advisable</span>, example: <em>example.zip</em>.
+              <span class="text-warning-emphasis">A file extension is always advisable</span>, example: <em>example.zip</em>
             </div>
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-filename-undo" value="{{$filename}}" readonly>
@@ -459,7 +458,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-target="#artifact-editor-filename-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-filename-undo']">
-                  Reset<small class="link-dark"> filename to <q id="artifact-editor-filename-quote">{{$filename}}</q></small></button>
+                  <small class="badge text-bg-warning">Revert <em id="artifact-editor-filename-quote">{{$filename}}</em></small></button>
             </div>
           </div>
           {{/*  VirusTotal  */}}
@@ -533,7 +532,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 [name='artifact-editor-credittext'],
                 [name='artifact-editor-creditill'],
                 [name='artifact-editor-creditprog'],
-                [name='artifact-editor-creditaudio']">Undo<small class="link-dark"> changes</small></button>
+                [name='artifact-editor-creditaudio']"><small class="badge text-bg-warning">Revert <u>all</u> creators</small></button>
             </div>
         </div>
         <div class="btn-group" role="group">
@@ -542,7 +541,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         </div>
         <hr class="d-block d-lg-none">
         {{- /*  Links  */}}
-        <form autocomplete="off"     
+        <form autocomplete="off" 
             hx-patch="/editor/links"
             hx-trigger="input from:#artifact-editor-youtube,
                         input from:#artifact-editor-demozoo,
@@ -558,6 +557,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             Links
           </label>
           <div class="row row-cols-2 row-cols-lg-3 row-cols-xl-6 justify-content-center">
+
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
               <div class="form-floating">
                 <input type="hidden" name="artifact-editor-youtubeval" id="artifact-editor-youtube-reset" value="{{$youtube}}" readonly>
@@ -568,7 +568,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   hx-validate="true"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-youtube">YouTube ID</label>
+                <label for="artifact-editor-youtube">
+                  <svg class="bi bi-youtube" width="16" height="20" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
+                  </svg> YouTube ID</label>
               </div>
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 185828">
@@ -580,7 +583,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   hx-patch="/editor/demozoo"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-demozoo">Demozoo prod</label>
+                <label for="artifact-editor-demozoo">
+                <svg class="bi" width="16" height="22" fill="currentColor">
+                  <use xlink:href="/svg/bootstrap-icons.svg#demozoo"/>
+                </svg> Demozoo prod</label>
               </div>
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 75854">
@@ -591,7 +597,8 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   hx-patch="/editor/pouet"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-pouet">Pouet prod</label>
+                <label for="artifact-editor-pouet">
+                <img src="/svg/pouet-icon.svg" width="16" height="16" alt="Pouet"> Pouet prod</label>
               </div>
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A URL path, example: tags/magazine/dreadloc">
@@ -602,7 +609,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   hx-patch="/editor/16colors"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-16colors">16colors partial</label>
+                <label for="artifact-editor-16colors">16colo(rs) partial</label>
               </div>
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: Defacto2/server">
@@ -613,7 +620,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   hx-patch="/editor/github"
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-github">GitHub repo</label>
+                <label for="artifact-editor-github">
+                  <svg class="bi" width="16" height="20" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#github"/>
+                  </svg> GitHub repo</label>
               </div>
             </div>
           </div>
@@ -628,7 +638,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/relations"
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
-              <label for="artifact-editor-relations">Link to releases</label>
+              <label for="artifact-editor-relations">
+                <svg class="bi" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                  <use xlink:href="/svg/bootstrap-icons.svg#floppy"/>
+                </svg> Link to releases</label>
             </div>
             <div class="form-text" id="artifact-editor-relations-help">
               format: <code>Title;FileID|Title;FileID</code>. 
@@ -645,7 +658,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/sites"
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
-              <label for="artifact-editor-websites">Link to websites</label>
+              <label for="artifact-editor-websites">
+                <svg class="bi" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                  <use xlink:href="/svg/bootstrap-icons.svg#www"/>
+                </svg> Link to websites</label>
             </div>
             <div class="form-text" id="artifact-editor-websites-help">
               format: <code>Title;URL|Title;URL</code>. 
@@ -671,7 +687,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               [name='artifact-editor-relationsval'],
               [name='artifact-editor-websitesval']"
               hx-target="#artifact-editor-link-examples">
-              Undo<small class="link-dark"> changes</small>
+              <small class="badge text-bg-warning">Revert <u>all</u> links</small>
           </button>
         </div>
         </form>
