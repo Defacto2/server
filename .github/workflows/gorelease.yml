@@ -19,7 +19,6 @@ on:
         required: false
         type: boolean
         default: false
-on:
   push:
     tags:
       - '*' # run on new tags
