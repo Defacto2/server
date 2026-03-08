@@ -154,8 +154,8 @@
                   aria-describedby="uploader-intro-youtube-help" spellcheck="false" placeholder="example: 62BuDfBIcMo">
               </div>
               <div class="input-group mb-3">
-                <label class="form-label">Operating system</label>
-                <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
+                <div class="form-label">Operating system</div>
+                <div class="btn-group w-100" role="group" aria-label="Operating system selection">
                   <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows" autocomplete="off">
                   <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
@@ -236,8 +236,8 @@
                   id="uploader-trainer-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
               </div>
               <div class="input-group mb-3">
-                <label class="form-label">Type of release and operating system</label>
-                <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
+                <div class="form-label">Type of release and operating system</div>
+                <div class="btn-group w-100" role="group" aria-label="Type of release and operating system selection">
                   <input type="radio" value="{{tagGameHack}}" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-gamehack" autocomplete="off" checked>
                   <label class="btn btn-outline-primary w-50" for="uploader-trainer-gamehack" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="A game cheat, trainer or hack">Trainer</label>
@@ -331,12 +331,12 @@
                   aria-describedby="uploader-text-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
               </div>
               <div class="input-group input-group-sm mb-3">
-                <label class="input-group-text w-25" id="uploader-text-artist-help">Text artists</label>
+                <label class="input-group-text w-25" for="uploader-text-artist">Text artists</label>
                 <input type="text" name="uploader-text-creditill" class="form-control" id="uploader-text-artist" 
-                  aria-describedby="uploader-text-artist-help" spellcheck="false" placeholder="example: Name1, Name2">
+                  spellcheck="false" placeholder="example: Name1, Name2">
               </div>
               <div class="input-group mb-3">
-                <label class="form-label">Format</label>
+                <div class="form-label">Format</div>
                 <input type="hidden" value="releaseinformation" name="uploader-text-category" id="uploader-text-category" autocomplete="off">
                 <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
                   <input type="radio" value="{{tagText}}" class="btn-check" name="uploader-text-operating-system" id="uploader-text-msdos" autocomplete="off" checked>
@@ -427,8 +427,8 @@
                   aria-describedby="uploader-image-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
               </div>
               <div class="input-group mb-3">
-                <label class="form-label">Purpose</label>
-                <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
+                <div class="form-label">Purpose</div>
+                <div class="btn-group w-100" role="group" aria-label="Purpose selection">
                   <input type="radio" value="{{tagLogo}}" class="btn-check" name="uploader-image-category" id="uploader-image-adbrand" autocomplete="off" checked>
                   <label class="btn btn-outline-primary" for="uploader-image-adbrand" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Advertising, branding or a logo for a releaser">Ad or brand</label>
@@ -509,8 +509,8 @@
                   aria-describedby="uploader-magazine-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
               </div>
               <div class="input-group mb-3">
-                <label class="form-label">Operating system</label>
-                <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
+                <div class="form-label">Operating system</div>
+                <div class="btn-group w-100" role="group" aria-label="Operating system selection">
                   <input type="radio" value="{{tagText}}" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-text" autocomplete="off" checked>
                   <label class="btn btn-outline-primary" for="uploader-magazine-text" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="Plain text or stylized text">Universal text</label>
@@ -585,7 +585,7 @@
                 <datalist id="uploader-advanced-list-2"></datalist>
                 <div id="uploader-advanced-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
-              <label class="form-label">Date of release</label>
+              <div class="form-label">Date of release</div>
               <div class="input-group mb-3">
                 <span class="input-group-text">Year, month and day</span>
                 <input type="number" name="uploader-advanced-year" min="1980" max="{{exampleYear}}" 
@@ -595,7 +595,7 @@
                 <input type="number" name="uploader-advanced-day" min="1" max="31" 
                   id="uploader-advanced-day" aria-label="Day of release" class="form-control input-date" placeholder="{{exampleDay}}">
               </div>
-              <label class="form-label">Creators</label>
+              <div class="form-label">Creators</div>
               <div class="input-group input-group-sm mb-1">
                 <span class="input-group-text w-25" id="uploader-advanced-credit-text-help">Writers</span>
                 <input type="text" name="uploader-advanced-credittext" class="form-control" id="uploader-advanced-text-writer" 
@@ -609,14 +609,14 @@
               <div class="input-group input-group-sm mb-1">
                 <span class="input-group-text w-25" id="uploader-advanced-credit-prog-help">Programmers</span>
                 <input type="text" name="uploader-advanced-creditprog" class="form-control" id="uploader-advanced-credit-prog" 
-                  aria-describedby="uploader-advanced-credit-prog-help" spellcheck="false" placeholder="example: Name1, Name2">              
+                  aria-describedby="uploader-advanced-credit-prog-help" spellcheck="false" placeholder="example: Name1, Name2">             
               </div>
               <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text w-25" id="uploader-advanced-credit-audio-help">Musicians</span>
                 <input type="text" name="uploader-advanced-creditaudio" class="form-control" id="uploader-advanced-credit-audio" 
                   aria-describedby="uploader-advanced-credit-audio-help" spellcheck="false" placeholder="example: Name1, Name2">
               </div>
-              <label class="form-label">Classifications</label>
+              <div class="form-label">Classifications</div>
               <div class="input-group mb-1">
                 <select name="uploader-advanced-operating-system" id="uploader-advanced-operating-system" class="form-select"
                   placeholder="Lookup classifications…" 
