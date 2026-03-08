@@ -70,37 +70,37 @@
                 aria-describedby="artifact-editor-location-label" value="{{$downloadPath}}" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-dl-fn">Filename</label>
+              <label class="input-group-text w-25 text-secondary" for="artifact-editor-dl-fn">Filename</label>
               <input type="text" class="form-control w-25" id="artifact-editor-dl-fn" value="{{$filename}}" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-dl-fs">Filesize</label>
+              <label class="input-group-text w-25 text-secondary" for="artifact-editor-dl-fs">Filesize</label>
               <input type="text" class="form-control" id="artifact-editor-dl-fs" value="{{$statSizeB}}" autocomplete="off" readonly>
               <input type="text" class="form-control" id="artifact-editor-dl-fsf" value="{{$statSizeS}}" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-dl-lm">Last modified</label>
+              <label class="input-group-text w-25 text-secondary" for="artifact-editor-dl-lm">Last modified</label>
               <input type="text" class="form-control" id="artifact-editor-dl-lm" value="{{$statMod}}" 
                 data-bs-toggle="tooltip" data-bs-title="On file system" autocomplete="off" readonly>
               <input type="text" class="form-control" id="artifact-editor-dl-lmdb" value="{{$databaseMod}}" 
                 data-bs-toggle="tooltip" data-bs-title="Stored in the database" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-dl-mb">Magic bytes</label>
+              <label class="input-group-text w-25 text-secondary" for="artifact-editor-dl-mb">Magic bytes</label>
               <input type="text" class="form-control" id="artifact-editor-dl-mb" value="{{$magicNum}}" 
                 data-bs-toggle="tooltip" data-bs-title="Guessed type of file" autocomplete="off" readonly>
               <input type="text" class="form-control" id="artifact-editor-dl-mime" value="{{$magicMIME}}"
                 data-bs-toggle="tooltip" data-bs-title="Guessed MIME type" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
-              <label class="input-group-text w-25" for="artifact-editor-dl-classify">Classification</label>
+              <label class="input-group-text w-25 text-secondary" for="artifact-editor-dl-classify">Classification</label>
               <input type="text" class="form-control" id="artifact-editor-dl-classify"
                 value="{{classificationStr $tag $os}}" autocomplete="off" readonly>
             </div>
             {{- if eq $notFound $statSizeB}}
             <label for="artifact-editor-dl-up" class="form-label mt-3 text-success-emphasis">Upload the missing download</label>
             {{- else}}
-            <label for="artifact-editor-dl-up" class="form-label mt-3 text-warning-emphasis">Replacement</label>
+            <label for="artifact-editor-dl-up" class="form-label mt-3 text-warning-emphasis"><u>Replacement</u></label>
             {{- end}}
             {{- /*  Replacement download input  */}}
             <form id="artifact-editor-dl-form" 
@@ -124,7 +124,7 @@
               {{- if eq $notFound $statSizeB}}
               <div class="form-text" id="artifact-editor-dl-results"><span class="text-success-emphasis">Upload a new file to use as the artifact download.</span></div>
               {{- else}}
-              <div class="form-text" id="artifact-editor-dl-results"><span class="text-warning-emphasis">Normally not required</span>, upload and replace the artifact download.</div>
+              <div class="form-text" id="artifact-editor-dl-results"><span class="text-warning-emphasis">Rarely required</span>, upload and <u>replace</u> the artifact download.</div>
               {{- end}}
               <progress class="w-100" id="artifact-editor-dl-progress" value="0" max="100"></progress>
               <div class="d-none alert alert-warning mt-2" role="alert" id="artifact-editor-dl-alert"></div>
@@ -161,14 +161,14 @@
               <a href="#file-editor" 
                 hx-target="#artifact-editor-image-assets-feedback" 
                 hx-patch="/editor/images/remove/{{$unid}}" 
-                class="m-0 p-0"><strong>Delete</strong> or redo previews and thumbnails</a>
+                class="m-0 p-0"><span class="badge text-bg-danger me-2">Delete / Redo thumbs and images</span></a>
               {{- /* Pixelate NSFW images button */}}
               &nbsp;
               <a href="#file-editor" id="artifact-editor-image-pixelate" 
                 hx-target="#artifact-editor-image-assets-feedback" 
                 hx-patch="/editor/images/pixelate/{{$unid}}" 
-                class="m-0 p-0"><strong>Pixelate</strong> NSFW images</a>
-              <div class="form-text">The delete and pixelate options are irreversible. Kbd shortcut: <kbd>alt+shift+i</kbd></div>
+                class="m-0 p-0"><span class="badge text-bg-danger">Pixelate NSFW images</span></a>
+              <div class="form-text">The delete and pixelate options are <u>irreversible</u>.</div>
             </div>
             {{- /*  Upload a new image  */}}
             {{- if eq false $previewImgStat}}
@@ -176,6 +176,7 @@
             {{- else}}
             <label for="basic-url" class="form-label mt-3">Replacement image</label>
             {{- end}}
+            <small class="text-secondary">alt+shift i</small>
             <form id="artifact-editor-preview-form" 
               hx-encoding="multipart/form-data" 
               hx-post="/editor/upload/preview"
@@ -193,7 +194,7 @@
                 <button class="btn btn-outline-secondary w-25" id="artifact-editor-preview-submit">Upload</button> 
                 <button class="btn btn-outline-secondary" id="artifact-editor-preview-reset">Clear</button>
               </div>
-              <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image asset samples.</div>
+              <div class="form-text" id="basic-addon4">Select an image, text or ansi file to use as the image and thumbnail.</div>
               <progress class="w-100" id="artifact-editor-preview-progress" value="0" max="100"></progress>
             </form>
             <div class="row row-cols-2 g-1">
@@ -223,20 +224,20 @@
                       <div>
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/preview/crop11/{{$unid}}">1:1 crop</a> <small>ie. 400x400</small></div>
+                          hx-patch="/editor/preview/crop11/{{$unid}}"><span class="badge text-bg-dark">Crop 1:1 <em>400x400</em></span></a></div>
                       <div>
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/preview/crop43/{{$unid}}">4:3 crop</a> <small>ie. 400x300</small></div>
+                          hx-patch="/editor/preview/crop43/{{$unid}}"><span class="badge text-bg-dark">Crop 4:3 <em>400x300</em></span></a></div>
                       <div>
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/preview/crop12/{{$unid}}">1:2 crop</a> <small>ie. 200x400</small></div>
+                          hx-patch="/editor/preview/crop12/{{$unid}}"><span class="badge text-bg-dark">Crop 1:2 <em>200x400</em></span></a></div>
                       <div>
                         <a href="#file-editor" 
                           id="artifact-editor-imagepreview-delete" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/preview/remove/{{$unid}}">Delete previews</a></div>
+                          hx-patch="/editor/preview/remove/{{$unid}}"><span class="badge text-bg-danger">Delete previews</span></a></div>
                     </p>
                   </div>
                   {{$previewImg}}
@@ -265,35 +266,34 @@
                       <div>
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel</a> <small>lossless quality</small></div>
+                          hx-patch="/editor/thumbnail/pixel/{{$unid}}"><span class="badge text-bg-success">Pixel <em>lossless quality</em></span></a></div>
                       <div>
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/thumbnail/photo/{{$unid}}">Photo</a> <small>lossy quality</small></div>
+                          hx-patch="/editor/thumbnail/photo/{{$unid}}"><span class="badge text-bg-secondary">Photo <em>lossy quality</em></span></a></div>
                       <div>
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/thumbnail/middle/{{$unid}}">Middle</a> <small>or center alignment</small></div> 
+                          hx-patch="/editor/thumbnail/middle/{{$unid}}"><span class="badge text-bg-secondary">Middle <em>center alignment</em></span></a></div> 
                       <div>
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/thumbnail/left/{{$unid}}">Left</a> <small>or</small> 
+                          hx-patch="/editor/thumbnail/left/{{$unid}}"><span class="badge text-bg-info">Left <em>crop alignment</em></span></a> 
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/thumbnail/right/{{$unid}}">Right</a> <small>crop alignment</small></div>
+                          hx-patch="/editor/thumbnail/right/{{$unid}}"><span class="badge text-bg-secondary">Right</span></a></div>
                       <div>
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/thumbnail/top/{{$unid}}">Top</a> <small>or</small> 
+                          hx-patch="/editor/thumbnail/top/{{$unid}}"><span class="badge text-bg-info">Top <em>crop alignment</em></span></a>  
                         <a href="#file-editor" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/thumbnail/bottom/{{$unid}}">Bottom</a> <small>crop alignment</small> 
-                      </div>
+                          hx-patch="/editor/thumbnail/bottom/{{$unid}}"><span class="badge text-bg-secondary">Bottom</span></a></div> 
                       <div>
                         <a href="#file-editor" 
                           id="artifact-editor-imagethumb-delete" 
                           hx-target="#artifact-editor-image-assets-feedback"
-                          hx-patch="/editor/thumbnail/remove/{{$unid}}">Delete thumbs</a></div>
+                          hx-patch="/editor/thumbnail/remove/{{$unid}}"><span class="badge text-bg-danger">Delete thumbs</span></a></div>
                     </p>
                   </div>
                   {{$thumbImg}}
@@ -364,15 +364,15 @@
                           <button class="btn btn-link m-0 p-0" 
                             hx-target="#editor-copy-readme-result"
                             hx-delete="/editor/readme/{{$unid}}">
-                            Delete README</button>
+                            <span class="badge text-bg-danger">Delete <em>README</em></span></button>
                           <button class="btn btn-link m-0 p-0" 
                             hx-target="#editor-copy-readme-result"
                             hx-delete="/editor/diz/{{$unid}}">
-                            Delete FILE_ID.DIZ</button>
+                            <span class="badge text-bg-danger">Delete <em>FILE_ID.DIZ</em></span></button>
                         </div>
                       <div class="form-text">
-                        After deletion, text files may automatically get re-extracted or reused.
-                        Instead, use the Never display toggle to hide readme and file_id from the artifact page.
+                        After deletion, text files may automatically reappear.
+                        Instead, use the <em>Never&nbsp;display</em> toggle to hide any README and FILE_ID.DIZ.
                       </div>
                       {{- end}}
                       {{- if ne "" (index . "modReadmeSuggest")}}
@@ -380,8 +380,7 @@
                           <button class="btn btn-link m-0 p-0" 
                             hx-target="#editor-copy-readme-result"
                             hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
-                            Use guessed README file</button>
-                            <br> &nbsp; &rsaquo; <code>{{$modReadmeSuggest}}</code>
+                            <span class="badge text-bg-success">Use guessed README file <em>{{$modReadmeSuggest}}</em></span></button>
                         </div> 
                       {{- end}}
                       </div>

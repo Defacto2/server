@@ -208,9 +208,9 @@ func prevImageCopyBtn(uniqueID, name string) string {
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/preview/copy/%s/%s">`, uniqueID, name) +
+			`hx-patch="/editor/preview/copy/%s/%s"><span class="badge text-bg-primary">`, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
 
 // prevTextContentBtn creates a link to "/editor/readme/URI/ID/FILENAME".
@@ -231,9 +231,9 @@ func prevTextContentBtn(uniqueID, name, platform, sign string) string {
 		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/readme/%s/%s/%s">`, uri, uniqueID, name) +
+			`hx-patch="/editor/readme/%s/%s/%s"><span class="badge text-bg-secondary">`, uri, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
 
 // prevBinaryContentBtn creates a link to "/editor/readme/URI/ID/FILENAME".
@@ -247,9 +247,9 @@ func prevBinaryContentBtn(uniqueID, name string) string {
 		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/readme/%s/%s/%s">`, uri, uniqueID, name) +
+			`hx-patch="/editor/readme/%s/%s/%s"><span class="badge text-bg-secondary">`, uri, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></a></div>`
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
 
 // textContentBtn creates a link to "/editor/readme/copy/ID/FILENAME".
@@ -261,9 +261,9 @@ func textContentBtn(uniqueID, name string) string {
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/readme/copy/%s/%s">`, uniqueID, name) +
+			`hx-patch="/editor/readme/copy/%s/%s"><span class="badge text-bg-success">`, uniqueID, name) +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
+		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
 }
 
 // dizContentBtn creates a link to "/editor/diz/copy/ID/FILENAME"
@@ -275,9 +275,9 @@ func dizContentBtn(uniqueID, name string) string {
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/diz/copy/%s/%s">`, uniqueID, name) +
+			`hx-patch="/editor/diz/copy/%s/%s"><span class="badge text-bg-primary">`, uniqueID, name) +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></a></div>`
+		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
 }
 
 func progr(exec magicnumber.Windows, ext, htm string, bytes int64) string {
