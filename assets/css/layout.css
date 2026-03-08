@@ -409,7 +409,7 @@ a {
   line-height: 1.8;
 }
 
-.index-section-header-history {
+.index-section-header-alt {
   color: #0d6efd;
   font-weight: 600;
   margin-top: 1.5rem;
@@ -418,7 +418,7 @@ a {
   border-bottom: 2px solid #e9ecef;
 }
 
-.index-intro-section-history {
+.index-intro-section-alt {
   border-left: 4px solid #0d6efd;
   background: #f8f9fa;
   padding: 1.5rem;

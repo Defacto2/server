@@ -3,6 +3,8 @@
 */ -}}
 {{- define "content" }}
 <style scoped>
+  /* NOTE: These styles are highly page-specific for the index page's unique layout
+     (milestones, quotes, history sections) and should remain scoped to avoid conflicts. */
   .index-intro-section {
     border-left: 4px solid #0d6efd;
     background: #f8f9fa;
@@ -128,7 +130,7 @@
 {{- $fragmentCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-25 link-underline-opacity-75-hover" }}
 {{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
 <a rel="me" href="https://mas.to/@defacto2" class="mastodon-verify"><!--mastodon verification--></a>
-<div class="index-intro-section">
+<div class="index-intro-section index-intro-section-alt">
   <p class="lead">
     You're at the website conserving defunct software cracking, wares, and Warez Scene subcultures on obsolete Personal Computers. 
     The nature of historic software piracy, with high churn and elusiveness, meant the topic was once undocumented. 
@@ -136,16 +138,16 @@
     <small class="text-warning-emphasis">Be aware occasional files hosted are <abbr title="not safe for work" class="initialism">NSFW</abbr>, with lewd commentary or imagery.</small>
   </p>
 </div>
-<h4 class="index-section-header">The Scene</h4>
-<div class="index-intro-section">
+<h4 class="index-section-header index-section-header-alt">The Scene</h4>
+<div class="index-intro-section index-intro-section-alt">
   <a href="/thescene"><em>The Scene</em></a> is often used to describe a digital and online community. 
   But, this old descriptor was probably lifted from the bohemian and counterculture <q>The Freak Scene</q> <a href="https://asklewis.substack.com/p/a-short-history-of-the-freak-scene">movement</a> of the 1960s.
   And appropriated by <a href="https://archive.org/details/YIPLTAP_1-91/mode/2up">social activists</a> and journalists in the 1970s, who wrote about the groups of technically minded, misfit kids and young adults whom the writers dubbed <q><u>ph</u>one f<u>reaks</u></q>, aka <em>phreaks</em>, who ran hacks on Ma Bell.
 The <a href="https://www.fjc.gov/history/spotlight-judicial-history/breakup-ma-bell">monopoly</a> telephone network of the United States owned and operated by the Bell System, a century-old entity that at its peak was the largest company in the world.
   </p>
 </div>
-<h4 class="index-section-header">Wares</h4>
-<div class="index-intro-section">
+<h4 class="index-section-header index-section-header-alt">Wares</h4>
+<div class="index-intro-section index-intro-section-alt">
   At the same time, <em>ware</em>s, including soft<u>ware</u> and hard<u>ware</u> are used to describe goods.
   We can make a good case that the <em>wares scene</em> was probably coined by phreakers or the microcomputer enthusiasts, 
   who shared the same online spaces on early computer operated bulletin boards. 
@@ -217,7 +219,7 @@ DEAR KEITH, I HAVE BEEN A PHONE PHREAK FOR MANY YEARS NOW AND I WOULD LOVE TO TR
 </div>
 <hr>
 </small>
-<div class="index-intro-section history-section">
+<div class="index-intro-section index-intro-section-alt history-section">
   <div class="history-section-title">Apple II and the birth of cracking</div>
   <p>
     The <em>wares scene</em> as we know it today, originated in the USA, most likely in 1979 or 1980, on the Apple II microcomputer. 
@@ -233,7 +235,7 @@ With the computer-savvy using trial-and-error to <em><a href="/image/milestone/c
 This newfound knowledge was forever changing, so it got discussed, posted and repeated elsewhere to evolve into digital communities.
 </p>
 </div>
-<div class="index-intro-section history-section">
+<div class="index-intro-section index-intro-section-alt history-section">
   <div class="history-section-title">Atari and software demos</div>
   <p>
   This period also saw the delayed introduction of Atari's 400 and 800 microcomputers. 
@@ -243,7 +245,7 @@ This newfound knowledge was forever changing, so it got discussed, posted and re
   To encourage new Atari owners to develop on the computers and demonstrate the system capabilities, much like a Demoscene that later evolved on the Atari machines.
 </p>
 </div>
-<div class="index-intro-section history-section">
+<div class="index-intro-section index-intro-section-alt history-section">
   <div class="history-section-title">Europe and the 16-bit microcomputers</div>
   <p>
   The concept of a Scene spanned the Atlantic to Western Europe in 1984-85 to eventually thrive on the Commodore 64,  
@@ -270,7 +272,7 @@ This newfound knowledge was forever changing, so it got discussed, posted and re
   Instead, many American and Canadian gamers shifted to the Japanese video game console offerings by Nintendo, Sega and later Sony. 
 </p>
 </div>
-<div class="index-intro-section history-section">
+<div class="index-intro-section index-intro-section-alt history-section">
   <div class="history-section-title">IBM PC and the x86 platform</div>
   <p>
     Numerous text file instructions survive for modifying PC software and removing its disk copy protection schemes. 
