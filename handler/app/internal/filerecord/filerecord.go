@@ -680,6 +680,18 @@ func ListContent( //nolint:cyclop,gocognit,funlen
 		}
 		return nil
 	}
+	// Create root-scoped filesystem for secure operations
+	root, err := os.OpenRoot(tmpRoot)
+	if err != nil {
+		return template.HTML(fmt.Sprintf("failed to open root directory: %v", err))
+	}
+	defer root.Close()
+
+	// Use root-scoped WalkerChmod to prevent path traversal attacks
+	walkerChmod := func(path string, d fs.DirEntry, err error) error {
+		return WalkerChmod(root, path, d, err)
+	}
+
 	if err := filepath.WalkDir(tmpRoot, walkerChmod); err != nil {
 		return template.HTML(err.Error())
 	}
@@ -849,21 +861,29 @@ func indexDiz(names ...string) int {
 	return -1
 }
 
-// walkerChmod changes the file permissions for the extracted files.
+// WalkerChmod changes the file permissions for the extracted files.
 // There are odd cases where the extracted files from DOS era ZIP files have no permissions.
-func walkerChmod(path string, d fs.DirEntry, err error) error {
+// Uses os.Root to prevent path traversal attacks (fixes G122 security issue).
+func WalkerChmod(root *os.Root, path string, d fs.DirEntry, err error) error {
 	const dirRW, fileRW = 0o755, 0o644
 	if err != nil {
 		return fs.SkipDir
 	}
+
+	// Get relative path for root-scoped operations
+	relPath, err := filepath.Rel(root.Name(), path)
+	if err != nil {
+		return fmt.Errorf("failed to get relative path for %s: %w", path, err)
+	}
+
 	if d.IsDir() {
-		if err := os.Chmod(path, dirRW); err != nil {
-			return fmt.Errorf("failed to chmod directory %s: %w", path, err)
+		if err := root.Chmod(relPath, dirRW); err != nil {
+			return fmt.Errorf("failed to chmod directory %s: %w", relPath, err)
 		}
 		return nil
 	}
-	if err := os.Chmod(path, fileRW); err != nil {
-		return fmt.Errorf("failed to chmod file %s: %w", path, err)
+	if err := root.Chmod(relPath, fileRW); err != nil {
+		return fmt.Errorf("failed to chmod file %s: %w", relPath, err)
 	}
 	return nil
 }

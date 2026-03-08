@@ -1,7 +1,9 @@
 package filerecord_test
 
 import (
+	"io/fs"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -433,3 +435,87 @@ func TestLegacyString(t *testing.T) {
 	s = filerecord.LegacyString("\x80100")
 	be.Equal(t, "€100", s)
 }
+
+func TestWalkerChmod(t *testing.T) {
+	t.Run("should set directory permissions to 0o755", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		testDir := filepath.Join(tmpDir, "testdir")
+		if err := os.Mkdir(testDir, 0o700); err != nil {
+			t.Fatalf("failed to create test directory: %v", err)
+		}
+
+		mockEntry := &mockDirEntry{
+			name:  "testdir",
+			isDir: true,
+			mode:  0o700,
+		}
+		root, err := os.OpenRoot(tmpDir)
+		be.Err(t, err, nil)
+		defer root.Close()
+		err = filerecord.WalkerChmod(root, testDir, mockEntry, nil)
+		be.Err(t, err, nil)
+		info, err := os.Stat(testDir)
+		be.Err(t, err, nil)
+		be.Equal(t, info.Mode().Perm(), fs.FileMode(0o755))
+	})
+
+	t.Run("should set file permissions to 0o644", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		testFile := filepath.Join(tmpDir, "testfile.txt")
+		if err := os.WriteFile(testFile, []byte("test"), 0o600); err != nil {
+			t.Fatalf("failed to create test file: %v", err)
+		}
+
+		mockEntry := &mockDirEntry{
+			name:  "testfile.txt",
+			isDir: false,
+			mode:  0o600,
+		}
+		root, err := os.OpenRoot(tmpDir)
+		be.Err(t, err, nil)
+		defer root.Close()
+		err = filerecord.WalkerChmod(root, testFile, mockEntry, nil)
+		be.Err(t, err, nil)
+		info, err := os.Stat(testFile)
+		be.Err(t, err, nil)
+		be.Equal(t, info.Mode().Perm(), fs.FileMode(0o644))
+	})
+
+	t.Run("should return fs.SkipDir when error is passed", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		root, err := os.OpenRoot(tmpDir)
+		be.Err(t, err, nil)
+		defer root.Close()
+
+		err = filerecord.WalkerChmod(root, "", nil, fs.ErrInvalid)
+		be.Equal(t, err, fs.SkipDir)
+	})
+
+	t.Run("should handle Chmod errors gracefully", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		root, err := os.OpenRoot(tmpDir)
+		be.Err(t, err, nil)
+		defer root.Close()
+		nonExistentFile := filepath.Join(tmpDir, "nonexistent", "file.txt")
+
+		mockEntry := &mockDirEntry{
+			name:  "file.txt",
+			isDir: false,
+			mode:  0o644,
+		}
+		err = filerecord.WalkerChmod(root, nonExistentFile, mockEntry, nil)
+		be.True(t, err != nil)
+	})
+}
+
+// mockDirEntry implements fs.DirEntry for testing.
+type mockDirEntry struct {
+	name  string
+	isDir bool
+	mode  fs.FileMode
+}
+
+func (m *mockDirEntry) Name() string               { return m.name }
+func (m *mockDirEntry) IsDir() bool                { return m.isDir }
+func (m *mockDirEntry) Type() fs.FileMode          { return m.mode }
+func (m *mockDirEntry) Info() (fs.FileInfo, error) { return nil, fs.ErrInvalid }
