@@ -42,7 +42,7 @@
 {{- $linkExamples := recordLinkPreviews $youtube $demozoo $pouet $sixteen $github $relations $websites }}
 {{- $replace := "refresh the page to see the changes"}}
 {{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
-{{- $reverter := "badge text-bg-warning"}}
+{{- $reverter := "badge bg-secondary"}}
 <div class="modal fade bg-warning-subtle" id="artifact-delete-forever-modal" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" 
 aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -300,7 +300,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/comment/reset"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-comment'],
-                            [name='artifact-editor-comment-resetter']"><span class="badge text-bg-warning">Revert</small></button>
+                            [name='artifact-editor-comment-resetter']"><span class="{{$reverter}}">Revert</small></button>
               </div>
             </div>
           </div>
@@ -357,7 +357,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                             [name='artifact-editor-releaser1'],
                             [name='artifact-editor-releaser2']"
                 hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>
-                <small class="badge text-bg-warning">Revert  
+                <small class="{{$reverter}}">Revert  
                   <em>{{$rel1}}</em>{{if ne $rel2 ""}}+<em>{{$rel2}}</em>{{end}}
                   <span><!-- reset releasers --></span></small>
               </button>
@@ -458,7 +458,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-target="#artifact-editor-filename-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-filename-undo']">
-                  <small class="badge text-bg-warning">Revert <em id="artifact-editor-filename-quote">{{$filename}}</em></small></button>
+                  <small class="{{$reverter}}">Revert <em id="artifact-editor-filename-quote">{{$filename}}</em></small></button>
             </div>
           </div>
           {{/*  VirusTotal  */}}
@@ -532,7 +532,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 [name='artifact-editor-credittext'],
                 [name='artifact-editor-creditill'],
                 [name='artifact-editor-creditprog'],
-                [name='artifact-editor-creditaudio']"><small class="badge text-bg-warning">Revert <u>all</u> creators</small></button>
+                [name='artifact-editor-creditaudio']"><small class="{{$reverter}}">Revert <u>all</u> creators</small></button>
             </div>
         </div>
         <div class="btn-group" role="group">
@@ -687,7 +687,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               [name='artifact-editor-relationsval'],
               [name='artifact-editor-websitesval']"
               hx-target="#artifact-editor-link-examples">
-              <small class="badge text-bg-warning">Revert <u>all</u> links</small>
+              <small class="{{$reverter}}">Revert <u>all</u> links</small>
           </button>
         </div>
         </form>

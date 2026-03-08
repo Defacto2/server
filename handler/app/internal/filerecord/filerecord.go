@@ -258,7 +258,7 @@ func prevBinaryContentBtn(uniqueID, name string) string {
 func textContentBtn(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as the readme">` +
-		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" `+
+		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
 			`hx-patch="/editor/readme/copy/%s/%s"><span class="badge text-bg-success">`, uniqueID, name) +
@@ -272,7 +272,7 @@ func textContentBtn(uniqueID, name string) string {
 func dizContentBtn(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as the FILE_ID.DIZ">` +
-		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" `+
+		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
 			`hx-patch="/editor/diz/copy/%s/%s"><span class="badge text-bg-primary">`, uniqueID, name) +
