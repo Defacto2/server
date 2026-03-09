@@ -12,7 +12,7 @@
 <script async src="{{ editArtifact }}?{{ sri_editArtifact }}" integrity="{{ sri_editArtifact }}" crossorigin="anonymous"></script>
 <script async src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
 {{- end}}
-{{- if and (ne $magic nil) (musicMod $magic) }}
+{{- if and (ne $magic nil) (musicMod $magic) (not (index . "noDownload")) }}
 {{- /* Chiptune player module - only load when needed */}}
 <script type="module" src="{{ chiptunePlayer }}?{{ sri_chiptunePlayer }}" integrity="{{ sri_chiptunePlayer }}" crossorigin="anonymous"></script>
 {{- end}}

@@ -99,7 +99,7 @@
                     </div>
                 </div>{{end}}
                 {{- /*  chiptune player for music files  */}}
-                {{- if musicMod $mimetype }}
+                {{- if and (musicMod $mimetype) (not $noDownload)}}
                 <div class="col">
                     <div class="d-grid">
                         <div>
