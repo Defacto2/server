@@ -519,3 +519,152 @@ a {
   margin-bottom: 2rem;
   justify-content: center;
 }
+
+/* ============================================================
+ * PCBoard and WildCat! BBS colours
+ * https://github.com/bengarrett/bbs/blob/main/static/css/
+ * ============================================================ */
+:root {
+  --bbs-black: rgb(0, 0, 0);
+  --bbs-blue: rgb(0, 0, 128);
+  --bbs-green: rgb(0, 128, 0);
+  --bbs-cyan: rgb(0, 170, 170);
+  --bbs-red: rgb(128, 0, 0);
+  --bbs-magenta: rgb(170, 0, 170);
+  --bbs-brown: rgb(170, 85, 0);
+  --bbs-grey: rgb(170, 170, 170);
+  --bbs-darkgrey: rgb(85, 85, 85);
+  --bbs-lightblue: rgb(0, 0, 255);
+  --bbs-lightgreen: rgb(0, 255, 0);
+  --bbs-lightcyan: rgb(0, 255, 255);
+  --bbs-lightred: rgb(255, 0, 0);
+  --bbs-lightmagenta: rgb(255, 0, 255);
+  --bbs-yellow: rgb(255, 255, 85);
+  --bbs-white: rgb(255, 255, 255);
+}
+
+:is(
+  pre i.PF0,
+  pre i.PF1,
+  pre i.PF2,
+  pre i.PF3,
+  pre i.PF4,
+  pre i.PF5,
+  pre i.PF6,
+  pre i.PF7,
+  pre i.PF8,
+  pre i.PF9,
+  pre i.PFA,
+  pre i.PFB,
+  pre i.PFC,
+  pre i.PFD,
+  pre i.PFE,
+  pre i.PFF
+) {
+  font-style: normal;
+}
+pre#precontentUTF8,
+pre#precontentLatin1,
+pre#precontentCP437 {
+  & i {
+    font-style: normal;
+  }
+  /* Foreground colors */
+  & i.PF0 {
+    color: var(--bbs-black);
+  }
+  & i.PF1 {
+    color: var(--bbs-blue);
+  }
+  & i.PF2 {
+    color: var(--bbs-green);
+  }
+  & i.PF3 {
+    color: var(--bbs-cyan);
+  }
+  & i.PF4 {
+    color: var(--bbs-red);
+  }
+  & i.PF5 {
+    color: var(--bbs-magenta);
+  }
+  & i.PF6 {
+    color: var(--bbs-brown);
+  }
+  & i.PF7 {
+    color: var(--bbs-grey);
+  }
+  & i.PF8 {
+    color: var(--bbs-darkgrey);
+  }
+  & i.PF9 {
+    color: var(--bbs-lightblue);
+  }
+  & i.PFA {
+    color: var(--bbs-lightgreen);
+  }
+  & i.PFB {
+    color: var(--bbs-lightcyan);
+  }
+  & i.PFC {
+    color: var(--bbs-lightred);
+  }
+  & i.PFD {
+    color: var(--bbs-lightmagenta);
+  }
+  & i.PFE {
+    color: var(--bbs-yellow);
+  }
+  & i.PFF {
+    color: var(--bbs-white);
+  }
+  /* Background colors */
+  & i.PB0 {
+    background-color: transparent;
+  }
+  & i.PB1 {
+    background-color: var(--bbs-blue);
+  }
+  & i.PB2 {
+    background-color: var(--bbs-green);
+  }
+  & i.PB3 {
+    background-color: var(--bbs-cyan);
+  }
+  & i.PB4 {
+    background-color: var(--bbs-red);
+  }
+  & i.PB5 {
+    background-color: var(--bbs-magenta);
+  }
+  & i.PB6 {
+    background-color: var(--bbs-brown);
+  }
+  & i.PB7 {
+    background-color: var(--bbs-grey);
+  }
+  & i.PB8 {
+    background-color: var(--bbs-black);
+  }
+  & i.PB9 {
+    background-color: var(--bbs-blue);
+  }
+  & i.PBA {
+    background-color: var(--bbs-green);
+  }
+  & i.PBB {
+    background-color: var(--bbs-cyan);
+  }
+  & i.PBC {
+    background-color: var(--bbs-red);
+  }
+  & i.PBD {
+    background-color: var(--bbs-magenta);
+  }
+  & i.PBE {
+    background-color: var(--bbs-brown);
+  }
+  & i.PBF {
+    background-color: var(--bbs-grey);
+  }
+}
