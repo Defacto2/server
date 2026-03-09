@@ -13,6 +13,7 @@ import (
 	"log/slog"
 	"math"
 	"net/http"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -41,6 +42,8 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/fix"
+	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
@@ -55,6 +58,14 @@ type FileSearch int
 const (
 	Filenames    FileSearch = iota // Filenames is the search for filenames.
 	Descriptions                   // Descriptions is the search for file descriptions and titles.
+)
+
+// FixNumericSuffix errors.
+var (
+	ErrMissingObfuscatedID    = errors.New("missing obfuscated ID")
+	ErrInvalidObfuscatedID    = errors.New("invalid obfuscated ID")
+	ErrFileNotFound           = errors.New("file not found")
+	ErrInvalidFilenamePattern = errors.New("filename does not match numeric suffix pattern")
 )
 
 type Pagination struct {
@@ -2192,6 +2203,132 @@ func Titles(c echo.Context, sl *slog.Logger) error {
 		return InternalErr(c, sl, name, err)
 	}
 	return nil
+}
+
+func Fixers(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "fixers context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "fixers"
+	data := empty(c)
+	data["description"] = "Defacto2 fixers tool."
+	data["h1"] = "Fixers"
+	data["lead"] = "Artifact fixes using batch-friendly tools."
+	data["title"] = "Fixers"
+	// Get files with numeric suffixes
+	fixData, err := fix.GetFilesWithNumericSuffix(c.Request().Context(), db)
+	if err != nil {
+		sl.Error("failed to get files with numeric suffixes", slog.String("error", err.Error()))
+		// Don't return error, just continue without the data
+	} else {
+		data["numericSuffixCount"] = fixData.Count
+		// Add obfuscated IDs for the /f/ route
+		for i := range fixData.Files {
+			fixData.Files[i].ObfuscatedID = helper.ObfuscateID(fixData.Files[i].ID)
+		}
+		// Pass the full file data (including ID, UUID, and obfuscated ID) to the template
+		data["numericSuffixFiles"] = fixData.Files
+	}
+
+	err = c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, name, err)
+	}
+	return nil
+}
+
+// FixNumericSuffix handles the fixing of numeric suffixes in filenames.
+//
+//nolint:funlen // Complex handler with error handling and database operations
+func FixNumericSuffix(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "fix numeric suffix"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	// Get the obfuscated ID from the URL
+	obfuscatedID := c.Param("id")
+	if obfuscatedID == "" {
+		return fmt.Errorf("%w: missing obfuscated ID", ErrMissingObfuscatedID)
+	}
+
+	// Deobfuscate the ID
+	fileID := int64(helper.DeobfuscateID(obfuscatedID))
+	if fileID == 0 {
+		return fmt.Errorf("%w: invalid obfuscated ID: %s", ErrInvalidObfuscatedID, obfuscatedID)
+	}
+
+	// Get the file from the database using the standard One function
+	// Use deleted=true to allow fixing soft-deleted files
+	file, err := model.One(c.Request().Context(), db, true, int(fileID))
+	if err != nil {
+		sl.Error("failed to find file in fix handler",
+			slog.String("error", err.Error()),
+			slog.Int64("file_id", fileID),
+			slog.String("obfuscated_id", obfuscatedID))
+		return fmt.Errorf("%s: failed to find file: %w", msg, err)
+	}
+	if file == nil {
+		sl.Error("file not found in fix handler",
+			slog.Int64("file_id", fileID),
+			slog.String("obfuscated_id", obfuscatedID))
+		return fmt.Errorf("%w: file not found", ErrFileNotFound)
+	}
+
+	// Remove the numeric suffix from the filename
+	originalFilename := file.Filename.String
+	// Try both patterns: with space and without space before the parenthesis
+	numericSuffixRegexes := []*regexp.Regexp{
+		regexp.MustCompile(` \([0-9]{1,3}\)`), // Pattern with space: " (123)"
+		regexp.MustCompile(`\([0-9]{1,3}\)`),  // Pattern without space: "(123)"
+
+	}
+
+	var matched bool
+	baseFilename := originalFilename
+	for _, regex := range numericSuffixRegexes {
+		if regex.MatchString(originalFilename) {
+			baseFilename = regex.ReplaceAllString(originalFilename, "")
+			matched = true
+			break
+		}
+	}
+
+	if !matched {
+		return fmt.Errorf("%w: filename does not match numeric suffix pattern: %s",
+			ErrInvalidFilenamePattern, originalFilename)
+	}
+
+	// Update the filename in the database
+	file.Filename = null.StringFrom(baseFilename)
+	_, err = file.Update(c.Request().Context(), db, boil.Infer())
+	if err != nil {
+		return fmt.Errorf("%s: failed to update filename: %w", msg, err)
+	}
+
+	// Return the updated file info as HTML to replace the list item
+	obfuscatedID = helper.ObfuscateID(file.ID)
+	html := fmt.Sprintf(`
+		<div class="list-group-item list-group-item-success">
+			<div class="d-flex justify-content-between align-items-center">
+				<div>
+					<code>%s</code>
+					<small class="text-muted d-block">
+						ID: %d | UUID: %s
+					</small>
+					<small class="text-success d-block">
+						Fixed: %s → %s
+					</small>
+				</div>
+				<div>
+					<a href="/f/%s" class="btn btn-sm btn-outline-secondary" target="_blank">View</a>
+				</div>
+			</div>
+		</div>
+	`, baseFilename, file.ID, file.UUID.String, originalFilename, baseFilename, obfuscatedID)
+
+	return c.HTML(http.StatusOK, html)
 }
 
 // Thanks is the handler for the Thanks page.

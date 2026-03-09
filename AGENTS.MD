@@ -1,3 +1,6 @@
+- NEVER EVER EVER attempt to run the server in the background
+- ALWAYS OBEY THE PREVIOUS STATEMENT, if you cannot find the web application running, ask me to start it.
+
 - Linting is always done using `golangci-lint run -c init/.golangci.yaml`
 - Always run the linter after doing significant edits to a .go file, confirm the changes have not created new issues.
 - When checking for specific lint issues, run the full linter output without grep to see all issues, as some linters may have exit code 1 even when they find issues.
