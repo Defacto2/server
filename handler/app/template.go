@@ -178,7 +178,40 @@ func (t *Templ) Funcs() template.FuncMap {
 		"trimSpace":          TrimSpace,
 		"websiteIcon":        WebsiteIcon,
 		"urlEncode":          URLEncode,
+		"isMusicFile":        IsMusicFile,
 	}
+}
+
+// IsMusicFile returns true if the magic string indicates a music file.
+func IsMusicFile(magic any) bool {
+	// Convert to string if it's not already
+	magicStr, ok := magic.(string)
+	if !ok {
+		return false
+	}
+	
+	// List of music file magic strings and patterns
+	musicPatterns := []string{
+		"Extended Module",
+		"Multi-Track Module",
+		"Impulse Tracker",
+		"ProTracker",
+		"MPEG ADTS, layer III",
+		"Tracker music",
+		"Module music",
+		"MOD music",
+		"S3M music",
+		"IT music",
+		"XM music",
+	}
+
+	magicLower := strings.ToLower(magicStr)
+	for _, pattern := range musicPatterns {
+		if strings.Contains(magicLower, strings.ToLower(pattern)) {
+			return true
+		}
+	}
+	return false
 }
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
