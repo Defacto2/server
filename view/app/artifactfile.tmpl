@@ -97,11 +97,6 @@
               <input type="text" class="form-control" id="artifact-editor-dl-classify"
                 value="{{classificationStr $tag $os}}" autocomplete="off" readonly>
             </div>
-            {{- if eq $notFound $statSizeB}}
-            <label for="artifact-editor-dl-up" class="form-label mt-3 text-success-emphasis">Upload the missing download</label>
-            {{- else}}
-            <label for="artifact-editor-dl-up" class="form-label mt-3 text-warning-emphasis"><u>Replacement</u></label>
-            {{- end}}
             {{- /*  Replacement download input  */}}
             <form id="artifact-editor-dl-form" 
               hx-encoding="multipart/form-data" 
@@ -109,6 +104,11 @@
               hx-target="#artifact-editor-dl-feedback"
               {{- if ne $notFound $statSizeB}} hx-confirm="OK, to replace the existing artifact file download on the server?"{{end}}
               hx-validate="true" class="border-top border-bottom border-2 border-danger-subtle pt-3">
+              {{- if eq $notFound $statSizeB}}
+              <label for="artifact-editor-dl-up" class="form-label mt-3 text-success-emphasis">Upload the missing download</label>
+              {{- else}}
+              <label for="artifact-editor-dl-up" class="form-label mt-3 text-warning-emphasis"><u>Replacement</u></label>
+              {{- end}}
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
               <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">
@@ -171,11 +171,6 @@
               <div class="form-text">The delete and pixelate options are <u>irreversible</u>.</div>
             </div>
             {{- /*  Upload a new image  */}}
-            {{- if eq false $previewImgStat}}
-            <label for="basic-url" class="form-label mt-3 text-success-emphasis">Upload a new image or picture</label>
-            {{- else}}
-            <label for="basic-url" class="form-label mt-3">Replacement image</label>
-            {{- end}}
             <small class="text-secondary">alt+shift i</small>
             <form id="artifact-editor-preview-form" 
               hx-encoding="multipart/form-data" 
@@ -183,6 +178,11 @@
               hx-target="#artifact-editor-image-assets-feedback"
               {{- if eq $previewImgStat true}}hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
               hx-validate="true">
+              {{- if eq false $previewImgStat}}
+              <label for="artifact-editor-replace-preview" class="form-label mt-3 text-success-emphasis">Upload a new image or picture</label>
+              {{- else}}
+              <label for="artifact-editor-replace-preview" class="form-label mt-3">Replacement image</label>
+              {{- end}}
               <input type="hidden" name="artifact-editor-record-key" value="{{$key}}">
               <input type="hidden" name="artifact-editor-unid" value="{{$unid}}">
               <input type="hidden" name="artifact-editor-download-classify" value="{{$os}}">

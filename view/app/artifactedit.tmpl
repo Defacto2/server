@@ -124,10 +124,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         <div class="row bg-light mt-3 align-items-center">
           <div class="col-xl-6 pt-1">
             {{- /*  Classifications  */}}
-            <label class="form-label">
+            <div class="form-label">
               <span class="col-form-label-lg">Classifications</span>, 
               <small id="artifact-editor-classification-help">{{classification $tag $os | safeHTML}}</small>.
-            </label>
+            </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">System or type</label>
               <select name="artifact-editor-operatingsystem" id="artifact-editor-operating-system" class="form-select"
@@ -286,7 +286,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div>
           {{/*  Comments  */}}
           <div class="col-xl-6">
-            <label class="form-label col-form-label-lg">Comment</label> <small class="text-secondary">alt+shift \</small>
+            <label class="form-label col-form-label-lg" for="artifact-editor-comment">Comment</label> <small class="text-secondary">alt+shift \</small>
             <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
               style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help" 
               hx-patch="/editor/comment" 
@@ -365,7 +365,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div>
           {{- /*  Date of release  */}}
           <div class="col-xl-6">
-            <label class="form-label col-form-label-lg">Date of release</label>
+            <div class="form-label col-form-label-lg">Date of release</div>
             <small class="text-secondary">alt+shift 🡸🢂</small>
             <div class="row row-cols-2 row-cols-lg-4 g-1">
               <div class="col-6 col-lg-4 d-grid d-block">
@@ -477,9 +477,9 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         </div>
         <div class="row bg-light">
           {{- /*  Creators  */}}
-          <label class="form-label col-form-label-lg mb-0 pb-0">
+          <div class="form-label col-form-label-lg mb-0 pb-0">
             Creators
-          </label>
+          </div>
           <div class="row row-cols-2 gy-1">
             <div class="col">
               <div class="form-floating">
@@ -553,9 +553,9 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             hx-include="[name='artifact-editor-key']"
             hx-target="#artifact-editor-link-examples">
         <div class="row">
-          <label class="form-label col-form-label-lg mb-0 pb-0">
+          <div class="form-label col-form-label-lg mb-0 pb-0">
             Links
-          </label>
+          </div>
           <div class="row row-cols-2 row-cols-lg-3 row-cols-xl-6 justify-content-center">
 
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
