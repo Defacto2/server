@@ -100,8 +100,8 @@
     {{- /*  cascading style sheets  */}}
     <link href="{{ bootstrap5 }}?{{ sri_bootstrap5 }}" rel="stylesheet" integrity="{{ sri_bootstrap5 }}" crossorigin="anonymous">
     <link href="{{ layout }}?{{ sri_layout }}" rel="stylesheet" integrity="{{ sri_layout }}" crossorigin="anonymous">
-    {{- /*  bootstrap svg sprites  */}}
-    <link href="{{ bootstrapIcons }}?{{ sri_bootstrapIcons }}" rel="preload" as="image" type="image/svg+xml" integrity="{{ sri_bootstrapIcons }}" crossorigin="anonymous">
+    {{- /*  bootstrap svg sprites ([svg+xml] should not be preloaded)  */}}
+    <link href="{{ bootstrapIcons }}?{{ sri_bootstrapIcons }}" as="image" type="image/svg+xml" integrity="{{ sri_bootstrapIcons }}" crossorigin="anonymous">
   </head>
   <body>
     <div class="container-xxl p-0 sticky-top">
