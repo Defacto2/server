@@ -384,7 +384,7 @@
 
 {{- /* Chiptune player script - only load when needed */}}
 {{- $magic := index . "magic" }}
-{{- if and (ne $magic nil) (isMusicFile $magic) }}
+{{- if and (ne $magic nil) (musicMod $magic) }}
 <script type="module">
   // Chiptune player initialization
   import {ChiptuneJsPlayer} from 'https://DrSnuggles.github.io/chiptune/chiptune3.js';

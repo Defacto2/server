@@ -610,6 +610,34 @@ func Month(m any) string {
 	return s
 }
 
+// MusicModule returns true if the magic string indicates a music file.
+// Only tracker music is valid, MIDI, MP3, return false.
+func MusicModule(magic any) bool {
+	magicStr, ok := magic.(string)
+	if !ok {
+		return false
+	}
+	musicPatterns := []string{
+		"Extended Module",
+		"Multi-Track Module",
+		"Impulse Tracker",
+		"ProTracker",
+		"Tracker music",
+		"Module music",
+		"MOD music",
+		"S3M music",
+		"IT music",
+		"XM music",
+	}
+	magicLower := strings.ToLower(magicStr)
+	for _, pattern := range musicPatterns {
+		if strings.Contains(magicLower, strings.ToLower(pattern)) {
+			return true
+		}
+	}
+	return false
+}
+
 // Prefix returns a string prefixed with a space.
 func Prefix(s string) string {
 	if s == "" {
