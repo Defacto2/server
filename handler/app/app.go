@@ -688,6 +688,7 @@ func RecordRels(a, b any) string {
 func SafeBBS(a any) template.HTML {
 	const lessThan = "<"
 	const ltEntity = "&lt;"
+	const clearScreen = "@CLS@"
 	switch val := a.(type) {
 	case string:
 		b := []byte(val)
@@ -698,6 +699,7 @@ func SafeBBS(a any) template.HTML {
 			return SafeHTML(string(b))
 		}
 		// return pcboard stylised text
+		b = bytes.ReplaceAll(b, []byte(clearScreen), []byte("\n"))
 		var buf bytes.Buffer
 		if err := bbs.PCBoardHTML(&buf, b...); err != nil {
 			return template.HTML(fmt.Sprintf("PCBoard conversion error: %v", err))
