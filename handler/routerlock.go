@@ -41,10 +41,16 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app
 	creator(lock, db)
 	date(lock, db)
 	editor(lock, db, sl, dirs)
+	fixers(lock, db, sl)
 	get(lock, db, sl, dirs)
 	online(lock, db)
 	search(lock, db, sl)
 	return e
+}
+
+func fixers(g *echo.Group, db *sql.DB, sl *slog.Logger) {
+	g.GET("/fixers", func(c echo.Context) error { return app.Fixers(c, db, sl) })
+	g.POST("/fixers/fix/:id", func(c echo.Context) error { return app.FixNumericSuffix(c, db, sl) })
 }
 
 func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logger) {
