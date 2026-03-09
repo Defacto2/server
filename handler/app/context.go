@@ -2194,6 +2194,24 @@ func Titles(c echo.Context, sl *slog.Logger) error {
 	return nil
 }
 
+func Fixers(c echo.Context, sl *slog.Logger) error {
+	const msg = "fixers context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "fixers"
+	data := empty(c)
+	data["description"] = "Defacto2 fixers."
+	data["h1"] = "Fixers"
+	data["lead"] = "Batch artifact fixes."
+	data["title"] = "Fixers"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, name, err)
+	}
+	return nil
+}
+
 // Thanks is the handler for the Thanks page.
 func Thanks(c echo.Context, sl *slog.Logger) error {
 	const msg = "thanks context"
