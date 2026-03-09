@@ -15,6 +15,7 @@ const (
 	ContentText                  // ContentText is the path to the minified readme JS file.
 	DosboxJS                     // DosboxJS is the js-dos v6 default variant compiled with emscripten.
 	DosboxWasm                   // DosboxWasm is the js-dos v6 WASM binary file.
+	ChiptunePlayer               // ChiptunePlayer is the path to the minified chiptune player JS file.
 	EditArtifact                 // EditArtifact is the path to the minified Artifact Editor JS file.
 	EditAssets                   // EditAssets is the path to the minified Editor assets JS file.
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
@@ -42,6 +43,7 @@ func Hrefs() *Paths {
 		ContentText:     "/js/content-text.min.js",
 		DosboxJS:        "/js/wdosbox.js",
 		DosboxWasm:      "/js/wdosbox.wasm",
+		ChiptunePlayer:  "/js/chiptune-player.min.js",
 		EditArtifact:    "/js/editor-artifact.min.js",
 		EditAssets:      "/js/editor-assets.min.js",
 		EditForApproval: "/js/editor-forapproval.min.js",
