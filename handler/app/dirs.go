@@ -37,6 +37,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/bengarrett/bbs"
 	"github.com/bengarrett/sauce"
 	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo/v4"
@@ -906,8 +907,10 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 		data["vgaCheck"] = chk
 		data["preClassCP437"] = fontname
 	}
-
-	b = lockWidth(maxWidth, b)
+	if !bbs.IsPCBoard(b) {
+		// lock width for plain text, however pcboard codes break this
+		b = lockWidth(maxWidth, b)
+	}
 	textEncoding := render.Encoder(art, bytes.NewReader(b))
 	switch textEncoding {
 	case charmap.ISO8859_1:

@@ -691,18 +691,18 @@ func SafeBBS(a any) template.HTML {
 	switch val := a.(type) {
 	case string:
 		b := []byte(val)
+		// remove any html elements false positives
 		b = bytes.ReplaceAll(b, []byte(lessThan), []byte(ltEntity))
+		// return plain text
 		if !bbs.IsPCBoard(b) {
 			return SafeHTML(string(b))
 		}
+		// return pcboard stylised text
 		var buf bytes.Buffer
 		if err := bbs.PCBoardHTML(&buf, b...); err != nil {
 			return template.HTML(fmt.Sprintf("PCBoard conversion error: %v", err))
 		}
-		// FIX: temp block
-		// s := string(RemovePCBoard(b))
-		// clear(b)
-		// s := string(b)
+		// fallback to return plain text when there some pcboard conversion failure
 		s := buf.String()
 		return SafeHTML(s)
 	default:
