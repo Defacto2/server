@@ -385,11 +385,17 @@
 {{- /* Chiptune player script - only load when needed */}}
 {{- $magic := index . "magic" }}
 {{- if and (ne $magic nil) (musicMod $magic) }}
+{{- /* Chiptune player script - only load when needed */}}
+{{- $magic := index . "magic" }}
+{{- if and (ne $magic nil) (musicMod $magic) }}
 <script type="module">
   // Chiptune player initialization
   import {ChiptuneJsPlayer} from 'https://DrSnuggles.github.io/chiptune/chiptune3.js';
   
   let chiptune = null;
+  let currentDuration = 300; // Default to 5 minutes
+  let currentPosition = 0;
+  let progressInterval = null;
   
   async function playChiptune() {
     const button = document.getElementById('chiptune-play-button');
@@ -406,12 +412,12 @@
         // Wait for initialization
         await new Promise((resolve) => {
           chiptune.onInitialized = () => {
-            console.log('Chiptune player initialized');
+            setupEventHandlers();
             resolve();
           };
           
           // Fallback timeout
-          setTimeout(resolve, 5000);
+          setTimeout(resolve, 10000);
         });
       } catch (error) {
         console.error('Failed to load chiptune player:', error);
@@ -424,10 +430,7 @@
     
     // Get the download URL
     const downloadLink = document.getElementById('artifact-download-link');
-    if (!downloadLink) {
-      console.error('Download link not found');
-      return;
-    }
+    if (!downloadLink) return;
     
     const fileUrl = downloadLink.href;
     
@@ -442,6 +445,16 @@
       button.onclick = stopChiptune;
       button.disabled = false;
       
+      // Setup handlers if not already done
+      if (!chiptune.onMetadata) {
+        setupEventHandlers();
+      }
+      
+      // Reset and start progress
+      currentPosition = 0;
+      startProgressSimulation(); // Actually start the progress simulation
+      updateProgressDisplay();
+      
     } catch (error) {
       console.error('Failed to play music:', error);
       button.textContent = '🎵 Play music';
@@ -455,21 +468,115 @@
     if (!button || !chiptune) return;
     
     chiptune.stop();
+    
+    // Stop the progress simulation
+    if (progressInterval) {
+      clearInterval(progressInterval);
+      progressInterval = null;
+    }
+    
     button.textContent = '🎵 Play music';
     button.onclick = playChiptune;
   }
   
+  function setupEventHandlers() {
+    if (!chiptune) return;
+    
+    // Try to get metadata if available
+    chiptune.onMetadata = (metadata) => {
+      if (metadata?.duration) {
+        currentDuration = metadata.duration;
+        updateProgressDisplay();
+      }
+    };
+    
+    // Start progress simulation
+    startProgressSimulation();
+  }
+  
+  function startProgressSimulation() {
+    // Clear any existing interval
+    if (progressInterval) {
+      clearInterval(progressInterval);
+    }
+    
+    // Start a timer that updates progress every second
+    progressInterval = setInterval(() => {
+      if (currentPosition < currentDuration) {
+        currentPosition += 1;
+        updateProgressDisplay();
+      } else {
+        // Reached the end, stop the simulation
+        clearInterval(progressInterval);
+        progressInterval = null;
+        
+        // Reset to allow replaying
+        const button = document.getElementById('chiptune-play-button');
+        if (button) {
+          button.textContent = '🎵 Play music';
+          button.onclick = playChiptune;
+        }
+      }
+    }, 1000);
+  }
+  
+  function updateProgressDisplay() {
+    const progressBar = document.getElementById('chiptune-progress-bar');
+    const timeElapsed = document.getElementById('chiptune-time-elapsed');
+    const timeTotal = document.getElementById('chiptune-time-total');
+    
+    if (progressBar && timeElapsed && timeTotal) {
+      if (currentDuration <= 0) {
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', '0');
+        timeElapsed.textContent = formatTime(currentPosition);
+        timeTotal.textContent = '--:--';
+      } else {
+        const percentage = (currentPosition / currentDuration) * 100;
+        progressBar.style.width = percentage + '%';
+        progressBar.setAttribute('aria-valuenow', percentage.toFixed(0));
+        
+        timeElapsed.textContent = formatTime(currentPosition);
+        timeTotal.textContent = '~' + formatTime(currentDuration);
+      }
+    }
+  }
+  
+  function formatTime(seconds) {
+    if (isNaN(seconds) || seconds < 0) return '0:00';
+    
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+  
   // Clean up when leaving the page
   window.addEventListener('beforeunload', () => {
-    if (chiptune) {
-      chiptune.stop();
-    }
+    if (chiptune) chiptune.stop();
+    if (progressInterval) clearInterval(progressInterval);
   });
   
-  // Expose functions to global scope for non-module fallback
+  // Expose functions to global scope
   window.playChiptune = playChiptune;
   window.stopChiptune = stopChiptune;
 </script>
+
+{{- /* Fallback for browsers without module support */}}
+<script nomodule>
+  window.addEventListener('DOMContentLoaded', function() {
+    const button = document.getElementById('chiptune-play-button');
+    if (button) {
+      button.onclick = function() {
+        alert('Chiptune player requires a modern browser with JavaScript module support.\n\nPlease use Chrome, Firefox, Edge, or Safari to play music files.');
+      };
+    }
+  });
+</script>
+{{- end}}
+
+{{- template "layoutjsup" . }}
+{{- template "layoutjs" . }}
 
 {{- /* Fallback for browsers without module support */}}
 <script nomodule>
