@@ -2,4 +2,41 @@
     fixers.tmpl ~ Fixers page template.
 */ -}}
 {{- define "content" }}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Files with Numeric Suffixes</h2>
+            <p>These files have numeric suffixes like "(1)", "(2)", etc. that may need cleaning up.</p>
+            
+            {{ if .numericSuffixCount }}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <strong>{{ .numericSuffixCount }}</strong> files found
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {{ range .numericSuffixFiles }}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <code>{{ .Filename }}</code>
+                                    <small class="text-muted d-block">
+                                        ID: {{ .ID }} | UUID: {{ .UUID }}
+                                    </small>
+                                </div>
+                                <div>
+                                    <a href="/f/{{ .ObfuscatedID }}" class="btn btn-sm btn-outline-secondary" target="_blank">View</a>
+                                </div>
+                            </div>
+                        </div>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+            {{ else }}
+            <div class="alert alert-info">No files with numeric suffixes found.</div>
+            {{ end }}
+        </div>
+    </div>
+</div>
 {{- end}}

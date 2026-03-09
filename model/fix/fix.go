@@ -513,3 +513,44 @@ func trimFwdSlash(exec boil.ContextExecutor) error {
 	}
 	return nil
 }
+
+// NumericSuffixCount represents the count of files with numeric suffixes.
+type NumericSuffixCount struct {
+	Count int64 `boil:"files_with_numeric_suffix" json:"count"`
+}
+
+// NumericSuffixFile represents a file with a numeric suffix.
+type NumericSuffixFile struct {
+	ID           int64  `boil:"id"                        json:"id"`
+	UUID         string `boil:"uuid"                      json:"uuid"`
+	Filename     string `boil:"files_with_numeric_suffix" json:"filename"`
+	ObfuscatedID string `boil:"-"                         json:"obfuscatedId"`
+}
+
+// FilesWithNumericSuffix represents files that have numeric suffixes that need fixing.
+type FilesWithNumericSuffix struct {
+	Count int64               `boil:"-" json:"count"`
+	Files []NumericSuffixFile `boil:"-" json:"files"`
+}
+
+// GetFilesWithNumericSuffix retrieves files with numeric suffixes from the database.
+func GetFilesWithNumericSuffix(ctx context.Context, exec boil.ContextExecutor) (*FilesWithNumericSuffix, error) {
+	const msg = "get files with numeric suffix"
+
+	// Get count
+	var count NumericSuffixCount
+	if err := queries.Raw(postgres.FilesWithNumericSuffixCount()).Bind(ctx, exec, &count); err != nil {
+		return nil, fmt.Errorf("%s count: %w", msg, err)
+	}
+
+	// Get file list
+	var files []NumericSuffixFile
+	if err := queries.Raw(postgres.FilesWithNumericSuffixList()).Bind(ctx, exec, &files); err != nil {
+		return nil, fmt.Errorf("%s list: %w", msg, err)
+	}
+
+	return &FilesWithNumericSuffix{
+		Count: count.Count,
+		Files: files,
+	}, nil
+}

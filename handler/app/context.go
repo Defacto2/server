@@ -41,6 +41,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/fix"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
@@ -2194,7 +2195,7 @@ func Titles(c echo.Context, sl *slog.Logger) error {
 	return nil
 }
 
-func Fixers(c echo.Context, sl *slog.Logger) error {
+func Fixers(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "fixers context"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -2205,7 +2206,23 @@ func Fixers(c echo.Context, sl *slog.Logger) error {
 	data["h1"] = "Fixers"
 	data["lead"] = "Batch artifact fixes."
 	data["title"] = "Fixers"
-	err := c.Render(http.StatusOK, name, data)
+
+	// Get files with numeric suffixes
+	fixData, err := fix.GetFilesWithNumericSuffix(c.Request().Context(), db)
+	if err != nil {
+		sl.Error("failed to get files with numeric suffixes", slog.String("error", err.Error()))
+		// Don't return error, just continue without the data
+	} else {
+		data["numericSuffixCount"] = fixData.Count
+		// Add obfuscated IDs for the /f/ route
+		for i := range fixData.Files {
+			fixData.Files[i].ObfuscatedID = helper.ObfuscateID(fixData.Files[i].ID)
+		}
+		// Pass the full file data (including ID, UUID, and obfuscated ID) to the template
+		data["numericSuffixFiles"] = fixData.Files
+	}
+
+	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, sl, name, err)
 	}

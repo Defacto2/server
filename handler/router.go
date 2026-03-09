@@ -352,7 +352,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/v/:id", func(cx echo.Context) error {
 		return app.Inline(cx, db, sl, dir.Directory(c.Environment.AbsDownload))
 	})
-	s.GET("/fixers", func(c echo.Context) error { return app.Fixers(c, sl) })
+	s.GET("/fixers", func(c echo.Context) error { return app.Fixers(c, db, sl) })
 	return e
 }
 
