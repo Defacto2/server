@@ -3,6 +3,7 @@
 */ -}}
 {{- define "layoutjs" }}
 {{- $editor := index . "editor"}}
+{{- $magic := index . "magic" }}
 {{- $forApproval := index . "forApproval"}}
 {{- if and $forApproval $editor}}
 <script async src="{{ editForApproval }}?{{ sri_editForApproval }}" integrity="{{ sri_editForApproval }}" crossorigin="anonymous"></script>
@@ -11,4 +12,9 @@
 <script async src="{{ editArtifact }}?{{ sri_editArtifact }}" integrity="{{ sri_editArtifact }}" crossorigin="anonymous"></script>
 <script async src="{{ editAssets }}?{{ sri_editAssets }}" integrity="{{ sri_editAssets }}" crossorigin="anonymous"></script>
 {{- end}}
+{{- if and (ne $magic nil) (musicMod $magic) }}
+{{- /* Chiptune player module - only load when needed */}}
+<script type="module" src="{{ chiptunePlayer }}?{{ sri_chiptunePlayer }}" integrity="{{ sri_chiptunePlayer }}" crossorigin="anonymous"></script>
 {{- end}}
+{{- end}}
+

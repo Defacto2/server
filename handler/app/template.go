@@ -164,6 +164,7 @@ func (t *Templ) Funcs() template.FuncMap {
 		"linkWikiTip":        LinkWikiTip,
 		"logoText":           LogoText,
 		"mask":               Mask,
+		"musicMod":           MusicModule,
 		"jsdosUsage":         filerecord.JsdosUsage,
 		"recordInfoOSTag":    TagWithOS,
 		"recordLinkPreviews": LinkPreviews,
@@ -214,6 +215,9 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		},
 		"demozooSanity": func() string {
 			return strconv.Itoa(demozoo.Sanity)
+		},
+		"chiptunePlayer": func() string {
+			return hrefs[ChiptunePlayer]
 		},
 		"editArtifact": func() string {
 			return hrefs[EditArtifact]
@@ -299,6 +303,9 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		},
 		"sri_canvasReadme": func() string {
 			return t.Subresource.CanvasReadme
+		},
+		"sri_chiptunePlayer": func() string {
+			return t.Subresource.ChiptunePlayer
 		},
 		"sri_editArtifact": func() string {
 			return t.Subresource.EditArtifact

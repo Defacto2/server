@@ -29,6 +29,7 @@ func NamedCSS() []string {
 // The files are located in the assets/js directory.
 func NamedJS() []string {
 	return []string{
+		"chiptune-player",
 		"editor-forapproval",
 		"htmx-response-targets",
 		"votes-pouet",
