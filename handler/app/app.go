@@ -695,13 +695,13 @@ func SafeBBS(a any) template.HTML {
 		src := []byte(val)
 		// remove any html elements false positives
 		rene, pcb := bbs.IsRenegade(src), bbs.IsPCBoard(src)
-		// return plain text
 		if !rene && !pcb {
-			src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
+			// return plain text
 			// only plain text needs this manual replacement
+			src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
 			return SafeHTML(string(src))
 		}
-		// return pcboard stylised text
+		// build stylized text
 		src = bytes.ReplaceAll(src, []byte(clearScreen), []byte("\n"))
 		var buf bytes.Buffer
 		if pcb {
@@ -714,10 +714,8 @@ func SafeBBS(a any) template.HTML {
 				return template.HTML(fmt.Sprintf("Renegade conversion error: %v", err))
 			}
 		}
-		// fallback to return plain text when there some bbs text to html conversion failure
-		s := buf.String()
-		s = strings.ReplaceAll(s, lessThan, ltEntity)
-		return SafeHTML(s)
+		// return the stylized text
+		return SafeHTML(buf.String())
 	default:
 		return template.HTML("")
 	}
