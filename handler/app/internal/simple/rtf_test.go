@@ -41,7 +41,7 @@ func TestIsRTF(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := simple.IsRTF([]byte(tt.input))
+			result := simple.RTF([]byte(tt.input))
 			if result != tt.expected {
 				t.Errorf("IsRTF() = %v, want %v for input %q", result, tt.expected, tt.input)
 			}
@@ -88,8 +88,8 @@ func TestStripRTF(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := simple.StripRTF(tt.input)
-			if result != tt.expected {
+			result := simple.StripRTF([]byte(tt.input))
+			if string(result) != tt.expected {
 				t.Errorf("StripRTF() = %q, want %q", result, tt.expected)
 			}
 		})
@@ -121,7 +121,7 @@ func TestStripRTFBytes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := simple.StripRTFBytes(tt.input)
+			result := simple.StripRTF(tt.input)
 			if string(result) != string(tt.expected) {
 				t.Errorf("StripRTFBytes() = %q, want %q", string(result), string(tt.expected))
 			}

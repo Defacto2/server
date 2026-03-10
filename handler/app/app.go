@@ -694,9 +694,9 @@ func SafeBBS(a any) template.HTML {
 	case string:
 		src := []byte(val)
 		// Check for and strip RTF formatting first, before any other processing
-		if simple.IsRTF(src) {
+		if simple.RTF(src) {
 			// Strip RTF formatting if detected
-			src = []byte(simple.StripRTF(string(src)))
+			src = []byte(simple.StripRTF(src))
 		}
 		// remove any html elements false positives
 		rene, pcb := bbs.IsRenegade(src), bbs.IsPCBoard(src)
