@@ -280,9 +280,12 @@ func Humanize(platform, section Tag) string {
 	if s := humChecks(platform, section); s != "" {
 		return s
 	}
-	if PPE := platform == PCB && section == Tool; PPE {
+	if ppe := platform == PCB && section == Tool; ppe {
 		return "a PCBoard application (PPE)"
 	}
+	// if pcb := platform == PCB && section == ; pcb {
+	// 	return "a PCBoard BBS file"
+	// }
 	if s := humSection(platform, section); s != "" {
 		return s
 	}
@@ -524,7 +527,7 @@ func takedown(platform Tag) string {
 
 // Humanizes returns the human readable name plurals of the platform and section tags combined.
 func Humanizes(platform, section Tag) string {
-	switch platform { //nolint:exhaustive //
+	switch platform { //nolint:exhaustive
 	case ANSI:
 		return ansi(section)
 	case Audio:
@@ -543,6 +546,8 @@ func Humanizes(platform, section Tag) string {
 		return Names()[section] + " as HTML files"
 	case Mac:
 		return Names()[section] + " for Macintosh and macOS"
+	case PCB:
+		return pcboard(section)
 	case PDF:
 		return Names()[section] + " as PDF documents"
 	case PHP:
@@ -559,8 +564,19 @@ func Humanizes(platform, section Tag) string {
 	return defaults(platform, section)
 }
 
+func pcboard(section Tag) string {
+	switch section {
+	case BBS:
+		return "PCBoard color text files"
+	case Tool:
+		return "PCBoard script or executable (PPL/PPE)"
+	default:
+		return "PCBoard bulletin board files"
+	}
+}
+
 func database(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case Nfo:
 		return "databases of releases"
 	default:

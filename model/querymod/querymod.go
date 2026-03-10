@@ -284,6 +284,27 @@ func NfoToolExpr() qm.QueryMod {
 	)
 }
 
+// PCBoardExpr is a query mod expression for PCBoard files.
+func PCBoardExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Platform.EQ(PPCBoard()),
+	)
+}
+
+func PCBoardPPEExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Section.EQ(STool()),
+		models.FileWhere.Platform.EQ(PPCBoard()),
+	)
+}
+
+func PCBoardTextExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Section.EQ(SBbs()),
+		models.FileWhere.Platform.EQ(PPCBoard()),
+	)
+}
+
 // PDFExpr is a query mod expression for PDF releases.
 func PDFExpr() qm.QueryMod {
 	return qm.Expr(

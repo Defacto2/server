@@ -1084,6 +1084,93 @@ func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 	).All(ctx, exec)
 }
 
+// PCBoard is the model for PCBoard platform which can include text files and applications.
+type PCBoard struct {
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
+}
+
+func (p *PCBoard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	return models.NewQuery(
+		qm.Select(GetColumns()...),
+		qm.Where(ClauseNoSoftDel),
+		querymod.PCBoardExpr(),
+		qm.From(From)).Bind(ctx, exec, p)
+}
+
+func (p *PCBoard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	panics.BoilExecCrash(exec)
+	return models.Files(
+		querymod.PCBoardExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, exec)
+}
+
+// PCBoardPPE is the model for PCBoard applications.
+type PCBoardPPE struct {
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
+}
+
+func (p *PCBoardPPE) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	return models.NewQuery(
+		qm.Select(GetColumns()...),
+		qm.Where(ClauseNoSoftDel),
+		querymod.PCBoardPPEExpr(),
+		qm.From(From)).Bind(ctx, exec, p)
+}
+
+func (p *PCBoardPPE) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	panics.BoilExecCrash(exec)
+	return models.Files(
+		querymod.PCBoardPPEExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, exec)
+}
+
+// PCBoardText is the model for PCBoard applications.
+type PCBoardText struct {
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
+}
+
+func (p *PCBoardText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	return models.NewQuery(
+		qm.Select(GetColumns()...),
+		qm.Where(ClauseNoSoftDel),
+		querymod.PCBoardTextExpr(),
+		qm.From(From)).Bind(ctx, exec, p)
+}
+
+func (p *PCBoardText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	panics.BoilExecCrash(exec)
+	return models.Files(
+		querymod.PCBoardTextExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, exec)
+}
+
 // PDF is the model for the documents in PDF format.
 type PDF struct {
 	Bytes   int `boil:"size_total"`

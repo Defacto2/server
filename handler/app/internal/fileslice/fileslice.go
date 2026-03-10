@@ -78,6 +78,9 @@ const (
 	nfo
 	nfoTool
 	Oldest
+	pcb
+	pcbPPE
+	pcbText
 	pdf
 	proof
 	restrict
@@ -143,6 +146,9 @@ func (u URI) String() string {
 		"nfo",
 		"nfo-tool",
 		"oldest",
+		"pcboard",
+		"pcboard-ppe",
+		"pcboard-text",
 		"pdf",
 		"proof",
 		"restrict",
@@ -265,6 +271,9 @@ func RecordsSub(uri string) string {
 		introWindows: tags.Humanizes(tags.Windows, tags.Intro),
 		magazine:     tags.Humanizes(ignore, tags.Mag),
 		msdos:        tags.Humanizes(tags.DOS, ignore),
+		pcb:          tags.Humanizes(tags.PCB, ignore),
+		pcbPPE:       tags.Humanizes(tags.PCB, tags.Tool),
+		pcbText:      tags.Humanizes(tags.PCB, tags.BBS),
 		pdf:          tags.Humanizes(tags.PDF, ignore),
 		proof:        tags.Humanizes(ignore, tags.Proof),
 		restrict:     tags.Humanizes(ignore, tags.Restrict),
@@ -447,6 +456,15 @@ func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 		return r.List(ctx, exec, page, limit)
 	case msdos:
 		r := model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		return r.List(ctx, exec, page, limit)
+	case pcb:
+		r := model.PCBoard{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		return r.List(ctx, exec, page, limit)
+	case pcbPPE:
+		r := model.PCBoardPPE{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		return r.List(ctx, exec, page, limit)
+	case pcbText:
+		r := model.PCBoardText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	case pdf:
 		r := model.PDF{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}

@@ -155,6 +155,10 @@ func PMusic() null.String {
 	return null.String{String: getURIs()[tags.Audio], Valid: true}
 }
 
+func PPCBoard() null.String {
+	return null.String{String: getURIs()[tags.PCB], Valid: true}
+}
+
 func PPdf() null.String {
 	return null.String{String: getURIs()[tags.PDF], Valid: true}
 }

@@ -169,6 +169,9 @@ type StatFunc func(context.Context, boil.ContextExecutor) error
 
 func (s *Summary) Matches() map[string]StatFunc {
 	return map[string]StatFunc{
+		"pcboard":       s.pcboard,
+		"pcboard-ppe":   s.pcboardPPE,
+		"pcboard-text":  s.pcboardText,
 		"text-amiga":    s.textAmiga,
 		"text-apple2":   s.textApple2,
 		"text-atari-st": s.textAtariST,
@@ -237,6 +240,51 @@ func (s *Summary) introWindows(ctx context.Context, exec boil.ContextExecutor) e
 	panics.BoilExecCrash(exec)
 	m := IntroWindows{
 		Cache:   time.Time{},
+		Bytes:   0,
+		Count:   0,
+		MinYear: 0,
+		MaxYear: 0,
+	}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) pcboard(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	m := PCBoard{
+		Bytes:   0,
+		Count:   0,
+		MinYear: 0,
+		MaxYear: 0,
+	}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) pcboardPPE(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	m := PCBoardPPE{
+		Bytes:   0,
+		Count:   0,
+		MinYear: 0,
+		MaxYear: 0,
+	}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
+}
+
+func (s *Summary) pcboardText(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	m := PCBoardText{
 		Bytes:   0,
 		Count:   0,
 		MinYear: 0,
