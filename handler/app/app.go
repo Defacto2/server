@@ -681,8 +681,9 @@ func RecordRels(a, b any) string {
 	return s
 }
 
-// SafeBBS returns a string as a template.HTML type to prevent HTML escaping in the template,
-// but also removes any PCBoard sequences from the string.
+// SafeBBS returns a string as a template.HTML type to prevent HTML escaping in the template.
+// If PCBoard or Renegard color codes are discovered,
+// these will be converted into italic elements containing custom color classes.
 //
 // If any value is not a valid string then an empty string is returned.
 func SafeBBS(a any) template.HTML {
@@ -691,21 +692,31 @@ func SafeBBS(a any) template.HTML {
 	const clearScreen = "@CLS@"
 	switch val := a.(type) {
 	case string:
-		b := []byte(val)
+		src := []byte(val)
 		// remove any html elements false positives
-		b = bytes.ReplaceAll(b, []byte(lessThan), []byte(ltEntity))
+		rene, pcb := bbs.IsRenegade(src), bbs.IsPCBoard(src)
 		// return plain text
-		if !bbs.IsPCBoard(b) {
-			return SafeHTML(string(b))
+		if !rene && !pcb {
+			src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
+			// only plain text needs this manual replacement
+			return SafeHTML(string(src))
 		}
 		// return pcboard stylised text
-		b = bytes.ReplaceAll(b, []byte(clearScreen), []byte("\n"))
+		src = bytes.ReplaceAll(src, []byte(clearScreen), []byte("\n"))
 		var buf bytes.Buffer
-		if err := bbs.PCBoardHTML(&buf, b...); err != nil {
-			return template.HTML(fmt.Sprintf("PCBoard conversion error: %v", err))
+		if pcb {
+			if err := bbs.PCBoardHTML(&buf, src...); err != nil {
+				return template.HTML(fmt.Sprintf("PCBoard conversion error: %v", err))
+			}
 		}
-		// fallback to return plain text when there some pcboard conversion failure
+		if rene {
+			if err := bbs.RenegadeHTML(&buf, src...); err != nil {
+				return template.HTML(fmt.Sprintf("Renegade conversion error: %v", err))
+			}
+		}
+		// fallback to return plain text when there some bbs text to html conversion failure
 		s := buf.String()
+		s = strings.ReplaceAll(s, lessThan, ltEntity)
 		return SafeHTML(s)
 	default:
 		return template.HTML("")

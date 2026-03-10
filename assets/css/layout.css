@@ -668,3 +668,105 @@ pre#precontentCP437 {
     background-color: var(--bbs-grey);
   }
 }
+
+/* ============================================================
+ * Renegade BBS Pipe Colors (EGA Palette)
+ * ============================================================ */
+:root {
+  --renegade-black: rgb(0, 0, 0);
+  --renegade-blue: rgb(0, 0, 170);
+  --renegade-green: rgb(0, 170, 0);
+  --renegade-cyan: rgb(0, 170, 170);
+  --renegade-red: rgb(170, 0, 0);
+  --renegade-purple: rgb(170, 0, 170);
+  --renegade-brown: rgb(170, 85, 0);
+  --renegade-grey: rgb(170, 170, 170);
+  --renegade-darkgrey: rgb(85, 85, 85);
+  --renegade-brightblue: rgb(85, 85, 255);
+  --renegade-brightgreen: rgb(85, 255, 85);
+  --renegade-brightcyan: rgb(85, 255, 255);
+  --renegade-brightred: rgb(255, 85, 85);
+  --renegade-brightpurple: rgb(255, 85, 255);
+  --renegade-yellow: rgb(255, 255, 85);
+  --renegade-white: rgb(255, 255, 255);
+}
+
+pre#precontentUTF8,
+pre#precontentLatin1,
+pre#precontentCP437 {
+  & i.P0 {
+    color: var(--renegade-black);
+  }
+  & i.P1 {
+    color: var(--renegade-blue);
+  }
+  & i.P2 {
+    color: var(--renegade-green);
+  }
+  & i.P3 {
+    color: var(--renegade-cyan);
+  }
+  & i.P4 {
+    color: var(--renegade-red);
+  }
+  & i.P5 {
+    color: var(--renegade-purple);
+  }
+  & i.P6 {
+    color: var(--renegade-brown);
+  }
+  & i.P7 {
+    color: var(--renegade-grey);
+  }
+  & i.P8 {
+    color: var(--renegade-darkgrey);
+  }
+  & i.P9 {
+    color: var(--renegade-brightblue);
+  }
+  & i.P10 {
+    color: var(--renegade-brightgreen);
+  }
+  & i.P11 {
+    color: var(--renegade-brightcyan);
+  }
+  & i.P12 {
+    color: var(--renegade-brightred);
+  }
+  & i.P13 {
+    color: var(--renegade-brightpurple);
+  }
+  & i.P14 {
+    color: var(--renegade-yellow);
+  }
+  & i.P15 {
+    color: var(--renegade-white);
+  }
+  & i.P16 {
+    background-color: var(--renegade-black);
+  }
+  & i.P17 {
+    background-color: var(--renegade-blue);
+  }
+  & i.P18 {
+    background-color: var(--renegade-green);
+  }
+  & i.P19 {
+    background-color: var(--renegade-cyan);
+  }
+  & i.P20 {
+    background-color: var(--renegade-red);
+  }
+  & i.P21 {
+    background-color: var(--renegade-purple);
+  }
+  & i.P22 {
+    background-color: var(--renegade-brown);
+  }
+  & i.P23 {
+    background-color: var(--renegade-white);
+  }
+  & i[class^=\"P\"] {
+    font-style: normal;
+  }
+}
