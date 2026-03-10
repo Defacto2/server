@@ -1,5 +1,11 @@
-- NEVER EVER EVER attempt to run the server in the background
-- ALWAYS OBEY THE PREVIOUS STATEMENT, if you cannot find the web application running, ask me to start it.
+<!-- Please read: You should always tell an AI agent to read this file before doing any work,
+      however, because the neural network these agents use is massive and random,
+      there is a good chance the agent will ignore this as it copies and pastes
+      other people's code into your project, so beware! -->
+
+- NEVER EVER EVER: Attempt to run the server in the background.
+- If you cannot find the web application running, ask me, the operator to start it.
+- All custom debugging or other temporary .go files should begin with: // +build ignore
 
 - Linting is always done using `golangci-lint run -c init/.golangci.yaml`
 - Always run the linter after doing significant edits to a .go file, confirm the changes have not created new issues.

@@ -693,13 +693,19 @@ func SafeBBS(a any) template.HTML {
 	switch val := a.(type) {
 	case string:
 		src := []byte(val)
+		// Check for and strip RTF formatting first, before any other processing
+		if simple.IsRTF(src) {
+			// Strip RTF formatting if detected
+			src = []byte(simple.StripRTF(string(src)))
+		}
 		// remove any html elements false positives
 		rene, pcb := bbs.IsRenegade(src), bbs.IsPCBoard(src)
 		if !rene && !pcb {
 			// return plain text
 			// only plain text needs this manual replacement
 			src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
-			return SafeHTML(string(src))
+			s := string(src)
+			return SafeHTML(s)
 		}
 		// build stylized text
 		src = bytes.ReplaceAll(src, []byte(clearScreen), []byte("\n"))

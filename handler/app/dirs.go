@@ -313,7 +313,12 @@ func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any
 		maps.Copy(data, d)
 		return data, nil
 	}
-	d, err := simpleCharmapEncodings(art, data, buf.Bytes()...)
+	// Strip RTF formatting from the buffer content before processing
+	bufBytes := buf.Bytes()
+	if simple.IsRTF(bufBytes) {
+		bufBytes = []byte(simple.StripRTF(string(bufBytes)))
+	}
+	d, err := simpleCharmapEncodings(art, data, bufBytes...)
 	if err != nil {
 		return data, fmt.Errorf("dirs.embed text: %w", err)
 	}
@@ -910,6 +915,10 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 	if !bbs.IsPCBoard(b) {
 		// lock width for plain text, however pcboard codes break this
 		b = lockWidth(maxWidth, b)
+	}
+	// Strip RTF formatting from the original content first
+	if simple.IsRTF(b) {
+		b = []byte(simple.StripRTF(string(b)))
 	}
 	textEncoding := render.Encoder(art, bytes.NewReader(b))
 	switch textEncoding {
