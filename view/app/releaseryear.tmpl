@@ -9,6 +9,7 @@
 {{- $pubs := index .stats.pubs }}
 {{- $orderBy := index .stats.orderBy }}
 {{- $class := "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2"}}
+{{- $eraClass := "text-start text-secondary mx-5 mb-4"}}
 <div class="container px-4 text-center">
     <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
 {{- $prevYear := 0 }}
@@ -17,11 +18,82 @@
     {{- $year := $rel.Unique.Year.Int }}
     {{ if eq $index 0}}
         {{ if (gt $year 0) }}<h3 class="text-end lead p-3">The first releases of &nbsp; <span class="display-6">{{$year}}</span></h3>{{end}}
+        {{if hasSuffix $pubs "releasers and groups"}}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Pre-Scene</em>.
+The first IBM PC was released on 12 August 1981.
+However, unlike today's worldwide releases, national same-day hardware launches were impossible, and the new machines trickled into US retailers over the following months.
+At this time, piracy involved in-person meetings to copy and exchange software, and blank floppies were valuable commodities.
+On the <a href="https://demozoo.org/productions/?platform=67&production_type=13&dir=asc&page=1">Apple II</a>, 
+disk crackers had only begun tagging their work with handles in late 1980 while Scene groups and pirate bulletin boards became normalized in 1982.
+</small></div>
+        {{end}}
         <div class="{{$class}}">
     {{- else}}
         {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
             </div>
             <h3 class="text-end display-6 mt-3 p-3">{{$year}}</h3>
+{{- if eq $year 1984 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">The local era</em>.
+While 1983 saw the emergence of solo authors and the first public unprotect texts exchanging software cracking guides on commercial online services like CompuServe,
+it was 1984 that marked the birth of the first PC Scene concept.
+This period saw the formation of the first cracking collectives and groups, along with the sharing of software on local bulletin board systems.
+These early PC groups were likely inspired by or emerged from the already-thriving Apple II Scene.
+Meanwhile, the <a href="https://demozoo.org/productions/?platform=3&production_type=13&dir=asc&page=1">Commodore 64</a> was rapidly growing in popularity among young users in both the USA and Europe, fueling a rampant piracy scene.
+</small></div>
+{{- else if eq $year 1986 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Crackscreen fun</em>.
+On the Apple II, purpose-drawn crack-title screens became widespread in 1984, while this practice didn't emerge on the PC until 1986.
+Although bitmap drawing software was already well-established on the platform with programs like PC Paintbrush and PC Paint,
+it likely took software hackers considerable time to develop ways to inject those images into cracked game titles.
+Meanwhile, Sceners on more affordable platforms such as the Commodore 64 and <a href="https://demozoo.org/productions/?platform=9&production_type=4&dir=asc&page=1">Atari ST</a> were beginning to release animated cracktros
+(cracked-by introductions) and intros with audio that attempted to replicate computer game title screens.
+By contrast, the PC's fixed, 4-color CGA palette and silent static images appeared a little ugly and outdated.
+</small></div>
+{{- else if eq $year 1989 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">A national scene</em>.
+1989 marked the emergence of a national PC Scene, as small local groups, often comprising just a few friends, 
+teamed up with groups from other North American telephone area codes to form larger, more widespread cracking groups.
+This period also saw the first proper cracktros and intros on the PC, though ironically these came from European users,
+where the PC was least successful. Once again, the PC Scene lagged years behind the other microcomputers:
+by this time the Apple II had passed its prime, the Commodore 64 and Atari ST were at their peaks,
+and the Commodore Amiga was emerging as the best home-computer platform for gaming and multimedia.
+</small></div>
+{{- else if eq $year 1990 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Competition</em>.
+This period saw the birth of the Art Scene, as amateur artists created text-based artwork and formed collectives, known as art groups,
+focusing on designing advertisements and user interfaces for "elite" bulletin board systems.
+The PC's extensive software catalog and backward compatibility made it the primary platform for affordable productivity applications and utilities,
+a trend reflected in the software pirated for the platform. European pirate groups from the Commodore 64 and Amiga communities also began
+exploring the PC, viewing it as a potential secondary system.
+However, this era also marked the emergence of the modern cracking scene, with some groups competing to be first to crack and distribute new game releases.
+While this practice was already commonplace on other microcomputer platforms, it was new to the laggard PC.
+</small></div>
+{{- else if eq $year 1991 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Silly names</em>.
+1990 and 1991 witnessed a rise of excessively long group names, as various PC collectives, and those from the Commodore 64 and Amiga scenes, 
+collaborated on PC releases. However, these groups were either too stubborn or egotistical to abandon their established identities.
+Instead, they created absurdly long conjoined brand names for their PC releases. 
+<em>Public Enemy / Tristar &amp; Red Sector / Defjam / The Dream Team present.</em>
+<em>United Software Association and Fairlight PC Division proudly presents.</em>
+</small></div>
+{{- else if eq $year 1992 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Drama</em>.
+1992 marked the PC's rise as the dominant home-computing gaming platform.
+While the PC remained a somewhat unusable platform, it had become clear that computer gaming's future lay with the open PC ecosystem,
+which neither Apple, Commodore, nor Atari possessed the scale or resources to compete.
+As the PC's popularity grew, so did its presence on "elite" bulletin board systems across North America, Europe, and worldwide.
+This surge in popularity led to a proliferation of scene magazines, often released as hard to use, multimedia presentations.
+However, in late 1991 the PC piracy scene also faced its first major group schism due to personal conflicts,
+followed by its first significant police raid on the same group in early 1992, which sent shockwaves through the community.
+</small></div>
+{{- end}}
             <div class="{{$class}}">
         {{- end}}
     {{- end}}
