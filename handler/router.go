@@ -56,6 +56,7 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, p
 	e = c.embed(e, public)
 	e = c.search(e, db, sl)
 	e = c.website(e, db, sl, dirs)
+	e = c.api(e, db, sl, public)
 	e = c.lock(e, db, sl, dirs)
 	return e, nil
 }
@@ -191,6 +192,20 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 		}
 		return cx.JSONPretty(http.StatusOK, d, "  ")
 	})
+	return e
+}
+
+// api routes for the public API endpoints.
+func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) *echo.Echo {
+	const msg = "api routes"
+	if err := panics.EchoDSP(e, db, sl, public); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
+	}
+	e.GET("/api/milestones", func(c echo.Context) error { return app.GetAllMilestones(c) })
+	e.GET("/api/milestones/highlights", func(c echo.Context) error { return app.GetHighlightedMilestones(c) })
+	e.GET("/api/milestones/year/:year", func(c echo.Context) error { return app.GetMilestonesByYear(c) })
+	e.GET("/api/milestones/years/:range", func(c echo.Context) error { return app.GetMilestonesByYearRange(c) })
+	e.GET("/api/milestones/decade/:decade", func(c echo.Context) error { return app.GetMilestonesByDecade(c) })
 	return e
 }
 

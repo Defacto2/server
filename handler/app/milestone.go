@@ -6,18 +6,19 @@ const notable = "Notable group foundings,"
 
 // Milestone is an accomplishment for a year and optional month.
 type Milestone struct {
-	Picture   Picture // Picture is an image or screenshot for a milestone.
-	Prefix    string  // Prefix replacement for the month, such as 'Early', 'Mid' or 'Late'.
-	Title     string  // Title of the milestone should be the accomplishment.
-	Lead      string  // Lead paragraph, is optional and should usually be the product.
-	Content   string  // Content is the main body of the milestone and can be HTML.
-	Link      string  // Link is the URL to an article about the milestone or the product.
-	LinkTitle string  // LinkTitle is the title of the Link.
-	List      Links   // Links is a collection of links that are displayed as a HTML list.
-	Year      int     // Year of the milestone.
-	Month     int     // Month of the milestone.
-	Day       int     // Day of the milestone.
-	Highlight bool    // Highlight is a flag to outline the milestone.
+	Picture     Picture // Picture is an image or screenshot for a milestone.
+	Prefix      string  // Prefix replacement for the month, such as 'Early', 'Mid' or 'Late'.
+	Title       string  // Title of the milestone should be the accomplishment.
+	Lead        string  // Lead paragraph, is optional and should usually be the product.
+	Content     string  // Content is the main body of the milestone and can be HTML.
+	ContentPlain string // ContentPlain is a plain text version without HTML tags.
+	Link        string  // Link is the URL to an article about the milestone or the product.
+	LinkTitle   string  // LinkTitle is the title of the Link.
+	List        Links   // Links is a collection of links that are displayed as a HTML list.
+	Year        int     // Year of the milestone.
+	Month       int     // Month of the milestone.
+	Day         int     // Day of the milestone.
+	Highlight   bool    // Highlight is a flag to outline the milestone.
 }
 
 // Picture is an image or screenshot for a milestone.
