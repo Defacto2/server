@@ -16,9 +16,12 @@
 {{- range $index, $rel := .releasers -}}
     {{- $initialism := initialisms $rel.Unique.URI }}
     {{- $year := $rel.Unique.Year.Int }}
+    {{- /* conditionals must always begin after these vars */ -}}
     {{ if eq $index 0}}
-        {{ if (gt $year 0) }}<h3 class="text-end lead p-3">The first releases of &nbsp; <span class="display-6">{{$year}}</span></h3>{{end}}
-        {{if hasSuffix $pubs "releasers and groups"}}
+        {{- if and (gt $year 1981) (eq $index 0) }}<h3 class="text-end lead p-3"><span class="display-6">1981</span></h3>
+        {{- else if (gt $year 0) }}<h3 class="text-end lead p-3"><span class="display-6">{{$year}}</span></h3>
+        {{- end}}
+        {{- if or (eq $year 1981) (eq $index 0) }}
 <div class="{{$eraClass}}">
 <small><em class="text-primary">Pre-Scene</em>.
 The first IBM PC was released on 12 August 1981.
@@ -27,13 +30,14 @@ At this time, piracy involved in-person meetings to copy and exchange software, 
 On the <a href="https://demozoo.org/productions/?platform=67&production_type=13&dir=asc&page=1">Apple II</a>, 
 disk crackers had only begun tagging their work with handles in late 1980 while Scene groups and pirate bulletin boards became normalized in 1982.
 </small></div>
-        {{end}}
+        {{- if and (gt $year 1981) (eq $index 0) }}<h3 class="text-end lead p-3"><span class="display-6">{{$year}}</span></h3>{{end}}
+        {{- end}}
         <div class="{{$class}}">
     {{- else}}
         {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
             </div>
             <h3 class="text-end display-6 mt-3 p-3">{{$year}}</h3>
-{{- if eq $year 1984 }}
+{{- if or (eq $year 1984) (eq $prevYear 1983)}}
 <div class="{{$eraClass}}">
 <small><em class="text-primary">The local era</em>.
 While 1983 saw the emergence of solo authors and the first public unprotect texts exchanging software cracking guides on commercial online services like CompuServe,
@@ -93,6 +97,17 @@ This surge in popularity led to a proliferation of scene magazines, often releas
 However, in late 1991 the PC piracy scene also faced its first major group schism due to personal conflicts,
 followed by its first significant police raid in early 1992, which sent shockwaves through the community.
 </small></div>
+{{- else if eq $year 1993 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Peak demo</em>.
+The demoscene originated with coders on other computer platforms who sought to recreate the impressive opening effects found in game title screens.
+Initially intended to showcase their disk cracking abilities, it evolved into a competition to demonstrate programming prowess.
+Unsurprisingly, the PC lagged behind this trend due to its many technical challenges.
+However, it was on the PC in 1993 that demos arguably reached their peak with the release of "Second Reality" by Future Crew,
+which briefly was the ultimate way for computer enthusiasts to demonstrate their hardware's capabilities.
+This dominance was short-lived, as the following month saw the release of id Software's DOOM shareware edition,
+which revolutionized the gaming world.
+</small></div>
 {{- else if eq $year 1994 }}
 <div class="{{$eraClass}}">
 <small><em class="text-primary">The Internet@aol.com</em>.
@@ -119,8 +134,8 @@ Many Sceners who gained status on closed "elite" bulletin boards found their new
 often complaining publicly about "lamers" while also courting their attention and support.
 1996 and 1997 represented the peak of Scene reporting, with high-profile interviews,
 personality culture, and unprecedented open access.
-Groups registered domains such as razor1911.com as status symbols,
-when the web remained unmonetized, domain registration was bureaucratic, and hosting costs were prohibitive.
+Groups created websites such as razor1911.com as status symbols,
+back when the Web 1.0 remained unmonetized, cryptic, bureaucratic, and expensive.
 Some even sold branded merchanise, that they advertised in their releases, 
 payable by mailing cash or a cheque to a po-box, with the purchased wares shipped world-wide.
 </small></div>
@@ -133,7 +148,6 @@ While pirating entire CDs online wasn't new, there was no standard way until som
 These full-disc images were unpopular with most users who were used to extremely limited bandwidth.
 FTP site operators also disliked them because of their inherent size and the high costs of hosting such large files.
 </small></div>
-
 {{- end}}
             <div class="{{$class}}">
         {{- end}}
