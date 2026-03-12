@@ -10,23 +10,25 @@ import (
 // BenchmarkTagByURI tests the optimized O(1) lookup.
 func BenchmarkTagByURI(b *testing.B) {
 	slugs := []string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
-	b.ResetTimer()
-	for range b.N {
-		for _, slug := range slugs {
-			_ = tags.TagByURI(slug)
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, slug := range slugs {
+				_ = tags.TagByURI(slug)
+			}
 		}
-	}
+	})
 }
 
 // BenchmarkTagByURILinearSearch simulates the old O(n) approach for comparison.
 func BenchmarkTagByURILinearSearch(b *testing.B) {
 	slugs := []string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
-	b.ResetTimer()
-	for range b.N {
-		for _, slug := range slugs {
-			oldTagByURI(slug)
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, slug := range slugs {
+				oldTagByURI(slug)
+			}
 		}
-	}
+	})
 }
 
 // oldTagByURI is the original O(n) implementation for benchmarking comparison.
@@ -42,67 +44,79 @@ func oldTagByURI(slug string) tags.Tag {
 // BenchmarkURIsCalls tests the optimized cached map.
 func BenchmarkURIsCalls(b *testing.B) {
 	b.ReportAllocs()
-	for range b.N {
-		_ = tags.URIs()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = tags.URIs()
+		}
+	})
 }
 
 // BenchmarkNamesCalls tests the optimized cached map.
 func BenchmarkNamesCalls(b *testing.B) {
 	b.ReportAllocs()
-	for range b.N {
-		_ = tags.Names()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = tags.Names()
+		}
+	})
 }
 
 // BenchmarkInfosCalls tests the optimized cached map.
 func BenchmarkInfosCalls(b *testing.B) {
 	b.ReportAllocs()
-	for range b.N {
-		_ = tags.Infos()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = tags.Infos()
+		}
+	})
 }
 
 // BenchmarkDeterminerCalls tests the optimized cached map.
 func BenchmarkDeterminerCalls(b *testing.B) {
 	b.ReportAllocs()
-	for range b.N {
-		_ = tags.Determiner()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = tags.Determiner()
+		}
+	})
 }
 
 // BenchmarkBuildSimulation simulates old Build() accessing maps 40+ times each.
 func BenchmarkBuildSimulation(b *testing.B) {
 	b.ReportAllocs()
-	for range b.N {
-		for range 40 {
-			_ = tags.URIs()
-			_ = tags.Names()
-			_ = tags.Infos()
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for range 40 {
+				_ = tags.URIs()
+				_ = tags.Names()
+				_ = tags.Infos()
+			}
 		}
-	}
+	})
 }
 
 // BenchmarkIsCategory tests the optimized O(1) lookup.
 func BenchmarkIsCategory(b *testing.B) {
 	names := []string{"announcements", "demo", "text", "ansi", "linux"}
-	b.ResetTimer()
-	for range b.N {
-		for _, name := range names {
-			_ = tags.IsCategory(name)
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, name := range names {
+				_ = tags.IsCategory(name)
+			}
 		}
-	}
+	})
 }
 
 // BenchmarkIsCategoryOld simulates old O(n) implementation.
 func BenchmarkIsCategoryOld(b *testing.B) {
 	names := []string{"announcements", "demo", "text", "ansi", "linux"}
-	b.ResetTimer()
-	for range b.N {
-		for _, name := range names {
-			oldIsCategory(name)
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, name := range names {
+				oldIsCategory(name)
+			}
 		}
-	}
+	})
 }
 
 // oldIsCategory simulates the old O(n) iteration.
@@ -122,21 +136,23 @@ func oldIsCategory(name string) bool {
 // BenchmarkIsPlatform tests the optimized O(1) lookup.
 func BenchmarkIsPlatform(b *testing.B) {
 	names := []string{"ansi", "dos", "windows", "linux", "java"}
-	b.ResetTimer()
-	for range b.N {
-		for _, name := range names {
-			_ = tags.IsPlatform(name)
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, name := range names {
+				_ = tags.IsPlatform(name)
+			}
 		}
-	}
+	})
 }
 
 // BenchmarkIsTag tests the optimized O(1) lookup.
 func BenchmarkIsTag(b *testing.B) {
 	names := []string{"ansi", "demo", "windows", "text", "java"}
-	b.ResetTimer()
-	for range b.N {
-		for _, name := range names {
-			_ = tags.IsTag(name)
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, name := range names {
+				_ = tags.IsTag(name)
+			}
 		}
-	}
+	})
 }

@@ -612,34 +612,39 @@ func TestSimilarToPlaceholderFormat(t *testing.T) {
 
 // BenchmarkScenerSQL benchmarks the ScenerSQL function.
 func BenchmarkScenerSQL(b *testing.B) {
-	for range b.N {
-		_, _ = postgres.ScenerSQL("John Doe")
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_, _ = postgres.ScenerSQL("John Doe")
+		}
+	})
 }
 
 // BenchmarkSimilarToReleaser benchmarks the SimilarToReleaser function.
 func BenchmarkSimilarToReleaser(b *testing.B) {
 	input := []string{"Lotus", "Amiga", "Test"}
-	b.ResetTimer()
-	for range b.N {
-		_, _ = postgres.SimilarToReleaser(input...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_, _ = postgres.SimilarToReleaser(input...)
+		}
+	})
 }
 
 // BenchmarkSimilarToMagazine benchmarks the SimilarToMagazine function.
 func BenchmarkSimilarToMagazine(b *testing.B) {
 	input := []string{"Amiga World", "PC Zone"}
-	b.ResetTimer()
-	for range b.N {
-		_, _ = postgres.SimilarToMagazine(input...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_, _ = postgres.SimilarToMagazine(input...)
+		}
+	})
 }
 
 // BenchmarkSimilarToExact benchmarks the SimilarToExact function.
 func BenchmarkSimilarToExact(b *testing.B) {
 	input := []string{"Breadbox", "Apogee", "Lotus"}
-	b.ResetTimer()
-	for range b.N {
-		_, _ = postgres.SimilarToExact(input...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_, _ = postgres.SimilarToExact(input...)
+		}
+	})
 }

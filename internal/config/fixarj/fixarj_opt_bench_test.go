@@ -21,10 +21,11 @@ func BenchmarkCheckOptimizations(b *testing.B) {
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixarj.Check(extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixarj.Check(extra, d, artifacts...)
+		}
+	})
 }
 
 // BenchmarkInvalidBytesOptimization measures string vs bytes.Contains optimization.
@@ -38,10 +39,11 @@ func BenchmarkInvalidBytesOptimization(b *testing.B) {
 		b.Fatal(err)
 	}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixarj.Invalid(context.Background(), sl, arjPath)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixarj.Invalid(context.Background(), sl, arjPath)
+		}
+	})
 }
 
 // BenchmarkCheckWithExtraZip tests the optimization where extra zip exists.
@@ -60,10 +62,11 @@ func BenchmarkCheckWithExtraZip(b *testing.B) {
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixarj.Check(extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixarj.Check(extra, d, artifacts...)
+		}
+	})
 }
 
 // BenchmarkCheckWithoutExtraZip tests the non-optimization path.
@@ -75,8 +78,9 @@ func BenchmarkCheckWithoutExtraZip(b *testing.B) {
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixarj.Check(extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixarj.Check(extra, d, artifacts...)
+		}
+	})
 }

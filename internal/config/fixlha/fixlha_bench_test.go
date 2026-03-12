@@ -16,10 +16,11 @@ func BenchmarkCheckValid(b *testing.B) {
 	d := &MockDirEntry{name: testconst.TestUUID + ".zip", isDir: false}
 	artifacts := []string{testconst.TestUUID}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixlha.Check(sl, extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixlha.Check(sl, extra, d, artifacts...)
+		}
+	})
 }
 
 // BenchmarkCheckInvalidExtension benchmarks the Check function with an invalid extension.
@@ -29,10 +30,11 @@ func BenchmarkCheckInvalidExtension(b *testing.B) {
 	d := &MockDirEntry{name: testconst.TestUUID + ".lha", isDir: false}
 	artifacts := []string{testconst.TestUUID}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixlha.Check(sl, extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixlha.Check(sl, extra, d, artifacts...)
+		}
+	})
 }
 
 // BenchmarkCheckDirectory benchmarks the Check function with a directory.
@@ -41,10 +43,11 @@ func BenchmarkCheckDirectory(b *testing.B) {
 	extra := dir.Directory(b.TempDir())
 	d := &MockDirEntry{name: "somedir", isDir: true}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixlha.Check(sl, extra, d)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixlha.Check(sl, extra, d)
+		}
+	})
 }
 
 // BenchmarkCheckUppercaseExtension benchmarks the Check function with uppercase extension.
@@ -54,10 +57,11 @@ func BenchmarkCheckUppercaseExtension(b *testing.B) {
 	d := &MockDirEntry{name: testconst.TestUUID + ".ZIP", isDir: false}
 	artifacts := []string{testconst.TestUUID}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixlha.Check(sl, extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixlha.Check(sl, extra, d, artifacts...)
+		}
+	})
 }
 
 // BenchmarkCheckManyArtifacts benchmarks the Check function with many artifacts.
@@ -73,8 +77,9 @@ func BenchmarkCheckManyArtifacts(b *testing.B) {
 	}
 	artifacts = append(artifacts, testconst.TestUUID)
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixlha.Check(sl, extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixlha.Check(sl, extra, d, artifacts...)
+		}
+	})
 }

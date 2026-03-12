@@ -9,43 +9,57 @@ import (
 // Benchmarks for tag functions with caching optimization.
 
 func BenchmarkSAdvert(b *testing.B) {
-	for range b.N {
-		_ = querymod.SAdvert()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = querymod.SAdvert()
+		}
+	})
 }
 
 func BenchmarkPWindows(b *testing.B) {
-	for range b.N {
-		_ = querymod.PWindows()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = querymod.PWindows()
+		}
+	})
 }
 
 func BenchmarkPDos(b *testing.B) {
-	for range b.N {
-		_ = querymod.PDos()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = querymod.PDos()
+		}
+	})
 }
 
 func BenchmarkAdvertExpr(b *testing.B) {
-	for range b.N {
-		_ = querymod.AdvertExpr()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = querymod.AdvertExpr()
+		}
+	})
 }
 
 func BenchmarkDOSExpr(b *testing.B) {
-	for range b.N {
-		_ = querymod.DOSExpr()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = querymod.DOSExpr()
+		}
+	})
 }
 
 func BenchmarkAnsiBBSExpr(b *testing.B) {
-	for range b.N {
-		_ = querymod.AnsiBBSExpr()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = querymod.AnsiBBSExpr()
+		}
+	})
 }
 
 func BenchmarkWindowsPackExpr(b *testing.B) {
-	for range b.N {
-		_ = querymod.WindowsPackExpr()
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = querymod.WindowsPackExpr()
+		}
+	})
 }
