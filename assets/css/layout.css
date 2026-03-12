@@ -11,6 +11,41 @@
  * - Animation effects
  */
 
+:root {
+  --bbs-black: rgb(0 0 0);
+  --bbs-blue: rgb(0 0 128);
+  --bbs-green: rgb(0 128 0);
+  --bbs-cyan: rgb(0 170 170);
+  --bbs-red: rgb(128 0 0);
+  --bbs-magenta: rgb(170 0 170);
+  --bbs-brown: rgb(170 85 0);
+  --bbs-grey: rgb(170 170 170);
+  --bbs-darkgrey: rgb(85 85 85);
+  --bbs-lightblue: rgb(0 0 255);
+  --bbs-lightgreen: rgb(0 255 0);
+  --bbs-lightcyan: rgb(0 255 255);
+  --bbs-lightred: rgb(255 0 0);
+  --bbs-lightmagenta: rgb(255 0 255);
+  --bbs-yellow: rgb(255 255 85);
+  --bbs-white: rgb(255 255 255);
+  --renegade-black: rgb(0 0 0);
+  --renegade-blue: rgb(0 0 170);
+  --renegade-green: rgb(0 170 0);
+  --renegade-cyan: rgb(0 170 170);
+  --renegade-red: rgb(170 0 0);
+  --renegade-purple: rgb(170 0 170);
+  --renegade-brown: rgb(170 85 0);
+  --renegade-grey: rgb(170 170 170);
+  --renegade-darkgrey: rgb(85 85 85);
+  --renegade-brightblue: rgb(85 85 255);
+  --renegade-brightgreen: rgb(85 255 85);
+  --renegade-brightcyan: rgb(85 255 255);
+  --renegade-brightred: rgb(255 85 85);
+  --renegade-brightpurple: rgb(255 85 255);
+  --renegade-yellow: rgb(255 255 85);
+  --renegade-white: rgb(255 255 255);
+}
+
 /* ============================================================
  * ICON STYLES
  * Social media icon colors and styling
@@ -521,29 +556,11 @@ a {
 }
 
 /* ============================================================
- * PCBoard and WildCat! BBS colours
+ * PCBoard, Renegade (EGA palette), and WildCat! BBS colours
  * https://github.com/bengarrett/bbs/blob/main/static/css/
  * ============================================================ */
 /* stylelint-disable selector-class-pattern */
-:root {
-  --bbs-black: rgb(0 0 0);
-  --bbs-blue: rgb(0 0 128);
-  --bbs-green: rgb(0 128 0);
-  --bbs-cyan: rgb(0 170 170);
-  --bbs-red: rgb(128 0 0);
-  --bbs-magenta: rgb(170 0 170);
-  --bbs-brown: rgb(170 85 0);
-  --bbs-grey: rgb(170 170 170);
-  --bbs-darkgrey: rgb(85 85 85);
-  --bbs-lightblue: rgb(0 0 255);
-  --bbs-lightgreen: rgb(0 255 0);
-  --bbs-lightcyan: rgb(0 255 255);
-  --bbs-lightred: rgb(255 0 0);
-  --bbs-lightmagenta: rgb(255 0 255);
-  --bbs-yellow: rgb(255 255 85);
-  --bbs-white: rgb(255 255 255);
-}
-
+/* stylelint-disable selector-id-pattern */
 :is(
   pre i.PF0,
   pre i.PF1,
@@ -701,35 +718,7 @@ pre#precontentCP437 {
   & i.PBF {
     background-color: var(--bbs-grey);
   }
-}
-/* stylelint-enable selector-class-pattern */
 
-/* ============================================================
- * Renegade BBS Pipe Colors (EGA Palette)
- * ============================================================ */
-:root {
-  --renegade-black: rgb(0 0 0);
-  --renegade-blue: rgb(0 0 170);
-  --renegade-green: rgb(0 170 0);
-  --renegade-cyan: rgb(0 170 170);
-  --renegade-red: rgb(170 0 0);
-  --renegade-purple: rgb(170 0 170);
-  --renegade-brown: rgb(170 85 0);
-  --renegade-grey: rgb(170 170 170);
-  --renegade-darkgrey: rgb(85 85 85);
-  --renegade-brightblue: rgb(85 85 255);
-  --renegade-brightgreen: rgb(85 255 85);
-  --renegade-brightcyan: rgb(85 255 255);
-  --renegade-brightred: rgb(255 85 85);
-  --renegade-brightpurple: rgb(255 85 255);
-  --renegade-yellow: rgb(255 255 85);
-  --renegade-white: rgb(255 255 255);
-}
-
-/* stylelint-disable selector-class-pattern */
-pre#precontentUTF8,
-pre#precontentLatin1,
-pre#precontentCP437 {
   & i.P0 {
     color: var(--renegade-black);
   }
@@ -830,4 +819,5 @@ pre#precontentCP437 {
     font-style: normal;
   }
 }
+/* stylelint-enable selector-id-pattern */
 /* stylelint-enable selector-class-pattern */
