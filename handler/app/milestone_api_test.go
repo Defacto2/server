@@ -167,26 +167,6 @@ func TestStripHTMLTags(t *testing.T) {
 	}
 }
 
-func TestGetMilestonesByYear(t *testing.T) {
-	// This would need a mock or actual data setup
-	t.Skip("Skipping until test data is available")
-}
-
-func TestGetMilestonesByYearRange(t *testing.T) {
-	// This would need a mock or actual data setup
-	t.Skip("Skipping until test data is available")
-}
-
-func TestGetHighlightedMilestones(t *testing.T) {
-	// This would need a mock or actual data setup
-	t.Skip("Skipping until test data is available")
-}
-
-func TestGetMilestonesByDecade(t *testing.T) {
-	// This would need a mock or actual data setup
-	t.Skip("Skipping until test data is available")
-}
-
 // Benchmark functions.
 func BenchmarkCleanHTMLForAPI(b *testing.B) {
 	html := `<div class="content">
@@ -213,5 +193,3 @@ func BenchmarkStripHTMLTags(b *testing.B) {
 		}
 	})
 }
-
-// BenchmarkCleanMilestoneForAPI removed because cleanMilestoneForAPI is not exported

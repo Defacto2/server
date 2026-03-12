@@ -13,10 +13,7 @@ import (
 
 // Example_milestoneAPI demonstrates how to use the milestone API endpoints.
 func Example_milestoneAPI() {
-	// Create a new Echo instance
 	e := echo.New()
-
-	// Set up the API routes (this would normally be done in your router setup)
 	apiGroup := e.Group("/api/v1")
 	apiGroup.GET("/milestones", app.GetAllMilestones)
 	apiGroup.GET("/milestones/year/:year", app.GetMilestonesByYear)
@@ -39,8 +36,8 @@ func Example_milestoneAPI() {
 			fmt.Printf("  Found %d milestones\n", len(milestones))
 			if len(milestones) > 0 {
 				fmt.Printf("  First milestone year: %d\n", milestones[0].Year)
-				fmt.Printf("  Has clean HTML content: %t\n", len(milestones[0].Content) > 0)
-				fmt.Printf("  Has plain text content: %t\n", len(milestones[0].ContentPlain) > 0)
+				fmt.Printf("  Has clean HTML content: %t\n", len(milestones[0].ContentHTML) > 0)
+				fmt.Printf("  Has plain text content: %t\n", len(milestones[0].ContentHTML) > 0)
 			}
 		}
 	default:
@@ -157,13 +154,8 @@ func Example_htmlCleaning() {
 		<p class="intro">This is <strong>important</strong> content with <a href="https://example.com" class="external" title="Visit Example">a link</a>.</p>
 		<p>More content with <span data-info="test">data attributes</span> and <a name="anchor">anchor without href</a>.</p>
 	</div>`
-
-	// Clean the HTML for API response
 	cleaned := app.CleanHTMLForAPI(html)
-
-	// Convert to plain text
 	plain := app.StripHTMLTags(html)
-
 	fmt.Println("Original HTML:")
 	fmt.Println(html)
 	fmt.Println("\nCleaned HTML (preserves structure, removes presentation):")
@@ -194,10 +186,7 @@ func Example_htmlCleaning() {
 
 // Example_errorHandling demonstrates error cases.
 func Example_errorHandling() {
-	// Create a new Echo instance
 	e := echo.New()
-
-	// Set up the API routes
 	apiGroup := e.Group("/api/v1")
 	apiGroup.GET("/milestones/year/:year", app.GetMilestonesByYear)
 	apiGroup.GET("/milestones/range/:range", app.GetMilestonesByYearRange)

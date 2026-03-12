@@ -9,7 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Constants for decade calculations.
 const (
 	yearsInDecade = 9
 )
@@ -105,8 +104,8 @@ func StripHTMLTags(html string) string {
 
 // cleanMilestoneForAPI prepares a milestone for API response.
 func cleanMilestoneForAPI(m Milestone) Milestone {
-	m.Content = CleanHTMLForAPI(m.Content)
-	m.ContentPlain = StripHTMLTags(m.Content)
+	m.ContentHTML = CleanHTMLForAPI(m.Content)
+	m.Content = StripHTMLTags(m.Content)
 	m.Lead = CleanHTMLForAPI(m.Lead)
 
 	// Clean links if they exist
