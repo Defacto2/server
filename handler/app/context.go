@@ -144,6 +144,26 @@ func EmptyTester(c echo.Context) map[string]any {
 	return empty(c)
 }
 
+// APIInfo is the handler for the APIInfo end-user helper page.
+func APIInfo(c echo.Context, sl *slog.Logger) error {
+	const msg = "api helper context"
+	if err := panics.EchoContextS(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "api-info"
+	data := empty(c)
+	data["description"] = "A special thanks to the hundreds of contributors and the thousands of contributions."
+	data["h1"] = "Restful API"
+	data["logo"] = "application programming interface"
+	data["lead"] = "Basic information on how to use the Defacto2 API."
+	data["title"] = "API Information"
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(c, sl, name, err)
+	}
+	return nil
+}
+
 // Artifacts is the handler for the list and preview of the files page.
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.

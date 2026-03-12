@@ -201,6 +201,7 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	if err := panics.EchoDSP(e, db, sl, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
 	e.GET("/api/milestones", func(c echo.Context) error { return app.GetAllMilestones(c) })
 	e.GET("/api/milestones/highlights", func(c echo.Context) error { return app.GetHighlightedMilestones(c) })
 	e.GET("/api/milestones/year/:year", func(c echo.Context) error { return app.GetMilestonesByYear(c) })
