@@ -1,27 +1,22 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Defacto2 Milestone API",
-    "description": "A RESTful API for accessing historical milestones and significant events in technology and digital culture. Provides both HTML and plain text content formats for API consumers.",
+    "title": "Defacto2 API",
+    "description": "A RESTful API for accessing historical Scene data and digital culture. Provides both HTML and plain text content formats for API consumers.",
     "version": "1.0.0",
     "contact": {
       "name": "Defacto2 API Support",
-      "url": "https://defacto2.net",
-      "email": "support@defacto2.net"
+      "url": "https://defacto2.net"
     },
     "license": {
-      "name": "MIT License",
-      "url": "https://opensource.org/licenses/MIT"
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
     }
   },
   "servers": [
     {
-      "url": "https://api.defacto2.net",
+      "url": "https://defacto2.net/api",
       "description": "Production server"
-    },
-    {
-      "url": "http://localhost:1323/api",
-      "description": "Development server"
     }
   ],
   "tags": [
@@ -312,68 +307,68 @@
       "Milestone": {
         "type": "object",
         "properties": {
-          "year": {
+          "Year": {
             "type": "integer",
             "description": "The year the milestone occurred",
             "example": 1971
           },
-          "month": {
+          "Month": {
             "type": "integer",
             "description": "The month the milestone occurred (1-12)",
             "example": 10,
             "minimum": 1,
             "maximum": 12
           },
-          "day": {
+          "Day": {
             "type": "integer",
             "description": "The day the milestone occurred",
             "example": 15,
             "minimum": 1,
             "maximum": 31
           },
-          "title": {
+          "Title": {
             "type": "string",
             "description": "The title or name of the milestone",
             "example": "Secrets of the Little Blue Box"
           },
-          "lead": {
+          "Lead": {
             "type": "string",
             "description": "Short introductory text or subtitle",
             "example": "Esquire October 1971"
           },
-          "content": {
-            "type": "string",
-            "description": "Main content with clean HTML (presentation attributes removed)",
-            "example": "<p>Ron Rosenbaum writes the first mainstream article on phone freaks...</p>"
-          },
-          "contentPlain": {
+          "Content": {
             "type": "string",
             "description": "Plain text version of the content (all HTML tags removed)",
             "example": "Ron Rosenbaum writes the first mainstream article on phone freaks..."
           },
-          "link": {
+          "ContentHTML": {
+            "type": "string",
+            "description": "Main content with clean HTML (presentation attributes removed)",
+            "example": "<p>Ron Rosenbaum writes the first mainstream article on phone freaks...</p>"
+          },
+          "Link": {
             "type": "string",
             "description": "URL to an article or external resource about the milestone",
             "example": "https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html"
           },
-          "linkTitle": {
+          "LinkTitle": {
             "type": "string",
             "description": "Title for the external link",
             "example": "the complete article"
           },
-          "highlight": {
+          "Highlight": {
             "type": "boolean",
             "description": "Whether this milestone is marked as significant/highlighted",
             "example": true
           },
-          "list": {
+          "List": {
             "type": "array",
             "description": "Additional related links",
             "items": {
               "$ref": "#/components/schemas/Link"
             }
           },
-          "picture": {
+          "Picture": {
             "$ref": "#/components/schemas/Picture"
           }
         }
@@ -471,3 +466,4 @@
     }
   }
 }
+

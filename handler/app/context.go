@@ -153,7 +153,7 @@ func APIInfo(c echo.Context, sl *slog.Logger) error {
 	const name = "api-info"
 	data := empty(c)
 	data["description"] = "A special thanks to the hundreds of contributors and the thousands of contributions."
-	data["h1"] = "Restful API"
+	data["h1"] = "RESTful API"
 	data["logo"] = "application programming interface"
 	data["lead"] = "Basic information on how to use the Defacto2 API."
 	data["title"] = "API Information"
