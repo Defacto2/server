@@ -4,6 +4,7 @@
 package app_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -14,11 +15,13 @@ import (
 	"github.com/nalgeon/be"
 )
 
+const contentTypeJSON = "application/json"
+
 func TestGetAllAreacodes(t *testing.T) {
 	t.Parallel()
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/api/areacodes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -27,7 +30,7 @@ func TestGetAllAreacodes(t *testing.T) {
 	be.Equal(t, err, nil)
 	be.Equal(t, http.StatusOK, rec.Code)
 	be.True(t, len(rec.Body.String()) > 0)
-	be.True(t, rec.Header().Get("Content-Type") == "application/json")
+	be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
 }
 
 func TestGetAreacodeByCode(t *testing.T) {
@@ -66,9 +69,10 @@ func TestGetAreacodeByCode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			// Setup
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodGet, "/api/areacodes/"+tt.code, nil)
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes/"+tt.code, nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("code")
@@ -79,7 +83,7 @@ func TestGetAreacodeByCode(t *testing.T) {
 			be.Equal(t, err, nil)
 			be.Equal(t, tt.expectStatus, rec.Code)
 			be.True(t, len(rec.Body.String()) > 0)
-			be.True(t, rec.Header().Get("Content-Type") == "application/json")
+			be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
 			be.True(t, len(rec.Body.String()) > 0)
 			be.True(t, strings.Contains(rec.Body.String(), tt.expectContain))
 		})
@@ -90,7 +94,7 @@ func TestGetTerritories(t *testing.T) {
 	t.Parallel()
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/api/areacodes/territories", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes/territories", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -99,7 +103,7 @@ func TestGetTerritories(t *testing.T) {
 	be.Equal(t, err, nil)
 	be.Equal(t, http.StatusOK, rec.Code)
 	be.True(t, len(rec.Body.String()) > 0)
-	be.True(t, rec.Header().Get("Content-Type") == "application/json")
+	be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
 }
 
 func TestGetTerritoryByAbbr(t *testing.T) {
@@ -138,9 +142,10 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			// Setup
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodGet, "/api/areacodes/territories/"+tt.abbr, nil)
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes/territories/"+tt.abbr, nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("abbr")
@@ -151,7 +156,7 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 			be.Equal(t, err, nil)
 			be.Equal(t, tt.expectStatus, rec.Code)
 			be.True(t, len(rec.Body.String()) > 0)
-			be.True(t, rec.Header().Get("Content-Type") == "application/json")
+			be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
 			be.True(t, strings.Contains(rec.Body.String(), tt.expectContain))
 		})
 	}
@@ -199,9 +204,10 @@ func TestSearchAreacodes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			// Setup
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodGet, "/api/areacodes/search/"+tt.query, nil)
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes/search/"+tt.query, nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("query")
@@ -212,7 +218,7 @@ func TestSearchAreacodes(t *testing.T) {
 			be.Equal(t, err, nil)
 			be.Equal(t, tt.expectStatus, rec.Code)
 			be.True(t, len(rec.Body.String()) > 0)
-			be.True(t, rec.Header().Get("Content-Type") == "application/json")
+			be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
 			be.True(t, strings.Contains(rec.Body.String(), tt.expectContain))
 		})
 	}

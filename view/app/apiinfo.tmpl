@@ -14,7 +14,11 @@
                         <input type="text" class="form-control" id="baseUrl" value="https://defacto2.net/api" readonly>
                         <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('baseUrl')">Copy</button>
                     </div>
-                    <p class="text-muted">The base URL for all API endpoints.</p>
+                    <p>The base URL for all API endpoints.</p>
+                    <p class="text-muted">For example &bull; 
+                      <a href="/api/milestones/year/1971">https://defacto2.net/api/milestones/year/1971</a> &bull;
+                      <a href="/api/areacodes/territories/CA">https://defacto2.net/api/areacodes/territories/CA</a>
+                    </p>
                     <p>No authentication is required for read-only API endpoints.</p>
                 </div>
             </div>
@@ -140,19 +144,19 @@
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl http://localhost:1323/api/milestones
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl https://defacto2.net/api/milestones
 
-curl http://localhost:1323/api/milestones/year/1995
+curl https://defacto2.net/api/milestones/year/1995
 
-curl http://localhost:1323/api/milestones/years/1990-2000</code></pre>
+curl https://defacto2.net/api/milestones/years/1990-2000</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch)</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('http://localhost:1323/api/milestones')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/milestones')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('http://localhost:1323/api/milestones/highlights')
+fetch('https://defacto2.net/api/milestones/highlights')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -235,27 +239,27 @@ fetch('http://localhost:1323/api/milestones/highlights')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl http://localhost:1323/api/areacodes
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl https://defacto2.net/api/areacodes
 
-curl http://localhost:1323/api/areacodes/212
+curl https://defacto2.net/api/areacodes/212
 
-curl http://localhost:1323/api/areacodes/territories
+curl https://defacto2.net/api/areacodes/territories
 
-curl http://localhost:1323/api/areacodes/territories/CA
+curl https://defacto2.net/api/areacodes/territories/CA
 
-curl http://localhost:1323/api/areacodes/search/california</code></pre>
+curl https://defacto2.net/api/areacodes/search/california</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('http://localhost:1323/api/areacodes')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/areacodes')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('http://localhost:1323/api/areacodes/territories/NY')
+fetch('https://defacto2.net/api/areacodes/territories/NY')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('http://localhost:1323/api/areacodes/search/602')
+fetch('https://defacto2.net/api/areacodes/search/602')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>

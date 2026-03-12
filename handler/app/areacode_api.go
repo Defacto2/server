@@ -1,7 +1,6 @@
-// Package app provides the application handlers for the web server.
-// This file contains the API handlers for areacode data.
-
 package app
+
+// This file contains the API handlers for areacode data.
 
 import (
 	"net/http"
@@ -20,9 +19,9 @@ type areacodeAPI struct {
 
 // territoryAPI represents a territory for API responses.
 type territoryAPI struct {
-	Name         string   `json:"name"`
-	Abbreviation string   `json:"abbreviation"`
-	AreaCodes    []int    `json:"areaCodes"`
+	Name         string `json:"name"`
+	Abbreviation string `json:"abbreviation"`
+	AreaCodes    []int  `json:"areaCodes"`
 }
 
 // GetAllAreacodes returns all North American Numbering Plan area codes.
@@ -31,7 +30,7 @@ type territoryAPI struct {
 // @Tags areacodes
 // @Produce json
 // @Success 200 {array} areacodeAPI
-// @Router /api/areacodes [get]
+// @Router /api/areacodes [get].
 func GetAllAreacodes(c echo.Context) error {
 	codes := areacode.AreaCodes()
 	if len(codes) == 0 {
@@ -49,6 +48,7 @@ func GetAllAreacodes(c echo.Context) error {
 		apiCode := areacodeAPI{
 			Code:        int(code),
 			Territories: tNames,
+			Notes:       "",
 		}
 
 		if note, ok := areacode.Notes()[code]; ok {
@@ -70,7 +70,7 @@ func GetAllAreacodes(c echo.Context) error {
 // @Success 200 {object} areacodeAPI
 // @Failure 400 {object} string
 // @Failure 404 {object} string
-// @Router /api/areacodes/{code} [get]
+// @Router /api/areacodes/{code} [get].
 func GetAreacodeByCode(c echo.Context) error {
 	codeStr := c.Param("code")
 	if codeStr == "" {
@@ -96,6 +96,7 @@ func GetAreacodeByCode(c echo.Context) error {
 	result := areacodeAPI{
 		Code:        code,
 		Territories: tNames,
+		Notes:       "",
 	}
 
 	if note, ok := areacode.Notes()[nanCode]; ok {
@@ -111,7 +112,7 @@ func GetAreacodeByCode(c echo.Context) error {
 // @Tags areacodes
 // @Produce json
 // @Success 200 {array} territoryAPI
-// @Router /api/areacodes/territories [get]
+// @Router /api/areacodes/territories [get].
 func GetTerritories(c echo.Context) error {
 	territories := areacode.Territories()
 	if len(territories) == 0 {
@@ -144,10 +145,11 @@ func GetTerritories(c echo.Context) error {
 // @Success 200 {object} territoryAPI
 // @Failure 400 {object} string
 // @Failure 404 {object} string
-// @Router /api/areacodes/territories/{abbr} [get]
+// @Router /api/areacodes/territories/{abbr} [get].
 func GetTerritoryByAbbr(c echo.Context) error {
 	abbr := c.Param("abbr")
-	if len(abbr) != 2 {
+	const territoryAbbreviationLength = 2
+	if len(abbr) != territoryAbbreviationLength {
 		return c.JSON(http.StatusBadRequest, "abbreviation must be 2 characters")
 	}
 
@@ -178,7 +180,7 @@ func GetTerritoryByAbbr(c echo.Context) error {
 // @Param query path string true "Search query"
 // @Success 200 {object} object{areacodes=[]areacodeAPI,territories=[]territoryAPI}
 // @Failure 400 {object} string
-// @Router /api/areacodes/search/{query} [get]
+// @Router /api/areacodes/search/{query} [get].
 func SearchAreacodes(c echo.Context) error {
 	query := c.Param("query")
 	if query == "" {
@@ -198,14 +200,15 @@ func SearchAreacodes(c echo.Context) error {
 			result := areacodeAPI{
 				Code:        code,
 				Territories: tNames,
+				Notes:       "",
 			}
 
 			if note, ok := areacode.Notes()[nanCode]; ok {
 				result.Notes = note
 			}
 
-			return c.JSON(http.StatusOK, map[string]interface{}{
-				"areacodes":  []areacodeAPI{result},
+			return c.JSON(http.StatusOK, map[string]any{
+				"areacodes":   []areacodeAPI{result},
 				"territories": []territoryAPI{},
 			})
 		}
@@ -228,14 +231,14 @@ func SearchAreacodes(c echo.Context) error {
 			})
 		}
 
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"areacodes":  []areacodeAPI{},
+		return c.JSON(http.StatusOK, map[string]any{
+			"areacodes":   []areacodeAPI{},
 			"territories": resultTerrs,
 		})
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"areacodes":  []areacodeAPI{},
+	return c.JSON(http.StatusOK, map[string]any{
+		"areacodes":   []areacodeAPI{},
 		"territories": []territoryAPI{},
 	})
 }
