@@ -2,6 +2,7 @@ version: '2'
 linters:
   default: all
   disable:
+    - gomoddirectives # required at the moment due to avoid bad package imports
     - depguard # too complex to maintain
     - nlreturn # don't want
     - noinlineerr # don't agree with

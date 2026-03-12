@@ -56,6 +56,7 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, p
 	e = c.embed(e, public)
 	e = c.search(e, db, sl)
 	e = c.website(e, db, sl, dirs)
+	e = c.api(e, db, sl, public)
 	e = c.lock(e, db, sl, dirs)
 	return e, nil
 }
@@ -194,6 +195,22 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	return e
 }
 
+// api routes for the public API endpoints.
+func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) *echo.Echo {
+	const msg = "api routes"
+	if err := panics.EchoDSP(e, db, sl, public); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
+	}
+	e.FileFS("/openapi.json", "public/json/openapi.json", public)
+	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
+	e.GET("/api/milestones", app.GetAllMilestones)
+	e.GET("/api/milestones/highlights", app.GetHighlightedMilestones)
+	e.GET("/api/milestones/year/:year", app.GetMilestonesByYear)
+	e.GET("/api/milestones/years/:range", app.GetMilestonesByYearRange)
+	e.GET("/api/milestones/decade/:decade", app.GetMilestonesByDecade)
+	return e
+}
+
 // website routes for the main site.
 func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo { //nolint:funlen
 	const msg = "website routes"
@@ -231,6 +248,12 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/", func(c echo.Context) error { return app.Index(c, sl) })
 	s.GET("/apps", func(c echo.Context) error { return app.Apps(c, sl) })
 	s.GET("/areacodes", func(c echo.Context) error { return app.Areacodes(c, sl) })
+	// Areacode API endpoints
+	s.GET("/api/areacodes", app.GetAllAreacodes)
+	s.GET("/api/areacodes/:code", app.GetAreacodeByCode)
+	s.GET("/api/areacodes/territories", app.GetTerritories)
+	s.GET("/api/areacodes/territories/:abbr", app.GetTerritoryByAbbr)
+	s.GET("/api/areacodes/search/:query", app.SearchAreacodes)
 	s.GET("/artist", func(c echo.Context) error {
 		return app.Artist(c, db, sl)
 	})

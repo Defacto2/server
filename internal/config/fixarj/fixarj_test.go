@@ -295,10 +295,11 @@ func BenchmarkCheck(b *testing.B) {
 	d := &MockDirEntry{name: uid + ".zip", isDir: false}
 	artifacts := []string{uid}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixarj.Check(extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixarj.Check(extra, d, artifacts...)
+		}
+	})
 }
 
 // BenchmarkInvalid measures Invalid function performance.
@@ -312,8 +313,9 @@ func BenchmarkInvalid(b *testing.B) {
 		b.Fatal(err)
 	}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixarj.Invalid(context.Background(), sl, arjPath)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixarj.Invalid(context.Background(), sl, arjPath)
+		}
+	})
 }

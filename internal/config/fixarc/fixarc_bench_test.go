@@ -21,19 +21,20 @@ func BenchmarkExtensionExtractionOld(b *testing.B) {
 		"unknown",
 	}
 
-	b.ResetTimer()
-	for range b.N {
-		for _, name := range names {
-			// Old approach: filepath.Ext(strings.ToLower(name)) called on line 38
-			ext1 := filepath.Ext(strings.ToLower(name))
-			if ext1 != ".zip" && ext1 != "" {
-				continue
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, name := range names {
+				// Old approach: filepath.Ext(strings.ToLower(name)) called on line 38
+				ext1 := filepath.Ext(strings.ToLower(name))
+				if ext1 != ".zip" && ext1 != "" {
+					continue
+				}
+				// Old approach: filepath.Ext(name) called again on line 41
+				ext2 := filepath.Ext(name)
+				_ = strings.TrimSuffix(name, ext2)
 			}
-			// Old approach: filepath.Ext(name) called again on line 41
-			ext2 := filepath.Ext(name)
-			_ = strings.TrimSuffix(name, ext2)
 		}
-	}
+	})
 }
 
 // BenchmarkExtensionExtractionNew simulates the new optimized approach.
@@ -47,17 +48,18 @@ func BenchmarkExtensionExtractionNew(b *testing.B) {
 		"unknown",
 	}
 
-	b.ResetTimer()
-	for range b.N {
-		for _, name := range names {
-			// New approach: filepath.Ext called once, extension cached
-			ext := filepath.Ext(name)
-			if strings.ToLower(ext) != ".zip" && ext != "" {
-				continue
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, name := range names {
+				// New approach: filepath.Ext called once, extension cached
+				ext := filepath.Ext(name)
+				if strings.ToLower(ext) != ".zip" && ext != "" {
+					continue
+				}
+				_ = strings.TrimSuffix(name, ext)
 			}
-			_ = strings.TrimSuffix(name, ext)
 		}
-	}
+	})
 }
 
 // BenchmarkCheckFunctionOptimized measures the optimized Check function.
@@ -78,11 +80,12 @@ func BenchmarkCheckFunctionOptimized(b *testing.B) {
 		{"unknown", false},
 	}
 
-	b.ResetTimer()
-	for range b.N {
-		for _, entry := range entries {
-			d := &MockDirEntry{name: entry.name, isDir: entry.isDir}
-			_ = fixarc.Check(sl, "", extra, d)
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			for _, entry := range entries {
+				d := &MockDirEntry{name: entry.name, isDir: entry.isDir}
+				_ = fixarc.Check(sl, "", extra, d)
+			}
 		}
-	}
+	})
 }

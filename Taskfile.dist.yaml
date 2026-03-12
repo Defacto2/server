@@ -76,7 +76,8 @@ tasks:
       - cmd: go fix -diff ./...
       - cmd: go fix ./...
       - cmd: pnpm exec eslint assets/js/
-      - cmd: pnpm exec stylelint assets/css/*.css
+      - cmd: pnpm exec spectral lint public/json/openapi.json
+      - cmd: pnpm exec stylelint --fix assets/css/*.css
       - cmd: golangci-lint run -c init/.golangci.yaml
   linter:
     silent: false

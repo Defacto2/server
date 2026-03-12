@@ -1,0 +1,787 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Defacto2 API",
+    "description": "A RESTful API for accessing historical Scene data and digital culture. Provides both HTML and plain text content formats for API consumers.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Defacto2 API Support",
+      "url": "https://defacto2.net"
+    },
+    "license": {
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://defacto2.net/api",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "milestones",
+      "description": "Operations related to historical milestones and significant events"
+    },
+    {
+      "name": "areacodes",
+      "description": "Operations related to North American Numbering Plan telephone area codes"
+    }
+  ],
+  "paths": {
+    "/api/milestones": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get all milestones",
+        "description": "Returns a complete list of all historical milestones with clean HTML and plain text content.",
+        "operationId": "getAllMilestones",
+        "responses": {
+          "200": {
+            "description": "A list of milestones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/milestones/year/{year}": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get milestones by year",
+        "description": "Returns all milestones that occurred in a specific year.",
+        "operationId": "getMilestonesByYear",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "description": "The year to filter milestones by",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 2100,
+              "example": 1971
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Milestones for the specified year",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid year format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No milestones found for this year",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/milestones/years/{range}": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get milestones by year range",
+        "description": "Returns all milestones that occurred within a specified year range (inclusive).",
+        "operationId": "getMilestonesByYearRange",
+        "parameters": [
+          {
+            "name": "range",
+            "in": "path",
+            "description": "Year range in format start-end (e.g., 1990-2000)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{4}$",
+              "example": "1990-2000"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Milestones in the specified year range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid range format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No milestones found for this year range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/milestones/highlights": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get highlighted milestones",
+        "description": "Returns only milestones that have been marked as highlights (significant events).",
+        "operationId": "getHighlightedMilestones",
+        "responses": {
+          "200": {
+            "description": "Highlighted milestones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No highlighted milestones found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/milestones/decade/{decade}": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get milestones by decade",
+        "description": "Returns all milestones that occurred during a specific decade (e.g., 1980s = 1980-1989).",
+        "operationId": "getMilestonesByDecade",
+        "parameters": [
+          {
+            "name": "decade",
+            "in": "path",
+            "description": "The decade in format like '1980s' or '1990s'",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}s$",
+              "example": "1990s"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Milestones from the specified decade",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid decade format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No milestones found for this decade",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Get all area codes",
+        "description": "Returns a complete list of all North American Numbering Plan area codes with their associated territories and historical notes.",
+        "operationId": "getAllAreacodes",
+        "responses": {
+          "200": {
+            "description": "A list of area codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Areacode"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes/{code}": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Get area code by code",
+        "description": "Returns details for a specific North American Numbering Plan area code.",
+        "operationId": "getAreacodeByCode",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "Three-digit area code",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 200,
+              "maximum": 999,
+              "example": 212
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Area code details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Areacode"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid area code format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Area code not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes/territories": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Get all territories",
+        "description": "Returns a complete list of all territories (states, provinces) with their associated area codes.",
+        "operationId": "getTerritories",
+        "responses": {
+          "200": {
+            "description": "A list of territories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Territory"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes/territories/{abbr}": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Get territory by abbreviation",
+        "description": "Returns details for a specific territory by its two-letter abbreviation.",
+        "operationId": "getTerritoryByAbbr",
+        "parameters": [
+          {
+            "name": "abbr",
+            "in": "path",
+            "description": "Two-letter territory abbreviation",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2,
+              "example": "CA"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Territory details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Territory"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid abbreviation format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Territory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes/search/{query}": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Search area codes and territories",
+        "description": "Search for area codes by number or territories by name/abbreviation. Returns both matching area codes and territories.",
+        "operationId": "searchAreacodes",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "path",
+            "description": "Search query (area code number, territory name, or abbreviation)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "california"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results containing matching area codes and territories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AreacodeSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Milestone": {
+        "type": "object",
+        "properties": {
+          "Year": {
+            "type": "integer",
+            "description": "The year the milestone occurred",
+            "example": 1971
+          },
+          "Month": {
+            "type": "integer",
+            "description": "The month the milestone occurred (1-12)",
+            "example": 10,
+            "minimum": 1,
+            "maximum": 12
+          },
+          "Day": {
+            "type": "integer",
+            "description": "The day the milestone occurred",
+            "example": 15,
+            "minimum": 1,
+            "maximum": 31
+          },
+          "Title": {
+            "type": "string",
+            "description": "The title or name of the milestone",
+            "example": "Secrets of the Little Blue Box"
+          },
+          "Lead": {
+            "type": "string",
+            "description": "Short introductory text or subtitle",
+            "example": "Esquire October 1971"
+          },
+          "Content": {
+            "type": "string",
+            "description": "Plain text version of the content (all HTML tags removed)",
+            "example": "Ron Rosenbaum writes the first mainstream article on phone freaks..."
+          },
+          "ContentHTML": {
+            "type": "string",
+            "description": "Main content with clean HTML (presentation attributes removed)",
+            "example": "<p>Ron Rosenbaum writes the first mainstream article on phone freaks...</p>"
+          },
+          "Link": {
+            "type": "string",
+            "description": "URL to an article or external resource about the milestone",
+            "example": "https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html"
+          },
+          "LinkTitle": {
+            "type": "string",
+            "description": "Title for the external link",
+            "example": "the complete article"
+          },
+          "Highlight": {
+            "type": "boolean",
+            "description": "Whether this milestone is marked as significant/highlighted",
+            "example": true
+          },
+          "List": {
+            "type": "array",
+            "description": "Additional related links",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "Picture": {
+            "$ref": "#/components/schemas/Picture"
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "linkTitle": {
+            "type": "string",
+            "description": "Title of the link",
+            "example": "Link 1"
+          },
+          "subTitle": {
+            "type": "string",
+            "description": "Subtitle or additional description",
+            "example": "Subtitle with formatting"
+          },
+          "link": {
+            "type": "string",
+            "description": "URL of the link",
+            "example": "https://example.com"
+          },
+          "forward": {
+            "type": "string",
+            "description": "Optional prefix text for the link",
+            "example": "See also"
+          }
+        }
+      },
+      "Picture": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the picture",
+            "example": "Blue Box Diagram"
+          },
+          "alt": {
+            "type": "string",
+            "description": "Alternative text for accessibility",
+            "example": "Diagram showing how the blue box worked"
+          },
+          "attribution": {
+            "type": "string",
+            "description": "Name of the author/creator",
+            "example": "John Draper"
+          },
+          "license": {
+            "type": "string",
+            "description": "License of the picture",
+            "example": "Public Domain"
+          },
+          "licenseLink": {
+            "type": "string",
+            "description": "URL to the license information",
+            "example": "https://creativecommons.org/publicdomain/zero/1.0/"
+          },
+          "webp": {
+            "type": "string",
+            "description": "Filename of WebP format image",
+            "example": "blue-box.webp"
+          },
+          "png": {
+            "type": "string",
+            "description": "Filename of PNG format image",
+            "example": "blue-box.png"
+          },
+          "jpg": {
+            "type": "string",
+            "description": "Filename of JPG format image",
+            "example": "blue-box.jpg"
+          },
+          "avif": {
+            "type": "string",
+            "description": "Filename of AVIF format image",
+            "example": "blue-box.avif"
+          },
+          "webm": {
+            "type": "string",
+            "description": "Filename of WebM format video",
+            "example": "blue-box-demo.webm"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid year format"
+          }
+        }
+      },
+      "Areacode": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Three-digit North American Numbering Plan area code",
+            "example": 212,
+            "minimum": 200,
+            "maximum": 999
+          },
+          "territories": {
+            "type": "array",
+            "description": "List of territories (states, provinces) that use this area code",
+            "items": {
+              "type": "string"
+            },
+            "example": ["New York"]
+          },
+          "notes": {
+            "type": "string",
+            "description": "Historical notes about the area code (splits, creation dates, etc.)",
+            "example": "New York City, but after December 1984 it split to 212 (Manhattan and the Bronx) and 718 (Brooklyn, Queens, and Staten Island)."
+          }
+        }
+      },
+      "Territory": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the territory (state, province, or region)",
+            "example": "California"
+          },
+          "abbreviation": {
+            "type": "string",
+            "description": "Two-letter abbreviation for the territory",
+            "example": "CA",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "areaCodes": {
+            "type": "array",
+            "description": "List of area codes used in this territory",
+            "items": {
+              "type": "integer"
+            },
+            "example": [209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916]
+          }
+        }
+      },
+      "AreacodeSearchResult": {
+        "type": "object",
+        "properties": {
+          "areacodes": {
+            "type": "array",
+            "description": "Matching area codes",
+            "items": {
+              "$ref": "#/components/schemas/Areacode"
+            }
+          },
+          "territories": {
+            "type": "array",
+            "description": "Matching territories",
+            "items": {
+              "$ref": "#/components/schemas/Territory"
+            }
+          }
+        }
+      }
+    }
+  }
+}

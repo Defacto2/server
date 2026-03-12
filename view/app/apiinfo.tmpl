@@ -1,0 +1,383 @@
+{{- /* 
+    apiinfo.tmpl ~ API helper template.
+*/ -}}
+{{- define "content" }}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Base URL</h2>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="baseUrl" value="https://defacto2.net/api" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('baseUrl')">Copy</button>
+                    </div>
+                    <p>The base URL for all API endpoints.</p>
+                    <p class="text-muted">For example &bull; 
+                      <a href="/api/milestones/year/1971">https://defacto2.net/api/milestones/year/1971</a> &bull;
+                      <a href="/api/areacodes/territories/CA">https://defacto2.net/api/areacodes/territories/CA</a>
+                    </p>
+                    <p>No authentication is required for read-only API endpoints.</p>
+                    <div class="alert alert-success" role="alert">
+                      12-May-2025, More API features will be rolled out soon!
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Endpoints</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Method</th>
+                                    <th>Description</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>/milestones</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all milestones</td>
+                                    <td><code>GET /api/milestones</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/year/:year</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by specific year</td>
+                                    <td><code>GET /api/milestones/year/1995</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/years/:range</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by year range</td>
+                                    <td><code>GET /api/milestones/years/1990-2000</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/highlights</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get only highlighted milestones</td>
+                                    <td><code>GET /api/milestones/highlights</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/decade/:decade</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by decade</td>
+                                    <td><code>GET /api/milestones/decade/1990s</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all area codes</td>
+                                    <td><code>GET /api/areacodes</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/:code</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get area code by code</td>
+                                    <td><code>GET /api/areacodes/212</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/territories</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all territories</td>
+                                    <td><code>GET /api/areacodes/territories</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/territories/:abbr</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get territory by abbreviation</td>
+                                    <td><code>GET /api/areacodes/territories/CA</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/search/:query</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Search area codes and territories</td>
+                                    <td><code>GET /api/areacodes/search/california</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Milestone API Endpoints</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET /api/milestones</code></td>
+                                    <td>Get all milestones</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/milestones/highlights</code></td>
+                                    <td>Get highlighted milestones</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/milestones/year/:year</code></td>
+                                    <td>Get milestones by specific year</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/milestones/years/:range</code></td>
+                                    <td>Get milestones by year range (e.g., 1990-2000)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/milestones/decade/:decade</code></td>
+                                    <td>Get milestones by decade (e.g., 1990)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6">cURL</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl https://defacto2.net/api/milestones
+
+curl https://defacto2.net/api/milestones/year/1995
+
+curl https://defacto2.net/api/milestones/years/1990-2000</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6">JavaScript (Fetch)</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/milestones')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/milestones/highlights')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                        </div>
+                    </div>
+                    <p>Milestone endpoints return JSON format with the following structure:</p>
+                    <pre class="bg-dark text-white p-3 rounded"><code>[
+    {
+        "Title": "Milestone Title",
+        "Year": 1995,
+        "Month": 6,
+        "Day": 15,
+        "Lead": "Introduction paragraph",
+        "Content": "Plain text content",
+        "ContentHTML": "&lt;p&gt;HTML formatted content&lt;/p&gt;",
+        "Link": "https://example.com",
+        "LinkTitle": "Related Link",
+        "List": [
+            {
+                "LinkTitle": "Subtitle",
+                "SubTitle": "Additional info",
+                "Link": "https://example.com",
+                "Forward": "Group name"
+            }
+        ],
+        "Highlight": true,
+        "Picture": {
+            "Title": "Image Title",
+            "Alt": "Alternative text",
+            "Attribution": "Author Name",
+            "License": "CC BY-SA 4.0",
+            "LicenseLink": "https://license.url",
+            "Webp": "image.webp",
+            "Png": "image.png",
+            "Jpg": "image.jpg",
+            "Avif": "image.avif",
+            "Webm": "video.webm"
+        }
+    }
+]</code></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Area Code API Endpoints</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET /api/areacodes</code></td>
+                                    <td>Get all North American Numbering Plan area codes</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/areacodes/:code</code></td>
+                                    <td>Get details for a specific area code</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/areacodes/territories</code></td>
+                                    <td>Get all territories (states, provinces) with their area codes</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/areacodes/territories/:abbr</code></td>
+                                    <td>Get territory details by two-letter abbreviation</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/areacodes/search/:query</code></td>
+                                    <td>Search for area codes or territories</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6">cURL Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl https://defacto2.net/api/areacodes
+
+curl https://defacto2.net/api/areacodes/212
+
+curl https://defacto2.net/api/areacodes/territories
+
+curl https://defacto2.net/api/areacodes/territories/CA
+
+curl https://defacto2.net/api/areacodes/search/california</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6">JavaScript (Fetch) Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/areacodes')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/areacodes/territories/NY')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/areacodes/search/602')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                        </div>
+                    </div>
+                    <p>Area code endpoints return JSON in the following formats:</p>
+                    <h3 class="h6 mt-3">Single Area Code</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "code": 212,
+    "territories": ["New York"],
+    "notes": "New York City, but after December 1984 it split to 212 (Manhattan and the Bronx) and 718 (Brooklyn, Queens, and Staten Island)."
+}</code></pre>
+
+                    <h3 class="h6 mt-3">Single Territory</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "name": "California",
+    "abbreviation": "CA",
+    "areaCodes": [209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916]
+}</code></pre>
+
+                    <h3 class="h6 mt-3">Search Result</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "areacodes": [
+        {
+            "code": 602,
+            "territories": ["Arizona"]
+        }
+    ],
+    "territories": [
+        {
+            "name": "California",
+            "abbreviation": "CA",
+            "areaCodes": [209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916]
+        }
+    ]
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Rate Limiting</h2>
+                </div>
+                <div class="card-body">
+                    <p>No rate limiting is currently enforced on API endpoints. However, excessive requests may be temporarily blocked.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Error Codes</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Status Code</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>200 OK</code></td>
+                                    <td>Successful request</td>
+                                </tr>
+                                <tr>
+                                    <td><code>400 Bad Request</code></td>
+                                    <td>Invalid request format</td>
+                                </tr>
+                                <tr>
+                                    <td><code>404 Not Found</code></td>
+                                    <td>No milestones found for the specified criteria</td>
+                                </tr>
+                                <tr>
+                                    <td><code>500 Internal Server Error</code></td>
+                                    <td>Server-side error</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">OpenAPI Specification</h2>
+                </div>
+                <div class="card-body">
+                    <p>For detailed API documentation in OpenAPI format:</p>
+                    <a href="/openapi.json" class="btn btn-primary">Download OpenAPI JSON</a>
+                    <p class="mt-3 text-muted">The OpenAPI specification provides machine-readable API documentation that can be used with tools.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(elementId) {
+    const copyText = document.getElementById(elementId);
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    
+    const button = copyText.nextElementSibling;
+    const originalText = button.textContent;
+    button.textContent = "Copied!";
+    button.classList.remove("btn-outline-secondary");
+    button.classList.add("btn-success");
+    
+    setTimeout(function() {
+        button.textContent = originalText;
+        button.classList.remove("btn-success");
+        button.classList.add("btn-outline-secondary");
+    }, 2000);
+}
+</script>
+{{- end}}

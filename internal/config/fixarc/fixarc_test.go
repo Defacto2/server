@@ -281,10 +281,11 @@ func BenchmarkCheck(b *testing.B) {
 		b.Fatal(err)
 	}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixarc.Check(sl, zipPath, extra, d, artifacts...)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixarc.Check(sl, zipPath, extra, d, artifacts...)
+		}
+	})
 }
 
 // BenchmarkInvalid measures Invalid function performance.
@@ -298,10 +299,11 @@ func BenchmarkInvalid(b *testing.B) {
 		b.Fatal(err)
 	}
 
-	b.ResetTimer()
-	for range b.N {
-		_ = fixarc.Invalid(context.Background(), sl, arcPath)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			_ = fixarc.Invalid(context.Background(), sl, arcPath)
+		}
+	})
 }
 
 // TestCheckBinarySearchCorrectness tests that binary search finds UUIDs at various positions.

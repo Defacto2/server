@@ -316,7 +316,7 @@ func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any
 	// Strip RTF formatting from the buffer content before processing
 	b := buf.Bytes()
 	if simple.RTF(b) {
-		b = []byte(simple.StripRTF(b))
+		b = simple.StripRTF(b)
 	}
 	d, err := simpleCharmapEncodings(art, data, b...)
 	if err != nil {
@@ -918,7 +918,7 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 	}
 	// Strip RTF formatting from the original content first
 	if simple.RTF(b) {
-		b = []byte(simple.StripRTF(b))
+		b = simple.StripRTF(b)
 	}
 	textEncoding := render.Encoder(art, bytes.NewReader(b))
 	switch textEncoding {
