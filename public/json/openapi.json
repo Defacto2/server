@@ -23,6 +23,10 @@
     {
       "name": "milestones",
       "description": "Operations related to historical milestones and significant events"
+    },
+    {
+      "name": "areacodes",
+      "description": "Operations related to North American Numbering Plan telephone area codes"
     }
   ],
   "paths": {
@@ -300,6 +304,252 @@
           }
         }
       }
+    },
+    "/api/areacodes": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Get all area codes",
+        "description": "Returns a complete list of all North American Numbering Plan area codes with their associated territories and historical notes.",
+        "operationId": "getAllAreacodes",
+        "responses": {
+          "200": {
+            "description": "A list of area codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Areacode"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes/{code}": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Get area code by code",
+        "description": "Returns details for a specific North American Numbering Plan area code.",
+        "operationId": "getAreacodeByCode",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "Three-digit area code",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 200,
+              "maximum": 999,
+              "example": 212
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Area code details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Areacode"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid area code format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Area code not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes/territories": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Get all territories",
+        "description": "Returns a complete list of all territories (states, provinces) with their associated area codes.",
+        "operationId": "getTerritories",
+        "responses": {
+          "200": {
+            "description": "A list of territories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Territory"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes/territories/{abbr}": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Get territory by abbreviation",
+        "description": "Returns details for a specific territory by its two-letter abbreviation.",
+        "operationId": "getTerritoryByAbbr",
+        "parameters": [
+          {
+            "name": "abbr",
+            "in": "path",
+            "description": "Two-letter territory abbreviation",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2,
+              "example": "CA"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Territory details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Territory"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid abbreviation format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Territory not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/areacodes/search/{query}": {
+      "get": {
+        "tags": ["areacodes"],
+        "summary": "Search area codes and territories",
+        "description": "Search for area codes by number or territories by name/abbreviation. Returns both matching area codes and territories.",
+        "operationId": "searchAreacodes",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "path",
+            "description": "Search query (area code number, territory name, or abbreviation)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "california"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results containing matching area codes and territories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AreacodeSearchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid search query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -462,8 +712,76 @@
             "example": "Invalid year format"
           }
         }
+      },
+      "Areacode": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Three-digit North American Numbering Plan area code",
+            "example": 212,
+            "minimum": 200,
+            "maximum": 999
+          },
+          "territories": {
+            "type": "array",
+            "description": "List of territories (states, provinces) that use this area code",
+            "items": {
+              "type": "string"
+            },
+            "example": ["New York"]
+          },
+          "notes": {
+            "type": "string",
+            "description": "Historical notes about the area code (splits, creation dates, etc.)",
+            "example": "New York City, but after December 1984 it split to 212 (Manhattan and the Bronx) and 718 (Brooklyn, Queens, and Staten Island)."
+          }
+        }
+      },
+      "Territory": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the territory (state, province, or region)",
+            "example": "California"
+          },
+          "abbreviation": {
+            "type": "string",
+            "description": "Two-letter abbreviation for the territory",
+            "example": "CA",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "areaCodes": {
+            "type": "array",
+            "description": "List of area codes used in this territory",
+            "items": {
+              "type": "integer"
+            },
+            "example": [209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916]
+          }
+        }
+      },
+      "AreacodeSearchResult": {
+        "type": "object",
+        "properties": {
+          "areacodes": {
+            "type": "array",
+            "description": "Matching area codes",
+            "items": {
+              "$ref": "#/components/schemas/Areacode"
+            }
+          },
+          "territories": {
+            "type": "array",
+            "description": "Matching territories",
+            "items": {
+              "$ref": "#/components/schemas/Territory"
+            }
+          }
+        }
       }
     }
   }
 }
-

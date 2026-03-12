@@ -248,6 +248,12 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/", func(c echo.Context) error { return app.Index(c, sl) })
 	s.GET("/apps", func(c echo.Context) error { return app.Apps(c, sl) })
 	s.GET("/areacodes", func(c echo.Context) error { return app.Areacodes(c, sl) })
+	// Areacode API endpoints
+	s.GET("/api/areacodes", app.GetAllAreacodes)
+	s.GET("/api/areacodes/:code", app.GetAreacodeByCode)
+	s.GET("/api/areacodes/territories", app.GetTerritories)
+	s.GET("/api/areacodes/territories/:abbr", app.GetTerritoryByAbbr)
+	s.GET("/api/areacodes/search/:query", app.SearchAreacodes)
 	s.GET("/artist", func(c echo.Context) error {
 		return app.Artist(c, db, sl)
 	})

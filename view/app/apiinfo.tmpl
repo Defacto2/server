@@ -15,18 +15,9 @@
                         <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('baseUrl')">Copy</button>
                     </div>
                     <p class="text-muted">The base URL for all API endpoints.</p>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Authentication</h2>
-                </div>
-                <div class="card-body">
                     <p>No authentication is required for read-only API endpoints.</p>
                 </div>
             </div>
-
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h2 class="h5 mb-0">Endpoints</h2>
@@ -73,6 +64,36 @@
                                     <td>Get milestones by decade</td>
                                     <td><code>GET /api/milestones/decade/1990s</code></td>
                                 </tr>
+                                <tr>
+                                    <td><code>/areacodes</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all area codes</td>
+                                    <td><code>GET /api/areacodes</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/:code</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get area code by code</td>
+                                    <td><code>GET /api/areacodes/212</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/territories</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all territories</td>
+                                    <td><code>GET /api/areacodes/territories</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/territories/:abbr</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get territory by abbreviation</td>
+                                    <td><code>GET /api/areacodes/territories/CA</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/search/:query</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Search area codes and territories</td>
+                                    <td><code>GET /api/areacodes/search/california</code></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -81,10 +102,62 @@
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Response Format</h2>
+                    <h2 class="h5 mb-0">Milestone API Endpoints</h2>
                 </div>
                 <div class="card-body">
-                    <p>All responses are returned in JSON format with the following structure:</p>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET /api/milestones</code></td>
+                                    <td>Get all milestones</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/milestones/highlights</code></td>
+                                    <td>Get highlighted milestones</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/milestones/year/:year</code></td>
+                                    <td>Get milestones by specific year</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/milestones/years/:range</code></td>
+                                    <td>Get milestones by year range (e.g., 1990-2000)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/milestones/decade/:decade</code></td>
+                                    <td>Get milestones by decade (e.g., 1990)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6">cURL</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl http://localhost:1323/api/milestones
+
+curl http://localhost:1323/api/milestones/year/1995
+
+curl http://localhost:1323/api/milestones/years/1990-2000</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6">JavaScript (Fetch)</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('http://localhost:1323/api/milestones')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('http://localhost:1323/api/milestones/highlights')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                        </div>
+                    </div>
+                    <p>Milestone endpoints return JSON format with the following structure:</p>
                     <pre class="bg-dark text-white p-3 rounded"><code>[
     {
         "Title": "Milestone Title",
@@ -124,29 +197,100 @@
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Example Usage</h2>
+                    <h2 class="h5 mb-0">Area Code API Endpoints</h2>
                 </div>
                 <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET /api/areacodes</code></td>
+                                    <td>Get all North American Numbering Plan area codes</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/areacodes/:code</code></td>
+                                    <td>Get details for a specific area code</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/areacodes/territories</code></td>
+                                    <td>Get all territories (states, provinces) with their area codes</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/areacodes/territories/:abbr</code></td>
+                                    <td>Get territory details by two-letter abbreviation</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/areacodes/search/:query</code></td>
+                                    <td>Search for area codes or territories</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <h3 class="h6">cURL</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl https://defacto2.net/api/milestones
+                            <h3 class="h6">cURL Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl http://localhost:1323/api/areacodes
 
-curl https://defacto2.net/api/milestones/year/1995
+curl http://localhost:1323/api/areacodes/212
 
-curl https://defacto2.net/api/milestones/years/1990-2000</code></pre>
+curl http://localhost:1323/api/areacodes/territories
+
+curl http://localhost:1323/api/areacodes/territories/CA
+
+curl http://localhost:1323/api/areacodes/search/california</code></pre>
                         </div>
                         <div class="col-md-6">
-                            <h3 class="h6">JavaScript (Fetch)</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/milestones')
+                            <h3 class="h6">JavaScript (Fetch) Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('http://localhost:1323/api/areacodes')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/milestones/highlights')
+fetch('http://localhost:1323/api/areacodes/territories/NY')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('http://localhost:1323/api/areacodes/search/602')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
                     </div>
+                    <p>Area code endpoints return JSON in the following formats:</p>
+                    <h3 class="h6 mt-3">Single Area Code</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "code": 212,
+    "territories": ["New York"],
+    "notes": "New York City, but after December 1984 it split to 212 (Manhattan and the Bronx) and 718 (Brooklyn, Queens, and Staten Island)."
+}</code></pre>
+
+                    <h3 class="h6 mt-3">Single Territory</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "name": "California",
+    "abbreviation": "CA",
+    "areaCodes": [209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916]
+}</code></pre>
+
+                    <h3 class="h6 mt-3">Search Result</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "areacodes": [
+        {
+            "code": 602,
+            "territories": ["Arizona"]
+        }
+    ],
+    "territories": [
+        {
+            "name": "California",
+            "abbreviation": "CA",
+            "areaCodes": [209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916]
+        }
+    ]
+}</code></pre>
                 </div>
             </div>
 
