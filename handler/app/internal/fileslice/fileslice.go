@@ -469,15 +469,15 @@ func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 	case pdf:
 		r := model.PDF{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
-	case proof:
-		r := model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-		return r.List(ctx, exec, page, limit)
 	}
 	return records2(ctx, exec, uri, page, limit)
 }
 
 func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) { //nolint:exhaustive
+	case proof:
+		r := model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		return r.List(ctx, exec, page, limit)
 	case restrict:
 		r := model.Restrict{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)

@@ -330,7 +330,7 @@ func humPlatform(platform, section Tag) string {
 	case TextAmiga:
 		return humAmiga(platform, section)
 	case Video:
-		switch section { //nolint:exhaustive //
+		switch section { //nolint:exhaustive
 		case ForSale, Logo, Intro:
 			return "a bumper video"
 		}
@@ -347,7 +347,7 @@ func other(platform, section Tag) string {
 }
 
 func humAnsi(platform, section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "a BBS ansi advert"
 	case Ftp:
@@ -364,7 +364,7 @@ func humAnsi(platform, section Tag) string {
 }
 
 func humAudio(platform, section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case Intro:
 		return "a chiptune or intro music"
 	default:
@@ -373,7 +373,7 @@ func humAudio(platform, section Tag) string {
 }
 
 func humDB(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case Nfo:
 		return "a database of releases"
 	default:
@@ -382,7 +382,7 @@ func humDB(section Tag) string {
 }
 
 func humImg(platform, section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case AppleII:
 		return "an Apple II screen or capture"
 	case BBS:
@@ -399,7 +399,7 @@ func humImg(platform, section Tag) string {
 }
 
 func humText(platform, section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case AtariST:
 		return "a textfile about the Atari ST"
 	case AppleII:
@@ -424,7 +424,7 @@ func humText(platform, section Tag) string {
 }
 
 func humAmiga(platform, section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "an Amiga text advert for a BBS"
 	case ForSale:
@@ -441,7 +441,7 @@ func humAmiga(platform, section Tag) string {
 }
 
 func humDOS(platform, section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "a BBStro on " + msDos
 	case Demo:
@@ -464,7 +464,7 @@ func humDOS(platform, section Tag) string {
 }
 
 func humWin(platform, section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case Demo:
 		return "a demo on Windows"
 	case Install:
@@ -481,7 +481,7 @@ func humWin(platform, section Tag) string {
 }
 
 func news(platform Tag) string {
-	switch platform { //nolint:exhaustive //
+	switch platform { //nolint:exhaustive
 	case Image:
 		return "a screenshot of an article from a news outlet"
 	case Markup:
@@ -498,7 +498,7 @@ func news(platform Tag) string {
 }
 
 func restrict(platform Tag) string {
-	switch platform { //nolint:exhaustive //
+	switch platform { //nolint:exhaustive
 	case ANSI:
 		return "an insider ansi textfile"
 	case Text:
@@ -511,7 +511,7 @@ func restrict(platform Tag) string {
 }
 
 func takedown(platform Tag) string {
-	switch platform { //nolint:exhaustive //
+	switch platform { //nolint:exhaustive
 	case TextAmiga, Text:
 		return "a bust or takedown text"
 	case Audio:
@@ -565,7 +565,7 @@ func Humanizes(platform, section Tag) string {
 }
 
 func pcboard(section Tag) string {
-	switch section {
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "PCBoard color text files"
 	case Tool:
@@ -598,7 +598,7 @@ func defaults(platform, section Tag) string {
 }
 
 func ansi(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "BBS ansi adverts"
 	case Ftp:
@@ -615,7 +615,7 @@ func ansi(section Tag) string {
 }
 
 func image(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "BBS advert images"
 	case ForSale:
@@ -630,7 +630,7 @@ func image(section Tag) string {
 }
 
 func text(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case AtariST:
 		return "textfiles for the Atari ST"
 	case AppleII:
@@ -655,7 +655,7 @@ func text(section Tag) string {
 }
 
 func textAmiga(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "BBS Amiga text adverts"
 	case ForSale:
@@ -674,7 +674,7 @@ func textAmiga(section Tag) string {
 }
 
 func windows(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case Demo:
 		return "demos on Windows"
 	case Install:
@@ -691,7 +691,7 @@ func windows(section Tag) string {
 }
 
 func dos(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "BBS intro adverts"
 	case Demo:
@@ -714,7 +714,7 @@ func dos(section Tag) string {
 }
 
 func emptyPlatform(section Tag) string {
-	switch section { //nolint:exhaustive //
+	switch section { //nolint:exhaustive
 	case BBS:
 		return "BBS adverts"
 	case Bust:
@@ -759,7 +759,7 @@ func OSTags() [5]string {
 // InvalidExec returns true if the database context executor is invalid such as nil.
 func InvalidExec(exec boil.ContextExecutor) bool {
 	v := reflect.ValueOf(exec)
-	switch v.Kind() { //nolint:exhaustive // reflect.Kind has many values, only checking nil cases
+	switch v.Kind() { //nolint:exhaustive
 	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			return true

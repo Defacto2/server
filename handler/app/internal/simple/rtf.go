@@ -7,7 +7,7 @@ import (
 
 // Just a heads up that this rtf.go and the rtf_test.go were mostly coded using
 // Mistral devstral-2, and then was modified by me to make it more efficient.
-// You may wish to remove this functionality for licencing requirements.
+// You may wish to remove this functionality for licensing requirements.
 
 // RTF detects if the content is likely RTF format by checking for a RTF header pattern.
 // RTF files typically start with {\rtf followed by version number.

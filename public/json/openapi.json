@@ -1,0 +1,473 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Defacto2 Milestone API",
+    "description": "A RESTful API for accessing historical milestones and significant events in technology and digital culture. Provides both HTML and plain text content formats for API consumers.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Defacto2 API Support",
+      "url": "https://defacto2.net",
+      "email": "support@defacto2.net"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.defacto2.net",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:1323/api",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "milestones",
+      "description": "Operations related to historical milestones and significant events"
+    }
+  ],
+  "paths": {
+    "/api/milestones": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get all milestones",
+        "description": "Returns a complete list of all historical milestones with clean HTML and plain text content.",
+        "operationId": "getAllMilestones",
+        "responses": {
+          "200": {
+            "description": "A list of milestones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/milestones/year/{year}": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get milestones by year",
+        "description": "Returns all milestones that occurred in a specific year.",
+        "operationId": "getMilestonesByYear",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "description": "The year to filter milestones by",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 2100,
+              "example": 1971
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Milestones for the specified year",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid year format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No milestones found for this year",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/milestones/years/{range}": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get milestones by year range",
+        "description": "Returns all milestones that occurred within a specified year range (inclusive).",
+        "operationId": "getMilestonesByYearRange",
+        "parameters": [
+          {
+            "name": "range",
+            "in": "path",
+            "description": "Year range in format start-end (e.g., 1990-2000)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{4}$",
+              "example": "1990-2000"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Milestones in the specified year range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid range format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No milestones found for this year range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/milestones/highlights": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get highlighted milestones",
+        "description": "Returns only milestones that have been marked as highlights (significant events).",
+        "operationId": "getHighlightedMilestones",
+        "responses": {
+          "200": {
+            "description": "Highlighted milestones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No highlighted milestones found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/milestones/decade/{decade}": {
+      "get": {
+        "tags": ["milestones"],
+        "summary": "Get milestones by decade",
+        "description": "Returns all milestones that occurred during a specific decade (e.g., 1980s = 1980-1989).",
+        "operationId": "getMilestonesByDecade",
+        "parameters": [
+          {
+            "name": "decade",
+            "in": "path",
+            "description": "The decade in format like '1980s' or '1990s'",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}s$",
+              "example": "1990s"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Milestones from the specified decade",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Milestone"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid decade format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No milestones found for this decade",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Milestone": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "description": "The year the milestone occurred",
+            "example": 1971
+          },
+          "month": {
+            "type": "integer",
+            "description": "The month the milestone occurred (1-12)",
+            "example": 10,
+            "minimum": 1,
+            "maximum": 12
+          },
+          "day": {
+            "type": "integer",
+            "description": "The day the milestone occurred",
+            "example": 15,
+            "minimum": 1,
+            "maximum": 31
+          },
+          "title": {
+            "type": "string",
+            "description": "The title or name of the milestone",
+            "example": "Secrets of the Little Blue Box"
+          },
+          "lead": {
+            "type": "string",
+            "description": "Short introductory text or subtitle",
+            "example": "Esquire October 1971"
+          },
+          "content": {
+            "type": "string",
+            "description": "Main content with clean HTML (presentation attributes removed)",
+            "example": "<p>Ron Rosenbaum writes the first mainstream article on phone freaks...</p>"
+          },
+          "contentPlain": {
+            "type": "string",
+            "description": "Plain text version of the content (all HTML tags removed)",
+            "example": "Ron Rosenbaum writes the first mainstream article on phone freaks..."
+          },
+          "link": {
+            "type": "string",
+            "description": "URL to an article or external resource about the milestone",
+            "example": "https://www.slate.com/articles/technology/the_spectator/2011/10/the_article_that_inspired_steve_jobs_secrets_of_the_little_blue_.html"
+          },
+          "linkTitle": {
+            "type": "string",
+            "description": "Title for the external link",
+            "example": "the complete article"
+          },
+          "highlight": {
+            "type": "boolean",
+            "description": "Whether this milestone is marked as significant/highlighted",
+            "example": true
+          },
+          "list": {
+            "type": "array",
+            "description": "Additional related links",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "picture": {
+            "$ref": "#/components/schemas/Picture"
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "linkTitle": {
+            "type": "string",
+            "description": "Title of the link",
+            "example": "Link 1"
+          },
+          "subTitle": {
+            "type": "string",
+            "description": "Subtitle or additional description",
+            "example": "Subtitle with formatting"
+          },
+          "link": {
+            "type": "string",
+            "description": "URL of the link",
+            "example": "https://example.com"
+          },
+          "forward": {
+            "type": "string",
+            "description": "Optional prefix text for the link",
+            "example": "See also"
+          }
+        }
+      },
+      "Picture": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the picture",
+            "example": "Blue Box Diagram"
+          },
+          "alt": {
+            "type": "string",
+            "description": "Alternative text for accessibility",
+            "example": "Diagram showing how the blue box worked"
+          },
+          "attribution": {
+            "type": "string",
+            "description": "Name of the author/creator",
+            "example": "John Draper"
+          },
+          "license": {
+            "type": "string",
+            "description": "License of the picture",
+            "example": "Public Domain"
+          },
+          "licenseLink": {
+            "type": "string",
+            "description": "URL to the license information",
+            "example": "https://creativecommons.org/publicdomain/zero/1.0/"
+          },
+          "webp": {
+            "type": "string",
+            "description": "Filename of WebP format image",
+            "example": "blue-box.webp"
+          },
+          "png": {
+            "type": "string",
+            "description": "Filename of PNG format image",
+            "example": "blue-box.png"
+          },
+          "jpg": {
+            "type": "string",
+            "description": "Filename of JPG format image",
+            "example": "blue-box.jpg"
+          },
+          "avif": {
+            "type": "string",
+            "description": "Filename of AVIF format image",
+            "example": "blue-box.avif"
+          },
+          "webm": {
+            "type": "string",
+            "description": "Filename of WebM format video",
+            "example": "blue-box-demo.webm"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid year format"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,9 @@
-package app
+package app_test
 
 import (
 	"testing"
+
+	"github.com/Defacto2/server/handler/app"
 )
 
 func TestCleanHTMLForAPI(t *testing.T) {
@@ -69,7 +71,7 @@ func TestCleanHTMLForAPI(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := CleanHTMLForAPI(tt.input)
+			result := app.CleanHTMLForAPI(tt.input)
 			if result != tt.expected {
 				t.Errorf("CleanHTMLForAPI(%q) = %q, want %q", tt.input, result, tt.expected)
 			}
@@ -157,7 +159,7 @@ func TestStripHTMLTags(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := StripHTMLTags(tt.input)
+			result := app.StripHTMLTags(tt.input)
 			if result != tt.expected {
 				t.Errorf("StripHTMLTags(%q) = %q, want %q", tt.input, result, tt.expected)
 			}
@@ -185,16 +187,16 @@ func TestGetMilestonesByDecade(t *testing.T) {
 	t.Skip("Skipping until test data is available")
 }
 
-// Benchmark functions
+// Benchmark functions.
 func BenchmarkCleanHTMLForAPI(b *testing.B) {
 	html := `<div class="content">
 		<p class="lead">This is a <strong>test</strong> with <a href="https://example.com" class="link" id="test">links</a> and <span style="color: red;">formatting</span>.</p>
 		<p>Another paragraph with <a name="anchor">anchor</a> and <data-info="test">data attributes</data-info>.</p>
 	</div>`
-	
+
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		CleanHTMLForAPI(html)
+	for range b.N {
+		app.CleanHTMLForAPI(html)
 	}
 }
 
@@ -203,33 +205,11 @@ func BenchmarkStripHTMLTags(b *testing.B) {
 		<p class="lead">This is a <strong>test</strong> with <a href="https://example.com" class="link" id="test">links</a> and <span style="color: red;">formatting</span>.</p>
 		<p>Another paragraph with &nbsp; non-breaking &amp; spaces and <data-info="test">data attributes</data-info>.</p>
 	</div>`
-	
+
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		StripHTMLTags(html)
+	for range b.N {
+		app.StripHTMLTags(html)
 	}
 }
 
-func BenchmarkCleanMilestoneForAPI(b *testing.B) {
-	// Create a sample milestone
-	milestone := Milestone{
-		Year:    2023,
-		Highlight: true,
-		Content: `<div class="milestone-content">
-			<p>This is a <strong>milestone</strong> with <a href="https://example.com" class="external">external link</a> and <span class="highlight">formatted text</span>.</p>
-			<p>More content with <data-test="value">data attributes</data-test> and <id="section">IDs</id>.</p>
-		</div>`,
-		Lead: `<p class="lead">This is the <em>lead</em> content with <a href="#section">internal link</a>.</p>`,
-		List: Links{
-			{
-				LinkTitle: `<span class="title">Link 1</span>`,
-				SubTitle:  `<p class="subtitle">Subtitle with <strong>formatting</strong></p>`,
-			},
-		},
-	}
-	
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		cleanMilestoneForAPI(milestone)
-	}
-}
+// BenchmarkCleanMilestoneForAPI removed because cleanMilestoneForAPI is not exported
