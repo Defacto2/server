@@ -194,10 +194,11 @@ func BenchmarkCleanHTMLForAPI(b *testing.B) {
 		<p>Another paragraph with <a name="anchor">anchor</a> and <data-info="test">data attributes</data-info>.</p>
 	</div>`
 
-	b.ResetTimer()
-	for range b.N {
-		app.CleanHTMLForAPI(html)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			app.CleanHTMLForAPI(html)
+		}
+	})
 }
 
 func BenchmarkStripHTMLTags(b *testing.B) {
@@ -206,10 +207,11 @@ func BenchmarkStripHTMLTags(b *testing.B) {
 		<p>Another paragraph with &nbsp; non-breaking &amp; spaces and <data-info="test">data attributes</data-info>.</p>
 	</div>`
 
-	b.ResetTimer()
-	for range b.N {
-		app.StripHTMLTags(html)
-	}
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			app.StripHTMLTags(html)
+		}
+	})
 }
 
 // BenchmarkCleanMilestoneForAPI removed because cleanMilestoneForAPI is not exported

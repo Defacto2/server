@@ -201,16 +201,13 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	if err := panics.EchoDSP(e, db, sl, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+	e.FileFS("/api/openapi.json", "public/json/openapi.json", public)
 	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
 	e.GET("/api/milestones", app.GetAllMilestones)
 	e.GET("/api/milestones/highlights", app.GetHighlightedMilestones)
 	e.GET("/api/milestones/year/:year", app.GetMilestonesByYear)
 	e.GET("/api/milestones/years/:range", app.GetMilestonesByYearRange)
 	e.GET("/api/milestones/decade/:decade", app.GetMilestonesByDecade)
-
-	// Register OpenAPI/Swagger documentation routes
-	app.RegisterOpenAPIRoutes(e, public)
-
 	return e
 }
 
