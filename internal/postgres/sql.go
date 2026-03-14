@@ -47,7 +47,9 @@ func (v *Version) Query(db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("%s connect: %w", msg, err)
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 	for rows.Next() {
 		if err := rows.Scan(v); err != nil {
 			return fmt.Errorf("%s rows scan: %w", msg, err)

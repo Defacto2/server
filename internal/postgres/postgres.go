@@ -39,7 +39,10 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	if err != nil {
 		return 0, 0, fmt.Errorf("%s query: %w", msg, err)
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
+
 	var count int64
 	if rows.Next() {
 		if err := rows.Scan(&count); err != nil {
@@ -53,7 +56,9 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	if err != nil {
 		return 0, 0, fmt.Errorf("%s query: %w", msg, err)
 	}
-	defer maxConn.Close()
+	defer func() {
+		_ = maxConn.Close()
+	}()
 	var maxConnections int64
 	for maxConn.Next() {
 		if err := maxConn.Scan(&maxConnections); err != nil {

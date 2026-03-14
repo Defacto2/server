@@ -45,16 +45,17 @@ func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 		b.Logf("Could not create database connection: %v", err)
 		b.Skipf("Could not create database connection: %v", err)
 	}
-	defer db.Close()
-
-	// Test the connection
+	defer func() {
+		if err := db.Close(); err != nil {
+			panic(err)
+		}
+	}()
 	if err := db.Ping(); err != nil {
 		b.Logf("Could not ping database: %v", err)
 		b.Skipf("Could not ping database: %v", err)
 	}
-
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = app.CategoriesAPI(c, db)
 		rec.Body.Reset()
 	}
@@ -73,16 +74,18 @@ func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
 		b.Logf("Could not create database connection: %v", err)
 		b.Skipf("Could not create database connection: %v", err)
 	}
-	defer db.Close()
-
-	// Test the connection
+	defer func() {
+		if err := db.Close(); err != nil {
+			panic(err)
+		}
+	}()
 	if err := db.Ping(); err != nil {
 		b.Logf("Could not ping database: %v", err)
 		b.Skipf("Could not ping database: %v", err)
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = app.PlatformsAPI(c, db)
 		rec.Body.Reset()
 	}
