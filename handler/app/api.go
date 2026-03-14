@@ -493,6 +493,66 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	})
 }
 
+// MagazinesAPI is the handler for the magazines API endpoint.
+func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "magazines api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	ctx := context.Background()
+	rels := model.Releasers{}
+	if err := rels.Magazine(ctx, db); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query magazines",
+		})
+	}
+	if len(rels) == 0 {
+		return c.JSON(http.StatusOK, map[string]any{
+			"releasers":  []SceneEntityAPI{},
+			"page":       1,
+			"totalPages": 1,
+		})
+	}
+
+	releasersWithStats := ReleasersAPI(rels)
+	return c.JSON(http.StatusOK, map[string]any{
+		"releasers":  releasersWithStats,
+		"page":       1,
+		"totalPages": 1,
+	})
+}
+
+// BBSAPI is the handler for the BBS API endpoint.
+func BBSAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "bbs api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	ctx := context.Background()
+	rels := model.Releasers{}
+	if err := rels.BBS(ctx, db, model.Oldest); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query BBS sites",
+		})
+	}
+	if len(rels) == 0 {
+		return c.JSON(http.StatusOK, map[string]any{
+			"releasers":  []SceneEntityAPI{},
+			"page":       1,
+			"totalPages": 1,
+		})
+	}
+
+	releasersWithStats := ReleasersAPI(rels)
+	return c.JSON(http.StatusOK, map[string]any{
+		"releasers":  releasersWithStats,
+		"page":       1,
+		"totalPages": 1,
+	})
+}
+
 // groupsCount returns the total number of releasers.
 func groupsCount(ctx context.Context, db *sql.DB) (int, error) {
 	var names model.ReleaserNames
@@ -523,7 +583,7 @@ func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
 				HTML3 string `json:"html3"`
 				HTML  string `json:"html"`
 			}{
-				API:   "/api/group/" + name,
+				API:   "/api/releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
@@ -609,10 +669,10 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
-	name := c.Param("id")
+	name := c.Param("name")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Releaser ID parameter is required",
+			"error": "Releaser name parameter is required",
 		})
 	}
 
@@ -652,7 +712,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				HTML3 string `json:"html3"`
 				HTML  string `json:"html"`
 			}{
-				API:   "/api/group/" + name,
+				API:   "/api/releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},

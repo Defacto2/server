@@ -19,6 +19,8 @@
                       <ul>
                         <li><a href="/api/categories">https://defacto2.net/api/categories</a></li>
                         <li><a href="/api/category/announcements">https://defacto2.net/api/category/announcements</a>
+                        <li><a href="/api/magazines">https://defacto2.net/api/magazines</a></li>
+                        <li><a href="/api/releaser/defacto2">https://defacto2.net/api/releaser/defacto2</a>
                         <li><a href="/api/milestones/year/1971">https://defacto2.net/api/milestones/year/1971</a></li>
                         <li><a href="/api/areacodes/territories/CA">https://defacto2.net/api/areacodes/territories/CA</a></li>
                       </ul>
@@ -47,10 +49,28 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><code>/boards</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all BBS boards</td>
+                                    <td><code>GET /api/boards</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/categories</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all artifact categories</td>
                                     <td><code>GET /api/categories</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/groups</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all releaser groups (paginated)</td>
+                                    <td><code>GET /api/groups?page=1</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/magazines</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all scene magazines</td>
+                                    <td><code>GET /api/magazines</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/platforms</code></td>
@@ -71,16 +91,10 @@
                                     <td><code>GET /api/platform/ansi</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/groups</code></td>
+                                    <td><code>/releaser/:name</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all releaser groups (paginated)</td>
-                                    <td><code>GET /api/groups?page=1</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/group/:id</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get files from a specific group</td>
-                                    <td><code>GET /api/group/razor-1911</code></td>
+                                    <td>Get files from a specific group or magazine</td>
+                                    <td><code>GET /api/releaser/razor-1911</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/milestones</code></td>
@@ -148,11 +162,11 @@
                 </div>
             </div>
 {{- /* 
-  Files API endpoints table 
+  Tag API endpoints table 
 */ -}}
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Files API endpoints</h2>
+                    <h2 class="h5 mb-0">Tag API endpoints</h2>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive mb-4">
@@ -170,7 +184,7 @@
                                 </tr>
                                 <tr>
                                     <td><code>GET /api/category/:name</code></td>
-                                    <td>Get files from any category (demo, scenerules, magazine, etc.)</td>
+                                    <td>Get artifacts from any category (demo, scenerules, magazine, etc.)</td>
                                 </tr>
                                 <tr>
                                     <td><code>GET /api/platforms</code></td>
@@ -178,7 +192,7 @@
                                 </tr>
                                 <tr>
                                     <td><code>GET /api/platform/:name</code></td>
-                                    <td>Get files from any platform (ansi, audio, dos, windows, etc.)</td>
+                                    <td>Get artifacts from any platform (ansi, audio, dos, windows, etc.)</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -198,7 +212,7 @@ curl "https://defacto2.net/api/platform/ansi"
 
 curl "https://defacto2.net/api/groups"
 
-curl "https://defacto2.net/api/group/razor-1911"</code></pre>
+curl "https://defacto2.net/api/releaser/razor-1911"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
@@ -224,15 +238,11 @@ fetch('https://defacto2.net/api/platform/ansi')
 
 fetch('https://defacto2.net/api/groups')
   .then(response => response.json())
-  .then(data => console.log(data));
-
-fetch('https://defacto2.net/api/group/razor-1911')
-  .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
                     </div>
                     <h3 class="h6 mt-4">Response Structure</h3>
-                    <p>Files API endpoints return JSON with nested URL objects and comprehensive tags:</p>
+                    <p>Artifacts API endpoints return JSON with nested URL objects and comprehensive tags:</p>
                     <pre class="bg-dark text-white p-3 rounded"><code>{
     "files": [
         {
@@ -315,11 +325,11 @@ fetch('https://defacto2.net/api/group/razor-1911')
                 </div>
             </div>
 {{- /*
-  Groups API endpoints table
+  Releaser API endpoints table
 */ -}}
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Groups API endpoints</h2>
+                    <h2 class="h5 mb-0">Releaser API endpoints</h2>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive mb-4">
@@ -336,8 +346,16 @@ fetch('https://defacto2.net/api/group/razor-1911')
                                     <td>Get all releaser groups with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/group/:id</code></td>
-                                    <td>Get detailed information and files for a specific group</td>
+                                    <td><code>GET /api/boards</code></td>
+                                    <td>Get all BBS boards</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/magazines</code></td>
+                                    <td>Get all scene magazines</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/releaser/:name</code></td>
+                                    <td>Get detailed information and files for a specific group or magazine by name</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -349,17 +367,39 @@ fetch('https://defacto2.net/api/group/razor-1911')
 
 curl "https://defacto2.net/api/groups?page=2"
 
-curl "https://defacto2.net/api/group/razor-1911"
+curl "https://defacto2.net/api/boards"
 
-curl "https://defacto2.net/api/group/fairlight"</code></pre>
+curl "https://defacto2.net/api/magazines"
+
+curl "https://defacto2.net/api/releaser/razor-1911"
+
+curl "https://defacto2.net/api/releaser/the-zapper"
+
+curl "https://defacto2.net/api/releaser/big-apple-bbs"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/groups')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/groups?page=2')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/group/razor-1911')
+fetch('https://defacto2.net/api/boards')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/magazines')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/releaser/razor-1911')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/releaser/the-zapper')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/releaser/big-apple-bbs')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -372,7 +412,7 @@ fetch('https://defacto2.net/api/group/razor-1911')
             "name": "razor-1911",
             "title": "Razor 1911",
             "urls": {
-                "api": "/api/group/razor-1911",
+                "api": "/api/releaser/razor-1911",
                 "html3": "/html3/group/razor-1911",
                 "html": "/g/razor-1911"
             },
@@ -386,7 +426,6 @@ fetch('https://defacto2.net/api/group/razor-1911')
     "page": 1,
     "totalPages": 4
 }</code></pre>
-
                     <h3 class="h6 mt-4">Group Detail Response</h3>
                     <pre class="bg-dark text-white p-3 rounded"><code>{
     "group": {
@@ -394,7 +433,7 @@ fetch('https://defacto2.net/api/group/razor-1911')
         "name": "razor-1911",
         "title": "Razor 1911",
         "urls": {
-            "api": "/api/group/razor-1911",
+            "api": "/api/releaser/razor-1911",
             "html3": "/html3/group/razor-1911",
             "html": "/g/razor-1911"
         },
