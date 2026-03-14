@@ -1167,7 +1167,7 @@
             "description": "Original filename",
             "example": "00-audiofile-time_to_say_goodbye-flac-2023-audiofile.nfo"
           },
-          "date_published": {
+          "datePublished": {
             "type": "object",
             "description": "Publication date",
             "properties": {
@@ -1188,7 +1188,7 @@
               }
             }
           },
-          "posted_date": {
+          "postedDate": {
             "type": "string",
             "description": "Date when file was added to the archive",
             "example": "2023-05-31T12:48:08+10:00"
@@ -1214,7 +1214,7 @@
             "description": "File description in HTML3 format",
             "example": "Time To Say Goodbye released by Audiofile in 2023."
           },
-          "file_type": {
+          "fileType": {
             "type": "string",
             "description": "File type classification",
             "example": "text"

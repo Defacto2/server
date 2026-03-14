@@ -47,7 +47,7 @@ func TestAnnouncementsContract(t *testing.T) {
 			ID          int64  `json:"id"`
 			Filename    string `json:"filename"`
 			Description string `json:"description"`
-			FileType    string `json:"file_type"`
+			FileType    string `json:"fileType"`
 			URLs        struct {
 				Download  string `json:"download"`
 				HTML      string `json:"html"`

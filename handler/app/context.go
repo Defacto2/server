@@ -54,12 +54,20 @@ import (
 
 // getFileType determines the file type based on filename extension.
 func getFileType(filename string) string {
-	lowerFilename := strings.ToLower(filename)
-	if strings.HasSuffix(lowerFilename, ".nfo") || strings.HasSuffix(lowerFilename, ".txt") || strings.HasSuffix(lowerFilename, ".doc") {
+	s := strings.ToLower(filename)
+	if strings.HasSuffix(s, ".nfo") ||
+		strings.HasSuffix(s, ".txt") ||
+		strings.HasSuffix(s, ".doc") {
 		return "text"
-	} else if strings.HasSuffix(lowerFilename, ".zip") || strings.HasSuffix(lowerFilename, ".rar") || strings.HasSuffix(lowerFilename, ".7z") {
+	}
+	if strings.HasSuffix(s, ".zip") ||
+		strings.HasSuffix(s, ".rar") ||
+		strings.HasSuffix(s, ".7z") {
 		return "archive"
-	} else if strings.HasSuffix(lowerFilename, ".jpg") || strings.HasSuffix(lowerFilename, ".png") || strings.HasSuffix(lowerFilename, ".gif") {
+	}
+	if strings.HasSuffix(s, ".jpg") ||
+		strings.HasSuffix(s, ".png") ||
+		strings.HasSuffix(s, ".gif") {
 		return "image"
 	}
 	return "unknown"

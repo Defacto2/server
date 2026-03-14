@@ -452,7 +452,7 @@ func TestSumPlatform(t *testing.T) {
 	query := postgres.SumPlatform()
 	queryStr := string(query)
 
-	be.True(t, strings.Contains(queryStr, "sum(filesize)"))
+	be.True(t, strings.Contains(queryStr, "SUM(filesize)"))
 	be.True(t, strings.Contains(queryStr, "platform = $1"))
 }
 

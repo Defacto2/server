@@ -31,14 +31,14 @@ type AnnouncementFile struct {
 		Year  int16 `json:"year,omitempty"`
 		Month int16 `json:"month,omitempty"`
 		Day   int16 `json:"day,omitempty"`
-	} `json:"date_published"`
-	PostedDate *time.Time `json:"posted_date,omitempty"`
+	} `json:"datePublished"`
+	PostedDate *time.Time `json:"postedDate,omitempty"`
 	Size       struct {
 		Formatted string `json:"formatted"`
 		Bytes     int64  `json:"bytes"`
 	} `json:"size"`
 	Description string `json:"description,omitempty"`
-	FileType    string `json:"file_type"`
+	FileType    string `json:"fileType"`
 	URLs        struct {
 		Download  string `json:"download"`
 		HTML      string `json:"html"`
@@ -49,9 +49,9 @@ type AnnouncementFile struct {
 type announcementFiles struct {
 	Files []AnnouncementFile `json:"files"`
 	Stats struct {
-		TotalFiles     int64  `json:"total_files"`
-		TotalSize      string `json:"total_size"`
-		TotalSizeBytes int64  `json:"total_size_bytes"`
+		TotalFiles     int64  `json:"totalFiles"`
+		TotalSize      string `json:"totalSize"`
+		TotalSizeBytes int64  `json:"totalSizeBytes"`
 	} `json:"statistics"`
 }
 
@@ -434,16 +434,10 @@ func TagsAPI(c echo.Context, category, platform bool) error {
 		default:
 			// return all tags
 		}
-
-		desc := infos[tag]
-
-		linkHtm3 := "/html3/" + slug
-		linkHtml := "/files/" + slug
-		linkApi := "/api/files/" + slug
 		result := tagAPI{
 			ID:          int(tag),
 			Name:        slug,
-			Description: desc,
+			Description: infos[tag],
 			Title:       title,
 			Count:       0, // TODO: Will be populated later if needed
 			URLs: struct {
@@ -451,9 +445,9 @@ func TagsAPI(c echo.Context, category, platform bool) error {
 				HTML3 string `json:"html3,omitempty"`
 				HTML  string `json:"html,omitempty"`
 			}{
-				API:   linkApi,
-				HTML3: linkHtm3,
-				HTML:  linkHtml,
+				API:   "/api/files/" + slug,
+				HTML3: "/html3/" + slug,
+				HTML:  "/files/" + slug,
 			},
 		}
 		results = append(results, result)
@@ -495,7 +489,7 @@ func PlatformAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // TagAPI returns a list of files from any category or platform tag.
-func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
+func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //nolint:funlen
 	const msg = "get files by tag"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -514,8 +508,8 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
 
 	var records models.FileSlice
 	var err error
-	var byteSum int64 = 0
-	var count int64 = 0
+	var byteSum int64
+	var count int64
 	ctx := context.Background()
 	order := html3.PublAsc
 
@@ -564,9 +558,9 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
 	response := announcementFiles{
 		Files: files,
 		Stats: struct {
-			TotalFiles     int64  `json:"total_files"`
-			TotalSize      string `json:"total_size"`
-			TotalSizeBytes int64  `json:"total_size_bytes"`
+			TotalFiles     int64  `json:"totalFiles"`
+			TotalSize      string `json:"totalSize"`
+			TotalSizeBytes int64  `json:"totalSizeBytes"`
 		}{
 			TotalFiles:     count,
 			TotalSize:      helper.ByteCount(byteSum),
@@ -581,7 +575,6 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
 func announceArtifact(records []*models.File) []AnnouncementFile {
 	files := make([]AnnouncementFile, len(records))
 	for i, record := range records {
-		// Handle date_published
 		var datePublished struct {
 			Year  int16 `json:"year,omitempty"`
 			Month int16 `json:"month,omitempty"`
@@ -593,14 +586,14 @@ func announceArtifact(records []*models.File) []AnnouncementFile {
 			datePublished.Day = record.DateIssuedDay.Int16
 		}
 
-		// Handle posted_date using Createdat field
+		// Handle postedDate using Createdat field
 		var postedDate *time.Time
 		if record.Createdat.Valid {
 			t := record.Createdat.Time
 			postedDate = &t
 		}
 
-		fileRecord := &models.File{
+		fileRecord := &models.File{ //nolint:exhaustruct
 			Filename:       record.Filename,
 			Section:        record.Section,
 			Platform:       record.Platform,
@@ -629,9 +622,9 @@ func announceArtifact(records []*models.File) []AnnouncementFile {
 				HTML      string `json:"html"`
 				Thumbnail string `json:"thumbnail,omitempty"`
 			}{
-				Download:  fmt.Sprintf("/d/%s", helper.ObfuscateID(record.ID)),
-				HTML:      fmt.Sprintf("/f/%s", helper.ObfuscateID(record.ID)),
-				Thumbnail: fmt.Sprintf("/public/image/thumb/%s", record.UUID.String),
+				Download:  "/d/" + helper.ObfuscateID(record.ID),
+				HTML:      "/f/" + helper.ObfuscateID(record.ID),
+				Thumbnail: "/public/image/thumb/" + record.UUID.String,
 			},
 		}
 	}
