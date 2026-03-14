@@ -96,7 +96,7 @@ func TestApiMarkup(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := app.ApiMarkup(tt.input)
-			be.True(t, result != tt.expected)
+			be.Equal(t, result, tt.expected)
 		})
 	}
 }

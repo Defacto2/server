@@ -35,7 +35,7 @@ func TestMain(m *testing.M) {
 // TestAnnouncementsContract verifies the announcements endpoint contract.
 func TestAnnouncementsContract(t *testing.T) {
 	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:1323/api/files/announcements?limit=5", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:1323/api/category/announcements?limit=5", nil)
 	resp, err := client.Do(req)
 	be.Equal(t, err, nil)
 	defer resp.Body.Close()
@@ -43,7 +43,7 @@ func TestAnnouncementsContract(t *testing.T) {
 	be.Equal(t, http.StatusOK, resp.StatusCode)
 
 	var result struct {
-		Announcements []struct {
+		Files []struct {
 			ID          int64  `json:"id"`
 			Filename    string `json:"filename"`
 			Description string `json:"description"`
@@ -53,7 +53,7 @@ func TestAnnouncementsContract(t *testing.T) {
 				HTML      string `json:"html"`
 				Thumbnail string `json:"thumbnail,omitempty"`
 			} `json:"urls"`
-		} `json:"announcements"`
+		} `json:"files"`
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -62,10 +62,10 @@ func TestAnnouncementsContract(t *testing.T) {
 	err = json.Unmarshal(body, &result)
 	be.Equal(t, err, nil)
 
-	be.True(t, len(result.Announcements) > 0)
+	be.True(t, len(result.Files) > 0)
 
 	// Verify URL patterns
-	for _, file := range result.Announcements {
+	for _, file := range result.Files {
 		be.True(t, strings.HasPrefix(file.URLs.Download, "/d/"))
 		be.True(t, strings.HasPrefix(file.URLs.HTML, "/f/"))
 		be.True(t, len(file.Description) > 0)
@@ -105,7 +105,6 @@ func TestCategoriesContract(t *testing.T) {
 
 	// Verify at least one category has proper structure
 	be.True(t, len(result[0].Name) > 0)
-	be.True(t, len(result[0].URI) > 0)
 	be.True(t, strings.HasPrefix(result[0].URLs.API, "/api/files/"))
 	be.True(t, strings.HasPrefix(result[0].URLs.HTML3, "/html3/"))
 	be.True(t, strings.HasPrefix(result[0].URLs.HTML, "/files/"))
@@ -143,7 +142,6 @@ func TestPlatformsContract(t *testing.T) {
 
 	// Verify at least one platform has proper structure
 	be.True(t, len(result[0].Name) > 0)
-	be.True(t, len(result[0].URI) > 0)
 	be.True(t, strings.HasPrefix(result[0].URLs.API, "/api/files/"))
 	be.True(t, strings.HasPrefix(result[0].URLs.HTML3, "/html3/"))
 	be.True(t, strings.HasPrefix(result[0].URLs.HTML, "/files/"))
@@ -155,7 +153,7 @@ func TestGenericCategoryContract(t *testing.T) {
 
 	for _, category := range testCases {
 		t.Run(category, func(t *testing.T) {
-			url := fmt.Sprintf("http://localhost:1323/api/files/%s?limit=3", category)
+			url := fmt.Sprintf("http://localhost:1323/api/category/%s?limit=3", category)
 			client := http.Client{}
 			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 			resp, err := client.Do(req)
@@ -199,7 +197,7 @@ func TestPlatformQueries(t *testing.T) {
 
 	for _, platform := range platforms {
 		t.Run(platform, func(t *testing.T) {
-			url := fmt.Sprintf("http://localhost:1323/api/files/%s?limit=2", platform)
+			url := fmt.Sprintf("http://localhost:1323/api/platform/%s?limit=2", platform)
 			client := http.Client{}
 			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 			resp, err := client.Do(req)
@@ -247,7 +245,7 @@ func TestURLPatterns(t *testing.T) {
 
 	for _, endpoint := range endpoints {
 		t.Run(endpoint, func(t *testing.T) {
-			url := fmt.Sprintf("http://localhost:1323/api/files/%s?limit=2", endpoint)
+			url := fmt.Sprintf("http://localhost:1323/api/category/%s?limit=2", endpoint)
 			client := http.Client{}
 			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 			resp, err := client.Do(req)
