@@ -52,27 +52,6 @@ import (
 	"google.golang.org/api/idtoken"
 )
 
-// getFileType determines the file type based on filename extension.
-func getFileType(filename string) string {
-	s := strings.ToLower(filename)
-	if strings.HasSuffix(s, ".nfo") ||
-		strings.HasSuffix(s, ".txt") ||
-		strings.HasSuffix(s, ".doc") {
-		return "text"
-	}
-	if strings.HasSuffix(s, ".zip") ||
-		strings.HasSuffix(s, ".rar") ||
-		strings.HasSuffix(s, ".7z") {
-		return "archive"
-	}
-	if strings.HasSuffix(s, ".jpg") ||
-		strings.HasSuffix(s, ".png") ||
-		strings.HasSuffix(s, ".gif") {
-		return "image"
-	}
-	return "unknown"
-}
-
 // FileSearch is the type of search to perform.
 type FileSearch int
 

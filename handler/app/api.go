@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/areacode"
@@ -23,8 +24,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// AnnouncementFile represents a file in the announcements category for API responses.
-type AnnouncementFile struct {
+// ArtifactSumAPI represents an artifact file summary for API responses.
+type ArtifactSumAPI struct {
 	ID            int64  `json:"id"`
 	Filename      string `json:"filename"`
 	DatePublished struct {
@@ -44,15 +45,32 @@ type AnnouncementFile struct {
 		Platform    string `json:"platform"`
 		Description string `json:"description"`
 	} `json:"tags"`
-	URLs        struct {
+	URLs struct {
 		Download  string `json:"download"`
 		HTML      string `json:"html"`
 		Thumbnail string `json:"thumbnail,omitempty"`
 	} `json:"urls"`
 }
 
-type announcementFiles struct {
-	Files []AnnouncementFile `json:"files"`
+// SceneEntityAPI represents a releaser or group for API responses.
+type SceneEntityAPI struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Title string `json:"title"`
+	URLs  struct {
+		API   string `json:"api"`
+		HTML3 string `json:"html3"`
+		HTML  string `json:"html"`
+	} `json:"urls"`
+	Statistics struct {
+		TotalFiles     int64  `json:"totalFiles"`
+		TotalSize      string `json:"totalSize"`
+		TotalSizeBytes int64  `json:"totalSizeBytes"`
+	} `json:"statistics"`
+}
+
+type artifactsSumStat struct {
+	Files []ArtifactSumAPI `json:"files"`
 	Stats struct {
 		TotalFiles     int64  `json:"totalFiles"`
 		TotalSize      string `json:"totalSize"`
@@ -426,6 +444,228 @@ func PlatformsAPI(c echo.Context, db *sql.DB) error {
 	return TagsAPI(c, db, false, true)
 }
 
+// GroupsAPI returns a list of all releasers/groups with pagination.
+func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "groups api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	// parse page parameter or default to page 1
+	page := 1
+	if s := c.QueryParam("page"); s != "" {
+		var err error
+		page, err = strconv.Atoi(s)
+		if err != nil || page < 1 {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"error": "Invalid page parameter",
+			})
+		}
+	}
+
+	ctx := context.Background()
+	count, err := groupsCount(ctx, db)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to count releasers",
+		})
+	}
+	const limit = 1000                   // Fixed limit per page
+	pages := (count + limit - 1) / limit // Ceiling division
+	rels := model.Releasers{}
+	if err := rels.Limit(ctx, db, model.Alphabetical, limit, page); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query releasers",
+		})
+	}
+	if len(rels) == 0 {
+		return c.JSON(http.StatusOK, map[string]any{
+			"releasers":  []SceneEntityAPI{},
+			"page":       page,
+			"totalPages": pages,
+		})
+	}
+
+	releasersWithStats := ReleasersAPI(rels)
+	return c.JSON(http.StatusOK, map[string]any{
+		"releasers":  releasersWithStats,
+		"page":       page,
+		"totalPages": pages,
+	})
+}
+
+// groupsCount returns the total number of releasers.
+func groupsCount(ctx context.Context, db *sql.DB) (int, error) {
+	var names model.ReleaserNames
+	if err := names.DistinctGroups(ctx, db); err != nil {
+		return 0, fmt.Errorf("groups counter: %w", err)
+	}
+	return len(names), nil
+}
+
+// ReleasersAPI builds the ReleaserAPI list from model data.
+func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
+	results := make([]SceneEntityAPI, 0, len(rels))
+	for _, rel := range rels {
+		title := releaser.Link(rel.Unique.Name)
+		name := releaser.Obfuscate(rel.Unique.Name)
+		count := rel.Unique.Count
+		bytes := rel.Unique.Bytes
+		// As there is no unique ids for releasers, only a unique uri,
+		// create stable ID from the url using an obfuscated name
+		id := simple.Hash(name)
+
+		result := SceneEntityAPI{
+			ID:    id,
+			Name:  name,
+			Title: title,
+			URLs: struct {
+				API   string `json:"api"`
+				HTML3 string `json:"html3"`
+				HTML  string `json:"html"`
+			}{
+				API:   "/api/group/" + name,
+				HTML3: "/html3/group/" + name,
+				HTML:  "/g/" + name,
+			},
+			Statistics: struct {
+				TotalFiles     int64  `json:"totalFiles"`
+				TotalSize      string `json:"totalSize"`
+				TotalSizeBytes int64  `json:"totalSizeBytes"`
+			}{
+				TotalFiles:     int64(count),
+				TotalSize:      helper.ByteCount(int64(bytes)),
+				TotalSizeBytes: int64(bytes),
+			},
+		}
+		results = append(results, result)
+	}
+	return results
+}
+
+// ReleaserAPI returns details for a specific releaser or group.
+func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "releaser api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	name := c.Param("id")
+	if name == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Releaser ID parameter is required",
+		})
+	}
+
+	ctx := context.Background()
+	rels := model.Releasers{}
+	fs, err := rels.Where(ctx, db, name)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error": "Releaser not found",
+		})
+	}
+	if len(fs) == 0 {
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error": "Releaser not found",
+		})
+	}
+
+	sum := model.Summary{ //nolint:exhaustruct // Fields are set by ByReleaser method
+	}
+	if err := sum.ByReleaser(ctx, db, name); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to get releaser statistics",
+		})
+	}
+
+	artifacts := make([]ArtifactSumAPI, 0, len(fs))
+	for _, f := range fs {
+		category := filerecord.TagCategory(f)
+		platform := filerecord.TagProgram(f)
+		categoryTag := tags.TagByURI(category)
+		platformTag := tags.TagByURI(platform)
+		humanized := tags.Humanize(platformTag, categoryTag)
+
+		art := &models.File{ //nolint:exhaustruct
+			Filename:       f.Filename,
+			RecordTitle:    f.RecordTitle,
+			GroupBrandBy:   f.GroupBrandBy,
+			GroupBrandFor:  f.GroupBrandFor,
+			DateIssuedYear: f.DateIssuedYear,
+		}
+		artifact := ArtifactSumAPI{
+			ID:       f.ID,
+			Filename: f.Filename.String,
+			Size: struct {
+				Formatted string `json:"formatted"`
+				Bytes     int64  `json:"bytes"`
+			}{Formatted: helper.ByteCount(f.Filesize.Int64), Bytes: f.Filesize.Int64},
+			Description: filerecord.Description(art),
+			Tags: struct {
+				Category    string `json:"category"`
+				Platform    string `json:"platform"`
+				Description string `json:"description"`
+			}{
+				Category:    category,
+				Platform:    platform,
+				Description: humanized,
+			},
+			URLs: struct {
+				Download  string `json:"download"`
+				HTML      string `json:"html"`
+				Thumbnail string `json:"thumbnail,omitempty"`
+			}{
+				Download:  "/d/" + helper.ObfuscateID(f.ID),
+				HTML:      "/f/" + helper.ObfuscateID(f.ID),
+				Thumbnail: "/public/image/thumb/" + f.UUID.String,
+			},
+		}
+		if f.DateIssuedYear.Valid {
+			artifact.DatePublished = struct {
+				Year  int16 `json:"year,omitempty"`
+				Month int16 `json:"month,omitempty"`
+				Day   int16 `json:"day,omitempty"`
+			}{
+				Year:  f.DateIssuedYear.Int16,
+				Month: f.DateIssuedMonth.Int16,
+				Day:   f.DateIssuedDay.Int16,
+			}
+		}
+		if f.Createdat.Valid {
+			artifact.PostedDate = &f.Createdat.Time
+		}
+
+		artifacts = append(artifacts, artifact)
+	}
+	return c.JSON(http.StatusOK, map[string]any{
+		"group": SceneEntityAPI{
+			ID:    simple.Hash(name),
+			Name:  name,
+			Title: releaser.Link(name),
+			URLs: struct {
+				API   string `json:"api"`
+				HTML3 string `json:"html3"`
+				HTML  string `json:"html"`
+			}{
+				API:   "/api/group/" + name,
+				HTML3: "/html3/group/" + name,
+				HTML:  "/g/" + name,
+			},
+			Statistics: struct {
+				TotalFiles     int64  `json:"totalFiles"`
+				TotalSize      string `json:"totalSize"`
+				TotalSizeBytes int64  `json:"totalSizeBytes"`
+			}{
+				TotalFiles:     sum.SumCount.Int64,
+				TotalSize:      helper.ByteCount(sum.SumBytes.Int64),
+				TotalSizeBytes: sum.SumBytes.Int64,
+			},
+		},
+		"files": artifacts,
+	})
+}
+
 // TagsAPI returns artifact tags.
 //
 //   - Set categories true to return all categories.
@@ -593,8 +833,8 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 		}
 	}
 
-	files := announceArtifact(records)
-	response := announcementFiles{
+	files := artifactsSum(records)
+	response := artifactsSumStat{
 		Files: files,
 		Stats: struct {
 			TotalFiles     int64  `json:"totalFiles"`
@@ -610,9 +850,9 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 	return c.JSON(http.StatusOK, response)
 }
 
-// announceArtifact transforms database records to the API format.
-func announceArtifact(records []*models.File) []AnnouncementFile {
-	files := make([]AnnouncementFile, len(records))
+// artifactsSum transforms database records to the API format.
+func artifactsSum(records []*models.File) []ArtifactSumAPI {
+	files := make([]ArtifactSumAPI, len(records))
 	for i, record := range records {
 		var datePublished struct {
 			Year  int16 `json:"year,omitempty"`
@@ -645,13 +885,13 @@ func announceArtifact(records []*models.File) []AnnouncementFile {
 		// Get tags for the file
 		category := filerecord.TagCategory(record)
 		platform := filerecord.TagProgram(record)
-		
+
 		// Get humanized description for the tags
 		categoryTag := tags.TagByURI(category)
 		platformTag := tags.TagByURI(platform)
 		humanized := tags.Humanize(platformTag, categoryTag)
 
-		files[i] = AnnouncementFile{
+		files[i] = ArtifactSumAPI{
 			ID:            record.ID,
 			Filename:      record.Filename.String,
 			DatePublished: datePublished,

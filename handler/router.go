@@ -217,8 +217,8 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	e.GET("/api/areacodes/search/:query", app.AreacodeSearchAPI)
 	e.GET("/api/areacodes/territories", app.TerritoriesAPI)
 	e.GET("/api/areacodes/territories/:abbr", app.TerritoryAPI)
-	e.GET("/api/groups", func(c echo.Context) error { return app.ReleasersAPI(c, db, sl) })
-	e.GET("/api/group/:id", func(c echo.Context) error { return app.ReleaserDetailAPI(c, db, sl) })
+	e.GET("/api/groups", func(c echo.Context) error { return app.GroupsAPI(c, db, sl) })
+	e.GET("/api/group/:id", func(c echo.Context) error { return app.ReleaserAPI(c, db, sl) })
 	return e
 }
 
