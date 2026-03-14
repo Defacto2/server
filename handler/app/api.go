@@ -120,8 +120,20 @@ func ApiMarkup(src string) string {
 	src = re.ReplaceAllString(src, "")
 
 	// Remove any remaining empty attributes or whitespace in tags
-	re = regexp.MustCompile(`<([a-z]+)\s+>`)
+	re = regexp.MustCompile(`<\s*([a-z0-9]+)\s+>`)
 	src = re.ReplaceAllString(src, "<$1>")
+
+	// Remove empty element pairs (e.g., "<span></span>" or "<span> </span>" -> "")
+	// We'll handle common empty tags specifically, including those with only whitespace
+	emptyTags := []string{"span", "div", "p", "i", "b", "strong", "em", "a", "q", "code"}
+	for _, tag := range emptyTags {
+		re := regexp.MustCompile(`<` + tag + `[^>]*>\s*<\/` + tag + `>`)
+		src = re.ReplaceAllString(src, "")
+	}
+
+	// Remove spaces between closing and opening tags (e.g., "</div> <p>" -> "</div><p>")
+	re = regexp.MustCompile(`>\s+<`)
+	src = re.ReplaceAllString(src, "><")
 
 	// Clean up multiple spaces (but preserve line breaks for readability)
 	re = regexp.MustCompile(`[\t\r\n]+`)

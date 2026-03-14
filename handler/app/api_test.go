@@ -89,7 +89,23 @@ func TestApiMarkup(t *testing.T) {
 		{
 			name:     "Removes empty tags",
 			input:    `<p><span> </span>Content</p>`,
-			expected: `<p><span> </span>Content</p>`,
+			expected: `<p>Content</p>`,
+		},
+		{
+			name:     "Removes style attribute from h1",
+			input:    `<h1 style="color: blue;">Welcome</h1>`,
+			expected: `<h1>Welcome</h1>`,
+		},
+		{
+			name: "Remove newlines",
+			input: `<div class="content" id="main">` + "\n\t\t" +
+				`<h1 style="color: blue;">Welcome</h1>` + "\n" + `</div>`,
+			expected: `<div><h1>Welcome</h1></div>`,
+		},
+		{
+			name: "Removes various empty elements",
+			input: `<p><span></span>Text <div></div> more <i></i> text</p>`,
+			expected: `<p>Text more text</p>`,
 		},
 	}
 

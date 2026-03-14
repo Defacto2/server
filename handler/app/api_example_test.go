@@ -144,7 +144,7 @@ func Example_milestoneAPI() {
 	// ✓ HTML Cleaning Functions:
 	//   Original: <p class="test">This has <a href="https://example.com" class="link">a link</a> and <span style="color: red;">formatting</span>.</p>
 	//   Cleaned:  <p>This has <a href="https://example.com">a link</a> and <span>formatting</span>.</p>
-	//   Plain:    This has a link and formatting .
+	//   Plain:    This has a link and formatting.
 }
 
 // Example HTML with various attributes and tags
@@ -175,17 +175,13 @@ func Example_apiMarkup() {
 	// Output:
 	// Original HTML:
 	// <div class="content" id="main">
-	//   <h1 style="color: blue;">Welcome</h1>
-	//   <p class="intro">This is <strong>important</strong> content with <a href="https://example.com" class="external" title="Visit Example">a link</a>.</p>
-	//   <p>More content with <span data-info="test">data attributes</span> and <a name="anchor">anchor without href</a>.</p>
-	// </div>
+	// 		<h1 style="color: blue;">Welcome</h1>
+	// 		<p class="intro">This is <strong>important</strong> content with <a href="https://example.com" class="external" title="Visit Example">a link</a>.</p>
+	// 		<p>More content with <span data-info="test">data attributes</span> and <a name="anchor">anchor without href</a>.</p>
+	// 	</div>
 	//
 	// Cleaned HTML (preserves structure, removes presentation):
-	// <div>
-	//   <h1>Welcome</h1>
-	//   <p>This is <strong>important</strong> content with <a href="https://example.com">a link</a>.</p>
-	//   <p>More content with <span>data attributes</span> and anchor without href.</p>
-	// </div>
+	// <div><h1>Welcome</h1><p>This is <strong>important</strong> content with <a href="https://example.com">a link</a>.</p><p>More content with <span>data attributes</span> and anchor without href.</p></div>
 }
 
 // Example_errorHandling demonstrates error cases.
