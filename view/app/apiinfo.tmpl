@@ -346,6 +346,10 @@ fetch('https://defacto2.net/api/groups')
                                     <td>Get all releaser groups with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
+                                    <td><code>GET /api/sites</code></td>
+                                    <td>Get all FTP sites</td>
+                                </tr>
+                                <tr>
                                     <td><code>GET /api/boards</code></td>
                                     <td>Get all BBS boards</td>
                                 </tr>
@@ -367,6 +371,8 @@ fetch('https://defacto2.net/api/groups')
 
 curl "https://defacto2.net/api/groups?page=2"
 
+curl "https://defacto2.net/api/sites"
+
 curl "https://defacto2.net/api/boards"
 
 curl "https://defacto2.net/api/magazines"
@@ -380,6 +386,10 @@ curl "https://defacto2.net/api/releaser/big-apple-bbs"</code></pre>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
                             <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/groups?page=2')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/sites')
   .then(response => response.json())
   .then(data => console.log(data));
 

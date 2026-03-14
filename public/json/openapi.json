@@ -956,6 +956,79 @@
         }
       }
     },
+    "/api/sites": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Get all FTP sites",
+        "description": "Returns a complete list of all FTP (File Transfer Protocol) sites with their statistics and URLs. Each FTP site includes total file count and total size information.",
+        "operationId": "getAllSites",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (always 1, included for API consistency)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A complete list of all FTP sites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "releasers": {
+                      "type": "array",
+                      "description": "Array of all FTP site entries",
+                      "items": {
+                        "$ref": "#/components/schemas/ReleaserGroup"
+                      }
+                    },
+                    "page": {
+                      "type": "integer",
+                      "description": "Current page number (always 1)",
+                      "example": 1
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "description": "Total number of pages (always 1 for FTP sites)",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/releaser/{name}": {
       "get": {
         "tags": ["files"],

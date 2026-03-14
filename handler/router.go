@@ -218,6 +218,7 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	e.GET("/api/areacodes/territories", app.TerritoriesAPI)
 	e.GET("/api/areacodes/territories/:abbr", app.TerritoryAPI)
 	e.GET("/api/groups", func(c echo.Context) error { return app.GroupsAPI(c, db, sl) })
+	e.GET("/api/sites", func(c echo.Context) error { return app.SitesAPI(c, db, sl) })
 	e.GET("/api/boards", func(c echo.Context) error { return app.BBSAPI(c, db, sl) })
 	e.GET("/api/magazines", func(c echo.Context) error { return app.MagazinesAPI(c, db, sl) })
 	e.GET("/api/releaser/:name", func(c echo.Context) error { return app.ReleaserAPI(c, db, sl) })

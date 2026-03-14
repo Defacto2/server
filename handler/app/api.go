@@ -553,6 +553,36 @@ func BBSAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	})
 }
 
+// SitesAPI is the handler for the FTP sites API endpoint.
+func SitesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "sites api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	ctx := context.Background()
+	rels := model.Releasers{}
+	if err := rels.FTP(ctx, db); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query FTP sites",
+		})
+	}
+	if len(rels) == 0 {
+		return c.JSON(http.StatusOK, map[string]any{
+			"releasers":  []SceneEntityAPI{},
+			"page":       1,
+			"totalPages": 1,
+		})
+	}
+
+	releasersWithStats := ReleasersAPI(rels)
+	return c.JSON(http.StatusOK, map[string]any{
+		"releasers":  releasersWithStats,
+		"page":       1,
+		"totalPages": 1,
+	})
+}
+
 // groupsCount returns the total number of releasers.
 func groupsCount(ctx context.Context, db *sql.DB) (int, error) {
 	var names model.ReleaserNames
