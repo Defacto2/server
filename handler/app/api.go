@@ -87,9 +87,9 @@ const (
 	yearsInDecade = 9
 )
 
-// ApiMarkup removes CSS classes and attributes from HTML for API responses.
+// APIMarkup removes CSS classes and attributes from HTML for API responses.
 // Keeps semantic HTML tags but removes presentation-specific markup.
-func ApiMarkup(src string) string {
+func APIMarkup(src string) string {
 	if src == "" {
 		return src
 	}
@@ -395,15 +395,15 @@ func MilestoneDecadeAPI(c echo.Context) error {
 
 // milestoneFix prepares a milestone for API response.
 func milestoneFix(m Milestone) Milestone {
-	m.ContentHTML = ApiMarkup(m.Content)
+	m.ContentHTML = APIMarkup(m.Content)
 	m.Content = simple.CleanHTML(m.Content)
-	m.Lead = ApiMarkup(m.Lead)
+	m.Lead = APIMarkup(m.Lead)
 
 	// Clean any links
 	if len(m.List) > 0 {
 		for i := range m.List {
-			m.List[i].LinkTitle = ApiMarkup(m.List[i].LinkTitle)
-			m.List[i].SubTitle = ApiMarkup(m.List[i].SubTitle)
+			m.List[i].LinkTitle = APIMarkup(m.List[i].LinkTitle)
+			m.List[i].SubTitle = APIMarkup(m.List[i].SubTitle)
 		}
 	}
 

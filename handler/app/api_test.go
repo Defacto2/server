@@ -25,7 +25,7 @@ func BenchmarkApiMarkup(b *testing.B) {
 
 	b.Run("", func(b *testing.B) {
 		for range b.N {
-			app.ApiMarkup(html)
+			app.APIMarkup(html)
 		}
 	})
 }
@@ -103,15 +103,15 @@ func TestApiMarkup(t *testing.T) {
 			expected: `<div><h1>Welcome</h1></div>`,
 		},
 		{
-			name: "Removes various empty elements",
-			input: `<p><span></span>Text <div></div> more <i></i> text</p>`,
+			name:     "Removes various empty elements",
+			input:    `<p><span></span>Text <div></div> more <i></i> text</p>`,
 			expected: `<p>Text more text</p>`,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := app.ApiMarkup(tt.input)
+			result := app.APIMarkup(tt.input)
 			be.Equal(t, result, tt.expected)
 		})
 	}
