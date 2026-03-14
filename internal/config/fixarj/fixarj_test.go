@@ -268,20 +268,23 @@ func TestCheckFileInExtraDirectory(t *testing.T) {
 				extraZip := filepath.Join(tmpDir, uid+".zip")
 				err := os.WriteFile(extraZip, []byte("test"), 0o600)
 				be.True(t, err == nil)
-				defer os.Remove(extraZip)
-
+				defer func() {
+					if err := os.Remove(extraZip); err != nil {
+						t.Log(err)
+					}
+				}()
 				d := &MockDirEntry{name: uid + ".zip", isDir: false}
 				artifacts := []string{uid}
 				result := fixarj.Check(extra, d, artifacts...)
 				// Should return "" because file exists in extra
 				be.Equal(t, result, "")
-			} else {
-				d := &MockDirEntry{name: uid + ".zip", isDir: false}
-				artifacts := []string{uid}
-				result := fixarj.Check(extra, d, artifacts...)
-				// Should return uid because file doesn't exist in extra
-				be.Equal(t, result, uid)
+				return
 			}
+			d := &MockDirEntry{name: uid + ".zip", isDir: false}
+			artifacts := []string{uid}
+			result := fixarj.Check(extra, d, artifacts...)
+			// Should return uid because file doesn't exist in extra
+			be.Equal(t, result, uid)
 		})
 	}
 }

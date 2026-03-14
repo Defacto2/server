@@ -38,7 +38,11 @@ func TestAnnouncementsContract(t *testing.T) {
 	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:1323/api/category/announcements?limit=5", nil)
 	resp, err := client.Do(req)
 	be.Equal(t, err, nil)
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Log(err)
+		}
+	}()
 
 	be.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -79,8 +83,11 @@ func TestCategoriesContract(t *testing.T) {
 	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:1323/api/categories", nil)
 	resp, err := client.Do(req)
 	be.Equal(t, err, nil)
-	defer resp.Body.Close()
-
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Log(err)
+		}
+	}()
 	be.Equal(t, http.StatusOK, resp.StatusCode)
 
 	var result []struct {
@@ -116,7 +123,11 @@ func TestPlatformsContract(t *testing.T) {
 	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:1323/api/platforms", nil)
 	resp, err := client.Do(req)
 	be.Equal(t, err, nil)
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Log(err)
+		}
+	}()
 
 	be.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -158,8 +169,11 @@ func TestGenericCategoryContract(t *testing.T) {
 			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 			resp, err := client.Do(req)
 			be.Equal(t, err, nil)
-			defer resp.Body.Close()
-
+			defer func() {
+				if err := resp.Body.Close(); err != nil {
+					t.Log(err)
+				}
+			}()
 			be.Equal(t, http.StatusOK, resp.StatusCode)
 
 			var result struct {
@@ -202,7 +216,11 @@ func TestPlatformQueries(t *testing.T) {
 			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 			resp, err := client.Do(req)
 			be.Equal(t, err, nil)
-			defer resp.Body.Close()
+			defer func() {
+				if err := resp.Body.Close(); err != nil {
+					t.Log(err)
+				}
+			}()
 
 			be.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -250,10 +268,12 @@ func TestURLPatterns(t *testing.T) {
 			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 			resp, err := client.Do(req)
 			be.Equal(t, err, nil)
-			defer resp.Body.Close()
-
+			defer func() {
+				if err := resp.Body.Close(); err != nil {
+					t.Log(err)
+				}
+			}()
 			be.Equal(t, http.StatusOK, resp.StatusCode)
-
 			// Just verify it returns valid JSON with expected structure
 			var result map[string]any
 			err = json.NewDecoder(resp.Body).Decode(&result)

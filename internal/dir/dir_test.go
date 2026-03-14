@@ -113,9 +113,14 @@ func TestIsDir(t *testing.T) {
 		// Create a temp file
 		tmpFile, err := os.CreateTemp(tmpDir, "test-*.txt")
 		be.True(t, err == nil)
-		defer tmpFile.Close()
-		defer os.Remove(tmpFile.Name())
-
+		defer func() {
+			err := tmpFile.Close()
+			t.Log(err)
+		}()
+		defer func() {
+			err := os.Remove(tmpFile.Name())
+			t.Log(err)
+		}()
 		d := dir.Directory(tmpFile.Name())
 		err = d.IsDir()
 		be.True(t, errors.Is(err, dir.ErrFile))
@@ -187,9 +192,16 @@ func TestCheck(t *testing.T) {
 		// Create a temp file
 		tmpFile, err := os.CreateTemp(tmpDir, "test-*.txt")
 		be.True(t, err == nil)
-		defer tmpFile.Close()
-		defer os.Remove(tmpFile.Name())
-
+		defer func() {
+			if err := tmpFile.Close(); err != nil {
+				t.Log(err)
+			}
+		}()
+		defer func() {
+			if err := os.Remove(tmpFile.Name()); err != nil {
+				t.Log(err)
+			}
+		}()
 		d := dir.Directory(tmpFile.Name())
 		err = d.Check(sl)
 		be.Err(t, err)

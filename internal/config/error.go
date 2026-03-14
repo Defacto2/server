@@ -45,8 +45,7 @@ func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger
 		return
 	}
 	statusCode := http.StatusInternalServerError
-	var httpError *echo.HTTPError
-	if errors.As(err, &httpError) {
+	if httpError, ok := errors.AsType[*echo.HTTPError](err); ok {
 		statusCode = httpError.Code
 	}
 	errorPage := fmt.Sprintf("%d.html", statusCode)
@@ -68,8 +67,7 @@ func StringErr(err error) (int, string, error) {
 		return 0, "", nil
 	}
 	code, msg := http.StatusInternalServerError, "internal server error"
-	var httpError *echo.HTTPError
-	if errors.As(err, &httpError) {
+	if httpError, ok := errors.AsType[*echo.HTTPError](err); ok {
 		code = httpError.Code
 		msg = fmt.Sprint(httpError.Message)
 	}

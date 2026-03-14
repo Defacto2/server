@@ -109,8 +109,7 @@ func Error(c echo.Context, err error) error {
 	start := helper.Latency()
 	code := http.StatusInternalServerError
 	msg := "This is a server problem"
-	var httpError *echo.HTTPError
-	if errors.As(err, &httpError) {
+	if httpError, ok := errors.AsType[*echo.HTTPError](err); ok {
 		code = httpError.Code
 		msg = fmt.Sprint(httpError.Message)
 	}

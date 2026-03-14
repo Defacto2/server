@@ -152,7 +152,9 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	if err != nil {
 		return none, fmt.Errorf("%s open root: %w", msg, err)
 	}
-	defer r.Close()
+	defer func() {
+		_ = r.Close()
+	}()
 	// open files
 	var errr error
 	if ename != "" {
@@ -168,7 +170,7 @@ func OpenFiles(root string, ename, iname, dname string) (Files, error) {
 	}
 	err = errors.Join(errr, erri, errd)
 	if err != nil {
-		files.Close()
+		_ = files.Close()
 		return none, fmt.Errorf("%s: %w", msg, err)
 	}
 	return files, nil

@@ -451,7 +451,11 @@ func TestWalkerChmod(t *testing.T) {
 		}
 		root, err := os.OpenRoot(tmpDir)
 		be.Err(t, err, nil)
-		defer root.Close()
+		defer func() {
+			if err := root.Close(); err != nil {
+				t.Log(err)
+			}
+		}()
 		err = filerecord.WalkerChmod(root, testDir, mockEntry, nil)
 		be.Err(t, err, nil)
 		info, err := os.Stat(testDir)
@@ -473,7 +477,11 @@ func TestWalkerChmod(t *testing.T) {
 		}
 		root, err := os.OpenRoot(tmpDir)
 		be.Err(t, err, nil)
-		defer root.Close()
+		defer func() {
+			if err := root.Close(); err != nil {
+				t.Log(err)
+			}
+		}()
 		err = filerecord.WalkerChmod(root, testFile, mockEntry, nil)
 		be.Err(t, err, nil)
 		info, err := os.Stat(testFile)
@@ -485,8 +493,11 @@ func TestWalkerChmod(t *testing.T) {
 		tmpDir := t.TempDir()
 		root, err := os.OpenRoot(tmpDir)
 		be.Err(t, err, nil)
-		defer root.Close()
-
+		defer func() {
+			if err := root.Close(); err != nil {
+				t.Log(err)
+			}
+		}()
 		err = filerecord.WalkerChmod(root, "", nil, fs.ErrInvalid)
 		be.Equal(t, err, fs.SkipDir)
 	})
@@ -495,7 +506,11 @@ func TestWalkerChmod(t *testing.T) {
 		tmpDir := t.TempDir()
 		root, err := os.OpenRoot(tmpDir)
 		be.Err(t, err, nil)
-		defer root.Close()
+		defer func() {
+			if err := root.Close(); err != nil {
+				t.Log(err)
+			}
+		}()
 		nonExistentFile := filepath.Join(tmpDir, "nonexistent", "file.txt")
 
 		mockEntry := &mockDirEntry{

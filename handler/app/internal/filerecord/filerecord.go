@@ -685,8 +685,9 @@ func ListContent( //nolint:cyclop,gocognit,funlen
 	if err != nil {
 		return template.HTML(fmt.Sprintf("failed to open root directory: %v", err))
 	}
-	defer root.Close()
-
+	defer func() {
+		_ = root.Close()
+	}()
 	// Use root-scoped WalkerChmod to prevent path traversal attacks
 	walkerChmod := func(path string, d fs.DirEntry, err error) error {
 		return WalkerChmod(root, path, d, err)
