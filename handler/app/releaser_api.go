@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"hash/fnv"
 	"log/slog"
@@ -11,21 +12,26 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/labstack/echo/v4"
 )
 
-// hashString creates a stable hash ID from a string.
-func hashString(s string) uint64 {
+// hashString creates a stable hash ID from a string and returns it as base64.
+func hashString(s string) string {
 	h := fnv.New64a()
 	h.Write([]byte(s))
-	return h.Sum64()
+	hashBytes := h.Sum(nil)
+	// Use URLEncoding to avoid special characters
+	return base64.URLEncoding.EncodeToString(hashBytes)
 }
 
 // ReleaserAPI represents a releaser/group for API responses.
 type ReleaserAPI struct {
-	ID    uint64 `json:"id"`
+	ID    string `json:"id"`
 	Name  string `json:"name"`
 	Title string `json:"title"`
 	URLs  struct {
@@ -193,31 +199,95 @@ func ReleaserDetailAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		})
 	}
 
-	relname := releaser.Link(uri)
-	stableID := hashString(uri)
-	result := ReleaserAPI{
-		ID:    stableID,
-		Name:  uri,
-		Title: relname,
-		URLs: struct {
-			API   string `json:"api"`
-			HTML3 string `json:"html3"`
-			HTML  string `json:"html"`
-		}{
-			API:   "/api/group/" + uri,
-			HTML3: "/html3/group/" + uri,
-			HTML:  "/g/" + uri,
-		},
-		Statistics: struct {
-			TotalFiles     int64  `json:"totalFiles"`
-			TotalSize      string `json:"totalSize"`
-			TotalSizeBytes int64  `json:"totalSizeBytes"`
-		}{
-			TotalFiles:     m.SumCount.Int64,
-			TotalSize:      helper.ByteCount(m.SumBytes.Int64),
-			TotalSizeBytes: m.SumBytes.Int64,
-		},
+	// Convert files to API format
+	apiFiles := make([]AnnouncementFile, 0, len(files))
+	for _, f := range files {
+		// Get tags for the file
+		category := filerecord.TagCategory(f)
+		platform := filerecord.TagProgram(f)
+		
+		// Get humanized description for the tags
+		categoryTag := tags.TagByURI(category)
+		platformTag := tags.TagByURI(platform)
+		humanized := tags.Humanize(platformTag, categoryTag)
+
+		// Create a file record for the description function
+		fileRecord := &models.File{ //nolint:exhaustruct
+			Filename:       f.Filename,
+			RecordTitle:    f.RecordTitle,
+			GroupBrandBy:   f.GroupBrandBy,
+			GroupBrandFor:  f.GroupBrandFor,
+			DateIssuedYear: f.DateIssuedYear,
+		}
+
+		apiFile := AnnouncementFile{
+			ID:          f.ID,
+			Filename:    f.Filename.String,
+			Size:        struct{ Formatted string `json:"formatted"`; Bytes int64 `json:"bytes"` }{Formatted: helper.ByteCount(f.Filesize.Int64), Bytes: f.Filesize.Int64},
+			Description: filerecord.Description(fileRecord),
+			Tags: struct {
+				Category    string `json:"category"`
+				Platform    string `json:"platform"`
+				Description string `json:"description"`
+			}{
+				Category:    category,
+				Platform:    platform,
+				Description: humanized,
+			},
+			URLs: struct {
+				Download  string `json:"download"`
+				HTML      string `json:"html"`
+				Thumbnail string `json:"thumbnail,omitempty"`
+			}{
+				Download:  "/d/" + helper.ObfuscateID(f.ID),
+				HTML:      "/f/" + helper.ObfuscateID(f.ID),
+				Thumbnail: "/public/image/thumb/" + f.UUID.String,
+			},
+		}
+
+		// Set dates if available
+		if f.DateIssuedYear.Valid {
+			apiFile.DatePublished = struct{ Year int16 `json:"year,omitempty"`; Month int16 `json:"month,omitempty"`; Day int16 `json:"day,omitempty"` }{
+				Year:  f.DateIssuedYear.Int16,
+				Month: f.DateIssuedMonth.Int16,
+				Day:   f.DateIssuedDay.Int16,
+			}
+		}
+		if f.Createdat.Valid {
+			apiFile.PostedDate = &f.Createdat.Time
+		}
+
+		apiFiles = append(apiFiles, apiFile)
 	}
 
-	return c.JSON(http.StatusOK, result)
+	relname := releaser.Link(uri)
+	stableID := hashString(uri)
+
+	// Return response with both group info and files
+	return c.JSON(http.StatusOK, map[string]any{
+		"group": ReleaserAPI{
+			ID:    stableID,
+			Name:  uri,
+			Title: relname,
+			URLs: struct {
+				API   string `json:"api"`
+				HTML3 string `json:"html3"`
+				HTML  string `json:"html"`
+			}{
+				API:   "/api/group/" + uri,
+				HTML3: "/html3/group/" + uri,
+				HTML:  "/g/" + uri,
+			},
+			Statistics: struct {
+				TotalFiles     int64  `json:"totalFiles"`
+				TotalSize      string `json:"totalSize"`
+				TotalSizeBytes int64  `json:"totalSizeBytes"`
+			}{
+				TotalFiles:     m.SumCount.Int64,
+				TotalSize:      helper.ByteCount(m.SumBytes.Int64),
+				TotalSizeBytes: m.SumBytes.Int64,
+			},
+		},
+		"files": apiFiles,
+	})
 }

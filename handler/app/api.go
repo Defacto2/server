@@ -38,7 +38,12 @@ type AnnouncementFile struct {
 		Bytes     int64  `json:"bytes"`
 	} `json:"size"`
 	Description string `json:"description,omitempty"`
-	FileType    string `json:"fileType"`
+	FileType    string `json:"fileType,omitempty"`
+	Tags        struct {
+		Category    string `json:"category"`
+		Platform    string `json:"platform"`
+		Description string `json:"description"`
+	} `json:"tags"`
 	URLs        struct {
 		Download  string `json:"download"`
 		HTML      string `json:"html"`
@@ -637,6 +642,15 @@ func announceArtifact(records []*models.File) []AnnouncementFile {
 			DateIssuedYear: record.DateIssuedYear,
 		}
 
+		// Get tags for the file
+		category := filerecord.TagCategory(record)
+		platform := filerecord.TagProgram(record)
+		
+		// Get humanized description for the tags
+		categoryTag := tags.TagByURI(category)
+		platformTag := tags.TagByURI(platform)
+		humanized := tags.Humanize(platformTag, categoryTag)
+
 		files[i] = AnnouncementFile{
 			ID:            record.ID,
 			Filename:      record.Filename.String,
@@ -650,7 +664,15 @@ func announceArtifact(records []*models.File) []AnnouncementFile {
 				Bytes:     record.Filesize.Int64,
 			},
 			Description: filerecord.Description(fileRecord),
-			FileType:    getFileType(record.Filename.String),
+			Tags: struct {
+				Category    string `json:"category"`
+				Platform    string `json:"platform"`
+				Description string `json:"description"`
+			}{
+				Category:    category,
+				Platform:    platform,
+				Description: humanized,
+			},
 			URLs: struct {
 				Download  string `json:"download"`
 				HTML      string `json:"html"`

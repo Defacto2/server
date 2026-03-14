@@ -71,6 +71,18 @@
                                     <td><code>GET /api/platform/ansi</code></td>
                                 </tr>
                                 <tr>
+                                    <td><code>/groups</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all releaser groups (paginated)</td>
+                                    <td><code>GET /api/groups?page=1</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/group/:id</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get files from a specific group</td>
+                                    <td><code>GET /api/group/razor-1911</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/milestones</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all milestones</td>
@@ -182,7 +194,11 @@ curl "https://defacto2.net/api/category/demo"
 
 curl "https://defacto2.net/api/platforms"
 
-curl "https://defacto2.net/api/platform/ansi"</code></pre>
+curl "https://defacto2.net/api/platform/ansi"
+
+curl "https://defacto2.net/api/groups"
+
+curl "https://defacto2.net/api/group/razor-1911"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
@@ -204,13 +220,21 @@ fetch('https://defacto2.net/api/platforms')
 
 fetch('https://defacto2.net/api/platform/ansi')
   .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/groups')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/group/razor-1911')
+  .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
                     </div>
                     <h3 class="h6 mt-4">Response Structure</h3>
-                    <p>Files API endpoints return JSON with nested URL objects:</p>
+                    <p>Files API endpoints return JSON with nested URL objects and comprehensive tags:</p>
                     <pre class="bg-dark text-white p-3 rounded"><code>{
-    "announcements": [
+    "files": [
         {
             "id": 47303,
             "filename": "00-audiofile-time_to_say_goodbye-flac-2023-audiofile.nfo",
@@ -225,7 +249,11 @@ fetch('https://defacto2.net/api/platform/ansi')
                 "bytes": 6917
             },
             "description": "Time To Say Goodbye released by Audiofile in 2023.",
-            "fileType": "text",
+            "tags": {
+                "category": "releaseadvert",
+                "platform": "dos",
+                "description": "an intro for MS Dos"
+            },
             "urls": {
                 "download": "/d/ab1fc8b",
                 "html": "/f/ab1fc8b",
@@ -284,6 +312,126 @@ fetch('https://defacto2.net/api/platform/ansi')
         "html": "/files/windows"
     }
 }]</code></pre>
+                </div>
+            </div>
+{{- /*
+  Groups API endpoints table
+*/ -}}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Groups API endpoints</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET /api/groups</code></td>
+                                    <td>Get all releaser groups with pagination (1000 per page)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/group/:id</code></td>
+                                    <td>Get detailed information and files for a specific group</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6">cURL Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "https://defacto2.net/api/groups"
+
+curl "https://defacto2.net/api/groups?page=2"
+
+curl "https://defacto2.net/api/group/razor-1911"
+
+curl "https://defacto2.net/api/group/fairlight"</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6">JavaScript (Fetch) Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/groups')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/group/razor-1911')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                        </div>
+                    </div>
+                    <h3 class="h6 mt-4">Groups API Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "releasers": [
+        {
+            "id": "rzjHDqmL1do=",
+            "name": "razor-1911",
+            "title": "Razor 1911",
+            "urls": {
+                "api": "/api/group/razor-1911",
+                "html3": "/html3/group/razor-1911",
+                "html": "/g/razor-1911"
+            },
+            "statistics": {
+                "totalFiles": 935,
+                "totalSize": "458M",
+                "totalSizeBytes": 480750960
+            }
+        }
+    ],
+    "page": 1,
+    "totalPages": 4
+}</code></pre>
+
+                    <h3 class="h6 mt-4">Group Detail Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "group": {
+        "id": "rzjHDqmL1do=",
+        "name": "razor-1911",
+        "title": "Razor 1911",
+        "urls": {
+            "api": "/api/group/razor-1911",
+            "html3": "/html3/group/razor-1911",
+            "html": "/g/razor-1911"
+        },
+        "statistics": {
+            "totalFiles": 935,
+            "totalSize": "458M",
+            "totalSizeBytes": 480750960
+        }
+    },
+    "files": [
+        {
+            "id": 52172,
+            "filename": "TOYOTA.ZIP",
+            "datePublished": {
+                "year": 1991,
+                "month": 5,
+                "day": 9
+            },
+            "postedDate": "2024-09-28T13:36:51.454172+10:00",
+            "size": {
+                "formatted": "14k",
+                "bytes": 14406
+            },
+            "description": "Carlos Sanz Toyota Challenge released by Skillion + Razor 1911 in 1991.",
+            "tags": {
+                "category": "releaseadvert",
+                "platform": "dos",
+                "description": "an intro for MS Dos"
+            },
+            "urls": {
+                "download": "/d/ab1f158",
+                "html": "/f/ab1f158",
+                "thumbnail": "/public/image/thumb/019236b3-e1fe-72b3-ac0e-a22f6034487c"
+            }
+        }
+    ]
+}</code></pre>
                 </div>
             </div>
 {{- /* 
