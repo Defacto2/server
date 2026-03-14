@@ -23,3 +23,5 @@
 - We use Bootstrap 5.3, so it should take priority over bespoke styles.
 - When making changes to CSS or JS, the command, "task assets" must always be run to rebuild with the changes.
 - All // comments in *.go must end with punctuation.
+
+- Never use the package testify for unit tests, this application uses github.com/nalgeon/be

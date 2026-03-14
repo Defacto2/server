@@ -57,12 +57,13 @@ func CategoryByteSum(ctx context.Context, exec boil.ContextExecutor, name string
 	if name == "" {
 		return 0, ErrName
 	}
+	var s Summary
 	mods := qm.SQL(string(postgres.SumSection()), null.StringFrom(name))
-	i, err := models.Files(mods).Count(ctx, exec)
+	err := models.NewQuery(mods, qm.Select(postgres.SumSize)).Bind(ctx, exec, &s)
 	if err != nil {
 		return 0, fmt.Errorf("bytecount by category %q: %w", name, err)
 	}
-	return i, nil
+	return s.SumBytes.Int64, nil
 }
 
 // ClassificationCount counts the files that match the named category and platform.

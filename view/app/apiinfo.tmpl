@@ -15,9 +15,13 @@
                         <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('baseUrl')">Copy</button>
                     </div>
                     <p>The base URL for all API endpoints.</p>
-                    <p class="text-muted">For example &bull; 
-                      <a href="/api/milestones/year/1971">https://defacto2.net/api/milestones/year/1971</a> &bull;
-                      <a href="/api/areacodes/territories/CA">https://defacto2.net/api/areacodes/territories/CA</a>
+                    <p class="text-muted">Examples:</p>
+                      <ul>
+                        <li><a href="/api/categories">https://defacto2.net/api/categories</a></li>
+                        <li><a href="/api/files/announcements">https://defacto2.net/api/files/announcements</a>
+                        <li><a href="/api/milestones/year/1971">https://defacto2.net/api/milestones/year/1971</a></li>
+                        <li><a href="/api/areacodes/territories/CA">https://defacto2.net/api/areacodes/territories/CA</a></li>
+                      </ul>
                     </p>
                     <p>No authentication is required for read-only API endpoints.</p>
                     <div class="alert alert-success" role="alert">
@@ -25,6 +29,7 @@
                     </div>
                 </div>
             </div>
+            {{- /* Base URL for all endpoints table */ -}}
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h2 class="h5 mb-0">Endpoints</h2>
@@ -41,6 +46,30 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr>
+                                    <td><code>/categories</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all artifact categories</td>
+                                    <td><code>GET /api/categories</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/platforms</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all artifact platforms</td>
+                                    <td><code>GET /api/platforms</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/files/:category</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get files from any category<br><span class="text-secondary">(demo, scenerules, magazine, etc.)</span></td>
+                                    <td><code>GET /api/files/demo?limit=5</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/files/:platform</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get files from any platform<br><span class="text-secondary">(ansi, audio, dos, windows, etc.)</span></td>
+                                    <td><code>GET /api/files/ansi?limit=5</code></td>
+                                </tr>
                                 <tr>
                                     <td><code>/milestones</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
@@ -106,10 +135,168 @@
                     </div>
                 </div>
             </div>
-
+{{- /* 
+  Files API endpoints table 
+*/ -}}
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Milestone API Endpoints</h2>
+                    <h2 class="h5 mb-0">Files API endpoints</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET /api/categories</code></td>
+                                    <td>Get all artifact categories with API, HTML3, and HTML URLs</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/files/announcements</code></td>
+                                    <td>Get announcement files with nested URLs structure</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/files/:category</code></td>
+                                    <td>Get files from any category (demo, scenerules, magazine, etc.)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/files/:platform</code></td>
+                                    <td>Get files from any platform (ansi, audio, dos, windows, etc.)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/platforms</code></td>
+                                    <td>Get all artifact platforms with API, HTML3, and HTML URLs</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6">cURL Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "https://defacto2.net/api/categories"
+
+curl "https://defacto2.net/api/files/announcements?limit=5"
+
+curl "https://defacto2.net/api/files/demo?limit=3"
+
+curl "https://defacto2.net/api/files/scenerules?limit=2"
+
+curl "https://defacto2.net/api/platforms"
+
+curl "https://defacto2.net/api/files/ansi?limit=5"</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6">JavaScript (Fetch) Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/categories')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/files/announcements?limit=5')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/files/magazine?limit=3')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/platforms')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/files/dos?limit=5')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                        </div>
+                    </div>
+                    <h3 class="h6 mt-4">Response Structure</h3>
+                    <p>Files API endpoints return JSON with nested URL objects:</p>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "announcements": [
+        {
+            "id": 47303,
+            "filename": "00-audiofile-time_to_say_goodbye-flac-2023-audiofile.nfo",
+            "date_published": {
+                "year": 2023,
+                "month": 5,
+                "day": 28
+            },
+            "posted_date": "2023-05-31T12:48:08+10:00",
+            "size": {
+                "formatted": "7k",
+                "bytes": 6917
+            },
+            "description": "Time To Say Goodbye released by Audiofile in 2023.",
+            "file_type": "text",
+            "urls": {
+                "download": "/d/ab1fc8b",
+                "html": "/f/ab1fc8b",
+                "thumbnail": "/public/image/thumb/f6706044-fd56-4011-a3c1-8bdf3a9177b7"
+            }
+        }
+    ]
+}</code></pre>
+                    <h3 class="h6 mt-4">Categories API Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>[
+    {
+        "id": 1,
+        "name": "announcement",
+        "description": "public announcements by Scene groups and organizations",
+        "uri": "announcements",
+        "urls": {
+            "api": "/api/files/announcements",
+            "html3": "/html3/announcements",
+            "html": "/files/announcement"
+        }
+    },
+    {
+        "id": 12,
+        "name": "demo program",
+        "description": "an artistic multimedia program designed to promote a demo group or collective",
+        "uri": "demo",
+        "urls": {
+            "api": "/api/files/demo",
+            "html3": "/html3/demo",
+            "html": "/files/demo"
+        }
+    }
+]</code></pre>
+
+                    <h3 class="h6 mt-4">Platforms API Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>[{
+    "id": 1,
+    "name": "DOS",
+    "description": "Disk Operating System, the dominant PC platform of the 1980s and early 1990s",
+    "uri": "dos",
+    "urls": {
+        "api": "/api/files/dos",
+        "html3": "/html3/dos",
+        "html": "/files/dos"
+    }
+},
+{
+    "id": 2,
+    "name": "Windows",
+    "description": "Microsoft Windows operating system",
+    "uri": "windows",
+    "urls": {
+        "api": "/api/files/windows",
+        "html3": "/html3/windows",
+        "html": "/files/windows"
+    }
+}]</code></pre>
+                </div>
+            </div>
+{{- /* 
+  Milestone API endpoints table 
+*/ -}}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Milestone API endpoints</h2>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive mb-4">
@@ -201,10 +388,12 @@ fetch('https://defacto2.net/api/milestones/highlights')
 ]</code></pre>
                 </div>
             </div>
-
+{{- /* 
+  Area code API endpoints table 
+*/ -}}
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Area Code API Endpoints</h2>
+                    <h2 class="h5 mb-0">Area code API endpoints</h2>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive mb-4">
@@ -300,7 +489,9 @@ fetch('https://defacto2.net/api/areacodes/search/602')
 }</code></pre>
                 </div>
             </div>
-
+{{- /* 
+  Other information table 
+*/ -}}
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h2 class="h5 mb-0">Rate Limiting</h2>
@@ -309,7 +500,6 @@ fetch('https://defacto2.net/api/areacodes/search/602')
                     <p>No rate limiting is currently enforced on API endpoints. However, excessive requests may be temporarily blocked.</p>
                 </div>
             </div>
-
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h2 class="h5 mb-0">Error Codes</h2>
@@ -345,7 +535,6 @@ fetch('https://defacto2.net/api/areacodes/search/602')
                     </div>
                 </div>
             </div>
-
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h2 class="h5 mb-0">OpenAPI Specification</h2>
@@ -359,20 +548,17 @@ fetch('https://defacto2.net/api/areacodes/search/602')
         </div>
     </div>
 </div>
-
 <script>
 function copyToClipboard(elementId) {
     const copyText = document.getElementById(elementId);
     copyText.select();
     copyText.setSelectionRange(0, 99999);
     document.execCommand("copy");
-    
     const button = copyText.nextElementSibling;
     const originalText = button.textContent;
     button.textContent = "Copied!";
     button.classList.remove("btn-outline-secondary");
     button.classList.add("btn-success");
-    
     setTimeout(function() {
         button.textContent = originalText;
         button.classList.remove("btn-success");

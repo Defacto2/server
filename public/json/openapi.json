@@ -27,6 +27,18 @@
     {
       "name": "areacodes",
       "description": "Operations related to North American Numbering Plan telephone area codes"
+    },
+    {
+      "name": "files",
+      "description": "Operations related to artifact files and categories"
+    },
+    {
+      "name": "categories",
+      "description": "Operations related to artifact categories"
+    },
+    {
+      "name": "platforms",
+      "description": "Operations related to artifact platforms (ANSI, Audio, DOS, Windows, Linux, Java, macOS, etc.)"
     }
   ],
   "paths": {
@@ -550,6 +562,232 @@
           }
         }
       }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": ["categories"],
+        "summary": "Get all artifact categories",
+        "description": "Returns a complete list of all artifact categories with their descriptions and URL mappings for API, HTML3, and HTML views.",
+        "operationId": "getAllCategories",
+        "responses": {
+          "200": {
+            "description": "A list of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/platforms": {
+      "get": {
+        "tags": ["platforms"],
+        "summary": "Get all operating system platforms",
+        "description": "Returns a complete list of operating system platforms (ANSI, Audio, DOS, Windows, Linux, Java, macOS, etc.) with their descriptions and URL mappings for API, HTML3, and HTML views.",
+        "operationId": "getAllPlatforms",
+        "responses": {
+          "200": {
+            "description": "A list of platforms",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Platform"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/files/announcements": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Get announcement files",
+        "description": "Returns a list of announcement files with nested URL structure including download, API, HTML preview, and thumbnail URLs.",
+        "operationId": "getAnnouncementFiles",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of files to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 10
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of announcement files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "announcements": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FileRecord"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/files/{category}": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Get files from any category",
+        "description": "Returns a list of files from the specified category with nested URL structure. Supports any valid category URI.",
+        "operationId": "getFilesByCategory",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "description": "Category URI (e.g., demo, scenerules, magazine, etc.)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "demo"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of files to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 10
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of files from the specified category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FileRecord"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Category not found or no files available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -779,6 +1017,189 @@
             "items": {
               "$ref": "#/components/schemas/Territory"
             }
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Category ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Category name",
+            "example": "announcement"
+          },
+          "description": {
+            "type": "string",
+            "description": "Category description",
+            "example": "public announcements by Scene groups and organizations"
+          },
+          "uri": {
+            "type": "string",
+            "description": "Category URI slug",
+            "example": "announcements"
+          },
+          "urls": {
+            "type": "object",
+            "description": "Category URLs",
+            "properties": {
+              "api": {
+                "type": "string",
+                "description": "API endpoint URL",
+                "example": "/api/files/announcements"
+              },
+              "html3": {
+                "type": "string",
+                "description": "HTML3 view URL",
+                "example": "/html3/announcements"
+              },
+              "html": {
+                "type": "string",
+                "description": "HTML view URL",
+                "example": "/files/announcement"
+              }
+            }
+          }
+        }
+      },
+      "Platform": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Platform ID",
+            "example": 27
+          },
+          "name": {
+            "type": "string",
+            "description": "Platform name",
+            "example": "ansi"
+          },
+          "description": {
+            "type": "string",
+            "description": "Platform description",
+            "example": "colored, text-based computer art form widely used on Bulletin Board Systems"
+          },
+          "uri": {
+            "type": "string",
+            "description": "Platform URI slug",
+            "example": "ansi"
+          },
+          "urls": {
+            "type": "object",
+            "description": "Platform URLs",
+            "properties": {
+              "api": {
+                "type": "string",
+                "description": "API endpoint URL",
+                "example": "/api/files/ansi"
+              },
+              "html3": {
+                "type": "string",
+                "description": "HTML3 view URL",
+                "example": "/html3/ansi"
+              },
+              "html": {
+                "type": "string",
+                "description": "HTML view URL",
+                "example": "/files/ansi"
+              }
+            }
+          }
+        }
+      },
+      "FileURLs": {
+        "type": "object",
+        "description": "Nested URL object for file access",
+        "properties": {
+          "download": {
+            "type": "string",
+            "description": "Direct download URL",
+            "example": "/d/ab1fc8b"
+          },
+          "html": {
+            "type": "string",
+            "description": "HTML preview URL",
+            "example": "/f/ab1fc8b"
+          },
+          "thumbnail": {
+            "type": "string",
+            "description": "Thumbnail image URL",
+            "example": "/public/image/thumb/f6706044-fd56-4011-a3c1-8bdf3a9177b7"
+          }
+        }
+      },
+      "FileRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "File ID",
+            "example": 47303
+          },
+          "filename": {
+            "type": "string",
+            "description": "Original filename",
+            "example": "00-audiofile-time_to_say_goodbye-flac-2023-audiofile.nfo"
+          },
+          "date_published": {
+            "type": "object",
+            "description": "Publication date",
+            "properties": {
+              "year": {
+                "type": "integer",
+                "description": "Publication year",
+                "example": 2023
+              },
+              "month": {
+                "type": "integer",
+                "description": "Publication month",
+                "example": 5
+              },
+              "day": {
+                "type": "integer",
+                "description": "Publication day",
+                "example": 28
+              }
+            }
+          },
+          "posted_date": {
+            "type": "string",
+            "description": "Date when file was added to the archive",
+            "example": "2023-05-31T12:48:08+10:00"
+          },
+          "size": {
+            "type": "object",
+            "description": "File size information",
+            "properties": {
+              "formatted": {
+                "type": "string",
+                "description": "Human-readable size",
+                "example": "7k"
+              },
+              "bytes": {
+                "type": "integer",
+                "description": "Size in bytes",
+                "example": 6917
+              }
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "File description in HTML3 format",
+            "example": "Time To Say Goodbye released by Audiofile in 2023."
+          },
+          "file_type": {
+            "type": "string",
+            "description": "File type classification",
+            "example": "text"
+          },
+          "urls": {
+            "$ref": "#/components/schemas/FileURLs"
           }
         }
       }

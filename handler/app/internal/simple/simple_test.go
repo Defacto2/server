@@ -21,6 +21,19 @@ func imagefiler(t *testing.T) string {
 	return filepath.Join(filepath.Dir(file), "testdata", "TEST.png")
 }
 
+func BenchmarkCleanHTML(b *testing.B) {
+	html := `<div class="content">
+		<p class="lead">This is a <strong>test</strong> with <a href="https://example.com" class="link" id="test">links</a> and <span style="color: red;">formatting</span>.</p>
+		<p>Another paragraph with &nbsp; non-breaking &amp; spaces and <data-info="test">data attributes</data-info>.</p>
+	</div>`
+
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			simple.CleanHTML(html)
+		}
+	})
+}
+
 func TestAssetSrc(t *testing.T) {
 	t.Parallel()
 	s := simple.AssetSrc("", "", "", "")
@@ -29,6 +42,94 @@ func TestAssetSrc(t *testing.T) {
 	be.True(t, ok)
 	s = simple.AssetSrc("", file, "", "")
 	be.True(t, strings.Contains(s, "sha384-"))
+}
+
+func TestStripHTMLTags(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "Removes all HTML tags",
+			input:    `<p>Test <strong>content</strong> here</p>`,
+			expected: `Test content here`,
+		},
+		{
+			name:     "Handles HTML entities",
+			input:    `Test &nbsp; with &amp; entities`,
+			expected: `Test with & entities`,
+		},
+		{
+			name:     "Adds spacing after punctuation",
+			input:    `Test.content.with.punctuation!marks?here`,
+			expected: `Test. content. with. punctuation! marks? here`,
+		},
+		{
+			name:     "Collapses multiple spaces",
+			input:    `Test    multiple     spaces`,
+			expected: `Test multiple spaces`,
+		},
+		{
+			name:     "Handles anchor tags",
+			input:    `Test <a href="https://example.com">link</a> content`,
+			expected: `Test link content`,
+		},
+		{
+			name:     "Handles complex HTML",
+			input:    `<div><p>Test <span>content</span> <a href="#">link</a></p></div>`,
+			expected: `Test content link`,
+		},
+		{
+			name:     "Removes spaces before punctuation",
+			input:    `Test content with spaces , before commas . and periods !`,
+			expected: `Test content with spaces, before commas. and periods!`,
+		},
+		{
+			name:     "Removes spaces around parentheses",
+			input:    `Test ( content ) with ( spaces ) around ( parentheses )`,
+			expected: `Test (content) with (spaces) around (parentheses)`,
+		},
+		{
+			name:     "Handles real milestone content",
+			input:    `<p>Ron Rosenbaum writes the first mainstream article on phone freaks, primarily kids who'd hack and experiment with the global telephone network.</p><p>The piece coins them as phone-freaks (<strong>phreaks</strong>) and introduces the reader to the kids' use of <strong>pseudonyms</strong> or codenames within their cliques and <strong>groups</strong> of friends. It gives an early example of <strong>social engineering</strong>, defines the community of phreakers as the phone-phreak <strong>underground</strong>, and mentions the newer trend of <strong>computer phreaking</strong>, which we call <u>computer&nbsp;hacking</u> today.</p>`,
+			expected: `Ron Rosenbaum writes the first mainstream article on phone freaks, primarily kids who'd hack and experiment with the global telephone network. The piece coins them as phone-freaks (phreaks) and introduces the reader to the kids' use of pseudonyms or codenames within their cliques and groups of friends. It gives an early example of social engineering, defines the community of phreakers as the phone-phreak underground, and mentions the newer trend of computer phreaking, which we call computer hacking today.`,
+		},
+		{
+			name:     "Converts <q> tags to quotes",
+			input:    `<p>He said <q>Hello world</q> to everyone.</p>`,
+			expected: `He said "Hello world" to everyone.`,
+		},
+		{
+			name:     "Handles multiple <q> tags",
+			input:    `<p>Multiple <q>quotes</q> in <q>one</q> sentence.</p>`,
+			expected: `Multiple "quotes" in "one" sentence.`,
+		},
+		{
+			name:     "Handles nested <q> tags",
+			input:    `<p>Nested <q>quotes <q>inside</q> quotes</q> should work.</p>`,
+			expected: `Nested "quotes inside" quotes should work.`,
+		},
+		{
+			name:     "Handles <q> tags with attributes",
+			input:    `<p>The famous quote <q cite="https://example.com">To be or not to be</q> is from Shakespeare.</p>`,
+			expected: `The famous quote "To be or not to be" is from Shakespeare.`,
+		},
+		{
+			name:     "Complex real-world example with quotes",
+			input:    `<p>As Steve Jobs famously said <q>Stay hungry, stay foolish</q>, which was inspired by the <q>Whole Earth Catalog</q> manifesto that stated <q>Stay hungry. Stay foolish.</q> This philosophy became a cornerstone of Apple's <q cite="https://apple.com">Think Different</q> campaign.</p>`,
+			expected: `As Steve Jobs famously said "Stay hungry, stay foolish", which was inspired by the "Whole Earth Catalog" manifesto that stated "Stay hungry. Stay foolish." This philosophy became a cornerstone of Apple's "Think Different" campaign.`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := simple.CleanHTML(tt.input)
+			if result != tt.expected {
+				t.Errorf("CleanHTMLTags(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
 }
 
 func TestDownloadB(t *testing.T) {

@@ -15,11 +15,11 @@ import (
 func Example_milestoneAPI() {
 	e := echo.New()
 	apiGroup := e.Group("/api/v1")
-	apiGroup.GET("/milestones", app.GetAllMilestones)
-	apiGroup.GET("/milestones/year/:year", app.GetMilestonesByYear)
-	apiGroup.GET("/milestones/range/:range", app.GetMilestonesByYearRange)
-	apiGroup.GET("/milestones/highlights", app.GetHighlightedMilestones)
-	apiGroup.GET("/milestones/decade/:decade", app.GetMilestonesByDecade)
+	apiGroup.GET("/milestones", app.MilestonesAPI)
+	apiGroup.GET("/milestones/year/:year", app.MilestoneYearAPI)
+	apiGroup.GET("/milestones/range/:range", app.MilestoneYearsAPI)
+	apiGroup.GET("/milestones/highlights", app.MilestoneHighlightsAPI)
+	apiGroup.GET("/milestones/decade/:decade", app.MilestoneDecadeAPI)
 
 	// Example 1: Get all milestones
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/milestones", nil)
@@ -118,8 +118,8 @@ func Example_milestoneAPI() {
 
 	// Example 6: Demonstrate HTML cleaning functions
 	html := `<p class="test">This has <a href="https://example.com" class="link">a link</a> and <span style="color: red;">formatting</span>.</p>`
-	cleaned := app.CleanHTMLForAPI(html)
-	plain := app.StripHTMLTags(html)
+	cleaned := app.ApiMarkup(html)
+	plain := app.ApiMarkup(html)
 
 	fmt.Println("\n✓ HTML Cleaning Functions:")
 	fmt.Printf("  Original: %s\n", html)
@@ -154,8 +154,8 @@ func Example_htmlCleaning() {
 		<p class="intro">This is <strong>important</strong> content with <a href="https://example.com" class="external" title="Visit Example">a link</a>.</p>
 		<p>More content with <span data-info="test">data attributes</span> and <a name="anchor">anchor without href</a>.</p>
 	</div>`
-	cleaned := app.CleanHTMLForAPI(html)
-	plain := app.StripHTMLTags(html)
+	cleaned := app.ApiMarkup(html)
+	plain := app.ApiMarkup(html)
 	fmt.Println("Original HTML:")
 	fmt.Println(html)
 	fmt.Println("\nCleaned HTML (preserves structure, removes presentation):")
@@ -188,8 +188,8 @@ func Example_htmlCleaning() {
 func Example_errorHandling() {
 	e := echo.New()
 	apiGroup := e.Group("/api/v1")
-	apiGroup.GET("/milestones/year/:year", app.GetMilestonesByYear)
-	apiGroup.GET("/milestones/range/:range", app.GetMilestonesByYearRange)
+	apiGroup.GET("/milestones/year/:year", app.MilestoneYearAPI)
+	apiGroup.GET("/milestones/range/:range", app.MilestoneYearsAPI)
 
 	// Example 1: Invalid year format
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/milestones/year/invalid", nil)

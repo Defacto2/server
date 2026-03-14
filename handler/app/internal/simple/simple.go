@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -80,6 +81,50 @@ func BytesHuman(i int64) string {
 		return "(n/a)"
 	}
 	return humanize.Bytes(uint64(math.Abs(float64(i))))
+}
+
+// CleanHTML removes all HTML tags from content, returning plain text.
+func CleanHTML(html string) string {
+	if html == "" {
+		return html
+	}
+
+	// First, handle <q> tags specially - convert to quoted text (non-greedy)
+	re := regexp.MustCompile(`<q\b[^>]*>(.*?)<\/q>`)
+	html = re.ReplaceAllString(html, `"$1"`)
+
+	// Convert common HTML entities to regular characters
+	html = strings.ReplaceAll(html, "&amp;", "&")
+	html = strings.ReplaceAll(html, "&lt;", "<")
+	html = strings.ReplaceAll(html, "&gt;", ">")
+
+	// Remove all HTML tags and replace with single space
+	re = regexp.MustCompile(`<[^>]*>`)
+	result := re.ReplaceAllString(html, " ")
+
+	// Fix common spacing issues
+	// Remove spaces before punctuation
+	re = regexp.MustCompile(`\s+([.,;:!?])`)
+	result = re.ReplaceAllString(result, "${1}")
+
+	// Remove spaces after opening parentheses and before closing parentheses
+	re = regexp.MustCompile(`\(\s+`)
+	result = re.ReplaceAllString(result, "(")
+	re = regexp.MustCompile(`\s+\)`)
+	result = re.ReplaceAllString(result, ")")
+
+	// Add space after punctuation if missing (but not if already there)
+	re = regexp.MustCompile(`([.!?])(\w)`)
+	result = re.ReplaceAllString(result, "${1} ${2}")
+
+	// Handle &nbsp; by converting to single space (preserves intent without double spacing)
+	result = strings.ReplaceAll(result, "&nbsp;", " ")
+
+	// Clean up all multiple spaces
+	re = regexp.MustCompile(`[\s\n\r\t]+`)
+	result = re.ReplaceAllString(result, " ")
+
+	return strings.TrimSpace(result)
 }
 
 // DemozooGetLink returns a HTML link to the Demozoo download links.

@@ -17,6 +17,92 @@ import (
 
 const contentTypeJSON = "application/json"
 
+func BenchmarkApiMarkup(b *testing.B) {
+	html := `<div class="content">
+		<p class="lead">This is a <strong>test</strong> with <a href="https://example.com" class="link" id="test">links</a> and <span style="color: red;">formatting</span>.</p>
+		<p>Another paragraph with <a name="anchor">anchor</a> and <data-info="test">data attributes</data-info>.</p>
+	</div>`
+
+	b.Run("", func(b *testing.B) {
+		for range b.N {
+			app.ApiMarkup(html)
+		}
+	})
+}
+
+func TestApiMarkup(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "Preserves anchor tags with href",
+			input:    `<p>Test <a href="https://example.com" class="link">link</a> here</p>`,
+			expected: `<p>Test <a href="https://example.com">link</a> here</p>`,
+		},
+		{
+			name:     "Removes anchor tags without href",
+			input:    `<p>Test <a name="anchor">link</a> here</p>`,
+			expected: `<p>Test link here</p>`,
+		},
+		{
+			name:     "Removes class attributes",
+			input:    `<p class="test">Content</p>`,
+			expected: `<p>Content</p>`,
+		},
+		{
+			name:     "Removes style attributes",
+			input:    `<p style="color: red;">Content</p>`,
+			expected: `<p>Content</p>`,
+		},
+		{
+			name:     "Removes id attributes",
+			input:    `<p id="test">Content</p>`,
+			expected: `<p>Content</p>`,
+		},
+		{
+			name:     "Removes title attributes",
+			input:    `<p title="tooltip">Content</p>`,
+			expected: `<p>Content</p>`,
+		},
+		{
+			name:     "Removes data attributes",
+			input:    `<p data-test="value">Content</p>`,
+			expected: `<p>Content</p>`,
+		},
+		{
+			name:     "Preserves semantic HTML",
+			input:    `<p>Test <strong>bold</strong> and <em>italic</em> text</p>`,
+			expected: `<p>Test <strong>bold</strong> and <em>italic</em> text</p>`,
+		},
+		{
+			name:     "Handles complex anchor tags",
+			input:    `<a href="https://example.com" class="link" id="test" title="tooltip" data-info="test">Complex Link</a>`,
+			expected: `<a href="https://example.com">Complex Link</a>`,
+		},
+		{
+			name:     "Handles multiple anchor tags",
+			input:    `<p><a href="https://example1.com">Link 1</a> and <a href="https://example2.com">Link 2</a></p>`,
+			expected: `<p><a href="https://example1.com">Link 1</a> and <a href="https://example2.com">Link 2</a></p>`,
+		},
+		{
+			name:     "Removes empty tags",
+			input:    `<p><span> </span>Content</p>`,
+			expected: `<p><span> </span>Content</p>`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := app.ApiMarkup(tt.input)
+			if result != tt.expected {
+				t.Errorf("ApiMarkup(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
 func TestGetAllAreacodes(t *testing.T) {
 	t.Parallel()
 	// Setup
@@ -26,7 +112,7 @@ func TestGetAllAreacodes(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	// Test
-	err := app.GetAllAreacodes(c)
+	err := app.AreacodesAPI(c)
 	be.Equal(t, err, nil)
 	be.Equal(t, http.StatusOK, rec.Code)
 	be.True(t, len(rec.Body.String()) > 0)
@@ -79,7 +165,7 @@ func TestGetAreacodeByCode(t *testing.T) {
 			c.SetParamValues(tt.code)
 
 			// Test
-			err := app.GetAreacodeByCode(c)
+			err := app.AreaCodeAPI(c)
 			be.Equal(t, err, nil)
 			be.Equal(t, tt.expectStatus, rec.Code)
 			be.True(t, len(rec.Body.String()) > 0)
@@ -99,7 +185,7 @@ func TestGetTerritories(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	// Test
-	err := app.GetTerritories(c)
+	err := app.TerritoriesAPI(c)
 	be.Equal(t, err, nil)
 	be.Equal(t, http.StatusOK, rec.Code)
 	be.True(t, len(rec.Body.String()) > 0)
@@ -152,7 +238,7 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 			c.SetParamValues(tt.abbr)
 
 			// Test
-			err := app.GetTerritoryByAbbr(c)
+			err := app.TerritoryAPI(c)
 			be.Equal(t, err, nil)
 			be.Equal(t, tt.expectStatus, rec.Code)
 			be.True(t, len(rec.Body.String()) > 0)
@@ -214,7 +300,7 @@ func TestSearchAreacodes(t *testing.T) {
 			c.SetParamValues(tt.query)
 
 			// Test
-			err := app.SearchAreacodes(c)
+			err := app.AreacodeSearchAPI(c)
 			be.Equal(t, err, nil)
 			be.Equal(t, tt.expectStatus, rec.Code)
 			be.True(t, len(rec.Body.String()) > 0)

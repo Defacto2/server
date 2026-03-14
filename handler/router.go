@@ -202,12 +202,23 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.FileFS("/openapi.json", "public/json/openapi.json", public)
-	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
-	e.GET("/api/milestones", app.GetAllMilestones)
-	e.GET("/api/milestones/highlights", app.GetHighlightedMilestones)
-	e.GET("/api/milestones/year/:year", app.GetMilestonesByYear)
-	e.GET("/api/milestones/years/:range", app.GetMilestonesByYearRange)
-	e.GET("/api/milestones/decade/:decade", app.GetMilestonesByDecade)
+	s := e.Group("api")
+	s.GET("", func(c echo.Context) error { return app.APIInfo(c, sl) })
+	ms := s.Group("milestones")
+	ms.GET("", app.MilestonesAPI)
+	ms.GET("/highlights", app.MilestoneHighlightsAPI)
+	ms.GET("/year/:year", app.MilestoneYearAPI)
+	ms.GET("/years/:range", app.MilestoneYearsAPI)
+	ms.GET("/decade/:decade", app.MilestoneDecadeAPI)
+	ac := s.Group("areacodes")
+	ac.GET("", app.AreacodesAPI)
+	ac.GET("/:code", app.AreaCodeAPI)
+	ac.GET("/search/:query", app.AreacodeSearchAPI)
+	ac.GET("/territories", app.TerritoriesAPI)
+	ac.GET("/territories/:abbr", app.TerritoryAPI)
+	s.GET("/categories", app.CategoriesAPI)
+	s.GET("/platforms", app.PlatformsAPI)
+	s.GET("/files/:category", func(c echo.Context) error { return app.CategoryAPI(c, db, sl) })
 	return e
 }
 
@@ -218,6 +229,9 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.GET("/health-check", func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+	e.GET("/health", func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 	e.GET("/sitemaps.xml", func(c echo.Context) error {
@@ -248,12 +262,6 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/", func(c echo.Context) error { return app.Index(c, sl) })
 	s.GET("/apps", func(c echo.Context) error { return app.Apps(c, sl) })
 	s.GET("/areacodes", func(c echo.Context) error { return app.Areacodes(c, sl) })
-	// Areacode API endpoints
-	s.GET("/api/areacodes", app.GetAllAreacodes)
-	s.GET("/api/areacodes/:code", app.GetAreacodeByCode)
-	s.GET("/api/areacodes/territories", app.GetTerritories)
-	s.GET("/api/areacodes/territories/:abbr", app.GetTerritoryByAbbr)
-	s.GET("/api/areacodes/search/:query", app.SearchAreacodes)
 	s.GET("/artist", func(c echo.Context) error {
 		return app.Artist(c, db, sl)
 	})
