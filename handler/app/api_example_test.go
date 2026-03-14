@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/labstack/echo/v4"
 )
 
@@ -37,7 +38,7 @@ func Example_milestoneAPI() {
 			if len(milestones) > 0 {
 				fmt.Printf("  First milestone year: %d\n", milestones[0].Year)
 				fmt.Printf("  Has clean HTML content: %t\n", len(milestones[0].ContentHTML) > 0)
-				fmt.Printf("  Has plain text content: %t\n", len(milestones[0].ContentHTML) > 0)
+				fmt.Printf("  Has plain text content: %t\n", len(milestones[0].Content) > 0)
 			}
 		}
 	default:
@@ -119,7 +120,7 @@ func Example_milestoneAPI() {
 	// Example 6: Demonstrate HTML cleaning functions
 	html := `<p class="test">This has <a href="https://example.com" class="link">a link</a> and <span style="color: red;">formatting</span>.</p>`
 	cleaned := app.ApiMarkup(html)
-	plain := app.ApiMarkup(html)
+	plain := simple.CleanHTML(html)
 
 	fmt.Println("\n✓ HTML Cleaning Functions:")
 	fmt.Printf("  Original: %s\n", html)
@@ -146,22 +147,30 @@ func Example_milestoneAPI() {
 	//   Plain:    This has a link and formatting .
 }
 
-// Example_htmlCleaning demonstrates the HTML cleaning functions.
-func Example_htmlCleaning() {
-	// Example HTML with various attributes and tags
-	html := `<div class="content" id="main">
+// Example HTML with various attributes and tags
+const src = `<div class="content" id="main">
 		<h1 style="color: blue;">Welcome</h1>
 		<p class="intro">This is <strong>important</strong> content with <a href="https://example.com" class="external" title="Visit Example">a link</a>.</p>
 		<p>More content with <span data-info="test">data attributes</span> and <a name="anchor">anchor without href</a>.</p>
 	</div>`
-	cleaned := app.ApiMarkup(html)
-	plain := app.ApiMarkup(html)
-	fmt.Println("Original HTML:")
-	fmt.Println(html)
-	fmt.Println("\nCleaned HTML (preserves structure, removes presentation):")
-	fmt.Println(cleaned)
+
+// Example_cleaning demonstrates the HTML cleaning function.
+func Example_cleaning() {
+	plain := simple.CleanHTML(src)
 	fmt.Println("\nPlain text (all HTML tags removed):")
 	fmt.Println(plain)
+	// Output:
+	// Plain text (all HTML tags removed):
+	// Welcome This is important content with a link. More content with data attributes and anchor without href.
+}
+
+// Example_apiMarkup demonstrates the HTML cleaning function.
+func Example_apiMarkup() {
+	cleaned := app.ApiMarkup(src)
+	fmt.Println("Original HTML:")
+	fmt.Println(src)
+	fmt.Println("\nCleaned HTML (preserves structure, removes presentation):")
+	fmt.Println(cleaned)
 
 	// Output:
 	// Original HTML:
@@ -177,11 +186,6 @@ func Example_htmlCleaning() {
 	//   <p>This is <strong>important</strong> content with <a href="https://example.com">a link</a>.</p>
 	//   <p>More content with <span>data attributes</span> and anchor without href.</p>
 	// </div>
-	//
-	// Plain text (all HTML tags removed):
-	// Welcome
-	// This is important content with a link.
-	// More content with data attributes and anchor without href.
 }
 
 // Example_errorHandling demonstrates error cases.
