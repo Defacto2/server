@@ -96,22 +96,18 @@ func TestApiMarkup(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := app.ApiMarkup(tt.input)
-			if result != tt.expected {
-				t.Errorf("ApiMarkup(%q) = %q, want %q", tt.input, result, tt.expected)
-			}
+			be.True(t, result != tt.expected)
 		})
 	}
 }
 
 func TestGetAllAreacodes(t *testing.T) {
 	t.Parallel()
-	// Setup
+	const target = "/api/areacodes"
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, target, nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-
-	// Test
 	err := app.AreacodesAPI(c)
 	be.Equal(t, err, nil)
 	be.Equal(t, http.StatusOK, rec.Code)

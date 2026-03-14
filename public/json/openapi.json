@@ -635,33 +635,7 @@
         "summary": "Get announcement files",
         "description": "Returns a list of announcement files with nested URL structure including download, API, HTML preview, and thumbnail URLs.",
         "operationId": "getAnnouncementFiles",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Maximum number of files to return",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100,
-              "default": 20,
-              "example": 10
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "Page number for pagination",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 1,
-              "example": 1
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "A list of announcement files",
@@ -694,7 +668,77 @@
         }
       }
     },
-    "/api/files/{category}": {
+    "/api/platform/{platform}": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Get files from any platform",
+        "description": "Returns a list of files from the specified platform with nested URL structure. Supports any valid platform URI.",
+        "operationId": "getFilesByPlatform",
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "description": "Platform URI (e.g., ansi, audio, dos, etc.)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "ansi"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of files from the specified platform",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FileRecord"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid platform",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Platform not found or no files available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/category/{category}": {
       "get": {
         "tags": ["files"],
         "summary": "Get files from any category",
@@ -709,31 +753,6 @@
             "schema": {
               "type": "string",
               "example": "demo"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Maximum number of files to return",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100,
-              "default": 20,
-              "example": 10
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "Page number for pagination",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 1,
-              "example": 1
             }
           }
         ],
@@ -997,7 +1016,9 @@
             "items": {
               "type": "integer"
             },
-            "example": [209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916]
+            "example": [
+              209, 213, 310, 408, 415, 510, 619, 707, 714, 805, 818, 909, 916
+            ]
           }
         }
       },
@@ -1030,18 +1051,18 @@
           },
           "name": {
             "type": "string",
-            "description": "Category name",
+            "description": "Category URI slug for API calls",
+            "example": "announcement"
+          },
+          "title": {
+            "type": "string",
+            "description": "Category display name",
             "example": "announcement"
           },
           "description": {
             "type": "string",
             "description": "Category description",
             "example": "public announcements by Scene groups and organizations"
-          },
-          "uri": {
-            "type": "string",
-            "description": "Category URI slug",
-            "example": "announcements"
           },
           "urls": {
             "type": "object",
@@ -1050,7 +1071,7 @@
               "api": {
                 "type": "string",
                 "description": "API endpoint URL",
-                "example": "/api/files/announcements"
+                "example": "/api/category/announcements"
               },
               "html3": {
                 "type": "string",
@@ -1076,18 +1097,18 @@
           },
           "name": {
             "type": "string",
-            "description": "Platform name",
+            "description": "Platform URI slug for API calls",
+            "example": "ansi"
+          },
+          "title": {
+            "type": "string",
+            "description": "Platform display name",
             "example": "ansi"
           },
           "description": {
             "type": "string",
             "description": "Platform description",
             "example": "colored, text-based computer art form widely used on Bulletin Board Systems"
-          },
-          "uri": {
-            "type": "string",
-            "description": "Platform URI slug",
-            "example": "ansi"
           },
           "urls": {
             "type": "object",
@@ -1096,7 +1117,7 @@
               "api": {
                 "type": "string",
                 "description": "API endpoint URL",
-                "example": "/api/files/ansi"
+                "example": "/api/platform/ansi"
               },
               "html3": {
                 "type": "string",

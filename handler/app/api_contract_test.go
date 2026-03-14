@@ -19,7 +19,7 @@ import (
 func TestMain(m *testing.M) {
 	// Check if server is running.
 	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:1323/health", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:1323/health-check", nil)
 	resp, err := client.Do(req)
 	if err != nil {
 		os.Stderr.WriteString("SKIP: Server not running at localhost:1323\n")

@@ -202,23 +202,21 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.FileFS("/openapi.json", "public/json/openapi.json", public)
-	s := e.Group("api")
-	s.GET("", func(c echo.Context) error { return app.APIInfo(c, sl) })
-	ms := s.Group("milestones")
-	ms.GET("", app.MilestonesAPI)
-	ms.GET("/highlights", app.MilestoneHighlightsAPI)
-	ms.GET("/year/:year", app.MilestoneYearAPI)
-	ms.GET("/years/:range", app.MilestoneYearsAPI)
-	ms.GET("/decade/:decade", app.MilestoneDecadeAPI)
-	ac := s.Group("areacodes")
-	ac.GET("", app.AreacodesAPI)
-	ac.GET("/:code", app.AreaCodeAPI)
-	ac.GET("/search/:query", app.AreacodeSearchAPI)
-	ac.GET("/territories", app.TerritoriesAPI)
-	ac.GET("/territories/:abbr", app.TerritoryAPI)
-	s.GET("/categories", app.CategoriesAPI)
-	s.GET("/platforms", app.PlatformsAPI)
-	s.GET("/files/:category", func(c echo.Context) error { return app.CategoryAPI(c, db, sl) })
+	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
+	e.GET("/api/categories", app.CategoriesAPI)
+	e.GET("/api/category/:category", func(c echo.Context) error { return app.CategoryAPI(c, db, sl) })
+	e.GET("/api/platforms", app.PlatformsAPI)
+	e.GET("/api/platform/:platform", func(c echo.Context) error { return app.PlatformAPI(c, db, sl) })
+	e.GET("/api/milestones", app.MilestonesAPI)
+	e.GET("/api/milestones/highlights", app.MilestoneHighlightsAPI)
+	e.GET("/api/milestones/year/:year", app.MilestoneYearAPI)
+	e.GET("/api/milestones/years/:range", app.MilestoneYearsAPI)
+	e.GET("/api/milestones/decade/:decade", app.MilestoneDecadeAPI)
+	e.GET("/api/areacodes", app.AreacodesAPI)
+	e.GET("/api/areacodes/:code", app.AreaCodeAPI)
+	e.GET("/api/areacodes/search/:query", app.AreacodeSearchAPI)
+	e.GET("/api/areacodes/territories", app.TerritoriesAPI)
+	e.GET("/api/areacodes/territories/:abbr", app.TerritoryAPI)
 	return e
 }
 
@@ -229,9 +227,6 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.GET("/health-check", func(c echo.Context) error {
-		return c.NoContent(http.StatusOK)
-	})
-	e.GET("/health", func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 	e.GET("/sitemaps.xml", func(c echo.Context) error {

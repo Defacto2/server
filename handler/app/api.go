@@ -1,16 +1,59 @@
 package app
 
 import (
+	"context"
+	"database/sql"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/areacode"
+	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
 )
+
+// AnnouncementFile represents a file in the announcements category for API responses.
+type AnnouncementFile struct {
+	ID            int64  `json:"id"`
+	Filename      string `json:"filename"`
+	DatePublished struct {
+		Year  int16 `json:"year,omitempty"`
+		Month int16 `json:"month,omitempty"`
+		Day   int16 `json:"day,omitempty"`
+	} `json:"date_published"`
+	PostedDate *time.Time `json:"posted_date,omitempty"`
+	Size       struct {
+		Formatted string `json:"formatted"`
+		Bytes     int64  `json:"bytes"`
+	} `json:"size"`
+	Description string `json:"description,omitempty"`
+	FileType    string `json:"file_type"`
+	URLs        struct {
+		Download  string `json:"download"`
+		HTML      string `json:"html"`
+		Thumbnail string `json:"thumbnail,omitempty"`
+	} `json:"urls"`
+}
+
+type announcementFiles struct {
+	Files []AnnouncementFile `json:"files"`
+	Stats struct {
+		TotalFiles     int64  `json:"total_files"`
+		TotalSize      string `json:"total_size"`
+		TotalSizeBytes int64  `json:"total_size_bytes"`
+	} `json:"statistics"`
+}
 
 // areacodeAPI represents an area code for API responses.
 type areacodeAPI struct {
@@ -23,8 +66,8 @@ type areacodeAPI struct {
 type tagAPI struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
+	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`
-	URI         string `json:"uri,omitempty"`
 	URLs        struct {
 		API   string `json:"api,omitempty"`
 		HTML3 string `json:"html3,omitempty"`
@@ -373,35 +416,35 @@ func PlatformsAPI(c echo.Context) error {
 //
 // Setting both to false will return an empty JSON response.
 func TagsAPI(c echo.Context, category, platform bool) error {
-	names := tags.Names()
+	items := tags.List()
 	infos := tags.Infos()
-	uris := tags.URIs()
-	if len(names) == 0 || !category && !platform {
+	if len(items) == 0 || !category && !platform {
 		return c.JSON(http.StatusOK, []tagAPI{})
 	}
 
-	results := make([]tagAPI, 0, len(names))
-	for tag, name := range names {
+	results := make([]tagAPI, 0, len(items))
+	for _, tag := range items {
+		slug := tag.String()
+		title := tags.NameByURI(slug)
 		switch {
-		case category && !tags.IsCategory(name):
+		case category && !tags.IsCategory(slug):
 			continue
-		case platform && !tags.IsPlatform(name):
+		case platform && !tags.IsPlatform(slug):
 			continue
 		default:
 			// return all tags
 		}
 
 		desc := infos[tag]
-		uri := uris[tag]
 
-		linkHtm3 := "/html3/" + uri
-		linkHtml := "/files/" + uri
-		linkApi := "/api/files/" + uri
+		linkHtm3 := "/html3/" + slug
+		linkHtml := "/files/" + slug
+		linkApi := "/api/files/" + slug
 		result := tagAPI{
 			ID:          int(tag),
-			Name:        name,
+			Name:        slug,
 			Description: desc,
-			URI:         uri,
+			Title:       title,
 			Count:       0, // TODO: Will be populated later if needed
 			URLs: struct {
 				API   string `json:"api,omitempty"`
@@ -417,6 +460,182 @@ func TagsAPI(c echo.Context, category, platform bool) error {
 	}
 
 	return c.JSON(http.StatusOK, results)
+}
+
+// CategoryAPI returns a list of files from any category tag.
+func CategoryAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	name := c.Param("category")
+	if name == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Category parameter is required",
+		})
+	}
+	if !tags.IsCategory(name) {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Category is not known",
+		})
+	}
+	return TagAPI(c, db, sl, name)
+}
+
+// PlatformAPI returns a list of files from any category tag.
+func PlatformAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	name := c.Param("platform")
+	if name == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Platform parameter is required",
+		})
+	}
+	if !tags.IsPlatform(name) {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Platform is not known",
+		})
+	}
+	return TagAPI(c, db, sl, name)
+}
+
+// TagAPI returns a list of files from any category or platform tag.
+func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
+	const msg = "get files by tag"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	if name == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "TagAPI param string is missing",
+		})
+	}
+	category, platform := tags.IsCategory(name), tags.IsPlatform(name)
+	if !category && !platform {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "TagAPI param string is not a known category or platform",
+		})
+	}
+
+	var records models.FileSlice
+	var err error
+	var byteSum int64 = 0
+	var count int64 = 0
+	ctx := context.Background()
+	order := html3.PublAsc
+
+	if category {
+		records, err = order.ByCategory(ctx, db, 0, 0, name)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "Failed to query category files",
+			})
+		}
+		count, err = model.CategoryCount(ctx, db, name)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "Failed to count category files",
+			})
+		}
+		byteSum, err = model.CategoryByteSum(ctx, db, name)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "Failed to calculate platform file sizes",
+			})
+		}
+	}
+	if platform {
+		records, err = order.ByPlatform(ctx, db, 0, 0, name)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "Failed to query platform files",
+			})
+		}
+		count, err = model.PlatformCount(ctx, db, name)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "Failed to count platform files",
+			})
+		}
+		byteSum, err = model.PlatformByteSum(ctx, db, name)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "Failed to calculate platform file sizes",
+			})
+		}
+	}
+
+	files := announceArtifact(records)
+	response := announcementFiles{
+		Files: files,
+		Stats: struct {
+			TotalFiles     int64  `json:"total_files"`
+			TotalSize      string `json:"total_size"`
+			TotalSizeBytes int64  `json:"total_size_bytes"`
+		}{
+			TotalFiles:     count,
+			TotalSize:      helper.ByteCount(byteSum),
+			TotalSizeBytes: byteSum,
+		},
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+// announceArtifact transforms database records to the API format.
+func announceArtifact(records []*models.File) []AnnouncementFile {
+	files := make([]AnnouncementFile, len(records))
+	for i, record := range records {
+		// Handle date_published
+		var datePublished struct {
+			Year  int16 `json:"year,omitempty"`
+			Month int16 `json:"month,omitempty"`
+			Day   int16 `json:"day,omitempty"`
+		}
+		if record.DateIssuedYear.Valid && record.DateIssuedMonth.Valid && record.DateIssuedDay.Valid {
+			datePublished.Year = record.DateIssuedYear.Int16
+			datePublished.Month = record.DateIssuedMonth.Int16
+			datePublished.Day = record.DateIssuedDay.Int16
+		}
+
+		// Handle posted_date using Createdat field
+		var postedDate *time.Time
+		if record.Createdat.Valid {
+			t := record.Createdat.Time
+			postedDate = &t
+		}
+
+		fileRecord := &models.File{
+			Filename:       record.Filename,
+			Section:        record.Section,
+			Platform:       record.Platform,
+			GroupBrandBy:   record.GroupBrandBy,
+			GroupBrandFor:  record.GroupBrandFor,
+			RecordTitle:    record.RecordTitle,
+			DateIssuedYear: record.DateIssuedYear,
+		}
+
+		files[i] = AnnouncementFile{
+			ID:            record.ID,
+			Filename:      record.Filename.String,
+			DatePublished: datePublished,
+			PostedDate:    postedDate,
+			Size: struct {
+				Formatted string `json:"formatted"`
+				Bytes     int64  `json:"bytes"`
+			}{
+				Formatted: helper.ByteCount(record.Filesize.Int64),
+				Bytes:     record.Filesize.Int64,
+			},
+			Description: filerecord.Description(fileRecord),
+			FileType:    getFileType(record.Filename.String),
+			URLs: struct {
+				Download  string `json:"download"`
+				HTML      string `json:"html"`
+				Thumbnail string `json:"thumbnail,omitempty"`
+			}{
+				Download:  fmt.Sprintf("/d/%s", helper.ObfuscateID(record.ID)),
+				HTML:      fmt.Sprintf("/f/%s", helper.ObfuscateID(record.ID)),
+				Thumbnail: fmt.Sprintf("/public/image/thumb/%s", record.UUID.String),
+			},
+		}
+	}
+	return files
 }
 
 // TerritoriesAPI returns all territories in the North American Numbering Plan (NANP).
