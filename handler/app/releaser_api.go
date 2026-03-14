@@ -52,18 +52,16 @@ func getReleasersCount(ctx context.Context, db *sql.DB) (int, error) {
 }
 
 // getReleasersWithStats builds the ReleaserAPI list from model data.
-func getReleasersWithStats(ctx context.Context, db *sql.DB, releasers model.Releasers) []ReleaserAPI {
+func getReleasersWithStats(releasers model.Releasers) []ReleaserAPI {
 	results := make([]ReleaserAPI, 0, len(releasers))
 	for _, rel := range releasers {
 		relname := releaser.Link(rel.Unique.Name)
 		relURI := releaser.Obfuscate(rel.Unique.Name)
 
-		// Get statistics for this releaser
-		m := model.Summary{ //nolint:exhaustruct // Fields are set by ByReleaser method
-		}
-		if err := m.ByReleaser(ctx, db, relURI); err != nil {
-			continue // Skip if we can't get stats
-		}
+		// Use the data already in the Releaser struct (much faster than querying again)
+		// The Count and Bytes are already loaded by the Limit() method
+		count := rel.Unique.Count
+		bytes := rel.Unique.Bytes
 
 		// Create stable ID from the URL (obfuscated name)
 		stableID := hashString(relURI)
@@ -86,9 +84,9 @@ func getReleasersWithStats(ctx context.Context, db *sql.DB, releasers model.Rele
 				TotalSize      string `json:"totalSize"`
 				TotalSizeBytes int64  `json:"totalSizeBytes"`
 			}{
-				TotalFiles:     m.SumCount.Int64,
-				TotalSize:      helper.ByteCount(m.SumBytes.Int64),
-				TotalSizeBytes: m.SumBytes.Int64,
+				TotalFiles:     int64(count),
+				TotalSize:      helper.ByteCount(int64(bytes)),
+				TotalSizeBytes: int64(bytes),
 			},
 		}
 		results = append(results, result)
@@ -116,7 +114,7 @@ func ReleasersAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		}
 	}
 
-	const limit = 100 // Fixed limit per page
+	const limit = 1000 // Fixed limit per page
 	ctx := context.Background()
 
 	// Get total count for pagination efficiently (without loading all data)
@@ -147,7 +145,7 @@ func ReleasersAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 
 	// Only load statistics for the releasers on this page
-	releasersWithStats := getReleasersWithStats(ctx, db, paginatedReleasers)
+	releasersWithStats := getReleasersWithStats(paginatedReleasers)
 
 	return c.JSON(http.StatusOK, map[string]any{
 		"releasers":  releasersWithStats,
