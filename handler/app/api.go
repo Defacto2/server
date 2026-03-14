@@ -73,7 +73,11 @@ type tagAPI struct {
 		HTML3 string `json:"html3,omitempty"`
 		HTML  string `json:"html,omitempty"`
 	} `json:"urls"`
-	Count int `json:"count,omitempty"`
+	Stats struct {
+		TotalFiles     int64  `json:"totalFiles"`
+		TotalSize      string `json:"totalSize"`
+		TotalSizeBytes int64  `json:"totalSizeBytes"`
+	} `json:"statistics"`
 }
 
 // territoryAPI represents a territory for API responses.
@@ -82,10 +86,6 @@ type territoryAPI struct {
 	Abbreviation string `json:"abbreviation"`
 	AreaCodes    []int  `json:"areaCodes"`
 }
-
-const (
-	yearsInDecade = 9
-)
 
 // APIMarkup removes CSS classes and attributes from HTML for API responses.
 // Keeps semantic HTML tags but removes presentation-specific markup.
@@ -374,8 +374,9 @@ func MilestoneDecadeAPI(c echo.Context) error {
 		})
 	}
 
+	const years = 9
 	startYear := decade
-	endYear := decade + yearsInDecade
+	endYear := decade + years
 
 	var result Milestones
 	for _, m := range Collection() {
@@ -411,13 +412,13 @@ func milestoneFix(m Milestone) Milestone {
 }
 
 // CategoriesAPI returns all categories.
-func CategoriesAPI(c echo.Context) error {
-	return TagsAPI(c, true, false)
+func CategoriesAPI(c echo.Context, db *sql.DB) error {
+	return TagsAPI(c, db, true, false)
 }
 
 // PlatformsAPI returns all platforms.
-func PlatformsAPI(c echo.Context) error {
-	return TagsAPI(c, false, true)
+func PlatformsAPI(c echo.Context, db *sql.DB) error {
+	return TagsAPI(c, db, false, true)
 }
 
 // TagsAPI returns artifact tags.
@@ -427,7 +428,7 @@ func PlatformsAPI(c echo.Context) error {
 //   - Set both to true to return all category and platform tags.
 //
 // Setting both to false will return an empty JSON response.
-func TagsAPI(c echo.Context, category, platform bool) error {
+func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 	items := tags.List()
 	infos := tags.Infos()
 	if len(items) == 0 || !category && !platform {
@@ -446,12 +447,33 @@ func TagsAPI(c echo.Context, category, platform bool) error {
 		default:
 			// return all tags
 		}
+		ctx := context.Background()
+		var byteSum int64
+		var count int64
+		if category {
+			count, _ = model.CategoryCount(ctx, db, slug)
+			byteSum, _ = model.CategoryByteSum(ctx, db, slug)
+		}
+		if platform {
+			c, _ := model.PlatformCount(ctx, db, slug)
+			count = c + count
+			b, _ := model.PlatformByteSum(ctx, db, slug)
+			byteSum = b + byteSum
+		}
 		result := tagAPI{
 			ID:          int(tag),
 			Name:        slug,
 			Description: infos[tag],
 			Title:       title,
-			Count:       0, // TODO: Will be populated later if needed
+			Stats: struct {
+				TotalFiles     int64  `json:"totalFiles"`
+				TotalSize      string `json:"totalSize"`
+				TotalSizeBytes int64  `json:"totalSizeBytes"`
+			}{
+				TotalFiles:     count,
+				TotalSize:      helper.ByteCount(byteSum),
+				TotalSizeBytes: byteSum,
+			},
 			URLs: struct {
 				API   string `json:"api,omitempty"`
 				HTML3 string `json:"html3,omitempty"`

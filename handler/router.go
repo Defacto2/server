@@ -203,9 +203,9 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	}
 	e.FileFS("/openapi.json", "public/json/openapi.json", public)
 	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
-	e.GET("/api/categories", app.CategoriesAPI)
+	e.GET("/api/categories", func(c echo.Context) error { return app.CategoriesAPI(c, db) })
 	e.GET("/api/category/:category", func(c echo.Context) error { return app.CategoryAPI(c, db, sl) })
-	e.GET("/api/platforms", app.PlatformsAPI)
+	e.GET("/api/platforms", func(c echo.Context) error { return app.PlatformsAPI(c, db) })
 	e.GET("/api/platform/:platform", func(c echo.Context) error { return app.PlatformAPI(c, db, sl) })
 	e.GET("/api/milestones", app.MilestonesAPI)
 	e.GET("/api/milestones/highlights", app.MilestoneHighlightsAPI)

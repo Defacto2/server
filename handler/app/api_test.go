@@ -5,12 +5,14 @@ package app_test
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app"
+	_ "github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/nalgeon/be"
 )
@@ -28,6 +30,62 @@ func BenchmarkApiMarkup(b *testing.B) {
 			app.APIMarkup(html)
 		}
 	})
+}
+
+// BenchmarkCategoriesAPIWithRealStats benchmarks the CategoriesAPI with realistic stats calculation
+func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
+	e := echo.New()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/categories", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Create database connection using default credentials
+	db, err := sql.Open("pgx", "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable")
+	if err != nil {
+		b.Logf("Could not create database connection: %v", err)
+		b.Skipf("Could not create database connection: %v", err)
+	}
+	defer db.Close()
+
+	// Test the connection
+	if err := db.Ping(); err != nil {
+		b.Logf("Could not ping database: %v", err)
+		b.Skipf("Could not ping database: %v", err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = app.CategoriesAPI(c, db)
+		rec.Body.Reset()
+	}
+}
+
+// BenchmarkPlatformsAPIWithRealStats benchmarks the PlatformsAPI with realistic stats calculation
+func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
+	e := echo.New()
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/platforms", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Create database connection using default credentials
+	db, err := sql.Open("pgx", "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable")
+	if err != nil {
+		b.Logf("Could not create database connection: %v", err)
+		b.Skipf("Could not create database connection: %v", err)
+	}
+	defer db.Close()
+
+	// Test the connection
+	if err := db.Ping(); err != nil {
+		b.Logf("Could not ping database: %v", err)
+		b.Skipf("Could not ping database: %v", err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = app.PlatformsAPI(c, db)
+		rec.Body.Reset()
+	}
 }
 
 func TestApiMarkup(t *testing.T) {
