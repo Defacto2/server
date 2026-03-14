@@ -449,6 +449,7 @@ func TestHash(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := simple.Hash(tt.input)
 			if result != tt.expected {
 				t.Errorf("Hash(%q) = %q, want %q", tt.input, result, tt.expected)
@@ -501,7 +502,7 @@ func BenchmarkHash(b *testing.B) {
 
 	for _, str := range testStrings {
 		b.Run(fmt.Sprintf("length-%d", len(str)), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for range b.N {
 				_ = simple.Hash(str)
 			}
 		})

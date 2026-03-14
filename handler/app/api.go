@@ -39,7 +39,6 @@ type ArtifactSumAPI struct {
 		Bytes     int64  `json:"bytes"`
 	} `json:"size"`
 	Description string `json:"description,omitempty"`
-	FileType    string `json:"fileType,omitempty"`
 	Tags        struct {
 		Category    string `json:"category"`
 		Platform    string `json:"platform"`
@@ -543,6 +542,66 @@ func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
 	return results
 }
 
+// artifactSum creates an ArtifactSumAPI from a file model.
+func artifactSum(f *models.File) ArtifactSumAPI {
+	category := filerecord.TagCategory(f)
+	platform := filerecord.TagProgram(f)
+	categoryTag := tags.TagByURI(category)
+	platformTag := tags.TagByURI(platform)
+	humanized := tags.Humanize(platformTag, categoryTag)
+
+	art := &models.File{ //nolint:exhaustruct
+		Filename:       f.Filename,
+		RecordTitle:    f.RecordTitle,
+		GroupBrandBy:   f.GroupBrandBy,
+		GroupBrandFor:  f.GroupBrandFor,
+		DateIssuedYear: f.DateIssuedYear,
+	}
+
+	artifact := ArtifactSumAPI{
+		ID:       f.ID,
+		Filename: f.Filename.String,
+		DatePublished: struct {
+			Year  int16 `json:"year,omitempty"`
+			Month int16 `json:"month,omitempty"`
+			Day   int16 `json:"day,omitempty"`
+		}{
+			Year:  f.DateIssuedYear.Int16,
+			Month: f.DateIssuedMonth.Int16,
+			Day:   f.DateIssuedDay.Int16,
+		},
+		PostedDate: f.Createdat.Ptr(),
+		Size: struct {
+			Formatted string `json:"formatted"`
+			Bytes     int64  `json:"bytes"`
+		}{Formatted: helper.ByteCount(f.Filesize.Int64), Bytes: f.Filesize.Int64},
+		Description: filerecord.Description(art),
+		Tags: struct {
+			Category    string `json:"category"`
+			Platform    string `json:"platform"`
+			Description string `json:"description"`
+		}{
+			Category:    category,
+			Platform:    platform,
+			Description: humanized,
+		},
+		URLs: struct {
+			Download  string `json:"download"`
+			HTML      string `json:"html"`
+			Thumbnail string `json:"thumbnail,omitempty"`
+		}{
+			Download:  "/d/" + helper.ObfuscateID(f.ID),
+			HTML:      "/f/" + helper.ObfuscateID(f.ID),
+			Thumbnail: "/public/image/thumb/" + f.UUID.String,
+		},
+	}
+	if f.Createdat.Valid {
+		artifact.PostedDate = &f.Createdat.Time
+	}
+
+	return artifact
+}
+
 // ReleaserAPI returns details for a specific releaser or group.
 func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "releaser api"
@@ -581,62 +640,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 	artifacts := make([]ArtifactSumAPI, 0, len(fs))
 	for _, f := range fs {
-		category := filerecord.TagCategory(f)
-		platform := filerecord.TagProgram(f)
-		categoryTag := tags.TagByURI(category)
-		platformTag := tags.TagByURI(platform)
-		humanized := tags.Humanize(platformTag, categoryTag)
-
-		art := &models.File{ //nolint:exhaustruct
-			Filename:       f.Filename,
-			RecordTitle:    f.RecordTitle,
-			GroupBrandBy:   f.GroupBrandBy,
-			GroupBrandFor:  f.GroupBrandFor,
-			DateIssuedYear: f.DateIssuedYear,
-		}
-		artifact := ArtifactSumAPI{
-			ID:       f.ID,
-			Filename: f.Filename.String,
-			Size: struct {
-				Formatted string `json:"formatted"`
-				Bytes     int64  `json:"bytes"`
-			}{Formatted: helper.ByteCount(f.Filesize.Int64), Bytes: f.Filesize.Int64},
-			Description: filerecord.Description(art),
-			Tags: struct {
-				Category    string `json:"category"`
-				Platform    string `json:"platform"`
-				Description string `json:"description"`
-			}{
-				Category:    category,
-				Platform:    platform,
-				Description: humanized,
-			},
-			URLs: struct {
-				Download  string `json:"download"`
-				HTML      string `json:"html"`
-				Thumbnail string `json:"thumbnail,omitempty"`
-			}{
-				Download:  "/d/" + helper.ObfuscateID(f.ID),
-				HTML:      "/f/" + helper.ObfuscateID(f.ID),
-				Thumbnail: "/public/image/thumb/" + f.UUID.String,
-			},
-		}
-		if f.DateIssuedYear.Valid {
-			artifact.DatePublished = struct {
-				Year  int16 `json:"year,omitempty"`
-				Month int16 `json:"month,omitempty"`
-				Day   int16 `json:"day,omitempty"`
-			}{
-				Year:  f.DateIssuedYear.Int16,
-				Month: f.DateIssuedMonth.Int16,
-				Day:   f.DateIssuedDay.Int16,
-			}
-		}
-		if f.Createdat.Valid {
-			artifact.PostedDate = &f.Createdat.Time
-		}
-
-		artifacts = append(artifacts, artifact)
+		artifacts = append(artifacts, artifactSum(f))
 	}
 	return c.JSON(http.StatusOK, map[string]any{
 		"group": SceneEntityAPI{

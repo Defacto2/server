@@ -32,7 +32,7 @@ func BenchmarkApiMarkup(b *testing.B) {
 	})
 }
 
-// BenchmarkCategoriesAPIWithRealStats benchmarks the CategoriesAPI with realistic stats calculation
+// BenchmarkCategoriesAPIWithRealStats benchmarks the CategoriesAPI with realistic stats calculation.
 func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 	e := echo.New()
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/categories", nil)
@@ -50,7 +50,7 @@ func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 			panic(err)
 		}
 	}()
-	if err := db.Ping(); err != nil {
+	if err := db.PingContext(context.Background()); err != nil {
 		b.Logf("Could not ping database: %v", err)
 		b.Skipf("Could not ping database: %v", err)
 	}
@@ -61,7 +61,7 @@ func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 	}
 }
 
-// BenchmarkPlatformsAPIWithRealStats benchmarks the PlatformsAPI with realistic stats calculation
+// BenchmarkPlatformsAPIWithRealStats benchmarks the PlatformsAPI with realistic stats calculation.
 func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
 	e := echo.New()
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/platforms", nil)
@@ -79,7 +79,7 @@ func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
 			panic(err)
 		}
 	}()
-	if err := db.Ping(); err != nil {
+	if err := db.PingContext(context.Background()); err != nil {
 		b.Logf("Could not ping database: %v", err)
 		b.Skipf("Could not ping database: %v", err)
 	}
