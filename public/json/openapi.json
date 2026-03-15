@@ -42,7 +42,7 @@
     }
   ],
   "paths": {
-    "/api/milestones": {
+    "/api/v0/milestones": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get all milestones",
@@ -75,7 +75,7 @@
         }
       }
     },
-    "/api/milestones/year/{year}": {
+    "/api/v0/milestones/year/{year}": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get milestones by year",
@@ -142,7 +142,7 @@
         }
       }
     },
-    "/api/milestones/years/{range}": {
+    "/api/v0/milestones/years/{range}": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get milestones by year range",
@@ -208,7 +208,7 @@
         }
       }
     },
-    "/api/milestones/highlights": {
+    "/api/v0/milestones/highlights": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get highlighted milestones",
@@ -251,7 +251,7 @@
         }
       }
     },
-    "/api/milestones/decade/{decade}": {
+    "/api/v0/milestones/decade/{decade}": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get milestones by decade",
@@ -317,7 +317,7 @@
         }
       }
     },
-    "/api/areacodes": {
+    "/api/v0/areacodes": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Get all area codes",
@@ -350,7 +350,7 @@
         }
       }
     },
-    "/api/areacodes/{code}": {
+    "/api/v0/areacodes/{code}": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Get area code by code",
@@ -414,7 +414,7 @@
         }
       }
     },
-    "/api/areacodes/territories": {
+    "/api/v0/areacodes/territories": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Get all territories",
@@ -447,7 +447,7 @@
         }
       }
     },
-    "/api/areacodes/territories/{abbr}": {
+    "/api/v0/areacodes/territories/{abbr}": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Get territory by abbreviation",
@@ -511,7 +511,7 @@
         }
       }
     },
-    "/api/areacodes/search/{query}": {
+    "/api/v0/areacodes/search/{query}": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Search area codes and territories",
@@ -563,7 +563,7 @@
         }
       }
     },
-    "/api/categories": {
+    "/api/v0/categories": {
       "get": {
         "tags": ["categories"],
         "summary": "Get all artifact categories",
@@ -596,7 +596,7 @@
         }
       }
     },
-    "/api/platforms": {
+    "/api/v0/platforms": {
       "get": {
         "tags": ["platforms"],
         "summary": "Get all operating system platforms",
@@ -629,7 +629,7 @@
         }
       }
     },
-    "/api/files/announcements": {
+    "/api/v0/files/announcements": {
       "get": {
         "tags": ["files"],
         "summary": "Get announcement files",
@@ -668,7 +668,7 @@
         }
       }
     },
-    "/api/platform/{platform}": {
+    "/api/v0/platform/{platform}": {
       "get": {
         "tags": ["files"],
         "summary": "Get files from any platform",
@@ -738,7 +738,7 @@
         }
       }
     },
-    "/api/groups": {
+    "/api/v0/groups": {
       "get": {
         "tags": ["files"],
         "summary": "Get all releaser groups",
@@ -810,7 +810,7 @@
         }
       }
     },
-    "/api/magazines": {
+    "/api/v0/magazines": {
       "get": {
         "tags": ["files"],
         "summary": "Get all magazines",
@@ -883,7 +883,7 @@
         }
       }
     },
-    "/api/boards": {
+    "/api/v0/boards": {
       "get": {
         "tags": ["files"],
         "summary": "Get all BBS boards",
@@ -956,7 +956,7 @@
         }
       }
     },
-    "/api/sites": {
+    "/api/v0/sites": {
       "get": {
         "tags": ["files"],
         "summary": "Get all FTP sites",
@@ -1029,7 +1029,7 @@
         }
       }
     },
-    "/api/files": {
+    "/api/v0/files": {
       "get": {
         "tags": ["files"],
         "summary": "Get all files",
@@ -1107,7 +1107,7 @@
         }
       }
     },
-    "/api/releaser/{name}": {
+    "/api/v0/releaser/{name}": {
       "get": {
         "tags": ["files"],
         "summary": "Get files from a specific releaser group or magazine",
@@ -1180,7 +1180,7 @@
         }
       }
     },
-    "/api/category/{category}": {
+    "/api/v0/category/{category}": {
       "get": {
         "tags": ["files"],
         "summary": "Get files from any category",
@@ -1250,109 +1250,7 @@
         }
       }
     },
-    "/api/files": {
-      "get": {
-        "tags": ["files"],
-        "summary": "Get all files",
-        "description": "Returns a paginated list of all files in the database, ordered by ID (newest first). Includes comprehensive metadata, statistics, and URL mappings for each file.",
-        "operationId": "getAllFiles",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "description": "Page number for pagination",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 1,
-              "example": 1
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Number of files per page (fixed at 1000)",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 1000,
-              "default": 1000,
-              "example": 1000
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A paginated list of all files",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "files": {
-                      "type": "array",
-                      "description": "Array of file entries",
-                      "items": {
-                        "$ref": "#/components/schemas/ArtifactSum"
-                      }
-                    },
-                    "statistics": {
-                      "type": "object",
-                      "description": "Overall statistics for all files",
-                      "properties": {
-                        "totalFiles": {
-                          "type": "integer",
-                          "description": "Total number of files in the database",
-                          "example": 10000
-                        }
-                      }
-                    },
-                    "page": {
-                      "type": "integer",
-                      "description": "Current page number",
-                      "example": 1
-                    },
-                    "totalPages": {
-                      "type": "integer",
-                      "description": "Total number of pages available",
-                      "example": 500
-                    },
-                    "limit": {
-                      "type": "integer",
-                      "description": "Number of files per page",
-                      "example": 20
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid page or limit parameter",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/files/new": {
+    "/api/v0/files/new": {
       "get": {
         "tags": ["files"],
         "summary": "Get new uploads",
@@ -1727,7 +1625,7 @@
               "api": {
                 "type": "string",
                 "description": "API endpoint URL",
-                "example": "/api/category/announcements"
+                "example": "/api/v0/category/announcements"
               },
               "html3": {
                 "type": "string",
@@ -1773,7 +1671,7 @@
               "api": {
                 "type": "string",
                 "description": "API endpoint URL",
-                "example": "/api/platform/ansi"
+                "example": "/api/v0/platform/ansi"
               },
               "html3": {
                 "type": "string",
@@ -1835,7 +1733,7 @@
               "api": {
                 "type": "string",
                 "description": "API endpoint URL",
-                "example": "/api/releaser/razor-1911"
+                "example": "/api/v0/releaser/razor-1911"
               },
               "html3": {
                 "type": "string",
@@ -1869,6 +1767,92 @@
                 "example": 480750960
               }
             }
+          }
+        }
+      },
+      "ArtifactSum": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "File ID",
+            "example": 47303
+          },
+          "filename": {
+            "type": "string",
+            "description": "Filename",
+            "example": "00-audiofile-time_to_say_goodbye-flac-2023-audiofile.nfo"
+          },
+          "datePublished": {
+            "type": "object",
+            "description": "Publication date",
+            "properties": {
+              "year": {
+                "type": "integer",
+                "description": "Publication year",
+                "example": 2023
+              },
+              "month": {
+                "type": "integer",
+                "description": "Publication month",
+                "example": 5
+              },
+              "day": {
+                "type": "integer",
+                "description": "Publication day",
+                "example": 28
+              }
+            }
+          },
+          "postedDate": {
+            "type": "string",
+            "description": "Date when file was added to database",
+            "example": "2023-05-31T12:48:08+10:00"
+          },
+          "size": {
+            "type": "object",
+            "description": "File size information",
+            "properties": {
+              "formatted": {
+                "type": "string",
+                "description": "Human-readable size",
+                "example": "7k"
+              },
+              "bytes": {
+                "type": "integer",
+                "description": "Size in bytes",
+                "example": 6917
+              }
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "File description in HTML3 format",
+            "example": "Time To Say Goodbye released by Audiofile in 2023."
+          },
+          "tags": {
+            "type": "object",
+            "description": "File classification tags",
+            "properties": {
+              "category": {
+                "type": "string",
+                "description": "File category tag",
+                "example": "releaseadvert"
+              },
+              "platform": {
+                "type": "string",
+                "description": "File platform tag",
+                "example": "dos"
+              },
+              "description": {
+                "type": "string",
+                "description": "Human-readable tag description",
+                "example": "an intro for MS Dos"
+              }
+            }
+          },
+          "urls": {
+            "$ref": "#/components/schemas/FileURLs"
           }
         }
       },
