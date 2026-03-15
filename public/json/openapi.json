@@ -1272,14 +1272,14 @@
           {
             "name": "limit",
             "in": "query",
-            "description": "Number of files per page (1-100)",
+            "description": "Number of files per page (fixed at 1000)",
             "required": false,
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 100,
-              "default": 20,
-              "example": 20
+              "maximum": 1000,
+              "default": 1000,
+              "example": 1000
             }
           }
         ],
@@ -1374,14 +1374,14 @@
           {
             "name": "limit",
             "in": "query",
-            "description": "Number of files per page (1-100)",
+            "description": "Number of files per page (fixed at 1000)",
             "required": false,
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "maximum": 100,
-              "default": 20,
-              "example": 20
+              "maximum": 1000,
+              "default": 1000,
+              "example": 1000
             }
           }
         ],

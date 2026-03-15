@@ -20,9 +20,9 @@
                         <li><a href="/api/categories">https://defacto2.net/api/categories</a></li>
                         <li><a href="/api/files">https://defacto2.net/api/files</a></li>
                         <li><a href="/api/files/new">https://defacto2.net/api/files/new</a></li>
-                        <li><a href="/api/category/announcements">https://defacto2.net/api/category/announcements</a>
+                        <li><a href="/api/category/announcements">https://defacto2.net/api/category/announcements</a></li>
                         <li><a href="/api/magazines">https://defacto2.net/api/magazines</a></li>
-                        <li><a href="/api/releaser/defacto2">https://defacto2.net/api/releaser/defacto2</a>
+                        <li><a href="/api/releaser/defacto2">https://defacto2.net/api/releaser/defacto2</a></li>
                         <li><a href="/api/milestones/year/1971">https://defacto2.net/api/milestones/year/1971</a></li>
                         <li><a href="/api/areacodes/territories/CA">https://defacto2.net/api/areacodes/territories/CA</a></li>
                       </ul>
@@ -63,15 +63,9 @@
                                     <td><code>GET /api/categories</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/files</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all files (paginated)</td>
-                                    <td><code>GET /api/files?page=1</code></td>
-                                </tr>
-                                <tr>
                                     <td><code>/groups</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all releaser groups (paginated)</td>
+                                    <td>Get all releaser groups <span class="text-secondary">(paginated)</span></td>
                                     <td><code>GET /api/groups?page=1</code></td>
                                 </tr>
                                 <tr>
@@ -101,14 +95,14 @@
                                 <tr>
                                     <td><code>/files</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all files (paginated)</td>
-                                    <td><code>GET /api/files?page=1&limit=20</code></td>
+                                    <td>Get all files <span class="text-secondary">(paginated)</span></td>
+                                    <td><code>GET /api/files?page=1</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/files/new</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get new uploads (recently added files)</td>
-                                    <td><code>GET /api/files/new?page=1&limit=20</code></td>
+                                    <td>Get new uploads <span class="text-secondary">(recently added files)</span></td>
+                                    <td><code>GET /api/files/new?page=1</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/releaser/:name</code></td>
@@ -222,9 +216,9 @@
                             <h3 class="h6">cURL Examples</h3>
                             <pre class="bg-dark text-white p-3 rounded"><code>curl "https://defacto2.net/api/categories"
 
-curl "https://defacto2.net/api/files"
+curl "https://defacto2.net/api/files?page=1"
 
-curl "https://defacto2.net/api/files/new"
+curl "https://defacto2.net/api/files/new?page=1"
 
 curl "https://defacto2.net/api/category/announcements"
 
@@ -244,11 +238,11 @@ curl "https://defacto2.net/api/releaser/razor-1911"</code></pre>
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/files')
+fetch('https://defacto2.net/api/files?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/files/new')
+fetch('https://defacto2.net/api/files/new?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -374,11 +368,15 @@ fetch('https://defacto2.net/api/groups')
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><code>GET /api/files</code></td>
+                                    <td><code>GET /api/files?page=1</code></td>
                                     <td>Get all files with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/groups</code></td>
+                                    <td><code>GET /api/files/new?page=1</code></td>
+                                    <td>Get recently added files with pagination (1000 per page)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET /api/groups?page=1</code></td>
                                     <td>Get all releaser groups with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
@@ -407,7 +405,7 @@ fetch('https://defacto2.net/api/groups')
 
 curl "https://defacto2.net/api/groups?page=2"
 
-curl "https://defacto2.net/api/files"
+curl "https://defacto2.net/api/files?page=1"
 
 curl "https://defacto2.net/api/sites"
 
@@ -427,7 +425,7 @@ curl "https://defacto2.net/api/releaser/big-apple-bbs"</code></pre>
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/files')
+fetch('https://defacto2.net/api/files?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
