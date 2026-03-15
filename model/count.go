@@ -16,6 +16,16 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
+// Count returns the total numbers of public artifact records.
+func Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+	panics.BoilExecCrash(exec)
+	public, err := models.Files(qm.Where(ClauseNoSoftDel)).Count(ctx, exec)
+	if err != nil {
+		return 0, err
+	}
+	return public, nil
+}
+
 // Counts returns the total numbers of artifact records.
 // The first result is the total number of public,
 // the second is the number of non-public records.

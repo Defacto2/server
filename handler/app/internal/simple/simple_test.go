@@ -1,6 +1,7 @@
 package simple_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -395,4 +396,115 @@ func TestThumbSample(t *testing.T) {
 	thumb := filepath.Dir(imagefiler(t))
 	x = simple.ThumbSample(name, dir.Directory(thumb))
 	be.True(t, strings.Contains(string(x), "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI"))
+}
+
+func TestHash(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "Empty string",
+			input:    "",
+			expected: "y_Kc5IQiIyU=",
+		},
+		{
+			name:     "Simple string",
+			input:    "test",
+			expected: "-ebm7xl8KyU=",
+		},
+		{
+			name:     "Case sensitivity",
+			input:    "Test",
+			expected: "JHTn-xrsnwU=",
+		},
+		{
+			name:     "Special characters",
+			input:    "hello@world.com",
+			expected: "VLO_NWka7Yg=",
+		},
+		{
+			name:     "Unicode characters",
+			input:    "こんにちは",
+			expected: "NQtCHdj8ka0=",
+		},
+		{
+			name:     "Long string",
+			input:    "This is a longer test string to verify the hash function works with more substantial input",
+			expected: "B1QZc8sq1O4=",
+		},
+		{
+			name:     "Consistency check",
+			input:    "consistency",
+			expected: "n-09Zb9aUwc=",
+		},
+		{
+			name:     "URL-safe characters",
+			input:    "user@example.com",
+			expected: "uBab6YHzyts=",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			result := simple.Hash(tt.input)
+			if result != tt.expected {
+				t.Errorf("Hash(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestHashDeterministic(t *testing.T) {
+	t.Parallel()
+	// Test that the same input always produces the same output
+	input := "deterministic-test"
+	hash1 := simple.Hash(input)
+	hash2 := simple.Hash(input)
+	be.Equal(t, hash1, hash2)
+
+	// Test different inputs produce different outputs
+	input2 := "deterministic-test-2"
+	hash3 := simple.Hash(input2)
+	be.True(t, hash1 != hash3)
+}
+
+func TestHashProperties(t *testing.T) {
+	t.Parallel()
+	// Test that hash output has consistent length
+	hash1 := simple.Hash("short")
+	hash2 := simple.Hash("this is a much longer input string for testing")
+
+	// Both should be base64 encoded FNV-64a hashes (12 characters)
+	be.Equal(t, 12, len(hash1))
+	be.Equal(t, 12, len(hash2))
+
+	// Test that hash only contains URL-safe base64 characters
+	validChars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="
+	for _, char := range hash1 {
+		be.True(t, strings.ContainsRune(validChars, char))
+	}
+	for _, char := range hash2 {
+		be.True(t, strings.ContainsRune(validChars, char))
+	}
+}
+
+func BenchmarkHash(b *testing.B) {
+	testStrings := []string{
+		"short",
+		"medium length string for benchmarking",
+		"This is a longer string that would be more typical of real-world usage in the application for generating stable identifiers",
+		strings.Repeat("a", 100), // 100 character string
+	}
+
+	for _, str := range testStrings {
+		b.Run(fmt.Sprintf("length-%d", len(str)), func(b *testing.B) {
+			for range b.N {
+				_ = simple.Hash(str)
+			}
+		})
+	}
 }

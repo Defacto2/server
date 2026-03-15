@@ -2,8 +2,10 @@
 package simple
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"html/template"
 	"image"
 	_ "image/gif"  // gif format decoder
@@ -185,6 +187,15 @@ func DownloadB(i any) template.HTML {
 	}
 	elm := fmt.Sprintf(" <small class=\"text-body-secondary\">%s</small>", s)
 	return template.HTML(elm)
+}
+
+// Hash creates a stable hash ID from a string and returns it as base64.
+func Hash(s string) string {
+	h := fnv.New64a()
+	h.Write([]byte(s))
+	src := h.Sum(nil)
+	// Use URLEncoding to avoid special characters
+	return base64.URLEncoding.EncodeToString(src)
 }
 
 // ImageSample returns a HTML image tag for the given unid.

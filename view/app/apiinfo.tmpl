@@ -2,6 +2,8 @@
     apiinfo.tmpl ~ API helper template.
 */ -}}
 {{- define "content" }}
+{{- $baseUrl := "https://defacto2.net/api/v0"}}
+{{- $api := "/api/v0/"}}
 <div class="container my-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -11,21 +13,25 @@
                 </div>
                 <div class="card-body">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="baseUrl" value="https://defacto2.net/api" readonly>
+                        <input type="text" class="form-control" id="baseUrl" value="{{$baseUrl}}" readonly>
                         <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('baseUrl')">Copy</button>
                     </div>
                     <p>The base URL for all API endpoints.</p>
                     <p class="text-muted">Examples:</p>
                       <ul>
-                        <li><a href="/api/categories">https://defacto2.net/api/categories</a></li>
-                        <li><a href="/api/category/announcements">https://defacto2.net/api/category/announcements</a>
-                        <li><a href="/api/milestones/year/1971">https://defacto2.net/api/milestones/year/1971</a></li>
-                        <li><a href="/api/areacodes/territories/CA">https://defacto2.net/api/areacodes/territories/CA</a></li>
+                        <li><a href="{{$api}}files">{{$baseUrl}}/files</a></li>
+                        <li><a href="{{$api}}files/new">{{$baseUrl}}/files/new</a></li>
+                        <li><a href="{{$api}}categories">{{$baseUrl}}/categories</a></li>
+                        <li><a href="{{$api}}category/announcements">{{$baseUrl}}/category/announcements</a></li>
+                        <li><a href="{{$api}}magazines">{{$baseUrl}}/magazines</a></li>
+                        <li><a href="{{$api}}releaser/defacto2">{{$baseUrl}}/releaser/defacto2</a></li>
+                        <li><a href="{{$api}}milestones/year/1971">{{$baseUrl}}/milestones/year/1971</a></li>
+                        <li><a href="{{$api}}areacodes/territories/CA">{{$baseUrl}}/areacodes/territories/CA</a></li>
                       </ul>
                     </p>
                     <p>No authentication is required for read-only API endpoints.</p>
                     <div class="alert alert-success" role="alert">
-                      12-May-2025, More API features will be rolled out soon!
+                      15-May-2025, More API features will be rolled out soon and  the <code>/api/v0</code> uri is temporary.
                     </div>
                 </div>
             </div>
@@ -47,88 +53,124 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><code>/boards</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all BBS boards</td>
+                                    <td><code>GET {{$api}}boards</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/categories</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all artifact categories</td>
-                                    <td><code>GET /api/categories</code></td>
+                                    <td><code>GET {{$api}}categories</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/groups</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all releaser groups <span class="text-secondary">(paginated)</span></td>
+                                    <td><code>GET {{$api}}groups?page=1</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/magazines</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all scene magazines</td>
+                                    <td><code>GET {{$api}}magazines</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/platforms</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all artifact platforms</td>
-                                    <td><code>GET /api/platforms</code></td>
+                                    <td><code>GET {{$api}}platforms</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/category/:name</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get files from any category<br><span class="text-secondary">(demo, scenerules, magazine, etc.)</span></td>
-                                    <td><code>GET /api/category/demo</code></td>
+                                    <td><code>GET {{$api}}category/demo</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/platform/:name</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get files from any platform<br><span class="text-secondary">(ansi, audio, dos, windows, etc.)</span></td>
-                                    <td><code>GET /api/platform/ansi</code></td>
+                                    <td><code>GET {{$api}}platform/ansi</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/files</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all files <span class="text-secondary">(paginated)</span></td>
+                                    <td><code>GET {{$api}}files?page=1</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/files/new</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get new uploads <span class="text-secondary">(recently added files)</span></td>
+                                    <td><code>GET {{$api}}files/new?page=1</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/releaser/:name</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get files from a specific group or magazine</td>
+                                    <td><code>GET {{$api}}releaser/razor-1911</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/milestones</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all milestones</td>
-                                    <td><code>GET /api/milestones</code></td>
+                                    <td><code>GET {{$api}}milestones</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/milestones/year/:year</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get milestones by specific year</td>
-                                    <td><code>GET /api/milestones/year/1995</code></td>
+                                    <td><code>GET {{$api}}milestones/year/1995</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/milestones/years/:range</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get milestones by year range</td>
-                                    <td><code>GET /api/milestones/years/1990-2000</code></td>
+                                    <td><code>GET {{$api}}milestones/years/1990-2000</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/milestones/highlights</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get only highlighted milestones</td>
-                                    <td><code>GET /api/milestones/highlights</code></td>
+                                    <td><code>GET {{$api}}milestones/highlights</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/milestones/decade/:decade</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get milestones by decade</td>
-                                    <td><code>GET /api/milestones/decade/1990s</code></td>
+                                    <td><code>GET {{$api}}milestones/decade/1990s</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/areacodes</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all area codes</td>
-                                    <td><code>GET /api/areacodes</code></td>
+                                    <td><code>GET {{$api}}areacodes</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/areacodes/:code</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get area code by code</td>
-                                    <td><code>GET /api/areacodes/212</code></td>
+                                    <td><code>GET {{$api}}areacodes/212</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/areacodes/territories</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all territories</td>
-                                    <td><code>GET /api/areacodes/territories</code></td>
+                                    <td><code>GET {{$api}}areacodes/territories</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/areacodes/territories/:abbr</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get territory by abbreviation</td>
-                                    <td><code>GET /api/areacodes/territories/CA</code></td>
+                                    <td><code>GET {{$api}}areacodes/territories/CA</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/areacodes/search/:query</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Search area codes and territories</td>
-                                    <td><code>GET /api/areacodes/search/california</code></td>
+                                    <td><code>GET {{$api}}areacodes/search/california</code></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -136,11 +178,11 @@
                 </div>
             </div>
 {{- /* 
-  Files API endpoints table 
+  Tag API endpoints table 
 */ -}}
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Files API endpoints</h2>
+                    <h2 class="h5 mb-0">Tag API endpoints</h2>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive mb-4">
@@ -153,20 +195,20 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><code>GET /api/categories</code></td>
+                                    <td><code>GET {{$api}}categories</code></td>
                                     <td>Get all artifact categories with API, HTML3, and HTML URLs</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/category/:name</code></td>
-                                    <td>Get files from any category (demo, scenerules, magazine, etc.)</td>
+                                    <td><code>GET {{$api}}category/:name</code></td>
+                                    <td>Get artifacts from any category (demo, scenerules, magazine, etc.)</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/platforms</code></td>
+                                    <td><code>GET {{$api}}platforms</code></td>
                                     <td>Get all artifact platforms with API, HTML3, and HTML URLs</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/platform/:name</code></td>
-                                    <td>Get files from any platform (ansi, audio, dos, windows, etc.)</td>
+                                    <td><code>GET {{$api}}platform/:name</code></td>
+                                    <td>Get artifacts from any platform (ansi, audio, dos, windows, etc.)</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -174,43 +216,63 @@
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl "https://defacto2.net/api/categories"
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/categories"
 
-curl "https://defacto2.net/api/category/announcements"
+curl "{{$baseUrl}}/files?page=1"
 
-curl "https://defacto2.net/api/category/demo"
+curl "{{$baseUrl}}/files/new?page=1"
 
-curl "https://defacto2.net/api/platforms"
+curl "{{$baseUrl}}/category/announcements"
 
-curl "https://defacto2.net/api/platform/ansi"</code></pre>
+curl "{{$baseUrl}}/category/demo"
+
+curl "{{$baseUrl}}/platforms"
+
+curl "{{$baseUrl}}/platform/ansi"
+
+curl "{{$baseUrl}}/groups"
+
+curl "{{$baseUrl}}/releaser/razor-1911"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/categories')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/categories')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/category/announcements')
+fetch('{{$baseUrl}}/files?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/category/demo')
+fetch('{{$baseUrl}}/files/new?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/platforms')
+fetch('{{$baseUrl}}/category/announcements')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/platform/ansi')
+fetch('{{$baseUrl}}/category/demo')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/platforms')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/platform/ansi')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/groups')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
                     </div>
                     <h3 class="h6 mt-4">Response Structure</h3>
-                    <p>Files API endpoints return JSON with nested URL objects:</p>
+                    <p>Artifacts API endpoints return JSON with nested URL objects and comprehensive tags:</p>
                     <pre class="bg-dark text-white p-3 rounded"><code>{
-    "announcements": [
+    "files": [
         {
             "id": 47303,
             "filename": "00-audiofile-time_to_say_goodbye-flac-2023-audiofile.nfo",
@@ -225,7 +287,11 @@ fetch('https://defacto2.net/api/platform/ansi')
                 "bytes": 6917
             },
             "description": "Time To Say Goodbye released by Audiofile in 2023.",
-            "fileType": "text",
+            "tags": {
+                "category": "releaseadvert",
+                "platform": "dos",
+                "description": "an intro for MS Dos"
+            },
             "urls": {
                 "download": "/d/ab1fc8b",
                 "html": "/f/ab1fc8b",
@@ -242,7 +308,7 @@ fetch('https://defacto2.net/api/platform/ansi')
         "title": "announcement",
         "description": "public announcements by Scene groups and organizations",
         "urls": {
-            "api": "/api/category/announcements",
+            "api": "{{$api}}category/announcements",
             "html3": "/html3/announcements",
             "html": "/files/announcement"
         }
@@ -254,7 +320,7 @@ fetch('https://defacto2.net/api/platform/ansi')
         "description": "an artistic multimedia program designed to promote a demo group or collective",
         "uri": "demo",
         "urls": {
-            "api": "/api/category/demo",
+            "api": "{{$api}}category/demo",
             "html3": "/html3/demo",
             "html": "/files/demo"
         }
@@ -268,7 +334,7 @@ fetch('https://defacto2.net/api/platform/ansi')
     "title": "DOS",
     "description": "Disk Operating System, the dominant PC platform of the 1980s and early 1990s",
     "urls": {
-        "api": "/api/platform/dos",
+        "api": "{{$api}}platform/dos",
         "html3": "/html3/dos",
         "html": "/files/dos"
     }
@@ -279,11 +345,184 @@ fetch('https://defacto2.net/api/platform/ansi')
     "title": "Windows",
     "description": "Microsoft Windows operating system",
     "urls": {
-        "api": "/api/platform/windows",
+        "api": "{{$api}}platform/windows",
         "html3": "/html3/windows",
         "html": "/files/windows"
     }
 }]</code></pre>
+                </div>
+            </div>
+{{- /*
+  Releaser API endpoints table
+*/ -}}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Releaser API endpoints</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET {{$api}}files?page=1</code></td>
+                                    <td>Get all files with pagination (1000 per page)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}files/new?page=1</code></td>
+                                    <td>Get recently added files with pagination (1000 per page)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}groups?page=1</code></td>
+                                    <td>Get all releaser groups with pagination (1000 per page)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}sites</code></td>
+                                    <td>Get all FTP sites</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}boards</code></td>
+                                    <td>Get all BBS boards</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}magazines</code></td>
+                                    <td>Get all scene magazines</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}releaser/:name</code></td>
+                                    <td>Get detailed information and files for a specific group or magazine by name</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6">cURL Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/groups"
+
+curl "{{$baseUrl}}/groups?page=2"
+
+curl "{{$baseUrl}}/files?page=1"
+
+curl "{{$baseUrl}}/sites"
+
+curl "{{$baseUrl}}/boards"
+
+curl "{{$baseUrl}}/magazines"
+
+curl "{{$baseUrl}}/releaser/razor-1911"
+
+curl "{{$baseUrl}}/releaser/the-zapper"
+
+curl "{{$baseUrl}}/releaser/big-apple-bbs"</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6">JavaScript (Fetch) Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/groups?page=2')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/files?page=1')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/sites')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/boards')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/magazines')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/releaser/razor-1911')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/releaser/the-zapper')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/releaser/big-apple-bbs')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                        </div>
+                    </div>
+                    <h3 class="h6 mt-4">Groups API Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "releasers": [
+        {
+            "id": "rzjHDqmL1do=",
+            "name": "razor-1911",
+            "title": "Razor 1911",
+            "urls": {
+                "api": "{{$api}}releaser/razor-1911",
+                "html3": "/html3/group/razor-1911",
+                "html": "/g/razor-1911"
+            },
+            "statistics": {
+                "totalFiles": 935,
+                "totalSize": "458M",
+                "totalSizeBytes": 480750960
+            }
+        }
+    ],
+    "page": 1,
+    "totalPages": 4
+}</code></pre>
+                    <h3 class="h6 mt-4">Group Detail Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "group": {
+        "id": "rzjHDqmL1do=",
+        "name": "razor-1911",
+        "title": "Razor 1911",
+        "urls": {
+            "api": "{{$api}}releaser/razor-1911",
+            "html3": "/html3/group/razor-1911",
+            "html": "/g/razor-1911"
+        },
+        "statistics": {
+            "totalFiles": 935,
+            "totalSize": "458M",
+            "totalSizeBytes": 480750960
+        }
+    },
+    "files": [
+        {
+            "id": 52172,
+            "filename": "TOYOTA.ZIP",
+            "datePublished": {
+                "year": 1991,
+                "month": 5,
+                "day": 9
+            },
+            "postedDate": "2024-09-28T13:36:51.454172+10:00",
+            "size": {
+                "formatted": "14k",
+                "bytes": 14406
+            },
+            "description": "Carlos Sanz Toyota Challenge released by Skillion + Razor 1911 in 1991.",
+            "tags": {
+                "category": "releaseadvert",
+                "platform": "dos",
+                "description": "an intro for MS Dos"
+            },
+            "urls": {
+                "download": "/d/ab1f158",
+                "html": "/f/ab1f158",
+                "thumbnail": "/public/image/thumb/019236b3-e1fe-72b3-ac0e-a22f6034487c"
+            }
+        }
+    ]
+}</code></pre>
                 </div>
             </div>
 {{- /* 
@@ -304,23 +543,23 @@ fetch('https://defacto2.net/api/platform/ansi')
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><code>GET /api/milestones</code></td>
+                                    <td><code>GET {{$api}}milestones</code></td>
                                     <td>Get all milestones</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/milestones/highlights</code></td>
+                                    <td><code>GET {{$api}}milestones/highlights</code></td>
                                     <td>Get highlighted milestones</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/milestones/year/:year</code></td>
+                                    <td><code>GET {{$api}}milestones/year/:year</code></td>
                                     <td>Get milestones by specific year</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/milestones/years/:range</code></td>
+                                    <td><code>GET {{$api}}milestones/years/:range</code></td>
                                     <td>Get milestones by year range (e.g., 1990-2000)</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/milestones/decade/:decade</code></td>
+                                    <td><code>GET {{$api}}milestones/decade/:decade</code></td>
                                     <td>Get milestones by decade (e.g., 1990)</td>
                                 </tr>
                             </tbody>
@@ -329,19 +568,19 @@ fetch('https://defacto2.net/api/platform/ansi')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl https://defacto2.net/api/milestones
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl {{$baseUrl}}/milestones
 
-curl https://defacto2.net/api/milestones/year/1995
+curl {{$baseUrl}}/milestones/year/1995
 
-curl https://defacto2.net/api/milestones/years/1990-2000</code></pre>
+curl {{$baseUrl}}/milestones/years/1990-2000</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch)</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/milestones')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/milestones')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/milestones/highlights')
+fetch('{{$baseUrl}}/milestones/highlights')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -401,23 +640,23 @@ fetch('https://defacto2.net/api/milestones/highlights')
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><code>GET /api/areacodes</code></td>
+                                    <td><code>GET {{$api}}areacodes</code></td>
                                     <td>Get all North American Numbering Plan area codes</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/areacodes/:code</code></td>
+                                    <td><code>GET {{$api}}areacodes/:code</code></td>
                                     <td>Get details for a specific area code</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/areacodes/territories</code></td>
+                                    <td><code>GET {{$api}}areacodes/territories</code></td>
                                     <td>Get all territories (states, provinces) with their area codes</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/areacodes/territories/:abbr</code></td>
+                                    <td><code>GET {{$api}}areacodes/territories/:abbr</code></td>
                                     <td>Get territory details by two-letter abbreviation</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET /api/areacodes/search/:query</code></td>
+                                    <td><code>GET {{$api}}areacodes/search/:query</code></td>
                                     <td>Search for area codes or territories</td>
                                 </tr>
                             </tbody>
@@ -426,27 +665,27 @@ fetch('https://defacto2.net/api/milestones/highlights')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl https://defacto2.net/api/areacodes
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl {{$baseUrl}}/areacodes
 
-curl https://defacto2.net/api/areacodes/212
+curl {{$baseUrl}}/areacodes/212
 
-curl https://defacto2.net/api/areacodes/territories
+curl {{$baseUrl}}/areacodes/territories
 
-curl https://defacto2.net/api/areacodes/territories/CA
+curl {{$baseUrl}}/areacodes/territories/CA
 
-curl https://defacto2.net/api/areacodes/search/california</code></pre>
+curl {{$baseUrl}}/areacodes/search/california</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/areacodes')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/areacodes')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/areacodes/territories/NY')
+fetch('{{$baseUrl}}/areacodes/territories/NY')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('https://defacto2.net/api/areacodes/search/602')
+fetch('{{$baseUrl}}/areacodes/search/602')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>

@@ -51,6 +51,20 @@ func (r *ReleaserNames) DistinctGroups(ctx context.Context, exec boil.ContextExe
 	return queries.Raw(query).Bind(ctx, exec, r)
 }
 
+// DistinctMagazines gets the unique releaser names that are magazines.
+func (r *ReleaserNames) DistinctMagazines(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	query := string(postgres.MagazinesAlphabetical())
+	return queries.Raw(query).Bind(ctx, exec, r)
+}
+
+// DistinctBBS gets the unique releaser names that are BBS sites.
+func (r *ReleaserNames) DistinctBBS(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	query := string(postgres.BBSsAlphabetical())
+	return queries.Raw(query).Bind(ctx, exec, r)
+}
+
 // Releasers is a collection of releasers.
 type Releasers []*struct {
 	Unique Releaser `boil:",bind"` // Unique releaser.
