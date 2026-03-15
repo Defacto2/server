@@ -25,7 +25,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const APILimit = 1000
+const (
+	APILimit = 1000
+	apiuri   = "/api/v0"
+)
 
 // ArtifactSumAPI represents an artifact file summary for API responses.
 type ArtifactSumAPI struct {
@@ -682,7 +685,7 @@ func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
 				HTML3 string `json:"html3"`
 				HTML  string `json:"html"`
 			}{
-				API:   "/api/releaser/" + name,
+				API:   apiuri + "releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
@@ -811,7 +814,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				HTML3 string `json:"html3"`
 				HTML  string `json:"html"`
 			}{
-				API:   "/api/releaser/" + name,
+				API:   apiuri + "releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
@@ -887,7 +890,7 @@ func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 				HTML3 string `json:"html3,omitempty"`
 				HTML  string `json:"html,omitempty"`
 			}{
-				API:   "/api/files/" + slug,
+				API:   apiuri + "files/" + slug,
 				HTML3: "/html3/" + slug,
 				HTML:  "/files/" + slug,
 			},
