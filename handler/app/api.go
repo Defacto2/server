@@ -14,6 +14,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
+	"github.com/Defacto2/server/handler/app/internal/fileslice"
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/internal/panics"
@@ -23,6 +24,8 @@ import (
 	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
 )
+
+const APILimit = 1000
 
 // ArtifactSumAPI represents an artifact file summary for API responses.
 type ArtifactSumAPI struct {
@@ -107,6 +110,73 @@ type territoryAPI struct {
 	Name         string `json:"name"`
 	Abbreviation string `json:"abbreviation"`
 	AreaCodes    []int  `json:"areaCodes"`
+}
+
+// ArtifactsAPI returns a list of all files ordered by "oldest".
+func ArtifactsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return ArtifactAPIs(c, db, sl, "oldest")
+}
+
+// NewArtifactsAPI returns a list of all files ordered by "new-uploads".
+func NewArtifactsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return ArtifactAPIs(c, db, sl, "new-uploads")
+}
+
+// ArtifactAPIs returns a list of all files filtered by the provided uri string.
+func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error {
+	const msg = "artifacts api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	const limit = APILimit
+	page := 1
+	if s := c.QueryParam("page"); s != "" {
+		var err error
+		page, err = strconv.Atoi(s)
+		if err != nil || page < 1 {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"error": "Invalid page parameter",
+			})
+		}
+	}
+
+	ctx := context.Background()
+	records, err := fileslice.Records(ctx, db, uri, page, limit)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query files",
+		})
+	}
+	count, err := model.Count(ctx, db)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query count",
+		})
+	}
+	files := artifactsSum(records)
+	pages := (count + limit - 1) / limit // Ceiling division
+
+	response := artifactsSumStat{
+		Files: files,
+		Stats: struct {
+			TotalFiles     int64  `json:"totalFiles"`
+			TotalSize      string `json:"totalSize"`
+			TotalSizeBytes int64  `json:"totalSizeBytes"`
+		}{
+			TotalFiles:     count,
+			TotalSize:      "n/a",
+			TotalSizeBytes: 0,
+		},
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"files":      response.Files,
+		"statistics": response.Stats,
+		"page":       page,
+		"totalPages": pages,
+		"limit":      APILimit,
+	})
 }
 
 // APIMarkup removes CSS classes and attributes from HTML for API responses.
@@ -469,10 +539,9 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			"error": "Failed to count releasers",
 		})
 	}
-	const limit = 1000                   // Fixed limit per page
-	pages := (count + limit - 1) / limit // Ceiling division
+	pages := (count + APILimit - 1) / APILimit // Ceiling division
 	rels := model.Releasers{}
-	if err := rels.Limit(ctx, db, model.Alphabetical, limit, page); err != nil {
+	if err := rels.Limit(ctx, db, model.Alphabetical, APILimit, page); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "Failed to query releasers",
 		})

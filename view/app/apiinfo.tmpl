@@ -18,6 +18,8 @@
                     <p class="text-muted">Examples:</p>
                       <ul>
                         <li><a href="/api/categories">https://defacto2.net/api/categories</a></li>
+                        <li><a href="/api/files">https://defacto2.net/api/files</a></li>
+                        <li><a href="/api/files/new">https://defacto2.net/api/files/new</a></li>
                         <li><a href="/api/category/announcements">https://defacto2.net/api/category/announcements</a>
                         <li><a href="/api/magazines">https://defacto2.net/api/magazines</a></li>
                         <li><a href="/api/releaser/defacto2">https://defacto2.net/api/releaser/defacto2</a>
@@ -61,6 +63,12 @@
                                     <td><code>GET /api/categories</code></td>
                                 </tr>
                                 <tr>
+                                    <td><code>/files</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all files (paginated)</td>
+                                    <td><code>GET /api/files?page=1</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/groups</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all releaser groups (paginated)</td>
@@ -89,6 +97,18 @@
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get files from any platform<br><span class="text-secondary">(ansi, audio, dos, windows, etc.)</span></td>
                                     <td><code>GET /api/platform/ansi</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/files</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all files (paginated)</td>
+                                    <td><code>GET /api/files?page=1&limit=20</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/files/new</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get new uploads (recently added files)</td>
+                                    <td><code>GET /api/files/new?page=1&limit=20</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/releaser/:name</code></td>
@@ -202,6 +222,10 @@
                             <h3 class="h6">cURL Examples</h3>
                             <pre class="bg-dark text-white p-3 rounded"><code>curl "https://defacto2.net/api/categories"
 
+curl "https://defacto2.net/api/files"
+
+curl "https://defacto2.net/api/files/new"
+
 curl "https://defacto2.net/api/category/announcements"
 
 curl "https://defacto2.net/api/category/demo"
@@ -217,6 +241,14 @@ curl "https://defacto2.net/api/releaser/razor-1911"</code></pre>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
                             <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/categories')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/files')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/files/new')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -342,6 +374,10 @@ fetch('https://defacto2.net/api/groups')
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><code>GET /api/files</code></td>
+                                    <td>Get all files with pagination (1000 per page)</td>
+                                </tr>
+                                <tr>
                                     <td><code>GET /api/groups</code></td>
                                     <td>Get all releaser groups with pagination (1000 per page)</td>
                                 </tr>
@@ -371,6 +407,8 @@ fetch('https://defacto2.net/api/groups')
 
 curl "https://defacto2.net/api/groups?page=2"
 
+curl "https://defacto2.net/api/files"
+
 curl "https://defacto2.net/api/sites"
 
 curl "https://defacto2.net/api/boards"
@@ -386,6 +424,10 @@ curl "https://defacto2.net/api/releaser/big-apple-bbs"</code></pre>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
                             <pre class="bg-dark text-white p-3 rounded"><code>fetch('https://defacto2.net/api/groups?page=2')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('https://defacto2.net/api/files')
   .then(response => response.json())
   .then(data => console.log(data));
 

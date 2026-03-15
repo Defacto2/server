@@ -1029,6 +1029,84 @@
         }
       }
     },
+    "/api/files": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Get all files",
+        "description": "Returns a paginated list of all files in the database, including comprehensive metadata for each file. Files are ordered by ID for consistent pagination.",
+        "operationId": "getAllFiles",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination (1000 files per page)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "description": "Array of file entries",
+                      "items": {
+                        "$ref": "#/components/schemas/FileRecord"
+                      }
+                    },
+                    "page": {
+                      "type": "integer",
+                      "description": "Current page number",
+                      "example": 1
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "description": "Total number of pages available",
+                      "example": 42
+                    },
+                    "totalFiles": {
+                      "type": "integer",
+                      "description": "Total number of files in the database",
+                      "example": 42000
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/releaser/{name}": {
       "get": {
         "tags": ["files"],
@@ -1151,6 +1229,220 @@
           },
           "404": {
             "description": "Category not found or no files available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/files": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Get all files",
+        "description": "Returns a paginated list of all files in the database, ordered by ID (newest first). Includes comprehensive metadata, statistics, and URL mappings for each file.",
+        "operationId": "getAllFiles",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of files per page (1-100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of all files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "description": "Array of file entries",
+                      "items": {
+                        "$ref": "#/components/schemas/ArtifactSum"
+                      }
+                    },
+                    "statistics": {
+                      "type": "object",
+                      "description": "Overall statistics for all files",
+                      "properties": {
+                        "totalFiles": {
+                          "type": "integer",
+                          "description": "Total number of files in the database",
+                          "example": 10000
+                        }
+                      }
+                    },
+                    "page": {
+                      "type": "integer",
+                      "description": "Current page number",
+                      "example": 1
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "description": "Total number of pages available",
+                      "example": 500
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "description": "Number of files per page",
+                      "example": 20
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page or limit parameter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/files/new": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Get new uploads",
+        "description": "Returns a paginated list of recently added files (new uploads), ordered by ID (newest first). This endpoint provides the same data as /api/files but with semantic meaning for new uploads.",
+        "operationId": "getNewUploads",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of files per page (1-100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of new uploads",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "description": "Array of new file entries",
+                      "items": {
+                        "$ref": "#/components/schemas/ArtifactSum"
+                      }
+                    },
+                    "statistics": {
+                      "type": "object",
+                      "description": "Overall statistics for all files",
+                      "properties": {
+                        "totalFiles": {
+                          "type": "integer",
+                          "description": "Total number of files in the database",
+                          "example": 10000
+                        },
+                        "totalSize": {
+                          "type": "string",
+                          "description": "Total size of all files (human-readable)",
+                          "example": "10 GB"
+                        },
+                        "totalSizeBytes": {
+                          "type": "integer",
+                          "description": "Total size of all files in bytes",
+                          "example": 10737418240
+                        }
+                      }
+                    },
+                    "page": {
+                      "type": "integer",
+                      "description": "Current page number",
+                      "example": 1
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "description": "Total number of pages available",
+                      "example": 500
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "description": "Number of files per page",
+                      "example": 20
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page or limit parameter",
             "content": {
               "application/json": {
                 "schema": {

@@ -222,6 +222,8 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	e.GET("/api/boards", func(c echo.Context) error { return app.BBSAPI(c, db, sl) })
 	e.GET("/api/magazines", func(c echo.Context) error { return app.MagazinesAPI(c, db, sl) })
 	e.GET("/api/releaser/:name", func(c echo.Context) error { return app.ReleaserAPI(c, db, sl) })
+	e.GET("/api/files", func(c echo.Context) error { return app.ArtifactsAPI(c, db, sl) })
+	e.GET("/api/files/new", func(c echo.Context) error { return app.NewArtifactsAPI(c, db, sl) })
 	return e
 }
 
