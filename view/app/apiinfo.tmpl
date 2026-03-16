@@ -27,11 +27,13 @@
                         <li><a href="{{$api}}releaser/defacto2">{{$baseUrl}}/releaser/defacto2</a></li>
                         <li><a href="{{$api}}milestones/year/1971">{{$baseUrl}}/milestones/year/1971</a></li>
                         <li><a href="{{$api}}areacodes/territories/CA">{{$baseUrl}}/areacodes/territories/CA</a></li>
+                        <li><a href="{{$api}}sceners/artist">{{$baseUrl}}/sceners/artist</a></li>
+                        <li><a href="{{$api}}scener/dubmood">{{$baseUrl}}/scener/dubmood</a></li>
                       </ul>
                     </p>
                     <p>No authentication is required for read-only API endpoints.</p>
                     <div class="alert alert-success" role="alert">
-                      15-May-2025, More API features will be rolled out soon and  the <code>/api/v0</code> uri is temporary.
+                      15-May-2025, More API features will be rolled out soon, and the API base uri is temporary: <code>/api/v0</code>
                     </div>
                 </div>
             </div>
@@ -113,34 +115,40 @@
                                     <td><code>GET {{$api}}releaser/razor-1911</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/milestones</code></td>
+                                    <td><code>/sceners</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all milestones</td>
-                                    <td><code>GET {{$api}}milestones</code></td>
+                                    <td>Get all sceners</td>
+                                    <td><code>GET {{$api}}sceners</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/milestones/year/:year</code></td>
+                                    <td><code>/sceners/artist</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get milestones by specific year</td>
-                                    <td><code>GET {{$api}}milestones/year/1995</code></td>
+                                    <td>Get all scener artists</td>
+                                    <td><code>GET {{$api}}sceners/artist</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/milestones/years/:range</code></td>
+                                    <td><code>/sceners/coder</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get milestones by year range</td>
-                                    <td><code>GET {{$api}}milestones/years/1990-2000</code></td>
+                                    <td>Get all scener coders</td>
+                                    <td><code>GET {{$api}}sceners/coder</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/milestones/highlights</code></td>
+                                    <td><code>/sceners/musician</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get only highlighted milestones</td>
-                                    <td><code>GET {{$api}}milestones/highlights</code></td>
+                                    <td>Get all scener musicians</td>
+                                    <td><code>GET {{$api}}sceners/musician</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/milestones/decade/:decade</code></td>
+                                    <td><code>/sceners/writer</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get milestones by decade</td>
-                                    <td><code>GET {{$api}}milestones/decade/1990s</code></td>
+                                    <td>Get all scener writers</td>
+                                    <td><code>GET {{$api}}sceners/writer</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/scener/:name</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get specific scener details</td>
+                                    <td><code>GET {{$api}}scener/dubmood</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/areacodes</code></td>
@@ -171,6 +179,36 @@
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Search area codes and territories</td>
                                     <td><code>GET {{$api}}areacodes/search/california</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all milestones</td>
+                                    <td><code>GET {{$api}}milestones</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/year/:year</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by specific year</td>
+                                    <td><code>GET {{$api}}milestones/year/1995</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/years/:range</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by year range</td>
+                                    <td><code>GET {{$api}}milestones/years/1990-2000</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/highlights</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get only highlighted milestones</td>
+                                    <td><code>GET {{$api}}milestones/highlights</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/decade/:decade</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by decade</td>
+                                    <td><code>GET {{$api}}milestones/decade/1990s</code></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -350,6 +388,151 @@ fetch('{{$baseUrl}}/groups')
         "html": "/files/windows"
     }
 }]</code></pre>
+                </div>
+            </div>
+{{- /*
+  Scener API endpoints table
+*/ -}}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Scener API endpoints</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET {{$api}}sceners</code></td>
+                                    <td>Get all sceners with pagination (1000 per page)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}sceners/artist</code></td>
+                                    <td>Get all artist sceners</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}sceners/coder</code></td>
+                                    <td>Get all coder sceners</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}sceners/musician</code></td>
+                                    <td>Get all musician sceners</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}sceners/writer</code></td>
+                                    <td>Get all writer sceners</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}scener/:name</code></td>
+                                    <td>Get detailed information and files for a specific scener by name</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6">cURL Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/sceners"
+
+curl "{{$baseUrl}}/sceners?page=2"
+
+curl "{{$baseUrl}}/sceners/artist"
+
+curl "{{$baseUrl}}/sceners/coder"
+
+curl "{{$baseUrl}}/sceners/musician"
+
+curl "{{$baseUrl}}/sceners/writer"
+
+curl "{{$baseUrl}}/scener/defacto2"</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6">JavaScript (Fetch) Examples</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/sceners')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/sceners/artist')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/scener/defacto2')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                        </div>
+                    </div>
+                    <h3 class="h6 mt-4">Sceners API Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "sceners": [
+        {
+            "id": "abc123=",
+            "name": "defacto2",
+            "title": "Defacto2",
+            "urls": {
+                "api": "{{$api}}scener/defacto2",
+                "html3": "/html3/scener/defacto2",
+                "html": "/s/defacto2"
+            },
+            "statistics": {
+                "totalFiles": 42,
+                "totalSize": "12M",
+                "totalSizeBytes": 12582912
+            }
+        }
+    ],
+    "page": 1,
+    "totalPages": 1
+}</code></pre>
+                    <h3 class="h6 mt-4">Scener Detail Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "scener": {
+        "id": "abc123=",
+        "name": "defacto2",
+        "title": "Defacto2",
+        "urls": {
+            "api": "{{$api}}scener/defacto2",
+            "html3": "/html3/scener/defacto2",
+            "html": "/s/defacto2"
+        },
+        "statistics": {
+            "totalFiles": 42,
+            "totalSize": "12M",
+            "totalSizeBytes": 12582912
+        }
+    },
+    "files": [
+        {
+            "id": 52172,
+            "filename": "DEMO.ZIP",
+            "datePublished": {
+                "year": 2023,
+                "month": 5,
+                "day": 15
+            },
+            "postedDate": "2023-05-15T10:30:00+10:00",
+            "size": {
+                "formatted": "4k",
+                "bytes": 4096
+            },
+            "description": "Demo released by Defacto2 in 2023.",
+            "tags": {
+                "category": "demo",
+                "platform": "dos",
+                "description": "a demo for MS Dos"
+            },
+            "urls": {
+                "download": "/d/ab1f158",
+                "html": "/f/ab1f158",
+                "thumbnail": "/public/image/thumb/019236b3-e1fe-72b3-ac0e-a22f6034487c"
+            }
+        }
+    ]
+}</code></pre>
                 </div>
             </div>
 {{- /*
