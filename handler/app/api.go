@@ -18,6 +18,7 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -67,20 +68,30 @@ type SceneEntityAPI struct {
 		HTML3 string `json:"html3"`
 		HTML  string `json:"html"`
 	} `json:"urls"`
-	Statistics struct {
-		TotalFiles     int64  `json:"totalFiles"`
-		TotalSize      string `json:"totalSize"`
-		TotalSizeBytes int64  `json:"totalSizeBytes"`
-	} `json:"statistics"`
+	Stats Statistics `json:"statistics"`
+}
+
+// ScenerEntityAPI represents a scener for API responses.
+type ScenerEntityAPI struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Title string `json:"title"`
+	URLs  struct {
+		API  string `json:"api"`
+		HTML string `json:"html"`
+	} `json:"urls"`
+}
+
+// Statistics for total file count, humanized size, and byte sizes.
+type Statistics struct {
+	TotalFiles     int64  `json:"totalFiles,omitempty"`
+	TotalSize      string `json:"totalSize,omitempty"`
+	TotalSizeBytes int64  `json:"totalSizeBytes,omitempty"`
 }
 
 type artifactsSumStat struct {
 	Files []ArtifactSumAPI `json:"files"`
-	Stats struct {
-		TotalFiles     int64  `json:"totalFiles"`
-		TotalSize      string `json:"totalSize"`
-		TotalSizeBytes int64  `json:"totalSizeBytes"`
-	} `json:"statistics"`
+	Stats Statistics       `json:"statistics"`
 }
 
 // areacodeAPI represents an area code for API responses.
@@ -101,11 +112,7 @@ type tagAPI struct {
 		HTML3 string `json:"html3,omitempty"`
 		HTML  string `json:"html,omitempty"`
 	} `json:"urls"`
-	Stats struct {
-		TotalFiles     int64  `json:"totalFiles"`
-		TotalSize      string `json:"totalSize"`
-		TotalSizeBytes int64  `json:"totalSizeBytes"`
-	} `json:"statistics"`
+	Stats Statistics `json:"statistics"`
 }
 
 // territoryAPI represents a territory for API responses.
@@ -162,14 +169,8 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 
 	response := artifactsSumStat{
 		Files: files,
-		Stats: struct {
-			TotalFiles     int64  `json:"totalFiles"`
-			TotalSize      string `json:"totalSize"`
-			TotalSizeBytes int64  `json:"totalSizeBytes"`
-		}{
-			TotalFiles:     count,
-			TotalSize:      "n/a",
-			TotalSizeBytes: 0,
+		Stats: Statistics{
+			TotalFiles: count,
 		},
 	}
 
@@ -689,11 +690,7 @@ func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
-			Statistics: struct {
-				TotalFiles     int64  `json:"totalFiles"`
-				TotalSize      string `json:"totalSize"`
-				TotalSizeBytes int64  `json:"totalSizeBytes"`
-			}{
+			Stats: Statistics{
 				TotalFiles:     int64(count),
 				TotalSize:      helper.ByteCount(int64(bytes)),
 				TotalSizeBytes: int64(bytes),
@@ -818,11 +815,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
-			Statistics: struct {
-				TotalFiles     int64  `json:"totalFiles"`
-				TotalSize      string `json:"totalSize"`
-				TotalSizeBytes int64  `json:"totalSizeBytes"`
-			}{
+			Stats: Statistics{
 				TotalFiles:     sum.SumCount.Int64,
 				TotalSize:      helper.ByteCount(sum.SumBytes.Int64),
 				TotalSizeBytes: sum.SumBytes.Int64,
@@ -830,6 +823,167 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		},
 		"files": artifacts,
 	})
+}
+
+// ScenerAPI returns details for a specific scener.
+func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "scener api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	name := c.Param("name")
+	if name == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Scener name parameter is required",
+		})
+	}
+
+	ctx := context.Background()
+	srs := model.Scener(name)
+	fs, err := srs.Where(ctx, db, name)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error": "Failed to fetch scener",
+		})
+	}
+	if len(fs) == 0 {
+		return c.JSON(http.StatusNotFound, map[string]string{
+			"error": "Scener not found",
+		})
+	}
+
+	sum := model.Summary{ //nolint:exhaustruct // Fields are set by ByReleaser method
+	}
+	if err := sum.ByScener(ctx, db, name); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to get scener statistics",
+		})
+	}
+
+	artifacts := make([]ArtifactSumAPI, 0, len(fs))
+	for _, f := range fs {
+		artifacts = append(artifacts, artifactSum(f))
+	}
+	return c.JSON(http.StatusOK, map[string]any{
+		"scener": SceneEntityAPI{
+			ID:    simple.Hash(name),
+			Name:  name,
+			Title: releaser.Link(name),
+			URLs: struct {
+				API   string `json:"api"`
+				HTML3 string `json:"html3"`
+				HTML  string `json:"html"`
+			}{
+				API:   apiuri + "scener/" + name,
+				HTML3: "",
+				HTML:  "/p/" + name,
+			},
+			Stats: Statistics{
+				TotalFiles:     sum.SumCount.Int64,
+				TotalSize:      helper.ByteCount(sum.SumBytes.Int64),
+				TotalSizeBytes: sum.SumBytes.Int64,
+			},
+		},
+		"files": artifacts,
+	})
+}
+
+// ScenersAPI returns a list of Sceners
+// ScenersAPI builds the ReleaserAPI list from model data.
+func ScenersAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return roleAPI(c, db, sl, postgres.Roles())
+}
+
+func ArtistsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return roleAPI(c, db, sl, postgres.Artist)
+}
+
+func CodersAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return roleAPI(c, db, sl, postgres.Coder)
+}
+
+func MusiciansAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return roleAPI(c, db, sl, postgres.Musician)
+}
+
+func WritersAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return roleAPI(c, db, sl, postgres.Writer)
+}
+
+// roleAPI returns a list of all releasers/groups with pagination.
+func roleAPI(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error {
+	const msg = "sceners api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	ctx := context.Background()
+	srs := model.Sceners{}
+	var err error
+	switch r {
+	case postgres.Writer:
+		err = srs.Writer(ctx, db)
+	case postgres.Artist:
+		err = srs.Artist(ctx, db)
+	case postgres.Musician:
+		err = srs.Musician(ctx, db)
+	case postgres.Coder:
+		err = srs.Coder(ctx, db)
+	case postgres.Roles():
+		err = srs.Distinct(ctx, db)
+	default:
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Sceners role is unknown",
+		})
+	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to fetch sceners",
+		})
+	}
+	if len(srs) == 0 {
+		return c.JSON(http.StatusOK, map[string]any{
+			"sceners":    []ScenerEntityAPI{},
+			"page":       1,
+			"totals":     0,
+			"totalPages": 1,
+		})
+	}
+	results := scenersAPI(srs)
+	return c.JSON(http.StatusOK, map[string]any{
+		"sceners":    results,
+		"page":       1,
+		"totals":     len(results),
+		"totalPages": 1,
+	})
+}
+
+func scenersAPI(srs model.Sceners) []ScenerEntityAPI {
+	sceners := srs.Sort()
+	results := make([]ScenerEntityAPI, 0, len(sceners))
+	for _, s := range sceners {
+		title := helper.Capitalize(strings.ToLower(s)) // scener // releaser.Link(scener.Unique.Name)
+		name := helper.Slug(s)
+		html, _ := LinkScnr(s) // any errors can be ignored as it will leave "HTML" blank
+		// create stable ID from the url using an obfuscated name
+		id := simple.Hash(name)
+
+		result := ScenerEntityAPI{
+			ID:    id,
+			Name:  name,
+			Title: title,
+			URLs: struct {
+				API  string `json:"api"`
+				HTML string `json:"html"`
+			}{
+				API:  apiuri + "/scener/" + name,
+				HTML: html,
+			},
+		}
+		results = append(results, result)
+	}
+	return results
 }
 
 // TagsAPI returns artifact tags.
@@ -876,11 +1030,7 @@ func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 			Name:        slug,
 			Description: infos[tag],
 			Title:       title,
-			Stats: struct {
-				TotalFiles     int64  `json:"totalFiles"`
-				TotalSize      string `json:"totalSize"`
-				TotalSizeBytes int64  `json:"totalSizeBytes"`
-			}{
+			Stats: Statistics{
 				TotalFiles:     count,
 				TotalSize:      helper.ByteCount(byteSum),
 				TotalSizeBytes: byteSum,
@@ -1002,11 +1152,7 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 	files := artifactsSum(records)
 	response := artifactsSumStat{
 		Files: files,
-		Stats: struct {
-			TotalFiles     int64  `json:"totalFiles"`
-			TotalSize      string `json:"totalSize"`
-			TotalSizeBytes int64  `json:"totalSizeBytes"`
-		}{
+		Stats: Statistics{
 			TotalFiles:     count,
 			TotalSize:      helper.ByteCount(byteSum),
 			TotalSizeBytes: byteSum,

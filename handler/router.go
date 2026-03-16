@@ -225,6 +225,12 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	e.GET(api+"/releaser/:name", func(c echo.Context) error { return app.ReleaserAPI(c, db, sl) })
 	e.GET(api+"/files", func(c echo.Context) error { return app.ArtifactsAPI(c, db, sl) })
 	e.GET(api+"/files/new", func(c echo.Context) error { return app.NewArtifactsAPI(c, db, sl) })
+	e.GET(api+"/sceners", func(c echo.Context) error { return app.ScenersAPI(c, db, sl) })
+	e.GET(api+"/sceners/artist", func(c echo.Context) error { return app.ArtistsAPI(c, db, sl) })
+	e.GET(api+"/sceners/coder", func(c echo.Context) error { return app.CodersAPI(c, db, sl) })
+	e.GET(api+"/sceners/musician", func(c echo.Context) error { return app.MusiciansAPI(c, db, sl) })
+	e.GET(api+"/sceners/writer", func(c echo.Context) error { return app.WritersAPI(c, db, sl) })
+	e.GET(api+"/scener/:name", func(c echo.Context) error { return app.ScenerAPI(c, db, sl) })
 	return e
 }
 
