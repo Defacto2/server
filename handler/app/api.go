@@ -1375,7 +1375,9 @@ func WebsitesAPI(c echo.Context) error {
 		}
 	}
 	sort.Slice(result, func(i, j int) bool {
-		return strings.ToLower(result[i].Title) < strings.ToLower(result[j].Title)
+		si := result[i].URL
+		sj := result[j].URL
+		return strings.ToLower(si) < strings.ToLower(sj)
 	})
 	return c.JSON(http.StatusOK, map[string]any{
 		"websites": result,
@@ -1400,8 +1402,15 @@ func DemozooAPI(c echo.Context) error {
 		})
 	}
 	sort.Slice(result, func(i, j int) bool {
-		// alphabetical sorting
-		return strings.ToLower(result[i]["uri"].(string)) < strings.ToLower(result[j]["uri"].(string))
+		si, ok := result[i]["uri"].(string)
+		if !ok {
+			return false
+		}
+		sj, ok := result[j]["uri"].(string)
+		if !ok {
+			return false
+		}
+		return strings.ToLower(si) < strings.ToLower(sj)
 	})
 
 	return c.JSON(http.StatusOK, map[string]any{
