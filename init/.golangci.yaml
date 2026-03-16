@@ -80,6 +80,7 @@ linters:
           - lll
           - misspell
           - mnd
+          - tagliatelle
           - wrapcheck
         path: _test\.go$
       # BELOW EXCLUSIONS ARE ALL REQUIRED

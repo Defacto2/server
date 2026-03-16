@@ -12,7 +12,7 @@ import (
 )
 
 // TestAllAPIEndpoints tests all API endpoints from apiinfo.tmpl.
-func TestAllAPIEndpoints(t *testing.T) {
+func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 	endpoints := []struct {
 		name        string
 		path        string
@@ -36,28 +36,22 @@ func TestAllAPIEndpoints(t *testing.T) {
 		{"areacodes/territories", "/areacodes/territories", true, true},
 		{"milestones", "/milestones", true, true},
 		{"milestones/highlights", "/milestones/highlights", true, true},
-
 		// Category endpoints
 		{"category/announcements", "/category/announcements", true, false},
 		{"category/demo", "/category/demo", true, false},
-
 		// Platform endpoints
 		{"platform/ansi", "/platform/ansi", true, false},
 		{"platform/dos", "/platform/dos", true, false},
-
 		// File endpoints
 		{"files", "/files", true, false},
 		{"files/new", "/files/new", true, false},
-
 		// Specific releaser endpoints
 		{"releaser/defacto2", "/releaser/defacto2", true, false},
 		{"releaser/razor-1911", "/releaser/razor-1911", true, false},
-
 		// Area code specific endpoints
 		{"areacodes/212", "/areacodes/212", false, false},
 		{"areacodes/territories/CA", "/areacodes/territories/CA", false, false},
 		{"areacodes/search/california", "/areacodes/search/california", true, false},
-
 		// Milestone specific endpoints
 		{"milestones/year/1995", "/milestones/year/1995", true, true},
 		{"milestones/years/1990-2000", "/milestones/years/1990-2000", true, true},
@@ -453,7 +447,6 @@ func TestAPIResponseValidation(t *testing.T) {
 		}()
 
 		be.Equal(t, http.StatusOK, resp.StatusCode)
-		//nolint:tagliatelle
 
 		var result []struct {
 			Title     string `json:"Title"`
