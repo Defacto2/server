@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/areacode"
+	"github.com/Defacto2/server/handler/site"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -24,7 +26,6 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
-	"sort"
 )
 
 const (
@@ -69,7 +70,8 @@ type SceneEntityAPI struct {
 		HTML3 string `json:"html3"`
 		HTML  string `json:"html"`
 	} `json:"urls"`
-	Stats Statistics `json:"statistics"`
+	Stats    Statistics `json:"statistics"`
+	Websites any        `json:"websites,omitempty"`
 }
 
 // ScenerEntityAPI represents a scener for API responses.
@@ -698,6 +700,7 @@ func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
 				TotalSize:      helper.ByteCount(int64(bytes)),
 				TotalSizeBytes: int64(bytes),
 			},
+			Websites: site.Find(name), // Add websites for each releaser
 		}
 		results = append(results, result)
 	}
@@ -804,6 +807,28 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	for _, f := range fs {
 		artifacts = append(artifacts, artifactSum(f))
 	}
+
+	// Get websites associated with this releaser
+	websites := site.Find(name)
+
+	// Convert websites to API format
+	var websiteList []struct {
+		URL     string `json:"url"`
+		Name    string `json:"name"`
+		Working bool   `json:"working"`
+	}
+	for _, website := range websites {
+		websiteList = append(websiteList, struct {
+			URL     string `json:"url"`
+			Name    string `json:"name"`
+			Working bool   `json:"working"`
+		}{
+			URL:     website.URL,
+			Name:    website.Name,
+			Working: !website.NotWorking,
+		})
+	}
+
 	return c.JSON(http.StatusOK, map[string]any{
 		"group": SceneEntityAPI{
 			ID:    simple.Hash(name),
@@ -823,6 +848,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				TotalSize:      helper.ByteCount(sum.SumBytes.Int64),
 				TotalSizeBytes: sum.SumBytes.Int64,
 			},
+			Websites: websiteList,
 		},
 		"files": artifacts,
 	})
@@ -887,6 +913,7 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				TotalSize:      helper.ByteCount(sum.SumBytes.Int64),
 				TotalSizeBytes: sum.SumBytes.Int64,
 			},
+			Websites: nil, // Sceners don't have associated websites in the site package
 		},
 		"files": artifacts,
 	})

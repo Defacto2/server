@@ -2359,6 +2359,11 @@
             "type": "string",
             "description": "The category this website belongs to",
             "example": "Text art scene"
+          },
+          "working": {
+            "type": "boolean",
+            "description": "Whether the website is currently accessible",
+            "example": true
           }
         }
       }
