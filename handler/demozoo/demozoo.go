@@ -589,6 +589,11 @@ func Find(uri string) GroupID {
 	return 0
 }
 
+// FindAll returns all groups with their Demozoo IDs.
+func FindAll() Groups {
+	return groups
+}
+
 const (
 	cpc   = "corporation-for-public-cybercasting-2001"
 	nappa = "north-american-pirate_phreak-association"

@@ -47,6 +47,10 @@
     {
       "name": "websites",
       "description": "Operations related to curated websites about the Scene and digital culture"
+    },
+    {
+      "name": "demozoo",
+      "description": "Operations related to Demozoo group mappings and cross-references"
     }
   ],
   "paths": {
@@ -1694,6 +1698,49 @@
           }
         }
       }
+    },
+    "/api/v0/demozoo": {
+      "get": {
+        "tags": ["demozoo"],
+        "summary": "Get all Demozoo group mappings",
+        "description": "Returns a complete list of all groups that have Demozoo entries with their URIs, IDs, and direct URLs to their Demozoo group pages. This endpoint is useful for cross-referencing Defacto2 groups with Demozoo entries.",
+        "operationId": "getDemozooGroups",
+        "responses": {
+          "200": {
+            "description": "A list of groups with Demozoo mappings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "groups": {
+                      "type": "array",
+                      "description": "Array of group mappings",
+                      "items": {
+                        "$ref": "#/components/schemas/DemozooGroup"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "description": "Total number of groups with Demozoo entries"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2100,6 +2147,37 @@
                 "example": 480750960
               }
             }
+          },
+          "websites": {
+            "type": "array",
+            "description": "List of websites associated with this group",
+            "items": {
+              "$ref": "#/components/schemas/Website"
+            }
+          },
+          "sixteen": {
+            "type": "string",
+            "description": "16colors group URL if available",
+            "example": "https://16colo.rs/tags/content/razor 1911",
+            "nullable": true
+          },
+          "janeway": {
+            "type": "string",
+            "description": "Janeway author URL if available",
+            "example": "https://janeway.exotica.org.uk/author.php?id=252",
+            "nullable": true
+          },
+          "demozoo": {
+            "type": "string",
+            "description": "Demozoo group URL if available",
+            "example": "https://demozoo.org/groups/123",
+            "nullable": true
+          },
+          "csdb": {
+            "type": "string",
+            "description": "CSDB group URL if available",
+            "example": "https://csdb.dk/group/?id=456",
+            "nullable": true
           }
         }
       },
@@ -2364,6 +2442,26 @@
             "type": "boolean",
             "description": "Whether the website is currently accessible",
             "example": true
+          }
+        }
+      },
+      "DemozooGroup": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string",
+            "description": "The URI slug of the group used in Defacto2",
+            "example": "fairlight"
+          },
+          "id": {
+            "type": "integer",
+            "description": "The Demozoo group ID",
+            "example": 239
+          },
+          "url": {
+            "type": "string",
+            "description": "Direct URL to the Demozoo group page",
+            "example": "https://demozoo.org/groups/239/"
           }
         }
       }

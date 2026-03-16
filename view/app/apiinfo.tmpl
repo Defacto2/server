@@ -30,6 +30,7 @@
                         <li><a href="{{$api}}sceners/artist">{{$baseUrl}}/sceners/artist</a></li>
                         <li><a href="{{$api}}scener/dubmood">{{$baseUrl}}/scener/dubmood</a></li>
                         <li><a href="{{$api}}websites">{{$baseUrl}}/websites</a></li>
+                        <li><a href="{{$api}}demozoo">{{$baseUrl}}/demozoo</a></li>
                       </ul>
                     </p>
                     <p>No authentication is required for read-only API endpoints.</p>
@@ -72,6 +73,12 @@
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all curated websites <span class="text-secondary">(alphabetical)</span></td>
                                     <td><code>GET {{$api}}websites</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/demozoo</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all Demozoo group mappings</td>
+                                    <td><code>GET {{$api}}demozoo</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/groups</code></td>
@@ -277,6 +284,8 @@ curl "{{$baseUrl}}/platform/ansi"
 
 curl "{{$baseUrl}}/groups"
 
+curl "{{$baseUrl}}/demozoo"
+
 curl "{{$baseUrl}}/releaser/razor-1911"</code></pre>
                         </div>
                         <div class="col-md-6">
@@ -310,6 +319,10 @@ fetch('{{$baseUrl}}/platform/ansi')
   .then(data => console.log(data));
 
 fetch('{{$baseUrl}}/groups')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}/demozoo')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -784,6 +797,65 @@ fetch('{{$baseUrl}}/releaser/big-apple-bbs')
         }
     ],
     "count": 68
+}</code></pre>
+                </div>
+            </div>
+{{- /*
+  Demozoo API endpoints table
+*/ -}}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Demozoo API endpoints</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GET {{$api}}demozoo</code></td>
+                                    <td>Get all groups with Demozoo mappings (URI, ID, and URL)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6">cURL Example</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/demozoo"</code></pre>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6">JavaScript (Fetch) Example</h3>
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/demozoo')
+  .then(response => response.json())
+  .then(data => console.log(data));</code></pre>
+                        </div>
+                    </div>
+                    <h3 class="h6 mt-4">Demozoo API Response</h3>
+                    <pre class="bg-dark text-white p-3 rounded"><code>{
+    "groups": [
+        {
+            "uri": "fairlight",
+            "id": 239,
+            "url": "https://demozoo.org/groups/239/"
+        },
+        {
+            "uri": "razor-1911",
+            "id": 519,
+            "url": "https://demozoo.org/groups/519/"
+        },
+        {
+            "uri": "triad",
+            "id": 131111,
+            "url": "https://demozoo.org/groups/131111/"
+        }
+    ],
+    "count": 529
 }</code></pre>
                 </div>
             </div>

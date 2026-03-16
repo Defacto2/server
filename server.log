@@ -1,0 +1,46 @@
+[2m16:56[0m [92mINF[0m Logs, directory path [2mD2_DIR_LOG=[0m"" [2mHelp=[0m"No logs will be saved"
+[2m16:56[0m [92mINF[0m Downloads, directory path [2mD2_DIR_DOWNLOAD=[0m"" [2mHelp=[0m"No downloads will be served"
+[2m16:56[0m [92mINF[0m Previews, directory path [2mD2_DIR_PREVIEW=[0m"" [2mHelp=[0m"No preview images will be shown"
+[2m16:56[0m [92mINF[0m Thumbnails, directory path [2mD2_DIR_THUMBNAIL=[0m"" [2mHelp=[0m"No thumbnails will be shown"
+[2m16:56[0m [92mINF[0m Extras, directory path [2mD2_DIR_EXTRA=[0m"" [2mHelp=[0m"No textfiles will be shown"
+[2m16:56[0m [92mINF[0m Orphaned, directory path [2mD2_DIR_ORPHANED=[0m"" [2mHelp=[0m"Artifact backups are not possible"
+[2m16:56[0m [92mINF[0m Database connection, URL [2mD2_DATABASE_URL=[0mpostgres://root:xxxxx@localhost:5432/defacto2_ps
+[2m16:56[0m [92mINF[0m Session encryption key [2mD2_SESSION_KEY=[0m"" [2mHelp=[0m"A random key will be generated during the server startup"
+[2m16:56[0m [92mINF[0m Google OAuth2 client ID [2mD2_GOOGLE_CLIENT_ID=[0mEmpty [2mHelp=[0m"No accounts for web administration"
+[2m16:56[0m [92mINF[0m Google Accounts, one sign-in account [2mD2_GOOGLE_IDS=[0mxxxxx [2mHelp=[0m"Google account(s) in use for the web administration"
+[2m16:56[0m [92mINF[0m Match hostname, domain or IP address [2mD2_MATCH_HOST=[0m"" [2mHelp=[0m"No host address restrictions"
+[2m16:56[0m [92mINF[0m TLS certificate, file path [2mD2_TLS_CERT=[0m"" [2mHelp=[0m"No TLS certificate is in use"
+[2m16:56[0m [92mINF[0m TLS key, file path [2mD2_TLS_KEY=[0m"" [2mHelp=[0m"No TLS key is in use"
+[2m16:56[0m [92mINF[0m HTTP Port [2mD2_HTTP_PORT=[0m1323 [2mHelp=[0m"The web server is using HTTP, example: http://localhost:1323"
+[2m16:56[0m [92mINF[0m Maximum CPU processes are not set [2mD2_MAX_PROCS=[0m0 [2mHelp=[0m"The application will use all available CPU threads"
+[2m16:56[0m [92mINF[0m Maximum age of a session for the web administration, 3 hours [2mD2_SESSION_MAX_AGE=[0m3
+[2m16:56[0m [92mINF[0m TLS Port [2mD2_TLS_PORT=[0m0 [2mHelp=[0m"The web server is not using HTTPS"
+[2m16:56[0m [92mINF[0m Quiet mode is off [2mD2_QUIET=[0mFALSE
+[2m16:56[0m [92mINF[0m Gzip compression is on [2mD2_COMPRESSION=[0mTRUE
+[2m16:56[0m [92mINF[0m Production mode is on [2mD2_PROD_MODE=[0mTRUE
+[2m16:56[0m [92mINF[0m Read-only mode is on [2mD2_READ_ONLY=[0mTRUE
+[2m16:56[0m [92mINF[0m Disallow search engine crawling is off [2mD2_NO_CRAWL=[0mFALSE
+[2m16:56[0m [92mINF[0m Log all HTTP requests is off [2mD2_LOG_ALL=[0mFALSE
+[2m16:56:18[0m [92mINF[0m [2mfixer.go:260[0m Temporary directory [2mPath=[0m/tmp/defacto2-server [2mUsage=[0m"10 kB"
+
+[2m16:56:18[0m [92mINF[0m [2mserver.go:279[0m Welcome to the Defacto2 web application [2mArtifacts=[0m53045
+
+      ·      ▒██▀ ▀       ▒██▀ ▀              ▀ ▀▒██             ▀ ▀███ ·
+      : ▒██▀ ▓██ ▒██▀▀██▓ ▓██▀▀▒██▀▀███ ▒██▀▀██▓ ▓██▀ ▒██▀▀███ ▒██▀▀▀▀▀ :
+ · ··─┼─▓██──███─▓██─▄███─███──▓██──███─▓██──────███──▓██──███─▓██──███─┼─·· ·
+      │ ███▄▄██▓ ███▄▄▄▄▄▄██▓  ███▄ ███▄███▄▄███ ███▄▄███▄ ███▄███▄▄███ │
+· ··──┼─────────··                defacto2.net               ··─────────┼──·· ·
+      │                                                                 :
+
+  © 2023-26 Defacto2 & Ben Garrett.
+  defacto2-server version v1.10.5-0.20260316030431-3881275382ab+dirty-rev-3881275-dirty.
+  2 active routines sharing 8 usable threads on 8 CPU cores.
+  Compiled on Go 1.26.1 for Linux with Intel/AMD 64.
+  Disk (/) 143G / 464G (31%).
+
+[2m16:56:21[0m [93mWRN[0m [2mhandler.go:230[0m HTTP server startup failed [2;91mERROR=[22m"listen tcp :1323: bind: address already in use"[0m
+[2m16:56[0m [92mINF[0m defacto2 startup [2mpermissions=[0m"Server running as the following user and groups" [2mUser=[0mben [2mGroups=[0m"Ben Garrett"
+[2m16:56[0m [92mINF[0m urls [2mabout=[0m"Depending on the firewall and operating system setup, the defacto2 web server maybe accessible from these links"
+[2m16:56[0m [92mINF[0m urls [2mlink=[0mhttp://nuc:1323
+[2m16:56[0m [92mINF[0m urls [2mlink=[0mhttp://localhost:1323
+[2m16:56[0m [92mINF[0m urls [2mlink=[0mhttp://192.168.1.199:1323

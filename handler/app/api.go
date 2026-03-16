@@ -18,6 +18,10 @@ import (
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/areacode"
+	"github.com/Defacto2/server/handler/csdb"
+	"github.com/Defacto2/server/handler/demozoo"
+	"github.com/Defacto2/server/handler/janeway"
+	"github.com/Defacto2/server/handler/sixteen"
 	"github.com/Defacto2/server/handler/site"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
@@ -70,8 +74,12 @@ type SceneEntityAPI struct {
 		HTML3 string `json:"html3"`
 		HTML  string `json:"html"`
 	} `json:"urls"`
-	Stats    Statistics `json:"statistics"`
-	Websites any        `json:"websites,omitempty"`
+	Stats      Statistics `json:"statistics"`
+	Websites   any        `json:"websites,omitempty"`
+	Sixteen    string     `json:"sixteen,omitempty"`
+	Janeway    string     `json:"janeway,omitempty"`
+	Demozoo    string     `json:"demozoo,omitempty"`
+	Csdb       string     `json:"csdb,omitempty"`
 }
 
 // ScenerEntityAPI represents a scener for API responses.
@@ -701,6 +709,10 @@ func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
 				TotalSizeBytes: int64(bytes),
 			},
 			Websites: site.Find(name), // Add websites for each releaser
+			Sixteen:  func() string { if tag := sixteen.Find(name); tag != "" { return "https://16colo.rs/" + string(tag) }; return "" }(),
+			Janeway:  func() string { if id := janeway.Find(name); id != 0 { return "https://janeway.exotica.org.uk/author.php?id=" + strconv.Itoa(int(id)) }; return "" }(),
+			Csdb:     func() string { if id := csdb.Find(name); id != 0 { return "https://csdb.dk/group/?id=" + strconv.Itoa(int(id)) }; return "" }(),
+			Demozoo:  func() string { if id := demozoo.Find(name); id != 0 { return "https://demozoo.org/groups/" + strconv.Itoa(int(id)) }; return "" }(),
 		}
 		results = append(results, result)
 	}
@@ -849,6 +861,10 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				TotalSizeBytes: sum.SumBytes.Int64,
 			},
 			Websites: websiteList,
+			Sixteen:  func() string { if tag := sixteen.Find(name); tag != "" { return "https://16colo.rs/" + string(tag) }; return "" }(),
+			Janeway:  func() string { if id := janeway.Find(name); id != 0 { return "https://janeway.exotica.org.uk/author.php?id=" + strconv.Itoa(int(id)) }; return "" }(),
+			Demozoo:  func() string { if id := demozoo.Find(name); id != 0 { return "https://demozoo.org/groups/" + strconv.Itoa(int(id)) }; return "" }(),
+			Csdb:     func() string { if id := csdb.Find(name); id != 0 { return "https://csdb.dk/group/?id=" + strconv.Itoa(int(id)) }; return "" }(),
 		},
 		"files": artifacts,
 	})
@@ -1353,6 +1369,36 @@ func WebsitesAPI(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{
 		"websites": result,
 		"count":    len(result),
+	})
+}
+
+// DemozooAPI returns a list of all groups with their Demozoo IDs.
+func DemozooAPI(c echo.Context) error {
+	groups := demozoo.FindAll()
+	if len(groups) == 0 {
+		return c.JSON(http.StatusOK, map[string]any{
+			"groups": []map[string]any{},
+		})
+	}
+
+	// Convert to API format
+	result := make([]map[string]any, 0, len(groups))
+	for uri, id := range groups {
+		result = append(result, map[string]any{
+			"uri":  string(uri),
+			"id":   int(id),
+			"url":  fmt.Sprintf("https://demozoo.org/groups/%d/", id),
+		})
+	}
+
+	// Sort by group name
+	sort.Slice(result, func(i, j int) bool {
+		return strings.ToLower(result[i]["uri"].(string)) < strings.ToLower(result[j]["uri"].(string))
+	})
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"groups": result,
+		"count":  len(result),
 	})
 }
 
