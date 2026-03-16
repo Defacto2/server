@@ -19,7 +19,7 @@ import (
 
 const (
 	contentTypeJSON = "application/json"
-	dataSourceName  = "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable"
+	dataSourceName  = "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable" //nolint:gosec
 	driverName      = "pgx"
 )
 
