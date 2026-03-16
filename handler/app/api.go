@@ -24,6 +24,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/labstack/echo/v4"
+	"sort"
 )
 
 const (
@@ -1289,4 +1290,49 @@ func TerritoryAPI(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, result)
+}
+
+// WebsitesAPI returns all websites from the website page.
+func WebsitesAPI(c echo.Context) error {
+	// No database or logging needed for this static data
+
+	// Get all websites from the accordion
+	accordion := List()
+
+	if len(accordion) == 0 {
+		return c.JSON(http.StatusOK, map[string]any{
+			"websites": []WebsiteAPI{},
+		})
+	}
+
+	// Convert to API format with all websites together
+	var result []WebsiteAPI
+	for _, category := range accordion {
+		for _, site := range category.Sites {
+			result = append(result, WebsiteAPI{
+				Title:    site.Title,
+				URL:      site.URL,
+				Info:     site.Info,
+				Category: category.Name,
+			})
+		}
+	}
+
+	// Sort websites alphabetically by title
+	sort.Slice(result, func(i, j int) bool {
+		return strings.ToLower(result[i].Title) < strings.ToLower(result[j].Title)
+	})
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"websites": result,
+		"count":    len(result),
+	})
+}
+
+// WebsiteAPI represents a website for API responses.
+type WebsiteAPI struct {
+	Title    string `json:"title"`
+	URL      string `json:"url"`
+	Info     string `json:"info"`
+	Category string `json:"category"`
 }

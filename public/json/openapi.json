@@ -43,6 +43,10 @@
     {
       "name": "sceners",
       "description": "Operations related to sceners (people involved in the scene - artists, coders, musicians, writers)"
+    },
+    {
+      "name": "websites",
+      "description": "Operations related to curated websites about the Scene and digital culture"
     }
   ],
   "paths": {
@@ -1647,6 +1651,48 @@
             }
           }
         }
+      },
+      "/api/v0/websites": {
+        "get": {
+          "tags": ["websites"],
+          "summary": "Get all curated websites",
+          "description": "Returns a complete alphabetical list of all curated websites about the Scene and digital culture, including text art, BBS, pirate scene, demoscene, YouTube videos, podcasts, books, documentaries, and AMAs.",
+          "operationId": "getAllWebsites",
+          "responses": {
+            "200": {
+              "description": "A list of websites",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "websites": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Website"
+                        }
+                      },
+                      "count": {
+                        "type": "integer",
+                        "description": "Total number of websites"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -2288,6 +2334,31 @@
                 "example": 12582912
               }
             }
+          }
+        }
+      },
+      "Website": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the website",
+            "example": "16colors"
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL of the website",
+            "example": "https://16colo.rs/"
+          },
+          "info": {
+            "type": "string",
+            "description": "Description or additional information about the website",
+            "example": "You're looking at retro computer graphics gallery. We make ANSI/ASCII art available for web display."
+          },
+          "category": {
+            "type": "string",
+            "description": "The category this website belongs to",
+            "example": "Text art scene"
           }
         }
       }
