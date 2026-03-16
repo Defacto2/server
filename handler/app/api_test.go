@@ -17,7 +17,11 @@ import (
 	"github.com/nalgeon/be"
 )
 
-const contentTypeJSON = "application/json"
+const (
+	contentTypeJSON = "application/json"
+	dataSourceName  = "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable"
+	driverName      = "pgx"
+)
 
 func BenchmarkApiMarkup(b *testing.B) {
 	html := `<div class="content">
@@ -35,12 +39,12 @@ func BenchmarkApiMarkup(b *testing.B) {
 // BenchmarkCategoriesAPIWithRealStats benchmarks the CategoriesAPI with realistic stats calculation.
 func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/categories", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, api+"/categories", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
 	// Create database connection using default credentials
-	db, err := sql.Open("pgx", "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable")
+	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
 		b.Logf("Could not create database connection: %v", err)
 		b.Skipf("Could not create database connection: %v", err)
@@ -64,12 +68,12 @@ func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 // BenchmarkPlatformsAPIWithRealStats benchmarks the PlatformsAPI with realistic stats calculation.
 func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/platforms", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
 	// Create database connection using default credentials
-	db, err := sql.Open("pgx", "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable")
+	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
 		b.Logf("Could not create database connection: %v", err)
 		b.Skipf("Could not create database connection: %v", err)
@@ -180,9 +184,8 @@ func TestApiMarkup(t *testing.T) {
 
 func TestGetAllAreacodes(t *testing.T) {
 	t.Parallel()
-	const target = "/api/areacodes"
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, target, nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	err := app.AreacodesAPI(c)
@@ -231,7 +234,7 @@ func TestGetAreacodeByCode(t *testing.T) {
 			t.Parallel()
 			// Setup
 			e := echo.New()
-			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes/"+tt.code, nil)
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("code")
@@ -253,7 +256,7 @@ func TestGetTerritories(t *testing.T) {
 	t.Parallel()
 	// Setup
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes/territories", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -304,7 +307,7 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 			t.Parallel()
 			// Setup
 			e := echo.New()
-			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes/territories/"+tt.abbr, nil)
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("abbr")
@@ -366,7 +369,7 @@ func TestSearchAreacodes(t *testing.T) {
 			t.Parallel()
 			// Setup
 			e := echo.New()
-			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/areacodes/search/"+tt.query, nil)
+			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("query")

@@ -170,7 +170,9 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 	response := artifactsSumStat{
 		Files: files,
 		Stats: Statistics{
-			TotalFiles: count,
+			TotalFiles:     count,
+			TotalSize:      "",
+			TotalSizeBytes: 0,
 		},
 	}
 
@@ -875,7 +877,7 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				HTML3 string `json:"html3"`
 				HTML  string `json:"html"`
 			}{
-				API:   apiuri + "scener/" + name,
+				API:   apiuri + "/scener/" + name,
 				HTML3: "",
 				HTML:  "/p/" + name,
 			},
@@ -1040,7 +1042,7 @@ func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 				HTML3 string `json:"html3,omitempty"`
 				HTML  string `json:"html,omitempty"`
 			}{
-				API:   apiuri + "files/" + slug,
+				API:   apiuri + "/files/" + slug,
 				HTML3: "/html3/" + slug,
 				HTML:  "/files/" + slug,
 			},
