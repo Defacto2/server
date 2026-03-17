@@ -22,9 +22,9 @@
                         <li><a href="{{$api}}files">{{$baseUrl}}/files</a></li>
                         <li><a href="{{$api}}files/new">{{$baseUrl}}/files/new</a></li>
                         <li><a href="{{$api}}categories">{{$baseUrl}}/categories</a></li>
-                        <li><a href="{{$api}}category/announcements">{{$baseUrl}}/category/announcements</a></li>
+                        <li><a href="{{$api}}category/releaseadvert">{{$baseUrl}}/category/releaseadvert</a></li>
                         <li><a href="{{$api}}magazines">{{$baseUrl}}/magazines</a></li>
-                        <li><a href="{{$api}}releaser/defacto2">{{$baseUrl}}/releaser/defacto2</a></li>
+                        <li><a href="{{$api}}releaser/razor-1911">{{$baseUrl}}/releaser/razor-1911</a></li>
                         <li><a href="{{$api}}milestones/year/1971">{{$baseUrl}}/milestones/year/1971</a></li>
                         <li><a href="{{$api}}areacodes/territories/CA">{{$baseUrl}}/areacodes/territories/CA</a></li>
                         <li><a href="{{$api}}sceners/artist">{{$baseUrl}}/sceners/artist</a></li>
@@ -229,6 +229,110 @@
                     </div>
                 </div>
             </div>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Field Explanations</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-4">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>id</code></td>
+                                    <td>number/string</td>
+                                    <td>Unique identifier for resources. Files use numeric IDs while sceners and groups use hash-based stable identifiers derived from their names to ensure consistency across API versions.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>datePublished</code></td>
+                                    <td>object</td>
+                                    <td>Contains the original release date components (year, month, day) when available. Represents the historical date the artifact was created or published in the scene, not when it was added to Defacto2.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>postedDate</code></td>
+                                    <td>string</td>
+                                    <td>ISO 8601 formatted timestamp indicating when the file was added to the Defacto2 database.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>size.formatted</code></td>
+                                    <td>string</td>
+                                    <td>Human-readable representation of file size using standard units (bytes, KB, MB, GB).</td>
+                                </tr>
+                                <tr>
+                                    <td><code>size.bytes</code></td>
+                                    <td>number</td>
+                                    <td>Exact file size in bytes for programmatic use. Intended for calculations, comparisons, etc.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>urls.download</code></td>
+                                    <td>string</td>
+                                    <td>Direct download link for the file artifact. Uses obfuscated ID format as a permanent URL.<br>For example, /d/[hash] results to 
+                                    <a href="/d/ab3cee">https://defacto2.net/d/ab3cee</a></td>
+                                </tr>
+                                <tr>
+                                    <td><code>urls.html</code></td>
+                                    <td>string</td>
+                                    <td>Web page URL showing detailed information about the artifact with preview capabilities.<br>
+                                    Uses obfuscated ID format as a permanent URL. For example, /f/[hash] results to 
+                                    <a href="/f/ab3cee">https://defacto2.net/f/ab3cee</a></td>
+                                </tr>
+                                <tr>
+                                    <td><code>urls.thumbnail</code></td>
+                                    <td>string</td>
+                                    <td>URL to a thumbnail image preview when available. 
+                                        The result is a partial URL that needs a file extension.
+                                        Some artifacts have no thumbnails, 
+                                        but generally thumbnails use a <code>.png</code> extension. 
+                                        However, if the request returns a <small>404&nbsp;NOT&nbsp;FOUND</small>, a <code>.webp</code> maybe required.
+                                        <br>Example, <a href="/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp">https://defacto2.net/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>tags.category</code></td>
+                                    <td>string</td>
+                                    <td>Classification of the artifact type using Defacto2's tagging system.<br>All categories are found in <a href="{{$api}}categories">http://defacto2.net{{$api}}categories</a></td>
+                                </tr>
+                                <tr>
+                                    <td><code>tags.platform</code></td>
+                                    <td>string</td>
+                                    <td>Technical platform or format of the artifact indicating the original system or format type.<br>All platforms are found in <a href="{{$api}}platforms">http://defacto2.net{{$api}}platforms</a></td>
+                                </tr>
+                                <tr>
+                                    <td><code>tags.description</code></td>
+                                    <td>string</td>
+                                    <td>Human-readable combination of category and platform that describes what the artifact is and its format in natural language.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>description</code></td>
+                                    <td>string</td>
+                                    <td>Detailed description of the specific artifact, typically following the pattern "[Title] released by [Group] in [Year]". This field provides historical context about the original release, including the releasing group and year. Examples: "Time To Say Goodbye released by Audiofile in 2023" or "Space Quest unprotect independently released in 1987".</td>
+                                </tr>
+                                <tr>
+                                    <td><code>statistics.totalFiles</code></td>
+                                    <td>number</td>
+                                    <td>Total count of all files associated with a scener, group, or category.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>statistics.totalSize</code></td>
+                                    <td>string</td>
+                                    <td>Human-readable representation of the combined size of all files associated with the entity.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>statistics.totalSizeBytes</code></td>
+                                    <td>number</td>
+                                    <td>Exact total size in bytes of all files associated with athe entity.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 {{- /* 
   Tag API endpoints table 
 */ -}}
@@ -274,7 +378,7 @@ curl "{{$baseUrl}}/files?page=1"
 
 curl "{{$baseUrl}}/files/new?page=1"
 
-curl "{{$baseUrl}}/category/announcements"
+curl "{{$baseUrl}}/category/releaseadvert"
 
 curl "{{$baseUrl}}/category/demo"
 
@@ -302,7 +406,7 @@ fetch('{{$baseUrl}}/files/new?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/category/announcements')
+fetch('{{$baseUrl}}/category/releaseadvert')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -362,13 +466,13 @@ fetch('{{$baseUrl}}/demozoo')
                     <pre class="bg-dark text-white p-3 rounded"><code>[
     {
         "id": 1,
-        "name": "announcement",
-        "title": "announcement",
-        "description": "public announcements by Scene groups and organizations",
+        "name": "releaseadvert",
+        "title": "release advert",
+        "description": "advertisements and announcements for Scene group releases",
         "urls": {
-            "api": "{{$api}}category/announcements",
-            "html3": "/html3/announcements",
-            "html": "/files/announcement"
+            "api": "{{$api}}category/releaseadvert",
+            "html3": "/html3/releaseadvert",
+            "html": "/files/releaseadvert"
         }
     },
     {
@@ -469,7 +573,7 @@ curl "{{$baseUrl}}/sceners/musician"
 
 curl "{{$baseUrl}}/sceners/writer"
 
-curl "{{$baseUrl}}/scener/defacto2"</code></pre>
+curl "{{$baseUrl}}/scener/jed"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
@@ -481,7 +585,7 @@ fetch('{{$baseUrl}}/sceners/artist')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/scener/defacto2')
+fetch('{{$baseUrl}}/scener/jed')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -491,12 +595,12 @@ fetch('{{$baseUrl}}/scener/defacto2')
     "sceners": [
         {
             "id": "abc123=",
-            "name": "defacto2",
-            "title": "Defacto2",
+            "name": "jed",
+            "title": "Jed",
             "urls": {
-                "api": "{{$api}}scener/defacto2",
-                "html3": "/html3/scener/defacto2",
-                "html": "/s/defacto2"
+                "api": "{{$api}}scener/jed",
+                "html3": "/html3/scener/jed",
+                "html": "/p/jed"
             },
             "statistics": {
                 "totalFiles": 42,
@@ -512,12 +616,12 @@ fetch('{{$baseUrl}}/scener/defacto2')
                     <pre class="bg-dark text-white p-3 rounded"><code>{
     "scener": {
         "id": "abc123=",
-        "name": "defacto2",
-        "title": "Defacto2",
+        "name": "jed",
+        "title": "Jed",
         "urls": {
-            "api": "{{$api}}scener/defacto2",
-            "html3": "/html3/scener/defacto2",
-            "html": "/s/defacto2"
+            "api": "{{$api}}scener/jed",
+            "html3": "/html3/scener/jed",
+            "html": "/p/jed"
         },
         "statistics": {
             "totalFiles": 42,
@@ -527,32 +631,33 @@ fetch('{{$baseUrl}}/scener/defacto2')
     },
     "files": [
         {
-            "id": 52172,
-            "filename": "DEMO.ZIP",
+            "id": 12160,
+            "filename": "SIERRA.zip",
             "datePublished": {
-                "year": 2023,
-                "month": 5,
-                "day": 15
+                "year": 1987,
+                "month": 10,
+                "day": 1
             },
-            "postedDate": "2023-05-15T10:30:00+10:00",
+            "postedDate": "2015-06-21T11:41:02+10:00",
             "size": {
-                "formatted": "4k",
-                "bytes": 4096
+                "formatted": "2k",
+                "bytes": 1750
             },
-            "description": "Demo released by Defacto2 in 2023.",
+            "description": "Space Quest unprotect independently released in 1987.",
             "tags": {
-                "category": "demo",
-                "platform": "dos",
-                "description": "a demo for MS Dos"
+                "category": "guide",
+                "platform": "text",
+                "description": "a text or ascii guide or how-to"
             },
             "urls": {
-                "download": "/d/ab1f158",
-                "html": "/f/ab1f158",
-                "thumbnail": "/public/image/thumb/019236b3-e1fe-72b3-ac0e-a22f6034487c"
+                "download": "/d/a419f44",
+                "html": "/f/a419f44",
+                "thumbnail": "/public/image/thumb/d94f84dc-99dc-457c-b07e-218263e51137"
             }
         }
     ]
 }</code></pre>
+
                 </div>
             </div>
 {{- /*
