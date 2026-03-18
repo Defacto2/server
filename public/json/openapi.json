@@ -1223,6 +1223,130 @@
         }
       }
     },
+    "/api/v0/file/{hash}": {
+      "get": {
+        "tags": ["files"],
+        "summary": "Get file by hash",
+        "description": "Returns detailed information about a specific file identified by its hash ID, including metadata, relationships, and download URLs.",
+        "operationId": "getFileByHash",
+        "parameters": [
+          {
+            "name": "hash",
+            "in": "path",
+            "description": "The hash identifier of the file (e.g., b221338)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9]{6}$",
+              "example": "b221338"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "file": {
+                      "$ref": "#/components/schemas/FileRecord"
+                    },
+                    "fileMetadata": {
+                      "type": "object",
+                      "properties": {
+                        "checksum": {
+                          "type": "string",
+                          "description": "SHA-3 checksum of the file"
+                        },
+                        "lastModified": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Last modification timestamp"
+                        },
+                        "lastModAgo": {
+                          "type": "string",
+                          "description": "Human-readable time since last modification"
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "description": "MIME type of the file"
+                        }
+                      }
+                    },
+                    "artifactMetadata": {
+                      "type": "object",
+                      "properties": {
+                        "comment": {
+                          "type": "string",
+                          "description": "Additional comments about the artifact"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title of the artifact"
+                        },
+                        "releasers": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "api": {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              "html": {
+                                "type": "string",
+                                "format": "uri"
+                              }
+                            }
+                          }
+                        },
+                        "preview": {
+                          "type": "string",
+                          "description": "Preview text or HTML"
+                        }
+                      }
+                    },
+                    "relationships": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "link": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "description": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "File not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/files/new": {
       "get": {
         "tags": ["files"],
@@ -2145,10 +2269,10 @@
       "ArtifactSum": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "description": "File ID",
-            "example": 47303
+          "uuid": {
+            "type": "string",
+            "description": "File UUID",
+            "example": "0192d253-2446-7671-8a54-7af108989675"
           },
           "filename": {
             "type": "string",
@@ -2231,10 +2355,10 @@
       "FileRecord": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "description": "File ID",
-            "example": 47303
+          "uuid": {
+            "type": "string",
+            "description": "File UUID",
+            "example": "0192d253-2446-7671-8a54-7af108989675"
           },
           "filename": {
             "type": "string",
