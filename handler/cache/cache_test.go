@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler"
+	"github.com/Defacto2/server/handler/app"
 	"github.com/labstack/echo/v4"
 	"github.com/nalgeon/be"
 )
@@ -25,22 +26,22 @@ func TestCacheMiddleware(t *testing.T) {
 		path           string
 		expectedMaxAge string
 	}{
-		{"Categories endpoint", "/api/v0/categories", "86400"},
-		{"Platforms endpoint", "/api/v0/platforms", "86400"},
-		{"Files endpoint", "/api/v0/files", "300"},
-		{"Files new endpoint", "/api/v0/files/new", "300"},
-		{"File detail endpoint", "/api/v0/file/abc123", "3600"},
-		{"Releaser endpoint", "/api/v0/releaser/test-group", "1800"},
-		{"Scener endpoint", "/api/v0/scener/test-scener", "1800"},
-		{"Groups endpoint", "/api/v0/groups", "3600"},
-		{"Magazines endpoint", "/api/v0/magazines", "3600"},
-		{"Boards endpoint", "/api/v0/boards", "3600"},
-		{"Sites endpoint", "/api/v0/sites", "3600"},
-		{"Milestones endpoint", "/api/v0/milestones", "86400"},
-		{"Area codes endpoint", "/api/v0/areacodes", "86400"},
-		{"Websites endpoint", "/api/v0/websites", "86400"},
-		{"Demozoo endpoint", "/api/v0/demozoo", "86400"},
-		{"Unknown endpoint", "/api/v0/unknown", "300"}, // fallback
+		{"Categories endpoint", app.APIBase + "/categories", "86400"},
+		{"Platforms endpoint", app.APIBase + "/platforms", "86400"},
+		{"Artifacts endpoint", app.APIBase + "/artifacts", "300"},
+		{"Artifacts new endpoint", app.APIBase + "/artifacts/new", "300"},
+		{"Artifact detail endpoint", app.APIBase + "/artifact/abc123", "3600"},
+		{"Releaser endpoint", app.APIBase + "/releaser/test-group", "1800"},
+		{"Scener endpoint", app.APIBase + "/scener/test-scener", "1800"},
+		{"Groups endpoint", app.APIBase + "/groups", "3600"},
+		{"Magazines endpoint", app.APIBase + "/magazines", "3600"},
+		{"Boards endpoint", app.APIBase + "/boards", "3600"},
+		{"Sites endpoint", app.APIBase + "/sites", "3600"},
+		{"Milestones endpoint", app.APIBase + "/milestones", "86400"},
+		{"Area codes endpoint", app.APIBase + "/areacodes", "86400"},
+		{"Websites endpoint", app.APIBase + "/websites", "86400"},
+		{"Demozoo endpoint", app.APIBase + "/demozoo", "86400"},
+		{"Unknown endpoint", app.APIBase + "/unknown", "300"}, // fallback
 	}
 
 	for _, tc := range testCases {
@@ -85,10 +86,10 @@ func TestCacheMiddlewareOrder(t *testing.T) {
 	})
 
 	// Test that both middleware work together
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/v0/categories", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, app.APIBase + "/categories", nil)
 	rec := httptest.NewRecorder()
 
-	e.GET("/api/v0/categories", func(c echo.Context) error {
+	e.GET(app.APIBase + "/categories", func(c echo.Context) error {
 		return c.String(http.StatusOK, "test")
 	})
 
@@ -109,14 +110,14 @@ func TestCacheMiddlewarePathMatching(t *testing.T) {
 		path            string
 		expectedPattern string
 	}{
-		{"/api/v0/categories", "max-age=86400"},
-		{"/api/v0/platforms", "max-age=86400"},
-		{"/api/v0/files", "max-age=300"},
-		{"/api/v0/files/new", "max-age=300"},
-		{"/api/v0/file/anyhash", "max-age=3600"},
-		{"/api/v0/file/another123", "max-age=3600"},
-		{"/api/v0/releaser/group-name", "max-age=1800"},
-		{"/api/v0/scener/person-name", "max-age=1800"},
+		{app.APIBase + "/categories", "max-age=86400"},
+		{app.APIBase + "/platforms", "max-age=86400"},
+		{app.APIBase + "/artifacts", "max-age=300"},
+		{app.APIBase + "/artifacts/new", "max-age=300"},
+		{app.APIBase + "/artifact/anyhash", "max-age=3600"},
+		{app.APIBase + "/artifact/another123", "max-age=3600"},
+		{app.APIBase + "/releaser/group-name", "max-age=1800"},
+		{app.APIBase + "/scener/person-name", "max-age=1800"},
 	}
 
 	for _, tc := range testCases {

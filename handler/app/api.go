@@ -38,8 +38,8 @@ import (
 )
 
 const (
-	APIBase = "/api/v0" // API Base URI
-	APIVer  = "0.2.0"   // API Version gets shown in the HTTP header replies
+	APIBase = "/api/v1" // API Base URI (any changes need to be reflected in apiinfo.tmpl)
+	APIVer  = "1.0.0"   // API Version gets shown in the HTTP header replies
 
 	apiLimit = 1000
 )
@@ -277,10 +277,10 @@ func FileAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
-	hash := c.Param("hash")
+	hash := c.Param("id")
 	if hash == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Missing hash parameter",
+			"error": "Missing id parameter",
 		})
 	}
 

@@ -33,7 +33,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 		{"sceners/musician", "/sceners/musician", true, false},
 		{"sceners/writer", "/sceners/writer", true, false},
 		{"areacodes", "/areacodes", true, true},
-		{"areacodes/territories", "/areacodes/territories", true, true},
+		{"areacodes/regions", "/areacodes/regions", true, true},
 		{"milestones", "/milestones", true, true},
 		{"milestones/highlights", "/milestones/highlights", true, true},
 		// Category endpoints
@@ -50,7 +50,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 		{"releaser/razor-1911", "/releaser/razor-1911", true, false},
 		// Area code specific endpoints
 		{"areacodes/212", "/areacodes/212", false, false},
-		{"areacodes/territories/CA", "/areacodes/territories/CA", false, false},
+		{"areacodes/regions/CA", "/areacodes/regions/CA", false, false},
 		{"areacodes/search/california", "/areacodes/search/california", true, false},
 		// Milestone specific endpoints
 		{"milestones/year/1995", "/milestones/year/1995", true, true},
@@ -99,7 +99,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 
 				// Check for expected fields based on endpoint type for array responses
 				switch endpoint.name {
-				case "categories", "platforms", "areacodes", "areacodes/territories", "milestones", "milestones/highlights", "magazines":
+				case "categories", "platforms", "areacodes", "areacodes/regions", "milestones", "milestones/highlights", "magazines":
 					be.True(t, len(arrayResult) > 0)
 				case "milestones/year/1995", "milestones/years/1990-2000", "milestones/decade/1990s":
 					be.True(t, len(arrayResult) > 0)
@@ -151,7 +151,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 			case "areacodes/212":
 				be.True(t, result["code"] != nil)
 				be.True(t, result["territories"] != nil)
-			case "areacodes/territories/CA":
+			case "areacodes/regions/CA":
 				be.True(t, result["name"] != nil)
 				be.True(t, result["abbreviation"] != nil)
 				be.True(t, result["areaCodes"] != nil)
@@ -176,7 +176,7 @@ func TestAPIEndpointExamples(t *testing.T) {
 		{"magazines", api + "/magazines"},
 		{"releaser/defacto2", api + "/releaser/defacto2"},
 		{"milestones/year/1971", api + "/milestones/year/1971"},
-		{"areacodes/territories/CA", api + "/areacodes/territories/CA"},
+		{"areacodes/regions/CA", api + "/areacodes/regions/CA"},
 		{"sceners/artist", api + "/sceners/artist"},
 		{"scener/dubmood", api + "/scener/dubmood"},
 		{"websites", api + "/websites"},
@@ -240,7 +240,7 @@ func TestAPIEndpointExamples(t *testing.T) {
 			case "releaser/defacto2":
 				be.True(t, result["group"] != nil)
 				be.True(t, result["files"] != nil)
-			case "areacodes/territories/CA":
+			case "areacodes/regions/CA":
 				be.True(t, result["name"] != nil)
 				be.True(t, result["abbreviation"] != nil)
 			case "sceners/artist":
@@ -393,7 +393,7 @@ func TestAPIResponseValidation(t *testing.T) {
 			be.True(t, len(releaser.ID) > 0)
 			be.True(t, len(releaser.Name) > 0)
 			// be.True(t, len(releaser.Title) > 0) // Title may be empty for some releasers
-			be.True(t, strings.HasPrefix(releaser.URLs.API, "/api/v0/releaser/"))
+			be.True(t, strings.HasPrefix(releaser.URLs.API, app.APIBase+"/releaser/"))
 			be.True(t, strings.HasPrefix(releaser.URLs.HTML, "/g/"))
 			be.True(t, releaser.Statistics.TotalFiles >= 0)
 			be.True(t, releaser.Statistics.TotalSizeBytes >= 0)

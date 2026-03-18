@@ -54,7 +54,7 @@
     }
   ],
   "paths": {
-    "/api/v0/milestones": {
+    "/api/v1/milestones": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get all milestones",
@@ -87,7 +87,7 @@
         }
       }
     },
-    "/api/v0/milestones/year/{year}": {
+    "/api/v1/milestones/year/{year}": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get milestones by year",
@@ -154,7 +154,7 @@
         }
       }
     },
-    "/api/v0/milestones/years/{range}": {
+    "/api/v1/milestones/years/{range}": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get milestones by year range",
@@ -220,7 +220,7 @@
         }
       }
     },
-    "/api/v0/milestones/highlights": {
+    "/api/v1/milestones/highlights": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get highlighted milestones",
@@ -263,7 +263,7 @@
         }
       }
     },
-    "/api/v0/milestones/decade/{decade}": {
+    "/api/v1/milestones/decade/{decade}": {
       "get": {
         "tags": ["milestones"],
         "summary": "Get milestones by decade",
@@ -329,7 +329,7 @@
         }
       }
     },
-    "/api/v0/areacodes": {
+    "/api/v1/areacodes": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Get all area codes",
@@ -362,7 +362,7 @@
         }
       }
     },
-    "/api/v0/areacodes/{code}": {
+    "/api/v1/areacodes/{code}": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Get area code by code",
@@ -426,12 +426,12 @@
         }
       }
     },
-    "/api/v0/areacodes/territories": {
+    "/api/v1/areacodes/regions": {
       "get": {
         "tags": ["areacodes"],
-        "summary": "Get all territories",
-        "description": "Returns a complete list of all territories (states, provinces) with their associated area codes.",
-        "operationId": "getTerritories",
+        "summary": "Get all regions",
+        "description": "Returns a complete list of all regions (states, provinces, territories) with their associated area codes.",
+        "operationId": "getRegions",
         "responses": {
           "200": {
             "description": "A list of territories",
@@ -459,17 +459,17 @@
         }
       }
     },
-    "/api/v0/areacodes/territories/{abbr}": {
+    "/api/v1/areacodes/regions/{abbr}": {
       "get": {
         "tags": ["areacodes"],
-        "summary": "Get territory by abbreviation",
-        "description": "Returns details for a specific territory by its two-letter abbreviation.",
-        "operationId": "getTerritoryByAbbr",
+        "summary": "Get region by abbreviation",
+        "description": "Returns details for a specific region by its two-letter abbreviation.",
+        "operationId": "getRegionByAbbr",
         "parameters": [
           {
             "name": "abbr",
             "in": "path",
-            "description": "Two-letter territory abbreviation",
+            "description": "Two-letter region abbreviation",
             "required": true,
             "schema": {
               "type": "string",
@@ -523,7 +523,7 @@
         }
       }
     },
-    "/api/v0/areacodes/search/{query}": {
+    "/api/v1/areacodes/search/{query}": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Search area codes and territories",
@@ -575,7 +575,7 @@
         }
       }
     },
-    "/api/v0/categories": {
+    "/api/v1/categories": {
       "get": {
         "tags": ["categories"],
         "summary": "Get all artifact categories",
@@ -608,7 +608,7 @@
         }
       }
     },
-    "/api/v0/platforms": {
+    "/api/v1/platforms": {
       "get": {
         "tags": ["platforms"],
         "summary": "Get all operating system platforms",
@@ -641,7 +641,7 @@
         }
       }
     },
-    "/api/v0/platform/{platform}": {
+    "/api/v1/platform/{platform}": {
       "get": {
         "tags": ["files"],
         "summary": "Get files from any platform",
@@ -711,7 +711,7 @@
         }
       }
     },
-    "/api/v0/groups": {
+    "/api/v1/groups": {
       "get": {
         "tags": ["files"],
         "summary": "Get all releaser groups",
@@ -783,7 +783,7 @@
         }
       }
     },
-    "/api/v0/magazines": {
+    "/api/v1/magazines": {
       "get": {
         "tags": ["files"],
         "summary": "Get all magazines",
@@ -856,7 +856,7 @@
         }
       }
     },
-    "/api/v0/boards": {
+    "/api/v1/boards": {
       "get": {
         "tags": ["files"],
         "summary": "Get all BBS boards",
@@ -929,7 +929,7 @@
         }
       }
     },
-    "/api/v0/sites": {
+    "/api/v1/sites": {
       "get": {
         "tags": ["files"],
         "summary": "Get all FTP sites",
@@ -1002,12 +1002,12 @@
         }
       }
     },
-    "/api/v0/files": {
+    "/api/v1/artifacts": {
       "get": {
-        "tags": ["files"],
-        "summary": "Get all files",
-        "description": "Returns a paginated list of all files in the database, including comprehensive metadata for each file. Files are ordered by ID for consistent pagination.",
-        "operationId": "getAllFiles",
+        "tags": ["artifacts"],
+        "summary": "Get all artifacts",
+        "description": "Returns a paginated list of all artifacts in the database, including comprehensive metadata for each artifact. Artifacts are ordered by ID for consistent pagination.",
+        "operationId": "getAllArtifacts",
         "parameters": [
           {
             "name": "page",
@@ -1080,7 +1080,7 @@
         }
       }
     },
-    "/api/v0/releaser/{name}": {
+    "/api/v1/releaser/{name}": {
       "get": {
         "tags": ["files"],
         "summary": "Get files from a specific releaser group or magazine",
@@ -1153,7 +1153,7 @@
         }
       }
     },
-    "/api/v0/category/{category}": {
+    "/api/v1/category/{category}": {
       "get": {
         "tags": ["files"],
         "summary": "Get files from any category",
@@ -1223,17 +1223,17 @@
         }
       }
     },
-    "/api/v0/file/{hash}": {
+    "/api/v1/artifact/{id}": {
       "get": {
         "tags": ["files"],
-        "summary": "Get file by hash",
-        "description": "Returns detailed information about a specific file identified by its hash ID, including metadata, relationships, and download URLs.",
-        "operationId": "getFileByHash",
+        "summary": "Get artifact by ID",
+        "description": "Returns detailed information about a specific artifact identified by its obfuscated ID, including metadata, relationships, and download URLs.",
+        "operationId": "getArtifactByID",
         "parameters": [
           {
-            "name": "hash",
+            "name": "id",
             "in": "path",
-            "description": "The hash identifier of the file (e.g., b221338)",
+            "description": "The obfuscated identifier of the file (e.g., b221338)",
             "required": true,
             "schema": {
               "type": "string",
@@ -1343,12 +1343,12 @@
         }
       }
     },
-    "/api/v0/files/new": {
+    "/api/v1/artifacts/new": {
       "get": {
-        "tags": ["files"],
-        "summary": "Get new uploads",
-        "description": "Returns a paginated list of recently added files (new uploads), ordered by ID (newest first). This endpoint provides the same data as /api/files but with semantic meaning for new uploads.",
-        "operationId": "getNewUploads",
+        "tags": ["artifacts"],
+        "summary": "Get new artifacts",
+        "description": "Returns a paginated list of recently added artifacts (new uploads), ordered by ID (newest first). This endpoint provides the same data as /api/artifacts but with semantic meaning for new uploads.",
+        "operationId": "getNewArtifacts",
         "parameters": [
           {
             "name": "page",
@@ -1455,7 +1455,7 @@
         }
       }
     },
-    "/api/v0/sceners": {
+    "/api/v1/sceners": {
       "get": {
         "tags": ["sceners"],
         "summary": "Get all sceners",
@@ -1518,7 +1518,7 @@
         }
       }
     },
-    "/api/v0/sceners/artist": {
+    "/api/v1/sceners/artist": {
       "get": {
         "tags": ["sceners"],
         "summary": "Get all artist sceners",
@@ -1557,7 +1557,7 @@
         }
       }
     },
-    "/api/v0/sceners/coder": {
+    "/api/v1/sceners/coder": {
       "get": {
         "tags": ["sceners"],
         "summary": "Get all coder sceners",
@@ -1596,7 +1596,7 @@
         }
       }
     },
-    "/api/v0/sceners/musician": {
+    "/api/v1/sceners/musician": {
       "get": {
         "tags": ["sceners"],
         "summary": "Get all musician sceners",
@@ -1635,7 +1635,7 @@
         }
       }
     },
-    "/api/v0/sceners/writer": {
+    "/api/v1/sceners/writer": {
       "get": {
         "tags": ["sceners"],
         "summary": "Get all writer sceners",
@@ -1674,7 +1674,7 @@
         }
       }
     },
-    "/api/v0/scener/{name}": {
+    "/api/v1/scener/{name}": {
       "get": {
         "tags": ["sceners"],
         "summary": "Get specific scener details",
@@ -1738,7 +1738,7 @@
         }
       }
     },
-    "/api/v0/demozoo": {
+    "/api/v1/demozoo": {
       "get": {
         "tags": ["demozoo"],
         "summary": "Get all Demozoo group mappings",
@@ -1781,7 +1781,7 @@
         }
       }
     },
-    "/api/v0/websites": {
+    "/api/v1/websites": {
       "get": {
         "tags": ["websites"],
         "summary": "Get all curated websites",
@@ -2086,7 +2086,7 @@
               "api": {
                 "type": "string",
                 "description": "API endpoint URL",
-                "example": "/api/v0/category/announcements"
+                "example": "/api/v1/category/announcements"
               },
               "html3": {
                 "type": "string",
@@ -2132,7 +2132,7 @@
               "api": {
                 "type": "string",
                 "description": "API endpoint URL",
-                "example": "/api/v0/platform/ansi"
+                "example": "/api/v1/platform/ansi"
               },
               "html3": {
                 "type": "string",
@@ -2194,7 +2194,7 @@
               "api": {
                 "type": "string",
                 "description": "API endpoint URL",
-                "example": "/api/v0/releaser/razor-1911"
+                "example": "/api/v1/releaser/razor-1911"
               },
               "html3": {
                 "type": "string",
@@ -2459,7 +2459,7 @@
               "api": {
                 "type": "string",
                 "description": "API URL for this scener",
-                "example": "/api/v0/scener/jed"
+                "example": "/api/v1/scener/jed"
               },
               "html3": {
                 "type": "string",

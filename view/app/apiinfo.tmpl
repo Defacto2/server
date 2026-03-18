@@ -2,8 +2,8 @@
     apiinfo.tmpl ~ API helper template.
 */ -}}
 {{- define "content" }}
-{{- $baseUrl := "https://defacto2.net/api/v0"}}
-{{- $api := "/api/v0/"}}
+{{- $api := "/api/v1/"}}
+{{- $baseUrl := printf "https://defacto2.net%s" $api}}
 <div class="container my-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -19,24 +19,24 @@
                     <p>The base URL for all API endpoints.</p>
                     <p class="text-muted">Examples:</p>
                       <ul>
-                        <li><a href="{{$api}}files">{{$baseUrl}}/files</a></li>
-                        <li><a href="{{$api}}files/new">{{$baseUrl}}/files/new</a></li>
-                        <li><a href="{{$api}}file/af29fa4">{{$baseUrl}}/file/af29fa4</a></li>
-                        <li><a href="{{$api}}categories">{{$baseUrl}}/categories</a></li>
-                        <li><a href="{{$api}}category/releaseadvert">{{$baseUrl}}/category/releaseadvert</a></li>
-                        <li><a href="{{$api}}magazines">{{$baseUrl}}/magazines</a></li>
-                        <li><a href="{{$api}}releaser/razor-1911">{{$baseUrl}}/releaser/razor-1911</a></li>
-                        <li><a href="{{$api}}milestones/year/1971">{{$baseUrl}}/milestones/year/1971</a></li>
-                        <li><a href="{{$api}}areacodes/territories/CA">{{$baseUrl}}/areacodes/territories/CA</a></li>
-                        <li><a href="{{$api}}sceners/artist">{{$baseUrl}}/sceners/artist</a></li>
-                        <li><a href="{{$api}}scener/dubmood">{{$baseUrl}}/scener/dubmood</a></li>
-                        <li><a href="{{$api}}websites">{{$baseUrl}}/websites</a></li>
-                        <li><a href="{{$api}}demozoo">{{$baseUrl}}/demozoo</a></li>
+                        <li><a href="{{$api}}areacodes/regions/CA">{{$baseUrl}}areacodes/regions/CA</a></li>
+                        <li><a href="{{$api}}artifact/af29fa4">{{$baseUrl}}artifact/af29fa4</a></li>
+                        <li><a href="{{$api}}artifacts">{{$baseUrl}}artifacts</a></li>
+                        <li><a href="{{$api}}artifacts/new">{{$baseUrl}}artifacts/new</a></li>
+                        <li><a href="{{$api}}categories">{{$baseUrl}}categories</a></li>
+                        <li><a href="{{$api}}category/releaseadvert">{{$baseUrl}}category/releaseadvert</a></li>
+                        <li><a href="{{$api}}demozoo">{{$baseUrl}}demozoo</a></li>
+                        <li><a href="{{$api}}magazines">{{$baseUrl}}magazines</a></li>
+                        <li><a href="{{$api}}milestones/year/1971">{{$baseUrl}}milestones/year/1971</a></li>
+                        <li><a href="{{$api}}releaser/razor-1911">{{$baseUrl}}releaser/razor-1911</a></li>
+                        <li><a href="{{$api}}scener/dubmood">{{$baseUrl}}scener/dubmood</a></li>
+                        <li><a href="{{$api}}sceners/artist">{{$baseUrl}}sceners/artist</a></li>
+                        <li><a href="{{$api}}websites">{{$baseUrl}}websites</a></li>
                       </ul>
                     </p>
                     <p>No authentication is required for read-only API endpoints.</p>
                     <div class="alert alert-success" role="alert">
-                      15-May-2025, More API features will be rolled out soon, and the API base uri is temporary: <code>/api/v0</code>
+                      19-May-2025, The API v1 is live! The response header <var>X-Api-Version</var> contains the current version value.
                     </div>
                 </div>
             </div>
@@ -58,22 +58,70 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><code>/areacodes</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all area codes</td>
+                                    <td><code>GET {{$api}}areacodes</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/:code</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get a region by the area code</td>
+                                    <td><code>GET {{$api}}areacodes/212</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/search/:query</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Lookup an area code, state, territory, etc.</td>
+                                    <td><code>GET {{$api}}areacodes/search/utah</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/regions</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all regions (provinces, states, territories)</td>
+                                    <td><code>GET {{$api}}areacodes/regions</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/regions/:abbr</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get a region by abbreviation</td>
+                                    <td><code>GET {{$api}}areacodes/regions/CA</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/artifact/:id</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get detailed information for a specific artifact by its ID</td>
+                                    <td><code>GET {{$api}}artifact/af29fa4</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/artifacts</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all artifacts <span class="text-secondary">(paginated)</span></td>
+                                    <td><code>GET {{$api}}artifacts?page=1</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/artifacts/new</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get new artifacts <span class="text-secondary">(recently added artifacts)</span></td>
+                                    <td><code>GET {{$api}}artifacts/new?page=1</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/boards</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all BBS boards</td>
                                     <td><code>GET {{$api}}boards</code></td>
                                 </tr>
                                 <tr>
+                                    <td><code>/category/:name</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get artifacts from any category<br><span class="text-secondary">(demo, scenerules, magazine, etc.)</span></td>
+                                    <td><code>GET {{$api}}category/demo</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/categories</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all artifact categories</td>
                                     <td><code>GET {{$api}}categories</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/websites</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all curated websites <span class="text-secondary">(alphabetical)</span></td>
-                                    <td><code>GET {{$api}}websites</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/demozoo</code></td>
@@ -94,46 +142,58 @@
                                     <td><code>GET {{$api}}magazines</code></td>
                                 </tr>
                                 <tr>
+                                    <td><code>/milestones</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all milestones</td>
+                                    <td><code>GET {{$api}}milestones</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/decade/:decade</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by decade</td>
+                                    <td><code>GET {{$api}}milestones/decade/1990s</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/highlights</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get only highlighted milestones</td>
+                                    <td><code>GET {{$api}}milestones/highlights</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/year/:year</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by specific year</td>
+                                    <td><code>GET {{$api}}milestones/year/1995</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/milestones/years/:range</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get milestones by year range</td>
+                                    <td><code>GET {{$api}}milestones/years/1990-2000</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/platform/:name</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get artifacts from any platform<br><span class="text-secondary">(ansi, audio, dos, windows, etc.)</span></td>
+                                    <td><code>GET {{$api}}platform/ansi</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/platforms</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all artifact platforms</td>
                                     <td><code>GET {{$api}}platforms</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/category/:name</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get files from any category<br><span class="text-secondary">(demo, scenerules, magazine, etc.)</span></td>
-                                    <td><code>GET {{$api}}category/demo</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/platform/:name</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get files from any platform<br><span class="text-secondary">(ansi, audio, dos, windows, etc.)</span></td>
-                                    <td><code>GET {{$api}}platform/ansi</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/files</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all files <span class="text-secondary">(paginated)</span></td>
-                                    <td><code>GET {{$api}}files?page=1</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/files/new</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get new uploads <span class="text-secondary">(recently added files)</span></td>
-                                    <td><code>GET {{$api}}files/new?page=1</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/file/:hash</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get detailed information for a specific file by its obfuscated hash ID</td>
-                                    <td><code>GET {{$api}}file/af29fa4</code></td>
-                                </tr>
-                                <tr>
                                     <td><code>/releaser/:name</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get files from a specific group or magazine</td>
                                     <td><code>GET {{$api}}releaser/razor-1911</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/scener/:name</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get specific scener details</td>
+                                    <td><code>GET {{$api}}scener/dubmood</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/sceners</code></td>
@@ -166,70 +226,10 @@
                                     <td><code>GET {{$api}}sceners/writer</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/scener/:name</code></td>
+                                    <td><code>/websites</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get specific scener details</td>
-                                    <td><code>GET {{$api}}scener/dubmood</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/areacodes</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all area codes</td>
-                                    <td><code>GET {{$api}}areacodes</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/areacodes/:code</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get area code by code</td>
-                                    <td><code>GET {{$api}}areacodes/212</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/areacodes/territories</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all territories</td>
-                                    <td><code>GET {{$api}}areacodes/territories</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/areacodes/territories/:abbr</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get territory by abbreviation</td>
-                                    <td><code>GET {{$api}}areacodes/territories/CA</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/areacodes/search/:query</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Search area codes and territories</td>
-                                    <td><code>GET {{$api}}areacodes/search/california</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/milestones</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all milestones</td>
-                                    <td><code>GET {{$api}}milestones</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/milestones/year/:year</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get milestones by specific year</td>
-                                    <td><code>GET {{$api}}milestones/year/1995</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/milestones/years/:range</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get milestones by year range</td>
-                                    <td><code>GET {{$api}}milestones/years/1990-2000</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/milestones/highlights</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get only highlighted milestones</td>
-                                    <td><code>GET {{$api}}milestones/highlights</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/milestones/decade/:decade</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get milestones by decade</td>
-                                    <td><code>GET {{$api}}milestones/decade/1990s</code></td>
+                                    <td>Get all curated websites <span class="text-secondary">(alphabetical)</span></td>
+                                    <td><code>GET {{$api}}websites</code></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -252,14 +252,14 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><code>id</code></td>
-                                    <td>number/string</td>
-                                    <td>Unique identifier for resources. Files use UUIDs (string format) while sceners and groups use hash-based stable identifiers derived from their names to ensure consistency across API versions.</td>
-                                </tr>
-                                <tr>
                                     <td><code>uuid</code></td>
                                     <td>string</td>
-                                    <td>Unique Universally Unique Identifier for the file in standard UUID format. This provides a globally unique identifier that differs from the obfuscated hash ID used in URLs.</td>
+                                    <td>Unique Universally Unique Identifier for the artifact in a standard UUID format using 36 characters.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>id</code></td>
+                                    <td>string</td>
+                                    <td>Unique identifier for resources for sceners and groups that use hash-based stable identifiers derived from their names to ensure consistency across API versions.</td>
                                 </tr>
                                 <tr>
                                     <td><code>datePublished</code></td>
@@ -269,7 +269,7 @@
                                 <tr>
                                     <td><code>postedDate</code></td>
                                     <td>string</td>
-                                    <td>ISO 8601 formatted timestamp indicating when the file was added to the Defacto2 database.</td>
+                                    <td>ISO 8601 formatted timestamp indicating when the artifact was added to the Defacto2 database.</td>
                                 </tr>
                                 <tr>
                                     <td><code>size.formatted</code></td>
@@ -308,7 +308,7 @@
                                 <tr>
                                     <td><code>urls.api</code></td>
                                     <td>string</td>
-                                    <td>Direct API URL to access this specific file's detailed information. Uses the obfuscated hash ID format for permanent linking.</td>
+                                    <td>Direct API URL to access this specific artifact's detailed information. Uses the obfuscated ID format for permanent linking.</td>
                                 </tr>
                                 <tr>
                                     <td><code>tags.category</code></td>
@@ -459,61 +459,61 @@
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/categories"
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}categories"
 
-curl "{{$baseUrl}}/files?page=1"
+curl "{{$baseUrl}}files?page=1"
 
-curl "{{$baseUrl}}/files/new?page=1"
+curl "{{$baseUrl}}files/new?page=1"
 
-curl "{{$baseUrl}}/category/releaseadvert"
+curl "{{$baseUrl}}category/releaseadvert"
 
-curl "{{$baseUrl}}/category/demo"
+curl "{{$baseUrl}}category/demo"
 
-curl "{{$baseUrl}}/platforms"
+curl "{{$baseUrl}}platforms"
 
-curl "{{$baseUrl}}/platform/ansi"
+curl "{{$baseUrl}}platform/ansi"
 
-curl "{{$baseUrl}}/groups"
+curl "{{$baseUrl}}groups"
 
-curl "{{$baseUrl}}/demozoo"
+curl "{{$baseUrl}}demozoo"
 
-curl "{{$baseUrl}}/releaser/razor-1911"</code></pre>
+curl "{{$baseUrl}}releaser/razor-1911"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/categories')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}categories')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/files?page=1')
+fetch('{{$baseUrl}}files?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/files/new?page=1')
+fetch('{{$baseUrl}}files/new?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/category/releaseadvert')
+fetch('{{$baseUrl}}category/releaseadvert')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/category/demo')
+fetch('{{$baseUrl}}category/demo')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/platforms')
+fetch('{{$baseUrl}}platforms')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/platform/ansi')
+fetch('{{$baseUrl}}platform/ansi')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/groups')
+fetch('{{$baseUrl}}groups')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/demozoo')
+fetch('{{$baseUrl}}demozoo')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -648,31 +648,31 @@ fetch('{{$baseUrl}}/demozoo')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/sceners"
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}sceners"
 
-curl "{{$baseUrl}}/sceners"
+curl "{{$baseUrl}}sceners"
 
-curl "{{$baseUrl}}/sceners/artist"
+curl "{{$baseUrl}}sceners/artist"
 
-curl "{{$baseUrl}}/sceners/coder"
+curl "{{$baseUrl}}sceners/coder"
 
-curl "{{$baseUrl}}/sceners/musician"
+curl "{{$baseUrl}}sceners/musician"
 
-curl "{{$baseUrl}}/sceners/writer"
+curl "{{$baseUrl}}sceners/writer"
 
-curl "{{$baseUrl}}/scener/jed"</code></pre>
+curl "{{$baseUrl}}scener/jed"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/sceners')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}sceners')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/sceners/artist')
+fetch('{{$baseUrl}}sceners/artist')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/scener/jed')
+fetch('{{$baseUrl}}scener/jed')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -773,7 +773,7 @@ fetch('{{$baseUrl}}/scener/jed')
                                     <td>Get recently added files with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET {{$api}}file/:hash</code></td>
+                                    <td><code>GET {{$api}}file/:id</code></td>
                                     <td>Get detailed information for a specific file</td>
                                 </tr>
                                 <tr>
@@ -802,61 +802,61 @@ fetch('{{$baseUrl}}/scener/jed')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/groups"
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}groups"
 
-curl "{{$baseUrl}}/groups?page=2"
+curl "{{$baseUrl}}groups?page=2"
 
-curl "{{$baseUrl}}/files?page=1"
+curl "{{$baseUrl}}files?page=1"
 
-curl "{{$baseUrl}}/sites"
+curl "{{$baseUrl}}sites"
 
-curl "{{$baseUrl}}/boards"
+curl "{{$baseUrl}}boards"
 
-curl "{{$baseUrl}}/magazines"
+curl "{{$baseUrl}}magazines"
 
-curl "{{$baseUrl}}/file/af29fa4"
+curl "{{$baseUrl}}file/af29fa4"
 
-curl "{{$baseUrl}}/releaser/razor-1911"
+curl "{{$baseUrl}}releaser/razor-1911"
 
-curl "{{$baseUrl}}/releaser/the-zapper"
+curl "{{$baseUrl}}releaser/the-zapper"
 
-curl "{{$baseUrl}}/releaser/big-apple-bbs"</code></pre>
+curl "{{$baseUrl}}releaser/big-apple-bbs"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/groups?page=2')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}groups?page=2')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/files?page=1')
+fetch('{{$baseUrl}}files?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/sites')
+fetch('{{$baseUrl}}sites')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/boards')
+fetch('{{$baseUrl}}boards')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/magazines')
+fetch('{{$baseUrl}}magazines')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/file/af29fa4')
+fetch('{{$baseUrl}}file/af29fa4')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/releaser/razor-1911')
+fetch('{{$baseUrl}}releaser/razor-1911')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/releaser/the-zapper')
+fetch('{{$baseUrl}}releaser/the-zapper')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/releaser/big-apple-bbs')
+fetch('{{$baseUrl}}releaser/big-apple-bbs')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -905,7 +905,7 @@ fetch('{{$baseUrl}}/releaser/big-apple-bbs')
             "description": "an intro for MS Dos"
         },
         "urls": {
-            "api": "/api/v0/file/b221338",
+            "api": "{{$api}}artifact/b221338",
             "download": "/d/b221338",
             "html": "/f/b221338",
             "thumbnail": "/public/image/thumb/0192d253-2446-7671-8a54-7af108989675"
@@ -924,7 +924,7 @@ fetch('{{$baseUrl}}/releaser/big-apple-bbs')
             {
                 "id": "the-duplicators",
                 "name": "The Duplicators",
-                "api": "/api/v0/releaser/the-duplicators",
+                "api": "{{$api}}releaser/the-duplicators",
                 "html": "/g/the-duplicators"
             }
         ],
@@ -1023,11 +1023,11 @@ fetch('{{$baseUrl}}/releaser/big-apple-bbs')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Example</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/websites"</code></pre>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}websites"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Example</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/websites')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}websites')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -1088,11 +1088,11 @@ fetch('{{$baseUrl}}/releaser/big-apple-bbs')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Example</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}/demozoo"</code></pre>
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}demozoo"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Example</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/demozoo')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}demozoo')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -1163,19 +1163,19 @@ fetch('{{$baseUrl}}/releaser/big-apple-bbs')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl {{$baseUrl}}/milestones
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl {{$baseUrl}}milestones
 
-curl {{$baseUrl}}/milestones/year/1995
+curl {{$baseUrl}}milestones/year/1995
 
-curl {{$baseUrl}}/milestones/years/1990-2000</code></pre>
+curl {{$baseUrl}}milestones/years/1990-2000</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch)</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/milestones')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}milestones')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/milestones/highlights')
+fetch('{{$baseUrl}}milestones/highlights')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -1243,11 +1243,11 @@ fetch('{{$baseUrl}}/milestones/highlights')
                                     <td>Get details for a specific area code</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET {{$api}}areacodes/territories</code></td>
+                                    <td><code>GET {{$api}}areacodes/regions</code></td>
                                     <td>Get all territories (states, provinces) with their area codes</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET {{$api}}areacodes/territories/:abbr</code></td>
+                                    <td><code>GET {{$api}}areacodes/regions/:abbr</code></td>
                                     <td>Get territory details by two-letter abbreviation</td>
                                 </tr>
                                 <tr>
@@ -1260,27 +1260,27 @@ fetch('{{$baseUrl}}/milestones/highlights')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl {{$baseUrl}}/areacodes
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl {{$baseUrl}}areacodes
 
-curl {{$baseUrl}}/areacodes/212
+curl {{$baseUrl}}areacodes/212
 
-curl {{$baseUrl}}/areacodes/territories
+curl {{$baseUrl}}areacodes/regions
 
-curl {{$baseUrl}}/areacodes/territories/CA
+curl {{$baseUrl}}areacodes/regions/CA
 
-curl {{$baseUrl}}/areacodes/search/california</code></pre>
+curl {{$baseUrl}}areacodes/search/california</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}/areacodes')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}areacodes')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/areacodes/territories/NY')
+fetch('{{$baseUrl}}areacodes/regions/NY')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}/areacodes/search/602')
+fetch('{{$baseUrl}}areacodes/search/602')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>

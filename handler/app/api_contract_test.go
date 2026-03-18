@@ -19,7 +19,7 @@ import (
 
 const (
 	lh  = "http://localhost:1323"
-	api = lh + "/api/v0"
+	api = lh + app.APIBase
 )
 
 // TestMain checks server availability before running tests.
@@ -118,7 +118,7 @@ func TestCategoriesContract(t *testing.T) {
 
 	// Verify at least one category has proper structure
 	be.True(t, len(result[0].Name) > 0)
-	be.True(t, strings.HasPrefix(result[0].URLs.API, "/api/v0/files/"))
+	be.True(t, strings.HasPrefix(result[0].URLs.API, app.APIBase+"/artifacts/"))
 	be.True(t, strings.HasPrefix(result[0].URLs.HTML3, "/html3/"))
 	be.True(t, strings.HasPrefix(result[0].URLs.HTML, "/files/"))
 }
@@ -159,9 +159,9 @@ func TestPlatformsContract(t *testing.T) {
 
 	// Verify at least one platform has proper structure
 	be.True(t, len(result[0].Name) > 0)
-	be.True(t, strings.HasPrefix(result[0].URLs.API, "/api/v0/files/"))
+	be.True(t, strings.HasPrefix(result[0].URLs.API, app.APIBase+"/artifacts/"))
 	be.True(t, strings.HasPrefix(result[0].URLs.HTML3, "/html3/"))
-	be.True(t, strings.HasPrefix(result[0].URLs.HTML, "/files/"))
+	be.True(t, strings.HasPrefix(result[0].URLs.HTML, "/artifacts/"))
 }
 
 // TestGenericCategoryContract verifies the generic category endpoint contract.
@@ -334,7 +334,7 @@ func TestScenersContract(t *testing.T) {
 		be.True(t, len(scener.ID) > 0)
 		be.True(t, len(scener.Name) > 0)
 		be.True(t, len(scener.Title) > 0)
-		be.True(t, strings.HasPrefix(scener.URLs.API, "/api/v0/scener/"))
+		be.True(t, strings.HasPrefix(scener.URLs.API, app.APIBase+"/scener/"))
 		be.True(t, strings.HasPrefix(scener.URLs.HTML, "/p/"))
 	}
 }
@@ -389,7 +389,7 @@ func TestScenerRolesContract(t *testing.T) {
 				be.True(t, len(scener.ID) > 0)
 				be.True(t, len(scener.Name) > 0)
 				be.True(t, len(scener.Title) > 0)
-				be.True(t, strings.HasPrefix(scener.URLs.API, "/api/v0/scener/"))
+				be.True(t, strings.HasPrefix(scener.URLs.API, app.APIBase+"/scener/"))
 				be.True(t, strings.HasPrefix(scener.URLs.HTML, "/p/"))
 			}
 		})
@@ -438,7 +438,7 @@ func TestScenerDetailsContract(t *testing.T) {
 	be.True(t, ok)
 
 	apiURL, ok := scenerURLs["api"].(string)
-	be.True(t, ok && strings.HasPrefix(apiURL, "/api/v0/scener/"))
+	be.True(t, ok && strings.HasPrefix(apiURL, app.APIBase+"/scener/"))
 
 	htmlURL, ok := scenerURLs["html"].(string)
 	be.True(t, ok && strings.HasPrefix(htmlURL, "/p/"))
@@ -508,8 +508,8 @@ func TestFileContract(t *testing.T) {
 
 	// Test with a known file hash from the files endpoint
 	// First, get a file from the files endpoint to use as a test case
-	filesReq, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/files?page=1", nil)
-	filesResp, err := client.Do(filesReq)
+	artifactsReq, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/artifacts?page=1", nil)
+	artifactsResp, err := client.Do(artifactsReq)
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := filesResp.Body.Close(); err != nil {
@@ -517,21 +517,21 @@ func TestFileContract(t *testing.T) {
 		}
 	}()
 
-	be.Equal(t, http.StatusOK, filesResp.StatusCode)
+	be.Equal(t, http.StatusOK, artifactsResp.StatusCode)
 
-	var filesResult map[string]any
-	err = json.NewDecoder(filesResp.Body).Decode(&filesResult)
+	var artifactsResult map[string]any
+	err = json.NewDecoder(artifactsResp.Body).Decode(&artifactsResult)
 	be.Equal(t, err, nil)
 
-	filesArray, ok := filesResult["files"].([]any)
+	artifactsArray, ok := artifactsResult["artifacts"].([]any)
 	be.True(t, ok)
-	be.True(t, len(filesArray) > 0)
+	be.True(t, len(artifactsArray) > 0)
 
-	// Get the first file's hash
-	firstFile, ok := filesArray[0].(map[string]any)
+	// Get the first artifact's hash
+	firstArtifact, ok := artifactsArray[0].(map[string]any)
 	be.True(t, ok)
 
-	urls, ok := firstFile["urls"].(map[string]any)
+	urls, ok := firstArtifact["urls"].(map[string]any)
 	be.True(t, ok)
 
 	hash, ok := urls["download"].(string)
@@ -542,8 +542,8 @@ func TestFileContract(t *testing.T) {
 	be.Equal(t, len(hashParts), 3)
 	fileHash := hashParts[2]
 
-	// Now test the file endpoint with this hash
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/file/"+fileHash, nil)
+	// Now test the artifact endpoint with this hash
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/artifact/"+fileHash, nil)
 	resp, err := client.Do(req)
 	be.Equal(t, err, nil)
 	defer func() {
@@ -570,10 +570,10 @@ func TestFileContract(t *testing.T) {
 	be.True(t, fileData["urls"] != nil)
 }
 
-// TestFileNotFound tests the file endpoint with a non-existent hash.
-func TestFileNotFound(t *testing.T) {
+// TestArtifactNotFound tests the artifact endpoint with a non-existent ID.
+func TestArtifactNotFound(t *testing.T) {
 	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/file/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/artifact/nonexistent", nil)
 	resp, err := client.Do(req)
 	be.Equal(t, err, nil)
 	defer func() {
