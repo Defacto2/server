@@ -45,19 +45,19 @@ const (
 )
 
 const (
-	cacheDuration = 1 * time.Hour
-	cacheMaxItems = 1000
+	cacheDuration = 1 * time.Hour // Cache duration for query results
+	cacheMaxItems = 1000          // Maximum number of items to keep in cache
 )
 
-// queryCacheItem represents a cached query result.
-type queryCacheItem struct {
+// cacheQueryItem represents a cached query result.
+type cacheQueryItem struct {
 	data    any
 	expires time.Time
 }
 
 var (
-	tagCache = make(map[string]queryCacheItem)
-	tagsMu   sync.RWMutex
+	apiCache   = make(map[string]cacheQueryItem) //nolint:gochecknoglobals
+	apiCacheMu sync.RWMutex                      //nolint:gochecknoglobals
 )
 
 // ArtifactAPI represents an artifact file for API responses.
@@ -693,91 +693,25 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // MagazinesAPI is the handler for the magazines API endpoint.
 func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	const msg = "magazines api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-
-	ctx := context.Background()
-	rels := model.Releasers{}
-	if err := rels.Magazine(ctx, db); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query magazines",
-		})
-	}
-	if len(rels) == 0 {
-		return c.JSON(http.StatusOK, map[string]any{
-			"releasers":  []EntityAPI{},
-			"page":       1,
-			"totalPages": 1,
-		})
-	}
-
-	result := ReleasersAPI(rels)
-	return c.JSON(http.StatusOK, map[string]any{
-		"releasers":  result,
-		"page":       1,
-		"totalPages": 1,
+	return cachedReleasersAPI(c, db, sl, "magazines_all", func(ctx context.Context, db *sql.DB) error {
+		rels := model.Releasers{}
+		return rels.Magazine(ctx, db)
 	})
 }
 
 // BoardsAPI is the handler for the BBS API endpoint.
 func BoardsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	const msg = "boards api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-
-	ctx := context.Background()
-	rels := model.Releasers{}
-	if err := rels.BBS(ctx, db, model.Oldest); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query BBS sites",
-		})
-	}
-	if len(rels) == 0 {
-		return c.JSON(http.StatusOK, map[string]any{
-			"releasers":  []EntityAPI{},
-			"page":       1,
-			"totalPages": 1,
-		})
-	}
-
-	result := ReleasersAPI(rels)
-	return c.JSON(http.StatusOK, map[string]any{
-		"releasers":  result,
-		"page":       1,
-		"totalPages": 1,
+	return cachedReleasersAPI(c, db, sl, "boards_all", func(ctx context.Context, db *sql.DB) error {
+		rels := model.Releasers{}
+		return rels.BBS(ctx, db, model.Oldest)
 	})
 }
 
 // SitesAPI is the handler for the FTP sites API endpoint.
 func SitesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	const msg = "sites api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-
-	ctx := context.Background()
-	rels := model.Releasers{}
-	if err := rels.FTP(ctx, db); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query FTP sites",
-		})
-	}
-	if len(rels) == 0 {
-		return c.JSON(http.StatusOK, map[string]any{
-			"releasers":  []EntityAPI{},
-			"page":       1,
-			"totalPages": 1,
-		})
-	}
-
-	result := ReleasersAPI(rels)
-	return c.JSON(http.StatusOK, map[string]any{
-		"releasers":  result,
-		"page":       1,
-		"totalPages": 1,
+	return cachedReleasersAPI(c, db, sl, "sites_all", func(ctx context.Context, db *sql.DB) error {
+		rels := model.Releasers{}
+		return rels.FTP(ctx, db)
 	})
 }
 
@@ -1147,15 +1081,90 @@ func scenersAPI(srs model.Sceners) []scenerAPI {
 	return results
 }
 
+// cachedResults returns cached API results if available.
+func cachedResults(key string) (any, bool) {
+	apiCacheMu.RLock()
+	defer apiCacheMu.RUnlock()
+
+	if item, exists := apiCache[key]; exists && time.Now().Before(item.expires) {
+		return item.data, true
+	}
+	return nil, false
+}
+
+// cacheResults stores API results in the cache.
+func cacheResults(key string, data any) {
+	apiCacheMu.Lock()
+	defer apiCacheMu.Unlock()
+
+	// Clean up old cache entries if we're approaching the limit
+	if len(apiCache) >= cacheMaxItems {
+		for key, item := range apiCache {
+			if time.Now().After(item.expires) {
+				delete(apiCache, key)
+			}
+		}
+	}
+
+	apiCache[key] = cacheQueryItem{
+		data:    data,
+		expires: time.Now().Add(cacheDuration),
+	}
+}
+
+// cachedReleasersAPI handles the common pattern for caching
+// releaser-based API endpoints.
+func cachedReleasersAPI(
+	c echo.Context,
+	db *sql.DB,
+	sl *slog.Logger,
+	key string,
+	queryFunc func(ctx context.Context, db *sql.DB) error,
+) error {
+	const msg = "cached releasers api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	if data, found := cachedResults(key); found {
+		if i, ok := data.(map[string]any); ok {
+			return c.JSON(http.StatusOK, i)
+		}
+	}
+
+	ctx := context.Background()
+	rels := model.Releasers{}
+	if err := queryFunc(ctx, db); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query releasers",
+		})
+	}
+	if len(rels) == 0 {
+		result := map[string]any{
+			"releasers":  []EntityAPI{},
+			"page":       1,
+			"totalPages": 1,
+		}
+		cacheResults(key, result)
+		return c.JSON(http.StatusOK, result)
+	}
+
+	result := map[string]any{
+		"releasers":  ReleasersAPI(rels),
+		"page":       1,
+		"totalPages": 1,
+	}
+	cacheResults(key, result)
+
+	return c.JSON(http.StatusOK, result)
+}
+
 // cachedTags returns cached tag results if available.
 func cachedTags(category, platform bool) ([]tagAPI, bool) {
-	key := fmt.Sprintf("tags_category=%t_platform=%t", category, platform)
+	cacheKey := fmt.Sprintf("tags_category=%t_platform=%t", category, platform)
 
-	tagsMu.RLock()
-	defer tagsMu.RUnlock()
-
-	if item, exists := tagCache[key]; exists && time.Now().Before(item.expires) {
-		if results, ok := item.data.([]tagAPI); ok {
+	if data, found := cachedResults(cacheKey); found {
+		if results, ok := data.([]tagAPI); ok {
 			return results, true
 		}
 	}
@@ -1164,24 +1173,8 @@ func cachedTags(category, platform bool) ([]tagAPI, bool) {
 
 // tagsCache stores tag results in the cache.
 func tagsCache(category, platform bool, results []tagAPI) {
-	key := fmt.Sprintf("tags_category=%t_platform=%t", category, platform)
-
-	tagsMu.Lock()
-	defer tagsMu.Unlock()
-
-	// Clean up old cache entries if we're approaching the limit
-	if len(tagCache) >= cacheMaxItems {
-		for key, item := range tagCache {
-			if time.Now().After(item.expires) {
-				delete(tagCache, key)
-			}
-		}
-	}
-
-	tagCache[key] = queryCacheItem{
-		data:    results,
-		expires: time.Now().Add(cacheDuration),
-	}
+	cacheKey := fmt.Sprintf("tags_category=%t_platform=%t", category, platform)
+	cacheResults(cacheKey, results)
 }
 
 // TagsAPI returns artifact tags.
