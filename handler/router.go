@@ -206,6 +206,7 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
 	// register API routes as a group to use a custom HTTP header
 	apiGroup := e.Group(app.APIBase)
+	apiGroup.Use(CacheMiddleware())
 	apiGroup.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			const thousand = 1000.0

@@ -214,3 +214,39 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 		LogValuesFunc:    logValues,
 	}
 }
+
+// CacheMiddleware sets appropriate Cache-Control headers for API responses.
+func CacheMiddleware() echo.MiddlewareFunc {
+	const (
+		age5min    = "300"
+		age30min   = "1800"
+		age1hour   = "3600"
+		age24hours = "86400"
+	)
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			path := c.Request().URL.Path
+			// Set Cache-Control header based on endpoint
+			switch {
+			case strings.Contains(path, "/categories"), strings.Contains(path, "/platforms"):
+				c.Response().Header().Set("Cache-Control", "public, max-age="+age24hours)
+			case strings.Contains(path, "/files"), strings.Contains(path, "/files/new"):
+				c.Response().Header().Set("Cache-Control", "public, max-age="+age5min)
+			case strings.Contains(path, "/file/"):
+				c.Response().Header().Set("Cache-Control", "public, max-age="+age1hour)
+			case strings.Contains(path, "/releaser/"), strings.Contains(path, "/scener/"):
+				c.Response().Header().Set("Cache-Control", "public, max-age="+age30min)
+			case strings.Contains(path, "/groups"), strings.Contains(path, "/magazines"),
+				strings.Contains(path, "/boards"), strings.Contains(path, "/sites"):
+				c.Response().Header().Set("Cache-Control", "public, max-age="+age1hour)
+			case strings.Contains(path, "/milestones"), strings.Contains(path, "/areacodes"),
+				strings.Contains(path, "/websites"), strings.Contains(path, "/demozoo"):
+				c.Response().Header().Set("Cache-Control", "public, max-age="+age24hours)
+			default:
+				c.Response().Header().Set("Cache-Control", "public, max-age="+age5min)
+			}
+
+			return next(c)
+		}
+	}
+}
