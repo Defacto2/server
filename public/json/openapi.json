@@ -1237,7 +1237,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "pattern": "^[a-z0-9]{6}$",
+              "pattern": "^[a-z0-9]{7}$",
               "example": "b221338"
             }
           }
@@ -1307,10 +1307,6 @@
                               }
                             }
                           }
-                        },
-                        "preview": {
-                          "type": "string",
-                          "description": "Preview text or HTML"
                         }
                       }
                     },
@@ -2553,4 +2549,3 @@
     }
   }
 }
-

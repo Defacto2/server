@@ -198,23 +198,19 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 
 // api routes for the public API endpoints.
 func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) *echo.Echo {
-	const (
-		msg = "api routes"
-		api = "/api/v0"
-		ver = "0.1.0"
-	)
+	const msg = "api routes"
 	if err := panics.EchoDSP(e, db, sl, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.FileFS("/openapi.json", "public/json/openapi.json", public)
 	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
 	// register API routes as a group to use a custom HTTP header
-	apiGroup := e.Group(api)
+	apiGroup := e.Group(app.APIBase)
 	apiGroup.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			const thousand = 1000.0
 			start := time.Now()
-			c.Response().Header().Set("X-Api-Version", ver)
+			c.Response().Header().Set("X-Api-Version", app.APIVer)
 			// use a custom response writer to capture the timing
 			res := c.Response()
 			res.Before(func() {

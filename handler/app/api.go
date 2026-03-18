@@ -37,8 +37,10 @@ import (
 )
 
 const (
+	APIBase = "/api/v0" // API Base URI
+	APIVer  = "0.2.0"   // API Version gets shown in the HTTP header replies
+
 	apiLimit = 1000
-	apiBase  = "/api/v0"
 )
 
 // ArtifactAPI represents an artifact file for API responses.
@@ -86,7 +88,6 @@ type artmetaAPI struct {
 	Comment   string        `json:"comment"`
 	Title     string        `json:"title"`
 	Releasers []releaserAPI `json:"releasers"`
-	Preview   string        `json:"preview"`
 }
 
 type relationAPI struct {
@@ -789,7 +790,7 @@ func ReleasersAPI(rels model.Releasers) []EntityAPI {
 			Name:  name,
 			Title: title,
 			URLs: enityURLs{
-				API:   apiBase + "/releaser/" + name,
+				API:   APIBase + "/releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
@@ -849,7 +850,7 @@ func artifactSum(f *models.File) artifactAPI {
 			Description: humanized,
 		},
 		URLs: urlAPI{
-			API:       apiBase + "/file/" + helper.ObfuscateID(f.ID),
+			API:       APIBase + "/file/" + helper.ObfuscateID(f.ID),
 			Download:  "/d/" + helper.ObfuscateID(f.ID),
 			HTML:      "/f/" + helper.ObfuscateID(f.ID),
 			Thumbnail: "/public/image/thumb/" + f.UUID.String,
@@ -916,7 +917,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			Name:  name,
 			Title: releaser.Link(name),
 			URLs: enityURLs{
-				API:   apiBase + "releaser/" + name,
+				API:   APIBase + "releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
@@ -1013,7 +1014,7 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				HTML3 string `json:"html3"`
 				HTML  string `json:"html"`
 			}{
-				API:   apiBase + "/scener/" + name,
+				API:   APIBase + "/scener/" + name,
 				HTML3: "",
 				HTML:  "/p/" + name,
 			},
@@ -1120,7 +1121,7 @@ func scenersAPI(srs model.Sceners) []scenerAPI {
 				API  string `json:"api"`
 				HTML string `json:"html"`
 			}{
-				API:  apiBase + "/scener/" + name,
+				API:  APIBase + "/scener/" + name,
 				HTML: html,
 			},
 		}
@@ -1179,7 +1180,7 @@ func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 				TotalSizeBytes: byteSum,
 			},
 			URLs: enityURLs{
-				API:   apiBase + "/files/" + slug,
+				API:   APIBase + "/files/" + slug,
 				HTML3: "/html3/" + slug,
 				HTML:  "/files/" + slug,
 			},
@@ -1332,10 +1333,9 @@ func artifact(art *models.File) ArtifactAPI {
 			MimeType:     filerecord.Magic(art),
 		},
 		ArtMeta: artmetaAPI{
-			Comment:   filerecord.Comment(art),
+			Comment:   simple.CleanHTML(filerecord.Comment(art)),
 			Title:     filerecord.FirstHeader(art),
 			Releasers: releasersAPI(art),
-			Preview:   filerecord.LinkPreview(art),
 		},
 		Relationships: relationshipsAPI(art),
 	}
@@ -1349,13 +1349,13 @@ func releasersAPI(art *models.File) []releaserAPI {
 	pair[0] = releaserAPI{
 		ID:   u1,
 		Name: releaser.Link(u1),
-		API:  apiBase + "/releaser/" + u1,
+		API:  APIBase + "/releaser/" + u1,
 		HTML: "/g/" + u1,
 	}
 	pair[1] = releaserAPI{
 		ID:   u2,
 		Name: releaser.Link(u2),
-		API:  apiBase + "/releaser/" + u2,
+		API:  APIBase + "/releaser/" + u2,
 		HTML: u2,
 	}
 	return pair
@@ -1554,7 +1554,7 @@ func artifactSummary(art *models.File) artifactAPI {
 			Description: humanized,
 		},
 		URLs: urlAPI{
-			API:       apiBase + "/file/" + helper.ObfuscateID(art.ID),
+			API:       APIBase + "/file/" + helper.ObfuscateID(art.ID),
 			Download:  "/d/" + helper.ObfuscateID(art.ID),
 			HTML:      "/f/" + helper.ObfuscateID(art.ID),
 			Thumbnail: "/public/image/thumb/" + art.UUID.String,
