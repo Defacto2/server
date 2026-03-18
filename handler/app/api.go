@@ -62,9 +62,9 @@ var (
 
 // ArtifactAPI represents an artifact file for API responses.
 type ArtifactAPI struct {
-	Summary       artifactAPI   `json:"file"`
-	FileMeta      filemetaAPI   `json:"fileMetadata"`
-	ArtMeta       artmetaAPI    `json:"artifactMetadata"`
+	Summary       artifactAPI   `json:"artifact"`
+	FileMeta      filemetaAPI   `json:"download"`
+	ArtMeta       artmetaAPI    `json:"meta"`
 	Relationships []relationAPI `json:"relationships"`
 }
 

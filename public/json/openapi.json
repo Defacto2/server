@@ -459,7 +459,7 @@
         }
       }
     },
-    "/api/v1/areacodes/regions/{abbr}": {
+    "/api/v1/areacodes/region/{abbr}": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Get region by abbreviation",

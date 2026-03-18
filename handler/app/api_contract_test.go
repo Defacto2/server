@@ -559,15 +559,15 @@ func TestFileContract(t *testing.T) {
 	be.Equal(t, err, nil)
 
 	// Verify the response structure
-	fileData, ok := result["file"].(map[string]any)
+	artifactData, ok := result["artifact"].(map[string]any)
 	be.True(t, ok)
 
 	// Check required fields
-	be.True(t, fileData["uuid"] != nil)
-	be.True(t, fileData["filename"] != nil)
-	be.True(t, fileData["size"] != nil)
-	be.True(t, fileData["tags"] != nil)
-	be.True(t, fileData["urls"] != nil)
+	be.True(t, artifactData["uuid"] != nil)
+	be.True(t, artifactData["filename"] != nil)
+	be.True(t, artifactData["size"] != nil)
+	be.True(t, artifactData["tags"] != nil)
+	be.True(t, artifactData["urls"] != nil)
 }
 
 // TestArtifactNotFound tests the artifact endpoint with a non-existent ID.

@@ -19,7 +19,7 @@
                     <p>The base URL for all API endpoints.</p>
                     <p class="text-muted">Examples:</p>
                       <ul>
-                        <li><a href="{{$api}}areacodes/regions/CA">{{$baseUrl}}areacodes/regions/CA</a></li>
+                        <li><a href="{{$api}}areacodes/region/CA">{{$baseUrl}}areacodes/region/CA</a></li>
                         <li><a href="{{$api}}artifact/af29fa4">{{$baseUrl}}artifact/af29fa4</a></li>
                         <li><a href="{{$api}}artifacts">{{$baseUrl}}artifacts</a></li>
                         <li><a href="{{$api}}artifacts/new">{{$baseUrl}}artifacts/new</a></li>
@@ -70,27 +70,27 @@
                                     <td><code>GET {{$api}}areacodes/212</code></td>
                                 </tr>
                                 <tr>
+                                    <td><code>/areacodes/regions</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get all regions <span class="text-secondary">(provinces, states, territories)</span></td>
+                                    <td><code>GET {{$api}}areacodes/regions</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>/areacodes/region/:abbr</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get a region by abbreviation</td>
+                                    <td><code>GET {{$api}}areacodes/region/CA</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/areacodes/search/:query</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Lookup an area code, state, territory, etc.</td>
                                     <td><code>GET {{$api}}areacodes/search/utah</code></td>
                                 </tr>
                                 <tr>
-                                    <td><code>/areacodes/regions</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get all regions (provinces, states, territories)</td>
-                                    <td><code>GET {{$api}}areacodes/regions</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/areacodes/regions/:abbr</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get a region by abbreviation</td>
-                                    <td><code>GET {{$api}}areacodes/regions/CA</code></td>
-                                </tr>
-                                <tr>
                                     <td><code>/artifact/:id</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get detailed information for a specific artifact by its ID</td>
+                                    <td>Get details for a specific artifact by its ID</td>
                                     <td><code>GET {{$api}}artifact/af29fa4</code></td>
                                 </tr>
                                 <tr>
@@ -186,7 +186,7 @@
                                 <tr>
                                     <td><code>/releaser/:name</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get files from a specific group or magazine</td>
+                                    <td>Get artifacts for a group, magazine, board, or site</td>
                                     <td><code>GET {{$api}}releaser/razor-1911</code></td>
                                 </tr>
                                 <tr>
@@ -238,7 +238,7 @@
             </div>
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Field Explanations</h2>
+                    <h2 class="h5 mb-0">Explanations</h2>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive mb-4">
@@ -252,14 +252,9 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><code>uuid</code></td>
+                                    <td><code>description</code></td>
                                     <td>string</td>
-                                    <td>Unique Universally Unique Identifier for the artifact in a standard UUID format using 36 characters.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>id</code></td>
-                                    <td>string</td>
-                                    <td>Unique identifier for resources for sceners and groups that use hash-based stable identifiers derived from their names to ensure consistency across API versions.</td>
+                                    <td>Detailed description of the specific artifact, typically following the pattern "[Title] released by [Group] in [Year]". This field provides historical context about the original release, including the releasing group and year. Examples: "Time To Say Goodbye released by Audiofile in 2023" or "Space Quest unprotect independently released in 1987".</td>
                                 </tr>
                                 <tr>
                                     <td><code>datePublished</code></td>
@@ -267,14 +262,84 @@
                                     <td>Contains the original release date components (year, month, day) when available. Represents the historical date the artifact was created or published in the scene, not when it was added to Defacto2.</td>
                                 </tr>
                                 <tr>
+                                    <td><code>download.checksum</code></td>
+                                    <td>string</td>
+                                    <td>SHA384 cryptographic hash of the file content, represented as a hexadecimal string. This can be used to verify file integrity and authenticity.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>download.lastModAgo</code></td>
+                                    <td>string</td>
+                                    <td>A representation of how long ago the file was last modified (e.g., "Modified 7 years ago").</td>
+                                </tr>
+                                <tr>
+                                    <td><code>download.lastModified</code></td>
+                                    <td>string</td>
+                                    <td>ISO 8601 formatted timestamp indicating when the original file was last modified, based on the file's internal metadata. This represents the historical modification date, not when it was added to Defacto2.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>download.mimeType</code></td>
+                                    <td>string</td>
+                                    <td>MIME type classification of the file content (e.g., "Zip archive", "MS-DOS executable", "Plain text").</td>
+                                </tr>
+                                <tr>
+                                    <td><code>id</code></td>
+                                    <td>string</td>
+                                    <td>Unique identifier for resources for sceners and groups that use hash-based stable identifiers derived from their names to ensure consistency across API versions.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>meta.comment</code></td>
+                                    <td>string</td>
+                                    <td>Additional notes, provenance, or details about the artifact.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>meta.releasers</code></td>
+                                    <td>array</td>
+                                    <td>Array of two objects containing one or two releasers involved with this artifact. A releaser can be a group, magazine, BBS board or FTP site.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>meta.releasers[].api</code></td>
+                                    <td>string</td>
+                                    <td>Direct API endpoint URI to access detailed information about this specific releaser.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>meta.releasers[].html</code></td>
+                                    <td>string</td>
+                                    <td>Web page URI showing the releaser's profile and all their associated artifacts.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>meta.releasers[].id</code></td>
+                                    <td>string</td>
+                                    <td>A unique identifier for the releaser.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>meta.releasers[].name</code></td>
+                                    <td>string</td>
+                                    <td>The display name of the releaser.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>meta.title</code></td>
+                                    <td>string</td>
+                                    <td>The title of the artifact without group names or release dates, often a software title, brief description or an issue number for magazines.</td>
+                                </tr>
+                                <tr>
                                     <td><code>postedDate</code></td>
                                     <td>string</td>
                                     <td>ISO 8601 formatted timestamp indicating when the artifact was added to the Defacto2 database.</td>
                                 </tr>
                                 <tr>
-                                    <td><code>size.formatted</code></td>
+                                    <td><code>relationships</code></td>
+                                    <td>array</td>
+                                    <td>Array of related external resources, references, or alternate versions. Each relationship contains a link URL and a descriptive title explaining the connection to the current artifact.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>relationships[].description</code></td>
                                     <td>string</td>
-                                    <td>Human-readable representation of file size using standard units (bytes, KB, MB, GB).</td>
+                                    <td>A brief description explaining the nature of the relationship (e.g., "Original 1982 release", Demozoo production").</td>
+                                </tr>
+                                <tr>
+                                    <td><code>relationships[].link</code></td>
+                                    <td>string</td>
+                                    <td>Full URL pointing to the related resource. This can be an external website, another Defacto2 artifact page, or any relevant online resource that provides additional context or information about the artifact.</td>
                                 </tr>
                                 <tr>
                                     <td><code>size.bytes</code></td>
@@ -282,58 +347,14 @@
                                     <td>Exact file size in bytes for programmatic use. Intended for calculations, comparisons, etc.</td>
                                 </tr>
                                 <tr>
-                                    <td><code>urls.download</code></td>
+                                    <td><code>size.formatted</code></td>
                                     <td>string</td>
-                                    <td>Direct download link for the file artifact. Uses obfuscated ID format as a permanent URL.<br>For example, /d/[hash] results to 
-                                    <a href="/d/ab3cee">https://defacto2.net/d/ab3cee</a></td>
-                                </tr>
-                                <tr>
-                                    <td><code>urls.html</code></td>
-                                    <td>string</td>
-                                    <td>Web page URL showing detailed information about the artifact with preview capabilities.<br>
-                                    Uses obfuscated ID format as a permanent URL. For example, /f/[hash] results to 
-                                    <a href="/f/ab3cee">https://defacto2.net/f/ab3cee</a></td>
-                                </tr>
-                                <tr>
-                                    <td><code>urls.thumbnail</code></td>
-                                    <td>string</td>
-                                    <td>URL to a thumbnail image preview when available. 
-                                        The result is a partial URL that needs a file extension.
-                                        Some artifacts have no thumbnails, 
-                                        but generally thumbnails use a <code>.png</code> extension. 
-                                        However, if the request returns a <small>404&nbsp;NOT&nbsp;FOUND</small>, a <code>.webp</code> maybe required.
-                                        <br>Example, <a href="/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp">https://defacto2.net/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><code>urls.api</code></td>
-                                    <td>string</td>
-                                    <td>Direct API URL to access this specific artifact's detailed information. Uses the obfuscated ID format for permanent linking.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>tags.category</code></td>
-                                    <td>string</td>
-                                    <td>Classification of the artifact type using Defacto2's tagging system.<br>All categories are found in <a href="{{$api}}categories">http://defacto2.net{{$api}}categories</a></td>
-                                </tr>
-                                <tr>
-                                    <td><code>tags.platform</code></td>
-                                    <td>string</td>
-                                    <td>Technical platform or format of the artifact indicating the original system or format type.<br>All platforms are found in <a href="{{$api}}platforms">http://defacto2.net{{$api}}platforms</a></td>
-                                </tr>
-                                <tr>
-                                    <td><code>tags.description</code></td>
-                                    <td>string</td>
-                                    <td>Human-readable combination of category and platform that describes what the artifact is and its format in natural language.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>description</code></td>
-                                    <td>string</td>
-                                    <td>Detailed description of the specific artifact, typically following the pattern "[Title] released by [Group] in [Year]". This field provides historical context about the original release, including the releasing group and year. Examples: "Time To Say Goodbye released by Audiofile in 2023" or "Space Quest unprotect independently released in 1987".</td>
+                                    <td>Human-readable representation of file size using standard units (bytes, KB, MB, GB).</td>
                                 </tr>
                                 <tr>
                                     <td><code>statistics.totalFiles</code></td>
                                     <td>number</td>
-                                    <td>Total count of all files associated with a scener, group, or category.</td>
+                                    <td>Total count of all files associated with a scener, releaser, or category entity.</td>
                                 </tr>
                                 <tr>
                                     <td><code>statistics.totalSize</code></td>
@@ -346,74 +367,52 @@
                                     <td>Exact total size in bytes of all files associated with athe entity.</td>
                                 </tr>
                                 <tr>
-                                    <td><code>fileMetadata.checksum</code></td>
+                                    <td><code>tags.category</code></td>
                                     <td>string</td>
-                                    <td>SHA384 cryptographic hash of the file content, represented as a hexadecimal string. This can be used to verify file integrity and authenticity.</td>
+                                    <td>Classification of the artifact type using Defacto2's tagging system.<br>All categories are found in <a href="{{$api}}categories">http://defacto2.net{{$api}}categories</a></td>
                                 </tr>
                                 <tr>
-                                    <td><code>fileMetadata.lastModified</code></td>
+                                    <td><code>tags.description</code></td>
                                     <td>string</td>
-                                    <td>ISO 8601 formatted timestamp indicating when the original file was last modified, based on the file's internal metadata. This represents the historical modification date, not when it was added to Defacto2.</td>
+                                    <td>Human-readable combination of category and platform that describes what the artifact is and its format in natural language.</td>
                                 </tr>
                                 <tr>
-                                    <td><code>fileMetadata.lastModAgo</code></td>
+                                    <td><code>tags.platform</code></td>
                                     <td>string</td>
-                                    <td>Human-readable representation of how long ago the file was last modified (e.g., "Modified 7 years ago").</td>
+                                    <td>Technical platform or format of the artifact indicating the original system or format type.<br>All platforms are found in <a href="{{$api}}platforms">http://defacto2.net{{$api}}platforms</a></td>
                                 </tr>
                                 <tr>
-                                    <td><code>fileMetadata.mimeType</code></td>
+                                    <td><code>urls.api</code></td>
                                     <td>string</td>
-                                    <td>MIME type classification of the file content (e.g., "Zip archive", "MS-DOS executable", "Plain text").</td>
+                                    <td>Direct API URI to access this artifact's detailed information.</td>
                                 </tr>
                                 <tr>
-                                    <td><code>artifactMetadata.comment</code></td>
+                                    <td><code>urls.download</code></td>
                                     <td>string</td>
-                                    <td>Additional notes, provenance, or details about the artifact.</td>
+                                    <td>Direct download link for the file artifact. <br>For example, <q>/d/[id]</q> results to 
+                                    <a href="/d/ab3cee">https://defacto2.net/d/ab3cee</a></td>
                                 </tr>
                                 <tr>
-                                    <td><code>artifactMetadata.title</code></td>
+                                    <td><code>urls.html</code></td>
                                     <td>string</td>
-                                    <td>The title of the artifact without group names or release dates, often a software title or a magazine issue number.</td>
+                                    <td>Web page URL showing detailed information about the artifact with preview capabilities.<br>
+                                    Uses obfuscated ID format as a permanent URL. For example, <q>/f/[id]</q> results to 
+                                    <a href="/f/ab3cee">https://defacto2.net/f/ab3cee</a></td>
                                 </tr>
                                 <tr>
-                                    <td><code>artifactMetadata.releasers</code></td>
-                                    <td>array</td>
-                                    <td>Array of two objects containing information about one or two groups who released this artifact.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>artifactMetadata.releasers[].id</code></td>
+                                    <td><code>urls.thumbnail</code></td>
                                     <td>string</td>
-                                    <td>URL-friendly identifier for the releaser, suitable for use in API endpoints and HTML URLs. This is typically a slugified version of the releaser's name.</td>
+                                    <td>URI to a thumbnail image preview that needs a file extension.
+                                        Generally thumbnails use a <code>.png</code> extension. 
+                                        However, if the request returns a <small>404&nbsp;NOT&nbsp;FOUND</small>, a <code>.webp</code> maybe required.
+                                        <br>Example, <a href="/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp">https://defacto2.net/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp</a>
+                                        <br><span class="text-secondary">Some artifacts, such as tracker music files, have no thumbnails.</span>
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td><code>artifactMetadata.releasers[].name</code></td>
+                                    <td><code>uuid</code></td>
                                     <td>string</td>
-                                    <td>Full display name of the releaser group, with proper capitalization and formatting.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>artifactMetadata.releasers[].api</code></td>
-                                    <td>string</td>
-                                    <td>Direct API endpoint URI to access detailed information about this specific releaser.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>artifactMetadata.releasers[].html</code></td>
-                                    <td>string</td>
-                                    <td>Web page URI showing the releaser's profile and all their associated artifacts.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>relationships</code></td>
-                                    <td>array</td>
-                                    <td>Array of related external resources, references, or alternate versions. Each relationship contains a link URL and a descriptive title explaining the connection to the current artifact.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>relationships[].link</code></td>
-                                    <td>string</td>
-                                    <td>Full URL pointing to the related resource. This can be an external website, another Defacto2 artifact page, or any relevant online resource that provides additional context or information about the artifact.</td>
-                                </tr>
-                                <tr>
-                                    <td><code>relationships[].description</code></td>
-                                    <td>string</td>
-                                    <td>A brief description explaining the nature of the relationship (e.g., "Original 1982 release", Demozoo production").</td>
+                                    <td>Unique Universally Unique Identifier for the artifact in a standard UUID format using 36 characters.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -773,8 +772,8 @@ fetch('{{$baseUrl}}scener/jed')
                                     <td>Get recently added files with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET {{$api}}file/:id</code></td>
-                                    <td>Get detailed information for a specific file</td>
+                                    <td><code>GET {{$api}}artifact/:id</code></td>
+                                    <td>Get detailed information for a specific artifact</td>
                                 </tr>
                                 <tr>
                                     <td><code>GET {{$api}}groups?page=1</code></td>
@@ -883,9 +882,9 @@ fetch('{{$baseUrl}}releaser/big-apple-bbs')
     "page": 1,
     "totalPages": 4
 }</code></pre>
-                    <h3 class="h6 mt-4">Single File Detail Response</h3>
+                    <h3 class="h6 mt-4">Single Artifact Detail Response</h3>
                     <pre class="bg-dark text-white p-3 rounded"><code>{
-    "file": {
+    "artifact": {
         "uuid": "0192d253-2446-7671-8a54-7af108989675",
         "filename": "Paratrooper [DC][h1] (1982)(Orion Software, Inc.) [Action].zip",
         "datePublished": {
@@ -911,13 +910,13 @@ fetch('{{$baseUrl}}releaser/big-apple-bbs')
             "thumbnail": "/public/image/thumb/0192d253-2446-7671-8a54-7af108989675"
         }
     },
-    "fileMetadata": {
+    "download": {
         "checksum": "811704f43c6c06cc3a74af7782e856548e2599434ba836b0314276fb271dbd7318b8e302ca549b791897de0c16d27b78",
         "lastModified": "2018-08-25T11:49:38.486+10:00",
         "lastModAgo": "Modified 7 years ago",
         "mimeType": "Zip archive"
     },
-    "artifactMetadata": {
+    "meta": {
         "comment": "Date of release taken from the last modification date of PARATROP.COM.",
         "title": "Paratrooper",
         "releasers": [
@@ -1247,7 +1246,7 @@ fetch('{{$baseUrl}}milestones/highlights')
                                     <td>Get all territories (states, provinces) with their area codes</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET {{$api}}areacodes/regions/:abbr</code></td>
+                                    <td><code>GET {{$api}}areacodes/region/:abbr</code></td>
                                     <td>Get territory details by two-letter abbreviation</td>
                                 </tr>
                                 <tr>
@@ -1266,7 +1265,7 @@ curl {{$baseUrl}}areacodes/212
 
 curl {{$baseUrl}}areacodes/regions
 
-curl {{$baseUrl}}areacodes/regions/CA
+curl {{$baseUrl}}areacodes/region/CA
 
 curl {{$baseUrl}}areacodes/search/california</code></pre>
                         </div>
@@ -1276,7 +1275,7 @@ curl {{$baseUrl}}areacodes/search/california</code></pre>
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}areacodes/regions/NY')
+fetch('{{$baseUrl}}areacodes/region/NY')
   .then(response => response.json())
   .then(data => console.log(data));
 

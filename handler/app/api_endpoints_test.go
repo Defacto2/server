@@ -50,7 +50,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 		{"releaser/razor-1911", "/releaser/razor-1911", true, false},
 		// Area code specific endpoints
 		{"areacodes/212", "/areacodes/212", false, false},
-		{"areacodes/regions/CA", "/areacodes/regions/CA", false, false},
+		{"areacodes/region/CA", "/areacodes/region/CA", false, false},
 		{"areacodes/search/california", "/areacodes/search/california", true, false},
 		// Milestone specific endpoints
 		{"milestones/year/1995", "/milestones/year/1995", true, true},
@@ -151,7 +151,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 			case "areacodes/212":
 				be.True(t, result["code"] != nil)
 				be.True(t, result["territories"] != nil)
-			case "areacodes/regions/CA":
+			case "areacodes/region/CA":
 				be.True(t, result["name"] != nil)
 				be.True(t, result["abbreviation"] != nil)
 				be.True(t, result["areaCodes"] != nil)
@@ -176,7 +176,7 @@ func TestAPIEndpointExamples(t *testing.T) {
 		{"magazines", api + "/magazines"},
 		{"releaser/defacto2", api + "/releaser/defacto2"},
 		{"milestones/year/1971", api + "/milestones/year/1971"},
-		{"areacodes/regions/CA", api + "/areacodes/regions/CA"},
+		{"areacodes/region/CA", api + "/areacodes/region/CA"},
 		{"sceners/artist", api + "/sceners/artist"},
 		{"scener/dubmood", api + "/scener/dubmood"},
 		{"websites", api + "/websites"},
@@ -240,7 +240,7 @@ func TestAPIEndpointExamples(t *testing.T) {
 			case "releaser/defacto2":
 				be.True(t, result["group"] != nil)
 				be.True(t, result["files"] != nil)
-			case "areacodes/regions/CA":
+			case "areacodes/region/CA":
 				be.True(t, result["name"] != nil)
 				be.True(t, result["abbreviation"] != nil)
 			case "sceners/artist":
