@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Defacto2/helper"
@@ -41,6 +42,22 @@ const (
 	APIVer  = "0.2.0"   // API Version gets shown in the HTTP header replies
 
 	apiLimit = 1000
+)
+
+const (
+	cacheDuration = 1 * time.Hour
+	cacheMaxItems = 1000
+)
+
+// queryCacheItem represents a cached query result.
+type queryCacheItem struct {
+	data    any
+	expires time.Time
+}
+
+var (
+	tagCache = make(map[string]queryCacheItem)
+	tagsMu   sync.RWMutex
 )
 
 // ArtifactAPI represents an artifact file for API responses.
@@ -1130,6 +1147,43 @@ func scenersAPI(srs model.Sceners) []scenerAPI {
 	return results
 }
 
+// cachedTags returns cached tag results if available.
+func cachedTags(category, platform bool) ([]tagAPI, bool) {
+	key := fmt.Sprintf("tags_category=%t_platform=%t", category, platform)
+
+	tagsMu.RLock()
+	defer tagsMu.RUnlock()
+
+	if item, exists := tagCache[key]; exists && time.Now().Before(item.expires) {
+		if results, ok := item.data.([]tagAPI); ok {
+			return results, true
+		}
+	}
+	return nil, false
+}
+
+// tagsCache stores tag results in the cache.
+func tagsCache(category, platform bool, results []tagAPI) {
+	key := fmt.Sprintf("tags_category=%t_platform=%t", category, platform)
+
+	tagsMu.Lock()
+	defer tagsMu.Unlock()
+
+	// Clean up old cache entries if we're approaching the limit
+	if len(tagCache) >= cacheMaxItems {
+		for key, item := range tagCache {
+			if time.Now().After(item.expires) {
+				delete(tagCache, key)
+			}
+		}
+	}
+
+	tagCache[key] = queryCacheItem{
+		data:    results,
+		expires: time.Now().Add(cacheDuration),
+	}
+}
+
 // TagsAPI returns artifact tags.
 //
 //   - Set categories true to return all categories.
@@ -1138,6 +1192,11 @@ func scenersAPI(srs model.Sceners) []scenerAPI {
 //
 // Setting both to false will return an empty JSON response.
 func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
+	// Try to get cached results first
+	if i, found := cachedTags(category, platform); found {
+		return c.JSON(http.StatusOK, i)
+	}
+
 	items := tags.List()
 	infos := tags.Infos()
 	if len(items) == 0 || !category && !platform {
@@ -1187,6 +1246,9 @@ func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 		}
 		results = append(results, result)
 	}
+
+	// Cache the results before returning
+	tagsCache(category, platform, results)
 
 	return c.JSON(http.StatusOK, results)
 }
