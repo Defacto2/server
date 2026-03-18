@@ -481,14 +481,20 @@ func MilestoneHighlightsAPI(c echo.Context) error {
 // When highlights is true, only the highlighted milestones will be returned.
 func milestonesAPI(c echo.Context, highlights bool) error {
 	all := Collection()
-	milestones := make(Milestones, len(all))
+	result := make(Milestones, len(all))
 	for i, m := range all {
 		if highlights && !m.Highlight {
 			continue
 		}
-		milestones[i] = milestoneFmt(m)
+		result[i] = milestoneFmt(m)
 	}
-	return c.JSON(http.StatusOK, milestones)
+	if highlights {
+		// delete empty slots created by the highlights bool, these default to Highlight=false
+		result = slices.DeleteFunc(result, func(m Milestone) bool {
+			return !m.Highlight
+		})
+	}
+	return c.JSON(http.StatusOK, result)
 }
 
 // MilestoneYearAPI returns milestones for a specific year.
