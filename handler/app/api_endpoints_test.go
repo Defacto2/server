@@ -393,7 +393,7 @@ func TestAPIResponseValidation(t *testing.T) {
 			be.True(t, len(releaser.ID) > 0)
 			be.True(t, len(releaser.Name) > 0)
 			// be.True(t, len(releaser.Title) > 0) // Title may be empty for some releasers
-			be.True(t, strings.HasPrefix(releaser.URLs.API, "/api/v0releaser/"))
+			be.True(t, strings.HasPrefix(releaser.URLs.API, "/api/v0/releaser/"))
 			be.True(t, strings.HasPrefix(releaser.URLs.HTML, "/g/"))
 			be.True(t, releaser.Statistics.TotalFiles >= 0)
 			be.True(t, releaser.Statistics.TotalSizeBytes >= 0)

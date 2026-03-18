@@ -461,8 +461,8 @@ func TestScenerDetailsContract(t *testing.T) {
 		firstFile, ok := files[0].(map[string]any)
 		be.True(t, ok)
 
-		fileID, ok := firstFile["id"].(float64)
-		be.True(t, ok && int(fileID) > 0)
+		fileUUID, ok := firstFile["uuid"].(string)
+		be.True(t, ok && len(fileUUID) > 0)
 
 		filename, ok := firstFile["filename"].(string)
 		be.True(t, ok && len(filename) > 0)
@@ -500,4 +500,93 @@ func TestScenerNotFound(t *testing.T) {
 	be.Equal(t, err, nil)
 
 	be.Equal(t, "Scener not found", result["error"])
+}
+
+// TestFileContract verifies the file endpoint contract.
+func TestFileContract(t *testing.T) {
+	client := http.Client{}
+
+	// Test with a known file hash from the files endpoint
+	// First, get a file from the files endpoint to use as a test case
+	filesReq, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/files?page=1", nil)
+	filesResp, err := client.Do(filesReq)
+	be.Equal(t, err, nil)
+	defer func() {
+		if err := filesResp.Body.Close(); err != nil {
+			t.Log(err)
+		}
+	}()
+
+	be.Equal(t, http.StatusOK, filesResp.StatusCode)
+
+	var filesResult map[string]any
+	err = json.NewDecoder(filesResp.Body).Decode(&filesResult)
+	be.Equal(t, err, nil)
+
+	filesArray, ok := filesResult["files"].([]any)
+	be.True(t, ok)
+	be.True(t, len(filesArray) > 0)
+
+	// Get the first file's hash
+	firstFile, ok := filesArray[0].(map[string]any)
+	be.True(t, ok)
+
+	urls, ok := firstFile["urls"].(map[string]any)
+	be.True(t, ok)
+
+	hash, ok := urls["download"].(string)
+	be.True(t, ok)
+
+	// Extract the hash part from "/d/ab1dab0" to "ab1dab0"
+	hashParts := strings.Split(hash, "/")
+	be.Equal(t, len(hashParts), 3)
+	fileHash := hashParts[2]
+
+	// Now test the file endpoint with this hash
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/file/"+fileHash, nil)
+	resp, err := client.Do(req)
+	be.Equal(t, err, nil)
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Log(err)
+		}
+	}()
+
+	be.Equal(t, http.StatusOK, resp.StatusCode)
+
+	var result map[string]any
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	be.Equal(t, err, nil)
+
+	// Verify the response structure
+	fileData, ok := result["file"].(map[string]any)
+	be.True(t, ok)
+
+	// Check required fields
+	be.True(t, fileData["uuid"] != nil)
+	be.True(t, fileData["filename"] != nil)
+	be.True(t, fileData["size"] != nil)
+	be.True(t, fileData["tags"] != nil)
+	be.True(t, fileData["urls"] != nil)
+}
+
+// TestFileNotFound tests the file endpoint with a non-existent hash.
+func TestFileNotFound(t *testing.T) {
+	client := http.Client{}
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/file/nonexistent", nil)
+	resp, err := client.Do(req)
+	be.Equal(t, err, nil)
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			t.Log(err)
+		}
+	}()
+
+	be.Equal(t, http.StatusBadRequest, resp.StatusCode)
+
+	var result map[string]string
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	be.Equal(t, err, nil)
+
+	be.Equal(t, "Invalid file hash", result["error"])
 }

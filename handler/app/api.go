@@ -3,10 +3,13 @@ package app
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -29,25 +32,30 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
+	"github.com/aarondl/null/v8"
 	"github.com/labstack/echo/v4"
 )
 
 const (
-	APILimit = 1000
-	apiuri   = "/api/v0"
+	apiLimit = 1000
+	apiBase  = "/api/v0"
 )
 
-// ArtifactSumAPI represents an artifact file summary for API responses.
-type ArtifactSumAPI struct {
-	ID            int64  `json:"id"`
-	Filename      string `json:"filename"`
-	DatePublished struct {
-		Year  int16 `json:"year,omitempty"`
-		Month int16 `json:"month,omitempty"`
-		Day   int16 `json:"day,omitempty"`
-	} `json:"datePublished"`
-	PostedDate *time.Time `json:"postedDate,omitempty"`
-	Size       struct {
+// ArtifactAPI represents an artifact file for API responses.
+type ArtifactAPI struct {
+	Summary       artifactAPI   `json:"file"`
+	FileMeta      filemetaAPI   `json:"fileMetadata"`
+	ArtMeta       artmetaAPI    `json:"artifactMetadata"`
+	Relationships []relationAPI `json:"relationships"`
+}
+
+// artifactAPI represents an artifact file summary for API responses.
+type artifactAPI struct {
+	UUID          string       `json:"uuid"`
+	Filename      string       `json:"filename"`
+	DatePublished publishedAPI `json:"datePublished"`
+	PostedDate    *time.Time   `json:"postedDate,omitempty"`
+	Size          struct {
 		Formatted string `json:"formatted"`
 		Bytes     int64  `json:"bytes"`
 	} `json:"size"`
@@ -57,55 +65,59 @@ type ArtifactSumAPI struct {
 		Platform    string `json:"platform"`
 		Description string `json:"description"`
 	} `json:"tags"`
-	URLs struct {
-		Download  string `json:"download"`
-		HTML      string `json:"html"`
-		Thumbnail string `json:"thumbnail,omitempty"`
-	} `json:"urls"`
+	URLs urlAPI `json:"urls"`
 }
 
-// SceneEntityAPI represents a releaser or group for API responses.
-type SceneEntityAPI struct {
-	ID       string     `json:"id"`
-	Name     string     `json:"name"`
-	Title    string     `json:"title"`
-	URLs     EntityURLs `json:"urls"`
-	Stats    Statistics `json:"statistics"`
-	Websites any        `json:"websites,omitempty"`
-	Sixteen  string     `json:"sixteen,omitempty"`
-	Janeway  string     `json:"janeway,omitempty"`
-	Demozoo  string     `json:"demozoo,omitempty"`
-	Csdb     string     `json:"csdb,omitempty"`
+type urlAPI struct {
+	API       string `json:"api"`
+	Download  string `json:"download"`
+	HTML      string `json:"html"`
+	Thumbnail string `json:"thumbnail,omitempty"`
 }
 
-// EntityURLs represents a collection releaser or group URLs.
-type EntityURLs struct {
-	API   string `json:"api"`
-	HTML3 string `json:"html3"`
-	HTML  string `json:"html"`
+type filemetaAPI struct {
+	Checksum     string     `json:"checksum"`
+	LastModified *time.Time `json:"lastModified"`
+	LastModAgo   string     `json:"lastModAgo,omitempty"`
+	MimeType     string     `json:"mimeType"`
 }
 
-// ScenerEntityAPI represents a scener for API responses.
-type ScenerEntityAPI struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Title string `json:"title"`
-	URLs  struct {
-		API  string `json:"api"`
-		HTML string `json:"html"`
-	} `json:"urls"`
+type artmetaAPI struct {
+	Comment   string        `json:"comment"`
+	Title     string        `json:"title"`
+	Releasers []releaserAPI `json:"releasers"`
+	Preview   string        `json:"preview"`
 }
 
-// Statistics for total file count, humanized size, and byte sizes.
-type Statistics struct {
-	TotalFiles     int64  `json:"totalFiles,omitempty"`
-	TotalSize      string `json:"totalSize,omitempty"`
-	TotalSizeBytes int64  `json:"totalSizeBytes,omitempty"`
+type relationAPI struct {
+	Link string `json:"link"`
+	Desc string `json:"description"`
 }
 
-type artifactsSumStat struct {
-	Files []ArtifactSumAPI `json:"files"`
-	Stats Statistics       `json:"statistics"`
+type releaserAPI struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	API  string `json:"api"`
+	HTML string `json:"html"`
+}
+
+// EntityAPI represents a group, scener, or releaser for API responses.
+type EntityAPI struct {
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Title    string    `json:"title"`
+	URLs     enityURLs `json:"urls"`
+	Stats    totalsAPI `json:"statistics"`
+	Websites any       `json:"websites,omitempty"`
+	Sixteen  string    `json:"sixteen,omitempty"`
+	Janeway  string    `json:"janeway,omitempty"`
+	Demozoo  string    `json:"demozoo,omitempty"`
+	Csdb     string    `json:"csdb,omitempty"`
+}
+
+type artifactsAPI struct {
+	Files []artifactAPI `json:"files"`
+	Stats totalsAPI     `json:"statistics"`
 }
 
 // areacodeAPI represents an area code for API responses.
@@ -115,18 +127,38 @@ type areacodeAPI struct {
 	Notes       string   `json:"notes,omitempty"`
 }
 
+// enityURLs represents a collection releaser or group URLs.
+type enityURLs struct {
+	API   string `json:"api"`
+	HTML3 string `json:"html3"`
+	HTML  string `json:"html"`
+}
+
+type publishedAPI struct {
+	Year  int16 `json:"year,omitempty"`
+	Month int16 `json:"month,omitempty"`
+	Day   int16 `json:"day,omitempty"`
+}
+
+// scenerAPI represents a scener for API responses.
+type scenerAPI struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Title string `json:"title"`
+	URLs  struct {
+		API  string `json:"api"`
+		HTML string `json:"html"`
+	} `json:"urls"`
+}
+
 // tagAPI represents a tag category or tag platform for API responses.
 type tagAPI struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
-	URLs        struct {
-		API   string `json:"api,omitempty"`
-		HTML3 string `json:"html3,omitempty"`
-		HTML  string `json:"html,omitempty"`
-	} `json:"urls"`
-	Stats Statistics `json:"statistics"`
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Title       string    `json:"title,omitempty"`
+	Description string    `json:"description,omitempty"`
+	URLs        enityURLs `json:"urls"`
+	Stats       totalsAPI `json:"statistics"`
 }
 
 // territoryAPI represents a territory for API responses.
@@ -136,15 +168,22 @@ type territoryAPI struct {
 	AreaCodes    []int  `json:"areaCodes"`
 }
 
-// groupPageAPI represents a group website for API responses.
-type groupPageAPI struct {
+// totalsAPI for total file count, humanized size, and byte sizes.
+type totalsAPI struct {
+	TotalFiles     int64  `json:"totalFiles,omitempty"`
+	TotalSize      string `json:"totalSize,omitempty"`
+	TotalSizeBytes int64  `json:"totalSizeBytes,omitempty"`
+}
+
+// webpageAPI represents a group website for API responses.
+type webpageAPI struct {
 	URL     string `json:"url"`
 	Name    string `json:"name"`
 	Working bool   `json:"working"`
 }
 
-// WebsiteAPI represents a website for API responses.
-type WebsiteAPI struct {
+// websiteAPI represents a website for API responses.
+type websiteAPI struct {
 	Title    string `json:"title"`
 	URL      string `json:"url"`
 	Info     string `json:"info"`
@@ -156,8 +195,8 @@ func ArtifactsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return ArtifactAPIs(c, db, sl, "oldest")
 }
 
-// NewArtifactsAPI returns a list of all files ordered by "new-uploads".
-func NewArtifactsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+// ArtifactsNewAPI returns a list of all files ordered by "new-uploads".
+func ArtifactsNewAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return ArtifactAPIs(c, db, sl, "new-uploads")
 }
 
@@ -168,7 +207,7 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
-	const limit = APILimit
+	const limit = apiLimit
 	page := 1
 	if s := c.QueryParam("page"); s != "" {
 		var err error
@@ -181,7 +220,7 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 	}
 
 	ctx := context.Background()
-	records, err := fileslice.Records(ctx, db, uri, page, limit)
+	fs, err := fileslice.Records(ctx, db, uri, page, limit)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "Failed to query files",
@@ -193,11 +232,11 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 			"error": "Failed to query count",
 		})
 	}
-	files := artifactsSum(records)
+	files := artifactSummaries(fs)
 	pages := (count + limit - 1) / limit // Ceiling division
-	response := artifactsSumStat{
+	response := artifactsAPI{
 		Files: files,
-		Stats: Statistics{
+		Stats: totalsAPI{
 			TotalFiles:     count,
 			TotalSize:      "",
 			TotalSizeBytes: 0,
@@ -209,8 +248,47 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 		"statistics": response.Stats,
 		"page":       page,
 		"totalPages": pages,
-		"limit":      APILimit,
+		"limit":      apiLimit,
 	})
+}
+
+// FileAPI returns a single file by its obfuscated ID.
+func FileAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "file api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	hash := c.Param("hash")
+	if hash == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Missing hash parameter",
+		})
+	}
+
+	ctx := context.Background()
+	fileID := helper.DeobfuscateID(hash)
+	if fileID == 0 {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid file hash",
+		})
+	}
+
+	// Get the file record by ID
+	record, err := models.FindFile(ctx, db, int64(fileID))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"error": "File not found",
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query file",
+		})
+	}
+
+	file := artifact(record)
+	return c.JSON(http.StatusOK, file)
 }
 
 // APIMarkup removes CSS classes and attributes from HTML for API responses.
@@ -566,16 +644,16 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			"error": "Failed to count releasers",
 		})
 	}
-	pages := (count + APILimit - 1) / APILimit // Ceiling division
+	pages := (count + apiLimit - 1) / apiLimit // Ceiling division
 	rels := model.Releasers{}
-	if err := rels.Limit(ctx, db, model.Alphabetical, APILimit, page); err != nil {
+	if err := rels.Limit(ctx, db, model.Alphabetical, apiLimit, page); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "Failed to query releasers",
 		})
 	}
 	if len(rels) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"releasers":  []SceneEntityAPI{},
+			"releasers":  []EntityAPI{},
 			"page":       page,
 			"totalPages": pages,
 		})
@@ -605,7 +683,7 @@ func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	if len(rels) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"releasers":  []SceneEntityAPI{},
+			"releasers":  []EntityAPI{},
 			"page":       1,
 			"totalPages": 1,
 		})
@@ -619,9 +697,9 @@ func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	})
 }
 
-// BBSAPI is the handler for the BBS API endpoint.
-func BBSAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	const msg = "bbs api"
+// BoardsAPI is the handler for the BBS API endpoint.
+func BoardsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+	const msg = "boards api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -635,7 +713,7 @@ func BBSAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	if len(rels) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"releasers":  []SceneEntityAPI{},
+			"releasers":  []EntityAPI{},
 			"page":       1,
 			"totalPages": 1,
 		})
@@ -665,7 +743,7 @@ func SitesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	if len(rels) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"releasers":  []SceneEntityAPI{},
+			"releasers":  []EntityAPI{},
 			"page":       1,
 			"totalPages": 1,
 		})
@@ -689,8 +767,8 @@ func groupsCount(ctx context.Context, db *sql.DB) (int, error) {
 }
 
 // ReleasersAPI builds the ReleaserAPI list from model data.
-func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
-	results := make([]SceneEntityAPI, 0, len(rels))
+func ReleasersAPI(rels model.Releasers) []EntityAPI {
+	results := make([]EntityAPI, 0, len(rels))
 	for _, rel := range rels {
 		title := releaser.Link(rel.Unique.Name)
 		name := releaser.Obfuscate(rel.Unique.Name)
@@ -700,16 +778,16 @@ func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
 		// create stable ID from the url using an obfuscated name
 		id := simple.Hash(name)
 
-		result := SceneEntityAPI{
+		result := EntityAPI{
 			ID:    id,
 			Name:  name,
 			Title: title,
-			URLs: EntityURLs{
-				API:   apiuri + "releaser/" + name,
+			URLs: enityURLs{
+				API:   apiBase + "/releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
-			Stats: Statistics{
+			Stats: totalsAPI{
 				TotalFiles:     int64(count),
 				TotalSize:      helper.ByteCount(int64(bytes)),
 				TotalSizeBytes: int64(bytes),
@@ -726,7 +804,7 @@ func ReleasersAPI(rels model.Releasers) []SceneEntityAPI {
 }
 
 // artifactSum creates an ArtifactSumAPI from a file model.
-func artifactSum(f *models.File) ArtifactSumAPI {
+func artifactSum(f *models.File) artifactAPI {
 	category := filerecord.TagCategory(f)
 	platform := filerecord.TagProgram(f)
 	categoryTag := tags.TagByURI(category)
@@ -741,14 +819,10 @@ func artifactSum(f *models.File) ArtifactSumAPI {
 		DateIssuedYear: f.DateIssuedYear,
 	}
 
-	result := ArtifactSumAPI{
-		ID:       f.ID,
-		Filename: f.Filename.String,
-		DatePublished: struct {
-			Year  int16 `json:"year,omitempty"`
-			Month int16 `json:"month,omitempty"`
-			Day   int16 `json:"day,omitempty"`
-		}{
+	result := artifactAPI{
+		UUID:     filerecord.UnID(f),
+		Filename: filerecord.Basename(f),
+		DatePublished: publishedAPI{
 			Year:  f.DateIssuedYear.Int16,
 			Month: f.DateIssuedMonth.Int16,
 			Day:   f.DateIssuedDay.Int16,
@@ -768,11 +842,8 @@ func artifactSum(f *models.File) ArtifactSumAPI {
 			Platform:    platform,
 			Description: humanized,
 		},
-		URLs: struct {
-			Download  string `json:"download"`
-			HTML      string `json:"html"`
-			Thumbnail string `json:"thumbnail,omitempty"`
-		}{
+		URLs: urlAPI{
+			API:       apiBase + "/file/" + helper.ObfuscateID(f.ID),
 			Download:  "/d/" + helper.ObfuscateID(f.ID),
 			HTML:      "/f/" + helper.ObfuscateID(f.ID),
 			Thumbnail: "/public/image/thumb/" + f.UUID.String,
@@ -820,30 +891,30 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		})
 	}
 
-	result := make([]ArtifactSumAPI, 0, len(fs))
+	result := make([]artifactAPI, 0, len(fs))
 	for _, f := range fs {
 		result = append(result, artifactSum(f))
 	}
 	sites := site.Find(name)
-	websites := make([]groupPageAPI, len(sites))
+	websites := make([]webpageAPI, len(sites))
 	for i, site := range sites {
-		websites[i] = groupPageAPI{
+		websites[i] = webpageAPI{
 			URL:     site.URL,
 			Name:    site.Name,
 			Working: !site.NotWorking,
 		}
 	}
 	return c.JSON(http.StatusOK, map[string]any{
-		"group": SceneEntityAPI{
+		"group": EntityAPI{
 			ID:    simple.Hash(name),
 			Name:  name,
 			Title: releaser.Link(name),
-			URLs: EntityURLs{
-				API:   apiuri + "releaser/" + name,
+			URLs: enityURLs{
+				API:   apiBase + "releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
-			Stats: Statistics{
+			Stats: totalsAPI{
 				TotalFiles:     sum.SumCount.Int64,
 				TotalSize:      helper.ByteCount(sum.SumBytes.Int64),
 				TotalSizeBytes: sum.SumBytes.Int64,
@@ -922,12 +993,12 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		})
 	}
 
-	result := make([]ArtifactSumAPI, 0, len(fs))
+	result := make([]artifactAPI, 0, len(fs))
 	for _, f := range fs {
 		result = append(result, artifactSum(f))
 	}
 	return c.JSON(http.StatusOK, map[string]any{
-		"scener": SceneEntityAPI{
+		"scener": EntityAPI{
 			ID:    simple.Hash(name),
 			Name:  name,
 			Title: releaser.Link(name),
@@ -936,11 +1007,11 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 				HTML3 string `json:"html3"`
 				HTML  string `json:"html"`
 			}{
-				API:   apiuri + "/scener/" + name,
+				API:   apiBase + "/scener/" + name,
 				HTML3: "",
 				HTML:  "/p/" + name,
 			},
-			Stats: Statistics{
+			Stats: totalsAPI{
 				TotalFiles:     sum.SumCount.Int64,
 				TotalSize:      helper.ByteCount(sum.SumBytes.Int64),
 				TotalSizeBytes: sum.SumBytes.Int64,
@@ -1010,7 +1081,7 @@ func roleAPI(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error
 	}
 	if len(srs) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"sceners":    []ScenerEntityAPI{},
+			"sceners":    []scenerAPI{},
 			"page":       1,
 			"totals":     0,
 			"totalPages": 1,
@@ -1025,9 +1096,9 @@ func roleAPI(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error
 	})
 }
 
-func scenersAPI(srs model.Sceners) []ScenerEntityAPI {
+func scenersAPI(srs model.Sceners) []scenerAPI {
 	sceners := srs.Sort()
-	results := make([]ScenerEntityAPI, 0, len(sceners))
+	results := make([]scenerAPI, 0, len(sceners))
 	for _, s := range sceners {
 		title := helper.Capitalize(strings.ToLower(s)) // scener // releaser.Link(scener.Unique.Name)
 		name := helper.Slug(s)
@@ -1035,7 +1106,7 @@ func scenersAPI(srs model.Sceners) []ScenerEntityAPI {
 		// create stable ID from the url using an obfuscated name
 		id := simple.Hash(name)
 
-		result := ScenerEntityAPI{
+		result := scenerAPI{
 			ID:    id,
 			Name:  name,
 			Title: title,
@@ -1043,7 +1114,7 @@ func scenersAPI(srs model.Sceners) []ScenerEntityAPI {
 				API  string `json:"api"`
 				HTML string `json:"html"`
 			}{
-				API:  apiuri + "/scener/" + name,
+				API:  apiBase + "/scener/" + name,
 				HTML: html,
 			},
 		}
@@ -1096,17 +1167,13 @@ func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 			Name:        slug,
 			Description: infos[tag],
 			Title:       title,
-			Stats: Statistics{
+			Stats: totalsAPI{
 				TotalFiles:     count,
 				TotalSize:      helper.ByteCount(byteSum),
 				TotalSizeBytes: byteSum,
 			},
-			URLs: struct {
-				API   string `json:"api,omitempty"`
-				HTML3 string `json:"html3,omitempty"`
-				HTML  string `json:"html,omitempty"`
-			}{
-				API:   apiuri + "/files/" + slug,
+			URLs: enityURLs{
+				API:   apiBase + "/files/" + slug,
 				HTML3: "/html3/" + slug,
 				HTML:  "/files/" + slug,
 			},
@@ -1167,7 +1234,7 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 		})
 	}
 
-	var records models.FileSlice
+	var fs models.FileSlice
 	var err error
 	var byteSum int64
 	var count int64
@@ -1175,7 +1242,7 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 	order := html3.PublAsc
 
 	if category {
-		records, err = order.ByCategory(ctx, db, 0, 0, name)
+		fs, err = order.ByCategory(ctx, db, 0, 0, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": "Failed to query category files",
@@ -1195,7 +1262,7 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 		}
 	}
 	if platform {
-		records, err = order.ByPlatform(ctx, db, 0, 0, name)
+		fs, err = order.ByPlatform(ctx, db, 0, 0, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": "Failed to query platform files",
@@ -1215,10 +1282,10 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 		}
 	}
 
-	result := artifactsSum(records)
-	response := artifactsSumStat{
+	result := artifactSummaries(fs)
+	response := artifactsAPI{
 		Files: result,
-		Stats: Statistics{
+		Stats: totalsAPI{
 			TotalFiles:     count,
 			TotalSize:      helper.ByteCount(byteSum),
 			TotalSizeBytes: byteSum,
@@ -1228,81 +1295,265 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 	return c.JSON(http.StatusOK, response)
 }
 
-// artifactsSum transforms database records to the API format.
-func artifactsSum(records []*models.File) []ArtifactSumAPI {
-	result := make([]ArtifactSumAPI, len(records))
-	for i, record := range records {
-		var datePublished struct {
-			Year  int16 `json:"year,omitempty"`
-			Month int16 `json:"month,omitempty"`
-			Day   int16 `json:"day,omitempty"`
-		}
-		if record.DateIssuedYear.Valid && record.DateIssuedMonth.Valid && record.DateIssuedDay.Valid {
-			datePublished.Year = record.DateIssuedYear.Int16
-			datePublished.Month = record.DateIssuedMonth.Int16
-			datePublished.Day = record.DateIssuedDay.Int16
-		}
+func datePublished(record *models.File) publishedAPI {
+	dp := publishedAPI{ //nolint:exhaustruct
+	}
+	if record.DateIssuedYear.Valid && record.DateIssuedMonth.Valid && record.DateIssuedDay.Valid {
+		dp.Year = record.DateIssuedYear.Int16
+		dp.Month = record.DateIssuedMonth.Int16
+		dp.Day = record.DateIssuedDay.Int16
+		return dp
+	}
+	if record.DateIssuedYear.Valid && record.DateIssuedMonth.Valid {
+		dp.Year = record.DateIssuedYear.Int16
+		dp.Month = record.DateIssuedMonth.Int16
+		return dp
+	}
+	if record.DateIssuedYear.Valid {
+		dp.Year = record.DateIssuedYear.Int16
+		return dp
+	}
+	return dp
+}
 
-		// Handle postedDate using Createdat field
-		var postedDate *time.Time
-		if record.Createdat.Valid {
-			t := record.Createdat.Time
-			postedDate = &t
+func artifact(art *models.File) ArtifactAPI {
+	return ArtifactAPI{
+		Summary: artifactSummary(art),
+		FileMeta: filemetaAPI{
+			Checksum:     filerecord.Checksum(art),
+			LastModified: timedTimer(art.FileLastModified),
+			LastModAgo:   filerecord.LastModificationAgo(art),
+			MimeType:     filerecord.Magic(art),
+		},
+		ArtMeta: artmetaAPI{
+			Comment:   filerecord.Comment(art),
+			Title:     filerecord.FirstHeader(art),
+			Releasers: releasersAPI(art),
+			Preview:   filerecord.LinkPreview(art),
+		},
+		Relationships: relationshipsAPI(art),
+	}
+}
+
+func releasersAPI(art *models.File) []releaserAPI {
+	n1, n2 := filerecord.ReleaserPair(art)
+	u1, u2 := helper.Slug(n1), helper.Slug(n2)
+	const size = 2
+	pair := make([]releaserAPI, size)
+	pair[0] = releaserAPI{
+		ID:   u1,
+		Name: releaser.Link(u1),
+		API:  apiBase + "/releaser/" + u1,
+		HTML: "/g/" + u1,
+	}
+	pair[1] = releaserAPI{
+		ID:   u2,
+		Name: releaser.Link(u2),
+		API:  apiBase + "/releaser/" + u2,
+		HTML: u2,
+	}
+	return pair
+}
+
+func relationshipsAPI(art *models.File) []relationAPI {
+	results := []relationAPI{}
+	if r := relationsAPI(art); len(r) > 0 {
+		results = append(results, r...)
+	}
+	if r := linksAPI(art); len(r) > 0 {
+		results = append(results, r...)
+	}
+	if s := filerecord.IdenficationDZ(art); s != "" {
+		r := relationAPI{
+			Link: "https://demozoo.org/productions/" + s + "/",
+			Desc: "Demozoo production",
 		}
-
-		fileRecord := &models.File{ //nolint:exhaustruct
-			Filename:       record.Filename,
-			Section:        record.Section,
-			Platform:       record.Platform,
-			GroupBrandBy:   record.GroupBrandBy,
-			GroupBrandFor:  record.GroupBrandFor,
-			RecordTitle:    record.RecordTitle,
-			DateIssuedYear: record.DateIssuedYear,
+		results = append(results, r)
+	}
+	if s := filerecord.IdenficationPouet(art); s != "" {
+		r := relationAPI{
+			Link: "https://www.pouet.net/prod.php?which=" + s + "/",
+			Desc: "Pouet production",
 		}
-
-		// Get tags for the file
-		category := filerecord.TagCategory(record)
-		platform := filerecord.TagProgram(record)
-
-		// Get humanized description for the tags
-		categoryTag := tags.TagByURI(category)
-		platformTag := tags.TagByURI(platform)
-		humanized := tags.Humanize(platformTag, categoryTag)
-
-		result[i] = ArtifactSumAPI{
-			ID:            record.ID,
-			Filename:      record.Filename.String,
-			DatePublished: datePublished,
-			PostedDate:    postedDate,
-			Size: struct {
-				Formatted string `json:"formatted"`
-				Bytes     int64  `json:"bytes"`
-			}{
-				Formatted: helper.ByteCount(record.Filesize.Int64),
-				Bytes:     record.Filesize.Int64,
-			},
-			Description: filerecord.Description(fileRecord),
-			Tags: struct {
-				Category    string `json:"category"`
-				Platform    string `json:"platform"`
-				Description string `json:"description"`
-			}{
-				Category:    category,
-				Platform:    platform,
-				Description: humanized,
-			},
-			URLs: struct {
-				Download  string `json:"download"`
-				HTML      string `json:"html"`
-				Thumbnail string `json:"thumbnail,omitempty"`
-			}{
-				Download:  "/d/" + helper.ObfuscateID(record.ID),
-				HTML:      "/f/" + helper.ObfuscateID(record.ID),
-				Thumbnail: "/public/image/thumb/" + record.UUID.String,
-			},
+		results = append(results, r)
+	}
+	if s := filerecord.Idenfication16C(art); s != "" {
+		r := relationAPI{
+			Link: "https://16colo.rs/" + s + "/",
+			Desc: "16colors link",
 		}
+		results = append(results, r)
+	}
+	if s := filerecord.IdenficationYT(art); s != "" {
+		r := relationAPI{
+			Link: "https://www.youtube.com/watch?v=" + s + "/",
+			Desc: "YouTube video",
+		}
+		results = append(results, r)
+	}
+	if s := filerecord.IdenficationGitHub(art); s != "" {
+		r := relationAPI{
+			Link: "https://github.com/" + s + "/",
+			Desc: "GitHub repository",
+		}
+		results = append(results, r)
+	}
+	return results
+}
+
+// relationsAPI returns the list of relationships for the file record.
+func relationsAPI(art *models.File) []relationAPI {
+	if art == nil {
+		return nil
+	}
+	rels := art.ListRelations.String
+	if rels == "" {
+		return nil
+	}
+	links := strings.Split(rels, "|")
+	if len(links) == 0 {
+		return nil
+	}
+	const expected = 2
+	const route = "https://defacto2.net/f/"
+	results := []relationAPI{}
+	for link := range slices.Values(links) {
+		s := strings.Split(link, ";")
+		if len(s) != expected {
+			continue
+		}
+		name, href := s[0], s[1]
+		id := helper.DeObfuscate(href)
+		if invalidID := id == href; invalidID {
+			continue
+		}
+		if !strings.HasPrefix(href, route) {
+			href = route + href + "/"
+		}
+		result := relationAPI{
+			Link: href,
+			Desc: name,
+		}
+		results = append(results, result)
+	}
+	return results
+}
+
+// Websites returns the list of links for the file record.
+func linksAPI(art *models.File) []relationAPI {
+	if art == nil {
+		return nil
+	}
+	lls := art.ListLinks.String
+	if lls == "" {
+		return nil
+	}
+	links := strings.Split(lls, "|")
+	if len(links) == 0 {
+		return nil
+	}
+	results := []relationAPI{}
+	const expected = 2
+	for link := range slices.Values(links) {
+		s := strings.Split(link, ";")
+		if len(s) != expected {
+			continue
+		}
+		name, href := s[0], s[1]
+		// Generally a stored URL will not include the protocol,
+		// and will need to be prefixed with "https://".
+		// There are some exceptions for websites that refuse to
+		// implement HTTPS, such as http://textfiles.com.
+		if !strings.HasPrefix(href, "http") {
+			href = "https://" + href
+		}
+		if val, err := url.Parse(href); err != nil || val.Host == "" {
+			continue
+		}
+		result := relationAPI{
+			Link: href,
+			Desc: name,
+		}
+		results = append(results, result)
+	}
+	return results
+}
+
+func timedTimer(t null.Time) *time.Time {
+	var tt *time.Time
+	if t.Valid {
+		t := t.Time
+		tt = &t
+		return tt
+	}
+	return nil
+}
+
+// artifactSummaries transforms database records to the API format.
+func artifactSummaries(fs []*models.File) []artifactAPI {
+	result := make([]artifactAPI, len(fs))
+	for i, art := range fs {
+		result[i] = artifactSummary(art)
 	}
 	return result
+}
+
+func artifactSummary(art *models.File) artifactAPI {
+	// Handle postedDate using Createdat field
+	var postedDate *time.Time
+	if art.Createdat.Valid {
+		t := art.Createdat.Time
+		postedDate = &t
+	}
+
+	fileRecord := &models.File{ //nolint:exhaustruct
+		Filename:       art.Filename,
+		Section:        art.Section,
+		Platform:       art.Platform,
+		GroupBrandBy:   art.GroupBrandBy,
+		GroupBrandFor:  art.GroupBrandFor,
+		RecordTitle:    art.RecordTitle,
+		DateIssuedYear: art.DateIssuedYear,
+	}
+
+	// Get tags for the file
+	category := filerecord.TagCategory(art)
+	platform := filerecord.TagProgram(art)
+
+	// Get humanized description for the tags
+	categoryTag := tags.TagByURI(category)
+	platformTag := tags.TagByURI(platform)
+	humanized := tags.Humanize(platformTag, categoryTag)
+
+	return artifactAPI{
+		UUID:          filerecord.UnID(art),
+		Filename:      art.Filename.String,
+		DatePublished: datePublished(art),
+		PostedDate:    postedDate,
+		Size: struct {
+			Formatted string `json:"formatted"`
+			Bytes     int64  `json:"bytes"`
+		}{
+			Formatted: helper.ByteCount(art.Filesize.Int64),
+			Bytes:     art.Filesize.Int64,
+		},
+		Description: filerecord.Description(fileRecord),
+		Tags: struct {
+			Category    string `json:"category"`
+			Platform    string `json:"platform"`
+			Description string `json:"description"`
+		}{
+			Category:    category,
+			Platform:    platform,
+			Description: humanized,
+		},
+		URLs: urlAPI{
+			API:       apiBase + "/file/" + helper.ObfuscateID(art.ID),
+			Download:  "/d/" + helper.ObfuscateID(art.ID),
+			HTML:      "/f/" + helper.ObfuscateID(art.ID),
+			Thumbnail: "/public/image/thumb/" + art.UUID.String,
+		},
+	}
 }
 
 // TerritoriesAPI returns all territories in the North American Numbering Plan (NANP).
@@ -1360,13 +1611,13 @@ func WebsitesAPI(c echo.Context) error {
 	list := List()
 	if len(list) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"websites": []WebsiteAPI{},
+			"websites": []websiteAPI{},
 		})
 	}
-	var result []WebsiteAPI
+	var result []websiteAPI
 	for _, category := range list {
 		for _, site := range category.Sites {
-			result = append(result, WebsiteAPI{
+			result = append(result, websiteAPI{
 				Title:    site.Title,
 				URL:      site.URL,
 				Info:     site.Info,
