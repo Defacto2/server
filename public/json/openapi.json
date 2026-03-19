@@ -29,7 +29,7 @@
       "description": "Operations related to North American Numbering Plan telephone area codes"
     },
     {
-      "name": "files",
+      "name": "artifacts",
       "description": "Operations related to artifact files and categories"
     },
     {
@@ -362,7 +362,7 @@
         }
       }
     },
-    "/api/v1/areacodes/{code}": {
+    "/api/v1/areacode/{code}": {
       "get": {
         "tags": ["areacodes"],
         "summary": "Get area code by code",
@@ -643,7 +643,7 @@
     },
     "/api/v1/platform/{platform}": {
       "get": {
-        "tags": ["files"],
+        "tags": ["artifacts"],
         "summary": "Get files from any platform",
         "description": "Returns a list of files from the specified platform with nested URL structure. Supports any valid platform URI.",
         "operationId": "getFilesByPlatform",
@@ -667,7 +667,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "files": {
+                    "artifacts": {
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/FileRecord"
@@ -713,7 +713,7 @@
     },
     "/api/v1/groups": {
       "get": {
-        "tags": ["files"],
+        "tags": ["artifacts"],
         "summary": "Get all releaser groups",
         "description": "Returns a paginated list of all releaser groups (collectives, individuals, brands) with their statistics and URLs. Each group includes total file count and total size information.",
         "operationId": "getAllGroups",
@@ -785,7 +785,7 @@
     },
     "/api/v1/magazines": {
       "get": {
-        "tags": ["files"],
+        "tags": ["artifacts"],
         "summary": "Get all magazines",
         "description": "Returns a list of all scene magazines with their statistics and URLs. Each magazine includes total file count and total size information.",
         "operationId": "getAllMagazines",
@@ -858,7 +858,7 @@
     },
     "/api/v1/boards": {
       "get": {
-        "tags": ["files"],
+        "tags": ["artifacts"],
         "summary": "Get all BBS boards",
         "description": "Returns a complete list of all BBS (Bulletin Board System) boards with their statistics and URLs. Each BBS includes total file count and total size information.",
         "operationId": "getAllBBS",
@@ -931,7 +931,7 @@
     },
     "/api/v1/sites": {
       "get": {
-        "tags": ["files"],
+        "tags": ["artifacts"],
         "summary": "Get all FTP sites",
         "description": "Returns a complete list of all FTP (File Transfer Protocol) sites with their statistics and URLs. Each FTP site includes total file count and total size information.",
         "operationId": "getAllSites",
@@ -1030,7 +1030,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "files": {
+                    "artifacts": {
                       "type": "array",
                       "description": "Array of file entries",
                       "items": {
@@ -1082,7 +1082,7 @@
     },
     "/api/v1/releaser/{name}": {
       "get": {
-        "tags": ["files"],
+        "tags": ["artifacts"],
         "summary": "Get files from a specific releaser group or magazine",
         "description": "Returns detailed information about a specific releaser group or magazine including their files with comprehensive metadata, statistics, and URL mappings. The response includes both group/magazine metadata and an array of file records.",
         "operationId": "getGroupByName",
@@ -1109,7 +1109,7 @@
                     "group": {
                       "$ref": "#/components/schemas/ReleaserGroup"
                     },
-                    "files": {
+                    "artifacts": {
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/FileRecord"
@@ -1155,7 +1155,7 @@
     },
     "/api/v1/category/{category}": {
       "get": {
-        "tags": ["files"],
+        "tags": ["artifacts"],
         "summary": "Get files from any category",
         "description": "Returns a list of files from the specified category with nested URL structure. Supports any valid category URI.",
         "operationId": "getFilesByCategory",
@@ -1179,7 +1179,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "files": {
+                    "artifacts": {
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/FileRecord"
@@ -1225,7 +1225,7 @@
     },
     "/api/v1/artifact/{id}": {
       "get": {
-        "tags": ["files"],
+        "tags": ["artifacts"],
         "summary": "Get artifact by ID",
         "description": "Returns detailed information about a specific artifact identified by its obfuscated ID, including metadata, relationships, and download URLs.",
         "operationId": "getArtifactByID",
@@ -1384,7 +1384,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "files": {
+                    "artifacts": {
                       "type": "array",
                       "description": "Array of new file entries",
                       "items": {
@@ -1703,7 +1703,7 @@
                     "scener": {
                       "$ref": "#/components/schemas/ScenerEntity"
                     },
-                    "files": {
+                    "artifacts": {
                       "type": "array",
                       "description": "Array of files associated with this scener",
                       "items": {

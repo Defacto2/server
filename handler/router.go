@@ -233,7 +233,7 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	apiGroup.GET("/milestones/years/:range", app.MilestoneYearsAPI)
 	apiGroup.GET("/milestones/decade/:decade", app.MilestoneDecadeAPI)
 	apiGroup.GET("/areacodes", app.AreacodesAPI)
-	apiGroup.GET("/areacodes/:code", app.AreaCodeAPI)
+	apiGroup.GET("/areacode/:code", app.AreaCodeAPI)
 	apiGroup.GET("/areacodes/search/:query", app.AreacodeSearchAPI)
 	apiGroup.GET("/areacodes/regions", app.TerritoriesAPI)
 	apiGroup.GET("/areacodes/region/:abbr", app.TerritoryAPI)

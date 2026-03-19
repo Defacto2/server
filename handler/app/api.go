@@ -134,7 +134,7 @@ type EntityAPI struct {
 }
 
 type artifactsAPI struct {
-	Files []artifactAPI `json:"files"`
+	Files []artifactAPI `json:"artifacts"`
 	Stats totalsAPI     `json:"statistics"`
 }
 
@@ -262,7 +262,7 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 	}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"files":      response.Files,
+		"artifacts":  response.Files,
 		"statistics": response.Stats,
 		"page":       page,
 		"totalPages": pages,
@@ -801,7 +801,7 @@ func artifactSum(f *models.File) artifactAPI {
 			Description: humanized,
 		},
 		URLs: urlAPI{
-			API:       APIBase + "/file/" + helper.ObfuscateID(f.ID),
+			API:       APIBase + "/artifact/" + helper.ObfuscateID(f.ID),
 			Download:  "/d/" + helper.ObfuscateID(f.ID),
 			HTML:      "/f/" + helper.ObfuscateID(f.ID),
 			Thumbnail: "/public/image/thumb/" + f.UUID.String,
@@ -883,7 +883,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			Demozoo:  linkDemozoo(name),
 			Csdb:     linkCsdb(name),
 		},
-		"files": result,
+		"artifacts": result,
 	})
 }
 
@@ -980,7 +980,7 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			Demozoo:  "",
 			Csdb:     "",
 		},
-		"files": result,
+		"artifacts": result,
 	})
 }
 
@@ -1609,7 +1609,7 @@ func artifactSummary(art *models.File) artifactAPI {
 			Description: humanized,
 		},
 		URLs: urlAPI{
-			API:       APIBase + "/file/" + helper.ObfuscateID(art.ID),
+			API:       APIBase + "/artifact/" + helper.ObfuscateID(art.ID),
 			Download:  "/d/" + helper.ObfuscateID(art.ID),
 			HTML:      "/f/" + helper.ObfuscateID(art.ID),
 			Thumbnail: "/public/image/thumb/" + art.UUID.String,

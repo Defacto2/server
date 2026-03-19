@@ -58,16 +58,16 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><code>/areacode/:code</code></td>
+                                    <td><span class="badge bg-success">GET</span></td>
+                                    <td>Get a region by the area code</td>
+                                    <td><code>GET {{$api}}areacodes/212</code></td>
+                                </tr>
+                                <tr>
                                     <td><code>/areacodes</code></td>
                                     <td><span class="badge bg-success">GET</span></td>
                                     <td>Get all area codes</td>
                                     <td><code>GET {{$api}}areacodes</code></td>
-                                </tr>
-                                <tr>
-                                    <td><code>/areacodes/:code</code></td>
-                                    <td><span class="badge bg-success">GET</span></td>
-                                    <td>Get a region by the area code</td>
-                                    <td><code>GET {{$api}}areacodes/212</code></td>
                                 </tr>
                                 <tr>
                                     <td><code>/areacodes/regions</code></td>
@@ -460,9 +460,9 @@
                             <h3 class="h6">cURL Examples</h3>
                             <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}categories"
 
-curl "{{$baseUrl}}files?page=1"
+curl "{{$baseUrl}}artifacts?page=1"
 
-curl "{{$baseUrl}}files/new?page=1"
+curl "{{$baseUrl}}artifacts/new?page=1"
 
 curl "{{$baseUrl}}category/releaseadvert"
 
@@ -484,11 +484,11 @@ curl "{{$baseUrl}}releaser/razor-1911"</code></pre>
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}files?page=1')
+fetch('{{$baseUrl}}artifacts?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}files/new?page=1')
+fetch('{{$baseUrl}}artifacts/new?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -520,30 +520,31 @@ fetch('{{$baseUrl}}demozoo')
                     <h3 class="h6 mt-4">Response Structure</h3>
                     <p>Artifacts API endpoints return JSON with nested URL objects and comprehensive tags:</p>
                     <pre class="bg-dark text-white p-3 rounded"><code>{
-    "files": [
+    "artifacts": [
         {
-            "id": 47303,
-            "filename": "00-audiofile-time_to_say_goodbye-flac-2023-audiofile.nfo",
+            "uuid": "0192e554-352c-71d5-b110-84521efd92f9",
+            "filename": "LORES.zip",
             "datePublished": {
-                "year": 2023,
+                "year": 1984,
                 "month": 5,
-                "day": 28
+                "day": 22
             },
-            "postedDate": "2023-05-31T12:48:08+10:00",
+            "postedDate": "2024-11-01T12:25:54.092115+11:00",
             "size": {
-                "formatted": "7k",
-                "bytes": 6917
+                "formatted": "4k",
+                "bytes": 4538
             },
-            "description": "Time To Say Goodbye released by Audiofile in 2023.",
+            "description": "LO-RES in 1984.",
             "tags": {
-                "category": "releaseadvert",
+                "category": "demo",
                 "platform": "dos",
-                "description": "an intro for MS Dos"
+                "description": "a demo on MS Dos"
             },
             "urls": {
-                "download": "/d/ab1fc8b",
-                "html": "/f/ab1fc8b",
-                "thumbnail": "/public/image/thumb/f6706044-fd56-4011-a3c1-8bdf3a9177b7"
+                "api": "/api/v1/artifact/ad2efee",
+                "download": "/d/ad2efee",
+                "html": "/f/ad2efee",
+                "thumbnail": "/public/image/thumb/0192e554-352c-71d5-b110-84521efd92f9"
             }
         }
     ]
@@ -715,9 +716,9 @@ fetch('{{$baseUrl}}scener/jed')
             "totalSizeBytes": 12582912
         }
     },
-    "files": [
+    "artifacts": [
         {
-            "id": 12160,
+            "uuid": "d94f84dc-99dc-457c-b07e-218263e51137",
             "filename": "SIERRA.zip",
             "datePublished": {
                 "year": 1987,
@@ -736,6 +737,7 @@ fetch('{{$baseUrl}}scener/jed')
                 "description": "a text or ascii guide or how-to"
             },
             "urls": {
+                "api": "/api/v1/artifact/a419f44",
                 "download": "/d/a419f44",
                 "html": "/f/a419f44",
                 "thumbnail": "/public/image/thumb/d94f84dc-99dc-457c-b07e-218263e51137"
@@ -764,28 +766,24 @@ fetch('{{$baseUrl}}scener/jed')
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><code>GET {{$api}}files?page=1</code></td>
-                                    <td>Get all files with pagination (1000 per page)</td>
-                                </tr>
-                                <tr>
-                                    <td><code>GET {{$api}}files/new?page=1</code></td>
-                                    <td>Get recently added files with pagination (1000 per page)</td>
-                                </tr>
-                                <tr>
                                     <td><code>GET {{$api}}artifact/:id</code></td>
                                     <td>Get detailed information for a specific artifact</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET {{$api}}groups?page=1</code></td>
-                                    <td>Get all releaser groups with pagination (1000 per page)</td>
+                                    <td><code>GET {{$api}}artifacts?page=1</code></td>
+                                    <td>Get all artifacts with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET {{$api}}sites</code></td>
-                                    <td>Get all FTP sites</td>
+                                    <td><code>GET {{$api}}artifacts/new?page=1</code></td>
+                                    <td>Get recently added artifacts with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
                                     <td><code>GET {{$api}}boards</code></td>
                                     <td>Get all BBS boards</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}groups?page=1</code></td>
+                                    <td>Get all releaser groups with pagination (1000 per page)</td>
                                 </tr>
                                 <tr>
                                     <td><code>GET {{$api}}magazines</code></td>
@@ -794,6 +792,10 @@ fetch('{{$baseUrl}}scener/jed')
                                 <tr>
                                     <td><code>GET {{$api}}releaser/:name</code></td>
                                     <td>Get detailed information and files for a specific group or magazine by name</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GET {{$api}}sites</code></td>
+                                    <td>Get all FTP sites</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -805,7 +807,7 @@ fetch('{{$baseUrl}}scener/jed')
 
 curl "{{$baseUrl}}groups?page=2"
 
-curl "{{$baseUrl}}files?page=1"
+curl "{{$baseUrl}}artifacts?page=1"
 
 curl "{{$baseUrl}}sites"
 
@@ -813,7 +815,7 @@ curl "{{$baseUrl}}boards"
 
 curl "{{$baseUrl}}magazines"
 
-curl "{{$baseUrl}}file/af29fa4"
+curl "{{$baseUrl}}artifact/af29fa4"
 
 curl "{{$baseUrl}}releaser/razor-1911"
 
@@ -827,7 +829,7 @@ curl "{{$baseUrl}}releaser/big-apple-bbs"</code></pre>
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}files?page=1')
+fetch('{{$baseUrl}}artifacts?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -843,7 +845,7 @@ fetch('{{$baseUrl}}magazines')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}file/af29fa4')
+fetch('{{$baseUrl}}artifact/af29fa4')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -860,7 +862,7 @@ fetch('{{$baseUrl}}releaser/big-apple-bbs')
   .then(data => console.log(data));</code></pre>
                         </div>
                     </div>
-                    <h3 class="h6 mt-4">Groups API Response</h3>
+                    <h3 class="h6 mt-4">Group Releaser API Response</h3>
                     <pre class="bg-dark text-white p-3 rounded"><code>{
     "releasers": [
         {
@@ -965,9 +967,9 @@ fetch('{{$baseUrl}}releaser/big-apple-bbs')
             }
         ]
     },
-    "files": [
+    "artifacts": [
         {
-            "id": 52172,
+            "uuid": "019236b3-e1fe-72b3-ac0e-a22f6034487c",
             "filename": "TOYOTA.ZIP",
             "datePublished": {
                 "year": 1991,
@@ -986,6 +988,7 @@ fetch('{{$baseUrl}}releaser/big-apple-bbs')
                 "description": "an intro for MS Dos"
             },
             "urls": {
+                "api": "/api/v1/artifact/ab1f158",
                 "download": "/d/ab1f158",
                 "html": "/f/ab1f158",
                 "thumbnail": "/public/image/thumb/019236b3-e1fe-72b3-ac0e-a22f6034487c"
@@ -1141,6 +1144,10 @@ fetch('{{$baseUrl}}releaser/big-apple-bbs')
                                     <td>Get all milestones</td>
                                 </tr>
                                 <tr>
+                                    <td><code>GET {{$api}}milestones/decade/:decade</code></td>
+                                    <td>Get milestones by decade (e.g., 1990)</td>
+                                </tr>
+                                <tr>
                                     <td><code>GET {{$api}}milestones/highlights</code></td>
                                     <td>Get highlighted milestones</td>
                                 </tr>
@@ -1151,10 +1158,6 @@ fetch('{{$baseUrl}}releaser/big-apple-bbs')
                                 <tr>
                                     <td><code>GET {{$api}}milestones/years/:range</code></td>
                                     <td>Get milestones by year range (e.g., 1990-2000)</td>
-                                </tr>
-                                <tr>
-                                    <td><code>GET {{$api}}milestones/decade/:decade</code></td>
-                                    <td>Get milestones by decade (e.g., 1990)</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1234,20 +1237,20 @@ fetch('{{$baseUrl}}milestones/highlights')
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><code>GET {{$api}}areacode/:code</code></td>
+                                    <td>Get details for a specific area code</td>
+                                </tr>
+                                <tr>
                                     <td><code>GET {{$api}}areacodes</code></td>
                                     <td>Get all North American Numbering Plan area codes</td>
                                 </tr>
                                 <tr>
-                                    <td><code>GET {{$api}}areacodes/:code</code></td>
-                                    <td>Get details for a specific area code</td>
+                                    <td><code>GET {{$api}}areacodes/region/:abbr</code></td>
+                                    <td>Get territory details by two-letter abbreviation</td>
                                 </tr>
                                 <tr>
                                     <td><code>GET {{$api}}areacodes/regions</code></td>
                                     <td>Get all territories (states, provinces) with their area codes</td>
-                                </tr>
-                                <tr>
-                                    <td><code>GET {{$api}}areacodes/region/:abbr</code></td>
-                                    <td>Get territory details by two-letter abbreviation</td>
                                 </tr>
                                 <tr>
                                     <td><code>GET {{$api}}areacodes/search/:query</code></td>
@@ -1261,7 +1264,7 @@ fetch('{{$baseUrl}}milestones/highlights')
                             <h3 class="h6">cURL Examples</h3>
                             <pre class="bg-dark text-white p-3 rounded"><code>curl {{$baseUrl}}areacodes
 
-curl {{$baseUrl}}areacodes/212
+curl {{$baseUrl}}areacode/212
 
 curl {{$baseUrl}}areacodes/regions
 
@@ -1279,7 +1282,7 @@ fetch('{{$baseUrl}}areacodes/region/NY')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}areacodes/search/602')
+fetch('{{$baseUrl}}areacode/search/602')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>

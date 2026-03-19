@@ -64,7 +64,7 @@ func TestAnnouncementsContract(t *testing.T) {
 				HTML      string `json:"html"`
 				Thumbnail string `json:"thumbnail,omitempty"`
 			} `json:"urls"`
-		} `json:"files"`
+		} `json:"artifacts"`
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -192,7 +192,7 @@ func TestGenericCategoryContract(t *testing.T) {
 						HTML      string `json:"html"`
 						Thumbnail string `json:"thumbnail,omitempty"`
 					} `json:"urls"`
-				} `json:"files"`
+				} `json:"artifacts"`
 			}
 
 			body, err := io.ReadAll(resp.Body)
@@ -240,7 +240,7 @@ func TestPlatformQueries(t *testing.T) {
 						HTML      string `json:"html"`
 						Thumbnail string `json:"thumbnail,omitempty"`
 					} `json:"urls"`
-				} `json:"files"`
+				} `json:"artifacts"`
 			}
 
 			body, err := io.ReadAll(resp.Body)
