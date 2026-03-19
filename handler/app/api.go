@@ -692,27 +692,76 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // MagazinesAPI is the handler for the magazines API endpoint.
+// MagazinesAPI is the handler for the magazines API endpoint.
 func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return cachedReleasersAPI(c, db, sl, "magazines_all", func(ctx context.Context, db *sql.DB) error {
-		rels := model.Releasers{}
-		return rels.Magazine(ctx, db)
-	})
+	const msg = "magazines api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	ctx := context.Background()
+	rels := model.Releasers{}
+	if err := rels.Magazine(ctx, db); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query magazines",
+		})
+	}
+
+	result := map[string]any{
+		"releasers":  ReleasersAPI(rels),
+		"page":       1,
+		"totalPages": 1,
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
 // BoardsAPI is the handler for the BBS API endpoint.
 func BoardsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return cachedReleasersAPI(c, db, sl, "boards_all", func(ctx context.Context, db *sql.DB) error {
-		rels := model.Releasers{}
-		return rels.BBS(ctx, db, model.Oldest)
-	})
+	const msg = "boards api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	ctx := context.Background()
+	rels := model.Releasers{}
+	if err := rels.BBS(ctx, db, model.Oldest); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query boards",
+		})
+	}
+
+	result := map[string]any{
+		"releasers":  ReleasersAPI(rels),
+		"page":       1,
+		"totalPages": 1,
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
 // SitesAPI is the handler for the FTP sites API endpoint.
 func SitesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return cachedReleasersAPI(c, db, sl, "sites_all", func(ctx context.Context, db *sql.DB) error {
-		rels := model.Releasers{}
-		return rels.FTP(ctx, db)
-	})
+	const msg = "sites api"
+	if err := panics.EchoContextDS(c, db, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	ctx := context.Background()
+	rels := model.Releasers{}
+	if err := rels.FTP(ctx, db); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "Failed to query sites",
+		})
+	}
+
+	result := map[string]any{
+		"releasers":  ReleasersAPI(rels),
+		"page":       1,
+		"totalPages": 1,
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
 
 // groupsCount returns the total number of releasers.
@@ -1114,50 +1163,9 @@ func cacheResults(key string, data any) {
 
 // cachedReleasersAPI handles the common pattern for caching
 // releaser-based API endpoints.
-func cachedReleasersAPI(
-	c echo.Context,
-	db *sql.DB,
-	sl *slog.Logger,
-	key string,
-	queryFunc func(ctx context.Context, db *sql.DB) error,
-) error {
-	const msg = "cached releasers api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-
-	if data, found := cachedResults(key); found {
-		if i, ok := data.(map[string]any); ok {
-			return c.JSON(http.StatusOK, i)
-		}
-	}
-
-	ctx := context.Background()
-	rels := model.Releasers{}
-	if err := queryFunc(ctx, db); err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query releasers",
-		})
-	}
-	if len(rels) == 0 {
-		result := map[string]any{
-			"releasers":  []EntityAPI{},
-			"page":       1,
-			"totalPages": 1,
-		}
-		cacheResults(key, result)
-		return c.JSON(http.StatusOK, result)
-	}
-
-	result := map[string]any{
-		"releasers":  ReleasersAPI(rels),
-		"page":       1,
-		"totalPages": 1,
-	}
-	cacheResults(key, result)
-
-	return c.JSON(http.StatusOK, result)
-}
+// cachedReleasersAPI has been removed - the caching was buggy and caused
+// empty results to be returned. The individual API endpoints now use
+// direct queries like GroupsAPI.
 
 // cachedTags returns cached tag results if available.
 func cachedTags(category, platform bool) ([]tagAPI, bool) {
@@ -1232,7 +1240,7 @@ func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 				TotalSizeBytes: byteSum,
 			},
 			URLs: enityURLs{
-				API:   APIBase + "/files/" + slug,
+				API:   APIBase + "/artifacts/" + slug,
 				HTML3: "/html3/" + slug,
 				HTML:  "/files/" + slug,
 			},

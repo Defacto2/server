@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Defacto2/server/handler/app"
 	"github.com/nalgeon/be"
 )
 
@@ -42,14 +43,14 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 		// Platform endpoints
 		{"platform/ansi", "/platform/ansi", true, false},
 		{"platform/dos", "/platform/dos", true, false},
-		// File endpoints
-		{"files", "/files", true, false},
-		{"files/new", "/files/new", true, false},
+		// Artifact endpoints
+		{"artifacts", "/artifacts", true, false},
+		{"artifacts/new", "/artifacts/new", true, false},
 		// Specific releaser endpoints
 		{"releaser/defacto2", "/releaser/defacto2", true, false},
 		{"releaser/razor-1911", "/releaser/razor-1911", true, false},
 		// Area code specific endpoints
-		{"areacodes/212", "/areacodes/212", false, false},
+		{"areacode/212", "/areacode/212", false, false},
 		{"areacodes/region/CA", "/areacodes/region/CA", false, false},
 		{"areacodes/search/california", "/areacodes/search/california", true, false},
 		// Milestone specific endpoints
@@ -139,16 +140,16 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 				be.True(t, result["sceners"] != nil)
 				be.True(t, result["page"] != nil)
 			case "category/announcements", "category/demo":
-				be.True(t, result["files"] != nil)
+				be.True(t, result["artifacts"] != nil)
 			case "platform/ansi", "platform/dos":
-				be.True(t, result["files"] != nil)
-			case "files", "files/new":
-				be.True(t, result["files"] != nil)
+				be.True(t, result["artifacts"] != nil)
+			case "artifacts", "artifacts/new":
+				be.True(t, result["artifacts"] != nil)
 				be.True(t, result["page"] != nil)
 			case "releaser/defacto2", "releaser/razor-1911":
 				be.True(t, result["group"] != nil)
-				be.True(t, result["files"] != nil)
-			case "areacodes/212":
+				be.True(t, result["artifacts"] != nil)
+			case "areacode/212":
 				be.True(t, result["code"] != nil)
 				be.True(t, result["territories"] != nil)
 			case "areacodes/region/CA":
@@ -169,8 +170,8 @@ func TestAPIEndpointExamples(t *testing.T) {
 		name string
 		url  string
 	}{
-		{"files", api + "/files"},
-		{"files/new", api + "/files/new"},
+		{"artifacts", api + "/artifacts"},
+		{"artifacts/new", api + "/artifacts/new"},
 		{"categories", api + "/categories"},
 		{"category/announcements", api + "/category/announcements"},
 		{"magazines", api + "/magazines"},
@@ -236,10 +237,10 @@ func TestAPIEndpointExamples(t *testing.T) {
 				be.True(t, result["files"] != nil)
 				be.True(t, result["page"] != nil)
 			case "category/announcements":
-				be.True(t, result["files"] != nil)
+				be.True(t, result["artifacts"] != nil)
 			case "releaser/defacto2":
 				be.True(t, result["group"] != nil)
-				be.True(t, result["files"] != nil)
+				be.True(t, result["artifacts"] != nil)
 			case "areacodes/region/CA":
 				be.True(t, result["name"] != nil)
 				be.True(t, result["abbreviation"] != nil)

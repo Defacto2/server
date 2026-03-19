@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Defacto2/server/handler/app"
 	"github.com/nalgeon/be"
 )
 
@@ -161,7 +162,7 @@ func TestPlatformsContract(t *testing.T) {
 	be.True(t, len(result[0].Name) > 0)
 	be.True(t, strings.HasPrefix(result[0].URLs.API, app.APIBase+"/artifacts/"))
 	be.True(t, strings.HasPrefix(result[0].URLs.HTML3, "/html3/"))
-	be.True(t, strings.HasPrefix(result[0].URLs.HTML, "/artifacts/"))
+	be.True(t, strings.HasPrefix(result[0].URLs.HTML, "/files/"))
 }
 
 // TestGenericCategoryContract verifies the generic category endpoint contract.
@@ -422,7 +423,7 @@ func TestScenerDetailsContract(t *testing.T) {
 	// Verify basic structure
 	be.True(t, len(result) > 0)
 	be.True(t, result["scener"] != nil)
-	be.True(t, result["files"] != nil)
+	be.True(t, result["artifacts"] != nil)
 
 	scener, ok := result["scener"].(map[string]any)
 	be.True(t, ok)
@@ -452,32 +453,32 @@ func TestScenerDetailsContract(t *testing.T) {
 	totalSizeBytes, ok := stats["totalSizeBytes"].(float64)
 	be.True(t, ok && int(totalSizeBytes) >= 0)
 
-	// Verify files structure (if any files exist)
-	files, ok := result["files"].([]any)
+	// Verify artifacts structure (if any artifacts exist)
+	artifacts, ok := result["artifacts"].([]any)
 	be.True(t, ok)
-	if len(files) > 0 {
-		be.True(t, len(files) > 0)
+	if len(artifacts) > 0 {
+		be.True(t, len(artifacts) > 0)
 
-		firstFile, ok := files[0].(map[string]any)
+		firstArtifact, ok := artifacts[0].(map[string]any)
 		be.True(t, ok)
 
-		fileUUID, ok := firstFile["uuid"].(string)
-		be.True(t, ok && len(fileUUID) > 0)
+		artifactUUID, ok := firstArtifact["uuid"].(string)
+		be.True(t, ok && len(artifactUUID) > 0)
 
-		filename, ok := firstFile["filename"].(string)
+		filename, ok := firstArtifact["filename"].(string)
 		be.True(t, ok && len(filename) > 0)
 
-		description, ok := firstFile["description"].(string)
+		description, ok := firstArtifact["description"].(string)
 		be.True(t, ok && len(description) > 0)
 
-		fileURLs, ok := firstFile["urls"].(map[string]any)
+		artifactURLs, ok := firstArtifact["urls"].(map[string]any)
 		be.True(t, ok)
 
-		downloadURL, ok := fileURLs["download"].(string)
+		downloadURL, ok := artifactURLs["download"].(string)
 		be.True(t, ok && strings.HasPrefix(downloadURL, "/d/"))
 
-		htmlFileURL, ok := fileURLs["html"].(string)
-		be.True(t, ok && strings.HasPrefix(htmlFileURL, "/f/"))
+		htmlArtifactURL, ok := artifactURLs["html"].(string)
+		be.True(t, ok && strings.HasPrefix(htmlArtifactURL, "/f/"))
 	}
 }
 
@@ -512,7 +513,7 @@ func TestFileContract(t *testing.T) {
 	artifactsResp, err := client.Do(artifactsReq)
 	be.Equal(t, err, nil)
 	defer func() {
-		if err := filesResp.Body.Close(); err != nil {
+		if err := artifactsResp.Body.Close(); err != nil {
 			t.Log(err)
 		}
 	}()

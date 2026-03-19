@@ -230,9 +230,9 @@ func CacheMiddleware() echo.MiddlewareFunc {
 			switch {
 			case strings.Contains(path, "/categories"), strings.Contains(path, "/platforms"):
 				c.Response().Header().Set("Cache-Control", "public, max-age="+age24hours)
-			case strings.Contains(path, "/files"), strings.Contains(path, "/files/new"):
+			case strings.Contains(path, "/artifacts"), strings.Contains(path, "/artifacts/new"):
 				c.Response().Header().Set("Cache-Control", "public, max-age="+age5min)
-			case strings.Contains(path, "/file/"):
+			case strings.Contains(path, "/artifact/"):
 				c.Response().Header().Set("Cache-Control", "public, max-age="+age1hour)
 			case strings.Contains(path, "/releaser/"), strings.Contains(path, "/scener/"):
 				c.Response().Header().Set("Cache-Control", "public, max-age="+age30min)

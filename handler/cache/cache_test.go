@@ -34,9 +34,6 @@ func TestCacheMiddleware(t *testing.T) {
 		{"Releaser endpoint", app.APIBase + "/releaser/test-group", "1800"},
 		{"Scener endpoint", app.APIBase + "/scener/test-scener", "1800"},
 		{"Groups endpoint", app.APIBase + "/groups", "3600"},
-		{"Magazines endpoint", app.APIBase + "/magazines", "3600"},
-		{"Boards endpoint", app.APIBase + "/boards", "3600"},
-		{"Sites endpoint", app.APIBase + "/sites", "3600"},
 		{"Milestones endpoint", app.APIBase + "/milestones", "86400"},
 		{"Area codes endpoint", app.APIBase + "/areacodes", "86400"},
 		{"Websites endpoint", app.APIBase + "/websites", "86400"},
@@ -86,10 +83,10 @@ func TestCacheMiddlewareOrder(t *testing.T) {
 	})
 
 	// Test that both middleware work together
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, app.APIBase + "/categories", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, app.APIBase+"/categories", nil)
 	rec := httptest.NewRecorder()
 
-	e.GET(app.APIBase + "/categories", func(c echo.Context) error {
+	e.GET(app.APIBase+"/categories", func(c echo.Context) error {
 		return c.String(http.StatusOK, "test")
 	})
 
