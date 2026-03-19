@@ -480,11 +480,7 @@ curl "{{$baseUrl}}releaser/razor-1911"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}categories')
-  .then(response => response.json())
-  .then(data => console.log(data));
-
-fetch('{{$baseUrl}}artifacts?page=1')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}artifacts?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -492,19 +488,19 @@ fetch('{{$baseUrl}}artifacts/new?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}category/releaseadvert')
-  .then(response => response.json())
-  .then(data => console.log(data));
-
 fetch('{{$baseUrl}}category/demo')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}platforms')
+fetch('{{$baseUrl}}category/releaseadvert')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}platform/ansi')
+fetch('{{$baseUrl}}categories')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}demozoo')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -512,7 +508,11 @@ fetch('{{$baseUrl}}groups')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}demozoo')
+fetch('{{$baseUrl}}platform/ansi')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}platforms')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -619,6 +619,10 @@ fetch('{{$baseUrl}}demozoo')
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><code>GET {{$api}}scener/:name</code></td>
+                                    <td>Get detailed information and files for a specific scener by name</td>
+                                </tr>
+                                <tr>
                                     <td><code>GET {{$api}}sceners</code></td>
                                     <td>Get all sceners with pagination (1000 per page)</td>
                                 </tr>
@@ -638,17 +642,13 @@ fetch('{{$baseUrl}}demozoo')
                                     <td><code>GET {{$api}}sceners/writer</code></td>
                                     <td>Get all writer sceners</td>
                                 </tr>
-                                <tr>
-                                    <td><code>GET {{$api}}scener/:name</code></td>
-                                    <td>Get detailed information and files for a specific scener by name</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}sceners"
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}scener/jed"
 
 curl "{{$baseUrl}}sceners"
 
@@ -658,21 +658,19 @@ curl "{{$baseUrl}}sceners/coder"
 
 curl "{{$baseUrl}}sceners/musician"
 
-curl "{{$baseUrl}}sceners/writer"
-
-curl "{{$baseUrl}}scener/jed"</code></pre>
+curl "{{$baseUrl}}sceners/writer"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}sceners')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}scener/jed')
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+fetch('{{$baseUrl}}sceners')
   .then(response => response.json())
   .then(data => console.log(data));
 
 fetch('{{$baseUrl}}sceners/artist')
-  .then(response => response.json())
-  .then(data => console.log(data));
-
-fetch('{{$baseUrl}}scener/jed')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -803,29 +801,29 @@ fetch('{{$baseUrl}}scener/jed')
                     <div class="row">
                         <div class="col-md-6">
                             <h3 class="h6">cURL Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}groups"
-
-curl "{{$baseUrl}}groups?page=2"
+                            <pre class="bg-dark text-white p-3 rounded"><code>curl "{{$baseUrl}}artifact/af29fa4"
 
 curl "{{$baseUrl}}artifacts?page=1"
 
-curl "{{$baseUrl}}sites"
-
 curl "{{$baseUrl}}boards"
+
+curl "{{$baseUrl}}groups"
+
+curl "{{$baseUrl}}groups?page=2"
 
 curl "{{$baseUrl}}magazines"
 
-curl "{{$baseUrl}}artifact/af29fa4"
+curl "{{$baseUrl}}releaser/big-apple-bbs"
 
 curl "{{$baseUrl}}releaser/razor-1911"
 
 curl "{{$baseUrl}}releaser/the-zapper"
 
-curl "{{$baseUrl}}releaser/big-apple-bbs"</code></pre>
+curl "{{$baseUrl}}sites"</code></pre>
                         </div>
                         <div class="col-md-6">
                             <h3 class="h6">JavaScript (Fetch) Examples</h3>
-                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}groups?page=2')
+                            <pre class="bg-dark text-white p-3 rounded"><code>fetch('{{$baseUrl}}artifact/af29fa4')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -833,11 +831,11 @@ fetch('{{$baseUrl}}artifacts?page=1')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}sites')
+fetch('{{$baseUrl}}boards')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}boards')
+fetch('{{$baseUrl}}groups?page=2')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -845,7 +843,7 @@ fetch('{{$baseUrl}}magazines')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}artifact/af29fa4')
+fetch('{{$baseUrl}}releaser/big-apple-bbs')
   .then(response => response.json())
   .then(data => console.log(data));
 
@@ -857,7 +855,7 @@ fetch('{{$baseUrl}}releaser/the-zapper')
   .then(response => response.json())
   .then(data => console.log(data));
 
-fetch('{{$baseUrl}}releaser/big-apple-bbs')
+fetch('{{$baseUrl}}sites')
   .then(response => response.json())
   .then(data => console.log(data));</code></pre>
                         </div>
@@ -1246,15 +1244,15 @@ fetch('{{$baseUrl}}milestones/highlights')
                                 </tr>
                                 <tr>
                                     <td><code>GET {{$api}}areacodes/region/:abbr</code></td>
-                                    <td>Get territory details by two-letter abbreviation</td>
+                                    <td>Get region details by two-letter abbreviation</td>
                                 </tr>
                                 <tr>
                                     <td><code>GET {{$api}}areacodes/regions</code></td>
-                                    <td>Get all territories (states, provinces) with their area codes</td>
+                                    <td>Get all regions (provinces, states, territories) with their area codes</td>
                                 </tr>
                                 <tr>
                                     <td><code>GET {{$api}}areacodes/search/:query</code></td>
-                                    <td>Search for area codes or territories</td>
+                                    <td>Search for area codes or regions</td>
                                 </tr>
                             </tbody>
                         </table>
