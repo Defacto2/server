@@ -19,24 +19,50 @@
                     <p>The base URL for all API endpoints.</p>
                     <p class="text-muted">Examples:</p>
                       <ul>
-                        <li><a href="{{$api}}areacodes/region/CA">{{$baseUrl}}areacodes/region/CA</a></li>
-                        <li><a href="{{$api}}artifact/af29fa4">{{$baseUrl}}artifact/af29fa4</a></li>
-                        <li><a href="{{$api}}artifacts">{{$baseUrl}}artifacts</a></li>
-                        <li><a href="{{$api}}artifacts/new">{{$baseUrl}}artifacts/new</a></li>
-                        <li><a href="{{$api}}categories">{{$baseUrl}}categories</a></li>
-                        <li><a href="{{$api}}category/releaseadvert">{{$baseUrl}}category/releaseadvert</a></li>
-                        <li><a href="{{$api}}demozoo">{{$baseUrl}}demozoo</a></li>
-                        <li><a href="{{$api}}magazines">{{$baseUrl}}magazines</a></li>
-                        <li><a href="{{$api}}milestones/year/1971">{{$baseUrl}}milestones/year/1971</a></li>
-                        <li><a href="{{$api}}releaser/razor-1911">{{$baseUrl}}releaser/razor-1911</a></li>
-                        <li><a href="{{$api}}scener/dubmood">{{$baseUrl}}scener/dubmood</a></li>
-                        <li><a href="{{$api}}sceners/artist">{{$baseUrl}}sceners/artist</a></li>
-                        <li><a href="{{$api}}websites">{{$baseUrl}}websites</a></li>
+                        <!-- Area Codes -->
+                        <li><a href="{{$api}}areacode/212">{{$baseUrl}}areacode/212</a> <span class="text-secondary">(lookup the 202 area code)</span></li>
+                        <li><a href="{{$api}}areacodes">{{$baseUrl}}areacodes</a> <span class="text-secondary">(all area codes)</span></li>
+                        <li><a href="{{$api}}areacodes/region/CA">{{$baseUrl}}areacodes/region/CA</a> <span class="text-secondary">(lookup California)</span></li>
+                        <li><a href="{{$api}}areacodes/regions">{{$baseUrl}}areacodes/regions</a> <span class="text-secondary">(all regions)</span></li>
+                        <!-- Artifacts -->
+                        <li><a href="{{$api}}artifact/af29fa4">{{$baseUrl}}artifact/af29fa4</a> <span class="text-secondary">(lookup an artifact)</span></li>
+                        <li><a href="{{$api}}artifacts">{{$baseUrl}}artifacts</a> <span class="text-secondary">(all artifacts, paginated)</span></li>
+                        <li><a href="{{$api}}artifacts/new">{{$baseUrl}}artifacts/new</a> <span class="text-secondary">(recently added)</span></li>
+                        <!-- Categories -->
+                        <li><a href="{{$api}}categories">{{$baseUrl}}categories</a> <span class="text-secondary">(all categories)</span></li>
+                        <li><a href="{{$api}}category/demo">{{$baseUrl}}category/demo</a> <span class="text-secondary">(lookup demo programs)</span></li>
+                        <li><a href="{{$api}}category/releaseadvert">{{$baseUrl}}category/releaseadvert</a> <span class="text-secondary">(lookup NFOs)</span></li>
+                        <li><a href="{{$api}}category/magazine">{{$baseUrl}}category/magazine</a> <span class="text-secondary">(magazines)</span></li>
+                        <!-- Platforms -->
+                        <li><a href="{{$api}}platforms">{{$baseUrl}}platforms</a> <span class="text-secondary">(all platforms)</span></li>
+                        <li><a href="{{$api}}platform/dos">{{$baseUrl}}platform/dos</a> <span class="text-secondary">(DOS artifacts)</span></li>
+                        <li><a href="{{$api}}platform/ansi">{{$baseUrl}}platform/ansi</a> <span class="text-secondary">(ANSI artifacts)</span></li>
+                        <!-- Releasers/Groups -->
+                        <li><a href="{{$api}}groups">{{$baseUrl}}groups</a> <span class="text-secondary">(all groups, paginated)</span></li>
+                        <li><a href="{{$api}}releaser/razor-1911">{{$baseUrl}}releaser/razor-1911</a> <span class="text-secondary">(list the releases of Razor 1911)</span></li>
+                        <li><a href="{{$api}}releaser/the-zapper">{{$baseUrl}}releaser/the-zapper</a> <span class="text-secondary">(list the releases of The Zapper)</span></li>
+                        <!-- Sceners -->
+                        <li><a href="{{$api}}sceners">{{$baseUrl}}sceners</a> <span class="text-secondary">(all sceners, paginated)</span></li>
+                        <li><a href="{{$api}}sceners/artist">{{$baseUrl}}sceners/artist</a> <span class="text-secondary">(only artists)</span></li>
+                        <li><a href="{{$api}}sceners/coder">{{$baseUrl}}sceners/coder</a> <span class="text-secondary">(only coders)</span></li>
+                        <li><a href="{{$api}}scener/jed">{{$baseUrl}}scener/jed</a> <span class="text-secondary">(lookup a scener)</span></li>
+                        <!-- Specialized -->
+                        <li><a href="{{$api}}boards">{{$baseUrl}}boards</a> <span class="text-secondary">(all bulletin board systems)</span></li>
+                        <li><a href="{{$api}}magazines">{{$baseUrl}}magazines</a> <span class="text-secondary">(all magazines)</span></li>
+                        <li><a href="{{$api}}sites">{{$baseUrl}}sites</a> <span class="text-secondary">(all FTP sites)</span></li>
+                        <li><a href="{{$api}}demozoo">{{$baseUrl}}demozoo</a> <span class="text-secondary">(Demozoo mappings)</span></li>
+                        <!-- Milestones -->
+                        <li><a href="{{$api}}milestones">{{$baseUrl}}milestones</a> <span class="text-secondary">(all milestones)</span></li>
+                        <li><a href="{{$api}}milestones/highlights">{{$baseUrl}}milestones/highlights</a> <span class="text-secondary">(milestone highlights)</span></li>
+                        <li><a href="{{$api}}milestones/year/1995">{{$baseUrl}}milestones/year/1995</a> <span class="text-secondary">(1995 milestones)</span></li>
+                        <!-- Other -->
+                        <li><a href="{{$api}}websites">{{$baseUrl}}websites</a> <span class="text-secondary">(curated websites)</span></li>
                       </ul>
                     </p>
                     <p>No authentication is required for read-only API endpoints.</p>
                     <div class="alert alert-success" role="alert">
                       19-May-2025, The API v1 is live! The response header <var>X-Api-Version</var> contains the current version value.
+                      <br>You could use a JSON-beautifier, browser extension to view this data.
                     </div>
                 </div>
             </div>

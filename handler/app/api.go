@@ -1415,11 +1415,13 @@ func releasersAPI(art *models.File) []releaserAPI {
 		API:  APIBase + "/releaser/" + u1,
 		HTML: "/g/" + u1,
 	}
-	pair[1] = releaserAPI{
-		ID:   u2,
-		Name: releaser.Link(u2),
-		API:  APIBase + "/releaser/" + u2,
-		HTML: u2,
+	if u2 != "" {
+		pair[1] = releaserAPI{
+			ID:   u2,
+			Name: releaser.Link(u2),
+			API:  APIBase + "/releaser/" + u2,
+			HTML: u2,
+		}
 	}
 	return pair
 }
