@@ -350,7 +350,7 @@ func Areacodes(c echo.Context, sl *slog.Logger) error {
 	data["h1"] = "BBS area codes"
 	data["lead"] = "North American Numbering Plan (+1-XXX) telephone area codes until 1994."
 	data["telephonecodes"] = areacode.AreaCodes()
-	data["territories"] = areacode.Territories()
+	data["territories"] = areacode.Regions()
 	data["abbreviations"] = areacode.Abbreviations()
 	err := c.Render(http.StatusOK, "areacodes", data)
 	if err != nil {

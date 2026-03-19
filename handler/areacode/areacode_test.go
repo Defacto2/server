@@ -9,9 +9,9 @@ import (
 )
 
 func ExampleQuery() {
-	fmt.Println(areacode.Query("az").Terr)
-	fmt.Println(areacode.Query("arizona").Terr[0].HTML())
-	fmt.Println(areacode.Query("ut").Terr[0].HTML())
+	fmt.Println(areacode.Query("az").Region)
+	fmt.Println(areacode.Query("arizona").Region[0].HTML())
+	fmt.Println(areacode.Query("ut").Region[0].HTML())
 	fmt.Println(areacode.Query("602").AreaCode.HTML())
 	// Output: [{Arizona AZ [602]}]
 	// <span>Arizona (AZ)  - 602</span><br>
@@ -26,7 +26,7 @@ func ExampleQueries() {
 		if s != "" {
 			fmt.Println(s)
 		}
-		for _, t := range result.Terr {
+		for _, t := range result.Region {
 			fmt.Println(t.HTML())
 		}
 	}
@@ -43,15 +43,15 @@ func ExampleNAN_Valid() {
 	// false
 }
 
-func ExampleTerritories() {
-	t := areacode.Territories()
+func ExampleRegions() {
+	t := areacode.Regions()
 	name := t[0].Name
 	alpha := t[0].Abbreviation
 	area := t[0].AreaCodes
 	fmt.Printf("%s %s %d\n", name, alpha, area)
-	fmt.Println(len(t), "territories")
+	fmt.Println(len(t), "regions")
 	// Output: Alabama AL [205]
-	// 66 territories
+	// 66 regions
 }
 
 func ExampleAbbreviations() {
@@ -60,17 +60,17 @@ func ExampleAbbreviations() {
 	// Output: AB
 }
 
-func ExampleTerritoryByAbbr() {
-	t := areacode.TerritoryByAbbr("CT")
+func ExampleRegionByAbbr() {
+	t := areacode.RegionByAbbr("CT")
 	fmt.Println(t.Name, t.Abbreviation, t.AreaCodes)
 	// Output: Connecticut CT [203]
 }
 
-func ExampleTerritoryByCode() {
-	t := areacode.TerritoryByCode(212)
+func ExampleRegionByCode() {
+	t := areacode.RegionByCode(212)
 	fmt.Println(t[0].Name, t[0].Abbreviation, t[0].AreaCodes)
 
-	t = areacode.TerritoryByCode(902)
+	t = areacode.RegionByCode(902)
 	for _, v := range t {
 		fmt.Println(v.Name, v.Abbreviation, v.AreaCodes)
 	}
@@ -79,14 +79,14 @@ func ExampleTerritoryByCode() {
 	// Prince Edward Island PE [902]
 }
 
-func ExampleTerritoryByName() {
-	t := areacode.TerritoryByName("ontario")
+func ExampleRegionByName() {
+	t := areacode.RegionByName("ontario")
 	fmt.Println(t.AreaCodes)
 	// Output: [416 519 613 705 807 905]
 }
 
-func ExampleTerritoryContains() {
-	t := areacode.TerritoryContains("south")
+func ExampleRegionContains() {
+	t := areacode.RegionContains("south")
 	for _, v := range t {
 		fmt.Println(v)
 	}
@@ -128,8 +128,8 @@ func ExampleAbbreviation_HTML() {
 	// Output: <span>AB (Alberta) - 403</span><br>
 }
 
-func ExampleTerritory_HTML() {
-	t := areacode.TerritoryByCode(710)
+func ExampleRegion_HTML() {
+	t := areacode.RegionByCode(710)
 	fmt.Println(t[0].HTML())
 	// Output: <span>United States Government - 710</span><br>
 }
@@ -138,7 +138,7 @@ func TestTerritories(t *testing.T) {
 	t.Parallel()
 	notes := areacode.Notes()
 	for nan := range notes {
-		terr := areacode.TerritoryByCode(nan)
-		be.True(t, len(terr) >= 1)
+		reg := areacode.RegionByCode(nan)
+		be.True(t, len(reg) >= 1)
 	}
 }

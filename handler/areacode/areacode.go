@@ -31,13 +31,13 @@ func (c NAN) HTML() template.HTML {
 	if !c.Valid() {
 		return empty
 	}
-	territories := TerritoryByCode(c)
-	if len(territories) == 0 {
+	regions := RegionByCode(c)
+	if len(regions) == 0 {
 		return empty
 	}
 	var html strings.Builder
 	html.WriteString("<span>")
-	for i, val := range territories {
+	for i, val := range regions {
 		abbr := val.Abbreviation
 		if i == 0 {
 			s := fmt.Sprintf(`%d - %s`, c, val.Name)
@@ -59,11 +59,11 @@ func (c NAN) HTML() template.HTML {
 	return template.HTML(html.String())
 }
 
-// Abbreviation represents a two-letter abbreviation for a territory in the North American Numbering Plan.
+// Abbreviation represents a two-letter abbreviation for a region in the North American Numbering Plan.
 type Abbreviation string
 
 func (a Abbreviation) HTML() template.HTML {
-	t := TerritoryByAbbr(a)
+	t := RegionByAbbr(a)
 	var html strings.Builder
 	html.WriteString("<span>")
 	html.WriteString(string(t.Abbreviation) + " (" + t.Name + ")")
@@ -82,14 +82,14 @@ func (a Abbreviation) HTML() template.HTML {
 	return template.HTML(html.String())
 }
 
-// Territory represents a territory in the North American Numbering Plan.
-type Territory struct {
+// Region represents a region in the North American Numbering Plan.
+type Region struct {
 	Name         string       // Name of the state, province, or territory.
 	Abbreviation Abbreviation // Two-letter abbreviation.
 	AreaCodes    []NAN        // Three-digit NAN code used for telephone area codes.
 }
 
-func (t Territory) HTML() template.HTML {
+func (t Region) HTML() template.HTML {
 	var html strings.Builder
 	html.WriteString("<span>" + t.Name)
 	if len(t.Abbreviation) > 0 {
@@ -290,8 +290,8 @@ func Notes() map[NAN]string { //nolint:funlen
 
 // ucanadaProvinces is a list of Canadian provinces in the North American Numbering Plan.
 // These can be checked against official lists to ensure accuracy.
-func canadaProvinces() []Territory {
-	return []Territory{
+func canadaProvinces() []Region {
+	return []Region{
 		{"Alberta", "AB", []NAN{403}},
 		{"British Columbia", "BC", []NAN{604}},
 		{"Manitoba", "MB", []NAN{204}},
@@ -314,8 +314,8 @@ func canadaProvinces() []Territory {
 
 // usaStates is a list of states of the USA in the North American Numbering Plan.
 // These can be checked against official lists to ensure accuracy.
-func usaStates() []Territory {
-	return []Territory{
+func usaStates() []Region {
+	return []Region{
 		{"Alabama", "AL", []NAN{205}},
 		{"Alaska", "AK", []NAN{907}},
 		{"Arizona", "AZ", []NAN{602}},
@@ -370,36 +370,36 @@ func usaStates() []Territory {
 	}
 }
 
-// territories is a list of territories in the North American Numbering Plan.
+// regions in the North American Numbering Plan.
 // These can be checked against official lists to ensure accuracy.
-func territories() []Territory {
-	return []Territory{
+func regions() []Region {
+	return []Region{
 		// Miscellaneous
 		{"Caribbean Islands", "", []NAN{809}},
 		{"United States Government", "", []NAN{710}},
 	}
 }
 
-// Territories returns a list of all territories in the North American Numbering Plan
+// Regions returns a list of all regions in the North American Numbering Plan
 // sorted by name in ascending order.
-func Territories() []Territory {
-	terr := territories()
-	terr = append(terr, canadaProvinces()...)
-	terr = append(terr, usaStates()...)
-	slices.SortFunc(terr, func(i, j Territory) int {
+func Regions() []Region {
+	x := regions()
+	x = append(x, canadaProvinces()...)
+	x = append(x, usaStates()...)
+	slices.SortFunc(x, func(i, j Region) int {
 		if n := strings.Compare(i.Name, j.Name); n != 0 {
 			return n
 		}
 		return cmp.Compare(i.Abbreviation, j.Abbreviation)
 	})
-	return terr
+	return x
 }
 
-// Lookup returns a list of territories that match the given input.
+// Lookup returns a list of regions that match the given input.
 // The input can be a string, integer, or NAN.
-// If the input is a string, it will match against territory names and abbreviations.
+// If the input is a string, it will match against region names and abbreviations.
 // If the input is an integer, it will match against NANP codes.
-func Lookup(a any) []Territory {
+func Lookup(a any) []Region {
 	const abbreviation = 2
 	switch v := a.(type) {
 	case string:
@@ -407,32 +407,32 @@ func Lookup(a any) []Territory {
 		case 0, 1:
 			return nil
 		case abbreviation:
-			return []Territory{TerritoryByAbbr(Abbreviation(v))}
+			return []Region{RegionByAbbr(Abbreviation(v))}
 		}
-		return TerritoryContains(v)
+		return RegionContains(v)
 	case int, uint:
 		if c, ok := a.(int); ok {
-			return TerritoryByCode(NAN(c))
+			return RegionByCode(NAN(c))
 		}
 		if c, ok := a.(uint); ok {
 			if c > limit {
 				return nil
 			}
-			return TerritoryByCode(NAN(int(c)))
+			return RegionByCode(NAN(int(c)))
 		}
 		return nil
 	case NAN:
-		return TerritoryByCode(v)
+		return RegionByCode(v)
 	default:
 		return nil
 	}
 }
 
-// Lookups returns a list of territories that match the given inputs.
+// Lookups returns a list of regions that match the given inputs.
 //
 // See Lookup for more information.
-func Lookups(a ...any) []Territory {
-	var t []Territory
+func Lookups(a ...any) []Region {
+	var t []Region
 	for _, query := range a {
 		finds := Lookup(query)
 		if len(finds) == 0 {
@@ -448,9 +448,9 @@ func Lookups(a ...any) []Territory {
 	return t
 }
 
-// Result represents the result of a query, which can be an area code or a list of territories.
+// Result represents the result of a query, which can be an area code or a list of regions.
 type Result struct {
-	Terr     []Territory
+	Region   []Region
 	AreaCode NAN
 }
 
@@ -460,33 +460,33 @@ func Query(a any) Result {
 	case string:
 		if c, err := strconv.Atoi(val); err == nil {
 			ac := NAN(c)
-			return Result{AreaCode: ac, Terr: nil}
+			return Result{AreaCode: ac, Region: nil}
 		}
-		return Result{Terr: Lookup(val), AreaCode: 0}
+		return Result{Region: Lookup(val), AreaCode: 0}
 	case int, uint:
 		if c, ok := a.(int); ok {
-			return Result{AreaCode: NAN(c), Terr: nil}
+			return Result{AreaCode: NAN(c), Region: nil}
 		}
 		if c, ok := a.(uint); ok {
 			if c > limit {
 				return Result{
-					Terr:     nil,
+					Region:   nil,
 					AreaCode: 0,
 				}
 			}
 			return Result{
-				Terr:     nil,
+				Region:   nil,
 				AreaCode: NAN(int(c)),
 			}
 		}
 		return Result{
-			Terr:     nil,
+			Region:   nil,
 			AreaCode: 0,
 		}
 	case NAN:
-		return Result{AreaCode: val, Terr: nil}
+		return Result{AreaCode: val, Region: nil}
 	default:
-		return Result{Terr: nil, AreaCode: 0}
+		return Result{Region: nil, AreaCode: 0}
 	}
 }
 
@@ -509,11 +509,11 @@ func Queries(s ...string) []Result {
 	for _, query := range queries {
 		find := Query(query)
 		if !find.AreaCode.Valid() {
-			none := len(find.Terr) == 0
+			none := len(find.Region) == 0
 			if none {
 				continue
 			}
-			none = len(find.Terr) == 1 && find.Terr[0].Name == ""
+			none = len(find.Region) == 1 && find.Region[0].Name == ""
 			if none {
 				continue
 			}
@@ -523,8 +523,8 @@ func Queries(s ...string) []Result {
 	return r
 }
 
-// Contains returns true if the territory is in the list of territories.
-func Contains(t Territory, ts ...Territory) bool {
+// Contains returns true if the region is in the list of regions.
+func Contains(t Region, ts ...Region) bool {
 	for val := range slices.Values(ts) {
 		if t.Name == val.Name {
 			return true
@@ -533,11 +533,11 @@ func Contains(t Territory, ts ...Territory) bool {
 	return false
 }
 
-// Abbreviations returns a list of all two-letter abbreviations for territories
+// Abbreviations returns a list of all two-letter abbreviations for regions
 // in the North American Numbering Plan sorted in ascending order.
 func Abbreviations() []Abbreviation {
-	abbr := make([]Abbreviation, 0, len(Territories()))
-	for val := range slices.Values(Territories()) {
+	abbr := make([]Abbreviation, 0, len(Regions()))
+	for val := range slices.Values(Regions()) {
 		if val.Abbreviation == "" {
 			continue
 		}
@@ -550,8 +550,8 @@ func Abbreviations() []Abbreviation {
 
 // AreaCodes returns a list of all NANP area codes sorted in ascending order.
 func AreaCodes() []NAN {
-	codes := make([]NAN, 0, len(Territories()))
-	for val := range slices.Values(Territories()) {
+	codes := make([]NAN, 0, len(Regions()))
+	for val := range slices.Values(Regions()) {
 		codes = append(codes, val.AreaCodes...)
 	}
 	slices.Sort(codes)
@@ -559,37 +559,37 @@ func AreaCodes() []NAN {
 	return codes
 }
 
-// TerritoryByAbbr returns the territory with the given two-letter abbreviation.
-func TerritoryByAbbr(abbr Abbreviation) Territory {
+// RegionByAbbr returns the region with the given two-letter abbreviation.
+func RegionByAbbr(abbr Abbreviation) Region {
 	if len(abbr) == 0 {
-		return Territory{
+		return Region{
 			Name:         "",
 			Abbreviation: "",
 			AreaCodes:    nil,
 		}
 	}
-	for val := range slices.Values(Territories()) {
+	for val := range slices.Values(Regions()) {
 		if strings.EqualFold(string(val.Abbreviation), string(abbr)) {
 			return val
 		}
 	}
-	return Territory{
+	return Region{
 		Name:         "",
 		Abbreviation: "",
 		AreaCodes:    nil,
 	}
 }
 
-// TerritoryByCode returns the territories for the given North American Numbering code.
+// RegionByCode returns the regions for the given North American Numbering code.
 //
-// Generally, this will return a single territory, but it is possible for
-// a NAN code to be used in multiple territories, such as provinces in Canada.
-func TerritoryByCode(code NAN) []Territory {
+// Generally, this will return a single region, but it is possible for
+// a NAN code to be used in multiple regions, such as provinces in Canada.
+func RegionByCode(code NAN) []Region {
 	if !code.Valid() {
 		return nil
 	}
-	var finds []Territory
-	for val := range slices.Values(Territories()) {
+	var finds []Region
+	for val := range slices.Values(Regions()) {
 		for ac := range slices.Values(val.AreaCodes) {
 			if ac == code {
 				finds = append(finds, val)
@@ -599,25 +599,25 @@ func TerritoryByCode(code NAN) []Territory {
 	return finds
 }
 
-// TerritoryByName returns the territory with the given name.
+// RegionByName returns the region with the given name.
 // The name can be a US state, Canadian province, or other territory.
-func TerritoryByName(name string) Territory {
-	for val := range slices.Values(Territories()) {
+func RegionByName(name string) Region {
+	for val := range slices.Values(Regions()) {
 		if strings.EqualFold(val.Name, name) {
 			return val
 		}
 	}
-	return Territory{
+	return Region{
 		Name:         "",
 		Abbreviation: "",
 		AreaCodes:    nil,
 	}
 }
 
-// TerritoryContains returns a list of territories with names that contain the given string.
-func TerritoryContains(s string) []Territory {
-	vals := []Territory{}
-	for val := range slices.Values(Territories()) {
+// RegionContains returns a list of regions with names that contain the given string.
+func RegionContains(s string) []Region {
+	vals := []Region{}
+	for val := range slices.Values(Regions()) {
 		substr := strings.ToLower(s)
 		if strings.Contains(strings.ToLower(val.Name), substr) {
 			vals = append(vals, val)

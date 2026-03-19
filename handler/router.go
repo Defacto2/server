@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/releaser"
@@ -203,28 +204,56 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 	}
 	e.FileFS("/openapi.json", "public/json/openapi.json", public)
 	e.GET("/api", func(c echo.Context) error { return app.APIInfo(c, sl) })
-	const api = "/api/v0"
-	e.GET(api+"/categories", func(c echo.Context) error { return app.CategoriesAPI(c, db) })
-	e.GET(api+"/category/:category", func(c echo.Context) error { return app.CategoryAPI(c, db, sl) })
-	e.GET(api+"/platforms", func(c echo.Context) error { return app.PlatformsAPI(c, db) })
-	e.GET(api+"/platform/:platform", func(c echo.Context) error { return app.PlatformAPI(c, db, sl) })
-	e.GET(api+"/milestones", app.MilestonesAPI)
-	e.GET(api+"/milestones/highlights", app.MilestoneHighlightsAPI)
-	e.GET(api+"/milestones/year/:year", app.MilestoneYearAPI)
-	e.GET(api+"/milestones/years/:range", app.MilestoneYearsAPI)
-	e.GET(api+"/milestones/decade/:decade", app.MilestoneDecadeAPI)
-	e.GET(api+"/areacodes", app.AreacodesAPI)
-	e.GET(api+"/areacodes/:code", app.AreaCodeAPI)
-	e.GET(api+"/areacodes/search/:query", app.AreacodeSearchAPI)
-	e.GET(api+"/areacodes/territories", app.TerritoriesAPI)
-	e.GET(api+"/areacodes/territories/:abbr", app.TerritoryAPI)
-	e.GET(api+"/groups", func(c echo.Context) error { return app.GroupsAPI(c, db, sl) })
-	e.GET(api+"/sites", func(c echo.Context) error { return app.SitesAPI(c, db, sl) })
-	e.GET(api+"/boards", func(c echo.Context) error { return app.BBSAPI(c, db, sl) })
-	e.GET(api+"/magazines", func(c echo.Context) error { return app.MagazinesAPI(c, db, sl) })
-	e.GET(api+"/releaser/:name", func(c echo.Context) error { return app.ReleaserAPI(c, db, sl) })
-	e.GET(api+"/files", func(c echo.Context) error { return app.ArtifactsAPI(c, db, sl) })
-	e.GET(api+"/files/new", func(c echo.Context) error { return app.NewArtifactsAPI(c, db, sl) })
+	// register API routes as a group to use a custom HTTP header
+	apiGroup := e.Group(app.APIBase)
+	apiGroup.Use(CacheMiddleware())
+	apiGroup.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			const thousand = 1000.0
+			start := time.Now()
+			c.Response().Header().Set("X-Api-Version", app.APIVer)
+			// use a custom response writer to capture the timing
+			res := c.Response()
+			res.Before(func() {
+				end := time.Since(start)
+				ms := float64(end.Microseconds()) / thousand
+				value := fmt.Sprintf("%.3fms", ms)
+				res.Header().Set("X-Response-Time", value)
+			})
+			return next(c)
+		}
+	})
+	apiGroup.GET("/categories", func(c echo.Context) error { return app.CategoriesAPI(c, db) })
+	apiGroup.GET("/category/:category", func(c echo.Context) error { return app.CategoryAPI(c, db, sl) })
+	apiGroup.GET("/platforms", func(c echo.Context) error { return app.PlatformsAPI(c, db) })
+	apiGroup.GET("/platform/:platform", func(c echo.Context) error { return app.PlatformAPI(c, db, sl) })
+	apiGroup.GET("/milestones", app.MilestonesAPI)
+	apiGroup.GET("/milestones/highlights", app.MilestoneHighlightsAPI)
+	apiGroup.GET("/milestones/year/:year", app.MilestoneYearAPI)
+	apiGroup.GET("/milestones/years/:range", app.MilestoneYearsAPI)
+	apiGroup.GET("/milestones/decade/:decade", app.MilestoneDecadeAPI)
+	apiGroup.GET("/areacodes", app.AreacodesAPI)
+	apiGroup.GET("/areacode/:code", app.AreaCodeAPI)
+	apiGroup.GET("/areacodes/search/:query", app.AreacodeSearchAPI)
+	apiGroup.GET("/areacodes/regions", app.RegionsAPI)
+	apiGroup.GET("/areacodes/region/:abbr", app.RegionAPI)
+	apiGroup.GET("/websites", app.WebsitesAPI)
+	apiGroup.GET("/demozoo", app.DemozooAPI)
+	apiGroup.GET("/groups", func(c echo.Context) error { return app.GroupsAPI(c, db, sl) })
+	apiGroup.GET("/sites", func(c echo.Context) error { return app.SitesAPI(c, db, sl) })
+	apiGroup.GET("/boards", func(c echo.Context) error { return app.BoardsAPI(c, db, sl) })
+	apiGroup.GET("/magazines", func(c echo.Context) error { return app.MagazinesAPI(c, db, sl) })
+	apiGroup.GET("/releaser/:name", func(c echo.Context) error { return app.ReleaserAPI(c, db, sl) })
+	apiGroup.GET("/artifacts", func(c echo.Context) error { return app.ArtifactsAPI(c, db, sl) })
+	apiGroup.GET("/artifacts/new", func(c echo.Context) error { return app.ArtifactsNewAPI(c, db, sl) })
+	apiGroup.GET("/artifact/:id", func(c echo.Context) error { return app.FileAPI(c, db, sl) })
+	apiGroup.GET("/sceners", func(c echo.Context) error { return app.ScenersAPI(c, db, sl) })
+	apiGroup.GET("/sceners/artist", func(c echo.Context) error { return app.ArtistsAPI(c, db, sl) })
+	apiGroup.GET("/sceners/coder", func(c echo.Context) error { return app.CodersAPI(c, db, sl) })
+	apiGroup.GET("/sceners/musician", func(c echo.Context) error { return app.MusiciansAPI(c, db, sl) })
+	apiGroup.GET("/sceners/writer", func(c echo.Context) error { return app.WritersAPI(c, db, sl) })
+	apiGroup.GET("/scener/:name", func(c echo.Context) error { return app.ScenerAPI(c, db, sl) })
+
 	return e
 }
 
