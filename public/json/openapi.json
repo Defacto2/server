@@ -333,7 +333,7 @@
       "get": {
         "tags": ["areacodes"],
         "summary": "Get all area codes",
-        "description": "Returns a complete list of all North American Numbering Plan area codes with their associated territories and historical notes.",
+        "description": "Returns a complete list of all North American Numbering Plan area codes with their associated regions and historical notes.",
         "operationId": "getAllAreacodes",
         "responses": {
           "200": {
@@ -434,13 +434,13 @@
         "operationId": "getRegions",
         "responses": {
           "200": {
-            "description": "A list of territories",
+            "description": "A list of regions",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Territory"
+                    "$ref": "#/components/schemas/Region"
                   }
                 }
               }
@@ -2010,24 +2010,24 @@
           }
         }
       },
-      "Territory": {
+      "Region": {
         "type": "object",
         "properties": {
           "name": {
             "type": "string",
-            "description": "Full name of the territory (state, province, or region)",
+            "description": "Full name of the region (state, province, or region)",
             "example": "California"
           },
           "abbreviation": {
             "type": "string",
-            "description": "Two-letter abbreviation for the territory",
+            "description": "Two-letter abbreviation for the region",
             "example": "CA",
             "minLength": 2,
             "maxLength": 2
           },
           "areaCodes": {
             "type": "array",
-            "description": "List of area codes used in this territory",
+            "description": "List of area codes used in this region",
             "items": {
               "type": "integer"
             },

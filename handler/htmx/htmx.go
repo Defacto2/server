@@ -53,8 +53,8 @@ func Areacodes(c echo.Context) error {
 		if val.AreaCode.Valid() {
 			htm += val.AreaCode.HTML() + "<br>"
 		}
-		if len(val.Terr) > 0 {
-			for terr := range slices.Values(val.Terr) {
+		if len(val.Region) > 0 {
+			for terr := range slices.Values(val.Region) {
 				htm += terr.HTML() + "<br>"
 			}
 		}

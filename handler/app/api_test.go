@@ -261,7 +261,7 @@ func TestGetTerritories(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	// Test
-	err := app.TerritoriesAPI(c)
+	err := app.RegionsAPI(c)
 	be.Equal(t, err, nil)
 	be.Equal(t, http.StatusOK, rec.Code)
 	be.True(t, len(rec.Body.String()) > 0)
@@ -314,7 +314,7 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 			c.SetParamValues(tt.abbr)
 
 			// Test
-			err := app.TerritoryAPI(c)
+			err := app.RegionAPI(c)
 			be.Equal(t, err, nil)
 			be.Equal(t, tt.expectStatus, rec.Code)
 			be.True(t, len(rec.Body.String()) > 0)

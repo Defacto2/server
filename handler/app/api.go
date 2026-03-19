@@ -140,9 +140,9 @@ type artifactsAPI struct {
 
 // areacodeAPI represents an area code for API responses.
 type areacodeAPI struct {
-	Code        int      `json:"code"`
-	Territories []string `json:"territories"`
-	Notes       string   `json:"notes,omitempty"`
+	Code    int      `json:"code"`
+	Regions []string `json:"regions"`
+	Notes   string   `json:"notes,omitempty"`
 }
 
 // enityURLs represents a collection releaser or group URLs.
@@ -179,8 +179,8 @@ type tagAPI struct {
 	Stats       totalsAPI `json:"statistics"`
 }
 
-// territoryAPI represents a territory for API responses.
-type territoryAPI struct {
+// regionAPI represents an North American region for area code API responses.
+type regionAPI struct {
 	Name         string `json:"name"`
 	Abbreviation string `json:"abbreviation"`
 	AreaCodes    []int  `json:"areaCodes"`
@@ -375,15 +375,15 @@ func AreacodesAPI(c echo.Context) error {
 	}
 	result := make([]areacodeAPI, 0, len(codes))
 	for _, code := range codes {
-		territories := areacode.TerritoryByCode(code)
-		names := make([]string, 0, len(territories))
-		for _, t := range territories {
+		regions := areacode.RegionByCode(code)
+		names := make([]string, 0, len(regions))
+		for _, t := range regions {
 			names = append(names, t.Name)
 		}
 		apiCode := areacodeAPI{
-			Code:        int(code),
-			Territories: names,
-			Notes:       "",
+			Code:    int(code),
+			Regions: names,
+			Notes:   "",
 		}
 		if note, ok := areacode.Notes()[code]; ok {
 			apiCode.Notes = note
@@ -409,15 +409,15 @@ func AreaCodeAPI(c echo.Context) error {
 	if !nancode.Valid() {
 		return c.JSON(http.StatusNotFound, "area code not found")
 	}
-	territories := areacode.TerritoryByCode(nancode)
-	names := make([]string, 0, len(territories))
-	for _, t := range territories {
+	regions := areacode.RegionByCode(nancode)
+	names := make([]string, 0, len(regions))
+	for _, t := range regions {
 		names = append(names, t.Name)
 	}
 	result := areacodeAPI{
-		Code:        code,
-		Territories: names,
-		Notes:       "",
+		Code:    code,
+		Regions: names,
+		Notes:   "",
 	}
 	if note, ok := areacode.Notes()[nancode]; ok {
 		result.Notes = note
@@ -426,7 +426,7 @@ func AreaCodeAPI(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// AreacodeSearchAPI searches for area codes or territories by query.
+// AreacodeSearchAPI searches for area codes or regions by query.
 func AreacodeSearchAPI(c echo.Context) error {
 	query := c.Param("query")
 	if query == "" {
@@ -437,36 +437,36 @@ func AreacodeSearchAPI(c echo.Context) error {
 	if code, err := strconv.Atoi(query); err == nil {
 		nancode := areacode.NAN(code)
 		if nancode.Valid() {
-			territories := areacode.TerritoryByCode(nancode)
-			names := make([]string, 0, len(territories))
-			for _, t := range territories {
+			regions := areacode.RegionByCode(nancode)
+			names := make([]string, 0, len(regions))
+			for _, t := range regions {
 				names = append(names, t.Name)
 			}
 			result := areacodeAPI{
-				Code:        code,
-				Territories: names,
-				Notes:       "",
+				Code:    code,
+				Regions: names,
+				Notes:   "",
 			}
 			if note, ok := areacode.Notes()[nancode]; ok {
 				result.Notes = note
 			}
 			return c.JSON(http.StatusOK, map[string]any{
-				"areacodes":   []areacodeAPI{result},
-				"territories": []territoryAPI{},
+				"areacodes": []areacodeAPI{result},
+				"regions":   []regionAPI{},
 			})
 		}
 	}
 
-	// Territory lookup
-	territories := areacode.Lookup(query)
-	if len(territories) > 0 {
-		results := make([]territoryAPI, 0, len(territories))
-		for _, t := range territories {
+	// Regions lookup
+	regions := areacode.Lookup(query)
+	if len(regions) > 0 {
+		results := make([]regionAPI, 0, len(regions))
+		for _, t := range regions {
 			areaCodes := make([]int, 0, len(t.AreaCodes))
 			for _, ac := range t.AreaCodes {
 				areaCodes = append(areaCodes, int(ac))
 			}
-			results = append(results, territoryAPI{
+			results = append(results, regionAPI{
 				Name:         t.Name,
 				Abbreviation: string(t.Abbreviation),
 				AreaCodes:    areaCodes,
@@ -474,14 +474,14 @@ func AreacodeSearchAPI(c echo.Context) error {
 		}
 
 		return c.JSON(http.StatusOK, map[string]any{
-			"areacodes":   []areacodeAPI{},
-			"territories": results,
+			"areacodes": []areacodeAPI{},
+			"regions":   results,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"areacodes":   []areacodeAPI{},
-		"territories": []territoryAPI{},
+		"areacodes": []areacodeAPI{},
+		"regions":   []regionAPI{},
 	})
 }
 
@@ -1161,12 +1161,6 @@ func cacheResults(key string, data any) {
 	}
 }
 
-// cachedReleasersAPI handles the common pattern for caching
-// releaser-based API endpoints.
-// cachedReleasersAPI has been removed - the caching was buggy and caused
-// empty results to be returned. The individual API endpoints now use
-// direct queries like GroupsAPI.
-
 // cachedTags returns cached tag results if available.
 func cachedTags(category, platform bool) ([]tagAPI, bool) {
 	cacheKey := fmt.Sprintf("tags_category=%t_platform=%t", category, platform)
@@ -1627,21 +1621,21 @@ func artifactSummary(art *models.File) artifactAPI {
 	}
 }
 
-// TerritoriesAPI returns all territories in the North American Numbering Plan (NANP).
-func TerritoriesAPI(c echo.Context) error {
-	territories := areacode.Territories()
-	if len(territories) == 0 {
-		return c.JSON(http.StatusOK, []territoryAPI{})
+// RegionsAPI returns all region in the North American Numbering Plan (NANP).
+func RegionsAPI(c echo.Context) error {
+	regions := areacode.Regions()
+	if len(regions) == 0 {
+		return c.JSON(http.StatusOK, []regionAPI{})
 	}
 
-	result := make([]territoryAPI, 0, len(territories))
-	for _, t := range territories {
+	result := make([]regionAPI, 0, len(regions))
+	for _, t := range regions {
 		areaCodes := make([]int, 0, len(t.AreaCodes))
 		for _, ac := range t.AreaCodes {
 			areaCodes = append(areaCodes, int(ac))
 		}
 
-		result = append(result, territoryAPI{
+		result = append(result, regionAPI{
 			Name:         t.Name,
 			Abbreviation: string(t.Abbreviation),
 			AreaCodes:    areaCodes,
@@ -1651,26 +1645,26 @@ func TerritoriesAPI(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// TerritoryAPI returns a specific territory by its abbreviation.
-func TerritoryAPI(c echo.Context) error {
+// RegionAPI returns a specific region by its abbreviation.
+func RegionAPI(c echo.Context) error {
 	abbr := c.Param("abbr")
 	const twoChrs = 2
 	if len(abbr) != twoChrs {
 		return c.JSON(http.StatusBadRequest, "abbreviation must be 2 characters")
 	}
 
-	territory := areacode.TerritoryByAbbr(areacode.Abbreviation(abbr))
-	if territory.Name == "" {
-		return c.JSON(http.StatusNotFound, "territory not found")
+	region := areacode.RegionByAbbr(areacode.Abbreviation(abbr))
+	if region.Name == "" {
+		return c.JSON(http.StatusNotFound, "region not found")
 	}
-	areaCodes := make([]int, 0, len(territory.AreaCodes))
-	for _, ac := range territory.AreaCodes {
+	areaCodes := make([]int, 0, len(region.AreaCodes))
+	for _, ac := range region.AreaCodes {
 		areaCodes = append(areaCodes, int(ac))
 	}
 
-	result := territoryAPI{
-		Name:         territory.Name,
-		Abbreviation: string(territory.Abbreviation),
+	result := regionAPI{
+		Name:         region.Name,
+		Abbreviation: string(region.Abbreviation),
 		AreaCodes:    areaCodes,
 	}
 
