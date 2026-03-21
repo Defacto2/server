@@ -33,7 +33,7 @@
                 🎮 &nbsp; {{- if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
               </h5>
               {{- if eq true (index . "modEmulateBroken")}}<span class="badge bg-danger ms-2">⚠️ Incompatible</span>{{end}}
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button type="button" name="jsdosCloser" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 {{- if eq "covox" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for a sound device option, choose "LPT1" for Covox, Disney, Soundplayer or Soundthing</p>{{end}}
@@ -49,7 +49,7 @@
                 <button id="jsdosReplaceImage" class="btn btn-outline-warning">&#x26ED; Replace Image</button>
                 {{- end }}
                 <button id="jsdosStop" class="btn btn-danger">&#x25A0; Stop</button>
-                <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">✕ Close</button>
+                <button type="button" name="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">✕ Close</button>
             </div>
         </div>
     </div>
@@ -192,9 +192,11 @@
       };
       {{$runJS | safeJS}}
     });
-    const jsQuit = document.getElementById("jsdosCloser");
-    jsQuit.addEventListener("click", () => {
-      location.reload();
-    });
+    const jsQuitButtons = document.getElementsByName("jsdosCloser");
+    for (let i = 0; i < jsQuitButtons.length; i++) {
+      jsQuitButtons[i].addEventListener("click", () => {
+        location.reload();
+      });
+    }
 </script>
 {{- end}}{{ end }}
