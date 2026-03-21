@@ -12,6 +12,7 @@
 */ -}}
 {{- define "artifactjsdos" -}}
 {{- if eq (index . "jsdos6") true}}
+{{- $unlocked := index . "editor"}}
 {{- $download := index . "download"}}
 {{- $filename := index . "filename"}}
 {{- $lead := index . "lead"}}
@@ -34,16 +35,19 @@
               {{- if eq true (index . "modEmulateBroken")}}<span class="badge bg-danger ms-2">⚠️ Incompatible</span>{{end}}
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">  
+            <div class="modal-body">
                 {{- if eq "covox" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for a sound device option, choose "LPT1" for Covox, Disney, Soundplayer or Soundthing</p>{{end}}
                 {{- if eq "gus" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Gravis Ultrasound config, choose IRQ <var>5</var>, DMA <var>1</var>, Base address <var>240h</var> or Port <var>240</var></p>{{end}}
                 {{- if eq "sb1" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster config, choose IRQ <var>7</var>, DMA <var>1</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
                 {{- if eq "sb16" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster 16 config, choose IRQ <var>7</var>, DMA <var>1</var>, HDMA <var>5</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
-                <canvas id="jsdos6"></canvas>  
+                <canvas id="jsdos6"></canvas>
             </div>
             <div class="modal-footer">
                 <button id="jsdosFullscreen" class="btn btn-outline-info">&#x2922; Full Screen</button>
                 <button id="jsdosScreenshot" class="btn btn-outline-info">&#x26F6; Screenshot</button>
+                {{- if $unlocked }}
+                <button id="jsdosReplaceImage" class="btn btn-outline-warning">&#x26ED; Replace Image</button>
+                {{- end }}
                 <button id="jsdosStop" class="btn btn-danger">&#x25A0; Stop</button>
                 <button type="button" id="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">✕ Close</button>
             </div>
@@ -88,6 +92,48 @@
     document
       .getElementById(`jsdosScreenshot`)
       .addEventListener("click", screenshot);
+{{- if $unlocked }}
+    const replaceImageButton = document.getElementById('jsdosReplaceImage');
+    replaceImageButton.addEventListener('click', function() {
+      try {
+        replaceImageButton.disabled = true;
+        console.log("replacement image: for canvas of {{$filename}}");
+        let dataURL = canvas.toDataURL("image/png");
+        let a = document.createElement('a');
+        a.href = dataURL;
+        a.download = "{{$filename}}-replace-image.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // stop JS-DOS emulation
+        if (window.ci) {
+          ci.exit();
+          stopButton.disabled = true;
+          const runAppButton = document.getElementById('js-dos-run-app');
+          if (runAppButton) {
+            runAppButton.textContent = 'Refresh page to rerun';
+            runAppButton.style.pointerEvents = 'none';
+          }
+        }
+        const jsdosModal = bootstrap.Modal.getInstance(document.getElementById('js-dos-modal'));
+        jsdosModal.hide();
+        // store screenshot for potential use
+        window.lastJSDOSScreenshot = dataURL;
+        // open asset editor modal
+        const assetModal = new bootstrap.Modal(document.getElementById('asset-editor-modal'));
+        assetModal.show();
+        // open replacement image file dialog
+        document.getElementById('asset-editor-modal').addEventListener('shown.bs.modal', function() {
+          const replacementInput = document.querySelector('input[name="artifact-editor-replace-preview"]');
+          if (replacementInput) {
+            replacementInput.click();
+          }
+        });
+      } catch (error) {
+        console.log("Replace image error: ", error);
+      }
+    });
+{{- end }}
     function screenshot() {
       console.log("screenshot: for canvas of {{$filename}}");
       let dataURL = canvas.toDataURL("image/png");
@@ -149,6 +195,6 @@
     const jsQuit = document.getElementById("jsdosCloser");
     jsQuit.addEventListener("click", () => {
       location.reload();
-    });    
+    });
 </script>
 {{- end}}{{ end }}
