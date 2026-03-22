@@ -713,7 +713,7 @@ func (dir Dirs) filemetadata(art *models.File, data map[string]any) map[string]a
 	}
 	data["filename"] = filerecord.Basename(art)
 	data["filesize"] = simple.BytesHuman(art.Filesize.Int64)
-	data["filebyte"] = art.Filesize
+	data["filebyte"] = art.Filesize.Int64
 	data["lastmodified"] = filerecord.LastModification(art)
 	data["lastmodifiedAgo"] = filerecord.LastModificationAgo(art)
 	data["checksum"] = filerecord.Checksum(art)
