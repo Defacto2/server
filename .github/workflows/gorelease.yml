@@ -65,6 +65,7 @@ jobs:
           args: release --clean --config init/.goreleaser.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_DEBUG: true # leave on, because this workflow is fickle
       - name: Smoke test binary
         run: |
           ./dist/server_linux_amd64_v1/defacto2-server --help > /dev/null
