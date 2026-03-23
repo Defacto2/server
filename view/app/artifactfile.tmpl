@@ -317,7 +317,7 @@
                           name="readme-is-off"
                           id="readme-is-off"{{if eq true $noReadme}} checked{{end}}>
                       <span id="readme-is-off-result"></span>
-                      <label class="form-check-label text-warning-emphasis" for="readme-is-off"><u>Never</u> display README or DIZ.</label>
+                      <label class="form-check-label text-warning-emphasis" for="readme-is-off"><u>Never</u> display README, DIZ, or HELPER.</label>
                       Toggle this to workaround the auto-extracted texts that are unrelated, ads, or broken.
                   </div>
                 </div>
@@ -354,25 +354,29 @@
                 <div class="card">
                   <div class="card-body">
                     <p class="card-text">
-                    <span class="lead">README</span>
+                    <span class="lead">README or information texts</span>
                       <div class="form-text" id="editor-copy-readme-result"></div>
                       <div class="row">
                       {{- if eq (len .modAssetExtra) 0}}
                         <div>No extras in use</div>
                       {{- else}}
-                        <div class="col-6">
-                          <button class="btn btn-link m-0 p-0" 
-                            hx-target="#editor-copy-readme-result"
-                            hx-delete="/editor/readme/{{$unid}}">
-                            <span class="badge text-bg-danger">Delete <em>README</em></span></button>
+                        <div class="col-12">
                           <button class="btn btn-link m-0 p-0" 
                             hx-target="#editor-copy-readme-result"
                             hx-delete="/editor/diz/{{$unid}}">
                             <span class="badge text-bg-danger">Delete <em>FILE_ID.DIZ</em></span></button>
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-delete="/editor/helper/{{$unid}}">
+                            <span class="badge text-bg-danger">Delete <em>HELPER</em></span></button>
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-delete="/editor/readme/{{$unid}}">
+                            <span class="badge text-bg-danger">Delete <em>README</em></span></button>
                         </div>
                       <div class="form-text">
                         After deletion, text files may automatically reappear.
-                        Instead, use the <em>Never&nbsp;display</em> toggle to hide any README and FILE_ID.DIZ.
+                        Instead, use the <em>Never&nbsp;display</em> toggle to hide any README, DIZ, or HELPER.
                       </div>
                       {{- end}}
                       {{- if ne "" (index . "modReadmeSuggest")}}

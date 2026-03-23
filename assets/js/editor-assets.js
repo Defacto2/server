@@ -8,11 +8,11 @@ import {
   checkSize,
   progress,
   resetInput,
-} from "./uploader.mjs";
-import { getElmById } from "./helper.mjs";
+} from './uploader.mjs';
+import { getElmById } from './helper.mjs';
 
 (() => {
-  "use strict";
+  'use strict';
 
   // New file download progress bar.
   progress(`artifact-editor-dl-form`, `artifact-editor-dl-progress`);
@@ -24,9 +24,9 @@ import { getElmById } from "./helper.mjs";
   const alert = getElmById(`artifact-editor-dl-alert`);
   const reset = getElmById(`artifact-editor-dl-reset`);
   const lastMod = getElmById(`artifact-editor-last-modified`);
-  const results = getElmById("artifact-editor-dl-results");
+  const results = getElmById('artifact-editor-dl-results');
   const fileInput = getElmById(`artifact-editor-dl-up`);
-  fileInput.addEventListener("change", checkFile);
+  fileInput.addEventListener('change', checkFile);
 
   async function checkFile() {
     resetInput(fileInput, alert, results);
@@ -44,22 +44,22 @@ import { getElmById } from "./helper.mjs";
     }
   }
 
-  const dataEditor = document.getElementById("artifact-editor-modal");
+  const dataEditor = document.getElementById('artifact-editor-modal');
   if (dataEditor == null) {
     console.error(`the data editor modal is missing`);
     return;
   }
-  const assetEditor = document.getElementById("asset-editor-modal");
+  const assetEditor = document.getElementById('asset-editor-modal');
   if (assetEditor == null) {
     console.error(`the asset editor modal is missing`);
     return;
   }
-  const jsdosEditor = document.getElementById("emulate-editor-modal");
+  const jsdosEditor = document.getElementById('emulate-editor-modal');
   if (jsdosEditor == null) {
     console.error(`the emulate editor modal is missing`);
     return;
   }
-  const deleteEditor = document.getElementById("artifact-delete-forever-modal");
+  const deleteEditor = document.getElementById('artifact-delete-forever-modal');
   if (deleteEditor == null) {
     console.error(`the delete editor modal is missing`);
     return;
@@ -74,73 +74,73 @@ import { getElmById } from "./helper.mjs";
   switch (parsedUrl.hash) {
     case `#data-editor`:
       dataModal.show();
-      history.replaceState(null, "", window.location.pathname);
+      history.replaceState(null, '', window.location.pathname);
       break;
     case `#file-editor`:
       assetModal.show();
-      history.replaceState(null, "", window.location.pathname);
+      history.replaceState(null, '', window.location.pathname);
       break;
     case `#emulate-editor`:
       emulateModal.show();
-      history.replaceState(null, "", window.location.pathname);
+      history.replaceState(null, '', window.location.pathname);
       break;
     default:
     // note, the #runapp hash is used by js-dos
   }
 
   // Keyboard shortcuts for the editor modals.
-  document.addEventListener("keydown", function (event) {
+  document.addEventListener('keydown', function (event) {
     if (!event.altKey || !event.shiftKey) {
       return;
     }
-    const refresher = "Enter";
-    const dataEditor = "Home";
-    const assetEditor = "PageDown";
-    const emulateEditor = "PageUp";
-    const deleteEditor = "Delete";
-    const closeEditors = "Backspace";
-    const approveRecord = "ArrowUp";
-    const approveRecord2 = "ArrowDown";
-    const approve = document.getElementById("editor-online-true");
-    const download = document.getElementById("artifact-download-link");
-    const emulator = document.getElementById("js-dos-run-app");
-    const viewcontent = document.getElementById("artifact-view-content");
-    const enlargeImage = document.getElementById("artifact-enlarge-screenshot");
+    const refresher = 'Enter';
+    const dataEditor = 'Home';
+    const assetEditor = 'PageDown';
+    const emulateEditor = 'PageUp';
+    const deleteEditor = 'Delete';
+    const closeEditors = 'Backspace';
+    const approveRecord = 'ArrowUp';
+    const approveRecord2 = 'ArrowDown';
+    const approve = document.getElementById('editor-online-true');
+    const download = document.getElementById('artifact-download-link');
+    const emulator = document.getElementById('js-dos-run-app');
+    const viewcontent = document.getElementById('artifact-view-content');
+    const enlargeImage = document.getElementById('artifact-enlarge-screenshot');
 
-    const datey = document.getElementById("artifact-editor-year");
-    const datem = document.getElementById("artifact-editor-month");
-    const dated = document.getElementById("artifact-editor-day");
-    const title = document.getElementById("artifact-editor-title");
-    const relr1 = document.getElementById("artifact-editor-releaser-1");
-    const relr2 = document.getElementById("artifact-editor-releaser-2");
-    const fname = document.getElementById("artifact-editor-filename");
-    const commt = document.getElementById("artifact-editor-comment");
+    const datey = document.getElementById('artifact-editor-year');
+    const datem = document.getElementById('artifact-editor-month');
+    const dated = document.getElementById('artifact-editor-day');
+    const title = document.getElementById('artifact-editor-title');
+    const relr1 = document.getElementById('artifact-editor-releaser-1');
+    const relr2 = document.getElementById('artifact-editor-releaser-2');
+    const fname = document.getElementById('artifact-editor-filename');
+    const commt = document.getElementById('artifact-editor-comment');
 
-    const rlnk1 = document.getElementById("named-group-page-1");
-    const rlnk2 = document.getElementById("named-group-page-2");
+    const rlnk1 = document.getElementById('named-group-page-1');
+    const rlnk2 = document.getElementById('named-group-page-2');
 
-    console.log("key", event.key);
+    console.log('key', event.key);
     switch (event.key) {
-      case "1":
-      case "!":
+      case '1':
+      case '!':
         if (rlnk1) {
           event.preventDefault();
           rlnk1.click();
         }
         break;
-      case "2":
-      case "@":
+      case '2':
+      case '@':
         if (rlnk2) {
           event.preventDefault();
           rlnk2.click();
         }
         break;
-      case "|":
+      case '|':
         if (commt) {
           commt.focus();
         }
         break;
-      case "ArrowLeft":
+      case 'ArrowLeft':
         if (!datey) {
           break;
         }
@@ -160,7 +160,7 @@ import { getElmById } from "./helper.mjs";
             break;
         }
         break;
-      case "ArrowRight":
+      case 'ArrowRight':
         if (!datey) {
           break;
         }
@@ -180,7 +180,7 @@ import { getElmById } from "./helper.mjs";
             break;
         }
         break;
-      case "ArrowDown":
+      case 'ArrowDown':
         if (!title) {
           break;
         }
@@ -203,7 +203,7 @@ import { getElmById } from "./helper.mjs";
             break;
         }
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         if (!title) {
           break;
         }
@@ -226,29 +226,29 @@ import { getElmById } from "./helper.mjs";
             break;
         }
         break;
-      case "E":
-      case "e":
+      case 'E':
+      case 'e':
         if (enlargeImage) {
           event.preventDefault();
           enlargeImage.click();
         }
         break;
-      case "D":
-      case "d":
+      case 'D':
+      case 'd':
         if (download) {
           event.preventDefault();
           download.click();
         }
         break;
-      case "R":
-      case "r":
+      case 'R':
+      case 'r':
         if (emulator) {
           event.preventDefault();
           emulator.click();
         }
         break;
-      case "V":
-      case "v":
+      case 'V':
+      case 'v':
         if (viewcontent) {
           event.preventDefault();
           viewcontent.click();
@@ -272,15 +272,15 @@ import { getElmById } from "./helper.mjs";
         deleteModal.hide();
         dataModal.show();
         break;
-      case "i":
-      case "I":
+      case 'i':
+      case 'I':
       case assetEditor:
         event.preventDefault();
         dataModal.hide();
         emulateModal.hide();
         deleteModal.hide();
         assetModal.show();
-        if (event.key == "I" || event.key == "i") {
+        if (event.key == 'I' || event.key == 'i') {
           previewInput.click();
         }
         break;
@@ -309,48 +309,53 @@ import { getElmById } from "./helper.mjs";
   });
 
   // New file download form event listener.
-  document.body.addEventListener("htmx:afterRequest", function (event) {
+  document.body.addEventListener('htmx:afterRequest', function (event) {
     afterFormRequest(
       event,
       `artifact-editor-dl-form`,
       `artifact-editor-dl-up`,
-      `artifact-editor-dl-feedback`,
+      `artifact-editor-dl-feedback`
     );
     afterFormRequest(
       event,
       `artifact-editor-preview-form`,
       `artifact-editor-replace-preview`,
-      `artifact-editor-image-assets-feedback`,
+      `artifact-editor-image-assets-feedback`
     );
     afterRefreshRequest(
       event,
-      "artifact-editor-image-pixelate",
-      "artifact-editor-image-assets-feedback",
+      'artifact-editor-image-pixelate',
+      'artifact-editor-image-assets-feedback'
     );
     afterLinkRequest(
       event,
-      "artifact-editor-link-delete",
-      "artifact-editor-link-feedback",
+      'artifact-editor-link-delete',
+      'artifact-editor-link-feedback'
     );
     afterLinkRequest(
       event,
-      "artifact-editor-comp-previewcopy",
-      "artifact-editor-comp-feedback",
+      'artifact-editor-comp-previewcopy',
+      'artifact-editor-comp-feedback'
     );
     afterLinkRequest(
       event,
-      "artifact-editor-comp-previewtext",
-      "artifact-editor-comp-feedback",
+      'artifact-editor-comp-previewtext',
+      'artifact-editor-comp-feedback'
     );
     afterLinkRequest(
       event,
-      "artifact-editor-comp-textcopy",
-      "artifact-editor-comp-feedback",
+      'artifact-editor-comp-textcopy',
+      'artifact-editor-comp-feedback'
     );
     afterLinkRequest(
       event,
-      "artifact-editor-comp-dizcopy",
-      "artifact-editor-comp-feedback",
+      'artifact-editor-comp-dizcopy',
+      'artifact-editor-comp-feedback'
+    );
+    afterLinkRequest(
+      event,
+      'artifact-editor-comp-hlpcopy',
+      'artifact-editor-comp-feedback'
     );
   });
 
@@ -372,10 +377,10 @@ import { getElmById } from "./helper.mjs";
     const feedback = document.getElementById(feedbackId);
     if (feedback === null) {
       throw new Error(
-        `The htmx successful feedback element ${feedbackId} is null`,
+        `The htmx successful feedback element ${feedbackId} is null`
       );
     }
-    const errClass = "text-danger";
+    const errClass = 'text-danger';
     const xhr = event.detail.xhr;
     const statusFound = xhr.status === 200 || xhr.status === 302;
     if ((event.detail && event.detail.successful) || statusFound) {
@@ -397,8 +402,8 @@ import { getElmById } from "./helper.mjs";
     }
     feedback.classList.add(errClass);
     feedback.innerText =
-      "Something with the browser is not working," +
-      " please try again or refresh the page.";
+      'Something with the browser is not working,' +
+      ' please try again or refresh the page.';
   }
 
   function afterRefreshRequest(event, inputId, feedbackId) {
@@ -407,11 +412,11 @@ import { getElmById } from "./helper.mjs";
     const feedback = document.getElementById(feedbackId);
     if (feedback === null) {
       throw new Error(
-        `The htmx successful feedback element ${feedbackId} is null`,
+        `The htmx successful feedback element ${feedbackId} is null`
       );
     }
-    const errClass = "text-danger";
-    const okClass = "text-success";
+    const errClass = 'text-danger';
+    const okClass = 'text-success';
     const xhr = event.detail.xhr;
     if (event.detail.successful) {
       feedback.innerText = `About to refresh the page.`;
@@ -431,8 +436,8 @@ import { getElmById } from "./helper.mjs";
     }
     feedback.classList.add(errClass);
     feedback.innerText =
-      "Something with the browser is not working," +
-      " please try again or refresh the page.";
+      'Something with the browser is not working,' +
+      ' please try again or refresh the page.';
   }
 
   /**
@@ -453,7 +458,7 @@ import { getElmById } from "./helper.mjs";
     const feedback = document.getElementById(feedbackName);
     if (feedback === null) {
       throw new Error(
-        `The htmx successful feedback element ${feedbackName} is null`,
+        `The htmx successful feedback element ${feedbackName} is null`
       );
     }
     if (event.detail.successful) {
@@ -468,10 +473,10 @@ import { getElmById } from "./helper.mjs";
   function successful(event, input, feedback) {
     const xhr = event.detail.xhr;
     feedback.innerText = `${xhr.responseText}`;
-    feedback.classList.remove("invalid-feedback");
-    feedback.classList.add("valid-feedback");
-    input.classList.remove("is-invalid");
-    input.classList.add("is-valid");
+    feedback.classList.remove('invalid-feedback');
+    feedback.classList.add('valid-feedback');
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
     setTimeout(() => {
       location.reload();
     }, 500);
@@ -480,24 +485,24 @@ import { getElmById } from "./helper.mjs";
   function errorXhr(event, input, feedback) {
     const xhr = event.detail.xhr;
     feedback.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
-    feedback.classList.remove("valid-feedback");
-    feedback.classList.add("invalid-feedback");
-    input.classList.remove("is-valid");
-    input.classList.add("is-invalid");
+    feedback.classList.remove('valid-feedback');
+    feedback.classList.add('invalid-feedback');
+    input.classList.remove('is-valid');
+    input.classList.add('is-invalid');
   }
 
   function errorBrowser(input, feedback) {
-    input.classList.remove("is-valid");
-    input.classList.add("is-invalid");
+    input.classList.remove('is-valid');
+    input.classList.add('is-invalid');
     feedback.innerText =
-      "Something with the browser is not working, please try again or refresh the page.";
-    feedback.classList.remove("d-none");
+      'Something with the browser is not working, please try again or refresh the page.';
+    feedback.classList.remove('d-none');
   }
 
   // New file download form reset button.
   reset.addEventListener(`click`, function () {
-    alert.innerText = "";
-    alert.classList.add("d-none");
+    alert.innerText = '';
+    alert.classList.add('d-none');
     fileInput.value = ``;
     fileInput.classList.remove(`is-invalid`, `is-valid`);
   });
@@ -508,7 +513,7 @@ import { getElmById } from "./helper.mjs";
   });
 
   // Automatically submit the preview form when a file is selected.
-  previewInput.addEventListener("change", function (evt) {
+  previewInput.addEventListener('change', function (evt) {
     if (evt.target.value.trim() === ``) {
       return;
     }
