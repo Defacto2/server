@@ -74,15 +74,20 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	m.bytes = bytes
 	m.platform = platform
 	m.section = section
-	displayname := m.RelativeName
+
+	title := m.RelativeName
 	if strings.EqualFold(platform, tags.DOS.String()) {
-		if msdos.Rename(displayname) != displayname {
-			displayname = `<span class="text-danger">` + displayname + `</span>`
+		if msdos.Rename(title) != title {
+			title = `<span class="text-danger">` + title + `</span>`
 		}
 	}
-	htm := fmt.Sprintf(`<div class="col d-inline-block text-truncate">%s</div>`,
-		displayname)
-	return m.Column1Btn(htm)
+
+	htm := `<div class="col d-inline-block text-truncate">` + title + `</div>`
+	htm += m.ColButton1()
+	htm += m.ColButton2()
+	// htm += m.ColButton3() // disabled for now, but this is a placeholder for additional features
+	htm += m.ColFooter()
+	return `<div class="border-bottom row mb-1">` + htm + `</div>` // wrapper
 }
 
 // systemfile returns true if the file extension matches the known operating system tools.
@@ -98,57 +103,83 @@ func systemfile(ext string) bool {
 	}
 }
 
-// Column1Btn is the list entry, first column button of the "Download content" list.
-func (m *ListEntry) Column1Btn(htm string) string {
+// ColButton1 is the list entry, first column button of the "Download content" list.
+func (m *ListEntry) ColButton1() string {
 	const blank = `<div class="col col-1"></div>`
 	ext := strings.ToLower(filepath.Ext(m.name))
+	useBinary := m.BINtexts || m.xbinary()
+
 	switch {
 	case systemfile(ext):
-		htm += blank
+		return blank
 	case m.Images:
-		htm += prevImageCopyBtn(m.UniqueID, m.name)
+		return buttonUseImage(m.UniqueID, m.name)
 	case m.Texts:
-		htm += prevTextContentBtn(m.UniqueID, m.name, m.platform, m.Signature)
-	case m.BINtexts, m.xbinary():
-		htm += prevBinaryContentBtn(m.UniqueID, m.name)
+		return buttonUseReadme(m.UniqueID, m.name, m.platform, m.Signature)
+	case useBinary:
+		return buttonUseBinary(m.UniqueID, m.name)
 	default:
-		htm += blank
+		return blank
 	}
-	return m.Column2Btn(htm)
 }
 
-// Column2Btn is the list entry, second column button of the "Download content" list.
-func (m *ListEntry) Column2Btn(htm string) string {
+// ColButton2 is the list entry, second column button of the "Download content" list.
+func (m *ListEntry) ColButton2() string {
 	const blank = `<div class="col col-1"></div>`
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
+	useDIZ := m.briefDescription()
+	useEXE := m.Programs || ext == exe || ext == com
+	useText := m.Texts || m.BINtexts || m.textNFO()
+
 	switch {
 	case systemfile(ext):
-		htm += blank
-	case m.briefDescription():
-		htm += dizContentBtn(m.UniqueID, name)
-	case m.Programs, ext == exe, ext == com:
-		htm += knownProgram()
-	case m.Texts || m.BINtexts || m.iNFOtext():
-		htm += textContentBtn(m.UniqueID, name)
+		return blank
+	case useDIZ:
+		return buttonCopyDiz(m.UniqueID, name)
+	case useEXE:
+		return buttonInactiveEXE()
+	case useText:
+		return buttonCopyMe(m.UniqueID, name)
 	default:
-		htm += blank
+		return blank
 	}
-	htm += fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`,
-		m.bytes, m.Filesize)
-	return m.ColumnsAsMeta(ext, htm)
 }
 
-// knownProgram returns a non-interactive terminal icon.
-func knownProgram() string {
+// ColButton3 is the list entry, second column button of the "XXX content" list.
+func (m *ListEntry) ColButton3() string {
+	const blank = `<div class="col col-1"></div>`
+	if useDIZ := m.briefDescription(); useDIZ {
+		return blank
+	}
+	name := url.QueryEscape(m.RelativeName)
+
+	htm := `<div class="col col-1 text-end"` +
+		`data-bs-toggle="tooltip" data-bs-title="Use file as an extra readme">` +
+		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" `+
+			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
+			`hx-target="#artifact-editor-comp-feedback" `+
+			`hx-patch="/editor/xxxpreview/xxxcopy/%s/%s">`, m.UniqueID, name) +
+		`<span class="badge bg-success text-dark">` +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true"><use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg>` +
+		`</span></a></div>`
+
+	return htm
+}
+
+// buttonInactiveEXE returns a non-interactive terminal icon.
+func buttonInactiveEXE() string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Known program or executable">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 }
 
-// ColumnsAsMeta returns the brief metadata descriptions of the list entry.
-func (m *ListEntry) ColumnsAsMeta(ext, htm string) string {
+// ColFooter returns the brief metadata descriptions of the list entry.
+func (m *ListEntry) ColFooter() string {
+	ext := strings.ToLower(filepath.Ext(m.name))
+	htm := fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`,
+		m.bytes, m.Filesize)
 	switch {
 	case m.Texts && (ext == bat || ext == cmd):
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")
@@ -163,7 +194,6 @@ func (m *ListEntry) ColumnsAsMeta(ext, htm string) string {
 	default:
 		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.Signature)
 	}
-	htm = fmt.Sprintf(`<div class="border-bottom row mb-1">%s</div>`, htm)
 	return htm
 }
 
@@ -188,7 +218,7 @@ func (m *ListEntry) xbinary() bool {
 // and the section is set to "NFO".
 //
 // Note, the following unsupported assets will always return false, "xbinary".
-func (m *ListEntry) iNFOtext() bool {
+func (m *ListEntry) textNFO() bool {
 	if m.xbinary() {
 		return false // unsupported
 	}
@@ -199,10 +229,10 @@ func (m *ListEntry) iNFOtext() bool {
 	return strings.EqualFold(m.section, tags.Nfo.String())
 }
 
-// prevImageCopyBtn creates a link to "/editor/preview/copy/ID/FILENAME".
+// buttonUseImage creates a link to "/editor/preview/copy/ID/FILENAME".
 //
 // The funcs called: [htmx.RecordImageCopier] and [dirs.PictureImager].
-func prevImageCopyBtn(uniqueID, name string) string {
+func buttonUseImage(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use image for preview">` +
 		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" `+
@@ -213,35 +243,33 @@ func prevImageCopyBtn(uniqueID, name string) string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
 
-// prevTextContentBtn creates a link to "/editor/readme/URI/ID/FILENAME".
+// buttonUseReadme creates a link to "/editor/readme/URI/ID/FILENAME".
 //
 // The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager].
-func prevTextContentBtn(uniqueID, name, platform, sign string) string {
+func buttonUseReadme(uniqueID, name, platform, sign string) string {
 	uri := "preview"
 	if strings.EqualFold(platform, tags.TextAmiga.String()) {
-		// ansilove does not color ANSI using the "ced" or "workbench" Rendering Modes
-		// instead, it treats them as ASCII text files
 		if !strings.Contains(strings.ToLower(sign), "ansi") {
+			// ansilove does not color ANSI using "ced" or "workbench"
+			// instead, it renders the files as ASCII text files
 			uri = "preview-amiga"
 		}
 	}
-	// the "#file-editor" href anchor will relaunch the File editor dialog.
-	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
-		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
-			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
-			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/readme/%s/%s/%s"><span class="badge text-bg-secondary">`, uri, uniqueID, name) +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
+	return buttonPreviewer(uri, uniqueID, name)
 }
 
-// prevBinaryContentBtn creates a link to "/editor/readme/URI/ID/FILENAME".
+// buttonUseBinary creates a link to "/editor/readme/URI/ID/FILENAME".
 //
 // The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager].
-func prevBinaryContentBtn(uniqueID, name string) string {
+func buttonUseBinary(uniqueID, name string) string {
 	uri := "preview-binary"
-	// the "#file-editor" href anchor will relaunch the File editor dialog.
+	return buttonPreviewer(uri, uniqueID, name)
+}
+
+// buttonPreviewer
+//
+// the "#file-editor" href anchor will relaunch the File editor dialog.
+func buttonPreviewer(uri, uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
 		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
@@ -252,10 +280,10 @@ func prevBinaryContentBtn(uniqueID, name string) string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
 
-// textContentBtn creates a link to "/editor/readme/copy/ID/FILENAME".
+// buttonCopyMe creates a link to "/editor/readme/copy/ID/FILENAME".
 //
 // The funcs called: [htmx.RecordReadmeCopier] and [dirs.TextImager].
-func textContentBtn(uniqueID, name string) string {
+func buttonCopyMe(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as the readme">` +
 		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" `+
@@ -266,10 +294,10 @@ func textContentBtn(uniqueID, name string) string {
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
 }
 
-// dizContentBtn creates a link to "/editor/diz/copy/ID/FILENAME"
+// buttonCopyDiz creates a link to "/editor/diz/copy/ID/FILENAME"
 //
 // The funcs called: [htmx.RecordDizCopier].
-func dizContentBtn(uniqueID, name string) string {
+func buttonCopyDiz(uniqueID, name string) string {
 	return `<div class="col col-1 text-end" ` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as the FILE_ID.DIZ">` +
 		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" `+
