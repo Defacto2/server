@@ -649,6 +649,11 @@ func (dir Dirs) extras(unid string) map[string][2]string {
 		i, _ := helper.Lines(diz)
 		matches["FILE_ID"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 	}
+	hlp := filepath.Join(dir.Extra.Path(), unid+".hlp")
+	if st, err := os.Stat(hlp); err == nil {
+		i, _ := helper.Lines(hlp)
+		matches["HELPER"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
+	}
 	txt := filepath.Join(dir.Extra.Path(), unid+".txt")
 	if st, err := os.Stat(txt); err == nil {
 		i, _ := helper.Lines(txt)

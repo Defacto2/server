@@ -240,6 +240,14 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 	diz.DELETE("/:unid", func(c echo.Context) error {
 		return htmx.RecordDizDeleter(c, dirs.Extra)
 	})
+	// /editor/helper/copy
+	helper := g.Group("/helper")
+	helper.PATCH("/copy/:unid/:path", func(c echo.Context) error {
+		return htmx.RecordHlpCopier(c, paths)
+	})
+	helper.DELETE("/:unid", func(c echo.Context) error {
+		return htmx.RecordHlpDeleter(c, dirs.Extra)
+	})
 	readme := g.Group("/readme")
 	readme.PATCH("/disable/:id", func(c echo.Context) error {
 		return htmx.RecordReadmeDisable(c, db)

@@ -85,7 +85,7 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	htm := `<div class="col d-inline-block text-truncate">` + title + `</div>`
 	htm += m.ColButton1()
 	htm += m.ColButton2()
-	// htm += m.ColButton3() // disabled for now, but this is a placeholder for additional features
+	htm += m.ColButton3()
 	htm += m.ColFooter()
 	return `<div class="border-bottom row mb-1">` + htm + `</div>` // wrapper
 }
@@ -146,7 +146,7 @@ func (m *ListEntry) ColButton2() string {
 	}
 }
 
-// ColButton3 is the list entry, second column button of the "XXX content" list.
+// ColButton3 is the list entry, third column button of the "Download content" list.
 func (m *ListEntry) ColButton3() string {
 	const blank = `<div class="col col-1"></div>`
 	if useDIZ := m.briefDescription(); useDIZ {
@@ -156,10 +156,10 @@ func (m *ListEntry) ColButton3() string {
 
 	htm := `<div class="col col-1 text-end"` +
 		`data-bs-toggle="tooltip" data-bs-title="Use file as an extra readme">` +
-		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" `+
+		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-hlpcopy" `+
 			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
 			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/xxxpreview/xxxcopy/%s/%s">`, m.UniqueID, name) +
+			`hx-patch="/editor/helper/copy/%s/%s">`, m.UniqueID, name) +
 		`<span class="badge bg-success text-dark">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true"><use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg>` +
 		`</span></a></div>`

@@ -174,13 +174,26 @@ func normalize(buf *bytes.Buffer) []byte {
 	return b
 }
 
-// DescriptionInZIP returns the content of the description in archive file.
-// Usually this brief summary text is named 'file_id.diz' and is a legacy of the BBS
+// DescriptorText (File ID - Description In ZIP) returns the content of archive file descriptor.
+// Usually this brief summary text is named 'FILE_ID.DescriptorText' and is a legacy of the BBS
 // era of file hosting.
 //
 // The summary text can be used as a readme, preview, or viewed in the browser.
-func DescriptionInZIP(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
+func DescriptorText(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	const msg = "description in zip"
+	const extension = ".diz"
+	return reader(buf, art, extra, extension, msg)
+}
+
+// HelperText returns the content of a helper text file.
+// These optional texts can be secondary NFOs, READMEs, or additional instructions.
+func HelperText(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
+	const msg = "helper text file"
+	const extension = ".hlp"
+	return reader(buf, art, extra, extension, msg)
+}
+
+func reader(buf *bytes.Buffer, art *models.File, extra dir.Directory, extension, msg string) error {
 	if buf == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoBuffer)
 	}
@@ -191,7 +204,6 @@ func DescriptionInZIP(buf *bytes.Buffer, art *models.File, extra dir.Directory) 
 	if unid == "" {
 		return ErrUUID
 	}
-	const extension = ".diz"
 	diz := extra.Join(unid + extension)
 	if !helper.Stat(diz) {
 		return nil
@@ -223,20 +235,39 @@ func DescriptionInZIP(buf *bytes.Buffer, art *models.File, extra dir.Directory) 
 	return nil
 }
 
-// InsertDiz inserts the FILE_ID.DIZ content into the existing byte content.
-func InsertDiz(b []byte, diz []byte) []byte {
-	if bytes.TrimSpace(diz) == nil {
-		return b
+// InsertPrefix injects content before the existing byte content.
+// This is usually to inject FILE_ID.DIZ text files.
+func InsertPrefix(p []byte, prefix []byte) []byte {
+	if bytes.TrimSpace(prefix) == nil {
+		return p
 	}
-	if bytes.TrimSpace(b) == nil {
-		return diz
+	if bytes.TrimSpace(p) == nil {
+		return prefix
 	}
 	sep := []byte("\n\n")
-	size := len(diz) + len(sep) + len(b)
+	size := len(prefix) + len(sep) + len(p)
 	buf := bytes.NewBuffer(make([]byte, 0, size))
-	buf.Write(diz)
+	buf.Write(prefix)
 	buf.Write(sep)
-	buf.Write(b)
+	buf.Write(p)
+	return buf.Bytes()
+}
+
+// InsertSuffix injects content after the existing byte content.
+// This is usually to inject an additional helper text file.
+func InsertSuffix(p []byte, suffix []byte) []byte {
+	if bytes.TrimSpace(suffix) == nil {
+		return p
+	}
+	if bytes.TrimSpace(p) == nil {
+		return suffix
+	}
+	sep := []byte("\n\n")
+	size := len(suffix) + len(sep) + len(p)
+	buf := bytes.NewBuffer(make([]byte, 0, size))
+	buf.Write(p)
+	buf.Write(sep)
+	buf.Write(suffix)
 	return buf.Bytes()
 }
 

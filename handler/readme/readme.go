@@ -169,11 +169,13 @@ func PlainTextBuffers(
 	}
 	buf := new(bytes.Buffer)
 	diz := new(bytes.Buffer)
+	hlp := new(bytes.Buffer)
 	ruf := new(bytes.Buffer)
 	// This might be useful if we want to force Go to not use the garbage collector.
 	// buf.Reset() diz.Reset() ruf.Reset()
-	err1 := render.DescriptionInZIP(diz, art, extra)
+	err1 := render.DescriptorText(diz, art, extra)
 	err2 := render.InformationText(buf, ruf, sizeLimit, art, download, extra)
+	err3 := render.HelperText(hlp, art, extra)
 	var errs error
 	if err1 != nil {
 		errs = errors.Join(errs, fmt.Errorf("%s render diz: %w", msg, err1))
@@ -186,7 +188,10 @@ func PlainTextBuffers(
 			errs = errors.Join(errs, fmt.Errorf("%s render read: %w", msg, err2))
 		}
 	}
-	knownData := diz.Len() == 0 && buf.Len() == 0 && ruf.Len() == 0
+	if err3 != nil {
+		errs = errors.Join(errs, fmt.Errorf("%s render helper: %w", msg, err3))
+	}
+	knownData := diz.Len() == 0 && buf.Len() == 0 && hlp.Len() == 0 && ruf.Len() == 0
 	if knownData {
 		name := download.Join(art.UUID.String)
 		return knownBinaries(msg, name, errs)
@@ -214,15 +219,15 @@ func PlainTextBuffers(
 		buf.Reset()
 	} else if match {
 		platform := strings.TrimSpace(strings.ToLower(art.Platform.String))
-		return ansiTexts(buf, diz, ruf, platform, sr, errs)
+		return ansiTexts(buf, diz, hlp, ruf, platform, sr, errs)
 	}
 	// binary texts can also cause false positives
 	if binaryText := sign == magicnumber.Unknown; binaryText {
 		y := art.DateIssuedYear.Int16
-		return binaryTexts(buf, diz, ruf, y, sr, errs)
+		return binaryTexts(buf, diz, hlp, ruf, y, sr, errs)
 	}
 	// modify the buffer bytes for cleanup
-	return plainTexts(buf, diz, ruf, sr, errs)
+	return plainTexts(buf, diz, hlp, ruf, sr, errs)
 }
 
 func knownBinaries(msg, name string, errs error) (
@@ -256,27 +261,46 @@ func sauceData(buf *bytes.Buffer) sauce.Record {
 }
 
 func plainTexts(
-	buf *bytes.Buffer, diz *bytes.Buffer, ruf *bytes.Buffer,
+	buf, diz, hlp, ruf *bytes.Buffer,
 	sr sauce.Record, errs error) (
 	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
 ) {
+	// this is usually the README
 	b := trimBytes(buf.Bytes())
+
+	// this is usually the FILE_ID
 	if diz.Len() > 0 {
 		if diz.Len() == buf.Len() {
 			// for performance we want to use the bytes equal as a last resort.
 			// do not use the diz buffer if it is identical the existing buf buffer.
 			if !bytes.Equal(diz.Bytes(), buf.Bytes()) {
-				b = render.InsertDiz(b, diz.Bytes())
+				b = render.InsertPrefix(b, diz.Bytes())
 			}
 		} else {
-			b = render.InsertDiz(b, diz.Bytes())
+			b = render.InsertPrefix(b, diz.Bytes())
 		}
 		diz.Reset()
 	}
+
+	// this is usually the HELPER
+	if hlp.Len() > 0 {
+		if hlp.Len() == buf.Len() {
+			// for performance we want to use the bytes equal as a last resort.
+			// do not use the diz buffer if it is identical the existing buf buffer.
+			if !bytes.Equal(hlp.Bytes(), buf.Bytes()) {
+				b = render.InsertSuffix(b, hlp.Bytes())
+			}
+		} else {
+			b = render.InsertSuffix(b, hlp.Bytes())
+		}
+		hlp.Reset()
+	}
+
 	b = RemoveCtrls(b)
 	if bytes.TrimSpace(b) == nil {
 		buf.Reset()
 		diz.Reset()
+		hlp.Reset()
 		ruf.Reset()
 		return nil, nil, sr, errs
 	}
@@ -288,7 +312,7 @@ func plainTexts(
 }
 
 func ansiTexts(
-	buf *bytes.Buffer, diz *bytes.Buffer, ruf *bytes.Buffer,
+	buf, diz, hlp, ruf *bytes.Buffer,
 	platform string, sr sauce.Record, errs error) (
 	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
 ) {
@@ -317,12 +341,13 @@ func ansiTexts(
 	// for now we reset all other buffers
 	buf.Reset()
 	diz.Reset()
+	hlp.Reset()
 	ruf.Reset()
 	return ansi, nil, sr, nil
 }
 
 func binaryTexts(
-	buf *bytes.Buffer, diz *bytes.Buffer, ruf *bytes.Buffer,
+	buf, diz, hlp, ruf *bytes.Buffer,
 	year int16, sr sauce.Record, errs error) (
 	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
 ) {
@@ -343,6 +368,7 @@ func binaryTexts(
 	// for now we reset all other buffers
 	buf.Reset()
 	diz.Reset()
+	hlp.Reset()
 	ruf.Reset()
 	return binbuf, nil, sr, nil
 }

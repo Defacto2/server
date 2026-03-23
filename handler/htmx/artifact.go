@@ -249,8 +249,39 @@ func RecordReadmeImager(c echo.Context, debug *slog.Logger, amigaFont bool, dirs
 		`Text filed imaged, the browser will refresh.`)
 }
 
-// RecordDizCopier handles the htmx request to use the file_id.diz artifact as a preview.
-func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
+type Copy int
+
+const (
+	FileID Copy = iota
+	Text
+	Helper
+)
+
+func (cp Copy) String() string {
+	switch cp {
+	case FileID:
+		return "DIZ"
+	case Text:
+		return "Text"
+	case Helper:
+		return "Helper text"
+	}
+	return ""
+}
+
+func (cp Copy) Ext() string {
+	switch cp {
+	case FileID:
+		return ".diz"
+	case Text:
+		return ".txt"
+	case Helper:
+		return ".hlp"
+	}
+	return ""
+}
+
+func (cp Copy) Duplicator(c echo.Context, dirs command.Dirs) error {
 	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -268,13 +299,23 @@ func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not copied.")
 	}
-	dst := filepath.Join(dirs.Extra.Path(), unid+".diz")
+	dst := filepath.Join(dirs.Extra.Path(), unid+cp.Ext())
 	if _, err = helper.DuplicateOW(src, dst); err != nil {
 		return badRequest(c, err)
 	}
 	c = pageRefresh(c)
-	return c.String(http.StatusOK,
-		`DIZ copied, the browser will refresh.`)
+	s := cp.String() + ` copied, the browser will refresh.`
+	return c.String(http.StatusOK, s)
+}
+
+// RecordDizCopier handles the htmx request to use the file_id.diz artifact as a preview.
+func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
+	return FileID.Duplicator(c, dirs)
+}
+
+// RecordHlpCopier handles the htmx request to use the file_id.diz artifact as a preview.
+func RecordHlpCopier(c echo.Context, dirs command.Dirs) error {
+	return Helper.Duplicator(c, dirs)
 }
 
 func RecordReadmeCopier(c echo.Context, sl *slog.Logger, dirs command.Dirs) error {
@@ -298,7 +339,7 @@ func RecordReadmeCopier(c echo.Context, sl *slog.Logger, dirs command.Dirs) erro
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not copied.")
 	}
-	dst := filepath.Join(dirs.Extra.Path(), unid+".txt")
+	dst := filepath.Join(dirs.Extra.Path(), unid+Text.Ext())
 	if _, err = helper.DuplicateOW(src, dst); err != nil {
 		return badRequest(c, err)
 	}
@@ -375,13 +416,19 @@ func RecordImagesDeleter(c echo.Context, directories ...dir.Directory) error {
 // RecordDizDeleter handles the request to remove the uuid named file_id.diz text file
 // from the provided extra directory.
 func RecordDizDeleter(c echo.Context, extra dir.Directory) error {
-	return extrasDeleter(c, ".diz", extra)
+	return extrasDeleter(c, FileID.Ext(), extra)
+}
+
+// RecordHlpDeleter handles the request to remove the uuid named helper (.hlp) text file
+// from the provided extra directory.
+func RecordHlpDeleter(c echo.Context, extra dir.Directory) error {
+	return extrasDeleter(c, Helper.Ext(), extra)
 }
 
 // RecordReadmeDeleter handles the request to remove the uuid named readme text file
 // from the provided extra directory.
 func RecordReadmeDeleter(c echo.Context, extra dir.Directory) error {
-	return extrasDeleter(c, ".txt", extra)
+	return extrasDeleter(c, Text.Ext(), extra)
 }
 
 func extrasDeleter(c echo.Context, ext string, extra dir.Directory) error {
