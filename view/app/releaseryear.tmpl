@@ -22,16 +22,18 @@
     {{- /* conditionals must always begin after these vars */ -}}
     {{ if eq $index 0}}
         {{- if and (gt $year 1981) (eq $index 0) }}<h3 class="text-end lead p-3"><span class="display-6">1981</span></h3>
-        {{- else if (gt $year 0) }}<h3 class="text-end lead p-3"><span class="display-6">{{$year}}</span></h3>
-        {{- end}}
+          {{- else if (gt $year 0) }}<h3 class="text-end lead p-3"><span class="display-6">{{$year}}</span></h3>
+          {{- end}}
         {{- if or (eq $year 1981) (and (eq $index 0) (gt $year 0)) }}
 <div class="{{$eraClass}}">
-<small><em class="text-primary">Pre-Scene</em>.
+<small><em class="text-primary">Pre Scene</em>.
 The first IBM PC was released on 12 August 1981.
-However, unlike today's worldwide releases, national same-day hardware launches were impossible, and the new machines trickled into US retailers over the following months.
-At this time, piracy involved in-person meetings to copy and exchange software, and blank floppies were valuable commodities.
-On the <a href="https://demozoo.org/productions/?platform=67&production_type=13&dir=asc&page=1">Apple II</a>, 
-disk crackers had only begun tagging their work with handles in late 1980 while Scene groups and pirate bulletin boards became normalized in 1982.
+However, unlike today's global releases, national same-day hardware launches were impossible, 
+and the new machines trickled into US retailers over the following months.
+At this time, piracy involved in-person meet-ups to duplicate and exchange software, and it was blank floppies that were the valuable commodity.
+On the <a href="https://demozoo.org/productions/?platform=67&production_type=13&dir=asc&page=1">Apple II</a> front, 
+copy protection crackers had only begun tagging their work with handles in late 1980. 
+While pirate clubs, groups and piracy bulletin boards became normalized in 1982.
 </small></div>
         {{- if and (gt $year 1981) (eq $index 0) }}<h3 class="text-end lead p-3"><span class="display-6">{{$year}}</span></h3>{{end}}
         {{- end}}
@@ -40,24 +42,75 @@ disk crackers had only begun tagging their work with handles in late 1980 while 
         {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
             </div>
             <h3 class="text-end display-6 mt-3 p-3">{{$year}}</h3>
-{{- if or (eq $year 1984) (eq $prevYear 1983)}}
+{{- if or (eq $year 1983) (eq $prevYear 1982)}}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">IBM PC cracks</em>.
+The first popular PC software crack was for Lotus 1-2-3, the groundbreaking spreadsheet that revolutionized accounting for home and business. 
+Just as VisiCalc launched the Apple II, Lotus 1-2-3 propelled the IBM PC into the mainstream.
+Released on January 26, 1983, for nearly $500, Lotus 1-2-3 included disk copy protection. 
+Users needed the original disk to run the program, and if it became damaged, they faced days or weeks locked out of the software while waiting for a replacement. 
+Owners sought ways to <q>unprotect</q> the disk to create duplicate backups, and documented these finds on bulletin boards and services like CompuServe.
+Earlier <q>unprotects</q> likely existed, but they're lost to time.
+</small></div>
+{{- else if eq $year 1984 }}
 <div class="{{$eraClass}}">
 <small><em class="text-primary">The local era</em>.
-While 1983 saw the emergence of solo authors and the first public unprotect texts exchanging software cracking guides on commercial online services like CompuServe,
-it was 1984 that marked the birth of the first PC Scene concept.
-This period saw the formation of the first cracking collectives and groups, along with the sharing of software on local bulletin board systems.
+While 1983 saw the emergence of solo-crackers and the first <q>unprotect</q> texts, with instructions on software cracking that were posted to commercial online services like CompuServe.
+It was 1984 that marked the birth of the <q>IBM</q> Scene, with the formation of the first cracking clubs and groups, along with the sharing of software on local bulletin&nbsp;boards.
 These early PC groups were likely inspired by or emerged from the already-thriving Apple II Scene.
-Meanwhile, the <a href="https://demozoo.org/productions/?platform=3&production_type=13&dir=asc&page=1">Commodore 64</a> was rapidly growing in popularity among young users in both the USA and Europe, fueling a rampant piracy scene.
+Meanwhile, the <a href="https://demozoo.org/productions/?platform=3&production_type=13&dir=asc&page=1">Commodore 64</a> 
+was rapidly growing in popularity among young users worldwide, and 
+fueling a rampant new piracy scene, with the likes of JEDI <small>Germany</small>, The Cream Crackers <small>Sweden</small>, The Odd Couple <small>Canada</small>, and the Bad Brothers <small>USA</small>.
+</small></div>
+{{- else if eq $year 1985 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Clubs and groups</em>.
+Cracking groups likely first occurred on the Apple II in 1982, with the formation of the 
+Super Pirates of Minneapolis, 
+The Apple Mafia, 
+The Software Pirates, 
+Digital Gang, 
+The Dirty Dozen, 
+The Untouchables, 
+Apple Pirated Program Library Exchange,
+and the Clean Crack Band from France.
+At the time, they were not always known as groups but were often referred to as "clubs", such as The 1200 Club.
+On the IBM PC, we see similar terminology with The Californian Pirates Club Inc. in 1983. 
+However, the idea of <q>IBM</q> pirate groups didn't really take off until 1984 and 1985, 
+with the likes Software Pirates Inc., Imperial Warlords, The Illinois Pirates, and The Duplicators, who were also active on the Apple. 
+Just like on the Apple II and on the Commodore 64, <q>IBM</q> cracking clubs and groups were small, typically only consisting of one to three crackers. 
+Suppliers and distribution were often anonymous, freelance, and handled by bulletin boards users rather than the cracking groups.
 </small></div>
 {{- else if eq $year 1986 }}
 <div class="{{$eraClass}}">
 <small><em class="text-primary">Crackscreen fun</em>.
-On the Apple II, purpose-drawn crack-title screens became widespread in 1984, while this practice didn't emerge on the PC until 1986.
+On the Apple II, purpose-drawn crack-title screens became widespread in 1984, while this practice didn't emerge on the IBM PC until 1986.
 Although bitmap drawing software was already well-established on the platform with programs like PC Paintbrush and PC Paint,
 it likely took software hackers considerable time to develop ways to inject those images into cracked game titles.
-Meanwhile, Sceners on more affordable platforms such as the Commodore 64 and <a href="https://demozoo.org/productions/?platform=9&production_type=4&dir=asc&page=1">Atari ST</a> were beginning to release animated cracktros
+Meanwhile, Sceners on more affordable microcomputers such as the Commodore 64 and <a href="https://demozoo.org/productions/?platform=9&production_type=4&dir=asc&page=1">Atari ST</a> were beginning to release animated cracktros
 (cracked-by introductions) and intros with audio that attempted to replicate computer game title screens.
-By contrast, the PC's fixed, 4-color CGA palette and silent static images appeared a little ugly and outdated.
+By contrast, the IBM PC's fixed, 4-color CGA palette and silent static images appeared a little ugly and outdated.
+</small></div>
+{{- else if eq $year 1987 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Brands</em>.
+The early cracking clubs and groups on the IBM PC were fleeting. 
+However, the one exception was Software Pirates Inc., a granddaddy of IBM PC cracking groups who likely operated from 1984 until 1989. 
+It is a shame they didn't make it to the PC boom of the 1990s, as today they are forgotten. 
+But it was in 1986-87 that the PC Scene saw some brands that lasted for years instead of only a few months, 
+with groups like the Five O, Bentley Sidwell Productions, Boys from Company C, Canadian Pirates Inc., and the PTL Club.
+</small></div>
+{{- else if eq $year 1988 }}
+<div class="{{$eraClass}}">
+<small><em class="text-primary">Mergers and acquisitions</em>.
+This was the year the PC Scene saw larger collaborations and consolidation. 
+Instead of small, isolated cracking groups, some decided to merge, forming bigger and more organized teams. 
+This shift led to more frequent releases and wider distribution throughout North America. 
+In December, the Boys from Company C and Five-O joined forces under BBC/Five-O, later teaming up with Pirates R Us to create The Firm. 
+Miami Cracking Machine, formed in 1988, merged with ECA and New York Crackers in September 1989 to form the International Network of Crackers. 
+And just a couple of months later, PTL Club, $PRINT, The Underground Council, and Byte Bandits united to form TRIAD. 
+Europe also entered the scene, with Dutch Future Brain Inc. releasing PC cracks as early as October 1988. 
+Their cracks were imported and re-released by U.S. groups and boards, mirroring a common trend in the Commodore 64 Scene.
 </small></div>
 {{- else if eq $year 1989 }}
 <div class="{{$eraClass}}">
@@ -75,7 +128,7 @@ and the Commodore Amiga was emerging as the best home-computer platform for gami
 This period saw the birth of the Art Scene, as amateur artists created text-based artwork and formed collectives, known as art groups,
 focusing on designing advertisements and user interfaces for "elite" bulletin board systems.
 The PC's extensive software catalog and backward compatibility made it the primary platform for affordable productivity applications and utilities,
-a trend reflected in the software pirated for the platform. European pirate groups from the Commodore 64 and Amiga communities also began
+a trend reflected in the software pirated. European pirate groups from the Commodore 64 and Amiga communities also began
 exploring the PC, viewing it as a potential secondary system.
 However, this era also marked the emergence of the modern cracking scene, with some groups competing to be first to crack and distribute new game releases.
 While this practice was already commonplace on other microcomputer platforms, it was new to the laggard PC.
@@ -103,15 +156,18 @@ followed by its first significant police raid in early 1992, which sent shockwav
 {{- else if eq $year 1993 }}
 <div class="{{$eraClass}}">
 <small><em class="text-primary">Peak demo</em>.
-The demoscene originated with coders on other computer platforms who sought to recreate the impressive opening effects found in game title screens.
-Initially intended to showcase their disk cracking abilities, it evolved into a competition to demonstrate programming prowess.
-Unsurprisingly, the PC lagged behind this trend due to its many technical challenges.
-However, it was on the PC in 1993 that demos arguably reached their peak with the release of "Second Reality" by Future Crew,
-which briefly was the ultimate way for computer enthusiasts to demonstrate their hardware's capabilities.
-But this was short-lived, as the following month saw the release of id Software's DOOM shareware edition,
-which revolutionized the gaming world.
+The demoscene originated with microcomputer software crackers who sought to recreate the impressive graphic effects found in computer game opening titles.
+The intention was to showcase their "elite" cracking abilities, but it evolved into a competition to demonstrate programming prowess.
+Unsurprisingly, the IBM PC, being a business platform, lagged behind this trend due to its many technical challenges.
+
+However, much later in 1993, it was on the PC that demos arguably reached their peak impact with the release of "Second Reality" by the Future Crew.
+Second Reality was programmed by amateurs and on release was the best way for enthusiasts to showcase the capability of their computer hardware.
+But this moment was short-lived, as the following month saw the release of id Software's DOOM shareware edition,
+an influential 3D action game which revolutionized the computer gaming space. 
+
+The following year was the release of the Sony PlayStation with its fluid, complex 3D graphics and with it, the fascination in computer multimedia waned.
 While the guys at Future Crew would go onto form Remedy Entertainment, <small>(Alan Wake and Max Payne fame)</small> 
-whom in 1997 would release the Final Reality benchmark tool, a spiritual successor to the Demoscene release.
+who in 1997 would release the benchmark tool Final Reality, as a nod to the Demoscene release.
 </small></div>
 {{- else if eq $year 1994 }}
 <div class="{{$eraClass}}">
@@ -126,24 +182,24 @@ Worse still, for the so-called "elite," it granted open access to what was forme
 {{- else if eq $year 1995 }}
 <div class="{{$eraClass}}">
 <small><em class="text-primary">End of the floppy</em>.
-The mid-1990s brought massive changes to the PC landscape, including the rapid decline of floppy disk software distribution.
-Within months, publishers abandoned floppies in favor of CD-ROM, creating numerous challenges for software cracking and distribution.
-For some, this change meant the Cracking Scene was dead. To them, cracking software for the past 15-years had always meant breaking floppy disk copy protection.
-1995 also saw the launch of Microsoft's Windows 95, the first widely adopted graphical operating system for the PC,
-though hardcore gamers, and non-PC users remained unimpressed.
+The mid-1990s brought massive changes to the PC landscape, including the overnight decline of software sold on floppy disks.
+Within months, publishers abandoned floppies in favor of the CD-ROM, creating numerous challenges for software cracking and distribution.
+For some, this change meant <q>cracking</q> was dead, as the past 15-years saw software cracking as breaking floppy-disk copy-protection.
+1995 also saw the launch of Windows 95 by Microsoft, 
+the first widely adopted graphical operating system for the PC, though many gamers and non-PC users remained unimpressed.
 </small></div>
 {{- else if eq $year 1996 }}
 <div class="{{$eraClass}}">
 <small><em class="text-primary">Pop Scene!</em>
-The Scene's evolution mirrored social media's later rise and fall.
+The Scene's Internet evolution somewhat mirrors social media's later rise and fall.
 Many Sceners who gained status on closed "elite" bulletin boards found their newfound Internet celebrity irresistible -
-often complaining publicly about "lamers" while also courting their attention and support.
-1996 and 1997 represented the peak of Scene reporting, with high-profile interviews,
-personality culture, and unprecedented open access.
+often complaining publicly about "lamers" while also courting their attention and money.
+1996 and 1997 represented the peak of Scene journaling and reporting, 
+with high-profile interviews, personality culture, and unprecedented open access.
 Groups created websites such as razor1911.com as status symbols,
-back when the Web 1.0 remained unmonetized, cryptic, bureaucratic, and expensive.
-Some even sold branded merchandise, that they advertised in their releases, 
-payable by mailing cash or a cheque to a PO Box, with the purchased wares shipped world-wide.
+back when the Web&nbsp;1.0 remained unmonetized, bureaucratic, and expensive.
+To generate revenue, some even engaged in early e-commerce, by selling brand merchandise online that they advertised in their releases. 
+Fans worldwide, could order the merch by mailing an order form with cash or a cheque to an anonymous PO Box with figures crossed.
 </small></div>
 {{- else if eq $year 1997 }}
 <div class="{{$eraClass}}">
