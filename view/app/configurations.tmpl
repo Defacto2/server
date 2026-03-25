@@ -15,165 +15,140 @@
 {{- $extsOrphaned := index . "extsOrphaned"}}
 {{- $checkDBConns := index . "dbConnections"}}
 {{- $responseRow := "row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-0"}}
+{{- $formats := "badge bg-success text-body-emphasis"}}
 {{- /*    */}}
 <h2 class="lead mt-5">Database</h2>
-<div class="pb-3">
+<div class="pb-3 text-secondary">
   The number of active connections should always be as low as possible. 
   Having too many connections open are problematic and usually means some SQL queries are waiting to time out.
 </div>
-<div class="mb-4">
-  <button class="btn btn-primary" hx-get="/editor/configurations/dbconns" hx-target="#database-response">
-    <span class="me-2">🔄</span> Refresh the connections <span id="database-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
-  </button>
+<div class="container text-center pb-3">
+  <div class="row">
+    <div class="col-md-6">
+      <button class="btn btn-light w-75" hx-get="/editor/configurations/dbconns" hx-target="#database-response">
+        <span class="me-2">&#128907;</span> Refresh the connections <span id="database-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
+      </button>
+    </div>
+    <div class="col-md-6">
+      <button class="btn btn-light w-75" hx-get="/editor/configurations/pings" hx-target="#ping-response">
+        <span class="me-2">&#8634;</span> Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
+      </button>
+    </div>
+  </div>
 </div>
 <div class="p-2 lead">
-  <div><strong>Artifacts available to the public: {{index . "countPublic"}}</strong></div>
-  <div>Active connections to the database: <span id="database-response">{{$checkDBConns}}</span></div>
-  <div><small>Artifact records in the table: {{index . "countArtifacts"}}</small></div>
-  <div><small class="text-success">New uploads: {{index . "countNewUpload"}}</small></div>
-  <div><small>Hidden and unavailable artifacts: {{index . "countHidden"}}</small></div>
+  <div>{{index . "countPublic"}} public artifacts</div>
+  <div class="ps-2"><small class="text-info-emphasis">{{index . "countNewUpload"}} new uploads</small></div>
+  <div class="ps-2"><small>{{index . "countHidden"}} unavailable of {{index . "countArtifacts"}}</small></div>
+  <div><span id="database-response">{{$checkDBConns}}</span> active database connections</div>
 </div>
 {{- /*  Ping internal URIs */}}
-<h2 class="lead mt-5">Web application routes</h2>
-<div class="pb-3">
-  The web application routes runs a stress test that fetches dozens of local URLs to confirm they work. 
-  All the pinged URLs should return <span class="text-success">200</span> HTTP statuses, 
-  except those that require signing in, which returns <span class="text-warning">403</span>, <q>the requested resource is forbidden</q>.
-</div>
-<div class="mb-4">
-  <button class="btn btn-primary" hx-get="/editor/configurations/pings" hx-target="#ping-response">
-    <span class="me-2">📡</span> Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
-  </button>
+<h2 class="lead mt-5">Routes</h2>
+<div class="pb-3 text-secondary">
+  The web application routes runs a stress test that fetches dozens of local URLs to confirm they work.
+  <br>
+  All the pinged URLs should return <span class="text-success">200</span> HTTP status, 
+  except those that require signing in, which returns <span class="text-warning-emphasis">403</span>, <q>the requested resource is forbidden</q>.
 </div>
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2 p-2" id="ping-response">
   <!-- ping response will be rendered here -->
 </div>
 {{- /*  Asset counts  */}}
 <h2 class="lead mt-5">Web application assets</h2>
-<div class="mb-3">
+<div class="mb-3 text-secondary">
   The web application assets are served to the end users as file downloads, images, or other media. 
   Assets like image previews are available in multiple formats to optimize transfers, such as the original PNG and the newer WEBP. 
   However, the new formats get skipped in odd cases where the newer format offers no file size improvements.
 </div>
 <div class="table-responsive">
 <table class="table align-middle">
+  <caption class="p-4">
+    Server disk space <b>{{index . "wdUsage"}}</b> of <b>{{index . "wdTotal"}}</b> <small>(usage {{index . "wdPercent"}})</small>
+  </caption>
   <thead>
     <tr class="table-secondary">
-      <th scope="col" class="fw-bold">Asset type</th>
-      <th scope="col" class="fw-bold">Disk usage</th>
-      <th scope="col" class="fw-bold text-center">Count</th>
-      <th scope="col" class="fw-bold">Primary format</th>
-      <th scope="col" class="fw-bold">Other formats</th>
+      <th scope="col" class="fw-light text-center">Asset type</th>
+      <th scope="col" class="fw-light">Disk usage</th>
+      <th scope="col" class="fw-light text-center">Count</th>
+      <th scope="col" class="fw-light">Formats</th>
     </tr>
   </thead>
   <tbody>
     <tr class="table-light">
-      <th scope="row" class="fw-bold">📥 Downloads</th>
+      <th scope="row" class="fw-light">📥 Downloads</th>
       <td>
-        <div class="mb-2"><code>{{index . "usageDownloads"}}</code></div>
-        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
-          <div class="progress-bar" style="width: 35%"></div>
-        </div>
+        <div><code>{{index . "usageDownloads"}}</code></div>
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countDownloads"}}</span></td>
-      <td>
-        {{- if gt (len $extsDownloads) 0 }}{{- $first := index $extsDownloads 0 }}
-        <code>{{$first.Name}}</code> <small class="text-muted">{{$first.Count}}</small>
-        {{- end}}
-      </td>
       <td>
         {{if ne $checkDownloads nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkDownloads}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsDownloads}}
-          {{- if ne $index 0}}<span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>{{end}}
+          <span class="{{$formats}}"><code class="text-uppercase">{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
           {{- end}}
         </div>
         {{- end}}
       </td>
     </tr>
     <tr class="table-light">
-      <th scope="row" class="fw-bold">🖼️ Previews</th>
+      <th scope="row" class="fw-light">🖼️ Previews</th>
       <td>
-        <div class="mb-2"><code>{{index . "usagePreviews"}}</code></div>
-        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
-          <div class="progress-bar bg-info" style="width: 42%"></div>
-        </div>
+        <div><code>{{index . "usagePreviews"}}</code></div>
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countPreviews"}}</span></td>
-      <td>
-        {{- if gt (len $extsPreviews) 0 }}{{- $first := index $extsPreviews 0 }}
-        <code>{{$first.Name}}</code> <small class="text-muted">{{$first.Count}}</small>
-        {{- end}}
-      </td>
       <td>
         {{if ne $checkPreviews nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkPreviews}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsPreviews}}
-          {{- if ne $index 0}}<span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>{{end}}
+          <span class="{{$formats}}"><code>{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
           {{- end}}
         </div>
         {{- end}}
       </td>
     </tr>
     <tr class="table-light">
-      <th scope="row" class="fw-bold">📷 Thumbnails</th>
+      <th scope="row" class="fw-light">📷 Thumbnails</th>
       <td>
-        <div class="mb-2"><code>{{index . "usageThumbnails"}}</code></div>
-        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
-          <div class="progress-bar bg-success" style="width: 28%"></div>
-        </div>
+        <div><code>{{index . "usageThumbnails"}}</code></div>
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countThumbnails"}}</span></td>
-      <td>
-        {{- if gt (len $extsThumbnails) 0 }}{{- $first := index $extsThumbnails 0 }}
-        <code>{{$first.Name}}</code> <small class="text-muted">{{$first.Count}}</small>
-        {{- end}}
-      </td>
       <td>
         {{if ne $checkThumbnails nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkThumbnails}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsThumbnails}}
-          {{- if ne $index 0}}<span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>{{end}}
+          <span class="{{$formats}}"><code>{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
           {{- end}}
         </div>
         {{- end}}
       </td>
     </tr>
     <tr class="table-light">
-      <th scope="row" class="fw-bold">📦 Extras</th>
+      <th scope="row" class="fw-light">📦 Extras</th>
       <td>
-        <div class="mb-2"><code>{{index . "usageExtras"}}</code></div>
-        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
-          <div class="progress-bar bg-warning" style="width: 12%"></div>
-        </div>
+        <div><code>{{index . "usageExtras"}}</code></div>
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countExtras"}}</span></td>
-      <td><span class="text-muted">—</span></td>
       <td>
         {{if ne $checkExtras nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkExtras}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsExtras}}
-          <span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>
+          <span class="{{$formats}}"><code>{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
           {{- end}}
         </div>
         {{- end}}
       </td>
     </tr>
     <tr class="table-light">
-      <th scope="row" class="fw-bold">🗑️ Orphaned</th>
+      <th scope="row" class="fw-light">🗑️ Orphans</th>
       <td>
-        <div class="mb-2"><code>{{index . "usageOrphaned"}}</code></div>
-        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="height: 6px;">
-          <div class="progress-bar bg-danger" style="width: 8%"></div>
-        </div>
+        <div><code>{{index . "usageOrphaned"}}</code></div>
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countOrphaned"}}</span></td>
-      <td><span class="text-muted">—</span></td>
       <td>
         {{if ne $checkOrphaned nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkOrphaned}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsOrphaned}}
-          <span class="badge bg-light text-body-emphasis"><code>{{$value.Name}}</code> {{$value.Count}}</span>
+          <span class="{{$formats}}"><code>{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
           {{- end}}
         </div>
         {{- end}}
@@ -181,228 +156,246 @@
     </tr>
   </tbody>
 </table>
-<div class="alert alert-info mt-3 mb-0">
-  <strong>Disk space:</strong> <code>{{index . "wdUsage"}}</code> / <code>{{index . "wdTotal"}}</code> <span class="badge bg-info-subtle text-info-emphasis">{{index . "wdPercent"}}</span>
 </div>
-</div>
-{{- /*  Settings  */}}
-{{- /*  has been disabled after the rewrite of the internal/config/config package.
-<h2 class="lead mt-5">Web application settings</h2>
-<div class="table-responsive">
-<table class="table align-middle table-striped-columns">
-  <caption>A complete list of configurations set using operating system environment variables.</caption>
-  <thead>
-    <tr>
-      <th scope="col">Configuration</th>
-      <th scope="col">Value</th>
-      <th scope="col"><span class="d-none d-lg-block">Description</span></th>
-    </tr>
-  </thead>
-  {{ $configs }}
-  <tbody class="table-group-divider">
-    {{- range $config := $configs.List}}
-    {{- if ne $config.Title ""}}
-    <tr>
-      <th scope="row">{{.Title}}<br><var><small>{{.Variable}}</small></var></th>
-      <td>{{.Value}}</td>
-      <td class="d-none d-lg-block">{{.Description}}</td>
-    </tr>
-    {{- end}}{{end}}
-  </tbody>
-</table>
-</div>
-*/}}
 {{- /*  Links to records  */}}
-<h2 class="lead mt-5">Links to special records</h2>
-<div class="mb-3">These are highlighted artifacts that have unusual edge cases. Status badges indicate: <span class="badge bg-danger-subtle text-danger-emphasis">❎ needs fixing</span> or <span class="badge bg-success-subtle text-success-emphasis">✅ confirmed</span></div>
+{{- $confirmed := `<span class="badge bg-success-subtle text-success-emphasis">&#10003;</span>` | safeHTML }}
+{{- $fixing := `<span class="badge bg-danger-subtle text-danger-emphasis">&#10005;</span>` | safeHTML }}
+{{- $fid := `text-uppercase` }}
+<h2 class="lead mt-3">Links to special records</h2>
+<div class="mb-3 text-secondary">
+  These are highlighted artifacts that have unusual edge cases. 
+  <br>Status badges indicate: 
+  <span class="badge bg-danger-subtle text-danger-emphasis">&#10005; needs fixing</span> or 
+  <span class="badge bg-success-subtle text-success-emphasis">&#10003; confirmed</span>
+</div>
 <div class="row row-cols-1 row-cols-md-2 g-2">
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme with keys</strong></div>
-      <div class="small text-body-secondary mb-2">Readme files with keys that should be masked</div>
-      <div><a href="/f/b91f23c">1</a> · <a href="/f/c0304ac">2</a> · <a href="/f/ad20232">3</a> · <a href="/f/b023312">4</a> · <a href="/f/af37fc">5</a> · <a href="/f/bd2b294">6</a> · <a href="/f/ba2609c">7</a> · <a href="/f/ad45fb0">nanp</a></div>
+      <div class="mb-2"><strong>CD keys and serials</strong></div>
+      <div class="small text-body-secondary mb-2">Readme files with serials and CD keys that should be masked</div>
+      <div class="ms-2">
+        <a href="/f/b91f23c">1</a> · <a href="/f/c0304ac">2</a> · 
+        <a href="/f/ad20232">3</a> · <a href="/f/b023312">4</a> · 
+        <a href="/f/af37fc">5</a> · <a href="/f/bd2b294">6</a> · 
+        <a href="/f/ba2609c">7</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme with broken newlines</strong></div>
+      <div class="mb-2"><strong>Broken newlines</strong></div>
       <div class="small text-body-secondary mb-2">Text files with corrupted newline characters due to advertising injection</div>
-      <div><a href="/f/b224d50">b224d50</a> · <a href="/f/ae1c03c">ae1c03c</a> <span class="small text-muted">(includes EOF marker)</span></div>
+      <div><a href="/f/b224d50" class="{{$fid}}">b224d50</a> · <a href="/f/ae1c03c" class="{{$fid}}">ae1c03c</a> <span class="small text-muted">(includes EOF marker)</span></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Readme duplication</strong></div>
-      <div class="small text-body-secondary mb-2"><code>.NFO</code> = <code>.DIZ</code> · The extras contains both UUID.DIZ and UUID.TXT that are identical</div>
-      <div><a href="/f/a51daa8">a51daa8</a></div>
+      <div class="small text-body-secondary mb-2"><code>NFO</code> = <code>DIZ</code> · The extras contains both UUID.DIZ and UUID.TXT that are identical</div>
+      <div><a href="/f/a51daa8" class="{{$fid}}">a51daa8</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme using multi-bytes</strong></div>
-      <div class="small text-body-secondary mb-2">To display correctly, the UTF-8 file magic must be set</div>
-      <div><a href="/f/b12d05f">b12d05f</a> · <a href="/f/b228a8e">b228a8e</a> · <a href="/f/b53028e">b53028e</a></div>
+      <div class="mb-2"><strong>Readme with multi-bytes</strong></div>
+      <div class="small text-body-secondary mb-2">The UTF-8 file magic must be set to display correctly</div>
+      <div>
+        <a href="/f/b12d05f" class="{{$fid}}">b12d05f</a> · <a href="/f/b228a8e" class="{{$fid}}">b228a8e</a> · 
+        <a href="/f/b53028e" class="{{$fid}}">b53028e</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Readme with unknown or corrupt encodings</strong> <span class="badge bg-success-subtle text-success-emphasis">✅</span></div>
+      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Unknown or corrupt encodings</strong> {{$confirmed}}</div>
       <div class="small text-body-secondary mb-2">These are textfiles that are probably corrupt</div>
-      <div><a href="/f/ac2319e">ac2319e</a> · <a href="/f/b0269ca">b0269ca</a> <small>vs</small> <a href="/f/ac1d9d3">ac1d9d3</a></div>
+      <div>
+        <a href="/f/ac2319e" class="{{$fid}}">ac2319e</a> · 
+        <a href="/f/b0269ca" class="{{$fid}}">b0269ca</a> <small>vs</small> <a href="/f/ac1d9d3" class="{{$fid}}">ac1d9d3</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Readme duplicate FILE_ID.DIZ</strong></div>
       <div class="small text-body-secondary mb-2">Duplicate file ID entries</div>
-      <div><a href="/f/ab232a7">ab232a7</a> · <a href="/f/b53028e">b53028e</a></div>
+      <div><a href="/f/ab232a7" class="{{$fid}}">ab232a7</a> · <a href="/f/b53028e" class="{{$fid}}">b53028e</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme CP-437</strong></div>
-      <div class="small text-body-secondary mb-2">Textfiles encoded in the IBM PC code page 437</div>
-      <div><a href="/f/ab2f2b4">ab2f2b4</a> · <a href="/f/ba2db9e">ba2db9e</a> · <a href="/f/ab43cb">ab43cb</a> · <a href="/f/b42ccd8">b42ccd8</a> · <a href="/f/af2c260">af2c260</a></div>
+      <div class="mb-2"><strong>Code Page 437</strong></div>
+      <div class="small text-body-secondary mb-2">Textfiles encoded in the IBM PC character set</div>
+      <div>
+        <a href="/f/ab2f2b4" class="{{$fid}}">ab2f2b4</a> · <a href="/f/ba2db9e" class="{{$fid}}">ba2db9e</a> · 
+        <a href="/f/ab43cb" class="{{$fid}}">ab43cb</a> · <a href="/f/b42ccd8" class="{{$fid}}">b42ccd8</a> · 
+        <a href="/f/af2c260" class="{{$fid}}">af2c260</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme ISO-8859-1</strong></div>
-      <div class="small text-body-secondary mb-2">Textfiles encoded in Latin-1</div>
-      <div><a href="/f/a5191c3">a5191c3</a> · <a href="/f/ab1fc8b">ab1fc8b</a> · <a href="/f/b61f24f">b61f24f</a></div>
+      <div class="mb-2"><strong>ISO 8859-1</strong></div>
+      <div class="small text-body-secondary mb-2">Textfiles encoded in the Latin-1 character set</div>
+      <div>
+        <a href="/f/a5191c3" class="{{$fid}}">a5191c3</a> · <a href="/f/ab1fc8b" class="{{$fid}}">ab1fc8b</a> · 
+        <a href="/f/b61f24f" class="{{$fid}}">b61f24f</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Readme UTF-16</strong> <span class="badge bg-danger-subtle text-danger-emphasis">❎</span></div>
+      <div class="mb-2 d-flex gap-2 align-items-center"><strong>UTF-16</strong> {{$fixing}}</div>
       <div class="small text-body-secondary mb-2">Textfiles that require transformation</div>
-      <div><a href="/f/b22e849">b22e849</a></div>
+      <div><a href="/f/b22e849" class="{{$fid}}">b22e849</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme Amiga ANSI</strong></div>
-      <div class="small text-body-secondary mb-2">Currently, all control codes are stripped</div>
-      <div><a href="/f/b02ecf1">b02ecf1</a></div>
+      <div class="mb-2"><strong>ANSI for Amiga</strong></div>
+      <div class="small text-body-secondary mb-2">Latin-1 encoded text with ANSI control codes</div>
+      <div><a href="/f/b02ecf1" class="{{$fid}}">b02ecf1</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Readme requires wrapping</strong></div>
       <div class="small text-body-secondary mb-2">Text that needs line wrapping</div>
-      <div><a href="/f/b14bb1">b14bb1</a> · <a href="/f/b12fe37">b12fe37</a> · <a href="/f/b61f24f">b61f24f</a> · <a href="/f/b122787">b122787</a></div>
+      <div>
+        <a href="/f/b14bb1" class="{{$fid}}">b14bb1</a> · <a href="/f/b12fe37" class="{{$fid}}">b12fe37</a> · 
+        <a href="/f/b61f24f" class="{{$fid}}">b61f24f</a> · <a href="/f/b122787" class="{{$fid}}">b122787</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Readme requires trimming</strong></div>
       <div class="small text-body-secondary mb-2">Extraneous whitespace or content</div>
-      <div><a href="/f/b830654">b830654</a></div>
+      <div><a href="/f/b830654" class="{{$fid}}">b830654</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme block art</strong></div>
+      <div class="mb-2"><strong>Block art</strong></div>
       <div class="small text-body-secondary mb-2">ASCII art or visual content</div>
-      <div><a href="/f/ad217af">ad217af</a> · <a href="/f/ae2a9cc">ae2a9cc</a> · <a href="/f/ad2b193">ad2b193</a> · <a href="/f/ac1a2dc">ac1a2dc</a></div>
+      <div>
+        <a href="/f/ad217af" class="{{$fid}}">ad217af</a> · <a href="/f/ae2a9cc" class="{{$fid}}">ae2a9cc</a> · 
+        <a href="/f/ad2b193" class="{{$fid}}">ad2b193</a> · <a href="/f/ac1a2dc" class="{{$fid}}">ac1a2dc</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme archived</strong></div>
+      <div class="mb-2"><strong>Readme extraction</strong></div>
       <div class="small text-body-secondary mb-2">Textfiles contained within an archive that need to be extracted</div>
-      <div><a href="/f/a92c1dc">a92c1dc</a> · <a href="/f/a734e9">a734e9</a> · <a href="/f/ac2a79">ac2a79</a> · <a href="/f/af31a9">af31a9</a></div>
+      <div>
+        <a href="/f/a92c1dc" class="{{$fid}}">a92c1dc</a> · <a href="/f/a734e9" class="{{$fid}}">a734e9</a> · 
+        <a href="/f/ac2a79" class="{{$fid}}">ac2a79</a> · <a href="/f/af31a9" class="{{$fid}}">af31a9</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Readme extra long</strong></div>
       <div class="small text-body-secondary mb-2">Files that can overload the browser DOM</div>
-      <div><a href="/f/ae219e8">ae219e8</a> <span class="small text-muted">(129178 lines, 5MB)</span></div>
+      <div><a href="/f/ae219e8" class="{{$fid}}">ae219e8</a> <span class="small text-muted">(129178 lines, 5MB)</span></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Images <code>.PNG</code></strong> <span class="badge bg-success-subtle text-success-emphasis">✅</span></div>
-      <div class="small text-body-secondary mb-2">Images categorized as text should not preview in the readme app</div>
-      <div><a href="/f/af20fcb">af20fcb</a> · <a href="/f/a73208">a73208</a> · <a href="/f/b34c2a">b34c2a</a></div>
+      <div class="mb-2 d-flex gap-2 align-items-center"><strong>No preview images</strong> {{$confirmed}}</div>
+      <div class="small text-body-secondary mb-2">Images categorized as <u>text</u> should not preview in the readme app</div>
+      <div><a href="/f/af20fcb" class="{{$fid}}">af20fcb</a> · <a href="/f/a73208" class="{{$fid}}">a73208</a> · <a href="/f/b34c2a" class="{{$fid}}">b34c2a</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Images <code>.IFF</code></strong></div>
-      <div class="small text-body-secondary mb-2">Images categorized as text should not preview in the readme app</div>
-      <div><a href="/f/b522116">b522116</a> · <a href="/f/b526ffe">b526ffe</a> · <a href="/f/b4307c4">b4307c4</a></div>
+      <div class="small text-body-secondary mb-2">Amiga-standard <q>Interchange File Format</q> images first introduced in 1988</div>
+      <div><a href="/f/b522116" class="{{$fid}}">b522116</a> · <a href="/f/b526ffe" class="{{$fid}}">b526ffe</a> · <a href="/f/b4307c4" class="{{$fid}}">b4307c4</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Images <code>.GIF</code></strong></div>
-      <div class="small text-body-secondary mb-2">GIF format images</div>
-      <div><a href="/f/b828636">b828636</a> · <a href="/f/b42e22b">b42e22b</a> · <a href="/f/ae2a407">ae2a407</a></div>
+      <div class="small text-body-secondary mb-2"><q>Graphics Interchange Format</q> images first introduced in 1987</div>
+      <div><a href="/f/b828636" class="{{$fid}}">b828636</a> · <a href="/f/b42e22b" class="{{$fid}}">b42e22b</a> · <a href="/f/ae2a407" class="{{$fid}}">ae2a407</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Images <code>.RIP</code></strong></div>
-      <div class="small text-body-secondary mb-2">RIP format images</div>
-      <div><a href="/f/b02392f">b02392f</a></div>
+      <div class="small text-body-secondary mb-2"><q>Remote Imaging Protocol</q> images first introduced in 1992</div>
+      <div><a href="/f/b02392f" class="{{$fid}}">b02392f</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Documents <code>.PDF</code></strong></div>
       <div class="small text-body-secondary mb-2">PDF documents</div>
-      <div><a href="/f/b04139">b04139</a></div>
+      <div><a href="/f/b04139" class="{{$fid}}">b04139</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Documents <var>HTML</var></strong></div>
-      <div class="small text-body-secondary mb-2">HTML documents</div>
-      <div><a href="/f/a722b1f">a722b1f</a></div>
+      <div class="mb-2"><strong>Documents <code>.HTML</code></strong></div>
+      <div class="small text-body-secondary mb-2">HTML and markdown documents</div>
+      <div><a href="/f/a722b1f" class="{{$fid}}">a722b1f</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>Artifacts with <q>link to</q></strong></div>
       <div class="small text-body-secondary mb-2">Records with linking relationships</div>
-      <div><a href="/f/b029330">b029330</a> · <a href="/f/ab27f81">ab27f81</a> · <a href="/f/ba4805">ba4805</a> · <a href="/f/b029330">b029330</a></div>
+      <div>
+        <a href="/f/b029330" class="{{$fid}}">b029330</a> · <a href="/f/ab27f81" class="{{$fid}}">ab27f81</a> · 
+        <a href="/f/ba4805" class="{{$fid}}">ba4805</a> · <a href="/f/b029330" class="{{$fid}}">b029330</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
       <div class="mb-2"><strong>js-dos supported <code>.EXE</code></strong></div>
       <div class="small text-body-secondary mb-2">Executable files supported by JS emulator</div>
-      <div><a href="/f/b23b9c">b23b9c</a> · <a href="/f/ad18cf0">ad18cf0</a> · <a href="/f/b030891">b030891</a> · <a href="/f/b33057"><code>COM</code></a></div>
+      <div>
+        <a href="/f/b23b9c" class="{{$fid}}">b23b9c</a> · <a href="/f/ad18cf0" class="{{$fid}}">ad18cf0</a> · 
+        <a href="/f/b030891" class="{{$fid}}">b030891</a> · <a href="/f/b33057" class="{{$fid}}"><code>COM</code></a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>js-dos unsupported <code>.ZIP</code></strong> <span class="badge bg-success-subtle text-success-emphasis">✅</span></div>
-      <div class="small text-body-secondary mb-2">Zip archives needing recompression and storage as extras</div>
-      <div><a href="/f/a22af8">a22af8</a> · <a href="/f/b72d52b">b72d52b</a> · <a href="/f/b52e058">b52e058</a> · <a href="/f/b3286a2">b3286a2</a></div>
+      <div class="mb-2 d-flex gap-2 align-items-center"><strong>js-dos no support <code>.ZIP</code></strong> {{$confirmed}}</div>
+      <div class="small text-body-secondary mb-2">Zip archives using retired compression methods and needing recompression</div>
+      <div>
+        <a href="/f/a22af8" class="{{$fid}}">a22af8</a> · <a href="/f/b72d52b" class="{{$fid}}">b72d52b</a> · 
+        <a href="/f/b52e058" class="{{$fid}}">b52e058</a> · <a href="/f/b3286a2" class="{{$fid}}">b3286a2</a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>js-dos unsupported</strong></div>
-      <div class="small text-body-secondary mb-2">Other archives unsupported by JS emulator</div>
-      <div><a href="/f/a724be8"><code>lha</code></a> · <a href="/f/a418d56"><code>arc</code></a> · <a href="/f/ad18c43"><code>arj</code></a> · <a href="/f/ae1c87b"><code>arj</code></a> · <a href="/f/b41eefb"><code>arj</code></a></div>
+      <div class="mb-2"><strong>js-dos no support</strong></div>
+      <div class="small text-body-secondary mb-2">Other archives not supported by the js-dos emulator</div>
+      <div>
+        <a href="/f/a724be8"><code>lha</code></a> · <a href="/f/a418d56"><code>arc</code></a> · 
+        <a href="/f/ad18c43"><code>arj</code></a> · <a href="/f/ae1c87b"><code>arj</code></a> · 
+        <a href="/f/b41eefb"><code>arj</code></a>
+      </div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Download large</strong></div>
+      <div class="mb-2"><strong>Download XXX-large</strong></div>
       <div class="small text-body-secondary mb-2">Cloudflare limits the download size to 1GB</div>
-      <div><a href="/f/aa256f1">aa256f1</a></div>
+      <div><a href="/f/aa256f1" class="{{$fid}}">aa256f1</a></div>
     </div>
   </div>
   <div class="col">
     <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Archives with many files</strong></div>
+      <div class="mb-2"><strong>Archives with too many files</strong></div>
       <div class="small text-body-secondary mb-2">Large archives containing thousands of files</div>
-      <div><a href="/f/b31d5d7">b31d5d7</a> <span class="small text-muted">(132 MB, contains 72917 files)</span></div>
+      <div><a href="/f/b31d5d7" class="{{$fid}}">b31d5d7</a> <span class="small text-muted">(132 MB, contains 72917 files)</span></div>
     </div>
   </div>
 </div>

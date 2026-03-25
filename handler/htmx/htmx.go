@@ -364,14 +364,16 @@ func Pings(c echo.Context, proto string, port int) error {
 		switch {
 		case code == http.StatusOK:
 			elm = "<span class=\"text-success\">"
+		case code == http.StatusNotFound:
+			elm = "<span class=\"text-danger-emphasis\">"
 		case code >= http.StatusInternalServerError:
 			elm = "<span class=\"text-danger\">"
 		default:
-			elm = "<span class=\"text-warning\">"
+			elm = "<span class=\"text-warning-emphasis\">"
 		}
 		results = append(results,
 			"<div>", elm,
-			fmt.Sprintf("%d</span> %s %s", code, ping, helper.ByteCount(size)),
+			fmt.Sprintf(`%d</span> %s <span class="text-secondary">%s</span>`, code, ping, helper.ByteCount(size)),
 			"</div>")
 	}
 	output := strings.Join(results, "")

@@ -45,6 +45,7 @@ import (
 	"github.com/Defacto2/server/model/fix"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/dustin/go-humanize"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
@@ -682,9 +683,10 @@ func downloader(data map[string]any, conf config.Config) map[string]any {
 	data["usageDownloads"] = 0
 	data["extsDownloads"] = []helper.Extension{}
 	if check == nil {
-		data["countDownloads"], _ = helper.Count(string(conf.AbsDownload))
+		c, _ := helper.Count(string(conf.AbsDownload))
+		data["countDownloads"] = humanize.Comma(int64(c))
 		b, _ := helper.DiskUsage(string(conf.AbsDownload))
-		data["usageDownloads"] = helper.ByteCount(b)
+		data["usageDownloads"] = helper.ByteCountFloat(b)
 		exts, _ := helper.CountExts(string(conf.AbsDownload))
 		data["extsDownloads"] = exts
 	}
@@ -699,9 +701,10 @@ func previewer(data map[string]any, conf config.Config) map[string]any {
 	data["usagePreviews"] = 0
 	data["extsPreviews"] = []helper.Extension{}
 	if check == nil {
-		data["countPreviews"], _ = helper.Count(conf.AbsPreview.String())
+		c, _ := helper.Count(conf.AbsPreview.String())
+		data["countPreviews"] = humanize.Comma(int64(c))
 		b, _ := helper.DiskUsage(string(conf.AbsPreview))
-		data["usagePreviews"] = helper.ByteCount(b)
+		data["usagePreviews"] = helper.ByteCountFloat(b)
 		exts, _ := helper.CountExts(conf.AbsPreview.String())
 		data["extsPreviews"] = exts
 	}
@@ -716,9 +719,10 @@ func thumbnailer(data map[string]any, conf config.Config) map[string]any {
 	data["usageThumbnails"] = 0
 	data["extsThumbnails"] = []helper.Extension{}
 	if check == nil {
-		data["countThumbnails"], _ = helper.Count(conf.AbsThumbnail.String())
+		c, _ := helper.Count(conf.AbsThumbnail.String())
+		data["countThumbnails"] = humanize.Comma(int64(c))
 		b, _ := helper.DiskUsage(string(conf.AbsThumbnail))
-		data["usageThumbnails"] = helper.ByteCount(b)
+		data["usageThumbnails"] = helper.ByteCountFloat(b)
 		exts, _ := helper.CountExts(conf.AbsThumbnail.String())
 		data["extsThumbnails"] = exts
 	}
@@ -733,9 +737,10 @@ func extraer(data map[string]any, conf config.Config) map[string]any {
 	data["usageExtras"] = 0
 	data["extsExtras"] = []helper.Extension{}
 	if check == nil {
-		data["countExtras"], _ = helper.Count(conf.AbsExtra.String())
+		c, _ := helper.Count(conf.AbsExtra.String())
+		data["countExtras"] = humanize.Comma(int64(c))
 		b, _ := helper.DiskUsage(string(conf.AbsExtra))
-		data["usageExtras"] = helper.ByteCount(b)
+		data["usageExtras"] = helper.ByteCountFloat(b)
 		exts, _ := helper.CountExts(conf.AbsExtra.String())
 		data["extsExtras"] = exts
 	}
@@ -750,9 +755,10 @@ func orphaneder(data map[string]any, conf config.Config) map[string]any {
 	data["usageOrphaned"] = 0
 	data["extsOrphaned"] = []helper.Extension{}
 	if check == nil {
-		data["countOrphaned"], _ = helper.Count(conf.AbsOrphaned.String())
+		c, _ := helper.Count(conf.AbsOrphaned.String())
+		data["countOrphaned"] = humanize.Comma(int64(c))
 		b, _ := helper.DiskUsage(string(conf.AbsOrphaned))
-		data["usageOrphaned"] = helper.ByteCount(b)
+		data["usageOrphaned"] = helper.ByteCountFloat(b)
 		exts, _ := helper.CountExts(conf.AbsOrphaned.String())
 		data["extsOrphaned"] = exts
 	}
