@@ -78,6 +78,18 @@ type Page map[string]filename
 
 // Pages returns a map of the template names and their corresponding filenames.
 func (t *Templ) Pages() *Page {
+	// To embed a template within one of these .tmpl pages,
+	// use the parseFS() func found later in this file.
+	//
+	// Embed file example:
+	// {{- define "abc" }}<h1>Hi!</h1>{{- end}}
+	//
+	// Template page usage:
+	// {{ template "abc" }}
+	//
+	// Or to pass a maximum of one value:
+	// {{ template "abc" $myVar }}
+
 	return &Page{
 		"api-info":      "apiinfo.tmpl",
 		"apps":          "apps.tmpl",
@@ -493,6 +505,8 @@ func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 		files = append(files, GlobTo("artifactsedit.tmpl"))
 	case categoriesTmpl:
 		files = append(files, GlobTo("categoriesmore.tmpl"))
+	case "releaseryear.tmpl":
+		files = append(files, GlobTo("releasertimeline.tmpl"))
 	case websitesTmpl:
 		const individualWebsite = "website.tmpl"
 		files = append(files, GlobTo(individualWebsite))

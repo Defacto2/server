@@ -1,276 +1,34 @@
 {{- /*  
     releaseryear.tmpl  
     This template is for the list of the releases organized by the first year of the earliest release.
-    - Releaser  /releaser/year
-    - Magazines /magazine
-    -  "        /magazine/a-z
-    - BBS       /bbs/year
+      - Releaser  /releaser/year
+      - Magazines /magazine
+      -  "        /magazine/a-z
+      - BBS       /bbs/year
+    Timelines can be found in releasertimeline.tmpl
 */ -}}
 {{- define "content" }}
 {{- $path := "g" }}
 {{- $name := .itemName }}
 {{- $pubs := index .stats.pubs }}
 {{- $orderBy := index .stats.orderBy }}
+{{- $prevYear := 0 }}
+{{- $timeline := 1981 }}
 {{- $class := "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2"}}
 {{- $eraClass := "text-start text-secondary mx-5 mb-4"}}
 <div class="container px-4 text-center">
     <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
-{{- $prevYear := 0 }}
 {{- range $index, $rel := .releasers -}}
     {{- $initialism := initialisms $rel.Unique.URI }}
     {{- $year := $rel.Unique.Year.Int }}
+    {{- $displayYear := or (eq $prevYear 0) (gt $year $prevYear)}}
     {{- /* conditionals must always begin after these vars */ -}}
-{{ if eq $index 0}}
-  {{- /* check if year is 1981 or if it doesn't exist, and index is 0, inject 1981 
-TODO: this logic is broken, it doesn't work with /magazine because the index is 0 and year 1983
-  */ -}}
-  {{- if and (gt $year 1981) (eq $index 0) }}<h3 class="text-end lead p-3"><span class="display-6">1981</span></h3>
-  {{- else if (gt $year 0) }}<h3 class="text-end lead p-3"><span class="display-6">{{$year}}</span></h3>{{- end}}
-    {{- if or (eq $year 1981) (and (eq $index 0) (gt $year 0)) }}
-      <div class="{{$eraClass}}">
-      <small><em class="text-primary">Pre Scene</em>.
-      The first IBM PC was released on 12 August 1981.
-      However, unlike today's global releases, national same-day hardware launches were impossible, 
-      and the new machines trickled into US retailers over the following months.
-      At this time, piracy involved in-person meet-ups to duplicate and exchange software, and it was blank floppies that were the valuable commodity.
-      On the <a href="https://demozoo.org/productions/?platform=67&production_type=13&dir=asc&page=1">Apple II</a> front, 
-      copy protection crackers had only begun tagging their work with handles in late 1980. 
-      While pirate clubs, groups and piracy bulletin boards became normalized in 1982.
-      </small></div>
-    {{- if and (gt $year 1981) (eq $index 0) }}<h3 class="text-end lead p-3"><span class="display-6">{{$year}}</span></h3>{{end}}
+  {{- if $displayYear }}
+    <!-- this case will only match years that exist in the fetched records -->
+    {{- if ne $index 0}}</div><!-- this is the closing element -->{{ end }}
+    {{ template "timeline" $year }}
+    <div class="{{$class}}"><!-- this is the opening element -->
   {{- end}}
-  <div class="{{$class}}">
-{{- else}}
-  {{- if and (gt $prevYear 0) (gt $year 0) (gt $year $prevYear) }}
-  </div>
-    {{- if or (eq $prevYear 1981) (eq $index 0) }}
-      {{- /* this 1982 injection is a hack and the logic will need changing if the database contains a 1982 published file */ -}}
-      <h3 class="text-end lead p-3"><span class="display-6">1982</span></h3>
-      <div class="{{$eraClass}}">
-      <small><em class="text-primary">Clubs and groups</em>.
-      Cracking groups likely first occurred on the Apple II in 1982, with the formation of the 
-      Super Pirates of Minneapolis, 
-      The Apple Mafia, 
-      The Software Pirates, 
-      Digital Gang, 
-      The Dirty Dozen, 
-      The Untouchables, 
-      Apple Pirated Program Library Exchange,
-      and the Clean Crack Band from France.
-      At the time, they were not always known as groups but were often referred to as "clubs", such as The 1200 Club.
-      On the IBM PC, we see similar terminology with The Californian Pirates Club Inc. in 1983. 
-      </small></div>
-    {{- end}}
-    <h3 class="text-end display-6 mt-3 p-3">{{$year}}</h3>
-    {{- if eq $year 1983 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">IBM cracks</em>.
-    The first popular PC software crack was for Lotus 1-2-3, the groundbreaking spreadsheet that revolutionized accounting for home and business. 
-    Just as VisiCalc launched the Apple II, Lotus 1-2-3 propelled the IBM PC into the mainstream.
-    Released on January 26, 1983, for nearly $500, Lotus 1-2-3 included disk copy protection. 
-    Users needed the original disk to run the program, and if it became damaged, they faced days or weeks locked out of the software while waiting for a replacement. 
-    Owners sought ways to <q>unprotect</q> the disk to create duplicate backups, and documented these finds on bulletin boards and services like CompuServe.
-    Earlier <q>unprotects</q> likely existed, but they're lost to time.
-    </small></div>
-    {{- else if eq $year 1984 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Locals</em>.
-    While 1983 saw the emergence of solo-crackers and the first <q>unprotect</q> texts, with instructions on software cracking that were posted to commercial online services like CompuServe.
-    It was 1984 that marked the birth of the <q>IBM</q> Scene, with the formation of the first cracking clubs and groups, along with the sharing of software on local bulletin&nbsp;boards.
-    These early PC groups were likely inspired by or emerged from the already-thriving Apple II Scene.
-    Meanwhile, the <a href="https://demozoo.org/productions/?platform=3&production_type=13&dir=asc&page=1">Commodore 64</a> 
-    was rapidly growing in popularity among young users worldwide, and 
-    fueling a rampant new piracy scene, with the likes of JEDI <small>Germany</small>, The Cream Crackers <small>Sweden</small>, The Odd Couple <small>Canada</small>, and the Bad Brothers <small>USA</small>.
-    </small></div>
-    {{- else if eq $year 1985 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">IBM groups</em>.
-    The idea of <q>IBM</q> pirate groups didn't really take off until 1984 and 1985, 
-    with the likes Software Pirates Inc., Imperial Warlords, The Illinois Pirates, and The Duplicators, who were also active on the Apple. 
-    Just like on the Apple II and on the Commodore 64, <q>IBM</q> cracking clubs and groups were small, typically only consisting of one to three crackers. 
-    Suppliers and distribution were often anonymous, freelance, and handled by bulletin boards users rather than the cracking groups.
-    </small></div>
-    {{- else if eq $year 1986 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Crack-screen fun</em>.
-    On the Apple II, purpose-drawn crack-title screens became widespread in 1984, while this practice didn't emerge on the IBM PC until 1986.
-    Although bitmap drawing software was already well-established on the platform with programs like PC Paintbrush and PC Paint,
-    it likely took software hackers considerable time to develop ways to inject those images into cracked game titles.
-    Meanwhile, Sceners on more affordable microcomputers such as the Commodore 64 and <a href="https://demozoo.org/productions/?platform=9&production_type=4&dir=asc&page=1">Atari ST</a> were beginning to release animated cracktros
-    (cracked-by introductions) and intros with audio that attempted to replicate computer game title screens.
-    By contrast, the IBM PC's fixed, 4-color CGA palette and silent static images appeared a little ugly and outdated.
-    </small></div>
-    {{- else if eq $year 1987 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Brands</em>.
-    The early cracking clubs and groups on the IBM PC were fleeting. 
-    However, the one exception was Software Pirates Inc., a granddaddy of IBM PC cracking groups who likely operated from 1984 until 1989. 
-    It is a shame they didn't make it to the PC boom of the 1990s, as today they are forgotten. 
-    But it was in 1986-87 that the PC Scene saw some brands that lasted for years instead of only a few months, 
-    with groups like the Five O, Bentley Sidwell Productions, Boys from Company C, Canadian Pirates Inc., and the PTL Club.
-    </small></div>
-    {{- else if eq $year 1988 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Mergers and acquisitions</em>.
-    This was the year the PC Scene saw larger collaborations and consolidation. 
-    Instead of small, isolated cracking groups, some decided to merge, forming bigger and more organized teams. 
-    This shift led to more frequent releases and wider distribution throughout North America. 
-    In December, the Boys from Company C and Five-O joined forces under BBC/Five-O, later teaming up with Pirates R Us to create The Firm. 
-    Miami Cracking Machine, formed in 1988, merged with ECA and New York Crackers in September 1989 to form the International Network of Crackers. 
-    And just a couple of months later, PTL Club, $PRINT, The Underground Council, and Byte Bandits united to form TRIAD. 
-    Europe also entered the scene, with Dutch Future Brain Inc. releasing PC cracks as early as October 1988. 
-    Their cracks were imported and re-released by U.S. groups and boards, mirroring a common trend in the Commodore 64 Scene.
-    </small></div>
-    {{- else if eq $year 1989 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">A national scene</em>.
-    1989 marked the emergence of a national PC Scene, as small local groups, often comprising just a few friends, 
-    teamed up with groups from other North American telephone area codes to form larger, more widespread cracking groups.
-    This period also saw the first proper cracktros and intros on the PC, though ironically these came from European users,
-    where the PC was least successful. Once again, the PC Scene lagged years behind the other microcomputers:
-    by this time the Apple II had passed its prime, the Commodore 64 and Atari ST were at their peaks,
-    and the Commodore Amiga was emerging as the best home-computer platform for gaming and multimedia.
-    </small></div>
-    {{- else if eq $year 1990 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Competition</em>.
-    This period saw the birth of the Art Scene, as amateur artists created text-based artwork and formed collectives, known as art groups,
-    focusing on designing advertisements and user interfaces for "elite" bulletin board systems.
-    The PC's extensive software catalog and backward compatibility made it the primary platform for affordable productivity applications and utilities,
-    a trend reflected in the software pirated. European pirate groups from the Commodore 64 and Amiga communities also began
-    exploring the PC, viewing it as a potential secondary system.
-    However, this era also marked the emergence of the modern cracking scene, with some groups competing to be first to crack and distribute new game releases.
-    While this practice was already commonplace on other microcomputer platforms, it was new to the laggard PC.
-    </small></div>
-    {{- else if eq $year 1991 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Silly names</em>.
-    1990 and 1991 witnessed a rise of excessively long group names, as various PC collectives, and those from the Commodore 64 and Amiga scenes, 
-    collaborated on PC releases. However, these groups were either too stubborn or egotistical to abandon their established identities.
-    Instead, they created absurdly long conjoined brand names for their PC releases. 
-    <em>Public Enemy / Tristar &amp; Red Sector / Defjam / The Dream Team present.</em>
-    <em>United Software Association and Fairlight PC Division proudly presents.</em>
-    </small></div>
-    {{- else if eq $year 1992 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Drama</em>.
-    1992 marked the PC's rise as the dominant home-computing gaming platform.
-    While the PC remained a somewhat unusable platform, it had become clear that computer gaming's future lay with the open PC ecosystem,
-    which neither Apple, Commodore, nor Atari possessed the scale or resources to compete.
-    As the PC's popularity grew, so did its presence on "elite" bulletin board systems worldwide.
-    This surge in popularity led to a proliferation of scene magazines, often released as hard to read, multimedia presentations.
-    However, in late 1991 the PC piracy scene also faced its first major group schism due to personal conflicts,
-    followed by its first significant police raid in early 1992, which sent shockwaves through the community.
-    </small></div>
-    {{- else if eq $year 1993 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Peak demo</em>.
-    The demoscene originated with microcomputer software crackers who sought to recreate the impressive graphic effects found in computer game opening titles.
-    The intention was to showcase their "elite" cracking abilities, but it evolved into a competition to demonstrate programming prowess.
-    Unsurprisingly, the IBM PC, being a business platform, lagged behind this trend due to its many technical challenges.
-
-    However, much later in 1993, it was on the PC that demos arguably reached their peak impact with the release of "Second Reality" by the Future Crew.
-    Second Reality was programmed by amateurs and on release was the best way for enthusiasts to showcase the capability of their computer hardware.
-    But this moment was short-lived, as the following month saw the release of id Software's DOOM shareware edition,
-    an influential 3D action game which revolutionized the computer gaming space. 
-
-    The following year was the release of the Sony PlayStation with its fluid, complex 3D graphics and with it, the fascination in computer multimedia waned.
-    While the guys at Future Crew would go onto form Remedy Entertainment, <small>(Alan Wake and Max Payne fame)</small> 
-    who in 1997 would release the benchmark tool Final Reality, as a nod to the Demoscene release.
-    </small></div>
-    {{- else if eq $year 1994 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">The Internet@aol.com</em>.
-    Most networks, including the Internet, were closed systems requiring real-life qualifications for access,
-    typically through employment or education. This changed in 1991 when commercial Internet Service Providers were permitted to sell
-    business and home access to the network.
-    For Sceners in the mid-1990s, transitioning from bulletin boards with their limitations was an obvious choice, at least for real-time socializing.
-    However, the Internet was a time sink, had a steep learning curve, and compared to "elite" bulletin boards, lacked personality and even color.
-    Worse still, for the so-called "elite," it granted open access to what was formerly a somewhat private, underground Scene.
-    </small></div>
-    {{- else if eq $year 1995 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">End of the floppy</em>.
-    The mid-1990s brought massive changes to the PC landscape, including the overnight decline of software sold on floppy disks.
-    Within months, publishers abandoned floppies in favor of the CD-ROM, creating numerous challenges for software cracking and distribution.
-    For some, this change meant <q>cracking</q> was dead, as the past 15-years saw software cracking as breaking floppy-disk copy-protection.
-    1995 also saw the launch of Windows 95 by Microsoft, 
-    the first widely adopted graphical operating system for the PC, though many gamers and non-PC users remained unimpressed.
-    </small></div>
-    {{- else if eq $year 1996 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Pop Scene!</em>
-    The Scene's Internet evolution somewhat mirrors social media's later rise and fall.
-    Many Sceners who gained status on closed "elite" bulletin boards found their newfound Internet celebrity irresistible -
-    often complaining publicly about "lamers" while also courting their attention and money.
-    1996 and 1997 represented the peak of Scene journaling and reporting, 
-    with high-profile interviews, personality culture, and unprecedented open access.
-    Groups created websites such as razor1911.com as status symbols,
-    back when the Web&nbsp;1.0 remained unmonetized, bureaucratic, and expensive.
-    To generate revenue, some even engaged in early e-commerce, by selling brand merchandise online that they advertised in their releases. 
-    Fans worldwide, could order the merch by mailing an order form with cash or a cheque to an anonymous PO Box with figures crossed.
-    </small></div>
-    {{- else if eq $year 1997 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">ISO</em>
-    After years of incomplete and inconsistent CD rips-where cracking groups arbitrarily decided what to strip from games before distribution.
-    Some groups returned to releasing full games where they used CD copying software to generate complete disc images for online sharing.
-    While pirating entire CDs online wasn't new, there was no standard way until some adopted the ISO-9660 standard.
-    These full-disc images were unpopular with most users who were used to extremely limited bandwidth.
-    FTP site operators also disliked them because of their inherent size and the high costs of hosting such large files.
-    </small></div>
-    {{- else if eq $year 1998 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">CD keys</em>
-    Game of the Year StarCraft from Blizzard Software introduces a user account system with its Battle.net online multiplayer service. 
-    Each account is tied to a unique serial number (CD key) included in the retail boxed copy of the game. 
-    Without a valid CD key, StarCraft cannot be used for multiplayer competitive gameplay, which is a core selling point. 
-    So, while the growing popularity of ISO releases allowed a return to sharing complete copies of pirated games, they were not always functionally identical to the retail software.
-    </small></div>
-    {{- else if eq $year 2000 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Operation Cybercrime</em>
-    On May 4, 2000, the US Department of Justice announced that seventeen defendants from across the United States and Europe were indicted by a federal grand jury for 
-    allegedly conspiring to infringe the copyright of more than 5,000 computer software programs available through a hidden Internet site located at a university in Quebec, Canada. 
-    The group was Pirates With Attitude (PWA). Five of those indicted were Intel employees, and the file site was named Sentinel, which served as the group's
-    primary headquarters. The bust forced the closure of the nearly decade-old group and marked the first time someone was prosecuted for 'warez,' the sharing of software without profit.
-    </small></div>
-    {{- else if eq $year 2001 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Operation Buccaneer</em>
-    A sequel of sorts occurred just 17 months after Operation Cybercrime, but this time the Department of Justice used the more playful name Operation Buccaneer and targeted PWA's longtime rivals, Drink or Die. 
-    Unlike the first operation, which failed to nab PWA members outside North America, Buccaneer involved about 70 search warrants across 17 countries and intended to send a message that playing anonymous online wasn't safe. 
-    The multinational takedown forced many to reevaluate their priorities and move on. 
-    Groups and sites downsized, went dark, or became minimal. 
-    The Scene forever changed; the days of publicly socializing, exchanging information, or engaging with user bases were over.
-    </small></div>
-    {{- else if eq $year 2002 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">P2P</em>
-    Just as the Scene was veering further underground and reducing its size and exposure, piracy was exploding in the mainstream. Windows PCs and home Internet were booming, but it wasn't software piracy drawing attention—it was music, television, and
-    films. 2001 saw the peak and infamous takedown of Napster, the famed music 'sharing' platform, only for it to be replaced by a dozen clones by 2002. There was also the launch of BitTorrent, an Internet protocol enabling peer-to-peer file sharing,
-    eliminating the need for centralized file servers.
-    </small></div>
-    {{- else if eq $year 2003 }}
-    <div class="{{$eraClass}}">
-    <small><strong class="text-primary">☠️</strong>
-    While BitTorrent was a catch-all name, technically it was only a protocol—just like HTTP or FTP. A BitTorrent client couldn't do much without links to other clients sharing files. The Pirate Bay, launched in 2003, and similar websites provided an
-    easy, centralized, searchable repository of publicly available torrents on the Internet. Users could search for any song, album, game, film, or TV show and connect their BitTorrent software to others sharing the content they wanted. The irony was
-    that many in the PC piracy Scene despised this. As they retreated from the limelight, The Pirate Bay and its ilk exposed piracy to ever more people.
-    </small></div>
-    {{- else if eq $year 2004 }}
-    <div class="{{$eraClass}}">
-    <small><em class="text-primary">Steam</em>
-    2004 saw the first 'AAA' PC game released and distributed online, Half-Life 2 from Valve on their new digital distribution platform, Steam. 
-    Half-Life 2 was also released on CD and DVD at retail by a traditional publisher. 
-    But the online distribution allowed developers to earn more money and was often better for consumers, who didn't need to worry about out-of-stock or out-of-print games or deal with multi-disc installations from slow physical media. 
-    Over the years, Steam would eventually outweigh many advantages of PC game piracy, becoming an easier, faster, and more user-friendly distribution method than warez releases.
-    </small></div>
-    {{/* new entries goes here */}}
-    {{- end}}
-            <div class="{{$class}}">
-        {{- end}}
-    {{- end}}
         <div class="col">
             <div class="p-3 border bg-light h-100 rounded-1">
               <h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a></h5>
@@ -278,8 +36,7 @@ TODO: this logic is broken, it doesn't work with /magazine because the index is 
               {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
             </div>
         </div>
-{{- $prevYear = $year }}
+    {{- $prevYear = $year }}
 {{- end}}
-    </div>
 </div>
 {{- end }}
