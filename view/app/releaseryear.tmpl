@@ -22,11 +22,21 @@
     {{- $initialism := initialisms $rel.Unique.URI }}
     {{- $year := $rel.Unique.Year.Int }}
     {{- $displayYear := or (eq $prevYear 0) (gt $year $prevYear)}}
-    {{- /* conditionals must always begin after these vars */ -}}
+    {{- $difference := sub $prevYear $year}}
+  {{- /* conditionals must always begin after these vars */ -}}
   {{- if $displayYear }}
     <!-- this case will only match years that exist in the fetched records -->
     {{- if ne $index 0}}</div><!-- this is the closing element -->{{ end }}
-    {{ template "timeline" $year }}
+    {{- if gt $difference 1 }}
+      <!-- we iterate through any missing years -->
+      {{- range yearRange $prevYear $year }}
+        <h3 class="text-end fw-light fs-4 mt-3 me-3">{{.}}</h3>
+        {{- template "timeline" . }}
+      {{- end }}
+    {{- end }}
+    <!-- but also display timelines of the years with artifact records -->
+    <h3 class="text-end display-6 mt-3 p-3">{{$year}}</h3>
+    {{- template "timeline" $year }}
     <div class="{{$class}}"><!-- this is the opening element -->
   {{- end}}
         <div class="col">

@@ -1,8 +1,10 @@
 {{- define "timeline" }}
 {{- $year := . }}
 {{- $eraClass := "text-start text-secondary mx-5 mb-4"}}
-  <h3 class="text-end display-6 mt-3 p-3">{{$year}}</h3>
-  {{- if eq $year 1981 }}
+{{- $skipped := or (eq $year 1999) (gt $year 2004) }}
+  {{- if $skipped }}
+    <!-- display nothing --->
+  {{- else if eq $year 1981 }}
     <div class="{{$eraClass}}">
     <small><em class="text-primary">Pre Scene</em>.
     The first IBM PC was released on 12 August 1981.

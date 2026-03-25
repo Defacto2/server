@@ -390,6 +390,28 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 				dir.Directory(t.Environment.AbsPreview),
 				dir.Directory(t.Environment.AbsThumbnail))
 		},
+		"yearRange": func(start, end int) []int {
+			const epoch = 1980
+			if start < epoch {
+				start = epoch
+			}
+			now := time.Now().Year()
+			if end > now {
+				end = now
+			}
+
+			// we don't want to include start or end range years in the results
+			start++
+			years := make([]int, end-start)
+
+			for i := range years {
+				years[i] = start + i
+			}
+			return years
+		},
+		"sub": func(start, end int) int {
+			return end - start
+		},
 	}
 }
 
