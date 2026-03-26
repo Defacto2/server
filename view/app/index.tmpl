@@ -77,7 +77,6 @@
   .milestone-card:hover {
     border-left-color: #0d6efd;
     box-shadow: 0 8px 16px rgba(13, 110, 253, 0.15);
-    transform: translateY(-4px);
   }
   .milestone-card-header {
     background: linear-gradient(135deg, #f8f9fa 0%, #f0f1f3 100%);
@@ -125,6 +124,26 @@
   }
   .row.row-cols-2.row-cols-md-3.row-cols-lg-4 .col a {
     display: inline-block;
+  }
+  /* milestone popup modal */
+  .card-header button.btn-link {
+    text-align: left;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  } 
+  .card-header button.btn-link:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+    text-decoration: none;
+  }
+  .card-header {
+    /* ensure card header maintains proper sizing */
+    position: relative;
+  }
+  #milestoneModal .modal-content {
+  /* modal content scrolling */
+    max-height: 80vh;
+    overflow-y: auto;
   }
 </style>
 {{- $fragmentCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-25 link-underline-opacity-75-hover" }}
@@ -384,7 +403,12 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
     <a id="{{slugify .Title}}"></a>
     <div class="card h-100 milestone-card{{ if .Highlight}} featured{{end}}{{ if .Highlight}} text-bg-light{{end}}">
       {{- /*  Header & pictures  */}}
-      <div class="card-header milestone-card-header">{{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}</div>
+      <div class="card-header milestone-card-header">
+        <button id="milestone-{{$index}}" class="btn btn-link p-0 w-100 text-start text-decoration-none stretched-link" 
+                data-bs-toggle="modal" data-bs-target="#milestoneModal">
+          {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}
+        </button>
+      </div>
       {{- /*  Lists, aligned to the top  */}}
       {{- if and (.List) (eq "" .Content)}}
       <ul class="list-group list-group-flush text-center">
@@ -467,6 +491,59 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
       {{- end}}
     </div>
   </div>
+{{- /* 
+  Milestone Modal Pop-up
+  When a milestone title or date is clicked, this modal pops up with a copy of the milestone content.
+  This allows for easier readability due to the use of the "lead" class for the font.
+*/}}
+<div class="modal fade" id="milestoneModal" tabindex="-1" aria-labelledby="milestoneModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="milestoneModalLabel">Milestone Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body lead" id="milestoneModalBody">
+        <!-- Content will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// Minimal content population using Bootstrap's built-in events
+document.addEventListener('DOMContentLoaded', function() {
+  var milestoneModal = document.getElementById('milestoneModal');
+  if (milestoneModal) {
+    milestoneModal.addEventListener('show.bs.modal', function(event) {
+      var triggerButton = event.relatedTarget;
+      var col = triggerButton.closest('.col');
+      if (col) {
+        var colClone = col.cloneNode(true);
+        // title - use button text instead of card title
+        var buttonText = triggerButton.textContent.trim();
+        document.getElementById('milestoneModalLabel').textContent = buttonText || 'Milestone Details';
+        // content
+        var modalBody = document.getElementById('milestoneModalBody');
+        modalBody.innerHTML = '';
+        modalBody.appendChild(colClone);
+        // cleanup duplicate header
+        var headerInClone = colClone.querySelector('.card-header');
+        if (headerInClone) {
+          headerInClone.remove();
+        }
+      }
+    });
+    // clear content when modal closes
+    milestoneModal.addEventListener('hidden.bs.modal', function() {
+      document.getElementById('milestoneModalBody').innerHTML = '';
+    });
+  }
+});
+</script>
+
 {{- end}}
 </div>
 {{- end}}
