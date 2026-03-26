@@ -269,6 +269,9 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
+		"indexJS": func() string {
+			return hrefs[IndexJS]
+		},
 		"jsdos6JS": func() string {
 			return hrefs[Jsdos6JS]
 		},
@@ -334,6 +337,9 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		},
 		"sri_htmxRespTargets": func() string {
 			return t.Subresource.HtmxRespTargets
+		},
+		"sri_indexJS": func() string {
+			return t.Subresource.IndexJS
 		},
 		"sri_jsdos6JS": func() string {
 			return t.Subresource.Jsdos6JS

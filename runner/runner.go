@@ -32,6 +32,7 @@ func NamedJS() []string {
 		"chiptune-player",
 		"editor-forapproval",
 		"htmx-response-targets",
+		"index",
 		"votes-pouet",
 	}
 }

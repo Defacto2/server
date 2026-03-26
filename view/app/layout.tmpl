@@ -359,6 +359,9 @@
 <script defer src="{{ htmxRespTargets }}?{{ sri_htmxRespTargets }}" integrity="{{ sri_htmxRespTargets }}" crossorigin="anonymous"></script>
 {{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
 <script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
+{{- if eq $metatitle "Introduction and milestones" }}
+<script defer src="{{ indexJS }}?{{ sri_indexJS }}" integrity="{{ sri_indexJS }}" crossorigin="anonymous"></script>
+{{- end}}
 {{- if $pouet}}
 <script async src="{{ pouet }}?{{ sri_pouet }}" integrity="{{ sri_pouet }}" crossorigin="anonymous"></script>
 {{- end}}

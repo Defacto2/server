@@ -1189,6 +1189,7 @@ func Index(c echo.Context, sl *slog.Logger) error {
 	}
 	const name = "index"
 	data := empty(c)
+	// note: if the title get's changed, the indexJS conditional in layout.tmpl needs updating
 	data["title"] = "Introduction and milestones"
 	data["canonical"] = "/"
 	data["h1"] = "The subcultures of obsolete microcomputers"

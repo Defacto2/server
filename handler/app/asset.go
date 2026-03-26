@@ -21,6 +21,7 @@ const (
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
 	Htmx                         // Htmx is the path to the minified htmx AJAX JS file.
 	HtmxRespTargets              // HtmxRespTargets is the path to the minified response targets extension file.
+	IndexJS                      // IndexJS is the path to the minified JS file used by the index template.
 	Jsdos6JS                     // Jsdos6JS is the path to the minified js-dos v6 JS file.
 	Layout                       // Layout is the path to the minified layout CSS file.
 	LayoutJS                     // LayoutJS is the path to the minified layout JS file.
@@ -49,6 +50,7 @@ func Hrefs() *Paths {
 		EditForApproval: "/js/editor-forapproval.min.js",
 		Htmx:            "/js/htmx.v2.min.js",                      // renamed on 21-Jul-25 "/js/htmx.min.js",
 		HtmxRespTargets: "/js/htmx.v2.ext-response-targets.min.js", // "/js/htmx-response-targets.min.js",
+		IndexJS:         "/js/index.min.js",
 		Jsdos6JS:        "/js/js-dos.js",
 		Layout:          "/css/layout.min.css",
 		LayoutJS:        "/js/layout.min.js",

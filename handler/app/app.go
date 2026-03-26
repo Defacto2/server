@@ -987,6 +987,7 @@ type SRI struct {
 	EditArtifact    string // Artifact Editor JS verification hash.
 	EditAssets      string // Editor Assets JS verification hash.
 	EditForApproval string // Editor For Approval JS verification hash.
+	IndexJS         string
 	Jsdos6JS        string // js-dos v6 verification hash.
 	DosboxJS        string // DOSBox Emscripten verification hash.
 	Layout          string // Layout CSS verification hash.
@@ -1052,6 +1053,11 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 	}
 	name = names[EditForApproval]
 	s.EditForApproval, err = helper.Integrity(name, fs)
+	if err != nil {
+		return fmt.Errorf("%s: %w", name, err)
+	}
+	name = names[IndexJS]
+	s.IndexJS, err = helper.Integrity(name, fs)
 	if err != nil {
 		return fmt.Errorf("%s: %w", name, err)
 	}
