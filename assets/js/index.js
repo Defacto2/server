@@ -8,55 +8,21 @@ document.addEventListener('DOMContentLoaded', function () {
   if (milestoneModal) {
     milestoneModal.addEventListener('show.bs.modal', function (event) {
       var triggerElement = event.relatedTarget;
-
-      // Check if this is a milestone link with data-milestone-id attribute
       var milestoneId = triggerElement.getAttribute('data-milestone-id');
+      var col = milestoneId ? document.getElementById(milestoneId)?.closest('.col') : triggerElement.closest('.col');
 
-      if (milestoneId) {
-        // This is a milestone link - find the anchor with matching ID
-        var anchor = document.getElementById(milestoneId);
-        if (anchor) {
-          var col = anchor.closest('.col');
-          if (col) {
-            var colClone = col.cloneNode(true);
-            // title - use button text
-            var buttonText = triggerElement.textContent.trim();
-            document.getElementById('milestoneModalLabel').textContent =
-              buttonText || 'Milestone Details';
-            // content
-            var modalBody = document.getElementById('milestoneModalBody');
-            modalBody.innerHTML = '';
-            modalBody.appendChild(colClone);
-            // cleanup duplicate header
-            var headerInClone = colClone.querySelector('.card-header');
-            if (headerInClone) {
-              headerInClone.remove();
-            }
-            return; // Found and processed the milestone
-          }
-        }
-      } else {
-        // This is a direct milestone button click - use original logic
-        var col = triggerElement.closest('.col');
-        if (col) {
-          var colClone = col.cloneNode(true);
-          // title - use button text
-          var buttonText = triggerElement.textContent.trim();
-          document.getElementById('milestoneModalLabel').textContent =
-            buttonText || 'Milestone Details';
-          // content
-          var modalBody = document.getElementById('milestoneModalBody');
-          modalBody.innerHTML = '';
-          modalBody.appendChild(colClone);
-          // cleanup duplicate header
-          var headerInClone = colClone.querySelector('.card-header');
-          if (headerInClone) {
-            headerInClone.remove();
-          }
-        }
+      if (col) {
+        var colClone = col.cloneNode(true);
+        var buttonText = triggerElement.textContent.trim();
+        document.getElementById('milestoneModalLabel').textContent = buttonText || 'Milestone Details';
+        var modalBody = document.getElementById('milestoneModalBody');
+        modalBody.innerHTML = '';
+        modalBody.appendChild(colClone);
+        var headerInClone = colClone.querySelector('.card-header');
+        if (headerInClone) headerInClone.remove();
       }
     });
-    // clear content when modal closes
+
     milestoneModal.addEventListener('hidden.bs.modal', function () {
       document.getElementById('milestoneModalLabel').textContent = '';
       document.getElementById('milestoneModalBody').innerHTML = '';
