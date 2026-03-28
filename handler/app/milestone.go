@@ -737,8 +737,8 @@ func Collection() Milestones { //nolint:funlen,maintidx
 			Title: "The first groups", Year: 1981, Highlight: true,
 			Lead: "Possibly late 1981, but probably 1982",
 			Content: "<p>Discussions of cracking groups from the Apple II era often claim they were around in 1980. " +
-				"However, of the cracks that survive today, the ones by cracking groups are for games that got published for Christmas 1981 and in <strong>1982</strong>. " +
-				"While there are many 1980 and 1981 cracks with authorship, these were released by individual crackers rather than in a collaboration as part of a cracking group.</p>" +
+				"However, of the cracks that survive today, the ones by actual cracking groups are for games that got published for Christmas 1981 and in <strong>1982</strong>. " +
+				"While there are many 1980 and 1981 cracks with authorship, these were released by individual crackers rather than in a collaboration as part of a cracking club or group.</p>" +
 				"<p>Some of the famous, <q>first</q> cracking groups from the Apple II era are, " +
 				"<a href=\"https://demozoo.org/groups/153053\">Super Pirates of Minneapolis</a>, " +
 				"<a href=\"https://demozoo.org/groups/61767\">The Apple Mafia</a>, " +
@@ -899,12 +899,12 @@ func Collection() Milestones { //nolint:funlen,maintidx
 			Link:      "https://demozoo.org/productions/144652/",
 			Content: "<p>The earliest known demo or demonstration program is probably this great but untitled animated Christmas greeting created on the Atari 400 or 800 and signed as <q>CB'81</q>. " +
 				"CB is believed to be Claus Buchholz, a known <a href=\"https://archive.org/details/Atari40048KUpgrade/mode/2up\">hardware hacker</a> for the platform. " +
-				"We presume this demo software got shared on Atari-centric bulletin boards in the USA around late 81.</p>" +
+				"We presume this software got shared at Atari-centric computer clubs, by retailers, or on computerized bulletin boards in late 1981.</p>" +
 				"<p>Earlier demonstration software existed for various machines, including " +
 				"1978's <a href=\"https://demozoo.org/productions/121614/\">Apple&nbsp;Vision</a>, " +
 				"1979's <a href=\"https://demozoo.org/productions/151537/\">Dancing&nbsp;Demon</a> on the TRS-80, and " +
 				"1980's <a href=\"https://demozoo.org/productions/98550/\">Atari In-Store Demonstration Program</a>. " +
-				"However, these were commercials created by Apple, Radio Shack, or Atari employees and designed to demonstrate the machines' capabilities in a retail store.</p>" +
+				"However, these were commercials created by Apple, Radio Shack, or Atari employees and designed to demonstrate the machine in a retail store.</p>" +
 				"<p>The untitled Christmas greeting by CB is the earliest known demonstration software created by a hobbyist with no commercial intent.</p>",
 			Picture: Picture{
 				Title: "The untitled Christmas greeting by CB",
@@ -1140,27 +1140,28 @@ func Collection() Milestones { //nolint:funlen,maintidx
 			Title: "The Berlin Bear controversy", Year: 1984,
 			Lead: "Commodore 64",
 			Content: "<p>" +
-				"Way back in the 2000s, many in the Demoscene <a href=\"https://www.pouet.net/prod.php?which=17555\">argued</a> that a 1982 Berlin Bear image drawn for the Commodore 64 cracker group " +
-				"<a href=\"https://csdb.dk/group/?id=2845\">Berlin Cracking Service</a> was the first ever Scene intro and cracktro. However, the <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">claim</a> was outlandish for multiple reasons, and either it was fabricated or a memory bias. Unfortunately, memory bias and conjecture are quite common when reflecting on the early Scene." +
+				"For a while in the 2000s, many in the Demoscene <a href=\"https://www.pouet.net/prod.php?which=17555\">argued</a> that a <q>1982</q> Berlin Bear image drawn for the Commodore 64 cracker group " +
+				"<a href=\"https://csdb.dk/group/?id=2845\">Berlin Cracking Service</a> was the first ever Scene intro. However, in hindsight the <a href=\"https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=7\">claim</a> was outlandish for multiple reasons, and either it was fabricated or a memory bias. Unfortunately, memory bias and conjecture are quite common when reflecting on the early Scene." +
 				"</p><p>" +
-				"The Scener, Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">wrote</a> of the cracktro, [the group] <em>for some time claimed the glory of having the first real crack intro which was the famous screen</em>. Of the image itself, <em>the picture was discovered to be in Paint Magic format which did not appear until 1983.</em> " +
+				"The Scener, Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">wrote</a> of the cracktro, the group <em>for some time claimed the glory of having the first real crack intro which was the famous screen</em>. Of the image itself, <em>the picture was discovered to be in Paint Magic format which did not appear until 1983.</em> " +
 				"</p><p>" +
-				"Paint Magic, authored by Mark Riley, was a drawing tool for the Commodore 64 that sold for $50 by the Californian company Datamost. " +
-				"However, despite the &copy;1983 in the print <a href=\"https://archive.org/details/game_manual_Paint_Magic/page/n3/mode/2up\">manual</a>, it was likely released in 1984. " +
-				"Given that it was <a href=\"https://archive.org/details/cbm_magazine_index-power_play/power_play/1984/power_play-08-198403/page/n21/mode/1up?q=datamost+paint+magic\">showcased</a> at January's CES '84, " +
-				"and the <a href=\"https://archive.org/details/ahoy-magazine-08/page/n48/mode/1up\">reviews</a> and " +
-				"<a href=\"https://archive.org/details/the-everything-book-for-the-commodor-c-64-vic-20-home-computer-summer-1984/page/22/mode/1up?q=datamost+paint+magic\">reseller ads</a> are only found in magazines of 1984 and 1985." +
+				"Paint Magic by Mark Riley, was a drawing program for the Commodore 64 that sold for $50 by the Californian company Datamost. " +
+				"However, despite a <em>&copy;1983</em> found in the print <a href=\"https://archive.org/details/game_manual_Paint_Magic/page/n3/mode/2up\">manual</a>, the program was likely published in 1984. " +
+				"Given that it was <a href=\"https://archive.org/details/cbm_magazine_index-power_play/power_play/1984/power_play-08-198403/page/n21/mode/1up?q=datamost+paint+magic\">showcased</a> " +
+				"at the <a href=\"https://commodore.international/2024/04/28/commodore-behind-the-scenes-at-1984-winter-ces/\">1984 International Winter</a> Consumer Electronics Show held in Las Vegas, " +
+				"and the software <a href=\"https://archive.org/details/ahoy-magazine-08/page/n48/mode/1up\">reviews</a> and " +
+				"<a href=\"https://archive.org/details/the-everything-book-for-the-commodor-c-64-vic-20-home-computer-summer-1984/page/22/mode/1up?q=datamost+paint+magic\">reseller ads</a> are only found in the press of 1984 and 1985." +
 				"</p><p>" +
-				"So far, the image itself has only been discovered in cracks of games that were published in mid-1984. These happen to be ports of Activision titles that were advertised as <em><a href=\"https://archive.org/details/computes-gazette-issue-015-september-1984/page/18/mode/2up\">Introducing Activision For Your Commodore 64</a></em> in the August and September issues of various Commodore magazines. " +
-				"Ahoy <u>September 1984</u> <a href=\"https://archive.org/details/ahoy-magazine-09/page/n8/mode/1up\">writes</a> under New Games Update, " +
-				"<em>Activision's Pitfall II: Lost Caverns, forecast in these pages in July, is now available</em>, which dates <a href=\"https://demozoo.org/productions/382466/\">this</a> Berlin Bear usage." +
+				"The Berlin Bear image gets used in cracks to games published in mid-late 1984. These happen to be ports of Activision titles that were advertised as " +
+				"<em><a href=\"https://archive.org/details/computes-gazette-issue-015-september-1984/page/18/mode/2up\">Introducing Activision For Your Commodore 64</a></em> in the August and September 1984 issues of various magazines. " +
+				"Ahoy&nbsp;<u>September&nbsp;1984</u> <a href=\"https://archive.org/details/ahoy-magazine-09/page/n8/mode/1up\">writes</a> under its New Games Update, " +
+				"<em>Activision's Pitfall II: Lost Caverns, forecast in these pages in July, is now available</em>, which dates the use of <a href=\"https://demozoo.org/productions/382466/\">this</a> Berlin Bear picture." +
 				"</p><p>" +
-				"And assuming the Berlin Bear artwork is from early or late 1984, there are dozens of examples of prior Scene art on the Commodore." +
-				"</p><p>" +
-				"Today, the most obvious counterpoint to <q>being first</q> is the Apple II cracking Scene productions that existed years before the Commodore 64. " +
-				"There's the text artwork <a href=\"https://demozoo.org/productions/380718/\">loader</a> by The Tornado that is self-dated to November 1980. " +
-				"As well as the animated <a href=\"https://demozoo.org/productions/381802/\">loader</a> created by &hyphen;The Razor&hyphen; for a game repack self-dated to April 1981. " +
-				"And Apple cracking groups such as the Midwest Pirate Guild were using custom art in their 1983 <a href=\"https://demozoo.org/productions/288324/\">loaders</a>." +
+				"Regardless of when the Berlin Bear image was created, there are numerous examples of earlier drawings and intros. " +
+				"Today, the obvious counterpoint are the Apple II disk copy-protection cracks that existed years before the Commodore 64. " +
+				"There's the text artwork <a href=\"https://demozoo.org/productions/380718/\">loader</a> by The Tornado from November 1980. " +
+				"The animated <a href=\"https://demozoo.org/productions/381802/\">loader</a> created by &hyphen;The Razor&hyphen; for a game repack dated to April 1981. " +
+				"And the Apple cracking groups such as the <a href=\"https://demozoo.org/groups/86223/\">Midwest Pirate Guild</a> who were using custom logos in their game hacks." +
 				"</p>",
 			Picture: Picture{
 				Title:       "Berlin Bear upside down",
@@ -1223,7 +1224,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 			Lead:      "The file ARChive utility",
 			LinkTitle: "about the tool",
 			Link:      "/compression",
-			Content: "<p>Authored by Thom Henderson and released sometime in March 1995, " +
+			Content: "<p>Authored by Thom Henderson and released sometime in March 1985, " +
 				"ARC quickly took the PC BBS scene by storm by allowing boards and users to use a single application to both archive and compress a directory of files into a single package. " +
 				"The adoption was rapid, with contemporary texts claiming it was in widespread use by the year's end.</p>" +
 				"<p>Its impact on the scene allowed groups like Software Pirates Inc. to bundle additional help and description files in their releases and would later leave the opinion of including separate BBS ads, intros, cracktros with the release.</p>" +

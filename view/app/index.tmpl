@@ -56,17 +56,6 @@
   .milestone-link:active {
     transform: translateY(0);
   }
-  .milestone-link-major {
-    font-size: 1.05rem;
-    font-weight: 600;
-    background: #e7f1ff;
-    color: #0d6efd;
-    border-color: #0d6efd;
-  }
-  .milestone-link-major:hover {
-    background: #0d6efd;
-    color: #fff;
-  }
   .milestone-card {
     border: 1px solid #dee2e6;
     border-left: 4px solid #0d6efd;
@@ -146,7 +135,7 @@
     overflow-y: auto;
   }
 </style>
-{{- $fragmentCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-25 link-underline-opacity-75-hover" }}
+{{- $msCls := "milestone-link link-offset-2 link-offset-3-hover link-underline link-underline-opacity-25 link-underline-opacity-75-hover" }}
 {{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
 <a rel="me" href="https://mas.to/@defacto2" class="mastodon-verify"><!--mastodon verification--></a>
 <div class="index-intro-section index-intro-section-alt">
@@ -350,7 +339,7 @@ USERS/OWNERS OF 8086 SYSTEMS.</mark> CURRENTLY I RUN 86-DOS
 BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
   </span></small>
 </div>
-<h3 class="mt-4 mb-4 text-left">Intertwined milestones of the PC industry and the Scene</h3>
+<h3 class="mt-4 mb-4 text-left">An intertwining of the computer industry and the Scene</h3>
 <p>
   The remainder of this introductory page chronologically shows the milestones for the microcomputer industry, 
   the personal computer, software copyright and piracy, to offer historical insights into that Scene.
@@ -360,80 +349,88 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
 </p>
 {{/*  These links now open the modal with corresponding milestone content using anchor IDs */}}
 <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 mb-5">
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-online-communities">Online communities</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="software-piracy">The Bill Gates letter to pirates</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-computerized-bulletin-board-system">The first BBS</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-early-online-underground">Early underground</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-boards">Early boards</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-software-crackers">The first crackers</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-birth-of-wares">Birth of wares</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-groups">Groups + pirate clubs</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-cracktros">The first cracktros</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-dated-software-crack-and-text-art">Dated cracks of 1980</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-pc">The first PC</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-demo">The first demo</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-berlin-bear-controversy">The pretender "1st intro"</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-unprotect-texts">Unprotect instructions</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-information-text-on-pc">PC release texts</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-pc-cracked-releases">The first PC cracks</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-release-of-arc">Archiving files</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-text-loader-on-pc">The first PC text loader</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-ansi-ad">The first ANSI advert</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-pc-loaders">The first PC picture loaders</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-pc-intro">The first PC intro</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-pc-cracktro">The first PC cracktro</a></div>
-  <div class="col"><a class="milestone-link milestone-link-major {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id=".nfo-file-extension-origins">Origin of the <i>nfo</i></a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-application-and-utility-groups">The first <i>app</i> only groups</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-contemporary-pc-cracktro">The modern PC cracktro</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-cd-release">The first CD release</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="first-mention-of-cd_rip">The first CD-RIP</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-scene-merch">Scene Merch</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="first-release-standards">Release standards</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-iso-release">The first ISO</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="overnight*warez-becomes-criminal">Wares becomes criminal</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="digital-only-scene-releases">Digital only releases</a></div>
-  <div class="col"><a class="milestone-link {{$fragmentCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-twilight-of-the-cracktro">The end</a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-online-communities">Online communities <small>1973</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="software-piracy">Bill Gates' letter to hobby pirates <small>1976</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-computerized-bulletin-board-system">First computerized bulletin board <small>1978</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-copy-protections-1978">Cassette copy protections <small>1978</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-copy-protections-1979">Disk copy protections <small>1979</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-early-online-underground">An early underground <small>1979</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-boards">Underground bulletin boards <small>1979</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-software-crackers">Early software crackers <small>1979</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-birth-of-wares">The birth of wares <small>1980</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-earliest-dated-software-crack-and-text-art">First signed cracked <small>1980</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-earliest-cracktros">The first cracktros <small>1981</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-pc">The first IBM <u>P</u>ersonal <u>C</u>omputer <small>1981</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-demo">The first demo <small>1981</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-groups">Cracking groups &amp; pirate clubs <small>1981-82</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="earliest-unprotect-texts">First popular PC crack <small>1983</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-earliest-information-text-on-pc">Early PC Scene textfiles <small>1984</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-earliest-pc-cracked-releases">Early PC cracked releases <small>1984</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-release-of-arc">The ability to archive files <small>1985</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-earliest-text-loader-on-pc">Early PC, text-art loader <small>1985</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="earliest-ansi-ad">Early ANSI art advert <small>1985</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-earliest-pc-loaders">Early PC art loaders <small>1986</small></a></div>
+  <div class="col"><a class="milestone-link m{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="earliest-pc-intro">Early PC intros <small>1989</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="earliest-pc-cracktro">Early PC cracktros <small>1989</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id=".nfo-file-extension-origins">Origin of the <i>nfo</i> <small>1990</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-first-application-and-utility-groups">The first <i>app</i> only groups <small>1990</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-contemporary-pc-cracktro">The modern PC cracktro <small>1991</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="earliest-cd-release">The first CD wares release <small>1992</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="first-mention-of-cd_rip">Early <i>CD-RIP</i> releases <small>1995</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-scene-merch">Scene merch <small>1996</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="first-release-standards"><i>SPA</i> release standards <small>1996</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="earliest-iso-release">Early <i>ISO</i> releases <small>1997</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="overnight*warez-becomes-criminal">Sharing software is criminal <small>1997</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="digital-only-scene-releases">Digital only releases <small>2004</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="end-of-the-line-for-rips">The <i>CD-RIP</i> era is over <small>2005</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-berlin-bear-controversy">Faking history, "first" pretenders <small>2005</small></a></div>
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+    data-milestone-id="the-twilight-of-the-cracktro">The end <small>2000s</small></a></div>
 </div>
-{{- /*  
-  to add 3 columns, use class "row-cols-xl-3"   
+{{- /*
+  <!-- to add 3 columns, use class "row-cols-xl-3" -->
 */ -}}
 <div class="row row-cols-1 row-cols-lg-2 g-4">
 {{- range $index, $mile := .milestones }}
+  {{- $unique := slugify .Title }}
+  {{- if eq $unique "the-first-copy-protections" }}{{ $unique = printf "%s-%d" $unique .Year }}<!-- hack to fix the use of two identical titles -->{{ end}}
   <div class="col">
-    <a id="{{slugify .Title}}"></a>
+    <a id="{{$unique}}"></a>
     <div class="card h-100 milestone-card{{ if .Highlight}} featured{{end}}{{ if .Highlight}} text-bg-light{{end}}">
       {{- /*  Header & pictures  */}}
       <div class="card-header milestone-card-header">
@@ -495,7 +492,7 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
         </li>
         {{- end}}
       </ul> 
-      {{- end}}   
+      {{- end}}
       {{- /*  Footer  */}}
       {{- if ne "" .Picture.Webm }}
       <div class="card-footer text-center bg-dark">
