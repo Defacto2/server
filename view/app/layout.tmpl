@@ -111,24 +111,26 @@
         <a href="/files/new-uploads" data-bs-toggle="tooltip" data-bs-title="Jump to the new uploads">
           <img class="me-3 rounded-1" type="image/svg+xml" style="border-right:1px solid gray; background-color:gray;" src="/image/layout/favicon.svg" alt="Defacto2 floppy disc logo" width="40" height="40">
         </a>
-        <span class="navbar-brand mb-0 h1"><a class="nav-link active" aria-current="page" href="/">Defacto2</a></span>
+        <span class="navbar-brand mb-0 h1" data-bs-toggle="tooltip" data-bs-title="Jump to home introduction">
+          <a class="nav-link active" aria-current="page" href="/">Defacto2</a>
+        </span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation-menu" aria-controls="navigation-menu" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navigation-menu">
           <ul class="navbar-nav">
+            {{- /*
             <li class="nav-item d-flex d-none d-lg-block">
-              <a class="nav-link active" aria-current="page" href="/">Home</a>
-            </li>
+              <a class="nav-link active" aria-current="page" href="/"><small>Home</small></a>
+            </li> */}}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Files
+                The Files
               </a>
               <ul class="dropdown-menu">
                 <li><h6 class="dropdown-header">Artifacts</h6></li>
                 {{- if $editor }}
                 <li><a class="dropdown-item" href="/editor/for-approval" rel="nofollow">New <em>for approval</em></a></li>
-                <li><a class="dropdown-item" href="/files/new-updates" rel="nofollow">New <em>edits</em></a></li>
                 {{- end }}
                 <li><a class="dropdown-item" href="/files/new-uploads" rel="nofollow">New uploads</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The oldest scene artifacts" href="/files/oldest">Oldest</a></li>
@@ -143,6 +145,9 @@
                 <li><a class="dropdown-item" href="/file/stats" rel="nofollow">Statistics</a></li>  
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="The newer scene artifacts" href="/files/newest" rel="nofollow">Newest</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A retro imagining of this website from 2006" href="/html3" rel="nofollow">Use tables</a></li>
+                {{- if $editor }}
+                <li><a class="dropdown-item" href="/files/new-updates" rel="nofollow">New <em>edits</em></a></li>
+                {{- end }}
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -209,11 +214,55 @@
             </li>
           </ul>
           <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link disabled" aria-disabled="true">|</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" rel="nofollow" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Contacts
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                About
               </a>
               <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/new" rel="nofollow" data-bs-toggle="tooltip" data-bs-title="A casual list of updates to the website">What's new</a></li>
+                <li><a class="dropdown-item" href="/history" data-bs-toggle="tooltip" data-bs-title="Who or what is Defacto2?">Brand history</a></li>
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#credits-modal">Credits</a></li>
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#privacy-modal">Privacy</a></li>
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#copyright-modal">Copyright</a></li>
+                <li class="d-xl-none"><a class="dropdown-item" href="/thanks">Thanks</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Help
+              </a>
+              <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">FAQ</h6></li>
+                <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
+                <li><a class="dropdown-item" href="/terms">Glossary of terms</a></li>
+                <li><a class="dropdown-item" href="/brokentexts">Broken NFO and texts</a></li>
+                <li><a class="dropdown-item" href="/titles">Naming and title guide</a></li> 
+                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#t-a-v-modal">Harmful downloads?</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">The downloads</h6></li>
+                <li><a class="dropdown-item" href="/apps">Using apps today</a></li>
+                <li><a class="dropdown-item" href="/compression">Old file archiving</a></li>
+                <li><a class="dropdown-item" href="/fixes">Problems and fixes</a></li>
+                <li class="d-xl-none"><hr class="dropdown-divider"></li>
+                <li class="d-xl-none"><h6 class="dropdown-header">API</h6></li>
+                <li class="d-xl-none"><a class="dropdown-item" href="/api">RESTful API</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">GitHub</h6></li>
+                <li>{{ linkRemoteTip "https://github.com/Defacto2/server" "Get the web code" "Our GitHub repository for this site" }}</li>
+                <li>{{ linkRemoteTip "https://github.com/Defacto2/database" "Run the database" "Instructions for our PostgreSQL exports" }}</li>
+                <li>{{ linkRemoteTip "https://github.com/sceners" "Browse artifacts" "Over 150 repositories for scene demos, tools and apps" }}</li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" rel="nofollow" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Contact
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
                 <li><h6 class="dropdown-header">Recommended</h6></li>
                 <li data-bs-toggle="tooltip" data-bs-title="Email is the best way to contact us"><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">
                   <svg class="bi bi-envelope" width="16" height="16" fill="currentColor">
@@ -247,45 +296,6 @@
                   <svg class="bi bi-youtube" width="16" height="16" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
                   </svg> YouTube</a></li>
-              </ul>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                About
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/new" rel="nofollow" data-bs-toggle="tooltip" data-bs-title="A casual list of updates to the website">What's new</a></li>
-                <li><a class="dropdown-item" href="/history" data-bs-toggle="tooltip" data-bs-title="Who or what is Defacto2?">Brand history</a></li>
-                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#credits-modal">Credits</a></li>
-                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#privacy-modal">Privacy</a></li>
-                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#copyright-modal">Copyright</a></li>
-                <li class="d-xl-none"><a class="dropdown-item" href="/thanks">Thanks</a></li>
-              </ul>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Help
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><h6 class="dropdown-header">FAQ</h6></li>
-                <li><a class="dropdown-item" href="/thescene">The Scene</a></li>
-                <li><a class="dropdown-item" href="/terms">Glossary of terms</a></li>
-                <li><a class="dropdown-item" href="/brokentexts">Broken NFO and texts</a></li>
-                <li><a class="dropdown-item" href="/titles">Naming and title guide</a></li> 
-                <li><a class="dropdown-item" href="#" rel="nofollow" data-bs-toggle="modal" data-bs-target="#t-a-v-modal">Harmful downloads?</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">The downloads</h6></li>
-                <li><a class="dropdown-item" href="/apps">Using apps today</a></li>
-                <li><a class="dropdown-item" href="/compression">Old file archiving</a></li>
-                <li><a class="dropdown-item" href="/fixes">Problems and fixes</a></li>
-                <li class="d-xl-none"><hr class="dropdown-divider"></li>
-                <li class="d-xl-none"><h6 class="dropdown-header">API</h6></li>
-                <li class="d-xl-none"><a class="dropdown-item" href="/api">RESTful API</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">GitHub</h6></li>
-                <li>{{ linkRemoteTip "https://github.com/Defacto2/server" "Get the web code" "Our GitHub repository for this site" }}</li>
-                <li>{{ linkRemoteTip "https://github.com/Defacto2/database" "Run the database" "Instructions for our PostgreSQL exports" }}</li>
-                <li>{{ linkRemoteTip "https://github.com/sceners" "Browse artifacts" "Over 150 repositories for scene demos, tools and apps" }}</li>
               </ul>
             </li>
             <li class="nav-item d-none d-xl-block">

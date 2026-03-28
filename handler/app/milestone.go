@@ -1145,16 +1145,16 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				"</p><p>" +
 				"The Scener, Jazzcat <a href=\"https://www.atlantis-prophecy.org/recollection/?load=crackers_map&country=germany\">wrote</a> of the cracktro, the group <em>for some time claimed the glory of having the first real crack intro which was the famous screen</em>. Of the image itself, <em>the picture was discovered to be in Paint Magic format which did not appear until 1983.</em> " +
 				"</p><p>" +
-				"Paint Magic by Mark Riley, was a drawing program for the Commodore 64 that sold for $50 by the Californian company Datamost. " +
+				"Paint Magic by Mark Riley, was a drawing program for the Commodore 64 that sold for $50 by Datamost based in north-west Los Angeles. " +
 				"However, despite a <em>&copy;1983</em> found in the print <a href=\"https://archive.org/details/game_manual_Paint_Magic/page/n3/mode/2up\">manual</a>, the program was likely published in 1984. " +
 				"Given that it was <a href=\"https://archive.org/details/cbm_magazine_index-power_play/power_play/1984/power_play-08-198403/page/n21/mode/1up?q=datamost+paint+magic\">showcased</a> " +
 				"at the <a href=\"https://commodore.international/2024/04/28/commodore-behind-the-scenes-at-1984-winter-ces/\">1984 International Winter</a> Consumer Electronics Show held in Las Vegas, " +
 				"and the software <a href=\"https://archive.org/details/ahoy-magazine-08/page/n48/mode/1up\">reviews</a> and " +
 				"<a href=\"https://archive.org/details/the-everything-book-for-the-commodor-c-64-vic-20-home-computer-summer-1984/page/22/mode/1up?q=datamost+paint+magic\">reseller ads</a> are only found in the press of 1984 and 1985." +
 				"</p><p>" +
-				"The Berlin Bear image gets used in cracks to games published in mid-late 1984. These happen to be ports of Activision titles that were advertised as " +
-				"<em><a href=\"https://archive.org/details/computes-gazette-issue-015-september-1984/page/18/mode/2up\">Introducing Activision For Your Commodore 64</a></em> in the August and September 1984 issues of various magazines. " +
-				"Ahoy&nbsp;<u>September&nbsp;1984</u> <a href=\"https://archive.org/details/ahoy-magazine-09/page/n8/mode/1up\">writes</a> under its New Games Update, " +
+				"Also, the Berlin Bear image gets used in cracks for games published in mid-late 1984. These happen to be ports of Activision titles that were advertised as " +
+				"<em><a href=\"https://archive.org/details/computes-gazette-issue-015-september-1984/page/18/mode/2up\">Introducing Activision For Your Commodore 64</a></em> in the August and September issues of various magazines. " +
+				"Ahoy&nbsp;<u>September</u>&nbsp;1984 <a href=\"https://archive.org/details/ahoy-magazine-09/page/n8/mode/1up\">wrote</a>, " +
 				"<em>Activision's Pitfall II: Lost Caverns, forecast in these pages in July, is now available</em>, which dates the use of <a href=\"https://demozoo.org/productions/382466/\">this</a> Berlin Bear picture." +
 				"</p><p>" +
 				"Regardless of when the Berlin Bear image was created, there are numerous examples of earlier drawings and intros. " +
