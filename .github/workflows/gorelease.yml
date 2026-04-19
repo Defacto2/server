@@ -5,23 +5,23 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Run in dry-run mode (no actual release)'
+        description: "Run in dry-run mode (no actual release)"
         required: false
         type: boolean
         default: false
       verbose:
-        description: 'Enable verbose logging'
+        description: "Enable verbose logging"
         required: false
         type: boolean
         default: false
       skip_tests:
-        description: 'Skip running tests'
+        description: "Skip running tests"
         required: false
         type: boolean
         default: false
   push:
     tags:
-      - '*' # run on new tags
+      - "*" # run on new tags
 permissions:
   contents: write
   id-token: write
@@ -37,7 +37,7 @@ jobs:
       - name: Setup Go with cache
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26.1'
+          go-version: "1.26.2"
           cache: true
       - name: Cache Go modules
         uses: actions/cache@v5
@@ -73,4 +73,4 @@ jobs:
       - name: Generate SLSA provenance
         uses: actions/attest-build-provenance@v4
         with:
-          subject-path: 'dist/*'
+          subject-path: "dist/*"

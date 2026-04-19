@@ -525,6 +525,7 @@ var groups = Tibits{
 	413:  []URI{"pentagram"},
 	414:  []URI{"legend", "pentagram", "genesis"},
 	415:  []URI{"genesis"},
+	416:  []URI{"tdu_jam"},
 }
 
 // Find returns the tidbit IDs for the given URI.
