@@ -1070,6 +1070,23 @@ var websites = Groups{
 			NotWorking: true,
 		},
 	},
+	"pirates-with-attitudes": []Website{
+		{
+			URL:        "en.wikipedia.org/wiki/Pirates_with_Attitudes",
+			Name:       "Wikipedia",
+			NotWorking: false,
+		},
+		{
+			URL:        "https://files.mpoli.fi/software/DOS/BBS/",
+			Name:       "Metropoli BBS including PPEs by PWA",
+			NotWorking: false,
+		},
+		{
+			URL:        "http://archives.thebbs.org/ra117a.htm",
+			Name:       "153 PCBoard PPE's by PWA",
+			NotWorking: true,
+		},
+	},
 }
 
 // Find returns the website for the given uri.
