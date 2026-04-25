@@ -1445,7 +1445,7 @@ func PostDesc(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
-	const brief = "Game and program title"
+	const brief = "Game or app titles"
 	data["title"] = brief + " results"
 	data["h1"] = brief + " search"
 	data["lead"] = "Results for " + s
@@ -1996,13 +1996,12 @@ func SearchDesc(c echo.Context, sl *slog.Logger) error {
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	const title, name = "Game and program title search", "searchpost"
+	const title, name = "Game or app titles search", "searchpost"
 	data := empty(c)
 	data["noindex"] = true
 	data["description"] = "Use this search to uncover named applications, games, and descriptions of artifacts."
-	data["logo"] = title
+	data["logo"] = "search"
 	data["title"] = title
-	data["info"] = "search the names, titles, and comments of artifacts"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, sl, name, err)
@@ -2038,13 +2037,12 @@ func SearchFile(c echo.Context, sl *slog.Logger) error {
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	const title, name = "Filename search", "searchpost"
+	const title, name = "Filename or extensions search", "searchpost"
 	data := empty(c)
 	data["noindex"] = true
 	data["description"] = "Use this search to lookup artifacts by their filenames."
-	data["logo"] = title
+	data["logo"] = "search"
 	data["title"] = title
-	data["info"] = "search for filenames and filename extensions"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(c, sl, name, err)
@@ -2058,15 +2056,14 @@ func SearchReleaser(c echo.Context, sl *slog.Logger) error {
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	const title, name = "Search for releasers", "searchhtmx"
+	const title, name = "Lookup releasers", "searchhtmx"
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = "Use this search to lookup releasers, groups, magazines, boards and sites by their names."
-	data["logo"] = title
+	data["description"] = "Lookup groups, magazines, bbs boards, and ftp sites, by their names."
+	data["logo"] = "search"
 	data["title"] = title
-	data["info"] = "search for a group, initialism, magazine, board, or site"
-	data["helpText"] = "searching for 4 or fewer characters triggers an initialism lookup, " +
-		"if no results are found, a new search is made for the releaser names"
+	data["info"] = "find groups, magazines, bbs boards, ftp sites"
+	data["helpText"] = "acronyms only match exact finds: 'rc' and 'rcn' are treated different"
 	data["hxPost"] = "/search/releaser"
 	data["inputPlaceholder"] = "Type to search for a releaser…"
 	err := c.Render(http.StatusOK, name, data)
