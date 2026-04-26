@@ -8,7 +8,12 @@
 {{- $border := "border-success"}}
 {{- $class := "row-cols-1"}}
 {{- $limit := "d-none" }}
-{{- if gt (len .result) 1}}{{ $class = "row-cols-1 row-cols-sm-2 row-col-md-3"}}{{end}}
+{{- $keyboard := "d-none"}}
+{{- if gt (len .result) 1}}
+  {{ $class = "row-cols-1 row-cols-sm-2 row-col-md-3"}}
+  {{ $keyboard = "text-center"}}
+{{end}}
+{{- $marker := .input}}
 {{- if ge (len .result) $maximum}}{{ $limit = "" }}{{end}}
 <div class="row {{ $class }} g-2 mb-2">
     {{- range $index, $rel := .result -}}
@@ -30,5 +35,18 @@
     {{- end}}
 </div>
 <p class="{{$limit}}">A limit of {{$maximum}} results has been reached.</p>
-<div class="text-center">Open results using a keyboard: <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>...</kbd></div>
+<div class="{{$keyboard}}">Open results using a keyboard: <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>...</kbd></div>
+{{- if gt (len .fulltext) 0}}
+<hr>
+{{- range $index, $rel := .fulltext -}}
+<figure class="text-start">
+  <blockquote class="">
+    <div>{{mark $marker $rel.Snip}}</div>
+  </blockquote>
+  <figcaption class="blockquote-footer">
+    {{tidbits $rel.ID}}
+  </figcaption>
+</figure>
+{{- end}}
+{{- end}}
 {{- end}}

@@ -28,6 +28,7 @@ import (
 	"github.com/Defacto2/server/flags"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/download"
+	"github.com/Defacto2/server/handler/fulltext"
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/config"
@@ -58,12 +59,13 @@ var (
 
 // Configuration of the handler.
 type Configuration struct {
-	Public      embed.FS      // Public facing files.
-	View        embed.FS      // View contains Go templates.
-	Version     string        // Version is the results of GoReleaser build command.
-	Brand       []byte        // Brand contains the Defacto2 ASCII logo.
-	Environment config.Config // Environment configurations from the host system.
-	RecordCount int           // The total number of file records in the database.
+	Public      embed.FS         // Public facing files.
+	View        embed.FS         // View contains Go templates.
+	Version     string           // Version is the results of GoReleaser build command.
+	Brand       []byte           // Brand contains the Defacto2 ASCII logo.
+	Environment config.Config    // Environment configurations from the host system.
+	RecordCount int              // The total number of file records in the database.
+	TidbitIndex fulltext.Tidbits // Fulltext search index of the tidbit markdown files.
 }
 
 // Controller is the primary instance of the Echo router.

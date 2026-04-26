@@ -102,7 +102,7 @@ func TestSearchByID(t *testing.T) {
 
 func TestSearchReleaser(t *testing.T) {
 	t.Parallel()
-	err := htmx.SearchReleaser(newContext(), nil, nil)
+	err := htmx.SearchReleaser(newContext(), nil, nil, nil)
 	be.Err(t, err)
 }
 

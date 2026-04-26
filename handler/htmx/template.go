@@ -14,6 +14,7 @@ import (
 	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/releaser/name"
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/handler/tidbit"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -90,6 +91,9 @@ func TemplateFuncMap() template.FuncMap {
 		"initialisms": func(s string) string {
 			return initialism.Join(initialism.Path(s))
 		},
+		"mark": func(highlight, s string) template.HTML {
+			return template.HTML(app.MarkAll(highlight, s))
+		},
 		"linkRelrs":     app.LinkReleasers,
 		"obfuscateID":   helper.ObfuscateID,
 		"releaserIndex": releaser.Index,
@@ -107,6 +111,9 @@ func TemplateFuncMap() template.FuncMap {
 			return ""
 		},
 		"suggestion": Suggestion,
+		"tidbits": func(id int) template.HTML {
+			return tidbit.ID(id).URL("")
+		},
 	}
 }
 

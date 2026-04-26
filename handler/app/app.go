@@ -582,6 +582,34 @@ func LogoText(s string) string {
 	return indent + text
 }
 
+// MarkAll surrounds all occurrences of highlight in the string with <mark> elements.
+func MarkAll(highlight, s string) string {
+	substr := strings.ToLower(highlight)
+	var builder strings.Builder
+
+	pos := 0
+	for {
+		// search the remaining text
+		remainer := strings.ToLower(s[pos:])
+		matchIdx := strings.Index(remainer, substr)
+
+		if matchIdx == -1 {
+			builder.WriteString(s[pos:])
+			return builder.String()
+		}
+
+		start := pos + matchIdx
+		end := start + len(substr)
+		builder.WriteString(s[pos:start])
+		builder.WriteString("<mark>")
+		builder.WriteString(s[start:end])
+		builder.WriteString("</mark>")
+
+		// move cursor forward
+		pos = end
+	}
+}
+
 // Month returns a short string of the month.
 // If the month number is not a valid then an empty string is returned.
 // For example providing 1 would return:

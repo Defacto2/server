@@ -161,7 +161,8 @@ func (m *ListEntry) ColButton3() string {
 			`hx-target="#artifact-editor-comp-feedback" `+
 			`hx-patch="/editor/helper/copy/%s/%s">`, m.UniqueID, name) +
 		`<span class="badge bg-success text-dark">` +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true"><use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg>` +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg>` +
 		`</span></a></div>`
 
 	return htm

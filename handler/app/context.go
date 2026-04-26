@@ -82,6 +82,7 @@ type Pagination struct {
 
 const (
 	demo    = "demo"
+	search  = "search"
 	limit   = 198 // per-page record limit
 	records = "records"
 	sep     = ";"
@@ -2000,7 +2001,7 @@ func SearchDesc(c echo.Context, sl *slog.Logger) error {
 	data := empty(c)
 	data["noindex"] = true
 	data["description"] = "Use this search to uncover named applications, games, and descriptions of artifacts."
-	data["logo"] = "search"
+	data["logo"] = search
 	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -2041,7 +2042,7 @@ func SearchFile(c echo.Context, sl *slog.Logger) error {
 	data := empty(c)
 	data["noindex"] = true
 	data["description"] = "Use this search to lookup artifacts by their filenames."
-	data["logo"] = "search"
+	data["logo"] = search
 	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -2060,9 +2061,9 @@ func SearchReleaser(c echo.Context, sl *slog.Logger) error {
 	data := empty(c)
 	data["noindex"] = true
 	data["description"] = "Lookup groups, magazines, bbs boards, and ftp sites, by their names."
-	data["logo"] = "search"
+	data["logo"] = search
 	data["title"] = title
-	data["info"] = "find groups, magazines, bbs boards, ftp sites"
+	data["info"] = "find groups, names, magazines, bbs boards, ftp sites"
 	data["helpText"] = "acronyms only match exact finds: 'rc' and 'rcn' are treated different"
 	data["hxPost"] = "/search/releaser"
 	data["inputPlaceholder"] = "Type to search for a releaser…"
