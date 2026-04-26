@@ -428,21 +428,21 @@ func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.
 	search.GET("/desc", func(c echo.Context) error { return app.SearchDesc(c, sl) })
 	search.GET("/file", func(c echo.Context) error { return app.SearchFile(c, sl) })
 	search.GET("/releaser", func(c echo.Context) error { return app.SearchReleaser(c, sl) })
-	search.GET("/result", func(cx echo.Context) error {
+	search.GET("/result", func(c echo.Context) error {
 		// this legacy get result should be kept for (osx.xml) opensearch compatibility
 		// and to keep possible backwards compatibility with third party site links.
-		terms := strings.ReplaceAll(cx.QueryParam("query"), "+", " ") // AND replacement
-		terms = strings.ReplaceAll(terms, "|", ",")                   // OR replacement
-		return app.PostDesc(cx, db, sl, terms)
+		terms := strings.ReplaceAll(c.QueryParam("query"), "+", " ") // AND replacement
+		terms = strings.ReplaceAll(terms, "|", ",")                  // OR replacement
+		return app.PostDesc(c, db, sl, terms)
 	})
-	search.POST("/desc", func(cx echo.Context) error {
-		return app.PostDesc(cx, db, sl, cx.FormValue("search-term-query"))
+	search.POST("/desc", func(c echo.Context) error {
+		return app.PostDesc(c, db, sl, c.FormValue("search-term-query"))
 	})
 	search.POST("/file", func(c echo.Context) error {
 		return app.PostFilename(c, db, sl)
 	})
 	search.POST("/releaser", func(cx echo.Context) error {
-		return htmx.SearchReleaser(cx, db, sl)
+		return htmx.SearchReleaser(cx, db, sl, &c.TidbitIndex)
 	})
 	return e
 }

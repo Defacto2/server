@@ -31,9 +31,7 @@ func htmxGroup(e *echo.Echo, db *sql.DB, sl *slog.Logger, prodMode bool, downloa
 	// htmx/areacodes
 	g.POST("/areacodes", htmx.Areacodes)
 	// htmx/search/releaser
-	g.POST("/search/releaser", func(c echo.Context) error {
-		return htmx.SearchReleaser(c, db, sl)
-	})
+	// note: this is found under the search func in router.go
 	// htmx/demozoo/production
 	demozoo := g.Group("/demozoo")
 	demozoo.GET("/production", func(c echo.Context) error {

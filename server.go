@@ -30,6 +30,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/flags"
 	"github.com/Defacto2/server/handler"
+	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/postgres"
@@ -120,6 +121,16 @@ func main() {
 	config.TmpInfo(sl)
 	// Start the web server.
 	instance := newInstance(context.Background(), db, *configs)
+	go func() {
+		if err := instance.TidbitIndex.NewIndex(instance.Public, tidbit.Dir); err != nil {
+			panic(err)
+		}
+		inf := instance.TidbitIndex
+		slog.Info("index tidbits",
+			slog.Int("documents", inf.TotalDocs),
+			slog.Int64("terms", inf.TotalTerms),
+		)
+	}()
 	newline(logo)
 	welcomeMsg(sl, instance.RecordCount)
 	routing := instance.Controller(db, sl)
@@ -221,7 +232,7 @@ func environmentVars(sl *slog.Logger) *config.Config {
 //
 // The configuration returns a reference type to make the values immutable.
 func newInstance(ctx context.Context, db *sql.DB, configs config.Config) *handler.Configuration {
-	c := handler.Configuration{
+	c := handler.Configuration{ //nolint:exhaustruct
 		Brand:       brand,
 		Environment: configs,
 		Public:      public,

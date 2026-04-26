@@ -21,6 +21,7 @@ import (
 	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/handler/cache"
 	"github.com/Defacto2/server/handler/demozoo"
+	"github.com/Defacto2/server/handler/fulltext"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/panics"
@@ -646,7 +647,7 @@ func Alternatives(s string) []string {
 }
 
 // SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger, ft *fulltext.Tidbits) error {
 	const msg = "htmx search releaser context"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -676,22 +677,30 @@ func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			"the search exact query failed")
 	}
 	// lookup similar named releasers
-	if len(r) == 0 {
-		if err := r.Similar(ctx, db, limit, lookup...); err != nil {
+	remaining := limit - len(r)
+	if remaining > 0 {
+		if err := r.Similar(ctx, db, remaining, lookup...); err != nil {
 			sl.Error(msg, slog.String("task", "similar named releaser matches"),
 				slog.Any("error", err))
 			return c.String(http.StatusServiceUnavailable,
 				"the search similar query failed")
 		}
 	}
+	// lookup markdown
+	const maxResults = 50
+	tidbits := ft.Search(input, maxResults)
+
 	// no results
-	if len(r) == 0 {
+	if len(r) == 0 && len(tidbits) == 0 {
 		return c.HTML(http.StatusOK, "No initialisms or releasers found.")
 	}
+
 	err := c.Render(http.StatusOK, "searchreleasers", map[string]any{
-		"maximum": limit,
-		"name":    name,
-		"result":  r,
+		"fulltext": tidbits,
+		"input":    input,
+		"maximum":  limit,
+		"name":     name,
+		"result":   r,
 	})
 	if err != nil {
 		return c.String(http.StatusInternalServerError,

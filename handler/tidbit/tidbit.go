@@ -23,6 +23,8 @@ type URI string
 // ID is the identifier of the tidbit.
 type ID int
 
+const Dir = "public/md/tidbit" // Dir is the relative directory of the markdown files.
+
 const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock | parser.Footnotes
 
 // Markdown returns the markdown content of the tidbit that is stored in the directory
@@ -52,7 +54,7 @@ func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
 
 // String returns the tidbit description that is stored as a markdown file in the provided file system.
 func (id ID) String(sl *slog.Logger, fs embed.FS) string {
-	if b := id.Markdown(sl, fs, "public/md/tidbit"); b != nil {
+	if b := id.Markdown(sl, fs, Dir); b != nil {
 		return string(b)
 	}
 	return ""
