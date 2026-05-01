@@ -26,16 +26,16 @@ go 1.26.2 // latest: https://go.dev/dl/
 // urface/cli is used with the flags package for command line interactions.
 //
 require (
-	github.com/Defacto2/archive v1.1.5
-	github.com/Defacto2/helper v1.6.7
-	github.com/Defacto2/magicnumber v1.2.2
-	github.com/Defacto2/releaser v1.3.23
+	github.com/Defacto2/archive v1.1.6
+	github.com/Defacto2/helper v1.6.8
+	github.com/Defacto2/magicnumber v1.2.3
+	github.com/Defacto2/releaser v1.3.24
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
-	github.com/bengarrett/ansibump v1.1.1
+	github.com/bengarrett/ansibump v1.1.2
 	github.com/bengarrett/bbs v1.0.7
-	github.com/bengarrett/binbump v1.0.1
+	github.com/bengarrett/binbump v1.0.2
 	github.com/bengarrett/sauce v1.2.6
 	github.com/caarlos0/env/v11 v11.4.0
 	github.com/carlmjohnson/versioninfo v0.22.5
@@ -49,7 +49,7 @@ require (
 	github.com/labstack/echo-contrib v0.50.1
 	github.com/labstack/echo/v4 v4.15.1
 	github.com/lmittmann/tint v1.1.3
-	github.com/mattn/go-isatty v0.0.21
+	github.com/mattn/go-isatty v0.0.22
 	github.com/nalgeon/be v0.3.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
 	github.com/samber/slog-multi v1.8.0
@@ -57,7 +57,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/image v0.39.0
 	golang.org/x/text v0.36.0
-	google.golang.org/api v0.276.0
+	google.golang.org/api v0.277.0
 )
 
 // Uncomment to use the local repository
@@ -151,7 +151,7 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.43.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260420184626-e10c466a9529 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260427160629-7cedc36a6bc4 // indirect
 	google.golang.org/grpc v1.80.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	mvdan.cc/gofumpt v0.9.2 // indirect
