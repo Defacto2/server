@@ -531,6 +531,7 @@ var groups = Tibits{
 	417:  []URI{"pwa", "pirates-with-attitudes", "electronics-boutique-cracking-group"},
 	418:  []URI{"pirates-with-attitudes"},
 	419:  []URI{"titan-of-pwa", "pirates-with-attitudes"},
+	420:  []URI{"united-group-international"},
 }
 
 // Find returns the tidbit IDs for the given URI.

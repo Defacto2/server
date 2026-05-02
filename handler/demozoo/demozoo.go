@@ -1156,4 +1156,5 @@ var groups = Groups{
 	"haze":                        80378,
 	"crackers-ampersand-whackers": 80046,
 	"zick-zack-cooperation":       382052,
+	"united-group-international":  75596,
 }

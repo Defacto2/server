@@ -1072,7 +1072,7 @@ var websites = Groups{
 	},
 	"pirates-with-attitudes": []Website{
 		{
-			URL:        "en.wikipedia.org/wiki/Pirates_with_Attitudes",
+			URL:        "https://en.wikipedia.org/wiki/Pirates_with_Attitudes",
 			Name:       "Wikipedia",
 			NotWorking: false,
 		},
@@ -1082,9 +1082,16 @@ var websites = Groups{
 			NotWorking: false,
 		},
 		{
-			URL:        "http://archives.thebbs.org/ra117a.htm",
+			URL:        "archives.thebbs.org/ra117a.htm",
 			Name:       "153 PCBoard PPE's by PWA",
 			NotWorking: true,
+		},
+	},
+	"united-group-international": []Website{
+		{
+			URL:        "https://web.archive.org/web/20050228211151/https://xakep.ru/magazine/xa/009/026/1.asp",
+			Name:       "Interview with the founder",
+			NotWorking: false,
 		},
 	},
 }
