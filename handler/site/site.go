@@ -3,6 +3,13 @@ package site
 
 import "sort"
 
+const (
+	inqAD     = "INQ ad"
+	razor1911 = "Razor 1911"
+	shock     = "Shock"
+	wikipedia = "Wikipedia"
+)
+
 // URI is the URL slug of the releaser.
 type URI string
 
@@ -119,7 +126,7 @@ var websites = Groups{
 		},
 		{
 			URL:        "https://en.wikipedia.org/wiki/Paradox_%28warez%29",
-			Name:       "Wikipedia - Paradox",
+			Name:       wikipedia + " - Paradox",
 			NotWorking: false,
 		},
 	},
@@ -145,7 +152,7 @@ var websites = Groups{
 	"future-crew": []Website{
 		{
 			URL:        "https://en.wikipedia.org/wiki/Future_Crew",
-			Name:       "Wikipedia - Future Crew",
+			Name:       wikipedia + " - Future Crew",
 			NotWorking: false,
 		},
 		{
@@ -171,7 +178,7 @@ var websites = Groups{
 	"legion-of-doom": []Website{
 		{
 			URL:        "https://en.wikipedia.org/wiki/Legion_of_Doom_(hacker_group)",
-			Name:       "Wikipedia - Legion of Doom (hacker group)",
+			Name:       wikipedia + " - Legion of Doom (hacker group)",
 			NotWorking: false,
 		},
 		{
@@ -205,7 +212,7 @@ var websites = Groups{
 		},
 		{
 			URL:        "https://en.wikipedia.org/wiki/ACiD_Productions",
-			Name:       "Wikipedia",
+			Name:       wikipedia,
 			NotWorking: false,
 		},
 		{
@@ -315,7 +322,7 @@ var websites = Groups{
 		},
 		{
 			URL:        "spl.co.il/zino",
-			Name:       "INQ ad",
+			Name:       inqAD,
 			NotWorking: true,
 		},
 	},
@@ -434,7 +441,7 @@ var websites = Groups{
 			NotWorking: false,
 		}, {
 			URL:        "https://en.wikipedia.org/wiki/ICE_Advertisements",
-			Name:       "Wikipedia",
+			Name:       wikipedia,
 			NotWorking: false,
 		}, {
 			URL:        "https://www.youtube.com/watch?v=oQrBbm5ZMlo",
@@ -521,12 +528,12 @@ var websites = Groups{
 	"razor-1911": []Website{
 		{
 			URL:        "https://www.razor1911.com",
-			Name:       "Razor 1911",
+			Name:       razor1911,
 			NotWorking: false,
 		},
 		{
 			URL:        "www.razor-1911.com",
-			Name:       "Razor 1911",
+			Name:       razor1911,
 			NotWorking: true,
 		},
 		{
@@ -536,7 +543,7 @@ var websites = Groups{
 		},
 		{
 			URL:        "ionet.net/~razor/razor1911.html",
-			Name:       "INQ ad",
+			Name:       inqAD,
 			NotWorking: true,
 		},
 		{
@@ -571,7 +578,7 @@ var websites = Groups{
 		},
 		{
 			URL:        "http://en.wikipedia.org/wiki/Razor_1911",
-			Name:       "Wikipedia",
+			Name:       wikipedia,
 			NotWorking: false,
 		},
 		{
@@ -593,7 +600,7 @@ var websites = Groups{
 		},
 		{
 			URL:        "www.razor1911.com/demo",
-			Name:       "Razor 1911",
+			Name:       razor1911,
 			NotWorking: true,
 		},
 	},
@@ -684,17 +691,17 @@ var websites = Groups{
 	"shock": []Website{
 		{
 			URL:        "www.shocking.net",
-			Name:       "Shock",
+			Name:       shock,
 			NotWorking: true,
 		},
 		{
 			URL:        "www.shock97.com",
-			Name:       "Shock",
+			Name:       shock,
 			NotWorking: true,
 		},
 		{
 			URL:        "www.shock.org",
-			Name:       "Shock",
+			Name:       shock,
 			NotWorking: true,
 		},
 	},
@@ -752,7 +759,7 @@ var websites = Groups{
 		},
 		{
 			URL:        "www.aych-dee.com/tgr.html",
-			Name:       "INQ ad",
+			Name:       inqAD,
 			NotWorking: true,
 		},
 		{
@@ -886,7 +893,7 @@ var websites = Groups{
 	"zillionz": []Website{
 		{
 			URL:        "www1.minn.net/~zillionz",
-			Name:       "INQ ad",
+			Name:       inqAD,
 			NotWorking: true,
 		},
 	},
@@ -903,7 +910,7 @@ var websites = Groups{
 		},
 		{
 			URL:        "www.ceic.com/fate",
-			Name:       "INQ ad",
+			Name:       inqAD,
 			NotWorking: true,
 		},
 	},
@@ -1073,7 +1080,7 @@ var websites = Groups{
 	"pirates-with-attitudes": []Website{
 		{
 			URL:        "https://en.wikipedia.org/wiki/Pirates_with_Attitudes",
-			Name:       "Wikipedia",
+			Name:       wikipedia,
 			NotWorking: false,
 		},
 		{

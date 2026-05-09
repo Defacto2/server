@@ -477,7 +477,7 @@ func bbsHandler(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.Order
 		s := logo + byyear
 		data["title"] = title + byyear
 		data["logo"] = s
-		order = year
+		order = byYear
 	default:
 		// Handle unknown order types
 		order = alpha
@@ -1292,7 +1292,7 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 		s := title + byyear
 		data["logo"] = s
 		data["title"] = title + byyear
-		order = year
+		order = byYear
 	case false:
 		if err := r.MagazineAZ(ctx, db); err != nil {
 			return DatabaseErr(c, sl, name, err)
@@ -1705,7 +1705,7 @@ func releasers(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderB
 		s := logo + byyear
 		data["logo"] = s
 		data["title"] = title + byyear
-		order = year
+		order = byYear
 	default:
 		// Handle unknown order types
 		order = alpha

@@ -36,6 +36,12 @@ var (
 	ErrKey       = errors.New("numeric record key is invalid")
 )
 
+const (
+	maximum = "maximum"
+	nme     = "name"
+	result  = "result"
+)
+
 // Areacodes is the handler for the /areacodes route.
 func Areacodes(c echo.Context) error {
 	htm := template.HTML("")
@@ -596,9 +602,9 @@ func SearchByID(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		return c.HTML(http.StatusOK, "No artifacts found.")
 	}
 	err = c.Render(http.StatusOK, "searchids", map[string]any{
-		"maximum": maxResults,
-		"name":    search,
-		"result":  fs,
+		maximum: maxResults,
+		nme:     search,
+		result:  fs,
 	})
 	if err != nil {
 		if sl != nil {
@@ -698,9 +704,9 @@ func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger, ft *fulltext.Ti
 	err := c.Render(http.StatusOK, "searchreleasers", map[string]any{
 		"fulltext": tidbits,
 		"input":    input,
-		"maximum":  limit,
-		"name":     name,
-		"result":   r,
+		maximum:    limit,
+		nme:        name,
+		result:     r,
 	})
 	if err != nil {
 		return c.String(http.StatusInternalServerError,
@@ -758,9 +764,9 @@ func datalist(c echo.Context, db *sql.DB, sl *slog.Logger, input string, magazin
 		return c.HTML(http.StatusOK, "")
 	}
 	err = c.Render(http.StatusOK, "datalistreleasers", map[string]any{
-		"maximum": maxResults,
-		"name":    slug,
-		"result":  r,
+		maximum: maxResults,
+		nme:     slug,
+		result:  r,
 	})
 	if err != nil {
 		return c.String(http.StatusInternalServerError,

@@ -38,13 +38,13 @@ func Categories(c echo.Context, sl *slog.Logger) error {
 	}
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
-		"title":       title + "/categories",
-		"description": "Artifact categories and classification tags.",
-		"latency":     time.Since(*start).String() + ".",
-		"path":        "category",
-		"tagFirst":    tags.FirstCategory,
-		"tagEnd":      tags.LastCategory,
-		"tags":        tags.Names(),
+		titl:        title + "/categories",
+		description: "Artifact categories and classification tags.",
+		latency:     time.Since(*start).String() + ".",
+		pth:         "category",
+		"tagFirst":  tags.FirstCategory,
+		"tagEnd":    tags.LastCategory,
+		"tags":      tags.Names(),
 	})
 	if err != nil {
 		sl.Error(msg, slog.String("render", ErrTmpl.Error()), slog.Any("error", err))
@@ -111,12 +111,12 @@ func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	err := c.Render(http.StatusOK, "html3_groups", map[string]any{
-		"title": title + "/groups",
-		"description": "Listed is an exhaustive, distinct collection of scene groups and site brands." +
+		titl: title + "/groups",
+		description: "Listed is an exhaustive, distinct collection of scene groups and site brands." +
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between" +
 			" different groups with the same name or brand.",
-		"latency":   time.Since(*start).String() + ".",
-		"path":      "group",
+		latency:     time.Since(*start).String() + ".",
+		pth:         "group",
 		"releasers": releasers, // model.Grps.List
 		"navigate":  navi,
 	})
@@ -162,13 +162,13 @@ func Index(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		helper.Capitalize(textAll),
 	}
 	err := c.Render(http.StatusOK, "html3_index", map[string]any{
-		"title":       title,
-		"description": desc,
-		"descs":       descs,
-		"relstats":    stats,
-		"cat":         tags.CategoryCount,
-		"plat":        tags.PlatformCount,
-		"latency":     time.Since(*start).String() + ".",
+		titl:        title,
+		description: desc,
+		"descs":     descs,
+		"relstats":  stats,
+		"cat":       tags.CategoryCount,
+		"plat":      tags.PlatformCount,
+		latency:     time.Since(*start).String() + ".",
 	})
 	if err != nil {
 		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
@@ -235,15 +235,15 @@ func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
 	stat := fmt.Sprintf("%d files, %s", count, helper.ByteCountFloat(byteSum))
 	title, desc := ListInfo(tt, current, id)
 	err = c.Render(http.StatusOK, tt.String(), map[string]any{
-		"title":       title,
-		"home":        "",
-		"description": desc,
-		"parent":      tt.Parent(),
-		"stats":       stat,
-		"sort":        Sorter(c.QueryString()),
-		"records":     records,
-		"latency":     time.Since(*start).String() + ".",
-		"navigate":    navi,
+		titl:        title,
+		"home":      "",
+		description: desc,
+		"parent":    tt.Parent(),
+		"stats":     stat,
+		"sort":      Sorter(c.QueryString()),
+		"records":   records,
+		latency:     time.Since(*start).String() + ".",
+		"navigate":  navi,
 	})
 	if err != nil {
 		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
@@ -265,13 +265,13 @@ func Platforms(c echo.Context, sl *slog.Logger) error {
 	}
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
-		"title":       title + "/platforms",
-		"description": "File platforms, operating systems and media types.",
-		"latency":     time.Since(*start).String() + ".",
-		"path":        "platform",
-		"tagFirst":    tags.FirstPlatform,
-		"tagEnd":      tags.LastPlatform,
-		"tags":        tags.Names(),
+		titl:        title + "/platforms",
+		description: "File platforms, operating systems and media types.",
+		latency:     time.Since(*start).String() + ".",
+		pth:         "platform",
+		"tagFirst":  tags.FirstPlatform,
+		"tagEnd":    tags.LastPlatform,
+		"tags":      tags.Names(),
 	})
 	if err != nil {
 		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))

@@ -55,6 +55,11 @@ const Prefix = "/html3"
 const (
 	asc  = "A" // asc is order by ascending.
 	desc = "D" // desc is order by descending.
+
+	description = "description"
+	latency     = "latency"
+	pth         = "path"
+	titl        = "title"
 )
 
 var (
@@ -114,9 +119,9 @@ func Error(c echo.Context, err error) error {
 		msg = fmt.Sprint(httpError.Message)
 	}
 	return c.Render(code, "html3_error", map[string]any{
-		"title":       fmt.Sprintf("%d error, there is a complication", code),
-		"description": msg + ".",
-		"latency":     time.Since(*start).String() + ".",
+		titl:        fmt.Sprintf("%d error, there is a complication", code),
+		description: msg + ".",
+		latency:     time.Since(*start).String() + ".",
 	})
 }
 
