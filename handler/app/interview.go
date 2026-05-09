@@ -41,25 +41,25 @@ func Interviewees() Groups { //nolint:funlen
 			},
 		},
 		{
-			Name: "The Humble Guys",
+			Name: thg,
 			Link: "the-humble-guys",
 			Interviews: Interviews{
 				{
 					Scener: "Bryn Rogers",
 					Year:   2012, Month: 8,
-					Content: "The former member of The Humble Guys talks about his side group, \"Lamers of Power\".",
+					Content: "The former member of " + thg + " talks about his side group, \"Lamers of Power\".",
 					Link:    "/f/ae2f55",
 				},
 				{
 					Scener: "The Candy Man",
 					Year:   1998, Month: 11,
-					Content: "The co-founder of The Humble Guys talks about the group's history and their impact on the PC.",
+					Content: "The co-founder of " + thg + " talks about the group's history and their impact on the PC.",
 					Link:    "https://wayback.defacto2.net/the-scene-news-from-1999-september-14/interview-002.html",
 				},
 			},
 		},
 		{
-			Name: "Razor 1911",
+			Name: rzr,
 			Link: "razor-1911",
 			Interviews: Interviews{
 				{
@@ -214,7 +214,7 @@ func Interviewees() Groups { //nolint:funlen
 			},
 		},
 		{
-			Name: "Fairlight",
+			Name: flt,
 			Link: "fairlight",
 			Interviews: Interviews{
 				{
@@ -225,16 +225,16 @@ func Interviewees() Groups { //nolint:funlen
 					Link:    "/f/ac4680",
 				},
 				{
-					Scener:  "Genesis",
+					Scener:  gns,
 					Year:    1991,
 					Month:   10,
-					Content: "Member of USA and Fairlight and the siteop of BBS-A-Holic (213).",
+					Content: "Member of USA and " + flt + " and the siteop of BBS-A-Holic (213).",
 					Link:    "/f/ad4af8",
 				},
 				{
 					Scener: "Strider",
 					Year:   1988, Month: 12,
-					Content: "The co-founder of Fairlight talks about the group in its first year.",
+					Content: "The co-founder of " + flt + " talks about the group in its first year.",
 					Link:    "http://janeway.exotica.org.uk/target.php?idp=6375&idr=1940&tgt=1",
 				},
 			},

@@ -64,12 +64,13 @@ func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
 }
 
 const (
-	artifactTmpl   = "artifact.tmpl"
-	artifactsTmpl  = "artifacts.tmpl"
-	categoriesTmpl = "categories.tmpl"
-	releaserTmpl   = "releaser.tmpl"
-	scenerTmpl     = "scener.tmpl"
-	websitesTmpl   = "websites.tmpl"
+	artifactTmpl     = "artifact.tmpl"
+	artifactsTmpl    = "artifacts.tmpl"
+	categoriesTmpl   = "categories.tmpl"
+	releaserTmpl     = "releaser.tmpl"
+	releaseryearTmpl = "releaseryear.tmpl"
+	scenerTmpl       = "scener.tmpl"
+	websitesTmpl     = "websites.tmpl"
 )
 
 type filename string // filename is the name of the template file in the view directory.
@@ -97,7 +98,7 @@ func (t *Templ) Pages() *Page {
 		"artifact":      artifactTmpl,
 		"artifacts":     artifactsTmpl,
 		"bbs":           releaserTmpl,
-		"bbs-year":      "releaseryear.tmpl",
+		"bbs-year":      releaseryearTmpl,
 		"brokentexts":   "brokentexts.tmpl",
 		"categories":    categoriesTmpl,
 		"configs":       "configurations.tmpl",
@@ -109,11 +110,11 @@ func (t *Templ) Pages() *Page {
 		"history":       "history.tmpl",
 		"index":         "index.tmpl",
 		"interview":     "interview.tmpl",
-		"magazine":      "releaseryear.tmpl",
+		"magazine":      releaseryearTmpl,
 		"magazine-az":   releaserTmpl,
 		"new":           "new.tmpl",
 		"releaser":      releaserTmpl,
-		"releaser-year": "releaseryear.tmpl",
+		"releaser-year": releaseryearTmpl,
 		"scener":        scenerTmpl,
 		"searchhtmx":    "searchhtmx.tmpl",
 		"searchpost":    "searchpost.tmpl",
@@ -124,7 +125,7 @@ func (t *Templ) Pages() *Page {
 		"thanks":        "thanks.tmpl",
 		"thescene":      "thescene.tmpl",
 		"titles":        "titles.tmpl",
-		"websites":      websitesTmpl,
+		websites:        websitesTmpl,
 	}
 }
 
@@ -533,7 +534,7 @@ func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 		files = append(files, GlobTo("artifactsedit.tmpl"))
 	case categoriesTmpl:
 		files = append(files, GlobTo("categoriesmore.tmpl"))
-	case "releaseryear.tmpl":
+	case releaseryearTmpl:
 		files = append(files, GlobTo("releasertimeline.tmpl"))
 	case websitesTmpl:
 		const individualWebsite = "website.tmpl"

@@ -742,7 +742,7 @@ func (dir Dirs) otherRelations(art *models.File, data map[string]any) map[string
 		return data
 	}
 	data["relations"] = filerecord.Relations(art)
-	data["websites"] = filerecord.Websites(art)
+	data[websites] = filerecord.Websites(art)
 	data["demozoo"] = filerecord.IdenficationDZ(art)
 	data["pouet"] = filerecord.IdenficationPouet(art)
 	data["sixteenColors"] = filerecord.Idenfication16C(art)

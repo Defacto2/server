@@ -81,15 +81,19 @@ type Pagination struct {
 }
 
 const (
-	demo    = "demo"
-	search  = "search"
-	limit   = 198 // per-page record limit
-	records = "records"
-	sep     = ";"
-	az      = ", a-z"
-	byyear  = " by year"
-	alpha   = "alphabetically"
-	year    = "by year"
+	canonical = "canonical"
+	demo      = "demo"
+	files     = "files"
+	search    = "search"
+	limit     = 198 // per-page record limit
+	ordrby    = "orderBy"
+	pubs      = "pubs"
+	records   = "records"
+	sep       = ";"
+	az        = ", a-z"
+	byyear    = " by year"
+	alpha     = "alphabetically"
+	year      = "by year"
 )
 
 // Empty is a map of default values for an app template that are used by the layout template,
@@ -118,7 +122,7 @@ const (
 func empty(c echo.Context) map[string]any {
 	return map[string]any{
 		"cachefiles":   Caching.RecordCount, // autofilled
-		"canonical":    "",
+		canonical:      "",
 		"carousel":     "",
 		"databaseErr":  false,
 		"description":  "",
@@ -193,7 +197,7 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 	logo, subhead, lead := fileslice.FileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title
-	data["canonical"] = strings.Join([]string{"files", uri}, "/")
+	data[canonical] = strings.Join([]string{files, uri}, "/")
 	data["description"] = "Table of contents for the collection of artifacts."
 	data["logo"] = logo
 	data["h1"] = title
@@ -213,7 +217,7 @@ func artifacts(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, page int
 	if err != nil {
 		return DatabaseErr(c, sl, errs, err)
 	}
-	data = artifactsDesc(uri, d["years"], sum, data)
+	data = artifactsDesc(uri, d[years], sum, data)
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))
 	if len(r) == 0 {
@@ -488,8 +492,8 @@ func bbsHandler(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.Order
 		order = alpha
 	}
 	data["stats"] = map[string]string{
-		"pubs":    fmt.Sprintf("%d boards", len(r)),
-		"orderBy": order,
+		pubs:   fmt.Sprintf("%d boards", len(r)),
+		ordrby: order,
 	}
 	err := c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
@@ -802,7 +806,7 @@ func Download(c echo.Context, db *sql.DB, sl *slog.Logger, downl dir.Directory) 
 	const uri = "d"
 	if id := c.Param("id"); id != "" {
 		r := c.Response()
-		r.Header().Set("Link", fmt.Sprintf(`<https://defacto2.net/%s/%s; rel="canonical">`, uri, id))
+		r.Header().Set("Link", fmt.Sprintf(`<https://defacto2.net/%s/%s; rel=canon>`, uri, id))
 	}
 	if err := d.HTTPSend(c, db, sl); err != nil {
 		if errors.Is(err, download.ErrStat) {
@@ -839,8 +843,8 @@ func FTP(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
-		"pubs":    fmt.Sprintf("%d sites", len(r)),
-		"orderBy": alpha,
+		pubs:   fmt.Sprintf("%d sites", len(r)),
+		ordrby: alpha,
 	}
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -1192,7 +1196,7 @@ func Index(c echo.Context, sl *slog.Logger) error {
 	data := empty(c)
 	// note: if the title get's changed, the indexJS conditional in layout.tmpl needs updating
 	data["title"] = "Introduction and milestones"
-	data["canonical"] = "/"
+	data[canonical] = "/"
 	data["h1"] = "The subcultures of obsolete microcomputers"
 	data["milestones"] = Collection()
 	{
@@ -1313,8 +1317,8 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
-		"pubs":    fmt.Sprintf("%d publications", len(r)),
-		"orderBy": order,
+		pubs:   fmt.Sprintf("%d publications", len(r)),
+		ordrby: order,
 	}
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -1513,8 +1517,8 @@ func PostName(c echo.Context, db *sql.DB, sl *slog.Logger, mode FileSearch) erro
 func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
 	none := func() map[string]string {
 		return map[string]string{
-			"files": "no files found",
-			"years": "",
+			files: "no files found",
+			years: "",
 		}
 	}
 
@@ -1558,8 +1562,8 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 		return none()
 	}
 	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
+		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d
 }
@@ -1716,8 +1720,8 @@ func releasers(c echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderB
 		order = alpha
 	}
 	data["stats"] = map[string]string{
-		"pubs":    fmt.Sprintf("%d releasers and groups", len(r)),
-		"orderBy": order,
+		pubs:   fmt.Sprintf("%d releasers and groups", len(r)),
+		ordrby: order,
 	}
 	err := c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
@@ -1772,7 +1776,7 @@ func Releasers(c echo.Context, db *sql.DB, sl *slog.Logger, uri string, public e
 	}
 	data := emptyFiles(c)
 	data["title"] = relname + " artifacts"
-	data["canonical"] = strings.Join([]string{"g", uri}, "/")
+	data[canonical] = strings.Join([]string{"g", uri}, "/")
 	data["h1"] = relname
 	altnames := initialism.Join(initialism.Path(uri))
 	data["lead"] = altnames
@@ -1817,7 +1821,7 @@ func releasersDesc(relname, altnames string,
 	data["stats"] = d
 	// append stats to the description
 	dfiles := d["sum"]
-	dyears := d["years"]
+	dyears := d[years]
 	var desc string
 	switch {
 	case strings.EqualFold(relname, "independent"):
@@ -1888,9 +1892,9 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 		return nil, fmt.Errorf("releaser sum %w: %s", err, uri)
 	}
 	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
-		"sum":   strconv.Itoa(int(m.SumCount.Int64)),
+		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
+		"sum": strconv.Itoa(int(m.SumCount.Int64)),
 	}
 	return d, nil
 }
@@ -1953,7 +1957,7 @@ func Sceners(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error {
 		return Scener404(c, sl, uri)
 	}
 	data := emptyFiles(c)
-	data["canonical"] = strings.Join([]string{"p", uri}, "/")
+	data[canonical] = strings.Join([]string{"p", uri}, "/")
 	data["title"] = s + attr
 	data["h1"] = s
 	data["lead"] = "Artifacts attributed to " + s + "."
@@ -1985,8 +1989,8 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 		return nil, fmt.Errorf("scener sum %w: %s", err, uri)
 	}
 	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years": helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
+		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d, nil
 }
@@ -2450,7 +2454,7 @@ func Website(c echo.Context, sl *slog.Logger, open string) error {
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	const name = "websites"
+	const name = websites
 	data := empty(c)
 	data["title"] = "Websites"
 	const logo = "Videos, Books, Films, Sites, Podcasts"
@@ -2524,12 +2528,12 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 		}
 	}
 	d := map[string]string{
-		"files": string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
-		"years": fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
+		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		years: fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	switch uri {
 	case "new-updates", "new-uploads", "newest", "for-approval":
-		d["years"] = fmt.Sprintf("%d - %d", m.MaxYear.Int16, m.MinYear.Int16)
+		d[years] = fmt.Sprintf("%d - %d", m.MaxYear.Int16, m.MinYear.Int16)
 	}
 	return d, int(m.SumCount.Int64), nil
 }

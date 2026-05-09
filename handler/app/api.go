@@ -53,7 +53,10 @@ const (
 	ac = "areacodes"
 	af = "artifacts"
 	er = "error"
+	pg = "page"
 	re = "regions"
+	rl = "releasers"
+	tp = "totalPages"
 )
 
 // cacheQueryItem represents a cached query result.
@@ -234,7 +237,7 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 
 	const limit = apiLimit
 	page := 1
-	if s := c.QueryParam("page"); s != "" {
+	if s := c.QueryParam(pg); s != "" {
 		var err error
 		page, err = strconv.Atoi(s)
 		if err != nil || page < 1 {
@@ -271,8 +274,8 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 	return c.JSON(http.StatusOK, map[string]any{
 		af:           response.Files,
 		"statistics": response.Stats,
-		"page":       page,
-		"totalPages": pages,
+		pg:           page,
+		tp:           pages,
 		"limit":      apiLimit,
 	})
 }
@@ -658,7 +661,7 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 	// parse page parameter or default to page 1
 	page := 1
-	if s := c.QueryParam("page"); s != "" {
+	if s := c.QueryParam(pg); s != "" {
 		var err error
 		page, err = strconv.Atoi(s)
 		if err != nil || page < 1 {
@@ -684,17 +687,17 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	if len(rels) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"releasers":  []EntityAPI{},
-			"page":       page,
-			"totalPages": pages,
+			rl: []EntityAPI{},
+			pg: page,
+			tp: pages,
 		})
 	}
 
 	result := ReleasersAPI(rels)
 	return c.JSON(http.StatusOK, map[string]any{
-		"releasers":  result,
-		"page":       page,
-		"totalPages": pages,
+		rl: result,
+		pg: page,
+		tp: pages,
 	})
 }
 
@@ -715,9 +718,9 @@ func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 
 	result := map[string]any{
-		"releasers":  ReleasersAPI(rels),
-		"page":       1,
-		"totalPages": 1,
+		rl: ReleasersAPI(rels),
+		pg: 1,
+		tp: 1,
 	}
 
 	return c.JSON(http.StatusOK, result)
@@ -739,9 +742,9 @@ func BoardsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 
 	result := map[string]any{
-		"releasers":  ReleasersAPI(rels),
-		"page":       1,
-		"totalPages": 1,
+		rl: ReleasersAPI(rels),
+		pg: 1,
+		tp: 1,
 	}
 
 	return c.JSON(http.StatusOK, result)
@@ -763,9 +766,9 @@ func SitesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 
 	result := map[string]any{
-		"releasers":  ReleasersAPI(rels),
-		"page":       1,
-		"totalPages": 1,
+		rl: ReleasersAPI(rels),
+		pg: 1,
+		tp: 1,
 	}
 
 	return c.JSON(http.StatusOK, result)
@@ -1095,18 +1098,18 @@ func roleAPI(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error
 	}
 	if len(srs) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"sceners":    []scenerAPI{},
-			"page":       1,
-			"totals":     0,
-			"totalPages": 1,
+			"sceners": []scenerAPI{},
+			pg:        1,
+			"totals":  0,
+			tp:        1,
 		})
 	}
 	result := scenersAPI(srs)
 	return c.JSON(http.StatusOK, map[string]any{
-		"sceners":    result,
-		"page":       1,
-		"totals":     len(result),
-		"totalPages": 1,
+		"sceners": result,
+		pg:        1,
+		"totals":  len(result),
+		tp:        1,
 	})
 }
 
@@ -1683,7 +1686,7 @@ func WebsitesAPI(c echo.Context) error {
 	list := List()
 	if len(list) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
-			"websites": []websiteAPI{},
+			websites: []websiteAPI{},
 		})
 	}
 	var result []websiteAPI
@@ -1703,8 +1706,8 @@ func WebsitesAPI(c echo.Context) error {
 		return strings.ToLower(si) < strings.ToLower(sj)
 	})
 	return c.JSON(http.StatusOK, map[string]any{
-		"websites": result,
-		"count":    len(result),
+		websites: result,
+		"count":  len(result),
 	})
 }
 

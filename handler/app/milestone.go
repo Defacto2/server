@@ -2,7 +2,12 @@ package app
 
 // Package file milestone.go contains the listings of the milestone page.
 
-const notable = "Notable group foundings,"
+const (
+	aboutRelease = "about the release"
+	notable      = "Notable group foundings,"
+	theRelease   = "the release"
+	viewTheFile  = "and view the file"
+)
 
 // Milestone is an accomplishment for a year and optional month.
 type Milestone struct {
@@ -84,7 +89,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				Jpg:         "intel-8008.jpg",
 				Avif:        "intel-8008.avif",
 				Attribution: "Konstantin Lanzet",
-				License:     "CC BY-SA 4.0",
+				License:     cc,
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/",
 			},
 		},
@@ -99,7 +104,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				Jpg:         "blue-box.jpg",
 				Avif:        "blue-box.avif",
 				Attribution: "Maksym Kozlenko",
-				License:     "CC BY-SA 4.0",
+				License:     cc,
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/",
 			},
 		},
@@ -196,7 +201,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				Jpg:         "altair-ad.jpg",
 				Avif:        "altair-ad.avif",
 				Attribution: "Michael Holley",
-				License:     "public domain",
+				License:     pd,
 				LicenseLink: "https://commons.wikimedia.org/wiki/File:Altair_Computer_Ad_May_1976.jpg",
 			},
 		},
@@ -231,7 +236,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				Jpg:         "an-open-letter-to-hobbyists.jpg",
 				Avif:        "an-open-letter-to-hobbyists.avif",
 				Attribution: "Len Shustek",
-				License:     "public domain",
+				License:     pd,
 				LicenseLink: "https://commons.wikimedia.org/wiki/File:Bill_Gates_Letter_to_Hobbyists.jpg",
 			},
 		},
@@ -319,7 +324,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				Png:         "cbbs.jpg",
 				Webp:        "cbbs.webp",
 				Attribution: "Aeroid",
-				License:     "CC BY-SA 4.0",
+				License:     cc,
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
 			},
 		},
@@ -339,7 +344,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				Png:         "intel-8086.jpg",
 				Avif:        "intel-8086.avif",
 				Attribution: "Thomas Nguyen",
-				License:     "CC BY-SA 4.0",
+				License:     cc,
 				LicenseLink: "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
 			},
 		},
@@ -925,7 +930,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				Jpg:         "ms-dos-floppy-disks.jpg",
 				Avif:        "ms-dos-floppy-disks.avif",
 				Attribution: "Brian R. Lueck",
-				License:     "public domain",
+				License:     pd,
 				LicenseLink: "https://en.wikipedia.org/wiki/MS-DOS#/media/File:Compaq_mddos_ver1-12.jpg",
 			},
 		},
@@ -1279,7 +1284,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "The earliest PC ASCII art", Year: 1985, Month: 7, Day: 24, Highlight: true,
-			Lead: "So far, How to WIN at KING's QUEST from The Illinois Pirates", LinkTitle: "and view the file", Link: "/f/bc30a5b",
+			Lead: "So far, How to WIN at KING's QUEST from The Illinois Pirates", LinkTitle: viewTheFile, Link: "/f/bc30a5b",
 			Content: "<p><strong>The Illinois Pirates</strong> walk-through for the PC exclusive game King's Quest released the earliest known PC <strong>ASCII art</strong> or Codepage 437 art. " +
 				"The ASCII text logo uses block and line art characters that were exclusive to the IBM PC platform.</p>" +
 				`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
@@ -1304,7 +1309,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "Earliest ANSI ad", Year: 1985, Month: 8, Highlight: false,
-			Lead: "So far, The Game Gallery", LinkTitle: "and view the file",
+			Lead: "So far, The Game Gallery", LinkTitle: viewTheFile,
 			Link: "/f/ba2bcbb",
 			Content: "<p>The earliest <strong>ANSI ad</strong>vertisement is for the Manhattan based BBS, <strong>The&nbsp;Game&nbsp;Gallery</strong>&nbsp;(+212-799-6987). ANSI art is a computer art form that became widely used to create art and advertisements for online bulletin board systems.</p>" +
 				"<p>The output uses ANSI escape codes, a standard Digital Equipment Corporation (DEC) pioneered for its minicomputer <a href=\"https://vt100.net/dec/vt_history\">video terminals</a>. Later, it was used on IBM and other PCs using software drivers and video <a href=\"https://vt100.net/emu/\">terminal emulators</a>.</p>" +
@@ -1629,7 +1634,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "The earliest PC Scene drama", Year: 1988, Month: 11, Day: 25,
-			Lead: "So far, TNWC accusing PTL of stealing a release", LinkTitle: "and view the file",
+			Lead: "So far, TNWC accusing PTL of stealing a release", LinkTitle: viewTheFile,
 			Link: "/f/aa356d",
 			Content: "<p>The earliest <strong>scene drama</strong> known so far involves a release by " +
 				"<a href=\"/g/the-north-west-connection\">The&nbsp;North&nbsp;West&nbsp;Connection</a>&nbsp;(TNWC) for the game Paladin. " +
@@ -1755,7 +1760,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				},
 				{
 					LinkTitle: "American Pirate Industries", Link: "/g/american-pirate-industries",
-					SubTitle: "API", Forward: "California",
+					SubTitle: "API", Forward: ca,
 				},
 				{
 					LinkTitle: "Future Crew", Link: "/g/future-crew",
@@ -1791,7 +1796,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "\".NFO\" file extension origins", Year: 1990, Month: 1, Day: 23, Highlight: true,
-			Lead: "The Humble Guys", LinkTitle: "the list of THG releases",
+			Lead: thg, LinkTitle: "the list of THG releases",
 			Link: "/g/the-humble-guys",
 			Content: "" +
 				// extension
@@ -1860,11 +1865,11 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				{LinkTitle: "🇺🇸 Public Enemy", Link: "/g/public-enemy", SubTitle: "PE", Forward: "🇩🇪 First German PC group, Red Sector Inc."},
 				{
 					LinkTitle: "Software Chronicles Digest", Link: "/g/software-chronicles-digest",
-					SubTitle: "SCD", Forward: "California",
+					SubTitle: "SCD", Forward: ca,
 				},
 				{LinkTitle: "The Dream Team", Link: "/g/the-dream-team", SubTitle: "TDT", Forward: "🇸🇪 First PC group from Sweden"},
 				{
-					LinkTitle: "The Humble Guys", Link: "/g/the-humble-guys",
+					LinkTitle: thg, Link: "/g/the-humble-guys",
 					SubTitle: "THG", Forward: "Tennessee",
 				},
 				{
@@ -1968,14 +1973,14 @@ func Collection() Milestones { //nolint:funlen,maintidx
 				{LinkTitle: "Mirage", Link: "/g/mirage", Forward: "Licensed to Draw"},
 				{
 					LinkTitle: "Nokturnal Trading Alliance", Link: "/g/nokturnal-trading-alliance",
-					SubTitle: "NTA", Forward: "California",
+					SubTitle: "NTA", Forward: ca,
 				},
 				{
 					LinkTitle: "Pirates with Attitude", Link: "/g/pirates-with-attitude",
 					SubTitle: "PWA", Forward: "Michigan and Minnesota",
 				},
-				{LinkTitle: "🇺🇸 Razor 1911 (on PC)", Link: "/g/razor-1911", SubTitle: "RZR", Forward: "🇳🇴 Razor / 🇪🇺 Skillion"},
-				{LinkTitle: "Razor Dox", Link: "/g/razordox", SubTitle: "RZR"},
+				{LinkTitle: "🇺🇸 Razor 1911 (on PC)", Link: "/g/razor-1911", SubTitle: rz, Forward: "🇳🇴 Razor / 🇪🇺 Skillion"},
+				{LinkTitle: "Razor Dox", Link: "/g/razordox", SubTitle: rz},
 				{LinkTitle: "Relentless Pursuit of Magnificence", Link: "/g/relentless-pursuit-of-magnificence", SubTitle: "RPM"},
 				{LinkTitle: "🇪🇺 Skid Row (on PC)", Link: "/g/skid-row", SubTitle: "SR"},
 				{LinkTitle: "🇩🇪🇨🇭 Scoopex (IBM)", Link: "/g/scoopex"},
@@ -1984,16 +1989,16 @@ func Collection() Milestones { //nolint:funlen,maintidx
 					LinkTitle: "The Cracking Lords", Link: "/g/the-cracking-lords", SubTitle: "TCL",
 					Forward: "🇮🇹 First PC group from Italy",
 				},
-				{LinkTitle: "The Humble Guys F/X", Link: "/g/thg-fx", SubTitle: "THG-FX"},
+				{LinkTitle: thg + " F/X", Link: "/g/thg-fx", SubTitle: "THG-FX"},
 				{
 					LinkTitle: "United Software Association", Link: "/g/united-software-association*fairlight",
-					SubTitle: "USA", Forward: "The Humble Guys",
+					SubTitle: "USA", Forward: thg,
 				},
 			},
 		},
 		{
 			Title: "Earliest CD release", Year: 1992, Month: 3, Day: 3, Highlight: true,
-			Lead: "Battle Chess MPC", LinkTitle: "about the release", Link: "/f/aa209be",
+			Lead: "Battle Chess MPC", LinkTitle: aboutRelease, Link: "/f/aa209be",
 			Content: "<p>The first known release of a game on CD was probably Battle Chess MPC (multimedia PC) released by International Network of Crackers on the 3rd of March 1992. " +
 				"Being a novel medium for software distribution, the INC release was a mess requiring the user to have access to 28 floppy disks and then a third party tool to copy and \"splice\" the disks to a hard drive. " +
 				"Copying to this many floppy disks for a single game would have been slow, tedious, and expensive, both in time and hardware.</p>" +
@@ -2025,7 +2030,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		{
 			Year: 1992, Prefix: notable,
 			List: Links{
-				{LinkTitle: "Artists in Revolt", Link: "/g/artists-in-revolt", Forward: "Fairlight"},
+				{LinkTitle: "Artists in Revolt", Link: "/g/artists-in-revolt", Forward: flt},
 				{LinkTitle: "Damn Excellent Art Designers", Link: "/g/damn-excellent-ansi-design", SubTitle: "DeAD", Forward: "Damn Excellent ANSI Design"},
 				{LinkTitle: "Graphics Rendered in Magnificence", Link: "/g/graphics-rendered-in-magnificence", SubTitle: "GRiM", Forward: "Silicon Dream Artists / NC-17"},
 				{LinkTitle: "HYPE", Link: "/g/hype"},
@@ -2059,7 +2064,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "First mention of \"CD-RIP\"", Year: 1994, Month: 11, Day: 24, Highlight: true,
-			Lead: "So far, TDU-Jam!", LinkTitle: "about the release", Link: "/f/b61d166",
+			Lead: "So far, TDU-Jam!", LinkTitle: aboutRelease, Link: "/f/b61d166",
 			Content: "<p>A play on the media, CD-ROM, the earliest mention of <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, " +
 				"was by TDU-Jam! for the game Great Naval Battles 3 \"CD-RIP\" <a href=\"/f/ae413f\">released</a> on 8th February 1995. " +
 				"But, this was probably derived from the word strip, where in the November 1994 <a href=\"/f/b61d166\">release</a> of Lemmings they wrote " +
@@ -2086,10 +2091,10 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		{
 			Year: 1994, Prefix: notable,
 			List: Links{
-				{LinkTitle: "ROM 1911", Link: "/g/rom-1911", SubTitle: "ROM", Forward: "Razor 1911"},
+				{LinkTitle: "ROM 1911", Link: "/g/rom-1911", SubTitle: "ROM", Forward: rzr},
 				{LinkTitle: "Request to Send", Link: "/g/request-to-send", SubTitle: "RTS"},
-				{LinkTitle: "Genesis", Link: "/g/genesis", SubTitle: "GNS", Forward: "Pentagram"},
-				{LinkTitle: "TDU-Jam", Link: "/g/tdu_jam", SubTitle: "TDU", Forward: "Genesis"},
+				{LinkTitle: gns, Link: "/g/genesis", SubTitle: "GNS", Forward: "Pentagram"},
+				{LinkTitle: "TDU-Jam", Link: "/g/tdu_jam", SubTitle: "TDU", Forward: gns},
 			},
 			Picture: Picture{
 				Title: "TDU-Jam! branding",
@@ -2099,7 +2104,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "Windows 95 warez release", Year: 1995, Month: 8, Day: 12,
-			Lead: "Drink or Die", Link: "/f/bb2b71f", LinkTitle: "about the release",
+			Lead: "Drink or Die", Link: "/f/bb2b71f", LinkTitle: aboutRelease,
 			Content: "<p><strong>Drink or Die</strong> became notorious for releasing the CD media for the box retail edition of <strong>Windows&nbsp;95</strong> " +
 				"two weeks before the official worldwide release.</p>" +
 				"<p>In an era when global, same-day product launches were logistically costly and uncommon, this operating system launch was probably the most hyped Microsoft consumer product ever. " +
@@ -2198,13 +2203,13 @@ func Collection() Milestones { //nolint:funlen,maintidx
 			List: Links{
 				//	{LinkTitle: "CD Images For the Elite", Link: "/g/cd-images-for-the-elite", SubTitle: "CiFE"},
 				{LinkTitle: "Class", Link: "/g/class", SubTitle: "CLS", Forward: "Prestige"},
-				{LinkTitle: "RomLight", Link: "/g/romlight", SubTitle: "RLT", Forward: "Fairlight"},
+				{LinkTitle: "RomLight", Link: "/g/romlight", SubTitle: "RLT", Forward: flt},
 				{LinkTitle: "Paradigm", Link: "/g/paradigm", SubTitle: "PDM", Forward: "Eclipse"},
 			},
 		},
 		{
 			Title: "Release standards broken", Year: 1997, Month: 1, Day: 13,
-			Lead: "Hybrid presents Diablo", LinkTitle: "the release", Link: "/f/ab49cd",
+			Lead: "Hybrid presents Diablo", LinkTitle: theRelease, Link: "/f/ab49cd",
 			Content: "<p>Founding member Hybrid is the first to break the CD-RIP standard <a href=\"/f/aa3b26\">rules</a> set by The Standards of Piracy Association with the release of " +
 				"<a href=\"https://news.blizzard.com/en-us/diablo3/22887361/diablo-now-available-on-gog-com\">Diablo</a>.</p>" +
 				"<p>Less than a year prior, SPA had agreed that CD-RIPs should be ripped to a maximum permitted size and titles that weren't possible should be skipped. " +
@@ -2215,7 +2220,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "Earliest ISO release", Year: 1997, Month: 11, Day: 27, Highlight: true,
-			Lead: "So far, CD Images For the Elite (CiFE)", LinkTitle: "the release", Link: "/f/ad40ce",
+			Lead: "So far, CD Images For the Elite (CiFE)", LinkTitle: theRelease, Link: "/f/ad40ce",
 			Content: "An <a href=\"https://www.loc.gov/preservation/digital/formats/fdd/fdd000348.shtml\">ISO</a> is a standard file archive format containing the entire CD and later DVD data. It enables the copying and exact replication of data onto consumable blank discs. " +
 				"Trading <strong>ISO images</strong> between individuals has happened for years prior, but <a href=\"https://www.mobygames.com/game/2082/lords-of-magic/covers/\">Lords of Magic</a> was the earliest known ISO release pushed to the Scene.</p>" +
 				"<p>A formalization of an ISO trading scene occurred sometime in late 1997, but it took years before the medium became the dominant format in the Scene.</p>",
@@ -2259,8 +2264,8 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Year: 1998, Month: 4, Day: 1,
-			Title: "Starcraft", LinkTitle: "about the release", Link: "/f/a9353d",
-			Lead: "Razor 1911",
+			Title: "Starcraft", LinkTitle: aboutRelease, Link: "/f/a9353d",
+			Lead: rzr,
 			Content: "<p><a href=\"/g/razor-1911\">Razor 1911</a> and famed cracker <a href=\"/p/beowulf\">Beowulf</a> were credited with the release of StarCraft. " +
 				"Together, they released a CD-RIP of the game. However, the package took time to compile and lacked the unique CD keys required to play the desirable online multiplayer.</p>" +
 				"<p><q>Well, what can I say. This has got to be one of the hardest titles I have ever ripped. " +
@@ -2298,7 +2303,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 			Year: 1998, Prefix: notable,
 			List: Links{
 				{LinkTitle: "DVNiSO / Deviance", Link: "/g/deviance"},
-				{LinkTitle: "Fairlight", Link: "/g/fairlight", SubTitle: "FTL", Forward: "Fairlight returns after a few years absent"},
+				{LinkTitle: flt, Link: "/g/fairlight", SubTitle: "FTL", Forward: flt + " returns after a few years absent"},
 				{LinkTitle: "Origin", Link: "/g/origin", SubTitle: "OGN"},
 				{LinkTitle: "RiSCiSO", Link: "/g/risciso", Forward: "Rise in Superior Couriering"},
 			},
@@ -2319,7 +2324,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		{
 			Year: 1999, Prefix: notable,
 			List: Links{
-				{LinkTitle: "Razor 1911 Demo", Link: "/g/razor-1911-demo", SubTitle: "RZR", Forward: "Razor 1911"},
+				{LinkTitle: "Razor 1911 Demo", Link: "/g/razor-1911-demo", SubTitle: rz, Forward: rzr},
 				{LinkTitle: "Scienide", Link: "/g/scienide", SubTitle: "SCI"},
 			},
 			Picture: Picture{
@@ -2390,7 +2395,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "Digital only scene releases", Year: 2004, Month: 10, Day: 7,
-			Lead: "Counter-Strike: Source Final from Emporio", LinkTitle: "the release", Link: "/f/b1282e1",
+			Lead: "Counter-Strike: Source Final from Emporio", LinkTitle: theRelease, Link: "/f/b1282e1",
 			Content: "<p>Counter-Strike <a href=\"https://www.mobygames.com/game/15518/counter-strike-source/cover/group-80271/cover-733563/\">Source</a>, the online multiplayer title, was exclusively distributed on <a href=\"https://steampowered.com\">Steam</a>, Valve's digital distribution platform. " +
 				"As no physical media was available, this became a dubious release within the Scene, and many groups didn't acknowledge the <a href=\"/g/emporio\">Emporio</a> package as a legitimate <q>retail</q> " +
 				"product or a <q>final</q> release. The release of Steam-only games was poorly received due to the ease of supply and constant online patching.</p>" +
@@ -2410,7 +2415,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "Half-Life 2 *Retail*", Year: 2004, Month: 11, Day: 28,
-			Lead: "Vengeance", LinkTitle: "the release", Link: "/f/b24c10",
+			Lead: "Vengeance", LinkTitle: theRelease, Link: "/f/b24c10",
 			Content: "<p>Half-Life 2 was one of the most anticipated games of the decade, and it was the first major game to use Steam, Valve's digital distribution platform.</p>" +
 				"<p><a href=\"/g/vengeance\">Vengeance</a> is the first attempt to crack the Steam activation, and it used an unusual Steam client and activation emulator. " +
 				"But while playable, their pirate release of the game suffered with slower frame rates, load times, and the lack of multiplayer gameplay. " +
@@ -2425,7 +2430,7 @@ func Collection() Milestones { //nolint:funlen,maintidx
 		},
 		{
 			Title: "End of the line for RIPS", Year: 2005, Month: 10, Day: 9,
-			Lead: "Farewell © Myth", LinkTitle: "the release", Link: "/f/a94129",
+			Lead: "Farewell © Myth", LinkTitle: theRelease, Link: "/f/a94129",
 			Content: "<p>Farewell © Myth is the final release from Myth, a group founded as <a href=\"/f/a53f3c\">Zeus</a>, " +
 				"then <a href=\"/g/paradigm\">Paradigm</a> in 1996 and focused on ripping PC games from CD and later DVDs. " +
 				"By the mid-2000s, broadband use was widespread, and the desire for ripped CD or DVD games with missing content was dwindling. " +

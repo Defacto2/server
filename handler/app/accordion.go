@@ -30,7 +30,7 @@ func List() Accordion {
 		},
 		{
 			"Bulletin Board System", "BBS pages",
-			"bbs", bbses(), false,
+			bb, bbses(), false,
 		},
 		{
 			"Crack and pirate scene", "Pirate pages",

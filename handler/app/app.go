@@ -68,6 +68,20 @@ const (
 	ul1   = "</ul>"
 )
 
+const (
+	bb       = "bbs"
+	ca       = "California"
+	cc       = "CC BY-SA 4.0"
+	flt      = "Fairlight"
+	gns      = "Genesis"
+	pd       = "Public Domain"
+	rz       = "RZR"
+	rzr      = "Razor 1911"
+	thg      = "The Humble Guys"
+	websites = "websites"
+	years    = "years"
+)
+
 // Caching are values that are used throughout the app or layouts.
 var Caching = Cache{RecordCount: 0} //nolint:gochecknoglobals
 
@@ -1150,7 +1164,7 @@ func desc(p, s, y, m string) string {
 
 func names(s string) string {
 	switch s {
-	case "bbs", "ftp":
+	case bb, "ftp":
 		return "file"
 	}
 	return s
