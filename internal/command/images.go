@@ -27,6 +27,13 @@ const (
 	argCap  = 2         // argCap is the fixed buffer size for command arguments (source + destination)
 )
 
+const (
+	argExtent  = "-extent"
+	argGravity = "-gravity"
+	argTrim    = "-trim!"
+	north      = "North"
+)
+
 var ErrNoImages = errors.New("no images found")
 
 // discard the error using the io.
@@ -792,10 +799,10 @@ type Args []string
 // an image into args 400x400 pixel image using the "North" top alignment.
 func (args *Args) Topx400() {
 	// Set the gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "North"}
+	gravity := []string{argGravity, north}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-trim", "-extent", X400}
+	extent := []string{argTrim, argExtent, X400}
 	*args = append(*args, extent...)
 }
 
@@ -803,10 +810,10 @@ func (args *Args) Topx400() {
 // an image into args 400x400 pixel image using the "Center" alignment.
 func (args *Args) Middlex400() {
 	// Set the gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "center"}
+	gravity := []string{argGravity, "center"}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-trim", "-extent", X400}
+	extent := []string{argTrim, argExtent, X400}
 	*args = append(*args, extent...)
 }
 
@@ -814,10 +821,10 @@ func (args *Args) Middlex400() {
 // an image into args 400x400 pixel image using the "South" bottom alignment.
 func (args *Args) Bottomx400() {
 	// Set the gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "South"}
+	gravity := []string{argGravity, "South"}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-trim", "-extent", X400}
+	extent := []string{argTrim, argExtent, X400}
 	*args = append(*args, extent...)
 }
 
@@ -825,10 +832,10 @@ func (args *Args) Bottomx400() {
 // an image into args 400x400 pixel image using the "South" bottom alignment.
 func (args *Args) Leftx400() {
 	// Set the gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "West"}
+	gravity := []string{argGravity, "West"}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-trim", "-extent", X400}
+	extent := []string{argTrim, argExtent, X400}
 	*args = append(*args, extent...)
 }
 
@@ -836,10 +843,10 @@ func (args *Args) Leftx400() {
 // an image into args 400x400 pixel image using the "South" bottom alignment.
 func (args *Args) Rightx400() {
 	// Set the gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "East"}
+	gravity := []string{argGravity, "East"}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-trim", "-extent", X400}
+	extent := []string{argTrim, argExtent, X400}
 	*args = append(*args, extent...)
 }
 
@@ -847,10 +854,10 @@ func (args *Args) Rightx400() {
 // an image into args 1:1 square image using the "North" top alignment.
 func (args *Args) CropTop() {
 	// Set the gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "North"}
+	gravity := []string{argGravity, north}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-extent", "1:1"}
+	extent := []string{argExtent, "1:1"}
 	*args = append(*args, extent...)
 }
 
@@ -858,10 +865,10 @@ func (args *Args) CropTop() {
 // an image into args 4:3 image using the "North" top alignment.
 func (args *Args) FourThree() {
 	// Set the gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "North"}
+	gravity := []string{argGravity, north}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-extent", "4:3"}
+	extent := []string{argExtent, "4:3"}
 	*args = append(*args, extent...)
 }
 
@@ -869,10 +876,10 @@ func (args *Args) FourThree() {
 // an image into args 1:2 image using the "North" top alignment.
 func (args *Args) OneTwo() {
 	// Set the gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "North"}
+	gravity := []string{argGravity, north}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-extent", "1:2"}
+	extent := []string{argExtent, "1:2"}
 	*args = append(*args, extent...)
 }
 
@@ -995,10 +1002,10 @@ func (args *Args) Thumbnail() {
 	background := []string{"-background", "#999"}
 	*args = append(*args, background...)
 	// Sets the current gravity suggestion for various other settings and options.
-	gravity := []string{"-gravity", "center"}
+	gravity := []string{argGravity, "center"}
 	*args = append(*args, gravity...)
 	// Set the image size and offset.
-	extent := []string{"-extent", X400}
+	extent := []string{argExtent, X400}
 	*args = append(*args, extent...)
 }
 

@@ -28,7 +28,6 @@ import (
 )
 
 const (
-	limit     = 198 // per-page record limit
 	Namespace = "http://www.sitemaps.org/schemas/sitemap/0.9"
 	RootURL   = "https://defacto2.net"
 	Website   = "sitemap.xml"
@@ -36,6 +35,9 @@ const (
 	Magazine  = "sitemap-magazine.xml"
 	BBS       = "sitemap-bbs.xml"
 	FTP       = "sitemap-ftp.xml"
+
+	limit  = 198 // per-page record limit
+	urlset = "urlset"
 )
 
 // Index is a xml sitemap index file that is a centralized collection
@@ -163,7 +165,7 @@ func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 		// maps[i].LastMod = time.Now().Format(time.DateOnly)
 	}
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: "urlset"},
+		XMLName: xml.Name{Space: "", Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -185,7 +187,7 @@ func MapReleaser(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: "urlset"},
+		XMLName: xml.Name{Space: "", Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -207,7 +209,7 @@ func MapMagazine(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: "urlset"},
+		XMLName: xml.Name{Space: "", Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -229,7 +231,7 @@ func MapBBS(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: "urlset"},
+		XMLName: xml.Name{Space: "", Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -251,7 +253,7 @@ func MapFTP(db *sql.DB, sl *slog.Logger) *Sitemap {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: "urlset"},
+		XMLName: xml.Name{Space: "", Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}

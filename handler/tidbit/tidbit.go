@@ -27,6 +27,28 @@ const Dir = "public/md/tidbit" // Dir is the relative directory of the markdown 
 
 const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock | parser.Footnotes
 
+const (
+	acidProd     = "acid-productions"
+	cia          = "crackers-in-action"
+	dynamix      = "dynamix"
+	fairlight    = "fairlight"
+	fiveO        = "five-o"
+	genesis      = "genesis"
+	grim         = "graphics-rendered-in-magnificence"
+	hybrid       = "hybrid"
+	inc          = "international-network-of-crackers"
+	pe           = "public-enemy"
+	pentagram    = "pentagram"
+	ptlClub      = "ptl-club"
+	pwa          = "pirates-with-attitudes"
+	razor1911    = "razor-1911"
+	sda          = "silicon-dream-artists"
+	tdt          = "the-dream-team"
+	theFirm      = "the-firm"
+	trsi         = "tristar-ampersand-red-sector-inc"
+	untouchables = "untouchables"
+)
+
 // Markdown returns the markdown content of the tidbit that is stored in the directory
 // in the provided file system. If the file does not exist or is empty then nil is returned.
 //
@@ -106,20 +128,20 @@ type Tidbit map[ID]string
 
 //nolint:gochecknoglobals
 var groups = Tibits{
-	1:    []URI{"untouchables", "the-untouchables"},
+	1:    []URI{untouchables, "the-untouchables"},
 	1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance", "byt"},
-	111:  []URI{"the-firm"},
-	2:    []URI{"five-o"},
-	200:  []URI{"five-o", "boys-from-company-c", "pirates-r-us", "the-firm"},
-	3:    []URI{"fairlight", "united-software-association*fairlight"},
+	111:  []URI{theFirm},
+	2:    []URI{fiveO},
+	200:  []URI{fiveO, "boys-from-company-c", "pirates-r-us", theFirm},
+	3:    []URI{fairlight, "united-software-association*fairlight"},
 	4:    []URI{"the-zapper"},
 	5:    []URI{"ipl"},
-	400:  []URI{"fairlight", "artists-in-revolt"},
-	500:  []URI{"fairlight", "fairlight-dox"},
-	6:    []URI{"aces-of-ansi-art", "acid-productions"},
-	666:  []URI{"acid-productions"},
-	667:  []URI{"acid-productions", "the-acquisition"},
-	669:  []URI{"acid-productions", "relentless-pursuit-of-magnificence"},
+	400:  []URI{fairlight, "artists-in-revolt"},
+	500:  []URI{fairlight, "fairlight-dox"},
+	6:    []URI{"aces-of-ansi-art", acidProd},
+	666:  []URI{acidProd},
+	667:  []URI{acidProd, "the-acquisition"},
+	669:  []URI{acidProd, "relentless-pursuit-of-magnificence"},
 	668:  []URI{"acid-newsletter"},
 	7:    []URI{"the-duplicators"},
 	8:    []URI{"pirates-club-inc"},
@@ -130,48 +152,48 @@ var groups = Tibits{
 	13:   []URI{"esp-pirates", "esp-headquarters-bbs"},
 	14:   []URI{"silicon-valley-swappe-shoppe"},
 	15:   []URI{"toads"},
-	515:  []URI{"five-o", "toads"},
+	515:  []URI{fiveO, "toads"},
 	16:   []URI{"c-ampersand-m"},
 	17:   []URI{"the-billionarre-boys-club"},
-	18:   []URI{"canadian-pirates-inc", "kgb", "ptl-club"},
+	18:   []URI{"canadian-pirates-inc", "kgb", ptlClub},
 	19:   []URI{"the-underground-council"},
-	199:  []URI{"ptl-club", "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
+	199:  []URI{ptlClub, "sprint", "the-underground-council", "byte-bandits-bbs", "triad"},
 	// MCM / INC / NYC etc require a sequential order
-	20:  []URI{"miami-cracking-machine"},                                                           // 201
-	26:  []URI{"new-york-crackers"},                                                                // 202
-	201: []URI{"new-york-crackers", "miami-cracking-machine", "international-network-of-crackers"}, // 20
-	202: []URI{"international-network-of-crackers"},                                                // 26
-	333: []URI{"norwegian-cracking-company", "international-network-of-crackers", "the-humble-guys"},
+	20:  []URI{"miami-cracking-machine"},                           // 201
+	26:  []URI{"new-york-crackers"},                                // 202
+	201: []URI{"new-york-crackers", "miami-cracking-machine", inc}, // 20
+	202: []URI{inc},                                                // 26
+	333: []URI{"norwegian-cracking-company", inc, "the-humble-guys"},
 	// end
 	21:   []URI{"public-domain"},
 	22:   []URI{"bentley-sidwell-productions"},
 	23:   []URI{"boys-from-company-c"},
-	24:   []URI{"fairlight"},
+	24:   []URI{fairlight},
 	25:   []URI{"future-crew"},
 	27:   []URI{"vortex-software"},
 	28:   []URI{"opyright-infiltration-agency"},
-	2700: []URI{"the-firm", "swat", "national-underground-application-alliance", "fairlight"},
-	2800: []URI{"the-firm", "mutual-assured-destruction", "public-enemy"},
+	2700: []URI{theFirm, "swat", "national-underground-application-alliance", fairlight},
+	2800: []URI{theFirm, "mutual-assured-destruction", pe},
 	29:   []URI{"big-brother"},
 	30:   []URI{"cmen"},
 	31:   []URI{"erkle"},
-	32:   []URI{"extasy", "xerox", "fairlight"},
+	32:   []URI{"extasy", "xerox", fairlight},
 	34:   []URI{"scd_dox", "software-chronicles-digest"},
 	35:   []URI{"software-chronicles-digest"},
 	36:   []URI{"the-humble-guys"},
 	37:   []URI{"netrunners", "minor-threat", "nexus"},
-	38:   []URI{"mai-review", "sda-review", "silicon-dream-artists"},
-	39:   []URI{"silicon-dream-artists", "masters-of-abstractions-and-illusions", "maximized-ansi-designers"},
+	38:   []URI{"mai-review", "sda-review", sda},
+	39:   []URI{sda, "masters-of-abstractions-and-illusions", "maximized-ansi-designers"},
 	40:   []URI{"hype"},
 	41:   []URI{"alpha-flight", "outlaws", "storm-inc"},
 	42:   []URI{"thhg"},
 	43:   []URI{"tmh"},
 	44:   []URI{"the-racketeers"},
-	45:   []URI{"crackers-in-action"},
+	45:   []URI{cia},
 	46:   []URI{"legion-of-doom"},
 	47:   []URI{"the-grand-council"},
-	48:   []URI{"untouchables", "uniq", "xap", "pentagram"},
-	488:  []URI{"untouchables", "untouchable-art"},
+	48:   []URI{untouchables, "uniq", "xap", pentagram},
+	488:  []URI{untouchables, "untouchable-art"},
 	49:   []URI{"italsoft"},
 	50:   []URI{"future-brain-inc"},
 	51:   []URI{"pirate"},
@@ -186,31 +208,31 @@ var groups = Tibits{
 	590:  []URI{"sorcerers", "future-brain-inc"},
 	60:   []URI{"katharsis"},
 	61:   []URI{"national-elite-underground-alliance"},
-	62:   []URI{"public-enemy", "pe*trsi*tdt", "north-american-society-of-anarchists", "red-sector-inc", "the-dream-team"},
-	63:   []URI{"public-enemy"},
-	64:   []URI{"razor-1911"},
-	65:   []URI{"tristar-ampersand-red-sector-inc", "red-sector-inc"},
-	66:   []URI{"tristar-ampersand-red-sector-inc", "pe*trsi*tdt", "the-dream-team", "skid-row", "coop"},
-	67:   []URI{"tristar-ampersand-red-sector-inc"},
-	68:   []URI{"the-dream-team"},
-	69:   []URI{"rom-1911", "razor-1911"},
+	62:   []URI{pe, "pe*trsi*tdt", "north-american-society-of-anarchists", "red-sector-inc", tdt},
+	63:   []URI{pe},
+	64:   []URI{razor1911},
+	65:   []URI{trsi, "red-sector-inc"},
+	66:   []URI{trsi, "pe*trsi*tdt", tdt, "skid-row", "coop"},
+	67:   []URI{trsi},
+	68:   []URI{tdt},
+	69:   []URI{"rom-1911", razor1911},
 	70:   []URI{"high-society"},
 	71:   []URI{"trinity-reviews", "lancelot-2"},
 	72:   []URI{"real-pirates-guide"},
 	73:   []URI{"the-amatuer-crackist-tutorial"}, //nolint:misspell
-	74:   []URI{"church-chat", "ptl-club"},
+	74:   []URI{"church-chat", ptlClub},
 	75:   []URI{"corrupted-programming-international", "cpi-newsletter"},
 	76:   []URI{"official-unprotection-scheme-library", "copycats-inc"},
 	77:   []URI{"the-elementals-piratelist"},
 	78:   []URI{"game-release-list"},
 	79:   []URI{"gif-news"},
 	80:   []URI{"hackers-unlimited", "mickey-mouse-club"},
-	800:  []URI{"hackers-unlimited", "mickey-mouse-club", "crackers-in-action"},
+	800:  []URI{"hackers-unlimited", "mickey-mouse-club", cia},
 	81:   []URI{"national-pirate-list"},
 	82:   []URI{"phreakers-handbook"},
 	83:   []URI{"spectrum"},
 	84:   []URI{"the-pirate-world", "the-pirate-syndicate"},
-	85:   []URI{"fairlight"},
+	85:   []URI{fairlight},
 	86:   []URI{"scb"},
 	87:   []URI{"imperial-warlords"},
 	88:   []URI{"public-brand-software"},
@@ -248,7 +270,7 @@ var groups = Tibits{
 	121:  []URI{"classic-vocs"},
 	122:  []URI{"club-elan"},
 	123:  []URI{"damn-excellent-ansi-design"},
-	1234: []URI{"damn-excellent-ansi-design", "international-network-of-crackers"},
+	1234: []URI{"damn-excellent-ansi-design", inc},
 	124:  []URI{"digital-noise-alliance"},
 	125:  []URI{"disassemblers-of-america"},
 	126:  []URI{"dragon-clan"},
@@ -284,7 +306,7 @@ var groups = Tibits{
 	156:  []URI{"roi-production", "warez-houze-bbs"},
 	157:  []URI{"the-ware-report"},
 	158:  []URI{"copyright-infiltration-agency"},
-	159:  []URI{"copyright-infiltration-agency", "crackers-in-action"},
+	159:  []URI{"copyright-infiltration-agency", cia},
 	160:  []URI{"god-network"},
 	161:  []URI{"corporation-for-public-cybercasting-2001"},
 	162:  []URI{"defjam"},
@@ -497,10 +519,10 @@ var groups = Tibits{
 	375:  []URI{"outlaws-exchange"},
 	376:  []URI{"spirit-of-illusion"},
 	377:  []URI{"ultra-tech"},
-	378:  []URI{"graphics-rendered-in-magnificence", "silicon-dream-artists"},
-	379:  []URI{"graphics-rendered-in-magnificence", "nc_17"},
+	378:  []URI{grim, sda},
+	379:  []URI{grim, "nc_17"},
 	380:  []URI{"master-artists-guild-for-the-elite"},
-	381:  []URI{"graphics-rendered-in-magnificence", "gaming-review-international-magazine"},
+	381:  []URI{grim, "gaming-review-international-magazine"},
 	382:  []URI{"hipe"},
 	383:  []URI{"licensed-to-draw"},
 	384:  []URI{"mirage"},
@@ -518,19 +540,19 @@ var groups = Tibits{
 	406:  []URI{"prestige"},
 	407:  []URI{"reaction", "cream", "prestige"},
 	408:  []URI{"reaction", "forgive-us-crazy-kids"},
-	409:  []URI{"dynamix"},
+	409:  []URI{dynamix},
 	410:  []URI{"pyradical"},
-	411:  []URI{"hybrid"},
-	4110: []URI{"hybrid", "eclipse", "dynamix"},
-	4111: []URI{"hybrid", "tdu_jam", "razor-1911", "dynamix", "genesis"},
+	411:  []URI{hybrid},
+	4110: []URI{hybrid, "eclipse", dynamix},
+	4111: []URI{hybrid, "tdu_jam", razor1911, dynamix, genesis},
 	412:  []URI{"legend"},
-	413:  []URI{"pentagram"},
-	414:  []URI{"legend", "pentagram", "genesis"},
-	415:  []URI{"genesis"},
+	413:  []URI{pentagram},
+	414:  []URI{"legend", pentagram, genesis},
+	415:  []URI{genesis},
 	416:  []URI{"tdu_jam"},
-	417:  []URI{"pwa", "pirates-with-attitudes", "electronics-boutique-cracking-group"},
-	418:  []URI{"pirates-with-attitudes"},
-	419:  []URI{"titan-of-pwa", "pirates-with-attitudes"},
+	417:  []URI{"pwa", pwa, "electronics-boutique-cracking-group"},
+	418:  []URI{pwa},
+	419:  []URI{"titan-of-pwa", pwa},
 	420:  []URI{"united-group-international"},
 }
 
