@@ -37,7 +37,7 @@ require (
 	github.com/bengarrett/bbs v1.0.7
 	github.com/bengarrett/binbump v1.0.2
 	github.com/bengarrett/sauce v1.2.6
-	github.com/caarlos0/env/v11 v11.4.0
+	github.com/caarlos0/env/v11 v11.4.1
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1
 	github.com/friendsofgo/errors v0.9.2
@@ -47,7 +47,7 @@ require (
 	github.com/h2non/filetype v1.1.3
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/labstack/echo-contrib v0.50.1
-	github.com/labstack/echo/v4 v4.15.1
+	github.com/labstack/echo/v4 v4.15.2
 	github.com/lmittmann/tint v1.1.3
 	github.com/mattn/go-isatty v0.0.22
 	github.com/nalgeon/be v0.3.0
