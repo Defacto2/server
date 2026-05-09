@@ -30,7 +30,7 @@ const (
 const (
 	argExtent  = "-extent"
 	argGravity = "-gravity"
-	argTrim    = "-trim!"
+	argTrim    = "-trim"
 	north      = "North"
 )
 

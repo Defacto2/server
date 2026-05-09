@@ -50,6 +50,8 @@ func (r Repair) String() string {
 
 const (
 	UpdateSet = "UPDATE files SET "
+
+	groupBrandBy = "group_brand_by"
 )
 
 // In the future we may want to add a Debug or TestRun func.
@@ -295,7 +297,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 	}
 	if len(f) > 0 {
 		empty := null.NewString("", true)
-		rowsAff, err := f.UpdateAll(ctx, exec, models.M{"group_brand_by": empty})
+		rowsAff, err := f.UpdateAll(ctx, exec, models.M{groupBrandBy: empty})
 		if err != nil {
 			return fmt.Errorf("update all to null group_brand_by: %w", err)
 		}
@@ -330,7 +332,7 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 			return fmt.Errorf("where group_brand_by is bad: %w", err)
 		}
 		if len(f) > 0 {
-			rowsAff, err := f.UpdateAll(ctx, exec, models.M{"group_brand_by": fix})
+			rowsAff, err := f.UpdateAll(ctx, exec, models.M{groupBrandBy: fix})
 			if err != nil {
 				return fmt.Errorf("update all to null group_brand_by fix: %w", err)
 			}
@@ -352,7 +354,7 @@ func moreReleases(_ context.Context, exec boil.ContextExecutor) error {
 	if err != nil {
 		return fmt.Errorf("set upper group_brand_for: %w", err)
 	}
-	_, err = queries.Raw(postgres.SetUpper("group_brand_by")).Exec(exec)
+	_, err = queries.Raw(postgres.SetUpper(groupBrandBy)).Exec(exec)
 	if err != nil {
 		return fmt.Errorf("set upper group_brand_by: %w", err)
 	}
@@ -474,7 +476,7 @@ func nullifyEmpty(exec boil.ContextExecutor) error {
 	var query strings.Builder
 	columns := []string{
 		"list_relations", "web_id_github", "web_id_youtube",
-		"group_brand_for", "group_brand_by", "record_title",
+		"group_brand_for", groupBrandBy, "record_title",
 		"credit_text", "credit_program", "credit_illustration", "credit_audio", "comment",
 		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
 	}
