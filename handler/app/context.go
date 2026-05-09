@@ -81,19 +81,10 @@ type Pagination struct {
 }
 
 const (
-	canonical = "canonical"
-	demo      = "demo"
-	files     = "files"
-	search    = "search"
-	limit     = 198 // per-page record limit
-	ordrby    = "orderBy"
-	pubs      = "pubs"
-	records   = "records"
-	sep       = ";"
-	az        = ", a-z"
-	byyear    = " by year"
-	alpha     = "alphabetically"
-	year      = "by year"
+	limit  = 198 // per-page record limit
+	sep    = ";"
+	az     = ", a-z"
+	byyear = " by year"
 )
 
 // Empty is a map of default values for an app template that are used by the layout template,

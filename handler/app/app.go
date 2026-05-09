@@ -69,17 +69,26 @@ const (
 )
 
 const (
-	bb       = "bbs"
-	ca       = "California"
-	cc       = "CC BY-SA 4.0"
-	flt      = "Fairlight"
-	gns      = "Genesis"
-	pd       = "Public Domain"
-	rz       = "RZR"
-	rzr      = "Razor 1911"
-	thg      = "The Humble Guys"
-	websites = "websites"
-	years    = "years"
+	bb        = "bbs"
+	ca        = "California"
+	cc        = "CC BY-SA 4.0"
+	flt       = "Fairlight"
+	gns       = "Genesis"
+	pd        = "Public Domain"
+	rz        = "RZR"
+	rzr       = "Razor 1911"
+	thg       = "The Humble Guys"
+	alpha     = "alphabetically"
+	byYear    = "by year"
+	canonical = "canonical"
+	demo      = "demo"
+	files     = "files"
+	ordrby    = "orderBy"
+	pubs      = "pubs"
+	records   = "records"
+	search    = "search"
+	websites  = "websites"
+	years     = "years"
 )
 
 // Caching are values that are used throughout the app or layouts.
