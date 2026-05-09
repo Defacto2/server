@@ -655,7 +655,7 @@ func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger, ft *fulltext.Ti
 	const limit = 14
 	ctx := context.Background()
 	input := c.FormValue("htmx-search")
-	name := helper.TrimRoundBraket(input)
+	name := helper.TrimRoundBracket(input)
 	name = releaser.Clean(name) // required to stop 503 errors with invalid characters
 	if name == "" {
 		return c.HTML(http.StatusOK, "<!-- empty search query -->")
@@ -727,7 +727,7 @@ func datalist(c echo.Context, db *sql.DB, sl *slog.Logger, input string, magazin
 	}
 	const maxResults = 14
 	ctx := context.Background()
-	slug := helper.Slug(helper.TrimRoundBraket(input))
+	slug := helper.Slug(helper.TrimRoundBracket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")
 	}

@@ -49,6 +49,13 @@ const (
 	cacheMaxItems = 1000          // Maximum number of items to keep in cache
 )
 
+const (
+	ac = "areacodes"
+	af = "artifacts"
+	er = "error"
+	re = "regions"
+)
+
 // cacheQueryItem represents a cached query result.
 type cacheQueryItem struct {
 	data    any
@@ -232,7 +239,7 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 		page, err = strconv.Atoi(s)
 		if err != nil || page < 1 {
 			return c.JSON(http.StatusBadRequest, map[string]string{
-				"error": "Invalid page parameter",
+				er: "Invalid page parameter",
 			})
 		}
 	}
@@ -241,13 +248,13 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 	fs, err := fileslice.Records(ctx, db, uri, page, limit)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query files",
+			er: "Failed to query files",
 		})
 	}
 	count, err := model.Count(ctx, db)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query count",
+			er: "Failed to query count",
 		})
 	}
 	files := artifactSummaries(fs)
@@ -262,7 +269,7 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 	}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"artifacts":  response.Files,
+		af:           response.Files,
 		"statistics": response.Stats,
 		"page":       page,
 		"totalPages": pages,
@@ -280,7 +287,7 @@ func FileAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	hash := c.Param("id")
 	if hash == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Missing id parameter",
+			er: "Missing id parameter",
 		})
 	}
 
@@ -288,7 +295,7 @@ func FileAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	fileID := helper.DeobfuscateID(hash)
 	if fileID == 0 {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid file hash",
+			er: "Invalid file hash",
 		})
 	}
 
@@ -297,11 +304,11 @@ func FileAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return c.JSON(http.StatusNotFound, map[string]string{
-				"error": "File not found",
+				er: "File not found",
 			})
 		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query file",
+			er: "Failed to query file",
 		})
 	}
 
@@ -451,8 +458,8 @@ func AreacodeSearchAPI(c echo.Context) error {
 				result.Notes = note
 			}
 			return c.JSON(http.StatusOK, map[string]any{
-				"areacodes": []areacodeAPI{result},
-				"regions":   []regionAPI{},
+				ac: []areacodeAPI{result},
+				re: []regionAPI{},
 			})
 		}
 	}
@@ -474,14 +481,14 @@ func AreacodeSearchAPI(c echo.Context) error {
 		}
 
 		return c.JSON(http.StatusOK, map[string]any{
-			"areacodes": []areacodeAPI{},
-			"regions":   results,
+			ac: []areacodeAPI{},
+			re: results,
 		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"areacodes": []areacodeAPI{},
-		"regions":   []regionAPI{},
+		ac: []areacodeAPI{},
+		re: []regionAPI{},
 	})
 }
 
@@ -520,7 +527,7 @@ func MilestoneYearAPI(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid year format",
+			er: "Invalid year format",
 		})
 	}
 
@@ -532,7 +539,7 @@ func MilestoneYearAPI(c echo.Context) error {
 	}
 	if len(result) == 0 {
 		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": "No milestones found for this year",
+			er: "No milestones found for this year",
 		})
 	}
 
@@ -547,27 +554,27 @@ func MilestoneYearsAPI(c echo.Context) error {
 	const expectedParts = 2
 	if len(parts) != expectedParts {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid range format. Use format: start-end",
+			er: "Invalid range format. Use format: start-end",
 		})
 	}
 
 	start, err := strconv.Atoi(parts[0])
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid start year",
+			er: "Invalid start year",
 		})
 	}
 
 	end, err := strconv.Atoi(parts[1])
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid end year",
+			er: "Invalid end year",
 		})
 	}
 
 	if start > end {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Start year must be less than or equal to end year",
+			er: "Start year must be less than or equal to end year",
 		})
 	}
 
@@ -580,7 +587,7 @@ func MilestoneYearsAPI(c echo.Context) error {
 
 	if len(result) == 0 {
 		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": "No milestones found for this year range",
+			er: "No milestones found for this year range",
 		})
 	}
 
@@ -593,7 +600,7 @@ func MilestoneDecadeAPI(c echo.Context) error {
 	decade, err := strconv.Atoi(strings.TrimSuffix(decadeParam, "s"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid decade format. Use format like '1980s'",
+			er: "Invalid decade format. Use format like '1980s'",
 		})
 	}
 
@@ -610,7 +617,7 @@ func MilestoneDecadeAPI(c echo.Context) error {
 
 	if len(result) == 0 {
 		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": "No milestones found for this decade",
+			er: "No milestones found for this decade",
 		})
 	}
 
@@ -656,7 +663,7 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		page, err = strconv.Atoi(s)
 		if err != nil || page < 1 {
 			return c.JSON(http.StatusBadRequest, map[string]string{
-				"error": "Invalid page parameter",
+				er: "Invalid page parameter",
 			})
 		}
 	}
@@ -665,14 +672,14 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	count, err := groupsCount(ctx, db)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to count releasers",
+			er: "Failed to count releasers",
 		})
 	}
 	pages := (count + apiLimit - 1) / apiLimit // Ceiling division
 	rels := model.Releasers{}
 	if err := rels.Limit(ctx, db, model.Alphabetical, apiLimit, page); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query releasers",
+			er: "Failed to query releasers",
 		})
 	}
 	if len(rels) == 0 {
@@ -703,7 +710,7 @@ func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	rels := model.Releasers{}
 	if err := rels.Magazine(ctx, db); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query magazines",
+			er: "Failed to query magazines",
 		})
 	}
 
@@ -727,7 +734,7 @@ func BoardsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	rels := model.Releasers{}
 	if err := rels.BBS(ctx, db, model.Oldest); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query boards",
+			er: "Failed to query boards",
 		})
 	}
 
@@ -751,7 +758,7 @@ func SitesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	rels := model.Releasers{}
 	if err := rels.FTP(ctx, db); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query sites",
+			er: "Failed to query sites",
 		})
 	}
 
@@ -873,7 +880,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	name := c.Param("name")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Releaser name parameter is required",
+			er: "Releaser name parameter is required",
 		})
 	}
 	ctx := context.Background()
@@ -881,12 +888,12 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	fs, err := rels.Where(ctx, db, name)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to query releaser",
+			er: "Failed to query releaser",
 		})
 	}
 	if len(fs) == 0 {
 		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": "Releaser not found",
+			er: "Releaser not found",
 		})
 	}
 
@@ -894,7 +901,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	if err := sum.ByReleaser(ctx, db, name); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to get releaser statistics",
+			er: "Failed to get releaser statistics",
 		})
 	}
 
@@ -932,7 +939,7 @@ func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			Demozoo:  linkDemozoo(name),
 			Csdb:     linkCsdb(name),
 		},
-		"artifacts": result,
+		af: result,
 	})
 }
 
@@ -974,7 +981,7 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	name := c.Param("name")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Scener name parameter is required",
+			er: "Scener name parameter is required",
 		})
 	}
 
@@ -983,12 +990,12 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	fs, err := srs.Where(ctx, db, name)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": "Failed to fetch scener",
+			er: "Failed to fetch scener",
 		})
 	}
 	if len(fs) == 0 {
 		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": "Scener not found",
+			er: "Scener not found",
 		})
 	}
 
@@ -996,7 +1003,7 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	if err := sum.ByScener(ctx, db, name); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to get scener statistics",
+			er: "Failed to get scener statistics",
 		})
 	}
 
@@ -1029,7 +1036,7 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 			Demozoo:  "",
 			Csdb:     "",
 		},
-		"artifacts": result,
+		af: result,
 	})
 }
 
@@ -1078,12 +1085,12 @@ func roleAPI(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error
 		err = srs.Distinct(ctx, db)
 	default:
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Sceners role is unknown",
+			er: "Sceners role is unknown",
 		})
 	}
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to fetch sceners",
+			er: "Failed to fetch sceners",
 		})
 	}
 	if len(srs) == 0 {
@@ -1253,12 +1260,12 @@ func CategoryAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	name := c.Param("category")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Category parameter is required",
+			er: "Category parameter is required",
 		})
 	}
 	if !tags.IsCategory(name) {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Category is not known",
+			er: "Category is not known",
 		})
 	}
 	return TagAPI(c, db, sl, name)
@@ -1269,12 +1276,12 @@ func PlatformAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	name := c.Param("platform")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Platform parameter is required",
+			er: "Platform parameter is required",
 		})
 	}
 	if !tags.IsPlatform(name) {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Platform is not known",
+			er: "Platform is not known",
 		})
 	}
 	return TagAPI(c, db, sl, name)
@@ -1288,13 +1295,13 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 	}
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "TagAPI param string is missing",
+			er: "TagAPI param string is missing",
 		})
 	}
 	category, platform := tags.IsCategory(name), tags.IsPlatform(name)
 	if !category && !platform {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "TagAPI param string is not a known category or platform",
+			er: "TagAPI param string is not a known category or platform",
 		})
 	}
 
@@ -1309,19 +1316,19 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 		fs, err = order.ByCategory(ctx, db, 0, 0, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to query category files",
+				er: "Failed to query category files",
 			})
 		}
 		count, err = model.CategoryCount(ctx, db, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to count category files",
+				er: "Failed to count category files",
 			})
 		}
 		byteSum, err = model.CategoryByteSum(ctx, db, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to calculate platform file sizes",
+				er: "Failed to calculate platform file sizes",
 			})
 		}
 	}
@@ -1329,19 +1336,19 @@ func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //
 		fs, err = order.ByPlatform(ctx, db, 0, 0, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to query platform files",
+				er: "Failed to query platform files",
 			})
 		}
 		count, err = model.PlatformCount(ctx, db, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to count platform files",
+				er: "Failed to count platform files",
 			})
 		}
 		byteSum, err = model.PlatformByteSum(ctx, db, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"error": "Failed to calculate platform file sizes",
+				er: "Failed to calculate platform file sizes",
 			})
 		}
 	}

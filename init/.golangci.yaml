@@ -3,14 +3,15 @@ linters:
   default: all
   disable:
     - gomodguard # redundant
-    - gomoddirectives # required at the moment due to avoid bad package imports
-    - depguard # too complex to maintain
-    - nlreturn # don't want
-    - noinlineerr # don't agree with
+    - gomoddirectives # required at the moment (see go.mod)
+    - depguard # too complex to maintain with this app
     - paralleltest # breaks some tests
-    - varnamelen # don't agree with
-    - wsl # don't want
-    - wsl_v5 # don't want
+    # the linters below are unwanted
+    - nlreturn
+    - noinlineerr
+    - varnamelen
+    - wsl
+    - wsl_v5
   settings:
     sloglint:
       attr-only: true
@@ -76,6 +77,7 @@ linters:
           - exhaustive
           - exhaustruct
           - funlen
+          - goconst
           - gocyclo
           - ireturn
           - lll
