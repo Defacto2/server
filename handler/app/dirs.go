@@ -8,10 +8,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
-	"html/template" // gif format decoder
-	_ "image/gif"   // jpeg format decoder
-	_ "image/jpeg"  // pmh format decoder
+	"fmt"           // gif format decoder
+	"html/template" // jpeg format decoder
+	_ "image/gif"   // pmh format decoder
+	_ "image/jpeg"
 	_ "image/png"
 	"io"
 	"log/slog"

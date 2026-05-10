@@ -1,9 +1,9 @@
 module github.com/Defacto2/server
 
 // NOTE: Don't forget update the go-version found in .github/workflows/gorelease.yml
-go 1.26.2 // latest: https://go.dev/dl/
+go 1.26.3 // latest: https://go.dev/dl/
 
-// INFO: Usage of the packages
+// INFO: Usage of the packages.
 // Defacto2/ named packages are all internal but kept out of the main application.
 // aarondl/ packages are for sqlboiler and is used for interacting with the database.
 // bengarrett/bbs handles bbs color encoding text conversions.
@@ -36,7 +36,7 @@ require (
 	github.com/bengarrett/ansibump v1.1.2
 	github.com/bengarrett/bbs v1.0.7
 	github.com/bengarrett/binbump v1.0.2
-	github.com/bengarrett/sauce v1.2.6
+	github.com/bengarrett/sauce v1.2.7
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.0.1

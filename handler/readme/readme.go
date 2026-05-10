@@ -316,7 +316,11 @@ func ansiTexts(
 	platform string, sr sauce.Record, errs error) (
 	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
 ) {
-	width := 80 // TODO: add SAUCE width, this needs changes to the sauce package
+	width := 80
+	ti1 := sr.Info.Info1
+	if ti1.Info == "character width" && ti1.Value > 0 {
+		width = int(ti1.Value)
+	}
 	charset := charmap.CodePage437
 	pal := ansibump.CGA16
 	amiparser := false
