@@ -83,6 +83,7 @@ const (
 	canonical = "canonical"
 	demo      = "demo"
 	files     = "files"
+	magazine  = "magazine"
 	ordrby    = "orderBy"
 	pubs      = "pubs"
 	records   = "records"
@@ -841,14 +842,10 @@ func Safety(platform, section any) bool {
 		return false
 	}
 	switch s {
-	case "internaldocument", "magazine":
+	case "internaldocument", magazine:
 		return true
 	}
-	switch p {
-	case "placeholder":
-		return true
-	}
-	return false
+	return p == "placeholder"
 }
 
 // SubTitle returns a secondary element with the record title.
@@ -874,7 +871,7 @@ func SubTitle(section null.String, title any, large bool) template.HTML {
 	if val == "" {
 		return ""
 	}
-	if strings.TrimSpace(strings.ToLower(section.String)) == "magazine" {
+	if strings.TrimSpace(strings.ToLower(section.String)) == magazine {
 		if i, err := strconv.Atoi(val); err == nil {
 			val = fmt.Sprintf("Issue %d", i)
 		}
