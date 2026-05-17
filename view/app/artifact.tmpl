@@ -21,9 +21,20 @@
         and the "Textfile content"
 */ -}}
 {{- $textcontentBinary := index . "contentBinary" }}
-{{- $textcontentLatin1 := index . "contentLatin1" | safeBBS }}
-{{- $textcontentCP437 := index . "contentCP437" | safeBBS }}
-{{- $textcontentUTF8 := index . "contentUTF8" | safeBBS }}
+{{- $textcontentLatin1 := "" }}
+{{- $textcontentCP437 := index . "" }}
+{{- $textcontentUTF8 := index . "" }}
+{{- /* To add more conditonals, see: Safety() in app.go */ -}}
+{{- $useDoc := safety (index . "platform")  (index . "section") }}
+{{- if eq true $useDoc }}
+  {{- $textcontentLatin1 = index . "contentLatin1" | safeDocument }}
+  {{- $textcontentCP437 = index . "contentCP437" | safeDocument }}
+  {{- $textcontentUTF8 = index . "contentUTF8" | safeDocument }}
+{{- else}}
+  {{- $textcontentLatin1 = index . "contentLatin1" | safeBBS }}
+  {{- $textcontentCP437 = index . "contentCP437" | safeBBS }}
+  {{- $textcontentUTF8 = index . "contentUTF8" | safeBBS }}
+{{- end}}
 {{- $preclassLatin1 := index . "preClassLatin1" }}
 {{- $preclassCP437 := index . "preClassCP437" }}
 {{- $preClass := index . "preElementClass" }}
@@ -48,7 +59,8 @@
         {{- template "artifactlock" . }}
         <div class="{{$columnClass}}">
             {{- /*  Lead including published, platform and section  */}}
-            <h4 class="lead mb-4">{{$published}}<span class="text-secondary">, {{$classification}}</span></h4>
+            <h4 class="lead mb-4">{{$published}}<span class="text-secondary">, {{$classification}} 
+            {{- if eq true (index . "editor")}}<small> admin : {{ index . "platform"}} / {{ index . "section"}}</small>{{end}}</span></h4>
             {{- /*  Table of details  */}}
             {{- template "artifactinfo" . }}
         </div>

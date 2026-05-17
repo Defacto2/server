@@ -8,11 +8,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"           // gif format decoder
-	"html/template" // jpeg format decoder
-	_ "image/gif"   // pmh format decoder
-	_ "image/jpeg"
-	_ "image/png"
+	"fmt"
+	"html/template"
+	_ "image/gif"  // gif format decoder
+	_ "image/jpeg" // jpg format decoder
+	_ "image/png"  // png format decoder
 	"io"
 	"log/slog"
 	"maps"

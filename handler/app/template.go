@@ -184,8 +184,10 @@ func (t *Templ) Funcs() template.FuncMap {
 		"recordLinkPreviews": LinkPreviews,
 		"recordTagInfo":      TagBrief,
 		"safeBBS":            SafeBBS,
+		"safeDocument":       SafeDocument,
 		"safeHTML":           SafeHTML,
 		"safeJS":             SafeJS,
+		"safety":             Safety,
 		"slugify":            helper.Slug,
 		"stripSup":           StripSup,
 		"subTitle":           SubTitle,
@@ -466,18 +468,21 @@ func (t *Templ) FuncMap(db *sql.DB) *template.FuncMap {
 }
 
 func (t *Templ) artifact(lock bool, files ...string) []string {
-	files = append(files,
+	files = append(
+		files,
 		GlobTo("artifactinfo.tmpl"),
 		GlobTo("artifactjsdos.tmpl"),
 	)
 	if lock {
-		return append(files,
+		return append(
+			files,
 			GlobTo("artifactedit_null.tmpl"),
 			GlobTo("artifacteditjsdos_null.tmpl"),
 			GlobTo("artifactlock_null.tmpl"),
 		)
 	}
-	return append(files,
+	return append(
+		files,
 		GlobTo("artifactfile.tmpl"),
 		GlobTo("artifactedit.tmpl"),
 		GlobTo("artifacteditjsdos.tmpl"),
@@ -488,12 +493,14 @@ func (t *Templ) artifact(lock bool, files ...string) []string {
 
 func (t *Templ) locked(lock bool, files ...string) []string {
 	if lock {
-		return append(files,
+		return append(
+			files,
 			GlobTo("layoutlock_null.tmpl"),
 			GlobTo("layoutjs_null.tmpl"),
 		)
 	}
-	return append(files,
+	return append(
+		files,
 		GlobTo("layoutlock.tmpl"),
 		GlobTo("layoutjs.tmpl"),
 	)
@@ -501,13 +508,15 @@ func (t *Templ) locked(lock bool, files ...string) []string {
 
 func (t *Templ) lockLayout(lock bool, files ...string) []string {
 	if lock {
-		return append(files,
+		return append(
+			files,
 			GlobTo("layoutup_null.tmpl"),
 			GlobTo("layoutjsup_null.tmpl"),
 			GlobTo("uploader_null.tmpl"),
 		)
 	}
-	return append(files,
+	return append(
+		files,
 		GlobTo("layoutup.tmpl"),
 		GlobTo("layoutjsup.tmpl"),
 		GlobTo("uploader.tmpl"),
@@ -545,7 +554,8 @@ func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 		return nil
 	}
 	return template.Must(template.New("").Funcs(
-		*funcMap).ParseFS(t.View, files...))
+		*funcMap,
+	).ParseFS(t.View, files...))
 }
 
 func recordLastMod(b bool) template.HTML {

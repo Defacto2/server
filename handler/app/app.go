@@ -778,6 +778,29 @@ func SafeBBS(a any) template.HTML {
 	}
 }
 
+// SafeDocument returns a string as a template.HTML type to prevent HTML escaping in the template.
+// To avoid false positives, this does not handle PCBoard or Renegard color codes.
+//
+// If any value is not a valid string then an empty string is returned.
+func SafeDocument(a any) template.HTML {
+	const lessThan = "<"
+	const ltEntity = "&lt;"
+	switch val := a.(type) {
+	case string:
+		src := []byte(val)
+		// Check for and strip RTF formatting first, before any other processing
+		if simple.RTF(src) {
+			src = simple.StripRTF(src)
+		}
+		// remove any html elements false positives
+		src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
+		s := string(src)
+		return SafeHTML(s)
+	default:
+		return template.HTML("")
+	}
+}
+
 // RemovePCBoard removes any PCBoard sequences from the byte slice.
 func RemovePCBoard(b []byte) []byte {
 	re := regexp.MustCompile(bbs.PCBoardRe)
@@ -792,6 +815,40 @@ func SafeHTML(s string) template.HTML {
 // SafeJS returns a string as a template.JS type to prevent JavaScript escaping in the template.
 func SafeJS(s string) template.JS {
 	return template.JS(s)
+}
+
+// Safety returns true if SafeDocument should be used instead of SafeBBS.
+func Safety(platform, section any) bool {
+	p, s := "", ""
+	switch val := platform.(type) {
+	case string:
+		p = val
+	case null.String:
+		if val.Valid {
+			p = val.String
+		}
+	default:
+		return false
+	}
+	switch val := section.(type) {
+	case string:
+		s = val
+	case null.String:
+		if val.Valid {
+			s = val.String
+		}
+	default:
+		return false
+	}
+	switch s {
+	case "internaldocument", "magazine":
+		return true
+	}
+	switch p {
+	case "placeholder":
+		return true
+	}
+	return false
 }
 
 // SubTitle returns a secondary element with the record title.
