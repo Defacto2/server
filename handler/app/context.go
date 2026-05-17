@@ -1284,6 +1284,7 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 	ctx := context.Background()
 	var order string
 	r := model.Releasers{}
+	render := name
 	switch chronological {
 	case true:
 		if err := r.Magazine(ctx, db); err != nil {
@@ -1294,6 +1295,7 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 		data["title"] = title + byyear
 		order = byYear
 	case false:
+		render = name + "-az"
 		if err := r.MagazineAZ(ctx, db); err != nil {
 			return DatabaseErr(c, sl, name, err)
 		}
@@ -1311,7 +1313,7 @@ func magazines(c echo.Context, db *sql.DB, sl *slog.Logger, chronological bool) 
 		pubs:   fmt.Sprintf("%d publications", len(r)),
 		ordrby: order,
 	}
-	err := c.Render(http.StatusOK, name, data)
+	err := c.Render(http.StatusOK, render, data)
 	if err != nil {
 		return InternalErr(c, sl, name, err)
 	}
