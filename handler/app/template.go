@@ -22,6 +22,7 @@ import (
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/form"
 	"github.com/Defacto2/server/handler/pouet"
+	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/panics"
@@ -369,14 +370,15 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 		"version": func() string {
 			return t.Version
 		},
-		"tagGameHack":  func() string { return tags.GameHack.String() },
-		"tagInstall":   func() string { return tags.Install.String() },
-		"tagWindows":   func() string { return tags.Windows.String() },
-		"tagDOS":       func() string { return tags.DOS.String() },
-		"tagLogo":      func() string { return tags.Logo.String() },
-		"tagProof":     func() string { return tags.Proof.String() },
-		"tagText":      func() string { return tags.Text.String() },
-		"tagTextAmiga": func() string { return tags.TextAmiga.String() },
+		"tagGameHack":   func() string { return tags.GameHack.String() },
+		"tagInstall":    func() string { return tags.Install.String() },
+		"tagWindows":    func() string { return tags.Windows.String() },
+		"tagDOS":        func() string { return tags.DOS.String() },
+		"tagLogo":       func() string { return tags.Logo.String() },
+		"tagProof":      func() string { return tags.Proof.String() },
+		"tagText":       func() string { return tags.Text.String() },
+		"tagTextAmiga":  func() string { return tags.TextAmiga.String() },
+		"tidbitMissing": tidbit.Missing,
 		"thumb": func(unid, desc string, bottom bool) template.HTML {
 			return simple.Thumb(unid, desc, dir.Directory(t.Environment.AbsThumbnail), bottom)
 		},

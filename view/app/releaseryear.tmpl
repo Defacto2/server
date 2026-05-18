@@ -8,21 +8,25 @@
     Timelines can be found in releasertimeline.tmpl
 */ -}}
 {{- define "content" }}
-{{- $path := "g" }}
-{{- $name := .itemName }}
-{{- $pubs := index .stats.pubs }}
-{{- $orderBy := index .stats.orderBy }}
-{{- $prevYear := 0 }}
-{{- $timeline := 1981 }}
 {{- $class := "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2"}}
+{{- $editor := index . "editor"}}
 {{- $eraClass := "text-start text-secondary mx-5 mb-4"}}
+{{- $h1 := index . "h1"}}
+{{- $orderBy := index .stats.orderBy }}
+{{- $mdMissing := false}}
+{{- $name := .itemName }}
+{{- $path := "g" }}
+{{- $prevYear := 0 }}
+{{- $pubs := index .stats.pubs }}
+{{- $timeline := 1981 }}
 <div class="container px-4 text-center">
     <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
 {{- range $index, $rel := .releasers -}}
-    {{- $initialism := initialisms $rel.Unique.URI }}
+    {{- if and (ne $h1 "BBS") (ne $h1 "FTP") (eq true $editor)}}{{- $mdMissing = tidbitMissing $rel.Unique.URI }}{{end}}
     {{- $year := $rel.Unique.Year.Int }}
-    {{- $displayYear := or (eq $prevYear 0) (gt $year $prevYear)}}
     {{- $difference := sub $prevYear $year}}
+    {{- $displayYear := or (eq $prevYear 0) (gt $year $prevYear)}}
+    {{- $initialism := initialisms $rel.Unique.URI }}
   {{- /* conditionals must always begin after these vars */ -}}
   {{- if $displayYear }}
     <!-- this case will only match years that exist in the fetched records -->
@@ -44,6 +48,8 @@
               <h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a></h5>
               <span class="text-muted">{{ $initialism }} &nbsp; </span>
               {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
+{{- if eq $mdMissing true }}
+            <small class="badge rounded-pill text-bg-warning">❌ markdown</small>{{end}}
             </div>
         </div>
     {{- $prevYear = $year }}

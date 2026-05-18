@@ -2,19 +2,27 @@
     releaser.tmpl ~ List of ordered releaser names with their file counts and total sizes.
 */ -}}
 {{- define "content" }}
-{{- $path := "g" }}
-{{- $name := .itemName }}
-{{- $pubs := index .stats.pubs }}
+{{- $editor := index . "editor"}}
+{{- $h1 := index . "h1"}}
+{{- $mdMissing := false}}
 {{- $orderBy := index .stats.orderBy }}
+{{- $name := .itemName }}
+{{- $path := "g" }}
+{{- $pubs := index .stats.pubs }}
 <div class="container px-4 text-center">
     <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
     <div class="row row-cols-1 row-cols-sm-2 g-2">
 {{- range $rel := .releasers -}}
 {{- $initialism := initialisms $rel.Unique.URI }}
+{{- if and (ne $h1 "BBS") (ne $h1 "FTP") (eq true $editor)}}{{- $mdMissing = tidbitMissing $rel.Unique.URI }}{{end}}
         <div class="col">
-            <div class="p-3 border bg-light h-100 rounded-1"><h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a></h5>
+            <div class="p-3 border bg-light h-100 rounded-1">
+            <h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a></h5>
             <span class="text-muted">{{ $initialism }} &nbsp; </span>
-            {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}</div>
+            {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
+{{- if eq $mdMissing true }}
+            <small class="badge rounded-pill text-bg-warning">❌ markdown</small>{{end}}
+            </div>
         </div>
 {{- end}}
     </div>

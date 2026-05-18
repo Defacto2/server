@@ -571,3 +571,18 @@ func Find(uri string) []ID {
 	}
 	return ids
 }
+
+// Missing returns true if no tidbit IDs exist for the given URI.
+//
+// The ID returned can be used in a string conversion to get the description.
+// The ID can also be used to get the URIs of the tidbit.
+func Missing(uri string) bool {
+	for _, uris := range groups {
+		for val := range slices.Values(uris) {
+			if val == URI(uri) {
+				return false
+			}
+		}
+	}
+	return true
+}
