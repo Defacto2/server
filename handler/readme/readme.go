@@ -162,6 +162,21 @@ func candidate() []string {
 func PlainTextBuffers(
 	art *models.File, sizeLimit int64, download, extra dir.Directory,
 ) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
+	w := io.Discard
+	return PlainTextBuffersW(w, art, sizeLimit, download, extra)
+}
+
+// PlainTextBuffersW returns the content of the readme file or the text of the file download.
+// The first buffer is used for CP1252 and ISO-8859-1 texts while the second buffer
+// is used for UTF-8 texts.
+//
+// The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
+// However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
+//
+// The writer is optional for debug output but can usually be [io.Discard].
+func PlainTextBuffersW(
+	w io.Writer, art *models.File, sizeLimit int64, download, extra dir.Directory,
+) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
 	const msg = "readme pool"
 	nosauce := sauce.Record{} //nolint:exhaustruct
 	if art == nil {
@@ -178,6 +193,7 @@ func PlainTextBuffers(
 	err3 := render.HelperText(hlp, art, extra)
 	var errs error
 	if err1 != nil {
+		debug(w, msg, fmt.Sprintf("descriptor text error: %s", err1))
 		errs = errors.Join(errs, fmt.Errorf("%s render diz: %w", msg, err1))
 	}
 	if err2 != nil {
@@ -185,29 +201,35 @@ func PlainTextBuffers(
 			err2 = nil
 		}
 		if err2 != nil {
+			debug(w, msg, fmt.Sprintf("information text error: %s", err2))
 			errs = errors.Join(errs, fmt.Errorf("%s render read: %w", msg, err2))
 		}
 	}
 	if err3 != nil {
+		debug(w, msg, fmt.Sprintf("helper text error: %s", err3))
 		errs = errors.Join(errs, fmt.Errorf("%s render helper: %w", msg, err3))
 	}
 	knownData := diz.Len() == 0 && buf.Len() == 0 && hlp.Len() == 0 && ruf.Len() == 0
 	if knownData {
 		name := download.Join(art.UUID.String)
+		debug(w, msg, "returned known binaries")
 		return knownBinaries(msg, name, errs)
 	}
 	// check the bytes to confirm they can be displayed as text
 	r := bytes.NewReader(buf.Bytes())
-	sign := magicnumber.Find(r)
+	sign := magicnumber.FindW(os.Stdout, r)
+	debug(w, msg, fmt.Sprintf("matched sign: %s", sign))
 	// reset text buffer for utf-16 or utf-32 text which won't be displayed
 	if incompatible := sign == magicnumber.UTF16Text ||
 		sign == magicnumber.UTF32Text; incompatible {
+		debug(w, msg, "found incompatible utf 16 or 32")
 		buf.Reset()
 	} else {
 		// reset buffers for known images
 		skip := magicnumber.Images()
 		skip = append(skip, magicnumber.XBinaryText)
 		if slices.Contains(skip, sign) {
+			debug(w, msg, "found known images")
 			buf.Reset()
 			ruf.Reset()
 		}
@@ -216,18 +238,29 @@ func PlainTextBuffers(
 	// text with ANSI escape codes use a custom readme template
 	if match, err := UseANSICodes(bytes.NewReader(buf.Bytes())); err != nil {
 		errs = errors.Join(errs, fmt.Errorf("%s incompatible ansi: %w", msg, err))
+		debug(w, msg, fmt.Sprintf("matched incompatible ansi: %s", err))
 		buf.Reset()
 	} else if match {
 		platform := strings.TrimSpace(strings.ToLower(art.Platform.String))
+		debug(w, msg, "returned ansi "+platform+" texts")
 		return ansiTexts(buf, diz, hlp, ruf, platform, sr, errs)
 	}
 	// binary texts can also cause false positives
 	if binaryText := sign == magicnumber.Unknown; binaryText {
 		y := art.DateIssuedYear.Int16
+		debug(w, msg, "returned binary texts")
 		return binaryTexts(buf, diz, hlp, ruf, y, sr, errs)
 	}
 	// modify the buffer bytes for cleanup
+	debug(w, msg, "returned plain texts")
 	return plainTexts(buf, diz, hlp, ruf, sr, errs)
+}
+
+func debug(w io.Writer, msg, s string) {
+	if w == nil {
+		return
+	}
+	_, _ = fmt.Fprintf(w, "%s %s\n", msg, s)
 }
 
 func knownBinaries(msg, name string, errs error) (
@@ -337,7 +370,8 @@ func ansiTexts(
 		CharSet:     charset,
 	}
 	ansi, err := cust.Buffer(
-		bytes.NewReader(buf.Bytes()))
+		bytes.NewReader(buf.Bytes()),
+	)
 	if err != nil {
 		errs = errors.Join(errs, err)
 		return nil, nil, sr, errs
@@ -364,7 +398,8 @@ func binaryTexts(
 		pal = binbump.RevisedCGA
 	}
 	binbuf, err := binbump.Buffer(
-		bytes.NewReader(buf.Bytes()), width, maxRows, pal, nil)
+		bytes.NewReader(buf.Bytes()), width, maxRows, pal, nil,
+	)
 	if err != nil {
 		errs = errors.Join(errs, err)
 		return nil, nil, sr, errs

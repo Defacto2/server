@@ -101,6 +101,7 @@ func InformationText(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, 
 		p = buf.Bytes()
 	}
 	buf.Reset()
+	p = TrimEOFs(p)
 	buf.Write(p)
 	if utf8.Valid(p) {
 		ruf.Reset()
@@ -182,7 +183,7 @@ func normalize(buf *bytes.Buffer) []byte {
 func DescriptorText(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	const msg = "description in zip"
 	const extension = ".diz"
-	return reader(buf, art, extra, extension, msg)
+	return secondary(buf, art, extra, extension, msg)
 }
 
 // HelperText returns the content of a helper text file.
@@ -190,10 +191,11 @@ func DescriptorText(buf *bytes.Buffer, art *models.File, extra dir.Directory) er
 func HelperText(buf *bytes.Buffer, art *models.File, extra dir.Directory) error {
 	const msg = "helper text file"
 	const extension = ".hlp"
-	return reader(buf, art, extra, extension, msg)
+	return secondary(buf, art, extra, extension, msg)
 }
 
-func reader(buf *bytes.Buffer, art *models.File, extra dir.Directory, extension, msg string) error {
+// secondary inserts any extra files such as file_id.diz or help files to the buf buffer.
+func secondary(buf *bytes.Buffer, art *models.File, extra dir.Directory, extension, msg string) error {
 	if buf == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoBuffer)
 	}
@@ -210,7 +212,7 @@ func reader(buf *bytes.Buffer, art *models.File, extra dir.Directory, extension,
 	}
 	f, err := os.Open(diz)
 	if err != nil {
-		b := []byte("error could not read the description file")
+		b := []byte("error could not read the extra text file")
 		buf.Write(b)
 	}
 	defer func() { _ = f.Close() }()
@@ -233,6 +235,31 @@ func reader(buf *bytes.Buffer, art *models.File, extra dir.Directory, extension,
 	buf.Reset()
 	buf.Write(b)
 	return nil
+}
+
+// TrimEOFs to handle some edge cases whereby an è followed
+// by a number of DOS-era end-of-file markers tail the text.
+//
+// Maybe these introduced by some specific bbs software in the day.
+//
+// Some examples from 1985:
+//   - https://defacto2.net/f/b22621c
+//   - https://defacto2.net/f/b328b2c
+func TrimEOFs(s []byte) []byte {
+	const (
+		è   = 0x8a
+		eof = 0x1a
+	)
+	match := bytes.LastIndexByte(s, è)
+	if none := match == -1; none {
+		return s
+	}
+	for i := match + 1; i < len(s); i++ {
+		if s[i] != eof {
+			return s
+		}
+	}
+	return s[:match]
 }
 
 // InsertPrefix injects content before the existing byte content.

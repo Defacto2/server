@@ -102,3 +102,14 @@ func TestNoScreenshot(t *testing.T) {
 	defer func() { _ = os.Remove(name) }()
 	be.True(t, !render.NoScreenshot(&art, helper.TmpDir()))
 }
+
+func TestTrimEOFs(t *testing.T) {
+	t.Parallel()
+	wants := []byte("hello world")
+	got := render.TrimEOFs(wants)
+	be.Equal(t, got, wants)
+	wants = []byte("requires._____")
+	s := append(wants, []byte("\x8a\x1a")...)
+	got = render.TrimEOFs(s)
+	be.Equal(t, got, wants)
+}
