@@ -176,7 +176,7 @@ func removeDuplicates(strings []string) []string {
 	return result
 }
 
-func calculateLimitAndOffset(pageNumber int, pageSize int) (int, int) {
+func calculateLimitAndOffset(pageNumber, pageSize int) (int, int) {
 	limit := pageSize
 	offset := (pageNumber - 1) * pageSize
 	return limit, offset

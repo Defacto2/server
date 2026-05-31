@@ -170,7 +170,7 @@ func RecordImageCropper(c echo.Context, sl *slog.Logger, crop command.Crop, dirs
 // recordFileProcessor is a helper function that handles the common file processing logic
 // for both image copying and binary text imaging operations.
 func recordFileProcessor(c echo.Context, debug *slog.Logger, _ command.Dirs,
-	msg string, emptyMsg string, successMsg string,
+	msg, emptyMsg, successMsg string,
 	processFunc func(*slog.Logger, string, string) error,
 ) error {
 	if err := panics.EchoContextS(c, debug); err != nil {

@@ -264,7 +264,7 @@ func TrimEOFs(s []byte) []byte {
 
 // InsertPrefix injects content before the existing byte content.
 // This is usually to inject FILE_ID.DIZ text files.
-func InsertPrefix(p []byte, prefix []byte) []byte {
+func InsertPrefix(p, prefix []byte) []byte {
 	if bytes.TrimSpace(prefix) == nil {
 		return p
 	}
@@ -282,7 +282,7 @@ func InsertPrefix(p []byte, prefix []byte) []byte {
 
 // InsertSuffix injects content after the existing byte content.
 // This is usually to inject an additional helper text file.
-func InsertSuffix(p []byte, suffix []byte) []byte {
+func InsertSuffix(p, suffix []byte) []byte {
 	if bytes.TrimSpace(suffix) == nil {
 		return p
 	}

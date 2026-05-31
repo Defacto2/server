@@ -459,7 +459,7 @@ type entry struct {
 }
 
 // ParseFile parses the file at the given path and returns true if it should be skipped.
-func (e *entry) ParseFile(path string, platform string) bool {
+func (e *entry) ParseFile(path, platform string) bool {
 	const skipEntry = true
 	info, err := os.Stat(path)
 	if err != nil {

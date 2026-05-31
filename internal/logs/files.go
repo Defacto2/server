@@ -134,7 +134,7 @@ func NoFiles() Files {
 //
 // If any errors occur they will be returned as a wrapped error and
 // must be handled appropriately.
-func OpenFiles(root string, ename, iname, dname string) (Files, error) {
+func OpenFiles(root, ename, iname, dname string) (Files, error) {
 	const msg = "logs open file"
 	const flag = os.O_CREATE | os.O_APPEND | os.O_WRONLY
 	const perm = 0o666

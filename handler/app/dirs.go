@@ -370,7 +370,7 @@ func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[s
 // unicodeEncodings adds the appropriate buffer for the "Web style" text.
 // The use of the buf Buffer is for legacy "ISO-8859-1" encoded text that is backwards compatible with UTF-8.
 // The use of the ruf Buffer is for multi-byte, Unicode runes.
-func unicodeEncodings(buf *bytes.Buffer, ruf *bytes.Buffer, data map[string]any) map[string]any {
+func unicodeEncodings(buf, ruf *bytes.Buffer, data map[string]any) map[string]any {
 	data["contentUTF8"] = ""
 	if ruf.Len() > 0 {
 		data["contentUTF8"] = ruf.String()

@@ -246,7 +246,7 @@ func ListInfo(tt RecordsBy, current, id string) (string, string) {
 // Pagi returns up to three page numbers for pagination links.
 // The absolute numbers will always be in sequence except for returned
 // values of zero, which should be skipped.
-func Pagi(page int, maxPage int) (int, int, int) {
+func Pagi(page, maxPage int) (int, int, int) {
 	const page1, page2, page3, page4 = 1, 2, 3, 4
 	limit := maxPage
 	switch limit {

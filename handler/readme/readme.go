@@ -41,7 +41,7 @@ import (
 // To save memory, content is not split into a slice until we need to handle it.
 //
 // This is a port of the CFML function, variables.findTextfile found in File.cfc.
-func Suggest(archive, group string, content string) string {
+func Suggest(archive, group, content string) string {
 	finds := SortList(true, content)
 	if len(finds) == 0 {
 		return ""
