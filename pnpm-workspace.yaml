@@ -1,4 +1,5 @@
 allowBuilds:
-  spawn-sync: set this to true or false
+  hihtml: true
+  spawn-sync: true
 onlyBuiltDependencies:
   - spawn-sync

@@ -65,28 +65,45 @@ tasks:
     cmds:
       - cmd: go tool pkgsite -http localhost:8090
     silent: true
-  lint:
+  lints:
     silent: false
-    desc: Runs the go formatter and lints the source code.
+    desc: Runs the formatters and linters over the source code.
     ignore_error: true
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
-      - cmd: go tool gofumpt -l -w .
-      - cmd: go fix -diff ./...
+      - cmd: go tool gofumpt -l -w -extra .
       - cmd: go fix ./...
       - cmd: pnpm exec eslint assets/js/
       - cmd: pnpm exec spectral lint public/json/openapi.json
       - cmd: pnpm exec stylelint --fix assets/css/*.css
       - cmd: golangci-lint run -c init/.golangci.yaml
-  linter:
+  lint:
     silent: false
-    desc: Quickly lint the go source code.
+    desc: Lint the Go source code.
     ignore_error: true
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
       - cmd: golangci-lint run -c init/.golangci.yaml
+  linthtm:
+    silent: false
+    desc: Lint the HTML and template source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: pnpm exec hihtml --check-code --check-links --input view/
+  lintjs:
+    silent: false
+    desc: Lint the CSS and JS source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: pnpm exec eslint assets/js/
+      - cmd: pnpm exec spectral lint public/json/openapi.json
+      - cmd: pnpm exec stylelint --fix assets/css/*.css
   nil:
     desc: 'Run the static analysis techniques to catch Nil dereferences.'
     cmds:

@@ -1,0 +1,17 @@
+{
+  "extensions": ["html", "tmpl"],
+  "ignore": ["node_modules", ".git"],
+  "validation": {
+    "preset": "standard",
+    "ignore": []
+  },
+  "links": {
+    "timeout": 10000,
+    "concurrency": 8,
+    "warnOnPermanentRedirects": false,
+    "ignore": []
+  },
+  "minification": {
+    "preset": "comprehensive"
+  }
+}
