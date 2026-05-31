@@ -5,6 +5,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	namer "github.com/Defacto2/releaser/name"
@@ -14,6 +15,7 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
+	"github.com/google/uuid"
 )
 
 // Count returns the total numbers of public artifact records.
@@ -43,7 +45,8 @@ func Counts(ctx context.Context, exec boil.ContextExecutor) (int64, int64, int64
 	uploads, err := models.Files(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNull(),
-		qm.WithDeleted()).Count(ctx, exec)
+		qm.WithDeleted(),
+	).Count(ctx, exec)
 	return all, public, uploads, err
 }
 
@@ -136,4 +139,99 @@ func ReleaserByteSum(ctx context.Context, exec boil.ContextExecutor, name string
 		return 0, fmt.Errorf("bytecount by releaser %q: %w", name, err)
 	}
 	return i, nil
+}
+
+// UUIDVers contains the UUID version usage statistics.
+type UUIDVers struct {
+	V1      int
+	V2      int
+	V3      int
+	V4      int
+	V5      int
+	V6      int
+	V7      int
+	V8      int
+	Count   int // Count is the total number of UUIDs parsed.
+	Error   int // Error are the UUIDs parsed that returned an error.
+	Unknown int // Unknown are the UUIDs parsed that returned an out of range version.
+}
+
+func (u UUIDVers) String() string {
+	s := []string{}
+	if n := u.V1; n > 0 {
+		s = append(s, fmt.Sprintf("V1: %d", n))
+	}
+	if n := u.V2; n > 0 {
+		s = append(s, fmt.Sprintf("V2: %d", n))
+	}
+	if n := u.V3; n > 0 {
+		s = append(s, fmt.Sprintf("V3: %d", n))
+	}
+	if n := u.V4; n > 0 {
+		s = append(s, fmt.Sprintf("V4: %d", n))
+	}
+	if n := u.V5; n > 0 {
+		s = append(s, fmt.Sprintf("V5: %d", n))
+	}
+	if n := u.V6; n > 0 {
+		s = append(s, fmt.Sprintf("V6: %d", n))
+	}
+	if n := u.V7; n > 0 {
+		s = append(s, fmt.Sprintf("V7: %d", n))
+	}
+	if n := u.V8; n > 0 {
+		s = append(s, fmt.Sprintf("V8: %d", n))
+	}
+	if n := u.Error; n > 0 {
+		s = append(s, fmt.Sprintf("errors: %d", n))
+	}
+	if n := u.Unknown; n > 0 {
+		s = append(s, fmt.Sprintf("unknown: %d", n))
+	}
+	return strings.Join(s, ", ")
+}
+
+// UUIDs returns the counts of the UUID versions in use, ranging from V1 to V8.
+func UUIDs(ctx context.Context, exec boil.ContextExecutor) (UUIDVers, error) {
+	const msg = "count uuids"
+	vers := UUIDVers{
+		V1: 0, V2: 0, V3: 0, V4: 0, V5: 0, V6: 0, V7: 0, V8: 0,
+		Count: 0, Error: 0, Unknown: 0,
+	}
+	uuids, err := UUID(ctx, exec)
+	if err != nil {
+		return vers, fmt.Errorf("%s: %w", msg, err)
+	}
+
+	const v1, v2, v3, v4, v5, v6, v7, v8 = 1, 2, 3, 4, 5, 6, 7, 8
+	for val := range slices.Values(uuids) {
+		vers.Count++
+		s := val.UUID.String
+		id, err := uuid.Parse(s)
+		if err != nil {
+			vers.Error++
+			continue
+		}
+		switch id.Version() {
+		case v1:
+			vers.V1++
+		case v2:
+			vers.V2++
+		case v3:
+			vers.V3++
+		case v4:
+			vers.V4++
+		case v5:
+			vers.V5++
+		case v6:
+			vers.V6++
+		case v7:
+			vers.V7++
+		case v8:
+			vers.V8++
+		default:
+			vers.Unknown++
+		}
+	}
+	return vers, nil
 }

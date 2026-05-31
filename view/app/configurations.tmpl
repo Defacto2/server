@@ -25,12 +25,12 @@
 <div class="container text-center pb-3">
   <div class="row">
     <div class="col-md-6">
-      <button class="btn btn-light w-75" hx-get="/editor/configurations/dbconns" hx-target="#database-response">
+      <button class="btn btn-dark w-75" hx-get="/editor/configurations/dbconns" hx-target="#database-response">
         <span class="me-2">&#128907;</span> Refresh the connections <span id="database-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
       </button>
     </div>
     <div class="col-md-6">
-      <button class="btn btn-light w-75" hx-get="/editor/configurations/pings" hx-target="#ping-response">
+      <button class="btn btn-dark w-75" hx-get="/editor/configurations/pings" hx-target="#ping-response">
         <span class="me-2">&#8634;</span> Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
       </button>
     </div>
@@ -40,6 +40,7 @@
   <div>{{index . "countPublic"}} public artifacts</div>
   <div class="ps-2"><small class="text-info-emphasis">{{index . "countNewUpload"}} new uploads</small></div>
   <div class="ps-2"><small>{{index . "countHidden"}} unavailable of {{index . "countArtifacts"}}</small></div>
+  <div class="ps-2"><small>Universal Unique ID version counts {{index . "uuidVersions"}}</small></div>
   <div><span id="database-response">{{$checkDBConns}}</span> active database connections</div>
 </div>
 {{- /*  Ping internal URIs */}}

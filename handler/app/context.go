@@ -589,6 +589,7 @@ func Configurations(c echo.Context, db *sql.DB, sl *slog.Logger, conf config.Con
 	data["countPublic"] = 0
 	data["countNewUpload"] = 0
 	data["countHidden"] = 0
+	data["uuidVersions"] = ""
 	ctx := context.Background()
 	// As we are collecting stats of both the file system and database, we may as well do it cocurrently
 	var wg sync.WaitGroup
@@ -596,17 +597,27 @@ func Configurations(c echo.Context, db *sql.DB, sl *slog.Logger, conf config.Con
 	wg.Go(func() {
 		mu.Lock()
 		ca, cp, cnu, err := model.Counts(ctx, db)
-		if err == nil {
-			data["countArtifacts"] = ca
-			data["countPublic"] = cp
-			data["countNewUpload"] = cnu
-			data["countHidden"] = ca - cp - cnu
+		if err != nil {
+			return
 		}
+		data["countArtifacts"] = ca
+		data["countPublic"] = cp
+		data["countNewUpload"] = cnu
+		data["countHidden"] = ca - cp - cnu
 		mu.Unlock()
 	})
 	wg.Go(func() {
 		mu.Lock()
 		data = configurations(data, conf)
+		mu.Unlock()
+	})
+	wg.Go(func() {
+		mu.Lock()
+		vers, err := model.UUIDs(ctx, db)
+		if err != nil {
+			return
+		}
+		data["uuidVersions"] = vers
 		mu.Unlock()
 	})
 	wg.Wait()
