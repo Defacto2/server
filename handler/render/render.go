@@ -247,10 +247,10 @@ func secondary(buf *bytes.Buffer, art *models.File, extra dir.Directory, extensi
 //   - https://defacto2.net/f/b328b2c
 func TrimEOFs(s []byte) []byte {
 	const (
-		è   = 0x8a
-		eof = 0x1a
+		e   = 0x8a // è
+		eof = 0x1a // msdos end-of-file marker
 	)
-	match := bytes.LastIndexByte(s, è)
+	match := bytes.LastIndexByte(s, e)
 	if none := match == -1; none {
 		return s
 	}

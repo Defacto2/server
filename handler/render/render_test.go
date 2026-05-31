@@ -109,7 +109,8 @@ func TestTrimEOFs(t *testing.T) {
 	got := render.TrimEOFs(wants)
 	be.Equal(t, got, wants)
 	wants = []byte("requires._____")
-	s := append(wants, []byte("\x8a\x1a")...)
+	s := wants
+	s = append(s, []byte("\x8a\x1a")...)
 	got = render.TrimEOFs(s)
 	be.Equal(t, got, wants)
 }

@@ -279,7 +279,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-titleundo']">
-                  <span class="{{$reverter}}">Revert <em id="artifact-editor-title-quote">{{$title}}</em></button>
+                  <span class="{{$reverter}}">Revert <em id="artifact-editor-title-quote">{{$title}}</em></span></button>
               <button class="btn btn-link" type="button" id="artifact-editor-title-delete"><span class="badge text-bg-dark">None</span></button>
               <button class="btn btn-link" type="button" id="artifact-editor-titleize"><span class="badge text-bg-primary">Capitalize</span></button>
             </div>
@@ -300,7 +300,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/comment/reset"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-comment'],
-                            [name='artifact-editor-comment-resetter']"><span class="{{$reverter}}">Revert</small></button>
+                            [name='artifact-editor-comment-resetter']"><span class="{{$reverter}}">Revert</span></button>
               </div>
             </div>
           </div>

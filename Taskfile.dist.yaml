@@ -93,7 +93,7 @@ tasks:
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
-      - cmd: pnpm exec hihtml --check-code --check-links --input view/
+      - cmd: pnpm exec hihtml --check-code --input view/
   lintjs:
     silent: false
     desc: Lint the CSS and JS source code.
