@@ -17,48 +17,48 @@ import (
 // Routes for the /html3 sub-route group.
 // Any errors are logged and rendered to the client using HTTP codes
 // and the custom /html3, group error template.
-func Routes(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.Group {
+func Routes(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Group {
 	const msg = "htm3 routes"
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	g := e.Group(Prefix)
 	g.GET("", func(c *echo.Context) error {
-		return Index(c, db, sl)
+		return Index(sl, c, db)
 	})
 	g.GET("/all:offset", func(c *echo.Context) error {
-		return All(c, db, sl)
+		return All(sl, c, db)
 	})
 	g.GET("/all", func(c *echo.Context) error {
-		return All(c, db, sl)
+		return All(sl, c, db)
 	})
 	g.GET("/categories", func(c *echo.Context) error {
-		return Categories(c, sl)
+		return Categories(sl, c)
 	})
 	g.GET("/platforms", func(c *echo.Context) error {
-		return Platforms(c, sl)
+		return Platforms(sl, c)
 	})
-	g = getTags(db, sl, g)
+	g = getTags(sl, db, g)
 	g.GET("/groups:offset", func(c *echo.Context) error {
-		return Groups(c, db, sl)
+		return Groups(sl, c, db)
 	})
 	g.GET("/groups", func(c *echo.Context) error {
-		return Groups(c, db, sl)
+		return Groups(sl, c, db)
 	})
 	g.GET("/group/:id", func(c *echo.Context) error {
-		return Group(c, db, sl)
+		return Group(sl, c, db)
 	})
 	g.GET("/art:offset", func(c *echo.Context) error {
-		return Art(c, db, sl)
+		return Art(sl, c, db)
 	})
 	g.GET("/art", func(c *echo.Context) error {
-		return Art(c, db, sl)
+		return Art(sl, c, db)
 	})
 	g.GET("/documents:offset", func(c *echo.Context) error {
-		return Documents(c, db, sl)
+		return Documents(sl, c, db)
 	})
 	g.GET("/documents", func(c *echo.Context) error {
-		return Documents(c, db, sl)
+		return Documents(sl, c, db)
 	})
 	g.GET("/software:offset", func(c *echo.Context) error {
 		return Software(c, db, sl)
@@ -71,15 +71,15 @@ func Routes(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.Group {
 }
 
 // getTags creates the get routes for the category and platform tags.
-func getTags(db *sql.DB, sl *slog.Logger, g *echo.Group) *echo.Group {
+func getTags(sl *slog.Logger, db *sql.DB, g *echo.Group) *echo.Group {
 	category := g.Group("/category")
 	for tag := range slices.Values(tags.List()) {
 		if tags.IsCategory(tag.String()) {
 			category.GET(fmt.Sprintf("/%s:offset", tag), func(c *echo.Context) error {
-				return Category(c, db, sl)
+				return Category(sl, c, db)
 			})
 			category.GET(fmt.Sprintf("/%s", tag), func(c *echo.Context) error {
-				return Category(c, db, sl)
+				return Category(sl, c, db)
 			})
 		}
 	}
@@ -87,10 +87,10 @@ func getTags(db *sql.DB, sl *slog.Logger, g *echo.Group) *echo.Group {
 	for tag := range slices.Values(tags.List()) {
 		if tags.IsPlatform(tag.String()) {
 			platform.GET(fmt.Sprintf("/%s:offset", tag), func(c *echo.Context) error {
-				return Platform(c, db, sl)
+				return Platform(sl, c, db)
 			})
 			platform.GET(fmt.Sprintf("/%s", tag), func(c *echo.Context) error {
-				return Platform(c, db, sl)
+				return Platform(sl, c, db)
 			})
 		}
 	}

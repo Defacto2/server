@@ -311,7 +311,7 @@ func Artifacts404(sl *slog.Logger, c *echo.Context, uri string) error {
 }
 
 // Apps is the handler for the modern applications and tools page.
-func Apps(c *echo.Context, sl *slog.Logger) error {
+func Apps(sl *slog.Logger, c *echo.Context) error {
 	const msg = "apps context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -335,7 +335,7 @@ func Apps(c *echo.Context, sl *slog.Logger) error {
 }
 
 // Areacodes is the handler for the BBS and telephone area codes page.
-func Areacodes(c *echo.Context, sl *slog.Logger) error {
+func Areacodes(sl *slog.Logger, c *echo.Context) error {
 	const msg = "areacodes context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -357,7 +357,7 @@ func Areacodes(c *echo.Context, sl *slog.Logger) error {
 }
 
 // Artist is the handler for the Artist sceners page.
-func Artist(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func Artist(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "artist context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -369,11 +369,11 @@ func Artist(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	data["h1"] = title
 	data["description"] = demo
 	data["noindex"] = true
-	return scener(c, db, sl, postgres.Artist, data)
+	return scener(sl, c, db, postgres.Artist, data)
 }
 
 // scener is the handler for the scener pages.
-func scener(c *echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role,
+func scener(sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role,
 	data map[string]any,
 ) error {
 	const name = "scener"
@@ -416,22 +416,22 @@ func scener(c *echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role,
 }
 
 // BBS is the handler for the BBS page ordered by the most files.
-func BBS(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return bbsHandler(c, db, sl, model.Prolific)
+func BBS(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return bbsHandler(sl, c, db, model.Prolific)
 }
 
 // BBSAZ is the handler for the BBS page ordered alphabetically.
-func BBSAZ(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return bbsHandler(c, db, sl, model.Alphabetical)
+func BBSAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return bbsHandler(sl, c, db, model.Alphabetical)
 }
 
 // BBSYear is the handler for the BBS page ordered by the year.
-func BBSYear(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return bbsHandler(c, db, sl, model.Oldest)
+func BBSYear(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return bbsHandler(sl, c, db, model.Oldest)
 }
 
 // bbsHandler is the handler for the BBS page.
-func bbsHandler(c *echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.OrderBy) error {
+func bbsHandler(sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
 	const msg = "bbs handler context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -494,7 +494,7 @@ func bbsHandler(c *echo.Context, db *sql.DB, sl *slog.Logger, orderBy model.Orde
 }
 
 // BrokenTexts is the handler for the Broken texts page.
-func BrokenTexts(c *echo.Context, sl *slog.Logger) error {
+func BrokenTexts(sl *slog.Logger, c *echo.Context) error {
 	const msg = "broken texts context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -519,7 +519,7 @@ func BrokenTexts(c *echo.Context, sl *slog.Logger) error {
 }
 
 // Checksum is the handler for the Checksum file record page.
-func Checksum(c *echo.Context, db *sql.DB, sl *slog.Logger, id string) error {
+func Checksum(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	const msg = "checksum context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -535,7 +535,7 @@ func Checksum(c *echo.Context, db *sql.DB, sl *slog.Logger, id string) error {
 }
 
 // Coder is the handler for the Coder sceners page.
-func Coder(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func Coder(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "coder context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -547,11 +547,11 @@ func Coder(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	data["h1"] = title
 	data["description"] = demo
 	data["noindex"] = true
-	return scener(c, db, sl, postgres.Writer, data)
+	return scener(sl, c, db, postgres.Writer, data)
 }
 
 // Compression is the handler for information on historic compression tools page.
-func Compression(c *echo.Context, sl *slog.Logger) error {
+func Compression(sl *slog.Logger, c *echo.Context) error {
 	const msg = "compression context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -573,7 +573,7 @@ func Compression(c *echo.Context, sl *slog.Logger) error {
 }
 
 // Configurations is the handler for the Configuration page.
-func Configurations(c *echo.Context, db *sql.DB, sl *slog.Logger, conf config.Config) error {
+func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Config) error {
 	const msg = "configurations context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -776,7 +776,7 @@ func orphaneder(data map[string]any, conf config.Config) map[string]any {
 // mounted as a C: hard drive in the emulation. js-dos only supports common zip compression methods,
 // so this func first attempts to offer a re-archived zip file found in the extra directory, and
 // only if that fails does it offer the original download file.
-func DownloadJsDos(c *echo.Context, db *sql.DB, sl *slog.Logger, extra, downl dir.Directory) error {
+func DownloadJsDos(sl *slog.Logger, c *echo.Context, db *sql.DB, extra, downl dir.Directory) error {
 	const msg = "download jsdos context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -796,7 +796,7 @@ func DownloadJsDos(c *echo.Context, db *sql.DB, sl *slog.Logger, extra, downl di
 }
 
 // Download is the handler for the Download file record page.
-func Download(c *echo.Context, db *sql.DB, sl *slog.Logger, downl dir.Directory) error {
+func Download(sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory) error {
 	const msg = "download context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -810,7 +810,7 @@ func Download(c *echo.Context, db *sql.DB, sl *slog.Logger, downl dir.Directory)
 		r := c.Response()
 		r.Header().Set("Link", fmt.Sprintf(`<https://defacto2.net/%s/%s; rel=canon>`, uri, id))
 	}
-	if err := d.HTTPSend(c, db, sl); err != nil {
+	if err := d.HTTPSend(sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, sl, uri, err)
 		}
@@ -820,7 +820,7 @@ func Download(c *echo.Context, db *sql.DB, sl *slog.Logger, downl dir.Directory)
 }
 
 // FTP is the handler for the FTP page.
-func FTP(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func FTP(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "ftp context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -856,7 +856,7 @@ func FTP(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // Categories is the handler for the artifact categories page.
-func Categories(c *echo.Context, db *sql.DB, sl *slog.Logger, stats bool) error {
+func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error {
 	const msg = "categories context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -903,7 +903,7 @@ func fileWStats(db *sql.DB, data map[string]any, stats bool) (map[string]any, er
 }
 
 // Deletions is the handler to list the files that have been marked for deletion.
-func Deletions(c *echo.Context, db *sql.DB, sl *slog.Logger, page string) error {
+func Deletions(sl *slog.Logger, c *echo.Context, db *sql.DB, page string) error {
 	const msg = "deletions context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -923,7 +923,7 @@ func Deletions(c *echo.Context, db *sql.DB, sl *slog.Logger, page string) error 
 }
 
 // Fixes is the handler for the problems and fixes page.
-func Fixes(c *echo.Context, sl *slog.Logger) error {
+func Fixes(sl *slog.Logger, c *echo.Context) error {
 	const msg = "apps context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -944,7 +944,7 @@ func Fixes(c *echo.Context, sl *slog.Logger) error {
 }
 
 // Terms is the handler for the problems and fixes page.
-func Terms(c *echo.Context, sl *slog.Logger) error {
+func Terms(sl *slog.Logger, c *echo.Context) error {
 	const msg = "apps rcontext"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -966,7 +966,7 @@ func Terms(c *echo.Context, sl *slog.Logger) error {
 }
 
 // Unwanted is the handler to list the files that have been marked as unwanted.
-func Unwanted(c *echo.Context, db *sql.DB, sl *slog.Logger, page string) error {
+func Unwanted(sl *slog.Logger, c *echo.Context, db *sql.DB, page string) error {
 	const msg = "unwanted context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1230,7 +1230,7 @@ func Inline(sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory) e
 		Dir:    downl,
 	}
 	const uri = "v"
-	if err := d.HTTPSend(c, db, sl); err != nil {
+	if err := d.HTTPSend(sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(c, sl, uri, err)
 		}
@@ -1344,7 +1344,7 @@ func Musician(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	data["h1"] = title
 	data["description"] = demo
 	data["noindex"] = true
-	return scener(c, db, sl, postgres.Musician, data)
+	return scener(sl, c, db, postgres.Musician, data)
 }
 
 // New is the handler for the what is new page.
@@ -1915,7 +1915,7 @@ func Scener(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["description"] = demo
-	return scener(c, db, sl, postgres.Roles(), data)
+	return scener(sl, c, db, postgres.Roles(), data)
 }
 
 // Scener404 renders the files error page for the People menu and invalid sceners.
@@ -2508,7 +2508,7 @@ func Writer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	data["h1"] = title
 	data["description"] = demo
 	data["noindex"] = true
-	return scener(c, db, sl, postgres.Writer, data)
+	return scener(sl, c, db, postgres.Writer, data)
 }
 
 // stats is a helper function for Artifacts that returns the statistics for the files page.

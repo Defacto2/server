@@ -40,67 +40,67 @@ func TestArtifacts(t *testing.T) {
 
 func TestArtist(t *testing.T) {
 	t.Parallel()
-	x := app.Artist(newContext(), nil, nil)
+	x := app.Artist(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestBBS(t *testing.T) {
 	t.Parallel()
-	x := app.BBS(newContext(), nil, nil)
+	x := app.BBS(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestChecksum(t *testing.T) {
 	t.Parallel()
-	x := app.Checksum(newContext(), nil, nil, "")
+	x := app.Checksum(nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestCoder(t *testing.T) {
 	t.Parallel()
-	x := app.Coder(newContext(), nil, nil)
+	x := app.Coder(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestConfigurations(t *testing.T) {
 	t.Parallel()
-	x := app.Configurations(newContext(), nil, nil, config.Config{})
+	x := app.Configurations(nil, newContext(), nil, config.Config{})
 	be.Err(t, x)
 }
 
 func TestDownloadJsDos(t *testing.T) {
 	t.Parallel()
-	x := app.DownloadJsDos(newContext(), nil, nil, "", "")
+	x := app.DownloadJsDos(nil, newContext(), nil, "", "")
 	be.Err(t, x)
 }
 
 func TestDownload(t *testing.T) {
 	t.Parallel()
-	x := app.Download(newContext(), nil, nil, "")
+	x := app.Download(nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestFTP(t *testing.T) {
 	t.Parallel()
-	x := app.FTP(newContext(), nil, nil)
+	x := app.FTP(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestCategories(t *testing.T) {
 	t.Parallel()
-	x := app.Categories(newContext(), nil, nil, false)
+	x := app.Categories(nil, newContext(), nil, false)
 	be.Err(t, x)
 }
 
 func TestDeletions(t *testing.T) {
 	t.Parallel()
-	x := app.Deletions(newContext(), nil, nil, "")
+	x := app.Deletions(nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestUnwanted(t *testing.T) {
 	t.Parallel()
-	x := app.Unwanted(newContext(), nil, nil, "")
+	x := app.Unwanted(nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 

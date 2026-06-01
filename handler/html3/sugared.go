@@ -27,17 +27,17 @@ const (
 )
 
 // All method lists every release.
-func All(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, Everything)
+func All(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, Everything)
 }
 
 // Art lists the file records described as art are digital + pixel art files.
-func Art(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, AsArt)
+func Art(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, AsArt)
 }
 
 // Categories lists the names, descriptions and sums of the category (section) tags.
-func Categories(c *echo.Context, sl *slog.Logger) error {
+func Categories(sl *slog.Logger, c *echo.Context) error {
 	const msg = "htm3 categories"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -61,22 +61,22 @@ func Categories(c *echo.Context, sl *slog.Logger) error {
 }
 
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
-func Category(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, BySection)
+func Category(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, BySection)
 }
 
 // Documents lists the file records described as document + text art files.
-func Documents(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, AsDocument)
+func Documents(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, AsDocument)
 }
 
 // Group lists the file records associated with the group that is provided by the ID param in the URL.
-func Group(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, ByGroup)
+func Group(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, ByGroup)
 }
 
 // Groups lists the names and sums of all the distinct scene groups.
-func Groups(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func Groups(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 groups listings"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -135,7 +135,7 @@ func Groups(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // Index method is the homepage of the /html3 sub-route.
-func Index(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func Index(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 index"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -185,7 +185,7 @@ func Index(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // List all the records associated with the RecordsBy grouping.
-func List(c *echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
+func List(sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
 	const msg = "htm3 list records by"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -260,12 +260,12 @@ func List(c *echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
 }
 
 // Platform lists the file records associated with the platform tag that is provided by the ID param in the URL.
-func Platform(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, ByPlatform)
+func Platform(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, ByPlatform)
 }
 
 // Platforms lists the names, descriptions and sums of the platform tags.
-func Platforms(c *echo.Context, sl *slog.Logger) error {
+func Platforms(sl *slog.Logger, c *echo.Context) error {
 	const msg = "htm3 platforms"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -289,5 +289,5 @@ func Platforms(c *echo.Context, sl *slog.Logger) error {
 
 // Software lists the file records described as software files.
 func Software(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, AsSoftware)
+	return List(sl, c, db, AsSoftware)
 }

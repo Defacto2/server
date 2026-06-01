@@ -48,7 +48,7 @@ func TestDemozooValid(t *testing.T) {
 func TestDemozooSubmit(t *testing.T) {
 	t.Parallel()
 	c := newContext()
-	err := htmx.DemozooSubmit(c, nil, nil, "")
+	err := htmx.DemozooSubmit(nil, c, nil, "")
 	be.Err(t, err)
 }
 
@@ -60,9 +60,9 @@ func TestDBConnections(t *testing.T) {
 
 func TestDeleteForever(t *testing.T) {
 	t.Parallel()
-	err := htmx.DeleteForever(newContext(), nil, nil, "")
+	err := htmx.DeleteForever(nil, newContext(), nil, "")
 	be.Err(t, err)
-	err = htmx.DeleteForever(newContext(), nil, nil, "1")
+	err = htmx.DeleteForever(nil, newContext(), nil, "1")
 	be.Err(t, err)
 }
 
@@ -90,27 +90,27 @@ func TestPouetValid(t *testing.T) {
 func TestPouetSubmit(t *testing.T) {
 	t.Parallel()
 	c := newContext()
-	err := htmx.PouetSubmit(c, nil, nil, "")
+	err := htmx.PouetSubmit(nil, c, nil, "")
 	be.Err(t, err)
 }
 
 func TestSearchByID(t *testing.T) {
 	t.Parallel()
-	err := htmx.SearchByID(newContext(), nil, nil)
+	err := htmx.SearchByID(nil, newContext(), nil)
 	be.Err(t, err)
 }
 
 func TestSearchReleaser(t *testing.T) {
 	t.Parallel()
-	err := htmx.SearchReleaser(newContext(), nil, nil, nil)
+	err := htmx.SearchReleaser(nil, newContext(), nil, nil)
 	be.Err(t, err)
 }
 
 func TestDataList(t *testing.T) {
 	t.Parallel()
-	err := htmx.DataListReleasers(newContext(), nil, nil, "")
+	err := htmx.DataListReleasers(nil, newContext(), nil, "")
 	be.Err(t, err)
-	err = htmx.DataListMagazines(newContext(), nil, nil, "")
+	err = htmx.DataListMagazines(nil, newContext(), nil, "")
 	be.Err(t, err)
 }
 
@@ -136,50 +136,50 @@ func TestSuggestion(t *testing.T) {
 
 func TestHumanizeCount(t *testing.T) {
 	t.Parallel()
-	err := htmx.HumanizeCount(newContext(), nil, nil, "")
+	err := htmx.HumanizeCount(nil, newContext(), nil, "")
 	be.Err(t, err)
 }
 
 func TestLookupSHA384(t *testing.T) {
 	t.Parallel()
-	err := htmx.LookupSHA384(newContext(), nil, nil)
+	err := htmx.LookupSHA384(nil, newContext(), nil)
 	be.Err(t, err)
 }
 
 func TestTransfer(t *testing.T) {
 	t.Parallel()
-	err := htmx.AdvancedSubmit(newContext(), nil, nil, "")
+	err := htmx.AdvancedSubmit(nil, newContext(), nil, "")
 	be.Err(t, err)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.AdvancedSubmit(newContext(), nil, nil, dir.Directory(wd))
+	err = htmx.AdvancedSubmit(nil, newContext(), nil, dir.Directory(wd))
 	be.Err(t, err)
 }
 
 func TestProdSubmit(t *testing.T) {
 	t.Parallel()
 	prod := htmx.Demozoo
-	err := prod.Submit(newContext(), nil, nil, "")
+	err := prod.Submit(nil, newContext(), nil, "")
 	be.Err(t, err)
 }
 
 func TestUploadPreview(t *testing.T) {
 	t.Parallel()
-	err := htmx.UploadPreview(newContext(), logs.Discard(), "", "")
+	err := htmx.UploadPreview(logs.Discard(), newContext(), "", "")
 	be.Err(t, err, nil)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.UploadPreview(newContext(), logs.Discard(), dir.Directory(wd), dir.Directory(wd))
+	err = htmx.UploadPreview(logs.Discard(), newContext(), dir.Directory(wd), dir.Directory(wd))
 	be.Err(t, err, nil)
 }
 
 func TestUploadReplacement(t *testing.T) {
 	t.Parallel()
 	d := logs.Discard()
-	err := htmx.UploadReplacement(newContext(), nil, d, "", "")
+	err := htmx.UploadReplacement(d, newContext(), nil, "", "")
 	be.Err(t, err)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.UploadReplacement(newContext(), nil, d, dir.Directory(wd), "")
+	err = htmx.UploadReplacement(d, newContext(), nil, dir.Directory(wd), "")
 	be.Err(t, err)
 }

@@ -106,7 +106,7 @@ func pageRefresh(c *echo.Context) *echo.Context { //nolint:ireturn
 }
 
 // RecordThumb handles the htmx request for the thumbnail quality.
-func RecordThumb(c *echo.Context, sl *slog.Logger, thumb command.Thumb, dirs command.Dirs) error {
+func RecordThumb(sl *slog.Logger, c *echo.Context, thumb command.Thumb, dirs command.Dirs) error {
 	const msg = "record thumb"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -128,7 +128,7 @@ func RecordThumb(c *echo.Context, sl *slog.Logger, thumb command.Thumb, dirs com
 }
 
 // RecordThumbAlignment handles the htmx request for the thumbnail crop alignment.
-func RecordThumbAlignment(c *echo.Context, sl *slog.Logger, align command.Align, dirs command.Dirs) error {
+func RecordThumbAlignment(sl *slog.Logger, c *echo.Context, align command.Align, dirs command.Dirs) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -146,7 +146,7 @@ func RecordThumbAlignment(c *echo.Context, sl *slog.Logger, align command.Align,
 }
 
 // RecordImageCropper handles the htmx request for the preview image cropping.
-func RecordImageCropper(c *echo.Context, sl *slog.Logger, crop command.Crop, dirs command.Dirs) error {
+func RecordImageCropper(sl *slog.Logger, c *echo.Context, crop command.Crop, dirs command.Dirs) error {
 	const msg = "record image cropper"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -169,7 +169,7 @@ func RecordImageCropper(c *echo.Context, sl *slog.Logger, crop command.Crop, dir
 
 // recordFileProcessor is a helper function that handles the common file processing logic
 // for both image copying and binary text imaging operations.
-func recordFileProcessor(c *echo.Context, debug *slog.Logger, _ command.Dirs,
+func recordFileProcessor(debug *slog.Logger, c *echo.Context, _ command.Dirs,
 	msg, emptyMsg, successMsg string,
 	processFunc func(*slog.Logger, string, string) error,
 ) error {
@@ -201,8 +201,8 @@ func recordFileProcessor(c *echo.Context, debug *slog.Logger, _ command.Dirs,
 }
 
 // RecordImageCopier handles the htmx request to use an image file artifact as a preview.
-func RecordImageCopier(c *echo.Context, debug *slog.Logger, dirs command.Dirs) error {
-	return recordFileProcessor(c, debug, dirs,
+func RecordImageCopier(debug *slog.Logger, c *echo.Context, dirs command.Dirs) error {
+	return recordFileProcessor(debug, c, dirs,
 		"record image copier",
 		"The file is empty and was not copied.",
 		"Images copied, the browser will refresh.",
@@ -210,8 +210,8 @@ func RecordImageCopier(c *echo.Context, debug *slog.Logger, dirs command.Dirs) e
 }
 
 // RecordBinTextImager handles the htmx request to use the text file artifact as a preview.
-func RecordBinTextImager(c *echo.Context, debug *slog.Logger, dirs command.Dirs) error {
-	return recordFileProcessor(c, debug, dirs,
+func RecordBinTextImager(debug *slog.Logger, c *echo.Context, dirs command.Dirs) error {
+	return recordFileProcessor(debug, c, dirs,
 		"record binary text readme imager",
 		"The file is empty and was not used.",
 		"Binary text imaged, the browser will refresh.",
@@ -219,7 +219,7 @@ func RecordBinTextImager(c *echo.Context, debug *slog.Logger, dirs command.Dirs)
 }
 
 // RecordReadmeImager handles the htmx request to use the text file artifact as a preview.
-func RecordReadmeImager(c *echo.Context, debug *slog.Logger, amigaFont bool, dirs command.Dirs) error {
+func RecordReadmeImager(debug *slog.Logger, c *echo.Context, amigaFont bool, dirs command.Dirs) error {
 	const msg = "record readme imager"
 	if err := panics.SC(c, debug); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -318,7 +318,7 @@ func RecordHlpCopier(c *echo.Context, dirs command.Dirs) error {
 	return Helper.Duplicator(c, dirs)
 }
 
-func RecordReadmeCopier(c *echo.Context, sl *slog.Logger, dirs command.Dirs) error {
+func RecordReadmeCopier(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	const msg = "record readme copier"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -506,7 +506,7 @@ func RecordToggleByID(c *echo.Context, db *sql.DB, key string, state bool) error
 // RecordClassification handles the post submission for the file artifact classifications,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func RecordClassification(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func RecordClassification(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "record classification"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

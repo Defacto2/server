@@ -52,7 +52,7 @@ const (
 )
 
 // Artifact404 renders the error page for the artifact links.
-func Artifact404(c *echo.Context, sl *slog.Logger, id string) error {
+func Artifact404(sl *slog.Logger, c *echo.Context, id string) error {
 	const msg = "artifact 404 context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -84,7 +84,7 @@ type Dirs struct {
 }
 
 // Artifact is the handler for the of the file record.
-func (dir Dirs) Artifact(c *echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
+func (dir Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB, readonly bool) error {
 	// NOTE: limit to 200 items for display, "view content" + "Download content", high limits take longer to render.
 	const maxArchiveItems = 200
 	// NOTE: skip the rendering of readme text files that are larger than 1MB.
@@ -96,15 +96,15 @@ func (dir Dirs) Artifact(c *echo.Context, db *sql.DB, sl *slog.Logger, readonly 
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "artifact"
-	art, err := dir.artifactByURI(c, db, sl)
+	art, err := dir.artifactByURI(sl, c, db)
 	if art404 := art == nil || err != nil; art404 {
 		return err
 	}
 	data := empty(c)
 	if !readonly && sess.Editor(c) {
-		data = dir.EditorContent(c, sl, maxArchiveItems, art, data)
+		data = dir.EditorContent(sl, c, maxArchiveItems, art, data)
 	}
-	data = classifyANSICheck(db, sl, art.ID, data)
+	data = classifyANSICheck(sl, db, art.ID, data)
 	// page metadata
 	uri := filerecord.DownloadID(art)
 	data["canonical"] = strings.Join([]string{"f", uri}, "/")
@@ -121,11 +121,11 @@ func (dir Dirs) Artifact(c *echo.Context, db *sql.DB, sl *slog.Logger, readonly 
 	if editorLoggedIn := !readonly && sess.Editor(c); editorLoggedIn {
 		// NOTE: this can be a performance issue on large files
 		platform := filerecord.TagProgram(art)
-		data = dir.updateMagicNumber(db, sl, art.ID, art.UUID.String, platform, data)
+		data = dir.updateMagicNumber(sl, db, art.ID, art.UUID.String, platform, data)
 	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
-	data = jsdosEmulator(art, data, sl)
+	data = jsdosEmulator(sl, art, data)
 	// performance sanity check for everyone other than Editors
 	tooManyItems := len(art.FileZipContent.String) > maxZipContent
 	if !tooManyItems || sess.Editor(c) {
@@ -161,7 +161,7 @@ func (dir Dirs) Artifact(c *echo.Context, db *sql.DB, sl *slog.Logger, readonly 
 
 // classifyANSICheck uses the artifact's magicnumber value to match ansi texts and update
 // the artifact platform classification.
-func classifyANSICheck(db *sql.DB, sl *slog.Logger, id int64, data map[string]any) map[string]any {
+func classifyANSICheck(sl *slog.Logger, db *sql.DB, id int64, data map[string]any) map[string]any {
 	if db == nil {
 		return data
 	}
@@ -210,7 +210,7 @@ func plainText(modMagic any) bool {
 // EditorContent returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) EditorContent(c *echo.Context, sl *slog.Logger, maxItems int, art *models.File, data map[string]any,
+func (dir Dirs) EditorContent(sl *slog.Logger, c *echo.Context, maxItems int, art *models.File, data map[string]any,
 ) map[string]any {
 	if sl == nil || art == nil {
 		return data
@@ -412,8 +412,8 @@ func (dir Dirs) findBinarySAUCE(art *models.File, data map[string]any) map[strin
 //
 // Due to potential performance issues with extra large filedownloads, this update
 // should only be used by logged-in editors.
-func (dir Dirs) updateMagicNumber(db *sql.DB, sl *slog.Logger,
-	id int64, uid, platform string, data map[string]any,
+func (dir Dirs) updateMagicNumber(sl *slog.Logger,
+	db *sql.DB, id int64, uid, platform string, data map[string]any,
 ) map[string]any {
 	if db == nil {
 		return data
@@ -588,7 +588,7 @@ func (dir Dirs) makeTextfileImgs(sl *slog.Logger,
 }
 
 // artifactByURI returns the URI artifact record from the file table.
-func (dir Dirs) artifactByURI(c *echo.Context, db *sql.DB, sl *slog.Logger) (*models.File, error) {
+func (dir Dirs) artifactByURI(sl *slog.Logger, c *echo.Context, db *sql.DB) (*models.File, error) {
 	ctx := context.Background()
 	var art *models.File
 	var err error
@@ -599,7 +599,7 @@ func (dir Dirs) artifactByURI(c *echo.Context, db *sql.DB, sl *slog.Logger) (*mo
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
-			return nil, Artifact404(c, sl, dir.URI)
+			return nil, Artifact404(sl, c, dir.URI)
 		}
 		return nil, DatabaseErr(c, sl, "f/"+dir.URI, err)
 	}
@@ -752,7 +752,7 @@ func (dir Dirs) otherRelations(art *models.File, data map[string]any) map[string
 }
 
 // jsdosEmulator returns the js-dos emulator data for the file record of the artifact.
-func jsdosEmulator(art *models.File, data map[string]any, sl *slog.Logger,
+func jsdosEmulator(sl *slog.Logger, art *models.File, data map[string]any,
 ) map[string]any {
 	if art == nil {
 		return data

@@ -24,7 +24,7 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
-func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
+func (c *Configuration) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
 	const msg = "configuration router lock"
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -37,30 +37,30 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app
 	}
 	lock := e.Group("/editor")
 	lock.Use(readonlylock, sessionlock)
-	c.configurations(lock, db, sl)
+	c.configurations(sl, lock, db)
 	creator(lock, db)
 	date(lock, db)
-	editor(lock, db, sl, dirs)
-	fixers(lock, db, sl)
-	get(lock, db, sl, dirs)
+	editor(sl, lock, db, dirs)
+	fixers(sl, lock, db)
+	get(sl, lock, db, dirs)
 	online(lock, db)
-	search(lock, db, sl)
+	search(sl, lock, db)
 	return e
 }
 
-func fixers(g *echo.Group, db *sql.DB, sl *slog.Logger) {
+func fixers(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	g.GET("/fixers", func(c *echo.Context) error { return app.Fixers(sl, c, db) })
 	g.POST("/fixers/fix/:id", func(c *echo.Context) error { return app.FixNumericSuffix(sl, c, db) })
 }
 
-func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logger) {
+func (c *Configuration) configurations(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	const msg = "configurations group router"
 	if err := panics.SGD(sl, g, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	conf := g.Group("/configurations")
 	conf.GET("", func(cx *echo.Context) error {
-		return app.Configurations(cx, db, sl, c.Environment)
+		return app.Configurations(sl, cx, db, c.Environment)
 	})
 	conf.GET("/dbconns", func(c *echo.Context) error {
 		return htmx.DBConnections(c, db)
@@ -115,18 +115,18 @@ func date(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolint:funlen
+func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) { //nolint:funlen
 	if g == nil {
 		panic(fmt.Errorf("%w for editor router", panics.ErrNoEchoE))
 	}
 	g.DELETE("/delete/forever/:key", func(c *echo.Context) error {
-		return htmx.DeleteForever(c, db, sl, c.Param("key"))
+		return htmx.DeleteForever(sl, c, db, c.Param("key"))
 	})
 	g.PATCH("/16colors", func(c *echo.Context) error {
 		return htmx.Record16Colors(c, db)
 	})
 	g.PATCH("/classifications", func(c *echo.Context) error {
-		return htmx.RecordClassification(c, db, sl)
+		return htmx.RecordClassification(sl, c, db)
 	})
 	g.PATCH("/comment", func(c *echo.Context) error {
 		return htmx.RecordComment(c, db)
@@ -220,11 +220,11 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c *echo.Context) error {
-		return htmx.UploadReplacement(c, db, sl, dirs.Download, dirs.Extra)
+		return htmx.UploadReplacement(sl, c, db, dirs.Download, dirs.Extra)
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c *echo.Context) error {
-		return htmx.UploadPreview(c, sl, dirs.Preview, dirs.Thumbnail)
+		return htmx.UploadPreview(sl, c, dirs.Preview, dirs.Thumbnail)
 	})
 	paths := command.Dirs{
 		Download:  dirs.Download,
@@ -254,19 +254,19 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 	})
 	// /editor/readme/copy
 	readme.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordReadmeCopier(c, sl, paths)
+		return htmx.RecordReadmeCopier(sl, c, paths)
 	})
 	// /editor/readme/preview
 	readme.PATCH("/preview/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordReadmeImager(c, sl, false, paths)
+		return htmx.RecordReadmeImager(sl, c, false, paths)
 	})
 	// /editor/readme/preview-amiga
 	readme.PATCH("/preview-amiga/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordReadmeImager(c, sl, true, paths)
+		return htmx.RecordReadmeImager(sl, c, true, paths)
 	})
 	// /editor/readme/preview-binary
 	readme.PATCH("/preview-binary/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordBinTextImager(c, sl, paths)
+		return htmx.RecordBinTextImager(sl, c, paths)
 	})
 	readme.DELETE("/:unid", func(c *echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dirs.Extra)
@@ -274,16 +274,16 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 	pre := g.Group("/preview")
 	// /editor/preview/copy
 	pre.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordImageCopier(c, sl, paths)
+		return htmx.RecordImageCopier(sl, c, paths)
 	})
 	pre.PATCH("/crop11/:unid", func(c *echo.Context) error {
-		return htmx.RecordImageCropper(c, sl, command.SquareTop, paths)
+		return htmx.RecordImageCropper(sl, c, command.SquareTop, paths)
 	})
 	pre.PATCH("/crop43/:unid", func(c *echo.Context) error {
-		return htmx.RecordImageCropper(c, sl, command.FourThree, paths)
+		return htmx.RecordImageCropper(sl, c, command.FourThree, paths)
 	})
 	pre.PATCH("/crop12/:unid", func(c *echo.Context) error {
-		return htmx.RecordImageCropper(c, sl, command.OneTwo, paths)
+		return htmx.RecordImageCropper(sl, c, command.OneTwo, paths)
 	})
 	pre.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview)
@@ -291,28 +291,28 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 
 	thumb := g.Group("/thumbnail")
 	thumb.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordImageCopier(c, sl, paths)
+		return htmx.RecordImageCopier(sl, c, paths)
 	})
 	thumb.PATCH("/top/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Top, paths)
+		return htmx.RecordThumbAlignment(sl, c, command.Top, paths)
 	})
 	thumb.PATCH("/middle/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Middle, paths)
+		return htmx.RecordThumbAlignment(sl, c, command.Middle, paths)
 	})
 	thumb.PATCH("/bottom/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Bottom, paths)
+		return htmx.RecordThumbAlignment(sl, c, command.Bottom, paths)
 	})
 	thumb.PATCH("/left/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Left, paths)
+		return htmx.RecordThumbAlignment(sl, c, command.Left, paths)
 	})
 	thumb.PATCH("/right/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Right, paths)
+		return htmx.RecordThumbAlignment(sl, c, command.Right, paths)
 	})
 	thumb.PATCH("/pixel/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumb(c, sl, command.Pixel, paths)
+		return htmx.RecordThumb(sl, c, command.Pixel, paths)
 	})
 	thumb.PATCH("/photo/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumb(c, sl, command.Photo, paths)
+		return htmx.RecordThumb(sl, c, command.Photo, paths)
 	})
 	thumb.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)
@@ -327,13 +327,13 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 	})
 }
 
-func get(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
+func get(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for get router", panics.ErrNoEchoE))
 	}
 	g.GET("/deletions",
 		func(cx *echo.Context) error {
-			return app.Deletions(cx, db, sl, "1")
+			return app.Deletions(sl, cx, db, "1")
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(cx *echo.Context) error {
@@ -345,7 +345,7 @@ func get(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		})
 	g.GET("/unwanted",
 		func(cx *echo.Context) error {
-			return app.Unwanted(cx, db, sl, "1")
+			return app.Unwanted(sl, cx, db, "1")
 		})
 }
 
@@ -365,7 +365,7 @@ func online(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func search(g *echo.Group, db *sql.DB, sl *slog.Logger) {
+func search(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for search router", panics.ErrNoEchoE))
 	}
@@ -374,6 +374,6 @@ func search(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 		return app.SearchID(sl, cx)
 	})
 	search.POST("/id", func(cx *echo.Context) error {
-		return htmx.SearchByID(cx, db, sl)
+		return htmx.SearchByID(sl, cx, db)
 	})
 }

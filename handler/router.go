@@ -26,8 +26,8 @@ import (
 
 const code = http.StatusMovedPermanently
 
-// FilesRoutes defines the file locations and routes for the web server.
-func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS,
+// AppendFiles defines the file locations and routes for the web server.
+func (c *Configuration) AppendFiles(sl *slog.Logger, e *echo.Echo, db *sql.DB, public embed.FS,
 ) (*echo.Echo, error) {
 	const msg = "files routes"
 	if err := panics.SDEP(sl, db, e, public); err != nil {
@@ -48,17 +48,17 @@ func (c *Configuration) FilesRoutes(e *echo.Echo, db *sql.DB, sl *slog.Logger, p
 	if err != nil {
 		return nil, fmt.Errorf("%s nonce session key: %w", msg, err)
 	}
-	e = c.signin(e, sl, nonce)
-	e = c.custom404(e, sl)
+	e = c.signin(sl, e, nonce)
+	e = c.custom404(sl, e)
 	e = c.debugInfo(e)
 	e = c.static(e)
 	e = c.html(e, public)
 	e = c.font(e, public)
 	e = c.embed(e, public)
-	e = c.search(e, db, sl)
-	e = c.website(e, db, sl, dirs)
-	e = c.api(e, db, sl, public)
-	e = c.lock(e, db, sl, dirs)
+	e = c.search(sl, e, db)
+	e = c.website(sl, e, db, dirs)
+	e = c.api(sl, e, db, public)
+	e = c.lock(sl, e, db, dirs)
 	return e, nil
 }
 
@@ -140,7 +140,7 @@ func (c *Configuration) static(e *echo.Echo) *echo.Echo {
 
 // custom404 is a custom 404 error handler for the website,
 // "The page cannot be found".
-func (c *Configuration) custom404(e *echo.Echo, sl *slog.Logger) *echo.Echo {
+func (c *Configuration) custom404(sl *slog.Logger, e *echo.Echo) *echo.Echo {
 	const msg = "custom 404 error routes"
 	if e == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
@@ -197,7 +197,7 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 }
 
 // api routes for the public API endpoints.
-func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) *echo.Echo {
+func (c *Configuration) api(sl *slog.Logger, e *echo.Echo, db *sql.DB, public embed.FS) *echo.Echo {
 	const msg = "api routes"
 	if err := panics.SDEP(sl, db, e, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -261,7 +261,7 @@ func (c *Configuration) api(e *echo.Echo, db *sql.DB, sl *slog.Logger, public em
 }
 
 // website routes for the main site.
-func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo { //nolint:funlen
+func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo { //nolint:funlen
 	const msg = "website routes"
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -295,27 +295,27 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	})
 	s := e.Group("")
 	s.GET("/", func(c *echo.Context) error { return app.Index(sl, c) })
-	s.GET("/apps", func(c *echo.Context) error { return app.Apps(c, sl) })
-	s.GET("/areacodes", func(c *echo.Context) error { return app.Areacodes(c, sl) })
+	s.GET("/apps", func(c *echo.Context) error { return app.Apps(sl, c) })
+	s.GET("/areacodes", func(c *echo.Context) error { return app.Areacodes(sl, c) })
 	s.GET("/artist", func(c *echo.Context) error {
-		return app.Artist(c, db, sl)
+		return app.Artist(sl, c, db)
 	})
 	s.GET("/bbs", func(c *echo.Context) error {
-		return app.BBS(c, db, sl)
+		return app.BBS(sl, c, db)
 	})
 	s.GET("/bbs/a-z", func(c *echo.Context) error {
-		return app.BBSAZ(c, db, sl)
+		return app.BBSAZ(sl, c, db)
 	})
 	s.GET("/bbs/year", func(c *echo.Context) error {
-		return app.BBSYear(c, db, sl)
+		return app.BBSYear(sl, c, db)
 	})
-	s.GET("/brokentexts", func(c *echo.Context) error { return app.BrokenTexts(c, sl) })
+	s.GET("/brokentexts", func(c *echo.Context) error { return app.BrokenTexts(sl, c) })
 	s.GET("/coder", func(c *echo.Context) error {
-		return app.Coder(c, db, sl)
+		return app.Coder(sl, c, db)
 	})
-	s.GET("/compression", func(c *echo.Context) error { return app.Compression(c, sl) })
+	s.GET("/compression", func(c *echo.Context) error { return app.Compression(sl, c) })
 	s.GET(Downloader, func(cx *echo.Context) error {
-		return app.Download(cx, db, sl, dir.Directory(c.Environment.AbsDownload))
+		return app.Download(sl, cx, db, dir.Directory(c.Environment.AbsDownload))
 	})
 	s.GET("/f/:id", func(cx *echo.Context) error {
 		uri := cx.Param("id")
@@ -323,10 +323,10 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 			return cx.Redirect(http.StatusMovedPermanently, "/f/"+uri)
 		}
 		dirs.URI = uri
-		return dirs.Artifact(cx, db, sl, bool(c.Environment.ReadOnly))
+		return dirs.Artifact(sl, cx, db, bool(c.Environment.ReadOnly))
 	})
 	s.GET("/file/stats", func(cx *echo.Context) error {
-		return app.Categories(cx, db, sl, true)
+		return app.Categories(sl, cx, db, true)
 	})
 	s.GET("/files/:id/:page", func(cx *echo.Context) error {
 		switch cx.Param("id") {
@@ -343,11 +343,11 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		return app.Artifacts(sl, cx, db, cx.Param("id"), "1")
 	})
 	s.GET("/file", func(cx *echo.Context) error {
-		return app.Categories(cx, db, sl, false)
+		return app.Categories(sl, cx, db, false)
 	})
-	s.GET("/fixes", func(c *echo.Context) error { return app.Fixes(c, sl) })
+	s.GET("/fixes", func(c *echo.Context) error { return app.Fixes(sl, c) })
 	s.GET("/ftp", func(c *echo.Context) error {
-		return app.FTP(c, db, sl)
+		return app.FTP(sl, c, db)
 	})
 	s.GET("/g/:id", func(cx *echo.Context) error {
 		if qs := cx.QueryString(); qs != "" {
@@ -358,7 +358,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 	s.GET("/history", func(c *echo.Context) error { return app.History(sl, c) })
 	s.GET("/interview", func(c *echo.Context) error { return app.Interview(sl, c) })
 	s.GET("/jsdos/:id", func(cx *echo.Context) error {
-		return app.DownloadJsDos(cx, db, sl,
+		return app.DownloadJsDos(sl, cx, db,
 			dir.Directory(c.Environment.AbsExtra),
 			dir.Directory(c.Environment.AbsDownload))
 	})
@@ -400,9 +400,9 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 		return app.Scener(sl, c, db)
 	})
 	s.GET("/sum/:id", func(cx *echo.Context) error {
-		return app.Checksum(cx, db, sl, cx.Param("id"))
+		return app.Checksum(sl, cx, db, cx.Param("id"))
 	})
-	s.GET("/terms", func(c *echo.Context) error { return app.Terms(c, sl) })
+	s.GET("/terms", func(c *echo.Context) error { return app.Terms(sl, c) })
 	s.GET("/thanks", func(c *echo.Context) error { return app.Thanks(sl, c) })
 	s.GET("/thescene", func(c *echo.Context) error { return app.TheScene(sl, c) })
 	s.GET("/titles", func(c *echo.Context) error { return app.Titles(sl, c) })
@@ -422,7 +422,7 @@ func (c *Configuration) website(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs 
 }
 
 // search forms and the results for database queries.
-func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.Echo {
+func (c *Configuration) search(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
 	const msg = "search routes"
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -445,13 +445,13 @@ func (c *Configuration) search(e *echo.Echo, db *sql.DB, sl *slog.Logger) *echo.
 		return app.PostFilename(sl, c, db)
 	})
 	search.POST("/releaser", func(cx *echo.Context) error {
-		return htmx.SearchReleaser(cx, db, sl, &c.TidbitIndex)
+		return htmx.SearchReleaser(sl, cx, db, &c.TidbitIndex)
 	})
 	return e
 }
 
 // signin for operators.
-func (c *Configuration) signin(e *echo.Echo, sl *slog.Logger, nonce string) *echo.Echo {
+func (c *Configuration) signin(sl *slog.Logger, e *echo.Echo, nonce string) *echo.Echo {
 	const msg = "signin routes"
 	if err := panics.SE(sl, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -480,8 +480,8 @@ func (c *Configuration) signin(e *echo.Echo, sl *slog.Logger, nonce string) *ech
 	return e
 }
 
-// MovedPermanently redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
-func MovedPermanently(e *echo.Echo) *echo.Echo {
+// AppendMoved redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
+func AppendMoved(e *echo.Echo) *echo.Echo {
 	const msg = "moved permanently routes"
 	if e == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))

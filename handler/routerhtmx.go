@@ -18,9 +18,9 @@ import (
 
 const rateLimit = 2
 
-// htmxGroup is the /htmx sub-route group that returns HTML fragments
+// appendHtmx is the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func htmxGroup(e *echo.Echo, db *sql.DB, sl *slog.Logger, prodMode bool, download dir.Directory) *echo.Echo {
+func appendHtmx(sl *slog.Logger, e *echo.Echo, db *sql.DB, prodMode bool, download dir.Directory) *echo.Echo {
 	const msg = "router htmx group"
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -38,7 +38,7 @@ func htmxGroup(e *echo.Echo, db *sql.DB, sl *slog.Logger, prodMode bool, downloa
 		return htmx.DemozooLookup(c, db, prodMode)
 	})
 	demozoo.PUT("/production/:id", func(c *echo.Context) error {
-		return htmx.DemozooSubmit(c, db, sl, download)
+		return htmx.DemozooSubmit(sl, c, db, download)
 	})
 	// htmx/pouet/production
 	pouet := g.Group("/pouet")
@@ -46,53 +46,53 @@ func htmxGroup(e *echo.Echo, db *sql.DB, sl *slog.Logger, prodMode bool, downloa
 		return htmx.PouetLookup(c, db)
 	})
 	pouet.PUT("/production/:id", func(c *echo.Context) error {
-		return htmx.PouetSubmit(c, db, sl, download)
+		return htmx.PouetSubmit(sl, c, db, download)
 	})
 	// htmx/uploader
 	upload := g.Group("/uploader")
 	// htmx/uploader/classifications
 	upload.GET("/classifications", func(c *echo.Context) error {
-		return htmx.HumanizeCount(c, db, sl, "uploader-advanced")
+		return htmx.HumanizeCount(sl, c, db, "uploader-advanced")
 	})
 	// htmx/uploader/releaser
 	upload.PATCH("/releaser/1", func(c *echo.Context) error {
-		return htmx.DataListReleasers(c, db, sl, releaser1(c))
+		return htmx.DataListReleasers(sl, c, db, releaser1(c))
 	})
 	upload.PATCH("/releaser/2", func(c *echo.Context) error {
-		return htmx.DataListReleasers(c, db, sl, releaser2(c))
+		return htmx.DataListReleasers(sl, c, db, releaser2(c))
 	})
 	// htmx/releaser/magazine
 	upload.PATCH("/releaser/magazine", func(c *echo.Context) error {
 		lookup := c.FormValue("uploader-magazine-releaser1")
-		return htmx.DataListMagazines(c, db, sl, lookup)
+		return htmx.DataListMagazines(sl, c, db, lookup)
 	})
 	// htmx/uploader/sha384
 	upload.PATCH("/sha384/:hash", func(c *echo.Context) error {
-		return htmx.LookupSHA384(c, db, sl)
+		return htmx.LookupSHA384(sl, c, db)
 	})
 	// htmx/uploader/advanced
 	upload.POST("/advanced", func(c *echo.Context) error {
-		return htmx.AdvancedSubmit(c, db, sl, download)
+		return htmx.AdvancedSubmit(sl, c, db, download)
 	})
 	// htmx/uploader/image
 	upload.POST("/image", func(c *echo.Context) error {
-		return htmx.ImageSubmit(c, db, sl, download)
+		return htmx.ImageSubmit(sl, c, db, download)
 	})
 	// htmx/uploader/intro
 	upload.POST("/intro", func(c *echo.Context) error {
-		return htmx.IntroSubmit(c, db, sl, download)
+		return htmx.IntroSubmit(sl, c, db, download)
 	})
 	// htmx/uploader/magazine
 	upload.POST("/magazine", func(c *echo.Context) error {
-		return htmx.MagazineSubmit(c, db, sl, download)
+		return htmx.MagazineSubmit(sl, c, db, download)
 	})
 	// htmx/uploader/text
 	upload.POST("/text", func(c *echo.Context) error {
-		return htmx.TextSubmit(c, db, sl, download)
+		return htmx.TextSubmit(sl, c, db, download)
 	})
 	// htmx/uploader/trainer
 	upload.POST("/trainer", func(c *echo.Context) error {
-		return htmx.TrainerSubmit(c, db, sl, download)
+		return htmx.TrainerSubmit(sl, c, db, download)
 	})
 	return e
 }

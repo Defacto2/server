@@ -9,21 +9,21 @@ import (
 
 func TestArtifact404(t *testing.T) {
 	t.Parallel()
-	err := app.Artifact404(newContext(), nil, "")
+	err := app.Artifact404(nil, newContext(), "")
 	be.Err(t, err)
 }
 
 func TestArtifact(t *testing.T) {
 	t.Parallel()
 	dir := app.Dirs{}
-	err := dir.Artifact(newContext(), nil, nil, false)
+	err := dir.Artifact(nil, newContext(), nil, false)
 	be.Err(t, err)
 }
 
 func TestEditor(t *testing.T) {
 	t.Parallel()
 	dir := app.Dirs{}
-	x := dir.EditorContent(newContext(), nil, -1, nil, nil)
+	x := dir.EditorContent(nil, newContext(), -1, nil, nil)
 	be.True(t, len(x) == 0)
 }
 

@@ -91,7 +91,7 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 		// FormParseMaxMemory: 0, // TODO
 	}
 
-	config.Renderer, err = c.TemplRegistry(db, sl)
+	config.Renderer, err = c.TemplRegistry(sl, db)
 	if err != nil {
 		logs.Fatal(sl, msg,
 			slog.String("template", "could not register the templates"),
@@ -121,25 +121,27 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 		mid = append(mid, middleware.Recover())
 	}
 	e.Use(mid...)
-
-	e = EmbedDirs(e, c.Public)
-	e = MovedPermanently(e)
-	e = htmxGroup(e, db, sl, bool(envConfig.ProdMode), dir.Directory(c.Environment.AbsDownload))
-	e, err = c.FilesRoutes(e, db, sl, c.Public)
+	// browser paths and routes
+	e = AppendEmbed(e, c.Public)
+	e = AppendMoved(e)
+	prodMode := bool(envConfig.ProdMode)
+	download := dir.Directory(c.Environment.AbsDownload)
+	e = appendHtmx(sl, e, db, prodMode, download)
+	e, err = c.AppendFiles(sl, e, db, c.Public)
 	if err != nil {
 		logs.Fatal(sl, msg,
 			slog.String("file routes", "could not register the routes"),
 			slog.Any("fatal", err))
 	}
-	group := html3.Routes(e, db, sl)
-	group.GET(Downloader, func(cx *echo.Context) error {
-		return c.downloader(cx, db, sl)
+	group := html3.Routes(sl, e, db)
+	group.GET(Downloader, func(ctx *echo.Context) error {
+		return c.downloader(ctx, sl, db)
 	})
 	return e
 }
 
-// EmbedDirs serves the static files from the directories embed to the binary.
-func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
+// AppendEmbed serves the static files from the directories embed to the binary.
+func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	const msg = "embed dirs handler"
 	if e == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
@@ -241,7 +243,7 @@ func (c *Configuration) PortErr(sl *slog.Logger, port uint16, err error) {
 }
 
 // TemplRegistry returns the template registry for the renderer.
-func (c *Configuration) TemplRegistry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry, error) {
+func (c *Configuration) TemplRegistry(sl *slog.Logger, db *sql.DB) (*TemplateRegistry, error) {
 	const msg = "template registry handler"
 	if err := panics.SD(sl, db); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
@@ -577,7 +579,7 @@ func (c *Configuration) address(port uint16) string {
 }
 
 // downloader route for the file download handler under the html3 group.
-func (c *Configuration) downloader(ctx *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func (c *Configuration) downloader(ctx *echo.Context, sl *slog.Logger, db *sql.DB) error {
 	const msg = "downloader htm3 group handler"
 	if err := panics.SCD(sl, ctx, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -586,7 +588,7 @@ func (c *Configuration) downloader(ctx *echo.Context, db *sql.DB, sl *slog.Logge
 		Inline: false,
 		Dir:    dir.Directory(c.Environment.AbsDownload),
 	}
-	if err := d.HTTPSend(ctx, db, sl); err != nil {
+	if err := d.HTTPSend(sl, ctx, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return nil

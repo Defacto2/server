@@ -220,12 +220,12 @@ func DemozooValid(c *echo.Context, prodMode bool, id int) (demozoo.Production, e
 // This will attempt to insert a new file record into the database using
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
-func DemozooSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func DemozooSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "htmx demozoo submit context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	return Demozoo.Submit(c, db, sl, download)
+	return Demozoo.Submit(sl, c, db, download)
 }
 
 // DBConnections is the handler for the database connections page.
@@ -244,7 +244,7 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 }
 
 // DeleteForever is a handler for the /delete/forever route.
-func DeleteForever(c *echo.Context, db *sql.DB, sl *slog.Logger, id string) error {
+func DeleteForever(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	const msg = "htmx delete forever"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -552,16 +552,16 @@ func validation(prod pouet.Response) string {
 // This will attempt to insert a new file record into the database using
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
-func PouetSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func PouetSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "htmx pouet submit context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	return Pouet.Submit(c, db, sl, download)
+	return Pouet.Submit(sl, c, db, download)
 }
 
 // SearchByID is a handler for the /editor/search/id route.
-func SearchByID(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "search by id context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -653,7 +653,7 @@ func Alternatives(s string) []string {
 }
 
 // SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(c *echo.Context, db *sql.DB, sl *slog.Logger, ft *fulltext.Tidbits) error {
+func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.Tidbits) error {
 	const msg = "htmx search releaser context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -716,17 +716,17 @@ func SearchReleaser(c *echo.Context, db *sql.DB, sl *slog.Logger, ft *fulltext.T
 }
 
 // DataListReleasers is a handler for the /datalist/releasers route.
-func DataListReleasers(c *echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
-	return datalist(c, db, sl, input, false)
+func DataListReleasers(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error {
+	return datalist(sl, c, db, input, false)
 }
 
 // DataListMagazines is a handler for the /datalist/magazines route.
-func DataListMagazines(c *echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
-	return datalist(c, db, sl, input, true)
+func DataListMagazines(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error {
+	return datalist(sl, c, db, input, true)
 }
 
 // datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
-func datalist(c *echo.Context, db *sql.DB, sl *slog.Logger, input string, magazine bool) error {
+func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazine bool) error {
 	const msg = "htmx datalist context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

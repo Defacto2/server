@@ -29,7 +29,7 @@ func TestRoutes(t *testing.T) {
 	e := echo.New()
 	sl := logs.Discard()
 	var db sql.DB
-	g := html3.Routes(e, &db, sl)
+	g := html3.Routes(sl, e, &db)
 	be.True(t, g != nil)
 }
 
@@ -242,7 +242,8 @@ func TestDescription(t *testing.T) {
 		null.StringFrom("intro"),
 		null.StringFrom("dos"),
 		null.StringFrom("Defacto2"),
-		null.StringFrom("Hello world"))
+		null.StringFrom("Hello world"),
+	)
 	be.Equal(t, "Hello world from Defacto2 for Dos.", s)
 }
 

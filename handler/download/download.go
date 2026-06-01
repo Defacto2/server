@@ -108,7 +108,7 @@ type Download struct {
 
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (d Download) HTTPSend(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func (d Download) HTTPSend(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "download http send"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
