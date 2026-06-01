@@ -579,7 +579,7 @@ func (c *Configuration) address(port uint16) string {
 // downloader route for the file download handler under the html3 group.
 func (c *Configuration) downloader(ctx *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "downloader htm3 group handler"
-	if err := panics.EchoContextDS(ctx, db, sl); err != nil {
+	if err := panics.SCD(sl, ctx, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := download.Download{

@@ -80,7 +80,7 @@ func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64,
 func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string) (int64, uuid.UUID, error) {
 	const msg = "insert upload"
 	noID := uuid.UUID{}
-	if err := panics.ContextT(ctx, tx); err != nil {
+	if err := panics.CTx(ctx, tx); err != nil {
 		return 0, noID, fmt.Errorf("%s: %w", msg, err)
 	}
 	if tx == nil {

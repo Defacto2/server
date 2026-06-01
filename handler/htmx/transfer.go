@@ -58,7 +58,7 @@ const (
 // The return value is either the humanized and counted classification or an error.
 func HumanizeCount(c *echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
 	const msg = "transfer humanized count"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	section := c.FormValue(name + category)
@@ -80,7 +80,7 @@ func HumanizeCount(c *echo.Context, db *sql.DB, sl *slog.Logger, name string) er
 // Otherwise, if it does not exist, it returns an empty string.
 func LookupSHA384(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "transfer lookup sha384"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	hash := c.Param("hash")
@@ -158,7 +158,7 @@ func uploader(err error) string {
 // the function will not log any debug information.
 func transfer(c *echo.Context, db *sql.DB, sl *slog.Logger, key string, download dir.Directory) error {
 	const msg = "transfer file handler"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if err := download.Check(sl); err != nil {
@@ -281,7 +281,7 @@ func Duplicate(sl *slog.Logger, uid uuid.UUID, src string, dst dir.Directory) {
 
 func checkFormFile(c *echo.Context, sl *slog.Logger, name string, err error) error {
 	const msg = "check form file"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Error("transfer check form file",
@@ -293,7 +293,7 @@ func checkFormFile(c *echo.Context, sl *slog.Logger, name string, err error) err
 
 func checkFileOpen(c *echo.Context, sl *slog.Logger, name string, err error) error {
 	const msg = "check file open"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Error("transfer check file open",
@@ -306,7 +306,7 @@ func checkFileOpen(c *echo.Context, sl *slog.Logger, name string, err error) err
 
 func checkHasher(c *echo.Context, sl *slog.Logger, name string, err error) error {
 	const msg = "check hasher"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Error("transfer check hasher",
@@ -319,7 +319,7 @@ func checkHasher(c *echo.Context, sl *slog.Logger, name string, err error) error
 
 func checkExist(c *echo.Context, sl *slog.Logger, err error) error {
 	const msg = "check exist"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Error("transfer check exist",
@@ -332,7 +332,7 @@ func checkExist(c *echo.Context, sl *slog.Logger, err error) error {
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
 func copier(c *echo.Context, sl *slog.Logger, file *multipart.FileHeader, key string) (string, error) {
 	const msg = "transfer generic file copier"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return "", fmt.Errorf("%s: %w", msg, err)
 	}
 	if file == nil {
@@ -459,7 +459,7 @@ func (prod Submission) Submit( //nolint:funlen
 	c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory,
 ) error {
 	const msg = "htmx transfer submit"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := strings.ToTitle(prod.String())
@@ -565,7 +565,7 @@ func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 
 func UploadPreview(c *echo.Context, sl *slog.Logger, preview, thumbnail dir.Directory) error {
 	const msg = "htmx upload preview"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := "artifact-editor-replace-preview"
@@ -656,7 +656,7 @@ func UploadReplacement( //nolint:funlen
 	download, extra dir.Directory,
 ) error {
 	const msg = "htmx upload replacement"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "artifact-editor-replace-file"

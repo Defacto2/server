@@ -59,7 +59,7 @@ const (
 // Run the database repair based on the repair option.
 func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) error {
 	const msg = "Database repair"
-	if err := panics.ContextDTS(ctx, db, tx, sl); err != nil {
+	if err := panics.CSDTx(ctx, sl, db, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Info(msg,
@@ -291,7 +291,8 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 		slog.String("task", "Clean up the named releasers in group_brand_by and group_brand_for"))
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
-		qm.WithDeleted()).All(ctx, exec)
+		qm.WithDeleted(),
+	).All(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("update group_brand_for = group_brand_by: %w", err)
 	}
@@ -310,7 +311,8 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 	for bad, fix := range GetFixesMapUpper() {
 		f, err = models.Files(
 			qm.Where("group_brand_for = ?", bad),
-			qm.WithDeleted()).All(ctx, exec)
+			qm.WithDeleted(),
+		).All(ctx, exec)
 		if err != nil {
 			return fmt.Errorf("where group_brand_for is bad: %w", err)
 		}
@@ -327,7 +329,8 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 		}
 		f, err = models.Files(
 			qm.Where("group_brand_by = ?", bad),
-			qm.WithDeleted()).All(ctx, exec)
+			qm.WithDeleted(),
+		).All(ctx, exec)
 		if err != nil {
 			return fmt.Errorf("where group_brand_by is bad: %w", err)
 		}

@@ -79,7 +79,7 @@ func Areacodes(c *echo.Context) error {
 // for the "Demozoo production or graphic" form.
 func DemozooLookup(c *echo.Context, db *sql.DB, prodMode bool) error {
 	const msg = "demozoo lookup htmx context"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	zoo := c.FormValue("demozoo-submission")
@@ -222,7 +222,7 @@ func DemozooValid(c *echo.Context, prodMode bool, id int) (demozoo.Production, e
 // use, an error message is returned.
 func DemozooSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const msg = "htmx demozoo submit context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return Demozoo.Submit(c, db, sl, download)
@@ -231,7 +231,7 @@ func DemozooSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Di
 // DBConnections is the handler for the database connections page.
 func DBConnections(c *echo.Context, db *sql.DB) error {
 	const msg = "htmx db connections context"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	conns, maxConn, err := postgres.Connections(db)
@@ -246,7 +246,7 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 // DeleteForever is a handler for the /delete/forever route.
 func DeleteForever(c *echo.Context, db *sql.DB, sl *slog.Logger, id string) error {
 	const msg = "htmx delete forever"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key, err := strconv.ParseInt(id, 10, 64)
@@ -398,7 +398,7 @@ func Pings(c *echo.Context, proto string, port int) error {
 // to save the file to the correct filename.
 func PouetLookup(c *echo.Context, db *sql.DB) error {
 	const msg = "htmx pouet lookup context"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	pouet := c.FormValue("pouet-submission")
@@ -554,7 +554,7 @@ func validation(prod pouet.Response) string {
 // use, an error message is returned.
 func PouetSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const msg = "htmx pouet submit context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return Pouet.Submit(c, db, sl, download)
@@ -563,7 +563,7 @@ func PouetSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Dire
 // SearchByID is a handler for the /editor/search/id route.
 func SearchByID(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "search by id context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 50
@@ -655,7 +655,7 @@ func Alternatives(s string) []string {
 // SearchReleaser is a handler for the /search/releaser route.
 func SearchReleaser(c *echo.Context, db *sql.DB, sl *slog.Logger, ft *fulltext.Tidbits) error {
 	const msg = "htmx search releaser context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const limit = 14
@@ -728,7 +728,7 @@ func DataListMagazines(c *echo.Context, db *sql.DB, sl *slog.Logger, input strin
 // datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
 func datalist(c *echo.Context, db *sql.DB, sl *slog.Logger, input string, magazine bool) error {
 	const msg = "htmx datalist context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 14

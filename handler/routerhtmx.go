@@ -22,7 +22,7 @@ const rateLimit = 2
 // using the htmx library for AJAX responses.
 func htmxGroup(e *echo.Echo, db *sql.DB, sl *slog.Logger, prodMode bool, download dir.Directory) *echo.Echo {
 	const msg = "router htmx group"
-	if err := panics.SDEcho(e, db, sl); err != nil {
+	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)

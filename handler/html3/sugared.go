@@ -39,7 +39,7 @@ func Art(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func Categories(c *echo.Context, sl *slog.Logger) error {
 	const msg = "htm3 categories"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
@@ -78,7 +78,7 @@ func Group(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Groups lists the names and sums of all the distinct scene groups.
 func Groups(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "html3 groups listings"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
@@ -137,7 +137,7 @@ func Groups(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Index method is the homepage of the /html3 sub-route.
 func Index(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "html3 index"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
@@ -187,7 +187,7 @@ func Index(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // List all the records associated with the RecordsBy grouping.
 func List(c *echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
 	const msg = "htm3 list records by"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
@@ -267,7 +267,7 @@ func Platform(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // Platforms lists the names, descriptions and sums of the platform tags.
 func Platforms(c *echo.Context, sl *slog.Logger) error {
 	const msg = "htm3 platforms"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()

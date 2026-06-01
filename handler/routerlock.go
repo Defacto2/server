@@ -26,7 +26,7 @@ import (
 
 func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
 	const msg = "configuration router lock"
-	if err := panics.SDEcho(e, db, sl); err != nil {
+	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {
@@ -55,7 +55,7 @@ func fixers(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 
 func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 	const msg = "configurations group router"
-	if err := panics.GroupDS(g, db, sl); err != nil {
+	if err := panics.SGD(sl, g, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	conf := g.Group("/configurations")
@@ -78,7 +78,7 @@ func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logge
 
 func creator(g *echo.Group, db *sql.DB) {
 	const msg = "creator group router"
-	if err := panics.GroupD(g, db); err != nil {
+	if err := panics.GD(g, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	creator := g.Group("/creator")

@@ -35,7 +35,7 @@ var (
 // The id string is the UID filename of the requested file.
 func Checksum(c *echo.Context, db *sql.DB, id string) error {
 	const msg = "download checksum"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	ctx := context.Background()
@@ -110,7 +110,7 @@ type Download struct {
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "download http send"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key := c.Param("id")
@@ -204,7 +204,7 @@ type ExtraZip struct {
 // This is used for obsolete file types that have been re-archived into a standard zip file.
 func (e ExtraZip) HTTPSend(c *echo.Context, db *sql.DB) error {
 	const msg = "extra zip http send"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key := c.Param("id")

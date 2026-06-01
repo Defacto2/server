@@ -299,7 +299,7 @@ func RecordsSub(uri string) string {
 // Note that the record statistics and counts get cached.
 func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	const msg = "file slice records"
-	if err := panics.ContextB(ctx, exec); err != nil {
+	if err := panics.CE(ctx, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	switch Match(uri) { //nolint:exhaustive
@@ -598,7 +598,7 @@ func Statistics() Stats {
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "category get stats"
-	if err := panics.ContextB(ctx, exec); err != nil {
+	if err := panics.CE(ctx, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	v := reflect.ValueOf(exec)

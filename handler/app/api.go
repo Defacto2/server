@@ -231,7 +231,7 @@ func ArtifactsNewAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // ArtifactAPIs returns a list of all files filtered by the provided uri string.
 func ArtifactAPIs(c *echo.Context, db *sql.DB, sl *slog.Logger, uri string) error {
 	const msg = "artifacts api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -283,7 +283,7 @@ func ArtifactAPIs(c *echo.Context, db *sql.DB, sl *slog.Logger, uri string) erro
 // FileAPI returns a single file by its obfuscated ID.
 func FileAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "file api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -655,7 +655,7 @@ func PlatformsAPI(c *echo.Context, db *sql.DB) error {
 // GroupsAPI returns a list of all releasers/groups with pagination.
 func GroupsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "groups api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -705,7 +705,7 @@ func GroupsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // MagazinesAPI is the handler for the magazines API endpoint.
 func MagazinesAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "magazines api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -729,7 +729,7 @@ func MagazinesAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // BoardsAPI is the handler for the BBS API endpoint.
 func BoardsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "boards api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -753,7 +753,7 @@ func BoardsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // SitesAPI is the handler for the FTP sites API endpoint.
 func SitesAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "sites api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -876,7 +876,7 @@ func artifactSum(f *models.File) artifactAPI {
 // ReleaserAPI returns details for a specific releaser or group.
 func ReleaserAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "releaser api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -977,7 +977,7 @@ func linkDemozoo(uri string) string {
 // ScenerAPI returns details for a specific scener.
 func ScenerAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "scener api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -1068,7 +1068,7 @@ func WritersAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // roleAPI returns a list of all releasers/groups with pagination.
 func roleAPI(c *echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error {
 	const msg = "sceners api"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -1293,7 +1293,7 @@ func PlatformAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 // TagAPI returns a list of files from any category or platform tag.
 func TagAPI(c *echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //nolint:funlen
 	const msg = "get files by tag"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if name == "" {

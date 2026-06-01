@@ -65,7 +65,7 @@ type DemozooLink struct {
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 func (got *DemozooLink) Download(c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "demozoo link download"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	var prod demozoo.Production
@@ -175,7 +175,7 @@ func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResp
 //nolint:dupl // intentional similarity
 func (got *DemozooLink) Stat(c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "demozoo link stat"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := filepath.Join(download.Path(), got.UUID)
@@ -200,7 +200,7 @@ func (got *DemozooLink) Stat(c *echo.Context, db *sql.DB, download dir.Directory
 // ArchiveContent sets the archive content and readme text of the source file.
 func (got *DemozooLink) ArchiveContent(c *echo.Context, db *sql.DB, src string) error {
 	const msg = "demozoo link archive content"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	files, err := archive.List(src, got.Filename)
@@ -222,7 +222,7 @@ func discard(err error) {
 //nolint:dupl // intentional similarity
 func (got *DemozooLink) Update(c *echo.Context, db *sql.DB) error {
 	const msg = "demozoo link update"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	uid := got.UUID
@@ -264,13 +264,13 @@ func (got *DemozooLink) updates(f *models.File) { //nolint:cyclop
 	if s := strings.TrimSpace(got.Title); s != "" {
 		f.RecordTitle = null.StringFrom(s)
 	}
-	if i := (got.IssuedDay); i > 0 {
+	if i := got.IssuedDay; i > 0 {
 		f.DateIssuedDay = null.Int16From(i)
 	}
-	if i := (got.IssuedMonth); i > 0 {
+	if i := got.IssuedMonth; i > 0 {
 		f.DateIssuedMonth = null.Int16From(i)
 	}
-	if i := (got.IssuedYear); i > 0 {
+	if i := got.IssuedYear; i > 0 {
 		f.DateIssuedYear = null.Int16From(i)
 	}
 	if s := strings.Join(got.CreditAudio, ","); s != "" {
@@ -333,7 +333,7 @@ type PouetLink struct {
 
 func (got *PouetLink) Download(c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "pouet link download"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	var prod pouet.Production
@@ -385,7 +385,7 @@ func (got *PouetLink) Download(c *echo.Context, db *sql.DB, download dir.Directo
 //nolint:dupl // intentional similarity
 func (got *PouetLink) Stat(c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "pouet link stat"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := filepath.Join(download.Path(), got.UUID)
@@ -410,7 +410,7 @@ func (got *PouetLink) Stat(c *echo.Context, db *sql.DB, download dir.Directory) 
 // ArchiveContent sets the archive content and readme text of the source file.
 func (got *PouetLink) ArchiveContent(c *echo.Context, db *sql.DB, src string) error {
 	const msg = "pouet link archive content"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	files, err := archive.List(src, got.Filename)
@@ -427,7 +427,7 @@ func (got *PouetLink) ArchiveContent(c *echo.Context, db *sql.DB, src string) er
 //nolint:dupl // intentional similarity
 func (got *PouetLink) Update(c *echo.Context, db *sql.DB) error {
 	const msg = "pouet link update"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	uid := got.UUID
@@ -463,13 +463,13 @@ func (got *PouetLink) updates(f *models.File) {
 	if s := strings.TrimSpace(got.Title); s != "" {
 		f.RecordTitle = null.StringFrom(s)
 	}
-	if i := (got.IssuedDay); i > 0 {
+	if i := got.IssuedDay; i > 0 {
 		f.DateIssuedDay = null.Int16From(i)
 	}
-	if i := (got.IssuedMonth); i > 0 {
+	if i := got.IssuedMonth; i > 0 {
 		f.DateIssuedMonth = null.Int16From(i)
 	}
-	if i := (got.IssuedYear); i > 0 {
+	if i := got.IssuedYear; i > 0 {
 		f.DateIssuedYear = null.Int16From(i)
 	}
 	if s := strings.TrimSpace(got.Filename); s != "" {

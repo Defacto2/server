@@ -50,73 +50,17 @@ func BoilExecCrash(exec boil.ContextExecutor) {
 	}
 }
 
-func GroupD(g *echo.Group, db *sql.DB) error {
-	if g == nil {
-		return ErrNoGroup
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	return nil
-}
-
-func GroupDS(g *echo.Group, db *sql.DB, sl *slog.Logger) error {
-	if g == nil {
-		return ErrNoGroup
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	if sl == nil {
-		return ErrNoSlog
-	}
-	return nil
-}
-
-func EchoContextD(c *echo.Context, db *sql.DB) error {
-	if c == nil {
-		return ErrNoEchoC
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	return nil
-}
-
-func EchoContextS(c *echo.Context, sl *slog.Logger) error {
-	if c == nil {
-		return ErrNoEchoC
-	}
-	if sl == nil {
-		return ErrNoSlog
-	}
-	return nil
-}
-
-func EchoContextDS(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	if c == nil {
-		return ErrNoEchoC
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	if sl == nil {
-		return ErrNoSlog
-	}
-	return nil
-}
-
-func ContextT(ctx context.Context, tx *sql.Tx) error {
+func CD(ctx context.Context, db *sql.DB) error {
 	if ctx == nil {
 		return ErrNoContext
 	}
-	if tx == nil {
-		return ErrNoTx
+	if db == nil {
+		return ErrNoDB
 	}
 	return nil
 }
 
-func ContextB(ctx context.Context, exec boil.ContextExecutor) error {
+func CE(ctx context.Context, exec boil.ContextExecutor) error {
 	if ctx == nil {
 		return ErrNoContext
 	}
@@ -126,12 +70,9 @@ func ContextB(ctx context.Context, exec boil.ContextExecutor) error {
 	return nil
 }
 
-func ContextBS(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func CS(ctx context.Context, sl *slog.Logger) error {
 	if ctx == nil {
 		return ErrNoContext
-	}
-	if exec == nil {
-		return ErrNoBoil
 	}
 	if sl == nil {
 		return ErrNoSlog
@@ -139,22 +80,25 @@ func ContextBS(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 	return nil
 }
 
-func ContextDS(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
+func CSD(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 	if ctx == nil {
 		return ErrNoContext
+	}
+	if sl == nil {
+		return ErrNoSlog
 	}
 	if db == nil {
 		return ErrNoDB
 	}
-	if sl == nil {
-		return ErrNoSlog
-	}
 	return nil
 }
 
-func ContextDTS(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) error {
+func CSDTx(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx) error {
 	if ctx == nil {
 		return ErrNoContext
+	}
+	if sl == nil {
+		return ErrNoSlog
 	}
 	if db == nil {
 		return ErrNoDB
@@ -162,15 +106,35 @@ func ContextDTS(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) er
 	if tx == nil {
 		return ErrNoTx
 	}
+	return nil
+}
+
+func CSE(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+	if ctx == nil {
+		return ErrNoContext
+	}
 	if sl == nil {
 		return ErrNoSlog
+	}
+	if exec == nil {
+		return ErrNoBoil
 	}
 	return nil
 }
 
-func ContextD(ctx context.Context, db *sql.DB) error {
+func CTx(ctx context.Context, tx *sql.Tx) error {
 	if ctx == nil {
 		return ErrNoContext
+	}
+	if tx == nil {
+		return ErrNoTx
+	}
+	return nil
+}
+
+func ECD(c *echo.Context, db *sql.DB) error {
+	if c == nil {
+		return ErrNoEchoC
 	}
 	if db == nil {
 		return ErrNoDB
@@ -178,37 +142,7 @@ func ContextD(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func ContextS(ctx context.Context, sl *slog.Logger) error {
-	if ctx == nil {
-		return ErrNoContext
-	}
-	if sl == nil {
-		return ErrNoSlog
-	}
-	return nil
-}
-
-// EchoDSP checks the arguments for handler package.
-// If an error is returned, the calling method or func should abort and return the error.
-func EchoDSP(e *echo.Echo, db *sql.DB, sl *slog.Logger, public embed.FS) error {
-	if e == nil {
-		return ErrNoEchoE
-	}
-	if db == nil {
-		return ErrNoDB
-	}
-	if sl == nil {
-		return ErrNoSlog
-	}
-	if public == (embed.FS{}) {
-		return ErrNoEmbed
-	}
-	return nil
-}
-
-// EchoP checks the arguments for handler package.
-// If an error is returned, the calling method or func should abort and return the error.
-func EchoP(e *echo.Echo, public embed.FS) error {
+func EP(e *echo.Echo, public embed.FS) error {
 	if e == nil {
 		return ErrNoEchoE
 	}
@@ -218,29 +152,36 @@ func EchoP(e *echo.Echo, public embed.FS) error {
 	return nil
 }
 
-// SDEcho checks the arguments for handler package.
-// If an error is returned, the calling method or func should abort and return the error.
-func SDEcho(e *echo.Echo, db *sql.DB, sl *slog.Logger) error {
-	if e == nil {
-		return ErrNoEchoE
+func GD(g *echo.Group, db *sql.DB) error {
+	if g == nil {
+		return ErrNoGroup
 	}
 	if db == nil {
 		return ErrNoDB
 	}
+	return nil
+}
+
+func SC(c *echo.Context, sl *slog.Logger) error {
+	// leave these incorrectly ordered arguments unchanged for the moment
 	if sl == nil {
 		return ErrNoSlog
+	}
+	if c == nil {
+		return ErrNoEchoC
 	}
 	return nil
 }
 
-// SEcho checks the arguments for handler package.
-// If an error is returned, the calling method or func should abort and return the error.
-func SEcho(sl *slog.Logger, e *echo.Echo) error {
+func SCD(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if sl == nil {
 		return ErrNoSlog
 	}
-	if e == nil {
-		return ErrNoEchoE
+	if c == nil {
+		return ErrNoEchoC
+	}
+	if db == nil {
+		return ErrNoDB
 	}
 	return nil
 }
@@ -248,6 +189,58 @@ func SEcho(sl *slog.Logger, e *echo.Echo) error {
 func SD(sl *slog.Logger, db *sql.DB) error {
 	if sl == nil {
 		return ErrNoSlog
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	return nil
+}
+
+func SDE(sl *slog.Logger, db *sql.DB, e *echo.Echo) error {
+	if sl == nil {
+		return ErrNoSlog
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	if e == nil {
+		return ErrNoEchoE
+	}
+	return nil
+}
+
+func SDEP(sl *slog.Logger, db *sql.DB, e *echo.Echo, public embed.FS) error {
+	if sl == nil {
+		return ErrNoSlog
+	}
+	if db == nil {
+		return ErrNoDB
+	}
+	if e == nil {
+		return ErrNoEchoE
+	}
+	if public == (embed.FS{}) {
+		return ErrNoEmbed
+	}
+	return nil
+}
+
+func SE(sl *slog.Logger, e *echo.Echo) error {
+	if sl == nil {
+		return ErrNoSlog
+	}
+	if e == nil {
+		return ErrNoEchoE
+	}
+	return nil
+}
+
+func SGD(sl *slog.Logger, g *echo.Group, db *sql.DB) error {
+	if sl == nil {
+		return ErrNoSlog
+	}
+	if g == nil {
+		return ErrNoGroup
 	}
 	if db == nil {
 		return ErrNoDB

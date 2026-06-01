@@ -54,7 +54,7 @@ const (
 // Artifact404 renders the error page for the artifact links.
 func Artifact404(c *echo.Context, sl *slog.Logger, id string) error {
 	const msg = "artifact 404 context"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "status"
@@ -92,7 +92,7 @@ func (dir Dirs) Artifact(c *echo.Context, db *sql.DB, sl *slog.Logger, readonly 
 	// NOTE: skip the render of the "view content" button for 1MB > zip content textdata, limit is ignored by Editors.
 	const maxZipContent = 1_000_000
 	const msg = "dir artifact context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "artifact"
