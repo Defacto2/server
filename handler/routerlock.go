@@ -29,11 +29,11 @@ func (c *Configuration) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {
-		return c.ReadOnlyLock(cx, sl)
+	readonlylock := func(ec echo.HandlerFunc) echo.HandlerFunc {
+		return c.ReadOnlyLock(ec, sl)
 	}
-	sessionlock := func(cx echo.HandlerFunc) echo.HandlerFunc {
-		return c.SessionLock(cx, sl)
+	sessionlock := func(ec echo.HandlerFunc) echo.HandlerFunc {
+		return c.SessionLock(ec, sl)
 	}
 	lock := e.Group("/editor")
 	lock.Use(readonlylock, sessionlock)
@@ -59,20 +59,20 @@ func (c *Configuration) configurations(sl *slog.Logger, g *echo.Group, db *sql.D
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	conf := g.Group("/configurations")
-	conf.GET("", func(cx *echo.Context) error {
-		return app.Configurations(sl, cx, db, c.Environment)
+	conf.GET("", func(ec *echo.Context) error {
+		return app.Configurations(sl, ec, db, c.Environment)
 	})
 	conf.GET("/dbconns", func(c *echo.Context) error {
 		return htmx.DBConnections(c, db)
 	})
-	conf.GET("/pings", func(cx *echo.Context) error {
+	conf.GET("/pings", func(ec *echo.Context) error {
 		proto := "http"
 		port := c.Environment.HTTPPort.Value()
 		if port == 0 {
 			port = c.Environment.TLSPort.Value()
 			proto = "https"
 		}
-		return htmx.Pings(cx, proto, int(port))
+		return htmx.Pings(ec, proto, int(port))
 	})
 }
 
@@ -107,11 +107,11 @@ func date(g *echo.Group, db *sql.DB) {
 	date.PATCH("", func(c *echo.Context) error {
 		return htmx.RecordDateIssued(c, db)
 	})
-	date.PATCH("/reset", func(cx *echo.Context) error {
-		return htmx.RecordDateIssuedReset(cx, db, "artifact-editor-date-resetter")
+	date.PATCH("/reset", func(ec *echo.Context) error {
+		return htmx.RecordDateIssuedReset(ec, db, "artifact-editor-date-resetter")
 	})
-	date.PATCH("/lastmod", func(cx *echo.Context) error {
-		return htmx.RecordDateIssuedReset(cx, db, "artifact-editor-date-lastmodder")
+	date.PATCH("/lastmod", func(ec *echo.Context) error {
+		return htmx.RecordDateIssuedReset(ec, db, "artifact-editor-date-lastmodder")
 	})
 }
 
@@ -332,20 +332,20 @@ func get(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) {
 		panic(fmt.Errorf("%w for get router", panics.ErrNoEchoE))
 	}
 	g.GET("/deletions",
-		func(cx *echo.Context) error {
-			return app.Deletions(sl, cx, db, "1")
+		func(ec *echo.Context) error {
+			return app.Deletions(sl, ec, db, "1")
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
-		func(cx *echo.Context) error {
-			return app.GetDemozooParam(cx, db, dirs.Download)
+		func(ec *echo.Context) error {
+			return app.GetDemozooParam(ec, db, dirs.Download)
 		})
 	g.GET("/for-approval",
-		func(cx *echo.Context) error {
-			return app.ForApproval(sl, cx, db, "1")
+		func(ec *echo.Context) error {
+			return app.ForApproval(sl, ec, db, "1")
 		})
 	g.GET("/unwanted",
-		func(cx *echo.Context) error {
-			return app.Unwanted(sl, cx, db, "1")
+		func(ec *echo.Context) error {
+			return app.Unwanted(sl, ec, db, "1")
 		})
 }
 
@@ -354,14 +354,14 @@ func online(g *echo.Group, db *sql.DB) {
 		panic(fmt.Errorf("%w for online router", panics.ErrNoEchoE))
 	}
 	online := g.Group("/online")
-	online.PATCH("/true", func(cx *echo.Context) error {
-		return htmx.RecordToggle(cx, db, true)
+	online.PATCH("/true", func(ec *echo.Context) error {
+		return htmx.RecordToggle(ec, db, true)
 	})
-	online.PATCH("/false", func(cx *echo.Context) error {
-		return htmx.RecordToggle(cx, db, false)
+	online.PATCH("/false", func(ec *echo.Context) error {
+		return htmx.RecordToggle(ec, db, false)
 	})
-	online.GET("/true/:id", func(cx *echo.Context) error {
-		return htmx.RecordToggleByID(cx, db, cx.Param("id"), true)
+	online.GET("/true/:id", func(ec *echo.Context) error {
+		return htmx.RecordToggleByID(ec, db, ec.Param("id"), true)
 	})
 }
 
@@ -370,10 +370,10 @@ func search(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 		panic(fmt.Errorf("%w for search router", panics.ErrNoEchoE))
 	}
 	search := g.Group("/search")
-	search.GET("/id", func(cx *echo.Context) error {
-		return app.SearchID(sl, cx)
+	search.GET("/id", func(ec *echo.Context) error {
+		return app.SearchID(sl, ec)
 	})
-	search.POST("/id", func(cx *echo.Context) error {
-		return htmx.SearchByID(sl, cx, db)
+	search.POST("/id", func(ec *echo.Context) error {
+		return htmx.SearchByID(sl, ec, db)
 	})
 }

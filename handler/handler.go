@@ -77,10 +77,17 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	envConfig := c.Environment
 	config := echo.Config{
 		Logger: sl,
-		HTTPErrorHandler: func(ctx *echo.Context, err error) {
-			envConfig.CustomErrorHandler(err, ctx, sl)
+		HTTPErrorHandler: func(ec *echo.Context, err error) {
+			envConfig.CustomErrorHandler(err, ec, sl)
 		},
-		// Router:             nil, // TODO
+		Router: echo.NewRouter(echo.RouterConfig{ // TODO: these need testing
+			NotFoundHandler:           nil,
+			MethodNotAllowedHandler:   nil,
+			OptionsMethodHandler:      nil,
+			AllowOverwritingRoute:     false,
+			UnescapePathParamValues:   false, // Auto-decodes uppercase/lowercase URL entities safely
+			UseEscapedPathForMatching: false,
+		}),
 		// OnAddRoute:         nil,
 		// Filesystem:         nil,
 		// Binder:             nil,

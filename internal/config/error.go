@@ -33,13 +33,13 @@ var (
 )
 
 // CustomErrorHandler handles customer error templates.
-func (c *Config) CustomErrorHandler(err error, ctx *echo.Context, sl *slog.Logger) {
+func (c *Config) CustomErrorHandler(err error, ec *echo.Context, sl *slog.Logger) {
 	const msg = "custom error handler"
-	if err := panics.SC(ctx, sl); err != nil {
+	if err := panics.SC(ec, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if IsHTML3(ctx.Path()) {
-		if err := html3.Error(ctx, err); err != nil {
+	if IsHTML3(ec.Path()) {
+		if err := html3.Error(ec, err); err != nil {
 			logs.Fatal(sl, msg, slog.Any("html3 error", err))
 		}
 		return
@@ -49,13 +49,13 @@ func (c *Config) CustomErrorHandler(err error, ctx *echo.Context, sl *slog.Logge
 		statusCode = httpError.Code
 	}
 	errorPage := fmt.Sprintf("%d.html", statusCode)
-	if err := ctx.File(errorPage); err != nil {
+	if err := ec.File(errorPage); err != nil {
 		// fallback to a string error if templates break
 		code, s, err1 := StringErr(err)
 		if err1 != nil {
 			logs.Fatal(sl, msg, slog.Any("error", err))
 		}
-		if err2 := ctx.String(code, s); err2 != nil {
+		if err2 := ec.String(code, s); err2 != nil {
 			logs.Fatal(sl, msg, slog.Any("error", err))
 		}
 	}

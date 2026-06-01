@@ -145,8 +145,8 @@ func (c *Configuration) custom404(sl *slog.Logger, e *echo.Echo) *echo.Echo {
 	if e == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
-	e.GET("/:uri", func(cx *echo.Context) error {
-		return app.StatusErr(sl, cx, http.StatusNotFound, cx.Param("uri"))
+	e.GET("/:uri", func(ec *echo.Context) error {
+		return app.StatusErr(sl, ec, http.StatusNotFound, ec.Param("uri"))
 	})
 	return e
 }
@@ -175,8 +175,8 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 		AcceptEncoding string `json:"acceptEncoding"`
 		AcceptLanguage string `json:"acceptLanguage"`
 	}
-	e.GET("/debug", func(cx *echo.Context) error {
-		req := cx.Request()
+	e.GET("/debug", func(ec *echo.Context) error {
+		req := ec.Request()
 		d := debug{
 			Protocol:       req.Proto,
 			Host:           req.Host,
@@ -191,7 +191,7 @@ func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 			AcceptEncoding: req.Header.Get("Accept-Encoding"),
 			AcceptLanguage: req.Header.Get("Accept-Language"),
 		}
-		return cx.JSONPretty(http.StatusOK, d, "  ")
+		return ec.JSONPretty(http.StatusOK, d, "  ")
 	})
 	return e
 }
@@ -314,51 +314,51 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 		return app.Coder(sl, c, db)
 	})
 	s.GET("/compression", func(c *echo.Context) error { return app.Compression(sl, c) })
-	s.GET(Downloader, func(cx *echo.Context) error {
-		return app.Download(sl, cx, db, dir.Directory(c.Environment.AbsDownload))
+	s.GET(Downloader, func(ec *echo.Context) error {
+		return app.Download(sl, ec, db, dir.Directory(c.Environment.AbsDownload))
 	})
-	s.GET("/f/:id", func(cx *echo.Context) error {
-		uri := cx.Param("id")
-		if qs := cx.QueryString(); qs != "" {
-			return cx.Redirect(http.StatusMovedPermanently, "/f/"+uri)
+	s.GET("/f/:id", func(ec *echo.Context) error {
+		uri := ec.Param("id")
+		if qs := ec.QueryString(); qs != "" {
+			return ec.Redirect(http.StatusMovedPermanently, "/f/"+uri)
 		}
 		dirs.URI = uri
-		return dirs.Artifact(sl, cx, db, bool(c.Environment.ReadOnly))
+		return dirs.Artifact(sl, ec, db, bool(c.Environment.ReadOnly))
 	})
-	s.GET("/file/stats", func(cx *echo.Context) error {
-		return app.Categories(sl, cx, db, true)
+	s.GET("/file/stats", func(ec *echo.Context) error {
+		return app.Categories(sl, ec, db, true)
 	})
-	s.GET("/files/:id/:page", func(cx *echo.Context) error {
-		switch cx.Param("id") {
+	s.GET("/files/:id/:page", func(ec *echo.Context) error {
+		switch ec.Param("id") {
 		case "for-approval", "deletions", "unwanted":
-			return app.StatusErr(sl, cx, http.StatusNotFound, cx.Param("id"))
+			return app.StatusErr(sl, ec, http.StatusNotFound, ec.Param("id"))
 		}
-		return app.Artifacts(sl, cx, db, cx.Param("id"), cx.Param("page"))
+		return app.Artifacts(sl, ec, db, ec.Param("id"), ec.Param("page"))
 	})
-	s.GET("/files/:id", func(cx *echo.Context) error {
-		switch cx.Param("id") {
+	s.GET("/files/:id", func(ec *echo.Context) error {
+		switch ec.Param("id") {
 		case "for-approval", "deletions", "unwanted":
-			return app.StatusErr(sl, cx, http.StatusNotFound, cx.Param("id"))
+			return app.StatusErr(sl, ec, http.StatusNotFound, ec.Param("id"))
 		}
-		return app.Artifacts(sl, cx, db, cx.Param("id"), "1")
+		return app.Artifacts(sl, ec, db, ec.Param("id"), "1")
 	})
-	s.GET("/file", func(cx *echo.Context) error {
-		return app.Categories(sl, cx, db, false)
+	s.GET("/file", func(ec *echo.Context) error {
+		return app.Categories(sl, ec, db, false)
 	})
 	s.GET("/fixes", func(c *echo.Context) error { return app.Fixes(sl, c) })
 	s.GET("/ftp", func(c *echo.Context) error {
 		return app.FTP(sl, c, db)
 	})
-	s.GET("/g/:id", func(cx *echo.Context) error {
-		if qs := cx.QueryString(); qs != "" {
-			return cx.Redirect(http.StatusMovedPermanently, "/g/"+cx.Param("id"))
+	s.GET("/g/:id", func(ec *echo.Context) error {
+		if qs := ec.QueryString(); qs != "" {
+			return ec.Redirect(http.StatusMovedPermanently, "/g/"+ec.Param("id"))
 		}
-		return app.Releasers(sl, cx, db, cx.Param("id"), c.Public)
+		return app.Releasers(sl, ec, db, ec.Param("id"), c.Public)
 	})
 	s.GET("/history", func(c *echo.Context) error { return app.History(sl, c) })
 	s.GET("/interview", func(c *echo.Context) error { return app.Interview(sl, c) })
-	s.GET("/jsdos/:id", func(cx *echo.Context) error {
-		return app.DownloadJsDos(sl, cx, db,
+	s.GET("/jsdos/:id", func(ec *echo.Context) error {
+		return app.DownloadJsDos(sl, ec, db,
 			dir.Directory(c.Environment.AbsExtra),
 			dir.Directory(c.Environment.AbsDownload))
 	})
@@ -372,20 +372,20 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 	s.GET("/musician", func(c *echo.Context) error {
 		return app.Musician(sl, c, db)
 	})
-	s.GET("/p/:id", func(cx *echo.Context) error {
-		if qs := cx.QueryString(); qs != "" {
-			return cx.Redirect(http.StatusMovedPermanently, "/p/"+cx.Param("id"))
+	s.GET("/p/:id", func(ec *echo.Context) error {
+		if qs := ec.QueryString(); qs != "" {
+			return ec.Redirect(http.StatusMovedPermanently, "/p/"+ec.Param("id"))
 		}
-		return app.Sceners(sl, cx, db, cx.Param("id"))
+		return app.Sceners(sl, ec, db, ec.Param("id"))
 	})
-	s.GET("/pouet/vote/:id", func(cx *echo.Context) error {
-		return app.VotePouet(sl, cx, cx.Param("id"))
+	s.GET("/pouet/vote/:id", func(ec *echo.Context) error {
+		return app.VotePouet(sl, ec, ec.Param("id"))
 	})
-	s.GET("/pouet/prod/:id", func(cx *echo.Context) error {
-		return app.ProdPouet(cx, cx.Param("id"))
+	s.GET("/pouet/prod/:id", func(ec *echo.Context) error {
+		return app.ProdPouet(ec, ec.Param("id"))
 	})
-	s.GET("/zoo/prod/:id", func(cx *echo.Context) error {
-		return app.ProdZoo(cx, cx.Param("id"))
+	s.GET("/zoo/prod/:id", func(ec *echo.Context) error {
+		return app.ProdZoo(ec, ec.Param("id"))
 	})
 	s.GET("/releaser", func(c *echo.Context) error {
 		return app.Releaser(sl, c, db)
@@ -399,24 +399,24 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 	s.GET("/scener", func(c *echo.Context) error {
 		return app.Scener(sl, c, db)
 	})
-	s.GET("/sum/:id", func(cx *echo.Context) error {
-		return app.Checksum(sl, cx, db, cx.Param("id"))
+	s.GET("/sum/:id", func(ec *echo.Context) error {
+		return app.Checksum(sl, ec, db, ec.Param("id"))
 	})
 	s.GET("/terms", func(c *echo.Context) error { return app.Terms(sl, c) })
 	s.GET("/thanks", func(c *echo.Context) error { return app.Thanks(sl, c) })
 	s.GET("/thescene", func(c *echo.Context) error { return app.TheScene(sl, c) })
 	s.GET("/titles", func(c *echo.Context) error { return app.Titles(sl, c) })
-	s.GET("/website/:id", func(cx *echo.Context) error {
-		return app.Website(sl, cx, cx.Param("id"))
+	s.GET("/website/:id", func(ec *echo.Context) error {
+		return app.Website(sl, ec, ec.Param("id"))
 	})
-	s.GET("/website", func(cx *echo.Context) error {
-		return app.Website(sl, cx, "")
+	s.GET("/website", func(ec *echo.Context) error {
+		return app.Website(sl, ec, "")
 	})
 	s.GET("/writer", func(c *echo.Context) error {
 		return app.Writer(sl, c, db)
 	})
-	s.GET("/v/:id", func(cx *echo.Context) error {
-		return app.Inline(sl, cx, db, dir.Directory(c.Environment.AbsDownload))
+	s.GET("/v/:id", func(ec *echo.Context) error {
+		return app.Inline(sl, ec, db, dir.Directory(c.Environment.AbsDownload))
 	})
 	return e
 }
@@ -444,8 +444,8 @@ func (c *Configuration) search(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.
 	search.POST("/file", func(c *echo.Context) error {
 		return app.PostFilename(sl, c, db)
 	})
-	search.POST("/releaser", func(cx *echo.Context) error {
-		return htmx.SearchReleaser(sl, cx, db, &c.TidbitIndex)
+	search.POST("/releaser", func(ec *echo.Context) error {
+		return htmx.SearchReleaser(sl, ec, db, &c.TidbitIndex)
 	})
 	return e
 }
@@ -456,23 +456,23 @@ func (c *Configuration) signin(sl *slog.Logger, e *echo.Echo, nonce string) *ech
 	if err := panics.SE(sl, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {
-		return c.ReadOnlyLock(cx, sl)
+	readonlylock := func(ec echo.HandlerFunc) echo.HandlerFunc {
+		return c.ReadOnlyLock(ec, sl)
 	}
 	signings := e.Group("")
 	signings.Use(readonlylock)
-	signings.GET("/signedout", func(cx *echo.Context) error {
-		return app.SignedOut(sl, cx)
+	signings.GET("/signedout", func(ec *echo.Context) error {
+		return app.SignedOut(sl, ec)
 	})
-	signings.GET("/signin", func(cx *echo.Context) error {
-		return app.Signin(sl, cx, c.Environment.GoogleClientID.String(), nonce)
+	signings.GET("/signin", func(ec *echo.Context) error {
+		return app.Signin(sl, ec, c.Environment.GoogleClientID.String(), nonce)
 	})
-	signings.GET("/operator/signin", func(cx *echo.Context) error {
-		return cx.Redirect(http.StatusMovedPermanently, "/signin")
+	signings.GET("/operator/signin", func(ec *echo.Context) error {
+		return ec.Redirect(http.StatusMovedPermanently, "/signin")
 	})
 	google := signings.Group("/google")
-	google.POST("/callback", func(cx *echo.Context) error {
-		return app.GoogleCallback(sl, cx,
+	google.POST("/callback", func(ec *echo.Context) error {
+		return app.GoogleCallback(sl, ec,
 			c.Environment.GoogleClientID.String(),
 			c.Environment.SessionMaxAge.Int(),
 			c.Environment.GoogleAccounts...)
