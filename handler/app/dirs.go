@@ -92,7 +92,7 @@ func (dir Dirs) Artifact(c *echo.Context, db *sql.DB, sl *slog.Logger, readonly 
 	// NOTE: skip the render of the "view content" button for 1MB > zip content textdata, limit is ignored by Editors.
 	const maxZipContent = 1_000_000
 	const msg = "dir artifact context"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "artifact"

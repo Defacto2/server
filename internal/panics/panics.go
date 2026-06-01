@@ -50,6 +50,8 @@ func BoilExecCrash(exec boil.ContextExecutor) {
 	}
 }
 
+// The following funcs are exclusively used to check empty and nil arguments.
+
 func CD(ctx context.Context, db *sql.DB) error {
 	if ctx == nil {
 		return ErrNoContext

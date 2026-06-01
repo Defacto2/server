@@ -219,19 +219,19 @@ type websiteAPI struct {
 }
 
 // ArtifactsAPI returns a list of all files ordered by "oldest".
-func ArtifactsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return ArtifactAPIs(c, db, sl, "oldest")
+func ArtifactsAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return ArtifactAPIs(sl, c, db, "oldest")
 }
 
 // ArtifactsNewAPI returns a list of all files ordered by "new-uploads".
-func ArtifactsNewAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return ArtifactAPIs(c, db, sl, "new-uploads")
+func ArtifactsNewAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return ArtifactAPIs(sl, c, db, "new-uploads")
 }
 
 // ArtifactAPIs returns a list of all files filtered by the provided uri string.
-func ArtifactAPIs(c *echo.Context, db *sql.DB, sl *slog.Logger, uri string) error {
+func ArtifactAPIs(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error {
 	const msg = "artifacts api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -281,9 +281,9 @@ func ArtifactAPIs(c *echo.Context, db *sql.DB, sl *slog.Logger, uri string) erro
 }
 
 // FileAPI returns a single file by its obfuscated ID.
-func FileAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func FileAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "file api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -653,9 +653,9 @@ func PlatformsAPI(c *echo.Context, db *sql.DB) error {
 }
 
 // GroupsAPI returns a list of all releasers/groups with pagination.
-func GroupsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func GroupsAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "groups api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -703,9 +703,9 @@ func GroupsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // MagazinesAPI is the handler for the magazines API endpoint.
 // MagazinesAPI is the handler for the magazines API endpoint.
-func MagazinesAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func MagazinesAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "magazines api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -727,9 +727,9 @@ func MagazinesAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // BoardsAPI is the handler for the BBS API endpoint.
-func BoardsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func BoardsAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "boards api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -751,9 +751,9 @@ func BoardsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // SitesAPI is the handler for the FTP sites API endpoint.
-func SitesAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func SitesAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "sites api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -874,9 +874,9 @@ func artifactSum(f *models.File) artifactAPI {
 }
 
 // ReleaserAPI returns details for a specific releaser or group.
-func ReleaserAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func ReleaserAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "releaser api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -975,9 +975,9 @@ func linkDemozoo(uri string) string {
 }
 
 // ScenerAPI returns details for a specific scener.
-func ScenerAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func ScenerAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "scener api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -1045,30 +1045,30 @@ func ScenerAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // ScenersAPI returns a list of Sceners
 // ScenersAPI builds the ReleaserAPI list from model data.
-func ScenersAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return roleAPI(c, db, sl, postgres.Roles())
+func ScenersAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return roleAPI(sl, c, db, postgres.Roles())
 }
 
-func ArtistsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return roleAPI(c, db, sl, postgres.Artist)
+func ArtistsAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return roleAPI(sl, c, db, postgres.Artist)
 }
 
-func CodersAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return roleAPI(c, db, sl, postgres.Coder)
+func CodersAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return roleAPI(sl, c, db, postgres.Coder)
 }
 
-func MusiciansAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return roleAPI(c, db, sl, postgres.Musician)
+func MusiciansAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return roleAPI(sl, c, db, postgres.Musician)
 }
 
-func WritersAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return roleAPI(c, db, sl, postgres.Writer)
+func WritersAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return roleAPI(sl, c, db, postgres.Writer)
 }
 
 // roleAPI returns a list of all releasers/groups with pagination.
-func roleAPI(c *echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error {
+func roleAPI(sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role) error {
 	const msg = "sceners api"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -1259,7 +1259,7 @@ func TagsAPI(c *echo.Context, db *sql.DB, category, platform bool) error {
 }
 
 // CategoryAPI returns a list of files from any category tag.
-func CategoryAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func CategoryAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	name := c.Param("category")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -1271,11 +1271,11 @@ func CategoryAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 			er: "Category is not known",
 		})
 	}
-	return TagAPI(c, db, sl, name)
+	return TagAPI(sl, c, db, name)
 }
 
 // PlatformAPI returns a list of files from any category tag.
-func PlatformAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+func PlatformAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	name := c.Param("platform")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -1287,13 +1287,13 @@ func PlatformAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 			er: "Platform is not known",
 		})
 	}
-	return TagAPI(c, db, sl, name)
+	return TagAPI(sl, c, db, name)
 }
 
 // TagAPI returns a list of files from any category or platform tag.
-func TagAPI(c *echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //nolint:funlen
+func TagAPI(sl *slog.Logger, c *echo.Context, db *sql.DB, name string) error { //nolint:funlen
 	const msg = "get files by tag"
-	if err := panics.SCD(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if name == "" {

@@ -49,8 +49,8 @@ func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app
 }
 
 func fixers(g *echo.Group, db *sql.DB, sl *slog.Logger) {
-	g.GET("/fixers", func(c *echo.Context) error { return app.Fixers(c, db, sl) })
-	g.POST("/fixers/fix/:id", func(c *echo.Context) error { return app.FixNumericSuffix(c, db, sl) })
+	g.GET("/fixers", func(c *echo.Context) error { return app.Fixers(sl, c, db) })
+	g.POST("/fixers/fix/:id", func(c *echo.Context) error { return app.FixNumericSuffix(sl, c, db) })
 }
 
 func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logger) {
@@ -151,7 +151,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 		return htmx.RecordLinksReset(c, db)
 	})
 	g.PATCH("/platform", func(c *echo.Context) error {
-		return app.PlatformEdit(c, db, sl)
+		return app.PlatformEdit(sl, c, db)
 	})
 	g.PATCH("/platform+tag", app.PlatformTagInfo)
 	g.PATCH("/pouet", func(c *echo.Context) error {
@@ -170,7 +170,7 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 		return htmx.RecordSites(c, db)
 	})
 	g.PATCH("/tag", func(c *echo.Context) error {
-		return app.TagEdit(c, db, sl)
+		return app.TagEdit(sl, c, db)
 	})
 	g.PATCH("/tag/info", app.TagInfo)
 	g.PATCH("/title", func(c *echo.Context) error {
@@ -341,7 +341,7 @@ func get(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
 		})
 	g.GET("/for-approval",
 		func(cx *echo.Context) error {
-			return app.ForApproval(cx, db, sl, "1")
+			return app.ForApproval(sl, cx, db, "1")
 		})
 	g.GET("/unwanted",
 		func(cx *echo.Context) error {
@@ -371,7 +371,7 @@ func search(g *echo.Group, db *sql.DB, sl *slog.Logger) {
 	}
 	search := g.Group("/search")
 	search.GET("/id", func(cx *echo.Context) error {
-		return app.SearchID(cx, sl)
+		return app.SearchID(sl, cx)
 	})
 	search.POST("/id", func(cx *echo.Context) error {
 		return htmx.SearchByID(cx, db, sl)

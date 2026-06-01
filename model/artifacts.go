@@ -217,7 +217,7 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, o
 // Description returns a list of files that match the search terms.
 // The search terms are matched against the record_title column.
 // The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger, terms []string) (
+func (f *Artifacts) Description(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, terms []string) (
 	models.FileSlice, error,
 ) {
 	const msg = "artifacts description"

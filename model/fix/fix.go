@@ -57,7 +57,7 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) error {
+func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx) error {
 	const msg = "Database repair"
 	if err := panics.CSDTx(ctx, sl, db, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

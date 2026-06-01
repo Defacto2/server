@@ -176,7 +176,7 @@ func InternalErr(c *echo.Context, sl *slog.Logger, uri string, err error) error 
 			slog.String("uri", uri), slog.Any("error", err))
 	}
 	if errors.Is(err, echo.ErrRendererNotRegistered) {
-		message := fmt.Sprintf("%w", err)
+		message := fmt.Sprintf("%s", err)
 		return echo.NewHTTPError(code, message)
 	}
 	data := empty(c)
@@ -222,7 +222,7 @@ func StatusErr(c *echo.Context, sl *slog.Logger, code int, uri string) error {
 	default:
 		s := http.StatusText(code)
 		if s == "" {
-			err := fmt.Sprintf("%d status error for the URL, %s: %w", code, uri, ErrStatus)
+			err := fmt.Sprintf("%d status error for the URL, %s: %s", code, uri, ErrStatus)
 			sl.Error(msg, slog.String("status", "unknown and unsupported status code"),
 				slog.Int("code", code), slog.String("uri", uri))
 			return echo.NewHTTPError(http.StatusInternalServerError, err)

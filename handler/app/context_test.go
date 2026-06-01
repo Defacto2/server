@@ -32,9 +32,9 @@ func TestEmpty(t *testing.T) {
 
 func TestArtifacts(t *testing.T) {
 	t.Parallel()
-	x := app.Artifacts(newContext(), nil, nil, "", "")
+	x := app.Artifacts(nil, newContext(), nil, "", "")
 	be.Err(t, x)
-	x = app.Artifacts(newContext(), nil, nil, "for-approval", "1")
+	x = app.Artifacts(nil, newContext(), nil, "for-approval", "1")
 	be.Err(t, x)
 }
 
@@ -106,7 +106,7 @@ func TestUnwanted(t *testing.T) {
 
 func TestForApproval(t *testing.T) {
 	t.Parallel()
-	x := app.ForApproval(newContext(), nil, nil, "")
+	x := app.ForApproval(nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
@@ -126,67 +126,67 @@ func TestGetDemozoo(t *testing.T) {
 
 func TestGoogleCallback(t *testing.T) {
 	t.Parallel()
-	x := app.GoogleCallback(newContext(), nil, "", -1, [48]byte{})
+	x := app.GoogleCallback(nil, newContext(), "", -1, [48]byte{})
 	be.Err(t, x)
 }
 
 func TestHistory(t *testing.T) {
 	t.Parallel()
-	x := app.History(newContext(), nil)
+	x := app.History(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestIndex(t *testing.T) {
 	t.Parallel()
-	x := app.Index(newContext(), nil)
+	x := app.Index(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestInline(t *testing.T) {
 	t.Parallel()
-	x := app.Inline(newContext(), nil, nil, "")
+	x := app.Inline(nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestInterview(t *testing.T) {
 	t.Parallel()
-	x := app.Interview(newContext(), nil)
+	x := app.Interview(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestMagazine(t *testing.T) {
 	t.Parallel()
-	x := app.Magazine(newContext(), nil, nil)
+	x := app.Magazine(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestMagazineAZ(t *testing.T) {
 	t.Parallel()
-	x := app.MagazineAZ(newContext(), nil, nil)
+	x := app.MagazineAZ(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestMusician(t *testing.T) {
 	t.Parallel()
-	x := app.Musician(newContext(), nil, nil)
+	x := app.Musician(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestNew(t *testing.T) {
 	t.Parallel()
-	x := app.New(newContext(), nil)
+	x := app.New(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestPage404(t *testing.T) {
 	t.Parallel()
-	x := app.Page404(newContext(), nil, "", "")
+	x := app.Page404(nil, newContext(), "", "")
 	be.Err(t, x)
 }
 
 func TestPlatformEdit(t *testing.T) {
 	t.Parallel()
-	x := app.PlatformEdit(newContext(), nil, nil)
+	x := app.PlatformEdit(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -198,13 +198,13 @@ func TestPlatformTagInfo(t *testing.T) {
 
 func TestPostDesc(t *testing.T) {
 	t.Parallel()
-	x := app.PostDesc(newContext(), nil, nil, "")
+	x := app.PostDesc(nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestPostFilename(t *testing.T) {
 	t.Parallel()
-	x := app.PostFilename(newContext(), nil, nil)
+	x := app.PostFilename(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -236,91 +236,91 @@ func TestProdZoo(t *testing.T) {
 
 func TestReleaser(t *testing.T) {
 	t.Parallel()
-	x := app.Releaser(newContext(), nil, nil)
+	x := app.Releaser(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestReleaserAZ(t *testing.T) {
 	t.Parallel()
-	x := app.ReleaserAZ(newContext(), nil, nil)
+	x := app.ReleaserAZ(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestReleaser404(t *testing.T) {
 	t.Parallel()
-	x := app.Releaser404(newContext(), nil, "")
+	x := app.Releaser404(nil, newContext(), "")
 	be.Err(t, x)
 }
 
 func TestReleasers(t *testing.T) {
 	t.Parallel()
-	x := app.Releasers(newContext(), nil, nil, "", embed.FS{})
+	x := app.Releasers(nil, newContext(), nil, "", embed.FS{})
 	be.Err(t, x)
 }
 
 func TestScener(t *testing.T) {
 	t.Parallel()
-	x := app.Scener(newContext(), nil, nil)
+	x := app.Scener(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestScener404(t *testing.T) {
 	t.Parallel()
-	x := app.Scener404(newContext(), nil, "")
+	x := app.Scener404(nil, newContext(), "")
 	be.Err(t, x)
 }
 
 func TestSceners(t *testing.T) {
 	t.Parallel()
-	x := app.Sceners(newContext(), nil, nil, "")
+	x := app.Sceners(nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestSearchDesc(t *testing.T) {
 	t.Parallel()
-	x := app.SearchDesc(newContext(), nil)
+	x := app.SearchDesc(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSearchID(t *testing.T) {
 	t.Parallel()
-	x := app.SearchID(newContext(), nil)
+	x := app.SearchID(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSearchFile(t *testing.T) {
 	t.Parallel()
-	x := app.SearchFile(newContext(), nil)
+	x := app.SearchFile(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSearchReleaser(t *testing.T) {
 	t.Parallel()
-	x := app.SearchReleaser(newContext(), nil)
+	x := app.SearchReleaser(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSignedOut(t *testing.T) {
 	t.Parallel()
-	x := app.SignedOut(newContext(), nil)
+	x := app.SignedOut(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSignOut(t *testing.T) {
 	t.Parallel()
-	x := app.SignOut(newContext(), nil)
+	x := app.SignOut(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSignin(t *testing.T) {
 	t.Parallel()
-	x := app.Signin(newContext(), nil, "", "")
+	x := app.Signin(nil, newContext(), "", "")
 	be.Err(t, x)
 }
 
 func TestTagEdit(t *testing.T) {
 	t.Parallel()
-	x := app.TagEdit(newContext(), nil, nil)
+	x := app.TagEdit(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -332,36 +332,36 @@ func TestTagInfo(t *testing.T) {
 
 func TestThanks(t *testing.T) {
 	t.Parallel()
-	x := app.Thanks(newContext(), nil)
+	x := app.Thanks(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestTheScene(t *testing.T) {
 	t.Parallel()
-	x := app.TheScene(newContext(), nil)
+	x := app.TheScene(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestVotePouet(t *testing.T) {
 	t.Parallel()
-	x := app.VotePouet(newContext(), nil, "")
+	x := app.VotePouet(nil, newContext(), "")
 	be.Err(t, x)
 	const testNoCache = "1"
-	x = app.VotePouet(newContext(), nil, testNoCache)
+	x = app.VotePouet(nil, newContext(), testNoCache)
 	be.Err(t, x)
 	const testNewCache = "1"
-	x = app.VotePouet(newContext(), nil, testNewCache)
+	x = app.VotePouet(nil, newContext(), testNewCache)
 	be.Err(t, x)
 }
 
 func TestWebsite(t *testing.T) {
 	t.Parallel()
-	x := app.Website(newContext(), nil, "")
+	x := app.Website(nil, newContext(), "")
 	be.Err(t, x)
 }
 
 func TestWriter(t *testing.T) {
 	t.Parallel()
-	x := app.Writer(newContext(), nil, nil)
+	x := app.Writer(nil, newContext(), nil)
 	be.Err(t, x)
 }

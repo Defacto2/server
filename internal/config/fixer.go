@@ -235,7 +235,7 @@ func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
 		sl.Info(msg, slog.String("info", welcome),
 			slog.Int("records", count))
 	}
-	c.repairer(ctx, db, sl)
+	c.repairer(ctx, sl, db)
 	c.sanityChecks(sl)
 	TmpInfo(sl)
 	sl.Info(msg, slog.String("task", "Time taken"),
@@ -288,12 +288,12 @@ func RecordCount(ctx context.Context, db *sql.DB) int {
 
 // repairer is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
+func (c *Config) repairer(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 	const msg = "Repairing"
 	if err := panics.CSD(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if err := repairDatabase(ctx, db, sl); err != nil {
+	if err := repairDatabase(ctx, sl, db); err != nil {
 		if errors.Is(err, ErrPSVersion) {
 			sl.Warn(msg,
 				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrPSVersion)))
@@ -303,13 +303,13 @@ func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
 			slog.Any("error", err))
 	}
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
-	if err := c.RepairAssets(ctx, db, sl); err != nil {
+	if err := c.RepairAssets(ctx, sl, db); err != nil {
 		sl.Error(msg, slog.Any("error", err))
 	}
 }
 
 // repairDatabase on startup checks the database connection and make any data corrections.
-func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
+func repairDatabase(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 	const msg = "repair database"
 	if err := panics.CSD(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -318,7 +318,7 @@ func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("%s could not begin a transaction: %w", msg, err)
 	}
-	if err := fix.Artifacts.Run(ctx, db, tx, sl); err != nil {
+	if err := fix.Artifacts.Run(ctx, sl, db, tx); err != nil {
 		if err := tx.Rollback(); err != nil {
 			sl.Error(msg, slog.Any("error", err))
 		}

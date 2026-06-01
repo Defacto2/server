@@ -49,7 +49,7 @@ func discard(err error) {
 // Obsolete archives are those that use a legacy compression method that is not supported
 // by Go or JS libraries used by the website.
 func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
-	ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger,
+	ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor,
 ) error {
 	const msg = "config archives repair"
 	if err := panics.CSE(ctx, sl, exec); err != nil {
@@ -121,7 +121,7 @@ func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
 			sl.Error("archives "+repair.String(), slog.Any("error", err))
 			continue
 		}
-		artifacts, err = repair.artifacts(ctx, exec, sl)
+		artifacts, err = repair.artifacts(ctx, sl, exec)
 		if err != nil {
 			sl.Error("archives "+repair.String(), slog.Any("error", err))
 			continue
@@ -280,7 +280,7 @@ func (r Repair) lookPath() error {
 	return nil
 }
 
-func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) ([]string, error) {
+func (r Repair) artifacts(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) ([]string, error) {
 	const msg = "Repair artifacts"
 	if err := panics.CSE(ctx, sl, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
@@ -323,7 +323,7 @@ func (r Repair) artifacts(ctx context.Context, exec boil.ContextExecutor, sl *sl
 // to the orphaned directory without warning.
 //
 // There are no checks on the 3 directories that get scanned.
-func (c *Config) Assets(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "Repair assets"
 	if err := panics.CSE(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -412,7 +412,7 @@ func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Direc
 
 // RepairAssets on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
-func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func (c *Config) RepairAssets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "repair"
 	if err := panics.CSE(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -435,26 +435,26 @@ func (c *Config) RepairAssets(ctx context.Context, exec boil.ContextExecutor, sl
 	if err := DownloadDir(sl, src, backup, extra); err != nil {
 		return fmt.Errorf("%s the download directory: %w", msg, err)
 	}
-	if err := c.Assets(ctx, exec, sl); err != nil {
+	if err := c.Assets(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	if err := c.Archives(ctx, exec, sl); err != nil {
+	if err := c.Archives(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s the archives: %w", msg, err)
 	}
-	if err := c.Previews(ctx, exec, sl); err != nil {
+	if err := c.Previews(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s the previews: %w", msg, err)
 	}
-	if err := c.MagicNumbers(ctx, exec, sl); err != nil {
+	if err := c.MagicNumbers(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s the magics: %w", msg, err)
 	}
-	if err := c.TextFiles(ctx, exec, sl); err != nil {
+	if err := c.TextFiles(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s the textfiles: %w", msg, err)
 	}
 	return nil
 }
 
 // TextFiles on startup check the extra directory for any readme text files that are duplicates of the diz text files.
-func (c *Config) TextFiles(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "Fix textfile"
 	if err := panics.CSE(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -539,6 +539,7 @@ func Remove(diz, txt string) (string, error) {
 //
 // [FILE_ID.DIZ]: http://www.textfiles.com/computers/fileid.txt
 func FileID(r io.Reader) bool {
+	// TODO: warning
 	scanner := bufio.NewScanner(r)
 	const (
 		maximumLines = 10
@@ -561,7 +562,7 @@ func FileID(r io.Reader) bool {
 // MagicNumbers checks the magic numbers of the artifacts and replaces any missing or
 // legacy values with the current method of detection. Previous detection methods were
 // done using the `file` command line utility, which is a bit to verbose for our needs.
-func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "magic numbers"
 	if err := panics.CSE(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -602,7 +603,7 @@ func (c *Config) MagicNumbers(ctx context.Context, exec boil.ContextExecutor, sl
 }
 
 // Previews on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
-func (c *Config) Previews(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "previews"
 	if err := panics.CSE(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
