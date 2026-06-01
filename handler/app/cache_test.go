@@ -10,7 +10,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	_ "github.com/jackc/pgx/v5"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 

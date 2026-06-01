@@ -34,7 +34,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/aarondl/null/v8"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 const (
@@ -219,17 +219,17 @@ type websiteAPI struct {
 }
 
 // ArtifactsAPI returns a list of all files ordered by "oldest".
-func ArtifactsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func ArtifactsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return ArtifactAPIs(c, db, sl, "oldest")
 }
 
 // ArtifactsNewAPI returns a list of all files ordered by "new-uploads".
-func ArtifactsNewAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func ArtifactsNewAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return ArtifactAPIs(c, db, sl, "new-uploads")
 }
 
 // ArtifactAPIs returns a list of all files filtered by the provided uri string.
-func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error {
+func ArtifactAPIs(c *echo.Context, db *sql.DB, sl *slog.Logger, uri string) error {
 	const msg = "artifacts api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -281,7 +281,7 @@ func ArtifactAPIs(c echo.Context, db *sql.DB, sl *slog.Logger, uri string) error
 }
 
 // FileAPI returns a single file by its obfuscated ID.
-func FileAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func FileAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "file api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -378,7 +378,7 @@ func APIMarkup(src string) string {
 }
 
 // AreacodesAPI returns all North American Numbering Plan (NANP) area codes.
-func AreacodesAPI(c echo.Context) error {
+func AreacodesAPI(c *echo.Context) error {
 	codes := areacode.AreaCodes()
 	if len(codes) == 0 {
 		return c.JSON(http.StatusOK, []areacodeAPI{})
@@ -405,7 +405,7 @@ func AreacodesAPI(c echo.Context) error {
 }
 
 // AreaCodeAPI returns details for a specific area code.
-func AreaCodeAPI(c echo.Context) error {
+func AreaCodeAPI(c *echo.Context) error {
 	s := c.Param("code")
 	if s == "" {
 		return c.JSON(http.StatusBadRequest, "area code parameter is required")
@@ -437,7 +437,7 @@ func AreaCodeAPI(c echo.Context) error {
 }
 
 // AreacodeSearchAPI searches for area codes or regions by query.
-func AreacodeSearchAPI(c echo.Context) error {
+func AreacodeSearchAPI(c *echo.Context) error {
 	query := c.Param("query")
 	if query == "" {
 		return c.JSON(http.StatusBadRequest, "search query is required")
@@ -496,18 +496,18 @@ func AreacodeSearchAPI(c echo.Context) error {
 }
 
 // MilestonesAPI returns all milestones.
-func MilestonesAPI(c echo.Context) error {
+func MilestonesAPI(c *echo.Context) error {
 	return milestonesAPI(c, false)
 }
 
 // MilestoneHighlightsAPI returns only highlighted milestones.
-func MilestoneHighlightsAPI(c echo.Context) error {
+func MilestoneHighlightsAPI(c *echo.Context) error {
 	return milestonesAPI(c, true)
 }
 
 // MilestonesAPI returns all milestones.
 // When highlights is true, only the highlighted milestones will be returned.
-func milestonesAPI(c echo.Context, highlights bool) error {
+func milestonesAPI(c *echo.Context, highlights bool) error {
 	all := Collection()
 	result := make(Milestones, len(all))
 	for i, m := range all {
@@ -526,7 +526,7 @@ func milestonesAPI(c echo.Context, highlights bool) error {
 }
 
 // MilestoneYearAPI returns milestones for a specific year.
-func MilestoneYearAPI(c echo.Context) error {
+func MilestoneYearAPI(c *echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -550,7 +550,7 @@ func MilestoneYearAPI(c echo.Context) error {
 }
 
 // MilestoneYearsAPI returns milestones within a year range.
-func MilestoneYearsAPI(c echo.Context) error {
+func MilestoneYearsAPI(c *echo.Context) error {
 	rangeParam := c.Param("range")
 	parts := strings.Split(rangeParam, "-")
 
@@ -598,7 +598,7 @@ func MilestoneYearsAPI(c echo.Context) error {
 }
 
 // MilestoneDecadeAPI returns milestones for a specific decade.
-func MilestoneDecadeAPI(c echo.Context) error {
+func MilestoneDecadeAPI(c *echo.Context) error {
 	decadeParam := c.Param("decade")
 	decade, err := strconv.Atoi(strings.TrimSuffix(decadeParam, "s"))
 	if err != nil {
@@ -643,17 +643,17 @@ func milestoneFmt(m Milestone) Milestone {
 }
 
 // CategoriesAPI returns all categories.
-func CategoriesAPI(c echo.Context, db *sql.DB) error {
+func CategoriesAPI(c *echo.Context, db *sql.DB) error {
 	return TagsAPI(c, db, true, false)
 }
 
 // PlatformsAPI returns all platforms.
-func PlatformsAPI(c echo.Context, db *sql.DB) error {
+func PlatformsAPI(c *echo.Context, db *sql.DB) error {
 	return TagsAPI(c, db, false, true)
 }
 
 // GroupsAPI returns a list of all releasers/groups with pagination.
-func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func GroupsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "groups api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -703,7 +703,7 @@ func GroupsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // MagazinesAPI is the handler for the magazines API endpoint.
 // MagazinesAPI is the handler for the magazines API endpoint.
-func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func MagazinesAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "magazines api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -727,7 +727,7 @@ func MagazinesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // BoardsAPI is the handler for the BBS API endpoint.
-func BoardsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func BoardsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "boards api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -751,7 +751,7 @@ func BoardsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // SitesAPI is the handler for the FTP sites API endpoint.
-func SitesAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func SitesAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "sites api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -874,7 +874,7 @@ func artifactSum(f *models.File) artifactAPI {
 }
 
 // ReleaserAPI returns details for a specific releaser or group.
-func ReleaserAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func ReleaserAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "releaser api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -975,7 +975,7 @@ func linkDemozoo(uri string) string {
 }
 
 // ScenerAPI returns details for a specific scener.
-func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func ScenerAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "scener api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1045,28 +1045,28 @@ func ScenerAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 
 // ScenersAPI returns a list of Sceners
 // ScenersAPI builds the ReleaserAPI list from model data.
-func ScenersAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func ScenersAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return roleAPI(c, db, sl, postgres.Roles())
 }
 
-func ArtistsAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func ArtistsAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return roleAPI(c, db, sl, postgres.Artist)
 }
 
-func CodersAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func CodersAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return roleAPI(c, db, sl, postgres.Coder)
 }
 
-func MusiciansAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func MusiciansAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return roleAPI(c, db, sl, postgres.Musician)
 }
 
-func WritersAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func WritersAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return roleAPI(c, db, sl, postgres.Writer)
 }
 
 // roleAPI returns a list of all releasers/groups with pagination.
-func roleAPI(c echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error {
+func roleAPI(c *echo.Context, db *sql.DB, sl *slog.Logger, r postgres.Role) error {
 	const msg = "sceners api"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1196,7 +1196,7 @@ func tagsCache(category, platform bool, results []tagAPI) {
 //   - Set both to true to return all category and platform tags.
 //
 // Setting both to false will return an empty JSON response.
-func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
+func TagsAPI(c *echo.Context, db *sql.DB, category, platform bool) error {
 	// Try to get cached results first
 	if i, found := cachedTags(category, platform); found {
 		return c.JSON(http.StatusOK, i)
@@ -1259,7 +1259,7 @@ func TagsAPI(c echo.Context, db *sql.DB, category, platform bool) error {
 }
 
 // CategoryAPI returns a list of files from any category tag.
-func CategoryAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func CategoryAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	name := c.Param("category")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -1275,7 +1275,7 @@ func CategoryAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // PlatformAPI returns a list of files from any category tag.
-func PlatformAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func PlatformAPI(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	name := c.Param("platform")
 	if name == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -1291,7 +1291,7 @@ func PlatformAPI(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // TagAPI returns a list of files from any category or platform tag.
-func TagAPI(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //nolint:funlen
+func TagAPI(c *echo.Context, db *sql.DB, sl *slog.Logger, name string) error { //nolint:funlen
 	const msg = "get files by tag"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1632,7 +1632,7 @@ func artifactSummary(art *models.File) artifactAPI {
 }
 
 // RegionsAPI returns all region in the North American Numbering Plan (NANP).
-func RegionsAPI(c echo.Context) error {
+func RegionsAPI(c *echo.Context) error {
 	regions := areacode.Regions()
 	if len(regions) == 0 {
 		return c.JSON(http.StatusOK, []regionAPI{})
@@ -1656,7 +1656,7 @@ func RegionsAPI(c echo.Context) error {
 }
 
 // RegionAPI returns a specific region by its abbreviation.
-func RegionAPI(c echo.Context) error {
+func RegionAPI(c *echo.Context) error {
 	abbr := c.Param("abbr")
 	const twoChrs = 2
 	if len(abbr) != twoChrs {
@@ -1682,7 +1682,7 @@ func RegionAPI(c echo.Context) error {
 }
 
 // WebsitesAPI returns all websites from the website page.
-func WebsitesAPI(c echo.Context) error {
+func WebsitesAPI(c *echo.Context) error {
 	list := List()
 	if len(list) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
@@ -1712,7 +1712,7 @@ func WebsitesAPI(c echo.Context) error {
 }
 
 // DemozooAPI returns a list of all groups with their Demozoo IDs.
-func DemozooAPI(c echo.Context) error {
+func DemozooAPI(c *echo.Context) error {
 	groups := demozoo.FindAll()
 	if len(groups) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{

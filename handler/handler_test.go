@@ -6,7 +6,7 @@ import (
 
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/internal/logs"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 

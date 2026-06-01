@@ -5,7 +5,6 @@
 package handler
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"database/sql"
@@ -20,7 +19,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/signal"
 	"runtime"
 	"time"
 
@@ -35,9 +33,10 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/panics"
-	"github.com/labstack/echo-contrib/pprof"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo-contrib/v5/pprof"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -68,57 +67,64 @@ type Configuration struct {
 	TidbitIndex fulltext.Tidbits // Fulltext search index of the tidbit markdown files.
 }
 
-// Controller is the primary instance of the Echo router.
-func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
+// Handler is the primary instance of the Echo router.
+func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	const msg = "controller handler"
-	if err := panics.DS(db, sl); err != nil {
+	err := panics.SD(sl, db)
+	if err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	configs := c.Environment
-	e := echo.New()
-	if configs.LogAll {
-		// echo prefix options that get used by RequestLoggerConfig
-		pprof.Register(e)
+	envConfig := c.Environment
+	config := echo.Config{
+		Logger: sl,
+		HTTPErrorHandler: func(ctx *echo.Context, err error) {
+			envConfig.CustomErrorHandler(err, ctx, sl)
+		},
+		// Router:             nil, // TODO
+		// OnAddRoute:         nil,
+		// Filesystem:         nil,
+		// Binder:             nil,
+		// Validator:          nil,
+		// Renderer:           nil,
+		// JSONSerializer:     nil,
+		// IPExtractor:        nil,
+		// FormParseMaxMemory: 0, // TODO
 	}
-	e.HTTPErrorHandler = func(err error, ctx echo.Context) {
-		configs.CustomErrorHandler(err, ctx, sl)
-	}
-	e.HideBanner = true
-	tmpl, err := c.Registry(db, sl)
+
+	config.Renderer, err = c.TemplRegistry(db, sl)
 	if err != nil {
 		logs.Fatal(sl, msg,
 			slog.String("template", "could not register the templates"),
 			slog.Any("fatal", err))
 	}
-	e.Renderer = tmpl
-	preMiddlewares := []echo.MiddlewareFunc{
-		middleware.Rewrite(rewrites()),
-		middleware.NonWWWRedirect(),
-	}
-	e.Pre(preMiddlewares...)
 
-	// *************************************************
-	// WARN: NEVER USE the middleware.Timeout()
-	// It is completely broken and readily crashes.
-	// IMO should not be in the labstack/echo package.
-	// *************************************************
+	e := echo.NewWithConfig(config)
+	if envConfig.LogAll {
+		// echo prefix options that get used by RequestLoggerConfig
+		pprof.Register(e)
+	}
+	// pre middleware
+	mid := []echo.MiddlewareFunc{}
+	mid = append(mid, middleware.Rewrite(rewrites()))
+	mid = append(mid, middleware.NonWWWRedirect())
+	e.Pre(mid...)
+	// use middleware
+	mid = []echo.MiddlewareFunc{}
+	mid = append(mid, middleware.Secure())
+	mid = append(mid, middleware.RequestLoggerWithConfig(c.RequestLoggerConfig(sl)))
+	mid = append(mid, c.NoCrawl)
+	mid = append(mid, middleware.RemoveTrailingSlashWithConfig(configTrailSlash()))
+	if envConfig.Compression {
+		mid = append(mid, middleware.Gzip())
+	}
+	if envConfig.ProdMode {
+		mid = append(mid, middleware.Recover())
+	}
+	e.Use(mid...)
 
-	middlewares := []echo.MiddlewareFunc{
-		middleware.Secure(),
-		middleware.RequestLoggerWithConfig(c.RequestLoggerConfig(sl)),
-		c.NoCrawl,
-		middleware.RemoveTrailingSlashWithConfig(trailSlash()),
-	}
-	if configs.Compression {
-		middlewares = append(middlewares, middleware.Gzip())
-	}
-	if configs.ProdMode {
-		middlewares = append(middlewares, middleware.Recover())
-	}
-	e.Use(middlewares...)
 	e = EmbedDirs(e, c.Public)
 	e = MovedPermanently(e)
-	e = htmxGroup(e, db, sl, bool(configs.ProdMode), dir.Directory(c.Environment.AbsDownload))
+	e = htmxGroup(e, db, sl, bool(envConfig.ProdMode), dir.Directory(c.Environment.AbsDownload))
 	e, err = c.FilesRoutes(e, db, sl, c.Public)
 	if err != nil {
 		logs.Fatal(sl, msg,
@@ -126,7 +132,7 @@ func (c *Configuration) Controller(db *sql.DB, sl *slog.Logger) *echo.Echo {
 			slog.Any("fatal", err))
 	}
 	group := html3.Routes(e, db, sl)
-	group.GET(Downloader, func(cx echo.Context) error {
+	group.GET(Downloader, func(cx *echo.Context) error {
 		return c.downloader(cx, db, sl)
 	})
 	return e
@@ -151,15 +157,15 @@ func EmbedDirs(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	for path, fsRoot := range dirs {
 		e.StaticFS(path, echo.MustSubFS(currentFs, fsRoot))
 		// Block directory listing; allows files to be served but returns 404 for directory itself
-		e.GET(path, func(_ echo.Context) error {
-			return echo.NewHTTPError(http.StatusNotFound)
+		e.GET(path, func(_ *echo.Context) error {
+			return echo.NewHTTPError(http.StatusNotFound, "directory not found")
 		})
 	}
 	return e
 }
 
-// StartupBranding prints the application logo and information to the w io.writer.
-func (c *Configuration) StartupBranding(sl *slog.Logger, w io.Writer) {
+// Print the application logo and information to the w io.writer.
+func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 	const msg = "configuration info handler"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
@@ -234,10 +240,10 @@ func (c *Configuration) PortErr(sl *slog.Logger, port uint16, err error) {
 	}
 }
 
-// Registry returns the template renderer.
-func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry, error) {
+// TemplRegistry returns the template registry for the renderer.
+func (c *Configuration) TemplRegistry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry, error) {
 	const msg = "template registry handler"
-	if err := panics.DS(db, sl); err != nil {
+	if err := panics.SD(sl, db); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	webapp := app.Templ{
@@ -262,137 +268,233 @@ func (c *Configuration) Registry(db *sql.DB, sl *slog.Logger) (*TemplateRegistry
 
 // ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
 // The shutdown procedure occurs a few seconds after the key press.
-func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger) { //nolint:funlen
-	if w == nil {
-		w = os.Stderr
+// TODO: retire
+// func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger) { //nolint:funlen
+// 	if w == nil {
+// 		w = os.Stderr
+// 	}
+// 	const msg = "shutdown http handler"
+// 	if err := panics.EchoS(e, sl); err != nil {
+// 		panic(fmt.Errorf("%s: %w", msg, err))
+// 	}
+// 	// Wait for interrupt signal to gracefully shutdown the server
+// 	quit := make(chan os.Signal, 1)
+// 	signal.Notify(quit, os.Interrupt)
+// 	<-quit
+// 	waitDuration := ShutdownWait
+// 	waitCount := ShutdownCounter
+// 	ticker := 1 * time.Second
+// 	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
+// 	defer cancel()
+// 	defer func() {
+// 		const alert = "Detected Ctrl + C, server will shutdown"
+// 		// _ = logger.Sync() // do not check Sync errors as there can be false positives
+// 		buf := bufio.NewWriter(w)
+// 		_, err := fmt.Fprintf(buf, "\n%s in %v ", alert, waitDuration)
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 		err = buf.Flush()
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 		count := waitCount
+// 		pause := time.NewTicker(ticker)
+// 		for range pause.C {
+// 			count--
+// 			buf.Reset(w)
+// 			if count <= 0 {
+// 				_, err := fmt.Fprintf(buf, "\r%s %s\n", alert, "now     ")
+// 				if err != nil {
+// 					panic(err)
+// 				}
+// 				err = buf.Flush()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+// 				pause.Stop()
+// 				break
+// 			}
+// 			_, err = fmt.Fprintf(buf, "\r%s in %ds ", alert, count)
+// 			if err != nil {
+// 				panic(err)
+// 			}
+// 			err = buf.Flush()
+// 			if err != nil {
+// 				panic(err)
+// 			}
+// 		}
+// 		select {
+// 		case <-quit:
+// 			cancel()
+// 		case <-ctx.Done():
+// 		}
+// 		const shutdownTimeout = 5 * time.Second
+// 		shutdownCtx, shutdownCancel := context.WithTimeout(ctx, shutdownTimeout)
+// 		defer shutdownCancel()
+// 		if err := e.Shutdown(shutdownCtx); err != nil {
+// 			logs.FatalTx(shutdownCtx, sl, msg,
+// 				slog.String("context", "caused an error"), slog.Any("error", err))
+// 		}
+// 		sl.Info(msg, slog.String("success", "shutdown complete"))
+// 		signal.Stop(quit)
+// 		cancel()
+// 	}()
+// }
+
+func (c *Configuration) EchoConfig() echo.StartConfig {
+	config := echo.StartConfig{
+		Address:    "",
+		HideBanner: true,
+		HidePort:   false,
+		// CertFilesystem:   nil,
+		// TLSConfig:        nil,
+		// Listener:         nil,
+		// ListenerNetwork:  "",
+		// ListenerAddrFunc: nil,
+		GracefulTimeout: time.Duration(3 * time.Second),
+		// OnShutdownError:  nil,
+		// BeforeServeFunc:  nil,
 	}
-	const msg = "shutdown http handler"
-	if err := panics.EchoS(e, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
-	}
-	// Wait for interrupt signal to gracefully shutdown the server
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	waitDuration := ShutdownWait
-	waitCount := ShutdownCounter
-	ticker := 1 * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
-	defer cancel()
-	defer func() {
-		const alert = "Detected Ctrl + C, server will shutdown"
-		// _ = logger.Sync() // do not check Sync errors as there can be false positives
-		buf := bufio.NewWriter(w)
-		_, err := fmt.Fprintf(buf, "\n%s in %v ", alert, waitDuration)
-		if err != nil {
-			panic(err)
-		}
-		err = buf.Flush()
-		if err != nil {
-			panic(err)
-		}
-		count := waitCount
-		pause := time.NewTicker(ticker)
-		for range pause.C {
-			count--
-			buf.Reset(w)
-			if count <= 0 {
-				_, err := fmt.Fprintf(buf, "\r%s %s\n", alert, "now     ")
-				if err != nil {
-					panic(err)
-				}
-				err = buf.Flush()
-				if err != nil {
-					panic(err)
-				}
-				pause.Stop()
-				break
-			}
-			_, err = fmt.Fprintf(buf, "\r%s in %ds ", alert, count)
-			if err != nil {
-				panic(err)
-			}
-			err = buf.Flush()
-			if err != nil {
-				panic(err)
-			}
-		}
-		select {
-		case <-quit:
-			cancel()
-		case <-ctx.Done():
-		}
-		const shutdownTimeout = 5 * time.Second
-		shutdownCtx, shutdownCancel := context.WithTimeout(ctx, shutdownTimeout)
-		defer shutdownCancel()
-		if err := e.Shutdown(shutdownCtx); err != nil {
-			logs.FatalTx(shutdownCtx, sl, msg,
-				slog.String("context", "caused an error"), slog.Any("error", err))
-		}
-		sl.Info(msg, slog.String("success", "shutdown complete"))
-		signal.Stop(quit)
-		cancel()
-	}()
+	return config
 }
 
 // Start the HTTP, and-or the TLS servers.
-func (c *Configuration) Start(e *echo.Echo, sl *slog.Logger, configs config.Config) error {
+func (c *Configuration) Start(ctx context.Context, sl *slog.Logger, h http.Handler, configs config.Config) error {
 	const msg = "start server handler"
-	if err := panics.EchoS(e, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
+
 	switch {
 	case configs.UseTLS() && configs.UseHTTP():
-		go func() {
-			e2 := e // local binding to clarify the Echo instance used in this goroutine
-			c.StartHTTP(e2, sl)
-		}()
-		go c.StartTLS(e, sl)
-	case configs.UseTLSLocal() && configs.UseHTTP():
-		go func() {
-			e2 := e // local binding to clarify the Echo instance used in this goroutine
-			c.StartHTTP(e2, sl)
-		}()
-		go c.StartTLSLocal(e, sl)
+		c.StartDual(ctx, sl, h)
+	case configs.UseLocal() && configs.UseHTTP():
+		c.StartLocals(ctx, sl, h)
 	case configs.UseTLS():
-		go c.StartTLS(e, sl)
+		c.StartTLS(ctx, sl, h)
 	case configs.UseHTTP():
-		go c.StartHTTP(e, sl)
-	case configs.UseTLSLocal():
-		go c.StartTLSLocal(e, sl)
+		c.StartHTTP(ctx, sl, h)
+	case configs.UseLocal():
+		c.StartLocal(ctx, sl, h)
 	default:
 		return fmt.Errorf("%s: %w", msg, ErrNoPort)
 	}
 	return nil
 }
 
-// StartHTTP starts the insecure HTTP web server.
-func (c *Configuration) StartHTTP(e *echo.Echo, sl *slog.Logger) {
-	const msg = "start http handler"
-	if err := panics.EchoS(e, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+func (c *Configuration) StartLocals(ctx context.Context, sl *slog.Logger, h http.Handler) {
+	const msg = "start locals handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
+	c.startDual(ctx, sl, h, true)
+}
+
+func (c *Configuration) StartDual(ctx context.Context, sl *slog.Logger, h http.Handler) {
+	const msg = "start duals handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
+	c.startDual(ctx, sl, h, false)
+}
+
+func (c *Configuration) startDual(ctx context.Context, sl *slog.Logger, h http.Handler, local bool) {
+	const msg = "start dual handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
+	g, ctx := errgroup.WithContext(ctx)
+
+	httpConfig := c.HTTP()
+	httpsConfig := echo.StartConfig{}
+	certFile, keyFile := "", ""
+	if local {
+		httpsConfig, certFile, keyFile = c.Local(sl)
+	} else {
+		httpsConfig, certFile, keyFile = c.TLS(sl)
+	}
+
+	g.Go(func() error {
+		sl.Info("Starting HTTP Listener", "address", httpConfig.Address)
+		err := httpConfig.Start(ctx, h)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			sl.Error("HTTP Server crashed unexpectedly", "error", err)
+			return err
+		}
+		return nil
+	})
+
+	g.Go(func() error {
+		sl.Info("Starting HTTPS Listener", "address", httpsConfig.Address)
+		// Point to your valid SSL/TLS files
+		err := httpsConfig.StartTLS(ctx, h, certFile, keyFile)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			sl.Error("HTTPS Server crashed unexpectedly", "error", err)
+			return err
+		}
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		sl.Error("System tracking intercepted a service failure", "error", err)
+		return
+	}
+
+	sl.Info("Dual server infrastructure successfully stopped.")
+}
+
+func (c *Configuration) HTTP() echo.StartConfig {
+	config := c.EchoConfig()
 	port := c.Environment.HTTPPort.Value()
 	address := c.address(port)
 	if address == "" {
-		return
+		return config
 	}
-	if err := e.Start(address); err != nil {
-		c.PortErr(sl, port, err)
-	}
+	config.Address = address
+	return config
 }
 
-// StartTLS starts the encrypted TLS web server.
-func (c *Configuration) StartTLS(e *echo.Echo, sl *slog.Logger) {
-	const msg = "start tls handler"
-	if err := panics.EchoS(e, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+func (c *Configuration) Local(sl *slog.Logger) (echo.StartConfig, string, string) {
+	const msg = "start local tls handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
+
+	config := c.EchoConfig()
 	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
 	if address == "" {
-		return
+		return config, "", ""
 	}
+	config.Address = address
+
+	certFile, err := c.Public.ReadFile("public/certs/cert.pem")
+	if err != nil {
+		logs.Fatal(sl, msg,
+			slog.String("certificate", "read file failure"), slog.Any("error", err))
+	}
+	keyFile, err := c.Public.ReadFile("public/certs/key.pem")
+	if err != nil {
+		logs.Fatal(sl, msg,
+			slog.String("key", "read file failure"), slog.Any("error", err))
+	}
+	return config, string(certFile), string(keyFile)
+}
+
+func (c *Configuration) TLS(sl *slog.Logger) (echo.StartConfig, string, string) {
+	const msg = "start tls handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
+
+	config := c.EchoConfig()
+	port := c.Environment.TLSPort.Value()
+	address := c.address(port)
+	if address == "" {
+		return config, "", ""
+	}
+	config.Address = address
 	certFile := c.Environment.TLSCert
 	keyFile := c.Environment.TLSKey
 	if certFile == "" || keyFile == "" {
@@ -409,35 +511,57 @@ func (c *Configuration) StartTLS(e *echo.Echo, sl *slog.Logger) {
 		logs.Fatal(sl, msg,
 			slog.String("key file", "file does not exist"))
 	}
-	if err := e.StartTLS(address, certFile, keyFile); err != nil {
-		c.PortErr(sl, port, err)
+	return config, certFile.String(), keyFile.String()
+}
+
+// StartHTTP starts the insecure HTTP web server.
+func (c *Configuration) StartHTTP(ctx context.Context, sl *slog.Logger, h http.Handler) {
+	const msg = "start http handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
+
+	httpConfig := c.HTTP()
+	sl.Info("Starting HTTP Listener", "address", httpConfig.Address)
+	err := httpConfig.Start(ctx, h)
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		sl.Error("HTTP Server crashed unexpectedly", "error", err)
+		return
 	}
 }
 
-// StartTLSLocal starts the localhost, encrypted TLS web server.
-// This should only be triggered when the server is running in local mode.
-func (c *Configuration) StartTLSLocal(e *echo.Echo, sl *slog.Logger) {
-	const msg = "start local tls handler"
-	if err := panics.EchoS(e, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+// StartTLS starts the encrypted TLS web server.
+func (c *Configuration) StartTLS(ctx context.Context, sl *slog.Logger, h http.Handler) {
+	const msg = "start tls handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	port := c.Environment.TLSPort.Value()
-	address := c.address(port)
-	if address == "" {
+
+	httpsConfig, certFile, keyFile := c.TLS(sl)
+	sl.Info("Starting HTTPS Listener", "address", httpsConfig.Address)
+	// Point to your valid SSL/TLS files
+	err := httpsConfig.StartTLS(ctx, h, certFile, keyFile)
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		sl.Error("HTTPS Server crashed unexpectedly", "error", err)
 		return
 	}
-	certB, err := c.Public.ReadFile("public/certs/cert.pem")
-	if err != nil {
-		logs.Fatal(sl, msg,
-			slog.String("certificate", "read file failure"), slog.Any("error", err))
+}
+
+// StartTLSLocal starts the insecure localhost, encrypted TLS web server.
+// This should only be triggered when the server is running in local mode.
+func (c *Configuration) StartLocal(ctx context.Context, sl *slog.Logger, h http.Handler) {
+	const msg = "start local tls handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	keyB, err := c.Public.ReadFile("public/certs/key.pem")
-	if err != nil {
-		logs.Fatal(sl, msg,
-			slog.String("key", "read file failure"), slog.Any("error", err))
-	}
-	if err := e.StartTLS(address, certB, keyB); err != nil {
-		c.PortErr(sl, port, err)
+
+	httpsConfig, certFile, keyFile := c.Local(sl)
+	sl.Info("Starting HTTPS Listener", "address", httpsConfig.Address)
+	// Point to your valid SSL/TLS files
+	err := httpsConfig.StartTLS(ctx, h, certFile, keyFile)
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		sl.Error("HTTPS Server crashed unexpectedly", "error", err)
+		return
 	}
 }
 
@@ -453,16 +577,16 @@ func (c *Configuration) address(port uint16) string {
 }
 
 // downloader route for the file download handler under the html3 group.
-func (c *Configuration) downloader(cx echo.Context, db *sql.DB, sl *slog.Logger) error {
+func (c *Configuration) downloader(ctx *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "downloader htm3 group handler"
-	if err := panics.EchoContextDS(cx, db, sl); err != nil {
+	if err := panics.EchoContextDS(ctx, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := download.Download{
 		Inline: false,
 		Dir:    dir.Directory(c.Environment.AbsDownload),
 	}
-	if err := d.HTTPSend(cx, db, sl); err != nil {
+	if err := d.HTTPSend(ctx, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return nil
@@ -490,7 +614,7 @@ type TemplateRegistry struct {
 }
 
 // Render the layout template with the core HTML, META and BODY elements.
-func (t *TemplateRegistry) Render(w io.Writer, name string, data any, c echo.Context) error {
+func (t *TemplateRegistry) Render(c *echo.Context, w io.Writer, name string, data any) error {
 	const msg = "template registry render handler"
 	if name == "" {
 		return fmt.Errorf("%s name layout: %w", msg, ErrNoName)

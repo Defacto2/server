@@ -27,7 +27,7 @@ import (
 	"github.com/Defacto2/server/model/html3"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // Sort and order the records by the column name.
@@ -62,12 +62,7 @@ const (
 	titl        = "title"
 )
 
-var (
-	ErrConn = errors.New("the server cannot connect to the database")
-	ErrPage = errors.New("unknown records by type")
-	ErrSQL  = errors.New("database connection problem or a SQL error")
-	ErrTmpl = errors.New("cannot render the template")
-)
+var ErrPage = errors.New("unknown records by type")
 
 // Clauses for ordering file record queries.
 func Clauses(query string) html3.Order {
@@ -110,7 +105,7 @@ func Description(section, platform, brand, title null.String) string {
 }
 
 // Error renders a custom HTTP error page for the HTML3 sub-group.
-func Error(c echo.Context, err error) error {
+func Error(c *echo.Context, err error) error {
 	start := helper.Latency()
 	code := http.StatusInternalServerError
 	msg := "This is a server problem"
@@ -163,7 +158,7 @@ func Filename(width int, name null.String) string {
 
 // ID returns the ID from the URL path.
 // This is only used for the category and platform routes.
-func ID(c echo.Context) string {
+func ID(c *echo.Context) string {
 	x := strings.TrimSuffix(c.Path(), ":offset")
 	s := strings.Split(x, "/")
 	const expected = 4
@@ -284,7 +279,7 @@ func Pagi(page, maxPage int) (int, int, int) {
 
 // Query returns a slice of records based on the RecordsBy grouping.
 // The three integers returned are the limit, the total count of records and the file sizes summed.
-func Query(c echo.Context, db *sql.DB, tt RecordsBy, offset int) (int, int, int64, models.FileSlice, error) {
+func Query(c *echo.Context, db *sql.DB, tt RecordsBy, offset int) (int, int, int64, models.FileSlice, error) {
 	ctx := context.Background()
 	clause := c.QueryString()
 	switch tt {
@@ -374,7 +369,7 @@ func QueryAsSoftware(ctx context.Context, exec boil.ContextExecutor, clause stri
 
 // QueryByGroup returns a slice of all the records filtered by the group id, "by Group".
 // The group records do not use pagination limits or offsets.
-func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c echo.Context) (
+func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c *echo.Context) (
 	int, int, int64, models.FileSlice, error,
 ) {
 	if panics.BoilExec(exec) {
@@ -395,7 +390,7 @@ func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c echo.Context
 }
 
 // QueryBySection returns a slice of all the records filtered by the section id, "by Category".
-func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c echo.Context, offset int) (
+func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
 	if panics.BoilExec(exec) {
@@ -420,7 +415,7 @@ func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c echo.Conte
 }
 
 // QueryByPlatform returns a slice of all the records filtered by the platform id, "by Platform and media".
-func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c echo.Context, offset int) (
+func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
 	if panics.BoilExec(exec) {
@@ -535,7 +530,7 @@ func Templates(db *sql.DB, sl *slog.Logger, fs embed.FS) map[string]*template.Te
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap(db *sql.DB, sl *slog.Logger) template.FuncMap {
 	const msg = "html3 template func map"
-	if err := panics.DS(db, sl); err != nil {
+	if err := panics.SD(sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	ctx := context.Background()

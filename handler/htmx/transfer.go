@@ -37,7 +37,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -56,7 +56,7 @@ const (
 // HumanizeCount handles the post submission for the Uploader classification,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func HumanizeCount(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
+func HumanizeCount(c *echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
 	const msg = "transfer humanized count"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -78,7 +78,7 @@ func HumanizeCount(c echo.Context, db *sql.DB, sl *slog.Logger, name string) err
 // LookupSHA384 is a handler for the /uploader/sha384 route. It checks the SHA-384 hash
 // against the database to see if the file already exists, and returns the URI if it does.
 // Otherwise, if it does not exist, it returns an empty string.
-func LookupSHA384(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func LookupSHA384(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "transfer lookup sha384"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -108,40 +108,40 @@ func LookupSHA384(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // ImageSubmit is a handler for the /uploader/image route.
-func ImageSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func ImageSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-image"
 	c.Set(key+"-operating-system", tags.Image.String())
 	return transfer(c, db, sl, key, download)
 }
 
 // IntroSubmit is a handler for the /uploader/intro route.
-func IntroSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func IntroSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
 	return transfer(c, db, sl, key, download)
 }
 
 // MagazineSubmit is a handler for the /uploader/magazine route.
-func MagazineSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func MagazineSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-magazine"
 	c.Set(key+"-category", tags.Mag.String())
 	return transfer(c, db, sl, key, download)
 }
 
 // TextSubmit is a handler for the /uploader/text route.
-func TextSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func TextSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-text"
 	return transfer(c, db, sl, key, download)
 }
 
 // TrainerSubmit is a handler for the /uploader/trainer route.
-func TrainerSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func TrainerSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-trainer"
 	return transfer(c, db, sl, key, download)
 }
 
 // AdvancedSubmit is a handler for the /uploader/advanced route.
-func AdvancedSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func AdvancedSubmit(c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
 	const key = "uploader-advanced"
 	return transfer(c, db, sl, key, download)
 }
@@ -156,7 +156,7 @@ func uploader(err error) string {
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
-func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download dir.Directory) error {
+func transfer(c *echo.Context, db *sql.DB, sl *slog.Logger, key string, download dir.Directory) error {
 	const msg = "transfer file handler"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -224,7 +224,7 @@ func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download 
 	return success(c, file.Filename, id)
 }
 
-func success(c echo.Context, filename string, id int64,
+func success(c *echo.Context, filename string, id int64,
 ) error {
 	html := fmt.Sprintf("<div>Thanks, the chosen file submission was a success.<br> "+
 		"<span class=\"text-success\">✓</span> <var>%s</var></div>", html.EscapeString(filename))
@@ -279,7 +279,7 @@ func Duplicate(sl *slog.Logger, uid uuid.UUID, src string, dst dir.Directory) {
 		slog.String("uuid", uid.String()), slog.Int64("bytes tranfered", i))
 }
 
-func checkFormFile(c echo.Context, sl *slog.Logger, name string, err error) error {
+func checkFormFile(c *echo.Context, sl *slog.Logger, name string, err error) error {
 	const msg = "check form file"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -291,7 +291,7 @@ func checkFormFile(c echo.Context, sl *slog.Logger, name string, err error) erro
 		"The chosen file form input caused an error")
 }
 
-func checkFileOpen(c echo.Context, sl *slog.Logger, name string, err error) error {
+func checkFileOpen(c *echo.Context, sl *slog.Logger, name string, err error) error {
 	const msg = "check file open"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -304,7 +304,7 @@ func checkFileOpen(c echo.Context, sl *slog.Logger, name string, err error) erro
 		"The chosen file input cannot be opened")
 }
 
-func checkHasher(c echo.Context, sl *slog.Logger, name string, err error) error {
+func checkHasher(c *echo.Context, sl *slog.Logger, name string, err error) error {
 	const msg = "check hasher"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -317,7 +317,7 @@ func checkHasher(c echo.Context, sl *slog.Logger, name string, err error) error 
 		"The chosen file input cannot be hashed")
 }
 
-func checkExist(c echo.Context, sl *slog.Logger, err error) error {
+func checkExist(c *echo.Context, sl *slog.Logger, err error) error {
 	const msg = "check exist"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -330,7 +330,7 @@ func checkExist(c echo.Context, sl *slog.Logger, err error) error {
 }
 
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
-func copier(c echo.Context, sl *slog.Logger, file *multipart.FileHeader, key string) (string, error) {
+func copier(c *echo.Context, sl *slog.Logger, file *multipart.FileHeader, key string) (string, error) {
 	const msg = "transfer generic file copier"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return "", fmt.Errorf("%s: %w", msg, err)
@@ -384,7 +384,7 @@ type creator struct {
 	content  []string
 }
 
-func insertpanic(ctx context.Context, c echo.Context, tx *sql.Tx, sl *slog.Logger, file *multipart.FileHeader) error {
+func insertpanic(ctx context.Context, c *echo.Context, tx *sql.Tx, sl *slog.Logger, file *multipart.FileHeader) error {
 	if ctx == nil {
 		return panics.ErrNoContext
 	}
@@ -403,7 +403,7 @@ func insertpanic(ctx context.Context, c echo.Context, tx *sql.Tx, sl *slog.Logge
 	return nil
 }
 
-func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, sl *slog.Logger,
+func (cr creator) insert(ctx context.Context, c *echo.Context, tx *sql.Tx, sl *slog.Logger,
 ) (int64, uuid.UUID, error) {
 	const msg = "transfer creator insert"
 	empty := uuid.UUID{}
@@ -411,7 +411,7 @@ func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, sl *sl
 		return 0, empty, fmt.Errorf("%s: %w", msg, err)
 	}
 	// form parameters
-	values, err := c.FormParams()
+	values, err := c.FormValues()
 	if err != nil {
 		sl.Error(msg, slog.String("form", "could not obtain the form parameters"), slog.Any("error", err))
 		return 0, empty, ErrFormRead
@@ -456,7 +456,7 @@ func (prod Submission) String() string {
 }
 
 func (prod Submission) Submit( //nolint:funlen
-	c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory,
+	c *echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory,
 ) error {
 	const msg = "htmx transfer submit"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
@@ -539,7 +539,7 @@ func (prod Submission) Submit( //nolint:funlen
 }
 
 // sanitizeID validates the production ID and ensures that it is a valid numeric value.
-func sanitizeID(c echo.Context, name, prod string) (int, error) {
+func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 	if c == nil {
 		return 0, panics.ErrNoEchoC
 	}
@@ -563,7 +563,7 @@ func sanitizeID(c echo.Context, name, prod string) (int, error) {
 	return id, nil
 }
 
-func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Directory) error {
+func UploadPreview(c *echo.Context, sl *slog.Logger, preview, thumbnail dir.Directory) error {
 	const msg = "htmx upload preview"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -641,7 +641,7 @@ func texters(magic magicnumber.Signature) bool {
 	return slices.Contains(txts, magic)
 }
 
-func reloader(c echo.Context, filename string) error {
+func reloader(c *echo.Context, filename string) error {
 	if c == nil {
 		return panics.ErrNoEchoC
 	}
@@ -652,7 +652,7 @@ func reloader(c echo.Context, filename string) error {
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 func UploadReplacement( //nolint:funlen
-	c echo.Context, db *sql.DB, sl *slog.Logger,
+	c *echo.Context, db *sql.DB, sl *slog.Logger,
 	download, extra dir.Directory,
 ) error {
 	const msg = "htmx upload replacement"
@@ -745,7 +745,7 @@ type values struct {
 
 // formValues reads the form values from the context and validates the unique identifier and record key.
 // The return value is an error message if the unique identifier or record key is invalid.
-func (i *values) formValues(c echo.Context) string {
+func (i *values) formValues(c *echo.Context) string {
 	if c == nil {
 		return fmt.Sprintf("The editor file upload is broken, %s",
 			panics.ErrNoEchoC)

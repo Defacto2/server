@@ -23,9 +23,11 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"os/signal"
 	"runtime"
 	"slices"
 	"strings"
+	"syscall"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/flags"
@@ -50,54 +52,47 @@ var (
 
 var ErrLog = errors.New("cannot save one or more log files")
 
-// Main is the entry point for the application.
-// By default, the web server can run without any
-// flags or configuration. Otherwise, providing
-// command arguments will be parsed and then the
-// application exits.
 func main() {
 	const msg = "defacto2 startup"
-	const exit = 0
-	// Initialize a temporary logger, and get then print
-	// the environment variable configurations.
-	tl := logs.Default()
-	slog.SetDefault(tl)
-	configs := environmentVars(tl)
-	// Parse any application commands and flags, and
-	// if appropriate run the request and exit to
+	// Initialize a temporary logger, and get then print the environment variable configurations.
+	tmpLog := logs.Default()
+	slog.SetDefault(tmpLog)
+	envConfig := environmentVars(tmpLog)
+	// Parse any application commands and flags, and if appropriate run the request and exit to
 	// the terminal.
-	if code := flagParser(os.Stdout, tl, *configs); code >= exit {
-		os.Exit(int(code))
+	const quit = 0
+	if exitCode := flagParser(tmpLog, os.Stdout, envConfig); exitCode >= quit {
+		code := int(exitCode)
+		os.Exit(code)
 	}
-	// Configure the sl application logger, the cl startup
-	// configuration logger and the logo writer.
-	// Two separate loggers are used to avoid the system and file logs
-	// being cluttered with server startup information.
+	// Configure the sl application logger, the cl startup configuration logger and the logo writer.
+	// Two separate loggers are used to avoid the system and file logs being cluttered with server
+	// startup information.
 	const nothing = "" // replace the dname nothing argument with logs.NameDebug, to write debug log reports
-	lf, err := logs.OpenFiles(string(configs.AbsLog), logs.NameErr, logs.NameInfo, nothing)
+	root := string(envConfig.AbsLog)
+	ename, iname := logs.NameErr, logs.NameInfo
+	fileLog, err := logs.OpenFiles(root, ename, iname, nothing)
 	if err != nil { //nolint:nestif
 		log.Println(fmt.Errorf("%w: %w", ErrLog, err))
 	} else {
-		if prod := configs.ProdMode.Bool(); prod {
+		if prod := envConfig.ProdMode.Bool(); prod {
 			defer func() {
-				err := lf.Close()
+				err := fileLog.Close()
 				if err != nil {
 					log.Println(err)
 				}
 			}()
 		} else {
-			// We only use the log files in production mode. However
-			// it is good to create, open and close the files in development
-			// mode to confirm the functionality of the loggers.
-			_ = lf.Close()
-			lf = logs.NoFiles()
+			// We only use the log files in production mode. However it is good to create, open and
+			// close the files in development mode to confirm the functionality of the loggers.
+			_ = fileLog.Close()
+			fileLog = logs.NoFiles()
 		}
 	}
-	sl, cl, logo := setupWriters(*configs, lf)
-	configs.Print(cl)
-	// Connect to the database and perform some record repairs
-	// and sanity checks. Even if the database cannot connect
-	// the web server will continue to run with limited functionality.
+	sl, cl, logo := setupWriters(*envConfig, fileLog)
+	envConfig.Print(cl)
+	// Connect to the database and perform some record repairs and sanity checks. Even if the
+	// database cannot connect the web server will continue to run with limited functionality.
 	db, err := postgres.Open()
 	if err != nil {
 		sl.Error(msg, slog.String("database", "could not initialize the database"),
@@ -120,34 +115,37 @@ func main() {
 	config.TmpCleaner(sl)
 	config.TmpInfo(sl)
 	// Start the web server.
-	instance := newInstance(context.Background(), db, *configs)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	serv := initialisation(ctx, db, *envConfig)
 	go func() {
-		if err := instance.TidbitIndex.NewIndex(instance.Public, tidbit.Dir); err != nil {
+		fsys := serv.Public
+		root := tidbit.Dir
+		if err := serv.TidbitIndex.NewIndex(fsys, root); err != nil {
 			panic(err)
 		}
-		inf := instance.TidbitIndex
-		slog.Info("index tidbits",
-			slog.Int("documents", inf.TotalDocs),
-			slog.Int64("terms", inf.TotalTerms),
+		inf := serv.TidbitIndex
+		slog.Info(
+			"index tidbits",
+			slog.Int("documents", inf.TotalDocs), slog.Int64("terms", inf.TotalTerms),
 		)
 	}()
-	newline(logo)
-	welcomeMsg(sl, instance.RecordCount)
-	routing := instance.Controller(db, sl)
-	instance.StartupBranding(sl, logo)
-	if err := instance.Start(routing, sl, *configs); err != nil {
-		logs.Fatal(sl, msg,
-			slog.String("environment vars", "could not startup the server, please check the configuration"))
-	}
+
+	printLn(logo)
+	printOpening(sl, serv.RecordCount)
+	h := serv.Handler(sl, db)
+	serv.Print(sl, logo)
+	serv.StartHTTP(ctx, sl, h)
 	go func() {
-		groupUsers(cl, msg)
-		locAddresses(cl, configs, msg)
+		printOwner(cl, msg)
+		printAddrs(cl, envConfig, msg)
 	}()
-	// Shutdown the web server after a signal is received.
-	instance.ShutdownHTTP(os.Stderr, routing, sl)
+
+	// TODO: msg
+	slog.Info("shutdown", slog.String("initialised", "shutdown singal received"))
 }
 
-func setupWriters(configs config.Config, lf logs.Files) (*slog.Logger, *slog.Logger, io.Writer) {
+func setupWriters(envConfig config.Config, lf logs.Files) (*slog.Logger, *slog.Logger, io.Writer) {
 	// configure logo to stdout so it is ignored by systemd and the operating system
 	var logo io.Writer = os.Stdout
 	// configuration logger flags
@@ -156,7 +154,7 @@ func setupWriters(configs config.Config, lf logs.Files) (*slog.Logger, *slog.Log
 	// general slog and level configuration used by the website
 	sflag := logs.Defaults
 	slvl := logs.LevelInfo
-	if quiet := bool(configs.Quiet); quiet {
+	if quiet := bool(envConfig.Quiet); quiet {
 		logo = io.Discard
 		clvl, slvl = logs.LevelError, logs.LevelError
 		sflag = logs.Quiets
@@ -170,33 +168,33 @@ func setupWriters(configs config.Config, lf logs.Files) (*slog.Logger, *slog.Log
 	return sl, cl, logo
 }
 
-func newline(w io.Writer) {
+func printLn(w io.Writer) {
 	_, _ = fmt.Fprintln(w)
 }
 
-// groupUsers returns the owner and group of the current process and
+// printOwner returns the owner and group of the current process and
 // writes them to the w io.writer.
-func groupUsers(sl *slog.Logger, msg string) {
+func printOwner(cl *slog.Logger, msg string) {
 	groups, usr, err := helper.Owner()
 	if err != nil {
-		sl.Error(msg,
+		cl.Error(msg,
 			slog.String("own and group", "could not obtain the current user of this process"),
 			slog.Any("error", err))
 	}
 	clean := slices.DeleteFunc(groups, func(e string) bool {
 		return e == ""
 	})
-	sl.Info(msg, slog.String("permissions", "Server running as the following user and groups"),
+	cl.Info(msg, slog.String("permissions", "Server running as the following user and groups"),
 		slog.String("User", usr), slog.String("Groups", strings.Join(clean, ",")))
 }
 
-// locAddresses returns the local IP addresses in use by the application and
+// printAddrs returns the local IP addresses in use by the application and
 // writes them to the w io.writer.
-func locAddresses(sl *slog.Logger, configs *config.Config, msg string) {
+func printAddrs(cl *slog.Logger, envConfig *config.Config, msg string) {
 	// get the local IP addresses and print them to the console.
-	err := configs.Addresses(sl)
+	err := envConfig.Addresses(cl)
 	if err != nil {
-		sl.Error(msg,
+		cl.Error(msg,
 			slog.String("local address", "could not obtain the usable addresses"),
 			slog.Any("error", err))
 	}
@@ -206,7 +204,7 @@ func locAddresses(sl *slog.Logger, configs *config.Config, msg string) {
 // Defaults are used if the environment variables are not set.
 //
 // The configuration uses reference types to make the values immutable.
-func environmentVars(sl *slog.Logger) *config.Config {
+func environmentVars(tmpLog *slog.Logger) *config.Config {
 	const msg = "environment variables"
 	configs := config.Config{ //nolint:exhaustruct // complex config
 		Compression:   true,
@@ -217,7 +215,7 @@ func environmentVars(sl *slog.Logger) *config.Config {
 		SessionMaxAge: config.SessionHours,
 	}
 	if err := env.Parse(&configs); err != nil {
-		logs.Fatal(sl, msg,
+		logs.Fatal(tmpLog, msg,
 			slog.String("parsing error", "does the variable contain an invalid value?"),
 			slog.Any("error", err))
 	}
@@ -228,13 +226,13 @@ func environmentVars(sl *slog.Logger) *config.Config {
 	return &configs
 }
 
-// newInstance is used to create the server controller instance.
+// initialisation is used to create the server controller instance.
 //
 // The configuration returns a reference type to make the values immutable.
-func newInstance(ctx context.Context, db *sql.DB, configs config.Config) *handler.Configuration {
+func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *handler.Configuration {
 	c := handler.Configuration{ //nolint:exhaustruct
 		Brand:       brand,
-		Environment: configs,
+		Environment: envConfig,
 		Public:      public,
 		Version:     version,
 		View:        view,
@@ -252,30 +250,29 @@ func newInstance(ctx context.Context, db *sql.DB, configs config.Config) *handle
 // flagParser is used to parse the command line arguments.
 // If an error is returned, the application will exit with the error code.
 // Otherwise, a negative value is returned to indicate the application should continue.
-func flagParser(w io.Writer, sl *slog.Logger, configs config.Config) flags.ExitCode {
+func flagParser(tmpLog *slog.Logger, w io.Writer, envConfig *config.Config) flags.ExitCode {
 	const msg = "server flag parser"
-	if sl == nil {
+	if tmpLog == nil || envConfig == nil {
 		return flags.GenericErr
 	}
-	exitc, err := flags.Run(w, version, &configs)
+	exitCode, err := flags.Run(w, version, envConfig)
 	if err != nil {
-		sl.Error(msg,
+		tmpLog.Error(msg,
 			slog.String("run", "there was a problem parsing the command arguments"),
-			slog.Int("exit code", int(exitc)),
+			slog.Int("exit code", int(exitCode)),
 			slog.Any("error", err))
-		return exitc
+		return exitCode
 	}
-	usec := exitc >= flags.ExitOK
-	if usec {
-		return exitc
+	if use := exitCode >= flags.ExitOK; use {
+		return exitCode
 	}
 	return flags.Continue
 }
 
-// welcomeMsg prints the welcome to message and returns the number
+// printOpening prints the welcome to message and returns the number
 // of artifacts kept in the database. It customizes the log level based
 // on the number of records vs the expected number.
-func welcomeMsg(sl *slog.Logger, count int) {
+func printOpening(sl *slog.Logger, count int) {
 	const welcome = "Welcome to the Defacto2 web application"
 	switch {
 	case count == 0:

@@ -40,7 +40,7 @@ import (
 	"github.com/bengarrett/bbs"
 	"github.com/bengarrett/sauce"
 	"github.com/dustin/go-humanize"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	_ "golang.org/x/image/webp" // webp format decoder
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/encoding/unicode"
@@ -52,7 +52,7 @@ const (
 )
 
 // Artifact404 renders the error page for the artifact links.
-func Artifact404(c echo.Context, sl *slog.Logger, id string) error {
+func Artifact404(c *echo.Context, sl *slog.Logger, id string) error {
 	const msg = "artifact 404 context"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -84,7 +84,7 @@ type Dirs struct {
 }
 
 // Artifact is the handler for the of the file record.
-func (dir Dirs) Artifact(c echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
+func (dir Dirs) Artifact(c *echo.Context, db *sql.DB, sl *slog.Logger, readonly bool) error {
 	// NOTE: limit to 200 items for display, "view content" + "Download content", high limits take longer to render.
 	const maxArchiveItems = 200
 	// NOTE: skip the rendering of readme text files that are larger than 1MB.
@@ -210,7 +210,7 @@ func plainText(modMagic any) bool {
 // EditorContent returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) EditorContent(c echo.Context, sl *slog.Logger, maxItems int, art *models.File, data map[string]any,
+func (dir Dirs) EditorContent(c *echo.Context, sl *slog.Logger, maxItems int, art *models.File, data map[string]any,
 ) map[string]any {
 	if sl == nil || art == nil {
 		return data
@@ -588,7 +588,7 @@ func (dir Dirs) makeTextfileImgs(sl *slog.Logger,
 }
 
 // artifactByURI returns the URI artifact record from the file table.
-func (dir Dirs) artifactByURI(c echo.Context, db *sql.DB, sl *slog.Logger) (*models.File, error) {
+func (dir Dirs) artifactByURI(c *echo.Context, db *sql.DB, sl *slog.Logger) (*models.File, error) {
 	ctx := context.Background()
 	var art *models.File
 	var err error

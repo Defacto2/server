@@ -22,7 +22,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -33,7 +33,7 @@ var (
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
-func Checksum(c echo.Context, db *sql.DB, id string) error {
+func Checksum(c *echo.Context, db *sql.DB, id string) error {
 	const msg = "download checksum"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -108,7 +108,7 @@ type Download struct {
 
 // HTTPSend serves files to the client and prompts for a save location.
 // The download relies on the URL ID parameter to determine the requested file.
-func (d Download) HTTPSend(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func (d Download) HTTPSend(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "download http send"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -151,8 +151,13 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	}
 	lastmod := LastModified(art)
 	if lastmod != "" {
-		c.Response().Before(func() {
-			c.Response().Header().Set(echo.HeaderLastModified, lastmod)
+		// echo/v5 requires unwrapping to insert a header
+		resp, err := echo.UnwrapResponse(c.Response())
+		if err != nil {
+			return err
+		}
+		resp.Before(func() {
+			resp.Header().Set(echo.HeaderLastModified, lastmod)
 		})
 	}
 	if err := c.Attachment(file, name); err != nil {
@@ -161,7 +166,7 @@ func (d Download) HTTPSend(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	return nil
 }
 
-func inline(c echo.Context, text bool, file, name, ext string) error {
+func inline(c *echo.Context, text bool, file, name, ext string) error {
 	if text && slices.Contains(extensions.Image(), ext) {
 		text = false
 	}
@@ -197,7 +202,7 @@ type ExtraZip struct {
 // otherwise it will serve the standard download file.
 //
 // This is used for obsolete file types that have been re-archived into a standard zip file.
-func (e ExtraZip) HTTPSend(c echo.Context, db *sql.DB) error {
+func (e ExtraZip) HTTPSend(c *echo.Context, db *sql.DB) error {
 	const msg = "extra zip http send"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

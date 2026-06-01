@@ -47,7 +47,6 @@ require (
 	github.com/h2non/filetype v1.1.3
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/labstack/echo-contrib v0.50.1
-	github.com/labstack/echo/v4 v4.15.2
 	github.com/lmittmann/tint v1.1.3
 	github.com/mattn/go-isatty v0.0.22
 	github.com/nalgeon/be v0.3.0
@@ -73,6 +72,8 @@ require (
 replace rsc.io/markdown => rsc.io/markdown v0.0.0-20231214224604-88bb533a6020
 
 require (
+	github.com/labstack/echo/v4 v4.15.0
+	github.com/labstack/echo/v5 v5.1.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/wizenheimer/blaze v0.0.0-20251014083344-98727d655839
 	github.com/writeas/go-strip-markdown v2.0.1+incompatible
@@ -119,6 +120,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/kljensen/snowball v0.10.0 // indirect
+	github.com/labstack/echo-contrib/v5 v5.0.1 // indirect
 	github.com/labstack/gommon v0.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect

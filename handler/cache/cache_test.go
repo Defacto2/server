@@ -8,7 +8,7 @@ import (
 
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/handler/app"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
@@ -48,7 +48,7 @@ func TestCacheMiddleware(t *testing.T) {
 			rec := httptest.NewRecorder()
 
 			// Set up Echo to handle the request properly
-			e.GET(tc.path, func(c echo.Context) error {
+			e.GET(tc.path, func(c *echo.Context) error {
 				return c.String(http.StatusOK, "test")
 			})
 
@@ -76,7 +76,7 @@ func TestCacheMiddlewareOrder(t *testing.T) {
 
 	// Add another middleware that modifies headers
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			c.Response().Header().Set("X-Custom-Header", "test-value")
 			return next(c)
 		}
@@ -86,7 +86,7 @@ func TestCacheMiddlewareOrder(t *testing.T) {
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, app.APIBase+"/categories", nil)
 	rec := httptest.NewRecorder()
 
-	e.GET(app.APIBase+"/categories", func(c echo.Context) error {
+	e.GET(app.APIBase+"/categories", func(c *echo.Context) error {
 		return c.String(http.StatusOK, "test")
 	})
 
@@ -122,7 +122,7 @@ func TestCacheMiddlewarePathMatching(t *testing.T) {
 			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, tc.path, nil)
 			rec := httptest.NewRecorder()
 
-			e.GET(tc.path, func(c echo.Context) error {
+			e.GET(tc.path, func(c *echo.Context) error {
 				return c.String(http.StatusOK, "test")
 			})
 

@@ -26,7 +26,7 @@ import (
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -55,7 +55,7 @@ func Validate(path string) error {
 
 // Path returns the uuid and directory path, the named unid, plus the path from the URL parameters.
 // It returns an error if the unid or name is invalid.
-func Path(c echo.Context) (string, string, error) {
+func Path(c *echo.Context) (string, string, error) {
 	unid := c.Param("unid")
 	if err := form.Checkname(unid); err != nil {
 		return "", "", fmt.Errorf("invalid unid format: %w", err)
@@ -75,7 +75,7 @@ func Path(c echo.Context) (string, string, error) {
 }
 
 // UUID returns the uuid from the URL parameters and returns an error if it is invalid.
-func UUID(c echo.Context) (string, error) {
+func UUID(c *echo.Context) (string, error) {
 	unid := c.Param("unid")
 	if err := form.Checkname(unid); err != nil {
 		return "", fmt.Errorf("invalid unid format: %w", err)
@@ -87,7 +87,7 @@ func UUID(c echo.Context) (string, error) {
 }
 
 // ID returns the id from the URL parameters and returns an error if it is invalid.
-func ID(c echo.Context) (int, error) {
+func ID(c *echo.Context) (int, error) {
 	key := c.Param("id")
 	id, err := strconv.Atoi(key)
 	if err != nil {
@@ -99,14 +99,14 @@ func ID(c echo.Context) (int, error) {
 // pageRefresh is a helper function to set the HTTP [HTMX header] for the browser to refresh the page.
 //
 // [HTMX header]: https://htmx.org/reference/#response_headers
-func pageRefresh(c echo.Context) echo.Context { //nolint:ireturn
+func pageRefresh(c *echo.Context) *echo.Context { //nolint:ireturn
 	c.Response().Header().Set("HX-Refresh", "true")
 	c.Response().WriteHeader(http.StatusFound)
 	return c
 }
 
 // RecordThumb handles the htmx request for the thumbnail quality.
-func RecordThumb(c echo.Context, sl *slog.Logger, thumb command.Thumb, dirs command.Dirs) error {
+func RecordThumb(c *echo.Context, sl *slog.Logger, thumb command.Thumb, dirs command.Dirs) error {
 	const msg = "record thumb"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -128,7 +128,7 @@ func RecordThumb(c echo.Context, sl *slog.Logger, thumb command.Thumb, dirs comm
 }
 
 // RecordThumbAlignment handles the htmx request for the thumbnail crop alignment.
-func RecordThumbAlignment(c echo.Context, sl *slog.Logger, align command.Align, dirs command.Dirs) error {
+func RecordThumbAlignment(c *echo.Context, sl *slog.Logger, align command.Align, dirs command.Dirs) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -146,7 +146,7 @@ func RecordThumbAlignment(c echo.Context, sl *slog.Logger, align command.Align, 
 }
 
 // RecordImageCropper handles the htmx request for the preview image cropping.
-func RecordImageCropper(c echo.Context, sl *slog.Logger, crop command.Crop, dirs command.Dirs) error {
+func RecordImageCropper(c *echo.Context, sl *slog.Logger, crop command.Crop, dirs command.Dirs) error {
 	const msg = "record image cropper"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -169,7 +169,7 @@ func RecordImageCropper(c echo.Context, sl *slog.Logger, crop command.Crop, dirs
 
 // recordFileProcessor is a helper function that handles the common file processing logic
 // for both image copying and binary text imaging operations.
-func recordFileProcessor(c echo.Context, debug *slog.Logger, _ command.Dirs,
+func recordFileProcessor(c *echo.Context, debug *slog.Logger, _ command.Dirs,
 	msg, emptyMsg, successMsg string,
 	processFunc func(*slog.Logger, string, string) error,
 ) error {
@@ -201,7 +201,7 @@ func recordFileProcessor(c echo.Context, debug *slog.Logger, _ command.Dirs,
 }
 
 // RecordImageCopier handles the htmx request to use an image file artifact as a preview.
-func RecordImageCopier(c echo.Context, debug *slog.Logger, dirs command.Dirs) error {
+func RecordImageCopier(c *echo.Context, debug *slog.Logger, dirs command.Dirs) error {
 	return recordFileProcessor(c, debug, dirs,
 		"record image copier",
 		"The file is empty and was not copied.",
@@ -210,7 +210,7 @@ func RecordImageCopier(c echo.Context, debug *slog.Logger, dirs command.Dirs) er
 }
 
 // RecordBinTextImager handles the htmx request to use the text file artifact as a preview.
-func RecordBinTextImager(c echo.Context, debug *slog.Logger, dirs command.Dirs) error {
+func RecordBinTextImager(c *echo.Context, debug *slog.Logger, dirs command.Dirs) error {
 	return recordFileProcessor(c, debug, dirs,
 		"record binary text readme imager",
 		"The file is empty and was not used.",
@@ -219,7 +219,7 @@ func RecordBinTextImager(c echo.Context, debug *slog.Logger, dirs command.Dirs) 
 }
 
 // RecordReadmeImager handles the htmx request to use the text file artifact as a preview.
-func RecordReadmeImager(c echo.Context, debug *slog.Logger, amigaFont bool, dirs command.Dirs) error {
+func RecordReadmeImager(c *echo.Context, debug *slog.Logger, amigaFont bool, dirs command.Dirs) error {
 	const msg = "record readme imager"
 	if err := panics.EchoContextS(c, debug); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -281,7 +281,7 @@ func (cp Copy) Ext() string {
 	return ""
 }
 
-func (cp Copy) Duplicator(c echo.Context, dirs command.Dirs) error {
+func (cp Copy) Duplicator(c *echo.Context, dirs command.Dirs) error {
 	unid, name, err := Path(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -309,16 +309,16 @@ func (cp Copy) Duplicator(c echo.Context, dirs command.Dirs) error {
 }
 
 // RecordDizCopier handles the htmx request to use the file_id.diz artifact as a preview.
-func RecordDizCopier(c echo.Context, dirs command.Dirs) error {
+func RecordDizCopier(c *echo.Context, dirs command.Dirs) error {
 	return FileID.Duplicator(c, dirs)
 }
 
 // RecordHlpCopier handles the htmx request to use the file_id.diz artifact as a preview.
-func RecordHlpCopier(c echo.Context, dirs command.Dirs) error {
+func RecordHlpCopier(c *echo.Context, dirs command.Dirs) error {
 	return Helper.Duplicator(c, dirs)
 }
 
-func RecordReadmeCopier(c echo.Context, sl *slog.Logger, dirs command.Dirs) error {
+func RecordReadmeCopier(c *echo.Context, sl *slog.Logger, dirs command.Dirs) error {
 	const msg = "record readme copier"
 	if err := panics.EchoContextS(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -356,7 +356,7 @@ func RecordReadmeCopier(c echo.Context, sl *slog.Logger, dirs command.Dirs) erro
 
 // RecordReadmeDisable handles the htmx request to disable the in
 // page display of both the text files readme and file_id.diz for the file artifact.
-func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
+func RecordReadmeDisable(c *echo.Context, db *sql.DB) error {
 	const msg = "record readme disable"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -375,7 +375,7 @@ func RecordReadmeDisable(c echo.Context, db *sql.DB) error {
 // RecordImagePixelator handles the htmx request to pixelate both the preview and
 // thumbnails, if they are not suitable for a general audience. This also has an
 // added benefit of reducing the file sizes of both images and reducing page load.
-func RecordImagePixelator(c echo.Context, directory ...dir.Directory) error {
+func RecordImagePixelator(c *echo.Context, directory ...dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -392,7 +392,7 @@ func RecordImagePixelator(c echo.Context, directory ...dir.Directory) error {
 
 // RecordImagesDeleter handles the request to remove the uuid named
 // image files from the directories provided.
-func RecordImagesDeleter(c echo.Context, directories ...dir.Directory) error {
+func RecordImagesDeleter(c *echo.Context, directories ...dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -415,23 +415,23 @@ func RecordImagesDeleter(c echo.Context, directories ...dir.Directory) error {
 
 // RecordDizDeleter handles the request to remove the uuid named file_id.diz text file
 // from the provided extra directory.
-func RecordDizDeleter(c echo.Context, extra dir.Directory) error {
+func RecordDizDeleter(c *echo.Context, extra dir.Directory) error {
 	return extrasDeleter(c, FileID.Ext(), extra)
 }
 
 // RecordHlpDeleter handles the request to remove the uuid named helper (.hlp) text file
 // from the provided extra directory.
-func RecordHlpDeleter(c echo.Context, extra dir.Directory) error {
+func RecordHlpDeleter(c *echo.Context, extra dir.Directory) error {
 	return extrasDeleter(c, Helper.Ext(), extra)
 }
 
 // RecordReadmeDeleter handles the request to remove the uuid named readme text file
 // from the provided extra directory.
-func RecordReadmeDeleter(c echo.Context, extra dir.Directory) error {
+func RecordReadmeDeleter(c *echo.Context, extra dir.Directory) error {
 	return extrasDeleter(c, Text.Ext(), extra)
 }
 
-func extrasDeleter(c echo.Context, ext string, extra dir.Directory) error {
+func extrasDeleter(c *echo.Context, ext string, extra dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -457,7 +457,7 @@ func extrasDeleter(c echo.Context, ext string, extra dir.Directory) error {
 
 // RecordToggle handles the post submission for the file artifact record toggle.
 // The return value is either "online" or "offline" depending on the state.
-func RecordToggle(c echo.Context, db *sql.DB, state bool) error {
+func RecordToggle(c *echo.Context, db *sql.DB, state bool) error {
 	const msg = "record toggle"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -482,7 +482,7 @@ func RecordToggle(c echo.Context, db *sql.DB, state bool) error {
 // RecordToggleByID handles the post submission for the file artifact record toggle.
 // The key string is converted into an integer and used as the artifact id.
 // The return value is either "online" or "offline" depending on the state.
-func RecordToggleByID(c echo.Context, db *sql.DB, key string, state bool) error {
+func RecordToggleByID(c *echo.Context, db *sql.DB, key string, state bool) error {
 	const msg = "record toggle by id"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -506,7 +506,7 @@ func RecordToggleByID(c echo.Context, db *sql.DB, key string, state bool) error 
 // RecordClassification handles the post submission for the file artifact classifications,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func RecordClassification(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func RecordClassification(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	const msg = "record classification"
 	if err := panics.EchoContextDS(c, db, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -538,7 +538,7 @@ func RecordClassification(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // RecordFilename handles the post submission for the file artifact filename.
-func RecordFilename(c echo.Context, db *sql.DB) error {
+func RecordFilename(c *echo.Context, db *sql.DB) error {
 	const msg = "record filename"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -557,7 +557,7 @@ func RecordFilename(c echo.Context, db *sql.DB) error {
 }
 
 // RecordFilenameReset handles the post submission for the file artifact filename reset.
-func RecordFilenameReset(c echo.Context, db *sql.DB) error {
+func RecordFilenameReset(c *echo.Context, db *sql.DB) error {
 	const msg = "record filename reset"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -575,7 +575,7 @@ func RecordFilenameReset(c echo.Context, db *sql.DB) error {
 }
 
 // RecordVirusTotal handles the post submission for the file artifact VirusTotal report link.
-func RecordVirusTotal(c echo.Context, db *sql.DB) error {
+func RecordVirusTotal(c *echo.Context, db *sql.DB) error {
 	const msg = "record virus total"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -596,7 +596,7 @@ func RecordVirusTotal(c echo.Context, db *sql.DB) error {
 }
 
 // RecordTitle handles the post submission for the file artifact title.
-func RecordTitle(c echo.Context, db *sql.DB) error {
+func RecordTitle(c *echo.Context, db *sql.DB) error {
 	const msg = "record title"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -614,7 +614,7 @@ func RecordTitle(c echo.Context, db *sql.DB) error {
 }
 
 // RecordTitleReset handles the post submission for the file artifact title reset.
-func RecordTitleReset(c echo.Context, db *sql.DB) error {
+func RecordTitleReset(c *echo.Context, db *sql.DB) error {
 	const msg = "record title reset"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -632,7 +632,7 @@ func RecordTitleReset(c echo.Context, db *sql.DB) error {
 }
 
 // RecordComment handles the post submission for the file artifact comment.
-func RecordComment(c echo.Context, db *sql.DB) error {
+func RecordComment(c *echo.Context, db *sql.DB) error {
 	const msg = "record comment"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -650,7 +650,7 @@ func RecordComment(c echo.Context, db *sql.DB) error {
 }
 
 // RecordCommentReset handles the post submission for the file artifact comment reset.
-func RecordCommentReset(c echo.Context, db *sql.DB) error {
+func RecordCommentReset(c *echo.Context, db *sql.DB) error {
 	const msg = "record comment reset"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -670,7 +670,7 @@ func RecordCommentReset(c echo.Context, db *sql.DB) error {
 // RecordReleasers handles the post submission for the file artifact releasers.
 // It will only update the releaser1 and the releaser2 values if they have changed.
 // The return value is either "Updated" or "Update" depending on if the values have changed.
-func RecordReleasers(c echo.Context, db *sql.DB) error {
+func RecordReleasers(c *echo.Context, db *sql.DB) error {
 	const msg = "record releasers"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -693,7 +693,7 @@ func RecordReleasers(c echo.Context, db *sql.DB) error {
 // RecordReleasersReset handles the post submission for the file artifact releasers reset.
 // It will always reset and save the releaser1 and the releaser2 values.
 // The return value is always "Resetted" unless an error occurs.
-func RecordReleasersReset(c echo.Context, db *sql.DB) error {
+func RecordReleasersReset(c *echo.Context, db *sql.DB) error {
 	const msg = "record releaser reset"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -733,7 +733,7 @@ func recordReleases(db *sql.DB, rel1, rel2, key string) error {
 }
 
 // RecordDateIssued handles the post submission for the file artifact date of release.
-func RecordDateIssued(c echo.Context, db *sql.DB) error {
+func RecordDateIssued(c *echo.Context, db *sql.DB) error {
 	const msg = "record date issued"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -764,7 +764,7 @@ func RecordDateIssued(c echo.Context, db *sql.DB) error {
 }
 
 // RecordDateIssuedReset handles the post submission for the file artifact date of release reset.
-func RecordDateIssuedReset(c echo.Context, db *sql.DB, elmID string) error {
+func RecordDateIssuedReset(c *echo.Context, db *sql.DB, elmID string) error {
 	const msg = "record date issued reset"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -792,7 +792,7 @@ func RecordDateIssuedReset(c echo.Context, db *sql.DB, elmID string) error {
 }
 
 // RecordCreatorText handles the post submission for the file artifact creator text.
-func RecordCreatorText(c echo.Context, db *sql.DB) error {
+func RecordCreatorText(c *echo.Context, db *sql.DB) error {
 	const msg = "record creator text"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -811,7 +811,7 @@ func RecordCreatorText(c echo.Context, db *sql.DB) error {
 }
 
 // RecordCreatorIll handles the post submission for the file artifact creator illustrator.
-func RecordCreatorIll(c echo.Context, db *sql.DB) error {
+func RecordCreatorIll(c *echo.Context, db *sql.DB) error {
 	const msg = "record creator illustrator"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -830,7 +830,7 @@ func RecordCreatorIll(c echo.Context, db *sql.DB) error {
 }
 
 // RecordCreatorProg handles the post submission for the file artifact creator programmer.
-func RecordCreatorProg(c echo.Context, db *sql.DB) error {
+func RecordCreatorProg(c *echo.Context, db *sql.DB) error {
 	const msg = "record creator programmer"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -849,7 +849,7 @@ func RecordCreatorProg(c echo.Context, db *sql.DB) error {
 }
 
 // RecordCreatorAudio handles the post submission for the file artifact creator musician.
-func RecordCreatorAudio(c echo.Context, db *sql.DB) error {
+func RecordCreatorAudio(c *echo.Context, db *sql.DB) error {
 	const msg = "record creator audio"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -876,7 +876,7 @@ func creatorFix(s string) string {
 }
 
 // RecordCreatorReset handles the post submission for the file artifact creators reset.
-func RecordCreatorReset(c echo.Context, db *sql.DB) error {
+func RecordCreatorReset(c *echo.Context, db *sql.DB) error {
 	const msg = "record creator reset"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -912,7 +912,7 @@ func RecordCreatorReset(c echo.Context, db *sql.DB) error {
 }
 
 // RecordYouTube handles the post submission for the file artifact YouTube watch video link.
-func RecordYouTube(c echo.Context, db *sql.DB) error {
+func RecordYouTube(c *echo.Context, db *sql.DB) error {
 	const msg = "record youtube"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -934,7 +934,7 @@ func RecordYouTube(c echo.Context, db *sql.DB) error {
 }
 
 // RecordDemozoo handles the post submission for the file artifact Demozoo production link.
-func RecordDemozoo(c echo.Context, db *sql.DB) error {
+func RecordDemozoo(c *echo.Context, db *sql.DB) error {
 	const msg = "record demozoo"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -955,7 +955,7 @@ func RecordDemozoo(c echo.Context, db *sql.DB) error {
 }
 
 // RecordPouet handles the post submission for the file artifact Pouet production link.
-func RecordPouet(c echo.Context, db *sql.DB) error {
+func RecordPouet(c *echo.Context, db *sql.DB) error {
 	const msg = "record pouet"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -973,7 +973,7 @@ func RecordPouet(c echo.Context, db *sql.DB) error {
 }
 
 // Record16Colors handles the post submission for the file artifact 16 Colors link.
-func Record16Colors(c echo.Context, db *sql.DB) error {
+func Record16Colors(c *echo.Context, db *sql.DB) error {
 	const msg = "record 16colors"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -992,7 +992,7 @@ func Record16Colors(c echo.Context, db *sql.DB) error {
 }
 
 // RecordGitHub handles the post submission for the file artifact GitHub repository link.
-func RecordGitHub(c echo.Context, db *sql.DB) error {
+func RecordGitHub(c *echo.Context, db *sql.DB) error {
 	const msg = "record github"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1011,7 +1011,7 @@ func RecordGitHub(c echo.Context, db *sql.DB) error {
 }
 
 // RecordRelations handles the post submission for the file artifact releaser relationships.
-func RecordRelations(c echo.Context, db *sql.DB) error {
+func RecordRelations(c *echo.Context, db *sql.DB) error {
 	const msg = "record relations"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1029,7 +1029,7 @@ func RecordRelations(c echo.Context, db *sql.DB) error {
 }
 
 // RecordSites handles the post submission for the file artifact website links.
-func RecordSites(c echo.Context, db *sql.DB) error {
+func RecordSites(c *echo.Context, db *sql.DB) error {
 	const msg = "record sites"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1048,7 +1048,7 @@ func RecordSites(c echo.Context, db *sql.DB) error {
 
 // RecordLinks handles the post submission for a form submission to provide the
 // HTML formatted links for the "Links" section of the artifact editor.
-func RecordLinks(c echo.Context) error {
+func RecordLinks(c *echo.Context) error {
 	youtube := c.FormValue("artifact-editor-youtube")
 	demozoo := c.FormValue("artifact-editor-demozoo")
 	pouet := c.FormValue("artifact-editor-pouet")
@@ -1064,7 +1064,7 @@ func RecordLinks(c echo.Context) error {
 }
 
 // RecordLinksReset handles the post submission for the file artifact links reset.
-func RecordLinksReset(c echo.Context, db *sql.DB) error {
+func RecordLinksReset(c *echo.Context, db *sql.DB) error {
 	const msg = "record links reset"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1122,7 +1122,7 @@ func RecordLinksReset(c echo.Context, db *sql.DB) error {
 	return c.HTML(http.StatusOK, strings.Join(links, "<br>"))
 }
 
-func recordEmulateRAM(c echo.Context, db *sql.DB, name string) error {
+func recordEmulateRAM(c *echo.Context, db *sql.DB, name string) error {
 	id, err := ID(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -1142,20 +1142,20 @@ func recordEmulateRAM(c echo.Context, db *sql.DB, name string) error {
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
 }
 
-func RecordEmulateUMB(c echo.Context, db *sql.DB) error {
+func RecordEmulateUMB(c *echo.Context, db *sql.DB) error {
 	return recordEmulateRAM(c, db, "emulate-ram-umb")
 }
 
-func RecordEmulateEMS(c echo.Context, db *sql.DB) error {
+func RecordEmulateEMS(c *echo.Context, db *sql.DB) error {
 	return recordEmulateRAM(c, db, "emulate-ram-ems")
 }
 
-func RecordEmulateXMS(c echo.Context, db *sql.DB) error {
+func RecordEmulateXMS(c *echo.Context, db *sql.DB) error {
 	return recordEmulateRAM(c, db, "emulate-ram-xms")
 }
 
 // RecordEmulateBroken handles the patch submission for the broken emulation for a file artifact.
-func RecordEmulateBroken(c echo.Context, db *sql.DB) error {
+func RecordEmulateBroken(c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate broken"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1172,7 +1172,7 @@ func RecordEmulateBroken(c echo.Context, db *sql.DB) error {
 }
 
 // RecordEmulateRunProgram handles the patch submission for the run program emulation.
-func RecordEmulateRunProgram(c echo.Context, db *sql.DB) error {
+func RecordEmulateRunProgram(c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate run prgram"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1198,7 +1198,7 @@ func RecordEmulateRunProgram(c echo.Context, db *sql.DB) error {
 }
 
 // RecordEmulateMachine handles the patch submission for the machine and graphic emulation for a file artifact.
-func RecordEmulateMachine(c echo.Context, db *sql.DB) error {
+func RecordEmulateMachine(c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate machine"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1215,7 +1215,7 @@ func RecordEmulateMachine(c echo.Context, db *sql.DB) error {
 }
 
 // RecordEmulateCPU handles the patch submission for the CPU emulation for a file artifact.
-func RecordEmulateCPU(c echo.Context, db *sql.DB) error {
+func RecordEmulateCPU(c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate cpu"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1232,7 +1232,7 @@ func RecordEmulateCPU(c echo.Context, db *sql.DB) error {
 }
 
 // RecordEmulateSFX handles the patch submission for the audio emulation for a file artifact.
-func RecordEmulateSFX(c echo.Context, db *sql.DB) error {
+func RecordEmulateSFX(c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate sfx"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1250,6 +1250,6 @@ func RecordEmulateSFX(c echo.Context, db *sql.DB) error {
 
 // badRequest returns an error response with a 400 status code,
 // the server cannot or will not process the request due to something that is perceived to be a client error.
-func badRequest(c echo.Context, err error) error {
+func badRequest(c *echo.Context, err error) error {
 	return c.String(http.StatusBadRequest, err.Error())
 }

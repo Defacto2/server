@@ -13,7 +13,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	_ "github.com/jackc/pgx/v5"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
@@ -237,8 +237,10 @@ func TestGetAreacodeByCode(t *testing.T) {
 			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("code")
-			c.SetParamValues(tt.code)
+			c.PathValues()
+			c.SetPathValues(echo.PathValues{
+				{Name: "code", Value: tt.code},
+			})
 
 			// Test
 			err := app.AreaCodeAPI(c)
@@ -310,8 +312,9 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("abbr")
-			c.SetParamValues(tt.abbr)
+			c.SetPathValues(echo.PathValues{
+				{Name: "abbr", Value: tt.abbr},
+			})
 
 			// Test
 			err := app.RegionAPI(c)
@@ -372,8 +375,9 @@ func TestSearchAreacodes(t *testing.T) {
 			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("query")
-			c.SetParamValues(tt.query)
+			c.SetPathValues(echo.PathValues{
+				{Name: "query", Value: tt.query},
+			})
 
 			// Test
 			err := app.AreacodeSearchAPI(c)

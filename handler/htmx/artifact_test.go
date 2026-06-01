@@ -2,10 +2,10 @@ package htmx_test
 
 import (
 	"errors"
-	"net/url"
 	"testing"
 
 	"github.com/Defacto2/server/handler/htmx"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
@@ -97,8 +97,10 @@ func TestPath(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			c := newContext()
-			c.SetParamNames("unid", "path")
-			c.SetParamValues(tt.unid, url.QueryEscape(tt.path))
+			c.SetPathValues(echo.PathValues{
+				{Name: "unid", Value: tt.unid},
+				{Name: "path", Value: tt.path},
+			})
 
 			gotUnid, gotName, err := htmx.Path(c)
 			got := (err != nil)

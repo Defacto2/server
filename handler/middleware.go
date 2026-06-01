@@ -20,9 +20,9 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/dustin/go-humanize"
-	"github.com/labstack/echo-contrib/session"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo-contrib/v5/session"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 //nolint:gochecknoglobals
@@ -31,12 +31,13 @@ var requestCounter atomic.Int64
 // SkipPaths are parent route paths that should not be logged,
 // to reduce the logging output. Otherwise every image
 // or required resource for every page request would be returned.
-func skipPaths(e echo.Context) bool {
-	if redirect := e.Response().Status == http.StatusMovedPermanently; redirect {
+func skipPaths(e *echo.Context) bool {
+	_, status := echo.ResolveResponseStatus(e.Response(), nil)
+	if redirect := status == http.StatusMovedPermanently; redirect {
 		return true
 	}
 	uri := e.Request().RequestURI
-	statusOk := e.Response().Status == http.StatusOK
+	statusOk := status == http.StatusOK
 	switch {
 	case strings.HasPrefix(uri, "/public/"),
 		strings.HasPrefix(uri, "/css/"),
@@ -59,7 +60,7 @@ func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 	if !c.Environment.NoCrawl {
 		return next
 	}
-	return func(e echo.Context) error {
+	return func(e *echo.Context) error {
 		const xrobotstag = "X-Robots-Tag"
 		e.Response().Header().Set(xrobotstag, "none")
 		return next(e)
@@ -73,7 +74,7 @@ func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) ech
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	return func(e echo.Context) error {
+	return func(e *echo.Context) error {
 		const xreadonlylock = "X-Read-Only-Lock"
 		s := strconv.FormatBool(bool(c.Environment.ReadOnly))
 		e.Response().Header().Set(xreadonlylock, s)
@@ -94,7 +95,7 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	return func(e echo.Context) error {
+	return func(e *echo.Context) error {
 		// Help, https://pkg.go.dev/github.com/gorilla/sessions#Session
 		sess, err := session.Get(sess.Name, e)
 		if err != nil {
@@ -124,9 +125,9 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo
 	}
 }
 
-// trailSlash return the TrailingSlash middleware configuration.
-func trailSlash() middleware.TrailingSlashConfig {
-	return middleware.TrailingSlashConfig{
+// configTrailSlash return the TrailingSlash middleware configuration.
+func configTrailSlash() middleware.RemoveTrailingSlashConfig {
+	return middleware.RemoveTrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 		Skipper:      nil,
 	}
@@ -139,7 +140,7 @@ func trailSlash() middleware.TrailingSlashConfig {
 // Otherwise it logs all web server HTTP requests to info logs.
 func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig {
 	if !c.Environment.LogAll {
-		exitRequest := func(_ echo.Context, _ middleware.RequestLoggerValues) error {
+		exitRequest := func(_ *echo.Context, _ middleware.RequestLoggerValues) error {
 			return nil
 		}
 		return middleware.RequestLoggerConfig{ //nolint:exhaustruct
@@ -154,7 +155,7 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	// logValues is used by the returned middleware.RequestLoggerConfig().LogValuesFunc
-	logValues := func(_ echo.Context, v middleware.RequestLoggerValues) error {
+	logValues := func(_ *echo.Context, v middleware.RequestLoggerValues) error {
 		// memory usage - sample every 10th request to avoid stop-the-world pauses
 		var alloc string
 		count := requestCounter.Add(1)
@@ -176,7 +177,8 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 				slog.Int("go_routines", runtime.NumGoroutine()))
 		}
 		requests := func() slog.Attr {
-			return slog.Group("request",
+			return slog.Group(
+				"request",
 				slog.String("agent", v.UserAgent), // browser agent used for debugging
 				slog.String("path", v.URIPath),    // uri path without any params
 				slog.String("route", v.RoutePath), // internal route path with values
@@ -205,13 +207,13 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 		LogReferer:       false,
 		LogUserAgent:     true,
 		LogStatus:        true,
-		LogError:         false,
 		LogContentLength: false,
 		LogResponseSize:  true,
 		LogHeaders:       nil,
 		LogQueryParams:   nil,
 		LogFormValues:    nil,
 		LogValuesFunc:    logValues,
+		// LogError:         false,
 	}
 }
 
@@ -224,7 +226,7 @@ func CacheMiddleware() echo.MiddlewareFunc {
 		age24hours = "86400"
 	)
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			path := c.Request().URL.Path
 			// Set Cache-Control header based on endpoint
 			switch {

@@ -12,7 +12,7 @@ import (
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/panics"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 const (
@@ -33,7 +33,7 @@ var (
 )
 
 // CustomErrorHandler handles customer error templates.
-func (c *Config) CustomErrorHandler(err error, ctx echo.Context, sl *slog.Logger) {
+func (c *Config) CustomErrorHandler(err error, ctx *echo.Context, sl *slog.Logger) {
 	const msg = "custom error handler"
 	if err := panics.EchoContextS(ctx, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))

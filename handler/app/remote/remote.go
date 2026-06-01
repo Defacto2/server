@@ -24,7 +24,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -63,7 +63,7 @@ type DemozooLink struct {
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
-func (got *DemozooLink) Download(c echo.Context, db *sql.DB, download dir.Directory) error {
+func (got *DemozooLink) Download(c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "demozoo link download"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -173,7 +173,7 @@ func getRemoteFile(prod demozoo.Production, i int, linkURL string) (DownloadResp
 // The UUID is used to locate the file in the download directory.
 //
 //nolint:dupl // intentional similarity
-func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) error {
+func (got *DemozooLink) Stat(c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "demozoo link stat"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -198,7 +198,7 @@ func (got *DemozooLink) Stat(c echo.Context, db *sql.DB, download dir.Directory)
 }
 
 // ArchiveContent sets the archive content and readme text of the source file.
-func (got *DemozooLink) ArchiveContent(c echo.Context, db *sql.DB, src string) error {
+func (got *DemozooLink) ArchiveContent(c *echo.Context, db *sql.DB, src string) error {
 	const msg = "demozoo link archive content"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -220,7 +220,7 @@ func discard(err error) {
 // A JSON response is returned with the success status of the update.
 //
 //nolint:dupl // intentional similarity
-func (got *DemozooLink) Update(c echo.Context, db *sql.DB) error {
+func (got *DemozooLink) Update(c *echo.Context, db *sql.DB) error {
 	const msg = "demozoo link update"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -331,7 +331,7 @@ type PouetLink struct {
 	IssuedDay   int16  `json:"issued_day"`   // Day is the day the file was issued.
 }
 
-func (got *PouetLink) Download(c echo.Context, db *sql.DB, download dir.Directory) error {
+func (got *PouetLink) Download(c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "pouet link download"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -383,7 +383,7 @@ func (got *PouetLink) Download(c echo.Context, db *sql.DB, download dir.Director
 // The UUID is used to locate the file in the download directory.
 //
 //nolint:dupl // intentional similarity
-func (got *PouetLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) error {
+func (got *PouetLink) Stat(c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "pouet link stat"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -408,7 +408,7 @@ func (got *PouetLink) Stat(c echo.Context, db *sql.DB, download dir.Directory) e
 }
 
 // ArchiveContent sets the archive content and readme text of the source file.
-func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) error {
+func (got *PouetLink) ArchiveContent(c *echo.Context, db *sql.DB, src string) error {
 	const msg = "pouet link archive content"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -425,7 +425,7 @@ func (got *PouetLink) ArchiveContent(c echo.Context, db *sql.DB, src string) err
 // A JSON response is returned with the success status of the update.
 //
 //nolint:dupl // intentional similarity
-func (got *PouetLink) Update(c echo.Context, db *sql.DB) error {
+func (got *PouetLink) Update(c *echo.Context, db *sql.DB) error {
 	const msg = "pouet link update"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

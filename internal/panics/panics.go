@@ -11,7 +11,7 @@ import (
 	"reflect"
 
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -73,7 +73,7 @@ func GroupDS(g *echo.Group, db *sql.DB, sl *slog.Logger) error {
 	return nil
 }
 
-func EchoContextD(c echo.Context, db *sql.DB) error {
+func EchoContextD(c *echo.Context, db *sql.DB) error {
 	if c == nil {
 		return ErrNoEchoC
 	}
@@ -83,7 +83,7 @@ func EchoContextD(c echo.Context, db *sql.DB) error {
 	return nil
 }
 
-func EchoContextS(c echo.Context, sl *slog.Logger) error {
+func EchoContextS(c *echo.Context, sl *slog.Logger) error {
 	if c == nil {
 		return ErrNoEchoC
 	}
@@ -93,7 +93,7 @@ func EchoContextS(c echo.Context, sl *slog.Logger) error {
 	return nil
 }
 
-func EchoContextDS(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func EchoContextDS(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
 	if c == nil {
 		return ErrNoEchoC
 	}
@@ -218,9 +218,9 @@ func EchoP(e *echo.Echo, public embed.FS) error {
 	return nil
 }
 
-// EchoDS checks the arguments for handler package.
+// SDEcho checks the arguments for handler package.
 // If an error is returned, the calling method or func should abort and return the error.
-func EchoDS(e *echo.Echo, db *sql.DB, sl *slog.Logger) error {
+func SDEcho(e *echo.Echo, db *sql.DB, sl *slog.Logger) error {
 	if e == nil {
 		return ErrNoEchoE
 	}
@@ -233,24 +233,24 @@ func EchoDS(e *echo.Echo, db *sql.DB, sl *slog.Logger) error {
 	return nil
 }
 
-// EchoS checks the arguments for handler package.
+// SEcho checks the arguments for handler package.
 // If an error is returned, the calling method or func should abort and return the error.
-func EchoS(e *echo.Echo, sl *slog.Logger) error {
-	if e == nil {
-		return ErrNoEchoE
-	}
+func SEcho(sl *slog.Logger, e *echo.Echo) error {
 	if sl == nil {
 		return ErrNoSlog
+	}
+	if e == nil {
+		return ErrNoEchoE
 	}
 	return nil
 }
 
-func DS(db *sql.DB, sl *slog.Logger) error {
-	if db == nil {
-		return ErrNoDB
-	}
+func SD(sl *slog.Logger, db *sql.DB) error {
 	if sl == nil {
 		return ErrNoSlog
+	}
+	if db == nil {
+		return ErrNoDB
 	}
 	return nil
 }

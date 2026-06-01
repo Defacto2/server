@@ -2,15 +2,15 @@
 package sess
 
 import (
-	"github.com/labstack/echo-contrib/session"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo-contrib/v5/session"
+	"github.com/labstack/echo/v5"
 )
 
 // Name is the name given to the session cookie.
 const Name = "d2_op"
 
 // Editor returns true if the user is signed in and is an editor.
-func Editor(c echo.Context) bool {
+func Editor(c *echo.Context) bool {
 	sess, err := session.Get(Name, c)
 	if err != nil {
 		return false

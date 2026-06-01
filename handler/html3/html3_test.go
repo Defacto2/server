@@ -12,11 +12,11 @@ import (
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/aarondl/null/v8"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
-func newContext() echo.Context {
+func newContext() *echo.Context {
 	e := echo.New()
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader("{}"))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)

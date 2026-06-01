@@ -27,7 +27,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
 	"github.com/bengarrett/bbs"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -49,7 +49,6 @@ var (
 	ErrNegative = errors.New("value cannot be a negative number")
 	ErrSession  = errors.New("no sub id in session")
 	ErrStatus   = errors.New("the http status code is not valid")
-	ErrTmpl     = errors.New("the server could not render the html template for this page")
 	ErrUser     = errors.New("unknown user")
 	ErrValue    = errors.New("value is empty")
 )
@@ -1045,7 +1044,7 @@ func StripSup(s string) (map[string]template.HTML, error) {
 }
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
-func YMDEdit(c echo.Context, db *sql.DB) error {
+func YMDEdit(c *echo.Context, db *sql.DB) error {
 	const msg = "year month day edit"
 	if err := panics.EchoContextD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1206,7 +1205,7 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 
 // badRequest returns a JSON response with a 400 status code,
 // the server cannot or will not process the request due to something that is perceived to be a client error.
-func badRequest(c echo.Context, err error) error {
+func badRequest(c *echo.Context, err error) error {
 	return c.JSON(http.StatusBadRequest,
 		map[string]string{"error": "bad request " + err.Error()})
 }
