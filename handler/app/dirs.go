@@ -69,7 +69,7 @@ func Artifact404(sl *slog.Logger, c *echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, errorWithID(err, id, nil))
+		return InternalErr(sl, c, name, errorWithID(err, id, nil))
 	}
 	return nil
 }
@@ -154,7 +154,7 @@ func (dir Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB, readonly 
 	err = c.Render(http.StatusOK, name, data)
 	defer clear(data)
 	if err != nil {
-		return InternalErr(c, sl, name, errorWithID(err, dir.URI, art.ID))
+		return InternalErr(sl, c, name, errorWithID(err, dir.URI, art.ID))
 	}
 	return nil
 }
@@ -601,7 +601,7 @@ func (dir Dirs) artifactByURI(sl *slog.Logger, c *echo.Context, db *sql.DB) (*mo
 		if errors.Is(err, model.ErrID) {
 			return nil, Artifact404(sl, c, dir.URI)
 		}
-		return nil, DatabaseErr(c, sl, "f/"+dir.URI, err)
+		return nil, DatabaseErr(sl, c, "f/"+dir.URI, err)
 	}
 	return art, nil
 }

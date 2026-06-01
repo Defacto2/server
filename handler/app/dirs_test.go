@@ -29,25 +29,25 @@ func TestEditor(t *testing.T) {
 
 func TestFileMissingErr(t *testing.T) {
 	t.Parallel()
-	err := app.FileMissingErr(newContext(), nil, "", nil)
+	err := app.FileMissingErr(nil, newContext(), "", nil)
 	be.Err(t, err)
 }
 
 func TestForbiddenErr(t *testing.T) {
 	t.Parallel()
-	err := app.ForbiddenErr(newContext(), nil, "", nil)
+	err := app.ForbiddenErr(nil, newContext(), "", nil)
 	be.Err(t, err)
 }
 
 func TestInternalErr(t *testing.T) {
 	t.Parallel()
-	err := app.InternalErr(newContext(), nil, "", nil)
+	err := app.InternalErr(nil, newContext(), "", nil)
 	be.Err(t, err)
 }
 
 func TestStatusErr(t *testing.T) {
 	t.Parallel()
-	err := app.StatusErr(newContext(), nil, -1, "")
+	err := app.StatusErr(nil, newContext(), -1, "")
 	be.Err(t, err)
 }
 

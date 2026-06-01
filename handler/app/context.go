@@ -156,7 +156,7 @@ func APIInfo(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = "API Information"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -201,19 +201,19 @@ func artifacts(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, page in
 	ctx := context.Background()
 	r, err := fileslice.Records(ctx, db, uri, page, limit)
 	if err != nil {
-		return DatabaseErr(c, sl, errs, err)
+		return DatabaseErr(sl, c, errs, err)
 	}
 	data[records] = r
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
-		return DatabaseErr(c, sl, errs, err)
+		return DatabaseErr(sl, c, errs, err)
 	}
 	data = artifactsDesc(uri, d[years], sum, data)
 	data["stats"] = d
 	lastPage := math.Ceil(float64(sum) / float64(limit))
 	if len(r) == 0 {
 		if err = c.Render(http.StatusOK, name, data); err != nil {
-			return InternalErr(c, sl, errs, err)
+			return InternalErr(sl, c, errs, err)
 		}
 		return nil
 	}
@@ -233,7 +233,7 @@ func artifacts(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, page in
 		RangeStep: steps(lastPage),
 	}
 	if err = c.Render(http.StatusOK, name, data); err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -305,7 +305,7 @@ func Artifacts404(sl *slog.Logger, c *echo.Context, uri string) error {
 	data["uriErr"] = uri
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -329,7 +329,7 @@ func Apps(sl *slog.Logger, c *echo.Context) error {
 	data["lead"] = lead
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -351,7 +351,7 @@ func Areacodes(sl *slog.Logger, c *echo.Context) error {
 	data["abbreviations"] = areacode.Abbreviations()
 	err := c.Render(http.StatusOK, "areacodes", data)
 	if err != nil {
-		return InternalErr(c, sl, "areacodes", err)
+		return InternalErr(sl, c, "areacodes", err)
 	}
 	return nil
 }
@@ -396,7 +396,7 @@ func scener(sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role,
 		err = fmt.Errorf("unknown role %s: %w", r, model.ErrModel)
 	}
 	if err != nil {
-		return DatabaseErr(c, sl, name, err)
+		return DatabaseErr(sl, c, name, err)
 	}
 	data["sceners"] = s.Sort()
 	data["description"] = "This is a massive but incomplete list of aliases and pseudonyms used " +
@@ -410,7 +410,7 @@ func scener(sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role,
 		"</small>"
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -456,7 +456,7 @@ func bbsHandler(sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.Orde
 	ctx := context.Background()
 	r := model.Releasers{}
 	if err := r.BBS(ctx, db, orderBy); err != nil {
-		return DatabaseErr(c, sl, name, err)
+		return DatabaseErr(sl, c, name, err)
 	}
 	data[key] = r
 	tmpl := name
@@ -488,7 +488,7 @@ func bbsHandler(sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.Orde
 	}
 	err := c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -513,7 +513,7 @@ func BrokenTexts(sl *slog.Logger, c *echo.Context) error {
 	data["lead"] = lead
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -527,9 +527,9 @@ func Checksum(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	const uri = "sum"
 	if err := download.Checksum(c, db, id); err != nil {
 		if errors.Is(err, download.ErrStat) {
-			return FileMissingErr(c, sl, uri, err)
+			return FileMissingErr(sl, c, uri, err)
 		}
-		return DownloadErr(c, sl, uri, err)
+		return DownloadErr(sl, c, uri, err)
 	}
 	return nil
 }
@@ -567,7 +567,7 @@ func Compression(sl *slog.Logger, c *echo.Context) error {
 	data["lead"] = lead
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -625,7 +625,7 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 		data["dbConnections"] = "database not set"
 		err := c.Render(http.StatusOK, name, data)
 		if err != nil {
-			return InternalErr(c, sl, name, err)
+			return InternalErr(sl, c, name, err)
 		}
 		return nil
 	}
@@ -636,7 +636,7 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 	data["dbConnections"] = fmt.Sprintf("%d of %d", conns, maxConn)
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -788,9 +788,9 @@ func DownloadJsDos(sl *slog.Logger, c *echo.Context, db *sql.DB, extra, downl di
 	const uri = "jsdos"
 	if err := e.HTTPSend(c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
-			return FileMissingErr(c, sl, uri, err)
+			return FileMissingErr(sl, c, uri, err)
 		}
-		return DownloadErr(c, sl, uri, err)
+		return DownloadErr(sl, c, uri, err)
 	}
 	return nil
 }
@@ -812,9 +812,9 @@ func Download(sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory)
 	}
 	if err := d.HTTPSend(sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
-			return FileMissingErr(c, sl, uri, err)
+			return FileMissingErr(sl, c, uri, err)
 		}
-		return DownloadErr(c, sl, uri, err)
+		return DownloadErr(sl, c, uri, err)
 	}
 	return nil
 }
@@ -841,7 +841,7 @@ func FTP(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	data["stats"] = map[string]string{}
 	r := model.Releasers{}
 	if err := r.FTP(ctx, db); err != nil {
-		return DatabaseErr(c, sl, name, err)
+		return DatabaseErr(sl, c, name, err)
 	}
 	data[key] = r
 	data["stats"] = map[string]string{
@@ -850,7 +850,7 @@ func FTP(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	}
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -878,7 +878,7 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -938,7 +938,7 @@ func Fixes(sl *slog.Logger, c *echo.Context) error {
 	data["lead"] = lead
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -960,7 +960,7 @@ func Terms(sl *slog.Logger, c *echo.Context) error {
 	data["lead"] = lead
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -1078,14 +1078,14 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 		if errors.Is(err, http.ErrNoCookie) {
 			return c.Redirect(http.StatusForbidden, "/signin")
 		}
-		return BadRequestErr(c, sl, name, err)
+		return BadRequestErr(sl, c, name, err)
 	}
 	token := cookie.Value
 
 	// Cross-Site Request Forgery post token
 	bodyToken := c.FormValue(csrf)
 	if token != bodyToken {
-		return BadRequestErr(c, sl, name, ErrMisMatch)
+		return BadRequestErr(sl, c, name, ErrMisMatch)
 	}
 
 	// Create a new token verifier.
@@ -1093,14 +1093,14 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 	ctx := context.Background()
 	validator, err := idtoken.NewValidator(ctx)
 	if err != nil {
-		return BadRequestErr(c, sl, name, err)
+		return BadRequestErr(sl, c, name, err)
 	}
 
 	// Verify the ID token and using the client ID from the Google API.
 	credential := c.FormValue("credential")
 	playload, err := validator.Validate(ctx, credential, clientID)
 	if err != nil {
-		return BadRequestErr(c, sl, name, err)
+		return BadRequestErr(sl, c, name, err)
 	}
 
 	// Verify the sub value against the list of allowed accounts.
@@ -1115,13 +1115,13 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 	}
 	if !check {
 		sub := playload.Claims["sub"]
-		return ForbiddenErr(c, sl, name,
+		return ForbiddenErr(sl, c, name,
 			fmt.Errorf("%w. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s",
 				ErrUser, sub))
 	}
 
 	if err = sessionHandler(c, maxAge, playload.Claims); err != nil {
-		return BadRequestErr(c, sl, name, err)
+		return BadRequestErr(sl, c, name, err)
 	}
 	return c.Redirect(http.StatusFound, "/")
 }
@@ -1183,7 +1183,7 @@ func History(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = h1
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -1214,7 +1214,7 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 	}
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -1232,9 +1232,9 @@ func Inline(sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory) e
 	const uri = "v"
 	if err := d.HTTPSend(sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
-			return FileMissingErr(c, sl, uri, err)
+			return FileMissingErr(sl, c, uri, err)
 		}
-		return DownloadErr(c, sl, uri, err)
+		return DownloadErr(sl, c, uri, err)
 	}
 	return nil
 }
@@ -1256,7 +1256,7 @@ func Interview(sl *slog.Logger, c *echo.Context) error {
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -1299,7 +1299,7 @@ func magazines(sl *slog.Logger, c *echo.Context, db *sql.DB, chronological bool)
 	switch chronological {
 	case true:
 		if err := r.Magazine(ctx, db); err != nil {
-			return DatabaseErr(c, sl, name, err)
+			return DatabaseErr(sl, c, name, err)
 		}
 		s := title + byyear
 		data["logo"] = s
@@ -1308,7 +1308,7 @@ func magazines(sl *slog.Logger, c *echo.Context, db *sql.DB, chronological bool)
 	case false:
 		render = name + "-az"
 		if err := r.MagazineAZ(ctx, db); err != nil {
-			return DatabaseErr(c, sl, name, err)
+			return DatabaseErr(sl, c, name, err)
 		}
 		data["noindex"] = true
 		s := title + az
@@ -1326,7 +1326,7 @@ func magazines(sl *slog.Logger, c *echo.Context, db *sql.DB, chronological bool)
 	}
 	err := c.Render(http.StatusOK, render, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -1360,7 +1360,7 @@ func New(sl *slog.Logger, c *echo.Context) error {
 	data["carousel"] = "#carouselWhatsNew"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -1385,7 +1385,7 @@ func Page404(sl *slog.Logger, c *echo.Context, uri, page string) error {
 	data["uriErr"] = page
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -1465,7 +1465,7 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 	data["stats"] = d
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -1512,7 +1512,7 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 	data["stats"] = d
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -1697,7 +1697,7 @@ func releasers(sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.Order
 	ctx := context.Background()
 	var r model.Releasers
 	if err := r.Limit(ctx, db, orderBy, 0, 0); err != nil {
-		return DatabaseErr(c, sl, name, err)
+		return DatabaseErr(sl, c, name, err)
 	}
 	data[key] = r
 	tmpl := name
@@ -1729,7 +1729,7 @@ func releasers(sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.Order
 	}
 	err := c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
-		return InternalErr(c, sl, tmpl, err)
+		return InternalErr(sl, c, tmpl, err)
 	}
 	return nil
 }
@@ -1753,7 +1753,7 @@ func Releaser404(sl *slog.Logger, c *echo.Context, invalidID string) error {
 	data["uriErr"] = invalidID
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -1813,7 +1813,7 @@ func Releasers(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public 
 	data = releasersDesc(relname, altnames, d, data)
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -1937,7 +1937,7 @@ func Scener404(sl *slog.Logger, c *echo.Context, id string) error {
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -1955,7 +1955,7 @@ func Sceners(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error {
 	var ms model.Scener
 	fs, err := ms.Where(ctx, db, uri)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	if len(fs) == 0 {
 		return Scener404(sl, c, uri)
@@ -1971,12 +1971,12 @@ func Sceners(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error {
 	data[records] = fs
 	d, err := scenerSum(ctx, db, uri)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	data["stats"] = d
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, errs, err)
+		return InternalErr(sl, c, errs, err)
 	}
 	return nil
 }
@@ -2013,7 +2013,7 @@ func SearchDesc(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2035,7 +2035,7 @@ func SearchID(sl *slog.Logger, c *echo.Context) error {
 	data["inputPlaceholder"] = "Type to search for an artifact…"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2054,7 +2054,7 @@ func SearchFile(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2077,7 +2077,7 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context) error {
 	data["inputPlaceholder"] = "Type to search for a releaser…"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2092,17 +2092,17 @@ func SignedOut(sl *slog.Logger, c *echo.Context) error {
 	{ // get any existing session
 		sess, err := session.Get(sess.Name, c)
 		if err != nil {
-			return BadRequestErr(c, sl, name, err)
+			return BadRequestErr(sl, c, name, err)
 		}
 		id, subExists := sess.Values["sub"]
 		if !subExists || id == "" {
-			return ForbiddenErr(c, sl, name, ErrSession)
+			return ForbiddenErr(sl, c, name, ErrSession)
 		}
 		const remove = -1
 		sess.Options.MaxAge = remove
 		err = sess.Save(c.Request(), c.Response())
 		if err != nil {
-			return InternalErr(c, sl, name, err)
+			return InternalErr(sl, c, name, err)
 		}
 	}
 	return c.Redirect(http.StatusFound, "/")
@@ -2122,7 +2122,7 @@ func SignOut(sl *slog.Logger, c *echo.Context) error {
 	data["h1"] = "Sign out"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2159,7 +2159,7 @@ func Signin(sl *slog.Logger, c *echo.Context, clientID, nonce string) error {
 	}
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2176,7 +2176,7 @@ func remove(sl *slog.Logger, c *echo.Context, name string, data map[string]any) 
 	}
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2233,7 +2233,7 @@ func Titles(sl *slog.Logger, c *echo.Context) error {
 	data["h1"] = "Titles and naming are important"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2266,7 +2266,7 @@ func Fixers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2380,7 +2380,7 @@ func Thanks(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = "Thanks!"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2404,7 +2404,7 @@ func TheScene(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = h1
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, name, err)
+		return InternalErr(sl, c, name, err)
 	}
 	return nil
 }
@@ -2484,13 +2484,13 @@ func Website(sl *slog.Logger, c *echo.Context, open string) error {
 	}
 	// If a section was requested but not found, return a 404.
 	if open != "hide" && closeAll {
-		return StatusErr(c, sl, http.StatusNotFound, open)
+		return StatusErr(sl, c, http.StatusNotFound, open)
 	}
 	// Render the page.
 	data["accordion"] = accordion
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
-		return InternalErr(c, sl, fmt.Sprint("render open website,", open), err)
+		return InternalErr(sl, c, fmt.Sprint("render open website,", open), err)
 	}
 	return nil
 }

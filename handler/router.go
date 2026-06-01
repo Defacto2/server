@@ -146,7 +146,7 @@ func (c *Configuration) custom404(sl *slog.Logger, e *echo.Echo) *echo.Echo {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
 	}
 	e.GET("/:uri", func(cx *echo.Context) error {
-		return app.StatusErr(cx, sl, http.StatusNotFound, cx.Param("uri"))
+		return app.StatusErr(sl, cx, http.StatusNotFound, cx.Param("uri"))
 	})
 	return e
 }
@@ -331,14 +331,14 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 	s.GET("/files/:id/:page", func(cx *echo.Context) error {
 		switch cx.Param("id") {
 		case "for-approval", "deletions", "unwanted":
-			return app.StatusErr(cx, sl, http.StatusNotFound, cx.Param("id"))
+			return app.StatusErr(sl, cx, http.StatusNotFound, cx.Param("id"))
 		}
 		return app.Artifacts(sl, cx, db, cx.Param("id"), cx.Param("page"))
 	})
 	s.GET("/files/:id", func(cx *echo.Context) error {
 		switch cx.Param("id") {
 		case "for-approval", "deletions", "unwanted":
-			return app.StatusErr(cx, sl, http.StatusNotFound, cx.Param("id"))
+			return app.StatusErr(sl, cx, http.StatusNotFound, cx.Param("id"))
 		}
 		return app.Artifacts(sl, cx, db, cx.Param("id"), "1")
 	})

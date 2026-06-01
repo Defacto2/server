@@ -79,7 +79,7 @@ func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) ech
 		s := strconv.FormatBool(bool(c.Environment.ReadOnly))
 		e.Response().Header().Set(xreadonlylock, s)
 		if c.Environment.ReadOnly {
-			if err := app.StatusErr(e, sl, http.StatusForbidden, ""); err != nil {
+			if err := app.StatusErr(sl, e, http.StatusForbidden, ""); err != nil {
 				return fmt.Errorf("%s status: %w", msg, err)
 			}
 			// do not run next(e)
@@ -103,7 +103,7 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo
 		}
 		id, subExists := sess.Values["sub"].(string)
 		if !subExists || id == "" {
-			if err := app.StatusErr(e, sl, http.StatusForbidden, ""); err != nil {
+			if err := app.StatusErr(sl, e, http.StatusForbidden, ""); err != nil {
 				return fmt.Errorf("%s subexists forbid: %w", msg, err)
 			}
 			return nil
@@ -116,7 +116,7 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo
 			}
 		}
 		if !check {
-			if err := app.StatusErr(e, sl, http.StatusForbidden, ""); err != nil {
+			if err := app.StatusErr(sl, e, http.StatusForbidden, ""); err != nil {
 				return fmt.Errorf("%s check forbid: %w", msg, err)
 			}
 			return nil
