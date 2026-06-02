@@ -1021,10 +1021,9 @@ func GetDemozooParam(c *echo.Context, db *sql.DB, download dir.Directory) error 
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	got := remote.DemozooLink{} //nolint:exhaustruct
-	sid := c.Param("id")
-	id, err := strconv.Atoi(sid)
+	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
-		got.Error = "demozoo id must be a numeric value, " + sid
+		got.Error = "demozoo id must be a numeric value"
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.ID = id

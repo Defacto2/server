@@ -88,10 +88,9 @@ func UUID(c *echo.Context) (string, error) {
 
 // ID returns the id from the URL parameters and returns an error if it is invalid.
 func ID(c *echo.Context) (int, error) {
-	key := c.Param("id")
-	id, err := strconv.Atoi(key)
+	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
-		return 0, fmt.Errorf("%w: %w: %q", ErrKey, err, key)
+		return 0, fmt.Errorf("%w: %q", ErrKey, err)
 	}
 	return id, nil
 }

@@ -543,11 +543,10 @@ func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 	if c == nil {
 		return 0, panics.ErrNoEchoC
 	}
-	sid := c.Param("id")
-	id, err := strconv.Atoi(sid)
+	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
 		return 0, c.String(http.StatusNotAcceptable,
-			"The "+name+" production ID must be a numeric value, "+sid)
+			"The "+name+" production ID must be a numeric value")
 	}
 	var sanity int
 	switch prod {
@@ -558,7 +557,7 @@ func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 	}
 	if id < 1 || id > sanity {
 		return 0, c.String(http.StatusNotAcceptable,
-			"The "+name+" production ID is invalid, "+sid)
+			fmt.Sprintf("The %q production ID is invalid, %d", name, id))
 	}
 	return id, nil
 }

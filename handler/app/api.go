@@ -527,7 +527,7 @@ func milestonesAPI(c *echo.Context, highlights bool) error {
 
 // MilestoneYearAPI returns milestones for a specific year.
 func MilestoneYearAPI(c *echo.Context) error {
-	year, err := strconv.Atoi(c.Param("year"))
+	year, err := echo.PathParam[int](c, "year")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			er: "Invalid year format",
@@ -660,15 +660,11 @@ func GroupsAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	}
 
 	// parse page parameter or default to page 1
-	page := 1
-	if s := c.QueryParam(pg); s != "" {
-		var err error
-		page, err = strconv.Atoi(s)
-		if err != nil || page < 1 {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				er: "Invalid page parameter",
-			})
-		}
+	page, err := echo.QueryParamOr[int](c, "page", 1)
+	if err != nil || page < 1 {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			er: "Invalid page parameter",
+		})
 	}
 
 	ctx := context.Background()
