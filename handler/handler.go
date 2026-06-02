@@ -74,11 +74,20 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	if err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+
+	templates, err := c.TemplRegistry(sl, db)
+	if err != nil {
+		logs.Fatal(sl, msg,
+			slog.String("template", "could not register the templates"),
+			slog.Any("fatal", err))
+	}
+
+	const setAs16MB = 16 * 1024 * 1024
 	envConfig := c.Environment
-	config := echo.Config{
+	echoConfig := echo.Config{
 		Logger: sl,
 		HTTPErrorHandler: func(ec *echo.Context, err error) {
-			envConfig.CustomErrorHandler(err, ec, sl)
+			config.CustomErrorHandler(sl, ec, err)
 		},
 		Router: echo.NewRouter(echo.RouterConfig{ // TODO: these need testing
 			NotFoundHandler:           nil,
@@ -88,46 +97,42 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 			UnescapePathParamValues:   false, // Auto-decodes uppercase/lowercase URL entities safely
 			UseEscapedPathForMatching: false,
 		}),
-		// OnAddRoute:         nil,
-		// Filesystem:         nil,
-		// Binder:             nil,
-		// Validator:          nil,
-		// Renderer:           nil,
-		// JSONSerializer:     nil,
-		// IPExtractor:        nil,
-		// FormParseMaxMemory: 0, // TODO
+		OnAddRoute: func(route echo.Route) error { // TODO: use for debug or verbose mode
+			fmt.Printf("🚀 Route Added -> Method: [%-6s] Path: %s\n", route.Method, route.Path)
+			return nil
+		},
+		Filesystem:         nil, // we do not use this as we manually route each static asset
+		Binder:             nil,
+		Validator:          nil,
+		Renderer:           templates,
+		JSONSerializer:     nil,
+		IPExtractor:        nil,
+		FormParseMaxMemory: setAs16MB,
 	}
 
-	config.Renderer, err = c.TemplRegistry(sl, db)
-	if err != nil {
-		logs.Fatal(sl, msg,
-			slog.String("template", "could not register the templates"),
-			slog.Any("fatal", err))
-	}
-
-	e := echo.NewWithConfig(config)
+	e := echo.NewWithConfig(echoConfig)
 	if envConfig.LogAll {
 		// echo prefix options that get used by RequestLoggerConfig
 		pprof.Register(e)
 	}
 	// pre middleware
-	mid := []echo.MiddlewareFunc{}
-	mid = append(mid, middleware.Rewrite(rewrites()))
-	mid = append(mid, middleware.NonWWWRedirect())
-	e.Pre(mid...)
+	e.Pre(
+		middleware.Rewrite(rewrites()),
+		middleware.NonWWWRedirect(),
+	)
 	// use middleware
-	mid = []echo.MiddlewareFunc{}
-	mid = append(mid, middleware.Secure())
-	mid = append(mid, middleware.RequestLoggerWithConfig(c.RequestLoggerConfig(sl)))
-	mid = append(mid, c.NoCrawl)
-	mid = append(mid, middleware.RemoveTrailingSlashWithConfig(configTrailSlash()))
 	if envConfig.Compression {
-		mid = append(mid, middleware.Gzip())
+		e.Use(middleware.Gzip())
 	}
 	if envConfig.ProdMode {
-		mid = append(mid, middleware.Recover())
+		e.Use(middleware.Recover())
 	}
-	e.Use(mid...)
+	e.Use(
+		middleware.Secure(),
+		middleware.RequestLoggerWithConfig(c.RequestLoggerConfig(sl)),
+		c.NoCrawl,
+		middleware.RemoveTrailingSlashWithConfig(configTrailSlash()),
+	)
 	// browser paths and routes
 	e = AppendEmbed(e, c.Public)
 	e = AppendMoved(e)
@@ -163,6 +168,9 @@ func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 		"/jsdos/bin":       "public/bin/dos32",
 		"/js":              "public/js",
 	}
+
+	// TODO: DEBUG an internal 500 error when using invalid paths .. ie localhost/jss
+
 	for path, fsRoot := range dirs {
 		e.StaticFS(path, echo.MustSubFS(currentFs, fsRoot))
 		// Block directory listing; allows files to be served but returns 404 for directory itself
@@ -170,6 +178,15 @@ func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 			return echo.NewHTTPError(http.StatusNotFound, "directory not found")
 		})
 	}
+	// blockDir := func(c *echo.Context) error {
+	// 	return echo.NewHTTPError(http.StatusNotFound, "directory not found")
+	// }
+	//
+	// for pathPrefix, fsRoot := range dirs {
+	// 	filesystem := echo.MustSubFS(currentFs, fsRoot)
+	// 	e.StaticFS(pathPrefix, filesystem)
+	// 	e.GET(pathPrefix, blockDir)
+	// }
 	return e
 }
 

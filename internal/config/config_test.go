@@ -6,7 +6,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/Defacto2/magicnumber"
@@ -71,19 +70,6 @@ func TestValidate(t *testing.T) {
 	const tooLarge = 10000
 	c.HTTPPort = tooLarge
 	err = c.HTTPPort.Check()
-	be.Err(t, err, nil)
-}
-
-func TestError(t *testing.T) {
-	t.Parallel()
-	i, s, err := config.StringErr(nil)
-	be.True(t, i == 0)
-	be.Equal(t, s, "")
-	be.Err(t, err, nil)
-	i, s, err = config.StringErr(ErrTest)
-	be.True(t, i == 500)
-	x := strings.Contains(s, "internal server error")
-	be.True(t, x)
 	be.Err(t, err, nil)
 }
 

@@ -32,46 +32,42 @@ var (
 	ErrNotFile    = errors.New("path points to a directory")
 )
 
-// CustomErrorHandler handles customer error templates.
-func (c *Config) CustomErrorHandler(err error, ec *echo.Context, sl *slog.Logger) {
+// CustomErrorHandler handles edge case HTTP errors including
+// issues such as missing template files, attempts at browsing
+// restricted directories, etc.
+//
+// The returned result will always be a text only HTTP response,
+// as there is no ability to access HTML rendered pages.
+func CustomErrorHandler(sl *slog.Logger, c *echo.Context, err error) {
 	const msg = "custom error handler"
-	if err := panics.SC(ec, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if IsHTML3(ec.Path()) {
-		if err := html3.Error(ec, err); err != nil {
+	if IsHTML3(c.Path()) {
+		if err := html3.Error(c, err); err != nil {
 			logs.Fatal(sl, msg, slog.Any("html3 error", err))
 		}
 		return
 	}
-	statusCode := http.StatusInternalServerError
-	if httpError, ok := errors.AsType[*echo.HTTPError](err); ok {
-		statusCode = httpError.Code
-	}
-	errorPage := fmt.Sprintf("%d.html", statusCode)
-	if err := ec.File(errorPage); err != nil {
-		// fallback to a string error if templates break
-		code, s, err1 := StringErr(err)
-		if err1 != nil {
-			logs.Fatal(sl, msg, slog.Any("error", err))
-		}
-		if err2 := ec.String(code, s); err2 != nil {
-			logs.Fatal(sl, msg, slog.Any("error", err))
-		}
-	}
-}
 
-// StringErr sends the error and code as a string.
-func StringErr(err error) (int, string, error) {
-	if err == nil {
-		return 0, "", nil
+	statusCode := echo.StatusCode(err)
+	if statusCode == 0 {
+		statusCode = http.StatusInternalServerError
+		if errors.Is(err, echo.ErrNotFound) {
+			statusCode = http.StatusNotFound
+		}
 	}
-	code, msg := http.StatusInternalServerError, "internal server error"
-	if httpError, ok := errors.AsType[*echo.HTTPError](err); ok {
-		code = httpError.Code
-		msg = fmt.Sprint(httpError.Message)
+	statusText := http.StatusText(statusCode)
+
+	sl.Error(msg,
+		slog.Any("error", err),
+		slog.String("error type", fmt.Sprintf("%t", err)),
+		slog.Int("code", statusCode))
+
+	s := fmt.Sprintf("%d - %s", statusCode, statusText)
+	if err1 := c.String(statusCode, s); err1 != nil {
+		logs.Fatal(sl, msg, slog.Any("error", err1))
 	}
-	return code, fmt.Sprintf("%d - %s", code, msg), nil
 }
 
 // IsHTML3 returns true if the path is /html3.
