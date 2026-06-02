@@ -16,11 +16,8 @@ import (
 	"io/fs"
 	"log/slog"
 	"maps"
-	"net"
 	"net/http"
-	"os"
 	"runtime"
-	"time"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/flags"
@@ -40,12 +37,6 @@ import (
 )
 
 const (
-	// ShutdownCounter is the number of iterations to wait before shutting down the server.
-	ShutdownCounter = 1
-
-	// ShutdownWait is the number of seconds to wait before shutting down the server.
-	ShutdownWait = ShutdownCounter * time.Second
-
 	// Downloader is the route for the file download handler.
 	Downloader = "/d/:id"
 )
@@ -190,7 +181,7 @@ func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	return e
 }
 
-// Print the application logo and information to the w io.writer.
+// Print the application logo and information to the w Writer.
 func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 	const msg = "configuration info handler"
 	if sl == nil {
@@ -213,11 +204,11 @@ func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	_, _ = fmt.Fprintf(w, "%s\n", c.versionBrief())
-	cpuInfo := fmt.Sprintf("  %d active routines sharing %d usable threads on %d CPU cores.",
-		runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
+	format := "  %d active routines sharing %d usable threads on %d CPU cores."
+	cpuInfo := fmt.Sprintf(format, runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	_, _ = fmt.Fprintln(w, cpuInfo)
-	golangInfo := fmt.Sprintf("  Compiled on Go %s for %s with %s.",
-		runtime.Version()[2:], flags.OS(), flags.Arch())
+	format = "  Compiled on Go %s for %s with %s."
+	golangInfo := fmt.Sprintf(format, runtime.Version()[2:], flags.OS(), flags.Arch())
 	_, _ = fmt.Fprintln(w, golangInfo)
 	to, fr, _, s, err := helper.DiskStat("/")
 	if err != nil {
@@ -233,37 +224,6 @@ func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 	//
 	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
 	//
-}
-
-// PortErr handles the error when the HTTP or HTTPS server cannot start.
-func (c *Configuration) PortErr(sl *slog.Logger, port uint16, err error) {
-	const msg = "http/https"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
-	}
-	s := "HTTP"
-	if port == c.Environment.TLSPort.Value() {
-		s = "TLS"
-	}
-	var portErr *net.OpError
-	switch {
-	case !bool(c.Environment.ProdMode) && errors.As(err, &portErr):
-		sl.Warn("air or task",
-			slog.String("problem", "could not startup air or task"),
-			slog.String("help", "however, this issue can probably be ignored"),
-			slog.Any("error", err))
-	case errors.Is(err, net.ErrClosed),
-		errors.Is(err, http.ErrServerClosed):
-		sl.Info("shutdown",
-			slog.String("success", fmt.Sprintf("the %s server will gracefully shutdown", s)))
-	case errors.Is(err, os.ErrNotExist):
-		logs.Fatal(sl, msg,
-			slog.String("port error", "could not startup the server using the configured port"),
-			slog.Int("port", int(port)), slog.Any("error", err))
-	default:
-		sl.Warn(s+" server startup failed",
-			slog.Any("error", err))
-	}
 }
 
 // TemplRegistry returns the template registry for the renderer.
@@ -292,85 +252,8 @@ func (c *Configuration) TemplRegistry(sl *slog.Logger, db *sql.DB) (*TemplateReg
 	return &TemplateRegistry{Templates: tmpls}, nil
 }
 
-// ShutdownHTTP waits for a Ctrl-C keyboard press to initiate a graceful shutdown of the HTTP web server.
-// The shutdown procedure occurs a few seconds after the key press.
-// TODO: retire
-// func (c *Configuration) ShutdownHTTP(w io.Writer, e *echo.Echo, sl *slog.Logger) { //nolint:funlen
-// 	if w == nil {
-// 		w = os.Stderr
-// 	}
-// 	const msg = "shutdown http handler"
-// 	if err := panics.EchoS(e, sl); err != nil {
-// 		panic(fmt.Errorf("%s: %w", msg, err))
-// 	}
-// 	// Wait for interrupt signal to gracefully shutdown the server
-// 	quit := make(chan os.Signal, 1)
-// 	signal.Notify(quit, os.Interrupt)
-// 	<-quit
-// 	waitDuration := ShutdownWait
-// 	waitCount := ShutdownCounter
-// 	ticker := 1 * time.Second
-// 	ctx, cancel := context.WithTimeout(context.Background(), waitDuration)
-// 	defer cancel()
-// 	defer func() {
-// 		const alert = "Detected Ctrl + C, server will shutdown"
-// 		// _ = logger.Sync() // do not check Sync errors as there can be false positives
-// 		buf := bufio.NewWriter(w)
-// 		_, err := fmt.Fprintf(buf, "\n%s in %v ", alert, waitDuration)
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 		err = buf.Flush()
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 		count := waitCount
-// 		pause := time.NewTicker(ticker)
-// 		for range pause.C {
-// 			count--
-// 			buf.Reset(w)
-// 			if count <= 0 {
-// 				_, err := fmt.Fprintf(buf, "\r%s %s\n", alert, "now     ")
-// 				if err != nil {
-// 					panic(err)
-// 				}
-// 				err = buf.Flush()
-// 				if err != nil {
-// 					panic(err)
-// 				}
-// 				pause.Stop()
-// 				break
-// 			}
-// 			_, err = fmt.Fprintf(buf, "\r%s in %ds ", alert, count)
-// 			if err != nil {
-// 				panic(err)
-// 			}
-// 			err = buf.Flush()
-// 			if err != nil {
-// 				panic(err)
-// 			}
-// 		}
-// 		select {
-// 		case <-quit:
-// 			cancel()
-// 		case <-ctx.Done():
-// 		}
-// 		const shutdownTimeout = 5 * time.Second
-// 		shutdownCtx, shutdownCancel := context.WithTimeout(ctx, shutdownTimeout)
-// 		defer shutdownCancel()
-// 		if err := e.Shutdown(shutdownCtx); err != nil {
-// 			logs.FatalTx(shutdownCtx, sl, msg,
-// 				slog.String("context", "caused an error"), slog.Any("error", err))
-// 		}
-// 		sl.Info(msg, slog.String("success", "shutdown complete"))
-// 		signal.Stop(quit)
-// 		cancel()
-// 	}()
-// }
-
 func (c *Configuration) EchoConfig() echo.StartConfig {
 	config := echo.StartConfig{
-		Address:    "",
 		HideBanner: true,
 		HidePort:   true,
 	}

@@ -54,10 +54,12 @@ var ErrLog = errors.New("cannot save one or more log files")
 
 func main() {
 	const msg = "defacto2 startup"
+
 	// Initialize a temporary logger, and get then print the environment variable configurations.
 	tmpLog := logs.Default()
 	slog.SetDefault(tmpLog)
 	envConfig := environmentVars(tmpLog)
+
 	// Parse any application commands and flags, and if appropriate run the request and exit to
 	// the terminal.
 	const quit = 0
@@ -65,6 +67,7 @@ func main() {
 		code := int(exitCode)
 		os.Exit(code)
 	}
+
 	// Configure the sl application logger, the cl startup configuration logger and the logo writer.
 	// Two separate loggers are used to avoid the system and file logs being cluttered with server
 	// startup information.
@@ -90,7 +93,10 @@ func main() {
 		}
 	}
 	sl, cl, logo := setupWriters(*envConfig, fileLog)
+
+	// Print the configurations.
 	envConfig.Print(cl)
+
 	// Connect to the database and perform some record repairs and sanity checks. Even if the
 	// database cannot connect the web server will continue to run with limited functionality.
 	db, err := postgres.Open()
@@ -111,38 +117,45 @@ func main() {
 		sl.Error(msg, slog.String("postgres", "could not run the version query"),
 			slog.Any("error", err))
 	}
+
 	// Cleanup any previous temporary directories created by this application.
 	config.TmpCleaner(sl)
 	config.TmpInfo(sl)
+
 	// Start the web server.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
 	serv := initialisation(ctx, db, *envConfig)
+
 	go func() {
 		fsys := serv.Public
 		root := tidbit.Dir
 		if err := serv.TidbitIndex.NewIndex(fsys, root); err != nil {
 			panic(err)
 		}
-		inf := serv.TidbitIndex
+		stat := serv.TidbitIndex
 		slog.Info(
-			"index tidbits",
-			slog.Int("documents", inf.TotalDocs), slog.Int64("terms", inf.TotalTerms),
+			"Indexed Tidbits",
+			slog.Int("Documents", stat.TotalDocs),
+			slog.Int64("SearchTerms", stat.TotalTerms),
 		)
 	}()
 
-	printLn(logo)
+	writeLn(logo)
 	printOpening(sl, serv.RecordCount)
 	h := serv.Handler(sl, db)
 	serv.Print(sl, logo)
-	serv.StartHTTP(ctx, sl, h)
+	if err := serv.Start(ctx, sl, h, *envConfig); err != nil {
+		slog.Error("Startup", slog.Any("result", err))
+	}
+
 	go func() {
 		printOwner(cl, msg)
 		printAddrs(cl, envConfig, msg)
 	}()
 
-	// TODO: msg
-	slog.Info("shutdown", slog.String("initialised", "shutdown singal received"))
+	slog.Info("Shutdown", slog.String("Triggered", "Signal received"))
 }
 
 func setupWriters(envConfig config.Config, lf logs.Files) (*slog.Logger, *slog.Logger, io.Writer) {
@@ -168,7 +181,7 @@ func setupWriters(envConfig config.Config, lf logs.Files) (*slog.Logger, *slog.L
 	return sl, cl, logo
 }
 
-func printLn(w io.Writer) {
+func writeLn(w io.Writer) {
 	_, _ = fmt.Fprintln(w)
 }
 
