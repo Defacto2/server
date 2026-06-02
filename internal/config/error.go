@@ -43,7 +43,7 @@ func CustomErrorHandler(sl *slog.Logger, c *echo.Context, err error) {
 	if err := panics.SC(c, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if IsHTML3(c.Path()) {
+	if isV3(c.Path()) {
 		if err := html3.Error(c, err); err != nil {
 			logs.Fatal(sl, msg, slog.Any("html3 error", err))
 		}
@@ -70,7 +70,7 @@ func CustomErrorHandler(sl *slog.Logger, c *echo.Context, err error) {
 	}
 }
 
-// IsHTML3 returns true if the path is /html3.
-func IsHTML3(path string) bool {
+// isV3 returns true if the path is /html3.
+func isV3(path string) bool {
 	return strings.Contains(path, "/html3/") || strings.HasSuffix(path, "/html3")
 }

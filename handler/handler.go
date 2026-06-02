@@ -67,12 +67,35 @@ type Configuration struct {
 	TidbitIndex fulltext.Tidbits // Fulltext search index of the tidbit markdown files.
 }
 
+func notFoundHandler(c *echo.Context) error {
+	// TODO: there maybe a handler in the router?
+	return c.String(http.StatusNotFound, "todo not found")
+}
+
 // Handler is the primary instance of the Echo router.
 func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	const msg = "controller handler"
 	err := panics.SD(sl, db)
 	if err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
+	}
+	envConfig := c.Environment
+	prodMode := bool(envConfig.ProdMode)
+
+	httpErr := func(ec *echo.Context, err error) {
+		config.CustomErrorHandler(sl, ec, err)
+	}
+
+	onAddRoute := func(route echo.Route) error {
+		if !prodMode {
+			return nil
+		}
+		sl.Info(
+			"route",
+			slog.String("method", route.Method),
+			slog.String("path", route.Path),
+		)
+		return nil
 	}
 
 	templates, err := c.TemplRegistry(sl, db)
@@ -83,25 +106,19 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	}
 
 	const setAs16MB = 16 * 1024 * 1024
-	envConfig := c.Environment
 	echoConfig := echo.Config{
-		Logger: sl,
-		HTTPErrorHandler: func(ec *echo.Context, err error) {
-			config.CustomErrorHandler(sl, ec, err)
-		},
-		Router: echo.NewRouter(echo.RouterConfig{ // TODO: these need testing
-			NotFoundHandler:           nil,
+		Logger:           sl,
+		HTTPErrorHandler: httpErr,
+		Router: echo.NewRouter(echo.RouterConfig{
+			NotFoundHandler:           notFoundHandler,
 			MethodNotAllowedHandler:   nil,
 			OptionsMethodHandler:      nil,
 			AllowOverwritingRoute:     false,
-			UnescapePathParamValues:   false, // Auto-decodes uppercase/lowercase URL entities safely
+			UnescapePathParamValues:   false,
 			UseEscapedPathForMatching: false,
 		}),
-		OnAddRoute: func(route echo.Route) error { // TODO: use for debug or verbose mode
-			fmt.Printf("🚀 Route Added -> Method: [%-6s] Path: %s\n", route.Method, route.Path)
-			return nil
-		},
-		Filesystem:         nil, // we do not use this as we manually route each static asset
+		OnAddRoute:         onAddRoute,
+		Filesystem:         nil,
 		Binder:             nil,
 		Validator:          nil,
 		Renderer:           templates,
@@ -136,7 +153,6 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	// browser paths and routes
 	e = AppendEmbed(e, c.Public)
 	e = AppendMoved(e)
-	prodMode := bool(envConfig.ProdMode)
 	download := dir.Directory(c.Environment.AbsDownload)
 	e = appendHtmx(sl, e, db, prodMode, download)
 	e, err = c.AppendFiles(sl, e, db, c.Public)
