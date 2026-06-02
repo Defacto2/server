@@ -2,10 +2,6 @@ package handler
 
 // Package file middleware.go contains the custom middleware functions for the Echo web framework.
 
-// WARN: DO NOT USE THE middleware.TimeoutWithConfig().
-// It is broken by causing race conditions and broken responses.
-// See, https://github.com/labstack/echo/issues/2306
-
 import (
 	"crypto/sha512"
 	"fmt"

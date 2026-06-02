@@ -91,10 +91,10 @@ func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 		e.FileFS(href, names[key], public)
 	}
 	// source map files
-	const mapExt = ".map"
-	e.FileFS(hrefs[app.Bootstrap5]+mapExt, names[app.Bootstrap5]+mapExt, public)
-	e.FileFS(hrefs[app.Bootstrap5JS]+mapExt, names[app.Bootstrap5JS]+mapExt, public)
-	e.FileFS(hrefs[app.Jsdos6JS]+mapExt, names[app.Jsdos6JS]+mapExt, public)
+	const mExt = ".map"
+	e.FileFS(hrefs[app.Bootstrap5]+mExt, names[app.Bootstrap5]+mExt, public)
+	e.FileFS(hrefs[app.Bootstrap5JS]+mExt, names[app.Bootstrap5JS]+mExt, public)
+	e.FileFS(hrefs[app.Jsdos6JS]+mExt, names[app.Jsdos6JS]+mExt, public)
 	return e
 }
 
@@ -266,6 +266,31 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+
+	artifact := func(ec *echo.Context) error {
+		uri := ec.Param("id")
+		if unwanted := ec.QueryString(); unwanted != "" {
+			return ec.Redirect(http.StatusMovedPermanently, "/f/"+uri)
+		}
+		dirs.URI = uri
+		readonly := bool(c.Environment.ReadOnly)
+		return dirs.Artifact(sl, ec, db, readonly)
+	}
+	releaser := func(ec *echo.Context) error {
+		uri := ec.Param("id")
+		if unwanted := ec.QueryString(); unwanted != "" {
+			return ec.Redirect(http.StatusMovedPermanently, "/g/"+uri)
+		}
+		return app.Releasers(sl, ec, db, uri, c.Public)
+	}
+	scener := func(ec *echo.Context) error {
+		uri := ec.Param("id")
+		if unwanted := ec.QueryString(); unwanted != "" {
+			return ec.Redirect(http.StatusMovedPermanently, "/p/"+uri)
+		}
+		return app.Sceners(sl, ec, db, uri)
+	}
+
 	e.GET("/health-check", func(c *echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
@@ -317,14 +342,7 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 	s.GET(Downloader, func(ec *echo.Context) error {
 		return app.Download(sl, ec, db, dir.Directory(c.Environment.AbsDownload))
 	})
-	s.GET("/f/:id", func(ec *echo.Context) error {
-		uri := ec.Param("id")
-		if qs := ec.QueryString(); qs != "" {
-			return ec.Redirect(http.StatusMovedPermanently, "/f/"+uri)
-		}
-		dirs.URI = uri
-		return dirs.Artifact(sl, ec, db, bool(c.Environment.ReadOnly))
-	})
+	s.GET("/f/:id", artifact)
 	s.GET("/file/stats", func(ec *echo.Context) error {
 		return app.Categories(sl, ec, db, true)
 	})
@@ -349,12 +367,7 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 	s.GET("/ftp", func(c *echo.Context) error {
 		return app.FTP(sl, c, db)
 	})
-	s.GET("/g/:id", func(ec *echo.Context) error {
-		if qs := ec.QueryString(); qs != "" {
-			return ec.Redirect(http.StatusMovedPermanently, "/g/"+ec.Param("id"))
-		}
-		return app.Releasers(sl, ec, db, ec.Param("id"), c.Public)
-	})
+	s.GET("/g/:id", releaser)
 	s.GET("/history", func(c *echo.Context) error { return app.History(sl, c) })
 	s.GET("/interview", func(c *echo.Context) error { return app.Interview(sl, c) })
 	s.GET("/jsdos/:id", func(ec *echo.Context) error {
@@ -372,12 +385,7 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 	s.GET("/musician", func(c *echo.Context) error {
 		return app.Musician(sl, c, db)
 	})
-	s.GET("/p/:id", func(ec *echo.Context) error {
-		if qs := ec.QueryString(); qs != "" {
-			return ec.Redirect(http.StatusMovedPermanently, "/p/"+ec.Param("id"))
-		}
-		return app.Sceners(sl, ec, db, ec.Param("id"))
-	})
+	s.GET("/p/:id", scener)
 	s.GET("/pouet/vote/:id", func(ec *echo.Context) error {
 		return app.VotePouet(sl, ec, ec.Param("id"))
 	})
@@ -427,17 +435,20 @@ func (c *Configuration) search(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+
+	// this legacy get result should be kept for (osx.xml) opensearch compatibility
+	// and to keep possible backwards compatibility with third party site links.
+	opensearch := func(c *echo.Context) error {
+		terms := strings.ReplaceAll(c.QueryParam("query"), "+", " ") // AND replacement
+		terms = strings.ReplaceAll(terms, "|", ",")                  // OR replacement
+		return app.PostDesc(sl, c, db, terms)
+	}
+
 	search := e.Group("/search")
 	search.GET("/desc", func(c *echo.Context) error { return app.SearchDesc(sl, c) })
 	search.GET("/file", func(c *echo.Context) error { return app.SearchFile(sl, c) })
 	search.GET("/releaser", func(c *echo.Context) error { return app.SearchReleaser(sl, c) })
-	search.GET("/result", func(c *echo.Context) error {
-		// this legacy get result should be kept for (osx.xml) opensearch compatibility
-		// and to keep possible backwards compatibility with third party site links.
-		terms := strings.ReplaceAll(c.QueryParam("query"), "+", " ") // AND replacement
-		terms = strings.ReplaceAll(terms, "|", ",")                  // OR replacement
-		return app.PostDesc(sl, c, db, terms)
-	})
+	search.GET("/result", opensearch)
 	search.POST("/desc", func(c *echo.Context) error {
 		return app.PostDesc(sl, c, db, c.FormValue("search-term-query"))
 	})

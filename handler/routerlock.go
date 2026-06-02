@@ -49,8 +49,14 @@ func (c *Configuration) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app
 }
 
 func fixers(sl *slog.Logger, g *echo.Group, db *sql.DB) {
-	g.GET("/fixers", func(c *echo.Context) error { return app.Fixers(sl, c, db) })
-	g.POST("/fixers/fix/:id", func(c *echo.Context) error { return app.FixNumericSuffix(sl, c, db) })
+	fixers := func(c *echo.Context) error {
+		return app.Fixers(sl, c, db)
+	}
+	fixID := func(c *echo.Context) error {
+		return app.FixNumericSuffix(sl, c, db)
+	}
+	g.GET("/fixers", fixers)
+	g.POST("/fixers/fix/:id", fixID)
 }
 
 func (c *Configuration) configurations(sl *slog.Logger, g *echo.Group, db *sql.DB) {

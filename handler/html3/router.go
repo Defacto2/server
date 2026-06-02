@@ -73,25 +73,23 @@ func Routes(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Group {
 // getTags creates the get routes for the category and platform tags.
 func getTags(sl *slog.Logger, db *sql.DB, g *echo.Group) *echo.Group {
 	category := g.Group("/category")
+	hCategory := func(c *echo.Context) error {
+		return Category(sl, c, db)
+	}
 	for tag := range slices.Values(tags.List()) {
 		if tags.IsCategory(tag.String()) {
-			category.GET(fmt.Sprintf("/%s:offset", tag), func(c *echo.Context) error {
-				return Category(sl, c, db)
-			})
-			category.GET(fmt.Sprintf("/%s", tag), func(c *echo.Context) error {
-				return Category(sl, c, db)
-			})
+			category.GET(fmt.Sprintf("/%s:offset", tag), hCategory)
+			category.GET(fmt.Sprintf("/%s", tag), hCategory)
 		}
 	}
 	platform := g.Group("/platform")
+	hPlatform := func(c *echo.Context) error {
+		return Platform(sl, c, db)
+	}
 	for tag := range slices.Values(tags.List()) {
 		if tags.IsPlatform(tag.String()) {
-			platform.GET(fmt.Sprintf("/%s:offset", tag), func(c *echo.Context) error {
-				return Platform(sl, c, db)
-			})
-			platform.GET(fmt.Sprintf("/%s", tag), func(c *echo.Context) error {
-				return Platform(sl, c, db)
-			})
+			platform.GET(fmt.Sprintf("/%s:offset", tag), hPlatform)
+			platform.GET(fmt.Sprintf("/%s", tag), hPlatform)
 		}
 	}
 	return g
@@ -101,8 +99,8 @@ func getTags(sl *slog.Logger, db *sql.DB, g *echo.Group) *echo.Group {
 // "The page cannot be found.".
 func custom404(g *echo.Group) *echo.Group {
 	g.GET("/:uri", func(x *echo.Context) error {
-		return echo.NewHTTPError(http.StatusNotFound,
-			"The page cannot be found: /html3/"+x.Param("uri"))
+		s := "The page cannot be found: /html3/" + x.Param("uri")
+		return echo.NewHTTPError(http.StatusNotFound, s)
 	})
 	return g
 }

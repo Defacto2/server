@@ -67,11 +67,6 @@ type Configuration struct {
 	TidbitIndex fulltext.Tidbits // Fulltext search index of the tidbit markdown files.
 }
 
-func notFoundHandler(c *echo.Context) error {
-	// TODO: there maybe a handler in the router?
-	return c.String(http.StatusNotFound, "todo not found")
-}
-
 // Handler is the primary instance of the Echo router.
 func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	const msg = "controller handler"
@@ -110,7 +105,7 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 		Logger:           sl,
 		HTTPErrorHandler: httpErr,
 		Router: echo.NewRouter(echo.RouterConfig{
-			NotFoundHandler:           notFoundHandler,
+			NotFoundHandler:           nil,
 			MethodNotAllowedHandler:   nil,
 			OptionsMethodHandler:      nil,
 			AllowOverwritingRoute:     false,
@@ -184,25 +179,14 @@ func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 		"/jsdos/bin":       "public/bin/dos32",
 		"/js":              "public/js",
 	}
-
-	// TODO: DEBUG an internal 500 error when using invalid paths .. ie localhost/jss
-
+	notfound := func(_ *echo.Context) error {
+		return echo.NewHTTPError(http.StatusNotFound, "directory not found")
+	}
+	// Allows files to be served but returns 404 for the root directories.
 	for path, fsRoot := range dirs {
 		e.StaticFS(path, echo.MustSubFS(currentFs, fsRoot))
-		// Block directory listing; allows files to be served but returns 404 for directory itself
-		e.GET(path, func(_ *echo.Context) error {
-			return echo.NewHTTPError(http.StatusNotFound, "directory not found")
-		})
+		e.GET(path, notfound)
 	}
-	// blockDir := func(c *echo.Context) error {
-	// 	return echo.NewHTTPError(http.StatusNotFound, "directory not found")
-	// }
-	//
-	// for pathPrefix, fsRoot := range dirs {
-	// 	filesystem := echo.MustSubFS(currentFs, fsRoot)
-	// 	e.StaticFS(pathPrefix, filesystem)
-	// 	e.GET(pathPrefix, blockDir)
-	// }
 	return e
 }
 
@@ -388,15 +372,7 @@ func (c *Configuration) EchoConfig() echo.StartConfig {
 	config := echo.StartConfig{
 		Address:    "",
 		HideBanner: true,
-		HidePort:   false,
-		// CertFilesystem:   nil,
-		// TLSConfig:        nil,
-		// Listener:         nil,
-		// ListenerNetwork:  "",
-		// ListenerAddrFunc: nil,
-		GracefulTimeout: time.Duration(3 * time.Second),
-		// OnShutdownError:  nil,
-		// BeforeServeFunc:  nil,
+		HidePort:   true,
 	}
 	return config
 }
