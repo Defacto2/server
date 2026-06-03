@@ -59,7 +59,7 @@ type Configuration struct {
 }
 
 // Handler is the primary instance of the Echo router.
-func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
+func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *echo.Echo { //nolint:funlen
 	const msg = "controller handler"
 	err := panics.SD(sl, db)
 	if err != nil {
@@ -69,7 +69,7 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	prodMode := bool(envConfig.ProdMode)
 
 	httpErr := func(ec *echo.Context, err error) {
-		config.CustomErrorHandler(sl, ec, err)
+		config.CustomErrorHandler(ctx, sl, ec, err)
 	}
 
 	onAddRoute := func(route echo.Route) error {
@@ -84,9 +84,9 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 		return nil
 	}
 
-	templates, err := c.TemplRegistry(sl, db)
+	templates, err := c.TemplRegistry(ctx, sl, db)
 	if err != nil {
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("template", "could not register the templates"),
 			slog.Any("fatal", err))
 	}
@@ -139,11 +139,14 @@ func (c *Configuration) Handler(sl *slog.Logger, db *sql.DB) *echo.Echo {
 	// browser paths and routes
 	e = AppendEmbed(e, c.Public)
 	e = AppendMoved(e)
-	download := dir.Directory(c.Environment.AbsDownload)
-	e = appendHtmx(sl, e, db, prodMode, download)
-	e, err = c.AppendFiles(sl, e, db, c.Public)
+	ch := configHtmx{
+		prodMode: prodMode,
+		download: dir.Directory(c.Environment.AbsDownload),
+	}
+	e = ch.append(ctx, sl, e, db)
+	e, err = c.AppendFiles(ctx, sl, e, db, c.Public)
 	if err != nil {
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("file routes", "could not register the routes"),
 			slog.Any("fatal", err))
 	}
@@ -227,7 +230,7 @@ func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 }
 
 // TemplRegistry returns the template registry for the renderer.
-func (c *Configuration) TemplRegistry(sl *slog.Logger, db *sql.DB) (*TemplateRegistry, error) {
+func (c *Configuration) TemplRegistry(ctx context.Context, sl *slog.Logger, db *sql.DB) (*TemplateRegistry, error) {
 	const msg = "template registry handler"
 	if err := panics.SD(sl, db); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
@@ -241,7 +244,7 @@ func (c *Configuration) TemplRegistry(sl *slog.Logger, db *sql.DB) (*TemplateReg
 		Environment: c.Environment,
 		RecordCount: c.RecordCount,
 	}
-	tmpls, err := webapp.Templates(db)
+	tmpls, err := webapp.Templates(ctx, db)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
@@ -253,7 +256,7 @@ func (c *Configuration) TemplRegistry(sl *slog.Logger, db *sql.DB) (*TemplateReg
 }
 
 func (c *Configuration) EchoConfig() echo.StartConfig {
-	config := echo.StartConfig{
+	config := echo.StartConfig{ //nolint:exhaustruct
 		HideBanner: true,
 		HidePort:   true,
 	}
@@ -300,51 +303,6 @@ func (c *Configuration) StartDual(ctx context.Context, sl *slog.Logger, h http.H
 	c.startDual(ctx, sl, h, false)
 }
 
-func (c *Configuration) startDual(ctx context.Context, sl *slog.Logger, h http.Handler, local bool) {
-	const msg = "start dual handler"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
-	}
-	g, ctx := errgroup.WithContext(ctx)
-
-	httpConfig := c.HTTP()
-	httpsConfig := echo.StartConfig{}
-	certFile, keyFile := "", ""
-	if local {
-		httpsConfig, certFile, keyFile = c.Local(sl)
-	} else {
-		httpsConfig, certFile, keyFile = c.TLS(sl)
-	}
-
-	g.Go(func() error {
-		sl.Info("Starting HTTP Listener", "address", httpConfig.Address)
-		err := httpConfig.Start(ctx, h)
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			sl.Error("HTTP Server crashed unexpectedly", "error", err)
-			return err
-		}
-		return nil
-	})
-
-	g.Go(func() error {
-		sl.Info("Starting HTTPS Listener", "address", httpsConfig.Address)
-		// Point to your valid SSL/TLS files
-		err := httpsConfig.StartTLS(ctx, h, certFile, keyFile)
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			sl.Error("HTTPS Server crashed unexpectedly", "error", err)
-			return err
-		}
-		return nil
-	})
-
-	if err := g.Wait(); err != nil {
-		sl.Error("System tracking intercepted a service failure", "error", err)
-		return
-	}
-
-	sl.Info("Dual server infrastructure successfully stopped.")
-}
-
 func (c *Configuration) HTTP() echo.StartConfig {
 	config := c.EchoConfig()
 	port := c.Environment.HTTPPort.Value()
@@ -356,7 +314,7 @@ func (c *Configuration) HTTP() echo.StartConfig {
 	return config
 }
 
-func (c *Configuration) Local(sl *slog.Logger) (echo.StartConfig, string, string) {
+func (c *Configuration) Local(ctx context.Context, sl *slog.Logger) (echo.StartConfig, string, string) {
 	const msg = "start local tls handler"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
@@ -372,18 +330,18 @@ func (c *Configuration) Local(sl *slog.Logger) (echo.StartConfig, string, string
 
 	certFile, err := c.Public.ReadFile("public/certs/cert.pem")
 	if err != nil {
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("certificate", "read file failure"), slog.Any("error", err))
 	}
 	keyFile, err := c.Public.ReadFile("public/certs/key.pem")
 	if err != nil {
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("key", "read file failure"), slog.Any("error", err))
 	}
 	return config, string(certFile), string(keyFile)
 }
 
-func (c *Configuration) TLS(sl *slog.Logger) (echo.StartConfig, string, string) {
+func (c *Configuration) TLS(ctx context.Context, sl *slog.Logger) (echo.StartConfig, string, string) {
 	const msg = "start tls handler"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
@@ -399,17 +357,17 @@ func (c *Configuration) TLS(sl *slog.Logger) (echo.StartConfig, string, string) 
 	certFile := c.Environment.TLSCert
 	keyFile := c.Environment.TLSKey
 	if certFile == "" || keyFile == "" {
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("failure", "missing critical file"),
 			slog.String("certificate file", string(certFile)),
 			slog.String("key file", string(keyFile)))
 	}
 	if !helper.File(certFile.String()) {
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("certificate file", "file does not exist"))
 	}
 	if !helper.File(keyFile.String()) {
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("key file", "file does not exist"))
 	}
 	return config, certFile.String(), keyFile.String()
@@ -423,10 +381,12 @@ func (c *Configuration) StartHTTP(ctx context.Context, sl *slog.Logger, h http.H
 	}
 
 	httpConfig := c.HTTP()
-	sl.Info("Starting HTTP Listener", "address", httpConfig.Address)
+	sl.Info("Starting HTTP Listener",
+		slog.String("address", httpConfig.Address))
 	err := httpConfig.Start(ctx, h)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		sl.Error("HTTP Server crashed unexpectedly", "error", err)
+		sl.Error("HTTP Server crashed unexpectedly",
+			slog.Any("error", err))
 		return
 	}
 }
@@ -438,17 +398,19 @@ func (c *Configuration) StartTLS(ctx context.Context, sl *slog.Logger, h http.Ha
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 
-	httpsConfig, certFile, keyFile := c.TLS(sl)
-	sl.Info("Starting HTTPS Listener", "address", httpsConfig.Address)
+	httpsConfig, certFile, keyFile := c.TLS(ctx, sl)
+	sl.Info("Starting HTTPS Listener",
+		slog.String("address", httpsConfig.Address))
 	// Point to your valid SSL/TLS files
 	err := httpsConfig.StartTLS(ctx, h, certFile, keyFile)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		sl.Error("HTTPS Server crashed unexpectedly", "error", err)
+		sl.Error("HTTPS Server crashed unexpectedly",
+			slog.Any("error", err))
 		return
 	}
 }
 
-// StartTLSLocal starts the insecure localhost, encrypted TLS web server.
+// StartLocal starts the insecure localhost, encrypted TLS web server.
 // This should only be triggered when the server is running in local mode.
 func (c *Configuration) StartLocal(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start local tls handler"
@@ -456,14 +418,66 @@ func (c *Configuration) StartLocal(ctx context.Context, sl *slog.Logger, h http.
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 
-	httpsConfig, certFile, keyFile := c.Local(sl)
-	sl.Info("Starting HTTPS Listener", "address", httpsConfig.Address)
+	httpsConfig, certFile, keyFile := c.Local(ctx, sl)
+	sl.Info("Starting HTTPS Listener",
+		slog.String("address", httpsConfig.Address))
 	// Point to your valid SSL/TLS files
 	err := httpsConfig.StartTLS(ctx, h, certFile, keyFile)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		sl.Error("HTTPS Server crashed unexpectedly", "error", err)
+		sl.Error("HTTPS Server crashed unexpectedly",
+			slog.Any("error", err))
 		return
 	}
+}
+
+func (c *Configuration) startDual(ctx context.Context, sl *slog.Logger, h http.Handler, local bool) {
+	const msg = "start dual handler"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
+	g, ctx := errgroup.WithContext(ctx)
+
+	httpConfig := c.HTTP()
+	httpsConfig := echo.StartConfig{} //nolint:exhaustruct
+	certFile, keyFile := "", ""
+	if local {
+		httpsConfig, certFile, keyFile = c.Local(ctx, sl)
+	} else {
+		httpsConfig, certFile, keyFile = c.TLS(ctx, sl)
+	}
+
+	g.Go(func() error {
+		sl.Info("Starting HTTP Listener",
+			slog.String("address", httpConfig.Address))
+		err := httpConfig.Start(ctx, h)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			sl.Error("HTTP Server crashed unexpectedly",
+				slog.Any("error", err))
+			return fmt.Errorf("dual http server: %w", err)
+		}
+		return nil
+	})
+
+	g.Go(func() error {
+		sl.Info("Starting HTTPS Listener",
+			slog.String("address", httpsConfig.Address))
+		// Point to your valid SSL/TLS files
+		err := httpsConfig.StartTLS(ctx, h, certFile, keyFile)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			sl.Error("HTTPS Server crashed unexpectedly",
+				slog.Any("error", err))
+			return fmt.Errorf("dual https server: %w", err)
+		}
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		sl.Error("System tracking intercepted a service failure",
+			slog.Any("error", err))
+		return
+	}
+
+	sl.Info("Dual server infrastructure successfully stopped.")
 }
 
 func (c *Configuration) address(port uint16) string {

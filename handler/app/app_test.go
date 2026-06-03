@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"maps"
@@ -193,9 +194,10 @@ func TestByteFileS(t *testing.T) {
 
 func TestFuncMap(t *testing.T) {
 	t.Parallel()
+	ctx := context.Background()
 	w := app.Templ{}
 	db := sql.DB{}
-	x := w.FuncMap(&db)
+	x := w.FuncMap(ctx, &db)
 	keys := slices.Sorted(maps.Keys(*x))
 	be.True(t, slices.Contains(keys, "add"))
 	be.True(t, slices.Contains(keys, "version"))
@@ -317,9 +319,10 @@ func TestGlobTo(t *testing.T) {
 
 func TestTemplates(t *testing.T) {
 	t.Parallel()
+	ctx := context.Background()
 
 	w := app.Templ{}
-	_, err := w.Templates(nil)
+	_, err := w.Templates(ctx, nil)
 	be.Err(t, err)
 }
 

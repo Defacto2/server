@@ -23,13 +23,13 @@ import (
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
-func (c *Config) Checks(sl *slog.Logger) error {
+func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 	const msg, key = "Config directory", "check"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
-	c.checkHTTP(sl)
-	c.checkHTTPS(sl)
+	c.checkHTTP(ctx, sl)
+	c.checkHTTPS(ctx, sl)
 	c.production(sl)
 	// Check the download, preview and thumbnail directories.
 	if err := CheckDir(dir.Directory(c.AbsDownload), "downloads"); err != nil {
@@ -118,7 +118,7 @@ func (c *Config) SetupLogDir(sl *slog.Logger) error {
 }
 
 // checkHTTP logs a fatal error if the HTTP port is invalid.
-func (c *Config) checkHTTP(sl *slog.Logger) {
+func (c *Config) checkHTTP(ctx context.Context, sl *slog.Logger) {
 	const msg, key = "check http port", "port"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
@@ -127,12 +127,12 @@ func (c *Config) checkHTTP(sl *slog.Logger) {
 		return
 	}
 	if err := c.HTTPPort.Check(); err != nil {
-		c.fatalPort(sl, msg, key, err)
+		c.fatalPort(ctx, sl, msg, key, err)
 	}
 }
 
 // checkHTTPS logs a fatal error if the HTTPS port is invalid.
-func (c *Config) checkHTTPS(sl *slog.Logger) {
+func (c *Config) checkHTTPS(ctx context.Context, sl *slog.Logger) {
 	const msg, key = "check https port", "port"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
@@ -141,11 +141,11 @@ func (c *Config) checkHTTPS(sl *slog.Logger) {
 		return
 	}
 	if err := c.TLSPort.Check(); err != nil {
-		c.fatalPort(sl, msg, key, err)
+		c.fatalPort(ctx, sl, msg, key, err)
 	}
 }
 
-func (c *Config) fatalPort(sl *slog.Logger, msg, key string, err error) {
+func (c *Config) fatalPort(ctx context.Context, sl *slog.Logger, msg, key string, err error) {
 	if sl == nil {
 		panic(fmt.Errorf("config fatal port: %w", panics.ErrNoSlog))
 	}
@@ -158,12 +158,12 @@ func (c *Config) fatalPort(sl *slog.Logger, msg, key string, err error) {
 	}
 	switch {
 	case errors.Is(err, ErrPortMax):
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("issue", "The server cannot use the "+inf+" port"),
 			slog.Int(key, int(port)),
 			slog.String("error", err.Error()))
 	case errors.Is(err, ErrPortSys):
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("issue", "The server cannot use the system port"),
 			slog.Int(key, int(port)),
 			slog.String("error", err.Error()))
@@ -236,7 +236,7 @@ func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
 			slog.Int("records", count))
 	}
 	c.repairer(ctx, sl, db)
-	c.sanityChecks(sl)
+	c.sanityChecks(ctx, sl)
 	TmpInfo(sl)
 	sl.Info(msg, slog.String("task", "Time taken"),
 		slog.Duration("time", time.Since(d).Round(time.Millisecond)))
@@ -332,12 +332,12 @@ func repairDatabase(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production mode environment variable is set to false.
-func (c *Config) sanityChecks(sl *slog.Logger) {
+func (c *Config) sanityChecks(ctx context.Context, sl *slog.Logger) {
 	const msg = "sanity check"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	if err := c.Checks(sl); err != nil {
+	if err := c.Checks(ctx, sl); err != nil {
 		sl.Error(msg,
 			slog.String("issue", "sanity checks could not read the environment variable, "+
 				"it probably contains an invalid value"),

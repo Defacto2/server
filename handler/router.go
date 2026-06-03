@@ -3,6 +3,7 @@ package handler
 // Package file router.go contains the custom router URIs for the website.
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"fmt"
@@ -27,7 +28,7 @@ import (
 const code = http.StatusMovedPermanently
 
 // AppendFiles defines the file locations and routes for the web server.
-func (c *Configuration) AppendFiles(sl *slog.Logger, e *echo.Echo, db *sql.DB, public embed.FS,
+func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, public embed.FS,
 ) (*echo.Echo, error) {
 	const msg = "files routes"
 	if err := panics.SDEP(sl, db, e, public); err != nil {
@@ -58,7 +59,7 @@ func (c *Configuration) AppendFiles(sl *slog.Logger, e *echo.Echo, db *sql.DB, p
 	e = c.search(sl, e, db)
 	e = c.website(sl, e, db, dirs)
 	e = c.api(sl, e, db, public)
-	e = c.lock(sl, e, db, dirs)
+	e = c.lock(ctx, sl, e, db, dirs)
 	return e, nil
 }
 
@@ -215,7 +216,7 @@ func (c *Configuration) api(sl *slog.Logger, e *echo.Echo, db *sql.DB, public em
 			// use a custom response writer to capture the timing
 			resp, err := echo.UnwrapResponse(c.Response())
 			if err != nil {
-				return err
+				return fmt.Errorf("api unwrap response: %w", err)
 			}
 			resp.Before(func() {
 				end := time.Since(start)

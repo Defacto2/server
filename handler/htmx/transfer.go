@@ -56,7 +56,7 @@ const (
 // HumanizeCount handles the post submission for the Uploader classification,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func HumanizeCount(sl *slog.Logger, c *echo.Context, db *sql.DB, name string) error {
+func HumanizeCount(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, name string) error {
 	const msg = "transfer humanized count"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -66,7 +66,7 @@ func HumanizeCount(sl *slog.Logger, c *echo.Context, db *sql.DB, name string) er
 	if platform == "" {
 		platform = c.FormValue(name + "-operating-system")
 	}
-	html, err := form.HumanizeCount(db, section, platform)
+	html, err := form.HumanizeCount(ctx, db, section, platform)
 	if err != nil {
 		sl.Error(msg,
 			slog.String("issue", "could not create the html template"), slog.Any("error", err))

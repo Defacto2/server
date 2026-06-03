@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -24,7 +25,7 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
-func (c *Configuration) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
+func (c *Configuration) lock(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
 	const msg = "configuration router lock"
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -40,7 +41,7 @@ func (c *Configuration) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app
 	c.configurations(sl, lock, db)
 	creator(lock, db)
 	date(lock, db)
-	editor(sl, lock, db, dirs)
+	editor(ctx, sl, lock, db, dirs)
 	fixers(sl, lock, db)
 	get(sl, lock, db, dirs)
 	online(lock, db)
@@ -121,7 +122,7 @@ func date(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) { //nolint:funlen
+func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) { //nolint:funlen
 	if g == nil {
 		panic(fmt.Errorf("%w for editor router", panics.ErrNoEchoE))
 	}
@@ -132,7 +133,7 @@ func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) { //nolin
 		return htmx.Record16Colors(c, db)
 	})
 	g.PATCH("/classifications", func(c *echo.Context) error {
-		return htmx.RecordClassification(sl, c, db)
+		return htmx.RecordClassification(ctx, sl, c, db)
 	})
 	g.PATCH("/comment", func(c *echo.Context) error {
 		return htmx.RecordComment(c, db)

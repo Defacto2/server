@@ -52,13 +52,13 @@ var (
 
 var ErrLog = errors.New("cannot save one or more log files")
 
-func main() {
+func main() { //nolint:funlen
 	const msg = "defacto2 startup"
 
 	// Initialize a temporary logger, and get then print the environment variable configurations.
 	tmpLog := logs.Default()
 	slog.SetDefault(tmpLog)
-	envConfig := environmentVars(tmpLog)
+	envConfig := environmentVars(context.Background(), tmpLog)
 
 	// Parse any application commands and flags, and if appropriate run the request and exit to
 	// the terminal.
@@ -144,7 +144,7 @@ func main() {
 
 	writeLn(logo)
 	printOpening(sl, serv.RecordCount)
-	h := serv.Handler(sl, db)
+	h := serv.Handler(ctx, sl, db)
 	serv.Print(sl, logo)
 	if err := serv.Start(ctx, sl, h, *envConfig); err != nil {
 		slog.Error("Startup", slog.Any("result", err))
@@ -217,7 +217,7 @@ func printAddrs(cl *slog.Logger, envConfig *config.Config, msg string) {
 // Defaults are used if the environment variables are not set.
 //
 // The configuration uses reference types to make the values immutable.
-func environmentVars(tmpLog *slog.Logger) *config.Config {
+func environmentVars(ctx context.Context, tmpLog *slog.Logger) *config.Config {
 	const msg = "environment variables"
 	configs := config.Config{ //nolint:exhaustruct // complex config
 		Compression:   true,
@@ -228,7 +228,7 @@ func environmentVars(tmpLog *slog.Logger) *config.Config {
 		SessionMaxAge: config.SessionHours,
 	}
 	if err := env.Parse(&configs); err != nil {
-		logs.Fatal(tmpLog, msg,
+		logs.Fatal(ctx, tmpLog, msg,
 			slog.String("parsing error", "does the variable contain an invalid value?"),
 			slog.Any("error", err))
 	}

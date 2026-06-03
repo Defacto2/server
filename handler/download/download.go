@@ -154,7 +154,7 @@ func (d Download) HTTPSend(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		// echo/v5 requires unwrapping to insert a header
 		resp, err := echo.UnwrapResponse(c.Response())
 		if err != nil {
-			return err
+			return fmt.Errorf("http send unwrap response: %w", err)
 		}
 		resp.Before(func() {
 			resp.Header().Set(echo.HeaderLastModified, lastmod)

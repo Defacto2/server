@@ -3,6 +3,7 @@ package htmx
 // Package file artifact.go provides functions for handling the HTMX requests for the artifact editor.
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -90,7 +91,7 @@ func UUID(c *echo.Context) (string, error) {
 func ID(c *echo.Context) (int, error) {
 	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
-		return 0, fmt.Errorf("%w: %q", ErrKey, err)
+		return 0, fmt.Errorf("%w: \"%w\"", ErrKey, err)
 	}
 	return id, nil
 }
@@ -98,7 +99,7 @@ func ID(c *echo.Context) (int, error) {
 // pageRefresh is a helper function to set the HTTP [HTMX header] for the browser to refresh the page.
 //
 // [HTMX header]: https://htmx.org/reference/#response_headers
-func pageRefresh(c *echo.Context) *echo.Context { //nolint:ireturn
+func pageRefresh(c *echo.Context) *echo.Context {
 	c.Response().Header().Set("HX-Refresh", "true")
 	c.Response().WriteHeader(http.StatusFound)
 	return c
@@ -505,7 +506,7 @@ func RecordToggleByID(c *echo.Context, db *sql.DB, key string, state bool) error
 // RecordClassification handles the post submission for the file artifact classifications,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func RecordClassification(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func RecordClassification(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "record classification"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -514,7 +515,7 @@ func RecordClassification(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	platform := c.FormValue("artifact-editor-operatingsystem")
 	key := c.FormValue(editorKey)
 	if invalid := section == "" || platform == ""; invalid {
-		html, err := form.HumanizeCount(db, section, platform)
+		html, err := form.HumanizeCount(ctx, db, section, platform)
 		if err != nil {
 			sl.Error("record classification", slog.Any("error", err))
 			return badRequest(c, err)
@@ -528,7 +529,7 @@ func RecordClassification(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err := model.UpdateClassification(db, int64(id), platform, section); err != nil {
 		return badRequest(c, err)
 	}
-	html, err := form.HumanizeCount(db, section, platform)
+	html, err := form.HumanizeCount(ctx, db, section, platform)
 	if err != nil {
 		sl.Error("record classification", slog.Any("error", err))
 		return badRequest(c, err)

@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"context"
 	"io"
 	"testing"
 
@@ -33,8 +34,9 @@ func TestInfo(t *testing.T) {
 
 func TestRegistry(t *testing.T) {
 	t.Parallel()
+	ctx := context.Background()
 	c := handler.Configuration{}
-	x, err := c.TemplRegistry(nil, nil)
+	x, err := c.TemplRegistry(ctx, nil, nil)
 	be.Err(t, err)
 	be.True(t, x == nil)
 }

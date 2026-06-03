@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,16 +12,18 @@ import (
 
 func TestTemplTemplates(t *testing.T) {
 	t.Parallel()
+	ctx := context.Background()
 	tpl := app.Templ{}
-	x, err := tpl.Templates(nil)
+	x, err := tpl.Templates(ctx, nil)
 	be.Err(t, err)
 	be.True(t, x == nil)
 }
 
 func TestFuncClosures(t *testing.T) {
 	t.Parallel()
+	ctx := context.Background()
 	tpl := app.Templ{}
-	x := tpl.FuncClosures(nil)
+	x := tpl.FuncClosures(ctx, nil)
 	be.True(t, x == nil)
 }
 

@@ -3,6 +3,7 @@ package config
 // Package file error.go contains the custom error middleware for the web application.
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -38,14 +39,14 @@ var (
 //
 // The returned result will always be a text only HTTP response,
 // as there is no ability to access HTML rendered pages.
-func CustomErrorHandler(sl *slog.Logger, c *echo.Context, err error) {
+func CustomErrorHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, err error) {
 	const msg = "custom error handler"
 	if err := panics.SC(c, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if isV3(c.Path()) {
 		if err := html3.Error(c, err); err != nil {
-			logs.Fatal(sl, msg, slog.Any("html3 error", err))
+			logs.Fatal(ctx, sl, msg, slog.Any("html3 error", err))
 		}
 		return
 	}
@@ -66,7 +67,7 @@ func CustomErrorHandler(sl *slog.Logger, c *echo.Context, err error) {
 
 	s := fmt.Sprintf("%d - %s", statusCode, statusText)
 	if err1 := c.String(statusCode, s); err1 != nil {
-		logs.Fatal(sl, msg, slog.Any("error", err1))
+		logs.Fatal(ctx, sl, msg, slog.Any("error", err1))
 	}
 }
 

@@ -136,7 +136,8 @@ func TestSuggestion(t *testing.T) {
 
 func TestHumanizeCount(t *testing.T) {
 	t.Parallel()
-	err := htmx.HumanizeCount(nil, newContext(), nil, "")
+	ctx := context.Background()
+	err := htmx.HumanizeCount(ctx, nil, newContext(), nil, "")
 	be.Err(t, err)
 }
 

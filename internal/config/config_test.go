@@ -29,7 +29,7 @@ func TestConfig(t *testing.T) {
 func TestChecks(t *testing.T) {
 	t.Parallel()
 	c := config.Config{}
-	err := c.Checks(nil)
+	err := c.Checks(context.Background(), nil)
 	be.Err(t, err)
 	err = c.LogStore()
 	be.Err(t, err, nil)

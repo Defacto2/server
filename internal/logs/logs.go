@@ -72,8 +72,8 @@ func Discard() *slog.Logger {
 }
 
 // Fatal logs any issues and exits to the operating system.
-func Fatal(sl *slog.Logger, msg string, args ...slog.Attr) {
-	FatalTx(context.Background(), sl, msg, args...)
+func Fatal(ctx context.Context, sl *slog.Logger, msg string, args ...slog.Attr) {
+	FatalTx(ctx, sl, msg, args...)
 }
 
 // FatalTx logs any issues and exits to the operating system.
@@ -102,13 +102,13 @@ func Color(w io.Writer) bool {
 // tint is a package that colors the log output.
 func tintOptions(minimum slog.Level, flag int) tint.Options {
 	attr := func(groups []string, a slog.Attr) slog.Attr {
-		if flag&(Lshortfile) != 0 {
+		if flag&Lshortfile != 0 {
 			a = addsourceNoDirectory(a)
 		}
-		if flag&(Ldate) == 0 && flag&(Ltime) == 0 && flag&(Lseconds) == 0 {
+		if flag&Ldate == 0 && flag&Ltime == 0 && flag&Lseconds == 0 {
 			a = timeformatRemove(groups, a)
 		}
-		if flag&(FlagAttr) != 0 {
+		if flag&FlagAttr != 0 {
 			return flagAttr(a)
 		}
 		a = ReplaceAttr(a)
@@ -170,24 +170,24 @@ func addsource(flag int) bool {
 
 // nocolor returns true if the NoColor Option is flagged for use.
 func nocolor(flag int) bool {
-	return flag&(Lcolor) == 0
+	return flag&Lcolor == 0
 }
 
 // timeformat customizes the date and time of the log output based on the flag sets.
 func timeformat(flag int) string {
-	if flag&(Ldate) != 0 {
-		if flag&(Lseconds) != 0 {
+	if flag&Ldate != 0 {
+		if flag&Lseconds != 0 {
 			return "2006-01-02 15:04:05"
 		}
-		if flag&(Ltime) != 0 {
+		if flag&Ltime != 0 {
 			return "2006-01-02 15:04"
 		}
 		return "2006-01-02"
 	}
-	if flag&(Lseconds) != 0 {
+	if flag&Lseconds != 0 {
 		return "15:04:05"
 	}
-	if flag&(Ltime) != 0 {
+	if flag&Ltime != 0 {
 		return "15:04"
 	}
 	return ""

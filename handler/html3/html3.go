@@ -111,7 +111,7 @@ func Error(c *echo.Context, err error) error {
 	msg := "This is a server problem"
 	if httpError, ok := errors.AsType[*echo.HTTPError](err); ok {
 		code = httpError.Code
-		msg = fmt.Sprint(httpError.Message)
+		msg = httpError.Message
 	}
 	return c.Render(code, "html3_error", map[string]any{
 		titl:        fmt.Sprintf("%d error, there is a complication", code),
