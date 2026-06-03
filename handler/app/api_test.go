@@ -39,7 +39,8 @@ func BenchmarkApiMarkup(b *testing.B) {
 // BenchmarkCategoriesAPIWithRealStats benchmarks the CategoriesAPI with realistic stats calculation.
 func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, api+"/categories", nil)
+	ctx := context.Background()
+	req := httptest.NewRequestWithContext(ctx, http.MethodGet, api+"/categories", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -60,7 +61,7 @@ func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 	}
 	b.ResetTimer()
 	for b.Loop() {
-		_ = app.CategoriesAPI(c, db)
+		_ = app.CategoriesAPI(ctx, c, db)
 		rec.Body.Reset()
 	}
 }
@@ -68,7 +69,8 @@ func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 // BenchmarkPlatformsAPIWithRealStats benchmarks the PlatformsAPI with realistic stats calculation.
 func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
+	ctx := context.Background()
+	req := httptest.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -90,7 +92,7 @@ func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		_ = app.PlatformsAPI(c, db)
+		_ = app.PlatformsAPI(ctx, c, db)
 		rec.Body.Reset()
 	}
 }

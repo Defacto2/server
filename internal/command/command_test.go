@@ -1,6 +1,7 @@
 package command_test
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -132,21 +133,22 @@ func TestLookVersion(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	t.Parallel()
-	err := command.Run(nil, "", "")
+	ctx := context.TODO()
+	err := command.Run(ctx, nil, "", "")
 	be.Err(t, err)
 	logr := logr()
-	err = command.Run(logr, "", "")
+	err = command.Run(ctx, logr, "", "")
 	be.Err(t, err)
 
-	err = command.Run(logr, "thiscommanddoesnotexist", "")
+	err = command.Run(ctx, logr, "thiscommanddoesnotexist", "")
 	be.Err(t, err)
 
 	const noArgs = ""
-	err = command.Run(logr, "go", noArgs)
+	err = command.Run(ctx, logr, "go", noArgs)
 	// go without args will return an unknown command error
 	be.Err(t, err)
 
-	err = command.Run(logr, "go", "version")
+	err = command.Run(ctx, logr, "go", "version")
 	be.Err(t, err, nil)
 }
 
@@ -166,19 +168,21 @@ func TestRunQuiet(t *testing.T) {
 
 func TestRunWD(t *testing.T) {
 	t.Parallel()
+	ctx := context.TODO()
 	const noWD = ""
-	err := command.RunWorkdir(logr(), "go", noWD, "")
+	err := command.RunWorkdir(ctx, logr(), "go", noWD, "")
 	// go without args will return an unknown command error
 	be.Err(t, err)
 
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = command.RunWorkdir(logr(), "go", wd, "version")
+	err = command.RunWorkdir(ctx, logr(), "go", wd, "version")
 	be.Err(t, err, nil)
 }
 
 func Test_PreviewPixels(t *testing.T) {
 	t.Parallel()
+	ctx := context.TODO()
 	dir := command.Dirs{
 		Download:  dir.Directory(t.TempDir()), // this prefixes to UUID
 		Preview:   dir.Directory(t.TempDir()), // this is the output dest
@@ -187,9 +191,9 @@ func Test_PreviewPixels(t *testing.T) {
 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
 	for _, name := range imgs {
 		fp := testdata(name)
-		err := dir.PreviewPixels(logr(), fp, "000000ABCDE")
+		err := dir.PreviewPixels(ctx, logr(), fp, "000000ABCDE")
 		be.Err(t, err, nil)
 	}
-	err := dir.PreviewPixels(logr(), "", "")
+	err := dir.PreviewPixels(ctx, logr(), "", "")
 	be.Err(t, err)
 }

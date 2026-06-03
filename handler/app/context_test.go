@@ -32,21 +32,22 @@ func TestEmpty(t *testing.T) {
 
 func TestArtifacts(t *testing.T) {
 	t.Parallel()
-	x := app.Artifacts(nil, newContext(), nil, "", "")
+	x := app.Artifacts(context.TODO(), nil, newContext(), nil, "", "")
 	be.Err(t, x)
-	x = app.Artifacts(nil, newContext(), nil, "for-approval", "1")
+	x = app.Artifacts(context.TODO(), nil, newContext(), nil, "for-approval", "1")
 	be.Err(t, x)
 }
 
 func TestArtist(t *testing.T) {
 	t.Parallel()
-	x := app.Artist(nil, newContext(), nil)
+	x := app.Artist(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestBBS(t *testing.T) {
 	t.Parallel()
-	x := app.BBS(nil, newContext(), nil)
+	ctx := context.TODO()
+	x := app.BBS(ctx, nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -58,13 +59,13 @@ func TestChecksum(t *testing.T) {
 
 func TestCoder(t *testing.T) {
 	t.Parallel()
-	x := app.Coder(nil, newContext(), nil)
+	x := app.Coder(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestConfigurations(t *testing.T) {
 	t.Parallel()
-	x := app.Configurations(nil, newContext(), nil, config.Config{})
+	x := app.Configurations(context.TODO(), nil, newContext(), nil, config.Config{})
 	be.Err(t, x)
 }
 
@@ -76,13 +77,14 @@ func TestDownloadJsDos(t *testing.T) {
 
 func TestDownload(t *testing.T) {
 	t.Parallel()
-	x := app.Download(nil, newContext(), nil, "")
+	ctx := context.TODO()
+	x := app.Download(ctx, nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestFTP(t *testing.T) {
 	t.Parallel()
-	x := app.FTP(nil, newContext(), nil)
+	x := app.FTP(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -94,19 +96,19 @@ func TestCategories(t *testing.T) {
 
 func TestDeletions(t *testing.T) {
 	t.Parallel()
-	x := app.Deletions(nil, newContext(), nil, "")
+	x := app.Deletions(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestUnwanted(t *testing.T) {
 	t.Parallel()
-	x := app.Unwanted(nil, newContext(), nil, "")
+	x := app.Unwanted(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestForApproval(t *testing.T) {
 	t.Parallel()
-	x := app.ForApproval(nil, newContext(), nil, "")
+	x := app.ForApproval(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
@@ -145,7 +147,8 @@ func TestIndex(t *testing.T) {
 
 func TestInline(t *testing.T) {
 	t.Parallel()
-	x := app.Inline(nil, newContext(), nil, "")
+	ctx := context.TODO()
+	x := app.Inline(ctx, nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
@@ -157,19 +160,19 @@ func TestInterview(t *testing.T) {
 
 func TestMagazine(t *testing.T) {
 	t.Parallel()
-	x := app.Magazine(nil, newContext(), nil)
+	x := app.Magazine(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestMagazineAZ(t *testing.T) {
 	t.Parallel()
-	x := app.MagazineAZ(nil, newContext(), nil)
+	x := app.MagazineAZ(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestMusician(t *testing.T) {
 	t.Parallel()
-	x := app.Musician(nil, newContext(), nil)
+	x := app.Musician(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -187,7 +190,8 @@ func TestPage404(t *testing.T) {
 
 func TestPlatformEdit(t *testing.T) {
 	t.Parallel()
-	x := app.PlatformEdit(nil, newContext(), nil)
+	ctx := context.TODO()
+	x := app.PlatformEdit(ctx, nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -199,13 +203,15 @@ func TestPlatformTagInfo(t *testing.T) {
 
 func TestPostDesc(t *testing.T) {
 	t.Parallel()
-	x := app.PostDesc(nil, newContext(), nil, "")
+	ctx := context.TODO()
+	x := app.PostDesc(ctx, nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestPostFilename(t *testing.T) {
 	t.Parallel()
-	x := app.PostFilename(nil, newContext(), nil)
+	ctx := context.TODO()
+	x := app.PostFilename(ctx, nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -237,13 +243,13 @@ func TestProdZoo(t *testing.T) {
 
 func TestReleaser(t *testing.T) {
 	t.Parallel()
-	x := app.Releaser(nil, newContext(), nil)
+	x := app.Releaser(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestReleaserAZ(t *testing.T) {
 	t.Parallel()
-	x := app.ReleaserAZ(nil, newContext(), nil)
+	x := app.ReleaserAZ(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -255,13 +261,13 @@ func TestReleaser404(t *testing.T) {
 
 func TestReleasers(t *testing.T) {
 	t.Parallel()
-	x := app.Releasers(nil, newContext(), nil, "", embed.FS{})
+	x := app.Releasers(context.TODO(), nil, newContext(), nil, "", embed.FS{})
 	be.Err(t, x)
 }
 
 func TestScener(t *testing.T) {
 	t.Parallel()
-	x := app.Scener(nil, newContext(), nil)
+	x := app.Scener(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -273,7 +279,7 @@ func TestScener404(t *testing.T) {
 
 func TestSceners(t *testing.T) {
 	t.Parallel()
-	x := app.Sceners(nil, newContext(), nil, "")
+	x := app.Sceners(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
@@ -321,7 +327,8 @@ func TestSignin(t *testing.T) {
 
 func TestTagEdit(t *testing.T) {
 	t.Parallel()
-	x := app.TagEdit(nil, newContext(), nil)
+	ctx := context.TODO()
+	x := app.TagEdit(ctx, nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -363,6 +370,6 @@ func TestWebsite(t *testing.T) {
 
 func TestWriter(t *testing.T) {
 	t.Parallel()
-	x := app.Writer(nil, newContext(), nil)
+	x := app.Writer(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }

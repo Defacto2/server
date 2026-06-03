@@ -120,9 +120,8 @@ type Loc struct {
 
 // MapSite generates the main sitemap for the website.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
+func MapSite(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map site"
-	ctx := context.Background()
 	m := model.Summary{
 		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
 		SumCount: sql.NullInt64{Int64: 0, Valid: false},
@@ -174,9 +173,8 @@ func MapSite(db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapReleaser generates the sitemap that links to every releaser page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapReleaser(db *sql.DB, sl *slog.Logger) *Sitemap {
+func MapReleaser(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map releaser"
-	ctx := context.Background()
 	var r model.Releasers
 	if err := r.Limit(ctx, db, model.Oldest, 0, 0); err != nil {
 		sl.Error(msg, slog.String("model", "could not obtain releasers using limit"),
@@ -196,9 +194,8 @@ func MapReleaser(db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapMagazine generates the sitemap that links to every magazine page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapMagazine(db *sql.DB, sl *slog.Logger) *Sitemap {
+func MapMagazine(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map magazine"
-	ctx := context.Background()
 	var r model.Releasers
 	if err := r.Magazine(ctx, db); err != nil {
 		sl.Error(msg, slog.String("model", "could not obtain publications using magazine"),
@@ -218,9 +215,8 @@ func MapMagazine(db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapBBS generates the sitemap that links to every bbs page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapBBS(db *sql.DB, sl *slog.Logger) *Sitemap {
+func MapBBS(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map bbs"
-	ctx := context.Background()
 	var r model.Releasers
 	if err := r.BBS(ctx, db, model.Prolific); err != nil {
 		sl.Error(msg, slog.String("model", "could not obtain bulletin boards using bbs"),
@@ -240,9 +236,8 @@ func MapBBS(db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapFTP generates the sitemap that links to every ftp page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapFTP(db *sql.DB, sl *slog.Logger) *Sitemap {
+func MapFTP(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map ftp"
-	ctx := context.Background()
 	var r model.Releasers
 	if err := r.FTP(ctx, db); err != nil {
 		sl.Error(msg, slog.String("model", "could not obtain file sites using ftp"),

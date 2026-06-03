@@ -74,31 +74,31 @@ func (h configHtmx) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, d
 	})
 	// htmx/uploader/sha384
 	upload.PATCH("/sha384/:hash", func(c *echo.Context) error {
-		return htmx.LookupSHA384(sl, c, db)
+		return htmx.LookupSHA384(ctx, sl, c, db)
 	})
 	// htmx/uploader/advanced
 	upload.POST("/advanced", func(c *echo.Context) error {
-		return htmx.AdvancedSubmit(sl, c, db, h.download)
+		return htmx.AdvancedSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/image
 	upload.POST("/image", func(c *echo.Context) error {
-		return htmx.ImageSubmit(sl, c, db, h.download)
+		return htmx.ImageSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/intro
 	upload.POST("/intro", func(c *echo.Context) error {
-		return htmx.IntroSubmit(sl, c, db, h.download)
+		return htmx.IntroSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/magazine
 	upload.POST("/magazine", func(c *echo.Context) error {
-		return htmx.MagazineSubmit(sl, c, db, h.download)
+		return htmx.MagazineSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/text
 	upload.POST("/text", func(c *echo.Context) error {
-		return htmx.TextSubmit(sl, c, db, h.download)
+		return htmx.TextSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/trainer
 	upload.POST("/trainer", func(c *echo.Context) error {
-		return htmx.TrainerSubmit(sl, c, db, h.download)
+		return htmx.TrainerSubmit(ctx, sl, c, db, h.download)
 	})
 	return e
 }

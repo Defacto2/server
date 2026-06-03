@@ -145,17 +145,18 @@ func TestHumanizeCount(t *testing.T) {
 
 func TestLookupSHA384(t *testing.T) {
 	t.Parallel()
-	err := htmx.LookupSHA384(nil, newContext(), nil)
+	err := htmx.LookupSHA384(context.TODO(), nil, newContext(), nil)
 	be.Err(t, err)
 }
 
 func TestTransfer(t *testing.T) {
 	t.Parallel()
-	err := htmx.AdvancedSubmit(nil, newContext(), nil, "")
+	ctx := context.TODO()
+	err := htmx.AdvancedSubmit(ctx, nil, newContext(), nil, "")
 	be.Err(t, err)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.AdvancedSubmit(nil, newContext(), nil, dir.Directory(wd))
+	err = htmx.AdvancedSubmit(ctx, nil, newContext(), nil, dir.Directory(wd))
 	be.Err(t, err)
 }
 
@@ -168,11 +169,12 @@ func TestProdSubmit(t *testing.T) {
 
 func TestUploadPreview(t *testing.T) {
 	t.Parallel()
-	err := htmx.UploadPreview(logs.Discard(), newContext(), "", "")
+	ctx := context.TODO()
+	err := htmx.UploadPreview(ctx, logs.Discard(), newContext(), "", "")
 	be.Err(t, err, nil)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.UploadPreview(logs.Discard(), newContext(), dir.Directory(wd), dir.Directory(wd))
+	err = htmx.UploadPreview(ctx, logs.Discard(), newContext(), dir.Directory(wd), dir.Directory(wd))
 	be.Err(t, err, nil)
 }
 

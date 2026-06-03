@@ -104,9 +104,9 @@ func (dir Dirs) Artifact(
 	}
 	data := empty(c)
 	if !readonly && sess.Editor(c) {
-		data = dir.EditorContent(sl, c, maxArchiveItems, art, data)
+		data = dir.EditorContent(ctx, sl, c, maxArchiveItems, art, data)
 	}
-	data = classifyANSICheck(sl, db, art.ID, data)
+	data = classifyANSICheck(ctx, sl, db, art.ID, data)
 	// page metadata
 	uri := filerecord.DownloadID(art)
 	data["canonical"] = strings.Join([]string{"f", uri}, "/")
@@ -123,7 +123,7 @@ func (dir Dirs) Artifact(
 	if editorLoggedIn := !readonly && sess.Editor(c); editorLoggedIn {
 		// NOTE: this can be a performance issue on large files
 		platform := filerecord.TagProgram(art)
-		data = dir.updateMagicNumber(sl, db, art.ID, art.UUID.String, platform, data)
+		data = dir.updateMagicNumber(ctx, sl, db, art.ID, art.UUID.String, platform, data)
 	}
 	data = dir.attributions(art, data)
 	data = dir.otherRelations(art, data)
@@ -163,7 +163,7 @@ func (dir Dirs) Artifact(
 
 // classifyANSICheck uses the artifact's magicnumber value to match ansi texts and update
 // the artifact platform classification.
-func classifyANSICheck(sl *slog.Logger, db *sql.DB, id int64, data map[string]any) map[string]any {
+func classifyANSICheck(ctx context.Context, sl *slog.Logger, db *sql.DB, id int64, data map[string]any) map[string]any {
 	if db == nil {
 		return data
 	}
@@ -177,7 +177,7 @@ func classifyANSICheck(sl *slog.Logger, db *sql.DB, id int64, data map[string]an
 	}
 	textfile := strings.EqualFold(mos, tags.Text.String())
 	if textfile && numb == magicnumber.ANSIEscapeText.Title() {
-		if err := model.UpdatePlatform(db, id, tags.ANSI.String()); err != nil && sl != nil {
+		if err := model.UpdatePlatform(ctx, db, id, tags.ANSI.String()); err != nil && sl != nil {
 			sl.Error("detect ansi",
 				slog.String("update platform", "there is an issue updating the artifact editor platform"),
 				slog.Int64("id", id),
@@ -212,7 +212,9 @@ func plainText(modMagic any) bool {
 // EditorContent returns the editor data for the file record of the artifact.
 // These are the editable fields for the file record that are only visible to the editor
 // after they have logged in.
-func (dir Dirs) EditorContent(sl *slog.Logger, c *echo.Context, maxItems int, art *models.File, data map[string]any,
+func (dir Dirs) EditorContent(
+	ctx context.Context, sl *slog.Logger, c *echo.Context,
+	maxItems int, art *models.File, data map[string]any,
 ) map[string]any {
 	if sl == nil || art == nil {
 		return data
@@ -239,7 +241,7 @@ func (dir Dirs) EditorContent(sl *slog.Logger, c *echo.Context, maxItems int, ar
 	data["modMagicNumber"] = simple.MagicAsTitle(abs)
 	data["modDBModify"] = filerecord.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
-	data["modDecompress"] = filerecord.ListContent(sl, maxItems, art, d, abs)
+	data["modDecompress"] = filerecord.ListContent(ctx, sl, maxItems, art, d, abs)
 	if sess.Editor(c) {
 		data["modDecompressLoc"] = simple.MkContent(abs)
 	}
@@ -414,7 +416,7 @@ func (dir Dirs) findBinarySAUCE(art *models.File, data map[string]any) map[strin
 //
 // Due to potential performance issues with extra large filedownloads, this update
 // should only be used by logged-in editors.
-func (dir Dirs) updateMagicNumber(sl *slog.Logger,
+func (dir Dirs) updateMagicNumber(ctx context.Context, sl *slog.Logger,
 	db *sql.DB, id int64, uid, platform string, data map[string]any,
 ) map[string]any {
 	if db == nil {
@@ -467,11 +469,11 @@ func (dir Dirs) updateMagicNumber(sl *slog.Logger,
 		}
 		return data
 	}
-	return dir.makeAssets(sl, uid, root, platform, modMagic, data)
+	return dir.makeAssets(ctx, sl, uid, root, platform, modMagic, data)
 }
 
 // makeAssets will create repackaged archives and images of textfiles if they're required.
-func (dir Dirs) makeAssets(sl *slog.Logger,
+func (dir Dirs) makeAssets(ctx context.Context, sl *slog.Logger,
 	uid, root, platform string,
 	modMagic any,
 	data map[string]any,
@@ -488,7 +490,7 @@ func (dir Dirs) makeAssets(sl *slog.Logger,
 			return data
 		}
 	case plainText(modMagic):
-		return dir.makeTextfileImgs(sl, uid, platform, data)
+		return dir.makeTextfileImgs(ctx, sl, uid, platform, data)
 	default:
 		return data
 	}
@@ -565,7 +567,7 @@ func (dir Dirs) makeReplacementZip(root, uid string) (int64, error) {
 	return st.Size(), nil
 }
 
-func (dir Dirs) makeTextfileImgs(sl *slog.Logger,
+func (dir Dirs) makeTextfileImgs(ctx context.Context, sl *slog.Logger,
 	uid, platform string, data map[string]any,
 ) map[string]any {
 	const msg = "update magic number"
@@ -581,7 +583,7 @@ func (dir Dirs) makeTextfileImgs(sl *slog.Logger,
 		return data
 	}
 	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String())
-	if err := dirs.TextImager(sl, name, uid, amigaFont); err != nil {
+	if err := dirs.TextImager(ctx, sl, name, uid, amigaFont); err != nil {
 		sl.Error(msg, slog.String("text imager", "conversion error"),
 			slog.String("uuid", uid), slog.Any("error", err))
 	}

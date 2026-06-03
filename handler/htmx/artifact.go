@@ -128,12 +128,14 @@ func RecordThumb(sl *slog.Logger, c *echo.Context, thumb command.Thumb, dirs com
 }
 
 // RecordThumbAlignment handles the htmx request for the thumbnail crop alignment.
-func RecordThumbAlignment(sl *slog.Logger, c *echo.Context, align command.Align, dirs command.Dirs) error {
+func RecordThumbAlignment(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, align command.Align, dirs command.Dirs,
+) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = align.Thumbs(sl, unid, dirs.Preview, dirs.Thumbnail)
+	err = align.Thumbs(ctx, sl, unid, dirs.Preview, dirs.Thumbnail)
 	if errors.Is(err, command.ErrNoImages) {
 		return c.String(http.StatusOK, fmt.Sprint(err))
 	}
@@ -146,7 +148,9 @@ func RecordThumbAlignment(sl *slog.Logger, c *echo.Context, align command.Align,
 }
 
 // RecordImageCropper handles the htmx request for the preview image cropping.
-func RecordImageCropper(sl *slog.Logger, c *echo.Context, crop command.Crop, dirs command.Dirs) error {
+func RecordImageCropper(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, crop command.Crop, dirs command.Dirs,
+) error {
 	const msg = "record image cropper"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -155,7 +159,7 @@ func RecordImageCropper(sl *slog.Logger, c *echo.Context, crop command.Crop, dir
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = crop.Images(sl, unid, dirs.Preview)
+	err = crop.Images(ctx, sl, unid, dirs.Preview)
 	if errors.Is(err, command.ErrNoImages) {
 		return c.String(http.StatusOK, fmt.Sprint(err))
 	}
@@ -169,9 +173,9 @@ func RecordImageCropper(sl *slog.Logger, c *echo.Context, crop command.Crop, dir
 
 // recordFileProcessor is a helper function that handles the common file processing logic
 // for both image copying and binary text imaging operations.
-func recordFileProcessor(debug *slog.Logger, c *echo.Context, _ command.Dirs,
+func recordFileProcessor(ctx context.Context, debug *slog.Logger, c *echo.Context, _ command.Dirs,
 	msg, emptyMsg, successMsg string,
-	processFunc func(*slog.Logger, string, string) error,
+	processFunc func(context.Context, *slog.Logger, string, string) error,
 ) error {
 	if err := panics.SC(c, debug); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -193,7 +197,7 @@ func recordFileProcessor(debug *slog.Logger, c *echo.Context, _ command.Dirs,
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, emptyMsg)
 	}
-	if err := processFunc(debug, src, unid); err != nil {
+	if err := processFunc(ctx, debug, src, unid); err != nil {
 		return badRequest(c, err)
 	}
 	c = pageRefresh(c)
@@ -201,8 +205,8 @@ func recordFileProcessor(debug *slog.Logger, c *echo.Context, _ command.Dirs,
 }
 
 // RecordImageCopier handles the htmx request to use an image file artifact as a preview.
-func RecordImageCopier(debug *slog.Logger, c *echo.Context, dirs command.Dirs) error {
-	return recordFileProcessor(debug, c, dirs,
+func RecordImageCopier(ctx context.Context, debug *slog.Logger, c *echo.Context, dirs command.Dirs) error {
+	return recordFileProcessor(ctx, debug, c, dirs,
 		"record image copier",
 		"The file is empty and was not copied.",
 		"Images copied, the browser will refresh.",
@@ -210,8 +214,8 @@ func RecordImageCopier(debug *slog.Logger, c *echo.Context, dirs command.Dirs) e
 }
 
 // RecordBinTextImager handles the htmx request to use the text file artifact as a preview.
-func RecordBinTextImager(debug *slog.Logger, c *echo.Context, dirs command.Dirs) error {
-	return recordFileProcessor(debug, c, dirs,
+func RecordBinTextImager(ctx context.Context, debug *slog.Logger, c *echo.Context, dirs command.Dirs) error {
+	return recordFileProcessor(ctx, debug, c, dirs,
 		"record binary text readme imager",
 		"The file is empty and was not used.",
 		"Binary text imaged, the browser will refresh.",
@@ -219,7 +223,7 @@ func RecordBinTextImager(debug *slog.Logger, c *echo.Context, dirs command.Dirs)
 }
 
 // RecordReadmeImager handles the htmx request to use the text file artifact as a preview.
-func RecordReadmeImager(debug *slog.Logger, c *echo.Context, amigaFont bool, dirs command.Dirs) error {
+func RecordReadmeImager(ctx context.Context, debug *slog.Logger, c *echo.Context, amigaFont bool, dirs command.Dirs) error {
 	const msg = "record readme imager"
 	if err := panics.SC(c, debug); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -241,7 +245,7 @@ func RecordReadmeImager(debug *slog.Logger, c *echo.Context, amigaFont bool, dir
 	if st.Size() == 0 {
 		return c.String(http.StatusOK, "The file is empty and was not used.")
 	}
-	if err := dirs.TextImager(debug, src, unid, amigaFont); err != nil {
+	if err := dirs.TextImager(ctx, debug, src, unid, amigaFont); err != nil {
 		return badRequest(c, err)
 	}
 	c = pageRefresh(c)
@@ -318,7 +322,7 @@ func RecordHlpCopier(c *echo.Context, dirs command.Dirs) error {
 	return Helper.Duplicator(c, dirs)
 }
 
-func RecordReadmeCopier(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
+func RecordReadmeCopier(ctx context.Context, sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	const msg = "record readme copier"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -345,7 +349,8 @@ func RecordReadmeCopier(sl *slog.Logger, c *echo.Context, dirs command.Dirs) err
 	}
 	if !helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".png")) &&
 		!helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".webp")) {
-		if err := dirs.TextImager(sl, src, unid, false); err != nil {
+		const amigaFont = false
+		if err := dirs.TextImager(ctx, sl, src, unid, amigaFont); err != nil {
 			return badRequest(c, err)
 		}
 	}
@@ -356,7 +361,7 @@ func RecordReadmeCopier(sl *slog.Logger, c *echo.Context, dirs command.Dirs) err
 
 // RecordReadmeDisable handles the htmx request to disable the in
 // page display of both the text files readme and file_id.diz for the file artifact.
-func RecordReadmeDisable(c *echo.Context, db *sql.DB) error {
+func RecordReadmeDisable(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record readme disable"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -366,7 +371,7 @@ func RecordReadmeDisable(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, err)
 	}
 	value := c.FormValue("readme-is-off") != "on"
-	if err = model.UpdateReadmeDisable(db, int64(id), value); err != nil {
+	if err = model.UpdateReadmeDisable(ctx, db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
@@ -457,7 +462,7 @@ func extrasDeleter(c *echo.Context, ext string, extra dir.Directory) error {
 
 // RecordToggle handles the post submission for the file artifact record toggle.
 // The return value is either "online" or "offline" depending on the state.
-func RecordToggle(c *echo.Context, db *sql.DB, state bool) error {
+func RecordToggle(ctx context.Context, c *echo.Context, db *sql.DB, state bool) error {
 	const msg = "record toggle"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -468,12 +473,12 @@ func RecordToggle(c *echo.Context, db *sql.DB, state bool) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	if state {
-		if err := model.UpdateOnline(db, id); err != nil {
+		if err := model.UpdateOnline(ctx, db, id); err != nil {
 			return fmt.Errorf("artifact record toggle online: %w", err)
 		}
 		return c.String(http.StatusOK, "online")
 	}
-	if err := model.UpdateOffline(db, id); err != nil {
+	if err := model.UpdateOffline(ctx, db, id); err != nil {
 		return fmt.Errorf("artifact record toggle offline: %w", err)
 	}
 	return c.String(http.StatusOK, "offline")
@@ -482,7 +487,7 @@ func RecordToggle(c *echo.Context, db *sql.DB, state bool) error {
 // RecordToggleByID handles the post submission for the file artifact record toggle.
 // The key string is converted into an integer and used as the artifact id.
 // The return value is either "online" or "offline" depending on the state.
-func RecordToggleByID(c *echo.Context, db *sql.DB, key string, state bool) error {
+func RecordToggleByID(ctx context.Context, c *echo.Context, db *sql.DB, key string, state bool) error {
 	const msg = "record toggle by id"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -492,12 +497,12 @@ func RecordToggleByID(c *echo.Context, db *sql.DB, key string, state bool) error
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	if state {
-		if err := model.UpdateOnline(db, id); err != nil {
+		if err := model.UpdateOnline(ctx, db, id); err != nil {
 			return fmt.Errorf("artifact record toggle by id online: %w", err)
 		}
 		return c.String(http.StatusOK, "Record is visible to the public.")
 	}
-	if err := model.UpdateOffline(db, id); err != nil {
+	if err := model.UpdateOffline(ctx, db, id); err != nil {
 		return fmt.Errorf("artifact record toggle by id offline: %w", err)
 	}
 	return c.String(http.StatusOK, "🚫 Record is disabled and hidden from public access. 🚫")
@@ -526,7 +531,7 @@ func RecordClassification(ctx context.Context, sl *slog.Logger, c *echo.Context,
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateClassification(db, int64(id), platform, section); err != nil {
+	if err := model.UpdateClassification(ctx, db, int64(id), platform, section); err != nil {
 		return badRequest(c, err)
 	}
 	html, err := form.HumanizeCount(ctx, db, section, platform)
@@ -538,7 +543,7 @@ func RecordClassification(ctx context.Context, sl *slog.Logger, c *echo.Context,
 }
 
 // RecordFilename handles the post submission for the file artifact filename.
-func RecordFilename(c *echo.Context, db *sql.DB) error {
+func RecordFilename(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record filename"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -550,14 +555,14 @@ func RecordFilename(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	name = form.SanitizeFilename(name)
-	if err := model.UpdateFilename(db, int64(id), name); err != nil {
+	if err := model.UpdateFilename(ctx, db, int64(id), name); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
 }
 
 // RecordFilenameReset handles the post submission for the file artifact filename reset.
-func RecordFilenameReset(c *echo.Context, db *sql.DB) error {
+func RecordFilenameReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record filename reset"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -568,14 +573,14 @@ func RecordFilenameReset(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateFilename(db, int64(id), val); err != nil {
+	if err := model.UpdateFilename(ctx, db, int64(id), val); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, val)
 }
 
 // RecordVirusTotal handles the post submission for the file artifact VirusTotal report link.
-func RecordVirusTotal(c *echo.Context, db *sql.DB) error {
+func RecordVirusTotal(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record virus total"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -589,14 +594,14 @@ func RecordVirusTotal(c *echo.Context, db *sql.DB) error {
 	if !form.ValidVT(link) {
 		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
-	if err := model.UpdateVirusTotal(db, int64(id), link); err != nil {
+	if err := model.UpdateVirusTotal(ctx, db, int64(id), link); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
 }
 
 // RecordTitle handles the post submission for the file artifact title.
-func RecordTitle(c *echo.Context, db *sql.DB) error {
+func RecordTitle(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record title"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -607,14 +612,14 @@ func RecordTitle(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateTitle(db, int64(id), title); err != nil {
+	if err := model.UpdateTitle(ctx, db, int64(id), title); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
 }
 
 // RecordTitleReset handles the post submission for the file artifact title reset.
-func RecordTitleReset(c *echo.Context, db *sql.DB) error {
+func RecordTitleReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record title reset"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -625,14 +630,14 @@ func RecordTitleReset(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateTitle(db, int64(id), val); err != nil {
+	if err := model.UpdateTitle(ctx, db, int64(id), val); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, val)
 }
 
 // RecordComment handles the post submission for the file artifact comment.
-func RecordComment(c *echo.Context, db *sql.DB) error {
+func RecordComment(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record comment"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -643,14 +648,14 @@ func RecordComment(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateComment(db, int64(id), comment); err != nil {
+	if err := model.UpdateComment(ctx, db, int64(id), comment); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
 }
 
 // RecordCommentReset handles the post submission for the file artifact comment reset.
-func RecordCommentReset(c *echo.Context, db *sql.DB) error {
+func RecordCommentReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record comment reset"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -661,7 +666,7 @@ func RecordCommentReset(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateComment(db, int64(id), val); err != nil {
+	if err := model.UpdateComment(ctx, db, int64(id), val); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Undo comment")
@@ -670,7 +675,7 @@ func RecordCommentReset(c *echo.Context, db *sql.DB) error {
 // RecordReleasers handles the post submission for the file artifact releasers.
 // It will only update the releaser1 and the releaser2 values if they have changed.
 // The return value is either "Updated" or "Update" depending on if the values have changed.
-func RecordReleasers(c *echo.Context, db *sql.DB) error {
+func RecordReleasers(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record releasers"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -684,7 +689,7 @@ func RecordReleasers(c *echo.Context, db *sql.DB) error {
 	if unchanged {
 		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
-	if err := recordReleases(db, rel1, rel2, key); err != nil {
+	if err := recordReleases(ctx, db, rel1, rel2, key); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Save")
@@ -693,7 +698,7 @@ func RecordReleasers(c *echo.Context, db *sql.DB) error {
 // RecordReleasersReset handles the post submission for the file artifact releasers reset.
 // It will always reset and save the releaser1 and the releaser2 values.
 // The return value is always "Resetted" unless an error occurs.
-func RecordReleasersReset(c *echo.Context, db *sql.DB) error {
+func RecordReleasersReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record releaser reset"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -707,13 +712,13 @@ func RecordReleasersReset(c *echo.Context, db *sql.DB) error {
 	if unchanged {
 		return c.String(http.StatusNoContent, "")
 	}
-	if err := recordReleases(db, val1, val2, key); err != nil {
+	if err := recordReleases(ctx, db, val1, val2, key); err != nil {
 		return badRequest(c, err)
 	}
 	return c.HTML(http.StatusOK, checkMark)
 }
 
-func recordReleases(db *sql.DB, rel1, rel2, key string) error {
+func recordReleases(ctx context.Context, db *sql.DB, rel1, rel2, key string) error {
 	const msg = "record releases"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
@@ -726,14 +731,14 @@ func recordReleases(db *sql.DB, rel1, rel2, key string) error {
 	if rel2 != "" {
 		val = rel1 + "+" + rel2
 	}
-	if err := model.UpdateReleasers(db, int64(id), val); err != nil {
+	if err := model.UpdateReleasers(ctx, db, int64(id), val); err != nil {
 		return fmt.Errorf("model.UpdateReleasers: %w", err)
 	}
 	return nil
 }
 
 // RecordDateIssued handles the post submission for the file artifact date of release.
-func RecordDateIssued(c *echo.Context, db *sql.DB) error {
+func RecordDateIssued(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record date issued"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -757,14 +762,14 @@ func RecordDateIssued(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w, date failed to validate: Y %q %v ; M %q %v ; D %q %v ",
 			ErrYMDFormat, year, y, month, m, day, d))
 	}
-	if err := model.UpdateDateIssued(db, int64(id), year, month, day); err != nil {
+	if err := model.UpdateDateIssued(ctx, db, int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Save")
 }
 
 // RecordDateIssuedReset handles the post submission for the file artifact date of release reset.
-func RecordDateIssuedReset(c *echo.Context, db *sql.DB, elmID string) error {
+func RecordDateIssuedReset(ctx context.Context, c *echo.Context, db *sql.DB, elmID string) error {
 	const msg = "record date issued reset"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -785,14 +790,14 @@ func RecordDateIssuedReset(c *echo.Context, db *sql.DB, elmID string) error {
 	if !y || !m || !d {
 		return badRequest(c, fmt.Errorf("%w, record date issued reset requires YYYY-MM-DD", ErrYMDFormat))
 	}
-	if err := model.UpdateDateIssued(db, int64(id), year, month, day); err != nil {
+	if err := model.UpdateDateIssued(ctx, db, int64(id), year, month, day); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, " "+checkMark)
 }
 
 // RecordCreatorText handles the post submission for the file artifact creator text.
-func RecordCreatorText(c *echo.Context, db *sql.DB) error {
+func RecordCreatorText(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record creator text"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -804,14 +809,14 @@ func RecordCreatorText(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	val := creatorFix(creator)
-	if err := model.UpdateCreatorText(db, int64(id), val); err != nil {
+	if err := model.UpdateCreatorText(ctx, db, int64(id), val); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
 }
 
 // RecordCreatorIll handles the post submission for the file artifact creator illustrator.
-func RecordCreatorIll(c *echo.Context, db *sql.DB) error {
+func RecordCreatorIll(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record creator illustrator"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -823,14 +828,14 @@ func RecordCreatorIll(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	val := creatorFix(creator)
-	if err := model.UpdateCreatorIll(db, int64(id), val); err != nil {
+	if err := model.UpdateCreatorIll(ctx, db, int64(id), val); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
 }
 
 // RecordCreatorProg handles the post submission for the file artifact creator programmer.
-func RecordCreatorProg(c *echo.Context, db *sql.DB) error {
+func RecordCreatorProg(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record creator programmer"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -842,14 +847,14 @@ func RecordCreatorProg(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	val := creatorFix(creator)
-	if err := model.UpdateCreatorProg(db, int64(id), val); err != nil {
+	if err := model.UpdateCreatorProg(ctx, db, int64(id), val); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
 }
 
 // RecordCreatorAudio handles the post submission for the file artifact creator musician.
-func RecordCreatorAudio(c *echo.Context, db *sql.DB) error {
+func RecordCreatorAudio(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record creator audio"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -861,7 +866,7 @@ func RecordCreatorAudio(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	val := creatorFix(creator)
-	if err := model.UpdateCreatorAudio(db, int64(id), val); err != nil {
+	if err := model.UpdateCreatorAudio(ctx, db, int64(id), val); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
@@ -876,7 +881,7 @@ func creatorFix(s string) string {
 }
 
 // RecordCreatorReset handles the post submission for the file artifact creators reset.
-func RecordCreatorReset(c *echo.Context, db *sql.DB) error {
+func RecordCreatorReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record creator reset"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -905,14 +910,14 @@ func RecordCreatorReset(c *echo.Context, db *sql.DB) error {
 	if textval == text && illval == ill && progval == prog && audioval == audio {
 		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
-	if err := model.UpdateCreators(db, int64(id), text, ill, prog, audio); err != nil {
+	if err := model.UpdateCreators(ctx, db, int64(id), text, ill, prog, audio); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Undo creators")
 }
 
 // RecordYouTube handles the post submission for the file artifact YouTube watch video link.
-func RecordYouTube(c *echo.Context, db *sql.DB) error {
+func RecordYouTube(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record youtube"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -927,14 +932,14 @@ func RecordYouTube(c *echo.Context, db *sql.DB) error {
 	if len(newVideo) != 0 && len(newVideo) != requirement {
 		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
-	if err := model.UpdateYouTube(db, int64(id), newVideo); err != nil {
+	if err := model.UpdateYouTube(ctx, db, int64(id), newVideo); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
 }
 
 // RecordDemozoo handles the post submission for the file artifact Demozoo production link.
-func RecordDemozoo(c *echo.Context, db *sql.DB) error {
+func RecordDemozoo(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record demozoo"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -948,14 +953,14 @@ func RecordDemozoo(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateDemozoo(db, int64(id), newProd); err != nil {
+	if err := model.UpdateDemozoo(ctx, db, int64(id), newProd); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
 }
 
 // RecordPouet handles the post submission for the file artifact Pouet production link.
-func RecordPouet(c *echo.Context, db *sql.DB) error {
+func RecordPouet(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record pouet"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -966,14 +971,14 @@ func RecordPouet(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdatePouet(db, int64(id), newProd); err != nil {
+	if err := model.UpdatePouet(ctx, db, int64(id), newProd); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
 }
 
 // Record16Colors handles the post submission for the file artifact 16 Colors link.
-func Record16Colors(c *echo.Context, db *sql.DB) error {
+func Record16Colors(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record 16colors"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -985,14 +990,14 @@ func Record16Colors(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	link := form.SanitizeURLPath(newURL)
-	if err := model.Update16Colors(db, int64(id), link); err != nil {
+	if err := model.Update16Colors(ctx, db, int64(id), link); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
 }
 
 // RecordGitHub handles the post submission for the file artifact GitHub repository link.
-func RecordGitHub(c *echo.Context, db *sql.DB) error {
+func RecordGitHub(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record github"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1004,14 +1009,14 @@ func RecordGitHub(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	link := form.SanitizeGitHub(newRepo)
-	if err := model.UpdateGitHub(db, int64(id), link); err != nil {
+	if err := model.UpdateGitHub(ctx, db, int64(id), link); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
 }
 
 // RecordRelations handles the post submission for the file artifact releaser relationships.
-func RecordRelations(c *echo.Context, db *sql.DB) error {
+func RecordRelations(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record relations"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1022,14 +1027,14 @@ func RecordRelations(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateRelations(db, int64(id), newRelations); err != nil {
+	if err := model.UpdateRelations(ctx, db, int64(id), newRelations); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
 }
 
 // RecordSites handles the post submission for the file artifact website links.
-func RecordSites(c *echo.Context, db *sql.DB) error {
+func RecordSites(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record sites"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1040,7 +1045,7 @@ func RecordSites(c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateSites(db, int64(id), newSites); err != nil {
+	if err := model.UpdateSites(ctx, db, int64(id), newSites); err != nil {
 		return badRequest(c, err)
 	}
 	return RecordLinks(c)
@@ -1064,7 +1069,7 @@ func RecordLinks(c *echo.Context) error {
 }
 
 // RecordLinksReset handles the post submission for the file artifact links reset.
-func RecordLinksReset(c *echo.Context, db *sql.DB) error {
+func RecordLinksReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record links reset"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1111,7 +1116,7 @@ func RecordLinksReset(c *echo.Context, db *sql.DB) error {
 		}
 	}
 
-	if err := model.UpdateLinks(db,
+	if err := model.UpdateLinks(ctx, db,
 		int64(id), youtube, colors16, github, rels, sites, demozooI, pouetI); err != nil {
 		return badRequest(c, err)
 	}
@@ -1122,7 +1127,7 @@ func RecordLinksReset(c *echo.Context, db *sql.DB) error {
 	return c.HTML(http.StatusOK, strings.Join(links, "<br>"))
 }
 
-func recordEmulateRAM(c *echo.Context, db *sql.DB, name string) error {
+func recordEmulateRAM(ctx context.Context, c *echo.Context, db *sql.DB, name string) error {
 	id, err := ID(c)
 	if err != nil {
 		return badRequest(c, err)
@@ -1130,11 +1135,11 @@ func recordEmulateRAM(c *echo.Context, db *sql.DB, name string) error {
 	value := c.FormValue(name) == "on"
 	switch name {
 	case "emulate-ram-umb":
-		err = model.UpdateEmulateUMB(db, int64(id), value)
+		err = model.UpdateEmulateUMB(ctx, db, int64(id), value)
 	case "emulate-ram-ems":
-		err = model.UpdateEmulateEMS(db, int64(id), value)
+		err = model.UpdateEmulateEMS(ctx, db, int64(id), value)
 	case "emulate-ram-xms":
-		err = model.UpdateEmulateXMS(db, int64(id), value)
+		err = model.UpdateEmulateXMS(ctx, db, int64(id), value)
 	}
 	if err != nil {
 		return badRequest(c, err)
@@ -1142,20 +1147,20 @@ func recordEmulateRAM(c *echo.Context, db *sql.DB, name string) error {
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
 }
 
-func RecordEmulateUMB(c *echo.Context, db *sql.DB) error {
-	return recordEmulateRAM(c, db, "emulate-ram-umb")
+func RecordEmulateUMB(ctx context.Context, c *echo.Context, db *sql.DB) error {
+	return recordEmulateRAM(ctx, c, db, "emulate-ram-umb")
 }
 
-func RecordEmulateEMS(c *echo.Context, db *sql.DB) error {
-	return recordEmulateRAM(c, db, "emulate-ram-ems")
+func RecordEmulateEMS(ctx context.Context, c *echo.Context, db *sql.DB) error {
+	return recordEmulateRAM(ctx, c, db, "emulate-ram-ems")
 }
 
-func RecordEmulateXMS(c *echo.Context, db *sql.DB) error {
-	return recordEmulateRAM(c, db, "emulate-ram-xms")
+func RecordEmulateXMS(ctx context.Context, c *echo.Context, db *sql.DB) error {
+	return recordEmulateRAM(ctx, c, db, "emulate-ram-xms")
 }
 
 // RecordEmulateBroken handles the patch submission for the broken emulation for a file artifact.
-func RecordEmulateBroken(c *echo.Context, db *sql.DB) error {
+func RecordEmulateBroken(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate broken"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1165,14 +1170,14 @@ func RecordEmulateBroken(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, err)
 	}
 	value := c.FormValue("emulate-is-broken") != "on"
-	if err = model.UpdateEmulateBroken(db, int64(id), value); err != nil {
+	if err = model.UpdateEmulateBroken(ctx, db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
 }
 
 // RecordEmulateRunProgram handles the patch submission for the run program emulation.
-func RecordEmulateRunProgram(c *echo.Context, db *sql.DB) error {
+func RecordEmulateRunProgram(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate run prgram"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1186,7 +1191,7 @@ func RecordEmulateRunProgram(c *echo.Context, db *sql.DB) error {
 		return c.HTML(http.StatusOK, "<div id=\"emulate-run-program-feedback\" class=\"d-block invalid-feedback\">"+
 			"The command or name contains invalid characters, syntax or is too long</div>")
 	}
-	if err = model.UpdateEmulateRunProgram(db, int64(id), value); err != nil {
+	if err = model.UpdateEmulateRunProgram(ctx, db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
 	if value == "" {
@@ -1198,7 +1203,7 @@ func RecordEmulateRunProgram(c *echo.Context, db *sql.DB) error {
 }
 
 // RecordEmulateMachine handles the patch submission for the machine and graphic emulation for a file artifact.
-func RecordEmulateMachine(c *echo.Context, db *sql.DB) error {
+func RecordEmulateMachine(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate machine"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1208,14 +1213,14 @@ func RecordEmulateMachine(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, err)
 	}
 	value := c.FormValue("emulate-machine")
-	if err := model.UpdateEmulateMachine(db, int64(id), value); err != nil {
+	if err := model.UpdateEmulateMachine(ctx, db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
 }
 
 // RecordEmulateCPU handles the patch submission for the CPU emulation for a file artifact.
-func RecordEmulateCPU(c *echo.Context, db *sql.DB) error {
+func RecordEmulateCPU(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate cpu"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1225,14 +1230,14 @@ func RecordEmulateCPU(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, err)
 	}
 	value := c.FormValue("emulate-cpu")
-	if err := model.UpdateEmulateCPU(db, int64(id), value); err != nil {
+	if err := model.UpdateEmulateCPU(ctx, db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")
 }
 
 // RecordEmulateSFX handles the patch submission for the audio emulation for a file artifact.
-func RecordEmulateSFX(c *echo.Context, db *sql.DB) error {
+func RecordEmulateSFX(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "record emulate sfx"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1242,7 +1247,7 @@ func RecordEmulateSFX(c *echo.Context, db *sql.DB) error {
 		return badRequest(c, err)
 	}
 	value := c.FormValue("emulate-sfx")
-	if err := model.UpdateEmulateSfx(db, int64(id), value); err != nil {
+	if err := model.UpdateEmulateSfx(ctx, db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "<span class=\"text-success\">✓</span>")

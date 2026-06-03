@@ -78,7 +78,7 @@ func HumanizeCount(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sq
 // LookupSHA384 is a handler for the /uploader/sha384 route. It checks the SHA-384 hash
 // against the database to see if the file already exists, and returns the URI if it does.
 // Otherwise, if it does not exist, it returns an empty string.
-func LookupSHA384(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func LookupSHA384(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "transfer lookup sha384"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -97,7 +97,6 @@ func LookupSHA384(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if !match {
 		return c.String(http.StatusBadRequest, "invalid hash error: "+hash)
 	}
-	ctx := context.Background()
 	uri, err := model.HashFind(ctx, db, hash)
 	if err != nil {
 		slog.Error(msg, slog.String("database", "could not lookup the hash"), slog.Any("error", err))
@@ -108,42 +107,42 @@ func LookupSHA384(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 }
 
 // ImageSubmit is a handler for the /uploader/image route.
-func ImageSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
+func ImageSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-image"
 	c.Set(key+"-operating-system", tags.Image.String())
-	return transfer(sl, c, db, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // IntroSubmit is a handler for the /uploader/intro route.
-func IntroSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
+func IntroSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
-	return transfer(sl, c, db, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // MagazineSubmit is a handler for the /uploader/magazine route.
-func MagazineSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
+func MagazineSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-magazine"
 	c.Set(key+"-category", tags.Mag.String())
-	return transfer(sl, c, db, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // TextSubmit is a handler for the /uploader/text route.
-func TextSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
+func TextSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-text"
-	return transfer(sl, c, db, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // TrainerSubmit is a handler for the /uploader/trainer route.
-func TrainerSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
+func TrainerSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-trainer"
-	return transfer(sl, c, db, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // AdvancedSubmit is a handler for the /uploader/advanced route.
-func AdvancedSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
+func AdvancedSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-advanced"
-	return transfer(sl, c, db, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 func uploader(err error) string {
@@ -156,7 +155,9 @@ func uploader(err error) string {
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
-func transfer(sl *slog.Logger, c *echo.Context, db *sql.DB, key string, download dir.Directory) error {
+func transfer(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, key string, download dir.Directory,
+) error {
 	const msg = "transfer file handler"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -181,7 +182,6 @@ func transfer(sl *slog.Logger, c *echo.Context, db *sql.DB, key string, download
 		return checkHasher(sl, c, name, err)
 	}
 	checksum := hasher.Sum(nil)
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
@@ -562,7 +562,9 @@ func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 	return id, nil
 }
 
-func UploadPreview(sl *slog.Logger, c *echo.Context, preview, thumbnail dir.Directory) error {
+func UploadPreview(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, preview, thumbnail dir.Directory,
+) error {
 	const msg = "htmx upload preview"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -609,7 +611,7 @@ func UploadPreview(sl *slog.Logger, c *echo.Context, preview, thumbnail dir.Dire
 	defer func() { _ = src.Close() }()
 	magic := magicnumber.Find(src)
 	if imagers(magic) {
-		if err := dirs.PictureImager(sl, dst.Name(), upload.unid); err != nil {
+		if err := dirs.PictureImager(ctx, sl, dst.Name(), upload.unid); err != nil {
 			return c.HTML(http.StatusBadRequest,
 				err.Error()+
 					"\nThe uploaded image file could not be converted, "+
@@ -619,7 +621,7 @@ func UploadPreview(sl *slog.Logger, c *echo.Context, preview, thumbnail dir.Dire
 	}
 	if texters(magic) {
 		amigaFont := strings.EqualFold(upload.platform, tags.TextAmiga.String())
-		err = dirs.TextImager(nil, dst.Name(), upload.unid, amigaFont)
+		err = dirs.TextImager(ctx, nil, dst.Name(), upload.unid, amigaFont) // TODO: timeout
 		if err != nil {
 			return badRequest(c, err)
 		}

@@ -209,8 +209,8 @@ func LookVersion(name, flag, match string) error {
 
 // Run looks for the command in the system path and executes it with the arguments.
 // Any output to stderr is logged as a debug message.
-func Run(sl *slog.Logger, name string, arg ...string) error {
-	return run(sl, name, "", arg...)
+func Run(ctx context.Context, sl *slog.Logger, name string, arg ...string) error {
+	return run(ctx, sl, name, "", arg...)
 }
 
 // RunStdOut looks for the command in the system path and executes it with the arguments.
@@ -249,11 +249,11 @@ func RunQuiet(name string, arg ...string) error {
 // RunWorkdir looks for the command in the system path and executes it with the arguments.
 // An optional working directory is set for the command.
 // Any output to stderr is logged as a debug message.
-func RunWorkdir(sl *slog.Logger, name, wdir string, arg ...string) error {
-	return run(sl, name, wdir, arg...)
+func RunWorkdir(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string) error {
+	return run(ctx, sl, name, wdir, arg...)
 }
 
-func run(sl *slog.Logger, name, wdir string, arg ...string) error {
+func run(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string) error {
 	const msg = "command run"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -261,8 +261,9 @@ func run(sl *slog.Logger, name, wdir string, arg ...string) error {
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
-	defer cancel()
+	// TODO:
+	//ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
+	//defer cancel()
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Dir = wdir
 	p, err := cmd.CombinedOutput()

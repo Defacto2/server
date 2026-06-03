@@ -151,8 +151,8 @@ func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB
 			slog.Any("fatal", err))
 	}
 	group := html3.Routes(sl, e, db)
-	group.GET(Downloader, func(ctx *echo.Context) error {
-		return c.downloader(ctx, sl, db)
+	group.GET(Downloader, func(ec *echo.Context) error {
+		return c.downloader(ctx, sl, ec, db)
 	})
 	return e
 }
@@ -492,16 +492,16 @@ func (c *Configuration) address(port uint16) string {
 }
 
 // downloader route for the file download handler under the html3 group.
-func (c *Configuration) downloader(ctx *echo.Context, sl *slog.Logger, db *sql.DB) error {
+func (c *Configuration) downloader(ctx context.Context, sl *slog.Logger, ec *echo.Context, db *sql.DB) error {
 	const msg = "downloader htm3 group handler"
-	if err := panics.SCD(sl, ctx, db); err != nil {
+	if err := panics.SCD(sl, ec, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := download.Download{
 		Inline: false,
 		Dir:    dir.Directory(c.Environment.AbsDownload),
 	}
-	if err := d.HTTPSend(sl, ctx, db); err != nil {
+	if err := d.HTTPSend(ctx, sl, ec, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return nil

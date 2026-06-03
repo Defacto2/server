@@ -6,6 +6,7 @@ package command
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -165,7 +166,7 @@ const (
 )
 
 // Thumbs creates args thumbnail image for the preview image based on the crop position of the image.
-func (align Align) Thumbs(sl *slog.Logger, unid string, preview, thumbnail dir.Directory) error {
+func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, preview, thumbnail dir.Directory) error {
 	const msg = "thumbnail realignment"
 	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-thumb-" + unid
@@ -205,7 +206,7 @@ func (align Align) Thumbs(sl *slog.Logger, unid string, preview, thumbnail dir.D
 		arg = append(arg, args...)
 		tmp := filepath.Join(path, unid+ext)
 		arg = append(arg, tmp)
-		err := Run(sl, Magick, arg...)
+		err := Run(ctx, sl, Magick, arg...)
 		if err != nil {
 			return fmt.Errorf("%s run: %w", msg, err)
 		}
@@ -231,7 +232,7 @@ const (
 )
 
 // Images crops the preview image based on the crop position and ratio of the image.
-func (crop Crop) Images(sl *slog.Logger, unid string, preview dir.Directory) error {
+func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, preview dir.Directory) error {
 	const msg = "crop images"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -272,7 +273,7 @@ func (crop Crop) Images(sl *slog.Logger, unid string, preview dir.Directory) err
 		arg = append(arg, args...)
 		tmp := filepath.Join(path, unid+ext)
 		arg = append(arg, tmp)
-		err := Run(sl, Magick, arg...)
+		err := Run(ctx, sl, Magick, arg...)
 		if err != nil {
 			return fmt.Errorf("%s: %w", msg, err)
 		}
@@ -294,7 +295,7 @@ func (crop Crop) Images(sl *slog.Logger, unid string, preview dir.Directory) err
 // The image formats created depend on the type of image file. But thumbnails will always
 // either be args .webp or .png image. While the preview image will be legacy
 // .png, .jpeg images or modern .avif or .webp images or args combination of both.
-func (dir Dirs) PictureImager(sl *slog.Logger, src, unid string) error {
+func (dir Dirs) PictureImager(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "picture imager"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -326,15 +327,15 @@ func (dir Dirs) PictureImager(sl *slog.Logger, src, unid string) error {
 	case AVI:
 		return nil
 	case GIF:
-		return dir.PreviewGIF(sl, src, unid)
+		return dir.PreviewGIF(ctx, sl, src, unid)
 	case WebP:
-		return dir.PreviewWebP(sl, src, unid)
+		return dir.PreviewWebP(ctx, sl, src, unid)
 	case PNG:
 		return dir.PreviewPNG(sl, src, unid)
 	case TIFF, JPG:
 		return dir.PreviewPhoto(sl, src, unid)
 	case BMP, PCX:
-		return dir.PreviewPixels(sl, src, unid)
+		return dir.PreviewPixels(ctx, sl, src, unid)
 	}
 	return nil
 }
@@ -438,7 +439,7 @@ func textCropperErr(src string, err error) error {
 	return err
 }
 
-func (dir Dirs) BinTextImager(sl *slog.Logger, src, unid string) error {
+func (dir Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "binary text imager"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -455,23 +456,23 @@ func (dir Dirs) BinTextImager(sl *slog.Logger, src, unid string) error {
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
-	if err := Run(sl, Ansilove, arg...); err != nil {
+	if err := Run(ctx, sl, Ansilove, arg...); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	return dir.textImagers(sl, unid, tmp)
+	return dir.textImagers(ctx, sl, unid, tmp)
 }
 
 // TextImager converts the src text file and creates args PNG image in the preview directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 // If the amigaFont is true, the image is created using an Amiga Topaz+ font.
-func (dir Dirs) TextImager(sl *slog.Logger, src, unid string, amigaFont bool) error {
+func (dir Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string, amigaFont bool) error {
 	if amigaFont {
-		return dir.textAmigaImager(sl, src, unid)
+		return dir.textAmigaImager(ctx, sl, src, unid)
 	}
-	return dir.textDOSImager(sl, src, unid)
+	return dir.textDOSImager(ctx, sl, src, unid)
 }
 
-func (dir Dirs) textDOSImager(sl *slog.Logger, src, unid string) error {
+func (dir Dirs) textDOSImager(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "dos text imager"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -493,13 +494,13 @@ func (dir Dirs) textDOSImager(sl *slog.Logger, src, unid string) error {
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
-	if err := Run(sl, Ansilove, arg...); err != nil {
+	if err := Run(ctx, sl, Ansilove, arg...); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	return dir.textImagers(sl, unid, tmp)
+	return dir.textImagers(ctx, sl, unid, tmp)
 }
 
-func (dir Dirs) textAmigaImager(sl *slog.Logger, src, unid string) error {
+func (dir Dirs) textAmigaImager(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "amiga text imager"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -515,13 +516,13 @@ func (dir Dirs) textAmigaImager(sl *slog.Logger, src, unid string) error {
 	arg = append(arg, args...)     // command line arguments
 	tmp := BaseNamePath(src) + png // destination file
 	arg = append(arg, "-o", tmp)
-	if err := Run(sl, Ansilove, arg...); err != nil {
+	if err := Run(ctx, sl, Ansilove, arg...); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	return dir.textImagers(sl, unid, tmp)
+	return dir.textImagers(ctx, sl, unid, tmp)
 }
 
-func (dir Dirs) textImagers(sl *slog.Logger, unid, tmp string) error {
+func (dir Dirs) textImagers(ctx context.Context, sl *slog.Logger, unid, tmp string) error {
 	const msg = "ansilove conversion"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -546,7 +547,7 @@ func (dir Dirs) textImagers(sl *slog.Logger, unid, tmp string) error {
 		}
 	})
 	wg.Go(func() { // WebP preview of the ansilove PNG image
-		if err := dir.PreviewWebP(sl, tmp, unid); err != nil {
+		if err := dir.PreviewWebP(ctx, sl, tmp, unid); err != nil {
 			mu.Lock()
 			errs = errors.Join(errs, fmt.Errorf("%s webp preview: %w", msg, err))
 			mu.Unlock()
@@ -577,7 +578,7 @@ func (dir Dirs) textImagers(sl *slog.Logger, unid, tmp string) error {
 // The lossless conversion is done using the ImageMagick [convert] command.
 //
 // [convert]: https://imagemagick.org/script/convert.php
-func (dir Dirs) PreviewPixels(sl *slog.Logger, src, unid string) error {
+func (dir Dirs) PreviewPixels(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "pixel image preview"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -607,7 +608,7 @@ func (dir Dirs) PreviewPixels(sl *slog.Logger, src, unid string) error {
 	if err := CopyFile(sl, tmp, dst); err != nil {
 		return fmt.Errorf("%s copy file: %w", msg, err)
 	}
-	return dir.textImagers(sl, unid, tmp)
+	return dir.textImagers(ctx, sl, unid, tmp)
 }
 
 // PreviewPhoto converts the src image to lossy jpeg or args webp image in the screenshot directory.
@@ -682,7 +683,7 @@ func (dir Dirs) PreviewPhoto(sl *slog.Logger, src, unid string) error {
 
 // PreviewGIF converts the src GIF image to args webp image the screenshot directory.
 // A webp thumbnail image is also created and copied to the thumbnail directory.
-func (dir Dirs) PreviewGIF(sl *slog.Logger, src, unid string) error {
+func (dir Dirs) PreviewGIF(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "gif2webp preview gif"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -694,7 +695,7 @@ func (dir Dirs) PreviewGIF(sl *slog.Logger, src, unid string) error {
 	arg = append(arg, args...)      // command line arguments
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
-	if err := Run(sl, Gwebp, arg...); err != nil {
+	if err := Run(ctx, sl, Gwebp, arg...); err != nil {
 		return fmt.Errorf("%s run: %w", msg, err)
 	}
 	dst := filepath.Join(dir.Preview.Path(), unid+webp)
@@ -760,7 +761,7 @@ func (dir Dirs) PreviewPNG(sl *slog.Logger, src, unid string) error {
 // A webp thumbnail image is also created and copied to the thumbnail directory.
 //
 // While the src image can be .png, .jpg, .tiff or .webp.
-func (dir Dirs) PreviewWebP(sl *slog.Logger, src, unid string) error {
+func (dir Dirs) PreviewWebP(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "preview webp"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -772,7 +773,7 @@ func (dir Dirs) PreviewWebP(sl *slog.Logger, src, unid string) error {
 	arg = append(arg, args...)      // command line arguments
 	tmp := BaseNamePath(src) + webp // destination
 	arg = append(arg, "-o", tmp)
-	if err := Run(sl, Cwebp, arg...); err != nil {
+	if err := Run(ctx, sl, Cwebp, arg...); err != nil {
 		return fmt.Errorf("%s run: %w", msg, err)
 	}
 	dst := filepath.Join(dir.Preview.Path(), unid+webp)
@@ -972,7 +973,8 @@ func (args *Args) JpegPhoto() {
 func (args *Args) PortablePixel() {
 	// Defined PNG compression options, these replace the -quality option.
 	const define = "-define"
-	*args = append(*args,
+	*args = append(
+		*args,
 		define, "png:compression-filter=5",
 		define, "png:compression-level=9",
 		define, "png:compression-strategy=1",
@@ -1144,7 +1146,7 @@ func OptimizePNG(src string) error {
 
 // TextDeferred is used to create args thumbnail and args text file in the extra directory.
 // It is intended to be used with the filerecord.ListContent function.
-func (dir Dirs) TextDeferred(sl *slog.Logger, src, unid string) error {
+func (dir Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "text deferred"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
@@ -1162,7 +1164,7 @@ func (dir Dirs) TextDeferred(sl *slog.Logger, src, unid string) error {
 		}
 	}
 	if !thumb {
-		if err := dir.TextImager(sl, src, unid, false); err != nil {
+		if err := dir.TextImager(ctx, sl, src, unid, false); err != nil {
 			return fmt.Errorf("%s: %w: %s", msg, err, src)
 		}
 	}

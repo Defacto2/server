@@ -1,6 +1,7 @@
 package command_test
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -42,37 +43,37 @@ func TestThumbs(t *testing.T) {
 
 func TestAlign(t *testing.T) {
 	t.Parallel()
-	err := command.Top.Thumbs(nil, "", "", "")
+	err := command.Top.Thumbs(context.TODO(), nil, "", "", "")
 	be.Err(t, err)
 }
 
 func TestCrop(t *testing.T) {
 	t.Parallel()
 	d := logs.Discard()
-	err := command.OneTwo.Images(d, "", "")
+	err := command.OneTwo.Images(context.TODO(), d, "", "")
 	be.Err(t, err)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = command.OneTwo.Images(d, "", dir.Directory(wd))
+	err = command.OneTwo.Images(context.TODO(), d, "", dir.Directory(wd))
 	be.Err(t, err)
 }
 
 func TestDirs(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{}
-	err := dir.PictureImager(nil, "", "")
+	err := dir.PictureImager(context.TODO(), nil, "", "")
 	be.Err(t, err)
-	err = dir.TextImager(nil, "", "", false)
+	err = dir.TextImager(context.TODO(), nil, "", "", false)
 	be.Err(t, err)
-	err = dir.TextImager(nil, "", "", true)
+	err = dir.TextImager(context.TODO(), nil, "", "", true)
 	be.Err(t, err)
 	err = dir.PreviewPhoto(nil, "", "")
 	be.Err(t, err)
-	err = dir.PreviewGIF(nil, "", "")
+	err = dir.PreviewGIF(context.TODO(), nil, "", "")
 	be.Err(t, err)
 	err = dir.PreviewPNG(nil, "", "")
 	be.Err(t, err)
-	err = dir.PreviewWebP(nil, "", "")
+	err = dir.PreviewWebP(context.TODO(), nil, "", "")
 	be.Err(t, err)
 	d := logs.Discard()
 	err = dir.ThumbPixels(d, "", "")
