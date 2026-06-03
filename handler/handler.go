@@ -248,7 +248,7 @@ func (c *Configuration) TemplRegistry(ctx context.Context, sl *slog.Logger, db *
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
-	src := html3.Templates(db, sl, c.View)
+	src := html3.Templates(ctx, db, sl, c.View)
 	maps.Copy(tmpls, src)
 	src = htmx.Templates(c.View)
 	maps.Copy(tmpls, src)

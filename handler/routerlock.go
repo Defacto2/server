@@ -42,16 +42,16 @@ func (c *Configuration) lock(ctx context.Context, sl *slog.Logger, e *echo.Echo,
 	creator(lock, db)
 	date(lock, db)
 	editor(ctx, sl, lock, db, dirs)
-	fixers(sl, lock, db)
+	fixers(ctx, sl, lock, db)
 	get(sl, lock, db, dirs)
 	online(lock, db)
-	search(sl, lock, db)
+	search(ctx, sl, lock, db)
 	return e
 }
 
-func fixers(sl *slog.Logger, g *echo.Group, db *sql.DB) {
+func fixers(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	fixers := func(c *echo.Context) error {
-		return app.Fixers(sl, c, db)
+		return app.Fixers(ctx, sl, c, db)
 	}
 	fixID := func(c *echo.Context) error {
 		return app.FixNumericSuffix(sl, c, db)
@@ -127,7 +127,7 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 		panic(fmt.Errorf("%w for editor router", panics.ErrNoEchoE))
 	}
 	g.DELETE("/delete/forever/:key", func(c *echo.Context) error {
-		return htmx.DeleteForever(sl, c, db, c.Param("key"))
+		return htmx.DeleteForever(ctx, sl, c, db, c.Param("key"))
 	})
 	g.PATCH("/16colors", func(c *echo.Context) error {
 		return htmx.Record16Colors(c, db)
@@ -372,7 +372,7 @@ func online(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func search(sl *slog.Logger, g *echo.Group, db *sql.DB) {
+func search(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for search router", panics.ErrNoEchoE))
 	}
@@ -381,6 +381,6 @@ func search(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 		return app.SearchID(sl, ec)
 	})
 	search.POST("/id", func(ec *echo.Context) error {
-		return htmx.SearchByID(sl, ec, db)
+		return htmx.SearchByID(ctx, sl, ec, db)
 	})
 }

@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app"
@@ -15,8 +16,9 @@ func TestArtifact404(t *testing.T) {
 
 func TestArtifact(t *testing.T) {
 	t.Parallel()
+	ctx := context.TODO()
 	dir := app.Dirs{}
-	err := dir.Artifact(nil, newContext(), nil, false)
+	err := dir.Artifact(ctx, nil, newContext(), nil, false)
 	be.Err(t, err)
 }
 

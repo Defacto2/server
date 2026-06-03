@@ -511,29 +511,28 @@ func Sortings() map[Sort]string {
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(db *sql.DB, sl *slog.Logger, fs embed.FS) map[string]*template.Template {
+func Templates(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	t["html3_index"] = index(db, sl, fs)
-	t["html3_all"] = list(db, sl, fs)
-	t["html3_art"] = list(db, sl, fs)
-	t["html3_documents"] = list(db, sl, fs)
-	t["html3_software"] = list(db, sl, fs)
-	t["html3_groups"] = listGroups(db, sl, fs)
-	t["html3_group"] = list(db, sl, fs)
-	t[string(tag)] = listTags(db, sl, fs)
-	t["html3_platform"] = list(db, sl, fs)
-	t["html3_category"] = list(db, sl, fs)
-	t["html3_error"] = httpErr(db, sl, fs)
+	t["html3_index"] = index(ctx, db, sl, fs)
+	t["html3_all"] = list(ctx, db, sl, fs)
+	t["html3_art"] = list(ctx, db, sl, fs)
+	t["html3_documents"] = list(ctx, db, sl, fs)
+	t["html3_software"] = list(ctx, db, sl, fs)
+	t["html3_groups"] = listGroups(ctx, db, sl, fs)
+	t["html3_group"] = list(ctx, db, sl, fs)
+	t[string(tag)] = listTags(ctx, db, sl, fs)
+	t["html3_platform"] = list(ctx, db, sl, fs)
+	t["html3_category"] = list(ctx, db, sl, fs)
+	t["html3_error"] = httpErr(ctx, db, sl, fs)
 	return t
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func TemplateFuncMap(db *sql.DB, sl *slog.Logger) template.FuncMap {
+func TemplateFuncMap(ctx context.Context, db *sql.DB, sl *slog.Logger) template.FuncMap {
 	const msg = "html3 template func map"
 	if err := panics.SD(sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	ctx := context.Background()
 	t := tags.T{
 		List: nil,
 		Mu:   sync.RWMutex{},

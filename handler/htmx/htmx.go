@@ -244,7 +244,7 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 }
 
 // DeleteForever is a handler for the /delete/forever route.
-func DeleteForever(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
+func DeleteForever(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	const msg = "htmx delete forever"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -253,7 +253,6 @@ func DeleteForever(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) erro
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		sl.Error(msg, slog.String("database", "could not start transaction"), slog.Any("error", err))
@@ -561,13 +560,12 @@ func PouetSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Dire
 }
 
 // SearchByID is a handler for the /editor/search/id route.
-func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func SearchByID(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "search by id context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 50
-	ctx := context.Background()
 	ids := []int{}
 	uuids := []uuid.UUID{}
 	search := c.FormValue("htmx-search")

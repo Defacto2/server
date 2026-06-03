@@ -84,7 +84,9 @@ type Dirs struct {
 }
 
 // Artifact is the handler for the of the file record.
-func (dir Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB, readonly bool) error {
+func (dir Dirs) Artifact(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, readonly bool,
+) error {
 	// NOTE: limit to 200 items for display, "view content" + "Download content", high limits take longer to render.
 	const maxArchiveItems = 200
 	// NOTE: skip the rendering of readme text files that are larger than 1MB.
@@ -96,7 +98,7 @@ func (dir Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB, readonly 
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "artifact"
-	art, err := dir.artifactByURI(sl, c, db)
+	art, err := dir.artifactByURI(ctx, sl, c, db)
 	if art404 := art == nil || err != nil; art404 {
 		return err
 	}
@@ -588,8 +590,9 @@ func (dir Dirs) makeTextfileImgs(sl *slog.Logger,
 }
 
 // artifactByURI returns the URI artifact record from the file table.
-func (dir Dirs) artifactByURI(sl *slog.Logger, c *echo.Context, db *sql.DB) (*models.File, error) {
-	ctx := context.Background()
+func (dir Dirs) artifactByURI(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
+) (*models.File, error) {
 	var art *models.File
 	var err error
 	if sess.Editor(c) {

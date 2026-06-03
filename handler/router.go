@@ -49,7 +49,7 @@ func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *ech
 	if err != nil {
 		return nil, fmt.Errorf("%s nonce session key: %w", msg, err)
 	}
-	e = c.signin(sl, e, nonce)
+	e = c.signin(ctx, sl, e, nonce)
 	e = c.custom404(sl, e)
 	e = c.debugInfo(e)
 	e = c.static(e)
@@ -57,7 +57,7 @@ func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *ech
 	e = c.font(e, public)
 	e = c.embed(e, public)
 	e = c.search(sl, e, db)
-	e = c.website(sl, e, db, dirs)
+	e = c.website(ctx, sl, e, db, dirs)
 	e = c.api(sl, e, db, public)
 	e = c.lock(ctx, sl, e, db, dirs)
 	return e, nil
@@ -262,7 +262,9 @@ func (c *Configuration) api(sl *slog.Logger, e *echo.Echo, db *sql.DB, public em
 }
 
 // website routes for the main site.
-func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo { //nolint:funlen
+func (c *Configuration) website(
+	ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs,
+) *echo.Echo { //nolint:funlen
 	const msg = "website routes"
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -275,7 +277,7 @@ func (c *Configuration) website(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs 
 		}
 		dirs.URI = uri
 		readonly := bool(c.Environment.ReadOnly)
-		return dirs.Artifact(sl, ec, db, readonly)
+		return dirs.Artifact(ctx, sl, ec, db, readonly)
 	}
 	releaser := func(ec *echo.Context) error {
 		uri := ec.Param("id")
@@ -463,7 +465,9 @@ func (c *Configuration) search(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.
 }
 
 // signin for operators.
-func (c *Configuration) signin(sl *slog.Logger, e *echo.Echo, nonce string) *echo.Echo {
+func (c *Configuration) signin(
+	ctx context.Context, sl *slog.Logger, e *echo.Echo, nonce string,
+) *echo.Echo {
 	const msg = "signin routes"
 	if err := panics.SE(sl, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -484,7 +488,7 @@ func (c *Configuration) signin(sl *slog.Logger, e *echo.Echo, nonce string) *ech
 	})
 	google := signings.Group("/google")
 	google.POST("/callback", func(ec *echo.Context) error {
-		return app.GoogleCallback(sl, ec,
+		return app.GoogleCallback(ctx, sl, ec,
 			c.Environment.GoogleClientID.String(),
 			c.Environment.SessionMaxAge.Int(),
 			c.Environment.GoogleAccounts...)

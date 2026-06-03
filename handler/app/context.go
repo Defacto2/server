@@ -1064,7 +1064,9 @@ func GetPouet(c *echo.Context, db *sql.DB, pouetID int, defacto2UNID string, dow
 // the [Google ID token].
 //
 // [Google ID token]: https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
-func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge int, accounts ...[48]byte) error {
+func GoogleCallback(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, clientID string, maxAge int, accounts ...[48]byte,
+) error {
 	const msg = "google callback context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1089,7 +1091,6 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 
 	// Create a new token verifier.
 	// https://pkg.go.dev/google.golang.org/api/idtoken
-	ctx := context.Background()
 	validator, err := idtoken.NewValidator(ctx)
 	if err != nil {
 		return BadRequestErr(sl, c, name, err)
@@ -2241,7 +2242,7 @@ func Titles(sl *slog.Logger, c *echo.Context) error {
 	return nil
 }
 
-func Fixers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func Fixers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "fixers context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -2253,7 +2254,7 @@ func Fixers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	data["lead"] = "Artifact fixes using batch-friendly tools."
 	data["title"] = "Fixers"
 	// Get files with numeric suffixes
-	fixData, err := fix.GetFilesWithNumericSuffix(c.Request().Context(), db)
+	fixData, err := fix.GetFilesWithNumericSuffix(ctx, db)
 	if err != nil {
 		sl.Error("failed to get files with numeric suffixes", slog.String("error", err.Error()))
 		// Don't return error, just continue without the data

@@ -60,9 +60,10 @@ func TestDBConnections(t *testing.T) {
 
 func TestDeleteForever(t *testing.T) {
 	t.Parallel()
-	err := htmx.DeleteForever(nil, newContext(), nil, "")
+	ctx := context.TODO()
+	err := htmx.DeleteForever(ctx, nil, newContext(), nil, "")
 	be.Err(t, err)
-	err = htmx.DeleteForever(nil, newContext(), nil, "1")
+	err = htmx.DeleteForever(ctx, nil, newContext(), nil, "1")
 	be.Err(t, err)
 }
 
@@ -96,7 +97,8 @@ func TestPouetSubmit(t *testing.T) {
 
 func TestSearchByID(t *testing.T) {
 	t.Parallel()
-	err := htmx.SearchByID(nil, newContext(), nil)
+	ctx := context.TODO()
+	err := htmx.SearchByID(ctx, nil, newContext(), nil)
 	be.Err(t, err)
 }
 

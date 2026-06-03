@@ -41,7 +41,8 @@ func TestGlobTo(t *testing.T) {
 
 func TestTemplates(t *testing.T) {
 	t.Parallel()
-	x := html3.Templates(nil, nil, embed.FS{})
+	ctx := context.TODO()
+	x := html3.Templates(ctx, nil, nil, embed.FS{})
 	be.Equal(t, len(x), 11)
 }
 
