@@ -523,12 +523,11 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 }
 
 // Counter returns the statistics for the artifacts categories.
-func Counter(db *sql.DB) (Stats, error) {
+func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
 	const msg = "artifacts categories counter"
 	if db == nil {
 		return Stats{}, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	counter := newStats()
 	if err := counter.Get(ctx, db); err != nil {
 		return Stats{}, fmt.Errorf("%s get %w", msg, err)

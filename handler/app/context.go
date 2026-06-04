@@ -515,13 +515,13 @@ func BrokenTexts(sl *slog.Logger, c *echo.Context) error {
 }
 
 // Checksum is the handler for the Checksum file record page.
-func Checksum(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
+func Checksum(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	const msg = "checksum context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const uri = "sum"
-	if err := download.Checksum(c, db, id); err != nil {
+	if err := download.Checksum(ctx, c, db, id); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(sl, c, uri, err)
 		}
@@ -771,7 +771,9 @@ func orphaneder(data map[string]any, conf config.Config) map[string]any {
 // mounted as a C: hard drive in the emulation. js-dos only supports common zip compression methods,
 // so this func first attempts to offer a re-archived zip file found in the extra directory, and
 // only if that fails does it offer the original download file.
-func DownloadJsDos(sl *slog.Logger, c *echo.Context, db *sql.DB, extra, downl dir.Directory) error {
+func DownloadJsDos(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, extra, downl dir.Directory,
+) error {
 	const msg = "download jsdos context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -781,7 +783,7 @@ func DownloadJsDos(sl *slog.Logger, c *echo.Context, db *sql.DB, extra, downl di
 		Download: downl,
 	}
 	const uri = "jsdos"
-	if err := e.HTTPSend(c, db); err != nil {
+	if err := e.HTTPSend(ctx, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(sl, c, uri, err)
 		}
@@ -852,7 +854,7 @@ func FTP(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) erro
 }
 
 // Categories is the handler for the artifact categories page.
-func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error {
+func Categories(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error {
 	const msg = "categories context"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -867,7 +869,7 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
 	data["stats"] = stats
 	data["counter"] = fileslice.Statistics()
-	data, err := fileWStats(db, data, stats)
+	data, err := fileWStats(ctx, db, data, stats)
 	if err != nil {
 		sl.Warn("context categories", slog.Any("error", err))
 		data["databaseErr"] = true
@@ -880,14 +882,14 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 }
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
-func fileWStats(db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
+func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
 	if data == nil {
 		data = make(map[string]any) // avoid nil map
 	}
 	if !stats {
 		return data, nil
 	}
-	c, err := fileslice.Counter(db)
+	c, err := fileslice.Counter(ctx, db)
 	if err != nil {
 		return data, fmt.Errorf("counter: %w", err)
 	}
@@ -1011,7 +1013,7 @@ func ForApproval(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func GetDemozooParam(c *echo.Context, db *sql.DB, download dir.Directory) error {
+func GetDemozooParam(ctx context.Context, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "get demozoo param context"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1029,31 +1031,35 @@ func GetDemozooParam(c *echo.Context, db *sql.DB, download dir.Directory) error 
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = unid
-	return got.Download(c, db, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 //
 // This function is a wrapper for the remote.DemozooLink.Download method.
-func GetDemozoo(c *echo.Context, db *sql.DB, demozooID int, defacto2UNID string, download dir.Directory) error {
+func GetDemozoo(
+	ctx context.Context, c *echo.Context, db *sql.DB, demozooID int, defacto2UNID string, download dir.Directory,
+) error {
 	got := remote.DemozooLink{ //nolint:exhaustruct
 		ID:   demozooID,
 		UUID: defacto2UNID,
 	}
-	return got.Download(c, db, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GetPouet fetches the download link from Pouet and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Pouet record API data.
 //
 // This function is a wrapper for the remote.PouetLink.Download method.
-func GetPouet(c *echo.Context, db *sql.DB, pouetID int, defacto2UNID string, download dir.Directory) error {
+func GetPouet(
+	ctx context.Context, c *echo.Context, db *sql.DB, pouetID int, defacto2UNID string, download dir.Directory,
+) error {
 	got := remote.PouetLink{ //nolint:exhaustruct
 		ID:   pouetID,
 		UUID: defacto2UNID,
 	}
-	return got.Download(c, db, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
@@ -1615,7 +1621,7 @@ func PouetCache(c *echo.Context, data string) error {
 }
 
 // ProdPouet is the handler for the Pouet prod JSON page.
-func ProdPouet(c *echo.Context, id string) error {
+func ProdPouet(ctx context.Context, c *echo.Context, id string) error {
 	const msg = "prod pouet context"
 	if c == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
@@ -1625,7 +1631,7 @@ func ProdPouet(c *echo.Context, id string) error {
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-	if _, err = p.Get(i); err != nil {
+	if _, err = p.Get(ctx, i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
 	if err = c.JSON(http.StatusOK, p); err != nil {
@@ -1635,7 +1641,7 @@ func ProdPouet(c *echo.Context, id string) error {
 }
 
 // ProdZoo is the handler for the Demozoo production JSON page.
-func ProdZoo(c *echo.Context, id string) error {
+func ProdZoo(ctx context.Context, c *echo.Context, id string) error {
 	const msg = "prod zoo context"
 	if c == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
@@ -1645,7 +1651,7 @@ func ProdZoo(c *echo.Context, id string) error {
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-	if code, err := prod.Get(i); err != nil {
+	if code, err := prod.Get(ctx, i); err != nil {
 		return c.String(code, err.Error())
 	}
 	if err = c.JSON(http.StatusOK, prod); err != nil {
@@ -2268,7 +2274,7 @@ func Fixers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 // FixNumericSuffix handles the fixing of numeric suffixes in filenames.
 //
 //nolint:funlen // Complex handler with error handling and database operations
-func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "fix numeric suffix"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -2288,7 +2294,7 @@ func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	// Get the file from the database using the standard One function
 	// Use deleted=true to allow fixing soft-deleted files
-	file, err := model.One(c.Request().Context(), db, true, int(fileID))
+	file, err := model.One(ctx, db, true, int(fileID))
 	if err != nil {
 		sl.Error("failed to find file in fix handler",
 			slog.String("error", err.Error()),
@@ -2329,7 +2335,7 @@ func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	// Update the filename in the database
 	file.Filename = null.StringFrom(baseFilename)
-	_, err = file.Update(c.Request().Context(), db, boil.Infer())
+	_, err = file.Update(ctx, db, boil.Infer())
 	if err != nil {
 		return fmt.Errorf("%s: failed to update filename: %w", msg, err)
 	}
@@ -2404,7 +2410,7 @@ func TheScene(sl *slog.Logger, c *echo.Context) error {
 }
 
 // VotePouet is the handler for the Pouet production votes JSON page.
-func VotePouet(sl *slog.Logger, c *echo.Context, id string) error {
+func VotePouet(ctx context.Context, sl *slog.Logger, c *echo.Context, id string) error {
 	const msg = "vote pouet context"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -2427,7 +2433,7 @@ func VotePouet(sl *slog.Logger, c *echo.Context, id string) error {
 	if sl != nil {
 		sl.Debug("vote pouet", slog.String("cache miss for pouet id", id))
 	}
-	if err = pv.Votes(i); err != nil {
+	if err = pv.Votes(ctx, i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
 	if err = c.JSON(http.StatusOK, pv); err != nil {

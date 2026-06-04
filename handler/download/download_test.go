@@ -22,7 +22,7 @@ func newContext() *echo.Context {
 
 func TestChecksum(t *testing.T) {
 	t.Parallel()
-	err := download.Checksum(newContext(), nil, "")
+	err := download.Checksum(context.TODO(), newContext(), nil, "")
 	be.Err(t, err)
 }
 
@@ -37,6 +37,6 @@ func TestHTTPSend(t *testing.T) {
 func TestEZHTTPSend(t *testing.T) {
 	t.Parallel()
 	ez := download.ExtraZip{}
-	err := ez.HTTPSend(newContext(), nil)
+	err := ez.HTTPSend(context.TODO(), newContext(), nil)
 	be.Err(t, err)
 }

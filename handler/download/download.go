@@ -33,12 +33,11 @@ var (
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
-func Checksum(c *echo.Context, db *sql.DB, id string) error {
+func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error {
 	const msg = "download checksum"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	ctx := context.Background()
 	art, err := model.OneFileByKey(ctx, db, id)
 	if err != nil {
 		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
@@ -201,13 +200,12 @@ type ExtraZip struct {
 // otherwise it will serve the standard download file.
 //
 // This is used for obsolete file types that have been re-archived into a standard zip file.
-func (e ExtraZip) HTTPSend(c *echo.Context, db *sql.DB) error {
+func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "extra zip http send"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key := c.Param("id")
-	ctx := context.Background()
 	art, err := model.OneFileByKey(ctx, db, key)
 	switch {
 	case err != nil && sess.Editor(c):

@@ -29,7 +29,7 @@ func TestRoutes(t *testing.T) {
 	e := echo.New()
 	sl := logs.Discard()
 	var db sql.DB
-	g := html3.Routes(sl, e, &db)
+	g := html3.Routes(context.TODO(), sl, e, &db)
 	be.True(t, g != nil)
 }
 
@@ -76,29 +76,30 @@ func TestLeadInt(t *testing.T) {
 
 func TestQuery(t *testing.T) {
 	t.Parallel()
-	a, b, c, fs, err := html3.Query(newContext(), nil, -1, -1)
+	ctx := context.TODO()
+	a, b, c, fs, err := html3.Query(ctx, newContext(), nil, -1, -1)
 	be.True(t, a == 0)
 	be.True(t, b == 0)
 	be.True(t, c == 0)
 	be.Equal(t, len(fs), 0)
 	be.Err(t, err)
-	a, b, c, fs, err = html3.Query(newContext(), nil, html3.Everything, -1)
+	a, b, c, fs, err = html3.Query(ctx, newContext(), nil, html3.Everything, -1)
 	be.True(t, a == 0)
 	be.True(t, b == 0)
 	be.True(t, c == 0)
 	be.Equal(t, len(fs), 0)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.BySection, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.BySection, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.ByPlatform, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.ByPlatform, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.ByGroup, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.ByGroup, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsArt, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.AsArt, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsDocument, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.AsDocument, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsSoftware, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.AsSoftware, -1)
 	be.Err(t, err)
 }
 

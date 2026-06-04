@@ -279,8 +279,9 @@ func Pagi(page, maxPage int) (int, int, int) {
 
 // Query returns a slice of records based on the RecordsBy grouping.
 // The three integers returned are the limit, the total count of records and the file sizes summed.
-func Query(c *echo.Context, db *sql.DB, tt RecordsBy, offset int) (int, int, int64, models.FileSlice, error) {
-	ctx := context.Background()
+func Query(
+	ctx context.Context, c *echo.Context, db *sql.DB, tt RecordsBy, offset int,
+) (int, int, int64, models.FileSlice, error) {
 	clause := c.QueryString()
 	switch tt {
 	case Everything:

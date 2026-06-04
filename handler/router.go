@@ -264,9 +264,9 @@ func (c *Configuration) api(
 }
 
 // website routes for the main site.
-func (c *Configuration) website(
+func (c *Configuration) website( //nolint:funlen
 	ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs,
-) *echo.Echo { //nolint:funlen
+) *echo.Echo {
 	const msg = "website routes"
 	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -349,7 +349,7 @@ func (c *Configuration) website(
 	})
 	s.GET("/f/:id", artifact)
 	s.GET("/file/stats", func(ec *echo.Context) error {
-		return app.Categories(sl, ec, db, true)
+		return app.Categories(ctx, sl, ec, db, true)
 	})
 	s.GET("/files/:id/:page", func(ec *echo.Context) error {
 		switch ec.Param("id") {
@@ -366,7 +366,7 @@ func (c *Configuration) website(
 		return app.Artifacts(ctx, sl, ec, db, ec.Param("id"), "1")
 	})
 	s.GET("/file", func(ec *echo.Context) error {
-		return app.Categories(sl, ec, db, false)
+		return app.Categories(ctx, sl, ec, db, false)
 	})
 	s.GET("/fixes", func(c *echo.Context) error { return app.Fixes(sl, c) })
 	s.GET("/ftp", func(c *echo.Context) error {
@@ -376,7 +376,7 @@ func (c *Configuration) website(
 	s.GET("/history", func(c *echo.Context) error { return app.History(sl, c) })
 	s.GET("/interview", func(c *echo.Context) error { return app.Interview(sl, c) })
 	s.GET("/jsdos/:id", func(ec *echo.Context) error {
-		return app.DownloadJsDos(sl, ec, db,
+		return app.DownloadJsDos(ctx, sl, ec, db,
 			dir.Directory(c.Environment.AbsExtra),
 			dir.Directory(c.Environment.AbsDownload))
 	})
@@ -392,13 +392,13 @@ func (c *Configuration) website(
 	})
 	s.GET("/p/:id", scener)
 	s.GET("/pouet/vote/:id", func(ec *echo.Context) error {
-		return app.VotePouet(sl, ec, ec.Param("id"))
+		return app.VotePouet(ctx, sl, ec, ec.Param("id"))
 	})
 	s.GET("/pouet/prod/:id", func(ec *echo.Context) error {
-		return app.ProdPouet(ec, ec.Param("id"))
+		return app.ProdPouet(ctx, ec, ec.Param("id"))
 	})
 	s.GET("/zoo/prod/:id", func(ec *echo.Context) error {
-		return app.ProdZoo(ec, ec.Param("id"))
+		return app.ProdZoo(ctx, ec, ec.Param("id"))
 	})
 	s.GET("/releaser", func(c *echo.Context) error {
 		return app.Releaser(ctx, sl, c, db)
@@ -413,7 +413,7 @@ func (c *Configuration) website(
 		return app.Scener(ctx, sl, c, db)
 	})
 	s.GET("/sum/:id", func(ec *echo.Context) error {
-		return app.Checksum(sl, ec, db, ec.Param("id"))
+		return app.Checksum(ctx, sl, ec, db, ec.Param("id"))
 	})
 	s.GET("/terms", func(c *echo.Context) error { return app.Terms(sl, c) })
 	s.GET("/thanks", func(c *echo.Context) error { return app.Thanks(sl, c) })
@@ -461,7 +461,7 @@ func (c *Configuration) search(ctx context.Context, sl *slog.Logger, e *echo.Ech
 		return app.PostFilename(ctx, sl, c, db)
 	})
 	search.POST("/releaser", func(ec *echo.Context) error {
-		return htmx.SearchReleaser(sl, ec, db, &c.TidbitIndex)
+		return htmx.SearchReleaser(ctx, sl, ec, db, &c.TidbitIndex)
 	})
 	return e
 }

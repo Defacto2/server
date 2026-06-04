@@ -19,13 +19,14 @@ import (
 )
 
 const (
-	cmdTimeout = 10 * time.Second
-	patternS   = "defacto2-server"
-	gif        = ".gif"  // gif file extension
-	jpg        = ".jpg"  // jpg file extension
-	jpeg       = ".jpeg" // jpeg file extension
-	png        = ".png"  // png file extension
-	webp       = ".webp" // webp file extension
+	CmdTimeout = 10 * time.Second
+
+	patternS = "defacto2-server"
+	gif      = ".gif"  // gif file extension
+	jpg      = ".jpg"  // jpg file extension
+	jpeg     = ".jpeg" // jpeg file extension
+	png      = ".png"  // png file extension
+	webp     = ".webp" // webp file extension
 )
 
 var (
@@ -221,7 +222,7 @@ func RunStdOut(name string, arg ...string) ([]byte, error) {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	var out bytes.Buffer
-	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), CmdTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Stdout = &out
@@ -232,13 +233,11 @@ func RunStdOut(name string, arg ...string) ([]byte, error) {
 }
 
 // RunQuiet looks for the command in the system path and executes it with the arguments.
-func RunQuiet(name string, arg ...string) error {
+func RunQuiet(ctx context.Context, name string, arg ...string) error {
 	const msg = "command to discard run"
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
-	defer cancel()
 	cmd := exec.CommandContext(ctx, name, arg...)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("%s run: %w", msg, err)
@@ -261,9 +260,6 @@ func run(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string)
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	// TODO:
-	//ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
-	//defer cancel()
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Dir = wdir
 	p, err := cmd.CombinedOutput()

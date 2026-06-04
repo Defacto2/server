@@ -1044,7 +1044,7 @@ func StripSup(s string) (map[string]template.HTML, error) {
 }
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
-func YMDEdit(c *echo.Context, db *sql.DB) error {
+func YMDEdit(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "year month day edit"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1053,7 +1053,6 @@ func YMDEdit(c *echo.Context, db *sql.DB) error {
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s begin tx: %w", msg, err)

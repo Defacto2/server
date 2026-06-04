@@ -25,6 +25,11 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
+const (
+	timeout = command.CmdTimeout
+	double  = 2
+)
+
 func (c *Configuration) lock(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
 	const msg = "configuration router lock"
 	if err := panics.SDE(sl, db, e); err != nil {
@@ -54,7 +59,7 @@ func fixers(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 		return app.Fixers(ctx, sl, c, db)
 	}
 	fixID := func(c *echo.Context) error {
-		return app.FixNumericSuffix(sl, c, db)
+		return app.FixNumericSuffix(ctx, sl, c, db)
 	}
 	g.GET("/fixers", fixers)
 	g.POST("/fixers/fix/:id", fixID)
@@ -190,7 +195,7 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 		return htmx.RecordVirusTotal(ctx, c, db)
 	})
 	g.PATCH("/ymd", func(c *echo.Context) error {
-		return app.YMDEdit(c, db)
+		return app.YMDEdit(ctx, c, db)
 	})
 	g.PATCH("/youtube", func(c *echo.Context) error {
 		return htmx.RecordYouTube(ctx, c, db)
@@ -227,10 +232,12 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c *echo.Context) error {
-		return htmx.UploadReplacement(sl, c, db, dirs.Download, dirs.Extra)
+		return htmx.UploadReplacement(ctx, sl, c, db, dirs.Download, dirs.Extra)
 	})
 	// /upload/preview
-	upload.POST("/preview", func(c *echo.Context) error {
+	upload.POST("/preview", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
+		defer cancel()
 		return htmx.UploadPreview(ctx, sl, c, dirs.Preview, dirs.Thumbnail)
 	})
 	paths := command.Dirs{
@@ -315,19 +322,25 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	thumb.PATCH("/right/:unid", func(c *echo.Context) error {
 		return htmx.RecordThumbAlignment(ctx, sl, c, command.Right, paths)
 	})
-	thumb.PATCH("/pixel/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumb(sl, c, command.Pixel, paths)
+	thumb.PATCH("/pixel/:unid", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
+		defer cancel()
+		return htmx.RecordThumb(ctx, sl, c, command.Pixel, paths)
 	})
-	thumb.PATCH("/photo/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumb(sl, c, command.Photo, paths)
+	thumb.PATCH("/photo/:unid", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
+		defer cancel()
+		return htmx.RecordThumb(ctx, sl, c, command.Photo, paths)
 	})
 	thumb.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)
 	})
 
 	imgs := g.Group("/images")
-	imgs.PATCH("/pixelate/:unid", func(c *echo.Context) error {
-		return htmx.RecordImagePixelator(c, dirs.Preview, dirs.Thumbnail)
+	imgs.PATCH("/pixelate/:unid", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		return htmx.RecordImagePixelator(ctx, c, dirs.Preview, dirs.Thumbnail)
 	})
 	imgs.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview, dirs.Thumbnail)
@@ -344,7 +357,7 @@ func get(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs a
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(ec *echo.Context) error {
-			return app.GetDemozooParam(ec, db, dirs.Download)
+			return app.GetDemozooParam(ctx, ec, db, dirs.Download)
 		})
 	g.GET("/for-approval",
 		func(ec *echo.Context) error {

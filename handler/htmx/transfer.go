@@ -456,7 +456,7 @@ func (prod Submission) String() string {
 }
 
 func (prod Submission) Submit( //nolint:funlen
-	sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
 ) error {
 	const msg = "htmx transfer submit"
 	if err := panics.SCD(sl, c, db); err != nil {
@@ -467,7 +467,6 @@ func (prod Submission) Submit( //nolint:funlen
 	if err != nil {
 		return err
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		sl.Error(msg,
@@ -518,14 +517,14 @@ func (prod Submission) Submit( //nolint:funlen
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
 	case Demozoo:
-		if err := app.GetDemozoo(c, db, id, unid, download); err != nil {
+		if err := app.GetDemozoo(ctx, c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote demozoo api"), slog.Any("error", err))
 			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
-		if err := app.GetPouet(c, db, id, unid, download); err != nil {
+		if err := app.GetPouet(ctx, c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote pouet api"), slog.Any("error", err))
 			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
@@ -621,7 +620,7 @@ func UploadPreview(
 	}
 	if texters(magic) {
 		amigaFont := strings.EqualFold(upload.platform, tags.TextAmiga.String())
-		err = dirs.TextImager(ctx, nil, dst.Name(), upload.unid, amigaFont) // TODO: timeout
+		err = dirs.TextImager(ctx, nil, dst.Name(), upload.unid, amigaFont)
 		if err != nil {
 			return badRequest(c, err)
 		}
@@ -653,7 +652,8 @@ func reloader(c *echo.Context, filename string) error {
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 func UploadReplacement( //nolint:funlen
-	sl *slog.Logger, c *echo.Context, db *sql.DB, download, extra dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
+	download, extra dir.Directory,
 ) error {
 	const msg = "htmx upload replacement"
 	if err := panics.SCD(sl, c, db); err != nil {
@@ -711,11 +711,11 @@ func UploadReplacement( //nolint:funlen
 	if list, err := archive.List(dst, file.Filename); err == nil {
 		fu.Content = strings.Join(list, "\n")
 	}
-	tx, err := db.BeginTx(c.Request().Context(), nil)
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
-	if err := fu.Update(context.Background(), tx, upload.id); err != nil {
+	if err := fu.Update(ctx, tx, upload.id); err != nil {
 		return badRequest(c, fmt.Errorf("file upload update, %w: %w", ErrFormUpdate, err))
 	}
 	abs := filepath.Join(download.Path(), upload.unid)

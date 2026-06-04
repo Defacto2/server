@@ -106,7 +106,7 @@ func pageRefresh(c *echo.Context) *echo.Context {
 }
 
 // RecordThumb handles the htmx request for the thumbnail quality.
-func RecordThumb(sl *slog.Logger, c *echo.Context, thumb command.Thumb, dirs command.Dirs) error {
+func RecordThumb(ctx context.Context, sl *slog.Logger, c *echo.Context, thumb command.Thumb, dirs command.Dirs) error {
 	const msg = "record thumb"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -115,7 +115,7 @@ func RecordThumb(sl *slog.Logger, c *echo.Context, thumb command.Thumb, dirs com
 	if err != nil {
 		return badRequest(c, err)
 	}
-	err = dirs.Thumbs(sl, unid, thumb)
+	err = dirs.Thumbs(ctx, sl, unid, thumb)
 	if errors.Is(err, command.ErrNoImages) {
 		return c.String(http.StatusOK, fmt.Sprint(err))
 	}
@@ -223,7 +223,9 @@ func RecordBinTextImager(ctx context.Context, debug *slog.Logger, c *echo.Contex
 }
 
 // RecordReadmeImager handles the htmx request to use the text file artifact as a preview.
-func RecordReadmeImager(ctx context.Context, debug *slog.Logger, c *echo.Context, amigaFont bool, dirs command.Dirs) error {
+func RecordReadmeImager(
+	ctx context.Context, debug *slog.Logger, c *echo.Context, amigaFont bool, dirs command.Dirs,
+) error {
 	const msg = "record readme imager"
 	if err := panics.SC(c, debug); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -380,13 +382,13 @@ func RecordReadmeDisable(ctx context.Context, c *echo.Context, db *sql.DB) error
 // RecordImagePixelator handles the htmx request to pixelate both the preview and
 // thumbnails, if they are not suitable for a general audience. This also has an
 // added benefit of reducing the file sizes of both images and reducing page load.
-func RecordImagePixelator(c *echo.Context, directory ...dir.Directory) error {
+func RecordImagePixelator(ctx context.Context, c *echo.Context, directory ...dir.Directory) error {
 	unid, err := UUID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 	dirs := dir.Paths(directory...)
-	if err := command.ImagesPixelate(unid, dirs...); err != nil {
+	if err := command.ImagesPixelate(ctx, unid, dirs...); err != nil {
 		return badRequest(c, err)
 	}
 	// do not use pageRefresh as it returns an error

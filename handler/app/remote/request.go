@@ -93,15 +93,15 @@ type DownloadResponse struct {
 // GetFile5sec downloads a file from a remote URL and saves it to the default temp directory.
 // It uses a timeout of 5 seconds.
 // It returns the path to the downloaded file and it should be removed after use.
-func GetFile5sec(rawURL string) (DownloadResponse, error) {
-	return GetFile(rawURL, client5sec())
+func GetFile5sec(ctx context.Context, rawURL string) (DownloadResponse, error) {
+	return GetFile(ctx, rawURL, client5sec())
 }
 
 // GetFile10sec downloads a file from a remote URL and saves it to the default temp directory.
 // It uses a timeout of 10 seconds.
 // It returns the path to the downloaded file and it should be removed after use.
-func GetFile10sec(rawURL string) (DownloadResponse, error) {
-	return GetFile(rawURL, client10sec())
+func GetFile10sec(ctx context.Context, rawURL string) (DownloadResponse, error) {
+	return GetFile(ctx, rawURL, client10sec())
 }
 
 var (
@@ -111,12 +111,11 @@ var (
 
 // GetFile downloads a file from a remote URL and saves it to the default temp directory.
 // It returns the path to the downloaded file and it should be removed after use.
-func GetFile(rawURL string, client http.Client) (DownloadResponse, error) {
+func GetFile(ctx context.Context, rawURL string, client http.Client) (DownloadResponse, error) {
 	const msg = "http get remove file"
 	none := DownloadResponse{ContentLength: "", ContentType: "", LastModified: "", Path: ""}
 	url := FixSceneOrg(rawURL)
 	// Get the remote file
-	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return none, fmt.Errorf("%s new request: %w", msg, err)

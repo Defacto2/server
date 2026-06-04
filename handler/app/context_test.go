@@ -53,7 +53,7 @@ func TestBBS(t *testing.T) {
 
 func TestChecksum(t *testing.T) {
 	t.Parallel()
-	x := app.Checksum(nil, newContext(), nil, "")
+	x := app.Checksum(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
@@ -71,7 +71,7 @@ func TestConfigurations(t *testing.T) {
 
 func TestDownloadJsDos(t *testing.T) {
 	t.Parallel()
-	x := app.DownloadJsDos(nil, newContext(), nil, "", "")
+	x := app.DownloadJsDos(context.TODO(), nil, newContext(), nil, "", "")
 	be.Err(t, x)
 }
 
@@ -90,7 +90,7 @@ func TestFTP(t *testing.T) {
 
 func TestCategories(t *testing.T) {
 	t.Parallel()
-	x := app.Categories(nil, newContext(), nil, false)
+	x := app.Categories(context.TODO(), nil, newContext(), nil, false)
 	be.Err(t, x)
 }
 
@@ -114,15 +114,16 @@ func TestForApproval(t *testing.T) {
 
 func TestGetDemozooParam(t *testing.T) {
 	t.Parallel()
-	x := app.GetDemozooParam(newContext(), nil, "")
+	x := app.GetDemozooParam(context.TODO(), newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestGetDemozoo(t *testing.T) {
 	t.Parallel()
-	x := app.GetDemozoo(newContext(), nil, -1, "", "")
+	ctx := context.TODO()
+	x := app.GetDemozoo(ctx, newContext(), nil, -1, "", "")
 	be.Err(t, x)
-	x = app.GetPouet(newContext(), nil, -1, "", "")
+	x = app.GetPouet(ctx, newContext(), nil, -1, "", "")
 	be.Err(t, x)
 }
 
@@ -227,17 +228,19 @@ func TestPouetCache(t *testing.T) {
 
 func TestProdPouet(t *testing.T) {
 	t.Parallel()
-	x := app.ProdPouet(newContext(), "")
+	ctx := context.TODO()
+	x := app.ProdPouet(ctx, newContext(), "")
 	be.Err(t, x, nil)
-	x = app.ProdPouet(newContext(), "abc")
+	x = app.ProdPouet(ctx, newContext(), "abc")
 	be.Err(t, x, nil)
 }
 
 func TestProdZoo(t *testing.T) {
 	t.Parallel()
-	x := app.ProdZoo(newContext(), "")
+	ctx := context.TODO()
+	x := app.ProdZoo(ctx, newContext(), "")
 	be.Err(t, x, nil)
-	x = app.ProdZoo(newContext(), "abc")
+	x = app.ProdZoo(ctx, newContext(), "abc")
 	be.Err(t, x, nil)
 }
 
@@ -352,13 +355,14 @@ func TestTheScene(t *testing.T) {
 
 func TestVotePouet(t *testing.T) {
 	t.Parallel()
-	x := app.VotePouet(nil, newContext(), "")
+	ctx := context.TODO()
+	x := app.VotePouet(ctx, nil, newContext(), "")
 	be.Err(t, x)
 	const testNoCache = "1"
-	x = app.VotePouet(nil, newContext(), testNoCache)
+	x = app.VotePouet(ctx, nil, newContext(), testNoCache)
 	be.Err(t, x)
 	const testNewCache = "1"
-	x = app.VotePouet(nil, newContext(), testNewCache)
+	x = app.VotePouet(ctx, nil, newContext(), testNewCache)
 	be.Err(t, x)
 }
 

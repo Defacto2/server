@@ -539,8 +539,10 @@ func Remove(diz, txt string) (string, error) {
 //
 // [FILE_ID.DIZ]: http://www.textfiles.com/computers/fileid.txt
 func FileID(r io.Reader) bool {
-	// TODO: warning
 	scanner := bufio.NewScanner(r)
+	if scanner.Err() != nil {
+		return false
+	}
 	const (
 		maximumLines = 10
 		maximumWidth = 45

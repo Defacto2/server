@@ -196,7 +196,7 @@ func (c *Config) production(sl *slog.Logger) {
 }
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
-func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
+func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error {
 	psl := "PostgreSQL"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", psl, panics.ErrNoSlog)
@@ -216,7 +216,6 @@ func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
 			slog.String("issue", s),
 			slog.Any("error", err))
 	}
-	ctx := context.Background()
 	count := RecordCount(ctx, db)
 	const welcome = "Defacto2 web application"
 	const msg = "Fixing and repairs"

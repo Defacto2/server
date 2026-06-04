@@ -154,15 +154,16 @@ func TestRun(t *testing.T) {
 
 func TestRunQuiet(t *testing.T) {
 	t.Parallel()
-	err := command.RunQuiet("", "")
+	ctx := context.TODO()
+	err := command.RunQuiet(ctx, "", "")
 	be.Err(t, err)
-	err = command.RunQuiet("thiscommanddoesnotexist", "")
+	err = command.RunQuiet(ctx, "thiscommanddoesnotexist", "")
 	be.Err(t, err)
 	const noArgs = ""
-	err = command.RunQuiet("go", noArgs)
+	err = command.RunQuiet(ctx, "go", noArgs)
 	// go without args will return an unknown command error
 	be.Err(t, err)
-	err = command.RunQuiet("go", "version")
+	err = command.RunQuiet(ctx, "go", "version")
 	be.Err(t, err, nil)
 }
 

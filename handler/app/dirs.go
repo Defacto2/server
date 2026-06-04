@@ -434,7 +434,6 @@ func (dir Dirs) updateMagicNumber(ctx context.Context, sl *slog.Logger,
 			}
 			return data
 		}
-		ctx := context.Background()
 		if err := model.UpdateMagic(ctx, db, id, magic); err != nil && sl != nil {
 			sl.Error(msg,
 				slog.String("update", "could not update the database record"),

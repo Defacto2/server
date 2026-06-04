@@ -145,13 +145,12 @@ type Production struct {
 // A status code is returned when the response status is not OK.
 //
 // [Demozoo API]: https://demozoo.org/api/v1/productions/
-func (p *Production) Get(id int) (int, error) {
+func (p *Production) Get(ctx context.Context, id int) (int, error) {
 	const msg = "get demozoo production"
 	if id < firstID {
 		return 0, fmt.Errorf("%s %w: %d", msg, ErrID, id)
 	}
 	url := ProdURL + strconv.Itoa(id)
-	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return 0, fmt.Errorf("%s new request %w", msg, err)

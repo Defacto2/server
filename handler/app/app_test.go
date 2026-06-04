@@ -430,7 +430,7 @@ func TestURLEncode(t *testing.T) {
 
 func TestYMDEdit(t *testing.T) {
 	t.Parallel()
-	s := app.YMDEdit(nil, nil)
+	s := app.YMDEdit(context.TODO(), nil, nil)
 	be.Err(t, s)
 }
 

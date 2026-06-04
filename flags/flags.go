@@ -4,6 +4,7 @@
 package flags
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -89,7 +90,8 @@ func Fix(_ io.Writer, c *config.Config) *cli.Command {
 			newline()
 			slog.SetDefault(sl)
 			log.Println(fxmsg)
-			if err := c.Fixer(sl, d); err != nil {
+			ctx := context.Background()
+			if err := c.Fixer(ctx, sl, d); err != nil {
 				return fmt.Errorf("%s: %w", msg, err)
 			}
 			return nil

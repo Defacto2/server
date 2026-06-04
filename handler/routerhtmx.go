@@ -41,18 +41,18 @@ func (h configHtmx) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, d
 	// htmx/demozoo/production
 	demozoo := g.Group("/demozoo")
 	demozoo.GET("/production", func(c *echo.Context) error {
-		return htmx.DemozooLookup(c, db, h.prodMode)
+		return htmx.DemozooLookup(ctx, c, db, h.prodMode)
 	})
 	demozoo.PUT("/production/:id", func(c *echo.Context) error {
-		return htmx.DemozooSubmit(sl, c, db, h.download)
+		return htmx.DemozooSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/pouet/production
 	pouet := g.Group("/pouet")
 	pouet.GET("/production", func(c *echo.Context) error {
-		return htmx.PouetLookup(c, db)
+		return htmx.PouetLookup(ctx, c, db)
 	})
 	pouet.PUT("/production/:id", func(c *echo.Context) error {
-		return htmx.PouetSubmit(sl, c, db, h.download)
+		return htmx.PouetSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader
 	upload := g.Group("/uploader")
@@ -62,15 +62,15 @@ func (h configHtmx) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, d
 	})
 	// htmx/uploader/releaser
 	upload.PATCH("/releaser/1", func(c *echo.Context) error {
-		return htmx.DataListReleasers(sl, c, db, releaser1(c))
+		return htmx.DataListReleasers(ctx, sl, c, db, releaser1(c))
 	})
 	upload.PATCH("/releaser/2", func(c *echo.Context) error {
-		return htmx.DataListReleasers(sl, c, db, releaser2(c))
+		return htmx.DataListReleasers(ctx, sl, c, db, releaser2(c))
 	})
 	// htmx/releaser/magazine
 	upload.PATCH("/releaser/magazine", func(c *echo.Context) error {
 		lookup := c.FormValue("uploader-magazine-releaser1")
-		return htmx.DataListMagazines(sl, c, db, lookup)
+		return htmx.DataListMagazines(ctx, sl, c, db, lookup)
 	})
 	// htmx/uploader/sha384
 	upload.PATCH("/sha384/:hash", func(c *echo.Context) error {

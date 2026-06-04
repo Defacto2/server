@@ -150,7 +150,7 @@ func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB
 			slog.String("file routes", "could not register the routes"),
 			slog.Any("fatal", err))
 	}
-	group := html3.Routes(sl, e, db)
+	group := html3.Routes(ctx, sl, e, db)
 	group.GET(Downloader, func(ec *echo.Context) error {
 		return c.downloader(ctx, sl, ec, db)
 	})
