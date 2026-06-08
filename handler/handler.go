@@ -17,6 +17,7 @@ import (
 	"log/slog"
 	"maps"
 	"net/http"
+	"os"
 	"runtime"
 
 	"github.com/Defacto2/helper"
@@ -184,7 +185,7 @@ func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	return e
 }
 
-// Print the application logo and information to the w Writer.
+// Print the application logo and software information to the w Writer.
 func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 	const msg = "configuration info handler"
 	if sl == nil {
@@ -210,7 +211,7 @@ func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 	format := "  %d active routines sharing %d usable threads on %d CPU cores."
 	cpuInfo := fmt.Sprintf(format, runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	_, _ = fmt.Fprintln(w, cpuInfo)
-	format = "  Compiled on Go %s for %s with %s."
+	format = "  Compiled with Go v%s for %s on %s."
 	golangInfo := fmt.Sprintf(format, runtime.Version()[2:], flags.OS(), flags.Arch())
 	_, _ = fmt.Fprintln(w, golangInfo)
 	to, fr, _, s, err := helper.DiskStat("/")
@@ -255,6 +256,7 @@ func (c *Configuration) TemplRegistry(ctx context.Context, sl *slog.Logger, db *
 	return &TemplateRegistry{Templates: tmpls}, nil
 }
 
+// EchoConfig returns the base server start configuration.
 func (c *Configuration) EchoConfig() echo.StartConfig {
 	config := echo.StartConfig{ //nolint:exhaustruct
 		HideBanner: true,
@@ -263,7 +265,7 @@ func (c *Configuration) EchoConfig() echo.StartConfig {
 	return config
 }
 
-// Start the HTTP, and-or the TLS servers.
+// Start the HTTP, and-or the TLS servers that serves the web application.
 func (c *Configuration) Start(ctx context.Context, sl *slog.Logger, h http.Handler, configs config.Config) error {
 	const msg = "start server handler"
 	if sl == nil {
@@ -287,6 +289,8 @@ func (c *Configuration) Start(ctx context.Context, sl *slog.Logger, h http.Handl
 	return nil
 }
 
+// StartLocals is intended for development only. It starts the HTTP server and plus the TLS server.
+// However, the TLS uses an unsigned certificate and key file that is unusable on the Internet.
 func (c *Configuration) StartLocals(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start locals handler"
 	if sl == nil {
@@ -295,14 +299,17 @@ func (c *Configuration) StartLocals(ctx context.Context, sl *slog.Logger, h http
 	c.startDual(ctx, sl, h, true)
 }
 
+// StartDual is intended for production only. It starts the HTTP server and plus the TLS server.
+// However, the TLS must be used with a valid, signed certificate and key file that is suitable on the Internet.
 func (c *Configuration) StartDual(ctx context.Context, sl *slog.Logger, h http.Handler) {
-	const msg = "start duals handler"
+	const msg = "start dual handler"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
 	c.startDual(ctx, sl, h, false)
 }
 
+// HTTP returns the unencrypted HTTP server configuration.
 func (c *Configuration) HTTP() echo.StartConfig {
 	config := c.EchoConfig()
 	port := c.Environment.HTTPPort.Value()
@@ -314,8 +321,11 @@ func (c *Configuration) HTTP() echo.StartConfig {
 	return config
 }
 
-func (c *Configuration) Local(ctx context.Context, sl *slog.Logger) (echo.StartConfig, string, string) {
-	const msg = "start local tls handler"
+// Local is intended for development only.
+// It returns the TLS server configuration and the content of an unsigned certificate
+// and key file that is unusable on the Internet.
+func (c *Configuration) Local(ctx context.Context, sl *slog.Logger) (echo.StartConfig, []byte, []byte) {
+	const msg = "local tls handler configuration"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
@@ -324,25 +334,28 @@ func (c *Configuration) Local(ctx context.Context, sl *slog.Logger) (echo.StartC
 	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
 	if address == "" {
-		return config, "", ""
+		return config, nil, nil
 	}
 	config.Address = address
 
-	certFile, err := c.Public.ReadFile("public/certs/cert.pem")
+	const embedCert = "public/certs/cert.pem"
+	certFile, err := c.Public.ReadFile(embedCert)
 	if err != nil {
 		logs.Fatal(ctx, sl, msg,
 			slog.String("certificate", "read file failure"), slog.Any("error", err))
 	}
-	keyFile, err := c.Public.ReadFile("public/certs/key.pem")
+	const embedKey = "public/certs/key.pem"
+	keyFile, err := c.Public.ReadFile(embedKey)
 	if err != nil {
 		logs.Fatal(ctx, sl, msg,
 			slog.String("key", "read file failure"), slog.Any("error", err))
 	}
-	return config, string(certFile), string(keyFile)
+	return config, certFile, keyFile
 }
 
-func (c *Configuration) TLS(ctx context.Context, sl *slog.Logger) (echo.StartConfig, string, string) {
-	const msg = "start tls handler"
+// TLS returns server configuration and the content of the certificate and key file.
+func (c *Configuration) TLS(ctx context.Context, sl *slog.Logger) (echo.StartConfig, []byte, []byte) {
+	const msg = "tls handler configuration"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
@@ -351,7 +364,7 @@ func (c *Configuration) TLS(ctx context.Context, sl *slog.Logger) (echo.StartCon
 	port := c.Environment.TLSPort.Value()
 	address := c.address(port)
 	if address == "" {
-		return config, "", ""
+		return config, nil, nil
 	}
 	config.Address = address
 	certFile := c.Environment.TLSCert
@@ -370,10 +383,24 @@ func (c *Configuration) TLS(ctx context.Context, sl *slog.Logger) (echo.StartCon
 		logs.Fatal(ctx, sl, msg,
 			slog.String("key file", "file does not exist"))
 	}
-	return config, certFile.String(), keyFile.String()
+	certB, err := os.ReadFile(certFile.String())
+	if err != nil {
+		logs.Fatal(ctx, sl, msg,
+			slog.String("certificate file", "could not be read"),
+			slog.Any("error", err))
+	}
+	keyB, err := os.ReadFile(keyFile.String())
+	if err != nil {
+		logs.Fatal(ctx, sl, msg,
+			slog.String("key file", "could not be read"),
+			slog.Any("error", err))
+	}
+	return config, certB, keyB
 }
 
-// StartHTTP starts the insecure HTTP web server.
+// StartHTTP starts the unencrypted HTTP web server.
+//
+// The default port for the HTTP protocol is 80.
 func (c *Configuration) StartHTTP(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start http handler"
 	if sl == nil {
@@ -392,6 +419,8 @@ func (c *Configuration) StartHTTP(ctx context.Context, sl *slog.Logger, h http.H
 }
 
 // StartTLS starts the encrypted TLS web server.
+//
+// The default port for the HTTPS protocol is 443.
 func (c *Configuration) StartTLS(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start tls handler"
 	if sl == nil {
@@ -410,8 +439,8 @@ func (c *Configuration) StartTLS(ctx context.Context, sl *slog.Logger, h http.Ha
 	}
 }
 
-// StartLocal starts the insecure localhost, encrypted TLS web server.
-// This should only be triggered when the server is running in local mode.
+// StartLocal is intended for development only. It starts the TLS server.
+// However, the TLS configuration uses an unsigned certificate and key file that is unusable on the Internet.
 func (c *Configuration) StartLocal(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start local tls handler"
 	if sl == nil {
@@ -439,11 +468,11 @@ func (c *Configuration) startDual(ctx context.Context, sl *slog.Logger, h http.H
 
 	httpConfig := c.HTTP()
 	httpsConfig := echo.StartConfig{} //nolint:exhaustruct
-	certFile, keyFile := "", ""
+	certB, keyB := []byte{}, []byte{}
 	if local {
-		httpsConfig, certFile, keyFile = c.Local(ctx, sl)
+		httpsConfig, certB, keyB = c.Local(ctx, sl)
 	} else {
-		httpsConfig, certFile, keyFile = c.TLS(ctx, sl)
+		httpsConfig, certB, keyB = c.TLS(ctx, sl)
 	}
 
 	g.Go(func() error {
@@ -462,7 +491,7 @@ func (c *Configuration) startDual(ctx context.Context, sl *slog.Logger, h http.H
 		sl.Info("Starting HTTPS Listener",
 			slog.String("address", httpsConfig.Address))
 		// Point to your valid SSL/TLS files
-		err := httpsConfig.StartTLS(ctx, h, certFile, keyFile)
+		err := httpsConfig.StartTLS(ctx, h, certB, keyB)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			sl.Error("HTTPS Server crashed unexpectedly",
 				slog.Any("error", err))
@@ -491,7 +520,7 @@ func (c *Configuration) address(port uint16) string {
 	return address
 }
 
-// downloader route for the file download handler under the html3 group.
+// downloader is used by the html3 group route as the file download handler.
 func (c *Configuration) downloader(ctx context.Context, sl *slog.Logger, ec *echo.Context, db *sql.DB) error {
 	const msg = "downloader htm3 group handler"
 	if err := panics.SCD(sl, ec, db); err != nil {

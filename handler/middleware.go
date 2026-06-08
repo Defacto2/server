@@ -172,6 +172,8 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 				slog.Int("cores", runtime.NumCPU()),
 				slog.Int("go_routines", runtime.NumGoroutine()))
 		}
+		// NOTE: Using using any new v middleware.RequestLoggerValues will require an update
+		// to middleware.RequestLoggerConfig values that are returned by this func.
 		requests := func() slog.Attr {
 			return slog.Group(
 				"request",
@@ -181,7 +183,7 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 				slog.String("uri", v.URI),         // complete url request
 			)
 		}
-		sl.Info(fmt.Sprintf("HTTP %s %d", v.Method, v.Status),
+		sl.Info(fmt.Sprintf("HTTP(S) %s %d", v.Method, v.Status),
 			slog.Duration("latency", v.Latency),
 			response(), cpuinfo(),
 			slog.String("allocation", alloc),

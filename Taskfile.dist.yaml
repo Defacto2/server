@@ -158,6 +158,12 @@ tasks:
     desc: 'Run the internal web server in development mode with live reload.'
     cmds:
       - task: serve-linux
+  serve-dev-x2:
+    aliases:
+      - 's2'
+    desc: 'Run the internal web server in development http and https mode with live reload.'
+    cmds:
+      - task: serve-linux-x2
   serve-fix:
     aliases:
       - 'fix'
@@ -170,6 +176,16 @@ tasks:
     env:
       D2_PROD_MODE: false
       PS_HOST: localhost
+    deps: [assets]
+    cmds:
+      - go tool air -c init/.air.toml
+  serve-linux-x2:
+    internal: true
+    platforms: [linux, freebsd, darwin]
+    env:
+      D2_PROD_MODE: false
+      PS_HOST: localhost
+      D2_TLS_PORT: 2323
     deps: [assets]
     cmds:
       - go tool air -c init/.air.toml
