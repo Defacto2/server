@@ -1400,10 +1400,6 @@ func PlatformEdit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	var f Form
-	// TODO: replace all c.Binds with
-	// req, err := echo.Bind[Form](c)
-	// ...
-	// return c.JSON(.., req)
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
