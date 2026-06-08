@@ -82,7 +82,7 @@
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countDownloads"}}</span></td>
       <td>
-        {{if ne $checkDownloads nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkDownloads}}</span>{{- else}}
+        {{if ne $checkDownloads nil}}<span class="badge bg-danger text-danger-emphasis">{{$checkDownloads}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsDownloads}}
           <span class="{{$formats}}"><code class="text-uppercase">{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
@@ -98,7 +98,7 @@
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countPreviews"}}</span></td>
       <td>
-        {{if ne $checkPreviews nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkPreviews}}</span>{{- else}}
+        {{if ne $checkPreviews nil}}<span class="badge bg-danger text-danger-emphasis">{{$checkPreviews}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsPreviews}}
           <span class="{{$formats}}"><code>{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
@@ -114,7 +114,7 @@
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countThumbnails"}}</span></td>
       <td>
-        {{if ne $checkThumbnails nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkThumbnails}}</span>{{- else}}
+        {{if ne $checkThumbnails nil}}<span class="badge bg-danger text-danger-emphasis">{{$checkThumbnails}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsThumbnails}}
           <span class="{{$formats}}"><code>{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
@@ -130,7 +130,7 @@
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countExtras"}}</span></td>
       <td>
-        {{if ne $checkExtras nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkExtras}}</span>{{- else}}
+        {{if ne $checkExtras nil}}<span class="badge bg-danger text-danger-emphasis">{{$checkExtras}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsExtras}}
           <span class="{{$formats}}"><code>{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
@@ -146,7 +146,7 @@
       </td>
       <td class="text-center"><span class="badge bg-secondary">{{index . "countOrphaned"}}</span></td>
       <td>
-        {{if ne $checkOrphaned nil}}<span class="badge bg-danger-subtle text-danger-emphasis">{{$checkOrphaned}}</span>{{- else}}
+        {{if ne $checkOrphaned nil}}<span class="badge bg-danger text-danger-emphasis">{{$checkOrphaned}}</span>{{- else}}
         <div class="d-flex flex-wrap gap-1">
           {{- range $index, $value := $extsOrphaned}}
           <span class="{{$formats}}"><code>{{$value.Name}}</code> &nbsp; {{$value.Count}}</span>
@@ -159,15 +159,15 @@
 </table>
 </div>
 {{- /*  Links to records  */}}
-{{- $confirmed := `<span class="badge bg-success-subtle text-success-emphasis">&#10003;</span>` | safeHTML }}
-{{- $fixing := `<span class="badge bg-danger-subtle text-danger-emphasis">&#10005;</span>` | safeHTML }}
+{{- $confirmed := `<span class="badge bg-success text-success-emphasis">&#10003;</span>` | safeHTML }}
+{{- $fixing := `<span class="badge bg-danger text-danger-emphasis">&#10005;</span>` | safeHTML }}
 {{- $fid := `text-uppercase` }}
 <h2 class="lead mt-3">Links to special records</h2>
 <div class="mb-3 text-secondary">
   These are highlighted artifacts that have unusual edge cases. 
   <br>Status badges indicate: 
-  <span class="badge bg-danger-subtle text-danger-emphasis">&#10005; needs fixing</span> or 
-  <span class="badge bg-success-subtle text-success-emphasis">&#10003; confirmed</span>
+  <span class="badge bg-danger text-danger-emphasis">&#10005; needs fixing</span> or 
+  <span class="badge bg-success text-success-emphasis">&#10003; confirmed</span>
 </div>
 <div class="row row-cols-1 row-cols-md-2 g-2">
   <div class="col">
