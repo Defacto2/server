@@ -894,6 +894,10 @@ func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool
 		return data, fmt.Errorf("counter: %w", err)
 	}
 	data["counter"] = c
+	data["orderByBytes"] = c.SortByte()
+	data["orderByCount"] = c.SortCount()
+	data["orderByName"] = c.SortName()
+	data["orderByYear"] = c.SortYear()
 	data["logo"] = "Artifact category statistics"
 	data["lead"] = "This page shows the artifacts categories with selected statistics, " +
 		"such as the number of files in the category or platform."
@@ -954,8 +958,6 @@ func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
 	data["logo"] = "Routes"
 	data["routesList"] = r
 	data["routesCount"] = len(r)
-	//x := r[0]
-	//abc := echo.RouteInfo{}
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)

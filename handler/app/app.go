@@ -183,6 +183,21 @@ func Brief(platform, section any) string {
 	return x
 }
 
+// ByteBytes returns both the bytes and a human readable string of the bytes.
+func ByteBytes(bytes any) template.HTML {
+	var s string
+	switch val := bytes.(type) {
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64:
+		i := reflect.ValueOf(val).Int()
+		s = fmt.Sprintf("%s <small>(%dB)</small>", helper.ByteCountFloat(i), i)
+	default:
+		s = fmt.Sprintf("%sByteFile: %s", typeErr, reflect.TypeOf(bytes).String())
+		return template.HTML(s)
+	}
+	return template.HTML(s)
+}
+
 // ByteFile returns a human readable string of the file count and bytes.
 func ByteFile(cnt, bytes any) template.HTML {
 	var s string
@@ -200,7 +215,7 @@ func ByteFile(cnt, bytes any) template.HTML {
 	case int, int8, int16, int32, int64,
 		uint, uint8, uint16, uint32, uint64:
 		i := reflect.ValueOf(val).Int()
-		s = fmt.Sprintf("%s <small>(%s)</small>", s, helper.ByteCount(i))
+		s = fmt.Sprintf("%s <small>(%s)</small>", s, helper.ByteCountFloat(i))
 	default:
 		s = fmt.Sprintf("%sByteFile: %s", typeErr, reflect.TypeOf(bytes).String())
 		return template.HTML(s)

@@ -155,6 +155,7 @@ func (t *Templ) Funcs() template.FuncMap {
 		"brief":              Brief,
 		"describe":           Describe,
 		"downloadB":          simple.DownloadB,
+		"byteBytes":          ByteBytes,
 		"byteFile":           ByteFile,
 		"byteFileS":          ByteFileS,
 		"demozooGetLink":     simple.DemozooGetLink,

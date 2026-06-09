@@ -40,7 +40,8 @@ func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AdvertExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+		qm.From(From),
+	).Bind(ctx, exec, a)
 }
 
 func (a *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -69,7 +70,8 @@ func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnnouncementExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+		qm.From(From),
+	).Bind(ctx, exec, a)
 }
 
 func (a *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -92,13 +94,18 @@ type Ansi struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (a *Ansi) String() string {
+	return "ANSI art and texts"
+}
+
 func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+		qm.From(From),
+	).Bind(ctx, exec, a)
 }
 
 func (a *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -127,7 +134,8 @@ func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiBrandExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+		qm.From(From),
+	).Bind(ctx, exec, a)
 }
 
 func (a *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -150,13 +158,18 @@ type AnsiBBS struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (a *AnsiBBS) String() string {
+	return "ANSI art"
+}
+
 func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiBBSExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+		qm.From(From),
+	).Bind(ctx, exec, a)
 }
 
 func (a *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -185,7 +198,8 @@ func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiFTPExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+		qm.From(From),
+	).Bind(ctx, exec, a)
 }
 
 func (a *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -214,7 +228,8 @@ func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiNfoExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+		qm.From(From),
+	).Bind(ctx, exec, a)
 }
 
 func (a *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -243,7 +258,8 @@ func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiPackExpr(),
-		qm.From(From)).Bind(ctx, exec, a)
+		qm.From(From),
+	).Bind(ctx, exec, a)
 }
 
 func (a *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -266,13 +282,18 @@ type BBS struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (b *BBS) String() string {
+	return "BBS adverts"
+}
+
 func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSExpr(),
-		qm.From(From)).Bind(ctx, exec, b)
+		qm.From(From),
+	).Bind(ctx, exec, b)
 }
 
 func (b *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -295,13 +316,18 @@ type BBStro struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (b *BBStro) String() string {
+	return "BBStros"
+}
+
 func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBStroExpr(),
-		qm.From(From)).Bind(ctx, exec, b)
+		qm.From(From),
+	).Bind(ctx, exec, b)
 }
 
 func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -343,7 +369,8 @@ func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSImageExpr(),
-		qm.From(From)).Bind(ctx, exec, b)
+		qm.From(From),
+	).Bind(ctx, exec, b)
 }
 
 func (b *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -366,13 +393,18 @@ type BBSText struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (b *BBSText) String() string {
+	return "Text files"
+}
+
 func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSTextExpr(),
-		qm.From(From)).Bind(ctx, exec, b)
+		qm.From(From),
+	).Bind(ctx, exec, b)
 }
 
 func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -401,7 +433,8 @@ func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DatabaseExpr(),
-		qm.From(From)).Bind(ctx, exec, d)
+		qm.From(From),
+	).Bind(ctx, exec, d)
 }
 
 func (d *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -424,13 +457,18 @@ type Demoscene struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (d *Demoscene) String() string {
+	return "Demoscene productions"
+}
+
 func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DemoExpr(),
-		qm.From(From)).Bind(ctx, exec, d)
+		qm.From(From),
+	).Bind(ctx, exec, d)
 }
 
 func (d *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -459,7 +497,8 @@ func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DramaExpr(),
-		qm.From(From)).Bind(ctx, exec, d)
+		qm.From(From),
+	).Bind(ctx, exec, d)
 }
 
 func (d *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -488,7 +527,8 @@ func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.FTPExpr(),
-		qm.From(From)).Bind(ctx, exec, f)
+		qm.From(From),
+	).Bind(ctx, exec, f)
 }
 
 func (f *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -517,7 +557,8 @@ func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HackExpr(),
-		qm.From(From)).Bind(ctx, exec, h)
+		qm.From(From),
+	).Bind(ctx, exec, h)
 }
 
 func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -546,7 +587,8 @@ func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HowToExpr(),
-		qm.From(From)).Bind(ctx, exec, h)
+		qm.From(From),
+	).Bind(ctx, exec, h)
 }
 
 func (h *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -575,7 +617,8 @@ func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HTMLExpr(),
-		qm.From(From)).Bind(ctx, exec, h)
+		qm.From(From),
+	).Bind(ctx, exec, h)
 }
 
 func (h *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -604,7 +647,8 @@ func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ImageExpr(),
-		qm.From(From)).Bind(ctx, exec, i)
+		qm.From(From),
+	).Bind(ctx, exec, i)
 }
 
 func (i *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -633,7 +677,8 @@ func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ImagePackExpr(),
-		qm.From(From)).Bind(ctx, exec, i)
+		qm.From(From),
+	).Bind(ctx, exec, i)
 }
 
 func (i *ImagePack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -656,13 +701,18 @@ type Intro struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (i *Intro) String() string {
+	return "Cracktros and intros"
+}
+
 func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroExpr(),
-		qm.From(From)).Bind(ctx, exec, i)
+		qm.From(From),
+	).Bind(ctx, exec, i)
 }
 
 func (i *Intro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -685,13 +735,18 @@ type IntroMsDos struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (i *IntroMsDos) String() string {
+	return "Cracktros and intros on MS Dos"
+}
+
 func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroDOSExpr(),
-		qm.From(From)).Bind(ctx, exec, i)
+		qm.From(From),
+	).Bind(ctx, exec, i)
 }
 
 func (i *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -715,13 +770,18 @@ type IntroWindows struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (i *IntroWindows) String() string {
+	return "Cracktros and intros on Windows"
+}
+
 func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroWindowsExpr(),
-		qm.From(From)).Bind(ctx, exec, i)
+		qm.From(From),
+	).Bind(ctx, exec, i)
 }
 
 func (i *IntroWindows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -744,13 +804,18 @@ type Installer struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (i *Installer) String() string {
+	return "Installers"
+}
+
 func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.InstallExpr(),
-		qm.From(From)).Bind(ctx, exec, i)
+		qm.From(From),
+	).Bind(ctx, exec, i)
 }
 
 func (i *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -773,13 +838,18 @@ type Java struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (j *Java) String() string {
+	return "Java files"
+}
+
 func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.JavaExpr(),
-		qm.From(From)).Bind(ctx, exec, j)
+		qm.From(From),
+	).Bind(ctx, exec, j)
 }
 
 func (j *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -808,7 +878,8 @@ func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.JobAdvertExpr(),
-		qm.From(From)).Bind(ctx, exec, j)
+		qm.From(From),
+	).Bind(ctx, exec, j)
 }
 
 func (j *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -831,13 +902,18 @@ type Linux struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (l *Linux) String() string {
+	return "Linux files"
+}
+
 func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.LinuxExpr(),
-		qm.From(From)).Bind(ctx, exec, l)
+		qm.From(From),
+	).Bind(ctx, exec, l)
 }
 
 func (l *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -860,13 +936,18 @@ type Magazine struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (m *Magazine) String() string {
+	return "Magazines"
+}
+
 func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MagExpr(),
-		qm.From(From)).Bind(ctx, exec, m)
+		qm.From(From),
+	).Bind(ctx, exec, m)
 }
 
 func (m *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -889,13 +970,18 @@ type Macos struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (m *Macos) String() string {
+	return "MacOS software"
+}
+
 func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MacExpr(),
-		qm.From(From)).Bind(ctx, exec, m)
+		qm.From(From),
+	).Bind(ctx, exec, m)
 }
 
 func (m *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -918,13 +1004,18 @@ type MsDos struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (d *MsDos) String() string {
+	return "MS Dos files"
+}
+
 func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DOSExpr(),
-		qm.From(From)).Bind(ctx, exec, d)
+		qm.From(From),
+	).Bind(ctx, exec, d)
 }
 
 func (d *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -953,7 +1044,8 @@ func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DosPackExpr(),
-		qm.From(From)).Bind(ctx, exec, d)
+		qm.From(From),
+	).Bind(ctx, exec, d)
 }
 
 func (d *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -982,7 +1074,8 @@ func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MusicExpr(),
-		qm.From(From)).Bind(ctx, exec, m)
+		qm.From(From),
+	).Bind(ctx, exec, m)
 }
 
 func (m *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1011,7 +1104,8 @@ func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NewsArticleExpr(),
-		qm.From(From)).Bind(ctx, exec, n)
+		qm.From(From),
+	).Bind(ctx, exec, n)
 }
 
 func (n *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1034,13 +1128,18 @@ type Nfo struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (n *Nfo) String() string {
+	return "Nfo texts"
+}
+
 func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NfoExpr(),
-		qm.From(From)).Bind(ctx, exec, n)
+		qm.From(From),
+	).Bind(ctx, exec, n)
 }
 
 func (n *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1063,13 +1162,18 @@ type NfoTool struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (n *NfoTool) String() string {
+	return "Nfo text editors"
+}
+
 func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NfoToolExpr(),
-		qm.From(From)).Bind(ctx, exec, n)
+		qm.From(From),
+	).Bind(ctx, exec, n)
 }
 
 func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1098,7 +1202,8 @@ func (p *PCBoard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PCBoardExpr(),
-		qm.From(From)).Bind(ctx, exec, p)
+		qm.From(From),
+	).Bind(ctx, exec, p)
 }
 
 func (p *PCBoard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1127,7 +1232,8 @@ func (p *PCBoardPPE) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PCBoardPPEExpr(),
-		qm.From(From)).Bind(ctx, exec, p)
+		qm.From(From),
+	).Bind(ctx, exec, p)
 }
 
 func (p *PCBoardPPE) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1156,7 +1262,8 @@ func (p *PCBoardText) Stat(ctx context.Context, exec boil.ContextExecutor) error
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PCBoardTextExpr(),
-		qm.From(From)).Bind(ctx, exec, p)
+		qm.From(From),
+	).Bind(ctx, exec, p)
 }
 
 func (p *PCBoardText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1185,7 +1292,8 @@ func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PDFExpr(),
-		qm.From(From)).Bind(ctx, exec, p)
+		qm.From(From),
+	).Bind(ctx, exec, p)
 }
 
 func (p *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1208,13 +1316,18 @@ type Proof struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (p *Proof) String() string {
+	return "Proofs"
+}
+
 func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ProofExpr(),
-		qm.From(From)).Bind(ctx, exec, p)
+		qm.From(From),
+	).Bind(ctx, exec, p)
 }
 
 func (p *Proof) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1242,7 +1355,8 @@ func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.RestrictExpr(),
-		qm.From(From)).Bind(ctx, exec, r)
+		qm.From(From),
+	).Bind(ctx, exec, r)
 }
 
 func (r *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1265,13 +1379,18 @@ type Script struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (s *Script) String() string {
+	return "Scripting software"
+}
+
 func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ScriptExpr(),
-		qm.From(From)).Bind(ctx, exec, s)
+		qm.From(From),
+	).Bind(ctx, exec, s)
 }
 
 func (s *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1300,7 +1419,8 @@ func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.StandardExpr(),
-		qm.From(From)).Bind(ctx, exec, s)
+		qm.From(From),
+	).Bind(ctx, exec, s)
 }
 
 func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1329,7 +1449,8 @@ func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TakedownExpr(),
-		qm.From(From)).Bind(ctx, exec, t)
+		qm.From(From),
+	).Bind(ctx, exec, t)
 }
 
 func (t *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1352,13 +1473,18 @@ type Text struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (t *Text) String() string {
+	return "Texts"
+}
+
 func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextExpr(),
-		qm.From(From)).Bind(ctx, exec, t)
+		qm.From(From),
+	).Bind(ctx, exec, t)
 }
 
 func (t *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1387,7 +1513,8 @@ func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextAmigaExpr(),
-		qm.From(From)).Bind(ctx, exec, t)
+		qm.From(From),
+	).Bind(ctx, exec, t)
 }
 
 func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1416,7 +1543,8 @@ func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AppleIIExpr(),
-		qm.From(From)).Bind(ctx, exec, t)
+		qm.From(From),
+	).Bind(ctx, exec, t)
 }
 
 func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1445,7 +1573,8 @@ func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AtariSTExpr(),
-		qm.From(From)).Bind(ctx, exec, t)
+		qm.From(From),
+	).Bind(ctx, exec, t)
 }
 
 func (t *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1474,7 +1603,8 @@ func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextPackExpr(),
-		qm.From(From)).Bind(ctx, exec, t)
+		qm.From(From),
+	).Bind(ctx, exec, t)
 }
 
 func (t *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1503,7 +1633,8 @@ func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ToolExpr(),
-		qm.From(From)).Bind(ctx, exec, t)
+		qm.From(From),
+	).Bind(ctx, exec, t)
 }
 
 func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1532,7 +1663,8 @@ func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TrialCrackmeExpr(),
-		qm.From(From)).Bind(ctx, exec, t)
+		qm.From(From),
+	).Bind(ctx, exec, t)
 }
 
 func (t *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1561,7 +1693,8 @@ func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.VideoExpr(),
-		qm.From(From)).Bind(ctx, exec, v)
+		qm.From(From),
+	).Bind(ctx, exec, v)
 }
 
 func (v *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1584,13 +1717,18 @@ type Windows struct {
 	MaxYear int `boil:"max_year"`
 }
 
+func (w *Windows) String() string {
+	return "Windows files"
+}
+
 func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.WindowsExpr(),
-		qm.From(From)).Bind(ctx, exec, w)
+		qm.From(From),
+	).Bind(ctx, exec, w)
 }
 
 func (w *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
@@ -1619,7 +1757,8 @@ func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.WindowsPackExpr(),
-		qm.From(From)).Bind(ctx, exec, w)
+		qm.From(From),
+	).Bind(ctx, exec, w)
 }
 
 func (w *WindowsPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
