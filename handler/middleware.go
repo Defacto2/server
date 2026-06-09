@@ -95,7 +95,11 @@ func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo
 		// Help, https://pkg.go.dev/github.com/gorilla/sessions#Session
 		sess, err := session.Get(sess.Name, e)
 		if err != nil {
-			return fmt.Errorf("%s get: %w", msg, err)
+			sl.Warn(msg+" get", slog.Any("error", err))
+			if err := app.StatusErr(sl, e, http.StatusForbidden, ""); err != nil {
+				return fmt.Errorf("%s get: %w", msg, err)
+			}
+			return nil
 		}
 		id, subExists := sess.Values["sub"].(string)
 		if !subExists || id == "" {
