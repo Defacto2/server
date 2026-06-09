@@ -941,6 +941,28 @@ func Fixes(sl *slog.Logger, c *echo.Context) error {
 	return nil
 }
 
+// Routes is the handler for the listing of all the routes page.
+func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
+	const msg = "routes context"
+	if err := panics.SC(c, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+	const name = "routes"
+	data := empty(c)
+	data["title"] = "List of routes"
+	data["description"] = "Lists the web browser routes and parameters registered by the web application."
+	data["logo"] = "Routes"
+	data["routesList"] = r
+	data["routesCount"] = len(r)
+	//x := r[0]
+	//abc := echo.RouteInfo{}
+	err := c.Render(http.StatusOK, name, data)
+	if err != nil {
+		return InternalErr(sl, c, name, err)
+	}
+	return nil
+}
+
 // Terms is the handler for the problems and fixes page.
 func Terms(sl *slog.Logger, c *echo.Context) error {
 	const msg = "apps rcontext"

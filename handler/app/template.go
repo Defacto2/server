@@ -117,6 +117,7 @@ func (t *Templ) Pages() *Page {
 		"new":           "new.tmpl",
 		"releaser":      releaserTmpl,
 		"releaser-year": releaseryearTmpl,
+		"routes":        "routes.tmpl",
 		"scener":        scenerTmpl,
 		"searchhtmx":    "searchhtmx.tmpl",
 		"searchpost":    "searchpost.tmpl",

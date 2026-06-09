@@ -51,7 +51,14 @@ func (c *Configuration) lock(ctx context.Context, sl *slog.Logger, e *echo.Echo,
 	get(ctx, sl, lock, db, dirs)
 	online(ctx, lock, db)
 	search(ctx, sl, lock, db)
+	routes(sl, lock, e.Router().Routes())
 	return e
+}
+
+func routes(sl *slog.Logger, g *echo.Group, r echo.Routes) {
+	g.GET("/routes", func(ec *echo.Context) error {
+		return app.Routes(sl, ec, r)
+	})
 }
 
 func fixers(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
