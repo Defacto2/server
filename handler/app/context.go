@@ -667,9 +667,9 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 	})
 	wg.Go(func() {
 		mu.Lock()
-		wdu, wdt, _, wdp, _ := helper.DiskStat(conf.AbsDownload.String())
-		data["wdUsage"] = helper.ByteCount(int64(wdu))
+		wdt, wdu, _, wdp, _ := helper.DiskStat(conf.AbsDownload.String())
 		data["wdTotal"] = helper.ByteCount(int64(wdt))
+		data["wdFree"] = helper.ByteCount(int64(wdu))
 		data["wdPercent"] = wdp
 		mu.Unlock()
 	})
