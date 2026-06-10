@@ -43,38 +43,37 @@ const (
 )
 
 // UpdateEmulateUMB updates the column dosee_no_umb with val.
-func UpdateEmulateUMB(db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(db, emulateUMB, id, val)
+func UpdateEmulateUMB(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	return UpdateBoolFrom(ctx, db, emulateUMB, id, val)
 }
 
 // UpdateEmulateEMS updates the column dosee_no_ems with val.
-func UpdateEmulateEMS(db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(db, emulateEMS, id, val)
+func UpdateEmulateEMS(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	return UpdateBoolFrom(ctx, db, emulateEMS, id, val)
 }
 
 // UpdateEmulateXMS updates the column dosee_no_xms with val.
-func UpdateEmulateXMS(db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(db, emulateXMS, id, val)
+func UpdateEmulateXMS(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	return UpdateBoolFrom(ctx, db, emulateXMS, id, val)
 }
 
 // UpdateEmulateBroken updates the column dosee_broken with val.
-func UpdateEmulateBroken(db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(db, emulateBroken, id, val)
+func UpdateEmulateBroken(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	return UpdateBoolFrom(ctx, db, emulateBroken, id, val)
 }
 
 // UpdateReadmeDisable updates the column retrotxt_no_readme with val.
-func UpdateReadmeDisable(db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(db, readmeDisable, id, val)
+func UpdateReadmeDisable(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	return UpdateBoolFrom(ctx, db, readmeDisable, id, val)
 }
 
 // UpdateBoolFrom updates the column bool from value with val.
 // The boolFrom columns are table columns that can either be null, empty, or have a smallint value.
-func UpdateBoolFrom(db *sql.DB, column boolFrom, id int64, val bool) error {
+func UpdateBoolFrom(ctx context.Context, db *sql.DB, column boolFrom, id int64, val bool) error {
 	const msg = "update bool from"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -109,13 +108,12 @@ func UpdateBoolFrom(db *sql.DB, column boolFrom, id int64, val bool) error {
 	return nil
 }
 
-func UpdateEmulateRunProgram(db *sql.DB, id int64, val string) error {
+func UpdateEmulateRunProgram(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update emulate run program"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
 	s := strings.TrimSpace(strings.ToUpper(val))
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -134,7 +132,7 @@ func UpdateEmulateRunProgram(db *sql.DB, id int64, val string) error {
 	return nil
 }
 
-func UpdateEmulateMachine(db *sql.DB, id int64, val string) error {
+func UpdateEmulateMachine(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update emulate machine"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
@@ -148,7 +146,6 @@ func UpdateEmulateMachine(db *sql.DB, id int64, val string) error {
 	default:
 		return fmt.Errorf("%s %s: %w", msg, val, ErrMachine)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -167,7 +164,7 @@ func UpdateEmulateMachine(db *sql.DB, id int64, val string) error {
 	return nil
 }
 
-func UpdateEmulateCPU(db *sql.DB, id int64, val string) error {
+func UpdateEmulateCPU(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update emulate cpu"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
@@ -181,7 +178,6 @@ func UpdateEmulateCPU(db *sql.DB, id int64, val string) error {
 	default:
 		return fmt.Errorf("%s %s: %w", msg, val, ErrCPU)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -200,7 +196,7 @@ func UpdateEmulateCPU(db *sql.DB, id int64, val string) error {
 	return nil
 }
 
-func UpdateEmulateSfx(db *sql.DB, id int64, val string) error {
+func UpdateEmulateSfx(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update emulate sfx"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
@@ -214,7 +210,6 @@ func UpdateEmulateSfx(db *sql.DB, id int64, val string) error {
 	default:
 		return fmt.Errorf("%s %s: %w", msg, val, ErrSfx)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -242,100 +237,99 @@ const (
 )
 
 // Update16Colors updates the WebID16colors column value with val.
-func Update16Colors(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, colors16, id, val)
+func Update16Colors(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, colors16, id, val)
 }
 
 // UpdateComment updates the Comment column value with val.
-func UpdateComment(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, comment, id, val)
+func UpdateComment(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, comment, id, val)
 }
 
 // UpdateCreatorAudio updates the CreditAudio column with val.
-func UpdateCreatorAudio(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, credAudio, id, val)
+func UpdateCreatorAudio(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, credAudio, id, val)
 }
 
 // UpdateCreatorIll updates the CreditIllustration column with val.
-func UpdateCreatorIll(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, credIll, id, val)
+func UpdateCreatorIll(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, credIll, id, val)
 }
 
 // UpdateCreatorProg updates the CreditProgram column with val.
-func UpdateCreatorProg(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, credProg, id, val)
+func UpdateCreatorProg(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, credProg, id, val)
 }
 
 // UpdateCreatorText updates the CreditText column with val.
-func UpdateCreatorText(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, creText, id, val)
+func UpdateCreatorText(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, creText, id, val)
 }
 
 // UpdateDemozoo updates the WebIDDemozoo column with val.
-func UpdateDemozoo(db *sql.DB, id int64, val string) error {
-	return UpdateInt64From(db, demozooProd, id, val)
+func UpdateDemozoo(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateInt64From(ctx, db, demozooProd, id, val)
 }
 
 // UpdateFilename updates the Filename column with val.
-func UpdateFilename(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, filename, id, val)
+func UpdateFilename(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, filename, id, val)
 }
 
 // UpdateGitHub updates the WebIDGithub column with val.
-func UpdateGitHub(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, github, id, val)
+func UpdateGitHub(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, github, id, val)
 }
 
 // UpdatePlatform updates the Platform column value with val.
-func UpdatePlatform(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, platform, id, val)
+func UpdatePlatform(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, platform, id, val)
 }
 
 // UpdatePouet updates the WebIDPouet column with val.
-func UpdatePouet(db *sql.DB, id int64, val string) error {
-	return UpdateInt64From(db, pouetProd, id, val)
+func UpdatePouet(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateInt64From(ctx, db, pouetProd, id, val)
 }
 
 // UpdateRelations updates the ListRelations column value with val.
-func UpdateRelations(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, relations, id, val)
+func UpdateRelations(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, relations, id, val)
 }
 
 // UpdateSites updates the ListLinks column with val.
-func UpdateSites(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, sites, id, val)
+func UpdateSites(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, sites, id, val)
 }
 
 // UpdateTag updates the Section column with val.
-func UpdateTag(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, section, id, val)
+func UpdateTag(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, section, id, val)
 }
 
 // UpdateTitle updates the RecordTitle column with val.
-func UpdateTitle(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, title, id, val)
+func UpdateTitle(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, title, id, val)
 }
 
 // UpdateVirusTotal updates the FileSecurityAlertURL value with val.
-func UpdateVirusTotal(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, virusTotal, id, val)
+func UpdateVirusTotal(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, virusTotal, id, val)
 }
 
 // UpdateYouTube updates the WebIDYoutube column value with val.
-func UpdateYouTube(db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(db, youtube, id, val)
+func UpdateYouTube(ctx context.Context, db *sql.DB, id int64, val string) error {
+	return UpdateStringFrom(ctx, db, youtube, id, val)
 }
 
 // UpdateInt64From updates the column int64 from value with val.
 // The int64From columns are table columns that can either be null, empty, or have an int64 value.
 // The demozooProd and pouetProd values are validated to be within a sane range
 // and a zero value will set their column's to null.
-func UpdateInt64From(db *sql.DB, column int64From, id int64, val string) error {
+func UpdateInt64From(ctx context.Context, db *sql.DB, column int64From, id int64, val string) error {
 	const msg = "update int64 from"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -404,12 +398,11 @@ const (
 
 // UpdateStringFrom updates the column string from value with val.
 // The stringFrom columns are table columns that can either be null, empty, or have a string value.
-func UpdateStringFrom(db *sql.DB, column stringFrom, id int64, val string) error {
+func UpdateStringFrom(ctx context.Context, db *sql.DB, column stringFrom, id int64, val string) error {
 	const msg = "update string from"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -479,12 +472,11 @@ func updateStringCases(f *models.File, column stringFrom, val string) error {
 }
 
 // UpdateCreators updates the text, illustration, program, and audio credit columns with the values provided.
-func UpdateCreators(db *sql.DB, id int64, text, ill, prog, audio string) error {
+func UpdateCreators(ctx context.Context, db *sql.DB, id int64, text, ill, prog, audio string) error {
 	const msg = "update creators"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -507,7 +499,7 @@ func UpdateCreators(db *sql.DB, id int64, text, ill, prog, audio string) error {
 }
 
 // UpdateLinks updates the youtube, 16colors, relations, sites, demozoo, and pouet columns with the values provided.
-func UpdateLinks(db *sql.DB, id int64,
+func UpdateLinks(ctx context.Context, db *sql.DB, id int64,
 	youtube, colors16, github, relations, sites string,
 	demozoo, pouet int64,
 ) error {
@@ -515,7 +507,6 @@ func UpdateLinks(db *sql.DB, id int64,
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -543,7 +534,7 @@ func UpdateLinks(db *sql.DB, id int64,
 // UpdateClassification updates the classification of a file in the database.
 // It takes an ID, platform, and tag as parameters and returns an error if any.
 // Both platform and tag must be valid values.
-func UpdateClassification(db *sql.DB, id int64, platform, tag string) error {
+func UpdateClassification(ctx context.Context, db *sql.DB, id int64, platform, tag string) error {
 	const msg = "update classification"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
@@ -561,7 +552,6 @@ func UpdateClassification(db *sql.DB, id int64, platform, tag string) error {
 	if !tags.IsTag(tag) {
 		return fmt.Errorf("%s %s: %w", msg, tag, tags.ErrTag)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -583,12 +573,11 @@ func UpdateClassification(db *sql.DB, id int64, platform, tag string) error {
 
 // UpdateDateIssued updates the date issued year, month and day columns with the values provided.
 // Columns updated are DateIssuedYear, DateIssuedMonth, and DateIssuedDay.
-func UpdateDateIssued(db *sql.DB, id int64, y, m, d string) error {
+func UpdateDateIssued(ctx context.Context, db *sql.DB, id int64, y, m, d string) error {
 	const msg = "update date issued"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -611,12 +600,11 @@ func UpdateDateIssued(db *sql.DB, id int64, y, m, d string) error {
 }
 
 // UpdateOffline updates the record to be offline and inaccessible to the public.
-func UpdateOffline(db *sql.DB, id int64) error {
+func UpdateOffline(ctx context.Context, db *sql.DB, id int64) error {
 	const msg = "update offline"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s offline: %w", msg, err)
@@ -638,12 +626,11 @@ func UpdateOffline(db *sql.DB, id int64) error {
 }
 
 // UpdateOnline updates the record to be online and public.
-func UpdateOnline(db *sql.DB, id int64) error {
+func UpdateOnline(ctx context.Context, db *sql.DB, id int64) error {
 	const msg = "update online"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s online: %w", msg, err)
@@ -666,7 +653,7 @@ func UpdateOnline(db *sql.DB, id int64) error {
 // UpdateReleasers updates the releasers values with val.
 // Two releases can be separated by a + (plus) character.
 // The columns updated are GroupBrandFor and GroupBrandBy.
-func UpdateReleasers(db *sql.DB, id int64, val string) error {
+func UpdateReleasers(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update releasers"
 	if db == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
@@ -680,7 +667,6 @@ func UpdateReleasers(db *sql.DB, id int64, val string) error {
 	for i, v := range s {
 		s[i] = releaser.Cell(v)
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

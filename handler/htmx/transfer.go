@@ -37,7 +37,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -56,9 +56,9 @@ const (
 // HumanizeCount handles the post submission for the Uploader classification,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
-func HumanizeCount(c echo.Context, db *sql.DB, sl *slog.Logger, name string) error {
+func HumanizeCount(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, name string) error {
 	const msg = "transfer humanized count"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	section := c.FormValue(name + category)
@@ -66,7 +66,7 @@ func HumanizeCount(c echo.Context, db *sql.DB, sl *slog.Logger, name string) err
 	if platform == "" {
 		platform = c.FormValue(name + "-operating-system")
 	}
-	html, err := form.HumanizeCount(db, section, platform)
+	html, err := form.HumanizeCount(ctx, db, section, platform)
 	if err != nil {
 		sl.Error(msg,
 			slog.String("issue", "could not create the html template"), slog.Any("error", err))
@@ -78,9 +78,9 @@ func HumanizeCount(c echo.Context, db *sql.DB, sl *slog.Logger, name string) err
 // LookupSHA384 is a handler for the /uploader/sha384 route. It checks the SHA-384 hash
 // against the database to see if the file already exists, and returns the URI if it does.
 // Otherwise, if it does not exist, it returns an empty string.
-func LookupSHA384(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func LookupSHA384(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "transfer lookup sha384"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	hash := c.Param("hash")
@@ -97,7 +97,6 @@ func LookupSHA384(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	if !match {
 		return c.String(http.StatusBadRequest, "invalid hash error: "+hash)
 	}
-	ctx := context.Background()
 	uri, err := model.HashFind(ctx, db, hash)
 	if err != nil {
 		slog.Error(msg, slog.String("database", "could not lookup the hash"), slog.Any("error", err))
@@ -108,42 +107,42 @@ func LookupSHA384(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 }
 
 // ImageSubmit is a handler for the /uploader/image route.
-func ImageSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func ImageSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-image"
 	c.Set(key+"-operating-system", tags.Image.String())
-	return transfer(c, db, sl, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // IntroSubmit is a handler for the /uploader/intro route.
-func IntroSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func IntroSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-intro"
 	c.Set(key+"-category", tags.Intro.String())
-	return transfer(c, db, sl, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // MagazineSubmit is a handler for the /uploader/magazine route.
-func MagazineSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func MagazineSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-magazine"
 	c.Set(key+"-category", tags.Mag.String())
-	return transfer(c, db, sl, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // TextSubmit is a handler for the /uploader/text route.
-func TextSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func TextSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-text"
-	return transfer(c, db, sl, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // TrainerSubmit is a handler for the /uploader/trainer route.
-func TrainerSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func TrainerSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-trainer"
-	return transfer(c, db, sl, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 // AdvancedSubmit is a handler for the /uploader/advanced route.
-func AdvancedSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func AdvancedSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const key = "uploader-advanced"
-	return transfer(c, db, sl, key, download)
+	return transfer(ctx, sl, c, db, key, download)
 }
 
 func uploader(err error) string {
@@ -156,9 +155,11 @@ func uploader(err error) string {
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
-func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download dir.Directory) error {
+func transfer(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, key string, download dir.Directory,
+) error {
 	const msg = "transfer file handler"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if err := download.Check(sl); err != nil {
@@ -167,35 +168,34 @@ func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download 
 	name := key + "file"
 	file, err := c.FormFile(name)
 	if err != nil {
-		return checkFormFile(c, sl, name, err)
+		return checkFormFile(sl, c, name, err)
 	}
 	src, err := file.Open()
 	if err != nil {
-		return checkFileOpen(c, sl, name, err)
+		return checkFileOpen(sl, c, name, err)
 	}
 	defer func() { _ = src.Close() }()
 	hasher := sha512.New384()
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
-		return checkHasher(c, sl, name, err)
+		return checkHasher(sl, c, name, err)
 	}
 	checksum := hasher.Sum(nil)
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
 	exist, err := model.SHA384Exists(ctx, tx, checksum)
 	if err != nil {
-		return checkExist(c, sl, err)
+		return checkExist(sl, c, err)
 	}
 	if exist {
 		return c.HTML(http.StatusOK,
 			"<p>Thanks, but the chosen file already exists on Defacto2.</p>"+
 				html.EscapeString(file.Filename))
 	}
-	dst, err := copier(c, sl, file, key)
+	dst, err := copier(sl, c, file, key)
 	if err != nil {
 		return fmt.Errorf("copier: %w", err)
 	}
@@ -207,13 +207,13 @@ func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download 
 	creator := creator{
 		file: file, readme: readme, key: key, checksum: checksum, content: content,
 	}
-	id, uid, err := creator.insert(ctx, c, tx, sl)
+	id, uid, err := creator.insert(ctx, sl, c, tx)
 	if err != nil {
 		// resync the files table sequence if the insert failed and try again
 		if err := fix.SyncFilesIDSeq(db); err != nil {
 			return c.HTML(http.StatusInternalServerError, err.Error())
 		}
-		id, uid, err = creator.insert(ctx, c, tx, sl)
+		id, uid, err = creator.insert(ctx, sl, c, tx)
 		if err != nil {
 			return c.HTML(http.StatusInternalServerError, err.Error())
 		}
@@ -224,7 +224,7 @@ func transfer(c echo.Context, db *sql.DB, sl *slog.Logger, key string, download 
 	return success(c, file.Filename, id)
 }
 
-func success(c echo.Context, filename string, id int64,
+func success(c *echo.Context, filename string, id int64,
 ) error {
 	html := fmt.Sprintf("<div>Thanks, the chosen file submission was a success.<br> "+
 		"<span class=\"text-success\">✓</span> <var>%s</var></div>", html.EscapeString(filename))
@@ -279,9 +279,9 @@ func Duplicate(sl *slog.Logger, uid uuid.UUID, src string, dst dir.Directory) {
 		slog.String("uuid", uid.String()), slog.Int64("bytes tranfered", i))
 }
 
-func checkFormFile(c echo.Context, sl *slog.Logger, name string, err error) error {
+func checkFormFile(sl *slog.Logger, c *echo.Context, name string, err error) error {
 	const msg = "check form file"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Error("transfer check form file",
@@ -291,9 +291,9 @@ func checkFormFile(c echo.Context, sl *slog.Logger, name string, err error) erro
 		"The chosen file form input caused an error")
 }
 
-func checkFileOpen(c echo.Context, sl *slog.Logger, name string, err error) error {
+func checkFileOpen(sl *slog.Logger, c *echo.Context, name string, err error) error {
 	const msg = "check file open"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Error("transfer check file open",
@@ -304,9 +304,9 @@ func checkFileOpen(c echo.Context, sl *slog.Logger, name string, err error) erro
 		"The chosen file input cannot be opened")
 }
 
-func checkHasher(c echo.Context, sl *slog.Logger, name string, err error) error {
+func checkHasher(sl *slog.Logger, c *echo.Context, name string, err error) error {
 	const msg = "check hasher"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Error("transfer check hasher",
@@ -317,9 +317,9 @@ func checkHasher(c echo.Context, sl *slog.Logger, name string, err error) error 
 		"The chosen file input cannot be hashed")
 }
 
-func checkExist(c echo.Context, sl *slog.Logger, err error) error {
+func checkExist(sl *slog.Logger, c *echo.Context, err error) error {
 	const msg = "check exist"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Error("transfer check exist",
@@ -330,9 +330,9 @@ func checkExist(c echo.Context, sl *slog.Logger, err error) error {
 }
 
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
-func copier(c echo.Context, sl *slog.Logger, file *multipart.FileHeader, key string) (string, error) {
+func copier(sl *slog.Logger, c *echo.Context, file *multipart.FileHeader, key string) (string, error) {
 	const msg = "transfer generic file copier"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return "", fmt.Errorf("%s: %w", msg, err)
 	}
 	if file == nil {
@@ -384,7 +384,7 @@ type creator struct {
 	content  []string
 }
 
-func insertpanic(ctx context.Context, c echo.Context, tx *sql.Tx, sl *slog.Logger, file *multipart.FileHeader) error {
+func insertpanic(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, file *multipart.FileHeader) error {
 	if ctx == nil {
 		return panics.ErrNoContext
 	}
@@ -403,15 +403,15 @@ func insertpanic(ctx context.Context, c echo.Context, tx *sql.Tx, sl *slog.Logge
 	return nil
 }
 
-func (cr creator) insert(ctx context.Context, c echo.Context, tx *sql.Tx, sl *slog.Logger,
+func (cr creator) insert(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx,
 ) (int64, uuid.UUID, error) {
 	const msg = "transfer creator insert"
 	empty := uuid.UUID{}
-	if err := insertpanic(ctx, c, tx, sl, cr.file); err != nil {
+	if err := insertpanic(ctx, sl, c, tx, cr.file); err != nil {
 		return 0, empty, fmt.Errorf("%s: %w", msg, err)
 	}
 	// form parameters
-	values, err := c.FormParams()
+	values, err := c.FormValues()
 	if err != nil {
 		sl.Error(msg, slog.String("form", "could not obtain the form parameters"), slog.Any("error", err))
 		return 0, empty, ErrFormRead
@@ -456,10 +456,10 @@ func (prod Submission) String() string {
 }
 
 func (prod Submission) Submit( //nolint:funlen
-	c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
 ) error {
 	const msg = "htmx transfer submit"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := strings.ToTitle(prod.String())
@@ -467,7 +467,6 @@ func (prod Submission) Submit( //nolint:funlen
 	if err != nil {
 		return err
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		sl.Error(msg,
@@ -518,14 +517,14 @@ func (prod Submission) Submit( //nolint:funlen
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
 	case Demozoo:
-		if err := app.GetDemozoo(c, db, id, unid, download); err != nil {
+		if err := app.GetDemozoo(ctx, c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote demozoo api"), slog.Any("error", err))
 			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
-		if err := app.GetPouet(c, db, id, unid, download); err != nil {
+		if err := app.GetPouet(ctx, c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote pouet api"), slog.Any("error", err))
 			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
@@ -539,15 +538,14 @@ func (prod Submission) Submit( //nolint:funlen
 }
 
 // sanitizeID validates the production ID and ensures that it is a valid numeric value.
-func sanitizeID(c echo.Context, name, prod string) (int, error) {
+func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 	if c == nil {
 		return 0, panics.ErrNoEchoC
 	}
-	sid := c.Param("id")
-	id, err := strconv.Atoi(sid)
+	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
 		return 0, c.String(http.StatusNotAcceptable,
-			"The "+name+" production ID must be a numeric value, "+sid)
+			"The "+name+" production ID must be a numeric value")
 	}
 	var sanity int
 	switch prod {
@@ -558,14 +556,16 @@ func sanitizeID(c echo.Context, name, prod string) (int, error) {
 	}
 	if id < 1 || id > sanity {
 		return 0, c.String(http.StatusNotAcceptable,
-			"The "+name+" production ID is invalid, "+sid)
+			fmt.Sprintf("The %q production ID is invalid, %d", name, id))
 	}
 	return id, nil
 }
 
-func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Directory) error {
+func UploadPreview(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, preview, thumbnail dir.Directory,
+) error {
 	const msg = "htmx upload preview"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	name := "artifact-editor-replace-preview"
@@ -581,11 +581,11 @@ func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Direc
 	}
 	file, err := c.FormFile(name)
 	if err != nil {
-		return checkFormFile(c, nil, name, err)
+		return checkFormFile(nil, c, name, err)
 	}
 	src, err := file.Open()
 	if err != nil {
-		return checkFileOpen(c, nil, name, err)
+		return checkFileOpen(nil, c, name, err)
 	}
 	defer func() { _ = src.Close() }()
 	pattern := name + "-*"
@@ -605,12 +605,12 @@ func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Direc
 	dirs := command.Dirs{Download: "", Preview: preview, Thumbnail: thumbnail, Extra: ""}
 	src, err = file.Open()
 	if err != nil {
-		return checkFileOpen(c, nil, name, err)
+		return checkFileOpen(nil, c, name, err)
 	}
 	defer func() { _ = src.Close() }()
 	magic := magicnumber.Find(src)
 	if imagers(magic) {
-		if err := dirs.PictureImager(sl, dst.Name(), upload.unid); err != nil {
+		if err := dirs.PictureImager(ctx, sl, dst.Name(), upload.unid); err != nil {
 			return c.HTML(http.StatusBadRequest,
 				err.Error()+
 					"\nThe uploaded image file could not be converted, "+
@@ -620,7 +620,7 @@ func UploadPreview(c echo.Context, sl *slog.Logger, preview, thumbnail dir.Direc
 	}
 	if texters(magic) {
 		amigaFont := strings.EqualFold(upload.platform, tags.TextAmiga.String())
-		err = dirs.TextImager(nil, dst.Name(), upload.unid, amigaFont)
+		err = dirs.TextImager(ctx, nil, dst.Name(), upload.unid, amigaFont)
 		if err != nil {
 			return badRequest(c, err)
 		}
@@ -641,7 +641,7 @@ func texters(magic magicnumber.Signature) bool {
 	return slices.Contains(txts, magic)
 }
 
-func reloader(c echo.Context, filename string) error {
+func reloader(c *echo.Context, filename string) error {
 	if c == nil {
 		return panics.ErrNoEchoC
 	}
@@ -652,11 +652,11 @@ func reloader(c echo.Context, filename string) error {
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 func UploadReplacement( //nolint:funlen
-	c echo.Context, db *sql.DB, sl *slog.Logger,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 	download, extra dir.Directory,
 ) error {
 	const msg = "htmx upload replacement"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const name = "artifact-editor-replace-file"
@@ -669,11 +669,11 @@ func UploadReplacement( //nolint:funlen
 	}
 	file, err := c.FormFile(name)
 	if err != nil {
-		return checkFormFile(c, sl, name, err)
+		return checkFormFile(sl, c, name, err)
 	}
 	src, err := file.Open()
 	if err != nil {
-		return checkFileOpen(c, sl, name, err)
+		return checkFileOpen(sl, c, name, err)
 	}
 	defer func() { _ = src.Close() }()
 	fu := model.FileUpload{
@@ -688,12 +688,12 @@ func UploadReplacement( //nolint:funlen
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
-		return checkHasher(c, sl, name, err)
+		return checkHasher(sl, c, name, err)
 	}
 	fu.Integrity = hex.EncodeToString(hasher.Sum(nil))
 	src, err = file.Open()
 	if err != nil {
-		return checkFileOpen(c, sl, name, err)
+		return checkFileOpen(sl, c, name, err)
 	}
 	defer func() { _ = src.Close() }()
 	lastmod := c.FormValue("artifact-editor-lastmodified")
@@ -704,18 +704,18 @@ func UploadReplacement( //nolint:funlen
 	}
 	sign := magicnumber.Find(src)
 	fu.MagicNumber = sign.Title()
-	dst, err := copier(c, sl, file, upload.key)
+	dst, err := copier(sl, c, file, upload.key)
 	if err != nil || dst == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
 	}
 	if list, err := archive.List(dst, file.Filename); err == nil {
 		fu.Content = strings.Join(list, "\n")
 	}
-	tx, err := db.BeginTx(c.Request().Context(), nil)
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
-	if err := fu.Update(context.Background(), tx, upload.id); err != nil {
+	if err := fu.Update(ctx, tx, upload.id); err != nil {
 		return badRequest(c, fmt.Errorf("file upload update, %w: %w", ErrFormUpdate, err))
 	}
 	abs := filepath.Join(download.Path(), upload.unid)
@@ -745,7 +745,7 @@ type values struct {
 
 // formValues reads the form values from the context and validates the unique identifier and record key.
 // The return value is an error message if the unique identifier or record key is invalid.
-func (i *values) formValues(c echo.Context) string {
+func (i *values) formValues(c *echo.Context) string {
 	if c == nil {
 		return fmt.Sprintf("The editor file upload is broken, %s",
 			panics.ErrNoEchoC)

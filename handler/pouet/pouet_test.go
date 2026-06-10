@@ -1,6 +1,7 @@
 package pouet_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/Defacto2/server/handler/pouet"
@@ -35,35 +36,38 @@ func TestType(t *testing.T) {
 func TestResponseGet(t *testing.T) {
 	t.Parallel()
 	r := pouet.Response{}
-	_, err := r.Get(0)
+	ctx := context.TODO()
+	_, err := r.Get(ctx, 0)
 	be.Err(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
-		_, err = r.Get(1)
+		_, err = r.Get(ctx, 1)
 		be.Err(t, err, nil)
 	}
 }
 
 func TestPouet(t *testing.T) {
 	t.Parallel()
+	ctx := context.TODO()
 	p := pouet.Production{}
-	_, err := p.Get(0)
+	_, err := p.Get(ctx, 0)
 	be.Err(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
-		_, err = p.Get(1)
+		_, err = p.Get(ctx, 1)
 		be.Err(t, err, nil)
 	}
 }
 
 func TestVotes(t *testing.T) {
 	t.Parallel()
+	ctx := context.TODO()
 	v := pouet.Votes{}
-	err := v.Votes(0)
+	err := v.Votes(ctx, 0)
 	be.Err(t, err)
 	// this pings a remote server, so it is disabled.
 	if testRemoteServers {
-		err = v.Votes(1)
+		err = v.Votes(ctx, 1)
 		be.Err(t, err, nil)
 	}
 }

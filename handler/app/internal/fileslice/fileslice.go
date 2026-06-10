@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 	"time"
 
 	"github.com/Defacto2/server/internal/panics"
@@ -299,7 +300,7 @@ func RecordsSub(uri string) string {
 // Note that the record statistics and counts get cached.
 func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	const msg = "file slice records"
-	if err := panics.ContextB(ctx, exec); err != nil {
+	if err := panics.CE(ctx, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	switch Match(uri) { //nolint:exhaustive
@@ -523,12 +524,11 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 }
 
 // Counter returns the statistics for the artifacts categories.
-func Counter(db *sql.DB) (Stats, error) {
+func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
 	const msg = "artifacts categories counter"
 	if db == nil {
 		return Stats{}, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	ctx := context.Background()
 	counter := newStats()
 	if err := counter.Get(ctx, db); err != nil {
 		return Stats{}, fmt.Errorf("%s get %w", msg, err)
@@ -560,6 +560,112 @@ type Stats struct {
 	Script    model.Script
 	Text      model.Text
 	Windows   model.Windows
+}
+
+type Era struct {
+	Name    string
+	MinYear int
+	MaxYear int
+}
+
+func (s *Stats) eras() []Era {
+	return []Era{
+		{s.Ansi.String(), s.Ansi.MinYear, s.Ansi.MaxYear},
+		{s.AnsiBBS.String(), s.AnsiBBS.MinYear, s.AnsiBBS.MaxYear},
+		{s.BBS.String(), s.BBS.MinYear, s.BBS.MaxYear},
+		{s.BBSText.String(), s.BBSText.MinYear, s.BBSText.MaxYear},
+		{s.BBStro.String(), s.BBStro.MinYear, s.BBStro.MaxYear},
+		{s.Demoscene.String(), s.Demoscene.MinYear, s.Demoscene.MaxYear},
+		{s.MsDos.String(), s.MsDos.MinYear, s.MsDos.MaxYear},
+		{s.Intro.String(), s.Intro.MinYear, s.Intro.MaxYear},
+		{s.IntroD.String(), s.IntroD.MinYear, s.IntroD.MaxYear},
+		{s.IntroW.String(), s.IntroW.MinYear, s.IntroW.MaxYear},
+		{s.Installer.String(), s.Installer.MinYear, s.Installer.MaxYear},
+		{s.Java.String(), s.Java.MinYear, s.Java.MaxYear},
+		{s.Linux.String(), s.Linux.MinYear, s.Linux.MaxYear},
+		{s.Magazine.String(), s.Magazine.MinYear, s.Magazine.MaxYear},
+		{s.Macos.String(), s.Macos.MinYear, s.Macos.MaxYear},
+		{s.Nfo.String(), s.Nfo.MinYear, s.Nfo.MaxYear},
+		{s.NfoTool.String(), s.NfoTool.MinYear, s.NfoTool.MaxYear},
+		{s.Proof.String(), s.Proof.MinYear, s.Proof.MaxYear},
+		{s.Script.String(), s.Script.MinYear, s.Script.MaxYear},
+		{s.Windows.String(), s.Windows.MinYear, s.Windows.MaxYear},
+	}
+}
+
+func (s *Stats) SortYear() []Era {
+	items := s.eras()
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].MinYear == items[j].MinYear {
+			return items[i].MaxYear < items[j].MaxYear
+		}
+		return items[i].MinYear < items[j].MinYear
+	})
+
+	return items
+}
+
+type Item struct {
+	Name  string
+	Bytes int
+	Count int
+}
+
+func (s *Stats) items() []Item {
+	return []Item{
+		{s.Ansi.String(), s.Ansi.Bytes, s.Ansi.Count},
+		{s.AnsiBBS.String(), s.AnsiBBS.Bytes, s.AnsiBBS.Count},
+		{s.BBS.String(), s.BBS.Bytes, s.BBS.Count},
+		{s.BBSText.String(), s.BBSText.Bytes, s.BBSText.Count},
+		{s.BBStro.String(), s.BBStro.Bytes, s.BBStro.Count},
+		{s.Demoscene.String(), s.Demoscene.Bytes, s.Demoscene.Count},
+		{s.MsDos.String(), s.MsDos.Bytes, s.MsDos.Count},
+		{s.Intro.String(), s.Intro.Bytes, s.Intro.Count},
+		{s.IntroD.String(), s.IntroD.Bytes, s.IntroD.Count},
+		{s.IntroW.String(), s.IntroW.Bytes, s.IntroW.Count},
+		{s.Installer.String(), s.Installer.Bytes, s.Installer.Count},
+		{s.Java.String(), s.Java.Bytes, s.Java.Count},
+		{s.Linux.String(), s.Linux.Bytes, s.Linux.Count},
+		{s.Magazine.String(), s.Magazine.Bytes, s.Magazine.Count},
+		{s.Macos.String(), s.Macos.Bytes, s.Macos.Count},
+		{s.Nfo.String(), s.Nfo.Bytes, s.Nfo.Count},
+		{s.NfoTool.String(), s.NfoTool.Bytes, s.NfoTool.Count},
+		{s.Proof.String(), s.Proof.Bytes, s.Proof.Count},
+		{s.Script.String(), s.Script.Bytes, s.Script.Count},
+		{s.Windows.String(), s.Windows.Bytes, s.Windows.Count},
+	}
+}
+
+func (s *Stats) SortByte() []Item {
+	items := s.items()
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Bytes == items[j].Bytes {
+			return items[i].Count > items[j].Count
+		}
+		return items[i].Bytes > items[j].Bytes
+	})
+
+	return items
+}
+
+func (s *Stats) SortCount() []Item {
+	items := s.items()
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Count == items[j].Count {
+			return items[i].Bytes > items[j].Bytes
+		}
+		return items[i].Count > items[j].Count
+	})
+
+	return items
+}
+
+func (s *Stats) SortName() []Item {
+	items := s.items()
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Name < items[j].Name
+	})
+	return items
 }
 
 // newStats returns a new Stats struct initialized with zero values.
@@ -598,7 +704,7 @@ func Statistics() Stats {
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "category get stats"
-	if err := panics.ContextB(ctx, exec); err != nil {
+	if err := panics.CE(ctx, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	v := reflect.ValueOf(exec)

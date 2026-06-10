@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -9,8 +10,8 @@ import (
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/panics"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 // Package file routerhtmx.go contains the custom router URIs for the website
@@ -18,11 +19,16 @@ import (
 
 const rateLimit = 2
 
-// htmxGroup is the /htmx sub-route group that returns HTML fragments
+type configHtmx struct {
+	prodMode bool
+	download dir.Directory
+}
+
+// append is the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func htmxGroup(e *echo.Echo, db *sql.DB, sl *slog.Logger, prodMode bool, download dir.Directory) *echo.Echo {
+func (h configHtmx) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
 	const msg = "router htmx group"
-	if err := panics.EchoDS(e, db, sl); err != nil {
+	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)
@@ -34,70 +40,70 @@ func htmxGroup(e *echo.Echo, db *sql.DB, sl *slog.Logger, prodMode bool, downloa
 	// note: this is found under the search func in router.go
 	// htmx/demozoo/production
 	demozoo := g.Group("/demozoo")
-	demozoo.GET("/production", func(c echo.Context) error {
-		return htmx.DemozooLookup(c, db, prodMode)
+	demozoo.GET("/production", func(c *echo.Context) error {
+		return htmx.DemozooLookup(ctx, c, db, h.prodMode)
 	})
-	demozoo.PUT("/production/:id", func(c echo.Context) error {
-		return htmx.DemozooSubmit(c, db, sl, download)
+	demozoo.PUT("/production/:id", func(c *echo.Context) error {
+		return htmx.DemozooSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/pouet/production
 	pouet := g.Group("/pouet")
-	pouet.GET("/production", func(c echo.Context) error {
-		return htmx.PouetLookup(c, db)
+	pouet.GET("/production", func(c *echo.Context) error {
+		return htmx.PouetLookup(ctx, c, db)
 	})
-	pouet.PUT("/production/:id", func(c echo.Context) error {
-		return htmx.PouetSubmit(c, db, sl, download)
+	pouet.PUT("/production/:id", func(c *echo.Context) error {
+		return htmx.PouetSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader
 	upload := g.Group("/uploader")
 	// htmx/uploader/classifications
-	upload.GET("/classifications", func(c echo.Context) error {
-		return htmx.HumanizeCount(c, db, sl, "uploader-advanced")
+	upload.GET("/classifications", func(c *echo.Context) error {
+		return htmx.HumanizeCount(ctx, sl, c, db, "uploader-advanced")
 	})
 	// htmx/uploader/releaser
-	upload.PATCH("/releaser/1", func(c echo.Context) error {
-		return htmx.DataListReleasers(c, db, sl, releaser1(c))
+	upload.PATCH("/releaser/1", func(c *echo.Context) error {
+		return htmx.DataListReleasers(ctx, sl, c, db, releaser1(c))
 	})
-	upload.PATCH("/releaser/2", func(c echo.Context) error {
-		return htmx.DataListReleasers(c, db, sl, releaser2(c))
+	upload.PATCH("/releaser/2", func(c *echo.Context) error {
+		return htmx.DataListReleasers(ctx, sl, c, db, releaser2(c))
 	})
 	// htmx/releaser/magazine
-	upload.PATCH("/releaser/magazine", func(c echo.Context) error {
+	upload.PATCH("/releaser/magazine", func(c *echo.Context) error {
 		lookup := c.FormValue("uploader-magazine-releaser1")
-		return htmx.DataListMagazines(c, db, sl, lookup)
+		return htmx.DataListMagazines(ctx, sl, c, db, lookup)
 	})
 	// htmx/uploader/sha384
-	upload.PATCH("/sha384/:hash", func(c echo.Context) error {
-		return htmx.LookupSHA384(c, db, sl)
+	upload.PATCH("/sha384/:hash", func(c *echo.Context) error {
+		return htmx.LookupSHA384(ctx, sl, c, db)
 	})
 	// htmx/uploader/advanced
-	upload.POST("/advanced", func(c echo.Context) error {
-		return htmx.AdvancedSubmit(c, db, sl, download)
+	upload.POST("/advanced", func(c *echo.Context) error {
+		return htmx.AdvancedSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/image
-	upload.POST("/image", func(c echo.Context) error {
-		return htmx.ImageSubmit(c, db, sl, download)
+	upload.POST("/image", func(c *echo.Context) error {
+		return htmx.ImageSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/intro
-	upload.POST("/intro", func(c echo.Context) error {
-		return htmx.IntroSubmit(c, db, sl, download)
+	upload.POST("/intro", func(c *echo.Context) error {
+		return htmx.IntroSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/magazine
-	upload.POST("/magazine", func(c echo.Context) error {
-		return htmx.MagazineSubmit(c, db, sl, download)
+	upload.POST("/magazine", func(c *echo.Context) error {
+		return htmx.MagazineSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/text
-	upload.POST("/text", func(c echo.Context) error {
-		return htmx.TextSubmit(c, db, sl, download)
+	upload.POST("/text", func(c *echo.Context) error {
+		return htmx.TextSubmit(ctx, sl, c, db, h.download)
 	})
 	// htmx/uploader/trainer
-	upload.POST("/trainer", func(c echo.Context) error {
-		return htmx.TrainerSubmit(c, db, sl, download)
+	upload.POST("/trainer", func(c *echo.Context) error {
+		return htmx.TrainerSubmit(ctx, sl, c, db, h.download)
 	})
 	return e
 }
 
-func releaser1(c echo.Context) string {
+func releaser1(c *echo.Context) string {
 	lookups := []string{
 		"artifact-editor-releaser1",
 		"uploader-intro-releaser1",
@@ -114,7 +120,7 @@ func releaser1(c echo.Context) string {
 	return ""
 }
 
-func releaser2(c echo.Context) string {
+func releaser2(c *echo.Context) string {
 	lookups := []string{
 		"artifact-editor-releaser2",
 		"uploader-intro-releaser2",

@@ -1,6 +1,7 @@
 package form_test
 
 import (
+	"context"
 	"strconv"
 	"strings"
 	"testing"
@@ -12,11 +13,12 @@ import (
 
 func TestHumanizeCount(t *testing.T) {
 	t.Parallel()
-	html, err := form.HumanizeCount(nil, "", "")
+	ctx := context.Background()
+	html, err := form.HumanizeCount(ctx, nil, "", "")
 	be.Err(t, err)
 	found := strings.Contains(string(html), `0 existing artifacts`)
 	be.True(t, !found)
-	htm := form.HumanizeCountStr(nil, "", "")
+	htm := form.HumanizeCountStr(ctx, nil, "", "")
 	be.Err(t, err)
 	found = strings.Contains(htm, `0 existing artifacts`)
 	be.True(t, found)

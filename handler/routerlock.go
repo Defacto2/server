@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -9,7 +10,7 @@ import (
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/panics"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // Package file routerlock.go contains the custom router URIs for the website
@@ -24,207 +25,227 @@ import (
 	 - DELETE requests are used for removing data from the server.
 */
 
-func (c *Configuration) lock(e *echo.Echo, db *sql.DB, sl *slog.Logger, dirs app.Dirs) *echo.Echo {
+const (
+	timeout = command.CmdTimeout
+	double  = 2
+)
+
+func (c *Configuration) lock(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
 	const msg = "configuration router lock"
-	if err := panics.EchoDS(e, db, sl); err != nil {
+	if err := panics.SDE(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	readonlylock := func(cx echo.HandlerFunc) echo.HandlerFunc {
-		return c.ReadOnlyLock(cx, sl)
+	readonlylock := func(ec echo.HandlerFunc) echo.HandlerFunc {
+		return c.ReadOnlyLock(ec, sl)
 	}
-	sessionlock := func(cx echo.HandlerFunc) echo.HandlerFunc {
-		return c.SessionLock(cx, sl)
+	sessionlock := func(ec echo.HandlerFunc) echo.HandlerFunc {
+		return c.SessionLock(ec, sl)
 	}
 	lock := e.Group("/editor")
 	lock.Use(readonlylock, sessionlock)
-	c.configurations(lock, db, sl)
-	creator(lock, db)
-	date(lock, db)
-	editor(lock, db, sl, dirs)
-	fixers(lock, db, sl)
-	get(lock, db, sl, dirs)
-	online(lock, db)
-	search(lock, db, sl)
+	c.configurations(ctx, sl, lock, db)
+	creator(ctx, lock, db)
+	date(ctx, lock, db)
+	editor(ctx, sl, lock, db, dirs)
+	fixers(ctx, sl, lock, db)
+	get(ctx, sl, lock, db, dirs)
+	online(ctx, lock, db)
+	search(ctx, sl, lock, db)
+	routes(sl, lock, e.Router().Routes())
 	return e
 }
 
-func fixers(g *echo.Group, db *sql.DB, sl *slog.Logger) {
-	g.GET("/fixers", func(c echo.Context) error { return app.Fixers(c, db, sl) })
-	g.POST("/fixers/fix/:id", func(c echo.Context) error { return app.FixNumericSuffix(c, db, sl) })
+func routes(sl *slog.Logger, g *echo.Group, r echo.Routes) {
+	g.GET("/routes", func(ec *echo.Context) error {
+		return app.Routes(sl, ec, r)
+	})
 }
 
-func (c *Configuration) configurations(g *echo.Group, db *sql.DB, sl *slog.Logger) {
+func fixers(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
+	fixers := func(c *echo.Context) error {
+		return app.Fixers(ctx, sl, c, db)
+	}
+	fixID := func(c *echo.Context) error {
+		return app.FixNumericSuffix(ctx, sl, c, db)
+	}
+	g.GET("/fixers", fixers)
+	g.POST("/fixers/fix/:id", fixID)
+}
+
+func (c *Configuration) configurations(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	const msg = "configurations group router"
-	if err := panics.GroupDS(g, db, sl); err != nil {
+	if err := panics.SGD(sl, g, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	conf := g.Group("/configurations")
-	conf.GET("", func(cx echo.Context) error {
-		return app.Configurations(cx, db, sl, c.Environment)
+	conf.GET("", func(ec *echo.Context) error {
+		return app.Configurations(ctx, sl, ec, db, c.Environment)
 	})
-	conf.GET("/dbconns", func(c echo.Context) error {
+	conf.GET("/dbconns", func(c *echo.Context) error {
 		return htmx.DBConnections(c, db)
 	})
-	conf.GET("/pings", func(cx echo.Context) error {
+	conf.GET("/pings", func(ec *echo.Context) error {
 		proto := "http"
 		port := c.Environment.HTTPPort.Value()
 		if port == 0 {
 			port = c.Environment.TLSPort.Value()
 			proto = "https"
 		}
-		return htmx.Pings(cx, proto, int(port))
+		return htmx.Pings(ec, proto, int(port))
 	})
 }
 
-func creator(g *echo.Group, db *sql.DB) {
+func creator(ctx context.Context, g *echo.Group, db *sql.DB) {
 	const msg = "creator group router"
-	if err := panics.GroupD(g, db); err != nil {
+	if err := panics.GD(g, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	creator := g.Group("/creator")
-	creator.PATCH("/text", func(c echo.Context) error {
-		return htmx.RecordCreatorText(c, db)
+	creator.PATCH("/text", func(c *echo.Context) error {
+		return htmx.RecordCreatorText(ctx, c, db)
 	})
-	creator.PATCH("/ill", func(c echo.Context) error {
-		return htmx.RecordCreatorIll(c, db)
+	creator.PATCH("/ill", func(c *echo.Context) error {
+		return htmx.RecordCreatorIll(ctx, c, db)
 	})
-	creator.PATCH("/prog", func(c echo.Context) error {
-		return htmx.RecordCreatorProg(c, db)
+	creator.PATCH("/prog", func(c *echo.Context) error {
+		return htmx.RecordCreatorProg(ctx, c, db)
 	})
-	creator.PATCH("/audio", func(c echo.Context) error {
-		return htmx.RecordCreatorAudio(c, db)
+	creator.PATCH("/audio", func(c *echo.Context) error {
+		return htmx.RecordCreatorAudio(ctx, c, db)
 	})
-	creator.PATCH("/reset", func(c echo.Context) error {
-		return htmx.RecordCreatorReset(c, db)
+	creator.PATCH("/reset", func(c *echo.Context) error {
+		return htmx.RecordCreatorReset(ctx, c, db)
 	})
 }
 
-func date(g *echo.Group, db *sql.DB) {
+func date(ctx context.Context, g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for date router", panics.ErrNoEchoE))
 	}
 	date := g.Group("/date")
-	date.PATCH("", func(c echo.Context) error {
-		return htmx.RecordDateIssued(c, db)
+	date.PATCH("", func(c *echo.Context) error {
+		return htmx.RecordDateIssued(ctx, c, db)
 	})
-	date.PATCH("/reset", func(cx echo.Context) error {
-		return htmx.RecordDateIssuedReset(cx, db, "artifact-editor-date-resetter")
+	date.PATCH("/reset", func(ec *echo.Context) error {
+		return htmx.RecordDateIssuedReset(ctx, ec, db, "artifact-editor-date-resetter")
 	})
-	date.PATCH("/lastmod", func(cx echo.Context) error {
-		return htmx.RecordDateIssuedReset(cx, db, "artifact-editor-date-lastmodder")
+	date.PATCH("/lastmod", func(ec *echo.Context) error {
+		return htmx.RecordDateIssuedReset(ctx, ec, db, "artifact-editor-date-lastmodder")
 	})
 }
 
-func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolint:funlen
+func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) { //nolint:funlen
 	if g == nil {
 		panic(fmt.Errorf("%w for editor router", panics.ErrNoEchoE))
 	}
-	g.DELETE("/delete/forever/:key", func(c echo.Context) error {
-		return htmx.DeleteForever(c, db, sl, c.Param("key"))
+	g.DELETE("/delete/forever/:key", func(c *echo.Context) error {
+		return htmx.DeleteForever(ctx, sl, c, db, c.Param("key"))
 	})
-	g.PATCH("/16colors", func(c echo.Context) error {
-		return htmx.Record16Colors(c, db)
+	g.PATCH("/16colors", func(c *echo.Context) error {
+		return htmx.Record16Colors(ctx, c, db)
 	})
-	g.PATCH("/classifications", func(c echo.Context) error {
-		return htmx.RecordClassification(c, db, sl)
+	g.PATCH("/classifications", func(c *echo.Context) error {
+		return htmx.RecordClassification(ctx, sl, c, db)
 	})
-	g.PATCH("/comment", func(c echo.Context) error {
-		return htmx.RecordComment(c, db)
+	g.PATCH("/comment", func(c *echo.Context) error {
+		return htmx.RecordComment(ctx, c, db)
 	})
-	g.PATCH("/comment/reset", func(c echo.Context) error {
-		return htmx.RecordCommentReset(c, db)
+	g.PATCH("/comment/reset", func(c *echo.Context) error {
+		return htmx.RecordCommentReset(ctx, c, db)
 	})
-	g.PATCH("/demozoo", func(c echo.Context) error {
-		return htmx.RecordDemozoo(c, db)
+	g.PATCH("/demozoo", func(c *echo.Context) error {
+		return htmx.RecordDemozoo(ctx, c, db)
 	})
-	g.PATCH("/filename", func(c echo.Context) error {
-		return htmx.RecordFilename(c, db)
+	g.PATCH("/filename", func(c *echo.Context) error {
+		return htmx.RecordFilename(ctx, c, db)
 	})
-	g.PATCH("/filename/reset", func(c echo.Context) error {
-		return htmx.RecordFilenameReset(c, db)
+	g.PATCH("/filename/reset", func(c *echo.Context) error {
+		return htmx.RecordFilenameReset(ctx, c, db)
 	})
-	g.PATCH("/github", func(c echo.Context) error {
-		return htmx.RecordGitHub(c, db)
+	g.PATCH("/github", func(c *echo.Context) error {
+		return htmx.RecordGitHub(ctx, c, db)
 	})
 	g.PATCH("/links", htmx.RecordLinks)
-	g.PATCH("/links/reset", func(c echo.Context) error {
-		return htmx.RecordLinksReset(c, db)
+	g.PATCH("/links/reset", func(c *echo.Context) error {
+		return htmx.RecordLinksReset(ctx, c, db)
 	})
-	g.PATCH("/platform", func(c echo.Context) error {
-		return app.PlatformEdit(c, db, sl)
+	g.PATCH("/platform", func(c *echo.Context) error {
+		return app.PlatformEdit(ctx, sl, c, db)
 	})
 	g.PATCH("/platform+tag", app.PlatformTagInfo)
-	g.PATCH("/pouet", func(c echo.Context) error {
-		return htmx.RecordPouet(c, db)
+	g.PATCH("/pouet", func(c *echo.Context) error {
+		return htmx.RecordPouet(ctx, c, db)
 	})
-	g.PATCH("/relations", func(c echo.Context) error {
-		return htmx.RecordRelations(c, db)
+	g.PATCH("/relations", func(c *echo.Context) error {
+		return htmx.RecordRelations(ctx, c, db)
 	})
-	g.PATCH("/releasers", func(c echo.Context) error {
-		return htmx.RecordReleasers(c, db)
+	g.PATCH("/releasers", func(c *echo.Context) error {
+		return htmx.RecordReleasers(ctx, c, db)
 	})
-	g.PATCH("/releasers/reset", func(c echo.Context) error {
-		return htmx.RecordReleasersReset(c, db)
+	g.PATCH("/releasers/reset", func(c *echo.Context) error {
+		return htmx.RecordReleasersReset(ctx, c, db)
 	})
-	g.PATCH("/sites", func(c echo.Context) error {
-		return htmx.RecordSites(c, db)
+	g.PATCH("/sites", func(c *echo.Context) error {
+		return htmx.RecordSites(ctx, c, db)
 	})
-	g.PATCH("/tag", func(c echo.Context) error {
-		return app.TagEdit(c, db, sl)
+	g.PATCH("/tag", func(c *echo.Context) error {
+		return app.TagEdit(ctx, sl, c, db)
 	})
 	g.PATCH("/tag/info", app.TagInfo)
-	g.PATCH("/title", func(c echo.Context) error {
-		return htmx.RecordTitle(c, db)
+	g.PATCH("/title", func(c *echo.Context) error {
+		return htmx.RecordTitle(ctx, c, db)
 	})
-	g.PATCH("/title/reset", func(c echo.Context) error {
-		return htmx.RecordTitleReset(c, db)
+	g.PATCH("/title/reset", func(c *echo.Context) error {
+		return htmx.RecordTitleReset(ctx, c, db)
 	})
-	g.PATCH("/virustotal", func(c echo.Context) error {
-		return htmx.RecordVirusTotal(c, db)
+	g.PATCH("/virustotal", func(c *echo.Context) error {
+		return htmx.RecordVirusTotal(ctx, c, db)
 	})
-	g.PATCH("/ymd", func(c echo.Context) error {
-		return app.YMDEdit(c, db)
+	g.PATCH("/ymd", func(c *echo.Context) error {
+		return app.YMDEdit(ctx, c, db)
 	})
-	g.PATCH("/youtube", func(c echo.Context) error {
-		return htmx.RecordYouTube(c, db)
+	g.PATCH("/youtube", func(c *echo.Context) error {
+		return htmx.RecordYouTube(ctx, c, db)
 	})
 
 	emu := g.Group("/emulate")
-	emu.PATCH("/broken/:id", func(c echo.Context) error {
-		return htmx.RecordEmulateBroken(c, db)
+	emu.PATCH("/broken/:id", func(c *echo.Context) error {
+		return htmx.RecordEmulateBroken(ctx, c, db)
 	})
-	emu.PATCH("/runprogram/:id", func(c echo.Context) error {
-		return htmx.RecordEmulateRunProgram(c, db)
+	emu.PATCH("/runprogram/:id", func(c *echo.Context) error {
+		return htmx.RecordEmulateRunProgram(ctx, c, db)
 	})
-	emu.PATCH("/machine/:id", func(c echo.Context) error {
-		return htmx.RecordEmulateMachine(c, db)
+	emu.PATCH("/machine/:id", func(c *echo.Context) error {
+		return htmx.RecordEmulateMachine(ctx, c, db)
 	})
-	emu.PATCH("/cpu/:id", func(c echo.Context) error {
-		return htmx.RecordEmulateCPU(c, db)
+	emu.PATCH("/cpu/:id", func(c *echo.Context) error {
+		return htmx.RecordEmulateCPU(ctx, c, db)
 	})
-	emu.PATCH("/sfx/:id", func(c echo.Context) error {
-		return htmx.RecordEmulateSFX(c, db)
+	emu.PATCH("/sfx/:id", func(c *echo.Context) error {
+		return htmx.RecordEmulateSFX(ctx, c, db)
 	})
-	emu.PATCH("/umb/:id", func(c echo.Context) error {
-		return htmx.RecordEmulateUMB(c, db)
+	emu.PATCH("/umb/:id", func(c *echo.Context) error {
+		return htmx.RecordEmulateUMB(ctx, c, db)
 	})
-	emu.PATCH("/ems/:id", func(c echo.Context) error {
-		return htmx.RecordEmulateEMS(c, db)
+	emu.PATCH("/ems/:id", func(c *echo.Context) error {
+		return htmx.RecordEmulateEMS(ctx, c, db)
 	})
-	emu.PATCH("/xms/:id", func(c echo.Context) error {
-		return htmx.RecordEmulateXMS(c, db)
+	emu.PATCH("/xms/:id", func(c *echo.Context) error {
+		return htmx.RecordEmulateXMS(ctx, c, db)
 	})
 
 	// these POSTs should only be used for editor, htmx file uploads,
 	// and not for general file uploads or data edits.
 	upload := g.Group("/upload")
 	// /upload/file
-	upload.POST("/file", func(c echo.Context) error {
-		return htmx.UploadReplacement(c, db, sl, dirs.Download, dirs.Extra)
+	upload.POST("/file", func(c *echo.Context) error {
+		return htmx.UploadReplacement(ctx, sl, c, db, dirs.Download, dirs.Extra)
 	})
 	// /upload/preview
-	upload.POST("/preview", func(c echo.Context) error {
-		return htmx.UploadPreview(c, sl, dirs.Preview, dirs.Thumbnail)
+	upload.POST("/preview", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
+		defer cancel()
+		return htmx.UploadPreview(ctx, sl, c, dirs.Preview, dirs.Thumbnail)
 	})
 	paths := command.Dirs{
 		Download:  dirs.Download,
@@ -234,146 +255,152 @@ func editor(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) { //nolin
 	}
 	diz := g.Group("/diz")
 	// /editor/diz/copy
-	diz.PATCH("/copy/:unid/:path", func(c echo.Context) error {
+	diz.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
 		return htmx.RecordDizCopier(c, paths)
 	})
-	diz.DELETE("/:unid", func(c echo.Context) error {
+	diz.DELETE("/:unid", func(c *echo.Context) error {
 		return htmx.RecordDizDeleter(c, dirs.Extra)
 	})
 	// /editor/helper/copy
 	helper := g.Group("/helper")
-	helper.PATCH("/copy/:unid/:path", func(c echo.Context) error {
+	helper.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
 		return htmx.RecordHlpCopier(c, paths)
 	})
-	helper.DELETE("/:unid", func(c echo.Context) error {
+	helper.DELETE("/:unid", func(c *echo.Context) error {
 		return htmx.RecordHlpDeleter(c, dirs.Extra)
 	})
 	readme := g.Group("/readme")
-	readme.PATCH("/disable/:id", func(c echo.Context) error {
-		return htmx.RecordReadmeDisable(c, db)
+	readme.PATCH("/disable/:id", func(c *echo.Context) error {
+		return htmx.RecordReadmeDisable(ctx, c, db)
 	})
 	// /editor/readme/copy
-	readme.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeCopier(c, sl, paths)
+	readme.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
+		return htmx.RecordReadmeCopier(ctx, sl, c, paths)
 	})
 	// /editor/readme/preview
-	readme.PATCH("/preview/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, sl, false, paths)
+	readme.PATCH("/preview/:unid/:path", func(c *echo.Context) error {
+		return htmx.RecordReadmeImager(ctx, sl, c, false, paths)
 	})
 	// /editor/readme/preview-amiga
-	readme.PATCH("/preview-amiga/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordReadmeImager(c, sl, true, paths)
+	readme.PATCH("/preview-amiga/:unid/:path", func(c *echo.Context) error {
+		return htmx.RecordReadmeImager(ctx, sl, c, true, paths)
 	})
 	// /editor/readme/preview-binary
-	readme.PATCH("/preview-binary/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordBinTextImager(c, sl, paths)
+	readme.PATCH("/preview-binary/:unid/:path", func(c *echo.Context) error {
+		return htmx.RecordBinTextImager(ctx, sl, c, paths)
 	})
-	readme.DELETE("/:unid", func(c echo.Context) error {
+	readme.DELETE("/:unid", func(c *echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dirs.Extra)
 	})
 	pre := g.Group("/preview")
 	// /editor/preview/copy
-	pre.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, sl, paths)
+	pre.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
+		return htmx.RecordImageCopier(ctx, sl, c, paths)
 	})
-	pre.PATCH("/crop11/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, sl, command.SquareTop, paths)
+	pre.PATCH("/crop11/:unid", func(c *echo.Context) error {
+		return htmx.RecordImageCropper(ctx, sl, c, command.SquareTop, paths)
 	})
-	pre.PATCH("/crop43/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, sl, command.FourThree, paths)
+	pre.PATCH("/crop43/:unid", func(c *echo.Context) error {
+		return htmx.RecordImageCropper(ctx, sl, c, command.FourThree, paths)
 	})
-	pre.PATCH("/crop12/:unid", func(c echo.Context) error {
-		return htmx.RecordImageCropper(c, sl, command.OneTwo, paths)
+	pre.PATCH("/crop12/:unid", func(c *echo.Context) error {
+		return htmx.RecordImageCropper(ctx, sl, c, command.OneTwo, paths)
 	})
-	pre.PATCH("/remove/:unid", func(c echo.Context) error {
+	pre.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview)
 	})
 
 	thumb := g.Group("/thumbnail")
-	thumb.PATCH("/copy/:unid/:path", func(c echo.Context) error {
-		return htmx.RecordImageCopier(c, sl, paths)
+	thumb.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
+		return htmx.RecordImageCopier(ctx, sl, c, paths)
 	})
-	thumb.PATCH("/top/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Top, paths)
+	thumb.PATCH("/top/:unid", func(c *echo.Context) error {
+		return htmx.RecordThumbAlignment(ctx, sl, c, command.Top, paths)
 	})
-	thumb.PATCH("/middle/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Middle, paths)
+	thumb.PATCH("/middle/:unid", func(c *echo.Context) error {
+		return htmx.RecordThumbAlignment(ctx, sl, c, command.Middle, paths)
 	})
-	thumb.PATCH("/bottom/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Bottom, paths)
+	thumb.PATCH("/bottom/:unid", func(c *echo.Context) error {
+		return htmx.RecordThumbAlignment(ctx, sl, c, command.Bottom, paths)
 	})
-	thumb.PATCH("/left/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Left, paths)
+	thumb.PATCH("/left/:unid", func(c *echo.Context) error {
+		return htmx.RecordThumbAlignment(ctx, sl, c, command.Left, paths)
 	})
-	thumb.PATCH("/right/:unid", func(c echo.Context) error {
-		return htmx.RecordThumbAlignment(c, sl, command.Right, paths)
+	thumb.PATCH("/right/:unid", func(c *echo.Context) error {
+		return htmx.RecordThumbAlignment(ctx, sl, c, command.Right, paths)
 	})
-	thumb.PATCH("/pixel/:unid", func(c echo.Context) error {
-		return htmx.RecordThumb(c, sl, command.Pixel, paths)
+	thumb.PATCH("/pixel/:unid", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
+		defer cancel()
+		return htmx.RecordThumb(ctx, sl, c, command.Pixel, paths)
 	})
-	thumb.PATCH("/photo/:unid", func(c echo.Context) error {
-		return htmx.RecordThumb(c, sl, command.Photo, paths)
+	thumb.PATCH("/photo/:unid", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
+		defer cancel()
+		return htmx.RecordThumb(ctx, sl, c, command.Photo, paths)
 	})
-	thumb.PATCH("/remove/:unid", func(c echo.Context) error {
+	thumb.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)
 	})
 
 	imgs := g.Group("/images")
-	imgs.PATCH("/pixelate/:unid", func(c echo.Context) error {
-		return htmx.RecordImagePixelator(c, dirs.Preview, dirs.Thumbnail)
+	imgs.PATCH("/pixelate/:unid", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		return htmx.RecordImagePixelator(ctx, c, dirs.Preview, dirs.Thumbnail)
 	})
-	imgs.PATCH("/remove/:unid", func(c echo.Context) error {
+	imgs.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview, dirs.Thumbnail)
 	})
 }
 
-func get(g *echo.Group, db *sql.DB, sl *slog.Logger, dirs app.Dirs) {
+func get(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) {
 	if g == nil {
 		panic(fmt.Errorf("%w for get router", panics.ErrNoEchoE))
 	}
 	g.GET("/deletions",
-		func(cx echo.Context) error {
-			return app.Deletions(cx, db, sl, "1")
+		func(ec *echo.Context) error {
+			return app.Deletions(ctx, sl, ec, db, "1")
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
-		func(cx echo.Context) error {
-			return app.GetDemozooParam(cx, db, dirs.Download)
+		func(ec *echo.Context) error {
+			return app.GetDemozooParam(ctx, ec, db, dirs.Download)
 		})
 	g.GET("/for-approval",
-		func(cx echo.Context) error {
-			return app.ForApproval(cx, db, sl, "1")
+		func(ec *echo.Context) error {
+			return app.ForApproval(ctx, sl, ec, db, "1")
 		})
 	g.GET("/unwanted",
-		func(cx echo.Context) error {
-			return app.Unwanted(cx, db, sl, "1")
+		func(ec *echo.Context) error {
+			return app.Unwanted(ctx, sl, ec, db, "1")
 		})
 }
 
-func online(g *echo.Group, db *sql.DB) {
+func online(ctx context.Context, g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for online router", panics.ErrNoEchoE))
 	}
 	online := g.Group("/online")
-	online.PATCH("/true", func(cx echo.Context) error {
-		return htmx.RecordToggle(cx, db, true)
+	online.PATCH("/true", func(ec *echo.Context) error {
+		return htmx.RecordToggle(ctx, ec, db, true)
 	})
-	online.PATCH("/false", func(cx echo.Context) error {
-		return htmx.RecordToggle(cx, db, false)
+	online.PATCH("/false", func(ec *echo.Context) error {
+		return htmx.RecordToggle(ctx, ec, db, false)
 	})
-	online.GET("/true/:id", func(cx echo.Context) error {
-		return htmx.RecordToggleByID(cx, db, cx.Param("id"), true)
+	online.GET("/true/:id", func(ec *echo.Context) error {
+		return htmx.RecordToggleByID(ctx, ec, db, ec.Param("id"), true)
 	})
 }
 
-func search(g *echo.Group, db *sql.DB, sl *slog.Logger) {
+func search(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	if g == nil {
 		panic(fmt.Errorf("%w for search router", panics.ErrNoEchoE))
 	}
 	search := g.Group("/search")
-	search.GET("/id", func(cx echo.Context) error {
-		return app.SearchID(cx, sl)
+	search.GET("/id", func(ec *echo.Context) error {
+		return app.SearchID(sl, ec)
 	})
-	search.POST("/id", func(cx echo.Context) error {
-		return htmx.SearchByID(cx, db, sl)
+	search.POST("/id", func(ec *echo.Context) error {
+		return htmx.SearchByID(ctx, sl, ec, db)
 	})
 }

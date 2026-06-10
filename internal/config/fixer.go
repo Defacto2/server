@@ -23,13 +23,13 @@ import (
 )
 
 // Checks runs a number of sanity checks for the environment variable configurations.
-func (c *Config) Checks(sl *slog.Logger) error {
+func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 	const msg, key = "Config directory", "check"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
 	}
-	c.checkHTTP(sl)
-	c.checkHTTPS(sl)
+	c.checkHTTP(ctx, sl)
+	c.checkHTTPS(ctx, sl)
 	c.production(sl)
 	// Check the download, preview and thumbnail directories.
 	if err := CheckDir(dir.Directory(c.AbsDownload), "downloads"); err != nil {
@@ -118,7 +118,7 @@ func (c *Config) SetupLogDir(sl *slog.Logger) error {
 }
 
 // checkHTTP logs a fatal error if the HTTP port is invalid.
-func (c *Config) checkHTTP(sl *slog.Logger) {
+func (c *Config) checkHTTP(ctx context.Context, sl *slog.Logger) {
 	const msg, key = "check http port", "port"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
@@ -127,12 +127,12 @@ func (c *Config) checkHTTP(sl *slog.Logger) {
 		return
 	}
 	if err := c.HTTPPort.Check(); err != nil {
-		c.fatalPort(sl, msg, key, err)
+		c.fatalPort(ctx, sl, msg, key, err)
 	}
 }
 
 // checkHTTPS logs a fatal error if the HTTPS port is invalid.
-func (c *Config) checkHTTPS(sl *slog.Logger) {
+func (c *Config) checkHTTPS(ctx context.Context, sl *slog.Logger) {
 	const msg, key = "check https port", "port"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
@@ -141,11 +141,11 @@ func (c *Config) checkHTTPS(sl *slog.Logger) {
 		return
 	}
 	if err := c.TLSPort.Check(); err != nil {
-		c.fatalPort(sl, msg, key, err)
+		c.fatalPort(ctx, sl, msg, key, err)
 	}
 }
 
-func (c *Config) fatalPort(sl *slog.Logger, msg, key string, err error) {
+func (c *Config) fatalPort(ctx context.Context, sl *slog.Logger, msg, key string, err error) {
 	if sl == nil {
 		panic(fmt.Errorf("config fatal port: %w", panics.ErrNoSlog))
 	}
@@ -158,12 +158,12 @@ func (c *Config) fatalPort(sl *slog.Logger, msg, key string, err error) {
 	}
 	switch {
 	case errors.Is(err, ErrPortMax):
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("issue", "The server cannot use the "+inf+" port"),
 			slog.Int(key, int(port)),
 			slog.String("error", err.Error()))
 	case errors.Is(err, ErrPortSys):
-		logs.Fatal(sl, msg,
+		logs.Fatal(ctx, sl, msg,
 			slog.String("issue", "The server cannot use the system port"),
 			slog.Int(key, int(port)),
 			slog.String("error", err.Error()))
@@ -196,7 +196,7 @@ func (c *Config) production(sl *slog.Logger) {
 }
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
-func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
+func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error {
 	psl := "PostgreSQL"
 	if sl == nil {
 		return fmt.Errorf("%s: %w", psl, panics.ErrNoSlog)
@@ -216,7 +216,6 @@ func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
 			slog.String("issue", s),
 			slog.Any("error", err))
 	}
-	ctx := context.Background()
 	count := RecordCount(ctx, db)
 	const welcome = "Defacto2 web application"
 	const msg = "Fixing and repairs"
@@ -235,8 +234,8 @@ func (c *Config) Fixer(sl *slog.Logger, d time.Time) error {
 		sl.Info(msg, slog.String("info", welcome),
 			slog.Int("records", count))
 	}
-	c.repairer(ctx, db, sl)
-	c.sanityChecks(sl)
+	c.repairer(ctx, sl, db)
+	c.sanityChecks(ctx, sl)
 	TmpInfo(sl)
 	sl.Info(msg, slog.String("task", "Time taken"),
 		slog.Duration("time", time.Since(d).Round(time.Millisecond)))
@@ -276,7 +275,7 @@ func CheckDir(name dir.Directory, desc string) error {
 // RecordCount returns the number of records in the database.
 func RecordCount(ctx context.Context, db *sql.DB) int {
 	const msg = "record count"
-	if err := panics.ContextD(ctx, db); err != nil {
+	if err := panics.CD(ctx, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
@@ -288,12 +287,12 @@ func RecordCount(ctx context.Context, db *sql.DB) int {
 
 // repairer is used to fix any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
+func (c *Config) repairer(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 	const msg = "Repairing"
-	if err := panics.ContextDS(ctx, db, sl); err != nil {
+	if err := panics.CSD(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if err := repairDatabase(ctx, db, sl); err != nil {
+	if err := repairDatabase(ctx, sl, db); err != nil {
 		if errors.Is(err, ErrPSVersion) {
 			sl.Warn(msg,
 				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrPSVersion)))
@@ -303,22 +302,22 @@ func (c *Config) repairer(ctx context.Context, db *sql.DB, sl *slog.Logger) {
 			slog.Any("error", err))
 	}
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
-	if err := c.RepairAssets(ctx, db, sl); err != nil {
+	if err := c.RepairAssets(ctx, sl, db); err != nil {
 		sl.Error(msg, slog.Any("error", err))
 	}
 }
 
 // repairDatabase on startup checks the database connection and make any data corrections.
-func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
+func repairDatabase(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 	const msg = "repair database"
-	if err := panics.ContextDS(ctx, db, sl); err != nil {
+	if err := panics.CSD(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("%s could not begin a transaction: %w", msg, err)
 	}
-	if err := fix.Artifacts.Run(ctx, db, tx, sl); err != nil {
+	if err := fix.Artifacts.Run(ctx, sl, db, tx); err != nil {
 		if err := tx.Rollback(); err != nil {
 			sl.Error(msg, slog.Any("error", err))
 		}
@@ -332,12 +331,12 @@ func repairDatabase(ctx context.Context, db *sql.DB, sl *slog.Logger) error {
 
 // sanityChecks is used to perform a number of sanity checks on the file assets and database.
 // These are skipped if the Production mode environment variable is set to false.
-func (c *Config) sanityChecks(sl *slog.Logger) {
+func (c *Config) sanityChecks(ctx context.Context, sl *slog.Logger) {
 	const msg = "sanity check"
 	if sl == nil {
 		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
 	}
-	if err := c.Checks(sl); err != nil {
+	if err := c.Checks(ctx, sl); err != nil {
 		sl.Error(msg,
 			slog.String("issue", "sanity checks could not read the environment variable, "+
 				"it probably contains an invalid value"),

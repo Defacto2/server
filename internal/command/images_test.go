@@ -1,6 +1,7 @@
 package command_test
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -14,9 +15,10 @@ import (
 
 func TestImages(t *testing.T) {
 	t.Parallel()
+	ctx := context.TODO()
 	err := command.ImagesDelete("", "")
 	be.Err(t, err)
-	err = command.ImagesPixelate("", "")
+	err = command.ImagesPixelate(ctx, "", "")
 	be.Err(t, err)
 }
 
@@ -36,48 +38,49 @@ func TestThumbs(t *testing.T) {
 	t.Parallel()
 	dir := command.Dirs{}
 	d := logs.Discard()
-	err := dir.Thumbs(d, "", -1)
+	err := dir.Thumbs(context.TODO(), d, "", -1)
 	be.Err(t, err, nil)
 }
 
 func TestAlign(t *testing.T) {
 	t.Parallel()
-	err := command.Top.Thumbs(nil, "", "", "")
+	err := command.Top.Thumbs(context.TODO(), nil, "", "", "")
 	be.Err(t, err)
 }
 
 func TestCrop(t *testing.T) {
 	t.Parallel()
 	d := logs.Discard()
-	err := command.OneTwo.Images(d, "", "")
+	err := command.OneTwo.Images(context.TODO(), d, "", "")
 	be.Err(t, err)
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = command.OneTwo.Images(d, "", dir.Directory(wd))
+	err = command.OneTwo.Images(context.TODO(), d, "", dir.Directory(wd))
 	be.Err(t, err)
 }
 
 func TestDirs(t *testing.T) {
 	t.Parallel()
+	ctx := context.TODO()
 	dir := command.Dirs{}
-	err := dir.PictureImager(nil, "", "")
+	err := dir.PictureImager(ctx, nil, "", "")
 	be.Err(t, err)
-	err = dir.TextImager(nil, "", "", false)
+	err = dir.TextImager(ctx, nil, "", "", false)
 	be.Err(t, err)
-	err = dir.TextImager(nil, "", "", true)
+	err = dir.TextImager(ctx, nil, "", "", true)
 	be.Err(t, err)
-	err = dir.PreviewPhoto(nil, "", "")
+	err = dir.PreviewPhoto(ctx, nil, "", "")
 	be.Err(t, err)
-	err = dir.PreviewGIF(nil, "", "")
+	err = dir.PreviewGIF(ctx, nil, "", "")
 	be.Err(t, err)
-	err = dir.PreviewPNG(nil, "", "")
+	err = dir.PreviewPNG(ctx, nil, "", "")
 	be.Err(t, err)
-	err = dir.PreviewWebP(nil, "", "")
+	err = dir.PreviewWebP(ctx, nil, "", "")
 	be.Err(t, err)
 	d := logs.Discard()
-	err = dir.ThumbPixels(d, "", "")
+	err = dir.ThumbPixels(ctx, d, "", "")
 	be.Err(t, err)
-	err = dir.ThumbPhoto(d, "", "")
+	err = dir.ThumbPhoto(ctx, d, "", "")
 	be.Err(t, err)
 }
 
@@ -178,6 +181,6 @@ func TestArgs(t *testing.T) {
 
 func TestOptimizePNG(t *testing.T) {
 	t.Parallel()
-	err := command.OptimizePNG("")
+	err := command.OptimizePNG(context.TODO(), "")
 	be.Err(t, err, nil)
 }

@@ -36,7 +36,8 @@ func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error
 	err := models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		qm.From(From)).Bind(ctx, exec, f)
+		qm.From(From),
+	).Bind(ctx, exec, f)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -56,7 +57,8 @@ func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // ByOldest returns all of the file records sorted by the date issued.
@@ -74,7 +76,8 @@ func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, off
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // ByNewest returns all of the file records sorted by the date issued.
@@ -92,7 +95,8 @@ func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, off
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // ByUpdated returns all of the file records sorted by the date updated.
@@ -108,7 +112,8 @@ func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, of
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // ByHidden returns all of the file records that are hidden ~ soft deleted.
@@ -126,7 +131,8 @@ func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, off
 		qm.WithDeleted(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // ByMagicErr returns all of the file records that require new magic numbers.
@@ -184,7 +190,8 @@ func (f *Artifacts) ByTextPlatform(ctx context.Context, exec boil.ContextExecuto
 		qm.Select(models.FileColumns.UUID, models.FileColumns.ID),
 		models.FileWhere.Platform.EQ(null.StringFrom("text")),
 		qm.Or2(models.FileWhere.Platform.EQ(null.StringFrom("textamiga"))),
-		qm.WithDeleted()).All(ctx, exec)
+		qm.WithDeleted(),
+	).All(ctx, exec)
 }
 
 // ByUnwanted returns all of the file records that are flagged by Google as unwanted.
@@ -203,18 +210,19 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, o
 		qm.WithDeleted(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // Description returns a list of files that match the search terms.
 // The search terms are matched against the record_title column.
 // The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Description(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger, terms []string) (
+func (f *Artifacts) Description(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, terms []string) (
 	models.FileSlice, error,
 ) {
 	const msg = "artifacts description"
 	none := models.FileSlice{}
-	if err := panics.ContextBS(ctx, exec, sl); err != nil {
+	if err := panics.CSE(ctx, sl, exec); err != nil {
 		return none, fmt.Errorf("%s: %w", msg, err)
 	}
 	if terms == nil {
@@ -312,7 +320,8 @@ func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) err
 		models.FileWhere.Deletedby.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, exec, f)
+		qm.From(From),
+	).Bind(ctx, exec, f)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -329,7 +338,8 @@ func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) e
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, exec, f)
+		qm.From(From),
+	).Bind(ctx, exec, f)
 	if err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -351,5 +361,6 @@ func ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit
 		models.FileWhere.Deletedby.IsNull(),
 		qm.OrderBy(clause),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }

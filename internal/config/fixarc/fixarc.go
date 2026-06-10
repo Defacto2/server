@@ -63,7 +63,7 @@ func Check(sl *slog.Logger, name string, extra dir.Directory, d fs.DirEntry, art
 // Files returns all the DOS platform artifacts using a .arc extension filename.
 func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
 	const msg = "fix arc files"
-	if err := panics.ContextB(ctx, exec); err != nil {
+	if err := panics.CE(ctx, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	const size = 4

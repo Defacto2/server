@@ -12,11 +12,11 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/config"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
-func newContext() echo.Context {
+func newContext() *echo.Context {
 	e := echo.New()
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader("{}"))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -32,161 +32,167 @@ func TestEmpty(t *testing.T) {
 
 func TestArtifacts(t *testing.T) {
 	t.Parallel()
-	x := app.Artifacts(newContext(), nil, nil, "", "")
+	x := app.Artifacts(context.TODO(), nil, newContext(), nil, "", "")
 	be.Err(t, x)
-	x = app.Artifacts(newContext(), nil, nil, "for-approval", "1")
+	x = app.Artifacts(context.TODO(), nil, newContext(), nil, "for-approval", "1")
 	be.Err(t, x)
 }
 
 func TestArtist(t *testing.T) {
 	t.Parallel()
-	x := app.Artist(newContext(), nil, nil)
+	x := app.Artist(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestBBS(t *testing.T) {
 	t.Parallel()
-	x := app.BBS(newContext(), nil, nil)
+	ctx := context.TODO()
+	x := app.BBS(ctx, nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestChecksum(t *testing.T) {
 	t.Parallel()
-	x := app.Checksum(newContext(), nil, nil, "")
+	x := app.Checksum(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestCoder(t *testing.T) {
 	t.Parallel()
-	x := app.Coder(newContext(), nil, nil)
+	x := app.Coder(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestConfigurations(t *testing.T) {
 	t.Parallel()
-	x := app.Configurations(newContext(), nil, nil, config.Config{})
+	x := app.Configurations(context.TODO(), nil, newContext(), nil, config.Config{})
 	be.Err(t, x)
 }
 
 func TestDownloadJsDos(t *testing.T) {
 	t.Parallel()
-	x := app.DownloadJsDos(newContext(), nil, nil, "", "")
+	x := app.DownloadJsDos(context.TODO(), nil, newContext(), nil, "", "")
 	be.Err(t, x)
 }
 
 func TestDownload(t *testing.T) {
 	t.Parallel()
-	x := app.Download(newContext(), nil, nil, "")
+	ctx := context.TODO()
+	x := app.Download(ctx, nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestFTP(t *testing.T) {
 	t.Parallel()
-	x := app.FTP(newContext(), nil, nil)
+	x := app.FTP(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestCategories(t *testing.T) {
 	t.Parallel()
-	x := app.Categories(newContext(), nil, nil, false)
+	x := app.Categories(context.TODO(), nil, newContext(), nil, false)
 	be.Err(t, x)
 }
 
 func TestDeletions(t *testing.T) {
 	t.Parallel()
-	x := app.Deletions(newContext(), nil, nil, "")
+	x := app.Deletions(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestUnwanted(t *testing.T) {
 	t.Parallel()
-	x := app.Unwanted(newContext(), nil, nil, "")
+	x := app.Unwanted(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestForApproval(t *testing.T) {
 	t.Parallel()
-	x := app.ForApproval(newContext(), nil, nil, "")
+	x := app.ForApproval(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestGetDemozooParam(t *testing.T) {
 	t.Parallel()
-	x := app.GetDemozooParam(newContext(), nil, "")
+	x := app.GetDemozooParam(context.TODO(), newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestGetDemozoo(t *testing.T) {
 	t.Parallel()
-	x := app.GetDemozoo(newContext(), nil, -1, "", "")
+	ctx := context.TODO()
+	x := app.GetDemozoo(ctx, newContext(), nil, -1, "", "")
 	be.Err(t, x)
-	x = app.GetPouet(newContext(), nil, -1, "", "")
+	x = app.GetPouet(ctx, newContext(), nil, -1, "", "")
 	be.Err(t, x)
 }
 
 func TestGoogleCallback(t *testing.T) {
 	t.Parallel()
-	x := app.GoogleCallback(newContext(), nil, "", -1, [48]byte{})
+	ctx := context.TODO()
+	x := app.GoogleCallback(ctx, nil, newContext(), "", -1, [48]byte{})
 	be.Err(t, x)
 }
 
 func TestHistory(t *testing.T) {
 	t.Parallel()
-	x := app.History(newContext(), nil)
+	x := app.History(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestIndex(t *testing.T) {
 	t.Parallel()
-	x := app.Index(newContext(), nil)
+	x := app.Index(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestInline(t *testing.T) {
 	t.Parallel()
-	x := app.Inline(newContext(), nil, nil, "")
+	ctx := context.TODO()
+	x := app.Inline(ctx, nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestInterview(t *testing.T) {
 	t.Parallel()
-	x := app.Interview(newContext(), nil)
+	x := app.Interview(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestMagazine(t *testing.T) {
 	t.Parallel()
-	x := app.Magazine(newContext(), nil, nil)
+	x := app.Magazine(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestMagazineAZ(t *testing.T) {
 	t.Parallel()
-	x := app.MagazineAZ(newContext(), nil, nil)
+	x := app.MagazineAZ(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestMusician(t *testing.T) {
 	t.Parallel()
-	x := app.Musician(newContext(), nil, nil)
+	x := app.Musician(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestNew(t *testing.T) {
 	t.Parallel()
-	x := app.New(newContext(), nil)
+	x := app.New(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestPage404(t *testing.T) {
 	t.Parallel()
-	x := app.Page404(newContext(), nil, "", "")
+	x := app.Page404(nil, newContext(), "", "")
 	be.Err(t, x)
 }
 
 func TestPlatformEdit(t *testing.T) {
 	t.Parallel()
-	x := app.PlatformEdit(newContext(), nil, nil)
+	ctx := context.TODO()
+	x := app.PlatformEdit(ctx, nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -198,13 +204,15 @@ func TestPlatformTagInfo(t *testing.T) {
 
 func TestPostDesc(t *testing.T) {
 	t.Parallel()
-	x := app.PostDesc(newContext(), nil, nil, "")
+	ctx := context.TODO()
+	x := app.PostDesc(ctx, nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestPostFilename(t *testing.T) {
 	t.Parallel()
-	x := app.PostFilename(newContext(), nil, nil)
+	ctx := context.TODO()
+	x := app.PostFilename(ctx, nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -220,107 +228,110 @@ func TestPouetCache(t *testing.T) {
 
 func TestProdPouet(t *testing.T) {
 	t.Parallel()
-	x := app.ProdPouet(newContext(), "")
+	ctx := context.TODO()
+	x := app.ProdPouet(ctx, newContext(), "")
 	be.Err(t, x, nil)
-	x = app.ProdPouet(newContext(), "abc")
+	x = app.ProdPouet(ctx, newContext(), "abc")
 	be.Err(t, x, nil)
 }
 
 func TestProdZoo(t *testing.T) {
 	t.Parallel()
-	x := app.ProdZoo(newContext(), "")
+	ctx := context.TODO()
+	x := app.ProdZoo(ctx, newContext(), "")
 	be.Err(t, x, nil)
-	x = app.ProdZoo(newContext(), "abc")
+	x = app.ProdZoo(ctx, newContext(), "abc")
 	be.Err(t, x, nil)
 }
 
 func TestReleaser(t *testing.T) {
 	t.Parallel()
-	x := app.Releaser(newContext(), nil, nil)
+	x := app.Releaser(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestReleaserAZ(t *testing.T) {
 	t.Parallel()
-	x := app.ReleaserAZ(newContext(), nil, nil)
+	x := app.ReleaserAZ(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestReleaser404(t *testing.T) {
 	t.Parallel()
-	x := app.Releaser404(newContext(), nil, "")
+	x := app.Releaser404(nil, newContext(), "")
 	be.Err(t, x)
 }
 
 func TestReleasers(t *testing.T) {
 	t.Parallel()
-	x := app.Releasers(newContext(), nil, nil, "", embed.FS{})
+	x := app.Releasers(context.TODO(), nil, newContext(), nil, "", embed.FS{})
 	be.Err(t, x)
 }
 
 func TestScener(t *testing.T) {
 	t.Parallel()
-	x := app.Scener(newContext(), nil, nil)
+	x := app.Scener(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestScener404(t *testing.T) {
 	t.Parallel()
-	x := app.Scener404(newContext(), nil, "")
+	x := app.Scener404(nil, newContext(), "")
 	be.Err(t, x)
 }
 
 func TestSceners(t *testing.T) {
 	t.Parallel()
-	x := app.Sceners(newContext(), nil, nil, "")
+	x := app.Sceners(context.TODO(), nil, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestSearchDesc(t *testing.T) {
 	t.Parallel()
-	x := app.SearchDesc(newContext(), nil)
+	x := app.SearchDesc(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSearchID(t *testing.T) {
 	t.Parallel()
-	x := app.SearchID(newContext(), nil)
+	x := app.SearchID(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSearchFile(t *testing.T) {
 	t.Parallel()
-	x := app.SearchFile(newContext(), nil)
+	x := app.SearchFile(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSearchReleaser(t *testing.T) {
 	t.Parallel()
-	x := app.SearchReleaser(newContext(), nil)
+	x := app.SearchReleaser(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSignedOut(t *testing.T) {
 	t.Parallel()
-	x := app.SignedOut(newContext(), nil)
+	x := app.SignedOut(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSignOut(t *testing.T) {
 	t.Parallel()
-	x := app.SignOut(newContext(), nil)
+	x := app.SignOut(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestSignin(t *testing.T) {
 	t.Parallel()
-	x := app.Signin(newContext(), nil, "", "")
+	x := app.Signin(nil, newContext(), "", "")
 	be.Err(t, x)
 }
 
 func TestTagEdit(t *testing.T) {
 	t.Parallel()
-	x := app.TagEdit(newContext(), nil, nil)
+	ctx := context.TODO()
+	x := app.TagEdit(ctx, nil, newContext(), nil)
 	be.Err(t, x)
 }
 
@@ -332,36 +343,37 @@ func TestTagInfo(t *testing.T) {
 
 func TestThanks(t *testing.T) {
 	t.Parallel()
-	x := app.Thanks(newContext(), nil)
+	x := app.Thanks(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestTheScene(t *testing.T) {
 	t.Parallel()
-	x := app.TheScene(newContext(), nil)
+	x := app.TheScene(nil, newContext())
 	be.Err(t, x)
 }
 
 func TestVotePouet(t *testing.T) {
 	t.Parallel()
-	x := app.VotePouet(newContext(), nil, "")
+	ctx := context.TODO()
+	x := app.VotePouet(ctx, nil, newContext(), "")
 	be.Err(t, x)
 	const testNoCache = "1"
-	x = app.VotePouet(newContext(), nil, testNoCache)
+	x = app.VotePouet(ctx, nil, newContext(), testNoCache)
 	be.Err(t, x)
 	const testNewCache = "1"
-	x = app.VotePouet(newContext(), nil, testNewCache)
+	x = app.VotePouet(ctx, nil, newContext(), testNewCache)
 	be.Err(t, x)
 }
 
 func TestWebsite(t *testing.T) {
 	t.Parallel()
-	x := app.Website(newContext(), nil, "")
+	x := app.Website(nil, newContext(), "")
 	be.Err(t, x)
 }
 
 func TestWriter(t *testing.T) {
 	t.Parallel()
-	x := app.Writer(newContext(), nil, nil)
+	x := app.Writer(context.TODO(), nil, newContext(), nil)
 	be.Err(t, x)
 }

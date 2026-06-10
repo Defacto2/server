@@ -3,6 +3,7 @@ package app
 // Package file template.go contains the template functions for the application.
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"fmt"
@@ -48,7 +49,7 @@ type Templ struct {
 }
 
 // Templates returns a map of the templates used by the route.
-func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
+func (t *Templ) Templates(ctx context.Context, db *sql.DB) (map[string]*template.Template, error) {
 	const msg = "templates mapper"
 	if db == nil {
 		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
@@ -58,7 +59,7 @@ func (t *Templ) Templates(db *sql.DB) (map[string]*template.Template, error) {
 	}
 	tmpls := make(map[string]*template.Template)
 	for key, name := range *t.Pages() {
-		tmpl := t.parseFS(db, name)
+		tmpl := t.parseFS(ctx, db, name)
 		tmpls[key] = tmpl
 	}
 	return tmpls, nil
@@ -116,6 +117,7 @@ func (t *Templ) Pages() *Page {
 		"new":           "new.tmpl",
 		"releaser":      releaserTmpl,
 		"releaser-year": releaseryearTmpl,
+		"routes":        "routes.tmpl",
 		"scener":        scenerTmpl,
 		"searchhtmx":    "searchhtmx.tmpl",
 		"searchpost":    "searchpost.tmpl",
@@ -153,6 +155,7 @@ func (t *Templ) Funcs() template.FuncMap {
 		"brief":              Brief,
 		"describe":           Describe,
 		"downloadB":          simple.DownloadB,
+		"byteBytes":          ByteBytes,
 		"byteFile":           ByteFile,
 		"byteFileS":          ByteFileS,
 		"demozooGetLink":     simple.DemozooGetLink,
@@ -200,7 +203,7 @@ func (t *Templ) Funcs() template.FuncMap {
 }
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
-func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
+func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap { //nolint:funlen
 	// const msg = "templates mapper"
 	if db == nil {
 		return nil
@@ -224,11 +227,11 @@ func (t *Templ) FuncClosures(db *sql.DB) *template.FuncMap { //nolint:funlen
 			return hrefs[ContentText]
 		},
 		"classification": func(s, p string) string {
-			count, _ := form.HumanizeCount(db, s, p)
+			count, _ := form.HumanizeCount(ctx, db, s, p)
 			return string(count)
 		},
 		"classificationStr": func(s, p string) string {
-			return form.HumanizeCountStr(db, s, p)
+			return form.HumanizeCountStr(ctx, db, s, p)
 		},
 		"demozooSanity": func() string {
 			return strconv.Itoa(demozoo.Sanity)
@@ -451,12 +454,12 @@ func (t *Templ) Elements() *template.FuncMap {
 }
 
 // FuncMap returns a map of all the template functions.
-func (t *Templ) FuncMap(db *sql.DB) *template.FuncMap {
+func (t *Templ) FuncMap(ctx context.Context, db *sql.DB) *template.FuncMap {
 	if db == nil {
 		return nil
 	}
 	dst := t.Funcs()
-	src := t.FuncClosures(db)
+	src := t.FuncClosures(ctx, db)
 	if src == nil {
 		return nil
 	}
@@ -528,7 +531,7 @@ func (t *Templ) lockLayout(lock bool, files ...string) []string {
 
 // parseFS returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
+func (t *Templ) parseFS(ctx context.Context, db *sql.DB, name filename) *template.Template {
 	if db == nil {
 		return nil
 	}
@@ -551,7 +554,7 @@ func (t *Templ) parseFS(db *sql.DB, name filename) *template.Template {
 		const individualWebsite = "website.tmpl"
 		files = append(files, GlobTo(individualWebsite))
 	}
-	funcMap := t.FuncMap(db)
+	funcMap := t.FuncMap(ctx, db)
 	if funcMap == nil {
 		return nil
 	}

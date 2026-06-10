@@ -37,12 +37,12 @@ func Checkname(name string) error {
 // and the number of existing artifacts. The number of existing artifacts is colored based on
 // the count. If the count is 0, the text is red. If the count is 1, the text is blue. If the
 // count is greater than 1, the text is unmodified.
-func HumanizeCount(db *sql.DB, section, platform string) (template.HTML, error) {
+func HumanizeCount(ctx context.Context, db *sql.DB, section, platform string) (template.HTML, error) {
 	const msg = "form humanize count"
 	if db == nil {
 		return "", fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
 	}
-	count, tag, err := humanizeCount(db, section, platform)
+	count, tag, err := humanizeCount(ctx, db, section, platform)
 	if err != nil {
 		return "", err
 	}
@@ -62,16 +62,15 @@ func HumanizeCount(db *sql.DB, section, platform string) (template.HTML, error) 
 
 // HumanizeCountStr returns the human readable name of the platform and section tags combined
 // and the number of existing artifacts. Any errors are returned as a string.
-func HumanizeCountStr(db *sql.DB, section, platform string) string {
-	count, tag, err := humanizeCount(db, section, platform)
+func HumanizeCountStr(ctx context.Context, db *sql.DB, section, platform string) string {
+	count, tag, err := humanizeCount(ctx, db, section, platform)
 	if err != nil {
 		return err.Error()
 	}
 	return fmt.Sprintf("%s, %d existing artifacts", tag, count)
 }
 
-func humanizeCount(db *sql.DB, section, platform string) (int64, string, error) {
-	ctx := context.Background()
+func humanizeCount(ctx context.Context, db *sql.DB, section, platform string) (int64, string, error) {
 	s := tags.TagByURI(section)
 	p := tags.TagByURI(platform)
 	tag := tags.Humanize(p, s)

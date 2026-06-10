@@ -3,6 +3,7 @@ package html3
 // Package file template.go contains the HTML3 website template functions.
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"fmt"
@@ -38,47 +39,47 @@ func GlobTo(name string) string {
 }
 
 // Index template.
-func index(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
+func index(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
 }
 
 // List file records template.
-func list(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
+func list(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
 // List and filter the tags template.
-func listTags(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
+func listTags(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
 		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
-func listGroups(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
+func listGroups(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.
-func httpErr(db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
+func httpErr(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
 		GlobTo(layout)))
 }
 

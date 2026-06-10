@@ -107,31 +107,15 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Count and filesize</h5>
+                <h5 class="card-title">Publishing years</h5>
                 <div class="fs-6">
                     <div class="mb-3 pb-2 border-bottom">
-                        <span class="fw-light">Totals</span> {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
+                        {{$rels.Record.MinYear}} <span class="fw-light">through to</span> {{$rels.Record.MaxYear}}
                     </div>
                     <div class="lh-lg" style="font-size: 0.95rem;">
-                        <div><span class="fw-light">ansi art</span> {{ byteFile $rels.AnsiBBS.Count $rels.AnsiBBS.Bytes }}</div>
-                        <div><span class="fw-light">ansi art and texts</span> {{ byteFile $rels.Ansi.Count $rels.Ansi.Bytes }}</div>
-                        <div><span class="fw-light">BBS adverts</span> {{ byteFile $rels.BBS.Count $rels.BBS.Bytes }}</div>
-                        <div><span class="fw-light">BBStros</span> {{ byteFile $rels.BBStro.Count $rels.BBStro.Bytes }}</div>
-                        <div><span class="fw-light">cracktros and intros</span> {{ byteFile $rels.Intro.Count $rels.Intro.Bytes }}</div>
-                        <div><span class="fw-light">cracktros and intros on {{msdos}}</span> {{ byteFile $rels.IntroD.Count $rels.IntroD.Bytes }}</div>
-                        <div><span class="fw-light">cracktros and intros on Windows</span> {{ byteFile $rels.IntroW.Count $rels.IntroW.Bytes }}</div>
-                        <div><span class="fw-light">Demoscene productions</span> {{ byteFile $rels.Demoscene.Count $rels.Demoscene.Bytes }}</div>
-                        <div><span class="fw-light">editors</span> {{ byteFile $rels.NfoTool.Count $rels.NfoTool.Bytes }}</div>
-                        <div><span class="fw-light">installers</span> {{ byteFile $rels.Installer.Count $rels.Installer.Bytes }}</div>
-                        <div><span class="fw-light">Java files</span> {{ byteFile $rels.Java.Count $rels.Java.Bytes }}</div>
-                        <div><span class="fw-light">Linux files</span> {{ byteFile $rels.Linux.Count $rels.Linux.Bytes }}</div>
-                        <div><span class="fw-light">MacOS files</span> {{ byteFile $rels.Macos.Count $rels.Macos.Bytes }}</div>
-                        <div><span class="fw-light">{{msdos}} files</span> {{ byteFile $rels.MsDos.Count $rels.MsDos.Bytes }}</div>
-                        <div><span class="fw-light">nfo texts</span> {{ byteFile $rels.Nfo.Count $rels.Nfo.Bytes }}</div>
-                        <div><span class="fw-light">proofs</span> {{ byteFile $rels.Proof.Count $rels.Proof.Bytes }}</div>
-                        <div><span class="fw-light">scripts</span> {{ byteFile $rels.Script.Count $rels.Script.Bytes }}</div>
-                        <div><span class="fw-light">text files</span> {{ byteFile $rels.BBSText.Count $rels.BBSText.Bytes }}</div>
-                        <div><span class="fw-light">Windows files</span> {{ byteFile $rels.Windows.Count $rels.Windows.Bytes }}</div>
+                    {{ range .orderByYear }}
+                        <div><span class="fw-light">{{ .Name }}</span> {{ .MinYear }} - {{ .MaxYear }}</div>
+                    {{ end }}
                     </div>
                 </div>
             </div>
@@ -140,24 +124,49 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Publish dates</h5>
+                <h5 class="card-title">Counts and bytes</h5>
                 <div class="fs-6">
                     <div class="mb-3 pb-2 border-bottom">
-                        <span class="fw-light">Overall</span> {{$rels.Record.MinYear}} - {{$rels.Record.MaxYear}}
+                        <span class="fw-light">Totals</span> {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
                     </div>
                     <div class="lh-lg" style="font-size: 0.95rem;">
-                        <div><span class="fw-light">ansi art</span> {{$rels.Ansi.MinYear}}-{{$rels.Ansi.MaxYear}}</div>
-                        <div><span class="fw-light">BBS adverts</span> {{$rels.BBS.MinYear}}-{{$rels.BBS.MaxYear}}</div>
-                        <div><span class="fw-light">cracktros and intros</span> {{$rels.Intro.MinYear}}-{{$rels.Intro.MaxYear}}</div>
-                        <div><span class="fw-light">Java files</span> {{$rels.Java.MinYear}}-{{$rels.Java.MaxYear}}</div>
-                        <div><span class="fw-light">Linux files</span> {{$rels.Linux.MinYear}}-{{$rels.Linux.MaxYear}}</div>
-                        <div><span class="fw-light">magazines</span> {{$rels.Magazine.MinYear}}-{{$rels.Magazine.MaxYear}}</div>
-                        <div><span class="fw-light">MacOS files</span> {{$rels.Macos.MinYear}}-{{$rels.Macos.MaxYear}}</div>
-                        <div><span class="fw-light">{{msdos}} files</span> {{$rels.MsDos.MinYear}}-{{$rels.MsDos.MaxYear}}</div>
-                        <div><span class="fw-light">nfo texts</span> {{$rels.Nfo.MinYear}}-{{$rels.Nfo.MaxYear}}</div>
-                        <div><span class="fw-light">scripts</span> {{$rels.Script.MinYear}}-{{$rels.Script.MaxYear}}</div>
-                        <div><span class="fw-light">text files</span> {{$rels.Text.MinYear}}-{{$rels.Text.MaxYear}}</div>
-                        <div><span class="fw-light">Windows files</span> {{$rels.Windows.MinYear}}-{{$rels.Windows.MaxYear}}</div>
+                    {{ range .orderByName }}
+                        <div><span class="fw-light">{{ .Name }}</span> {{ byteFile .Count .Bytes }}</div>
+                    {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h5 class="card-title">Sort by counts</h5>
+                    <div class="mb-3 pb-2 border-bottom">
+                        <span class="fw-light">Total</span> {{ $rels.Record.Count }}
+                    </div>
+                <div class="fs-6">
+                    <div class="lh-lg" style="font-size: 0.95rem;">
+{{- range .orderByCount -}}
+                        <div><span class="fw-light">{{.Name}}</span> {{ byteFile .Count .Bytes }}</div>
+{{- end }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h5 class="card-title">Sort by bytes</h5>
+                <div class="fs-6">
+                    <div class="mb-3 pb-2 border-bottom">
+                        <span class="fw-light">Total</span> {{ $rels.Record.Bytes }}
+                    </div>
+                    <div class="lh-lg" style="font-size: 0.95rem;">
+{{- range .orderByBytes -}}
+                        <div><span class="fw-light">{{.Name}}</span> {{ byteBytes .Bytes }}</div>
+{{- end }}
                     </div>
                 </div>
             </div>

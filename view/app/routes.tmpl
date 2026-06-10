@@ -1,0 +1,33 @@
+{{- /* 
+    routes.tmpl ~ Listing of routes page template.
+*/ -}}
+{{- define "content" }}
+{{- $routing := index . "routes" }}
+    <p>Web browser routes and parameters registered by the web application.</p>
+    {{ if .routesCount }}
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>{{ .routesCount }}</strong> routes registered.<br>
+            This value doesn't mean all are working Uniform Resource Identifiers or Locators.
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {{ range .routesList }}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <code>{{ .Method }} {{ .Path }}</code>
+                            <small class="text-muted d-block">
+                                https://defacto2.net{{ .Path }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+    {{ else }}
+    <div class="alert alert-info">No routes found.</div>
+    {{ end }}
+{{- end}}

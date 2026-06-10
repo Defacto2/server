@@ -71,7 +71,7 @@ type Production struct {
 // A status code is returned when the response status is not OK.
 //
 // [Pouet API]: https://api.pouet.net/v1/prod/?id=
-func (p *Production) Get(id int) (int, error) {
+func (p *Production) Get(ctx context.Context, id int) (int, error) {
 	if id < firstID {
 		return 0, fmt.Errorf("get pouet production %w: %d", ErrBadID, id)
 	}
@@ -117,7 +117,7 @@ func (p *Production) Get(id int) (int, error) {
 		},
 		Success: false,
 	}
-	if code, err := resp.Get(id); err != nil {
+	if code, err := resp.Get(ctx, id); err != nil {
 		return code, fmt.Errorf("pouet uploader get %w", err)
 	}
 	parsedID, err := strconv.Atoi(resp.Prod.ID)
@@ -349,12 +349,11 @@ func (t Types) String() string {
 
 // Get retrieves the production voting data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
-func (r *Response) Get(id int) (int, error) {
+func (r *Response) Get(ctx context.Context, id int) (int, error) {
 	if id < firstID {
 		return 0, fmt.Errorf("%w: %d", ErrBadID, id)
 	}
 	url := ProdURL + strconv.Itoa(id)
-	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return 0, fmt.Errorf("get pouet production new request %w", err)
@@ -394,12 +393,12 @@ func (r *Response) Get(id int) (int, error) {
 // Votes retrieves the production voting data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
 // The data is intended for the Artifact page, Pouët reviews section.
-func (v *Votes) Votes(id int) error {
+func (v *Votes) Votes(ctx context.Context, id int) error {
 	if id < firstID {
 		return fmt.Errorf("%w: %d", ErrBadID, id)
 	}
 	r := empty()
-	_, err := r.Get(id)
+	_, err := r.Get(ctx, id)
 	if err != nil {
 		return fmt.Errorf("pouet votes get %w", err)
 	}

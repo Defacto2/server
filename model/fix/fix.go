@@ -57,9 +57,9 @@ const (
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger) error {
+func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx) error {
 	const msg = "Database repair"
-	if err := panics.ContextDTS(ctx, db, tx, sl); err != nil {
+	if err := panics.CSDTx(ctx, sl, db, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Info(msg,
@@ -71,10 +71,10 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger
 	if r == None {
 		return nil
 	}
-	if err := invalidUUIDs(ctx, db, sl); err != nil {
+	if err := invalidUUIDs(ctx, sl, db); err != nil {
 		return fmt.Errorf("%s invalid uuids: %w", msg, err)
 	}
-	if err := coldfusionIDs(ctx, db, sl); err != nil {
+	if err := coldfusionIDs(ctx, sl, db); err != nil {
 		return fmt.Errorf("%s coldfusion ids: %w", msg, err)
 	}
 	switch r { //nolint:exhaustive
@@ -92,7 +92,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger
 		if err := trimFwdSlash(tx); err != nil {
 			return fmt.Errorf("%s trim forward slash: %w", msg, err)
 		}
-		if err := trainers(ctx, tx, sl); err != nil {
+		if err := trainers(ctx, sl, tx); err != nil {
 			return fmt.Errorf("%s trainers: %w", msg, err)
 		}
 		if err := tx.Commit(); err != nil {
@@ -100,7 +100,7 @@ func (r Repair) Run(ctx context.Context, db *sql.DB, tx *sql.Tx, sl *slog.Logger
 		}
 		fallthrough
 	case Releaser:
-		if err := releasers(ctx, db, sl); err != nil {
+		if err := releasers(ctx, sl, db); err != nil {
 			return fmt.Errorf("%s releasers: %w", msg, err)
 		}
 	}
@@ -141,7 +141,7 @@ func SyncFilesIDSeq(db *sql.DB) error {
 // A blank CFID is "00000000-0000-0000-0000000000000000".
 //
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
-func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func coldfusionIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg, key = "Database repair: ColdFusion", "task"
 	sl.Info(msg, slog.String(key, "Check for invalid UUIDs using the ColdFusion syntax"))
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
@@ -186,7 +186,7 @@ func coldfusionIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logg
 
 const Trainer = "gamehack"
 
-func trainers(ctx context.Context, tx *sql.Tx, sl *slog.Logger) error {
+func trainers(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 	const msg = "Database repair: " + Trainer
 	sl.Info(msg,
 		slog.String("task", "Check for trainers that are incorrectly categorized"))
@@ -285,13 +285,14 @@ func GetFixesMapUpper() map[string]string {
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
-func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func releasers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "Database repair"
 	sl.Info(msg,
 		slog.String("task", "Clean up the named releasers in group_brand_by and group_brand_for"))
 	f, err := models.Files(
 		qm.Where("group_brand_for = group_brand_by"),
-		qm.WithDeleted()).All(ctx, exec)
+		qm.WithDeleted(),
+	).All(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("update group_brand_for = group_brand_by: %w", err)
 	}
@@ -310,7 +311,8 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 	for bad, fix := range GetFixesMapUpper() {
 		f, err = models.Files(
 			qm.Where("group_brand_for = ?", bad),
-			qm.WithDeleted()).All(ctx, exec)
+			qm.WithDeleted(),
+		).All(ctx, exec)
 		if err != nil {
 			return fmt.Errorf("where group_brand_for is bad: %w", err)
 		}
@@ -327,7 +329,8 @@ func releasers(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) 
 		}
 		f, err = models.Files(
 			qm.Where("group_brand_by = ?", bad),
-			qm.WithDeleted()).All(ctx, exec)
+			qm.WithDeleted(),
+		).All(ctx, exec)
 		if err != nil {
 			return fmt.Errorf("where group_brand_by is bad: %w", err)
 		}
@@ -455,7 +458,7 @@ func optimize(db *sql.DB) error {
 
 // invalidUUIDs will count the number of invalid UUIDs in the database.
 // This should be part of a future function to repair the UUIDs and rename the file assets.
-func invalidUUIDs(ctx context.Context, exec boil.ContextExecutor, sl *slog.Logger) error {
+func invalidUUIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "Database repair"
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
@@ -508,7 +511,8 @@ func trimFwdSlash(exec boil.ContextExecutor) error {
 	var query strings.Builder
 	columns := []string{"web_id_16colors"}
 	for column := range slices.Values(columns) {
-		query.WriteString(UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; ")
+		s := UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
+		query.WriteString(s)
 	}
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)

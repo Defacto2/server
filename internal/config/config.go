@@ -162,7 +162,7 @@ func (c Config) Print(sl *slog.Logger) {
 		// help includes the result of the Help() method, when it exists for the named configuration
 		help := vof.FieldByName(name).MethodByName("Help")
 		if name == "GoogleIDs" && help.IsValid() {
-			googleIDs(vof, sl, tag)
+			googleIDs(sl, vof, tag)
 			continue
 		}
 		if help.IsValid() {
@@ -177,7 +177,7 @@ func (c Config) Print(sl *slog.Logger) {
 	}
 }
 
-func googleIDs(vof reflect.Value, sl *slog.Logger, tag string) {
+func googleIDs(sl *slog.Logger, vof reflect.Value, tag string) {
 	const n = "GoogleAccounts"
 	swap := vof.FieldByName(n).MethodByName("Help")
 	if !swap.IsValid() {

@@ -1,6 +1,7 @@
 package fileslice_test
 
 import (
+	"context"
 	"slices"
 	"testing"
 
@@ -71,6 +72,6 @@ func TestFileInfo(t *testing.T) {
 
 func TestCounter(t *testing.T) {
 	t.Parallel()
-	_, err := fileslice.Counter(nil)
+	_, err := fileslice.Counter(context.TODO(), nil)
 	be.Err(t, err)
 }

@@ -2,6 +2,7 @@
 package filerecord
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -680,7 +681,7 @@ func (e *entry) parseMusicID3(path string) bool {
 // to a temporary directory, to allow its extracted content can be parsed to determine usability
 // using magicfile techniques and other metadata.
 func ListContent( //nolint:cyclop,gocognit,funlen
-	sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string,
+	ctx context.Context, sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string,
 ) template.HTML {
 	if sl == nil || art == nil {
 		return ""
@@ -819,7 +820,7 @@ func ListContent( //nolint:cyclop,gocognit,funlen
 		unid:          unid,
 	}
 	names = helper.SortNames("/", names)
-	return c.renderContent(sl, &b, names...)
+	return c.renderContent(ctx, sl, &b, names...)
 }
 
 type content struct {
@@ -830,7 +831,9 @@ type content struct {
 	zeroByteFiles int
 }
 
-func (c content) renderContent(sl *slog.Logger, b *strings.Builder, names ...string) template.HTML {
+func (c content) renderContent(
+	ctx context.Context, sl *slog.Logger, b *strings.Builder, names ...string,
+) template.HTML {
 	// always render a file_id.diz if it is found
 	diz := indexDiz(names...)
 	l := len(names)
@@ -873,7 +876,7 @@ func (c content) renderContent(sl *slog.Logger, b *strings.Builder, names ...str
 		srcNFO = filepath.Join(c.dst, elms)
 	}
 	if srcNFO != "" {
-		if err := c.dirs.TextDeferred(sl, srcNFO, c.unid); err != nil {
+		if err := c.dirs.TextDeferred(ctx, sl, srcNFO, c.unid); err != nil {
 			b.Reset()
 			return template.HTML(err.Error())
 		}

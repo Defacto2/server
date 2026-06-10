@@ -17,23 +17,29 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
+)
+
+const (
+	ErrConn = "the server cannot connect to the database"
+	ErrSQL  = "database connection problem or a SQL error"
+	ErrTmpl = "cannot render the template"
 )
 
 // All method lists every release.
-func All(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, Everything)
+func All(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(ctx, sl, c, db, Everything)
 }
 
 // Art lists the file records described as art are digital + pixel art files.
-func Art(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, AsArt)
+func Art(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(ctx, sl, c, db, AsArt)
 }
 
 // Categories lists the names, descriptions and sums of the category (section) tags.
-func Categories(c echo.Context, sl *slog.Logger) error {
+func Categories(sl *slog.Logger, c *echo.Context) error {
 	const msg = "htm3 categories"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
@@ -47,35 +53,35 @@ func Categories(c echo.Context, sl *slog.Logger) error {
 		"tags":      tags.Names(),
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("render", ErrTmpl.Error()), slog.Any("error", err))
+		sl.Error(msg,
+			slog.String("render", ErrTmpl), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
-func Category(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, BySection)
+func Category(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(ctx, sl, c, db, BySection)
 }
 
 // Documents lists the file records described as document + text art files.
-func Documents(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, AsDocument)
+func Documents(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(ctx, sl, c, db, AsDocument)
 }
 
 // Group lists the file records associated with the group that is provided by the ID param in the URL.
-func Group(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, ByGroup)
+func Group(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(ctx, sl, c, db, ByGroup)
 }
 
 // Groups lists the names and sums of all the distinct scene groups.
-func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func Groups(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 groups listings"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
-	ctx := context.Background()
 	page := 1
 	offset := strings.TrimPrefix(c.Param("offset"), "/")
 	if offset != "" {
@@ -89,7 +95,7 @@ func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	// releasers are the distinct groups from the file table.
 	var unique model.ReleaserNames
 	if err := unique.DistinctGroups(ctx, db); err != nil {
-		sl.Error(msg, slog.String("distinct", ErrSQL.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("distinct", ErrSQL), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	count := len(unique)
@@ -107,7 +113,7 @@ func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
 	if err := releasers.Limit(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
-		sl.Error(msg, slog.String("alphabetical", ErrSQL.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("alphabetical", ErrSQL), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
 	err := c.Render(http.StatusOK, "html3_groups", map[string]any{
@@ -121,16 +127,16 @@ func Groups(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		"navigate":  navi,
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("template", ErrTmpl), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Index method is the homepage of the /html3 sub-route.
-func Index(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func Index(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 index"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
@@ -142,7 +148,6 @@ func Index(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		Document html3.Documents
 		Software html3.Softwares
 	}
-	ctx := context.Background()
 	if err := stats.All.Public(ctx, db); err != nil {
 		sl.Warn(msg, slog.String("statistics", "results for all"), slog.Any("error", err))
 	}
@@ -171,16 +176,16 @@ func Index(c echo.Context, db *sql.DB, sl *slog.Logger) error {
 		latency:     time.Since(*start).String() + ".",
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("template", ErrTmpl), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // List all the records associated with the RecordsBy grouping.
-func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
+func List(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
 	const msg = "htm3 list records by"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
@@ -203,7 +208,7 @@ func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
 		}
 	}
 	// query database to return records and statistics
-	limit, count, byteSum, records, err := Query(c, db, tt, page)
+	limit, count, byteSum, records, err := Query(ctx, c, db, tt, page)
 	if err != nil {
 		sl.Error(msg, slog.String("database", "record and statistics query problem"), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
@@ -246,21 +251,21 @@ func List(c echo.Context, db *sql.DB, sl *slog.Logger, tt RecordsBy) error {
 		"navigate":  navi,
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("template", ErrTmpl), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Platform lists the file records associated with the platform tag that is provided by the ID param in the URL.
-func Platform(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, ByPlatform)
+func Platform(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(ctx, sl, c, db, ByPlatform)
 }
 
 // Platforms lists the names, descriptions and sums of the platform tags.
-func Platforms(c echo.Context, sl *slog.Logger) error {
+func Platforms(sl *slog.Logger, c *echo.Context) error {
 	const msg = "htm3 platforms"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	start := helper.Latency()
@@ -274,13 +279,13 @@ func Platforms(c echo.Context, sl *slog.Logger) error {
 		"tags":      tags.Names(),
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("template", ErrTmpl.Error()), slog.Any("error", err))
+		sl.Error(msg, slog.String("template", ErrTmpl), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // Software lists the file records described as software files.
-func Software(c echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(c, db, sl, AsSoftware)
+func Software(ctx context.Context, c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(ctx, sl, c, db, AsSoftware)
 }

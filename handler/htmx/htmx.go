@@ -28,7 +28,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -43,7 +43,7 @@ const (
 )
 
 // Areacodes is the handler for the /areacodes route.
-func Areacodes(c echo.Context) error {
+func Areacodes(c *echo.Context) error {
 	htm := template.HTML("")
 	search := c.FormValue("htmx-search")
 	search = strings.TrimSpace(search)
@@ -77,9 +77,9 @@ func Areacodes(c echo.Context) error {
 //
 // This also acts as the string constructor for the summary of a successful lookup
 // for the "Demozoo production or graphic" form.
-func DemozooLookup(c echo.Context, db *sql.DB, prodMode bool) error {
+func DemozooLookup(ctx context.Context, c *echo.Context, db *sql.DB, prodMode bool) error {
 	const msg = "demozoo lookup htmx context"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	zoo := c.FormValue("demozoo-submission")
@@ -88,7 +88,6 @@ func DemozooLookup(c echo.Context, db *sql.DB, prodMode bool) error {
 		return c.String(http.StatusNotAcceptable,
 			"The Demozoo production ID must be a numeric value, "+zoo)
 	}
-	ctx := context.Background()
 	deleted, key, err := model.OneDemozoo(ctx, db, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
@@ -101,7 +100,7 @@ func DemozooLookup(c echo.Context, db *sql.DB, prodMode bool) error {
 	if prodInUse := key != 0 && deleted; prodInUse {
 		return c.HTML(http.StatusOK, "This Demozoo production is already in use.")
 	}
-	prod, err := DemozooValid(c, prodMode, id)
+	prod, err := DemozooValid(ctx, c, prodMode, id)
 	if err != nil {
 		return err
 	}
@@ -161,7 +160,7 @@ func demozooBtn(id int, info ...string) string {
 //
 // A valid production requires at least one download link and must be a suitable type
 // such as an intro, demo or cracktro for MS-DOS, Windows etc.
-func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, error) {
+func DemozooValid(ctx context.Context, c *echo.Context, prodMode bool, id int) (demozoo.Production, error) {
 	const msg = "htmx demozoo valid"
 	none := demozoo.Production{} //nolint:exhaustruct
 	if c == nil {
@@ -182,7 +181,7 @@ func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, er
 	var prod demozoo.Production
 	// Get the production data from Demozoo.
 	// This func can be found in /internal/demozoo/demozoo.go
-	if code, err := prod.Get(id); err != nil {
+	if code, err := prod.Get(ctx, id); err != nil {
 		return none, c.String(code, err.Error())
 	}
 	plat, sect := prod.SuperType()
@@ -220,18 +219,18 @@ func DemozooValid(c echo.Context, prodMode bool, id int) (demozoo.Production, er
 // This will attempt to insert a new file record into the database using
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
-func DemozooSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func DemozooSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "htmx demozoo submit context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	return Demozoo.Submit(c, db, sl, download)
+	return Demozoo.Submit(ctx, sl, c, db, download)
 }
 
 // DBConnections is the handler for the database connections page.
-func DBConnections(c echo.Context, db *sql.DB) error {
+func DBConnections(c *echo.Context, db *sql.DB) error {
 	const msg = "htmx db connections context"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	conns, maxConn, err := postgres.Connections(db)
@@ -244,16 +243,15 @@ func DBConnections(c echo.Context, db *sql.DB) error {
 }
 
 // DeleteForever is a handler for the /delete/forever route.
-func DeleteForever(c echo.Context, db *sql.DB, sl *slog.Logger, id string) error {
+func DeleteForever(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	const msg = "htmx delete forever"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
-	ctx := context.Background()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		sl.Error(msg, slog.String("database", "could not start transaction"), slog.Any("error", err))
@@ -354,7 +352,7 @@ func pings() []string {
 }
 
 // Pings is a handler for the /pings route.
-func Pings(c echo.Context, proto string, port int) error {
+func Pings(c *echo.Context, proto string, port int) error {
 	const msg = "htmx pings context"
 	if c == nil {
 		return fmt.Errorf("%s, %w", msg, panics.ErrNoEchoC)
@@ -396,9 +394,9 @@ func Pings(c echo.Context, proto string, port int) error {
 // Both the Pouet production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func PouetLookup(c echo.Context, db *sql.DB) error {
+func PouetLookup(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "htmx pouet lookup context"
-	if err := panics.EchoContextD(c, db); err != nil {
+	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	pouet := c.FormValue("pouet-submission")
@@ -407,7 +405,6 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 		return c.String(http.StatusNotAcceptable,
 			"The Pouet production ID must be a numeric value, "+pouet)
 	}
-	ctx := context.Background()
 	deleted, key, err := model.OnePouet(ctx, db, int64(id))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
@@ -420,7 +417,7 @@ func PouetLookup(c echo.Context, db *sql.DB) error {
 	if key != 0 && deleted {
 		return c.HTML(http.StatusOK, "This Pouet production is already in use.")
 	}
-	resp, err := PouetValid(c, id, false)
+	resp, err := PouetValid(ctx, c, id, false)
 	if err != nil {
 		return fmt.Errorf("PouetValid: %w", err)
 	} else if resp.Prod.ID == "" {
@@ -474,7 +471,7 @@ func pouetBtn(id int, info ...string) string {
 // The production ID is validated and the production is checked to see if it
 // is suitable for Defacto2. If the production is not suitable, an empty
 // production is returned with a htmx message.
-func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
+func PouetValid(ctx context.Context, c *echo.Context, id int, useCache bool) (pouet.Response, error) {
 	const msg = "htmx pouet valid context"
 	none := pouet.Response{} //nolint:exhaustruct
 	if c == nil {
@@ -496,7 +493,7 @@ func PouetValid(c echo.Context, id int, useCache bool) (pouet.Response, error) {
 		}
 	}
 	var prod pouet.Response
-	if _, err := prod.Get(id); err != nil {
+	if _, err := prod.Get(ctx, id); err != nil {
 		return none, c.String(http.StatusInternalServerError, err.Error())
 	}
 	platOkay := pouet.PlatformsValid(prod.Prod.Platforms.String())
@@ -552,22 +549,21 @@ func validation(prod pouet.Response) string {
 // This will attempt to insert a new file record into the database using
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
-func PouetSubmit(c echo.Context, db *sql.DB, sl *slog.Logger, download dir.Directory) error {
+func PouetSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "htmx pouet submit context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	return Pouet.Submit(c, db, sl, download)
+	return Pouet.Submit(ctx, sl, c, db, download)
 }
 
 // SearchByID is a handler for the /editor/search/id route.
-func SearchByID(c echo.Context, db *sql.DB, sl *slog.Logger) error {
+func SearchByID(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "search by id context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 50
-	ctx := context.Background()
 	ids := []int{}
 	uuids := []uuid.UUID{}
 	search := c.FormValue("htmx-search")
@@ -653,13 +649,14 @@ func Alternatives(s string) []string {
 }
 
 // SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger, ft *fulltext.Tidbits) error {
+func SearchReleaser(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.Tidbits,
+) error {
 	const msg = "htmx search releaser context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const limit = 14
-	ctx := context.Background()
 	input := c.FormValue("htmx-search")
 	name := helper.TrimRoundBracket(input)
 	name = releaser.Clean(name) // required to stop 503 errors with invalid characters
@@ -716,23 +713,22 @@ func SearchReleaser(c echo.Context, db *sql.DB, sl *slog.Logger, ft *fulltext.Ti
 }
 
 // DataListReleasers is a handler for the /datalist/releasers route.
-func DataListReleasers(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
-	return datalist(c, db, sl, input, false)
+func DataListReleasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error {
+	return datalist(ctx, sl, c, db, input, false)
 }
 
 // DataListMagazines is a handler for the /datalist/magazines route.
-func DataListMagazines(c echo.Context, db *sql.DB, sl *slog.Logger, input string) error {
-	return datalist(c, db, sl, input, true)
+func DataListMagazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error {
+	return datalist(ctx, sl, c, db, input, true)
 }
 
 // datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
-func datalist(c echo.Context, db *sql.DB, sl *slog.Logger, input string, magazine bool) error {
+func datalist(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazine bool) error {
 	const msg = "htmx datalist context"
-	if err := panics.EchoContextDS(c, db, sl); err != nil {
+	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 14
-	ctx := context.Background()
 	slug := helper.Slug(helper.TrimRoundBracket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")

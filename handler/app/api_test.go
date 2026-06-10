@@ -13,7 +13,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	_ "github.com/jackc/pgx/v5"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
@@ -39,7 +39,8 @@ func BenchmarkApiMarkup(b *testing.B) {
 // BenchmarkCategoriesAPIWithRealStats benchmarks the CategoriesAPI with realistic stats calculation.
 func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, api+"/categories", nil)
+	ctx := context.Background()
+	req := httptest.NewRequestWithContext(ctx, http.MethodGet, api+"/categories", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -60,7 +61,7 @@ func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 	}
 	b.ResetTimer()
 	for b.Loop() {
-		_ = app.CategoriesAPI(c, db)
+		_ = app.CategoriesAPI(ctx, c, db)
 		rec.Body.Reset()
 	}
 }
@@ -68,7 +69,8 @@ func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
 // BenchmarkPlatformsAPIWithRealStats benchmarks the PlatformsAPI with realistic stats calculation.
 func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
 	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
+	ctx := context.Background()
+	req := httptest.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
@@ -90,7 +92,7 @@ func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		_ = app.PlatformsAPI(c, db)
+		_ = app.PlatformsAPI(ctx, c, db)
 		rec.Body.Reset()
 	}
 }
@@ -237,8 +239,10 @@ func TestGetAreacodeByCode(t *testing.T) {
 			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("code")
-			c.SetParamValues(tt.code)
+			c.PathValues()
+			c.SetPathValues(echo.PathValues{
+				{Name: "code", Value: tt.code},
+			})
 
 			// Test
 			err := app.AreaCodeAPI(c)
@@ -310,8 +314,9 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("abbr")
-			c.SetParamValues(tt.abbr)
+			c.SetPathValues(echo.PathValues{
+				{Name: "abbr", Value: tt.abbr},
+			})
 
 			// Test
 			err := app.RegionAPI(c)
@@ -372,8 +377,9 @@ func TestSearchAreacodes(t *testing.T) {
 			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
-			c.SetParamNames("query")
-			c.SetParamValues(tt.query)
+			c.SetPathValues(echo.PathValues{
+				{Name: "query", Value: tt.query},
+			})
 
 			// Test
 			err := app.AreacodeSearchAPI(c)

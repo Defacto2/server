@@ -1,6 +1,7 @@
 package demozoo_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -14,8 +15,9 @@ const testRemoteServers = false
 
 func TestDemozoo_Get(t *testing.T) {
 	t.Parallel()
+	ctx := context.TODO()
 	prod := demozoo.Production{}
-	_, err := prod.Get(-1)
+	_, err := prod.Get(ctx, -1)
 	be.Err(t, err)
 	ok := errors.Is(err, demozoo.ErrID)
 	be.True(t, ok)
@@ -23,7 +25,7 @@ func TestDemozoo_Get(t *testing.T) {
 		return
 	}
 
-	_, err = prod.Get(1)
+	_, err = prod.Get(ctx, 1)
 	be.Err(t, err, nil)
 	ok = errors.Is(err, demozoo.ErrSuccess)
 	be.True(t, ok)

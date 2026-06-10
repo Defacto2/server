@@ -10,7 +10,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	_ "github.com/jackc/pgx/v5"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
@@ -35,7 +35,8 @@ func TestTagsCaching(t *testing.T) {
 	c := e.NewContext(req, rec)
 
 	// First call - should not be cached
-	err = app.CategoriesAPI(c, db)
+	ctx := context.TODO()
+	err = app.CategoriesAPI(ctx, c, db)
 	be.Equal(t, err, nil)
 	be.Equal(t, rec.Code, http.StatusOK)
 	firstResponse := rec.Body.String()
@@ -46,7 +47,7 @@ func TestTagsCaching(t *testing.T) {
 	c2 := e.NewContext(req2, rec2)
 
 	start := time.Now()
-	err = app.CategoriesAPI(c2, db)
+	err = app.CategoriesAPI(ctx, c2, db)
 	elapsed := time.Since(start)
 	be.Equal(t, err, nil)
 	be.Equal(t, rec2.Code, http.StatusOK)

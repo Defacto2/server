@@ -9,7 +9,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/app/internal/simple"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // Example_milestonesAll demonstrates getting all milestones.

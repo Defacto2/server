@@ -11,14 +11,16 @@ import (
 	"syscall"
 
 	"github.com/Defacto2/server/internal/panics"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
+
+const ErrTmpl = "the server could not render the html template for this page"
 
 // BadRequestErr is the handler for handling Bad Request Errors, caused by invalid user input
 // or a malformed client requests.
-func BadRequestErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "bad request handler"
-	if err1 := panics.EchoContextS(c, sl); err1 != nil {
+	if err1 := panics.SC(c, sl); err1 != nil {
 		return fmt.Errorf("%s: %w", msg, err1)
 	}
 	const code = http.StatusBadRequest
@@ -43,7 +45,7 @@ func BadRequestErr(c echo.Context, sl *slog.Logger, uri string, err error) error
 // DatabaseErr is the handler for database connection issues.
 // A HTTP 503 Service Unavailable error is returned, to reflect the database
 // connection issue but where the server is still running and usable for the client.
-func DatabaseErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+func DatabaseErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "database connection handler"
 	const unavailable = http.StatusServiceUnavailable
 	if err != nil {
@@ -68,9 +70,9 @@ func DatabaseErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 }
 
 // DownloadErr is the handler for missing download files and database ID errors.
-func DownloadErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "download not found"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const code = http.StatusNotFound
@@ -97,9 +99,9 @@ func DownloadErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 }
 
 // FileMissingErr is the handler for missing download files and database ID errors.
-func FileMissingErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "file missing"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const code = http.StatusServiceUnavailable
@@ -126,9 +128,9 @@ func FileMissingErr(c echo.Context, sl *slog.Logger, uri string, err error) erro
 
 // ForbiddenErr is the handler for handling Forbidden Errors, caused by clients requesting
 // pages that they do not have permission to access.
-func ForbiddenErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+func ForbiddenErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "forbidden access"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const code = http.StatusForbidden
@@ -157,9 +159,9 @@ func ForbiddenErr(c echo.Context, sl *slog.Logger, uri string, err error) error 
 // The uri string is the part of the URL that caused the error.
 // The optional error value is logged using the logger.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
-func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
+func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "internal server error"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const code = http.StatusInternalServerError
@@ -174,7 +176,8 @@ func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 			slog.String("uri", uri), slog.Any("error", err))
 	}
 	if errors.Is(err, echo.ErrRendererNotRegistered) {
-		return echo.NewHTTPError(code, err)
+		message := fmt.Sprintf("%s", err)
+		return echo.NewHTTPError(code, message)
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
@@ -195,9 +198,9 @@ func InternalErr(c echo.Context, sl *slog.Logger, uri string, err error) error {
 // StatusErr is the handler for the HTTP status pages such as the 404 - not found.
 // If the logger is nil then the error page is returned but no error is logged.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
-func StatusErr(c echo.Context, sl *slog.Logger, code int, uri string) error {
+func StatusErr(sl *slog.Logger, c *echo.Context, code int, uri string) error {
 	const msg = "http status"
-	if err := panics.EchoContextS(c, sl); err != nil {
+	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	data := empty(c)
@@ -215,11 +218,11 @@ func StatusErr(c echo.Context, sl *slog.Logger, code int, uri string) error {
 		alert = "The page is locked"
 		probl = "You don't have permission to access this resource."
 	case http.StatusInternalServerError:
-		return InternalErr(c, sl, uri, nil)
+		return InternalErr(sl, c, uri, nil)
 	default:
 		s := http.StatusText(code)
 		if s == "" {
-			err := fmt.Errorf("%d status error for the URL, %s: %w", code, uri, ErrStatus)
+			err := fmt.Sprintf("%d status error for the URL, %s: %s", code, uri, ErrStatus)
 			sl.Error(msg, slog.String("status", "unknown and unsupported status code"),
 				slog.Int("code", code), slog.String("uri", uri))
 			return echo.NewHTTPError(http.StatusInternalServerError, err)

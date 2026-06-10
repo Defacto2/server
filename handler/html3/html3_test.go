@@ -12,11 +12,11 @@ import (
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/aarondl/null/v8"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
-func newContext() echo.Context {
+func newContext() *echo.Context {
 	e := echo.New()
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader("{}"))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -29,7 +29,7 @@ func TestRoutes(t *testing.T) {
 	e := echo.New()
 	sl := logs.Discard()
 	var db sql.DB
-	g := html3.Routes(e, &db, sl)
+	g := html3.Routes(context.TODO(), sl, e, &db)
 	be.True(t, g != nil)
 }
 
@@ -41,7 +41,8 @@ func TestGlobTo(t *testing.T) {
 
 func TestTemplates(t *testing.T) {
 	t.Parallel()
-	x := html3.Templates(nil, nil, embed.FS{})
+	ctx := context.TODO()
+	x := html3.Templates(ctx, nil, nil, embed.FS{})
 	be.Equal(t, len(x), 11)
 }
 
@@ -75,29 +76,30 @@ func TestLeadInt(t *testing.T) {
 
 func TestQuery(t *testing.T) {
 	t.Parallel()
-	a, b, c, fs, err := html3.Query(newContext(), nil, -1, -1)
+	ctx := context.TODO()
+	a, b, c, fs, err := html3.Query(ctx, newContext(), nil, -1, -1)
 	be.True(t, a == 0)
 	be.True(t, b == 0)
 	be.True(t, c == 0)
 	be.Equal(t, len(fs), 0)
 	be.Err(t, err)
-	a, b, c, fs, err = html3.Query(newContext(), nil, html3.Everything, -1)
+	a, b, c, fs, err = html3.Query(ctx, newContext(), nil, html3.Everything, -1)
 	be.True(t, a == 0)
 	be.True(t, b == 0)
 	be.True(t, c == 0)
 	be.Equal(t, len(fs), 0)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.BySection, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.BySection, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.ByPlatform, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.ByPlatform, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.ByGroup, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.ByGroup, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsArt, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.AsArt, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsDocument, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.AsDocument, -1)
 	be.Err(t, err)
-	_, _, _, _, err = html3.Query(newContext(), nil, html3.AsSoftware, -1)
+	_, _, _, _, err = html3.Query(ctx, newContext(), nil, html3.AsSoftware, -1)
 	be.Err(t, err)
 }
 
@@ -242,7 +244,8 @@ func TestDescription(t *testing.T) {
 		null.StringFrom("intro"),
 		null.StringFrom("dos"),
 		null.StringFrom("Defacto2"),
-		null.StringFrom("Hello world"))
+		null.StringFrom("Hello world"),
+	)
 	be.Equal(t, "Hello world from Defacto2 for Dos.", s)
 }
 
