@@ -562,37 +562,20 @@ type Stats struct {
 	Windows   model.Windows
 }
 
+// Era is used to provide sorted statistics for artifact categories.
 type Era struct {
 	Name    string
 	MinYear int
 	MaxYear int
 }
 
-func (s *Stats) eras() []Era {
-	return []Era{
-		{s.Ansi.String(), s.Ansi.MinYear, s.Ansi.MaxYear},
-		{s.AnsiBBS.String(), s.AnsiBBS.MinYear, s.AnsiBBS.MaxYear},
-		{s.BBS.String(), s.BBS.MinYear, s.BBS.MaxYear},
-		{s.BBSText.String(), s.BBSText.MinYear, s.BBSText.MaxYear},
-		{s.BBStro.String(), s.BBStro.MinYear, s.BBStro.MaxYear},
-		{s.Demoscene.String(), s.Demoscene.MinYear, s.Demoscene.MaxYear},
-		{s.MsDos.String(), s.MsDos.MinYear, s.MsDos.MaxYear},
-		{s.Intro.String(), s.Intro.MinYear, s.Intro.MaxYear},
-		{s.IntroD.String(), s.IntroD.MinYear, s.IntroD.MaxYear},
-		{s.IntroW.String(), s.IntroW.MinYear, s.IntroW.MaxYear},
-		{s.Installer.String(), s.Installer.MinYear, s.Installer.MaxYear},
-		{s.Java.String(), s.Java.MinYear, s.Java.MaxYear},
-		{s.Linux.String(), s.Linux.MinYear, s.Linux.MaxYear},
-		{s.Magazine.String(), s.Magazine.MinYear, s.Magazine.MaxYear},
-		{s.Macos.String(), s.Macos.MinYear, s.Macos.MaxYear},
-		{s.Nfo.String(), s.Nfo.MinYear, s.Nfo.MaxYear},
-		{s.NfoTool.String(), s.NfoTool.MinYear, s.NfoTool.MaxYear},
-		{s.Proof.String(), s.Proof.MinYear, s.Proof.MaxYear},
-		{s.Script.String(), s.Script.MinYear, s.Script.MaxYear},
-		{s.Windows.String(), s.Windows.MinYear, s.Windows.MaxYear},
-	}
-}
-
+// SortYear returns the Eras sorted from oldest to newest.
+// If multiple Era share the same year, then the shortest to longest time span is used.
+//
+// For example:
+//   - 1. 1980 - 1982
+//   - 2. 1980 - 1990
+//   - 3. 1981 - 1985
 func (s *Stats) SortYear() []Era {
 	items := s.eras()
 	sort.Slice(items, func(i, j int) bool {
@@ -605,37 +588,14 @@ func (s *Stats) SortYear() []Era {
 	return items
 }
 
+// Item is used to provided sorted statistics for artifact categories.
 type Item struct {
 	Name  string
 	Bytes int
 	Count int
 }
 
-func (s *Stats) items() []Item {
-	return []Item{
-		{s.Ansi.String(), s.Ansi.Bytes, s.Ansi.Count},
-		{s.AnsiBBS.String(), s.AnsiBBS.Bytes, s.AnsiBBS.Count},
-		{s.BBS.String(), s.BBS.Bytes, s.BBS.Count},
-		{s.BBSText.String(), s.BBSText.Bytes, s.BBSText.Count},
-		{s.BBStro.String(), s.BBStro.Bytes, s.BBStro.Count},
-		{s.Demoscene.String(), s.Demoscene.Bytes, s.Demoscene.Count},
-		{s.MsDos.String(), s.MsDos.Bytes, s.MsDos.Count},
-		{s.Intro.String(), s.Intro.Bytes, s.Intro.Count},
-		{s.IntroD.String(), s.IntroD.Bytes, s.IntroD.Count},
-		{s.IntroW.String(), s.IntroW.Bytes, s.IntroW.Count},
-		{s.Installer.String(), s.Installer.Bytes, s.Installer.Count},
-		{s.Java.String(), s.Java.Bytes, s.Java.Count},
-		{s.Linux.String(), s.Linux.Bytes, s.Linux.Count},
-		{s.Magazine.String(), s.Magazine.Bytes, s.Magazine.Count},
-		{s.Macos.String(), s.Macos.Bytes, s.Macos.Count},
-		{s.Nfo.String(), s.Nfo.Bytes, s.Nfo.Count},
-		{s.NfoTool.String(), s.NfoTool.Bytes, s.NfoTool.Count},
-		{s.Proof.String(), s.Proof.Bytes, s.Proof.Count},
-		{s.Script.String(), s.Script.Bytes, s.Script.Count},
-		{s.Windows.String(), s.Windows.Bytes, s.Windows.Count},
-	}
-}
-
+// SortByte returns the Items sorted from highest to lowest bytes.
 func (s *Stats) SortByte() []Item {
 	items := s.items()
 	sort.Slice(items, func(i, j int) bool {
@@ -648,6 +608,7 @@ func (s *Stats) SortByte() []Item {
 	return items
 }
 
+// SortCount returns the Items sorted by highest to lowest counts.
 func (s *Stats) SortCount() []Item {
 	items := s.items()
 	sort.Slice(items, func(i, j int) bool {
@@ -660,40 +621,13 @@ func (s *Stats) SortCount() []Item {
 	return items
 }
 
+// SortName returns the Items sorted alphabetically by their name.
 func (s *Stats) SortName() []Item {
 	items := s.items()
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].Name < items[j].Name
 	})
 	return items
-}
-
-// newStats returns a new Stats struct initialized with zero values.
-func newStats() Stats {
-	return Stats{
-		IntroW:    model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Record:    model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Ansi:      model.Ansi{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		AnsiBBS:   model.AnsiBBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBS:       model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBSText:   model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBStro:    model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Demoscene: model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		MsDos:     model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Intro:     model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		IntroD:    model.IntroMsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Installer: model.Installer{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Java:      model.Java{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Linux:     model.Linux{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Magazine:  model.Magazine{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Macos:     model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Nfo:       model.Nfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		NfoTool:   model.NfoTool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Proof:     model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Script:    model.Script{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Text:      model.Text{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Windows:   model.Windows{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-	}
 }
 
 // Statistics returns the empty database statistics for the artifacts categories.
@@ -782,4 +716,82 @@ func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
 		return fmt.Errorf("category get text stat: %w", err)
 	}
 	return s.Windows.Stat(ctx, exec)
+}
+
+func (s *Stats) eras() []Era { //nolint:dupl
+	return []Era{
+		{s.Ansi.String(), s.Ansi.MinYear, s.Ansi.MaxYear},
+		{s.AnsiBBS.String(), s.AnsiBBS.MinYear, s.AnsiBBS.MaxYear},
+		{s.BBS.String(), s.BBS.MinYear, s.BBS.MaxYear},
+		{s.BBSText.String(), s.BBSText.MinYear, s.BBSText.MaxYear},
+		{s.BBStro.String(), s.BBStro.MinYear, s.BBStro.MaxYear},
+		{s.Demoscene.String(), s.Demoscene.MinYear, s.Demoscene.MaxYear},
+		{s.MsDos.String(), s.MsDos.MinYear, s.MsDos.MaxYear},
+		{s.Intro.String(), s.Intro.MinYear, s.Intro.MaxYear},
+		{s.IntroD.String(), s.IntroD.MinYear, s.IntroD.MaxYear},
+		{s.IntroW.String(), s.IntroW.MinYear, s.IntroW.MaxYear},
+		{s.Installer.String(), s.Installer.MinYear, s.Installer.MaxYear},
+		{s.Java.String(), s.Java.MinYear, s.Java.MaxYear},
+		{s.Linux.String(), s.Linux.MinYear, s.Linux.MaxYear},
+		{s.Magazine.String(), s.Magazine.MinYear, s.Magazine.MaxYear},
+		{s.Macos.String(), s.Macos.MinYear, s.Macos.MaxYear},
+		{s.Nfo.String(), s.Nfo.MinYear, s.Nfo.MaxYear},
+		{s.NfoTool.String(), s.NfoTool.MinYear, s.NfoTool.MaxYear},
+		{s.Proof.String(), s.Proof.MinYear, s.Proof.MaxYear},
+		{s.Script.String(), s.Script.MinYear, s.Script.MaxYear},
+		{s.Windows.String(), s.Windows.MinYear, s.Windows.MaxYear},
+	}
+}
+
+func (s *Stats) items() []Item { //nolint:dupl
+	return []Item{
+		{s.Ansi.String(), s.Ansi.Bytes, s.Ansi.Count},
+		{s.AnsiBBS.String(), s.AnsiBBS.Bytes, s.AnsiBBS.Count},
+		{s.BBS.String(), s.BBS.Bytes, s.BBS.Count},
+		{s.BBSText.String(), s.BBSText.Bytes, s.BBSText.Count},
+		{s.BBStro.String(), s.BBStro.Bytes, s.BBStro.Count},
+		{s.Demoscene.String(), s.Demoscene.Bytes, s.Demoscene.Count},
+		{s.MsDos.String(), s.MsDos.Bytes, s.MsDos.Count},
+		{s.Intro.String(), s.Intro.Bytes, s.Intro.Count},
+		{s.IntroD.String(), s.IntroD.Bytes, s.IntroD.Count},
+		{s.IntroW.String(), s.IntroW.Bytes, s.IntroW.Count},
+		{s.Installer.String(), s.Installer.Bytes, s.Installer.Count},
+		{s.Java.String(), s.Java.Bytes, s.Java.Count},
+		{s.Linux.String(), s.Linux.Bytes, s.Linux.Count},
+		{s.Magazine.String(), s.Magazine.Bytes, s.Magazine.Count},
+		{s.Macos.String(), s.Macos.Bytes, s.Macos.Count},
+		{s.Nfo.String(), s.Nfo.Bytes, s.Nfo.Count},
+		{s.NfoTool.String(), s.NfoTool.Bytes, s.NfoTool.Count},
+		{s.Proof.String(), s.Proof.Bytes, s.Proof.Count},
+		{s.Script.String(), s.Script.Bytes, s.Script.Count},
+		{s.Windows.String(), s.Windows.Bytes, s.Windows.Count},
+	}
+}
+
+// newStats returns a new Stats struct initialized with zero values.
+func newStats() Stats {
+	return Stats{
+		IntroW:    model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Record:    model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Ansi:      model.Ansi{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		AnsiBBS:   model.AnsiBBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBS:       model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBSText:   model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		BBStro:    model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Demoscene: model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		MsDos:     model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Intro:     model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		IntroD:    model.IntroMsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Installer: model.Installer{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Java:      model.Java{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Linux:     model.Linux{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Magazine:  model.Magazine{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Macos:     model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Nfo:       model.Nfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		NfoTool:   model.NfoTool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Proof:     model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Script:    model.Script{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Text:      model.Text{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Windows:   model.Windows{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+	}
 }

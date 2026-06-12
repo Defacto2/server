@@ -10,9 +10,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	_ "image/gif"  // gif format decoder
-	_ "image/jpeg" // jpg format decoder
-	_ "image/png"  // png format decoder
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"log/slog"
 	"maps"

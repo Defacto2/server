@@ -554,6 +554,21 @@ var groups = Tibits{
 	418:  []URI{pwa},
 	419:  []URI{"titan-of-pwa", pwa},
 	420:  []URI{"united-group-international"},
+	421:  []URI{"pussycat"},
+	422:  []URI{"zero-waiting-time"},
+	423:  []URI{"air"},
+	424:  []URI{"bean"},
+	425:  []URI{"assign"},
+	426:  []URI{"again"},
+	427:  []URI{"highroad"},
+	428:  []URI{"beat"},
+	429:  []URI{"fighting-for-fun"},
+	430:  []URI{"seek-n-destroy"},
+	431:  []URI{"zone"},
+	432:  []URI{"venom"},
+	433:  []URI{"imars"},
+	434:  []URI{"moemoe"},
+	435:  []URI{"tport"},
 }
 
 // Find returns the tidbit IDs for the given URI.

@@ -91,6 +91,9 @@ linters:
           - lll
         path: doc.go
       - linters:
+          - revive
+        path: handler/app/dirs.go
+      - linters:
           - exhaustruct
           - lll
         path: handler/app/milestone.go

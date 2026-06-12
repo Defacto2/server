@@ -36,6 +36,41 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"tport": {
+		{URL: "www.tport.tk", NotWorking: true, Name: "2004 website"},
+		{URL: "www.tport.antishate.net", NotWorking: true, Name: "2004 website"},
+		{URL: "www.tport.com.ru", NotWorking: true, Name: "2006 website"},
+		{URL: "tport.be", NotWorking: true, Name: "2006 website"},
+		{URL: "tport.org", NotWorking: true, Name: "2008 website"},
+		{URL: "tport.astalavista.ms", NotWorking: true, Name: "2008 website"},
+	},
+	"seek-n-destroy": {
+		{URL: "zor.org/seekndestroy", NotWorking: true, Name: "first website"},
+		{URL: "seekndestroy.host.sk", NotWorking: true, Name: "former website"},
+		{URL: "www.seekndestroy.org", NotWorking: true, Name: "aspirational domain"},
+	},
+	"fighting-for-fun": {
+		{
+			URL:        "www.fighting-for-fun.fr.st",
+			NotWorking: true, Name: "former website domain",
+		},
+		{
+			URL:        "https://wayback.defacto2.net/fighting-for-fun_2002-april/",
+			NotWorking: false, Name: "First website mirror",
+		},
+		{
+			URL:        "https://wayback.defacto2.net/fighting-for-fun_circa-2005/",
+			NotWorking: false, Name: "October 2002 refresh mirror",
+		},
+		{
+			URL:        "https://wayback.defacto2.net/fighting-for-fun_circa-2003/",
+			NotWorking: false, Name: "2003 website mirror",
+		},
+		{
+			URL:        "https://wayback.defacto2.net/fighting-for-fun_circa-2002/",
+			NotWorking: false, Name: "New Year's 2005 mirror",
+		},
+	},
 	"class": {
 		{URL: "class101.com", NotWorking: true, Name: "former domain"},
 		{URL: "www.multimania.com/atm9x", NotWorking: true, Name: "coder ATM/Class"},

@@ -72,6 +72,7 @@ tasks:
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
+      - cmd: gci write ./..
       - cmd: go tool gofumpt -l -w -extra .
       - cmd: go fix ./...
       - cmd: pnpm exec eslint assets/js/
