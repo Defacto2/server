@@ -36,6 +36,80 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"orgasming-gaming-magazine": []Website{
+		{URL: "www.orgasming.stc.cx", NotWorking: true, Name: "site #1"},
+		{URL: "www.slushbucket.com/orgasming.html", NotWorking: true, Name: "site #2"},
+		{URL: "www.orgasming.net", NotWorking: true, Name: "temporary domain"},
+		{URL: "www.ogm.f2s.com", NotWorking: true, Name: "site #3"},
+		{URL: "www.gamershell.com", NotWorking: true, Name: "often advertised"},
+	},
+	"the-net-monkey-weekly-report": []Website{
+		{URL: "archive.pheared.com", NotWorking: true, Name: "NetMonkey"},
+	},
+	"cybercrime-international-network": []Website{
+		{URL: "www.meltdown.nu/cci ", NotWorking: true, Name: "CyberCrime"},
+	},
+	"insanity-couriers": []Website{
+		{URL: "insanity.hax0r.org", Name: "Insanity", NotWorking: true},
+	},
+	"real-time-pirates": []Website{
+		{URL: "rtp.home.ml.org", Name: "RTP", NotWorking: true},
+	},
+	"mortality": []Website{
+		{URL: "www.mortality.com", Name: "Mortality", NotWorking: true},
+	},
+	"masons-ware-report": []Website{
+		{URL: "www.cracking.net/mason", NotWorking: true, Name: "website"},
+	},
+	"the-crazed-asylum": []Website{
+		{URL: "blackacid.pheared.com", NotWorking: true, Name: "TCA"},
+		{URL: "cpu1058.adsl.bellglobal.com/tca", NotWorking: true, Name: "temp site in dec 1998"},
+	},
+	"courier-weektop-scorecard": []Website{
+		{URL: "www.scenelink.org/relativity/cws", NotWorking: true, Name: "magazine archive"},
+		{URL: "www.couriers.org/cws", NotWorking: true, Name: "june 1998 website"},
+		{URL: "rah.simplenet.com/cws", NotWorking: true, Name: "jan 1999 website"},
+		{URL: "cws.couriers.org", NotWorking: true, Name: "dec 1999 website"},
+	},
+	"the-sabotage-rebellion-hackers": []Website{
+		{URL: "zor.org/tsrh", NotWorking: true, Name: "2002 website"},
+		{URL: "tsrh.be", NotWorking: true, Name: "2006 website"},
+	},
+	"tport": {
+		{URL: "www.tport.tk", NotWorking: true, Name: "2004 website"},
+		{URL: "www.tport.antishate.net", NotWorking: true, Name: "2004 website"},
+		{URL: "www.tport.com.ru", NotWorking: true, Name: "2006 website"},
+		{URL: "tport.be", NotWorking: true, Name: "2006 website"},
+		{URL: "tport.org", NotWorking: true, Name: "2008 website"},
+		{URL: "tport.astalavista.ms", NotWorking: true, Name: "2008 website"},
+	},
+	"seek-n-destroy": {
+		{URL: "zor.org/seekndestroy", NotWorking: true, Name: "first website"},
+		{URL: "seekndestroy.host.sk", NotWorking: true, Name: "former website"},
+		{URL: "www.seekndestroy.org", NotWorking: true, Name: "aspirational domain"},
+	},
+	"fighting-for-fun": {
+		{
+			URL:        "www.fighting-for-fun.fr.st",
+			NotWorking: true, Name: "former website domain",
+		},
+		{
+			URL:        "https://wayback.defacto2.net/fighting-for-fun_2002-april/",
+			NotWorking: false, Name: "First website mirror",
+		},
+		{
+			URL:        "https://wayback.defacto2.net/fighting-for-fun_circa-2005/",
+			NotWorking: false, Name: "October 2002 refresh mirror",
+		},
+		{
+			URL:        "https://wayback.defacto2.net/fighting-for-fun_circa-2003/",
+			NotWorking: false, Name: "2003 website mirror",
+		},
+		{
+			URL:        "https://wayback.defacto2.net/fighting-for-fun_circa-2002/",
+			NotWorking: false, Name: "New Year's 2005 mirror",
+		},
+	},
 	"class": {
 		{URL: "class101.com", NotWorking: true, Name: "former domain"},
 		{URL: "www.multimania.com/atm9x", NotWorking: true, Name: "coder ATM/Class"},
@@ -659,6 +733,7 @@ var websites = Groups{
 			Name:       "Relativity",
 			NotWorking: true,
 		},
+		{URL: "www.scenelink.org/relativity", Name: "1998 website", NotWorking: true},
 	},
 	"risciso": []Website{
 		{URL: "www.risc98.org", Name: "RISC 98", NotWorking: true},
@@ -808,6 +883,7 @@ var websites = Groups{
 			Name:       "Weapon",
 			NotWorking: true,
 		},
+		{URL: "www.weapon98.home.ml.org", NotWorking: true, Name: "1998 website"},
 	},
 	"united-cracking-force": []Website{
 		{

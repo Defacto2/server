@@ -311,6 +311,13 @@ func Summary() SQL {
 		"WHERE "
 }
 
+const (
+	// SimilarTo matches exact and incomplete tailing strings.
+	// For example, "he" would match "hello", "help" but would not match "the" or "she".
+	SimilarTo = "($1 || '%')"
+	Exact     = "('(' || $1 || ')')" // Exact matches exact strings.
+)
+
 // SimilarToReleaser returns a parameterized SQL query for finding similar releasers.
 func SimilarToReleaser(like ...string) (SQL, []any) {
 	if len(like) == 0 {
@@ -323,7 +330,7 @@ func SimilarToReleaser(like ...string) (SQL, []any) {
 	// Build the pattern as a single parameter containing alternation
 	pattern := strings.Join(query, "|")
 	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + string(releaserSEL) + string(releaserBy) +
-		") sub WHERE sub.releaser SIMILAR TO ('(' || $1 || ')') ORDER BY sub.count_sum DESC"), []any{pattern}
+		") sub WHERE sub.releaser SIMILAR TO " + SimilarTo + " ORDER BY sub.count_sum DESC"), []any{pattern}
 }
 
 // SimilarToMagazine returns a parameterized SQL query for finding similar magazines.
@@ -339,7 +346,7 @@ func SimilarToMagazine(like ...string) (SQL, []any) {
 	pattern := strings.Join(query, "|")
 	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" +
 		string(releaserSEL) + string(magazine) + string(releaserBy) +
-		") sub WHERE sub.releaser SIMILAR TO ('(' || $1 || ')') ORDER BY sub.count_sum DESC"), []any{pattern}
+		") sub WHERE sub.releaser SIMILAR TO " + SimilarTo + " ORDER BY sub.count_sum DESC"), []any{pattern}
 }
 
 // SimilarToExact returns a parameterized SQL query for exact releaser matches.
@@ -354,7 +361,7 @@ func SimilarToExact(like ...string) (SQL, []any) {
 	// Build the pattern as a single parameter containing alternation
 	pattern := strings.Join(query, "|")
 	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + string(releaserSEL) + string(releaserBy) +
-		") sub WHERE sub.releaser SIMILAR TO ('(' || $1 || ')') ORDER BY sub.count_sum DESC"), []any{pattern}
+		") sub WHERE sub.releaser SIMILAR TO " + Exact + " ORDER BY sub.count_sum DESC"), []any{pattern}
 }
 
 // Roles returns all of the sceners reguardless of the attribution.
