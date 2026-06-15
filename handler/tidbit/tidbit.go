@@ -569,9 +569,12 @@ var groups = Tibits{
 	433:  []URI{"imars"},
 	434:  []URI{"moemoe"},
 	435:  []URI{"tport"},
-	436:  []URI{"courier-weektop-scorecard"}, // TODO: complete, need to review every issue!
+	436:  []URI{"courier-weektop-scorecard"},
 	437:  []URI{"the-force-team"},
 	438:  []URI{"the-sabotage-rebellion-hackers"},
+	439:  []URI{"courier-weektop-scorecard", "monthly-cracking-report"},
+	440:  []URI{"monthly-cracking-report"},
+	441:  []URI{"courier-weektop-scorecard", "orgasming-gaming-magazine"},
 }
 
 // Find returns the tidbit IDs for the given URI.

@@ -36,6 +36,13 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"orgasming-gaming-magazine": []Website{
+		{URL: "www.orgasming.stc.cx", NotWorking: true, Name: "site #1"},
+		{URL: "www.slushbucket.com/orgasming.html", NotWorking: true, Name: "site #2"},
+		{URL: "www.orgasming.net", NotWorking: true, Name: "temporary domain"},
+		{URL: "www.ogm.f2s.com", NotWorking: true, Name: "site #3"},
+		{URL: "www.gamershell.com", NotWorking: true, Name: "often advertised"},
+	},
 	"the-net-monkey-weekly-report": []Website{
 		{URL: "archive.pheared.com", NotWorking: true, Name: "NetMonkey"},
 	},
