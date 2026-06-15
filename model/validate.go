@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"

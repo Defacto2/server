@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	namer "github.com/Defacto2/releaser/name"
+	namer "github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -93,7 +93,8 @@ func (s *Summary) ByForApproval(ctx context.Context, exec boil.ContextExecutor) 
 		models.FileWhere.Deletedby.IsNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, exec, s)
+		qm.From(From),
+	).Bind(ctx, exec, s)
 }
 
 // ByHidden returns the summary statistics for files that have been deleted.
@@ -104,7 +105,8 @@ func (s *Summary) ByHidden(ctx context.Context, exec boil.ContextExecutor) error
 		models.FileWhere.Deletedby.IsNotNull(),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, exec, s)
+		qm.From(From),
+	).Bind(ctx, exec, s)
 }
 
 // ByPublic selects the summary statistics for all public files.
@@ -113,7 +115,8 @@ func (s *Summary) ByPublic(ctx context.Context, exec boil.ContextExecutor) error
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
-		qm.From(From)).Bind(ctx, exec, s)
+		qm.From(From),
+	).Bind(ctx, exec, s)
 }
 
 // ByScener selects the summary statistics for the named sceners.
@@ -124,7 +127,8 @@ func (s *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, name 
 		qm.Select(postgres.Columns()...),
 		qm.Where(query, params...),
 		qm.Where(ClauseNoSoftDel),
-		qm.From(From)).Bind(ctx, exec, s)
+		qm.From(From),
+	).Bind(ctx, exec, s)
 }
 
 // ByReleaser returns the summary statistics for the named releaser.
@@ -141,7 +145,8 @@ func (s *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, nam
 		qm.Select(postgres.Columns()...),
 		qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
 		qm.Where(ClauseNoSoftDel),
-		qm.From(From)).Bind(ctx, exec, s)
+		qm.From(From),
+	).Bind(ctx, exec, s)
 }
 
 // ByUnwanted returns the summary statistics for files that have been marked as unwanted.
@@ -153,7 +158,8 @@ func (s *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) err
 		models.FileWhere.FileSecurityAlertURL.NEQ(empty),
 		qm.WithDeleted(),
 		qm.Select(postgres.Columns()...),
-		qm.From(From)).Bind(ctx, exec, s)
+		qm.From(From),
+	).Bind(ctx, exec, s)
 }
 
 // Update updates the summary statistics.

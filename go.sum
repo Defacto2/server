@@ -16,8 +16,6 @@ github.com/Defacto2/helper v1.6.8 h1:H3rIDFwsd9VM9FQGCPh9aOC53qlNQNRXbSvDPkXPH6o
 github.com/Defacto2/helper v1.6.8/go.mod h1:PqQSqQAIpBtggLBpBe2lBC7AhtyiAFY2LVqahbEj6M8=
 github.com/Defacto2/magicnumber v1.2.4 h1:ri4EtI7UFRIp6W9/+8BGnoVWzygThVWZ5pcM0sEy5CY=
 github.com/Defacto2/magicnumber v1.2.4/go.mod h1:6dub1e3L76gdsR2tXpUN+Q8/ST0uGkIIMPHsyNfGmSY=
-github.com/Defacto2/releaser v1.3.24 h1:kQhPg7VEl1vZAnBhVmHqtuLAgbU11Q8HODMPkCVTqak=
-github.com/Defacto2/releaser v1.3.24/go.mod h1:9Qu/O6msLB7JDUxh7JM42Hh52Jx24W8Tf8CvGgyLbzs=
 github.com/RoaringBitmap/roaring v1.9.4 h1:yhEIoH4YezLYT04s1nHehNO64EKFTop/wBhxv2QzDdQ=
 github.com/RoaringBitmap/roaring v1.9.4/go.mod h1:6AXUsoIEzDTFFQCe1RbGA6uFONMhvejWj5rqITANK90=
 github.com/aarondl/inflect v0.0.2 h1:XvH8K5g1wKS921tMmDOUsZ3zS1Eo8WwK5RHC0IGGT2s=

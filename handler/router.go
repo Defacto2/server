@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/htmx"
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/handler/sitemap"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
