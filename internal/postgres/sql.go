@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/handler/releaser"
 )
 
 type (

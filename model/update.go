@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/pouet"
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"

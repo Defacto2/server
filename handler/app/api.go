@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/releaser"
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
 	"github.com/Defacto2/server/handler/app/internal/simple"
@@ -25,6 +24,7 @@ import (
 	"github.com/Defacto2/server/handler/csdb"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/janeway"
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/handler/site"
 	"github.com/Defacto2/server/handler/sixteen"
 	"github.com/Defacto2/server/internal/panics"

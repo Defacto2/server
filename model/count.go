@@ -8,7 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	namer "github.com/Defacto2/releaser/name"
+	namer "github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"

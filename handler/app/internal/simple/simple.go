@@ -24,7 +24,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
-	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"

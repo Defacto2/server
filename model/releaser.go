@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/releaser"
-	namer "github.com/Defacto2/releaser/name"
+	"github.com/Defacto2/server/handler/releaser"
+	namer "github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"

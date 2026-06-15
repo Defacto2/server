@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	namer "github.com/Defacto2/releaser/name"
+	namer "github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
@@ -45,7 +45,8 @@ func (o Order) Art(ctx context.Context, exec boil.ContextExecutor, offset, limit
 			SelectHTML3(),
 			ArtExpr(),
 			qm.Where(ClauseNoSoftDel),
-			qm.OrderBy(o.String())).All(ctx, exec)
+			qm.OrderBy(o.String()),
+		).All(ctx, exec)
 	}
 	return models.Files(
 		SelectHTML3(),
@@ -53,7 +54,8 @@ func (o Order) Art(ctx context.Context, exec boil.ContextExecutor, offset, limit
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // ByCategory returns all the files that match the named category.
@@ -136,14 +138,16 @@ func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return models.Files(
 			DocumentExpr(),
 			qm.Where(ClauseNoSoftDel),
-			qm.OrderBy(o.String())).All(ctx, exec)
+			qm.OrderBy(o.String()),
+		).All(ctx, exec)
 	}
 	return models.Files(
 		DocumentExpr(),
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // Everything returns all of the file records.
@@ -156,7 +160,8 @@ func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // Software returns all the files that are considered to be software.
@@ -169,13 +174,15 @@ func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, 
 		return models.Files(
 			SoftwareExpr(),
 			qm.Where(ClauseNoSoftDel),
-			qm.OrderBy(o.String())).All(ctx, exec)
+			qm.OrderBy(o.String()),
+		).All(ctx, exec)
 	}
 	return models.Files(
 		SoftwareExpr(),
 		qm.Where(ClauseNoSoftDel),
 		qm.OrderBy(o.String()),
-		qm.Offset(calc(offset, limit)), qm.Limit(limit)).All(ctx, exec)
+		qm.Offset(calc(offset, limit)), qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 //nolint:gochecknoglobals

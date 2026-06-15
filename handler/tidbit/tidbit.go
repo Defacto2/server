@@ -10,7 +10,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Defacto2/releaser"
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/internal/panics"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"

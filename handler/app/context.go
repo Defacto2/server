@@ -20,8 +20,6 @@ import (
 	"sync"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/releaser"
-	"github.com/Defacto2/releaser/initialism"
 	"github.com/Defacto2/server/handler/app/internal/fileslice"
 	"github.com/Defacto2/server/handler/app/remote"
 	"github.com/Defacto2/server/handler/areacode"
@@ -31,6 +29,8 @@ import (
 	"github.com/Defacto2/server/handler/download"
 	"github.com/Defacto2/server/handler/janeway"
 	"github.com/Defacto2/server/handler/pouet"
+	"github.com/Defacto2/server/handler/releaser"
+	"github.com/Defacto2/server/handler/releaser/initialism"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/handler/site"
 	"github.com/Defacto2/server/handler/sixteen"
