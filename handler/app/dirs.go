@@ -892,6 +892,32 @@ const (
 	maxWidth = 80
 )
 
+// LockIn80Columns returns true if the readme viewer should probably lock the
+// width of text to a maximum of 80 columns, the traditional screen width on
+// Microsoft DOS. However, with the popularisation of Microsoft Windows and the
+// use of notepad.exe, many newer texts break with this lock. But there are
+// reasons to use it, as BBS era texts sometimes lack newlines.
+//
+// In the future this could be expanded to count the number of newlines vs the
+// size of the byte sec.
+//
+// This func does the following checks:
+//
+//   - confirms the text isn't PCBoard
+//   - confirms the text isn't newer than 1996
+func LockIn80Columns(year int16, src ...byte) bool {
+	const epoch = 1996
+	switch {
+	case len(src) == 0:
+		return false
+	case bbs.IsPCBoard(src):
+		return false
+	case year >= epoch:
+		return false
+	}
+	return true
+}
+
 // simpleCharmapEncodings appends the text content for files that are encoded using the
 // legacy character map encodings IBM CodePage 437 or ISO-8859-1 (Latin-1). In the case of
 // CP437, the encoding goes through a conversion to modern Unicode (UTF-8). Allowing the text to be
@@ -921,8 +947,7 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 		data["vgaCheck"] = chk
 		data["preClassCP437"] = fontname
 	}
-	if !bbs.IsPCBoard(b) {
-		// lock width for plain text, however pcboard codes break this
+	if LockIn80Columns(year, b...) {
 		b = lockWidth(maxWidth, b)
 	}
 	// Strip RTF formatting from the original content first
