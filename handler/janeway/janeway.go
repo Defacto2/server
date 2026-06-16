@@ -20,6 +20,7 @@ var groups = Groups{
 	"fairlight":                        252,
 	"faith":                            11638,
 	"hoodlum":                          11127,
+	"lightforce":                       3649,
 	"paradox":                          656,
 	"prestige":                         9256,
 	"prophecy":                         651,

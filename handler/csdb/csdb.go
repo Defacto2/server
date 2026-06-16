@@ -20,6 +20,7 @@ var groups = Groups{ //nolint:gochecknoglobals
 	"dytec":                            257,
 	"fairlight":                        20,
 	"fantastic-4-cracking-group":       148,
+	"lightforce":                       3105,
 	"motiv8":                           182,
 	"quartex":                          2396,
 	"razor-1911":                       431,

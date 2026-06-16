@@ -830,7 +830,7 @@ func Initialisms() *List { //nolint:maintidx
 		"light-speed-warez":                      {"LSW"},
 		"lightforce":                             {"LFC", "LF"},
 		"lithium":                                {"LIT"},
-		"linezer0":                               {"Lz0", "Linezero"},
+		"linezer0":                               {"LZ0", "LZO", "LineZero"},
 		"live-now-die-later":                     {"LnDL"},
 		"lockless":                               {"LKL"},
 		"legion-of-the-etherial":                 {"LOTE"},

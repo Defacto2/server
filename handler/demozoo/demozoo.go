@@ -602,6 +602,7 @@ const (
 
 //nolint:gochecknoglobals
 var groups = Groups{
+	"lightforce":                            5235,
 	"the-cracking-lords":                    78172,
 	"ansi-factory":                          89284,
 	"tribe":                                 43814,

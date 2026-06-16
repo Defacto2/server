@@ -36,6 +36,18 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"orion": []Website{
+		{URL: "orion2000.dyndns.org", NotWorking: true, Name: "1999 website"},
+		{URL: "www.oriongods.com", NotWorking: true, Name: "2000 website"},
+	},
+	"lightforce": []Website{
+		{URL: "www.thelightforce.home.ml.org", NotWorking: true, Name: "1998 website"},
+		{URL: "www.lightforce.cjb.net", NotWorking: true, Name: "2000 website"},
+		{URL: "www.thelightforce.com", NotWorking: false, Name: "The LightForce"},
+	},
+	"linezer0": []Website{
+		{URL: "www.coderz.net/linezer0", NotWorking: true, Name: "LineZer0"},
+	},
 	"orgasming-gaming-magazine": []Website{
 		{URL: "www.orgasming.stc.cx", NotWorking: true, Name: "site #1"},
 		{URL: "www.slushbucket.com/orgasming.html", NotWorking: true, Name: "site #2"},

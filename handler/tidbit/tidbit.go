@@ -575,6 +575,21 @@ var groups = Tibits{
 	439:  []URI{"courier-weektop-scorecard", "monthly-cracking-report"},
 	440:  []URI{"monthly-cracking-report"},
 	441:  []URI{"courier-weektop-scorecard", "orgasming-gaming-magazine"},
+	442:  []URI{"arcade"},
+	443:  []URI{"hexwars"},
+	444:  []URI{"audiostrike"},
+	445:  []URI{"linezer0"},
+	446:  []URI{"amplify"},
+	447:  []URI{"arctic"},
+	448:  []URI{"6581"},
+	449:  []URI{"darksiders"},
+	450:  []URI{"spirit"},
+	451:  []URI{"lightforce"},
+	452:  []URI{"resistance-is-futile"},
+	453:  []URI{"duplex"},
+	454:  []URI{"xdb"},
+	455:  []URI{"the-console-division"},
+	456:  []URI{"orion"},
 }
 
 // Find returns the tidbit IDs for the given URI.
