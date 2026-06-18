@@ -590,6 +590,13 @@ var groups = Tibits{
 	454:  []URI{"xdb"},
 	455:  []URI{"the-console-division"},
 	456:  []URI{"orion"},
+	457:  []URI{"arab-team-4-reverse-engineering"},
+	458:  []URI{"nrp"},
+	459:  []URI{"crack-in-morocco"},
+	460:  []URI{"icon"},
+	461:  []URI{"the-net-monkey-weekly-report"},
+	462:  []URI{"prozacs-personal-gaming-report"},
+	463:  []URI{"integrity"},
 }
 
 // Find returns the tidbit IDs for the given URI.

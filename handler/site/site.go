@@ -36,6 +36,27 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"rise": []Website{
+		{URL: "www.risen.org", NotWorking: true, Name: "RiSE"},
+	},
+	"2000ad": []Website{
+		{URL: "www.loke.org/2000AD", NotWorking: true, Name: "2000AD"},
+	},
+	"prozacs-personal-gaming-report": []Website{
+		{URL: "ppgr.webjump.com", NotWorking: true, Name: "PPGR"},
+		{URL: "oldschool.io.com/ppgr", NotWorking: true, Name: "1999 website"},
+		{URL: "ppgr.webjump.com/n64/n64-playable.htm", NotWorking: true, Name: "N64 and emulation Scene news"},
+	},
+	"crack-in-morocco": []Website{
+		{URL: "www.cim.ht.st", NotWorking: true, Name: "website 1"},
+		{URL: "cim.boxnet.net", NotWorking: true, Name: "website 2"},
+		{URL: "www.cim-team.org", NotWorking: true, Name: "website 3"},
+		{URL: "www.cim.astalavista.ms", NotWorking: true, Name: "website 4"},
+		{URL: "cimteam.org", NotWorking: true, Name: "website 5"},
+	},
+	"arab-team-4-reverse-engineering": []Website{
+		{URL: "www.at4re.com", NotWorking: true, Name: "at4re"},
+	},
 	"orion": []Website{
 		{URL: "orion2000.dyndns.org", NotWorking: true, Name: "1999 website"},
 		{URL: "www.oriongods.com", NotWorking: true, Name: "2000 website"},
@@ -57,6 +78,7 @@ var websites = Groups{
 	},
 	"the-net-monkey-weekly-report": []Website{
 		{URL: "archive.pheared.com", NotWorking: true, Name: "NetMonkey"},
+		{URL: "www.netmonkey.org", NotWorking: true, Name: "later, official website"},
 	},
 	"cybercrime-international-network": []Website{
 		{URL: "www.meltdown.nu/cci ", NotWorking: true, Name: "CyberCrime"},
@@ -76,6 +98,8 @@ var websites = Groups{
 	"the-crazed-asylum": []Website{
 		{URL: "blackacid.pheared.com", NotWorking: true, Name: "TCA"},
 		{URL: "cpu1058.adsl.bellglobal.com/tca", NotWorking: true, Name: "temp site in dec 1998"},
+		{URL: "tca.ramwar.com", NotWorking: true, Name: "1999 website"},
+		{URL: "tca.phatchicks.com", NotWorking: true, Name: "1999 website"},
 	},
 	"courier-weektop-scorecard": []Website{
 		{URL: "www.scenelink.org/relativity/cws", NotWorking: true, Name: "magazine archive"},

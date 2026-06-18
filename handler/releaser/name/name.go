@@ -58,6 +58,7 @@ or converted due to their special uses within the name.
 // Names returns the list of well-known styled names.
 func Names() *List {
 	list := List{
+		"mother-superior-ftp":                   "The Mother Superior FTP",
 		"wolves-house-ftp":                      "The Wolves House FTP",
 		"rock-ftp":                              "The Rock FTP",
 		"dafat-ftp":                             "DaFat FTP",

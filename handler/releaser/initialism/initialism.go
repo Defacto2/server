@@ -82,6 +82,17 @@ const (
 // [releaser/name]: https://github.com/Defacto2/releaser/name
 func Initialisms() *List { //nolint:maintidx
 	list := List{
+		"harlem":                                {"HLM"},
+		"san-bruno-club-ftp":                    {"sbc"},
+		"darklands-ftp":                         {"dls"},
+		"hall-of-illusions-ftp":                 {"hal", "hol"},
+		"biohazard-ftp":                         {"bhz", "bh"},
+		"stairway-to-heaven-ftp":                {"sth"},
+		"mistworld-ftp":                         {"mw"},
+		"point-break-ftp":                       {"pb"},
+		"mother-superior-ftp":                   {"tms"},
+		"terminal-velocity-ftp":                 {"tv"},
+		"integrity":                             {"itr"},
 		"elite-leisure-files-bbs":               {"ELF"},
 		"xquizit-ftp":                           {"xqz"},
 		"watch-tower-ftp":                       {"wt"},
@@ -1427,7 +1438,7 @@ func Initialisms() *List { //nolint:maintidx
 		"nuclear-dust-ftp":                       {"nud"},
 		"pre-whore-house-ftp":                    {"pwh"},
 		"pir8tes-pavilion-ftp":                   {"Pirates Pavilion", "pir"},
-		"fire-site-ftp":                          {"FireSite"},
+		"fire-site-ftp":                          {"FireSite", "f"},
 		"cemetery-gates-ftp":                     {"cm-g", "cmg"},
 		"rezurection":                            {"Rez"},
 		"magnetic-fields-ftp":                    {"MF", "MFiSO"},
