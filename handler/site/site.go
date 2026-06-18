@@ -8,6 +8,10 @@ const (
 	razor1911 = "Razor 1911"
 	shock     = "Shock"
 	wikipedia = "Wikipedia"
+	web98     = "1998 website"
+	web99     = "1999 website"
+	web2k     = "2000 website"
+	web2006   = "2006 website"
 )
 
 // URI is the URL slug of the releaser.
@@ -44,7 +48,7 @@ var websites = Groups{
 	},
 	"prozacs-personal-gaming-report": []Website{
 		{URL: "ppgr.webjump.com", NotWorking: true, Name: "PPGR"},
-		{URL: "oldschool.io.com/ppgr", NotWorking: true, Name: "1999 website"},
+		{URL: "oldschool.io.com/ppgr", NotWorking: true, Name: web99},
 		{URL: "ppgr.webjump.com/n64/n64-playable.htm", NotWorking: true, Name: "N64 and emulation Scene news"},
 	},
 	"crack-in-morocco": []Website{
@@ -58,12 +62,12 @@ var websites = Groups{
 		{URL: "www.at4re.com", NotWorking: true, Name: "at4re"},
 	},
 	"orion": []Website{
-		{URL: "orion2000.dyndns.org", NotWorking: true, Name: "1999 website"},
-		{URL: "www.oriongods.com", NotWorking: true, Name: "2000 website"},
+		{URL: "orion2000.dyndns.org", NotWorking: true, Name: web99},
+		{URL: "www.oriongods.com", NotWorking: true, Name: web2k},
 	},
 	"lightforce": []Website{
-		{URL: "www.thelightforce.home.ml.org", NotWorking: true, Name: "1998 website"},
-		{URL: "www.lightforce.cjb.net", NotWorking: true, Name: "2000 website"},
+		{URL: "www.thelightforce.home.ml.org", NotWorking: true, Name: web98},
+		{URL: "www.lightforce.cjb.net", NotWorking: true, Name: web2k},
 		{URL: "www.thelightforce.com", NotWorking: false, Name: "The LightForce"},
 	},
 	"linezer0": []Website{
@@ -98,24 +102,24 @@ var websites = Groups{
 	"the-crazed-asylum": []Website{
 		{URL: "blackacid.pheared.com", NotWorking: true, Name: "TCA"},
 		{URL: "cpu1058.adsl.bellglobal.com/tca", NotWorking: true, Name: "temp site in dec 1998"},
-		{URL: "tca.ramwar.com", NotWorking: true, Name: "1999 website"},
-		{URL: "tca.phatchicks.com", NotWorking: true, Name: "1999 website"},
+		{URL: "tca.ramwar.com", NotWorking: true, Name: web99},
+		{URL: "tca.phatchicks.com", NotWorking: true, Name: web99},
 	},
 	"courier-weektop-scorecard": []Website{
 		{URL: "www.scenelink.org/relativity/cws", NotWorking: true, Name: "magazine archive"},
-		{URL: "www.couriers.org/cws", NotWorking: true, Name: "june 1998 website"},
-		{URL: "rah.simplenet.com/cws", NotWorking: true, Name: "jan 1999 website"},
-		{URL: "cws.couriers.org", NotWorking: true, Name: "dec 1999 website"},
+		{URL: "www.couriers.org/cws", NotWorking: true, Name: "june " + web98},
+		{URL: "rah.simplenet.com/cws", NotWorking: true, Name: "jan " + web99},
+		{URL: "cws.couriers.org", NotWorking: true, Name: "dec " + web99},
 	},
 	"the-sabotage-rebellion-hackers": []Website{
 		{URL: "zor.org/tsrh", NotWorking: true, Name: "2002 website"},
-		{URL: "tsrh.be", NotWorking: true, Name: "2006 website"},
+		{URL: "tsrh.be", NotWorking: true, Name: web2006},
 	},
 	"tport": {
 		{URL: "www.tport.tk", NotWorking: true, Name: "2004 website"},
 		{URL: "www.tport.antishate.net", NotWorking: true, Name: "2004 website"},
-		{URL: "www.tport.com.ru", NotWorking: true, Name: "2006 website"},
-		{URL: "tport.be", NotWorking: true, Name: "2006 website"},
+		{URL: "www.tport.com.ru", NotWorking: true, Name: web2006},
+		{URL: "tport.be", NotWorking: true, Name: web2006},
 		{URL: "tport.org", NotWorking: true, Name: "2008 website"},
 		{URL: "tport.astalavista.ms", NotWorking: true, Name: "2008 website"},
 	},
@@ -769,7 +773,7 @@ var websites = Groups{
 			Name:       "Relativity",
 			NotWorking: true,
 		},
-		{URL: "www.scenelink.org/relativity", Name: "1998 website", NotWorking: true},
+		{URL: "www.scenelink.org/relativity", Name: web98, NotWorking: true},
 	},
 	"risciso": []Website{
 		{URL: "www.risc98.org", Name: "RISC 98", NotWorking: true},
@@ -919,7 +923,7 @@ var websites = Groups{
 			Name:       "Weapon",
 			NotWorking: true,
 		},
-		{URL: "www.weapon98.home.ml.org", NotWorking: true, Name: "1998 website"},
+		{URL: "www.weapon98.home.ml.org", NotWorking: true, Name: web98},
 	},
 	"united-cracking-force": []Website{
 		{

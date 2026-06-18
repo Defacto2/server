@@ -894,7 +894,7 @@ const (
 
 // LockIn80Columns returns true if the readme viewer should probably lock the
 // width of text to a maximum of 80 columns, the traditional screen width on
-// Microsoft DOS. However, with the popularisation of Microsoft Windows and the
+// Microsoft DOS. However, with the popularization of Microsoft Windows and the
 // use of notepad.exe, many newer texts break with this lock. But there are
 // reasons to use it, as BBS era texts sometimes lack newlines.
 //

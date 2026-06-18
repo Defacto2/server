@@ -80,7 +80,7 @@ const (
 //   - In Go, the order of the List map keys is randomized and has no performance impact.
 //
 // [releaser/name]: https://github.com/Defacto2/releaser/name
-func Initialisms() *List { //nolint:maintidx
+func Initialisms() *List { //nolint:maintidx,funlen
 	list := List{
 		"harlem":                                {"HLM"},
 		"san-bruno-club-ftp":                    {"sbc"},

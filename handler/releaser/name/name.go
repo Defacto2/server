@@ -56,7 +56,7 @@ or converted due to their special uses within the name.
 */
 
 // Names returns the list of well-known styled names.
-func Names() *List {
+func Names() *List { //nolint:funlen
 	list := List{
 		"mother-superior-ftp":                   "The Mother Superior FTP",
 		"wolves-house-ftp":                      "The Wolves House FTP",
@@ -238,7 +238,7 @@ func Lowercase() []string {
 }
 
 // Uppercase are a collection of styled names that use all uppercasing.
-func Uppercase() []string {
+func Uppercase() []string { //nolint:funlen
 	return []string{
 		"lspd",
 		"rise",

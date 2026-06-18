@@ -30,6 +30,7 @@ const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEm
 const (
 	acidProd     = "acid-productions"
 	cia          = "crackers-in-action"
+	cws          = "courier-weektop-scorecard"
 	dynamix      = "dynamix"
 	fairlight    = "fairlight"
 	fiveO        = "five-o"
@@ -569,12 +570,12 @@ var groups = Tibits{
 	433:  []URI{"imars"},
 	434:  []URI{"moemoe"},
 	435:  []URI{"tport"},
-	436:  []URI{"courier-weektop-scorecard"},
+	436:  []URI{"cws"},
 	437:  []URI{"the-force-team"},
 	438:  []URI{"the-sabotage-rebellion-hackers"},
-	439:  []URI{"courier-weektop-scorecard", "monthly-cracking-report"},
+	439:  []URI{cws, "monthly-cracking-report"},
 	440:  []URI{"monthly-cracking-report"},
-	441:  []URI{"courier-weektop-scorecard", "orgasming-gaming-magazine"},
+	441:  []URI{cws, "orgasming-gaming-magazine"},
 	442:  []URI{"arcade"},
 	443:  []URI{"hexwars"},
 	444:  []URI{"audiostrike"},
