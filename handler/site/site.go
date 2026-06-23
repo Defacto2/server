@@ -40,6 +40,12 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"reverse-engineers-dream": []Website{
+		{URL: "redcrew.astalavista.ms", NotWorking: true, Name: "RED 1"},
+		{URL: "www.redcrew.net", NotWorking: true, Name: "RED 2"},
+		{URL: "www.redteam.net.tc", NotWorking: true, Name: "RED 3"},
+		{URL: "distro.webscene.ir/RED", NotWorking: true, Name: "RED 2018"},
+	},
 	"rise": []Website{
 		{URL: "www.risen.org", NotWorking: true, Name: "RiSE"},
 	},
@@ -950,6 +956,20 @@ var websites = Groups{
 			URL:        "w3.darknet.com/~ucf96/ucf96.htm",
 			Name:       "1996 #3",
 			NotWorking: true,
+		},
+		{
+			URL:        "www.geocities.com/SoHo/2680/cracking.html",
+			Name:       "Geocities SOHO",
+			NotWorking: true,
+		},
+		{
+			URL: "www.geocities.com/Paris/9475/frame.htm", Name: "Geocities Paris", NotWorking: true,
+		},
+		{
+			URL: "members.tripod.com/~ucf96", Name: "Tripod", NotWorking: true,
+		},
+		{
+			URL: "www-pp.hogia.net/gabbah/trainers/", Name: "trainers", NotWorking: true,
 		},
 	},
 	"x_force": []Website{

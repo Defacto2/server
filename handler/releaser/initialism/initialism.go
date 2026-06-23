@@ -1000,7 +1000,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"revenge-crew":                           {"REV"},
 		"revolution-project":                     {"RP"},
 		"reverse-2-revolutionize":                {"R2R"},
-		"reverse-engineers-dream":                {"RED"},
+		"reverse-engineers-dream":                {"RED", "RED Crew"},
 		"reverse-engineering-in-software":        {"REiS"},
 		"reverse-engineering-passion-team":       {"REPT"},
 		"reviving-intelligent-fast-trading":      {"RiFT"},
