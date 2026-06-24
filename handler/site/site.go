@@ -110,6 +110,7 @@ var websites = Groups{
 		{URL: "cpu1058.adsl.bellglobal.com/tca", NotWorking: true, Name: "temp site in dec 1998"},
 		{URL: "tca.ramwar.com", NotWorking: true, Name: web99},
 		{URL: "tca.phatchicks.com", NotWorking: true, Name: web99},
+		{URL: "thecrazed.com", NotWorking: true, Name: "unused domain"},
 	},
 	"courier-weektop-scorecard": []Website{
 		{URL: "www.scenelink.org/relativity/cws", NotWorking: true, Name: "magazine archive"},
