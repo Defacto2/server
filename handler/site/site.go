@@ -609,6 +609,7 @@ var websites = Groups{
 			Name:       "Phrozen Crew",
 			NotWorking: true,
 		},
+		{URL: "www.false.com/phrozen", Name: "1996 website", NotWorking: true},
 	},
 	"premiere": []Website{
 		{

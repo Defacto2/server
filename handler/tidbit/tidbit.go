@@ -603,6 +603,7 @@ var groups = Tibits{
 	466:  []URI{"united-cracking-force", "united-traders-of-germany"},
 	467:  []URI{"united-cracking-force"},
 	468:  []URI{"the-crazed-asylum"},
+	469:  []URI{"phrozen-crew"},
 }
 
 // Find returns the tidbit IDs for the given URI.
