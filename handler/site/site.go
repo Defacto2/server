@@ -40,6 +40,21 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"skid-row": []Website{
+		{URL: "www.skidrow.dk", NotWorking: true, Name: "Skid Row Amiga"},
+	},
+	"alpha-flight": []Website{
+		{URL: "alphaflight1970.de", NotWorking: true, Name: "Alpha Flight 1970"},
+	},
+	"elitendo": []Website{
+		{URL: "http://www.hotline9009.com/elitendo.htm", NotWorking: false, Name: "Elitendo"},
+	},
+	"anthrox": []Website{
+		{URL: "www.anthrox.com", NotWorking: true, Name: "Anthrox"},
+	},
+	"mystic": []Website{
+		{URL: "http://amigascne.org/mystic", NotWorking: false, Name: "Mystic home page"},
+	},
 	"reverse-engineers-dream": []Website{
 		{URL: "redcrew.astalavista.ms", NotWorking: true, Name: "RED 1"},
 		{URL: "www.redcrew.net", NotWorking: true, Name: "RED 2"},
@@ -1238,6 +1253,9 @@ var websites = Groups{
 			Name:       "Interview with the founder",
 			NotWorking: false,
 		},
+	},
+	"censor-design": []Website{
+		{URL: "https://censordesign.com", NotWorking: false, Name: "Censor Design"},
 	},
 }
 

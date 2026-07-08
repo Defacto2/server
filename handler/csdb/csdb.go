@@ -16,10 +16,12 @@ type Groups map[string]GroupID
 var groups = Groups{ //nolint:gochecknoglobals
 	"2000ad":                           261,
 	"alpha-flight":                     215,
+	"censor-design":                    2310,
 	"dynamix":                          751,
 	"dytec":                            257,
 	"fairlight":                        20,
 	"fantastic-4-cracking-group":       148,
+	"legend":                           176,
 	"lightforce":                       3105,
 	"motiv8":                           182,
 	"quartex":                          2396,
