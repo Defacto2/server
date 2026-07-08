@@ -217,7 +217,7 @@ func PlainTextBuffersW(
 	}
 	// check the bytes to confirm they can be displayed as text
 	r := bytes.NewReader(buf.Bytes())
-	sign := magicnumber.FindW(os.Stdout, r)
+	sign := magicnumber.FindW(io.Discard, r)
 	debug(w, fmt.Sprintf("matched sign: %s", sign))
 	// reset text buffer for utf-16 or utf-32 text which won't be displayed
 	if incompatible := sign == magicnumber.UTF16Text ||

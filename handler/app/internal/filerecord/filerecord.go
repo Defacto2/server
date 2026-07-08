@@ -71,12 +71,15 @@ type ListEntry struct {
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
 func (m *ListEntry) HTML(bytes int64, platform, section string) string {
-	m.name = url.QueryEscape(m.RelativeName)
+	s := m.RelativeName
+	m.name = url.QueryEscape(s)
 	m.bytes = bytes
 	m.platform = platform
 	m.section = section
-
-	title := m.RelativeName
+	title, err := simple.CleanFname(s)
+	if err != nil {
+		title = ""
+	}
 	if strings.EqualFold(platform, tags.DOS.String()) {
 		if msdos.Rename(title) != title {
 			title = `<span class="text-danger">` + title + `</span>`

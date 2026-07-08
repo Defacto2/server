@@ -2,6 +2,7 @@
 package simple
 
 import (
+	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -81,6 +82,29 @@ func BytesHuman(i int64) string {
 		return "(n/a)"
 	}
 	return humanize.Bytes(uint64(math.Abs(float64(i))))
+}
+
+// CleanFname runs the string such as a filename through a HTML template
+// to remove any possible XSS problems such as < > characters.
+func CleanFname(s string) (string, error) {
+	if s == "" {
+		return "", nil
+	}
+
+	type TemplateData struct {
+		Fname string
+	}
+	tmpl, err := template.New("cleanTmpl").Parse(`{{.Fname}}`)
+	if err != nil {
+		return "", err
+	}
+	data := TemplateData{Fname: s}
+	var wr bytes.Buffer
+	err = tmpl.Execute(&wr, data)
+	if err != nil {
+		return "", err
+	}
+	return wr.String(), nil
 }
 
 // CleanHTML removes all HTML tags from content, returning plain text.

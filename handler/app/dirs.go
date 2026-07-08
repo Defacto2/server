@@ -1080,8 +1080,12 @@ func firstLead(art *models.File) string {
 	if art == nil {
 		return ""
 	}
-	fname := art.Filename.String
-	span := fmt.Sprintf("<span class=\"font-monospace fs-5 fw-light\">%s</span> ", helper.MaskTerm([]byte(fname)...))
+	fname, err := simple.CleanFname(art.Filename.String)
+	if err != nil {
+		fname = ""
+	}
+	a := helper.MaskTerm([]byte(fname)...)
+	span := fmt.Sprintf("<span class=\"font-monospace fs-5 fw-light\">%s</span> ", a)
 	return fmt.Sprintf("%s<br>%s", releasersHrefs(art), span)
 }
 
