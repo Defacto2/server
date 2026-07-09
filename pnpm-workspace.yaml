@@ -1,5 +1,6 @@
 allowBuilds:
-  hihtml: true
+  '@scarf/scarf': true
+  hihtml@https://codeload.github.com/j9t/hihtml/tar.gz/fa2090295e5c36e23369fdd93e5bf4d138947f6c: true
   spawn-sync: true
 onlyBuiltDependencies:
   - spawn-sync
