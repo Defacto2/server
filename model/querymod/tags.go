@@ -123,6 +123,10 @@ func PAnsi() null.String {
 	return null.String{String: getURIs()[tags.ANSI], Valid: true}
 }
 
+func PConsole() null.String {
+	return null.String{String: getURIs()[tags.Console], Valid: true}
+}
+
 func PDatabase() null.String {
 	return null.String{String: getURIs()[tags.DataB], Valid: true}
 }

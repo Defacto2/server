@@ -7,7 +7,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-const expectedCount = 42
+const expectedCount = 43
 
 func TestTagStrings(t *testing.T) {
 	uris := tags.URIs()

@@ -49,6 +49,7 @@ const (
 	bbstro
 	bbsImage
 	bbsText
+	console
 	database
 	Deletions
 	demoscene
@@ -117,6 +118,7 @@ func (u URI) String() string {
 		"bbstro",
 		"bbs-image",
 		"bbs-text",
+		"console",
 		"database",
 		"deletions",
 		"demoscene",
@@ -246,6 +248,7 @@ func RecordsSub(uri string) string {
 		bbsImage:     tags.Humanizes(tags.Image, tags.BBS),
 		bbstro:       tags.Humanizes(tags.DOS, tags.BBS),
 		bbsText:      tags.Humanizes(tags.Text, tags.BBS),
+		console:      tags.Humanizes(tags.Console, ignore),
 		database:     tags.Humanizes(ignore, tags.DataB),
 		demoscene:    tags.Humanizes(ignore, tags.Demo),
 		drama:        tags.Humanizes(ignore, tags.Drama),
@@ -518,6 +521,9 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 	case Sensenstahl:
 		r := model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.Sensenstahl(ctx, exec, page, limit)
+	case console:
+		r := model.Console{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		return r.List(ctx, exec, page, limit)
 	default:
 		return nil, fmt.Errorf("artifacts category %w: %s", ErrCategory, uri)
 	}
@@ -538,17 +544,18 @@ func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
 
 // Stats are the database statistics for the artifacts categories.
 type Stats struct {
-	IntroW    model.IntroWindows
 	Record    model.Artifacts
 	Ansi      model.Ansi
 	AnsiBBS   model.AnsiBBS
 	BBS       model.BBS
 	BBSText   model.BBSText
 	BBStro    model.BBStro
+	Console   model.Console
 	Demoscene model.Demoscene
 	MsDos     model.MsDos
 	Intro     model.Intro
 	IntroD    model.IntroMsDos
+	IntroW    model.IntroWindows
 	Installer model.Installer
 	Java      model.Java
 	Linux     model.Linux
@@ -666,6 +673,9 @@ func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	if err := s.BBStro.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("%s bbstro: %w", msg, err)
 	}
+	if err := s.Console.Stat(ctx, exec); err != nil {
+		return fmt.Errorf("%s console: %w", msg, err)
+	}
 	if err := s.MsDos.Stat(ctx, exec); err != nil {
 		return fmt.Errorf("%s msdos: %w", msg, err)
 	}
@@ -725,6 +735,7 @@ func (s *Stats) eras() []Era { //nolint:dupl
 		{s.BBS.String(), s.BBS.MinYear, s.BBS.MaxYear},
 		{s.BBSText.String(), s.BBSText.MinYear, s.BBSText.MaxYear},
 		{s.BBStro.String(), s.BBStro.MinYear, s.BBStro.MaxYear},
+		//	{s.Console.String(), s.Console.MinYear, s.Console.MaxYear},
 		{s.Demoscene.String(), s.Demoscene.MinYear, s.Demoscene.MaxYear},
 		{s.MsDos.String(), s.MsDos.MinYear, s.MsDos.MaxYear},
 		{s.Intro.String(), s.Intro.MinYear, s.Intro.MaxYear},
@@ -750,6 +761,7 @@ func (s *Stats) items() []Item { //nolint:dupl
 		{s.BBS.String(), s.BBS.Bytes, s.BBS.Count},
 		{s.BBSText.String(), s.BBSText.Bytes, s.BBSText.Count},
 		{s.BBStro.String(), s.BBStro.Bytes, s.BBStro.Count},
+		{s.Console.String(), s.Console.Bytes, s.Console.Count},
 		{s.Demoscene.String(), s.Demoscene.Bytes, s.Demoscene.Count},
 		{s.MsDos.String(), s.MsDos.Bytes, s.MsDos.Count},
 		{s.Intro.String(), s.Intro.Bytes, s.Intro.Count},
@@ -778,6 +790,7 @@ func newStats() Stats {
 		BBS:       model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
 		BBSText:   model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
 		BBStro:    model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
+		Console:   model.Console{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
 		Demoscene: model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
 		MsDos:     model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
 		Intro:     model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},

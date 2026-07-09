@@ -419,6 +419,40 @@ func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 	).All(ctx, exec)
 }
 
+// Console is the model for console releases.
+type Console struct {
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
+}
+
+func (c *Console) String() string {
+	return "Console and video game files"
+}
+
+func (c *Console) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	return models.NewQuery(
+		qm.Select(GetColumns()...),
+		qm.Where(ClauseNoSoftDel),
+		querymod.ConsoleExpr(),
+		qm.From(From),
+	).Bind(ctx, exec, c)
+}
+
+func (c *Console) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	panics.BoilExecCrash(exec)
+	return models.Files(
+		querymod.ConsoleExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
+		qm.OrderBy(ClauseOldDate),
+	).All(ctx, exec)
+}
+
 // Database is the model for the database releases.
 type Database struct {
 	Bytes   int `boil:"size_total"`

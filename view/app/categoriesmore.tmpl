@@ -24,6 +24,11 @@
                                 aria-controls="windows-tab-pane" aria-selected="true">Windows</button>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="console-tab" data-bs-toggle="tab"
+                                data-bs-target="#console-tab-pane" type="button" role="tab"
+                                aria-controls="console-tab-pane" aria-selected="true">consoles</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="mac-tab" data-bs-toggle="tab"
                                 data-bs-target="#mac-tab-pane" type="button" role="tab"
                                 aria-controls="mac-tab-pane" aria-selected="true">macOS</button>
@@ -66,6 +71,17 @@
                         </p>
                         <p>
                             <span class="card-link lead">Browse the files for <a href="/files/windows" class="card-link">Windows</a></span>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="console-tab-pane" role="tabpanel" aria-labelledby="console-tab"
+                        tabindex="0">
+                        <h5 class="{{$otherClass}}">Console <small>various systems</small></h5>
+                        <p>
+                            A console is video game system designed to be used on a television and is mostly interacted with using a controller or a joystick.
+                            For simplicity, we do not differentiate between the various companies or system generations.
+                        </p>
+                        <p>
+                            <span class="card-link lead">Browse the files for <a href="/files/console" class="card-link">consoles</a></span>
                         </p>
                     </div>
                     <div class="tab-pane fade" id="mac-tab-pane" role="tabpanel" aria-labelledby="mac-tab"

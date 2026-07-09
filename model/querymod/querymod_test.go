@@ -123,6 +123,11 @@ func TestJobAdvertExpr(t *testing.T) {
 	be.True(t, expr != nil)
 }
 
+func TestConsoleExpr(t *testing.T) {
+	expr := querymod.ConsoleExpr()
+	be.True(t, expr != nil)
+}
+
 func TestDatabaseExpr(t *testing.T) {
 	expr := querymod.DatabaseExpr()
 	be.True(t, expr != nil)

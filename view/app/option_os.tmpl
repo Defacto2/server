@@ -5,6 +5,7 @@
 {{- $os := (index . "platform") }}
 {{- $windows := tagOption $os "windows" }}
 {{- $dos := tagOption $os "dos" }}
+{{- $console := tagOption $os "console" }}
 {{- $text := tagOption $os "text" }}
 {{- $textamiga := tagOption $os "textamiga" }}
 {{- $ansi := tagOption $os "ansi" }}
@@ -27,6 +28,7 @@
                 <optgroup label="Programs or apps">
                     {{$windows}}for Windows PC</option>
                     {{$dos}}for Dos on PC</option>
+                    {{$console}}for a console</option>
                 </optgroup>
                 <optgroup label="Texts or documents">
                     {{$text}}as regular text</option>

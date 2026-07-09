@@ -177,6 +177,13 @@ func JobAdvertExpr() qm.QueryMod {
 	)
 }
 
+// ConsoleExpr is a query mod expression for database releases.
+func ConsoleExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.Platform.EQ(PConsole()),
+	)
+}
+
 // DatabaseExpr is a query mod expression for database releases.
 func DatabaseExpr() qm.QueryMod {
 	return qm.Expr(

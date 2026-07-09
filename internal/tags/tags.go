@@ -20,11 +20,18 @@ var (
 	ErrNoTags = errors.New("lockable tags t is nil")
 )
 
+// NOTE: when adding a new tag make sure to update the following:
+// - nameToTag size
+// - LastCategory
+// - LastPlatform
+// - URIS{}
+// - Info{}
+
 // nameToTag is a reverse lookup map from tag name to Tag for O(1) lookups.
 //
 //nolint:gochecknoglobals
 var nameToTag = func() map[string]Tag {
-	const size = 43
+	const size = 44
 	m := make(map[string]Tag, size)
 	for _, tag := range List() {
 		m[strings.ToLower(tag.String())] = tag
@@ -126,7 +133,7 @@ const (
 	// LastCategory is the final tag marked as a category.
 	LastCategory Tag = Install
 	// LastPlatform is the final tag marked as a platform.
-	LastPlatform Tag = Windows
+	LastPlatform Tag = Console
 	// CategoryCount is the number of tags used as a category.
 	CategoryCount = int(LastCategory - FirstCategory + 1)
 	// PlatformCount is the number of tags used as a platform.
@@ -177,6 +184,7 @@ const (
 	TextAmiga
 	Video
 	Windows
+	Console
 )
 
 // List all the tags.
@@ -224,6 +232,7 @@ func List() []Tag {
 		TextAmiga,
 		Video,
 		Windows,
+		Console,
 	}
 }
 

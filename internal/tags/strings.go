@@ -79,6 +79,7 @@ var uris = URIS{
 	TextAmiga:    "textamiga",
 	Video:        "video",
 	Windows:      "windows",
+	Console:      "console",
 }
 
 // names maps Tag to display name.
@@ -127,6 +128,7 @@ var names = URIS{
 	Text:         "text or ascii",
 	Video:        "video",
 	Windows:      "Windows",
+	Console:      "console",
 }
 
 // infos maps Tag to short description.
@@ -182,6 +184,7 @@ var infos = Info{
 	Text:      "text documents and text-based computer art that use an ASCII-compliant character set",
 	Video:     "a film, video, or multimedia animation",
 	Windows:   "these programs require the use of Microsoft's Windows operating system, working on Intel-compatible CPUs",
+	Console:   "an application that needs to run on a videogame console or emulator",
 }
 
 // determiners maps Tag to article (a/an).
@@ -230,6 +233,7 @@ var determiners = URIS{
 	Text:         "a",
 	Video:        "a",
 	Windows:      "a",
+	Console:      "a",
 }
 
 func (t Tag) String() string {

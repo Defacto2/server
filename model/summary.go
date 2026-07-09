@@ -230,6 +230,7 @@ func (s *Summary) Matches() map[string]StatFunc {
 		"intro":         s.intro,
 		"intro-msdos":   s.introMsdos,
 		"intro-windows": s.introWindows,
+		"console":       s.console,
 	}
 }
 
@@ -240,6 +241,21 @@ func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri st
 		return update(ctx, exec)
 	}
 	return fmt.Errorf("%w: %q", ErrURI, uri)
+}
+
+func (s *Summary) console(ctx context.Context, exec boil.ContextExecutor) error {
+	panics.BoilExecCrash(exec)
+	m := Console{
+		Bytes:   0,
+		Count:   0,
+		MinYear: 0,
+		MaxYear: 0,
+	}
+	if err := m.Stat(ctx, exec); err != nil {
+		return err
+	}
+	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
+	return nil
 }
 
 func (s *Summary) introWindows(ctx context.Context, exec boil.ContextExecutor) error {
