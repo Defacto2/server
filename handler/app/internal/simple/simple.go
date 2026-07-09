@@ -96,13 +96,13 @@ func CleanFname(s string) (string, error) {
 	}
 	tmpl, err := template.New("cleanTmpl").Parse(`{{.Fname}}`)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("simple clean fname new tmpl: %w", err)
 	}
 	data := TemplateData{Fname: s}
 	var wr bytes.Buffer
 	err = tmpl.Execute(&wr, data)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("simple clean fname execute tmpl: %w", err)
 	}
 	return wr.String(), nil
 }

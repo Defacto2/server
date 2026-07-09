@@ -104,14 +104,15 @@ func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB
 			UnescapePathParamValues:   false,
 			UseEscapedPathForMatching: false,
 		}),
-		OnAddRoute:         onAddRoute,
-		Filesystem:         nil,
-		Binder:             nil,
-		Validator:          nil,
-		Renderer:           templates,
-		JSONSerializer:     nil,
-		IPExtractor:        nil,
-		FormParseMaxMemory: setAs16MB,
+		OnAddRoute:                      onAddRoute,
+		Filesystem:                      nil,
+		Binder:                          nil,
+		Validator:                       nil,
+		Renderer:                        templates,
+		JSONSerializer:                  nil,
+		IPExtractor:                     nil,
+		FormParseMaxMemory:              setAs16MB,
+		EnablePathUnescapingStaticFiles: false, // false is the new default after Echo v5.2.1
 	}
 
 	e := echo.NewWithConfig(echoConfig)

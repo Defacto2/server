@@ -728,7 +728,7 @@ func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
 	return s.Windows.Stat(ctx, exec)
 }
 
-func (s *Stats) eras() []Era { //nolint:dupl
+func (s *Stats) eras() []Era {
 	return []Era{
 		{s.Ansi.String(), s.Ansi.MinYear, s.Ansi.MaxYear},
 		{s.AnsiBBS.String(), s.AnsiBBS.MinYear, s.AnsiBBS.MaxYear},
@@ -754,7 +754,7 @@ func (s *Stats) eras() []Era { //nolint:dupl
 	}
 }
 
-func (s *Stats) items() []Item { //nolint:dupl
+func (s *Stats) items() []Item {
 	return []Item{
 		{s.Ansi.String(), s.Ansi.Bytes, s.Ansi.Count},
 		{s.AnsiBBS.String(), s.AnsiBBS.Bytes, s.AnsiBBS.Count},
