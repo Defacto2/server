@@ -581,7 +581,8 @@ func (dir Dirs) makeTextfileImgs(ctx context.Context, sl *slog.Logger,
 		helper.File(filepath.Join(dirs.Thumbnail.Path(), uid+".webp")) {
 		return data
 	}
-	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String())
+	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String()) ||
+		strings.EqualFold(platform, tags.Console.String())
 	if err := dirs.TextImager(ctx, sl, name, uid, amigaFont); err != nil {
 		sl.Error(msg, slog.String("text imager", "conversion error"),
 			slog.String("uuid", uid), slog.Any("error", err))
@@ -940,13 +941,17 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 	data["vgaCheck"] = ""
 	data["preClassLatin1"] = "d-none "
 	data["preClassCP437"] = "d-none " + fontname
-	if data["platform"] == "textamiga" {
+	platform := data["platform"]
+	topazFont := platform == "textamiga" || platform == "console"
+	if topazFont {
 		data["topazCheck"] = chk
 		data["preClassLatin1"] = ""
 	} else {
 		data["vgaCheck"] = chk
 		data["preClassCP437"] = fontname
 	}
+	data["forceSimpleText"] = filerecord.ForceSimpleText(art)
+
 	if LockIn80Columns(year, b...) {
 		b = lockWidth(maxWidth, b)
 	}

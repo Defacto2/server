@@ -619,7 +619,8 @@ func UploadPreview(
 		return reloader(c, file.Filename)
 	}
 	if texters(magic) {
-		amigaFont := strings.EqualFold(upload.platform, tags.TextAmiga.String())
+		amigaFont := strings.EqualFold(upload.platform, tags.TextAmiga.String()) ||
+			strings.EqualFold(upload.platform, tags.Console.String())
 		err = dirs.TextImager(ctx, nil, dst.Name(), upload.unid, amigaFont)
 		if err != nil {
 			return badRequest(c, err)

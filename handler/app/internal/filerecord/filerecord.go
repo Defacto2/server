@@ -53,6 +53,39 @@ const (
 	ini = ".ini"
 )
 
+// ForceSimpleText returns true if an artifact should only display the readme
+// as a plain text file.
+//
+// This is a fallback mechanism to deal with false positives with character
+// combinations within texts that get mistaken as ANSI or BBS color codes
+// and so need an manual override.
+//
+// Generally, a file hash comparison will be used for the false positive listed items.
+func ForceSimpleText(art *models.File) bool {
+	if art == nil {
+		return false
+	}
+	// bname := Basename(art)
+	// readme := Readme(art)
+	hash := fileIntegrity(art)
+	// in the future, this switch might be replaced with a map or slice lookup
+	switch hash {
+	case "aa97833330f4a27f0c7888ae633de652be5a37840fc87cc364b5c90908d027d855d66fe60d8b2b23b02fb0fe482ddcf1":
+		return true
+	}
+	return false
+}
+
+func fileIntegrity(art *models.File) string {
+	if art == nil {
+		return ""
+	}
+	if art.FileIntegrityStrong.Valid {
+		return art.FileIntegrityStrong.String
+	}
+	return ""
+}
+
 // ListEntry is a struct for the directory item that is used to generate the HTML.
 type ListEntry struct {
 	RelativeName                      string
@@ -253,7 +286,9 @@ func buttonUseImage(uniqueID, name string) string {
 // The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager].
 func buttonUseReadme(uniqueID, name, platform, sign string) string {
 	uri := "preview"
-	if strings.EqualFold(platform, tags.TextAmiga.String()) {
+	t1 := tags.TextAmiga.String()
+	t2 := tags.Console.String()
+	if strings.EqualFold(platform, t1) || strings.EqualFold(platform, t2) {
 		if !strings.Contains(strings.ToLower(sign), "ansi") {
 			// ansilove does not color ANSI using "ced" or "workbench"
 			// instead, it renders the files as ASCII text files

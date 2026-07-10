@@ -26,7 +26,8 @@
 {{- $textcontentUTF8 := index . "" }}
 {{- /* To add more conditonals, see: Safety() in app.go */ -}}
 {{- $useDoc := safety (index . "platform")  (index . "section") }}
-{{- if eq true $useDoc }}
+{{- $force := index . "forceSimpleText"}}
+{{- if or (eq true $useDoc) (eq true $force) }}
   {{- $textcontentLatin1 = index . "contentLatin1" | safeDocument }}
   {{- $textcontentCP437 = index . "contentCP437" | safeDocument }}
   {{- $textcontentUTF8 = index . "contentUTF8" | safeDocument }}
