@@ -33,543 +33,6 @@ var (
 	ErrStatus  = errors.New("status is not ok")
 )
 
-func client() http.Client {
-	const ten = 10
-	return http.Client{
-		Transport:     nil,
-		CheckRedirect: nil,
-		Jar:           nil,
-		Timeout:       ten * time.Second,
-	}
-}
-
-const (
-	ProdURL = "https://demozoo.org/api/v1/productions/" // ProdURL is the base URL for the Demozoo production API.
-	Sanity  = 450000                                    // Sanity is to check the maximum permitted production ID.
-	firstID = 1                                         // firstID is the first production ID on Pouet.
-)
-
-const (
-	Demo           = 1
-	Intro64K       = 2
-	Intro4K        = 3
-	Intro          = 4
-	DiskMag        = 5
-	Tool           = 6
-	MusicDisk      = 7
-	ProductionPack = 9
-	Intro40K       = 10
-	ChipMusicPack  = 12
-	Cracktro       = 13
-	Music          = 14
-	Intro32b       = 15
-	Intro64b       = 16
-	Intro128b      = 18
-	Intro256b      = 19
-	Intro512b      = 20
-	Intro1K        = 21
-	Intro32K       = 22
-	Game           = 33
-	Intro16K       = 35
-	Intro2K        = 37
-	Intro100K      = 39
-	BBStro         = 41
-	Intro8K        = 43
-	Magazine       = 47
-	TextMag        = 49
-	Intro96K       = 50
-	BBSDoor        = 53
-	Intro8b        = 54
-	Intro16b       = 55
-)
-
-// Production is a Demozoo production record.
-// Only the fields required for the Defacto2 website are included,
-// with everything else being ignored.
-type Production struct {
-	// Title is the production title.
-	Title string `json:"title"`
-	// ReleaseDate is the production release date.
-	ReleaseDate string `json:"release_date"` //nolint:tagliatelle
-	// Supertype is the production type.
-	Supertype string `json:"supertype"`
-	// Authors
-	Authors []struct {
-		Name     string `json:"name"`
-		Releaser struct {
-			Name    string `json:"name"`
-			IsGroup bool   `json:"is_group"` //nolint:tagliatelle
-		} `json:"releaser"`
-	} `json:"author_nicks"` //nolint:tagliatelle
-	// Platforms is the production platform.
-	Platforms []struct {
-		Name string `json:"name"`
-		ID   int    `json:"id"`
-	} `json:"platforms"`
-	// Types is the production type.
-	Types []struct {
-		Name string `json:"name"`
-		ID   int    `json:"id"`
-	} `json:"types"`
-	Credits []struct {
-		Category string `json:"category"`
-		Role     string `json:"role"`
-		Nick     struct {
-			Name         string `json:"name"`
-			Abbreviation string `json:"abbreviation"`
-			Releaser     struct {
-				URL     string `json:"url"`
-				Name    string `json:"name"`
-				ID      int    `json:"id"`
-				IsGroup bool   `json:"is_group"` //nolint:tagliatelle
-			} `json:"releaser"`
-		} `json:"nick"`
-	} `json:"credits"`
-	// Download links to the remotely hosted files.
-	DownloadLinks []struct {
-		LinkClass string `json:"link_class"` //nolint:tagliatelle
-		URL       string `json:"url"`
-	} `json:"download_links"` //nolint:tagliatelle
-	// ExternalLinks links to the remotely hosted files.
-	ExternalLinks []struct {
-		LinkClass string `json:"link_class"` //nolint:tagliatelle
-		URL       string `json:"url"`
-	} `json:"external_links"` //nolint:tagliatelle
-	// ID is the production ID.
-	ID int `json:"id"`
-}
-
-// Get requests data for a production record from the [Demozoo API].
-// It returns an error if the production ID is invalid, when the request
-// reaches a [Timeout] or fails.
-// A status code is returned when the response status is not OK.
-//
-// [Demozoo API]: https://demozoo.org/api/v1/productions/
-func (p *Production) Get(ctx context.Context, id int) (int, error) {
-	const msg = "get demozoo production"
-	if id < firstID {
-		return 0, fmt.Errorf("%s %w: %d", msg, ErrID, id)
-	}
-	url := ProdURL + strconv.Itoa(id)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return 0, fmt.Errorf("%s new request %w", msg, err)
-	}
-	req.Header.Set("User-Agent", helper.UserAgent)
-	c := client()
-	res, err := c.Do(req)
-	if err != nil {
-		return 0, fmt.Errorf("%s client do %w", msg, err)
-	}
-	if res == nil {
-		return 0, http.ErrBodyNotAllowed
-	}
-	if res.Body == nil {
-		return res.StatusCode, fmt.Errorf("%s client do returned nothing %w: %s", msg, ErrStatus, res.Status)
-	}
-	defer func() { _ = res.Body.Close() }()
-	if res.StatusCode != http.StatusOK {
-		_, _ = io.Copy(io.Discard, res.Body)
-		_ = res.Body.Close()
-		return res.StatusCode, fmt.Errorf("%s %w: %s", msg, ErrStatus, res.Status)
-	}
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		_, _ = io.Copy(io.Discard, res.Body)
-		_ = res.Body.Close()
-		return 0, fmt.Errorf("%s read all %w", msg, err)
-	}
-	err = json.Unmarshal(body, &p)
-	clear(body)
-	if err != nil {
-		return 0, fmt.Errorf("%s json unmarshal %w", msg, err)
-	}
-	if p.ID != id {
-		return 0, fmt.Errorf("%s %w: %d", msg, ErrSuccess, id)
-	}
-	return 0, nil
-}
-
-// GithubRepo returns the Github repository path of the production using
-// the Production struct. It searches the external links for a link class that
-// matches GithubRepo.
-func (p *Production) GithubRepo() string {
-	for _, link := range p.ExternalLinks {
-		if link.LinkClass != "GithubRepo" {
-			continue
-		}
-		url, err := url.Parse(link.URL)
-		if err != nil {
-			continue
-		}
-		if url.Host != "github.com" {
-			continue
-		}
-		return url.Path
-	}
-	return ""
-}
-
-// PouetProd returns the Pouet ID of the production using
-// the Production struct. It searches the external links for a
-// link class that matches PouetProduction.
-// A 0 is returned whenever the production does not have a recognized
-// Pouet production link.
-func (p *Production) PouetProd() int {
-	for _, link := range p.ExternalLinks {
-		if link.LinkClass != "PouetProduction" {
-			continue
-		}
-		url, err := url.Parse(link.URL)
-		if err != nil {
-			continue
-		}
-		id, err := strconv.Atoi(url.Query().Get("which"))
-		if err != nil {
-			continue
-		}
-		return id
-	}
-	return 0
-}
-
-// Unmarshal parses the JSON-encoded data and stores the result
-// in the Production struct. It returns an error if the JSON data is
-// invalid or the production ID is invalid.
-func (p *Production) Unmarshal(r io.Reader) error {
-	if r == nil {
-		return nil
-	}
-	if err := json.NewDecoder(r).Decode(p); err != nil {
-		return fmt.Errorf("demozoo production json decode: %w", err)
-	}
-	if p.ID < firstID {
-		return fmt.Errorf("demozoo production %w: %d", ErrID, p.ID)
-	}
-	return nil
-}
-
-// SuperType and validates parses the Demozoo "production", "graphics" and "music"
-// supertypes and returns the corresponding platform and section tags.
-//
-// It returns -1 for an unknown platform or section, in which case the
-// caller should invalidate the Demozoo production.
-func (p *Production) SuperType() (tags.Tag, tags.Tag) {
-	confirm := func(pl, se tags.Tag) bool {
-		return pl > -1 && se > -1
-	}
-	var platform tags.Tag = -1
-	var section tags.Tag = -1
-	platform, section = p.platforms(platform, section)
-	if confirm(platform, section) {
-		return platform, section
-	}
-	platform, section = p.prodSuperType(platform, section)
-	if confirm(platform, section) {
-		return platform, section
-	}
-	platform, section = p.graphicsSuperType(platform, section)
-	if confirm(platform, section) {
-		return platform, section
-	}
-	platform, section = p.musicSuperType(platform, section)
-	return platform, section
-}
-
-// YouTubeVideo returns the ID of a video on YouTube. It searches the external links
-// for a link class that matches YoutubeVideo.
-// An empty string is returned whenever the production does not have a recognized
-// YouTube video link.
-func (p *Production) YouTubeVideo() string {
-	for _, link := range p.ExternalLinks {
-		if link.LinkClass != "YoutubeVideo" {
-			continue
-		}
-		url, err := url.Parse(link.URL)
-		if err != nil {
-			continue
-		}
-		if url.Host != "youtube.com" && url.Host != "www.youtube.com" {
-			continue
-		}
-		if url.Path != "/watch" {
-			continue
-		}
-		return url.Query().Get("v")
-	}
-	return ""
-}
-
-// Released returns the production's release date as date_issued_year, month, day values.
-func (p *Production) Released() (int16, int16, int16) {
-	return helper.Released(p.ReleaseDate)
-}
-
-// Groups returns the first two names in the production that have is_group as true.
-// The one exception is if the production title contains a reference to a BBS or FTP site name.
-// Then that title will be used as the first group returned.
-func (p *Production) Groups() (string, string) {
-	// find any reference to BBS or FTP in the production title to
-	// obtain a possible site name.
-	var a, b string
-	if s := Site(p.Title); s != "" {
-		a = s
-		p.Title = "" // delete the title if it matches or is similar to the site name.
-	}
-	// range through author nicks for any group matches
-	for _, nick := range p.Authors {
-		if !nick.Releaser.IsGroup {
-			continue
-		}
-		unused1, unused2 := a == "", b == ""
-		if unused1 {
-			a = nick.Releaser.Name
-			continue
-		}
-		if unused2 {
-			b = nick.Releaser.Name
-			break
-		}
-	}
-	return releaser.Cell(a), releaser.Cell(b)
-}
-
-// Site parses a production title to see if it is suitable as a BBS or FTP site name,
-// otherwise an empty string is returned.
-func Site(title string) string {
-	s := strings.Split(title, " ")
-	if len(s) == 0 {
-		return ""
-	}
-	if strings.EqualFold(s[0], "the") {
-		s = s[1:]
-	}
-	for i, n := range s {
-		if strings.EqualFold(n, "BBS") {
-			return strings.Join(s[0:i], " ") + " BBS"
-		}
-		if strings.EqualFold(n, "FTP") {
-			return strings.Join(s[0:i], " ") + " FTP"
-		}
-	}
-	return ""
-}
-
-// Releasers parses Demozoo authors and reclassifies them into Defacto2 people rolls.
-func (p *Production) Releasers() ([]string, []string, []string, []string) {
-	tx, co, gx, mu := []string{}, []string{}, []string{}, []string{}
-	for _, c := range p.Credits {
-		if c.Nick.Releaser.IsGroup {
-			continue
-		}
-		switch category(c.Category) {
-		case TextC:
-			tx = append(tx, c.Nick.Name)
-		case CodeC:
-			co = append(co, c.Nick.Name)
-		case GraphicsC:
-			gx = append(gx, c.Nick.Name)
-		case MusicC:
-			mu = append(mu, c.Nick.Name)
-		case MagazineC:
-			// do nothing.
-		}
-	}
-	return tx, co, gx, mu
-}
-
-// platforms returns the platform and section tags for "platforms".
-// A list of the types can be found at https://demozoo.org/api/v1/platforms/?ordering=id
-func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	const (
-		Windows = 1
-		MsDos   = 4
-		Linux   = 7
-		MacOS   = 10
-		Browser = 12
-		// Javascript = 46 was removed from the api list of platforms.
-		AdobeFlash = 47
-		Java       = 48
-		Macintosh  = 94
-	)
-	// Handle platforms.
-	for _, item := range p.Platforms {
-		switch item.ID {
-		case Windows:
-			platform = tags.Windows
-		case MsDos:
-			platform = tags.DOS
-		case Linux:
-			platform = tags.Linux
-		case MacOS, Macintosh:
-			platform = tags.Mac
-		case Browser, AdobeFlash, Java:
-			platform = tags.Markup
-		}
-		if platform > -1 {
-			break
-		}
-	}
-	return platform, section
-}
-
-// musicSuperType returns the platform and section tags for the "music" supertype.
-//
-// Example productions:
-//   - https://demozoo.org/api/v1/productions/192593/ (chipmusic)
-//   - https://demozoo.org/api/v1/productions/205797/ (chipmusic but with no download link)
-func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	const (
-		ChipMusic   = 29
-		ExeMusic    = 31
-		ExeMusic32K = 32
-		ExeMusic64K = 38
-		MusicPack   = 52
-	)
-	for _, item := range p.Types {
-		switch item.ID {
-		case ChipMusic:
-			platform = tags.Audio
-			section = tags.Intro
-		case ExeMusic, ExeMusic32K, ExeMusic64K:
-			section = tags.Intro
-		case MusicPack:
-			platform = tags.Audio
-			section = tags.Pack
-		}
-		if section > -1 {
-			break
-		}
-	}
-	return platform, section
-}
-
-// graphicsSuperType returns the platform and section tags for the "graphics" supertype.
-//
-// Example productions:
-//   - https://demozoo.org/api/v1/productions/269595/ (artpack)
-//   - https://demozoo.org/api/v1/productions/270473/ (artpack)
-//   - https://demozoo.org/api/v1/productions/30570/ (graphics)
-func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	const (
-		Graphics   = 23
-		ASCII      = 24
-		PackASCII  = 25
-		Ansi       = 26
-		ExeGFX     = 27
-		ExeGFX4K   = 28
-		ArtPack    = 51
-		ExeGFX256b = 56
-		ExeGFX1K   = 58
-	)
-	for _, item := range p.Types {
-		switch item.ID {
-		case Graphics:
-			platform = tags.Image
-			section = tags.Logo
-		case ASCII:
-			platform = tags.Text
-			section = tags.Logo
-		case PackASCII:
-			platform = tags.Text
-			section = tags.Pack
-		case Ansi:
-			platform = tags.Text
-			section = tags.Logo
-		case ExeGFX, ExeGFX4K, ExeGFX256b, ExeGFX1K:
-			section = tags.Logo
-		case ArtPack:
-			platform = tags.Image
-			section = tags.Pack
-		}
-		if section > -1 {
-			break
-		}
-	}
-	return platform, section
-}
-
-// prodSuperType returns the platform and section tags for the "production" supertype.
-// A list of the types can be found at https://demozoo.org/api/v1/production_types/?ordering=id
-//
-// Example productions:
-//   - https://demozoo.org/api/v1/productions/354298/ (demo)
-//   - https://demozoo.org/api/v1/productions/338041/ (intro 256B)
-//   - https://demozoo.org/api/v1/productions/366489/ (musicdisk)
-//   - https://demozoo.org/api/v1/productions/280982/ (textmag)
-func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
-	for _, item := range p.Types {
-		switch item.ID {
-		case Demo:
-			section = tags.Demo
-		case Intro64K, Intro4K, Intro, Intro40K, Intro32b,
-			Intro64b, Intro128b, Intro256b, Intro512b, Intro1K,
-			Intro32K, Intro16K, Intro2K, Intro100K, Intro8K,
-			Intro96K, Intro8b, Intro16b:
-			section = tags.Intro
-		case DiskMag, Magazine:
-			section = tags.Mag
-		case TextMag:
-			section = tags.Mag
-			platform = tags.Text
-		case Tool:
-			section = tags.Tool
-		case MusicDisk, ChipMusicPack:
-			section = tags.Pack
-			platform = tags.Audio
-		case ProductionPack:
-			section = tags.Pack
-		case Cracktro:
-			section = tags.Intro
-		case Music:
-			platform = tags.Audio
-			section = tags.Intro
-		case Game:
-			section = tags.Demo
-		case BBStro:
-			section = tags.BBS
-		case BBSDoor:
-			section = tags.Tool
-			platform = tags.PCB
-		}
-		if section > -1 {
-			break
-		}
-	}
-	return platform, section
-}
-
-// Category are tags for production imports.
-type Category int
-
-const (
-	TextC     Category = iota // Text based files.
-	CodeC                     // Code are binary files.
-	GraphicsC                 // Graphics are images.
-	MusicC                    // Music is audio.
-	MagazineC                 // Magazine are publications.
-)
-
-func (c Category) String() string {
-	return [...]string{"text", "code", "graphics", "music", "magazine"}[c]
-}
-
-func category(s string) Category {
-	switch strings.ToLower(s) {
-	case TextC.String():
-		return TextC
-	case CodeC.String():
-		return CodeC
-	case GraphicsC.String():
-		return GraphicsC
-	case MusicC.String():
-		return MusicC
-	case MagazineC.String():
-		return MagazineC
-	}
-	return -1
-}
-
 // URI is the URL slug of the releaser.
 type URI string
 
@@ -579,22 +42,9 @@ type GroupID int
 // Groups is a map of releasers URIs mapped to their Demozoo IDs.
 type Groups map[URI]GroupID
 
-// Find returns the Demozoo group ID for the given uri.
-// It returns 0 if the uri is not known.
-func Find(uri string) GroupID {
-	if group, exist := groups[URI(uri)]; exist {
-		return group
-	}
-	return 0
-}
-
-// FindAll returns all groups with their Demozoo IDs.
-func FindAll() Groups {
-	return groups
-}
-
 const (
 	cpc   = "corporation-for-public-cybercasting-2001"
+	crue  = "cheat-requests-for-the-underground-elite"
 	nappa = "north-american-pirate_phreak-association"
 	mash  = "microcomputer-assembly-software-hackers"
 	uart  = "ultimate-association-of-reckless-talent"
@@ -1148,39 +598,590 @@ var groups = Groups{
 	"dust":                                  360,
 	"asylum":                                8713,
 	"alpha-couriers":                        78270,
-	"cheat-requests-for-the-underground-elite": 79131,
-	"xap":                         78818,
-	"uniq":                        111687,
-	"mistigris":                   22737,
-	"forgive-us-crazy-kids":       78872,
-	"turbo-console-traders":       122500,
-	"haze":                        80378,
-	"crackers-ampersand-whackers": 80046,
-	"zick-zack-cooperation":       382052,
-	"united-group-international":  75596,
-	"mystic":                      1035,
-	"elitendo":                    18735,
-	"premiere-console":            25756,
-	"censor-design":               1273,
-	"d_tect":                      3334,
-	"crystal":                     1368,
-	"ucci":                        84602,
-	"therapy":                     2267,
-	"napalm":                      9759,
-	"epic-console":                157611,
-	"gelbsucht":                   127138,
-	"crack-inc":                   2985,
-	"the-fast-guys":               155891,
-	"phantasm":                    147607,
-	"oldskool":                    9949,
-	"smile":                       8464,
-	"phrozen-crew":                67782,
-	"the-bounty-hunters":          128770,
-	"hologram":                    70439,
-	"brutal-ppe-coders":           70422,
-	"paranoimia":                  2866,
-	"cocaine":                     19624,
-	"asgard":                      35409,
-	"spam":                        157509,
-	"adalats":                     90909,
+	crue:                                    79131,
+	"xap":                                   78818,
+	"uniq":                                  111687,
+	"mistigris":                             22737,
+	"forgive-us-crazy-kids":                 78872,
+	"turbo-console-traders":                 122500,
+	"haze":                                  80378,
+	"crackers-ampersand-whackers":           80046,
+	"zick-zack-cooperation":                 382052,
+	"united-group-international":            75596,
+	"mystic":                                1035,
+	"elitendo":                              18735,
+	"premiere-console":                      25756,
+	"censor-design":                         1273,
+	"d_tect":                                3334,
+	"crystal":                               1368,
+	"ucci":                                  84602,
+	"therapy":                               2267,
+	"napalm":                                9759,
+	"epic-console":                          157611,
+	"gelbsucht":                             127138,
+	"crack-inc":                             2985,
+	"the-fast-guys":                         155891,
+	"phantasm":                              147607,
+	"oldskool":                              9949,
+	"smile":                                 8464,
+	"phrozen-crew":                          67782,
+	"the-bounty-hunters":                    128770,
+	"hologram":                              70439,
+	"brutal-ppe-coders":                     70422,
+	"paranoimia":                            2866,
+	"cocaine":                               19624,
+	"asgard":                                35409,
+	"spam":                                  157509,
+	"adalats":                               90909,
+}
+
+// Find returns the Demozoo group ID for the given uri.
+// It returns 0 if the uri is not known.
+func Find(uri string) GroupID {
+	if group, exist := groups[URI(uri)]; exist {
+		return group
+	}
+	return 0
+}
+
+// FindAll returns all groups with their Demozoo IDs.
+func FindAll() Groups {
+	return groups
+}
+
+func client() http.Client {
+	const ten = 10
+	return http.Client{
+		Transport:     nil,
+		CheckRedirect: nil,
+		Jar:           nil,
+		Timeout:       ten * time.Second,
+	}
+}
+
+const (
+	ProdURL = "https://demozoo.org/api/v1/productions/" // ProdURL is the base URL for the Demozoo production API.
+	Sanity  = 450000                                    // Sanity is to check the maximum permitted production ID.
+	firstID = 1                                         // firstID is the first production ID on Pouet.
+)
+
+const (
+	Demo           = 1
+	Intro64K       = 2
+	Intro4K        = 3
+	Intro          = 4
+	DiskMag        = 5
+	Tool           = 6
+	MusicDisk      = 7
+	ProductionPack = 9
+	Intro40K       = 10
+	ChipMusicPack  = 12
+	Cracktro       = 13
+	Music          = 14
+	Intro32b       = 15
+	Intro64b       = 16
+	Intro128b      = 18
+	Intro256b      = 19
+	Intro512b      = 20
+	Intro1K        = 21
+	Intro32K       = 22
+	Game           = 33
+	Intro16K       = 35
+	Intro2K        = 37
+	Intro100K      = 39
+	BBStro         = 41
+	Intro8K        = 43
+	Magazine       = 47
+	TextMag        = 49
+	Intro96K       = 50
+	BBSDoor        = 53
+	Intro8b        = 54
+	Intro16b       = 55
+)
+
+// Production is a Demozoo production record.
+// Only the fields required for the Defacto2 website are included,
+// with everything else being ignored.
+type Production struct {
+	// Title is the production title.
+	Title string `json:"title"`
+	// ReleaseDate is the production release date.
+	ReleaseDate string `json:"release_date"` //nolint:tagliatelle
+	// Supertype is the production type.
+	Supertype string `json:"supertype"`
+	// Authors
+	Authors []struct {
+		Name     string `json:"name"`
+		Releaser struct {
+			Name    string `json:"name"`
+			IsGroup bool   `json:"is_group"` //nolint:tagliatelle
+		} `json:"releaser"`
+	} `json:"author_nicks"` //nolint:tagliatelle
+	// Platforms is the production platform.
+	Platforms []struct {
+		Name string `json:"name"`
+		ID   int    `json:"id"`
+	} `json:"platforms"`
+	// Types is the production type.
+	Types []struct {
+		Name string `json:"name"`
+		ID   int    `json:"id"`
+	} `json:"types"`
+	Credits []struct {
+		Category string `json:"category"`
+		Role     string `json:"role"`
+		Nick     struct {
+			Name         string `json:"name"`
+			Abbreviation string `json:"abbreviation"`
+			Releaser     struct {
+				URL     string `json:"url"`
+				Name    string `json:"name"`
+				ID      int    `json:"id"`
+				IsGroup bool   `json:"is_group"` //nolint:tagliatelle
+			} `json:"releaser"`
+		} `json:"nick"`
+	} `json:"credits"`
+	// Download links to the remotely hosted files.
+	DownloadLinks []struct {
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
+		URL       string `json:"url"`
+	} `json:"download_links"` //nolint:tagliatelle
+	// ExternalLinks links to the remotely hosted files.
+	ExternalLinks []struct {
+		LinkClass string `json:"link_class"` //nolint:tagliatelle
+		URL       string `json:"url"`
+	} `json:"external_links"` //nolint:tagliatelle
+	// ID is the production ID.
+	ID int `json:"id"`
+}
+
+// Get requests data for a production record from the [Demozoo API].
+// It returns an error if the production ID is invalid, when the request
+// reaches a [Timeout] or fails.
+// A status code is returned when the response status is not OK.
+//
+// [Demozoo API]: https://demozoo.org/api/v1/productions/
+func (p *Production) Get(ctx context.Context, id int) (int, error) {
+	const msg = "get demozoo production"
+	if id < firstID {
+		return 0, fmt.Errorf("%s %w: %d", msg, ErrID, id)
+	}
+	url := ProdURL + strconv.Itoa(id)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return 0, fmt.Errorf("%s new request %w", msg, err)
+	}
+	req.Header.Set("User-Agent", helper.UserAgent)
+	c := client()
+	res, err := c.Do(req)
+	if err != nil {
+		return 0, fmt.Errorf("%s client do %w", msg, err)
+	}
+	if res == nil {
+		return 0, http.ErrBodyNotAllowed
+	}
+	if res.Body == nil {
+		return res.StatusCode, fmt.Errorf("%s client do returned nothing %w: %s", msg, ErrStatus, res.Status)
+	}
+	defer func() { _ = res.Body.Close() }()
+	if res.StatusCode != http.StatusOK {
+		_, _ = io.Copy(io.Discard, res.Body)
+		_ = res.Body.Close()
+		return res.StatusCode, fmt.Errorf("%s %w: %s", msg, ErrStatus, res.Status)
+	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		_, _ = io.Copy(io.Discard, res.Body)
+		_ = res.Body.Close()
+		return 0, fmt.Errorf("%s read all %w", msg, err)
+	}
+	err = json.Unmarshal(body, &p)
+	clear(body)
+	if err != nil {
+		return 0, fmt.Errorf("%s json unmarshal %w", msg, err)
+	}
+	if p.ID != id {
+		return 0, fmt.Errorf("%s %w: %d", msg, ErrSuccess, id)
+	}
+	return 0, nil
+}
+
+// GithubRepo returns the Github repository path of the production using
+// the Production struct. It searches the external links for a link class that
+// matches GithubRepo.
+func (p *Production) GithubRepo() string {
+	for _, link := range p.ExternalLinks {
+		if link.LinkClass != "GithubRepo" {
+			continue
+		}
+		url, err := url.Parse(link.URL)
+		if err != nil {
+			continue
+		}
+		if url.Host != "github.com" {
+			continue
+		}
+		return url.Path
+	}
+	return ""
+}
+
+// PouetProd returns the Pouet ID of the production using
+// the Production struct. It searches the external links for a
+// link class that matches PouetProduction.
+// A 0 is returned whenever the production does not have a recognized
+// Pouet production link.
+func (p *Production) PouetProd() int {
+	for _, link := range p.ExternalLinks {
+		if link.LinkClass != "PouetProduction" {
+			continue
+		}
+		url, err := url.Parse(link.URL)
+		if err != nil {
+			continue
+		}
+		id, err := strconv.Atoi(url.Query().Get("which"))
+		if err != nil {
+			continue
+		}
+		return id
+	}
+	return 0
+}
+
+// Unmarshal parses the JSON-encoded data and stores the result
+// in the Production struct. It returns an error if the JSON data is
+// invalid or the production ID is invalid.
+func (p *Production) Unmarshal(r io.Reader) error {
+	if r == nil {
+		return nil
+	}
+	if err := json.NewDecoder(r).Decode(p); err != nil {
+		return fmt.Errorf("demozoo production json decode: %w", err)
+	}
+	if p.ID < firstID {
+		return fmt.Errorf("demozoo production %w: %d", ErrID, p.ID)
+	}
+	return nil
+}
+
+// SuperType and validates parses the Demozoo "production", "graphics" and "music"
+// supertypes and returns the corresponding platform and section tags.
+//
+// It returns -1 for an unknown platform or section, in which case the
+// caller should invalidate the Demozoo production.
+func (p *Production) SuperType() (tags.Tag, tags.Tag) {
+	confirm := func(pl, se tags.Tag) bool {
+		return pl > -1 && se > -1
+	}
+	var platform tags.Tag = -1
+	var section tags.Tag = -1
+	platform, section = p.platforms(platform, section)
+	if confirm(platform, section) {
+		return platform, section
+	}
+	platform, section = p.prodSuperType(platform, section)
+	if confirm(platform, section) {
+		return platform, section
+	}
+	platform, section = p.graphicsSuperType(platform, section)
+	if confirm(platform, section) {
+		return platform, section
+	}
+	platform, section = p.musicSuperType(platform, section)
+	return platform, section
+}
+
+// YouTubeVideo returns the ID of a video on YouTube. It searches the external links
+// for a link class that matches YoutubeVideo.
+// An empty string is returned whenever the production does not have a recognized
+// YouTube video link.
+func (p *Production) YouTubeVideo() string {
+	for _, link := range p.ExternalLinks {
+		if link.LinkClass != "YoutubeVideo" {
+			continue
+		}
+		url, err := url.Parse(link.URL)
+		if err != nil {
+			continue
+		}
+		if url.Host != "youtube.com" && url.Host != "www.youtube.com" {
+			continue
+		}
+		if url.Path != "/watch" {
+			continue
+		}
+		return url.Query().Get("v")
+	}
+	return ""
+}
+
+// Released returns the production's release date as date_issued_year, month, day values.
+func (p *Production) Released() (int16, int16, int16) {
+	return helper.Released(p.ReleaseDate)
+}
+
+// Groups returns the first two names in the production that have is_group as true.
+// The one exception is if the production title contains a reference to a BBS or FTP site name.
+// Then that title will be used as the first group returned.
+func (p *Production) Groups() (string, string) {
+	// find any reference to BBS or FTP in the production title to
+	// obtain a possible site name.
+	var a, b string
+	if s := Site(p.Title); s != "" {
+		a = s
+		p.Title = "" // delete the title if it matches or is similar to the site name.
+	}
+	// range through author nicks for any group matches
+	for _, nick := range p.Authors {
+		if !nick.Releaser.IsGroup {
+			continue
+		}
+		unused1, unused2 := a == "", b == ""
+		if unused1 {
+			a = nick.Releaser.Name
+			continue
+		}
+		if unused2 {
+			b = nick.Releaser.Name
+			break
+		}
+	}
+	return releaser.Cell(a), releaser.Cell(b)
+}
+
+// Site parses a production title to see if it is suitable as a BBS or FTP site name,
+// otherwise an empty string is returned.
+func Site(title string) string {
+	s := strings.Split(title, " ")
+	if len(s) == 0 {
+		return ""
+	}
+	if strings.EqualFold(s[0], "the") {
+		s = s[1:]
+	}
+	for i, n := range s {
+		if strings.EqualFold(n, "BBS") {
+			return strings.Join(s[0:i], " ") + " BBS"
+		}
+		if strings.EqualFold(n, "FTP") {
+			return strings.Join(s[0:i], " ") + " FTP"
+		}
+	}
+	return ""
+}
+
+// Releasers parses Demozoo authors and reclassifies them into Defacto2 people rolls.
+func (p *Production) Releasers() ([]string, []string, []string, []string) {
+	tx, co, gx, mu := []string{}, []string{}, []string{}, []string{}
+	for _, c := range p.Credits {
+		if c.Nick.Releaser.IsGroup {
+			continue
+		}
+		switch category(c.Category) {
+		case TextC:
+			tx = append(tx, c.Nick.Name)
+		case CodeC:
+			co = append(co, c.Nick.Name)
+		case GraphicsC:
+			gx = append(gx, c.Nick.Name)
+		case MusicC:
+			mu = append(mu, c.Nick.Name)
+		case MagazineC:
+			// do nothing.
+		}
+	}
+	return tx, co, gx, mu
+}
+
+// platforms returns the platform and section tags for "platforms".
+// A list of the types can be found at https://demozoo.org/api/v1/platforms/?ordering=id
+func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	const (
+		Windows = 1
+		MsDos   = 4
+		Linux   = 7
+		MacOS   = 10
+		Browser = 12
+		// Javascript = 46 was removed from the api list of platforms.
+		AdobeFlash = 47
+		Java       = 48
+		Macintosh  = 94
+	)
+	// Handle platforms.
+	for _, item := range p.Platforms {
+		switch item.ID {
+		case Windows:
+			platform = tags.Windows
+		case MsDos:
+			platform = tags.DOS
+		case Linux:
+			platform = tags.Linux
+		case MacOS, Macintosh:
+			platform = tags.Mac
+		case Browser, AdobeFlash, Java:
+			platform = tags.Markup
+		}
+		if platform > -1 {
+			break
+		}
+	}
+	return platform, section
+}
+
+// musicSuperType returns the platform and section tags for the "music" supertype.
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/192593/ (chipmusic)
+//   - https://demozoo.org/api/v1/productions/205797/ (chipmusic but with no download link)
+func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	const (
+		ChipMusic   = 29
+		ExeMusic    = 31
+		ExeMusic32K = 32
+		ExeMusic64K = 38
+		MusicPack   = 52
+	)
+	for _, item := range p.Types {
+		switch item.ID {
+		case ChipMusic:
+			platform = tags.Audio
+			section = tags.Intro
+		case ExeMusic, ExeMusic32K, ExeMusic64K:
+			section = tags.Intro
+		case MusicPack:
+			platform = tags.Audio
+			section = tags.Pack
+		}
+		if section > -1 {
+			break
+		}
+	}
+	return platform, section
+}
+
+// graphicsSuperType returns the platform and section tags for the "graphics" supertype.
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/269595/ (artpack)
+//   - https://demozoo.org/api/v1/productions/270473/ (artpack)
+//   - https://demozoo.org/api/v1/productions/30570/ (graphics)
+func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	const (
+		Graphics   = 23
+		ASCII      = 24
+		PackASCII  = 25
+		Ansi       = 26
+		ExeGFX     = 27
+		ExeGFX4K   = 28
+		ArtPack    = 51
+		ExeGFX256b = 56
+		ExeGFX1K   = 58
+	)
+	for _, item := range p.Types {
+		switch item.ID {
+		case Graphics:
+			platform = tags.Image
+			section = tags.Logo
+		case ASCII:
+			platform = tags.Text
+			section = tags.Logo
+		case PackASCII:
+			platform = tags.Text
+			section = tags.Pack
+		case Ansi:
+			platform = tags.Text
+			section = tags.Logo
+		case ExeGFX, ExeGFX4K, ExeGFX256b, ExeGFX1K:
+			section = tags.Logo
+		case ArtPack:
+			platform = tags.Image
+			section = tags.Pack
+		}
+		if section > -1 {
+			break
+		}
+	}
+	return platform, section
+}
+
+// prodSuperType returns the platform and section tags for the "production" supertype.
+// A list of the types can be found at https://demozoo.org/api/v1/production_types/?ordering=id
+//
+// Example productions:
+//   - https://demozoo.org/api/v1/productions/354298/ (demo)
+//   - https://demozoo.org/api/v1/productions/338041/ (intro 256B)
+//   - https://demozoo.org/api/v1/productions/366489/ (musicdisk)
+//   - https://demozoo.org/api/v1/productions/280982/ (textmag)
+func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.Tag) {
+	for _, item := range p.Types {
+		switch item.ID {
+		case Demo:
+			section = tags.Demo
+		case Intro64K, Intro4K, Intro, Intro40K, Intro32b,
+			Intro64b, Intro128b, Intro256b, Intro512b, Intro1K,
+			Intro32K, Intro16K, Intro2K, Intro100K, Intro8K,
+			Intro96K, Intro8b, Intro16b:
+			section = tags.Intro
+		case DiskMag, Magazine:
+			section = tags.Mag
+		case TextMag:
+			section = tags.Mag
+			platform = tags.Text
+		case Tool:
+			section = tags.Tool
+		case MusicDisk, ChipMusicPack:
+			section = tags.Pack
+			platform = tags.Audio
+		case ProductionPack:
+			section = tags.Pack
+		case Cracktro:
+			section = tags.Intro
+		case Music:
+			platform = tags.Audio
+			section = tags.Intro
+		case Game:
+			section = tags.Demo
+		case BBStro:
+			section = tags.BBS
+		case BBSDoor:
+			section = tags.Tool
+			platform = tags.PCB
+		}
+		if section > -1 {
+			break
+		}
+	}
+	return platform, section
+}
+
+// Category are tags for production imports.
+type Category int
+
+const (
+	TextC     Category = iota // Text based files.
+	CodeC                     // Code are binary files.
+	GraphicsC                 // Graphics are images.
+	MusicC                    // Music is audio.
+	MagazineC                 // Magazine are publications.
+)
+
+func (c Category) String() string {
+	return [...]string{"text", "code", "graphics", "music", "magazine"}[c]
+}
+
+func category(s string) Category {
+	switch strings.ToLower(s) {
+	case TextC.String():
+		return TextC
+	case CodeC.String():
+		return CodeC
+	case GraphicsC.String():
+		return GraphicsC
+	case MusicC.String():
+		return MusicC
+	case MagazineC.String():
+		return MagazineC
+	}
+	return -1
 }

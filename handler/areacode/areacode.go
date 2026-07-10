@@ -47,7 +47,8 @@ func (c NAN) HTML() template.HTML {
 			html.WriteString(s)
 			continue
 		}
-		html.WriteString(" + " + val.Name)
+		s := " + " + val.Name
+		html.WriteString(s)
 		if len(abbr) > 0 {
 			fmt.Fprintf(&html, ` (%s)`, abbr)
 		}
@@ -66,7 +67,8 @@ func (a Abbreviation) HTML() template.HTML {
 	t := RegionByAbbr(a)
 	var html strings.Builder
 	html.WriteString("<span>")
-	html.WriteString(string(t.Abbreviation) + " (" + t.Name + ")")
+	s := string(t.Abbreviation) + " (" + t.Name + ")"
+	html.WriteString(s)
 	if len(t.AreaCodes) == 0 {
 		html.WriteString(" - n/a</span><br>")
 		return template.HTML(html.String())
@@ -91,9 +93,11 @@ type Region struct {
 
 func (t Region) HTML() template.HTML {
 	var html strings.Builder
-	html.WriteString("<span>" + t.Name)
+	s := "<span>" + t.Name
+	html.WriteString(s)
 	if len(t.Abbreviation) > 0 {
-		html.WriteString(" (" + string(t.Abbreviation) + ") ")
+		s := " (" + string(t.Abbreviation) + ") "
+		html.WriteString(s)
 	}
 	// join area codes with commas
 	if len(t.AreaCodes) == 0 {

@@ -17,12 +17,6 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 )
 
-// URI is the URL slug of the releaser.
-type URI string
-
-// ID is the identifier of the tidbit.
-type ID int
-
 const Dir = "public/md/tidbit" // Dir is the relative directory of the markdown files.
 
 const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock | parser.Footnotes
@@ -50,76 +44,11 @@ const (
 	untouchables = "untouchables"
 )
 
-// Markdown returns the markdown content of the tidbit that is stored in the directory
-// in the provided file system. If the file does not exist or is empty then nil is returned.
-//
-// Generally the String method should be used to get the description of the tidbit instead
-// of this Markdown method.
-func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
-	const msg = "tidbit markdown"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
-	}
-	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
-	b, err := fs.ReadFile(name)
-	if err != nil {
-		name := fmt.Sprintf("%d.md", id)
-		sl.Error(msg, slog.String("read error", name), slog.Any("error", err))
-		return nil
-	}
-	p := parser.NewWithExtensions(extensions)
-	doc := p.Parse(b)
-	renderer := html.NewRenderer(html.RendererOptions{ //nolint:exhaustruct // too any optional fields
-		Flags: html.CommonFlags | html.HrefTargetBlank,
-	})
-	return markdown.Render(doc, renderer)
-}
+// ID is the identifier of the tidbit.
+type ID int
 
-// String returns the tidbit description that is stored as a markdown file in the provided file system.
-func (id ID) String(sl *slog.Logger, fs embed.FS) string {
-	if b := id.Markdown(sl, fs, Dir); b != nil {
-		return string(b)
-	}
-	return ""
-}
-
-// URI returns the URIs of the tidbit.
-func (id ID) URI() []URI {
-	if x := groups[id]; x != nil {
-		return x
-	}
-	return nil
-}
-
-// URL returns the HTML links of the tidbit but the provided URI is excluded.
-func (id ID) URL(uri string) template.HTML {
-	if id == -1 {
-		return template.HTML("")
-	}
-	urls := id.URI()
-	if urls == nil {
-		return template.HTML("")
-	}
-	sorted := slices.SortedFunc(slices.Values(urls), func(a, b URI) int {
-		if a < b {
-			return -1
-		}
-		if a > b {
-			return 1
-		}
-		return 0
-	})
-	html := []string{}
-	for _, val := range sorted {
-		if val == URI(uri) {
-			continue
-		}
-		s := string(val)
-		html = append(html, `<a href="/g/`+s+`">`+releaser.Link(s)+`</a>`)
-	}
-	s := strings.Join(html, " &nbsp; ")
-	return template.HTML(s)
-}
+// URI is the URL slug of the releaser.
+type URI string
 
 // Tibits is a map of tidbits mapped to their URIs.
 type Tibits map[ID][]URI
@@ -604,6 +533,77 @@ var groups = Tibits{
 	467:  []URI{"united-cracking-force"},
 	468:  []URI{"the-crazed-asylum"},
 	469:  []URI{"phrozen-crew"},
+}
+
+// Markdown returns the markdown content of the tidbit that is stored in the directory
+// in the provided file system. If the file does not exist or is empty then nil is returned.
+//
+// Generally the String method should be used to get the description of the tidbit instead
+// of this Markdown method.
+func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
+	const msg = "tidbit markdown"
+	if sl == nil {
+		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	}
+	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
+	b, err := fs.ReadFile(name)
+	if err != nil {
+		name := fmt.Sprintf("%d.md", id)
+		sl.Error(msg, slog.String("read error", name), slog.Any("error", err))
+		return nil
+	}
+	p := parser.NewWithExtensions(extensions)
+	doc := p.Parse(b)
+	renderer := html.NewRenderer(html.RendererOptions{ //nolint:exhaustruct // too any optional fields
+		Flags: html.CommonFlags | html.HrefTargetBlank,
+	})
+	return markdown.Render(doc, renderer)
+}
+
+// String returns the tidbit description that is stored as a markdown file in the provided file system.
+func (id ID) String(sl *slog.Logger, fs embed.FS) string {
+	if b := id.Markdown(sl, fs, Dir); b != nil {
+		return string(b)
+	}
+	return ""
+}
+
+// URI returns the URIs of the tidbit.
+func (id ID) URI() []URI {
+	if x := groups[id]; x != nil {
+		return x
+	}
+	return nil
+}
+
+// URL returns the HTML links of the tidbit but the provided URI is excluded.
+func (id ID) URL(uri string) template.HTML {
+	if id == -1 {
+		return template.HTML("")
+	}
+	urls := id.URI()
+	if urls == nil {
+		return template.HTML("")
+	}
+	sorted := slices.SortedFunc(slices.Values(urls), func(a, b URI) int {
+		if a < b {
+			return -1
+		}
+		if a > b {
+			return 1
+		}
+		return 0
+	})
+	html := []string{}
+	for _, val := range sorted {
+		if val == URI(uri) {
+			continue
+		}
+		s := string(val)
+		html = append(html, `<a href="/g/`+s+`">`+releaser.Link(s)+`</a>`)
+	}
+	s := strings.Join(html, " &nbsp; ")
+	return template.HTML(s)
 }
 
 // Find returns the tidbit IDs for the given URI.

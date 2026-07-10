@@ -17,34 +17,6 @@ var ErrInvalidPath = errors.New("the path contains invalid characters")
 // A Path is the partial URL path of the releaser.
 type Path string
 
-// String returns the well-known styled name of the releaser if it exists in the
-// names, lowercase or uppercase lists. Otherwise it returns an empty string.
-//
-// Example:
-//
-//	name.Path("acid-productions").String() = "ACiD Productions"
-//	name.Path("razor-1911").String() = "" // unlisted
-func (path Path) String() string {
-	p := Path(strings.ToLower(string(path)))
-	if _, match := specials[p]; match {
-		return specials[p]
-	}
-	return ""
-}
-
-// Valid returns true if the URL path uses valid characters.
-// Valid URL paths are all lowercase and contain only alphanumeric characters, dashes, underscores,
-// ampersands and asterisks.
-//
-// Example:
-//
-//	name.Path("acid-productions").Valid() = true
-//	name.Path("acid-productions!").Valid() = false
-func (path Path) Valid() bool {
-	re := regexp.MustCompile(`^[a-z0-9\&\-_\*]+$`)
-	return re.MatchString(string(path))
-}
-
 // A List is a map of releasers and their well-known styled names.
 type List map[Path]string
 
@@ -330,6 +302,34 @@ func Uppercase() []string { //nolint:funlen
 		"phoenix",
 		"sprint",
 	}
+}
+
+// String returns the well-known styled name of the releaser if it exists in the
+// names, lowercase or uppercase lists. Otherwise it returns an empty string.
+//
+// Example:
+//
+//	name.Path("acid-productions").String() = "ACiD Productions"
+//	name.Path("razor-1911").String() = "" // unlisted
+func (path Path) String() string {
+	p := Path(strings.ToLower(string(path)))
+	if _, match := specials[p]; match {
+		return specials[p]
+	}
+	return ""
+}
+
+// Valid returns true if the URL path uses valid characters.
+// Valid URL paths are all lowercase and contain only alphanumeric characters, dashes, underscores,
+// ampersands and asterisks.
+//
+// Example:
+//
+//	name.Path("acid-productions").Valid() = true
+//	name.Path("acid-productions!").Valid() = false
+func (path Path) Valid() bool {
+	re := regexp.MustCompile(`^[a-z0-9\&\-_\*]+$`)
+	return re.MatchString(string(path))
 }
 
 const (
