@@ -320,6 +320,10 @@ func humAudio(platform, section Tag) string {
 // humConsole humanizes a file for a video game console.
 func humConsole(platform, section Tag) string {
 	switch section { //nolint:exhaustive
+	case BBS:
+		return "a BBStro on console"
+	case Demo:
+		return "a demo on console"
 	case Tool:
 		return "a console utility or tool"
 	default:
@@ -442,7 +446,7 @@ func humTextAmiga(platform, section Tag) string {
 	case Mag:
 		return "a magazine textfile " + in
 	case Nfo:
-		return "a release textfile " + in
+		return "an amiga or console release textfile"
 	default:
 		return genericReturn(platform, section)
 	}

@@ -30,6 +30,8 @@ or converted due to their special uses within the name.
 // Names returns the list of well-known styled names.
 func Names() *List { //nolint:funlen
 	list := List{
+		"leech-bbs":                             "The Leech BBS",
+		"pit-bbs":                               "The Pit BBS",
 		"at-ampersand-t":                        "AT&T",
 		"brutal-ppe-coders":                     "Brutal PPE Coders",
 		"smile":                                 "Smile!",

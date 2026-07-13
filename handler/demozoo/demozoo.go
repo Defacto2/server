@@ -52,6 +52,9 @@ const (
 
 //nolint:gochecknoglobals
 var groups = Groups{
+	"infernal-byte-systems":                 157675,
+	"black-widow":                           66294,
+	"free-on-the-line":                      124164,
 	"united-cracking-force":                 14942,
 	"lightforce":                            5235,
 	"the-cracking-lords":                    78172,
@@ -630,9 +633,24 @@ var groups = Groups{
 	"brutal-ppe-coders":                     70422,
 	"paranoimia":                            2866,
 	"cocaine":                               19624,
+	"starlight":                             81265,
 	"asgard":                                35409,
 	"spam":                                  157509,
+	"nesquik":                               41203,
+	"faith":                                 10964,
 	"adalats":                               90909,
+	"elite-console-conception":              157707,
+	"spectral":                              147189,
+	"magical":                               3473,
+	"videodox":                              131754,
+	"the-corporation-console":               41959,
+	"accumulators":                          2975,
+	"random":                                148199,
+	"hybrid-console":                        157730,
+	"lynch-mob":                             37030,
+	"smeg":                                  120067,
+	"parsec":                                147685,
+	"prodigy":                               1923,
 }
 
 // Find returns the Demozoo group ID for the given uri.
@@ -998,15 +1016,17 @@ func (p *Production) Releasers() ([]string, []string, []string, []string) {
 // A list of the types can be found at https://demozoo.org/api/v1/platforms/?ordering=id
 func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) {
 	const (
-		Windows = 1
-		MsDos   = 4
-		Linux   = 7
-		MacOS   = 10
-		Browser = 12
-		// Javascript = 46 was removed from the api list of platforms.
+		Windows    = 1
+		MsDos      = 4
+		Linux      = 7
+		MacOS      = 10
+		Browser    = 12
+		MegaDrive  = 22
+		SNES       = 34
 		AdobeFlash = 47
 		Java       = 48
 		Macintosh  = 94
+		// Javascript = 46 was removed from the api list of platforms.
 	)
 	// Handle platforms.
 	for _, item := range p.Platforms {
@@ -1019,6 +1039,8 @@ func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) 
 			platform = tags.Linux
 		case MacOS, Macintosh:
 			platform = tags.Mac
+		case MegaDrive, SNES:
+			platform = tags.Console
 		case Browser, AdobeFlash, Java:
 			platform = tags.Markup
 		}
