@@ -52,6 +52,8 @@ const (
 
 //nolint:gochecknoglobals
 var groups = Groups{
+	"german-consoles-syndicate":             119554,
+	"sabotage":                              111599,
 	"infernal-byte-systems":                 157675,
 	"black-widow":                           66294,
 	"free-on-the-line":                      124164,

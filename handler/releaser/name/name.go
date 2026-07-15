@@ -199,6 +199,15 @@ func Names() *List { //nolint:funlen
 		"mci-escapes-bbs":                       "MCi Escapes BBS",
 		"atlanta-pcug-bbs":                      "Atlanta PCUG BBS",
 		"esp-headquarters-bbs":                  "ESP HeadQuarters BBS",
+		"premiere-console":                      "PREMiERE (console)",
+		"elitendo":                              "ELiTENDO",
+		"cadence-bbs":                           "The Cadence BBS",
+		"lab-bbs":                               "The Lab BBS",
+		"magical":                               "MAGiCAL",
+		"attic-bbs":                             "The Attic BBS",
+		"pump":                                  "Pump!",
+		"next-dimension-bbs":                    "The Next Dimension BBS",
+		"arcade-bbs":                            "The Arcade BBS",
 	}
 	return &list
 }
@@ -217,6 +226,9 @@ func Lowercase() []string {
 // Uppercase are a collection of styled names that use all uppercasing.
 func Uppercase() []string { //nolint:funlen
 	return []string{
+		"dytec",
+		"gods",
+		"crap",
 		"spam",
 		"ucci",
 		"lspd",
@@ -301,6 +313,7 @@ func Uppercase() []string { //nolint:funlen
 		"u4ea-ftp",
 		"x_ess",
 		"zoo-ftp",
+		"parsec",
 		"phoenix",
 		"sprint",
 	}
