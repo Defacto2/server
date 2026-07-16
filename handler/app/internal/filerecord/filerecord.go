@@ -237,7 +237,7 @@ func (m *ListEntry) ColFooter() string {
 
 // briefDescription returns true for known BBS/FTP site descriptor files.
 func (m *ListEntry) briefDescription() bool {
-	name := m.RelativeName
+	name := strings.TrimSpace(m.RelativeName)
 	names := []string{"file_id.diz"}
 	for valid := range slices.Values(names) {
 		if strings.EqualFold(name, valid) {
@@ -925,7 +925,8 @@ func (c content) renderContent(
 
 func indexDiz(names ...string) int {
 	for i, name := range names {
-		if strings.EqualFold(name, "file_id.diz") {
+		s := strings.TrimSpace(name)
+		if strings.EqualFold(s, "file_id.diz") {
 			return i
 		}
 	}

@@ -73,35 +73,43 @@ func InformationText(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, 
 	}
 	st, err := os.Stat(name)
 	if err != nil {
-		b := []byte("error could not describe the information text file")
-		buf.Write(b)
+		buf.WriteString("error could not describe the information text file")
 		return nil
 	}
 	if st.Size() > sizeLimit {
-		b := []byte("skipped, text is too long")
-		buf.Write(b)
+		buf.WriteString("skipped, text is too long")
 		return nil
 	}
 	f, err := os.Open(name)
 	if err != nil {
-		b := []byte("error could not read the information text file")
-		buf.Write(b)
+		buf.WriteString("error could not read the information text file")
 		return nil
 	}
 	defer func() { _ = f.Close() }()
 	buf.Reset()
+	buf.Grow(int(st.Size()))
 	_, err = io.Copy(buf, f)
 	if err != nil {
 		return fmt.Errorf("information text copy %w: %q", err, name)
 	}
+
+	b := buf.Bytes()
+	r := bytes.NewReader(b)
 	var p []byte
-	if sign, _ := magicnumber.Text(bytes.NewReader(buf.Bytes())); sign != magicnumber.Unknown {
+	if sign, _ := magicnumber.Text(r); sign != magicnumber.Unknown {
 		p = normalize(buf)
 	} else {
-		p = buf.Bytes()
+		_, _ = r.Seek(0, io.SeekStart)
+		if sign, _ := magicnumber.Archive(r); sign != magicnumber.Unknown {
+			buf.Reset()
+			ruf.Reset()
+			return nil
+		}
+		p = b
 	}
-	buf.Reset()
+
 	p = TrimEOFs(p)
+	buf.Reset()
 	buf.Write(p)
 	if utf8.Valid(p) {
 		ruf.Reset()
@@ -300,14 +308,12 @@ func InsertSuffix(p, suffix []byte) []byte {
 
 // Viewer returns true if the file entry should display the file download in the browser plain text viewer.
 // The result is based on the platform and section such as "text" or "textamiga" will return true.
-// If the filename is "file_id.diz" then it will return false.
 func Viewer(art *models.File) bool {
 	if art == nil {
 		return false
 	}
 	if strings.EqualFold(art.Filename.String, "file_id.diz") {
-		// avoid displaying the file_id.diz twice in the browser viewer
-		return false
+		return true
 	}
 	section := strings.ToLower(strings.TrimSpace(art.Section.String))
 	if section == "package" {

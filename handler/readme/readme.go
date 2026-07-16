@@ -118,7 +118,7 @@ func SortList(compact bool, content string) []string {
 			strings.Compare(a, b),       // order all other file paths alphabetically
 		)
 	})
-	// filter out known bad filenames, such as file_id.diz or website advertising injections
+	// filter out known bad filenames, such as known website advertising injections
 	paths := make([]string, len(list))
 	index := -1
 	for s := range slices.Values(list) {
@@ -126,11 +126,8 @@ func SortList(compact bool, content string) []string {
 		if path == "" {
 			continue
 		}
-		switch filepath.Base(path) {
-		case
-			"file_id.diz",
-			"scene.org",
-			"scene.org.txt":
+		switch strings.ToLower(filepath.Base(path)) {
+		case "scene.org", "scene.org.txt", "we-will.sue", "www.acid.org":
 			continue
 		}
 		v := strings.ToLower(filepath.Ext(path))
@@ -145,7 +142,7 @@ func SortList(compact bool, content string) []string {
 
 // priority returns a list of readme text file extensions in priority order.
 func priority() []string {
-	return []string{".nfo", ".txt", ".unp", ".doc"}
+	return []string{".nfo", ".txt", ".unp", ".doc", ".displayme", ".readme"}
 }
 
 // candidate returns a list of other, common text file extensions in priority order.
