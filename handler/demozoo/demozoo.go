@@ -52,6 +52,9 @@ const (
 
 //nolint:gochecknoglobals
 var groups = Groups{
+	"capital":                               157797,
+	"compton":                               157796,
+	"for-fun-inc":                           130855,
 	"german-consoles-syndicate":             119554,
 	"sabotage":                              111599,
 	"infernal-byte-systems":                 157675,
