@@ -1,7 +1,7 @@
 module github.com/Defacto2/server
 
 // NOTE: Don't forget update the go-version found in .github/workflows/gorelease.yml
-go 1.26.4 // latest: https://go.dev/dl/
+go 1.26.5 // latest: https://go.dev/dl/
 
 // INFO: Usage of the packages.
 // Defacto2/ named packages are all internal but kept out of the main application.
@@ -47,16 +47,16 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/h2non/filetype v1.1.3
 	github.com/jackc/pgx/v5 v5.10.0
-	github.com/lmittmann/tint v1.1.3
-	github.com/mattn/go-isatty v0.0.22
+	github.com/lmittmann/tint v1.2.0
+	github.com/mattn/go-isatty v0.0.23
 	github.com/nalgeon/be v0.3.0
 	github.com/rosedblabs/rosedb/v2 v2.4.0
 	github.com/samber/slog-multi v1.8.0
 	github.com/subpop/go-ini v0.1.5
 	github.com/urfave/cli/v2 v2.27.7
-	golang.org/x/image v0.43.0
-	golang.org/x/text v0.39.0
-	google.golang.org/api v0.287.1
+	golang.org/x/image v0.44.0
+	golang.org/x/text v0.40.0
+	google.golang.org/api v0.288.0
 )
 
 // Uncomment to use the local repository
@@ -73,15 +73,15 @@ replace rsc.io/markdown => rsc.io/markdown v0.0.0-20231214224604-88bb533a6020
 
 require (
 	github.com/labstack/echo-contrib/v5 v5.0.1
-	github.com/labstack/echo/v5 v5.2.1
+	github.com/labstack/echo/v5 v5.3.0
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/wizenheimer/blaze v0.0.0-20251014083344-98727d655839
 	github.com/writeas/go-strip-markdown v2.0.1+incompatible
-	golang.org/x/sync v0.21.0
+	golang.org/x/sync v0.22.0
 )
 
 require (
-	cloud.google.com/go/auth v0.21.0 // indirect
+	cloud.google.com/go/auth v0.22.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
@@ -92,7 +92,7 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bep/godartsass/v2 v2.5.0 // indirect
 	github.com/bep/golibsass v1.2.0 // indirect
-	github.com/bits-and-blooms/bitset v1.24.5 // indirect
+	github.com/bits-and-blooms/bitset v1.24.6 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
@@ -139,17 +139,17 @@ require (
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
 	go.uber.org/nilaway v0.0.0-20260126174828-99d94caaf043 // indirect
-	golang.org/x/crypto v0.53.0 // indirect
+	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/mod v0.37.0 // indirect
-	golang.org/x/net v0.56.0 // indirect
+	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/pkgsite v0.0.0-20260116214158-550788255d99 // indirect
-	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.47.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260706201446-f0a921348800 // indirect
-	google.golang.org/grpc v1.82.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260715232425-e75dac1f907d // indirect
+	google.golang.org/grpc v1.82.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	mvdan.cc/gofumpt v0.9.2 // indirect
 	rsc.io/markdown v0.0.0-20241212154241-6bf72452917f // indirect
