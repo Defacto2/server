@@ -113,6 +113,7 @@ func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB
 		IPExtractor:                     nil,
 		FormParseMaxMemory:              setAs16MB,
 		EnablePathUnescapingStaticFiles: false, // false is the new default after Echo v5.2.1
+		NoGroupAutoRegister404Routes:    true,  // a breaking changed introduced in echo v5.3.0, using the default false breaks our app
 	}
 
 	e := echo.NewWithConfig(echoConfig)
