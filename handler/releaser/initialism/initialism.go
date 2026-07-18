@@ -275,6 +275,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"toilet-extravaganza-bbs":              {"Toilet", "Da Toilet Extravaganza BBS"},
 		"crossed-bones-bbs":                    {"CB", "!CB!"},
 		"psycho_neurosis-bbs":                  {"Psychoneurosis BBS", "Psycho Neurosis BBS"},
+		"freek-world-bbs":                      {"Freekworld BBS"},
 		//
 		// FTP and file sites often used lower-case initalisms
 		"last-resort-ftp":         {"TLR", "The Last Resort"},
@@ -345,6 +346,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 			"NWR", "NetMonkey Report", "Netmonkey Weekly Report", "Netmonkey Courier Report",
 			"Netmonkey Weekend Report",
 		},
+		"prodigy":                                {"PDY"},
 		"capital":                                {"CAP"},
 		"compton":                                {"The City of Compton", "CPT"},
 		"for-fun-inc":                            {"FFI"},
@@ -1544,6 +1546,8 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"shock":                                  {"SHOCKiSO", "SHOCK iSO", "SHOCKpDA"},
 		"videodox":                               {"Video DoX"},
 		"the-next-generation":                    {"TNG"},
+		"damaged-cybernetics":                    {"DC"},
+		"the-yuelden-team":                       {"TYT"},
 	}
 	return &list
 }

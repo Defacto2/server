@@ -40,6 +40,20 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"oldskool": []Website{
+		{URL: "www.crystalis.com/~oldskool", NotWorking: true, Name: "OldSkool"},
+		{URL: "www1.las.es/~calvo", NotWorking: true, Name: "Calvo site"},
+		{URL: "ftp://194.179.101.X/pub/console/oldskool", NotWorking: true, Name: "ftp"},
+	},
+	"damaged-cybernetics": []Website{
+		{URL: "www.futureone.com/~damaged", NotWorking: true, Name: "Damaged Cybernetics"},
+		{URL: "www.crystalis.com/~yoshi", NotWorking: true, Name: "Yoshi"},
+		{URL: "https://lngn.net/archaic-ruins/", NotWorking: false, Name: "Archaic Ruins"},
+		{URL: "https://patpend.net/articles/ar/damaged.html", NotWorking: false, Name: "A record of the disbanding of Damaged Cybernetics"},
+		{URL: "https://ia803104.us.archive.org/23/items/bloodlust_software/articles/emulators.cz%20-%20The%20Real%20Story%20behind%20Damaged%20Cybernetics%20Closing....html", NotWorking: false, Name: "The Real Truth"},
+		{URL: "https://patpend.net/articles/zd/article2.html", NotWorking: false, Name: "Damaged Cybernetics: A Year since its death"},
+		{URL: "https://www.vice.com/en/article/the-story-of-nesticle-the-ambitious-emulator-that-redefined-retro-gaming/", NotWorking: false, Name: "VICE: The Story of NESticle"},
+	},
 	"skid-row": []Website{
 		{URL: "www.skidrow.dk", NotWorking: true, Name: "Skid Row Amiga"},
 	},
