@@ -24,6 +24,7 @@ var groups = Groups{ //nolint:gochecknoglobals
 	"legend":                           176,
 	"lightforce":                       3105,
 	"motiv8":                           182,
+	"nightfall":                        5814,
 	"quartex":                          2396,
 	"razor-1911":                       431,
 	"rebels":                           10411,
@@ -32,6 +33,10 @@ var groups = Groups{ //nolint:gochecknoglobals
 	"the-silents":                      1099,
 	"triad":                            132,
 	"tristar-ampersand-red-sector-inc": 915,
+	"vision":                           510,
+	"unitrax":                          3084,
+	"shining-8":                        761,
+	"desire":                           6614,
 }
 
 // Find returns the csdb group id for the given releaser uri.

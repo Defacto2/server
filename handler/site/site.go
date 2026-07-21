@@ -40,6 +40,13 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"shining-8": []Website{
+		{URL: "members.magic-web.net/home/Shining8", NotWorking: true, Name: "1998 C-64 site"},
+		{URL: "https://www.shining8.de", NotWorking: false, Name: "Shining 8"},
+	},
+	"nightfall": []Website{
+		{URL: "https://www.nightfallcrew.com", NotWorking: false, Name: "Nightfall Blog"},
+	},
 	"oldskool": []Website{
 		{URL: "www.crystalis.com/~oldskool", NotWorking: true, Name: "OldSkool"},
 		{URL: "www1.las.es/~calvo", NotWorking: true, Name: "Calvo site"},
