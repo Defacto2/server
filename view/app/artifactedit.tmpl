@@ -315,6 +315,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <button class="btn btn-success" type="button" id="artifact-editor-releaser-update"
                     hx-patch="/editor/releasers"
                     hx-include="[name='artifact-editor-key']"
+                    hx-trigger="click, submit-releasers"
                     hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Save</button>
               </div>
               <div class="w-100 d-block d-lg-none"></div>
