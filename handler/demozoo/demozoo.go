@@ -52,6 +52,15 @@ const (
 
 //nolint:gochecknoglobals
 var groups = Groups{
+	"rad-boys":                              158086,
+	"the-drunks":                            158096,
+	"avantgarde":                            58926,
+	"stoopid":                               98370,
+	"another-demension":                     99021,
+	"microwave":                             158085,
+	"finalists":                             117259,
+	"wanted":                                157622,
+	"tradekrazy":                            158044,
 	"rpgca":                                 157763,
 	"bizsnes":                               72555,
 	"allied-console-piracy":                 157924,
@@ -681,6 +690,7 @@ var groups = Groups{
 	"smeg":                                  120067,
 	"parsec":                                147685,
 	"prodigy":                               1923,
+	"osiris":                                61307,
 }
 
 // Find returns the Demozoo group ID for the given uri.

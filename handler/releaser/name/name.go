@@ -214,6 +214,8 @@ func Names() *List { //nolint:funlen
 		"tpd-systems-hq-bbs":                    "TPD Systems HQ BBS",
 		"blast-furnace-bbs":                     "The Blast Furnace BBS",
 		"oldskool":                              "OldSkool",
+		"addiction-bbs":                         "The Addiction BBS",
+		"gml-state-bbs":                         "GML State BBS",
 	}
 	return &list
 }
