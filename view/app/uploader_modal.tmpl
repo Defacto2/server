@@ -156,12 +156,12 @@
               <div class="input-group mb-3">
                 <div class="form-label">Operating system</div>
                 <div class="btn-group w-100" role="group" aria-label="Operating system selection">
-                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows">
-                  <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
                   <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" checked>
                   <label class="btn btn-outline-primary" for="uploader-intro-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="IBM&nbsp;PC or MS-DOS compatible">Dos PC</label>
+                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows">
+                  <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
+                      data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
                 </div>
               </div>
               <div class="row g-2">
@@ -170,7 +170,7 @@
                 </div>
                 <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-intro-alert"></div>
                 <progress id="uploader-intro-progress" value="0" max="100"></progress>
-                <button id="uploader-intro-submit" class="btn btn-success">Upload</button>     
+                <button id="uploader-intro-submit" class="btn btn-success">Upload</button>
                 <div class="col-8 form-text">{{$screenshot}}</div>
                 <div class="col-4 text-end">
                   <button type="button" id="uploader-intro-reset" class="btn btn-outline-danger">Reset</button>
@@ -246,12 +246,12 @@
                       data-bs-title="A installation app for a release">Installer</label>
                 </div>
                 <div class="btn-group w-100 mt-1" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-windows">
-                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
                   <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-msdos" checked>
                   <label class="btn btn-outline-primary w-50" for="uploader-trainer-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
                       data-bs-title="IBM&nbsp;PC or MS-DOS compatible">Dos PC</label>
+                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-windows">
+                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
+                      data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
                 </div>
               </div>
               <div class="row g-2">

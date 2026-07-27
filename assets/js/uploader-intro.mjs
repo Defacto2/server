@@ -2,8 +2,8 @@
  * @module uploader-intro
  * This module provides functions for handling file uploads intro UI.
  */
-import { formatPaste, getElmById, validYear, validMonth } from "./helper.mjs";
-import { checkIntro as mime } from "./uploader-mime.mjs";
+import { formatPaste, getElmById, validYear, validMonth } from './helper.mjs';
+import { checkIntro as mime } from './uploader-mime.mjs';
 import {
   checkDuplicate,
   checkErrors,
@@ -14,49 +14,51 @@ import {
   hiddenDetails,
   submitError,
   resetInput,
-} from "./uploader.mjs";
+} from './uploader.mjs';
 export default submit;
 
 const formId = `uploader-intro-form`,
-  invalid = "is-invalid",
-  none = "d-none";
+  invalid = 'is-invalid',
+  none = 'd-none';
 
 const form = getElmById(formId),
-  alert = getElmById("uploader-intro-alert"),
-  fileInput = getElmById("uploader-intro-file"),
-  lastMod = getElmById("uploader-intro-last-modified"),
-  list1 = getElmById("uploader-intro-list-1"),
-  list2 = getElmById("uploader-intro-list-2"),
-  magic = getElmById("uploader-intro-magic"),
-  month = getElmById("uploader-intro-month"),
-  releaser1 = getElmById("uploader-intro-releaser-1"),
-  results = getElmById("uploader-intro-results"),
-  title = getElmById("uploader-intro-title"),
-  year = getElmById("uploader-intro-year"),
-  youtube = getElmById("uploader-intro-youtube");
+  alert = getElmById('uploader-intro-alert'),
+  fileInput = getElmById('uploader-intro-file'),
+  lastMod = getElmById('uploader-intro-last-modified'),
+  list1 = getElmById('uploader-intro-list-1'),
+  list2 = getElmById('uploader-intro-list-2'),
+  magic = getElmById('uploader-intro-magic'),
+  month = getElmById('uploader-intro-month'),
+  releaser1 = getElmById('uploader-intro-releaser-1'),
+  releaser2 = getElmById('uploader-intro-releaser-2'),
+  results = getElmById('uploader-intro-results'),
+  title = getElmById('uploader-intro-title'),
+  year = getElmById('uploader-intro-year'),
+  youtube = getElmById('uploader-intro-youtube'),
+  os1 = getElmById('uploader-intro-msdos');
 
-form.addEventListener("reset", function () {
-  lastMod.value = "";
-  magic.value = "";
+form.addEventListener('reset', function () {
+  lastMod.value = '';
+  magic.value = '';
   resetForm();
 });
 
 // Also handle reset button click explicitly
 const resetButton = document.getElementById('uploader-intro-reset');
 if (resetButton) {
-  resetButton.addEventListener('click', function() {
-    lastMod.value = "";
-    magic.value = "";
+  resetButton.addEventListener('click', function () {
+    lastMod.value = '';
+    magic.value = '';
     resetForm();
   });
 }
 
-fileInput.addEventListener("change", checkFile);
-title.addEventListener("paste", formatPaste);
-releaser1.addEventListener("input", checkValue);
-month.addEventListener("input", checkMonth);
-youtube.addEventListener("input", checkYouTube);
-year.addEventListener("input", function () {
+fileInput.addEventListener('change', checkFile);
+title.addEventListener('paste', formatPaste);
+releaser1.addEventListener('input', checkValue);
+month.addEventListener('input', checkMonth);
+youtube.addEventListener('input', checkYouTube);
+year.addEventListener('input', function () {
   const currentYear = new Date().getFullYear();
   // year values of 80-99 will automatically be prefixed with a 19, aka 1980-1999.
   const comp19 = parseInt(this.value) + 1900;
@@ -91,9 +93,9 @@ year.addEventListener("input", function () {
  */
 export function submit(elementId) {
   const element = getElmById(elementId);
-  element.addEventListener("click", function () {
+  element.addEventListener('click', function () {
     let pass = true;
-    if (releaser1.value == "") {
+    if (releaser1.value == '') {
       releaser1.classList.add(invalid);
       pass = false;
     }
@@ -105,11 +107,11 @@ export function submit(elementId) {
       month.classList.add(invalid);
       pass = false;
     }
-    if (month.value != "" && year.value == "") {
+    if (month.value != '' && year.value == '') {
       year.classList.add(invalid);
       pass = false;
     }
-    if (fileInput.value == "") {
+    if (fileInput.value == '') {
       fileInput.classList.add(invalid);
       pass = false;
     }
@@ -117,7 +119,7 @@ export function submit(elementId) {
       return submitError(alert, results);
     }
     resetForm();
-    results.innerText = "...";
+    results.innerText = '...';
     results.classList.remove(none);
   });
 }
@@ -131,12 +133,12 @@ async function checkFile() {
   try {
     hiddenDetails(file1, lastMod, magic);
   } catch (e) {
-    console.error("Error in hiddenDetails:", e);
+    console.error('Error in hiddenDetails:', e);
     // Continue even if hiddenDetails fails
   }
-  if (errors[0] === "" && errors[1] === "") {
+  if (errors[0] === '' && errors[1] === '') {
     document
-      .getElementById("uploader-intro-submit")
+      .getElementById('uploader-intro-submit')
       .focus({ focusVisible: true });
   }
 }
@@ -149,21 +151,29 @@ function checkMime(file) {
 }
 
 function resetForm() {
-  list1.innerHTML = "";
-  list2.innerHTML = "";
-  results.innerHTML = "";
+  title.value = '';
+  list1.innerHTML = '';
+  list2.innerHTML = '';
+  results.innerHTML = '';
   results.classList.add(none);
-  alert.innerText = "";
+  alert.innerText = '';
   alert.classList.add(none);
   year.classList.remove(invalid);
+  year.value = '';
   month.classList.remove(invalid);
+  month.value = '';
   releaser1.classList.remove(invalid);
+  releaser1.value = '';
+  releaser2.value = '';
   youtube.classList.remove(invalid);
-  
+  youtube.value = '';
+  os1.checked = true;
+  fileInput.value = '';
+
   // Also clear and hide the results div
   const resultsDiv = document.getElementById('uploader-intro-results');
   if (resultsDiv) {
-    resultsDiv.innerHTML = "";
+    resultsDiv.innerHTML = '';
     resultsDiv.classList.add('d-none');
   }
   fileInput.classList.remove(invalid);

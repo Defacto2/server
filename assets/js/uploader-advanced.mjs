@@ -8,8 +8,8 @@ import {
   validYear,
   validMonth,
   validDay,
-} from "./helper.mjs";
-import { checkAdvanced as mime } from "./uploader-mime.mjs";
+} from './helper.mjs';
+import { checkAdvanced as mime } from './uploader-mime.mjs';
 import {
   checkDuplicate,
   checkErrors,
@@ -21,55 +21,60 @@ import {
   hiddenDetails,
   submitError,
   resetInput,
-} from "./uploader.mjs";
+} from './uploader.mjs';
 
 export default submit;
 
 const formId = `uploader-advanced-form`,
-  invalid = "is-invalid",
-  none = "d-none";
+  invalid = 'is-invalid',
+  none = 'd-none';
 
 const form = getElmById(formId),
-  alert = getElmById("uploader-advanced-alert"),
-  category = getElmById("uploader-advanced-category"),
-  classification = getElmById("uploader-advanced-classification-help"),
-  day = getElmById("uploader-advanced-day"),
-  fileInput = getElmById("uploader-advanced-file"),
-  lastMod = getElmById("uploader-advanced-last-modified"),
-  list1 = getElmById("uploader-advanced-list-1"),
-  list2 = getElmById("uploader-advanced-list-2"),
-  magic = getElmById("uploader-advanced-magic"),
-  month = getElmById("uploader-advanced-month"),
-  os = getElmById("uploader-advanced-operating-system"),
-  releaser1 = getElmById("uploader-advanced-releaser-1"),
-  results = getElmById("uploader-advanced-results"),
-  title = getElmById("uploader-advanced-title"),
-  year = getElmById("uploader-advanced-year");
+  alert = getElmById('uploader-advanced-alert'),
+  category = getElmById('uploader-advanced-category'),
+  classification = getElmById('uploader-advanced-classification-help'),
+  day = getElmById('uploader-advanced-day'),
+  fileInput = getElmById('uploader-advanced-file'),
+  lastMod = getElmById('uploader-advanced-last-modified'),
+  list1 = getElmById('uploader-advanced-list-1'),
+  list2 = getElmById('uploader-advanced-list-2'),
+  magic = getElmById('uploader-advanced-magic'),
+  month = getElmById('uploader-advanced-month'),
+  os = getElmById('uploader-advanced-operating-system'),
+  releaser1 = getElmById('uploader-advanced-releaser-1'),
+  releaser2 = getElmById('uploader-advanced-releaser-2'),
+  results = getElmById('uploader-advanced-results'),
+  title = getElmById('uploader-advanced-title'),
+  year = getElmById('uploader-advanced-year'),
+  creator1 = getElmById('uploader-advanced-text-writer'),
+  creator2 = getElmById('uploader-advanced-credit-ill'),
+  creator3 = getElmById('uploader-advanced-credit-prog'),
+  creator4 = getElmById('uploader-advanced-credit-audio');
 
-form.addEventListener("reset", function () {
-  lastMod.value = "";
-  magic.value = "";
+form.addEventListener('reset', function () {
+  lastMod.value = '';
+  magic.value = '';
   resetForm();
 });
 
 // Also handle reset button click explicitly
 const resetButton = document.getElementById('uploader-advanced-reset');
 if (resetButton) {
-  resetButton.addEventListener('click', function() {
-    lastMod.value = "";
-    magic.value = "";
+  resetButton.addEventListener('click', function () {
+    lastMod.value = '';
+    magic.value = '';
     resetForm();
   });
 }
 
-fileInput.addEventListener("change", checkFile);
-title.addEventListener("paste", formatPaste);
-releaser1.addEventListener("input", checkValue);
-year.addEventListener("input", checkYear);
-month.addEventListener("input", checkMonth);
-day.addEventListener("input", checkDay);
-category.addEventListener("change", checkValue);
-os.addEventListener("change", checkValue);
+fileInput.addEventListener('change', checkFile);
+title.addEventListener('paste', formatPaste);
+releaser1.addEventListener('input', checkValue);
+year.addEventListener('input', checkYear);
+month.addEventListener('input', checkMonth);
+day.addEventListener('input', checkDay);
+category.addEventListener('change', checkValue);
+os.addEventListener('change', checkValue);
 
 /**
  * After performing input validations this submits the form when the specified element is clicked.
@@ -77,9 +82,9 @@ os.addEventListener("change", checkValue);
  */
 export function submit(elementId) {
   const element = getElmById(elementId);
-  element.addEventListener("click", function () {
+  element.addEventListener('click', function () {
     let pass = true;
-    if (releaser1.value == "") {
+    if (releaser1.value == '') {
       releaser1.classList.add(invalid);
       pass = false;
     }
@@ -95,19 +100,19 @@ export function submit(elementId) {
       day.classList.add(invalid);
       pass = false;
     }
-    if (month.value != "" && year.value == "") {
+    if (month.value != '' && year.value == '') {
       year.classList.add(invalid);
       pass = false;
     }
-    if (fileInput.value == "") {
+    if (fileInput.value == '') {
       fileInput.classList.add(invalid);
       pass = false;
     }
-    if (os.value == "") {
+    if (os.value == '') {
       os.classList.add(invalid);
       pass = false;
     }
-    if (category.value == "") {
+    if (category.value == '') {
       category.classList.add(invalid);
       pass = false;
     }
@@ -115,7 +120,7 @@ export function submit(elementId) {
       return submitError(alert, results);
     }
     resetForm();
-    results.innerText = "...";
+    results.innerText = '...';
     results.classList.remove(none);
   });
 }
@@ -129,12 +134,12 @@ async function checkFile() {
   try {
     hiddenDetails(file1, lastMod, magic);
   } catch (e) {
-    console.error("Error in hiddenDetails:", e);
+    console.error('Error in hiddenDetails:', e);
     // Continue even if hiddenDetails fails
   }
-  if (errors[0] === "" && errors[1] === "") {
+  if (errors[0] === '' && errors[1] === '') {
     document
-      .getElementById("uploader-advanced-submit")
+      .getElementById('uploader-advanced-submit')
       .focus({ focusVisible: true });
   }
 }
@@ -147,21 +152,34 @@ function checkMime(file) {
 }
 
 function resetForm() {
-  list1.innerHTML = "";
-  list2.innerHTML = "";
-  results.innerHTML = "";
-  classification.innerHTML = "";
+  title.value = '';
+  list1.innerHTML = '';
+  releaser1.value = '';
+  list2.innerHTML = '';
+  releaser2.value = '';
+  results.innerHTML = '';
+  classification.innerHTML = '';
   results.classList.add(none);
-  alert.innerText = "";
+  alert.innerText = '';
   alert.classList.add(none);
   year.classList.remove(invalid);
+  year.value = '';
   month.classList.remove(invalid);
+  month.value = '';
   day.classList.remove(invalid);
-  
+  day.value = '';
+  creator1.value = '';
+  creator2.value = '';
+  creator3.value = '';
+  creator4.value = '';
+  os.value = '';
+  category.value = '';
+  fileInput.value = '';
+
   // Also clear and hide the results div
   const resultsDiv = document.getElementById('uploader-advanced-results');
   if (resultsDiv) {
-    resultsDiv.innerHTML = "";
+    resultsDiv.innerHTML = '';
     resultsDiv.classList.add('d-none');
   }
   releaser1.classList.remove(invalid);

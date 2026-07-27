@@ -2,7 +2,7 @@
  * @module uploader-text
  * This module provides functions for handling file uploads text UI.
  */
-import { checkText as mime } from "./uploader-mime.mjs";
+import { checkText as mime } from './uploader-mime.mjs';
 import {
   checkDuplicate,
   checkErrors,
@@ -13,48 +13,52 @@ import {
   hiddenDetails,
   submitError,
   resetInput,
-} from "./uploader.mjs";
-import { getElmById, formatPaste, validYear, validMonth } from "./helper.mjs";
+} from './uploader.mjs';
+import { getElmById, formatPaste, validYear, validMonth } from './helper.mjs';
 export default submit;
 
 const formId = `uploader-text-form`,
-  invalid = "is-invalid",
-  none = "d-none";
+  invalid = 'is-invalid',
+  none = 'd-none';
 
 const form = getElmById(formId),
-  alert = getElmById("uploader-text-alert"),
-  fileInput = getElmById("uploader-text-file"),
-  lastMod = getElmById("uploader-text-last-modified"),
-  list1 = getElmById("uploader-text-list-1"),
-  list2 = getElmById("uploader-text-list-2"),
-  magic = getElmById("uploader-text-magic"),
-  month = getElmById("uploader-text-month"),
-  releaser1 = getElmById("uploader-text-releaser-1"),
-  results = getElmById("uploader-text-results"),
-  title = getElmById("uploader-text-title"),
-  year = getElmById("uploader-text-year");
+  alert = getElmById('uploader-text-alert'),
+  fileInput = getElmById('uploader-text-file'),
+  lastMod = getElmById('uploader-text-last-modified'),
+  list1 = getElmById('uploader-text-list-1'),
+  list2 = getElmById('uploader-text-list-2'),
+  magic = getElmById('uploader-text-magic'),
+  month = getElmById('uploader-text-month'),
+  releaser1 = getElmById('uploader-text-releaser-1'),
+  releaser2 = getElmById('uploader-text-releaser-2'),
+  results = getElmById('uploader-text-results'),
+  title = getElmById('uploader-text-title'),
+  year = getElmById('uploader-text-year'),
+  creator1 = getElmById('uploader-text-credit'),
+  creator2 = getElmById('uploader-text-artist'),
+  os1 = getElmById('uploader-text-msdos');
 
-form.addEventListener("reset", function () {
-  lastMod.value = "";
-  magic.value = "";
+form.addEventListener('reset', function () {
+  lastMod.value = '';
+  magic.value = '';
   resetForm();
 });
 
 // Also handle reset button click explicitly
 const resetButton = document.getElementById('uploader-text-reset');
 if (resetButton) {
-  resetButton.addEventListener('click', function() {
-    lastMod.value = "";
-    magic.value = "";
+  resetButton.addEventListener('click', function () {
+    lastMod.value = '';
+    magic.value = '';
     resetForm();
   });
 }
 
-fileInput.addEventListener("change", checkFile);
-title.addEventListener("paste", formatPaste);
-releaser1.addEventListener("input", checkValue);
-year.addEventListener("input", checkYear);
-month.addEventListener("input", checkMonth);
+fileInput.addEventListener('change', checkFile);
+title.addEventListener('paste', formatPaste);
+releaser1.addEventListener('input', checkValue);
+year.addEventListener('input', checkYear);
+month.addEventListener('input', checkMonth);
 
 /**
  * After performing input validations this submits the form when the specified element is clicked.
@@ -62,9 +66,9 @@ month.addEventListener("input", checkMonth);
  */
 export function submit(elementId) {
   const element = getElmById(elementId);
-  element.addEventListener("click", function () {
+  element.addEventListener('click', function () {
     let pass = true;
-    if (releaser1.value == "") {
+    if (releaser1.value == '') {
       releaser1.classList.add(invalid);
       pass = false;
     }
@@ -76,11 +80,11 @@ export function submit(elementId) {
       month.classList.add(invalid);
       pass = false;
     }
-    if (month.value != "" && year.value == "") {
+    if (month.value != '' && year.value == '') {
       year.classList.add(invalid);
       pass = false;
     }
-    if (fileInput.value == "") {
+    if (fileInput.value == '') {
       fileInput.classList.add(invalid);
       pass = false;
     }
@@ -88,7 +92,7 @@ export function submit(elementId) {
       return submitError(alert, results);
     }
     resetForm();
-    results.innerText = "...";
+    results.innerText = '...';
     results.classList.remove(none);
   });
 }
@@ -102,12 +106,12 @@ async function checkFile() {
   try {
     hiddenDetails(file1, lastMod, magic);
   } catch (e) {
-    console.error("Error in hiddenDetails:", e);
+    console.error('Error in hiddenDetails:', e);
     // Continue even if hiddenDetails fails
   }
-  if (errors[0] === "" && errors[1] === "") {
+  if (errors[0] === '' && errors[1] === '') {
     document
-      .getElementById("uploader-text-submit")
+      .getElementById('uploader-text-submit')
       .focus({ focusVisible: true });
   }
 }
@@ -120,19 +124,28 @@ function checkMime(file) {
 }
 
 function resetForm() {
-  list1.innerHTML = "";
-  list2.innerHTML = "";
-  results.innerHTML = "";
+  title.value = '';
+  list1.innerHTML = '';
+  releaser1.value = '';
+  list2.innerHTML = '';
+  releaser2.value = '';
+  results.innerHTML = '';
   results.classList.add(none);
-  alert.innerText = "";
+  alert.innerText = '';
   alert.classList.add(none);
   year.classList.remove(invalid);
+  year.value = '';
   month.classList.remove(invalid);
-  
+  month.value = '';
+  creator1.value = '';
+  creator2.value = '';
+  os1.checked = true;
+  fileInput.value = '';
+
   // Also clear and hide the results div
   const resultsDiv = document.getElementById('uploader-text-results');
   if (resultsDiv) {
-    resultsDiv.innerHTML = "";
+    resultsDiv.innerHTML = '';
     resultsDiv.classList.add('d-none');
   }
   releaser1.classList.remove(invalid);
