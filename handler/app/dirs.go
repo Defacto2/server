@@ -583,6 +583,7 @@ func (dir Dirs) makeTextfileImgs(ctx context.Context, sl *slog.Logger,
 	}
 	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String()) ||
 		strings.EqualFold(platform, tags.Console.String())
+	fmt.Println("AMIGAoo", amigaFont)
 	if err := dirs.TextImager(ctx, sl, name, uid, amigaFont); err != nil {
 		sl.Error(msg, slog.String("text imager", "conversion error"),
 			slog.String("uuid", uid), slog.Any("error", err))
@@ -905,9 +906,9 @@ const (
 // This func does the following checks:
 //
 //   - confirms the text isn't PCBoard
-//   - confirms the text isn't newer than 1996
+//   - confirms the text isn't newer than 1992
 func LockIn80Columns(year int16, src ...byte) bool {
-	const epoch = 1996
+	const epoch = 1992 // Windows 3.1 release year
 	switch {
 	case len(src) == 0:
 		return false

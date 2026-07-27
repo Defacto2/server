@@ -224,6 +224,11 @@
  * Text formatting and display helpers
  * ============================================================ */
 
+pre.wrap-overflow {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .pre-dos-display {
   font-family: font-mda, monospace;
   font-size: 28px;

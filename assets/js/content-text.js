@@ -2,49 +2,49 @@
  * @file content-text.js
  * Provides functions for handling readme and NFO file rendering within a pre element.
  */
-import { clipText, getElmById } from "./helper.mjs";
+import { clipText, getElmById } from './helper.mjs';
 (() => {
-  "use strict";
+  'use strict';
   const none = `d-none`;
-  const blackBG = ["reader-invert", "border", "border-black", "rounded-1"];
+  const blackBG = ['reader-invert', 'border', 'border-black', 'rounded-1'];
 
-  const latinId = "precontentLatin1",
+  const latinId = 'precontentLatin1',
     preLatin1 = getElmById(latinId),
-    cp437Id = "precontentCP437",
+    cp437Id = 'precontentCP437',
     preCP437 = getElmById(cp437Id),
-    utf8Id = "precontentUTF8",
-    preUTF8 = getElmById(utf8Id)
+    utf8Id = 'precontentUTF8',
+    preUTF8 = getElmById(utf8Id);
 
   const cascadia = document.getElementById(`textcontBtnWeb`);
   if (cascadia !== null) {
-    cascadia.addEventListener("click", useCascadia);
+    cascadia.addEventListener('click', useCascadia);
   }
   function useCascadia() {
     preCP437.classList.add(none);
     preLatin1.classList.add(none);
-    preUTF8.classList.add("font-cascadia-mono", ...blackBG);
+    preUTF8.classList.add('font-cascadia-mono', ...blackBG);
     preUTF8.classList.remove(none);
   }
 
   const topaz = document.getElementById(`textcontBtnAmiga`);
   if (topaz !== null) {
-    topaz.addEventListener("click", useAmiga);
+    topaz.addEventListener('click', useAmiga);
   }
   function useAmiga() {
     preCP437.classList.add(none);
     preUTF8.classList.add(none);
-    preLatin1.classList.add("font-amiga", ...blackBG);
+    preLatin1.classList.add('font-amiga', ...blackBG);
     preLatin1.classList.remove(none);
   }
 
   const vga = document.getElementById(`textcontBtnDOS`);
   if (vga !== null) {
-    vga.addEventListener("click", useIBM);
+    vga.addEventListener('click', useIBM);
   }
   function useIBM() {
     preLatin1.classList.add(none);
     preUTF8.classList.add(none);
-    preCP437.classList.add("font-dos", ...blackBG);
+    preCP437.classList.add('font-dos', ...blackBG);
     preCP437.classList.remove(none);
   }
 
@@ -58,5 +58,16 @@ import { clipText, getElmById } from "./helper.mjs";
     if (topaz !== null && topaz.checked) clipText(latinId);
     else if (vga !== null && vga.checked) clipText(cp437Id);
     else clipText(utf8Id);
+  }
+
+  const overflow = document.getElementById('toggle-pre-wrap');
+  if (overflow !== null) {
+    overflow.addEventListener('change', useWrapper);
+  }
+  function useWrapper(e) {
+    const isChecked = e.target.checked;
+    document.querySelectorAll('pre[id^="precontent"]').forEach((pre) => {
+      pre.classList.toggle('wrap-overflow', isChecked);
+    });
   }
 })();
