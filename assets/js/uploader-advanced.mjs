@@ -51,20 +51,12 @@ const form = getElmById(formId),
   creator3 = getElmById('uploader-advanced-credit-prog'),
   creator4 = getElmById('uploader-advanced-credit-audio');
 
-form.addEventListener('reset', function () {
-  lastMod.value = '';
-  magic.value = '';
-  resetForm();
-});
+form.addEventListener('reset', resetValues);
 
 // Also handle reset button click explicitly
 const resetButton = document.getElementById('uploader-advanced-reset');
 if (resetButton) {
-  resetButton.addEventListener('click', function () {
-    lastMod.value = '';
-    magic.value = '';
-    resetForm();
-  });
+  resetButton.addEventListener('click', resetValues);
 }
 
 fileInput.addEventListener('change', checkFile);
@@ -151,22 +143,14 @@ function checkMime(file) {
   return ``;
 }
 
-function resetForm() {
+function resetValues() {
+  lastMod.value = '';
+  magic.value = '';
   title.value = '';
-  list1.innerHTML = '';
   releaser1.value = '';
-  list2.innerHTML = '';
   releaser2.value = '';
-  results.innerHTML = '';
-  classification.innerHTML = '';
-  results.classList.add(none);
-  alert.innerText = '';
-  alert.classList.add(none);
-  year.classList.remove(invalid);
   year.value = '';
-  month.classList.remove(invalid);
   month.value = '';
-  day.classList.remove(invalid);
   day.value = '';
   creator1.value = '';
   creator2.value = '';
@@ -175,6 +159,20 @@ function resetForm() {
   os.value = '';
   category.value = '';
   fileInput.value = '';
+  resetForm();
+}
+
+function resetForm() {
+  list1.innerHTML = '';
+  list2.innerHTML = '';
+  results.innerHTML = '';
+  classification.innerHTML = '';
+  results.classList.add(none);
+  alert.innerText = '';
+  alert.classList.add(none);
+  year.classList.remove(invalid);
+  month.classList.remove(invalid);
+  day.classList.remove(invalid);
 
   // Also clear and hide the results div
   const resultsDiv = document.getElementById('uploader-advanced-results');

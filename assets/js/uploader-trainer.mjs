@@ -37,20 +37,12 @@ const form = getElmById(formId),
   category1 = getElmById('uploader-trainer-gamehack'),
   os1 = getElmById('uploader-trainer-msdos');
 
-form.addEventListener('reset', function () {
-  lastMod.value = '';
-  magic.value = '';
-  resetForm();
-});
+form.addEventListener('reset', resetValues);
 
 // Also handle reset button click explicitly
 const resetButton = document.getElementById('uploader-trainer-reset');
 if (resetButton) {
-  resetButton.addEventListener('click', function () {
-    lastMod.value = '';
-    magic.value = '';
-    resetForm();
-  });
+  resetButton.addEventListener('click', resetValues);
 }
 
 fileInput.addEventListener('change', checkFile);
@@ -125,24 +117,29 @@ function checkMime(file) {
   }
   return ``;
 }
-
-function resetForm() {
+function resetValues() {
+  lastMod.value = '';
+  magic.value = '';
   title.value = '';
-  list1.innerHTML = '';
   releaser1.value = '';
-  list2.innerHTML = '';
   releaser2.value = '';
+  year.value = '';
+  month.value = '';
+  category1.checked = true;
+  os1.checked = true;
+  fileInput.value = '';
+
+  resetForm();
+}
+function resetForm() {
+  list1.innerHTML = '';
+  list2.innerHTML = '';
   results.innerHTML = '';
   results.classList.add(none);
   alert.innerText = '';
   alert.classList.add(none);
   year.classList.remove(invalid);
-  year.value = '';
   month.classList.remove(invalid);
-  month.value = '';
-  category1.checked = true;
-  os1.checked = true;
-  fileInput.value = '';
 
   // Also clear and hide the results div
   const resultsDiv = document.getElementById('uploader-trainer-results');

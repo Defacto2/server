@@ -38,20 +38,12 @@ const form = getElmById(formId),
   creator2 = getElmById('uploader-text-artist'),
   os1 = getElmById('uploader-text-msdos');
 
-form.addEventListener('reset', function () {
-  lastMod.value = '';
-  magic.value = '';
-  resetForm();
-});
+form.addEventListener('reset', resetValues);
 
 // Also handle reset button click explicitly
 const resetButton = document.getElementById('uploader-text-reset');
 if (resetButton) {
-  resetButton.addEventListener('click', function () {
-    lastMod.value = '';
-    magic.value = '';
-    resetForm();
-  });
+  resetButton.addEventListener('click', resetValues);
 }
 
 fileInput.addEventListener('change', checkFile);
@@ -123,24 +115,30 @@ function checkMime(file) {
   return ``;
 }
 
-function resetForm() {
+function resetValues() {
+  lastMod.value = '';
+  magic.value = '';
   title.value = '';
-  list1.innerHTML = '';
   releaser1.value = '';
-  list2.innerHTML = '';
   releaser2.value = '';
-  results.innerHTML = '';
-  results.classList.add(none);
   alert.innerText = '';
-  alert.classList.add(none);
-  year.classList.remove(invalid);
   year.value = '';
-  month.classList.remove(invalid);
   month.value = '';
   creator1.value = '';
   creator2.value = '';
   os1.checked = true;
   fileInput.value = '';
+  resetForm();
+}
+
+function resetForm() {
+  list1.innerHTML = '';
+  list2.innerHTML = '';
+  results.innerHTML = '';
+  results.classList.add(none);
+  alert.classList.add(none);
+  year.classList.remove(invalid);
+  month.classList.remove(invalid);
 
   // Also clear and hide the results div
   const resultsDiv = document.getElementById('uploader-text-results');

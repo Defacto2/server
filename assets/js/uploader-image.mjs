@@ -37,20 +37,12 @@ const form = getElmById(formId),
   creator1 = getElmById('uploader-image-credit'),
   category1 = getElmById('uploader-image-adbrand');
 
-form.addEventListener('reset', function () {
-  lastMod.value = '';
-  magic.value = '';
-  resetForm();
-});
+form.addEventListener('reset', resetValues);
 
 // Also handle reset button click explicitly
 const resetButton = document.getElementById('uploader-image-reset');
 if (resetButton) {
-  resetButton.addEventListener('click', function () {
-    lastMod.value = '';
-    magic.value = '';
-    resetForm();
-  });
+  resetButton.addEventListener('click', resetValues);
 }
 
 fileInput.addEventListener('change', checkFile);
@@ -122,8 +114,21 @@ function checkMime(file) {
   return ``;
 }
 
-function resetForm() {
+function resetValues() {
+  lastMod.value = '';
+  magic.value = '';
   title.value = '';
+  year.value = '';
+  month.value = '';
+  releaser1.value = '';
+  releaser2.value = '';
+  creator1.value = '';
+  category1.checked = true;
+  fileInput.value = '';
+  resetForm();
+}
+
+function resetForm() {
   list1.innerHTML = '';
   list2.innerHTML = '';
   results.innerHTML = '';
@@ -131,16 +136,9 @@ function resetForm() {
   alert.innerText = '';
   alert.classList.add(none);
   year.classList.remove(invalid);
-  year.value = '';
   month.classList.remove(invalid);
-  month.value = '';
   releaser1.classList.remove(invalid);
-  releaser1.value = '';
-  releaser2.value = '';
-  creator1.value = '';
-  category1.checked = true;
   fileInput.classList.remove(invalid);
-  fileInput.value = '';
 
   // Also clear and hide the results div
   const resultsDiv = document.getElementById('uploader-image-results');
