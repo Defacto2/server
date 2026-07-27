@@ -50,14 +50,18 @@ const (
 	ace = "ACE"
 	ags = "AGS"
 	cia = "CIA"
+	cds = "CDS"
 	cls = "CLS"
 	cnc = "CNC"
 	doa = "DOA"
 	dst = "DST"
 	dtc = "DTC"
 	inf = "INF"
+	lsd = "LSD"
 	mad = "MAD"
+	rpm = "RPM"
 	rzr = "RZR"
+	sos = "SOS"
 	tca = "TCA"
 	tcc = "TCC"
 	tpc = "TPC"
@@ -83,7 +87,7 @@ const (
 func Initialisms() *List { //nolint:maintidx,funlen
 	list := List{
 		//
-		// BBS initalisms are usually upper-case and should generally not include a " BBS" suffix.
+		// BBS initialisms are usually upper-case and should generally not include a " BBS" suffix.
 		"micro-machine-bbs":                    {"Micromachine", "MM"},
 		"addiction-bbs":                        {"TAD"},
 		"switchboard-bbs":                      {"Switch Board"},
@@ -112,7 +116,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"master-and-servant-bbs":               {"M&S", "Master & Servant BBS"},
 		"elite-leisure-files-bbs":              {"ELF"},
 		"cloud-nine-elite-bbs":                 {"Cloud 9 Elite BBS"},
-		"rpm-bbs":                              {"Revolutions Per Minute BBS", "R.P.M", "RPM"},
+		"rpm-bbs":                              {"Revolutions Per Minute BBS", "R.P.M", rpm},
 		"phunline-bbs":                         {"The Phun Line BBS"},
 		"nevada-testing-grounds-bbs":           {"NTG"},
 		"paladium-bbs":                         {"The Paladium BBS"},
@@ -121,7 +125,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"wild-side-bbs":                        {"The Wild Side"},
 		"four-past-midnight-bbs":               {"4PM", "FPM"},
 		"banished-corrosive-poison-bbs":        {"BCP", "BNP"},
-		"lost-souls-domain-ii-bbs":             {"Lost Souls Domain 2 BBS", "LSD2", "LSDII"},
+		"lost-souls-domain-ii-bbs":             {"Lost Souls Domain 2 BBS", lsd + "2", lsd + "II"},
 		"marauders-hideout-bbs":                {"THM", "The Marauder's Hideout BBS"},
 		"brotherhood-of-thieves-bbs":           {"BOT"},
 		"harmony-skates-bbs":                   {"SK8", "Harmony SK8 BBS"},
@@ -156,7 +160,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"state-of-devolution-bbs":              {"Devoltion BBS"},
 		"wall-bbs":                             {"The Wall BBS"},
 		"citadel-of-chaos-bbs":                 {"COC"},
-		"cyberdyne-systems-bbs":                {"CDS"},
+		"cyberdyne-systems-bbs":                {cds},
 		"fatal-future-bbs":                     {"FF"},
 		"candyland-bbs":                        {"Candy Land BBS"},
 		"circle_city-bbs":                      {"The Circle-City BBS"},
@@ -270,9 +274,9 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"vision_x-bbs":                         {"Vision X BBS Software"},
 		"hardwired-bbs":                        {"Hard Wired BBS"},
 		"jungle-bbs":                           {"The Jungle BBS"},
-		"lush-software-designs-bbs":            {"LSD"},
+		"lush-software-designs-bbs":            {lsd},
 		"nectar-base-bbs":                      {"The Nectar Base BBS"},
-		"revolutions-per-minute-bbs":           {"RPM"},
+		"revolutions-per-minute-bbs":           {rpm},
 		"dark-crusade-bbs":                     {"The Dark Crusade BBS", "TDC"},
 		"beyond-the-realm-of-reality-bbs":      {"Beyond BBS", "BRR"},
 		"toilet-extravaganza-bbs":              {"Toilet", "Da Toilet Extravaganza BBS"},
@@ -287,7 +291,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"european-service-center-bbs":          {"ESC"},
 		"psychosis-bbs":                        {"PSY", "PSYCHO"},
 		"land-of-confusion-bbs":                {"LOC"},
-		"spirit-of-soul-bbs":                   {"SOS"},
+		"spirit-of-soul-bbs":                   {sos},
 		"hall-of-fame-bbs":                     {"HOF"},
 		"totally-nuked-bbs":                    {"Totally"},
 		"scene-talk-bbs":                       {"Scene Talk", "SceneTalk"},
@@ -295,7 +299,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"biomechanic-dreams-bbs":               {"BIOMECH"},
 		"gml-state-bbs":                        {"GML"},
 		//
-		// FTP and file sites often used lower-case initalisms
+		// FTP and file sites often used lower-case initialisms
 		"last-resort-ftp":         {"TLR", "The Last Resort"},
 		"ez-way-ftp":              {"The Ez Way", "EZ", "eZWAY"},
 		"divide-by-zero-ftp":      {"dbz"},
@@ -351,7 +355,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"bleachbox-ftp":           {"BBX"},
 		"stormzone-ftp":           {"StormZone", "Storm Zone", "SZ"},
 		//
-		// Groups and releasers often used upper-case initalisms
+		// Groups and releasers often used upper-case initialisms
 		"ucci": {
 			"Underground Console Crackers Inc.",
 			"Underground Console Cracking Incorporation",
@@ -723,7 +727,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"cancer":                                 {cnc},
 		"car-e-lee":                              {"CEL"},
 		"cascada":                                {"CDA"},
-		"cardinals":                              {"CDS"},
+		"cardinals":                              {cds},
 		"cd-images-for-the-elite":                {"CiFE"},
 		"celerity-utilities-division":            {"CUD"},
 		crue:                                     {"CRUE"},
@@ -768,7 +772,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"cracking-in-ocean":                      {"CiO"},
 		"crackers-ampersand-whackers":            {"C&W", "CW"},
 		"crazyworld":                             {"CZW"},
-		"creeping-death-software":                {"CDS"},
+		"creeping-death-software":                {cds},
 		"crime-syndicate-net":                    {"TCS"},
 		"crystal-phasematics":                    {"CPM"},
 		"cryptonics-crew":                        {"CTC"},
@@ -1028,7 +1032,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"llange-art-reptareeko":                  {"LAR"},
 		"last-poets-society":                     {"LPS"},
 		"laxity":                                 {"LXT"},
-		"lethal-software-distributors":           {"LSD"},
+		"lethal-software-distributors":           {lsd},
 		"legacy":                                 {"LGC", "LGY"},
 		"legend":                                 {"LGD", "Legend PC", "PC/Legend"},
 		"legends-never-die":                      {"LND"},
@@ -1038,7 +1042,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"inferno":                                {inf},
 		"licensed-to-draw":                       {"LTD"},
 		"little-big-one":                         {"LBO"},
-		"light-speed-distributors":               {"LSD"},
+		"light-speed-distributors":               {lsd},
 		"light-speed-warez":                      {"LSW"},
 		"lightforce":                             {"LFC", "LF"},
 		"lithium":                                {"LIT"},
@@ -1188,7 +1192,7 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"reloaded":                               {"RLD"},
 		"relativity":                             {"REV"},
 		"reflux":                                 {"RLX"},
-		"relentless-pursuit-of-magnificence":     {"RPM", "Relentlessly Pursuing Magnificence"},
+		"relentless-pursuit-of-magnificence":     {rpm, "Relentlessly Pursuing Magnificence"},
 		"republic-banana":                        {"RB"},
 		"request-to-send":                        {"RTS"},
 		"renaissance":                            {"RNS", "RSS"},
@@ -1241,8 +1245,8 @@ func Initialisms() *List { //nolint:maintidx,funlen
 		"slaves-of-pain":                         {"SoP"},
 		"smokers-in-krime":                       {"SiK"},
 		"smegma":                                 {"SMG"},
-		"society-of-sharing":                     {"SOS"},
-		"society-of-suckers":                     {"SOS"},
+		"society-of-sharing":                     {sos},
+		"society-of-suckers":                     {sos},
 		"sodom":                                  {"SDM"},
 		"solitudes":                              {"SLT"},
 		"some-lonesome-ansi-makers":              {"SLAM"},

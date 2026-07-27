@@ -583,7 +583,6 @@ func (dir Dirs) makeTextfileImgs(ctx context.Context, sl *slog.Logger,
 	}
 	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String()) ||
 		strings.EqualFold(platform, tags.Console.String())
-	fmt.Println("AMIGAoo", amigaFont)
 	if err := dirs.TextImager(ctx, sl, name, uid, amigaFont); err != nil {
 		sl.Error(msg, slog.String("text imager", "conversion error"),
 			slog.String("uuid", uid), slog.Any("error", err))
@@ -927,7 +926,7 @@ func LockIn80Columns(year int16, src ...byte) bool {
 //
 // All text content, either CP437, ISO, or UTF-8, also goes through a normalization process,
 // to replace any "special" characters, such as non-breaking-spaces with standard spaces.
-func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (map[string]any, error) {
+func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (map[string]any, error) { //nolint:funlen
 	if len(b) == 0 || art == nil || art.RetrotxtNoReadme.Int16 != 0 {
 		return data, nil
 	}

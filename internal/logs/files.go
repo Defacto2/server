@@ -103,10 +103,10 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 	}
 	opts := tintOptions(stdmin, flag)
 	if useStdout {
-		handlers = append(handlers, tint.NewHandler(os.Stdout, &opts))
+		handlers = append(handlers, tint.NewTextHandler(os.Stdout, &opts))
 	}
 	if useStderr {
-		handlers = append(handlers, tint.NewHandler(os.Stderr, &opts))
+		handlers = append(handlers, tint.NewTextHandler(os.Stderr, &opts))
 	}
 	sl := slog.New(slogmulti.Fanout(handlers...))
 	return sl

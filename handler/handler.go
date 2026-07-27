@@ -97,10 +97,11 @@ func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB
 		Logger:           sl,
 		HTTPErrorHandler: httpErr,
 		Router: echo.NewRouter(echo.RouterConfig{
-			NotFoundHandler:           nil,
-			MethodNotAllowedHandler:   nil,
-			OptionsMethodHandler:      nil,
 			AllowOverwritingRoute:     false,
+			AutoHandleHEAD:            false,
+			MethodNotAllowedHandler:   nil,
+			NotFoundHandler:           nil,
+			OptionsMethodHandler:      nil,
 			UnescapePathParamValues:   false,
 			UseEscapedPathForMatching: false,
 		}),
@@ -113,7 +114,8 @@ func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB
 		IPExtractor:                     nil,
 		FormParseMaxMemory:              setAs16MB,
 		EnablePathUnescapingStaticFiles: false, // false is the new default after Echo v5.2.1
-		NoGroupAutoRegister404Routes:    true,  // a breaking changed introduced in echo v5.3.0, using the default false breaks our app
+		// a breaking changed introduced in echo v5.3.0, using the default false breaks our app
+		NoGroupAutoRegister404Routes: true,
 	}
 
 	e := echo.NewWithConfig(echoConfig)
