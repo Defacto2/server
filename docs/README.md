@@ -2,7 +2,6 @@
 
 [![Go Reference](server.svg)](https://pkg.go.dev/github.com/Defacto2/server)
 [![License](license.svg)](../LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Defacto2/server)](https://goreportcard.com/report/github.com/Defacto2/server)
 
 ```
       ·      ▒██▀ ▀       ▒██▀ ▀              ▀ ▀▒██             ▀ ▀███ ·
@@ -32,7 +31,7 @@ Defacto2 is a digital archive of online history and artifacts from the Scene—a
 
 > [!NOTE]
 > The application uses an _optional_ [PostgreSQL](https://www.postgresql.org/) database connection for data queries.
-> While optional, you'll [need this database](https://github.com/Defacto2/database) running and [configured](docs/database.md) if you wish to browse the artifacts, releasers, and sceners.
+> While optional, you'll [need this database](https://github.com/Defacto2/database) running and [configured](database.md) if you wish to browse the artifacts, releasers, and sceners.
 
 ## Architecture
 
@@ -46,7 +45,7 @@ Defacto2 is built as a full-stack application:
 
 The server is a single self-contained binary that embeds all static files, templates, and assets. It can optionally serve file downloads, image previews, and software emulation (DOS intros via DOSBox).
 
-See the [Location Guide](docs/location.md) for the project structure and the [Source Setup](docs/source.md) guide for detailed architecture information.
+See the [Location Guide](location.md) for the project structure and the [Source Setup](source.md) guide for detailed architecture information.
 
 ## Download
 
@@ -93,7 +92,7 @@ To stop the server, press `CTRL+C`.
 
 To build and develop the Defacto2 server locally, you'll need:
 
-- **[Go](https://go.dev/doc/install)** 1.25.5 or later
+- **[Go](https://go.dev/doc/install)** current 1.x version
 - **[Task](https://taskfile.dev/installation/)** - Task runner for building and testing
 - **[Node.js](https://nodejs.org/)** / pnpm - For managing frontend dependencies
 
@@ -124,7 +123,7 @@ For more detailed development instructions, see the [Source Setup](source.md) gu
 
 ## Configuration
 
-The application uses environment variables to configure the database connection and other settings. These are documented in the [software package documentation](https://pkg.go.dev/github.com/Defacto2/server). 
+The application uses environment variables to configure the database connection and other settings. These are documented in the [software package documentation](https://pkg.go.dev/github.com/Defacto2/server).
 
 There are examples of the environment variables in the [example .env](../init/example.env.local) and the [example .service](../init/defacto2.service) files found in the `init/` directory.
 
@@ -136,4 +135,3 @@ For developers and contributors:
 - **[Database Guide](database.md)** - PostgreSQL setup, troubleshooting, and schema information
 - **[Code Patterns](patterns.md)** - Go language patterns, SQLBoiler ORM examples, and development conventions
 - **[Location Guide](location.md)** - Project structure and file organization
-
