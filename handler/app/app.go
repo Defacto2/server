@@ -751,6 +751,9 @@ func RecordRels(a, b any) string {
 // If PCBoard or Renegard color codes are discovered,
 // these will be converted into italic elements containing custom color classes.
 //
+// Note: See [internal.filerecord.ForceSimpleText] for manual override options based on
+// the SHA3 filehash value.
+//
 // If any value is not a valid string then an empty string is returned.
 func SafeBBS(a any) template.HTML {
 	const lessThan = "<"

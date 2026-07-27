@@ -70,7 +70,9 @@ func ForceSimpleText(art *models.File) bool {
 	hash := fileIntegrity(art)
 	// in the future, this switch might be replaced with a map or slice lookup
 	switch hash {
-	case "aa97833330f4a27f0c7888ae633de652be5a37840fc87cc364b5c90908d027d855d66fe60d8b2b23b02fb0fe482ddcf1":
+	case
+		"aa97833330f4a27f0c7888ae633de652be5a37840fc87cc364b5c90908d027d855d66fe60d8b2b23b02fb0fe482ddcf1",
+		"d312eba8773eff6f6d535f55f4c8cbbe10977ce2075297efca4773186cd3630699a855a1172050aaa0e22375ed644ac6":
 		return true
 	}
 	return false
