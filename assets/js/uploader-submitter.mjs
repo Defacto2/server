@@ -2,7 +2,7 @@
  * @module uploader-submitter
  * This module provides functions for handling file upload submissions.
  */
-import { getElmById, validId } from "./helper.mjs";
+import { getElmById, validId } from './helper.mjs';
 export default submitter;
 
 /**
@@ -12,8 +12,8 @@ export default submitter;
  * Pouët ID: 15, not suitable for Defacto2
  */
 
-const invalid = "is-invalid",
-  none = "d-none";
+const invalid = 'is-invalid',
+  none = 'd-none';
 
 /**
  * Submits the number input and handles the response from a remote API.
@@ -27,38 +27,38 @@ export function submitter(elementId, api) {
   const results = getElmById(`${elementId}-results`);
 
   const close = getElmById(`${elementId}-close`);
-  close.addEventListener("click", reset);
+  close.addEventListener('click', reset);
   const clear = getElmById(`${elementId}-clear`);
-  clear.addEventListener("click", reset);
+  clear.addEventListener('click', reset);
 
   function reset() {
-    input.value = "";
+    input.value = '';
     input.focus();
     input.classList.remove(invalid);
-    alert.innerText = "";
+    alert.innerText = '';
     alert.classList.add(none);
-    results.innerHTML = "";
+    results.innerHTML = '';
   }
 
   const demozooSanity = 450000,
     pouetSanity = 200000;
   switch (elementId) {
-    case "demozoo-submission":
+    case 'demozoo-submission':
       validate(input, demozooSanity);
       break;
-    case "pouet-submission":
+    case 'pouet-submission':
       validate(input, pouetSanity);
       break;
   }
 
   // The htmx:beforeRequest event is triggered before the request is made.
-  document.body.addEventListener("htmx:beforeRequest", function () {
+  document.body.addEventListener('htmx:beforeRequest', function () {
     beforeReset(alert, results);
   });
 
   // The htmx:beforeSwap event is triggered before the content is swapped.
   // This is the best place to check the status of the request and display an error message.
-  document.body.addEventListener("htmx:beforeSwap", function (evt) {
+  document.body.addEventListener('htmx:beforeSwap', function (evt) {
     const badRequest = 400;
     if (evt.detail.xhr.status >= badRequest) {
       alert.classList.remove(none);
@@ -67,7 +67,7 @@ export function submitter(elementId, api) {
 
   // The htmx:afterRequest event is triggered after the request is completed.
   // Multiple requests can be made, so we need to check if the request is the one we are interested in.
-  document.body.addEventListener("htmx:afterRequest", function (evt) {
+  document.body.addEventListener('htmx:afterRequest', function (evt) {
     if (evt.detail.elt === null || evt.detail.elt.id !== `${elementId}`) {
       return;
     }
@@ -86,7 +86,7 @@ export function submitter(elementId, api) {
 }
 
 function validate(input, sanity) {
-  input.addEventListener("input", function () {
+  input.addEventListener('input', function () {
     if (!validId(input.value, sanity)) {
       input.classList.add(invalid);
       return;
@@ -95,17 +95,10 @@ function validate(input, sanity) {
   });
 }
 
-function beforeReset(alert, results) {
-  // TODO(2026-03-05): Determine if results element should be cleared here
-  // Currently only clearing alert, but results parameter suggests it might need clearing too
-  console.log("beforeReset - results element:", results);
-  console.log("beforeReset - results type:", results?.constructor?.name);
-  console.log("beforeReset - results content:", results?.innerHTML);
-  console.log("beforeReset - results id:", results?.id);
-
-  alert.innerText = "";
+function beforeReset(alert) {
+  alert.innerText = '';
   alert.classList.add(none);
-  // results.innerHTML = ""; // Uncomment if we want to clear results too
+  // results.innerHTML = ""; // Uncomment and inject results as an argument, if we want to clear results too
 }
 
 function successful(input) {
