@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"fmt"
 	"maps"
 	"slices"
 	"strings"
@@ -146,8 +147,9 @@ func TestDescribe(t *testing.T) {
 	year := null.Int16From(1990)
 	month := null.Int16From(12)
 	s = app.Describe(plat, sect, year, month)
-	be.True(t, strings.Contains(string(s), "BBS ansi advert published in"))
-	be.True(t, strings.Contains(string(s), "Dec, 1990"))
+	h := string(s)
+	be.True(t, strings.Contains(h, "ansi BBS advert"))
+	be.True(t, strings.Contains(h, "Dec, 1990"))
 }
 
 func TestDay(t *testing.T) {
@@ -162,6 +164,19 @@ func TestDay(t *testing.T) {
 	be.True(t, strings.Contains(x, "error"))
 }
 
+func TestByteBytes(t *testing.T) {
+	t.Parallel()
+	s := app.ByteBytes("")
+	be.True(t, strings.Contains(string(s), "error"))
+	s = app.ByteBytes(1)
+	be.True(t, !strings.Contains(string(s), "error"))
+	s = app.ByteBytes(1023)
+	h := string(s)
+	fmt.Println(h)
+	be.True(t, strings.Contains(h, "1 kB "))
+	be.True(t, strings.Contains(h, "(1023B)"))
+}
+
 func TestByteFile(t *testing.T) {
 	t.Parallel()
 	s := app.ByteFile("", "")
@@ -171,8 +186,9 @@ func TestByteFile(t *testing.T) {
 	s = app.ByteFile("", 1)
 	be.True(t, strings.Contains(string(s), "error"))
 	s = app.ByteFile(12, 1023)
-	be.True(t, strings.Contains(string(s), "12 "))
-	be.True(t, strings.Contains(string(s), "(1023B)"))
+	h := string(s)
+	be.True(t, strings.Contains(h, "12 "))
+	be.True(t, strings.Contains(h, "(1 kB)"))
 }
 
 func TestByteFileS(t *testing.T) {

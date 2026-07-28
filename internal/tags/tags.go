@@ -224,6 +224,8 @@ func humBust(platform Tag) string {
 func humNews(platform Tag) string {
 	const news = "an unauthorized reprint of a newspaper article"
 	switch platform { //nolint:exhaustive
+	case Console:
+		return "a news article about consoles"
 	case Image:
 		return "a screenshot of an article from a news outlet"
 	case Markup:
@@ -311,7 +313,7 @@ func humAnsi(platform, section Tag) string {
 func humAudio(platform, section Tag) string {
 	switch section { //nolint:exhaustive
 	case Intro:
-		return "a chiptune or scene music"
+		return "chiptune or scene music"
 	default:
 		return genericReturn(platform, section)
 	}
@@ -321,11 +323,27 @@ func humAudio(platform, section Tag) string {
 func humConsole(platform, section Tag) string {
 	switch section { //nolint:exhaustive
 	case BBS:
-		return "a BBStro on console"
+		return "a BBS ad on console"
 	case Demo:
 		return "a demo on console"
+	case Drama:
+		return "console scene drama"
+	case ForSale:
+		return "an ad selling console hardware"
+	case Guide:
+		return "a console guide or help"
+	case Logo:
+		return "console scene logo"
+	case Mag:
+		return "console scene magazine"
+	case News:
+		return "" // unused
+	case Nfo:
+		return "a console release"
+	case Rule:
+		return "console scene stardards"
 	case Tool:
-		return "a console utility or tool"
+		return "a console utility"
 	default:
 		return genericReturn(platform, section)
 	}
@@ -426,25 +444,25 @@ func humText(platform, section Tag) string {
 // These texts are displayed using a unique Topaz font that originates
 // on the Commodore Amiga microcomputer platform.
 func humTextAmiga(platform, section Tag) string {
-	const in = "in latin1"
+	const use = "using amiga text"
 	const the = "the amiga or a console"
 	switch section { //nolint:exhaustive
 	case Announcement:
 		return "an announcement about the " + the
 	case BBS:
-		return "a BBS advert textfile " + in
+		return "a BBS advert " + use
 	case Drama:
 		return "a drama textfile concerning " + the
 	case ForSale:
 		return "an advertising textfile for " + the
 	case Ftp:
-		return "a FTP site advert text " + in
+		return "a FTP site advert " + use
 	case Logo:
-		return "a topaz font text logo"
+		return "a logo " + use
 	case Job:
 		return "a job advert or job application textfile for " + the
 	case Mag:
-		return "a magazine textfile " + in
+		return "a magazine " + use
 	case Nfo:
 		return "an amiga or console release textfile"
 	default:
@@ -501,7 +519,7 @@ func Humanizes(platform, section Tag) string {
 	case Image:
 		return pluralImage(section)
 	case Java:
-		return Names()[section] + " on Java"
+		return Names()[section] + " on java"
 	case Linux:
 		return Names()[section] + " programs on Linux and Unix"
 	case Markup:

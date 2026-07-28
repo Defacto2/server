@@ -290,7 +290,7 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 			name:          "invalid abbreviation",
 			abbr:          "XX",
 			expectStatus:  http.StatusNotFound,
-			expectContain: "territory not found",
+			expectContain: "region not found",
 		},
 		{
 			name:          "short abbreviation",
@@ -347,13 +347,13 @@ func TestSearchAreacodes(t *testing.T) {
 			name:          "search by state name",
 			query:         "california",
 			expectStatus:  http.StatusOK,
-			expectContain: "territories",
+			expectContain: "regions",
 		},
 		{
 			name:          "search by abbreviation",
 			query:         "ny",
 			expectStatus:  http.StatusOK,
-			expectContain: "territories",
+			expectContain: "regions",
 		},
 		{
 			name:          "empty query",

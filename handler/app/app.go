@@ -192,7 +192,7 @@ func ByteBytes(bytes any) template.HTML {
 		i := reflect.ValueOf(val).Int()
 		s = fmt.Sprintf("%s <small>(%dB)</small>", helper.ByteCountFloat(i), i)
 	default:
-		s = fmt.Sprintf("%sByteFile: %s", typeErr, reflect.TypeOf(bytes).String())
+		s = fmt.Sprintf("%sByteBytes: %s", typeErr, reflect.TypeOf(bytes).String())
 		return template.HTML(s)
 	}
 	return template.HTML(s)

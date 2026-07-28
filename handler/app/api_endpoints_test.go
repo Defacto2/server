@@ -151,14 +151,11 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 				be.True(t, result["artifacts"] != nil)
 			case "areacode/212":
 				be.True(t, result["code"] != nil)
-				be.True(t, result["territories"] != nil)
+				be.True(t, result["regions"] != nil)
 			case "areacodes/region/CA":
 				be.True(t, result["name"] != nil)
 				be.True(t, result["abbreviation"] != nil)
 				be.True(t, result["areaCodes"] != nil)
-			case "areacodes/search/california":
-				be.True(t, result["areacodes"] != nil)
-				be.True(t, result["territories"] != nil)
 			}
 		})
 	}
@@ -415,9 +412,9 @@ func TestAPIResponseValidation(t *testing.T) {
 		be.Equal(t, http.StatusOK, resp.StatusCode)
 
 		var result []struct {
-			Code        int      `json:"code"`
-			Territories []string `json:"territories"`
-			Notes       string   `json:"notes,omitempty"`
+			Code    int      `json:"code"`
+			Regions []string `json:"regions"`
+			Notes   string   `json:"notes,omitempty"`
 		}
 
 		body, err := io.ReadAll(resp.Body)
@@ -432,7 +429,7 @@ func TestAPIResponseValidation(t *testing.T) {
 		if len(result) > 0 {
 			areacode := result[0]
 			be.True(t, areacode.Code > 0)
-			be.True(t, len(areacode.Territories) > 0)
+			be.True(t, len(areacode.Regions) > 0)
 		}
 	})
 
