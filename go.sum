@@ -10,12 +10,12 @@ github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69 h1:+tu3HOoMXB7RX
 github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69/go.mod h1:L1AbZdiDllfyYH5l5OkAaZtk7VkWe89bPJFmnDBNHxg=
 github.com/DATA-DOG/go-sqlmock v1.4.1 h1:ThlnYciV1iM/V0OSF/dtkqWb6xo5qITT1TJBG1MRDJM=
 github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/Defacto2/archive v1.1.7 h1:qPRR4SRqPIzpV4QPW/z7llCyx7V4CAMSCLdsA9fgr2g=
-github.com/Defacto2/archive v1.1.7/go.mod h1:Yyo76QkKxGq9O6zJCOc8t0Mt4kzN8oqwCTaCirVu1Kg=
+github.com/Defacto2/archive v1.1.8 h1:bdt6Z26QPHDElS4X+foJwWk+oXNen5pDYUufASairWo=
+github.com/Defacto2/archive v1.1.8/go.mod h1:PxhY54vZSHAf4fkuzxgB7sQCQ0BoVttQw2BhQ/H5RU4=
 github.com/Defacto2/helper v1.6.8 h1:H3rIDFwsd9VM9FQGCPh9aOC53qlNQNRXbSvDPkXPH6o=
 github.com/Defacto2/helper v1.6.8/go.mod h1:PqQSqQAIpBtggLBpBe2lBC7AhtyiAFY2LVqahbEj6M8=
-github.com/Defacto2/magicnumber v1.2.5 h1:bN+Jc2P9so+0aXJKvfWDet/587hRjsrpBbv0TUoGaEM=
-github.com/Defacto2/magicnumber v1.2.5/go.mod h1:sAHTodVO5mYBh0DRrhVY4eTGxDO4ZDJ3pnOX/r61v2g=
+github.com/Defacto2/magicnumber v1.3.1 h1:KrdHII+RoWxAN5L5DfOfzCmfs3QKkYhFOlDc0XyQMTo=
+github.com/Defacto2/magicnumber v1.3.1/go.mod h1:pl8f4BKKkd1eFi4cwXruUsarOd0ZVI+EVk0R9OTOiL8=
 github.com/RoaringBitmap/roaring v1.9.4 h1:yhEIoH4YezLYT04s1nHehNO64EKFTop/wBhxv2QzDdQ=
 github.com/RoaringBitmap/roaring v1.9.4/go.mod h1:6AXUsoIEzDTFFQCe1RbGA6uFONMhvejWj5rqITANK90=
 github.com/aarondl/inflect v0.0.2 h1:XvH8K5g1wKS921tMmDOUsZ3zS1Eo8WwK5RHC0IGGT2s=
@@ -381,8 +381,8 @@ google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7 h1:XzmzkmB14QhVhgn
 google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7/go.mod h1:L43LFes82YgSonw6iTXTxXUX1OlULt4AQtkik4ULL/I=
 google.golang.org/genproto/googleapis/api v0.0.0-20260630182238-925bb5da69e7 h1:jQ9p21COKWjP3VwuFrNRiiOTMh3mPpN45R7SLrH/HUU=
 google.golang.org/genproto/googleapis/api v0.0.0-20260630182238-925bb5da69e7/go.mod h1:KqHwBx2upmfa1XSi1WuRvC+2VGCLtooKkfmyvRbUmqA=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20260724162435-b2f20204f0df h1:O3ig1i5WDDzsVzRp+cCdgelT9vXnlnOFdlEeFtL4HCc=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20260724162435-b2f20204f0df/go.mod h1:4Hqkh8ycfw05ld/3BWL7rJOSfebL2Q+DVDeRgYgxUU8=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20260727163830-6c54dddc4772 h1:zuslGE3FGxH0hC6veLvSLME3TZzun9MQzjYwo1CBN+k=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20260727163830-6c54dddc4772/go.mod h1:4Hqkh8ycfw05ld/3BWL7rJOSfebL2Q+DVDeRgYgxUU8=
 google.golang.org/grpc v1.82.1 h1:NnAxzGRA0677vCa4BUkOAnO5+FfQqVl9iUXeD0IqcGE=
 google.golang.org/grpc v1.82.1/go.mod h1:yzTZ1TB1Z3SG+LIYaI+WiE8D5+PZ3ArnrSp8zF3+/ZA=
 google.golang.org/protobuf v1.36.11 h1:fV6ZwhNocDyBLK0dj+fg8ektcVegBBuEolpbTQyBNVE=

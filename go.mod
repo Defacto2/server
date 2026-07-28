@@ -28,9 +28,9 @@ go 1.26.5 // latest: https://go.dev/dl/
 // urface/cli is used with the flags package for command line interactions.
 //
 require (
-	github.com/Defacto2/archive v1.1.7
+	github.com/Defacto2/archive v1.1.8
 	github.com/Defacto2/helper v1.6.8
-	github.com/Defacto2/magicnumber v1.2.5
+	github.com/Defacto2/magicnumber v1.3.1
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
@@ -148,7 +148,7 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.47.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260724162435-b2f20204f0df // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260727163830-6c54dddc4772 // indirect
 	google.golang.org/grpc v1.82.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	mvdan.cc/gofumpt v0.9.2 // indirect
