@@ -74,7 +74,7 @@ func CategoryByteSum(ctx context.Context, exec boil.ContextExecutor, name string
 	mods := qm.SQL(string(postgres.SumSection()), null.StringFrom(name))
 	err := models.NewQuery(mods, qm.Select(postgres.SumSize)).Bind(ctx, exec, &s)
 	if err != nil {
-		return 0, fmt.Errorf("bytecount by category %q: %w", name, err)
+		return 0, fmt.Errorf("byte count by category %q: %w", name, err)
 	}
 	return s.SumBytes.Int64, nil
 }
@@ -108,7 +108,7 @@ func PlatformCount(ctx context.Context, exec boil.ContextExecutor, name string) 
 	return i, nil
 }
 
-// PlatformByteSum sums the byte filesizes for all the files that match the category name.
+// PlatformByteSum sums the byte file sizes for all the files that match the category name.
 func PlatformByteSum(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
 	panics.BoilExecCrash(exec)
 	if name == "" {
@@ -117,7 +117,7 @@ func PlatformByteSum(ctx context.Context, exec boil.ContextExecutor, name string
 	mods := qm.SQL(string(postgres.SumPlatform()), null.StringFrom(name))
 	i, err := models.Files(mods).Count(ctx, exec)
 	if err != nil {
-		return 0, fmt.Errorf("bytecount by platform %q: %w", name, err)
+		return 0, fmt.Errorf("byte count by platform %q: %w", name, err)
 	}
 	return i, nil
 }
@@ -136,7 +136,7 @@ func ReleaserByteSum(ctx context.Context, exec boil.ContextExecutor, name string
 	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(n))
 	i, err := models.Files(mods).Count(ctx, exec)
 	if err != nil {
-		return 0, fmt.Errorf("bytecount by releaser %q: %w", name, err)
+		return 0, fmt.Errorf("byte count by releaser %q: %w", name, err)
 	}
 	return i, nil
 }

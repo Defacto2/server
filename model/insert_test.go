@@ -13,7 +13,7 @@ func TestSiteAd(t *testing.T) {
 	t.Parallel()
 	empty := null.StringFrom("")
 	rsomeone := null.StringFrom("someone")
-	rftp := null.StringFrom("some site fTp ") // test case and whitespace
+	rftp := null.StringFrom("some site fTp ") // test case and white space
 	rbbs := null.StringFrom("some board bBS") // test casing
 	snfo := null.StringFrom(tags.Nfo.String())
 	sexe := null.StringFrom(tags.Intro.String())

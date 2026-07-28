@@ -115,7 +115,7 @@ func LeadStr(width int, s string) string {
 
 // Published takes optional DateIssuedYear, DateIssuedMonth and DateIssuedDay values and
 // formats them into dd-mmm-yyyy string format. Depending on the context, any missing time
-// values will be left blank or replaced with ?? question marks.
+// values will be left blank or replaced with "??" question marks.
 func Published(f *models.File) string {
 	if f == nil {
 		return fmt.Sprint(ErrModel)
@@ -213,7 +213,8 @@ func statQuery(ctx context.Context, exec boil.ContextExecutor, stats interface {
 		qm.Select(postgres.Stat()...),
 		qm.Where(ClauseNoSoftDel),
 		expr,
-		qm.From(From)).Bind(ctx, exec, stats)
+		qm.From(From),
+	).Bind(ctx, exec, stats)
 }
 
 // Arts statistics for releases that are digital or pixel art.

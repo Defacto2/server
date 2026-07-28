@@ -35,7 +35,7 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int6
 	}
 	now, uid, err := NewV7()
 	if err != nil {
-		return 0, "", fmt.Errorf("uuid.NewV7: %w", err)
+		return 0, "", fmt.Errorf("insert demozoo uuid new v7: %w", err)
 	}
 	//nolint:exhaustruct // Only setting essential fields for database insertion
 	f := models.File{
@@ -44,7 +44,7 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int6
 		Deletedat:    null.TimeFromPtr(&now),
 	}
 	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
-		return 0, "", fmt.Errorf("f.Insert: %w", err)
+		return 0, "", fmt.Errorf("insert demozoo infer: %w", err)
 	}
 	return f.ID, uid.String(), nil
 }
@@ -59,7 +59,7 @@ func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64,
 	}
 	now, uid, err := NewV7()
 	if err != nil {
-		return 0, "", fmt.Errorf("uuid.NewV7: %w", err)
+		return 0, "", fmt.Errorf("insert pouet uuid new v7: %w", err)
 	}
 	//nolint:exhaustruct // Only setting essential fields for database insertion
 	f := models.File{
@@ -68,7 +68,7 @@ func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64,
 		Deletedat:  null.TimeFromPtr(&now),
 	}
 	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
-		return 0, "", fmt.Errorf("f.Insert: %w", err)
+		return 0, "", fmt.Errorf("insert pouet infer: %w", err)
 	}
 	return f.ID, uid.String(), nil
 }
@@ -126,7 +126,7 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 func upload(f models.File, values url.Values, key string) (models.File, error) {
 	youtube, err := ValidYouTube(values.Get(key + "-youtube"))
 	if err != nil {
-		return f, fmt.Errorf("ValidYouTube: %w", err)
+		return f, fmt.Errorf("upload valid youtube: %w", err)
 	}
 	releaser1, releaser2 := ValidReleasers(
 		values.Get(key+"-releaser1"),
@@ -145,7 +145,7 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	}
 	filesize, err := ValidFilesize(values.Get(key + "-size"))
 	if err != nil {
-		return f, fmt.Errorf("ValidFilesize: %w", err)
+		return f, fmt.Errorf("upload valid file size: %w", err)
 	}
 	content := ValidString(values.Get(key + "-content"))
 	readme := ValidFilename(values.Get(key + "-readme"))

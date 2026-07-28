@@ -285,7 +285,7 @@ func ValidYouTube(s string) (null.String, error) {
 	}
 	match, err := regexp.MatchString("^[a-zA-Z0-9_-]{11}$", s)
 	if err != nil {
-		return invalid, fmt.Errorf("regexp.MatchString: %w", err)
+		return invalid, fmt.Errorf("valid youtube regexp match string: %w", err)
 	}
 	if !match {
 		return invalid, nil

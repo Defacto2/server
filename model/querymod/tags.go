@@ -117,7 +117,7 @@ func STool() null.String {
 	return null.String{String: getURIs()[tags.Tool], Valid: true}
 }
 
-// funcs that begin with P are for the platform column.
+// Methods that begin with P are for the platform column.
 
 func PAnsi() null.String {
 	return null.String{String: getURIs()[tags.ANSI], Valid: true}

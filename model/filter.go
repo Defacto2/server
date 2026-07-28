@@ -607,7 +607,7 @@ func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 	).All(ctx, exec)
 }
 
-// HowTo is the model for the guides and how-tos.
+// HowTo is the model for the guides and how-to texts.
 type HowTo struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1469,7 +1469,7 @@ func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, 
 	).All(ctx, exec)
 }
 
-// Takedown is the model for the bust and takedowns.
+// Takedown is the model for the bust and take downs.
 type Takedown struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1563,7 +1563,7 @@ func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset,
 	).All(ctx, exec)
 }
 
-// TextApple2 is the model for the text files for the Apple II operating system.
+// TextApple2 is the model for the text files about the Apple II microcomputer.
 type TextApple2 struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1593,7 +1593,7 @@ func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset
 	).All(ctx, exec)
 }
 
-// TextAtariST is the model for the text files for the Atari ST operating system.
+// TextAtariST is the model for the text files about the Atari ST microcomputer.
 type TextAtariST struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
@@ -1683,7 +1683,7 @@ func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limi
 	).All(ctx, exec)
 }
 
-// TrialCrackme is the model for group job trial crackme releases.
+// TrialCrackme is the model for group job trial "crackme" releases.
 type TrialCrackme struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`

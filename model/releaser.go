@@ -29,6 +29,8 @@ const (
 	Oldest                      // Oldest orders by the year of the first artifact.
 )
 
+const fmtraw = "queries raw: %w"
+
 // ReleaserNames is a distinct data list of releasers.
 type ReleaserNames []ReleaserName
 
@@ -129,7 +131,7 @@ func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order 
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 	}
 	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf(fmtraw, err)
 	}
 	r.Slugs()
 	return nil
@@ -200,7 +202,7 @@ func (r *Releasers) BBS(ctx context.Context, exec boil.ContextExecutor, order Or
 		return ErrOrderBy
 	}
 	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf(fmtraw, err)
 	}
 	r.Slugs()
 	return nil
@@ -213,7 +215,7 @@ func (r *Releasers) FTP(ctx context.Context, exec boil.ContextExecutor) error {
 	}
 	panics.BoilExecCrash(exec)
 	if err := queries.Raw(string(postgres.FTPsAlphabetical())).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf(fmtraw, err)
 	}
 	r.Slugs()
 	return nil
@@ -226,7 +228,7 @@ func (r *Releasers) MagazineAZ(ctx context.Context, exec boil.ContextExecutor) e
 	}
 	panics.BoilExecCrash(exec)
 	if err := queries.Raw(string(postgres.MagazinesAlphabetical())).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf(fmtraw, err)
 	}
 	r.Slugs()
 	return nil
@@ -239,7 +241,7 @@ func (r *Releasers) Magazine(ctx context.Context, exec boil.ContextExecutor) err
 	}
 	panics.BoilExecCrash(exec)
 	if err := queries.Raw(string(postgres.MagazinesOldest())).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("queries.Raw: %w", err)
+		return fmt.Errorf(fmtraw, err)
 	}
 	r.Slugs()
 	return nil
@@ -297,7 +299,7 @@ func (r *Releasers) similar(
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
 	}
 	if err := queries.Raw(query, params...).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("similar magazine queries raw: %w", err)
+		return fmt.Errorf("similar magazine releasers queries raw: %w", err)
 	}
 	r.Slugs()
 	return nil

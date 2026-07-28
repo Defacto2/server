@@ -26,7 +26,7 @@ type Artifacts struct {
 	MaxYear int `boil:"max_year"`
 }
 
-// Public returns the total number of artifacts and the summed filesize of all artifacts that are not hidden.
+// Public returns the total number of artifacts and the summed file size of all artifacts that are not hidden.
 func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error {
 	panics.BoilExecCrash(exec)
 	if f.Bytes > 0 && f.Count > 0 {
@@ -50,7 +50,7 @@ func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset
 ) {
 	panics.BoilExecCrash(exec)
 	if err := f.Public(ctx, exec); err != nil {
-		return nil, fmt.Errorf("f.Public: %w", err)
+		return nil, fmt.Errorf("by key artifacts.public: %w", err)
 	}
 	const clause = "id DESC"
 	return models.Files(
@@ -67,7 +67,7 @@ func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, off
 ) {
 	panics.BoilExecCrash(exec)
 	if err := f.Public(ctx, exec); err != nil {
-		return nil, fmt.Errorf("f.Public: %w", err)
+		return nil, fmt.Errorf("by oldest artifacts.public: %w", err)
 	}
 	const clause = "date_issued_year ASC NULLS LAST, " +
 		"date_issued_month ASC NULLS LAST, " +
@@ -86,7 +86,7 @@ func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, off
 ) {
 	panics.BoilExecCrash(exec)
 	if err := f.Public(ctx, exec); err != nil {
-		return nil, fmt.Errorf("f.Public: %w", err)
+		return nil, fmt.Errorf("by newest artifacts.public: %w", err)
 	}
 	const clause = "date_issued_year DESC NULLS LAST, " +
 		"date_issued_month DESC NULLS LAST, " +
@@ -105,7 +105,7 @@ func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, of
 ) {
 	panics.BoilExecCrash(exec)
 	if err := f.Public(ctx, exec); err != nil {
-		return nil, fmt.Errorf("f.Public: %w", err)
+		return nil, fmt.Errorf("by updated artifacts.public: %w", err)
 	}
 	const clause = "updatedat DESC"
 	return models.Files(
@@ -122,7 +122,7 @@ func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, off
 ) {
 	panics.BoilExecCrash(exec)
 	if err := f.byHidden(ctx, exec); err != nil {
-		return nil, fmt.Errorf("f.Stat: %w", err)
+		return nil, fmt.Errorf("by hidden artifacts: %w", err)
 	}
 	const clause = "deletedat DESC"
 	return models.Files(
@@ -200,7 +200,7 @@ func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, o
 ) {
 	panics.BoilExecCrash(exec)
 	if err := f.byUnwanted(ctx, exec); err != nil {
-		return nil, fmt.Errorf("f.StatUnwanted: %w", err)
+		return nil, fmt.Errorf("by unwanted artifacts: %w", err)
 	}
 	const clause = "id DESC"
 	empty := null.StringFrom("")
@@ -282,7 +282,7 @@ func (f *Artifacts) Filename(ctx context.Context, exec boil.ContextExecutor, ter
 	return fs, nil
 }
 
-// ID returns a list of files that match the list of record ids or uuids.
+// ID returns a list of files that match the lists of records with id or uuid.
 func (f *Artifacts) ID(
 	ctx context.Context, exec boil.ContextExecutor, ids []int, uuids ...uuid.UUID) (
 	models.FileSlice, error,

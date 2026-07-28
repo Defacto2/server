@@ -531,6 +531,8 @@ func UpdateLinks(ctx context.Context, db *sql.DB, id int64,
 	return nil
 }
 
+const fmttx = "%s tx.commit: %w"
+
 // UpdateClassification updates the classification of a file in the database.
 // It takes an ID, platform, and tag as parameters and returns an error if any.
 // Both platform and tag must be valid values.
@@ -566,7 +568,7 @@ func UpdateClassification(ctx context.Context, db *sql.DB, id int64, platform, t
 		return fmt.Errorf("%s update: %w", msg, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("%s tx commit: %w", msg, err)
+		return fmt.Errorf(fmttx, msg, err)
 	}
 	return nil
 }
@@ -594,7 +596,7 @@ func UpdateDateIssued(ctx context.Context, db *sql.DB, id int64, y, m, d string)
 		return fmt.Errorf("%s %q %q %q: %w", msg, y, m, d, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("%s tx.commit: %w", msg, err)
+		return fmt.Errorf(fmttx, msg, err)
 	}
 	return nil
 }
@@ -620,7 +622,7 @@ func UpdateOffline(ctx context.Context, db *sql.DB, id int64) error {
 		return fmt.Errorf("%s update: %w", msg, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("%s tx commit: %w", msg, err)
+		return fmt.Errorf(fmttx, msg, err)
 	}
 	return nil
 }
@@ -645,7 +647,7 @@ func UpdateOnline(ctx context.Context, db *sql.DB, id int64) error {
 		return fmt.Errorf("%s update: %w", msg, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("%s tx commit: %w", msg, err)
+		return fmt.Errorf(fmttx, msg, err)
 	}
 	return nil
 }
@@ -690,7 +692,7 @@ func UpdateReleasers(ctx context.Context, db *sql.DB, id int64, val string) erro
 		return fmt.Errorf("%s %q: %w", msg, val, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("%s tx commit: %w", msg, err)
+		return fmt.Errorf(fmttx, msg, err)
 	}
 	return nil
 }
@@ -746,7 +748,7 @@ func UpdateMagic(ctx context.Context, exec boil.ContextExecutor, id int64, magic
 	return nil
 }
 
-// FileUpload is a struct that contains the values needed to update an existing file record
+// FileUpload contains the values needed to update an existing file record
 // after a new file has been uploaded to the server.
 type FileUpload struct {
 	LastMod     time.Time
@@ -757,7 +759,7 @@ type FileUpload struct {
 	Filesize    int64
 }
 
-// Update the file record with the values provided in the FileUpload struct.
+// Update the file record with the values provided in [FileUpload].
 // The id is the database id key of the record.
 func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id int64) error {
 	const msg = "file upload update"
@@ -786,7 +788,7 @@ func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id i
 	f.Filesize = null.Int64From(fu.Filesize)
 	f.FileLastModified = null.TimeFrom(fu.LastMod)
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
-		return fmt.Errorf("%s onefile().update record %d: %w", msg, id, err)
+		return fmt.Errorf("%s infer update record %d: %w", msg, id, err)
 	}
 	return nil
 }

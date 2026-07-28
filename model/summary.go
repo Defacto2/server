@@ -463,7 +463,7 @@ func (s *Summary) ansiFTP(ctx context.Context, exec boil.ContextExecutor) error 
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("ansiFTP.Stat: %w", err)
+		return fmt.Errorf("ansi ftp summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -478,7 +478,7 @@ func (s *Summary) ansiPack(ctx context.Context, exec boil.ContextExecutor) error
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("ansiPack.Stat: %w", err)
+		return fmt.Errorf("ansi pack summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -493,7 +493,7 @@ func (s *Summary) ansiNfo(ctx context.Context, exec boil.ContextExecutor) error 
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("ansiNfo.Stat: %w", err)
+		return fmt.Errorf("ansi nfo summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -508,7 +508,7 @@ func (s *Summary) bbs(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("bbs.Stat: %w", err)
+		return fmt.Errorf("bbs summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -523,7 +523,7 @@ func (s *Summary) bbstro(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("bbstro.Stat: %w", err)
+		return fmt.Errorf("bbstro summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -538,7 +538,7 @@ func (s *Summary) bbsImage(ctx context.Context, exec boil.ContextExecutor) error
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("bbsImage.Stat: %w", err)
+		return fmt.Errorf("bbs image summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -553,7 +553,7 @@ func (s *Summary) bbsText(ctx context.Context, exec boil.ContextExecutor) error 
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("bbsText.Stat: %w", err)
+		return fmt.Errorf("bbs text summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -568,7 +568,7 @@ func (s *Summary) ftp(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("ftp.Stat: %w", err)
+		return fmt.Errorf("ftp summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -583,7 +583,7 @@ func (s *Summary) magazine(ctx context.Context, exec boil.ContextExecutor) error
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("magazine.Stat: %w", err)
+		return fmt.Errorf("magazine summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -613,7 +613,7 @@ func (s *Summary) textPack(ctx context.Context, exec boil.ContextExecutor) error
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("textPack.Stat: %w", err)
+		return fmt.Errorf("text pack summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -628,7 +628,7 @@ func (s *Summary) imagePack(ctx context.Context, exec boil.ContextExecutor) erro
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("imagePack.Stat: %w", err)
+		return fmt.Errorf("image pack summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -643,7 +643,7 @@ func (s *Summary) windowsPack(ctx context.Context, exec boil.ContextExecutor) er
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("windowsPack.Stat: %w", err)
+		return fmt.Errorf("windows pack summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -658,7 +658,7 @@ func (s *Summary) msdosPack(ctx context.Context, exec boil.ContextExecutor) erro
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("msdosPack.Stat: %w", err)
+		return fmt.Errorf("msdos pack summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -673,7 +673,7 @@ func (s *Summary) database(ctx context.Context, exec boil.ContextExecutor) error
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("database.Stat: %w", err)
+		return fmt.Errorf("database summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -688,7 +688,7 @@ func (s *Summary) textAmiga(ctx context.Context, exec boil.ContextExecutor) erro
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("textAmiga.Stat: %w", err)
+		return fmt.Errorf("text amiga summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -703,7 +703,7 @@ func (s *Summary) textApple2(ctx context.Context, exec boil.ContextExecutor) err
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("textApple2.Stat: %w", err)
+		return fmt.Errorf("text apple2 summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -718,7 +718,7 @@ func (s *Summary) textAtariST(ctx context.Context, exec boil.ContextExecutor) er
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("textAtariST.Stat: %w", err)
+		return fmt.Errorf("text atari st summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -733,7 +733,7 @@ func (s *Summary) pdf(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("pdf.Stat: %w", err)
+		return fmt.Errorf("pdf summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -748,7 +748,7 @@ func (s *Summary) html(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("html.Stat: %w", err)
+		return fmt.Errorf("html summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -763,7 +763,7 @@ func (s *Summary) newsArticle(ctx context.Context, exec boil.ContextExecutor) er
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("newsArticle.Stat: %w", err)
+		return fmt.Errorf("news article summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -778,7 +778,7 @@ func (s *Summary) standards(ctx context.Context, exec boil.ContextExecutor) erro
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("standards.Stat: %w", err)
+		return fmt.Errorf("standards summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -793,7 +793,7 @@ func (s *Summary) announcement(ctx context.Context, exec boil.ContextExecutor) e
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("announcement.Stat: %w", err)
+		return fmt.Errorf("announcement summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -808,7 +808,7 @@ func (s *Summary) jobAdvert(ctx context.Context, exec boil.ContextExecutor) erro
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("jobAdvert.Stat: %w", err)
+		return fmt.Errorf("job advert summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -823,7 +823,7 @@ func (s *Summary) trialCrackme(ctx context.Context, exec boil.ContextExecutor) e
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("trailCrackme.Stat: %w", err)
+		return fmt.Errorf("trial crackme summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -838,7 +838,7 @@ func (s *Summary) hack(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("hack.Stat: %w", err)
+		return fmt.Errorf("hack summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -853,7 +853,7 @@ func (s *Summary) tool(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("tool.Stat: %w", err)
+		return fmt.Errorf("tool summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -868,7 +868,7 @@ func (s *Summary) takedown(ctx context.Context, exec boil.ContextExecutor) error
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("takedown.Stat: %w", err)
+		return fmt.Errorf("take down summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -883,7 +883,7 @@ func (s *Summary) drama(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("drama.Stat: %w", err)
+		return fmt.Errorf("drama summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -898,7 +898,7 @@ func (s *Summary) advert(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("advert.Stat: %w", err)
+		return fmt.Errorf("advert summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -928,7 +928,7 @@ func (s *Summary) howTo(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("howTo.Stat: %w", err)
+		return fmt.Errorf("how to summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -943,7 +943,7 @@ func (s *Summary) nfoTool(ctx context.Context, exec boil.ContextExecutor) error 
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("nfoTool.Stat: %w", err)
+		return fmt.Errorf("nfo tool summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -958,7 +958,7 @@ func (s *Summary) image(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("image.Stat: %w", err)
+		return fmt.Errorf("image summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -973,7 +973,7 @@ func (s *Summary) music(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("music.Stat: %w", err)
+		return fmt.Errorf("music summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -988,7 +988,7 @@ func (s *Summary) video(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("video.Stat: %w", err)
+		return fmt.Errorf("video summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -1002,7 +1002,7 @@ func (s *Summary) msdos(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("msdos.Stat: %w", err)
+		return fmt.Errorf("msdos summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -1017,7 +1017,7 @@ func (s *Summary) windows(ctx context.Context, exec boil.ContextExecutor) error 
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("windows.Stat: %w", err)
+		return fmt.Errorf("windows summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -1047,7 +1047,7 @@ func (s *Summary) linux(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("linux.Stat: %w", err)
+		return fmt.Errorf("linux summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -1062,7 +1062,7 @@ func (s *Summary) java(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("java.Stat: %w", err)
+		return fmt.Errorf("java summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil
@@ -1077,7 +1077,7 @@ func (s *Summary) script(ctx context.Context, exec boil.ContextExecutor) error {
 		MaxYear: 0,
 	}
 	if err := m.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("script.Stat: %w", err)
+		return fmt.Errorf("script for os summary stat: %w", err)
 	}
 	s.Update(m.Count, m.Bytes, m.MinYear, m.MaxYear)
 	return nil

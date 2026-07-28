@@ -43,7 +43,7 @@ const (
 )
 
 // EpochYear is the epoch year for the website,
-// ie. the year 0 of the MS-DOS era.
+// for example, using it as year zero for the era of MS-DOS.
 const EpochYear = 1980
 
 // Maximum number of files to return per query.

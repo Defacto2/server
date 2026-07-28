@@ -19,7 +19,8 @@ func BenchmarkStringConcatenation(b *testing.B) {
 		for range b.N {
 			var result strings.Builder
 			for _, column := range columns {
-				result.WriteString(updateSet + column + " = NULL WHERE " + column + " = ''; ")
+				s := updateSet + column + " = NULL WHERE " + column + " = ''; "
+				result.WriteString(s)
 			}
 			_ = result.String()
 		}
@@ -36,7 +37,8 @@ func BenchmarkStringBuilder(b *testing.B) {
 		for range b.N {
 			var query strings.Builder
 			for _, column := range columns {
-				query.WriteString(updateSet + column + " = NULL WHERE " + column + " = ''; ")
+				s := updateSet + column + " = NULL WHERE " + column + " = ''; "
+				query.WriteString(s)
 			}
 			_ = query.String()
 		}
@@ -147,7 +149,7 @@ func BenchmarkContextPassthrough(b *testing.B) {
 	ctx := context.Background()
 	b.Run("", func(b *testing.B) {
 		for range b.N {
-			// Simulating context passthrough in function calls
+			// Simulating context pass-through in function calls
 			_ = ctx.Err()
 		}
 	})
