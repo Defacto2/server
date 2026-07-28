@@ -270,7 +270,7 @@ func TestExtraZip(t *testing.T) {
 	err := command.CopyFile(nil,
 		filepath.Join("testdata", "archive.zip"),
 		filepath.Join(extra.Path(), r0+".zip"))
-	be.Err(t, err)
+	be.Err(t, err, nil)
 }
 
 func TestDownloadID(t *testing.T) {

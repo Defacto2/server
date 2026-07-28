@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"embed"
-	"fmt"
 	"maps"
 	"slices"
 	"strings"
@@ -172,7 +171,6 @@ func TestByteBytes(t *testing.T) {
 	be.True(t, !strings.Contains(string(s), "error"))
 	s = app.ByteBytes(1023)
 	h := string(s)
-	fmt.Println(h)
 	be.True(t, strings.Contains(h, "1 kB "))
 	be.True(t, strings.Contains(h, "(1023B)"))
 }
