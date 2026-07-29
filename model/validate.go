@@ -278,6 +278,7 @@ func ValidTitle(s string) null.String {
 // ValidYouTube returns true if the string is a valid YouTube video ID.
 // An error is only returned if the regular expression match cannot compile.
 func ValidYouTube(s string) (null.String, error) {
+	const format = "valid youtube regexp match string: %w"
 	const fixLen = 11
 	invalid := null.String{String: "", Valid: false}
 	if len(s) != fixLen {
@@ -285,7 +286,7 @@ func ValidYouTube(s string) (null.String, error) {
 	}
 	match, err := regexp.MatchString("^[a-zA-Z0-9_-]{11}$", s)
 	if err != nil {
-		return invalid, fmt.Errorf("valid youtube regexp match string: %w", err)
+		return invalid, fmt.Errorf(format, err)
 	}
 	if !match {
 		return invalid, nil

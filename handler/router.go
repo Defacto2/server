@@ -30,12 +30,12 @@ const code = http.StatusMovedPermanently
 // AppendFiles defines the file locations and routes for the web server.
 func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, public embed.FS,
 ) (*echo.Echo, error) {
-	const msg = "files routes"
+	const format = "files routes: %w"
 	if err := panics.SDEP(sl, db, e, public); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoEmbed)
+		return nil, fmt.Errorf(format, panics.ErrNoEmbed)
 	}
 	app.Caching.Records(c.RecordCount)
 	dirs := app.Dirs{
@@ -47,7 +47,7 @@ func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *ech
 	}
 	nonce, err := c.nonce(e)
 	if err != nil {
-		return nil, fmt.Errorf("%s nonce session key: %w", msg, err)
+		return nil, fmt.Errorf("file routes nonce session key: %w", err)
 	}
 	e = c.signin(ctx, sl, e, nonce)
 	e = c.custom404(sl, e)
@@ -66,16 +66,16 @@ func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *ech
 // nonce configures and returns the session key for the cookie store.
 // If the read mode is enabled then an empty session key is returned.
 func (c *Configuration) nonce(e *echo.Echo) (string, error) {
-	const msg = "nonce cookie store"
+	const format = "nonce cookie store: %w"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+		panic(fmt.Errorf(format, panics.ErrNoEchoE))
 	}
 	if c.Environment.ReadOnly {
 		return "", nil
 	}
 	b, err := helper.CookieStore(c.Environment.SessionKey.String())
 	if err != nil {
-		return "", fmt.Errorf("%s: %w", msg, err)
+		return "", fmt.Errorf(format, err)
 	}
 	e.Use(session.Middleware(sessions.NewCookieStore(b)))
 	return string(b), nil
@@ -83,9 +83,9 @@ func (c *Configuration) nonce(e *echo.Echo) (string, error) {
 
 // html serves the embedded CSS, JS, WASM, and source map files for the HTML website layout.
 func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
-	const msg = "html routes"
+	const format = "html routes: %w"
 	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+		panic(fmt.Errorf(format, panics.ErrNoEchoE))
 	}
 	hrefs, names := *app.Hrefs(), *app.Names()
 	for key, href := range hrefs {
@@ -101,9 +101,9 @@ func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 
 // font serves the embedded woff2, woff, and ttf font files for the website layout.
 func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
-	const msg = "font routes"
+	const format = "font routes: %w"
 	if err := panics.EP(e, public); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 	paths, names := *app.FontRefs(), *app.FontNames()
 	font := e.Group("/font")

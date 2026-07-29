@@ -175,9 +175,10 @@ func PlainTextBuffersW(
 	w io.Writer, art *models.File, sizeLimit int64, download, extra dir.Directory,
 ) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
 	const msg = "readme pool"
+	const format = msg + " %s: %w"
 	nosauce := sauce.Record{} //nolint:exhaustruct
 	if art == nil {
-		return nil, nil, nosauce, fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
+		return nil, nil, nosauce, fmt.Errorf(format, "", panics.ErrNoArtM)
 	}
 	buf := new(bytes.Buffer)
 	diz := new(bytes.Buffer)
@@ -191,7 +192,7 @@ func PlainTextBuffersW(
 	var errs error
 	if err1 != nil {
 		debug(w, fmt.Sprintf("descriptor text error: %s", err1))
-		errs = errors.Join(errs, fmt.Errorf("%s render diz: %w", msg, err1))
+		errs = errors.Join(errs, fmt.Errorf(format, "render diz", err1))
 	}
 	if err2 != nil {
 		if errors.Is(err2, render.ErrFilename) {
@@ -199,12 +200,12 @@ func PlainTextBuffersW(
 		}
 		if err2 != nil {
 			debug(w, fmt.Sprintf("information text error: %s", err2))
-			errs = errors.Join(errs, fmt.Errorf("%s render read: %w", msg, err2))
+			errs = errors.Join(errs, fmt.Errorf(format, "render read", err2))
 		}
 	}
 	if err3 != nil {
 		debug(w, fmt.Sprintf("helper text error: %s", err3))
-		errs = errors.Join(errs, fmt.Errorf("%s render helper: %w", msg, err3))
+		errs = errors.Join(errs, fmt.Errorf(format, "render helper", err3))
 	}
 	knownData := diz.Len() == 0 && buf.Len() == 0 && hlp.Len() == 0 && ruf.Len() == 0
 	if knownData {
@@ -234,7 +235,7 @@ func PlainTextBuffersW(
 	sr := sauceData(buf)
 	// text with ANSI escape codes use a custom readme template
 	if match, err := UseANSICodes(bytes.NewReader(buf.Bytes())); err != nil {
-		errs = errors.Join(errs, fmt.Errorf("%s incompatible ansi: %w", msg, err))
+		errs = errors.Join(errs, fmt.Errorf(format, "incompatible ansi", err))
 		debug(w, fmt.Sprintf("matched incompatible ansi: %s", err))
 		buf.Reset()
 	} else if match {
@@ -454,6 +455,7 @@ func RemoveCtrls(b []byte) []byte {
 func UseANSICodes(r io.Reader) (bool, error) {
 	const maximumBytes = 1024 * 1024
 	const msg = "match ansi reader"
+	const format = msg + "%s: %w"
 	if r == nil {
 		return false, nil
 	}
@@ -476,7 +478,7 @@ func UseANSICodes(r io.Reader) (bool, error) {
 	}
 	err := scanner.Err()
 	if err != nil && !errors.Is(err, bufio.ErrTooLong) {
-		return false, fmt.Errorf("%s cursor scanner: %w", msg, err)
+		return false, fmt.Errorf(format, "cursor scanner", err)
 	} else if err == nil {
 		return false, nil
 	}
@@ -499,7 +501,7 @@ func UseANSICodes(r io.Reader) (bool, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return false, fmt.Errorf("%s, file is too large for the 1MB scanner: %w", msg, err)
+		return false, fmt.Errorf(format, "file is too large for the 1MB scanner", err)
 	}
 	return false, nil
 }

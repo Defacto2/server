@@ -332,11 +332,12 @@ func checkExist(sl *slog.Logger, c *echo.Context, err error) error {
 // copier is a generic file writer that saves the chosen file upload to a temporary file.
 func copier(sl *slog.Logger, c *echo.Context, file *multipart.FileHeader, key string) (string, error) {
 	const msg = "transfer generic file copier"
+	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
-		return "", fmt.Errorf("%s: %w", msg, err)
+		return "", fmt.Errorf(format, err)
 	}
 	if file == nil {
-		return "", fmt.Errorf("%s: %w", msg, ErrNoFileHeader)
+		return "", fmt.Errorf(format, ErrNoFileHeader)
 	}
 	// open uploaded file
 	const pattern = "upload-*.zip"

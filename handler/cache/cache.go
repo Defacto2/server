@@ -38,15 +38,16 @@ const (
 // Path returns the absolute path to the storage engine directory.
 // If the directory does not exist it will be created.
 func (c Cache) Path() (string, error) {
+	const format = "cache path %s: %w"
 	tmp := filepath.Join(os.TempDir(), SubDir, c.String())
 	if _, err := os.Stat(tmp); err != nil && !os.IsNotExist(err) {
-		return "", fmt.Errorf("cache path %s: %w", tmp, err)
+		return "", fmt.Errorf(format, tmp, err)
 	} else if err == nil {
 		return tmp, nil
 	}
 	err := os.MkdirAll(tmp, helper.DirWriteReadRead)
 	if err != nil {
-		return "", fmt.Errorf("cache path, make directory %w", err)
+		return "", fmt.Errorf(format, "make directory", err)
 	}
 	return tmp, nil
 }
@@ -55,20 +56,21 @@ func (c Cache) Path() (string, error) {
 // The key/value pair will be deleted after the ttl time duration has elapsed.
 // If ttl is 0 then the key/value pair will immediately expire.
 func (c Cache) Write(key, value string, ttl time.Duration) error {
+	const format = "cache write %s: %w"
 	var err error
 	options := rosedb.DefaultOptions
 	options.DirPath, err = c.Path()
 	if err != nil {
-		return fmt.Errorf("cache write %w", err)
+		return fmt.Errorf(format, "c path", err)
 	}
 	cacheDB, err := rosedb.Open(options)
 	if err != nil {
-		return fmt.Errorf("cache write open rosedb %w", err)
+		return fmt.Errorf(format, "open rosedb", err)
 	}
 	defer func() { _ = cacheDB.Close() }()
 
 	if err := cacheDB.PutWithTTL([]byte(key), []byte(value), ttl); err != nil {
-		return fmt.Errorf("cache write save to rosedb %w", err)
+		return fmt.Errorf(format, "save to rosedb", err)
 	}
 	return nil
 }
@@ -76,62 +78,65 @@ func (c Cache) Write(key, value string, ttl time.Duration) error {
 // WriteNoExpire writes a key/value pair to the storage engine.
 // The key/value pair will not expire.
 func (c Cache) WriteNoExpire(key, value string) error {
+	const format = "cache write no expire %s: %w"
 	var err error
 	options := rosedb.DefaultOptions
 	options.DirPath, err = c.Path()
 	if err != nil {
-		return fmt.Errorf("cache write no expire %w", err)
+		return fmt.Errorf(format, "c path", err)
 	}
 	cacheDB, err := rosedb.Open(options)
 	if err != nil {
-		return fmt.Errorf("cache write no expire open rosedb %w", err)
+		return fmt.Errorf(format, "open rosedb", err)
 	}
 	defer func() { _ = cacheDB.Close() }()
 
 	if err := cacheDB.Put([]byte(key), []byte(value)); err != nil {
-		return fmt.Errorf("cache write no expire save to rosedb %w", err)
+		return fmt.Errorf(format, "save to rosedb", err)
 	}
 	return nil
 }
 
 // Read returns value from the storage engine.
 func (c Cache) Read(id string) (string, error) {
+	const format = "cache read %s: %w"
 	path, err := c.Path()
 	if err != nil {
-		return "", fmt.Errorf("cache read %w", err)
+		return "", fmt.Errorf(format, "c path", err)
 	}
 	options := rosedb.DefaultOptions
 	options.DirPath = path
 	cacheDB, err := rosedb.Open(options)
 	if err != nil {
-		return "", fmt.Errorf("cache read open rosedb %w", err)
+		return "", fmt.Errorf(format, "open rosedb", err)
 	}
 	defer func() { _ = cacheDB.Close() }()
 	key := []byte(id)
 	value, err := cacheDB.Get(key)
 	if err != nil {
-		return "", fmt.Errorf("cache read from rosedb %q: %w", key, err)
+		return "", fmt.Errorf("key %q "+format, "from rosedb", key, err)
 	}
 	return string(value), nil
 }
 
 // Delete deletes a key/value pair from the storage engine.
 func (c Cache) Delete(id string) error {
+	const format = "cache delete %s: %w"
 	path, err := c.Path()
 	if err != nil {
-		return fmt.Errorf("cache delete %w", err)
+		return fmt.Errorf(format, "c path", err)
 	}
 	options := rosedb.DefaultOptions
 	options.DirPath = path
 	cacheDB, err := rosedb.Open(options)
 	if err != nil {
-		return fmt.Errorf("cache delete open rosedb %w", err)
+		return fmt.Errorf(format, "open rosedb", err)
 	}
 	defer func() { _ = cacheDB.Close() }()
 
 	key := []byte(id)
 	if err := cacheDB.Delete(key); err != nil {
-		return fmt.Errorf("cache delete %q: %w", key, err)
+		return fmt.Errorf("key %q "+format, "from rosedb", key, err)
 	}
 	return nil
 }

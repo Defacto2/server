@@ -750,13 +750,14 @@ type T struct {
 // ByName returns the data of the named tag.
 // It requires the database to be connected to build the tags if they have not already been.
 func (t *T) ByName(name string) (TagData, error) {
+	const format = "tags by name %w"
 	if t.List == nil {
 		return TagData{
 			URI:   "",
 			Name:  "",
 			Info:  "",
 			Count: 0,
-		}, fmt.Errorf("tags by name %w", ErrNoTags)
+		}, fmt.Errorf(format, ErrNoTags)
 	}
 	for val := range slices.Values(t.List) {
 		if strings.EqualFold(val.Name, name) {
@@ -774,8 +775,9 @@ func (t *T) ByName(name string) (TagData, error) {
 // Build the tags and collect the statistical data sourced from the database.
 func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "tags builder"
+	const format = msg + " %s: %w"
 	if InvalidExec(exec) {
-		return fmt.Errorf("%s: %w", msg, ErrNoDB)
+		return fmt.Errorf(format, "", ErrNoDB)
 	}
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
@@ -783,7 +785,7 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 		i++
 		count64, err := counter(ctx, exec, key)
 		if err != nil {
-			return fmt.Errorf("%s counter: %w", msg, err)
+			return fmt.Errorf(format, "counter", err)
 		}
 		count := int(count64)
 		t.Mu.Lock()
@@ -800,14 +802,14 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 
 // counter counts the number of files with the tag.
 func counter(ctx context.Context, exec boil.ContextExecutor, t Tag) (int64, error) {
-	const msg = "tags counter"
+	const format = "tags counter %s: %w"
 	clause := "section = ?"
 	if t >= FirstPlatform {
 		clause = "platform = ?"
 	}
 	sum, err := models.Files(qm.Where(clause, URIs()[t])).Count(ctx, exec)
 	if err != nil {
-		return -1, fmt.Errorf("%s could not count the tag: %w", msg, err)
+		return -1, fmt.Errorf(format, "could not count the tag", err)
 	}
 	return sum, nil
 }

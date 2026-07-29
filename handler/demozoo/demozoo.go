@@ -820,46 +820,46 @@ type Production struct {
 //
 // [Demozoo API]: https://demozoo.org/api/v1/productions/
 func (p *Production) Get(ctx context.Context, id int) (int, error) {
-	const msg = "get demozoo production"
+	const format = "get demozoo production id %d %s: %w"
 	if id < firstID {
-		return 0, fmt.Errorf("%s %w: %d", msg, ErrID, id)
+		return 0, fmt.Errorf(format, id, "", ErrID)
 	}
 	url := ProdURL + strconv.Itoa(id)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return 0, fmt.Errorf("%s new request %w", msg, err)
+		return 0, fmt.Errorf(format, id, "new request", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	c := client()
 	res, err := c.Do(req)
 	if err != nil {
-		return 0, fmt.Errorf("%s client do %w", msg, err)
+		return 0, fmt.Errorf(format, id, "client do", err)
 	}
 	if res == nil {
 		return 0, http.ErrBodyNotAllowed
 	}
 	if res.Body == nil {
-		return res.StatusCode, fmt.Errorf("%s client do returned nothing %w: %s", msg, ErrStatus, res.Status)
+		return res.StatusCode, fmt.Errorf(format, id, "client do returned nothing "+res.Status, ErrStatus)
 	}
 	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
-		return res.StatusCode, fmt.Errorf("%s %w: %s", msg, ErrStatus, res.Status)
+		return res.StatusCode, fmt.Errorf(format, id, res.Status, ErrStatus)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
-		return 0, fmt.Errorf("%s read all %w", msg, err)
+		return 0, fmt.Errorf(format, id, "read all", err)
 	}
 	err = json.Unmarshal(body, &p)
 	clear(body)
 	if err != nil {
-		return 0, fmt.Errorf("%s json unmarshal %w", msg, err)
+		return 0, fmt.Errorf(format, id, "json unmarshal", err)
 	}
 	if p.ID != id {
-		return 0, fmt.Errorf("%s %w: %d", msg, ErrSuccess, id)
+		return 0, fmt.Errorf(format, id, "p.id != id", ErrSuccess)
 	}
 	return 0, nil
 }

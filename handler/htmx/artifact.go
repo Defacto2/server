@@ -44,12 +44,13 @@ const (
 // Validate checks that the path is not absolute and does not allow
 // for any path traversal. It returns an error if the path is invalid.
 func Validate(path string) error {
+	const format = "%w: %q"
 	path = strings.TrimSuffix(path, "/")
 	if filepath.IsAbs(path) {
-		return fmt.Errorf("%w: %q", ErrPath, path)
+		return fmt.Errorf(format, ErrPath, path)
 	}
 	if s := filepath.Clean(path); s != path {
-		return fmt.Errorf("%w: %q", ErrPath, path)
+		return fmt.Errorf(format, ErrPath, path)
 	}
 	return nil
 }

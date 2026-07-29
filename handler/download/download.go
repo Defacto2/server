@@ -34,9 +34,10 @@ var (
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
 func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error {
-	const msg = "download checksum"
+	const format = "download checksum id %v: %w"
+	const fmtinf = "%s for " + format
 	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, id, err)
 	}
 	art, err := model.OneFileByKey(ctx, db, id)
 	if err != nil {
@@ -44,29 +45,29 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error
 			art, err = model.OneEditByKey(ctx, db, id)
 		}
 		if err != nil {
-			return fmt.Errorf("%s: %w: %s", msg, err, id)
+			return fmt.Errorf(format, id, err)
 		}
 	}
 	// an example checksum file body created by `shasum`
 	// 72f8a29d75993487b7ad5ad3a17d2f65ed4c41be155adbda88258d0458fcfe29f55e2e31b0316f01d57f4427ca9e2422  sk8-01.jpg
 	sum := strings.TrimSpace(art.FileIntegrityStrong.String)
 	if sum == "" {
-		return fmt.Errorf("%s: %w: %d", msg, ErrNone, art.ID)
+		return fmt.Errorf(format, art.ID, ErrNone)
 	}
 	name := art.Filename.String
 	body := []byte(sum + " " + name)
 
 	file, err := os.CreateTemp(helper.TmpDir(), "checksum-server.*.txt")
 	if err != nil {
-		return fmt.Errorf("%s: create tempdir: %w", msg, err)
+		return fmt.Errorf(fmtinf, "create temp directory", id, err)
 	}
 	defer func() { _ = os.Remove(file.Name()) }()
 	if _, err := file.Write(body); err != nil {
-		return fmt.Errorf("%s: write: %w", msg, err)
+		return fmt.Errorf("%s: write: %w", format, err)
 	}
 	err = c.Attachment(file.Name(), "checksums.txt")
 	if err != nil {
-		return fmt.Errorf("%s: attachment: %w", msg, err)
+		return fmt.Errorf(fmtinf, "attachment", id, err)
 	}
 	return nil
 }
@@ -109,6 +110,7 @@ type Download struct {
 // The download relies on the URL ID parameter to determine the requested file.
 func (d Download) HTTPSend(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "download http send"
+	const format = msg + " %s: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -118,10 +120,10 @@ func (d Download) HTTPSend(ctx context.Context, sl *slog.Logger, c *echo.Context
 	case err != nil && sess.Editor(c):
 		art, err = model.OneEditByKey(ctx, db, key)
 		if err != nil {
-			return fmt.Errorf("%s, one edit by key: %w", msg, err)
+			return fmt.Errorf(format, "one edit by key", err)
 		}
 	case err != nil:
-		return fmt.Errorf("%s, one file by key: %w", msg, err)
+		return fmt.Errorf(format, "one file by key", err)
 	}
 	name := art.Filename.String
 	uid := strings.TrimSpace(art.UUID.String)
@@ -152,19 +154,20 @@ func (d Download) HTTPSend(ctx context.Context, sl *slog.Logger, c *echo.Context
 		// echo/v5 requires unwrapping to insert a header
 		resp, err := echo.UnwrapResponse(c.Response())
 		if err != nil {
-			return fmt.Errorf("http send unwrap response: %w", err)
+			return fmt.Errorf(format, "http send unwrap response", err)
 		}
 		resp.Before(func() {
 			resp.Header().Set(echo.HeaderLastModified, lastmod)
 		})
 	}
 	if err := c.Attachment(file, name); err != nil {
-		return fmt.Errorf("%s attachment: %w", msg, err)
+		return fmt.Errorf(format, "attachment", err)
 	}
 	return nil
 }
 
 func inline(c *echo.Context, text bool, file, name, ext string) error {
+	const format = "http send %s: %w"
 	if text && slices.Contains(extensions.Image(), ext) {
 		text = false
 	}
@@ -173,19 +176,19 @@ func inline(c *echo.Context, text bool, file, name, ext string) error {
 	}
 	if !text {
 		if err := c.Inline(file, name); err != nil {
-			return fmt.Errorf("http send inline: %w", err)
+			return fmt.Errorf(format, "inline", err)
 		}
 		return nil
 	}
 	modernText, err := helper.UTF8(file)
 	if err != nil {
-		return fmt.Errorf("http send utf-8: %w", err)
+		return fmt.Errorf(format, "utf-8", err)
 	}
 	if !modernText {
 		c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=iso-8859-1")
 	}
 	if err := c.Inline(file, name); err != nil {
-		return fmt.Errorf("http send text as inline: %w", err)
+		return fmt.Errorf(format, "text as inline", err)
 	}
 	return nil
 }
@@ -202,6 +205,7 @@ type ExtraZip struct {
 // This is used for obsolete file types that have been re-archived into a standard zip file.
 func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "extra zip http send"
+	const format = msg + " %s: %w"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
@@ -211,10 +215,10 @@ func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) err
 	case err != nil && sess.Editor(c):
 		art, err = model.OneEditByKey(ctx, db, key)
 		if err != nil {
-			return fmt.Errorf("%s, one edit by key: %w", msg, err)
+			return fmt.Errorf(format, "one edit by key", err)
 		}
 	case err != nil:
-		return fmt.Errorf("%s, one file by key: %w", msg, err)
+		return fmt.Errorf(format, "one file by key", err)
 	}
 	ext := ".zip"
 	name := filepath.Base(art.Filename.String) + ext
@@ -225,7 +229,7 @@ func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) err
 		file = e.Download.Join(uid)
 	}
 	if err := c.Attachment(file, name); err != nil {
-		return fmt.Errorf("%s attachment: %w", msg, err)
+		return fmt.Errorf(format, "attachment", err)
 	}
 	return nil
 }

@@ -54,8 +54,9 @@ const (
 // Artifact404 renders the error page for the artifact links.
 func Artifact404(sl *slog.Logger, c *echo.Context, id string) error {
 	const msg = "artifact 404 context"
+	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "status"
 	data := empty(c)
@@ -94,13 +95,14 @@ func (dir Dirs) Artifact(
 	// NOTE: skip the render of the "view content" button for 1MB > zip content textdata, limit is ignored by Editors.
 	const maxZipContent = 1_000_000
 	const msg = "dir artifact context"
+	const format = msg + ": %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "artifact"
 	art, err := dir.artifactByURI(ctx, sl, c, db)
 	if art404 := art == nil || err != nil; art404 {
-		return err
+		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
 	if !readonly && sess.Editor(c) {
@@ -285,6 +287,7 @@ func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any
 	if art == nil {
 		return data, nil
 	}
+	const format = "dirs textfiles: %s: %w"
 	// INFO: The "sync.Pool" method should not be used in this func. It can cause an unintended effect of
 	// text duplication rendering. In July 2025, after research, sync pooling is better used for small, fixed width data.
 	buf, ruf, rec, err := readme.PlainTextBuffers(art, sizeLimit, dir.Download, dir.Extra)
@@ -293,7 +296,7 @@ func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any
 			data["noDownload"] = true
 			return data, nil
 		}
-		return data, fmt.Errorf("dirs.embed read: %w", err)
+		return data, fmt.Errorf(format, "read", err)
 	}
 	if includeSauce := rec.ID == "SAUCE"; includeSauce {
 		data["readmeSAUCE"] = true
@@ -324,7 +327,7 @@ func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any
 	}
 	d, err := simpleCharmapEncodings(art, data, b...)
 	if err != nil {
-		return data, fmt.Errorf("dirs.embed text: %w", err)
+		return data, fmt.Errorf(format, "text", err)
 	}
 	maps.Copy(data, d)
 	d = unicodeEncodings(buf, ruf, data)
@@ -547,21 +550,22 @@ func requireReplacementZip(name string) bool {
 }
 
 func (dir Dirs) makeReplacementZip(root, uid string) (int64, error) {
+	const format = "dirs make replacement zip: %w"
 	basename := uid + ".zip"
 	src := filepath.Join(helper.TmpDir(), basename)
 	dest := filepath.Join(dir.Extra.Path(), basename)
 	_ = os.Remove(dest)
 	_, err := rezip.CompressDir(root, src)
 	if err != nil {
-		return 0, fmt.Errorf("dirs compress zip: %w", err)
+		return 0, fmt.Errorf(format, err)
 	}
 	if err = helper.RenameCrossDevice(src, dest); err != nil {
 		defer func() { _ = os.RemoveAll(src) }()
-		return 0, fmt.Errorf("dirs compress zip: %w", err)
+		return 0, fmt.Errorf(format, err)
 	}
 	st, err := os.Stat(dest)
 	if err != nil {
-		return 0, fmt.Errorf("dirs compress zip: %w", err)
+		return 0, fmt.Errorf(format, err)
 	}
 	return st.Size(), nil
 }
@@ -872,14 +876,14 @@ func errorWithID(err error, key string, id any) error {
 		return nil
 	}
 	key = strings.TrimSpace(key)
-	const cause = "caused by artifact"
+	const format = "%w: caused by artifact %s (%v)"
 	switch id.(type) {
 	case int, int64:
-		return fmt.Errorf("%w: %s %s (%d)", err, cause, key, id)
+		return fmt.Errorf(format, err, key, id)
 	case string:
-		return fmt.Errorf("%w: %s %s (%s)", err, cause, key, id)
+		return fmt.Errorf(format, err, key, id)
 	default:
-		return fmt.Errorf("%w: %s %s", err, cause, key)
+		return fmt.Errorf(format, err, key, id)
 	}
 }
 
@@ -968,6 +972,7 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 		b = bytes.ReplaceAll(b, []byte{nbsp437}, []byte{sp})
 	}
 
+	const format = "%s decode bytes reader: %w"
 	var body string
 	var err error
 	switch textEncoding {
@@ -975,7 +980,7 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 		// unicode should apply to both latin1 and cp437
 		body, err = decode(bytes.NewReader(b))
 		if err != nil {
-			return data, fmt.Errorf("unicode utf8 decode: %w", err)
+			return data, fmt.Errorf(format, "unicode utf-8", err)
 		}
 		data["contentLatin1"] = body
 		data["contentCP437"] = body
@@ -986,13 +991,13 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 		d := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
 		body, err = decode(d)
 		if err != nil {
-			return data, fmt.Errorf("iso8859_1 decode: %w", err)
+			return data, fmt.Errorf(format, "iso 8859-1", err)
 		}
 		data["contentLatin1"] = body
 		d = charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 		body, err = decode(d)
 		if err != nil {
-			return data, fmt.Errorf("codepage437 decode: %w", err)
+			return data, fmt.Errorf(format, "cp 437", err)
 		}
 		data["contentLines"] = strings.Count(body, "\n")
 		data["contentRows"] = helper.MaxLineLength(body)

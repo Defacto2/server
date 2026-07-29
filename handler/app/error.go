@@ -20,8 +20,9 @@ const ErrTmpl = "the server could not render the html template for this page"
 // or a malformed client requests.
 func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "bad request handler"
+	const format = msg + ": %w"
 	if err1 := panics.SC(c, sl); err1 != nil {
-		return fmt.Errorf("%s: %w", msg, err1)
+		return fmt.Errorf(format, err1)
 	}
 	const code = http.StatusBadRequest
 	if err != nil {
@@ -101,8 +102,9 @@ func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 // FileMissingErr is the handler for missing download files and database ID errors.
 func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "file missing"
+	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const code = http.StatusServiceUnavailable
 	id := c.Param("id")
@@ -130,8 +132,9 @@ func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) err
 // pages that they do not have permission to access.
 func ForbiddenErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "forbidden access"
+	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const code = http.StatusForbidden
 	if err != nil {
@@ -161,8 +164,9 @@ func ForbiddenErr(sl *slog.Logger, c *echo.Context, uri string, err error) error
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
 	const msg = "internal server error"
+	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const code = http.StatusInternalServerError
 	if errors.Is(err, syscall.EPIPE) {
@@ -200,8 +204,9 @@ func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func StatusErr(sl *slog.Logger, c *echo.Context, code int, uri string) error {
 	const msg = "http status"
+	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
@@ -227,10 +232,11 @@ func StatusErr(sl *slog.Logger, c *echo.Context, code int, uri string) error {
 				slog.Int("code", code), slog.String("uri", uri))
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
-		title = fmt.Sprintf("%d error, %s", code, s)
+		const fmtcode = "%d error, %s"
+		title = fmt.Sprintf(fmtcode, code, s)
 		logo = s
 		alert = s
-		probl = fmt.Sprintf("%d error, %s", code, s)
+		probl = fmt.Sprintf(fmtcode, code, s)
 	}
 	data["title"] = title
 	data["code"] = code

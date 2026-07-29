@@ -192,8 +192,9 @@ func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 // Print the application logo and software information to the w Writer.
 func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 	const msg = "configuration info handler"
+	const format = msg + ": %w"
 	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+		panic(fmt.Errorf(format, panics.ErrNoSlog))
 	}
 	if w == nil {
 		w = io.Discard
@@ -204,23 +205,23 @@ func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 	} else if l > 0 {
 		_, err := fmt.Fprint(w, "\n\n")
 		if err != nil {
-			panic(fmt.Errorf("%s: %w", msg, err))
+			panic(fmt.Errorf(format, err))
 		}
 	}
 	_, err := fmt.Fprintf(w, "  %s.\n", flags.Copyright())
 	if err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 	_, _ = fmt.Fprintf(w, "%s\n", c.versionBrief())
-	format := "  %d active routines sharing %d usable threads on %d CPU cores."
-	cpuInfo := fmt.Sprintf(format, runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
+	fs := "  %d active routines sharing %d usable threads on %d CPU cores."
+	cpuInfo := fmt.Sprintf(fs, runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
 	_, _ = fmt.Fprintln(w, cpuInfo)
-	format = "  Compiled with Go v%s for %s on %s."
-	golangInfo := fmt.Sprintf(format, runtime.Version()[2:], flags.OS(), flags.Arch())
+	fs = "  Compiled with Go v%s for %s on %s."
+	golangInfo := fmt.Sprintf(fs, runtime.Version()[2:], flags.OS(), flags.Arch())
 	_, _ = fmt.Fprintln(w, golangInfo)
 	to, fr, _, s, err := helper.DiskStat("/")
 	if err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 	total := int64(to)
 	free := int64(fr)
@@ -237,8 +238,9 @@ func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 // TemplRegistry returns the template registry for the renderer.
 func (c *Configuration) TemplRegistry(ctx context.Context, sl *slog.Logger, db *sql.DB) (*TemplateRegistry, error) {
 	const msg = "template registry handler"
+	const format = msg + ": %w"
 	if err := panics.SD(sl, db); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
 	webapp := app.Templ{
 		Public:      c.Public,
@@ -251,7 +253,7 @@ func (c *Configuration) TemplRegistry(ctx context.Context, sl *slog.Logger, db *
 	}
 	tmpls, err := webapp.Templates(ctx, db)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
 	src := html3.Templates(ctx, db, sl, c.View)
 	maps.Copy(tmpls, src)
@@ -272,8 +274,9 @@ func (c *Configuration) EchoConfig() echo.StartConfig {
 // Start the HTTP, and-or the TLS servers that serves the web application.
 func (c *Configuration) Start(ctx context.Context, sl *slog.Logger, h http.Handler, configs config.Config) error {
 	const msg = "start server handler"
+	const format = msg + ": %w"
 	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+		panic(fmt.Errorf(format, panics.ErrNoSlog))
 	}
 
 	switch {
@@ -288,7 +291,7 @@ func (c *Configuration) Start(ctx context.Context, sl *slog.Logger, h http.Handl
 	case configs.UseLocal():
 		c.StartLocal(ctx, sl, h)
 	default:
-		return fmt.Errorf("%s: %w", msg, ErrNoPort)
+		return fmt.Errorf(format, ErrNoPort)
 	}
 	return nil
 }
@@ -527,15 +530,16 @@ func (c *Configuration) address(port uint16) string {
 // downloader is used by the html3 group route as the file download handler.
 func (c *Configuration) downloader(ctx context.Context, sl *slog.Logger, ec *echo.Context, db *sql.DB) error {
 	const msg = "downloader htm3 group handler"
+	const format = msg + ": %w"
 	if err := panics.SCD(sl, ec, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	d := download.Download{
 		Inline: false,
 		Dir:    dir.Directory(c.Environment.AbsDownload),
 	}
 	if err := d.HTTPSend(ctx, sl, ec, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	return nil
 }
@@ -564,24 +568,26 @@ type TemplateRegistry struct {
 // Render the layout template with the core HTML, META and BODY elements.
 func (t *TemplateRegistry) Render(c *echo.Context, w io.Writer, name string, data any) error {
 	const msg = "template registry render handler"
+	const format = msg + "%s: %w"
+	const fmtname = msg + "%s: %q %w"
 	if name == "" {
-		return fmt.Errorf("%s name layout: %w", msg, ErrNoName)
+		return fmt.Errorf(format, "name layout", ErrNoName)
 	}
 	if w == nil {
-		return fmt.Errorf("%s w io.writer is nil: %w", msg, echo.ErrRendererNotRegistered)
+		return fmt.Errorf(format, "w io.writer is nil", echo.ErrRendererNotRegistered)
 	}
 	if data == nil {
-		return fmt.Errorf("%s data interface is nil: %w", msg, echo.ErrRendererNotRegistered)
+		return fmt.Errorf(format, "data interface is nil", echo.ErrRendererNotRegistered)
 	}
 	if c == nil {
-		return fmt.Errorf("%s c echo context is nil: %w", msg, echo.ErrRendererNotRegistered)
+		return fmt.Errorf(format, "c echo context is nil", echo.ErrRendererNotRegistered)
 	}
 	tmpl, exists := t.Templates[name]
 	if !exists {
-		return fmt.Errorf("%s %q: %w", msg, name, ErrNoTmpl)
+		return fmt.Errorf(fmtname, "", name, ErrNoTmpl)
 	}
 	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
-		return fmt.Errorf("%s execute of '%s': %w", msg, name, err)
+		return fmt.Errorf(fmtname, "execute template", name, err)
 	}
 	return nil
 }

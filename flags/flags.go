@@ -73,7 +73,7 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 
 // Fix command fixes the database and assets.
 func Fix(_ io.Writer, c *config.Config) *cli.Command {
-	const msg = "fix command"
+	const format = "fix command: %w"
 	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "fix",
@@ -92,7 +92,7 @@ func Fix(_ io.Writer, c *config.Config) *cli.Command {
 			log.Println(fxmsg)
 			ctx := context.Background()
 			if err := c.Fixer(ctx, sl, d); err != nil {
-				return fmt.Errorf("%s: %w", msg, err)
+				return fmt.Errorf(format, err)
 			}
 			return nil
 		},
@@ -101,7 +101,7 @@ func Fix(_ io.Writer, c *config.Config) *cli.Command {
 
 // Address command lists the server addresses.
 func Address(_ io.Writer, c *config.Config) *cli.Command {
-	const msg = "address command"
+	const format = "address command: %w"
 	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "address",
@@ -113,7 +113,7 @@ func Address(_ io.Writer, c *config.Config) *cli.Command {
 			log.Printf("%s\n", admsg)
 			err := c.Addresses(sl)
 			if err != nil {
-				return fmt.Errorf("%s: %w", msg, err)
+				return fmt.Errorf(format, err)
 			}
 			return nil
 		},
@@ -293,8 +293,9 @@ func setup(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	app.HideHelpCommand = true
 	app.HideVersion = false
 	app.Suggest = true
+	const format = "application setup and run: %w"
 	if err := app.Run(os.Args); err != nil {
-		return GenericErr, fmt.Errorf("application setup and run: %w", err)
+		return GenericErr, fmt.Errorf(format, err)
 	}
 	return ExitOK, nil
 }

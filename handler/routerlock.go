@@ -31,9 +31,9 @@ const (
 )
 
 func (c *Configuration) lock(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
-	const msg = "configuration router lock"
+	const format = "configuration router lock: %w"
 	if err := panics.SDE(sl, db, e); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 	readonlylock := func(ec echo.HandlerFunc) echo.HandlerFunc {
 		return c.ReadOnlyLock(ec, sl)
@@ -73,9 +73,9 @@ func fixers(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 }
 
 func (c *Configuration) configurations(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
-	const msg = "configurations group router"
+	const format = "configurations group router: %w"
 	if err := panics.SGD(sl, g, db); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 	conf := g.Group("/configurations")
 	conf.GET("", func(ec *echo.Context) error {
@@ -96,9 +96,9 @@ func (c *Configuration) configurations(ctx context.Context, sl *slog.Logger, g *
 }
 
 func creator(ctx context.Context, g *echo.Group, db *sql.DB) {
-	const msg = "creator group router"
+	const format = "creator group router: %w"
 	if err := panics.GD(g, db); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 	creator := g.Group("/creator")
 	creator.PATCH("/text", func(c *echo.Context) error {

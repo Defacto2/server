@@ -143,9 +143,9 @@ func EmptyTester(c *echo.Context) map[string]any {
 
 // APIInfo is the handler for the APIInfo end-user helper page.
 func APIInfo(sl *slog.Logger, c *echo.Context) error {
-	const msg = "api helper context"
+	const format = "api helper context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "api-info"
 	data := empty(c)
@@ -165,9 +165,9 @@ func APIInfo(sl *slog.Logger, c *echo.Context) error {
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
 func Artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri, page string) error {
-	const msg = "artifacts context"
+	const format = "artifacts context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	if !fileslice.Valid(uri) {
 		return Artifacts404(sl, c, uri)
@@ -287,9 +287,9 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 // Artifacts404 renders the files error page for the Artifacts menu and categories.
 // It provides different error messages to the standard error page.
 func Artifacts404(sl *slog.Logger, c *echo.Context, uri string) error {
-	const msg = "artifacts 404 context"
+	const format = "artifacts 404 context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "status"
 	errs := fmt.Sprint("artifact page not found for,", uri)
@@ -311,9 +311,9 @@ func Artifacts404(sl *slog.Logger, c *echo.Context, uri string) error {
 
 // Apps is the handler for the modern applications and tools page.
 func Apps(sl *slog.Logger, c *echo.Context) error {
-	const msg = "apps context"
+	const format = "apps handler context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "apps"
 	const h1 = "Modern Applications and Tools"
@@ -335,9 +335,9 @@ func Apps(sl *slog.Logger, c *echo.Context) error {
 
 // Areacodes is the handler for the BBS and telephone area codes page.
 func Areacodes(sl *slog.Logger, c *echo.Context) error {
-	const msg = "areacodes context"
+	const format = "areacodes context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
 	data["title"] = "BBS and telephone area codes"
@@ -357,9 +357,9 @@ func Areacodes(sl *slog.Logger, c *echo.Context) error {
 
 // Artist is the handler for the Artist sceners page.
 func Artist(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "artist context"
+	const format = "artist context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
 	title := "Pixel artists and graphic designers"
@@ -430,9 +430,9 @@ func BBSYear(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) 
 
 // bbsHandler is the handler for the BBS page.
 func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
-	const msg = "bbs handler context"
+	const format = "bbs handler context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "BBS", "bbs"
 	// FTP sites were Internet-based file exchange servers that would host and share Scene releases.
@@ -491,9 +491,9 @@ func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 
 // BrokenTexts is the handler for the Broken texts page.
 func BrokenTexts(sl *slog.Logger, c *echo.Context) error {
-	const msg = "broken texts context"
+	const format = "broken texts context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "brokentexts"
 	const h1 = "Broken text files"
@@ -516,9 +516,9 @@ func BrokenTexts(sl *slog.Logger, c *echo.Context) error {
 
 // Checksum is the handler for the Checksum file record page.
 func Checksum(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
-	const msg = "checksum context"
+	const format = "checksum context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const uri = "sum"
 	if err := download.Checksum(ctx, c, db, id); err != nil {
@@ -532,9 +532,9 @@ func Checksum(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 
 // Coder is the handler for the Coder sceners page.
 func Coder(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "coder context"
+	const format = "coder context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
 	title := "Coder and programmers"
@@ -548,9 +548,9 @@ func Coder(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) er
 
 // Compression is the handler for information on historic compression tools page.
 func Compression(sl *slog.Logger, c *echo.Context) error {
-	const msg = "compression context"
+	const format = "compression context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "compression"
 	const h1 = "File compression formats"
@@ -570,9 +570,9 @@ func Compression(sl *slog.Logger, c *echo.Context) error {
 
 // Configurations is the handler for the Configuration page.
 func Configurations(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Config) error {
-	const msg = "configurations context"
+	const format = "configurations context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "configs"
 	data := empty(c)
@@ -774,9 +774,9 @@ func orphaneder(data map[string]any, conf config.Config) map[string]any {
 func DownloadJsDos(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, extra, downl dir.Directory,
 ) error {
-	const msg = "download jsdos context"
+	const format = "download jsdos context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	e := download.ExtraZip{
 		Extra:    extra,
@@ -796,9 +796,9 @@ func DownloadJsDos(
 func Download(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory,
 ) error {
-	const msg = "download context"
+	const format = "download context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	d := download.Download{
 		Inline: false,
@@ -820,9 +820,9 @@ func Download(
 
 // FTP is the handler for the FTP page.
 func FTP(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "ftp context"
+	const format = "ftp context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "FTP", "ftp"
 	data := empty(c)
@@ -855,9 +855,9 @@ func FTP(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) erro
 
 // Categories is the handler for the artifact categories page.
 func Categories(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error {
-	const msg = "categories context"
+	const format = "categories context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "Artifact categories", "categories"
 	data := empty(c)
@@ -906,9 +906,9 @@ func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool
 
 // Deletions is the handler to list the files that have been marked for deletion.
 func Deletions(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, page string) error {
-	const msg = "deletions context"
+	const format = "deletions context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	uri := fileslice.Deletions.String()
 	if !fileslice.Valid(uri) {
@@ -926,9 +926,9 @@ func Deletions(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 // Fixes is the handler for the problems and fixes page.
 func Fixes(sl *slog.Logger, c *echo.Context) error {
-	const msg = "apps context"
+	const format = "fixes for programs context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "fixes"
 	const lead = "Shrinker dispatcher or runtime 200 errors, or missing NPMOD32.DLL or D3DRM.DLL files?"
@@ -947,9 +947,9 @@ func Fixes(sl *slog.Logger, c *echo.Context) error {
 
 // Routes is the handler for the listing of all the routes page.
 func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
-	const msg = "routes context"
+	const format = "routes context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "routes"
 	data := empty(c)
@@ -967,9 +967,9 @@ func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
 
 // Terms is the handler for the problems and fixes page.
 func Terms(sl *slog.Logger, c *echo.Context) error {
-	const msg = "apps rcontext"
+	const format = "glossary of terms context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "terms"
 	const h1 = "Glossary of common terms"
@@ -989,9 +989,9 @@ func Terms(sl *slog.Logger, c *echo.Context) error {
 
 // Unwanted is the handler to list the files that have been marked as unwanted.
 func Unwanted(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, page string) error {
-	const msg = "unwanted context"
+	const format = "unwanted context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	uri := fileslice.Unwanted.String()
 	if !fileslice.Valid(uri) {
@@ -1011,9 +1011,9 @@ func Unwanted(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 // The uri is the category or collection of files to display.
 // The page is the page number of the results to display.
 func ForApproval(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, page string) error {
-	const msg = "for approval context"
+	const format = "for approval context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	uri := fileslice.ForApproval.String()
 	if !fileslice.Valid(uri) {
@@ -1038,9 +1038,9 @@ func ForApproval(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
 func GetDemozooParam(ctx context.Context, c *echo.Context, db *sql.DB, download dir.Directory) error {
-	const msg = "get demozoo param context"
+	const format = "get demozoo param context: %w"
 	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	got := remote.DemozooLink{} //nolint:exhaustruct
 	id, err := echo.PathParam[int](c, "id")
@@ -1093,9 +1093,9 @@ func GetPouet(
 func GoogleCallback(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, clientID string, maxAge int, accounts ...[48]byte,
 ) error {
-	const msg = "google callback context"
+	const format = "google callback context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "google/callback"
 	// Cross-Site Request Forgery cookie token
@@ -1159,9 +1159,10 @@ func GoogleCallback(
 // [ID Tokens for Google HTTP APIs]: https://pkg.go.dev/google.golang.org/api/idtoken
 func sessionHandler(c *echo.Context, maxAge int, claims map[string]any,
 ) error {
+	const format = "session handler get: %w"
 	session, err := session.Get(sess.Name, c)
 	if err != nil {
-		return fmt.Errorf("app session get: %w", err)
+		return fmt.Errorf(format, err)
 	}
 	// session Options are cookie options and are all optional
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
@@ -1192,9 +1193,9 @@ func sessionHandler(c *echo.Context, maxAge int, claims map[string]any,
 
 // History is the handler for the History page.
 func History(sl *slog.Logger, c *echo.Context) error {
-	const msg = "history context"
+	const format = "history context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "history"
 	const lead = "In the past, alternative iterations of the name have included" +
@@ -1216,9 +1217,9 @@ func History(sl *slog.Logger, c *echo.Context) error {
 
 // Index is the handler for the Home page.
 func Index(sl *slog.Logger, c *echo.Context) error {
-	const msg = "index context"
+	const format = "index context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "index"
 	data := empty(c)
@@ -1249,9 +1250,9 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 func Inline(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory,
 ) error {
-	const msg = "inline context"
+	const format = "inline context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	d := download.Download{
 		Inline: true,
@@ -1269,9 +1270,9 @@ func Inline(
 
 // Interview is the handler for the People Interviews page.
 func Interview(sl *slog.Logger, c *echo.Context) error {
-	const msg = "interview context"
+	const format = "interview context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "Interviews with former Sceners", "interview"
 	data := empty(c)
@@ -1301,9 +1302,9 @@ func MagazineAZ(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 
 // magazines is the handler for the magazine page.
 func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, chronological bool) error {
-	const msg = "magazines context"
+	const format = "magazines context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "Magazines", "magazine"
 	data := empty(c)
@@ -1360,9 +1361,9 @@ func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 // Musician is the handler for the Musiciansceners page.
 func Musician(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "musician context"
+	const format = "musician context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
 	title := "Musicians and composers"
@@ -1395,9 +1396,9 @@ func New(sl *slog.Logger, c *echo.Context) error {
 // Page404 renders the files page error page for the Artifacts menu and categories.
 // It provides different error messages to the standard error page.
 func Page404(sl *slog.Logger, c *echo.Context, uri, page string) error {
-	const msg = "page 404 context"
+	const format = "page 404 context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "status"
 	errs := fmt.Sprintf("page not found for %q at %q", page, uri)
@@ -1419,9 +1420,9 @@ func Page404(sl *slog.Logger, c *echo.Context, uri, page string) error {
 
 // PlatformEdit handles the post submission for the Platform selection field.
 func PlatformEdit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "platform edit context"
+	const format = "platform edit context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -1439,9 +1440,9 @@ func PlatformEdit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 
 // PlatformTagInfo handles the POST submission for the platform and tag info.
 func PlatformTagInfo(c *echo.Context) error {
-	const msg = "platform tag info"
+	const format = "platform tag info: %w"
 	if c == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
+		return fmt.Errorf(format, panics.ErrNoEchoC)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -1456,9 +1457,9 @@ func PlatformTagInfo(c *echo.Context) error {
 
 // PostDesc is the handler for the Search for file descriptions form post page.
 func PostDesc(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error {
-	const msg = "post desc context"
+	const format = "post desc context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	if s := strings.TrimSpace(input); s == "" {
 		// Redirect back to the search form
@@ -1502,9 +1503,9 @@ func PostFilename(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 
 // PostName is the handler for the Search for filenames form post page.
 func PostName(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) error {
-	const msg = "post name context"
+	const format = "post name context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	input := c.FormValue("search-term-query")
 	if s := strings.TrimSpace(input); s == "" {
@@ -1601,9 +1602,9 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 // If the cache is invalid or corrupt an error will be returned
 // and a API request should be made to Pouet.
 func PouetCache(c *echo.Context, data string) error {
-	const msg = "pouet cache context"
+	const format = "pouet cache context: %w"
 	if c == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
+		return fmt.Errorf(format, panics.ErrNoEchoC)
 	}
 	if data == "" {
 		return nil
@@ -1612,23 +1613,24 @@ func PouetCache(c *echo.Context, data string) error {
 	x := strings.Split(data, sep)
 	const req = 4
 	if len(x) < req {
-		return fmt.Errorf("%s %w: %d, want %d", msg, ErrCorrupt, len(x), req)
+		return fmt.Errorf(format+": %d, want %d", ErrCorrupt, len(x), req)
 	}
+	const fmts = format + ": %s"
 	stars, err := strconv.ParseFloat(x[0], 64)
 	if err != nil {
-		return fmt.Errorf("%s %w: %s", msg, err, x[0])
+		return fmt.Errorf(fmts, err, x[0])
 	}
 	vd, err := strconv.Atoi(x[1])
 	if err != nil {
-		return fmt.Errorf("%s %w: %s", msg, err, x[1])
+		return fmt.Errorf(fmts, err, x[1])
 	}
 	vu, err := strconv.Atoi(x[2])
 	if err != nil {
-		return fmt.Errorf("%s %w: %s", msg, err, x[2])
+		return fmt.Errorf(fmts, err, x[2])
 	}
 	vm, err := strconv.Atoi(x[3])
 	if err != nil {
-		return fmt.Errorf("%s %w: %s", msg, err, x[3])
+		return fmt.Errorf(fmts, err, x[3])
 	}
 	pv.Stars = stars
 	pv.VotesDown = uint64(math.Abs(float64(vd)))
@@ -1642,9 +1644,9 @@ func PouetCache(c *echo.Context, data string) error {
 
 // ProdPouet is the handler for the Pouet prod JSON page.
 func ProdPouet(ctx context.Context, c *echo.Context, id string) error {
-	const msg = "prod pouet context"
+	const format = "prod pouet context: %w"
 	if c == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
+		return fmt.Errorf(format, panics.ErrNoEchoC)
 	}
 	p := pouet.Production{} //nolint:exhaustruct
 	i, err := strconv.Atoi(id)
@@ -1662,9 +1664,9 @@ func ProdPouet(ctx context.Context, c *echo.Context, id string) error {
 
 // ProdZoo is the handler for the Demozoo production JSON page.
 func ProdZoo(ctx context.Context, c *echo.Context, id string) error {
-	const msg = "prod zoo context"
+	const format = "prod zoo context: %w"
 	if c == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
+		return fmt.Errorf(format, panics.ErrNoEchoC)
 	}
 	prod := demozoo.Production{} //nolint:exhaustruct
 	i, err := strconv.Atoi(id)
@@ -1697,9 +1699,9 @@ func ReleaserYear(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 
 // releasers is the handler for the Releaser page.
 func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
-	const msg = "releaser context"
+	const format = "releaser context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "Releaser", "releaser"
 	data := empty(c)
@@ -1759,9 +1761,9 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 // Releaser404 renders the files error page for the Groups menu and invalid releasers.
 func Releaser404(sl *slog.Logger, c *echo.Context, invalidID string) error {
-	const msg = "releaser 404 context"
+	const format = "releaser 404 context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "status"
 	errs := fmt.Sprint("releaser page not found for,", invalidID)
@@ -1784,8 +1786,9 @@ func Releaser404(sl *slog.Logger, c *echo.Context, invalidID string) error {
 // Releasers is the handler for the list and preview of files credited to a releaser.
 func Releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public embed.FS) error {
 	const msg = "releasers context handler"
+	const format = msg + ": %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "artifacts"
 	errs := fmt.Sprint("releasers page for, ", uri)
@@ -1908,6 +1911,7 @@ func releaserLead(uri string, data map[string]any) map[string]any {
 
 // releaserSum is a helper function for Releasers that returns the statistics for the files page.
 func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
+	const format = "releaser sum %w: %s"
 	m := model.Summary{
 		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
 		SumCount: sql.NullInt64{Int64: 0, Valid: false},
@@ -1915,7 +1919,7 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
 	}
 	if err := m.ByReleaser(ctx, exec, uri); err != nil {
-		return nil, fmt.Errorf("releaser sum %w: %s", err, uri)
+		return nil, fmt.Errorf(format, err, uri)
 	}
 	d := map[string]string{
 		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
@@ -1927,9 +1931,9 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 
 // Scener is the handler for the page to list all the sceners.
 func Scener(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "scener context"
+	const format = "scener context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
 	title := "Sceners, people who were apart of the Scene"
@@ -1942,9 +1946,9 @@ func Scener(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 
 // Scener404 renders the files error page for the People menu and invalid sceners.
 func Scener404(sl *slog.Logger, c *echo.Context, id string) error {
-	const msg = "scene 404 context"
+	const format = "scene 404 context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "status"
 	errs := fmt.Sprint("scener page not found for,", id)
@@ -1966,9 +1970,9 @@ func Scener404(sl *slog.Logger, c *echo.Context, id string) error {
 
 // Sceners is the handler for the list and preview of files credited to a scener.
 func Sceners(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error {
-	const msg = "sceners context"
+	const format = "sceners context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "artifacts"
 	errs := fmt.Sprint("sceners page for,", uri)
@@ -2004,6 +2008,7 @@ func Sceners(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, 
 
 // scenerSum is a helper function for Sceners that returns the statistics for the files page.
 func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[string]string, error) {
+	const format = "scener sum %q: %w"
 	m := model.Summary{
 		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
 		SumCount: sql.NullInt64{Int64: 0, Valid: false},
@@ -2011,7 +2016,7 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
 	}
 	if err := m.ByScener(ctx, exec, uri); err != nil {
-		return nil, fmt.Errorf("scener sum %w: %s", err, uri)
+		return nil, fmt.Errorf(format, uri, err)
 	}
 	d := map[string]string{
 		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
@@ -2022,9 +2027,9 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 
 // SearchDesc is the handler for the Search for file descriptions page.
 func SearchDesc(sl *slog.Logger, c *echo.Context) error {
-	const msg = "search desc context"
+	const format = "search desc context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "Game or app titles search", "searchpost"
 	data := empty(c)
@@ -2041,9 +2046,9 @@ func SearchDesc(sl *slog.Logger, c *echo.Context) error {
 
 // SearchID is the handler for the Record by ID Search page.
 func SearchID(sl *slog.Logger, c *echo.Context) error {
-	const msg = "search id context"
+	const format = "search id context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "Search the IDs of artifacts", "searchhtmx"
 	data := empty(c)
@@ -2063,9 +2068,9 @@ func SearchID(sl *slog.Logger, c *echo.Context) error {
 
 // SearchFile is the handler for the Search for files page.
 func SearchFile(sl *slog.Logger, c *echo.Context) error {
-	const msg = "search file context"
+	const format = "search file context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "Filename or extensions search", "searchpost"
 	data := empty(c)
@@ -2082,9 +2087,9 @@ func SearchFile(sl *slog.Logger, c *echo.Context) error {
 
 // SearchReleaser is the handler for the Releaser Search page.
 func SearchReleaser(sl *slog.Logger, c *echo.Context) error {
-	const msg = "search releaser context"
+	const format = "search releaser context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name = "Lookup releasers", "searchhtmx"
 	data := empty(c)
@@ -2105,9 +2110,9 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context) error {
 
 // SignedOut is the handler to sign out and remove the current session.
 func SignedOut(sl *slog.Logger, c *echo.Context) error {
-	const msg = "signed out context"
+	const format = "signed out context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "signedout"
 	{ // get any existing session
@@ -2131,9 +2136,9 @@ func SignedOut(sl *slog.Logger, c *echo.Context) error {
 
 // SignOut is the handler for the Sign out of Defacto2 page.
 func SignOut(sl *slog.Logger, c *echo.Context) error {
-	const msg = "sign out context"
+	const format = "sign out context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "signout"
 	data := empty(c)
@@ -2150,9 +2155,9 @@ func SignOut(sl *slog.Logger, c *echo.Context) error {
 
 // Signin is the handler for the Sign in session page.
 func Signin(sl *slog.Logger, c *echo.Context, clientID, nonce string) error {
-	const msg = "signin context"
+	const format = "signin context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "signin"
 	data := empty(c)
@@ -2204,9 +2209,9 @@ func remove(sl *slog.Logger, c *echo.Context, name string, data map[string]any) 
 
 // TagEdit handles the post submission for the Tag selection field.
 func TagEdit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "tag edit context"
+	const format = "tag edit context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -2224,9 +2229,9 @@ func TagEdit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) 
 
 // TagInfo handles the POST submission for the platform and tag info.
 func TagInfo(c *echo.Context) error {
-	const msg = "tag info context"
+	const format = "tag info context: %w"
 	if c == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
+		return fmt.Errorf(format, panics.ErrNoEchoC)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -2241,9 +2246,9 @@ func TagInfo(c *echo.Context) error {
 
 // Titles is the handler for the Titles page.
 func Titles(sl *slog.Logger, c *echo.Context) error {
-	const msg = "titles context"
+	const format = "titles context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "titles"
 	data := empty(c)
@@ -2259,9 +2264,9 @@ func Titles(sl *slog.Logger, c *echo.Context) error {
 }
 
 func Fixers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "fixers context"
+	const format = "fixers context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "fixers"
 	data := empty(c)
@@ -2295,9 +2300,9 @@ func Fixers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 //
 //nolint:funlen // Complex handler with error handling and database operations
 func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "fix numeric suffix"
+	const format = "fix numeric suffix: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 
 	// Get the obfuscated ID from the URL
@@ -2320,7 +2325,7 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 			slog.String("error", err.Error()),
 			slog.Int64("file_id", fileID),
 			slog.String("obfuscated_id", obfuscatedID))
-		return fmt.Errorf("%s: failed to find file: %w", msg, err)
+		return fmt.Errorf("%s: failed to find file: %w", format, err)
 	}
 	if file == nil {
 		sl.Error("file not found in fix handler",
@@ -2357,7 +2362,7 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 	file.Filename = null.StringFrom(baseFilename)
 	_, err = file.Update(ctx, db, boil.Infer())
 	if err != nil {
-		return fmt.Errorf("%s: failed to update filename: %w", msg, err)
+		return fmt.Errorf("%s: failed to update filename: %w", format, err)
 	}
 
 	// Return the updated file info as HTML to replace the list item
@@ -2386,9 +2391,9 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 
 // Thanks is the handler for the Thanks page.
 func Thanks(sl *slog.Logger, c *echo.Context) error {
-	const msg = "thanks context"
+	const format = "thanks context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "thanks"
 	data := empty(c)
@@ -2407,9 +2412,9 @@ func Thanks(sl *slog.Logger, c *echo.Context) error {
 
 // TheScene is the handler for the The Scene page.
 func TheScene(sl *slog.Logger, c *echo.Context) error {
-	const msg = "the scene context"
+	const format = "the scene context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = "thescene"
 	const h1 = "The Scene"
@@ -2431,9 +2436,9 @@ func TheScene(sl *slog.Logger, c *echo.Context) error {
 
 // VotePouet is the handler for the Pouet production votes JSON page.
 func VotePouet(ctx context.Context, sl *slog.Logger, c *echo.Context, id string) error {
-	const msg = "vote pouet context"
+	const format = "vote pouet context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const title, name, sep = "Pouet", "pouet", ";"
 	pv := pouet.Votes{ID: 0, Stars: 0.0, VotesAvg: 0.0, VotesUp: 0, VotesMeh: 0, VotesDown: 0}
@@ -2474,9 +2479,9 @@ func VotePouet(ctx context.Context, sl *slog.Logger, c *echo.Context, id string)
 // Website is the handler for the websites page.
 // Open is the ID of the accordion section to open.
 func Website(sl *slog.Logger, c *echo.Context, open string) error {
-	const msg = "website context"
+	const format = "website context: %w"
 	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const name = websites
 	data := empty(c)
@@ -2517,9 +2522,9 @@ func Website(sl *slog.Logger, c *echo.Context, open string) error {
 
 // Writer is the handler for the Writer page.
 func Writer(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "writer context"
+	const format = "writer context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
 	title := "Writers, editors and authors"
@@ -2577,28 +2582,29 @@ func steps(lastPage float64) int {
 
 // statsByURI handles the different URI types for statistics calculation.
 func statsByURI(ctx context.Context, exec boil.ContextExecutor, uri string, m *model.Summary) error {
+	const format = "artifacts stats %s %w: %s"
 	switch fileslice.Match(uri) {
 	case fileslice.ForApproval:
 		if err := m.ByForApproval(ctx, exec); err != nil {
-			return fmt.Errorf("artifacts stats for approval %w: %s", err, uri)
+			return fmt.Errorf(format, "by for approval", err, uri)
 		}
 	case fileslice.Deletions:
 		if err := m.ByHidden(ctx, exec); err != nil {
-			return fmt.Errorf("artifacts stats by hidden %w: %s", err, uri)
+			return fmt.Errorf(format, "by hidden", err, uri)
 		}
 	case fileslice.Unwanted:
 		if err := m.ByUnwanted(ctx, exec); err != nil {
-			return fmt.Errorf("artifacts stats unwanted %w: %s", err, uri)
+			return fmt.Errorf(format, "by unwanted", err, uri)
 		}
 	case fileslice.NewUploads, fileslice.NewUpdates, fileslice.Oldest,
 		fileslice.Newest, fileslice.Sensenstahl, fileslice.WindowsPack:
 		// For these cases, use the public artifacts method as fallback
 		if err := m.ByPublic(ctx, exec); err != nil {
-			return fmt.Errorf("artifacts stats by public %w: %s", err, uri)
+			return fmt.Errorf(format, "by public fallback", err, uri)
 		}
 	default:
 		if err := m.ByPublic(ctx, exec); err != nil {
-			return fmt.Errorf("artifacts stats by public %w: %s", err, uri)
+			return fmt.Errorf(format, "by public", err, uri)
 		}
 	}
 	return nil

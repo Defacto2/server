@@ -72,8 +72,9 @@ type Production struct {
 //
 // [Pouet API]: https://api.pouet.net/v1/prod/?id=
 func (p *Production) Get(ctx context.Context, id int) (int, error) {
+	const format = "get pouet production id %d %s: %w"
 	if id < firstID {
-		return 0, fmt.Errorf("get pouet production %w: %d", ErrBadID, id)
+		return 0, fmt.Errorf(format, id, "", ErrBadID)
 	}
 	resp := Response{
 		Prod: struct {
@@ -118,11 +119,11 @@ func (p *Production) Get(ctx context.Context, id int) (int, error) {
 		Success: false,
 	}
 	if code, err := resp.Get(ctx, id); err != nil {
-		return code, fmt.Errorf("pouet uploader get %w", err)
+		return code, fmt.Errorf(format, id, "resp get", err)
 	}
 	parsedID, err := strconv.Atoi(resp.Prod.ID)
 	if err != nil {
-		return 0, fmt.Errorf("pouet uploader atoi %w", err)
+		return 0, fmt.Errorf(format, id, "strconv atoi "+resp.Prod.ID, err)
 	}
 	platOkay := PlatformsValid(resp.Prod.Platforms.String())
 	typeOkay := TypesValid(resp.Prod.Types.String())
@@ -350,19 +351,20 @@ func (t Types) String() string {
 // Get retrieves the production voting data from the Pouet API.
 // The id value is the Pouet production ID and must be greater than 0.
 func (r *Response) Get(ctx context.Context, id int) (int, error) {
+	const format = "get pouet response id %d %s: %w"
 	if id < firstID {
-		return 0, fmt.Errorf("%w: %d", ErrBadID, id)
+		return 0, fmt.Errorf(format, id, "", ErrBadID)
 	}
 	url := ProdURL + strconv.Itoa(id)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return 0, fmt.Errorf("get pouet production new request %w", err)
+		return 0, fmt.Errorf(format, id, "new request", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
 	c := client()
 	res, err := c.Do(req)
 	if err != nil {
-		return 0, fmt.Errorf("get pouet production client do %w", err)
+		return 0, fmt.Errorf(format, id, "client do", err)
 	}
 	if res == nil {
 		return 0, http.ErrBodyNotAllowed
@@ -371,21 +373,21 @@ func (r *Response) Get(ctx context.Context, id int) (int, error) {
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
-		return res.StatusCode, fmt.Errorf("get pouet production %w: %s", ErrStatusCode, res.Status)
+		return res.StatusCode, fmt.Errorf(format, id, "status "+res.Status, ErrStatusCode)
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
-		return 0, fmt.Errorf("get pouet production read all %w", err)
+		return 0, fmt.Errorf(format, id, "read all", err)
 	}
 	err = json.Unmarshal(body, &r)
 	clear(body)
 	if err != nil {
-		return 0, fmt.Errorf("get pouet production json unmarshal %w", err)
+		return 0, fmt.Errorf(format, id, "json unmarshal", err)
 	}
 	if !r.Success {
-		return 0, fmt.Errorf("get pouet production %w: %d", ErrSuccess, id)
+		return 0, fmt.Errorf(format, id, "r not successful", ErrSuccess)
 	}
 	return 0, nil
 }
@@ -394,34 +396,35 @@ func (r *Response) Get(ctx context.Context, id int) (int, error) {
 // The id value is the Pouet production ID and must be greater than 0.
 // The data is intended for the Artifact page, Pouët reviews section.
 func (v *Votes) Votes(ctx context.Context, id int) error {
+	const format = "pouet votes id %d: %s: %w"
 	if id < firstID {
 		return fmt.Errorf("%w: %d", ErrBadID, id)
 	}
 	r := empty()
 	_, err := r.Get(ctx, id)
 	if err != nil {
-		return fmt.Errorf("pouet votes get %w", err)
+		return fmt.Errorf(format, id, "get", err)
 	}
 	v.ID, err = strconv.Atoi(r.Prod.ID)
 	if err != nil {
-		return fmt.Errorf("pouet votes atoi %w", err)
+		return fmt.Errorf(format, id, "atoi "+r.Prod.ID, err)
 	}
 	const base, bitSize = 10, 64
 	v.VotesUp, err = strconv.ParseUint(r.Prod.Voteup, base, bitSize)
 	if err != nil {
-		return fmt.Errorf("pouet votes parse up %w", err)
+		return fmt.Errorf(format, id, "parse up", err)
 	}
 	v.VotesMeh, err = strconv.ParseUint(r.Prod.Votepig, base, bitSize)
 	if err != nil {
-		return fmt.Errorf("pouet votes parse pig %w", err)
+		return fmt.Errorf(format, id, "parse pig", err)
 	}
 	v.VotesDown, err = strconv.ParseUint(r.Prod.Votedown, base, bitSize)
 	if err != nil {
-		return fmt.Errorf("pouet votes parse down %w", err)
+		return fmt.Errorf(format, id, "parse down", err)
 	}
 	v.VotesAvg, err = strconv.ParseFloat(r.Prod.Voteavg, 64)
 	if err != nil {
-		return fmt.Errorf("pouet votes parse average %w", err)
+		return fmt.Errorf(format, id, "parse average", err)
 	}
 	v.Stars = Stars(v.VotesUp, v.VotesMeh, v.VotesDown)
 	return nil

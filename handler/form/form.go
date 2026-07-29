@@ -38,9 +38,9 @@ func Checkname(name string) error {
 // the count. If the count is 0, the text is red. If the count is 1, the text is blue. If the
 // count is greater than 1, the text is unmodified.
 func HumanizeCount(ctx context.Context, db *sql.DB, section, platform string) (template.HTML, error) {
-	const msg = "form humanize count"
+	const format = "form humanize count: %w"
 	if db == nil {
-		return "", fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+		return "", fmt.Errorf(format, panics.ErrNoDB)
 	}
 	count, tag, err := humanizeCount(ctx, db, section, platform)
 	if err != nil {

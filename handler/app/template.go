@@ -50,12 +50,12 @@ type Templ struct {
 
 // Templates returns a map of the templates used by the route.
 func (t *Templ) Templates(ctx context.Context, db *sql.DB) (map[string]*template.Template, error) {
-	const msg = "templates mapper"
+	const format = "templates mapper %s: %w"
 	if db == nil {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+		return nil, fmt.Errorf(format, "argument", panics.ErrNoDB)
 	}
 	if err := t.Subresource.Verify(t.Public); err != nil {
-		return nil, fmt.Errorf("%s verify: %w", msg, err)
+		return nil, fmt.Errorf(format, "verify", err)
 	}
 	tmpls := make(map[string]*template.Template)
 	for key, name := range *t.Pages() {
@@ -696,18 +696,19 @@ func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 		bv = ""
 	}
 
+	const format = "error: %s"
 	var prime, second string
 	var err error
 	if av != "" {
 		prime, err = simple.MakeLink("1", av, class, performant)
 		if err != nil {
-			return template.HTML(fmt.Sprintf("error: %s", err))
+			return template.HTML(fmt.Sprintf(format, err))
 		}
 	}
 	if bv != "" {
 		second, err = simple.MakeLink("2", bv, class, performant)
 		if err != nil {
-			return template.HTML(fmt.Sprintf("error: %s", err))
+			return template.HTML(fmt.Sprintf(format, err))
 		}
 	}
 	return simple.Releasers(prime, second, magazine)

@@ -27,9 +27,9 @@ type configHtmx struct {
 // append is the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
 func (h configHtmx) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
-	const msg = "router htmx group"
+	const format = "router htmx group: %w"
 	if err := panics.SDE(sl, db, e); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)
 	// htmx/

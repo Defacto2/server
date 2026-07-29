@@ -58,16 +58,16 @@ type Tidbits struct {
 //   - the filename is empty
 //   - the body trimmed of white space is empty
 func (ts *Tidbits) Add(filename, body string) error {
-	const name = "tidbits search add"
+	const format = "tidbits search add: %w"
 	if ts.engine == nil {
-		return fmt.Errorf("%s: %w", name, ErrNoIndex)
+		return fmt.Errorf(format, ErrNoIndex)
 	}
 	if filename == "" {
-		return fmt.Errorf("%s: %w", name, ErrNoName)
+		return fmt.Errorf(format, ErrNoName)
 	}
 	body = strings.TrimSpace(body)
 	if body == "" {
-		return fmt.Errorf("%s: %w", name, ErrNoBody)
+		return fmt.Errorf(format, ErrNoBody)
 	}
 
 	// remove any embedded html including <a href> links etc.
@@ -105,7 +105,7 @@ func filter(r rune) rune {
 // The blaze library annoyingly slogs every index added,
 // so this func temporary mutes all slogs while indexing.
 func (ts *Tidbits) NewIndex(fsys embed.FS, root string) error {
-	const name = "tidbits new index"
+	const format = "tidbits new index: %w"
 	ts.engine = blaze.NewInvertedIndex()
 
 	mute := slog.New(slog.DiscardHandler)
@@ -121,13 +121,13 @@ func (ts *Tidbits) NewIndex(fsys embed.FS, root string) error {
 		}
 		b, err := fsys.ReadFile(path)
 		if err != nil {
-			return fmt.Errorf("%s: %w", path, err)
+			return fmt.Errorf(format+": %s", err, path)
 		}
 		return ts.Add(d.Name(), string(b))
 	})
 	slog.SetDefault(restore)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, err)
 	}
 	ts.TotalDocs = ts.engine.TotalDocs
 	ts.TotalTerms = ts.engine.TotalTerms

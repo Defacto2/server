@@ -31,13 +31,15 @@ const (
 	pad7cnt = 7
 )
 
-var (
-	ErrModel = errors.New("error, no file model")
-	//nolint:gochecknoglobals
-	pad3 = strings.Repeat(padding, pad3cnt)
-	//nolint:gochecknoglobals
-	pad7 = strings.Repeat(padding, pad7cnt)
-)
+var ErrModel = errors.New("error, no file model")
+
+func pad3() string {
+	return strings.Repeat(padding, pad3cnt)
+}
+
+func pad7() string {
+	return strings.Repeat(padding, pad7cnt)
+}
 
 // ArtExpr returns a query modifier for the digital or pixel art category.
 func ArtExpr() qm.QueryMod { //nolint:ireturn
@@ -105,9 +107,9 @@ func LeadStr(width int, s string) string {
 	needed := width - l
 	switch needed {
 	case width3:
-		return pad3
+		return pad3()
 	case width7:
-		return pad7
+		return pad7()
 	default:
 		return strings.Repeat(padding, needed)
 	}
@@ -147,13 +149,13 @@ func Published(f *models.File) string {
 	monthValid := ms != mx
 	dayValid := ds != dx
 	if yearValid && !monthValid && !dayValid {
-		return fmt.Sprintf("%s%s", pad7, ys)
+		return fmt.Sprintf("%s%s", pad7(), ys)
 	}
 	if yearValid && monthValid && !dayValid {
-		return fmt.Sprintf("%s%s-%s", pad3, ms, ys)
+		return fmt.Sprintf("%s%s-%s", pad3(), ms, ys)
 	}
 	if !yearValid && !monthValid && !dayValid {
-		return fmt.Sprintf("%s%s", pad7, yx)
+		return fmt.Sprintf("%s%s", pad7(), yx)
 	}
 	return fmt.Sprintf("%s-%s-%s", ds, ms, ys)
 }
