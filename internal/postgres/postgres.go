@@ -31,13 +31,19 @@ const (
 // Connections returns the number of active connections and the maximum allowed connections.
 func Connections(db *sql.DB) (int64, int64, error) {
 	const msg = "postgres"
-	if db == nil {
-		return 0, 0, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	const format = msg + " %s: %w"
+
+	failure := func(s string, err error) (int64, int64, error) {
+		return 0, 0, fmt.Errorf(format, s, err)
 	}
+	if db == nil {
+		return failure("", panics.ErrNoDB)
+	}
+
 	const query = "SELECT COUNT(*) FROM pg_stat_activity WHERE datname='defacto2_ps';"
 	rows, err := db.Query(query) //nolint:noctx // legacy code, would require extensive refactoring
 	if err != nil {
-		return 0, 0, fmt.Errorf("%s query: %w", msg, err)
+		return failure("query", err)
 	}
 	defer func() {
 		_ = rows.Close()
@@ -46,29 +52,29 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	var count int64
 	if rows.Next() {
 		if err := rows.Scan(&count); err != nil {
-			return 0, 0, fmt.Errorf("%s scan: %w", msg, err)
+			return failure("scan", err)
 		}
 	}
 	if err := rows.Err(); err != nil {
-		return 0, 0, fmt.Errorf("%s row iteration: %w", msg, err)
+		return failure("row iteration", err)
 	}
-	maxConn, err := db.Query("SHOW max_connections;") //nolint:noctx // legacy code, would require extensive refactoring
+	result, err := db.Query("SHOW max_connections;") //nolint:noctx // legacy code, would require extensive refactoring
 	if err != nil {
-		return 0, 0, fmt.Errorf("%s query: %w", msg, err)
+		return failure("query", err)
 	}
 	defer func() {
-		_ = maxConn.Close()
+		_ = result.Close()
 	}()
-	var maxConnections int64
-	for maxConn.Next() {
-		if err := maxConn.Scan(&maxConnections); err != nil {
-			return 0, 0, fmt.Errorf("%s scan: %w", msg, err)
+	var max int64
+	for result.Next() {
+		if err := result.Scan(&max); err != nil {
+			return failure("scan", err)
 		}
 	}
-	if err := maxConn.Err(); err != nil {
-		return 0, 0, fmt.Errorf("%s row iteration: %w", msg, err)
+	if err := result.Err(); err != nil {
+		return failure("row iteration", err)
 	}
-	return count, maxConnections, nil
+	return count, max, nil
 }
 
 // Open a new connection to the PostgreSQL database.
@@ -78,13 +84,14 @@ func Connections(db *sql.DB) (int64, int64, error) {
 // The connection should be closed after the application exits.
 func Open() (*sql.DB, error) {
 	const msg = "postgres open connection"
+	const format = msg + " %s: %w"
 	dataSource, err := New()
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, "", err)
 	}
 	conn, err := sql.Open(DriverName, dataSource.URL)
 	if err != nil {
-		return nil, fmt.Errorf("%s new: %w", msg, err)
+		return nil, fmt.Errorf(format, "new", err)
 	}
 	return conn, nil
 }
@@ -92,11 +99,12 @@ func Open() (*sql.DB, error) {
 // New initializes the connection with default values or values from the environment.
 func New() (Connection, error) {
 	const msg = "postgres new connection"
+	const format = msg + " %s: %w"
 	c := Connection{
 		URL: DefaultURL,
 	}
 	if err := env.Parse(&c); err != nil {
-		return Connection{}, fmt.Errorf("%s default url: %w: %w", msg, ErrEnvValue, err)
+		return Connection{}, fmt.Errorf(format+" %w", " default url", ErrEnvValue, err)
 	}
 	return c, nil
 }

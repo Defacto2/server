@@ -40,23 +40,24 @@ const (
 // Query the database version.
 func (v *Version) Query(db *sql.DB) error {
 	const msg = "postgres version query"
+	const format = msg + " %s: %w"
 	if db == nil {
 		return nil
 	}
 	rows, err := db.Query(SelVersion) //nolint:noctx // legacy code, would require extensive refactoring
 	if err != nil {
-		return fmt.Errorf("%s connect: %w", msg, err)
+		return fmt.Errorf(format, "connect", err)
 	}
 	defer func() {
 		_ = rows.Close()
 	}()
 	for rows.Next() {
 		if err := rows.Scan(v); err != nil {
-			return fmt.Errorf("%s rows scan: %w", msg, err)
+			return fmt.Errorf(format, "rows scan", err)
 		}
 	}
 	if err := rows.Err(); err != nil {
-		return fmt.Errorf("%s row iteration: %w", msg, err)
+		return fmt.Errorf(format, "row iteration", err)
 	}
 	return nil
 }

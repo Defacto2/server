@@ -34,20 +34,21 @@ type Files struct {
 // Any errors will be joined and returned.
 func (f Files) Close() error {
 	const msg = "logs files close"
+	const format = "%s level: %w"
 	var errs []error
 	if f.errlevel != nil {
 		if err := f.errlevel.Close(); err != nil {
-			errs = append(errs, fmt.Errorf("error level: %w", err))
+			errs = append(errs, fmt.Errorf(format, "error", err))
 		}
 	}
 	if f.infolevel != nil {
 		if err := f.infolevel.Close(); err != nil {
-			errs = append(errs, fmt.Errorf("info level: %w", err))
+			errs = append(errs, fmt.Errorf(format, "info", err))
 		}
 	}
 	if f.debuglevel != nil {
 		if err := f.debuglevel.Close(); err != nil {
-			errs = append(errs, fmt.Errorf("debug level: %w", err))
+			errs = append(errs, fmt.Errorf(format, "debug", err))
 		}
 	}
 	if len(errs) > 0 {
@@ -70,7 +71,7 @@ func (f Files) Close() error {
 //
 // File descriptors ignore the provided stdmin slog level.
 func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
-	useStdout, useStderr := flag&(Lstdout) != 0, flag&(Lstderr) != 0
+	useStdout, useStderr := flag&Lstdout != 0, flag&Lstderr != 0
 	if f.errlevel == nil && f.infolevel == nil && f.debuglevel == nil && !useStderr && !useStdout {
 		return Discard()
 	}
@@ -123,7 +124,7 @@ func NoFiles() Files {
 
 // OpenFiles creates or opens the named log files for use with the
 // [Files.New] method. Multiple files can be opened together and all
-// files must closed a after use using the [Files.Close] method.
+// files must be closed after use using the [Files.Close] method.
 //
 //   - ename will be used to write fatal and error reports.
 //   - iname will be used to write fatal, error, warnings and info reports.
@@ -136,42 +137,48 @@ func NoFiles() Files {
 // must be handled appropriately.
 func OpenFiles(root, ename, iname, dname string) (Files, error) {
 	const msg = "logs open file"
+	const format = msg + " %s: %w"
 	const flag = os.O_CREATE | os.O_APPEND | os.O_WRONLY
-	const perm = 0o666
-	none := Files{errlevel: nil, infolevel: nil, debuglevel: nil}
-	files := Files{errlevel: nil, infolevel: nil, debuglevel: nil}
-	// handle the root directory
+	const perm = 0o644
+
 	if root == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			return none, fmt.Errorf("%s user home dir: %w", msg, err)
+			return Files{}, fmt.Errorf(format, "user home dir", err)
 		}
 		root = home
 	}
+
 	r, err := os.OpenRoot(root)
 	if err != nil {
-		return none, fmt.Errorf("%s open root: %w", msg, err)
+		return Files{}, fmt.Errorf(format, "open root", err)
 	}
 	defer func() {
 		_ = r.Close()
 	}()
-	// open files
-	var errr error
-	if ename != "" {
-		files.errlevel, errr = r.OpenFile(ename, flag, perm)
+	var files Files
+	var errs []error
+
+	openLog := func(name string, target **os.File) {
+		if name == "" {
+			return
+		}
+		f, err := r.OpenFile(name, flag, perm)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("%s: %w", name, err))
+			return
+		}
+		*target = f
 	}
-	var erri error
-	if iname != "" {
-		files.infolevel, erri = r.OpenFile(iname, flag, perm)
-	}
-	var errd error
-	if dname != "" {
-		files.debuglevel, errd = r.OpenFile(dname, flag, perm)
-	}
-	err = errors.Join(errr, erri, errd)
-	if err != nil {
+
+	openLog(ename, &files.errlevel)
+	openLog(iname, &files.infolevel)
+	openLog(dname, &files.debuglevel)
+
+	if err := errors.Join(errs...); err != nil {
 		_ = files.Close()
-		return none, fmt.Errorf("%s: %w", msg, err)
+		return Files{}, fmt.Errorf("%s: %w", msg, err)
 	}
+
 	return files, nil
 }

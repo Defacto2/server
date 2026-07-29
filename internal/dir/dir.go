@@ -35,8 +35,9 @@ func (d Directory) Path() string {
 // Check confirms that the directory exists and is writable.
 func (d Directory) Check(sl *slog.Logger) error {
 	const msg = "directory check"
+	const format = msg + ": %w"
 	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+		return fmt.Errorf(format, panics.ErrNoSlog)
 	}
 	if err := d.IsDir(); err != nil {
 		return err
@@ -56,6 +57,7 @@ func (d Directory) Check(sl *slog.Logger) error {
 
 // IsDir returns an error if the path does not exists or is not a directory.
 func (d Directory) IsDir() error {
+	const format = "directory isdir: %w"
 	path := d.Path()
 	if path == "" {
 		return ErrNoPath
@@ -65,7 +67,7 @@ func (d Directory) IsDir() error {
 		if os.IsNotExist(err) {
 			return ErrNoDir
 		}
-		return fmt.Errorf("isdir error: %w", err)
+		return fmt.Errorf(format, err)
 	}
 	if !st.IsDir() {
 		return ErrFile

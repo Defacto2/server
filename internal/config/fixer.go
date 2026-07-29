@@ -67,53 +67,59 @@ func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 
 // SetupLogDir runs checks against the configured log directory.
 // If no log directory is configured, a default directory is used.
-// Problems will either log warnings or fatal errors.
 func (c *Config) SetupLogDir(sl *slog.Logger) error {
 	const msg = "setup log directory"
+	const format = msg + "%s: %w"
 	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+		return fmt.Errorf(format, "", panics.ErrNoSlog)
 	}
+
 	if c.AbsLog == "" {
 		if err := c.LogStore(); err != nil {
-			return fmt.Errorf("%s: %w", msg, err)
+			return fmt.Errorf(format, "", err)
 		}
 	}
-	logs := string(c.AbsLog)
-	dir, err := os.Stat(logs)
+
+	path := string(c.AbsLog)
+	dir, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("log directory %w: %s", ErrNoDir, c.AbsLog)
+		return fmt.Errorf(format, " "+path, ErrNoDir)
 	}
 	if err != nil {
-		return fmt.Errorf("log directory: %w", err)
+		return fmt.Errorf(format, "", err)
 	}
 	if !dir.IsDir() {
-		return fmt.Errorf("log directory %w: %s", ErrNotDir, dir.Name())
+		return fmt.Errorf(format, " "+dir.Name(), ErrNotDir)
 	}
-	const issue = "could not remove the empty test file in the log directory path"
-	empty := filepath.Join(logs, ".defacto2_touch_test")
-	if _, err := os.Stat(empty); os.IsNotExist(err) {
-		f, err := os.Create(empty)
-		if err != nil {
-			return fmt.Errorf("log directory %w: %w", ErrTouch, err)
-		}
-		defer func(f *os.File) {
-			_ = f.Close()
-			if err := os.Remove(empty); err != nil {
-				sl.Warn(msg,
-					slog.String("issue", issue),
-					slog.String("error", err.Error()),
-					slog.String("path", empty))
-				return
-			}
-		}(f)
-		return nil
+
+	// test write permissions by creating and removing a temp file directly
+	name := filepath.Join(path, ".defacto2_touch_test")
+	if _, err := os.Stat(name); err == nil {
+		_ = os.Remove(name)
 	}
-	if err := os.Remove(empty); err != nil {
-		sl.Warn(msg,
-			slog.String("issue", issue),
-			slog.String("error", err.Error()),
-			slog.String("path", empty))
+
+	f, err := os.Create(name)
+	if err != nil {
+		return fmt.Errorf(format+" %w", "", ErrTouch, err)
 	}
+	if err := f.Close(); err != nil {
+		sl.Warn(
+			msg,
+			"issue", "could not close test touch file",
+			"error", err,
+			"path", name,
+		)
+	}
+
+	if err := os.Remove(name); err != nil {
+		sl.Warn(
+			msg,
+			"issue", "could not remove test touch file in log directory",
+			"error", err,
+			"path", name,
+		)
+	}
+
 	return nil
 }
 
