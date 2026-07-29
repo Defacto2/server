@@ -37,6 +37,7 @@ var (
 	ErrNoMatch    = errors.New("no match value is present")
 	ErrPath       = errors.New("path is not permitted")
 	ErrUnknownImg = errors.New("file is not a known image format")
+	ErrValue      = errors.New("argument is empty")
 	ErrVersion    = errors.New("application version mismatch")
 )
 
