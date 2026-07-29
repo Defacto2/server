@@ -40,7 +40,7 @@ var (
 	ErrVersion    = errors.New("application version mismatch")
 )
 
-// Dirs is a struct of the download, preview and thumbnail directories.
+// Dirs points to the download, preview, thumbnail, and extra directories.
 type Dirs struct {
 	Download  dir.Directory // Download is the directory path for the file downloads.
 	Preview   dir.Directory // Preview is the directory path for the image previews.
@@ -116,34 +116,39 @@ func LookupUnrar() error {
 }
 
 // CopyFile copies the src file to the dst file and path.
-func CopyFile(sl *slog.Logger, src, dst string) error {
-	const msg = "command copy file"
+func CopyFile(sl *slog.Logger, src, dst string) (err error) {
 	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+		sl = slog.Default()
 	}
+
 	s, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("%s open %w", msg, err)
+		return fmt.Errorf("copy file: open src: %w", err)
 	}
 	defer func() { _ = s.Close() }()
 
 	d, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf("%s create %w", msg, err)
+		return fmt.Errorf("copy file: create dst: %w", err)
 	}
-	defer func() { _ = d.Close() }()
 
-	// io.CopyBuffer is faster than io.Copy
-	const size = 4 * 1024
-	buf := make([]byte, size)
-	i, err := io.CopyBuffer(d, s, buf)
+	defer func() {
+		if cErr := d.Close(); cErr != nil && err == nil {
+			err = fmt.Errorf("copy file: close dst: %w", cErr)
+		}
+	}()
+
+	// io.Copy leverages OS zero-copy (e.g., copy_file_range on Linux)
+	n, err := io.Copy(d, s)
 	if err != nil {
-		return fmt.Errorf("%s io.copybuffer %w", msg, err)
+		return fmt.Errorf("copy file: copy bytes: %w", err)
 	}
-	sl.Debug(msg, slog.String("path", dst), slog.Int64("bytes copied", i))
+
 	if err := d.Sync(); err != nil {
-		return fmt.Errorf("%s sync %w", msg, err)
+		return fmt.Errorf("copy file: sync dst: %w", err)
 	}
+
+	sl.Debug("file copied", slog.String("path", dst), slog.Int64("bytes", n))
 	return nil
 }
 
@@ -214,6 +219,8 @@ func Run(ctx context.Context, sl *slog.Logger, name string, arg ...string) error
 	return run(ctx, sl, name, "", arg...)
 }
 
+const fmtrun = "%s exec context run: %w"
+
 // RunStdOut looks for the command in the system path and executes it with the arguments.
 // Any output is sent to the stdout buffer.
 func RunStdOut(name string, arg ...string) ([]byte, error) {
@@ -227,7 +234,7 @@ func RunStdOut(name string, arg ...string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("%s cmd.run: %w", msg, err)
+		return nil, fmt.Errorf(fmtrun, msg, err)
 	}
 	return out.Bytes(), nil
 }
@@ -240,7 +247,7 @@ func RunQuiet(ctx context.Context, name string, arg ...string) error {
 	}
 	cmd := exec.CommandContext(ctx, name, arg...)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("%s run: %w", msg, err)
+		return fmt.Errorf(fmtrun, msg, err)
 	}
 	return nil
 }
@@ -272,13 +279,13 @@ func run(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string)
 	return nil
 }
 
-// UncontrolledPath returns an error if the path contains any of the following characters:
-//   - /
-//   - \
-//   - ..
+// LockPath prevents directory traversal attacks by returning an error if
+// any of the following are found in the path:
 //
-// This is to prevent directory traversal attacks.
-func UncontrolledPath(path string) error {
+//   - forward slash
+//   - back slash
+//   - a pair of dots (..)
+func LockPath(path string) error {
 	if strings.ContainsAny(path, "/\\") || strings.Contains(path, "..") {
 		return ErrPath
 	}

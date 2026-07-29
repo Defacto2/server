@@ -39,7 +39,9 @@ func TestThumbs(t *testing.T) {
 	dir := command.Dirs{}
 	d := logs.Discard()
 	err := dir.Thumbs(context.TODO(), d, "", -1)
-	be.Err(t, err, nil)
+	be.Err(t, err)
+	err = dir.Thumbs(context.TODO(), d, "", command.Photo)
+	be.Err(t, err)
 }
 
 func TestAlign(t *testing.T) {
@@ -75,7 +77,7 @@ func TestDirs(t *testing.T) {
 	be.Err(t, err)
 	err = dir.PreviewPNG(ctx, nil, "", "")
 	be.Err(t, err)
-	err = dir.PreviewWebP(ctx, nil, "", "")
+	err = dir.PreviewWebP(ctx, nil, "", "", false)
 	be.Err(t, err)
 	d := logs.Discard()
 	err = dir.ThumbPixels(ctx, d, "", "")
