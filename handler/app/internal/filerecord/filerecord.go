@@ -887,7 +887,7 @@ func (c content) renderContent(
 			elms = names[diz]
 		}
 		srcDiz := filepath.Join(c.dst, elms)
-		if err := c.dirs.DizDeferred(srcDiz, c.unid); err != nil {
+		if err := c.dirs.DizDeferred(sl, srcDiz, c.unid); err != nil {
 			b.Reset()
 			return template.HTML(err.Error())
 		}

@@ -52,7 +52,7 @@ func setupTestDir(t *testing.T) (string, string) {
 			t.Fatalf("failed to read fixture %s: %v", srcPath, err)
 		}
 
-		if err := os.WriteFile(dstPath, data, 0o644); err != nil {
+		if err := os.WriteFile(dstPath, data, 0o600); err != nil { //nolint:gosec
 			t.Fatalf("failed to write fixture to temp dir %s: %v", dstPath, err)
 		}
 	}
@@ -450,6 +450,71 @@ func TestTextImagerAmigaFont(t *testing.T) {
 	be.Equal(t, tst.Size(), tstSize)
 }
 
+func TestOptimizePNG(t *testing.T) {
+	t.Parallel()
+	err := command.OptimizePNG(t.Context(), "")
+	be.Err(t, err)
+	err = command.OptimizePNG(t.Context(), invalid)
+	be.Err(t, err)
+
+	name, dirs := setupTestDir(t)
+	bmp, err := filepath.Abs(filepath.Join(dirs, name+".bmp"))
+	be.Err(t, err, nil)
+	err = command.OptimizePNG(t.Context(), bmp)
+	be.Err(t, err)
+	png, err := filepath.Abs(filepath.Join(dirs, name+".png"))
+	be.Err(t, err, nil)
+	err = command.OptimizePNG(t.Context(), png)
+	be.Err(t, err, nil)
+}
+
+func TestTextDeferred(t *testing.T) {
+	t.Parallel()
+
+	extradir := t.TempDir()
+	prevdir := t.TempDir()
+	thumbdir := t.TempDir()
+	dirs := command.Dirs{
+		Extra:     dir.Directory(extradir),
+		Preview:   dir.Directory(prevdir),
+		Thumbnail: dir.Directory(thumbdir),
+	}
+
+	sl := slog.Default()
+	id := uuid.New()
+	unid := id.String()
+	src, err := filepath.Abs(filepath.Join("testdata", "TEST.ASCII"))
+	be.Err(t, err, nil)
+
+	err = dirs.TextDeferred(t.Context(), sl, "", "")
+	be.Err(t, err)
+	err = dirs.TextDeferred(t.Context(), sl, src, "")
+	be.Err(t, err)
+	err = dirs.TextDeferred(t.Context(), sl, "", unid)
+	be.Err(t, err)
+	err = dirs.TextDeferred(t.Context(), sl, src, unid)
+	be.Err(t, err, nil)
+
+	// check for the preview
+	name := filepath.Join(prevdir, unid+".png")
+	pst, err := os.Stat(name)
+	be.Err(t, err, nil)
+	const pstSize = 2421
+	be.Equal(t, pst.Size(), pstSize)
+	// check for the thumbnail
+	name = filepath.Join(thumbdir, unid+".webp")
+	tst, err := os.Stat(name)
+	be.Err(t, err, nil)
+	const tstSize = 2784
+	be.Equal(t, tst.Size(), tstSize)
+	// confirm the text was copied to the extra directory
+	name = filepath.Join(extradir, unid+".txt")
+	est, err := os.Stat(name)
+	be.Err(t, err, nil)
+	const estSize = 931
+	be.Equal(t, est.Size(), estSize)
+}
+
 func TestPixelate(t *testing.T) {
 	t.Parallel()
 	a := command.Args{}
@@ -582,22 +647,4 @@ func TestArgs(t *testing.T) {
 	s = fmt.Sprintf("%+v", a)
 	find = strings.Contains(s, "-mt")
 	be.True(t, find)
-}
-
-func TestOptimizePNG(t *testing.T) {
-	t.Parallel()
-	err := command.OptimizePNG(t.Context(), "")
-	be.Err(t, err)
-	err = command.OptimizePNG(t.Context(), invalid)
-	be.Err(t, err)
-
-	name, dirs := setupTestDir(t)
-	bmp, err := filepath.Abs(filepath.Join(dirs, name+".bmp"))
-	be.Err(t, err, nil)
-	err = command.OptimizePNG(t.Context(), bmp)
-	be.Err(t, err)
-	png, err := filepath.Abs(filepath.Join(dirs, name+".png"))
-	be.Err(t, err, nil)
-	err = command.OptimizePNG(t.Context(), png)
-	be.Err(t, err, nil)
 }

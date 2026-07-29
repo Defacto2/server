@@ -30,6 +30,9 @@ const (
 )
 
 var (
+	ErrAlign      = errors.New("invalid align choice")
+	ErrCrop       = errors.New("invalid crop choice")
+	ErrThumb      = errors.New("invalid thumb choice")
 	ErrIsAnsi     = errors.New("text is ansi encoded, cannot crop")
 	ErrIsDir      = errors.New("file is a directory")
 	ErrIsEmpty    = errors.New("file is empty")
@@ -121,32 +124,31 @@ func CopyFile(sl *slog.Logger, src, dst string) (err error) {
 	if sl == nil {
 		sl = slog.Default()
 	}
+	const format = "copy file%s: %w"
 
 	s, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf("copy file: open src: %w", err)
+		return fmt.Errorf(format, " open source", err)
 	}
 	defer func() { _ = s.Close() }()
 
 	d, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf("copy file: create dst: %w", err)
+		return fmt.Errorf(format, "create dest", err)
 	}
 
 	defer func() {
 		if cErr := d.Close(); cErr != nil && err == nil {
-			err = fmt.Errorf("copy file: close dst: %w", cErr)
+			err = fmt.Errorf(format, "close dest", cErr)
 		}
 	}()
 
-	// io.Copy leverages OS zero-copy (e.g., copy_file_range on Linux)
 	n, err := io.Copy(d, s)
 	if err != nil {
-		return fmt.Errorf("copy file: copy bytes: %w", err)
+		return fmt.Errorf(format, "copy bytes", err)
 	}
-
 	if err := d.Sync(); err != nil {
-		return fmt.Errorf("copy file: sync dst: %w", err)
+		return fmt.Errorf(format, "sync dest", err)
 	}
 
 	sl.Debug("file copied", slog.String("path", dst), slog.Int64("bytes", n))
@@ -173,22 +175,22 @@ func BaseNamePath(path string) string {
 
 // LookCmd returns an error if the named command is not found in the system path.
 func LookCmd(name string) error {
-	const msg = "command lookup"
+	const format = "command lookup%s: %w"
 	_, err := exec.LookPath(name)
 	if errors.Is(err, exec.ErrDot) {
 		err = nil
 	}
 	if err != nil {
-		return fmt.Errorf("%s path %w", msg, err)
+		return fmt.Errorf(format, " path", err)
 	}
 	return nil
 }
 
 // LookVersion returns an error when the match string is not found in the named command output.
 func LookVersion(name, flag, match string) error {
-	const msg = "command version lookup"
+	const format = "command version lookup%s: %w"
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("version %w", err)
+		return fmt.Errorf(format, "", err)
 	}
 	if match == "" {
 		return ErrNoMatch
@@ -196,20 +198,20 @@ func LookVersion(name, flag, match string) error {
 	cmd := exec.Command(name, flag) //nolint:noctx // legacy code, context not available in this function signature
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return fmt.Errorf("%s stdout pipe %w", msg, err)
+		return fmt.Errorf(format, " stdout pipe", err)
 	}
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("%s start %w", msg, err)
+		return fmt.Errorf(format, " start", err)
 	}
 	b, err := io.ReadAll(stdout)
 	if err != nil {
-		return fmt.Errorf("%s read all %w", msg, err)
+		return fmt.Errorf(format, " read all", err)
 	}
 	if !bytes.Contains(b, []byte(match)) {
-		return fmt.Errorf("%s %w: %s", msg, ErrVersion, name)
+		return fmt.Errorf(format, " "+name, ErrVersion)
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("%s wait %w", msg, err)
+		return fmt.Errorf(format, " wait", err)
 	}
 	return nil
 }
@@ -220,14 +222,12 @@ func Run(ctx context.Context, sl *slog.Logger, name string, arg ...string) error
 	return run(ctx, sl, name, "", arg...)
 }
 
-const fmtrun = "%s exec context run: %w"
-
 // RunStdOut looks for the command in the system path and executes it with the arguments.
 // Any output is sent to the stdout buffer.
 func RunStdOut(name string, arg ...string) ([]byte, error) {
-	const msg = "command to stdout run"
+	const format = "command to stdout execute: %w"
 	if err := LookCmd(name); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
 	var out bytes.Buffer
 	ctx, cancel := context.WithTimeout(context.Background(), CmdTimeout)
@@ -235,20 +235,20 @@ func RunStdOut(name string, arg ...string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf(fmtrun, msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
 	return out.Bytes(), nil
 }
 
 // RunQuiet looks for the command in the system path and executes it with the arguments.
 func RunQuiet(ctx context.Context, name string, arg ...string) error {
-	const msg = "command to discard run"
+	const format = "command to discard execute: %w"
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	cmd := exec.CommandContext(ctx, name, arg...)
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf(fmtrun, msg, err)
+		return fmt.Errorf(format, err)
 	}
 	return nil
 }
@@ -262,17 +262,18 @@ func RunWorkdir(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...
 
 func run(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string) error {
 	const msg = "command run"
+	const format = msg + "%s: %w"
 	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+		return fmt.Errorf(format, "", panics.ErrNoSlog)
 	}
 	if err := LookCmd(name); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "", err)
 	}
 	cmd := exec.CommandContext(ctx, name, arg...)
 	cmd.Dir = wdir
 	p, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("%s %q cannot start: %w", msg, name, err)
+		return fmt.Errorf(format, " cannot start "+name, err)
 	}
 	sl.Debug(msg,
 		slog.String("command name", cmd.String()),

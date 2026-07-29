@@ -4,8 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"os"
-	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 
@@ -15,14 +13,6 @@ import (
 
 func logr() *slog.Logger {
 	return slog.Default()
-}
-
-func testdata(name string) string {
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		panic("runtime.Caller failed")
-	}
-	return filepath.Join(filepath.Dir(file), "testdata", name)
 }
 
 func TestLookups(t *testing.T) {
@@ -179,21 +169,3 @@ func TestRunWD(t *testing.T) {
 	err = command.RunWorkdir(ctx, logr(), "go", wd, "version")
 	be.Err(t, err, nil)
 }
-
-// func Test_PreviewPixels(t *testing.T) {
-// 	t.Parallel()
-// 	ctx := context.TODO()
-// 	dir := command.Dirs{
-// 		Download:  dir.Directory(t.TempDir()), // this prefixes to UUID
-// 		Preview:   dir.Directory(t.TempDir()), // this is the output dest
-// 		Thumbnail: dir.Directory(t.TempDir()), // this is the cropped output dest
-// 	}
-// 	imgs := []string{"TEST.BMP", "TEST.GIF", "TEST.JPG", "TEST.PCX", "TEST.PNG"}
-// 	for _, name := range imgs {
-// 		fp := testdata(name)
-// 		err := dir.PreviewPixels(ctx, logr(), fp, "000000ABCDE")
-// 		be.Err(t, err, nil)
-// 	}
-// 	err := dir.PreviewPixels(ctx, logr(), "", "")
-// 	be.Err(t, err)
-// }
