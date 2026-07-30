@@ -219,6 +219,10 @@ tasks:
     cmds:
       #- set -o pipefail && go test ./... -json | tparse -all
       - go test -count 1 -race ./...
+  cover:
+    desc: 'Run the test suite with coverage output to the browser.'
+    cmds:
+      - go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out
   ver:
     silent: false
     desc: Print the versions of the build and compiler tools.
