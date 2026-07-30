@@ -5,6 +5,7 @@ package app_test
 import (
 	"context"
 	"embed"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -114,16 +115,18 @@ func TestForApproval(t *testing.T) {
 
 func TestGetDemozooParam(t *testing.T) {
 	t.Parallel()
-	x := app.GetDemozooParam(context.TODO(), newContext(), nil, "")
+	sl := slog.Default()
+	x := app.GetDemozooParam(context.TODO(), sl, newContext(), nil, "")
 	be.Err(t, x)
 }
 
 func TestGetDemozoo(t *testing.T) {
 	t.Parallel()
+	sl := slog.Default()
 	ctx := context.TODO()
-	x := app.GetDemozoo(ctx, newContext(), nil, -1, "", "")
+	x := app.GetDemozoo(ctx, sl, newContext(), nil, -1, "", "")
 	be.Err(t, x)
-	x = app.GetPouet(ctx, newContext(), nil, -1, "", "")
+	x = app.GetPouet(ctx, sl, newContext(), nil, -1, "", "")
 	be.Err(t, x)
 }
 

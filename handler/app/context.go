@@ -1037,7 +1037,7 @@ func ForApproval(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func GetDemozooParam(ctx context.Context, c *echo.Context, db *sql.DB, download dir.Directory) error {
+func GetDemozooParam(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const format = "get demozoo param context: %w"
 	if err := panics.ECD(c, db); err != nil {
 		return fmt.Errorf(format, err)
@@ -1055,21 +1055,23 @@ func GetDemozooParam(ctx context.Context, c *echo.Context, db *sql.DB, download 
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = unid
-	return got.Download(ctx, c, db, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, sl, c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 //
 // This function is a wrapper for the remote.DemozooLink.Download method.
+//
+// TODO: create structures for args
 func GetDemozoo(
-	ctx context.Context, c *echo.Context, db *sql.DB, demozooID int, defacto2UNID string, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, demozooID int, defacto2UNID string, download dir.Directory,
 ) error {
 	got := remote.DemozooLink{ //nolint:exhaustruct
 		ID:   demozooID,
 		UUID: defacto2UNID,
 	}
-	return got.Download(ctx, c, db, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, sl, c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GetPouet fetches the download link from Pouet and saves it to the download directory.
@@ -1077,13 +1079,13 @@ func GetDemozoo(
 //
 // This function is a wrapper for the remote.PouetLink.Download method.
 func GetPouet(
-	ctx context.Context, c *echo.Context, db *sql.DB, pouetID int, defacto2UNID string, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, pouetID int, defacto2UNID string, download dir.Directory,
 ) error {
 	got := remote.PouetLink{ //nolint:exhaustruct
-		ID:   pouetID,
-		UUID: defacto2UNID,
+		PouetID: pouetID,
+		UUID:    defacto2UNID,
 	}
-	return got.Download(ctx, c, db, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, sl, c, db, download) //nolint:wrapcheck // thin wrapper
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify

@@ -364,7 +364,7 @@ func get(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs a
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(ec *echo.Context) error {
-			return app.GetDemozooParam(ctx, ec, db, dirs.Download)
+			return app.GetDemozooParam(ctx, sl, ec, db, dirs.Download)
 		})
 	g.GET("/for-approval",
 		func(ec *echo.Context) error {

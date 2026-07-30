@@ -1063,9 +1063,9 @@ func StripSup(s string) (map[string]template.HTML, error) {
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
 func YMDEdit(ctx context.Context, c *echo.Context, db *sql.DB) error {
-	const msg = "year month day edit"
+	const format = "year month day edit %s: %w"
 	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "", err)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -1073,11 +1073,11 @@ func YMDEdit(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("%s begin tx: %w", msg, err)
+		return fmt.Errorf(format, "begin tx", err)
 	}
 	r, err := model.One(ctx, tx, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("%s model one %w", msg, err)
+		return fmt.Errorf(format, "model one", err)
 	}
 	y := model.ValidY(f.Year)
 	m := model.ValidM(f.Month)
@@ -1086,7 +1086,7 @@ func YMDEdit(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		return badRequest(c, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("%s commit: %w", msg, err)
+		return fmt.Errorf(format, "tx commit", err)
 	}
 	return c.JSON(http.StatusOK, r)
 }
@@ -1123,99 +1123,100 @@ type SRI struct {
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
 // The fs is the embedded file system that contains the public facing file assets.
 func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
+	const format = "%s: %w"
 	names := *Names()
 	var err error
 	name := names[Bootstrap5]
 	s.Bootstrap5, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[Bootstrap5JS]
 	s.Bootstrap5JS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[BootstrapIcons]
 	s.BootstrapIcons, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 
 	name = names[ContentBinary]
 	s.CanvasAnsi, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[ContentText]
 	s.CanvasReadme, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 
 	name = names[LayoutJS]
 	s.LayoutJS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[ChiptunePlayer]
 	s.ChiptunePlayer, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[EditArtifact]
 	s.EditArtifact, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[EditAssets]
 	s.EditAssets, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[EditForApproval]
 	s.EditForApproval, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[IndexJS]
 	s.IndexJS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[Jsdos6JS]
 	s.Jsdos6JS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[DosboxJS]
 	s.DosboxJS, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[Layout]
 	s.Layout, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[Pouet]
 	s.Pouet, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[Uploader]
 	s.Uploader, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[Htmx]
 	s.Htmx, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	name = names[HtmxRespTargets]
 	s.HtmxRespTargets, err = helper.Integrity(name, fs)
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return fmt.Errorf(format, name, err)
 	}
 	return nil
 }

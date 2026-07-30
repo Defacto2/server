@@ -518,14 +518,14 @@ func (prod Submission) Submit( //nolint:funlen
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
 	case Demozoo:
-		if err := app.GetDemozoo(ctx, c, db, id, unid, download); err != nil {
+		if err := app.GetDemozoo(ctx, sl, c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote demozoo api"), slog.Any("error", err))
 			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
-		if err := app.GetPouet(ctx, c, db, id, unid, download); err != nil {
+		if err := app.GetPouet(ctx, sl, c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote pouet api"), slog.Any("error", err))
 			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
