@@ -192,19 +192,16 @@ func (m *ListEntry) ColButton3() string {
 		return blank
 	}
 	name := url.QueryEscape(m.RelativeName)
-
-	htm := `<div class="col col-1 text-end"` +
-		`data-bs-toggle="tooltip" data-bs-title="Use file as an extra readme">` +
-		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-hlpcopy" `+
-			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
-			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/helper/copy/%s/%s">`, m.UniqueID, name) +
+	const format = `<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-hlpcopy" ` +
+		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
+		`hx-target="#artifact-editor-comp-feedback" ` +
+		`hx-patch="/editor/helper/copy/%s/%s">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use file as an extra readme">` +
+		fmt.Sprintf(format, m.UniqueID, name) +
 		`<span class="badge bg-success text-dark">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg>` +
 		`</span></a></div>`
-
-	return htm
 }
 
 // buttonInactiveEXE returns a non-interactive terminal icon.
@@ -218,23 +215,58 @@ func buttonInactiveEXE() string {
 // ColFooter returns the brief metadata descriptions of the list entry.
 func (m *ListEntry) ColFooter() string {
 	ext := strings.ToLower(filepath.Ext(m.name))
-	htm := fmt.Sprintf(`<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>`,
-		m.bytes, m.Filesize)
+	const format = ` <small class="">%s</small>`
+	sm := ""
 	switch {
 	case m.Texts && (ext == bat || ext == cmd):
-		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "command script")
+		sm = fmt.Sprintf(format, "command script")
 	case m.Texts && (ext == ini):
-		htm += fmt.Sprintf(` <small class="">%s</small></div>`, "configuration textfile")
+		sm = fmt.Sprintf(format, "configuration textfile")
 	case m.Programs || ext == com:
-		htm = progr(m.Executable, ext, htm, m.bytes)
+		sm = progr(m.Executable, ext, m.bytes)
 	case m.MusicConfig != "":
-		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.MusicConfig)
+		sm = fmt.Sprintf(format, m.MusicConfig)
 	case m.Images:
-		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.ImageConfig)
+		sm = fmt.Sprintf(format, m.ImageConfig)
 	default:
-		htm += fmt.Sprintf(` <small class="">%s</small></div>`, m.Signature)
+		sm = fmt.Sprintf(format, m.Signature)
 	}
-	return htm
+	const tooltip = `<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>%s</div>`
+	return fmt.Sprintf(tooltip, m.bytes, m.Filesize, sm)
+}
+
+func progr(exec magicnumber.Windows, ext string, bytes int64) string {
+	const epochYear = 1980
+	const x8086 = 64 * 1024
+	dosProg := (ext == exe || ext == com)
+	var s string
+	switch {
+	case dosProg && exec.PE != magicnumber.UnknownPE:
+		s = exec.String() + " executable"
+	case dosProg && exec.NE == magicnumber.UnknownNE:
+		s = progrDos(x8086, bytes)
+	case dosProg && exec.NE != magicnumber.NoneNE:
+		s = exec.String() + " executable"
+	case dosProg:
+		s = "MS Dos program"
+	case ext == ".dll" && exec.PE != magicnumber.UnknownPE:
+		s = "Windows dynamic-link library"
+	case exec.NE != magicnumber.NoneNE:
+		s = "NE program data"
+	default:
+		s = "PE program data"
+	}
+	if y := exec.TimeDateStamp.Year(); y >= epochYear && y <= time.Now().Year() {
+		s += ", built " + exec.TimeDateStamp.Format("2006-01-2")
+	}
+	return fmt.Sprintf(` <small class="">%s</small>`, s)
+}
+
+func progrDos(x8086 int, bytes int64) string {
+	if x8086 >= int(bytes) {
+		return "Dos command"
+	}
+	return "Dos executable"
 }
 
 // briefDescription returns true for known BBS/FTP site descriptor files.
@@ -273,12 +305,12 @@ func (m *ListEntry) textNFO() bool {
 //
 // The funcs called: [htmx.RecordImageCopier] and [dirs.PictureImager].
 func buttonUseImage(uniqueID, name string) string {
-	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="Use image for preview">` +
-		fmt.Sprintf(`<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" `+
-			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
-			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/preview/copy/%s/%s"><span class="badge text-bg-primary">`, uniqueID, name) +
+	const format = `<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" ` +
+		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
+		`hx-target="#artifact-editor-comp-feedback" ` +
+		`hx-patch="/editor/preview/copy/%s/%s"><span class="badge text-bg-primary">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use image for preview">` +
+		fmt.Sprintf(format, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
@@ -312,12 +344,12 @@ func buttonUseBinary(uniqueID, name string) string {
 //
 // the "#file-editor" href anchor will relaunch the File editor dialog.
 func buttonPreviewer(uri, uniqueID, name string) string {
-	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
-		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" `+
-			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
-			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/readme/%s/%s/%s"><span class="badge text-bg-secondary">`, uri, uniqueID, name) +
+	const format = `<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" ` +
+		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
+		`hx-target="#artifact-editor-comp-feedback" ` +
+		`hx-patch="/editor/readme/%s/%s/%s"><span class="badge text-bg-secondary">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
+		fmt.Sprintf(format, uri, uniqueID, name) +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
@@ -326,12 +358,12 @@ func buttonPreviewer(uri, uniqueID, name string) string {
 //
 // The funcs called: [htmx.RecordReadmeCopier] and [dirs.TextImager].
 func buttonCopyMe(uniqueID, name string) string {
-	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="Use file as the readme">` +
-		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" `+
-			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
-			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/readme/copy/%s/%s"><span class="badge text-bg-success">`, uniqueID, name) +
+	const format = `<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" ` +
+		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
+		`hx-target="#artifact-editor-comp-feedback" ` +
+		`hx-patch="/editor/readme/copy/%s/%s"><span class="badge text-bg-success">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use file as the readme">` +
+		fmt.Sprintf(format, uniqueID, name) +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
 }
@@ -340,49 +372,14 @@ func buttonCopyMe(uniqueID, name string) string {
 //
 // The funcs called: [htmx.RecordDizCopier].
 func buttonCopyDiz(uniqueID, name string) string {
-	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="Use file as the FILE_ID.DIZ">` +
-		fmt.Sprintf(`<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" `+
-			`hx-indicator="#artifact-editor-comp-htmx-indicator" `+
-			`hx-target="#artifact-editor-comp-feedback" `+
-			`hx-patch="/editor/diz/copy/%s/%s"><span class="badge text-bg-primary">`, uniqueID, name) +
+	const format = `<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" ` +
+		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
+		`hx-target="#artifact-editor-comp-feedback" ` +
+		`hx-patch="/editor/diz/copy/%s/%s"><span class="badge text-bg-primary">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use file as the FILE_ID.DIZ">` +
+		fmt.Sprintf(format, uniqueID, name) +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
-}
-
-func progr(exec magicnumber.Windows, ext, htm string, bytes int64) string {
-	const epochYear = 1980
-	const x8086 = 64 * 1024
-	dosProg := (ext == exe || ext == com)
-	var s string
-	switch {
-	case dosProg && exec.PE != magicnumber.UnknownPE:
-		s = exec.String() + " executable"
-	case dosProg && exec.NE == magicnumber.UnknownNE:
-		s = progrDos(x8086, bytes)
-	case dosProg && exec.NE != magicnumber.NoneNE:
-		s = exec.String() + " executable"
-	case dosProg:
-		s = "MS Dos program"
-	case ext == ".dll" && exec.PE != magicnumber.UnknownPE:
-		s = "Windows dynamic-link library"
-	case exec.NE != magicnumber.NoneNE:
-		s = "NE program data"
-	default:
-		s = "PE program data"
-	}
-	if y := exec.TimeDateStamp.Year(); y >= epochYear && y <= time.Now().Year() {
-		s += ", built " + exec.TimeDateStamp.Format("2006-01-2")
-	}
-	htm += fmt.Sprintf(` <small class="">%s</small></div>`, s)
-	return htm
-}
-
-func progrDos(x8086 int, bytes int64) string {
-	if x8086 >= int(bytes) {
-		return "Dos command"
-	}
-	return "Dos executable"
 }
 
 // AlertURL returns the VirusTotal URL for the security alert for the file record.
@@ -638,14 +635,15 @@ func isText(sign magicnumber.Signature) bool {
 
 func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
 	const skipEntry = true
+	const format = "%s image, %dx%d"
 	r, _ := os.Open(path)
 	if r == nil {
 		return skipEntry
 	}
 	defer func() { _ = r.Close() }()
-	config, format, err := image.DecodeConfig(r)
+	config, imgtype, err := image.DecodeConfig(r)
 	if err == nil {
-		e.format = fmt.Sprintf("%s image, %dx%d", format, config.Width, config.Height)
+		e.format = fmt.Sprintf(format, imgtype, config.Width, config.Height)
 		return !skipEntry
 	}
 	switch sign { //nolint:exhaustive
@@ -656,7 +654,7 @@ func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
 		}
 		defer func() { _ = r.Close() }()
 		x, y := magicnumber.IlbmDecode(r)
-		e.format = fmt.Sprintf("ILBM image, %dx%d", x, y)
+		e.format = fmt.Sprintf(format, "ILBM", x, y)
 	default:
 		e.format = sign.Title() + " image"
 	}
@@ -739,7 +737,7 @@ func ListContent( //nolint:cyclop,gocognit,funlen
 
 	tmpRoot, err := archive.ExtractSource(src, art.Filename.String)
 	if err != nil {
-		return extractErr(src, platform, section, zeroByteFiles, err)
+		return extractErr(sl, src, platform, section, zeroByteFiles, err)
 	}
 	walkerCount := func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -962,8 +960,14 @@ func WalkerChmod(root *os.Root, path string, d fs.DirEntry, err error) error {
 	return nil
 }
 
-func extractErr(src, platform, section string, zeroByteFiles int, err error) template.HTML {
+func extractErr(sl *slog.Logger, src, platform, section string, zeroByteFiles int, err error) template.HTML {
+	if sl == nil {
+		sl = slog.Default()
+	}
+	const msg = "list content of archive extraction"
 	if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
+		sl.Info(msg+" caused an error",
+			slog.String("src", src), slog.Any("error", err))
 		return template.HTML(err.Error())
 	}
 	e := entry{
@@ -984,7 +988,10 @@ func extractErr(src, platform, section string, zeroByteFiles int, err error) tem
 	}
 	le := listErr(e)
 	var b strings.Builder
-	b.WriteString(le.HTML(e.bytes, platform, section))
+	_, err = b.WriteString(le.HTML(e.bytes, platform, section))
+	if err != nil {
+		sl.Info(msg+" caused a write string error", slog.Any("error", err))
+	}
 	return template.HTML(b.String())
 }
 
@@ -1058,7 +1065,8 @@ func skippedEmpty(zeroByteFiles int) string {
 	if zeroByteFiles == 0 {
 		return ""
 	}
-	return fmt.Sprintf(`<div class="border-bottom row mb-1">... skipped %d empty (0 B) files</div>`, zeroByteFiles)
+	const format = `<div class="border-bottom row mb-1">... skipped %d empty (0 B) files</div>`
+	return fmt.Sprintf(format, zeroByteFiles)
 }
 
 // Date returns a formatted date string for the published date for the artifact.
@@ -1169,7 +1177,8 @@ func ExtraZip(art *models.File, extra dir.Directory) bool {
 	}
 	extraZip := 0
 	unid := UnID(art)
-	st, err := os.Stat(filepath.Join(extra.Path(), unid+".zip"))
+	name := filepath.Join(extra.Path(), unid+".zip")
+	st, err := os.Stat(name)
 	if err == nil && !st.IsDir() {
 		extraZip = int(st.Size())
 	}
@@ -1217,7 +1226,8 @@ func FirstHeader(art *models.File) string {
 	}
 	s := art.RecordTitle.String
 	if i, err := strconv.Atoi(s); err == nil {
-		return fmt.Sprintf("Issue %d", i)
+		const format = "Issue %d"
+		return fmt.Sprintf(format, i)
 	}
 	return s
 }
@@ -1661,6 +1671,8 @@ func Relations(art *models.File) template.HTML {
 	var rows strings.Builder
 	const expected = 2
 	const route = "/f/"
+	const format = `<tr><th scope="row"><small class="fw-light text-secondary">Link to</small></th>` +
+		`<td><small><a class="text-truncate" href="%s">%s</a></small></td></tr>`
 	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
 		if len(s) != expected {
@@ -1674,8 +1686,7 @@ func Relations(art *models.File) template.HTML {
 		if !strings.HasPrefix(href, route) {
 			href = route + href
 		}
-		fmt.Fprintf(&rows, "<tr><th scope=\"row\"><small class=\"fw-light text-secondary\">Link to</small></th>"+
-			"<td><small><a class=\"text-truncate\" href=\"%s\">%s</a></small></td></tr>", href, name)
+		fmt.Fprintf(&rows, format, href, name)
 	}
 	return template.HTML(rows.String())
 }
@@ -1810,6 +1821,8 @@ func Websites(art *models.File) template.HTML {
 	}
 	var rows strings.Builder
 	const expected = 2
+	const format = `<tr><th scope="row"><small class="fw-light text-secondary">Link to</small></th>` +
+		`<td><small><a class="link-offset-3 icon-link icon-link-hover" href="%s">%s %s</a></small></td></tr>`
 	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
 		if len(s) != expected {
@@ -1826,9 +1839,7 @@ func Websites(art *models.File) template.HTML {
 		if val, err := url.Parse(href); err != nil || val.Host == "" {
 			continue
 		}
-		fmt.Fprintf(&rows, "<tr><th scope=\"row\"><small class=\"fw-light text-secondary\">Link to</small></th>"+
-			"<td><small><a class=\"link-offset-3 icon-link icon-link-hover\" "+
-			"href=\"%s\">%s %s</a></small></td></tr>", href, name, LinkSVG())
+		fmt.Fprintf(&rows, format, href, name, LinkSVG())
 	}
 	return template.HTML(rows.String())
 }

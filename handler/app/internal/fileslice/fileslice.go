@@ -302,9 +302,9 @@ func RecordsSub(uri string) string {
 // Records returns the records for the artifacts category URI.
 // Note that the record statistics and counts get cached.
 func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	const msg = "file slice records"
+	const format = "file slice records: %w"
 	if err := panics.CE(ctx, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
 	switch Match(uri) { //nolint:exhaustive
 	// pulldown editor menu matches
@@ -525,19 +525,20 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 		r := model.Console{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	default:
-		return nil, fmt.Errorf("artifacts category %w: %s", ErrCategory, uri)
+		const format = "artifacts category %s: %w"
+		return nil, fmt.Errorf(format, uri, ErrCategory)
 	}
 }
 
 // Counter returns the statistics for the artifacts categories.
 func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
-	const msg = "artifacts categories counter"
+	const format = "artifacts categories counter %s: %w"
 	if db == nil {
-		return Stats{}, fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+		return Stats{}, fmt.Errorf(format, "arguments", panics.ErrNoDB)
 	}
 	counter := newStats()
 	if err := counter.Get(ctx, db); err != nil {
-		return Stats{}, fmt.Errorf("%s get %w", msg, err)
+		return Stats{}, fmt.Errorf(format, "get", err)
 	}
 	return counter, nil
 }
@@ -644,9 +645,9 @@ func Statistics() Stats {
 
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
-	const msg = "category get stats"
+	const format = "category get stats %s: %w"
 	if err := panics.CE(ctx, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "argument", err)
 	}
 	v := reflect.ValueOf(exec)
 	switch v.Kind() { //nolint:exhaustive
@@ -656,74 +657,75 @@ func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 		}
 	}
 	if err := s.Record.Public(ctx, exec); err != nil {
-		return fmt.Errorf("%s record: %w", msg, err)
+		return fmt.Errorf(format, "record", err)
 	}
 	if err := s.Ansi.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s ansi: %w", msg, err)
+		return fmt.Errorf(format, "ansi", err)
 	}
 	if err := s.AnsiBBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s ansiBBS: %w", msg, err)
+		return fmt.Errorf(format, " ansi bbs", err)
 	}
 	if err := s.BBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s bbs: %w", msg, err)
+		return fmt.Errorf(format, "bbs", err)
 	}
 	if err := s.BBSText.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s bbs trext: %w", msg, err)
+		return fmt.Errorf(format, "bbs text", err)
 	}
 	if err := s.BBStro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s bbstro: %w", msg, err)
+		return fmt.Errorf(format, "bbstro", err)
 	}
 	if err := s.Console.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s console: %w", msg, err)
+		return fmt.Errorf(format, "console", err)
 	}
 	if err := s.MsDos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s msdos: %w", msg, err)
+		return fmt.Errorf(format, "ms-dos", err)
 	}
 	if err := s.Intro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s intro: %w", msg, err)
+		return fmt.Errorf(format, "intro", err)
 	}
 	if err := s.IntroD.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s introd: %w", msg, err)
+		return fmt.Errorf(format, "intro ms-dos", err)
 	}
 	if err := s.IntroW.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s introw: %w", msg, err)
+		return fmt.Errorf(format, "intro windows", err)
 	}
 	if err := s.Installer.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s installer: %w", msg, err)
+		return fmt.Errorf(format, "installer", err)
 	}
 	if err := s.Java.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s java: %w", msg, err)
+		return fmt.Errorf(format, "java", err)
 	}
 	if err := s.Linux.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s linux: %w", msg, err)
+		return fmt.Errorf(format, "linux", err)
 	}
 	if err := s.Demoscene.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("%s demoscene: %w", msg, err)
+		return fmt.Errorf(format, "demoscene", err)
 	}
 	return s.get(ctx, exec)
 }
 
 func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
+	const format = "category get %s stat: %w"
 	if err := s.Macos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get macos stat: %w", err)
+		return fmt.Errorf(format, "macos", err)
 	}
 	if err := s.Magazine.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get magazine stat: %w", err)
+		return fmt.Errorf(format, "magazine", err)
 	}
 	if err := s.Nfo.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get nfo stat: %w", err)
+		return fmt.Errorf(format, "nfo", err)
 	}
 	if err := s.NfoTool.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get nfoTool stat: %w", err)
+		return fmt.Errorf(format, "nfo tool", err)
 	}
 	if err := s.Proof.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get proof stat: %w", err)
+		return fmt.Errorf(format, "proof", err)
 	}
 	if err := s.Script.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get script stat: %w", err)
+		return fmt.Errorf(format, "script", err)
 	}
 	if err := s.Text.Stat(ctx, exec); err != nil {
-		return fmt.Errorf("category get text stat: %w", err)
+		return fmt.Errorf(format, "text", err)
 	}
 	return s.Windows.Stat(ctx, exec)
 }

@@ -87,22 +87,23 @@ func BytesHuman(i int64) string {
 // CleanFname runs the string such as a filename through a HTML template
 // to remove any possible XSS problems such as < > characters.
 func CleanFname(s string) (string, error) {
+	const format = "simple clean fname %s tmpl: %w"
 	if s == "" {
 		return "", nil
 	}
-
+	// template placeholder
 	type TemplateData struct {
 		Fname string
 	}
 	tmpl, err := template.New("cleanTmpl").Parse(`{{.Fname}}`)
 	if err != nil {
-		return "", fmt.Errorf("simple clean fname new tmpl: %w", err)
+		return "", fmt.Errorf(format, "new", err)
 	}
 	data := TemplateData{Fname: s}
 	var wr bytes.Buffer
 	err = tmpl.Execute(&wr, data)
 	if err != nil {
-		return "", fmt.Errorf("simple clean fname execute tmpl: %w", err)
+		return "", fmt.Errorf(format, "execute", err)
 	}
 	return wr.String(), nil
 }
@@ -203,13 +204,14 @@ func DownloadB(i any) template.HTML {
 		s = fmt.Sprintf("(%s)", s)
 	case null.Int64:
 		if !val.Valid {
-			return " <small class=\"text-danger-emphasis\">(n/a)</small>"
+			return ` <small class="text-danger-emphasis">(n/a)</small>`
 		}
 		s = BytesHuman(val.Int64)
 	default:
 		return template.HTML(fmt.Sprintf("%sDownloadB: %s", typeErr, reflect.TypeOf(i).String()))
 	}
-	elm := fmt.Sprintf(" <small class=\"text-body-secondary\">%s</small>", s)
+	const format = ` <small class="text-body-secondary">%s</small>`
+	elm := fmt.Sprintf(format, s)
 	return template.HTML(elm)
 }
 
@@ -238,9 +240,8 @@ func ImageSample(unid string, preview dir.Directory) template.HTML {
 	if err != nil {
 		return template.HTML(`<div class="card-body">No preview image file</div>`)
 	}
-	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
-		"class=\"p-2 img-fluid rounded mx-auto d-block\" alt=\"%s sample\" integrity=\"%s\" />",
-		src, hash, ext, hash))
+	const format = `<img src="%s?%s" loading="lazy" class="p-2 img-fluid rounded mx-auto d-block" alt="%s sample" integrity="%s" />`
+	return template.HTML(fmt.Sprintf(format, src, hash, ext, hash))
 }
 
 // ImageSampleStat returns true if the image sample file exists and is not a 0 byte file.
@@ -312,19 +313,20 @@ func ImageXY(name string) [2]string {
 // The id is obfuscated to prevent direct linking.
 // The elem is the element to link to, such as 'f' for file or 'd' for download.
 func LinkID(id any, elem string) (string, error) {
+	const format = "app link id %d%s: %w"
 	var i int64
 	switch val := id.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		i = reflect.ValueOf(val).Int()
 		if i <= 0 {
-			return "", fmt.Errorf("app link id %w: %d", ErrNegative, i)
+			return "", fmt.Errorf(format, i, "", ErrNegative)
 		}
 	default:
-		return "", fmt.Errorf("app link id %w: %s", ErrLinkType, reflect.TypeOf(id).String())
+		return "", fmt.Errorf(format, i, reflect.TypeOf(id).String(), ErrLinkType)
 	}
 	href, err := url.JoinPath("/", elem, helper.ObfuscateID(i))
 	if err != nil {
-		return "", fmt.Errorf("app link id %d could not be made into a valid url: %w", i, err)
+		return "", fmt.Errorf(format, i, "could not be made into a valid url", err)
 	}
 	return href, nil
 }
@@ -437,7 +439,8 @@ func MakeLink(id, name, class string, performant bool) (string, error) {
 	if !performant {
 		title = releaser.Link(helper.Slug(name))
 	}
-	s := fmt.Sprintf(`<a id="named-group-page-%s" class="%s" href="%s">%s</a>`, id, class, ref, title)
+	const format = `<a id="named-group-page-%s" class="%s" href="%s">%s</a>`
+	s := fmt.Sprintf(format, id, class, ref, title)
 	if capt != "" && title == "" {
 		s = "error: could not link group"
 	}
@@ -506,7 +509,8 @@ func Releasers(prime, second string, magazine bool) template.HTML {
 	case magazine && prime != "" && second != "":
 		s = fmt.Sprintf("%s <small>published by</small> %s", second, prime)
 	case prime != "" && second != "":
-		s = fmt.Sprintf("%s <strong class=\"text-secondary\">+</strong> %s", prime, second)
+		const format = `%s <strong class="text-secondary">+</strong> %s`
+		s = fmt.Sprintf(format, prime, second)
 	case prime != "":
 		s = prime
 	case second != "":
@@ -612,11 +616,11 @@ func Screenshot(unid, desc string, preview dir.Directory) template.HTML {
 		elm := template.HTML("<picture>")
 		switch {
 		case sizeA > 0:
-			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s?%s\""+
-				" type=\"image/avif\" integrity=\"%s\" />", srcA, hashA, hashA))
+			const format = `<source srcset="%s?%s" type="image/avif" integrity="%s" />`
+			elm += template.HTML(fmt.Sprintf(format, srcA, hashA, hashA))
 		case sizeW > 0:
-			elm += template.HTML(fmt.Sprintf("<source srcset=\"%s?%s\""+
-				" type=\"image/webp\" integrity=\"%s\" />", srcW, hashW, hashW))
+			const format = `<source srcset="%s?%s" type="image/webp" integrity="%s" />`
+			elm += template.HTML(fmt.Sprintf(format, srcW, hashW, hashW))
 		}
 		// the <picture> element is used to provide multiple sources for an image.
 		// if no <img> element is provided, the <picture> element won't be rendered by the browser.
@@ -646,9 +650,8 @@ func Screenshot(unid, desc string, preview dir.Directory) template.HTML {
 
 // img returns a HTML image tag.
 func img(src, alt, integrity string) template.HTML {
-	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" alt=\"%s\""+
-		" class=\"rounded mx-auto d-block img-fluid\" integrity=\"%s\" />",
-		src, integrity, alt, integrity))
+	const format = `<img src="%s?%s" loading="lazy" alt="%s" class="rounded mx-auto d-block img-fluid" integrity="%s" />`
+	return template.HTML(fmt.Sprintf(format, src, integrity, alt, integrity))
 }
 
 // StatHumanize returns the last modified date, size in bytes and size formatted
@@ -696,10 +699,9 @@ func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTM
 		class = "card-img-top"
 	}
 	if w && p {
-		elm := "<picture class=\"" + class + "\">" +
-			fmt.Sprintf("<source srcset=\"%s\" type=\"image/webp\" />", webpSrc) +
-			string(thumb(pngSrc, alt, class, style)) +
-			"</picture>"
+		const format = `<source srcset="%s" type="image/webp" />`
+		elm := `<picture class="` + class + `">` +
+			fmt.Sprintf(format, webpSrc) + string(thumb(pngSrc, alt, class, style)) + `</picture>`
 		return template.HTML(elm)
 	}
 	src := webpSrc
@@ -711,8 +713,8 @@ func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTM
 
 // img returns a HTML image tag.
 func thumb(src, alt, class, style string) template.HTML {
-	return template.HTML(fmt.Sprintf("<img src=\"%s\" loading=\"lazy\" alt=\"%s\" class=\"%s\" style=\"%s\" />",
-		src, alt, class, style))
+	const format = `<img src="%s" loading="lazy" alt="%s" class="%s" style="%s" />`
+	return template.HTML(fmt.Sprintf(format, src, alt, class, style))
 }
 
 // ThumbSample returns a HTML image tag for the given unid.
@@ -732,9 +734,8 @@ func ThumbSample(unid string, thumbnail dir.Directory) template.HTML {
 	if err != nil {
 		return template.HTML(`<div class="card-body">No thumbnail picture file</div>`)
 	}
-	return template.HTML(fmt.Sprintf("<img src=\"%s?%s\" loading=\"lazy\" "+
-		"class=\"p-2 img-fluid rounded mx-auto d-block\" alt=\"%s sample\" integrity=\"%s\" />",
-		src, hash, ext, hash))
+	const format = `<img src="%s?%s" loading="lazy" class="p-2 img-fluid rounded mx-auto d-block" alt="%s sample" integrity="%s" />`
+	return template.HTML(fmt.Sprintf(format, src, hash, ext, hash))
 }
 
 // Updated returns a string of the time since the given time t.
