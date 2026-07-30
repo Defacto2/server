@@ -33,7 +33,7 @@ import (
 
 const (
 	closeAnchor = "</a>"
-	input       = "<input class=\"form-check-input\""
+	input       = `<input class="form-check-input"`
 	radio       = `<input type="radio" class="btn-check" name="artifact-editor-record"`
 )
 
@@ -565,51 +565,47 @@ func (t *Templ) parseFS(ctx context.Context, db *sql.DB, name filename) *templat
 
 func recordLastMod(b bool) template.HTML {
 	if b { // tooltips do not work on disabled buttons
-		return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
-			"data-bs-toggle=\"tooltip\" data-bs-title=\"No last modification date found\" disabled>")
+		return template.HTML(`<button id="recordLMBtn" class="btn btn-outline-secondary" type="button" ` +
+			`data-bs-toggle="tooltip" data-bs-title="No last modification date found" disabled>`)
 	}
-	return template.HTML("<button id=\"recordLMBtn\" class=\"btn btn-outline-secondary\" type=\"button\" " +
-		"data-bs-toggle=\"tooltip\" data-bs-title=\"Apply the file last modified date\">")
+	return template.HTML(`<button id="recordLMBtn" class="btn btn-outline-secondary" type="button" ` +
+		`data-bs-toggle="tooltip" data-bs-title="Apply the file last modified date">`)
 }
 
 func radioPublic(b bool) template.HTML {
 	const htmx = ` hx-patch="/editor/online/true"
-	hx-include="[name='artifact-editor-key']"`
+	hx-include="[name='artifact-editor-key']" ` +
+		` id="artifact-editor-public" autocomplete="off"`
 	if b {
-		return template.HTML(radio +
-			htmx + ` id="artifact-editor-public" autocomplete="off" checked>`)
+		return template.HTML(radio + htmx + ` checked>`)
 	}
-	return template.HTML(radio +
-		htmx + ` id="artifact-editor-public" autocomplete="off">`)
+	return template.HTML(radio + htmx + `>`)
 }
 
 func radioHidden(b bool) template.HTML {
 	const htmx = ` hx-patch="/editor/online/false"
-	hx-include="[name='artifact-editor-key']"`
+	hx-include="[name='artifact-editor-key']"` +
+		` id="artifact-editor-hidden" autocomplete="off"`
 	if !b {
-		return template.HTML(radio +
-			htmx + ` id="artifact-editor-hidden" autocomplete="off" checked>`)
+		return template.HTML(radio + htmx + ` checked>`)
 	}
-	return template.HTML(radio +
-		htmx + ` id="artifact-editor-hidden" autocomplete="off">`)
+	return template.HTML(radio + htmx + `>`)
 }
 
 func recordOnline(b bool) template.HTML {
+	const htm = ` name="online" type="checkbox" role="switch" id="recordOnline"`
 	if b {
-		return template.HTML(input +
-			" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\" checked>")
+		return template.HTML(input + htm + ` checked>`)
 	}
-	return template.HTML((input +
-		" name=\"online\" type=\"checkbox\" role=\"switch\" id=\"recordOnline\">"))
+	return template.HTML((input + htm + `>`))
 }
 
 func recordReadme(b bool) template.HTML {
+	const htm = ` name="hide-readme" type="checkbox" role="switch" id="edHideMe"`
 	if b {
-		return template.HTML(input +
-			" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\" checked>")
+		return template.HTML(input + htm + ` checked>`)
 	}
-	return template.HTML((input +
-		" name=\"hide-readme\" type=\"checkbox\" role=\"switch\" id=\"edHideMe\">"))
+	return template.HTML((input + htm + `>`))
 }
 
 // LinkPreviews returns a slice of HTML formatted links for the artifact editor.

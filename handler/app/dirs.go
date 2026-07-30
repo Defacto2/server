@@ -1011,7 +1011,7 @@ func simpleCharmapEncodings(art *models.File, data map[string]any, b ...byte) (m
 func FixColorLeak(s string) template.HTML {
 	const fullblock = '\u2588'
 	const fb = string(fullblock)
-	fix := strings.ReplaceAll(s, fb, "<span style=\"background-color:currentColor;\">"+fb+"</span>")
+	fix := strings.ReplaceAll(s, fb, `<span style="background-color:currentColor;">`+fb+`</span>`)
 	return template.HTML(fix)
 }
 
@@ -1077,7 +1077,8 @@ func ReplaceTabs(b []byte) []byte {
 func decode(src io.Reader) (string, error) {
 	out := strings.Builder{}
 	if _, err := io.Copy(&out, src); err != nil {
-		return "", fmt.Errorf("io.Copy: %w", err)
+		const format = "io copy: %w"
+		return "", fmt.Errorf(format, err)
 	}
 	if !strings.HasSuffix(out.String(), "\n\n") {
 		out.WriteString("\n")
@@ -1095,7 +1096,8 @@ func firstLead(art *models.File) string {
 		fname = ""
 	}
 	a := helper.MaskTerm([]byte(fname)...)
-	span := fmt.Sprintf("<span class=\"font-monospace fs-5 fw-light\">%s</span> ", a)
+	const format = `<span class="font-monospace fs-5 fw-light">%s</span> `
+	span := fmt.Sprintf(format, a)
 	return fmt.Sprintf("%s<br>%s", releasersHrefs(art), span)
 }
 

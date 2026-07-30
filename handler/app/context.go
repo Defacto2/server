@@ -807,7 +807,8 @@ func Download(
 	const uri = "d"
 	if id := c.Param("id"); id != "" {
 		r := c.Response()
-		r.Header().Set("Link", fmt.Sprintf(`<https://defacto2.net/%s/%s; rel=canon>`, uri, id))
+		const format = `<https://defacto2.net/%s/%s; rel=canon>`
+		r.Header().Set("Link", fmt.Sprintf(format, uri, id))
 	}
 	if err := d.HTTPSend(ctx, sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
@@ -1062,8 +1063,6 @@ func GetDemozooParam(ctx context.Context, sl *slog.Logger, c *echo.Context, db *
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 //
 // This function is a wrapper for the remote.DemozooLink.Download method.
-//
-// TODO: create structures for args
 func GetDemozoo(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, demozooID int, defacto2UNID string, download dir.Directory,
 ) error {
@@ -1143,9 +1142,8 @@ func GoogleCallback(
 	}
 	if !check {
 		sub := playload.Claims["sub"]
-		return ForbiddenErr(sl, c, name,
-			fmt.Errorf("%w. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s",
-				ErrUser, sub))
+		const format = "%w. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s"
+		return ForbiddenErr(sl, c, name, fmt.Errorf(format, ErrUser, sub))
 	}
 
 	if err = sessionHandler(c, maxAge, playload.Claims); err != nil {
@@ -1885,10 +1883,12 @@ func tibits(sl *slog.Logger, uri string, public embed.FS) string {
 	for value := range slices.Values(tidbits) {
 		s := value.String(sl, public)
 		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
-			fmt.Fprintf(&htm, `<li class="list-group-item">%s%s</li>`, s, value.URL(uri))
+			const format = `<li class="list-group-item">%s%s</li>`
+			fmt.Fprintf(&htm, format, s, value.URL(uri))
 			continue
 		}
-		fmt.Fprintf(&htm, `<li class="list-group-item">%s<br>%s</li>`, s, value.URL(uri))
+		const format = `<li class="list-group-item">%s<br>%s</li>`
+		fmt.Fprintf(&htm, format, s, value.URL(uri))
 	}
 	return htm.String()
 }
@@ -2310,13 +2310,15 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 	// Get the obfuscated ID from the URL
 	obfuscatedID := c.Param("id")
 	if obfuscatedID == "" {
-		return fmt.Errorf("%w: missing obfuscated ID", ErrMissingObfuscatedID)
+		const format = `%w: missing obfuscated ID`
+		return fmt.Errorf(format, ErrMissingObfuscatedID)
 	}
 
 	// Deobfuscate the ID
 	fileID := int64(helper.DeobfuscateID(obfuscatedID))
 	if fileID == 0 {
-		return fmt.Errorf("%w: invalid obfuscated ID: %s", ErrInvalidObfuscatedID, obfuscatedID)
+		const format = `%w: invalid obfuscated ID: %s`
+		return fmt.Errorf(format, ErrInvalidObfuscatedID, obfuscatedID)
 	}
 
 	// Get the file from the database using the standard One function
@@ -2327,13 +2329,15 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 			slog.String("error", err.Error()),
 			slog.Int64("file_id", fileID),
 			slog.String("obfuscated_id", obfuscatedID))
-		return fmt.Errorf("%s: failed to find file: %w", format, err)
+		const format = `%s: failed to find file: %w`
+		return fmt.Errorf(format, format, err)
 	}
 	if file == nil {
 		sl.Error("file not found in fix handler",
 			slog.Int64("file_id", fileID),
 			slog.String("obfuscated_id", obfuscatedID))
-		return fmt.Errorf("%w: file not found", ErrFileNotFound)
+		const format = `%w: file not found`
+		return fmt.Errorf(format, ErrFileNotFound)
 	}
 
 	// Remove the numeric suffix from the filename
@@ -2342,7 +2346,6 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 	numericSuffixRegexes := []*regexp.Regexp{
 		regexp.MustCompile(` \([0-9]{1,3}\)`), // Pattern with space: " (123)"
 		regexp.MustCompile(`\([0-9]{1,3}\)`),  // Pattern without space: "(123)"
-
 	}
 
 	var matched bool
@@ -2356,20 +2359,21 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 	}
 
 	if !matched {
-		return fmt.Errorf("%w: filename does not match numeric suffix pattern: %s",
-			ErrInvalidFilenamePattern, originalFilename)
+		const format = `%w: filename does not match numeric suffix pattern: %s`
+		return fmt.Errorf(format, ErrInvalidFilenamePattern, originalFilename)
 	}
 
 	// Update the filename in the database
 	file.Filename = null.StringFrom(baseFilename)
 	_, err = file.Update(ctx, db, boil.Infer())
 	if err != nil {
-		return fmt.Errorf("%s: failed to update filename: %w", format, err)
+		const format = `%s: failed to update filename: %w`
+		return fmt.Errorf(format, format, err)
 	}
 
 	// Return the updated file info as HTML to replace the list item
 	obfuscatedID = helper.ObfuscateID(file.ID)
-	html := fmt.Sprintf(`
+	const entry = `
 		<div class="list-group-item list-group-item-success">
 			<div class="d-flex justify-content-between align-items-center">
 				<div>
@@ -2386,8 +2390,8 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 				</div>
 			</div>
 		</div>
-	`, baseFilename, file.ID, file.UUID.String, originalFilename, baseFilename, obfuscatedID)
-
+		`
+	html := fmt.Sprintf(entry, baseFilename, file.ID, file.UUID.String, originalFilename, baseFilename, obfuscatedID)
 	return c.HTML(http.StatusOK, html)
 }
 
@@ -2551,7 +2555,8 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 	}
 	err := m.ByMatch(ctx, exec, uri)
 	if err != nil && !errors.Is(err, model.ErrURI) {
-		return nil, 0, fmt.Errorf("artifacts stats %w: %s", err, uri)
+		const format = `artifacts stats %w: %s`
+		return nil, 0, fmt.Errorf(format, err, uri)
 	}
 	if errors.Is(err, model.ErrURI) {
 		if err := statsByURI(ctx, exec, uri, &m); err != nil {
