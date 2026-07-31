@@ -19,6 +19,9 @@ const ErrTmpl = "the server could not render the html template for this page"
 // BadRequestErr is the handler for handling Bad Request Errors, caused by invalid user input
 // or a malformed client requests.
 func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
+	const title = "400 error, there is a complication"
+	const logo = "Client error"
+	const probl = "It might be a settings or configuration problem or a legacy browser issue."
 	const msg = "bad request handler"
 	const format = msg + ": %w"
 	if err1 := panics.SC(c, sl); err1 != nil {
@@ -30,11 +33,11 @@ func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) erro
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "400 error, there is a complication"
+	data["title"] = title
 	data["code"] = code
-	data["logo"] = "Client error"
+	data["logo"] = logo
 	data["alert"] = "Something went wrong, " + err.Error()
-	data["probl"] = "It might be a settings or configuration problem or a legacy browser issue."
+	data["probl"] = probl
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
 		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
@@ -47,6 +50,9 @@ func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) erro
 // A HTTP 503 Service Unavailable error is returned, to reflect the database
 // connection issue but where the server is still running and usable for the client.
 func DatabaseErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
+	const title = "Cannot connect to the database!"
+	const logo = "Database error"
+	const probl = "This is not your fault, but the server cannot communicate with the database to display this page."
 	const msg = "database connection handler"
 	const unavailable = http.StatusServiceUnavailable
 	if err != nil {
@@ -59,10 +65,10 @@ func DatabaseErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 	data["description"] = fmt.Sprintf("HTTP status %d error", unavailable)
 	data["title"] = fmt.Sprintf("%d error, there is a complication", unavailable)
 	data["code"] = fmt.Sprintf("%d service unavailable", unavailable)
-	data["logo"] = "Database error"
-	data["alert"] = "Cannot connect to the database!"
+	data["logo"] = logo
+	data["alert"] = title
 	data["uriErr"] = ""
-	data["probl"] = "This is not your fault, but the server cannot communicate with the database to display this page."
+	data["probl"] = probl
 	if err := c.Render(unavailable, "status", data); err != nil {
 		sl.Error(msg, slog.Int("code", unavailable), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(unavailable, ErrTmpl)
@@ -72,6 +78,11 @@ func DatabaseErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 
 // DownloadErr is the handler for missing download files and database ID errors.
 func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
+	const title = "404 download error"
+	const logo = "Download problem"
+	const alert = "Cannot send you this download"
+	const probl = "The download you are looking for might have been removed, " +
+		"had its filename changed, or is temporarily unavailable. Is the URL correct?"
 	const msg = "download not found"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -84,13 +95,11 @@ func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "404 download error"
+	data["title"] = title
 	data["code"] = code
-	data["logo"] = "Download problem"
-	data["alert"] = "Cannot send you this download"
-	data["probl"] = "The download you are looking for might have been removed, " +
-		"had its filename changed, or is temporarily unavailable. " +
-		"Is the URL correct?"
+	data["logo"] = logo
+	data["alert"] = alert
+	data["probl"] = probl
 	data["uriErr"] = strings.Join([]string{uri, id}, "/")
 	if err := c.Render(code, "status", data); err != nil {
 		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
@@ -101,6 +110,11 @@ func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 
 // FileMissingErr is the handler for missing download files and database ID errors.
 func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
+	const title = "503 download unavailable"
+	const logo = "Download unavailable"
+	const alert = "Cannot send you this download"
+	const probl = "The file download needs to be added to the server; " +
+		"otherwise, there may be a problem with the server configuration, or the file may be lost."
 	const msg = "file missing"
 	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
@@ -114,12 +128,11 @@ func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) err
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "503 download unavailable"
+	data["title"] = title
 	data["code"] = code
-	data["logo"] = "Download unavailable"
-	data["alert"] = "Cannot send you this download"
-	data["probl"] = "The file download needs to be added to the server; " +
-		"otherwise, there may be a problem with the server configuration, or the file may be lost."
+	data["logo"] = logo
+	data["alert"] = alert
+	data["probl"] = probl
 	data["uriErr"] = strings.Join([]string{uri, id}, "/")
 	if err := c.Render(code, "status", data); err != nil {
 		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
@@ -131,6 +144,9 @@ func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) err
 // ForbiddenErr is the handler for handling Forbidden Errors, caused by clients requesting
 // pages that they do not have permission to access.
 func ForbiddenErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
+	const title = "403, forbidden"
+	const logo = "Forbidden"
+	const alert = "This page is locked"
 	const msg = "forbidden access"
 	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
@@ -143,10 +159,10 @@ func ForbiddenErr(sl *slog.Logger, c *echo.Context, uri string, err error) error
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "403, forbidden"
+	data["title"] = title
 	data["code"] = code
-	data["logo"] = "Forbidden"
-	data["alert"] = "This page is locked"
+	data["logo"] = logo
+	data["alert"] = alert
 	if err != nil {
 		data["probl"] = fmt.Sprintf("This page is not intended for the general public, %s.", err.Error())
 	}
@@ -163,6 +179,11 @@ func ForbiddenErr(sl *slog.Logger, c *echo.Context, uri string, err error) error
 // The optional error value is logged using the logger.
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
+	const title = "500 error, there is a complication"
+	const logo = "Server error"
+	const alert = "Something crashed!"
+	const probl = "This is not your fault," +
+		" but the server encountered an internal error or misconfiguration and cannot display this page."
 	const msg = "internal server error"
 	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
@@ -185,12 +206,11 @@ func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)
-	data["title"] = "500 error, there is a complication"
+	data["title"] = title
 	data["code"] = code
-	data["logo"] = "Server error"
-	data["alert"] = "Something crashed!"
-	data["probl"] = "This is not your fault," +
-		" but the server encountered an internal error or misconfiguration and cannot display this page."
+	data["logo"] = logo
+	data["alert"] = alert
+	data["probl"] = probl
 	data["uriErr"] = uri
 	if err := c.Render(code, "status", data); err != nil {
 		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))

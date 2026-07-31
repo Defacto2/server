@@ -53,6 +53,8 @@ const (
 
 // Artifact404 renders the error page for the artifact links.
 func Artifact404(sl *slog.Logger, c *echo.Context, id string) error {
+	const title = "Artifact not found"
+	const probl = "The artifact page does not exist, there is probably a typo with the URL."
 	const msg = "artifact 404 context"
 	const format = msg + ": %w"
 	if err := panics.SC(c, sl); err != nil {
@@ -63,9 +65,9 @@ func Artifact404(sl *slog.Logger, c *echo.Context, id string) error {
 	data["title"] = fmt.Sprintf("%d error, artifact page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
-	data["logo"] = "Artifact not found"
+	data["logo"] = title
 	data["alert"] = fmt.Sprintf("Artifact %q cannot be found", strings.ToLower(id))
-	data["probl"] = "The artifact page does not exist, there is probably a typo with the URL."
+	data["probl"] = probl
 	data["uriOkay"] = "f/"
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)

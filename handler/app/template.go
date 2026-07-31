@@ -568,18 +568,26 @@ func (t *Templ) parseFS(ctx context.Context, db *sql.DB, name filename) *templat
 }
 
 func recordLastMod(b bool) template.HTML {
-	if b { // tooltips do not work on disabled buttons
-		return template.HTML(`<button id="recordLMBtn" class="btn btn-outline-secondary" type="button" ` +
-			`data-bs-toggle="tooltip" data-bs-title="No last modification date found" disabled>`)
+	const id = `recordLMBtn`
+	const class = `btn btn-outline-secondary`
+	const button = `button`
+	if b {
+		// tooltips do not work on disabled buttons
+		const title = `No last modification date found`
+		return template.HTML(`<button id="` + id + `" class="` + class + `" type="` + button + `" ` +
+			`data-bs-toggle="tooltip" data-bs-title="` + title + `" disabled>`)
 	}
-	return template.HTML(`<button id="recordLMBtn" class="btn btn-outline-secondary" type="button" ` +
-		`data-bs-toggle="tooltip" data-bs-title="Apply the file last modified date">`)
+	const title = `Apply the file last modified date`
+	return template.HTML(`<button id="` + id + `" class="` + class + `" type="` + button + `" ` +
+		`data-bs-toggle="tooltip" data-bs-title="` + title + `">`)
 }
 
 func radioPublic(b bool) template.HTML {
-	const htmx = ` hx-patch="/editor/online/true"
-	hx-include="[name='artifact-editor-key']" ` +
-		` id="artifact-editor-public" autocomplete="off"`
+	const patch = `/editor/online/true`
+	const include = `[name='artifact-editor-key']`
+	const id = `artifact-editor-public`
+	const htmx = ` hx-patch="` + patch + `"	hx-include="` + include + `" id="` + id +
+		`" autocomplete="off"`
 	if b {
 		return template.HTML(radio + htmx + ` checked>`)
 	}
@@ -587,9 +595,12 @@ func radioPublic(b bool) template.HTML {
 }
 
 func radioHidden(b bool) template.HTML {
-	const htmx = ` hx-patch="/editor/online/false"
-	hx-include="[name='artifact-editor-key']"` +
-		` id="artifact-editor-hidden" autocomplete="off"`
+	const patch = `/editor/online/false`
+	const include = `[name='artifact-editor-key']`
+	const id = `artifact-editor-hidden`
+	const htmx = ` hx-patch="` + patch + `"	hx-include="` + include + `" id="` + id +
+		`" autocomplete="off"`
+	// const htmx = ` hx-patch="/editor/online/false" hx-include="[name='artifact-editor-key']" id="artifact-editor-hidden" autocomplete="off"`
 	if !b {
 		return template.HTML(radio + htmx + ` checked>`)
 	}
