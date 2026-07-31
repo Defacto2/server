@@ -143,17 +143,20 @@ func EmptyTester(c *echo.Context) map[string]any {
 
 // APIInfo is the handler for the APIInfo end-user helper page.
 func APIInfo(sl *slog.Logger, c *echo.Context) error {
+	const title = "API Information"
+	const descr = "A special thanks to the hundreds of contributors and the thousands of contributions."
+	const leadr = "Basic information on how to use the Defacto2 API."
 	const format = "api helper context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "api-info"
 	data := empty(c)
-	data["description"] = "A special thanks to the hundreds of contributors and the thousands of contributions."
+	data["description"] = descr
 	data["h1"] = "RESTful API"
 	data["logo"] = "application programming interface"
-	data["lead"] = "Basic information on how to use the Defacto2 API."
-	data["title"] = "API Information"
+	data["lead"] = leadr
+	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -184,12 +187,14 @@ func Artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 // artifacts is a helper function for Artifacts that returns the data map for the files page.
 func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, page int) error {
-	const title, name = "Artifacts", "artifacts"
+	const title = "Artifacts"
+	const descr = "Table of contents for the collection of artifacts."
+	const name = "artifacts"
 	logo, subhead, lead := fileslice.FileInfo(uri)
 	data := emptyFiles(c)
 	data["title"] = title
 	data[canonical] = strings.Join([]string{files, uri}, "/")
-	data["description"] = "Table of contents for the collection of artifacts."
+	data["description"] = descr
 	data["logo"] = logo
 	data["h1"] = title
 	data["subheading"] = subhead
@@ -287,6 +292,9 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 // Artifacts404 renders the files error page for the Artifacts menu and categories.
 // It provides different error messages to the standard error page.
 func Artifacts404(sl *slog.Logger, c *echo.Context, uri string) error {
+	const title = "Artifacts not found"
+	const descr = "Artifacts page cannot be found"
+	const probl = "The files category or menu option does not exist, there is probably a typo with the URL."
 	const format = "artifacts 404 context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
@@ -297,9 +305,9 @@ func Artifacts404(sl *slog.Logger, c *echo.Context, uri string) error {
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
-	data["logo"] = "Artifacts not found"
-	data["alert"] = "Artifacts page cannot be found"
-	data["probl"] = "The files category or menu option does not exist, there is probably a typo with the URL."
+	data["logo"] = title
+	data["alert"] = descr
+	data["probl"] = probl
 	data["uriOkay"] = "files/"
 	data["uriErr"] = uri
 	err := c.Render(http.StatusNotFound, name, data)
@@ -311,21 +319,22 @@ func Artifacts404(sl *slog.Logger, c *echo.Context, uri string) error {
 
 // Apps is the handler for the modern applications and tools page.
 func Apps(sl *slog.Logger, c *echo.Context) error {
+	const title = "Use current apps"
+	const descr = "Software and application suggestions for using the historic artifacts and " +
+		"file downloads on modern systems."
+	const leadr = "Here are some software suggestions and Windows, Linux, macOS tools for running out-of-date programs " +
+		"and using legacy media formats."
 	const format = "apps handler context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "apps"
-	const h1 = "Modern Applications and Tools"
-	const lead = "Here are some software suggestions and Windows, Linux, macOS tools for running out-of-date programs " +
-		"and using legacy media formats."
 	data := empty(c)
-	data["title"] = "Use current apps"
-	data["description"] = "Software and application suggestions for using the historic artifacts and " +
-		"file downloads on modern systems."
+	data["title"] = title
+	data["description"] = descr
 	data["logo"] = "Software suggestions"
-	data["h1"] = h1
-	data["lead"] = lead
+	data["h1"] = "Modern Applications and Tools"
+	data["lead"] = leadr
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -335,16 +344,20 @@ func Apps(sl *slog.Logger, c *echo.Context) error {
 
 // Areacodes is the handler for the BBS and telephone area codes page.
 func Areacodes(sl *slog.Logger, c *echo.Context) error {
+	const title = "BBS and telephone area codes"
+	const descr = "Lookup and list the North American Numbering Plan (NANP) area codes in common use until 1994."
+	const leadr = "North American Numbering Plan (+1-XXX) telephone area codes until 1994."
+	const logo = "BBS area codes"
 	const format = "areacodes context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
-	data["title"] = "BBS and telephone area codes"
-	data["description"] = "Lookup and list the North American Numbering Plan (NANP) area codes in common use until 1994."
-	data["logo"] = "BBS area codes"
-	data["h1"] = "BBS area codes"
-	data["lead"] = "North American Numbering Plan (+1-XXX) telephone area codes until 1994."
+	data["title"] = title
+	data["description"] = descr
+	data["logo"] = logo
+	data["h1"] = logo
+	data["lead"] = leadr
 	data["telephonecodes"] = areacode.AreaCodes()
 	data["territories"] = areacode.Regions()
 	data["abbreviations"] = areacode.Abbreviations()
@@ -357,16 +370,15 @@ func Areacodes(sl *slog.Logger, c *echo.Context) error {
 
 // Artist is the handler for the Artist sceners page.
 func Artist(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	const title = "Pixel artists and graphic designers"
 	const format = "artist context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
-	title := "Pixel artists and graphic designers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
-	data["description"] = demo
 	data["noindex"] = true
 	return scener(ctx, sl, c, db, postgres.Artist, data)
 }
@@ -375,6 +387,8 @@ func Artist(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 func scener(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role,
 	data map[string]any,
 ) error {
+	const descr = "This is a massive but incomplete list of aliases and pseudonyms used " +
+		"in the Scene and offers links to individual profiles."
 	const name = "scener"
 	s := model.Sceners{}
 	var err error
@@ -397,8 +411,7 @@ func scener(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, r
 		return DatabaseErr(sl, c, name, err)
 	}
 	data["sceners"] = s.Sort()
-	data["description"] = "This is a massive but incomplete list of aliases and pseudonyms used " +
-		"in the Scene and offers links to individual profiles."
+	data["description"] = descr
 	data["lead"] = "This page shows the sceners and people credited for their work in The Scene." +
 		`<br><small class="fw-lighter">` +
 		"The list will never be complete or accurate due to the amount of data and the lack of a" +
@@ -430,23 +443,23 @@ func BBSYear(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) 
 
 // bbsHandler is the handler for the BBS page.
 func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
+	const title = "BBS"
+	const leadr = "Bulletin Board Systems were personal computers networked using the copper telephone network " +
+		"and provided communication services, file hosting and exchanges."
+	const logo = "Bulletin Board Systems"
 	const format = "bbs handler context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "BBS", "bbs"
-	// FTP sites were Internet-based file exchange servers that would host and share Scene releases.
-	const lead = "Bulletin Board Systems were personal computers networked using the copper telephone network " +
-		"and provided communication services, file hosting and exchanges."
-	const logo = "Bulletin Board Systems"
+	const name = "bbs"
 	const key = "releasers"
 	data := empty(c)
 	data["noindex"] = true
 	data["title"] = "Former " + title
-	data["description"] = lead
+	data["description"] = leadr
 	data["logo"] = logo
 	data["h1"] = title
-	data["lead"] = lead
+	data["lead"] = leadr
 	data["itemName"] = name
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
@@ -491,22 +504,22 @@ func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 
 // BrokenTexts is the handler for the Broken texts page.
 func BrokenTexts(sl *slog.Logger, c *echo.Context) error {
+	const title = "Broken texts!?"
+	const descr = "Learn why there are broken encodings, unreadable texts and corrupted nfo files."
+	const leadr = "Unfortunately, there are large numbers of incomplete, inaccurate, " +
+		"or corrupted information texts (NFOs). While we'd prefer to offer a pristine copy of a Scene text, " +
+		"hosting a broken text is more useful than offering nothing."
 	const format = "broken texts context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "brokentexts"
-	const h1 = "Broken text files"
-	const lead = "Unfortunately, there are large numbers of incomplete, inaccurate," +
-		" or corrupted information texts (NFOs). " +
-		"While we'd prefer to offer a pristine copy of a Scene text, " +
-		"hosting a broken text is more useful than offering nothing."
 	data := empty(c)
-	data["title"] = "Broken texts!?"
-	data["description"] = "Learn why there are broken encodings, unreadable texts and corrupted nfo files."
+	data["title"] = title
+	data["description"] = descr
 	data["logo"] = "Broken text files and NFOs"
-	data["h1"] = h1
-	data["lead"] = lead
+	data["h1"] = "Broken text files"
+	data["lead"] = leadr
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -532,35 +545,36 @@ func Checksum(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 
 // Coder is the handler for the Coder sceners page.
 func Coder(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	const title = "Coder and programmers"
 	const format = "coder context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
-	title := "Coder and programmers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
-	data["description"] = demo
 	data["noindex"] = true
 	return scener(ctx, sl, c, db, postgres.Writer, data)
 }
 
 // Compression is the handler for information on historic compression tools page.
 func Compression(sl *slog.Logger, c *echo.Context) error {
+	const title = "Compression and archiving formats"
+	const descr = "Old file archives and compression methods used in the 1980s on the PC."
+	const leadr = "Compression and archiving formats of the 1980s were evolving by the month, " +
+		"and today, are hard to parse."
 	const format = "compression context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "compression"
-	const h1 = "File compression formats"
-	const lead = "Compression and archiving formats of the 1980s were evolving by the month, and today are hard to parse."
 	data := empty(c)
-	data["title"] = "Compression and archiving formats"
-	data["description"] = "Old file archives and compression methods used in the 1980s on the PC."
+	data["title"] = title
+	data["description"] = descr
 	data["logo"] = "Old archives"
-	data["h1"] = h1
-	data["lead"] = lead
+	data["h1"] = "File compression formats"
+	data["lead"] = leadr
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -570,16 +584,19 @@ func Compression(sl *slog.Logger, c *echo.Context) error {
 
 // Configurations is the handler for the Configuration page.
 func Configurations(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Config) error {
+	const title = "Configs"
+	const descr = "Defacto2 configurations."
+	const leadr = "The web application configurations, tools and links to special records."
 	const format = "configurations context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "configs"
 	data := empty(c)
-	data["description"] = "Defacto2 configurations."
+	data["description"] = descr
 	data["h1"] = "Configurations"
-	data["lead"] = "The web application configurations, tools and links to special records."
-	data["title"] = "Configs"
+	data["lead"] = leadr
+	data["title"] = title
 	data["configurations"] = conf
 	data["countArtifacts"] = 0
 	data["countPublic"] = 0
@@ -624,11 +641,12 @@ func Configurations(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 		}
 		return nil
 	}
-	conns, maxConn, err := postgres.Connections(db)
+	count, maximum, err := postgres.Connections(db)
 	if err != nil {
 		data["dbConnections"] = err.Error()
+	} else {
+		data["dbConnections"] = fmt.Sprintf("%d of %d", count, maximum)
 	}
-	data["dbConnections"] = fmt.Sprintf("%d of %d", conns, maxConn)
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -821,19 +839,20 @@ func Download(
 
 // FTP is the handler for the FTP page.
 func FTP(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	const title = "FTP"
+	const descr = "FTP sites were Internet-based file exchange servers that would host and share Scene releases."
 	const format = "ftp context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "FTP", "ftp"
+	const name = "ftp"
 	data := empty(c)
-	const lead = "FTP sites were Internet-based file exchange servers that would host and share Scene releases."
 	const key = "releasers"
 	data["title"] = "Former " + title + " sites"
-	data["description"] = lead
+	data["description"] = descr
 	data["logo"] = "FTP sites, A-Z"
 	data["h1"] = title
-	data["lead"] = lead
+	data["lead"] = descr
 	// releaser.html specific data items
 	data["itemName"] = name
 	data[key] = model.Releasers{}
@@ -856,18 +875,21 @@ func FTP(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) erro
 
 // Categories is the handler for the artifact categories page.
 func Categories(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error {
+	const title = "Artifact categories"
+	const descr = "A table of contents for the collection."
+	const leadr = "This page shows the categories and platforms in the collection of file artifacts."
 	const format = "categories context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "Artifact categories", "categories"
+	const name = "categories"
 	data := empty(c)
 	data["noindex"] = true
 	data["title"] = title
-	data["description"] = "A table of contents for the collection."
+	data["description"] = descr
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = "This page shows the categories and platforms in the collection of file artifacts."
+	data["lead"] = leadr
 	data["stats"] = stats
 	data["counter"] = fileslice.Statistics()
 	data, err := fileWStats(ctx, db, data, stats)
@@ -884,6 +906,9 @@ func Categories(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
 func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
+	const title = "Artifact category statistics"
+	const descr = "This page shows the artifacts categories with selected statistics, " +
+		"such as the number of files in the category or platform."
 	if data == nil {
 		data = make(map[string]any) // avoid nil map
 	}
@@ -899,9 +924,8 @@ func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool
 	data["orderByCount"] = c.SortCount()
 	data["orderByName"] = c.SortName()
 	data["orderByYear"] = c.SortYear()
-	data["logo"] = "Artifact category statistics"
-	data["lead"] = "This page shows the artifacts categories with selected statistics, " +
-		"such as the number of files in the category or platform."
+	data["logo"] = title
+	data["lead"] = descr
 	return data, nil
 }
 
@@ -927,18 +951,20 @@ func Deletions(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 // Fixes is the handler for the problems and fixes page.
 func Fixes(sl *slog.Logger, c *echo.Context) error {
+	const title = "Problems and fixes"
+	const descr = "Fix common errors found in applications and tools authored by the Scene for Windows and DOS."
+	const leadr = "Shrinker dispatcher or runtime 200 errors, or missing NPMOD32.DLL or D3DRM.DLL files?"
 	const format = "fixes for programs context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "fixes"
-	const lead = "Shrinker dispatcher or runtime 200 errors, or missing NPMOD32.DLL or D3DRM.DLL files?"
 	data := empty(c)
-	data["title"] = "Problems and fixes"
-	data["description"] = "Fix common errors found in applications and tools authored by the Scene for Windows and DOS."
-	data["logo"] = "Problems and fixes"
+	data["title"] = title
+	data["description"] = descr
+	data["logo"] = title
 	data["h1"] = "Common problems and fixes"
-	data["lead"] = lead
+	data["lead"] = leadr
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -948,14 +974,16 @@ func Fixes(sl *slog.Logger, c *echo.Context) error {
 
 // Routes is the handler for the listing of all the routes page.
 func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
+	const title = "List of routes"
+	const descr = "Lists the web browser routes and parameters registered by the web application."
 	const format = "routes context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "routes"
 	data := empty(c)
-	data["title"] = "List of routes"
-	data["description"] = "Lists the web browser routes and parameters registered by the web application."
+	data["title"] = title
+	data["description"] = descr
 	data["logo"] = "Routes"
 	data["routesList"] = r
 	data["routesCount"] = len(r)
@@ -968,19 +996,20 @@ func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
 
 // Terms is the handler for the problems and fixes page.
 func Terms(sl *slog.Logger, c *echo.Context) error {
+	const title = "Common terms"
+	const descr = "This is a list of the unique and common terms used in the scene."
+	const leadr = "A glossary of unique and common terms used in The Scene."
 	const format = "glossary of terms context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "terms"
-	const h1 = "Glossary of common terms"
-	const lead = "A glossary of unique and common terms used in The Scene."
 	data := empty(c)
-	data["title"] = "Common terms"
-	data["description"] = "This is a list of the unique and common terms used in the scene."
+	data["title"] = title
+	data["description"] = descr
 	data["logo"] = "Glossary of terms"
-	data["h1"] = h1
-	data["lead"] = lead
+	data["h1"] = "Glossary of common terms"
+	data["lead"] = leadr
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -1195,21 +1224,22 @@ func sessionHandler(c *echo.Context, maxAge int, claims map[string]any,
 
 // History is the handler for the History page.
 func History(sl *slog.Logger, c *echo.Context) error {
+	const title = "The history of the brand"
+	const descr = "Learn about the many iterations of Defacto2 and the original DeFacto magazine from 1996."
+	const leadr = "In the past, alternative iterations of the name have included" +
+		" De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
 	const format = "history context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "history"
-	const lead = "In the past, alternative iterations of the name have included" +
-		" De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
-	const h1 = "The history of the brand"
 	data := empty(c)
-	data["carousel"] = "#carouselDf2Artpacks"
-	data["description"] = "Learn about the many iterations of Defacto2 and the original DeFacto magazine from 1996."
+	data["carousel"] = `#carouselDf2Artpacks`
+	data["description"] = descr
 	data["logo"] = "The history of Defacto"
-	data["h1"] = h1
-	data["lead"] = lead
-	data["title"] = h1
+	data["h1"] = title
+	data["lead"] = leadr
+	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -1219,6 +1249,8 @@ func History(sl *slog.Logger, c *echo.Context) error {
 
 // Index is the handler for the Home page.
 func Index(sl *slog.Logger, c *echo.Context) error {
+	const title = "Introduction and milestones"
+	const h1 = "The subcultures of obsolete microcomputers"
 	const format = "index context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
@@ -1226,12 +1258,12 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 	const name = "index"
 	data := empty(c)
 	// note: if the title get's changed, the indexJS conditional in layout.tmpl needs updating
-	data["title"] = "Introduction and milestones"
+	data["title"] = title
 	data[canonical] = "/"
-	data["h1"] = "The subcultures of obsolete microcomputers"
+	data["h1"] = h1
 	data["milestones"] = Collection()
 	{
-		// get the signed in given name
+		// get the given name of the signed in session
 		sess, err := session.Get(sess.Name, c)
 		if err == nil {
 			if givenName, givenExists := sess.Values["givenName"]; givenExists {
@@ -1272,18 +1304,21 @@ func Inline(
 
 // Interview is the handler for the People Interviews page.
 func Interview(sl *slog.Logger, c *echo.Context) error {
+	const title = "Interviews with former Sceners"
+	const descr = "A collection of historical interviews and discussions with former members of the Scene."
+	const leadr = "Here is a centralized page for the discussions and unedited" +
+		" interviews with former sceners, crackers, and demo makers."
 	const format = "interview context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "Interviews with former Sceners", "interview"
+	const name = "interview"
 	data := empty(c)
 	data["title"] = title
-	data["description"] = "A collection of historical interviews and discussions with former members of the Scene."
+	data["description"] = descr
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = "Here is a centralized page for the discussions and unedited" +
-		" interviews with former sceners, crackers, and demo makers."
+	data["lead"] = leadr
 	data["interviews"] = Interviewees()
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -1304,21 +1339,22 @@ func MagazineAZ(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 
 // magazines is the handler for the magazine page.
 func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, chronological bool) error {
+	const title = "Magazines"
+	const descr = "Scene magazines are the newsletters, reports, " +
+		"and publications on the activities of the subculture community."
 	const format = "magazines context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "Magazines", "magazine"
-	data := empty(c)
-	const lead = "Scene magazines are the newsletters, reports, " +
-		"and publications on the activities of the subculture community."
+	const name = "magazine"
 	const issue = "issue"
 	const key = "releasers"
+	data := empty(c)
 	data["title"] = title
-	data["description"] = lead
+	data["description"] = descr
 	data["logo"] = title
 	data["h1"] = title
-	data["lead"] = lead
+	data["lead"] = descr
 	data["itemName"] = issue
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
@@ -1363,30 +1399,32 @@ func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 // Musician is the handler for the Musiciansceners page.
 func Musician(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	const title = "Musicians and composers"
 	const format = "musician context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
-	title := "Musicians and composers"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
-	data["description"] = demo
 	data["noindex"] = true
 	return scener(ctx, sl, c, db, postgres.Musician, data)
 }
 
 // New is the handler for the what is new page.
 func New(sl *slog.Logger, c *echo.Context) error {
+	const title = "New stuff"
+	const descr = `What is new on the Defacto2 website?`
+	const leadr = `This quaint page does not appeal to algorithms, so who will see it?`
 	const name = "new"
 	data := empty(c)
 	data["noindex"] = true // apply noindex to what's new, so we don't have to worry using about <a href rel="nofollow">
-	data["description"] = "What is new on the Defacto2 website?"
-	data["logo"] = "New stuff"
-	data["h1"] = "What is new?"
-	data["lead"] = "This quaint page does not appeal to algorithms, so who will see it?"
-	data["title"] = "New stuff"
+	data["description"] = descr
+	data["logo"] = title
+	data["h1"] = `What is new?`
+	data["lead"] = leadr
+	data["title"] = title
 	data["carousel"] = "#carouselWhatsNew"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -1398,6 +1436,8 @@ func New(sl *slog.Logger, c *echo.Context) error {
 // Page404 renders the files page error page for the Artifacts menu and categories.
 // It provides different error messages to the standard error page.
 func Page404(sl *slog.Logger, c *echo.Context, uri, page string) error {
+	const title = "Page not found"
+	const descr = "The files page does not exist, there is probably a typo with the URL."
 	const format = "page 404 context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
@@ -1408,9 +1448,9 @@ func Page404(sl *slog.Logger, c *echo.Context, uri, page string) error {
 	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
-	data["logo"] = "Page not found"
+	data["logo"] = title
 	data["alert"] = fmt.Sprintf("Artifacts %s page does not exist", uri)
-	data["probl"] = "The files page does not exist, there is probably a typo with the URL."
+	data["probl"] = descr
 	data["uriOkay"] = fmt.Sprintf("files/%s/", uri)
 	data["uriErr"] = page
 	err := c.Render(http.StatusNotFound, name, data)
@@ -1505,6 +1545,8 @@ func PostFilename(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 
 // PostName is the handler for the Search for filenames form post page.
 func PostName(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) error {
+	const title = "Filename results"
+	const h1 = "Filename search"
 	const format = "post name context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
@@ -1529,8 +1571,8 @@ func PostName(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
-	data["title"] = "Filename results"
-	data["h1"] = "Filename search"
+	data["title"] = title
+	data["h1"] = h1
 	data["lead"] = "Results for " + s
 	data["logo"] = s + " results"
 	data["description"] = "Filename search results for " + s + "."
@@ -1701,23 +1743,25 @@ func ReleaserYear(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 
 // releasers is the handler for the Releaser page.
 func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
+	const title = "Releaser"
+	const descr = "A linked list of the former Scene releasers and groups, that were collectives of people " +
+		"who would work together and operate under a common brand."
+	const leadr = "A releaser is a brand or a collective group of " +
+		"sceners responsible for releasing or distributing products."
+	const logo = "Former groups and releasers"
 	const format = "releaser context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "Releaser", "releaser"
-	data := empty(c)
-	const lead = "A releaser is a brand or a collective group of " +
-		"sceners responsible for releasing or distributing products."
-	const logo = "Former groups and releasers"
+	const name = "releaser"
 	const key = "releasers"
+	data := empty(c)
 	data["noindex"] = true
 	data["title"] = title + "s and groups"
-	data["description"] = "A linked list of the former Scene releasers and groups, that were collectives of people " +
-		"who would work together and operate under a common brand."
+	data["description"] = descr
 	data["logo"] = logo
 	data["h1"] = title
-	data["lead"] = lead
+	data["lead"] = leadr
 	data["itemName"] = "file"
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
@@ -1763,6 +1807,8 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 // Releaser404 renders the files error page for the Groups menu and invalid releasers.
 func Releaser404(sl *slog.Logger, c *echo.Context, invalidID string) error {
+	const title = "Releaser not found"
+	const probl = "The releaser page does not exist, there is probably a typo with the URL."
 	const format = "releaser 404 context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
@@ -1773,9 +1819,9 @@ func Releaser404(sl *slog.Logger, c *echo.Context, invalidID string) error {
 	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
-	data["logo"] = "Releaser not found"
+	data["logo"] = title
 	data["alert"] = fmt.Sprintf("Releaser %q cannot be found", invalidID)
-	data["probl"] = "The releaser page does not exist, there is probably a typo with the URL."
+	data["probl"] = probl
 	data["uriOkay"] = "g/"
 	data["uriErr"] = invalidID
 	err := c.Render(http.StatusNotFound, name, data)
@@ -1935,21 +1981,22 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 
 // Scener is the handler for the page to list all the sceners.
 func Scener(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	const title = "Sceners, people who were apart of the Scene"
 	const format = "scener context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
-	title := "Sceners, people who were apart of the Scene"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
-	data["description"] = demo
 	return scener(ctx, sl, c, db, postgres.Roles(), data)
 }
 
 // Scener404 renders the files error page for the People menu and invalid sceners.
 func Scener404(sl *slog.Logger, c *echo.Context, id string) error {
+	const title = "Scener not found"
+	const probl = "The scener page does not exist, there is probably a typo with the URL."
 	const format = "scene 404 context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
@@ -1960,9 +2007,9 @@ func Scener404(sl *slog.Logger, c *echo.Context, id string) error {
 	data["title"] = fmt.Sprintf("%d error, scener page not found", http.StatusNotFound)
 	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
 	data["code"] = http.StatusNotFound
-	data["logo"] = "Scener not found"
+	data["logo"] = title
 	data["alert"] = fmt.Sprintf("Scener %q cannot be found", releaser.Humanize(id))
-	data["probl"] = "The scener page does not exist, there is probably a typo with the URL."
+	data["probl"] = probl
 	data["uriOkay"] = "p/"
 	data["uriErr"] = id
 	err := c.Render(http.StatusNotFound, name, data)
@@ -1974,6 +2021,8 @@ func Scener404(sl *slog.Logger, c *echo.Context, id string) error {
 
 // Sceners is the handler for the list and preview of files credited to a scener.
 func Sceners(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error {
+	const leadr = "Artifacts attributed to "
+	const descr = "These are the documented artifacts attributed to the person known as "
 	const format = "sceners context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
@@ -1993,9 +2042,9 @@ func Sceners(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, 
 	data[canonical] = strings.Join([]string{"p", uri}, "/")
 	data["title"] = s + attr
 	data["h1"] = s
-	data["lead"] = "Artifacts attributed to " + s + "."
+	data["lead"] = leadr + s + "."
 	data["logo"] = s
-	data["description"] = "These are the documented artifacts attributed to the person known as " + s + "."
+	data["description"] = descr + s + "."
 	data["scener"] = s
 	data[records] = fs
 	d, err := scenerSum(ctx, db, uri)
@@ -2031,14 +2080,16 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 
 // SearchDesc is the handler for the Search for file descriptions page.
 func SearchDesc(sl *slog.Logger, c *echo.Context) error {
+	const title = "Game or app titles search"
+	const descr = "Use this search to uncover named applications, games, and descriptions of artifacts."
 	const format = "search desc context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "Game or app titles search", "searchpost"
+	const name = "searchpost"
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = "Use this search to uncover named applications, games, and descriptions of artifacts."
+	data["description"] = descr
 	data["logo"] = search
 	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
@@ -2050,14 +2101,16 @@ func SearchDesc(sl *slog.Logger, c *echo.Context) error {
 
 // SearchID is the handler for the Record by ID Search page.
 func SearchID(sl *slog.Logger, c *echo.Context) error {
+	const title = "Search the IDs of artifacts"
+	const descr = "Use this search to lookup artifacts by their database identities."
 	const format = "search id context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "Search the IDs of artifacts", "searchhtmx"
+	const name = "searchhtmx"
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = "Use this search to lookup artifacts by their database identities."
+	data["description"] = descr
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "search for artifacts by their record id, uuid or URL key"
@@ -2072,14 +2125,16 @@ func SearchID(sl *slog.Logger, c *echo.Context) error {
 
 // SearchFile is the handler for the Search for files page.
 func SearchFile(sl *slog.Logger, c *echo.Context) error {
+	const title = "Filename or extensions search"
+	const descr = "Use this search to lookup artifacts by their filenames."
 	const format = "search file context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "Filename or extensions search", "searchpost"
+	const name = "searchpost"
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = "Use this search to lookup artifacts by their filenames."
+	data["description"] = descr
 	data["logo"] = search
 	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
@@ -2091,14 +2146,16 @@ func SearchFile(sl *slog.Logger, c *echo.Context) error {
 
 // SearchReleaser is the handler for the Releaser Search page.
 func SearchReleaser(sl *slog.Logger, c *echo.Context) error {
+	const title = "Lookup releasers"
+	const descr = "Lookup groups, magazines, bbs boards, and ftp sites, by their names."
 	const format = "search releaser context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const title, name = "Lookup releasers", "searchhtmx"
+	const name = "searchhtmx"
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = "Lookup groups, magazines, bbs boards, and ftp sites, by their names."
+	data["description"] = descr
 	data["logo"] = search
 	data["title"] = title
 	data["info"] = "find groups, names, magazines, bbs boards, ftp sites"
@@ -2140,6 +2197,8 @@ func SignedOut(sl *slog.Logger, c *echo.Context) error {
 
 // SignOut is the handler for the Sign out of Defacto2 page.
 func SignOut(sl *slog.Logger, c *echo.Context) error {
+	const title = "Sign out"
+	const descr = "Sign out of Defacto2."
 	const format = "sign out context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
@@ -2147,9 +2206,9 @@ func SignOut(sl *slog.Logger, c *echo.Context) error {
 	const name = "signout"
 	data := empty(c)
 	data["noindex"] = true
-	data["title"] = "Sign out"
-	data["description"] = "Sign out of Defacto2."
-	data["h1"] = "Sign out"
+	data["title"] = title
+	data["description"] = descr
+	data["h1"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -2159,6 +2218,9 @@ func SignOut(sl *slog.Logger, c *echo.Context) error {
 
 // Signin is the handler for the Sign in session page.
 func Signin(sl *slog.Logger, c *echo.Context, clientID, nonce string) error {
+	const title = "Sign in"
+	const descr = "Sign in to Defacto2."
+	const leadr = "This is not open to the general public."
 	const format = "signin context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
@@ -2166,10 +2228,10 @@ func Signin(sl *slog.Logger, c *echo.Context, clientID, nonce string) error {
 	const name = "signin"
 	data := empty(c)
 	data["noindex"] = true
-	data["title"] = "Sign in"
-	data["description"] = "Sign in to Defacto2."
-	data["h1"] = "Sign in"
-	data["lead"] = "This is not open to the general public."
+	data["title"] = title
+	data["description"] = descr
+	data["h1"] = title
+	data["lead"] = leadr
 	data["callback"] = "/google/callback"
 	data["clientID"] = clientID
 	data["nonce"] = nonce
@@ -2250,15 +2312,17 @@ func TagInfo(c *echo.Context) error {
 
 // Titles is the handler for the Titles page.
 func Titles(sl *slog.Logger, c *echo.Context) error {
+	const title = "Titles"
+	const descr = "Titles are important."
 	const format = "titles context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "titles"
 	data := empty(c)
-	data["title"] = "Titles"
-	data["description"] = "Titles are important."
-	data["logo"] = "Titles"
+	data["title"] = title
+	data["description"] = descr
+	data["logo"] = title
 	data["h1"] = "Titles and naming are important"
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
@@ -2268,16 +2332,19 @@ func Titles(sl *slog.Logger, c *echo.Context) error {
 }
 
 func Fixers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	const title = "Fixers"
+	const descr = "Defacto2 fixers tool."
+	const leadr = "Artifact fixes using batch-friendly tools."
 	const format = "fixers context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "fixers"
 	data := empty(c)
-	data["description"] = "Defacto2 fixers tool."
-	data["h1"] = "Fixers"
-	data["lead"] = "Artifact fixes using batch-friendly tools."
-	data["title"] = "Fixers"
+	data["description"] = descr
+	data["h1"] = title
+	data["lead"] = leadr
+	data["title"] = title
 	// Get files with numeric suffixes
 	fixData, err := fix.GetFilesWithNumericSuffix(ctx, db)
 	if err != nil {
@@ -2399,18 +2466,21 @@ func FixNumericSuffix(ctx context.Context, sl *slog.Logger, c *echo.Context, db 
 
 // Thanks is the handler for the Thanks page.
 func Thanks(sl *slog.Logger, c *echo.Context) error {
+	const title = "Thank you!"
+	const descr = "A special thanks to the hundreds of contributors and the thousands of contributions."
+	const leadr = "Thanks to the hundreds of people who have contributed to" +
+		" Defacto2 over the decades with file submissions, " +
+		"hard drive donations, interviews, corrections, artwork, and monetary contributions!"
 	const format = "thanks context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "thanks"
 	data := empty(c)
-	data["description"] = "A special thanks to the hundreds of contributors and the thousands of contributions."
-	data["h1"] = "Thank you!"
-	data["lead"] = "Thanks to the hundreds of people who have contributed to" +
-		" Defacto2 over the decades with file submissions, " +
-		"hard drive donations, interviews, corrections, artwork, and monetary contributions!"
-	data["title"] = "Thanks!"
+	data["description"] = descr
+	data["h1"] = title
+	data["lead"] = leadr
+	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -2420,21 +2490,22 @@ func Thanks(sl *slog.Logger, c *echo.Context) error {
 
 // TheScene is the handler for the The Scene page.
 func TheScene(sl *slog.Logger, c *echo.Context) error {
+	const title = "The Scene"
+	const descr = "A short introduction on The Scene, the online subcultures and its underground origins."
+	const leadr = "The Scene is broad church of people and online communities that is collectively grouped;" +
+		" it is subculture of niche activities using personal computers, " +
+		"where the participants share creations and exchange ideas."
 	const format = "the scene context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "thescene"
-	const h1 = "The Scene"
-	const lead = "The Scene is broad church of people and online communities that is collectively grouped;" +
-		" it is subculture of niche activities using personal computers, " +
-		"where the participants share creations and exchange ideas."
 	data := empty(c)
-	data["description"] = "A short introduction on The Scene, the online subcultures and its underground origins."
+	data["description"] = descr
 	data["logo"] = "The underground"
-	data["h1"] = h1
-	data["lead"] = lead
-	data["title"] = h1
+	data["h1"] = title
+	data["lead"] = leadr
+	data["title"] = title
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -2487,14 +2558,15 @@ func VotePouet(ctx context.Context, sl *slog.Logger, c *echo.Context, id string)
 // Website is the handler for the websites page.
 // Open is the ID of the accordion section to open.
 func Website(sl *slog.Logger, c *echo.Context, open string) error {
+	const title = "Websites"
+	const logo = "Videos, Books, Films, Sites, Podcasts"
 	const format = "website context: %w"
 	if err := panics.SC(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = websites
 	data := empty(c)
-	data["title"] = "Websites"
-	const logo = "Videos, Books, Films, Sites, Podcasts"
+	data["title"] = title
 	data["logo"] = logo
 	data["description"] = "Our curated collection of " + strings.ToLower(logo) + ", with topics about the Scene."
 	accordion := List()
@@ -2513,7 +2585,7 @@ func Website(sl *slog.Logger, c *echo.Context, open string) error {
 	}
 	if closeAll {
 		data["noindex"] = true
-		data["title"] = "Website categories"
+		data["title"] = title + " categories"
 	}
 	// If a section was requested but not found, return a 404.
 	if open != "hide" && closeAll {
@@ -2530,16 +2602,15 @@ func Website(sl *slog.Logger, c *echo.Context, open string) error {
 
 // Writer is the handler for the Writer page.
 func Writer(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	const title = "Writers, editors, and authors"
 	const format = "writer context: %w"
 	if err := panics.SCD(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	data := empty(c)
-	title := "Writers, editors and authors"
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
-	data["description"] = demo
 	data["noindex"] = true
 	return scener(ctx, sl, c, db, postgres.Writer, data)
 }
