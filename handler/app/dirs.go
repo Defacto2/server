@@ -239,19 +239,19 @@ func (dir Dirs) EditorContent(
 	data["modYear"], data["modMonth"], data["modDay"] = filerecord.Dates(art)
 	data["modLMYear"], data["modLMMonth"], data["modLMDay"] = filerecord.LastModifications(art)
 	data["modAbsDownload"] = abs
-	data["modMagicMime"] = simple.MIME(abs)
-	data["modMagicNumber"] = simple.MagicAsTitle(abs)
+	data["modMagicMime"] = simple.MIME(sl, abs)
+	data["modMagicNumber"] = simple.MagicAsTitle(sl, abs)
 	data["modDBModify"] = filerecord.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(abs)
 	data["modDecompress"] = filerecord.ListContent(ctx, sl, maxItems, art, d, abs)
 	if sess.Editor(c) {
-		data["modDecompressLoc"] = simple.MkContent(abs)
+		data["modDecompressLoc"] = simple.MkContent(sl, abs)
 	}
 	// These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
 	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
 	// the site was under heavy load.
-	data["modAssetPreview"] = dir.previews(unid)
-	data["modAssetThumbnail"] = dir.thumbnails(unid)
+	data["modAssetPreview"] = dir.previews(sl, unid)
+	data["modAssetThumbnail"] = dir.thumbnails(sl, unid)
 	data["modAssetExtra"] = dir.extras(unid)
 	data["missingAssets"] = dir.missingAssets(art)
 	data["modReadmeSuggest"] = filerecord.Readme(art)
@@ -617,7 +617,10 @@ func (dir Dirs) artifactByURI(
 
 // Previews returns a map of preview assets for the file record of the artifact.
 // Up to four preview assets are returned, JPEG, PNG, WebP and AVIF.
-func (dir Dirs) previews(unid string) map[string][2]string {
+func (dir Dirs) previews(sl *slog.Logger, unid string) map[string][2]string {
+	if sl == nil {
+		sl = slog.Default()
+	}
 	unid = strings.ToLower(unid)
 	avif := filepath.Join(dir.Preview.Path(), unid+".avif")
 	jpg := filepath.Join(dir.Preview.Path(), unid+".jpg")
@@ -625,9 +628,9 @@ func (dir Dirs) previews(unid string) map[string][2]string {
 	webp := filepath.Join(dir.Preview.Path(), unid+".webp")
 	const size = 4
 	matches := make(map[string][2]string, size)
-	matches["JPG"] = simple.ImageXY(jpg)
-	matches["PNG"] = simple.ImageXY(png)
-	matches["WebP"] = simple.ImageXY(webp)
+	matches["JPG"] = simple.ImageXY(sl, jpg)
+	matches["PNG"] = simple.ImageXY(sl, png)
+	matches["WebP"] = simple.ImageXY(sl, webp)
 	if st, err := os.Stat(avif); err == nil {
 		matches["AVIF"] = [2]string{humanize.Comma(st.Size()), ""}
 	}
@@ -636,14 +639,17 @@ func (dir Dirs) previews(unid string) map[string][2]string {
 
 // Thumbnails returns a map of thumbnail assets for the file record of the artifact.
 // Two thumbnail assets are returned, PNG and WebP.
-func (dir Dirs) thumbnails(unid string) map[string][2]string {
+func (dir Dirs) thumbnails(sl *slog.Logger, unid string) map[string][2]string {
+	if sl == nil {
+		sl = slog.Default()
+	}
 	unid = strings.ToLower(unid)
 	png := filepath.Join(dir.Thumbnail.Path(), unid+".png")
 	webp := filepath.Join(dir.Thumbnail.Path(), unid+".webp")
 	const size = 2
 	matches := make(map[string][2]string, size)
-	matches["PNG"] = simple.ImageXY(png)
-	matches["WebP"] = simple.ImageXY(webp)
+	matches["PNG"] = simple.ImageXY(sl, png)
+	matches["WebP"] = simple.ImageXY(sl, webp)
 	return matches
 }
 

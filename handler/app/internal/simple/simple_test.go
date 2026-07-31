@@ -2,6 +2,7 @@ package simple_test
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -135,15 +136,15 @@ func TestStripHTMLTags(t *testing.T) {
 
 func TestDownloadB(t *testing.T) {
 	t.Parallel()
-	x := simple.DownloadB("")
+	x := simple.DownloadInBytes("")
 	be.True(t, strings.Contains(string(x), "received an invalid type"))
-	x = simple.DownloadB("a string")
+	x = simple.DownloadInBytes("a string")
 	be.True(t, strings.Contains(string(x), "received an invalid type"))
-	x = simple.DownloadB("1")
+	x = simple.DownloadInBytes("1")
 	be.True(t, strings.Contains(string(x), "received an invalid type"))
-	x = simple.DownloadB(null.Int64From(1))
+	x = simple.DownloadInBytes(null.Int64From(1))
 	be.True(t, strings.Contains(string(x), "1 B"))
-	x = simple.DownloadB(1024)
+	x = simple.DownloadInBytes(1024)
 	be.True(t, strings.Contains(string(x), "(1k)"))
 }
 
@@ -269,11 +270,12 @@ func TestImageSampleStat(t *testing.T) {
 
 func TestImageXY(t *testing.T) {
 	t.Parallel()
+	sl := slog.Default()
 	missing := [2]string{"0", ""}
-	s := simple.ImageXY("")
+	s := simple.ImageXY(sl, "")
 	be.Equal(t, missing, s)
 	img := imagefiler(t)
-	s = simple.ImageXY(img)
+	s = simple.ImageXY(sl, img)
 	be.Equal(t, "4,163", s[0])
 	be.Equal(t, "500x500", s[1])
 }
@@ -316,25 +318,28 @@ func TestMakeLink(t *testing.T) {
 
 func TestMagicAsTitle(t *testing.T) {
 	t.Parallel()
-	s := simple.MagicAsTitle("")
+	sl := slog.Default()
+	s := simple.MagicAsTitle(sl, "")
 	be.Equal(t, "file not found", s)
-	s = simple.MagicAsTitle(imagefiler(t))
+	s = simple.MagicAsTitle(sl, imagefiler(t))
 	be.True(t, strings.Contains(s, "Portable Network Graphics"))
 }
 
 func TestMIME(t *testing.T) {
 	t.Parallel()
-	s := simple.MIME("")
+	sl := slog.Default()
+	s := simple.MIME(sl, "")
 	be.Equal(t, "file not found", s)
-	s = simple.MIME(imagefiler(t))
+	s = simple.MIME(sl, imagefiler(t))
 	be.Equal(t, "image/png", s)
 }
 
 func TestMkContent(t *testing.T) {
 	t.Parallel()
-	s := simple.MkContent("")
+	sl := slog.Default()
+	s := simple.MkContent(sl, "")
 	be.Equal(t, s, "")
-	s = simple.MkContent("a string")
+	s = simple.MkContent(sl, "a string")
 	be.True(t, strings.Contains(s, "a string"))
 	defer func() { _ = os.Remove(s) }()
 }

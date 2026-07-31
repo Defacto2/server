@@ -116,7 +116,7 @@ func TestResponse(t *testing.T) {
 	ct := r.ContentType
 	lm := r.LastModified
 	fp := r.Path
-	//fmt.Printf("%q %q %q %q\n", cl, ct, lm, fp)
+
 	be.True(t, len(cl) == 0) // is unused by example.com
 	be.True(t, len(ct) > 0)
 	be.True(t, len(lm) > 0)

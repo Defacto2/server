@@ -45,12 +45,13 @@ const (
 	textamiga               = "textamiga"
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
-	br  = "<br>"
-	bat = ".bat"
-	cmd = ".cmd"
-	com = ".com"
-	exe = ".exe"
-	ini = ".ini"
+	blank = `<div class="col col-1"></div>`
+	br    = "<br>"
+	bat   = ".bat"
+	cmd   = ".cmd"
+	com   = ".com"
+	exe   = ".exe"
+	ini   = ".ini"
 )
 
 // ForceSimpleText returns true if an artifact should only display the readme
@@ -122,11 +123,11 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	}
 
 	htm := `<div class="col d-inline-block text-truncate">` + title + `</div>`
-	htm += m.ColButton1()
-	htm += m.ColButton2()
-	htm += m.ColButton3()
-	htm += m.ColFooter()
-	return `<div class="border-bottom row mb-1">` + htm + `</div>` // wrapper
+	htm += m.column1()
+	htm += m.column2()
+	htm += m.column3()
+	htm += m.columnFooter()
+	return `<div class="border-bottom row mb-1">` + htm + `</div>`
 }
 
 // systemfile returns true if the file extension matches the known operating system tools.
@@ -142,81 +143,179 @@ func systemfile(ext string) bool {
 	}
 }
 
-// ColButton1 is the list entry, first column button of the "Download content" list.
-func (m *ListEntry) ColButton1() string {
-	const blank = `<div class="col col-1"></div>`
+// column1 is the list entry, first column button of the "Download content" list.
+func (m *ListEntry) column1() string {
 	ext := strings.ToLower(filepath.Ext(m.name))
 	useBinary := m.BINtexts || m.xbinary()
-
 	switch {
 	case systemfile(ext):
 		return blank
 	case m.Images:
-		return buttonUseImage(m.UniqueID, m.name)
+		return buttonImage(m.UniqueID, m.name)
 	case m.Texts:
-		return buttonUseReadme(m.UniqueID, m.name, m.platform, m.Signature)
+		return buttonText(m.UniqueID, m.name, m.platform, m.Signature)
 	case useBinary:
-		return buttonUseBinary(m.UniqueID, m.name)
+		return buttonTextBinary(m.UniqueID, m.name)
 	default:
 		return blank
 	}
 }
 
-// ColButton2 is the list entry, second column button of the "Download content" list.
-func (m *ListEntry) ColButton2() string {
-	const blank = `<div class="col col-1"></div>`
+// column2 is the list entry, second column button of the "Download content" list.
+func (m *ListEntry) column2() string {
 	name := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(name))
 	useDIZ := m.briefDescription()
 	useEXE := m.Programs || ext == exe || ext == com
 	useText := m.Texts || m.BINtexts || m.textNFO()
-
 	switch {
 	case systemfile(ext):
 		return blank
 	case useDIZ:
-		return buttonCopyDiz(m.UniqueID, name)
+		return buttonDIZ(m.UniqueID, name)
 	case useEXE:
-		return buttonInactiveEXE()
+		return buttonEXE()
 	case useText:
-		return buttonCopyMe(m.UniqueID, name)
+		return buttonReadme(m.UniqueID, name)
 	default:
 		return blank
 	}
 }
 
-// ColButton3 is the list entry, third column button of the "Download content" list.
-func (m *ListEntry) ColButton3() string {
-	const blank = `<div class="col col-1"></div>`
+// column3 is the list entry, third column button of the "Download content" list.
+func (m *ListEntry) column3() string {
 	if useDIZ := m.briefDescription(); useDIZ {
 		return blank
 	}
-	name := url.QueryEscape(m.RelativeName)
-	const format = `<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-hlpcopy" ` +
-		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
-		`hx-target="#artifact-editor-comp-feedback" ` +
+	s := url.QueryEscape(m.RelativeName)
+	return buttonExtra(m.UniqueID, s)
+}
+
+// buttonText creates a link to "/editor/readme/URI/ID/FILENAME".
+func buttonText(id, filename, platform, sign string) string {
+	uri := "preview"
+	t1 := tags.TextAmiga.String()
+	t2 := tags.Console.String()
+	if strings.EqualFold(platform, t1) || strings.EqualFold(platform, t2) {
+		if !strings.Contains(strings.ToLower(sign), "ansi") {
+			// ansilove does not color ANSI using "ced" or "workbench"
+			// instead, it renders the files as ASCII text files
+			uri = "preview-amiga"
+		}
+	}
+	return buttonPreview(uri, id, filename)
+}
+
+// buttonTextBinary creates a link to "/editor/readme/URI/ID/FILENAME".
+func buttonTextBinary(id, filename string) string {
+	uri := "preview-binary"
+	return buttonPreview(uri, id, filename)
+}
+
+// buttonEXE returns a non-interactive terminal icon.
+func buttonEXE() string {
+	const title = `Known program or executable`
+	return `<div class="col col-1 text-end" ` +
+		`data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
+}
+
+// buttonExtra creates a link to "/editor/helper/copy/ID/FILENAME".
+func buttonExtra(id, filename string) string {
+	const title = `Use file as an extra readme`
+	const href = `#file-editor`
+	const class = `icon-link align-text-bottom`
+	const name = `artifact-editor-comp-hlpcopy`
+	const indicator = `#artifact-editor-comp-htmx-indicator`
+	const target = `#artifact-editor-comp-feedback`
+	const format = `<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
 		`hx-patch="/editor/helper/copy/%s/%s">`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use file as an extra readme">` +
-		fmt.Sprintf(format, m.UniqueID, name) +
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
+		fmt.Sprintf(format, id, filename) +
 		`<span class="badge bg-success text-dark">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg>` +
 		`</span></a></div>`
 }
 
-// buttonInactiveEXE returns a non-interactive terminal icon.
-func buttonInactiveEXE() string {
-	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="Known program or executable">` +
+// buttonImage creates a link to "/editor/preview/copy/ID/FILENAME".
+func buttonImage(id, filename string) string {
+	const title = `Use image for preview`
+	const class = `icon-link align-text-bottom`
+	const name = `artifact-editor-comp-previewcopy`
+	const indicator = `#artifact-editor-comp-htmx-indicator`
+	const target = `#artifact-editor-comp-feedback`
+	const format = `<a class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/preview/copy/%s/%s">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
+		fmt.Sprintf(format, id, filename) +
+		`<span class="badge text-bg-primary">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
 
-// ColFooter returns the brief metadata descriptions of the list entry.
-func (m *ListEntry) ColFooter() string {
+// buttonPreview creates a link to "/editor/readme/URI/ID/FILENAME".
+func buttonPreview(uri, id, filename string) string {
+	const title = `Use file for preview`
+	const href = `#file-editor`
+	const class = `icon-link align-text-bottom`
+	const name = `artifact-editor-comp-previewtext`
+	const indicator = `#artifact-editor-comp-htmx-indicator`
+	const target = `#artifact-editor-comp-feedback`
+	const format = `<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/readme/%s/%s/%s">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
+		fmt.Sprintf(format, uri, id, filename) +
+		`<span class="badge text-bg-secondary">` +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
+}
+
+// buttonReadme creates a link to "/editor/readme/copy/ID/FILENAME".
+func buttonReadme(id, filename string) string {
+	const title = `Use file as the readme`
+	const href = `#file-editor`
+	const class = `icon-link align-text-bottom`
+	const name = `artifact-editor-comp-textcopy`
+	const indicator = `#artifact-editor-comp-htmx-indicator`
+	const target = `#artifact-editor-comp-feedback`
+	const format = `<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/readme/copy/%s/%s">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
+		fmt.Sprintf(format, id, filename) +
+		`<span class="badge text-bg-success">` +
+		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
+}
+
+// buttonDIZ creates a link to "/editor/diz/copy/ID/FILENAME".
+func buttonDIZ(id, filename string) string {
+	const title = `Use file as the FILE_ID.DIZ`
+	const href = `#file-editor`
+	const class = `icon-link align-text-bottom`
+	const name = `artifact-editor-comp-dizcopy`
+	const indicator = `#artifact-editor-comp-htmx-indicator`
+	const target = `#artifact-editor-comp-feedback`
+	const format = `<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/diz/copy/%s/%s">`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
+		fmt.Sprintf(format, id, filename) +
+		`<span class="badge text-bg-primary">` +
+		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
+}
+
+// columnFooter returns the brief metadata descriptions of the list entry.
+func (m *ListEntry) columnFooter() string {
 	ext := strings.ToLower(filepath.Ext(m.name))
 	const format = ` <small class="">%s</small>`
-	sm := ""
+	var sm string
 	switch {
 	case m.Texts && (ext == bat || ext == cmd):
 		sm = fmt.Sprintf(format, "command script")
@@ -299,87 +398,6 @@ func (m *ListEntry) textNFO() bool {
 		return false
 	}
 	return strings.EqualFold(m.section, tags.Nfo.String())
-}
-
-// buttonUseImage creates a link to "/editor/preview/copy/ID/FILENAME".
-//
-// The funcs called: [htmx.RecordImageCopier] and [dirs.PictureImager].
-func buttonUseImage(uniqueID, name string) string {
-	const format = `<a class="icon-link align-text-bottom" name="artifact-editor-comp-previewcopy" ` +
-		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
-		`hx-target="#artifact-editor-comp-feedback" ` +
-		`hx-patch="/editor/preview/copy/%s/%s"><span class="badge text-bg-primary">`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use image for preview">` +
-		fmt.Sprintf(format, uniqueID, name) +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
-}
-
-// buttonUseReadme creates a link to "/editor/readme/URI/ID/FILENAME".
-//
-// The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager].
-func buttonUseReadme(uniqueID, name, platform, sign string) string {
-	uri := "preview"
-	t1 := tags.TextAmiga.String()
-	t2 := tags.Console.String()
-	if strings.EqualFold(platform, t1) || strings.EqualFold(platform, t2) {
-		if !strings.Contains(strings.ToLower(sign), "ansi") {
-			// ansilove does not color ANSI using "ced" or "workbench"
-			// instead, it renders the files as ASCII text files
-			uri = "preview-amiga"
-		}
-	}
-	return buttonPreviewer(uri, uniqueID, name)
-}
-
-// buttonUseBinary creates a link to "/editor/readme/URI/ID/FILENAME".
-//
-// The funcs called: [htmx.RecordReadmeImager] and [dirs.TextImager].
-func buttonUseBinary(uniqueID, name string) string {
-	uri := "preview-binary"
-	return buttonPreviewer(uri, uniqueID, name)
-}
-
-// buttonPreviewer
-//
-// the "#file-editor" href anchor will relaunch the File editor dialog.
-func buttonPreviewer(uri, uniqueID, name string) string {
-	const format = `<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-previewtext" ` +
-		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
-		`hx-target="#artifact-editor-comp-feedback" ` +
-		`hx-patch="/editor/readme/%s/%s/%s"><span class="badge text-bg-secondary">`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use file for preview">` +
-		fmt.Sprintf(format, uri, uniqueID, name) +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
-}
-
-// buttonCopyMe creates a link to "/editor/readme/copy/ID/FILENAME".
-//
-// The funcs called: [htmx.RecordReadmeCopier] and [dirs.TextImager].
-func buttonCopyMe(uniqueID, name string) string {
-	const format = `<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-textcopy" ` +
-		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
-		`hx-target="#artifact-editor-comp-feedback" ` +
-		`hx-patch="/editor/readme/copy/%s/%s"><span class="badge text-bg-success">`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use file as the readme">` +
-		fmt.Sprintf(format, uniqueID, name) +
-		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
-}
-
-// buttonCopyDiz creates a link to "/editor/diz/copy/ID/FILENAME"
-//
-// The funcs called: [htmx.RecordDizCopier].
-func buttonCopyDiz(uniqueID, name string) string {
-	const format = `<a href="#file-editor" class="icon-link align-text-bottom" name="artifact-editor-comp-dizcopy" ` +
-		`hx-indicator="#artifact-editor-comp-htmx-indicator" ` +
-		`hx-target="#artifact-editor-comp-feedback" ` +
-		`hx-patch="/editor/diz/copy/%s/%s"><span class="badge text-bg-primary">`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="Use file as the FILE_ID.DIZ">` +
-		fmt.Sprintf(format, uniqueID, name) +
-		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
 }
 
 // AlertURL returns the VirusTotal URL for the security alert for the file record.
@@ -1670,8 +1688,10 @@ func Relations(art *models.File) template.HTML {
 	}
 	var rows strings.Builder
 	const expected = 2
-	const route = "/f/"
-	const format = `<tr><th scope="row"><small class="fw-light text-secondary">Link to</small></th>` +
+	const title = `Link to`
+	const route = `/f/`
+	const class = `fw-light text-secondary`
+	const format = `<tr><th scope="row"><small class="` + class + `">` + title + `</small></th>` +
 		`<td><small><a class="text-truncate" href="%s">%s</a></small></td></tr>`
 	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
@@ -1821,8 +1841,11 @@ func Websites(art *models.File) template.HTML {
 	}
 	var rows strings.Builder
 	const expected = 2
-	const format = `<tr><th scope="row"><small class="fw-light text-secondary">Link to</small></th>` +
-		`<td><small><a class="link-offset-3 icon-link icon-link-hover" href="%s">%s %s</a></small></td></tr>`
+	const title = `Link to`
+	const class = `fw-light text-secondary`
+	const aclass = `link-offset-3 icon-link icon-link-hover`
+	const format = `<tr><th scope="row"><small class="` + class + `">` + title + `</small></th>` +
+		`<td><small><a class="` + aclass + `" href="%s">%s %s</a></small></td></tr>`
 	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
 		if len(s) != expected {

@@ -65,16 +65,16 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	defer func() {
 		_ = result.Close()
 	}()
-	var max int64
+	var maximum int64
 	for result.Next() {
-		if err := result.Scan(&max); err != nil {
+		if err := result.Scan(&maximum); err != nil {
 			return failure("scan", err)
 		}
 	}
 	if err := result.Err(); err != nil {
 		return failure("row iteration", err)
 	}
-	return count, max, nil
+	return count, maximum, nil
 }
 
 // Open a new connection to the PostgreSQL database.

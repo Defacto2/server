@@ -154,7 +154,7 @@ func (t *Templ) Funcs() template.FuncMap {
 		"attribute":          Attribute,
 		"brief":              Brief,
 		"describe":           Describe,
-		"downloadB":          simple.DownloadB,
+		"downloadB":          simple.DownloadInBytes,
 		"byteBytes":          ByteBytes,
 		"byteFile":           ByteFile,
 		"byteFileS":          ByteFileS,
@@ -391,42 +391,32 @@ func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap 
 		"recordThumbnailSrc": func(unid, ext string) string {
 			return simple.AssetSrc(config.AbsThumbnail, t.Environment.AbsThumbnail.String(), unid, ext)
 		},
-		"og_image": func(unid any) string {
-			const favicon = "/image/layout/defacto2-ascii.png"
-			val, ok := unid.(string)
-			if !ok {
-				return favicon
-			}
-			if val == "" {
-				return favicon
-			}
-			return simple.OpenGraphImg(val,
-				dir.Directory(t.Environment.AbsPreview),
-				dir.Directory(t.Environment.AbsThumbnail))
-		},
-		"yearRange": func(start, end int) []int {
-			const epoch = 1980
-			if start < epoch {
-				start = epoch
-			}
-			now := time.Now().Year()
-			if end > now {
-				end = now
-			}
-
-			// we don't want to include start or end range years in the results
-			start++
-			years := make([]int, end-start)
-
-			for i := range years {
-				years[i] = start + i
-			}
-			return years
-		},
+		"og_image":  t.ogImage,
+		"yearRange": yearRange,
 		"sub": func(start, end int) int {
 			return end - start
 		},
 	}
+}
+
+func yearRange(start, end int) []int {
+	const epoch = 1980
+	if start < epoch {
+		start = epoch
+	}
+	now := time.Now().Year()
+	if end > now {
+		end = now
+	}
+
+	// we don't want to include start or end range years in the results
+	start++
+	years := make([]int, end-start)
+
+	for i := range years {
+		years[i] = start + i
+	}
+	return years
 }
 
 // Elements returns a map of functions that return HTML elements.
@@ -470,6 +460,20 @@ func (t *Templ) FuncMap(ctx context.Context, db *sql.DB) *template.FuncMap {
 	}
 	maps.Copy(dst, *src)
 	return &dst
+}
+
+func (t *Templ) ogImage(unid any) string {
+	const favicon = "/image/layout/defacto2-ascii.png"
+	val, ok := unid.(string)
+	if !ok {
+		return favicon
+	}
+	if val == "" {
+		return favicon
+	}
+	return simple.OpenGraphImg(val,
+		dir.Directory(t.Environment.AbsPreview),
+		dir.Directory(t.Environment.AbsThumbnail))
 }
 
 func (t *Templ) artifact(lock bool, files ...string) []string {

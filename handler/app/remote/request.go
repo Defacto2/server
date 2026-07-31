@@ -48,7 +48,7 @@ func GetFile(ctx context.Context, sl *slog.Logger, timeout time.Duration, rawURL
 		sl = slog.Default()
 	}
 	const minimum = 2
-	if timeout.Seconds() < 2 {
+	if timeout.Seconds() < minimum {
 		timeout = minimum
 	}
 	const maximum = 60
@@ -57,14 +57,17 @@ func GetFile(ctx context.Context, sl *slog.Logger, timeout time.Duration, rawURL
 	}
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	return getFile(ctx, sl, rawURL, http.Client{})
+	client := http.Client{} //nolint:exhaustruct
+	return getFile(ctx, sl, rawURL, client)
 }
 
 // GetFile downloads a file from a remote URL and saves it to the default temp directory.
 // It returns the path to the downloaded file and it should be removed after use.
 //
 // Because of the random silent failures of fetching remote files, the slog logger by default is verbose.
-func getFile(ctx context.Context, sl *slog.Logger, rawURL string, client http.Client) (Response, error) {
+func getFile( //nolint:funlen
+	ctx context.Context, sl *slog.Logger, rawURL string, client http.Client,
+) (Response, error) {
 	const msg = "app remote get file"
 	const format = "app remote request %s get file url %q: %w"
 	url := FixURL(sl, rawURL)
@@ -149,7 +152,7 @@ func getFile(ctx context.Context, sl *slog.Logger, rawURL string, client http.Cl
 	}, nil
 }
 
-// cleanup attempts attempt to discard and close the response body
+// cleanup attempts attempt to discard and close the response body.
 func cleanup(sl *slog.Logger, msg string, r *http.Response) {
 	if r == nil {
 		sl.Error(msg + " http response cannot be nil")
@@ -187,29 +190,6 @@ func FixURL(sl *slog.Logger, rawURL string) string {
 	if u.Host == "scene.org" && u.Path == "/file.php" {
 		return rawURL
 	}
-	refactor := func(host string, x []string) *url.URL {
-		return &url.URL{
-			Scheme:      "https",
-			Opaque:      "",
-			User:        nil,
-			Host:        host,
-			Path:        strings.Join(x, "/"),
-			RawQuery:    "",
-			Fragment:    "",
-			RawPath:     "",
-			RawFragment: "",
-			ForceQuery:  false,
-			OmitHost:    false,
-		}
-	}
-	sceneorg := func(x []string) *url.URL {
-		const minimum = 2
-		if len(x) < minimum {
-			return &url.URL{}
-		}
-		x[1] = "get"
-		return refactor("files.scene.org", x)
-	}
 	p := u.Path
 	if u.Host == "files.scene.org" {
 		x := strings.Split(p, "/")
@@ -246,4 +226,29 @@ func FixURL(sl *slog.Logger, rawURL string) string {
 		}
 	}
 	return rawURL
+}
+
+func sceneorg(x []string) *url.URL {
+	const minimum = 2
+	if len(x) < minimum {
+		return &url.URL{} //nolint:exhaustruct
+	}
+	x[1] = "get"
+	return refactor("files.scene.org", x)
+}
+
+func refactor(host string, x []string) *url.URL {
+	return &url.URL{
+		Scheme:      "https",
+		Opaque:      "",
+		User:        nil,
+		Host:        host,
+		Path:        strings.Join(x, "/"),
+		RawQuery:    "",
+		Fragment:    "",
+		RawPath:     "",
+		RawFragment: "",
+		ForceQuery:  false,
+		OmitHost:    false,
+	}
 }

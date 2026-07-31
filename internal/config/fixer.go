@@ -103,23 +103,13 @@ func (c *Config) SetupLogDir(sl *slog.Logger) error {
 		return fmt.Errorf(format+" %w", "", ErrTouch, err)
 	}
 	if err := f.Close(); err != nil {
-		sl.Warn(
-			msg,
-			"issue", "could not close test touch file",
-			"error", err,
-			"path", name,
-		)
+		sl.Warn(msg+" could not close test touch file",
+			slog.String("name", name), slog.Any("error", err))
 	}
-
 	if err := os.Remove(name); err != nil {
-		sl.Warn(
-			msg,
-			"issue", "could not remove test touch file in log directory",
-			"error", err,
-			"path", name,
-		)
+		sl.Warn(msg+" could not remove test touch file in the log directory",
+			slog.String("name", name), slog.Any("error", err))
 	}
-
 	return nil
 }
 

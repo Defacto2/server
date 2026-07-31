@@ -1064,7 +1064,8 @@ func GetDemozooParam(ctx context.Context, sl *slog.Logger, c *echo.Context, db *
 //
 // This function is a wrapper for the remote.DemozooLink.Download method.
 func GetDemozoo(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, demozooID int, defacto2UNID string, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
+	demozooID int, defacto2UNID string, download dir.Directory,
 ) error {
 	got := remote.DemozooLink{ //nolint:exhaustruct
 		ID:   demozooID,
@@ -1078,7 +1079,8 @@ func GetDemozoo(
 //
 // This function is a wrapper for the remote.PouetLink.Download method.
 func GetPouet(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, pouetID int, defacto2UNID string, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
+	pouetID int, defacto2UNID string, download dir.Directory,
 ) error {
 	got := remote.PouetLink{ //nolint:exhaustruct
 		PouetID: pouetID,

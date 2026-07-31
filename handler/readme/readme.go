@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -159,8 +160,8 @@ func candidate() []string {
 func PlainTextBuffers(
 	art *models.File, sizeLimit int64, download, extra dir.Directory,
 ) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
-	w := io.Discard
-	return PlainTextBuffersW(w, art, sizeLimit, download, extra)
+	sl := slog.Default()
+	return PlainTextBuffersW(sl, art, sizeLimit, download, extra)
 }
 
 // PlainTextBuffersW returns the content of the readme file or the text of the file download.
@@ -169,10 +170,8 @@ func PlainTextBuffers(
 //
 // The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
 // However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
-//
-// The writer is optional for debug output but can usually be [io.Discard].
-func PlainTextBuffersW(
-	w io.Writer, art *models.File, sizeLimit int64, download, extra dir.Directory,
+func PlainTextBuffersW( //nolint:funlen
+	sl *slog.Logger, art *models.File, sizeLimit int64, download, extra dir.Directory,
 ) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
 	const msg = "readme pool"
 	const format = msg + " %s: %w"
@@ -191,7 +190,7 @@ func PlainTextBuffersW(
 	err3 := render.HelperText(hlp, art, extra)
 	var errs error
 	if err1 != nil {
-		debug(w, fmt.Sprintf("descriptor text error: %s", err1))
+		sl.Info(msg+" description text error", slog.Any("error", err1))
 		errs = errors.Join(errs, fmt.Errorf(format, "render diz", err1))
 	}
 	if err2 != nil {
@@ -199,35 +198,35 @@ func PlainTextBuffersW(
 			err2 = nil
 		}
 		if err2 != nil {
-			debug(w, fmt.Sprintf("information text error: %s", err2))
+			sl.Info(msg+" information text error", slog.Any("error", err2))
 			errs = errors.Join(errs, fmt.Errorf(format, "render read", err2))
 		}
 	}
 	if err3 != nil {
-		debug(w, fmt.Sprintf("helper text error: %s", err3))
+		sl.Info(msg+" helper text error", slog.Any("error", err3))
 		errs = errors.Join(errs, fmt.Errorf(format, "render helper", err3))
 	}
 	knownData := diz.Len() == 0 && buf.Len() == 0 && hlp.Len() == 0 && ruf.Len() == 0
 	if knownData {
 		name := download.Join(art.UUID.String)
-		debug(w, "returned known binaries")
+		sl.Info(msg+" returned known binaries", slog.String("name", name))
 		return knownBinaries(msg, name, errs)
 	}
 	// check the bytes to confirm they can be displayed as text
 	r := bytes.NewReader(buf.Bytes())
 	sign := magicnumber.FindW(io.Discard, r)
-	debug(w, fmt.Sprintf("matched sign: %s", sign))
+	sl.Info(msg+" matched sign", slog.String("sign", sign.String()))
 	// reset text buffer for utf-16 or utf-32 text which won't be displayed
 	if incompatible := sign == magicnumber.UTF16Text ||
 		sign == magicnumber.UTF32Text; incompatible {
-		debug(w, "found incompatible utf 16 or 32")
+		sl.Info(msg+" found incompatible text", slog.String("sign", sign.String()))
 		buf.Reset()
 	} else {
 		// reset buffers for known images
 		skip := magicnumber.Images()
 		skip = append(skip, magicnumber.XBinaryText)
 		if slices.Contains(skip, sign) {
-			debug(w, "found known images")
+			sl.Info(msg+" found known images", slog.String("sign", sign.String()))
 			buf.Reset()
 			ruf.Reset()
 		}
@@ -236,30 +235,22 @@ func PlainTextBuffersW(
 	// text with ANSI escape codes use a custom readme template
 	if match, err := UseANSICodes(bytes.NewReader(buf.Bytes())); err != nil {
 		errs = errors.Join(errs, fmt.Errorf(format, "incompatible ansi", err))
-		debug(w, fmt.Sprintf("matched incompatible ansi: %s", err))
+		sl.Info(msg+" matched incompatible ansi", slog.Any("error", err3))
 		buf.Reset()
 	} else if match {
 		platform := strings.TrimSpace(strings.ToLower(art.Platform.String))
-		debug(w, "returned ansi "+platform+" texts")
+		sl.Info(msg+" returned ansi texts", slog.String("platform", platform))
 		return ansiTexts(buf, diz, hlp, ruf, platform, sr, errs)
 	}
 	// binary texts can also cause false positives
 	if binaryText := sign == magicnumber.Unknown; binaryText {
 		y := art.DateIssuedYear.Int16
-		debug(w, "returned binary texts")
+		sl.Info(msg + " returned binary tests")
 		return binaryTexts(buf, diz, hlp, ruf, y, sr, errs)
 	}
 	// modify the buffer bytes for cleanup
-	debug(w, "returned plain texts")
+	sl.Info(msg + " returned plain tests")
 	return plainTexts(buf, diz, hlp, ruf, sr, errs)
-}
-
-func debug(w io.Writer, s string) {
-	const msg = "readme pool"
-	if w == nil {
-		return
-	}
-	_, _ = fmt.Fprintf(w, "%s %s\n", msg, s)
 }
 
 func knownBinaries(msg, name string, errs error) (

@@ -12,6 +12,7 @@ import (
 	_ "image/gif"  // gif format decoder
 	_ "image/jpeg" // jpeg format decoder
 	_ "image/png"  // png format decoder
+	"log/slog"
 	"math"
 	"net/http"
 	"net/url"
@@ -61,7 +62,7 @@ const (
 func AssetSrc(abs, dir, unid, ext string) string {
 	ext = strings.ToLower(ext)
 	name := filepath.Join(dir, unid+ext)
-	hash, err := helper.IntegrityFile(name)
+	integrity, err := helper.IntegrityFile(name)
 	if err != nil {
 		return err.Error()
 	}
@@ -73,7 +74,7 @@ func AssetSrc(abs, dir, unid, ext string) string {
 		root = config.StaticThumb()
 	}
 	src := strings.Join([]string{root, unid + ext}, "/")
-	return fmt.Sprintf("%s?%s", src, hash)
+	return fmt.Sprintf("%s?%s", src, integrity)
 }
 
 // BytesHuman returns the file size for the file record.
@@ -157,62 +158,61 @@ func CleanHTML(html string) string {
 // The demozoo is the ID for the production on Demozoo.
 // The unid is the unique identifier for the file record.
 func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
-	if val, valExists := filename.(null.String); valExists {
-		fileExists := val.Valid && val.String != ""
-		if fileExists {
+	if s, ok := filename.(null.String); ok {
+		exist := s.Valid && s.String != ""
+		if exist {
 			return ""
 		}
 	}
-	if val, valExists := filesize.(null.Int64); valExists {
-		fileExists := val.Valid && val.Int64 > 0
-		if fileExists {
+	if i, ok := filesize.(null.Int64); ok {
+		exist := i.Valid && i.Int64 > 0
+		if exist {
 			return ""
 		}
 	}
-	var zooID int64
-	if val, valExists := demozoo.(null.Int64); valExists {
-		if !val.Valid || val.Int64 == 0 {
+	var demozooID int64
+	if i, ok := demozoo.(null.Int64); ok {
+		if !i.Valid || i.Int64 == 0 {
 			return ""
 		}
-		zooID = val.Int64
+		demozooID = i.Int64
 	}
-	if zooID == 0 {
+	if demozooID == 0 {
 		return ""
 	}
-	var uID string
-	if val, valExists := unid.(null.String); valExists {
-		if val.Valid && val.String == "" {
+	var uniqueID string
+	if s, ok := unid.(null.String); ok {
+		if s.Valid && s.String == "" {
 			return ""
 		}
-		uID = val.String
+		uniqueID = s.String
 	}
-	if uID == "" {
+	if uniqueID == "" {
 		return ""
 	}
 	return template.HTML(`clone the demozoo assets`)
 }
 
-// DownloadB returns a human readable string of the file size.
-// The i value must be an integer or a null.Int64.
-func DownloadB(i any) template.HTML {
-	var s string
-	switch val := i.(type) {
+// DownloadInBytes returns a human readable string of the file size.
+// The value must be an integer or a null.Int64.
+func DownloadInBytes(v any) template.HTML {
+	var value string
+	switch val := v.(type) {
 	case int, int8, int16, int32, int64,
 		uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		s = helper.ByteCount(i)
-		s = fmt.Sprintf("(%s)", s)
+		b := reflect.ValueOf(val).Int()
+		value = fmt.Sprintf("(%s)", helper.ByteCount(b))
 	case null.Int64:
 		if !val.Valid {
 			return ` <small class="text-danger-emphasis">(n/a)</small>`
 		}
-		s = BytesHuman(val.Int64)
+		value = BytesHuman(val.Int64)
 	default:
-		return template.HTML(fmt.Sprintf("%sDownloadB: %s", typeErr, reflect.TypeOf(i).String()))
+		const format = "%sDownloadB: %s"
+		return template.HTML(fmt.Sprintf(format, typeErr, reflect.TypeOf(v).String()))
 	}
 	const format = ` <small class="text-body-secondary">%s</small>`
-	elm := fmt.Sprintf(format, s)
-	return template.HTML(elm)
+	return template.HTML(fmt.Sprintf(format, value))
 }
 
 // Hash creates a stable hash ID from a string and returns it as base64.
@@ -227,39 +227,37 @@ func Hash(s string) string {
 // ImageSample returns a HTML image tag for the given unid.
 // The preview is the directory where the preview images are stored.
 func ImageSample(unid string, preview dir.Directory) template.HTML {
-	ext, name, src := "", "", ""
+	alt, name, src := "", "", ""
 	exts := []string{avif, webp, png, jpg}
-	for ext = range slices.Values(exts) {
-		name = preview.Join(unid + ext)
-		src = strings.Join([]string{config.StaticOriginal(), unid + ext}, "/")
+	for alt = range slices.Values(exts) {
+		name = preview.Join(unid + alt)
+		src = strings.Join([]string{config.StaticOriginal(), unid + alt}, "/")
 		if helper.Stat(name) {
 			break
 		}
 	}
-	hash, err := helper.IntegrityFile(name)
+	integrity, err := helper.IntegrityFile(name)
 	if err != nil {
 		return template.HTML(`<div class="card-body">No preview image file</div>`)
 	}
-	const format = `<img src="%s?%s" loading="lazy" class="p-2 img-fluid rounded mx-auto d-block" alt="%s sample" integrity="%s" />`
-	return template.HTML(fmt.Sprintf(format, src, hash, ext, hash))
+	const format = `<img src="%s?%s" loading="lazy" class="%s" alt="%s sample" integrity="%s" />`
+	const class = `p-2 img-fluid rounded mx-auto d-block`
+	return template.HTML(fmt.Sprintf(format, src, integrity, class, alt, integrity))
 }
 
 // ImageSampleStat returns true if the image sample file exists and is not a 0 byte file.
 // The preview is the directory where the preview images are stored.
 func ImageSampleStat(unid string, preview dir.Directory) bool {
-	name := ""
 	exts := []string{avif, webp, png}
+	const minimum = 60
 	for ext := range slices.Values(exts) {
-		name = preview.Join(unid + ext)
-		if helper.Stat(name) {
-			break
+		name := preview.Join(unid + ext)
+		st, err := os.Stat(name)
+		if ok := err == nil && st.Size() > minimum; ok {
+			return true
 		}
 	}
-	st, err := os.Stat(name)
-	if err != nil {
-		return false
-	}
-	return st.Size() > 0
+	return false
 }
 
 // ImageXY returns the named image filesize and dimensions as a styled string array.
@@ -273,39 +271,65 @@ func ImageSampleStat(unid string, preview dir.Directory) bool {
 // However, if the file does not exist, the returned values are:
 //
 //	["0", ""]
-func ImageXY(name string) [2]string {
-	zero := [2]string{"0", ""}
+func ImageXY(sl *slog.Logger, name string) [2]string {
+	const msg = "simple image size and dimension"
+	if sl == nil {
+		sl = slog.Default()
+	}
+
+	notfound := [2]string{"0", ""}
+	invalid := func(err error) [2]string {
+		sl.Info(msg+" caused an error",
+			slog.String("name", name), slog.Any("error", err))
+		return [2]string{err.Error(), ""}
+	}
+
+	// open /mnt/volume/assets/images000/ca6cf279-3758-4e1e-8e8b-f60871e877be.jpg: no such file or directoryB
 	switch filepath.Ext(strings.ToLower(name)) {
 	case ".jpg", ".jpeg", ".gif", ".png", ".webp":
-	// okay, do nothing
+	// extension is okay, so do nothing
 	default:
+		// lookup unique file names without file extensions
 		st, err := os.Stat(name)
-		// open /mnt/volume_sfo3_01/assets/images000/ca6cf279-3758-4e1e-8e8b-f60871e877be.jpg: no such file or directoryB
 		if errors.Is(err, os.ErrNotExist) {
-			return zero
-		} else if err != nil {
-			return [2]string{err.Error(), ""}
+			return notfound
 		}
-		return [2]string{humanize.Comma(st.Size()), ""}
+		if err != nil {
+			return invalid(err)
+		}
+		// return the file size but without any image dimensions
+		return [2]string{
+			humanize.Comma(st.Size()),
+			"",
+		}
 	}
-	reader, err := os.Open(name)
+
+	// open files with a known image file extension
+	r, err := os.Open(name)
 	if errors.Is(err, os.ErrNotExist) {
-		return zero
-	} else if err != nil {
-		return [2]string{err.Error(), ""}
+		return notfound
 	}
-	defer func() { _ = reader.Close() }()
-	st, err := reader.Stat()
 	if err != nil {
-		return [2]string{err.Error(), ""}
+		return invalid(err)
 	}
-	config, _, err := image.DecodeConfig(reader)
+	defer func() {
+		if err := r.Close(); err != nil {
+			sl.Info(msg+" cannot close openned file",
+				slog.String("name", name), slog.Any("error", err))
+		}
+	}()
+	st, err := r.Stat()
 	if err != nil {
-		return [2]string{err.Error(), ""}
+		return invalid(err)
 	}
+	c, _, err := image.DecodeConfig(r)
+	if err != nil {
+		return invalid(err)
+	}
+	const format = `%dx%d`
 	return [2]string{
 		humanize.Comma(st.Size()),
-		fmt.Sprintf("%dx%d", config.Width, config.Height),
+		fmt.Sprintf(format, c.Width, c.Height),
 	}
 }
 
@@ -377,7 +401,8 @@ func LinkRelations(val string) template.HTML {
 		id := s[1]
 		ref := `<a href="/f/` + id + `">` + name + closeAnchor
 		if key := helper.DeObfuscate(id); key == "" || key == id {
-			ref = fmt.Sprintf("%s ❌ link /f/%s is an invalid download path.", ref, id)
+			const format = "%s ❌ link /f/%s is an invalid download path."
+			ref = fmt.Sprintf(format, ref, id)
 		}
 		hrefs = append(hrefs, ref)
 	}
@@ -394,7 +419,8 @@ func LinkRelr(name string) (string, error) {
 	}
 	href, err := url.JoinPath("/", "g", helper.Slug(name))
 	if err != nil {
-		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
+		const format = "name %q could not be made into a valid url: %w"
+		return "", fmt.Errorf(format, name, err)
 	}
 	return href, nil
 }
@@ -430,30 +456,41 @@ func LinkSites(val string) template.HTML {
 //   - with performant false will return a link displaying "tPORt"
 //   - with performant true will return a link displaying "Tport"
 func MakeLink(id, name, class string, performant bool) (string, error) {
-	ref, err := LinkRelr(name)
+	href, err := LinkRelr(name)
 	if err != nil {
 		return "", fmt.Errorf("app make link %w", err)
 	}
 	capt := helper.Capitalize(strings.ToLower(name))
-	title := capt
+	value := capt
 	if !performant {
-		title = releaser.Link(helper.Slug(name))
+		value = releaser.Link(helper.Slug(name))
 	}
 	const format = `<a id="named-group-page-%s" class="%s" href="%s">%s</a>`
-	s := fmt.Sprintf(format, id, class, ref, title)
-	if capt != "" && title == "" {
+	s := fmt.Sprintf(format, id, class, href, value)
+	if capt != "" && value == "" {
 		s = "error: could not link group"
 	}
 	return s, nil
 }
 
 // MagicAsTitle returns the magic number description for the named file.
-func MagicAsTitle(name string) string {
+func MagicAsTitle(sl *slog.Logger, name string) string {
+	const msg = "simple magic as title"
+	if sl == nil {
+		sl = slog.Default()
+	}
 	r, err := os.Open(name)
 	if err != nil {
+		sl.Info(msg+" could not open named file",
+			slog.String("name", name), slog.Any("error", err))
 		return noFile
 	}
-	defer func() { _ = r.Close() }()
+	defer func() {
+		if err := r.Close(); err != nil {
+			sl.Info(msg+" could not close named file",
+				slog.String("name", name), slog.Any("error", err))
+		}
+	}()
 	sign := magicnumber.Find(r)
 	return sign.Title()
 }
@@ -461,22 +498,38 @@ func MagicAsTitle(name string) string {
 // MIME returns the [MIME type] for the named file.
 //
 // [MIME type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
-func MIME(name string) string {
+func MIME(sl *slog.Logger, name string) string {
+	const msg = "simple mime type lookup"
+	if sl == nil {
+		sl = slog.Default()
+	}
 	file, err := os.Open(name)
 	if err != nil {
+		sl.Info(msg+" could not open file",
+			slog.String("name", name), slog.Any("error", err))
 		return noFile
 	}
-	defer func() { _ = file.Close() }()
+	defer func() {
+		if err := file.Close(); err != nil {
+			sl.Info(msg+" could not close file",
+				slog.String("name", name), slog.Any("error", err))
+		}
+	}()
 
 	const sample = 512
 	head := make([]byte, sample)
 	_, err = file.Read(head)
 	if err != nil {
+		sl.Info(msg+" could not read a sample of file",
+			slog.String("name", name), slog.Int("sample size", sample),
+			slog.Any("error", err))
 		return err.Error()
 	}
 
 	kind, err := filetype.Match(head)
 	if err != nil {
+		sl.Info(msg+" could not match file type",
+			slog.String("name", name), slog.Any("error", err))
 		return err.Error()
 	}
 	if kind != filetype.Unknown {
@@ -491,12 +544,18 @@ func MIME(name string) string {
 // To make the directory distinct it is prefixed with the basename of the src file.
 //
 // The returned path should be removed after use.
-func MkContent(src string) string {
+func MkContent(sl *slog.Logger, src string) string {
+	const msg = "simple make content"
+	if sl == nil {
+		sl = slog.Default()
+	}
 	if src == "" {
 		return ""
 	}
 	path, err := helper.MkContent(src)
 	if err != nil {
+		sl.Info(msg+" caused an error",
+			slog.String("src", src), slog.Any("error", err))
 		return err.Error()
 	}
 	return path
@@ -507,7 +566,8 @@ func Releasers(prime, second string, magazine bool) template.HTML {
 	var s string
 	switch {
 	case magazine && prime != "" && second != "":
-		s = fmt.Sprintf("%s <small>published by</small> %s", second, prime)
+		const format = `%s <small>published by</small> %s`
+		s = fmt.Sprintf(format, second, prime)
 	case prime != "" && second != "":
 		const format = `%s <strong class="text-secondary">+</strong> %s`
 		s = fmt.Sprintf(format, prime, second)
@@ -525,16 +585,16 @@ func Releasers(prime, second string, magazine bool) template.HTML {
 // to be used in the 'og:image' content metadata attribute.
 func OpenGraphImg(unid string, preview, thumbnail dir.Directory) string {
 	name, src := ogImage(unid, config.StaticOriginal(), preview)
-	hash, err := helper.IntegrityFile(name)
+	integrity, err := helper.IntegrityFile(name)
 	if err != nil {
 		name, src := ogImage(unid, config.StaticThumb(), thumbnail)
-		hash, err := helper.IntegrityFile(name)
+		integrity, err := helper.IntegrityFile(name)
 		if err != nil {
 			return "/image/layout/defacto2-ascii.png"
 		}
-		return src + "?" + hash
+		return src + "?" + integrity
 	}
-	return src + "?" + hash
+	return src + "?" + integrity
 }
 
 func ogImage(unid, path string, dd dir.Directory) (string, string) {
@@ -552,32 +612,32 @@ func ogImage(unid, path string, dd dir.Directory) (string, string) {
 
 // ReleaserPair returns the primary and secondary releaser groups as two strings.
 func ReleaserPair(a, b any) [2]string {
-	av, bv := "", ""
+	r1, r2 := "", ""
 	switch val := a.(type) {
 	case string:
-		av = reflect.ValueOf(val).String()
+		r1 = reflect.ValueOf(val).String()
 	case null.String:
 		if val.Valid {
-			av = val.String
+			r1 = val.String
 		}
 	}
 	switch val := b.(type) {
 	case string:
-		bv = reflect.ValueOf(val).String()
+		r2 = reflect.ValueOf(val).String()
 	case null.String:
 		if val.Valid {
-			bv = val.String
+			r2 = val.String
 		}
 	}
-	av = strings.TrimSpace(av)
-	bv = strings.TrimSpace(bv)
+	r1 = strings.TrimSpace(r1)
+	r2 = strings.TrimSpace(r2)
 	switch {
-	case av != "" && bv != "":
-		return [2]string{av, bv}
-	case bv != "":
-		return [2]string{bv, ""}
-	case av != "":
-		return [2]string{av, ""}
+	case r1 != "" && r2 != "":
+		return [2]string{r1, r2}
+	case r2 != "":
+		return [2]string{r2, ""}
+	case r1 != "":
+		return [2]string{r1, ""}
 	}
 	return [2]string{}
 }
@@ -595,63 +655,66 @@ func ReleaserPair(a, b any) [2]string {
 func Screenshot(unid, desc string, preview dir.Directory) template.HTML {
 	const separator = "/"
 	alt := strings.ToLower(desc) + " screenshot"
+	// source links
+	srcWeb := strings.Join([]string{config.StaticOriginal(), unid + webp}, separator)
+	srcPng := strings.Join([]string{config.StaticOriginal(), unid + png}, separator)
+	srcJpg := strings.Join([]string{config.StaticOriginal(), unid + jpg}, separator)
+	srcAvi := strings.Join([]string{config.StaticOriginal(), unid + avif}, separator)
+	// image file sizes
+	sizeWeb := helper.Size(preview.Join(unid + webp))
+	sizePng := helper.Size(preview.Join(unid + png))
+	sizeJpg := helper.Size(preview.Join(unid + jpg))
+	sizeAvi := helper.Size(preview.Join(unid + avif))
+	// image file integrity hash values
+	integrityWeb, _ := helper.IntegrityFile(preview.Join(unid + webp))
+	integrityPng, _ := helper.IntegrityFile(preview.Join(unid + png))
+	integrityJpg, _ := helper.IntegrityFile(preview.Join(unid + jpg))
+	integrityAvi, _ := helper.IntegrityFile(preview.Join(unid + avif))
 
-	srcW := strings.Join([]string{config.StaticOriginal(), unid + webp}, separator)
-	srcP := strings.Join([]string{config.StaticOriginal(), unid + png}, separator)
-	srcJ := strings.Join([]string{config.StaticOriginal(), unid + jpg}, separator)
-	srcA := strings.Join([]string{config.StaticOriginal(), unid + avif}, separator)
-
-	sizeW := helper.Size(preview.Join(unid + webp))
-	sizeP := helper.Size(preview.Join(unid + png))
-	sizeJ := helper.Size(preview.Join(unid + jpg))
-	sizeA := helper.Size(preview.Join(unid + avif))
-
-	hashW, _ := helper.IntegrityFile(preview.Join(unid + webp))
-	hashP, _ := helper.IntegrityFile(preview.Join(unid + png))
-	hashJ, _ := helper.IntegrityFile(preview.Join(unid + jpg))
-	hashA, _ := helper.IntegrityFile(preview.Join(unid + avif))
-
-	usePicture := (sizeA > 0 || sizeW > 0) && (sizeJ > 0 || sizeP > 0)
+	usePicture := (sizeAvi > 0 || sizeWeb > 0) && (sizeJpg > 0 || sizePng > 0)
 	if usePicture {
-		elm := template.HTML("<picture>")
+		var elm string
 		switch {
-		case sizeA > 0:
+		case sizeAvi > 0:
 			const format = `<source srcset="%s?%s" type="image/avif" integrity="%s" />`
-			elm += template.HTML(fmt.Sprintf(format, srcA, hashA, hashA))
-		case sizeW > 0:
+			elm += fmt.Sprintf(format, srcAvi, integrityAvi, integrityAvi)
+		case sizeWeb > 0:
 			const format = `<source srcset="%s?%s" type="image/webp" integrity="%s" />`
-			elm += template.HTML(fmt.Sprintf(format, srcW, hashW, hashW))
+			elm += fmt.Sprintf(format, srcWeb, integrityWeb, integrityWeb)
 		}
 		// the <picture> element is used to provide multiple sources for an image.
 		// if no <img> element is provided, the <picture> element won't be rendered by the browser.
-		useSmallerJpg := sizeJ > 0 && sizeJ < sizeP
+		useSmallerJpg := sizeJpg > 0 && sizeJpg < sizePng
 		switch {
 		case useSmallerJpg:
-			elm += img(srcJ, alt, hashJ)
-		case sizeP > 0:
-			elm += img(srcP, alt, hashP)
+			elm += img(srcJpg, alt, integrityJpg)
+		case sizePng > 0:
+			elm += img(srcPng, alt, integrityPng)
 		default:
-			elm += img(srcJ, alt, hashJ)
+			elm += img(srcJpg, alt, integrityJpg)
 		}
-		return elm + "</picture>"
+		return template.HTML(`<picture>` + elm + `</picture>`)
 	}
+	var elm string
 	switch {
-	case sizeA > 0:
-		return img(srcA, alt, hashA)
-	case sizeW > 0:
-		return img(srcW, alt, hashW)
-	case sizeJ > 0:
-		return img(srcJ, alt, hashJ)
-	case sizeP > 0:
-		return img(srcP, alt, hashP)
+	case sizeAvi > 0:
+		elm = img(srcAvi, alt, integrityAvi)
+	case sizeWeb > 0:
+		elm = img(srcWeb, alt, integrityWeb)
+	case sizeJpg > 0:
+		elm = img(srcJpg, alt, integrityJpg)
+	case sizePng > 0:
+		elm = img(srcPng, alt, integrityPng)
+	default:
+		elm = ""
 	}
-	return ""
+	return template.HTML(elm)
 }
 
 // img returns a HTML image tag.
-func img(src, alt, integrity string) template.HTML {
+func img(src, alt, integrity string) string {
 	const format = `<img src="%s?%s" loading="lazy" alt="%s" class="rounded mx-auto d-block img-fluid" integrity="%s" />`
-	return template.HTML(fmt.Sprintf(format, src, integrity, alt, integrity))
+	return fmt.Sprintf(format, src, integrity, alt, integrity)
 }
 
 // StatHumanize returns the last modified date, size in bytes and size formatted
@@ -678,20 +741,21 @@ func StatHumanize(name string) (string, string, string) {
 // The thumbnail is the directory where the thumbnail images are stored.
 // The bottom flag is true if the image should be displayed at the bottom of the container element.
 func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTML {
-	fw := thumbnail.Join(unid + webp)
-	fp := thumbnail.Join(unid + png)
-	webpSrc := strings.Join([]string{config.StaticThumb(), unid + webp}, "/")
-	pngSrc := strings.Join([]string{config.StaticThumb(), unid + png}, "/")
+	srcsetW := strings.Join([]string{config.StaticThumb(), unid + webp}, "/")
+	srcsetP := strings.Join([]string{config.StaticThumb(), unid + png}, "/")
 	alt := strings.ToLower(desc) + " thumbnail"
 	w, p := false, false
-	if helper.Stat(fw) {
+	name := thumbnail.Join(unid + webp)
+	if helper.Stat(name) {
 		w = true
 	}
-	if helper.Stat(fp) {
+	name = thumbnail.Join(unid + png)
+	if helper.Stat(name) {
 		p = true
 	}
 	if !w && !p {
-		return template.HTML("<!-- no thumbnail found -->")
+		const comment = `<!-- no thumbnail found -->`
+		return template.HTML(comment)
 	}
 	const style = "max-height:400px;"
 	class := "card-img-bottom" // m-2 img-fluid rounded mx-auto d-block"
@@ -700,19 +764,18 @@ func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTM
 	}
 	if w && p {
 		const format = `<source srcset="%s" type="image/webp" />`
-		elm := `<picture class="` + class + `">` +
-			fmt.Sprintf(format, webpSrc) + string(thumb(pngSrc, alt, class, style)) + `</picture>`
-		return template.HTML(elm)
+		source := fmt.Sprintf(format, srcsetW) + string(imgTag(srcsetP, alt, class, style))
+		return template.HTML(`<picture class="` + class + `">` + source + `</picture>`)
 	}
-	src := webpSrc
+	src := srcsetW
 	if p {
-		src = pngSrc
+		src = srcsetP
 	}
-	return thumb(src, alt, class, style)
+	return imgTag(src, alt, class, style)
 }
 
-// img returns a HTML image tag.
-func thumb(src, alt, class, style string) template.HTML {
+// imgTag returns a HTML image element.
+func imgTag(src, alt, class, style string) template.HTML {
 	const format = `<img src="%s" loading="lazy" alt="%s" class="%s" style="%s" />`
 	return template.HTML(fmt.Sprintf(format, src, alt, class, style))
 }
@@ -721,21 +784,22 @@ func thumb(src, alt, class, style string) template.HTML {
 // The unid is the filename of the thumbnail image without an extension.
 // The thumbDir is the directory where the thumbnail images are stored.
 func ThumbSample(unid string, thumbnail dir.Directory) template.HTML {
-	ext, name, src := "", "", ""
+	alt, name, src := "", "", ""
 	exts := []string{avif, webp, png}
-	for ext = range slices.Values(exts) {
-		name = thumbnail.Join(unid + ext)
-		src = strings.Join([]string{config.StaticThumb(), unid + ext}, "/")
+	for alt = range slices.Values(exts) {
+		name = thumbnail.Join(unid + alt)
+		src = strings.Join([]string{config.StaticThumb(), unid + alt}, "/")
 		if helper.Stat(name) {
 			break
 		}
 	}
-	hash, err := helper.IntegrityFile(name)
+	integrity, err := helper.IntegrityFile(name)
 	if err != nil {
 		return template.HTML(`<div class="card-body">No thumbnail picture file</div>`)
 	}
-	const format = `<img src="%s?%s" loading="lazy" class="p-2 img-fluid rounded mx-auto d-block" alt="%s sample" integrity="%s" />`
-	return template.HTML(fmt.Sprintf(format, src, hash, ext, hash))
+	const format = `<img src="%s?%s" loading="lazy" class="%s" alt="%s sample" integrity="%s" />`
+	const class = `p-2 img-fluid rounded mx-auto d-block`
+	return template.HTML(fmt.Sprintf(format, src, integrity, class, alt, integrity))
 }
 
 // Updated returns a string of the time since the given time t.
@@ -751,23 +815,25 @@ func Updated(t any, s string) string {
 		s = "Time"
 	}
 	justnow := "less than a minute"
+	const seconds = false
 	switch val := t.(type) {
 	case null.Time:
 		if !val.Valid {
 			return ""
 		}
-		x := helper.TimeDistance(val.Time, time.Now(), false)
+		x := helper.TimeDistance(val.Time, time.Now(), seconds)
 		if x == justnow {
 			return s + " just now"
 		}
 		return s + " " + x + " ago"
 	case time.Time:
-		x := helper.TimeDistance(val, time.Now(), false)
+		x := helper.TimeDistance(val, time.Now(), seconds)
 		if x == justnow {
 			return s + " just now"
 		}
 		return s + " " + x + " ago"
 	default:
-		return fmt.Sprintf("%supdated: %s", typeErr, reflect.TypeOf(t).String())
+		const format = `%supdated: %s`
+		return fmt.Sprintf(format, typeErr, reflect.TypeOf(t).String())
 	}
 }
