@@ -102,7 +102,8 @@ func ID(c *echo.Context) (int, error) {
 	}
 	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
-		return 0, fmt.Errorf("%w: \"%w\"", ErrKey, err)
+		const format = `%w: "%w"`
+		return 0, fmt.Errorf(format, ErrKey, err)
 	}
 	return id, nil
 }
@@ -821,7 +822,7 @@ func RecordDateIssuedReset(ctx context.Context, c *echo.Context, db *sql.DB, elm
 	}
 	year, month, day := vals[0], vals[1], vals[2]
 	y, m, d := form.ValidDate(year, month, day)
-	if !y || !m || !d {
+	if invalid := !y || !m || !d; invalid {
 		return badRequest(c, fmt.Errorf(format, ErrYMDFormat))
 	}
 	if err := model.UpdateDateIssued(ctx, db, int64(id), year, month, day); err != nil {
@@ -1116,7 +1117,7 @@ func RecordLinksReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	github := c.FormValue("artifact-editor-githubval")
 	rels := c.FormValue("artifact-editor-relationsval")
 	sites := c.FormValue("artifact-editor-websitesval")
-	const format = "record lins reset %w: %q"
+	const format = "record links reset %w: %q"
 	id, err := strconv.Atoi(key)
 	if err != nil {
 		return badRequest(c, fmt.Errorf(format+": %q", ErrKey, err, key))

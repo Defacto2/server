@@ -58,7 +58,7 @@ func Areacodes(c *echo.Context) error {
 	query := areacode.Queries(searches...)
 	if len(query) == 0 {
 		return c.HTML(http.StatusOK,
-			"<small>No results for '"+html.EscapeString(search)+"'.</small><br>")
+			`<small>No results for '`+html.EscapeString(search)+`'.</small><br>`)
 	}
 	for val := range slices.Values(query) {
 		if val.AreaCode.Valid() {
@@ -98,7 +98,8 @@ func DemozooLookup(ctx context.Context, c *echo.Context, db *sql.DB, prodMode bo
 			"error, the database query failed")
 	}
 	if prodInUse := key != 0 && !deleted; prodInUse {
-		html := fmt.Sprintf("This Demozoo production is already <a href=\"/f/%s\">in use</a>.", helper.ObfuscateID(key))
+		const format = `This Demozoo production is already <a href="/f/%s">in use</a>.`
+		html := fmt.Sprintf(format, helper.ObfuscateID(key))
 		return c.HTML(http.StatusOK, html)
 	}
 	if prodInUse := key != 0 && deleted; prodInUse {
@@ -141,21 +142,23 @@ func DemozooLookup(ctx context.Context, c *echo.Context, db *sql.DB, prodMode bo
 // htmx.DemozooSubmit is the handler for the /demozoo/production put route,
 // which uses htmx.submit, found in transfer.go, to insert the new file record into the database.
 func demozooBtn(id int, info ...string) string {
-	htm := `<form class="d-grid">`
-	htm += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
-		`hx-put="/demozoo/production/%d" `+
-		`hx-indicator="#demozoo-remote-indicator" `+
-		`hx-target="#demozoo-submission-results" `+
-		`hx-swap="innerHTML" `+
-		`hx-trigger="click once delay:500ms" `+
-		`hx-target-error="#demozoo-submission-error" `+
-		`autofocus>Submit ID %d</button>`, id, id)
-	htm += `<div id="demozoo-remote-indicator" class="htmx-indicator text-secondary pt-2" role="status">` +
-		`  <span class="spinner-border spinner-border-sm"></span> <span>Fetching Download linked by Demozoo...</span>`
-	htm += `</div>`
-	htm += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
-	htm += `</form>`
-	return htm
+	const format = `<button type="button" class="btn btn-outline-success" ` +
+		`hx-put="/demozoo/production/%d" ` +
+		`hx-indicator="#demozoo-remote-indicator" ` +
+		`hx-target="#demozoo-submission-results" ` +
+		`hx-swap="innerHTML" ` +
+		`hx-trigger="click once delay:500ms" ` +
+		`hx-target-error="#demozoo-submission-error" ` +
+		`autofocus>Submit ID %d</button>`
+	const did = `demozoo-remote-indicator`
+	const dclass = `htmx-indicator text-secondary pt-2`
+	const sclass = `spinner-border spinner-border-sm`
+	const text = `Fetching Download linked by Demozoo...`
+	button := fmt.Sprintf(format, id, id)
+	button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
+		`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
+	button += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
+	return `<form class="d-grid">` + button + `</form>`
 }
 
 // DemozooValid looks up the Demozoo production ID and confirms that the
@@ -171,15 +174,14 @@ func DemozooValid(ctx context.Context, c *echo.Context, prodMode bool, id int) (
 		return none, fmt.Errorf("%s: %w", msg, err)
 	}
 	if invalid := id < 1; invalid {
-		return none,
-			c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
+		const format = `invalid id: %d`
+		return none, c.String(http.StatusNotAcceptable, fmt.Sprintf(format, id))
 	}
 	sid := strconv.Itoa(id)
 	if s, err := cache.DemozooProduction.Read(sid); err == nil {
 		if prodMode && s != "" {
-			return none,
-				c.String(http.StatusOK,
-					fmt.Sprintf("Production %d is probably not suitable for Defacto2!<br>Types: %s", id, s))
+			const format = `Production %d is probably not suitable for Defacto2!<br>Types: %s`
+			return none, c.String(http.StatusOK, fmt.Sprintf(format, id, s))
 		}
 	}
 	var prod demozoo.Production
@@ -199,9 +201,8 @@ func DemozooValid(ctx context.Context, c *echo.Context, prodMode bool, id int) (
 		}
 		sid := strconv.Itoa(id)
 		_ = cache.DemozooProduction.WriteNoExpire(sid, strings.Join(s, " - "))
-		return none, c.HTML(http.StatusOK,
-			fmt.Sprintf("Production %d is probably not suitable for Defacto2.<br>Types: %s",
-				id, strings.Join(s, " - ")))
+		const format = `Production %d is probably not suitable for Defacto2.<br>Types: %s`
+		return none, c.HTML(http.StatusOK, fmt.Sprintf(format, id, strings.Join(s, " - ")))
 	}
 	var valid string
 	for _, link := range prod.DownloadLinks {
@@ -242,7 +243,8 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 		return c.String(http.StatusOK, err.Error())
 	}
 	currentTime := time.Now()
-	return c.String(http.StatusOK, fmt.Sprintf("%d of %d, <small>%s</small>",
+	const format = `%d of %d, <small>%s</small>`
+	return c.String(http.StatusOK, fmt.Sprintf(format,
 		conns, maxConn, currentTime.Format("15:04:05")))
 }
 
@@ -264,11 +266,7 @@ func DeleteForever(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sq
 	}
 	if err = model.DeleteOne(ctx, tx, key); err != nil {
 		defer func() {
-			if err := tx.Rollback(); err != nil && sl != nil {
-				sl.Error(msg,
-					slog.String("database", "delete one transaction rollback problem"),
-					slog.Any("error", err))
-			}
+			rollback(sl, msg, key, tx)
 		}()
 		sl.Error(msg, slog.String("database", "delete one transaction problem"),
 			slog.Any("error", err))
@@ -290,6 +288,20 @@ func DeleteForever(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sq
 	}
 	return c.String(http.StatusOK,
 		"The artifact is gone, and reloading this page will result in a 404 error.")
+}
+
+func rollback(sl *slog.Logger, msg string, key int64, tx *sql.Tx) {
+	if sl == nil {
+		sl = slog.Default()
+	}
+	if tx == nil {
+		sl.Error(msg + " attempted to rollback an empty sql transaction")
+	}
+	if err := tx.Rollback(); err != nil {
+		sl.Error(msg+" delete one, rollback transaction error",
+			slog.Int64("record id", key),
+			slog.Any("error", err))
+	}
 }
 
 func pings() []string {
@@ -369,24 +381,24 @@ func Pings(c *echo.Context, proto string, port int) error {
 			results = append(results, fmt.Sprintf("%s: %v", ping, err))
 			continue
 		}
-		var elm string
+		var class string
 		switch {
 		case code == http.StatusOK:
-			elm = "<span class=\"text-success\">"
+			class = `text-success`
 		case code == http.StatusNotFound:
-			elm = "<span class=\"text-danger-emphasis\">"
+			class = `text-danger-emphasis`
 		case code >= http.StatusInternalServerError:
-			elm = "<span class=\"text-danger\">"
+			class = `text-danger`
 		default:
-			elm = "<span class=\"text-warning-emphasis\">"
+			class = `text-warning-emphasis`
 		}
-		results = append(results,
-			"<div>", elm,
-			fmt.Sprintf(`%d</span> %s <span class="text-secondary">%s</span>`, code, ping, helper.ByteCount(size)),
-			"</div>")
+		const format = `<span class="%s">%d</span> %s <span class="text-secondary">%s</span>`
+		spans := fmt.Sprintf(format, class, code, ping, helper.ByteCount(size))
+		results = append(results, "<div>", spans, "</div>")
 	}
 	output := strings.Join(results, "")
-	output += fmt.Sprintf("<div><small>%d URLs were pinged</small></div>", len(pings))
+	const format = `<div><small>%d URLs were pinged</small></div>`
+	output += fmt.Sprintf(format, len(pings))
 	return c.HTML(http.StatusOK, output)
 }
 
@@ -415,7 +427,8 @@ func PouetLookup(ctx context.Context, c *echo.Context, db *sql.DB) error {
 			"error, the database query failed")
 	}
 	if key != 0 && !deleted {
-		html := fmt.Sprintf("This Pouet production is already <a href=\"/f/%s\">in use</a>.", helper.ObfuscateID(key))
+		const format = `This Pouet production is already <a href="/f/%s">in use</a>.`
+		html := fmt.Sprintf(format, helper.ObfuscateID(key))
 		return c.HTML(http.StatusOK, html)
 	}
 	if key != 0 && deleted {
@@ -457,18 +470,23 @@ func PouetLookup(ctx context.Context, c *echo.Context, db *sql.DB) error {
 }
 
 func pouetBtn(id int, info ...string) string {
-	htm := `<form class="d-grid">`
-	htm += fmt.Sprintf(`<button type="button" class="btn btn-outline-success" `+
-		`hx-put="/pouet/production/%d" `+
-		`hx-indicator="#pouet-remote-indicator" `+
-		`hx-target="#pouet-submission-results" hx-trigger="click once delay:500ms" `+
-		`hx-target-error="#pouet-submission-error" `+
-		`autofocus>Submit ID %d</button>`, id, id)
-	htm += `<div id="pouet-remote-indicator" class="htmx-indicator text-secondary pt-2" role="status">` +
-		`  <span class="spinner-border spinner-border-sm"></span> <span>Fetching Download linked by Pouet...</span>`
-	htm += `</div>`
-	htm += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
-	return htm
+	const format = `<button type="button" class="btn btn-outline-success" ` +
+		`hx-put="/pouet/production/%d" ` +
+		`hx-indicator="#pouet-remote-indicator" ` +
+		`hx-target="#pouet-submission-results" ` +
+		`hx-swap="innerHTML" ` +
+		`hx-trigger="click once delay:500ms" ` +
+		`hx-target-error="#pouet-submission-error" ` +
+		`autofocus>Submit ID %d</button>`
+	const did = `pouet-remote-indicator`
+	const dclass = `htmx-indicator text-secondary pt-2`
+	const sclass = `spinner-border spinner-border-sm`
+	const text = `Fetching Download linked by Pouet...`
+	button := fmt.Sprintf(format, id, id)
+	button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
+		`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
+	button += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
+	return `<form class="d-grid">` + button + `</form>`
 }
 
 // PouetValid fetches the first usable download link from the Pouet API.
@@ -477,6 +495,8 @@ func pouetBtn(id int, info ...string) string {
 // production is returned with a htmx message.
 func PouetValid(ctx context.Context, c *echo.Context, id int, useCache bool) (pouet.Response, error) {
 	const msg = "htmx pouet valid context"
+	const format = `Production %d is probably not suitable for Defacto2.`
+	const helper = `<br>A production must an intro, demo or cracktro either for MsDos or Windows.`
 	none := pouet.Response{} //nolint:exhaustruct
 	if err := nils.Check(ctx, c); err != nil {
 		return none, fmt.Errorf("%s: %w", msg, err)
@@ -490,9 +510,7 @@ func PouetValid(ctx context.Context, c *echo.Context, id int, useCache bool) (po
 		if s, err := cache.PouetProduction.Read(sid); err == nil {
 			if s != "" {
 				return none,
-					c.String(http.StatusOK,
-						fmt.Sprintf("Production %d is probably not suitable for Defacto2.", id)+
-							"<br>A production must an intro, demo or cracktro either for MsDos or Windows.")
+					c.String(http.StatusOK, fmt.Sprintf(format, id)+helper)
 			}
 		}
 	}
@@ -511,13 +529,12 @@ func PouetValid(ctx context.Context, c *echo.Context, id int, useCache bool) (po
 	if valid := platOkay && typeOkay; !valid {
 		sid := strconv.Itoa(id)
 		_ = cache.PouetProduction.WriteNoExpire(sid, "invalid")
-		return none, c.HTML(http.StatusOK,
-			fmt.Sprintf("Production %d is probably not suitable for Defacto2.", id)+
-				"<br>A production must an intro, demo or cracktro either for MsDos or Windows.")
-	}
-	if valid := validation(prod); valid == "" {
 		return none,
-			c.String(http.StatusOK, "This Pouet production has no suitable download links.")
+			c.String(http.StatusOK, fmt.Sprintf(format, id)+helper)
+	}
+	if invalid := validation(prod) == ""; invalid {
+		const s = `This Pouet production has no suitable download links.`
+		return none, c.String(http.StatusOK, s)
 	}
 	return prod, nil
 }
@@ -665,7 +682,8 @@ func SearchReleaser(
 	name := helper.TrimRoundBracket(input)
 	name = releaser.Clean(name) // required to stop 503 errors with invalid characters
 	if name == "" {
-		return c.HTML(http.StatusOK, "<!-- empty search query -->")
+		const comment = `<!-- empty search query -->`
+		return c.HTML(http.StatusOK, comment)
 	}
 	// Obtain a list of alternative lookups and remove any possible duplicates.
 	lookup := Alternatives(name)

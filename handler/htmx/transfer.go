@@ -155,7 +155,7 @@ func uploader(err error) string {
 // Transfer is a generic file transfer handler that uploads and validates a chosen file upload.
 // The provided name is that of the form input field. The logger is optional and if nil then
 // the function will not log any debug information.
-func transfer(
+func transfer( //nolint:funlen
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, key string, download dir.Directory,
 ) error {
 	const msg = "transfer file handler"
@@ -174,7 +174,9 @@ func transfer(
 	if err != nil {
 		return checkFileOpen(sl, c, name, err)
 	}
-	defer func() { _ = src.Close() }()
+	defer func() {
+		closer(sl, msg, src)
+	}()
 	hasher := sha512.New384()
 	const size = 4 * 1024
 	buf := make([]byte, size)
@@ -202,7 +204,12 @@ func transfer(
 	if dst == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be created")
 	}
-	content, _ := archive.List(dst, file.Filename) // TODO: slog error?
+	content, err := archive.List(dst, file.Filename)
+	if err != nil {
+		sl.Info(msg+" archive list caused an error",
+			slog.String("src", dst), slog.String("filename", file.Filename),
+			slog.Any("error", err))
+	}
 	readme := archive.Readme(file.Filename, content...)
 	creator := creator{
 		file: file, readme: readme, key: key, checksum: checksum, content: content,
@@ -229,13 +236,14 @@ func success(c *echo.Context, msg, filename string, id int64,
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf("%s success: %w", msg, err)
 	}
-	html := fmt.Sprintf("<div>Thanks, the chosen file submission was a success.<br> "+
-		"<span class=\"text-success\">✓</span> <var>%s</var></div>", html.EscapeString(filename))
+	const format = `<div>Thanks, the chosen file submission was a success.<br> ` +
+		`<span class="text-success">✓</span> <var>%s</var></div>`
+	html := fmt.Sprintf(format, html.EscapeString(filename))
 	if sess.Editor(c) {
-		html += fmt.Sprintf("<div data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" "+
-			"data-bs-title=\"ctrl + alt + enter\"><a id=\"go-to-the-new-artifact-record\" "+
-			"href=\"/f/%s\" autofocus>Go to the new artifact record</a>.</div>",
-			helper.ObfuscateID(id))
+		const format = `<div data-bs-toggle="tooltip" data-bs-placement="top" ` +
+			`data-bs-title="ctrl + alt + enter"><a id="go-to-the-new-artifact-record" ` +
+			`href="/f/%s" autofocus>Go to the new artifact record</a>.</div>`
+		html += fmt.Sprintf(format, helper.ObfuscateID(id))
 	}
 	return c.HTML(http.StatusOK, html)
 }
@@ -351,7 +359,9 @@ func copier(sl *slog.Logger, c *echo.Context, file *multipart.FileHeader, key st
 		return "", c.HTML(http.StatusInternalServerError,
 			"The chosen file input cannot be opened")
 	}
-	defer func() { _ = src.Close() }() // TODO: slog check
+	defer func() {
+		closer(sl, msg, src)
+	}()
 	// create temporary destination file
 	dst, err := os.CreateTemp(helper.TmpDir(), pattern)
 	if err != nil {
@@ -362,7 +372,9 @@ func copier(sl *slog.Logger, c *echo.Context, file *multipart.FileHeader, key st
 		return "", c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be created")
 	}
-	defer func() { _ = dst.Close() }() // TODO: slog check
+	defer func() {
+		closer(sl, msg, dst)
+	}()
 	// buffer copier
 	const size = 4 * 1024
 	buf := make([]byte, size)
@@ -490,11 +502,13 @@ func (prod Submission) Submit( //nolint:funlen
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database commit failed")
 	}
-	html := fmt.Sprintf("<div class=\"text-success\">Thanks for the submission of %s production, %d</div>", name, id)
+	const format = `<div class="text-success">Thanks for the submission of %s production, %d</div>`
+	html := fmt.Sprintf(format, name, id)
 	if sess.Editor(c) {
 		uri := helper.ObfuscateID(key)
-		html += fmt.Sprintf("<p data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" data-bs-title=\"ctrl + alt + enter\">"+
-			"<a id=\"go-to-the-new-artifact-record\" href=\"/f/%s\" autofocus>Go to the new artifact record</a></p>", uri)
+		const format = `<p data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="ctrl + alt + enter">` +
+			`<a id="go-to-the-new-artifact-record" href="/f/%s" autofocus>Go to the new artifact record</a></p>`
+		html += fmt.Sprintf(format, uri)
 	}
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
@@ -502,14 +516,16 @@ func (prod Submission) Submit( //nolint:funlen
 		if err := app.GetDemozoo(ctx, sl, c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote demozoo api"), slog.Any("error", err))
-			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
+			const format = `<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`
+			html += fmt.Sprintf(format, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
 		if err := app.GetPouet(ctx, sl, c, db, id, unid, download); err != nil {
 			sl.Error(msg,
 				slog.String("problem", "could not fetch the remote pouet api"), slog.Any("error", err))
-			html += fmt.Sprintf(`<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`, prod.String())
+			const format = `<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`
+			html += fmt.Sprintf(format, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	}
@@ -538,13 +554,13 @@ func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 		sanity = pouet.Sanity
 	}
 	if id < 1 || id > sanity {
-		return 0, c.String(http.StatusNotAcceptable,
-			fmt.Sprintf("The %q production ID is invalid, %d", name, id))
+		const format = `The %q production ID is invalid, %d`
+		return 0, c.String(http.StatusNotAcceptable, fmt.Sprintf(format, name, id))
 	}
 	return id, nil
 }
 
-func UploadPreview(
+func UploadPreview( //nolint:funlen
 	ctx context.Context, sl *slog.Logger, c *echo.Context, preview, thumbnail dir.Directory,
 ) error {
 	const msg = "htmx upload preview"
@@ -570,34 +586,42 @@ func UploadPreview(
 	if err != nil {
 		return checkFileOpen(nil, c, name, err)
 	}
-	defer func() { _ = src.Close() }()
+	defer func() {
+		closer(sl, msg, src)
+	}()
 	pattern := name + "-*"
 	dst, err := os.CreateTemp(helper.TmpDir(), pattern)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be created")
 	}
-	defer func() { _ = dst.Close() }()
+	defer func() {
+		closer(sl, msg, dst)
+	}()
 	const size = 4 * 1024
 	buf := make([]byte, size)
 	if _, err := io.CopyBuffer(dst, src, buf); err != nil {
 		return c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be written")
 	}
-	defer func() { _ = os.Remove(dst.Name()) }() // TODO: slog
+	defer func() {
+		remove(sl, msg, dst.Name())
+	}()
 	dirs := command.Dirs{Download: "", Preview: preview, Thumbnail: thumbnail, Extra: ""}
 	src, err = file.Open()
 	if err != nil {
 		return checkFileOpen(nil, c, name, err)
 	}
-	defer func() { _ = src.Close() }()
+	defer func() {
+		closer(sl, msg, src)
+	}()
 	magic := magicnumber.Find(src)
 	if imagers(magic) {
 		if err := dirs.PictureImager(ctx, sl, dst.Name(), upload.unid); err != nil {
+			const s = "\nThe uploaded image file could not be converted, " +
+				"please try converting it on your local machine into a PNG or JPG file"
 			return c.HTML(http.StatusBadRequest,
-				err.Error()+
-					"\nThe uploaded image file could not be converted, "+
-					"please try converting it on your local machine into a PNG or JPG file")
+				err.Error()+s)
 		}
 		return reloader(c, file.Filename)
 	}
@@ -626,12 +650,12 @@ func texters(magic magicnumber.Signature) bool {
 }
 
 func reloader(c *echo.Context, filename string) error {
-	const format = "transfer reloader: %w"
 	if err := nils.Check(c); err != nil {
+		const format = "transfer reloader: %w"
 		return fmt.Errorf(format, err)
 	}
-	return c.String(http.StatusOK,
-		fmt.Sprintf("The new preview %s is in use, about to reload this page", filename))
+	const format = "The new preview %s is in use, about to reload this page"
+	return c.String(http.StatusOK, fmt.Sprintf(format, filename))
 }
 
 // UploadReplacement is the file transfer handler that uploads, validates a new file upload
@@ -660,7 +684,9 @@ func UploadReplacement( //nolint:funlen
 	if err != nil {
 		return checkFileOpen(sl, c, name, err)
 	}
-	defer func() { _ = src.Close() }()
+	defer func() {
+		closer(sl, msg, src)
+	}()
 	fu := model.FileUpload{
 		Filename:    file.Filename,
 		Filesize:    file.Size,
@@ -680,7 +706,9 @@ func UploadReplacement( //nolint:funlen
 	if err != nil {
 		return checkFileOpen(sl, c, name, err)
 	}
-	defer func() { _ = src.Close() }()
+	defer func() {
+		closer(sl, msg, src)
+	}()
 	lastmod := c.FormValue("artifact-editor-lastmodified")
 	lm, err := strconv.ParseInt(lastmod, 10, 64)
 	if err == nil && lm >= 0 {
@@ -705,7 +733,9 @@ func UploadReplacement( //nolint:funlen
 	}
 	abs := filepath.Join(download.Path(), upload.unid)
 	if _, err = helper.DuplicateOW(dst, abs); err != nil {
-		_ = tx.Rollback()
+		defer func() {
+			rollback(sl, msg, upload.id, tx)
+		}()
 		return badRequest(c, err)
 	}
 	if err := tx.Commit(); err != nil {
@@ -713,12 +743,52 @@ func UploadReplacement( //nolint:funlen
 	}
 	repack := filepath.Join(extra.Path(), upload.unid+".zip")
 	repack = filepath.Clean(repack)
-	defer func() { _ = os.Remove(repack) }()
+	defer func() {
+		remove(sl, msg, repack)
+	}()
 	if mkc, err := helper.MkContent(abs); err == nil {
-		defer func() { _ = os.RemoveAll(mkc) }()
+		defer func() {
+			removeAll(sl, msg, mkc)
+		}()
 	}
-	return c.String(http.StatusOK,
-		fmt.Sprintf("The new file %s is in use, about to reload this page", file.Filename))
+	const format = "The new file %s is in use, about to reload this page"
+	return c.String(http.StatusOK, fmt.Sprintf(format, file.Filename))
+}
+
+func closer(sl *slog.Logger, msg string, file multipart.File) {
+	if sl == nil {
+		sl = slog.Default()
+	}
+	if file == nil {
+		sl.Error(msg + " attempted to close an empty multipart file")
+	}
+	if err := file.Close(); err != nil {
+		sl.Info(msg+" could not close file",
+			slog.Any("file", file),
+			slog.Any("error", err))
+	}
+}
+
+func remove(sl *slog.Logger, msg, name string) {
+	if sl == nil {
+		sl = slog.Default()
+	}
+	if err := os.Remove(name); err != nil {
+		sl.Info(msg+" could not remove named file",
+			slog.String("name", name),
+			slog.Any("error", err))
+	}
+}
+
+func removeAll(sl *slog.Logger, msg, path string) {
+	if sl == nil {
+		sl = slog.Default()
+	}
+	if err := os.RemoveAll(path); err != nil {
+		sl.Info(msg+" could use remove all on named path",
+			slog.String("path", path),
+			slog.Any("error", err))
+	}
 }
 
 type values struct {
@@ -732,15 +802,16 @@ type values struct {
 // The return value is an error message if the unique identifier or record key is invalid.
 func (i *values) formValues(c *echo.Context) string {
 	if err := nils.Check(c); err != nil {
-		return fmt.Sprintf("The editor file upload is broken, %s", err)
+		const format = "The editor file upload is broken, %s"
+		return fmt.Sprintf(format, err)
 	}
-	const msg = "The editor file upload unique identifier is invalid"
+	const invalid = "The editor file upload unique identifier is invalid"
 	i.unid = c.FormValue("artifact-editor-unid")
 	if err := form.Checkname(i.unid); err != nil {
-		return msg
+		return invalid
 	}
 	if err := uuid.Validate(i.unid); err != nil {
-		return msg
+		return invalid
 	}
 	i.key = c.FormValue("artifact-editor-record-key")
 	id, err := strconv.ParseInt(i.key, 10, 64)
