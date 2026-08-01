@@ -56,7 +56,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/image v0.44.0
 	golang.org/x/text v0.40.0
-	google.golang.org/api v0.290.0
+	google.golang.org/api v0.291.0
 )
 
 // Uncomment to use the local repository
