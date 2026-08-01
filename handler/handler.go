@@ -30,7 +30,7 @@ import (
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/labstack/echo-contrib/v5/pprof"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
@@ -62,8 +62,7 @@ type Configuration struct {
 // Handler is the primary instance of the Echo router.
 func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *echo.Echo { //nolint:funlen
 	const msg = "controller handler"
-	err := panics.SD(sl, db)
-	if err != nil {
+	if err := nils.Check(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	envConfig := c.Environment
@@ -165,8 +164,8 @@ func (c *Configuration) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB
 // AppendEmbed serves the static files from the directories embed to the binary.
 func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 	const msg = "embed dirs handler"
-	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+	if err := nils.Check(e, currentFs); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	dirs := map[string]string{
 		"/image/artpack":   "public/image/artpack",
@@ -193,8 +192,8 @@ func AppendEmbed(e *echo.Echo, currentFs fs.FS) *echo.Echo {
 func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 	const msg = "configuration info handler"
 	const format = msg + ": %w"
-	if sl == nil {
-		panic(fmt.Errorf(format, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf(format, err))
 	}
 	if w == nil {
 		w = io.Discard
@@ -239,7 +238,7 @@ func (c *Configuration) Print(sl *slog.Logger, w io.Writer) {
 func (c *Configuration) TemplRegistry(ctx context.Context, sl *slog.Logger, db *sql.DB) (*TemplateRegistry, error) {
 	const msg = "template registry handler"
 	const format = msg + ": %w"
-	if err := panics.SD(sl, db); err != nil {
+	if err := nils.Check(sl, db); err != nil {
 		return nil, fmt.Errorf(format, err)
 	}
 	webapp := app.Templ{
@@ -255,7 +254,7 @@ func (c *Configuration) TemplRegistry(ctx context.Context, sl *slog.Logger, db *
 	if err != nil {
 		return nil, fmt.Errorf(format, err)
 	}
-	src := html3.Templates(ctx, db, sl, c.View)
+	src := html3.Templates(ctx, sl, db, c.View)
 	maps.Copy(tmpls, src)
 	src = htmx.Templates(c.View)
 	maps.Copy(tmpls, src)
@@ -275,8 +274,8 @@ func (c *Configuration) EchoConfig() echo.StartConfig {
 func (c *Configuration) Start(ctx context.Context, sl *slog.Logger, h http.Handler, configs config.Config) error {
 	const msg = "start server handler"
 	const format = msg + ": %w"
-	if sl == nil {
-		panic(fmt.Errorf(format, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf(format, err))
 	}
 
 	switch {
@@ -300,8 +299,8 @@ func (c *Configuration) Start(ctx context.Context, sl *slog.Logger, h http.Handl
 // However, the TLS uses an unsigned certificate and key file that is unusable on the Internet.
 func (c *Configuration) StartLocals(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start locals handler"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	c.startDual(ctx, sl, h, true)
 }
@@ -310,8 +309,8 @@ func (c *Configuration) StartLocals(ctx context.Context, sl *slog.Logger, h http
 // However, the TLS must be used with a valid, signed certificate and key file that is suitable on the Internet.
 func (c *Configuration) StartDual(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start dual handler"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	c.startDual(ctx, sl, h, false)
 }
@@ -333,8 +332,8 @@ func (c *Configuration) HTTP() echo.StartConfig {
 // and key file that is unusable on the Internet.
 func (c *Configuration) Local(ctx context.Context, sl *slog.Logger) (echo.StartConfig, []byte, []byte) {
 	const msg = "local tls handler configuration"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
 	config := c.EchoConfig()
@@ -363,8 +362,8 @@ func (c *Configuration) Local(ctx context.Context, sl *slog.Logger) (echo.StartC
 // TLS returns server configuration and the content of the certificate and key file.
 func (c *Configuration) TLS(ctx context.Context, sl *slog.Logger) (echo.StartConfig, []byte, []byte) {
 	const msg = "tls handler configuration"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
 	config := c.EchoConfig()
@@ -410,8 +409,8 @@ func (c *Configuration) TLS(ctx context.Context, sl *slog.Logger) (echo.StartCon
 // The default port for the HTTP protocol is 80.
 func (c *Configuration) StartHTTP(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start http handler"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
 	httpConfig := c.HTTP()
@@ -430,8 +429,8 @@ func (c *Configuration) StartHTTP(ctx context.Context, sl *slog.Logger, h http.H
 // The default port for the HTTPS protocol is 443.
 func (c *Configuration) StartTLS(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start tls handler"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
 	httpsConfig, certFile, keyFile := c.TLS(ctx, sl)
@@ -450,8 +449,8 @@ func (c *Configuration) StartTLS(ctx context.Context, sl *slog.Logger, h http.Ha
 // However, the TLS configuration uses an unsigned certificate and key file that is unusable on the Internet.
 func (c *Configuration) StartLocal(ctx context.Context, sl *slog.Logger, h http.Handler) {
 	const msg = "start local tls handler"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
 	httpsConfig, certFile, keyFile := c.Local(ctx, sl)
@@ -468,8 +467,8 @@ func (c *Configuration) StartLocal(ctx context.Context, sl *slog.Logger, h http.
 
 func (c *Configuration) startDual(ctx context.Context, sl *slog.Logger, h http.Handler, local bool) {
 	const msg = "start dual handler"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -531,7 +530,7 @@ func (c *Configuration) address(port uint16) string {
 func (c *Configuration) downloader(ctx context.Context, sl *slog.Logger, ec *echo.Context, db *sql.DB) error {
 	const msg = "downloader htm3 group handler"
 	const format = msg + ": %w"
-	if err := panics.SCD(sl, ec, db); err != nil {
+	if err := nils.Check(ctx, sl, ec, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	d := download.Download{
@@ -569,6 +568,9 @@ type TemplateRegistry struct {
 func (t *TemplateRegistry) Render(c *echo.Context, w io.Writer, name string, data any) error {
 	const msg = "template registry render handler"
 	const format = msg + "%s: %w"
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf(format, "check", err)
+	}
 	const fmtname = msg + "%s: %q %w"
 	if name == "" {
 		return fmt.Errorf(format, "name layout", ErrNoName)

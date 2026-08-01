@@ -29,6 +29,8 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -739,7 +741,7 @@ func (e *entry) parseMusicID3(path string) bool {
 func ListContent( //nolint:cyclop,gocognit,funlen
 	ctx context.Context, sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string,
 ) template.HTML {
-	if sl == nil || art == nil {
+	if nils.Slog("filerecord list context", ctx, sl) {
 		return ""
 	}
 	entries, files, zeroByteFiles := 0, 0, 0
@@ -980,7 +982,7 @@ func WalkerChmod(root *os.Root, path string, d fs.DirEntry, err error) error {
 
 func extractErr(sl *slog.Logger, src, platform, section string, zeroByteFiles int, err error) template.HTML {
 	if sl == nil {
-		sl = slog.Default()
+		sl = logs.Discard()
 	}
 	const msg = "list content of archive extraction"
 	if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {

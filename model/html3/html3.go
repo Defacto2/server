@@ -12,7 +12,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/html3/ext"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/querymod"
@@ -240,8 +240,8 @@ func (a *Arts) SetCount(c int) { a.Count = c }
 // Stat sets the total bytes and total count.
 func (a *Arts) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "html3 arts statistics"
-	if panics.BoilExec(exec) {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return statQuery(ctx, exec, a, ArtExpr())
 }
@@ -267,8 +267,8 @@ func (d *Documents) SetCount(c int) { d.Count = c }
 // Stat sets the total bytes and total count.
 func (d *Documents) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "html3 documents statistics"
-	if panics.BoilExec(exec) {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return statQuery(ctx, exec, d, DocumentExpr())
 }
@@ -294,8 +294,8 @@ func (s *Softwares) SetCount(c int) { s.Count = c }
 // Stat sets the total bytes and total count.
 func (s *Softwares) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	const msg = "html3 software statistics"
-	if panics.BoilExec(exec) {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return statQuery(ctx, exec, s, SoftwareExpr())
 }

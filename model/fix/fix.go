@@ -12,7 +12,7 @@ import (
 	"sync"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
@@ -60,7 +60,7 @@ const (
 func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx) error {
 	const msg = "database repair"
 	const format = msg + " %s: %w"
-	if err := panics.CSDTx(ctx, sl, db, tx); err != nil {
+	if err := nils.Check(ctx, sl, db, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	sl.Info(msg,
@@ -120,8 +120,8 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx
 func SyncFilesIDSeq(db *sql.DB) error {
 	const msg = "fix synchronize id sequence"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf(format, "", panics.ErrNoDB)
+	if err := nils.Check(db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	query := `SELECT MAX(id) FROM files;` +
 		`SELECT nextVal('"files_id_seq"');` +
@@ -450,8 +450,8 @@ func contentWhiteSpace(exec boil.ContextExecutor) error {
 // optimize reclaims storage occupied by dead tuples in the database and
 // also analyzes the most efficient execution plans for queries.
 func optimize(db *sql.DB) error {
-	if db == nil {
-		return fmt.Errorf("fix optimize: %w", panics.ErrNoDB)
+	if err := nils.Check(db); err != nil {
+		return fmt.Errorf("fix optimize check: %w", err)
 	}
 	_, err := queries.Raw("VACUUM ANALYZE files").Exec(db)
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/labstack/echo/v5"
 )
@@ -20,7 +20,7 @@ import (
 // and the custom /html3, group error template.
 func Routes(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Group {
 	const msg = "htm3 routes"
-	if err := panics.SDE(sl, db, e); err != nil {
+	if err := nils.Check(sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	g := e.Group(Prefix)

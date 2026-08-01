@@ -22,7 +22,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/app/internal/filerecord"
 	"github.com/Defacto2/server/handler/app/internal/simple"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
@@ -1091,8 +1091,8 @@ func StripSup(s string) (map[string]template.HTML, error) {
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
 func YMDEdit(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const format = "year month day edit %s: %w"
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf(format, "", err)
+	if err := nils.Check(ctx, c, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -1150,6 +1150,9 @@ type SRI struct {
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
 // The fs is the embedded file system that contains the public facing file assets.
 func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
+	if err := nils.Check(fs); err != nil {
+		return fmt.Errorf("sri verify: %w", err)
+	}
 	const format = "%s: %w"
 	names := *Names()
 	var err error
@@ -1251,6 +1254,9 @@ func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
 // badRequest returns a JSON response with a 400 status code,
 // the server cannot or will not process the request due to something that is perceived to be a client error.
 func badRequest(c *echo.Context, err error) error {
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf("app bad request: %w", err)
+	}
 	return c.JSON(http.StatusBadRequest,
 		map[string]string{"error": "bad request " + err.Error()})
 }

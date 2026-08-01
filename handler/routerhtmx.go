@@ -9,7 +9,7 @@ import (
 
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
@@ -28,7 +28,7 @@ type configHtmx struct {
 // using the htmx library for AJAX responses.
 func (h configHtmx) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
 	const format = "router htmx group: %w"
-	if err := panics.SDE(sl, db, e); err != nil {
+	if err := nils.Check(ctx, sl, db, e); err != nil {
 		panic(fmt.Errorf(format, err))
 	}
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)

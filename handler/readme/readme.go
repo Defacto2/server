@@ -20,7 +20,7 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/render"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/bengarrett/ansibump"
 	"github.com/bengarrett/binbump"
@@ -176,8 +176,8 @@ func PlainTextBuffersW( //nolint:funlen
 	const msg = "readme pool"
 	const format = msg + " %s: %w"
 	nosauce := sauce.Record{} //nolint:exhaustruct
-	if art == nil {
-		return nil, nil, nosauce, fmt.Errorf(format, "", panics.ErrNoArtM)
+	if err := nils.Check(sl, art); err != nil {
+		return nil, nil, nosauce, fmt.Errorf(format, " arguments", err)
 	}
 	buf := new(bytes.Buffer)
 	diz := new(bytes.Buffer)
@@ -186,7 +186,7 @@ func PlainTextBuffersW( //nolint:funlen
 	// This might be useful if we want to force Go to not use the garbage collector.
 	// buf.Reset() diz.Reset() ruf.Reset()
 	err1 := render.DescriptorText(diz, art, extra)
-	err2 := render.InformationText(buf, ruf, sizeLimit, art, download, extra)
+	err2 := render.InformationText(buf, ruf, art, sizeLimit, download, extra)
 	err3 := render.HelperText(hlp, art, extra)
 	var errs error
 	if err1 != nil {
@@ -276,11 +276,15 @@ func knownBinaries(msg, name string, errs error) (
 }
 
 func sauceData(buf *bytes.Buffer) sauce.Record {
+	none := sauce.Record{} //nolint:exhaustruct
+	if buf == nil {
+		return none
+	}
 	b := buf.Bytes()
 	if sauce.Contains(b) {
 		return sauce.Decode(b)
 	}
-	return sauce.Record{} //nolint:exhaustruct
+	return none
 }
 
 func plainTexts(
@@ -288,6 +292,9 @@ func plainTexts(
 	sr sauce.Record, errs error) (
 	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
 ) {
+	if err := nils.Check(buf, diz, hlp, ruf); err != nil {
+		return nil, nil, sr, fmt.Errorf("plain texts: %w", err)
+	}
 	// this is usually the README
 	b := trimBytes(buf.Bytes())
 
@@ -339,6 +346,9 @@ func ansiTexts(
 	platform string, sr sauce.Record, errs error) (
 	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
 ) {
+	if err := nils.Check(buf, diz, hlp, ruf); err != nil {
+		return nil, nil, sr, fmt.Errorf("ansi texts: %w", err)
+	}
 	width := 80
 	ti1 := sr.Info.Info1
 	if ti1.Info == "character width" && ti1.Value > 0 {
@@ -379,6 +389,9 @@ func binaryTexts(
 	year int16, sr sauce.Record, errs error) (
 	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
 ) {
+	if err := nils.Check(buf, diz, hlp, ruf); err != nil {
+		return nil, nil, sr, fmt.Errorf("binary texts: %w", err)
+	}
 	width := 0 // use default
 	maxRows := 0
 	pal := binbump.StandardCGA

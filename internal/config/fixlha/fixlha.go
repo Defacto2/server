@@ -15,7 +15,7 @@ import (
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/sqlboiler/v4/boil"
@@ -49,7 +49,7 @@ func Check(_ *slog.Logger, extra dir.Directory, d fs.DirEntry, artifacts ...stri
 // Files returns all the DOS platform artifacts using a .zip extension filename.
 func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
 	const msg = "fix lha files"
-	if err := panics.CE(ctx, exec); err != nil {
+	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	const size = 4
@@ -72,8 +72,8 @@ func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, er
 // The path is the path to the lha archive file.
 func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	const msg = "lha fixer is invalid"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	const name = command.Lha
 	cmd := exec.CommandContext(ctx, name, "t", path)

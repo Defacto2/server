@@ -20,7 +20,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -106,6 +106,9 @@ func Description(section, platform, brand, title null.String) string {
 
 // Error renders a custom HTTP error page for the HTML3 sub-group.
 func Error(c *echo.Context, err error) error {
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf("html3 custom http error page: %w", err)
+	}
 	start := helper.Latency()
 	code := http.StatusInternalServerError
 	msg := "This is a server problem"
@@ -123,8 +126,8 @@ func Error(c *echo.Context, err error) error {
 // FileHref creates a URL to link to the file download of the ID.
 func FileHref(sl *slog.Logger, id int64) string {
 	const msg = "html3 file href"
-	if sl == nil {
-		return panics.ErrNoSlog.Error()
+	if err := nils.Check(sl); err != nil {
+		return err.Error()
 	}
 	href, err := url.JoinPath("/", "html3", "d",
 		helper.ObfuscateID(id))
@@ -159,6 +162,9 @@ func Filename(width int, name null.String) string {
 // ID returns the ID from the URL path.
 // This is only used for the category and platform routes.
 func ID(c *echo.Context) string {
+	if c == nil {
+		return ""
+	}
 	x := strings.TrimSuffix(c.Path(), ":offset")
 	s := strings.Split(x, "/")
 	const expected = 4
@@ -306,8 +312,8 @@ func Query(
 func QueryAsArt(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if panics.BoilExec(exec) {
-		return dbErr()
+	if err := nils.Check(ctx, exec); err != nil {
+		return argsNil(err)
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
@@ -328,8 +334,8 @@ func QueryAsArt(ctx context.Context, exec boil.ContextExecutor, clause string, o
 func QueryAsDocument(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if panics.BoilExec(exec) {
-		return dbErr()
+	if err := nils.Check(ctx, exec); err != nil {
+		return argsNil(err)
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
@@ -350,8 +356,8 @@ func QueryAsDocument(ctx context.Context, exec boil.ContextExecutor, clause stri
 func QueryAsSoftware(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if panics.BoilExec(exec) {
-		return dbErr()
+	if err := nils.Check(ctx, exec); err != nil {
+		return argsNil(err)
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
@@ -373,8 +379,8 @@ func QueryAsSoftware(ctx context.Context, exec boil.ContextExecutor, clause stri
 func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c *echo.Context) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if panics.BoilExec(exec) {
-		return dbErr()
+	if err := nils.Check(ctx, exec, c); err != nil {
+		return argsNil(err)
 	}
 	order := Clauses(c.QueryString())
 	name := c.Param("id")
@@ -394,8 +400,8 @@ func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c *echo.Contex
 func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if panics.BoilExec(exec) {
-		return dbErr()
+	if err := nils.Check(ctx, exec, c); err != nil {
+		return argsNil(err)
 	}
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
@@ -419,8 +425,8 @@ func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Cont
 func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if panics.BoilExec(exec) {
-		return dbErr()
+	if err := nils.Check(ctx, exec, c); err != nil {
+		return argsNil(err)
 	}
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
@@ -444,8 +450,8 @@ func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Con
 func QueryEverything(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if panics.BoilExec(exec) {
-		return dbErr()
+	if err := nils.Check(ctx, exec); err != nil {
+		return argsNil(err)
 	}
 	const limit = model.Maximum
 	order := Clauses(clause)
@@ -512,8 +518,11 @@ func Sortings() map[Sort]string {
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) map[string]*template.Template {
+func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fs embed.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
+	if err := nils.Check(ctx, db, sl, fs); err != nil {
+		panic(fmt.Errorf("html3 templates: %w", err))
+	}
 	t["html3_index"] = index(ctx, db, sl, fs)
 	t["html3_all"] = list(ctx, db, sl, fs)
 	t["html3_art"] = list(ctx, db, sl, fs)
@@ -529,9 +538,9 @@ func Templates(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) ma
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
-func TemplateFuncMap(ctx context.Context, db *sql.DB, sl *slog.Logger) template.FuncMap {
+func TemplateFuncMap(ctx context.Context, sl *slog.Logger, db *sql.DB) template.FuncMap {
 	const msg = "html3 template func map"
-	if err := panics.SD(sl, db); err != nil {
+	if err := nils.Check(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	t := tags.T{
@@ -588,6 +597,6 @@ func statErr(info string, err error) (int, int, int64, models.FileSlice, error) 
 	return 0, 0, 0, nil, fmt.Errorf("stat %s: %w", info, err)
 }
 
-func dbErr() (int, int, int64, models.FileSlice, error) {
-	return 0, 0, 0, nil, panics.ErrNoDB
+func argsNil(err error) (int, int, int64, models.FileSlice, error) {
+	return 0, 0, 0, nil, err
 }

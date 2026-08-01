@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
@@ -542,8 +542,8 @@ var groups = Tibits{
 // of this Markdown method.
 func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
 	const msg = "tidbit markdown"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
 	b, err := fs.ReadFile(name)

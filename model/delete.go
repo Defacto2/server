@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
@@ -15,8 +15,8 @@ import (
 func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key int64) error {
 	const msg = "delete one record"
 	const format = msg + " %d: %w"
-	if panics.BoilExec(exec) {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, key, err)
 	}
 	if key < 1 {
 		return fmt.Errorf(format, key, ErrKey)

@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 )
 
 const (
@@ -138,8 +138,8 @@ func skip(name string) bool {
 // with custom help and issue reports.
 func (c Config) Print(sl *slog.Logger) {
 	const msg = "config print"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	fields := reflect.VisibleFields(reflect.TypeFor[Config]())
 	names := c.Names()
@@ -211,8 +211,8 @@ func (c Config) Names() []string {
 // Addresses returns a list of urls that the server is accessible from.
 func (c Config) Addresses(sl *slog.Logger) error {
 	const msg = "config addresses"
-	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if err := c.addresses(sl, true); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

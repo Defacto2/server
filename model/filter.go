@@ -6,7 +6,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/querymod"
@@ -35,7 +35,7 @@ type Advert struct {
 }
 
 func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -47,7 +47,7 @@ func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AdvertExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -65,7 +65,7 @@ type Announcement struct {
 }
 
 func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -77,7 +77,7 @@ func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 func (a *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AnnouncementExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -99,7 +99,7 @@ func (a *Ansi) String() string {
 }
 
 func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -111,7 +111,7 @@ func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AnsiExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -129,7 +129,7 @@ type AnsiBrand struct {
 }
 
 func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -141,7 +141,7 @@ func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AnsiBrandExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -163,7 +163,7 @@ func (a *AnsiBBS) String() string {
 }
 
 func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -175,7 +175,7 @@ func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AnsiBBSExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -193,7 +193,7 @@ type AnsiFTP struct {
 }
 
 func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -205,7 +205,7 @@ func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AnsiFTPExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -223,7 +223,7 @@ type AnsiNfo struct {
 }
 
 func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -235,7 +235,7 @@ func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AnsiNfoExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -253,7 +253,7 @@ type AnsiPack struct {
 }
 
 func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -265,7 +265,7 @@ func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (a *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AnsiPackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -287,7 +287,7 @@ func (b *BBS) String() string {
 }
 
 func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -299,7 +299,7 @@ func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (b *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.BBSExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -321,7 +321,7 @@ func (b *BBStro) String() string {
 }
 
 func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -333,7 +333,7 @@ func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.BBStroExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -345,7 +345,7 @@ func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 func (b *BBStro) Sensenstahl(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	const clauseNewUpload = "id DESC"
 	return models.Files(
 		querymod.BBStroExpr(),
@@ -364,7 +364,7 @@ type BBSImage struct {
 }
 
 func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -376,7 +376,7 @@ func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (b *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.BBSImageExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -398,7 +398,7 @@ func (b *BBSText) String() string {
 }
 
 func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -410,7 +410,7 @@ func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.BBSTextExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -432,7 +432,7 @@ func (c *Console) String() string {
 }
 
 func (c *Console) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -444,7 +444,7 @@ func (c *Console) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (c *Console) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.ConsoleExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -462,7 +462,7 @@ type Database struct {
 }
 
 func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -474,7 +474,7 @@ func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.DatabaseExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -496,7 +496,7 @@ func (d *Demoscene) String() string {
 }
 
 func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -508,7 +508,7 @@ func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.DemoExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -526,7 +526,7 @@ type Drama struct {
 }
 
 func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -538,7 +538,7 @@ func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.DramaExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -556,7 +556,7 @@ type FTP struct {
 }
 
 func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -568,7 +568,7 @@ func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (f *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.FTPExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -586,7 +586,7 @@ type Hack struct {
 }
 
 func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -598,7 +598,7 @@ func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.HackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -616,7 +616,7 @@ type HowTo struct {
 }
 
 func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -628,7 +628,7 @@ func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (h *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.HowToExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -646,7 +646,7 @@ type HTML struct {
 }
 
 func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -658,7 +658,7 @@ func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (h *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.HTMLExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -676,7 +676,7 @@ type Image struct {
 }
 
 func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -688,7 +688,7 @@ func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (i *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.ImageExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -706,7 +706,7 @@ type ImagePack struct {
 }
 
 func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -718,7 +718,7 @@ func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (i *ImagePack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.ImagePackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -740,7 +740,7 @@ func (i *Intro) String() string {
 }
 
 func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -752,7 +752,7 @@ func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (i *Intro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.IntroExpr(),
 		qm.OrderBy(ClauseOldDate),
@@ -774,7 +774,7 @@ func (i *IntroMsDos) String() string {
 }
 
 func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -786,7 +786,7 @@ func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 func (i *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.IntroDOSExpr(),
 		qm.OrderBy(ClauseOldDate),
@@ -809,7 +809,7 @@ func (i *IntroWindows) String() string {
 }
 
 func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -821,7 +821,7 @@ func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 func (i *IntroWindows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.IntroWindowsExpr(),
 		qm.OrderBy(ClauseOldDate),
@@ -843,7 +843,7 @@ func (i *Installer) String() string {
 }
 
 func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -855,7 +855,7 @@ func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (i *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.InstallExpr(),
 		qm.OrderBy(ClauseOldDate),
@@ -877,7 +877,7 @@ func (j *Java) String() string {
 }
 
 func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -889,7 +889,7 @@ func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (j *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.JavaExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -907,7 +907,7 @@ type JobAdvert struct {
 }
 
 func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -919,7 +919,7 @@ func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (j *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.JobAdvertExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -941,7 +941,7 @@ func (l *Linux) String() string {
 }
 
 func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -953,7 +953,7 @@ func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (l *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.LinuxExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -975,7 +975,7 @@ func (m *Magazine) String() string {
 }
 
 func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -987,7 +987,7 @@ func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (m *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.MagExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1009,7 +1009,7 @@ func (m *Macos) String() string {
 }
 
 func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1021,7 +1021,7 @@ func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (m *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.MacExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1043,7 +1043,7 @@ func (d *MsDos) String() string {
 }
 
 func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1055,7 +1055,7 @@ func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.DOSExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1073,7 +1073,7 @@ type MsDosPack struct {
 }
 
 func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1085,7 +1085,7 @@ func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.DosPackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1103,7 +1103,7 @@ type Music struct {
 }
 
 func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1115,7 +1115,7 @@ func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (m *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.MusicExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1133,7 +1133,7 @@ type NewsArticle struct {
 }
 
 func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1145,7 +1145,7 @@ func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error
 func (n *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.NewsArticleExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1167,7 +1167,7 @@ func (n *Nfo) String() string {
 }
 
 func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1179,7 +1179,7 @@ func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (n *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.NfoExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1201,7 +1201,7 @@ func (n *NfoTool) String() string {
 }
 
 func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1213,7 +1213,7 @@ func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.NfoToolExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1231,7 +1231,7 @@ type PCBoard struct {
 }
 
 func (p *PCBoard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1243,7 +1243,7 @@ func (p *PCBoard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (p *PCBoard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.PCBoardExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1261,7 +1261,7 @@ type PCBoardPPE struct {
 }
 
 func (p *PCBoardPPE) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1273,7 +1273,7 @@ func (p *PCBoardPPE) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 func (p *PCBoardPPE) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.PCBoardPPEExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1291,7 +1291,7 @@ type PCBoardText struct {
 }
 
 func (p *PCBoardText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1303,7 +1303,7 @@ func (p *PCBoardText) Stat(ctx context.Context, exec boil.ContextExecutor) error
 func (p *PCBoardText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.PCBoardTextExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1321,7 +1321,7 @@ type PDF struct {
 }
 
 func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1333,7 +1333,7 @@ func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (p *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.PDFExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1355,7 +1355,7 @@ func (p *Proof) String() string {
 }
 
 func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1367,7 +1367,7 @@ func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (p *Proof) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.ProofExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1384,7 +1384,7 @@ type Restrict struct {
 }
 
 func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1396,7 +1396,7 @@ func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (r *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.RestrictExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1418,7 +1418,7 @@ func (s *Script) String() string {
 }
 
 func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1430,7 +1430,7 @@ func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (s *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.ScriptExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1448,7 +1448,7 @@ type Standard struct {
 }
 
 func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1460,7 +1460,7 @@ func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.StandardExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1478,7 +1478,7 @@ type Takedown struct {
 }
 
 func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1490,7 +1490,7 @@ func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.TakedownExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1512,7 +1512,7 @@ func (t *Text) String() string {
 }
 
 func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1524,7 +1524,7 @@ func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.TextExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1542,7 +1542,7 @@ type TextAmiga struct {
 }
 
 func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1554,7 +1554,7 @@ func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.TextAmigaExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1572,7 +1572,7 @@ type TextApple2 struct {
 }
 
 func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1584,7 +1584,7 @@ func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error 
 func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AppleIIExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1602,7 +1602,7 @@ type TextAtariST struct {
 }
 
 func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1614,7 +1614,7 @@ func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error
 func (t *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.AtariSTExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1632,7 +1632,7 @@ type TextPack struct {
 }
 
 func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1644,7 +1644,7 @@ func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.TextPackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1662,7 +1662,7 @@ type Tool struct {
 }
 
 func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1674,7 +1674,7 @@ func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.ToolExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1692,7 +1692,7 @@ type TrialCrackme struct {
 }
 
 func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1704,7 +1704,7 @@ func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) erro
 func (t *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.TrialCrackmeExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1722,7 +1722,7 @@ type Video struct {
 }
 
 func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1734,7 +1734,7 @@ func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (v *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.VideoExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1756,7 +1756,7 @@ func (w *Windows) String() string {
 }
 
 func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1768,7 +1768,7 @@ func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (w *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		querymod.WindowsExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1786,7 +1786,7 @@ type WindowsPack struct {
 }
 
 func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -1798,7 +1798,7 @@ func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error
 func (w *WindowsPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.Files(
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),

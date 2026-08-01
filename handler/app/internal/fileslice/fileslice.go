@@ -12,7 +12,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -303,7 +303,7 @@ func RecordsSub(uri string) string {
 // Note that the record statistics and counts get cached.
 func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	const format = "file slice records: %w"
-	if err := panics.CE(ctx, exec); err != nil {
+	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, err)
 	}
 	switch Match(uri) { //nolint:exhaustive
@@ -533,8 +533,8 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 // Counter returns the statistics for the artifacts categories.
 func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
 	const format = "artifacts categories counter %s: %w"
-	if db == nil {
-		return Stats{}, fmt.Errorf(format, "arguments", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return Stats{}, fmt.Errorf(format, "check", err)
 	}
 	counter := newStats()
 	if err := counter.Get(ctx, db); err != nil {
@@ -646,7 +646,7 @@ func Statistics() Stats {
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	const format = "category get stats %s: %w"
-	if err := panics.CE(ctx, exec); err != nil {
+	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(format, "argument", err)
 	}
 	v := reflect.ValueOf(exec)

@@ -10,7 +10,7 @@ import (
 
 	"github.com/Defacto2/server/handler/jsdos"
 	"github.com/Defacto2/server/handler/jsdos/msdos"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
@@ -160,8 +160,8 @@ func JsDosConfig(f *models.File) (string, error) {
 // UUID returns a slice of all the UUIDs in the database.
 func UUID(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
 	const msg = "model uuid"
-	if panics.BoilExec(exec) {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	return models.Files(qm.Select("uuid")).All(ctx, exec)
 }

@@ -43,7 +43,7 @@ func index(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *templ
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
 }
 
@@ -52,7 +52,7 @@ func list(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *templa
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
@@ -61,7 +61,7 @@ func listTags(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *te
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
 		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
@@ -70,7 +70,7 @@ func listGroups(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
 		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
@@ -79,7 +79,7 @@ func httpErr(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *tem
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, db, sl)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
 		GlobTo(layout)))
 }
 

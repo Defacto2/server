@@ -12,7 +12,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
@@ -72,8 +72,8 @@ func UpdateReadmeDisable(ctx context.Context, db *sql.DB, id int64, val bool) er
 func UpdateBoolFrom(ctx context.Context, db *sql.DB, column boolFrom, id int64, val bool) error {
 	const msg = "update bool from"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf(format, "", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -112,8 +112,8 @@ func UpdateBoolFrom(ctx context.Context, db *sql.DB, column boolFrom, id int64, 
 func UpdateEmulateRunProgram(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update emulate run program"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf(format, "", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	s := strings.TrimSpace(strings.ToUpper(val))
 	tx, err := db.BeginTx(ctx, nil)
@@ -137,8 +137,8 @@ func UpdateEmulateRunProgram(ctx context.Context, db *sql.DB, id int64, val stri
 func UpdateEmulateMachine(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update emulate machine"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf("%s check: %w", msg, err)
 	}
 	validate := strings.TrimSpace(strings.ToLower(val))
 	switch validate {
@@ -170,8 +170,8 @@ func UpdateEmulateMachine(ctx context.Context, db *sql.DB, id int64, val string)
 func UpdateEmulateCPU(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update emulate cpu"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf(format, "", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	validate := strings.TrimSpace(strings.ToLower(val))
 	switch validate {
@@ -203,8 +203,8 @@ func UpdateEmulateCPU(ctx context.Context, db *sql.DB, id int64, val string) err
 func UpdateEmulateSfx(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update emulate sfx"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf(format, "", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	validate := strings.TrimSpace(strings.ToLower(val))
 	switch validate {
@@ -334,8 +334,8 @@ func UpdateInt64From(ctx context.Context, db *sql.DB, column int64From, id int64
 	const msg = "update int64 from"
 	const format = msg + ": %w"
 	const fmtVal = msg + ": value %v: %w"
-	if db == nil {
-		return fmt.Errorf(format, panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -409,8 +409,8 @@ func UpdateStringFrom(ctx context.Context, db *sql.DB, column stringFrom, id int
 	const msg = "update string from"
 	const format = msg + ": %w"
 	const fmtVal = msg + ": value %v: %w"
-	if db == nil {
-		return fmt.Errorf(format, panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -432,7 +432,10 @@ func UpdateStringFrom(ctx context.Context, db *sql.DB, column stringFrom, id int
 	return nil
 }
 
-func updateStringCases(f *models.File, column stringFrom, val string) error {
+func updateStringCases(f *models.File, column stringFrom, val string) error { //nolint:cyclop
+	if err := nils.Check(f); err != nil {
+		return fmt.Errorf("update string cases: %w", err)
+	}
 	// strings must be sanitized otherwise there is a possibility of invalid
 	// characters being injected via FileZipContent, which will error the SQL update
 	val = strings.ToValidUTF8(val, "?")
@@ -484,8 +487,8 @@ func updateStringCases(f *models.File, column stringFrom, val string) error {
 func UpdateCreators(ctx context.Context, db *sql.DB, id int64, text, ill, prog, audio string) error {
 	const msg = "update creators"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf(format, "", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -515,8 +518,8 @@ func UpdateLinks(ctx context.Context, db *sql.DB, id int64,
 ) error {
 	const msg = "update links"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf(format, "", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -550,8 +553,8 @@ const fmttx = "%s tx commit: %w"
 func UpdateClassification(ctx context.Context, db *sql.DB, id int64, platform, tag string) error {
 	const msg = "update classification"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf("%s check: %w", msg, err)
 	}
 	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
 	if p == -1 {
@@ -590,8 +593,8 @@ func UpdateClassification(ctx context.Context, db *sql.DB, id int64, platform, t
 func UpdateDateIssued(ctx context.Context, db *sql.DB, id int64, y, m, d string) error {
 	const msg = "update date issued"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf("%s check: %w", msg, err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -618,8 +621,8 @@ func UpdateDateIssued(ctx context.Context, db *sql.DB, id int64, y, m, d string)
 func UpdateOffline(ctx context.Context, db *sql.DB, id int64) error {
 	const msg = "update offline"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf("%s check: %w", msg, err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -645,8 +648,8 @@ func UpdateOffline(ctx context.Context, db *sql.DB, id int64) error {
 func UpdateOnline(ctx context.Context, db *sql.DB, id int64) error {
 	const msg = "update online"
 	const format = msg + " %s: %w"
-	if db == nil {
-		return fmt.Errorf(format, "", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf(format, " check", err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -672,8 +675,8 @@ func UpdateOnline(ctx context.Context, db *sql.DB, id int64) error {
 // The columns updated are GroupBrandFor and GroupBrandBy.
 func UpdateReleasers(ctx context.Context, db *sql.DB, id int64, val string) error {
 	const msg = "update releasers"
-	if db == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return fmt.Errorf("%s check: %w", msg, err)
 	}
 	const maxReleasers = 2
 	val = strings.TrimSpace(val)
@@ -716,8 +719,8 @@ func UpdateReleasers(ctx context.Context, db *sql.DB, id int64, val string) erro
 func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d null.Int16) error {
 	const msg = "update ymd"
 	const format = msg + "%s id %d: %w"
-	if panics.BoilExec(exec) {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if id <= 0 {
 		return fmt.Errorf(format, "", id, ErrKey)
@@ -749,8 +752,8 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d
 func UpdateMagic(ctx context.Context, exec boil.ContextExecutor, id int64, magic string) error {
 	const msg = "update magic"
 	const format = msg + " %s id %d: %w"
-	if panics.BoilExec(exec) {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if id <= 0 {
 		return fmt.Errorf(format, "", id, ErrKey)
@@ -783,8 +786,8 @@ func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id i
 	const msg = "file upload update"
 	const format = msg + " %s: %w"
 	const fmtID = format + ": %d"
-	if panics.BoilExec(exec) {
-		return fmt.Errorf(format, "", panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	if id <= 0 {
 		return fmt.Errorf(fmtID, "id value", ErrKey, id)

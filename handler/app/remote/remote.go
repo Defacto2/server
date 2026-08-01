@@ -19,7 +19,7 @@ import (
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
@@ -68,11 +68,8 @@ func (got *DemozooLink) Download( //nolint:funlen
 ) error {
 	const msg = "demozoo link download"
 	const format = "%s for id %d: %w"
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf(format, "argument", 0, err)
-	}
-	if sl == nil {
-		sl = slog.Default()
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return fmt.Errorf(format, "check", 0, err)
 	}
 	id := func() slog.Attr {
 		return slog.Int("id", got.ID)
@@ -159,14 +156,14 @@ func (got *DemozooLink) Download( //nolint:funlen
 }
 
 func renameOW(src, dst string) error {
-	const format = "cannot rename dst file%s %s: %w"
+	const format = "cannot rename dst file %s %s: %w"
 	if err := helper.RenameFileOW(src, dst); err != nil {
 		sameFiles, err := helper.FileMatch(src, dst)
 		if err != nil {
-			return fmt.Errorf(format, "", dst, err)
+			return fmt.Errorf(format, "file match error", dst, err)
 		}
 		if !sameFiles {
-			return fmt.Errorf(format, ", will not overwrite", dst, err)
+			return fmt.Errorf(format, "as existing files will be overwritten", dst, err)
 		}
 	}
 	return nil
@@ -179,6 +176,9 @@ func getRemoteFile(
 	ctx context.Context, sl *slog.Logger, prod demozoo.Production, i int, linkURL string,
 ) (Response, error) {
 	const format = "cannot get the remote file from %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return Response{}, fmt.Errorf("get remove file check: %w", err)
+	}
 	timeout := TimeoutShort
 	if len(prod.DownloadLinks) == 1 {
 		timeout = TimeoutLong
@@ -205,21 +205,21 @@ func getRemoteFile(
 func (got *DemozooLink) Stat(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
 ) error {
-	const format = "demozoo link stat file and integrity%s: %w"
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf(format, "argument", err)
+	const format = "demozoo link stat file and integrity %s: %w"
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	name := filepath.Join(download.Path(), got.UUID)
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
 		if err != nil {
-			return fmt.Errorf(format, " but could not stat file "+name, err)
+			return fmt.Errorf(format, "but could not stat file "+name, err)
 		}
 		got.FileSize = int(stat.Size())
 	}
 	strong, err := helper.StrongIntegrity(name)
 	if err != nil {
-		return fmt.Errorf(format, " but could not get the strong integrity hash "+name, err)
+		return fmt.Errorf(format, "but could not get the strong integrity hash "+name, err)
 	}
 	got.FileHash = strong
 	if got.FileType == "" {
@@ -234,7 +234,7 @@ func (got *DemozooLink) ArchiveContent(
 ) error {
 	const msg = "demozoo link archive content"
 	const format = msg + ": %w"
-	if err := panics.ECD(c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	files, err := archive.List(src, got.Filename)
@@ -257,8 +257,8 @@ func (got *DemozooLink) ArchiveContent(
 // A JSON response is returned with the success status of the update.
 func (got *DemozooLink) Update(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const format = "demozoo link update %s uuid %s: %w"
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf(format, "argument", "n/a", err)
+	if err := nils.Check(ctx, c, db); err != nil {
+		return fmt.Errorf(format, "check", "n/a", err)
 	}
 	uid := got.UUID
 	tx, err := db.BeginTx(ctx, nil)
@@ -280,6 +280,9 @@ func (got *DemozooLink) Update(ctx context.Context, c *echo.Context, db *sql.DB)
 }
 
 func (got *DemozooLink) updateValues(f *models.File) { //nolint:cyclop
+	if f == nil {
+		return
+	}
 	if s := strings.TrimSpace(got.Github); s != "" {
 		f.WebIDGithub = null.StringFrom(s)
 	}
@@ -373,8 +376,8 @@ func (got *PouetLink) Download(
 	const msg = "pouet link download"
 	const format = "%s for id %d: %w"
 	id := got.PouetID
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf(format, "argument", id, err)
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return fmt.Errorf(format, "check", id, err)
 	}
 	var prod pouet.Production
 	if _, err := prod.Get(ctx, id); err != nil {
@@ -438,8 +441,8 @@ func (got *PouetLink) Stat(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
 ) error {
 	const format = "pouet link stat %s: %w"
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf(format, "argument", err)
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	name := filepath.Join(download.Path(), got.UUID)
 	if got.FileSize == 0 {
@@ -466,8 +469,8 @@ func (got *PouetLink) ArchiveContent(
 ) error {
 	const msg = "pouet link archive content"
 	const format = msg + " %s: %w"
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf(format, "argument", err)
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	files, err := archive.List(src, got.Filename)
 	if err != nil {
@@ -488,8 +491,8 @@ func (got *PouetLink) ArchiveContent(
 func (got *PouetLink) Update(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const format = "pouet link update %s uuid %s: %w"
 	uid := got.UUID
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf(format, "argument", uid, err)
+	if err := nils.Check(ctx, c, db); err != nil {
+		return fmt.Errorf(format, "check", uid, err)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -510,6 +513,9 @@ func (got *PouetLink) Update(ctx context.Context, c *echo.Context, db *sql.DB) e
 }
 
 func (got *PouetLink) updateValues(f *models.File) {
+	if f == nil {
+		return
+	}
 	if i := got.DemozooID; i > 0 {
 		f.WebIDDemozoo = null.Int64From(int64(i))
 	}

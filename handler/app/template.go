@@ -26,7 +26,7 @@ import (
 	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
 )
@@ -51,8 +51,8 @@ type Templ struct {
 // Templates returns a map of the templates used by the route.
 func (t *Templ) Templates(ctx context.Context, db *sql.DB) (map[string]*template.Template, error) {
 	const format = "templates mapper %s: %w"
-	if db == nil {
-		return nil, fmt.Errorf(format, "argument", panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return nil, fmt.Errorf(format, "check", err)
 	}
 	if err := t.Subresource.Verify(t.Public); err != nil {
 		return nil, fmt.Errorf(format, "verify", err)
@@ -600,7 +600,6 @@ func radioHidden(b bool) template.HTML {
 	const id = `artifact-editor-hidden`
 	const htmx = ` hx-patch="` + patch + `"	hx-include="` + include + `" id="` + id +
 		`" autocomplete="off"`
-	// const htmx = ` hx-patch="/editor/online/false" hx-include="[name='artifact-editor-key']" id="artifact-editor-hidden" autocomplete="off"`
 	if !b {
 		return template.HTML(radio + htmx + ` checked>`)
 	}

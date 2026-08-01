@@ -33,7 +33,8 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -57,7 +58,7 @@ func Artifact404(sl *slog.Logger, c *echo.Context, id string) error {
 	const probl = "The artifact page does not exist, there is probably a typo with the URL."
 	const msg = "artifact 404 context"
 	const format = msg + ": %w"
-	if err := panics.SC(c, sl); err != nil {
+	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "status"
@@ -98,7 +99,7 @@ func (dir Dirs) Artifact(
 	const maxZipContent = 1_000_000
 	const msg = "dir artifact context"
 	const format = msg + ": %w"
-	if err := panics.SCD(sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	const name = "artifact"
@@ -108,7 +109,7 @@ func (dir Dirs) Artifact(
 	}
 	data := empty(c)
 	if !readonly && sess.Editor(c) {
-		data = dir.EditorContent(ctx, sl, c, maxArchiveItems, art, data)
+		data = dir.EditorContent(ctx, sl, c, art, maxArchiveItems, data)
 	}
 	data = classifyANSICheck(ctx, sl, db, art.ID, data)
 	// page metadata
@@ -168,7 +169,7 @@ func (dir Dirs) Artifact(
 // classifyANSICheck uses the artifact's magicnumber value to match ansi texts and update
 // the artifact platform classification.
 func classifyANSICheck(ctx context.Context, sl *slog.Logger, db *sql.DB, id int64, data map[string]any) map[string]any {
-	if db == nil {
+	if nils.Slog("dirs classify ansi check failed", ctx, sl, db) {
 		return data
 	}
 	mos, valid := data["modOS"].(string)
@@ -218,9 +219,9 @@ func plainText(modMagic any) bool {
 // after they have logged in.
 func (dir Dirs) EditorContent(
 	ctx context.Context, sl *slog.Logger, c *echo.Context,
-	maxItems int, art *models.File, data map[string]any,
+	art *models.File, maxItems int, data map[string]any,
 ) map[string]any {
-	if sl == nil || art == nil {
+	if nils.Slog("dirs editor context check failed", ctx, sl, c, art) {
 		return data
 	}
 	d := command.Dirs{
@@ -339,6 +340,9 @@ func (dir Dirs) textfiles(art *models.File, sizeLimit int64, data map[string]any
 
 // binarText prepares the viewer for both ansi encoded text and binary text files.
 func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[string]any) map[string]any {
+	if nils.Slog("dirs binary texts check failed", art, buf) {
+		return data
+	}
 	year, _, _ := filerecord.Dates(art)
 	data["contentBinary"] = template.HTML(buf.String())
 	data["contentAmigaAnsi"] = ""
@@ -380,6 +384,9 @@ func binaryTexts(art *models.File, buf *bytes.Buffer, elems []string, data map[s
 // The use of the buf Buffer is for legacy "ISO-8859-1" encoded text that is backwards compatible with UTF-8.
 // The use of the ruf Buffer is for multi-byte, Unicode runes.
 func unicodeEncodings(buf, ruf *bytes.Buffer, data map[string]any) map[string]any {
+	if nils.Slog("dirs unicode encodings check failed", buf, ruf) {
+		return data
+	}
 	data["contentUTF8"] = ""
 	if ruf.Len() > 0 {
 		data["contentUTF8"] = ruf.String()
@@ -424,10 +431,10 @@ func (dir Dirs) findBinarySAUCE(art *models.File, data map[string]any) map[strin
 func (dir Dirs) updateMagicNumber(ctx context.Context, sl *slog.Logger,
 	db *sql.DB, id int64, uid, platform string, data map[string]any,
 ) map[string]any {
-	if db == nil {
+	const msg = "update magic number"
+	if nils.Slog(msg, ctx, sl, db) {
 		return data
 	}
-	const msg = "update magic number"
 	recMagic, modMagic := data["magic"], data["modMagicNumber"]
 	if recMagic != modMagic {
 		data["magic"] = modMagic
@@ -482,7 +489,10 @@ func (dir Dirs) makeAssets(ctx context.Context, sl *slog.Logger,
 	modMagic any,
 	data map[string]any,
 ) map[string]any {
-	const msg = "update magic number"
+	const msg = "update magic number make assets"
+	if nils.Slog(msg, ctx, sl) {
+		return data
+	}
 	name := filepath.Join(dir.Download.Path(), uid)
 	zipArchiving := modMagic == magicnumber.PKWAREZip.Title()
 	switch {
@@ -575,7 +585,10 @@ func (dir Dirs) makeReplacementZip(root, uid string) (int64, error) {
 func (dir Dirs) makeTextfileImgs(ctx context.Context, sl *slog.Logger,
 	uid, platform string, data map[string]any,
 ) map[string]any {
-	const msg = "update magic number"
+	const msg = "update magic number make textfile images"
+	if nils.Slog(msg, ctx, sl) {
+		return data
+	}
 	name := filepath.Join(dir.Download.Path(), uid)
 	dirs := command.Dirs{
 		Download:  dir.Download,
@@ -601,6 +614,9 @@ func (dir Dirs) makeTextfileImgs(ctx context.Context, sl *slog.Logger,
 func (dir Dirs) artifactByURI(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 ) (*models.File, error) {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return nil, fmt.Errorf("dirs artifact by uri check: %w", err)
+	}
 	var art *models.File
 	var err error
 	if sess.Editor(c) {
@@ -621,7 +637,7 @@ func (dir Dirs) artifactByURI(
 // Up to four preview assets are returned, JPEG, PNG, WebP and AVIF.
 func (dir Dirs) previews(sl *slog.Logger, unid string) map[string][2]string {
 	if sl == nil {
-		sl = slog.Default()
+		sl = logs.Discard()
 	}
 	unid = strings.ToLower(unid)
 	avif := filepath.Join(dir.Preview.Path(), unid+".avif")
@@ -643,7 +659,7 @@ func (dir Dirs) previews(sl *slog.Logger, unid string) map[string][2]string {
 // Two thumbnail assets are returned, PNG and WebP.
 func (dir Dirs) thumbnails(sl *slog.Logger, unid string) map[string][2]string {
 	if sl == nil {
-		sl = slog.Default()
+		sl = logs.Discard()
 	}
 	unid = strings.ToLower(unid)
 	png := filepath.Join(dir.Thumbnail.Path(), unid+".png")
@@ -771,7 +787,7 @@ func (dir Dirs) otherRelations(art *models.File, data map[string]any) map[string
 // jsdosEmulator returns the js-dos emulator data for the file record of the artifact.
 func jsdosEmulator(sl *slog.Logger, art *models.File, data map[string]any,
 ) map[string]any {
-	if art == nil {
+	if nils.Slog("jsdos emulator", sl, art) {
 		return data
 	}
 	data["jsdos6"] = false

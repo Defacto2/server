@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/labstack/echo/v5"
 )
 
@@ -23,24 +23,24 @@ func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) erro
 	const logo = "Client error"
 	const probl = "It might be a settings or configuration problem or a legacy browser issue."
 	const msg = "bad request handler"
-	const format = msg + ": %w"
-	if err1 := panics.SC(c, sl); err1 != nil {
-		return fmt.Errorf(format, err1)
+	if err1 := nils.Check(sl, c); err1 != nil {
+		const format = msg + " %q: %w"
+		return fmt.Errorf(format, uri, err1)
 	}
-	const code = http.StatusBadRequest
+	const badRequest = http.StatusBadRequest
 	if err != nil {
-		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
+		sl.Error(msg, slog.Int("code", badRequest), slog.String("uri", uri), slog.String("error", err.Error()))
 	}
 	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["description"] = fmt.Sprintf("HTTP status %d error", badRequest)
 	data["title"] = title
-	data["code"] = code
+	data["code"] = badRequest
 	data["logo"] = logo
 	data["alert"] = "Something went wrong, " + err.Error()
 	data["probl"] = probl
 	data["uriErr"] = uri
-	if err := c.Render(code, "status", data); err != nil {
-		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
+	if err := c.Render(badRequest, "status", data); err != nil {
+		sl.Error(msg, slog.Int("code", badRequest), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -54,6 +54,10 @@ func DatabaseErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 	const logo = "Database error"
 	const probl = "This is not your fault, but the server cannot communicate with the database to display this page."
 	const msg = "database connection handler"
+	if err1 := nils.Check(sl, c); err1 != nil {
+		const format = msg + " %q: %w"
+		return fmt.Errorf(format, uri, err1)
+	}
 	const unavailable = http.StatusServiceUnavailable
 	if err != nil {
 		sl.Error(msg,
@@ -77,65 +81,66 @@ func DatabaseErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 }
 
 // DownloadErr is the handler for missing download files and database ID errors.
-func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
+func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error { //nolint:dupl
 	const title = "404 download error"
 	const logo = "Download problem"
 	const alert = "Cannot send you this download"
 	const probl = "The download you are looking for might have been removed, " +
 		"had its filename changed, or is temporarily unavailable. Is the URL correct?"
 	const msg = "download not found"
-	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	if err1 := nils.Check(sl, c); err1 != nil {
+		const format = msg + " %q: %w"
+		return fmt.Errorf(format, uri, err1)
 	}
-	const code = http.StatusNotFound
+	const notFound = http.StatusNotFound
 	id := c.Param("id")
 	if err != nil {
-		sl.Error(msg, slog.Int("code", code), slog.String("id", id),
+		sl.Error(msg, slog.Int("code", notFound), slog.String("id", id),
 			slog.String("uri", uri), slog.Any("error", err))
 	}
 	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["description"] = fmt.Sprintf("HTTP status %d error", notFound)
 	data["title"] = title
-	data["code"] = code
+	data["code"] = notFound
 	data["logo"] = logo
 	data["alert"] = alert
 	data["probl"] = probl
 	data["uriErr"] = strings.Join([]string{uri, id}, "/")
-	if err := c.Render(code, "status", data); err != nil {
-		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
+	if err := c.Render(notFound, "status", data); err != nil {
+		sl.Error(msg, slog.Int("code", notFound), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
 }
 
 // FileMissingErr is the handler for missing download files and database ID errors.
-func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
+func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) error { //nolint:dupl
 	const title = "503 download unavailable"
 	const logo = "Download unavailable"
 	const alert = "Cannot send you this download"
 	const probl = "The file download needs to be added to the server; " +
 		"otherwise, there may be a problem with the server configuration, or the file may be lost."
 	const msg = "file missing"
-	const format = msg + ": %w"
-	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+	if err1 := nils.Check(sl, c); err1 != nil {
+		const format = msg + " %q: %w"
+		return fmt.Errorf(format, uri, err1)
 	}
-	const code = http.StatusServiceUnavailable
+	const serviceNA = http.StatusServiceUnavailable
 	id := c.Param("id")
 	if err != nil {
-		sl.Error(msg, slog.Int("code", code), slog.String("id", id),
+		sl.Error(msg, slog.Int("code", serviceNA), slog.String("id", id),
 			slog.String("uri", uri), slog.Any("error", err))
 	}
 	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["description"] = fmt.Sprintf("HTTP status %d error", serviceNA)
 	data["title"] = title
-	data["code"] = code
+	data["code"] = serviceNA
 	data["logo"] = logo
 	data["alert"] = alert
 	data["probl"] = probl
 	data["uriErr"] = strings.Join([]string{uri, id}, "/")
-	if err := c.Render(code, "status", data); err != nil {
-		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
+	if err := c.Render(serviceNA, "status", data); err != nil {
+		sl.Error(msg, slog.Int("code", serviceNA), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -148,27 +153,27 @@ func ForbiddenErr(sl *slog.Logger, c *echo.Context, uri string, err error) error
 	const logo = "Forbidden"
 	const alert = "This page is locked"
 	const msg = "forbidden access"
-	const format = msg + ": %w"
-	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+	if err1 := nils.Check(sl, c); err1 != nil {
+		const format = msg + " %q: %w"
+		return fmt.Errorf(format, uri, err1)
 	}
-	const code = http.StatusForbidden
+	const forbidden = http.StatusForbidden
 	if err != nil {
-		sl.Error(msg, slog.Int("code", code),
+		sl.Error(msg, slog.Int("code", forbidden),
 			slog.String("uri", uri), slog.Any("error", err))
 	}
 	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["description"] = fmt.Sprintf("HTTP status %d error", forbidden)
 	data["title"] = title
-	data["code"] = code
+	data["code"] = forbidden
 	data["logo"] = logo
 	data["alert"] = alert
 	if err != nil {
 		data["probl"] = fmt.Sprintf("This page is not intended for the general public, %s.", err.Error())
 	}
 	data["uriErr"] = uri
-	if err := c.Render(code, "status", data); err != nil {
-		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
+	if err := c.Render(forbidden, "status", data); err != nil {
+		sl.Error(msg, slog.Int("code", forbidden), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -185,11 +190,11 @@ func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 	const probl = "This is not your fault," +
 		" but the server encountered an internal error or misconfiguration and cannot display this page."
 	const msg = "internal server error"
-	const format = msg + ": %w"
-	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+	if err1 := nils.Check(sl, c); err1 != nil {
+		const format = msg + " %q: %w"
+		return fmt.Errorf(format, uri, err1)
 	}
-	const code = http.StatusInternalServerError
+	const internalError = http.StatusInternalServerError
 	if errors.Is(err, syscall.EPIPE) {
 		// This is a common error when the client disconnects before the response is sent,
 		// and commonly happens when using developer hot reloading.
@@ -197,23 +202,23 @@ func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 		return nil
 	}
 	if err != nil {
-		sl.Error(msg, slog.Int("code", code),
+		sl.Error(msg, slog.Int("code", internalError),
 			slog.String("uri", uri), slog.Any("error", err))
 	}
 	if errors.Is(err, echo.ErrRendererNotRegistered) {
 		message := fmt.Sprintf("%s", err)
-		return echo.NewHTTPError(code, message)
+		return echo.NewHTTPError(internalError, message)
 	}
 	data := empty(c)
-	data["description"] = fmt.Sprintf("HTTP status %d error", code)
+	data["description"] = fmt.Sprintf("HTTP status %d error", internalError)
 	data["title"] = title
-	data["code"] = code
+	data["code"] = internalError
 	data["logo"] = logo
 	data["alert"] = alert
 	data["probl"] = probl
 	data["uriErr"] = uri
-	if err := c.Render(code, "status", data); err != nil {
-		sl.Error(msg, slog.Int("code", code), slog.String("uri", uri), slog.String("error", err.Error()))
+	if err := c.Render(internalError, "status", data); err != nil {
+		sl.Error(msg, slog.Int("code", internalError), slog.String("uri", uri), slog.String("error", err.Error()))
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 	return nil
@@ -224,9 +229,9 @@ func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 // If the echo context is nil then a user hostile, fallback error in raw text is returned.
 func StatusErr(sl *slog.Logger, c *echo.Context, code int, uri string) error {
 	const msg = "http status"
-	const format = msg + ": %w"
-	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+	if err1 := nils.Check(sl, c); err1 != nil {
+		const format = msg + " %q: %w"
+		return fmt.Errorf(format, uri, err1)
 	}
 	data := empty(c)
 	data["description"] = fmt.Sprintf("HTTP status %d error", code)

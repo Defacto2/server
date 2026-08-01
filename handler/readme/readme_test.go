@@ -5,8 +5,17 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/readme"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
 )
+
+func TestPanics(t *testing.T) {
+	var x dir.Directory
+	_, _, _, err := readme.PlainTextBuffers(nil, -1, x, x)
+	be.Err(t, err)
+	_, _, _, err = readme.PlainTextBuffersW(nil, nil, -1, x, x)
+	be.Err(t, err)
+}
 
 func TestReadmeSuggest(t *testing.T) {
 	tests := []struct {

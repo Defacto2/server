@@ -30,6 +30,7 @@ import (
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
 	"github.com/dustin/go-humanize"
@@ -253,7 +254,10 @@ func ImageSampleStat(unid string, preview dir.Directory) bool {
 	for ext := range slices.Values(exts) {
 		name := preview.Join(unid + ext)
 		st, err := os.Stat(name)
-		if ok := err == nil && st.Size() > minimum; ok {
+		if err != nil {
+			continue // any errors inc file not found are okay, continue with the next extension
+		}
+		if st.Size() > minimum {
 			return true
 		}
 	}
@@ -274,7 +278,7 @@ func ImageSampleStat(unid string, preview dir.Directory) bool {
 func ImageXY(sl *slog.Logger, name string) [2]string {
 	const msg = "simple image size and dimension"
 	if sl == nil {
-		sl = slog.Default()
+		sl = logs.Discard()
 	}
 
 	notfound := [2]string{"0", ""}
@@ -477,7 +481,7 @@ func MakeLink(id, name, class string, performant bool) (string, error) {
 func MagicAsTitle(sl *slog.Logger, name string) string {
 	const msg = "simple magic as title"
 	if sl == nil {
-		sl = slog.Default()
+		sl = logs.Discard()
 	}
 	r, err := os.Open(name)
 	if err != nil {
@@ -501,7 +505,7 @@ func MagicAsTitle(sl *slog.Logger, name string) string {
 func MIME(sl *slog.Logger, name string) string {
 	const msg = "simple mime type lookup"
 	if sl == nil {
-		sl = slog.Default()
+		sl = logs.Discard()
 	}
 	file, err := os.Open(name)
 	if err != nil {
@@ -547,7 +551,7 @@ func MIME(sl *slog.Logger, name string) string {
 func MkContent(sl *slog.Logger, src string) string {
 	const msg = "simple make content"
 	if sl == nil {
-		sl = slog.Default()
+		sl = logs.Discard()
 	}
 	if src == "" {
 		return ""

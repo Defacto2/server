@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/html3"
@@ -39,8 +39,9 @@ func Art(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) erro
 // Categories lists the names, descriptions and sums of the category (section) tags.
 func Categories(sl *slog.Logger, c *echo.Context) error {
 	const msg = "htm3 categories"
-	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	const format = msg + ": %w"
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
@@ -78,8 +79,9 @@ func Group(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) er
 // Groups lists the names and sums of all the distinct scene groups.
 func Groups(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 groups listings"
-	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	const format = msg + ": %w"
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	start := helper.Latency()
 	page := 1
@@ -136,8 +138,9 @@ func Groups(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 // Index method is the homepage of the /html3 sub-route.
 func Index(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 index"
-	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	const format = msg + ": %w"
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	start := helper.Latency()
 	const desc = firefox
@@ -185,8 +188,9 @@ func Index(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) er
 // List all the records associated with the RecordsBy grouping.
 func List(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
 	const msg = "htm3 list records by"
-	if err := panics.SCD(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	const format = msg + ": %w"
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	start := helper.Latency()
 	var id string
@@ -265,8 +269,9 @@ func Platform(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB)
 // Platforms lists the names, descriptions and sums of the platform tags.
 func Platforms(sl *slog.Logger, c *echo.Context) error {
 	const msg = "htm3 platforms"
-	if err := panics.SC(c, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	const format = msg + ": %w"
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	start := helper.Latency()
 	err := c.Render(http.StatusOK, string(tag), map[string]any{

@@ -13,7 +13,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
@@ -33,8 +33,8 @@ const textamiga = "textamiga"
 // Otherwise it will attempt to determine the encoding from the file byte content.
 func Encoder(art *models.File, r io.Reader) encoding.Encoding { //nolint:nolintlint,ireturn
 	const msg = "render encoder"
-	if art == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoArtM))
+	if err := nils.Check(art); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	platform := strings.ToLower(strings.TrimSpace(art.Platform.String))
 	section := strings.ToLower(strings.TrimSpace(art.Section.String))
@@ -60,10 +60,11 @@ func Encoder(art *models.File, r io.Reader) encoding.Encoding { //nolint:nolintl
 // The text is intended to be used as a readme, preview or an in-browser viewer.
 //
 // Both the buf buffer and the ruf rune buffer are reset before writing.
-func InformationText(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, download, extra dir.Directory) error {
+func InformationText(buf, ruf *bytes.Buffer, art *models.File, sizeLimit int64, download, extra dir.Directory) error {
 	const msg = "render information text"
-	if err := infopanic(buf, ruf, art, msg); err != nil {
-		return err
+	const format = msg + ": %w"
+	if err := nils.Check(buf, ruf, art); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	name, err := infoFilename(buf, art, download, extra)
 	if err != nil {
@@ -118,21 +119,12 @@ func InformationText(buf, ruf *bytes.Buffer, sizeLimit int64, art *models.File, 
 	return nil
 }
 
-func infopanic(buf, ruf *bytes.Buffer, art *models.File, msg string) error {
-	if buf == nil {
-		return fmt.Errorf("%s: buf %w", msg, panics.ErrNoBuffer)
-	}
-	if ruf == nil {
-		return fmt.Errorf("%s: ruf %w", msg, panics.ErrNoBuffer)
-	}
-	if art == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
-	}
-	return nil
-}
-
 func infoFilename(buf *bytes.Buffer, art *models.File, download, extra dir.Directory) (string, error) {
 	const msg = "render readme pool"
+	const format = msg + ": %w"
+	if err := nils.Check(buf, art); err != nil {
+		return "", fmt.Errorf(format, err)
+	}
 	fname := art.Filename.String
 	if fname == "" {
 		return "", ErrFilename
@@ -204,11 +196,8 @@ func HelperText(buf *bytes.Buffer, art *models.File, extra dir.Directory) error 
 
 // secondary inserts any extra files such as file_id.diz or help files to the buf buffer.
 func secondary(buf *bytes.Buffer, art *models.File, extra dir.Directory, extension, msg string) error {
-	if buf == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoBuffer)
-	}
-	if art == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoArtM)
+	if err := nils.Check(buf, art); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	unid := art.UUID.String
 	if unid == "" {

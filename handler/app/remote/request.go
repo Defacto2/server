@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/nils"
 )
 
 const (
@@ -44,8 +46,8 @@ type Response struct {
 //
 // The returned [Response.Path] is the path to the downloaded file and it should be removed after use.
 func GetFile(ctx context.Context, sl *slog.Logger, timeout time.Duration, rawURL string) (Response, error) {
-	if sl == nil {
-		sl = slog.Default()
+	if err := nils.Check(ctx, sl); err != nil {
+		return Response{}, fmt.Errorf("request get file check: %w", err)
 	}
 	const minimum = 2
 	if timeout.Seconds() < minimum {
@@ -180,7 +182,7 @@ func cleanup(sl *slog.Logger, msg string, r *http.Response) {
 //	`https://files.scene.org/get/demos/groups/trsi/ms-dos/trsiscxt.zip`
 func FixURL(sl *slog.Logger, rawURL string) string {
 	if sl == nil {
-		sl = slog.Default()
+		sl = logs.Discard()
 	}
 	u, err := url.Parse(rawURL)
 	if err != nil {

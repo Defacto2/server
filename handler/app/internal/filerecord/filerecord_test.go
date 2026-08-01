@@ -267,7 +267,8 @@ func TestExtraZip(t *testing.T) {
 	be.True(t, !s)
 
 	extra := dir.Directory(t.TempDir())
-	err := command.CopyFile(nil,
+	sl := slog.Default()
+	err := command.CopyFile(sl,
 		filepath.Join("testdata", "archive.zip"),
 		filepath.Join(extra.Path(), r0+".zip"))
 	be.Err(t, err, nil)

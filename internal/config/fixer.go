@@ -14,7 +14,7 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
@@ -25,8 +25,8 @@ import (
 // Checks runs a number of sanity checks for the environment variable configurations.
 func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 	const msg, key = "Config directory", "check"
-	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	c.checkHTTP(ctx, sl)
 	c.checkHTTPS(ctx, sl)
@@ -70,8 +70,8 @@ func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 func (c *Config) SetupLogDir(sl *slog.Logger) error {
 	const msg = "setup log directory"
 	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf(format, "", err)
 	}
 
 	if c.AbsLog == "" {
@@ -116,8 +116,8 @@ func (c *Config) SetupLogDir(sl *slog.Logger) error {
 // checkHTTP logs a fatal error if the HTTP port is invalid.
 func (c *Config) checkHTTP(ctx context.Context, sl *slog.Logger) {
 	const msg, key = "check http port", "port"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if c.HTTPPort == 0 {
 		return
@@ -130,8 +130,8 @@ func (c *Config) checkHTTP(ctx context.Context, sl *slog.Logger) {
 // checkHTTPS logs a fatal error if the HTTPS port is invalid.
 func (c *Config) checkHTTPS(ctx context.Context, sl *slog.Logger) {
 	const msg, key = "check https port", "port"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if c.TLSPort == 0 {
 		return
@@ -142,8 +142,8 @@ func (c *Config) checkHTTPS(ctx context.Context, sl *slog.Logger) {
 }
 
 func (c *Config) fatalPort(ctx context.Context, sl *slog.Logger, msg, key string, err error) {
-	if sl == nil {
-		panic(fmt.Errorf("config fatal port: %w", panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("config fatal port: %w", err))
 	}
 	inf := "HTTP"
 	var port uint16
@@ -171,8 +171,8 @@ func (c *Config) fatalPort(ctx context.Context, sl *slog.Logger, msg, key string
 // The server should be running over HTTPS and not unencrypted HTTP.
 func (c *Config) production(sl *slog.Logger) {
 	const msg, key = "production mode", "check"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if !bool(c.ProdMode) || bool(c.ReadOnly) {
 		return
@@ -194,8 +194,8 @@ func (c *Config) production(sl *slog.Logger) {
 // Fixer is used to fix any known issues with the file assets and the database entries.
 func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error {
 	psl := "PostgreSQL"
-	if sl == nil {
-		return fmt.Errorf("%s: %w", psl, panics.ErrNoSlog)
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf("%s: %w", psl, err)
 	}
 	db, err := postgres.Open()
 	if err != nil {
@@ -241,8 +241,8 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 // TmpInfo is used to print the temporary directory and its disk usage.
 func TmpInfo(sl *slog.Logger) {
 	const msg = "tmp info check"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	tmpdir := helper.TmpDir()
 	du, err := helper.DiskUsage(tmpdir)
@@ -271,7 +271,7 @@ func CheckDir(name dir.Directory, desc string) error {
 // RecordCount returns the number of records in the database.
 func RecordCount(ctx context.Context, db *sql.DB) int {
 	const msg = "record count"
-	if err := panics.CD(ctx, db); err != nil {
+	if err := nils.Check(ctx, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
@@ -285,7 +285,7 @@ func RecordCount(ctx context.Context, db *sql.DB) int {
 // These are skipped if the Production mode environment variable is set to false.
 func (c *Config) repairer(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 	const msg = "Repairing"
-	if err := panics.CSD(ctx, sl, db); err != nil {
+	if err := nils.Check(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if err := repairDatabase(ctx, sl, db); err != nil {
@@ -306,7 +306,7 @@ func (c *Config) repairer(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 // repairDatabase on startup checks the database connection and make any data corrections.
 func repairDatabase(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 	const msg = "repair database"
-	if err := panics.CSD(ctx, sl, db); err != nil {
+	if err := nils.Check(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	tx, err := db.BeginTx(ctx, nil)
@@ -329,8 +329,8 @@ func repairDatabase(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 // These are skipped if the Production mode environment variable is set to false.
 func (c *Config) sanityChecks(ctx context.Context, sl *slog.Logger) {
 	const msg = "sanity check"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if err := c.Checks(ctx, sl); err != nil {
 		sl.Error(msg,
@@ -355,8 +355,8 @@ func (c *Config) sanityChecks(ctx context.Context, sl *slog.Logger) {
 // These are skipped if readonly is true.
 func cmdChecks(sl *slog.Logger) {
 	const msg = "command checks"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	lookups := command.Lookups()
 	infos := command.Infos()

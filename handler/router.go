@@ -19,7 +19,7 @@ import (
 	"github.com/Defacto2/server/handler/sitemap"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/v5/session"
 	"github.com/labstack/echo/v5"
@@ -31,11 +31,11 @@ const code = http.StatusMovedPermanently
 func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, public embed.FS,
 ) (*echo.Echo, error) {
 	const format = "files routes: %w"
-	if err := panics.SDEP(sl, db, e, public); err != nil {
+	if err := nils.Check(ctx, sl, e, db, public); err != nil {
 		panic(fmt.Errorf(format, err))
 	}
 	if d, err := public.ReadDir("."); err != nil || len(d) == 0 {
-		return nil, fmt.Errorf(format, panics.ErrNoEmbed)
+		return nil, fmt.Errorf(format, nils.ErrEmbedFS)
 	}
 	app.Caching.Records(c.RecordCount)
 	dirs := app.Dirs{
@@ -67,8 +67,8 @@ func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *ech
 // If the read mode is enabled then an empty session key is returned.
 func (c *Configuration) nonce(e *echo.Echo) (string, error) {
 	const format = "nonce cookie store: %w"
-	if e == nil {
-		panic(fmt.Errorf(format, panics.ErrNoEchoE))
+	if err := nils.Check(e); err != nil {
+		panic(fmt.Errorf(format, err))
 	}
 	if c.Environment.ReadOnly {
 		return "", nil
@@ -84,8 +84,8 @@ func (c *Configuration) nonce(e *echo.Echo) (string, error) {
 // html serves the embedded CSS, JS, WASM, and source map files for the HTML website layout.
 func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 	const format = "html routes: %w"
-	if e == nil {
-		panic(fmt.Errorf(format, panics.ErrNoEchoE))
+	if err := nils.Check(e, public); err != nil {
+		panic(fmt.Errorf(format, err))
 	}
 	hrefs, names := *app.Hrefs(), *app.Names()
 	for key, href := range hrefs {
@@ -102,7 +102,7 @@ func (c *Configuration) html(e *echo.Echo, public embed.FS) *echo.Echo {
 // font serves the embedded woff2, woff, and ttf font files for the website layout.
 func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 	const format = "font routes: %w"
-	if err := panics.EP(e, public); err != nil {
+	if err := nils.Check(e, public); err != nil {
 		panic(fmt.Errorf(format, err))
 	}
 	paths, names := *app.FontRefs(), *app.FontNames()
@@ -117,7 +117,7 @@ func (c *Configuration) font(e *echo.Echo, public embed.FS) *echo.Echo {
 // This includes the favicon, robots.txt, osd.xml, and the SVG icons.
 func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 	const msg = "embed routes"
-	if err := panics.EP(e, public); err != nil {
+	if err := nils.Check(e, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.FileFS("/favicon.ico", "public/image/favicon.ico", public)
@@ -131,8 +131,8 @@ func (c *Configuration) embed(e *echo.Echo, public embed.FS) *echo.Echo {
 // static serves the static assets for the website such as the thumbnail and preview images.
 func (c *Configuration) static(e *echo.Echo) *echo.Echo {
 	const msg = "static routes"
-	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+	if err := nils.Check(e); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.Static(config.StaticThumb(), c.Environment.AbsThumbnail.String())
 	e.Static(config.StaticOriginal(), c.Environment.AbsPreview.String())
@@ -143,8 +143,8 @@ func (c *Configuration) static(e *echo.Echo) *echo.Echo {
 // "The page cannot be found".
 func (c *Configuration) custom404(sl *slog.Logger, e *echo.Echo) *echo.Echo {
 	const msg = "custom 404 error routes"
-	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+	if err := nils.Check(sl, e); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.GET("/:uri", func(ec *echo.Context) error {
 		return app.StatusErr(sl, ec, http.StatusNotFound, ec.Param("uri"))
@@ -155,8 +155,8 @@ func (c *Configuration) custom404(sl *slog.Logger, e *echo.Echo) *echo.Echo {
 // debugInfo returns detailed information about the HTTP request.
 func (c *Configuration) debugInfo(e *echo.Echo) *echo.Echo {
 	const msg = "debug info routes"
-	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+	if err := nils.Check(e); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if c.Environment.ProdMode {
 		return e
@@ -202,7 +202,7 @@ func (c *Configuration) api(
 	ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, public embed.FS,
 ) *echo.Echo {
 	const msg = "api routes"
-	if err := panics.SDEP(sl, db, e, public); err != nil {
+	if err := nils.Check(ctx, sl, e, db, public); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e.FileFS("/openapi.json", "public/json/openapi.json", public)
@@ -268,7 +268,7 @@ func (c *Configuration) website( //nolint:funlen
 	ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs,
 ) *echo.Echo {
 	const msg = "website routes"
-	if err := panics.SDE(sl, db, e); err != nil {
+	if err := nils.Check(ctx, sl, db, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
@@ -437,7 +437,7 @@ func (c *Configuration) website( //nolint:funlen
 // search forms and the results for database queries.
 func (c *Configuration) search(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
 	const msg = "search routes"
-	if err := panics.SDE(sl, db, e); err != nil {
+	if err := nils.Check(ctx, sl, e, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
@@ -471,7 +471,7 @@ func (c *Configuration) signin(
 	ctx context.Context, sl *slog.Logger, e *echo.Echo, nonce string,
 ) *echo.Echo {
 	const msg = "signin routes"
-	if err := panics.SE(sl, e); err != nil {
+	if err := nils.Check(ctx, sl, e); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	readonlylock := func(ec echo.HandlerFunc) echo.HandlerFunc {
@@ -501,8 +501,8 @@ func (c *Configuration) signin(
 // AppendMoved redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
 func AppendMoved(e *echo.Echo) *echo.Echo {
 	const msg = "moved permanently routes"
-	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+	if err := nils.Check(e); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	e = nginx(e)
 	e = fixes(e)
@@ -512,8 +512,8 @@ func AppendMoved(e *echo.Echo) *echo.Echo {
 // nginx redirects.
 func nginx(e *echo.Echo) *echo.Echo {
 	const msg = "nginx redirects"
-	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+	if err := nils.Check(e); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	nginx := e.Group("")
 	nginx.GET("/file/detail/:id", func(c *echo.Context) error {
@@ -540,8 +540,8 @@ func nginx(e *echo.Echo) *echo.Echo {
 // fixes redirects repaired, releaser database entry redirects that are contained in the model fix package.
 func fixes(e *echo.Echo) *echo.Echo {
 	const msg = "fixes routers"
-	if e == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoEchoE))
+	if err := nils.Check(e); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	fixes := e.Group("/g")
 	const g = "/g/"

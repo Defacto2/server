@@ -26,7 +26,8 @@ import (
 	"github.com/Defacto2/server/internal/config/fixlha"
 	"github.com/Defacto2/server/internal/config/fixzip"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
@@ -52,7 +53,7 @@ func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
 	ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor,
 ) error {
 	const msg = "config archives repair"
-	if err := panics.CSE(ctx, sl, exec); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := time.Now()
@@ -179,7 +180,7 @@ type Rearchiving struct {
 // The original ra.Source file is not removed.
 func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) error { //nolint:funlen
 	const msg = "rearchive"
-	if err := panics.CS(ctx, sl); err != nil {
+	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if ra.Source == "" || ra.UID == "" {
@@ -282,7 +283,7 @@ func (r Repair) lookPath() error {
 
 func (r Repair) artifacts(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) ([]string, error) {
 	const msg = "Repair artifacts"
-	if err := panics.CSE(ctx, sl, exec); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	var files models.FileSlice
@@ -325,7 +326,7 @@ func (r Repair) artifacts(ctx context.Context, sl *slog.Logger, exec boil.Contex
 // There are no checks on the 3 directories that get scanned.
 func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "Repair assets"
-	if err := panics.CSE(ctx, sl, exec); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	d := time.Now()
@@ -392,8 +393,8 @@ func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 // unknownAsset logs a warning message for an unknown asset file.
 func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Directory) {
 	const msg = "unknown file"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	sl.Warn(msg,
 		slog.String("issue", "no matching artifact in the database for the found file"),
@@ -414,7 +415,7 @@ func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Direc
 // If any are found, they are removed without warning.
 func (c *Config) RepairAssets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "repair"
-	if err := panics.CSE(ctx, sl, exec); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	backup := dir.Directory(c.AbsOrphaned)
@@ -456,7 +457,7 @@ func (c *Config) RepairAssets(ctx context.Context, sl *slog.Logger, exec boil.Co
 // TextFiles on startup check the extra directory for any readme text files that are duplicates of the diz text files.
 func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "Fix textfile"
-	if err := panics.CSE(ctx, sl, exec); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	uuids, err := model.UUID(ctx, exec)
@@ -566,7 +567,7 @@ func FileID(r io.Reader) bool {
 // done using the `file` command line utility, which is a bit to verbose for our needs.
 func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "magic numbers"
-	if err := panics.CSE(ctx, sl, exec); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	tick := time.Now()
@@ -594,7 +595,7 @@ func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.Co
 		_ = model.UpdateMagic(ctx, exec, val.ID, magic.Title())
 		_ = r.Close()
 	}
-	if count == 0 || sl == nil {
+	if count == 0 {
 		return nil
 	}
 	sl.Info(msg,
@@ -607,7 +608,7 @@ func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.Co
 // Previews on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
 func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "previews"
-	if err := panics.CSE(ctx, sl, exec); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
@@ -650,8 +651,8 @@ func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.Contex
 // ImageDirs on startup check the image directories for any invalid or unknown files.
 func (c *Config) ImageDirs(sl *slog.Logger) error {
 	const msg = "image directories"
-	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	backup := dir.Directory(c.AbsOrphaned.String())
 	dirs := []string{c.AbsPreview.String(), c.AbsThumbnail.String()}
@@ -699,6 +700,9 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 
 // removeSub removes any subdirectories found in the specified directories.
 func removeSub(sl *slog.Logger, dirs ...string) error {
+	if sl == nil {
+		sl = logs.Discard()
+	}
 	for dir := range slices.Values(dirs) {
 		if _, err := os.Stat(dir); err != nil {
 			continue
@@ -723,8 +727,8 @@ func removeSub(sl *slog.Logger, dirs ...string) error {
 // containsInfo logs the number of files found in the directory.
 func containsInfo(sl *slog.Logger, name string, count int) {
 	const msg = "contains info"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	s := "" //nolint:wastedassign
 	switch strings.ToLower(name) {
@@ -750,8 +754,8 @@ func containsInfo(sl *slog.Logger, name string, count int) {
 // DownloadDir on startup check the download directory for any invalid or unknown files.
 func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
 	const msg = "download directory"
-	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if err := src.Check(sl); err != nil {
 		return fmt.Errorf("%s %w: %s", msg, err, src)
@@ -789,8 +793,8 @@ func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
 // RenameDownload rename the download file if the basename uses an invalid coldfusion uuid.
 func RenameDownload(sl *slog.Logger, basename, absPath string) error {
 	const msg = "rename download"
-	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if basename == "" || absPath == "" {
 		return fmt.Errorf("%s %w: %s %s", msg, ErrNoPath, basename, absPath)
@@ -820,8 +824,8 @@ func RenameDownload(sl *slog.Logger, basename, absPath string) error {
 // Any directory that matches the name ".stfolder" is removed.
 func RemoveDir(sl *slog.Logger, name, path, root string) error {
 	const msg = "repair remove directory"
-	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if name == "" || path == "" || root == "" {
 		return fmt.Errorf("%s: %w: %s %s %s", msg, ErrNoPath, name, path, root)
@@ -849,8 +853,8 @@ func RemoveDir(sl *slog.Logger, name, path, root string) error {
 // Valid file extensions are none, .chiptune, .txt, and .zip.
 func RemoveDownload(sl *slog.Logger, basename, path string, backup, extra dir.Directory) error {
 	const msg = "remove download"
-	if sl == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if basename == "" || path == "" {
 		return fmt.Errorf("%s %w: %s %s", msg, ErrNoPath, basename, path)
@@ -876,11 +880,11 @@ func RemoveDownload(sl *slog.Logger, basename, path string, backup, extra dir.Di
 // valid uuid or cfid with the correct length.
 func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) error {
 	const msg = "remove image"
-	if basename == "" || path == "" {
-		return fmt.Errorf("%s %w: %s %s", msg, ErrNoPath, basename, path)
-	}
 	if err := backup.Check(sl); err != nil {
 		return fmt.Errorf("%s: %w: %s", msg, err, backup)
+	}
+	if basename == "" || path == "" {
+		return fmt.Errorf("%s %w: %s %s", msg, ErrNoPath, basename, path)
 	}
 	const (
 		png   = ".png"    // png file extension
@@ -916,6 +920,9 @@ func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) e
 // remove the file without warning.
 func remove(sl *slog.Logger, name, info, path string, backup dir.Directory) {
 	const msg = "Remove file"
+	if sl == nil {
+		sl = logs.Discard()
+	}
 	sl.Info(msg, slog.String("name", name), slog.String("detail", info))
 	defer func() {
 		now := time.Now().Format("2006-01-02_15-04-05")
@@ -930,6 +937,9 @@ func remove(sl *slog.Logger, name, info, path string, backup dir.Directory) {
 // rename the file without warning.
 func rename(sl *slog.Logger, oldpath, info, newpath string) {
 	const msg = "Rename or move file"
+	if sl == nil {
+		sl = logs.Discard()
+	}
 	sl.Info(msg, slog.String("original path", oldpath), slog.String("new path", newpath), slog.String("detail", info))
 	defer func() {
 		if err := helper.RenameCrossDevice(oldpath, newpath); err != nil {
@@ -945,8 +955,8 @@ func rename(sl *slog.Logger, oldpath, info, newpath string) {
 // This is a safety measure to ensure that the server does not run out of disk space.
 func TmpCleaner(sl *slog.Logger) {
 	const msg = "Temporary cleaner"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	const threeDays = 3 * 24 * time.Hour
 	name := helper.TmpDir()

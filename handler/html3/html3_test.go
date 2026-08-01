@@ -29,21 +29,25 @@ func TestRoutes(t *testing.T) {
 	e := echo.New()
 	sl := logs.Discard()
 	var db sql.DB
-	g := html3.Routes(context.TODO(), sl, e, &db)
+	g := html3.Routes(t.Context(), sl, e, &db)
 	be.True(t, g != nil)
 }
 
 func TestGlobTo(t *testing.T) {
 	t.Parallel()
-	s := html3.GlobTo("file")
-	be.Equal(t, "view/html3/file", s)
+	got := html3.GlobTo("file")
+	be.Equal(t, got, "view/html3/file")
 }
 
 func TestTemplates(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
-	x := html3.Templates(ctx, nil, nil, embed.FS{})
-	be.Equal(t, len(x), 11)
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Fatal("expected html3.Templates to panic")
+		}
+	}()
+	_ = html3.Templates(t.Context(), nil, nil, embed.FS{})
 }
 
 func TestError(t *testing.T) {
@@ -54,29 +58,29 @@ func TestError(t *testing.T) {
 
 func TestID(t *testing.T) {
 	t.Parallel()
-	s := html3.ID(newContext())
-	be.Equal(t, s, "")
+	got := html3.ID(newContext())
+	be.Equal(t, got, "")
 }
 
 func TestLeadFS(t *testing.T) {
 	t.Parallel()
-	x := html3.LeadFS(0, null.Int64From(0))
-	be.Equal(t, "0B", x)
-	x = html3.LeadFS(10, null.Int64From(3))
-	be.Equal(t, strings.Repeat(" ", 8)+"3B", x)
+	got := html3.LeadFS(0, null.Int64From(0))
+	be.Equal(t, got, "0B")
+	got = html3.LeadFS(10, null.Int64From(3))
+	be.Equal(t, got, strings.Repeat(" ", 8)+"3B")
 }
 
 func TestLeadInt(t *testing.T) {
 	t.Parallel()
 	x := html3.LeadInt(0, 0)
-	be.Equal(t, "-", x)
+	be.Equal(t, x, "-")
 	x = html3.LeadInt(10, 3)
-	be.Equal(t, strings.Repeat(" ", 9)+"3", x)
+	be.Equal(t, x, strings.Repeat(" ", 9)+"3")
 }
 
 func TestQuery(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
+	ctx := t.Context()
 	a, b, c, fs, err := html3.Query(ctx, newContext(), nil, -1, -1)
 	be.True(t, a == 0)
 	be.True(t, b == 0)
@@ -116,14 +120,14 @@ func TestListInfo(t *testing.T) {
 func TestRecordsBy(t *testing.T) {
 	t.Parallel()
 	by := html3.Everything
-	be.Equal(t, "html3_all", by.String())
+	be.Equal(t, by.String(), "html3_all")
 	be.Equal(t, by.Parent(), "")
 	by = html3.AsSoftware
-	be.Equal(t, "html3_software", by.String())
+	be.Equal(t, by.String(), "html3_software")
 	be.Equal(t, by.Parent(), "")
 	by = html3.BySection
-	be.Equal(t, "html3_category", by.String())
-	be.Equal(t, "categories", by.Parent())
+	be.Equal(t, by.String(), "html3_category")
+	be.Equal(t, by.Parent(), "categories")
 }
 
 func TestClauses(t *testing.T) {
@@ -165,25 +169,25 @@ func TestSorter(t *testing.T) {
 	for _, s := range tests {
 		switch s {
 		case html3.NameAsc:
-			be.Equal(t, d, html3.Sorter(s)[string(html3.Name)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Name)], d)
 		case html3.NameDes:
-			be.Equal(t, a, html3.Sorter(s)[string(html3.Name)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Name)], a)
 		case html3.PublAsc:
-			be.Equal(t, d, html3.Sorter(s)[string(html3.Publish)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Publish)], d)
 		case html3.PublDes:
-			be.Equal(t, a, html3.Sorter(s)[string(html3.Publish)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Publish)], a)
 		case html3.PostAsc:
-			be.Equal(t, d, html3.Sorter(s)[string(html3.Posted)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Posted)], d)
 		case html3.PostDes:
-			be.Equal(t, a, html3.Sorter(s)[string(html3.Posted)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Posted)], a)
 		case html3.SizeAsc:
-			be.Equal(t, d, html3.Sorter(s)[string(html3.Size)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Size)], d)
 		case html3.SizeDes:
-			be.Equal(t, a, html3.Sorter(s)[string(html3.Size)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Size)], a)
 		case html3.DescAsc:
-			be.Equal(t, d, html3.Sorter(s)[string(html3.Desc)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Desc)], d)
 		case html3.DescDes:
-			be.Equal(t, a, html3.Sorter(s)[string(html3.Desc)])
+			be.Equal(t, html3.Sorter(s)[string(html3.Desc)], a)
 		}
 	}
 }
@@ -251,11 +255,12 @@ func TestDescription(t *testing.T) {
 
 func TestFileHref(t *testing.T) {
 	t.Parallel()
-	s := html3.FileHref(nil, 0)
-	be.Equal(t, s, "sl slog logger pointer is nil")
+	got := html3.FileHref(nil, 0)
+	want := "argument 0: slog logger pointer is nil"
+	be.Equal(t, got, want)
 	sl := logs.Discard()
-	s = html3.FileHref(sl, 0)
-	be.Equal(t, "/html3/d/0", s)
+	got = html3.FileHref(sl, 0)
+	be.Equal(t, got, "/html3/d/0")
 }
 
 func TestFileLinkPad(t *testing.T) {
@@ -314,9 +319,9 @@ func TestPagi(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			got, got1, got2 := html3.Pagi(tt.args.page, tt.args.maxPage)
-			be.Equal(t, tt.want, got)
-			be.Equal(t, tt.want1, got1)
-			be.Equal(t, tt.want2, got2)
+			be.Equal(t, got, tt.want)
+			be.Equal(t, got1, tt.want1)
+			be.Equal(t, got2, tt.want2)
 		})
 	}
 }

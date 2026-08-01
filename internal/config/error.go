@@ -12,7 +12,7 @@ import (
 
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/internal/logs"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/labstack/echo/v5"
 )
 
@@ -41,7 +41,7 @@ var (
 // as there is no ability to access HTML rendered pages.
 func CustomErrorHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, err error) {
 	const msg = "custom error handler"
-	if err := panics.SC(c, sl); err != nil {
+	if err := nils.Check(ctx, sl, c); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	if isV3(c.Path()) {

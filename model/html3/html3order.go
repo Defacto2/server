@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	namer "github.com/Defacto2/server/handler/releaser/name"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
@@ -37,8 +37,8 @@ const all = 0 // all returns all the records.
 // Art returns all the files that could be considered as digital or pixel art.
 func (o Order) Art(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
 	const msg = "html3 all art"
-	if panics.BoilExec(exec) {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	if limit == all {
 		return models.Files(
@@ -64,8 +64,8 @@ func (o Order) ByCategory(
 	models.FileSlice, error,
 ) {
 	const msg = "html3 all by category"
-	if panics.BoilExec(exec) {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
 	if limit == all {
@@ -85,8 +85,8 @@ func (o Order) ByGroup(
 	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string,
 ) (models.FileSlice, error) {
 	const msg = "html3 all by group"
-	if panics.BoilExec(exec) {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	s, err := namer.Humanize(namer.Path(name))
 	if err != nil {
@@ -112,8 +112,8 @@ func (o Order) ByPlatform(
 	models.FileSlice, error,
 ) {
 	const msg = "html3 all by platform"
-	if panics.BoilExec(exec) {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
 	if limit == all {
@@ -131,8 +131,8 @@ func (o Order) ByPlatform(
 // Document returns all the files that are considered to be documents.
 func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
 	const msg = "html3 all documents"
-	if panics.BoilExec(exec) {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	if limit == all {
 		return models.Files(
@@ -153,8 +153,8 @@ func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, 
 // Everything returns all of the file records.
 func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
 	const msg = "html3 everything"
-	if panics.BoilExec(exec) {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	return models.Files(
 		qm.Where(ClauseNoSoftDel),
@@ -167,8 +167,8 @@ func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset
 // Software returns all the files that are considered to be software.
 func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
 	const msg = "html3 all software"
-	if panics.BoilExec(exec) {
-		return nil, fmt.Errorf("%s: %w", msg, panics.ErrNoBoil)
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("%s: %w", msg, err)
 	}
 	if limit == all {
 		return models.Files(

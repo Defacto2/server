@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 )
 
 var (
@@ -36,8 +36,8 @@ func (d Directory) Path() string {
 func (d Directory) Check(sl *slog.Logger) error {
 	const msg = "directory check"
 	const format = msg + ": %w"
-	if sl == nil {
-		return fmt.Errorf(format, panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf(format, err)
 	}
 	if err := d.IsDir(); err != nil {
 		return err

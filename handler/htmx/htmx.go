@@ -24,7 +24,7 @@ import (
 	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/handler/releaser/initialism"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
@@ -44,6 +44,10 @@ const (
 
 // Areacodes is the handler for the /areacodes route.
 func Areacodes(c *echo.Context) error {
+	const format = "htmx area codes: %w"
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf(format, err)
+	}
 	htm := template.HTML("")
 	search := c.FormValue("htmx-search")
 	search = strings.TrimSpace(search)
@@ -79,7 +83,7 @@ func Areacodes(c *echo.Context) error {
 // for the "Demozoo production or graphic" form.
 func DemozooLookup(ctx context.Context, c *echo.Context, db *sql.DB, prodMode bool) error {
 	const msg = "demozoo lookup htmx context"
-	if err := panics.ECD(c, db); err != nil {
+	if err := nils.Check(ctx, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	zoo := c.FormValue("demozoo-submission")
@@ -163,8 +167,8 @@ func demozooBtn(id int, info ...string) string {
 func DemozooValid(ctx context.Context, c *echo.Context, prodMode bool, id int) (demozoo.Production, error) {
 	const msg = "htmx demozoo valid"
 	none := demozoo.Production{} //nolint:exhaustruct
-	if c == nil {
-		return none, fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
+	if err := nils.Check(ctx, c); err != nil {
+		return none, fmt.Errorf("%s: %w", msg, err)
 	}
 	if invalid := id < 1; invalid {
 		return none,
@@ -221,7 +225,7 @@ func DemozooValid(ctx context.Context, c *echo.Context, prodMode bool, id int) (
 // use, an error message is returned.
 func DemozooSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "htmx demozoo submit context"
-	if err := panics.SCD(sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return Demozoo.Submit(ctx, sl, c, db, download)
@@ -230,7 +234,7 @@ func DemozooSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sq
 // DBConnections is the handler for the database connections page.
 func DBConnections(c *echo.Context, db *sql.DB) error {
 	const msg = "htmx db connections context"
-	if err := panics.ECD(c, db); err != nil {
+	if err := nils.Check(c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	conns, maxConn, err := postgres.Connections(db)
@@ -245,7 +249,7 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 // DeleteForever is a handler for the /delete/forever route.
 func DeleteForever(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	const msg = "htmx delete forever"
-	if err := panics.SCD(sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key, err := strconv.ParseInt(id, 10, 64)
@@ -354,8 +358,8 @@ func pings() []string {
 // Pings is a handler for the /pings route.
 func Pings(c *echo.Context, proto string, port int) error {
 	const msg = "htmx pings context"
-	if c == nil {
-		return fmt.Errorf("%s, %w", msg, panics.ErrNoEchoC)
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf("%s, %w", msg, err)
 	}
 	pings := pings()
 	results := make([]string, 0, len(pings))
@@ -396,7 +400,7 @@ func Pings(c *echo.Context, proto string, port int) error {
 // to save the file to the correct filename.
 func PouetLookup(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "htmx pouet lookup context"
-	if err := panics.ECD(c, db); err != nil {
+	if err := nils.Check(ctx, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	pouet := c.FormValue("pouet-submission")
@@ -474,8 +478,8 @@ func pouetBtn(id int, info ...string) string {
 func PouetValid(ctx context.Context, c *echo.Context, id int, useCache bool) (pouet.Response, error) {
 	const msg = "htmx pouet valid context"
 	none := pouet.Response{} //nolint:exhaustruct
-	if c == nil {
-		return none, fmt.Errorf("%s: %w", msg, panics.ErrNoEchoC)
+	if err := nils.Check(ctx, c); err != nil {
+		return none, fmt.Errorf("%s: %w", msg, err)
 	}
 	if invalid := id < 1; invalid {
 		return none,
@@ -551,7 +555,7 @@ func validation(prod pouet.Response) string {
 // use, an error message is returned.
 func PouetSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
 	const msg = "htmx pouet submit context"
-	if err := panics.SCD(sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	return Pouet.Submit(ctx, sl, c, db, download)
@@ -560,7 +564,7 @@ func PouetSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.
 // SearchByID is a handler for the /editor/search/id route.
 func SearchByID(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "search by id context"
-	if err := panics.SCD(sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 50
@@ -653,7 +657,7 @@ func SearchReleaser(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.Tidbits,
 ) error {
 	const msg = "htmx search releaser context"
-	if err := panics.SCD(sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db, ft); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const limit = 14
@@ -725,7 +729,7 @@ func DataListMagazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db
 // datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
 func datalist(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazine bool) error {
 	const msg = "htmx datalist context"
-	if err := panics.SCD(sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 14

@@ -14,7 +14,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/dustin/go-humanize"
 	"github.com/labstack/echo-contrib/v5/session"
 	"github.com/labstack/echo/v5"
@@ -67,8 +67,8 @@ func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
 // of the database and any related user interface.
 func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
 	const msg = "middleware read only lock"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(next, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	return func(e *echo.Context) error {
 		const xreadonlylock = "X-Read-Only-Lock"
@@ -88,8 +88,8 @@ func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) ech
 // SessionLock middleware checks the session cookie for a valid signed in client.
 func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
 	const msg = "middleware session lock"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(next, sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	return func(e *echo.Context) error {
 		// Help, https://pkg.go.dev/github.com/gorilla/sessions#Session
@@ -151,8 +151,8 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 		}
 	}
 	const msg = "request logger config handler"
-	if sl == nil {
-		panic(fmt.Errorf("%s: %w", msg, panics.ErrNoSlog))
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	// logValues is used by the returned middleware.RequestLoggerConfig().LogValuesFunc
 	logValues := func(_ *echo.Context, v middleware.RequestLoggerValues) error {

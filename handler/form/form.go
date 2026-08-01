@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 )
@@ -39,8 +39,8 @@ func Checkname(name string) error {
 // count is greater than 1, the text is unmodified.
 func HumanizeCount(ctx context.Context, db *sql.DB, section, platform string) (template.HTML, error) {
 	const format = "form humanize count: %w"
-	if db == nil {
-		return "", fmt.Errorf(format, panics.ErrNoDB)
+	if err := nils.Check(ctx, db); err != nil {
+		return "", fmt.Errorf(format, err)
 	}
 	count, tag, err := humanizeCount(ctx, db, section, platform)
 	if err != nil {

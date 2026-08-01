@@ -18,7 +18,7 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -36,7 +36,7 @@ var (
 func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error {
 	const format = "download checksum id %v: %w"
 	const fmtinf = "%s for " + format
-	if err := panics.ECD(c, db); err != nil {
+	if err := nils.Check(ctx, c, db); err != nil {
 		return fmt.Errorf(format, id, err)
 	}
 	art, err := model.OneFileByKey(ctx, db, id)
@@ -111,7 +111,7 @@ type Download struct {
 func (d Download) HTTPSend(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "download http send"
 	const format = msg + " %s: %w"
-	if err := panics.SCD(sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key := c.Param("id")
@@ -168,6 +168,9 @@ func (d Download) HTTPSend(ctx context.Context, sl *slog.Logger, c *echo.Context
 
 func inline(c *echo.Context, text bool, file, name, ext string) error {
 	const format = "http send %s: %w"
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf(format, "check", err)
+	}
 	if text && slices.Contains(extensions.Image(), ext) {
 		text = false
 	}
@@ -206,8 +209,8 @@ type ExtraZip struct {
 func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	const msg = "extra zip http send"
 	const format = msg + " %s: %w"
-	if err := panics.ECD(c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+	if err := nils.Check(ctx, c, db); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 	key := c.Param("id")
 	art, err := model.OneFileByKey(ctx, db, key)

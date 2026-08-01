@@ -15,7 +15,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/Defacto2/server/handler/pouet"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
@@ -29,7 +29,7 @@ import (
 // This will not check if the Demozoo production ID already exists in the database.
 // When successful the function will return the new record ID.
 func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int64, string, error) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	if id < startID || id > DemozooSanity {
 		return 0, "", fmt.Errorf("%w: %d", ErrID, id)
 	}
@@ -53,7 +53,7 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int6
 // This will not check if the Pouet production ID already exists in the database.
 // When successful the function will return the new record ID.
 func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64, string, error) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	if id < startID || id > pouet.Sanity {
 		return 0, "", fmt.Errorf("%w: %d", ErrID, id)
 	}
@@ -80,7 +80,7 @@ func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64,
 func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string) (int64, uuid.UUID, error) {
 	const msg = "insert upload"
 	noID := uuid.UUID{}
-	if err := panics.CTx(ctx, tx); err != nil {
+	if err := nils.Check(ctx, tx); err != nil {
 		return 0, noID, fmt.Errorf("%s: %w", msg, err)
 	}
 	if tx == nil {

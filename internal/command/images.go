@@ -19,7 +19,8 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/nils"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -36,6 +37,12 @@ const (
 	north      = "North"
 )
 
+const (
+	check    = "check"
+	prevChk  = "preview check"
+	thumbChk = "thumbnail check"
+)
+
 var ErrNoImages = errors.New("no images found")
 
 // ImagesExt returns args slice of image file extensions used by the website
@@ -48,16 +55,16 @@ func ImagesExt() []string {
 // The unid is the unique identifier shared across preview and thumbnail variants.
 // Returns ErrNoImages if no matching files were found and removed.
 func ImagesDelete(unid string, dirs ...string) error {
-	const format = "images delete%s%s: %w"
+	const format = "images delete %s %q: %w"
 	deletedAny := false
 	// range each directory
 	for _, dir := range dirs {
 		st, err := os.Stat(dir)
 		if err != nil {
-			return fmt.Errorf(format, " stat the dir ", dir, err)
+			return fmt.Errorf(format, "stat", dir, err)
 		}
 		if !st.IsDir() {
-			return fmt.Errorf(format, "", dir, ErrIsFile)
+			return fmt.Errorf(format, "is dir", dir, ErrIsFile)
 		}
 		// range each image file extension looking for matches
 		for _, ext := range ImagesExt() {
@@ -65,12 +72,12 @@ func ImagesDelete(unid string, dirs ...string) error {
 			if err := os.Remove(name); err == nil {
 				deletedAny = true
 			} else if !errors.Is(err, os.ErrNotExist) {
-				return fmt.Errorf(format, " remove ", name, err)
+				return fmt.Errorf(format, "remove", name, err)
 			}
 		}
 	}
 	if !deletedAny {
-		return fmt.Errorf(format, "", "", ErrNoImages)
+		return fmt.Errorf(format, "none", "n/a", ErrNoImages)
 	}
 	return nil
 }
@@ -84,15 +91,18 @@ func (args *Args) Pixelate() {
 // ImagesPixelate converts images matching unid across the specified directories
 // into pixelated versions in-place.
 func ImagesPixelate(ctx context.Context, unid string, dirs ...string) error {
-	const format = "images pixelate %s%s: %w"
+	const format = "images pixelate %s %q: %w"
+	if err := nils.Check(ctx); err != nil {
+		return fmt.Errorf("images pixelate: %w", err)
+	}
 	// range each directory
 	for _, dir := range dirs {
 		st, err := os.Stat(dir)
 		if err != nil {
-			return fmt.Errorf(format, " stat dir ", dir, err)
+			return fmt.Errorf(format, "stat dir", dir, err)
 		}
 		if !st.IsDir() {
-			return fmt.Errorf(format, "", dir, ErrIsFile)
+			return fmt.Errorf(format, "not is dir", dir, ErrIsFile)
 		}
 		// range each image file extension looking for matches
 		for _, ext := range ImagesExt() {
@@ -101,10 +111,10 @@ func ImagesPixelate(ctx context.Context, unid string, dirs ...string) error {
 				if errors.Is(err, os.ErrNotExist) {
 					continue
 				}
-				return fmt.Errorf(format, " stat image ", name, err)
+				return fmt.Errorf(format, "stat image", name, err)
 			}
 
-			var flags Args
+			flags := Args{}
 			flags.Pixelate()
 			// construct ordered command arguments: [input, flags..., output]
 			const first = 2
@@ -113,7 +123,7 @@ func ImagesPixelate(ctx context.Context, unid string, dirs ...string) error {
 			cmdArgs = append(cmdArgs, flags...)
 			cmdArgs = append(cmdArgs, name)
 			if err := RunQuiet(ctx, Magick, cmdArgs...); err != nil {
-				return fmt.Errorf(format, " convert ", name, err)
+				return fmt.Errorf(format, "convert", name, err)
 			}
 		}
 	}
@@ -130,22 +140,25 @@ const (
 
 // Thumbs creates a thumbnail image from the corresponding preview image based on the thumb type.
 func (dir Dirs) Thumbs(ctx context.Context, sl *slog.Logger, unid string, thumb Thumb) error {
-	const format = "thumb creator%s: %w"
+	const format = "thumb creator %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
+	}
 	switch thumb {
 	case Pixel, Photo:
 	default:
 		return fmt.Errorf(format, fmt.Sprintf(" thumb value %d", thumb), ErrThumb)
 	}
 	if err := dir.Thumbnail.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, thumbChk, err)
 	}
 	if err := dir.Preview.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, prevChk, err)
 	}
 
 	// remove any existing thumbnails; ignore expected "not found" errors
 	if err := ImagesDelete(unid, dir.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
-		return fmt.Errorf(format, " delete existing", err)
+		return fmt.Errorf(format, "delete existing", err)
 	}
 	// range each image file extension looking for matches
 	for _, ext := range ImagesExt() {
@@ -161,7 +174,7 @@ func (dir Dirs) Thumbs(ctx context.Context, sl *slog.Logger, unid string, thumb 
 			err = dir.thumbPhoto(ctx, sl, src, unid)
 		}
 		if err != nil {
-			return fmt.Errorf(format, " conversion failed", err)
+			return fmt.Errorf(format, "conversion failed", err)
 		}
 		return nil
 	}
@@ -182,14 +195,17 @@ const (
 // Thumbs generates a cropped thumbnail from the source preview image using the specified alignment.
 func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, preview, thumbnail dir.Directory) error {
 	const msg = "thumbs re-alignment"
-	const format = msg + "%s: %w"
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
+	}
 	if err := preview.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, prevChk, err)
 	}
 	if err := thumbnail.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, thumbChk, err)
 	}
-	var args Args
+	args := Args{}
 	switch align {
 	case Top:
 		args.Topx400()
@@ -202,22 +218,23 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 	case Right:
 		args.Rightx400()
 	default:
-		return fmt.Errorf(format, fmt.Sprintf(" alignment value %d", align), ErrAlign)
+		return fmt.Errorf(format, fmt.Sprintf("alignment value %d", align), ErrAlign)
 	}
 	// prep an isolated temporary directory
 	tmpDir := filepath.Join(helper.TmpDir(), patternS, "images-thumb-"+unid)
 	const perm = 0o755
 	if err := os.MkdirAll(tmpDir, perm); err != nil {
-		return fmt.Errorf(format, " create temporary directory", err)
+		return fmt.Errorf(format, "create temporary directory", err)
 	}
 	defer func() {
 		if err := os.RemoveAll(tmpDir); err != nil {
-			slog.Info(msg+" remove all temporary directory", slog.String("directory", tmpDir), slog.Any("error", err))
+			slog.Info(msg+" remove all temporary directory",
+				slog.String("directory", tmpDir), slog.Any("error", err))
 		}
 	}()
 	// remove existing thumbnails
 	if err := ImagesDelete(unid, thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
-		return fmt.Errorf(format, " delete existing thumbs", err)
+		return fmt.Errorf(format, "delete existing thumbs", err)
 	}
 	// range each image file extension looking for matches
 	for _, ext := range ImagesExt() {
@@ -233,16 +250,16 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 		cmdArgs = append(cmdArgs, args...)
 		cmdArgs = append(cmdArgs, tmpDst)
 		if err := Run(ctx, sl, Magick, cmdArgs...); err != nil {
-			return fmt.Errorf(format, " run magick", err)
+			return fmt.Errorf(format, "run magick", err)
 		}
 		// copy thumbs to their final destination
 		finalDst := thumbnail.Join(unid + ext)
 		if err := CopyFile(sl, tmpDst, finalDst); err != nil {
-			return fmt.Errorf(format, " copy file", err)
+			return fmt.Errorf(format, "copy file", err)
 		}
 		return nil
 	}
-	return fmt.Errorf(format, "", ErrNoImages)
+	return fmt.Errorf(format, "none", ErrNoImages)
 }
 
 // Crop is an args type that represents the crop position of the preview image.
@@ -256,17 +273,17 @@ const (
 
 // Images crops the preview image based on the crop position and ratio of the image.
 func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, preview dir.Directory) error {
-	const format = "crop images%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = "crop images %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	if err := preview.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, prevChk, err)
 	}
 	switch crop {
 	case SquareTop, FourThree, OneTwo:
 	default:
-		return fmt.Errorf(format, fmt.Sprintf(" crop value %d", crop), ErrCrop)
+		return fmt.Errorf(format, fmt.Sprintf("crop value %d", crop), ErrCrop)
 	}
 	tmpDir := filepath.Join(helper.TmpDir(), patternS)
 	pattern := "images-crop-" + unid
@@ -274,11 +291,11 @@ func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, previ
 	if st, err := os.Stat(path); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			if err := os.MkdirAll(path, os.ModePerm); err != nil {
-				return fmt.Errorf(format, "", err)
+				return fmt.Errorf(format, "make dir all", err)
 			}
 		}
 	} else if !st.IsDir() {
-		return fmt.Errorf(format, "", ErrIsFile)
+		return fmt.Errorf(format, "not is dir", ErrIsFile)
 	}
 	imagesNotFound := true
 	for ext := range slices.Values(ImagesExt()) {
@@ -313,7 +330,7 @@ func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, previ
 		}
 	}
 	if imagesNotFound {
-		return fmt.Errorf(format, " cannot use", ErrNoImages)
+		return fmt.Errorf(format, "cannot use", ErrNoImages)
 	}
 	return nil
 }
@@ -325,20 +342,20 @@ func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, previ
 // the input format (.png, .jpeg, .avif, .webp, etc.).
 func (dir Dirs) PictureImager(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "picture imager"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	if err := dir.Preview.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, prevChk, err)
 	}
 	if err := dir.Thumbnail.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, thumbChk, err)
 	}
 	// inspect magic bytes
 	r, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf(format, " open source file", err)
+		return fmt.Errorf(format, "open source file", err)
 	}
 	defer func() {
 		if err := r.Close(); err != nil {
@@ -369,7 +386,7 @@ func (dir Dirs) PictureImager(ctx context.Context, sl *slog.Logger, src, unid st
 
 	// remove existing thumbnails
 	if err := ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
-		return fmt.Errorf(format, " delete existing images", err)
+		return fmt.Errorf(format, "delete existing images", err)
 	}
 	switch magic { //nolint:exhaustive
 	case GIF:
@@ -400,22 +417,22 @@ func (dir Dirs) PictureImager(ctx context.Context, sl *slog.Logger, src, unid st
 //   - If a large number of ANSI sequences are detected then an ErrIsAnsi error is returned.
 func CropText(sl *slog.Logger, maxColumns, maxRows int, src, unid string) (string, error) {
 	const msg = "crop text imager"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return "", fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(sl); err != nil {
+		return "", fmt.Errorf(format, check, err)
 	}
 	if unid == "" {
-		return "", fmt.Errorf(format, " unid", ErrValue)
+		return "", fmt.Errorf(format, "unid", ErrValue)
 	}
 	src = filepath.Clean(src)
 	path, err := helper.MkContent(src + "-textimager")
 	if err != nil {
-		return "", fmt.Errorf(format, " make content", err)
+		return "", fmt.Errorf(format, "make content", err)
 	}
 	tmpText := filepath.Join(path, unid+".txt")
 	if err := cropText(sl, maxColumns, maxRows, src, tmpText); err != nil {
 		if err1 := ansiCheck(src, err); err1 != nil {
-			return "", fmt.Errorf(format, "", err1)
+			return "", fmt.Errorf(format, "ansi check", err1)
 		}
 	}
 	if !exist(tmpText) {
@@ -425,16 +442,16 @@ func CropText(sl *slog.Logger, maxColumns, maxRows int, src, unid string) (strin
 }
 
 func ansiCheck(src string, err error) error {
-	const format = "ansi check%s: %w"
+	const format = "ansi check %s: %w"
 	if !errors.Is(err, ErrIsAnsi) {
 		return err
 	}
 	file, err := os.Stat(src)
 	if err != nil {
-		return fmt.Errorf(format, " stat source", err)
+		return fmt.Errorf(format, "stat source", err)
 	}
 	if file.Size() > AnsiCap {
-		return fmt.Errorf(format, " file size exceeds maximum ansi cap", ErrIsAnsi)
+		return fmt.Errorf(format, "file size exceeds maximum ansi cap", ErrIsAnsi)
 	}
 	// allow processing to continue for small ANSI files
 	return nil
@@ -442,16 +459,16 @@ func ansiCheck(src string, err error) error {
 
 func cropText(sl *slog.Logger, maxColumns, maxRows int, src, dst string) error { //nolint:funlen
 	const msg = "text crop scanner"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	src = filepath.Clean(src)
 	dst = filepath.Clean(dst)
 
 	r, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf(format, " open source", err)
+		return fmt.Errorf(format, "open source", err)
 	}
 	defer func() {
 		if err := r.Close(); err != nil {
@@ -465,12 +482,12 @@ func cropText(sl *slog.Logger, maxColumns, maxRows int, src, dst string) error {
 	}
 	const reset = 0
 	if _, err := r.Seek(reset, io.SeekStart); err != nil {
-		return fmt.Errorf(format, " seek reset", err)
+		return fmt.Errorf(format, "seek reset", err)
 	}
 
 	w, err := os.Create(dst)
 	if err != nil {
-		return fmt.Errorf(format, " create destination", err)
+		return fmt.Errorf(format, "create destination", err)
 	}
 	defer func() {
 		if err := w.Close(); err != nil {
@@ -514,16 +531,16 @@ func cropText(sl *slog.Logger, maxColumns, maxRows int, src, dst string) error {
 		}
 		// write the truncated text and append newline
 		if _, err := writer.WriteString(line + "\n"); err != nil {
-			return fmt.Errorf(format, " writer write string", err)
+			return fmt.Errorf(format, "writer write string", err)
 		}
 		cntRows++
 	}
 
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf(format, " scanner line", err)
+		return fmt.Errorf(format, "scanner line", err)
 	}
 	if err := writer.Flush(); err != nil {
-		return fmt.Errorf(format, " flush writer", err)
+		return fmt.Errorf(format, "flush writer", err)
 	}
 	return nil
 }
@@ -532,24 +549,24 @@ func cropText(sl *slog.Logger, maxColumns, maxRows int, src, dst string) error {
 // then processes the generated PNG through the standard text imager pipeline.
 func (dir Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "binary text imager"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, "", err)
 	}
 
 	srcPath := filepath.Clean(src)
 	st, err := os.Stat(srcPath)
 	if err != nil {
-		return fmt.Errorf(format, " stat source", err)
+		return fmt.Errorf(format, "stat source", err)
 	}
 	if st.Size() == 0 {
-		return fmt.Errorf(format, " "+srcPath, ErrIsEmpty)
+		return fmt.Errorf(format, "zero size: "+srcPath, ErrIsEmpty)
 	}
 
 	// create an isolated, safe temporary file
 	tmpFile, err := os.CreateTemp("", "ansilove-*.png")
 	if err != nil {
-		return fmt.Errorf(format, " create temp", err)
+		return fmt.Errorf(format, "create temp", err)
 	}
 	tmp := tmpFile.Name()
 	_ = tmpFile.Close()
@@ -562,10 +579,10 @@ func (dir Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, src, unid st
 	// command line arguments: [src, "-o", dst]
 	ansiloveArgs := []string{srcPath, "-o", tmp}
 	if err := Run(ctx, sl, Ansilove, ansiloveArgs...); err != nil {
-		return fmt.Errorf(format, " run ansilove", err)
+		return fmt.Errorf(format, "run ansilove", err)
 	}
 	if err := dir.optimizeAnsilove(ctx, sl, unid, tmp); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, "optimize ansilove", err)
 	}
 	return nil
 }
@@ -578,15 +595,15 @@ func (dir Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, src, unid st
 // of text due to the Topaz font being taller.
 func (dir Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string, amigaFont bool) error {
 	const msg = "dirs text imager"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	if err := dir.Thumbnail.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, thumbChk, err)
 	}
 	if err := dir.Preview.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, prevChk, err)
 	}
 	const maxColumns = 80
 	cfg := imagerCfg{ //nolint:exhaustruct
@@ -614,9 +631,9 @@ type imagerCfg struct {
 
 func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, cfg imagerCfg) error {
 	const msg = "text imager"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	maxColumns := cfg.maxColumns
 	maxRows := cfg.maxRows
@@ -627,7 +644,7 @@ func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, cfg
 	src = filepath.Clean(src)
 	srcPath, err := CropText(sl, maxColumns, maxRows, src, unid)
 	if err != nil {
-		return fmt.Errorf(format, " crop text", err)
+		return fmt.Errorf(format, "crop text", err)
 	}
 	if srcPath != src {
 		defer func() {
@@ -638,16 +655,16 @@ func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, cfg
 	}
 	st, err := os.Stat(srcPath)
 	if err != nil {
-		return fmt.Errorf(format, " stat cropped", err)
+		return fmt.Errorf(format, "stat cropped", err)
 	}
 	if st.Size() == 0 {
-		return fmt.Errorf(format, " "+srcPath, ErrIsEmpty)
+		return fmt.Errorf(format, "zero size: "+srcPath, ErrIsEmpty)
 	}
 
 	// create an isolated temporary PNG destination
 	tmpFile, err := os.CreateTemp("", "ansilove-dos-*.png")
 	if err != nil {
-		return fmt.Errorf(format, " create temp", err)
+		return fmt.Errorf(format, "create temp", err)
 	}
 	tmp := tmpFile.Name()
 	_ = tmpFile.Close()
@@ -670,10 +687,10 @@ func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, cfg
 	ansiloveArgs = append(ansiloveArgs, args...)
 	ansiloveArgs = append(ansiloveArgs, "-o", tmp)
 	if err := Run(ctx, sl, Ansilove, ansiloveArgs...); err != nil {
-		return fmt.Errorf(format, " run ansilove", err)
+		return fmt.Errorf(format, "run ansilove", err)
 	}
 	if err := dir.optimizeAnsilove(ctx, sl, unid, tmp); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, "optimize ansilove", err)
 	}
 	return nil
 }
@@ -683,8 +700,8 @@ func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, cfg
 func (dir Dirs) optimizeAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp string) error {
 	const msg = "optimize ansilove conversion"
 	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 
 	defer func() {
@@ -695,7 +712,7 @@ func (dir Dirs) optimizeAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp
 
 	// remove existing preview & thumbnail images
 	if err := ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
-		return fmt.Errorf(format, " delete existing", err)
+		return fmt.Errorf(format, "delete existing", err)
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
@@ -704,10 +721,10 @@ func (dir Dirs) optimizeAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp
 	g.Go(func() error {
 		dst := filepath.Join(dir.Preview.Path(), unid+png)
 		if err := CopyFile(sl, tmp, dst); err != nil {
-			return fmt.Errorf(format, " copy file", err)
+			return fmt.Errorf(format, "copy file", err)
 		}
 		if err := OptimizePNG(ctx, dst); err != nil {
-			return fmt.Errorf(format, "", err)
+			return fmt.Errorf(format, "optimize png", err)
 		}
 		return nil
 	})
@@ -716,7 +733,7 @@ func (dir Dirs) optimizeAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp
 	g.Go(func() error {
 		const makeThumb = false
 		if err := dir.previewWebP(ctx, sl, tmp, unid, makeThumb); err != nil {
-			return fmt.Errorf(format, " webp preview", err)
+			return fmt.Errorf(format, "webp preview", err)
 		}
 		return nil
 	})
@@ -724,13 +741,13 @@ func (dir Dirs) optimizeAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp
 	// task 3: thumbnail
 	g.Go(func() error {
 		if err := dir.thumbPixels(ctx, sl, tmp, unid); err != nil {
-			return fmt.Errorf(format, " thumbnail", err)
+			return fmt.Errorf(format, "thumbnail pixels", err)
 		}
 		return nil
 	})
 
 	if err := g.Wait(); err != nil {
-		return fmt.Errorf(format, " group wait", err)
+		return fmt.Errorf(format, "group wait", err)
 	}
 	return nil
 }
@@ -740,14 +757,14 @@ func (dir Dirs) optimizeAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp
 // This lossless conversion is optimal for screenshots of text, terminal interfaces, and pixel art.
 func (dir Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "pixel image preview"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 
 	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "previewpixels-*")
 	if err != nil {
-		return fmt.Errorf(format, " create temp directory", err)
+		return fmt.Errorf(format, "create temp directory", err)
 	}
 	defer func() {
 		if err := os.RemoveAll(tmpDir); err != nil {
@@ -767,15 +784,15 @@ func (dir Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid st
 	magickArgs = append(magickArgs, args...)
 	magickArgs = append(magickArgs, tmpPath)
 	if err := RunQuiet(ctx, Magick, magickArgs...); err != nil {
-		return fmt.Errorf(format, " run magick", err)
+		return fmt.Errorf(format, "run magick", err)
 	}
 
 	dst := filepath.Join(dir.Preview.Path(), unid+png)
 	if err := CopyFile(sl, tmpPath, dst); err != nil {
-		return fmt.Errorf(format, " copyfile png preview", err)
+		return fmt.Errorf(format, "copyfile png preview", err)
 	}
 	if err := dir.optimizeAnsilove(ctx, sl, unid, tmpPath); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, "optimize ansilove", err)
 	}
 	return nil
 }
@@ -787,14 +804,14 @@ func (dir Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid st
 // This lossy conversion is optimal for continuous-tone photographs.
 func (dir Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "photo image preview"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 
 	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "previewphoto-*")
 	if err != nil {
-		return fmt.Errorf(format, " create temp directory", err)
+		return fmt.Errorf(format, "create temp directory", err)
 	}
 	defer func() {
 		if err := os.RemoveAll(tmpDir); err != nil {
@@ -813,7 +830,7 @@ func (dir Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid str
 	magickArgs = append(magickArgs, jargs...)
 	magickArgs = append(magickArgs, jtmp)
 	if err := RunQuiet(ctx, Magick, magickArgs...); err != nil {
-		return fmt.Errorf(format, " convert jpeg", err)
+		return fmt.Errorf(format, "convert jpeg", err)
 	}
 
 	// convert generated JPEG to WebP using cwebp
@@ -826,17 +843,17 @@ func (dir Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid str
 	cwebpArgs = append(cwebpArgs, wargs...)
 	cwebpArgs = append(cwebpArgs, "-o", wtmp)
 	if err := RunQuiet(ctx, Cwebp, cwebpArgs...); err != nil {
-		return fmt.Errorf(format, " run cwebp", err)
+		return fmt.Errorf(format, "run cwebp", err)
 	}
 
 	// compare the image file sizes and pick the smaller format for use as the preview
 	jst, err := os.Stat(jtmp)
 	if err != nil {
-		return fmt.Errorf(format, " stat jpeg", err)
+		return fmt.Errorf(format, "stat jpeg", err)
 	}
 	wst, err := os.Stat(wtmp)
 	if err != nil {
-		return fmt.Errorf(format, " stat webp", err)
+		return fmt.Errorf(format, "stat webp", err)
 	}
 	srcPath := wtmp
 	dst := filepath.Join(dir.Preview.Path(), unid+webp)
@@ -845,10 +862,10 @@ func (dir Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid str
 		dst = filepath.Join(dir.Preview.Path(), unid+jpg)
 	}
 	if err := CopyFile(sl, srcPath, dst); err != nil {
-		return fmt.Errorf(format, " copy preview", err)
+		return fmt.Errorf(format, "copy preview", err)
 	}
 	if err := dir.thumbPhoto(ctx, sl, srcPath, unid); err != nil {
-		return fmt.Errorf(format, " thumbnail", err)
+		return fmt.Errorf(format, "thumbnail", err)
 	}
 	return nil
 }
@@ -857,15 +874,15 @@ func (dir Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid str
 // in the preview directory, and generates a WebP thumbnail in the thumbnail directory.
 func (dir Dirs) previewGif(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "gif preview"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, "", err)
 	}
 
 	src = filepath.Clean(src)
 	tmpFile, err := os.CreateTemp("", "preview-gif-*.webp")
 	if err != nil {
-		return fmt.Errorf(format, " create temp", err)
+		return fmt.Errorf(format, "create temp", err)
 	}
 	tmp := tmpFile.Name()
 	_ = tmpFile.Close()
@@ -885,15 +902,15 @@ func (dir Dirs) previewGif(ctx context.Context, sl *slog.Logger, src, unid strin
 	gwebpArgs = append(gwebpArgs, args...)
 	gwebpArgs = append(gwebpArgs, "-o", tmp)
 	if err := Run(ctx, sl, Gwebp, gwebpArgs...); err != nil {
-		return fmt.Errorf(format, " run gif2webp", err)
+		return fmt.Errorf(format, "run gif2webp", err)
 	}
 
 	dst := filepath.Join(dir.Preview.Path(), unid+webp)
 	if err := CopyFile(sl, tmp, dst); err != nil {
-		return fmt.Errorf(format, " copy preview", err)
+		return fmt.Errorf(format, "copy preview", err)
 	}
 	if err := dir.thumbPixels(ctx, sl, tmp, unid); err != nil {
-		return fmt.Errorf(format, " thumbnail", err)
+		return fmt.Errorf(format, "thumbnail", err)
 	}
 	return nil
 }
@@ -902,36 +919,36 @@ func (dir Dirs) previewGif(ctx context.Context, sl *slog.Logger, src, unid strin
 // It concurrently optimizes the preview and generates a WebP thumbnail .
 func (dir Dirs) previewPNG(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "preview png"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 
 	src = filepath.Clean(src)
 	dst := filepath.Join(dir.Preview.Path(), unid+png)
 	if err := CopyFile(sl, src, dst); err != nil {
-		return fmt.Errorf(format, " copy file", err)
+		return fmt.Errorf(format, "copy file", err)
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
 	// task 1: png optimization
 	g.Go(func() error {
 		if err := OptimizePNG(ctx, dst); err != nil {
-			return fmt.Errorf(format, " optimize", err)
+			return fmt.Errorf(format, "optimize", err)
 		}
 		return nil
 	})
 	// task 2: thumbnail generation
 	g.Go(func() error {
 		if err := dir.thumbPixels(ctx, sl, src, unid); err != nil {
-			return fmt.Errorf(format, " thumbnail", err)
+			return fmt.Errorf(format, "thumbnail", err)
 		}
 		return nil
 	})
 
 	if err := g.Wait(); err != nil {
 		_ = os.Remove(dst)
-		return fmt.Errorf(format, " group wait", err)
+		return fmt.Errorf(format, "group wait", err)
 	}
 	return nil
 }
@@ -940,15 +957,15 @@ func (dir Dirs) previewPNG(ctx context.Context, sl *slog.Logger, src, unid strin
 // copies the resulting WebP to the preview directory, and optionally generates a thumbnail.
 func (dir Dirs) previewWebP(ctx context.Context, sl *slog.Logger, src, unid string, makeThumb bool) error {
 	const msg = "preview webp"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 
 	src = filepath.Clean(src)
 	tmpFile, err := os.CreateTemp("", "preview-webp-*.webp")
 	if err != nil {
-		return fmt.Errorf(format, " create temp", err)
+		return fmt.Errorf(format, "create temp", err)
 	}
 	tmp := tmpFile.Name()
 	_ = tmpFile.Close()
@@ -968,17 +985,17 @@ func (dir Dirs) previewWebP(ctx context.Context, sl *slog.Logger, src, unid stri
 	cwebpArgs = append(cwebpArgs, args...)
 	cwebpArgs = append(cwebpArgs, "-o", tmp)
 	if err := Run(ctx, sl, Cwebp, cwebpArgs...); err != nil {
-		return fmt.Errorf(format, " run cwebp", err)
+		return fmt.Errorf(format, "run cwebp", err)
 	}
 	dst := filepath.Join(dir.Preview.Path(), unid+webp)
 	if err := CopyFile(sl, tmp, dst); err != nil {
-		return fmt.Errorf(format, " copy preview", err)
+		return fmt.Errorf(format, "copy preview", err)
 	}
 	if !makeThumb {
 		return nil
 	}
 	if err := dir.thumbPixels(ctx, sl, tmp, unid); err != nil {
-		return fmt.Errorf(format, " thumbnail", err)
+		return fmt.Errorf(format, "thumbnail", err)
 	}
 	return nil
 }
@@ -1255,9 +1272,9 @@ func (args *Args) GWebp() {
 // This is intended for text and pixel art images.
 func (dir Dirs) thumbPixels(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "thumb as pixel capture"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	return dir.makeThumb(ctx, sl, thumb{
 		pattern: "thumb-pixel-*.png",
@@ -1273,9 +1290,9 @@ func (dir Dirs) thumbPixels(ctx context.Context, sl *slog.Logger, src, unid stri
 // This is used for photographs and images that are not text or pixel art.
 func (dir Dirs) thumbPhoto(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "thumb as photograph"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	return dir.makeThumb(ctx, sl, thumb{
 		pattern: "thumb-photo-*.jpg",
@@ -1294,18 +1311,18 @@ type thumb struct {
 
 func (dir Dirs) makeThumb(ctx context.Context, sl *slog.Logger, cfg thumb) error {
 	const msg = "make thumb"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	unid := cfg.unid
 	if unid == "" {
-		return fmt.Errorf(format, " unid", ErrValue)
+		return fmt.Errorf(format, "unid", ErrValue)
 	}
 
 	tmpFile, err := os.CreateTemp("", cfg.pattern)
 	if err != nil {
-		return fmt.Errorf(format, " create temp file", err)
+		return fmt.Errorf(format, "create temp file", err)
 	}
 	tmp := tmpFile.Name()
 	_ = tmpFile.Close()
@@ -1331,7 +1348,7 @@ func (dir Dirs) makeThumb(ctx context.Context, sl *slog.Logger, cfg thumb) error
 	magickArgs = append(magickArgs, args...)
 	magickArgs = append(magickArgs, tmp)
 	if err := RunQuiet(ctx, Magick, magickArgs...); err != nil {
-		return fmt.Errorf(format, " run magick convert", err)
+		return fmt.Errorf(format, "run magick convert", err)
 	}
 
 	// convert intermediate image to WebP
@@ -1344,9 +1361,8 @@ func (dir Dirs) makeThumb(ctx context.Context, sl *slog.Logger, cfg thumb) error
 	cwebpArgs = append(cwebpArgs, args...)
 	cwebpArgs = append(cwebpArgs, "-o", dst)
 	if err := RunQuiet(ctx, Cwebp, cwebpArgs...); err != nil {
-		return fmt.Errorf(format, " run cwebp", err)
+		return fmt.Errorf(format, "run cwebp", err)
 	}
-
 	return nil
 }
 
@@ -1354,6 +1370,9 @@ func (dir Dirs) makeThumb(ctx context.Context, sl *slog.Logger, cfg thumb) error
 // It is safe to call within a deferred function.
 func OptimizePNG(ctx context.Context, src string) error {
 	const format = "optimize png using optipng %s: %w"
+	if err := nils.Check(ctx); err != nil {
+		return fmt.Errorf(format, check, err)
+	}
 	const minPNG = 67
 	if st, err := os.Stat(src); err != nil {
 		return fmt.Errorf(format, src, err)
@@ -1375,18 +1394,18 @@ func OptimizePNG(ctx context.Context, src string) error {
 // into the extra directory.
 func (dir Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "text deferred"
-	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
 	}
 	if unid == "" {
-		return fmt.Errorf(format, " unid", ErrValue)
+		return fmt.Errorf(format, "unid", ErrValue)
 	}
 	if err := dir.Thumbnail.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, thumbChk, err)
 	}
 	if err := dir.Extra.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
+		return fmt.Errorf(format, "extra check", err)
 	}
 	const minSize = 1
 	if st, err := os.Stat(src); err != nil {
@@ -1424,11 +1443,14 @@ func (dir Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, src, unid str
 func (dir Dirs) DizDeferred(sl *slog.Logger, src, unid string) error {
 	const msg = "text diz deferred"
 	const format = msg + " %s: %w"
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf(format, check, err)
+	}
 	if unid == "" {
 		return fmt.Errorf(format, "unid", ErrValue)
 	}
 	if err := dir.Extra.Check(sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "extra check", err)
 	}
 
 	dst := filepath.Join(dir.Extra.Path(), unid+".diz")
@@ -1444,6 +1466,9 @@ func (dir Dirs) DizDeferred(sl *slog.Logger, src, unid string) error {
 // duplicateSecondTry is used when the source missing,
 // so attempt a case-insensitive or a loose name resolution in the parent directory.
 func duplicateSecondTry(sl *slog.Logger, err error, src, dst, category string) error {
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf("images duplicate second try: %w", err)
+	}
 	const format = "%s deferred %s: %w"
 	if !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf(format, category, src, err)
@@ -1461,8 +1486,10 @@ func duplicateSecondTry(sl *slog.Logger, err error, src, dst, category string) e
 
 // findName walks root directory searching for a file matching target name.
 func findName(sl *slog.Logger, root, target string) string {
+	if sl == nil {
+		sl = logs.Discard()
+	}
 	var result string
-
 	_ = filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			sl.Info("find name walk", slog.Any("error", err))
@@ -1480,5 +1507,8 @@ func findName(sl *slog.Logger, root, target string) string {
 
 func exist(path string) bool {
 	st, err := os.Stat(path)
-	return err == nil && st.Size() > 0
+	if err != nil {
+		return false
+	}
+	return st.Size() > 0
 }

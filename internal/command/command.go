@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 )
 
 const (
@@ -120,15 +120,15 @@ func LookupUnrar() error {
 }
 
 // CopyFile copies the src file to the dst file and path.
-func CopyFile(sl *slog.Logger, src, dst string) (err error) {
-	if sl == nil {
-		sl = slog.Default()
+func CopyFile(sl *slog.Logger, src, dst string) error {
+	const format = "copy file %s: %w"
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
-	const format = "copy file%s: %w"
 
 	s, err := os.Open(src)
 	if err != nil {
-		return fmt.Errorf(format, " open source", err)
+		return fmt.Errorf(format, "open source", err)
 	}
 	defer func() { _ = s.Close() }()
 
@@ -243,6 +243,9 @@ func RunStdOut(name string, arg ...string) ([]byte, error) {
 // RunQuiet looks for the command in the system path and executes it with the arguments.
 func RunQuiet(ctx context.Context, name string, arg ...string) error {
 	const format = "command to discard execute: %w"
+	if err := nils.Check(ctx); err != nil {
+		return fmt.Errorf(format, err)
+	}
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf(format, err)
 	}
@@ -263,8 +266,8 @@ func RunWorkdir(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...
 func run(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string) error {
 	const msg = "command run"
 	const format = msg + "%s: %w"
-	if sl == nil {
-		return fmt.Errorf(format, "", panics.ErrNoSlog)
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, "", err)
 	}
 	if err := LookCmd(name); err != nil {
 		return fmt.Errorf(format, "", err)

@@ -12,7 +12,7 @@ import (
 	"log/slog"
 	"net/url"
 
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/caarlos0/env/v11"
 	_ "github.com/jackc/pgx/v5/stdlib" // Use a lowlevel PostgreSQL driver.
 )
@@ -36,8 +36,8 @@ func Connections(db *sql.DB) (int64, int64, error) {
 	failure := func(s string, err error) (int64, int64, error) {
 		return 0, 0, fmt.Errorf(format, s, err)
 	}
-	if db == nil {
-		return failure("", panics.ErrNoDB)
+	if err := nils.Check(db); err != nil {
+		return failure("check", err)
 	}
 
 	const query = "SELECT COUNT(*) FROM pg_stat_activity WHERE datname='defacto2_ps';"
@@ -115,28 +115,28 @@ type Connection struct {
 }
 
 // Validate the connection URL and print any issues to the logger.
-func (c Connection) Validate(logger *slog.Logger) error {
+func (c Connection) Validate(sl *slog.Logger) error {
 	const msg = "postgres connection validation"
-	if logger == nil {
-		return fmt.Errorf("%s: %w", msg, panics.ErrNoSlog)
+	if err := nils.Check(sl); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const key = "issue"
 	if c.URL == "" {
-		logger.Warn(msg, slog.String(key, "The database connection host name is empty"))
+		sl.Warn(msg, slog.String(key, "The database connection host name is empty"))
 	}
 	u, err := url.Parse(c.URL)
 	if err != nil {
-		logger.Warn(msg,
+		sl.Warn(msg,
 			slog.String(key, "The database connection URL is invalid"),
 			slog.Any("error", err))
 		return nil
 	}
 	if u == nil {
-		logger.Warn(msg, slog.String(key, "The database connection URL is nil"))
+		sl.Warn(msg, slog.String(key, "The database connection URL is nil"))
 		return nil
 	}
 	if u.Scheme != Protocol {
-		logger.Warn(msg,
+		sl.Warn(msg,
 			slog.String(key, "The database connection scheme is invalid"),
 			slog.String("requirement", Protocol),
 			slog.String("scheme in use", u.Scheme))

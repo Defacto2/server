@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
 )
@@ -78,8 +78,9 @@ func Fatal(ctx context.Context, sl *slog.Logger, msg string, args ...slog.Attr) 
 
 // FatalTx logs any issues and exits to the operating system.
 func FatalTx(ctx context.Context, sl *slog.Logger, msg string, args ...slog.Attr) {
-	if sl == nil {
-		panic(fmt.Errorf("fatal logger: %w", panics.ErrNoSlog))
+	if err := nils.Check(ctx, sl); err != nil {
+		const format = "logs fatal slog: %w"
+		panic(fmt.Errorf(format, err))
 	}
 	sl.LogAttrs(ctx, LevelFatal, msg, args...)
 	os.Exit(1)

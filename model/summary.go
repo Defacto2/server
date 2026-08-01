@@ -12,7 +12,7 @@ import (
 	"time"
 
 	namer "github.com/Defacto2/server/handler/releaser/name"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
@@ -33,7 +33,7 @@ type Summary struct {
 
 // ByDescription saves the summary statistics for the file description search.
 func (s *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor, terms []string) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	sum := string(postgres.Summary())
 
 	var orConditions []string
@@ -68,7 +68,7 @@ func (s *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor, 
 
 // ByFilename saves the summary statistics for the filename search.
 func (s *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, terms []string) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	var sum strings.Builder
 	sum.WriteString(string(postgres.Summary()))
 	for i, term := range terms {
@@ -87,7 +87,7 @@ func (s *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, ter
 
 // ByForApproval returns the summary statistics for files that require approval.
 func (s *Summary) ByForApproval(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNull(),
@@ -99,7 +99,7 @@ func (s *Summary) ByForApproval(ctx context.Context, exec boil.ContextExecutor) 
 
 // ByHidden returns the summary statistics for files that have been deleted.
 func (s *Summary) ByHidden(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNotNull(),
@@ -111,7 +111,7 @@ func (s *Summary) ByHidden(ctx context.Context, exec boil.ContextExecutor) error
 
 // ByPublic selects the summary statistics for all public files.
 func (s *Summary) ByPublic(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
 		qm.Where(ClauseNoSoftDel),
@@ -121,7 +121,7 @@ func (s *Summary) ByPublic(ctx context.Context, exec boil.ContextExecutor) error
 
 // ByScener selects the summary statistics for the named sceners.
 func (s *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, name string) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	query, params := postgres.ScenerSQL(name)
 	return models.NewQuery(
 		qm.Select(postgres.Columns()...),
@@ -134,7 +134,7 @@ func (s *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, name 
 // ByReleaser returns the summary statistics for the named releaser.
 // The name is case insensitive and should be the URI slug of the releaser.
 func (s *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, name string) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	ns, err := namer.Humanize(namer.Path(name))
 	if err != nil {
 		return fmt.Errorf("summary by releaser namer humanize: %w", err)
@@ -151,7 +151,7 @@ func (s *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, nam
 
 // ByUnwanted returns the summary statistics for files that have been marked as unwanted.
 func (s *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	empty := null.StringFrom("")
 	return models.NewQuery(
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
@@ -244,7 +244,7 @@ func (s *Summary) ByMatch(ctx context.Context, exec boil.ContextExecutor, uri st
 }
 
 func (s *Summary) console(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Console{
 		Bytes:   0,
 		Count:   0,
@@ -259,7 +259,7 @@ func (s *Summary) console(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) introWindows(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := IntroWindows{
 		Cache:   time.Time{},
 		Bytes:   0,
@@ -275,7 +275,7 @@ func (s *Summary) introWindows(ctx context.Context, exec boil.ContextExecutor) e
 }
 
 func (s *Summary) pcboard(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := PCBoard{
 		Bytes:   0,
 		Count:   0,
@@ -290,7 +290,7 @@ func (s *Summary) pcboard(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) pcboardPPE(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := PCBoardPPE{
 		Bytes:   0,
 		Count:   0,
@@ -305,7 +305,7 @@ func (s *Summary) pcboardPPE(ctx context.Context, exec boil.ContextExecutor) err
 }
 
 func (s *Summary) pcboardText(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := PCBoardText{
 		Bytes:   0,
 		Count:   0,
@@ -320,7 +320,7 @@ func (s *Summary) pcboardText(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 func (s *Summary) introMsdos(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := IntroMsDos{
 		Bytes:   0,
 		Count:   0,
@@ -335,7 +335,7 @@ func (s *Summary) introMsdos(ctx context.Context, exec boil.ContextExecutor) err
 }
 
 func (s *Summary) intro(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Intro{
 		Bytes:   0,
 		Count:   0,
@@ -350,7 +350,7 @@ func (s *Summary) intro(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) installer(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Installer{
 		Bytes:   0,
 		Count:   0,
@@ -365,7 +365,7 @@ func (s *Summary) installer(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) demoscene(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Demoscene{
 		Bytes:   0,
 		Count:   0,
@@ -380,7 +380,7 @@ func (s *Summary) demoscene(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) nfo(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Nfo{
 		Bytes:   0,
 		Count:   0,
@@ -395,7 +395,7 @@ func (s *Summary) nfo(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) proof(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Proof{
 		Bytes:   0,
 		Count:   0,
@@ -410,7 +410,7 @@ func (s *Summary) proof(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) ansi(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Ansi{
 		Bytes:   0,
 		Count:   0,
@@ -425,7 +425,7 @@ func (s *Summary) ansi(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) ansiBrand(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := AnsiBrand{
 		Bytes:   0,
 		Count:   0,
@@ -440,7 +440,7 @@ func (s *Summary) ansiBrand(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) ansiBBS(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := AnsiBBS{
 		Bytes:   0,
 		Count:   0,
@@ -455,7 +455,7 @@ func (s *Summary) ansiBBS(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) ansiFTP(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := AnsiFTP{
 		Bytes:   0,
 		Count:   0,
@@ -470,7 +470,7 @@ func (s *Summary) ansiFTP(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) ansiPack(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := AnsiPack{
 		Bytes:   0,
 		Count:   0,
@@ -485,7 +485,7 @@ func (s *Summary) ansiPack(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) ansiNfo(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := AnsiNfo{
 		Bytes:   0,
 		Count:   0,
@@ -500,7 +500,7 @@ func (s *Summary) ansiNfo(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) bbs(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := BBS{
 		Bytes:   0,
 		Count:   0,
@@ -515,7 +515,7 @@ func (s *Summary) bbs(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) bbstro(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := BBStro{
 		Bytes:   0,
 		Count:   0,
@@ -530,7 +530,7 @@ func (s *Summary) bbstro(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) bbsImage(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := BBSImage{
 		Bytes:   0,
 		Count:   0,
@@ -545,7 +545,7 @@ func (s *Summary) bbsImage(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) bbsText(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := BBSText{
 		Bytes:   0,
 		Count:   0,
@@ -560,7 +560,7 @@ func (s *Summary) bbsText(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) ftp(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := FTP{
 		Bytes:   0,
 		Count:   0,
@@ -575,7 +575,7 @@ func (s *Summary) ftp(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) magazine(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Magazine{
 		Bytes:   0,
 		Count:   0,
@@ -590,7 +590,7 @@ func (s *Summary) magazine(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) text(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Text{
 		Bytes:   0,
 		Count:   0,
@@ -605,7 +605,7 @@ func (s *Summary) text(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) textPack(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := TextPack{
 		Bytes:   0,
 		Count:   0,
@@ -620,7 +620,7 @@ func (s *Summary) textPack(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) imagePack(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := ImagePack{
 		Bytes:   0,
 		Count:   0,
@@ -635,7 +635,7 @@ func (s *Summary) imagePack(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) windowsPack(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := WindowsPack{
 		Bytes:   0,
 		Count:   0,
@@ -650,7 +650,7 @@ func (s *Summary) windowsPack(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 func (s *Summary) msdosPack(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := MsDosPack{
 		Bytes:   0,
 		Count:   0,
@@ -665,7 +665,7 @@ func (s *Summary) msdosPack(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) database(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Database{
 		Bytes:   0,
 		Count:   0,
@@ -680,7 +680,7 @@ func (s *Summary) database(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) textAmiga(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := TextAmiga{
 		Bytes:   0,
 		Count:   0,
@@ -695,7 +695,7 @@ func (s *Summary) textAmiga(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) textApple2(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := TextApple2{
 		Bytes:   0,
 		Count:   0,
@@ -710,7 +710,7 @@ func (s *Summary) textApple2(ctx context.Context, exec boil.ContextExecutor) err
 }
 
 func (s *Summary) textAtariST(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := TextAtariST{
 		Bytes:   0,
 		Count:   0,
@@ -725,7 +725,7 @@ func (s *Summary) textAtariST(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 func (s *Summary) pdf(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := PDF{
 		Bytes:   0,
 		Count:   0,
@@ -740,7 +740,7 @@ func (s *Summary) pdf(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) html(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := HTML{
 		Bytes:   0,
 		Count:   0,
@@ -755,7 +755,7 @@ func (s *Summary) html(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) newsArticle(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := NewsArticle{
 		Bytes:   0,
 		Count:   0,
@@ -770,7 +770,7 @@ func (s *Summary) newsArticle(ctx context.Context, exec boil.ContextExecutor) er
 }
 
 func (s *Summary) standards(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Standard{
 		Bytes:   0,
 		Count:   0,
@@ -785,7 +785,7 @@ func (s *Summary) standards(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) announcement(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Announcement{
 		Bytes:   0,
 		Count:   0,
@@ -800,7 +800,7 @@ func (s *Summary) announcement(ctx context.Context, exec boil.ContextExecutor) e
 }
 
 func (s *Summary) jobAdvert(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := JobAdvert{
 		Bytes:   0,
 		Count:   0,
@@ -815,7 +815,7 @@ func (s *Summary) jobAdvert(ctx context.Context, exec boil.ContextExecutor) erro
 }
 
 func (s *Summary) trialCrackme(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := TrialCrackme{
 		Bytes:   0,
 		Count:   0,
@@ -830,7 +830,7 @@ func (s *Summary) trialCrackme(ctx context.Context, exec boil.ContextExecutor) e
 }
 
 func (s *Summary) hack(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Hack{
 		Bytes:   0,
 		Count:   0,
@@ -845,7 +845,7 @@ func (s *Summary) hack(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) tool(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Tool{
 		Bytes:   0,
 		Count:   0,
@@ -860,7 +860,7 @@ func (s *Summary) tool(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) takedown(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Takedown{
 		Bytes:   0,
 		Count:   0,
@@ -875,7 +875,7 @@ func (s *Summary) takedown(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) drama(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Drama{
 		Bytes:   0,
 		Count:   0,
@@ -890,7 +890,7 @@ func (s *Summary) drama(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) advert(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Advert{
 		Bytes:   0,
 		Count:   0,
@@ -905,7 +905,7 @@ func (s *Summary) advert(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) restrict(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Restrict{
 		Bytes:   0,
 		Count:   0,
@@ -920,7 +920,7 @@ func (s *Summary) restrict(ctx context.Context, exec boil.ContextExecutor) error
 }
 
 func (s *Summary) howTo(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := HowTo{
 		Bytes:   0,
 		Count:   0,
@@ -935,7 +935,7 @@ func (s *Summary) howTo(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) nfoTool(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := NfoTool{
 		Bytes:   0,
 		Count:   0,
@@ -950,7 +950,7 @@ func (s *Summary) nfoTool(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) image(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Image{
 		Bytes:   0,
 		Count:   0,
@@ -965,7 +965,7 @@ func (s *Summary) image(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) music(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Music{
 		Bytes:   0,
 		Count:   0,
@@ -980,7 +980,7 @@ func (s *Summary) music(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) video(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Video{
 		Bytes:   0,
 		Count:   0,
@@ -1009,7 +1009,7 @@ func (s *Summary) msdos(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) windows(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Windows{
 		Bytes:   0,
 		Count:   0,
@@ -1024,7 +1024,7 @@ func (s *Summary) windows(ctx context.Context, exec boil.ContextExecutor) error 
 }
 
 func (s *Summary) macos(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Macos{
 		Bytes:   0,
 		Count:   0,
@@ -1039,7 +1039,7 @@ func (s *Summary) macos(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) linux(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Linux{
 		Bytes:   0,
 		Count:   0,
@@ -1054,7 +1054,7 @@ func (s *Summary) linux(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) java(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Java{
 		Bytes:   0,
 		Count:   0,
@@ -1069,7 +1069,7 @@ func (s *Summary) java(ctx context.Context, exec boil.ContextExecutor) error {
 }
 
 func (s *Summary) script(ctx context.Context, exec boil.ContextExecutor) error {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	m := Script{
 		Bytes:   0,
 		Count:   0,

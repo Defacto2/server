@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/internal/panics"
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/sqlboiler/v4/boil"
@@ -25,7 +25,7 @@ type Sceners []*struct {
 
 // Where gets the records of all files that have been credited to the named scener.
 func (s *Scener) Where(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	query, params := postgres.ScenerSQL(name)
 	return models.Files(
 		qm.Where(query, params...),
@@ -38,7 +38,7 @@ func (s *Sceners) Distinct(ctx context.Context, exec boil.ContextExecutor) error
 	if len(*s) > 0 {
 		return nil
 	}
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	query := string(postgres.Sceners())
 	return queries.Raw(query).Bind(ctx, exec, s)
 }
@@ -48,7 +48,7 @@ func (s *Sceners) Writer(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*s) > 0 {
 		return nil
 	}
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	query := string(postgres.Writers())
 	return queries.Raw(query).Bind(ctx, exec, s)
 }
@@ -58,7 +58,7 @@ func (s *Sceners) Artist(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*s) > 0 {
 		return nil
 	}
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	query := string(postgres.Artists())
 	return queries.Raw(query).Bind(ctx, exec, s)
 }
@@ -68,7 +68,7 @@ func (s *Sceners) Coder(ctx context.Context, exec boil.ContextExecutor) error {
 	if len(*s) > 0 {
 		return nil
 	}
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	query := string(postgres.Coders())
 	return queries.Raw(query).Bind(ctx, exec, s)
 }
@@ -78,7 +78,7 @@ func (s *Sceners) Musician(ctx context.Context, exec boil.ContextExecutor) error
 	if len(*s) > 0 {
 		return nil
 	}
-	panics.BoilExecCrash(exec)
+	nils.BoilExecCrash(exec)
 	query := string(postgres.Musicians())
 	return queries.Raw(query).Bind(ctx, exec, s)
 }
