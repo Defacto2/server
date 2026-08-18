@@ -43,8 +43,14 @@ func index(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *templ
 	if emptyFS(fs) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
-		GlobTo(layout), GlobTo(dirs), GlobTo("index.html")))
+	// this template is broken out to vars for easier debuging
+	patterns := []string{GlobTo(layout), GlobTo(dirs), GlobTo("index.html")}
+	funcMap := TemplateFuncMap(ctx, sl, db)
+	t, err := template.New("").Funcs(funcMap).ParseFS(fs, patterns...)
+	if err != nil {
+		sl.Error("html3 template index", slog.Any("error", err))
+	}
+	return template.Must(t, err)
 }
 
 // List file records template.

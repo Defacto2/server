@@ -773,19 +773,19 @@ func (t *T) ByName(name string) (TagData, error) {
 }
 
 // Build the tags and collect the statistical data sourced from the database.
-func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
+func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) (err error) {
 	const msg = "tags builder"
 	const format = msg + " %s: %w"
 	if InvalidExec(exec) {
-		return fmt.Errorf(format, "", ErrNoDB)
+		err = errors.Join(err, fmt.Errorf(format, "", ErrNoDB))
 	}
 	t.List = make([]TagData, LastPlatform+1)
 	i := -1
 	for key, val := range URIs() {
 		i++
-		count64, err := counter(ctx, exec, key)
+		count64, cErr := counter(ctx, exec, key)
 		if err != nil {
-			return fmt.Errorf(format, "counter", err)
+			err = errors.Join(err, fmt.Errorf(format, "counter", cErr))
 		}
 		count := int(count64)
 		t.Mu.Lock()
@@ -797,7 +797,7 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) error {
 		}
 		t.Mu.Unlock()
 	}
-	return nil
+	return err
 }
 
 // counter counts the number of files with the tag.
