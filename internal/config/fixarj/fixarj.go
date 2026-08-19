@@ -84,9 +84,7 @@ func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,
-			slog.String("command in use", command.Zip7),
-			slog.String("arj file path", path),
-			slog.Any("error", err))
+			slog.String("command", command.Zip7), slog.String("path", path), slog.Any("error", err))
 		return true
 	}
 	return !bytes.Contains(b, []byte("Everything is Ok"))

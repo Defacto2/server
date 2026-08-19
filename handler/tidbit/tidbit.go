@@ -553,7 +553,7 @@ func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
 	b, err := fs.ReadFile(name)
 	if err != nil {
 		name := fmt.Sprintf("%d.md", id)
-		sl.Error(msg, slog.String("read error", name), slog.Any("error", err))
+		sl.Error(msg, slog.String("read_error", name), slog.Any("error", err))
 		return nil
 	}
 	p := parser.NewWithExtensions(extensions)

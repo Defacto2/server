@@ -245,7 +245,7 @@ func (f *Artifacts) Description(ctx context.Context, sl *slog.Logger, exec boil.
 	mods = append(mods, qm.Limit(Maximum))
 	sl.Debug(msg,
 		slog.String("terms", strings.Join(terms, ",")),
-		slog.String("mods verbose", fmt.Sprintf("%+v", mods)))
+		slog.String("mods.verbose", fmt.Sprintf("%+v", mods)))
 	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return nil, fmt.Errorf("%s models all files by description search: %w", msg, err)

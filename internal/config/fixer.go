@@ -225,7 +225,7 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 		s := welcome + " too few database records"
 		sl.Warn(psl,
 			slog.String("issue", s),
-			slog.Int("record count", count))
+			slog.Int("record_count", count))
 	default:
 		sl.Info(msg, slog.String("info", welcome),
 			slog.Int("records", count))
@@ -248,7 +248,7 @@ func TmpInfo(sl *slog.Logger) {
 	du, err := helper.DiskUsage(tmpdir)
 	if err != nil {
 		sl.Error(msg, slog.String("disk usage", "could not obtain the tmp directory"),
-			slog.String("tmp directory", tmpdir), slog.Any("error", err))
+			slog.String("tmp_directory", tmpdir), slog.Any("error", err))
 		return
 	}
 	hdu := helper.ByteCountFloat(du)
@@ -378,7 +378,7 @@ func cmdChecks(sl *slog.Logger) {
 		if errors.Is(err, command.ErrVersion) {
 			sl.Warn("command unrar",
 				slog.String("invalid", "Found unrar but it is not authored by Alexander Roshal"),
-				slog.String("incorrect application", "Is unrar-free mistakenly installed?"))
+				slog.String("incorrect_application", "Is unrar-free mistakenly installed?"))
 			return
 		}
 		sl.Warn("command unrar", slog.Any("error", err))

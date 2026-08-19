@@ -194,7 +194,7 @@ func printOwner(cl *slog.Logger, msg string) {
 	groups, usr, err := helper.Owner()
 	if err != nil {
 		cl.Error(msg,
-			slog.String("own and group", "could not obtain the current user of this process"),
+			slog.String("own_and_group", "could not obtain the current user of this process"),
 			slog.Any("error", err))
 	}
 	clean := slices.DeleteFunc(groups, func(e string) bool {
@@ -211,7 +211,7 @@ func printAddrs(cl *slog.Logger, envConfig *config.Config, msg string) {
 	err := envConfig.Addresses(cl)
 	if err != nil {
 		cl.Error(msg,
-			slog.String("local address", "could not obtain the usable addresses"),
+			slog.String("local_address", "could not obtain the usable addresses"),
 			slog.Any("error", err))
 	}
 }
@@ -232,7 +232,7 @@ func environmentVars(ctx context.Context, tmpLog *slog.Logger) *config.Config {
 	}
 	if err := env.Parse(&configs); err != nil {
 		logs.Fatal(ctx, tmpLog, msg,
-			slog.String("parsing error", "does the variable contain an invalid value?"),
+			slog.String("parsing_error", "does the variable contain an invalid value?"),
 			slog.Any("error", err))
 	}
 	configs.Override()
@@ -275,7 +275,7 @@ func flagParser(tmpLog *slog.Logger, w io.Writer, envConfig *config.Config) flag
 	if err != nil {
 		tmpLog.Error(msg,
 			slog.String("run", "there was a problem parsing the command arguments"),
-			slog.Int("exit code", int(exitCode)),
+			slog.Int("exit_code", int(exitCode)),
 			slog.Any("error", err))
 		return exitCode
 	}
@@ -297,8 +297,8 @@ func printOpening(sl *slog.Logger, count int) {
 	case config.MinimumFiles > count:
 		s := " with too few records"
 		sl.Warn(welcome+s,
-			slog.Int("record count", count),
-			slog.Int("expecting at least", config.MinimumFiles))
+			slog.Int("record_count", count),
+			slog.Int("minumum_requirement", config.MinimumFiles))
 	default:
 		sl.Info(welcome, slog.Int("Artifacts", count))
 	}

@@ -184,7 +184,7 @@ func classifyANSICheck(ctx context.Context, sl *slog.Logger, db *sql.DB, id int6
 	if textfile && numb == magicnumber.ANSIEscapeText.Title() {
 		if err := model.UpdatePlatform(ctx, db, id, tags.ANSI.String()); err != nil && sl != nil {
 			sl.Error("detect ansi",
-				slog.String("update platform", "there is an issue updating the artifact editor platform"),
+				slog.String("issue", "there is an problem updating the artifact editor platform"),
 				slog.Int64("id", id),
 				slog.Any("error", err))
 		}
@@ -449,7 +449,7 @@ func (dir Dirs) updateMagicNumber(ctx context.Context, sl *slog.Logger,
 		if err := model.UpdateMagic(ctx, db, id, magic); err != nil && sl != nil {
 			sl.Error(msg,
 				slog.String("update", "could not update the database record"),
-				slog.Int64("database id", id),
+				slog.Int64("database_id", id),
 				slog.String("uuid", uid),
 				slog.Any("error", err))
 		}
@@ -475,7 +475,7 @@ func (dir Dirs) updateMagicNumber(ctx context.Context, sl *slog.Logger,
 	}
 	if st, err := os.Stat(root); err != nil || !st.IsDir() {
 		if sl != nil {
-			sl.Error(msg, slog.String("file issue", "archive decompress and extraction directory"),
+			sl.Error(msg, slog.String("file_issue", "archive decompress and extraction directory"),
 				slog.String("uuid", uid), slog.Any("error", err))
 		}
 		return data
@@ -511,7 +511,7 @@ func (dir Dirs) makeAssets(ctx context.Context, sl *slog.Logger,
 	i, err := dir.makeReplacementZip(root, uid)
 	if err != nil {
 		if sl != nil {
-			sl.Error(msg, slog.String("file issue", "zip archive compressor"),
+			sl.Error(msg, slog.String("file_issue", "zip archive compressor"),
 				slog.String("uuid", uid), slog.Any("error", err))
 		}
 		return data
@@ -603,7 +603,7 @@ func (dir Dirs) makeTextfileImgs(ctx context.Context, sl *slog.Logger,
 	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String()) ||
 		strings.EqualFold(platform, tags.Console.String())
 	if err := dirs.TextImager(ctx, sl, name, uid, amigaFont); err != nil {
-		sl.Error(msg, slog.String("text imager", "conversion error"),
+		sl.Error(msg, slog.String("text_imager", "conversion error"),
 			slog.String("uuid", uid), slog.Any("error", err))
 	}
 	data["missingAssets"] = ""

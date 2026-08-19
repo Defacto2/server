@@ -132,7 +132,7 @@ func FileHref(sl *slog.Logger, id int64) string {
 	href, err := url.JoinPath("/", "html3", "d",
 		helper.ObfuscateID(id))
 	if err != nil {
-		sl.Error(msg, slog.String("invalid id", "could not make id into a valid url"),
+		sl.Error(msg, slog.String("invalid_id", "could not make id into a valid url"),
 			slog.Int64("id", id), slog.Any("error", err))
 		return ""
 	}
@@ -570,7 +570,7 @@ func TemplateFuncMap(ctx context.Context, sl *slog.Logger, db *sql.DB) template.
 		"metaByName": func(s string) tags.TagData {
 			data, err := tagByName(&t, s)
 			if err != nil {
-				sl.Error(msg, slog.String("tag by name", "could not create the meta by name func"), slog.Any("error", err))
+				sl.Error(msg, slog.String("tag_by_name", "could not create the meta by name func"), slog.Any("error", err))
 				return tags.TagData{
 					URI:   "",
 					Name:  "",

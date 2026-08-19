@@ -151,7 +151,7 @@ func CopyFile(sl *slog.Logger, src, dst string) error {
 		return fmt.Errorf(format, "sync dest", err)
 	}
 
-	sl.Debug("file copied", slog.String("path", dst), slog.Int64("bytes", n))
+	sl.Debug("file.copied", slog.String("path", dst), slog.Int64("bytes", n))
 	return nil
 }
 
@@ -279,7 +279,7 @@ func run(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string)
 		return fmt.Errorf(format, " cannot start "+name, err)
 	}
 	sl.Debug(msg,
-		slog.String("command name", cmd.String()),
+		slog.String("command.name", cmd.String()),
 		slog.String("output", string(p)))
 	return nil
 }

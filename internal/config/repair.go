@@ -373,7 +373,7 @@ func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 				return nil
 			})
 			if err != nil {
-				sl.Error(msg, slog.String("walk directory", dir), slog.Any("error", err))
+				sl.Error(msg, slog.String("walk_directory", dir), slog.Any("error", err))
 			}
 		}(dir)
 	}
@@ -405,7 +405,7 @@ func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Direc
 		if err := helper.RenameCrossDevice(oldpath, dest); err != nil {
 			sl.Error(msg,
 				slog.String("issue", "could not move the file to the orphaned directory"),
-				slog.String("source path", oldpath), slog.String("destination path", dest),
+				slog.String("source_path", oldpath), slog.String("destination_path", dest),
 				slog.Any("error", err))
 		}
 	}()
@@ -497,7 +497,7 @@ func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.Conte
 			sl.Error(msg,
 				slog.String("problem", "Cannot remove file duplicates"),
 				slog.String("file_id.diz", diz),
-				slog.String("readme text", txt))
+				slog.String("readme_text", txt))
 			continue
 		}
 		sl.Info(msg,
@@ -580,7 +580,7 @@ func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.Co
 	if len(magics) > large && sl != nil {
 		sl.Warn(msg,
 			slog.String("issue", "there are a large number of artifacts to check, it could take a while"),
-			slog.Int("task count", len(magics)))
+			slog.Int("task_count", len(magics)))
 	}
 	count := 0
 	for val := range slices.Values(magics) {
@@ -600,7 +600,7 @@ func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.Co
 	}
 	sl.Info(msg,
 		slog.String("success", ""),
-		slog.Int("values update", count),
+		slog.Int("values_update", count),
 		slog.Duration("time", time.Since(tick).Round(time.Millisecond)))
 	return nil
 }
@@ -840,7 +840,7 @@ func RemoveDir(sl *slog.Logger, name, path, root string) error {
 			sl.Error(msg, slog.Any("error", err))
 		}()
 	default:
-		sl.Error(msg, slog.String("unknown path", path))
+		sl.Error(msg, slog.String("unknown_path", path))
 		return nil
 	}
 	return nil
@@ -940,10 +940,10 @@ func rename(sl *slog.Logger, oldpath, info, newpath string) {
 	if sl == nil {
 		sl = logs.Discard()
 	}
-	sl.Info(msg, slog.String("original path", oldpath), slog.String("new path", newpath), slog.String("detail", info))
+	sl.Info(msg, slog.String("original_path", oldpath), slog.String("new_path", newpath), slog.String("detail", info))
 	defer func() {
 		if err := helper.RenameCrossDevice(oldpath, newpath); err != nil {
-			sl.Error(msg, slog.String("original path", oldpath), slog.String("new path", newpath),
+			sl.Error(msg, slog.String("original_path", oldpath), slog.String("new_path", newpath),
 				slog.String("detail", info), slog.Any("error", err))
 		}
 	}()
@@ -984,7 +984,7 @@ func TmpCleaner(sl *slog.Logger) {
 		}
 		rmpath := filepath.Join(name, d.Name())
 		if err := os.RemoveAll(rmpath); err != nil {
-			sl.Error(msg, slog.String("target path", rmpath), slog.Any("error", err))
+			sl.Error(msg, slog.String("target_path", rmpath), slog.Any("error", err))
 		}
 		return nil
 	})

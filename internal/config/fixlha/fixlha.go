@@ -80,8 +80,7 @@ func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,
-			slog.String("lha file path", path),
-			slog.Any("error", err))
+			slog.String("command", name), slog.String("path", path), slog.Any("error", err))
 		return true
 	}
 	return len(bytes.TrimSpace(b)) == 0

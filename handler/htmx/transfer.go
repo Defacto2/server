@@ -90,7 +90,7 @@ func LookupSHA384(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 	const pattern = "^[a-fA-F0-9]{96}$"
 	match, err := regexp.MatchString(pattern, hash)
 	if err != nil {
-		slog.Error(msg, slog.String("regexp", "could not run the pattern to string match"),
+		slog.Error(msg, slog.String("reg_expression", "could not run the pattern to string match"),
 			slog.String("pattern", pattern), slog.String("hash", hash), slog.Any("error", err))
 		return c.String(http.StatusBadRequest, "regex match error")
 	}
@@ -281,13 +281,13 @@ func Duplicate(sl *slog.Logger, uid uuid.UUID, src string, dst dir.Directory) {
 	if err != nil {
 		sl.Error(msg, slog.String("issue", "could not duplicate the file"),
 			slog.String("uuid", uid.String()),
-			slog.String("source file", src), slog.String("destination", newPath),
+			slog.String("source_file", src), slog.String("destination", newPath),
 			slog.Any("error", err))
 		return
 	}
 	sl.Info(msg,
 		slog.String("success", "uploader transfer to the destination directory"),
-		slog.String("uuid", uid.String()), slog.Int64("bytes tranfered", i))
+		slog.String("uuid", uid.String()), slog.Int64("bytes_tranfered", i))
 }
 
 func checkFormFile(sl *slog.Logger, c *echo.Context, name string, err error) error {
@@ -309,7 +309,7 @@ func checkFileOpen(sl *slog.Logger, c *echo.Context, name string, err error) err
 	}
 	sl.Error("transfer check file open",
 		slog.String("form", "the file input could not be opened"),
-		slog.String("named file", name),
+		slog.String("named_file", name),
 		slog.Any("error", err))
 	return c.HTML(http.StatusBadRequest,
 		"The chosen file input cannot be opened")
@@ -322,7 +322,7 @@ func checkHasher(sl *slog.Logger, c *echo.Context, name string, err error) error
 	}
 	sl.Error("transfer check hasher",
 		slog.String("form", "the file input could not be hashed"),
-		slog.String("named file", name),
+		slog.String("named_file", name),
 		slog.Any("error", err))
 	return c.HTML(http.StatusInternalServerError,
 		"The chosen file input cannot be hashed")
@@ -354,7 +354,7 @@ func copier(sl *slog.Logger, c *echo.Context, file *multipart.FileHeader, key st
 	if err != nil {
 		sl.Error(msg,
 			slog.String("task", "the file input could not be opened"),
-			slog.String("named file", name),
+			slog.String("named_file", name),
 			slog.Any("error", err))
 		return "", c.HTML(http.StatusInternalServerError,
 			"The chosen file input cannot be opened")
@@ -367,7 +367,7 @@ func copier(sl *slog.Logger, c *echo.Context, file *multipart.FileHeader, key st
 	if err != nil {
 		sl.Error(msg,
 			slog.String("task", "the file input could not create a temporary destination file"),
-			slog.String("named file", name),
+			slog.String("named_file", name),
 			slog.Any("error", err))
 		return "", c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be created")
@@ -381,7 +381,7 @@ func copier(sl *slog.Logger, c *echo.Context, file *multipart.FileHeader, key st
 	if _, err = io.CopyBuffer(dst, src, buf); err != nil {
 		sl.Error(msg,
 			slog.String("task", "the file input could not be copied to the temporary destination file"),
-			slog.String("named file", name),
+			slog.String("named_file", name),
 			slog.Any("error", err))
 		return "", c.HTML(http.StatusInternalServerError,
 			"The temporary save cannot be written")
@@ -431,7 +431,7 @@ func (cr creator) insert(ctx context.Context, sl *slog.Logger, c *echo.Context, 
 	id, uid, err := model.InsertUpload(ctx, tx, values, cr.key)
 	if err != nil {
 		sl.Error(msg, slog.String("form", "could not insert a new database record for the file upload"),
-			slog.String("filename", cr.file.Filename), slog.String("cr key", cr.key),
+			slog.String("filename", cr.file.Filename), slog.String("cr_key", cr.key),
 			slog.Any("error", err))
 		return 0, empty, ErrFormInsert
 	}
@@ -491,7 +491,7 @@ func (prod Submission) Submit( //nolint:funlen
 	if err != nil || key == 0 {
 		sl.Error(msg,
 			slog.String("problem", "cannot insert a record to the database"),
-			slog.Int("record id", id),
+			slog.Int("record_id", id),
 			slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database insert failed")
@@ -531,7 +531,7 @@ func (prod Submission) Submit( //nolint:funlen
 	}
 	sl.Info(msg,
 		slog.String("success", "the production has been submitted"),
-		slog.String("remote", name), slog.Int("new record id", id))
+		slog.String("remote", name), slog.Int("new_record_id", id))
 	return c.String(http.StatusOK, html)
 }
 

@@ -62,8 +62,9 @@ func CustomErrorHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, e
 
 	sl.Error(msg,
 		slog.Any("error", err),
-		slog.String("error type", fmt.Sprintf("%t", err)),
-		slog.Int("code", statusCode))
+		slog.String("type", fmt.Sprintf("%t", err)),
+		slog.Any("unwrapped", errors.Unwrap(err)),
+		slog.Int("status_code", statusCode))
 
 	s := fmt.Sprintf("%d - %s", statusCode, statusText)
 	if err1 := c.String(statusCode, s); err1 != nil {

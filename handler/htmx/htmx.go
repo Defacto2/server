@@ -299,7 +299,7 @@ func rollback(sl *slog.Logger, msg string, key int64, tx *sql.Tx) {
 	}
 	if err := tx.Rollback(); err != nil {
 		sl.Error(msg+" delete one, rollback transaction error",
-			slog.Int64("record id", key),
+			slog.Int64("record_id", key),
 			slog.Any("error", err))
 	}
 }
@@ -773,7 +773,7 @@ func datalist(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 	if err != nil {
 		sl.Error(msg, slog.String("model", "similar releasers lookup failure"),
 			slog.String("lookups", strings.Join(lookups, ",")),
-			slog.Bool("magazine lookup", magazine),
+			slog.Bool("magazine_lookup", magazine),
 			slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")

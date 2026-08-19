@@ -905,7 +905,7 @@ func Categories(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	data["counter"] = fileslice.Statistics()
 	data, err := fileWStats(ctx, db, data, stats)
 	if err != nil {
-		sl.Warn("context categories", slog.Any("error", err))
+		sl.Warn("context_categories", slog.Any("error", err))
 		data["databaseErr"] = true
 	}
 	err = c.Render(http.StatusOK, name, data)
@@ -2564,13 +2564,13 @@ func VotePouet(ctx context.Context, sl *slog.Logger, c *echo.Context, id string)
 	if s, err := cp.Read(id); err == nil {
 		if err := PouetCache(c, s); err == nil {
 			if sl != nil {
-				sl.Debug("vote pouet", slog.String("cache hit id", id))
+				sl.Debug("vote.pouet", slog.String("cache.hit.id", id))
 			}
 			return nil
 		}
 	}
 	if sl != nil {
-		sl.Debug("vote pouet", slog.String("cache miss for pouet id", id))
+		sl.Debug("vote.pouet", slog.String("cache.miss.for.pouet.id", id))
 	}
 	if err = pv.Votes(ctx, i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -2582,7 +2582,7 @@ func VotePouet(ctx context.Context, sl *slog.Logger, c *echo.Context, id string)
 		pv.Stars, sep, pv.VotesDown, sep, pv.VotesUp, sep, pv.VotesMeh)
 	if err := cp.Write(id, val, cache.ExpiredAt); err != nil {
 		if sl != nil {
-			sl.Error("vote pouet",
+			sl.Error("vote_pouet",
 				slog.String("failed", "could not write to the cache database"),
 				slog.String("id", id), slog.Any("error", err))
 		}

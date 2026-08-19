@@ -525,7 +525,7 @@ func MIME(sl *slog.Logger, name string) string {
 	_, err = file.Read(head)
 	if err != nil {
 		sl.Info(msg+" could not read a sample of file",
-			slog.String("name", name), slog.Int("sample size", sample),
+			slog.String("name", name), slog.Int("sample_size", sample),
 			slog.Any("error", err))
 		return err.Error()
 	}

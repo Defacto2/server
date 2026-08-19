@@ -49,7 +49,7 @@ func Check(sl *slog.Logger, name string, extra dir.Directory, d fs.DirEntry, art
 	}
 	methods, err := pkzip.Methods(name)
 	if err != nil {
-		sl.Error(msg, slog.String("named file", name), slog.Any("error", err))
+		sl.Error(msg, slog.String("named_file", name), slog.Any("error", err))
 		return ""
 	}
 	for method := range slices.Values(methods) {
@@ -94,8 +94,7 @@ func Invalid(ctx context.Context, sl *slog.Logger, path string) bool {
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		sl.Error(msg,
-			slog.String("arc file path", path),
-			slog.Any("error", err))
+			slog.String("command", command.Arc), slog.String("path", path), slog.Any("error", err))
 		return true
 	}
 	return strings.Contains(string(b), "is not an archive")

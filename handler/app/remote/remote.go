@@ -141,7 +141,7 @@ func (got *DemozooLink) Download( //nolint:funlen
 		}
 		cl := response.ContentLength
 		if size, err := strconv.Atoi(cl); err != nil {
-			sl.Info(msg+" atoi error for content length", id(), slog.String("ContentLength", cl))
+			sl.Info(msg+" atoi error for content length", id(), slog.String("content_length", cl))
 		} else {
 			got.FileSize = size
 		}
@@ -186,7 +186,7 @@ func getRemoteFile(
 	resp, err := GetFile(ctx, sl, timeout, linkURL)
 	if skip := err != nil || resp.Path == ""; skip {
 		sl.Info("get remote file returned an error or is invalid",
-			slog.String("resp path", resp.Path),
+			slog.String("resp_path", resp.Path),
 			slog.Any("error", err))
 		// If the last link failed then return the error, otherwise this will fail silently.
 		if lastLink := i+1 >= len(prod.DownloadLinks); lastLink {

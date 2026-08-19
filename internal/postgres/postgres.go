@@ -139,7 +139,7 @@ func (c Connection) Validate(sl *slog.Logger) error {
 		sl.Warn(msg,
 			slog.String(key, "The database connection scheme is invalid"),
 			slog.String("requirement", Protocol),
-			slog.String("scheme in use", u.Scheme))
+			slog.String("scheme_in_use", u.Scheme))
 	}
 	return nil
 }

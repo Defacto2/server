@@ -221,7 +221,7 @@ func trainers(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 	if err != nil {
 		return fmt.Errorf(format, "models files update all", err)
 	}
-	sl.Info(msg, slog.Int64("records fixed", rowsAff))
+	sl.Info(msg, slog.Int64("records_fixed", rowsAff))
 	return nil
 }
 
