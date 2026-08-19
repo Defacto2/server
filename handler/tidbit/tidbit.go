@@ -2,6 +2,8 @@
 package tidbit
 
 import (
+	"context"
+	"database/sql"
 	"embed"
 	"fmt"
 	"html/template"
@@ -12,6 +14,7 @@ import (
 
 	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/Defacto2/server/model"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
@@ -101,7 +104,7 @@ var groups = Tibits{
 	24:   []URI{fairlight},
 	25:   []URI{"future-crew"},
 	27:   []URI{"vortex-software"},
-	28:   []URI{"opyright-infiltration-agency"},
+	28:   []URI{"copyright-infiltration-agency"},
 	2700: []URI{theFirm, "swat", "national-underground-application-alliance", fairlight},
 	2800: []URI{theFirm, "mutual-assured-destruction", pe},
 	29:   []URI{"big-brother"},
@@ -499,7 +502,7 @@ var groups = Tibits{
 	433:  []URI{"imars"},
 	434:  []URI{"moemoe"},
 	435:  []URI{"tport"},
-	436:  []URI{"cws"},
+	436:  []URI{cws},
 	437:  []URI{"the-force-team"},
 	438:  []URI{"the-sabotage-rebellion-hackers"},
 	439:  []URI{cws, "monthly-cracking-report"},
@@ -545,6 +548,7 @@ func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
 	if err := nils.Check(sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+	fmt.Println("HELLO WORLD", id)
 	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
 	b, err := fs.ReadFile(name)
 	if err != nil {
@@ -635,4 +639,34 @@ func Missing(uri string) bool {
 		}
 	}
 	return true
+}
+
+// Startup compares the URIs used in the Tidbits against those stored in the database.
+// Any URIs not found are assumed to be typos, requiring fixing and are logged with a warning.
+func Startup(ctx context.Context, sl *slog.Logger, db *sql.DB) {
+	if db == nil {
+		return
+	}
+
+	const msg = "Tidbit cannot "
+	var names model.ReleaserNames
+	if err := names.DistinctGroups(ctx, db); err != nil {
+		sl.Warn(msg+"get the distinct groups", slog.Any("error", err))
+	}
+	if len(names) == 0 {
+		return
+	}
+	releaserSet := names.Slugs()
+
+	for id, uris := range groups {
+		for n, uri := range uris {
+			key := strings.ToLower(string(uri))
+			if !releaserSet.Has(key) {
+				sl.Warn(msg+"find releaser",
+					slog.String("url", key),
+					slog.Int("tidbit_id", int(id)),
+					slog.Int("item_index", n))
+			}
+		}
+	}
 }

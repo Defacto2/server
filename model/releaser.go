@@ -31,12 +31,47 @@ const (
 
 const fmtraw = "queries raw: %w"
 
+// Set is a zero-byte memory map used to store and reference string values.
+type Set map[string]struct{}
+
+// Add the key to the Set map.
+func (s Set) Add(key string) {
+	s[key] = struct{}{}
+}
+
+// Has returns true when the key is found in the Set map.
+func (s Set) Has(key string) bool {
+	_, ok := s[key]
+	return ok
+}
+
 // ReleaserNames is a distinct data list of releasers.
 type ReleaserNames []ReleaserName
+
+// Slugs returns a map of distinct releaser URLs for lookups
+// that use little memory and are fast.
+//
+// Usage:
+//
+//	var names model.ReleaserNames
+//	_ = names.DistinctGroups(ctx, db)
+//	slugs := names.Slugs()
+//	if slugs.Has("someone") {}
+func (r ReleaserNames) Slugs() Set {
+	rs := make(Set, len(r))
+	for _, v := range r {
+		rs.Add(helper.Slug(v.String()))
+	}
+	return rs
+}
 
 // ReleaserName is a releaser name.
 type ReleaserName struct {
 	Name string `boil:"releaser"`
+}
+
+func (r *ReleaserName) String() string {
+	return r.Name
 }
 
 // Distinct gets the unique releaser names.

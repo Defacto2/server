@@ -141,6 +141,9 @@ func main() { //nolint:funlen
 			slog.Int64("SearchTerms", stat.TotalTerms),
 		)
 	}()
+	go func() {
+		tidbit.Startup(ctx, sl, db)
+	}()
 
 	writeLn(logo)
 	printOpening(sl, serv.RecordCount)
