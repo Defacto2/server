@@ -11,6 +11,13 @@ vars:
   BINNAME: dist/defacto2-server # build output, binary filename (without any extensions)
 dotenv: ['./init/.env.local']
 tasks:
+  default:
+    aliases:
+      - '_'
+    desc: 'Task runner for the Defacto2 web server source code.'
+    cmds:
+      - task --list-all
+    silent: true
   _init:
     silent: false
     desc: 'Initialize this project for the first time after a git clone.'
@@ -27,7 +34,7 @@ tasks:
       - echo "Done!"
     aliases:
       - 'js'
-  binary:
+  build:
     desc: 'Build the binary of the web server.'
     deps: [assets]
     cmds:
@@ -36,90 +43,6 @@ tasks:
         platforms: [linux, darwin, freebsd]
     aliases:
       - 'bin'
-  binaryr:
-    desc: 'Build the binary of the web server with race detection.'
-    deps: [assets]
-    cmds:
-      - cmd: echo "Building with race conditions..."
-      - cmd: go build -o {{.BINNAME}} -race -v server.go
-        platforms: [linux, darwin, freebsd]
-      - cmd: ./{{.BINNAME}} --version
-        platforms: [linux, darwin]
-      - cmd: echo "Done!"
-    aliases:
-      - 'race'
-  binary-run:
-    desc: 'Run the previously built binary.'
-    cmds:
-      - ./{{.BINNAME}}
-    platforms: [linux, darwin, freebsd]
-    aliases:
-      - 'run'
-  default:
-    desc: 'Task runner for the Defacto2 web server source code.'
-    cmds:
-      - task --list-all
-    silent: true
-  doc:
-    desc: 'Generate and browse the application module documentation.'
-    cmds:
-      - cmd: go tool pkgsite -http localhost:8090
-    silent: true
-  lints:
-    silent: false
-    desc: Runs the formatters and linters over the source code.
-    ignore_error: true
-    cmds:
-      - cmd: clear
-        platforms: [linux, darwin, freebsd]
-      - cmd: gci write ./..
-      - cmd: go tool gofumpt -l -w -extra .
-      - cmd: go fix ./...
-      - cmd: pnpm exec eslint assets/js/
-      - cmd: pnpm exec spectral lint public/json/openapi.json
-      - cmd: pnpm exec stylelint --fix assets/css/*.css
-      - cmd: golangci-lint run -c init/.golangci.yaml
-  lint:
-    silent: false
-    desc: Lint the Go source code.
-    ignore_error: true
-    cmds:
-      - cmd: clear
-        platforms: [linux, darwin, freebsd]
-      - cmd: golangci-lint run -c init/.golangci.yaml
-  linthtm:
-    silent: false
-    desc: Lint the HTML and template source code.
-    ignore_error: true
-    cmds:
-      - cmd: clear
-        platforms: [linux, darwin, freebsd]
-      - cmd: pnpm exec hihtml --check-code --input view/
-  lintjs:
-    silent: false
-    desc: Lint the CSS and JS source code.
-    ignore_error: true
-    cmds:
-      - cmd: clear
-        platforms: [linux, darwin, freebsd]
-      - cmd: pnpm exec eslint assets/js/
-      - cmd: pnpm exec spectral lint public/json/openapi.json
-      - cmd: pnpm exec stylelint --fix assets/css/*.css
-  nil:
-    desc: 'Run the static analysis techniques to catch Nil dereferences.'
-    cmds:
-      # ignore server/model package because the database uses nil values
-      # skip tests for performance
-      - go tool nilaway -test=false -exclude-pkgs=github.com/Defacto2/server/model ./...
-  pkg-patch:
-    aliases:
-      - 'patch'
-    silent: false
-    desc: Update and apply patches to the web server dependencies.
-    cmds:
-      - cmd: go get -u=patch -x
-      - cmd: go mod verify
-      - cmd: go mod tidy
   build-release:
     aliases:
       - 'br'
@@ -140,10 +63,113 @@ tasks:
       - cmd: echo "Building snapshot..."
       - cmd: goreleaser build --snapshot --clean --config init/.goreleaser.yaml
       - cmd: echo "Done!"
-  js-update:
+  build-race:
+    desc: 'Build the binary of the web server with race detection.'
+    deps: [assets]
+    cmds:
+      - cmd: echo "Building with race conditions..."
+      - cmd: go build -o {{.BINNAME}} -race -v server.go
+        platforms: [linux, darwin, freebsd]
+      - cmd: ./{{.BINNAME}} --version
+        platforms: [linux, darwin]
+      - cmd: echo "Done!"
+    aliases:
+      - 'race'
+  built-run:
+    desc: 'Run the previously built binary.'
+    cmds:
+      - ./{{.BINNAME}}
+    platforms: [linux, darwin, freebsd]
+    aliases:
+      - 'run'
+  doc:
+    aliases:
+      - 'd'
+    desc: 'Generate and browse the application module documentation.'
+    cmds:
+      - cmd: go tool pkgsite -http localhost:8090
+    silent: true
+  lints:
+    aliases:
+      - 'ls'
+    silent: false
+    desc: Runs the formatters and linters over the source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: gci write ./..
+        platforms: [linux]
+      - cmd: go tool gofumpt -l -w -extra .
+      - cmd: go fix ./...
+      - cmd: pnpm exec eslint assets/js/
+      - cmd: pnpm exec spectral lint public/json/openapi.json
+      - cmd: pnpm exec stylelint --fix assets/css/*.css
+      - cmd: golangci-lint run -c init/.golangci.yaml
+  lint:
+    aliases:
+      - 'l'
+    silent: false
+    desc: Lint the Go source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: golangci-lint run -c init/.golangci.yaml
+  lint-h:
+    aliases:
+      - 'lh'
+    silent: false
+    desc: Lint the HTML and template source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: pnpm exec hihtml --check-code --input view/
+  lint-js:
+    aliases:
+      - 'lj'
+    silent: false
+    desc: Lint the CSS and JS source code.
+    ignore_error: true
+    cmds:
+      - cmd: clear
+        platforms: [linux, darwin, freebsd]
+      - cmd: pnpm exec eslint assets/js/
+      - cmd: pnpm exec spectral lint public/json/openapi.json
+      - cmd: pnpm exec stylelint --fix assets/css/*.css
+  nil:
+    aliases:
+      - 'n'
+    desc: 'Run the static analysis techniques to catch Nil dereferences.'
+    cmds:
+      # ignore server/model package because the database uses nil values
+      # skip tests for performance
+      - go tool nilaway -test=false -exclude-pkgs=github.com/Defacto2/server/model ./...
+  pkg-list:
+    aliases:
+      - 'list'
+    silent: false
+    desc: List the updates for the web server dependencies.
+      To update run, go get github.com/example/package@latest && go mod tidy.
+    cmds:
+      - |
+        go list -u -m $(go list -m -f '{{`{{if not .Indirect}}{{.Path}}{{end}}`}}' all)
+  pkg-js:
+    aliases:
+      - 'js'
     desc: Update to the latest JavaScript dependencies.
     cmds:
       - cmd: pnpm up --interactive --latest
+  pkg-patch:
+    aliases:
+      - 'patch'
+    silent: false
+    desc: Update and apply patches to the web server dependencies.
+    cmds:
+      - cmd: go get -u=patch -x
+      - cmd: go mod verify
+      - cmd: go mod tidy
   pkg-update:
     aliases:
       - 'update'
@@ -153,15 +179,15 @@ tasks:
       - cmd: go get -u -x
       - cmd: go mod verify
       - cmd: go mod tidy
-  serve-dev:
+  serve:
     aliases:
-      - 'serve'
+      - 'http'
     desc: 'Run the internal web server in development mode with live reload.'
     cmds:
       - task: serve-linux
-  serve-dev-x2:
+  serve-https:
     aliases:
-      - 's2'
+      - 'https'
     desc: 'Run the internal web server in development http and https mode with live reload.'
     cmds:
       - task: serve-linux-x2
@@ -171,6 +197,12 @@ tasks:
     desc: 'Run the internal web server with the fix flag.'
     cmds:
       - cmd: go run server.go fix
+  serve-prod:
+    aliases:
+      - 'prod'
+    desc: 'Run the internal web server with live reload.'
+    cmds:
+      - task: serve-air-prod
   serve-linux:
     internal: true
     platforms: [linux, freebsd, darwin]
@@ -190,12 +222,6 @@ tasks:
     deps: [assets]
     cmds:
       - go tool air -c init/.air.toml
-  serve-prod:
-    aliases:
-      - 'server'
-    desc: 'Run the internal web server with live reload.'
-    cmds:
-      - task: serve-air-prod
   serve-air-prod:
     internal: true
     platforms: [darwin, linux, freebsd]
@@ -204,26 +230,36 @@ tasks:
     cmds:
       - go tool air -c init/.air.toml
   spell:
+    aliases:
+      - 'sc'
     desc: 'Run the spell checker on the markdown tidbits.'
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
       - cmd: find public/md/tidbit/ -name "*.md" | xargs pnpm exec mdspell --report --ignore-numbers --ignore-acronyms --en-us
   test:
+    aliases:
+      - 't'
     desc: 'Run the test suite.'
     cmds:
       #- set -o pipefail && go test ./... -json | tparse -all
       - go test -count 1 ./...
   testr:
+    aliases:
+      - 'tr'
     desc: 'Run the test suite with the slower race detection.'
     cmds:
       #- set -o pipefail && go test ./... -json | tparse -all
       - go test -count 1 -race ./...
-  cover:
+  testc:
+    aliases:
+      - 'tc'
     desc: 'Run the test suite with coverage output to the browser.'
     cmds:
       - go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out
-  ver:
+  version:
+    aliases:
+      - 'ver'
     silent: false
     desc: Print the versions of the build and compiler tools.
     ignore_error: true
