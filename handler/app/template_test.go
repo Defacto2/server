@@ -1,7 +1,6 @@
 package app_test
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,33 +11,37 @@ import (
 
 func TestTemplTemplates(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+
 	tpl := app.Templ{}
-	x, err := tpl.Templates(ctx, nil)
+	x, err := tpl.Templates(t.Context(), nil)
 	be.Err(t, err)
 	be.True(t, x == nil)
 }
 
 func TestFuncClosures(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+
 	tpl := app.Templ{}
-	x := tpl.FuncClosures(ctx, nil)
+	x := tpl.FuncClosures(t.Context(), nil)
 	be.True(t, x == nil)
 }
 
 func TestLinkRelrs(t *testing.T) {
 	t.Parallel()
+
 	x := string(app.LinkRelrs(false, nil, nil))
 	be.True(t, x == "")
+
 	x = string(app.LinkRelsPerf(nil, nil))
 	be.True(t, x == "")
+
 	x = string(app.LinkReleasers(false, false, nil, nil))
 	be.True(t, x == "")
 }
 
 func TestTempls(t *testing.T) {
 	t.Parallel()
+
 	x := app.Templ{}
 	pages := x.Pages()
 
@@ -48,8 +51,10 @@ func TestTempls(t *testing.T) {
 
 	for _, page := range *pages {
 		be.True(t, page != "")
+
 		ext := filepath.Ext(string(page))
 		be.Equal(t, ".tmpl", ext)
+
 		stat, err := os.Stat(filepath.Join(view, string(page)))
 		be.Err(t, err, nil)
 		be.True(t, stat.Size() > 0)

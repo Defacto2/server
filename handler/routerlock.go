@@ -91,7 +91,7 @@ func (c *Configuration) configurations(ctx context.Context, sl *slog.Logger, g *
 			port = c.Environment.TLSPort.Value()
 			proto = "https"
 		}
-		return htmx.Pings(ec, proto, int(port))
+		return htmx.Pings(ctx, ec, proto, int(port))
 	})
 }
 

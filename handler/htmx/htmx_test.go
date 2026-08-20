@@ -69,7 +69,7 @@ func TestDeleteForever(t *testing.T) {
 
 func TestPings(t *testing.T) {
 	t.Parallel()
-	err := htmx.Pings(newContext(), "", -1)
+	err := htmx.Pings(t.Context(), newContext(), "", -1)
 	be.Err(t, err, nil)
 }
 

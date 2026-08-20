@@ -25,12 +25,11 @@ const (
 
 // TestMain checks server availability before running tests.
 func TestMain(m *testing.M) {
-	// Check if server is running.
 	client := http.Client{}
 	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, lh+"/health-check", nil)
 	resp, err := client.Do(req)
 	if err != nil {
-		_, _ = os.Stderr.WriteString("SKIP: Server not running at localhost:1323\n")
+		_, _ = os.Stderr.WriteString("SKIP: Server not running at localhost\n")
 		os.Exit(0)
 	}
 	_ = resp.Body.Close()
@@ -42,9 +41,9 @@ func TestMain(m *testing.M) {
 
 // TestAnnouncementsContract verifies the announcements endpoint contract.
 func TestAnnouncementsContract(t *testing.T) {
-	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/category/announcements", nil)
-	resp, err := client.Do(req)
+	t.Parallel()
+
+	resp, err := clientDo(t, api+"/category/announcements")
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -76,7 +75,7 @@ func TestAnnouncementsContract(t *testing.T) {
 
 	be.True(t, len(result.Files) > 0)
 
-	// Verify URL patterns
+	// verify URL patterns
 	for _, file := range result.Files {
 		be.True(t, strings.HasPrefix(file.URLs.Download, "/d/"))
 		be.True(t, strings.HasPrefix(file.URLs.HTML, "/f/"))
@@ -86,9 +85,9 @@ func TestAnnouncementsContract(t *testing.T) {
 
 // TestCategoriesContract verifies the categories endpoint contract.
 func TestCategoriesContract(t *testing.T) {
-	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/categories", nil)
-	resp, err := client.Do(req)
+	t.Parallel()
+
+	resp, err := clientDo(t, api+"/categories")
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -126,9 +125,9 @@ func TestCategoriesContract(t *testing.T) {
 
 // TestPlatformsContract verifies the platforms endpoint contract.
 func TestPlatformsContract(t *testing.T) {
-	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/platforms", nil)
-	resp, err := client.Do(req)
+	t.Parallel()
+
+	resp, err := clientDo(t, api+"/platforms")
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -167,14 +166,16 @@ func TestPlatformsContract(t *testing.T) {
 
 // TestGenericCategoryContract verifies the generic category endpoint contract.
 func TestGenericCategoryContract(t *testing.T) {
-	testCases := []string{"demo", "scenerules", "magazine"}
+	t.Parallel()
+
+	testCases := [...]string{"demo", "scenerules", "magazine"}
 
 	for _, category := range testCases {
 		t.Run(category, func(t *testing.T) {
+			t.Parallel()
+
 			url := api + "/category/" + category
-			client := http.Client{}
-			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
-			resp, err := client.Do(req)
+			resp, err := clientDo(t, url)
 			be.Equal(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
@@ -213,15 +214,16 @@ func TestGenericCategoryContract(t *testing.T) {
 
 // TestPlatformQueries verifies that platform queries work correctly.
 func TestPlatformQueries(t *testing.T) {
+	t.Parallel()
 	// Test a few different platform types
-	platforms := []string{"ansi", "audio", "dos", "windows", "image"}
+	platforms := [...]string{"ansi", "audio", "dos", "windows", "image"}
 
 	for _, platform := range platforms {
 		t.Run(platform, func(t *testing.T) {
+			t.Parallel()
+
 			url := api + "/platform/" + platform
-			client := http.Client{}
-			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
-			resp, err := client.Do(req)
+			resp, err := clientDo(t, url)
 			be.Equal(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
@@ -261,7 +263,9 @@ func TestPlatformQueries(t *testing.T) {
 
 // TestURLPatterns verifies consistent URL patterns across all endpoints.
 func TestURLPatterns(t *testing.T) {
-	endpoints := []string{
+	t.Parallel()
+
+	endpoints := [...]string{
 		"announcements",
 		"demo",
 		"scenerules",
@@ -270,10 +274,9 @@ func TestURLPatterns(t *testing.T) {
 
 	for _, endpoint := range endpoints {
 		t.Run(endpoint, func(t *testing.T) {
+			t.Parallel()
 			url := api + "/category/" + endpoint
-			client := http.Client{}
-			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
-			resp, err := client.Do(req)
+			resp, err := clientDo(t, url)
 			be.Equal(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
@@ -292,9 +295,9 @@ func TestURLPatterns(t *testing.T) {
 
 // TestScenersContract verifies the sceners endpoint contract.
 func TestScenersContract(t *testing.T) {
-	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/sceners", nil)
-	resp, err := client.Do(req)
+	t.Parallel()
+
+	resp, err := clientDo(t, api+"/sceners")
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -342,14 +345,15 @@ func TestScenersContract(t *testing.T) {
 
 // TestScenerRolesContract verifies the scener role endpoints contract.
 func TestScenerRolesContract(t *testing.T) {
-	roles := []string{"artist", "coder", "musician", "writer"}
+	t.Parallel()
+	roles := [...]string{"artist", "coder", "musician", "writer"}
 
 	for _, role := range roles {
 		t.Run(role, func(t *testing.T) {
+			t.Parallel()
+
 			url := api + "/sceners/" + role
-			client := http.Client{}
-			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
-			resp, err := client.Do(req)
+			resp, err := clientDo(t, url)
 			be.Equal(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
@@ -399,10 +403,9 @@ func TestScenerRolesContract(t *testing.T) {
 
 // TestScenerDetailsContract verifies the individual scener details endpoint contract.
 func TestScenerDetailsContract(t *testing.T) {
-	// Test with a known scener (006 from our earlier tests)
-	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/scener/006", nil)
-	resp, err := client.Do(req)
+	t.Parallel()
+
+	resp, err := clientDo(t, api+"/scener/006")
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -484,9 +487,10 @@ func TestScenerDetailsContract(t *testing.T) {
 
 // TestScenerNotFound verifies the 404 response for non-existent sceners.
 func TestScenerNotFound(t *testing.T) {
-	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/scener/nonexistent-scener-12345", nil)
-	resp, err := client.Do(req)
+	t.Parallel()
+
+	url := api + "/scener/nonexistent-scener-12345"
+	resp, err := clientDo(t, url)
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -505,12 +509,12 @@ func TestScenerNotFound(t *testing.T) {
 
 // TestFileContract verifies the file endpoint contract.
 func TestFileContract(t *testing.T) {
-	client := http.Client{}
+	t.Parallel()
 
 	// Test with a known file hash from the files endpoint
 	// First, get a file from the files endpoint to use as a test case
-	artifactsReq, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/artifacts?page=1", nil)
-	artifactsResp, err := client.Do(artifactsReq)
+	url := api + "/artifacts?page=1"
+	artifactsResp, err := clientDo(t, url)
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := artifactsResp.Body.Close(); err != nil {
@@ -544,8 +548,8 @@ func TestFileContract(t *testing.T) {
 	fileHash := hashParts[2]
 
 	// Now test the artifact endpoint with this hash
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/artifact/"+fileHash, nil)
-	resp, err := client.Do(req)
+	url = api + "/artifact/" + fileHash
+	resp, err := clientDo(t, url)
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
@@ -573,9 +577,10 @@ func TestFileContract(t *testing.T) {
 
 // TestArtifactNotFound tests the artifact endpoint with a non-existent ID.
 func TestArtifactNotFound(t *testing.T) {
-	client := http.Client{}
-	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/artifact/nonexistent", nil)
-	resp, err := client.Do(req)
+	t.Parallel()
+
+	url := api + "/artifact/nonexistent"
+	resp, err := clientDo(t, url)
 	be.Equal(t, err, nil)
 	defer func() {
 		if err := resp.Body.Close(); err != nil {

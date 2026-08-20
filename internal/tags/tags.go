@@ -773,7 +773,7 @@ func (t *T) ByName(name string) (TagData, error) {
 }
 
 // Build the tags and collect the statistical data sourced from the database.
-func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) (err error) {
+func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) (err error) { //nolint:nonamedreturns
 	const msg = "tags builder"
 	const format = msg + " %s: %w"
 	if InvalidExec(exec) {

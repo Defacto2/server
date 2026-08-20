@@ -2,534 +2,493 @@
 package readme
 
 import (
-	"bufio"
 	"bytes"
-	"cmp"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"os"
-	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
-	uni "unicode"
+	"unicode/utf8"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
-	"github.com/Defacto2/server/handler/render"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
-	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/bengarrett/ansibump"
 	"github.com/bengarrett/binbump"
 	"github.com/bengarrett/sauce"
 	"golang.org/x/text/encoding/charmap"
 )
 
-// Suggest returns a suggested readme file name for the record.
-// It prioritizes the filename and group name with a priority extension,
-// such as ".nfo", ".txt", etc. If no priority extension is found,
-// it will return the first text file in the content list.
-//
-// The archive should be the filename of the archive artifact such as the
-// zip filename.
-// The group should be a name or common abbreviation of the group that
-// released the artifact. The content should be a list of files contained
-// in the artifact.
-//
-// To save memory, content is not split into a slice until we need to handle it.
-//
-// This is a port of the CFML function, variables.findTextfile found in File.cfc.
-func Suggest(archive, group, content string) string {
-	finds := SortList(true, content)
-	if len(finds) == 0 {
-		return ""
-	}
-	if len(finds) == 1 {
-		return finds[0]
-	}
-	base := filepath.Base(archive)
+var (
+	ErrDownload = errors.New("cannot stat the downloaded file")
+	ErrFilename = errors.New("file model filename is empty")
+	ErrUUID     = errors.New("file model uuid is empty")
+)
 
-	// match priority file extensions, ".nfo", ".txt", etc
-	for ext := range slices.Values(priority()) {
-		for name := range slices.Values(finds) {
-			// use the group name as the base name
-			// ie: group = "Defacto2" will match "defacto2.nfo", "DeFacto2.txt", etc
-			if strings.EqualFold(group+ext, name) {
-				return name
-			}
-			// use the archive filename as the base name
-			// ie: archive = "mycollection.zip" will match "mycollection.nfo", etc
-			if strings.EqualFold(base+ext, name) {
-				return name
-			}
-		}
-	}
-	// match candidate filename extensions, ".diz", ".asc", etc
-	for ext := range slices.Values(candidate()) {
-		for name := range slices.Values(finds) {
-			if strings.EqualFold(group+ext, name) {
-				return name
-			}
-			if strings.EqualFold(base+ext, name) {
-				return name
-			}
-		}
-	}
-	// match any other filenames that use a priority extension
-	for name := range slices.Values(finds) {
-		s := strings.ToLower(name)
-		ext := filepath.Ext(s)
-		if slices.Contains(priority(), ext) {
-			return name
-		}
-	}
-	// else, return the first text filename on the list
-	return finds[0]
+type Text struct {
+	Download dir.Directory
+	Extra    dir.Directory
+	UUID     string
+	Filename string
+	Platform string
+	Section  string
+	Year     int16
+	MaxSize  int64
+	Sign     magicnumber.Signature
+	Record   sauce.Record
 }
 
-// SortList returns a sorted list of possible readme text files found in the file archive.
-// The first result is the closes filename to root that has a priority
-// filename extension such as ".nfo", then ordered alphabetically.
+// Text Buffers parses the text files use by a file artifact.
 //
-// When compact is true all filenames using extensions that are not known textfiles,
-// are removed from the slice.
+// Two buffers are created and returned:
 //
-// To save memory, content is not split into a slice until we need to handle it.
-func SortList(compact bool, content string) []string {
-	list := strings.Split(content, "\n")
-	slices.SortFunc(list, func(a, b string) int {
-		a = strings.ToLower(a)
-		b = strings.ToLower(b)
-		aExt := strings.ToLower(filepath.Ext(a))
-		ap := slices.Index(priority(), aExt)
-		ac := slices.Index(candidate(), aExt)
-		bExt := strings.ToLower(filepath.Ext(b))
-		bp := slices.Index(priority(), bExt)
-		bc := slices.Index(candidate(), bExt)
-		aPaths := strings.Count(a, "/")
-		bPaths := strings.Count(b, "/")
-		return cmp.Or(
-			cmp.Compare(aPaths, bPaths), // compare the depth of sub-directories, less is better
-			cmp.Compare(ap, bp),         // compare which filename uses a priority file extension
-			cmp.Compare(ac, bc),         // compare which filename uses a candidate file extension
-			strings.Compare(aExt, bExt), // order all other file extensions alphabetically
-			strings.Compare(a, b),       // order all other file paths alphabetically
-		)
-	})
-	// filter out known bad filenames, such as known website advertising injections
-	paths := make([]string, len(list))
-	index := -1
-	for s := range slices.Values(list) {
-		path := strings.TrimSpace(s)
-		if path == "" {
-			continue
-		}
-		switch strings.ToLower(filepath.Base(path)) {
-		case "scene.org", "scene.org.txt", "we-will.sue", "www.acid.org":
-			continue
-		}
-		v := strings.ToLower(filepath.Ext(path))
-		if compact && !slices.Contains(priority(), v) && !slices.Contains(candidate(), v) {
-			continue
-		}
-		index++
-		paths[index] = path
-	}
-	return paths[:index+1]
-}
-
-// priority returns a list of readme text file extensions in priority order.
-func priority() []string {
-	return []string{".nfo", ".txt", ".unp", ".doc", ".displayme", ".readme"}
-}
-
-// candidate returns a list of other, common text file extensions in priority order.
-func candidate() []string {
-	return []string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
-}
-
-// PlainTextBuffers returns the content of the readme file or the text of the file download.
-// The first buffer is used for CP1252 and ISO-8859-1 texts while the second buffer
-// is used for UTF-8 texts.
+//   - The first buffer is used for CP-1252 and ISO-8859-1 text
+//   - The second buffer is used for UTF-8 text
 //
-// The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
-// However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
-func PlainTextBuffers(
-	art *models.File, sizeLimit int64, download, extra dir.Directory,
-) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
-	sl := slog.Default()
-	return PlainTextBuffersW(sl, art, sizeLimit, download, extra)
-}
+// Errors are generally logged except some critical issues.
+func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
+	if sl == nil {
+		sl = logs.Discard()
+	}
+	const format = "readme %s: %w"
 
-// PlainTextBuffersW returns the content of the readme file or the text of the file download.
-// The first buffer is used for CP1252 and ISO-8859-1 texts while the second buffer
-// is used for UTF-8 texts.
-//
-// The CP1252 and ISO-8859-1 Buffer may also include a FILE_ID.DIZ prefixed metadata.
-// However, the UTF-8 Buffer does get the FILE_ID.DIZ prefix.
-func PlainTextBuffersW( //nolint:funlen
-	sl *slog.Logger, art *models.File, sizeLimit int64, download, extra dir.Directory,
-) (*bytes.Buffer, *bytes.Buffer, sauce.Record, error) {
-	const msg = "readme pool"
-	const format = msg + " %s: %w"
-	nosauce := sauce.Record{} //nolint:exhaustruct
-	if err := nils.Check(sl, art); err != nil {
-		return nil, nil, nosauce, fmt.Errorf(format, " arguments", err)
-	}
-	buf := new(bytes.Buffer)
-	diz := new(bytes.Buffer)
-	hlp := new(bytes.Buffer)
-	ruf := new(bytes.Buffer)
-	// This might be useful if we want to force Go to not use the garbage collector.
-	// buf.Reset() diz.Reset() ruf.Reset()
-	err1 := render.DescriptorText(diz, art, extra)
-	err2 := render.InformationText(buf, ruf, art, sizeLimit, download, extra)
-	err3 := render.HelperText(hlp, art, extra)
-	var errs error
-	if err1 != nil {
-		sl.Info(msg+" description text error", slog.Any("error", err1))
-		errs = errors.Join(errs, fmt.Errorf(format, "render diz", err1))
-	}
-	if err2 != nil {
-		if errors.Is(err2, render.ErrFilename) {
-			err2 = nil
-		}
-		if err2 != nil {
-			sl.Info(msg+" information text error", slog.Any("error", err2))
-			errs = errors.Join(errs, fmt.Errorf(format, "render read", err2))
-		}
-	}
-	if err3 != nil {
-		sl.Info(msg+" helper text error", slog.Any("error", err3))
-		errs = errors.Join(errs, fmt.Errorf(format, "render helper", err3))
-	}
-	knownData := diz.Len() == 0 && buf.Len() == 0 && hlp.Len() == 0 && ruf.Len() == 0
-	if knownData {
-		name := download.Join(art.UUID.String)
-		sl.Info(msg+" returned known binaries", slog.String("name", name))
-		return knownBinaries(msg, name, errs)
-	}
-	// check the bytes to confirm they can be displayed as text
-	r := bytes.NewReader(buf.Bytes())
-	sign := magicnumber.FindW(io.Discard, r)
-	sl.Info(msg+" matched sign", slog.String("sign", sign.String()))
-	// reset text buffer for utf-16 or utf-32 text which won't be displayed
-	if incompatible := sign == magicnumber.UTF16Text ||
-		sign == magicnumber.UTF32Text; incompatible {
-		sl.Info(msg+" found incompatible text", slog.String("sign", sign.String()))
-		buf.Reset()
-	} else {
-		// reset buffers for known images
-		skip := magicnumber.Images()
-		skip = append(skip, magicnumber.XBinaryText)
-		if slices.Contains(skip, sign) {
-			sl.Info(msg+" found known images", slog.String("sign", sign.String()))
-			buf.Reset()
-			ruf.Reset()
-		}
-	}
-	sr := sauceData(buf)
-	// text with ANSI escape codes use a custom readme template
-	if match, err := UseANSICodes(bytes.NewReader(buf.Bytes())); err != nil {
-		errs = errors.Join(errs, fmt.Errorf(format, "incompatible ansi", err))
-		sl.Info(msg+" matched incompatible ansi", slog.Any("error", err3))
-		buf.Reset()
-	} else if match {
-		platform := strings.TrimSpace(strings.ToLower(art.Platform.String))
-		sl.Info(msg+" returned ansi texts", slog.String("platform", platform))
-		return ansiTexts(buf, diz, hlp, ruf, platform, sr, errs)
-	}
-	// binary texts can also cause false positives
-	if binaryText := sign == magicnumber.Unknown; binaryText {
-		y := art.DateIssuedYear.Int16
-		sl.Info(msg + " returned binary tests")
-		return binaryTexts(buf, diz, hlp, ruf, y, sr, errs)
-	}
-	// modify the buffer bytes for cleanup
-	sl.Info(msg + " returned plain tests")
-	return plainTexts(buf, diz, hlp, ruf, sr, errs)
-}
+	textBuf := new(bytes.Buffer)
+	runeBuf := new(bytes.Buffer)
+	descBuf := new(bytes.Buffer)
+	helpBuf := new(bytes.Buffer)
 
-func knownBinaries(msg, name string, errs error) (
-	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
-) {
-	nosauce := sauce.Record{} //nolint:exhaustruct
-	file, err := os.Open(name)
-	if err != nil {
-		errs = errors.Join(errs, fmt.Errorf("%s not text open: %w", msg, err))
-		return nil, nil, nosauce, errs
-	}
 	defer func() {
-		_ = file.Close()
+		descBuf.Reset()
+		helpBuf.Reset()
 	}()
-	rec, err := sauce.Read(file)
-	if err != nil {
-		errs = errors.Join(errs, fmt.Errorf("%s not text sauce read: %w", msg, err))
+
+	var err error
+	if dErr := t.descriptor(descBuf); dErr != nil {
+		err = errors.Join(err, fmt.Errorf(format, "descriptor", dErr))
 	}
-	if rec == nil {
-		rec = &nosauce
+	if pErr := t.primary(textBuf, runeBuf); pErr != nil {
+		err = errors.Join(err, fmt.Errorf(format, "primary", pErr))
 	}
-	return nil, nil, *rec, errs
+	if hErr := t.helper(helpBuf); hErr != nil {
+		err = errors.Join(err, fmt.Errorf(format, "helper", hErr))
+	}
+
+	if emptyBufs(textBuf, runeBuf, descBuf, helpBuf) {
+		if uErr := t.handleUnknown(sl); uErr != nil {
+			err = errors.Join(err, uErr)
+		}
+		t.Error(sl, err)
+		return nil, nil, nil
+	}
+
+	if notText := t.signature(sl, textBuf); notText {
+		t.Error(sl, err)
+		textBuf.Reset()
+		runeBuf.Reset()
+		return nil, nil, nil
+	}
+
+	t.handleSAUCE(textBuf)
+
+	// text with ANSI escape codes use a custom readme template
+	if ansi, aErr := hasANSI(bytes.NewReader(textBuf.Bytes())); aErr != nil {
+		// handle the error and continue to try to display the buffer elsewhere
+		err = errors.Join(err, fmt.Errorf(format, "incompatible ansi", aErr))
+	} else if ansi {
+		sl.Info("readme will render the buffer as ansi encoded")
+		return t.handleANSI(textBuf)
+	}
+
+	// log any previous errors
+	t.Error(sl, err)
+
+	// binary texts can cause false positives
+	if t.Sign == magicnumber.Unknown {
+		sl.Info("readme will render the buffer as binary text")
+		return t.handleBIN(textBuf)
+	}
+
+	sl.Info("readme will render the buffer as raw or plain text")
+	return t.handleRAW(textBuf, runeBuf, descBuf, helpBuf)
 }
 
-func sauceData(buf *bytes.Buffer) sauce.Record {
-	none := sauce.Record{} //nolint:exhaustruct
-	if buf == nil {
-		return none
+// Error logs the error as a warning with useful Text metadata.
+func (t *Text) Error(sl *slog.Logger, err error) {
+	if sl == nil || err == nil {
+		return
 	}
-	b := buf.Bytes()
-	if sauce.Contains(b) {
-		return sauce.Decode(b)
-	}
-	return none
+	sl.Warn("handler buffer problem",
+		slog.String("uuid", t.UUID), slog.String("filename", t.Filename),
+		slog.String("platform", t.Platform), slog.String("section", t.Section),
+		slog.Int("year", int(t.Year)), slog.Any("errors", err),
+	)
 }
 
-func plainTexts(
-	buf, diz, hlp, ruf *bytes.Buffer,
-	sr sauce.Record, errs error) (
-	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
+func emptyBufs(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) bool {
+	if err := nils.Check(textBuf, descBuf, helpBuf, runeBuf); err != nil {
+		return true
+	}
+	return descBuf.Len() == 0 && textBuf.Len() == 0 && helpBuf.Len() == 0 && runeBuf.Len() == 0
+}
+
+func (t *Text) handleRAW(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) (
+	*bytes.Buffer, *bytes.Buffer, error,
 ) {
-	if err := nils.Check(buf, diz, hlp, ruf); err != nil {
-		return nil, nil, sr, fmt.Errorf("plain texts: %w", err)
+	if err := nils.Check(textBuf, descBuf, helpBuf, runeBuf); err != nil {
+		return nil, nil, fmt.Errorf("plain texts: %w", err)
 	}
-	// this is usually the README
-	b := trimBytes(buf.Bytes())
 
-	// this is usually the FILE_ID
-	if diz.Len() > 0 {
-		if diz.Len() == buf.Len() {
-			// for performance we want to use the bytes equal as a last resort.
-			// do not use the diz buffer if it is identical the existing buf buffer.
-			if !bytes.Equal(diz.Bytes(), buf.Bytes()) {
-				b = render.InsertPrefix(b, diz.Bytes())
-			}
-		} else {
-			b = render.InsertPrefix(b, diz.Bytes())
+	b := trimBytes(textBuf.Bytes()) // usually the readme or nfo text
+
+	if descBuf.Len() > 0 { // usually the file_id or other header text
+		// avoid edge cases where two buffers might have the same content
+		if !bytes.Equal(descBuf.Bytes(), textBuf.Bytes()) {
+			b = addPrefix(b, descBuf.Bytes())
 		}
-		diz.Reset()
+		descBuf.Reset()
 	}
 
-	// this is usually the HELPER
-	if hlp.Len() > 0 {
-		if hlp.Len() == buf.Len() {
-			// for performance we want to use the bytes equal as a last resort.
-			// do not use the diz buffer if it is identical the existing buf buffer.
-			if !bytes.Equal(hlp.Bytes(), buf.Bytes()) {
-				b = render.InsertSuffix(b, hlp.Bytes())
-			}
-		} else {
-			b = render.InsertSuffix(b, hlp.Bytes())
+	if helpBuf.Len() > 0 { // usually a manual or secondary text
+		if !bytes.Equal(helpBuf.Bytes(), textBuf.Bytes()) {
+			b = addSuffix(b, helpBuf.Bytes())
 		}
-		hlp.Reset()
+		helpBuf.Reset()
 	}
 
-	b = RemoveCtrls(b)
-	if bytes.TrimSpace(b) == nil {
-		buf.Reset()
-		diz.Reset()
-		hlp.Reset()
-		ruf.Reset()
-		return nil, nil, sr, errs
+	b = removeControls(b)
+
+	if len(bytes.TrimSpace(b)) == 0 {
+		textBuf.Reset()
+		runeBuf.Reset()
+		return nil, nil, nil
 	}
 	if len(b) > 0 {
-		buf.Reset()
-		buf.Write(b)
+		textBuf.Reset()
+		textBuf.Write(b)
 	}
-	return buf, ruf, sr, nil
+	return textBuf, runeBuf, nil
 }
 
-func ansiTexts(
-	buf, diz, hlp, ruf *bytes.Buffer,
-	platform string, sr sauce.Record, errs error) (
-	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
-) {
-	if err := nils.Check(buf, diz, hlp, ruf); err != nil {
-		return nil, nil, sr, fmt.Errorf("ansi texts: %w", err)
+// handleUnknown will open the UUID named file in Download
+// and save any found SAUCE metadata to [Text.Record].
+func (t *Text) handleUnknown(sl *slog.Logger) error {
+	const format = "handle unknown %s: %w"
+	if t.UUID == "" {
+		return ErrUUID
 	}
-	width := 80
-	ti1 := sr.Info.Info1
-	if ti1.Info == "character width" && ti1.Value > 0 {
-		width = int(ti1.Value)
-	}
-	charset := charmap.CodePage437
-	pal := ansibump.CGA16
-	amiparser := false
-	if platform == "textamiga" {
-		charset = charmap.ISO8859_1
-		pal = ansibump.DP2
-		amiparser = true
-	}
-	cust := ansibump.Customizer{
-		Width:       width,
-		AmigaParser: amiparser,
-		Strict:      false,
-		Color:       pal,
-		CharSet:     charset,
-	}
-	ansi, err := cust.Buffer(
-		bytes.NewReader(buf.Bytes()),
-	)
+
+	name := t.Download.Join(t.UUID)
+	sl.Info("readme attempted to show binary data", slog.String("name", name))
+
+	// reopen the uuid download file
+	r, err := os.Open(name)
 	if err != nil {
-		errs = errors.Join(errs, err)
-		return nil, nil, sr, errs
+		return fmt.Errorf(format, "open "+name, err)
 	}
-	// for now we reset all other buffers
-	buf.Reset()
-	diz.Reset()
-	hlp.Reset()
-	ruf.Reset()
-	return ansi, nil, sr, nil
+	defer r.Close()
+
+	rec, err := sauce.Read(r)
+	if err != nil {
+		return fmt.Errorf(format, "sauce read", err)
+	}
+	if rec != nil && rec.ID == "SAUCE" {
+		t.Record = *rec
+	}
+	return nil
 }
 
-func binaryTexts(
-	buf, diz, hlp, ruf *bytes.Buffer,
-	year int16, sr sauce.Record, errs error) (
-	*bytes.Buffer, *bytes.Buffer, sauce.Record, error,
-) {
-	if err := nils.Check(buf, diz, hlp, ruf); err != nil {
-		return nil, nil, sr, fmt.Errorf("binary texts: %w", err)
+func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, *bytes.Buffer, error) {
+	const format = "handle binary text %s: %w"
+	if err := nils.Check(textBuf); err != nil {
+		return nil, nil, fmt.Errorf(format, "buffer", err)
 	}
+
 	width := 0 // use default
 	maxRows := 0
-	pal := binbump.StandardCGA
+	palette := binbump.StandardCGA
+	year := t.Year
 	if y := int(year); helper.Year(y) && y < 1992 {
 		width = 80
 		maxRows = 25
-		pal = binbump.RevisedCGA
+		palette = binbump.RevisedCGA
 	}
-	binbuf, err := binbump.Buffer(
-		bytes.NewReader(buf.Bytes()), width, maxRows, pal, nil,
+
+	bintext, err := binbump.Buffer(
+		bytes.NewReader(textBuf.Bytes()), width, maxRows, palette, nil,
 	)
 	if err != nil {
-		errs = errors.Join(errs, err)
-		return nil, nil, sr, errs
+		return nil, nil, fmt.Errorf(format, "binbump", err)
 	}
-	// for now we reset all other buffers
-	buf.Reset()
-	diz.Reset()
-	hlp.Reset()
-	ruf.Reset()
-	return binbuf, nil, sr, nil
+	textBuf.Reset()
+	return bintext, nil, nil
 }
 
-func trimBytes(b []byte) []byte {
-	if b == nil {
+func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, *bytes.Buffer, error) {
+	const format = "handle ansi %s: %w"
+	if err := nils.Check(textBuf); err != nil {
+		return nil, nil, fmt.Errorf(format, "buffers", err)
+	}
+
+	const defaultColumns = 80
+	width := defaultColumns
+	ti1 := t.Record.Info.Info1
+	if ti1.Info == "character width" && ti1.Value > 0 {
+		width = int(ti1.Value)
+	}
+
+	charset := charmap.CodePage437
+	palette := ansibump.CGA16
+	amiga := false
+	if t.Platform == "textamiga" {
+		charset = charmap.ISO8859_1
+		palette = ansibump.DP2
+		amiga = true
+	}
+	config := ansibump.Customizer{
+		Width:       width,
+		AmigaParser: amiga,
+		Strict:      false,
+		Color:       palette,
+		CharSet:     charset,
+	}
+	ansitext, err := config.Buffer(bytes.NewReader(textBuf.Bytes()))
+	if err != nil {
+		return nil, nil, fmt.Errorf(format, "customizer", err)
+	}
+	// reset all other buffers and return the ansi buffer
+	textBuf.Reset()
+	return ansitext, nil, nil
+}
+
+func (t *Text) handleSAUCE(textBuf *bytes.Buffer) {
+	const minimum = 128 // SAUCE records are exactly 128 bytes at EOF
+	if textBuf == nil || textBuf.Len() < minimum {
+		return
+	}
+
+	b := textBuf.Bytes()
+	if sr := sauce.Decode(b); sr.ID == "SAUCE" {
+		t.Record = sr
+	}
+}
+
+// signature checks the bytes to confirm they can be displayed as text
+func (t *Text) signature(sl *slog.Logger, textBuf *bytes.Buffer) bool {
+	if sl == nil || textBuf == nil {
+		return true
+	}
+
+	r := bytes.NewReader(textBuf.Bytes())
+	t.Sign = magicnumber.Find(r)
+	sl.Info("readme matched sign", slog.String("sign", t.Sign.String()))
+
+	// skip UTF-16 or UTF-32 encodings which cannot be rendered natively in browser
+	if t.Sign == magicnumber.UTF16Text || t.Sign == magicnumber.UTF32Text {
+		sl.Info("readme found incompatible text", slog.String("sign", t.Sign.String()))
+		return true
+	}
+
+	// skip known images and XBinary text without dynamic slice allocations
+	if t.Sign == magicnumber.XBinaryText || slices.Contains(magicnumber.Images(), t.Sign) {
+		sl.Info("readme found known image or binary format", slog.String("sign", t.Sign.String()))
+		return true
+	}
+
+	return false
+}
+
+// descriptor (File ID - Description In ZIP) returns the content of archive file descriptor.
+// Usually this brief summary text is named 'FILE_ID.descriptor' and is a legacy of the BBS
+// era of file hosting.
+//
+// The summary text can be used as a readme, preview, or viewed in the browser.
+func (t *Text) descriptor(descBuf *bytes.Buffer) error {
+	const extension = ".diz"
+	return t.secondary(descBuf, extension)
+}
+
+// helper returns the content of a helper text file.
+// These optional texts can be secondary NFOs, READMEs, or additional instructions.
+func (t *Text) helper(helpBuf *bytes.Buffer) error {
+	const extension = ".hlp"
+	return t.secondary(helpBuf, extension)
+}
+
+// secondary inserts any extra files such as file_id.diz or help files to the buf buffer.
+func (t *Text) secondary(buf *bytes.Buffer, extension string) error {
+	const format = "secondary handler %s: %w"
+
+	if err := nils.Check(buf); err != nil {
+		return fmt.Errorf(format, "arguments", err)
+	}
+	if t.UUID == "" {
+		return ErrUUID
+	}
+
+	name := t.Extra.Join(t.UUID + extension)
+	src, err := os.Open(name)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil // non-fatal
+		}
+		buf.Reset()
+		buf.WriteString("error could not read the extra text file")
 		return nil
 	}
-	// trim trailing whitespace and MS-DOS era EOF marker
-	b = bytes.TrimRightFunc(b, uni.IsSpace)
-	const endOfFile = 0x1a // Ctrl+Z
-	b, _ = bytes.CutSuffix(b, []byte{endOfFile})
-	return b
+	defer src.Close() //nolint:errcheck
+
+	buf.Reset()
+	if _, err = io.Copy(buf, src); err != nil {
+		return fmt.Errorf(format, "io copy", err)
+	}
+
+	b := buf.Bytes()
+	b = bytes.ReplaceAll(b, byteNull, byteSpace)
+	b = bytes.ReplaceAll(b, byteEOF, emptyBytes)
+	b = bytes.ReplaceAll(b, byteCR, byteLF) // must go first before crlf
+	b = bytes.ReplaceAll(b, byteCRLF, byteLF)
+	b = helper.MaskTerm(b...)
+
+	buf.Reset()
+	buf.Write(b)
+
+	return nil
 }
 
-// RemoveCtrls removes known problematic characters and controls, including:
-//   - ASCII control codes, NULL, SUB
-//   - Amiga control operators
-//   - DEC control codes
-//   - ANSI escape codes
-//   - Windows and PC DOS newlines
-func RemoveCtrls(b []byte) []byte {
-	const (
-		reAnsi  = `\x1b\[[0-9;]*[a-zA-Z]` // ANSI escape codes
-		reAmiga = `\x1b\[[0-9;]*[ ]p`     // unknown control code found in Amiga texts
-		reDEC   = `\x1b\[\?[0-9+]h`       // DEC control codes
-		reSauce = `SAUCE00.*`             // SAUCE metadata that is appended to some files
-		crlf    = "\x0d\x0a"              // Windows and PC DOS line endings
-		newline = "\x0a"                  // Unix line endings
-		null    = "\x00"                  // null byte
-		space   = "\x20"
-		sub     = "\x1a"
-	)
-	const sep = `|`
-	controlCodes := regexp.MustCompile(reAnsi + sep + reDEC + sep + reAmiga + sep + reSauce)
-	b = controlCodes.ReplaceAll(b, []byte{})
-	b = bytes.ReplaceAll(b, []byte(crlf), []byte(newline))
-	b = bytes.ReplaceAll(b, []byte(null), []byte(" "))
-	b = bytes.TrimRight(b, space)
-	b = bytes.TrimRight(b, sub)
-	return b
+// primary writes the content of either the file download or an extracted text file to the buffers.
+// The text is intended to be used as a readme, preview or an in-browser viewer.
+//
+// Both the buf buffer and the ruf rune buffer are reset before writing.
+func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
+	const format = "render primary text %s: %w"
+
+	if err := nils.Check(textBuf, runeBuf); err != nil {
+		return fmt.Errorf(format, "buffers", err)
+	}
+
+	// always fulfill the contract to reset both buffers first
+	textBuf.Reset()
+	runeBuf.Reset()
+
+	name, err := t.filename()
+	if err != nil {
+		return fmt.Errorf(format, "named", err)
+	}
+	if name == "" {
+		return nil
+	}
+
+	f, err := os.Open(name)
+	if err != nil {
+		textBuf.WriteString("error could not read the information text file")
+		return nil
+	}
+	defer f.Close() //nolint:errcheck
+
+	st, err := f.Stat()
+	if err != nil {
+		textBuf.WriteString("error could not describe the information text file")
+		return nil
+	}
+
+	if st.Size() > t.MaxSize {
+		textBuf.WriteString("skipped, text is too long")
+		return nil
+	}
+
+	// read directly into memory once
+	textBuf.Grow(int(st.Size()))
+	if _, err := io.Copy(textBuf, f); err != nil {
+		textBuf.Reset()
+		return fmt.Errorf(format, "information text copy", err)
+	}
+
+	b := textBuf.Bytes()
+	r := bytes.NewReader(b)
+	var p []byte
+
+	if sign, _ := magicnumber.Text(r); sign != magicnumber.Unknown {
+		p = t.normalize(textBuf)
+	} else {
+		_, _ = r.Seek(0, io.SeekStart)
+		if sign, _ := magicnumber.Archive(r); sign != magicnumber.Unknown {
+			textBuf.Reset()
+			return nil
+		}
+		p = b
+	}
+
+	// update textBuf only if normalized bytes modified the slice
+	textBuf.Reset()
+	p = trimEOF(p)
+	textBuf.Write(p)
+
+	if utf8.Valid(p) {
+		runeBuf.Write(p)
+	}
+
+	return nil
 }
 
-// UseANSICodes scans the reader and returns true if ANSI escape codes are found.
-// If the reader is too large to render in a HTML template, an error is returned.
-func UseANSICodes(r io.Reader) (bool, error) {
-	const maximumBytes = 1024 * 1024
-	const msg = "match ansi reader"
-	const format = msg + "%s: %w"
-	if r == nil {
-		return false, nil
-	}
-	mcur, mpos, sgr := moveCursor(), moveCursorToPos(), sgrWithoutReset()
-	reMoveCursor := regexp.MustCompile(mcur)
-	reMoveCursorToPos := regexp.MustCompile(mpos)
-	reSGR := regexp.MustCompile(sgr)
+func (t *Text) filename() (string, error) {
+	const format = "readme filename %s: %w"
 
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		if reMoveCursor.Match(scanner.Bytes()) {
-			return true, nil
-		}
-		if reMoveCursorToPos.Match(scanner.Bytes()) {
-			return true, nil
-		}
-		if reSGR.Match(scanner.Bytes()) {
-			return true, nil
-		}
+	if t.Filename == "" {
+		return "", ErrFilename
 	}
-	err := scanner.Err()
-	if err != nil && !errors.Is(err, bufio.ErrTooLong) {
-		return false, fmt.Errorf(format, "cursor scanner", err)
-	} else if err == nil {
-		return false, nil
+	if t.UUID == "" {
+		return "", ErrUUID
 	}
-	// handle files that are too long for the scanner buffer
-	// examples would be texts or ansi files with no newlines
-	scanner = bufio.NewScanner(r)
-	const sixtyfourK = 64 * 1024
-	buf := make([]byte, 0, sixtyfourK)
-	scanner.Buffer(buf, maximumBytes)
-	scanner = bufio.NewScanner(r)
-	for scanner.Scan() {
-		if reMoveCursor.Match(scanner.Bytes()) {
-			return true, nil
-		}
-		if reMoveCursorToPos.Match(scanner.Bytes()) {
-			return true, nil
-		}
-		if reSGR.Match(scanner.Bytes()) {
-			return true, nil
-		}
+
+	readmePath := t.Extra.Join(t.UUID + ".txt")
+	readmeOkay := helper.Stat(readmePath)
+
+	if readmeOkay {
+		return readmePath, nil
 	}
-	if err := scanner.Err(); err != nil {
-		return false, fmt.Errorf(format, "file is too large for the 1MB scanner", err)
+
+	// when the readme text file does not exist
+	// check if we should fall back to using the artifact
+	if !t.useViewer() {
+		return "", nil
 	}
-	return false, nil
+
+	artifactPath := t.Download.Join(t.UUID)
+	if !helper.Stat(artifactPath) {
+		return "", fmt.Errorf(format, artifactPath, ErrDownload)
+	}
+
+	return artifactPath, nil
 }
 
-// moveCursor returns a regular expression for ANSI cursor movement escape codes.
-//   - match "1B" (Escape)
-//   - match "[" (Left Bracket)
-//   - match optional digits or if no digits, then the cursor moves 1 position
-//   - match "A", "B", "C", "D", "E", "F", "G" for cursor movement up, down, left, right, etc.
-func moveCursor() string {
-	return `\x1b\[\d*?[ABCDEFG]`
+// useViewer returns true if the file entry should display the file download in the browser plain text viewer.
+// The result is based on the platform and section such as "text" or "textamiga" will return true.
+func (t *Text) useViewer() bool {
+	if strings.EqualFold(strings.TrimSpace(t.Filename), "file_id.diz") {
+		return true
+	}
+
+	section := strings.TrimSpace(t.Section)
+	if strings.EqualFold(section, "package") {
+		return false
+	}
+
+	platform := strings.TrimSpace(t.Platform)
+	return strings.EqualFold(platform, "text") || strings.EqualFold(platform, "textamiga")
 }
 
-// moveCursorToPos returns a regular expression for ANSI cursor position escape codes.
-//   - match "1B" (Escape)
-//   - match "[" (Left Bracket)
-//   - match the digits for line number
-//   - match ";" (semicolon)
-//   - match the digits for column number
-//   - match "H" cursor position or "f" cursor position
-func moveCursorToPos() string {
-	return `\x1b\[\d+;\d+[Hf]`
-}
+func (t *Text) normalize(textBuf *bytes.Buffer) []byte {
+	if textBuf == nil || textBuf.Len() == 0 {
+		return nil
+	}
 
-func sgrWithoutReset() string {
-	return `\x1b\[`
+	b := textBuf.Bytes()
+	b = bytes.ReplaceAll(b, byteNull, byteSpace)
+	b = bytes.ReplaceAll(b, byteCRLF, byteLF)
+	b = bytes.TrimRight(b, "\x1a")
+	return helper.Mask(b...)
 }

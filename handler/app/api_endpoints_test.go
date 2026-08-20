@@ -1,7 +1,6 @@
 package app_test
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -14,6 +13,8 @@ import (
 
 // TestAllAPIEndpoints tests all API endpoints from apiinfo.tmpl.
 func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
+	t.Parallel()
+
 	endpoints := []struct {
 		name        string
 		path        string
@@ -61,12 +62,10 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 
 	for _, endpoint := range endpoints {
 		t.Run(endpoint.name, func(t *testing.T) {
-			url := api + endpoint.path
-			client := http.Client{}
-			req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
-			be.Equal(t, err, nil)
+			t.Parallel()
 
-			resp, err := client.Do(req)
+			url := api + endpoint.path
+			resp, err := clientDo(t, url)
 			be.Equal(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
@@ -86,8 +85,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 				if err := resp.Body.Close(); err != nil {
 					t.Log(err)
 				}
-				req2, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
-				resp2, err2 := client.Do(req2)
+				resp2, err2 := clientDo(t, url)
 				be.Equal(t, err2, nil)
 				defer func() {
 					if err := resp2.Body.Close(); err != nil {
@@ -163,6 +161,8 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 
 // TestAPIEndpointExamples tests the specific examples from apiinfo.tmpl.
 func TestAPIEndpointExamples(t *testing.T) {
+	t.Parallel()
+
 	examples := []struct {
 		name string
 		url  string
@@ -183,11 +183,9 @@ func TestAPIEndpointExamples(t *testing.T) {
 
 	for _, example := range examples {
 		t.Run(example.name, func(t *testing.T) {
-			client := http.Client{}
-			req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, example.url, nil)
-			be.Equal(t, err, nil)
+			t.Parallel()
 
-			resp, err := client.Do(req)
+			resp, err := clientDo(t, example.url)
 			be.Equal(t, err, nil)
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
@@ -207,8 +205,7 @@ func TestAPIEndpointExamples(t *testing.T) {
 				if err := resp.Body.Close(); err != nil {
 					t.Log(err)
 				}
-				req2, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, example.url, nil)
-				resp2, err2 := client.Do(req2)
+				resp2, err2 := clientDo(t, example.url)
 				be.Equal(t, err2, nil)
 				defer func() {
 					if err := resp2.Body.Close(); err != nil {
@@ -258,12 +255,13 @@ func TestAPIEndpointExamples(t *testing.T) {
 
 // TestAPIResponseValidation tests JSON validation and expected values for key endpoints.
 func TestAPIResponseValidation(t *testing.T) {
-	client := http.Client{}
+	t.Parallel()
 
 	// Test websites endpoint
 	t.Run("websites", func(t *testing.T) {
-		req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/websites", nil)
-		resp, err := client.Do(req)
+		t.Parallel()
+
+		resp, err := clientDo(t, api+"/websites")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
@@ -304,8 +302,9 @@ func TestAPIResponseValidation(t *testing.T) {
 
 	// Test demozoo endpoint
 	t.Run("demozoo", func(t *testing.T) {
-		req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/demozoo", nil)
-		resp, err := client.Do(req)
+		t.Parallel()
+
+		resp, err := clientDo(t, api+"/demozoo")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
@@ -344,8 +343,9 @@ func TestAPIResponseValidation(t *testing.T) {
 
 	// Test groups endpoint
 	t.Run("groups", func(t *testing.T) {
-		req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/groups", nil)
-		resp, err := client.Do(req)
+		t.Parallel()
+
+		resp, err := clientDo(t, api+"/groups")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
@@ -400,8 +400,9 @@ func TestAPIResponseValidation(t *testing.T) {
 
 	// Test areacodes endpoint
 	t.Run("areacodes", func(t *testing.T) {
-		req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/areacodes", nil)
-		resp, err := client.Do(req)
+		t.Parallel()
+
+		resp, err := clientDo(t, api+"/areacodes")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
@@ -435,8 +436,9 @@ func TestAPIResponseValidation(t *testing.T) {
 
 	// Test milestones endpoint
 	t.Run("milestones", func(t *testing.T) {
-		req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, api+"/milestones", nil)
-		resp, err := client.Do(req)
+		t.Parallel()
+
+		resp, err := clientDo(t, api+"/milestones")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {

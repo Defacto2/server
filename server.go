@@ -298,7 +298,7 @@ func printOpening(sl *slog.Logger, count int) {
 		s := " with too few records"
 		sl.Warn(welcome+s,
 			slog.Int("record_count", count),
-			slog.Int("minumum_requirement", config.MinimumFiles))
+			slog.Int("minimum_requirement", config.MinimumFiles))
 	default:
 		sl.Info(welcome, slog.Int("Artifacts", count))
 	}

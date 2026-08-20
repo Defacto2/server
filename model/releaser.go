@@ -57,9 +57,9 @@ type ReleaserNames []ReleaserName
 //	_ = names.DistinctGroups(ctx, db)
 //	slugs := names.Slugs()
 //	if slugs.Has("someone") {}
-func (r ReleaserNames) Slugs() Set {
-	rs := make(Set, len(r))
-	for _, v := range r {
+func (r *ReleaserNames) Slugs() Set {
+	rs := make(Set, len(*r))
+	for _, v := range *r {
 		rs.Add(helper.Slug(v.String()))
 	}
 	return rs

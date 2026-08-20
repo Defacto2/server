@@ -4,7 +4,6 @@
 package app_test
 
 import (
-	"context"
 	"database/sql"
 	"net/http"
 	"net/http/httptest"
@@ -23,6 +22,25 @@ const (
 	driverName      = "pgx"
 )
 
+func newRequest(tb testing.TB, target string) (*httptest.ResponseRecorder, *echo.Context) {
+	tb.Helper()
+
+	e := echo.New()
+	r := httptest.NewRequestWithContext(tb.Context(), http.MethodGet, target, nil)
+	w := httptest.NewRecorder()
+	c := e.NewContext(r, w)
+
+	return w, c
+}
+
+func clientDo(tb testing.TB, url string) (*http.Response, error) {
+	tb.Helper()
+
+	client := http.Client{}
+	req, _ := http.NewRequestWithContext(tb.Context(), http.MethodGet, url, nil)
+	return client.Do(req)
+}
+
 func BenchmarkApiMarkup(b *testing.B) {
 	html := `<div class="content">
 		<p class="lead">This is a <strong>test</strong> with <a href="https://example.com" class="link" id="test">links</a> and <span style="color: red;">formatting</span>.</p>
@@ -36,68 +54,33 @@ func BenchmarkApiMarkup(b *testing.B) {
 	})
 }
 
-// BenchmarkCategoriesAPIWithRealStats benchmarks the CategoriesAPI with realistic stats calculation.
-func BenchmarkCategoriesAPIWithRealStats(b *testing.B) {
-	e := echo.New()
-	ctx := context.Background()
-	req := httptest.NewRequestWithContext(ctx, http.MethodGet, api+"/categories", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	// Create database connection using default credentials
+// BenchmarkCategoriesAPI benchmarks the CategoriesAPI with realistic stats calculation.
+func BenchmarkCategoriesAPI(b *testing.B) {
+	w, c := newRequest(b, api+"/categories")
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
-		b.Logf("Could not create database connection: %v", err)
 		b.Skipf("Could not create database connection: %v", err)
 	}
 	defer func() {
 		if err := db.Close(); err != nil {
-			panic(err)
+			b.Fatal(err)
 		}
 	}()
-	if err := db.PingContext(context.Background()); err != nil {
-		b.Logf("Could not ping database: %v", err)
-		b.Skipf("Could not ping database: %v", err)
-	}
-	b.ResetTimer()
-	for b.Loop() {
-		_ = app.CategoriesAPI(ctx, c, db)
-		rec.Body.Reset()
-	}
-}
 
-// BenchmarkPlatformsAPIWithRealStats benchmarks the PlatformsAPI with realistic stats calculation.
-func BenchmarkPlatformsAPIWithRealStats(b *testing.B) {
-	e := echo.New()
-	ctx := context.Background()
-	req := httptest.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	// Create database connection using default credentials
-	db, err := sql.Open(driverName, dataSourceName)
-	if err != nil {
-		b.Logf("Could not create database connection: %v", err)
-		b.Skipf("Could not create database connection: %v", err)
-	}
-	defer func() {
-		if err := db.Close(); err != nil {
-			panic(err)
-		}
-	}()
-	if err := db.PingContext(context.Background()); err != nil {
-		b.Logf("Could not ping database: %v", err)
+	if err := db.PingContext(b.Context()); err != nil {
 		b.Skipf("Could not ping database: %v", err)
 	}
 
 	b.ResetTimer()
 	for b.Loop() {
-		_ = app.PlatformsAPI(ctx, c, db)
-		rec.Body.Reset()
+		_ = app.CategoriesAPI(b.Context(), c, db)
+		w.Body.Reset()
 	}
 }
 
 func TestApiMarkup(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name     string
 		input    string
@@ -178,23 +161,22 @@ func TestApiMarkup(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := app.APIMarkup(tt.input)
-			be.Equal(t, result, tt.expected)
+			t.Parallel()
+			got := app.APIMarkup(tt.input)
+			be.Equal(t, got, tt.expected)
 		})
 	}
 }
 
 func TestGetAllAreacodes(t *testing.T) {
 	t.Parallel()
-	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+
+	w, c := newRequest(t, "/")
 	err := app.AreacodesAPI(c)
 	be.Equal(t, err, nil)
-	be.Equal(t, http.StatusOK, rec.Code)
-	be.True(t, len(rec.Body.String()) > 0)
-	be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
+	be.Equal(t, http.StatusOK, w.Code)
+	be.True(t, len(w.Body.String()) > 0)
+	be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
 }
 
 func TestGetAreacodeByCode(t *testing.T) {
@@ -234,46 +216,39 @@ func TestGetAreacodeByCode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			// Setup
-			e := echo.New()
-			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
-			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+
+			w, c := newRequest(t, "/")
 			c.PathValues()
 			c.SetPathValues(echo.PathValues{
 				{Name: "code", Value: tt.code},
 			})
-
-			// Test
 			err := app.AreaCodeAPI(c)
 			be.Equal(t, err, nil)
-			be.Equal(t, tt.expectStatus, rec.Code)
-			be.True(t, len(rec.Body.String()) > 0)
-			be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
-			be.True(t, len(rec.Body.String()) > 0)
-			be.True(t, strings.Contains(rec.Body.String(), tt.expectContain))
+
+			be.Equal(t, w.Code, tt.expectStatus)
+			be.True(t, len(w.Body.String()) > 0)
+			be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
+			be.True(t, len(w.Body.String()) > 0)
+			be.True(t, strings.Contains(w.Body.String(), tt.expectContain))
 		})
 	}
 }
 
 func TestGetTerritories(t *testing.T) {
 	t.Parallel()
-	// Setup
-	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
 
-	// Test
+	w, c := newRequest(t, "/")
 	err := app.RegionsAPI(c)
 	be.Equal(t, err, nil)
-	be.Equal(t, http.StatusOK, rec.Code)
-	be.True(t, len(rec.Body.String()) > 0)
-	be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
+
+	be.Equal(t, http.StatusOK, w.Code)
+	be.True(t, len(w.Body.String()) > 0)
+	be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
 }
 
 func TestGetTerritoryByAbbr(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name          string
 		abbr          string
@@ -309,28 +284,25 @@ func TestGetTerritoryByAbbr(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			// Setup
-			e := echo.New()
-			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
-			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+
+			w, c := newRequest(t, "/")
 			c.SetPathValues(echo.PathValues{
 				{Name: "abbr", Value: tt.abbr},
 			})
-
-			// Test
 			err := app.RegionAPI(c)
 			be.Equal(t, err, nil)
-			be.Equal(t, tt.expectStatus, rec.Code)
-			be.True(t, len(rec.Body.String()) > 0)
-			be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
-			be.True(t, strings.Contains(rec.Body.String(), tt.expectContain))
+
+			be.Equal(t, tt.expectStatus, w.Code)
+			be.True(t, len(w.Body.String()) > 0)
+			be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
+			be.True(t, strings.Contains(w.Body.String(), tt.expectContain))
 		})
 	}
 }
 
 func TestSearchAreacodes(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name          string
 		query         string
@@ -372,22 +344,18 @@ func TestSearchAreacodes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			// Setup
-			e := echo.New()
-			req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/", nil)
-			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+
+			w, c := newRequest(t, "/")
 			c.SetPathValues(echo.PathValues{
 				{Name: "query", Value: tt.query},
 			})
-
-			// Test
 			err := app.AreacodeSearchAPI(c)
 			be.Equal(t, err, nil)
-			be.Equal(t, tt.expectStatus, rec.Code)
-			be.True(t, len(rec.Body.String()) > 0)
-			be.True(t, rec.Header().Get("Content-Type") == contentTypeJSON)
-			be.True(t, strings.Contains(rec.Body.String(), tt.expectContain))
+
+			be.Equal(t, tt.expectStatus, w.Code)
+			be.True(t, len(w.Body.String()) > 0)
+			be.True(t, w.Header().Get("Content-Type") == contentTypeJSON)
+			be.True(t, strings.Contains(w.Body.String(), tt.expectContain))
 		})
 	}
 }

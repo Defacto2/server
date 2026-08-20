@@ -17,6 +17,18 @@ import (
 	"github.com/nalgeon/be"
 )
 
+func echoCtx(t *testing.T) *echo.Context {
+	t.Helper()
+
+	e := echo.New()
+	r := httptest.NewRequestWithContext(
+		t.Context(), http.MethodPost, "/", strings.NewReader("{}"))
+	r.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	w := httptest.NewRecorder()
+
+	return e.NewContext(r, w)
+}
+
 func newContext() *echo.Context {
 	e := echo.New()
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader("{}"))

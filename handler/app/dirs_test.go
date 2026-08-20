@@ -1,60 +1,51 @@
 package app_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/nalgeon/be"
 )
 
-func TestArtifact404(t *testing.T) {
-	t.Parallel()
-	err := app.Artifact404(nil, newContext(), "")
-	be.Err(t, err)
-}
-
 func TestArtifact(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
-	dir := app.Dirs{}
-	err := dir.Artifact(ctx, nil, newContext(), nil, false)
-	be.Err(t, err)
-}
 
-func TestEditor(t *testing.T) {
-	t.Parallel()
 	dir := app.Dirs{}
-	x := dir.EditorContent(context.TODO(), nil, newContext(), nil, -1, nil)
-	be.True(t, len(x) == 0)
+	err := dir.Artifact(t.Context(), nil, echoCtx(t), nil)
+	be.Err(t, err)
 }
 
 func TestFileMissingErr(t *testing.T) {
 	t.Parallel()
-	err := app.FileMissingErr(nil, newContext(), "", nil)
+
+	err := app.FileMissingErr(nil, echoCtx(t), "", nil)
 	be.Err(t, err)
 }
 
 func TestForbiddenErr(t *testing.T) {
 	t.Parallel()
-	err := app.ForbiddenErr(nil, newContext(), "", nil)
+
+	err := app.ForbiddenErr(nil, echoCtx(t), "", nil)
 	be.Err(t, err)
 }
 
 func TestInternalErr(t *testing.T) {
 	t.Parallel()
-	err := app.InternalErr(nil, newContext(), "", nil)
+
+	err := app.InternalErr(nil, echoCtx(t), "", nil)
 	be.Err(t, err)
 }
 
 func TestStatusErr(t *testing.T) {
 	t.Parallel()
-	err := app.StatusErr(nil, newContext(), -1, "")
+
+	err := app.StatusErr(nil, echoCtx(t), -1, "")
 	be.Err(t, err)
 }
 
 func TestSortContent(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name     string
 		content  string
@@ -110,16 +101,20 @@ func TestSortContent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := app.SortContent(tt.content)
-			be.Equal(t, len(result), len(tt.expected))
-			for i, v := range result {
-				be.Equal(t, v, tt.expected[i])
+
+			sorted := app.SortContent(tt.content)
+			be.Equal(t, len(sorted), len(tt.expected))
+
+			for i, got := range sorted {
+				be.Equal(t, got, tt.expected[i])
 			}
-			// Verify no entries end with "/" (directories filtered)
-			for _, entry := range result {
-				if len(entry) > 0 {
-					be.True(t, entry[len(entry)-1] != '/')
+
+			// verify no entries end with "/" (directories filtered)
+			for _, entry := range sorted {
+				if len(entry) == 0 {
+					continue
 				}
+				be.True(t, entry[len(entry)-1] != '/')
 			}
 		})
 	}

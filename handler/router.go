@@ -278,8 +278,8 @@ func (c *Configuration) website( //nolint:funlen
 			return ec.Redirect(http.StatusMovedPermanently, "/f/"+uri)
 		}
 		dirs.URI = uri
-		readonly := bool(c.Environment.ReadOnly)
-		return dirs.Artifact(ctx, sl, ec, db, readonly)
+		dirs.ReadOnly = bool(c.Environment.ReadOnly)
+		return dirs.Artifact(ctx, sl, ec, db)
 	}
 	releaser := func(ec *echo.Context) error {
 		uri := ec.Param("id")

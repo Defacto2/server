@@ -45,10 +45,12 @@ const (
 var (
 	ErrClaims   = errors.New("no sub id in the claims payload")
 	ErrCorrupt  = errors.New("cache data is invalid or corrupt")
+	ErrDownload = errors.New("cannot stat the downloaded file")
 	ErrMisMatch = errors.New("token mismatch")
 	ErrNegative = errors.New("value cannot be a negative number")
 	ErrSession  = errors.New("no sub id in session")
 	ErrStatus   = errors.New("the http status code is not valid")
+	ErrType     = errors.New("wrong type of value")
 	ErrUser     = errors.New("unknown user")
 	ErrValue    = errors.New("value is empty")
 )

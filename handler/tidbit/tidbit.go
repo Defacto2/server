@@ -27,6 +27,7 @@ const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEm
 const (
 	acidProd     = "acid-productions"
 	cia          = "crackers-in-action"
+	copyright    = "copyright-infiltration-agency"
 	cws          = "courier-weektop-scorecard"
 	dynamix      = "dynamix"
 	fairlight    = "fairlight"
@@ -104,7 +105,7 @@ var groups = Tibits{
 	24:   []URI{fairlight},
 	25:   []URI{"future-crew"},
 	27:   []URI{"vortex-software"},
-	28:   []URI{"copyright-infiltration-agency"},
+	28:   []URI{copyright},
 	2700: []URI{theFirm, "swat", "national-underground-application-alliance", fairlight},
 	2800: []URI{theFirm, "mutual-assured-destruction", pe},
 	29:   []URI{"big-brother"},
@@ -238,8 +239,8 @@ var groups = Tibits{
 	155:  []URI{"software-in-danger"},
 	156:  []URI{"roi-production", "warez-houze-bbs"},
 	157:  []URI{"the-ware-report"},
-	158:  []URI{"copyright-infiltration-agency"},
-	159:  []URI{"copyright-infiltration-agency", cia},
+	158:  []URI{copyright},
+	159:  []URI{copyright, cia},
 	160:  []URI{"god-network"},
 	161:  []URI{"corporation-for-public-cybercasting-2001"},
 	162:  []URI{"defjam"},
@@ -548,7 +549,6 @@ func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
 	if err := nils.Check(sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	fmt.Println("HELLO WORLD", id)
 	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
 	b, err := fs.ReadFile(name)
 	if err != nil {

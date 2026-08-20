@@ -54,14 +54,17 @@ func (t *Templ) Templates(ctx context.Context, db *sql.DB) (map[string]*template
 	if err := nils.Check(ctx, db); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
 	}
+
 	if err := t.Subresource.Verify(t.Public); err != nil {
 		return nil, fmt.Errorf(format, "verify", err)
 	}
+
 	tmpls := make(map[string]*template.Template)
 	for key, name := range *t.Pages() {
 		tmpl := t.parseFS(ctx, db, name)
 		tmpls[key] = tmpl
 	}
+
 	return tmpls, nil
 }
 
@@ -204,10 +207,10 @@ func (t *Templ) Funcs() template.FuncMap {
 
 // FuncClosures returns a map of closures that return converted type or modified strings.
 func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap { //nolint:funlen
-	// const msg = "templates mapper"
 	if db == nil {
 		return nil
 	}
+
 	hrefs := *Hrefs()
 	return &template.FuncMap{
 		"bootstrap5": func() string {
@@ -409,13 +412,14 @@ func yearRange(start, end int) []int {
 		end = now
 	}
 
-	// we don't want to include start or end range years in the results
+	// dont include start or end range years in the results
 	start++
 	years := make([]int, end-start)
 
 	for i := range years {
 		years[i] = start + i
 	}
+
 	return years
 }
 
@@ -448,22 +452,27 @@ func (t *Templ) FuncMap(ctx context.Context, db *sql.DB) *template.FuncMap {
 	if db == nil {
 		return nil
 	}
-	dst := t.Funcs()
+
 	src := t.FuncClosures(ctx, db)
 	if src == nil {
 		return nil
 	}
+
+	dst := t.Funcs()
 	maps.Copy(dst, *src)
+
 	src = t.Elements()
 	if src == nil {
 		return nil
 	}
 	maps.Copy(dst, *src)
+
 	return &dst
 }
 
 func (t *Templ) ogImage(unid any) string {
 	const favicon = "/image/layout/defacto2-ascii.png"
+
 	val, ok := unid.(string)
 	if !ok {
 		return favicon
@@ -471,6 +480,7 @@ func (t *Templ) ogImage(unid any) string {
 	if val == "" {
 		return favicon
 	}
+
 	return simple.OpenGraphImg(val,
 		dir.Directory(t.Environment.AbsPreview),
 		dir.Directory(t.Environment.AbsThumbnail))
@@ -482,6 +492,7 @@ func (t *Templ) artifact(lock bool, files ...string) []string {
 		GlobTo("artifactinfo.tmpl"),
 		GlobTo("artifactjsdos.tmpl"),
 	)
+
 	if lock {
 		return append(
 			files,
@@ -490,6 +501,7 @@ func (t *Templ) artifact(lock bool, files ...string) []string {
 			GlobTo("artifactlock_null.tmpl"),
 		)
 	}
+
 	return append(
 		files,
 		GlobTo("artifactfile.tmpl"),
@@ -508,6 +520,7 @@ func (t *Templ) locked(lock bool, files ...string) []string {
 			GlobTo("layoutjs_null.tmpl"),
 		)
 	}
+
 	return append(
 		files,
 		GlobTo("layoutlock.tmpl"),
@@ -524,6 +537,7 @@ func (t *Templ) lockLayout(lock bool, files ...string) []string {
 			GlobTo("uploader_null.tmpl"),
 		)
 	}
+
 	return append(
 		files,
 		GlobTo("layoutup.tmpl"),
@@ -539,11 +553,14 @@ func (t *Templ) parseFS(ctx context.Context, db *sql.DB, name filename) *templat
 	if db == nil {
 		return nil
 	}
+
 	files := t.Layout(name)
 	config := t.Environment
 	readonly := bool(config.ReadOnly)
+
 	files = t.locked(readonly, files...)
 	files = t.lockLayout(readonly, files...)
+
 	// append any additional and embedded templates
 	switch name {
 	case artifactTmpl:
@@ -558,10 +575,12 @@ func (t *Templ) parseFS(ctx context.Context, db *sql.DB, name filename) *templat
 		const individualWebsite = "website.tmpl"
 		files = append(files, GlobTo(individualWebsite))
 	}
+
 	funcMap := t.FuncMap(ctx, db)
 	if funcMap == nil {
 		return nil
 	}
+
 	return template.Must(template.New("").Funcs(
 		*funcMap,
 	).ParseFS(t.View, files...))
@@ -571,12 +590,14 @@ func recordLastMod(b bool) template.HTML {
 	const id = `recordLMBtn`
 	const class = `btn btn-outline-secondary`
 	const button = `button`
+
 	if b {
 		// tooltips do not work on disabled buttons
 		const title = `No last modification date found`
 		return template.HTML(`<button id="` + id + `" class="` + class + `" type="` + button + `" ` +
 			`data-bs-toggle="tooltip" data-bs-title="` + title + `" disabled>`)
 	}
+
 	const title = `Apply the file last modified date`
 	return template.HTML(`<button id="` + id + `" class="` + class + `" type="` + button + `" ` +
 		`data-bs-toggle="tooltip" data-bs-title="` + title + `">`)
@@ -588,9 +609,11 @@ func radioPublic(b bool) template.HTML {
 	const id = `artifact-editor-public`
 	const htmx = ` hx-patch="` + patch + `"	hx-include="` + include + `" id="` + id +
 		`" autocomplete="off"`
+
 	if b {
 		return template.HTML(radio + htmx + ` checked>`)
 	}
+
 	return template.HTML(radio + htmx + `>`)
 }
 
@@ -600,25 +623,31 @@ func radioHidden(b bool) template.HTML {
 	const id = `artifact-editor-hidden`
 	const htmx = ` hx-patch="` + patch + `"	hx-include="` + include + `" id="` + id +
 		`" autocomplete="off"`
+
 	if !b {
 		return template.HTML(radio + htmx + ` checked>`)
 	}
+
 	return template.HTML(radio + htmx + `>`)
 }
 
 func recordOnline(b bool) template.HTML {
 	const htm = ` name="online" type="checkbox" role="switch" id="recordOnline"`
+
 	if b {
 		return template.HTML(input + htm + ` checked>`)
 	}
+
 	return template.HTML((input + htm + `>`))
 }
 
 func recordReadme(b bool) template.HTML {
 	const htm = ` name="hide-readme" type="checkbox" role="switch" id="edHideMe"`
+
 	if b {
 		return template.HTML(input + htm + ` checked>`)
 	}
+
 	return template.HTML((input + htm + `>`))
 }
 
@@ -650,6 +679,7 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 	if sites != "" {
 		links = append(links, strings.Split(string(simple.LinkSites(sites)), "+")...)
 	}
+
 	return links
 }
 
@@ -682,45 +712,48 @@ func LinkRelsPerf(a, b any) template.HTML {
 // The performant flag will use the group name instead of the much slower group slug formatter.
 func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
-	var av, bv string
-	switch val := a.(type) {
+
+	var x, y string
+	switch i := a.(type) {
 	case string:
-		av = reflect.ValueOf(val).String()
+		x = reflect.ValueOf(i).String()
 	case null.String:
-		if val.Valid {
-			av = val.String
+		if i.Valid {
+			x = i.String
 		}
 	}
-	switch val := b.(type) {
+	switch i := b.(type) {
 	case string:
-		bv = reflect.ValueOf(val).String()
+		y = reflect.ValueOf(i).String()
 	case null.String:
-		if val.Valid {
-			bv = val.String
+		if i.Valid {
+			y = i.String
 		}
 	}
 
-	av, bv = strings.TrimSpace(av), strings.TrimSpace(bv)
-	if av == "" && bv != "" {
-		av = bv
-		bv = ""
+	x = strings.TrimSpace(x)
+	y = strings.TrimSpace(y)
+	if x == "" && y != "" {
+		x = y
+		y = ""
 	}
 
 	const format = "error: %s"
 	var prime, second string
 	var err error
-	if av != "" {
-		prime, err = simple.MakeLink("1", av, class, performant)
+	if x != "" {
+		prime, err = simple.MakeLink("1", x, class, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf(format, err))
 		}
 	}
-	if bv != "" {
-		second, err = simple.MakeLink("2", bv, class, performant)
+	if y != "" {
+		second, err = simple.MakeLink("2", y, class, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf(format, err))
 		}
 	}
+
 	return simple.Releasers(prime, second, magazine)
 }
 

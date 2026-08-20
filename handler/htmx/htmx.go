@@ -368,15 +368,15 @@ func pings() []string {
 }
 
 // Pings is a handler for the /pings route.
-func Pings(c *echo.Context, proto string, port int) error {
+func Pings(ctx context.Context, c *echo.Context, proto string, port int) error {
 	const msg = "htmx pings context"
-	if err := nils.Check(c); err != nil {
+	if err := nils.Check(ctx, c); err != nil {
 		return fmt.Errorf("%s, %w", msg, err)
 	}
 	pings := pings()
 	results := make([]string, 0, len(pings))
 	for ping := range slices.Values(pings) {
-		code, size, err := helper.LocalHostPing(ping, proto, port)
+		code, size, err := helper.LocalHostPing(ctx, ping, proto, port)
 		if err != nil {
 			results = append(results, fmt.Sprintf("%s: %v", ping, err))
 			continue
