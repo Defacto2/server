@@ -11,6 +11,7 @@ import (
 
 func TestRecordsSubs(t *testing.T) {
 	t.Parallel()
+
 	s := fileslice.RecordsSub("")
 	be.Equal(t, "unknown uri", s)
 	s = fileslice.RecordsSub("hack")
@@ -19,6 +20,7 @@ func TestRecordsSubs(t *testing.T) {
 
 func TestValid(t *testing.T) {
 	t.Parallel()
+
 	be.True(t, !fileslice.Valid("not-a-valid-uri"))
 	be.True(t, !fileslice.Valid("/files/newest"))
 	be.True(t, fileslice.Valid("newest"))
@@ -28,6 +30,7 @@ func TestValid(t *testing.T) {
 
 func TestMatch(t *testing.T) {
 	t.Parallel()
+
 	be.Equal(t, fileslice.URI(-1), fileslice.Match("not-a-valid-uri"))
 	be.Equal(t, fileslice.Newest, fileslice.Match("newest"))
 	be.Equal(t, fileslice.WindowsPack, fileslice.Match("windows-pack"))
@@ -36,6 +39,7 @@ func TestMatch(t *testing.T) {
 
 func TestRecordsSub(t *testing.T) {
 	t.Parallel()
+
 	s := fileslice.RecordsSub("")
 	be.Equal(t, "unknown uri", s)
 	for i := range 57 {
@@ -58,6 +62,7 @@ func Slices() []fileslice.URI {
 
 func TestFileInfo(t *testing.T) {
 	t.Parallel()
+
 	a, b, c := fileslice.FileInfo("")
 	be.Equal(t, "unknown uri", a)
 	be.Equal(t, "unknown uri", b)
@@ -72,6 +77,7 @@ func TestFileInfo(t *testing.T) {
 
 func TestCounter(t *testing.T) {
 	t.Parallel()
+
 	_, err := fileslice.Counter(context.TODO(), nil)
 	be.Err(t, err)
 }

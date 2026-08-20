@@ -49,6 +49,7 @@ import (
 const (
 	PcEpoch  = model.EpochYear // pc epoch is the default year for PC/MS-DOS files without a timestamp
 	CgaEpoch = 1988            // cga epoch is the final year to use the IBM PC CGA font for viewing textfiles
+
 	// NOTE: limit to 200 items for display, "view content" + "Download content",
 	// high limits take longer to render.
 	maxArchiveItems = 200
@@ -80,7 +81,7 @@ type Dirs struct {
 
 // Artifact is the app handler for the file record that is used by the /f/[key] route,
 // and is rendered by the app/artifact.tmpl and app/artifactedit.tmpl views.
-func (dir *Dirs) Artifact(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func (dir *Dirs) Artifact(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
 	const format = "dirs artifact context %s: %w"
 	const uri = "artifact"
 	if err := nils.Check(ctx, sl, c, db); err != nil {
@@ -164,7 +165,7 @@ func (dir *Dirs) Artifact(ctx context.Context, sl *slog.Logger, c *echo.Context,
 }
 
 // logErr logs the err as an error while also providing id and uri context from Dirs.
-func (dir Dirs) logErr(sl *slog.Logger, msg string, err error) {
+func (dir *Dirs) logErr(sl *slog.Logger, msg string, err error) {
 	if sl == nil {
 		return
 	}
@@ -177,7 +178,7 @@ func (dir Dirs) logErr(sl *slog.Logger, msg string, err error) {
 }
 
 // addAttribution returns the authors and attributions of the artifact.
-func (dir Dirs) addAttribution(art *models.File, data map[string]any) map[string]any {
+func (dir *Dirs) addAttribution(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -191,7 +192,7 @@ func (dir Dirs) addAttribution(art *models.File, data map[string]any) map[string
 }
 
 // addDownload returns the metadata for the artifact download file.
-func (dir Dirs) addDownload(art *models.File, data map[string]any) map[string]any {
+func (dir *Dirs) addDownload(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -221,7 +222,7 @@ func (dir Dirs) addDownload(art *models.File, data map[string]any) map[string]an
 // addEditor adds editoring data for the artifact.
 //
 // These are the editable fields only visible to website editors after they have logged in.
-func (dir Dirs) addEditor(
+func (dir *Dirs) addEditor(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, art *models.File, data map[string]any,
 ) map[string]any {
 	if nils.Slog("dirs add editor", ctx, sl, c, art) {
@@ -284,7 +285,7 @@ func (dir Dirs) addEditor(
 }
 
 // addEmu returns the js-dos emulator data for the file record of the artifact.
-func (dir Dirs) addEmu(sl *slog.Logger, art *models.File, data map[string]any,
+func (dir *Dirs) addEmu(sl *slog.Logger, art *models.File, data map[string]any,
 ) map[string]any {
 	const msg = "jsdos emulator"
 	if nils.Slog(msg, sl, art) {
@@ -330,7 +331,7 @@ func (dir Dirs) addEmu(sl *slog.Logger, art *models.File, data map[string]any,
 }
 
 // addLinks returns the other relations and external links for the file record of the artifact.
-func (dir Dirs) addLinks(art *models.File, data map[string]any) map[string]any {
+func (dir *Dirs) addLinks(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -348,7 +349,7 @@ func (dir Dirs) addLinks(art *models.File, data map[string]any) map[string]any {
 
 // addReadme can append either a plain textfile, ansi encoded text file, or binary text file to the data map.
 // Also handled is any embedded SAUCE metadata, that will be shown as "embed" information on the artifact page.
-func (dir Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any) (map[string]any, error) {
+func (dir *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any) (map[string]any, error) {
 	// these are required by the template and must always be set
 	data["contentBinary"] = ""
 	data["readmeSAUCE"] = false
@@ -362,7 +363,7 @@ func (dir Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any
 		return data, fmt.Errorf(format, "arguments", err)
 	}
 
-	text := readme.Text{
+	text := readme.Text{ //nolint:exhaustruct
 		Download: dir.Download,
 		Extra:    dir.Extra,
 		UUID:     art.UUID.String,
@@ -412,7 +413,7 @@ func (dir Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any
 
 // addSAUCE is used to read the SAUCE metadata embed into data files such
 // as pictures and image files.
-func (dir Dirs) addSAUCE(art *models.File, data map[string]any) map[string]any {
+func (dir *Dirs) addSAUCE(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -447,7 +448,9 @@ func (dir Dirs) addSAUCE(art *models.File, data map[string]any) map[string]any {
 //
 // All text content, either CP437, ISO, or UTF-8, also goes through a normalization process,
 // to replace any "special" characters, such as non-breaking-spaces with standard spaces.
-func (dir Dirs) addText8bit(sl *slog.Logger, art *models.File, textBuf *bytes.Buffer, data map[string]any) map[string]any { //nolint:funlen
+func (dir *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
+	textBuf *bytes.Buffer, data map[string]any,
+) map[string]any {
 	if nils.Slog("dirs add text 8bit", sl, art, textBuf) {
 		return data
 	}
@@ -477,7 +480,7 @@ func (dir Dirs) addText8bit(sl *slog.Logger, art *models.File, textBuf *bytes.Bu
 	data["preClassCP437"] = "d-none " + fontname
 
 	platform, _ := data["platform"].(string)
-	topazFont := platform == "textamiga" || platform == "console"
+	topazFont := platform == textamiga || platform == "console"
 	if topazFont {
 		data["topazCheck"] = "checked"
 		data["preClassLatin1"] = ""
@@ -542,8 +545,10 @@ func (dir Dirs) addText8bit(sl *slog.Logger, art *models.File, textBuf *bytes.Bu
 
 // addTextBinary prepares the viewer for both binary encoded text and ansi escape encoded texts.
 //
-// The elems entries are for individual CSS class names that will be used with "preElementClss"
-func (dir Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer, elems []string, data map[string]any) map[string]any {
+// The elems entries are for individual CSS class names that will be used with "preElementClss".
+func (dir *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
+	elems []string, data map[string]any,
+) map[string]any {
 	if nils.Slog("dirs add text binary", art, textBuf) {
 		return data
 	}
@@ -558,7 +563,7 @@ func (dir Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer, elems []s
 	// use metadata to determine the font CSS class to use
 	year, _, _ := filerecord.Dates(art)
 	switch {
-	case data["platform"] == "textamiga":
+	case data["platform"] == textamiga:
 		fontname = "font-amiga"
 	case year != 0 && year <= CgaEpoch:
 		data["contentBinarySwappers"] = false
@@ -567,7 +572,7 @@ func (dir Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer, elems []s
 	}
 
 	// ansi encoded texts
-	if data["magic"] != "Binary data or binary text" { // TODO: add sign to dirs?
+	if data["magic"] != "Binary data or binary text" {
 		class := append([]string{fontname, fontlarge, "render"}, elems...)
 		data["preElementClass"] = strings.Join(class, " ")
 		return data
@@ -594,7 +599,7 @@ func (dir Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer, elems []s
 // addTextUTF8 adds the appropriate buffer for the "Web style" text.
 // The use of the buf Buffer is for legacy "ISO-8859-1" encoded text that is backwards compatible with UTF-8.
 // The use of the ruf Buffer is for multi-byte, Unicode runes.
-func (dir Dirs) addTextUTF8(textBuf, runeBuf *bytes.Buffer, data map[string]any) map[string]any {
+func (dir *Dirs) addTextUTF8(textBuf, runeBuf *bytes.Buffer, data map[string]any) map[string]any {
 	if nils.Slog("dirs add text utf8", textBuf, runeBuf) {
 		return data
 	}
@@ -611,8 +616,8 @@ func (dir Dirs) addTextUTF8(textBuf, runeBuf *bytes.Buffer, data map[string]any)
 }
 
 // addZip returns the archive content for the file download of the artifact.
-// NOTE: this can cause a performance hit for archives with 10,000+ items
-func (dir Dirs) addZip(content string, data map[string]any) map[string]any {
+// NOTE: this can cause a performance hit for archives with 10,000+ items.
+func (dir *Dirs) addZip(content string, data map[string]any) map[string]any {
 	if content == "" {
 		return data
 	}
@@ -648,11 +653,11 @@ func (dir Dirs) addZip(content string, data map[string]any) map[string]any {
 // encoding returns the encoding for the model file entry.
 // Based on the platform and section.
 // Otherwise it will attempt to determine the encoding from the file byte content.
-func (dir Dirs) encoding(r io.Reader) encoding.Encoding {
+func (dir *Dirs) encoding(r io.Reader) encoding.Encoding { //nolint:ireturn
 	platform := strings.TrimSpace(dir.Platform)
 	section := strings.TrimSpace(dir.Section)
 
-	if strings.EqualFold(platform, "textamiga") ||
+	if strings.EqualFold(platform, textamiga) ||
 		strings.EqualFold(section, "appleii") ||
 		strings.EqualFold(section, "atarist") {
 		return charmap.ISO8859_1
@@ -672,7 +677,7 @@ func (dir Dirs) encoding(r io.Reader) encoding.Encoding {
 }
 
 // fixANSI uses the magicnumber data to match ansi texts and update the artifact platform classification.
-func (dir Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any) map[string]any {
+func (dir *Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any) map[string]any {
 	if nils.Slog("dirs fix ansi", ctx, sl, db) {
 		return data
 	}
@@ -708,8 +713,8 @@ func (dir Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data m
 // Due to potential performance issues with extra large filedownloads, this update
 // should only be used by logged-in editors.
 //
-// NOTE: this can be a performance issue on large files
-func (dir Dirs) fixMagic(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any) map[string]any {
+// NOTE: this can be a performance issue on large files.
+func (dir *Dirs) fixMagic(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any) map[string]any {
 	const msg = "dirs fix magic"
 	if nils.Slog(msg, ctx, sl, db) {
 		return data
@@ -751,14 +756,14 @@ func (dir Dirs) fixMagic(ctx context.Context, sl *slog.Logger, db *sql.DB, data 
 }
 
 // makeAssets will create repackaged archives and images of textfiles if they're required.
-func (dir Dirs) makeAssets(ctx context.Context, sl *slog.Logger, root string, modMagic any, data map[string]any,
+func (dir *Dirs) makeAssets(ctx context.Context, sl *slog.Logger, root string, modMagic any, data map[string]any,
 ) map[string]any {
 	const msg = "dirs make assets"
 	if nils.Slog(msg, ctx, sl) {
 		return data
 	}
 
-	name := filepath.Join(dir.Download.Path())
+	name := filepath.Join(dir.Download.Path(), dir.UUID)
 	zipArchiving := modMagic == magicnumber.PKWAREZip.Title()
 	switch {
 	case legacyArchiving(modMagic):
@@ -785,7 +790,7 @@ func (dir Dirs) makeAssets(ctx context.Context, sl *slog.Logger, root string, mo
 	return data
 }
 
-func (dir Dirs) makeTextImages(ctx context.Context, sl *slog.Logger, data map[string]any) map[string]any {
+func (dir *Dirs) makeTextImages(ctx context.Context, sl *slog.Logger, data map[string]any) map[string]any {
 	const msg = "dirs make text images"
 	if nils.Slog(msg, ctx, sl) {
 		return data
@@ -815,7 +820,7 @@ func (dir Dirs) makeTextImages(ctx context.Context, sl *slog.Logger, data map[st
 	return data
 }
 
-func (dir Dirs) makeZipfile(rootpath string) (size int64, err error) {
+func (dir *Dirs) makeZipfile(rootpath string) (size int64, err error) { //nolint:nonamedreturns
 	const format = "dirs make zipfile: %w"
 
 	base := dir.UUID + ".zip"
@@ -847,7 +852,7 @@ func (dir Dirs) makeZipfile(rootpath string) (size int64, err error) {
 
 // Previews returns a map of preview assets for the file record of the artifact.
 // Up to four preview assets are returned, JPEG, PNG, WebP and AVIF.
-func (dir Dirs) pathsPreview(sl *slog.Logger) map[string][2]string {
+func (dir *Dirs) pathsPreview(sl *slog.Logger) map[string][2]string {
 	if sl == nil {
 		sl = logs.Discard()
 	}
@@ -874,7 +879,7 @@ func (dir Dirs) pathsPreview(sl *slog.Logger) map[string][2]string {
 
 // Thumbnails returns a map of thumbnail assets for the file record of the artifact.
 // Two thumbnail assets are returned, PNG and WebP.
-func (dir Dirs) pathsThumb(sl *slog.Logger) map[string][2]string {
+func (dir *Dirs) pathsThumb(sl *slog.Logger) map[string][2]string {
 	if sl == nil {
 		sl = logs.Discard()
 	}
@@ -895,7 +900,7 @@ func (dir Dirs) pathsThumb(sl *slog.Logger) map[string][2]string {
 
 // Extras returns a map of extra assets for the file record of the artifact.
 // Up to three extra assets are returned, FILE_ID, README and Repacked ZIP.
-func (dir Dirs) pathsExtras() map[string][2]string {
+func (dir *Dirs) pathsExtras() map[string][2]string {
 	unid := strings.ToLower(dir.UUID)
 
 	const size = 3
@@ -932,7 +937,7 @@ func (dir Dirs) pathsExtras() map[string][2]string {
 // example:
 //
 //	"create a preview image + create a thumbnail image"
-func (dir Dirs) pathsSuggest() string {
+func (dir *Dirs) pathsSuggest() string {
 	uid := dir.UUID
 
 	download := helper.File(filepath.Join(dir.Download.Path(), uid))
@@ -972,7 +977,7 @@ func (dir Dirs) pathsSuggest() string {
 }
 
 // oneByKey retrieves a single artifact record using [dir.URI] as the key.
-func (dir Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) (*models.File, error) {
+func (dir *Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) (*models.File, error) {
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return nil, fmt.Errorf("dirs one by key: %w", err)
 	}
@@ -997,13 +1002,13 @@ func (dir Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context, 
 // screenshot returns true if a suitable screenshot is found on the host server.
 //
 // If the platform is "text" or "textamiga", false is always returned.
-func (dir Dirs) screenshot() bool {
+func (dir *Dirs) screenshot() bool {
 	if dir.UUID == "" {
 		return false
 	}
 
 	switch strings.ToLower(strings.TrimSpace(dir.Platform)) {
-	case "textamiga", "text":
+	case textamiga, text:
 		return false
 	}
 

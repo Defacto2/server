@@ -42,7 +42,7 @@ type Text struct {
 	Record   sauce.Record
 }
 
-// Text Buffers parses the text files use by a file artifact.
+// Buffers parses the text files use by a file artifact.
 //
 // Two buffers are created and returned:
 //
@@ -100,7 +100,11 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		err = errors.Join(err, fmt.Errorf(format, "incompatible ansi", aErr))
 	} else if ansi {
 		sl.Info("readme will render the buffer as ansi encoded")
-		return t.handleANSI(textBuf)
+		buf, err := t.handleANSI(textBuf)
+		if err != nil {
+			return nil, nil, err
+		}
+		return buf, nil, nil
 	}
 
 	// log any previous errors
@@ -109,7 +113,11 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	// binary texts can cause false positives
 	if t.Sign == magicnumber.Unknown {
 		sl.Info("readme will render the buffer as binary text")
-		return t.handleBIN(textBuf)
+		buf, err := t.handleBIN(textBuf)
+		if err != nil {
+			return nil, nil, err
+		}
+		return buf, nil, nil
 	}
 
 	sl.Info("readme will render the buffer as raw or plain text")
@@ -201,10 +209,10 @@ func (t *Text) handleUnknown(sl *slog.Logger) error {
 	return nil
 }
 
-func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, *bytes.Buffer, error) {
+func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 	const format = "handle binary text %s: %w"
 	if err := nils.Check(textBuf); err != nil {
-		return nil, nil, fmt.Errorf(format, "buffer", err)
+		return nil, fmt.Errorf(format, "buffer", err)
 	}
 
 	width := 0 // use default
@@ -221,16 +229,16 @@ func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, *bytes.Buffer, e
 		bytes.NewReader(textBuf.Bytes()), width, maxRows, palette, nil,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf(format, "binbump", err)
+		return nil, fmt.Errorf(format, "binbump", err)
 	}
 	textBuf.Reset()
-	return bintext, nil, nil
+	return bintext, nil
 }
 
-func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, *bytes.Buffer, error) {
+func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 	const format = "handle ansi %s: %w"
 	if err := nils.Check(textBuf); err != nil {
-		return nil, nil, fmt.Errorf(format, "buffers", err)
+		return nil, fmt.Errorf(format, "buffers", err)
 	}
 
 	const defaultColumns = 80
@@ -257,11 +265,11 @@ func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, *bytes.Buffer, 
 	}
 	ansitext, err := config.Buffer(bytes.NewReader(textBuf.Bytes()))
 	if err != nil {
-		return nil, nil, fmt.Errorf(format, "customizer", err)
+		return nil, fmt.Errorf(format, "customizer", err)
 	}
 	// reset all other buffers and return the ansi buffer
 	textBuf.Reset()
-	return ansitext, nil, nil
+	return ansitext, nil
 }
 
 func (t *Text) handleSAUCE(textBuf *bytes.Buffer) {
@@ -276,7 +284,7 @@ func (t *Text) handleSAUCE(textBuf *bytes.Buffer) {
 	}
 }
 
-// signature checks the bytes to confirm they can be displayed as text
+// signature checks the bytes to confirm they can be displayed as text.
 func (t *Text) signature(sl *slog.Logger, textBuf *bytes.Buffer) bool {
 	if sl == nil || textBuf == nil {
 		return true
@@ -339,7 +347,7 @@ func (t *Text) secondary(buf *bytes.Buffer, extension string) error {
 		buf.WriteString("error could not read the extra text file")
 		return nil
 	}
-	defer src.Close() //nolint:errcheck
+	defer src.Close()
 
 	buf.Reset()
 	if _, err = io.Copy(buf, src); err != nil {
@@ -387,7 +395,7 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 		textBuf.WriteString("error could not read the information text file")
 		return nil
 	}
-	defer f.Close() //nolint:errcheck
+	defer f.Close()
 
 	st, err := f.Stat()
 	if err != nil {

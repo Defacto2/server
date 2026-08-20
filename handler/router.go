@@ -38,7 +38,7 @@ func (c *Configuration) AppendFiles(ctx context.Context, sl *slog.Logger, e *ech
 		return nil, fmt.Errorf(format, nils.ErrEmbedFS)
 	}
 	app.Caching.Records(c.RecordCount)
-	dirs := app.Dirs{
+	dirs := app.Dirs{ //nolint:exhaustruct
 		Download:  dir.Directory(c.Environment.AbsDownload),
 		Preview:   dir.Directory(c.Environment.AbsPreview),
 		Thumbnail: dir.Directory(c.Environment.AbsThumbnail),

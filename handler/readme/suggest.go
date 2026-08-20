@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals
 package readme
 
 import (
@@ -84,7 +85,9 @@ func SortList(compact bool, entries string) []string {
 			if idx := slices.Index(list, target); idx != -1 {
 				return idx
 			}
-			return 1000 // Unmatched items rank lower
+			// Unmatched items rank lower
+			const unmatched = 1000
+			return unmatched
 		}
 
 		// used to compare which filename uses a candidate file extension

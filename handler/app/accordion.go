@@ -26,7 +26,7 @@ func List() Accordion {
 	return Accordion{
 		{
 			"Text art scene", "Text art pages",
-			"text", art(), false,
+			text, art(), false,
 		},
 		{
 			"Bulletin Board System", "BBS pages",

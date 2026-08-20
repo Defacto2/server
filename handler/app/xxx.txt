@@ -1,0 +1,17 @@
+ok  	github.com/Defacto2/server/handler/app	0.016s
+ok  	github.com/Defacto2/server/handler/app/internal/filerecord	0.011s
+ok  	github.com/Defacto2/server/handler/app/internal/fileslice	(cached)
+2026/08/20 18:56:47 INFO simple mime type lookup could not open file name="" error="open : no such file or directory"
+2026/08/20 18:56:47 INFO simple magic as title could not open named file name="" error="open : no such file or directory"
+--- FAIL: TestStripRTFBytes (0.00s)
+    --- FAIL: TestStripRTFBytes/RTF_bytes (0.00s)
+        rtf_test.go:138: StripRTFBytes() = "d This is formatted text.", want "This is formatted text."
+--- FAIL: TestStripRTF (0.00s)
+    --- FAIL: TestStripRTF/RTF_with_formatting (0.00s)
+        rtf_test.go:101: StripRTF() = "d This is formatted text.", want "This is formatted text."
+    --- FAIL: TestStripRTF/Actual_RTF_from_file (0.00s)
+        rtf_test.go:101: StripRTF() = "d prestige blows giant monkey goats\nRazor rules!", want "prestige blows giant monkey goats\nRazor rules!"
+FAIL
+FAIL	github.com/Defacto2/server/handler/app/internal/simple	0.007s
+ok  	github.com/Defacto2/server/handler/app/remote	3.872s
+FAIL

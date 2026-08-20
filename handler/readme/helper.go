@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals
 package readme
 
 import (
@@ -10,9 +11,9 @@ import (
 )
 
 var (
-	byteCR     = []byte("\r")
-	byteCRLF   = []byte("\r\n")
-	byteCRLFx2 = []byte("\n\n")
+	byteCR   = []byte("\r")
+	byteCRLF = []byte("\r\n")
+	// byteCRLFx2 = []byte("\n\n").
 	byteEOF    = []byte("\x1a")
 	byteLF     = []byte("\n")
 	byteNull   = []byte{0x00}

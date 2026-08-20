@@ -7,6 +7,8 @@ import (
 )
 
 func TestIsRTF(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name     string
 		input    string
@@ -41,6 +43,8 @@ func TestIsRTF(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			result := simple.RTF([]byte(tt.input))
 			if result != tt.expected {
 				t.Errorf("IsRTF() = %v, want %v for input %q", result, tt.expected, tt.input)
@@ -50,6 +54,8 @@ func TestIsRTF(t *testing.T) {
 }
 
 func TestStripRTF(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name     string
 		input    string
@@ -88,6 +94,8 @@ func TestStripRTF(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			result := simple.StripRTF([]byte(tt.input))
 			if string(result) != tt.expected {
 				t.Errorf("StripRTF() = %q, want %q", result, tt.expected)
@@ -97,6 +105,8 @@ func TestStripRTF(t *testing.T) {
 }
 
 func TestStripRTFBytes(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name     string
 		input    []byte
@@ -121,6 +131,8 @@ func TestStripRTFBytes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			result := simple.StripRTF(tt.input)
 			if string(result) != string(tt.expected) {
 				t.Errorf("StripRTFBytes() = %q, want %q", string(result), string(tt.expected))

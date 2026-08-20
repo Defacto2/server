@@ -90,6 +90,8 @@ const (
 	pubs      = "pubs"
 	records   = "records"
 	search    = "search"
+	text      = "text"
+	textamiga = "textamiga"
 	websites  = "websites"
 	years     = "years"
 )
@@ -1085,8 +1087,8 @@ func StripSup(s string) (map[string]template.HTML, error) {
 	sup := template.HTML(re.FindString(s))
 	cleaned := strings.TrimSpace(re.ReplaceAllString(s, ""))
 	return map[string]template.HTML{
-		"text": template.HTML(cleaned),
-		"sup":  sup,
+		text:  template.HTML(cleaned),
+		"sup": sup,
 	}, nil
 }
 

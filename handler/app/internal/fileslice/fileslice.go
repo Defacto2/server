@@ -190,6 +190,7 @@ func Valid(path string) bool {
 // FileInfo is a helper function for Files that returns the page title, h1 title and lead text.
 func FileInfo(uri string) (string, string, string) {
 	var logo, h1sub, lead string
+
 	switch Match(uri) { //nolint:exhaustive //nolint:exhaustive
 	case NewUploads:
 		logo = "new uploads"
@@ -229,6 +230,7 @@ func FileInfo(uri string) (string, string, string) {
 		h1sub = s
 		logo = s
 	}
+
 	return logo, h1sub, lead
 }
 
@@ -296,6 +298,7 @@ func RecordsSub(uri string) string {
 	if value, found := subs[Match(uri)]; found {
 		return value
 	}
+
 	return "unknown uri"
 }
 
@@ -306,6 +309,7 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, err)
 	}
+
 	switch Match(uri) { //nolint:exhaustive
 	// pulldown editor menu matches
 	case ForApproval:
@@ -330,6 +334,7 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.ByNewest(ctx, exec, page, limit)
 	}
+
 	return recordsZ(ctx, exec, uri, page, limit)
 }
 
@@ -372,6 +377,7 @@ func recordsZ(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 		r := model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	}
+
 	return records0(ctx, exec, uri, page, limit)
 }
 
@@ -420,6 +426,7 @@ func records0(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 		r := model.JobAdvert{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	}
+
 	return records1(ctx, exec, uri, page, limit)
 }
 
@@ -474,6 +481,7 @@ func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 		r := model.PDF{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 		return r.List(ctx, exec, page, limit)
 	}
+
 	return records2(ctx, exec, uri, page, limit)
 }
 
@@ -533,13 +541,16 @@ func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, 
 // Counter returns the statistics for the artifacts categories.
 func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
 	const format = "artifacts categories counter %s: %w"
+
 	if err := nils.Check(ctx, db); err != nil {
 		return Stats{}, fmt.Errorf(format, "check", err)
 	}
+
 	counter := newStats()
 	if err := counter.Get(ctx, db); err != nil {
 		return Stats{}, fmt.Errorf(format, "get", err)
 	}
+
 	return counter, nil
 }
 
@@ -649,6 +660,7 @@ func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(format, "argument", err)
 	}
+
 	v := reflect.ValueOf(exec)
 	switch v.Kind() { //nolint:exhaustive
 	case reflect.Pointer, reflect.Interface:
@@ -701,6 +713,7 @@ func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	if err := s.Demoscene.Stat(ctx, exec); err != nil {
 		return fmt.Errorf(format, "demoscene", err)
 	}
+
 	return s.get(ctx, exec)
 }
 
@@ -727,6 +740,7 @@ func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
 	if err := s.Text.Stat(ctx, exec); err != nil {
 		return fmt.Errorf(format, "text", err)
 	}
+
 	return s.Windows.Stat(ctx, exec)
 }
 

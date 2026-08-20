@@ -23,70 +23,76 @@ const r0 = "00000000-0000-0000-0000-000000000000"
 
 func TestWebsites(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
-	s := filerecord.Websites(&x)
-	be.Equal(t, s, "")
+	got := filerecord.Websites(&x)
+	be.Equal(t, got, "")
 
 	x.ListLinks = null.StringFrom("placeholder text")
-	s = filerecord.Websites(&x)
-	be.Equal(t, s, "")
+	got = filerecord.Websites(&x)
+	be.Equal(t, got, "")
 
 	ex := "http://example.com"
 	x.ListLinks = null.StringFrom(ex)
-	s = filerecord.Websites(&x)
-	be.Equal(t, s, "")
+	got = filerecord.Websites(&x)
+	be.Equal(t, got, "")
 
 	x.ListLinks = null.StringFrom("Example page;http://example.com")
-	s = filerecord.Websites(&x)
-	find := strings.Contains(string(s), `href="http://example.com">Example page`)
+	got = filerecord.Websites(&x)
+	find := strings.Contains(string(got), `href="http://example.com">Example page`)
 	be.True(t, find)
 
 	x.ListLinks = null.StringFrom("http://example.com;Example page")
-	s = filerecord.Websites(&x)
-	be.Equal(t, s, "")
+	got = filerecord.Websites(&x)
+	be.Equal(t, got, "")
 }
 
 func TestUnsupportedFile(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
-	b := filerecord.UnsupportedFile(&x)
-	be.True(t, !b)
+	got := filerecord.UnsupportedFile(&x)
+	be.True(t, !got)
+
 	x.Filename = null.StringFrom("filename.txt")
-	b = filerecord.UnsupportedFile(&x)
-	be.True(t, !b)
+	got = filerecord.UnsupportedFile(&x)
+	be.True(t, !got)
+
 	x.Filename = null.StringFrom("filename.rip")
-	b = filerecord.UnsupportedFile(&x)
-	be.True(t, b)
+	got = filerecord.UnsupportedFile(&x)
+	be.True(t, got)
+
 	x.Filename = null.StringFrom("filename.pdf")
 	x.Platform = null.StringFrom("pdf")
-	b = filerecord.UnsupportedFile(&x)
-	be.True(t, b)
+	got = filerecord.UnsupportedFile(&x)
+	be.True(t, got)
 }
 
 func TestRelations(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
-	s := filerecord.Relations(&x)
-	be.Equal(t, s, "")
+	got := filerecord.Relations(&x)
+	be.Equal(t, got, "")
 
 	x.ListRelations = null.StringFrom("placeholder text")
-	s = filerecord.Relations(&x)
-	be.Equal(t, s, "")
+	got = filerecord.Relations(&x)
+	be.Equal(t, got, "")
 
 	const id = "9b1c6"
 
 	x.ListRelations = null.StringFrom(id)
-	s = filerecord.Relations(&x)
-	be.Equal(t, s, "")
+	got = filerecord.Relations(&x)
+	be.Equal(t, got, "")
 
 	x.ListRelations = null.StringFrom("Info text;9b1c6")
-	s = filerecord.Relations(&x)
-	find := strings.Contains(string(s), `href="/f/9b1c6">Info text</a>`)
+	got = filerecord.Relations(&x)
+	find := strings.Contains(string(got), `href="/f/9b1c6">Info text</a>`)
 	be.True(t, find)
 
 	x.ListRelations = null.StringFrom("9b1c6;Info text")
-	s = filerecord.Relations(&x)
-	be.Equal(t, s, "")
+	got = filerecord.Relations(&x)
+	be.Equal(t, got, "")
 }
 
 func TestRecordStatus(t *testing.T) {
@@ -120,6 +126,7 @@ func TestRecordStatus(t *testing.T) {
 
 func TestRecordProblems(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
 	s := filerecord.RecordProblems(&x)
 	errs := strings.Split(s, "+")
@@ -128,6 +135,7 @@ func TestRecordProblems(t *testing.T) {
 
 func TestReadme(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
 	s := filerecord.Readme(&x)
 	be.Equal(t, s, "")
@@ -143,6 +151,7 @@ func TestReadme(t *testing.T) {
 
 func TestLinkPreviewTip(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
 	s := filerecord.LinkPreviewTip(&x)
 	be.Equal(t, s, "")
@@ -155,6 +164,7 @@ func TestLinkPreviewTip(t *testing.T) {
 
 func TestLinkPreview(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
 	s := filerecord.LinkPreview(&x)
 	be.Equal(t, s, "")
@@ -172,6 +182,7 @@ func TestLinkPreview(t *testing.T) {
 
 func TestLastModified(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
 	s := filerecord.LastModification(&x)
 	be.Equal(t, "no timestamp", s)
@@ -201,6 +212,7 @@ func TestLastModified(t *testing.T) {
 
 func TestJsdos(t *testing.T) {
 	t.Parallel()
+
 	pl, zip, exe := "dos", "FILENAME.ZIP", "FILENAME.EXE"
 	x := models.File{
 		Platform: null.StringFrom(pl),
@@ -223,6 +235,7 @@ func TestJsdos(t *testing.T) {
 
 func TestFirstHeader(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
 	s := filerecord.FirstHeader(&x)
 	be.Equal(t, s, "")
@@ -239,6 +252,7 @@ func TestFirstHeader(t *testing.T) {
 
 func TestFileEntry(t *testing.T) {
 	t.Parallel()
+
 	x := models.File{}
 	s := filerecord.FileEntry(&x)
 	be.Equal(t, s, "")
