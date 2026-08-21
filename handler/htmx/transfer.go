@@ -204,7 +204,7 @@ func transfer( //nolint:funlen
 	if dst == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be created")
 	}
-	content, err := archive.List(dst, file.Filename)
+	content, err := archive.List(ctx, dst, file.Filename)
 	if err != nil {
 		sl.Info(msg+" archive list caused an error",
 			slog.String("src", dst), slog.String("filename", file.Filename),
@@ -721,7 +721,7 @@ func UploadReplacement( //nolint:funlen
 	if err != nil || dst == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
 	}
-	if list, err := archive.List(dst, file.Filename); err == nil {
+	if list, err := archive.List(ctx, dst, file.Filename); err == nil {
 		fu.Content = strings.Join(list, "\n")
 	}
 	tx, err := db.BeginTx(ctx, nil)

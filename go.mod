@@ -28,7 +28,7 @@ go 1.26.6 // latest: https://go.dev/dl/
 // urface/cli is used with the flags package for command line interactions.
 //
 require (
-	github.com/Defacto2/archive v1.1.8
+	github.com/Defacto2/archive v1.2.0
 	github.com/Defacto2/helper v1.7.0
 	github.com/Defacto2/magicnumber v1.4.0
 	github.com/aarondl/null/v8 v8.1.3

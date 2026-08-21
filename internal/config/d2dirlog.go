@@ -34,19 +34,28 @@ func (a Abslog) String() string {
 
 // LogStore determines the local storage path for all log files created by this web application.
 func (c *Config) LogStore() error {
-	logs := c.AbsLog.String()
-	if logs == "" {
+	const format = "config: log store %s: %w"
+
+	lp := c.AbsLog.String()
+	if lp == "" {
 		dir, err := os.UserConfigDir()
 		if err != nil {
-			return fmt.Errorf("os.UserConfigDir: %w", err)
+			return fmt.Errorf(format, "os user config dir", err)
 		}
-		logs = filepath.Join(dir, ConfigDir)
+		lp = filepath.Join(dir, ConfigDir)
 	}
-	if logsExists := helper.Stat(logs); !logsExists {
-		if err := os.MkdirAll(logs, DirWriteWriteBlock); err != nil {
-			return fmt.Errorf("%w: %s", err, logs)
+
+	path, err := filepath.Abs(lp)
+	if err != nil {
+		return fmt.Errorf(format, lp, err)
+	}
+
+	if logsExists := helper.Stat(path); !logsExists {
+		if err := os.MkdirAll(path, DirWriteWriteBlock); err != nil {
+			return fmt.Errorf(format, path, err)
 		}
 	}
-	c.AbsLog = Abslog(logs)
+
+	c.AbsLog = Abslog(lp)
 	return nil
 }

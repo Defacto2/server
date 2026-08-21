@@ -22,6 +22,7 @@ func (a Abstlskey) Help() string {
 	if a == "" {
 		return "No TLS key is in use"
 	}
+
 	return ""
 }
 
@@ -43,6 +44,7 @@ func (a Abstlscrt) Help() string {
 	if a == "" {
 		return "No TLS certificate is in use"
 	}
+
 	return ""
 }
 
@@ -80,11 +82,12 @@ func protoPort(p, stdport Port, proto string) string {
 	if p == 0 {
 		return "The web server is not using " + strings.ToUpper(proto)
 	}
-	s := "The web server is using " + strings.ToUpper(proto) +
-		", example: " + strings.ToLower(proto) + "://localhost"
+
 	if p != stdport {
-		s = fmt.Sprintf("The web server is using %s, example: %s://localhost:%d",
+		return fmt.Sprintf("The web server is using %s, example: %s://localhost:%d",
 			strings.ToUpper(proto), strings.ToLower(proto), p)
 	}
-	return s
+
+	return "The web server is using " + strings.ToUpper(proto) +
+		", example: " + strings.ToLower(proto) + "://localhost"
 }

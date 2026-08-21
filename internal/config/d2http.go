@@ -53,11 +53,14 @@ func Validate(port uint16) error {
 	if port == disabled {
 		return nil
 	}
+
 	if port > PortMax {
 		return ErrPortMax
 	}
+
 	if port <= PortSys {
 		return ErrPortSys
 	}
+
 	return nil
 }

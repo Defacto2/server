@@ -548,7 +548,7 @@ func (c *Configuration) versionBrief() string {
 	if c.Version == "" {
 		return "  no version info, app compiled binary directly."
 	}
-	return fmt.Sprintf("  %s.", flags.Commit(c.Version))
+	return fmt.Sprintf("  %s.", flags.VersionCommit(c.Version))
 }
 
 // Rewrites for assets.

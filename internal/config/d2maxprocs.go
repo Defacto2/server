@@ -22,5 +22,6 @@ func (t Threads) String() string {
 	if t == 0 {
 		return "are not set"
 	}
+
 	return fmt.Sprintf("%d CPU threads", t)
 }

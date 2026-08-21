@@ -8,6 +8,7 @@ func (t Toggle) LogValue() slog.Value {
 	if t {
 		return slog.StringValue("TRUE")
 	}
+
 	return slog.StringValue("FALSE")
 }
 

@@ -32,12 +32,27 @@ const (
 	Email      = "contact@defacto2.net"     // Email contact for public display.
 	RecentYear = 2026                       // Most recent year of compilation for this program.
 
-	wsmsg = "Web Server Configurations"
-	fxmsg = "Database and Asset Fixes"
-	admsg = "Web Server Addresses"
+	configTitle  = "Web Server Configurations"
+	addressTitle = "Web Server Addresses"
+	fixesTitle   = "Database and Asset Fixes"
+	format       = "%s\n"
 )
 
 var ErrNoConfig = errors.New("cannot run command as config is nil")
+
+// desc returns the description for this program.
+func desc(c *config.Config) string {
+	if c == nil {
+		return ""
+	}
+	return fmt.Sprintf(`Launch the web server and listen on the configured port %d.
+The server expects the Defacto2 PostgreSQL database to run on the host system
+or in a container. But will run without a database connection, limiting functionality.
+
+The server relies on system environment variables for configuration and has limited 
+defaults for poor usability. Without the downloads and image directories, the server 
+will not display any thumbnails or previews or serve the file downloads.`, c.HTTPPort)
+}
 
 // App returns the command line interface for this program.
 // It uses the [github.com/urfave.cli/v2] package.
@@ -64,60 +79,12 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 		},
 		Commands: []*cli.Command{
 			Config(w, c),
+			Check(w, c),
 			Address(w, c),
 			Fix(w, c),
 		},
 	}
 	return app
-}
-
-// Fix command fixes the database and assets.
-func Fix(_ io.Writer, c *config.Config) *cli.Command {
-	const format = "fix command: %w"
-	//nolint:exhaustruct // External library struct with many optional fields
-	return &cli.Command{
-		Name:        "fix",
-		Aliases:     []string{"f"},
-		Usage:       "fix the database and assets",
-		Description: "Fix the database entries and file assets by running scans and checks.",
-		Action: func(_ *cli.Context) error {
-			cl := stdoutput()
-			sl := logs.Default()
-			slog.SetDefault(cl)
-			d := time.Now()
-			log.Printf("%s\n", wsmsg)
-			c.Print(cl)
-			newline()
-			slog.SetDefault(sl)
-			log.Println(fxmsg)
-			ctx := context.Background()
-			if err := c.Fixer(ctx, sl, d); err != nil {
-				return fmt.Errorf(format, err)
-			}
-			return nil
-		},
-	}
-}
-
-// Address command lists the server addresses.
-func Address(_ io.Writer, c *config.Config) *cli.Command {
-	const format = "address command: %w"
-	//nolint:exhaustruct // External library struct with many optional fields
-	return &cli.Command{
-		Name:        "address",
-		Aliases:     []string{"a"},
-		Usage:       "list the server addresses",
-		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
-		Action: func(_ *cli.Context) error {
-			sl := stdoutput()
-			log.Printf("%s\n", admsg)
-			err := c.Addresses(sl)
-			if err != nil {
-				return fmt.Errorf(format, err)
-			}
-			return nil
-		},
-	}
 }
 
 // Config command lists the server configuration.
@@ -129,12 +96,87 @@ func Config(_ io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
+			log.Printf(format, configTitle)
+
 			sl := stdoutput()
-			log.Printf("%s\n", wsmsg)
-			c.Print(sl)
+			c.Configurations(sl)
+
 			return nil
 		},
 	}
+}
+
+// Check command checks the server configuration.
+func Check(_ io.Writer, c *config.Config) *cli.Command {
+	//nolint:exhaustruct // External library struct with many optional fields
+	return &cli.Command{
+		Name:        "check",
+		Aliases:     []string{"k"},
+		Usage:       "Check the server configuration",
+		Description: "Check the server configuration options and the settings against common problems.",
+		Action: func(_ *cli.Context) error {
+			log.Printf(format, configTitle)
+
+			sl := stdoutput()
+			return c.Checks(context.Background(), sl)
+		},
+	}
+}
+
+// Address command lists the server addresses.
+func Address(_ io.Writer, c *config.Config) *cli.Command {
+	//nolint:exhaustruct // External library struct with many optional fields
+	return &cli.Command{
+		Name:        "address",
+		Aliases:     []string{"a"},
+		Usage:       "list the server addresses",
+		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
+		Action: func(_ *cli.Context) error {
+			log.Printf(format, addressTitle)
+
+			sl := stdoutput()
+			return c.Addresses(sl)
+		},
+	}
+}
+
+// Fix command fixes the database and assets.
+func Fix(_ io.Writer, c *config.Config) *cli.Command {
+	//nolint:exhaustruct // External library struct with many optional fields
+	return &cli.Command{
+		Name:        "fix",
+		Aliases:     []string{"f"},
+		Usage:       "fix the database and assets",
+		Description: "Fix the database entries and file assets by running scans and checks.",
+		Action: func(_ *cli.Context) error {
+			nl := func() {
+				_, _ = fmt.Fprintln(os.Stdout)
+			}
+
+			log.Printf(format, configTitle)
+
+			cl := stdoutput()
+			slog.SetDefault(cl)
+			d := time.Now()
+			c.Configurations(cl)
+			nl()
+			log.Println(fixesTitle)
+			sl := logs.Default()
+			slog.SetDefault(sl)
+			if err := c.Fixer(context.Background(), sl, d); err != nil {
+				const format = "fix command: %w"
+				return fmt.Errorf(format, err)
+			}
+			return nil
+		},
+	}
+}
+
+func stdoutput() *slog.Logger {
+	lf := logs.NoFiles()
+	sl := lf.New(logs.LevelInfo, logs.Flags)
+	slog.SetDefault(sl)
+	return sl
 }
 
 // Arch returns the program CPU architecture.
@@ -151,24 +193,8 @@ func Arch() string {
 	case "wasm":
 		return "WebAssembly"
 	}
-	return runtime.GOARCH
-}
 
-// Commit returns a formatted, git commit description for the repository,
-// including git tag version and git commit date.
-func Commit(ver string) string {
-	const msg = "n/a (not a build)"
-	x := []string{}
-	s := versioninfo.Short()
-	if ver != "" {
-		x = append(x, Vers(ver))
-	} else if s != "" {
-		x = append(x, s)
-	}
-	if len(x) == 0 || x[0] == "devel" {
-		return msg
-	}
-	return strings.Join(x, ", ")
+	return runtime.GOARCH
 }
 
 // Copyright returns a "©" copyright symbol, the respective years and author of this program.
@@ -176,26 +202,27 @@ func Commit(ver string) string {
 // The most recent copyright year is generated from the last commit date.
 func Copyright() string {
 	const (
-		initYear = 2023
-		century  = 100
+		epoch   = 2023
+		century = 100
 	)
-	years := strconv.Itoa(initYear)
-	if RecentYear > initYear {
+	years := strconv.Itoa(epoch)
+	if RecentYear > epoch {
 		endDigits := RecentYear % century
 		years += "-" + fmt.Sprintf("%02d", endDigits)
 	}
-	s := fmt.Sprintf("© %s Defacto2 & %s", years, Author)
-	return s
+
+	return "© " + years + " Defacto2 & " + Author
 }
 
-// OS returns the program operating system.
+// OS returns the host operating system.
 func OS() string {
-	t := cases.Title(language.English)
-	x := strings.Split(runtime.GOOS, "/")
-	if len(x) == 0 {
-		return t.String(runtime.GOOS)
+	titlize := cases.Title(language.English)
+	system := strings.Split(runtime.GOOS, "/")
+	if len(system) == 0 {
+		return titlize.String(runtime.GOOS)
 	}
-	os := x[0]
+
+	os := system[0]
 	switch os {
 	case "darwin":
 		return "macOS"
@@ -208,33 +235,59 @@ func OS() string {
 	case "openbsd":
 		return "OpenBSD"
 	}
-	return t.String(os)
+
+	return titlize.String(os)
 }
 
-// Vers returns a formatted version.
+// VersionRelease returns a formatted release version.
 // The version string is generated by [GoReleaser].
 //
 // [GoReleaser]: https://goreleaser.com/
-func Vers(version string) string {
-	const alpha, beta = "\u03b1", "β"
-	pref := Program + " version "
+func VersionRelease(version string) string {
+	const (
+		alphaSym = "\u03b1"
+		betaSym  = "β"
+	)
+
+	prefix := Program + " version "
 	if version == "" {
-		return fmt.Sprintf("%s0.0.0 %slpha", pref, alpha)
+		return prefix + "0.0.0 " + alphaSym + "lpha"
 	}
+
 	const next = "-next"
 	if before, found := strings.CutSuffix(version, next); found {
-		return fmt.Sprintf("%s%s %seta", pref, before, beta)
+		return prefix + before + " " + betaSym + "eta"
 	}
-	return pref + version
+
+	return prefix + version
+}
+
+// VersionCommit returns a formatted, git commit description for the repository,
+// including git tag version and git commit date.
+func VersionCommit(ver string) string {
+	const msg = "n/a (not a build)"
+
+	elems := []string{}
+	s := versioninfo.Short()
+	if ver != "" {
+		elems = append(elems, VersionRelease(ver))
+	} else if s != "" {
+		elems = append(elems, s)
+	}
+	if len(elems) == 0 || elems[0] == "devel" {
+		return msg
+	}
+
+	return strings.Join(elems, ", ")
 }
 
 // Version returns a formatted version string for this program
-// including the [Commit], [OS] and CPU [Arch].
+// including the [VersionCommit], [OS] and CPU [Arch].
 func Version(s string) string {
 	const size = 2
 	elems := make([]string, 0, size)
-	elems = append(elems, Commit(s))
-	elems = append(elems, fmt.Sprintf("%s on %s", OS(), Arch()))
+	elems = append(elems, VersionCommit(s))
+	elems = append(elems, OS()+" on "+Arch())
 	return strings.Join(elems, " for ")
 }
 
@@ -256,32 +309,8 @@ func Run(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 	if len(os.Args) < minArgs {
 		return Continue, nil
 	}
+
 	return setup(w, ver, c)
-}
-
-// desc returns the description for this program.
-func desc(c *config.Config) string {
-	if c == nil {
-		return ""
-	}
-	return fmt.Sprintf(`Launch the web server and listen on the configured port %d.
-The server expects the Defacto2 PostgreSQL database to run on the host system
-or in a container. But will run without a database connection, limiting functionality.
-
-The server relies on system environment variables for configuration and has limited 
-defaults for poor usability. Without the downloads and image directories, the server 
-will not display any thumbnails or previews or serve the file downloads.`, c.HTTPPort)
-}
-
-func newline() {
-	_, _ = fmt.Fprintln(os.Stdout)
-}
-
-func stdoutput() *slog.Logger {
-	lf := logs.NoFiles()
-	sl := lf.New(logs.LevelInfo, logs.Flags)
-	slog.SetDefault(sl)
-	return sl
 }
 
 func setup(w io.Writer, ver string, c *config.Config) (ExitCode, error) {

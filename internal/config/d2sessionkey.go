@@ -8,7 +8,7 @@ func (s Sessionkey) LogValue() slog.Value {
 	if s == "" {
 		return slog.StringValue("")
 	}
-	return slog.StringValue(hide)
+	return slog.StringValue(mask)
 }
 
 func (s Sessionkey) Help() string {

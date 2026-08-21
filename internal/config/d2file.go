@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 )
@@ -10,14 +11,16 @@ import (
 type File string // File contains an absolute path to a file.
 
 func (f File) Check() error {
-	const msg = "file check"
+	const format = "config file check: %w"
+
 	st, err := os.Stat(string(f))
 	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	if st.IsDir() {
-		return fmt.Errorf("%s: %w", msg, ErrNotFile)
+		return fmt.Errorf(format, ErrNotFile)
 	}
+
 	return nil
 }
 
@@ -25,20 +28,25 @@ func (f File) Issue() string {
 	if f == "" {
 		return ""
 	}
+
 	err := f.Check()
+	if err == nil {
+		return ""
+	}
 	if errors.Is(err, os.ErrNotExist) {
 		return "File does not exist"
 	}
 	if errors.Is(err, ErrNotDir) {
 		return "File path points to a file and cannot be used"
 	}
+	if errors.Is(err, fs.ErrPermission) {
+		return "File cannot be accessed due to permission denied"
+	}
+
 	return ""
 }
 
 func (f File) LogValue() slog.Value {
-	if f == "" {
-		return slog.StringValue("")
-	}
 	return slog.StringValue(string(f))
 }
 

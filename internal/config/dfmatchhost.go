@@ -10,6 +10,7 @@ func (m Matchhost) LogValue() slog.Value {
 	if m == "" {
 		return slog.StringValue("")
 	}
+
 	return slog.StringValue(string(m))
 }
 

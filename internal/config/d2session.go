@@ -15,6 +15,7 @@ func (h Hours) String() string {
 	if h == 1 {
 		return "1 hour"
 	}
+
 	return fmt.Sprintf("%d hours", h)
 }
 

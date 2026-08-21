@@ -32,6 +32,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/flags"
 	"github.com/Defacto2/server/handler"
+	"github.com/Defacto2/server/handler/fulltext"
 	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/logs"
@@ -95,7 +96,7 @@ func main() { //nolint:funlen
 	sl, cl, logo := setupWriters(*envConfig, fileLog)
 
 	// Print the configurations.
-	envConfig.Print(cl)
+	envConfig.Configurations(cl)
 
 	// Connect to the database and perform some record repairs and sanity checks. Even if the
 	// database cannot connect the web server will continue to run with limited functionality.
@@ -222,23 +223,47 @@ func printAddrs(cl *slog.Logger, envConfig *config.Config, msg string) {
 // The configuration uses reference types to make the values immutable.
 func environmentVars(ctx context.Context, tmpLog *slog.Logger) *config.Config {
 	const msg = "environment variables"
-	configs := config.Config{ //nolint:exhaustruct // complex config
-		Compression:   true,
-		DatabaseURL:   postgres.DefaultURL,
-		HTTPPort:      config.StdCustom,
-		ProdMode:      true,
-		ReadOnly:      true,
-		SessionMaxAge: config.SessionHours,
+	configs := config.Config{
+		// paths
+		AbsLog:       "",
+		AbsDownload:  "",
+		AbsPreview:   "",
+		AbsThumbnail: "",
+		AbsExtra:     "",
+		AbsOrphaned:  "",
+		// database
+		DatabaseURL: postgres.DefaultURL,
+		SessionKey:  "",
+		// 3rd party
+		GoogleClientID: "",
+		GoogleIDs:      "",
+		// server
+		MatchHost:      "",
+		TLSCert:        "",
+		TLSKey:         "",
+		GoogleAccounts: config.OAuth2s{},
+		HTTPPort:       config.StdCustom,
+		MaxProcs:       0,
+		SessionMaxAge:  config.SessionHours,
+		TLSPort:        0,
+		Quiet:          false,
+		Compression:    true,
+		ProdMode:       true,
+		ReadOnly:       true,
+		NoCrawl:        false,
+		LogAll:         false,
 	}
 	if err := env.Parse(&configs); err != nil {
 		logs.Fatal(ctx, tmpLog, msg,
 			slog.String("parsing_error", "does the variable contain an invalid value?"),
 			slog.Any("error", err))
 	}
+
 	configs.Override()
 	if i := configs.MaxProcs; i > 0 {
 		runtime.GOMAXPROCS(int(i))
 	}
+
 	return &configs
 }
 
@@ -246,20 +271,22 @@ func environmentVars(ctx context.Context, tmpLog *slog.Logger) *config.Config {
 //
 // The configuration returns a reference type to make the values immutable.
 func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *handler.Configuration {
-	c := handler.Configuration{ //nolint:exhaustruct
+	c := handler.Configuration{
+		Public:      public,
+		View:        view,
+		Version:     version,
 		Brand:       brand,
 		Environment: envConfig,
-		Public:      public,
-		Version:     version,
-		View:        view,
 		RecordCount: 0,
+		TidbitIndex: fulltext.Tidbits{},
 	}
 	if c.Version == "" {
-		c.Version = flags.Commit("")
+		c.Version = flags.VersionCommit("")
 	}
 	if ctx != nil && db != nil {
 		c.RecordCount = config.RecordCount(ctx, db)
 	}
+
 	return &c
 }
 
@@ -267,21 +294,20 @@ func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *h
 // If an error is returned, the application will exit with the error code.
 // Otherwise, a negative value is returned to indicate the application should continue.
 func flagParser(tmpLog *slog.Logger, w io.Writer, envConfig *config.Config) flags.ExitCode {
-	const msg = "server flag parser"
+	const msg = "server flag parser, there was a problem parsing the command arguments"
 	if tmpLog == nil || envConfig == nil {
 		return flags.GenericErr
 	}
+
 	exitCode, err := flags.Run(w, version, envConfig)
 	if err != nil {
-		tmpLog.Error(msg,
-			slog.String("run", "there was a problem parsing the command arguments"),
-			slog.Int("exit_code", int(exitCode)),
-			slog.Any("error", err))
+		tmpLog.Error(msg, slog.Int("exit_code", int(exitCode)), slog.Any("error", err))
 		return exitCode
 	}
 	if use := exitCode >= flags.ExitOK; use {
 		return exitCode
 	}
+
 	return flags.Continue
 }
 
@@ -290,6 +316,7 @@ func flagParser(tmpLog *slog.Logger, w io.Writer, envConfig *config.Config) flag
 // on the number of records vs the expected number.
 func printOpening(sl *slog.Logger, count int) {
 	const welcome = "Welcome to the Defacto2 web application"
+
 	switch {
 	case count == 0:
 		s := ", but with no access to the database records"

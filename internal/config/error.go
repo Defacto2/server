@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/handler/html3"
-	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/labstack/echo/v5"
 )
@@ -22,15 +21,16 @@ const (
 )
 
 var (
-	ErrNoAccounts = errors.New("the production server has no google oauth2 user accounts to allow admin logins")
-	ErrNoDir      = errors.New("directory does not exist or incorrectly typed")
-	ErrNoOAuth2   = errors.New("production server requires a google, oauth2 client id to allow admin logins")
-	ErrNoPort     = errors.New("server cannot start with a http or a tls port")
-	ErrNoPath     = errors.New("empty path or name")
+	ErrNoAccounts = errors.New("config: production server has no google oauth2 user accounts to allow admin logins")
+	ErrNoOAuth2   = errors.New("config: production server requires a google, oauth2 client id to allow admin logins")
+	ErrSession    = errors.New("config: production server has user sessions that never expire")
+	ErrNoDir      = errors.New("config: directory does not exist on the host file system")
+	ErrTouch      = errors.New("config: directory does not permit file writing")
+	ErrNotDir     = errors.New("config: directory points to a file")
+	ErrNotFile    = errors.New("config: file path points to a directory")
+	ErrNoPort     = errors.New("config: no port, server cannot start without a configured http or a tls port")
+	ErrNoPath     = errors.New("config: no path, path or name cannot be empty")
 	ErrPSVersion  = errors.New("postgres did not return a version value")
-	ErrTouch      = errors.New("server cannot create a file in the directory")
-	ErrNotDir     = errors.New("path points to a file")
-	ErrNotFile    = errors.New("path points to a directory")
 )
 
 // CustomErrorHandler handles edge case HTTP errors including
@@ -44,35 +44,29 @@ func CustomErrorHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, e
 	if err := nils.Check(ctx, sl, c); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if isV3(c.Path()) {
+
+	path := c.Path()
+	if strings.HasPrefix(path, "/html3") {
 		if err := html3.Error(c, err); err != nil {
-			logs.Fatal(ctx, sl, msg, slog.Any("html3 error", err))
+			sl.Error(msg, slog.String("context", "html3 error delivery failed"), slog.Any("error", err))
 		}
 		return
 	}
 
-	statusCode := echo.StatusCode(err)
-	if statusCode == 0 {
-		statusCode = http.StatusInternalServerError
+	code := echo.StatusCode(err)
+	if code == 0 {
+		code = http.StatusInternalServerError
 		if errors.Is(err, echo.ErrNotFound) {
-			statusCode = http.StatusNotFound
+			code = http.StatusNotFound
 		}
 	}
-	statusText := http.StatusText(statusCode)
+	statusText := http.StatusText(code)
 
-	sl.Error(msg,
-		slog.Any("error", err),
-		slog.String("type", fmt.Sprintf("%t", err)),
-		slog.Any("unwrapped", errors.Unwrap(err)),
-		slog.Int("status_code", statusCode))
+	sl.Error(msg, slog.Any("error", err), slog.String("type", fmt.Sprintf("%T", err)),
+		slog.Int("status_code", code))
 
-	s := fmt.Sprintf("%d - %s", statusCode, statusText)
-	if err1 := c.String(statusCode, s); err1 != nil {
-		logs.Fatal(ctx, sl, msg, slog.Any("error", err1))
+	s := fmt.Sprintf("%d - %s", code, statusText)
+	if sErr := c.String(code, s); sErr != nil {
+		sl.Error(msg, slog.String("context", "failed to write error response"), slog.Any("error", err))
 	}
-}
-
-// isV3 returns true if the path is /html3.
-func isV3(path string) bool {
-	return strings.Contains(path, "/html3/") || strings.HasSuffix(path, "/html3")
 }
