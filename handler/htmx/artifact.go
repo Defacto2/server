@@ -118,7 +118,7 @@ func pageRefresh(c *echo.Context) *echo.Context {
 }
 
 // RecordThumb handles the htmx request for the thumbnail quality.
-func RecordThumb(ctx context.Context, sl *slog.Logger, c *echo.Context, thumb command.Thumb, dirs command.Dirs) error {
+func RecordThumb(ctx context.Context, sl *slog.Logger, c *echo.Context, thumb command.Generate, dirs command.Dirs) error {
 	const format = "artifact record thumb: %w"
 	if err := nils.Check(ctx, sl, c); err != nil {
 		return fmt.Errorf(format, err)
@@ -402,9 +402,9 @@ func RecordReadmeDisable(ctx context.Context, c *echo.Context, db *sql.DB) error
 // RecordImagePixelator handles the htmx request to pixelate both the preview and
 // thumbnails, if they are not suitable for a general audience. This also has an
 // added benefit of reducing the file sizes of both images and reducing page load.
-func RecordImagePixelator(ctx context.Context, c *echo.Context, directory ...dir.Directory) error {
+func RecordImagePixelator(ctx context.Context, sl *slog.Logger, c *echo.Context, directory ...dir.Directory) error {
 	const format = "record image pixelator: %w"
-	if err := nils.Check(ctx, c); err != nil {
+	if err := nils.Check(ctx, sl, c); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	unid, err := UUID(c)
@@ -412,7 +412,7 @@ func RecordImagePixelator(ctx context.Context, c *echo.Context, directory ...dir
 		return badRequest(c, err)
 	}
 	dirs := dir.Paths(directory...)
-	if err := command.ImagesPixelate(ctx, unid, dirs...); err != nil {
+	if err := command.ImagesPixelate(ctx, sl, unid, dirs...); err != nil {
 		return badRequest(c, err)
 	}
 	// do not use pageRefresh as it returns an error

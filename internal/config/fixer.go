@@ -126,7 +126,7 @@ func (c *Config) repairer(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 			slog.Any("error", err))
 	}
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
-	if err := c.RepairAssets(ctx, sl, db); err != nil {
+	if err := c.assets(ctx, sl, db); err != nil {
 		sl.Error(msg, slog.Any("error", err))
 	}
 }
@@ -166,7 +166,7 @@ func (c *Config) sanityChecks(ctx context.Context, sl *slog.Logger) {
 				"it probably contains an invalid value"),
 			slog.Any("error", err))
 	}
-	cmdChecks(sl)
+	cmdChecks(ctx, sl)
 	conn, err := postgres.New()
 	if err != nil {
 		sl.Error(msg,
@@ -181,7 +181,7 @@ func (c *Config) sanityChecks(ctx context.Context, sl *slog.Logger) {
 
 // checks is used to confirm the required commands are available.
 // These are skipped if readonly is true.
-func cmdChecks(sl *slog.Logger) {
+func cmdChecks(ctx context.Context, sl *slog.Logger) {
 	const msg = "command checks"
 	if err := nils.Check(sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -190,7 +190,7 @@ func cmdChecks(sl *slog.Logger) {
 	infos := command.Infos()
 	var attrs []slog.Attr
 	for i, name := range lookups {
-		if err := command.LookCmd(name); err != nil {
+		if _, err := command.Lookup(name); err != nil {
 			attrs = append(attrs, slog.String(name, infos[i]))
 		}
 	}
@@ -202,7 +202,7 @@ func cmdChecks(sl *slog.Logger) {
 			sl.Warn("missing command", slog.String(attr.Key, attr.Value.String()))
 		}
 	}
-	if err := command.LookupUnrar(); err != nil {
+	if err := command.LookupUnrar(ctx); err != nil {
 		if errors.Is(err, command.ErrVersion) {
 			sl.Warn("command unrar",
 				slog.String("invalid", "Found unrar but it is not authored by Alexander Roshal"),

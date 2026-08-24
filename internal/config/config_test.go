@@ -89,7 +89,7 @@ func TestRepair(t *testing.T) {
 
 	c := config.Config{}
 	disc := logs.Discard()
-	got := c.Archives(t.Context(), nil, nil)
+	got := c.RepairArchive(t.Context(), nil, nil)
 	be.Err(t, got)
 
 	r := config.Zip
@@ -127,7 +127,7 @@ func TestReArchive(t *testing.T) {
 	t.Parallel()
 
 	r := config.Zip
-	got := r.ReArchive(t.Context(), nil, config.Rearchiving{})
+	got := r.RePack(t.Context(), nil, config.Rearchiving{})
 	be.Err(t, got)
 }
 
@@ -153,20 +153,20 @@ func TestReArchiveImplode(t *testing.T) {
 	be.Equal(t, magicnumber.PKWAREZipImplode, sign)
 
 	ra0 := config.Rearchiving{}
-	got := r.ReArchive(ctx, nil, ra0)
+	got := r.RePack(ctx, nil, ra0)
 	be.Err(t, got)
 
 	tmp := t.TempDir()
 	dst := dir.Directory(filepath.Dir(tmp))
 
 	ra1 := config.Rearchiving{Source: src, Destination: dst}
-	got = r.ReArchive(ctx, nil, ra1)
+	got = r.RePack(ctx, nil, ra1)
 	be.Err(t, got)
 
 	const newfile = "newfile"
 	ra1.UID = newfile
 	sl := logs.Discard()
-	got = r.ReArchive(ctx, sl, ra1)
+	got = r.RePack(ctx, sl, ra1)
 	be.Err(t, got, nil)
 
 	name := dst.Join(newfile + ".zip")

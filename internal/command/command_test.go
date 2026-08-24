@@ -1,7 +1,7 @@
 package command_test
 
 import (
-	"context"
+	"bytes"
 	"log/slog"
 	"os"
 	"strings"
@@ -11,161 +11,95 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func logr() *slog.Logger {
-	return slog.Default()
-}
-
 func TestLookups(t *testing.T) {
 	t.Parallel()
+
 	t1 := command.Lookups()
 	t2 := command.Infos()
+
 	be.Equal(t, len(t1), len(t2))
 	be.True(t, strings.Contains(t2[0], command.Arc))
 }
 
 func TestCopyFile(t *testing.T) {
 	t.Parallel()
-	err := command.CopyFile(nil, "", "")
-	be.Err(t, err)
+	sl := slog.Default()
+
+	got := command.CopyFile(nil, "", "")
+	be.Err(t, got)
+
 	td := t.TempDir()
-	tmp, err := os.CreateTemp(td, "command_test")
-	be.Err(t, err, nil)
-	defer func() {
-		err := os.Remove(tmp.Name())
-		be.Err(t, err, nil)
-	}()
-	logr := logr()
-	err = command.CopyFile(logr, "", "")
-	be.Err(t, err)
+	tmp, got := os.CreateTemp(td, "command_test")
+	be.Err(t, got, nil)
 
-	err = command.CopyFile(logr, tmp.Name(), "")
-	be.Err(t, err)
+	got = command.CopyFile(sl, "", "")
+	be.Err(t, got)
+
+	got = command.CopyFile(sl, tmp.Name(), "")
+	be.Err(t, got)
+
 	dst := tmp.Name() + ".txt"
-	err = command.CopyFile(logr, tmp.Name(), dst)
-	be.Err(t, err, nil)
-	defer func() {
-		err := os.Remove(dst)
-		be.Err(t, err, nil)
-	}()
+	got = command.CopyFile(sl, tmp.Name(), dst)
+	be.Err(t, got, nil)
 }
 
-func TestBaseName(t *testing.T) {
-	tests := []struct {
-		name     string
-		path     string
-		expected string
-	}{
-		{"Empty path", "", ""},
-		{"No extension", "/path/to/file", "file"},
-		{"With extension", "/path/to/file.txt", "file"},
-		{"Multiple extensions", "/path/to/file.tar.gz", "file.tar"},
-		{"Hidden file", "/path/to/.hidden", ""},
-		{"Hidden file with extension", "/path/to/.hidden.txt", ".hidden"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			be.Equal(t, tt.expected, command.BaseName(tt.path))
-		})
-	}
-}
-
-func TestBaseNamePath(t *testing.T) {
-	tests := []struct {
-		name     string
-		path     string
-		expected string
-	}{
-		{"Empty path", "", ""},
-		{"No extension", "/path/to/file", "/path/to/file"},
-		{"With extension", "/path/to/file.txt", "/path/to/file"},
-		{"Multiple extensions", "/path/to/file.tar.gz", "/path/to/file.tar"},
-		{"Hidden file", "/path/to/.hidden", "/path/to"},
-		{"Hidden file with extension", "/path/to/.hidden.txt", "/path/to/.hidden"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			be.Equal(t, tt.expected, command.BaseNamePath(tt.path))
-		})
-	}
-}
-
-func TestLookCmd(t *testing.T) {
+func TestLookup(t *testing.T) {
 	t.Parallel()
-	err := command.LookCmd("")
-	be.Err(t, err)
 
-	err = command.LookCmd("thiscommanddoesnotexist")
-	be.Err(t, err)
+	s, got := command.Lookup("")
+	be.Err(t, got, nil)
+	be.Equal(t, s, "")
 
-	err = command.LookCmd("go")
-	be.Err(t, err, nil)
+	_, got = command.Lookup("thiscommanddoesnotexist")
+	be.Err(t, got)
+
+	s, got = command.Lookup("go")
+	be.Err(t, got, nil)
+	be.True(t, strings.Contains(s, "go"))
 }
 
-func TestLookVersion(t *testing.T) {
+func TestLookupS(t *testing.T) {
 	t.Parallel()
-	err := command.LookVersion("", "", "")
-	be.Err(t, err)
 
-	err = command.LookVersion("thiscommanddoesnotexist", "", "")
-	be.Err(t, err)
+	got := command.LookupS(t.Context(), "", "", "")
+	be.Err(t, got)
 
-	err = command.LookVersion("go", "", "")
-	be.Err(t, err)
+	got = command.LookupS(t.Context(), "thiscommanddoesnotexist", "", "")
+	be.Err(t, got)
+
+	got = command.LookupS(t.Context(), "go", "", "")
+	be.Err(t, got)
 
 	// version arg output example:
 	// go version go1.16.5 linux/amd64
-	err = command.LookVersion("go", "version", "go version go1.")
-	be.Err(t, err, nil)
+	got = command.LookupS(t.Context(), "go", "version", "go version go1.")
+	be.Err(t, got, nil)
 }
 
 func TestRun(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
-	err := command.Run(ctx, nil, "", "")
-	be.Err(t, err)
-	logr := logr()
-	err = command.Run(ctx, logr, "", "")
-	be.Err(t, err)
 
-	err = command.Run(ctx, logr, "thiscommanddoesnotexist", "")
-	be.Err(t, err)
+	ctx := t.Context()
 
-	const noArgs = ""
-	err = command.Run(ctx, logr, "go", noArgs)
+	r := command.Runner{}
+	_, got := r.Run(ctx, "", "")
+	be.Err(t, got)
+
+	const none = ""
+	r.Log = slog.Default()
+	_, got = r.Run(ctx, "", none)
+	be.Err(t, got)
+
+	_, got = r.Run(ctx, "thiscommanddoesnotexist", none)
+	be.Err(t, got)
+
+	_, got = r.Run(ctx, "go", none)
 	// go without args will return an unknown command error
-	be.Err(t, err)
+	be.Err(t, got)
 
-	err = command.Run(ctx, logr, "go", "version")
-	be.Err(t, err, nil)
-}
+	b, got := r.Run(ctx, "go", "version")
+	be.Err(t, got, nil)
+	be.True(t, bytes.HasPrefix(b, []byte("go version go1.")))
 
-func TestRunQuiet(t *testing.T) {
-	t.Parallel()
-	ctx := context.TODO()
-	err := command.RunQuiet(ctx, "", "")
-	be.Err(t, err)
-	err = command.RunQuiet(ctx, "thiscommanddoesnotexist", "")
-	be.Err(t, err)
-	const noArgs = ""
-	err = command.RunQuiet(ctx, "go", noArgs)
-	// go without args will return an unknown command error
-	be.Err(t, err)
-	err = command.RunQuiet(ctx, "go", "version")
-	be.Err(t, err, nil)
-}
-
-func TestRunWD(t *testing.T) {
-	t.Parallel()
-	ctx := context.TODO()
-	const noWD = ""
-	err := command.RunWorkdir(ctx, logr(), "go", noWD, "")
-	// go without args will return an unknown command error
-	be.Err(t, err)
-
-	wd, err := os.Getwd()
-	be.Err(t, err, nil)
-	err = command.RunWorkdir(ctx, logr(), "go", wd, "version")
-	be.Err(t, err, nil)
+	// test timeout
 }

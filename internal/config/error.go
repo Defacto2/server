@@ -30,6 +30,7 @@ var (
 	ErrNotFile    = errors.New("config: file path points to a directory")
 	ErrNoPort     = errors.New("config: no port, server cannot start without a configured http or a tls port")
 	ErrNoPath     = errors.New("config: no path, path or name cannot be empty")
+	ErrFormat     = errors.New("config: unsupported format")
 	ErrPSVersion  = errors.New("postgres did not return a version value")
 )
 

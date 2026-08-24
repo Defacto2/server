@@ -15,7 +15,9 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Defacto2/archive/rezip"
 	"github.com/Defacto2/helper"
@@ -46,108 +48,92 @@ func discard(err error) {
 	_, _ = fmt.Fprint(io.Discard, err)
 }
 
-// Archives checks the download directory for any legacy and obsolete archives.
-// Obsolete archives are those that use a legacy compression method that is not supported
-// by Go or JS libraries used by the website.
-func (c *Config) Archives( //nolint:cyclop,funlen,gocognit
-	ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor,
-) error {
-	const msg = "config archives repair"
+// RepairArchive checks the download directory for any legacy and obsolete archives.
+// Obsolete archives are those that use a legacy compression method
+// that is not supported by Go or JS libraries used by the website.
+func (c *Config) RepairArchive(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+	const format = "config archives repair: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
-	d := time.Now()
-	artifacts := []string{}
-	var err error
-	extra := dir.Directory(c.AbsExtra)
-	zipWalker := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return fmt.Errorf("%w: %s", err, path)
-		}
-		uid := fixzip.Check(sl, path, extra, d, artifacts...)
-		if uid == "" || fixzip.Invalid(ctx, sl, path) {
-			return nil
-		}
-		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
-		if err := Zip.ReArchive(ctx, sl, ra); err != nil {
-			return fmt.Errorf("zip repair and re-archive: %w", err)
-		}
-		return nil
-	}
-	lhaWalker := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return fmt.Errorf("%w: %s", err, path)
-		}
-		uid := fixlha.Check(sl, extra, d, artifacts...)
-		if uid == "" || fixlha.Invalid(ctx, sl, path) {
-			return nil
-		}
-		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
-		if err := LHA.ReArchive(ctx, sl, ra); err != nil {
-			return fmt.Errorf("lha/lzh repair and re-archive: %w", err)
-		}
-		return nil
-	}
-	arcWalker := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return fmt.Errorf("%w: %s", err, path)
-		}
-		uid := fixarc.Check(sl, path, extra, d, artifacts...)
-		if uid == "" || fixarc.Invalid(ctx, sl, path) {
-			return nil
-		}
-		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
-		if err := Arc.ReArchive(ctx, sl, ra); err != nil {
-			return fmt.Errorf("arc repair and re-archive: %w", err)
-		}
-		return nil
-	}
-	arjWalker := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return fmt.Errorf("%w: %s", err, path)
-		}
-		uid := fixarj.Check(extra, d, artifacts...)
-		if uid == "" || fixarj.Invalid(ctx, sl, path) {
-			return nil
-		}
-		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
-		if err := Arj.ReArchive(ctx, sl, ra); err != nil {
-			return fmt.Errorf("arj repair and re-archive: %w", err)
-		}
-		return nil
-	}
+
+	start := time.Now()
 	download := dir.Directory(c.AbsDownload.String())
-	for repair := range slices.Values(repairs()) {
-		if err := repair.lookPath(); err != nil {
+
+	s := repairs()
+	for repair := range slices.Values(s[:]) {
+		if err := ctx.Err(); err != nil {
+			return fmt.Errorf(format, err)
+		}
+
+		if err := repair.lookups(); err != nil {
 			sl.Error("archives "+repair.String(), slog.Any("error", err))
 			continue
 		}
-		artifacts, err = repair.artifacts(ctx, sl, exec)
+
+		artifacts, err := repair.artifacts(ctx, sl, exec)
 		if err != nil {
 			sl.Error("archives "+repair.String(), slog.Any("error", err))
 			continue
 		}
-		switch repair {
-		case Zip:
-			err = filepath.WalkDir(download.Path(), zipWalker)
-		case LHA:
-			err = filepath.WalkDir(download.Path(), lhaWalker)
-		case Arc:
-			err = filepath.WalkDir(download.Path(), arcWalker)
-		case Arj:
-			err = filepath.WalkDir(download.Path(), arjWalker)
-		}
-		if err != nil {
+
+		if err := c.walkAndRepair(ctx, sl, repair, artifacts); err != nil {
 			sl.Error("Archives directory walk",
 				slog.Any("error", err),
-				slog.String("path", download.Path()))
+				slog.String("path", download.Path()),
+				slog.String("format", repair.String()))
 		}
 	}
-	ms := time.Since(d).Round(time.Millisecond)
-	sl.Info("Archives check",
-		slog.String("task", "Time taken"),
-		slog.Duration("time", ms))
+
+	sl.Info("Archives check", slog.String("task", "Time taken"),
+		slog.Duration("time", time.Since(start).Round(time.Millisecond)))
+
 	return nil
+}
+
+// walkAndRepair executes filepath.WalkDir using format-specific validation hooks.
+func (c *Config) walkAndRepair(ctx context.Context, sl *slog.Logger, repair Repair, artifacts []string) error {
+	root := c.AbsDownload.String()
+	extra := dir.Directory(c.AbsExtra)
+	return filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("%w: %s", err, path)
+		}
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return ctxErr
+		}
+
+		// format specific checks
+		var uid string
+		var invalid bool
+
+		switch repair {
+		case Zip:
+			uid = fixzip.Check(sl, path, extra, d, artifacts...)
+			invalid = uid == "" || fixzip.Invalid(ctx, sl, path)
+		case LHA:
+			uid = fixlha.Check(sl, extra, d, artifacts...)
+			invalid = uid == "" || fixlha.Invalid(ctx, sl, path)
+		case Arc:
+			uid = fixarc.Check(sl, path, extra, d, artifacts...)
+			invalid = uid == "" || fixarc.Invalid(ctx, sl, path)
+		case Arj:
+			uid = fixarj.Check(extra, d, artifacts...)
+			invalid = uid == "" || fixarj.Invalid(ctx, sl, path)
+		}
+
+		if invalid {
+			return nil
+		}
+
+		// re-archive the legacy file
+		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
+		if err := repair.RePack(ctx, sl, ra); err != nil {
+			return fmt.Errorf("%s repair and re-archive: %w", repair.String(), err)
+		}
+
+		return nil
+	})
 }
 
 // Repair is a type of archive for the re-archive and recompress methods.
@@ -160,121 +146,136 @@ const (
 	Arj               // ARJ archives
 )
 
-func repairs() []Repair {
-	return []Repair{Zip, LHA, Arc, Arj}
+func repairs() [4]Repair {
+	return [4]Repair{Zip, LHA, Arc, Arj}
 }
 
 func (r Repair) String() string {
 	return [...]string{"zip", "lha", "arc", "arj"}[r]
 }
 
-// Rearchiving are the source and destination arguments required
-// by the ReArchive Repair method.
+// Rearchiving are the source and destination arguments required by the ReArchive Repair method.
 type Rearchiving struct {
 	Source      string        // Source is the file extracted to a temporary directory and re-compressed.
 	UID         string        // UID is the destination filename using a universal unique ID naming syntax.
 	Destination dir.Directory // Destination is the directory to save the re-compressed file.
 }
 
-// ReArchive the file using the specified compression method.
+// RePack the file using the specified compression method.
 // The original ra.Source file is not removed.
-func (r Repair) ReArchive(ctx context.Context, sl *slog.Logger, ra Rearchiving) error { //nolint:funlen
-	const msg = "rearchive"
+func (r Repair) RePack(ctx context.Context, sl *slog.Logger, ra Rearchiving) error {
+	const format = "config repair repack %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
 	if ra.Source == "" || ra.UID == "" {
-		return fmt.Errorf("%s %s %w: %q %q", msg, r, ErrNoPath, ra.Source, ra.UID)
+		return fmt.Errorf(format, "source or uid are missing", ErrNoPath)
 	}
 	if err := ra.Destination.IsDir(); err != nil {
-		return fmt.Errorf("%s %s %w: %q", msg, r, err, ra.Destination)
+		return fmt.Errorf(format, "destination is a directory", err)
 	}
-	tmp, err := os.MkdirTemp(helper.TmpDir(), "rearchive-")
+
+	// resolve extraction command per format
+	extractCmd, extractArg, err := r.extractConfig()
 	if err != nil {
-		return fmt.Errorf("%s mkdir temp %w: %s", msg, err, ra.Source)
+		return fmt.Errorf(format, "extract config", err)
+	}
+
+	// prepare temporary directory
+	tmpPath, err := os.MkdirTemp(helper.TmpDir(), "rearchive-")
+	if err != nil {
+		return fmt.Errorf(format, "mkdir temp", err)
 	}
 	defer func() {
-		err := os.RemoveAll(tmp)
-		if err != nil {
-			sl.Error(msg, slog.Any("error", err))
+		if rmErr := os.RemoveAll(tmpPath); rmErr != nil {
+			sl.Error("repack failed to remove temp dir", slog.Any("error", rmErr))
 		}
 	}()
-	extractCmd, extractArg := "", ""
-	switch r {
-	case Zip:
-		extractCmd, extractArg = command.HWZip, "extract"
-	case LHA:
-		extractCmd, extractArg = command.Lha, "xf"
-	case Arc:
-		extractCmd, extractArg = command.Arc, "x"
-	case Arj:
-		extractCmd, extractArg = command.Zip7, "x"
-	}
-	ctx1min, cancel := context.WithTimeout(ctx, 1*time.Minute)
+
+	// extract source archive
+	timeout, cancel := context.WithTimeout(ctx, 1*time.Minute)
 	defer cancel()
-	cmd := exec.CommandContext(ctx1min, extractCmd, extractArg, ra.Source) //nolint:gosec
-	cmd.Dir = tmp
+
+	cmd := exec.CommandContext(timeout, extractCmd, extractArg, ra.Source) //nolint:gosec
+	cmd.Dir = tmpPath
 	if stdoutStderr, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("%s run %w: %s: dump: %q",
-			msg, err, ra.Source, stdoutStderr)
+		return fmt.Errorf(format, "extract command: "+string(stdoutStderr), err)
 	}
-	c, err := helper.Count(tmp)
+
+	// inspect extracted files
+	files, err := helper.Count(tmpPath)
 	if err != nil {
-		return fmt.Errorf("%s tmp count %w: %s", msg, err, tmp)
+		return fmt.Errorf(format, "tmp count", err)
 	}
+
+	const msg = "Repair artifacts"
 	sl.Info(msg,
-		slog.String("Re-archive",
-			"Recompressed "+ra.UID),
-		slog.Int("file(s)", c),
-		slog.String("tmp", tmp))
-	_, err = os.Stat(tmp)
+		slog.String("Re-archive", "Recompressed "+ra.UID),
+		slog.Int("file(s)", files), slog.String("tmp", tmpPath))
+
+	// compress extracted directory into standard ZIP
+	name := ra.UID + ".zip"
+	tmpArchive := filepath.Join(tmpPath, name)
+
+	written, err := rezip.CompressDir(tmpPath, tmpArchive)
 	if err != nil {
-		return fmt.Errorf("%s tmp stat %w: %s", msg, err, tmp)
+		return fmt.Errorf(format, "compress dir", err)
 	}
-	basename := ra.UID + ".zip"
-	tmpArchive := filepath.Join(helper.TmpDir(), basename)
-	if written, err := rezip.CompressDir(tmp, tmpArchive); err != nil {
-		return fmt.Errorf("%s dir %w: %s", msg, err, tmp)
-	} else if written == 0 {
+	if written == 0 {
 		return nil
 	}
-	newArchive := ra.Destination.Join(basename)
-	if err = helper.RenameCrossDevice(tmpArchive, newArchive); err != nil {
-		defer func() {
-			if err := os.RemoveAll(tmpArchive); err != nil {
-				sl.Error(msg, slog.Any("error", err))
-			}
-		}()
-		return fmt.Errorf("%s rename %w: %s", msg, err, tmpArchive)
+
+	// move temporary archive to destination
+	newpath := ra.Destination.Join(name)
+	if err := helper.RenameCrossDevice(tmpArchive, newpath); err != nil {
+		return fmt.Errorf(format, "rename archive", err)
 	}
-	st, err := os.Stat(newArchive)
+
+	st, err := os.Stat(newpath)
 	if err != nil {
-		return fmt.Errorf("%s zip stat %w: %s", msg, err, newArchive)
+		return fmt.Errorf(format, "stat archive", err)
 	}
-	sl.Info(msg,
-		slog.String("Re-archive", "Contemporary 'deflate' zip archive created"),
-		slog.Int("bytes", int(st.Size())),
-		slog.String("path", newArchive))
+
+	sl.Info(msg, slog.String("Re-archive", "Contemporary 'deflate' zip archive created"),
+		slog.Int64("bytes", st.Size()), slog.String("path", newpath))
+
 	return nil
 }
 
-func (r Repair) lookPath() error {
+// extractConfig maps the Repair type to its extraction command and argument.
+func (r Repair) extractConfig() (cmd, arg string, err error) {
 	switch r {
 	case Zip:
-		if _, err := exec.LookPath(command.HWZip); err != nil {
-			return fmt.Errorf("cannot find hwzip executable: %w", err)
+		return command.HWZip, "extract", nil
+	case LHA:
+		return command.Lha, "xf", nil
+	case Arc:
+		return command.Arc, "x", nil
+	case Arj:
+		return command.Zip7, "x", nil
+	default:
+		return "", "", fmt.Errorf("unsupported repair format: %v", r)
+	}
+}
+
+func (r Repair) lookups() error {
+	const format = "cannot find %s exec: %w"
+	switch r {
+	case Zip:
+		if _, err := command.Lookup(command.HWZip); err != nil {
+			return fmt.Errorf(format, "hwzip", err)
 		}
 	case LHA:
-		if _, err := exec.LookPath(command.Lha); err != nil {
-			return fmt.Errorf("cannot find lha executable: %w", err)
+		if _, err := command.Lookup(command.Lha); err != nil {
+			return fmt.Errorf(format, "lha", err)
 		}
 	case Arc:
-		if _, err := exec.LookPath(command.Arc); err != nil {
-			return fmt.Errorf("cannot find arc executable: %w", err)
+		if _, err := command.Lookup(command.Arc); err != nil {
+			return fmt.Errorf(format, "arc", err)
 		}
 	case Arj:
-		if _, err := exec.LookPath(command.Zip7); err != nil {
-			return fmt.Errorf("cannot find arj executable: %w", err)
+		if _, err := command.Lookup(command.Zip7); err != nil {
+			return fmt.Errorf(format, "7zz", err)
 		}
 	default:
 	}
@@ -282,12 +283,14 @@ func (r Repair) lookPath() error {
 }
 
 func (r Repair) artifacts(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) ([]string, error) {
-	const msg = "Repair artifacts"
+	const format = "repair artifacts %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, "check", err)
 	}
+
 	var files models.FileSlice
 	var err error
+
 	switch r {
 	case Zip:
 		files, err = fixzip.Files(ctx, exec)
@@ -297,25 +300,25 @@ func (r Repair) artifacts(ctx context.Context, sl *slog.Logger, exec boil.Contex
 		files, err = fixarc.Files(ctx, exec)
 	case Arj:
 		files, err = fixarj.Files(ctx, exec)
+	default:
+		return nil, fmt.Errorf(format, "unsupported repair format "+r.String(), ErrFormat)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("%s %s files, %w", msg, r.String(), err)
+		return nil, fmt.Errorf(format, r.String(), err)
 	}
-	size := len(files)
-	s := fmt.Sprintf("MS-DOS era: %s", r)
-	sl.Info(msg,
-		slog.String("format", s),
-		slog.Int("count", size))
-	artifacts := make([]string, size)
-	for i, f := range files {
-		if !f.UUID.Valid || f.UUID.String == "" {
-			continue
+
+	sl.Info("Repair artifact", slog.String("era", "MS-DOS"),
+		slog.String("format", r.String()), slog.Int("count", len(files)))
+
+	artifacts := make([]string, 0, len(files))
+	for _, f := range files {
+		if f.UUID.Valid && f.UUID.String != "" {
+			artifacts = append(artifacts, f.UUID.String)
 		}
-		artifacts[i] = f.UUID.String
 	}
-	artifacts = slices.Clip(artifacts)
+
 	slices.Sort(artifacts)
-	return artifacts, nil
+	return slices.Clip(artifacts), nil
 }
 
 // Assets on startup checks the file system directories for any invalid or unknown files.
@@ -325,150 +328,183 @@ func (r Repair) artifacts(ctx context.Context, sl *slog.Logger, exec boil.Contex
 //
 // There are no checks on the 3 directories that get scanned.
 func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
-	const msg = "Repair assets"
+	const format = "repair assets %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
-	d := time.Now()
-	const size = 2
-	mods := make([]qm.QueryMod, 0, size)
-	mods = append(mods, qm.Select("uuid"))
-	mods = append(mods, qm.WithDeleted())
+
+	start := time.Now()
+
+	mods := []qm.QueryMod{qm.Select("uuid"), qm.WithDeleted()}
 	files, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("%s select all uuids: %w", msg, err)
+		return fmt.Errorf(format, "select all uuids", err)
 	}
+
 	count := len(files)
+	const msg = "Repair assets"
 	sl.Info(msg, slog.String("task", "Check UUID count"), slog.Int("result", count))
-	artifacts := make([]string, count)
-	for i, f := range files {
-		if !f.UUID.Valid || f.UUID.String == "" {
+
+	artifacts := make([]string, 0, count)
+	for _, f := range files {
+		if f.UUID.Valid && f.UUID.String != "" {
+			artifacts = append(artifacts, f.UUID.String)
+		}
+	}
+	slices.Sort(artifacts)
+	artifacts = slices.Clip(artifacts)
+
+	dirs := [...]string{c.AbsDownload.String(), c.AbsPreview.String(), c.AbsThumbnail.String()}
+	orphaned := dir.Directory(c.AbsOrphaned)
+
+	var (
+		wg          sync.WaitGroup
+		totalChecks atomic.Int64
+	)
+
+	for _, targetDir := range dirs {
+		if targetDir == "" {
 			continue
 		}
-		artifacts[i] = f.UUID.String
-	}
-	artifacts = slices.Clip(artifacts)
-	slices.Sort(artifacts)
 
-	dirs := []string{string(c.AbsDownload), string(c.AbsPreview), string(c.AbsThumbnail)}
-	counters := make([]int, len(dirs))
-	var wg sync.WaitGroup
-	wg.Add(len(dirs))
-	orphaned := dir.Directory(c.AbsOrphaned)
-	for i, dir := range dirs {
-		go func(dir string) {
+		wg.Add(1)
+		go func(root string) {
 			defer wg.Done()
-			err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-				if err != nil {
-					return fmt.Errorf("%s walk path %w: %s", msg, err, path)
+
+			var localCount int64
+			walkErr := filepath.WalkDir(root, func(path string, d fs.DirEntry, walkErr error) error {
+				if walkErr != nil {
+					return fmt.Errorf(format, "walk path "+path, walkErr)
+				}
+				if ctxErr := ctx.Err(); ctxErr != nil {
+					return ctxErr
 				}
 				if d.IsDir() {
 					return nil
 				}
-				counters[i]++
+
+				localCount++
 				uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
 				if _, found := slices.BinarySearch(artifacts, uid); !found {
 					unknownAsset(sl, path, d.Name(), uid, orphaned)
 				}
 				return nil
 			})
-			if err != nil {
-				sl.Error(msg, slog.String("walk_directory", dir), slog.Any("error", err))
+
+			totalChecks.Add(localCount)
+
+			if walkErr != nil {
+				sl.Error(msg, slog.String("walk_directory", root), slog.Any("error", walkErr))
 			}
-		}(dir)
+		}(targetDir)
 	}
 
 	wg.Wait()
-	sum := 0
-	for val := range slices.Values(counters) {
-		sum += val
-	}
+
 	sl.Info(msg,
-		slog.String("task", "Time taken"),
-		slog.Int("checks", sum), slog.Int("uuids", count),
-		slog.Duration("time", time.Since(d).Round(time.Millisecond)))
+		slog.String("task", "Time taken"), slog.Int64("checks", totalChecks.Load()),
+		slog.Int("uuids", count), slog.Duration("time", time.Since(start).Round(time.Millisecond)),
+	)
+
 	return nil
 }
 
-// unknownAsset logs a warning message for an unknown asset file.
+// unknownAsset logs a warning message for an unknown asset file and moves it to the orphaned directory.
 func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Directory) {
 	const msg = "unknown file"
-	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+
+	if sl == nil {
+		sl = slog.Default()
 	}
-	sl.Warn(msg,
-		slog.String("issue", "no matching artifact in the database for the found file"),
-		slog.String("uuid", uid), slog.String("filename", name))
-	defer func() {
-		now := time.Now().Format("2006-01-02_15-04-05")
-		dest := orphaned.Join(fmt.Sprintf("%s_%s", now, name))
-		if err := helper.RenameCrossDevice(oldpath, dest); err != nil {
-			sl.Error(msg,
-				slog.String("issue", "could not move the file to the orphaned directory"),
-				slog.String("source_path", oldpath), slog.String("destination_path", dest),
-				slog.Any("error", err))
-		}
-	}()
+
+	sl.Warn(msg, slog.String("issue", "no matching artifact in the database for the found file"),
+		slog.String("uuid", uid), slog.String("filename", name),
+	)
+
+	// Format timestamp with sub-second precision to avoid collisions across concurrent goroutines
+	now := time.Now().Format("2006-01-02_15-04-05.000000")
+	dest := orphaned.Join(fmt.Sprintf("%s_%s_%s", now, uid, name))
+
+	if err := helper.RenameCrossDevice(oldpath, dest); err != nil {
+		sl.Error(msg,
+			slog.String("issue", "could not move the file to the orphaned directory"),
+			slog.String("source_path", oldpath),
+			slog.String("destination_path", dest),
+			slog.Any("error", err),
+		)
+	}
 }
 
-// RepairAssets on startup check the file system directories for any invalid or unknown files.
+// assets on startup check the file system directories for any invalid or unknown files.
 // If any are found, they are removed without warning.
-func (c *Config) RepairAssets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
-	const msg = "repair"
+func (c *Config) assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+	const format = "config assets repair %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
+
 	backup := dir.Directory(c.AbsOrphaned)
-	const msg1 = "backup and orphaned directory"
-	if backup.Path() == "" {
-		return fmt.Errorf("%s: %w", msg1, ErrNoPath)
+	if err := backup.Check(sl); err != nil {
+		return fmt.Errorf(format, "backup directory", err)
 	}
-	if st, err := os.Stat(backup.Path()); err != nil {
-		return fmt.Errorf("%s: %w: %s", msg1, err, backup.Path())
-	} else if !st.IsDir() {
-		return fmt.Errorf("%s: %w: %s", msg1, ErrNotDir, backup.Path())
+
+	steps := [...]struct {
+		name string
+		fn   func() error
+	}{
+		{"images directories", func() error { return c.ImageDirs(sl) }},
+		{"download directory", func() error {
+			return DownloadDir(sl, dir.Directory(c.AbsDownload), backup, dir.Directory(c.AbsExtra))
+		}},
+		{"assets", func() error { return c.Assets(ctx, sl, exec) }},
+		{"archives", func() error { return c.RepairArchive(ctx, sl, exec) }},
+		{"previews", func() error { return c.Previews(ctx, sl, exec) }},
+		{"magic numbers", func() error { return c.MagicNumbers(ctx, sl, exec) }},
+		{"textfiles", func() error { return c.TextFiles(ctx, sl, exec) }},
 	}
-	if err := c.ImageDirs(sl); err != nil {
-		return fmt.Errorf("%s images directories: %w", msg, err)
+
+	for _, step := range steps {
+		if err := ctx.Err(); err != nil {
+			return fmt.Errorf(format, "execute", err)
+		}
+
+		if err := step.fn(); err != nil {
+			return fmt.Errorf(format, step.name, err)
+		}
 	}
-	src := dir.Directory(c.AbsDownload)
-	extra := dir.Directory(c.AbsExtra)
-	if err := DownloadDir(sl, src, backup, extra); err != nil {
-		return fmt.Errorf("%s the download directory: %w", msg, err)
-	}
-	if err := c.Assets(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-	if err := c.Archives(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s the archives: %w", msg, err)
-	}
-	if err := c.Previews(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s the previews: %w", msg, err)
-	}
-	if err := c.MagicNumbers(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s the magics: %w", msg, err)
-	}
-	if err := c.TextFiles(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s the textfiles: %w", msg, err)
-	}
+
 	return nil
 }
 
 // TextFiles on startup check the extra directory for any readme text files that are duplicates of the diz text files.
 func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
-	const msg = "Fix textfile"
+	const format = "repair text files %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
+
 	uuids, err := model.UUID(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "model uuid", err)
 	}
+
+	extraDir := c.AbsExtra.String()
 	dupes := 0
+
+	const msg = "Fix textfile"
 	for val := range slices.Values(uuids) {
-		name := filepath.Join(c.AbsExtra.String(), val.UUID.String)
-		diz := name + ".diz"
-		txt := name + ".txt"
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return fmt.Errorf("%s: %w", msg, ctxErr)
+		}
+
+		if !val.UUID.Valid || val.UUID.String == "" {
+			continue
+		}
+
+		basePath := filepath.Join(extraDir, val.UUID.String)
+		diz := basePath + ".diz"
+		txt := basePath + ".txt"
+
 		dizF, err := os.Stat(diz)
 		if err != nil || dizF.Size() == 0 {
 			continue
@@ -477,9 +513,13 @@ func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.Conte
 		if err != nil || txtF.Size() == 0 {
 			continue
 		}
+
+		// match exact file sizes before performing hash checks
 		if dizF.Size() != txtF.Size() {
 			continue
 		}
+
+		// cryptographic hashes to confirm duplication
 		dizSI, err := helper.StrongIntegrity(diz)
 		if err != nil {
 			continue
@@ -488,50 +528,67 @@ func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.Conte
 		if err != nil {
 			continue
 		}
-		if identical := dizSI == txtSI; !identical {
+		if dizSI != txtSI {
 			continue
 		}
+
 		dupes++
+
+		// remove duplicate file
 		dupe, err := Remove(diz, txt)
 		if err != nil {
 			sl.Error(msg,
 				slog.String("problem", "Cannot remove file duplicates"),
-				slog.String("file_id.diz", diz),
-				slog.String("readme_text", txt))
+				slog.String("file_id.diz", diz), slog.String("readme_text", txt),
+				slog.Any("error", err),
+			)
 			continue
 		}
-		sl.Info(msg,
-			slog.String("success", "Removed duplicate text:  fileid == readme"),
-			slog.String("filename", dupe))
+
+		sl.Info(msg, slog.String("success", "Removed duplicate text: fileid == readme"),
+			slog.String("filename", dupe),
+		)
 	}
+
 	if dupes > 0 {
-		sl.Info(msg,
-			slog.String("duplicates", "Discovered text duplicates"),
-			slog.Int("finds", dupes))
+		sl.Info(msg, slog.String("duplicates", "Discovered text duplicates"), slog.Int("finds", dupes))
 	}
+
 	return nil
 }
 
-// Remove either the named diz or txt file that are idential duplicates.
-// The file deleted depends on if the pair look to be a FILE_ID.DIZ or a longer form text file.
-//
-// If successful, the basename of the file removed is returned.
+// Remove deletes either the named diz or txt file from an identical pair.
+// The file deleted depends on whether the pair is identified as a FILE_ID.DIZ or a longer text file.
+// If successful, the base name of the removed file is returned.
 func Remove(diz, txt string) (string, error) {
-	file, err := os.Open(diz)
+	const format = "remove diz text %s: %w"
+	descriptor, err := isFileID(diz)
 	if err != nil {
-		return "", fmt.Errorf("remove open %w: %s", err, diz)
+		return "", fmt.Errorf(format, "inspect", err)
 	}
-	defer func() { _ = file.Close() }()
-	if !FileID(file) {
+
+	if !descriptor {
 		if err := os.Remove(diz); err != nil {
-			return "", fmt.Errorf("remove diz %w: %q", err, diz)
+			return "", fmt.Errorf(format, "remove diz", err)
 		}
 		return filepath.Base(diz), nil
 	}
+
 	if err := os.Remove(txt); err != nil {
-		return "", fmt.Errorf("remove readme %w: %q", err, txt)
+		return "", fmt.Errorf(format, "remove readme", err)
 	}
+
 	return filepath.Base(txt), nil
+}
+
+func isFileID(path string) (bool, error) {
+	r, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+	defer r.Close()
+
+	return FileID(r), nil
 }
 
 // FileID will return true if there are less than 10 lines of text
@@ -540,111 +597,164 @@ func Remove(diz, txt string) (string, error) {
 //
 // [FILE_ID.DIZ]: http://www.textfiles.com/computers/fileid.txt
 func FileID(r io.Reader) bool {
-	scanner := bufio.NewScanner(r)
-	if scanner.Err() != nil {
+	if r == nil {
 		return false
 	}
+
+	scanner := bufio.NewScanner(r)
+
 	const (
 		maximumLines = 10
 		maximumWidth = 45
 	)
+
 	lines := 0
 	for scanner.Scan() {
 		lines++
 		if lines > maximumLines {
 			return false
 		}
-		line := scanner.Text()
-		if len(line) > maximumWidth {
+
+		if utf8.RuneCountInString(scanner.Text()) > maximumWidth {
 			return false
 		}
 	}
-	return true
+
+	if err := scanner.Err(); err != nil {
+		return false
+	}
+	return lines > 0
 }
 
 // MagicNumbers checks the magic numbers of the artifacts and replaces any missing or
 // legacy values with the current method of detection. Previous detection methods were
 // done using the `file` command line utility, which is a bit to verbose for our needs.
+// MagicNumbers checks the magic numbers of the artifacts and replaces any missing or
+// legacy values with the current method of detection.
 func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
-	const msg = "magic numbers"
+	const format = "config magic numbers %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
+
 	tick := time.Now()
 	r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+
 	magics, err := r.ByMagicErr(ctx, exec, false)
 	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "models file slice", err)
 	}
+
+	const msg = "magic numbers"
 	const large = 1000
 	if len(magics) > large && sl != nil {
-		sl.Warn(msg,
-			slog.String("issue", "there are a large number of artifacts to check, it could take a while"),
+		sl.Warn(msg+", there are a large number of artifacts to check, it could take a while",
 			slog.Int("task_count", len(magics)))
 	}
+
+	downloadDir := c.AbsDownload.String()
 	count := 0
+
 	for val := range slices.Values(magics) {
-		name := filepath.Join(string(c.AbsDownload), val.UUID.String)
-		r, err := os.Open(name)
-		if err != nil {
-			_ = r.Close()
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return fmt.Errorf(format, "context", ctxErr)
+		}
+
+		if !val.UUID.Valid || val.UUID.String == "" {
 			continue
 		}
-		magic := magicnumber.Find(r)
+
+		name := filepath.Join(downloadDir, val.UUID.String)
+		magicTitle, err := inspectMagic(name)
+		if err != nil {
+			continue
+		}
+		if err := model.UpdateMagic(ctx, exec, val.ID, magicTitle); err != nil {
+			if sl != nil {
+				sl.Error(msg+" failed to update magic number", slog.Int64("id", val.ID), slog.Any("error", err))
+			}
+			continue
+		}
+
 		count++
-		_ = model.UpdateMagic(ctx, exec, val.ID, magic.Title())
-		_ = r.Close()
 	}
-	if count == 0 {
-		return nil
+
+	if count > 0 && sl != nil {
+		sl.Info(msg, slog.Int("values_update", count),
+			slog.Duration("time", time.Since(tick).Round(time.Millisecond)))
 	}
-	sl.Info(msg,
-		slog.String("success", ""),
-		slog.Int("values_update", count),
-		slog.Duration("time", time.Since(tick).Round(time.Millisecond)))
+
 	return nil
+}
+
+// inspectMagic safely opens a file, extracts its magic number title, and guarantees handle closure.
+func inspectMagic(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	magic := magicnumber.Find(file)
+	return magic.Title(), nil
 }
 
 // Previews on startup check the preview directory for any unnecessary preview images such as textfile artifacts.
 func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
-	const msg = "previews"
+	const format = "config previews %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
+
 	r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 	artifacts, err := r.ByTextPlatform(ctx, exec)
 	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "models file slice", err)
 	}
+
 	var count, totals int64
+	previewDir := c.AbsPreview.String()
+	exts := [...]string{".png", ".webp"}
+
 	for val := range slices.Values(artifacts) {
-		png := filepath.Join(c.AbsPreview.String(), val.UUID.String) + ".png"
-		st, err := os.Stat(png)
-		if err != nil {
-			discard(err)
+		// 1. Respect cancellation during disk cleanup
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return fmt.Errorf(format, "context", ctxErr)
+		}
+
+		if !val.UUID.Valid || val.UUID.String == "" {
 			continue
 		}
-		_ = os.Remove(png)
-		count++
-		totals += st.Size()
-	}
-	for val := range slices.Values(artifacts) {
-		webp := filepath.Join(c.AbsPreview.String(), val.UUID.String) + ".webp"
-		st, err := os.Stat(webp)
-		if err != nil {
-			discard(err)
-			continue
+
+		basePath := filepath.Join(previewDir, val.UUID.String)
+		for _, ext := range exts {
+			file := basePath + ext
+			st, err := os.Stat(file)
+			if err != nil {
+				continue
+			}
+
+			if err := os.Remove(file); err != nil {
+				if sl != nil {
+					sl.Error("previews could not remove unwanted file",
+						slog.String("path", file), slog.Any("error", err))
+				}
+				continue
+			}
+
+			count++
+			totals += st.Size()
 		}
-		_ = os.Remove(webp)
-		count++
-		totals += st.Size()
 	}
+
 	if count == 0 {
 		return nil
 	}
-	sl.Info(msg,
-		slog.String("success", "Erased textfile previews"),
-		slog.Int64("count", count), slog.String("sum", helper.ByteCountFloat(totals)))
+
+	if sl != nil {
+		sl.Info("Erased textfile previews", slog.Int64("count", count), slog.String("sum", helper.ByteCountFloat(totals)))
+	}
+
 	return nil
 }
 
@@ -947,45 +1057,4 @@ func rename(sl *slog.Logger, oldpath, info, newpath string) {
 				slog.String("detail", info), slog.Any("error", err))
 		}
 	}()
-}
-
-// TmpCleaner will remove any temporary directories created by this web applcation
-// that are older than 3 days.
-//
-// This is a safety measure to ensure that the server does not run out of disk space.
-func TmpCleaner(sl *slog.Logger) {
-	const msg = "Temporary cleaner"
-	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
-	}
-	const threeDays = 3 * 24 * time.Hour
-	name := helper.TmpDir()
-	dir, err := os.OpenRoot(name)
-	if err != nil {
-		sl.Error(msg, slog.String("name", name), slog.Any("error", err))
-		return
-	}
-	defer func() { _ = dir.Close() }()
-	_ = fs.WalkDir(dir.FS(), ".", func(_ string, d fs.DirEntry, err error) error {
-		if err != nil {
-			discard(err)
-			return nil
-		}
-		if !d.IsDir() || !strings.HasPrefix(d.Name(), "artifact-content-") {
-			return nil
-		}
-		inf, err := d.Info()
-		if err != nil {
-			sl.Error(msg, slog.String("name", d.Name()), slog.Any("error", err))
-			return nil
-		}
-		if time.Since(inf.ModTime()) < threeDays {
-			return nil
-		}
-		rmpath := filepath.Join(name, d.Name())
-		if err := os.RemoveAll(rmpath); err != nil {
-			sl.Error(msg, slog.String("target_path", rmpath), slog.Any("error", err))
-		}
-		return nil
-	})
 }

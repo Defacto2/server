@@ -10,16 +10,18 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 )
 
+// go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out
+
 const (
 	CmdTimeout = 10 * time.Second
+
+	// TODO: replace the use of helper.TmpDir with Patterns that prefix df2app-
+	PatternAL = "df2-ansilove-*.png"
 
 	patternS = "defacto2-server"
 	gif      = ".gif"  // gif file extension
@@ -44,14 +46,6 @@ var (
 	ErrVersion    = errors.New("application version mismatch")
 )
 
-// Dirs points to the download, preview, thumbnail, and extra directories.
-type Dirs struct {
-	Download  dir.Directory // Download is the directory path for the file downloads.
-	Preview   dir.Directory // Preview is the directory path for the image previews.
-	Thumbnail dir.Directory // Thumbnail is the directory path for the image thumbnails.
-	Extra     dir.Directory // Extra is the directory path for the extra files.
-}
-
 // NOTE: For unrar on linux, the installation cannot use the unrar-free package,
 // which is a poor substitute for the files this application needs to handle.
 // The unrar binary should return:
@@ -62,7 +56,7 @@ const (
 	Arj      = "arj"      // Arj is the arj decompression command.
 	Ansilove = "ansilove" // Ansilove is the ansilove text to image command.
 	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
-	Gwebp    = "gif2webp" // Gwebp is the Google gif to webp command.
+	Gif2webp = "gif2webp" // Gif2webp is the Google gif to webp command.
 	HWZip    = "hwzip"    // Hwzip the zip decompression command for files using obsolete methods.
 	Lha      = "lha"      // Lha is the lha/lzh decompression command.
 	Magick   = "magick"   // Magick is the ImageMagick v7+ command.
@@ -75,13 +69,13 @@ const (
 )
 
 // Lookups returns a list of the execute command names used by the application.
-func Lookups() []string {
+func Lookups() []string { // TODO: make a var
 	return []string{
 		Arc,
 		Arj,
 		Ansilove,
 		Cwebp,
-		Gwebp,
+		Gif2webp,
 		HWZip,
 		Lha,
 		Magick,
@@ -114,9 +108,105 @@ func Infos() []string {
 	}
 }
 
+// Lookup returns an error if the command is not found in the system path.
+func Lookup(file string) (string, error) {
+	const format = "command lookup: %w"
+	if file == "" {
+		return "", nil
+	}
+
+	s, err := exec.LookPath(file)
+	if errors.Is(err, exec.ErrDot) {
+		err = nil
+	}
+	if err != nil {
+		return "", fmt.Errorf(format, err)
+	}
+
+	return s, nil
+}
+
+// LookupS returns an error when the match string is not found in the named command output.
+func LookupS(ctx context.Context, name, flag, match string) error {
+	const format = "command version lookup %s: %w"
+
+	if match == "" {
+		return ErrNoMatch
+	}
+
+	r := Runner{}
+	out, err := r.Run(ctx, name, flag)
+	if err != nil {
+		return fmt.Errorf(format, name, err)
+	}
+
+	if !bytes.Contains(out, []byte(match)) {
+		return fmt.Errorf(format, name, ErrVersion)
+	}
+
+	return nil
+}
+
 // LookupUnrar returns an error if the name Alexander Roshal is not found in the unrar version output.
-func LookupUnrar() error {
-	return LookVersion(Unrar, "", "Alexander Roshal")
+func LookupUnrar(ctx context.Context) error {
+	return LookupS(ctx, Unrar, "", "Alexander Roshal")
+}
+
+type Runner struct {
+	Timeout    time.Duration // Command timeout value, or leave empty to use 10 seconds
+	Log        *slog.Logger  // Logger output or leave empty to use default
+	WorkingDir string        // Working directory to execute the command or leave empty
+}
+
+// Run looks for the command in the system path and executes it with the arguments.
+// The name of the command to run must be provided, and any options provided using arg.
+func Run(ctx context.Context, sl *slog.Logger, name string, arg ...string) ([]byte, error) {
+	r := Runner{
+		Log: sl,
+	}
+	return r.Run(ctx, name, arg...)
+}
+
+// Run looks for the command in the system path and executes it with the arguments.
+// The name of the command to run must be provided, and any options provided using arg.
+func (r *Runner) Run(ctx context.Context, name string, arg ...string) ([]byte, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if r.Log == nil {
+		r.Log = slog.Default()
+	}
+
+	if _, ok := ctx.Deadline(); !ok {
+		if r.Timeout <= 0 {
+			r.Timeout = CmdTimeout
+		}
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, r.Timeout)
+		defer cancel()
+	}
+
+	cmd := exec.CommandContext(ctx, name, arg...)
+	if r.WorkingDir != "" {
+		cmd.Dir = r.WorkingDir
+	}
+	out, err := cmd.CombinedOutput() // runs the command
+
+	if r.Log.Enabled(ctx, slog.LevelDebug) {
+		r.Log.Debug("command executed", slog.String("cmd", cmd.String()),
+			slog.Int("exit_code", cmd.ProcessState.ExitCode()), slog.String("output", string(out)),
+		)
+	}
+
+	if err != nil {
+		const format = "command run %s: %w"
+		if len(out) > 0 {
+			return out, fmt.Errorf(format, name, err)
+		}
+		return out, fmt.Errorf(format, name, err)
+	}
+
+	return out, nil
 }
 
 // CopyFile copies the src file to the dst file and path.
@@ -152,147 +242,5 @@ func CopyFile(sl *slog.Logger, src, dst string) error {
 	}
 
 	sl.Debug("file.copied", slog.String("path", dst), slog.Int64("bytes", n))
-	return nil
-}
-
-// BaseName returns the base name of the file without the extension.
-// Both the directory and extension are removed.
-func BaseName(path string) string {
-	if path == "" {
-		return ""
-	}
-	base := filepath.Base(path)
-	return strings.TrimSuffix(base, filepath.Ext(base))
-}
-
-// BaseNamePath returns the directory and base name of the file without the extension.
-func BaseNamePath(path string) string {
-	if path == "" {
-		return ""
-	}
-	return filepath.Join(filepath.Dir(path), BaseName(path))
-}
-
-// LookCmd returns an error if the named command is not found in the system path.
-func LookCmd(name string) error {
-	const format = "command lookup%s: %w"
-	_, err := exec.LookPath(name)
-	if errors.Is(err, exec.ErrDot) {
-		err = nil
-	}
-	if err != nil {
-		return fmt.Errorf(format, " path", err)
-	}
-	return nil
-}
-
-// LookVersion returns an error when the match string is not found in the named command output.
-func LookVersion(name, flag, match string) error {
-	const format = "command version lookup%s: %w"
-	if err := LookCmd(name); err != nil {
-		return fmt.Errorf(format, "", err)
-	}
-	if match == "" {
-		return ErrNoMatch
-	}
-	cmd := exec.Command(name, flag) //nolint:noctx // legacy code, context not available in this function signature
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return fmt.Errorf(format, " stdout pipe", err)
-	}
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf(format, " start", err)
-	}
-	b, err := io.ReadAll(stdout)
-	if err != nil {
-		return fmt.Errorf(format, " read all", err)
-	}
-	if !bytes.Contains(b, []byte(match)) {
-		return fmt.Errorf(format, " "+name, ErrVersion)
-	}
-	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf(format, " wait", err)
-	}
-	return nil
-}
-
-// Run looks for the command in the system path and executes it with the arguments.
-// Any output to stderr is logged as a debug message.
-func Run(ctx context.Context, sl *slog.Logger, name string, arg ...string) error {
-	return run(ctx, sl, name, "", arg...)
-}
-
-// RunStdOut looks for the command in the system path and executes it with the arguments.
-// Any output is sent to the stdout buffer.
-func RunStdOut(name string, arg ...string) ([]byte, error) {
-	const format = "command to stdout execute: %w"
-	if err := LookCmd(name); err != nil {
-		return nil, fmt.Errorf(format, err)
-	}
-	var out bytes.Buffer
-	ctx, cancel := context.WithTimeout(context.Background(), CmdTimeout)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, name, arg...)
-	cmd.Stdout = &out
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf(format, err)
-	}
-	return out.Bytes(), nil
-}
-
-// RunQuiet looks for the command in the system path and executes it with the arguments.
-func RunQuiet(ctx context.Context, name string, arg ...string) error {
-	const format = "command to discard execute: %w"
-	if err := nils.Check(ctx); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	if err := LookCmd(name); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	cmd := exec.CommandContext(ctx, name, arg...)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	return nil
-}
-
-// RunWorkdir looks for the command in the system path and executes it with the arguments.
-// An optional working directory is set for the command.
-// Any output to stderr is logged as a debug message.
-func RunWorkdir(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string) error {
-	return run(ctx, sl, name, wdir, arg...)
-}
-
-func run(ctx context.Context, sl *slog.Logger, name, wdir string, arg ...string) error {
-	const msg = "command run"
-	const format = msg + "%s: %w"
-	if err := nils.Check(ctx, sl); err != nil {
-		return fmt.Errorf(format, "", err)
-	}
-	if err := LookCmd(name); err != nil {
-		return fmt.Errorf(format, "", err)
-	}
-	cmd := exec.CommandContext(ctx, name, arg...)
-	cmd.Dir = wdir
-	p, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf(format, " cannot start "+name, err)
-	}
-	sl.Debug(msg,
-		slog.String("command.name", cmd.String()),
-		slog.String("output", string(p)))
-	return nil
-}
-
-// LockPath prevents directory traversal attacks by returning an error if
-// any of the following are found in the path:
-//
-//   - forward slash
-//   - back slash
-//   - a pair of dots (..)
-func LockPath(path string) error {
-	if strings.ContainsAny(path, "/\\") || strings.Contains(path, "..") {
-		return ErrPath
-	}
 	return nil
 }

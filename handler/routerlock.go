@@ -347,7 +347,7 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	imgs.PATCH("/pixelate/:unid", func(c *echo.Context) error { //nolint:contextcheck
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
-		return htmx.RecordImagePixelator(ctx, c, dirs.Preview, dirs.Thumbnail)
+		return htmx.RecordImagePixelator(ctx, sl, c, dirs.Preview, dirs.Thumbnail)
 	})
 	imgs.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview, dirs.Thumbnail)
