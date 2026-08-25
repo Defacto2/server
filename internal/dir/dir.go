@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
@@ -186,29 +185,19 @@ func CreateTemp(pattern string) (*os.File, error) {
 	return r, nil
 }
 
-// IsTemp returns true when the path is likely a temporary directory or
+// IsTemp returns true when the dir entry is likely a temporary directory or
 // file created using [MkdirTemp].
-func IsTemp(path string) bool {
-	if path == "" {
+func IsTemp(d os.DirEntry) bool {
+	if d == nil {
 		return false
 	}
 
-	paths := strings.Split(path, string(filepath.Separator))
-	paths = slices.DeleteFunc(paths, func(s string) bool {
-		return s == ""
-	})
-
-	l := len(paths)
-	const minPaths = 2
-	if l < minPaths {
+	name := d.Name()
+	if !d.IsDir() || name == "" {
 		return false
 	}
 
-	if !strings.HasPrefix(path, os.TempDir()) {
-		return false
-	}
-
-	return strings.HasPrefix(paths[1], Pattern+"-")
+	return strings.HasPrefix(name, Pattern+"-")
 }
 
 // CleanTemp removes the temporary directories likely created using [MkdirTemp],
@@ -224,7 +213,7 @@ func CleanTemp(stale time.Duration) error {
 	}
 
 	for _, d := range entries {
-		if !d.IsDir() || !IsTemp(d.Name()) {
+		if !d.IsDir() || !IsTemp(d) {
 			continue
 		}
 

@@ -9,8 +9,10 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 )
 
@@ -343,6 +345,11 @@ func (c Config) googleIDs(sl *slog.Logger, key string) {
 	const name = "GoogleAccounts"
 	msg := Configured(name, accounts.String()) + ":"
 	sl.Info(msg, slog.Any(key, mask), slog.String("tip", tip))
+}
+
+func (c Config) PurgeTemp() error {
+	const stale = 1 * time.Second
+	return dir.CleanTemp(stale)
 }
 
 // StaticThumb returns the path to the thumbnail directory.

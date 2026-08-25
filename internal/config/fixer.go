@@ -85,7 +85,7 @@ func TempInfo(sl *slog.Logger) {
 	var du int64
 	for _, d := range entries {
 		path := d.Name()
-		if !d.IsDir() || !dir.IsTemp(path) {
+		if !d.IsDir() || !dir.IsTemp(d) {
 			continue
 		}
 		n, err := helper.DiskUsage(path)

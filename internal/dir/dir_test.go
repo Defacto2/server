@@ -3,8 +3,8 @@ package dir_test
 import (
 	"errors"
 	"os"
-	"path/filepath"
 	"testing"
+	"testing/fstest"
 
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
@@ -297,24 +297,32 @@ func TestErrorTypes(t *testing.T) {
 func TestIsTemp(t *testing.T) {
 	t.Parallel()
 
-	tmp := os.TempDir()
-	tests := []struct {
-		path string
-		want bool
-	}{
-		{"", false},
-		{tmp, false},
-		{filepath.Join(tmp, "random"), false},
-		{filepath.Join(tmp, dir.Pattern), false},
-		{filepath.Join(tmp, dir.Pattern+"-random"), true},
+	const wantMatch = dir.Pattern + "-random"
+	// use a virtual file system to test os.DirEntry
+	fsys := fstest.MapFS{
+		"temp.tmp":    &fstest.MapFile{Mode: 0o644},
+		"regular.txt": &fstest.MapFile{Mode: 0o644},
+		"temp_folder": &fstest.MapFile{Mode: os.ModeDir | 0o755},
+		dir.Pattern:   &fstest.MapFile{Mode: os.ModeDir | 0o755},
+		wantMatch:     &fstest.MapFile{Mode: os.ModeDir | 0o755},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.path, func(t *testing.T) {
-			t.Parallel()
+	entries, err := fsys.ReadDir(".")
+	if err != nil {
+		t.Fatalf("failed to read mapfs: %v", err)
+	}
 
-			got := dir.IsTemp(tt.path)
-			be.Equal(t, got, tt.want)
+	for n, entry := range entries {
+		t.Run(entry.Name(), func(t *testing.T) {
+			t.Parallel()
+			got := dir.IsTemp(entry)
+			t.Log(n, entry.Name(), got)
+
+			if entry.Name() == wantMatch {
+				be.True(t, got)
+			} else {
+				be.True(t, !got)
+			}
 		})
 	}
 }

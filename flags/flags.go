@@ -82,6 +82,7 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 			Check(w, c),
 			Address(w, c),
 			Fix(w, c),
+			TempDir(w, c),
 		},
 	}
 	return app
@@ -136,6 +137,20 @@ func Address(_ io.Writer, c *config.Config) *cli.Command {
 
 			sl := stdoutput()
 			return c.Addresses(sl)
+		},
+	}
+}
+
+// TempDir command removes all tempoary directories created by this app.
+func TempDir(_ io.Writer, c *config.Config) *cli.Command {
+	//nolint:exhaustruct // External library struct with many optional fields
+	return &cli.Command{
+		Name:        "temp",
+		Aliases:     []string{"t"},
+		Usage:       "temporary directory purge",
+		Description: "Purge all the subdirectories likely created by this application in " + os.TempDir() + ".",
+		Action: func(_ *cli.Context) error {
+			return c.PurgeTemp()
 		},
 	}
 }
