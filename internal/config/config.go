@@ -251,6 +251,14 @@ func (c Config) Addresses(sl *slog.Logger) error {
 	return nil
 }
 
+func (c Config) PurgeTemp() error {
+	const stale = 1 * time.Second
+	if err := dir.CleanTemp(stale); err != nil {
+		return fmt.Errorf("purge temp dirs: %w", err)
+	}
+	return nil
+}
+
 // addresses prints a list of URLs that the server is accessible from.
 func (c Config) addresses(sl *slog.Logger) error {
 	const intro = "Depending on the firewall and operating system setup, " +
@@ -345,11 +353,6 @@ func (c Config) googleIDs(sl *slog.Logger, key string) {
 	const name = "GoogleAccounts"
 	msg := Configured(name, accounts.String()) + ":"
 	sl.Info(msg, slog.Any(key, mask), slog.String("tip", tip))
-}
-
-func (c Config) PurgeTemp() error {
-	const stale = 1 * time.Second
-	return dir.CleanTemp(stale)
 }
 
 // StaticThumb returns the path to the thumbnail directory.

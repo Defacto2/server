@@ -29,7 +29,7 @@ const (
 )
 
 // Connections returns the number of active connections and the maximum allowed connections.
-func Connections(db *sql.DB) (active int64, maxConn int64, err error) {
+func Connections(db *sql.DB) (active, maxConn int64, err error) { //nolint:nonamedreturns
 	// query active connections for current DB and max_connections in a single round-trip
 	const query = `
 		SELECT 

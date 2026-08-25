@@ -156,7 +156,8 @@ func MkdirStale(path string) (string, error) {
 		return s, nil
 	}
 
-	err = os.MkdirAll(newpath, 0o700)
+	const perm = 0o700 // match os.MkdirTemp defaults
+	err = os.MkdirAll(newpath, perm)
 	if err != nil {
 		return "", fmt.Errorf("dir mkdir stale: %w", err)
 	}

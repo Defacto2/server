@@ -18,18 +18,17 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	ErrCategory = errors.New("unknown artifacts categories")
-	//nolint:gochecknoglobals
-	uriMap = func() map[string]URI {
-		m := make(map[string]URI)
-		for val := range int(WindowsPack) {
-			i := val + 1
-			m[URI(i).String()] = URI(i)
-		}
-		return m
-	}()
-)
+var ErrCategory = errors.New("unknown artifacts categories")
+
+//nolint:gochecknoglobals
+var uriMap = func() map[string]URI {
+	m := make(map[string]URI)
+	for val := range int(WindowsPack) {
+		i := val + 1
+		m[URI(i).String()] = URI(i)
+	}
+	return m
+}()
 
 // URI is a type for the files URI path.
 type URI int
@@ -102,7 +101,7 @@ const (
 	WindowsPack // last value needs to be a global to allow testing
 )
 
-var uriStrings = [...]string{
+var uriStrings = [...]string{ //nolint:gochecknoglobals
 	0:  "",
 	1:  "advert",
 	2:  "announcement",
@@ -197,7 +196,7 @@ type fileMeta struct {
 	lead  string
 }
 
-var fileInfoMap = map[URI]fileMeta{
+var fileInfoMap = map[URI]fileMeta{ //nolint:gochecknoglobals
 	NewUploads: {
 		logo:  "new uploads",
 		h1sub: "the new uploads",
@@ -221,7 +220,8 @@ var fileInfoMap = map[URI]fileMeta{
 	Unwanted: {
 		logo:  "unwanted releases",
 		h1sub: "edit the unwanted software releases",
-		lead:  "These are the file artifacts that have been marked as potential unwanted software or containing viruses on Defacto2.",
+		lead: "These are the file artifacts that have been marked " +
+			"as potential unwanted software or containing viruses on Defacto2.",
 	},
 	Oldest: {
 		logo:  "oldest releases",
@@ -321,10 +321,10 @@ func RecordsSub(uri string) string {
 type queryFunc func(context.Context, boil.ContextExecutor, int, int) (models.FileSlice, error)
 
 var (
-	a model.Artifacts
+	a model.Artifacts //nolint:gochecknoglobals
 
-	// Static dispatch map initialized once at startup
-	recordDispatch = map[URI]queryFunc{
+	// recordDispatch dispatch map for models.
+	recordDispatch = map[URI]queryFunc{ //nolint:gochecknoglobals
 		ForApproval: model.ByForApproval,
 		Deletions:   a.ByHidden,
 		Unwanted:    a.ByUnwanted,
@@ -338,8 +338,8 @@ var (
 // Records returns the records for the artifacts category URI.
 // Note that the record statistics and counts get cached.
 func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	if exec == nil {
-		return nil, errors.New("file slice records: exec executor cannot be nil")
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf("fileslice records check: %w", err)
 	}
 
 	if fn, ok := recordDispatch[Match(uri)]; ok {
@@ -780,5 +780,5 @@ func (s *Stats) items() [21]Item {
 
 // newStats returns a new Stats struct initialized with zero values.
 func newStats() Stats {
-	return Stats{}
+	return Stats{} //nolint:exhaustruct
 }

@@ -1,4 +1,6 @@
 // Package tags are categories and platform metadata used to classify the served files.
+//
+//nolint:exhaustive
 package tags
 
 import (
@@ -103,7 +105,7 @@ const (
 )
 
 // List all the tags.
-var List = [...]Tag{
+var List = [...]Tag{ //nolint:gochecknoglobals
 	Announcement,
 	ANSIEditor,
 	AppleII,
@@ -173,6 +175,50 @@ func Humanize(platform, section Tag) string {
 	}
 
 	return genericReturn(platform, section)
+}
+
+// Humanizes returns the human readable plurals of the platform and section tags combined.
+//
+//   - A plural example: "Windows intros"
+//   - A singular example: "a Windows intro"
+//
+// For singular artifacts and items, use [Humanize].
+func (t Tag) Humanizes(section Tag) string {
+	switch t {
+	case ANSI:
+		return pluralANSI(section)
+	case Audio:
+		return "music, chiptunes, and audio"
+	case DataB:
+		return pluralDataB(section)
+	case DOS:
+		return pluralDOS(section)
+	case Image:
+		return pluralImage(section)
+	case Java:
+		return Names()[section] + " on java"
+	case Linux:
+		return Names()[section] + " programs on Linux and Unix"
+	case Markup:
+		return Names()[section] + " as HTML files"
+	case Mac:
+		return Names()[section] + " on Macintosh and macOS"
+	case PCB:
+		return pluralPCB(section)
+	case PDF:
+		return Names()[section] + " as PDF documents"
+	case PHP:
+		return Names()[section] + " for any scripting language"
+	case Text:
+		return pluralText(section)
+	case TextAmiga:
+		return pluralTextAmiga(section)
+	case Video:
+		return "videos and animations"
+	case Windows:
+		return pluralWindows(section)
+	}
+	return genericPlural(t, section)
 }
 
 func check(platform, section Tag) string {
@@ -508,50 +554,6 @@ func (t Tag) humanizeWindows(platform Tag) string {
 	default:
 		return genericReturn(platform, t)
 	}
-}
-
-// Humanizes returns the human readable plurals of the platform and section tags combined.
-//
-//   - A plural example: "Windows intros"
-//   - A singular example: "a Windows intro"
-//
-// For singular artifacts and items, use [Humanize].
-func (t Tag) Humanizes(section Tag) string {
-	switch t {
-	case ANSI:
-		return pluralANSI(section)
-	case Audio:
-		return "music, chiptunes, and audio"
-	case DataB:
-		return pluralDataB(section)
-	case DOS:
-		return pluralDOS(section)
-	case Image:
-		return pluralImage(section)
-	case Java:
-		return Names()[section] + " on java"
-	case Linux:
-		return Names()[section] + " programs on Linux and Unix"
-	case Markup:
-		return Names()[section] + " as HTML files"
-	case Mac:
-		return Names()[section] + " on Macintosh and macOS"
-	case PCB:
-		return pluralPCB(section)
-	case PDF:
-		return Names()[section] + " as PDF documents"
-	case PHP:
-		return Names()[section] + " for any scripting language"
-	case Text:
-		return pluralText(section)
-	case TextAmiga:
-		return pluralTextAmiga(section)
-	case Video:
-		return "videos and animations"
-	case Windows:
-		return pluralWindows(section)
-	}
-	return genericPlural(t, section)
 }
 
 func genericPlural(platform, section Tag) string {

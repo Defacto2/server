@@ -1,7 +1,6 @@
 package command_test
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -40,7 +39,6 @@ func setupTestDir(t *testing.T, tempDir string) (string, string) {
 		t.Fatalf("failed to read testdata directory: %v", err)
 	}
 	entries = slices.DeleteFunc(entries, func(e os.DirEntry) bool {
-		fmt.Println(e.Name(), strings.HasPrefix(e.Name(), "TEST."))
 		skip := !strings.HasPrefix(e.Name(), "TEST.")
 		return skip
 	})
