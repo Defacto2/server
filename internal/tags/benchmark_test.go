@@ -125,7 +125,7 @@ func oldIsCategory(name string) bool {
 	if name == "" {
 		return false
 	}
-	for _, tag := range tags.List() {
+	for _, tag := range tags.List {
 		if strings.EqualFold(tag.String(), name) {
 			return tag >= tags.FirstCategory && tag <= tags.LastCategory
 		}

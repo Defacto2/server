@@ -19,6 +19,7 @@ var ErrTest = errors.New("an error")
 
 func TestConfig(t *testing.T) {
 	t.Parallel()
+	sl := slog.Default()
 
 	c := config.Config{}
 	s := c.Names()
@@ -27,7 +28,11 @@ func TestConfig(t *testing.T) {
 	got := c.Addresses(nil)
 	be.Err(t, got)
 
-	got = c.Addresses(slog.Default())
+	got = c.Addresses(sl)
+	be.Err(t, got)
+
+	c.HTTPPort = config.StdCustom
+	got = c.Addresses(sl)
 	be.Err(t, got, nil)
 }
 
@@ -36,7 +41,7 @@ func TestChecks(t *testing.T) {
 
 	c := config.Config{}
 	got := c.Checks(t.Context(), slog.Default())
-	be.Err(t, got)
+	be.Err(t, got, nil)
 
 	got = c.LogStore()
 	be.Err(t, got, nil)

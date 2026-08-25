@@ -394,10 +394,12 @@ func TestMkdirStale(t *testing.T) {
 	s := simple.MkdirStale(sl, "")
 	be.Equal(t, s, "")
 
-	s1 := simple.MkdirStale(sl, "a string")
-	be.True(t, strings.Contains(s1, "a string"))
-	s2 := simple.MkdirStale(sl, "a string")
-	be.Equal(t, s1, s2)
+	s1 := simple.MkdirStale(sl, "a_string")
+	be.True(t, strings.Contains(s1, "a_string"))
+	s2 := simple.MkdirStale(sl, "a_string")
+	be.True(t, strings.Contains(s2, "a_string"))
+	be.True(t, s1 == s2)
+	t.Log("s1", s1, "s2", s2)
 
 	t.Cleanup(func() {
 		_ = os.RemoveAll(s1)

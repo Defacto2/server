@@ -144,48 +144,70 @@ func TestHumanize(t *testing.T) {
 
 func TestHumanizes(t *testing.T) {
 	t.Parallel()
+
+	none := tags.Tag(-1)
 	const at = "texts in an ansi format"
-	s := tags.Humanizes(-1, -1)
+	s := none.Humanizes(none)
 	be.Equal(t, s, "all files")
-	s = tags.Humanizes(tags.ANSI, -1)
+
+	s = tags.ANSI.Humanizes(none)
 	be.Equal(t, s, at)
-	s = tags.Humanizes(-1, tags.News)
+
+	s = none.Humanizes(tags.News)
 	be.Equal(t, s, "reprinted articles from media outlets")
-	s = tags.Humanizes(tags.ANSI, tags.News)
+
+	s = tags.ANSI.Humanizes(tags.News)
 	be.Equal(t, s, at)
-	s = tags.Humanizes(tags.ANSI, tags.Restrict)
+
+	s = tags.ANSI.Humanizes(tags.Restrict)
 	be.Equal(t, s, at)
-	s = tags.Humanizes(tags.Video, tags.Intro)
+
+	s = tags.Video.Humanizes(tags.Intro)
 	be.Equal(t, s, "videos and animations")
-	s = tags.Humanizes(tags.ANSI, tags.Interview)
+
+	s = tags.ANSI.Humanizes(tags.Interview)
 	be.Equal(t, s, at)
-	s = tags.Humanizes(tags.Audio, tags.Intro)
+
+	s = tags.Audio.Humanizes(tags.Intro)
 	be.Equal(t, s, "music, chiptunes, and audio")
-	s = tags.Humanizes(tags.DataB, tags.Nfo)
+
+	s = tags.DataB.Humanizes(tags.Nfo)
 	be.Equal(t, s, "databases of releases")
-	s = tags.Humanizes(tags.DOS, tags.Demo)
+
+	s = tags.DOS.Humanizes(tags.Demo)
 	be.Equal(t, s, "demos on MS Dos")
-	s = tags.Humanizes(tags.Markup, tags.Nfo)
+
+	s = tags.Markup.Humanizes(tags.Nfo)
 	be.Equal(t, s, "nfo file or scene release as HTML files")
-	s = tags.Humanizes(tags.Image, tags.Nfo)
+
+	s = tags.Image.Humanizes(tags.Nfo)
 	be.Equal(t, s, "images, pictures, and photos")
-	s = tags.Humanizes(tags.PDF, tags.Proof)
+
+	s = tags.PDF.Humanizes(tags.Proof)
 	be.Equal(t, s, "release proof as PDF documents")
-	s = tags.Humanizes(tags.Text, tags.Nfo)
+
+	s = tags.Text.Humanizes(tags.Nfo)
 	be.Equal(t, s, "release textfiles")
-	s = tags.Humanizes(tags.TextAmiga, tags.Nfo)
+
+	s = tags.TextAmiga.Humanizes(tags.Nfo)
 	be.Equal(t, s, "amiga/console text infos")
-	s = tags.Humanizes(tags.Video, tags.Guide)
+
+	s = tags.Video.Humanizes(tags.Guide)
 	be.Equal(t, s, "videos and animations")
-	s = tags.Humanizes(tags.Windows, tags.Demo)
+
+	s = tags.Windows.Humanizes(tags.Demo)
 	be.Equal(t, s, "demos on Windows")
-	s = tags.Humanizes(tags.Linux, tags.Install)
+
+	s = tags.Linux.Humanizes(tags.Install)
 	be.Equal(t, s, "scene software installer programs on Linux and Unix")
-	s = tags.Humanizes(tags.ANSI, tags.Logo)
+
+	s = tags.ANSI.Humanizes(tags.Logo)
 	be.Equal(t, s, "logos in an ansi format")
-	s = tags.Humanizes(tags.Image, tags.Proof)
+
+	s = tags.Image.Humanizes(tags.Proof)
 	be.Equal(t, s, "photos used to prove a release")
-	s = tags.Humanizes(tags.Image, tags.News)
+
+	s = tags.Image.Humanizes(tags.News)
 	be.Equal(t, s, "images, pictures, and photos")
 }
 
@@ -267,9 +289,8 @@ func TestCategoryCounts(t *testing.T) {
 	t.Parallel()
 	// Verify that all categories from FirstCategory to LastCategory fit in CategoryCount
 	categoryCount := tags.CategoryCount
-	list := tags.List()
 	categories := 0
-	for _, tag := range list {
+	for _, tag := range tags.List {
 		if tags.IsCategory(tag.String()) {
 			categories++
 		}
@@ -281,9 +302,8 @@ func TestPlatformCounts(t *testing.T) {
 	t.Parallel()
 	// Verify that all platforms from FirstPlatform to LastPlatform fit in PlatformCount
 	platformCount := tags.PlatformCount
-	list := tags.List()
 	platforms := 0
-	for _, tag := range list {
+	for _, tag := range tags.List {
 		if tags.IsPlatform(tag.String()) {
 			platforms++
 		}

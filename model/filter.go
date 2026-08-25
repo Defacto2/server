@@ -14,15 +14,13 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
-// columns is a cached reference to postgres.Columns() to avoid repeated function calls.
+// columns holds the package-level slice reference initialized at package startup.
 //
 //nolint:gochecknoglobals
-var columns []string
+var columns = []string{postgres.SumSize, postgres.TotalCnt, postgres.MinYear, postgres.MaxYear}
 
+// GetColumns returns a read-only slice reference to the default columns.
 func GetColumns() []string {
-	if columns == nil {
-		columns = postgres.Columns()
-	}
 	return columns
 }
 

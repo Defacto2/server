@@ -237,6 +237,9 @@ var determiners = URIS{
 }
 
 func (t Tag) String() string {
+	if t < 1 || t > Console {
+		return ""
+	}
 	return uris[t]
 }
 
@@ -272,7 +275,7 @@ func NameByURI(slug string) string {
 			return value
 		}
 	}
-	return fmt.Sprintf("error: unknown slug %q", slug)
+	return "error: unknown slug '" + slug + "'"
 }
 
 // Infos returns short descriptions of the tags.
@@ -286,6 +289,7 @@ func Description(tag string) (string, error) {
 	if t == -1 {
 		return "", fmt.Errorf("%s: %w", tag, ErrTag)
 	}
+
 	s := Infos()[t]
 	return s, nil
 }
@@ -293,11 +297,14 @@ func Description(tag string) (string, error) {
 // Platform returns the human readable platform and tag name.
 func Platform(platform, tag string) (string, error) {
 	p, t := TagByURI(platform), TagByURI(tag)
+
+	const format = "%s: %w"
 	if p == -1 {
-		return "", fmt.Errorf("%s: %w", platform, ErrPlatform)
+		return "", fmt.Errorf(format, platform, ErrPlatform)
 	}
 	if t == -1 {
-		return "", fmt.Errorf("%s: %w", tag, ErrTag)
+		return "", fmt.Errorf(format, tag, ErrTag)
 	}
+
 	return Humanize(p, t), nil
 }

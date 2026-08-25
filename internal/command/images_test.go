@@ -1,9 +1,11 @@
 package command_test
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -17,7 +19,8 @@ import (
 
 const (
 	testdata      = "testdata"
-	testdataCount = 7
+	testdataCount = 9
+	testCount     = 7
 	invalid       = "this-is#invalid!"
 )
 
@@ -36,6 +39,11 @@ func setupTestDir(t *testing.T, tempDir string) (string, string) {
 	if err != nil {
 		t.Fatalf("failed to read testdata directory: %v", err)
 	}
+	entries = slices.DeleteFunc(entries, func(e os.DirEntry) bool {
+		fmt.Println(e.Name(), strings.HasPrefix(e.Name(), "TEST."))
+		skip := !strings.HasPrefix(e.Name(), "TEST.")
+		return skip
+	})
 
 	if n := countFiles(t, testdata); n != testdataCount {
 		t.Fatalf("expected %d test files in testdata, but got %d", testdataCount, n)
@@ -59,6 +67,7 @@ func setupTestDir(t *testing.T, tempDir string) (string, string) {
 		}
 
 		name := entry.Name()
+
 		if baseN == "" {
 			filename := filepath.Base(name)
 			baseN = strings.TrimSuffix(filename, filepath.Ext(filename))
@@ -78,8 +87,8 @@ func setupTestDir(t *testing.T, tempDir string) (string, string) {
 		t.Fatalf("setupTestDir: no files found in %s", testdata)
 	}
 	n := countFiles(t, tempDir)
-	if n != testdataCount {
-		t.Fatalf("found %d test files in the temp directory, wanted %d: %s", n, testdataCount, tempDir)
+	if n != testCount {
+		t.Fatalf("found %d test files in the temp directory, wanted %d: %s", n, testCount, tempDir)
 	}
 
 	return baseN, tempDir
@@ -113,6 +122,7 @@ func TestImagesDelete(t *testing.T) {
 	be.Err(t, err, nil)
 
 	const want = 3 // want 3 as ".ascii", ".bmp", ".pcx" are ignored by the deleter
+
 	got := countFiles(t, dir)
 	be.Equal(t, got, want)
 

@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/internal/nils"
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
@@ -34,7 +33,7 @@ func (f *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error
 	}
 	const msg = "artifacts public"
 	err := models.NewQuery(
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From),
 	).Bind(ctx, exec, f)
@@ -319,7 +318,7 @@ func (f *Artifacts) byHidden(ctx context.Context, exec boil.ContextExecutor) err
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNotNull(),
 		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.From(From),
 	).Bind(ctx, exec, f)
 	if err != nil {
@@ -337,7 +336,7 @@ func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) e
 	err := models.NewQuery(
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.From(From),
 	).Bind(ctx, exec, f)
 	if err != nil {

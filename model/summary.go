@@ -92,7 +92,7 @@ func (s *Summary) ByForApproval(ctx context.Context, exec boil.ContextExecutor) 
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNull(),
 		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.From(From),
 	).Bind(ctx, exec, s)
 }
@@ -104,7 +104,7 @@ func (s *Summary) ByHidden(ctx context.Context, exec boil.ContextExecutor) error
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNotNull(),
 		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.From(From),
 	).Bind(ctx, exec, s)
 }
@@ -113,7 +113,7 @@ func (s *Summary) ByHidden(ctx context.Context, exec boil.ContextExecutor) error
 func (s *Summary) ByPublic(ctx context.Context, exec boil.ContextExecutor) error {
 	nils.BoilExecCrash(exec)
 	return models.NewQuery(
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From),
 	).Bind(ctx, exec, s)
@@ -124,7 +124,7 @@ func (s *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, name 
 	nils.BoilExecCrash(exec)
 	query, params := postgres.ScenerSQL(name)
 	return models.NewQuery(
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.Where(query, params...),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From),
@@ -142,7 +142,7 @@ func (s *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, nam
 	n := strings.ToUpper(ns)
 	x := null.StringFrom(n)
 	return models.NewQuery(
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
 		qm.Where(ClauseNoSoftDel),
 		qm.From(From),
@@ -157,7 +157,7 @@ func (s *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) err
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		models.FileWhere.FileSecurityAlertURL.NEQ(empty),
 		qm.WithDeleted(),
-		qm.Select(postgres.Columns()...),
+		qm.Select(GetColumns()...),
 		qm.From(From),
 	).Bind(ctx, exec, s)
 }

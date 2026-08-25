@@ -65,14 +65,20 @@ func ImagesDelete(unid string, dirs ...string) error {
 			return fmt.Errorf(format, dir, ErrIsFile)
 		}
 
+		fmt.Println(">>", dir)
+
 		// delete all matching extension variants
 		for _, ext := range exts {
 			name := filepath.Join(dir, unid+ext)
+
+			fmt.Println("-->", name, "<--")
+
 			err := os.Remove(name)
 			if err == nil {
 				deletedAny = true
 				continue
 			}
+			fmt.Println(">>>", err)
 			if !errors.Is(err, os.ErrNotExist) {
 				return fmt.Errorf(format, name, err)
 			}

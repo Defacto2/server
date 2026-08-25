@@ -117,24 +117,6 @@ func BenchmarkVersionString(b *testing.B) {
 	})
 }
 
-// BenchmarkColumns benchmarks the Columns function.
-func BenchmarkColumns(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = postgres.Columns()
-		}
-	})
-}
-
-// BenchmarkStat benchmarks the Stat function.
-func BenchmarkStat(b *testing.B) {
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = postgres.Stat()
-		}
-	})
-}
-
 // BenchmarkConnectionValidate benchmarks the Connection.Validate method.
 func BenchmarkConnectionValidate(b *testing.B) {
 	logger := slog.Default()

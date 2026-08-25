@@ -29,52 +29,18 @@ const (
 )
 
 // Connections returns the number of active connections and the maximum allowed connections.
-func Connections(db *sql.DB) (int64, int64, error) {
-	const msg = "postgres"
-	const format = msg + " %s: %w"
+func Connections(db *sql.DB) (active int64, maxConn int64, err error) {
+	// query active connections for current DB and max_connections in a single round-trip
+	const query = `
+		SELECT 
+			(SELECT COUNT(*) FROM pg_stat_activity WHERE datname = current_database()),
+			(SELECT setting::bigint FROM pg_settings WHERE name = 'max_connections');`
 
-	failure := func(s string, err error) (int64, int64, error) {
-		return 0, 0, fmt.Errorf(format, s, err)
-	}
-	if err := nils.Check(db); err != nil {
-		return failure("check", err)
+	if err := db.QueryRow(query).Scan(&active, &maxConn); err != nil { //nolint:noctx
+		return 0, 0, fmt.Errorf("postgres connections query: %w", err)
 	}
 
-	const query = "SELECT COUNT(*) FROM pg_stat_activity WHERE datname='defacto2_ps';"
-	rows, err := db.Query(query) //nolint:noctx // legacy code, would require extensive refactoring
-	if err != nil {
-		return failure("query", err)
-	}
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	var count int64
-	if rows.Next() {
-		if err := rows.Scan(&count); err != nil {
-			return failure("scan", err)
-		}
-	}
-	if err := rows.Err(); err != nil {
-		return failure("row iteration", err)
-	}
-	result, err := db.Query("SHOW max_connections;") //nolint:noctx // legacy code, would require extensive refactoring
-	if err != nil {
-		return failure("query", err)
-	}
-	defer func() {
-		_ = result.Close()
-	}()
-	var maximum int64
-	for result.Next() {
-		if err := result.Scan(&maximum); err != nil {
-			return failure("scan", err)
-		}
-	}
-	if err := result.Err(); err != nil {
-		return failure("row iteration", err)
-	}
-	return count, maximum, nil
+	return active, maxConn, nil
 }
 
 // Open a new connection to the PostgreSQL database.
@@ -83,28 +49,33 @@ func Connections(db *sql.DB) (int64, int64, error) {
 //
 // The connection should be closed after the application exits.
 func Open() (*sql.DB, error) {
-	const msg = "postgres open connection"
-	const format = msg + " %s: %w"
+	const format = "postgres open connection %s: %w"
+
 	dataSource, err := New()
-	if err != nil {
-		return nil, fmt.Errorf(format, "", err)
-	}
-	conn, err := sql.Open(DriverName, dataSource.URL)
 	if err != nil {
 		return nil, fmt.Errorf(format, "new", err)
 	}
+
+	conn, err := sql.Open(DriverName, dataSource.URL)
+	if err != nil {
+		return nil, fmt.Errorf(format, "open", err)
+	}
+
+	if err := conn.Ping(); err != nil { //nolint:noctx
+		_ = conn.Close()
+		return nil, fmt.Errorf(format, "ping", err)
+	}
+
 	return conn, nil
 }
 
 // New initializes the connection with default values or values from the environment.
 func New() (Connection, error) {
-	const msg = "postgres new connection"
-	const format = msg + " %s: %w"
 	c := Connection{
 		URL: DefaultURL,
 	}
 	if err := env.Parse(&c); err != nil {
-		return Connection{}, fmt.Errorf(format+" %w", " default url", ErrEnvValue, err)
+		return Connection{}, fmt.Errorf("postgres new connection parse: %w: %w", ErrEnvValue, err)
 	}
 	return c, nil
 }
@@ -116,30 +87,30 @@ type Connection struct {
 
 // Validate the connection URL and print any issues to the logger.
 func (c Connection) Validate(sl *slog.Logger) error {
-	const msg = "postgres connection validation"
 	if err := nils.Check(sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf("connection validate check: %w", err)
 	}
+
+	const msg = "postgres connection validation"
 	const key = "issue"
+
 	if c.URL == "" {
 		sl.Warn(msg, slog.String(key, "The database connection host name is empty"))
+		return nil
 	}
+
 	u, err := url.Parse(c.URL)
 	if err != nil {
-		sl.Warn(msg,
-			slog.String(key, "The database connection URL is invalid"),
+		sl.Warn(msg, slog.String(key, "The database connection URL is invalid"),
 			slog.Any("error", err))
 		return nil
 	}
-	if u == nil {
-		sl.Warn(msg, slog.String(key, "The database connection URL is nil"))
-		return nil
-	}
+
 	if u.Scheme != Protocol {
 		sl.Warn(msg,
 			slog.String(key, "The database connection scheme is invalid"),
-			slog.String("requirement", Protocol),
-			slog.String("scheme_in_use", u.Scheme))
+			slog.String("requirement", Protocol), slog.String("scheme_in_use", u.Scheme))
 	}
+
 	return nil
 }

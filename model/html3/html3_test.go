@@ -6,12 +6,21 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/nalgeon/be"
 )
+
+// TestStat verifies the Stat function returns expected column selections.
+func TestStat(t *testing.T) {
+	stats := html3.Stat()
+	be.Equal(t, 2, len(stats))
+	be.Equal(t, postgres.SumSize, stats[0])
+	be.Equal(t, postgres.TotalCnt, stats[1])
+}
 
 func TestCreated(t *testing.T) {
 	t.Parallel()

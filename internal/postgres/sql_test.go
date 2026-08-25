@@ -51,24 +51,6 @@ func TestVersionString(t *testing.T) {
 	}
 }
 
-// TestColumns verifies the Columns function returns expected column selections.
-func TestColumns(t *testing.T) {
-	cols := postgres.Columns()
-	be.Equal(t, 4, len(cols))
-	be.Equal(t, postgres.SumSize, cols[0])
-	be.Equal(t, postgres.TotalCnt, cols[1])
-	be.Equal(t, postgres.MinYear, cols[2])
-	be.Equal(t, postgres.MaxYear, cols[3])
-}
-
-// TestStat verifies the Stat function returns expected column selections.
-func TestStat(t *testing.T) {
-	stats := postgres.Stat()
-	be.Equal(t, 2, len(stats))
-	be.Equal(t, postgres.SumSize, stats[0])
-	be.Equal(t, postgres.TotalCnt, stats[1])
-}
-
 // TestReleasersAlphabetical verifies the SQL query construction.
 func TestReleasersAlphabetical(t *testing.T) {
 	query := postgres.ReleasersAlphabetical()

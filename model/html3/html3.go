@@ -198,6 +198,11 @@ func SoftwareExpr() qm.QueryMod { //nolint:ireturn
 	)
 }
 
+// Stat returns the SumSize and TotalCnt column selections.
+func Stat() [2]string {
+	return [...]string{postgres.SumSize, postgres.TotalCnt}
+}
+
 // statQuery executes a statistics query using the provided expression.
 func statQuery(ctx context.Context, exec boil.ContextExecutor, stats interface {
 	GetBytes() int
@@ -211,8 +216,9 @@ func statQuery(ctx context.Context, exec boil.ContextExecutor, stats interface {
 	if bytes > 0 && count > 0 {
 		return nil
 	}
+	columns := Stat()
 	return models.NewQuery(
-		qm.Select(postgres.Stat()...),
+		qm.Select(columns[:]...),
 		qm.Where(ClauseNoSoftDel),
 		expr,
 		qm.From(From),

@@ -39,26 +39,15 @@ const (
 
 // Query the database version.
 func (v *Version) Query(db *sql.DB) error {
-	const msg = "postgres version query"
-	const format = msg + " %s: %w"
 	if db == nil {
 		return nil
 	}
-	rows, err := db.Query(SelVersion) //nolint:noctx // legacy code, would require extensive refactoring
-	if err != nil {
-		return fmt.Errorf(format, "connect", err)
+
+	const format = "postgres version query %s: %w"
+	if err := db.QueryRow(SelVersion).Scan(v); err != nil { //nolint:noctx
+		return fmt.Errorf(format, "scan", err)
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
-	for rows.Next() {
-		if err := rows.Scan(v); err != nil {
-			return fmt.Errorf(format, "rows scan", err)
-		}
-	}
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf(format, "row iteration", err)
-	}
+
 	return nil
 }
 
@@ -78,16 +67,6 @@ func (v *Version) String() string {
 		return "and using " + parts[0] + " " + parts[1]
 	}
 	return s
-}
-
-// Columns returns a list of column selections used for filtering and statistics.
-func Columns() []string {
-	return []string{SumSize, TotalCnt, MinYear, MaxYear}
-}
-
-// Stat returns the SumSize and TotalCnt column selections.
-func Stat() []string {
-	return []string{SumSize, TotalCnt}
 }
 
 const (
@@ -288,8 +267,7 @@ func ScenerSQL(name string) (string, []any) {
 		" OR (upper(credit_program) LIKE '%,'||$1)" +
 		" OR (upper(credit_illustration) LIKE '%,'||$1)" +
 		" OR (upper(credit_audio) LIKE '%,'||$1)"
-	query := fmt.Sprintf("(%s) OR (%s) OR (%s) OR (%s)", exact, first, middle, last)
-	return query, []any{n}
+	return "(" + exact + ") OR (" + first + ") OR (" + middle + ") OR (" + last + ")", []any{n}
 }
 
 func Releasers() SQL {
@@ -324,6 +302,7 @@ func SimilarToReleaser(like ...string) (SQL, []any) {
 	if len(like) == 0 {
 		return "", nil
 	}
+
 	query := make([]string, len(like))
 	for i, val := range like {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
@@ -339,6 +318,7 @@ func SimilarToMagazine(like ...string) (SQL, []any) {
 	if len(like) == 0 {
 		return "", nil
 	}
+
 	query := make([]string, len(like))
 	for i, val := range like {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
@@ -355,6 +335,7 @@ func SimilarToExact(like ...string) (SQL, []any) {
 	if len(like) == 0 {
 		return "", nil
 	}
+
 	query := make([]string, len(like))
 	for i, val := range like {
 		query[i] = strings.ToUpper(strings.TrimSpace(val))
@@ -375,7 +356,7 @@ func (r Role) Distinct() SQL {
 	s := "SELECT DISTINCT ON(upper(scener)) scener " + // select distinct scener names
 		string(fromFiles) +
 		// combine the Role column name as sceners
-		fmt.Sprintf("CROSS JOIN LATERAL (values%s) AS T(scener) ", r) +
+		"CROSS JOIN LATERAL (values" + string(r) + ") AS T(scener) " +
 		"WHERE NULLIF(scener, '') IS NOT NULL " + // exclude empty scener names
 		"GROUP BY scener, files.deletedat " + // group the results by the scener name and deleteat
 		// filter the results by the file count and only include releasers with public records

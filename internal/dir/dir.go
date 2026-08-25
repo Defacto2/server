@@ -126,31 +126,42 @@ func MkdirTemp(pattern string) (string, error) {
 // The returned string is the path to an existing
 // or the newly created temporary directory.
 func MkdirStale(path string) (string, error) {
+	const random = "-*"
 	var pattern string
 	base := filepath.Base(path)
 	local, err := filepath.Localize(base)
 	if err != nil {
-		pattern = Pattern + "-*" // for edge cases use a randomization
+		pattern = Pattern + random // for edge cases use a randomization
 	} else {
 		pattern = Pattern + "-" + local // no tailing randomization
 	}
 
-	st, err := os.Stat(filepath.Join(os.TempDir(), pattern))
+	newpath := filepath.Join(os.TempDir(), pattern)
+
+	st, err := os.Stat(newpath)
 	switch {
 	case err == nil && st.IsDir():
 		// return the exist temporary directory based on this path
-		return st.Name(), nil
+		return newpath, nil
 	case err == nil:
 		// when an unexpected entry exists in the temporary directory,
 		// append randomness to the pattern to make and use a new subdirectory.
-		pattern += "-*"
+		pattern += random
 	}
 
-	s, err := os.MkdirTemp(os.TempDir(), pattern)
+	if strings.HasSuffix(pattern, random) {
+		s, err := os.MkdirTemp(os.TempDir(), pattern)
+		if err != nil {
+			return "", fmt.Errorf("dir mkdir stale: %w", err)
+		}
+		return s, nil
+	}
+
+	err = os.MkdirAll(newpath, 0o700)
 	if err != nil {
 		return "", fmt.Errorf("dir mkdir stale: %w", err)
 	}
-	return s, nil
+	return newpath, nil
 }
 
 // CreateTemp creates a new temporary file using [os.CreateTemp].

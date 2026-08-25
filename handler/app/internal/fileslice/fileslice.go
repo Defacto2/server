@@ -8,15 +8,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"reflect"
 	"sort"
-	"time"
 
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -103,74 +102,79 @@ const (
 	WindowsPack // last value needs to be a global to allow testing
 )
 
+var uriStrings = [...]string{
+	0:  "",
+	1:  "advert",
+	2:  "announcement",
+	3:  "ansi",
+	4:  "ansi-bbs",
+	5:  "ansi-brand",
+	6:  "ansi-ftp",
+	7:  "ansi-pack",
+	8:  "ansi-nfo",
+	9:  "bbs",
+	10: "bbstro",
+	11: "bbs-image",
+	12: "bbs-text",
+	13: "console",
+	14: "database",
+	15: "deletions",
+	16: "demoscene",
+	17: "drama",
+	18: "for-approval",
+	19: "ftp",
+	20: "hack",
+	21: "how-to",
+	22: "html",
+	23: "java",
+	24: "job-advert",
+	25: "image",
+	26: "image-pack",
+	27: "intro",
+	28: "intro-msdos",
+	29: "intro-windows",
+	30: "installer",
+	31: "linux",
+	32: "magazine",
+	33: "macos",
+	34: "msdos",
+	35: "msdos-pack",
+	36: "music",
+	37: "newest",
+	38: "news-article",
+	39: "new-updates",
+	40: "new-uploads",
+	41: "nfo",
+	42: "nfo-tool",
+	43: "oldest",
+	44: "pcboard",
+	45: "pcboard-ppe",
+	46: "pcboard-text",
+	47: "pdf",
+	48: "proof",
+	49: "restrict",
+	50: "script",
+	51: "sensenstahl",
+	52: "standards",
+	53: "takedown",
+	54: "text",
+	55: "text-amiga",
+	56: "text-apple2",
+	57: "text-atari-st",
+	58: "text-pack",
+	59: "tool",
+	60: "trial-crackme",
+	61: "unwanted",
+	62: "video",
+	63: "windows",
+	64: "windows-pack",
+}
+
 func (u URI) String() string {
-	return [...]string{
-		"",
-		"advert",
-		"announcement",
-		"ansi",
-		"ansi-bbs",
-		"ansi-brand",
-		"ansi-ftp",
-		"ansi-pack",
-		"ansi-nfo",
-		"bbs",
-		"bbstro",
-		"bbs-image",
-		"bbs-text",
-		"console",
-		"database",
-		"deletions",
-		"demoscene",
-		"drama",
-		"for-approval",
-		"ftp",
-		"hack",
-		"how-to",
-		"html",
-		"java",
-		"job-advert",
-		"image",
-		"image-pack",
-		"intro",
-		"intro-msdos",
-		"intro-windows",
-		"installer",
-		"linux",
-		"magazine",
-		"macos",
-		"msdos",
-		"msdos-pack",
-		"music",
-		"newest",
-		"news-article",
-		"new-updates",
-		"new-uploads",
-		"nfo",
-		"nfo-tool",
-		"oldest",
-		"pcboard",
-		"pcboard-ppe",
-		"pcboard-text",
-		"pdf",
-		"proof",
-		"restrict",
-		"script",
-		"sensenstahl",
-		"standards",
-		"takedown",
-		"text",
-		"text-amiga",
-		"text-apple2",
-		"text-atari-st",
-		"text-pack",
-		"tool",
-		"trial-crackme",
-		"unwanted",
-		"video",
-		"windows",
-		"windows-pack",
-	}[u]
+	if uint(u) < uint(len(uriStrings)) {
+		return uriStrings[u]
+	}
+	return ""
 }
 
 // Match path to a URI type or return -1 if not found.
@@ -187,113 +191,125 @@ func Valid(path string) bool {
 	return ok
 }
 
+type fileMeta struct {
+	logo  string
+	h1sub string
+	lead  string
+}
+
+var fileInfoMap = map[URI]fileMeta{
+	NewUploads: {
+		logo:  "new uploads",
+		h1sub: "the new uploads",
+		lead:  "These are the recent file artifacts that have been submitted to Defacto2.",
+	},
+	NewUpdates: {
+		logo:  "new changes",
+		h1sub: "the new changes",
+		lead:  "These are the recent file artifacts that have been modified or submitted on Defacto2.",
+	},
+	ForApproval: {
+		logo:  "new uploads",
+		h1sub: "edit the new uploads for approval",
+		lead:  "These are the recent file artifacts that have been submitted for approval on Defacto2.",
+	},
+	Deletions: {
+		logo:  "deletions",
+		h1sub: "edit the (hidden) deletions",
+		lead:  "These are the file artifacts that have been removed from Defacto2.",
+	},
+	Unwanted: {
+		logo:  "unwanted releases",
+		h1sub: "edit the unwanted software releases",
+		lead:  "These are the file artifacts that have been marked as potential unwanted software or containing viruses on Defacto2.",
+	},
+	Oldest: {
+		logo:  "oldest releases",
+		h1sub: "the oldest releases",
+		lead:  "These are the earliest, historical file artifacts in the collection.",
+	},
+	Newest: {
+		logo:  "newest releases",
+		h1sub: "the newest releases",
+		lead:  "These are the most recent file artifacts in the collection.",
+	},
+	Sensenstahl: {
+		logo:  "sensenstahl 🎁",
+		h1sub: "the bbstros for sensenstahl",
+		lead:  "These are the newest BBStros added to the collection.",
+	},
+}
+
 // FileInfo is a helper function for Files that returns the page title, h1 title and lead text.
 func FileInfo(uri string) (string, string, string) {
-	var logo, h1sub, lead string
-
-	switch Match(uri) { //nolint:exhaustive //nolint:exhaustive
-	case NewUploads:
-		logo = "new uploads"
-		h1sub = "the new uploads"
-		lead = "These are the recent file artifacts that have been submitted to Defacto2."
-	case NewUpdates:
-		logo = "new changes"
-		h1sub = "the new changes"
-		lead = "These are the recent file artifacts that have been modified or submitted on Defacto2."
-	case ForApproval:
-		logo = "new uploads"
-		h1sub = "edit the new uploads for approval"
-		lead = "These are the recent file artifacts that have been submitted for approval on Defacto2."
-	case Deletions:
-		logo = "deletions"
-		h1sub = "edit the (hidden) deletions"
-		lead = "These are the file artifacts that have been removed from Defacto2."
-	case Unwanted:
-		logo = "unwanted releases"
-		h1sub = "edit the unwanted software releases"
-		lead = "These are the file artifacts that have been marked as potential unwanted software " +
-			"or containing viruses on Defacto2."
-	case Oldest:
-		logo = "oldest releases"
-		h1sub = "the oldest releases"
-		lead = "These are the earliest, historical file artifacts in the collection."
-	case Newest:
-		logo = "newest releases"
-		h1sub = "the newest releases"
-		lead = "These are the most recent file artifacts in the collection."
-	case Sensenstahl:
-		logo = "sensenstahl 🎁"
-		h1sub = "the bbstros for sensenstahl"
-		lead = "These are the newest BBStros added to the collection."
-	default:
-		s := RecordsSub(uri)
-		h1sub = s
-		logo = s
+	if meta, ok := fileInfoMap[Match(uri)]; ok {
+		return meta.logo, meta.h1sub, meta.lead
 	}
 
-	return logo, h1sub, lead
+	s := RecordsSub(uri)
+	return s, s, ""
 }
 
 // RecordsSub returns the records for the artifacts category URI.
 func RecordsSub(uri string) string {
-	const ignore = -1
+	const none = tags.Tag(-1)
 	subs := map[URI]string{
-		advert:       tags.Humanizes(ignore, tags.ForSale),
-		announcement: tags.Humanizes(ignore, tags.Announcement),
-		ansi:         tags.Humanizes(tags.ANSI, ignore),
-		ansiBrand:    tags.Humanizes(tags.ANSI, tags.Logo),
-		ansiBBS:      tags.Humanizes(tags.ANSI, tags.BBS),
-		ansiFTP:      tags.Humanizes(tags.ANSI, tags.Ftp),
-		ansiNfo:      tags.Humanizes(tags.ANSI, tags.Nfo),
-		ansiPack:     tags.Humanizes(tags.ANSI, tags.Pack),
-		bbs:          tags.Humanizes(ignore, tags.BBS),
-		bbsImage:     tags.Humanizes(tags.Image, tags.BBS),
-		bbstro:       tags.Humanizes(tags.DOS, tags.BBS),
-		bbsText:      tags.Humanizes(tags.Text, tags.BBS),
-		console:      tags.Humanizes(tags.Console, ignore),
-		database:     tags.Humanizes(ignore, tags.DataB),
-		demoscene:    tags.Humanizes(ignore, tags.Demo),
-		drama:        tags.Humanizes(ignore, tags.Drama),
-		ftp:          tags.Humanizes(ignore, tags.Ftp),
-		hack:         tags.Humanizes(ignore, tags.GameHack),
+		advert:       none.Humanizes(tags.ForSale),
+		announcement: none.Humanizes(tags.Announcement),
+		ansi:         tags.ANSI.Humanizes(none),
+		ansiBrand:    tags.ANSI.Humanizes(tags.Logo),
+		ansiBBS:      tags.ANSI.Humanizes(tags.BBS),
+		ansiFTP:      tags.ANSI.Humanizes(tags.Ftp),
+		ansiNfo:      tags.ANSI.Humanizes(tags.Nfo),
+		ansiPack:     tags.ANSI.Humanizes(tags.Pack),
+		bbs:          none.Humanizes(tags.BBS),
+		bbsImage:     tags.Image.Humanizes(tags.BBS),
+		bbstro:       tags.DOS.Humanizes(tags.BBS),
+		bbsText:      tags.Text.Humanizes(tags.BBS),
+		console:      tags.Console.Humanizes(none),
+		database:     none.Humanizes(tags.DataB),
+		demoscene:    none.Humanizes(tags.Demo),
+		drama:        none.Humanizes(tags.Drama),
+		ftp:          none.Humanizes(tags.Ftp),
+		hack:         none.Humanizes(tags.GameHack),
 		htm:          uri,
-		howTo:        tags.Humanizes(ignore, tags.Guide),
-		imageFile:    tags.Humanizes(tags.Image, ignore),
-		imagePack:    tags.Humanizes(tags.Image, tags.Pack),
-		installer:    tags.Humanizes(ignore, tags.Install),
-		intro:        tags.Humanizes(ignore, tags.Intro),
-		linux:        tags.Humanizes(tags.Linux, ignore),
-		java:         tags.Humanizes(tags.Java, ignore),
-		jobAdvert:    tags.Humanizes(ignore, tags.Job),
-		macos:        tags.Humanizes(tags.Mac, ignore),
-		msdosPack:    tags.Humanizes(tags.DOS, tags.Pack),
-		music:        tags.Humanizes(tags.Audio, ignore),
-		newsArticle:  tags.Humanizes(ignore, tags.News),
-		nfo:          tags.Humanizes(ignore, tags.Nfo),
-		nfoTool:      tags.Humanizes(ignore, tags.NfoTool),
-		standards:    tags.Humanizes(ignore, tags.Rule),
-		script:       tags.Humanizes(tags.PHP, ignore),
-		introMsdos:   tags.Humanizes(tags.DOS, tags.Intro),
-		introWindows: tags.Humanizes(tags.Windows, tags.Intro),
-		magazine:     tags.Humanizes(ignore, tags.Mag),
-		msdos:        tags.Humanizes(tags.DOS, ignore),
-		pcb:          tags.Humanizes(tags.PCB, ignore),
-		pcbPPE:       tags.Humanizes(tags.PCB, tags.Tool),
-		pcbText:      tags.Humanizes(tags.PCB, tags.BBS),
-		pdf:          tags.Humanizes(tags.PDF, ignore),
-		proof:        tags.Humanizes(ignore, tags.Proof),
-		restrict:     tags.Humanizes(ignore, tags.Restrict),
-		takedown:     tags.Humanizes(ignore, tags.Bust),
-		text:         tags.Humanizes(tags.Text, ignore),
-		textAmiga:    tags.Humanizes(tags.TextAmiga, ignore),
-		textApple2:   tags.Humanizes(tags.Text, tags.AppleII),
-		textAtariST:  tags.Humanizes(tags.Text, tags.AtariST),
-		textPack:     tags.Humanizes(tags.Text, tags.Pack),
-		tool:         tags.Humanizes(ignore, tags.Tool),
-		trialCrackme: tags.Humanizes(tags.Windows, tags.Job),
-		video:        tags.Humanizes(tags.Video, ignore),
-		windows:      tags.Humanizes(tags.Windows, ignore),
-		WindowsPack:  tags.Humanizes(tags.Windows, tags.Pack),
+		howTo:        none.Humanizes(tags.Guide),
+		imageFile:    tags.Image.Humanizes(none),
+		imagePack:    tags.Image.Humanizes(tags.Pack),
+		installer:    none.Humanizes(tags.Install),
+		intro:        none.Humanizes(tags.Intro),
+		linux:        tags.Linux.Humanizes(none),
+		java:         tags.Java.Humanizes(none),
+		jobAdvert:    none.Humanizes(tags.Job),
+		macos:        tags.Mac.Humanizes(none),
+		msdosPack:    tags.DOS.Humanizes(tags.Pack),
+		music:        tags.Audio.Humanizes(none),
+		newsArticle:  none.Humanizes(tags.News),
+		nfo:          none.Humanizes(tags.Nfo),
+		nfoTool:      none.Humanizes(tags.NfoTool),
+		standards:    none.Humanizes(tags.Rule),
+		script:       tags.PHP.Humanizes(none),
+		introMsdos:   tags.DOS.Humanizes(tags.Intro),
+		introWindows: tags.Windows.Humanizes(tags.Intro),
+		magazine:     none.Humanizes(tags.Mag),
+		msdos:        tags.DOS.Humanizes(none),
+		pcb:          tags.PCB.Humanizes(none),
+		pcbPPE:       tags.PCB.Humanizes(tags.Tool),
+		pcbText:      tags.PCB.Humanizes(tags.BBS),
+		pdf:          tags.PDF.Humanizes(none),
+		proof:        none.Humanizes(tags.Proof),
+		restrict:     none.Humanizes(tags.Restrict),
+		takedown:     none.Humanizes(tags.Bust),
+		text:         tags.Text.Humanizes(none),
+		textAmiga:    tags.TextAmiga.Humanizes(none),
+		textApple2:   tags.Text.Humanizes(tags.AppleII),
+		textAtariST:  tags.Text.Humanizes(tags.AtariST),
+		textPack:     tags.Text.Humanizes(tags.Pack),
+		tool:         none.Humanizes(tags.Tool),
+		trialCrackme: tags.Windows.Humanizes(tags.Job),
+		video:        tags.Video.Humanizes(none),
+		windows:      tags.Windows.Humanizes(none),
+		WindowsPack:  tags.Windows.Humanizes(tags.Pack),
 	}
 	if value, found := subs[Match(uri)]; found {
 		return value
@@ -302,235 +318,229 @@ func RecordsSub(uri string) string {
 	return "unknown uri"
 }
 
+type queryFunc func(context.Context, boil.ContextExecutor, int, int) (models.FileSlice, error)
+
+var (
+	a model.Artifacts
+
+	// Static dispatch map initialized once at startup
+	recordDispatch = map[URI]queryFunc{
+		ForApproval: model.ByForApproval,
+		Deletions:   a.ByHidden,
+		Unwanted:    a.ByUnwanted,
+		NewUploads:  a.ByKey,
+		NewUpdates:  a.ByUpdated,
+		Oldest:      a.ByOldest,
+		Newest:      a.ByNewest,
+	}
+)
+
 // Records returns the records for the artifacts category URI.
 // Note that the record statistics and counts get cached.
 func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	const format = "file slice records: %w"
-	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf(format, err)
+	if exec == nil {
+		return nil, errors.New("file slice records: exec executor cannot be nil")
 	}
 
-	switch Match(uri) { //nolint:exhaustive
-	// pulldown editor menu matches
-	case ForApproval:
-		return model.ByForApproval(ctx, exec, page, limit)
-	case Deletions:
-		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-		return r.ByHidden(ctx, exec, page, limit)
-	case Unwanted:
-		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-		return r.ByUnwanted(ctx, exec, page, limit)
-	// pulldown menu matches
-	case NewUploads:
-		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-		return r.ByKey(ctx, exec, page, limit)
-	case NewUpdates:
-		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-		return r.ByUpdated(ctx, exec, page, limit)
-	case Oldest:
-		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-		return r.ByOldest(ctx, exec, page, limit)
-	case Newest:
-		r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-		return r.ByNewest(ctx, exec, page, limit)
+	if fn, ok := recordDispatch[Match(uri)]; ok {
+		return fn(ctx, exec, page, limit)
 	}
 
-	return recordsZ(ctx, exec, uri, page, limit)
+	return records00(ctx, exec, uri, page, limit)
 }
 
-func recordsZ(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
+func records00(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) { //nolint:exhaustive
 	case advert:
-		r := model.Advert{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Advert
 		return r.List(ctx, exec, page, limit)
 	case announcement:
-		r := model.Announcement{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Announcement
 		return r.List(ctx, exec, page, limit)
 	case ansi:
-		r := model.Ansi{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Ansi
 		return r.List(ctx, exec, page, limit)
 	case ansiBrand:
-		r := model.AnsiBrand{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.AnsiBrand
 		return r.List(ctx, exec, page, limit)
 	case ansiBBS:
-		r := model.AnsiBBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.AnsiBBS
 		return r.List(ctx, exec, page, limit)
 	case ansiFTP:
-		r := model.AnsiFTP{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.AnsiFTP
 		return r.List(ctx, exec, page, limit)
 	case ansiNfo:
-		r := model.AnsiNfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.AnsiNfo
 		return r.List(ctx, exec, page, limit)
 	case ansiPack:
-		r := model.AnsiPack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.AnsiPack
 		return r.List(ctx, exec, page, limit)
 	case bbs:
-		r := model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.BBS
 		return r.List(ctx, exec, page, limit)
 	case bbsImage:
-		r := model.BBSImage{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.BBSImage
 		return r.List(ctx, exec, page, limit)
 	case bbstro:
-		r := model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.BBStro
 		return r.List(ctx, exec, page, limit)
 	case bbsText:
-		r := model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.BBSText
 		return r.List(ctx, exec, page, limit)
 	}
-
-	return records0(ctx, exec, uri, page, limit)
+	return records11(ctx, exec, uri, page, limit)
 }
 
-func records0(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
+func records11(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) { //nolint:exhaustive
 	case database:
-		r := model.Database{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Database
 		return r.List(ctx, exec, page, limit)
 	case demoscene:
-		r := model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Demoscene
 		return r.List(ctx, exec, page, limit)
 	case drama:
-		r := model.Drama{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Drama
 		return r.List(ctx, exec, page, limit)
 	case ftp:
-		r := model.FTP{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.FTP
 		return r.List(ctx, exec, page, limit)
 	case hack:
-		r := model.Hack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Hack
 		return r.List(ctx, exec, page, limit)
 	case htm:
-		r := model.HTML{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.HTML
 		return r.List(ctx, exec, page, limit)
 	case howTo:
-		r := model.HowTo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.HowTo
 		return r.List(ctx, exec, page, limit)
 	case imageFile:
-		r := model.Image{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Image
 		return r.List(ctx, exec, page, limit)
 	case imagePack:
-		r := model.ImagePack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.ImagePack
 		return r.List(ctx, exec, page, limit)
 	case installer:
-		r := model.Installer{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Installer
 		return r.List(ctx, exec, page, limit)
 	case intro:
-		r := model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Intro
 		return r.List(ctx, exec, page, limit)
 	case linux:
-		r := model.Linux{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Linux
 		return r.List(ctx, exec, page, limit)
 	case java:
-		r := model.Java{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Java
 		return r.List(ctx, exec, page, limit)
 	case jobAdvert:
-		r := model.JobAdvert{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.JobAdvert
 		return r.List(ctx, exec, page, limit)
 	}
 
-	return records1(ctx, exec, uri, page, limit)
+	return records22(ctx, exec, uri, page, limit)
 }
 
-func records1(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
+func records22(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) { //nolint:exhaustive
 	case macos:
-		r := model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Macos
 		return r.List(ctx, exec, page, limit)
 	case msdosPack:
-		r := model.MsDosPack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.MsDosPack
 		return r.List(ctx, exec, page, limit)
 	case music:
-		r := model.Music{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Music
 		return r.List(ctx, exec, page, limit)
 	case newsArticle:
-		r := model.NewsArticle{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.NewsArticle
 		return r.List(ctx, exec, page, limit)
 	case nfo:
-		r := model.Nfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Nfo
 		return r.List(ctx, exec, page, limit)
 	case nfoTool:
-		r := model.NfoTool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.NfoTool
 		return r.List(ctx, exec, page, limit)
 	case standards:
-		r := model.Standard{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Standard
 		return r.List(ctx, exec, page, limit)
 	case script:
-		r := model.Script{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Script
 		return r.List(ctx, exec, page, limit)
 	case introMsdos:
-		r := model.IntroMsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.IntroMsDos
 		return r.List(ctx, exec, page, limit)
 	case introWindows:
-		r := model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.IntroWindows
 		return r.List(ctx, exec, page, limit)
 	case magazine:
-		r := model.Magazine{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Magazine
 		return r.List(ctx, exec, page, limit)
 	case msdos:
-		r := model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.MsDos
 		return r.List(ctx, exec, page, limit)
 	case pcb:
-		r := model.PCBoard{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.PCBoard
 		return r.List(ctx, exec, page, limit)
 	case pcbPPE:
-		r := model.PCBoardPPE{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.PCBoardPPE
 		return r.List(ctx, exec, page, limit)
 	case pcbText:
-		r := model.PCBoardText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.PCBoardText
 		return r.List(ctx, exec, page, limit)
 	case pdf:
-		r := model.PDF{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.PDF
 		return r.List(ctx, exec, page, limit)
 	}
 
-	return records2(ctx, exec, uri, page, limit)
+	return records33(ctx, exec, uri, page, limit)
 }
 
-func records2(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
+func records33(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
 	switch Match(uri) { //nolint:exhaustive
 	case proof:
-		r := model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Proof
 		return r.List(ctx, exec, page, limit)
 	case restrict:
-		r := model.Restrict{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Restrict
 		return r.List(ctx, exec, page, limit)
 	case takedown:
-		r := model.Takedown{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Takedown
 		return r.List(ctx, exec, page, limit)
 	case text:
-		r := model.Text{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Text
 		return r.List(ctx, exec, page, limit)
 	case textAmiga:
-		r := model.TextAmiga{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.TextAmiga
 		return r.List(ctx, exec, page, limit)
 	case textApple2:
-		r := model.TextApple2{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.TextApple2
 		return r.List(ctx, exec, page, limit)
 	case textAtariST:
-		r := model.TextAtariST{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.TextAtariST
 		return r.List(ctx, exec, page, limit)
 	case textPack:
-		r := model.TextPack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.TextPack
 		return r.List(ctx, exec, page, limit)
 	case tool:
-		r := model.Tool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Tool
 		return r.List(ctx, exec, page, limit)
 	case trialCrackme:
-		r := model.TrialCrackme{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.TrialCrackme
 		return r.List(ctx, exec, page, limit)
 	case video:
-		r := model.Video{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Video
 		return r.List(ctx, exec, page, limit)
 	case windows:
-		r := model.Windows{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Windows
 		return r.List(ctx, exec, page, limit)
 	case WindowsPack:
-		r := model.WindowsPack{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.WindowsPack
 		return r.List(ctx, exec, page, limit)
 	case Sensenstahl:
-		r := model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.BBStro
 		return r.Sensenstahl(ctx, exec, page, limit)
 	case console:
-		r := model.Console{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
+		var r model.Console
 		return r.List(ctx, exec, page, limit)
 	default:
 		const format = "artifacts category %s: %w"
@@ -595,9 +605,9 @@ type Era struct {
 //   - 1. 1980 - 1982
 //   - 2. 1980 - 1990
 //   - 3. 1981 - 1985
-func (s *Stats) SortYear() []Era {
+func (s *Stats) SortYear() [20]Era {
 	items := s.eras()
-	sort.Slice(items, func(i, j int) bool {
+	sort.Slice(items[:], func(i, j int) bool {
 		if items[i].MinYear == items[j].MinYear {
 			return items[i].MaxYear < items[j].MaxYear
 		}
@@ -615,9 +625,9 @@ type Item struct {
 }
 
 // SortByte returns the Items sorted from highest to lowest bytes.
-func (s *Stats) SortByte() []Item {
+func (s *Stats) SortByte() [21]Item {
 	items := s.items()
-	sort.Slice(items, func(i, j int) bool {
+	sort.Slice(items[:], func(i, j int) bool {
 		if items[i].Bytes == items[j].Bytes {
 			return items[i].Count > items[j].Count
 		}
@@ -628,9 +638,9 @@ func (s *Stats) SortByte() []Item {
 }
 
 // SortCount returns the Items sorted by highest to lowest counts.
-func (s *Stats) SortCount() []Item {
+func (s *Stats) SortCount() [21]Item {
 	items := s.items()
-	sort.Slice(items, func(i, j int) bool {
+	sort.Slice(items[:], func(i, j int) bool {
 		if items[i].Count == items[j].Count {
 			return items[i].Bytes > items[j].Bytes
 		}
@@ -641,9 +651,9 @@ func (s *Stats) SortCount() []Item {
 }
 
 // SortName returns the Items sorted alphabetically by their name.
-func (s *Stats) SortName() []Item {
+func (s *Stats) SortName() [21]Item {
 	items := s.items()
-	sort.Slice(items, func(i, j int) bool {
+	sort.Slice(items[:], func(i, j int) bool {
 		return items[i].Name < items[j].Name
 	})
 	return items
@@ -657,95 +667,67 @@ func Statistics() Stats {
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	const format = "category get stats %s: %w"
-	if err := nils.Check(ctx, exec); err != nil {
-		return fmt.Errorf(format, "argument", err)
+	if exec == nil {
+		return fmt.Errorf(format, "exec", model.ErrDB)
 	}
 
-	v := reflect.ValueOf(exec)
-	switch v.Kind() { //nolint:exhaustive
-	case reflect.Pointer, reflect.Interface:
-		if v.IsNil() {
-			return model.ErrDB
+	g, ctx := errgroup.WithContext(ctx)
+
+	// fetch record
+	g.Go(func() error {
+		if err := s.Record.Public(ctx, exec); err != nil {
+			return fmt.Errorf(format, "record", err)
 		}
-	}
-	if err := s.Record.Public(ctx, exec); err != nil {
-		return fmt.Errorf(format, "record", err)
-	}
-	if err := s.Ansi.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "ansi", err)
-	}
-	if err := s.AnsiBBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, " ansi bbs", err)
-	}
-	if err := s.BBS.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "bbs", err)
-	}
-	if err := s.BBSText.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "bbs text", err)
-	}
-	if err := s.BBStro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "bbstro", err)
-	}
-	if err := s.Console.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "console", err)
-	}
-	if err := s.MsDos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "ms-dos", err)
-	}
-	if err := s.Intro.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "intro", err)
-	}
-	if err := s.IntroD.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "intro ms-dos", err)
-	}
-	if err := s.IntroW.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "intro windows", err)
-	}
-	if err := s.Installer.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "installer", err)
-	}
-	if err := s.Java.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "java", err)
-	}
-	if err := s.Linux.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "linux", err)
-	}
-	if err := s.Demoscene.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "demoscene", err)
+		return nil
+	})
+
+	// concurrent, individual category stats
+	stats := []struct {
+		name string
+		fn   func(context.Context, boil.ContextExecutor) error
+	}{
+		{"ansi", s.Ansi.Stat},
+		{"ansi bbs", s.AnsiBBS.Stat},
+		{"bbs", s.BBS.Stat},
+		{"bbs text", s.BBSText.Stat},
+		{"bbstro", s.BBStro.Stat},
+		{"console", s.Console.Stat},
+		{"ms-dos", s.MsDos.Stat},
+		{"intro", s.Intro.Stat},
+		{"intro ms-dos", s.IntroD.Stat},
+		{"intro windows", s.IntroW.Stat},
+		{"installer", s.Installer.Stat},
+		{"java", s.Java.Stat},
+		{"linux", s.Linux.Stat},
+		{"demoscene", s.Demoscene.Stat},
+		{"macos", s.Macos.Stat},
+		{"magazine", s.Magazine.Stat},
+		{"nfo", s.Nfo.Stat},
+		{"nfo tool", s.NfoTool.Stat},
+		{"proof", s.Proof.Stat},
+		{"script", s.Script.Stat},
+		{"text", s.Text.Stat},
+		{"windows", s.Windows.Stat},
 	}
 
-	return s.get(ctx, exec)
+	for _, st := range stats {
+		g.Go(func() error {
+			if err := st.fn(ctx, exec); err != nil {
+				return fmt.Errorf(format, st.name, err)
+			}
+			return nil
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return fmt.Errorf(format, "wait", err)
+	}
+
+	return nil
 }
 
-func (s *Stats) get(ctx context.Context, exec boil.ContextExecutor) error {
-	const format = "category get %s stat: %w"
-	if err := s.Macos.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "macos", err)
-	}
-	if err := s.Magazine.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "magazine", err)
-	}
-	if err := s.Nfo.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "nfo", err)
-	}
-	if err := s.NfoTool.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "nfo tool", err)
-	}
-	if err := s.Proof.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "proof", err)
-	}
-	if err := s.Script.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "script", err)
-	}
-	if err := s.Text.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, "text", err)
-	}
-
-	return s.Windows.Stat(ctx, exec)
-}
-
-func (s *Stats) eras() []Era {
-	return []Era{
+func (s *Stats) eras() [20]Era {
+	return [...]Era{
 		{s.Ansi.String(), s.Ansi.MinYear, s.Ansi.MaxYear},
 		{s.AnsiBBS.String(), s.AnsiBBS.MinYear, s.AnsiBBS.MaxYear},
 		{s.BBS.String(), s.BBS.MinYear, s.BBS.MaxYear},
@@ -770,8 +752,8 @@ func (s *Stats) eras() []Era {
 	}
 }
 
-func (s *Stats) items() []Item {
-	return []Item{
+func (s *Stats) items() [21]Item {
+	return [...]Item{
 		{s.Ansi.String(), s.Ansi.Bytes, s.Ansi.Count},
 		{s.AnsiBBS.String(), s.AnsiBBS.Bytes, s.AnsiBBS.Count},
 		{s.BBS.String(), s.BBS.Bytes, s.BBS.Count},
@@ -798,29 +780,5 @@ func (s *Stats) items() []Item {
 
 // newStats returns a new Stats struct initialized with zero values.
 func newStats() Stats {
-	return Stats{
-		IntroW:    model.IntroWindows{Cache: time.Time{}, Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Record:    model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Ansi:      model.Ansi{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		AnsiBBS:   model.AnsiBBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBS:       model.BBS{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBSText:   model.BBSText{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		BBStro:    model.BBStro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Console:   model.Console{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Demoscene: model.Demoscene{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		MsDos:     model.MsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Intro:     model.Intro{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		IntroD:    model.IntroMsDos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Installer: model.Installer{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Java:      model.Java{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Linux:     model.Linux{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Magazine:  model.Magazine{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Macos:     model.Macos{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Nfo:       model.Nfo{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		NfoTool:   model.NfoTool{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Proof:     model.Proof{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Script:    model.Script{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Text:      model.Text{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-		Windows:   model.Windows{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0},
-	}
+	return Stats{}
 }

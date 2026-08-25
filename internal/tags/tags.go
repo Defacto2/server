@@ -103,52 +103,50 @@ const (
 )
 
 // List all the tags.
-func List() []Tag {
-	return []Tag{
-		Announcement,
-		ANSIEditor,
-		AppleII,
-		AtariST,
-		BBS,
-		Logo,
-		Bust,
-		Drama,
-		Rule,
-		Tool,
-		Intro,
-		Demo,
-		ForSale,
-		Ftp,
-		GameHack,
-		Job,
-		Guide,
-		Interview,
-		Mag,
-		News,
-		Nfo,
-		NfoTool,
-		Pack,
-		Proof,
-		Restrict,
-		Install,
-		ANSI,
-		Audio,
-		DataB,
-		DOS,
-		Markup,
-		Image,
-		Java,
-		Linux,
-		Mac,
-		PCB,
-		PDF,
-		PHP,
-		Text,
-		TextAmiga,
-		Video,
-		Windows,
-		Console,
-	}
+var List = [...]Tag{
+	Announcement,
+	ANSIEditor,
+	AppleII,
+	AtariST,
+	BBS,
+	Logo,
+	Bust,
+	Drama,
+	Rule,
+	Tool,
+	Intro,
+	Demo,
+	ForSale,
+	Ftp,
+	GameHack,
+	Job,
+	Guide,
+	Interview,
+	Mag,
+	News,
+	Nfo,
+	NfoTool,
+	Pack,
+	Proof,
+	Restrict,
+	Install,
+	ANSI,
+	Audio,
+	DataB,
+	DOS,
+	Markup,
+	Image,
+	Java,
+	Linux,
+	Mac,
+	PCB,
+	PDF,
+	PHP,
+	Text,
+	TextAmiga,
+	Video,
+	Windows,
+	Console,
 }
 
 // Humanize returns the human readable name of the platform and section tags combined.
@@ -159,55 +157,64 @@ func List() []Tag {
 //   - A singular example: "a Windows intro"
 //   - A plural example: "Windows intros"
 func Humanize(platform, section Tag) string {
-	if s := humChecks(platform, section); s != "" {
+	if s := check(platform, section); s != "" {
 		return s
 	}
+
 	if ppe := platform == PCB && section == Tool; ppe {
 		return "a PCBoard PPE or BBS application"
 	}
-	if s := sections(platform, section); s != "" {
+
+	if s := section.sections(platform); s != "" {
 		return s
 	}
-	if s := platforms(platform, section); s != "" {
+	if s := platform.platforms(section); s != "" {
 		return s
 	}
+
 	return genericReturn(platform, section)
 }
 
-func humChecks(platform, section Tag) string {
-	if !IsPlatform(platform.String()) {
-		return fmt.Sprintf("unknown platform tag: %q", platform)
+func check(platform, section Tag) string {
+	name := platform.String()
+	if !IsPlatform(name) {
+		return "unknown platform tag: " + name
 	}
-	if !IsCategory(section.String()) {
-		return fmt.Sprintf("unknown section tag: %q", section)
+
+	name = section.String()
+	if !IsCategory(name) {
+		return "unknown section tag: " + name
 	}
+
 	return ""
 }
 
 func genericReturn(platform, section Tag) string {
-	return fmt.Sprintf("%s %s %s", Determiner()[platform], Names()[platform], Names()[section])
+	return Determiner()[platform] + " " + Names()[platform] + " " + Names()[section]
 }
 
 // sections runs first and always returns a string.
 // Meaning it will always humanize any matched sections or categories,
 // regardless of the platform.
-func sections(platform, section Tag) string {
-	switch section { //nolint:exhaustive
+//
+// The t Tag should always be a section.
+func (t Tag) sections(platform Tag) string {
+	switch t {
 	case Bust:
-		return humBust(platform)
+		return platform.humanizeBust()
 	case News:
-		return humNews(platform)
+		return platform.humanizeNews()
 	case Restrict:
-		return humRestrict(platform)
+		return platform.humanizeRestrict()
 	default:
 		return ""
 	}
 }
 
-// humBust humanizes busts and takedown topics.
-func humBust(platform Tag) string {
+// humanizeBust humanizes busts and takedown topics.
+func (t Tag) humanizeBust() string {
 	const about = "about a bust or takedown"
-	switch platform { //nolint:exhaustive
+	switch t {
 	case Audio:
 		return "audio " + about
 	case Video:
@@ -217,14 +224,14 @@ func humBust(platform Tag) string {
 	case TextAmiga, Text:
 		return "bust or takedown text"
 	default:
-		return fmt.Sprintf("a %s takedown notice", Names()[platform])
+		return "a " + Names()[t] + " takedown notice"
 	}
 }
 
 // humNews humanizes news, mainstream reports, newpaper type-outs, etc.
-func humNews(platform Tag) string {
+func (t Tag) humanizeNews() string {
 	const news = "an unauthorized reprint of a newspaper article"
-	switch platform { //nolint:exhaustive
+	switch t {
 	case Console:
 		return "a news article about consoles"
 	case Image:
@@ -238,14 +245,14 @@ func humNews(platform Tag) string {
 	case TextAmiga:
 		return news + " as an amiga textfile"
 	default:
-		return fmt.Sprintf("%s %s from a news outlet", Determiner()[platform], Names()[platform])
+		return Determiner()[t] + " " + Names()[t] + " from a news outlet"
 	}
 }
 
 // humRetrict humanizes restricted documents, Scene insider files, logfiles,
 // and internal documentation that were never intended to be public.
-func humRestrict(platform Tag) string {
-	switch platform { //nolint:exhaustive
+func (t Tag) humanizeRestrict() string {
+	switch t {
 	case ANSI:
 		return "an insider ansi textfile"
 	case Text:
@@ -253,46 +260,48 @@ func humRestrict(platform Tag) string {
 	case TextAmiga:
 		return "an insider amiga/console textfile"
 	default:
-		return fmt.Sprintf("an insider %s file", Names()[platform])
+		return "an insider " + Names()[t] + " file"
 	}
 }
 
 // platform runs second, after section and will either return a string or an empty value.
 // Meaning it only humanizes matched sections or categories of the platform.
-func platforms(platform, section Tag) string {
-	switch platform { //nolint:exhaustive
+//
+// The t Tag should always be a platform.
+func (t Tag) platforms(section Tag) string {
+	switch t {
 	case ANSI:
-		return humAnsi(platform, section)
+		return section.humanizeANSI(t)
 	case Audio:
-		return humAudio(platform, section)
+		return section.humanizeAudio(t)
 	case Console:
-		return humConsole(platform, section)
+		return section.humanizeConsole(t)
 	case DataB:
-		return humDataB(section)
+		return section.humanizeDataB()
 	case DOS:
-		return humDOS(platform, section)
+		return section.humanizeDOS(t)
 	case Markup:
-		return fmt.Sprintf("%s %s in HTML", Determiner()[section], Names()[section])
+		return Determiner()[section] + " " + Names()[section] + " in HTML"
 	case Image:
-		return humImage(platform, section)
+		return section.humanizeImage(t)
 	case PDF:
 		return "a PDF document about " + Names()[section]
 	case Text:
-		return humText(platform, section)
+		return section.humanizeText(t)
 	case TextAmiga:
-		return humTextAmiga(platform, section)
+		return section.humanizeTextAmiga(t)
 	case Video:
-		return humVideo(section)
+		return section.humanizeVideo()
 	case Windows:
-		return humWindows(platform, section)
+		return section.humanizeWindows(t)
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(t, section)
 	}
 }
 
-// humAnsi humanizes textfiles encoded as ANSI.
-func humAnsi(platform, section Tag) string {
-	switch section { //nolint:exhaustive
+// humanizeANSI humanizes textfiles encoded as ANSI.
+func (t Tag) humanizeANSI(platform Tag) string {
+	switch t {
 	case BBS:
 		return "an ansi BBS advert"
 	case Drama:
@@ -306,23 +315,23 @@ func humAnsi(platform, section Tag) string {
 	case Pack:
 		return "a filepack of ansi files"
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(platform, t)
 	}
 }
 
-// humAudio humanizes audio files, sound samples, music, voice recordings.
-func humAudio(platform, section Tag) string {
-	switch section { //nolint:exhaustive
+// humanizeAudio humanizes audio files, sound samples, music, voice recordings.
+func (t Tag) humanizeAudio(platform Tag) string {
+	switch t {
 	case Intro:
 		return "chiptune or scene music"
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(platform, t)
 	}
 }
 
-// humConsole humanizes a file for a video game console.
-func humConsole(platform, section Tag) string {
-	switch section { //nolint:exhaustive
+// humanizeConsole humanizes a file for a video game console.
+func (t Tag) humanizeConsole(platform Tag) string {
+	switch t {
 	case BBS:
 		return "a BBS ad on console"
 	case Demo:
@@ -346,24 +355,24 @@ func humConsole(platform, section Tag) string {
 	case Tool:
 		return "a console utility"
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(platform, t)
 	}
 }
 
-// humDataB humanizes a database file.
-func humDataB(section Tag) string {
-	switch section { //nolint:exhaustive
+// humanizeDataB humanizes a database file.
+func (t Tag) humanizeDataB() string {
+	switch t {
 	case Nfo:
 		return "a database of releases"
 	default:
-		return fmt.Sprintf("%s %s database", Determiner()[section], Names()[section])
+		return Determiner()[t] + " " + Names()[t] + " database"
 	}
 }
 
-// humDOS humanizes files and applications that are about or intended for
+// humanizeDOS humanizes files and applications that are about or intended for
 // Microsoft's MS-DOS operating system.
-func humDOS(platform, section Tag) string {
-	switch section { //nolint:exhaustive
+func (t Tag) humanizeDOS(platform Tag) string {
+	switch t {
 	case AppleII:
 		return "a " + msDos + " tool to work with the Apple II"
 	case BBS:
@@ -385,13 +394,13 @@ func humDOS(platform, section Tag) string {
 	case Pack:
 		return "a filepack of " + msDos + " programs"
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(platform, t)
 	}
 }
 
-// humImage humanizes sceenshots, scanned images, pictures and drawings, and photos.
-func humImage(platform, section Tag) string {
-	switch section { //nolint:exhaustive
+// humanizeImage humanizes sceenshots, scanned images, pictures and drawings, and photos.
+func (t Tag) humanizeImage(platform Tag) string {
+	switch t {
 	case AppleII:
 		return "an Apple II screen"
 	case BBS:
@@ -405,13 +414,13 @@ func humImage(platform, section Tag) string {
 	case Proof:
 		return "a proof of release photo"
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(platform, t)
 	}
 }
 
-// humText humanizes textfiles, sometimes called ascii text, plain text, or raw text.
-func humText(platform, section Tag) string {
-	switch section { //nolint:exhaustive
+// humanizeText humanizes textfiles, sometimes called ascii text, plain text, or raw text.
+func (t Tag) humanizeText(platform Tag) string {
+	switch t {
 	case AtariST:
 		return "an Atari ST textfile"
 	case AppleII:
@@ -435,19 +444,19 @@ func humText(platform, section Tag) string {
 	case Pack:
 		return "a filepack of textfiles"
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(platform, t)
 	}
 }
 
-// humTextAmiga humanizes textfiles, sometimes called ascii text, plain text, or raw text.
+// humanizeTextAmiga humanizes textfiles, sometimes called ascii text, plain text, or raw text.
 // However, these use the more limited Latin-1 text encoding, aka ISO/IEC 8859-1.
 //
 // These texts are displayed using a unique Topaz font that originates
 // on the Commodore Amiga microcomputer platform.
-func humTextAmiga(platform, section Tag) string {
+func (t Tag) humanizeTextAmiga(platform Tag) string {
 	const use = "using amiga text"
 	const the = "the amiga or a console"
-	switch section { //nolint:exhaustive
+	switch t { //nolint:exhaustive
 	case Announcement:
 		return "an announcement about the " + the
 	case BBS:
@@ -467,25 +476,25 @@ func humTextAmiga(platform, section Tag) string {
 	case Nfo:
 		return "an amiga or console release textfile"
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(platform, t)
 	}
 }
 
-// humVideo humanizes animations and video captures or recordings.
-func humVideo(section Tag) string {
-	switch section { //nolint:exhaustive
+// humanizeVideo humanizes animations and video captures or recordings.
+func (t Tag) humanizeVideo() string {
+	switch t {
 	case ForSale, Logo, Intro:
 		return "a bumper video"
 	}
-	return fmt.Sprintf("%s %s video", Determiner()[section], Names()[section])
+	return Determiner()[t] + " " + Names()[t] + " video"
 }
 
-// humWindows humanizes files and applications that are about or intended for
+// humanizeWindows humanizes files and applications that are about or intended for
 // Microsoft's Windows operating system.
 //
 // There is no acknowledgement of the many different Windows generations or CPU platforms.
-func humWindows(platform, section Tag) string {
-	switch section { //nolint:exhaustive
+func (t Tag) humanizeWindows(platform Tag) string {
+	switch t { //nolint:exhaustive
 	case Demo:
 		return "a demo on Windows"
 	case Install:
@@ -497,7 +506,7 @@ func humWindows(platform, section Tag) string {
 	case Pack:
 		return "a filepack of Windows programs"
 	default:
-		return genericReturn(platform, section)
+		return genericReturn(platform, t)
 	}
 }
 
@@ -507,8 +516,8 @@ func humWindows(platform, section Tag) string {
 //   - A singular example: "a Windows intro"
 //
 // For singular artifacts and items, use [Humanize].
-func Humanizes(platform, section Tag) string {
-	switch platform { //nolint:exhaustive
+func (t Tag) Humanizes(section Tag) string {
+	switch t {
 	case ANSI:
 		return pluralANSI(section)
 	case Audio:
@@ -542,7 +551,7 @@ func Humanizes(platform, section Tag) string {
 	case Windows:
 		return pluralWindows(section)
 	}
-	return genericPlural(platform, section)
+	return genericPlural(t, section)
 }
 
 func genericPlural(platform, section Tag) string {
@@ -854,7 +863,7 @@ func IsTag(name string) bool {
 var nameToTag = func() map[string]Tag {
 	const size = 44
 	m := make(map[string]Tag, size)
-	for _, tag := range List() {
+	for _, tag := range List {
 		m[strings.ToLower(tag.String())] = tag
 	}
 	return m

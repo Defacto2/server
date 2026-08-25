@@ -3,9 +3,20 @@ package model_test
 import (
 	"testing"
 
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
+
+// TestGetColumns verifies the Columns function returns expected column selections.
+func TestGetColumns(t *testing.T) {
+	cols := model.GetColumns()
+	be.Equal(t, 4, len(cols))
+	be.Equal(t, postgres.SumSize, cols[0])
+	be.Equal(t, postgres.TotalCnt, cols[1])
+	be.Equal(t, postgres.MinYear, cols[2])
+	be.Equal(t, postgres.MaxYear, cols[3])
+}
 
 // Test that Ansi.Stat() includes soft-delete filter.
 func TestAnsiStatIncludesSoftDeleteFilter(t *testing.T) {

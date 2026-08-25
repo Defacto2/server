@@ -77,7 +77,7 @@ func getTags(ctx context.Context, sl *slog.Logger, db *sql.DB, g *echo.Group) *e
 	hCategory := func(c *echo.Context) error {
 		return Category(ctx, sl, c, db)
 	}
-	for tag := range slices.Values(tags.List()) {
+	for tag := range slices.Values(tags.List[:]) {
 		if tags.IsCategory(tag.String()) {
 			category.GET(fmt.Sprintf("/%s:offset", tag), hCategory)
 			category.GET(fmt.Sprintf("/%s", tag), hCategory)
@@ -87,7 +87,7 @@ func getTags(ctx context.Context, sl *slog.Logger, db *sql.DB, g *echo.Group) *e
 	hPlatform := func(c *echo.Context) error {
 		return Platform(ctx, sl, c, db)
 	}
-	for tag := range slices.Values(tags.List()) {
+	for tag := range slices.Values(tags.List[:]) {
 		if tags.IsPlatform(tag.String()) {
 			platform.GET(fmt.Sprintf("/%s:offset", tag), hPlatform)
 			platform.GET(fmt.Sprintf("/%s", tag), hPlatform)

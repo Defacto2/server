@@ -1220,14 +1220,13 @@ func TagsAPI(ctx context.Context, c *echo.Context, db *sql.DB, category, platfor
 		return c.JSON(http.StatusOK, i)
 	}
 
-	items := tags.List()
 	infos := tags.Infos()
-	if len(items) == 0 || !category && !platform {
+	if len(tags.List) == 0 || !category && !platform {
 		return c.JSON(http.StatusOK, []tagAPI{})
 	}
 
-	results := make([]tagAPI, 0, len(items))
-	for _, tag := range items {
+	results := make([]tagAPI, 0, len(tags.List))
+	for _, tag := range tags.List {
 		slug := tag.String()
 		title := tags.NameByURI(slug)
 		switch {
