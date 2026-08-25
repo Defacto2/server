@@ -147,8 +147,7 @@ func Configured(name string, value any) string {
 	}
 
 	// toggles
-	switch v := value.(type) {
-	case bool:
+	if v, ok := value.(bool); ok {
 		return fmt.Sprintf("%s is %t", s, v)
 	}
 
@@ -225,27 +224,6 @@ func (c Config) Configurations(sl *slog.Logger) {
 		// default log output
 		sl.Info(msg, slog.Any(key, fieldValue))
 	}
-}
-
-// googleIDs uses vague formatting to mask the configuration so it is not printed or logged.
-func (c Config) googleIDs(sl *slog.Logger, key string) {
-	if sl == nil {
-		return
-	}
-
-	accounts := c.GoogleAccounts
-	helper, ok := any(accounts).(Helper)
-	if !ok {
-		return
-	}
-	tip := helper.Help()
-	if tip == "" {
-		return
-	}
-
-	const name = "GoogleAccounts"
-	msg := Configured(name, accounts.String()) + ":"
-	sl.Info(msg, slog.Any(key, mask), slog.String("tip", tip))
 }
 
 // Names returns a list of the field names in the Config struct.
@@ -344,6 +322,27 @@ func (c Config) addresses(sl *slog.Logger) error {
 	}
 
 	return nil
+}
+
+// googleIDs uses vague formatting to mask the configuration so it is not printed or logged.
+func (c Config) googleIDs(sl *slog.Logger, key string) {
+	if sl == nil {
+		return
+	}
+
+	accounts := c.GoogleAccounts
+	helper, ok := any(accounts).(Helper)
+	if !ok {
+		return
+	}
+	tip := helper.Help()
+	if tip == "" {
+		return
+	}
+
+	const name = "GoogleAccounts"
+	msg := Configured(name, accounts.String()) + ":"
+	sl.Info(msg, slog.Any(key, mask), slog.String("tip", tip))
 }
 
 // StaticThumb returns the path to the thumbnail directory.

@@ -237,7 +237,7 @@ func (got *DemozooLink) ArchiveContent(
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	files, err := archive.List(ctx, src, got.Filename)
+	files, err := archive.Lists(ctx, src)
 	if err != nil {
 		sl.Info(msg+" caused an error",
 			slog.String("source", src), slog.String("filename", got.Filename), slog.Any("error", err))
@@ -472,7 +472,7 @@ func (got *PouetLink) ArchiveContent(
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
-	files, err := archive.List(ctx, src, got.Filename)
+	files, err := archive.Lists(ctx, src)
 	if err != nil {
 		sl.Info(msg+" list caused an error",
 			slog.String("src", src), slog.String("filename", got.Filename), slog.Any("error", err))

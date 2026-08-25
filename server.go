@@ -291,7 +291,10 @@ func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *h
 		Brand:       brand,
 		Environment: envConfig,
 		RecordCount: 0,
-		TidbitIndex: fulltext.Tidbits{},
+		TidbitIndex: fulltext.Tidbits{
+			TotalDocs:  0,
+			TotalTerms: 0,
+		},
 	}
 	if c.Version == "" {
 		c.Version = flags.VersionCommit("")

@@ -143,7 +143,6 @@ func TestReArchiveImplode(t *testing.T) {
 	}
 
 	f1, err := os.Open(src)
-	defer f1.Close()
 	if err != nil {
 		t.Error(err)
 		return
@@ -171,9 +170,13 @@ func TestReArchiveImplode(t *testing.T) {
 
 	name := dst.Join(newfile + ".zip")
 	f2, got := os.Open(name)
-	defer f2.Close()
 	be.Err(t, got, nil)
 
 	sign = magicnumber.Find(f2)
 	be.Equal(t, magicnumber.PKWAREZip, sign)
+
+	t.Cleanup(func() {
+		_ = f1.Close()
+		_ = f2.Close()
+	})
 }

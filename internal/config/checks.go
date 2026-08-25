@@ -231,9 +231,9 @@ func (c *Config) checkLogDir(sl *slog.Logger) error {
 
 	// test write permissions by creating and removing a temp file directly
 	name := filepath.Join(path, ".defacto2_touch_test")
-	if _, err := os.Stat(name); err == nil {
+	if _, sErr := os.Stat(name); sErr == nil {
 		if rErr := os.Remove(name); rErr != nil {
-			sl.Warn(msg+" cannot remove test touch file", name, err)
+			c.Warn(sl, msg+" cannot remove test touch file", name, rErr)
 			return nil
 		}
 	}

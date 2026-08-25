@@ -110,7 +110,11 @@ func MkdirTemp(pattern string) (string, error) {
 	} else {
 		pattern = Pattern + "-*"
 	}
-	return os.MkdirTemp(os.TempDir(), pattern)
+	s, err := os.MkdirTemp(os.TempDir(), pattern)
+	if err != nil {
+		return "", fmt.Errorf("dir mkdir temp: %w", err)
+	}
+	return s, nil
 }
 
 // MkdirStale creates a temporary subdirectory in [os.TempDir] using the
@@ -122,7 +126,7 @@ func MkdirTemp(pattern string) (string, error) {
 // The returned string is the path to an existing
 // or the newly created temporary directory.
 func MkdirStale(path string) (string, error) {
-	pattern := ""
+	var pattern string
 	base := filepath.Base(path)
 	local, err := filepath.Localize(base)
 	if err != nil {
@@ -142,7 +146,11 @@ func MkdirStale(path string) (string, error) {
 		pattern += "-*"
 	}
 
-	return os.MkdirTemp(os.TempDir(), pattern)
+	s, err := os.MkdirTemp(os.TempDir(), pattern)
+	if err != nil {
+		return "", fmt.Errorf("dir mkdir stale: %w", err)
+	}
+	return s, nil
 }
 
 // CreateTemp creates a new temporary file using [os.CreateTemp].

@@ -118,7 +118,9 @@ func pageRefresh(c *echo.Context) *echo.Context {
 }
 
 // RecordThumb handles the htmx request for the thumbnail quality.
-func RecordThumb(ctx context.Context, sl *slog.Logger, c *echo.Context, thumb command.Generate, dirs command.Dirs) error {
+func RecordThumb(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, thumb command.Generate, dirs command.Dirs,
+) error {
 	const format = "artifact record thumb: %w"
 	if err := nils.Check(ctx, sl, c); err != nil {
 		return fmt.Errorf(format, err)

@@ -1,3 +1,4 @@
+//nolint:mnd
 package option
 
 // Opts represents the command line options to use with a terminal application.
@@ -38,7 +39,7 @@ func (o *Opts) AnsiAmiga(src, tmp string) {
 	}
 }
 
-// AnsiMsDos appends the command line arguments for the [ansilove command] to
+// AnsiDOS appends the command line arguments for the [ansilove command] to
 // transform an ANSI text file into a PNG image.
 //
 // [ansilove command]: https://github.com/ansilove/ansilove
@@ -142,7 +143,8 @@ func (o *Opts) CropAlignment(src, tmp string, crop int) {
 	}
 }
 
-// Gif2webp appends the command line arguments for the [gif2webp command] to transform args GIF image into args webp image.
+// Gif2webp appends the command line arguments for the [gif2webp command] to transform
+// the source GIF image into a webp image.
 //
 // [gif2webp command]: https://developers.google.com/speed/webp/docs/gif2webp
 func (o *Opts) Gif2webp(src, tmp string) {
@@ -243,7 +245,7 @@ func (o *Opts) WebpPhoto(src, tmp string) {
 	}
 }
 
-// WebpText appends the command line arguments for the [cwebp command] to transform
+// WebpPixel appends the command line arguments for the [cwebp command] to transform
 // a screenshot or image with text to the WebP format.
 //
 // [cwebp command]: https://developers.google.com/speed/webp/docs/cwebp
@@ -268,7 +270,7 @@ func (o *Opts) WebpPixel(src, tmp string) {
 	}
 }
 
-// Thumbnail appends the command line arguments for magick to transform
+// Thumb appends the command line arguments for magick to transform
 // an image into a squared, 400 x 400 pixel thumbnail.
 func (o *Opts) Thumb() {
 	*o = append(*o,

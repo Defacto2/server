@@ -755,7 +755,7 @@ func ListContent( //nolint:cyclop,gocognit,funlen
 	}
 	section := strings.TrimSpace(strings.ToLower(art.Section.String))
 
-	tmpRoot, err := archive.ExtractSource(ctx, src, art.Filename.String)
+	tmpRoot, err := archive.ExtractTemp(ctx, src)
 	if err != nil {
 		return extractErr(sl, src, platform, section, zeroByteFiles, err)
 	}

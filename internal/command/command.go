@@ -63,7 +63,7 @@ const (
 )
 
 // Lookups returns a list of the execute command names used by the application.
-var Lookups = [...]string{
+var Lookups = [...]string{ //nolint:gochecknoglobals
 	Arc,
 	Arj,
 	Ansilove,
@@ -81,7 +81,7 @@ var Lookups = [...]string{
 }
 
 // Infos returns details for the list of the execute command names used by the application.
-var Infos = [...]string{
+var Infos = [...]string{ //nolint:gochecknoglobals
 	"archive utility ver 5+",
 	"arj32 ver 3+",
 	"ansilove/c ver 4+",
@@ -124,7 +124,7 @@ func LookupS(ctx context.Context, name, flag, match string) error {
 		return ErrNoMatch
 	}
 
-	r := Runner{}
+	r := Runner{} //nolint:exhaustruct
 	out, err := r.Run(ctx, name, flag)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
@@ -152,7 +152,9 @@ type Runner struct {
 // The name of the command to run must be provided, and any options provided using arg.
 func Run(ctx context.Context, sl *slog.Logger, name string, arg ...string) ([]byte, error) {
 	r := Runner{
-		Log: sl,
+		Timeout:    0,
+		Log:        sl,
+		WorkingDir: "",
 	}
 	return r.Run(ctx, name, arg...)
 }
@@ -160,9 +162,6 @@ func Run(ctx context.Context, sl *slog.Logger, name string, arg ...string) ([]by
 // Run looks for the command in the system path and executes it with the arguments.
 // The name of the command to run must be provided, and any options provided using arg.
 func (r *Runner) Run(ctx context.Context, name string, arg ...string) ([]byte, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
 	if r.Log == nil {
 		r.Log = slog.Default()
 	}

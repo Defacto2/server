@@ -24,13 +24,13 @@ const (
 	pictImg    = "PICTURE-IMAGER"
 )
 
-func println(a ...any) {
+func printOut(a ...any) {
 	if _, err := fmt.Fprintln(os.Stdout, a...); err != nil {
 		log.Fatal(a, err)
 	}
 }
 
-func main() {
+func main() { //nolint:funlen
 	sl := slog.Default()
 	ctx := context.Background()
 
@@ -39,24 +39,27 @@ func main() {
 	lookup(ctx, sl)
 
 	src, dstDir := initData()
-	println("Temporary working directory:", dstDir)
+	printOut("Temporary working directory:", dstDir)
 
 	dst := filepath.Join(dstDir, screenshot)
 	copyScreen(sl, src, dst)
-	println("Copied source screenshot:", dst)
+	printOut("Copied source screenshot:", dst)
 
 	// Image file handlers
 
-	println("Running Images Pixelate")
-	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
-	defer cancel()
+	printOut("Running Images Pixelate")
+	const timeout = 15 * time.Second
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+
 	err := command.ImagesPixelate(ctx, sl, "SCREEN", dstDir)
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 	newpath := filepath.Join(dstDir, "SCREEN-PIXELATE.PNG")
 	err = os.Rename(dst, newpath)
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 	copyScreen(sl, src, dst)
@@ -65,12 +68,14 @@ func main() {
 	cropImages(ctx, sl, src, dst, dstDir)
 
 	d := command.Dirs{
+		Download:  "",
 		Preview:   dir.Directory(dstDir),
 		Thumbnail: dir.Directory(dstDir),
 		Extra:     dir.Directory(dstDir),
 	}
 	err = d.PictureImager(ctx, sl, src, pictImg)
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 
@@ -79,6 +84,7 @@ func main() {
 	copyScreen(sl, src, gthImg)
 	err = d.Thumbs(ctx, sl, pixel, command.Pixel)
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 
@@ -87,6 +93,7 @@ func main() {
 	copyScreen(sl, src, gthImg)
 	err = d.Thumbs(ctx, sl, photo, command.Photo)
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 
@@ -95,10 +102,12 @@ func main() {
 	dstWebp := filepath.Join(dstDir, webp)
 	err = command.CopyFile(sl, srcWebp, dstWebp)
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 	err = command.OptimizePNG(ctx, sl, dstWebp)
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 
@@ -108,39 +117,49 @@ func main() {
 
 	err = d.TextDeferred(ctx, sl, txt, "DEFERRED_TXT")
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 	err = d.DizDeferred(sl, txt, "DEFERRED_DIZ")
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 
 	err = d.TextImager(ctx, sl, txt, "ASCII-DOS", false) // TODO: broken output
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 	err = d.TextImager(ctx, sl, txt, "ASCII-AMIGA", true) // TODO: broken output
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 
 	t := command.Text{
 		UUID:    "SCREEN",
 		MaxRows: 1,
+		MaxCols: 0,
+		UTF8:    false,
 	}
 	loc, err := t.Crop(sl, txt) // TODO: fix temp dir location
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
 	newpath = filepath.Join(dstDir, "ASCII-1rows.txt")
 	err = os.Rename(loc, newpath)
 	if err != nil {
+		cancel()
 		log.Fatal(err)
 	}
-	println("TEST.ASCII cropped:", newpath)
+
+	printOut("TEST.ASCII cropped:", newpath)
+	cancel()
 }
 
-func initData() (src, dstDir string) {
+func initData() (src, dstDir string) { //nolint:nonamedreturns
 	src = filepath.Join("command", "testdata", screenshot)
 	st, err := os.Stat(src)
 	if err != nil {
@@ -165,15 +184,19 @@ func lookup(ctx context.Context, sl *slog.Logger) {
 		return
 	}
 	if path != "" {
-		println("found command ansilove at", path)
+		printOut("found command ansilove at", path)
 	}
-	r := command.Runner{Log: sl}
+	r := command.Runner{
+		Timeout:    0,
+		Log:        sl,
+		WorkingDir: "",
+	}
 	out, err := r.Run(ctx, command.Ansilove, "-v")
 	if err != nil {
 		sl.Info("error with command", slog.Any("error", err))
 		return
 	}
-	println(string(out))
+	printOut(string(out))
 }
 
 func copyScreen(sl *slog.Logger, src, dst string) {
@@ -201,7 +224,7 @@ func alignThumbs(ctx context.Context, sl *slog.Logger, src, dst, dstDir string) 
 
 	for _, align := range aligns {
 		s := align.String()
-		println("Running Align Thumbs:", s)
+		printOut("Running Align Thumbs:", s)
 		preview := dir.Directory(filepath.Join("command", "testdata"))
 		thumbnail := dir.Directory(dstDir)
 		err := align.Thumbs(ctx, sl, "SCREEN", preview, thumbnail)
@@ -226,7 +249,7 @@ func cropImages(ctx context.Context, sl *slog.Logger, src, dst, dstDir string) {
 
 	for _, crop := range crops {
 		s := crop.String()
-		println("Running Crop Images:", s)
+		printOut("Running Crop Images:", s)
 		preview := dir.Directory(dstDir)
 		err := crop.Images(ctx, sl, "SCREEN", preview)
 		if err != nil {

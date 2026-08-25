@@ -79,7 +79,7 @@ func TempInfo(sl *slog.Logger) {
 	const msg = "Temporary directory"
 	entries, err := os.ReadDir(os.TempDir())
 	if err != nil {
-		sl.Error(msg, " cannot read temp dir", slog.Any("error", err))
+		sl.Error(msg+" cannot read temp dir", slog.Any("error", err))
 		return
 	}
 	var du int64
@@ -93,7 +93,7 @@ func TempInfo(sl *slog.Logger) {
 			slog.Debug("du cannot read path", slog.String("path", path), slog.Any("error", err))
 			continue
 		}
-		du = du + n
+		du += n
 	}
 
 	hdu := helper.ByteCountFloat(du)

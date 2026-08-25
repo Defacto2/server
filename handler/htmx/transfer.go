@@ -167,7 +167,7 @@ type Transfer struct {
 	Download dir.Directory
 }
 
-func (t Transfer) transfer(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func (t Transfer) transfer(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
 	const msg = "transfer file handler"
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

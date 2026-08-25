@@ -94,12 +94,12 @@ func (c *Config) RepairArchives(ctx context.Context, sl *slog.Logger, exec boil.
 func (c *Config) walkAndRepair(ctx context.Context, sl *slog.Logger, repair Repair, artifacts []string) error {
 	root := c.AbsDownload.String()
 	extra := dir.Directory(c.AbsExtra)
-	return filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("%w: %s", err, path)
 		}
 		if ctxErr := ctx.Err(); ctxErr != nil {
-			return ctxErr
+			return fmt.Errorf("walk path ctx error: %w", ctxErr)
 		}
 
 		// format specific checks
@@ -133,6 +133,11 @@ func (c *Config) walkAndRepair(ctx context.Context, sl *slog.Logger, repair Repa
 
 		return nil
 	})
+	if err != nil {
+		return fmt.Errorf("walk and repair: %w", err)
+	}
+
+	return nil
 }
 
 // Repair is a type of archive for the re-archive and recompress methods.
@@ -162,7 +167,7 @@ type Repack struct {
 
 // NewArchive extracts the source archive file and then repackages (rearchives) it to a DEFLATE zip archive.
 // The original source file is always kept.
-func (r Repair) NewArchive(ctx context.Context, sl *slog.Logger, ra Repack) error {
+func (r Repair) NewArchive(ctx context.Context, sl *slog.Logger, ra Repack) error { //nolint:funlen
 	const format = "config repair and repack %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -246,7 +251,7 @@ func (r Repair) NewArchive(ctx context.Context, sl *slog.Logger, ra Repack) erro
 }
 
 // extractConfig maps the Repair type to its extraction command and argument.
-func (r Repair) extractConfig() (cmd, arg string, err error) {
+func (r Repair) extractConfig() (cmd, arg string, err error) { //nolint:nonamedreturns
 	switch r {
 	case Zip:
 		return command.HWZip, "extract", nil
@@ -257,7 +262,7 @@ func (r Repair) extractConfig() (cmd, arg string, err error) {
 	case Arj:
 		return command.Zip7, "x", nil
 	default:
-		return "", "", fmt.Errorf("unsupported repair format: %v", r)
+		return "", "", fmt.Errorf("repair format %v: %w", r, ErrFormat)
 	}
 }
 
@@ -330,7 +335,7 @@ func (r Repair) artifacts(ctx context.Context, sl *slog.Logger, exec boil.Contex
 // to the orphaned directory without warning.
 //
 // There are no checks on the 3 directories that get scanned.
-func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error { //nolint:funlen
 	const format = "repair assets %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -380,7 +385,7 @@ func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 					return fmt.Errorf(format, "walk path "+path, walkErr)
 				}
 				if ctxErr := ctx.Err(); ctxErr != nil {
-					return ctxErr
+					return fmt.Errorf("walk path ctx error: %w", ctxErr)
 				}
 				if d.IsDir() {
 					return nil
@@ -480,7 +485,7 @@ func (c *Config) assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 }
 
 // TextFiles on startup check the extra directory for any readme text files that are duplicates of the diz text files.
-func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error { //nolint:funlen
 	const format = "repair text files %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -587,7 +592,7 @@ func Remove(diz, txt string) (string, error) {
 func isFileID(path string) (bool, error) {
 	r, err := os.Open(path)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("is file id: %w", err)
 	}
 	defer r.Close()
 
@@ -694,7 +699,7 @@ func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.Co
 func inspectMagic(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("inspect magic: %w", err)
 	}
 	defer file.Close()
 

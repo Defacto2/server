@@ -36,7 +36,7 @@ var ErrNoImages = errors.New("no images found")
 
 // ImagesExt returns args slice of image file extensions used by the website
 // preview and thumbnail images, including the legacy and modern formats.
-var imagesExt = [...]string{
+var imagesExt = [...]string{ //nolint:gochecknoglobals
 	gif, ".GIF", jpg, ".JPG", jpeg, ".JPEG", png, ".PNG", webp, ".WEBP", ".avif", ".AVIF",
 }
 
@@ -124,7 +124,7 @@ func ImagesPixelate(ctx context.Context, sl *slog.Logger, unid string, dirs ...s
 
 			arg := option.Opts{}
 			arg.Pixelate(name)
-			r := Runner{Log: sl}
+			r := Runner{Log: sl} //nolint:exhaustruct
 			if _, err := r.Run(ctx, Magick, arg...); err != nil {
 				return fmt.Errorf(format, "convert", err)
 			}
@@ -201,7 +201,7 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 		tmp := filepath.Join(tmpDir, unid+ext)
 		arg := option.Opts{}
 		arg.ThumbAlignment(src, tmp, int(align))
-		r := Runner{Log: sl}
+		r := Runner{Log: sl} //nolint:exhaustruct
 		if _, err := r.Run(ctx, Magick, arg...); err != nil {
 			return fmt.Errorf(format, "run magick", err)
 		}
@@ -262,7 +262,7 @@ func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, previ
 		arg := option.Opts{}
 		tmp := filepath.Join(path, unid+ext)
 		arg.CropAlignment(src, tmp, int(crop))
-		r := Runner{Log: sl}
+		r := Runner{Log: sl} //nolint:exhaustruct
 		_, err := r.Run(ctx, Magick, arg...)
 		if err != nil {
 			return fmt.Errorf(format, "", err)
@@ -291,8 +291,10 @@ type Text struct {
 }
 
 // Crop reads the src text file and writes the number of MaxRows (lines) of text to a new file.
-// The new file is stored in the same directory as the src but is given file name of UUID appended with a ".txt" extension.
-// The text is truncated to MaxCols (runes or characters per line), but any leading empty lines are ignored.
+// The new file is stored in the same directory as the src but is given file name
+// of UUID appended with a ".txt" extension.
+// The text is truncated to MaxCols (runes or characters per line),
+// but any leading empty lines are ignored.
 //
 // If MaxRows is 0, a default value of 29 is used.
 // If MaxCols is set to 0, a default of 80 is used.
@@ -337,7 +339,7 @@ func (t Text) Crop(sl *slog.Logger, src string) (string, error) {
 func ansiCheck(src string) error {
 	file, err := os.Stat(src)
 	if err != nil {
-		return err
+		return fmt.Errorf("src: %s: %w", src, err)
 	}
 	if file.Size() > ANSICap {
 		return ErrIsAnsi
@@ -346,7 +348,7 @@ func ansiCheck(src string) error {
 	return nil
 }
 
-// exists is a special case where the error value should not be returned
+// exists is a special case where the error value should not be returned.
 func exist(name string) bool {
 	if name == "" {
 		return false
@@ -517,7 +519,7 @@ func (t Thumb) make(ctx context.Context, sl *slog.Logger, thumb dir.Directory) e
 	} else {
 		arg.PNGPixel(true, t.Source, tmp)
 	}
-	r := Runner{Log: sl}
+	r := Runner{Log: sl} //nolint:exhaustruct
 	if out, err := r.Run(ctx, Magick, arg...); err != nil {
 		return fmt.Errorf(format, "run magick convert "+string(out), err)
 	}
@@ -559,7 +561,7 @@ func OptimizePNG(ctx context.Context, sl *slog.Logger, src string) error {
 		return nil
 	}
 
-	r := Runner{Log: sl}
+	r := Runner{Log: sl} //nolint:exhaustruct
 	if _, err := r.Run(ctx, Optipng, src); err != nil {
 		return fmt.Errorf(format, src, err)
 	}

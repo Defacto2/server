@@ -41,26 +41,36 @@ func setupTestDir(t *testing.T, tempDir string) (string, string) {
 		t.Fatalf("expected %d test files in testdata, but got %d", testdataCount, n)
 	}
 
+	src, err := os.OpenRoot(testdata)
+	if err != nil {
+		t.Fatalf("failed to open testdata root: %v", err)
+	}
+	defer src.Close()
+
+	dst, err := os.OpenRoot(tempDir)
+	if err != nil {
+		t.Fatalf("failed to open tempDir root: %v", err)
+	}
+	defer dst.Close()
+
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
 		}
 
-		src := filepath.Join(testdata, entry.Name())
-		dest := filepath.Join(tempDir, entry.Name())
-
+		name := entry.Name()
 		if baseN == "" {
-			filename := filepath.Base(dest)
+			filename := filepath.Base(name)
 			baseN = strings.TrimSuffix(filename, filepath.Ext(filename))
 		}
 
-		data, err := os.ReadFile(src)
+		data, err := src.ReadFile(name)
 		if err != nil {
-			t.Fatalf("failed to read fixture %s: %v", src, err)
+			t.Fatalf("failed to read fixture %s: %v", name, err)
 		}
 
-		if err := os.WriteFile(dest, data, 0o600); err != nil {
-			t.Fatalf("failed to write fixture to temp dir %s: %v", dest, err)
+		if err := dst.WriteFile(name, data, 0o600); err != nil {
+			t.Fatalf("failed to write fixture to temp dir %s: %v", name, err)
 		}
 	}
 
