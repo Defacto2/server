@@ -89,7 +89,7 @@ func (ds *Dirs) Artifact(ctx context.Context, sl *slog.Logger, c *echo.Context, 
 	}
 
 	art, err := ds.oneByKey(ctx, sl, c, db)
-	if ok := art != nil || err != nil; !ok {
+	if ok := art == nil || err != nil; !ok {
 		return fmt.Errorf(format, "one by key", err)
 	}
 	ds.ID = art.ID

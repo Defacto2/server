@@ -185,7 +185,7 @@ func (c Config) Configurations(sl *slog.Logger) {
 	val := reflect.ValueOf(c)
 	typ := val.Type()
 
-	for i := 0; i < typ.NumField(); i++ {
+	for i := range typ.NumField() {
 		structField := typ.Field(i)
 		fieldName := structField.Name
 

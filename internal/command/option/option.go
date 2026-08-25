@@ -66,12 +66,12 @@ func (o *Opts) AnsiDOS(src, tmp string) {
 
 // Pixelate appends ImageMagick v6 flags to
 // downscale and upscale an image, producing a blocky pixellation effect.
-// TODO: update flags to version v7.
 func (o *Opts) Pixelate(path string) {
 	if o == nil {
 		return
 	}
 
+	// in the future these may need to update flags to version magick v7.
 	*o = append(*o,
 		path,
 		"-scale", "5%", // first downscale

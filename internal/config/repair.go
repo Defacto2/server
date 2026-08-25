@@ -722,7 +722,7 @@ func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.Contex
 
 	var count, totals int64
 	previewDir := c.AbsPreview.String()
-	exts := [...]string{".png", ".webp"}
+	exts := [...]string{".png", ".webp"} //nolint:goconst
 
 	for val := range slices.Values(artifacts) {
 		// 1. Respect cancellation during disk cleanup

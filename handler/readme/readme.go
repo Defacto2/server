@@ -491,7 +491,7 @@ func (t *Text) useViewer() bool {
 
 func (t *Text) normalize(textBuf *bytes.Buffer) []byte {
 	if textBuf == nil || textBuf.Len() == 0 {
-		return nil
+		return []byte{}
 	}
 
 	b := textBuf.Bytes()

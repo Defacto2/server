@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
@@ -774,8 +775,11 @@ func (t *T) ByName(name string) (TagData, error) {
 
 // Build the tags and collect the statistical data sourced from the database.
 func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) (err error) { //nolint:nonamedreturns
-	const msg = "tags builder"
-	const format = msg + " %s: %w"
+	const format = "tags builder %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, "check", err)
+	}
+
 	if InvalidExec(exec) {
 		err = errors.Join(err, fmt.Errorf(format, "", ErrNoDB))
 	}

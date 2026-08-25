@@ -81,7 +81,6 @@ func setupTestDir(t *testing.T, tempDir string) (string, string) {
 	if n != testdataCount {
 		t.Fatalf("found %d test files in the temp directory, wanted %d: %s", n, testdataCount, tempDir)
 	}
-	//t.Logf("copied %d test files to directory: %s", n, tempDir)
 
 	return baseN, tempDir
 }
@@ -295,13 +294,6 @@ func TestPictureImager(t *testing.T) {
 	const preBytes = 1629 // this could change depending on the tool set?
 	be.Equal(t, preSize, preBytes)
 
-	//thbImg := filepath.Join(thumbdir, unid+".webp")
-	//thbSt, err := os.Stat(thbImg)
-	be.Err(t, err, nil)
-	//thbSize := thbSt.Size()
-	//const thbBytes = 2664 // this could change depending on the tool set?
-	//be.Equal(t, thbSize, thbBytes)
-
 	gif, err := filepath.Abs(filepath.Join(testdata, "TEST.GIF"))
 	be.Err(t, err, nil)
 	err = dirs.PictureImager(t.Context(), sl, gif, unid)
@@ -351,15 +343,6 @@ func TestPictureImager(t *testing.T) {
 	webSize := webSt.Size()
 	const webBytes = 2768
 	be.Equal(t, webSize, webBytes)
-
-	// because previewweb has a special makeThumb flag, test for the thumbnail generation
-	// also, sometimes the thumbnails are larger in file size than the source image
-	// thbImg = filepath.Join(thumbdir, unid+".webp")
-	// thbSt, err = os.Stat(thbImg)
-	be.Err(t, err, nil)
-	//thbSize = thbSt.Size()
-	//const wtBytes = 8772 // this could change depending on the tool set?
-	//be.Equal(t, thbSize, wtBytes)
 }
 
 func TestCropText(t *testing.T) {
@@ -564,20 +547,6 @@ func TestTextDeferred(t *testing.T) {
 	be.Equal(t, est.Size(), estSize)
 }
 
-func TestPixelate(t *testing.T) {
-	t.Parallel()
-
-	// TODO: test actual conversions
-	// a := command.Args{}
-	// a.Pixelate()
-	// s := fmt.Sprintf("%+v", a)
-	// got := strings.Contains(s, "-scale")
-	// be.True(t, got)
-	// s = fmt.Sprintf("%+v", a)
-	// got = strings.Contains(s, "5%")
-	// be.True(t, got)
-}
-
 func TestThumbs(t *testing.T) {
 	t.Parallel()
 
@@ -656,5 +625,5 @@ func TestCrop(t *testing.T) {
 	be.Err(t, got, nil)
 	st, got = os.Stat(name)
 	be.Err(t, got, nil)
-	be.Equal(t, st.Size(), 1940) // TODO: not working?
+	be.Equal(t, st.Size(), 1940)
 }

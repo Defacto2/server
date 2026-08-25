@@ -143,7 +143,7 @@ func main() { //nolint:funlen
 		MaxCols: 0,
 		UTF8:    false,
 	}
-	loc, err := t.Crop(sl, txt) // TODO: fix temp dir location
+	loc, err := t.Crop(sl, txt)
 	if err != nil {
 		cancel()
 		log.Fatal(err)
