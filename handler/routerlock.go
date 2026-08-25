@@ -239,13 +239,15 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c *echo.Context) error {
-		return htmx.UploadReplacement(ctx, sl, c, db, dirs.Download, dirs.Extra)
+		u := htmx.Upload{Download: dirs.Download, Extra: dirs.Extra}
+		return u.Replacement(ctx, sl, c, db)
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c *echo.Context) error { //nolint:contextcheck
 		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
 		defer cancel()
-		return htmx.UploadPreview(ctx, sl, c, dirs.Preview, dirs.Thumbnail)
+		u := htmx.Upload{Preview: dirs.Preview, Thumbnail: dirs.Thumbnail}
+		return u.ImagePreview(ctx, sl, c)
 	})
 	paths := command.Dirs{
 		Download:  dirs.Download,

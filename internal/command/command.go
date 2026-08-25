@@ -20,15 +20,11 @@ import (
 const (
 	CmdTimeout = 10 * time.Second
 
-	// TODO: replace the use of helper.TmpDir with Patterns that prefix df2app-
-	PatternAL = "df2-ansilove-*.png"
-
-	patternS = "defacto2-server"
-	gif      = ".gif"  // gif file extension
-	jpg      = ".jpg"  // jpg file extension
-	jpeg     = ".jpeg" // jpeg file extension
-	png      = ".png"  // png file extension
-	webp     = ".webp" // webp file extension
+	gif  = ".gif"  // gif file extension
+	jpg  = ".jpg"  // jpg file extension
+	jpeg = ".jpeg" // jpeg file extension
+	png  = ".png"  // png file extension
+	webp = ".webp" // webp file extension
 )
 
 var (
@@ -36,11 +32,9 @@ var (
 	ErrCrop       = errors.New("invalid crop choice")
 	ErrThumb      = errors.New("invalid thumb choice")
 	ErrIsAnsi     = errors.New("text is ansi encoded, cannot crop")
-	ErrIsDir      = errors.New("file is a directory")
 	ErrIsEmpty    = errors.New("file is empty")
 	ErrIsFile     = errors.New("directory path points to a file")
 	ErrNoMatch    = errors.New("no match value is present")
-	ErrPath       = errors.New("path is not permitted")
 	ErrUnknownImg = errors.New("file is not a known image format")
 	ErrValue      = errors.New("argument is empty")
 	ErrVersion    = errors.New("application version mismatch")
@@ -69,43 +63,39 @@ const (
 )
 
 // Lookups returns a list of the execute command names used by the application.
-func Lookups() []string { // TODO: make a var
-	return []string{
-		Arc,
-		Arj,
-		Ansilove,
-		Cwebp,
-		Gif2webp,
-		HWZip,
-		Lha,
-		Magick,
-		Optipng,
-		Tar,
-		Unrar,
-		Unzip,
-		Zip7,
-		ZipInfo,
-	}
+var Lookups = [...]string{
+	Arc,
+	Arj,
+	Ansilove,
+	Cwebp,
+	Gif2webp,
+	HWZip,
+	Lha,
+	Magick,
+	Optipng,
+	Tar,
+	Unrar,
+	Unzip,
+	Zip7,
+	ZipInfo,
 }
 
 // Infos returns details for the list of the execute command names used by the application.
-func Infos() []string {
-	return []string{
-		"archive utility ver 5+",
-		"arj32 ver 3+",
-		"ansilove/c ver 4+",
-		"Google WebP ver 1+",
-		"Google GIF to WebP ver 1+",
-		"HWZip ver 2+",
-		"Lhasa command line LHA tool",
-		"ImageMagick ver 7+",
-		"OptiPNG optimizer ver 0.7+",
-		"GNU tar ver 1+",
-		"UNRAR freeware (c) Alexander Roshal",
-		"UnZip Info-ZIP ver 6+",
-		"7-Zip ver 24+",
-		"ZipInfo Info-ZIP ver 3+",
-	}
+var Infos = [...]string{
+	"archive utility ver 5+",
+	"arj32 ver 3+",
+	"ansilove/c ver 4+",
+	"Google WebP ver 1+",
+	"Google GIF to WebP ver 1+",
+	"HWZip ver 2+",
+	"Lhasa command line LHA tool",
+	"ImageMagick ver 7+",
+	"OptiPNG optimizer ver 0.7+",
+	"GNU tar ver 1+",
+	"UNRAR freeware (c) Alexander Roshal",
+	"UnZip Info-ZIP ver 6+",
+	"7-Zip ver 24+",
+	"ZipInfo Info-ZIP ver 3+",
 }
 
 // Lookup returns an error if the command is not found in the system path.

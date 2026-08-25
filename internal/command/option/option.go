@@ -1,11 +1,5 @@
 package option
 
-// TODO: create a custom test image, maybe a screenshot of the website,
-// then test all the arguments and dump the output in the home directory,
-// so they can be manually checked:
-// - name the files after the Test names
-// - have the tests only run manually, search for maybe a param to auto disable unless using -run ?
-
 // Opts represents the command line options to use with a terminal application.
 //
 // Each option and value in the slice must use separate strings.
@@ -279,8 +273,7 @@ func (o *Opts) WebpPixel(src, tmp string) {
 func (o *Opts) Thumb() {
 	*o = append(*o,
 		"-filter", "Triangle", // resize filter
-		"-thumbnail",
-		size400x400, // the use of thumbnail is more performant than other flags
+		"-thumbnail", size400x400, // the use of thumbnail is more performant than other flags
 		"-background", "#999",
 		gravity, "center",
 		extent, size400x400, // image size and offset

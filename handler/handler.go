@@ -55,7 +55,7 @@ type Configuration struct {
 	Version     string           // Version is the results of GoReleaser build command.
 	Brand       []byte           // Brand contains the Defacto2 ASCII logo.
 	Environment config.Config    // Environment configurations from the host system.
-	RecordCount int              // The total number of file records in the database.
+	RecordCount int64            // The total number of file records in the database.
 	TidbitIndex fulltext.Tidbits // Fulltext search index of the tidbit markdown files.
 }
 

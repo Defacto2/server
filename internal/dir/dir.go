@@ -8,9 +8,14 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
+	"time"
 
 	"github.com/Defacto2/server/internal/nils"
 )
+
+const Pattern = "df2app"
 
 var (
 	ErrFile   = errors.New("file error")
@@ -32,26 +37,29 @@ func (d Directory) Path() string {
 	return string(d)
 }
 
-// Check confirms that the directory exists and is writable.
+// Check to confirm the directory is writable.
 func (d Directory) Check(sl *slog.Logger) error {
-	const msg = "directory check"
-	const format = msg + ": %w"
+	const format = "check directory %s: %w"
 	if err := nils.Check(sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf(format, "arguments", err)
 	}
+
 	if err := d.IsDir(); err != nil {
-		return err
+		return fmt.Errorf(format, "isdir", err)
 	}
+
 	tmp, err := os.CreateTemp(d.Path(), "uploader-*.zip")
 	if err != nil {
-		return ErrSave
+		return fmt.Errorf(format, "is not writable", err)
 	}
+
 	defer func() {
 		_ = tmp.Close()
-		if err := os.Remove(tmp.Name()); err != nil {
-			sl.Error(msg, slog.String("name", tmp.Name()), slog.Any("error", err))
+		if rErr := os.Remove(tmp.Name()); rErr != nil && sl != nil {
+			sl.Error("directory check", slog.String("name", tmp.Name()), slog.Any("error", rErr))
 		}
 	}()
+
 	return nil
 }
 
@@ -72,6 +80,7 @@ func (d Directory) IsDir() error {
 	if !st.IsDir() {
 		return ErrFile
 	}
+
 	return nil
 }
 
@@ -83,4 +92,162 @@ func Paths(d ...Directory) []string {
 		paths[i] = dir.Path()
 	}
 	return paths
+}
+
+// MkdirTemp creates a temporary directory at [os.TempDir] using the provided pattern.
+// The optional pattern should not include a randomizer string "-*".
+//
+// Example usage on Linux:
+//
+//	path, _ := MkdirTemp("abc")
+//	fmt.Println(path)
+//
+//	Output:
+//	/tmp/df2app-abc-d83gsddb34
+func MkdirTemp(pattern string) (string, error) {
+	if pattern != "" {
+		pattern = Pattern + "-" + pattern + "-*"
+	} else {
+		pattern = Pattern + "-*"
+	}
+	return os.MkdirTemp(os.TempDir(), pattern)
+}
+
+// MkdirStale creates a temporary subdirectory in [os.TempDir] using the
+// provided path as the basis of the directory name.
+// Unlike [MkdirTemp], this func does not apply randomization to the
+// directory name and the result will not always be unique.
+// Allowing the directory to be used as a short-term file cache.
+//
+// The returned string is the path to an existing
+// or the newly created temporary directory.
+func MkdirStale(path string) (string, error) {
+	pattern := ""
+	base := filepath.Base(path)
+	local, err := filepath.Localize(base)
+	if err != nil {
+		pattern = Pattern + "-*" // for edge cases use a randomization
+	} else {
+		pattern = Pattern + "-" + local // no tailing randomization
+	}
+
+	st, err := os.Stat(filepath.Join(os.TempDir(), pattern))
+	switch {
+	case err == nil && st.IsDir():
+		// return the exist temporary directory based on this path
+		return st.Name(), nil
+	case err == nil:
+		// when an unexpected entry exists in the temporary directory,
+		// append randomness to the pattern to make and use a new subdirectory.
+		pattern += "-*"
+	}
+
+	return os.MkdirTemp(os.TempDir(), pattern)
+}
+
+// CreateTemp creates a new temporary file using [os.CreateTemp].
+// However, no path is required and the new file will be located
+// in a subdirectory created using [MkdirTemp].
+func CreateTemp(pattern string) (*os.File, error) {
+	const format = "dir create temp %s: %w"
+	if pattern == "" {
+		pattern = Pattern + "-*"
+	}
+
+	path, err := MkdirTemp("createtemp")
+	if err != nil {
+		return nil, fmt.Errorf(format, "mkdir", err)
+	}
+
+	r, err := os.CreateTemp(path, pattern)
+	if err != nil {
+		return nil, fmt.Errorf(format, "create", err)
+	}
+
+	return r, nil
+}
+
+// IsTemp returns true when the path is likely a temporary directory or
+// file created using [MkdirTemp].
+func IsTemp(path string) bool {
+	if path == "" {
+		return false
+	}
+
+	paths := strings.Split(path, string(filepath.Separator))
+	paths = slices.DeleteFunc(paths, func(s string) bool {
+		return s == ""
+	})
+
+	l := len(paths)
+	const minPaths = 2
+	if l < minPaths {
+		return false
+	}
+
+	if !strings.HasPrefix(path, os.TempDir()) {
+		return false
+	}
+
+	return strings.HasPrefix(paths[1], Pattern+"-")
+}
+
+// CleanTemp removes the temporary directories likely created using [MkdirTemp],
+// that are older than the stale time value. An error is returned if a directory
+// cannot be removed.
+func CleanTemp(stale time.Duration) error {
+	const format = "dir clean temp (%s) %s: %w"
+
+	tempDir := os.TempDir()
+	entries, err := os.ReadDir(tempDir)
+	if err != nil {
+		return fmt.Errorf(format, tempDir, "read dir", err)
+	}
+
+	for _, d := range entries {
+		if !d.IsDir() || !IsTemp(d.Name()) {
+			continue
+		}
+
+		info, err := d.Info()
+		if err != nil {
+			continue
+		}
+
+		if time.Since(info.ModTime()) < stale {
+			continue
+		}
+
+		path := filepath.Join(tempDir, d.Name())
+		if err := os.RemoveAll(path); err != nil {
+			return fmt.Errorf(format, path, "remove all", err)
+		}
+	}
+
+	return nil
+}
+
+// RemoveAll removes the named directory.
+// For safety, the directory removal is locked using [os.OpenRoot]
+// to [os.TempDir].
+func RemoveAll(name string) error {
+	const format = "dir remove all %s: %w"
+	basePath := os.TempDir()
+
+	root, err := os.OpenRoot(basePath)
+	if err != nil {
+		return fmt.Errorf(format, "open root", err)
+	}
+	defer root.Close()
+
+	relPath, err := filepath.Rel(basePath, name)
+	if err != nil {
+		return fmt.Errorf(format, "resolve relative path", err)
+	}
+
+	if err := root.RemoveAll(relPath); err != nil {
+		return fmt.Errorf(format, "root-scoped removal", err)
+	}
+
+	return nil
 }

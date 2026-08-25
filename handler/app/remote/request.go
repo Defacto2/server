@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 )
@@ -113,17 +113,14 @@ func getFile( //nolint:funlen
 	}
 
 	// create the file in the default temp directory
-	dir := helper.TmpDir()
-	dst, err := os.CreateTemp(dir, "get-remotefile-*")
+	dst, err := dir.CreateTemp("get-remotefile-*")
 	if err != nil {
 		cleanup(sl, msg, response)
-		return none, fmt.Errorf(format, "create temporary file in the directory "+dir, url, err)
+		return none, fmt.Errorf(format, "create temporary file", url, err)
 	}
 	defer func() {
 		if err := dst.Close(); err != nil {
-			sl.Info(msg+" closing temporary file caused an error",
-				slog.String("directory", dir),
-				slog.String("filename", dst.Name()),
+			sl.Info(msg+" closing temporary file caused an error", slog.String("filename", dst.Name()),
 				slog.Any("error", err))
 		}
 	}()
@@ -136,9 +133,7 @@ func getFile( //nolint:funlen
 		cleanup(sl, msg, response)
 		defer func() {
 			if err := os.Remove(dst.Name()); err != nil {
-				sl.Info(msg+" removing temporary file caused an error",
-					slog.String("directory", dir),
-					slog.String("filename", dst.Name()),
+				sl.Info(msg+" removing temporary file caused an error", slog.String("filename", dst.Name()),
 					slog.Any("error", err))
 			}
 		}()

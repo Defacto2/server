@@ -10,7 +10,6 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -23,6 +22,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/command/option"
 	"github.com/Defacto2/server/internal/config/fixarc"
 	"github.com/Defacto2/server/internal/config/fixarj"
 	"github.com/Defacto2/server/internal/config/fixlha"
@@ -38,20 +38,19 @@ import (
 )
 
 const (
+	Timeout = 1 * time.Minute
+)
+
+const (
 	unid      = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
 	cfid      = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
 	syncthing = ".stfolder"                            // syncthing directory name
 )
 
-// discard the error using the io.
-func discard(err error) {
-	_, _ = fmt.Fprint(io.Discard, err)
-}
-
-// RepairArchive checks the download directory for any legacy and obsolete archives.
+// RepairArchives checks the download directory for any legacy and obsolete archives.
 // Obsolete archives are those that use a legacy compression method
 // that is not supported by Go or JS libraries used by the website.
-func (c *Config) RepairArchive(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+func (c *Config) RepairArchives(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const format = "config archives repair: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, err)
@@ -127,8 +126,8 @@ func (c *Config) walkAndRepair(ctx context.Context, sl *slog.Logger, repair Repa
 		}
 
 		// re-archive the legacy file
-		ra := Rearchiving{Source: path, UID: uid, Destination: extra}
-		if err := repair.RePack(ctx, sl, ra); err != nil {
+		ra := Repack{Source: path, UID: uid, Destination: extra}
+		if err := repair.NewArchive(ctx, sl, ra); err != nil {
 			return fmt.Errorf("%s repair and re-archive: %w", repair.String(), err)
 		}
 
@@ -154,17 +153,17 @@ func (r Repair) String() string {
 	return [...]string{"zip", "lha", "arc", "arj"}[r]
 }
 
-// Rearchiving are the source and destination arguments required by the ReArchive Repair method.
-type Rearchiving struct {
+// Repack are the source and destination arguments required by the ReArchive Repair method.
+type Repack struct {
 	Source      string        // Source is the file extracted to a temporary directory and re-compressed.
 	UID         string        // UID is the destination filename using a universal unique ID naming syntax.
 	Destination dir.Directory // Destination is the directory to save the re-compressed file.
 }
 
-// RePack the file using the specified compression method.
-// The original ra.Source file is not removed.
-func (r Repair) RePack(ctx context.Context, sl *slog.Logger, ra Rearchiving) error {
-	const format = "config repair repack %s: %w"
+// NewArchive extracts the source archive file and then repackages (rearchives) it to a DEFLATE zip archive.
+// The original source file is always kept.
+func (r Repair) NewArchive(ctx context.Context, sl *slog.Logger, ra Repack) error {
+	const format = "config repair and repack %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
@@ -172,7 +171,7 @@ func (r Repair) RePack(ctx context.Context, sl *slog.Logger, ra Rearchiving) err
 		return fmt.Errorf(format, "source or uid are missing", ErrNoPath)
 	}
 	if err := ra.Destination.IsDir(); err != nil {
-		return fmt.Errorf(format, "destination is a directory", err)
+		return fmt.Errorf(format, "destination is not a directory", err)
 	}
 
 	// resolve extraction command per format
@@ -182,42 +181,46 @@ func (r Repair) RePack(ctx context.Context, sl *slog.Logger, ra Rearchiving) err
 	}
 
 	// prepare temporary directory
-	tmpPath, err := os.MkdirTemp(helper.TmpDir(), "rearchive-")
+	root, err := dir.MkdirTemp("newarc")
 	if err != nil {
-		return fmt.Errorf(format, "mkdir temp", err)
+		return fmt.Errorf(format, "make temp dir", err)
 	}
 	defer func() {
-		if rmErr := os.RemoveAll(tmpPath); rmErr != nil {
+		if rmErr := dir.RemoveAll(root); rmErr != nil {
 			sl.Error("repack failed to remove temp dir", slog.Any("error", rmErr))
 		}
 	}()
 
 	// extract source archive
-	timeout, cancel := context.WithTimeout(ctx, 1*time.Minute)
+	timeout, cancel := context.WithTimeout(ctx, Timeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(timeout, extractCmd, extractArg, ra.Source) //nolint:gosec
-	cmd.Dir = tmpPath
-	if stdoutStderr, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf(format, "extract command: "+string(stdoutStderr), err)
+	cr := command.Runner{
+		Timeout:    1 * Timeout,
+		Log:        sl,
+		WorkingDir: root,
+	}
+	arg := option.Join(extractArg, ra.Source)
+	out, err := cr.Run(timeout, extractCmd, arg...)
+	if err != nil {
+		return fmt.Errorf(format, "run command error: "+string(out), err)
 	}
 
 	// inspect extracted files
-	files, err := helper.Count(tmpPath)
+	files, err := helper.Count(root)
 	if err != nil {
 		return fmt.Errorf(format, "tmp count", err)
 	}
 
-	const msg = "Repair artifacts"
-	sl.Info(msg,
-		slog.String("Re-archive", "Recompressed "+ra.UID),
-		slog.Int("file(s)", files), slog.String("tmp", tmpPath))
+	const msg = "Repacked archive"
+	sl.Info(msg, slog.String("entry", ra.UID),
+		slog.Int("file(s)", files), slog.String("tmp", root))
 
 	// compress extracted directory into standard ZIP
 	name := ra.UID + ".zip"
-	tmpArchive := filepath.Join(tmpPath, name)
+	dest := filepath.Join(root, name)
 
-	written, err := rezip.CompressDir(tmpPath, tmpArchive)
+	written, err := rezip.CompressDir(root, dest)
 	if err != nil {
 		return fmt.Errorf(format, "compress dir", err)
 	}
@@ -227,7 +230,7 @@ func (r Repair) RePack(ctx context.Context, sl *slog.Logger, ra Rearchiving) err
 
 	// move temporary archive to destination
 	newpath := ra.Destination.Join(name)
-	if err := helper.RenameCrossDevice(tmpArchive, newpath); err != nil {
+	if err := helper.RenameCrossDevice(dest, newpath); err != nil {
 		return fmt.Errorf(format, "rename archive", err)
 	}
 
@@ -457,7 +460,7 @@ func (c *Config) assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 			return DownloadDir(sl, dir.Directory(c.AbsDownload), backup, dir.Directory(c.AbsExtra))
 		}},
 		{"assets", func() error { return c.Assets(ctx, sl, exec) }},
-		{"archives", func() error { return c.RepairArchive(ctx, sl, exec) }},
+		{"archives", func() error { return c.RepairArchives(ctx, sl, exec) }},
 		{"previews", func() error { return c.Previews(ctx, sl, exec) }},
 		{"magic numbers", func() error { return c.MagicNumbers(ctx, sl, exec) }},
 		{"textfiles", func() error { return c.TextFiles(ctx, sl, exec) }},

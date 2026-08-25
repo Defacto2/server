@@ -31,16 +31,16 @@ type Dirs struct {
 //
 // Thumbnails are generated as .webp or .png files, while the preview image format depends
 // on the input format (.png, .jpeg, .avif, .webp, etc.).
-func (dir Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, unid string) error {
+func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, unid string) error {
 	const format = "picture imager %s: %w"
 
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, check, err)
 	}
-	if err := dir.Preview.Check(sl); err != nil {
+	if err := ds.Preview.Check(sl); err != nil {
 		return fmt.Errorf(format, prevChk, err)
 	}
-	if err := dir.Thumbnail.Check(sl); err != nil {
+	if err := ds.Thumbnail.Check(sl); err != nil {
 		return fmt.Errorf(format, thumbChk, err)
 	}
 
@@ -80,29 +80,29 @@ func (dir Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, un
 	}
 
 	// remove existing thumbnails
-	err = ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path())
+	err = ImagesDelete(unid, ds.Preview.Path(), ds.Thumbnail.Path())
 	if err != nil && !errors.Is(err, ErrNoImages) {
 		return fmt.Errorf(format, "delete existing images", err)
 	}
 
 	switch magic { //nolint:exhaustive
 	case IFF:
-		return dir.previewPixels(ctx, sl, srcImage, unid)
+		return ds.previewPixels(ctx, sl, srcImage, unid)
 	case JPG:
-		return dir.previewPhoto(ctx, sl, srcImage, unid)
+		return ds.previewPhoto(ctx, sl, srcImage, unid)
 	case PNG:
-		return dir.previewPNG(ctx, sl, srcImage, unid)
+		return ds.previewPNG(ctx, sl, srcImage, unid)
 	case GIF:
-		return dir.previewGif(ctx, sl, srcImage, unid)
+		return ds.previewGif(ctx, sl, srcImage, unid)
 	case WebP:
 		const makeThumb = true
-		return dir.previewWebP(ctx, sl, srcImage, unid, makeThumb)
+		return ds.previewWebP(ctx, sl, srcImage, unid, makeThumb)
 	case TIFF:
-		return dir.previewPhoto(ctx, sl, srcImage, unid)
+		return ds.previewPhoto(ctx, sl, srcImage, unid)
 	case BMP:
-		return dir.previewPixels(ctx, sl, srcImage, unid)
+		return ds.previewPixels(ctx, sl, srcImage, unid)
 	case PCX:
-		return dir.previewPixels(ctx, sl, srcImage, unid)
+		return ds.previewPixels(ctx, sl, srcImage, unid)
 	default:
 		return fmt.Errorf(format, magic.Title(), ErrUnknownImg)
 	}
@@ -110,7 +110,7 @@ func (dir Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, un
 
 // BinTextImager converts a binary text source file into a PNG preview using Ansilove,
 // then processes the generated PNG through the standard text imager pipeline.
-func (dir Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, unid string) error {
+func (ds Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, unid string) error {
 	const format = "binary text imager %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, "", err)
@@ -126,7 +126,7 @@ func (dir Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, u
 	}
 
 	// create an isolated, safe temporary file
-	f, err := os.CreateTemp("", PatternAL)
+	f, err := dir.CreateTemp("bintext")
 	if err != nil {
 		return fmt.Errorf(format, "create temp", err)
 	}
@@ -146,7 +146,7 @@ func (dir Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, u
 		return fmt.Errorf(format, "run ansilove", err)
 	}
 
-	if err := dir.optiAnsilove(ctx, sl, unid, dst); err != nil {
+	if err := ds.optiAnsilove(ctx, sl, unid, dst); err != nil {
 		return fmt.Errorf(format, "optimize ansilove", err)
 	}
 
@@ -159,16 +159,16 @@ func (dir Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, u
 // If the amigaFont is set to true, a Commodore Amiga Tapaz font is used to represent
 // the text, otherwise an IBM VGA font is used. The amigaFont also displays less rows
 // of text due to the Topaz font being taller.
-func (dir Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string, amigaFont bool) error {
+func (ds Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string, amigaFont bool) error {
 	const format = "dirs text imager %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, check, err)
 	}
 
-	if err := dir.Thumbnail.Check(sl); err != nil {
+	if err := ds.Thumbnail.Check(sl); err != nil {
 		return fmt.Errorf(format, thumbChk, err)
 	}
-	if err := dir.Preview.Check(sl); err != nil {
+	if err := ds.Preview.Check(sl); err != nil {
 		return fmt.Errorf(format, prevChk, err)
 	}
 
@@ -183,13 +183,13 @@ func (dir Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid strin
 	if amigaFont {
 		const topazRows = 35
 		t.MaxRows = topazRows
-		return dir.textImager(ctx, sl, src, true, t)
+		return ds.textImager(ctx, sl, src, true, t)
 	}
 
-	return dir.textImager(ctx, sl, src, false, t)
+	return ds.textImager(ctx, sl, src, false, t)
 }
 
-func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, amigaFont bool, t Text) error {
+func (ds Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, amigaFont bool, t Text) error {
 	const format = "text imager %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, check, err)
@@ -218,7 +218,7 @@ func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, ami
 	}
 
 	// create an isolated temporary PNG destination
-	tmpFile, err := os.CreateTemp("", "ansilove-dos-*.png") // TODO:
+	tmpFile, err := dir.CreateTemp("aldos-*.png")
 	if err != nil {
 		return fmt.Errorf(format, "create temp", err)
 	}
@@ -242,7 +242,7 @@ func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, ami
 		return fmt.Errorf(format, "run ansilove", err)
 	}
 
-	if err := dir.optiAnsilove(ctx, sl, t.UUID, tmp); err != nil {
+	if err := ds.optiAnsilove(ctx, sl, t.UUID, tmp); err != nil {
 		return fmt.Errorf(format, "optimize ansilove", err)
 	}
 	return nil
@@ -250,7 +250,7 @@ func (dir Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, ami
 
 // optiAnsilove concurrently generates an optimized PNG preview, a WebP preview,
 // and the thumbnail from an temporary, unoptimized ANSILOVE generated image.
-func (dir Dirs) optiAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp string) error {
+func (ds Dirs) optiAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp string) error {
 	const msg = "optimize ansilove conversion"
 	const format = msg + "%s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
@@ -264,7 +264,7 @@ func (dir Dirs) optiAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp str
 	}()
 
 	// remove existing preview & thumbnail images
-	if err := ImagesDelete(unid, dir.Preview.Path(), dir.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
+	if err := ImagesDelete(unid, ds.Preview.Path(), ds.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
 		return fmt.Errorf(format, "delete existing", err)
 	}
 
@@ -272,7 +272,7 @@ func (dir Dirs) optiAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp str
 
 	// task 1: optimized PNG preview
 	g.Go(func() error {
-		dst := filepath.Join(dir.Preview.Path(), unid+png)
+		dst := filepath.Join(ds.Preview.Path(), unid+png)
 		if err := CopyFile(sl, tmp, dst); err != nil {
 			return fmt.Errorf(format, "copy file", err)
 		}
@@ -285,7 +285,7 @@ func (dir Dirs) optiAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp str
 	// task 2: webp preview
 	g.Go(func() error {
 		const makeThumb = false
-		if err := dir.previewWebP(ctx, sl, tmp, unid, makeThumb); err != nil {
+		if err := ds.previewWebP(ctx, sl, tmp, unid, makeThumb); err != nil {
 			return fmt.Errorf(format, "webp preview", err)
 		}
 		return nil
@@ -293,7 +293,7 @@ func (dir Dirs) optiAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp str
 
 	// task 3: thumbnail
 	g.Go(func() error {
-		if err := dir.thumbPixels(ctx, sl, tmp, unid); err != nil {
+		if err := ds.thumbPixels(ctx, sl, tmp, unid); err != nil {
 			return fmt.Errorf(format, "thumbnail pixels", err)
 		}
 		return nil
@@ -308,19 +308,19 @@ func (dir Dirs) optiAnsilove(ctx context.Context, sl *slog.Logger, unid, tmp str
 // previewPixels converts src into PNG and WebP preview images in the preview directory.
 // A WebP thumbnail image is also generated in the thumbnail directory.
 // This lossless conversion is optimal for screenshots of text, terminal interfaces, and pixel art.
-func (dir Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid string) error {
+func (ds Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "pixel image preview"
 	const format = msg + " %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, check, err)
 	}
 
-	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "previewpixels-*") // TODO:
+	tmpDir, err := dir.MkdirTemp("pixel")
 	if err != nil {
 		return fmt.Errorf(format, "create temp directory", err)
 	}
 	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
+		if err := dir.RemoveAll(tmpDir); err != nil {
 			sl.Error(msg+" could not apply remove all to temporary directory",
 				slog.String("directory", tmpDir), slog.Any("error", err))
 		}
@@ -337,11 +337,11 @@ func (dir Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid st
 		return fmt.Errorf(format, "run magick", err)
 	}
 
-	dst := filepath.Join(dir.Preview.Path(), unid+png)
+	dst := filepath.Join(ds.Preview.Path(), unid+png)
 	if err := CopyFile(sl, tmp, dst); err != nil {
 		return fmt.Errorf(format, "copyfile png preview", err)
 	}
-	if err := dir.optiAnsilove(ctx, sl, unid, tmp); err != nil {
+	if err := ds.optiAnsilove(ctx, sl, unid, tmp); err != nil {
 		return fmt.Errorf(format, "optimize ansilove", err)
 	}
 	return nil
@@ -352,19 +352,19 @@ func (dir Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid st
 // and generates a WebP thumbnail in the thumbnail directory.
 //
 // This lossy conversion is optimal for continuous-tone photographs.
-func (dir Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid string) error {
+func (ds Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "photo image preview"
 	const format = msg + " %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, check, err)
 	}
 
-	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "previewphoto-*")
+	tmpDir, err := dir.MkdirTemp("photo")
 	if err != nil {
 		return fmt.Errorf(format, "create temp directory", err)
 	}
 	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
+		if err := dir.RemoveAll(tmpDir); err != nil {
 			sl.Error(msg+" could not apply remove all to temporary directory",
 				slog.String("directory", tmpDir), slog.Any("error", err))
 		}
@@ -397,15 +397,15 @@ func (dir Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid str
 		return fmt.Errorf(format, "stat webp", err)
 	}
 	srcPath := wtmp
-	dst := filepath.Join(dir.Preview.Path(), unid+webp)
+	dst := filepath.Join(ds.Preview.Path(), unid+webp)
 	if jst.Size() < wst.Size() {
 		srcPath = jtmp
-		dst = filepath.Join(dir.Preview.Path(), unid+jpg)
+		dst = filepath.Join(ds.Preview.Path(), unid+jpg)
 	}
 	if err := CopyFile(sl, srcPath, dst); err != nil {
 		return fmt.Errorf(format, "copy preview", err)
 	}
-	if err := dir.thumbPhoto(ctx, sl, srcPath, unid); err != nil {
+	if err := ds.thumbPhoto(ctx, sl, srcPath, unid); err != nil {
 		return fmt.Errorf(format, "thumbnail", err)
 	}
 	return nil
@@ -413,7 +413,7 @@ func (dir Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid str
 
 // previewGif converts a GIF image into an animated or static WebP preview image
 // in the preview directory, and generates a WebP thumbnail in the thumbnail directory.
-func (dir Dirs) previewGif(ctx context.Context, sl *slog.Logger, src, unid string) error {
+func (ds Dirs) previewGif(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "gif preview"
 	const format = msg + " %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
@@ -421,7 +421,7 @@ func (dir Dirs) previewGif(ctx context.Context, sl *slog.Logger, src, unid strin
 	}
 
 	src = filepath.Clean(src)
-	tmpFile, err := os.CreateTemp("", "preview-gif-*.webp") // TODO:
+	tmpFile, err := dir.CreateTemp("previewgif-*.webp")
 	if err != nil {
 		return fmt.Errorf(format, "create temp", err)
 	}
@@ -442,11 +442,11 @@ func (dir Dirs) previewGif(ctx context.Context, sl *slog.Logger, src, unid strin
 		return fmt.Errorf(format, "run gif2webp", err)
 	}
 
-	dst := filepath.Join(dir.Preview.Path(), unid+webp)
+	dst := filepath.Join(ds.Preview.Path(), unid+webp)
 	if err := CopyFile(sl, tmp, dst); err != nil {
 		return fmt.Errorf(format, "copy preview", err)
 	}
-	if err := dir.thumbPixels(ctx, sl, tmp, unid); err != nil {
+	if err := ds.thumbPixels(ctx, sl, tmp, unid); err != nil {
 		return fmt.Errorf(format, "thumbnail", err)
 	}
 	return nil
@@ -454,7 +454,7 @@ func (dir Dirs) previewGif(ctx context.Context, sl *slog.Logger, src, unid strin
 
 // previewPNG copies the src PNG image to the preview directory.
 // It concurrently optimizes the preview and generates a WebP thumbnail .
-func (dir Dirs) previewPNG(ctx context.Context, sl *slog.Logger, src, unid string) error {
+func (ds Dirs) previewPNG(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const msg = "preview png"
 	const format = msg + " %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
@@ -462,7 +462,7 @@ func (dir Dirs) previewPNG(ctx context.Context, sl *slog.Logger, src, unid strin
 	}
 
 	src = filepath.Clean(src)
-	dst := filepath.Join(dir.Preview.Path(), unid+png)
+	dst := filepath.Join(ds.Preview.Path(), unid+png)
 	if err := CopyFile(sl, src, dst); err != nil {
 		return fmt.Errorf(format, "copy file", err)
 	}
@@ -477,7 +477,7 @@ func (dir Dirs) previewPNG(ctx context.Context, sl *slog.Logger, src, unid strin
 	})
 	// task 2: thumbnail generation
 	g.Go(func() error {
-		if err := dir.thumbPixels(ctx, sl, src, unid); err != nil {
+		if err := ds.thumbPixels(ctx, sl, src, unid); err != nil {
 			return fmt.Errorf(format, "thumbnail", err)
 		}
 		return nil
@@ -492,7 +492,7 @@ func (dir Dirs) previewPNG(ctx context.Context, sl *slog.Logger, src, unid strin
 
 // previewWebP runs the cwebp text preset on a supported source image (.png, .jpg, .tiff, .webp),
 // copies the resulting WebP to the preview directory, and optionally generates a thumbnail.
-func (dir Dirs) previewWebP(ctx context.Context, sl *slog.Logger, src, unid string, makeThumb bool) error {
+func (ds Dirs) previewWebP(ctx context.Context, sl *slog.Logger, src, unid string, makeThumb bool) error {
 	const msg = "preview webp"
 	const format = msg + " %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
@@ -500,7 +500,7 @@ func (dir Dirs) previewWebP(ctx context.Context, sl *slog.Logger, src, unid stri
 	}
 
 	src = filepath.Clean(src)
-	tmpFile, err := os.CreateTemp("", "preview-webp-*.webp")
+	tmpFile, err := dir.CreateTemp("previewwebp-*.webp")
 	if err != nil {
 		return fmt.Errorf(format, "create temp", err)
 	}
@@ -520,14 +520,14 @@ func (dir Dirs) previewWebP(ctx context.Context, sl *slog.Logger, src, unid stri
 	if out, err := r.Run(ctx, Cwebp, arg...); err != nil {
 		return fmt.Errorf(format, "run cwebp "+string(out), err)
 	}
-	dst := filepath.Join(dir.Preview.Path(), unid+webp)
+	dst := filepath.Join(ds.Preview.Path(), unid+webp)
 	if err := CopyFile(sl, tmp, dst); err != nil {
 		return fmt.Errorf(format, "copy preview", err)
 	}
 	if !makeThumb {
 		return nil
 	}
-	if err := dir.thumbPixels(ctx, sl, tmp, unid); err != nil {
+	if err := ds.thumbPixels(ctx, sl, tmp, unid); err != nil {
 		return fmt.Errorf(format, "thumbnail", err)
 	}
 	return nil
@@ -537,7 +537,7 @@ func (dir Dirs) previewWebP(ctx context.Context, sl *slog.Logger, src, unid stri
 // It uses a temporary lossless image format during conversion to preserve crisp edges.
 //
 // This is intended for text and pixel art images.
-func (dir Dirs) thumbPixels(ctx context.Context, sl *slog.Logger, src, unid string) error {
+func (ds Dirs) thumbPixels(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const format = "thumb as pixel capture %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, check, err)
@@ -549,14 +549,14 @@ func (dir Dirs) thumbPixels(ctx context.Context, sl *slog.Logger, src, unid stri
 		Pattern: "thumb-pixel-*.png",
 		JPEG:    false,
 	}
-	return t.make(ctx, sl, dir.Thumbnail)
+	return t.make(ctx, sl, ds.Thumbnail)
 }
 
 // thumbPhoto converts the src image to args 400x400 pixel WebP image in the thumbnail directory.
 // It uses a temporary JPEG intermediate image during conversion.
 //
 // This is used for photographs and images that are not text or pixel art.
-func (dir Dirs) thumbPhoto(ctx context.Context, sl *slog.Logger, src, unid string) error {
+func (ds Dirs) thumbPhoto(ctx context.Context, sl *slog.Logger, src, unid string) error {
 	const format = "thumb as photograph %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, check, err)
@@ -568,12 +568,12 @@ func (dir Dirs) thumbPhoto(ctx context.Context, sl *slog.Logger, src, unid strin
 		Pattern: "thumb-photo-*.jpg",
 		JPEG:    true,
 	}
-	return t.make(ctx, sl, dir.Thumbnail)
+	return t.make(ctx, sl, ds.Thumbnail)
 }
 
 // TextDeferred creates a thumbnail (if one does not exist) and
 // copies the source text file into the extra directory.
-func (dir Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, srcText, unid string) error {
+func (ds Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, srcText, unid string) error {
 	const format = "text deferred %s: %w"
 
 	if err := nils.Check(ctx, sl); err != nil {
@@ -583,10 +583,10 @@ func (dir Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, srcText, unid
 		return fmt.Errorf(format, "unid", ErrValue)
 	}
 
-	if err := dir.Thumbnail.Check(sl); err != nil {
+	if err := ds.Thumbnail.Check(sl); err != nil {
 		return fmt.Errorf(format, thumbChk, err)
 	}
-	if err := dir.Extra.Check(sl); err != nil {
+	if err := ds.Extra.Check(sl); err != nil {
 		return fmt.Errorf(format, "extra check", err)
 	}
 
@@ -601,7 +601,7 @@ func (dir Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, srcText, unid
 	base := filepath.Base(unid)
 	thumb := false
 	for _, ext := range imagesExt {
-		name := filepath.Join(dir.Thumbnail.Path(), base+ext)
+		name := filepath.Join(ds.Thumbnail.Path(), base+ext)
 		if info, err := os.Stat(name); err == nil && info.Size() > 0 {
 			thumb = true
 			break
@@ -613,13 +613,13 @@ func (dir Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, srcText, unid
 		if ctxErr := ctx.Err(); ctxErr != nil {
 			return fmt.Errorf(format, "context canceled", ctxErr)
 		}
-		if err := dir.TextImager(ctx, sl, srcText, base, false); err != nil {
+		if err := ds.TextImager(ctx, sl, srcText, base, false); err != nil {
 			return fmt.Errorf(format, srcText, err)
 		}
 	}
 
 	// copy text file to the extra directory if it does not already exist
-	newpath := filepath.Join(dir.Extra.Path(), base+".txt")
+	newpath := filepath.Join(ds.Extra.Path(), base+".txt")
 	if info, err := os.Stat(newpath); err == nil && info.Size() > 0 {
 		return nil
 	}
@@ -632,7 +632,7 @@ func (dir Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, srcText, unid
 }
 
 // DizDeferred copies a FILE_ID.DIZ text file into the extra directory.
-func (dir Dirs) DizDeferred(sl *slog.Logger, srcDIZ, unid string) error {
+func (ds Dirs) DizDeferred(sl *slog.Logger, srcDIZ, unid string) error {
 	const format = "text diz defer %s: %w"
 
 	if err := nils.Check(sl); err != nil {
@@ -641,12 +641,12 @@ func (dir Dirs) DizDeferred(sl *slog.Logger, srcDIZ, unid string) error {
 	if unid == "" {
 		return fmt.Errorf(format, "unid", ErrValue)
 	}
-	if err := dir.Extra.Check(sl); err != nil {
+	if err := ds.Extra.Check(sl); err != nil {
 		return fmt.Errorf(format, "extra check", err)
 	}
 
 	base := filepath.Base(unid)
-	newpath := filepath.Join(dir.Extra.Path(), base+".diz")
+	newpath := filepath.Join(ds.Extra.Path(), base+".diz")
 	if st, err := os.Stat(newpath); err == nil && !st.IsDir() {
 		return nil
 	}
@@ -727,7 +727,7 @@ const (
 )
 
 // Thumbs creates a thumbnail image from the corresponding preview image based on the thumb type.
-func (dir Dirs) Thumbs(ctx context.Context, sl *slog.Logger, unid string, generate Generate) error {
+func (ds Dirs) Thumbs(ctx context.Context, sl *slog.Logger, unid string, generate Generate) error {
 	const format = "thumb creator %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf(format, check, err)
@@ -738,32 +738,32 @@ func (dir Dirs) Thumbs(ctx context.Context, sl *slog.Logger, unid string, genera
 	default:
 		return fmt.Errorf(format, fmt.Sprintf(" thumb value %d", generate), ErrThumb)
 	}
-	if err := dir.Thumbnail.Check(sl); err != nil {
+	if err := ds.Thumbnail.Check(sl); err != nil {
 		return fmt.Errorf(format, thumbChk, err)
 	}
-	if err := dir.Preview.Check(sl); err != nil {
+	if err := ds.Preview.Check(sl); err != nil {
 		return fmt.Errorf(format, prevChk, err)
 	}
 
 	// remove any existing thumbnails; ignore expected "not found" errors
-	if dir.Thumbnail.Path() != dir.Preview.Path() {
-		if err := ImagesDelete(unid, dir.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
+	if ds.Thumbnail.Path() != ds.Preview.Path() {
+		if err := ImagesDelete(unid, ds.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
 			return fmt.Errorf(format, "delete existing", err)
 		}
 	}
 
 	// range each image file extension looking for matches
 	for _, ext := range imagesExt[:] {
-		src := filepath.Join(dir.Preview.Path(), unid+ext)
+		src := filepath.Join(ds.Preview.Path(), unid+ext)
 		if _, err := os.Stat(src); err != nil {
 			continue
 		}
 		var err error
 		switch generate {
 		case Pixel:
-			err = dir.thumbPixels(ctx, sl, src, unid)
+			err = ds.thumbPixels(ctx, sl, src, unid)
 		case Photo:
-			err = dir.thumbPhoto(ctx, sl, src, unid)
+			err = ds.thumbPhoto(ctx, sl, src, unid)
 		}
 		if err != nil {
 			return fmt.Errorf(format, "conversion failed", err)

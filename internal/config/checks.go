@@ -7,56 +7,14 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
-	"time"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/Defacto2/server/internal/postgres"
 )
-
-// TmpCleaner removes temporary directories created by this web application that are older than 3 days.
-func TmpCleaner(sl *slog.Logger) {
-	const msg = "Temporary cleaner"
-
-	if sl == nil {
-		sl = slog.Default()
-	}
-
-	const threeDays = 3 * 24 * time.Hour
-	tmpPath := helper.TmpDir()
-
-	entries, err := os.ReadDir(tmpPath)
-	if err != nil {
-		sl.Error(msg, slog.String("path", tmpPath), slog.Any("error", err))
-		return
-	}
-
-	for _, d := range entries {
-		if !d.IsDir() || !strings.HasPrefix(d.Name(), "artifact-content-") {
-			continue
-		}
-
-		info, err := d.Info()
-		if err != nil {
-			sl.Error(msg, slog.String("name", d.Name()), slog.Any("error", err))
-			continue
-		}
-
-		if time.Since(info.ModTime()) < threeDays {
-			continue
-		}
-
-		targetPath := filepath.Join(tmpPath, d.Name())
-		if err := os.RemoveAll(targetPath); err != nil {
-			sl.Error(msg, slog.String("target_path", targetPath), slog.Any("error", err))
-			continue
-		}
-
-		sl.Info(msg, slog.String("cleaned", d.Name()), slog.Duration("age", time.Since(info.ModTime()).Round(time.Hour)))
-	}
-}
 
 // Checks runs a number of sanity checks for the environment variable configurations.
 func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
@@ -105,7 +63,60 @@ func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 		sl.Warn(inf, slog.String(key, s))
 	}
 
-	return c.checkLogDir(sl)
+	if err := c.checkLogDir(sl); err != nil {
+		s := helper.Capitalize(err.Error())
+		sl.Error(msg, slog.String(key, s))
+	}
+
+	c.commands(ctx, sl)
+
+	conn, err := postgres.New()
+	if err != nil {
+		sl.Error(msg,
+			slog.String("issue", "sanity checks could not initialize the database data"),
+			slog.Any("error", err))
+	}
+	if err := conn.Validate(sl); err != nil {
+		panic(fmt.Errorf("%s conn validate: %w", msg, err))
+	}
+
+	return nil
+}
+
+// commands is used to confirm the required commands are available.
+// These are skipped if readonly is true.
+func (c *Config) commands(ctx context.Context, sl *slog.Logger) {
+	const msg = "command checks"
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("%s: %w", msg, err))
+	}
+
+	attrs := make([]slog.Attr, 0, len(command.Lookups))
+	for i, file := range command.Lookups {
+		if _, err := command.Lookup(file); err != nil {
+			attrs = append(attrs, slog.String(file, command.Infos[i]))
+		}
+	}
+	if len(attrs) > 0 {
+		const msg = "The following tools are required for the server to run in WRITE MODE. " +
+			"These need to be installed and accessible on the system path."
+		sl.Warn(msg)
+		for n, attr := range attrs {
+			sl.Warn(fmt.Sprintf("missing tool #%2d", n),
+				slog.String("command", attr.Key),
+				slog.String("detail", attr.Value.String()))
+		}
+	}
+
+	if err := command.LookupUnrar(ctx); err != nil {
+		if errors.Is(err, command.ErrVersion) {
+			const msg = "Found unrar but it is not authored by Alexander Roshal."
+			sl.Warn(msg, slog.String("command", command.Lookups[10]),
+				slog.String("detail", "is unrar-free mistakenly installed and using the command?"))
+			return
+		}
+		sl.Warn("command unrar", slog.Any("error", err))
+	}
 }
 
 func (c *Config) Warn(sl *slog.Logger, msg, name string, err error) {

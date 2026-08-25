@@ -3,6 +3,7 @@ package dir_test
 import (
 	"errors"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/Defacto2/server/internal/dir"
@@ -111,8 +112,9 @@ func TestIsDir(t *testing.T) {
 	t.Run("file instead of directory returns ErrFile", func(t *testing.T) {
 		t.Parallel()
 		// Create a temp file
-		tmpFile, err := os.CreateTemp(tmpDir, "test-*.txt")
+		tmpFile, err := dir.CreateTemp("test-*.txt")
 		be.True(t, err == nil)
+
 		defer func() {
 			err := tmpFile.Close()
 			t.Log(err)
@@ -190,7 +192,7 @@ func TestCheck(t *testing.T) {
 	t.Run("file instead of directory returns error", func(t *testing.T) {
 		t.Parallel()
 		// Create a temp file
-		tmpFile, err := os.CreateTemp(tmpDir, "test-*.txt")
+		tmpFile, err := dir.CreateTemp("test-*.txt")
 		be.True(t, err == nil)
 		defer func() {
 			if err := tmpFile.Close(); err != nil {
@@ -288,6 +290,31 @@ func TestErrorTypes(t *testing.T) {
 			t.Parallel()
 			be.True(t, tt.err != nil)
 			be.True(t, len(tt.err.Error()) > 0)
+		})
+	}
+}
+
+func TestIsTemp(t *testing.T) {
+	t.Parallel()
+
+	tmp := os.TempDir()
+	tests := []struct {
+		path string
+		want bool
+	}{
+		{"", false},
+		{tmp, false},
+		{filepath.Join(tmp, "random"), false},
+		{filepath.Join(tmp, dir.Pattern), false},
+		{filepath.Join(tmp, dir.Pattern+"-random"), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			t.Parallel()
+
+			got := dir.IsTemp(tt.path)
+			be.Equal(t, got, tt.want)
 		})
 	}
 }

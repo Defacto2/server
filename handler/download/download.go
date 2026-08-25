@@ -35,10 +35,10 @@ var (
 // The id string is the UID filename of the requested file.
 func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error {
 	const format = "download checksum id %v: %w"
-	const fmtinf = "%s for " + format
 	if err := nils.Check(ctx, c, db); err != nil {
 		return fmt.Errorf(format, id, err)
 	}
+
 	art, err := model.OneFileByKey(ctx, db, id)
 	if err != nil {
 		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
@@ -48,6 +48,7 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error
 			return fmt.Errorf(format, id, err)
 		}
 	}
+
 	// an example checksum file body created by `shasum`
 	// 72f8a29d75993487b7ad5ad3a17d2f65ed4c41be155adbda88258d0458fcfe29f55e2e31b0316f01d57f4427ca9e2422  sk8-01.jpg
 	sum := strings.TrimSpace(art.FileIntegrityStrong.String)
@@ -57,11 +58,13 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error
 	name := art.Filename.String
 	body := []byte(sum + " " + name)
 
-	file, err := os.CreateTemp(helper.TmpDir(), "checksum-server.*.txt")
+	const fmtinf = "%s for " + format
+	file, err := dir.CreateTemp("checksum-server.*.txt")
 	if err != nil {
-		return fmt.Errorf(fmtinf, "create temp directory", id, err)
+		return fmt.Errorf(fmtinf, "create temp file", id, err)
 	}
-	defer func() { _ = os.Remove(file.Name()) }()
+	defer os.Remove(file.Name())
+
 	if _, err := file.Write(body); err != nil {
 		return fmt.Errorf("%s: write: %w", format, err)
 	}
@@ -69,6 +72,7 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error
 	if err != nil {
 		return fmt.Errorf(fmtinf, "attachment", id, err)
 	}
+
 	return nil
 }
 

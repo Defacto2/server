@@ -387,16 +387,22 @@ func TestMIME(t *testing.T) {
 	be.Equal(t, "image/png", s)
 }
 
-func TestMkContent(t *testing.T) {
+func TestMkdirStale(t *testing.T) {
 	t.Parallel()
 
 	sl := slog.Default()
-	s := simple.MkContent(sl, "")
+	s := simple.MkdirStale(sl, "")
 	be.Equal(t, s, "")
 
-	s = simple.MkContent(sl, "a string")
-	defer os.Remove(s)
-	be.True(t, strings.Contains(s, "a string"))
+	s1 := simple.MkdirStale(sl, "a string")
+	be.True(t, strings.Contains(s1, "a string"))
+	s2 := simple.MkdirStale(sl, "a string")
+	be.Equal(t, s1, s2)
+
+	t.Cleanup(func() {
+		_ = os.RemoveAll(s1)
+		_ = os.RemoveAll(s2)
+	})
 }
 
 func TestReleasers(t *testing.T) {

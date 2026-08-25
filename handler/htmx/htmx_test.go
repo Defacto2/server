@@ -170,23 +170,32 @@ func TestProdSubmit(t *testing.T) {
 
 func TestUploadPreview(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
-	err := htmx.UploadPreview(ctx, logs.Discard(), newContext(), "", "")
+
+	ctx := t.Context()
+	u := htmx.Upload{}
+	err := u.ImagePreview(ctx, logs.Discard(), newContext())
 	be.Err(t, err, nil)
+
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.UploadPreview(ctx, logs.Discard(), newContext(), dir.Directory(wd), dir.Directory(wd))
+	u.Preview = dir.Directory(wd)
+	u.Thumbnail = dir.Directory(wd)
+	err = u.ImagePreview(ctx, logs.Discard(), newContext())
 	be.Err(t, err, nil)
 }
 
 func TestUploadReplacement(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
+	ctx := t.Context()
 	d := logs.Discard()
-	err := htmx.UploadReplacement(ctx, d, newContext(), nil, "", "")
+
+	u := htmx.Upload{}
+	err := u.Replacement(ctx, d, newContext(), nil)
 	be.Err(t, err)
+
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
-	err = htmx.UploadReplacement(ctx, d, newContext(), nil, dir.Directory(wd), "")
+	u.Download = dir.Directory(wd)
+	err = u.Replacement(ctx, d, newContext(), nil)
 	be.Err(t, err)
 }

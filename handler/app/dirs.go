@@ -81,38 +81,38 @@ type Dirs struct {
 
 // Artifact is the app handler for the file record that is used by the /f/[key] route,
 // and is rendered by the app/artifact.tmpl and app/artifactedit.tmpl views.
-func (dir *Dirs) Artifact(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
+func (ds *Dirs) Artifact(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
 	const format = "dirs artifact context %s: %w"
 	const uri = "artifact"
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, "arguments", err)
 	}
 
-	art, err := dir.oneByKey(ctx, sl, c, db)
+	art, err := ds.oneByKey(ctx, sl, c, db)
 	if ok := art != nil || err != nil; !ok {
 		return fmt.Errorf(format, "one by key", err)
 	}
-	dir.ID = art.ID
-	dir.UUID = filerecord.UnID(art)
-	dir.Platform = filerecord.TagProgram(art)
-	dir.Section = filerecord.TagCategory(art)
-	dir.Magic = filerecord.Magic(art)
-	dir.Maximum.Items = maxArchiveItems
-	dir.Maximum.Readme = sizeLimitBytes
+	ds.ID = art.ID
+	ds.UUID = filerecord.UnID(art)
+	ds.Platform = filerecord.TagProgram(art)
+	ds.Section = filerecord.TagCategory(art)
+	ds.Magic = filerecord.Magic(art)
+	ds.Maximum.Items = maxArchiveItems
+	ds.Maximum.Readme = sizeLimitBytes
 
 	// must always init an empty data map
 	data := empty(c)
 
-	if edit := !dir.ReadOnly && sess.Editor(c); edit {
-		data = dir.addEditor(ctx, sl, c, art, data)
+	if edit := !ds.ReadOnly && sess.Editor(c); edit {
+		data = ds.addEditor(ctx, sl, c, art, data)
 	}
-	data = dir.fixANSI(ctx, sl, db, data)
+	data = ds.fixANSI(ctx, sl, db, data)
 
 	// webpage template metadata
 	downloadURI := filerecord.DownloadID(art)
 	h1 := filerecord.FirstHeader(art)
 	data["canonical"] = strings.Join([]string{"f", downloadURI}, "/")
-	data["unid"] = dir.UUID
+	data["unid"] = ds.UUID
 	data["download"] = downloadURI
 	data["title"] = filerecord.Basename(art)
 	data["description"] = filerecord.Description(art)
@@ -121,64 +121,64 @@ func (dir *Dirs) Artifact(ctx context.Context, sl *slog.Logger, c *echo.Context,
 	data["lead"] = firstLead(art)
 	data["comment"] = string(helper.MaskTerm([]byte(filerecord.Comment(art))...))
 
-	data = dir.addDownload(art, data)
-	if fix := !dir.ReadOnly && sess.Editor(c); fix {
-		data = dir.fixMagic(ctx, sl, db, data)
+	data = ds.addDownload(art, data)
+	if fix := !ds.ReadOnly && sess.Editor(c); fix {
+		data = ds.fixMagic(ctx, sl, db, data)
 	}
 
-	data = dir.addAttribution(art, data)
-	data = dir.addLinks(art, data)
-	data = dir.addEmu(sl, art, data)
+	data = ds.addAttribution(art, data)
+	data = ds.addLinks(art, data)
+	data = ds.addEmu(sl, art, data)
 
 	content := art.FileZipContent.String
 	if ok := len(content) <= maxZipContent; !ok && !sess.Editor(c) {
 		data["contentDesc"] = "contains many files"
 	} else {
-		data = dir.addZip(content, data)
+		data = ds.addZip(content, data)
 	}
 
 	data["linkpreview"] = filerecord.LinkPreview(art)
 	data["linkpreviewTip"] = filerecord.LinkPreviewTip(art)
 	data["filentry"] = filerecord.FileEntry(art)
 
-	if ok := dir.screenshot(); !ok {
+	if ok := ds.screenshot(); !ok {
 		data["noScreenshot"] = true
 	}
 
 	if text := !filerecord.UnsupportedFile(art); text {
-		data, err = dir.addReadme(sl, art, data)
+		data, err = ds.addReadme(sl, art, data)
 		if err != nil {
 			defer clear(data)
-			dir.logErr(sl, "dirs artifact add readme", err)
+			ds.logErr(sl, "dirs artifact add readme", err)
 		}
 	} else {
-		data = dir.addSAUCE(art, data)
+		data = ds.addSAUCE(art, data)
 	}
 
 	err = c.Render(http.StatusOK, uri, data)
 	defer clear(data)
 	if err != nil {
-		return InternalErr(sl, c, uri, errorWithID(err, dir.URI, art.ID))
+		return InternalErr(sl, c, uri, errorWithID(err, ds.URI, art.ID))
 	}
 
 	return nil
 }
 
 // logErr logs the err as an error while also providing id and uri context from Dirs.
-func (dir *Dirs) logErr(sl *slog.Logger, msg string, err error) {
+func (ds *Dirs) logErr(sl *slog.Logger, msg string, err error) {
 	if sl == nil {
 		return
 	}
 	sl.Error(msg,
-		slog.String("uri", dir.URI),
-		slog.Int64("id", dir.ID),
-		slog.String("uuid", dir.UUID),
+		slog.String("uri", ds.URI),
+		slog.Int64("id", ds.ID),
+		slog.String("uuid", ds.UUID),
 		// slog.String("name", dir.Filename),
 		slog.Any("error", err))
 }
 
 // addAttribution returns the authors and attributions of the artifact.
-func (dir *Dirs) addAttribution(art *models.File, data map[string]any) map[string]any {
+func (ds *Dirs) addAttribution(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -192,7 +192,7 @@ func (dir *Dirs) addAttribution(art *models.File, data map[string]any) map[strin
 }
 
 // addDownload returns the metadata for the artifact download file.
-func (dir *Dirs) addDownload(art *models.File, data map[string]any) map[string]any {
+func (ds *Dirs) addDownload(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -208,7 +208,7 @@ func (dir *Dirs) addDownload(art *models.File, data map[string]any) map[string]a
 	data["published"] = filerecord.Date(art)
 	data["section"] = filerecord.TagCategory(art)
 	data["platform"] = filerecord.TagProgram(art)
-	data["extraZip"] = filerecord.ExtraZip(art, dir.Extra)
+	data["extraZip"] = filerecord.ExtraZip(art, ds.Extra)
 
 	alert := filerecord.AlertURL(art)
 	data["alertURL"] = alert
@@ -222,7 +222,7 @@ func (dir *Dirs) addDownload(art *models.File, data map[string]any) map[string]a
 // addEditor adds editoring data for the artifact.
 //
 // These are the editable fields only visible to website editors after they have logged in.
-func (dir *Dirs) addEditor(
+func (ds *Dirs) addEditor(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, art *models.File, data map[string]any,
 ) map[string]any {
 	if nils.Slog("dirs add editor", ctx, sl, c, art) {
@@ -230,13 +230,13 @@ func (dir *Dirs) addEditor(
 	}
 
 	paths := command.Dirs{
-		Download:  dir.Download,
-		Preview:   dir.Preview,
-		Thumbnail: dir.Thumbnail,
-		Extra:     dir.Extra,
+		Download:  ds.Download,
+		Preview:   ds.Preview,
+		Thumbnail: ds.Thumbnail,
+		Extra:     ds.Extra,
 	}
 	unid := filerecord.UnID(art)
-	path := filepath.Join(dir.Download.Path(), unid)
+	path := filepath.Join(ds.Download.Path(), unid)
 
 	data["epochYear"] = PcEpoch
 	data["readonlymode"] = false
@@ -252,17 +252,17 @@ func (dir *Dirs) addEditor(
 	data["modMagicNumber"] = simple.MagicAsTitle(sl, path)
 	data["modDBModify"] = filerecord.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(path)
-	data["modDecompress"] = filerecord.ListContent(ctx, sl, dir.Maximum.Items, art, paths, path)
+	data["modDecompress"] = filerecord.ListContent(ctx, sl, ds.Maximum.Items, art, paths, path)
 	if sess.Editor(c) {
-		data["modDecompressLoc"] = simple.MkContent(sl, path)
+		data["modDecompressLoc"] = simple.MkdirStale(sl, path)
 	}
 	// WARN: These operations must be done using os.Stat and not os.ReadDir or filepath.WalkDir.
 	// Previous attempts to use a shared function with WalkDir caused a memory leakages when
 	// the site was under heavy load.
-	data["modAssetPreview"] = dir.pathsPreview(sl)
-	data["modAssetThumbnail"] = dir.pathsThumb(sl)
-	data["modAssetExtra"] = dir.pathsExtras()
-	data["missingAssets"] = dir.pathsSuggest()
+	data["modAssetPreview"] = ds.pathsPreview(sl)
+	data["modAssetThumbnail"] = ds.pathsThumb(sl)
+	data["modAssetExtra"] = ds.pathsExtras()
+	data["missingAssets"] = ds.pathsSuggest()
 	data["modReadmeSuggest"] = filerecord.Readme(art)
 	data["disableReadme"] = filerecord.DisableReadme(art)
 	data["modZipContent"] = filerecord.ZipContent(art)
@@ -285,7 +285,7 @@ func (dir *Dirs) addEditor(
 }
 
 // addEmu returns the js-dos emulator data for the file record of the artifact.
-func (dir *Dirs) addEmu(sl *slog.Logger, art *models.File, data map[string]any,
+func (ds *Dirs) addEmu(sl *slog.Logger, art *models.File, data map[string]any,
 ) map[string]any {
 	const msg = "jsdos emulator"
 	if nils.Slog(msg, sl, art) {
@@ -305,21 +305,21 @@ func (dir *Dirs) addEmu(sl *slog.Logger, art *models.File, data map[string]any,
 
 	runCmd, err := model.JsDosCommand(art)
 	if err != nil {
-		dir.logErr(sl, msg+" command", err)
+		ds.logErr(sl, msg+" command", err)
 		return data
 	}
 	data["jsdos6Run"] = runCmd
 
 	runGuess, err := model.JsDosBinary(art)
 	if err != nil {
-		dir.logErr(sl, msg+" binary", err)
+		ds.logErr(sl, msg+" binary", err)
 		return data
 	}
 	data["jsdos6RunGuess"] = runGuess
 
 	config, err := model.JsDosConfig(art)
 	if err != nil {
-		dir.logErr(sl, msg+" config", err)
+		ds.logErr(sl, msg+" config", err)
 		return data
 	}
 	data["jsdos6"] = true
@@ -331,7 +331,7 @@ func (dir *Dirs) addEmu(sl *slog.Logger, art *models.File, data map[string]any,
 }
 
 // addLinks returns the other relations and external links for the file record of the artifact.
-func (dir *Dirs) addLinks(art *models.File, data map[string]any) map[string]any {
+func (ds *Dirs) addLinks(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
@@ -349,7 +349,7 @@ func (dir *Dirs) addLinks(art *models.File, data map[string]any) map[string]any 
 
 // addReadme can append either a plain textfile, ansi encoded text file, or binary text file to the data map.
 // Also handled is any embedded SAUCE metadata, that will be shown as "embed" information on the artifact page.
-func (dir *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any) (map[string]any, error) {
+func (ds *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any) (map[string]any, error) {
 	// these are required by the template and must always be set
 	data["contentBinary"] = ""
 	data["readmeSAUCE"] = false
@@ -364,14 +364,14 @@ func (dir *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]an
 	}
 
 	text := readme.Text{ //nolint:exhaustruct
-		Download: dir.Download,
-		Extra:    dir.Extra,
+		Download: ds.Download,
+		Extra:    ds.Extra,
 		UUID:     art.UUID.String,
 		Filename: art.Filename.String,
 		Platform: art.Platform.String,
 		Section:  art.Section.String,
 		Year:     art.DateIssuedYear.Int16,
-		MaxSize:  dir.Maximum.Readme,
+		MaxSize:  ds.Maximum.Readme,
 	}
 	textBuf, runeBuf, err := text.Buffers(sl)
 	if err != nil {
@@ -401,24 +401,24 @@ func (dir *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]an
 
 	// ansi and binary text files are handled by a different template
 	if notRAW := runeBuf == nil; notRAW {
-		data = dir.addTextBinary(art, textBuf, classElems[:], data)
+		data = ds.addTextBinary(art, textBuf, classElems[:], data)
 		return data, nil
 	}
 
-	data = dir.addText8bit(sl, art, textBuf, data)
-	data = dir.addTextUTF8(textBuf, runeBuf, data)
+	data = ds.addText8bit(sl, art, textBuf, data)
+	data = ds.addTextUTF8(textBuf, runeBuf, data)
 
 	return data, nil
 }
 
 // addSAUCE is used to read the SAUCE metadata embed into data files such
 // as pictures and image files.
-func (dir *Dirs) addSAUCE(art *models.File, data map[string]any) map[string]any {
+func (ds *Dirs) addSAUCE(art *models.File, data map[string]any) map[string]any {
 	if art == nil {
 		return data
 	}
 
-	name := filepath.Join(dir.Download.Path(), art.UUID.String)
+	name := filepath.Join(ds.Download.Path(), art.UUID.String)
 	file, err := os.Open(name)
 	if err != nil {
 		return data
@@ -448,7 +448,7 @@ func (dir *Dirs) addSAUCE(art *models.File, data map[string]any) map[string]any 
 //
 // All text content, either CP437, ISO, or UTF-8, also goes through a normalization process,
 // to replace any "special" characters, such as non-breaking-spaces with standard spaces.
-func (dir *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
+func (ds *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
 	textBuf *bytes.Buffer, data map[string]any,
 ) map[string]any {
 	if nils.Slog("dirs add text 8bit", sl, art, textBuf) {
@@ -494,7 +494,7 @@ func (dir *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
 		b = lockWidth(maxWidth, b)
 	}
 
-	byteEnc := dir.encoding(bytes.NewReader(b))
+	byteEnc := ds.encoding(bytes.NewReader(b))
 	switch byteEnc {
 	case charmap.ISO8859_1:
 		b = bytes.ReplaceAll(b, byteNBSP, byteSpace)
@@ -507,7 +507,7 @@ func (dir *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
 	case unicode.UTF8:
 		body, err := decode(bytes.NewReader(b))
 		if err != nil {
-			dir.logErr(sl, "unicode utf-8", err)
+			ds.logErr(sl, "unicode utf-8", err)
 			return data
 		}
 		data["contentLatin1"] = body
@@ -521,7 +521,7 @@ func (dir *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
 		isomap := charmap.ISO8859_1.NewDecoder().Reader(bytes.NewReader(b))
 		isobody, err := decode(isomap)
 		if err != nil {
-			dir.logErr(sl, "iso8859-1", err)
+			ds.logErr(sl, "iso8859-1", err)
 			return data
 		}
 		data["contentLatin1"] = isobody
@@ -529,7 +529,7 @@ func (dir *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
 		// codepage-437 text
 		cpmap := charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 		cpbody, err := decode(cpmap)
-		dir.logErr(sl, "cp-437", err)
+		ds.logErr(sl, "cp-437", err)
 		if err != nil {
 			return data
 		}
@@ -546,7 +546,7 @@ func (dir *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
 // addTextBinary prepares the viewer for both binary encoded text and ansi escape encoded texts.
 //
 // The elems entries are for individual CSS class names that will be used with "preElementClss".
-func (dir *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
+func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 	elems []string, data map[string]any,
 ) map[string]any {
 	if nils.Slog("dirs add text binary", art, textBuf) {
@@ -599,7 +599,7 @@ func (dir *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 // addTextUTF8 adds the appropriate buffer for the "Web style" text.
 // The use of the buf Buffer is for legacy "ISO-8859-1" encoded text that is backwards compatible with UTF-8.
 // The use of the ruf Buffer is for multi-byte, Unicode runes.
-func (dir *Dirs) addTextUTF8(textBuf, runeBuf *bytes.Buffer, data map[string]any) map[string]any {
+func (ds *Dirs) addTextUTF8(textBuf, runeBuf *bytes.Buffer, data map[string]any) map[string]any {
 	if nils.Slog("dirs add text utf8", textBuf, runeBuf) {
 		return data
 	}
@@ -617,7 +617,7 @@ func (dir *Dirs) addTextUTF8(textBuf, runeBuf *bytes.Buffer, data map[string]any
 
 // addZip returns the archive content for the file download of the artifact.
 // NOTE: this can cause a performance hit for archives with 10,000+ items.
-func (dir *Dirs) addZip(content string, data map[string]any) map[string]any {
+func (ds *Dirs) addZip(content string, data map[string]any) map[string]any {
 	if content == "" {
 		return data
 	}
@@ -629,7 +629,7 @@ func (dir *Dirs) addZip(content string, data map[string]any) map[string]any {
 
 	count := len(items)
 	// Cap the number of items to avoid generating HTML output that's too large
-	maxItems := dir.Maximum.Items
+	maxItems := ds.Maximum.Items
 	if count > maxItems {
 		items = items[:maxItems]
 	}
@@ -653,9 +653,9 @@ func (dir *Dirs) addZip(content string, data map[string]any) map[string]any {
 // encoding returns the encoding for the model file entry.
 // Based on the platform and section.
 // Otherwise it will attempt to determine the encoding from the file byte content.
-func (dir *Dirs) encoding(r io.Reader) encoding.Encoding { //nolint:ireturn
-	platform := strings.TrimSpace(dir.Platform)
-	section := strings.TrimSpace(dir.Section)
+func (ds *Dirs) encoding(r io.Reader) encoding.Encoding { //nolint:ireturn
+	platform := strings.TrimSpace(ds.Platform)
+	section := strings.TrimSpace(ds.Section)
 
 	if strings.EqualFold(platform, textamiga) ||
 		strings.EqualFold(section, "appleii") ||
@@ -663,7 +663,7 @@ func (dir *Dirs) encoding(r io.Reader) encoding.Encoding { //nolint:ireturn
 		return charmap.ISO8859_1
 	}
 
-	if strings.Contains(strings.ToLower(dir.Magic), "utf-8") {
+	if strings.Contains(strings.ToLower(ds.Magic), "utf-8") {
 		return unicode.UTF8
 	}
 
@@ -677,7 +677,7 @@ func (dir *Dirs) encoding(r io.Reader) encoding.Encoding { //nolint:ireturn
 }
 
 // fixANSI uses the magicnumber data to match ansi texts and update the artifact platform classification.
-func (dir *Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any) map[string]any {
+func (ds *Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any) map[string]any {
 	if nils.Slog("dirs fix ansi", ctx, sl, db) {
 		return data
 	}
@@ -697,10 +697,10 @@ func (dir *Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data 
 		return data
 	}
 
-	id := dir.ID
+	id := ds.ID
 	val := tags.ANSI.String()
 	if err := model.UpdatePlatform(ctx, db, id, val); err != nil {
-		dir.logErr(sl, "dirs fix ansi update platform", err)
+		ds.logErr(sl, "dirs fix ansi update platform", err)
 	}
 	data["platform"] = val
 
@@ -714,7 +714,7 @@ func (dir *Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data 
 // should only be used by logged-in editors.
 //
 // NOTE: this can be a performance issue on large files.
-func (dir *Dirs) fixMagic(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any) map[string]any {
+func (ds *Dirs) fixMagic(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any) map[string]any {
 	const msg = "dirs fix magic"
 	if nils.Slog(msg, ctx, sl, db) {
 		return data
@@ -726,16 +726,16 @@ func (dir *Dirs) fixMagic(ctx context.Context, sl *slog.Logger, db *sql.DB, data
 		data["magic"] = modMagic
 		magic, valid := modMagic.(string)
 		if !valid {
-			dir.logErr(sl, msg+" mod magic is a string", ErrType)
+			ds.logErr(sl, msg+" mod magic is a string", ErrType)
 			return data
 		}
-		if err := model.UpdateMagic(ctx, db, dir.ID, magic); err != nil {
-			dir.logErr(sl, msg, err)
+		if err := model.UpdateMagic(ctx, db, ds.ID, magic); err != nil {
+			ds.logErr(sl, msg, err)
 		}
 	}
 
 	if findRepack, ok := data["extraZip"].(bool); !ok {
-		dir.logErr(sl, msg+" extra zip is a boolean", ErrType)
+		ds.logErr(sl, msg+" extra zip is a boolean", ErrType)
 		return data
 	} else if findRepack {
 		return data
@@ -743,27 +743,27 @@ func (dir *Dirs) fixMagic(ctx context.Context, sl *slog.Logger, db *sql.DB, data
 
 	root, ok := data["modDecompressLoc"].(string)
 	if !ok {
-		dir.logErr(sl, msg+" mod decompress loc is a string", ErrType)
+		ds.logErr(sl, msg+" mod decompress loc is a string", ErrType)
 		return data
 	}
 
 	if st, err := os.Stat(root); err != nil || !st.IsDir() {
-		dir.logErr(sl, msg, err)
+		ds.logErr(sl, msg, err)
 		return data
 	}
 
-	return dir.makeAssets(ctx, sl, root, modMagic, data)
+	return ds.makeAssets(ctx, sl, root, modMagic, data)
 }
 
 // makeAssets will create repackaged archives and images of textfiles if they're required.
-func (dir *Dirs) makeAssets(ctx context.Context, sl *slog.Logger, root string, modMagic any, data map[string]any,
+func (ds *Dirs) makeAssets(ctx context.Context, sl *slog.Logger, root string, modMagic any, data map[string]any,
 ) map[string]any {
 	const msg = "dirs make assets"
 	if nils.Slog(msg, ctx, sl) {
 		return data
 	}
 
-	name := filepath.Join(dir.Download.Path(), dir.UUID)
+	name := filepath.Join(ds.Download.Path(), ds.UUID)
 	zipArchiving := modMagic == magicnumber.PKWAREZip.Title()
 	switch {
 	case legacyArchiving(modMagic):
@@ -774,45 +774,45 @@ func (dir *Dirs) makeAssets(ctx context.Context, sl *slog.Logger, root string, m
 			return data
 		}
 	case plainText(modMagic):
-		return dir.makeTextImages(ctx, sl, data)
+		return ds.makeTextImages(ctx, sl, data)
 	default:
 		return data
 	}
 
-	i, err := dir.makeZipfile(root)
+	i, err := ds.makeZipfile(root)
 	if err != nil {
-		dir.logErr(sl, msg, err)
+		ds.logErr(sl, msg, err)
 		return data
 	}
-	slog.Info(msg+" success", slog.String("uuid", dir.UUID), slog.Int64("bytes extracted", i))
+	slog.Info(msg+" success", slog.String("uuid", ds.UUID), slog.Int64("bytes extracted", i))
 	data["extraZip"] = true
 
 	return data
 }
 
-func (dir *Dirs) makeTextImages(ctx context.Context, sl *slog.Logger, data map[string]any) map[string]any {
+func (ds *Dirs) makeTextImages(ctx context.Context, sl *slog.Logger, data map[string]any) map[string]any {
 	const msg = "dirs make text images"
 	if nils.Slog(msg, ctx, sl) {
 		return data
 	}
 
-	platform := dir.Platform
-	name := filepath.Join(dir.Download.Path(), dir.UUID)
+	platform := ds.Platform
+	name := filepath.Join(ds.Download.Path(), ds.UUID)
 	dirs := command.Dirs{
-		Download:  dir.Download,
-		Preview:   dir.Preview,
-		Thumbnail: dir.Thumbnail,
-		Extra:     dir.Extra,
+		Download:  ds.Download,
+		Preview:   ds.Preview,
+		Thumbnail: ds.Thumbnail,
+		Extra:     ds.Extra,
 	}
-	if helper.File(filepath.Join(dirs.Thumbnail.Path(), dir.UUID+".png")) ||
-		helper.File(filepath.Join(dirs.Thumbnail.Path(), dir.UUID+".webp")) {
+	if helper.File(filepath.Join(dirs.Thumbnail.Path(), ds.UUID+".png")) ||
+		helper.File(filepath.Join(dirs.Thumbnail.Path(), ds.UUID+".webp")) {
 		return data
 	}
 
 	amigaFont := strings.EqualFold(platform, tags.TextAmiga.String()) ||
 		strings.EqualFold(platform, tags.Console.String())
-	if err := dirs.TextImager(ctx, sl, name, dir.UUID, amigaFont); err != nil {
-		dir.logErr(sl, msg, err)
+	if err := dirs.TextImager(ctx, sl, name, ds.UUID, amigaFont); err != nil {
+		ds.logErr(sl, msg, err)
 	}
 
 	data["missingAssets"] = ""
@@ -820,13 +820,17 @@ func (dir *Dirs) makeTextImages(ctx context.Context, sl *slog.Logger, data map[s
 	return data
 }
 
-func (dir *Dirs) makeZipfile(rootpath string) (size int64, err error) { //nolint:nonamedreturns
+func (ds *Dirs) makeZipfile(rootpath string) (size int64, err error) { //nolint:nonamedreturns
 	const format = "dirs make zipfile: %w"
 
-	base := dir.UUID + ".zip"
-	src := filepath.Join(helper.TmpDir(), base)
+	path, err := dir.MkdirTemp("makezip")
+	if err != nil {
+		return 0, fmt.Errorf(format, err)
+	}
+	base := ds.UUID + ".zip"
+	src := filepath.Join(path, base)
 
-	dest := filepath.Join(dir.Extra.Path(), base)
+	dest := filepath.Join(ds.Extra.Path(), base)
 	_ = os.Remove(dest)
 
 	_, err = rezip.CompressDir(rootpath, src)
@@ -837,7 +841,7 @@ func (dir *Dirs) makeZipfile(rootpath string) (size int64, err error) { //nolint
 	if rErr := helper.RenameCrossDevice(src, dest); rErr != nil {
 		err = errors.Join(err, fmt.Errorf(format, rErr))
 		defer func() {
-			err = errors.Join(err, os.RemoveAll(src))
+			err = errors.Join(err, dir.RemoveAll(src))
 		}()
 		return 0, err
 	}
@@ -852,17 +856,17 @@ func (dir *Dirs) makeZipfile(rootpath string) (size int64, err error) { //nolint
 
 // Previews returns a map of preview assets for the file record of the artifact.
 // Up to four preview assets are returned, JPEG, PNG, WebP and AVIF.
-func (dir *Dirs) pathsPreview(sl *slog.Logger) map[string][2]string {
+func (ds *Dirs) pathsPreview(sl *slog.Logger) map[string][2]string {
 	if sl == nil {
 		sl = logs.Discard()
 	}
 
-	unid := strings.ToLower(dir.UUID)
+	unid := strings.ToLower(ds.UUID)
 
-	avif := filepath.Join(dir.Preview.Path(), unid+".avif")
-	jpg := filepath.Join(dir.Preview.Path(), unid+".jpg")
-	png := filepath.Join(dir.Preview.Path(), unid+".png")
-	webp := filepath.Join(dir.Preview.Path(), unid+".webp")
+	avif := filepath.Join(ds.Preview.Path(), unid+".avif")
+	jpg := filepath.Join(ds.Preview.Path(), unid+".jpg")
+	png := filepath.Join(ds.Preview.Path(), unid+".png")
+	webp := filepath.Join(ds.Preview.Path(), unid+".webp")
 
 	const size = 4
 	matches := make(map[string][2]string, size)
@@ -879,15 +883,15 @@ func (dir *Dirs) pathsPreview(sl *slog.Logger) map[string][2]string {
 
 // Thumbnails returns a map of thumbnail assets for the file record of the artifact.
 // Two thumbnail assets are returned, PNG and WebP.
-func (dir *Dirs) pathsThumb(sl *slog.Logger) map[string][2]string {
+func (ds *Dirs) pathsThumb(sl *slog.Logger) map[string][2]string {
 	if sl == nil {
 		sl = logs.Discard()
 	}
 
-	unid := strings.ToLower(dir.UUID)
+	unid := strings.ToLower(ds.UUID)
 
-	png := filepath.Join(dir.Thumbnail.Path(), unid+".png")
-	webp := filepath.Join(dir.Thumbnail.Path(), unid+".webp")
+	png := filepath.Join(ds.Thumbnail.Path(), unid+".png")
+	webp := filepath.Join(ds.Thumbnail.Path(), unid+".webp")
 
 	const size = 2
 	matches := make(map[string][2]string, size)
@@ -900,31 +904,31 @@ func (dir *Dirs) pathsThumb(sl *slog.Logger) map[string][2]string {
 
 // Extras returns a map of extra assets for the file record of the artifact.
 // Up to three extra assets are returned, FILE_ID, README and Repacked ZIP.
-func (dir *Dirs) pathsExtras() map[string][2]string {
-	unid := strings.ToLower(dir.UUID)
+func (ds *Dirs) pathsExtras() map[string][2]string {
+	unid := strings.ToLower(ds.UUID)
 
 	const size = 3
 	matches := make(map[string][2]string, size)
 
-	diz := filepath.Join(dir.Extra.Path(), unid+".diz")
+	diz := filepath.Join(ds.Extra.Path(), unid+".diz")
 	if st, err := os.Stat(diz); err == nil {
 		i, _ := helper.Lines(diz)
 		matches["FILE_ID"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 	}
 
-	hlp := filepath.Join(dir.Extra.Path(), unid+".hlp")
+	hlp := filepath.Join(ds.Extra.Path(), unid+".hlp")
 	if st, err := os.Stat(hlp); err == nil {
 		i, _ := helper.Lines(hlp)
 		matches["HELPER"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 	}
 
-	txt := filepath.Join(dir.Extra.Path(), unid+".txt")
+	txt := filepath.Join(ds.Extra.Path(), unid+".txt")
 	if st, err := os.Stat(txt); err == nil {
 		i, _ := helper.Lines(txt)
 		matches["README"] = [2]string{humanize.Comma(st.Size()), fmt.Sprintf("%d lines", i)}
 	}
 
-	zip := filepath.Join(dir.Extra.Path(), unid+".zip")
+	zip := filepath.Join(ds.Extra.Path(), unid+".zip")
 	if st, err := os.Stat(zip); err == nil {
 		matches["Repacked ZIP"] = [2]string{humanize.Comma(st.Size()), "Deflate compression"}
 	}
@@ -937,17 +941,17 @@ func (dir *Dirs) pathsExtras() map[string][2]string {
 // example:
 //
 //	"create a preview image + create a thumbnail image"
-func (dir *Dirs) pathsSuggest() string {
-	uid := dir.UUID
+func (ds *Dirs) pathsSuggest() string {
+	uid := ds.UUID
 
-	download := helper.File(filepath.Join(dir.Download.Path(), uid))
+	download := helper.File(filepath.Join(ds.Download.Path(), uid))
 
-	preview := helper.File(filepath.Join(dir.Preview.Path(), uid+".png")) ||
-		helper.File(filepath.Join(dir.Preview.Path(), uid+".webp")) ||
-		helper.File(filepath.Join(dir.Preview.Path(), uid+".jpg"))
+	preview := helper.File(filepath.Join(ds.Preview.Path(), uid+".png")) ||
+		helper.File(filepath.Join(ds.Preview.Path(), uid+".webp")) ||
+		helper.File(filepath.Join(ds.Preview.Path(), uid+".jpg"))
 
-	thumbnail := helper.File(filepath.Join(dir.Thumbnail.Path(), uid+".png")) ||
-		helper.File(filepath.Join(dir.Thumbnail.Path(), uid+".webp"))
+	thumbnail := helper.File(filepath.Join(ds.Thumbnail.Path(), uid+".png")) ||
+		helper.File(filepath.Join(ds.Thumbnail.Path(), uid+".webp"))
 
 	if download && preview && thumbnail {
 		return ""
@@ -959,7 +963,7 @@ func (dir *Dirs) pathsSuggest() string {
 		suggests = append(suggests, "offer a file for download")
 	}
 
-	platform := dir.Platform
+	platform := ds.Platform
 	if platform == tags.Audio.String() {
 		return strings.Join(suggests, " + ")
 	}
@@ -977,7 +981,7 @@ func (dir *Dirs) pathsSuggest() string {
 }
 
 // oneByKey retrieves a single artifact record using [dir.URI] as the key.
-func (dir *Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) (*models.File, error) {
+func (ds *Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) (*models.File, error) {
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return nil, fmt.Errorf("dirs one by key: %w", err)
 	}
@@ -985,15 +989,15 @@ func (dir *Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context,
 	var art *models.File
 	var err error
 	if sess.Editor(c) {
-		art, err = model.OneEditByKey(ctx, db, dir.URI)
+		art, err = model.OneEditByKey(ctx, db, ds.URI)
 	} else {
-		art, err = model.OneFileByKey(ctx, db, dir.URI)
+		art, err = model.OneFileByKey(ctx, db, ds.URI)
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrID) {
-			return nil, artifact404(sl, c, dir.URI)
+			return nil, artifact404(sl, c, ds.URI)
 		}
-		return nil, DatabaseErr(sl, c, "f/"+dir.URI, err)
+		return nil, DatabaseErr(sl, c, "f/"+ds.URI, err)
 	}
 
 	return art, nil
@@ -1002,12 +1006,12 @@ func (dir *Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context,
 // screenshot returns true if a suitable screenshot is found on the host server.
 //
 // If the platform is "text" or "textamiga", false is always returned.
-func (dir *Dirs) screenshot() bool {
-	if dir.UUID == "" {
+func (ds *Dirs) screenshot() bool {
+	if ds.UUID == "" {
 		return false
 	}
 
-	switch strings.ToLower(strings.TrimSpace(dir.Platform)) {
+	switch strings.ToLower(strings.TrimSpace(ds.Platform)) {
 	case textamiga, text:
 		return false
 	}
@@ -1015,7 +1019,7 @@ func (dir *Dirs) screenshot() bool {
 	// check common image extensions efficiently without intermediate slice allocations
 	exts := [...]string{".webp", ".png", ".jpg"}
 	for _, ext := range exts {
-		p := filepath.Join(dir.Preview.Path(), dir.UUID+ext)
+		p := filepath.Join(ds.Preview.Path(), ds.UUID+ext)
 		if helper.Stat(p) {
 			return true // found a valid screenshot
 		}

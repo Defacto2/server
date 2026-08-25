@@ -16,7 +16,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/command/option"
 	"github.com/Defacto2/server/internal/dir"
@@ -172,12 +171,12 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 	}
 
 	// prep an isolated temporary directory
-	tmpDir, err := os.MkdirTemp(helper.TmpDir(), "images-thumb-"+unid+"-*")
+	tmpDir, err := dir.MkdirTemp(unid)
 	if err != nil {
 		return fmt.Errorf(format, "create temporary directory", err)
 	}
 	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
+		if err := dir.RemoveAll(tmpDir); err != nil {
 			slog.Info(msg+" remove all temporary directory",
 				slog.String("directory", tmpDir), slog.Any("error", err))
 		}
@@ -247,17 +246,9 @@ func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, previ
 		return fmt.Errorf(format, fmt.Sprintf("crop value %d", crop), ErrCrop)
 	}
 
-	tmpDir := filepath.Join(helper.TmpDir(), patternS)
-	pattern := "images-crop-" + unid
-	path := filepath.Join(tmpDir, pattern)
-	if st, err := os.Stat(path); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			if err := os.MkdirAll(path, os.ModePerm); err != nil {
-				return fmt.Errorf(format, "make dir all", err)
-			}
-		}
-	} else if !st.IsDir() {
-		return fmt.Errorf(format, "not is dir", ErrIsFile)
+	path, err := dir.MkdirTemp(unid)
+	if err != nil {
+		return fmt.Errorf(format, "make "+unid+" temp directory", err)
 	}
 
 	find := false
@@ -320,16 +311,11 @@ func (t Text) Crop(sl *slog.Logger, src string) (string, error) {
 		return "", fmt.Errorf(format, "uuid", ErrValue)
 	}
 
-	path := "textimager_" + filepath.Base(src)
-	local, err := filepath.Localize(path)
-	if err != nil {
-		return "", fmt.Errorf(format, "make content localize: "+path, err)
-	}
-
-	newpath, err := helper.MkContent(local)
+	newpath, err := dir.MkdirTemp(t.UUID + "_txt")
 	if err != nil {
 		return "", fmt.Errorf(format, "make content", err)
 	}
+
 	dst := filepath.Join(newpath, t.UUID+".txt")
 	err = t.crop(sl, src, dst)
 	if err != nil {
@@ -507,7 +493,7 @@ func (t Thumb) make(ctx context.Context, sl *slog.Logger, thumb dir.Directory) e
 		pattern = "thumb-*"
 	}
 
-	tmpFile, err := os.CreateTemp("", pattern) // TODO:
+	tmpFile, err := dir.CreateTemp(pattern)
 	if err != nil {
 		return fmt.Errorf(format, "create temp file", err)
 	}

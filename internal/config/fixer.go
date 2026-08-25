@@ -6,10 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
@@ -25,62 +26,79 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf("%s: %w", psl, err)
 	}
-	db, err := postgres.Open()
-	if err != nil {
-		s := "fix could not initialize the database data"
-		sl.Error(psl,
-			slog.String("issue", s),
-			slog.Any("error", err))
-	}
-	defer func() { _ = db.Close() }()
-	var database postgres.Version
-	if err := database.Query(db); err != nil {
-		s := "version query problem"
-		sl.Error(psl,
-			slog.String("issue", s),
-			slog.Any("error", err))
-	}
-	count := RecordCount(ctx, db)
 	const welcome = "Defacto2 web application"
 	const msg = "Fixing and repairs"
+
+	db, err := postgres.Open()
+	if err != nil {
+		s := psl + " fix could not initialize the database data"
+		sl.Error(s, slog.Any("error", err))
+	}
+	defer func() {
+		err := db.Close()
+		sl.Info(msg+" failed to close the database", slog.Any("error", err))
+	}()
+
+	var database postgres.Version
+	if err := database.Query(db); err != nil {
+		s := psl + " version query problem"
+		sl.Error(s, slog.Any("error", err))
+	}
+
+	count := RecordCount(ctx, db)
 	switch {
 	case count == 0:
-		s := welcome + " with no database records"
-		sl.Error(psl,
-			slog.String("issue", s),
-			slog.Any("error", err))
+		s := psl + " " + msg + " with no database records"
+		sl.Error(s, slog.Any("error", err))
 	case MinimumFiles > count:
 		s := welcome + " too few database records"
-		sl.Warn(psl,
-			slog.String("issue", s),
-			slog.Int("record_count", count))
+		sl.Warn(s, slog.Int64("record_count", count))
 	default:
-		sl.Info(msg, slog.String("info", welcome),
-			slog.Int("records", count))
+		sl.Info(welcome, slog.Int64("records", count))
 	}
-	c.repairer(ctx, sl, db)
-	c.sanityChecks(ctx, sl)
-	TmpInfo(sl)
+
+	c.fix(ctx, sl, db)
+	if err := nils.Check(ctx, sl); err != nil {
+		sl.Error(msg, slog.Any("error", err))
+	}
+	TempInfo(sl)
+
 	sl.Info(msg, slog.String("task", "Time taken"),
 		slog.Duration("time", time.Since(d).Round(time.Millisecond)))
+
 	return nil
 }
 
-// TmpInfo is used to print the temporary directory and its disk usage.
-func TmpInfo(sl *slog.Logger) {
-	const msg = "tmp info check"
+// TempInfo is used to print the temporary directory and its disk usage.
+func TempInfo(sl *slog.Logger) {
+	const format = "tmp info check %s: %w"
 	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, "check", err))
 	}
-	tmpdir := helper.TmpDir()
-	du, err := helper.DiskUsage(tmpdir)
+
+	const msg = "Temporary directory"
+	entries, err := os.ReadDir(os.TempDir())
 	if err != nil {
-		sl.Error(msg, slog.String("disk usage", "could not obtain the tmp directory"),
-			slog.String("tmp_directory", tmpdir), slog.Any("error", err))
+		sl.Error(msg, " cannot read temp dir", slog.Any("error", err))
 		return
 	}
+	var du int64
+	for _, d := range entries {
+		path := d.Name()
+		if !d.IsDir() || !dir.IsTemp(path) {
+			continue
+		}
+		n, err := helper.DiskUsage(path)
+		if err != nil {
+			slog.Debug("du cannot read path", slog.String("path", path), slog.Any("error", err))
+			continue
+		}
+		du = du + n
+	}
+
 	hdu := helper.ByteCountFloat(du)
-	sl.Info("Temporary directory", slog.String("Path", tmpdir), slog.String("Usage", hdu))
+	tmpdir := filepath.Join(os.TempDir(), dir.Pattern+"-*")
+	sl.Info(msg, slog.String("Path", tmpdir), slog.String("Usage", hdu))
 }
 
 // CheckDir runs checks against the named directory,
@@ -93,122 +111,72 @@ func CheckDir(name dir.Directory, desc string) error {
 	if err := name.IsDir(); err != nil {
 		return fmt.Errorf("%q %q: %w", name, desc, err)
 	}
+
 	return nil
 }
 
 // RecordCount returns the number of records in the database.
-func RecordCount(ctx context.Context, db *sql.DB) int {
+func RecordCount(ctx context.Context, db *sql.DB) int64 {
 	const msg = "record count"
 	if err := nils.Check(ctx, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	fs, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
+
+	n, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
 	if err != nil {
 		return 0
 	}
-	return int(fs)
+
+	return n
 }
 
-// repairer is used to fix any known issues with the file assets and the database entries.
+// fix is used to repair any known issues with the file assets and the database entries.
 // These are skipped if the Production mode environment variable is set to false.
-func (c *Config) repairer(ctx context.Context, sl *slog.Logger, db *sql.DB) {
-	const msg = "Repairing"
+func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB) {
+	const format = "config fix %s: %w"
 	if err := nils.Check(ctx, sl, db); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, "check", err))
 	}
-	if err := repairDatabase(ctx, sl, db); err != nil {
+
+	const msg = "Fixing"
+	if err := databaseFix(ctx, sl, db); err != nil {
 		if errors.Is(err, ErrPSVersion) {
-			sl.Warn(msg,
-				slog.String("database", fmt.Sprintf("a %s, is the database server down?", ErrPSVersion)))
+			value := fmt.Sprintf("a %s, is the database server down?", ErrPSVersion)
+			sl.Warn(msg, slog.String("database", value))
 		}
-		sl.Error(msg,
-			slog.String("database", "could not initialize the database data"),
+		sl.Error(msg, slog.String("database", "could not initialize the database data"),
 			slog.Any("error", err))
 	}
+
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
 	if err := c.assets(ctx, sl, db); err != nil {
 		sl.Error(msg, slog.Any("error", err))
 	}
 }
 
-// repairDatabase on startup checks the database connection and make any data corrections.
-func repairDatabase(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
-	const msg = "repair database"
+// databaseFix on startup checks the database connection and make any data corrections.
+func databaseFix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
+	const format = "database fix %s: %w"
 	if err := nils.Check(ctx, sl, db); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, "check", err))
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("%s could not begin a transaction: %w", msg, err)
+		return fmt.Errorf(format, "begin transaction", err)
 	}
+
 	if err := fix.Artifacts.Run(ctx, sl, db, tx); err != nil {
 		if err := tx.Rollback(); err != nil {
+			const msg = "Cannot rollback database transaction during a repair"
 			sl.Error(msg, slog.Any("error", err))
 		}
-		return fmt.Errorf("%s could not fix all artifacts: %w", msg, err)
+		return fmt.Errorf(format, "cannot fix all artifacts", err)
 	}
+
 	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("%s could not commit the transaction: %w", msg, err)
+		return fmt.Errorf(format, "cannot commit transaction", err)
 	}
+
 	return nil
-}
-
-// sanityChecks is used to perform a number of sanity checks on the file assets and database.
-// These are skipped if the Production mode environment variable is set to false.
-func (c *Config) sanityChecks(ctx context.Context, sl *slog.Logger) {
-	const msg = "sanity check"
-	if err := nils.Check(ctx, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
-	}
-	if err := c.Checks(ctx, sl); err != nil {
-		sl.Error(msg,
-			slog.String("issue", "sanity checks could not read the environment variable, "+
-				"it probably contains an invalid value"),
-			slog.Any("error", err))
-	}
-	cmdChecks(ctx, sl)
-	conn, err := postgres.New()
-	if err != nil {
-		sl.Error(msg,
-			slog.String("issue", "sanity checks could not initialize the database data"),
-			slog.Any("error", err))
-		return
-	}
-	if err := conn.Validate(sl); err != nil {
-		panic(fmt.Errorf("%s conn validate: %w", msg, err))
-	}
-}
-
-// checks is used to confirm the required commands are available.
-// These are skipped if readonly is true.
-func cmdChecks(ctx context.Context, sl *slog.Logger) {
-	const msg = "command checks"
-	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
-	}
-	lookups := command.Lookups()
-	infos := command.Infos()
-	var attrs []slog.Attr
-	for i, name := range lookups {
-		if _, err := command.Lookup(name); err != nil {
-			attrs = append(attrs, slog.String(name, infos[i]))
-		}
-	}
-	if len(attrs) > 0 {
-		s := "The following commands are required for the server to run in WRITE MODE. " +
-			"These need to be installed and accessible on the system path."
-		sl.Warn("command lookups", slog.String("issue", s))
-		for _, attr := range attrs {
-			sl.Warn("missing command", slog.String(attr.Key, attr.Value.String()))
-		}
-	}
-	if err := command.LookupUnrar(ctx); err != nil {
-		if errors.Is(err, command.ErrVersion) {
-			sl.Warn("command unrar",
-				slog.String("invalid", "Found unrar but it is not authored by Alexander Roshal"),
-				slog.String("incorrect_application", "Is unrar-free mistakenly installed?"))
-			return
-		}
-		sl.Warn("command unrar", slog.Any("error", err))
-	}
 }

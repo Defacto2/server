@@ -201,7 +201,7 @@ func recordFileProcessor(ctx context.Context, sl *slog.Logger, c *echo.Context, 
 		return badRequest(c, err)
 	}
 	name = filepath.Clean(name)
-	tmp, err := helper.MkContent(unid)
+	tmp, err := dir.MkdirTemp(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -251,7 +251,7 @@ func RecordReadmeImager(
 		return badRequest(c, err)
 	}
 	name = filepath.Clean(name)
-	tmp, err := helper.MkContent(unid)
+	tmp, err := dir.MkdirTemp(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -313,7 +313,7 @@ func (cp Copy) Duplicator(c *echo.Context, dirs command.Dirs) error {
 		return badRequest(c, err)
 	}
 	name = filepath.Clean(name)
-	tmp, err := helper.MkContent(unid)
+	tmp, err := dir.MkdirTemp(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -353,7 +353,7 @@ func RecordReadmeCopier(ctx context.Context, sl *slog.Logger, c *echo.Context, d
 	if err != nil {
 		return badRequest(c, err)
 	}
-	tmp, err := helper.MkContent(unid)
+	tmp, err := dir.MkdirTemp(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}

@@ -106,7 +106,7 @@ const (
 var Caching = Cache{RecordCount: 0} //nolint:gochecknoglobals
 
 // Records caches the database record count.
-func (c *Cache) Records(i int) {
+func (c *Cache) Records(i int64) {
 	c.RecordCount = i
 }
 
@@ -1125,7 +1125,7 @@ func YMDEdit(ctx context.Context, c *echo.Context, db *sql.DB) error {
 // Cache contains database values that are used throughout the app or layouts,
 // but do not change frequently enough to warrant a database query on every page load.
 type Cache struct {
-	RecordCount int // The total number of file records in the database.
+	RecordCount int64 // The total number of file records in the database.
 }
 
 // SRI are the Sub-Resource Integrity hashes for the layout.

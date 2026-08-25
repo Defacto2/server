@@ -543,25 +543,25 @@ func MIME(sl *slog.Logger, name string) string {
 	return http.DetectContentType(head)
 }
 
-// MkContent makes and/or returns a distinct directory path in the temp directory
-// that is used to extract the contents of the content of the file download archive.
-// To make the directory distinct it is prefixed with the basename of the src file.
+// MkdirStale makes and/or returns a distinct directory path in the system temporary
+// directory that is used to extract the contents a file download archive.
 //
+// To make the directory distinct it is prefixed with the basename of the src file.
 // The returned path should be removed after use.
-func MkContent(sl *slog.Logger, src string) string {
-	const msg = "simple make content"
-	if sl == nil {
-		sl = logs.Discard()
-	}
+func MkdirStale(sl *slog.Logger, src string) string {
 	if src == "" {
 		return ""
 	}
-	path, err := helper.MkContent(src)
+	if sl == nil {
+		sl = logs.Discard()
+	}
+
+	path, err := dir.MkdirStale(src)
 	if err != nil {
-		sl.Info(msg+" caused an error",
-			slog.String("src", src), slog.Any("error", err))
+		sl.Info("simple stale dir caused an error", slog.String("src", src), slog.Any("error", err))
 		return err.Error()
 	}
+
 	return path
 }
 

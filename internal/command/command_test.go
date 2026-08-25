@@ -8,17 +8,15 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/nalgeon/be"
 )
 
 func TestLookups(t *testing.T) {
 	t.Parallel()
 
-	t1 := command.Lookups()
-	t2 := command.Infos()
-
-	be.Equal(t, len(t1), len(t2))
-	be.True(t, strings.Contains(t2[0], command.Arc))
+	be.Equal(t, len(command.Lookups), len(command.Infos))
+	be.True(t, strings.Contains(command.Infos[0], command.Arc))
 }
 
 func TestCopyFile(t *testing.T) {
@@ -28,8 +26,7 @@ func TestCopyFile(t *testing.T) {
 	got := command.CopyFile(nil, "", "")
 	be.Err(t, got)
 
-	td := t.TempDir()
-	tmp, got := os.CreateTemp(td, "command_test")
+	tmp, got := dir.CreateTemp("command_test")
 	be.Err(t, got, nil)
 
 	got = command.CopyFile(sl, "", "")
@@ -41,6 +38,11 @@ func TestCopyFile(t *testing.T) {
 	dst := tmp.Name() + ".txt"
 	got = command.CopyFile(sl, tmp.Name(), dst)
 	be.Err(t, got, nil)
+
+	t.Cleanup(func() {
+		_ = tmp.Close()
+		_ = os.Remove(tmp.Name())
+	})
 }
 
 func TestLookup(t *testing.T) {
