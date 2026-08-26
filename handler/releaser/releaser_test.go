@@ -6,20 +6,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/handler/releaser/initialism"
 )
-
-func listNames() []string {
-	inits := *initialism.Initialisms()
-	l := len(inits)
-	n := make([]string, l)
-	i := 0
-	for k := range inits {
-		n[i] = releaser.Humanize(string(k))
-		i++
-	}
-	return n
-}
 
 func ExampleCell() {
 	s := "  Defacto2  demo  group."

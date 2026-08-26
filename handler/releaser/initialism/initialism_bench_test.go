@@ -25,7 +25,7 @@ func BenchmarkInitialism(b *testing.B) {
 
 func BenchmarkInitialisms(b *testing.B) {
 	for b.Loop() {
-		for key, values := range *initialism.Initialisms() {
+		for key, values := range initialism.Initialisms() {
 			for value := range slices.Values(values) {
 				if value == guarantee {
 					_, _ = fmt.Fprintf(io.Discard, "Found %v in %v\n", guarantee, key)

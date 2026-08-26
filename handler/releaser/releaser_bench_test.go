@@ -10,8 +10,22 @@ import (
 	"github.com/Defacto2/server/handler/releaser/initialism"
 )
 
+var ins = initialism.Initialisms() //nolint:gochecknoglobals
+
+func listNames(b *testing.B) []string {
+	b.Helper()
+	l := len(ins)
+	n := make([]string, l)
+	i := 0
+	for k := range ins {
+		n[i] = releaser.Humanize(string(k))
+		i++
+	}
+	return n
+}
+
 func BenchmarkCell(b *testing.B) {
-	names := listNames()
+	names := listNames(b)
 	for b.Loop() {
 		for n := range slices.Values(names) {
 			if s := releaser.Cell(n); s != "" {
@@ -22,7 +36,7 @@ func BenchmarkCell(b *testing.B) {
 }
 
 func BenchmarkClean(b *testing.B) {
-	names := listNames()
+	names := listNames(b)
 	for b.Loop() {
 		for n := range slices.Values(names) {
 			if s := releaser.Clean(n); s != "" {
@@ -33,9 +47,8 @@ func BenchmarkClean(b *testing.B) {
 }
 
 func BenchmarkHumanize(b *testing.B) {
-	ins := initialism.Initialisms()
 	for b.Loop() {
-		for n := range *ins {
+		for n := range ins {
 			if s := releaser.Humanize(string(n)); s != "" {
 				_, _ = fmt.Fprintln(io.Discard, s)
 			}
@@ -44,9 +57,8 @@ func BenchmarkHumanize(b *testing.B) {
 }
 
 func BenchmarkIndex(b *testing.B) {
-	ins := initialism.Initialisms()
 	for b.Loop() {
-		for n := range *ins {
+		for n := range ins {
 			if s := releaser.Index(string(n)); s != "" {
 				_, _ = fmt.Fprintln(io.Discard, s)
 			}
@@ -55,9 +67,8 @@ func BenchmarkIndex(b *testing.B) {
 }
 
 func BenchmarkLink(b *testing.B) {
-	ins := initialism.Initialisms()
 	for b.Loop() {
-		for uri := range *ins {
+		for uri := range ins {
 			path := releaser.Index(string(uri))
 			if s := releaser.Link(path); s != "" {
 				_, _ = fmt.Fprintln(io.Discard, s)
@@ -67,9 +78,8 @@ func BenchmarkLink(b *testing.B) {
 }
 
 func BenchmarkObfuscate(b *testing.B) {
-	ins := initialism.Initialisms()
 	for b.Loop() {
-		for n := range *ins {
+		for n := range ins {
 			if s := releaser.Obfuscate(string(n)); s != "" {
 				_, _ = fmt.Fprintln(io.Discard, s)
 			}
@@ -79,7 +89,7 @@ func BenchmarkObfuscate(b *testing.B) {
 
 func BenchmarkTitle(b *testing.B) {
 	for b.Loop() {
-		for uri := range *initialism.Initialisms() {
+		for uri := range ins {
 			s := releaser.Index(string(uri))
 			if title := releaser.Title(s); title != "" {
 				_, _ = fmt.Fprintln(io.Discard, title)

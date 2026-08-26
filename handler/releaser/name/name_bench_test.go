@@ -6,13 +6,28 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/handler/releaser/initialism"
 	"github.com/Defacto2/server/handler/releaser/name"
 )
 
+var ins = initialism.Initialisms() //nolint:gochecknoglobals
+
+func listNames(b *testing.B) []string {
+	b.Helper()
+	l := len(ins)
+	n := make([]string, l)
+	i := 0
+	for k := range ins {
+		n[i] = releaser.Humanize(string(k))
+		i++
+	}
+	return n
+}
+
 func BenchmarkPath(b *testing.B) {
 	for b.Loop() {
-		for uri := range *initialism.Initialisms() {
+		for uri := range ins {
 			path := name.Path(uri)
 			if !path.Valid() {
 				fmt.Fprintln(os.Stderr, "invalid! "+path.String())
@@ -27,7 +42,7 @@ func BenchmarkPath(b *testing.B) {
 
 func BenchmarkObfuscate(b *testing.B) {
 	for b.Loop() {
-		for i, n := range listNames() {
+		for i, n := range listNames(b) {
 			_, _ = fmt.Fprintln(io.Discard, i, n, string(name.Obfuscate(n)))
 		}
 	}

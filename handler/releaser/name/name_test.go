@@ -6,21 +6,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/handler/releaser/initialism"
 	"github.com/Defacto2/server/handler/releaser/name"
 )
-
-func listNames() []string {
-	l := len(*initialism.Initialisms())
-	n := make([]string, l)
-	i := 0
-	for k := range *initialism.Initialisms() {
-		n[i] = releaser.Humanize(string(k))
-		i++
-	}
-	return n
-}
 
 func ExampleHumanize() {
 	s, _ := name.Humanize("defacto2")
@@ -46,9 +33,9 @@ func ExampleHumanize_error() {
 	// the path contains invalid characters
 }
 
-func ExampleSpecial() {
+func ExampleNames() {
 	find := name.Path("surprise-productions")
-	for key, val := range *name.Special() {
+	for key, val := range name.Names() {
 		if key == find {
 			fmt.Println(val)
 		}
@@ -68,7 +55,7 @@ func ExampleObfuscate() {
 
 func ExampleList() {
 	uri := "defacto2net"
-	for key, val := range *name.Names() {
+	for key, val := range name.Names() {
 		if key == name.Path(uri) {
 			fmt.Println(val)
 		}
@@ -78,7 +65,7 @@ func ExampleList() {
 
 func ExampleUpper() {
 	uri := "beer"
-	for key, val := range *name.Upper() {
+	for key, val := range name.Upper() {
 		if key == name.Path(uri) {
 			fmt.Println(val)
 		}
@@ -105,18 +92,17 @@ func ExamplePath_Valid() {
 	// false
 }
 
-func TestSpecial(t *testing.T) {
+func TestNames(t *testing.T) {
 	t.Parallel()
 	// confirm all keys are valid and values are not empty
-	special := name.Special()
-	for key, val := range *special {
+	for key, val := range name.Names() {
 		// to debug, send to os.Stdout
-		fmt.Fprintln(io.Discard, key, val)
+		_, _ = fmt.Fprintln(io.Discard, key, val)
 		if !key.Valid() {
-			t.Errorf("Special() invalid %v", key)
+			t.Errorf("Name() invalid %v", key)
 		}
 		if val == "" {
-			t.Errorf("Special() empty value %v", key)
+			t.Errorf("Name() empty value %v", key)
 		}
 	}
 }

@@ -19,7 +19,7 @@ func ExampleInitialism() {
 
 func ExampleInitialisms() {
 	const find = "USA"
-	for key, isms := range *initialism.Initialisms() {
+	for key, isms := range initialism.Initialisms() {
 		if slices.Contains(isms, find) {
 			fmt.Printf("Found %v in %v\n", find, key)
 		}
@@ -91,7 +91,7 @@ func TestInitialism(t *testing.T) {
 		})
 	}
 	// Confirm all keys are valid URL paths.
-	for key := range *initialism.Initialisms() {
+	for key := range initialism.Initialisms() {
 		// keys must be lowercase and start with only letters or numbers
 		k := string(key)
 		chr := rune(k[0])
@@ -104,7 +104,7 @@ func TestInitialism(t *testing.T) {
 
 func TestInitialisms(t *testing.T) {
 	t.Parallel()
-	l := *initialism.Initialisms()
+	l := initialism.Initialisms()
 	if len(l) == 0 {
 		t.Errorf("Initialisms() = %v, want %v", l, "non-empty")
 	}

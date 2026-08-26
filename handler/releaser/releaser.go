@@ -3,20 +3,12 @@
 package releaser
 
 import (
-	"maps"
-	"slices"
 	"strings"
 
 	"github.com/Defacto2/server/handler/releaser/fix"
 	"github.com/Defacto2/server/handler/releaser/initialism"
 	"github.com/Defacto2/server/handler/releaser/name"
 )
-
-// initialisms are a cache of that greatly improves benchmark performance.
-var initialisms = initialism.Initialisms() //nolint:gochecknoglobals
-
-// specials are a cache of that greatly improves benchmark performance.
-var specials = name.Special() //nolint:gochecknoglobals
 
 // Cell formats the string to be used as a cell in a database table.
 //
@@ -146,17 +138,11 @@ func Link(path string) string {
 func Obfuscate(s string) string {
 	x := fix.StripStart(s)
 	x = strings.TrimSpace(x)
-	for uri, special := range maps.All(*specials) {
-		if strings.EqualFold(x, special) {
-			return string(uri)
-		}
+	if uri := name.FindByValue(x); uri != "" {
+		return string(uri)
 	}
-	for uri, values := range maps.All(*initialisms) {
-		for value := range slices.Values(values) {
-			if strings.EqualFold(x, value) {
-				return string(uri)
-			}
-		}
+	if uri := initialism.FindByValue(x); uri != "" {
+		return string(uri)
 	}
 	x = fix.StripChars(x)
 	x = fix.TrimThe(x)
@@ -178,17 +164,11 @@ func Obfuscate(s string) string {
 func Title(s string) string {
 	x := fix.StripStart(s)
 	x = strings.TrimSpace(x)
-	for _, special := range *specials {
-		if strings.EqualFold(x, special) {
-			return special
-		}
+	if uri := name.FindByValue(x); uri != "" {
+		return uri.String()
 	}
-	for uri, values := range maps.All(*initialisms) {
-		for value := range slices.Values(values) {
-			if strings.EqualFold(x, value) {
-				return Humanize(string(uri))
-			}
-		}
+	if uri := initialism.FindByValue(x); uri != "" {
+		return Humanize(string(uri))
 	}
 	x = fix.StripChars(x)
 	x = fix.TrimThe(x)
