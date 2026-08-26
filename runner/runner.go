@@ -2,13 +2,13 @@
 package main
 
 // Runner is a placeholder for esbuild to build css and js files.
-// To use, run `go run runner/runner.go` and it will minify the css and js files.
+// To use, run `go run -modfile=runner/go.mod rrunner/runner.go`
+// this will minify the css and js files.
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 	"time"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -19,22 +19,20 @@ const (
 	ECMAScript = api.ES2020
 )
 
-// NamedCSS returns the base filenames of the CSS files to build.
+// namedCSS returns the base filenames of the CSS files to build.
 // The files are located in the assets/css directory.
-func NamedCSS() []string {
-	return []string{"layout"}
+var namedCSS = [...]string{
+	"layout",
 }
 
-// NamedJS returns the base filenames of the JS files to build.
+// namedJS returns the base filenames of the JS files to build.
 // The files are located in the assets/js directory.
-func NamedJS() []string {
-	return []string{
-		"chiptune-player",
-		"editor-forapproval",
-		"htmx-response-targets",
-		"index",
-		"votes-pouet",
-	}
+var namedJS = [...]string{
+	"chiptune-player",
+	"editor-forapproval",
+	"htmx-response-targets",
+	"index",
+	"votes-pouet",
 }
 
 func ContentBinary() api.BuildOptions {
@@ -208,20 +206,23 @@ func Uploader() api.BuildOptions {
 
 func main() {
 	w := os.Stderr
-	for name := range slices.Values(NamedCSS()) {
+
+	for _, name := range namedCSS {
 		result := api.Build(CSS(name))
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(w, "CSS build failed: %v\n", result.Errors)
 		}
 	}
-	for name := range slices.Values(NamedJS()) {
+
+	for _, name := range namedJS {
 		result := api.Build(JS(name))
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(w, "JS build failed: %v\n", result.Errors)
 		}
 	}
+
 	// Build bundled JavaScript files
-	bundles := []api.BuildOptions{
+	bundles := [...]api.BuildOptions{
 		ContentBinary(),
 		ContentText(),
 		EditorAssets(),
