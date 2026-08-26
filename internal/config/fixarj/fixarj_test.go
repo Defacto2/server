@@ -288,37 +288,3 @@ func TestCheckFileInExtraDirectory(t *testing.T) {
 		})
 	}
 }
-
-// BenchmarkCheck measures Check function performance.
-func BenchmarkCheck(b *testing.B) {
-	tmpDir := b.TempDir()
-	extra := dir.Directory(tmpDir)
-
-	uid := testconst.TestUUID
-	d := &MockDirEntry{name: uid + ".zip", isDir: false}
-	artifacts := []string{uid}
-
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = fixarj.Check(extra, d, artifacts...)
-		}
-	})
-}
-
-// BenchmarkInvalid measures Invalid function performance.
-func BenchmarkInvalid(b *testing.B) {
-	sl := slog.New(slog.DiscardHandler)
-	tmpDir := b.TempDir()
-
-	arjPath := filepath.Join(tmpDir, "test.arj")
-	err := os.WriteFile(arjPath, []byte("dummy"), 0o600)
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = fixarj.Invalid(context.Background(), sl, arjPath)
-		}
-	})
-}

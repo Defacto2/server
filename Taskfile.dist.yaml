@@ -257,6 +257,32 @@ tasks:
     desc: 'Run the test suite with coverage output to the browser.'
     cmds:
       - go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out
+  testf:
+    aliases:
+      - 'tf'
+    desc: 'Run each fuzz test for 1 minute.'
+    cmds:
+      - go test -fuzz=FuzzSearch -fuzztime=1m
+      - go test -fuzz=FuzzSnippet -fuzztime=1m
+      - go test -fuzz=FuzzAdd -fuzztime=1m
+  testb:
+    aliases:
+      - 'tb'
+    desc: 'Run the benchmark suite.'
+    cmds:
+      - go test -run=^$ -bench=. ./...
+  testp:
+    aliases:
+      - 'tm'
+    desc: 'Run the benchmark suite with both CPU and memory allocations.'
+    cmds:
+      - go test -run=^$ -bench=. -benchmem ./...
+  testbf:
+    aliases:
+      - 'tbf'
+    desc: 'Run the benchmark suite with fail fast.'
+    cmds:
+      - go test -run=^$ -bench=. -failfast ./...
   version:
     aliases:
       - 'ver'

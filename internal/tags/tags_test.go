@@ -15,7 +15,31 @@ const (
 	firstPlatform = "ansi"
 	lastPlatform  = "windows"
 	noname        = "non-existing-name"
+	expectedCount = 43
 )
+
+func TestTagStrings(t *testing.T) {
+	uris := tags.URIs()
+	names := tags.Names()
+	determiner := tags.Determiner()
+	infos := tags.Infos()
+
+	be.True(t, len(uris) == expectedCount)
+	be.True(t, len(names) == expectedCount)
+	be.True(t, len(determiner) == expectedCount)
+	be.True(t, len(infos) == expectedCount)
+
+	for i := range expectedCount {
+		if i == 0 {
+			continue
+		}
+		x := tags.Tag(i)
+		be.True(t, uris[x] != "")
+		be.True(t, names[x] != "")
+		be.True(t, determiner[x] != "")
+		be.True(t, infos[x] != "")
+	}
+}
 
 func TestByName(t *testing.T) {
 	t.Parallel()

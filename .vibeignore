@@ -1,9 +1,0 @@
-# Git
-.git/
-.gitignore
-
-# Ignore directories
-docs/
-public/bin
-public/certs
-

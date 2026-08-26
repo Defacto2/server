@@ -9,6 +9,7 @@ df2-server
 server
 
 # debug and log files
+coverage.out
 profile*.*
 defacto2_serve_*.log
 /logs/

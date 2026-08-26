@@ -2,7 +2,6 @@ package initialism_test
 
 import (
 	"fmt"
-	"io"
 	"slices"
 	"sort"
 	"strings"
@@ -67,38 +66,6 @@ func TestMatch(t *testing.T) {
 			// 	t.Errorf("Match() = %v, want %v", c, tt.want)
 			// }
 		})
-	}
-}
-
-func BenchmarkIsInitialism(b *testing.B) {
-	for b.Loop() {
-		fmt.Fprintln(io.Discard, initialism.IsInitialism("defacto2"))
-	}
-}
-
-func BenchmarkInitialism(b *testing.B) {
-	for b.Loop() {
-		fmt.Fprintln(io.Discard, initialism.Initialism("defacto2"))
-	}
-}
-
-func BenchmarkInitialisms(b *testing.B) {
-	for b.Loop() {
-		const find = "USA"
-		for key, values := range *initialism.Initialisms() {
-			for value := range slices.Values(values) {
-				if value == find {
-					fmt.Fprintf(io.Discard, "Found %v in %v\n", find, key)
-					return
-				}
-			}
-		}
-	}
-}
-
-func BenchmarkMatch(b *testing.B) {
-	for b.Loop() {
-		fmt.Fprint(io.Discard, initialism.Match("razor"))
 	}
 }
 

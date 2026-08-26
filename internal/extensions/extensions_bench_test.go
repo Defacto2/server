@@ -80,7 +80,7 @@ func BenchmarkContainsMedia(b *testing.B) {
 // Benchmark simulating a realistic page with 100 files being checked.
 // This shows the cumulative impact of the optimization.
 func BenchmarkFileListingWith100Files(b *testing.B) {
-	exts := []string{".zip", ".pdf", ".png", ".mp3", ".rar", ".txt", ".jpg", ".gif", ".7z"}
+	exts := [...]string{".zip", ".pdf", ".png", ".mp3", ".rar", ".txt", ".jpg", ".gif", ".7z"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, ext := range exts {

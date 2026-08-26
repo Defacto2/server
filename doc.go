@@ -33,10 +33,14 @@ The commands are:
 
 	address
 			List the IP, hostname and port addresses the server is listening on.
+	check
+			Check and validate the configuration options and settings.
 	config
 			List the server configuration options and settings.
 	fix
 			Fix the database and assets.
+	temp
+			Delete the temporary subdirectories created by this app.
 
 # Flags
 

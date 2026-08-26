@@ -265,47 +265,6 @@ func TestCheckNoMethodsReturnsEmpty(t *testing.T) {
 	be.Equal(t, result, "")
 }
 
-// BenchmarkCheck measures Check function performance.
-func BenchmarkCheck(b *testing.B) {
-	sl := slog.New(slog.DiscardHandler)
-	tmpDir := b.TempDir()
-	extra := dir.Directory(tmpDir)
-
-	uid := testconst.TestUUID
-	d := &MockDirEntry{name: uid + ".zip", isDir: false}
-	artifacts := []string{uid}
-
-	zipPath := filepath.Join(tmpDir, uid+".zip")
-	err := os.WriteFile(zipPath, []byte("not zip"), 0o600)
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = fixarc.Check(sl, zipPath, extra, d, artifacts...)
-		}
-	})
-}
-
-// BenchmarkInvalid measures Invalid function performance.
-func BenchmarkInvalid(b *testing.B) {
-	sl := slog.New(slog.DiscardHandler)
-	tmpDir := b.TempDir()
-
-	arcPath := filepath.Join(tmpDir, "test.arc")
-	err := os.WriteFile(arcPath, []byte("dummy"), 0o600)
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_ = fixarc.Invalid(context.Background(), sl, arcPath)
-		}
-	})
-}
-
 // TestCheckBinarySearchCorrectness tests that binary search finds UUIDs at various positions.
 func TestCheckBinarySearchCorrectness(t *testing.T) {
 	sl := slog.New(slog.DiscardHandler)

@@ -25,14 +25,15 @@ func BenchmarkTagByURILinearSearch(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, slug := range slugs {
-				oldTagByURI(slug)
+				oldTagByURI(b, slug)
 			}
 		}
 	})
 }
 
 // oldTagByURI is the original O(n) implementation for benchmarking comparison.
-func oldTagByURI(slug string) tags.Tag {
+func oldTagByURI(b *testing.B, slug string) tags.Tag {
+	b.Helper()
 	for key, value := range tags.URIs() {
 		if strings.ToLower(slug) == value {
 			return key

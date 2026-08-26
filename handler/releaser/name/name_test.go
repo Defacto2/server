@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"testing"
 
 	"github.com/Defacto2/server/handler/releaser"
@@ -104,29 +103,6 @@ func ExamplePath_Valid() {
 	fmt.Println(name.Path("Defacto2").Valid())
 	// Output: true
 	// false
-}
-
-func BenchmarkPath(b *testing.B) {
-	for b.Loop() {
-		for uri := range *initialism.Initialisms() {
-			path := name.Path(uri)
-			if !path.Valid() {
-				fmt.Fprintln(os.Stderr, "invalid! "+path.String())
-				continue
-			}
-			if s := path.String(); s != "" {
-				fmt.Fprintln(io.Discard, s)
-			}
-		}
-	}
-}
-
-func BenchmarkObfuscate(b *testing.B) {
-	for b.Loop() {
-		for i, n := range listNames() {
-			fmt.Fprintln(io.Discard, i, n, string(name.Obfuscate(n)))
-		}
-	}
 }
 
 func TestSpecial(t *testing.T) {
