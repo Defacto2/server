@@ -124,9 +124,9 @@ func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string
 }
 
 func upload(f models.File, values url.Values, key string) (models.File, error) {
-	youtube, err := ValidYouTube(values.Get(key + "-youtube"))
-	if err != nil {
-		return f, fmt.Errorf("upload valid youtube: %w", err)
+	youtube := ValidYouTube(values.Get(key + "-youtube"))
+	if !youtube.Valid {
+		return f, fmt.Errorf("upload valid youtube: %w", ErrYouTube)
 	}
 	releaser1, releaser2 := ValidReleasers(
 		values.Get(key+"-releaser1"),

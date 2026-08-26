@@ -738,6 +738,7 @@ func (u Upload) Replacement(ctx context.Context, sl *slog.Logger, c *echo.Contex
 	}()
 
 	fu := model.FileUpload{
+		ID:          upload.id,
 		Filename:    file.Filename,
 		Filesize:    file.Size,
 		LastMod:     time.Time{},
@@ -783,7 +784,7 @@ func (u Upload) Replacement(ctx context.Context, sl *slog.Logger, c *echo.Contex
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
-	if err := fu.Update(ctx, tx, upload.id); err != nil {
+	if err := fu.Update(ctx, tx); err != nil {
 		return badRequest(c, fmt.Errorf("file upload update, %w: %w", ErrFormUpdate, err))
 	}
 

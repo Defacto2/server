@@ -11,23 +11,28 @@ import (
 
 func TestSiteAd(t *testing.T) {
 	t.Parallel()
+
 	empty := null.StringFrom("")
-	rsomeone := null.StringFrom("someone")
-	rftp := null.StringFrom("some site fTp ") // test case and white space
-	rbbs := null.StringFrom("some board bBS") // test casing
-	snfo := null.StringFrom(tags.Nfo.String())
-	sexe := null.StringFrom(tags.Intro.String())
-	sftp := null.StringFrom(tags.Ftp.String())
-	sbbs := null.StringFrom(tags.BBS.String())
 
 	got := model.SiteAd(empty, empty)
 	be.Equal(t, got, empty)
+
+	sexe := null.StringFrom(tags.Intro.String())
+	rftp := null.StringFrom("some site fTp ") // test case and white space
 	got = model.SiteAd(rftp, sexe)
 	be.Equal(t, got, sexe)
+
+	sftp := null.StringFrom(tags.Ftp.String())
+	snfo := null.StringFrom(tags.Nfo.String())
 	got = model.SiteAd(rftp, snfo)
 	be.Equal(t, got, sftp)
+
+	rbbs := null.StringFrom("some board bBS") // test casing
+	sbbs := null.StringFrom(tags.BBS.String())
 	got = model.SiteAd(rbbs, snfo)
 	be.Equal(t, got, sbbs)
+
+	rsomeone := null.StringFrom("someone")
 	got = model.SiteAd(rsomeone, snfo)
 	be.Equal(t, got, snfo)
 }

@@ -567,7 +567,10 @@ func RecordClassification(ctx context.Context, sl *slog.Logger, c *echo.Context,
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateClassification(ctx, db, int64(id), platform, section); err != nil {
+	classification := model.Classification{
+		ID: int64(id), Platform: platform, Tag: section,
+	}
+	if err := classification.Update(ctx, db); err != nil {
 		return badRequest(c, err)
 	}
 	html, err := form.HumanizeCount(ctx, db, section, platform)
@@ -940,16 +943,25 @@ func RecordCreatorReset(ctx context.Context, c *echo.Context, db *sql.DB) error 
 		const format = `%w, record creator reset requires string;string;string;string`
 		return badRequest(c, fmt.Errorf(format, ErrYMDFormat))
 	}
+
 	text := vals[0]
 	ill := vals[1]
 	prog := vals[2]
 	audio := vals[3]
+	creators := model.Creators{
+		ID:    int64(id),
+		Text:  text,
+		Ill:   ill,
+		Prog:  prog,
+		Audio: audio,
+	}
 	if textval == text && illval == ill && progval == prog && audioval == audio {
 		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
-	if err := model.UpdateCreators(ctx, db, int64(id), text, ill, prog, audio); err != nil {
+	if err := creators.Update(ctx, db); err != nil {
 		return badRequest(c, err)
 	}
+
 	return c.String(http.StatusOK, "Undo creators")
 }
 
@@ -1156,8 +1168,17 @@ func RecordLinksReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		}
 	}
 
-	if err := model.UpdateLinks(ctx, db,
-		int64(id), youtube, colors16, github, rels, sites, demozooID, pouetID); err != nil {
+	lnks := model.Links{
+		ID:        int64(id),
+		Demozoo:   demozooID,
+		Pouet:     pouetID,
+		YouTube:   youtube,
+		Colors16:  colors16,
+		GitHub:    github,
+		Relations: rels,
+		Sites:     sites,
+	}
+	if err := lnks.UpdateLinks(ctx, db); err != nil {
 		return badRequest(c, err)
 	}
 	links := app.LinkPreviews(youtube, demozooVal, pouetVal, colors16, github, rels, sites)
@@ -1259,14 +1280,17 @@ func RecordEmulateMachine(ctx context.Context, c *echo.Context, db *sql.DB) erro
 	if err := nils.Check(ctx, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	id, err := ID(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
+
 	value := c.FormValue("emulate-machine")
 	if err := model.UpdateEmulateMachine(ctx, db, int64(id), value); err != nil {
 		return badRequest(c, err)
 	}
+
 	return c.String(http.StatusOK, successSpan)
 }
 

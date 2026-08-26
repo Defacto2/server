@@ -7,6 +7,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Aug 26, test coverage was good at around 95%+
+
 // Test that each Expr function returns a valid QueryMod.
 func TestAdvertExpr(t *testing.T) {
 	expr := querymod.AdvertExpr()

@@ -35,6 +35,7 @@ var (
 	ErrURI      = errors.New("uri value is invalid")
 	ErrUUID     = errors.New("could not create a new universal unique identifier")
 	ErrYear     = errors.New("invalid year")
+	ErrYouTube  = errors.New("invalid youtube id")
 )
 
 const (

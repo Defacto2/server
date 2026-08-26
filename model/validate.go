@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math"
 	"mime"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -86,37 +85,40 @@ func ValidDateIssue(y, m, d string) (null.Int16, null.Int16, null.Int16) {
 func ValidD(d int16) null.Int16 {
 	const first, last = 1, 31
 	if d < first || d > last {
-		return null.Int16{Int16: 0, Valid: false}
+		return null.Int16{}
 	}
-	return null.Int16{Int16: d, Valid: true}
+
+	return null.Int16From(d)
 }
 
 // ValidM returns a valid month or a null value.
 func ValidM(m int16) null.Int16 {
 	const jan, dec = 1, 12
 	if m < jan || m > dec {
-		return null.Int16{Int16: 0, Valid: false}
+		return null.Int16{}
 	}
-	return null.Int16{Int16: m, Valid: true}
+
+	return null.Int16From(m)
 }
 
 // ValidY returns a valid year or a null value.
 func ValidY(y int16) null.Int16 {
 	current := int16(math.Abs(float64(time.Now().Year())))
 	if y < EpochYear || y > current {
-		return null.Int16{Int16: 0, Valid: false}
+		return null.Int16{}
 	}
-	return null.Int16{Int16: y, Valid: true}
+
+	return null.Int16From(y)
 }
 
 // ValidFilename returns a valid filename or a null value.
 // The filename is trimmed and shortened to the long filename limit.
 func ValidFilename(s string) null.String {
-	invalid := null.String{String: "", Valid: false}
 	t := trimName(s)
-	if len(t) == 0 {
-		return invalid
+	if t == "" {
+		return null.String{}
 	}
+
 	return null.StringFrom(t)
 }
 
@@ -124,32 +126,31 @@ func ValidFilename(s string) null.String {
 // The file size is parsed as an unsigned integer.
 // An error is returned if the string cannot be parsed as an integer.
 func ValidFilesize(size string) (null.Int64, error) {
-	invalid := null.Int64{Int64: 0, Valid: false}
-	size = strings.TrimSpace(size)
-	if len(size) == 0 {
-		return invalid, nil
+	s := strings.TrimSpace(size)
+	if s == "" {
+		return null.Int64{}, nil
 	}
-	i, err := strconv.ParseInt(size, 10, 64)
+
+	i, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
-		return invalid, fmt.Errorf("%w: %q, %w", ErrSize, size, err)
+		return null.Int64{}, fmt.Errorf("%w: %q, %w", ErrSize, size, err)
 	}
+
 	return null.Int64From(i), nil
 }
 
 // ValidIntegrity confirms the integrity as a valid SHA-384 hexadecimal hash
 // or returns a null value.
 func ValidIntegrity(integrity string) null.String {
-	invalid := null.String{String: "", Valid: false}
-	if len(integrity) == 0 {
-		return invalid
-	}
 	if len(integrity) != sha512.Size384*2 {
-		return invalid
+		return null.String{}
 	}
+
 	_, err := hex.DecodeString(integrity)
 	if err != nil {
-		return invalid
+		return null.String{}
 	}
+
 	return null.StringFrom(integrity)
 }
 
@@ -158,158 +159,188 @@ func ValidIntegrity(integrity string) null.String {
 // An error is returned if the string cannot be parsed as an integer.
 // The lastmod time is validated to be within the current year and the epoch year of 1980.
 func ValidLastMod(lastmod string) null.Time {
-	invalid := null.Time{Time: time.Time{}, Valid: false}
-	if len(lastmod) == 0 {
-		return invalid
+	if lastmod == "" {
+		return null.Time{}
 	}
+
 	i, err := strconv.ParseInt(lastmod, 10, 64)
 	if err != nil {
-		return invalid
+		return null.Time{}
 	}
-	val := time.UnixMilli(i)
+
+	t := time.UnixMilli(i)
 	now := time.Now()
-	if val.After(now) {
-		return invalid
+	if t.After(now) {
+		return null.Time{}
 	}
-	eposh := time.Date(EpochYear, time.January, 1, 0, 0, 0, 0, time.UTC)
-	if val.Before(eposh) {
-		return invalid
+
+	epoch := time.Date(EpochYear, time.January, 1, 0, 0, 0, 0, time.UTC)
+	if t.Before(epoch) {
+		return null.Time{}
 	}
-	return null.TimeFrom(val)
+
+	return null.TimeFrom(t)
 }
 
 // ValidMagic returns a valid media type or a null value.
 // It is validated using the mime package.
 // The media type is trimmed and validated using the mime package.
 func ValidMagic(mediatype string) null.String {
-	invalid := null.String{String: "", Valid: false}
-	mtype := strings.TrimSpace(mediatype)
-	if len(mtype) == 0 {
-		return invalid
+	t := strings.TrimSpace(mediatype)
+	if t == "" {
+		return null.String{}
 	}
-	r, err := mime.ExtensionsByType(mtype)
+	r, err := mime.ExtensionsByType(t)
 	if err != nil || len(r) == 0 {
-		return invalid
+		return null.String{}
 	}
+
 	param := map[string]string{}
 	result := mime.FormatMediaType(mediatype, param)
+
 	return null.StringFrom(result)
 }
 
 // ValidPlatform returns a valid platform or a null value.
 func ValidPlatform(platform string) null.String {
-	invalid := null.String{String: "", Valid: false}
 	p := strings.TrimSpace(platform)
-	if tags.IsPlatform(p) {
-		s := tags.TagByURI(p).String()
-		return null.StringFrom(s)
+	if !tags.IsPlatform(p) {
+		return null.String{}
 	}
-	return invalid
+	s := tags.TagByURI(p).String()
+	return null.StringFrom(s)
 }
 
 // ValidReleasers returns two valid releaser group strings or null values.
 func ValidReleasers(s1, s2 string) (null.String, null.String) {
-	invalid := null.String{String: "", Valid: false}
-	t1, t2 := trimShort(s1), trimShort(s2)
-	t1, t2 = releaser.Clean(t1), releaser.Clean(t2)
-	t1, t2 = strings.ToUpper(t1), strings.ToUpper(t2)
-	x1, x2 := invalid, invalid
-	if len(t1) > 0 {
-		x1 = null.StringFrom(t1)
+	x := strings.ToUpper(releaser.Clean(trimShort(s1)))
+	y := strings.ToUpper(releaser.Clean(trimShort(s2)))
+
+	if x != "" && x == y {
+		y = ""
 	}
-	if len(t2) > 0 {
-		x2 = null.StringFrom(t2)
+
+	if x == "" && y != "" {
+		x, y = y, ""
 	}
-	if len(t1) == 0 && len(t2) > 0 {
-		x1 = null.StringFrom(t2)
-		x2 = invalid
+
+	var r1, r2 null.String
+	if x != "" {
+		r1 = null.StringFrom(x)
 	}
-	return x1, x2
+	if y != "" {
+		r2 = null.StringFrom(y)
+	}
+
+	return r1, r2
 }
 
 // ValidSceners returns a valid sceners string or a null value.
 func ValidSceners(s string) null.String {
-	invalid := null.String{String: "", Valid: false}
 	t := trimShort(s)
-	if len(t) == 0 {
-		return invalid
+	if t == "" {
+		return null.String{}
 	}
+
 	const sep = ","
-	ts := strings.Split(t, sep)
-	for i, val := range ts {
-		ts[i] = releaser.Clean(strings.TrimSpace(val))
+	x := strings.Split(t, sep)
+
+	n := 0
+	for _, elem := range x {
+		cleaned := releaser.Clean(strings.TrimSpace(elem))
+		if cleaned != "" {
+			x[n] = cleaned
+			n++
+		}
 	}
-	t = strings.Join(ts, sep)
-	return null.StringFrom(t)
+	x = x[:n]
+
+	if len(x) == 0 {
+		return null.String{}
+	}
+
+	return null.StringFrom(strings.Join(x, sep))
 }
 
 // ValidSection returns a valid section or a null value.
 func ValidSection(section string) null.String {
-	invalid := null.String{String: "", Valid: false}
 	tag := strings.TrimSpace(section)
-	if tags.IsCategory(tag) {
-		s := tags.TagByURI(tag).String()
-		return null.StringFrom(s)
+	if !tags.IsCategory(tag) {
+		return null.String{}
 	}
-	return invalid
+	s := tags.TagByURI(tag).String()
+	return null.StringFrom(s)
 }
 
 // ValidString returns a valid string or a null value.
 func ValidString(s string) null.String {
-	invalid := null.String{String: "", Valid: false}
-	x := strings.TrimSpace(s)
-	if len(x) == 0 {
-		return invalid
+	t := strings.TrimSpace(s)
+	if t == "" {
+		return null.String{}
 	}
-	return null.StringFrom(x)
+	return null.StringFrom(t)
 }
 
 // ValidTitle returns a valid title or a null value.
 // The title is trimmed and shortened to the short limit.
 func ValidTitle(s string) null.String {
-	invalid := null.String{String: "", Valid: false}
 	t := trimShort(s)
-	if len(t) == 0 {
-		return invalid
+	if t == "" {
+		return null.String{}
 	}
 	return null.StringFrom(t)
 }
 
 // ValidYouTube returns true if the string is a valid YouTube video ID.
 // An error is only returned if the regular expression match cannot compile.
-func ValidYouTube(s string) (null.String, error) {
-	const format = "valid youtube regexp match string: %w"
-	const fixLen = 11
-	invalid := null.String{String: "", Valid: false}
-	if len(s) != fixLen {
-		return invalid, nil
+func ValidYouTube(s string) null.String {
+	if len(s) != 11 {
+		return null.String{}
 	}
-	match, err := regexp.MatchString("^[a-zA-Z0-9_-]{11}$", s)
-	if err != nil {
-		return invalid, fmt.Errorf(format, err)
+
+	for i := 0; i < len(s); i++ {
+		b := s[i]
+		switch {
+		case b >= 'a' && b <= 'z':
+		case b >= 'A' && b <= 'Z':
+		case b >= '0' && b <= '9':
+		case b == '_' || b == '-':
+		default:
+			return null.String{}
+		}
 	}
-	if !match {
-		return invalid, nil
-	}
-	return null.String{String: s, Valid: true}, nil
+
+	return null.StringFrom(s)
 }
 
 // trimShort returns a string that is no longer than the short limit.
 // It will also remove any leading or trailing white space.
 func trimShort(s string) string {
 	x := strings.TrimSpace(s)
-	if len(x) > ShortLimit {
-		return x[:ShortLimit]
+
+	count := 0
+	for i := range x {
+		if count == ShortLimit {
+			return x[:i]
+		}
+		count++
 	}
+
 	return x
 }
 
 // trimName returns a string that is no longer than the long filename limit.
 // It will also remove any leading or trailing white space.
 func trimName(s string) string {
-	s = strings.TrimSpace(s)
-	if len(s) > LongFilename {
-		return s[:LongFilename]
+	x := strings.TrimSpace(s)
+
+	count := 0
+	for i := range x {
+		if count == LongFilename {
+			return x[:i]
+		}
+		count++
 	}
-	return s
+
+	return x
 }

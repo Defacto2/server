@@ -44,45 +44,67 @@ const (
 
 // UpdateEmulateUMB updates the column dosee_no_umb with val.
 func UpdateEmulateUMB(ctx context.Context, db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(ctx, db, emulateUMB, id, val)
-}
-
-// UpdateEmulateEMS updates the column dosee_no_ems with val.
-func UpdateEmulateEMS(ctx context.Context, db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(ctx, db, emulateEMS, id, val)
-}
-
-// UpdateEmulateXMS updates the column dosee_no_xms with val.
-func UpdateEmulateXMS(ctx context.Context, db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(ctx, db, emulateXMS, id, val)
-}
-
-// UpdateEmulateBroken updates the column dosee_broken with val.
-func UpdateEmulateBroken(ctx context.Context, db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(ctx, db, emulateBroken, id, val)
-}
-
-// UpdateReadmeDisable updates the column retrotxt_no_readme with val.
-func UpdateReadmeDisable(ctx context.Context, db *sql.DB, id int64, val bool) error {
-	return UpdateBoolFrom(ctx, db, readmeDisable, id, val)
-}
-
-// UpdateBoolFrom updates the column bool from value with val.
-// The boolFrom columns are table columns that can either be null, empty, or have a smallint value.
-func UpdateBoolFrom(ctx context.Context, db *sql.DB, column boolFrom, id int64, val bool) error {
-	const msg = "update bool from"
-	const format = msg + " %s: %w"
-	if err := nils.Check(ctx, db); err != nil {
-		return fmt.Errorf(format, "check", err)
-	}
+	const format = "update emulate ums %s: %w"
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
 	}
+	return UpdateBoolFrom(ctx, db, tx, emulateUMB, id, val)
+}
+
+// UpdateEmulateEMS updates the column dosee_no_ems with val.
+func UpdateEmulateEMS(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	const format = "update emulate ems %s: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, "begin tx", err)
+	}
+	return UpdateBoolFrom(ctx, db, tx, emulateEMS, id, val)
+}
+
+// UpdateEmulateXMS updates the column dosee_no_xms with val.
+func UpdateEmulateXMS(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	const format = "update emulate xms %s: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, "begin tx", err)
+	}
+	return UpdateBoolFrom(ctx, db, tx, emulateXMS, id, val)
+}
+
+// UpdateEmulateBroken updates the column dosee_broken with val.
+func UpdateEmulateBroken(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	const format = "update emulate broken %s: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, "begin tx", err)
+	}
+	return UpdateBoolFrom(ctx, db, tx, emulateBroken, id, val)
+}
+
+// UpdateReadmeDisable updates the column retrotxt_no_readme with val.
+func UpdateReadmeDisable(ctx context.Context, db *sql.DB, id int64, val bool) error {
+	const format = "update readme disable %s: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, "begin tx", err)
+	}
+	return UpdateBoolFrom(ctx, db, tx, readmeDisable, id, val)
+}
+
+// UpdateBoolFrom updates the column bool from value with val.
+// The boolFrom columns are table columns that can either be null, empty, or have a smallint value.
+func UpdateBoolFrom(ctx context.Context, db *sql.DB, tx *sql.Tx, column boolFrom, id int64, val bool) error {
+	const format = "bool from %v: %w"
+	if err := nils.Check(ctx, db, tx); err != nil {
+		return fmt.Errorf(format, "check", err)
+	}
+
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf(format, "one file", err)
 	}
+
 	const yes, no = int16(1), int16(0)
 	i := yes
 	if val {
@@ -90,32 +112,35 @@ func UpdateBoolFrom(ctx context.Context, db *sql.DB, column boolFrom, id int64, 
 	}
 	switch column {
 	case emulateUMB:
-		f.DoseeNoUmb = null.NewInt16(i, true)
+		f.DoseeNoUmb = null.Int16From(i)
 	case emulateEMS:
-		f.DoseeNoEms = null.NewInt16(i, true)
+		f.DoseeNoEms = null.Int16From(i)
 	case emulateXMS:
-		f.DoseeNoXMS = null.NewInt16(i, true)
+		f.DoseeNoXMS = null.Int16From(i)
 	case emulateBroken:
-		f.DoseeIncompatible = null.NewInt16(i, true)
+		f.DoseeIncompatible = null.Int16From(i)
 	case readmeDisable:
-		f.RetrotxtNoReadme = null.NewInt16(i, true)
+		f.RetrotxtNoReadme = null.Int16From(i)
 	}
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s %v %v: %w", msg, column, val, err)
+		return fmt.Errorf(format, column, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
 func UpdateEmulateRunProgram(ctx context.Context, db *sql.DB, id int64, val string) error {
-	const msg = "update emulate run program"
-	const format = msg + " %s: %w"
+	const format = "update emulate run program %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	s := strings.TrimSpace(strings.ToUpper(val))
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
@@ -124,22 +149,25 @@ func UpdateEmulateRunProgram(ctx context.Context, db *sql.DB, id int64, val stri
 	if err != nil {
 		return fmt.Errorf(format, "one file", err)
 	}
+
 	f.DoseeRunProgram = null.StringFrom(s)
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, s, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
 func UpdateEmulateMachine(ctx context.Context, db *sql.DB, id int64, val string) error {
-	const msg = "update emulate machine"
-	const format = msg + " %s: %w"
+	const format = "update emulate machine %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
-		return fmt.Errorf("%s check: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
+
 	validate := strings.TrimSpace(strings.ToLower(val))
 	switch validate {
 	case "cga", "ega", "vga", "tandy", "nolfb", "et3000", "paradise", "et4000", "oldvbe":
@@ -149,6 +177,7 @@ func UpdateEmulateMachine(ctx context.Context, db *sql.DB, id int64, val string)
 	default:
 		return fmt.Errorf(format, val, ErrMachine)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
@@ -157,22 +186,25 @@ func UpdateEmulateMachine(ctx context.Context, db *sql.DB, id int64, val string)
 	if err != nil {
 		return fmt.Errorf(format, "one file", err)
 	}
+
 	f.DoseeHardwareGraphic = null.StringFrom(validate)
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, validate, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
 func UpdateEmulateCPU(ctx context.Context, db *sql.DB, id int64, val string) error {
-	const msg = "update emulate cpu"
-	const format = msg + " %s: %w"
+	const format = "update emulate cpu %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	validate := strings.TrimSpace(strings.ToLower(val))
 	switch validate {
 	case "8086", "386", "486":
@@ -182,6 +214,7 @@ func UpdateEmulateCPU(ctx context.Context, db *sql.DB, id int64, val string) err
 	default:
 		return fmt.Errorf(format, val, ErrCPU)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
@@ -190,22 +223,25 @@ func UpdateEmulateCPU(ctx context.Context, db *sql.DB, id int64, val string) err
 	if err != nil {
 		return fmt.Errorf(format, "one file", err)
 	}
+
 	f.DoseeHardwareCPU = null.StringFrom(validate)
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, validate, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
 func UpdateEmulateSfx(ctx context.Context, db *sql.DB, id int64, val string) error {
-	const msg = "update emulate sfx"
-	const format = msg + " %s: %w"
+	const format = "update emulate sfx %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	validate := strings.TrimSpace(strings.ToLower(val))
 	switch validate {
 	case "covox", "sb1", "sb16", "gus", "pcspeaker", "none":
@@ -215,6 +251,7 @@ func UpdateEmulateSfx(ctx context.Context, db *sql.DB, id int64, val string) err
 	default:
 		return fmt.Errorf(format, val, ErrSfx)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
@@ -223,13 +260,16 @@ func UpdateEmulateSfx(ctx context.Context, db *sql.DB, id int64, val string) err
 	if err != nil {
 		return fmt.Errorf(format, "one file", err)
 	}
+
 	f.DoseeHardwareAudio = null.StringFrom(validate)
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, validate, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
@@ -243,139 +283,246 @@ const (
 
 // Update16Colors updates the WebID16colors column value with val.
 func Update16Colors(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, colors16, id, val)
+	const format = "update 16colors: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, colors16, id, val)
 }
 
 // UpdateComment updates the Comment column value with val.
 func UpdateComment(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, comment, id, val)
+	const format = "update comment: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, comment, id, val)
 }
 
 // UpdateCreatorAudio updates the CreditAudio column with val.
 func UpdateCreatorAudio(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, credAudio, id, val)
+	const format = "update creator audio: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, credAudio, id, val)
 }
 
 // UpdateCreatorIll updates the CreditIllustration column with val.
 func UpdateCreatorIll(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, credIll, id, val)
+	const format = "update creator ill: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, credIll, id, val)
 }
 
 // UpdateCreatorProg updates the CreditProgram column with val.
 func UpdateCreatorProg(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, credProg, id, val)
+	const format = "update creator prog: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, credProg, id, val)
 }
 
 // UpdateCreatorText updates the CreditText column with val.
 func UpdateCreatorText(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, creText, id, val)
+	const format = "update creator text: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, creText, id, val)
 }
 
 // UpdateDemozoo updates the WebIDDemozoo column with val.
 func UpdateDemozoo(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateInt64From(ctx, db, demozooProd, id, val)
+	const format = "update demozoo: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateInt64From(ctx, db, tx, demozooProd, id, val)
 }
 
 // UpdateFilename updates the Filename column with val.
 func UpdateFilename(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, filename, id, val)
+	const format = "update filename: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, filename, id, val)
 }
 
 // UpdateGitHub updates the WebIDGithub column with val.
 func UpdateGitHub(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, github, id, val)
+	const format = "update github: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, github, id, val)
 }
 
 // UpdatePlatform updates the Platform column value with val.
 func UpdatePlatform(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, platform, id, val)
+	const format = "update platform: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, platform, id, val)
 }
 
 // UpdatePouet updates the WebIDPouet column with val.
 func UpdatePouet(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateInt64From(ctx, db, pouetProd, id, val)
+	const format = "update pouet: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateInt64From(ctx, db, tx, pouetProd, id, val)
 }
 
 // UpdateRelations updates the ListRelations column value with val.
 func UpdateRelations(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, relations, id, val)
+	const format = "update relations: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, relations, id, val)
 }
 
 // UpdateSites updates the ListLinks column with val.
 func UpdateSites(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, sites, id, val)
+	const format = "update sites: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, sites, id, val)
 }
 
 // UpdateTag updates the Section column with val.
 func UpdateTag(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, section, id, val)
+	const format = "update tag: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, section, id, val)
 }
 
 // UpdateTitle updates the RecordTitle column with val.
 func UpdateTitle(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, title, id, val)
+	const format = "update title: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, title, id, val)
 }
 
 // UpdateVirusTotal updates the FileSecurityAlertURL value with val.
+
 func UpdateVirusTotal(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, virusTotal, id, val)
+	const format = "update virus total: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, virusTotal, id, val)
 }
 
 // UpdateYouTube updates the WebIDYoutube column value with val.
 func UpdateYouTube(ctx context.Context, db *sql.DB, id int64, val string) error {
-	return UpdateStringFrom(ctx, db, youtube, id, val)
+	const format = "update youtube: %w"
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	return UpdateStringFrom(ctx, db, tx, youtube, id, val)
 }
 
 // UpdateInt64From updates the column int64 from value with val.
 // The int64From columns are table columns that can either be null, empty, or have an int64 value.
 // The demozooProd and pouetProd values are validated to be within a sane range
 // and a zero value will set their column's to null.
-func UpdateInt64From(ctx context.Context, db *sql.DB, column int64From, id int64, val string) error {
-	const msg = "update int64 from"
-	const format = msg + ": %w"
-	const fmtVal = msg + ": value %v: %w"
-	if err := nils.Check(ctx, db); err != nil {
+func UpdateInt64From(ctx context.Context, db *sql.DB, tx *sql.Tx, column int64From, id int64, val string) error {
+	const format = "update int64 from: %w"
+	const fmtVal = "update int64 value %v: %w"
+	if err := nils.Check(ctx, db, tx); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf(format, err)
-	}
+
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf(fmtVal, column, err)
 	}
+
 	if strings.TrimSpace(val) == "" {
 		val = "0"
 	}
-	i64, err := strconv.ParseInt(val, 10, 64)
+	n, err := strconv.ParseInt(val, 10, 64)
 	if err != nil {
 		return fmt.Errorf(fmtVal, val, err)
 	}
-	var invalid bool
+
+	var outOfRange bool
 	switch {
-	case i64 == 0 && column == demozooProd:
+	case n == 0 && column == demozooProd:
+		// remove demozoo entry
 		f.WebIDDemozoo = null.Int64FromPtr(nil)
-	case i64 == 0 && column == pouetProd:
+	case n == 0 && column == pouetProd:
+		// remove pouet entry
 		f.WebIDPouet = null.Int64FromPtr(nil)
 	case column == demozooProd:
-		invalid = i64 < 1 || i64 > DemozooSanity
-		f.WebIDDemozoo = null.Int64From(i64)
+		// update demozoo entry
+		outOfRange = n < 1 || n > DemozooSanity
+		f.WebIDDemozoo = null.Int64From(n)
 	case column == pouetProd:
-		invalid = i64 < 1 || i64 > pouet.Sanity
-		f.WebIDPouet = null.Int64From(i64)
+		// update pouet entry
+		outOfRange = n < 1 || n > pouet.Sanity
+		f.WebIDPouet = null.Int64From(n)
 	default:
 		return fmt.Errorf(format, ErrColumn)
 	}
-	if invalid {
-		return fmt.Errorf(fmtVal, i64, ErrID)
+	if outOfRange {
+		return fmt.Errorf(fmtVal, n, ErrID)
 	}
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s %v %s: %w", msg, column, val, err)
+		return fmt.Errorf(fmtVal, n, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	return nil
 }
 
@@ -405,30 +552,29 @@ const (
 
 // UpdateStringFrom updates the column string from value with val.
 // The stringFrom columns are table columns that can either be null, empty, or have a string value.
-func UpdateStringFrom(ctx context.Context, db *sql.DB, column stringFrom, id int64, val string) error {
-	const msg = "update string from"
-	const format = msg + ": %w"
-	const fmtVal = msg + ": value %v: %w"
-	if err := nils.Check(ctx, db); err != nil {
+func UpdateStringFrom(ctx context.Context, db *sql.DB, tx *sql.Tx, column stringFrom, id int64, val string) error {
+	const format = "update string from: %w"
+	if err := nils.Check(ctx, db, tx); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf(format, err)
-	}
+
+	const fmtVal = "update string value %v: %w"
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf(fmtVal, column, err)
 	}
+
 	if err = updateStringCases(f, column, val); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%v %s: %w", column, val, err)
+		return fmt.Errorf(fmtVal, val, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	return nil
 }
 
@@ -436,6 +582,7 @@ func updateStringCases(f *models.File, column stringFrom, val string) error { //
 	if err := nils.Check(f); err != nil {
 		return fmt.Errorf("update string cases: %w", err)
 	}
+
 	// strings must be sanitized otherwise there is a possibility of invalid
 	// characters being injected via FileZipContent, which will error the SQL update
 	val = strings.ToValidUTF8(val, "?")
@@ -480,193 +627,239 @@ func updateStringCases(f *models.File, column stringFrom, val string) error { //
 	default:
 		return ErrColumn
 	}
+
 	return nil
 }
 
-// UpdateCreators updates the text, illustration, program, and audio credit columns with the values provided.
-func UpdateCreators(ctx context.Context, db *sql.DB, id int64, text, ill, prog, audio string) error {
-	const msg = "update creators"
-	const format = msg + " %s: %w"
+type Creators struct {
+	ID    int64
+	Text  string
+	Ill   string
+	Prog  string
+	Audio string
+}
+
+// Update updates the text, illustration, program, and audio credit columns with the values provided.
+func (c Creators) Update(ctx context.Context, db *sql.DB) error {
+	const format = "update creators %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
 	}
-	f, err := OneFile(ctx, tx, id)
+
+	f, err := OneFile(ctx, tx, c.ID)
 	if err != nil {
 		return fmt.Errorf(format, "find file", err)
 	}
-	f.CreditText = null.StringFrom(text)
-	f.CreditIllustration = null.StringFrom(ill)
-	f.CreditProgram = null.StringFrom(prog)
-	f.CreditAudio = null.StringFrom(audio)
+
+	f.CreditText = null.StringFrom(c.Text)
+	f.CreditIllustration = null.StringFrom(c.Ill)
+	f.CreditProgram = null.StringFrom(c.Prog)
+	f.CreditAudio = null.StringFrom(c.Audio)
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
+}
+
+type Links struct {
+	ID        int64
+	Demozoo   int64
+	Pouet     int64
+	YouTube   string
+	Colors16  string
+	GitHub    string
+	Relations string
+	Sites     string
 }
 
 // UpdateLinks updates the youtube, 16colors, relations, sites, demozoo, and pouet columns with the values provided.
-func UpdateLinks(ctx context.Context, db *sql.DB, id int64,
-	youtube, colors16, github, relations, sites string,
-	demozoo, pouet int64,
-) error {
-	const msg = "update links"
-	const format = msg + " %s: %w"
+func (l Links) UpdateLinks(ctx context.Context, db *sql.DB) error {
+	const format = "update links %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
 	}
-	f, err := OneFile(ctx, tx, id)
+
+	f, err := OneFile(ctx, tx, l.ID)
 	if err != nil {
 		return fmt.Errorf(format, "find file", err)
 	}
-	f.WebIDYoutube = null.StringFrom(youtube)
-	f.WebID16colors = null.StringFrom(colors16)
-	f.WebIDGithub = null.StringFrom(github)
-	f.ListRelations = null.StringFrom(relations)
-	f.ListLinks = null.StringFrom(sites)
-	f.WebIDDemozoo = null.Int64From(demozoo)
-	f.WebIDPouet = null.Int64From(pouet)
+
+	f.WebIDYoutube = null.StringFrom(l.YouTube)
+	f.WebID16colors = null.StringFrom(l.Colors16)
+	f.WebIDGithub = null.StringFrom(l.GitHub)
+	f.ListRelations = null.StringFrom(l.Relations)
+	f.ListLinks = null.StringFrom(l.Sites)
+	f.WebIDDemozoo = null.Int64From(l.Demozoo)
+	f.WebIDPouet = null.Int64From(l.Pouet)
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
-const fmttx = "%s tx commit: %w"
+type Classification struct {
+	ID       int64
+	Platform string
+	Tag      string
+}
 
 // UpdateClassification updates the classification of a file in the database.
 // It takes an ID, platform, and tag as parameters and returns an error if any.
 // Both platform and tag must be valid values.
-func UpdateClassification(ctx context.Context, db *sql.DB, id int64, platform, tag string) error {
-	const msg = "update classification"
-	const format = msg + " %s: %w"
+func (cl Classification) Update(ctx context.Context, db *sql.DB) error {
+	const format = "update classification %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
-		return fmt.Errorf("%s check: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
-	p, t := tags.TagByURI(platform), tags.TagByURI(tag)
+
+	p, t := tags.TagByURI(cl.Platform), tags.TagByURI(cl.Tag)
 	if p == -1 {
-		return fmt.Errorf(format, platform, ErrPlatform)
+		return fmt.Errorf(format, cl.Platform, ErrPlatform)
 	}
-	if !tags.IsPlatform(platform) {
-		return fmt.Errorf(format, platform, ErrPlatform)
+	if !tags.IsPlatform(cl.Platform) {
+		return fmt.Errorf(format, cl.Platform, ErrPlatform)
 	}
+
 	if t == -1 {
-		return fmt.Errorf(format, tag, tags.ErrTag)
+		return fmt.Errorf(format, cl.Tag, tags.ErrTag)
 	}
-	if !tags.IsTag(tag) {
-		return fmt.Errorf(format, tag, tags.ErrTag)
+	if !tags.IsTag(cl.Tag) {
+		return fmt.Errorf(format, cl.Tag, tags.ErrTag)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
 	}
-	f, err := OneFile(ctx, tx, id)
+	f, err := OneFile(ctx, tx, cl.ID)
 	if err != nil {
 		return fmt.Errorf(format, "find file", err)
 	}
+
 	f.Platform = null.StringFrom(p.String())
 	f.Section = null.StringFrom(t.String())
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf(fmttx, msg, err)
+		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
 // UpdateDateIssued updates the date issued year, month and day columns with the values provided.
 // Columns updated are DateIssuedYear, DateIssuedMonth, and DateIssuedDay.
 func UpdateDateIssued(ctx context.Context, db *sql.DB, id int64, y, m, d string) error {
-	const msg = "update date issued"
-	const format = msg + " %s: %w"
+	const format = "update date issued %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
-		return fmt.Errorf("%s check: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)
 	}
+
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf(format, "find file", err)
 	}
+
 	year, month, day := ValidDateIssue(y, m, d)
 	f.DateIssuedYear = year
 	f.DateIssuedMonth = month
 	f.DateIssuedDay = day
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s %q %q %q: %w", msg, y, m, d, err)
+		return fmt.Errorf(y+"-"+m+"-"+d+" "+format, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf(fmttx, msg, err)
+		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
 // UpdateOffline updates the record to be offline and inaccessible to the public.
 func UpdateOffline(ctx context.Context, db *sql.DB, id int64) error {
-	const msg = "update offline"
-	const format = msg + " %s: %w"
+	const format = "update offline %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
-		return fmt.Errorf("%s check: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "offline", err)
 	}
+
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf(format, "find file", err)
 	}
+
 	now := time.Now()
 	f.Deletedat = null.TimeFromPtr(&now)
 	f.Deletedby = null.StringFrom(strings.ToLower(uidPlaceholder))
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf(fmttx, msg, err)
+		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
 // UpdateOnline updates the record to be online and public.
 func UpdateOnline(ctx context.Context, db *sql.DB, id int64) error {
-	const msg = "update online"
-	const format = msg + " %s: %w"
+	const format = "update online %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
 		return fmt.Errorf(format, " check", err)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "online", err)
 	}
+
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
 		return fmt.Errorf(format, "find file", err)
 	}
+
 	f.Deletedat = null.TimeFromPtr(nil)
 	f.Deletedby = null.String{String: "", Valid: false}
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf(fmttx, msg, err)
+		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
@@ -674,29 +867,34 @@ func UpdateOnline(ctx context.Context, db *sql.DB, id int64) error {
 // Two releases can be separated by a + (plus) character.
 // The columns updated are GroupBrandFor and GroupBrandBy.
 func UpdateReleasers(ctx context.Context, db *sql.DB, id int64, val string) error {
-	const msg = "update releasers"
+	const format = "update releasers %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
-		return fmt.Errorf("%s check: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
-	const maxReleasers = 2
+
 	val = strings.TrimSpace(val)
 	s := strings.Split(val, "+")
-	if len(s) > maxReleasers {
+	count := len(s)
+
+	const bothRelrs = 2
+	if count > bothRelrs {
 		return fmt.Errorf("%s: %w", s, ErrRels)
 	}
 	for i, v := range s {
 		s[i] = releaser.Cell(v)
 	}
+
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "begin tx", err)
 	}
 	f, err := OneFile(ctx, tx, id)
 	if err != nil {
-		return fmt.Errorf("%s find file: %w", msg, err)
+		return fmt.Errorf(format, "find file", err)
 	}
-	switch len(s) {
-	case maxReleasers:
+
+	switch count {
+	case bothRelrs:
 		f.GroupBrandFor = null.StringFrom(s[0])
 		f.GroupBrandBy = null.StringFrom(s[1])
 	case 1:
@@ -706,72 +904,83 @@ func UpdateReleasers(ctx context.Context, db *sql.DB, id int64, val string) erro
 		f.GroupBrandFor = null.StringFrom("")
 		f.GroupBrandBy = null.StringFrom("")
 	}
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
-		return fmt.Errorf("%s %q: %w", msg, val, err)
+		return fmt.Errorf(format, val, err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf(fmttx, msg, err)
+		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return nil
 }
 
 // UpdateYMD updates the date issued year, month and day columns with the values provided.
 func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, id int64, y, m, d null.Int16) error {
-	const msg = "update ymd"
-	const format = msg + "%s id %d: %w"
+	const format = "update ymd %w: %d"
+	const fmtid = "update ymd %s id %d: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err, 0)
 	}
 	if id <= 0 {
-		return fmt.Errorf(format, "", id, ErrKey)
+		return fmt.Errorf(fmtid, "", id, ErrKey)
 	}
-	const fmtDate = msg + ": %w: %d"
+
 	if !y.IsZero() && !helper.Year(int(y.Int16)) {
-		return fmt.Errorf(fmtDate, ErrYear, y.Int16)
+		return fmt.Errorf(format, ErrYear, y.Int16)
 	}
 	if !m.IsZero() && helper.ShortMonth(int(m.Int16)) == "" {
-		return fmt.Errorf(fmtDate, ErrMonth, m.Int16)
+		return fmt.Errorf(format, ErrMonth, m.Int16)
 	}
 	if !d.IsZero() && !helper.Day(int(d.Int16)) {
-		return fmt.Errorf(fmtDate, ErrDay, d.Int16)
+		return fmt.Errorf(format, ErrDay, d.Int16)
 	}
+
 	f, err := OneFile(ctx, exec, id)
 	if err != nil {
-		return fmt.Errorf(format, "one file", id, err)
+		return fmt.Errorf(fmtid, "one file", id, err)
 	}
+
 	f.DateIssuedYear = y
 	f.DateIssuedMonth = m
 	f.DateIssuedDay = d
+
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
-		return fmt.Errorf(format, "update", id, err)
+		return fmt.Errorf(fmtid, "update", id, err)
 	}
+
 	return nil
 }
 
 // UpdateMagic updates the file magictype (magic number) column with the magic value provided.
 func UpdateMagic(ctx context.Context, exec boil.ContextExecutor, id int64, magic string) error {
-	const msg = "update magic"
-	const format = msg + " %s id %d: %w"
+	const format = "update magic %s id %d: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf("update magic %w", err)
 	}
+
 	if id <= 0 {
 		return fmt.Errorf(format, "", id, ErrKey)
 	}
+
 	f, err := OneFile(ctx, exec, id)
 	if err != nil {
 		return fmt.Errorf(format, "find file", id, err)
 	}
+
 	f.FileMagicType = null.StringFrom(magic)
+
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "update", id, err)
 	}
+
 	return nil
 }
 
 // FileUpload contains the values needed to update an existing file record
 // after a new file has been uploaded to the server.
 type FileUpload struct {
+	ID          int64
 	LastMod     time.Time
 	Filename    string
 	Integrity   string
@@ -782,20 +991,22 @@ type FileUpload struct {
 
 // Update the file record with the values provided in [FileUpload].
 // The id is the database id key of the record.
-func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id int64) error {
-	const msg = "file upload update"
-	const format = msg + " %s: %w"
+func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor) error {
+	const format = "file upload update %s: %w"
 	const fmtID = format + ": %d"
 	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
-	if id <= 0 {
-		return fmt.Errorf(fmtID, "id value", ErrKey, id)
+
+	if fu.ID <= 0 {
+		return fmt.Errorf(fmtID, "id value", ErrKey, fu.ID)
 	}
-	f, err := OneFile(ctx, exec, id)
+
+	f, err := OneFile(ctx, exec, fu.ID)
 	if err != nil {
-		return fmt.Errorf(fmtID, "one file", err, id)
+		return fmt.Errorf(fmtID, "one file", err, fu.ID)
 	}
+
 	if err = updateStringCases(f, filename, fu.Filename); err != nil {
 		return fmt.Errorf(format, "filename", err)
 	}
@@ -808,10 +1019,13 @@ func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor, id i
 	if err = updateStringCases(f, zipContent, fu.Content); err != nil {
 		return fmt.Errorf(format, "zip content", err)
 	}
+
 	f.Filesize = null.Int64From(fu.Filesize)
 	f.FileLastModified = null.TimeFrom(fu.LastMod)
+
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
-		return fmt.Errorf(fmtID, "infer update record", err, id)
+		return fmt.Errorf(fmtID, "infer update record", err, fu.ID)
 	}
+
 	return nil
 }
