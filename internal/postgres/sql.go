@@ -418,17 +418,9 @@ func SetFilesize0() string {
 	return "UPDATE files SET filesize = 0 WHERE filesize IS NULL;"
 }
 
-// FilesWithNumericSuffixCount is an SQL statement to count files with numeric suffixes.
-func FilesWithNumericSuffixCount() string {
-	return `SELECT count(*) AS files_with_numeric_suffix
-		FROM files
-		WHERE filename ~ '\([0-9]{1,3}\)\.[A-Za-z0-9]+$'
-		AND filename !~ '\([12][0-9]{3}\)';`
-}
-
-// FilesWithNumericSuffixList is an SQL statement to list files with numeric suffixes.
-func FilesWithNumericSuffixList() string {
-	return `SELECT id, uuid, filename AS files_with_numeric_suffix
+// NumSuffixes is an SQL statement to list files with numeric suffixes.
+func NumSuffixes() string {
+	return `SELECT id, uuid, filename AS suffix
 		FROM files
 		WHERE filename ~ '\([0-9]{1,3}\)\.[A-Za-z0-9]+$'
 		AND filename !~ '\([12][0-9]{3}\)'

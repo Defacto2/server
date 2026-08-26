@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals
 package fix_test
 
 import (
@@ -8,13 +9,15 @@ import (
 	"github.com/Defacto2/server/model/fix"
 )
 
+var columns = [...]string{
+	"col1", "col2", "col3", "col4", "col5",
+}
+
+const updateSet = "UPDATE files SET "
+
 // BenchmarkStringConcatenation compares string concatenation performance.
 // This demonstrates why fmt.Fprintf is better than string concatenation.
 func BenchmarkStringConcatenation(b *testing.B) {
-	columns := []string{
-		"col1", "col2", "col3", "col4", "col5",
-	}
-	const updateSet = "UPDATE files SET "
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			var result strings.Builder
@@ -29,10 +32,6 @@ func BenchmarkStringConcatenation(b *testing.B) {
 
 // BenchmarkStringBuilder demonstrates the optimized approach.
 func BenchmarkStringBuilder(b *testing.B) {
-	columns := []string{
-		"col1", "col2", "col3", "col4", "col5",
-	}
-	const updateSet = "UPDATE files SET "
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			var query strings.Builder
@@ -47,10 +46,6 @@ func BenchmarkStringBuilder(b *testing.B) {
 
 // BenchmarkStringBuilderFprintf is the best approach with fmt.Fprintf.
 func BenchmarkStringBuilderFprintf(b *testing.B) {
-	columns := []string{
-		"col1", "col2", "col3", "col4", "col5",
-	}
-	const updateSet = "UPDATE files SET "
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			var query strings.Builder
@@ -170,7 +165,7 @@ func BenchmarkSliceAllocation(b *testing.B) {
 
 // BenchmarkStringBuilderFormatting demonstrates format string efficiency.
 func BenchmarkStringBuilderFormat(b *testing.B) {
-	columns := []string{"a", "b", "c", "d", "e"}
+	columns := [...]string{"a", "b", "c", "d", "e"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			var query strings.Builder
@@ -217,7 +212,7 @@ func BenchmarkFixesMapPackageLevel(b *testing.B) {
 
 // BenchmarkToUpperInLoop shows the old approach with repeated conversions.
 func BenchmarkToUpperInLoop(b *testing.B) {
-	items := []string{"acid", "ice", "damn", "rss", "dsi"}
+	items := [...]string{"acid", "ice", "damn", "rss", "dsi"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, item := range items {

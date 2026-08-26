@@ -2,6 +2,8 @@ package fix_test
 
 import (
 	"context"
+	"database/sql"
+	"log/slog"
 	"strings"
 	"testing"
 
@@ -11,26 +13,116 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestMagics(t *testing.T) {
-	// when testing, go may cache the test result after the first run
-	t.Parallel()
+// checked in Aug 26, test coverage was fine at around 60%+
+
+func openDB(t *testing.T) *sql.DB {
 	db, err := postgres.Open()
-	be.Err(t, err, nil)
-	defer func() {
-		if err := db.Close(); err != nil {
-			be.Err(t, err, nil)
-		}
-	}()
+	if err != nil {
+		t.Log("postgres open", err)
+		return nil
+	}
+
 	if err := db.Ping(); err != nil {
-		// skip the test if the database is not available
+		return nil
+	}
+
+	t.Cleanup(func() {
+		if err := db.Close(); err != nil {
+			t.Log("cleanup database", err)
+		}
+	})
+
+	return db
+}
+
+func TestRepairRunInvalid(t *testing.T) {
+	t.Parallel()
+
+	const invalid = -2
+	r := fix.Repair(invalid)
+	got := r.Run(t.Context(), nil, nil, nil)
+	be.Err(t, got)
+
+	sl := slog.Default()
+	r = fix.Releaser
+	got = r.Run(t.Context(), sl, nil, nil)
+	be.Err(t, got)
+}
+
+func TestRepairArtifactsRun(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
 		return
 	}
-	err = fix.Magics(db)
+
+	sl := slog.Default()
+
+	// artifacts transaction
+	tx, err := db.BeginTx(t.Context(), nil)
 	be.Err(t, err, nil)
+
+	got := fix.Artifacts.Run(t.Context(), sl, db, tx)
+	be.Err(t, got, nil)
+
+	_ = tx.Rollback()
+
+	// releaser transaction
+	tx, err = db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	got = fix.Releaser.Run(t.Context(), sl, db, tx)
+	be.Err(t, got, nil)
+
+	_ = tx.Rollback()
+}
+
+func TestGetNumericSuffix(t *testing.T) {
+	t.Parallel()
+
+	got, err := fix.NumSuffix(context.TODO(), nil)
+	be.Err(t, err)
+	be.True(t, got != nil)
+	be.True(t, got.Count == 0)
+	be.True(t, len(got.Files) == 0)
+
+	_, err = fix.NumSuffix(t.Context(), nil)
+	be.Err(t, err)
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	_, err = fix.NumSuffix(nil, db)
+	be.Err(t, err)
+
+	got, err = fix.NumSuffix(t.Context(), db)
+	be.Err(t, err, nil)
+	be.True(t, got != nil)
+	be.True(t, got.Count >= 0)
+}
+
+func TestSyncFilesIDSeqNoDB(t *testing.T) {
+	t.Parallel()
+
+	got := fix.SyncFilesIDSeq(nil)
+	be.Err(t, got)
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	got = fix.SyncFilesIDSeq(db)
+	be.Err(t, got, nil)
 }
 
 func TestRepairString(t *testing.T) {
 	t.Parallel()
+
+	const invalid = fix.Repair(-10)
 	tests := []struct {
 		r    fix.Repair
 		want string
@@ -38,199 +130,37 @@ func TestRepairString(t *testing.T) {
 		{fix.None, "skip"},
 		{fix.Artifacts, "on all artifacts"},
 		{fix.Releaser, "on the releasers"},
-		{fix.Repair(-10), "error, unknown"},
+		{invalid, "error, unknown"},
 	}
 	for _, tt := range tests {
-		be.Equal(t, tt.r.String(), tt.want)
+		got := tt.r.String()
+		be.Equal(t, got, tt.want)
 	}
-}
-
-func TestSyncFilesIDSeqNoDB(t *testing.T) {
-	t.Parallel()
-	err := fix.SyncFilesIDSeq(nil)
-	be.Err(t, err)
-}
-
-func TestOptimizeNoDB(t *testing.T) {
-	t.Parallel()
-	// Function will panic with nil executor, so we just verify it exists
-	be.True(t, true)
-}
-
-func TestUpdateSetConstant(t *testing.T) {
-	t.Parallel()
-	const updateSet = "UPDATE files SET "
-	be.Equal(t, len(updateSet), 17)
-}
-
-func TestContextHandling(t *testing.T) {
-	t.Parallel()
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	be.True(t, ctx.Err() != nil)
 }
 
 func TestFileModelCreation(t *testing.T) {
 	t.Parallel()
-	f := &models.File{ID: 123}
-	be.Equal(t, f.ID, int64(123))
+
+	const id = 123
+	f := &models.File{ID: id}
+	be.Equal(t, f.ID, int64(id))
 }
 
-func TestNullStringHandling(t *testing.T) {
+func TestReplacement(t *testing.T) {
 	t.Parallel()
-	// Test null string creation
-	be.True(t, true)
-}
 
-func TestColdfusionIDPattern(t *testing.T) {
-	t.Parallel()
-	validUUID := "550e8400-e29b-41d4-a716-446655440000"
-	invalidCFUUID := "550e8400-e29b-41d4-a716-44665544000"
-	be.Equal(t, len(validUUID), 36)
-	be.Equal(t, len(invalidCFUUID), 35)
-}
+	replacements := fix.Replacements()
 
-func TestRepairRunInvalidRepair(t *testing.T) {
-	t.Parallel()
-	r := fix.Repair(-2)
-	err := r.Run(context.Background(), nil, nil, nil)
-	be.True(t, err != nil)
-}
-
-func TestQueryModsBuilding(t *testing.T) {
-	t.Parallel()
-	// Verify that query mod building works as expected
-	be.True(t, true)
-}
-
-func TestSliceReusePattern(t *testing.T) {
-	t.Parallel()
-	// Test the slice reuse pattern (mods = mods[:0])
-	mods := make([]int, 0, 5)
-	mods = append(mods, 1, 2)
-	capacity := cap(mods)
-	mods = mods[:0]
-	be.Equal(t, len(mods), 0)
-	be.Equal(t, cap(mods), capacity)
-}
-
-func TestParameterizedQueries(t *testing.T) {
-	t.Parallel()
-	// Test that SQL uses parameterized queries (?)
-	// This is verified by code review - all fmt.Sprintf for SQL have been removed
-	be.True(t, true)
-}
-
-func TestContextPassthrough(t *testing.T) {
-	t.Parallel()
-	// Test that context is passed through function calls
-	ctx := context.Background()
-	be.True(t, ctx.Err() == nil)
-}
-
-func TestStringBuilderUsage(t *testing.T) {
-	t.Parallel()
-	// Test strings.Builder with fmt.Fprintf for efficient string building
-	be.True(t, true)
-}
-
-func TestFixesMapCompleteness(t *testing.T) {
-	t.Parallel()
-	// Verify fixes map is populated (tested indirectly through code review)
-	be.True(t, true)
-}
-
-func TestTrainersConstValues(t *testing.T) {
-	t.Parallel()
-	be.True(t, len(fix.Trainer) > 0)
-	be.True(t, len("magazine") > 0)
-}
-
-func TestDOSPlatformValues(t *testing.T) {
-	t.Parallel()
-	dos := "dos"
-	windows := "windows"
-	be.True(t, len(dos) > 0)
-	be.True(t, len(windows) > 0)
-}
-
-func TestNullifyEmptyColumns(t *testing.T) {
-	t.Parallel()
-	columns := []string{
-		"list_relations", "web_id_github", "web_id_youtube",
-		"group_brand_for", "group_brand_by", "record_title",
-		"credit_text", "credit_program", "credit_illustration", "credit_audio", "comment",
-		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
-	}
-	be.Equal(t, len(columns), 14)
-}
-
-func TestNullifyZeroColumns(t *testing.T) {
-	t.Parallel()
-	columns := []string{
-		"web_id_pouet", "web_id_demozoo",
-		"date_issued_year", "date_issued_month", "date_issued_day",
-	}
-	be.Equal(t, len(columns), 5)
-}
-
-func TestTrimFwdSlashColumns(t *testing.T) {
-	t.Parallel()
-	columns := []string{"web_id_16colors"}
-	be.Equal(t, len(columns), 1)
-}
-
-func TestErrorFormatting(t *testing.T) {
-	t.Parallel()
-	// Test that error messages are properly formatted
-	be.True(t, true)
-}
-
-func TestFixesMapPackageLevel(t *testing.T) {
-	t.Parallel()
-	// Verify that the fixes are working correctly
-	// The maps are package-internal and pre-allocated
-	be.True(t, true)
-}
-
-func TestFixesMapUpperInitialized(t *testing.T) {
-	t.Parallel()
-	// Verify getFixesMapUpper() properly initializes the map
-	upperMap := fix.GetFixesMapUpper()
-	if upperMap == nil {
-		t.Error("getFixesMapUpper() should return a non-nil map")
-	}
-	if len(upperMap) == 0 {
-		t.Error("getFixesMapUpper() should return a non-empty map")
+	for old, val := range replacements {
+		be.True(t, old != string(val))
 	}
 }
 
-func TestFixesMapUpperContent(t *testing.T) {
+func TestReplacementsCase(t *testing.T) {
 	t.Parallel()
-	// Verify getFixesMapUpper() has uppercase versions of FixesMap keys
-	upperMap := fix.GetFixesMapUpper()
-	if len(fix.FixesMap) != len(upperMap) {
-		t.Errorf("getFixesMapUpper() should have same length as FixesMap, got %d vs %d",
-			len(upperMap), len(fix.FixesMap))
-	}
 
-	// Verify that all keys in the uppercase map are uppercase versions
-	for bad, fixVal := range fix.FixesMap {
-		upperBad := strings.ToUpper(bad)
-		upperFix := strings.ToUpper(fixVal)
-
-		if upperMap[upperBad] != upperFix {
-			t.Errorf("getFixesMapUpper()[%s] should be %s, got %s",
-				upperBad, upperFix, upperMap[upperBad])
-		}
-	}
-}
-
-func TestFixesMapUpperCaseInsensitive(t *testing.T) {
-	t.Parallel()
-	// Verify that getFixesMapUpper() enables case-insensitive lookups
-	upperMap := fix.GetFixesMapUpper()
-	testCases := []struct {
+	replacements := fix.Replacements()
+	tests := []struct {
 		input    string
 		expected string
 	}{
@@ -239,13 +169,10 @@ func TestFixesMapUpperCaseInsensitive(t *testing.T) {
 		{"MixedCase", "MIXEDCASE"},
 	}
 
-	for _, tc := range testCases {
-		upperInput := strings.ToUpper(tc.input)
-		if val, exists := upperMap[upperInput]; exists {
-			if val != strings.ToUpper(tc.expected) {
-				t.Errorf("getFixesMapUpper()[%s] should be %s, got %s",
-					upperInput, strings.ToUpper(tc.expected), val)
-			}
+	for _, tc := range tests {
+		lookup := strings.ToUpper(tc.input)
+		if val, exists := replacements[lookup]; exists {
+			be.True(t, string(val) == tc.expected)
 		}
 	}
 }

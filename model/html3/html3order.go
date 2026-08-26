@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"sync"
 
 	namer "github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/internal/nils"
@@ -36,22 +35,24 @@ const all = 0 // all returns all the records.
 
 // Art returns all the files that could be considered as digital or pixel art.
 func (o Order) Art(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
-	const msg = "html3 all art"
+	const format = "html3 all art: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
+
 	if limit == all {
 		return models.Files(
-			SelectHTML3(),
+			SelectExpr(),
 			ArtExpr(),
-			qm.Where(ClauseNoSoftDel),
+			qm.Where(clause),
 			qm.OrderBy(o.String()),
 		).All(ctx, exec)
 	}
+
 	return models.Files(
-		SelectHTML3(),
+		SelectExpr(),
 		ArtExpr(),
-		qm.Where(ClauseNoSoftDel),
+		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
@@ -63,18 +64,20 @@ func (o Order) ByCategory(
 	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (
 	models.FileSlice, error,
 ) {
-	const msg = "html3 all by category"
+	const format = "html3 all by category: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
+
 	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
 	if limit == all {
 		return models.Files(mods,
-			qm.Where(ClauseNoSoftDel),
+			qm.Where(clause),
 			qm.OrderBy(o.String())).All(ctx, exec)
 	}
+
 	return models.Files(mods,
-		qm.Where(ClauseNoSoftDel),
+		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, exec)
@@ -84,23 +87,30 @@ func (o Order) ByCategory(
 func (o Order) ByGroup(
 	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string,
 ) (models.FileSlice, error) {
-	const msg = "html3 all by group"
+	const format = "html3 all by group: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
-	s, err := namer.Humanize(namer.Path(name))
+
+	if name == "" {
+		return nil, nil
+	}
+	hum, err := namer.Humanize(namer.Path(name))
 	if err != nil {
 		return nil, fmt.Errorf("order by group namer humanize: %w", err)
 	}
-	n := strings.ToUpper(s)
-	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(n))
+
+	group := strings.ToUpper(hum)
+	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(group))
+
 	if limit == all {
 		return models.Files(mods,
-			qm.Where(ClauseNoSoftDel),
+			qm.Where(clause),
 			qm.OrderBy(o.String())).All(ctx, exec)
 	}
+
 	return models.Files(mods,
-		qm.Where(ClauseNoSoftDel),
+		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, exec)
@@ -111,18 +121,24 @@ func (o Order) ByPlatform(
 	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (
 	models.FileSlice, error,
 ) {
-	const msg = "html3 all by platform"
+	const format = "html3 all by platform: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
+	}
+
+	if name == "" {
+		return nil, nil
 	}
 	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
+
 	if limit == all {
 		return models.Files(mods,
-			qm.Where(ClauseNoSoftDel),
+			qm.Where(clause),
 			qm.OrderBy(o.String())).All(ctx, exec)
 	}
+
 	return models.Files(mods,
-		qm.Where(ClauseNoSoftDel),
+		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit)).All(ctx, exec)
@@ -130,20 +146,22 @@ func (o Order) ByPlatform(
 
 // Document returns all the files that are considered to be documents.
 func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
-	const msg = "html3 all documents"
+	const format = "html3 all documents: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
+
 	if limit == all {
 		return models.Files(
 			DocumentExpr(),
-			qm.Where(ClauseNoSoftDel),
+			qm.Where(clause),
 			qm.OrderBy(o.String()),
 		).All(ctx, exec)
 	}
+
 	return models.Files(
 		DocumentExpr(),
-		qm.Where(ClauseNoSoftDel),
+		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
@@ -152,12 +170,13 @@ func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, 
 
 // Everything returns all of the file records.
 func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
-	const msg = "html3 everything"
+	const format = "html3 everything: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
+
 	return models.Files(
-		qm.Where(ClauseNoSoftDel),
+		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),
@@ -166,59 +185,61 @@ func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset
 
 // Software returns all the files that are considered to be software.
 func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (models.FileSlice, error) {
-	const msg = "html3 all software"
+	const format = "html3 all software: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		return nil, fmt.Errorf(format, err)
 	}
+
 	if limit == all {
 		return models.Files(
 			SoftwareExpr(),
-			qm.Where(ClauseNoSoftDel),
+			qm.Where(clause),
 			qm.OrderBy(o.String()),
 		).All(ctx, exec)
 	}
+
 	return models.Files(
 		SoftwareExpr(),
-		qm.Where(ClauseNoSoftDel),
+		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)), qm.Limit(limit),
 	).All(ctx, exec)
 }
 
-//nolint:gochecknoglobals
-var (
-	orderClausesMap     map[Order]string
-	orderClausesMapOnce sync.Once
-)
-
-// getOrderClausesMap lazily initializes and returns the order clauses map.
-func getOrderClausesMap() map[Order]string {
-	orderClausesMapOnce.Do(func() {
-		const a, d = "asc", "desc"
-		ca := models.FileColumns.Createdat
-		dy := models.FileColumns.DateIssuedYear
-		dm := models.FileColumns.DateIssuedMonth
-		dd := models.FileColumns.DateIssuedDay
-		fn := models.FileColumns.Filename
-		fs := models.FileColumns.Filesize
-		rt := models.FileColumns.RecordTitle
-		orderClausesMap = make(map[Order]string, DescDes+1)
-		orderClausesMap[NameAsc] = fn + " " + a
-		orderClausesMap[NameDes] = fn + " " + d
-		orderClausesMap[PublAsc] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, a, dm, a, dd, a)
-		orderClausesMap[PublDes] = fmt.Sprintf("%s %s, %s %s, %s %s", dy, d, dm, d, dd, d)
-		orderClausesMap[PostAsc] = ca + " " + a
-		orderClausesMap[PostDes] = ca + " " + d
-		orderClausesMap[SizeAsc] = fs + " " + a
-		orderClausesMap[SizeDes] = fs + " " + d
-		orderClausesMap[DescAsc] = rt + " " + a
-		orderClausesMap[DescDes] = rt + " " + d
-	})
-	return orderClausesMap
-}
-
 func (o Order) String() string {
-	return getOrderClausesMap()[o]
+	const a, d = " asc", " desc"
+	ca := models.FileColumns.Createdat
+	dy := models.FileColumns.DateIssuedYear
+	dm := models.FileColumns.DateIssuedMonth
+	dd := models.FileColumns.DateIssuedDay
+	fn := models.FileColumns.Filename
+	fs := models.FileColumns.Filesize
+	rt := models.FileColumns.RecordTitle
+
+	switch o {
+	case NameAsc:
+		return fn + a
+	case NameDes:
+		return fn + d
+	case PublAsc:
+		return dy + a + ", " + dm + a + ", " + dd + a
+	case PublDes:
+		return dy + d + ", " + dm + d + ", " + dd + d
+	case PostAsc:
+		return ca + a
+	case PostDes:
+		return ca + d
+	case SizeAsc:
+		return fs + a
+	case SizeDes:
+		return fs + d
+	case DescAsc:
+		return rt + a
+	case DescDes:
+		return rt + d
+	default:
+		return ""
+	}
 }
 
 // calc returns the offset value.

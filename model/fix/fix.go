@@ -9,7 +9,6 @@ import (
 	"log/slog"
 	"slices"
 	"strings"
-	"sync"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/nils"
@@ -58,20 +57,20 @@ const (
 
 // Run the database repair based on the repair option.
 func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx) error {
-	const msg = "database repair"
-	const format = msg + " %s: %w"
+	const format = "repair database %s: %w"
 	if err := nils.Check(ctx, sl, db, tx); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "check", err)
 	}
-	sl.Info(msg,
-		slog.String("startup", "Check records with invalid UUIDs"),
+	sl.Info("Database: Check records with invalid UUIDs",
 		slog.String("task", "run a cleanup of the database"))
+	// run the syntax checks before sanity checks
 	if r < None || r > Releaser {
 		return fmt.Errorf("%w: %d", ErrRepair, r)
 	}
 	if r == None {
 		return nil
 	}
+
 	if err := invalidUUIDs(ctx, sl, db); err != nil {
 		return fmt.Errorf(format, "invalid uuids", err)
 	}
@@ -80,7 +79,7 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx
 	}
 	switch r { //nolint:exhaustive
 	case Artifacts:
-		sl.Info(msg, slog.String("task", "Clean records of whitespace and null values"))
+		sl.Info("Database: Clean records of whitespace and null values")
 		if err := contentWhiteSpace(tx); err != nil {
 			return fmt.Errorf(format, "content white space", err)
 		}
@@ -111,6 +110,7 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx
 	if err := SyncFilesIDSeq(db); err != nil {
 		return fmt.Errorf(format, "", err)
 	}
+
 	return nil
 }
 
@@ -118,11 +118,11 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx
 //
 // This will only work with the correct database account permissions.
 func SyncFilesIDSeq(db *sql.DB) error {
-	const msg = "fix synchronize id sequence"
-	const format = msg + " %s: %w"
+	const format = "fix synchronize id sequence %s: %w"
 	if err := nils.Check(db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	query := `SELECT MAX(id) FROM files;` +
 		`SELECT nextVal('"files_id_seq"');` +
 		`SELECT setval('"files_id_seq"', (SELECT MAX(id) FROM files)+1);`
@@ -130,6 +130,7 @@ func SyncFilesIDSeq(db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf(format, "execute", err)
 	}
+
 	return nil
 }
 
@@ -144,9 +145,9 @@ func SyncFilesIDSeq(db *sql.DB) error {
 //
 // [ColdFusion language syntax]: https://cfdocs.org/createuuid
 func coldfusionIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
-	const msg, key = "database repair : coldfusion", "task"
-	const format = msg + " %s: %w"
-	sl.Info(msg, slog.String(key, "Check for invalid UUIDs using the ColdFusion syntax"))
+	const format = "database repair : coldfusion %s: %w"
+	const key = "task"
+	sl.Info("Database: Check for invalid UUIDs using the ColdFusion syntax")
 	mods := qm.SQL("SELECT uuid FROM files WHERE length(uuid)=35")
 	fs, err := models.Files(mods).All(ctx, exec)
 	if err != nil {
@@ -156,9 +157,7 @@ func coldfusionIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecut
 	if i == 0 {
 		return nil
 	}
-	sl.Info(msg,
-		slog.String(key, "found records using the retired ColdFusion UUID syntax"),
-		slog.Int("finds", i))
+	sl.Info("Database: Found records using the retired ColdFusion UUID syntax", slog.Int("finds", i))
 	for _, f := range fs {
 		if !f.UUID.Valid {
 			continue
@@ -167,20 +166,19 @@ func coldfusionIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecut
 		old := strings.TrimSpace(f.UUID.String)
 		newid, err := helper.CfUUID(old)
 		if err != nil {
-			sl.Warn(msg, slog.String(key, old), slog.Any("error", err))
+			sl.Warn("Convert ID failure", slog.String(key, old), slog.Any("error", err))
 			continue
 		}
 		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, exec)
 		if err != nil {
-			sl.Warn(msg, slog.String(key, "Failed to find a record using the uuid"),
+			sl.Warn("Failed to find a record using the uuid",
 				slog.String("uuid", old), slog.Any("error", err))
 			continue
 		}
 		file.UUID = null.StringFrom(newid)
 		_, err = file.Update(ctx, exec, boil.Infer())
 		if err != nil {
-			sl.Warn(msg, slog.String(key, "Could not update the record"),
-				slog.String("uuid", old), slog.Any("error", err))
+			sl.Warn("Could not update the record", slog.String("uuid", old), slog.Any("error", err))
 			continue
 		}
 	}
@@ -192,8 +190,8 @@ const Trainer = "gamehack"
 func trainers(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 	const msg = "database repair : " + Trainer
 	const format = msg + " %s: %w"
-	sl.Info(msg,
-		slog.String("task", "Check for trainers that are incorrectly categorized"))
+	sl.Info(msg, slog.String("task", "Check for trainers that are incorrectly categorized"))
+
 	const size = 5
 	mods := make([]qm.QueryMod, 0, size)
 	mods = append(mods, qm.Select("id"))
@@ -205,10 +203,12 @@ func trainers(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 	if err != nil {
 		return fmt.Errorf(format, "models files select", err)
 	}
+
 	l := len(fs)
 	if l == 0 {
 		return nil
 	}
+
 	mods = mods[:0]
 	for i, f := range fs {
 		if i == 0 {
@@ -222,70 +222,62 @@ func trainers(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 		return fmt.Errorf(format, "models files update all", err)
 	}
 	sl.Info(msg, slog.Int64("records_fixed", rowsAff))
+
 	return nil
 }
+
+type Fix string
+
+type List map[string]Fix
 
 // Fix bad imported names, such as those from Demozoo data imports.
 // Each one of these fixes also need an echo.redirect in router.go.
 const (
-	acidbad   = "ACID"
-	ansibad   = "ANSI Creators in Demand"
 	acidfix   = "ACID PRODUCTIONS"
-	icebad    = "ICE"
 	icefix    = "INSANE CREATORS ENTERPRISE"
-	pwabad    = "pirates with attitude"
 	pwafix    = "pirates with attitudes"
-	trsibad   = "TRISTAR AND RED SECTOR INC"
 	trsifix   = "TRISTAR & RED SECTOR INC"
-	xpress    = "X-PRESSION"
 	xpressfix = "X-PRESSION DESIGN"
-	damn      = "DAMN EXCELLENT ANSI DESIGNERS"
 	damnfix   = "DAMN EXCELLENT ANSI DESIGN"
-	ofg       = "THE ORIGINAL FUNNY GUYS"
-	ofg1      = "ORIGINAL FUNNY GUYS"
 	ofgfix    = "ORIGINALLY FUNNY GUYS"
-	dsi       = "DARKSIDE INC"
 	dsifix    = "DARKSIDE INCORPORATED"
-	rss       = "RSS"
 	rssfix    = "renaissance"
-	coop0     = "Public Enemy, Tristar & Red Sector Inc, The Dream Team"
 	coop0fix  = "PE, TRSI, TDT"
-	coop1     = "The Dream Team, Tristar & Red Sector Inc"
 	coop1fix  = "COOP"
 )
 
 //nolint:gochecknoglobals
-var FixesMap = map[string]string{
-	acidbad: acidfix,
-	ansibad: acidfix,
-	icebad:  icefix,
-	pwabad:  pwafix,
-	trsibad: trsifix,
-	xpress:  xpressfix,
-	damn:    damnfix,
-	ofg:     ofgfix,
-	ofg1:    ofgfix,
-	dsi:     dsifix,
-	rss:     rssfix,
-	coop0:   coop0fix,
-	coop1:   coop1fix,
+var replacers = List{
+	"ACID":                          acidfix,
+	"ANSI Creators in Demand":       acidfix,
+	"ICE":                           icefix,
+	"pirates with attitude":         pwafix,
+	"TRISTAR AND RED SECTOR INC":    trsifix,
+	"X-PRESSION":                    xpressfix,
+	"DAMN EXCELLENT ANSI DESIGNERS": damnfix,
+	"THE ORIGINAL FUNNY GUYS":       ofgfix,
+	"ORIGINAL FUNNY GUYS":           ofgfix,
+	"DARKSIDE INC":                  dsifix,
+	"RSS":                           rssfix,
+	"Public Enemy, " +
+		"Tristar & Red Sector Inc, " +
+		"The Dream Team": coop0fix,
+	"The Dream Team, " +
+		"Tristar & Red Sector Inc": coop1fix,
 }
 
-//nolint:gochecknoglobals
-var (
-	FixesMapUpper     map[string]string
-	fixesMapUpperOnce sync.Once
-)
+var replacements List
 
-// GetFixesMapUpper lazily initializes and returns the uppercase fixes map.
-func GetFixesMapUpper() map[string]string {
-	fixesMapUpperOnce.Do(func() {
-		FixesMapUpper = make(map[string]string, len(FixesMap))
-		for bad, fix := range FixesMap {
-			FixesMapUpper[strings.ToUpper(bad)] = strings.ToUpper(fix)
-		}
-	})
-	return FixesMapUpper
+func init() {
+	replacements = make(List, len(replacers))
+	for old, fix := range replacers {
+		replacements[strings.ToUpper(old)] = Fix(strings.ToUpper(string(fix)))
+	}
+}
+
+// Replacements returns a copy of the replacers List.
+func Replacements() List {
+	return replacements
 }
 
 // releasers will repair the group_brand_by and group_brand_for releasers data.
@@ -312,7 +304,7 @@ func releasers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) 
 				slog.Int64("updated", rowsAff))
 		}
 	}
-	for bad, fix := range GetFixesMapUpper() {
+	for bad, fix := range replacements {
 		f, err = models.Files(
 			qm.Where("group_brand_for = ?", bad),
 			qm.WithDeleted(),
@@ -524,43 +516,36 @@ func trimFwdSlash(exec boil.ContextExecutor) error {
 	return nil
 }
 
-// NumericSuffixCount represents the count of files with numeric suffixes.
-type NumericSuffixCount struct {
-	Count int64 `boil:"files_with_numeric_suffix" json:"count"`
-}
-
-// NumericSuffixFile represents a file with a numeric suffix.
-type NumericSuffixFile struct {
+// NumFile represents a file with a numeric suffix.
+type NumFile struct {
 	ID           int64  `boil:"id"                        json:"id"`
 	UUID         string `boil:"uuid"                      json:"uuid"`
-	Filename     string `boil:"files_with_numeric_suffix" json:"filename"`
+	Filename     string `boil:"suffix"                    json:"filename"`
 	ObfuscatedID string `boil:"-"                         json:"obfuscatedId"`
 }
 
-// FilesWithNumericSuffix represents files that have numeric suffixes that need fixing.
-type FilesWithNumericSuffix struct {
-	Count int64               `boil:"-" json:"count"`
-	Files []NumericSuffixFile `boil:"-" json:"files"`
+// NumFiles represents files that have numeric suffixes that need fixing.
+type NumFiles struct {
+	Count int64     `boil:"-" json:"count"`
+	Files []NumFile `boil:"-" json:"files"`
 }
 
-// GetFilesWithNumericSuffix retrieves files with numeric suffixes from the database.
-func GetFilesWithNumericSuffix(ctx context.Context, exec boil.ContextExecutor) (*FilesWithNumericSuffix, error) {
-	const msg = "get files with numeric suffix"
-
-	// Get count
-	var count NumericSuffixCount
-	if err := queries.Raw(postgres.FilesWithNumericSuffixCount()).Bind(ctx, exec, &count); err != nil {
-		return nil, fmt.Errorf("%s count: %w", msg, err)
+// NumSuffix retrieves files with numeric suffixes from the database.
+func NumSuffix(ctx context.Context, exec boil.ContextExecutor) (*NumFiles, error) {
+	const format = "files with numeric suffix %s: %w"
+	none := &NumFiles{}
+	if err := nils.Check(ctx, exec); err != nil {
+		return none, fmt.Errorf(format, "check", err)
 	}
 
-	// Get file list
-	var files []NumericSuffixFile
-	if err := queries.Raw(postgres.FilesWithNumericSuffixList()).Bind(ctx, exec, &files); err != nil {
-		return nil, fmt.Errorf("%s list: %w", msg, err)
+	var files []NumFile
+	if err := queries.Raw(postgres.NumSuffixes()).Bind(ctx, exec, &files); err != nil {
+		return none, fmt.Errorf(format, "list", err)
 	}
+	count := int64(len(files))
 
-	return &FilesWithNumericSuffix{
-		Count: count.Count,
+	return &NumFiles{
+		Count: count,
 		Files: files,
 	}, nil
 }

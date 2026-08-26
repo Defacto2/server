@@ -2381,7 +2381,7 @@ func Fixers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 	data["lead"] = leadr
 	data["title"] = title
 	// Get files with numeric suffixes
-	fixData, err := fix.GetFilesWithNumericSuffix(ctx, db)
+	fixData, err := fix.NumSuffix(ctx, db)
 	if err != nil {
 		sl.Error("failed to get files with numeric suffixes", slog.String("error", err.Error()))
 		// Don't return error, just continue without the data
