@@ -76,28 +76,36 @@ func (r *ReleaserName) String() string {
 
 // Distinct gets the unique releaser names.
 func (r *ReleaserNames) Distinct(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("distinct releaser names: %w", err)
+	}
 	query := string(postgres.Releasers())
 	return queries.Raw(query).Bind(ctx, exec, r)
 }
 
 // DistinctGroups gets the unique releaser names that are groups.
 func (r *ReleaserNames) DistinctGroups(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("distinct group releaser names: %w", err)
+	}
 	query := string(postgres.ReleasersAlphabetical())
 	return queries.Raw(query).Bind(ctx, exec, r)
 }
 
 // DistinctMagazines gets the unique releaser names that are magazines.
 func (r *ReleaserNames) DistinctMagazines(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("distinct magazine releaser names: %w", err)
+	}
 	query := string(postgres.MagazinesAlphabetical())
 	return queries.Raw(query).Bind(ctx, exec, r)
 }
 
 // DistinctBBS gets the unique releaser names that are BBS sites.
 func (r *ReleaserNames) DistinctBBS(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf("distinct bbs releaser names: %w", err)
+	}
 	query := string(postgres.BBSsAlphabetical())
 	return queries.Raw(query).Bind(ctx, exec, r)
 }
@@ -126,16 +134,23 @@ type Releaser struct {
 }
 
 // Where gets the records that match the named releaser.
+// If the provided name is invalid, no results but no errors are returned.
+// TODO: releasers method unused?
 func (r *Releasers) Where(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
-	nils.BoilExecCrash(exec)
+	const format = "releasers where: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, err)
+	}
+
 	s, _ := namer.Humanize(namer.Path(name))
 	if s == "" {
-		return nil, nil
+		return models.FileSlice{}, nil
 	}
-	n := strings.ToUpper(s)
-	x := null.StringFrom(n)
+
+	val := strings.ToUpper(s)
+	arg := null.StringFrom(val)
 	return models.Files(
-		qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", x, x),
+		qm.Where("upper(group_brand_for) = ? OR upper(group_brand_by) = ?", arg, arg),
 		qm.OrderBy(ClauseOldDate),
 	).All(ctx, exec)
 }
@@ -143,10 +158,14 @@ func (r *Releasers) Where(ctx context.Context, exec boil.ContextExecutor, name s
 // Limit gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
 func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order OrderBy, limit, page int) error {
-	if r != nil && len(*r) > 0 {
+	const format = "releasers limit: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if len(*r) > 0 {
 		return nil
 	}
-	nils.BoilExecCrash(exec)
+
 	var query string
 	switch order {
 	case Prolific:
@@ -156,8 +175,9 @@ func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order 
 	case Oldest:
 		query = string(postgres.ReleasersOldest())
 	default:
-		return ErrOrderBy
+		return fmt.Errorf(format, ErrOrderBy)
 	}
+	// strconv.Itoa
 	if limit > 0 {
 		if page < 1 {
 			page = 1
@@ -166,8 +186,9 @@ func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order 
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 	}
 	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf(fmtraw, err)
+		return fmt.Errorf(format, err)
 	}
+
 	r.Slugs()
 	return nil
 }
