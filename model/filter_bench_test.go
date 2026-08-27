@@ -10,28 +10,28 @@ import (
 func BenchmarkGetColumns(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
-			_ = model.GetColumns()
+			_ = model.SummCols()
 		}
 	})
 }
 
 // Benchmark that subsequent calls hit the cache.
 func BenchmarkGetColumnsCached(b *testing.B) {
-	model.GetColumns() // Prime the cache
+	model.SummCols() // Prime the cache
 	b.Run("", func(b *testing.B) {
 		for range b.N {
-			_ = model.GetColumns()
+			_ = model.SummCols()
 		}
 	})
 }
 
 // Benchmark parallel model.GetColumns() access for thread-safety.
 func BenchmarkGetColumnsParallel(b *testing.B) {
-	model.GetColumns() // Prime the cache
+	model.SummCols() // Prime the cache
 	b.Run("", func(b *testing.B) {
 		b.RunParallel(func(pb *testing.PB) {
 			for pb.Next() {
-				_ = model.GetColumns()
+				_ = model.SummCols()
 			}
 		})
 	})

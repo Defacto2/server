@@ -115,7 +115,7 @@ var uriStrings = [...]string{ //nolint:gochecknoglobals
 	10: "bbstro",
 	11: "bbs-image",
 	12: "bbs-text",
-	13: "console",
+	13: string(model.KeyConsole),
 	14: "database",
 	15: "deletions",
 	16: "demoscene",

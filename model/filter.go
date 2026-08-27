@@ -4,7 +4,7 @@ package model
 
 import (
 	"context"
-	"time"
+	"fmt"
 
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
@@ -14,15 +14,106 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
+type Key string
+
+const (
+	KeyPCBoard      Key = "pcboard"
+	KeyPCBoardPPE   Key = "pcboard-ppe"
+	KeyPCBoardText  Key = "pcboard-text"
+	KeyTextAmiga    Key = "text-amiga"
+	KeyTextApple2   Key = "text-apple2"
+	KeyTextAtariST  Key = "text-atari-st"
+	KeyPDF          Key = "pdf"
+	KeyHTML         Key = "html"
+	KeyNewsArticle  Key = "news-article"
+	KeyStandards    Key = "standards"
+	KeyAnnouncement Key = "announcement"
+	KeyJobAdvert    Key = "job-advert"
+	KeyTrialCrackme Key = "trial-crackme"
+	KeyHack         Key = "hack"
+	KeyTool         Key = "tool"
+	KeyTakedown     Key = "takedown"
+	KeyDrama        Key = "drama"
+	KeyAdvert       Key = "advert"
+	KeyRestrict     Key = "restrict"
+	KeyHowTo        Key = "how-to"
+	KeyNFOTool      Key = "nfo-tool"
+	KeyImage        Key = "image"
+	KeyMusic        Key = "music"
+	KeyVideo        Key = "video"
+	KeyMSDOS        Key = "msdos"
+	KeyWindows      Key = "windows"
+	KeyMacOS        Key = "macos"
+	KeyLinux        Key = "linux"
+	KeyJava         Key = "java"
+	KeyScript       Key = "script"
+	KeyDatabase     Key = "database"
+	KeyMSDOSPack    Key = "msdos-pack"
+	KeyWindowsPack  Key = "windows-pack"
+	KeyImagePack    Key = "image-pack"
+	KeyTextPack     Key = "text-pack"
+	KeyText         Key = "text"
+	KeyMagazine     Key = "magazine"
+	KeyFTP          Key = "ftp"
+	KeyBBSText      Key = "bbs-text"
+	KeyBBSImage     Key = "bbs-image"
+	KeyBBStro       Key = "bbstro"
+	KeyBBS          Key = "bbs"
+	KeyANSINFO      Key = "ansi-nfo"
+	KeyANSIPack     Key = "ansi-pack"
+	KeyANSIFTP      Key = "ansi-ftp"
+	KeyANSIBBS      Key = "ansi-bbs"
+	KeyANSIBrand    Key = "ansi-brand"
+	KeyANSI         Key = "ansi"
+	KeyProof        Key = "proof"
+	KeyNFO          Key = "nfo"
+	KeyDemoscene    Key = "demoscene"
+	KeyInstaller    Key = "installer"
+	KeyIntro        Key = "intro"
+	KeyIntroMSDOS   Key = "intro-msdos"
+	KeyIntroWindows Key = "intro-windows"
+	KeyConsole      Key = "console"
+)
+
+// String implements the fmt.Stringer interface for Key.
+func (k Key) String() string {
+	return string(k)
+}
+
+// IsValid reports whether the Key is one of the defined key constants.
+func (k Key) IsValid() bool {
+	_, ok := matches[k]
+	return ok
+}
+
+// ParseKey converts a raw string into a Key and checks if it is valid.
+func ParseKey(s string) (Key, bool) {
+	k := Key(s)
+	if !k.IsValid() {
+		return "", false
+	}
+	return k, true
+}
+
 // columns holds the package-level slice reference initialized at package startup.
 //
 //nolint:gochecknoglobals
-var columns = []string{postgres.SumSize, postgres.TotalCnt, postgres.MinYear, postgres.MaxYear}
-
-// GetColumns returns a read-only slice reference to the default columns.
-func GetColumns() []string {
-	return columns
+var columns = [...]string{
+	postgres.SumSize,
+	postgres.TotalCnt,
+	postgres.MinYear,
+	postgres.MaxYear,
 }
+
+// SummCols returns a read-only slice reference to the Summary columns.
+func SummCols() []string {
+	return columns[:]
+}
+
+const (
+	statfmt = "stat argument: %w"
+	listfmt = "list argument: %w"
+)
 
 // Advert is the model for the for sale.
 type Advert struct {
@@ -32,20 +123,26 @@ type Advert struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Advert) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Advert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AdvertExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, a)
+	).Bind(ctx, exec, q)
 }
 
-func (a *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Advert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AdvertExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -62,20 +159,26 @@ type Announcement struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Announcement) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Announcement) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnnouncementExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, a)
+	).Bind(ctx, exec, q)
 }
 
-func (a *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AnnouncementExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -92,24 +195,30 @@ type Ansi struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *Ansi) String() string {
+func (q *Ansi) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Ansi) String() string {
 	return "ANSI art and texts"
 }
 
-func (a *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Ansi) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, a)
+	).Bind(ctx, exec, q)
 }
 
-func (a *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Ansi) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AnsiExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -126,20 +235,26 @@ type AnsiBrand struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *AnsiBrand) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *AnsiBrand) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiBrandExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, a)
+	).Bind(ctx, exec, q)
 }
 
-func (a *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *AnsiBrand) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AnsiBrandExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -156,24 +271,30 @@ type AnsiBBS struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiBBS) String() string {
+func (q *AnsiBBS) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *AnsiBBS) String() string {
 	return "ANSI art"
 }
 
-func (a *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *AnsiBBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiBBSExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, a)
+	).Bind(ctx, exec, q)
 }
 
-func (a *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *AnsiBBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AnsiBBSExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -190,20 +311,26 @@ type AnsiFTP struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *AnsiFTP) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *AnsiFTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiFTPExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, a)
+	).Bind(ctx, exec, q)
 }
 
-func (a *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *AnsiFTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AnsiFTPExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -220,20 +347,26 @@ type AnsiNfo struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *AnsiNfo) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *AnsiNfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiNfoExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, a)
+	).Bind(ctx, exec, q)
 }
 
-func (a *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *AnsiNfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AnsiNfoExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -250,20 +383,26 @@ type AnsiPack struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (a *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *AnsiPack) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *AnsiPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AnsiPackExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, a)
+	).Bind(ctx, exec, q)
 }
 
-func (a *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *AnsiPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AnsiPackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -280,24 +419,30 @@ type BBS struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (b *BBS) String() string {
+func (q *BBS) String() string {
 	return "BBS adverts"
 }
 
-func (b *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *BBS) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *BBS) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, b)
+	).Bind(ctx, exec, q)
 }
 
-func (b *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *BBS) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.BBSExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -314,24 +459,29 @@ type BBStro struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (b *BBStro) String() string {
+func (q *BBStro) String() string {
 	return "BBStros"
 }
+func (q *BBStro) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
 
-func (b *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *BBStro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBStroExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, b)
+	).Bind(ctx, exec, q)
 }
 
-func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.BBStroExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -340,10 +490,12 @@ func (b *BBStro) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 	).All(ctx, exec)
 }
 
-func (b *BBStro) Sensenstahl(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *BBStro) Sensenstahl(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	const clauseNewUpload = "id DESC"
 	return models.Files(
 		querymod.BBStroExpr(),
@@ -361,20 +513,26 @@ type BBSImage struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (b *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *BBSImage) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *BBSImage) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSImageExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, b)
+	).Bind(ctx, exec, q)
 }
 
-func (b *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *BBSImage) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.BBSImageExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -391,24 +549,30 @@ type BBSText struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (b *BBSText) String() string {
+func (q *BBSText) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *BBSText) String() string {
 	return "Text files"
 }
 
-func (b *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *BBSText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.BBSTextExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, b)
+	).Bind(ctx, exec, q)
 }
 
-func (b *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *BBSText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.BBSTextExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -425,24 +589,30 @@ type Console struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (c *Console) String() string {
+func (q *Console) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Console) String() string {
 	return "Console and video game files"
 }
 
-func (c *Console) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Console) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ConsoleExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, c)
+	).Bind(ctx, exec, q)
 }
 
-func (c *Console) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Console) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.ConsoleExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -459,20 +629,26 @@ type Database struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (d *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Database) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Database) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DatabaseExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, d)
+	).Bind(ctx, exec, q)
 }
 
-func (d *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Database) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.DatabaseExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -493,10 +669,14 @@ func (d *Demoscene) String() string {
 	return "Demoscene productions"
 }
 
+func (m *Demoscene) Values() (int, int, int, int) { return m.Count, m.Bytes, m.MinYear, m.MaxYear }
+
 func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DemoExpr(),
 		qm.From(From),
@@ -506,7 +686,9 @@ func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 func (d *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.DemoExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -523,20 +705,26 @@ type Drama struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (d *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Drama) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Drama) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DramaExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, d)
+	).Bind(ctx, exec, q)
 }
 
-func (d *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Drama) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.DramaExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -553,20 +741,26 @@ type FTP struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (f *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *FTP) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *FTP) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.FTPExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, f)
+	).Bind(ctx, exec, q)
 }
 
-func (f *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *FTP) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.FTPExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -583,20 +777,26 @@ type Hack struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (h *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Hack) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Hack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HackExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, h)
+	).Bind(ctx, exec, q)
 }
 
-func (h *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Hack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.HackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -613,20 +813,26 @@ type HowTo struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (h *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *HowTo) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *HowTo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HowToExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, h)
+	).Bind(ctx, exec, q)
 }
 
-func (h *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *HowTo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.HowToExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -643,20 +849,26 @@ type HTML struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (h *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *HTML) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *HTML) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.HTMLExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, h)
+	).Bind(ctx, exec, q)
 }
 
-func (h *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *HTML) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.HTMLExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -673,20 +885,26 @@ type Image struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (i *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Image) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Image) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ImageExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, i)
+	).Bind(ctx, exec, q)
 }
 
-func (i *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Image) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.ImageExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -703,20 +921,26 @@ type ImagePack struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (i *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *ImagePack) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *ImagePack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ImagePackExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, i)
+	).Bind(ctx, exec, q)
 }
 
-func (i *ImagePack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *ImagePack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.ImagePackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -733,24 +957,30 @@ type Intro struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (i *Intro) String() string {
+func (q *Intro) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Intro) String() string {
 	return "Cracktros and intros"
 }
 
-func (i *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Intro) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, i)
+	).Bind(ctx, exec, q)
 }
 
-func (i *Intro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Intro) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.IntroExpr(),
 		qm.OrderBy(ClauseOldDate),
@@ -767,24 +997,30 @@ type IntroMsDos struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (i *IntroMsDos) String() string {
+func (q *IntroMsDos) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *IntroMsDos) String() string {
 	return "Cracktros and intros on MS Dos"
 }
 
-func (i *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *IntroMsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroDOSExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, i)
+	).Bind(ctx, exec, q)
 }
 
-func (i *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.IntroDOSExpr(),
 		qm.OrderBy(ClauseOldDate),
@@ -795,31 +1031,36 @@ func (i *IntroMsDos) List(ctx context.Context, exec boil.ContextExecutor, offset
 
 // IntroWindows contain statistics for releases that could be considered Windows intros or cracktros.
 type IntroWindows struct {
-	Cache   time.Time
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (i *IntroWindows) String() string {
+func (q *IntroWindows) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *IntroWindows) String() string {
 	return "Cracktros and intros on Windows"
 }
 
-func (i *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *IntroWindows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.IntroWindowsExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, i)
+	).Bind(ctx, exec, q)
 }
 
-func (i *IntroWindows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *IntroWindows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.IntroWindowsExpr(),
 		qm.OrderBy(ClauseOldDate),
@@ -836,24 +1077,30 @@ type Installer struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (i *Installer) String() string {
+func (q *Installer) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Installer) String() string {
 	return "Installers"
 }
 
-func (i *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Installer) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.InstallExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, i)
+	).Bind(ctx, exec, q)
 }
 
-func (i *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Installer) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.InstallExpr(),
 		qm.OrderBy(ClauseOldDate),
@@ -870,24 +1117,30 @@ type Java struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (j *Java) String() string {
+func (q *Java) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Java) String() string {
 	return "Java files"
 }
 
-func (j *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Java) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.JavaExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, j)
+	).Bind(ctx, exec, q)
 }
 
-func (j *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Java) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.JavaExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -904,20 +1157,26 @@ type JobAdvert struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (j *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *JobAdvert) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *JobAdvert) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.JobAdvertExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, j)
+	).Bind(ctx, exec, q)
 }
 
-func (j *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *JobAdvert) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.JobAdvertExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -934,24 +1193,30 @@ type Linux struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (l *Linux) String() string {
+func (q *Linux) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Linux) String() string {
 	return "Linux files"
 }
 
-func (l *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Linux) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.LinuxExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, l)
+	).Bind(ctx, exec, q)
 }
 
-func (l *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Linux) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.LinuxExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -968,24 +1233,30 @@ type Magazine struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (m *Magazine) String() string {
+func (q *Magazine) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Magazine) String() string {
 	return "Magazines"
 }
 
-func (m *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Magazine) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MagExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, m)
+	).Bind(ctx, exec, q)
 }
 
-func (m *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Magazine) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.MagExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1002,24 +1273,30 @@ type Macos struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (m *Macos) String() string {
+func (q *Macos) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Macos) String() string {
 	return "MacOS software"
 }
 
-func (m *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Macos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MacExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, m)
+	).Bind(ctx, exec, q)
 }
 
-func (m *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Macos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.MacExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1036,24 +1313,30 @@ type MsDos struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (d *MsDos) String() string {
+func (q *MsDos) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *MsDos) String() string {
 	return "MS Dos files"
 }
 
-func (d *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *MsDos) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DOSExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, d)
+	).Bind(ctx, exec, q)
 }
 
-func (d *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *MsDos) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.DOSExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1070,20 +1353,26 @@ type MsDosPack struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (d *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *MsDosPack) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *MsDosPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.DosPackExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, d)
+	).Bind(ctx, exec, q)
 }
 
-func (d *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *MsDosPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.DosPackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1100,20 +1389,26 @@ type Music struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (m *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Music) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Music) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.MusicExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, m)
+	).Bind(ctx, exec, q)
 }
 
-func (m *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Music) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.MusicExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1130,20 +1425,26 @@ type NewsArticle struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (n *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *NewsArticle) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *NewsArticle) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NewsArticleExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, n)
+	).Bind(ctx, exec, q)
 }
 
-func (n *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *NewsArticle) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.NewsArticleExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1160,24 +1461,30 @@ type Nfo struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (n *Nfo) String() string {
+func (q *Nfo) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Nfo) String() string {
 	return "Nfo texts"
 }
 
-func (n *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Nfo) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NfoExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, n)
+	).Bind(ctx, exec, q)
 }
 
-func (n *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Nfo) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.NfoExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1194,24 +1501,30 @@ type NfoTool struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (n *NfoTool) String() string {
+func (q *NfoTool) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *NfoTool) String() string {
 	return "Nfo text editors"
 }
 
-func (n *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *NfoTool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.NfoToolExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, n)
+	).Bind(ctx, exec, q)
 }
 
-func (n *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *NfoTool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.NfoToolExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1228,20 +1541,26 @@ type PCBoard struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (p *PCBoard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *PCBoard) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *PCBoard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PCBoardExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, p)
+	).Bind(ctx, exec, q)
 }
 
-func (p *PCBoard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *PCBoard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.PCBoardExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1258,20 +1577,26 @@ type PCBoardPPE struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (p *PCBoardPPE) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *PCBoardPPE) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *PCBoardPPE) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PCBoardPPEExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, p)
+	).Bind(ctx, exec, q)
 }
 
-func (p *PCBoardPPE) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *PCBoardPPE) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.PCBoardPPEExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1288,20 +1613,26 @@ type PCBoardText struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (p *PCBoardText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *PCBoardText) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *PCBoardText) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PCBoardTextExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, p)
+	).Bind(ctx, exec, q)
 }
 
-func (p *PCBoardText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *PCBoardText) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.PCBoardTextExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1318,20 +1649,26 @@ type PDF struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (p *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *PDF) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *PDF) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.PDFExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, p)
+	).Bind(ctx, exec, q)
 }
 
-func (p *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *PDF) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.PDFExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1348,24 +1685,30 @@ type Proof struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (p *Proof) String() string {
+func (q *Proof) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Proof) String() string {
 	return "Proofs"
 }
 
-func (p *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Proof) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ProofExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, p)
+	).Bind(ctx, exec, q)
 }
 
-func (p *Proof) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Proof) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.ProofExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1381,20 +1724,26 @@ type Restrict struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (r *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Restrict) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Restrict) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.RestrictExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, r)
+	).Bind(ctx, exec, q)
 }
 
-func (r *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Restrict) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.RestrictExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1411,24 +1760,30 @@ type Script struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (s *Script) String() string {
+func (q *Script) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Script) String() string {
 	return "Scripting software"
 }
 
-func (s *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Script) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ScriptExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, s)
+	).Bind(ctx, exec, q)
 }
 
-func (s *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.ScriptExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1445,20 +1800,26 @@ type Standard struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (s *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Standard) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.StandardExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, s)
+	).Bind(ctx, exec, q)
 }
 
-func (s *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.StandardExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1475,20 +1836,26 @@ type Takedown struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Takedown) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Takedown) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TakedownExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, t)
+	).Bind(ctx, exec, q)
 }
 
-func (t *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Takedown) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.TakedownExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1505,24 +1872,30 @@ type Text struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *Text) String() string {
+func (q *Text) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Text) String() string {
 	return "Texts"
 }
 
-func (t *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Text) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, t)
+	).Bind(ctx, exec, q)
 }
 
-func (t *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Text) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.TextExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1539,20 +1912,26 @@ type TextAmiga struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *TextAmiga) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *TextAmiga) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextAmigaExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, t)
+	).Bind(ctx, exec, q)
 }
 
-func (t *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *TextAmiga) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.TextAmigaExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1569,20 +1948,26 @@ type TextApple2 struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *TextApple2) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *TextApple2) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AppleIIExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, t)
+	).Bind(ctx, exec, q)
 }
 
-func (t *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *TextApple2) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AppleIIExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1599,20 +1984,26 @@ type TextAtariST struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *TextAtariST) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *TextAtariST) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.AtariSTExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, t)
+	).Bind(ctx, exec, q)
 }
 
-func (t *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *TextAtariST) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.AtariSTExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1629,20 +2020,26 @@ type TextPack struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *TextPack) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *TextPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TextPackExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, t)
+	).Bind(ctx, exec, q)
 }
 
-func (t *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *TextPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.TextPackExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1659,20 +2056,26 @@ type Tool struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Tool) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Tool) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.ToolExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, t)
+	).Bind(ctx, exec, q)
 }
 
-func (t *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Tool) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.ToolExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1689,20 +2092,26 @@ type TrialCrackme struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (t *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *TrialCrackme) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *TrialCrackme) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.TrialCrackmeExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, t)
+	).Bind(ctx, exec, q)
 }
 
-func (t *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *TrialCrackme) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.TrialCrackmeExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1719,20 +2128,26 @@ type Video struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (v *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Video) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Video) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.VideoExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, v)
+	).Bind(ctx, exec, q)
 }
 
-func (v *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Video) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.VideoExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1749,24 +2164,30 @@ type Windows struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (w *Windows) String() string {
+func (q *Windows) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Windows) String() string {
 	return "Windows files"
 }
 
-func (w *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *Windows) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.WindowsExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, w)
+	).Bind(ctx, exec, q)
 }
 
-func (w *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Windows) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		querymod.WindowsExpr(),
 		qm.Offset(calc(offset, limit)),
@@ -1783,20 +2204,26 @@ type WindowsPack struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (w *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
+func (q *WindowsPack) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *WindowsPack) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
 	return models.NewQuery(
-		qm.Select(GetColumns()...),
+		qm.Select(SummCols()...),
 		qm.Where(ClauseNoSoftDel),
 		querymod.WindowsPackExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, w)
+	).Bind(ctx, exec, q)
 }
 
-func (w *WindowsPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *WindowsPack) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
 	return models.Files(
 		qm.Offset(calc(offset, limit)),
 		qm.Limit(limit),

@@ -12,12 +12,12 @@ func TestGetColumnsCaching(t *testing.T) {
 	t.Parallel()
 
 	// populate cache 1
-	call1 := model.GetColumns()
+	call1 := model.SummCols()
 	be.True(t, call1 != nil)
 	be.Equal(t, len(call1), 4)
 
 	// populate cache 2
-	call2 := model.GetColumns()
+	call2 := model.SummCols()
 	be.True(t, call2 != nil)
 	be.Equal(t, len(call1), len(call2))
 }
