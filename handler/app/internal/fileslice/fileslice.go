@@ -325,9 +325,9 @@ var (
 
 	// recordDispatch dispatch map for models.
 	recordDispatch = map[URI]queryFunc{ //nolint:gochecknoglobals
-		ForApproval: model.ByForApproval,
-		Deletions:   a.ByHidden,
-		Unwanted:    a.ByUnwanted,
+		ForApproval: model.OnlyApproval,
+		Deletions:   model.OnlyHidden,
+		Unwanted:    a.OnlyUnwanted,
 		NewUploads:  a.ByKey,
 		NewUpdates:  a.ByUpdated,
 		Oldest:      a.ByOldest,
@@ -667,8 +667,8 @@ func Statistics() Stats {
 // Get and store the database statistics for the artifacts categories.
 func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	const format = "category get stats %s: %w"
-	if exec == nil {
-		return fmt.Errorf(format, "exec", model.ErrDB)
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, "check", err)
 	}
 
 	g, ctx := errgroup.WithContext(ctx)

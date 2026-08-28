@@ -20,7 +20,7 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
-var ErrRepair = errors.New("invalid repair option")
+var ErrRepair = errors.New("fix: invalid repair option")
 
 // Repair a column or type of data within the database.
 type Repair int
@@ -48,19 +48,22 @@ func (r Repair) String() string {
 }
 
 const (
-	UpdateSet = "UPDATE files SET "
-
 	groupBrandBy = "group_brand_by"
+	updateSet    = "UPDATE files SET "
 )
 
 // In the future we may want to add a Debug or TestRun func.
 
 // Run the database repair based on the repair option.
-func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx) error {
+//
+// The exec boil context executor is required.
+// The db sql DB pointer is optional for a VACUUM statement that cannot be used in a transaction block.
+func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, exec boil.ContextExecutor) error {
 	const format = "repair database %s: %w"
-	if err := nils.Check(ctx, sl, db, tx); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	sl.Info("Database: Check records with invalid UUIDs",
 		slog.String("task", "run a cleanup of the database"))
 	// run the syntax checks before sanity checks
@@ -71,43 +74,42 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx
 		return nil
 	}
 
-	if err := invalidUUIDs(ctx, sl, db); err != nil {
+	if err := invalidUUIDs(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "invalid uuids", err)
 	}
-	if err := coldfusionIDs(ctx, sl, db); err != nil {
+	if err := coldfusionIDs(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "coldfusion ids", err)
 	}
 	switch r { //nolint:exhaustive
 	case Artifacts:
 		sl.Info("Database: Clean records of whitespace and null values")
-		if err := contentWhiteSpace(tx); err != nil {
+		if err := contentWhiteSpace(exec); err != nil {
 			return fmt.Errorf(format, "content white space", err)
 		}
-		if err := nullifyEmpty(tx); err != nil {
+		if err := nullifyEmpty(exec); err != nil {
 			return fmt.Errorf(format, "nullify empty", err)
 		}
-		if err := nullifyZero(tx); err != nil {
+		if err := nullifyZero(exec); err != nil {
 			return fmt.Errorf(format, "nullify zero", err)
 		}
-		if err := trimFwdSlash(tx); err != nil {
+		if err := trimFwdSlash(exec); err != nil {
 			return fmt.Errorf(format, "trim forward slash", err)
 		}
-		if err := trainers(ctx, sl, tx); err != nil {
+		if err := trainers(ctx, sl, exec); err != nil {
 			return fmt.Errorf(format, "trainers", err)
-		}
-		if err := tx.Commit(); err != nil {
-			return fmt.Errorf(format, "tx commit", err)
 		}
 		fallthrough
 	case Releaser:
-		if err := releasers(ctx, sl, db); err != nil {
+		if err := releasers(ctx, sl, exec); err != nil {
 			return fmt.Errorf(format, "releasers", err)
 		}
 	}
-	if err := optimize(db); err != nil {
-		return fmt.Errorf(format, "optimize", err)
+	if db != nil {
+		if err := optimize(db); err != nil {
+			return fmt.Errorf(format, "optimize", err)
+		}
 	}
-	if err := SyncFilesIDSeq(db); err != nil {
+	if err := SyncFilesIDSeq(exec); err != nil {
 		return fmt.Errorf(format, "", err)
 	}
 
@@ -117,16 +119,16 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, tx *sql.Tx
 // SyncFilesIDSeq will synchronize the files ID sequence with the current maximum ID.
 //
 // This will only work with the correct database account permissions.
-func SyncFilesIDSeq(db *sql.DB) error {
+func SyncFilesIDSeq(exec boil.ContextExecutor) error {
 	const format = "fix synchronize id sequence %s: %w"
-	if err := nils.Check(db); err != nil {
+	if err := nils.Check(exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 
 	query := `SELECT MAX(id) FROM files;` +
 		`SELECT nextVal('"files_id_seq"');` +
 		`SELECT setval('"files_id_seq"', (SELECT MAX(id) FROM files)+1);`
-	_, err := queries.Raw(query).Exec(db)
+	_, err := queries.Raw(query).Exec(exec)
 	if err != nil {
 		return fmt.Errorf(format, "execute", err)
 	}
@@ -187,7 +189,7 @@ func coldfusionIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecut
 
 const Trainer = "gamehack"
 
-func trainers(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
+func trainers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "database repair : " + Trainer
 	const format = msg + " %s: %w"
 	sl.Info(msg, slog.String("task", "Check for trainers that are incorrectly categorized"))
@@ -199,7 +201,7 @@ func trainers(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 	mods = append(mods, qm.Where("section != 'magazine'"))
 	mods = append(mods, qm.Where("record_title ILIKE '%trainer%'"))
 	mods = append(mods, qm.Where("platform = ? OR platform = ?", "dos", "windows"))
-	fs, err := models.Files(mods...).All(ctx, tx)
+	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return fmt.Errorf(format, "models files select", err)
 	}
@@ -217,7 +219,7 @@ func trainers(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 		}
 		mods = append(mods, qm.Or("id = ?", f.ID))
 	}
-	rowsAff, err := models.Files(mods...).UpdateAll(ctx, tx, models.M{"section": Trainer})
+	rowsAff, err := models.Files(mods...).UpdateAll(ctx, exec, models.M{"section": Trainer})
 	if err != nil {
 		return fmt.Errorf(format, "models files update all", err)
 	}
@@ -439,16 +441,20 @@ func contentWhiteSpace(exec boil.ContextExecutor) error {
 	return nil
 }
 
-// optimize reclaims storage occupied by dead tuples in the database and
+// Optimize reclaims storage occupied by dead tuples in the database and
 // also analyzes the most efficient execution plans for queries.
+//
+// Optimize runs the VACUUM query which cannot be used in a transaction.
 func optimize(db *sql.DB) error {
 	if err := nils.Check(db); err != nil {
 		return fmt.Errorf("fix optimize check: %w", err)
 	}
+
 	_, err := queries.Raw("VACUUM ANALYZE files").Exec(db)
 	if err != nil {
 		return fmt.Errorf("execute vacuum and analyze: %w", err)
 	}
+
 	return nil
 }
 
@@ -480,7 +486,7 @@ func nullifyEmpty(exec boil.ContextExecutor) error {
 		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
 	}
 	for column := range slices.Values(columns) {
-		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = ''; ", UpdateSet, column, column)
+		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = ''; ", updateSet, column, column)
 	}
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
@@ -495,7 +501,7 @@ func nullifyZero(exec boil.ContextExecutor) error {
 		"date_issued_year", "date_issued_month", "date_issued_day",
 	}
 	for column := range slices.Values(columns) {
-		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = 0; ", UpdateSet, column, column)
+		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = 0; ", updateSet, column, column)
 	}
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
@@ -507,7 +513,7 @@ func trimFwdSlash(exec boil.ContextExecutor) error {
 	var query strings.Builder
 	columns := []string{"web_id_16colors"}
 	for column := range slices.Values(columns) {
-		s := UpdateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
+		s := updateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
 		query.WriteString(s)
 	}
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {

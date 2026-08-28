@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -27,7 +28,7 @@ func One(ctx context.Context, exec boil.ContextExecutor, deleted bool, key int) 
 		return nil, fmt.Errorf(format, "check", err)
 	}
 	if key < 0 {
-		return nil, fmt.Errorf(format, strconv.Itoa(key), ErrKey)
+		return nil, fmt.Errorf(format, strconv.Itoa(key), ErrBadIDInt)
 	}
 
 	mods := models.FileWhere.ID.EQ(int64(key))
@@ -102,7 +103,7 @@ func OneDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int64) (
 		return false, 0, fmt.Errorf(format, "check", err)
 	}
 
-	if prodID < 1 || prodID > DemozooSanity {
+	if prodID < 1 || prodID > demozoo.Sanity {
 		return false, 0, nil
 	}
 
@@ -175,7 +176,7 @@ func recordObf(ctx context.Context, exec boil.ContextExecutor, deleted bool, Obf
 
 	id := helper.DeobfuscateID(ObfKey)
 	if id < startID {
-		return nil, fmt.Errorf("%w: %d ~ %s", ErrID, id, ObfKey)
+		return nil, fmt.Errorf("%w: %d ~ %s", ErrBadID, id, ObfKey)
 	}
 
 	// get record id, filename, uuid
@@ -185,7 +186,7 @@ func recordObf(ctx context.Context, exec boil.ContextExecutor, deleted bool, Obf
 	}
 
 	if art.ID != int64(id) {
-		return nil, fmt.Errorf(format, ObfKey, ErrID)
+		return nil, fmt.Errorf(format, ObfKey, ErrBadID)
 	}
 
 	return art, nil

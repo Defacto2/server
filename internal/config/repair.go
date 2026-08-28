@@ -646,9 +646,8 @@ func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.Co
 	}
 
 	tick := time.Now()
-	r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
 
-	magics, err := r.ByMagicErr(ctx, exec, false)
+	magics, err := model.OnlyMagicErrs(ctx, exec, false)
 	if err != nil {
 		return fmt.Errorf(format, "models file slice", err)
 	}
@@ -714,8 +713,7 @@ func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.Contex
 		return fmt.Errorf(format, "check", err)
 	}
 
-	r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-	artifacts, err := r.ByPlatformText(ctx, exec)
+	artifacts, err := model.OnlyTexts(ctx, exec)
 	if err != nil {
 		return fmt.Errorf(format, "models file slice", err)
 	}

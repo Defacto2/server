@@ -1495,9 +1495,18 @@ func PlatformEdit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 	if err != nil {
 		return fmt.Errorf("platform edit %w: %d", err, f.ID)
 	}
-	if err = model.UpdatePlatform(ctx, db, int64(f.ID), f.Value); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err = model.Platform.Update(ctx, tx, int64(f.ID), f.Value); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.JSON(http.StatusOK, r)
 }
 
@@ -1538,8 +1547,7 @@ func PostDesc(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 			terms = append(terms, trimmed)
 		}
 	}
-	rel := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-	fs, _ := rel.Description(ctx, sl, db, terms)
+	fs, _ := model.OnlyDescriptions(ctx, sl, db, terms)
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
@@ -1587,8 +1595,7 @@ func PostName(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 			terms = append(terms, trimmed)
 		}
 	}
-	rel := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-	fs, _ := rel.Filename(ctx, db, terms)
+	fs, _ := model.OnlyFilenames(ctx, db, terms)
 	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
 	data := emptyFiles(c)
@@ -2321,9 +2328,18 @@ func TagEdit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) 
 	if err != nil {
 		return fmt.Errorf("tag edit %w: %d", err, f.ID)
 	}
-	if err = model.UpdateTag(ctx, db, int64(f.ID), f.Value); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err = model.Section.Update(ctx, tx, int64(f.ID), f.Value); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.JSON(http.StatusOK, r)
 }
 

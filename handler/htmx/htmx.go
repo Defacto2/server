@@ -605,8 +605,7 @@ func SearchByID(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 		}
 	}
 
-	var r model.Artifacts
-	fs, err := r.ID(ctx, db, ids, uuids...)
+	fs, err := model.OnlyUniqueIDs(ctx, db, ids, uuids...)
 	if err != nil {
 		if sl != nil {
 			sl.Error(msg, slog.String("lookup", "something went wrong with the search"), slog.Any("error", err))

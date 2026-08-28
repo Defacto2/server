@@ -19,7 +19,7 @@ func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key int64) error 
 	}
 
 	if key < 1 {
-		return fmt.Errorf(format, key, ErrKey)
+		return fmt.Errorf(format, key, ErrBadIDInt)
 	}
 
 	mods := models.FileWhere.ID.EQ(key)

@@ -14,6 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -33,8 +34,8 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int) (
 	if err := nils.Check(ctx, exec); err != nil {
 		return 0, "", fmt.Errorf(format, "check", err)
 	}
-	if prodID < startID || prodID > DemozooSanity {
-		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrID)
+	if prodID < startID || prodID > demozoo.Sanity {
+		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrBadID)
 	}
 
 	now, newUUID, err := NewV7()
@@ -68,7 +69,7 @@ func InsertPouet(ctx context.Context, exec boil.ContextExecutor, prodID int) (ke
 		return 0, "", fmt.Errorf(format, "check", err)
 	}
 	if prodID < startID || prodID > pouet.Sanity {
-		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrID)
+		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrBadID)
 	}
 
 	now, newUUID, err := NewV7()
@@ -154,7 +155,7 @@ func validateUpload(f models.File, values url.Values, prefix string) (models.Fil
 	if v := values.Get(prefix + "-youtube"); v != "" {
 		youtube := ValidYouTube(v)
 		if !youtube.Valid {
-			return f, fmt.Errorf(format, "youtube", ErrYouTube)
+			return f, fmt.Errorf(format, "youtube", ErrBadYT)
 		}
 		f.WebIDYoutube = youtube
 	}

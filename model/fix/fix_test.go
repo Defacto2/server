@@ -63,7 +63,7 @@ func TestRepairArtifactsRun(t *testing.T) {
 	tx, err := db.BeginTx(t.Context(), nil)
 	be.Err(t, err, nil)
 
-	got := fix.Artifacts.Run(t.Context(), sl, db, tx)
+	got := fix.Artifacts.Run(t.Context(), sl, nil, tx)
 	be.Err(t, got, nil)
 
 	_ = tx.Rollback()

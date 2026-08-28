@@ -699,9 +699,18 @@ func (ds *Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data m
 
 	id := ds.ID
 	val := tags.ANSI.String()
-	if err := model.UpdatePlatform(ctx, db, id, val); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		ds.logErr(sl, "dirs fix ansi update begin tx", err)
+	}
+	if err := model.Platform.Update(ctx, tx, id, val); err != nil {
 		ds.logErr(sl, "dirs fix ansi update platform", err)
 	}
+	if err = tx.Commit(); err != nil {
+		ds.logErr(sl, "dirs fix ansi update tx commit", err)
+	}
+
 	data["platform"] = val
 
 	return data
@@ -994,7 +1003,7 @@ func (ds *Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context, 
 		art, err = model.OneFileByKey(ctx, db, ds.URI)
 	}
 	if err != nil {
-		if errors.Is(err, model.ErrID) {
+		if errors.Is(err, model.ErrBadID) {
 			return nil, artifact404(sl, c, ds.URI)
 		}
 		return nil, DatabaseErr(sl, c, "f/"+ds.URI, err)

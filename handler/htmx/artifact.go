@@ -395,9 +395,18 @@ func RecordReadmeDisable(ctx context.Context, c *echo.Context, db *sql.DB) error
 		return badRequest(c, err)
 	}
 	value := c.FormValue("readme-is-off") != "on"
-	if err = model.UpdateReadmeDisable(ctx, db, int64(id), value); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err = model.ReadmeDisable.Update(ctx, tx, int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, successSpan)
 }
 
@@ -508,14 +517,19 @@ func RecordToggle(ctx context.Context, c *echo.Context, db *sql.DB, state bool) 
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if state {
-		if err := model.UpdateOnline(ctx, db, id); err != nil {
-			return fmt.Errorf(format, "online", err)
-		}
-		return c.String(http.StatusOK, "online")
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, "begin tx", err)
 	}
-	if err := model.UpdateOffline(ctx, db, id); err != nil {
-		return fmt.Errorf(format, "offline", err)
+	if err := model.UpdateOnline(ctx, db, state, id); err != nil {
+		return fmt.Errorf(format, "update", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf(format, "tx commit", err)
+	}
+	if state {
+		return c.String(http.StatusOK, "online")
 	}
 	return c.String(http.StatusOK, "offline")
 }
@@ -532,14 +546,20 @@ func RecordToggleByID(ctx context.Context, c *echo.Context, db *sql.DB, key stri
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if state {
-		if err := model.UpdateOnline(ctx, db, id); err != nil {
-			return fmt.Errorf(format, id, "online", err)
-		}
-		return c.String(http.StatusOK, "Record is visible to the public.")
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, "begin tx", err)
 	}
-	if err := model.UpdateOffline(ctx, db, id); err != nil {
-		return fmt.Errorf(format, id, "offline", err)
+	if err := model.UpdateOnline(ctx, db, state, id); err != nil {
+		return fmt.Errorf(format, id, "update", err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf(format, "tx commit", err)
+	}
+
+	if state {
+		return c.String(http.StatusOK, "Record is visible to the public.")
 	}
 	return c.String(http.StatusOK, "🚫 Record is disabled and hidden from public access. 🚫")
 }
@@ -570,9 +590,18 @@ func RecordClassification(ctx context.Context, sl *slog.Logger, c *echo.Context,
 	classification := model.Classification{
 		ID: int64(id), Platform: platform, Tag: section,
 	}
-	if err := classification.Update(ctx, db); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := classification.Update(ctx, tx); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	html, err := form.HumanizeCount(ctx, db, section, platform)
 	if err != nil {
 		sl.Error("record classification", slog.Any("error", err))
@@ -594,9 +623,18 @@ func RecordFilename(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	name = form.SanitizeFilename(name)
-	if err := model.UpdateFilename(ctx, db, int64(id), name); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Filename.Update(ctx, tx, int64(id), name); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, "Updated")
 }
 
@@ -612,9 +650,18 @@ func RecordFilenameReset(ctx context.Context, c *echo.Context, db *sql.DB) error
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateFilename(ctx, db, int64(id), val); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if err := model.Filename.Update(ctx, tx, int64(id), val); err != nil {
 		return badRequest(c, err)
 	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, val)
 }
 
@@ -633,9 +680,18 @@ func RecordVirusTotal(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if !form.ValidVT(link) {
 		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
-	if err := model.UpdateVirusTotal(ctx, db, int64(id), link); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.VirusTotal.Update(ctx, tx, int64(id), link); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, "Updated")
 }
 
@@ -651,9 +707,18 @@ func RecordTitle(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateTitle(ctx, db, int64(id), title); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if err := model.Title.Update(ctx, tx, int64(id), title); err != nil {
 		return badRequest(c, err)
 	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
 	return c.String(http.StatusOK, "Updated")
 }
 
@@ -669,9 +734,18 @@ func RecordTitleReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateTitle(ctx, db, int64(id), val); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Title.Update(ctx, tx, int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
 	return c.String(http.StatusOK, val)
 }
 
@@ -687,9 +761,18 @@ func RecordComment(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateComment(ctx, db, int64(id), comment); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Comment.Update(ctx, tx, int64(id), comment); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, "Updated")
 }
 
@@ -705,9 +788,18 @@ func RecordCommentReset(ctx context.Context, c *echo.Context, db *sql.DB) error 
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateComment(ctx, db, int64(id), val); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Comment.Update(ctx, tx, int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, "Undo comment")
 }
 
@@ -766,13 +858,18 @@ func recordReleases(ctx context.Context, db *sql.DB, rel1, rel2, key string) err
 	if err != nil {
 		return fmt.Errorf("%w: %w: %q", ErrKey, err, key)
 	}
-	val := rel1
-	if rel2 != "" {
-		val = rel1 + "+" + rel2
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, "begin tx", err)
 	}
-	if err := model.UpdateReleasers(ctx, db, int64(id), val); err != nil {
+	if err := model.UpdateReleasers(ctx, db, int64(id), rel1, rel2); err != nil {
 		return fmt.Errorf(format, "update releasers", err)
 	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf(format, "tx commit", err)
+	}
+
 	return nil
 }
 
@@ -801,9 +898,18 @@ func RecordDateIssued(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		const format = `%w, date failed to validate: Y %q %v ; M %q %v ; D %q %v `
 		return badRequest(c, fmt.Errorf(format, ErrYMDFormat, year, y, month, m, day, d))
 	}
-	if err := model.UpdateDateIssued(ctx, db, int64(id), year, month, day); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.UpdateYMDS(ctx, tx, int64(id), year, month, day); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, "Save")
 }
 
@@ -830,9 +936,18 @@ func RecordDateIssuedReset(ctx context.Context, c *echo.Context, db *sql.DB, elm
 	if invalid := !y || !m || !d; invalid {
 		return badRequest(c, fmt.Errorf(format, ErrYMDFormat))
 	}
-	if err := model.UpdateDateIssued(ctx, db, int64(id), year, month, day); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.UpdateYMDS(ctx, tx, int64(id), year, month, day); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, " "+checkMark)
 }
 
@@ -849,7 +964,14 @@ func RecordCreatorText(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	val := creatorFix(creator)
-	if err := model.UpdateCreatorText(ctx, db, int64(id), val); err != nil {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.CreatorText.Update(ctx, tx, int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
@@ -868,7 +990,15 @@ func RecordCreatorIll(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	val := creatorFix(creator)
-	if err := model.UpdateCreatorIll(ctx, db, int64(id), val); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.CreatorIll.Update(ctx, tx, int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
 		return badRequest(c, err)
 	}
 	return c.String(http.StatusOK, "Updated")
@@ -887,9 +1017,18 @@ func RecordCreatorProg(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	val := creatorFix(creator)
-	if err := model.UpdateCreatorProg(ctx, db, int64(id), val); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.CreatorProg.Update(ctx, tx, int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, "Updated")
 }
 
@@ -906,9 +1045,18 @@ func RecordCreatorAudio(ctx context.Context, c *echo.Context, db *sql.DB) error 
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	val := creatorFix(creator)
-	if err := model.UpdateCreatorAudio(ctx, db, int64(id), val); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.CreatorAudio.Update(ctx, tx, int64(id), val); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, "Updated")
 }
 
@@ -958,7 +1106,15 @@ func RecordCreatorReset(ctx context.Context, c *echo.Context, db *sql.DB) error 
 	if textval == text && illval == ill && progval == prog && audioval == audio {
 		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
-	if err := creators.Update(ctx, db); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := creators.Update(ctx, tx); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
 		return badRequest(c, err)
 	}
 
@@ -981,9 +1137,18 @@ func RecordYouTube(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if len(newVideo) != 0 && len(newVideo) != requirement {
 		return c.NoContent(http.StatusNoContent) //nolint:wrapcheck
 	}
-	if err := model.UpdateYouTube(ctx, db, int64(id), newVideo); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.YouTube.Update(ctx, tx, int64(id), newVideo); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return RecordLinks(c)
 }
 
@@ -1002,9 +1167,18 @@ func RecordDemozoo(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateDemozoo(ctx, db, int64(id), newProd); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Demozoo.Update(ctx, tx, int64(id), newProd); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return RecordLinks(c)
 }
 
@@ -1020,9 +1194,18 @@ func RecordPouet(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdatePouet(ctx, db, int64(id), newProd); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Pouet.Update(ctx, tx, int64(id), newProd); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return RecordLinks(c)
 }
 
@@ -1039,9 +1222,18 @@ func Record16Colors(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	link := form.SanitizeURLPath(newURL)
-	if err := model.Update16Colors(ctx, db, int64(id), link); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Colors16.Update(ctx, tx, int64(id), link); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return RecordLinks(c)
 }
 
@@ -1058,9 +1250,18 @@ func RecordGitHub(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
 	link := form.SanitizeGitHub(newRepo)
-	if err := model.UpdateGitHub(ctx, db, int64(id), link); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.GitHub.Update(ctx, tx, int64(id), link); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return RecordLinks(c)
 }
 
@@ -1076,9 +1277,18 @@ func RecordRelations(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateRelations(ctx, db, int64(id), newRelations); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Relations.Update(ctx, tx, int64(id), newRelations); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return RecordLinks(c)
 }
 
@@ -1094,9 +1304,18 @@ func RecordSites(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, fmt.Errorf("%w: %w: %q", ErrKey, err, key))
 	}
-	if err := model.UpdateSites(ctx, db, int64(id), newSites); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.Sites.Update(ctx, tx, int64(id), newSites); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return RecordLinks(c)
 }
 
@@ -1178,9 +1397,18 @@ func RecordLinksReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
 		Relations: rels,
 		Sites:     sites,
 	}
-	if err := lnks.UpdateLinks(ctx, db); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := lnks.Update(ctx, tx); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	links := app.LinkPreviews(youtube, demozooVal, pouetVal, colors16, github, rels, sites)
 	for i, link := range links {
 		links[i] = `<small><strong>Link to</strong></small> &nbsp; ` + link
@@ -1198,17 +1426,26 @@ func recordEmulateRAM(ctx context.Context, c *echo.Context, db *sql.DB, name str
 		return badRequest(c, err)
 	}
 	value := c.FormValue(name) == "on"
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return badRequest(c, err)
+	}
 	switch name {
 	case "emulate-ram-umb":
-		err = model.UpdateEmulateUMB(ctx, db, int64(id), value)
+		err = model.EmulateUMB.Update(ctx, tx, int64(id), value)
 	case "emulate-ram-ems":
-		err = model.UpdateEmulateEMS(ctx, db, int64(id), value)
+		err = model.EmulateEMS.Update(ctx, tx, int64(id), value)
 	case "emulate-ram-xms":
-		err = model.UpdateEmulateXMS(ctx, db, int64(id), value)
+		err = model.EmulateXMS.Update(ctx, tx, int64(id), value)
 	}
 	if err != nil {
 		return badRequest(c, err)
 	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, successSpan)
 }
 
@@ -1235,9 +1472,18 @@ func RecordEmulateBroken(ctx context.Context, c *echo.Context, db *sql.DB) error
 		return badRequest(c, err)
 	}
 	value := c.FormValue("emulate-is-broken") != "on"
-	if err = model.UpdateEmulateBroken(ctx, db, int64(id), value); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err = model.EmulateBroken.Update(ctx, tx, int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, successSpan)
 }
 
@@ -1261,9 +1507,18 @@ func RecordEmulateRunProgram(ctx context.Context, c *echo.Context, db *sql.DB) e
 		return c.String(http.StatusOK,
 			fmt.Sprintf(div, id, invalid, s))
 	}
-	if err = model.UpdateEmulateRunProgram(ctx, db, int64(idValue), toggleValue); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err = model.UpdateEmulateRunProgram(ctx, tx, int64(idValue), toggleValue); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	if toggleValue == "" {
 		s := `✓ Custom command(s) removed`
 		return c.String(http.StatusOK,
@@ -1287,7 +1542,15 @@ func RecordEmulateMachine(ctx context.Context, c *echo.Context, db *sql.DB) erro
 	}
 
 	value := c.FormValue("emulate-machine")
-	if err := model.UpdateEmulateMachine(ctx, db, int64(id), value); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return badRequest(c, err)
+	}
+	if err := model.UpdateEmulateMachine(ctx, tx, int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
 		return badRequest(c, err)
 	}
 
@@ -1304,10 +1567,20 @@ func RecordEmulateCPU(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
+
 	value := c.FormValue("emulate-cpu")
-	if err := model.UpdateEmulateCPU(ctx, db, int64(id), value); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.UpdateEmulateCPU(ctx, tx, int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, successSpan)
 }
 
@@ -1321,10 +1594,20 @@ func RecordEmulateSFX(ctx context.Context, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return badRequest(c, err)
 	}
+
 	value := c.FormValue("emulate-sfx")
-	if err := model.UpdateEmulateSfx(ctx, db, int64(id), value); err != nil {
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
 		return badRequest(c, err)
 	}
+	if err := model.UpdateEmulateSfx(ctx, tx, int64(id), value); err != nil {
+		return badRequest(c, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return badRequest(c, err)
+	}
+
 	return c.String(http.StatusOK, successSpan)
 }
 

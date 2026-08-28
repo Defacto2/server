@@ -33,7 +33,7 @@ const (
 	pad7cnt = 7
 )
 
-var ErrModel = errors.New("error, no file model")
+var ErrModel = errors.New("html3: no file model")
 
 func pad3() string {
 	return strings.Repeat(padding, pad3cnt)

@@ -4,13 +4,14 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/model"
+	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
 )
 
 func TestUpdateBoolFrom(t *testing.T) {
 	t.Parallel()
 
-	got := model.UpdateBoolFrom(t.Context(), nil, nil, 0, 0, false)
+	got := model.ReadmeDisable.Update(t.Context(), nil, 0, false)
 	be.Err(t, got)
 
 	db := openDB(t)
@@ -21,24 +22,19 @@ func TestUpdateBoolFrom(t *testing.T) {
 	tx0, err := db.BeginTx(t.Context(), nil)
 	be.Err(t, err, nil)
 
-	got = model.UpdateBoolFrom(t.Context(), db, tx0, 0, 0, false)
+	got = model.ReadmeDisable.Update(t.Context(), tx0, 0, false)
 	be.Err(t, got)
 
-	got = model.UpdateBoolFrom(t.Context(), db, tx0, 0, 1, false)
+	const safeID = 1
+	got = model.ReadmeDisable.Update(t.Context(), tx0, safeID, false)
 	be.Err(t, got, nil)
 	_ = tx0.Rollback()
-
-	tx1, err := db.BeginTx(t.Context(), nil)
-	be.Err(t, err, nil)
-	got = model.UpdateBoolFrom(t.Context(), db, tx1, 4, 1, true)
-	be.Err(t, got, nil)
-	_ = tx1.Rollback()
 }
 
 func TestUpdateInt64From(t *testing.T) {
 	t.Parallel()
 
-	got := model.UpdateInt64From(t.Context(), nil, nil, 0, 0, "")
+	got := model.Pouet.Update(t.Context(), nil, 0, "")
 	be.Err(t, got)
 
 	db := openDB(t)
@@ -49,27 +45,22 @@ func TestUpdateInt64From(t *testing.T) {
 	tx0, err := db.BeginTx(t.Context(), nil)
 	be.Err(t, err, nil)
 
-	got = model.UpdateInt64From(t.Context(), db, tx0, 0, 0, "false")
+	got = model.Pouet.Update(t.Context(), nil, 0, "")
 	be.Err(t, got)
 
-	got = model.UpdateInt64From(t.Context(), db, tx0, 10, 1, "1000")
+	const safeID = 1
+	got = model.Pouet.Update(t.Context(), tx0, safeID, "abc")
 	be.Err(t, got)
 
-	got = model.UpdateInt64From(t.Context(), db, tx0, 0, 1, "1000")
+	got = model.Pouet.Update(t.Context(), tx0, safeID, "1000")
 	be.Err(t, got, nil)
 	_ = tx0.Rollback()
-
-	tx1, err := db.BeginTx(t.Context(), nil)
-	be.Err(t, err, nil)
-	got = model.UpdateInt64From(t.Context(), db, tx1, 1, 1, "999")
-	be.Err(t, got, nil)
-	_ = tx1.Rollback()
 }
 
 func TestUpdateStringFrom(t *testing.T) {
 	t.Parallel()
 
-	got := model.UpdateStringFrom(t.Context(), nil, nil, 0, 0, "")
+	got := model.Colors16.Update(t.Context(), nil, -1, "")
 	be.Err(t, got)
 
 	db := openDB(t)
@@ -80,19 +71,231 @@ func TestUpdateStringFrom(t *testing.T) {
 	tx0, err := db.BeginTx(t.Context(), nil)
 	be.Err(t, err, nil)
 
-	got = model.UpdateStringFrom(t.Context(), db, tx0, 0, 0, "false")
+	got = model.Colors16.Update(t.Context(), tx0, 0, "false")
 	be.Err(t, got)
 
-	got = model.UpdateStringFrom(t.Context(), db, tx0, 99, 1, "1000")
-	be.Err(t, got)
+	const safeID = 1
+	got = model.Colors16.Update(t.Context(), tx0, safeID, "1000")
+	be.Err(t, got, nil)
 
-	got = model.UpdateStringFrom(t.Context(), db, tx0, 0, 1, "1000")
+	got = model.Colors16.Update(t.Context(), tx0, safeID, "")
 	be.Err(t, got, nil)
 	_ = tx0.Rollback()
 
 	tx1, err := db.BeginTx(t.Context(), nil)
 	be.Err(t, err, nil)
-	got = model.UpdateStringFrom(t.Context(), db, tx1, 1, 1, "999")
+	got = model.Title.Update(t.Context(), tx1, safeID, "Hello")
 	be.Err(t, got, nil)
 	_ = tx1.Rollback()
+}
+
+func TestUpdateReleasers(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	tx0, err := db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	const safeUpdate = "defacto2net"
+	const safeID = 1
+	got := model.UpdateReleasers(t.Context(), tx0, 0, "", "")
+	be.Err(t, got)
+
+	got = model.UpdateReleasers(t.Context(), tx0, safeID, "", safeUpdate)
+	be.Err(t, got)
+
+	got = model.UpdateReleasers(t.Context(), tx0, safeID, safeUpdate, "")
+	be.Err(t, got, nil)
+	_ = tx0.Rollback()
+}
+
+func TestFileUploadUpdate(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	tx0, err := db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	const safeFname = "Defacto2_ISO_2007.7z"
+	const safeSize = 499022368
+	const safeID = 1
+
+	fu := model.FileUpload{}
+	got := fu.Update(t.Context(), db)
+	be.Err(t, got)
+
+	fu.Filename = safeFname
+	fu.Filesize = safeSize
+	fu.ID = safeID
+	got = fu.Update(t.Context(), tx0)
+	be.Err(t, got, nil)
+	_ = tx0.Rollback()
+}
+
+func TestUpdateYMD(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	tx0, err := db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	const safeYear = 2007
+	const safeMonth = 6
+	const safeDay = 12
+	const safeID = 1
+
+	y := null.Int16From(safeYear)
+	m := null.Int16From(safeMonth)
+	d := null.Int16From(safeDay)
+	x := null.Int16From(0)
+
+	got := model.UpdateYMD(t.Context(), db, 0, y, m, d)
+	be.Err(t, got)
+
+	got = model.UpdateYMD(t.Context(), db, safeID, x, m, d)
+	be.Err(t, got)
+
+	got = model.UpdateYMD(t.Context(), db, safeID, y, m, d)
+	be.Err(t, got, nil)
+	_ = tx0.Rollback()
+}
+
+func TestUpdateYMDS(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	tx0, err := db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	const safeYear = "2007"
+	const safeMonth = "6"
+	const safeDay = "12"
+	const safeID = 1
+
+	y := safeYear
+	m := safeMonth
+	d := safeDay
+
+	got := model.UpdateYMDS(t.Context(), db, 0, y, m, d)
+	be.Err(t, got)
+
+	got = model.UpdateYMDS(t.Context(), db, safeID, "", m, d)
+	be.Err(t, got, nil) // NOTE: this behavour does not match UpdateYMD()
+
+	got = model.UpdateYMDS(t.Context(), db, safeID, y, m, d)
+	be.Err(t, got, nil)
+	_ = tx0.Rollback()
+}
+
+func TestUpdateOnline(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	tx0, err := db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	const safeID = 1
+	const safeStatus = true
+	got := model.UpdateOnline(t.Context(), tx0, safeStatus, 0)
+	be.Err(t, got)
+
+	got = model.UpdateOnline(t.Context(), tx0, safeStatus, safeID)
+	be.Err(t, got, nil)
+	_ = tx0.Rollback()
+}
+
+func TestClassicationUpdate(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	tx0, err := db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	const safeID = 1
+	const safePlatform = "dos"
+	class := model.Classification{}
+	got := class.Update(t.Context(), tx0)
+	be.Err(t, got)
+
+	class.ID = safeID
+	class.Platform = safePlatform
+	got = class.Update(t.Context(), tx0)
+	be.Err(t, got)
+	_ = tx0.Rollback()
+}
+
+func TestLinksUpdate(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	tx0, err := db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	const safeID = 1
+	const safeGitHub = "defacto2"
+	const safeYouTube = "62BuDfBIcMo"
+	links := model.Links{}
+	got := links.Update(t.Context(), tx0)
+	be.Err(t, got)
+
+	links.ID = safeID
+	links.GitHub = safeGitHub
+	links.YouTube = safeYouTube
+	got = links.Update(t.Context(), tx0)
+	be.Err(t, got, nil)
+
+	_ = tx0.Rollback()
+}
+
+func TestCreatorsUpdate(t *testing.T) {
+	t.Parallel()
+
+	db := openDB(t)
+	if db == nil {
+		return
+	}
+
+	tx0, err := db.BeginTx(t.Context(), nil)
+	be.Err(t, err, nil)
+
+	const safeID = 1
+	const safeWriters = "ipggi"
+	creators := model.Creators{}
+	got := creators.Update(t.Context(), tx0)
+	be.Err(t, got)
+
+	creators.ID = safeID
+	creators.Text = safeWriters
+	got = creators.Update(t.Context(), tx0)
+	be.Err(t, got, nil)
+
+	_ = tx0.Rollback()
 }

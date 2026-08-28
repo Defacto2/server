@@ -22,16 +22,6 @@ const (
 	LongFilename = 255 // LongFilename is the maximum length of a filename.
 )
 
-var (
-	ErrBadOS  = errors.New("operating system or platform is invalid")
-	ErrBadTag = errors.New("category tag or section is invalid")
-	ErrNoOS   = errors.New("operating system or platform is missing")
-	ErrNoTag  = errors.New("category tag or section is missing")
-	ErrNoName = errors.New("the filename is missing")
-	ErrNoRelr = errors.New("at least one releaser is required")
-	ErrNoMag  = errors.New("a magazine requires an issue number or a title")
-)
-
 // Validate checks the artifact record for any missing or invalid values
 // that should prevent it from being published and public.
 //
@@ -43,25 +33,25 @@ func Validate(art *models.File) error {
 	}
 	var err error
 	if !art.Section.Valid || art.Section.String == "" {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrNoTag))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrBadTag))
 	} else if !tags.IsCategory(art.Section.String) {
 		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrBadTag, art.Section.String))
 	}
 	if !art.Platform.Valid || art.Platform.String == "" {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrNoOS))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrBadOS))
 	} else if !tags.IsPlatform(art.Platform.String) {
 		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrBadOS, art.Platform.String))
 	}
 	if !art.Filename.Valid || art.Filename.String == "" {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrNoName))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrBadFname))
 	}
 	if (!art.GroupBrandBy.Valid && !art.GroupBrandFor.Valid) ||
 		(art.GroupBrandBy.String == "" && art.GroupBrandFor.String == "") {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrNoRelr))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrBadRel))
 	}
 	if art.Section.String == tags.Mag.String() &&
 		(!art.RecordTitle.Valid || art.RecordTitle.String == "") {
-		err = errors.Join(err, fmt.Errorf("%w,", ErrNoMag))
+		err = errors.Join(err, fmt.Errorf("%w,", ErrBadMag))
 	}
 	return err
 }
@@ -126,6 +116,7 @@ func ValidFilename(s string) null.String {
 // The file size is parsed as an unsigned integer.
 // An error is returned if the string cannot be parsed as an integer.
 func ValidFilesize(size string) (null.Int64, error) {
+	const format = "valid filesize %s: %w"
 	s := strings.TrimSpace(size)
 	if s == "" {
 		return null.Int64{}, nil
@@ -133,7 +124,7 @@ func ValidFilesize(size string) (null.Int64, error) {
 
 	i, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
-		return null.Int64{}, fmt.Errorf("%w: %q, %w", ErrSize, size, err)
+		return null.Int64{}, fmt.Errorf(format, size, err)
 	}
 
 	return null.Int64From(i), nil

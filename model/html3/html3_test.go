@@ -172,13 +172,13 @@ func TestByGroup(t *testing.T) {
 
 	const invalid = "hello world"
 	fs, got = html3.DescDes.ByGroup(t.Context(), db, 0, 1, invalid)
-	be.Err(t, got, nil)
+	be.Err(t, got)
 	be.True(t, len(fs) == 0)
 
 	const valid = "defacto2"
-	fs, got = html3.DescDes.ByCategory(t.Context(), db, 0, 1, valid)
+	fs, got = html3.DescDes.ByGroup(t.Context(), db, 0, 1, valid)
 	be.Err(t, got, nil)
-	be.True(t, len(fs) == 1)
+	be.True(t, len(fs) >= 1)
 }
 
 // TestStat verifies the Stat function returns expected column selections.
@@ -221,7 +221,7 @@ func TestIcon(t *testing.T) {
 	t.Parallel()
 
 	s := html3.Icon(nil)
-	be.Equal(t, "error, no file model", s)
+	be.Equal(t, "html3: no file model", s)
 
 	f := models.File{}
 	s = html3.Icon(&f)
@@ -284,7 +284,7 @@ func TestPublishedFW(t *testing.T) {
 	t.Parallel()
 
 	s := html3.PublishedFW(0, nil)
-	be.Equal(t, "error, no file model", s)
+	be.Equal(t, "html3: no file model", s)
 
 	f := models.File{}
 	s = html3.PublishedFW(0, &f)

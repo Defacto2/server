@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
-	"strings"
 
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -26,6 +25,7 @@ type Artifacts struct {
 }
 
 func (f *Artifacts) useCache() bool {
+	// TODO add cache time.Time value?
 	return f.Bytes > 0 && f.Count > 0
 }
 
@@ -130,17 +130,163 @@ func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, of
 	return by.all(ctx, exec, f)
 }
 
+// ByUnwanted returns all of the file records that are flagged by Google as unwanted.
+func (f *Artifacts) OnlyUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	const format = "only unwanted: %w"
+
+	if err := nils.Check(ctx, exec, f); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, err)
+	}
+
+	// fetch record mods
+	empty := null.StringFrom("")
+	mods := []qm.QueryMod{
+		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
+		models.FileWhere.FileSecurityAlertURL.NEQ(empty),
+		qm.WithDeleted(),
+	}
+
+	if err := f.onlyUnwantedStats(ctx, exec, mods); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, err)
+	}
+
+	// ordering mods
+	const clause = "id DESC"
+	mods = append(mods, qm.OrderBy(clause),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit))
+
+	return models.Files(mods...).All(ctx, exec)
+}
+
+func (obj *Artifacts) onlyUnwantedStats(ctx context.Context, exec boil.ContextExecutor, mods []qm.QueryMod) error {
+	if obj.useCache() {
+		return nil
+	}
+
+	mods = append(mods,
+		qm.Select(SummCols()...),
+		qm.From(From))
+
+	return models.NewQuery(mods...).Bind(ctx, exec, obj)
+}
+
+// OnlyApproval returns all of the file records that are waiting to be marked for approval.
+//
+// This should not bind values to Artifacts struct as it can fail with a scan error due to unapproved files
+// missing bytes and minyear/maxyear values.
+func OnlyApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	const format = "only approval: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, err)
+	}
+
+	const clause = "id DESC"
+
+	return models.Files(
+		qm.WithDeleted(),
+		models.FileWhere.Deletedat.IsNotNull(),
+		models.FileWhere.Deletedby.IsNull(),
+		qm.OrderBy(clause),
+		qm.Offset(calc(offset, limit)),
+		qm.Limit(limit),
+	).All(ctx, exec)
+}
+
+// OnlyDescription returns a list of files that match the search terms.
+// The search terms are matched against the record_title column.
+// The results are ordered by the filename column in ascending order.
+func OnlyDescriptions(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, terms []string) (
+	models.FileSlice, error,
+) {
+	const format = "only descriptions %s: %w"
+	if err := nils.Check(ctx, sl, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, "check", err)
+	}
+	if len(terms) == 0 {
+		return models.FileSlice{}, nil
+	}
+
+	mods := onlyDescriptions(terms)
+	sl.Debug("only descriptions", slog.Any("terms", terms), slog.Any("mods", mods))
+
+	fs, err := models.Files(mods...).All(ctx, exec)
+	if err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, "all", err)
+	}
+
+	return fs, nil
+}
+
+func onlyDescriptions(terms []string) []qm.QueryMod {
+	mods := []qm.QueryMod{}
+	mods = append(mods, qm.Where(ClauseNoSoftDel))
+	const title = "to_tsvector(record_title) @@ websearch_to_tsquery(?)"
+	const comment = "to_tsvector(comment) @@ websearch_to_tsquery(?)"
+	for i, term := range terms {
+		term = fmt.Sprintf("'%s'", term) // the single quotes are required for terms containing spaces
+		if i == 0 {
+			mods = append(mods, qm.Where(title, term))
+			mods = append(mods, qm.Or(comment, term))
+			continue
+		}
+		mods = append(mods, qm.Or(title, term))
+		mods = append(mods, qm.Or(comment, term))
+	}
+	mods = append(mods, qm.Limit(Maximum))
+	return mods
+}
+
+// Filename returns a list of files that match the search terms.
+// The search terms are matched against the filename column.
+// The results are ordered by the filename column in ascending order.
+func OnlyFilenames(ctx context.Context, exec boil.ContextExecutor, terms []string) (
+	models.FileSlice, error,
+) {
+	const format = "only filenames %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, "check", err)
+	}
+	if len(terms) == 0 {
+		return models.FileSlice{}, nil
+	}
+
+	mods := onlyFilenames(terms)
+
+	fs, err := models.Files(mods...).All(ctx, exec)
+	if err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, "all", err)
+	}
+
+	return fs, nil
+}
+
+func onlyFilenames(terms []string) []qm.QueryMod {
+	mods := []qm.QueryMod{}
+	mods = append(mods, qm.Where(ClauseNoSoftDel))
+	const clause = "filename ~ ? OR filename ILIKE ? OR filename ILIKE ? OR filename ILIKE ?"
+	for i, term := range terms {
+		if i == 0 {
+			mods = append(mods, qm.Where(clause, term, term+"%", "%"+term, "%"+term+"%"))
+			continue
+		}
+		mods = append(mods, qm.Or(clause, term, term+"%", "%"+term, "%"+term+"%"))
+	}
+	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(Maximum))
+	return mods
+}
+
 // ByHidden returns all of the file records that are marked as hidden using soft delete.
-func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func OnlyHidden(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
 	const format = "by hidden artifacts: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, err)
-	}
-
-	if err := f.Public(ctx, exec); err != nil {
-		return nil, fmt.Errorf(format, err)
 	}
 
 	const clause = "deletedat DESC"
@@ -155,104 +301,47 @@ func (f *Artifacts) ByHidden(ctx context.Context, exec boil.ContextExecutor, off
 	).All(ctx, exec)
 }
 
-// ByUnwanted returns all of the file records that are flagged by Google as unwanted.
-func (f *Artifacts) ByUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+// OnlyTexts returns all of the file records that are text based, both text or textamiga.
+func OnlyTexts(ctx context.Context, exec boil.ContextExecutor) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
-	if err := f.byUnwanted(ctx, exec); err != nil {
-		return nil, fmt.Errorf("by unwanted artifacts: %w", err)
+	const format = "only texts %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, "check", err)
 	}
-	const clause = "id DESC"
-	empty := null.StringFrom("")
+
 	return models.Files(
-		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
-		models.FileWhere.FileSecurityAlertURL.NEQ(empty),
+		qm.Select(models.FileColumns.UUID, models.FileColumns.ID),
+		models.FileWhere.Platform.EQ(null.StringFrom("text")),
+		qm.Or2(models.FileWhere.Platform.EQ(null.StringFrom("textamiga"))),
 		qm.WithDeleted(),
-		qm.OrderBy(clause),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit),
 	).All(ctx, exec)
 }
 
-// Description returns a list of files that match the search terms.
-// The search terms are matched against the record_title column.
-// The results are ordered by the filename column in ascending order.
-// TODO: move to search.go? OR add stats to the results??
-func (f *Artifacts) Description(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, terms []string) (
-	models.FileSlice, error,
-) {
-	const msg = "artifacts description"
-	none := models.FileSlice{}
-	if err := nils.Check(ctx, sl, exec); err != nil {
-		return none, fmt.Errorf("%s: %w", msg, err)
-	}
-	if terms == nil {
-		return none, nil
-	}
-	mods := []qm.QueryMod{}
-	mods = append(mods, qm.Where(ClauseNoSoftDel))
-	const clauseT = "to_tsvector(record_title) @@ websearch_to_tsquery(?)"
-	const clauseC = "to_tsvector(comment) @@ websearch_to_tsquery(?)"
-	for i, term := range terms {
-		term = fmt.Sprintf("'%s'", term) // the single quotes are required for terms containing spaces
-		if i == 0 {
-			mods = append(mods, qm.Where(clauseT, term))
-			mods = append(mods, qm.Or(clauseC, term))
-			continue
-		}
-		mods = append(mods, qm.Or(clauseT, term))
-		mods = append(mods, qm.Or(clauseC, term))
-	}
-	mods = append(mods, qm.Limit(Maximum))
-	sl.Debug(msg,
-		slog.String("terms", strings.Join(terms, ",")),
-		slog.String("mods.verbose", fmt.Sprintf("%+v", mods)))
-	fs, err := models.Files(mods...).All(ctx, exec)
-	if err != nil {
-		return nil, fmt.Errorf("%s models all files by description search: %w", msg, err)
-	}
-	return fs, nil
-}
-
-// Filename returns a list of files that match the search terms.
-// The search terms are matched against the filename column.
-// The results are ordered by the filename column in ascending order.
-func (f *Artifacts) Filename(ctx context.Context, exec boil.ContextExecutor, terms []string) (
-	models.FileSlice, error,
-) {
-	nils.BoilExecCrash(exec)
-	if terms == nil {
-		return models.FileSlice{}, nil
-	}
-	mods := []qm.QueryMod{}
-	mods = append(mods, qm.Where(ClauseNoSoftDel))
-	for i, term := range terms {
-		if i == 0 {
-			mods = append(mods, qm.Where("filename ~ ? OR filename ILIKE ? OR filename ILIKE ? OR filename ILIKE ?",
-				term, term+"%", "%"+term, "%"+term+"%"))
-			continue
-		}
-		mods = append(mods, qm.Or("filename ~ ? OR filename ILIKE ? OR filename ILIKE ? OR filename ILIKE ?",
-			term, term+"%", "%"+term, "%"+term+"%"))
-	}
-	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(Maximum))
-	fs, err := models.Files(mods...).All(ctx, exec)
-	if err != nil {
-		return nil, fmt.Errorf("models all files by filename search: %w", err)
-	}
-	return fs, nil
-}
-
-// ID returns a list of files that match the lists of records with id or uuid.
-func (f *Artifacts) ID(
+// OnlyUniqueIDs returns a list of files that match the lists of records with id or uuid.
+func OnlyUniqueIDs(
 	ctx context.Context, exec boil.ContextExecutor, ids []int, uuids ...uuid.UUID) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
-	if (ids == nil && uuids == nil) || (len(ids) == 0 && len(uuids) == 0) {
+	const format = "only unique ids %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, "check", err)
+	}
+
+	if len(ids) == 0 && len(uuids) == 0 {
 		return models.FileSlice{}, nil
 	}
+
+	mods := onlyUniqueIDs(ids, uuids...)
+	fs, err := models.Files(mods...).All(ctx, exec)
+	if err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, "all", err)
+	}
+
+	return fs, nil
+}
+
+func onlyUniqueIDs(ids []int, uuids ...uuid.UUID) []qm.QueryMod {
 	mods := []qm.QueryMod{}
 	for id := range slices.Values(ids) {
 		if id < 1 {
@@ -264,91 +353,37 @@ func (f *Artifacts) ID(
 		mods = append(mods, qm.Or("uuid = ?", uuid.String()))
 	}
 	mods = append(mods, qm.Limit(Maximum), qm.WithDeleted())
-	fs, err := models.Files(mods...).All(ctx, exec)
-	if err != nil {
-		return nil, fmt.Errorf("models all files by id search: %w", err)
-	}
-	return fs, nil
+	return mods
 }
 
-func (f *Artifacts) byUnwanted(ctx context.Context, exec boil.ContextExecutor) error {
-	nils.BoilExecCrash(exec)
-	if f.Bytes > 0 && f.Count > 0 {
-		return nil
-	}
-	const msg = "artifacts by unwanted"
-	err := models.NewQuery(
-		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
-		qm.WithDeleted(),
-		qm.Select(SummCols()...),
-		qm.From(From),
-	).Bind(ctx, exec, f)
-	if err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
-	}
-	return nil
-}
-
-// ByForApproval returns all of the file records that are waiting to be marked for approval.
-//
-// This should not bind values to Artifacts struct as it can fail with a scan error due to unapproved files
-// missing bytes and minyear/maxyear values.
-func ByForApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+// OnlyMagicErrs returns all of the file records using legacy magic numbers that require replacements.
+// The binary data bool will also replace magic strings that are set to "Binary data".
+func OnlyMagicErrs(ctx context.Context, exec boil.ContextExecutor, binaryData bool) (
 	models.FileSlice, error,
 ) {
-	nils.BoilExecCrash(exec)
-	const clause = "id DESC"
-	return models.Files(
-		qm.WithDeleted(),
-		models.FileWhere.Deletedat.IsNotNull(),
-		models.FileWhere.Deletedby.IsNull(),
-		qm.OrderBy(clause),
-		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit),
-	).All(ctx, exec)
-}
-
-// The following do not set Artifacts because they're for debugging
-
-// ByTextPlatform returns all of the file records that are text based, either text or textamiga.
-func (f *Artifacts) ByPlatformText(ctx context.Context, exec boil.ContextExecutor) (
-	models.FileSlice, error,
-) {
-	nils.BoilExecCrash(exec)
-	return models.Files(
-		qm.Select(models.FileColumns.UUID, models.FileColumns.ID),
-		models.FileWhere.Platform.EQ(null.StringFrom("text")),
-		qm.Or2(models.FileWhere.Platform.EQ(null.StringFrom("textamiga"))),
-		qm.WithDeleted(),
-	).All(ctx, exec)
-}
-
-// ByMagicErr returns all of the file records that require new magic numbers.
-func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, binaryData bool) (
-	models.FileSlice, error, // TODO: rename and refactor DebugMagic
-) {
-	nils.BoilExecCrash(exec)
-	/*
-		SELECT DISTINCT "file_magic_type"
-		FROM "files"
-		ORDER BY "file_magic_type"
-		LIMIT 500;
-	*/
-	equals := []string{"data", "tar archive", "Microsoft ASF"}
-	ilikes := []string{
-		"application/%", "Zip archive data%", "ARC archive data%", "ARJ archive data%", "RAR archive data%",
-		"7-zip archive data%", "gzip compressed data%", "ASCII text%", "HTML document%", "Pascal source%", "ISO-8859 text%",
-		"JPEG image data%", "GIF image data%", "PNG image data%", "PDF document%", "RIFF (little-endian) data%",
-		"ISO Media%", "Fasttracker II%", "Ogg data%", "Audio file with%", "MPEG ADTS%",
-		"AIX core file%", "C source,%", "C++ source,%", "FORTRAN program%", "ISO-8859 text%",
-		"Little-endian UTF-16%", "MIT scheme%", "MS Windows icon resource%", "Microsoft Cabinet archive data,%",
-		"Non-ISO extended-ASCII text%", "PC bitmap, Windows 3.x format%", "PCX ver. 3.0 image data%",
+	const format = "only magic errs %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(format, "check", err)
+	}
+	exacts := [...]string{"data", "tar archive", "Microsoft ASF"}
+	ilikes := [...]string{
+		"application/%", "Zip archive data%", "ARC archive data%", "ARJ archive data%",
+		"RAR archive data%", "7-zip archive data%", "gzip compressed data%", "ASCII text%",
+		"HTML document%", "Pascal source%", "ISO-8859 text%", "JPEG image data%", "GIF image data%",
+		"PNG image data%", "PDF document%", "RIFF (little-endian) data%", "ISO Media%",
+		"Fasttracker II%", "Ogg data%", "Audio file with%", "MPEG ADTS%", "AIX core file%",
+		"C source,%", "C++ source,%", "FORTRAN program%", "ISO-8859 text%",
+		"Little-endian UTF-16%", "MIT scheme%", "MS Windows icon resource%",
+		"Microsoft Cabinet archive data,%", "Non-ISO extended-ASCII text%",
+		"PC bitmap, Windows 3.x format%", "PCX ver. 3.0 image data%",
 		"PE32 executable (GUI) Intel 80386%", "PE32 executable (console)%", "Python script%",
-		"Quake I or II world or extension%",
-		"AmigaGuide file%", "COM executable for%", "DCL command file%", "LHa (%", "MS-DOS executable%", "RFC 822 mail%",
-		"Rich Text Format data%", "SMTP mail%", "SysEx File%", "UTF-8 Unicode%", "core file (Xenix)%", "diff output,%",
-		"news or mail,%", "news, ASCII text%", "saved news,%", "ID tags data%", "VISX image file%",
+		"Quake I or II world or extension%", "AmigaGuide file%", "COM executable for%",
+		"DCL command file%", "LHa (%", "MS-DOS executable%", "RFC 822 mail%",
+		"Rich Text Format data%", "SMTP mail%", "SysEx File%", "UTF-8 Unicode%",
+		"core file (Xenix)%", "diff output,%", "news or mail,%", "news, ASCII text%",
+		"saved news,%", "ID tags data%", "VISX image file%",
 	}
+
 	mods := []qm.QueryMod{
 		qm.Select(
 			models.FileColumns.UUID,
@@ -356,18 +391,22 @@ func (f *Artifacts) ByMagicErr(ctx context.Context, exec boil.ContextExecutor, b
 			models.FileColumns.FileMagicType),
 		models.FileWhere.FileMagicType.IsNull(),
 	}
-	for s := range slices.Values(equals) {
+
+	for _, exact := range exacts {
 		mods = append(mods,
-			qm.Or2(models.FileWhere.FileMagicType.EQ(null.StringFrom(s))))
+			qm.Or2(models.FileWhere.FileMagicType.EQ(null.StringFrom(exact))))
 	}
-	for s := range slices.Values(ilikes) {
+
+	for _, ilike := range ilikes {
 		mods = append(mods,
-			qm.Or2(models.FileWhere.FileMagicType.ILIKE(null.StringFrom(s))))
+			qm.Or2(models.FileWhere.FileMagicType.ILIKE(null.StringFrom(ilike))))
 	}
+
 	if binaryData {
 		mods = append(mods,
 			qm.Or2(models.FileWhere.FileMagicType.EQ(null.StringFrom("Binary data"))))
 	}
 	mods = append(mods, qm.WithDeleted())
+
 	return models.Files(mods...).All(ctx, exec)
 }

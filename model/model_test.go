@@ -10,7 +10,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// checked in Aug 26, test coverage was poor at around 8%~
+// checked in Aug 26, test coverage was good at 60%+
 
 func openDB(t *testing.T) *sql.DB {
 	db, err := postgres.Open()

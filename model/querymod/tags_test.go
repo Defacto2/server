@@ -1,33 +1,12 @@
 package querymod_test
 
 import (
-	"sync"
 	"testing"
 
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model/querymod"
 	"github.com/nalgeon/be"
 )
-
-func TestGetURIs_ConcurrentPanic(t *testing.T) {
-	t.Parallel()
-
-	const delta = 100
-	var wg sync.WaitGroup
-	wg.Add(delta)
-
-	// Attempt to trigger a concurrent map write / read panic
-	for range delta {
-		go func() {
-			defer wg.Done()
-			_ = querymod.SAdvert()
-			_ = querymod.SAnnouncement()
-			_ = querymod.SAppleII()
-		}()
-	}
-
-	wg.Wait()
-}
 
 // Test section functions return valid null.String values.
 

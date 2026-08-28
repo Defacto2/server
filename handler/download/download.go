@@ -41,7 +41,7 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error
 
 	art, err := model.OneFileByKey(ctx, db, id)
 	if err != nil {
-		if errors.Is(err, model.ErrDB) && sess.Editor(c) {
+		if sess.Editor(c) {
 			art, err = model.OneEditByKey(ctx, db, id)
 		}
 		if err != nil {

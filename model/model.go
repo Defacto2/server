@@ -12,25 +12,28 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
+// checked in Aug 26, test coverage was good at around 50%
+
 var (
-	ErrColumn   = errors.New("column not implemented")
-	ErrDay      = errors.New("invalid day")
-	ErrDB       = errors.New("database value is nil")
-	ErrID       = errors.New("file download database id cannot be found")
-	ErrKey      = errors.New("key value is zero or negative")
-	ErrModel    = errors.New("error, no file model")
-	ErrMonth    = errors.New("invalid month")
-	ErrName     = errors.New("name value is empty")
-	ErrOrderBy  = errors.New("order by value is invalid")
-	ErrSize     = errors.New("size value is invalid")
-	ErrRels     = errors.New("too many releasers, only two are allowed")
-	ErrPlatform = errors.New("invalid platform")
-	ErrSha384   = errors.New("sha384 value is invalid")
-	ErrTime     = errors.New("time value is invalid")
-	ErrURI      = errors.New("uri value is invalid")
-	ErrUUID     = errors.New("could not create a new universal unique identifier")
-	ErrYear     = errors.New("invalid year")
-	ErrYouTube  = errors.New("invalid youtube id")
+	ErrModel     = errors.New("model: file model is not provided")
+	ErrColumn    = errors.New("model: column not implemented")
+	ErrName      = errors.New("model: name value is empty")
+	ErrOrderBy   = errors.New("model: order by value is invalid")
+	ErrSha384    = errors.New("model: sha384 value is invalid")
+	ErrTime      = errors.New("model: time value is invalid")
+	ErrURI       = errors.New("model: uri value is invalid")
+	ErrUUID      = errors.New("model: could not create uuid")
+	ErrBadDDay   = errors.New("model: invalid day")
+	ErrBadDMonth = errors.New("model: invalid month")
+	ErrBadDYear  = errors.New("model: invalid year")
+	ErrBadID     = errors.New("model: artifact key id cannot be found")
+	ErrBadIDInt  = errors.New("model: artifact key id is zero or negative")
+	ErrBadOS     = errors.New("model: operating system or platform tag is invalid")
+	ErrBadTag    = errors.New("model: category or section tag is invalid")
+	ErrBadFname  = errors.New("model: filename is missing")
+	ErrBadRel    = errors.New("model: cannot update releasers, for must be set before by")
+	ErrBadMag    = errors.New("model: magazine requires an issue number, volume, or a title")
+	ErrBadYT     = errors.New("model: invalid youtube id")
 )
 
 const (
@@ -55,10 +58,6 @@ const ClauseOldDate = "date_issued_year ASC NULLS LAST, " +
 
 // ClauseNoSoftDel is the clause to exclude soft deleted records.
 const ClauseNoSoftDel = "deletedat IS NULL"
-
-const (
-	DemozooSanity = 450000 // Sanity is to check the maximum permitted production ID.
-)
 
 func calc(page, limit int) (offset int) {
 	if page < 1 {
