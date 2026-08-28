@@ -389,7 +389,7 @@ func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c *echo.Contex
 		return queryErr("by group:", err)
 	}
 	total := len(records)
-	byteSum, err := model.ReleaserByteSum(ctx, exec, name)
+	byteSum, err := model.SumReleaser(ctx, exec, name)
 	if err != nil {
 		return statErr("bytes by group:", err)
 	}
@@ -405,16 +405,17 @@ func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Cont
 	}
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
-	id := ID(c)
-	records, err := order.ByCategory(ctx, exec, offset, limit, id)
+	slug := ID(c)
+	records, err := order.ByCategory(ctx, exec, offset, limit, slug)
 	if err != nil {
 		return queryErr("by category:", err)
 	}
-	total, err := model.CategoryCount(ctx, exec, id)
+	tag := tags.TagByURI(slug)
+	total, err := model.CountSection(ctx, exec, tag)
 	if err != nil {
 		return statErr("total by category:", err)
 	}
-	byteSum, err := model.CategoryByteSum(ctx, exec, id)
+	byteSum, err := model.SumSection(ctx, exec, tag)
 	if err != nil {
 		return statErr("byte by category:", err)
 	}
@@ -430,16 +431,18 @@ func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Con
 	}
 	const limit = model.Maximum
 	order := Clauses(c.QueryString())
-	id := ID(c)
-	records, err := order.ByPlatform(ctx, exec, offset, limit, id)
+	slug := ID(c)
+	records, err := order.ByPlatform(ctx, exec, offset, limit, slug)
 	if err != nil {
 		return queryErr("by platform:", err)
 	}
-	total, err := model.PlatformCount(ctx, exec, id)
+
+	tag := tags.TagByURI(slug)
+	total, err := model.CountPlatform(ctx, exec, tag)
 	if err != nil {
 		return statErr("total by platform:", err)
 	}
-	byteSum, err := model.PlatformByteSum(ctx, exec, id)
+	byteSum, err := model.SumPlatform(ctx, exec, tag)
 	if err != nil {
 		return statErr("bytes by platform:", err)
 	}

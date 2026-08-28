@@ -13,18 +13,20 @@ import (
 // DeleteOne retrieves a single file record from the database using the record key.
 // This function can return records that have been marked as deleted.
 func DeleteOne(ctx context.Context, exec boil.ContextExecutor, key int64) error {
-	const msg = "delete one record"
-	const format = msg + " %d: %w"
+	const format = "delete one record %d: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(format, key, err)
 	}
+
 	if key < 1 {
 		return fmt.Errorf(format, key, ErrKey)
 	}
+
 	mods := models.FileWhere.ID.EQ(key)
 	_, err := models.Files(mods, qm.WithDeleted()).DeleteAll(ctx, exec, true)
 	if err != nil {
 		return fmt.Errorf(format, key, err)
 	}
+
 	return nil
 }

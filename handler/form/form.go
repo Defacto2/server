@@ -86,7 +86,7 @@ func humanizeCount(ctx context.Context, db *sql.DB, section, platform string) (i
 			return 0, "unknown classification", nil
 		}
 	}
-	count, err := model.ClassificationCount(ctx, db, section, platform)
+	count, err := model.CountTags(ctx, db, s, p)
 	if err != nil {
 		return 0, "cannot count the classification",
 			fmt.Errorf("form humanize and count classification %w", err)

@@ -1864,8 +1864,7 @@ func Releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	const name = "artifacts"
 	errs := fmt.Sprint("releasers page for, ", uri)
 	relname := releaser.Link(uri)
-	rel := model.Releasers{}
-	fs, err := rel.Where(ctx, db, uri)
+	fs, err := model.ReleasersWhere(ctx, db, uri)
 	if err != nil {
 		sl.Error(msg, slog.String("database", "releasers lookup problem"),
 			slog.String("uri", uri), slog.Any("error", err))

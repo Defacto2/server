@@ -715,7 +715,7 @@ func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.Contex
 	}
 
 	r := model.Artifacts{Bytes: 0, Count: 0, MinYear: 0, MaxYear: 0}
-	artifacts, err := r.ByTextPlatform(ctx, exec)
+	artifacts, err := r.ByPlatformText(ctx, exec)
 	if err != nil {
 		return fmt.Errorf(format, "models file slice", err)
 	}

@@ -86,15 +86,6 @@ func (k Key) IsValid() bool {
 	return ok
 }
 
-// ParseKey converts a raw string into a Key and checks if it is valid.
-func ParseKey(s string) (Key, bool) {
-	k := Key(s)
-	if !k.IsValid() {
-		return "", false
-	}
-	return k, true
-}
-
 // columns holds the package-level slice reference initialized at package startup.
 //
 //nolint:gochecknoglobals

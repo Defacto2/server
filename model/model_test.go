@@ -4,11 +4,9 @@ package model_test
 import (
 	"database/sql"
 	"testing"
-	"time"
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
-	"github.com/google/uuid"
 	"github.com/nalgeon/be"
 )
 
@@ -55,21 +53,6 @@ func TestValidSceners(t *testing.T) {
 	r = model.ValidSceners(sceners)
 	be.True(t, r.Valid)
 	be.Equal(t, "Dëfåt0", r.String)
-}
-
-func TestValidNewV7(t *testing.T) {
-	t.Parallel()
-
-	now1, unid, err := model.NewV7()
-	be.Err(t, err, nil)
-
-	now2 := time.Now()
-	diff := now2.Sub(now1).Minutes()
-
-	const oneMinute = 1.0
-	be.True(t, diff <= oneMinute)
-	err = uuid.Validate(unid.String())
-	be.Err(t, err, nil)
 }
 
 func TestDelete(t *testing.T) {

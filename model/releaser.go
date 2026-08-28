@@ -4,8 +4,10 @@ package model
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/Defacto2/helper"
@@ -20,6 +22,10 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
+var ErrLookup = errors.New("invalid lookup value")
+
+const PageSet = 10 // PageSet is the default number of results when limit/page arguments are offered.
+
 // OrderBy is the sorting order for ALL the releasers.
 type OrderBy uint
 
@@ -28,8 +34,6 @@ const (
 	Alphabetical                // Alphabetical orders by the releaser name.
 	Oldest                      // Oldest orders by the year of the first artifact.
 )
-
-const fmtraw = "queries raw: %w"
 
 // Set is a zero-byte memory map used to store and reference string values.
 type Set map[string]struct{}
@@ -115,9 +119,9 @@ type Releasers []*struct {
 	Unique Releaser `boil:",bind"` // Unique releaser.
 }
 
-func (r *Releasers) String() string {
-	names := make([]string, 0, len(*r))
-	for _, name := range *r {
+func (obj *Releasers) String() string {
+	names := make([]string, 0, len(*obj))
+	for _, name := range *obj {
 		names = append(names, name.Unique.Name)
 	}
 	return strings.Join(names, ", ")
@@ -135,8 +139,7 @@ type Releaser struct {
 
 // Where gets the records that match the named releaser.
 // If the provided name is invalid, no results but no errors are returned.
-// TODO: releasers method unused?
-func (r *Releasers) Where(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
+func ReleasersWhere(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
 	const format = "releasers where: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, err)
@@ -157,12 +160,12 @@ func (r *Releasers) Where(ctx context.Context, exec boil.ContextExecutor, name s
 
 // Limit gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
-func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order OrderBy, limit, page int) error {
+func (obj *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order OrderBy, limit, page int) error {
 	const format = "releasers limit: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	if len(*r) > 0 {
+	if len(*obj) > 0 {
 		return nil
 	}
 
@@ -182,14 +185,14 @@ func (r *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order 
 		if page < 1 {
 			page = 1
 		}
-		limit, offset := calculateLimitAndOffset(page, limit)
+		limit, offset := limits(page, limit)
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 	}
-	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
+	if err := queries.Raw(query).Bind(ctx, exec, obj); err != nil {
 		return fmt.Errorf(format, err)
 	}
 
-	r.Slugs()
+	obj.Slugs()
 	return nil
 }
 
@@ -204,48 +207,47 @@ const (
 // Similar finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
-func (r *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	return r.similar(ctx, exec, limit, toReleasers, names...)
+func (obj *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
+	return obj.similar(ctx, exec, limit, toReleasers, names...)
 }
 
 // Initialism finds the unique releaser names that match the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
-func (r *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	return r.similar(ctx, exec, limit, toReleasersExact, names...)
+func (obj *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
+	return obj.similar(ctx, exec, limit, toReleasersExact, names...)
 }
 
 // SimilarMagazine finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
-func (r *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	return r.similar(ctx, exec, limit, toMagazines, names...)
+func (obj *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
+	return obj.similar(ctx, exec, limit, toMagazines, names...)
 }
 
-func removeDuplicates(strings []string) []string {
-	unique := make(map[string]struct{})
-	var result []string
-	for s := range slices.Values(strings) {
-		if _, exists := unique[s]; !exists {
-			unique[s] = struct{}{}
-			result = append(result, s)
-		}
+func limits(pageNumber, pageSize int) (limit int, offset int) {
+	if pageNumber < 1 {
+		pageNumber = 1
 	}
-	return result
-}
+	if pageSize < 1 {
+		pageSize = PageSet
+	}
 
-func calculateLimitAndOffset(pageNumber, pageSize int) (int, int) {
-	limit := pageSize
-	offset := (pageNumber - 1) * pageSize
+	limit = pageSize
+	offset = (pageNumber - 1) * pageSize
 	return limit, offset
 }
 
 // BBS gets the unique BBS site names and their total file count and file sizes.
-func (r *Releasers) BBS(ctx context.Context, exec boil.ContextExecutor, order OrderBy) error {
-	if len(*r) > 0 {
+func (obj *Releasers) BBS(ctx context.Context, exec boil.ContextExecutor, order OrderBy) error {
+	const format = "unique bbs names: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if len(*obj) > 0 {
 		return nil
 	}
-	nils.BoilExecCrash(exec)
+
 	var query string
 	switch order {
 	case Prolific:
@@ -255,88 +257,104 @@ func (r *Releasers) BBS(ctx context.Context, exec boil.ContextExecutor, order Or
 	case Oldest:
 		query = string(postgres.BBSsOldest())
 	default:
-		return ErrOrderBy
+		return fmt.Errorf(format, ErrOrderBy)
 	}
-	if err := queries.Raw(query).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf(fmtraw, err)
+
+	if err := queries.Raw(query).Bind(ctx, exec, obj); err != nil {
+		return fmt.Errorf(format, err)
 	}
-	r.Slugs()
+
+	obj.Slugs()
 	return nil
 }
 
 // FTP gets the unique FTP site names and their total file count and file sizes.
-func (r *Releasers) FTP(ctx context.Context, exec boil.ContextExecutor) error {
-	if len(*r) > 0 {
+func (obj *Releasers) FTP(ctx context.Context, exec boil.ContextExecutor) error {
+	const format = "unique ftp names: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if len(*obj) > 0 {
 		return nil
 	}
-	nils.BoilExecCrash(exec)
-	if err := queries.Raw(string(postgres.FTPsAlphabetical())).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf(fmtraw, err)
+
+	if err := queries.Raw(string(postgres.FTPsAlphabetical())).Bind(ctx, exec, obj); err != nil {
+		return fmt.Errorf(format, err)
 	}
-	r.Slugs()
+
+	obj.Slugs()
 	return nil
 }
 
 // MagazineAZ gets the unique magazine titles and their total issue count and file sizes.
-func (r *Releasers) MagazineAZ(ctx context.Context, exec boil.ContextExecutor) error {
-	if len(*r) > 0 {
+func (obj *Releasers) MagazineAZ(ctx context.Context, exec boil.ContextExecutor) error {
+	const format = "unique magazine names a-z: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if len(*obj) > 0 {
 		return nil
 	}
-	nils.BoilExecCrash(exec)
-	if err := queries.Raw(string(postgres.MagazinesAlphabetical())).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf(fmtraw, err)
+
+	if err := queries.Raw(string(postgres.MagazinesAlphabetical())).Bind(ctx, exec, obj); err != nil {
+		return fmt.Errorf(format, err)
 	}
-	r.Slugs()
+
+	obj.Slugs()
 	return nil
 }
 
 // Magazine gets the unique magazine titles and their total issue count and file sizes.
-func (r *Releasers) Magazine(ctx context.Context, exec boil.ContextExecutor) error {
-	if len(*r) > 0 {
+func (obj *Releasers) Magazine(ctx context.Context, exec boil.ContextExecutor) error {
+	const format = "unique magazine names: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if len(*obj) > 0 {
 		return nil
 	}
-	nils.BoilExecCrash(exec)
-	if err := queries.Raw(string(postgres.MagazinesOldest())).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf(fmtraw, err)
+
+	if err := queries.Raw(string(postgres.MagazinesOldest())).Bind(ctx, exec, obj); err != nil {
+		return fmt.Errorf(format, err)
 	}
-	r.Slugs()
+	obj.Slugs()
+
 	return nil
 }
 
 // Slugs sets URL friendly strings to the Group names.
-func (r *Releasers) Slugs() {
-	for _, releaser := range *r {
+func (obj *Releasers) Slugs() {
+	for _, releaser := range *obj {
 		releaser.Unique.URI = helper.Slug(releaser.Unique.Name)
 	}
 }
 
-func (r *Releasers) similar(
+func (obj *Releasers) similar(
 	ctx context.Context, exec boil.ContextExecutor, limit int, look lookup, names ...string,
 ) error {
-	boil.DebugMode = false // Enable to see the raw SQL queries.
-	if len(names) == 0 {
+	boil.DebugMode = false // enable to see the raw SQL queries.
+	const format = "similar releasers: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if len(names) == 0 || len(*obj) > 0 {
 		return nil
 	}
-	if r != nil && len(*r) > 0 {
-		return nil
-	}
-	nils.BoilExecCrash(exec)
-	likes := names
-	for name := range slices.Values(names) {
-		likes = append(likes, releaser.Title(name))
-		likes = append(likes, releaser.Cell(name))
-	}
+
 	const escapedChar = "''"
-	for i := range likes {
-		liked := likes[i]
-		liked = strings.ReplaceAll(liked, "'", escapedChar)
-		likes[i] = strings.ToUpper(liked)
+	likes := make([]string, 0, len(names)*3)
+	for _, name := range names {
+		s := strings.ReplaceAll(name, "'", escapedChar)
+		likes = append(likes, strings.ToUpper(s))
+		likes = append(likes, strings.ToUpper(releaser.Title(s)))
+		likes = append(likes, strings.ToUpper(releaser.Cell(s)))
 	}
 	slices.Sort(likes)
-	likes = removeDuplicates(likes)
 	likes = slices.Compact(likes)
+
 	var query string
 	var params []any
+
 	switch look {
 	case toReleasersExact:
 		sqlStr, p := postgres.SimilarToExact(likes...)
@@ -347,16 +365,22 @@ func (r *Releasers) similar(
 	case toReleasers:
 		sqlStr, p := postgres.SimilarToReleaser(likes...)
 		query, params = string(sqlStr), p
+	default:
+		return fmt.Errorf(format, ErrLookup)
 	}
-	{
-		const page, maxPages = 1, 10
-		size := limit | maxPages
-		val, offset := calculateLimitAndOffset(page, size)
-		query += fmt.Sprintf(" LIMIT %d OFFSET %d", val, offset)
+
+	const pageNumber = 1
+	pageSize := min(limit, PageSet)
+	if pageSize <= 0 {
+		pageSize = PageSet
 	}
-	if err := queries.Raw(query, params...).Bind(ctx, exec, r); err != nil {
-		return fmt.Errorf("similar magazine releasers queries raw: %w", err)
+	l, o := limits(pageNumber, pageSize)
+	query += " LIMIT " + strconv.Itoa(l) + " OFFSET " + strconv.Itoa(o)
+
+	if err := queries.Raw(query, params...).Bind(ctx, exec, obj); err != nil {
+		return fmt.Errorf(format, err)
 	}
-	r.Slugs()
+
+	obj.Slugs()
 	return nil
 }

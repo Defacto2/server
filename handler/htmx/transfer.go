@@ -101,7 +101,7 @@ func LookupSHA384(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql
 		return c.String(http.StatusBadRequest, "invalid hash error: "+hash)
 	}
 
-	uri, err := model.HashFind(ctx, db, hash)
+	uri, err := model.OneByHash(ctx, db, hash)
 	if err != nil {
 		slog.Error(msg+" database could not lookup the hash", slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable, "cannot confirm the hash with the database")
@@ -200,7 +200,7 @@ func (t Transfer) transfer(ctx context.Context, sl *slog.Logger, c *echo.Context
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
-	exist, err := model.SHA384Exists(ctx, tx, checksum)
+	exist, err := model.ExistSHA(ctx, tx, checksum)
 	if err != nil {
 		return checkExist(sl, c, err)
 	}
@@ -511,9 +511,9 @@ func (prod Submission) Submit( //nolint:funlen
 	var eErr error
 	switch prod {
 	case Demozoo:
-		exist, eErr = model.DemozooExists(ctx, tx, id)
+		exist, eErr = model.ExistDemozoo(ctx, tx, id)
 	case Pouet:
-		exist, eErr = model.PouetExists(ctx, tx, id)
+		exist, eErr = model.ExistPouet(ctx, tx, id)
 	}
 	if eErr != nil {
 		return c.String(http.StatusServiceUnavailable, "error, the database query failed")

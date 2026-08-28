@@ -904,8 +904,7 @@ func ReleaserAPI(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.
 			er: "Releaser name parameter is required",
 		})
 	}
-	rels := model.Releasers{}
-	fs, err := rels.Where(ctx, db, name)
+	fs, err := model.ReleasersWhere(ctx, db, name)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			er: "Failed to query releaser",
@@ -1240,13 +1239,13 @@ func TagsAPI(ctx context.Context, c *echo.Context, db *sql.DB, category, platfor
 		var byteSum int64
 		var count int64
 		if category {
-			count, _ = model.CategoryCount(ctx, db, slug)
-			byteSum, _ = model.CategoryByteSum(ctx, db, slug)
+			count, _ = model.CountSection(ctx, db, slug)
+			byteSum, _ = model.SumSection(ctx, db, slug)
 		}
 		if platform {
-			c, _ := model.PlatformCount(ctx, db, slug)
+			c, _ := model.CountPlatform(ctx, db, slug)
 			count = c + count
-			b, _ := model.PlatformByteSum(ctx, db, slug)
+			b, _ := model.SumPlatform(ctx, db, slug)
 			byteSum = b + byteSum
 		}
 		result := tagAPI{
@@ -1343,13 +1342,13 @@ func TagAPI(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, n
 				er: "Failed to query category files",
 			})
 		}
-		count, err = model.CategoryCount(ctx, db, name)
+		count, err = model.CountSection(ctx, db, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				er: "Failed to count category files",
 			})
 		}
-		byteSum, err = model.CategoryByteSum(ctx, db, name)
+		byteSum, err = model.SumSection(ctx, db, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				er: "Failed to calculate platform file sizes",
@@ -1363,13 +1362,13 @@ func TagAPI(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, n
 				er: "Failed to query platform files",
 			})
 		}
-		count, err = model.PlatformCount(ctx, db, name)
+		count, err = model.CountPlatform(ctx, db, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				er: "Failed to count platform files",
 			})
 		}
-		byteSum, err = model.PlatformByteSum(ctx, db, name)
+		byteSum, err = model.SumPlatform(ctx, db, name)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				er: "Failed to calculate platform file sizes",

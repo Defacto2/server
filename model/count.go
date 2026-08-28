@@ -12,6 +12,7 @@ import (
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
@@ -20,125 +21,213 @@ import (
 
 // Count returns the total numbers of public artifact records.
 func Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
-	nils.BoilExecCrash(exec)
-	public, err := models.Files(qm.Where(ClauseNoSoftDel)).Count(ctx, exec)
+	const format = "count %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, fmt.Errorf(format, "check", err)
+	}
+
+	n, err := models.Files(qm.Where(ClauseNoSoftDel)).Count(ctx, exec)
 	if err != nil {
 		return 0, err
 	}
-	return public, nil
+
+	return n, nil
 }
 
 // Counts returns the total numbers of artifact records.
-// The first result is the total number of public,
-// the second is the number of non-public records.
-// The final number is the number of new uploads waiting for approval.
-func Counts(ctx context.Context, exec boil.ContextExecutor) (int64, int64, int64, error) {
-	nils.BoilExecCrash(exec)
-	all, err := models.Files(qm.WithDeleted()).Count(ctx, exec)
-	if err != nil {
-		return 0, 0, 0, err
+//
+//   - Returned are the total number of artifacts, both public and private.
+//   - The number of public artifacts.
+//   - The number of artifacts waiting for approval.
+func Counts(ctx context.Context, exec boil.ContextExecutor) (total int64, public int64, waiting int64, err error) {
+	const format = "counts %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, 0, 0, fmt.Errorf(format, "check", err)
 	}
-	public, err := models.Files(qm.Where(ClauseNoSoftDel)).Count(ctx, exec)
+
+	// todo: waitgroup?
+
+	total, err = models.Files(qm.WithDeleted()).Count(ctx, exec)
 	if err != nil {
-		return 0, 0, 0, err
+		return total, public, waiting, err
 	}
-	uploads, err := models.Files(
+
+	public, err = models.Files(qm.Where(ClauseNoSoftDel)).Count(ctx, exec)
+	if err != nil {
+		return total, public, waiting, err
+	}
+
+	waiting, err = models.Files(
 		models.FileWhere.Deletedat.IsNotNull(),
 		models.FileWhere.Deletedby.IsNull(),
 		qm.WithDeleted(),
 	).Count(ctx, exec)
-	return all, public, uploads, err
+
+	return total, public, waiting, err
 }
 
-// CategoryCount counts the files that match the named category.
-func CategoryCount(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	nils.BoilExecCrash(exec)
+// CountTags counts the files that match the named category and platform.
+func CountTags(ctx context.Context, exec boil.ContextExecutor, section, platform tags.Tag) (int64, error) {
+	const format = "count tags %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, fmt.Errorf(format, "check", err)
+	}
+
+	ss := section.String()
+	ps := platform.String()
+	if ss == "" {
+		return 0, fmt.Errorf(format, section, ErrName)
+	}
+	if ps == "" {
+		return 0, fmt.Errorf(format, platform, ErrName)
+	}
+	if section == platform {
+		return 0, fmt.Errorf(format, ss+" = "+ps, ErrName)
+	}
+
+	cmod := models.FileWhere.Section.EQ(null.StringFrom(ss))
+	pmod := models.FileWhere.Platform.EQ(null.StringFrom(ps))
+	n, err := models.Files(cmod, pmod).Count(ctx, exec)
+	if err != nil {
+		return 0, fmt.Errorf(format, ss+" + "+ps, err)
+	}
+
+	return n, nil
+}
+
+// CountPlatform counts the files that match the platform tag.
+func CountPlatform(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error) {
+	const format = "platform: %w"
+	n, err := plat.count(ctx, exec, tag)
+	if err != nil {
+		return 0, fmt.Errorf(format, err)
+	}
+
+	return n, nil
+}
+
+// CountSection counts the files that match the section tag.
+func CountSection(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error) {
+	const format = "section: %w"
+	n, err := sect.count(ctx, exec, tag)
+	if err != nil {
+		return 0, fmt.Errorf(format, err)
+	}
+
+	return n, nil
+}
+
+// SumReleaser sums the byte file sizes for all the files that match the named release or group.
+func SumReleaser(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
+	const format = "sum releaser %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, fmt.Errorf(format, "check", err)
+	}
+
 	if name == "" {
-		return 0, ErrName
+		return 0, fmt.Errorf(format, "no name", ErrName)
 	}
-	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
-	i, err := models.Files(mods).Count(ctx, exec)
+
+	hum, err := namer.Humanize(namer.Path(name))
 	if err != nil {
-		return 0, fmt.Errorf("count by category %q: %w", name, err)
+		return 0, fmt.Errorf(format, name, err)
 	}
-	return i, nil
+
+	s := strings.ToUpper(hum)
+	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(s))
+
+	n, err := models.Files(mods).Count(ctx, exec)
+	if err != nil {
+		return 0, fmt.Errorf(format, name, err)
+	}
+
+	return n, nil
 }
 
-// CategoryByteSum sums the byte file sizes for all the files that match the named category.
-func CategoryByteSum(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	nils.BoilExecCrash(exec)
-	if name == "" {
-		return 0, ErrName
-	}
-	var s Summary
-	mods := qm.SQL(string(postgres.SumSection()), null.StringFrom(name))
-	err := models.NewQuery(mods, qm.Select(postgres.SumSize)).Bind(ctx, exec, &s)
+// SumPlatform sums the file byte sizes of the files that match the platform tag.
+func SumPlatform(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error) {
+	const format = "platform: %w"
+	n, err := plat.sum(ctx, exec, tag)
 	if err != nil {
-		return 0, fmt.Errorf("byte count by category %q: %w", name, err)
+		return 0, fmt.Errorf(format, err)
 	}
-	return s.SumBytes.Int64, nil
+
+	return n, nil
 }
 
-// ClassificationCount counts the files that match the named category and platform.
-func ClassificationCount(ctx context.Context, exec boil.ContextExecutor, section, platform string) (int64, error) {
-	nils.BoilExecCrash(exec)
-	if section == "" || platform == "" {
-		return 0, ErrName
-	}
-	sect := models.FileWhere.Section.EQ(null.StringFrom(section))
-	plat := models.FileWhere.Platform.EQ(null.StringFrom(platform))
-	i, err := models.Files(sect, plat).Count(ctx, exec)
+// SumSection sums the file byte sizes of the files that match the section tag.
+func SumSection(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error) {
+	const format = "section: %w"
+	n, err := sect.sum(ctx, exec, tag)
 	if err != nil {
-		return 0, fmt.Errorf("count by classification %q %q: %w", section, platform, err)
+		return 0, fmt.Errorf(format, err)
 	}
-	return i, nil
+
+	return n, nil
 }
 
-// PlatformCount counts the files that match the named platform.
-func PlatformCount(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	nils.BoilExecCrash(exec)
-	if name == "" {
-		return 0, ErrName
+type category int
+
+const (
+	plat category = iota
+	sect
+)
+
+func (cat category) count(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error) {
+	const format = "count tag category %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, fmt.Errorf(format, "check", err)
 	}
-	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
-	i, err := models.Files(mods).Count(ctx, exec)
+
+	s := tag.String()
+	if s == "" {
+		return 0, fmt.Errorf(format, tag, ErrName)
+	}
+
+	var mod qm.QueryMod
+	switch cat {
+	case plat:
+		mod = models.FileWhere.Platform.EQ(null.StringFrom(s))
+	case sect:
+		mod = models.FileWhere.Section.EQ(null.StringFrom(s))
+	}
+
+	n, err := models.Files(mod).Count(ctx, exec)
 	if err != nil {
-		return 0, fmt.Errorf("count by platform %q: %w", name, err)
+		return 0, fmt.Errorf(format, tag, err)
 	}
-	return i, nil
+
+	return n, nil
 }
 
-// PlatformByteSum sums the byte file sizes for all the files that match the category name.
-func PlatformByteSum(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	nils.BoilExecCrash(exec)
-	if name == "" {
-		return 0, ErrName
+func (cat category) sum(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error) {
+	const format = "sum tag category %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, fmt.Errorf(format, "check", err)
 	}
-	mods := qm.SQL(string(postgres.SumPlatform()), null.StringFrom(name))
-	i, err := models.Files(mods).Count(ctx, exec)
-	if err != nil {
-		return 0, fmt.Errorf("byte count by platform %q: %w", name, err)
-	}
-	return i, nil
-}
 
-// ReleaserByteSum sums the byte file sizes for all the files that match the group name.
-func ReleaserByteSum(ctx context.Context, exec boil.ContextExecutor, name string) (int64, error) {
-	nils.BoilExecCrash(exec)
-	if name == "" {
-		return 0, ErrName
+	s := tag.String()
+	if s == "" {
+		return 0, fmt.Errorf(format, tag, ErrName)
 	}
-	s, err := namer.Humanize(namer.Path(name))
+
+	var mod qm.QueryMod
+	switch cat {
+	case plat:
+		mod = qm.SQL(string(postgres.SumPlatform()), null.StringFrom(s))
+	case sect:
+		mod = qm.SQL(string(postgres.SumSection()), null.StringFrom(s))
+	}
+
+	var obj Summary
+	err := models.NewQuery(mod, qm.Select(postgres.SumSize)).Bind(ctx, exec, &obj)
 	if err != nil {
-		return 0, fmt.Errorf("releaser byte sum namer humanize: %w", err)
+		return 0, fmt.Errorf(format, s, err)
 	}
-	n := strings.ToUpper(s)
-	mods := qm.SQL(string(postgres.SumGroup()), null.StringFrom(n))
-	i, err := models.Files(mods).Count(ctx, exec)
-	if err != nil {
-		return 0, fmt.Errorf("byte count by releaser %q: %w", name, err)
-	}
-	return i, nil
+
+	n := obj.SumBytes.Int64
+
+	return n, nil
 }
 
 // UUIDVers contains the UUID version usage statistics.
@@ -191,47 +280,58 @@ func (u UUIDVers) String() string {
 	return strings.Join(s, ", ")
 }
 
-// UUIDs returns the counts of the UUID versions in use, ranging from V1 to V8.
+// UUIDs counts the different UUID versions in use in the database, ranging from V1 to V8.
 func UUIDs(ctx context.Context, exec boil.ContextExecutor) (UUIDVers, error) {
-	const msg = "count uuids"
-	vers := UUIDVers{
-		V1: 0, V2: 0, V3: 0, V4: 0, V5: 0, V6: 0, V7: 0, V8: 0,
-		Count: 0, Error: 0, Unknown: 0,
+	const format = "count uuids %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return UUIDVers{}, fmt.Errorf(format, "check", err)
 	}
-	uuids, err := UUID(ctx, exec)
+
+	fs, err := UUID(ctx, exec)
 	if err != nil {
-		return vers, fmt.Errorf("%s: %w", msg, err)
+		return UUIDVers{}, fmt.Errorf(format, "all uuids", err)
+	}
+	if len(fs) == 0 {
+		return UUIDVers{}, nil
+	}
+
+	uuids := UUIDVers{
+		V1: 0, V2: 0, V3: 0, V4: 0, V5: 0, V6: 0, V7: 0, V8: 0, // counts
+		Count: 0, Error: 0, Unknown: 0, // stats
 	}
 
 	const v1, v2, v3, v4, v5, v6, v7, v8 = 1, 2, 3, 4, 5, 6, 7, 8
-	for val := range slices.Values(uuids) {
-		vers.Count++
-		s := val.UUID.String
+	for record := range slices.Values(fs) {
+		uuids.Count++
+
+		s := record.UUID.String
 		id, err := uuid.Parse(s)
 		if err != nil {
-			vers.Error++
+			uuids.Error++
 			continue
 		}
+
 		switch id.Version() {
 		case v1:
-			vers.V1++
+			uuids.V1++
 		case v2:
-			vers.V2++
+			uuids.V2++
 		case v3:
-			vers.V3++
+			uuids.V3++
 		case v4:
-			vers.V4++
+			uuids.V4++
 		case v5:
-			vers.V5++
+			uuids.V5++
 		case v6:
-			vers.V6++
+			uuids.V6++
 		case v7:
-			vers.V7++
+			uuids.V7++
 		case v8:
-			vers.V8++
+			uuids.V8++
 		default:
-			vers.Unknown++
+			uuids.Unknown++
 		}
 	}
-	return vers, nil
+
+	return uuids, nil
 }

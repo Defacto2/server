@@ -5,11 +5,11 @@ package model
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"fmt"
 	"io"
 	"math"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -28,137 +28,161 @@ import (
 // InsertDemozoo inserts a new file record into the database using a Demozoo production ID.
 // This will not check if the Demozoo production ID already exists in the database.
 // When successful the function will return the new record ID.
-func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, id int) (int64, string, error) {
-	nils.BoilExecCrash(exec)
-	if id < startID || id > DemozooSanity {
-		return 0, "", fmt.Errorf("%w: %d", ErrID, id)
+func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int) (key int64, unid string, err error) {
+	const format = "insert by demozoo %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, "", fmt.Errorf(format, "check", err)
 	}
-	now, uid, err := NewV7()
+	if prodID < startID || prodID > DemozooSanity {
+		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrID)
+	}
+
+	now, newUUID, err := NewV7()
 	if err != nil {
-		return 0, "", fmt.Errorf("insert demozoo uuid new v7: %w", err)
+		return 0, "", fmt.Errorf(format, "uuid v7", err)
 	}
+	unid = newUUID.String()
+
 	//nolint:exhaustruct // Only setting essential fields for database insertion
 	f := models.File{
-		UUID:         null.StringFrom(uid.String()),
-		WebIDDemozoo: null.Int64From(int64(math.Abs(float64(id)))),
+		UUID:         null.StringFrom(unid),
+		WebIDDemozoo: null.Int64From(int64(math.Abs(float64(prodID)))),
 		Deletedat:    null.TimeFromPtr(&now),
 	}
+
 	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
-		return 0, "", fmt.Errorf("insert demozoo infer: %w", err)
+		return 0, "", fmt.Errorf(format, "infer", err)
 	}
-	return f.ID, uid.String(), nil
+
+	key = f.ID
+
+	return key, unid, nil
 }
 
 // InsertPouet inserts a new file record into the database using a Pouet production ID.
 // This will not check if the Pouet production ID already exists in the database.
 // When successful the function will return the new record ID.
-func InsertPouet(ctx context.Context, exec boil.ContextExecutor, id int) (int64, string, error) {
-	nils.BoilExecCrash(exec)
-	if id < startID || id > pouet.Sanity {
-		return 0, "", fmt.Errorf("%w: %d", ErrID, id)
+func InsertPouet(ctx context.Context, exec boil.ContextExecutor, prodID int) (key int64, unid string, err error) {
+	const format = "insert by pouet %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, "", fmt.Errorf(format, "check", err)
 	}
-	now, uid, err := NewV7()
+	if prodID < startID || prodID > pouet.Sanity {
+		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrID)
+	}
+
+	now, newUUID, err := NewV7()
 	if err != nil {
-		return 0, "", fmt.Errorf("insert pouet uuid new v7: %w", err)
+		return 0, "", fmt.Errorf(format, "uuid v7", err)
 	}
+	unid = newUUID.String()
+
 	//nolint:exhaustruct // Only setting essential fields for database insertion
 	f := models.File{
-		UUID:       null.StringFrom(uid.String()),
-		WebIDPouet: null.Int64From(int64(math.Abs(float64(id)))),
+		UUID:       null.StringFrom(unid),
+		WebIDPouet: null.Int64From(int64(math.Abs(float64(prodID)))),
 		Deletedat:  null.TimeFromPtr(&now),
 	}
+
 	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
-		return 0, "", fmt.Errorf("insert pouet infer: %w", err)
+		return 0, "", fmt.Errorf(format, "infer", err)
 	}
-	return f.ID, uid.String(), nil
+
+	key = f.ID
+
+	return key, unid, nil
 }
 
 // InsertUpload inserts a new file record into the database using a URL values map.
 // This will not check if the file already exists in the database.
 // Invalid values will be ignored, but will not prevent the record from being inserted.
 // When successful the function will return the new record ID key and the UUID.
-func InsertUpload(ctx context.Context, tx *sql.Tx, values url.Values, key string) (int64, uuid.UUID, error) {
-	const msg = "insert upload"
-	noID := uuid.UUID{}
-	if err := nils.Check(ctx, tx); err != nil {
-		return 0, noID, fmt.Errorf("%s: %w", msg, err)
+func InsertUpload(ctx context.Context, exec boil.ContextExecutor, values url.Values, prefix string) (
+	key int64, unid uuid.UUID, err error,
+) {
+	none := uuid.UUID{}
+	const format = "insert upload %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, none, fmt.Errorf(format, "check", err)
 	}
-	if tx == nil {
-		return 0, noID, ErrDB
-	}
-	now, uid, err := NewV7()
+
+	now, unid, err := NewV7()
 	if err != nil {
-		return 0, noID, fmt.Errorf("%s uuid newv7: %w", msg, err)
+		return 0, none, fmt.Errorf(format, "uuid v7", err)
 	}
-	unique := null.StringFrom(uid.String())
-	if exist, err := UUIDExists(ctx, tx, uid.String()); err != nil {
-		return 0, noID, fmt.Errorf("%s uuid exists: %w", msg, err)
+	uid := unid.String()
+
+	unique := null.StringFrom(uid)
+	if exist, err := ExistUUID(ctx, exec, uid); err != nil {
+		return 0, none, fmt.Errorf(format, "uuid exists", err)
 	} else if exist {
-		return 0, noID, fmt.Errorf("%s %w, does the uuid already exist in the table?: %s", msg, ErrUUID, uid.String())
+		return 0, none, fmt.Errorf(format, uid, ErrUUID)
 	}
+
 	deleteT := null.TimeFromPtr(&now)
 	if !deleteT.Valid || deleteT.Time.IsZero() {
-		return 0, noID, fmt.Errorf("%s: %w: %v", msg, ErrTime, deleteT.Time)
+		return 0, none, fmt.Errorf(format+" %v", format, ErrTime, deleteT.Time)
 	}
 	createT := null.TimeFromPtr(&now)
 	if !createT.Valid || createT.Time.IsZero() {
-		return 0, noID, fmt.Errorf("%s: %w: %v", msg, ErrTime, createT.Time)
+		return 0, none, fmt.Errorf(format+" %v", format, ErrTime, createT.Time)
 	}
+
 	//nolint:exhaustruct // Only setting essential fields for database insertion
 	f := models.File{
 		UUID:      unique,
 		Deletedat: deleteT,
 		Createdat: createT,
 	}
-	f, err = upload(f, values, key)
+
+	f, err = validateUpload(f, values, prefix)
 	if err != nil {
-		return 0, noID, fmt.Errorf("%s uploader: %w", msg, err)
+		return 0, none, fmt.Errorf(format, "validation", err)
 	}
-	if err = f.Insert(ctx, tx, boil.Infer()); err != nil {
-		return 0, noID, fmt.Errorf("%s key %q: %w", msg, key, err)
+	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
+		return 0, none, fmt.Errorf(format, prefix, err)
 	}
-	if err = tx.Commit(); err != nil {
-		return 0, noID, fmt.Errorf("%s key %q tx.commit: %w", msg, key, err)
-	}
-	return f.ID, uid, nil
+
+	key = f.ID
+
+	return key, unid, nil
 }
 
-func upload(f models.File, values url.Values, key string) (models.File, error) {
-	youtube := ValidYouTube(values.Get(key + "-youtube"))
-	if !youtube.Valid {
-		return f, fmt.Errorf("upload valid youtube: %w", ErrYouTube)
+func validateUpload(f models.File, values url.Values, prefix string) (models.File, error) {
+	const format = "upload validate %s: %w"
+
+	if v := values.Get(prefix + "-youtube"); v != "" {
+		youtube := ValidYouTube(v)
+		if !youtube.Valid {
+			return f, fmt.Errorf(format, "youtube", ErrYouTube)
+		}
+		f.WebIDYoutube = youtube
 	}
+
 	releaser1, releaser2 := ValidReleasers(
-		values.Get(key+"-releaser1"),
-		values.Get(key+"-releaser2"),
+		values.Get(prefix+"-releaser1"),
+		values.Get(prefix+"-releaser2"),
 	)
-	title := ValidTitle(values.Get(key + "-title"))
+
+	title := ValidTitle(values.Get(prefix + "-title"))
+
 	year, month, day := ValidDateIssue(
-		values.Get(key+"-year"),
-		values.Get(key+"-month"),
-		values.Get(key+"-day"),
+		values.Get(prefix+"-year"),
+		values.Get(prefix+"-month"),
+		values.Get(prefix+"-day"),
 	)
-	fname := values.Get(key + "-filename")
+
+	fname := values.Get(prefix + "-filename")
 	filename := ValidFilename(fname)
 	if !filename.Valid || filename.IsZero() {
-		return f, fmt.Errorf("%w: %v", ErrName, key+"-filename is required")
+		return f, fmt.Errorf(format, prefix+"-filename is required", ErrName)
 	}
-	filesize, err := ValidFilesize(values.Get(key + "-size"))
+
+	filesize, err := ValidFilesize(values.Get(prefix + "-size"))
 	if err != nil {
-		return f, fmt.Errorf("upload valid file size: %w", err)
+		return f, fmt.Errorf(format, "file size", err)
 	}
-	content := ValidString(values.Get(key + "-content"))
-	readme := ValidFilename(values.Get(key + "-readme"))
-	filemagic := ValidMagic(values.Get(key + "-magic"))
-	integrity := ValidIntegrity(values.Get(key + "-integrity"))
-	lastMod := ValidLastMod(values.Get(key + "-lastmodified"))
-	platform := ValidPlatform(values.Get(key + "-operating-system"))
-	section := ValidSection(values.Get(key + "-category"))
-	creditT := ValidSceners(values.Get(key + "-credittext"))
-	creditI := ValidSceners(values.Get(key + "-creditill"))
-	creditP := ValidSceners(values.Get(key + "-creditprog"))
-	creditA := ValidSceners(values.Get(key + "-creditaudio"))
-	f.WebIDYoutube = youtube
+
 	f.GroupBrandFor = releaser1
 	f.GroupBrandBy = releaser2
 	f.RecordTitle = title
@@ -167,17 +191,33 @@ func upload(f models.File, values url.Values, key string) (models.File, error) {
 	f.DateIssuedDay = day
 	f.Filename = filename
 	f.Filesize = filesize
+
+	readme := ValidFilename(values.Get(prefix + "-readme"))
 	f.RetrotxtReadme = readme
+	filemagic := ValidMagic(values.Get(prefix + "-magic"))
 	f.FileMagicType = filemagic
+	integrity := ValidIntegrity(values.Get(prefix + "-integrity"))
 	f.FileIntegrityStrong = integrity
+
+	lastMod := ValidLastMod(values.Get(prefix + "-lastmodified"))
 	f.FileLastModified = lastMod
-	f.FileZipContent = fileZipFix(content)
+	content := ValidString(values.Get(prefix + "-content"))
+	f.FileZipContent = fixZIPEntries(content)
+
+	platform := ValidPlatform(values.Get(prefix + "-operating-system"))
+	section := ValidSection(values.Get(prefix + "-category"))
 	f.Platform = platform
 	f.Section = SiteAd(releaser1, section)
+
+	creditT := ValidSceners(values.Get(prefix + "-credittext"))
 	f.CreditText = creditT
+	creditI := ValidSceners(values.Get(prefix + "-creditill"))
 	f.CreditIllustration = creditI
+	creditP := ValidSceners(values.Get(prefix + "-creditprog"))
 	f.CreditProgram = creditP
+	creditA := ValidSceners(values.Get(prefix + "-creditaudio"))
 	f.CreditAudio = creditA
+
 	return f, nil
 }
 
@@ -187,45 +227,57 @@ func SiteAd(releaser, section null.String) null.String {
 	if !strings.EqualFold(section.String, tags.Nfo.String()) {
 		return section
 	}
+
 	rel := strings.TrimSpace(strings.ToLower(releaser.String))
 	if strings.HasSuffix(rel, " ftp") {
 		return null.StringFrom(tags.Ftp.String())
 	}
+
 	if strings.HasSuffix(rel, " bbs") {
 		return null.StringFrom(tags.BBS.String())
 	}
+
 	return section
 }
 
-// fileZipFix fixes the file content for ZIP files that have DOS file or directory names
-// encoded in CP437 or Windows-1252, which sometimes have invalid UTF-8 characters.
-func fileZipFix(content null.String) null.String {
+// fixZIPEntries fixes the file content for ZIP files that have DOS file or directory names
+// encoded in CP437 or Windows-1252, that sometimes have non-existent runes.
+func fixZIPEntries(content null.String) null.String {
 	if !content.Valid {
 		return content
 	}
-	s := content.String
-	p, err := decodeDOSNames([]byte(s))
+
+	p := []byte(content.String)
+	s, err := decodeEntries(p)
 	if err != nil {
 		return null.StringFrom("")
 	}
-	return null.StringFrom(string(p))
+
+	return null.StringFrom(string(s))
 }
 
-func decodeDOSNames(b []byte) ([]byte, error) {
-	if utf8.Valid(b) {
-		return b, nil
+// decode entries replaces any problematic code page characters with a "?".
+func decodeEntries(p []byte) ([]byte, error) {
+	const format = "decode entries: %w"
+	if utf8.Valid(p) {
+		return p, nil
 	}
+
 	// decoder := charmap.CodePage437.NewDecoder()
 	decoder := charmap.Windows1252.NewDecoder()
-	p, err := io.ReadAll(transform.NewReader(bytes.NewReader(b), decoder))
+	s, err := io.ReadAll(transform.NewReader(bytes.NewReader(p), decoder))
 	if err != nil {
-		return nil, fmt.Errorf("decode dos names: %w", err)
+		return nil, fmt.Errorf(format, err)
 	}
-	p = bytes.ToValidUTF8(p, []byte("?"))
-	return p, nil
+
+	s = bytes.ToValidUTF8(s, []byte("?"))
+
+	return s, nil
 }
 
-// NewV7 generates a new UUID version 7, if that fails then it will fallback to version 1.
+// NewV7 generates a new UUID version 7,
+// if it fails then it fallbacks to a UUID version 1.
+//
 // It also returns the current time.
 func NewV7() (time.Time, uuid.UUID, error) {
 	now := time.Now()
@@ -233,9 +285,12 @@ func NewV7() (time.Time, uuid.UUID, error) {
 	if err == nil {
 		return now, uid, nil
 	}
+
+	const format = "new uuid v7 %w: %w"
 	uid, err = uuid.NewUUID()
 	if err != nil {
-		return now, uuid.Nil, fmt.Errorf("%w: %w", ErrUUID, err)
+		return now, uuid.Nil, fmt.Errorf(format, ErrUUID, err)
 	}
+
 	return now, uid, nil
 }
