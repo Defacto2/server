@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
 	"github.com/google/uuid"
@@ -15,70 +16,39 @@ import (
 func TestInsertDemozoo(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-	tx0, err := db.BeginTx(t.Context(), nil)
-	be.Err(t, err, nil)
-
+	tx0 := testutil.Tx(t)
 	const newProd = 1000
 	key, unid, got := model.InsertDemozoo(t.Context(), tx0, newProd)
 	be.Err(t, got, nil)
 	be.True(t, key > 0)
 	be.Err(t, uuid.Validate(unid), nil)
-
-	err = tx0.Rollback()
-	be.Err(t, err, nil)
 }
 
 func TestInsertPouet(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-	tx0, err := db.BeginTx(t.Context(), nil)
-	be.Err(t, err, nil)
-
+	tx0 := testutil.Tx(t)
 	const newProd = 1000
 	key, unid, got := model.InsertPouet(t.Context(), tx0, newProd)
 	be.Err(t, got, nil)
 	be.True(t, key > 0)
 	be.Err(t, uuid.Validate(unid), nil)
-
-	err = tx0.Rollback()
-	be.Err(t, err, nil)
 }
 
 func TestInsertUpload(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-	tx0, err := db.BeginTx(t.Context(), nil)
-	be.Err(t, err, nil)
-
+	tx0 := testutil.Tx(t)
 	_, _, got := model.InsertUpload(t.Context(), tx0, url.Values{}, "")
 	be.Err(t, got)
-	err = tx0.Rollback()
-	be.Err(t, err, nil)
 
-	tx1, err := db.BeginTx(t.Context(), nil)
-	be.Err(t, err, nil)
-
+	tx1 := testutil.Tx(t)
 	values := url.Values{}
 	values.Add("test-filename", "testfile")
 	values.Add("test-youtube", "")
 	key, _, got := model.InsertUpload(t.Context(), tx1, values, "test")
 	be.Err(t, got, nil)
 	be.True(t, key > 0)
-
-	err = tx1.Rollback()
-	be.Err(t, err, nil)
 }
 
 func TestSiteAd(t *testing.T) {

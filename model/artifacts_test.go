@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
 	"github.com/nalgeon/be"
@@ -12,10 +13,7 @@ import (
 func TestArtifacts(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
+	db := testutil.DB(t)
 
 	art := model.Artifacts{}
 	err := art.Public(nil, nil)
@@ -66,11 +64,7 @@ func TestArtifacts(t *testing.T) {
 func TestOnlys(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	const limit = 3
 
 	got, err := model.OnlyHidden(t.Context(), db, 0, limit)
@@ -112,11 +106,7 @@ func TestOnlys(t *testing.T) {
 func TestOnlyUniqueIDs(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	got, err := model.OnlyUniqueIDs(t.Context(), db, nil, uuid.UUID{})
 	be.Err(t, err, nil)
 	be.True(t, len(got) == 0)
@@ -154,11 +144,7 @@ func TestOnlyUniqueIDs(t *testing.T) {
 func TestOnlyTexts(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	got, err := model.OnlyTexts(t.Context(), db)
 	be.Err(t, err, nil)
 	be.True(t, len(got) > 2)
@@ -167,11 +153,7 @@ func TestOnlyTexts(t *testing.T) {
 func TestOnlyMagicErrs(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	// depending on the database, this could return zero records if all magic numbers are updated
 	_, err := model.OnlyMagicErrs(t.Context(), db, false)
 	be.Err(t, err, nil)

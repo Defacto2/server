@@ -2,38 +2,17 @@ package fix_test
 
 import (
 	"context"
-	"database/sql"
 	"log/slog"
 	"strings"
 	"testing"
 
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model/fix"
 	"github.com/nalgeon/be"
 )
 
 // checked in Aug 26, test coverage was fine at around 60%+
-
-func openDB(t *testing.T) *sql.DB {
-	db, err := postgres.Open()
-	if err != nil {
-		t.Log("postgres open", err)
-		return nil
-	}
-
-	if err := db.Ping(); err != nil {
-		return nil
-	}
-
-	t.Cleanup(func() {
-		if err := db.Close(); err != nil {
-			t.Log("cleanup database", err)
-		}
-	})
-
-	return db
-}
 
 func TestRepairRunInvalid(t *testing.T) {
 	t.Parallel()
@@ -52,30 +31,15 @@ func TestRepairRunInvalid(t *testing.T) {
 func TestRepairArtifactsRun(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
+	tx := testutil.Tx(t)
 	sl := slog.Default()
-
-	// artifacts transaction
-	tx, err := db.BeginTx(t.Context(), nil)
-	be.Err(t, err, nil)
 
 	got := fix.Artifacts.Run(t.Context(), sl, nil, tx)
 	be.Err(t, got, nil)
 
-	_ = tx.Rollback()
-
-	// releaser transaction
-	tx, err = db.BeginTx(t.Context(), nil)
-	be.Err(t, err, nil)
-
 	got = fix.Releaser.Run(t.Context(), sl, db, tx)
 	be.Err(t, got, nil)
-
-	_ = tx.Rollback()
 }
 
 func TestGetNumericSuffix(t *testing.T) {
@@ -90,10 +54,7 @@ func TestGetNumericSuffix(t *testing.T) {
 	_, err = fix.NumSuffix(t.Context(), nil)
 	be.Err(t, err)
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
+	db := testutil.DB(t)
 
 	_, err = fix.NumSuffix(nil, db)
 	be.Err(t, err)
@@ -110,10 +71,7 @@ func TestSyncFilesIDSeqNoDB(t *testing.T) {
 	got := fix.SyncFilesIDSeq(nil)
 	be.Err(t, got)
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
+	db := testutil.DB(t)
 
 	got = fix.SyncFilesIDSeq(db)
 	be.Err(t, got, nil)

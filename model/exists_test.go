@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
@@ -13,11 +14,7 @@ import (
 func TestExist(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	const key = 108
 	ok, err := model.ExistDemozoo(t.Context(), db, key)
 	be.Err(t, err, nil)

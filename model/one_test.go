@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
@@ -15,11 +16,7 @@ func TestOnes(t *testing.T) {
 	be.Err(t, got)
 	be.Equal(t, fs, nil)
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	_, got = model.One(t.Context(), db, false, 0)
 	be.Err(t, got)
 
@@ -42,11 +39,7 @@ func TestOnes(t *testing.T) {
 func TestProdID(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	del, key, got := model.OneDemozoo(t.Context(), db, 0)
 	be.Err(t, got, nil)
 	be.True(t, !del)

@@ -3,6 +3,7 @@ package model_test
 import (
 	"testing"
 
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
@@ -17,11 +18,7 @@ func TestByDescription(t *testing.T) {
 	got = s1.ByDescription(t.Context(), nil, []string{})
 	be.Err(t, got)
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	got = s1.ByDescription(t.Context(), db, []string{})
 	be.Err(t, got)
 
@@ -56,11 +53,7 @@ func TestByFilename(t *testing.T) {
 	got = s1.ByFilename(t.Context(), nil, []string{})
 	be.Err(t, got)
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	got = s1.ByFilename(t.Context(), db, []string{})
 	be.Err(t, got)
 
@@ -84,11 +77,7 @@ func TestByFilename(t *testing.T) {
 func TestByScener(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	s1 := model.Summary{}
 	got := s1.ByScener(t.Context(), db, "")
 	be.Err(t, got, nil)
@@ -117,11 +106,7 @@ func TestByScener(t *testing.T) {
 func TestByReleaser(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	s1 := model.Summary{}
 	got := s1.ByReleaser(t.Context(), db, "")
 	be.Err(t, got)
@@ -149,11 +134,7 @@ func TestByReleaser(t *testing.T) {
 func TestByMatch(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	s1 := model.Summary{}
 	got := s1.ByMatch(t.Context(), db, "")
 	be.Err(t, got)
@@ -174,11 +155,7 @@ func TestByMatch(t *testing.T) {
 func TestByMatches(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	for n, key := range model.Keys() {
 		uri := string(key)
 		t.Run("summary of "+uri, func(t *testing.T) {

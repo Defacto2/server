@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
@@ -11,11 +12,7 @@ import (
 func TestCount(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	got, err := model.Count(nil, nil)
 	be.Err(t, err)
 	be.Equal(t, got, 0)
@@ -75,11 +72,7 @@ func TestCount(t *testing.T) {
 func TestUUIDs(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	got, err := model.UUIDs(nil, nil)
 	be.Err(t, err)
 	be.True(t, got == model.UUIDVers{})

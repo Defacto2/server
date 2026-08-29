@@ -24,7 +24,7 @@ func VStrings(t *testing.T, tests vstrings, fn func(string) null.String) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			t.Helper()
+			t.Parallel()
 			got := fn(tt.input)
 			be.Equal(t, got.Valid, tt.want)
 			be.Equal(t, got.String, tt.wantS)
@@ -42,7 +42,7 @@ func VTimes(t *testing.T, tests vtimes, fn func(string) null.Time) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			t.Helper()
+			t.Parallel()
 			got := fn(tt.input)
 			be.Equal(t, got.Valid, tt.want)
 			if got.Valid {
@@ -72,7 +72,7 @@ func VDates(t *testing.T, tests vdates,
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Helper()
+			t.Parallel()
 			goty, gotm, gotd := fn(tt.year, tt.month, tt.day)
 			be.Equal(t, goty.Valid, tt.validY)
 			be.Equal(t, gotm.Valid, tt.validM)

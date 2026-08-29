@@ -130,7 +130,9 @@ func TestRecordProblems(t *testing.T) {
 	x := models.File{}
 	s := filerecord.RecordProblems(&x)
 	errs := strings.Split(s, "+")
-	be.True(t, len(errs) == 4)
+
+	const want = 5
+	be.True(t, len(errs) == want)
 }
 
 func TestReadme(t *testing.T) {

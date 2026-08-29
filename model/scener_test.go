@@ -3,6 +3,7 @@ package model_test
 import (
 	"testing"
 
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
 )
@@ -15,11 +16,7 @@ func TestScener(t *testing.T) {
 	be.Err(t, got)
 	be.True(t, len(fs) == 0)
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	fs, got = s.Where(t.Context(), db, "")
 	be.Err(t, got, nil)
 	be.True(t, len(fs) == 0)
@@ -38,11 +35,7 @@ func TestScener(t *testing.T) {
 func TestSceners(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	var d1 model.Sceners
 	got := d1.Distinct(t.Context(), db)
 	be.Err(t, got, nil)

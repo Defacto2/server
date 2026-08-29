@@ -9,6 +9,7 @@ import (
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model/html3"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
@@ -17,26 +18,6 @@ import (
 
 // checked in Aug 26, test coverage was good at around 75%+
 
-func openDB(t *testing.T) *sql.DB {
-	db, err := postgres.Open()
-	if err != nil {
-		t.Log("postgres open", err)
-		return nil
-	}
-
-	if err := db.Ping(); err != nil {
-		return nil
-	}
-
-	t.Cleanup(func() {
-		if err := db.Close(); err != nil {
-			t.Log("cleanup database", err)
-		}
-	})
-
-	return db
-}
-
 func TestArts(t *testing.T) {
 	t.Parallel()
 
@@ -44,10 +25,7 @@ func TestArts(t *testing.T) {
 	got := arts.Stat(context.TODO(), nil)
 	be.Err(t, got)
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
+	db := testutil.DB(t)
 	got = arts.Stat(t.Context(), db)
 	be.Err(t, got, nil)
 	be.True(t, arts.Bytes > 0)
@@ -72,11 +50,7 @@ func TestArtsOrder(t *testing.T) {
 	_, got := html3.NameAsc.Art(context.TODO(), nil, 0, 0)
 	be.Err(t, got)
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	fs, got := html3.NameAsc.Art(t.Context(), db, 0, 1)
 	be.Err(t, got, nil)
 	be.True(t, len(fs) == 1)
@@ -97,11 +71,7 @@ func TestArtsOrder(t *testing.T) {
 func TestDocument(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	fs, got := html3.NameDes.Document(t.Context(), db, 0, 1)
 	be.Err(t, got, nil)
 	be.True(t, len(fs) == 1)
@@ -110,11 +80,7 @@ func TestDocument(t *testing.T) {
 func TestEverything(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	fs, got := html3.PublAsc.Everything(t.Context(), db, 0, 1)
 	be.Err(t, got, nil)
 	be.True(t, len(fs) == 1)
@@ -123,11 +89,7 @@ func TestEverything(t *testing.T) {
 func TestSoftware(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	fs, got := html3.PublDes.Software(t.Context(), db, 0, 1)
 	be.Err(t, got, nil)
 	be.True(t, len(fs) == 1)
@@ -136,11 +98,7 @@ func TestSoftware(t *testing.T) {
 func TestByCategory(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	const none = ""
 	fs, got := html3.DescDes.ByCategory(t.Context(), db, 0, 1, none)
 	be.Err(t, got, nil)
@@ -160,11 +118,7 @@ func TestByCategory(t *testing.T) {
 func TestByGroup(t *testing.T) {
 	t.Parallel()
 
-	db := openDB(t)
-	if db == nil {
-		return
-	}
-
+	db := testutil.DB(t)
 	const none = ""
 	fs, got := html3.SizeDes.ByGroup(t.Context(), db, 0, 1, none)
 	be.Err(t, got, nil)
