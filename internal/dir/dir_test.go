@@ -3,6 +3,7 @@ package dir_test
 import (
 	"errors"
 	"os"
+	"strings"
 	"testing"
 	"testing/fstest"
 
@@ -325,4 +326,42 @@ func TestIsTemp(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMkdirStale(t *testing.T) {
+	t.Parallel()
+
+	random, err := dir.MkdirStale("")
+	be.Err(t, err, nil)
+
+	st, err := os.Stat(random)
+	be.Err(t, err, nil)
+	be.True(t, st.IsDir())
+
+	const include = "hello_world"
+	prefix, err := dir.MkdirStale(include)
+	be.Err(t, err, nil)
+	be.True(t, strings.Contains(prefix, include))
+
+	st, err = os.Stat(prefix)
+	be.Err(t, err, nil)
+	be.True(t, st.IsDir())
+
+	const smiley = "hello🙂world"
+	emoji, err := dir.MkdirStale(smiley)
+	be.Err(t, err, nil)
+	be.True(t, strings.Contains(emoji, smiley))
+
+	st, err = os.Stat(emoji)
+	be.Err(t, err, nil)
+	be.True(t, st.IsDir())
+
+	t.Cleanup(func() {
+		err := dir.RemoveAll(random)
+		be.Err(t, err, nil)
+		err = dir.RemoveAll(prefix)
+		be.Err(t, err, nil)
+		err = dir.RemoveAll(emoji)
+		be.Err(t, err, nil)
+	})
 }

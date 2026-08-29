@@ -19,8 +19,9 @@ import (
 // Checks runs a number of sanity checks for the environment variable configurations.
 func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 	const msg = "Config directory"
+	const format = "config checks %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, "arguments", err)
 	}
 
 	c.checkHTTP(ctx, sl)
@@ -77,7 +78,7 @@ func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 			slog.Any("error", err))
 	}
 	if err := conn.Validate(sl); err != nil {
-		panic(fmt.Errorf("%s conn validate: %w", msg, err))
+		panic(fmt.Errorf(format, "conn validate", err))
 	}
 
 	return nil

@@ -1,4 +1,6 @@
 // Package extensions provides a list of file extensions used by some functions in app.
+//
+//nolint:gochecknoglobals
 package extensions
 
 const (
@@ -11,7 +13,6 @@ const (
 	webp = ".webp"
 )
 
-//nolint:gochecknoglobals
 var (
 	archiveExts  = []string{fzip, ".rar", ".7z", ".tar", ".lha", ".lzh", ".arc", ".arj", ".ace"}
 	documentExts = []string{

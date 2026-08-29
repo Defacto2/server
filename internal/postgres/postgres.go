@@ -29,15 +29,20 @@ const (
 )
 
 // Connections returns the number of active connections and the maximum allowed connections.
+// Negative values are returned if there is an error.
 func Connections(db *sql.DB) (active, maxConn int64, err error) { //nolint:nonamedreturns
+	const format = "postgresql connections: %w"
+	if err := nils.Check(db); err != nil {
+		return -1, -1, fmt.Errorf(format, err)
+	}
 	// query active connections for current DB and max_connections in a single round-trip
 	const query = `
 		SELECT 
 			(SELECT COUNT(*) FROM pg_stat_activity WHERE datname = current_database()),
 			(SELECT setting::bigint FROM pg_settings WHERE name = 'max_connections');`
 
-	if err := db.QueryRow(query).Scan(&active, &maxConn); err != nil { //nolint:noctx
-		return 0, 0, fmt.Errorf("postgres connections query: %w", err)
+	if err := db.QueryRow(query).Scan(&active, &maxConn); err != nil {
+		return -1, -1, fmt.Errorf(format, err)
 	}
 
 	return active, maxConn, nil

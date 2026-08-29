@@ -12,6 +12,7 @@ import (
 const perm = 0o600
 
 func TestRemove(t *testing.T) {
+	// TestRemove cannot be run in parallel.
 	tmpdiz := filepath.Join(t.TempDir(), "file_id.diz")
 	tmptxt := filepath.Join(t.TempDir(), "readme.txt")
 	tests := []struct {

@@ -17,10 +17,10 @@ import (
 const Pattern = "df2app"
 
 var (
-	ErrFile   = errors.New("file error")
-	ErrSave   = errors.New("save error")
-	ErrNoPath = errors.New("the directory path is not set")
-	ErrNoDir  = errors.New("the directory path does not exist")
+	ErrFile   = errors.New("dir: file error")
+	ErrSave   = errors.New("dir: save error")
+	ErrNoPath = errors.New("dir: directory path is not set")
+	ErrNoDir  = errors.New("dir: directory path does not exist")
 )
 
 // Directory is a string type that represents an internal server directory path.
@@ -65,10 +65,12 @@ func (d Directory) Check(sl *slog.Logger) error {
 // IsDir returns an error if the path does not exists or is not a directory.
 func (d Directory) IsDir() error {
 	const format = "directory isdir: %w"
+
 	path := d.Path()
 	if path == "" {
 		return ErrNoPath
 	}
+
 	st, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -87,9 +89,11 @@ func (d Directory) IsDir() error {
 // representing the directory paths.
 func Paths(d ...Directory) []string {
 	paths := make([]string, len(d))
+
 	for i, dir := range d {
 		paths[i] = dir.Path()
 	}
+
 	return paths
 }
 
@@ -104,6 +108,8 @@ func Paths(d ...Directory) []string {
 //	Output:
 //	/tmp/df2app-abc-d83gsddb34
 func MkdirTemp(pattern string) (string, error) {
+	const format = "dir mkdir temp: %w"
+
 	if pattern != "" {
 		pattern = Pattern + "-" + pattern + "-*"
 	} else {
@@ -111,8 +117,9 @@ func MkdirTemp(pattern string) (string, error) {
 	}
 	s, err := os.MkdirTemp(os.TempDir(), pattern)
 	if err != nil {
-		return "", fmt.Errorf("dir mkdir temp: %w", err)
+		return "", fmt.Errorf(format, err)
 	}
+
 	return s, nil
 }
 
@@ -125,6 +132,8 @@ func MkdirTemp(pattern string) (string, error) {
 // The returned string is the path to an existing
 // or the newly created temporary directory.
 func MkdirStale(path string) (string, error) {
+	const format = "dir mkdir stale: %w"
+
 	const random = "-*"
 	var pattern string
 	base := filepath.Base(path)
@@ -151,7 +160,7 @@ func MkdirStale(path string) (string, error) {
 	if strings.HasSuffix(pattern, random) {
 		s, err := os.MkdirTemp(os.TempDir(), pattern)
 		if err != nil {
-			return "", fmt.Errorf("dir mkdir stale: %w", err)
+			return "", fmt.Errorf(format, err)
 		}
 		return s, nil
 	}
@@ -159,8 +168,9 @@ func MkdirStale(path string) (string, error) {
 	const perm = 0o700 // match os.MkdirTemp defaults
 	err = os.MkdirAll(newpath, perm)
 	if err != nil {
-		return "", fmt.Errorf("dir mkdir stale: %w", err)
+		return "", fmt.Errorf(format, err)
 	}
+
 	return newpath, nil
 }
 
@@ -169,10 +179,10 @@ func MkdirStale(path string) (string, error) {
 // in a subdirectory created using [MkdirTemp].
 func CreateTemp(pattern string) (*os.File, error) {
 	const format = "dir create temp %s: %w"
+
 	if pattern == "" {
 		pattern = Pattern + "-*"
 	}
-
 	path, err := MkdirTemp("createtemp")
 	if err != nil {
 		return nil, fmt.Errorf(format, "mkdir", err)
@@ -255,7 +265,7 @@ func RemoveAll(name string) error {
 	}
 
 	if err := root.RemoveAll(relPath); err != nil {
-		return fmt.Errorf(format, "root-scoped removal", err)
+		return fmt.Errorf(format, "root scope removal", err)
 	}
 
 	return nil

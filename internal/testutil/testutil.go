@@ -2,9 +2,12 @@
 package testutil
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"errors"
+	"log/slog"
+	"strings"
 	"sync"
 	"testing"
 
@@ -77,4 +80,39 @@ func Connections(tb testing.TB) {
 		tb.Fatalf("connections err: %v", err)
 	}
 	tb.Log("active database connections:", a, "maximum:", m)
+}
+
+type Logger struct {
+	tb  testing.TB
+	buf *bytes.Buffer
+	Log *slog.Logger
+}
+
+func Buffer(tb testing.TB) *Logger {
+	tb.Helper()
+
+	opts := &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}
+
+	var w bytes.Buffer
+	return &Logger{
+		tb:  tb,
+		buf: &w,
+		Log: slog.New(slog.NewTextHandler(&w, opts)),
+	}
+}
+
+func (l *Logger) String() string {
+	return l.buf.String()
+}
+
+func (l *Logger) Reset() {
+	l.buf.Reset()
+}
+
+func (l *Logger) Contains(substr string) bool {
+	l.tb.Helper()
+
+	return strings.Contains(l.buf.String(), substr)
 }

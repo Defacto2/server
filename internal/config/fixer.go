@@ -17,6 +17,7 @@ import (
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
+	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
@@ -58,9 +59,6 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 	}
 
 	c.fix(ctx, sl, db)
-	if err := nils.Check(ctx, sl); err != nil {
-		sl.Error(msg, slog.Any("error", err))
-	}
 	TempInfo(sl)
 
 	sl.Info(msg, slog.String("task", "Time taken"),
@@ -116,13 +114,13 @@ func CheckDir(name dir.Directory, desc string) error {
 }
 
 // RecordCount returns the number of records in the database.
-func RecordCount(ctx context.Context, db *sql.DB) int64 {
-	const msg = "record count"
-	if err := nils.Check(ctx, db); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+func RecordCount(ctx context.Context, exec boil.ContextExecutor) int64 {
+	const format = "record count: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		panic(fmt.Errorf(format, err))
 	}
 
-	n, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, db)
+	n, err := models.Files(qm.Where(model.ClauseNoSoftDel)).Count(ctx, exec)
 	if err != nil {
 		return 0
 	}

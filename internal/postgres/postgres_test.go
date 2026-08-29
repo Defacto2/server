@@ -6,103 +6,107 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
-// TestDefaultURL verifies the default connection URL format.
 func TestDefaultURL(t *testing.T) {
 	be.True(t, strings.HasPrefix(postgres.DefaultURL, "postgres://"))
 	be.True(t, strings.Contains(postgres.DefaultURL, "localhost"))
 	be.True(t, strings.Contains(postgres.DefaultURL, "defacto2_ps"))
 }
 
-// TestDriverName verifies the driver name is correct.
 func TestDriverName(t *testing.T) {
 	be.Equal(t, "pgx", postgres.DriverName)
 }
 
-// TestProtocol verifies the protocol name is correct.
 func TestProtocol(t *testing.T) {
 	be.Equal(t, "postgres", postgres.Protocol)
 }
 
-// TestErrEnvValue verifies the error value is defined.
 func TestErrEnvValue(t *testing.T) {
 	be.True(t, len(postgres.ErrEnvValue.Error()) > 0)
 	be.True(t, strings.Contains(postgres.ErrEnvValue.Error(), "environment"))
 }
 
-// TestConnectionValidate tests the Connection.Validate method.
-func TestConnectionValidate(t *testing.T) {
-	logger := slog.Default()
+func TestConnValidate(t *testing.T) {
+	sl := slog.Default()
 
 	tests := []struct {
-		name        string
-		url         string
-		shouldError bool
+		name string
+		url  string
+		want bool
 	}{
-		{ //nolint:gosec
-			name:        "valid URL",
-			url:         "postgres://testuser:testpass@localhost:5432/testdb",
-			shouldError: false,
+		{
+			name: "valid URL",
+			url:  "postgres://testuser:testpass@localhost:5432/testdb",
+			want: false,
 		},
 		{
-			name:        "empty URL",
-			url:         "",
-			shouldError: false,
+			name: "empty URL",
+			url:  "",
+			want: false,
 		},
 		{
-			name:        "invalid URL scheme",
-			url:         "mysql://localhost/db",
-			shouldError: false, // Validate logs warnings but doesn't error
+			name: "invalid URL scheme",
+			url:  "mysql://localhost/db",
+			want: false,
 		},
 		{
-			name:        "malformed URL",
-			url:         "ht!tp://[invalid",
-			shouldError: false, // Invalid URL format, but Validate handles gracefully
+			name: "malformed URL",
+			url:  "ht!tp://[invalid",
+			want: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			conn := postgres.Connection{URL: tt.url}
-			err := conn.Validate(logger)
+			err := conn.Validate(sl)
 
-			if tt.shouldError {
-				be.True(t, err != nil)
+			if tt.want {
+				be.Err(t, err)
 			} else {
-				be.Equal(t, nil, err)
+				be.Err(t, err, nil)
 			}
 		})
 	}
 }
 
-// TestConnectionValidateNilLogger tests Validate with nil logger.
-func TestConnectionValidateNilLogger(t *testing.T) {
-	conn := postgres.Connection{URL: "postgres://localhost"}
-	err := conn.Validate(nil)
-	be.True(t, err != nil)
-}
-
-// TestNew tests the New connection initialization.
 func TestNew(t *testing.T) {
-	conn, err := postgres.New()
-
-	be.Equal(t, nil, err)
+	conn, got := postgres.New()
+	be.Err(t, got, nil)
 	be.True(t, len(conn.URL) > 0)
 	// Should use default URL when no env var is set
 	be.True(t, strings.HasPrefix(conn.URL, "postgres://") || conn.URL == postgres.DefaultURL)
 }
 
-// TestConnectionStruct tests the Connection struct fields.
-func TestConnectionStruct(t *testing.T) {
+func TestConnection(t *testing.T) {
 	conn := postgres.Connection{URL: "postgres://test"}
-	be.Equal(t, "postgres://test", conn.URL)
+	be.Equal(t, conn.URL, "postgres://test")
 }
 
-// TestVersionQuery tests Version with nil database.
-func TestVersionQuery_NilDB(t *testing.T) {
-	var v postgres.Version
-	err := v.Query(nil)
-	be.Equal(t, nil, err)
+func TestVersion(t *testing.T) {
+	var ver postgres.Version
+	got := ver.Query(nil)
+	be.Err(t, got, nil)
+
+	db := testutil.DB(t)
+	got = ver.Query(db)
+	be.Err(t, got, nil)
+	be.True(t, strings.Contains(ver.String(), "PostgreSQL"))
+}
+
+func TestConnections(t *testing.T) {
+	t.Parallel()
+
+	db := testutil.DB(t)
+
+	_, _, err := postgres.Connections(nil)
+	be.Err(t, err)
+
+	x, y, err := postgres.Connections(db)
+	be.Err(t, err, nil)
+	be.True(t, x > 0)
+	be.True(t, y > 0)
 }

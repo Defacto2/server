@@ -12,12 +12,13 @@ import (
 
 const (
 	// NameErr is the filename of the Error and Fatal levels log.
-	NameErr = pname + "_error.json.log"
+	NameErr = prefix + "_error.json.log"
 	// NameInfo is the filename of the Warning and Info level log.
-	NameInfo = pname + "_info.json.log"
+	NameInfo = prefix + "_info.json.log"
 	// NameDebug is the filename of the Debug level log.
-	NameDebug = pname + "_debug.json.log"
-	pname     = "defacto2_serve" // prefix name for log files
+	NameDebug = prefix + "_debug.json.log"
+
+	prefix = "defacto2_serve" // prefix name for log files
 )
 
 // Files is used to write log files to multiple locations in parallel.
@@ -33,27 +34,32 @@ type Files struct {
 // Close the open file descriptors in use by Files.
 // Any errors will be joined and returned.
 func (f Files) Close() error {
-	const msg = "logs files close"
 	const format = "%s level: %w"
 	var errs []error
+
 	if f.errlevel != nil {
 		if err := f.errlevel.Close(); err != nil {
 			errs = append(errs, fmt.Errorf(format, "error", err))
 		}
 	}
+
 	if f.infolevel != nil {
 		if err := f.infolevel.Close(); err != nil {
 			errs = append(errs, fmt.Errorf(format, "info", err))
 		}
 	}
+
 	if f.debuglevel != nil {
 		if err := f.debuglevel.Close(); err != nil {
 			errs = append(errs, fmt.Errorf(format, "debug", err))
 		}
 	}
+
 	if len(errs) > 0 {
-		return fmt.Errorf("%s: %w", msg, errors.Join(errs...))
+		const format = "logs files close: %w"
+		return fmt.Errorf(format, errors.Join(errs...))
 	}
+
 	return nil
 }
 
@@ -71,12 +77,15 @@ func (f Files) Close() error {
 //
 // File descriptors ignore the provided stdmin slog level.
 func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
-	useStdout, useStderr := flag&Lstdout != 0, flag&Lstderr != 0
+	useStdout := flag&Lstdout != 0
+	useStderr := flag&Lstderr != 0
 	if f.errlevel == nil && f.infolevel == nil && f.debuglevel == nil && !useStderr && !useStdout {
 		return Discard()
 	}
+
 	const maxLogHandlers = 5
 	handlers := make([]slog.Handler, 0, maxLogHandlers)
+
 	if f.errlevel != nil {
 		handlers = append(handlers, slog.NewJSONHandler(f.errlevel, &slog.HandlerOptions{
 			Level:       LevelError,
@@ -84,6 +93,7 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 			ReplaceAttr: nil,
 		}))
 	}
+
 	if f.infolevel != nil {
 		handlers = append(handlers, slog.NewJSONHandler(f.infolevel, &slog.HandlerOptions{
 			Level:       LevelInfo,
@@ -91,6 +101,7 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 			ReplaceAttr: nil,
 		}))
 	}
+
 	if f.debuglevel != nil {
 		handlers = append(handlers, slog.NewJSONHandler(f.debuglevel, &slog.HandlerOptions{
 			Level:       LevelDebug,
@@ -98,10 +109,12 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 			ReplaceAttr: nil,
 		}))
 	}
+
 	if !useStdout && !useStderr {
 		sl := slog.New(slogmulti.Fanout(handlers...))
 		return sl
 	}
+
 	opts := tintOptions(stdmin, flag)
 	if useStdout {
 		handlers = append(handlers, tint.NewTextHandler(os.Stdout, &opts))
@@ -110,6 +123,7 @@ func (f Files) New(stdmin slog.Level, flag int) *slog.Logger {
 		handlers = append(handlers, tint.NewTextHandler(os.Stderr, &opts))
 	}
 	sl := slog.New(slogmulti.Fanout(handlers...))
+
 	return sl
 }
 
@@ -136,8 +150,7 @@ func NoFiles() Files {
 // If any errors occur they will be returned as a wrapped error and
 // must be handled appropriately.
 func OpenFiles(root, ename, iname, dname string) (Files, error) {
-	const msg = "logs open file"
-	const format = msg + " %s: %w"
+	const format = "logs open file %s: %w"
 	const flag = os.O_CREATE | os.O_APPEND | os.O_WRONLY
 	const perm = 0o644
 
@@ -156,6 +169,7 @@ func OpenFiles(root, ename, iname, dname string) (Files, error) {
 	defer func() {
 		_ = r.Close()
 	}()
+
 	var files Files
 	var errs []error
 
@@ -177,7 +191,8 @@ func OpenFiles(root, ename, iname, dname string) (Files, error) {
 
 	if err := errors.Join(errs...); err != nil {
 		_ = files.Close()
-		return Files{}, fmt.Errorf("%s: %w", msg, err)
+		const format = "logs open file: %w"
+		return Files{}, fmt.Errorf(format, err)
 	}
 
 	return files, nil

@@ -36,8 +36,8 @@ func (f File) Issue() string {
 	if errors.Is(err, os.ErrNotExist) {
 		return "File does not exist"
 	}
-	if errors.Is(err, ErrNotDir) {
-		return "File path points to a file and cannot be used"
+	if errors.Is(err, ErrNotFile) {
+		return "File path points to a directory and cannot be used"
 	}
 	if errors.Is(err, fs.ErrPermission) {
 		return "File cannot be accessed due to permission denied"

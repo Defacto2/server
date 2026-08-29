@@ -1,5 +1,7 @@
 // Package nils provides checks to help avoid panics caused by named functions
 // using empty arguments, or nil pointers.
+//
+//nolint:exhaustive
 package nils
 
 import (
@@ -61,10 +63,9 @@ func Check(args ...any) error {
 		if err := exactInterface(n, argType); err != nil {
 			return err
 		}
-		if err := pointers(n, argType); err != nil {
-			return err
-		}
+		return pointers(n, argType)
 	}
+
 	return nil
 }
 
@@ -76,6 +77,7 @@ func exactInterface(n int, argType reflect.Type) error {
 	case argType.Implements(reflect.TypeFor[boil.ContextExecutor]()):
 		return fmt.Errorf(format, n, ErrBoil)
 	}
+
 	return nil
 }
 
@@ -127,6 +129,7 @@ func Slog(msg string, args ...any) bool {
 	if err == nil {
 		return false
 	}
+
 	var sl *slog.Logger
 	for _, arg := range args {
 		if logger, ok := arg.(*slog.Logger); ok && logger != nil {
@@ -134,10 +137,12 @@ func Slog(msg string, args ...any) bool {
 			break
 		}
 	}
+
 	if sl == nil {
 		sl = slog.Default()
 	}
 	sl.Error(msg, slog.Any("check", err))
+
 	return true
 }
 
@@ -146,8 +151,9 @@ func IsNil(v any) bool {
 	if v == nil {
 		return true
 	}
+
 	val := reflect.ValueOf(v)
-	switch val.Kind() { //nolint:exhaustive
+	switch val.Kind() {
 	case
 		reflect.Chan,
 		reflect.Func,
@@ -165,19 +171,20 @@ func IsNil(v any) bool {
 // BoilExec returns true if the database boil package, context executor is invalid.
 func BoilExec(exec boil.ContextExecutor) bool {
 	v := reflect.ValueOf(exec)
-	switch v.Kind() { //nolint:exhaustive
+	switch v.Kind() {
 	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			return true
 		}
 		return false
 	}
+
 	return true
 }
 
 // BoilExecCrash panics if the database boil package, context extractor is invalid.
 // This is a lazy fallback function intended for the model packages
-// to reduce programming boilerplate.
+// to reduce programming boilerplate, however its use should generally be avoided.
 func BoilExecCrash(exec boil.ContextExecutor) {
 	if BoilExec(exec) {
 		panic(ErrBoil)

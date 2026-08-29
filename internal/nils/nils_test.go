@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/nalgeon/be"
@@ -17,11 +18,6 @@ import (
 
 func TestChecks(t *testing.T) {
 	t.Parallel()
-	// don't test for a valid DB value as it is requires too much boiler plate
-	db1 := func(db *sql.DB) error {
-		return nils.Check(db)
-	}
-	be.Err(t, db1(nil))
 
 	sl := slog.Default()
 	sl1 := func(sl *slog.Logger) error {
@@ -50,6 +46,15 @@ func TestChecks(t *testing.T) {
 	}
 	be.Err(t, gen1(nil))
 	be.True(t, errors.Is(gen1(nil), nils.ErrArgument))
+
+	db1 := func(db *sql.DB) error {
+		return nils.Check(db)
+	}
+	be.Err(t, db1(nil))
+
+	// run the database checks last, as non-existant database connections end the test
+	db := testutil.DB(t)
+	be.Err(t, db1(db), nil)
 }
 
 func TestSlog(t *testing.T) {

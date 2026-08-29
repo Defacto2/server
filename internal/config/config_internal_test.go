@@ -19,3 +19,12 @@ func TestChecks(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, st.IsDir())
 }
+
+func TestRanges(t *testing.T) {
+	t.Parallel()
+
+	for name := range informations {
+		s := Configured(name, "")
+		be.True(t, s != "")
+	}
+}

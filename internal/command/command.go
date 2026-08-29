@@ -28,16 +28,17 @@ const (
 )
 
 var (
-	ErrAlign      = errors.New("invalid align choice")
-	ErrCrop       = errors.New("invalid crop choice")
-	ErrThumb      = errors.New("invalid thumb choice")
-	ErrIsAnsi     = errors.New("text is ansi encoded, cannot crop")
-	ErrIsEmpty    = errors.New("file is empty")
-	ErrIsFile     = errors.New("directory path points to a file")
-	ErrNoMatch    = errors.New("no match value is present")
-	ErrUnknownImg = errors.New("file is not a known image format")
-	ErrValue      = errors.New("argument is empty")
-	ErrVersion    = errors.New("application version mismatch")
+	ErrAlign      = errors.New("command: invalid align choice")
+	ErrCrop       = errors.New("command: invalid crop choice")
+	ErrThumb      = errors.New("command: invalid thumb choice")
+	ErrIsAnsi     = errors.New("command: text is ansi encoded, cannot crop")
+	ErrIsEmpty    = errors.New("command: file is empty")
+	ErrIsFile     = errors.New("command: directory path points to a file")
+	ErrNoImages   = errors.New("command: no images found")
+	ErrNoMatch    = errors.New("command: no match value is present")
+	ErrUnknownImg = errors.New("command: file is not a known image format")
+	ErrValue      = errors.New("command: argument is empty")
+	ErrVersion    = errors.New("command: application version mismatch")
 )
 
 // NOTE: For unrar on linux, the installation cannot use the unrar-free package,

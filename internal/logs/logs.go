@@ -82,7 +82,9 @@ func FatalTx(ctx context.Context, sl *slog.Logger, msg string, args ...slog.Attr
 		const format = "logs fatal slog: %w"
 		panic(fmt.Errorf(format, err))
 	}
+
 	sl.LogAttrs(ctx, LevelFatal, msg, args...)
+
 	os.Exit(1)
 }
 
@@ -92,10 +94,13 @@ func Color(w io.Writer) bool {
 	if w == nil {
 		return false
 	}
-	if descriptor, ok := w.(*os.File); ok {
-		return isatty.IsTerminal(descriptor.Fd())
+
+	descriptor, ok := w.(*os.File)
+	if !ok {
+		return false
 	}
-	return false
+
+	return isatty.IsTerminal(descriptor.Fd())
 }
 
 // tintOptions applies the flag toggles and rewrites the slog attributes before they're returned.
@@ -115,6 +120,7 @@ func tintOptions(minimum slog.Level, flag int) tint.Options {
 		a = ReplaceAttr(a)
 		return a
 	}
+
 	return tint.Options{
 		AddSource:   addsource(flag),
 		Level:       minimum,
@@ -141,7 +147,9 @@ func ReplaceAttr(a slog.Attr) slog.Attr {
 	case "postgres":
 		a.Key = "PostgreSQL"
 	}
+
 	a = levelAttr(a)
+
 	return a
 }
 

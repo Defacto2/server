@@ -32,8 +32,6 @@ const (
 	thumbChk = "thumbnail check"
 )
 
-var ErrNoImages = errors.New("no images found")
-
 // ImagesExt returns args slice of image file extensions used by the website
 // preview and thumbnail images, including the legacy and modern formats.
 var imagesExt = [...]string{ //nolint:gochecknoglobals

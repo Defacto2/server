@@ -8,21 +8,25 @@ import (
 type Connection string
 
 func (c Connection) LogValue() slog.Value {
+	return slog.StringValue(c.String())
+}
+
+func (c Connection) String() string {
 	rawURL := string(c)
 	if rawURL == "" {
-		return slog.StringValue("")
+		return ""
 	}
 
 	u, err := url.Parse(rawURL)
 	if err != nil || u.User == nil {
-		return slog.StringValue(rawURL)
+		return rawURL
 	}
 
 	_, ok := u.User.Password()
 	if !ok {
-		return slog.StringValue(rawURL)
+		return rawURL
 	}
 
 	u.User = url.UserPassword(u.User.Username(), mask)
-	return slog.StringValue(u.String())
+	return u.String()
 }

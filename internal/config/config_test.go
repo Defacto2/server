@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/magicnumber"
@@ -17,7 +18,30 @@ import (
 
 var ErrTest = errors.New("an error")
 
-func TestConfig(t *testing.T) {
+func TestRanges(t *testing.T) {
+	t.Parallel()
+
+	var help config.Config
+	for x, y := range help.Help() {
+		be.True(t, strings.HasPrefix(x, "D2_"))
+		be.True(t, y != "")
+	}
+
+	opts := &slog.HandlerOptions{
+		Level: slog.LevelError,
+	}
+	h := slog.NewTextHandler(os.Stderr, opts)
+	sl := slog.New(h)
+
+	help.Configurations(sl)
+
+	const want = 24
+	names := help.Names()
+	be.True(t, len(names) == want)
+	t.Log(len(names))
+}
+
+func TestAddresses(t *testing.T) {
 	t.Parallel()
 	sl := slog.Default()
 
@@ -33,17 +57,6 @@ func TestConfig(t *testing.T) {
 
 	c.HTTPPort = config.StdCustom
 	got = c.Addresses(sl)
-	be.Err(t, got, nil)
-}
-
-func TestChecks(t *testing.T) {
-	t.Parallel()
-
-	c := config.Config{}
-	got := c.Checks(t.Context(), slog.Default())
-	be.Err(t, got, nil)
-
-	got = c.LogStore()
 	be.Err(t, got, nil)
 }
 
