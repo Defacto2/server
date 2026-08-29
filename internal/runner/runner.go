@@ -1,4 +1,4 @@
-// Package runner is used to build and minify the css and js files.
+// Package runner is used to build test images for a visual confirmationthat will be outputed to the terminal.
 package main
 
 import (
@@ -15,8 +15,11 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 )
 
-// Runner is a placeholder for esbuild to build css and js files.
-// To use, run `go run runner/runner.go` and it will minify the css and js files.
+// Runner runs through all the methods and funcs that manipulate photos and images.
+// The files are placed in a temporary directory so they can be individually
+// checked and confirmed. The directory location is displayed when running.
+//
+// To use, run `go run internal/runner/runner.go` from the repo root.
 
 const (
 	screenshot = "SCREEN.PNG"
@@ -30,7 +33,10 @@ func printOut(a ...any) {
 	}
 }
 
+var testdata = filepath.Join("internal", "command", "testdata")
+
 func main() { //nolint:funlen
+
 	sl := slog.Default()
 	ctx := context.Background()
 
@@ -98,7 +104,7 @@ func main() { //nolint:funlen
 	}
 
 	const webp = "OPTIMIZE.PNG"
-	srcWebp := filepath.Join("command", "testdata", "TEST.PNG")
+	srcWebp := filepath.Join(testdata, "TEST.PNG")
 	dstWebp := filepath.Join(dstDir, webp)
 	err = command.CopyFile(sl, srcWebp, dstWebp)
 	if err != nil {
@@ -113,7 +119,7 @@ func main() { //nolint:funlen
 
 	// Text file handlers
 
-	txt := filepath.Join("command", "testdata", "TEST.ASCII")
+	txt := filepath.Join(testdata, "TEST.ASCII")
 
 	err = d.TextDeferred(ctx, sl, txt, "DEFERRED_TXT")
 	if err != nil {
@@ -160,7 +166,7 @@ func main() { //nolint:funlen
 }
 
 func initData() (src, dstDir string) { //nolint:nonamedreturns
-	src = filepath.Join("command", "testdata", screenshot)
+	src = filepath.Join(testdata, screenshot)
 	st, err := os.Stat(src)
 	if err != nil {
 		log.Fatal(err)
@@ -225,7 +231,7 @@ func alignThumbs(ctx context.Context, sl *slog.Logger, src, dst, dstDir string) 
 	for _, align := range aligns {
 		s := align.String()
 		printOut("Running Align Thumbs:", s)
-		preview := dir.Directory(filepath.Join("command", "testdata"))
+		preview := dir.Directory(testdata)
 		thumbnail := dir.Directory(dstDir)
 		err := align.Thumbs(ctx, sl, "SCREEN", preview, thumbnail)
 		if err != nil {

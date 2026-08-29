@@ -283,6 +283,14 @@ tasks:
     desc: 'Run the benchmark suite with fail fast.'
     cmds:
       - go test -run=^$ -bench=. -failfast ./...
+  testimg:
+    desc: 'Generate image test assets for a visual confirmation.'
+    cmds:
+      - echo "Building assets..."
+      - go run internal/runner/runner.go
+      - echo "Check the temporary working directory for the images"
+    aliases:
+      - 'img'
   version:
     aliases:
       - 'ver'

@@ -159,18 +159,17 @@ var List = [...]Tag{ //nolint:gochecknoglobals
 //   - A singular example: "a Windows intro"
 //   - A plural example: "Windows intros"
 func Humanize(platform, section Tag) string {
-	if s := check(platform, section); s != "" {
-		return s
-	}
-
 	if ppe := platform == PCB && section == Tool; ppe {
 		return "a PCBoard PPE or BBS application"
 	}
 
-	if s := section.sections(platform); s != "" {
+	if s := check(platform, section); s != "" {
 		return s
 	}
-	if s := platform.platforms(section); s != "" {
+
+	if s := section.sections(platform); s != "" {
+		return s
+	} else if s := platform.platforms(section); s != "" {
 		return s
 	}
 
@@ -223,6 +222,7 @@ func (t Tag) Humanizes(section Tag) string {
 
 func check(platform, section Tag) string {
 	name := platform.String()
+
 	if !IsPlatform(name) {
 		return "unknown platform tag: " + name
 	}
@@ -502,7 +502,7 @@ func (t Tag) humanizeText(platform Tag) string {
 func (t Tag) humanizeTextAmiga(platform Tag) string {
 	const use = "using amiga text"
 	const the = "the amiga or a console"
-	switch t { //nolint:exhaustive
+	switch t {
 	case Announcement:
 		return "an announcement about the " + the
 	case BBS:
@@ -540,7 +540,7 @@ func (t Tag) humanizeVideo() string {
 //
 // There is no acknowledgement of the many different Windows generations or CPU platforms.
 func (t Tag) humanizeWindows(platform Tag) string {
-	switch t { //nolint:exhaustive
+	switch t {
 	case Demo:
 		return "a demo on Windows"
 	case Install:
@@ -558,7 +558,7 @@ func (t Tag) humanizeWindows(platform Tag) string {
 
 func genericPlural(platform, section Tag) string {
 	sections := func(section Tag) string {
-		switch section { //nolint:exhaustive
+		switch section {
 		case BBS:
 			return "BBS adverts"
 		case Bust:
@@ -602,7 +602,7 @@ func genericPlural(platform, section Tag) string {
 }
 
 func pluralANSI(section Tag) string {
-	switch section { //nolint:exhaustive
+	switch section {
 	case BBS:
 		return "BBS ansi adverts"
 	case Ftp:
@@ -619,7 +619,7 @@ func pluralANSI(section Tag) string {
 }
 
 func pluralDataB(section Tag) string {
-	switch section { //nolint:exhaustive
+	switch section {
 	case Nfo:
 		return "databases of releases"
 	default:
@@ -628,7 +628,7 @@ func pluralDataB(section Tag) string {
 }
 
 func pluralImage(section Tag) string {
-	switch section { //nolint:exhaustive
+	switch section {
 	case BBS:
 		return "BBS advert images"
 	case ForSale:
@@ -645,7 +645,7 @@ func pluralImage(section Tag) string {
 }
 
 func pluralPCB(section Tag) string {
-	switch section { //nolint:exhaustive
+	switch section {
 	case BBS:
 		return "PCBoard color text files"
 	case Tool:
@@ -656,7 +656,7 @@ func pluralPCB(section Tag) string {
 }
 
 func pluralText(section Tag) string {
-	switch section { //nolint:exhaustive
+	switch section {
 	case AtariST:
 		return "textfiles for the Atari ST"
 	case AppleII:
@@ -684,7 +684,7 @@ func pluralText(section Tag) string {
 
 func pluralTextAmiga(section Tag) string {
 	const noun = "amiga/console text"
-	switch section { //nolint:exhaustive
+	switch section {
 	case BBS:
 		return "BBS " + noun + " adverts"
 	case ForSale:
@@ -703,7 +703,7 @@ func pluralTextAmiga(section Tag) string {
 }
 
 func pluralWindows(section Tag) string {
-	switch section { //nolint:exhaustive
+	switch section {
 	case Demo:
 		return "demos on Windows"
 	case Install:
@@ -720,7 +720,7 @@ func pluralWindows(section Tag) string {
 }
 
 func pluralDOS(section Tag) string {
-	switch section { //nolint:exhaustive
+	switch section {
 	case BBS:
 		return "BBS intro adverts"
 	case Demo:
@@ -893,7 +893,7 @@ func OSTags() [5]string {
 // InvalidExec returns true if the database context executor is invalid such as nil.
 func InvalidExec(exec boil.ContextExecutor) bool {
 	v := reflect.ValueOf(exec)
-	switch v.Kind() { //nolint:exhaustive
+	switch v.Kind() {
 	case reflect.Pointer, reflect.Interface:
 		if v.IsNil() {
 			return true

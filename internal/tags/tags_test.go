@@ -6,8 +6,13 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
+
+// checked in Aug 26, test coverage was great at 90%+
+// to check unused strings, run:
+// go test -coverprofile=tags.out . && go tool cover -html=tags.out
 
 const (
 	firstCategory = "announcements"
@@ -18,7 +23,49 @@ const (
 	expectedCount = 43
 )
 
+func TestBuild(t *testing.T) {
+	t.Parallel()
+
+	var obj tags.T
+	got := obj.Build(t.Context(), nil)
+	be.Err(t, got)
+
+	db := testutil.DB(t)
+	got = obj.Build(t.Context(), db)
+	be.Err(t, got, nil)
+	be.True(t, len(obj.List) > 1)
+
+	for _, tag := range tags.List {
+		listed, err := obj.ByName(tag.String())
+		be.Err(t, err, nil)
+		if listed.Count == 0 {
+			continue
+		}
+		be.True(t, listed.URI != "")
+		be.True(t, listed.Name != "")
+		be.True(t, listed.Info != "")
+		be.True(t, listed.Count > 1)
+	}
+}
+
+func TestInvalidExec(t *testing.T) {
+	t.Parallel()
+
+	be.True(t, tags.InvalidExec(nil))
+
+	db := testutil.DB(t)
+	be.True(t, !tags.InvalidExec(db))
+}
+
+func TestIsText(t *testing.T) {
+	t.Parallel()
+
+	be.True(t, tags.IsText(tags.Text.String()))
+}
+
 func TestTagStrings(t *testing.T) {
+	t.Parallel()
+
 	uris := tags.URIs()
 	names := tags.Names()
 	determiner := tags.Determiner()
@@ -333,4 +380,26 @@ func TestPlatformCounts(t *testing.T) {
 		}
 	}
 	be.Equal(t, platforms, platformCount)
+}
+
+func TestHumanizeRange(t *testing.T) {
+	t.Parallel()
+
+	for _, platform := range tags.List {
+		for _, section := range tags.List {
+			got := tags.Humanize(platform, section)
+			be.True(t, got != "")
+		}
+	}
+}
+
+func TestHumanizesRange(t *testing.T) {
+	t.Parallel()
+
+	for _, platform := range tags.List {
+		for _, section := range tags.List {
+			got := platform.Humanizes(section)
+			be.True(t, got != "")
+		}
+	}
 }
