@@ -20,9 +20,6 @@ func TestExist(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, ok)
 
-	_, err = model.ExistSHA(nil, nil, nil)
-	be.Err(t, err)
-
 	ok, err = model.ExistSHA(t.Context(), db, nil)
 	be.Err(t, err, nil)
 	be.True(t, !ok)

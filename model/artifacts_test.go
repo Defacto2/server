@@ -16,7 +16,7 @@ func TestArtifacts(t *testing.T) {
 	db := testutil.DB(t)
 
 	art := model.Artifacts{}
-	err := art.Public(nil, nil)
+	err := art.Public(t.Context(), nil)
 	be.Err(t, err)
 
 	err = art.Public(t.Context(), db)

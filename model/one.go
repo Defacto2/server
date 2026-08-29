@@ -1,3 +1,4 @@
+//nolint:nonamedreturns
 package model
 
 // Package one.go contains the database queries for retrieving a single record.
@@ -158,35 +159,35 @@ func OnePouet(ctx context.Context, exec boil.ContextExecutor, prodID int64) (
 
 // OneEditByKey retrieves a single file record from the database using the obfuscated record key.
 // This function will also return records that have been marked as deleted.
-func OneEditByKey(ctx context.Context, exec boil.ContextExecutor, ObfKey string) (*models.File, error) {
-	return recordObf(ctx, exec, true, ObfKey)
+func OneEditByKey(ctx context.Context, exec boil.ContextExecutor, obfsKey string) (*models.File, error) {
+	return recordObf(ctx, exec, true, obfsKey)
 }
 
 // OneFileByKey retrieves a single file record from the database using the obfuscated record key.
-func OneFileByKey(ctx context.Context, exec boil.ContextExecutor, ObfKey string) (*models.File, error) {
-	return recordObf(ctx, exec, false, ObfKey)
+func OneFileByKey(ctx context.Context, exec boil.ContextExecutor, obfsKey string) (*models.File, error) {
+	return recordObf(ctx, exec, false, obfsKey)
 }
 
 // recordObf retrieves a single file record from the database using the uid URL ID.
-func recordObf(ctx context.Context, exec boil.ContextExecutor, withDeleted bool, ObfKey string) (*models.File, error) {
+func recordObf(ctx context.Context, exec boil.ContextExecutor, withDeleted bool, obfsKey string) (*models.File, error) {
 	const format = "one record by obfuscated key %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
 	}
 
-	id := helper.DeobfuscateID(ObfKey)
+	id := helper.DeobfuscateID(obfsKey)
 	if id < startID {
-		return nil, fmt.Errorf("%w: %d ~ %s", ErrBadID, id, ObfKey)
+		return nil, fmt.Errorf("%w: %d ~ %s", ErrBadID, id, obfsKey)
 	}
 
 	// get record id, filename, uuid
 	art, err := One(ctx, exec, withDeleted, id)
 	if err != nil {
-		return nil, fmt.Errorf(format, ObfKey, err)
+		return nil, fmt.Errorf(format, obfsKey, err)
 	}
 
 	if art.ID != int64(id) {
-		return nil, fmt.Errorf(format, ObfKey, ErrBadID)
+		return nil, fmt.Errorf(format, obfsKey, ErrBadID)
 	}
 
 	return art, nil

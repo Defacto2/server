@@ -656,13 +656,13 @@ type Demoscene struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (d *Demoscene) String() string {
+func (q *Demoscene) String() string {
 	return "Demoscene productions"
 }
 
-func (m *Demoscene) Values() (int, int, int, int) { return m.Count, m.Bytes, m.MinYear, m.MaxYear }
+func (q *Demoscene) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
 
-func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+func (q *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(statfmt, err)
 	}
@@ -671,10 +671,10 @@ func (d *Demoscene) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 		qm.Where(ClauseNoSoftDel),
 		querymod.DemoExpr(),
 		qm.From(From),
-	).Bind(ctx, exec, d)
+	).Bind(ctx, exec, q)
 }
 
-func (d *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Demoscene) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
 	if err := nils.Check(ctx, exec); err != nil {
@@ -1783,17 +1783,17 @@ func (q *Script) List(ctx context.Context, exec boil.ContextExecutor, offset, li
 	).All(ctx, exec)
 }
 
-// Standard is the model for community standards.
-type Standard struct {
+// Standards is the model for community standards.
+type Standards struct {
 	Bytes   int `boil:"size_total"`
 	Count   int `boil:"count_total"`
 	MinYear int `boil:"min_year"`
 	MaxYear int `boil:"max_year"`
 }
 
-func (q *Standard) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+func (q *Standards) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
 
-func (q *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+func (q *Standards) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(statfmt, err)
 	}
@@ -1805,7 +1805,7 @@ func (q *Standard) Stat(ctx context.Context, exec boil.ContextExecutor) error {
 	).Bind(ctx, exec, q)
 }
 
-func (q *Standard) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (q *Standards) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
 	if err := nils.Check(ctx, exec); err != nil {

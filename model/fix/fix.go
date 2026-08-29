@@ -1,4 +1,6 @@
 // Package fix contains functions for repairing the database data.
+//
+//nolint:gochecknoglobals,gochecknoinits,exhaustruct
 package fix
 
 import (
@@ -248,7 +250,6 @@ const (
 	coop1fix  = "COOP"
 )
 
-//nolint:gochecknoglobals
 var replacers = List{
 	"ACID":                          acidfix,
 	"ANSI Creators in Demand":       acidfix,
@@ -462,6 +463,7 @@ func optimize(db *sql.DB) error {
 // This should be part of a future function to repair the UUIDs and rename the file assets.
 func invalidUUIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const msg = "Database repair"
+
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
 		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
 	i, err := models.Files(mods).Count(ctx, exec)
@@ -471,63 +473,76 @@ func invalidUUIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecuto
 	if i == 0 {
 		return nil
 	}
+
 	sl.Warn(msg,
 		slog.String("task", "Invalid UUID(s) found"),
 		slog.Int64("finds", i))
+
 	return nil
 }
 
 func nullifyEmpty(exec boil.ContextExecutor) error {
 	var query strings.Builder
+
 	columns := []string{
 		"list_relations", "web_id_github", "web_id_youtube",
 		"group_brand_for", groupBrandBy, "record_title",
 		"credit_text", "credit_program", "credit_illustration", "credit_audio", "comment",
 		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
 	}
+
 	for column := range slices.Values(columns) {
 		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = ''; ", updateSet, column, column)
 	}
+
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
 	}
+
 	return nil
 }
 
 func nullifyZero(exec boil.ContextExecutor) error {
 	var query strings.Builder
+
 	columns := []string{
 		"web_id_pouet", "web_id_demozoo",
 		"date_issued_year", "date_issued_month", "date_issued_day",
 	}
+
 	for column := range slices.Values(columns) {
 		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = 0; ", updateSet, column, column)
 	}
+
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
 	}
+
 	return nil
 }
 
 func trimFwdSlash(exec boil.ContextExecutor) error {
 	var query strings.Builder
+
 	columns := []string{"web_id_16colors"}
 	for column := range slices.Values(columns) {
 		s := updateSet + column + " = LTRIM(web_id_16colors, '/') WHERE web_id_16colors LIKE '/%'; "
 		query.WriteString(s)
 	}
+
 	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
 		return fmt.Errorf("query execute: %w", err)
 	}
+
 	return nil
 }
 
 // NumFile represents a file with a numeric suffix.
 type NumFile struct {
-	ID           int64  `boil:"id"                        json:"id"`
-	UUID         string `boil:"uuid"                      json:"uuid"`
-	Filename     string `boil:"suffix"                    json:"filename"`
-	ObfuscatedID string `boil:"-"                         json:"obfuscatedId"`
+	ID           int64  `boil:"id"     json:"id"`
+	UUID         string `boil:"uuid"   json:"uuid"`
+	Filename     string `boil:"suffix" json:"filename"`
+	ObfuscatedID string `boil:"-"      json:"obfuscatedId"`
 }
 
 // NumFiles represents files that have numeric suffixes that need fixing.

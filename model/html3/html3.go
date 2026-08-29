@@ -218,9 +218,9 @@ func Stat() [2]string {
 // StatContainer represents types that hold byte and count metrics.
 type StatContainer interface {
 	GetBytes() int
-	SetBytes(int)
+	SetBytes(n int)
 	GetCount() int
-	SetCount(int)
+	SetCount(n int)
 }
 
 // statQuery executes a statistics query using the provided expression.

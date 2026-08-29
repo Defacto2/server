@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals
 package model
 
 // Package file summary.go contains the database queries for the statistics of files.
@@ -72,7 +73,8 @@ func (obj *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, t
 		return fmt.Errorf(format, err)
 	}
 
-	args := make([]any, 0, len(terms)*4)
+	const size = 4
+	args := make([]any, 0, len(terms)*size)
 	orConditions := make([]string, 0, len(terms))
 
 	for _, term := range terms {
@@ -81,12 +83,18 @@ func (obj *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, t
 			continue
 		}
 
+		const (
+			seq1 = iota + 1
+			seq2
+			seq3
+			seq4
+		)
 		idx := len(args)
 		// note using the sequence '~*' makes it non case-sensitive
-		cond := "(filename ~* $" + strconv.Itoa(idx+1) +
-			" OR filename ILIKE $" + strconv.Itoa(idx+2) +
-			" OR filename ILIKE $" + strconv.Itoa(idx+3) +
-			" OR filename ILIKE $" + strconv.Itoa(idx+4) + ")"
+		cond := "(filename ~* $" + strconv.Itoa(idx+seq1) +
+			" OR filename ILIKE $" + strconv.Itoa(idx+seq2) +
+			" OR filename ILIKE $" + strconv.Itoa(idx+seq3) +
+			" OR filename ILIKE $" + strconv.Itoa(idx+seq4) + ")"
 		orConditions = append(orConditions, cond)
 
 		args = append(args, term, term+"%", "%"+term, "%"+term+"%")
@@ -214,7 +222,7 @@ func (obj *Summary) ByUnwanted(ctx context.Context, exec boil.ContextExecutor) e
 func (obj *Summary) Update(count, bytes, yearMin, yearMax int) {
 	abs16 := func(n int) int16 {
 		if n < 0 {
-			n = -n
+			return int16(0)
 		}
 		if n > math.MaxInt16 {
 			return math.MaxInt16
@@ -314,16 +322,16 @@ func execStat[T any, PT interface {
 	*T
 	StatModel
 }](ctx context.Context, exec boil.ContextExecutor, obj *Summary, key Key) error {
-	format := string(key) + ": %w"
+	const format = "%s: %w"
 	if err := nils.Check(ctx, exec, obj); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf(format, string(key), err)
 	}
 
 	var m T
 	filter := PT(&m)
 
 	if err := filter.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf(format, string(key), err)
 	}
 	obj.Update(filter.Values())
 	return nil
@@ -474,7 +482,7 @@ func (obj *Summary) newsArticle(ctx context.Context, exec boil.ContextExecutor) 
 }
 
 func (obj *Summary) standards(ctx context.Context, exec boil.ContextExecutor) error {
-	return execStat[Standard](ctx, exec, obj, KeyStandards) // TODO: add plural
+	return execStat[Standards](ctx, exec, obj, KeyStandards)
 }
 
 func (obj *Summary) announcement(ctx context.Context, exec boil.ContextExecutor) error {

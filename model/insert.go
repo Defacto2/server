@@ -1,3 +1,4 @@
+//nolint:nonamedreturns
 package model
 
 // Package file inserts.go contains the database queries for inserting new file records.

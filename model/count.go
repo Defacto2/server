@@ -1,3 +1,4 @@
+//nolint:nonamedreturns
 package model
 
 // Package file count.go contains the database queries for the counting of records and summing of column values.
@@ -292,7 +293,7 @@ func UUIDs(ctx context.Context, exec boil.ContextExecutor) (UUIDVers, error) {
 		return UUIDVers{}, fmt.Errorf(format, "all uuids", err)
 	}
 	if len(fs) == 0 {
-		return UUIDVers{}, nil
+		return UUIDVers{}, nil //nolint:exhaustruct
 	}
 
 	uuids := UUIDVers{

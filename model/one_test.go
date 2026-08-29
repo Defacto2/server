@@ -12,7 +12,7 @@ import (
 func TestOnes(t *testing.T) {
 	t.Parallel()
 
-	fs, got := model.One(nil, nil, false, 0)
+	fs, got := model.One(t.Context(), nil, false, 0)
 	be.Err(t, got)
 	be.Equal(t, fs, nil)
 

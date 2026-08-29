@@ -1,6 +1,8 @@
+//nolint:gochecknoglobals
 package testutil
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"sync"
@@ -43,12 +45,17 @@ func Tx(tb testing.TB) *sql.Tx {
 
 	db := DB(tb)
 
-	tx, err := db.Begin()
+	// leave the context to background, however it might be useful to create
+	// a TxWithContext() in the future.
+	ctx := context.Background()
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		tb.Skip("tx failed")
 	}
 
 	tb.Cleanup(func() {
+		// returning errors for rollback is important due to the sensitivity
+		// it has with contexts, timeouts, etc.
 		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
 			tb.Errorf("tx rollback: %v", err)
 		}

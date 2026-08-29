@@ -1,3 +1,4 @@
+//nolint:exhaustruct
 package model
 
 import (
@@ -291,11 +292,12 @@ func ValidTitle(s string) null.String {
 // ValidYouTube returns true if the string is a valid YouTube video ID.
 // An error is only returned if the regular expression match cannot compile.
 func ValidYouTube(s string) null.String {
-	if len(s) != 11 {
+	const requirement = 11
+	if len(s) != requirement {
 		return null.String{}
 	}
 
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		b := s[i]
 		switch {
 		case b >= 'a' && b <= 'z':

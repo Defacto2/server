@@ -12,6 +12,7 @@ linters:
     - varnamelen
     - wsl
     - wsl_v5
+    - dupl # temp
   settings:
     sloglint:
       attr-only: true

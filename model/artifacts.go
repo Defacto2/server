@@ -24,11 +24,6 @@ type Artifacts struct {
 	MaxYear int `boil:"max_year"`
 }
 
-func (f *Artifacts) useCache() bool {
-	// TODO add cache time.Time value?
-	return f.Bytes > 0 && f.Count > 0
-}
-
 // Public sets the [Artifacts] statistics for file artifacts that are not marked as hidden.
 func (obj *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) error {
 	const format = "set public artifacts %s: %w"
@@ -80,18 +75,18 @@ func (by By) all(ctx context.Context, exec boil.ContextExecutor, f *Artifacts) (
 }
 
 // ByKey returns the public files reversed ordered, numeric key ID column.
-func (f *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (obj *Artifacts) ByKey(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
 	by := By{
 		Clause: "id DESC",
 		Offset: offset, Limit: limit,
 	}
-	return by.all(ctx, exec, f)
+	return by.all(ctx, exec, obj)
 }
 
 // ByOldest returns all of the file records sorted by the date issued.
-func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (obj *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
 	const clause = "date_issued_year ASC NULLS LAST, " +
@@ -101,11 +96,11 @@ func (f *Artifacts) ByOldest(ctx context.Context, exec boil.ContextExecutor, off
 		Clause: clause,
 		Offset: offset, Limit: limit,
 	}
-	return by.all(ctx, exec, f)
+	return by.all(ctx, exec, obj)
 }
 
 // ByNewest returns all of the file records sorted by the date issued.
-func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (obj *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
 	const clause = "date_issued_year DESC NULLS LAST, " +
@@ -115,11 +110,11 @@ func (f *Artifacts) ByNewest(ctx context.Context, exec boil.ContextExecutor, off
 		Clause: clause,
 		Offset: offset, Limit: limit,
 	}
-	return by.all(ctx, exec, f)
+	return by.all(ctx, exec, obj)
 }
 
 // ByUpdated returns all of the file records sorted by the date updated.
-func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+func (obj *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
 	const clause = "updatedat DESC"
@@ -127,28 +122,30 @@ func (f *Artifacts) ByUpdated(ctx context.Context, exec boil.ContextExecutor, of
 		Clause: clause,
 		Offset: offset, Limit: limit,
 	}
-	return by.all(ctx, exec, f)
+	return by.all(ctx, exec, obj)
 }
 
-// ByUnwanted returns all of the file records that are flagged by Google as unwanted.
-func (f *Artifacts) OnlyUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+// OnlyUnwanted returns all of the file records that are flagged by Google as unwanted.
+func (obj *Artifacts) OnlyUnwanted(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {
 	const format = "only unwanted: %w"
 
-	if err := nils.Check(ctx, exec, f); err != nil {
+	if err := nils.Check(ctx, exec, obj); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, err)
 	}
 
 	// fetch record mods
 	empty := null.StringFrom("")
-	mods := []qm.QueryMod{
+	const size = 6
+	mods := make([]qm.QueryMod, 0, size)
+	mods = append(mods,
 		models.FileWhere.FileSecurityAlertURL.IsNotNull(),
 		models.FileWhere.FileSecurityAlertURL.NEQ(empty),
 		qm.WithDeleted(),
-	}
+	)
 
-	if err := f.onlyUnwantedStats(ctx, exec, mods); err != nil {
+	if err := obj.onlyUnwantedStats(ctx, exec, mods); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, err)
 	}
 
@@ -171,6 +168,11 @@ func (obj *Artifacts) onlyUnwantedStats(ctx context.Context, exec boil.ContextEx
 		qm.From(From))
 
 	return models.NewQuery(mods...).Bind(ctx, exec, obj)
+}
+
+func (obj *Artifacts) useCache() bool {
+	// TODO add cache time.Time value?
+	return obj.Bytes > 0 && obj.Count > 0
 }
 
 // OnlyApproval returns all of the file records that are waiting to be marked for approval.
@@ -197,7 +199,7 @@ func OnlyApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit 
 	).All(ctx, exec)
 }
 
-// OnlyDescription returns a list of files that match the search terms.
+// OnlyDescriptions returns a list of files that match the search terms.
 // The search terms are matched against the record_title column.
 // The results are ordered by the filename column in ascending order.
 func OnlyDescriptions(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, terms []string) (
@@ -241,7 +243,7 @@ func onlyDescriptions(terms []string) []qm.QueryMod {
 	return mods
 }
 
-// Filename returns a list of files that match the search terms.
+// OnlyFilenames returns a list of files that match the search terms.
 // The search terms are matched against the filename column.
 // The results are ordered by the filename column in ascending order.
 func OnlyFilenames(ctx context.Context, exec boil.ContextExecutor, terms []string) (
@@ -280,7 +282,7 @@ func onlyFilenames(terms []string) []qm.QueryMod {
 	return mods
 }
 
-// ByHidden returns all of the file records that are marked as hidden using soft delete.
+// OnlyHidden returns all of the file records that are marked as hidden using soft delete.
 func OnlyHidden(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
 	models.FileSlice, error,
 ) {

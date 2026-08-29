@@ -34,7 +34,7 @@ const (
 	ReadmeDisable                 // RetrotxtNoReadme with value
 )
 
-// UpdateBoolFrom updates the column bool from value with val.
+// Update updates the column bool from value with val.
 // The boolFrom columns are table columns that can either be null, empty, or have a smallint value.
 func (col BoolFrom) Update(ctx context.Context, exec boil.ContextExecutor, key int64, val bool) error {
 	const format = "bool from %v: %w"
@@ -193,7 +193,7 @@ const (
 	Pouet                    // WebIDDemozoo column with value
 )
 
-// UpdateInt64From updates the column int64 from value with val.
+// Update the column int64 from value with val.
 // The int64From columns are table columns that can either be null, empty, or have an int64 value.
 // The values for both demozoo and pouet are validated to be within a sane range
 // and a zero value will set their column's to null.
@@ -423,7 +423,7 @@ type Classification struct {
 	Tag      string
 }
 
-// UpdateClassification updates the classification of a file in the database.
+// Update the classification of a file in the database.
 // It takes an ID, platform, and tag as parameters and returns an error if any.
 // Both platform and tag must be valid values.
 func (cl Classification) Update(ctx context.Context, exec boil.ContextExecutor) error {
@@ -582,7 +582,7 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, key int64, y, m, 
 	return nil
 }
 
-// UpdateYMD updates the date issued year, month and day columns with the string values provided.
+// UpdateYMDS updates the date issued year, month and day columns with the string values provided.
 //   - y is a year
 //   - m is a numeric month, 1 - 12
 //   - d is a numeric day of the month, 1 - 31
@@ -603,7 +603,8 @@ func UpdateYMDS(ctx context.Context, exec boil.ContextExecutor, key int64, y, m,
 	f.DateIssuedDay = day
 
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
-		return fmt.Errorf(y+"-"+m+"-"+d+" "+format, err)
+		const format = "update date issued (%s-%s-%s): %w"
+		return fmt.Errorf(format, y, m, d, err)
 	}
 
 	return nil

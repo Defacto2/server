@@ -64,7 +64,7 @@ const ClauseOldDate = "date_issued_year ASC NULLS LAST, " +
 // ClauseNoSoftDel is the clause to exclude soft deleted records.
 const ClauseNoSoftDel = "deletedat IS NULL"
 
-func calc(page, limit int) (offset int) {
+func calc(page, limit int) (offset int) { //nolint:nonamedreturns
 	if page < 1 {
 		page = 1
 	}

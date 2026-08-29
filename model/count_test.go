@@ -13,7 +13,7 @@ func TestCount(t *testing.T) {
 	t.Parallel()
 
 	db := testutil.DB(t)
-	got, err := model.Count(nil, nil)
+	got, err := model.Count(t.Context(), nil)
 	be.Err(t, err)
 	be.Equal(t, got, 0)
 
@@ -73,7 +73,7 @@ func TestUUIDs(t *testing.T) {
 	t.Parallel()
 
 	db := testutil.DB(t)
-	got, err := model.UUIDs(nil, nil)
+	got, err := model.UUIDs(t.Context(), nil)
 	be.Err(t, err)
 	be.True(t, got == model.UUIDVers{})
 

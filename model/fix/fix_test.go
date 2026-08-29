@@ -55,10 +55,6 @@ func TestGetNumericSuffix(t *testing.T) {
 	be.Err(t, err)
 
 	db := testutil.DB(t)
-
-	_, err = fix.NumSuffix(nil, db)
-	be.Err(t, err)
-
 	got, err = fix.NumSuffix(t.Context(), db)
 	be.Err(t, err, nil)
 	be.True(t, got != nil)

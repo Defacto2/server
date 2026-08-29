@@ -12,7 +12,7 @@ func TestReleaserNames(t *testing.T) {
 	t.Parallel()
 
 	var all model.ReleaserNames
-	got := all.Distinct(nil, nil)
+	got := all.Distinct(t.Context(), nil)
 	be.Err(t, got)
 
 	db := testutil.DB(t)
@@ -44,7 +44,7 @@ func TestReleaserNames(t *testing.T) {
 func TestReleasersWhere(t *testing.T) {
 	t.Parallel()
 
-	_, got := model.ReleasersWhere(nil, nil, "")
+	_, got := model.ReleasersWhere(t.Context(), nil, "")
 	be.Err(t, got)
 
 	db := testutil.DB(t)
@@ -61,7 +61,7 @@ func TestReleasersLimit(t *testing.T) {
 	t.Parallel()
 
 	var obj model.Releasers
-	_, got := model.ReleasersWhere(nil, nil, "")
+	_, got := model.ReleasersWhere(t.Context(), nil, "")
 	be.Err(t, got)
 
 	db := testutil.DB(t)
@@ -85,7 +85,7 @@ func TestReleasersLimit(t *testing.T) {
 func TestReleasersSimilar(t *testing.T) {
 	t.Parallel()
 
-	_, got := model.ReleasersWhere(nil, nil, "")
+	_, got := model.ReleasersWhere(t.Context(), nil, "")
 	be.Err(t, got)
 
 	db := testutil.DB(t)

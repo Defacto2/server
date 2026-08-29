@@ -461,7 +461,7 @@ func records22(ctx context.Context, exec boil.ContextExecutor, uri string, page,
 		var r model.NfoTool
 		return r.List(ctx, exec, page, limit)
 	case standards:
-		var r model.Standard
+		var r model.Standards
 		return r.List(ctx, exec, page, limit)
 	case script:
 		var r model.Script

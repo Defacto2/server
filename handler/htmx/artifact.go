@@ -1337,7 +1337,7 @@ func RecordLinks(c *echo.Context) error {
 }
 
 // RecordLinksReset handles the post submission for the file artifact links reset.
-func RecordLinksReset(ctx context.Context, c *echo.Context, db *sql.DB) error {
+func RecordLinksReset(ctx context.Context, c *echo.Context, db *sql.DB) error { //nolint:funlen
 	if err := nils.Check(ctx, c, db); err != nil {
 		const format = "record links reset: %w"
 		return fmt.Errorf(format, err)

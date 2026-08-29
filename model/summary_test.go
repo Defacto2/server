@@ -12,10 +12,7 @@ func TestByDescription(t *testing.T) {
 	t.Parallel()
 
 	s1 := model.Summary{}
-	got := s1.ByDescription(nil, nil, []string{})
-	be.Err(t, got)
-
-	got = s1.ByDescription(t.Context(), nil, []string{})
+	got := s1.ByDescription(t.Context(), nil, []string{})
 	be.Err(t, got)
 
 	db := testutil.DB(t)
@@ -47,10 +44,7 @@ func TestByFilename(t *testing.T) {
 	t.Parallel()
 
 	s1 := model.Summary{}
-	got := s1.ByFilename(nil, nil, []string{})
-	be.Err(t, got)
-
-	got = s1.ByFilename(t.Context(), nil, []string{})
+	got := s1.ByFilename(t.Context(), nil, []string{})
 	be.Err(t, got)
 
 	db := testutil.DB(t)

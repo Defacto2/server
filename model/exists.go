@@ -32,7 +32,7 @@ func ExistDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int) (b
 	ex := Exist{
 		ProdID: prodID,
 		Mod:    models.FileWhere.WebIDDemozoo.EQ(id),
-		Format: format,
+		Format: "demozoo",
 	}
 	return ex.remote(ctx, exec)
 }
@@ -49,7 +49,7 @@ func ExistPouet(ctx context.Context, exec boil.ContextExecutor, prodID int) (boo
 	ex := Exist{
 		ProdID: prodID,
 		Mod:    models.FileWhere.WebIDPouet.EQ(id),
-		Format: format,
+		Format: "pouet",
 	}
 	return ex.remote(ctx, exec)
 }
@@ -61,14 +61,14 @@ type Exist struct {
 }
 
 func (ex Exist) remote(ctx context.Context, exec boil.ContextExecutor) (bool, error) {
-	format := ex.Format
+	const format = "%s prod exists %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return false, fmt.Errorf(format, "check", err)
+		return false, fmt.Errorf(format, ex.Format, "check", err)
 	}
 
 	ok, err := models.Files(ex.Mod, qm.WithDeleted()).Exists(ctx, exec)
 	if err != nil {
-		return false, fmt.Errorf(format, strconv.Itoa(ex.ProdID), err)
+		return false, fmt.Errorf(format, ex.Format, strconv.Itoa(ex.ProdID), err)
 	}
 
 	return ok, nil

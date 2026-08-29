@@ -12,7 +12,7 @@ func TestScener(t *testing.T) {
 	t.Parallel()
 
 	var s model.Scener
-	fs, got := s.Where(nil, nil, "")
+	fs, got := s.Where(t.Context(), nil, "")
 	be.Err(t, got)
 	be.True(t, len(fs) == 0)
 

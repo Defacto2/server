@@ -1615,8 +1615,8 @@ func PostName(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 }
 
 // postStats is a helper function for PostName that returns the statistics for the files page.
-// TODO: log errors
 func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
+	// TODO: log errors
 	none := func() map[string]string {
 		return map[string]string{
 			files: "no files found",

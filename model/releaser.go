@@ -125,7 +125,7 @@ type Releaser struct {
 	Year null.Int `boil:"min_year"`
 }
 
-// Where gets the records that match the named releaser.
+// ReleasersWhere gets the records that match the named releaser.
 // If the provided name is invalid, no results but no errors are returned.
 func ReleasersWhere(ctx context.Context, exec boil.ContextExecutor, releasers string) (models.FileSlice, error) {
 	const format = "releasers where: %w"
@@ -240,11 +240,13 @@ func (obj *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor,
 // SimilarMagazine finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
-func (obj *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
+func (obj *Releasers) SimilarMagazine(
+	ctx context.Context, exec boil.ContextExecutor, limit int, names ...string,
+) error {
 	return OnlyMagazine.releasers(ctx, exec, obj, limit, names...)
 }
 
-func limits(pageNumber, pageSize int) (limit, offset int) {
+func limits(pageNumber, pageSize int) (limit, offset int) { //nolint:nonamedreturns
 	if pageNumber < 1 {
 		pageNumber = 1
 	}
@@ -339,7 +341,8 @@ func (match Lookup) releasers(
 	}
 
 	const escapedChar = "''"
-	likes := make([]string, 0, len(names)*3)
+	const size = 3
+	likes := make([]string, 0, len(names)*size)
 	for _, name := range names {
 		s := strings.ReplaceAll(name, "'", escapedChar)
 		likes = append(likes, strings.ToUpper(s))
