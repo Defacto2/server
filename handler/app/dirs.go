@@ -323,7 +323,7 @@ func (ds *Dirs) addEmu(sl *slog.Logger, art *models.File, data map[string]any,
 		return data
 	}
 	data["jsdos6"] = true
-	data["jsdos6Config"] = config
+	data["jsdos6Config"] = string(config)
 	data["jsdos6Zip"] = filerecord.JsdosArchive(art)
 	data["jsdos6Utilities"] = filerecord.JsdosUtilities(art)
 

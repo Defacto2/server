@@ -549,13 +549,13 @@ func RecordToggleByID(ctx context.Context, c *echo.Context, db *sql.DB, key stri
 
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf(format, "begin tx", err)
+		return fmt.Errorf(format, id, "begin tx", err)
 	}
 	if err := model.UpdateOnline(ctx, db, state, id); err != nil {
 		return fmt.Errorf(format, id, "update", err)
 	}
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf(format, "tx commit", err)
+		return fmt.Errorf(format, id, "tx commit", err)
 	}
 
 	if state {

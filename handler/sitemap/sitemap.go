@@ -176,7 +176,7 @@ func MapSite(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 func MapReleaser(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map releaser"
 	var r model.Releasers
-	if err := r.Limit(ctx, db, model.Oldest, 0, 0); err != nil {
+	if err := model.Oldest.Limit(ctx, db, &r, 0, 0); err != nil {
 		sl.Error(msg, slog.String("model", "could not obtain releasers using limit"),
 			slog.Any("error", err))
 	}
@@ -218,7 +218,7 @@ func MapMagazine(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 func MapBBS(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 	const msg = "sitemap map bbs"
 	var r model.Releasers
-	if err := r.BBS(ctx, db, model.Prolific); err != nil {
+	if err := model.Prolific.BBS(ctx, db, &r); err != nil {
 		sl.Error(msg, slog.String("model", "could not obtain bulletin boards using bbs"),
 			slog.Any("error", err))
 	}

@@ -692,7 +692,7 @@ func GroupsAPI(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	}
 	pages := (count + apiLimit - 1) / apiLimit // Ceiling division
 	rels := model.Releasers{}
-	if err := rels.Limit(ctx, db, model.Alphabetical, apiLimit, page); err != nil {
+	if err := model.Alphabetical.Limit(ctx, db, &rels, apiLimit, page); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			er: "Failed to query releasers",
 		})
@@ -744,7 +744,7 @@ func BoardsAPI(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	}
 
 	rels := model.Releasers{}
-	if err := rels.BBS(ctx, db, model.Oldest); err != nil {
+	if err := model.Oldest.BBS(ctx, db, &rels); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			er: "Failed to query boards",
 		})

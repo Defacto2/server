@@ -39,7 +39,7 @@ func Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 //   - Returned are the total number of artifacts, both public and private.
 //   - The number of public artifacts.
 //   - The number of artifacts waiting for approval.
-func Counts(ctx context.Context, exec boil.ContextExecutor) (total int64, public int64, waiting int64, err error) {
+func Counts(ctx context.Context, exec boil.ContextExecutor) (total, public, waiting int64, err error) {
 	const format = "counts %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return 0, 0, 0, fmt.Errorf(format, "check", err)

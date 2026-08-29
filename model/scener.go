@@ -25,12 +25,12 @@ type Sceners []*struct {
 }
 
 // Where gets the records of all files that have been credited to the named scener.
-func (s *Scener) Where(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
+func (s *Scener) Where(ctx context.Context, exec boil.ContextExecutor, scener string) (models.FileSlice, error) {
 	if err := nils.Check(ctx, exec); err != nil {
 		return models.FileSlice{}, fmt.Errorf("scener where: %w", err)
 	}
 
-	t := strings.TrimSpace(name)
+	t := strings.TrimSpace(scener)
 	if t == "" {
 		return models.FileSlice{}, nil
 	}

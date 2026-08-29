@@ -475,7 +475,7 @@ func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
 	r := model.Releasers{}
-	if err := r.BBS(ctx, db, orderBy); err != nil {
+	if err := orderBy.BBS(ctx, db, &r); err != nil {
 		return DatabaseErr(sl, c, name, err)
 	}
 	data[key] = r
@@ -1797,7 +1797,7 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	data["stats"] = map[string]string{}
 
 	var r model.Releasers
-	if err := r.Limit(ctx, db, orderBy, 0, 0); err != nil {
+	if err := orderBy.Limit(ctx, db, &r, 0, 0); err != nil {
 		return DatabaseErr(sl, c, name, err)
 	}
 	data[key] = r

@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -17,13 +16,6 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
-)
-
-var (
-	ErrCPU     = errors.New("emulate-cpu value must be one of auto, 8086, 386, 486")
-	ErrMachine = errors.New("emulate-machine value must be one of auto, " +
-		"cga, ega, vga, tandy, nolfb, et3000, paradise, et4000, oldvbe")
-	ErrSfx = errors.New("emulate-sfx value must be one of auto, covox, sb1, sb16, gus, pcspeaker, none")
 )
 
 const (
@@ -116,7 +108,7 @@ func UpdateEmulateMachine(ctx context.Context, exec boil.ContextExecutor, key in
 	case auto:
 		validate = emulateAuto
 	default:
-		return fmt.Errorf(format, val, ErrMachine)
+		return fmt.Errorf(format, val, ErrBadMachine)
 	}
 
 	f, err := OneFile(ctx, exec, key)
@@ -146,7 +138,7 @@ func UpdateEmulateCPU(ctx context.Context, exec boil.ContextExecutor, key int64,
 	case auto:
 		validate = emulateAuto
 	default:
-		return fmt.Errorf(format, val, ErrCPU)
+		return fmt.Errorf(format, val, ErrBadCPU)
 	}
 
 	f, err := OneFile(ctx, exec, key)
@@ -176,7 +168,7 @@ func UpdateEmulateSfx(ctx context.Context, exec boil.ContextExecutor, key int64,
 	case auto:
 		validate = emulateAuto
 	default:
-		return fmt.Errorf(format, val, ErrSfx)
+		return fmt.Errorf(format, val, ErrBadSFX)
 	}
 
 	f, err := OneFile(ctx, exec, key)
@@ -241,7 +233,7 @@ func (col Int64From) Update(ctx context.Context, exec boil.ContextExecutor, key 
 		outOfRange = n < 1 || n > pouet.Sanity
 		f.WebIDPouet = null.Int64From(n)
 	default:
-		return fmt.Errorf(format, "parse", ErrColumn)
+		return fmt.Errorf(format, "parse", ErrMethod)
 	}
 	if outOfRange {
 		return fmt.Errorf(format, "out of range", ErrBadID)
@@ -349,7 +341,7 @@ func (sf StringFrom) cases(f *models.File, val string) error { //nolint:cyclop
 	case ZipContent:
 		f.FileZipContent = s
 	default:
-		return ErrColumn
+		return ErrMethod
 	}
 
 	return nil

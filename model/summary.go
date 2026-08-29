@@ -5,7 +5,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"maps"
 	"math"
@@ -13,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	namer "github.com/Defacto2/server/handler/releaser/name"
+	"github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -22,8 +21,6 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
-
-var ErrTrimmedTerms = errors.New("no valid search terms after cleaning")
 
 // Summary counts the total number files, file sizes and the earliest and latest years.
 type Summary struct {
@@ -57,7 +54,7 @@ func (obj *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor
 		)
 	}
 	if len(orConditions) == 0 {
-		return ErrTrimmedTerms
+		return fmt.Errorf(format, ErrSearch)
 	}
 
 	// combine with proper parentheses for correct operator precedence
@@ -96,7 +93,7 @@ func (obj *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, t
 	}
 
 	if len(orConditions) == 0 {
-		return ErrTrimmedTerms
+		return fmt.Errorf(format, ErrSearch)
 	}
 
 	query := string(postgres.Summary()) + "(" + strings.Join(orConditions, " OR ") + ") AND " + ClauseNoSoftDel
@@ -150,17 +147,17 @@ func (obj *Summary) ByPublic(ctx context.Context, exec boil.ContextExecutor) err
 }
 
 // ByScener selects the summary statistics for the named sceners.
-func (obj *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, name string) error {
+func (obj *Summary) ByScener(ctx context.Context, exec boil.ContextExecutor, scener string) error {
 	const format = "summary by scener: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(format, err)
 	}
 
-	name = strings.TrimSpace(name)
-	if name == "" {
+	scener = strings.TrimSpace(scener)
+	if scener == "" {
 		return nil
 	}
-	query, params := postgres.ScenerSQL(name)
+	query, params := postgres.ScenerSQL(scener)
 
 	return models.NewQuery(
 		qm.Select(SummCols()...),
@@ -179,7 +176,7 @@ func (obj *Summary) ByReleaser(ctx context.Context, exec boil.ContextExecutor, u
 		return fmt.Errorf(format, err)
 	}
 
-	human, err := namer.Humanize(namer.Path(uri))
+	human, err := name.Humanize(name.Path(uri))
 	if err != nil {
 		return fmt.Errorf(format, err)
 	}
@@ -316,8 +313,8 @@ type StatModel interface {
 func execStat[T any, PT interface {
 	*T
 	StatModel
-}](ctx context.Context, exec boil.ContextExecutor, obj *Summary, name Key) error {
-	format := string(name) + ": %w"
+}](ctx context.Context, exec boil.ContextExecutor, obj *Summary, key Key) error {
+	format := string(key) + ": %w"
 	if err := nils.Check(ctx, exec, obj); err != nil {
 		return fmt.Errorf(format, err)
 	}

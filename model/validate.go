@@ -27,33 +27,39 @@ const (
 //
 // All found issues will be returned as joined error messages.
 func Validate(art *models.File) error {
-	const msg = "validate models"
+	const format = "validate models: %w"
 	if art == nil {
-		return fmt.Errorf("%s: %w", msg, ErrModel)
+		return fmt.Errorf(format, ErrModel)
 	}
+
 	var err error
 	if !art.Section.Valid || art.Section.String == "" {
 		err = errors.Join(err, fmt.Errorf("%w,", ErrBadTag))
 	} else if !tags.IsCategory(art.Section.String) {
 		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrBadTag, art.Section.String))
 	}
+
 	if !art.Platform.Valid || art.Platform.String == "" {
 		err = errors.Join(err, fmt.Errorf("%w,", ErrBadOS))
 	} else if !tags.IsPlatform(art.Platform.String) {
 		err = errors.Join(err, fmt.Errorf("%w: %q,", ErrBadOS, art.Platform.String))
 	}
+
 	if !art.Filename.Valid || art.Filename.String == "" {
 		err = errors.Join(err, fmt.Errorf("%w,", ErrBadFname))
 	}
+
 	if (!art.GroupBrandBy.Valid && !art.GroupBrandFor.Valid) ||
 		(art.GroupBrandBy.String == "" && art.GroupBrandFor.String == "") {
 		err = errors.Join(err, fmt.Errorf("%w,", ErrBadRel))
 	}
+
 	if art.Section.String == tags.Mag.String() &&
 		(!art.RecordTitle.Valid || art.RecordTitle.String == "") {
 		err = errors.Join(err, fmt.Errorf("%w,", ErrBadMag))
 	}
-	return err
+
+	return fmt.Errorf(format, err)
 }
 
 // ValidDateIssue returns a valid year, month and day or a null value.

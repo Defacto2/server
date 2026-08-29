@@ -22,7 +22,7 @@ import (
 
 // One retrieves a single file record from the database using the record key.
 // This function can return records that have been marked as deleted.
-func One(ctx context.Context, exec boil.ContextExecutor, deleted bool, key int) (*models.File, error) {
+func One(ctx context.Context, exec boil.ContextExecutor, withDeleted bool, key int) (*models.File, error) {
 	const format = "one record %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
@@ -35,7 +35,7 @@ func One(ctx context.Context, exec boil.ContextExecutor, deleted bool, key int) 
 
 	var file *models.File
 	var err error
-	if deleted {
+	if withDeleted {
 		file, err = models.Files(mods, qm.WithDeleted()).One(ctx, exec)
 	} else {
 		file, err = models.Files(mods).One(ctx, exec)
@@ -49,7 +49,7 @@ func One(ctx context.Context, exec boil.ContextExecutor, deleted bool, key int) 
 
 // OneByUUID returns the record associated with the UUID key.
 // Generally this method of retrieval is less efficient than using the numeric, record key ID.
-func OneByUUID(ctx context.Context, exec boil.ContextExecutor, deleted bool, uid string) (*models.File, error) {
+func OneByUUID(ctx context.Context, exec boil.ContextExecutor, withDeleted bool, uid string) (*models.File, error) {
 	const format = "one record by uuid %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
@@ -63,7 +63,7 @@ func OneByUUID(ctx context.Context, exec boil.ContextExecutor, deleted bool, uid
 	mods := models.FileWhere.UUID.EQ(null.NewString(val.String(), true))
 
 	var file *models.File
-	if deleted {
+	if withDeleted {
 		file, err = models.Files(mods, qm.WithDeleted()).One(ctx, exec)
 	} else {
 		file, err = models.Files(mods).One(ctx, exec)
@@ -168,7 +168,7 @@ func OneFileByKey(ctx context.Context, exec boil.ContextExecutor, ObfKey string)
 }
 
 // recordObf retrieves a single file record from the database using the uid URL ID.
-func recordObf(ctx context.Context, exec boil.ContextExecutor, deleted bool, ObfKey string) (*models.File, error) {
+func recordObf(ctx context.Context, exec boil.ContextExecutor, withDeleted bool, ObfKey string) (*models.File, error) {
 	const format = "one record by obfuscated key %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
@@ -180,7 +180,7 @@ func recordObf(ctx context.Context, exec boil.ContextExecutor, deleted bool, Obf
 	}
 
 	// get record id, filename, uuid
-	art, err := One(ctx, exec, deleted, id)
+	art, err := One(ctx, exec, withDeleted, id)
 	if err != nil {
 		return nil, fmt.Errorf(format, ObfKey, err)
 	}

@@ -4,7 +4,6 @@ package model
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"slices"
 	"strconv"
@@ -12,7 +11,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/releaser"
-	namer "github.com/Defacto2/server/handler/releaser/name"
+	"github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -22,18 +21,7 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
-var ErrLookup = errors.New("invalid lookup value")
-
 const PageSet = 10 // PageSet is the default number of results when limit/page arguments are offered.
-
-// OrderBy is the sorting order for ALL the releasers.
-type OrderBy uint
-
-const (
-	Prolific     OrderBy = iota // Prolific orders by the total artifact count.
-	Alphabetical                // Alphabetical orders by the releaser name.
-	Oldest                      // Oldest orders by the year of the first artifact.
-)
 
 // Set is a zero-byte memory map used to store and reference string values.
 type Set map[string]struct{}
@@ -139,13 +127,13 @@ type Releaser struct {
 
 // Where gets the records that match the named releaser.
 // If the provided name is invalid, no results but no errors are returned.
-func ReleasersWhere(ctx context.Context, exec boil.ContextExecutor, name string) (models.FileSlice, error) {
+func ReleasersWhere(ctx context.Context, exec boil.ContextExecutor, releasers string) (models.FileSlice, error) {
 	const format = "releasers where: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, err)
 	}
 
-	s, _ := namer.Humanize(namer.Path(name))
+	s, _ := name.Humanize(name.Path(releasers))
 	if s == "" {
 		return models.FileSlice{}, nil
 	}
@@ -158,11 +146,50 @@ func ReleasersWhere(ctx context.Context, exec boil.ContextExecutor, name string)
 	).All(ctx, exec)
 }
 
+// OrderBy is the sorting order for ALL the releasers.
+type OrderBy uint
+
+const (
+	Prolific     OrderBy = iota // Prolific orders by the total artifact count.
+	Alphabetical                // Alphabetical orders by the releaser name.
+	Oldest                      // Oldest orders by the year of the first artifact.
+)
+
+// BBS gets the unique BBS site names and their total file count and file sizes.
+func (order OrderBy) BBS(ctx context.Context, exec boil.ContextExecutor, obj *Releasers) error {
+	const format = "unique bbs names: %w"
+	if err := nils.Check(ctx, exec, obj); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if len(*obj) > 0 {
+		return nil
+	}
+
+	var query string
+	switch order {
+	case Prolific:
+		query = string(postgres.BBSsProlific())
+	case Alphabetical:
+		query = string(postgres.BBSsAlphabetical())
+	case Oldest:
+		query = string(postgres.BBSsOldest())
+	default:
+		return fmt.Errorf(format, ErrMethod)
+	}
+
+	if err := queries.Raw(query).Bind(ctx, exec, obj); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	obj.Slugs()
+	return nil
+}
+
 // Limit gets the unique releaser names and their total file count and file sizes.
 // When reorder is true the results are ordered by the total file counts.
-func (obj *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, order OrderBy, limit, page int) error {
+func (order OrderBy) Limit(ctx context.Context, exec boil.ContextExecutor, obj *Releasers, limit, page int) error {
 	const format = "releasers limit: %w"
-	if err := nils.Check(ctx, exec); err != nil {
+	if err := nils.Check(ctx, exec, obj); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	if len(*obj) > 0 {
@@ -178,7 +205,7 @@ func (obj *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, orde
 	case Oldest:
 		query = string(postgres.ReleasersOldest())
 	default:
-		return fmt.Errorf(format, ErrOrderBy)
+		return fmt.Errorf(format, ErrMethod)
 	}
 	// strconv.Itoa
 	if limit > 0 {
@@ -196,36 +223,28 @@ func (obj *Releasers) Limit(ctx context.Context, exec boil.ContextExecutor, orde
 	return nil
 }
 
-type lookup int
-
-const (
-	toReleasers lookup = iota
-	toReleasersExact
-	toMagazines
-)
-
 // Similar finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
 func (obj *Releasers) Similar(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	return obj.similar(ctx, exec, limit, toReleasers, names...)
+	return Only.releasers(ctx, exec, obj, limit, names...)
 }
 
 // Initialism finds the unique releaser names that match the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
 func (obj *Releasers) Initialism(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	return obj.similar(ctx, exec, limit, toReleasersExact, names...)
+	return OnlyExact.releasers(ctx, exec, obj, limit, names...)
 }
 
 // SimilarMagazine finds the unique releaser names that are similar to the named strings.
 // The results are ordered by the total file counts.
 // The required limit is the maximum number of results to return or defaults to 10.
 func (obj *Releasers) SimilarMagazine(ctx context.Context, exec boil.ContextExecutor, limit int, names ...string) error {
-	return obj.similar(ctx, exec, limit, toMagazines, names...)
+	return OnlyMagazine.releasers(ctx, exec, obj, limit, names...)
 }
 
-func limits(pageNumber, pageSize int) (limit int, offset int) {
+func limits(pageNumber, pageSize int) (limit, offset int) {
 	if pageNumber < 1 {
 		pageNumber = 1
 	}
@@ -236,36 +255,6 @@ func limits(pageNumber, pageSize int) (limit int, offset int) {
 	limit = pageSize
 	offset = (pageNumber - 1) * pageSize
 	return limit, offset
-}
-
-// BBS gets the unique BBS site names and their total file count and file sizes.
-func (obj *Releasers) BBS(ctx context.Context, exec boil.ContextExecutor, order OrderBy) error {
-	const format = "unique bbs names: %w"
-	if err := nils.Check(ctx, exec); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	if len(*obj) > 0 {
-		return nil
-	}
-
-	var query string
-	switch order {
-	case Prolific:
-		query = string(postgres.BBSsProlific())
-	case Alphabetical:
-		query = string(postgres.BBSsAlphabetical())
-	case Oldest:
-		query = string(postgres.BBSsOldest())
-	default:
-		return fmt.Errorf(format, ErrOrderBy)
-	}
-
-	if err := queries.Raw(query).Bind(ctx, exec, obj); err != nil {
-		return fmt.Errorf(format, err)
-	}
-
-	obj.Slugs()
-	return nil
 }
 
 // FTP gets the unique FTP site names and their total file count and file sizes.
@@ -329,12 +318,20 @@ func (obj *Releasers) Slugs() {
 	}
 }
 
-func (obj *Releasers) similar(
-	ctx context.Context, exec boil.ContextExecutor, limit int, look lookup, names ...string,
+type Lookup int
+
+const (
+	Only Lookup = iota
+	OnlyExact
+	OnlyMagazine
+)
+
+func (match Lookup) releasers(
+	ctx context.Context, exec boil.ContextExecutor, obj *Releasers, limit int, names ...string,
 ) error {
 	boil.DebugMode = false // enable to see the raw SQL queries.
 	const format = "similar releasers: %w"
-	if err := nils.Check(ctx, exec); err != nil {
+	if err := nils.Check(ctx, exec, obj); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	if len(names) == 0 || len(*obj) > 0 {
@@ -355,18 +352,18 @@ func (obj *Releasers) similar(
 	var query string
 	var params []any
 
-	switch look {
-	case toReleasersExact:
+	switch match {
+	case OnlyExact:
 		sqlStr, p := postgres.SimilarToExact(likes...)
 		query, params = string(sqlStr), p
-	case toMagazines:
+	case OnlyMagazine:
 		sqlStr, p := postgres.SimilarToMagazine(likes...)
 		query, params = string(sqlStr), p
-	case toReleasers:
+	case Only:
 		sqlStr, p := postgres.SimilarToReleaser(likes...)
 		query, params = string(sqlStr), p
 	default:
-		return fmt.Errorf(format, ErrLookup)
+		return fmt.Errorf(format, ErrMethod)
 	}
 
 	const pageNumber = 1

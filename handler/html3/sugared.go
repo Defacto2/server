@@ -114,7 +114,7 @@ func Groups(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
-	if err := releasers.Limit(ctx, db, model.Alphabetical, model.Maximum, page); err != nil {
+	if err := model.Alphabetical.Limit(ctx, db, &releasers, model.Maximum, page); err != nil {
 		sl.Error(msg, slog.String("alphabetical", ErrSQL), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
 	}
