@@ -428,23 +428,23 @@ func sitemaps(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *e
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.Website, func(c *echo.Context) error {
-		i := sitemap.MapSite(ctx, db, sl)
+		i := sitemap.MapSite(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.Releaser, func(c *echo.Context) error {
-		i := sitemap.MapReleaser(ctx, db, sl)
+		i := sitemap.MapReleaser(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.Magazine, func(c *echo.Context) error {
-		i := sitemap.MapMagazine(ctx, db, sl)
+		i := sitemap.MapMagazine(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.BBS, func(c *echo.Context) error {
-		i := sitemap.MapBBS(ctx, db, sl)
+		i := sitemap.MapBBS(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.FTP, func(c *echo.Context) error {
-		i := sitemap.MapFTP(ctx, db, sl)
+		i := sitemap.MapFTP(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 

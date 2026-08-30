@@ -19,11 +19,11 @@ import (
 	"context"
 	"database/sql"
 	"encoding/xml"
+	"fmt"
 	"log/slog"
-	"math"
-	"slices"
 	"strconv"
 
+	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/model"
 )
 
@@ -76,17 +76,25 @@ type Map struct {
 // MapIndex generates the sitemap index xml page.
 // It must be handled by either the XML or XMLPretty echo contexts.
 func MapIndex() *Index {
-	locs := []string{Website, Releaser, Magazine, BBS, FTP}
-	maps := make([]Map, len(locs))
-	for i, loc := range slices.All(locs) {
-		maps[i].Loc = RootURL + "/" + loc
-		// maps[i].LastMod = time.Now().Format(time.DateOnly)
+	locs := [...]string{
+		Website,
+		Releaser,
+		Magazine,
+		BBS,
+		FTP,
 	}
+
+	maps := make([]Map, len(locs))
+	for i, loc := range locs {
+		maps[i].Loc = RootURL + "/" + loc
+	}
+
 	index := &Index{
 		XMLName: xml.Name{Space: "", Local: "sitemapindex"},
 		XMLNS:   Namespace,
 		Maps:    maps,
 	}
+
 	return index
 }
 
@@ -120,51 +128,41 @@ type Loc struct {
 
 // MapSite generates the main sitemap for the website.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapSite(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
-	const msg = "sitemap map site"
-	m := model.Summary{
-		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
-		SumCount: sql.NullInt64{Int64: 0, Valid: false},
-		MinYear:  sql.NullInt16{Int16: 0, Valid: false},
-		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
+func MapSite(ctx context.Context, sl *slog.Logger, db *sql.DB) *Sitemap {
+	const format = "site mapsite: %w"
+	if err := nils.Check(ctx, sl, db); err != nil {
+		panic(fmt.Errorf(format, err))
 	}
+
+	var m model.Summary
 	err := m.ByPublic(ctx, db)
 	if err != nil {
-		sl.Error(msg, slog.String("model", "could not obtain summary by public"),
-			slog.Any("error", err))
+		sl.Error("site mapsite could not obtain summary by public", slog.Any("error", err))
 	}
+
 	sum := m.SumCount.Int64
-	lastPage := math.Ceil(float64(sum) / float64(limit))
-	locs := []string{
-		"bbs/year",
-		"ftp",
-		"magazine",
-		"releaser/year",
-		"scener",
-		"website",
-		"areacodes",
-		"history",
-		"brokentexts",
-		"apps",
-		"fixes",
-		"compression",
-		"terms",
-		"thescene",
-		"thanks",
-		"files/oldest", // page 1 (doesn't append the page number)
+	pages := (sum + limit - 1) / limit
+
+	staticLocs := [...]string{
+		"bbs/year", "ftp", "magazine", "releaser/year", "scener", "website",
+		"areacodes", "history", "brokentexts", "apps", "fixes",
+		"compression", "terms", "thescene", "thanks", "files/oldest",
 	}
-	page := 1
-	for page <= int(lastPage)-1 {
-		page++
-		locs = append(locs, "files/oldest/"+strconv.Itoa(page))
+	total := len(staticLocs)
+	if pages > 1 {
+		total += int(pages - 1)
 	}
-	maps := make([]Loc, len(locs))
-	for i, loc := range slices.All(locs) {
-		maps[i].Loc = RootURL + "/" + loc
-		// maps[i].LastMod = time.Now().Format(time.DateOnly)
+
+	maps := make([]Loc, 0, total)
+	for _, loc := range staticLocs {
+		maps = append(maps, Loc{Loc: RootURL + "/" + loc})
 	}
+	for p := int64(2); p <= pages; p++ {
+		maps = append(maps, Loc{Loc: RootURL + "/files/oldest/" + strconv.FormatInt(p, 10)})
+	}
+
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: urlset},
+		XMLName: xml.Name{Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -173,19 +171,24 @@ func MapSite(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapReleaser generates the sitemap that links to every releaser page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapReleaser(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
-	const msg = "sitemap map releaser"
+func MapReleaser(ctx context.Context, sl *slog.Logger, db *sql.DB) *Sitemap {
+	const format = "site mapreleaser: %w"
+	if err := nils.Check(ctx, sl, db); err != nil {
+		panic(fmt.Errorf(format, err))
+	}
+
 	var r model.Releasers
 	if err := model.Oldest.Limit(ctx, db, &r, 0, 0); err != nil {
-		sl.Error(msg, slog.String("model", "could not obtain releasers using limit"),
-			slog.Any("error", err))
+		sl.Error("site mapreleaser could not obtain releasers using limit", slog.Any("error", err))
 	}
+
 	maps := make([]Loc, len(r))
 	for i, rel := range r {
-		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
+		maps[i] = Loc{Loc: RootURL + "/g/" + rel.Unique.URI}
 	}
+
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: urlset},
+		XMLName: xml.Name{Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -194,19 +197,24 @@ func MapReleaser(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapMagazine generates the sitemap that links to every magazine page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapMagazine(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
-	const msg = "sitemap map magazine"
+func MapMagazine(ctx context.Context, sl *slog.Logger, db *sql.DB) *Sitemap {
+	const format = "site mapmagazine: %w"
+	if err := nils.Check(ctx, sl, db); err != nil {
+		panic(fmt.Errorf(format, err))
+	}
+
 	var r model.Releasers
 	if err := r.Magazine(ctx, db); err != nil {
-		sl.Error(msg, slog.String("model", "could not obtain publications using magazine"),
-			slog.Any("error", err))
+		sl.Error("site mapmagazine could not obtain magazine publications", slog.Any("error", err))
 	}
+
 	maps := make([]Loc, len(r))
 	for i, rel := range r {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
+
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: urlset},
+		XMLName: xml.Name{Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -215,19 +223,24 @@ func MapMagazine(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapBBS generates the sitemap that links to every bbs page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapBBS(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
-	const msg = "sitemap map bbs"
+func MapBBS(ctx context.Context, sl *slog.Logger, db *sql.DB) *Sitemap {
+	const format = "site mapbbs: %w"
+	if err := nils.Check(ctx, sl, db); err != nil {
+		panic(fmt.Errorf(format, err))
+	}
+
 	var r model.Releasers
 	if err := model.Prolific.BBS(ctx, db, &r); err != nil {
-		sl.Error(msg, slog.String("model", "could not obtain bulletin boards using bbs"),
-			slog.Any("error", err))
+		sl.Error("site mapbbs could not obtain bulletin boards", slog.Any("error", err))
 	}
+
 	maps := make([]Loc, len(r))
 	for i, rel := range r {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
+
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: urlset},
+		XMLName: xml.Name{Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}
@@ -236,19 +249,24 @@ func MapBBS(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
 
 // MapFTP generates the sitemap that links to every ftp page that is public.
 // It must be handled by either the XML or XMLPretty echo contexts.
-func MapFTP(ctx context.Context, db *sql.DB, sl *slog.Logger) *Sitemap {
-	const msg = "sitemap map ftp"
+func MapFTP(ctx context.Context, sl *slog.Logger, db *sql.DB) *Sitemap {
+	const format = "site mapftp: %w"
+	if err := nils.Check(ctx, sl, db); err != nil {
+		panic(fmt.Errorf(format, err))
+	}
+
 	var r model.Releasers
 	if err := r.FTP(ctx, db); err != nil {
-		sl.Error(msg, slog.String("model", "could not obtain file sites using ftp"),
-			slog.Any("error", err))
+		sl.Error("site mapftp could not obtain file sites", slog.Any("error", err))
 	}
+
 	maps := make([]Loc, len(r))
 	for i, rel := range r {
 		maps[i].Loc = RootURL + "/g/" + rel.Unique.URI
 	}
+
 	sm := &Sitemap{
-		XMLName: xml.Name{Space: "", Local: urlset},
+		XMLName: xml.Name{Local: urlset},
 		XMLNS:   Namespace,
 		Locs:    maps,
 	}

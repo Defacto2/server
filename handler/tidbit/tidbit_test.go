@@ -14,6 +14,7 @@ var testdata embed.FS
 
 func TestID(t *testing.T) {
 	t.Parallel()
+
 	// Test a few known IDs that have URIs defined
 	testIDs := []tidbit.ID{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	for _, id := range testIDs {
@@ -25,11 +26,13 @@ func TestID(t *testing.T) {
 
 func TestMarkdown(t *testing.T) {
 	t.Parallel()
+
 	dir := filepath.Join("testdata", "public", "md", "tidbit")
 	b := tidbit.ID(1).Markdown(logs.Discard(), testdata, dir)
 	if b == nil {
 		t.Error("tidbit: 1 markdown is nil")
 	}
+
 	const want = "<p>This is a test tidbit.</p>\n"
 	if got := string(b); got != want {
 		t.Errorf("tidbit: 1 markdown got %q, want %q", got, want)

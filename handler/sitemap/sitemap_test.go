@@ -4,17 +4,20 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/sitemap"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
 func TestMapIndex(t *testing.T) {
 	t.Parallel()
+
 	index := sitemap.MapIndex()
 	be.True(t, index != nil)
 	be.Equal(t, sitemap.Namespace, index.XMLNS)
 	be.Equal(t, 5, len(index.Maps))
 
-	expectedLocs := []string{
+	expectedLocs := [...]string{
 		sitemap.Website,
 		sitemap.Releaser,
 		sitemap.Magazine,
@@ -24,57 +27,73 @@ func TestMapIndex(t *testing.T) {
 	for i, expected := range expectedLocs {
 		be.Equal(t, sitemap.RootURL+"/"+expected, index.Maps[i].Loc)
 	}
+
+	be.Equal(t, index.XMLNS, "http://www.sitemaps.org/schemas/sitemap/0.9")
+	be.Equal(t, len(index.Maps), 5)
+	be.Equal(t, sitemap.RootURL, "https://defacto2.net")
+	be.Equal(t, sitemap.Website, "sitemap.xml")
+	be.Equal(t, sitemap.Releaser, "sitemap-releaser.xml")
+	be.Equal(t, sitemap.Magazine, "sitemap-magazine.xml")
+	be.Equal(t, sitemap.BBS, "sitemap-bbs.xml")
+	be.Equal(t, sitemap.FTP, "sitemap-ftp.xml")
 }
 
-func TestMapIndexNamespace(t *testing.T) {
+func TestMapSite(t *testing.T) {
 	t.Parallel()
-	index := sitemap.MapIndex()
-	be.Equal(t, "http://www.sitemaps.org/schemas/sitemap/0.9", index.XMLNS)
+
+	db := testutil.DB(t)
+	sl := logs.Discard()
+
+	sitemap := sitemap.MapSite(t.Context(), sl, db)
+	locs := len(sitemap.Locs)
+	t.Log(locs)
+	be.True(t, locs > 20)
 }
 
-func TestMapIndexMapCount(t *testing.T) {
+func TestMapReleaser(t *testing.T) {
 	t.Parallel()
-	index := sitemap.MapIndex()
-	be.Equal(t, 5, len(index.Maps))
+
+	db := testutil.DB(t)
+	sl := logs.Discard()
+
+	sitemap := sitemap.MapReleaser(t.Context(), sl, db)
+	locs := len(sitemap.Locs)
+	t.Log(locs)
+	be.True(t, locs > 20)
 }
 
-func TestMapSiteHasStaticPages(t *testing.T) {
+func TestMapMagazine(t *testing.T) {
 	t.Parallel()
-	// Test that MapSite at least has the static pages defined
-	// We can't test without a database due to panics
-	be.True(t, true)
+
+	db := testutil.DB(t)
+	sl := logs.Discard()
+
+	sitemap := sitemap.MapMagazine(t.Context(), sl, db)
+	locs := len(sitemap.Locs)
+	t.Log(locs)
+	be.True(t, locs > 2)
 }
 
-func TestRootURL(t *testing.T) {
+func TestMapBBS(t *testing.T) {
 	t.Parallel()
-	be.Equal(t, "https://defacto2.net", sitemap.RootURL)
+
+	db := testutil.DB(t)
+	sl := logs.Discard()
+
+	sitemap := sitemap.MapBBS(t.Context(), sl, db)
+	locs := len(sitemap.Locs)
+	t.Log(locs)
+	be.True(t, locs > 2)
 }
 
-func TestSitemapFiles(t *testing.T) {
+func TestMapFTP(t *testing.T) {
 	t.Parallel()
-	be.Equal(t, "sitemap.xml", sitemap.Website)
-	be.Equal(t, "sitemap-releaser.xml", sitemap.Releaser)
-	be.Equal(t, "sitemap-magazine.xml", sitemap.Magazine)
-	be.Equal(t, "sitemap-bbs.xml", sitemap.BBS)
-	be.Equal(t, "sitemap-ftp.xml", sitemap.FTP)
-}
 
-func TestLocStruct(t *testing.T) {
-	t.Parallel()
-	loc := sitemap.Loc{
-		Loc:     "https://example.com/page",
-		LastMod: "2024-01-01",
-	}
-	be.Equal(t, "https://example.com/page", loc.Loc)
-	be.Equal(t, "2024-01-01", loc.LastMod)
-}
+	db := testutil.DB(t)
+	sl := logs.Discard()
 
-func TestMapStruct(t *testing.T) {
-	t.Parallel()
-	m := sitemap.Map{
-		Loc:     "https://example.com/sitemap.xml",
-		LastMod: "2024-01-01",
-	}
-	be.Equal(t, "https://example.com/sitemap.xml", m.Loc)
-	be.Equal(t, "2024-01-01", m.LastMod)
+	sitemap := sitemap.MapFTP(t.Context(), sl, db)
+	locs := len(sitemap.Locs)
+	t.Log(locs)
+	be.True(t, locs > 2)
 }

@@ -9,6 +9,7 @@ import (
 
 func TestFind(t *testing.T) {
 	t.Parallel()
+
 	website := site.Find("defacto2")
 	be.True(t, len(website) == 5)
 	be.Equal(t, "https://defacto2.net", website[0].URL)
@@ -17,6 +18,7 @@ func TestFind(t *testing.T) {
 
 	website = site.Find("notfound")
 	be.True(t, len(website) == 0)
+
 	website = site.Find("razor-1911-demo")
 	be.True(t, len(website) == 2)
 }

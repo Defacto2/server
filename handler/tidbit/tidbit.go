@@ -549,13 +549,16 @@ func (id ID) Markdown(sl *slog.Logger, fsys fs.FS, dir string) []byte {
 	if err := nils.Check(sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+
 	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
+
 	b, err := fs.ReadFile(fsys, name)
 	if err != nil {
 		name := fmt.Sprintf("%d.md", id)
 		sl.Error(msg, slog.String("read_error", name), slog.Any("error", err))
 		return nil
 	}
+
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse(b)
 	renderer := html.NewRenderer(html.RendererOptions{ //nolint:exhaustruct // too any optional fields
@@ -566,47 +569,48 @@ func (id ID) Markdown(sl *slog.Logger, fsys fs.FS, dir string) []byte {
 
 // String returns the tidbit description that is stored as a markdown file in the provided file system.
 func (id ID) String(sl *slog.Logger, fsys fs.FS) string {
-	if b := id.Markdown(sl, fsys, Dir); b != nil {
-		return string(b)
+	b := id.Markdown(sl, fsys, Dir)
+	if b == nil {
+		return ""
 	}
-	return ""
+
+	return string(b)
 }
 
 // URI returns the URIs of the tidbit.
 func (id ID) URI() []URI {
-	if x := groups[id]; x != nil {
-		return x
+	x := groups[id]
+	if x == nil {
+		return nil
 	}
-	return nil
+
+	return x
 }
 
 // URL returns the HTML links of the tidbit but the provided URI is excluded.
 func (id ID) URL(uri string) template.HTML {
 	if id == -1 {
-		return template.HTML("")
+		return ""
 	}
+
 	urls := id.URI()
 	if urls == nil {
-		return template.HTML("")
+		return ""
 	}
-	sorted := slices.SortedFunc(slices.Values(urls), func(a, b URI) int {
-		if a < b {
-			return -1
-		}
-		if a > b {
-			return 1
-		}
-		return 0
-	})
-	html := []string{}
+
+	sorted := slices.Clone(urls)
+	slices.Sort(sorted)
+
+	html := make([]string, 0, len(sorted))
 	for _, val := range sorted {
 		if val == URI(uri) {
 			continue
 		}
-		s := string(val)
-		html = append(html, `<a href="/g/`+s+`">`+releaser.Link(s)+`</a>`)
+		path := string(val)
+		html = append(html, `<a href="/g/`+path+`">`+releaser.Link(path)+`</a>`)
 	}
 	s := strings.Join(html, " &nbsp; ")
+
 	return template.HTML(s)
 }
 
@@ -615,14 +619,14 @@ func (id ID) URL(uri string) template.HTML {
 // The ID returned can be used in a string conversion to get the description.
 // The ID can also be used to get the URIs of the tidbit.
 func Find(uri string) []ID {
-	ids := []ID{}
+	target := URI(uri)
+	var ids []ID
 	for id, uris := range groups {
-		for val := range slices.Values(uris) {
-			if val == URI(uri) {
-				ids = append(ids, id)
-			}
+		if slices.Contains(uris, target) {
+			ids = append(ids, id)
 		}
 	}
+
 	return ids
 }
 
@@ -631,13 +635,13 @@ func Find(uri string) []ID {
 // The ID returned can be used in a string conversion to get the description.
 // The ID can also be used to get the URIs of the tidbit.
 func Missing(uri string) bool {
+	target := URI(uri)
 	for _, uris := range groups {
-		for val := range slices.Values(uris) {
-			if val == URI(uri) {
-				return false
-			}
+		if slices.Contains(uris, target) {
+			return false
 		}
 	}
+
 	return true
 }
 
@@ -656,16 +660,15 @@ func Startup(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 	if len(names) == 0 {
 		return
 	}
+
 	releaserSet := names.Slugs()
 
 	for id, uris := range groups {
 		for n, uri := range uris {
-			key := strings.ToLower(string(uri))
-			if !releaserSet.Has(key) {
-				sl.Warn(msg+"find releaser",
-					slog.String("url", key),
-					slog.Int("tidbit_id", int(id)),
-					slog.Int("item_index", n))
+			key := string(uri)
+			if !releaserSet.Has(string(uri)) {
+				sl.Warn(msg+"find releaser", slog.String("url", key),
+					slog.Int("tidbit_id", int(id)), slog.Int("item_index", n))
 			}
 		}
 	}

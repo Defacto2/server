@@ -1,7 +1,9 @@
 // Package site proves links and titles for recommended websites.
 package site
 
-import "sort"
+import (
+	"slices"
+)
 
 const (
 	inqAD     = "INQ ad"
@@ -1294,16 +1296,22 @@ var websites = Groups{
 	},
 }
 
+func init() {
+	for _, sites := range websites {
+		slices.SortFunc(sites, func(a, b Website) int {
+			if a.NotWorking == b.NotWorking {
+				return 0
+			}
+			if !a.NotWorking {
+				return -1
+			}
+			return 1
+		})
+	}
+}
+
 // Find returns the website for the given uri.
 // It returns an empty string if the uri is not known.
 func Find(uri string) []Website {
-	sites, groupExists := websites[URI(uri)]
-	if !groupExists {
-		return []Website{}
-	}
-	// sort using notworking listing as last
-	sort.Slice(sites, func(i, j int) bool {
-		return !sites[i].NotWorking && sites[j].NotWorking
-	})
-	return sites
+	return websites[URI(uri)]
 }
