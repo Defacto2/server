@@ -5,11 +5,11 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"embed"
 	"errors"
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -1153,102 +1153,103 @@ type SRI struct {
 // Verify checks the integrity of the embedded CSS and JS files.
 // These are required for Subresource Integrity (SRI) verification in modern browsers.
 // The fs is the embedded file system that contains the public facing file assets.
-func (s *SRI) Verify(fs embed.FS) error { //nolint:funlen
-	if err := nils.Check(fs); err != nil {
+func (s *SRI) Verify(fsys fs.FS) error { //nolint:funlen
+	if err := nils.Check(fsys); err != nil {
 		return fmt.Errorf("sri verify: %w", err)
 	}
+
 	const format = "%s: %w"
 	names := *Names()
 	var err error
 	name := names[Bootstrap5]
-	s.Bootstrap5, err = helper.Integrity(name, fs)
+	s.Bootstrap5, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[Bootstrap5JS]
-	s.Bootstrap5JS, err = helper.Integrity(name, fs)
+	s.Bootstrap5JS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[BootstrapIcons]
-	s.BootstrapIcons, err = helper.Integrity(name, fs)
+	s.BootstrapIcons, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 
 	name = names[ContentBinary]
-	s.CanvasAnsi, err = helper.Integrity(name, fs)
+	s.CanvasAnsi, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[ContentText]
-	s.CanvasReadme, err = helper.Integrity(name, fs)
+	s.CanvasReadme, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 
 	name = names[LayoutJS]
-	s.LayoutJS, err = helper.Integrity(name, fs)
+	s.LayoutJS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[ChiptunePlayer]
-	s.ChiptunePlayer, err = helper.Integrity(name, fs)
+	s.ChiptunePlayer, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[EditArtifact]
-	s.EditArtifact, err = helper.Integrity(name, fs)
+	s.EditArtifact, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[EditAssets]
-	s.EditAssets, err = helper.Integrity(name, fs)
+	s.EditAssets, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[EditForApproval]
-	s.EditForApproval, err = helper.Integrity(name, fs)
+	s.EditForApproval, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[IndexJS]
-	s.IndexJS, err = helper.Integrity(name, fs)
+	s.IndexJS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[Jsdos6JS]
-	s.Jsdos6JS, err = helper.Integrity(name, fs)
+	s.Jsdos6JS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[DosboxJS]
-	s.DosboxJS, err = helper.Integrity(name, fs)
+	s.DosboxJS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[Layout]
-	s.Layout, err = helper.Integrity(name, fs)
+	s.Layout, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[Pouet]
-	s.Pouet, err = helper.Integrity(name, fs)
+	s.Pouet, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[Uploader]
-	s.Uploader, err = helper.Integrity(name, fs)
+	s.Uploader, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[Htmx]
-	s.Htmx, err = helper.Integrity(name, fs)
+	s.Htmx, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
 	name = names[HtmxRespTargets]
-	s.HtmxRespTargets, err = helper.Integrity(name, fs)
+	s.HtmxRespTargets, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}

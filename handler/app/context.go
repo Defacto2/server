@@ -6,10 +6,10 @@ import (
 	"context"
 	"crypto/sha512"
 	"database/sql"
-	"embed"
 	"errors"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log/slog"
 	"math"
 	"net/http"
@@ -1862,7 +1862,7 @@ func Releaser404(sl *slog.Logger, c *echo.Context, invalidID string) error {
 }
 
 // Releasers is the handler for the list and preview of files credited to a releaser.
-func Releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public embed.FS) error {
+func Releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public fs.FS) error {
 	const msg = "releasers context handler"
 	const format = msg + ": %w"
 	if err := nils.Check(ctx, sl, c, db); err != nil {
@@ -1953,7 +1953,7 @@ func releasersDesc(relname, altnames string,
 	return data
 }
 
-func tibits(sl *slog.Logger, uri string, public embed.FS) string {
+func tibits(sl *slog.Logger, uri string, public fs.FS) string {
 	if sl == nil {
 		sl = logs.Discard()
 	}
@@ -2255,7 +2255,7 @@ func SignOut(sl *slog.Logger, c *echo.Context) error {
 }
 
 // Signin is the handler for the Sign in session page.
-func Signin(sl *slog.Logger, c *echo.Context, clientID, nonce string) error {
+func Signin(sl *slog.Logger, c *echo.Context, clientID string, nonce []byte) error {
 	const title = "Sign in"
 	const descr = "Sign in to Defacto2."
 	const leadr = "This is not open to the general public."
@@ -2272,7 +2272,7 @@ func Signin(sl *slog.Logger, c *echo.Context, clientID, nonce string) error {
 	data["lead"] = leadr
 	data["callback"] = "/google/callback"
 	data["clientID"] = clientID
-	data["nonce"] = nonce
+	data["nonce"] = string(nonce)
 	{ // get any existing session
 		sess, err := session.Get(sess.Name, c)
 		if err != nil {

@@ -4,9 +4,9 @@ package tidbit
 import (
 	"context"
 	"database/sql"
-	"embed"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log/slog"
 	"path/filepath"
 	"slices"
@@ -544,13 +544,13 @@ var groups = Tibits{
 //
 // Generally the String method should be used to get the description of the tidbit instead
 // of this Markdown method.
-func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
+func (id ID) Markdown(sl *slog.Logger, fsys fs.FS, dir string) []byte {
 	const msg = "tidbit markdown"
 	if err := nils.Check(sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 	name := filepath.Join(dir, fmt.Sprintf("%d.md", id))
-	b, err := fs.ReadFile(name)
+	b, err := fs.ReadFile(fsys, name)
 	if err != nil {
 		name := fmt.Sprintf("%d.md", id)
 		sl.Error(msg, slog.String("read_error", name), slog.Any("error", err))
@@ -565,8 +565,8 @@ func (id ID) Markdown(sl *slog.Logger, fs embed.FS, dir string) []byte {
 }
 
 // String returns the tidbit description that is stored as a markdown file in the provided file system.
-func (id ID) String(sl *slog.Logger, fs embed.FS) string {
-	if b := id.Markdown(sl, fs, Dir); b != nil {
+func (id ID) String(sl *slog.Logger, fsys fs.FS) string {
+	if b := id.Markdown(sl, fsys, Dir); b != nil {
 		return string(b)
 	}
 	return ""

@@ -5,9 +5,9 @@ package html3
 import (
 	"context"
 	"database/sql"
-	"embed"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log/slog"
 	"strings"
 
@@ -25,8 +25,8 @@ const (
 	tag        Templ = "html3_tag"
 )
 
-func emptyFS(fs embed.FS) bool {
-	entries, err := fs.ReadDir(".")
+func emptyFS(fsys fs.FS) bool {
+	entries, err := fs.ReadDir(fsys, ".")
 	result := err != nil || len(entries) == 0
 	clear(entries)
 	return result
@@ -39,14 +39,14 @@ func GlobTo(name string) string {
 }
 
 // Index template.
-func index(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
-	if emptyFS(fs) {
+func index(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
 		return nil
 	}
 	// this template is broken out to vars for easier debuging
 	patterns := []string{GlobTo(layout), GlobTo(dirs), GlobTo("index.html")}
 	funcMap := TemplateFuncMap(ctx, sl, db)
-	t, err := template.New("").Funcs(funcMap).ParseFS(fs, patterns...)
+	t, err := template.New("").Funcs(funcMap).ParseFS(fsys, patterns...)
 	if err != nil {
 		sl.Error("html3 template index", slog.Any("error", err))
 	}
@@ -54,38 +54,38 @@ func index(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *templ
 }
 
 // List file records template.
-func list(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
-	if emptyFS(fs) {
+func list(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fsys,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
 
 // List and filter the tags template.
-func listTags(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
-	if emptyFS(fs) {
+func listTags(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fsys,
 		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
 }
 
 // List the distinct groups template.
-func listGroups(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
-	if emptyFS(fs) {
+func listGroups(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fsys,
 		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
 }
 
 // Template for displaying HTTP error codes and feedback.
-func httpErr(ctx context.Context, db *sql.DB, sl *slog.Logger, fs embed.FS) *template.Template {
-	if emptyFS(fs) {
+func httpErr(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fs,
+	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fsys,
 		GlobTo(layout)))
 }
 

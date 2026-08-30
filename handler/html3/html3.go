@@ -5,10 +5,10 @@ package html3
 import (
 	"context"
 	"database/sql"
-	"embed"
 	"errors"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -521,22 +521,22 @@ func Sortings() map[Sort]string {
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fs embed.FS) map[string]*template.Template {
+func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fsys fs.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	if err := nils.Check(ctx, db, sl, fs); err != nil {
+	if err := nils.Check(ctx, db, sl, fsys); err != nil {
 		panic(fmt.Errorf("html3 templates: %w", err))
 	}
-	t["html3_index"] = index(ctx, db, sl, fs)
-	t["html3_all"] = list(ctx, db, sl, fs)
-	t["html3_art"] = list(ctx, db, sl, fs)
-	t["html3_documents"] = list(ctx, db, sl, fs)
-	t["html3_software"] = list(ctx, db, sl, fs)
-	t["html3_groups"] = listGroups(ctx, db, sl, fs)
-	t["html3_group"] = list(ctx, db, sl, fs)
-	t[string(tag)] = listTags(ctx, db, sl, fs)
-	t["html3_platform"] = list(ctx, db, sl, fs)
-	t["html3_category"] = list(ctx, db, sl, fs)
-	t["html3_error"] = httpErr(ctx, db, sl, fs)
+	t["html3_index"] = index(ctx, db, sl, fsys)
+	t["html3_all"] = list(ctx, db, sl, fsys)
+	t["html3_art"] = list(ctx, db, sl, fsys)
+	t["html3_documents"] = list(ctx, db, sl, fsys)
+	t["html3_software"] = list(ctx, db, sl, fsys)
+	t["html3_groups"] = listGroups(ctx, db, sl, fsys)
+	t["html3_group"] = list(ctx, db, sl, fsys)
+	t[string(tag)] = listTags(ctx, db, sl, fsys)
+	t["html3_platform"] = list(ctx, db, sl, fsys)
+	t["html3_category"] = list(ctx, db, sl, fsys)
+	t["html3_error"] = httpErr(ctx, db, sl, fsys)
 	return t
 }
 

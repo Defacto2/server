@@ -30,34 +30,56 @@ const (
 	double  = 2
 )
 
-func (c *Configuration) lock(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
-	const format = "configuration router lock: %w"
+func (serv *Server) lock(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) (*echo.Echo, error) {
+	const format = "configuration router: %w"
 	if err := nils.Check(ctx, sl, e, db); err != nil {
-		panic(fmt.Errorf(format, err))
+		return nil, fmt.Errorf(format, err)
 	}
-	readonlylock := func(ec echo.HandlerFunc) echo.HandlerFunc {
-		return c.ReadOnlyLock(ec, sl)
+
+	readonlylock := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return serv.ReadOnlyLock(next, sl)
 	}
-	sessionlock := func(ec echo.HandlerFunc) echo.HandlerFunc {
-		return c.SessionLock(ec, sl)
+
+	sessionlock := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return serv.SessionLock(next, sl)
 	}
-	lock := e.Group("/editor")
+
+	lock := e.Group("/editor") // lock this group route
+
 	lock.Use(readonlylock, sessionlock)
-	c.configurations(ctx, sl, lock, db)
-	creator(ctx, lock, db)
-	date(ctx, lock, db)
-	editor(ctx, sl, lock, db, dirs)
+
+	if err := serv.configurations(ctx, sl, lock, db); err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	if err := creator(ctx, lock, db); err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	if err := date(ctx, lock, db); err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	if err := editor(ctx, sl, lock, db, dirs); err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	if err := get(ctx, sl, lock, db, dirs); err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	if err := online(ctx, lock, db); err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	if err := search(ctx, sl, lock, db); err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+
 	fixers(ctx, sl, lock, db)
-	get(ctx, sl, lock, db, dirs)
-	online(ctx, lock, db)
-	search(ctx, sl, lock, db)
+
 	routes(sl, lock, e.Router().Routes())
-	return e
+
+	return e, nil
 }
 
 func routes(sl *slog.Logger, g *echo.Group, r echo.Routes) {
-	g.GET("/routes", func(ec *echo.Context) error {
-		return app.Routes(sl, ec, r)
+	g.GET("/routes", func(c *echo.Context) error {
+		return app.Routes(sl, c, r)
 	})
 }
 
@@ -72,34 +94,40 @@ func fixers(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	g.POST("/fixers/fix/:id", fixID)
 }
 
-func (c *Configuration) configurations(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
+func (serv *Server) configurations(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) error {
 	const format = "configurations group router: %w"
 	if err := nils.Check(ctx, sl, g, db); err != nil {
-		panic(fmt.Errorf(format, err))
+		return fmt.Errorf(format, err)
 	}
+
 	conf := g.Group("/configurations")
-	conf.GET("", func(ec *echo.Context) error {
-		return app.Configurations(ctx, sl, ec, db, c.Environment)
+	conf.GET("", func(c *echo.Context) error {
+		return app.Configurations(ctx, sl, c, db, serv.Environment)
 	})
+
 	conf.GET("/dbconns", func(c *echo.Context) error {
 		return htmx.DBConnections(c, db)
 	})
-	conf.GET("/pings", func(ec *echo.Context) error {
+
+	conf.GET("/pings", func(c *echo.Context) error {
 		proto := "http"
-		port := c.Environment.HTTPPort.Value()
+		port := serv.Environment.HTTPPort.Value()
 		if port == 0 {
-			port = c.Environment.TLSPort.Value()
+			port = serv.Environment.TLSPort.Value()
 			proto = "https"
 		}
-		return htmx.Pings(ctx, ec, proto, int(port))
+		return htmx.Pings(ctx, c, proto, int(port))
 	})
+
+	return nil
 }
 
-func creator(ctx context.Context, g *echo.Group, db *sql.DB) {
+func creator(ctx context.Context, g *echo.Group, db *sql.DB) error {
 	const format = "creator group router: %w"
 	if err := nils.Check(ctx, g, db); err != nil {
-		panic(fmt.Errorf(format, err))
+		return fmt.Errorf(format, err)
 	}
+
 	creator := g.Group("/creator")
 	creator.PATCH("/text", func(c *echo.Context) error {
 		return htmx.RecordCreatorText(ctx, c, db)
@@ -116,12 +144,15 @@ func creator(ctx context.Context, g *echo.Group, db *sql.DB) {
 	creator.PATCH("/reset", func(c *echo.Context) error {
 		return htmx.RecordCreatorReset(ctx, c, db)
 	})
+
+	return nil
 }
 
-func date(ctx context.Context, g *echo.Group, db *sql.DB) {
+func date(ctx context.Context, g *echo.Group, db *sql.DB) error {
 	if err := nils.Check(ctx, g, db); err != nil {
-		panic(fmt.Errorf("%w for date router", err))
+		return fmt.Errorf("%w for date router", err)
 	}
+
 	date := g.Group("/date")
 	date.PATCH("", func(c *echo.Context) error {
 		return htmx.RecordDateIssued(ctx, c, db)
@@ -132,15 +163,60 @@ func date(ctx context.Context, g *echo.Group, db *sql.DB) {
 	date.PATCH("/lastmod", func(ec *echo.Context) error {
 		return htmx.RecordDateIssuedReset(ctx, ec, db, "artifact-editor-date-lastmodder")
 	})
+
+	return nil
 }
 
-func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) { //nolint:funlen
+func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error { //nolint:funlen
 	if err := nils.Check(ctx, sl, g, db); err != nil {
-		panic(fmt.Errorf("%w for editor router", err))
+		return fmt.Errorf("editor router: %w", err)
 	}
+
 	g.DELETE("/delete/forever/:key", func(c *echo.Context) error {
 		return htmx.DeleteForever(ctx, sl, c, db, c.Param("key"))
 	})
+	// these POSTs should only be used for editor, htmx file uploads,
+	// and not for general file uploads or data edits.
+	upload := g.Group("/upload")
+	// /upload/file
+	upload.POST("/file", func(c *echo.Context) error {
+		u := htmx.Upload{
+			Download:  dirs.Download,
+			Extra:     dirs.Extra,
+			Preview:   "",
+			Thumbnail: "",
+		}
+		return u.Replacement(ctx, sl, c, db)
+	})
+	// /upload/preview
+	upload.POST("/preview", func(c *echo.Context) error { //nolint:contextcheck
+		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
+		defer cancel()
+		u := htmx.Upload{
+			Download:  "",
+			Extra:     "",
+			Preview:   dirs.Preview,
+			Thumbnail: dirs.Thumbnail,
+		}
+		return u.ImagePreview(ctx, sl, c)
+	})
+	paths := command.Dirs{
+		Download:  dirs.Download,
+		Preview:   dirs.Preview,
+		Thumbnail: dirs.Thumbnail,
+		Extra:     dirs.Extra,
+	}
+	editorPatch(ctx, sl, g, db)
+	editorEmu(ctx, g, db)
+	editorReadme(ctx, sl, g, db, paths, dirs)
+	editorPreview(ctx, sl, g, paths, dirs)
+	editorThumb(ctx, sl, g, paths, dirs)
+	editorImgs(sl, g, dirs)
+
+	return nil
+}
+
+func editorPatch(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	g.PATCH("/16colors", func(c *echo.Context) error {
 		return htmx.Record16Colors(ctx, c, db)
 	})
@@ -207,7 +283,9 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	g.PATCH("/youtube", func(c *echo.Context) error {
 		return htmx.RecordYouTube(ctx, c, db)
 	})
+}
 
+func editorEmu(ctx context.Context, g *echo.Group, db *sql.DB) {
 	emu := g.Group("/emulate")
 	emu.PATCH("/broken/:id", func(c *echo.Context) error {
 		return htmx.RecordEmulateBroken(ctx, c, db)
@@ -233,28 +311,9 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	emu.PATCH("/xms/:id", func(c *echo.Context) error {
 		return htmx.RecordEmulateXMS(ctx, c, db)
 	})
+}
 
-	// these POSTs should only be used for editor, htmx file uploads,
-	// and not for general file uploads or data edits.
-	upload := g.Group("/upload")
-	// /upload/file
-	upload.POST("/file", func(c *echo.Context) error {
-		u := htmx.Upload{Download: dirs.Download, Extra: dirs.Extra, Preview: "", Thumbnail: ""}
-		return u.Replacement(ctx, sl, c, db)
-	})
-	// /upload/preview
-	upload.POST("/preview", func(c *echo.Context) error { //nolint:contextcheck
-		ctx, cancel := context.WithTimeout(context.Background(), timeout*double)
-		defer cancel()
-		u := htmx.Upload{Download: "", Extra: "", Preview: dirs.Preview, Thumbnail: dirs.Thumbnail}
-		return u.ImagePreview(ctx, sl, c)
-	})
-	paths := command.Dirs{
-		Download:  dirs.Download,
-		Preview:   dirs.Preview,
-		Thumbnail: dirs.Thumbnail,
-		Extra:     dirs.Extra,
-	}
+func editorReadme(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, paths command.Dirs, dirs app.Dirs) {
 	diz := g.Group("/diz")
 	// /editor/diz/copy
 	diz.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
@@ -271,6 +330,7 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	helper.DELETE("/:unid", func(c *echo.Context) error {
 		return htmx.RecordHlpDeleter(c, dirs.Extra)
 	})
+
 	readme := g.Group("/readme")
 	readme.PATCH("/disable/:id", func(c *echo.Context) error {
 		return htmx.RecordReadmeDisable(ctx, c, db)
@@ -294,6 +354,9 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	readme.DELETE("/:unid", func(c *echo.Context) error {
 		return htmx.RecordReadmeDeleter(c, dirs.Extra)
 	})
+}
+
+func editorPreview(ctx context.Context, sl *slog.Logger, g *echo.Group, paths command.Dirs, dirs app.Dirs) {
 	pre := g.Group("/preview")
 	// /editor/preview/copy
 	pre.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
@@ -311,7 +374,9 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	pre.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Preview)
 	})
+}
 
+func editorThumb(ctx context.Context, sl *slog.Logger, g *echo.Group, paths command.Dirs, dirs app.Dirs) {
 	thumb := g.Group("/thumbnail")
 	thumb.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
 		return htmx.RecordImageCopier(ctx, sl, c, paths)
@@ -344,7 +409,9 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	thumb.PATCH("/remove/:unid", func(c *echo.Context) error {
 		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)
 	})
+}
 
+func editorImgs(sl *slog.Logger, g *echo.Group, dirs app.Dirs) {
 	imgs := g.Group("/images")
 	imgs.PATCH("/pixelate/:unid", func(c *echo.Context) error { //nolint:contextcheck
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -356,10 +423,11 @@ func editor(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dir
 	})
 }
 
-func get(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) {
+func get(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error {
 	if err := nils.Check(ctx, sl, g, db); err != nil {
-		panic(fmt.Errorf("%w for get router", err))
+		return fmt.Errorf("get router: %w", err)
 	}
+
 	g.GET("/deletions",
 		func(ec *echo.Context) error {
 			return app.Deletions(ctx, sl, ec, db, "1")
@@ -376,12 +444,15 @@ func get(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB, dirs a
 		func(ec *echo.Context) error {
 			return app.Unwanted(ctx, sl, ec, db, "1")
 		})
+
+	return nil
 }
 
-func online(ctx context.Context, g *echo.Group, db *sql.DB) {
+func online(ctx context.Context, g *echo.Group, db *sql.DB) error {
 	if err := nils.Check(ctx, g, db); err != nil {
-		panic(fmt.Errorf("%w for online router", err))
+		return fmt.Errorf("online router: %w", err)
 	}
+
 	online := g.Group("/online")
 	online.PATCH("/true", func(ec *echo.Context) error {
 		return htmx.RecordToggle(ctx, ec, db, true)
@@ -392,12 +463,15 @@ func online(ctx context.Context, g *echo.Group, db *sql.DB) {
 	online.GET("/true/:id", func(ec *echo.Context) error {
 		return htmx.RecordToggleByID(ctx, ec, db, ec.Param("id"), true)
 	})
+
+	return nil
 }
 
-func search(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
+func search(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) error {
 	if err := nils.Check(ctx, g, db); err != nil {
-		panic(fmt.Errorf("%w for search router", err))
+		return fmt.Errorf("search router: %w", err)
 	}
+
 	search := g.Group("/search")
 	search.GET("/id", func(ec *echo.Context) error {
 		return app.SearchID(sl, ec)
@@ -405,4 +479,6 @@ func search(ctx context.Context, sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	search.POST("/id", func(ec *echo.Context) error {
 		return htmx.SearchByID(ctx, sl, ec, db)
 	})
+
+	return nil
 }

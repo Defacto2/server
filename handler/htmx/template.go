@@ -3,8 +3,8 @@ package htmx
 // Package file template.go provides functions for rendering HTML templates.
 
 import (
-	"embed"
 	"html/template"
+	"io/fs"
 	"reflect"
 	"strconv"
 	"strings"
@@ -21,48 +21,54 @@ import (
 
 // GlobTo returns the path to the template file.
 func GlobTo(name string) string {
-	const pathSeparator = "/"
-	return strings.Join([]string{"view", "htmx", name}, pathSeparator)
-}
-
-func emptyFS(fs embed.FS) bool {
-	entries, err := fs.ReadDir(".")
-	result := err != nil || len(entries) == 0
-	clear(entries)
-	return result
+	const sep = "/"
+	return strings.Join([]string{"view", "htmx", name}, sep)
 }
 
 // Templates returns a map of the templates.
-func Templates(fs embed.FS) map[string]*template.Template {
+func Templates(fsys fs.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
-	t["searchids"] = ids(fs)
-	t["searchreleasers"] = releasers(fs)
-	t["datalistreleasers"] = datalistReleasers(fs)
+	t["searchids"] = ids(fsys)
+	t["searchreleasers"] = releasers(fsys)
+	t["datalistreleasers"] = datalistReleasers(fsys)
+
 	return t
 }
 
-func ids(fs embed.FS) *template.Template {
-	if emptyFS(fs) {
-		return nil
+func emptyFS(fsys fs.FS) bool {
+	if fsys == nil {
+		return true
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
-		GlobTo("layout.tmpl"), GlobTo("searchids.tmpl")))
+
+	entries, err := fs.ReadDir(fsys, ".")
+	return err != nil || len(entries) == 0
 }
 
-func releasers(fs embed.FS) *template.Template {
-	if emptyFS(fs) {
+func ids(fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
-		GlobTo("layout.tmpl"), GlobTo("searchreleasers.tmpl")))
+
+	patterns := []string{GlobTo("layout.tmpl"), GlobTo("searchids.tmpl")}
+	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fsys, patterns...))
 }
 
-func datalistReleasers(fs embed.FS) *template.Template {
-	if emptyFS(fs) {
+func releasers(fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
 		return nil
 	}
-	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fs,
-		GlobTo("layout.tmpl"), GlobTo("datalistreleasers.tmpl")))
+
+	patterns := []string{GlobTo("layout.tmpl"), GlobTo("searchreleasers.tmpl")}
+	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fsys, patterns...))
+}
+
+func datalistReleasers(fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
+		return nil
+	}
+
+	patterns := []string{GlobTo("layout.tmpl"), GlobTo("datalistreleasers.tmpl")}
+	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fsys, patterns...))
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.

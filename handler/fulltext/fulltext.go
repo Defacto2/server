@@ -8,7 +8,6 @@
 package fulltext
 
 import (
-	"embed"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -104,7 +103,7 @@ func filter(r rune) rune {
 // Note, it will overwrite any existing indexing.
 // The blaze library annoyingly slogs every index added,
 // so this func temporary mutes all slogs while indexing.
-func (ts *Tidbits) NewIndex(fsys embed.FS, root string) error {
+func (ts *Tidbits) NewIndex(fsys fs.FS, root string) error {
 	const format = "tidbits new index: %w"
 	ts.engine = blaze.NewInvertedIndex()
 
@@ -119,7 +118,7 @@ func (ts *Tidbits) NewIndex(fsys embed.FS, root string) error {
 		if d.IsDir() {
 			return nil
 		}
-		b, err := fsys.ReadFile(path)
+		b, err := fs.ReadFile(fsys, path)
 		if err != nil {
 			return fmt.Errorf(format+": %s", err, path)
 		}

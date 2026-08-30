@@ -339,7 +339,7 @@ func TestSignOut(t *testing.T) {
 
 func TestSignin(t *testing.T) {
 	t.Parallel()
-	x := app.Signin(nil, newContext(), "", "")
+	x := app.Signin(nil, newContext(), "", nil)
 	be.Err(t, x)
 }
 

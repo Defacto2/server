@@ -5,9 +5,9 @@ package app
 import (
 	"context"
 	"database/sql"
-	"embed"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"maps"
 	"reflect"
 	"strconv"
@@ -39,8 +39,8 @@ const (
 
 // Templ is the configuration and status of the web application templates.
 type Templ struct {
-	Public      embed.FS      // Public facing files.
-	View        embed.FS      // Views are Go templates.
+	Public      fs.FS         // Public facing files.
+	View        fs.FS         // Views are Go templates.
 	Subresource SRI           // SRI are the Subresource Integrity hashes for the layout.
 	Version     string        // Version is the current version of the app.
 	Brand       []byte        // Brand contains to the Defacto2 ASCII logo.

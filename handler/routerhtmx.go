@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"slices"
 
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/dir"
@@ -19,25 +18,26 @@ import (
 
 const rateLimit = 2
 
-type configHtmx struct {
+type configHTMX struct {
 	prodMode bool
 	download dir.Directory
 }
 
 // append is the /htmx sub-route group that returns HTML fragments
 // using the htmx library for AJAX responses.
-func (h configHtmx) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
+func (h configHTMX) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
 	const format = "router htmx group: %w"
 	if err := nils.Check(ctx, sl, db, e); err != nil {
 		panic(fmt.Errorf(format, err))
 	}
+
 	store := middleware.NewRateLimiterMemoryStore(rateLimit)
 	// htmx/
 	g := e.Group("", middleware.RateLimiter(store))
 	// htmx/areacodes
 	g.POST("/areacodes", htmx.Areacodes)
+	// NOTE: this route found under the search func in router.go
 	// htmx/search/releaser
-	// note: this is found under the search func in router.go
 	// htmx/demozoo/production
 	demozoo := g.Group("/demozoo")
 	demozoo.GET("/production", func(c *echo.Context) error {
@@ -100,11 +100,12 @@ func (h configHtmx) append(ctx context.Context, sl *slog.Logger, e *echo.Echo, d
 	upload.POST("/trainer", func(c *echo.Context) error {
 		return htmx.TrainerSubmit(ctx, sl, c, db, h.download)
 	})
+
 	return e
 }
 
 func releaser1(c *echo.Context) string {
-	lookups := []string{
+	names := [...]string{
 		"artifact-editor-releaser1",
 		"uploader-intro-releaser1",
 		"uploader-trainer-releaser1",
@@ -112,16 +113,17 @@ func releaser1(c *echo.Context) string {
 		"uploader-image-releaser1",
 		"uploader-advanced-releaser1",
 	}
-	for lookup := range slices.Values(lookups) {
-		if val := c.FormValue(lookup); val != "" {
+	for _, name := range names {
+		if val := c.FormValue(name); val != "" {
 			return val
 		}
 	}
+
 	return ""
 }
 
 func releaser2(c *echo.Context) string {
-	lookups := []string{
+	names := [...]string{
 		"artifact-editor-releaser2",
 		"uploader-intro-releaser2",
 		"uploader-trainer-releaser2",
@@ -129,10 +131,11 @@ func releaser2(c *echo.Context) string {
 		"uploader-image-releaser2",
 		"uploader-advanced-releaser2",
 	}
-	for lookup := range slices.Values(lookups) {
-		if val := c.FormValue(lookup); val != "" {
+	for _, name := range names {
+		if val := c.FormValue(name); val != "" {
 			return val
 		}
 	}
+
 	return ""
 }

@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals,exhaustruct
 package handler
 
 // Package file middleware.go contains the custom middleware functions for the Echo web framework.
@@ -11,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
@@ -21,18 +23,27 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 )
 
-//nolint:gochecknoglobals
 var requestCounter atomic.Int64
+
+const (
+	CacheControl  = "Cache-Control"
+	XRobotsTag    = "X-Robots-Tag"
+	XReadOnlyLock = "X-Read-Only-Lock"
+	XApiVersion   = "X-Api-Version"
+	XResponseTime = "X-Response-Time"
+)
 
 // SkipPaths are parent route paths that should not be logged,
 // to reduce the logging output. Otherwise every image
 // or required resource for every page request would be returned.
-func skipPaths(e *echo.Context) bool {
-	_, status := echo.ResolveResponseStatus(e.Response(), nil)
+func SkipPaths(c *echo.Context) bool {
+	_, status := echo.ResolveResponseStatus(c.Response(), nil)
+
 	if redirect := status == http.StatusMovedPermanently; redirect {
 		return true
 	}
-	uri := e.Request().RequestURI
+
+	uri := c.Request().RequestURI
 	statusOk := status == http.StatusOK
 	switch {
 	case strings.HasPrefix(uri, "/public/"),
@@ -45,6 +56,7 @@ func skipPaths(e *echo.Context) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -52,76 +64,78 @@ func skipPaths(e *echo.Context) bool {
 // The header contains the noindex and nofollow values that tell search engine
 // crawlers to not index or crawl the page or asset.
 // See https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#xrobotstag
-func (c *Configuration) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
-	if !c.Environment.NoCrawl {
+func (serv *Server) NoCrawl(next echo.HandlerFunc) echo.HandlerFunc {
+	if !serv.Environment.NoCrawl {
 		return next
 	}
-	return func(e *echo.Context) error {
-		const xrobotstag = "X-Robots-Tag"
-		e.Response().Header().Set(xrobotstag, "none")
-		return next(e)
+	return func(c *echo.Context) error {
+		c.Response().Header().Set(XRobotsTag, "none")
+		return next(c)
 	}
 }
 
 // ReadOnlyLock disables all PATCH, POST, PUT and DELETE requests for the modification
 // of the database and any related user interface.
-func (c *Configuration) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
-	const msg = "middleware read only lock"
+func (serv *Server) ReadOnlyLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
+	const format = "middleware read only lock %s: %w"
 	if err := nils.Check(next, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, "check", err))
 	}
-	return func(e *echo.Context) error {
-		const xreadonlylock = "X-Read-Only-Lock"
-		s := strconv.FormatBool(bool(c.Environment.ReadOnly))
-		e.Response().Header().Set(xreadonlylock, s)
-		if c.Environment.ReadOnly {
-			if err := app.StatusErr(sl, e, http.StatusForbidden, ""); err != nil {
-				return fmt.Errorf("%s status: %w", msg, err)
+	return func(c *echo.Context) error {
+		value := strconv.FormatBool(bool(serv.Environment.ReadOnly))
+		c.Response().Header().Set(XReadOnlyLock, value)
+
+		if serv.Environment.ReadOnly {
+			if err := app.StatusErr(sl, c, http.StatusForbidden, ""); err != nil {
+				return fmt.Errorf(format, "status", err)
 			}
-			// do not run next(e)
-			return nil
+			return nil // do not run next(e)
 		}
-		return next(e)
+
+		return next(c)
 	}
 }
 
 // SessionLock middleware checks the session cookie for a valid signed in client.
-func (c *Configuration) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
-	const msg = "middleware session lock"
+func (serv *Server) SessionLock(next echo.HandlerFunc, sl *slog.Logger) echo.HandlerFunc {
+	const format = "middleware session lock %s: %w"
 	if err := nils.Check(next, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, "check", err))
 	}
-	return func(e *echo.Context) error {
-		// Help, https://pkg.go.dev/github.com/gorilla/sessions#Session
-		sess, err := session.Get(sess.Name, e)
+
+	return func(c *echo.Context) error {
+		const code = http.StatusForbidden
+
+		// help: https://pkg.go.dev/github.com/gorilla/sessions#Session
+		sess, err := session.Get(sess.Name, c)
 		if err != nil {
-			sl.Warn(msg+" get", slog.Any("error", err))
-			if err := app.StatusErr(sl, e, http.StatusForbidden, ""); err != nil {
-				return fmt.Errorf("%s get: %w", msg, err)
+			sl.Warn("get session lock", slog.Any("error", err))
+			if err := app.StatusErr(sl, c, code, ""); err != nil {
+				return fmt.Errorf(format, "get", err)
 			}
 			return nil
 		}
-		id, subExists := sess.Values["sub"].(string)
-		if !subExists || id == "" {
-			if err := app.StatusErr(sl, e, http.StatusForbidden, ""); err != nil {
-				return fmt.Errorf("%s subexists forbid: %w", msg, err)
+
+		id, ok := sess.Values["sub"].(string)
+		if !ok || id == "" {
+			if err := app.StatusErr(sl, c, code, ""); err != nil {
+				return fmt.Errorf(format, "subexists forbid", err)
 			}
 			return nil
 		}
-		check := false
-		for _, account := range c.Environment.GoogleAccounts {
-			if sum := sha512.Sum384([]byte(id)); sum == account {
-				check = true
-				break
+
+		for _, account := range serv.Environment.GoogleAccounts {
+			sum := sha512.Sum384([]byte(id))
+			check := sum == account
+			if check {
+				return next(c)
 			}
 		}
-		if !check {
-			if err := app.StatusErr(sl, e, http.StatusForbidden, ""); err != nil {
-				return fmt.Errorf("%s check forbid: %w", msg, err)
-			}
-			return nil
+
+		if err := app.StatusErr(sl, c, code, ""); err != nil {
+			return fmt.Errorf(format, "check forbid", err)
 		}
-		return next(e)
+		return nil
 	}
 }
 
@@ -138,25 +152,27 @@ func configTrailSlash() middleware.RemoveTrailingSlashConfig {
 //
 // If Configuration.LogAll is false then this returns a nil.
 // Otherwise it logs all web server HTTP requests to info logs.
-func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig {
-	if !c.Environment.LogAll {
+func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig {
+	if !serv.Environment.LogAll {
 		exitRequest := func(_ *echo.Context, _ middleware.RequestLoggerValues) error {
 			return nil
 		}
-		return middleware.RequestLoggerConfig{ //nolint:exhaustruct
+		return middleware.RequestLoggerConfig{
 			LogValuesFunc:  exitRequest,
 			Skipper:        nil,
 			BeforeNextFunc: nil,
 			HandleError:    true,
 		}
 	}
-	const msg = "request logger config handler"
+
+	const format = "request logger config handler %s: %w"
 	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, "check", err))
 	}
+
 	// logValues is used by the returned middleware.RequestLoggerConfig().LogValuesFunc
 	logValues := func(_ *echo.Context, v middleware.RequestLoggerValues) error {
-		// memory usage - sample every 10th request to avoid stop-the-world pauses
+		// memory usage - but only sample every 10th request
 		var alloc string
 		count := requestCounter.Add(1)
 		if count%10 == 0 {
@@ -164,39 +180,48 @@ func (c *Configuration) RequestLoggerConfig(sl *slog.Logger) middleware.RequestL
 			runtime.ReadMemStats(&m)
 			alloc = humanize.Bytes(m.Alloc)
 		}
+
+		memory := func() slog.Attr {
+			if alloc == "" {
+				return slog.Attr{}
+			}
+			return slog.String("allocation", alloc)
+		}
+
 		rsize := uint64(v.ResponseSize) //nolint:gosec // G115: ResponseSize is always non-negative (content length)
-		// use funcs to maintain the readability of the nested slog arguments
 		response := func() slog.Attr {
-			return slog.Group("response",
-				slog.Int64("size", v.ResponseSize),
+			return slog.Group("response", slog.Int64("size", v.ResponseSize),
 				slog.String("humanize", humanize.Bytes(rsize)))
 		}
+
 		cpuinfo := func() slog.Attr {
-			return slog.Group("cpu",
-				slog.Int("cores", runtime.NumCPU()),
+			return slog.Group("cpu", slog.Int("cores", runtime.NumCPU()),
 				slog.Int("go_routines", runtime.NumGoroutine()))
 		}
+
+		latency := func() slog.Attr {
+			return slog.Duration("latency", v.Latency)
+		}
+
 		// NOTE: Using using any new v middleware.RequestLoggerValues will require an update
 		// to middleware.RequestLoggerConfig values that are returned by this func.
 		requests := func() slog.Attr {
-			return slog.Group(
-				"request",
+			return slog.Group("request",
 				slog.String("agent", v.UserAgent), // browser agent used for debugging
 				slog.String("path", v.URIPath),    // uri path without any params
 				slog.String("route", v.RoutePath), // internal route path with values
 				slog.String("uri", v.URI),         // complete url request
 			)
 		}
-		sl.Info(fmt.Sprintf("HTTP(S) %s %d", v.Method, v.Status),
-			slog.Duration("latency", v.Latency),
-			response(), cpuinfo(),
-			slog.String("allocation", alloc),
-			// slog.Any("request", v), // uncomment for verbose & debugging
-			requests())
+
+		// slog.Any("request", v), // add for verbose & debugging
+		msg := "HTTP(S) " + v.Method + " " + strconv.Itoa(v.Status)
+		sl.Info(msg, latency(), response(), cpuinfo(), memory(), requests())
 		return nil
 	}
-	return middleware.RequestLoggerConfig{ //nolint:exhaustruct
-		Skipper:          skipPaths,
+
+	return middleware.RequestLoggerConfig{
+		Skipper:          SkipPaths,
 		LogLatency:       true,
 		LogProtocol:      false,
 		LogRemoteIP:      false,
@@ -229,28 +254,66 @@ func CacheMiddleware() echo.MiddlewareFunc {
 	)
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
+			// set Cache-Control header
+			const maxAge = "public, max-age="
 			path := c.Request().URL.Path
-			// Set Cache-Control header based on endpoint
 			switch {
-			case strings.Contains(path, "/categories"), strings.Contains(path, "/platforms"):
-				c.Response().Header().Set("Cache-Control", "public, max-age="+age24hours)
-			case strings.Contains(path, "/artifacts"), strings.Contains(path, "/artifacts/new"):
-				c.Response().Header().Set("Cache-Control", "public, max-age="+age5min)
-			case strings.Contains(path, "/artifact/"):
-				c.Response().Header().Set("Cache-Control", "public, max-age="+age1hour)
-			case strings.Contains(path, "/releaser/"), strings.Contains(path, "/scener/"):
-				c.Response().Header().Set("Cache-Control", "public, max-age="+age30min)
-			case strings.Contains(path, "/groups"), strings.Contains(path, "/magazines"),
-				strings.Contains(path, "/boards"), strings.Contains(path, "/sites"):
-				c.Response().Header().Set("Cache-Control", "public, max-age="+age1hour)
-			case strings.Contains(path, "/milestones"), strings.Contains(path, "/areacodes"),
-				strings.Contains(path, "/websites"), strings.Contains(path, "/demozoo"):
-				c.Response().Header().Set("Cache-Control", "public, max-age="+age24hours)
+			case
+				strings.Contains(path, "/categories"),
+				strings.Contains(path, "/platforms"):
+				c.Response().Header().Set(CacheControl, maxAge+age24hours)
+			case
+				strings.Contains(path, "/artifacts"),
+				strings.Contains(path, "/artifacts/new"):
+				c.Response().Header().Set(CacheControl, maxAge+age5min)
+			case
+				strings.Contains(path, "/artifact/"):
+				c.Response().Header().Set(CacheControl, maxAge+age1hour)
+			case
+				strings.Contains(path, "/releaser/"),
+				strings.Contains(path, "/scener/"):
+				c.Response().Header().Set(CacheControl, maxAge+age30min)
+			case
+				strings.Contains(path, "/groups"),
+				strings.Contains(path, "/magazines"),
+				strings.Contains(path, "/boards"),
+				strings.Contains(path, "/sites"):
+				c.Response().Header().Set(CacheControl, maxAge+age1hour)
+			case
+				strings.Contains(path, "/milestones"),
+				strings.Contains(path, "/areacodes"),
+				strings.Contains(path, "/websites"),
+				strings.Contains(path, "/demozoo"):
+				c.Response().Header().Set(CacheControl, maxAge+age24hours)
 			default:
-				c.Response().Header().Set("Cache-Control", "public, max-age="+age5min)
+				c.Response().Header().Set(CacheControl, maxAge+age5min)
 			}
 
 			return next(c)
 		}
+	}
+}
+
+func APIMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		start := time.Now()
+
+		c.Response().Header().Set(XApiVersion, app.APIVer)
+		// use a custom response writer to capture the timing
+		resp, err := echo.UnwrapResponse(c.Response())
+		if err != nil {
+			const format = "api unwrap response: %w"
+			return fmt.Errorf(format, err)
+		}
+
+		resp.Before(func() {
+			const thousand = 1000.0
+			end := time.Since(start)
+			ms := float64(end.Microseconds()) / thousand
+			value := fmt.Sprintf("%.3fms", ms)
+			resp.Header().Set(XResponseTime, value)
+		})
+
+		return next(c)
 	}
 }

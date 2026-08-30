@@ -60,7 +60,7 @@ func Hrefs() *Paths {
 }
 
 // Names returns the absolute path of the public facing CSS, JS and WASM files
-// relative to the [embed.FS] root.
+// relative to the [embed.FS] or [fs.FS] root.
 func Names() *Paths {
 	const public = "public"
 	hrefs := Hrefs()

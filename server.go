@@ -98,6 +98,12 @@ func main() { //nolint:funlen
 	}
 
 	sl, cl, logo := setupWriters(*envConfig, fileLog)
+	logErr := func(msg string, err error) {
+		sl.Error(msg, slog.Any("error", err))
+	}
+	warnErr := func(msg string, err error) {
+		sl.Warn(msg, slog.Any("error", err))
+	}
 
 	// Print the configurations.
 	envConfig.Configurations(cl)
@@ -106,33 +112,30 @@ func main() { //nolint:funlen
 	// database cannot connect the web server will continue to run with limited functionality.
 	db, err := postgres.Open()
 	if err != nil {
-		sl.Error(msg, slog.String("database", "could not initialize the database"),
-			slog.Any("error", err))
+		logErr("cannot initialize the database", err)
 	}
 	defer func() {
 		err := db.Close()
 		if err != nil {
-			sl.Warn("database",
-				slog.String("issue", "closing the database connection caused an error"),
-				slog.Any("error", err))
+			warnErr("close database connection failure", err)
 		}
 	}()
-
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
-		sl.Error(msg, slog.String("postgres", "could not run the version query"),
-			slog.Any("error", err))
+		logErr("postgres cannot run the version query", err)
 	}
 
 	// Clean stale temporary directories created by this application.
 	const threeDays = 3 * 24 * time.Hour
 	if err := dir.CleanTemp(threeDays); err != nil {
-		sl.Error(msg+" clean temp aborted", slog.Any("error", err))
+		logErr("abort clean stale temp", err)
 	}
 	config.TempInfo(sl)
 
 	// Start the web server.
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	parent := context.Background()
+	signals := []os.Signal{os.Interrupt, syscall.SIGTERM}
+	ctx, stop := signal.NotifyContext(parent, signals...)
 	defer stop()
 
 	serv := initialisation(ctx, db, *envConfig)
@@ -141,11 +144,10 @@ func main() { //nolint:funlen
 		fsys := serv.Public
 		root := tidbit.Dir
 		if err := serv.TidbitIndex.NewIndex(fsys, root); err != nil {
-			panic(err)
+			logErr("tidbit indexs", err)
 		}
 		stat := serv.TidbitIndex
-		slog.Info(
-			"Indexed Tidbits",
+		slog.Info("Indexed Tidbits",
 			slog.Int("Documents", stat.TotalDocs),
 			slog.Int64("SearchTerms", stat.TotalTerms),
 		)
@@ -157,9 +159,11 @@ func main() { //nolint:funlen
 	display(logo)
 	printOpening(sl, serv.RecordCount)
 	h := serv.Handler(ctx, sl, db)
-	serv.Print(sl, logo)
+	if err := serv.Print(logo); err != nil {
+		warnErr("print server startup", err)
+	}
 	if err := serv.Start(ctx, sl, h, *envConfig); err != nil {
-		slog.Error("Startup", slog.Any("result", err))
+		logErr("web server startup failure", err)
 	}
 
 	go func() {
@@ -170,10 +174,11 @@ func main() { //nolint:funlen
 	slog.Info("Shutdown", slog.String("Triggered", "Signal received"))
 }
 
-func setupWriters(envConfig config.Config, lf logs.Files) (*slog.Logger, *slog.Logger, io.Writer) {
+func setupWriters(envConfig config.Config, lf logs.Files) (
+	sl *slog.Logger, cl *slog.Logger, logo io.Writer,
+) {
 	// configure logo to stdout so it is ignored by systemd and the operating system
-	var logo io.Writer = os.Stdout
-
+	logo = os.Stdout
 	// general slog and level configuration used by the website
 	flag := logs.Defaults
 	stdmin := logs.LevelInfo
@@ -184,7 +189,7 @@ func setupWriters(envConfig config.Config, lf logs.Files) (*slog.Logger, *slog.L
 	}
 
 	// configure the server logger and make it the default
-	sl := lf.New(stdmin, flag)
+	sl = lf.New(stdmin, flag)
 	slog.SetDefault(sl)
 
 	// configuration command line logger flags
@@ -197,7 +202,7 @@ func setupWriters(envConfig config.Config, lf logs.Files) (*slog.Logger, *slog.L
 
 	// print the server configuration and command line flag output to stdout
 	cf := logs.NoFiles()
-	cl := cf.New(stdmin, flag)
+	cl = cf.New(stdmin, flag)
 	return sl, cl, logo
 }
 
@@ -283,8 +288,8 @@ func environmentVars(ctx context.Context, l *slog.Logger) *config.Config {
 // initialisation is used to create the server controller instance.
 //
 // The configuration returns a reference type to make the values immutable.
-func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *handler.Configuration {
-	c := handler.Configuration{
+func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *handler.Server {
+	c := handler.Server{
 		Public:      public,
 		View:        view,
 		Version:     version,
