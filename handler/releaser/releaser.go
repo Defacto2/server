@@ -5,9 +5,9 @@ package releaser
 import (
 	"strings"
 
-	"github.com/Defacto2/server/handler/releaser/fix"
 	"github.com/Defacto2/server/handler/releaser/initialism"
 	"github.com/Defacto2/server/handler/releaser/name"
+	"github.com/Defacto2/server/handler/releaser/word"
 )
 
 // Cell formats the string to be used as a cell in a database table.
@@ -27,12 +27,12 @@ import (
 //	Cell("TDT / TRSi") = "TDT TRSI"
 //	Cell("TDT,TRSi") = "TDT, TRSI"
 func Cell(s string) string {
-	x := fix.StripChars(s)
-	x = fix.StripStart(x)
+	x := word.StripChars(s)
+	x = word.StripStart(x)
 	x = strings.TrimSpace(x)
-	x = fix.TrimThe(x)
-	x = fix.TrimSP(x)
-	return fix.Cell(x)
+	x = word.TrimThe(x)
+	x = word.TrimSP(x)
+	return word.Cell(x)
 }
 
 // Clean fixes the malformed string and applies title case formatting.
@@ -54,12 +54,12 @@ func Cell(s string) string {
 //	Clean("tdt / trsi") = "Tdt Trsi" // behaves as a single group
 //	Clean("tdt,trsi") = "Tdt, TRSi"  // behaves as two groups
 func Clean(s string) string {
-	x := fix.StripChars(s)
-	x = fix.StripStart(x)
+	x := word.StripChars(s)
+	x = word.StripStart(x)
 	x = strings.TrimSpace(x)
-	x = fix.TrimThe(x)
-	x = fix.TrimSP(x)
-	return fix.Format(x)
+	x = word.TrimThe(x)
+	x = word.TrimSP(x)
+	return word.Format(x)
 }
 
 // Humanize deobfuscates the URL path and returns the formatted, human-readable group name.
@@ -136,7 +136,7 @@ func Link(path string) string {
 //	Obfuscate("TDT / TRSi") = "coop"
 //	Obfuscate("United Software Association + Fairlight PC Division") = "united-software-association*fairlight"
 func Obfuscate(s string) string {
-	x := fix.StripStart(s)
+	x := word.StripStart(s)
 	x = strings.TrimSpace(x)
 	if uri := name.FindByValue(x); uri != "" {
 		return string(uri)
@@ -144,9 +144,9 @@ func Obfuscate(s string) string {
 	if uri := initialism.FindByValue(x); uri != "" {
 		return string(uri)
 	}
-	x = fix.StripChars(x)
-	x = fix.TrimThe(x)
-	x = fix.TrimSP(x)
+	x = word.StripChars(x)
+	x = word.TrimThe(x)
+	x = word.TrimSP(x)
 	c := name.Obfuscate(x)
 	return string(c)
 }
@@ -162,7 +162,7 @@ func Obfuscate(s string) string {
 //	Title("tdt / trsi") = "TDT / TRSi"
 //	Title("nappa") = "North American Pirate-Phreak Association"
 func Title(s string) string {
-	x := fix.StripStart(s)
+	x := word.StripStart(s)
 	x = strings.TrimSpace(x)
 	if uri := name.FindByValue(x); uri != "" {
 		return uri.String()
@@ -170,9 +170,9 @@ func Title(s string) string {
 	if uri := initialism.FindByValue(x); uri != "" {
 		return Humanize(string(uri))
 	}
-	x = fix.StripChars(x)
-	x = fix.TrimThe(x)
-	x = fix.TrimSP(x)
+	x = word.StripChars(x)
+	x = word.TrimThe(x)
+	x = word.TrimSP(x)
 	c := name.Obfuscate(x)
 	return Humanize(string(c))
 }
