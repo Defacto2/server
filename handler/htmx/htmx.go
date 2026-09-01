@@ -22,7 +22,7 @@ import (
 	"github.com/Defacto2/server/handler/fulltext"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/handler/releaser/initialism"
+	"github.com/Defacto2/server/handler/releaser/lism"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
@@ -640,7 +640,7 @@ func Alternatives(s string) []string {
 	// examples of key and values:
 	// "tristar-ampersand-red-sector-inc": {"TRSi", "TRS", "Tristar"},
 	key := ""
-	for path, initialisms := range initialism.Initialisms() {
+	for path, initialisms := range lism.Copy() {
 		key = releaser.Index(string(path))
 		if key == "" {
 			continue
@@ -755,7 +755,7 @@ func datalist(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 		return c.HTML(http.StatusOK, "")
 	}
 	lookups := []string{releaser.Cell(input)}
-	if inits := initialism.Match(slug); len(inits) > 0 {
+	if inits := lism.Find(slug); len(inits) > 0 {
 		for uri := range slices.Values(inits) {
 			val := releaser.Humanize(string(uri))
 			lookups = append(lookups, val)

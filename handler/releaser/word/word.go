@@ -275,7 +275,7 @@ func Format(s string) string {
 	for index, group := range groups {
 		fullname := strings.ToLower(strings.TrimSpace(group))
 		fullname = Amp(fullname)
-		if special := name.Obfuscate(fullname).String(); special != "" {
+		if special := name.String(name.Obfuscate(fullname)); special != "" {
 			groups[index] = special
 			continue
 		}

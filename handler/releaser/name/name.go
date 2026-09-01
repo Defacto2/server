@@ -9,16 +9,15 @@ package name
 import (
 	"errors"
 	"maps"
-	"regexp"
 	"strings"
 )
 
-var ErrInvalidPath = errors.New("the path contains invalid characters")
+var ErrPath = errors.New("releaser name: path has invalid characters")
 
-// A Path is the partial URL path of the releaser.
+// Path is the partial URL path of the releaser.
 type Path string
 
-// A List is a map of releasers and their well-known styled names.
+// List maps the releasers and their well-known styled names.
 type List map[Path]string
 
 /*
@@ -324,118 +323,89 @@ var uppercase = [...]string{
 	"sprint",
 }
 
-// Names returns a copy of the list of names.
-func Names() List {
-	return names
-}
-
-// String returns the well-known styled name of the releaser if it exists in the
-// names, lowercase or uppercase lists. Otherwise it returns an empty string.
-//
-// Example:
-//
-//	name.Path("acid-productions").String() = "ACiD Productions"
-//	name.Path("razor-1911").String() = "" // unlisted
-func (path Path) String() string {
-	p := Path(strings.ToLower(string(path)))
-	if _, match := specials[p]; match {
-		return specials[p]
-	}
-	return ""
-}
-
-// Valid returns true if the URL path uses valid characters.
-// Valid URL paths are all lowercase and contain only alphanumeric characters, dashes, underscores,
-// ampersands and asterisks.
-//
-// Example:
-//
-//	name.Path("acid-productions").Valid() = true
-//	name.Path("acid-productions!").Valid() = false
-func (path Path) Valid() bool {
-	re := regexp.MustCompile(`^[a-z0-9\&\-_\*]+$`)
-	return re.MatchString(string(path))
-}
-
 const (
 	spacedAmpersand = " & " // " & " is a special case
 	spacedComma     = ", "  // ", " is a special case
 )
 
-// the use of globals as a cache greatly improves benchmarking.
 var (
-	uppers       List
-	lowers       List
-	specials     List
-	reverseIndex map[string]Path
+	upperIndex List
+	lowerIndex List
+	allIndex   List
+	pathIndex  map[string]Path
 )
 
 func init() {
-	uppers = initUpper()
-	lowers = initLower()
-	specials = initSpecials()
 	const double = 2
-	reverseIndex = make(map[string]Path, len(names)*double)
+	pathIndex = make(map[string]Path, len(names)*double)
 	for uri, name := range names {
-		reverseIndex[strings.ToLower(name)] = uri
+		pathIndex[strings.ToLower(name)] = uri
 	}
-}
 
-// initSpecials returns the list of styled names that use initSpecials mix or all lower or upper casing.
-func initSpecials() List {
-	list := make(List, len(names)+len(lowercase)+len(uppercase))
-	maps.Copy(list, names)
-	maps.Copy(list, lowers)
-	maps.Copy(list, uppers)
-	return list
-}
-
-// initLower returns the list of styled names that use all lowercasing.
-func initLower() List {
-	list := make(List, len(lowercase))
-	for _, value := range lowercase {
-		p := Path(value)
-		s, _ := Humanize(p)
-		list[p] = strings.ToLower(s)
-	}
-	return list
-}
-
-// initUpper returns the list of styled names that use all uppercasing.
-func initUpper() List {
-	list := make(List, len(uppercase))
+	upperIndex = make(List, len(uppercase))
 	for _, value := range uppercase {
 		p := Path(value)
 		x, _ := Humanize(p)
-		list[p] = strings.ToUpper(x)
+		upperIndex[p] = strings.ToUpper(x)
 	}
-	return list
+
+	lowerIndex = make(List, len(lowercase))
+	for _, value := range lowercase {
+		p := Path(value)
+		s, _ := Humanize(p)
+		lowerIndex[p] = strings.ToLower(s)
+	}
+
+	allIndex = make(List, len(names)+len(lowercase)+len(uppercase))
+	maps.Copy(allIndex, names)
+	maps.Copy(allIndex, lowerIndex)
+	maps.Copy(allIndex, upperIndex)
 }
 
-// FindByValue looks returns the Path of a special named value.
-func FindByValue(x string) Path {
-	return reverseIndex[strings.ToLower(x)]
+// Find returns the uri Path of a special named value.
+//
+// Example:
+//
+//	Find("Oldskool") = "oldskool"
+//	Find("Defacto2") = "" // not listed
+func Find(name string) Path {
+	return pathIndex[strings.ToLower(name)]
 }
 
-// Lower returns the list of styled names that use all lowercasing.
+// Copy returns a copy of the [names].
+func Copy() List {
+	return names
+}
+
+// All returns a copy of the [allIndex] that includes
+// [names], [lowerIndex], [upperIndex].
+func All() List {
+	return allIndex
+}
+
+// Lower returns a copy of the [lowerIndex].
 func Lower() List {
-	return lowers
+	return lowerIndex
 }
 
-// Upper returns the list of styled names that use all uppercasing.
+// Upper returns a copy of the [upperIndex].
 func Upper() List {
-	return uppers
+	return upperIndex
 }
 
 // Humanize deobfuscates the URL path and returns the formatted, human-readable group name.
 // If the URL path contains invalid characters then an error is returned.
-func Humanize(path Path) (string, error) {
-	if !path.Valid() {
-		return "", ErrInvalidPath
+//
+// Example:
+//
+//	Humanize("path-ampersand-path") = "path & path"
+//	Humanize("path*with*asterisk") = "path, with, asterisk"
+//	Humanize("path/to/file") = ErrPath
+func Humanize(p Path) (string, error) {
+	if !Valid(p) {
+		return "", ErrPath
 	}
-	s := strings.ToLower(string(path))
-	// the order of these expressions is critical
-	// strings.replaceall is more performant than regex
+	s := strings.ToLower(string(p))
 	s = strings.ReplaceAll(s, "-ampersand-", spacedAmpersand)
 	s = strings.ReplaceAll(s, "-", " ")
 	s = strings.ReplaceAll(s, "_", "-")
@@ -452,13 +422,86 @@ func Humanize(path Path) (string, error) {
 //	string(Obfuscate("TDU-Jam!")) = "tdu_jam"
 func Obfuscate(name string) Path {
 	s := strings.TrimSpace(strings.ToLower(name))
-	re := regexp.MustCompile(`[^a-z0-9\&\-\,\ ]`)
-	s = re.ReplaceAllString(s, "")
-	// the order of these expressions is critical
-	// strings.replaceall is more performant than regex
+	s = Clean(s, obfuscate)
+	// the sequence of these expressions is critical
 	s = strings.ReplaceAll(s, "-", "_")
 	s = strings.ReplaceAll(s, spacedAmpersand, "-ampersand-")
 	s = strings.ReplaceAll(s, spacedComma, "*")
 	s = strings.ReplaceAll(s, " ", "-")
 	return Path(s)
+}
+
+// String returns the well-known styled name of the releaser if it exists in the
+// names, lowercase or uppercase lists. Otherwise it returns an empty string.
+//
+// Example:
+//
+//	name.String("acid-productions") = "ACiD Productions"
+//	name.String("razor-1911") = "" // unlisted
+func String(p Path) string {
+	key := Path(strings.ToLower(string(p)))
+	return allIndex[key]
+}
+
+// Valid returns true if the URL path uses valid characters.
+// Valid URL paths are all lowercase and contain only alphanumeric characters, dashes, underscores,
+// ampersands and asterisks.
+//
+// Example:
+//
+//	name.Valid("acid-productions") = true
+//	name.Valid("acid-productions!") = false
+func Valid(p Path) bool {
+	if len(Path(p)) == 0 {
+		return false
+	}
+
+	for i := 0; i < len(Path(p)); i++ {
+		if !valid(Path(p)[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Clean is a more performant replace all for complex expressions.
+//
+// The f func can be [obfuscate], [valid], or a custom validator.
+func Clean(s string, f func(byte) bool) string {
+	idx := -1
+	for i := 0; i < len(s); i++ {
+		if !f(s[i]) {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		return s
+	}
+
+	buf := make([]byte, idx, len(s))
+	copy(buf, s[:idx])
+
+	for i := idx; i < len(s); i++ {
+		b := s[i]
+		if f(b) {
+			buf = append(buf, b)
+		}
+	}
+
+	return string(buf)
+}
+
+func obfuscate(b byte) bool {
+	return (b >= 'a' && b <= 'z') ||
+		(b >= '0' && b <= '9') ||
+		b == '&' || b == '-' || b == ',' || b == ' '
+}
+
+func valid(b byte) bool {
+	return (b >= 'a' && b <= 'z') ||
+		(b >= '0' && b <= '9') ||
+		b == '&' || b == '-' || b == '_' || b == '*'
 }

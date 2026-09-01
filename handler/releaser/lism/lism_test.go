@@ -1,51 +1,22 @@
-package initialism_test
+package lism_test
 
 import (
-	"fmt"
-	"slices"
 	"sort"
 	"strings"
 	"testing"
 	"unicode"
 
-	"github.com/Defacto2/server/handler/releaser/initialism"
+	"github.com/Defacto2/server/handler/releaser/lism"
 	"github.com/nalgeon/be"
 )
 
-func ExampleInitialism() {
-	fmt.Println(initialism.Initialism("defacto2"))
-	// Output: [DF2 DF]
-}
-
-func ExampleInitialisms() {
-	const find = "USA"
-	for key, isms := range initialism.Initialisms() {
-		if slices.Contains(isms, find) {
-			fmt.Printf("Found %v in %v\n", find, key)
-		}
-	}
-	// Output: Found USA in united-software-association*fairlight
-}
-
-func ExampleIsInitialism() {
-	fmt.Println(initialism.IsInitialism("defacto2"))
-	// Output: true
-}
-
-func ExampleJoin() {
-	fmt.Println(initialism.Join("the-firm")) // FiRM, FRM
-
-	fmt.Println(initialism.Join("united-software-association*fairlight")) // USA
-	// Output: FiRM, FRM
-	// USA/Fairlight, USA/FLT, USA
-}
-
-func TestMatch(t *testing.T) {
+func TestFind(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
-		name string
-		s    string
-		want []string
+		name  string
+		input string
+		want  []string
 	}{
 		{"empty", "", []string{}},
 		{"no match", "some-unknown-random-bbs", []string{}},
@@ -55,25 +26,24 @@ func TestMatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := initialism.Match(tt.s)
+
+			got := lism.Find(tt.input)
 			c := make([]string, len(got))
 			for i, v := range got {
 				c[i] = string(v)
 			}
 			sort.Strings(c)
 			be.Equal(t, c, tt.want)
-			// if !assert.Equal(t, tt.want, c) {
-			// 	t.Errorf("Match() = %v, want %v", c, tt.want)
-			// }
 		})
 	}
 }
 
 func TestInitialism(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name string
-		path initialism.Path
+		path lism.Path
 		want []string
 	}{
 		{"empty path", "", nil},
@@ -85,13 +55,14 @@ func TestInitialism(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := initialism.Initialism(tt.path); !equal(got, tt.want) {
-				t.Errorf("Initialism() = %v, want %v", got, tt.want)
-			}
+
+			got := lism.Initialism(tt.path)
+			be.True(t, matchSlice(t, got, tt.want))
 		})
 	}
+
 	// Confirm all keys are valid URL paths.
-	for key := range initialism.Initialisms() {
+	for key := range lism.Copy() {
 		// keys must be lowercase and start with only letters or numbers
 		k := string(key)
 		chr := rune(k[0])
@@ -102,9 +73,10 @@ func TestInitialism(t *testing.T) {
 	}
 }
 
-func TestInitialisms(t *testing.T) {
+func TestCopy(t *testing.T) {
 	t.Parallel()
-	l := initialism.Initialisms()
+
+	l := lism.Copy()
 	if len(l) == 0 {
 		t.Errorf("Initialisms() = %v, want %v", l, "non-empty")
 	}
@@ -130,7 +102,7 @@ func TestIsInitialism(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		path initialism.Path
+		path lism.Path
 		want bool
 	}{
 		{"empty path", "", false},
@@ -141,21 +113,27 @@ func TestIsInitialism(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := initialism.IsInitialism(tt.path); got != tt.want {
-				t.Errorf("IsInitialism() = %v, want %v", got, tt.want)
-			}
+
+			got := lism.Exist(tt.path)
+			be.Equal(t, got, tt.want)
 		})
 	}
 }
 
-func equal(a, b []string) bool {
-	if len(a) != len(b) {
+func matchSlice(t *testing.T, got, want []string) bool {
+	t.Helper()
+
+	if len(got) != len(want) {
+		t.Log(len(got), len(want))
 		return false
 	}
-	for i, v := range a {
-		if v != b[i] {
+
+	for i, v := range got {
+		if v != want[i] {
+			t.Log(v, want)
 			return false
 		}
 	}
+
 	return true
 }

@@ -30,7 +30,7 @@ import (
 	"github.com/Defacto2/server/handler/janeway"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/handler/releaser/initialism"
+	"github.com/Defacto2/server/handler/releaser/lism"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/handler/site"
 	"github.com/Defacto2/server/handler/sixteen"
@@ -1884,7 +1884,7 @@ func Releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	data["title"] = relname + " artifacts"
 	data[canonical] = strings.Join([]string{"g", uri}, "/")
 	data["h1"] = relname
-	altnames := initialism.Join(initialism.Path(uri))
+	altnames := lism.String(lism.Path(uri))
 	data["lead"] = altnames
 	data["logo"] = relname
 	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
@@ -1976,7 +1976,7 @@ func tibits(sl *slog.Logger, uri string, public fs.FS) string {
 func releaserLead(uri string, data map[string]any) map[string]any {
 	switch uri {
 	case "independent":
-		data["lead"] = initialism.Join(initialism.Path(uri)) +
+		data["lead"] = lism.String(lism.Path(uri)) +
 			", independent releases are files with no group or releaser affiliation." +
 			`<br><small class="fw-lighter">In the scene's early years,` +
 			` releasing documents or software cracks under a personal alias or a` +

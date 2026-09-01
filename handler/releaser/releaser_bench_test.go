@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals
 package releaser_test
 
 import (
@@ -7,13 +8,14 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/handler/releaser/initialism"
+	"github.com/Defacto2/server/handler/releaser/lism"
 )
 
-var ins = initialism.Initialisms() //nolint:gochecknoglobals
+var ins = lism.Copy()
 
 func listNames(b *testing.B) []string {
 	b.Helper()
+
 	l := len(ins)
 	n := make([]string, l)
 	i := 0
@@ -21,6 +23,7 @@ func listNames(b *testing.B) []string {
 		n[i] = releaser.Humanize(string(k))
 		i++
 	}
+
 	return n
 }
 

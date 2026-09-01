@@ -12,7 +12,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/handler/releaser/initialism"
+	"github.com/Defacto2/server/handler/releaser/lism"
 	"github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/handler/tidbit"
 	"golang.org/x/text/language"
@@ -79,7 +79,7 @@ func TemplateFuncMap() template.FuncMap {
 			if strings.EqualFold(name, path) {
 				return mark
 			}
-			init := initialism.Join(initialism.Path(path))
+			init := lism.String(lism.Path(path))
 			if strings.EqualFold(name, init) {
 				return mark
 			}
@@ -89,13 +89,13 @@ func TemplateFuncMap() template.FuncMap {
 		"byteFileS": app.ByteFileS,
 		"describe":  app.Describe,
 		"fmtPath": func(path string) string {
-			if val := name.Path(path); val.String() != "" {
-				return val.String()
+			if s := name.String(name.Path(path)); s != "" {
+				return s
 			}
 			return releaser.Humanize(path)
 		},
 		"initialisms": func(s string) string {
-			return initialism.Join(initialism.Path(s))
+			return lism.String(lism.Path(s))
 		},
 		"mark": func(highlight, s string) template.HTML {
 			return template.HTML(app.MarkAll(highlight, s))

@@ -5,7 +5,7 @@ package releaser
 import (
 	"strings"
 
-	"github.com/Defacto2/server/handler/releaser/initialism"
+	"github.com/Defacto2/server/handler/releaser/lism"
 	"github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/handler/releaser/word"
 )
@@ -79,7 +79,7 @@ func Clean(s string) string {
 //	Humanize("razor-1911-demo#trsi") = "" // invalid # character
 func Humanize(path string) string {
 	p := name.Path(strings.ToLower(path))
-	if special := p.String(); special != "" {
+	if special := name.String(p); special != "" {
 		return special
 	}
 	s, err := name.Humanize(p)
@@ -138,10 +138,10 @@ func Link(path string) string {
 func Obfuscate(s string) string {
 	x := word.StripStart(s)
 	x = strings.TrimSpace(x)
-	if uri := name.FindByValue(x); uri != "" {
+	if uri := name.Find(x); uri != "" {
 		return string(uri)
 	}
-	if uri := initialism.FindByValue(x); uri != "" {
+	if uri := lism.FindOne(x); uri != "" {
 		return string(uri)
 	}
 	x = word.StripChars(x)
@@ -164,10 +164,10 @@ func Obfuscate(s string) string {
 func Title(s string) string {
 	x := word.StripStart(s)
 	x = strings.TrimSpace(x)
-	if uri := name.FindByValue(x); uri != "" {
-		return uri.String()
+	if p := name.Find(x); p != "" {
+		return name.String(p)
 	}
-	if uri := initialism.FindByValue(x); uri != "" {
+	if uri := lism.FindOne(x); uri != "" {
 		return Humanize(string(uri))
 	}
 	x = word.StripChars(x)

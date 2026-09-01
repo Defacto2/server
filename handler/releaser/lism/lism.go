@@ -1,4 +1,4 @@
-// Package initialism provides a list of alternative spellings, acronyms and initialisms for the named releasers.
+// Package lism provides a list of alternative spellings, acronyms and initialisms for the named releasers.
 //
 // Alternative spellings are the same name but with different casing, spelling or punctuation (e.g. Coca-Cola, Coke).
 //
@@ -7,18 +7,16 @@
 // An initialism is an abbreviation consisting of the initial letters pronounced individually (e.g. USA).
 //
 //nolint:gochecknoglobals,gochecknoinits
-package initialism
+package lism
 
 import (
-	"maps"
-	"slices"
 	"strings"
 )
 
-// A Path is the partial URL path of the releaser.
+// Path is the partial URL path of the releaser.
 type Path string
 
-// List is a map of initialisms to releasers.
+// List maps the initialisms and acronyms of the releasers.
 type List map[Path][]string
 
 // path keys that are too long for the initialism map.
@@ -1614,28 +1612,61 @@ var initialisms = List{
 	"the-yuelden-team":                       {"TYT"},
 }
 
-var reverseIndex map[string]Path
+var (
+	pathIndex  map[string]Path
+	pathsIndex map[string][]Path
+)
 
 func init() {
 	const double = 2
-	reverseIndex = make(map[string]Path, len(initialisms)*double)
+	pathIndex = make(map[string]Path, len(initialisms)*double)
 	for uri, values := range initialisms {
 		for _, value := range values {
-			reverseIndex[strings.ToLower(value)] = uri
+			pathIndex[strings.ToLower(value)] = uri
+		}
+	}
+	pathsIndex = make(map[string][]Path)
+	for uri, values := range initialisms {
+		for _, value := range values {
+			key := strings.ToLower(value)
+			pathsIndex[key] = append(pathsIndex[key], uri)
 		}
 	}
 }
 
-// FindByValue looks returns the Path of an initialism value.
-// The returned Path may not always be accurate as initialisms
-// are not always unique.
-func FindByValue(x string) Path {
-	return reverseIndex[strings.ToLower(x)]
+// Find returns the uri Paths that match the given acronym/initialism.
+// Most matches will only return a single path, however, there are situations
+// where two or more releases shared the same initialism.
+//
+// Example:
+//
+//	Find("Firm") = []Path{"the-firm"}
+func Find(s string) []Path {
+	return pathsIndex[strings.ToLower(s)]
 }
 
-// Initialisms returns a copy of the list of initialisms.
-func Initialisms() List {
+// FindOne returns the uri Path of the given acronym/initialism.
+// However, there are siutations where two or more releasers shared the same
+// initialism, so returned Path may not be accurate.
+func FindOne(s string) Path {
+	return pathIndex[strings.ToLower(s)]
+}
+
+// Copy returns a copy of the [initialisms].
+func Copy() List {
 	return initialisms
+}
+
+// Exist returns true if the URL path has an initialism.
+//
+// Example:
+//
+//	Exist("the-firm") = true
+//	Exist("defacto2") = true
+//	Exist("some-random-bbs") = false
+func Exist(p Path) bool {
+	_, match := initialisms[p]
+	return match
 }
 
 // Initialism returns the alternative spellings, acronyms and initialisms for the URL path.
@@ -1645,47 +1676,23 @@ func Initialisms() List {
 //
 //	Initialism("the-firm") = []string{"FiRM, FRM"}
 //	Initialism("defacto2") = []string{"DF2"}
-func Initialism(path Path) []string {
-	return initialisms[path]
+func Initialism(p Path) []string {
+	return initialisms[p]
 }
 
-// IsInitialism returns true if the URL path has an initialism.
-//
-// Example:
-//
-//	IsInitialism("the-firm") = true
-//	IsInitialism("defacto2") = true
-//	IsInitialism("some-random-bbs") = false
-func IsInitialism(path Path) bool {
-	_, match := initialisms[path]
-	return match
-}
-
-// Join returns the alternative spellings, acronyms and initialisms for the
+// String returns the alternative spellings, acronyms and initialisms for the
 // URL path as a comma separated string.
 // Or an empty string if the URL path has no initialism.
 //
 // Example:
 //
-//	Join("the-firm") = "FiRM, FRM"
-//	Join("defacto2") = "DF2"
-func Join(path Path) string {
-	i := Initialism(path)
+//	String("the-firm") = "FiRM, FRM"
+//	String("defacto2") = "DF2"
+func String(p Path) string {
+	i := Initialism(p)
 	if len(i) == 0 {
 		return ""
 	}
-	return strings.Join(i, ", ")
-}
 
-// Match returns the list of initialisms that match the given string.
-func Match(s string) []Path {
-	var partials []Path
-	for partial, values := range maps.All(initialisms) {
-		for value := range slices.Values(values) {
-			if strings.EqualFold(value, s) {
-				partials = append(partials, partial)
-			}
-		}
-	}
-	return partials
+	return strings.Join(i, ", ")
 }

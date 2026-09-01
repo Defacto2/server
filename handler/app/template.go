@@ -21,7 +21,7 @@ import (
 	"github.com/Defacto2/server/handler/form"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/handler/releaser/initialism"
+	"github.com/Defacto2/server/handler/releaser/lism"
 	"github.com/Defacto2/server/handler/releaser/name"
 	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/config"
@@ -277,7 +277,7 @@ func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap 
 			return hrefs[HtmxRespTargets]
 		},
 		"initialisms": func(s string) string {
-			return initialism.Join(initialism.Path(s))
+			return lism.String(lism.Path(s))
 		},
 		"indexJS": func() string {
 			return hrefs[IndexJS]
