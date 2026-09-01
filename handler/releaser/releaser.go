@@ -27,12 +27,17 @@ import (
 //	Cell("TDT / TRSi") = "TDT TRSI"
 //	Cell("TDT,TRSi") = "TDT, TRSI"
 func Cell(s string) string {
-	x := word.StripChars(s)
-	x = word.StripStart(x)
-	x = strings.TrimSpace(x)
-	x = word.TrimThe(x)
-	x = word.TrimSP(x)
-	return word.Cell(x)
+	if s == "" {
+		return ""
+	}
+
+	s = word.StripChars(s)
+	s = word.StripStart(s)
+	s = strings.TrimSpace(s)
+	s = word.TrimThe(s)
+	s = word.TrimSP(s)
+
+	return word.Cell(s)
 }
 
 // Clean fixes the malformed string and applies title case formatting.
@@ -54,12 +59,17 @@ func Cell(s string) string {
 //	Clean("tdt / trsi") = "Tdt Trsi" // behaves as a single group
 //	Clean("tdt,trsi") = "Tdt, TRSi"  // behaves as two groups
 func Clean(s string) string {
-	x := word.StripChars(s)
-	x = word.StripStart(x)
-	x = strings.TrimSpace(x)
-	x = word.TrimThe(x)
-	x = word.TrimSP(x)
-	return word.Format(x)
+	if s == "" {
+		return ""
+	}
+
+	s = word.StripChars(s)
+	s = word.StripStart(s)
+	s = strings.TrimSpace(s)
+	s = word.TrimThe(s)
+	s = word.TrimSP(s)
+
+	return word.Format(s)
 }
 
 // Humanize deobfuscates the URL path and returns the formatted, human-readable group name.
@@ -78,6 +88,9 @@ func Clean(s string) string {
 //	Humanize("razor-1911-demo*trsi") = "Razor 1911 Demo, TRSi"
 //	Humanize("razor-1911-demo#trsi") = "" // invalid # character
 func Humanize(path string) string {
+	if path == "" {
+		return ""
+	}
 	p := name.Path(strings.ToLower(path))
 	if special := name.String(p); special != "" {
 		return special
@@ -86,17 +99,23 @@ func Humanize(path string) string {
 	if err != nil {
 		return ""
 	}
+
 	return Clean(s)
 }
 
 // Index deobfuscates the URL path and applies [releaser.Humanize] so that it can
 // be stored in a database table as a releaser key and index in the database table.
 func Index(path string) string {
+	if path == "" {
+		return ""
+	}
+
 	p := name.Path(strings.ToLower(path))
 	s, err := name.Humanize(p)
 	if err != nil {
 		return ""
 	}
+
 	return strings.ToUpper(s)
 }
 
@@ -110,8 +129,10 @@ func Index(path string) string {
 //	Link("class*paradigm*razor-1911") = "Class + Paradigm + Razor 1911"
 //	Link("united-software-association*fairlight") = "United Software Association + Fairlight PC Division"
 func Link(path string) string {
-	s := Humanize(path)
-	return strings.ReplaceAll(s, ", ", " + ")
+	if path == "" {
+		return ""
+	}
+	return strings.ReplaceAll(Humanize(path), ", ", " + ")
 }
 
 // Obfuscate cleans and formats the string for use as a URL path.
@@ -136,19 +157,25 @@ func Link(path string) string {
 //	Obfuscate("TDT / TRSi") = "coop"
 //	Obfuscate("United Software Association + Fairlight PC Division") = "united-software-association*fairlight"
 func Obfuscate(s string) string {
-	x := word.StripStart(s)
-	x = strings.TrimSpace(x)
-	if uri := name.Find(x); uri != "" {
-		return string(uri)
+	if s == "" {
+		return ""
 	}
-	if uri := lism.FindOne(x); uri != "" {
-		return string(uri)
+
+	s = word.StripStart(s)
+	s = strings.TrimSpace(s)
+	if p := name.Find(s); p != "" {
+		return string(p)
 	}
-	x = word.StripChars(x)
-	x = word.TrimThe(x)
-	x = word.TrimSP(x)
-	c := name.Obfuscate(x)
-	return string(c)
+
+	if p := lism.FindOne(s); p != "" {
+		return string(p)
+	}
+
+	s = word.StripChars(s)
+	s = word.TrimThe(s)
+	s = word.TrimSP(s)
+
+	return string(name.Obfuscate(s))
 }
 
 // Title formats the string to be used as a title or the basis for a LIKE SQL query.
@@ -162,17 +189,23 @@ func Obfuscate(s string) string {
 //	Title("tdt / trsi") = "TDT / TRSi"
 //	Title("nappa") = "North American Pirate-Phreak Association"
 func Title(s string) string {
-	x := word.StripStart(s)
-	x = strings.TrimSpace(x)
-	if p := name.Find(x); p != "" {
+	if s == "" {
+		return ""
+	}
+
+	s = word.StripStart(s)
+	s = strings.TrimSpace(s)
+	if p := name.Find(s); p != "" {
 		return name.String(p)
 	}
-	if uri := lism.FindOne(x); uri != "" {
-		return Humanize(string(uri))
+
+	if p := lism.FindOne(s); p != "" {
+		return Humanize(string(p))
 	}
-	x = word.StripChars(x)
-	x = word.TrimThe(x)
-	x = word.TrimSP(x)
-	c := name.Obfuscate(x)
-	return Humanize(string(c))
+
+	s = word.StripChars(s)
+	s = word.TrimThe(s)
+	s = word.TrimSP(s)
+
+	return Humanize(string(name.Obfuscate(s)))
 }

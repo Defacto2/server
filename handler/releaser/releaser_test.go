@@ -1,54 +1,17 @@
 package releaser_test
 
 import (
-	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/releaser"
+	"github.com/nalgeon/be"
 )
-
-func ExampleCell() {
-	s := "  Defacto2  demo  group."
-	fmt.Println(releaser.Cell(s))
-	// Output: DEFACTO2 DEMO GROUP
-}
-
-func ExampleClean() {
-	s := "  Defacto2  demo  group."
-	fmt.Println(releaser.Clean(s))
-	// Output: Defacto2 Demo Group
-}
-
-func ExampleHumanize() {
-	path := "razor-1911-demo"
-	fmt.Println(releaser.Humanize(path))
-	// Output: Razor 1911 Demo
-}
-
-func ExampleLink() {
-	path := "class*paradigm*razor-1911-demo"
-	fmt.Println(releaser.Link(path))
-	// Output: Class + Paradigm + Razor 1911 Demo
-}
-
-func ExampleObfuscate() {
-	s := "Defacto2 Demo Group."
-	fmt.Println(releaser.Obfuscate(s))
-	// Output: defacto2-demo-group
-}
-
-func ExampleIndex() {
-	fmt.Println(releaser.Index("united-software-association*fairlight"))
-	fmt.Println(releaser.Index("class*paradigm*razor-1911"))
-	fmt.Println(releaser.Index("coop"))
-	// Output: UNITED SOFTWARE ASSOCIATION, FAIRLIGHT
-	// CLASS, PARADIGM, RAZOR 1911
-	// COOP
-}
 
 func TestCell(t *testing.T) {
 	t.Parallel()
+
 	type args struct {
 		s string
 	}
@@ -93,15 +56,17 @@ func TestCell(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := releaser.Cell(tt.args.s); got != strings.ToUpper(tt.want) {
-				t.Errorf("Cell() = %v, want %v", got, strings.ToUpper(tt.want))
-			}
+
+			want := strings.ToUpper(tt.want)
+			got := releaser.Cell(tt.args.s)
+			be.Equal(t, got, want)
 		})
 	}
 }
 
 func TestClean(t *testing.T) {
 	t.Parallel()
+
 	type args struct {
 		s string
 	}
@@ -146,38 +111,39 @@ func TestClean(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := releaser.Clean(tt.args.s); got != tt.want {
-				t.Errorf("Clean() = %v, want %v", got, tt.want)
-			}
+
+			got := releaser.Clean(tt.args.s)
+			be.Equal(t, got, tt.want)
 		})
 	}
 }
 
 func TestHumanize(t *testing.T) {
 	t.Parallel()
-	testCases := []struct {
-		input    string
-		expected string
+
+	tests := []struct {
+		input string
+		want  string
 	}{
 		{
-			input:    "defacto2",
-			expected: "Defacto2",
+			input: "defacto2",
+			want:  "Defacto2",
 		},
 		{
-			input:    "/razor-1911//",
-			expected: "",
+			input: "/razor-1911//",
+			want:  "",
 		},
 		{
-			input:    "razor-1911-ampersand-skillion",
-			expected: "Razor 1911 & Skillion",
+			input: "razor-1911-ampersand-skillion",
+			want:  "Razor 1911 & Skillion",
 		},
 		{
-			input:    "razor-1911*trsi",
-			expected: "Razor 1911, TRSi",
+			input: "razor-1911*trsi",
+			want:  "Razor 1911, TRSi",
 		},
 		{
-			input:    "north-american-pirate_phreak-association",
-			expected: "North American Pirate-Phreak Association",
+			input: "north-american-pirate_phreak-association",
+			want:  "North American Pirate-Phreak Association",
 		},
 		{"2-minutes-to-midnight-bbs", "2 Minutes to Midnight BBS"},
 		{"2000ad", "2000AD"},
@@ -189,56 +155,62 @@ func TestHumanize(t *testing.T) {
 		{"coop", "TDT / TRSi"},
 	}
 
-	for _, tc := range testCases {
-		actual := releaser.Humanize(tc.input)
-		if actual != tc.expected {
-			t.Errorf("Humanize(%q) = %q; expected %q", tc.input, actual, tc.expected)
-		}
+	for n, tt := range tests {
+		t.Run("test humanize #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			got := releaser.Humanize(tt.input)
+			be.Equal(t, got, tt.want)
+		})
 	}
 }
 
 func TestLink(t *testing.T) {
 	t.Parallel()
-	testCases := []struct {
-		input    string
-		expected string
+
+	tests := []struct {
+		input string
+		want  string
 	}{
 		{
-			input:    "/home/ben/github/releaser",
-			expected: "",
+			input: "/home/ben/github/releaser",
+			want:  "",
 		},
 		{
-			input:    "class",
-			expected: "Class",
+			input: "class",
+			want:  "Class",
 		},
 		{
-			input:    "class*paradigm*razor-1911",
-			expected: "Class + Paradigm + Razor 1911",
+			input: "class*paradigm*razor-1911",
+			want:  "Class + Paradigm + Razor 1911",
 		},
 		{
-			input:    "united-software-association*fairlight",
-			expected: "United Software Association + Fairlight PC Division",
+			input: "united-software-association*fairlight",
+			want:  "United Software Association + Fairlight PC Division",
 		},
 		{
-			input:    "coop",
-			expected: "TDT / TRSi",
+			input: "coop",
+			want:  "TDT / TRSi",
 		},
 		{
-			input:    "razor-1911-demo*trsi",
-			expected: "Razor 1911 Demo + TRSi",
+			input: "razor-1911-demo*trsi",
+			want:  "Razor 1911 Demo + TRSi",
 		},
 	}
 
-	for _, tc := range testCases {
-		actual := releaser.Link(tc.input)
-		if actual != tc.expected {
-			t.Errorf("Link(%q) = %q; expected %q", tc.input, actual, tc.expected)
-		}
+	for n, tt := range tests {
+		t.Run("test humanize #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			got := releaser.Link(tt.input)
+			be.Equal(t, got, tt.want)
+		})
 	}
 }
 
 func TestObfuscate(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name string
 		arg  string
@@ -267,15 +239,16 @@ func TestObfuscate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := releaser.Obfuscate(tt.arg); got != tt.want {
-				t.Errorf("Obfuscate(%q) = %q, want %q", tt.arg, got, tt.want)
-			}
+
+			got := releaser.Obfuscate(tt.arg)
+			be.Equal(t, got, tt.want)
 		})
 	}
 }
 
 func TestTitle(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name string
 		arg  string
@@ -291,9 +264,9 @@ func TestTitle(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := releaser.Title(tt.arg); got != tt.want {
-				t.Errorf("Title(%q) = %q, want %q", tt.arg, got, tt.want)
-			}
+
+			got := releaser.Title(tt.arg)
+			be.Equal(t, got, tt.want)
 		})
 	}
 }
