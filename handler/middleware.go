@@ -27,9 +27,9 @@ var requestCounter atomic.Int64
 
 const (
 	CacheControl  = "Cache-Control"
+	XApiVersion   = "X-Api-Version"
 	XRobotsTag    = "X-Robots-Tag"
 	XReadOnlyLock = "X-Read-Only-Lock"
-	XApiVersion   = "X-Api-Version"
 	XResponseTime = "X-Response-Time"
 )
 

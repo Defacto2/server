@@ -2,18 +2,15 @@
 package readme
 
 import (
-	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"regexp"
 )
 
 var (
-	byteCR   = []byte("\r")
-	byteCRLF = []byte("\r\n")
-	// byteCRLFx2 = []byte("\n\n").
+	byteCR     = []byte("\r")
+	byteCRLF   = []byte("\r\n")
 	byteEOF    = []byte("\x1a")
 	byteLF     = []byte("\n")
 	byteNull   = []byte{0x00}
@@ -22,9 +19,14 @@ var (
 	trimCutset = " \x1a" // Space + SUB character
 )
 
-// addPrefix injects content before the existing byte content.
+const (
+	eof          = "\x1a"
+	trimBytesSet = "\t\n\v\f\r " + eof
+)
+
+// AddPrefix injects content before the existing byte content.
 // This is usually to inject FILE_ID.DIZ text files.
-func addPrefix(p, prefix []byte) []byte {
+func AddPrefix(p, prefix []byte) []byte {
 	if len(bytes.TrimSpace(prefix)) == 0 {
 		return p
 	}
@@ -32,21 +34,24 @@ func addPrefix(p, prefix []byte) []byte {
 		return prefix
 	}
 
-	sep := []byte("\n\n")
-	size := len(prefix) + len(sep) + len(p)
+	if len(prefix) == 0 {
+		return bytes.Clone(prefix)
+	}
 
-	// Single heap allocation with zero wrapper struct overhead
-	buf := make([]byte, 0, size)
-	buf = append(buf, prefix...)
-	buf = append(buf, sep...)
-	buf = append(buf, p...)
+	const nl = 2
+	size := len(prefix) + nl + len(p)
+	buf := make([]byte, size)
+	n := copy(buf, prefix)
+	buf[n] = '\n'
+	buf[n+1] = '\n'
+	copy(buf[n+nl:], p)
 
 	return buf
 }
 
-// addSuffix injects content after the existing byte content.
+// AddSuffix injects content after the existing byte content.
 // This is usually to inject an additional helper text file.
-func addSuffix(p, suffix []byte) []byte {
+func AddSuffix(p, suffix []byte) []byte {
 	if len(bytes.TrimSpace(suffix)) == 0 {
 		return p
 	}
@@ -54,14 +59,14 @@ func addSuffix(p, suffix []byte) []byte {
 		return suffix
 	}
 
-	sep := []byte("\n\n")
-	size := len(suffix) + len(sep) + len(p)
+	const nl = 2
+	size := len(suffix) + nl + len(p)
+	buf := make([]byte, size)
 
-	// Single heap allocation with zero wrapper struct overhead
-	buf := make([]byte, 0, size)
-	buf = append(buf, p...)
-	buf = append(buf, sep...)
-	buf = append(buf, suffix...)
+	n := copy(buf, p)
+	buf[n] = '\n'
+	buf[n+1] = '\n'
+	copy(buf[n+nl:], suffix)
 
 	return buf
 }
@@ -76,56 +81,32 @@ func addSuffix(p, suffix []byte) []byte {
 //   - https://defacto2.net/f/b328b2c
 func trimEOF(s []byte) []byte {
 	const (
-		e   = 0x8a // è
-		eof = 0x1a // msdos end-of-file marker
+		e   = 0x8a // CP437: è
+		eof = 0x1a // MSDOS: end-of-file mark
 	)
-	match := bytes.LastIndexByte(s, e)
-	if none := match == -1; none {
+	n := len(s)
+	if n == 0 {
 		return s
 	}
-	for i := match + 1; i < len(s); i++ {
-		if s[i] != eof {
-			return s
-		}
-	}
-	return s[:match]
-}
 
-const (
-	eof          = "\x1a"
-	trimBytesSet = "\t\n\v\f\r " + eof
-)
+	i := n - 1
+	for i >= 0 && s[i] == eof {
+		i--
+	}
+
+	if i >= 0 && s[i] == e {
+		i--
+	}
+
+	return s[:i+1]
+}
 
 // trimBytes removes ending standard space characters and MS-DOS EOF marker (0x1a).
 func trimBytes(b []byte) []byte {
 	return bytes.TrimRight(b, trimBytesSet)
 }
 
-const (
-	reSGR   = `\x1b\[`
-	reAnsi  = `\x1b\[[0-9;]*[a-zA-Z]`
-	reAmiga = `\x1b\[[0-9;]* p`
-	reDEC   = `\x1b\[\?[0-9]+\w`
-	reSauce = `SAUCE00`
-
-	// reMovePos returns a regular expression for ANSI cursor position escape codes.
-	//   - match "1B" (Escape)
-	//   - match "[" (Left Bracket)
-	//   - match the digits for line number
-	//   - match ";" (semicolon)
-	//   - match the digits for column number
-	//   - match "H" cursor position or "f" cursor position
-	reMovePos = `\x1b\[\d+;\d+[Hf]`
-
-	// reMove returns a regular expression for ANSI cursor movement escape codes.
-	//   - match "1B" (Escape)
-	//   - match "[" (Left Bracket)
-	//   - match optional digits or if no digits, then the cursor moves 1 position
-	//   - match "A", "B", "C", "D", "E", "F", "G" for cursor movement up, down, left, right, etc.
-	reMove = `\x1b\[\d*?[ABCDEFG]`
-)
-
-var reControlCodes = regexp.MustCompile(reAnsi + `|` + reDEC + `|` + reAmiga + `|` + reSauce)
+var reControlCodes = regexp.MustCompile(`\x1b\[(?:\?[0-9]+\w|[0-9;]*[a-zA-Z]|[0-9;]* p)|SAUCE00`)
 
 // removeControls removes known problematic characters and controls, including:
 //   - ASCII control codes, NULL, SUB
@@ -138,15 +119,25 @@ func removeControls(b []byte) []byte {
 		return b
 	}
 
-	b = reControlCodes.ReplaceAll(b, emptyBytes)
-	b = bytes.ReplaceAll(b, byteCRLF, byteLF)
-	b = bytes.ReplaceAll(b, byteNull, byteSpace)
-	b = bytes.TrimRight(b, trimCutset)
+	b = reControlCodes.ReplaceAll(b, nil)
 
-	return b
+	s := make([]byte, 0, len(b))
+	for i := 0; i < len(b); i++ {
+		switch {
+		case b[i] == '\x00':
+			s = append(s, ' ')
+		case b[i] == '\r' && i+1 < len(b) && b[i+1] == '\n':
+			s = append(s, '\n')
+			i++ // skip the newline '\n' in CRLF pairs
+		default:
+			s = append(s, b[i])
+		}
+	}
+
+	return bytes.TrimRight(s, trimCutset)
 }
 
-var reANSI = regexp.MustCompile(fmt.Sprintf("(?:%s|%s|%s)", reMove, reMovePos, reSGR))
+var ansiSequence = []byte("\x1b[")
 
 // hasANSI scans the reader and returns true if ANSI escape codes are found.
 // If the reader is too large to render in a HTML template, an error is returned.
@@ -157,29 +148,37 @@ func hasANSI(r io.Reader) (bool, error) {
 
 	const (
 		format    = "match ansi reader %s: %w"
-		oneKB     = 1024
-		maxBytes  = oneKB * 1024
-		chunkSize = oneKB * 32
+		maxBytes  = 1024 * 1024 // 1MB
+		chunkSize = 8 * 1024    // 8KB stack buffer with 0 allocs
 	)
 
-	buf := make([]byte, chunkSize)
-	var read int
+	var buf [chunkSize]byte
+	var read, carry int
 
 	for {
-		n, err := r.Read(buf)
+		n, err := r.Read(buf[carry:])
 		if n > 0 {
+			total := carry + n
 			read += n
+
 			if read > maxBytes {
-				return false, fmt.Errorf(format, "reader is larger than 1MB", bufio.ErrTooLong)
+				return false, fmt.Errorf(format, "read bytes", ErrTooLong)
 			}
 
-			if reANSI.Match(buf[:n]) {
+			if bytes.Contains(buf[:total], ansiSequence) {
 				return true, nil
+			}
+
+			if buf[total-1] == '\x1b' {
+				buf[0] = '\x1b'
+				carry = 1
+			} else {
+				carry = 0
 			}
 		}
 
 		if err != nil {
-			if errors.Is(err, io.EOF) {
+			if err == io.EOF {
 				break
 			}
 			return false, fmt.Errorf(format, "chunk read", err)

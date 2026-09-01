@@ -24,9 +24,10 @@ import (
 )
 
 var (
-	ErrDownload = errors.New("cannot stat the downloaded file")
-	ErrFilename = errors.New("file model filename is empty")
-	ErrUUID     = errors.New("file model uuid is empty")
+	ErrDownload = errors.New("readme: cannot stat the downloaded file")
+	ErrFilename = errors.New("readme: file model filename is empty")
+	ErrUUID     = errors.New("readme: file model uuid is empty")
+	ErrTooLong  = errors.New("readme: reader is larger than 1MB")
 )
 
 type Text struct {
@@ -155,14 +156,14 @@ func (t *Text) handleRAW(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) (
 	if descBuf.Len() > 0 { // usually the file_id or other header text
 		// avoid edge cases where two buffers might have the same content
 		if !bytes.Equal(descBuf.Bytes(), textBuf.Bytes()) {
-			b = addPrefix(b, descBuf.Bytes())
+			b = AddPrefix(b, descBuf.Bytes())
 		}
 		descBuf.Reset()
 	}
 
 	if helpBuf.Len() > 0 { // usually a manual or secondary text
 		if !bytes.Equal(helpBuf.Bytes(), textBuf.Bytes()) {
-			b = addSuffix(b, helpBuf.Bytes())
+			b = AddSuffix(b, helpBuf.Bytes())
 		}
 		helpBuf.Reset()
 	}
