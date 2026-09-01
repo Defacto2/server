@@ -78,7 +78,7 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 	prodMode := bool(settings.ProdMode)
 
 	httpErr := func(c *echo.Context, err error) {
-		config.CustomErrorHandler(ctx, sl, c, err)
+		config.CustomErrorHandler(sl, c, err)
 	}
 
 	onAddRoute := func(route echo.Route) error {
@@ -147,28 +147,27 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 	)
 
 	// browser paths and routes
-	e = AppendDirs(e, serv.Public)
-	e = AppendMoved(e)
-	ch := configHTMX{
+	e = RouteFS(e, serv.Public)
+	e = RouteMoved(e)
+	configHTMX{
 		prodMode: prodMode,
 		download: dir.Directory(serv.Environment.AbsDownload),
-	}
-	e = ch.append(ctx, sl, e, db)
-	e, err = serv.RouteFiles(sl, e, db, serv.Public)
+	}.routeHTMX(sl, e, db)
+	e, err = serv.RouteFS(sl, e, db, serv.Public)
 	if err != nil {
 		logFatal("file route", "cannot register routes", err)
 	}
 
-	group := html3.Routes(ctx, sl, e, db)
+	group := html3.Route(sl, e, db)
 	group.GET(Downloader, func(c *echo.Context) error {
-		return serv.downloader(ctx, sl, c, db)
+		return serv.downloader(sl, c, db)
 	})
 
 	return e
 }
 
-// AppendDirs serves the static files from the directories embed to the binary.
-func AppendDirs(e *echo.Echo, fsys fs.FS) *echo.Echo {
+// RouteFS serves the static files from the directories embed to the binary.
+func RouteFS(e *echo.Echo, fsys fs.FS) *echo.Echo {
 	const msg = "embed dirs handler"
 	if err := nils.Check(e, fsys); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
@@ -593,9 +592,9 @@ func (serv *Server) address(port uint16) string {
 }
 
 // downloader is used by the html3 group route as the file download handler.
-func (serv *Server) downloader(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func (serv *Server) downloader(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const format = "downloader htm3 group handler: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 
@@ -603,7 +602,7 @@ func (serv *Server) downloader(ctx context.Context, sl *slog.Logger, c *echo.Con
 		Inline: false,
 		Dir:    dir.Directory(serv.Environment.AbsDownload),
 	}
-	if err := d.HTTPSend(ctx, sl, c, db); err != nil {
+	if err := d.HTTPSend(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 

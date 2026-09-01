@@ -836,14 +836,14 @@ func DownloadJsDos(
 }
 
 // Download is the handler for the Download file record page.
-func Download(sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory) error {
+func Download(sl *slog.Logger, c *echo.Context, db *sql.DB, path dir.Directory) error {
 	const format = "download context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	d := download.Download{
 		Inline: false,
-		Dir:    downl,
+		Dir:    path,
 	}
 	const uri = "d"
 	if id := c.Param("id"); id != "" {
@@ -851,8 +851,7 @@ func Download(sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory)
 		const format = `<https://defacto2.net/%s/%s; rel=canon>`
 		r.Header().Set("Link", fmt.Sprintf(format, uri, id))
 	}
-	ctx := c.Request().Context()
-	if err := d.HTTPSend(ctx, sl, c, db); err != nil {
+	if err := d.HTTPSend(sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(sl, c, uri, err)
 		}
@@ -1319,18 +1318,17 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 }
 
 // Inline is the handler for the Download file record page.
-func Inline(sl *slog.Logger, c *echo.Context, db *sql.DB, downl dir.Directory) error {
+func Inline(sl *slog.Logger, c *echo.Context, db *sql.DB, path dir.Directory) error {
 	const format = "inline context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	d := download.Download{
 		Inline: true,
-		Dir:    downl,
+		Dir:    path,
 	}
 	const uri = "v"
-	ctx := c.Request().Context()
-	if err := d.HTTPSend(ctx, sl, c, db); err != nil {
+	if err := d.HTTPSend(sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(sl, c, uri, err)
 		}

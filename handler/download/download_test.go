@@ -28,9 +28,8 @@ func TestChecksum(t *testing.T) {
 
 func TestHTTPSend(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
 	d := download.Download{}
-	err := d.HTTPSend(ctx, nil, newContext(), nil)
+	err := d.HTTPSend(nil, newContext(), nil)
 	be.Err(t, err)
 }
 

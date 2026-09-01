@@ -29,7 +29,7 @@ func TestRoutes(t *testing.T) {
 	e := echo.New()
 	sl := logs.Discard()
 	var db sql.DB
-	g := html3.Routes(t.Context(), sl, e, &db)
+	g := html3.Route(sl, e, &db)
 	be.True(t, g != nil)
 }
 

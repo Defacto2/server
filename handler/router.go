@@ -25,8 +25,8 @@ import (
 
 const code = http.StatusMovedPermanently
 
-// RouteFiles defines the file locations and routes for the web server.
-func (serv *Server) RouteFiles(sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.FS) (*echo.Echo, error) {
+// RouteFS defines the file locations and routes for the web server.
+func (serv *Server) RouteFS(sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.FS) (*echo.Echo, error) {
 	const format = "route files %s: %w"
 	if err := nils.Check(sl, e, db, fsys); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
@@ -379,37 +379,46 @@ func (serv *Server) files(sl *slog.Logger, s *echo.Group, db *sql.DB, dirs app.D
 	s.GET(Downloader, func(c *echo.Context) error {
 		return app.Download(sl, c, db, dir.Directory(serv.Environment.AbsDownload))
 	})
+
 	s.GET("/f/:id", artifact)
+
 	s.GET("/file/stats", func(c *echo.Context) error {
 		return app.Categories(sl, c, db, true)
 	})
+
 	s.GET("/files/:id/:page", func(c *echo.Context) error {
-		switch c.Param("id") {
-		case
-			"for-approval", "deletions", "unwanted":
-			return app.StatusErr(sl, c, http.StatusNotFound, c.Param("id"))
+		uri := c.Param("id")
+		switch uri {
+		case "for-approval", "deletions", "unwanted":
+			return app.StatusErr(sl, c, http.StatusNotFound, uri)
+		default:
+			return app.Artifacts(sl, c, db, uri, c.Param("page"))
 		}
-		return app.Artifacts(sl, c, db, c.Param("id"), c.Param("page"))
 	})
 	s.GET("/files/:id", func(c *echo.Context) error {
-		switch c.Param("id") {
-		case
-			"for-approval", "deletions", "unwanted":
-			return app.StatusErr(sl, c, http.StatusNotFound, c.Param("id"))
+		uri := c.Param("id")
+		switch uri {
+		case "for-approval", "deletions", "unwanted":
+			return app.StatusErr(sl, c, http.StatusNotFound, uri)
+		default:
+			return app.Artifacts(sl, c, db, uri, "1")
 		}
-		return app.Artifacts(sl, c, db, c.Param("id"), "1")
 	})
+
 	s.GET("/file", func(c *echo.Context) error {
 		return app.Categories(sl, c, db, false)
 	})
+
 	s.GET("/jsdos/:id", func(c *echo.Context) error {
 		return app.DownloadJsDos(sl, c, db,
 			dir.Directory(serv.Environment.AbsExtra),
 			dir.Directory(serv.Environment.AbsDownload))
 	})
+
 	s.GET("/sum/:id", func(c *echo.Context) error {
 		return app.Checksum(sl, c, db, c.Param("id"))
 	})
+
 	s.GET("/v/:id", func(c *echo.Context) error {
 		return app.Inline(sl, c, db, dir.Directory(serv.Environment.AbsDownload))
 	})
@@ -418,34 +427,36 @@ func (serv *Server) files(sl *slog.Logger, s *echo.Group, db *sql.DB, dirs app.D
 }
 
 func sitemaps(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
+	const indent = "  "
+
 	e.GET("/sitemaps.xml", func(c *echo.Context) error {
 		i := sitemap.MapIndex()
-		return c.XMLPretty(http.StatusOK, i, "  ")
+		return c.XMLPretty(http.StatusOK, i, indent)
 	})
 	e.GET("/"+sitemap.Website, func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		i := sitemap.MapSite(ctx, sl, db)
-		return c.XMLPretty(http.StatusOK, i, "  ")
+		return c.XMLPretty(http.StatusOK, i, indent)
 	})
 	e.GET("/"+sitemap.Releaser, func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		i := sitemap.MapReleaser(ctx, sl, db)
-		return c.XMLPretty(http.StatusOK, i, "  ")
+		return c.XMLPretty(http.StatusOK, i, indent)
 	})
 	e.GET("/"+sitemap.Magazine, func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		i := sitemap.MapMagazine(ctx, sl, db)
-		return c.XMLPretty(http.StatusOK, i, "  ")
+		return c.XMLPretty(http.StatusOK, i, indent)
 	})
 	e.GET("/"+sitemap.BBS, func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		i := sitemap.MapBBS(ctx, sl, db)
-		return c.XMLPretty(http.StatusOK, i, "  ")
+		return c.XMLPretty(http.StatusOK, i, indent)
 	})
 	e.GET("/"+sitemap.FTP, func(c *echo.Context) error {
 		ctx := c.Request().Context()
 		i := sitemap.MapFTP(ctx, sl, db)
-		return c.XMLPretty(http.StatusOK, i, "  ")
+		return c.XMLPretty(http.StatusOK, i, indent)
 	})
 
 	return e
@@ -556,11 +567,11 @@ func (serv *Server) signin(sl *slog.Logger, e *echo.Echo, nonce []byte) *echo.Ec
 	return e
 }
 
-// AppendMoved redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
-func AppendMoved(e *echo.Echo) *echo.Echo {
-	const msg = "moved permanently routes"
+// RouteMoved redirects are partial URL routers that are to be redirected with a HTTP 301 Moved Permanently.
+func RouteMoved(e *echo.Echo) *echo.Echo {
+	const format = "moved permanently routes: %w"
 	if err := nils.Check(e); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+		panic(fmt.Errorf(format, err))
 	}
 
 	e = nginx(e)

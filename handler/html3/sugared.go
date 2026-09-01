@@ -3,7 +3,6 @@ package html3
 // Package file sugared.go contains the HTML3 website route functions.
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -27,13 +26,13 @@ const (
 )
 
 // All method lists every release.
-func All(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return List(ctx, sl, c, db, Everything)
+func All(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, Everything)
 }
 
 // Art lists the file records described as art are digital + pixel art files.
-func Art(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return List(ctx, sl, c, db, AsArt)
+func Art(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, AsArt)
 }
 
 // Categories lists the names, descriptions and sums of the category (section) tags.
@@ -62,22 +61,22 @@ func Categories(sl *slog.Logger, c *echo.Context) error {
 }
 
 // Category lists the file records associated with the category tag that is provided by the ID param in the URL.
-func Category(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return List(ctx, sl, c, db, BySection)
+func Category(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, BySection)
 }
 
 // Documents lists the file records described as document + text art files.
-func Documents(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return List(ctx, sl, c, db, AsDocument)
+func Documents(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, AsDocument)
 }
 
 // Group lists the file records associated with the group that is provided by the ID param in the URL.
-func Group(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return List(ctx, sl, c, db, ByGroup)
+func Group(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, ByGroup)
 }
 
 // Groups lists the names and sums of all the distinct scene groups.
-func Groups(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func Groups(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 groups listings"
 	const format = msg + ": %w"
 	if err := nils.Check(c, sl); err != nil {
@@ -96,6 +95,7 @@ func Groups(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 	}
 	// releasers are the distinct groups from the file table.
 	var unique model.ReleaserNames
+	ctx := c.Request().Context()
 	if err := unique.DistinctGroups(ctx, db); err != nil {
 		sl.Error(msg, slog.String("distinct", ErrSQL), slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
@@ -136,10 +136,10 @@ func Groups(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) e
 }
 
 // Index method is the homepage of the /html3 sub-route.
-func Index(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func Index(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "html3 index"
 	const format = msg + ": %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	start := helper.Latency()
@@ -151,6 +151,7 @@ func Index(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) er
 		Document html3.Documents
 		Software html3.Softwares
 	}
+	ctx := c.Request().Context()
 	if err := stats.All.Public(ctx, db); err != nil {
 		sl.Warn(msg, slog.String("statistics", "results for all"), slog.Any("error", err))
 	}
@@ -186,10 +187,10 @@ func Index(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) er
 }
 
 // List all the records associated with the RecordsBy grouping.
-func List(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
+func List(sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
 	const msg = "htm3 list records by"
 	const format = msg + ": %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	start := helper.Latency()
@@ -212,6 +213,7 @@ func List(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, tt 
 		}
 	}
 	// query database to return records and statistics
+	ctx := c.Request().Context()
 	limit, count, byteSum, records, err := Query(ctx, c, db, tt, page)
 	if err != nil {
 		sl.Error(msg, slog.String("database", "record and statistics query problem"), slog.Any("error", err))
@@ -262,8 +264,8 @@ func List(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, tt 
 }
 
 // Platform lists the file records associated with the platform tag that is provided by the ID param in the URL.
-func Platform(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return List(ctx, sl, c, db, ByPlatform)
+func Platform(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return List(sl, c, db, ByPlatform)
 }
 
 // Platforms lists the names, descriptions and sums of the platform tags.
@@ -291,6 +293,6 @@ func Platforms(sl *slog.Logger, c *echo.Context) error {
 }
 
 // Software lists the file records described as software files.
-func Software(ctx context.Context, c *echo.Context, db *sql.DB, sl *slog.Logger) error {
-	return List(ctx, sl, c, db, AsSoftware)
+func Software(c *echo.Context, db *sql.DB, sl *slog.Logger) error {
+	return List(sl, c, db, AsSoftware)
 }

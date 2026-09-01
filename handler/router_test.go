@@ -16,7 +16,7 @@ func TestFiles0(t *testing.T) {
 	t.Parallel()
 
 	serv := handler.Server{}
-	e, err := serv.RouteFiles(nil, nil, nil, nil)
+	e, err := serv.RouteFS(nil, nil, nil, nil)
 	be.Err(t, err)
 	be.Equal(t, e, nil)
 }
@@ -32,7 +32,7 @@ func TestFiles1(t *testing.T) {
 	xfs := fstest.MapFS{}
 
 	serv := handler.Server{}
-	e, err := serv.RouteFiles(sl, e, db, xfs)
+	e, err := serv.RouteFS(sl, e, db, xfs)
 	be.Err(t, err)
 	be.True(t, e == nil)
 }
@@ -45,7 +45,7 @@ func TestFiles2(t *testing.T) {
 	sl := logs.Discard()
 	e := echo.New()
 	fsys := testutil.OpenFS(t)
-	e, err := serv.RouteFiles(sl, e, db, fsys)
+	e, err := serv.RouteFS(sl, e, db, fsys)
 	be.Err(t, err, nil)
 
 	c := testutil.EchoContext(t, e, "/want-404")
