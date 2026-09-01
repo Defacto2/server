@@ -60,16 +60,15 @@ func TestDBConnections(t *testing.T) {
 
 func TestDeleteForever(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
-	err := htmx.DeleteForever(ctx, nil, newContext(), nil, "")
+	err := htmx.DeleteForever(nil, newContext(), nil, "")
 	be.Err(t, err)
-	err = htmx.DeleteForever(ctx, nil, newContext(), nil, "1")
+	err = htmx.DeleteForever(nil, newContext(), nil, "1")
 	be.Err(t, err)
 }
 
 func TestPings(t *testing.T) {
 	t.Parallel()
-	err := htmx.Pings(t.Context(), newContext(), "", -1)
+	err := htmx.Pings(newContext(), "", -1)
 	be.Err(t, err, nil)
 }
 
@@ -97,14 +96,13 @@ func TestPouetSubmit(t *testing.T) {
 
 func TestSearchByID(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
-	err := htmx.SearchByID(ctx, nil, newContext(), nil)
+	err := htmx.SearchByID(nil, newContext(), nil)
 	be.Err(t, err)
 }
 
 func TestSearchReleaser(t *testing.T) {
 	t.Parallel()
-	err := htmx.SearchReleaser(context.TODO(), nil, newContext(), nil, nil)
+	err := htmx.SearchReleaser(nil, newContext(), nil, nil)
 	be.Err(t, err)
 }
 
@@ -171,31 +169,29 @@ func TestProdSubmit(t *testing.T) {
 func TestUploadPreview(t *testing.T) {
 	t.Parallel()
 
-	ctx := t.Context()
 	u := htmx.Upload{}
-	err := u.ImagePreview(ctx, logs.Discard(), newContext())
+	err := u.ImagePreview(logs.Discard(), newContext())
 	be.Err(t, err, nil)
 
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
 	u.Preview = dir.Directory(wd)
 	u.Thumbnail = dir.Directory(wd)
-	err = u.ImagePreview(ctx, logs.Discard(), newContext())
+	err = u.ImagePreview(logs.Discard(), newContext())
 	be.Err(t, err, nil)
 }
 
 func TestUploadReplacement(t *testing.T) {
 	t.Parallel()
-	ctx := t.Context()
 	d := logs.Discard()
 
 	u := htmx.Upload{}
-	err := u.Replacement(ctx, d, newContext(), nil)
+	err := u.Replacement(d, newContext(), nil)
 	be.Err(t, err)
 
 	wd, err := os.Getwd()
 	be.Err(t, err, nil)
 	u.Download = dir.Directory(wd)
-	err = u.Replacement(ctx, d, newContext(), nil)
+	err = u.Replacement(d, newContext(), nil)
 	be.Err(t, err)
 }

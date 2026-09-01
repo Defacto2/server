@@ -249,15 +249,16 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 }
 
 // DeleteForever is a handler for the /delete/forever route.
-func DeleteForever(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
+func DeleteForever(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	const msg = "htmx delete forever"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	key, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
+	ctx := c.Request().Context()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		sl.Error(msg, slog.String("database", "could not start transaction"), slog.Any("error", err))
@@ -368,11 +369,12 @@ func pings() []string {
 }
 
 // Pings is a handler for the /pings route.
-func Pings(ctx context.Context, c *echo.Context, proto string, port int) error {
+func Pings(c *echo.Context, proto string, port int) error {
 	const msg = "htmx pings context"
-	if err := nils.Check(ctx, c); err != nil {
+	if err := nils.Check(c); err != nil {
 		return fmt.Errorf("%s, %w", msg, err)
 	}
+	ctx := c.Request().Context()
 	pings := pings()
 	results := make([]string, 0, len(pings))
 	for ping := range slices.Values(pings) {
@@ -579,9 +581,9 @@ func PouetSubmit(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.
 }
 
 // SearchByID is a handler for the /editor/search/id route.
-func SearchByID(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const msg = "search by id context"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const maxResults = 50
@@ -605,6 +607,7 @@ func SearchByID(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 		}
 	}
 
+	ctx := c.Request().Context()
 	fs, err := model.OnlyUniqueIDs(ctx, db, ids, uuids...)
 	if err != nil {
 		if sl != nil {
@@ -669,11 +672,9 @@ func Alternatives(s string) []string {
 }
 
 // SearchReleaser is a handler for the /search/releaser route.
-func SearchReleaser(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.Tidbits,
-) error {
+func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.Tidbits) error {
 	const msg = "htmx search releaser context"
-	if err := nils.Check(ctx, sl, c, db, ft); err != nil {
+	if err := nils.Check(sl, c, db, ft); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	const limit = 14
@@ -694,6 +695,7 @@ func SearchReleaser(
 	lookup = slices.Insert(lookup, 0, name+matchZeroOrMore)
 	// lookup exact match initialisms
 	var r model.Releasers
+	ctx := c.Request().Context()
 	if err := r.Initialism(ctx, db, limit, lookup...); err != nil {
 		sl.Error(msg, slog.String("task", "releaser match initialisms"),
 			slog.Any("error", err))

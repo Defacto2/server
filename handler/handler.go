@@ -154,7 +154,7 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 		download: dir.Directory(serv.Environment.AbsDownload),
 	}
 	e = ch.append(ctx, sl, e, db)
-	e, err = serv.AppendFiles(ctx, sl, e, db, serv.Public)
+	e, err = serv.RouteFiles(sl, e, db, serv.Public)
 	if err != nil {
 		logFatal("file route", "cannot register routes", err)
 	}

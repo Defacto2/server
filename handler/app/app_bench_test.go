@@ -39,7 +39,7 @@ func BenchmarkCategoriesAPI(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		_ = app.CategoriesAPI(b.Context(), c, db)
+		_ = app.CategoriesAPI(c, db)
 		w.Body.Reset()
 	}
 }

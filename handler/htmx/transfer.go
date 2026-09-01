@@ -604,9 +604,9 @@ type Upload struct {
 	Thumbnail dir.Directory
 }
 
-func (u Upload) ImagePreview(ctx context.Context, sl *slog.Logger, c *echo.Context) error { //nolint:funlen
+func (u Upload) ImagePreview(sl *slog.Logger, c *echo.Context) error { //nolint:funlen
 	const msg = "htmx upload preview"
-	if err := nils.Check(ctx, sl, c); err != nil {
+	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -664,6 +664,10 @@ func (u Upload) ImagePreview(ctx context.Context, sl *slog.Logger, c *echo.Conte
 
 	magic := magicnumber.Find(src)
 
+	const timeout = command.CmdTimeout * 2
+	ctx, cancel := context.WithTimeout(c.Request().Context(), timeout)
+	defer cancel()
+
 	if imagers(magic) {
 		if err := dirs.PictureImager(ctx, sl, dst.Name(), upload.unid); err != nil {
 			const s = "\nThe uploaded image file could not be converted, " +
@@ -711,9 +715,9 @@ func okayReload(c *echo.Context, filename string) error {
 
 // Replacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
-func (u Upload) Replacement(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
+func (u Upload) Replacement(sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
 	const msg = "htmx upload replacement"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if err := u.Download.Check(sl); err != nil {
@@ -776,6 +780,7 @@ func (u Upload) Replacement(ctx context.Context, sl *slog.Logger, c *echo.Contex
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
 	}
 
+	ctx := c.Request().Context()
 	if list, err := archive.Lists(ctx, dst); err == nil {
 		fu.Content = strings.Join(list, "\n")
 	}

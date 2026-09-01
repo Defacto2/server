@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -116,6 +117,11 @@ func EchoContext(tb testing.TB, e *echo.Echo, target string) *echo.Context {
 }
 
 // File system helpers
+
+// OpenFS opens the root directory of this Go project and closes on cleanup.
+func OpenFS(tb testing.TB) fs.FS {
+	return OpenRoot(tb).FS()
+}
 
 // OpenRoot opens the root directory of this Go project and closes on cleanup.
 func OpenRoot(tb testing.TB) *os.Root {

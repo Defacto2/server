@@ -23,13 +23,13 @@ import (
 )
 
 var (
-	ErrArgument    = errors.New("nil argument provided")
-	ErrBoil        = errors.New("boil context executor is nil or invalid")
-	ErrContext     = errors.New("ctx context is nil or invalid")
-	ErrEchoHandler = errors.New("echo handler func is nil or invalid")
-	ErrEchoRoutes  = errors.New("echo routes is nil or invalid")
-	ErrEmbedFS     = errors.New("embed file system instance is empty")
-	ErrFSFS        = errors.New("file system instance is empty")
+	ErrArgument    = errors.New("nils: no argument provided")
+	ErrBoil        = errors.New("nils: boil context executor is invalid")
+	ErrContext     = errors.New("nils: ctx context is invalid")
+	ErrEchoHandler = errors.New("nils: echo handler func is invalid")
+	ErrEchoRoutes  = errors.New("nils: echo routes is invalid")
+	ErrEmbedFS     = errors.New("nils: embed file system instance is invalid")
+	ErrFS          = errors.New("nils: file system instance is invalid")
 
 	ErrBytesBuf     = errors.New("bytes buffer pointer is nil")
 	ErrEchoContext  = errors.New("echo context pointer is nil")
@@ -91,7 +91,7 @@ func pointers(n int, argType reflect.Type) error {
 	case reflect.TypeFor[embed.FS]():
 		return fmt.Errorf(format, n, ErrEmbedFS)
 	case reflect.TypeFor[fs.FS]():
-		return fmt.Errorf(format, n, ErrFSFS)
+		return fmt.Errorf(format, n, ErrFS)
 	case reflect.TypeFor[*slog.Logger]():
 		return fmt.Errorf(format, n, ErrSlogLogger)
 	case reflect.TypeFor[*sql.DB]():

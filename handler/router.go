@@ -3,7 +3,6 @@ package handler
 // Package file router.go contains the custom router URIs for the website.
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"io/fs"
@@ -26,16 +25,15 @@ import (
 
 const code = http.StatusMovedPermanently
 
-// AppendFiles defines the file locations and routes for the web server.
-func (serv *Server) AppendFiles(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.FS,
-) (*echo.Echo, error) {
-	const format = "files routes %s: %w"
-	if err := nils.Check(ctx, sl, e, db, fsys); err != nil {
+// RouteFiles defines the file locations and routes for the web server.
+func (serv *Server) RouteFiles(sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.FS) (*echo.Echo, error) {
+	const format = "route files %s: %w"
+	if err := nils.Check(sl, e, db, fsys); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
 	}
 
 	if d, err := fs.ReadDir(fsys, "."); err != nil || len(d) == 0 {
-		return nil, fmt.Errorf(format, "read dir", nils.ErrEmbedFS)
+		return nil, fmt.Errorf(format, "read dir", nils.ErrFS)
 	}
 
 	app.Caching.Records(serv.RecordCount)
@@ -52,17 +50,17 @@ func (serv *Server) AppendFiles(ctx context.Context, sl *slog.Logger, e *echo.Ec
 		return nil, fmt.Errorf(format, "nonce session key", err)
 	}
 
-	e = serv.signin(ctx, sl, e, nonce)
+	e = serv.signin(sl, e, nonce)
 	e = serv.custom404(sl, e)
 	e = serv.debugInfo(e)
 	e = serv.static(e)
 	e = serv.html(e, fsys)
 	e = serv.font(e, fsys)
 	e = serv.embed(e, fsys)
-	e = serv.search(ctx, sl, e, db)
-	e = serv.mainsite(ctx, sl, e, db, dirs)
-	e = serv.apiv1(ctx, sl, e, db, fsys)
-	e, err = serv.lock(ctx, sl, e, db, dirs)
+	e = serv.search(sl, e, db)
+	e = serv.mainsite(sl, e, db, dirs)
+	e = serv.apiv1(sl, e, db, fsys)
+	e, err = serv.lock(sl, e, db, dirs)
 	if err != nil {
 		return nil, fmt.Errorf(format, "serve lock", err)
 	}
@@ -221,11 +219,10 @@ func (serv *Server) debugInfo(e *echo.Echo) *echo.Echo {
 }
 
 // apiv1 routes for the public API endpoints.
-func (serv *Server) apiv1(
-	ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.FS,
+func (serv *Server) apiv1(sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.FS,
 ) *echo.Echo {
 	const format = "api routes %s: %w"
-	if err := nils.Check(ctx, sl, e, db, fsys); err != nil {
+	if err := nils.Check(sl, e, db, fsys); err != nil {
 		panic(fmt.Errorf(format, "check", err))
 	}
 
@@ -235,10 +232,10 @@ func (serv *Server) apiv1(
 	v1 := e.Group(app.APIBase)
 	v1.Use(CacheMiddleware())
 	v1.Use(APIMiddleware)
-	v1.GET("/categories", func(c *echo.Context) error { return app.CategoriesAPI(ctx, c, db) })
-	v1.GET("/category/:category", func(c *echo.Context) error { return app.CategoryAPI(ctx, sl, c, db) })
-	v1.GET("/platforms", func(c *echo.Context) error { return app.PlatformsAPI(ctx, c, db) })
-	v1.GET("/platform/:platform", func(c *echo.Context) error { return app.PlatformAPI(ctx, sl, c, db) })
+	v1.GET("/categories", func(c *echo.Context) error { return app.CategoriesAPI(c, db) })
+	v1.GET("/category/:category", func(c *echo.Context) error { return app.CategoryAPI(sl, c, db) })
+	v1.GET("/platforms", func(c *echo.Context) error { return app.PlatformsAPI(c, db) })
+	v1.GET("/platform/:platform", func(c *echo.Context) error { return app.PlatformAPI(sl, c, db) })
 	v1.GET("/milestones", app.MilestonesAPI)
 	v1.GET("/milestones/highlights", app.MilestoneHighlightsAPI)
 	v1.GET("/milestones/year/:year", app.MilestoneYearAPI)
@@ -251,40 +248,38 @@ func (serv *Server) apiv1(
 	v1.GET("/areacodes/region/:abbr", app.RegionAPI)
 	v1.GET("/websites", app.WebsitesAPI)
 	v1.GET("/demozoo", app.DemozooAPI)
-	v1.GET("/groups", func(c *echo.Context) error { return app.GroupsAPI(ctx, sl, c, db) })
-	v1.GET("/sites", func(c *echo.Context) error { return app.SitesAPI(ctx, sl, c, db) })
-	v1.GET("/boards", func(c *echo.Context) error { return app.BoardsAPI(ctx, sl, c, db) })
-	v1.GET("/magazines", func(c *echo.Context) error { return app.MagazinesAPI(ctx, sl, c, db) })
-	v1.GET("/releaser/:name", func(c *echo.Context) error { return app.ReleaserAPI(ctx, sl, c, db) })
-	v1.GET("/artifacts", func(c *echo.Context) error { return app.ArtifactsAPI(ctx, sl, c, db) })
-	v1.GET("/artifacts/new", func(c *echo.Context) error { return app.ArtifactsNewAPI(ctx, sl, c, db) })
-	v1.GET("/artifact/:id", func(c *echo.Context) error { return app.FileAPI(ctx, sl, c, db) })
-	v1.GET("/sceners", func(c *echo.Context) error { return app.ScenersAPI(ctx, sl, c, db) })
-	v1.GET("/sceners/artist", func(c *echo.Context) error { return app.ArtistsAPI(ctx, sl, c, db) })
-	v1.GET("/sceners/coder", func(c *echo.Context) error { return app.CodersAPI(ctx, sl, c, db) })
-	v1.GET("/sceners/musician", func(c *echo.Context) error { return app.MusiciansAPI(ctx, sl, c, db) })
-	v1.GET("/sceners/writer", func(c *echo.Context) error { return app.WritersAPI(ctx, sl, c, db) })
-	v1.GET("/scener/:name", func(c *echo.Context) error { return app.ScenerAPI(ctx, sl, c, db) })
+	v1.GET("/groups", func(c *echo.Context) error { return app.GroupsAPI(sl, c, db) })
+	v1.GET("/sites", func(c *echo.Context) error { return app.SitesAPI(sl, c, db) })
+	v1.GET("/boards", func(c *echo.Context) error { return app.BoardsAPI(sl, c, db) })
+	v1.GET("/magazines", func(c *echo.Context) error { return app.MagazinesAPI(sl, c, db) })
+	v1.GET("/releaser/:name", func(c *echo.Context) error { return app.ReleaserAPI(sl, c, db) })
+	v1.GET("/artifacts", func(c *echo.Context) error { return app.ArtifactsAPI(sl, c, db) })
+	v1.GET("/artifacts/new", func(c *echo.Context) error { return app.ArtifactsNewAPI(sl, c, db) })
+	v1.GET("/artifact/:id", func(c *echo.Context) error { return app.FileAPI(sl, c, db) })
+	v1.GET("/sceners", func(c *echo.Context) error { return app.ScenersAPI(sl, c, db) })
+	v1.GET("/sceners/artist", func(c *echo.Context) error { return app.ArtistsAPI(sl, c, db) })
+	v1.GET("/sceners/coder", func(c *echo.Context) error { return app.CodersAPI(sl, c, db) })
+	v1.GET("/sceners/musician", func(c *echo.Context) error { return app.MusiciansAPI(sl, c, db) })
+	v1.GET("/sceners/writer", func(c *echo.Context) error { return app.WritersAPI(sl, c, db) })
+	v1.GET("/scener/:name", func(c *echo.Context) error { return app.ScenerAPI(sl, c, db) })
 
 	return e
 }
 
 // mainsite routes for the main site.
-func (serv *Server) mainsite(
-	ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs,
-) *echo.Echo {
+func (serv *Server) mainsite(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
 	const format = "mainsite routes %s: %w"
-	if err := nils.Check(ctx, sl, db, e); err != nil {
+	if err := nils.Check(sl, db, e); err != nil {
 		panic(fmt.Errorf(format, "check", err))
 	}
 
 	e = health(e)
-	e = sitemaps(ctx, sl, e, db)
+	e = sitemaps(sl, e, db)
 	s := e.Group("")
-	s = sites(ctx, sl, s, db)
-	s = serv.files(ctx, sl, s, db, dirs)
-	s = serv.sceners(ctx, sl, s, db)
-	s = serv.releasers(ctx, sl, s, db)
+	s = sites(sl, s, db)
+	s = serv.files(sl, s, db, dirs)
+	s = serv.sceners(sl, s, db)
+	s = serv.releasers(sl, s, db)
 
 	s.GET("/", func(c *echo.Context) error { return app.Index(sl, c) })
 	s.GET("/apps", func(c *echo.Context) error { return app.Apps(sl, c) })
@@ -303,7 +298,7 @@ func (serv *Server) mainsite(
 	return e
 }
 
-func (serv *Server) releasers(ctx context.Context, sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.Group {
+func (serv *Server) releasers(sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.Group {
 	const moved = http.StatusMovedPermanently
 
 	releaser := func(c *echo.Context) error {
@@ -311,32 +306,32 @@ func (serv *Server) releasers(ctx context.Context, sl *slog.Logger, s *echo.Grou
 		if unwanted := c.QueryString(); unwanted != "" {
 			return c.Redirect(moved, "/g/"+uri)
 		}
-		return app.Releasers(ctx, sl, c, db, uri, serv.Public)
+		return app.Releasers(sl, c, db, uri, serv.Public)
 	}
 
 	s.GET("/g/:id", releaser)
 
 	s.GET("/releaser", func(c *echo.Context) error {
-		return app.Releaser(ctx, sl, c, db)
+		return app.Releaser(sl, c, db)
 	})
 	s.GET("/releaser/a-z", func(c *echo.Context) error {
-		return app.ReleaserAZ(ctx, sl, c, db)
+		return app.ReleaserAZ(sl, c, db)
 	})
 	s.GET("/releaser/year", func(c *echo.Context) error {
-		return app.ReleaserYear(ctx, sl, c, db)
+		return app.ReleaserYear(sl, c, db)
 	})
 
 	s.GET("/magazine", func(c *echo.Context) error {
-		return app.Magazine(ctx, sl, c, db)
+		return app.Magazine(sl, c, db)
 	})
 	s.GET("/magazine/a-z", func(c *echo.Context) error {
-		return app.MagazineAZ(ctx, sl, c, db)
+		return app.MagazineAZ(sl, c, db)
 	})
 
 	return s
 }
 
-func (serv *Server) sceners(ctx context.Context, sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.Group {
+func (serv *Server) sceners(sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.Group {
 	const moved = http.StatusMovedPermanently
 
 	scener := func(c *echo.Context) error {
@@ -344,31 +339,31 @@ func (serv *Server) sceners(ctx context.Context, sl *slog.Logger, s *echo.Group,
 		if unwanted := c.QueryString(); unwanted != "" {
 			return c.Redirect(moved, "/p/"+uri)
 		}
-		return app.Sceners(ctx, sl, c, db, uri)
+		return app.Sceners(sl, c, db, uri)
 	}
 
 	s.GET("/p/:id", scener)
 
 	s.GET("/scener", func(c *echo.Context) error {
-		return app.Scener(ctx, sl, c, db)
+		return app.Scener(sl, c, db)
 	})
 	s.GET("/artist", func(c *echo.Context) error {
-		return app.Artist(ctx, sl, c, db)
+		return app.Artist(sl, c, db)
 	})
 	s.GET("/coder", func(c *echo.Context) error {
-		return app.Coder(ctx, sl, c, db)
+		return app.Coder(sl, c, db)
 	})
 	s.GET("/musician", func(c *echo.Context) error {
-		return app.Musician(ctx, sl, c, db)
+		return app.Musician(sl, c, db)
 	})
 	s.GET("/writer", func(c *echo.Context) error {
-		return app.Writer(ctx, sl, c, db)
+		return app.Writer(sl, c, db)
 	})
 
 	return s
 }
 
-func (serv *Server) files(ctx context.Context, sl *slog.Logger, s *echo.Group, db *sql.DB, dirs app.Dirs) *echo.Group {
+func (serv *Server) files(sl *slog.Logger, s *echo.Group, db *sql.DB, dirs app.Dirs) *echo.Group {
 	const moved = http.StatusMovedPermanently
 
 	artifact := func(c *echo.Context) error {
@@ -378,15 +373,15 @@ func (serv *Server) files(ctx context.Context, sl *slog.Logger, s *echo.Group, d
 		}
 		dirs.URI = uri
 		dirs.ReadOnly = bool(serv.Environment.ReadOnly)
-		return dirs.Artifact(ctx, sl, c, db)
+		return dirs.Artifact(sl, c, db)
 	}
 
 	s.GET(Downloader, func(c *echo.Context) error {
-		return app.Download(ctx, sl, c, db, dir.Directory(serv.Environment.AbsDownload))
+		return app.Download(sl, c, db, dir.Directory(serv.Environment.AbsDownload))
 	})
 	s.GET("/f/:id", artifact)
 	s.GET("/file/stats", func(c *echo.Context) error {
-		return app.Categories(ctx, sl, c, db, true)
+		return app.Categories(sl, c, db, true)
 	})
 	s.GET("/files/:id/:page", func(c *echo.Context) error {
 		switch c.Param("id") {
@@ -394,7 +389,7 @@ func (serv *Server) files(ctx context.Context, sl *slog.Logger, s *echo.Group, d
 			"for-approval", "deletions", "unwanted":
 			return app.StatusErr(sl, c, http.StatusNotFound, c.Param("id"))
 		}
-		return app.Artifacts(ctx, sl, c, db, c.Param("id"), c.Param("page"))
+		return app.Artifacts(sl, c, db, c.Param("id"), c.Param("page"))
 	})
 	s.GET("/files/:id", func(c *echo.Context) error {
 		switch c.Param("id") {
@@ -402,48 +397,53 @@ func (serv *Server) files(ctx context.Context, sl *slog.Logger, s *echo.Group, d
 			"for-approval", "deletions", "unwanted":
 			return app.StatusErr(sl, c, http.StatusNotFound, c.Param("id"))
 		}
-		return app.Artifacts(ctx, sl, c, db, c.Param("id"), "1")
+		return app.Artifacts(sl, c, db, c.Param("id"), "1")
 	})
 	s.GET("/file", func(c *echo.Context) error {
-		return app.Categories(ctx, sl, c, db, false)
+		return app.Categories(sl, c, db, false)
 	})
 	s.GET("/jsdos/:id", func(c *echo.Context) error {
-		return app.DownloadJsDos(ctx, sl, c, db,
+		return app.DownloadJsDos(sl, c, db,
 			dir.Directory(serv.Environment.AbsExtra),
 			dir.Directory(serv.Environment.AbsDownload))
 	})
 	s.GET("/sum/:id", func(c *echo.Context) error {
-		return app.Checksum(ctx, sl, c, db, c.Param("id"))
+		return app.Checksum(sl, c, db, c.Param("id"))
 	})
 	s.GET("/v/:id", func(c *echo.Context) error {
-		return app.Inline(ctx, sl, c, db, dir.Directory(serv.Environment.AbsDownload))
+		return app.Inline(sl, c, db, dir.Directory(serv.Environment.AbsDownload))
 	})
 
 	return s
 }
 
-func sitemaps(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
+func sitemaps(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
 	e.GET("/sitemaps.xml", func(c *echo.Context) error {
 		i := sitemap.MapIndex()
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.Website, func(c *echo.Context) error {
+		ctx := c.Request().Context()
 		i := sitemap.MapSite(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.Releaser, func(c *echo.Context) error {
+		ctx := c.Request().Context()
 		i := sitemap.MapReleaser(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.Magazine, func(c *echo.Context) error {
+		ctx := c.Request().Context()
 		i := sitemap.MapMagazine(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.BBS, func(c *echo.Context) error {
+		ctx := c.Request().Context()
 		i := sitemap.MapBBS(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
 	e.GET("/"+sitemap.FTP, func(c *echo.Context) error {
+		ctx := c.Request().Context()
 		i := sitemap.MapFTP(ctx, sl, db)
 		return c.XMLPretty(http.StatusOK, i, "  ")
 	})
@@ -451,33 +451,33 @@ func sitemaps(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *e
 	return e
 }
 
-func sites(ctx context.Context, sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.Group {
+func sites(sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.Group {
 	s.GET("/bbs", func(c *echo.Context) error {
-		return app.BBS(ctx, sl, c, db)
+		return app.BBS(sl, c, db)
 	})
 	s.GET("/bbs/a-z", func(c *echo.Context) error {
-		return app.BBSAZ(ctx, sl, c, db)
+		return app.BBSAZ(sl, c, db)
 	})
 	s.GET("/bbs/year", func(c *echo.Context) error {
-		return app.BBSYear(ctx, sl, c, db)
+		return app.BBSYear(sl, c, db)
 	})
 	s.GET("/ftp", func(c *echo.Context) error {
-		return app.FTP(ctx, sl, c, db)
+		return app.FTP(sl, c, db)
 	})
 	s.GET("/website/:id", func(c *echo.Context) error {
 		return app.Website(sl, c, c.Param("id"))
 	})
-	s.GET("/website", func(ec *echo.Context) error {
-		return app.Website(sl, ec, "")
+	s.GET("/website", func(c *echo.Context) error {
+		return app.Website(sl, c, "")
 	})
 	s.GET("/pouet/vote/:id", func(c *echo.Context) error {
-		return app.VotePouet(ctx, sl, c, c.Param("id"))
+		return app.VotePouet(sl, c, c.Param("id"))
 	})
 	s.GET("/pouet/prod/:id", func(c *echo.Context) error {
-		return app.ProdPouet(ctx, c, c.Param("id"))
+		return app.ProdPouet(c, c.Param("id"))
 	})
 	s.GET("/zoo/prod/:id", func(c *echo.Context) error {
-		return app.ProdZoo(ctx, c, c.Param("id"))
+		return app.ProdZoo(c, c.Param("id"))
 	})
 
 	return s
@@ -491,9 +491,9 @@ func health(e *echo.Echo) *echo.Echo {
 }
 
 // search forms and the results for database queries.
-func (serv *Server) search(ctx context.Context, sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
+func (serv *Server) search(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
 	const format = "search routes: %w"
-	if err := nils.Check(ctx, sl, e, db); err != nil {
+	if err := nils.Check(sl, e, db); err != nil {
 		panic(fmt.Errorf(format, err))
 	}
 
@@ -502,7 +502,7 @@ func (serv *Server) search(ctx context.Context, sl *slog.Logger, e *echo.Echo, d
 	opensearch := func(c *echo.Context) error {
 		terms := strings.ReplaceAll(c.QueryParam("query"), "+", " ") // AND replacement
 		terms = strings.ReplaceAll(terms, "|", ",")                  // OR replacement
-		return app.PostDesc(ctx, sl, c, db, terms)
+		return app.PostDesc(sl, c, db, terms)
 	}
 
 	search := e.Group("/search")
@@ -511,22 +511,22 @@ func (serv *Server) search(ctx context.Context, sl *slog.Logger, e *echo.Echo, d
 	search.GET("/releaser", func(c *echo.Context) error { return app.SearchReleaser(sl, c) })
 	search.GET("/result", opensearch)
 	search.POST("/desc", func(c *echo.Context) error {
-		return app.PostDesc(ctx, sl, c, db, c.FormValue("search-term-query"))
+		return app.PostDesc(sl, c, db, c.FormValue("search-term-query"))
 	})
 	search.POST("/file", func(c *echo.Context) error {
-		return app.PostFilename(ctx, sl, c, db)
+		return app.PostFilename(sl, c, db)
 	})
 	search.POST("/releaser", func(c *echo.Context) error {
-		return htmx.SearchReleaser(ctx, sl, c, db, &serv.TidbitIndex)
+		return htmx.SearchReleaser(sl, c, db, &serv.TidbitIndex)
 	})
 
 	return e
 }
 
 // signin for operators.
-func (serv *Server) signin(ctx context.Context, sl *slog.Logger, e *echo.Echo, nonce []byte) *echo.Echo {
+func (serv *Server) signin(sl *slog.Logger, e *echo.Echo, nonce []byte) *echo.Echo {
 	const format = "signin routes: %w"
-	if err := nils.Check(ctx, sl, e); err != nil {
+	if err := nils.Check(sl, e); err != nil {
 		panic(fmt.Errorf(format, err))
 	}
 
@@ -547,7 +547,7 @@ func (serv *Server) signin(ctx context.Context, sl *slog.Logger, e *echo.Echo, n
 	})
 	google := signings.Group("/google")
 	google.POST("/callback", func(c *echo.Context) error {
-		return app.GoogleCallback(ctx, sl, c,
+		return app.GoogleCallback(sl, c,
 			serv.Environment.GoogleClientID.String(),
 			serv.Environment.SessionMaxAge.Int(),
 			serv.Environment.GoogleAccounts...)

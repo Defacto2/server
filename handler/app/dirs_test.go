@@ -11,7 +11,7 @@ func TestArtifact(t *testing.T) {
 	t.Parallel()
 
 	dir := app.Dirs{}
-	err := dir.Artifact(t.Context(), nil, echoCtx(t), nil)
+	err := dir.Artifact(nil, echoCtx(t), nil)
 	be.Err(t, err)
 }
 

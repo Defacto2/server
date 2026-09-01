@@ -3,7 +3,6 @@ package app
 
 import (
 	"bytes"
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -1093,15 +1092,16 @@ func StripSup(s string) (map[string]template.HTML, error) {
 }
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
-func YMDEdit(ctx context.Context, c *echo.Context, db *sql.DB) error {
+func YMDEdit(c *echo.Context, db *sql.DB) error {
 	const format = "year month day edit %s: %w"
-	if err := nils.Check(ctx, c, db); err != nil {
+	if err := nils.Check(c, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
+	ctx := c.Request().Context()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf(format, "begin tx", err)

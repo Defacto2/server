@@ -81,13 +81,14 @@ type Dirs struct {
 
 // Artifact is the app handler for the file record that is used by the /f/[key] route,
 // and is rendered by the app/artifact.tmpl and app/artifactedit.tmpl views.
-func (ds *Dirs) Artifact(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
+func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
 	const format = "dirs artifact context %s: %w"
 	const uri = "artifact"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, "arguments", err)
 	}
 
+	ctx := c.Request().Context()
 	art, err := ds.oneByKey(ctx, sl, c, db)
 	if ok := art == nil || err != nil; !ok {
 		return fmt.Errorf(format, "one by key", err)
