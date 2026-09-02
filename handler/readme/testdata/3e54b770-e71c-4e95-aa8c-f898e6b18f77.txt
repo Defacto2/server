@@ -1,0 +1,6 @@
+:TXT CSI BEGIN:
+
+[97;40mhello world[0m
+
+: TXT CSI END :
+

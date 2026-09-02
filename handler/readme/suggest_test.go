@@ -6,35 +6,11 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/readme"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
-var content1 = [...]string{
-	"file1.nfo",
-	"file1.txt",
-	"file1.unp",
-	"file1.doc",
-}
-
-var content2 = [...]string{
-	"file.diz",
-	"file.asc",
-	"file.1st",
-	"group2.dox",
-}
-
-var content3 = [...]string{
-	"file3.nfo",
-	"file.txt",
-	"file30.unp",
-	"file3x.doc",
-	"filex3.diz",
-	"file3.asc",
-	"file3.1st",
-	"file3.dox",
-}
-
-func Test_Handler_ReadmeSuggest(t *testing.T) {
+func TestReadmeSuggest(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -46,19 +22,19 @@ func Test_Handler_ReadmeSuggest(t *testing.T) {
 		{
 			filename: "file1",
 			group:    "group1",
-			content:  content1[:],
+			content:  testutil.Content1[:],
 			expected: "file1.nfo",
 		},
 		{
 			filename: "file2",
 			group:    "group2",
-			content:  content2[:],
+			content:  testutil.Content2[:],
 			expected: "group2.dox",
 		},
 		{
 			filename: "file3",
 			group:    "group3",
-			content:  content3[:],
+			content:  testutil.Content3[:],
 			expected: "file3.nfo",
 		},
 		{

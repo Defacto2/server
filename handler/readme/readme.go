@@ -43,14 +43,26 @@ type Text struct {
 	Record   sauce.Record
 }
 
-// Buffers parses the text files use by a file artifact.
+// Buffers parses the text files assigned to an artifact.
+// There is a possibility of up to three source files:
+// uuid_filename.diz, uuid_filename.txt, uuid_filename.hlp.
 //
-// Two buffers are created and returned:
+// Comparing 8-bit IBM Codepage encodings against UTF-8 is unreliable,
+// so after parsing, two buffers are returned:
 //
-//   - The first buffer is used for CP-1252 and ISO-8859-1 text
-//   - The second buffer is used for UTF-8 text
+//   - buffer 1 contains CP-1252 and ISO-8859-1 friendly text
+//   - buffer 2 contains UTF-8 text using multi-byte characters
 //
-// Errors are generally logged except some critical issues.
+// Buffer 2 is left empty whenever ANSI encoded or MSDOS binary texts are handled.
+//
+// If there are no source text files found,
+// or if the found data of the source files is unusable,
+// then the returned buffers and error value will all be nil.
+//
+// Errors are generally logged instead of returned, except with some critical issues.
+// This is to allow the continued rendering of text,
+// say if the ".diz" handler causes an error,
+// [Text.Buffers] can continue to parse and return the ".txt" and ".hlp" texts.
 func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	if sl == nil {
 		sl = logs.Discard()
@@ -61,6 +73,7 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	runeBuf := new(bytes.Buffer)
 	descBuf := new(bytes.Buffer)
 	helpBuf := new(bytes.Buffer)
+	unused := new(bytes.Buffer) // to avoid panics, use instead of returning a nil
 
 	defer func() {
 		descBuf.Reset()
@@ -86,8 +99,13 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		return nil, nil, nil
 	}
 
-	if notText := t.signature(sl, textBuf); notText {
+	// Check the textBuf to confirm it doesn't contain unusable text or image data.
+	// Note that MSDOS binary texts do not have any form of magic bytes detection.
+	// So the [Text.Sign] must remain as [magicnumber.Unknown], otherwise binary texts
+	// get treated as raw, plain text or get ignored.
+	if skip, find := t.problematic(sl, textBuf); skip {
 		t.Error(sl, err)
+		t.Sign = find
 		textBuf.Reset()
 		runeBuf.Reset()
 		return nil, nil, nil
@@ -105,20 +123,21 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		if err != nil {
 			return nil, nil, err
 		}
-		return buf, nil, nil
+		return buf, unused, nil
 	}
-
 	// log any previous errors
 	t.Error(sl, err)
 
-	// binary texts can cause false positives
+	// NOTE: Binary texts will cause false positives.
+	// There maybe a need in the future to set a database flag to handle them.
+	// For example, when t.problematic returns magicnumber.PlainText and platform is set to "ansi".
 	if t.Sign == magicnumber.Unknown {
 		sl.Info("readme will render the buffer as binary text")
 		buf, err := t.handleBIN(textBuf)
 		if err != nil {
 			return nil, nil, err
 		}
-		return buf, nil, nil
+		return buf, unused, nil
 	}
 
 	sl.Info("readme will render the buffer as raw or plain text")
@@ -285,29 +304,31 @@ func (t *Text) handleSAUCE(textBuf *bytes.Buffer) {
 	}
 }
 
-// signature checks the bytes to confirm they can be displayed as text.
-func (t *Text) signature(sl *slog.Logger, textBuf *bytes.Buffer) bool {
+// Problematic reads the bytes buffer and returns true when known files formats are found
+// that cannot be used as text for display in a web browser.
+// This includes UTF16 and UTF32 encoded texts, XBinary format texts, and any known image formats.
+func (t *Text) problematic(sl *slog.Logger, textBuf *bytes.Buffer) (bool, magicnumber.Signature) {
 	if sl == nil || textBuf == nil {
-		return true
+		return true, t.Sign
 	}
 
 	r := bytes.NewReader(textBuf.Bytes())
-	t.Sign = magicnumber.Find(r)
-	sl.Info("readme matched sign", slog.String("sign", t.Sign.String()))
+	find := magicnumber.Find(r)
+	sl.Info("readme matched sign", slog.String("sign", find.String()))
 
 	// skip UTF-16 or UTF-32 encodings which cannot be rendered natively in browser
-	if t.Sign == magicnumber.UTF16Text || t.Sign == magicnumber.UTF32Text {
-		sl.Info("readme found incompatible text", slog.String("sign", t.Sign.String()))
-		return true
+	if find == magicnumber.UTF16Text || find == magicnumber.UTF32Text {
+		sl.Info("readme found incompatible text", slog.String("sign", find.String()))
+		return true, find
 	}
 
 	// skip known images and XBinary text without dynamic slice allocations
-	if t.Sign == magicnumber.XBinaryText || slices.Contains(magicnumber.Images(), t.Sign) {
-		sl.Info("readme found known image or binary format", slog.String("sign", t.Sign.String()))
-		return true
+	if find == magicnumber.XBinaryText || slices.Contains(magicnumber.Images(), find) {
+		sl.Info("readme found known image or binary format", slog.String("sign", find.String()))
+		return true, find
 	}
 
-	return false
+	return false, t.Sign
 }
 
 // descriptor (File ID - Description In ZIP) returns the content of archive file descriptor.
@@ -421,7 +442,8 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 	var p []byte
 
 	if sign, _ := magicnumber.Text(r); sign != magicnumber.Unknown {
-		p = t.normalize(textBuf)
+		p = textBuf.Bytes()
+		p = Normalize(p)
 	} else {
 		_, _ = r.Seek(0, io.SeekStart)
 		if sign, _ := magicnumber.Archive(r); sign != magicnumber.Unknown {
@@ -490,14 +512,41 @@ func (t *Text) useViewer() bool {
 	return strings.EqualFold(platform, "text") || strings.EqualFold(platform, "textamiga")
 }
 
-func (t *Text) normalize(textBuf *bytes.Buffer) []byte {
-	if textBuf == nil || textBuf.Len() == 0 {
-		return []byte{}
+// Normalize applies a number of replacements and sanity checks to the
+// byte slice to make it ready for use to display on a user's browser.
+//
+//   - removes EOF marker
+//   - replaces ASCII NULL with spaces
+//   - replaces CFLF with LF newlines
+//   - applies helper masking with pattern matching
+func Normalize(b []byte) []byte {
+	if len(b) == 0 {
+		return nil
 	}
 
-	b := textBuf.Bytes()
-	b = bytes.ReplaceAll(b, byteNull, byteSpace)
-	b = bytes.ReplaceAll(b, byteCRLF, byteLF)
-	b = bytes.TrimRight(b, "\x1a")
-	return helper.Mask(b...)
+	// trim the end of file marker
+	end := len(b)
+	for end > 0 && b[end-1] == '\x1a' {
+		end--
+	}
+
+	w := 0
+	for r := 0; r < end; r++ {
+		switch {
+		case b[r] == '\x00':
+			// replace ascii NULL with spaces
+			b[w] = ' '
+			w++
+		case b[r] == '\r' && r+1 < end && b[r+1] == '\n':
+			// normalize CRLF windows/msdos newlines
+			b[w] = '\n'
+			w++
+			r++ // skip '\n'
+		default:
+			b[w] = b[r]
+			w++
+		}
+	}
+
+	return helper.Mask(b[:w]...)
 }

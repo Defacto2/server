@@ -142,6 +142,126 @@ func OpenRoot(tb testing.TB) *os.Root {
 	return root
 }
 
+// Binary text helpers
+
+// DOSBIN converts the string into a single line, MS-DOS BIN [binary text].
+// If s is left empty, "hello world" will be used.
+// Long strings will be cropped to fit the 80 column per line limit.
+//
+// [binary text]: http://fileformats.archiveteam.org/wiki/BIN_(Binary_Text)
+func DOSBIN(tb testing.TB, s string) [161]byte {
+	tb.Helper()
+
+	const (
+		text = "hello world"
+		cols = 80
+		attr = byte(0x0F) // bright white on black background
+		eof  = byte(0x1A) // MS-DOS end-of-file marker
+	)
+
+	if s == "" {
+		s = text
+	}
+	if len(s) > 80 {
+		s = s[:80]
+	}
+
+	var buf [161]byte
+	for i := range cols {
+		char := byte(' ')
+		if i < len(s) {
+			char = s[i]
+		}
+		buf[i*2] = char
+		buf[i*2+1] = attr
+	}
+	buf[len(buf)-1] = eof
+
+	return buf
+}
+
+// MkDOSBIN converts the string into a single line, MS-DOS BIN file
+// saved to the named file and placed in a temporary test directory.
+// The file location is returned.
+//
+// See [DOSBIN].
+func MkDOSBIN(tb testing.TB, name, s string) (string, error) {
+	tb.Helper()
+
+	tmp := tb.TempDir()
+	dst := filepath.Join(tmp, name)
+
+	f, err := os.Create(dst)
+	if err != nil {
+		return "", err
+	}
+
+	b := DOSBIN(tb, s)
+	_, err = f.Write(b[:])
+	return f.Name(), errors.Join(err, f.Close())
+}
+
+// Text files and named file helpers
+
+type ANSITest struct {
+	Name string
+	Data []byte
+}
+
+// ANSITexts generates a set of testing data containing randomized data
+// embedded with ANSI escape codes. Being intended for use in tests
+// requiring detection and removal.
+func ANSITests(tb testing.TB) []ANSITest {
+	tb.Helper()
+
+	makeData := func(size int, ansi string, pos int) []byte {
+		buf := bytes.Repeat([]byte("Lorem ipsum dolor sit amet, consectetur. "), (size/40)+1)[:size]
+		if pos >= 0 && pos < size {
+			copy(buf[pos:], ansi)
+		}
+		return buf
+	}
+	const kb, mb = 1024, 1024 * 1024
+	tests := []ANSITest{
+		{"ImmediateMatch", []byte("\x1b[31mRed Text")},
+		{"Match1KB      ", makeData(1*kb, "\x1b[1A", 500)},
+		{"Match500KB    ", makeData(500*kb, "\x1b[10;20H", 450*kb)},
+		{"NoMatch32KB   ", makeData(32*kb, "", -1)},
+		{"NoMatch1MB    ", makeData(1*mb, "", -1)},
+		{"BoundarySplit ", func() []byte {
+			d := makeData(64*kb, "", -1)
+			d[32*kb-1], d[32*kb] = '\x1b', '['
+			return d
+		}()},
+	}
+	return tests
+}
+
+var Content1 = [...]string{
+	"file1.nfo",
+	"file1.txt",
+	"file1.unp",
+	"file1.doc",
+}
+
+var Content2 = [...]string{
+	"file.diz",
+	"file.asc",
+	"file.1st",
+	"group2.dox",
+}
+
+var Content3 = [...]string{
+	"file3.nfo",
+	"file.txt",
+	"file30.unp",
+	"file3x.doc",
+	"filex3.diz",
+	"file3.asc",
+	"file3.1st",
+	"file3.dox",
+}
+
 // Logger helpers
 
 type Logger struct {

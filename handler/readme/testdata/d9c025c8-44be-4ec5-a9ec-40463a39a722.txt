@@ -1,0 +1,5 @@
+:TXT BEGIN:
+
+HELLO WORLD!
+
+: TXT END :

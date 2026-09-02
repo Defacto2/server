@@ -135,16 +135,16 @@ func SortList(compact bool, entries string) []string {
 }
 
 var (
-	prioArray = [...]string{".nfo", ".txt", ".unp", ".doc", ".displayme", ".readme"}
-	candArray = [...]string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
+	prioExts = [...]string{".nfo", ".txt", ".unp", ".doc", ".displayme", ".readme"}
+	candExts = [...]string{".diz", ".asc", ".1st", ".dox", ".me", ".cap", ".ans", ".pcb"}
 )
 
 // priority returns a list of readme text file extensions in priority order.
 func priority() []string {
-	return prioArray[:]
+	return prioExts[:]
 }
 
 // candidate returns a list of other, common text file extensions in priority order.
 func candidate() []string {
-	return candArray[:]
+	return candExts[:]
 }
