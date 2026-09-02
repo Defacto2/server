@@ -16,6 +16,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was great at over 70%+
+
 func TestChecks(t *testing.T) {
 	t.Parallel()
 

@@ -19,7 +19,7 @@ import (
 // The files are placed in a temporary directory so they can be individually
 // checked and confirmed. The directory location is displayed when running.
 //
-// To use, run `go run internal/runner/runner.go` from the repo root.
+// INFO: To use, run `go run internal/runner/runner.go` from the repo root.
 
 const (
 	screenshot = "SCREEN.PNG"

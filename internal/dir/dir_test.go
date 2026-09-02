@@ -12,6 +12,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was good at 65%
+
 func TestJoin(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

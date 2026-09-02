@@ -16,6 +16,9 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage with an active database was fine at around 50%+
+// otherwise it drops to 9%
+
 func TestHandler(t *testing.T) {
 	t.Parallel()
 

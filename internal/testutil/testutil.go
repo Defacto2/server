@@ -20,6 +20,15 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+// INFO: Check untested funcs, run:
+// go test -coverprofile=cover.out . && go tool cover -html=cover.out
+//
+// INFO: To run benchmarks, run:
+// go test -bench=Benchmark -benchmem
+//
+// INFO:Check test durability, run:
+// go test . -count=1000 -race -cover
+
 // PostgreSQL database helpers
 
 var share = sync.OnceValue(func() *sql.DB {

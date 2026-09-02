@@ -15,6 +15,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was great at around 75%
+
 func TestNormalize(t *testing.T) {
 	t.Parallel()
 

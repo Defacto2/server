@@ -10,6 +10,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was average at just under 40%
+
 func TestDefaultURL(t *testing.T) {
 	be.True(t, strings.HasPrefix(postgres.DefaultURL, "postgres://"))
 	be.True(t, strings.Contains(postgres.DefaultURL, "localhost"))

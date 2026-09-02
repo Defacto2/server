@@ -7,7 +7,6 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 )
 
-// BenchmarkVersionString benchmarks the Version.String method.
 func BenchmarkVersionString(b *testing.B) {
 	v := postgres.Version("PostgreSQL 13.8 on x86_64-pc-linux-gnu")
 	b.Run("", func(b *testing.B) {
@@ -17,7 +16,6 @@ func BenchmarkVersionString(b *testing.B) {
 	})
 }
 
-// BenchmarkConnectionValidate benchmarks the Connection.Validate method.
 func BenchmarkConnectionValidate(b *testing.B) {
 	logger := slog.Default()
 	conn := postgres.Connection{URL: "postgres://localhost:5432/test"}
@@ -28,7 +26,6 @@ func BenchmarkConnectionValidate(b *testing.B) {
 	})
 }
 
-// BenchmarkRoles benchmarks the Roles function.
 func BenchmarkRoles(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -37,7 +34,6 @@ func BenchmarkRoles(b *testing.B) {
 	})
 }
 
-// BenchmarkReleasersAlphabetical benchmarks the ReleasersAlphabetical function.
 func BenchmarkReleasersAlphabetical(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -46,7 +42,6 @@ func BenchmarkReleasersAlphabetical(b *testing.B) {
 	})
 }
 
-// BenchmarkBBSsAlphabetical benchmarks the BBSsAlphabetical function.
 func BenchmarkBBSsAlphabetical(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -55,7 +50,6 @@ func BenchmarkBBSsAlphabetical(b *testing.B) {
 	})
 }
 
-// BenchmarkMagazinesAlphabetical benchmarks the MagazinesAlphabetical function.
 func BenchmarkMagazinesAlphabetical(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -64,7 +58,6 @@ func BenchmarkMagazinesAlphabetical(b *testing.B) {
 	})
 }
 
-// BenchmarkReleasersProlific benchmarks the ReleasersProlific function.
 func BenchmarkReleasersProlific(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -73,7 +66,6 @@ func BenchmarkReleasersProlific(b *testing.B) {
 	})
 }
 
-// BenchmarkReleasersOldest benchmarks the ReleasersOldest function.
 func BenchmarkReleasersOldest(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -82,7 +74,6 @@ func BenchmarkReleasersOldest(b *testing.B) {
 	})
 }
 
-// BenchmarkSceners benchmarks the Sceners function.
 func BenchmarkSceners(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -91,7 +82,6 @@ func BenchmarkSceners(b *testing.B) {
 	})
 }
 
-// BenchmarkWriters benchmarks the Writers function.
 func BenchmarkWriters(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -100,7 +90,6 @@ func BenchmarkWriters(b *testing.B) {
 	})
 }
 
-// BenchmarkArtists benchmarks the Artists function.
 func BenchmarkArtists(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -109,7 +98,6 @@ func BenchmarkArtists(b *testing.B) {
 	})
 }
 
-// BenchmarkCoders benchmarks the Coders function.
 func BenchmarkCoders(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -118,7 +106,6 @@ func BenchmarkCoders(b *testing.B) {
 	})
 }
 
-// BenchmarkMusicians benchmarks the Musicians function.
 func BenchmarkMusicians(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -127,7 +114,6 @@ func BenchmarkMusicians(b *testing.B) {
 	})
 }
 
-// BenchmarkSetUpper benchmarks the SetUpper function.
 func BenchmarkSetUpper(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -136,7 +122,6 @@ func BenchmarkSetUpper(b *testing.B) {
 	})
 }
 
-// BenchmarkSetFilesize0 benchmarks the SetFilesize0 function.
 func BenchmarkSetFilesize0(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -145,7 +130,6 @@ func BenchmarkSetFilesize0(b *testing.B) {
 	})
 }
 
-// BenchmarkSumSection benchmarks the SumSection function.
 func BenchmarkSumSection(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -154,7 +138,6 @@ func BenchmarkSumSection(b *testing.B) {
 	})
 }
 
-// BenchmarkSumGroup benchmarks the SumGroup function.
 func BenchmarkSumGroup(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -163,7 +146,6 @@ func BenchmarkSumGroup(b *testing.B) {
 	})
 }
 
-// BenchmarkSumPlatform benchmarks the SumPlatform function.
 func BenchmarkSumPlatform(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -172,7 +154,6 @@ func BenchmarkSumPlatform(b *testing.B) {
 	})
 }
 
-// BenchmarkSummary benchmarks the Summary function.
 func BenchmarkSummary(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -181,7 +162,6 @@ func BenchmarkSummary(b *testing.B) {
 	})
 }
 
-// BenchmarkReleasers benchmarks the Releasers function.
 func BenchmarkReleasers(b *testing.B) {
 	b.Run("", func(b *testing.B) {
 		for range b.N {
@@ -190,18 +170,19 @@ func BenchmarkReleasers(b *testing.B) {
 	})
 }
 
-// BenchmarkScenerSQL benchmarks the ScenerSQL function.
 func BenchmarkScenerSQL(b *testing.B) {
+	input := []string{"ABC", "ati", "Grim"}
 	b.Run("", func(b *testing.B) {
-		for range b.N {
-			_, _ = postgres.ScenerSQL("John Doe")
+		for _, name := range input {
+			for range b.N {
+				_, _ = postgres.ScenerSQL(name)
+			}
 		}
 	})
 }
 
-// BenchmarkSimilarToReleaser benchmarks the SimilarToReleaser function.
 func BenchmarkSimilarToReleaser(b *testing.B) {
-	input := []string{"Lotus", "Amiga", "Test"}
+	input := []string{"Razor", "Amiga", "Test"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			_, _ = postgres.SimilarToReleaser(input...)
@@ -209,9 +190,8 @@ func BenchmarkSimilarToReleaser(b *testing.B) {
 	})
 }
 
-// BenchmarkSimilarToMagazine benchmarks the SimilarToMagazine function.
 func BenchmarkSimilarToMagazine(b *testing.B) {
-	input := []string{"Amiga World", "PC Zone"}
+	input := []string{"Reality Check", "NWR"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			_, _ = postgres.SimilarToMagazine(input...)
@@ -219,9 +199,8 @@ func BenchmarkSimilarToMagazine(b *testing.B) {
 	})
 }
 
-// BenchmarkSimilarToExact benchmarks the SimilarToExact function.
 func BenchmarkSimilarToExact(b *testing.B) {
-	input := []string{"Breadbox", "Apogee", "Lotus"}
+	input := []string{"Razor 1911", "Defacto", "Lotus"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			_, _ = postgres.SimilarToExact(input...)

@@ -9,6 +9,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was great at around 85%+
+
 func TestMapIndex(t *testing.T) {
 	t.Parallel()
 

@@ -6,6 +6,9 @@ import (
 	"github.com/Defacto2/server/model/querymod"
 )
 
+// Use the following command to run all:
+// go test -bench=Benchmark -benchmem
+
 // Benchmarks for tag functions with caching optimization.
 
 func BenchmarkSAdvert(b *testing.B) {

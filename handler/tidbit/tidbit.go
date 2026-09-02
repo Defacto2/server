@@ -614,6 +614,11 @@ func (id ID) URL(uri string) template.HTML {
 	return template.HTML(s)
 }
 
+// Copy returns a copy of the tidbits index.
+func Copy() Tibits {
+	return groups
+}
+
 // Find returns the tidbit IDs for the given URI.
 //
 // The ID returned can be used in a string conversion to get the description.

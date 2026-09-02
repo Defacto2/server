@@ -2,7 +2,6 @@ package config_test
 
 import (
 	"bytes"
-	"errors"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -16,7 +15,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-var ErrTest = errors.New("an error")
+// checked in Sep 26, test coverage was fine at just under 40%
 
 func TestRanges(t *testing.T) {
 	t.Parallel()

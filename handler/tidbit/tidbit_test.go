@@ -7,7 +7,10 @@ import (
 
 	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/logs"
+	"github.com/nalgeon/be"
 )
+
+// checked in Sep 26, test coverage was fine at around 55%+
 
 //go:embed testdata/*
 var testdata embed.FS
@@ -65,5 +68,20 @@ func TestFind(t *testing.T) {
 	const want = 3
 	if got := tidbit.Find("untouchables"); len(got) != want {
 		t.Errorf("tidbit: wanted %d untouchables matches, but got %d", want, len(got))
+	}
+}
+
+func TestMatch(t *testing.T) {
+	t.Parallel()
+
+	for _, uris := range tidbit.Copy() {
+		for _, uri := range uris {
+			key := string(uri)
+			got := tidbit.Missing(key)
+			be.True(t, !got)
+
+			finds := tidbit.Find(key)
+			be.True(t, len(finds) > 0)
+		}
 	}
 }

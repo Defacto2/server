@@ -11,8 +11,6 @@ import (
 )
 
 // checked in Aug 26, test coverage was great at 90%+
-// to check unused strings, run:
-// go test -coverprofile=tags.out . && go tool cover -html=tags.out
 
 const (
 	firstCategory = "announcements"

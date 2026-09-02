@@ -13,6 +13,9 @@ import (
 	"github.com/Defacto2/server/internal/testutil"
 )
 
+// Use the following command to run all:
+// go test -bench=Benchmark -benchmem
+
 func BenchmarkRM(b *testing.B) {
 	for n, tt := range testutil.ANSITests(b) {
 		b.Run(tt.Name+" 00 #"+strconv.Itoa(n), func(b *testing.B) {

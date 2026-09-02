@@ -9,6 +9,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was at 95%+
+
 // When making changes to the package, make sure to run thorougher tests:
 // go test . -cover -count=1000 -race
 

@@ -8,7 +8,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-// checked in Aug 26, test coverage was good at 60%+
+// checked in Aug 26, test with an active database, coverage was good at 60%+
 
 func TestValidSceners(t *testing.T) {
 	t.Parallel()
