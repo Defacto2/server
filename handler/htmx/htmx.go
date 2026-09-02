@@ -31,8 +31,14 @@ import (
 )
 
 var (
-	ErrYMDFormat = errors.New("invalid ymd format")
-	ErrKey       = errors.New("numeric record key is invalid")
+	ErrIsDir      = errors.New("htmx: the file is a directory")
+	ErrKey        = errors.New("htmx: numeric record key is invalid")
+	ErrPath       = errors.New("htmx: the file path is invalid")
+	ErrYMD        = errors.New("htmx: invalid ymd format")
+	ErrYouTube    = errors.New("htmx: youtube watch video id needs to be empty or 11 characters")
+	ErrFormRead   = errors.New("htmx form: parameters could not be read")
+	ErrFormInsert = errors.New("htmx form: submission could not be inserted into the database")
+	ErrFormUpdate = errors.New("htmx form: submission could not update a database record")
 )
 
 const (
@@ -47,18 +53,21 @@ func Areacodes(c *echo.Context) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	htm := template.HTML("")
 	search := c.FormValue("htmx-search")
 	search = strings.TrimSpace(search)
 	if search == "" {
 		return c.HTML(http.StatusOK, "")
 	}
+
 	searches := strings.Split(search, ",")
 	query := areacode.Queries(searches...)
 	if len(query) == 0 {
 		return c.HTML(http.StatusOK,
 			`<small>No results for '`+html.EscapeString(search)+`'.</small><br>`)
 	}
+
 	for val := range slices.Values(query) {
 		if val.AreaCode.Valid() {
 			htm += val.AreaCode.HTML() + "<br>"
@@ -69,6 +78,7 @@ func Areacodes(c *echo.Context) error {
 			}
 		}
 	}
+
 	htm += "<hr>"
 	return c.HTML(http.StatusOK, string(htm))
 }
@@ -81,43 +91,47 @@ func Areacodes(c *echo.Context) error {
 // This also acts as the string constructor for the summary of a successful lookup
 // for the "Demozoo production or graphic" form.
 func DemozooLookup(c *echo.Context, db *sql.DB, prodMode bool) error {
-	const msg = "demozoo lookup htmx context"
+	const format = "demozoo lookup htmx context: %w"
 	if err := nils.Check(c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
-	zoo := c.FormValue("demozoo-submission")
-	id, err := strconv.Atoi(zoo)
+
+	id := c.FormValue("demozoo-submission")
+	prodID, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotAcceptable,
-			"The Demozoo production ID must be a numeric value, "+zoo)
+			"The Demozoo production ID must be a numeric value, "+id)
 	}
 
 	ctx := c.Request().Context()
-	deleted, key, err := model.OneDemozoo(ctx, db, int64(id))
+	deleted, key, err := model.OneDemozoo(ctx, db, int64(prodID))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")
 	}
-	if prodInUse := key != 0 && !deleted; prodInUse {
+
+	if prodUsed := key != 0 && !deleted; prodUsed {
 		const format = `This Demozoo production is already <a href="/f/%s">in use</a>.`
 		html := fmt.Sprintf(format, helper.ObfuscateID(key))
 		return c.HTML(http.StatusOK, html)
 	}
-	if prodInUse := key != 0 && deleted; prodInUse {
+	if prodUsed := key != 0 && deleted; prodUsed {
 		return c.HTML(http.StatusOK, "This Demozoo production is already in use.")
 	}
-	prod, err := DemozooValid(c, prodMode, id)
+
+	prod, err := DemozooValid(c, prodMode, prodID)
 	if err != nil {
 		return err
 	}
 	if invalid := prod.ID < 1; invalid {
 		return nil
 	}
+
 	info := []string{prod.Title, "<br>"}
 	if len(prod.Authors) > 0 {
 		info = append(info, "by")
-		for _, val := range prod.Authors {
-			name := strings.TrimSpace(val.Name)
+		for _, author := range prod.Authors {
+			name := strings.TrimSpace(author.Name)
 			if name == "" {
 				continue
 			}
@@ -136,13 +150,13 @@ func DemozooLookup(c *echo.Context, db *sql.DB, prodMode bool) error {
 			info = append(info, "for", name)
 		}
 	}
-	return c.HTML(http.StatusOK, demozooBtn(id, info...))
+	return c.HTML(http.StatusOK, demozooBtn(prodID, info...))
 }
 
 // Submit ID button saves the Demozoo production ID to the database and fetches the file.
 // htmx.DemozooSubmit is the handler for the /demozoo/production put route,
 // which uses htmx.submit, found in transfer.go, to insert the new file record into the database.
-func demozooBtn(id int, info ...string) string {
+func demozooBtn(prodID int, info ...string) string {
 	const format = `<button type="button" class="btn btn-outline-success" ` +
 		`hx-put="/demozoo/production/%d" ` +
 		`hx-indicator="#demozoo-remote-indicator" ` +
@@ -155,10 +169,11 @@ func demozooBtn(id int, info ...string) string {
 	const dclass = `htmx-indicator text-secondary pt-2`
 	const sclass = `spinner-border spinner-border-sm`
 	const text = `Fetching Download linked by Demozoo...`
-	button := fmt.Sprintf(format, id, id)
+	button := fmt.Sprintf(format, prodID, prodID)
 	button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
 		`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
 	button += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
+
 	return `<form class="d-grid">` + button + `</form>`
 }
 
@@ -168,127 +183,130 @@ func demozooBtn(id int, info ...string) string {
 //
 // A valid production requires at least one download link and must be a suitable type
 // such as an intro, demo or cracktro for MS-DOS, Windows etc.
-func DemozooValid(c *echo.Context, prodMode bool, id int) (demozoo.Production, error) {
-	const msg = "htmx demozoo valid"
+func DemozooValid(c *echo.Context, prodMode bool, prodID int) (demozoo.Production, error) {
+	const format = "htmx demozoo valid: %w"
 	none := demozoo.Production{} //nolint:exhaustruct
 	if err := nils.Check(c); err != nil {
-		return none, fmt.Errorf("%s: %w", msg, err)
+		return none, fmt.Errorf(format, err)
 	}
-	if invalid := id < 1; invalid {
-		const format = `invalid id: %d`
-		return none, c.String(http.StatusNotAcceptable, fmt.Sprintf(format, id))
+
+	sid := strconv.Itoa(prodID)
+	if invalid := prodID < 1; invalid {
+		s := "invalid id: " + sid
+		return none, c.String(http.StatusNotAcceptable, s)
 	}
-	sid := strconv.Itoa(id)
-	if s, err := cache.DemozooProduction.Read(sid); err == nil {
-		if prodMode && s != "" {
-			const format = `Production %d is probably not suitable for Defacto2!<br>Types: %s`
-			return none, c.String(http.StatusOK, fmt.Sprintf(format, id, s))
+
+	if val, err := cache.DemozooProduction.Read(sid); err == nil {
+		if prodMode && val != "" {
+			s := "Production " + sid + " is probably not suitable for Defacto2!<br>Types: " + val
+			return none, c.String(http.StatusOK, s)
 		}
 	}
-	var prod demozoo.Production
+
 	// Get the production data from Demozoo.
 	// This func can be found in /internal/demozoo/demozoo.go
 	ctx := c.Request().Context()
-	if code, err := prod.Get(ctx, id); err != nil {
+	var prod demozoo.Production
+	if code, err := prod.Get(ctx, prodID); err != nil {
 		return none, c.String(code, err.Error())
 	}
+
 	plat, sect := prod.SuperType()
 	if plat == -1 || sect == -1 {
-		s := []string{}
+		elems := []string{}
 		for _, val := range prod.Platforms {
-			s = append(s, val.Name)
+			elems = append(elems, val.Name)
 		}
 		for _, val := range prod.Types {
-			s = append(s, val.Name)
+			elems = append(elems, val.Name)
 		}
-		sid := strconv.Itoa(id)
-		_ = cache.DemozooProduction.WriteNoExpire(sid, strings.Join(s, " - "))
-		const format = `Production %d is probably not suitable for Defacto2.<br>Types: %s`
-		return none, c.HTML(http.StatusOK, fmt.Sprintf(format, id, strings.Join(s, " - ")))
+
+		sid := strconv.Itoa(prodID)
+		_ = cache.DemozooProduction.WriteNoExpire(sid, strings.Join(elems, " - "))
+		s := "Production " + sid + " is probably not suitable for Defacto2!<br>Types: " +
+			strings.Join(elems, " - ")
+
+		return none, c.HTML(http.StatusOK, s)
 	}
-	var valid string
+
 	for _, link := range prod.DownloadLinks {
 		if link.URL == "" {
 			continue
 		}
-		valid = link.URL
-		break
+		return prod, nil
 	}
-	if valid == "" {
-		return none,
-			c.String(http.StatusOK,
-				"This Demozoo production has no suitable download links.")
-	}
-	return prod, nil
+
+	return none,
+		c.String(http.StatusOK,
+			"This Demozoo production has no suitable download links.")
 }
 
 // DemozooSubmit is the handler for the /demozoo/production put route.
 // This will attempt to insert a new file record into the database using
 // the Demozoo production ID. If the Demozoo production ID is already in
 // use, an error message is returned.
-func DemozooSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
-	const msg = "htmx demozoo submit context"
-	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+func DemozooSubmit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
+	const format = "htmx demozoo submit context: %w"
+	if err := nils.Check(sl, c, tx); err != nil {
+		return fmt.Errorf(format, err)
 	}
-	return Demozoo.Submit(sl, c, db, download)
+
+	return Demozoo.Submit(sl, c, tx, download)
 }
 
 // DBConnections is the handler for the database connections page.
 func DBConnections(c *echo.Context, db *sql.DB) error {
-	const msg = "htmx db connections context"
+	const format = "htmx db connections context: %w"
 	if err := nils.Check(c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
+
 	conns, maxConn, err := postgres.Connections(db)
 	if err != nil {
 		return c.String(http.StatusOK, err.Error())
 	}
+
 	currentTime := time.Now()
-	const format = `%d of %d, <small>%s</small>`
-	return c.String(http.StatusOK, fmt.Sprintf(format,
+
+	const feedback = `%d of %d, <small>%s</small>`
+	return c.String(http.StatusOK, fmt.Sprintf(feedback,
 		conns, maxConn, currentTime.Format("15:04:05")))
 }
 
 // DeleteForever is a handler for the /delete/forever route.
-func DeleteForever(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
+// The recordKey is the numeric ID used by the record database table.
+func DeleteForever(sl *slog.Logger, c *echo.Context, tx *sql.Tx, recordKey string) error {
 	const msg = "htmx delete forever"
-	if err := nils.Check(sl, c, db); err != nil {
+	if err := nils.Check(sl, c, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	key, err := strconv.ParseInt(id, 10, 64)
+
+	key, err := strconv.ParseInt(recordKey, 10, 64)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
+
 	ctx := c.Request().Context()
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		sl.Error(msg, slog.String("database", "could not start transaction"), slog.Any("error", err))
-		return c.String(http.StatusServiceUnavailable,
-			"cannot begin a transaction")
-	}
 	if err = model.DeleteOne(ctx, tx, key); err != nil {
 		defer func() {
 			rollback(sl, msg, key, tx)
 		}()
-		sl.Error(msg, slog.String("database", "delete one transaction problem"),
-			slog.Any("error", err))
+		sl.Error(msg+" database delete one transaction problem", slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"cannot delete the record")
 	}
 	//
-	// There is no need to delete any file assets from the file system.
-	// As the file assets will be deleted by the next cleanup job.
+	// INFO: There is no need to delete any leftover file assets from the host system.
+	// As any orphaned file assets will be deleted during the next cleanup job.
 	//
 	if err = tx.Commit(); err != nil {
 		if sl != nil {
-			sl.Error(msg,
-				slog.String("database", "transaction commit failed"),
-				slog.Any("error", err))
+			sl.Error(msg+" database transaction commit failed", slog.Any("error", err))
 		}
 		return c.String(http.StatusServiceUnavailable,
 			"cannot commit the transaction")
 	}
+
 	return c.String(http.StatusOK,
 		"The artifact is gone, and reloading this page will result in a 404 error.")
 }
@@ -302,8 +320,7 @@ func rollback(sl *slog.Logger, msg string, key int64, tx *sql.Tx) {
 	}
 	if err := tx.Rollback(); err != nil {
 		sl.Error(msg+" delete one, rollback transaction error",
-			slog.Int64("record_id", key),
-			slog.Any("error", err))
+			slog.Int64("record_id", key), slog.Any("error", err))
 	}
 }
 
@@ -371,11 +388,14 @@ func pings() []string {
 }
 
 // Pings is a handler for the /pings route.
+//
+// The proto string should either be "http" or "https".
 func Pings(c *echo.Context, proto string, port int) error {
-	const msg = "htmx pings context"
+	const format = "htmx pings context: %w"
 	if err := nils.Check(c); err != nil {
-		return fmt.Errorf("%s, %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
+
 	ctx := c.Request().Context()
 	pings := pings()
 	results := make([]string, 0, len(pings))
@@ -385,6 +405,7 @@ func Pings(c *echo.Context, proto string, port int) error {
 			results = append(results, fmt.Sprintf("%s: %v", ping, err))
 			continue
 		}
+
 		var class string
 		switch {
 		case code == http.StatusOK:
@@ -396,13 +417,15 @@ func Pings(c *echo.Context, proto string, port int) error {
 		default:
 			class = `text-warning-emphasis`
 		}
+
 		const format = `<span class="%s">%d</span> %s <span class="text-secondary">%s</span>`
 		spans := fmt.Sprintf(format, class, code, ping, helper.ByteCount(size))
 		results = append(results, "<div>", spans, "</div>")
 	}
+
 	output := strings.Join(results, "")
-	const format = `<div><small>%d URLs were pinged</small></div>`
-	output += fmt.Sprintf(format, len(pings))
+	output += `<div><small>` + strconv.Itoa(len(pings)) + `  URLs were pinged</small></div>`
+
 	return c.HTML(http.StatusOK, output)
 }
 
@@ -415,22 +438,25 @@ func Pings(c *echo.Context, proto string, port int) error {
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
 func PouetLookup(c *echo.Context, db *sql.DB) error {
-	const msg = "htmx pouet lookup context"
+	const format = "htmx pouet lookup context: %w"
 	if err := nils.Check(c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
+
 	pouet := c.FormValue("pouet-submission")
-	id, err := strconv.Atoi(pouet)
+	prodID, err := strconv.Atoi(pouet)
 	if err != nil {
 		return c.String(http.StatusNotAcceptable,
 			"The Pouet production ID must be a numeric value, "+pouet)
 	}
+
 	ctx := c.Request().Context()
-	deleted, key, err := model.OnePouet(ctx, db, int64(id))
+	deleted, key, err := model.OnePouet(ctx, db, int64(prodID))
 	if err != nil {
 		return c.String(http.StatusServiceUnavailable,
 			"error, the database query failed")
 	}
+
 	if key != 0 && !deleted {
 		const format = `This Pouet production is already <a href="/f/%s">in use</a>.`
 		html := fmt.Sprintf(format, helper.ObfuscateID(key))
@@ -439,21 +465,24 @@ func PouetLookup(c *echo.Context, db *sql.DB) error {
 	if key != 0 && deleted {
 		return c.HTML(http.StatusOK, "This Pouet production is already in use.")
 	}
-	resp, err := PouetValid(c, id, false)
-	if err != nil {
+
+	resp, err := PouetValid(c, prodID, false)
+	switch {
+	case err != nil:
 		return fmt.Errorf("PouetValid: %w", err)
-	} else if resp.Prod.ID == "" {
+	case resp.Prod.ID == "":
 		return nil
-	}
-	if !resp.Success {
+	case !resp.Success:
 		return c.String(http.StatusNotFound, "error, the Pouet production ID is not found")
 	}
+
 	prod := resp.Prod
 	if pid, err := strconv.Atoi(prod.ID); err != nil {
 		return c.String(http.StatusNotFound, "error, the Pouet production ID is invalid")
 	} else if pid < 1 {
 		return nil
 	}
+
 	info := []string{prod.Title}
 	if len(prod.Groups) > 0 {
 		info = append(info, "by")
@@ -464,6 +493,7 @@ func PouetLookup(c *echo.Context, db *sql.DB) error {
 	if prod.ReleaseDate != "" {
 		info = append(info, "on", prod.ReleaseDate)
 	}
+
 	platforms := strings.Split(prod.Platforms.String(), ",")
 	if len(platforms) > 0 {
 		info = append(info, "for")
@@ -471,10 +501,11 @@ func PouetLookup(c *echo.Context, db *sql.DB) error {
 			info = append(info, " ", strings.TrimSpace(val))
 		}
 	}
-	return c.HTML(http.StatusOK, pouetBtn(id, info...))
+
+	return c.HTML(http.StatusOK, pouetBtn(prodID, info...))
 }
 
-func pouetBtn(id int, info ...string) string {
+func pouetBtn(prodID int, info ...string) string {
 	const format = `<button type="button" class="btn btn-outline-success" ` +
 		`hx-put="/pouet/production/%d" ` +
 		`hx-indicator="#pouet-remote-indicator" ` +
@@ -487,10 +518,12 @@ func pouetBtn(id int, info ...string) string {
 	const dclass = `htmx-indicator text-secondary pt-2`
 	const sclass = `spinner-border spinner-border-sm`
 	const text = `Fetching Download linked by Pouet...`
-	button := fmt.Sprintf(format, id, id)
+
+	button := fmt.Sprintf(format, prodID, prodID)
 	button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
 		`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
 	button += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
+
 	return `<form class="d-grid">` + button + `</form>`
 }
 
@@ -498,7 +531,7 @@ func pouetBtn(id int, info ...string) string {
 // The production ID is validated and the production is checked to see if it
 // is suitable for Defacto2. If the production is not suitable, an empty
 // production is returned with a htmx message.
-func PouetValid(c *echo.Context, id int, useCache bool) (pouet.Response, error) {
+func PouetValid(c *echo.Context, prodID int, useCache bool) (pouet.Response, error) {
 	const msg = "htmx pouet valid context"
 	const format = `Production %d is probably not suitable for Defacto2.`
 	const helper = `<br>A production must an intro, demo or cracktro either for MsDos or Windows.`
@@ -506,106 +539,104 @@ func PouetValid(c *echo.Context, id int, useCache bool) (pouet.Response, error) 
 	if err := nils.Check(c); err != nil {
 		return none, fmt.Errorf("%s: %w", msg, err)
 	}
-	if invalid := id < 1; invalid {
+
+	sid := strconv.Itoa(prodID)
+	if invalid := prodID < 1; invalid {
 		return none,
-			c.String(http.StatusNotAcceptable, fmt.Sprintf("invalid id: %d", id))
+			c.String(http.StatusNotAcceptable, "invalid id: "+sid)
 	}
+
 	if useCache {
-		sid := strconv.Itoa(id)
 		if s, err := cache.PouetProduction.Read(sid); err == nil {
 			if s != "" {
-				return none,
-					c.String(http.StatusOK, fmt.Sprintf(format, id)+helper)
+				return none, c.String(http.StatusOK, fmt.Sprintf(format, prodID)+helper)
 			}
 		}
 	}
+
 	var prod pouet.Response
 	ctx := c.Request().Context()
-	if _, err := prod.Get(ctx, id); err != nil {
+	if _, err := prod.Get(ctx, prodID); err != nil {
 		return none, c.String(http.StatusInternalServerError, err.Error())
 	}
-	platOkay := pouet.PlatformsValid(prod.Prod.Platforms.String())
-	typeOkay := false
+
+	okPlat := pouet.PlatformsValid(prod.Prod.Platforms.String())
+	okType := false
 	for _, val := range prod.Prod.Types {
 		if val.Valid() {
-			typeOkay = true
+			okType = true
 			break
 		}
 	}
-	if valid := platOkay && typeOkay; !valid {
-		sid := strconv.Itoa(id)
+	if valid := okPlat && okType; !valid {
+		sid := strconv.Itoa(prodID)
 		_ = cache.PouetProduction.WriteNoExpire(sid, "invalid")
-		return none,
-			c.String(http.StatusOK, fmt.Sprintf(format, id)+helper)
+		return none, c.String(http.StatusOK, fmt.Sprintf(format, prodID)+helper)
 	}
-	if invalid := validation(prod) == ""; invalid {
+
+	if valid := validation(prod) != ""; !valid {
 		const s = `This Pouet production has no suitable download links.`
 		return none, c.String(http.StatusOK, s)
 	}
+
 	return prod, nil
 }
 
 func validation(prod pouet.Response) string {
-	var valid string
-	if prod.Prod.Download != "" {
-		valid = prod.Prod.Download
+	if s := prod.Prod.Download; s != "" {
+		return s
 	}
+
+	skips := [...]string{"", "youtube", "sourceforge", "github"}
 	for _, link := range prod.Prod.DownloadLinks {
-		if valid != "" {
-			break
+		for _, skip := range skips {
+			if strings.Contains(strings.ToLower(link.Link), skip) {
+				continue
+			}
 		}
-		if link.Link == "" {
-			continue
-		}
-		if strings.Contains(link.Link, "youtube") {
-			continue
-		}
-		if strings.Contains(link.Link, "sourceforge") {
-			continue
-		}
-		if strings.Contains(link.Link, "github") {
-			continue
-		}
-		valid = link.Link
-		break
+
+		return link.Link
 	}
-	return valid
+
+	return ""
 }
 
 // PouetSubmit is the handler for the /pouet/production PUT route.
 // This will attempt to insert a new file record into the database using
 // the Pouet production ID. If the Pouet production ID is already in
 // use, an error message is returned.
-func PouetSubmit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
-	const msg = "htmx pouet submit context"
-	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+func PouetSubmit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
+	const format = "htmx pouet submit context: %w"
+	if err := nils.Check(sl, c, tx); err != nil {
+		return fmt.Errorf(format, err)
 	}
-	return Pouet.Submit(sl, c, db, download)
+
+	return Pouet.Submit(sl, c, tx, download)
 }
 
 // SearchByID is a handler for the /editor/search/id route.
 func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const msg = "search by id context"
+	const format = "search by id context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
+
 	const maxResults = 50
 	ids := []int{}
 	uuids := []uuid.UUID{}
 	search := c.FormValue("htmx-search")
 	inputs := strings.Split(search, " ")
 	for input := range slices.Values(inputs) {
-		x := strings.ToLower(strings.TrimSpace(input))
-		if id, _ := strconv.Atoi(x); id > 0 {
+		s := strings.ToLower(strings.TrimSpace(input))
+		if id, _ := strconv.Atoi(s); id > 0 {
 			ids = append(ids, id)
 			continue
 		}
-		if id := helper.DeobfuscateID(x); id > 0 {
+		if id := helper.DeobfuscateID(s); id > 0 {
 			ids = append(ids, id)
 			continue
 		}
-		if uid, err := uuid.Parse(x); err == nil {
+		if uid, err := uuid.Parse(s); err == nil {
 			uuids = append(uuids, uid)
 			continue
 		}
@@ -615,7 +646,7 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	fs, err := model.OnlyUniqueIDs(ctx, db, ids, uuids...)
 	if err != nil {
 		if sl != nil {
-			sl.Error(msg, slog.String("lookup", "something went wrong with the search"), slog.Any("error", err))
+			sl.Error("something went wrong with the pouet lookup search", slog.Any("error", err))
 		}
 		return c.String(http.StatusServiceUnavailable,
 			"the search by id query failed")
@@ -624,6 +655,7 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if len(fs) == 0 {
 		return c.HTML(http.StatusOK, "No artifacts found.")
 	}
+
 	err = c.Render(http.StatusOK, "searchids", map[string]any{
 		maximum: maxResults,
 		nme:     search,
@@ -631,17 +663,21 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	})
 	if err != nil {
 		if sl != nil {
-			sl.Error(msg, slog.String("lookup", "could not render the htmx search template"), slog.Any("error", err))
+			sl.Error("could not render the pouet htmx search template", slog.Any("error", err))
 		}
-		return c.String(http.StatusInternalServerError,
-			"cannot render the htmx search by id template")
+		return c.String(http.StatusInternalServerError, "cannot render the htmx search by id template")
 	}
+
 	return nil
 }
 
 // Alternatives returns a slice of possible matching alternative names,
 // spellings, acronyms and initialisms for the s string.
 func Alternatives(s string) []string {
+	if s == "" {
+		return []string{}
+	}
+
 	const minChars = 4
 	lookups := []string{s}
 	// examples of key and values:
@@ -668,19 +704,22 @@ func Alternatives(s string) []string {
 			}
 		}
 	}
+
 	t := releaser.Humanize(s)
 	if t != "" && !strings.EqualFold(s, t) {
 		lookups = append(lookups, t)
 	}
+
 	return lookups
 }
 
 // SearchReleaser is a handler for the /search/releaser route.
 func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.Tidbits) error {
-	const msg = "htmx search releaser context"
+	const format = "htmx search releaser context: %w"
 	if err := nils.Check(sl, c, db, ft); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
+
 	const limit = 14
 	input := c.FormValue("htmx-search")
 	name := helper.TrimRoundBracket(input)
@@ -689,10 +728,12 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.T
 		const comment = `<!-- empty search query -->`
 		return c.HTML(http.StatusOK, comment)
 	}
+
 	// Obtain a list of alternative lookups and remove any possible duplicates.
 	lookup := Alternatives(name)
 	slices.Sort(lookup)
 	lookup = slices.Compact(lookup)
+
 	// matchZeroOrMore is an SQL "LIKE" expression, to return zero (exact match) or more matches.
 	// see: https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE
 	const matchZeroOrMore = "%"
@@ -701,17 +742,16 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.T
 	var r model.Releasers
 	ctx := c.Request().Context()
 	if err := r.Initialism(ctx, db, limit, lookup...); err != nil {
-		sl.Error(msg, slog.String("task", "releaser match initialisms"),
-			slog.Any("error", err))
+		sl.Error("task releaser match initialisms", slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"the search exact query failed")
 	}
+
 	// lookup similar named releasers
 	remaining := limit - len(r)
 	if remaining > 0 {
 		if err := r.Similar(ctx, db, remaining, lookup...); err != nil {
-			sl.Error(msg, slog.String("task", "similar named releaser matches"),
-				slog.Any("error", err))
+			sl.Error("task similar named releaser matches", slog.Any("error", err))
 			return c.String(http.StatusServiceUnavailable,
 				"the search similar query failed")
 		}
@@ -736,6 +776,7 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.T
 		return c.String(http.StatusInternalServerError,
 			"cannot render the htmx search releases template")
 	}
+
 	return nil
 }
 
@@ -751,15 +792,16 @@ func DataListMagazines(sl *slog.Logger, c *echo.Context, db *sql.DB, input strin
 
 // datalist is a shared handler for the /datalist/releasers and /datalist/magazines routes.
 func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazine bool) error {
-	const msg = "htmx datalist context"
+	const format = "htmx datalist context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf("%s: %w", msg, err)
+		return fmt.Errorf(format, err)
 	}
 	const maxResults = 14
 	slug := helper.Slug(helper.TrimRoundBracket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")
 	}
+
 	lookups := []string{releaser.Cell(input)}
 	if inits := lism.Find(slug); len(inits) > 0 {
 		for uri := range slices.Values(inits) {
@@ -768,6 +810,7 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 		}
 	}
 	lookups = append(lookups, slug) // slug is the last lookup and must be present.
+
 	var r model.Releasers
 	var err error
 	ctx := c.Request().Context()
@@ -777,16 +820,16 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 		err = r.Similar(ctx, db, maxResults, lookups...)
 	}
 	if err != nil {
-		sl.Error(msg, slog.String("model", "similar releasers lookup failure"),
+		sl.Error("model similar releasers lookup failure",
 			slog.String("lookups", strings.Join(lookups, ",")),
-			slog.Bool("magazine_lookup", magazine),
-			slog.Any("error", err))
+			slog.Bool("magazine_lookup", magazine), slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
 	if len(r) == 0 {
 		return c.HTML(http.StatusOK, "")
 	}
+
 	err = c.Render(http.StatusOK, "datalistreleasers", map[string]any{
 		maximum: maxResults,
 		nme:     slug,
@@ -796,5 +839,6 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 		return c.String(http.StatusInternalServerError,
 			"cannot render the htmx datalist releases template")
 	}
+
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -122,6 +123,28 @@ func EchoContext(tb testing.TB, e *echo.Echo, target string) *echo.Context {
 	req := httptest.NewRequest(http.MethodGet, target, nil)
 	rec := httptest.NewRecorder()
 
+	return e.NewContext(req, rec)
+}
+
+func NewContext(tb testing.TB, target string) *echo.Context {
+	tb.Helper()
+
+	e := echo.New()
+	return EchoContext(tb, e, target)
+}
+
+func NewForm(tb testing.TB, target, key, value string) *echo.Context {
+	tb.Helper()
+
+	form := url.Values{}
+	form.Set(key, value)
+
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+	rec := httptest.NewRecorder()
+
+	e := echo.New()
 	return e.NewContext(req, rec)
 }
 

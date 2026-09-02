@@ -7,7 +7,6 @@ import (
 	"crypto/sha512"
 	"database/sql"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -39,12 +38,6 @@ import (
 	"github.com/Defacto2/server/model/fix"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
-)
-
-var (
-	ErrFormRead   = errors.New("form parameters could not be read")
-	ErrFormInsert = errors.New("form submission could not be inserted into the database")
-	ErrFormUpdate = errors.New("form submission could not update the database record")
 )
 
 const (
@@ -485,9 +478,9 @@ func (prod Submission) String() string {
 	return [...]string{dz, pt}[prod]
 }
 
-func (prod Submission) Submit(sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory) error {
+func (prod Submission) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
 	const msg = "htmx transfer submit"
-	if err := nils.Check(sl, c, db); err != nil {
+	if err := nils.Check(sl, c, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -500,13 +493,8 @@ func (prod Submission) Submit(sl *slog.Logger, c *echo.Context, db *sql.DB, down
 	if err != nil {
 		return err
 	}
-	ctx := c.Request().Context()
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		logErr("database transaction cannot start", err)
-		return c.String(http.StatusServiceUnavailable, "error, the database transaction could not begin")
-	}
 
+	ctx := c.Request().Context()
 	var exist bool
 	var eErr error
 	switch prod {
@@ -551,14 +539,14 @@ func (prod Submission) Submit(sl *slog.Logger, c *echo.Context, db *sql.DB, down
 	// see Download in handler/app/internal/remote/remote.go
 	switch prod {
 	case Demozoo:
-		if err := app.GetDemozoo(ctx, sl, c, db, id, unid, download); err != nil {
+		if err := app.GetDemozoo(ctx, sl, c, tx, id, unid, download); err != nil {
 			logErr("cannot fetch remote demozoo api", err)
 			const format = `<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`
 			html += fmt.Sprintf(format, prod.String())
 			return c.String(http.StatusServiceUnavailable, html)
 		}
 	case Pouet:
-		if err := app.GetPouet(ctx, sl, c, db, id, unid, download); err != nil {
+		if err := app.GetPouet(ctx, sl, c, tx, id, unid, download); err != nil {
 			logErr("cannot fetch remote pouet api", err)
 			const format = `<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`
 			html += fmt.Sprintf(format, prod.String())

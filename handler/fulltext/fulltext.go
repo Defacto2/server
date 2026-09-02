@@ -138,6 +138,10 @@ func (ts *Tidbits) NewIndex(fsys fs.FS, root string) error {
 // An empty Result means no results were found.
 func (ts *Tidbits) Search(query string, maxResults int) []Result {
 	noresult := []Result{}
+	if ts.engine == nil {
+		return noresult
+	}
+
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return noresult
@@ -145,9 +149,12 @@ func (ts *Tidbits) Search(query string, maxResults int) []Result {
 
 	queries := splitQuery(query)
 	qb := blaze.NewQueryBuilder(ts.engine)
-	if len(queries) == 1 {
+	switch {
+	case qb == nil:
+		return noresult
+	case len(queries) == 1:
 		qb.Term(query)
-	} else {
+	default:
 		for i := range queries {
 			qb.And().Term(queries[i])
 		}
@@ -201,6 +208,10 @@ func (ts *Tidbits) Body(docID int) string {
 // Name value of the document id is returned from the index.
 // If the id doesn't exist, an "error" string is returned.
 func (ts *Tidbits) Name(docID int) string {
+	if ts.engine == nil {
+		return "error"
+	}
+
 	if !ts.find(docID) {
 		return "error"
 	}

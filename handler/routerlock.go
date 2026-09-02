@@ -167,7 +167,12 @@ func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error { /
 	}
 
 	g.DELETE("/delete/forever/:key", func(c *echo.Context) error {
-		return htmx.DeleteForever(sl, c, db, c.Param("key"))
+		ctx := c.Request().Context()
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			return err
+		}
+		return htmx.DeleteForever(sl, c, tx, c.Param("key"))
 	})
 
 	// these POSTs should only be used for editor, htmx file uploads,
@@ -423,7 +428,12 @@ func get(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error {
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(c *echo.Context) error {
-			return app.GetDemozooParam(sl, c, db, dirs.Download)
+			ctx := c.Request().Context()
+			tx, err := db.BeginTx(ctx, nil)
+			if err != nil {
+				return err
+			}
+			return app.GetDemozooParam(sl, c, tx, dirs.Download)
 		})
 	g.GET("/for-approval",
 		func(c *echo.Context) error {

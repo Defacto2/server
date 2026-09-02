@@ -1,58 +1,55 @@
 package htmx_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/Defacto2/server/handler/htmx"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
 func TestValidate(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
-		name    string
-		path    string
-		wantErr error
+		name string
+		path string
+		want error
 	}{
 		{
-			name:    "absolute path",
-			path:    "/absolute/path",
-			wantErr: htmx.ErrPath,
+			name: "absolute path",
+			path: "/absolute/path",
+			want: htmx.ErrPath,
 		},
 		{
-			name:    "clean path",
-			path:    "relative/path",
-			wantErr: nil,
+			name: "clean path",
+			path: "relative/path",
+			want: nil,
 		},
 		{
-			name:    "clean path",
-			path:    "relative/path/",
-			wantErr: nil,
+			name: "clean path",
+			path: "relative/path/",
+			want: nil,
 		},
 		{
-			name:    "unclean path 1",
-			path:    "relative/../path",
-			wantErr: htmx.ErrPath,
+			name: "unclean path 1",
+			path: "relative/../path",
+			want: htmx.ErrPath,
 		},
 		{
-			name:    "unclean path 2",
-			path:    "./relative/path",
-			wantErr: htmx.ErrPath,
+			name: "unclean path 2",
+			path: "./relative/path",
+			want: htmx.ErrPath,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			err := htmx.Validate(tt.path)
-			if err != nil && !errors.Is(err, tt.wantErr) {
-				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if err == nil && tt.wantErr != nil {
-				t.Errorf("Validate() expected error = %v, got nil", tt.wantErr)
-			}
+			be.Err(t, err, tt.want)
 		})
 	}
 }
@@ -96,7 +93,8 @@ func TestPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			c := newContext()
+
+			c := testutil.NewContext(t, "")
 			c.SetPathValues(echo.PathValues{
 				{Name: "unid", Value: tt.unid},
 				{Name: "path", Value: tt.path},

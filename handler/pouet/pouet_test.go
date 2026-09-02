@@ -9,6 +9,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was fine at under 40%
+
 // Set to true to test against the remote servers.
 const testRemoteServers = false
 

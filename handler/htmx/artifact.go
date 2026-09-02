@@ -30,12 +30,6 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-var (
-	ErrFileIsDir = errors.New("the file is a directory")
-	ErrPath      = errors.New("the file path is invalid")
-	ErrYouTube   = errors.New("youtube watch video id needs to be empty or 11 characters")
-)
-
 const (
 	checkMark   = "&#x2713;"
 	editorKey   = "artifact-editor-key"
@@ -504,7 +498,7 @@ func extrasDeleter(c *echo.Context, ext string, extra dir.Directory) error {
 		return badRequest(c, err)
 	}
 	if st.IsDir() {
-		return badRequest(c, ErrFileIsDir)
+		return badRequest(c, ErrIsDir)
 	}
 	if err := os.Remove(dst); err != nil {
 		return badRequest(c, err)
@@ -909,7 +903,7 @@ func RecordDateIssued(c *echo.Context, db *sql.DB) error {
 	y, m, d := form.ValidDate(year, month, day)
 	if !y || !m || !d {
 		const format = `%w, date failed to validate: Y %q %v ; M %q %v ; D %q %v `
-		return badRequest(c, fmt.Errorf(format, ErrYMDFormat, year, y, month, m, day, d))
+		return badRequest(c, fmt.Errorf(format, ErrYMD, year, y, month, m, day, d))
 	}
 	ctx := c.Request().Context()
 	tx, err := db.BeginTx(ctx, nil)
@@ -942,12 +936,12 @@ func RecordDateIssuedReset(c *echo.Context, db *sql.DB, elmID string) error {
 	const expected = 3
 	const format = `%w, record date issued reset requires YYYY-MM-DD`
 	if len(vals) != expected {
-		return badRequest(c, fmt.Errorf(format, ErrYMDFormat))
+		return badRequest(c, fmt.Errorf(format, ErrYMD))
 	}
 	year, month, day := vals[0], vals[1], vals[2]
 	y, m, d := form.ValidDate(year, month, day)
 	if invalid := !y || !m || !d; invalid {
-		return badRequest(c, fmt.Errorf(format, ErrYMDFormat))
+		return badRequest(c, fmt.Errorf(format, ErrYMD))
 	}
 
 	ctx := c.Request().Context()
@@ -1104,7 +1098,7 @@ func RecordCreatorReset(c *echo.Context, db *sql.DB) error {
 	const expected = 4
 	if len(vals) != expected {
 		const format = `%w, record creator reset requires string;string;string;string`
-		return badRequest(c, fmt.Errorf(format, ErrYMDFormat))
+		return badRequest(c, fmt.Errorf(format, ErrYMD))
 	}
 
 	text := vals[0]

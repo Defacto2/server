@@ -64,11 +64,11 @@ type DemozooLink struct {
 // Download fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
 func (got *DemozooLink) Download( //nolint:funlen
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory,
 ) error {
 	const msg = "demozoo link download"
 	const format = "%s for id %d: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, "check", 0, err)
 	}
 	id := func() slog.Attr {
@@ -124,7 +124,7 @@ func (got *DemozooLink) Download( //nolint:funlen
 		if err != nil {
 			sl.Info(msg+" download remote file",
 				id(), slog.String("link", link.URL), slog.Any("error", err))
-			if err1 := got.Update(ctx, c, db); err1 != nil {
+			if err1 := got.Update(ctx, c, tx); err1 != nil {
 				sl.Info(msg+" download remote file error but update", id(), slog.Any("error", err1))
 				return err1
 			}
@@ -146,7 +146,7 @@ func (got *DemozooLink) Download( //nolint:funlen
 			got.FileSize = size
 		}
 		got.Error = ""
-		if err := got.Stat(ctx, sl, c, db, download); err != nil {
+		if err := got.Stat(ctx, sl, c, tx, download); err != nil {
 			sl.Info(msg, id(), slog.Any("error", err))
 		}
 		return nil
@@ -203,10 +203,10 @@ func getRemoteFile(
 //
 //nolint:dupl // intentional similarity
 func (got *DemozooLink) Stat(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory,
 ) error {
 	const format = "demozoo link stat file and integrity %s: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 	name := filepath.Join(download.Path(), got.UUID)
@@ -225,16 +225,16 @@ func (got *DemozooLink) Stat(
 	if got.FileType == "" {
 		got.FileType = simple.MagicAsTitle(sl, name)
 	}
-	return got.ArchiveContent(ctx, sl, c, db, name)
+	return got.ArchiveContent(ctx, sl, c, tx, name)
 }
 
 // ArchiveContent sets the archive content and readme text of the source file.
 func (got *DemozooLink) ArchiveContent(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, src string,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, src string,
 ) error {
 	const msg = "demozoo link archive content"
 	const format = msg + ": %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	files, err := archive.Lists(ctx, src)
@@ -244,7 +244,7 @@ func (got *DemozooLink) ArchiveContent(
 		return nil
 	}
 	got.Content = strings.Join(files, "\n")
-	if err := got.Update(ctx, c, db); err != nil {
+	if err := got.Update(ctx, c, tx); err != nil {
 		sl.Info(msg+" update caused an error",
 			slog.String("source", src), slog.String("filename", got.Filename), slog.Any("error", err))
 		return err
@@ -255,16 +255,12 @@ func (got *DemozooLink) ArchiveContent(
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
-func (got *DemozooLink) Update(ctx context.Context, c *echo.Context, db *sql.DB) error {
+func (got *DemozooLink) Update(ctx context.Context, c *echo.Context, tx *sql.Tx) error {
 	const format = "demozoo link update %s uuid %s: %w"
-	if err := nils.Check(ctx, c, db); err != nil {
+	if err := nils.Check(ctx, c, tx); err != nil {
 		return fmt.Errorf(format, "check", "n/a", err)
 	}
 	uid := got.UUID
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf(format, "begin tx", uid, err)
-	}
 	f, err := model.OneByUUID(ctx, tx, true, uid)
 	if err != nil {
 		return fmt.Errorf(format, "one record by", uid, err)
@@ -371,12 +367,12 @@ type PouetLink struct {
 // Download fetches the download link from Pouet and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Pouet record API data.
 func (got *PouetLink) Download(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory,
 ) error {
 	const msg = "pouet link download"
 	const format = "%s for id %d: %w"
 	id := got.PouetID
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, "check", id, err)
 	}
 	var prod pouet.Production
@@ -427,7 +423,7 @@ func (got *PouetLink) Download(
 	plat, sect := prod.PlatformType()
 	got.Platform = plat.String()
 	got.Section = sect.String()
-	if err := got.Stat(ctx, sl, c, db, download); err != nil {
+	if err := got.Stat(ctx, sl, c, tx, download); err != nil {
 		sl.Info(msg, slog.Int("id", id), slog.Any("error", err))
 	}
 	return nil
@@ -438,10 +434,10 @@ func (got *PouetLink) Download(
 //
 //nolint:dupl // intentional similarity
 func (got *PouetLink) Stat(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, download dir.Directory,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory,
 ) error {
 	const format = "pouet link stat %s: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 	name := filepath.Join(download.Path(), got.UUID)
@@ -460,16 +456,16 @@ func (got *PouetLink) Stat(
 	if got.FileType == "" {
 		got.FileType = simple.MagicAsTitle(sl, name)
 	}
-	return got.ArchiveContent(ctx, sl, c, db, name)
+	return got.ArchiveContent(ctx, sl, c, tx, name)
 }
 
 // ArchiveContent sets the archive content and readme text of the source file.
 func (got *PouetLink) ArchiveContent(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, src string,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, src string,
 ) error {
 	const msg = "pouet link archive content"
 	const format = msg + " %s: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
+	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 	files, err := archive.Lists(ctx, src)
@@ -479,7 +475,7 @@ func (got *PouetLink) ArchiveContent(
 		return c.JSON(http.StatusOK, got)
 	}
 	got.Content = strings.Join(files, "\n")
-	if err := got.Update(ctx, c, db); err != nil {
+	if err := got.Update(ctx, c, tx); err != nil {
 		sl.Info(msg + " update caused an error")
 	}
 	const html = `<p class="text-success">Successful Pouet update</p>`
@@ -488,15 +484,11 @@ func (got *PouetLink) ArchiveContent(
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
-func (got *PouetLink) Update(ctx context.Context, c *echo.Context, db *sql.DB) error {
+func (got *PouetLink) Update(ctx context.Context, c *echo.Context, tx *sql.Tx) error {
 	const format = "pouet link update %s uuid %s: %w"
 	uid := got.UUID
-	if err := nils.Check(ctx, c, db); err != nil {
+	if err := nils.Check(ctx, c, tx); err != nil {
 		return fmt.Errorf(format, "check", uid, err)
-	}
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf(format, "begin tx", uid, err)
 	}
 	f, err := model.OneByUUID(ctx, tx, true, uid)
 	if err != nil {
