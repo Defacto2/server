@@ -258,7 +258,7 @@ import {
       e.target.classList.add('is-invalid');
     }
   });
-  const fnr = document.getElementById('artifact-editor-filename-reset');
+  const fnr = document.getElementById('artifact-editor-filename-undo');
   if (fnr === null) {
     throw new Error('The filename reset is missing.');
   }
@@ -336,6 +336,20 @@ import {
     }
   });
 
+  // TODO:
+  const cmmtUndo = document.getElementById('artifact-editor-comment-undo');
+  if (cmmtUndo === null) {
+    throw new Error('The comment reset is missing.');
+  }
+  const cmmtU = document.getElementsByName('artifact-editor-comment-undo');
+  if (cmmtU.length === 0) {
+    throw new Error('The comment undo is missing.');
+  }
+  cmmtUndo.addEventListener('click', () => {
+    cmmt.classList.remove('is-valid');
+    cmmt.value = cmmtU[0].value;
+  });
+
   const title = document.getElementById('artifact-editor-title');
   if (title === null) {
     throw new Error('The title input is missing.');
@@ -348,7 +362,7 @@ import {
   if (titleUndo === null) {
     throw new Error('The title reset is missing.');
   }
-  const titleU = document.getElementsByName('artifact-editor-titleundo');
+  const titleU = document.getElementsByName('artifact-editor-title-undo');
   if (titleU.length === 0) {
     throw new Error('The title resetter is missing.');
   }
@@ -477,11 +491,11 @@ import {
   if (year.value == 0 && month.value == 0 && day.value == 0) {
     unknownDate = true;
   }
-  const dateReset = document.getElementById('artifact-editor-date-reset');
+  const dateReset = document.getElementById('artifact-editor-date-undo');
   if (dateReset === null) {
     throw new Error('The date reset is missing.');
   }
-  const dateResetter = document.getElementById('artifact-editor-date-resetter');
+  const dateResetter = document.getElementById('artifact-editor-date-undos');
   if (dateResetter === null) {
     throw new Error('The date resetter is missing.');
   }
@@ -537,20 +551,6 @@ import {
       }
     }
   });
-  const cmmtReset = document.getElementById('artifact-editor-comment-undo');
-  if (cmmtReset === null) {
-    throw new Error('The comment reset is missing.');
-  }
-  const cmmtResetter = document.getElementById(
-    'artifact-editor-comment-resetter'
-  );
-  if (cmmtResetter === null) {
-    throw new Error('The comment resetter is missing.');
-  }
-  cmmtReset.addEventListener('click', () => {
-    cmmt.classList.remove('is-valid');
-    cmmt.value = cmmtResetter.value;
-  });
 
   const dateLastMod = document.getElementById('artifact-editor-date-lastmod');
   if (dateLastMod === null) {
@@ -577,47 +577,47 @@ import {
     });
   }
 
-  const linksReset = document.getElementById('artifact-editor-links-reset');
+  const linksReset = document.getElementById('artifact-editor-links-undo');
   if (linksReset === null) {
     throw new Error('The links reset is missing.');
   }
   const youtube = document.getElementById('artifact-editor-youtube');
-  const youtubeReset = document.getElementById('artifact-editor-youtube-reset');
+  const youtubeReset = document.getElementById('artifact-editor-youtube-undo');
   if (youtube === null || youtubeReset === null) {
     throw new Error('A YouTube input is missing.');
   }
   const demozoo = document.getElementById('artifact-editor-demozoo');
-  const demozooReset = document.getElementById('artifact-editor-demozoo-reset');
+  const demozooReset = document.getElementById('artifact-editor-demozoo-undo');
   if (demozoo === null || demozooReset === null) {
     throw new Error('A Demozoo input is missing.');
   }
   const pouet = document.getElementById('artifact-editor-pouet');
-  const pouetReset = document.getElementById('artifact-editor-pouet-reset');
+  const pouetReset = document.getElementById('artifact-editor-pouet-undo');
   if (pouet === null || pouetReset === null) {
     throw new Error('A Pouet input is missing.');
   }
   const colors16 = document.getElementById('artifact-editor-16colors');
   const colors16Reset = document.getElementById(
-    'artifact-editor-16colors-reset'
+    'artifact-editor-16colors-undo'
   );
   if (colors16 === null || colors16Reset === null) {
     throw new Error('A 16colors input is missing.');
   }
   const github = document.getElementById('artifact-editor-github');
-  const githubReset = document.getElementById('artifact-editor-github-reset');
+  const githubReset = document.getElementById('artifact-editor-github-undo');
   if (github === null || githubReset === null) {
     throw new Error('A GitHub input is missing.');
   }
   const relations = document.getElementById('artifact-editor-relations');
   const relationsReset = document.getElementById(
-    'artifact-editor-relations-reset'
+    'artifact-editor-relations-undo'
   );
   if (relations === null || relationsReset === null) {
     throw new Error('A relations input is missing.');
   }
   const websites = document.getElementById('artifact-editor-websites');
   const websitesReset = document.getElementById(
-    'artifact-editor-websites-reset'
+    'artifact-editor-websites-undo'
   );
   if (websites === null || websitesReset === null) {
     throw new Error('A websites input is missing.');

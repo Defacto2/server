@@ -137,9 +137,11 @@ func DemozooLookup(c *echo.Context, db *sql.DB, prodMode bool) error {
 			info = append(info, name)
 		}
 	}
-	if relDate := strings.TrimSpace(prod.ReleaseDate); relDate != "" {
-		info = append(info, "on", relDate)
+
+	if prodRelDate := strings.TrimSpace(prod.ReleaseDate); prodRelDate != "" {
+		info = append(info, "on", prodRelDate)
 	}
+
 	if prod.Platforms != nil {
 		for _, val := range prod.Platforms {
 			name := strings.TrimSpace(val.Name)
@@ -149,6 +151,7 @@ func DemozooLookup(c *echo.Context, db *sql.DB, prodMode bool) error {
 			info = append(info, "for", name)
 		}
 	}
+
 	return c.HTML(http.StatusOK, demozooBtn(prodID, info...))
 }
 
@@ -164,10 +167,12 @@ func demozooBtn(prodID int, info ...string) string {
 		`hx-trigger="click once delay:500ms" ` +
 		`hx-target-error="#demozoo-submission-error" ` +
 		`autofocus>Submit ID %d</button>`
+
 	const did = `demozoo-remote-indicator`
 	const dclass = `htmx-indicator text-secondary pt-2`
 	const sclass = `spinner-border spinner-border-sm`
 	const text = `Fetching Download linked by Demozoo...`
+
 	button := fmt.Sprintf(format, prodID, prodID)
 	button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
 		`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
@@ -772,7 +777,7 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const maxResults = 14
+
 	slug := helper.Slug(helper.TrimRoundBracket(input))
 	if slug == "" {
 		return c.HTML(http.StatusOK, "")
@@ -787,6 +792,7 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 	}
 	lookups = append(lookups, slug) // slug is the last lookup and must be present.
 
+	const maxResults = 14
 	var r model.Releasers
 	var err error
 	ctx := c.Request().Context()

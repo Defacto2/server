@@ -49,7 +49,7 @@ func TxTitle(c *echo.Context, tx *sql.Tx) error {
 
 // TxTitleUndo handles the post submission for the file artifact title reset.
 func TxTitleUndo(c *echo.Context, tx *sql.Tx) error {
-	return CommitStr(c, tx, "artifact-editor-titleundo", model.Title.Update)
+	return CommitStr(c, tx, "artifact-editor-title-undo", model.Title.Update)
 }
 
 // TxComment handles the post submission for the file artifact comment.
@@ -59,7 +59,7 @@ func TxComment(c *echo.Context, tx *sql.Tx) error {
 
 // TxCommentUndo handles the post submission for the file artifact comment reset.
 func TxCommentUndo(c *echo.Context, tx *sql.Tx) error {
-	return CommitStr(c, tx, "artifact-editor-comment-resetter", model.Comment.Update)
+	return CommitStr(c, tx, "artifact-editor-comment-undo", model.Comment.Update)
 }
 
 // TxCreditText handles the post submission for the file artifact creator text.
@@ -300,7 +300,7 @@ func TxCreditUndo(c *echo.Context, tx *sql.Tx) error {
 		return badRequest(c, fmt.Errorf(format, err))
 	}
 
-	reset := c.FormValue("artifact-editor-creditsundo")
+	reset := c.FormValue("artifact-editor-credits-undo")
 	vals := strings.Split(reset, ";")
 	const expected = 4
 	if len(vals) != expected {
@@ -334,7 +334,7 @@ func TxCreditUndo(c *echo.Context, tx *sql.Tx) error {
 		return badRequest(c, err)
 	}
 
-	return c.String(http.StatusOK, "Undo creators")
+	return StatusOK(c, "artifact-editor-credits-undo")
 }
 
 // TxTags handles the post submission for the file artifact classifications,
@@ -504,7 +504,7 @@ func txReleasers(c *echo.Context, tx *sql.Tx, undo bool) error {
 		return badRequest(c, err)
 	}
 
-	return c.HTML(http.StatusOK, checkMark)
+	return StatusOK(c, "artifact-editor-releasers")
 }
 
 // YMD are the date of release form input options
@@ -545,15 +545,15 @@ func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error {
 
 	y, m, d := "", "", ""
 
-	undoY := c.FormValue("artifact-editor-yearval")
-	undoM := c.FormValue("artifact-editor-monthval")
-	undoD := c.FormValue("artifact-editor-dayval")
+	undoY := c.FormValue("artifact-editor-year-store")
+	undoM := c.FormValue("artifact-editor-month-store")
+	undoD := c.FormValue("artifact-editor-day-store")
 
 	year := c.FormValue("artifact-editor-year")
 	month := c.FormValue("artifact-editor-month")
 	day := c.FormValue("artifact-editor-day")
 
-	if ymd == DateForm || ymd == DateUndo {
+	if ymd == DateForm {
 		unchanged := year == undoY && month == undoM && day == undoD
 		switch {
 		case unchanged:
@@ -562,25 +562,28 @@ func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error {
 			y = year
 			m = month
 			d = day
-		case ymd == DateUndo:
-			y = undoY
-			m = undoM
-			d = undoD
 		}
 	}
 
 	const fmtymd = `%w, record date issued reset requires YYYY-MM-DD`
 
+	name := ""
 	if ymd == DateLast {
-		last := c.FormValue("artifact-editor-date-lastmodder")
-		lasts := strings.Split(last, "-")
+		name = "artifact-editor-date-lastmods"
+	}
+	if ymd == DateUndo {
+		name = "artifact-editor-date-undos"
+	}
+	if ymd == DateLast || ymd == DateUndo {
+		s := c.FormValue(name)
+		values := strings.Split(s, "-")
 		const req = 3
-		if len(lasts) != req {
+		if len(values) != req {
 			return badRequest(c, fmt.Errorf(fmtymd, ErrYMD))
 		}
-		y = lasts[0]
-		m = lasts[1]
-		d = lasts[2]
+		y = values[0]
+		m = values[1]
+		d = values[2]
 		unchanged := year == y && month == m && day == d
 		if unchanged {
 			return c.String(http.StatusNoContent, "")
@@ -597,5 +600,10 @@ func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error {
 		return badRequest(c, err)
 	}
 
-	return c.String(http.StatusOK, " "+checkMark)
+	switch ymd {
+	case DateUndo:
+		return StatusOK(c, "artifact-editor-date-undo")
+	default:
+		return StatusOK(c, "artifact-editor-date-update")
+	}
 }

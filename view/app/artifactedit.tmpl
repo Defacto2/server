@@ -273,12 +273,12 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 <a href="/titles">please follow this guide</a>.</div>
             </div>
             <div class="btn-group" role="group">
-              <input type="hidden" name="artifact-editor-titleundo" value="{{$title}}" readonly>
+              <input type="hidden" name="artifact-editor-title-undo" value="{{$title}}" readonly>
               <button class="btn btn-link" type="button" id="artifact-editor-title-undo"
                 hx-patch="/editor/title/reset"
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-titleundo']">
+                            [name='artifact-editor-title-undo']">
                   <span class="{{$reverter}}">Revert <em id="artifact-editor-title-quote">{{$title}}</em></span></button>
               <button class="btn btn-link" type="button" id="artifact-editor-title-delete"><span class="badge text-bg-dark">None</span></button>
               <button class="btn btn-link" type="button" id="artifact-editor-titleize"><span class="badge text-bg-primary">Capitalize</span></button>
@@ -293,14 +293,14 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
             <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
-            <input type="hidden" id="artifact-editor-comment-resetter" name="artifact-editor-comment-resetter" value="{{$comment}}" readonly>
             <div class="row">
               <div class="col-12 col-lg-6">
+                <input type="hidden" name="artifact-editor-comment-undo" value="{{$comment}}" readonly>
                 <button type="button" class="btn btn-link" id="artifact-editor-comment-undo"
                 hx-patch="/editor/comment/reset"
+                hx-target="#artifact-editor-comment-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-comment'],
-                            [name='artifact-editor-comment-resetter']"><span class="{{$reverter}}">Revert</span></button>
+                            [name='artifact-editor-comment-undo']"><span class="{{$reverter}}">Revert <em id="artifact-editor-comment-quote"></em></span></button>
               </div>
             </div>
           </div>
@@ -382,28 +382,31 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               <div class="col-6 col-lg-4">
                 <div class="input-group">
                   <span class="input-group-text">Year</span>
-                  <input type="hidden" name="artifact-editor-yearval" value="{{$dateYear}}" readonly>
+                  <input type="hidden" name="artifact-editor-year-store" value="{{$dateYear}}" readonly>
                   <input type="number" name="artifact-editor-year" min="1980" max="{{exampleYear}}" autocomplete="off"
                     id="artifact-editor-year" aria-label="Year of release" class="form-control input-date" 
-                    value="{{$dateYear}}" placeholder="{{exampleYear}}">
+                    value="{{$dateYear}}" placeholder="{{exampleYear}}" 
+                    data-1p-ignore data-bwignore="true" data-dashlane-ignore="true">
                 </div>
               </div>
               <div class="col-6 col-lg-4">
                 <div class="input-group">
                   <span class="input-group-text text-secondary">Month</span>
-                  <input type="hidden" name="artifact-editor-monthval" value="{{$dateYear}}" readonly>
+                  <input type="hidden" name="artifact-editor-month-store" value="{{$dateYear}}" readonly>
                   <input type="number" name="artifact-editor-month" min="1" max="12" autocomplete="off"
                     id="artifact-editor-month" aria-label="Month of release" class="form-control input-date" 
-                    value="{{$dateMonth}}" placeholder="{{exampleMonth}}">
+                    value="{{$dateMonth}}" placeholder="{{exampleMonth}}"
+                    data-1p-ignore data-bwignore="true" data-dashlane-ignore="true">
                 </div>
               </div>
               <div class="col-6 col-lg-4">
                 <div class="input-group flex-nowrap">
                   <span class="input-group-text text-secondary">Day</span>
-                  <input type="hidden" name="artifact-editor-dayval" value="{{$dateYear}}" readonly>
+                  <input type="hidden" name="artifact-editor-day-store" value="{{$dateYear}}" readonly>
                   <input type="number" name="artifact-editor-day" min="1" max="31" autocomplete="off"
                     id="artifact-editor-day" aria-label="Day of release" class="form-control input-date" 
-                    value="{{$dateDay}}" placeholder="{{exampleDay}}">
+                    value="{{$dateDay}}" placeholder="{{exampleDay}}"
+                    data-1p-ignore data-bwignore="true" data-dashlane-ignore="true">
                 </div>
               </div>
             </div>
@@ -411,22 +414,24 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               A year of release is recommended.
             </div>
             <div class="d-flex flex-row">
-              <input type="hidden" id="artifact-editor-date-resetter" name="artifact-editor-date-resetter" 
+              <input type="hidden" id="artifact-editor-date-undos" name="artifact-editor-date-undos" 
                 value="{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}" readonly>
-              <button type="button" class="btn btn-link" id="artifact-editor-date-reset"
+              <button type="button" class="btn btn-link" id="artifact-editor-date-undo"
                   hx-patch="/editor/date/reset"
                   hx-target="find span"
-                  hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-resetter']">
+                  hx-include="[name='artifact-editor-key'],
+                              [name='artifact-editor-date-undos']">
                   <small class="{{$reverter}}">Revert <em>{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}</em>
                 <span><!-- reset target --></span></small>
               </button>
               {{- if gt $lmYear $epochY}}
-              <input type="hidden" id="artifact-editor-date-lastmodder" name="artifact-editor-date-lastmodder" 
+              <input type="hidden" id="artifact-editor-date-lastmods" name="artifact-editor-date-lastmods" 
                 value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
               <button type="button" class="btn btn-link" id="artifact-editor-date-lastmod"
                   hx-patch="/editor/date/lastmod"
                   hx-target="find span"
-                  hx-include="[name='artifact-editor-key'],[name='artifact-editor-date-lastmodder']">
+                  hx-include="[name='artifact-editor-key'],
+                              [name='artifact-editor-date-lastmods']">
                   <small class="badge text-bg-primary">Use last modification&nbsp;
                 {{- if ne $lmYear 0}}<em>{{$lmYear}}
                 {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
@@ -454,7 +459,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-filename-undo" value="{{$filename}}" readonly>
-              <button class="btn btn-link" type="button" id="artifact-editor-filename-reset"
+              <button class="btn btn-link" type="button" id="artifact-editor-filename-undo"
                 hx-patch="/editor/filename/reset"
                 hx-target="#artifact-editor-filename-quote"
                 hx-include="[name='artifact-editor-key'],
@@ -528,16 +533,17 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             {{- /* NOTE: the "-creditsundo" with an "s" */}}
             <button type="button" class="btn btn-link" id="artifact-editor-credit-undo"
                 hx-patch="/editor/creator/reset"
+                hx-target="#artifact-editor-credits-quote"
                 hx-include="[name='artifact-editor-key'],
-                [name='artifact-editor-creditsundo'],
+                [name='artifact-editor-credits-undo'],
                 [name='artifact-editor-credittext'],
                 [name='artifact-editor-creditill'],
                 [name='artifact-editor-creditprog'],
-                [name='artifact-editor-creditaudio']"><small class="{{$reverter}}">Revert <u>all</u> creators</small></button>
+                [name='artifact-editor-creditaudio']"><small class="{{$reverter}}">Revert <u>all</u> creators <em id="artifact-editor-credits-quote"></em></small></button>
             </div>
         </div>
         <div class="btn-group" role="group">
-          <input type="hidden" id="artifact-editor-credits-undo" name="artifact-editor-creditsundo" 
+          <input type="hidden" id="artifact-editor-credits-undo" name="artifact-editor-credits-undo" 
             value="{{$writers}};{{$artists}};{{$programmers}};{{$musicians}}" readonly>
         </div>
         <hr class="d-block d-lg-none">
@@ -561,7 +567,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
 
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-youtubeval" id="artifact-editor-youtube-reset" value="{{$youtube}}" readonly>
+                <input type="hidden" name="artifact-editor-youtubeval" id="artifact-editor-youtube-undo" value="{{$youtube}}" readonly>
                 {{- /*  maxlength/minlength values means htmx will only ever trigger with 11 chars  */}}
                 <input type="text" class="form-control" name="artifact-editor-youtube" id="artifact-editor-youtube" 
                   autocomplete="off" minlength="11" value="{{$youtube}}" placeholder="62BuDfBIcMo"
@@ -577,7 +583,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 185828">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-demozooval" id="artifact-editor-demozoo-reset" value="{{$demozoo}}" readonly>
+                <input type="hidden" name="artifact-editor-demozooval" id="artifact-editor-demozoo-undo" value="{{$demozoo}}" readonly>
                 {{- /*  do not use a min=1 input element, otherwise htmx will never save when deleting a value  */}}
                 <input type="number" class="form-control" name="artifact-editor-demozoo" id="artifact-editor-demozoo" 
                   autocomplete="off" max="{{ demozooSanity }}" value="{{$demozoo}}" placeholder="185828"
@@ -592,7 +598,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 75854">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-pouetval" id="artifact-editor-pouet-reset" value="{{$pouet}}" readonly>
+                <input type="hidden" name="artifact-editor-pouetval" id="artifact-editor-pouet-undo" value="{{$pouet}}" readonly>
                 <input type="number" class="form-control" name="artifact-editor-pouet" id="artifact-editor-pouet" 
                   autocomplete="off" max="{{ pouetSanity }}" value="{{$pouet}}" placeholder="75854"
                   hx-patch="/editor/pouet"
@@ -604,7 +610,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A URL path, example: tags/magazine/dreadloc">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-16colorstval" id="artifact-editor-16colors-reset" value="{{$sixteen}}" readonly>
+                <input type="hidden" name="artifact-editor-16colorstval" id="artifact-editor-16colors-undo" value="{{$sixteen}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-16colors" id="artifact-editor-16colors" 
                   autocomplete="off" maxlength="{{$oneK}}" value="{{$sixteen}}" placeholder="tags/magazine/dreadloc"
                   hx-patch="/editor/16colors"
@@ -615,7 +621,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: Defacto2/server">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-githubval" id="artifact-editor-github-reset" value="{{$github}}" readonly>
+                <input type="hidden" name="artifact-editor-githubval" id="artifact-editor-github-undo" value="{{$github}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
                   autocomplete="off" maxlength="{{$oneK}}" value="{{$github}}" placeholder="Defacto2/server"
                   hx-patch="/editor/github"
@@ -632,7 +638,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         <div class="row row-cols-1 row-cols-lg-2 gy-2 pt-2">
           <div class="col">
             <div class="form-floating" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Info and a Defacto2 ID, example: NFO;9f1c2">
-              <input type="hidden" name="artifact-editor-relationsval" id="artifact-editor-relations-reset" value="{{$relations}}" readonly>
+              <input type="hidden" name="artifact-editor-relationsval" id="artifact-editor-relations-undo" value="{{$relations}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-relations" id="artifact-editor-relations" 
                 autocomplete="off" maxlength="255" value="{{$relations}}"
                 placeholder="example: NFO;9f1c2" aria-describedby="artifact-editor-relations-help"
@@ -652,7 +658,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div> 
           <div class="col">
             <div class="form-floating">
-              <input type="hidden" name="artifact-editor-websitesval" id="artifact-editor-websites-reset" value="{{$websites}}" readonly>
+              <input type="hidden" name="artifact-editor-websitesval" id="artifact-editor-websites-undo" value="{{$websites}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-websites" id="artifact-editor-websites" 
                 autocomplete="off" maxlength="2048" value="{{$websites}}"
                 placeholder="Website;example.com" aria-describedby="artifact-editor-websites-help"
@@ -678,17 +684,17 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           {{end}}
         </div>
         <div>
-          <button type="button" class="btn btn-link" id="artifact-editor-links-reset"
+          <button type="button" class="btn btn-link" id="artifact-editor-links-undo"
               hx-patch="/editor/links/reset"
+              hx-target="#artifact-editor-link-examples"
               hx-include="[name='artifact-editor-key'],
               [name='artifact-editor-youtubeval'],
               [name='artifact-editor-demozooval'],
               [name='artifact-editor-pouetval'],
               [name='artifact-editor-16colorstval'],
               [name='artifact-editor-relationsval'],
-              [name='artifact-editor-websitesval']"
-              hx-target="#artifact-editor-link-examples">
-              <small class="{{$reverter}}">Revert <u>all</u> links</small>
+              [name='artifact-editor-websitesval']">
+              <small class="{{$reverter}}">Revert <u>all</u> links <em id="artifact-editor-links-quote"></em></small>
           </button>
         </div>
         </form>

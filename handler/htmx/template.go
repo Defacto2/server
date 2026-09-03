@@ -19,13 +19,14 @@ import (
 	"golang.org/x/text/message"
 )
 
-// GlobTo returns the path to the template file.
+// GlobTo returns the path to the named template file.
+// If name is empty, the path to the view/htmx directory is returned.
 func GlobTo(name string) string {
 	const sep = "/"
 	return strings.Join([]string{"view", "htmx", name}, sep)
 }
 
-// Templates returns a map of the templates.
+// Templates returns a map of the htmx templates.
 func Templates(fsys fs.FS) map[string]*template.Template {
 	t := make(map[string]*template.Template)
 	t["searchids"] = ids(fsys)
@@ -71,32 +72,50 @@ func datalistReleasers(fsys fs.FS) *template.Template {
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fsys, patterns...))
 }
 
+func borderClass(name, path string) string {
+	const mark = "border border-primary"
+	if strings.EqualFold(name, path) {
+		return mark
+	}
+	init := lism.String(lism.Path(path))
+	if strings.EqualFold(name, init) {
+		return mark
+	}
+	return "border"
+}
+
+func fmtPath(path string) string {
+	if s := name.String(name.Path(path)); s != "" {
+		return s
+	}
+	return releaser.Humanize(path)
+}
+
+func initialisms(s string) string {
+	return lism.String(lism.Path(s))
+}
+
+func state(isNotDeleted, noDeleterInfo bool) template.HTML {
+	if !isNotDeleted && !noDeleterInfo {
+		const span = `<span title="Removed from public">🚫</span>`
+		return span
+	}
+	if !isNotDeleted && noDeleterInfo {
+		const span = `<span title="Not approved">⛔</span>`
+		return span
+	}
+	return ""
+}
+
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.
 func TemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"borderClass": func(name, path string) string {
-			const mark = "border border-primary"
-			if strings.EqualFold(name, path) {
-				return mark
-			}
-			init := lism.String(lism.Path(path))
-			if strings.EqualFold(name, init) {
-				return mark
-			}
-			return "border"
-		},
-		"byteCount": helper.ByteCount,
-		"byteFileS": app.ByteFileS,
-		"describe":  app.Describe,
-		"fmtPath": func(path string) string {
-			if s := name.String(name.Path(path)); s != "" {
-				return s
-			}
-			return releaser.Humanize(path)
-		},
-		"initialisms": func(s string) string {
-			return lism.String(lism.Path(s))
-		},
+		"borderClass": borderClass,
+		"byteCount":   helper.ByteCount,
+		"byteFileS":   app.ByteFileS,
+		"describe":    app.Describe,
+		"fmtPath":     fmtPath,
+		"initialisms": initialisms,
 		"mark": func(highlight, s string) template.HTML {
 			return template.HTML(app.MarkAll(highlight, s))
 		},
@@ -107,18 +126,8 @@ func TemplateFuncMap() template.FuncMap {
 			return template.HTML(s)
 		},
 		"searchResult": SearchResult,
-		"state": func(isNotDeleted, noDeleterInfo bool) template.HTML {
-			if !isNotDeleted && !noDeleterInfo {
-				const span = `<span title="Removed from public">🚫</span>`
-				return span
-			}
-			if !isNotDeleted && noDeleterInfo {
-				const span = `<span title="Not approved">⛔</span>`
-				return span
-			}
-			return ""
-		},
-		"suggestion": Suggestion,
+		"state":        state,
+		"suggestion":   Suggestion,
 		"tidbits": func(id int) template.HTML {
 			return tidbit.ID(id).URL("")
 		},

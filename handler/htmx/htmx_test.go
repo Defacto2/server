@@ -144,23 +144,18 @@ func TestAlternatives(t *testing.T) {
 func TestSearchReleaser(t *testing.T) {
 	t.Parallel()
 
-	// TODO: this is causing race cond
-	// it might be linked to fulltext.go
-	return
-
 	sl := logs.Discard()
 	db := testutil.DB(t)
 	c := testutil.NewForm(t, "/search/releaser", "htmx-search", "defacto2")
 
 	ft := fulltext.Tidbits{}
 	ft.New()
-	err := htmx.SearchReleaser(sl, c, db, &ft) // this panics with FT
-	be.Err(t, err)
+	got := htmx.SearchReleaser(sl, c, db, &ft)
+	be.Err(t, got, nil)
 }
 
 func TestDataList(t *testing.T) {
 	t.Parallel()
-	return // TODO: this is causing a race condition
 
 	sl := logs.Discard()
 	db := testutil.DB(t)

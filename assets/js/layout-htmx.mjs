@@ -2,7 +2,7 @@
  * @module layout-htmx
  * This module provides beforeRequest and afterRequest handlers to htmx submissions.
  */
-import { searchEvents } from "./layout-htmx-search.mjs";
+import { searchEvents } from './layout-htmx-search.mjs';
 
 export default htmxEvents;
 
@@ -14,7 +14,7 @@ export function htmxEvents() {
 
   searchEvents();
 
-  document.body.addEventListener("htmx:beforeRequest", function (event) {
+  document.body.addEventListener('htmx:beforeRequest', function (event) {
     removeSelectsValid(event, `artifact-editor-classifications-undo`);
     removeSelectsValid(event, `artifact-editor-text-for-dos`);
     removeSelectsValid(event, `artifact-editor-text-for-amiga`);
@@ -34,7 +34,7 @@ export function htmxEvents() {
   });
   // This event is triggered after an AJAX request has finished.
   // https://htmx.org/events/#htmx:afterRequest
-  document.body.addEventListener("htmx:afterRequest", function (event) {
+  document.body.addEventListener('htmx:afterRequest', function (event) {
     // searches.
     afterRequest(event, `search-htmx-input`, `search-htmx-alert`);
     // image uploader.
@@ -83,18 +83,18 @@ export function htmxEvents() {
     afterUpdateRels(event, `artifact-editor-releaser-update`);
     // record title.
     afterUpdate(event, `artifact-editor-title`);
-    afterReset(event, `artifact-editor-title-reset`, `artifact-editor-title`);
+    afterReset(event, `artifact-editor-title-undo`, `artifact-editor-title`);
     // record filename.
     afterUpdate(event, `artifact-editor-filename`);
     afterReset(
       event,
-      `artifact-editor-filename-reset`,
-      `artifact-editor-filename`,
+      `artifact-editor-filename-undo`,
+      `artifact-editor-filename`
     );
     // record virustotal.
     afterUpdate(event, `artifact-editor-virustotal`);
     // record date.
-    afterUpdate(event, `artifact-editor-date-reset`);
+    afterUpdate(event, `artifact-editor-date-undo`);
     afterUpdate(event, `artifact-editor-date-lastmod`);
     afterUpdateDate(event, `artifact-editor-date-update`);
     // record creators.
@@ -108,7 +108,7 @@ export function htmxEvents() {
     afterReset(
       event,
       `artifact-editor-comment-undo`,
-      `artifact-editor-comment`,
+      `artifact-editor-comment`
     );
     // record links.
     afterUpdate(event, `artifact-editor-youtube`);
@@ -118,7 +118,7 @@ export function htmxEvents() {
     afterUpdate(event, `artifact-editor-github`);
     afterUpdate(event, `artifact-editor-relations`);
     afterUpdate(event, `artifact-editor-websites`);
-    afterLinks(event, `artifact-editor-links-reset`);
+    afterLinks(event, `artifact-editor-links-undo`);
   });
 }
 
@@ -126,30 +126,16 @@ function afterLinks(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = "artifact-editor-alert";
+  const alertId = 'artifact-editor-alert';
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
   if (event.detail.successful) {
-    console.log("okay");
-    // updateSuccess(liveAlert, `artifact-editor-links-reset`);
-    // updateSuccess(liveAlert, `artifact-editor-demozoo`);
-    // updateSuccess(liveAlert, `artifact-editor-pouet`);
-    // updateSuccess(liveAlert, `artifact-editor-16colors`);
-    // updateSuccess(liveAlert, `artifact-editor-github`);
-    // updateSuccess(liveAlert, `artifact-editor-relations`);
-    // return updateSuccess(liveAlert, `artifact-editor-websites`);
+    console.log('okay');
   }
   if (event.detail.failed && event.detail.xhr) {
-    console.log("error");
-    // updateError(event, `artifact-editor-links-reset`, liveAlert);
-    // updateError(event, `artifact-editor-demozoo`, liveAlert);
-    // updateError(event, `artifact-editor-pouet`, liveAlert);
-    // updateError(event, `artifact-editor-16colors`, liveAlert);
-    // updateError(event, `artifact-editor-github`, liveAlert);
-    // updateError(event, `artifact-editor-relations`, liveAlert);
-    // return updateError(event, `artifact-editor-websites`, liveAlert);
+    console.log('error');
   }
   errorBrowser(liveAlert);
 }
@@ -158,9 +144,9 @@ function afterCreators(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = "artifact-editor-alert";
+  const alertId = 'artifact-editor-alert';
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
   if (event.detail.successful) {
@@ -182,14 +168,14 @@ function afterUpdateDate(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = "artifact-editor-alert";
+  const alertId = 'artifact-editor-alert';
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
-  const year = "artifact-editor-year";
-  const month = "artifact-editor-month";
-  const day = "artifact-editor-day";
+  const year = 'artifact-editor-year';
+  const month = 'artifact-editor-month';
+  const day = 'artifact-editor-day';
   if (event.detail.successful) {
     updateSuccess(liveAlert, year);
     updateSuccess(liveAlert, month);
@@ -207,14 +193,14 @@ function afterUpdateRels(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = "artifact-editor-alert";
+  const alertId = 'artifact-editor-alert';
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
 
-  const rel1 = "artifact-editor-releaser-1";
-  const rel2 = "artifact-editor-releaser-2";
+  const rel1 = 'artifact-editor-releaser-1';
+  const rel2 = 'artifact-editor-releaser-2';
   if (event.detail.successful) {
     updateSuccess(liveAlert, rel1);
     return updateSuccess(liveAlert, rel2);
@@ -230,27 +216,27 @@ function removeSelectsValid(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const select1Id = "artifact-editor-operating-system";
-  const select2Id = "artifact-editor-category";
+  const select1Id = 'artifact-editor-operating-system';
+  const select2Id = 'artifact-editor-category';
   const elm1 = document.getElementById(select1Id);
-  if (typeof elm1 === "undefined" || elm1 === null) {
+  if (typeof elm1 === 'undefined' || elm1 === null) {
     return;
   }
-  elm1.classList.remove("is-valid");
+  elm1.classList.remove('is-valid');
   const elm2 = document.getElementById(select2Id);
-  if (typeof elm2 === "undefined" || elm2 === null) {
+  if (typeof elm2 === 'undefined' || elm2 === null) {
     return;
   }
-  elm2.classList.remove("is-valid");
+  elm2.classList.remove('is-valid');
 }
 
 function afterUpdate(event, inputId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
-  const alertId = "artifact-editor-alert";
+  const alertId = 'artifact-editor-alert';
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
 
@@ -267,12 +253,12 @@ function afterClassifications(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = "artifact-editor-alert";
-  const select1Id = "artifact-editor-operating-system";
-  const select2Id = "artifact-editor-category";
+  const alertId = 'artifact-editor-alert';
+  const select1Id = 'artifact-editor-operating-system';
+  const select2Id = 'artifact-editor-category';
 
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
 
@@ -291,9 +277,9 @@ function afterReset(event, buttonId, inputId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = "artifact-editor-alert";
+  const alertId = 'artifact-editor-alert';
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
   console.log(`afterReset ${buttonId} ${inputId}`, event.detail);
@@ -310,26 +296,26 @@ function afterReset(event, buttonId, inputId) {
 
 function updateSuccess(alertElm, successId) {
   console.log(`updateSuccess ${successId}`);
-  alertElm.innerText = "";
-  alertElm.classList.add("d-none");
-  if (typeof successId === "undefined" || successId === null) {
+  alertElm.innerText = '';
+  alertElm.classList.add('d-none');
+  if (typeof successId === 'undefined' || successId === null) {
     return;
   }
   const elm = document.getElementById(successId);
-  if (typeof elm === "undefined" || elm === null) {
+  if (typeof elm === 'undefined' || elm === null) {
     return;
   }
-  elm.classList.remove("is-invalid");
-  elm.classList.add("is-valid");
+  elm.classList.remove('is-invalid');
+  elm.classList.add('is-valid');
 }
 
 function updateError(event, inputId, alertElm) {
   const xhr = event.detail.xhr;
   alertElm.innerText = `${timeNow()} Could not update the database record, ${xhr.responseText}.`;
-  alertElm.classList.remove("d-none");
+  alertElm.classList.remove('d-none');
   if (inputId !== null) {
     const inputElm = document.getElementById(inputId);
-    inputElm.classList.remove("is-valid");
+    inputElm.classList.remove('is-valid');
   }
 }
 
@@ -347,9 +333,9 @@ function afterRecord(event, inputId, revertId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
-  const alertId = "artifact-editor-alert";
+  const alertId = 'artifact-editor-alert';
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
 
@@ -369,17 +355,17 @@ function afterRecord(event, inputId, revertId) {
  * @param {HTMLElement} alertElm - The alert element.
  */
 function recordSuccess(event, inputId, alertElm) {
-  alertElm.classList.add("d-none");
-  alertElm.innerText = "";
+  alertElm.classList.add('d-none');
+  alertElm.innerText = '';
   const elm = document.getElementById(`artifact-editor-modal-header`);
   switch (inputId) {
-    case "artifact-editor-hidden":
-      elm.classList.remove("bg-success-subtle");
-      elm.classList.add("bg-danger-subtle");
+    case 'artifact-editor-hidden':
+      elm.classList.remove('bg-success-subtle');
+      elm.classList.add('bg-danger-subtle');
       break;
-    case "artifact-editor-public":
-      elm.classList.add("bg-success-subtle");
-      elm.classList.remove("bg-danger-subtle");
+    case 'artifact-editor-public':
+      elm.classList.add('bg-success-subtle');
+      elm.classList.remove('bg-danger-subtle');
       break;
     default:
       console.error(`The record success ${inputId} is not supported.`);
@@ -395,7 +381,7 @@ function recordSuccess(event, inputId, alertElm) {
 function recordError(event, revertId, alertElm) {
   const xhr = event.detail.xhr;
   alertElm.innerText = `${timeNow()} Could not update the database record, ${xhr.responseText}.`;
-  alertElm.classList.remove("d-none");
+  alertElm.classList.remove('d-none');
   document.getElementById(revertId).checked = true;
 }
 
@@ -404,9 +390,9 @@ function timeNow() {
   let hours = now.getHours();
   let minutes = now.getMinutes();
   let seconds = now.getSeconds();
-  minutes = (minutes < 10 ? "0" : "") + minutes;
-  seconds = (seconds < 10 ? "0" : "") + seconds;
-  return hours + ":" + minutes + ":" + seconds;
+  minutes = (minutes < 10 ? '0' : '') + minutes;
+  seconds = (seconds < 10 ? '0' : '') + seconds;
+  return hours + ':' + minutes + ':' + seconds;
 }
 
 /**
@@ -423,7 +409,7 @@ function afterRequest(event, inputId, alertId) {
   if (event.detail.elt.id !== `${inputId}`) return;
 
   const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === "undefined" || liveAlert === null) {
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
 
@@ -443,20 +429,20 @@ function afterRequest(event, inputId, alertId) {
  * @param {HTMLElement} alertElm - The alert element.
  */
 function successful(event, alertElm) {
-  alertElm.classList.add("d-none");
-  alertElm.innerText = "";
-  const match = "-form",
+  alertElm.classList.add('d-none');
+  alertElm.innerText = '';
+  const match = '-form',
     id = event.target.id;
   const suffix = id.slice(-match.length);
   if (suffix == match) {
-    const select = id.replace(match, "-file");
+    const select = id.replace(match, '-file');
     resetFile(event, `#${select}`);
-    
+
     // Show the results div by removing d-none class
-    const resultsId = id.replace(match, "-results");
+    const resultsId = id.replace(match, '-results');
     const resultsElm = document.getElementById(resultsId);
     if (resultsElm) {
-      resultsElm.classList.remove("d-none");
+      resultsElm.classList.remove('d-none');
     }
   }
 }
@@ -469,8 +455,8 @@ function successful(event, alertElm) {
 function resetFile(event, selector) {
   const input = event.target.querySelector(selector);
   if (input) {
-    input.value = "";
-    input.innerText = "";
+    input.value = '';
+    input.innerText = '';
     return;
   }
   console.error(`The reset file ${selector} element is null`);
@@ -486,9 +472,9 @@ function errorXhr(alertElm, event) {
   const xhr = event.detail.xhr;
   alertElm.innerText = `Our server is not working at the moment.`;
   console.log(
-    `XHR request did not work, ${xhr.status} status: ${xhr.responseText}.`,
+    `XHR request did not work, ${xhr.status} status: ${xhr.responseText}.`
   );
-  alertElm.classList.remove("d-none");
+  alertElm.classList.remove('d-none');
 }
 
 /**
@@ -497,6 +483,6 @@ function errorXhr(alertElm, event) {
  */
 function errorBrowser(alertElm) {
   alertElm.innerText =
-    "Something with the browser is not working, please try again or refresh the page.";
-  alertElm.classList.remove("d-none");
+    'Something with the browser is not working, please try again or refresh the page.';
+  alertElm.classList.remove('d-none');
 }

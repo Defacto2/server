@@ -192,7 +192,7 @@ func CommitStr(c *echo.Context, tx *sql.Tx, name string,
 		return badRequest(c, fmt.Errorf(format, "fn", err))
 	}
 
-	return c.String(http.StatusOK, successSpan)
+	return StatusOK(c, name)
 }
 
 func CommitStrKey(c *echo.Context, tx *sql.Tx, name string,
@@ -215,7 +215,26 @@ func CommitStrKey(c *echo.Context, tx *sql.Tx, name string,
 		return badRequest(c, fmt.Errorf(format, "fn", err))
 	}
 
-	return c.String(http.StatusOK, successSpan)
+	return StatusOK(c, name)
+}
+
+func StatusOK(c *echo.Context, name string) error {
+	const code = http.StatusOK
+	switch name {
+	case
+		"artifact-editor-credits-undo",
+		"artifact-editor-comment-undo",
+		"artifact-editor-date-undo",
+		"artifact-editor-filename-undo",
+		"artifact-editor-title-undo":
+		return c.String(code, " "+checkMark)
+	case
+		"artifact-editor-date-update",
+		"artifact-editor-releasers":
+		return c.String(code, "Save "+checkMark)
+	default:
+		return c.String(code, successSpan)
+	}
 }
 
 func Key(c *echo.Context) (int64, error) {

@@ -331,7 +331,6 @@ const (
 func (match Lookup) releasers(
 	ctx context.Context, exec boil.ContextExecutor, obj *Releasers, limit int, names ...string,
 ) error {
-	boil.DebugMode = false // enable to see the raw SQL queries.
 	const format = "similar releasers: %w"
 	if err := nils.Check(ctx, exec, obj); err != nil {
 		return fmt.Errorf(format, err)

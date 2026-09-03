@@ -60,12 +60,14 @@ func HumanizeCount(sl *slog.Logger, c *echo.Context, db *sql.DB, name string) er
 	if platform == "" {
 		platform = c.FormValue(name + "-operating-system")
 	}
+
 	ctx := c.Request().Context()
 	html, err := form.HumanizeCount(ctx, db, section, platform)
 	if err != nil {
 		sl.Error(msg+" could not create the html template", slog.Any("error", err))
 		return badRequest(c, err)
 	}
+
 	return c.HTML(http.StatusOK, string(html))
 }
 
@@ -165,6 +167,7 @@ func (t Transfer) transfer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
+
 	if err := t.Download.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
@@ -174,10 +177,12 @@ func (t Transfer) transfer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return checkFormFile(sl, c, name, err)
 	}
+
 	src, err := formFile.Open()
 	if err != nil {
 		return checkFileOpen(sl, c, name, err)
 	}
+
 	defer func() {
 		logClose(sl, msg, src)
 	}()
@@ -188,16 +193,19 @@ func (t Transfer) transfer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if _, err := io.CopyBuffer(hasher, src, buf); err != nil {
 		return checkHasher(sl, c, name, err)
 	}
+
 	checksum := hasher.Sum(nil)
 	ctx := c.Request().Context()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, "The database transaction could not begin")
 	}
+
 	exist, err := model.ExistSHA(ctx, tx, checksum)
 	if err != nil {
 		return checkExist(sl, c, err)
 	}
+
 	if exist {
 		return c.HTML(http.StatusOK,
 			"<p>Thanks, but the chosen file already exists on Defacto2.</p>"+
@@ -208,6 +216,7 @@ func (t Transfer) transfer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("copier: %w", err)
 	}
+
 	if dst == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be created")
 	}
@@ -243,8 +252,7 @@ func (t Transfer) transfer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	return success(c, msg, formFile.Filename, id)
 }
 
-func success(c *echo.Context, msg, filename string, id int64,
-) error {
+func success(c *echo.Context, msg, filename string, id int64) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf("%s success: %w", msg, err)
 	}
@@ -410,6 +418,7 @@ func copier(sl *slog.Logger, c *echo.Context, file *multipart.FileHeader, key st
 		logErr("cannot copy to temp file", name, err)
 		return "", c.HTML(code, "The temporary save cannot be written")
 	}
+
 	return dst.Name(), nil
 }
 
@@ -421,8 +430,7 @@ type creator struct {
 	content  []string
 }
 
-func (cr creator) insert(sl *slog.Logger, c *echo.Context, tx *sql.Tx,
-) (int64, uuid.UUID, error) {
+func (cr creator) insert(sl *slog.Logger, c *echo.Context, tx *sql.Tx) (int64, uuid.UUID, error) {
 	const format = "transfer creator insert %s: %w"
 	empty := uuid.UUID{}
 	if err := nils.Check(sl, c, tx, cr.file); err != nil {
@@ -553,6 +561,7 @@ func (prod Submission) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, down
 	sl.Info(msg,
 		slog.String("okay", "the production has been submitted"),
 		slog.String("remote", name), slog.Int("new_id", id))
+
 	return c.String(http.StatusOK, html)
 }
 
@@ -562,11 +571,13 @@ func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 	if err := nils.Check(c); err != nil {
 		return 0, fmt.Errorf(format, err)
 	}
+
 	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
 		return 0, c.String(http.StatusNotAcceptable,
 			"The "+name+" production ID must be a numeric value")
 	}
+
 	var sanity int
 	switch prod {
 	case dz:
@@ -578,6 +589,7 @@ func sanitizeID(c *echo.Context, name, prod string) (int, error) {
 		const format = `The %q production ID is invalid, %d`
 		return 0, c.String(http.StatusNotAcceptable, fmt.Sprintf(format, name, id))
 	}
+
 	return id, nil
 }
 
@@ -704,9 +716,11 @@ func (u Upload) Replacement(sl *slog.Logger, c *echo.Context, db *sql.DB) error 
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
+
 	if err := u.Download.Check(sl); err != nil {
 		return c.HTML(http.StatusInternalServerError, uploader(err))
 	}
+
 	upload := values{unid: "", key: "", platform: "", id: 0}
 	if s := upload.validate(c); s != "" {
 		return c.HTML(http.StatusBadRequest, s)
@@ -717,6 +731,7 @@ func (u Upload) Replacement(sl *slog.Logger, c *echo.Context, db *sql.DB) error 
 	if err != nil {
 		return checkFormFile(sl, c, name, err)
 	}
+
 	src, err := file.Open()
 	if err != nil {
 		return checkFileOpen(sl, c, name, err)

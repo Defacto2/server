@@ -9,6 +9,11 @@ import (
 	"github.com/nalgeon/be"
 )
 
+const (
+	unid = "123e4567-e89b-12d3-a456-426614174000"
+	unv4 = "bb2310e1-93aa-475e-8b88-59eb1fb984a4"
+)
+
 func TestValidate(t *testing.T) {
 	t.Parallel()
 
@@ -66,9 +71,9 @@ func TestPath(t *testing.T) {
 	}{
 		{
 			name:     "valid unid and path",
-			unid:     "123e4567-e89b-12d3-a456-426614174000",
+			unid:     unid,
 			path:     "relative/path",
-			wantUnid: "123e4567-e89b-12d3-a456-426614174000",
+			wantUnid: unid,
 			wantName: "relative/path",
 			wantErr:  false,
 		},
@@ -82,7 +87,7 @@ func TestPath(t *testing.T) {
 		},
 		{
 			name:     "invalid path",
-			unid:     "123e4567-e89b-12d3-a456-426614174000",
+			unid:     unid,
 			path:     "/absolute/path",
 			wantUnid: "",
 			wantName: "",
@@ -107,4 +112,12 @@ func TestPath(t *testing.T) {
 			be.Equal(t, tt.wantName, gotName)
 		})
 	}
+}
+
+func TestUUID(t *testing.T) {
+	t.Parallel()
+
+	c := testutil.NewForm(t, "", "unid", unid)
+	_, err := htmx.UUID(c)
+	be.Err(t, err)
 }
