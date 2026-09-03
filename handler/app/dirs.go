@@ -90,9 +90,13 @@ func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { /
 
 	ctx := c.Request().Context()
 	art, err := ds.oneByKey(ctx, sl, c, db)
-	if ok := art == nil || err != nil; !ok {
+	if art == nil {
+		return fmt.Errorf(format, "", ErrArtifact)
+	}
+	if err != nil {
 		return fmt.Errorf(format, "one by key", err)
 	}
+
 	ds.ID = art.ID
 	ds.UUID = filerecord.UnID(art)
 	ds.Platform = filerecord.TagProgram(art)

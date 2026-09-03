@@ -32,7 +32,6 @@ import (
 
 var (
 	ErrIsDir      = errors.New("htmx: the file is a directory")
-	ErrKey        = errors.New("htmx: numeric record key is invalid")
 	ErrPath       = errors.New("htmx: the file path is invalid")
 	ErrYMD        = errors.New("htmx: invalid ymd format")
 	ErrYouTube    = errors.New("htmx: youtube watch video id needs to be empty or 11 characters")
@@ -288,9 +287,6 @@ func DeleteForever(sl *slog.Logger, c *echo.Context, tx *sql.Tx, recordKey strin
 
 	ctx := c.Request().Context()
 	if err = model.DeleteOne(ctx, tx, key); err != nil {
-		defer func() {
-			rollback(sl, msg, key, tx)
-		}()
 		sl.Error(msg+" database delete one transaction problem", slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"cannot delete the record")
@@ -299,29 +295,9 @@ func DeleteForever(sl *slog.Logger, c *echo.Context, tx *sql.Tx, recordKey strin
 	// INFO: There is no need to delete any leftover file assets from the host system.
 	// As any orphaned file assets will be deleted during the next cleanup job.
 	//
-	if err = tx.Commit(); err != nil {
-		if sl != nil {
-			sl.Error(msg+" database transaction commit failed", slog.Any("error", err))
-		}
-		return c.String(http.StatusServiceUnavailable,
-			"cannot commit the transaction")
-	}
 
 	return c.String(http.StatusOK,
 		"The artifact is gone, and reloading this page will result in a 404 error.")
-}
-
-func rollback(sl *slog.Logger, msg string, key int64, tx *sql.Tx) {
-	if sl == nil {
-		sl = slog.Default()
-	}
-	if tx == nil {
-		sl.Error(msg + " attempted to rollback an empty sql transaction")
-	}
-	if err := tx.Rollback(); err != nil {
-		sl.Error(msg+" delete one, rollback transaction error",
-			slog.Int64("record_id", key), slog.Any("error", err))
-	}
 }
 
 func pings() []string {

@@ -13,9 +13,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
+	"github.com/aarondl/sqlboiler/v4/boil"
 )
 
 var ErrFilename = errors.New("invalid filename")
@@ -37,12 +39,12 @@ func Checkname(name string) error {
 // and the number of existing artifacts. The number of existing artifacts is colored based on
 // the count. If the count is 0, the text is red. If the count is 1, the text is blue. If the
 // count is greater than 1, the text is unmodified.
-func HumanizeCount(ctx context.Context, db *sql.DB, section, platform string) (template.HTML, error) {
+func HumanizeCount(ctx context.Context, exec boil.ContextExecutor, section, platform string) (template.HTML, error) {
 	const format = "form humanize count: %w"
-	if err := nils.Check(ctx, db); err != nil {
+	if err := nils.Check(ctx, exec); err != nil {
 		return "", fmt.Errorf(format, err)
 	}
-	count, tag, err := humanizeCount(ctx, db, section, platform)
+	count, tag, err := humanizeCount(ctx, exec, section, platform)
 	if err != nil {
 		return "", err
 	}
@@ -70,7 +72,7 @@ func HumanizeCountStr(ctx context.Context, db *sql.DB, section, platform string)
 	return fmt.Sprintf("%s, %d existing artifacts", tag, count)
 }
 
-func humanizeCount(ctx context.Context, db *sql.DB, section, platform string) (int64, string, error) {
+func humanizeCount(ctx context.Context, exec boil.ContextExecutor, section, platform string) (int64, string, error) {
 	s := tags.TagByURI(section)
 	p := tags.TagByURI(platform)
 	tag := tags.Humanize(p, s)
@@ -86,12 +88,25 @@ func humanizeCount(ctx context.Context, db *sql.DB, section, platform string) (i
 			return 0, "unknown classification", nil
 		}
 	}
-	count, err := model.CountTags(ctx, db, s, p)
+	count, err := model.CountTags(ctx, exec, s, p)
 	if err != nil {
 		return 0, "cannot count the classification",
 			fmt.Errorf("form humanize and count classification %w", err)
 	}
 	return count, tag, nil
+}
+
+func SanitizeCredit(s string) string {
+	if s == "" {
+		return ""
+	}
+
+	creators := strings.Split(s, ",")
+	for i, credit := range creators {
+		creators[i] = releaser.Clean(credit)
+	}
+
+	return strings.Join(creators, ",")
 }
 
 // SanitizeFilename returns a sanitized version of the filename.
@@ -211,4 +226,11 @@ func ValidVT(link string) bool {
 	// 	return true
 	// }
 	return true
+}
+
+// ValidYouTube returns true when the string is either
+// blank or is 11 characters.
+func ValidYouTube(videoID string) bool {
+	const require = 11
+	return len(videoID) == 0 || len(videoID) == require
 }

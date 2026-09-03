@@ -740,8 +740,8 @@ func (e *entry) parseMusicID3(path string) bool {
 // using magicfile techniques and other metadata.
 func ListContent( //nolint:cyclop,gocognit,funlen
 	ctx context.Context, sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string,
-) template.HTML {
-	if nils.Slog("filerecord list context", ctx, sl) {
+) template.HTML { // TODO: fix order of args
+	if nils.Slog("filerecord list context", ctx, sl, art) {
 		return ""
 	}
 	entries, files, zeroByteFiles := 0, 0, 0

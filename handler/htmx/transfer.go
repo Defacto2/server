@@ -522,10 +522,6 @@ func (prod Submission) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, down
 		logErr(fmt.Sprintf("cannot insert record id %d", id), err)
 		return c.String(http.StatusServiceUnavailable, "error, the database insert failed")
 	}
-	if err := tx.Commit(); err != nil {
-		logErr("database commit failed", err)
-		return c.String(http.StatusServiceUnavailable, "error, the database commit failed")
-	}
 
 	const format = `<div class="text-success">Thanks for the submission of %s production, %d</div>`
 	html := fmt.Sprintf(format, name, id)
@@ -783,9 +779,7 @@ func (u Upload) Replacement(sl *slog.Logger, c *echo.Context, db *sql.DB) error 
 
 	abs := filepath.Join(u.Download.Path(), upload.unid)
 	if _, err = helper.DuplicateOW(dst, abs); err != nil {
-		defer func() {
-			rollback(sl, msg, upload.id, tx)
-		}()
+		// TODO: test the name for a manual rollback
 		return badRequest(c, err)
 	}
 	if err := tx.Commit(); err != nil {

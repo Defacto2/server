@@ -25,6 +25,30 @@ import (
 
 const code = http.StatusMovedPermanently
 
+func BeginTx(c *echo.Context, db *sql.DB, fn func(*sql.Tx) error) (err error) {
+	const format = "router begin tx %s: %w"
+	if err := nils.Check(c, db, fn); err != nil {
+		return fmt.Errorf(format, "check", err)
+	}
+
+	ctx := c.Request().Context()
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(format, "database", err)
+	}
+
+	if err := fn(tx); err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf(format, "exec", err)
+	}
+	if err := tx.Commit(); err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf(format, "commit", err)
+	}
+
+	return nil
+}
+
 // RouteFS defines the file locations and routes for the web server.
 func (serv *Server) RouteFS(sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.FS) (*echo.Echo, error) {
 	const format = "route files %s: %w"
@@ -269,7 +293,7 @@ func (serv *Server) apiv1(sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.FS,
 // mainsite routes for the main site.
 func (serv *Server) mainsite(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dirs) *echo.Echo {
 	const format = "mainsite routes %s: %w"
-	if err := nils.Check(sl, db, e); err != nil {
+	if err := nils.Check(sl, e, db, dirs); err != nil {
 		panic(fmt.Errorf(format, "check", err))
 	}
 

@@ -124,19 +124,29 @@ func creator(g *echo.Group, db *sql.DB) error {
 
 	creator := g.Group("/creator")
 	creator.PATCH("/text", func(c *echo.Context) error {
-		return htmx.RecordCreatorText(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxCreditText(c, tx)
+		})
 	})
 	creator.PATCH("/ill", func(c *echo.Context) error {
-		return htmx.RecordCreatorIll(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxCreditIll(c, tx)
+		})
 	})
 	creator.PATCH("/prog", func(c *echo.Context) error {
-		return htmx.RecordCreatorProg(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxCreditProg(c, tx)
+		})
 	})
 	creator.PATCH("/audio", func(c *echo.Context) error {
-		return htmx.RecordCreatorAudio(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxCreditAudio(c, tx)
+		})
 	})
 	creator.PATCH("/reset", func(c *echo.Context) error {
-		return htmx.RecordCreatorReset(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxCreditUndo(c, tx)
+		})
 	})
 
 	return nil
@@ -149,15 +159,20 @@ func date(g *echo.Group, db *sql.DB) error {
 
 	date := g.Group("/date")
 	date.PATCH("", func(c *echo.Context) error {
-		return htmx.RecordDateIssued(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxYMD(c, tx)
+		})
 	})
 	date.PATCH("/reset", func(c *echo.Context) error {
-		return htmx.RecordDateIssuedReset(c, db, "artifact-editor-date-resetter")
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxYMDUndo(c, tx)
+		})
 	})
 	date.PATCH("/lastmod", func(c *echo.Context) error {
-		return htmx.RecordDateIssuedReset(c, db, "artifact-editor-date-lastmodder")
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxLastMod(c, tx)
+		})
 	})
-
 	return nil
 }
 
@@ -167,12 +182,9 @@ func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error { /
 	}
 
 	g.DELETE("/delete/forever/:key", func(c *echo.Context) error {
-		ctx := c.Request().Context()
-		tx, err := db.BeginTx(ctx, nil)
-		if err != nil {
-			return err
-		}
-		return htmx.DeleteForever(sl, c, tx, c.Param("key"))
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.DeleteForever(sl, c, tx, c.Param("key"))
+		})
 	})
 
 	// these POSTs should only be used for editor, htmx file uploads,
@@ -218,98 +230,152 @@ func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error { /
 
 func editorPatch(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	g.PATCH("/16colors", func(c *echo.Context) error {
-		return htmx.Record16Colors(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.Tx16Colors(c, tx)
+		})
 	})
 	g.PATCH("/classifications", func(c *echo.Context) error {
-		return htmx.RecordClassification(sl, c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxTags(sl, c, tx)
+		})
 	})
 	g.PATCH("/comment", func(c *echo.Context) error {
-		return htmx.RecordComment(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxComment(c, tx)
+		})
 	})
 	g.PATCH("/comment/reset", func(c *echo.Context) error {
-		return htmx.RecordCommentReset(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxCommentUndo(c, tx)
+		})
 	})
 	g.PATCH("/demozoo", func(c *echo.Context) error {
-		return htmx.RecordDemozoo(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxDemozoo(c, tx)
+		})
 	})
 	g.PATCH("/filename", func(c *echo.Context) error {
-		return htmx.RecordFilename(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxFilename(c, tx)
+		})
 	})
 	g.PATCH("/filename/reset", func(c *echo.Context) error {
-		return htmx.RecordFilenameReset(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxFilenameUndo(c, tx)
+		})
 	})
 	g.PATCH("/github", func(c *echo.Context) error {
-		return htmx.RecordGitHub(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxGitHub(c, tx)
+		})
 	})
-	g.PATCH("/links", htmx.RecordLinks)
+	g.PATCH("/links", func(c *echo.Context) error {
+		return htmx.HTMLLinkTo(c, nil)
+	})
 	g.PATCH("/links/reset", func(c *echo.Context) error {
-		return htmx.RecordLinksReset(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxLinksUndo(c, tx)
+		})
 	})
 	g.PATCH("/platform", func(c *echo.Context) error {
 		return app.PlatformEdit(sl, c, db)
 	})
 	g.PATCH("/platform+tag", app.PlatformTagInfo)
 	g.PATCH("/pouet", func(c *echo.Context) error {
-		return htmx.RecordPouet(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxPouet(c, tx)
+		})
 	})
 	g.PATCH("/relations", func(c *echo.Context) error {
-		return htmx.RecordRelations(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxRelations(c, tx)
+		})
 	})
 	g.PATCH("/releasers", func(c *echo.Context) error {
-		return htmx.RecordReleasers(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxReleasers(c, tx)
+		})
 	})
 	g.PATCH("/releasers/reset", func(c *echo.Context) error {
-		return htmx.RecordReleasersReset(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxReleasersUndo(c, tx)
+		})
 	})
 	g.PATCH("/sites", func(c *echo.Context) error {
-		return htmx.RecordSites(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxWebsites(c, tx)
+		})
 	})
 	g.PATCH("/tag", func(c *echo.Context) error {
 		return app.TagEdit(sl, c, db)
 	})
 	g.PATCH("/tag/info", app.TagInfo)
 	g.PATCH("/title", func(c *echo.Context) error {
-		return htmx.RecordTitle(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxTitle(c, tx)
+		})
 	})
 	g.PATCH("/title/reset", func(c *echo.Context) error {
-		return htmx.RecordTitleReset(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxTitleUndo(c, tx)
+		})
 	})
 	g.PATCH("/virustotal", func(c *echo.Context) error {
-		return htmx.RecordVirusTotal(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxVirusTotal(c, tx)
+		})
 	})
 	g.PATCH("/ymd", func(c *echo.Context) error {
 		return app.YMDEdit(c, db)
 	})
 	g.PATCH("/youtube", func(c *echo.Context) error {
-		return htmx.RecordYouTube(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxYouTube(c, tx)
+		})
 	})
 }
 
 func editorEmu(g *echo.Group, db *sql.DB) {
 	emu := g.Group("/emulate")
 	emu.PATCH("/broken/:id", func(c *echo.Context) error {
-		return htmx.RecordEmulateBroken(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxEmulateBroken(c, tx)
+		})
 	})
 	emu.PATCH("/runprogram/:id", func(c *echo.Context) error {
-		return htmx.RecordEmulateRunProgram(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxEmulateRunProg(c, tx)
+		})
 	})
 	emu.PATCH("/machine/:id", func(c *echo.Context) error {
-		return htmx.RecordEmulateMachine(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxEmulateMachine(c, tx)
+		})
 	})
 	emu.PATCH("/cpu/:id", func(c *echo.Context) error {
-		return htmx.RecordEmulateCPU(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxEmulateCPU(c, tx)
+		})
 	})
 	emu.PATCH("/sfx/:id", func(c *echo.Context) error {
-		return htmx.RecordEmulateSFX(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxEmulateSFX(c, tx)
+		})
 	})
 	emu.PATCH("/umb/:id", func(c *echo.Context) error {
-		return htmx.RecordEmulateUMB(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxEmulateUMB(c, tx)
+		})
 	})
 	emu.PATCH("/ems/:id", func(c *echo.Context) error {
-		return htmx.RecordEmulateEMS(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxEmulateEMS(c, tx)
+		})
 	})
 	emu.PATCH("/xms/:id", func(c *echo.Context) error {
-		return htmx.RecordEmulateXMS(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxEmulateXMS(c, tx)
+		})
 	})
 }
 
@@ -317,42 +383,44 @@ func editorReadme(sl *slog.Logger, g *echo.Group, db *sql.DB, paths command.Dirs
 	diz := g.Group("/diz")
 	// /editor/diz/copy
 	diz.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordDizCopier(c, paths)
+		return htmx.FSCopyDIZ(c, paths)
 	})
 	diz.DELETE("/:unid", func(c *echo.Context) error {
-		return htmx.RecordDizDeleter(c, dirs.Extra)
+		return htmx.FSRemoveDIZ(c, dirs.Extra)
 	})
 	// /editor/helper/copy
 	helper := g.Group("/helper")
 	helper.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordHlpCopier(c, paths)
+		return htmx.FSCopyHelp(c, paths)
 	})
 	helper.DELETE("/:unid", func(c *echo.Context) error {
-		return htmx.RecordHlpDeleter(c, dirs.Extra)
+		return htmx.FSRemoveHelp(c, dirs.Extra)
 	})
 
 	readme := g.Group("/readme")
 	readme.PATCH("/disable/:id", func(c *echo.Context) error {
-		return htmx.RecordReadmeDisable(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxReadmeOff(c, tx)
+		})
 	})
 	// /editor/readme/copy
 	readme.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordReadmeCopier(sl, c, paths)
+		return htmx.FSCopyReadme(sl, c, paths)
 	})
 	// /editor/readme/preview
 	readme.PATCH("/preview/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordReadmeImager(sl, c, false, paths)
+		return htmx.FSUseReadme(sl, c, false, paths)
 	})
 	// /editor/readme/preview-amiga
 	readme.PATCH("/preview-amiga/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordReadmeImager(sl, c, true, paths)
+		return htmx.FSUseReadme(sl, c, true, paths)
 	})
 	// /editor/readme/preview-binary
 	readme.PATCH("/preview-binary/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordBinTextImager(sl, c, paths)
+		return htmx.FSUseBinText(sl, c, paths)
 	})
 	readme.DELETE("/:unid", func(c *echo.Context) error {
-		return htmx.RecordReadmeDeleter(c, dirs.Extra)
+		return htmx.FSRemoveReadme(c, dirs.Extra)
 	})
 }
 
@@ -360,60 +428,60 @@ func editorPreview(sl *slog.Logger, g *echo.Group, paths command.Dirs, dirs app.
 	pre := g.Group("/preview")
 	// /editor/preview/copy
 	pre.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordImageCopier(sl, c, paths)
+		return htmx.FSUseImage(sl, c, paths)
 	})
 	pre.PATCH("/crop11/:unid", func(c *echo.Context) error {
-		return htmx.RecordImageCropper(sl, c, command.SquareTop, paths)
+		return htmx.FSCrop(sl, c, command.SquareTop, paths)
 	})
 	pre.PATCH("/crop43/:unid", func(c *echo.Context) error {
-		return htmx.RecordImageCropper(sl, c, command.FourThree, paths)
+		return htmx.FSCrop(sl, c, command.FourThree, paths)
 	})
 	pre.PATCH("/crop12/:unid", func(c *echo.Context) error {
-		return htmx.RecordImageCropper(sl, c, command.OneTwo, paths)
+		return htmx.FSCrop(sl, c, command.OneTwo, paths)
 	})
 	pre.PATCH("/remove/:unid", func(c *echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dirs.Preview)
+		return htmx.FSRemoveImages(c, dirs.Preview)
 	})
 }
 
 func editorThumb(sl *slog.Logger, g *echo.Group, paths command.Dirs, dirs app.Dirs) {
 	thumb := g.Group("/thumbnail")
 	thumb.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
-		return htmx.RecordImageCopier(sl, c, paths)
+		return htmx.FSUseImage(sl, c, paths)
 	})
 	thumb.PATCH("/top/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(sl, c, command.Top, paths)
+		return htmx.FSAlign(sl, c, command.Top, paths)
 	})
 	thumb.PATCH("/middle/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(sl, c, command.Middle, paths)
+		return htmx.FSAlign(sl, c, command.Middle, paths)
 	})
 	thumb.PATCH("/bottom/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(sl, c, command.Bottom, paths)
+		return htmx.FSAlign(sl, c, command.Bottom, paths)
 	})
 	thumb.PATCH("/left/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(sl, c, command.Left, paths)
+		return htmx.FSAlign(sl, c, command.Left, paths)
 	})
 	thumb.PATCH("/right/:unid", func(c *echo.Context) error {
-		return htmx.RecordThumbAlignment(sl, c, command.Right, paths)
+		return htmx.FSAlign(sl, c, command.Right, paths)
 	})
 	thumb.PATCH("/pixel/:unid", func(c *echo.Context) error { //nolint:contextcheck
-		return htmx.RecordThumb(sl, c, command.Pixel, paths)
+		return htmx.FSThumb(sl, c, command.Pixel, paths)
 	})
 	thumb.PATCH("/photo/:unid", func(c *echo.Context) error { //nolint:contextcheck
-		return htmx.RecordThumb(sl, c, command.Photo, paths)
+		return htmx.FSThumb(sl, c, command.Photo, paths)
 	})
 	thumb.PATCH("/remove/:unid", func(c *echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dirs.Thumbnail)
+		return htmx.FSRemoveImages(c, dirs.Thumbnail)
 	})
 }
 
 func editorImgs(sl *slog.Logger, g *echo.Group, dirs app.Dirs) {
 	imgs := g.Group("/images")
 	imgs.PATCH("/pixelate/:unid", func(c *echo.Context) error { //nolint:contextcheck
-		return htmx.RecordImagePixelator(sl, c, dirs.Preview, dirs.Thumbnail)
+		return htmx.FSPixelate(sl, c, dirs.Preview, dirs.Thumbnail)
 	})
 	imgs.PATCH("/remove/:unid", func(c *echo.Context) error {
-		return htmx.RecordImagesDeleter(c, dirs.Preview, dirs.Thumbnail)
+		return htmx.FSRemoveImages(c, dirs.Preview, dirs.Thumbnail)
 	})
 }
 
@@ -428,12 +496,9 @@ func get(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error {
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(c *echo.Context) error {
-			ctx := c.Request().Context()
-			tx, err := db.BeginTx(ctx, nil)
-			if err != nil {
-				return err
-			}
-			return app.GetDemozooParam(sl, c, tx, dirs.Download)
+			return BeginTx(c, db, func(tx *sql.Tx) error {
+				return app.GetDemozooParam(sl, c, tx, dirs.Download)
+			})
 		})
 	g.GET("/for-approval",
 		func(c *echo.Context) error {
@@ -454,13 +519,19 @@ func online(g *echo.Group, db *sql.DB) error {
 
 	online := g.Group("/online")
 	online.PATCH("/true", func(c *echo.Context) error {
-		return htmx.RecordToggle(c, db, true)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxPublic(c, tx, true)
+		})
 	})
 	online.PATCH("/false", func(c *echo.Context) error {
-		return htmx.RecordToggle(c, db, false)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxPublic(c, tx, false)
+		})
 	})
 	online.GET("/true/:id", func(c *echo.Context) error {
-		return htmx.RecordToggleByID(c, db, c.Param("id"), true)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return htmx.TxPublicByKey(c, tx, c.Param("id"), true)
+		})
 	})
 
 	return nil

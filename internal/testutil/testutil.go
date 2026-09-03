@@ -102,11 +102,14 @@ func Tx(tb testing.TB) *sql.Tx {
 
 // Echo package helpers
 
-// EchoContextS returns an echo response using http request using the target url and http status.
+// EchoStatus returns an echo response using http request using the target url and http status.
 //
 // The echo.Echo can be provided using [echo.New].
-func EchoContextS(tb testing.TB, e *echo.Echo, target string, status int) *echo.Context {
+func EchoStatus(tb testing.TB, e *echo.Echo, target string, status int) *echo.Context {
 	tb.Helper()
+	if target == "" {
+		target = "/" // NOTE: target cannot be empty or a race condition may occur.
+	}
 
 	req := httptest.NewRequest(http.MethodGet, target, nil)
 	rec := httptest.NewRecorder()
@@ -117,8 +120,15 @@ func EchoContextS(tb testing.TB, e *echo.Echo, target string, status int) *echo.
 	return c
 }
 
+// EchoContext returns an echo response using the target url.
+// If no target is provided, it is set to root "/".
+//
+// The echo.Echo can be provided using [echo.New].
 func EchoContext(tb testing.TB, e *echo.Echo, target string) *echo.Context {
 	tb.Helper()
+	if target == "" {
+		target = "/"
+	}
 
 	req := httptest.NewRequest(http.MethodGet, target, nil)
 	rec := httptest.NewRecorder()
@@ -126,20 +136,31 @@ func EchoContext(tb testing.TB, e *echo.Echo, target string) *echo.Context {
 	return e.NewContext(req, rec)
 }
 
+// NewContext creates a new instance of Echo and returns a response using the target url.
+// If no target is provided, it is set to root "/".
 func NewContext(tb testing.TB, target string) *echo.Context {
 	tb.Helper()
+	if target == "" {
+		target = "/"
+	}
 
 	e := echo.New()
 	return EchoContext(tb, e, target)
 }
 
+// NewForm creates a new instance of Echo and returns a response using the target url.
+// It sets the key and value that are mapped as both query paramaters and form values.
+// If no target is provided, it is set to root "/".
 func NewForm(tb testing.TB, target, key, value string) *echo.Context {
 	tb.Helper()
+	if target == "" {
+		target = "/"
+	}
 
 	form := url.Values{}
 	form.Set(key, value)
 
-	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	req := httptest.NewRequest(http.MethodPost, target, strings.NewReader(form.Encode()))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	rec := httptest.NewRecorder()

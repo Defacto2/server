@@ -33,7 +33,7 @@ func TestSkipPaths(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		c := testutil.EchoContextS(t, e, tt.target, tt.status)
+		c := testutil.EchoStatus(t, e, tt.target, tt.status)
 		got := handler.SkipPaths(c)
 		be.Equal(t, got, tt.want)
 	}

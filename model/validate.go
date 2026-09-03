@@ -60,7 +60,11 @@ func Validate(art *models.File) error {
 		err = errors.Join(err, fmt.Errorf("%w,", ErrBadMag))
 	}
 
-	return fmt.Errorf(format, err)
+	if ok := err == nil; !ok {
+		return fmt.Errorf(format, err)
+	}
+
+	return nil
 }
 
 // ValidDateIssue returns a valid year, month and day or a null value.

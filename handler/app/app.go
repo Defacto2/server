@@ -42,6 +42,7 @@ const (
 )
 
 var (
+	ErrArtifact = errors.New("app: artifact response is nil")
 	ErrClaims   = errors.New("no sub id in the claims payload")
 	ErrCorrupt  = errors.New("cache data is invalid or corrupt")
 	ErrDownload = errors.New("cannot stat the downloaded file")

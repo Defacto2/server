@@ -57,7 +57,7 @@ type Text struct {
 //
 // If there are no source text files found,
 // or if the found data of the source files is unusable,
-// then the returned buffers and error value will all be nil.
+// then the returned buffers will be empty.
 //
 // Errors are generally logged instead of returned, except with some critical issues.
 // This is to allow the continued rendering of text,
@@ -73,7 +73,8 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	runeBuf := new(bytes.Buffer)
 	descBuf := new(bytes.Buffer)
 	helpBuf := new(bytes.Buffer)
-	unused := new(bytes.Buffer) // to avoid panics, use instead of returning a nil
+	// WARN: always use unused instead of returning nil for either textBuf or runeBuf
+	unused := new(bytes.Buffer)
 
 	defer func() {
 		descBuf.Reset()
@@ -96,7 +97,7 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 			err = errors.Join(err, uErr)
 		}
 		t.Error(sl, err)
-		return nil, nil, nil
+		return unused, unused, nil
 	}
 
 	// Check the textBuf to confirm it doesn't contain unusable text or image data.
@@ -108,7 +109,7 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		t.Sign = find
 		textBuf.Reset()
 		runeBuf.Reset()
-		return nil, nil, nil
+		return unused, unused, nil
 	}
 
 	t.handleSAUCE(textBuf)
@@ -121,7 +122,7 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		sl.Info("readme will render the buffer as ansi encoded")
 		buf, err := t.handleANSI(textBuf)
 		if err != nil {
-			return nil, nil, err
+			return unused, unused, err
 		}
 		return buf, unused, nil
 	}
@@ -135,7 +136,7 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		sl.Info("readme will render the buffer as binary text")
 		buf, err := t.handleBIN(textBuf)
 		if err != nil {
-			return nil, nil, err
+			return unused, unused, err
 		}
 		return buf, unused, nil
 	}
