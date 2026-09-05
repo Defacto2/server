@@ -54,10 +54,7 @@ func TestSubmit(t *testing.T) {
 	tx := testutil.Tx(t)
 	c := testutil.NewContext(t, "/uploader/advanced")
 
-	wd, err := os.Getwd()
-	download := dir.Directory(wd)
-	be.Err(t, err, nil)
-
+	download := dir.Directory(t.TempDir())
 	err = htmx.UPAdvanced(sl, c, tx, download)
 	be.Err(t, err, nil)
 
@@ -88,11 +85,9 @@ func TestSubmitImage(t *testing.T) {
 	be.Err(t, err)
 
 	c := testutil.NewContext(t, "/upload/preview")
-	wd, err := os.Getwd()
-	be.Err(t, err, nil)
-
-	u.Preview = dir.Directory(wd)
-	u.Thumbnail = dir.Directory(wd)
+	tmp := t.TempDir()
+	u.Preview = dir.Directory(tmp)
+	u.Thumbnail = dir.Directory(tmp)
 	err = u.Image(sl, c)
 	be.Err(t, err, nil)
 
@@ -114,14 +109,13 @@ func TestSubmitReplacement(t *testing.T) {
 	sl := logs.Discard()
 	u := htmx.Submit{}
 
-	wd, err := os.Getwd()
-	be.Err(t, err, nil)
-	u.Download = dir.Directory(wd)
-	u.Preview = dir.Directory(wd)
-	u.Thumbnail = dir.Directory(wd)
+	tmp := t.TempDir()
+	u.Download = dir.Directory(tmp)
+	u.Preview = dir.Directory(tmp)
+	u.Thumbnail = dir.Directory(tmp)
 
 	c := testutil.NewContext(t, "/upload/file")
-	err = u.Image(sl, c)
+	err := u.Image(sl, c)
 	be.Err(t, err, nil)
 
 	const unid = "5c735996-dca8-4a93-9737-43b576ffe366"

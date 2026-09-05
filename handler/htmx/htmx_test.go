@@ -2,7 +2,7 @@ package htmx_test
 
 // These tests are mostly for nil checks to ensure the server doesn't panic.
 
-// checked in Sep 26, test coverage was poor at under 10%
+// checked in Sep 26, test coverage was great at under 70%
 
 import (
 	"embed"
