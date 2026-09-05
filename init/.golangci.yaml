@@ -2,24 +2,24 @@ version: '2'
 linters:
   default: all
   disable:
+    # conflicts
     - contextcheck # conflicts with echo patterns
-    - exhaustruct # retired
-    - gomodguard # redundant
-    - gomoddirectives # required at the moment (see go.mod)
     - depguard # too complex to maintain with this app
+    - gomoddirectives # required at the moment (see go.mod)
     - paralleltest # breaks some tests
+    # retired
+    - exhaustruct
+    - gomodguard
     # the linters below are unwanted
     - nlreturn
     - noinlineerr
     - varnamelen
     - wsl
     - wsl_v5
-    - dupl # temp
+    - dupl # FIX: temp
     - godox # FIX: remove
     - funlen # FIX: remove
   settings:
-    sloglint:
-      attr-only: true
     cyclop:
       max-complexity: 20
     funlen:
@@ -33,12 +33,8 @@ linters:
       locale: US
       ignore-rules:
         - Teh
-    mnd:
-      ignored-files:
-        - interview.go
-        - janeway.go
-        - milestone.go
-        - zoo.go
+    sloglint:
+      attr-only: true
     wrapcheck:
       ignore-sigs:
         - .Errorf(
@@ -93,27 +89,6 @@ linters:
           - tagliatelle
           - wrapcheck
         path: _test\.go$
-      # BELOW EXCLUSIONS ARE ALL REQUIRED
-      - linters:
-          - lll
-        path: doc.go
-      - linters:
-          - revive
-        path: handler/app/dirs.go
-      - linters:
-          - exhaustruct_v5
-          - lll
-        path: handler/app/milestone.go
-      - linters:
-          - lll
-        path: handler/jsdos/jsdos.go
-      - linters:
-          - lll
-          - tagalign
-        path: internal/config/config.go
-      - linters:
-          - ireturn
-        path: model/querymod/querymod.go
     paths:
       - third_party$
       - builtin$

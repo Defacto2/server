@@ -1,3 +1,4 @@
+//nolint:exhaustruct_v5,funlen,lll,maintidx,mnd
 package app
 
 // Package file milestone.go contains the listings of the milestone page.
@@ -57,7 +58,7 @@ func (m Milestones) Len() int {
 }
 
 // Collection of Milestones from the 1970s onwards.
-func Collection() Milestones { //nolint:funlen,maintidx
+func Collection() Milestones {
 	m := []Milestone{
 		{
 			Year: 1971, Month: 10, Title: "Secrets of the Little Blue Box", Highlight: true,

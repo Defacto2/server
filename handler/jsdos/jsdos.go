@@ -1,4 +1,6 @@
 // Package jsdos configures the js-dos v6.22 emulator.
+//
+//nolint:lll
 package jsdos
 
 import (

@@ -8,6 +8,8 @@
 //
 // [production records]: https://demozoo.org/api/v1/productions/
 // [Demozoo]: https://demozoo.org
+//
+//nolint:gochecknoglobals,mnd,tagliatelle
 package demozoo
 
 import (
@@ -50,7 +52,6 @@ const (
 	uart  = "ultimate-association-of-reckless-talent"
 )
 
-//nolint:gochecknoglobals
 var groups = Groups{
 	"rad-boys":                              158086,
 	"the-drunks":                            158096,
@@ -764,7 +765,7 @@ type Production struct {
 	// Title is the production title.
 	Title string `json:"title"`
 	// ReleaseDate is the production release date.
-	ReleaseDate string `json:"release_date"` //nolint:tagliatelle
+	ReleaseDate string `json:"release_date"`
 	// Supertype is the production type.
 	Supertype string `json:"supertype"`
 	// Authors
@@ -772,9 +773,9 @@ type Production struct {
 		Name     string `json:"name"`
 		Releaser struct {
 			Name    string `json:"name"`
-			IsGroup bool   `json:"is_group"` //nolint:tagliatelle
+			IsGroup bool   `json:"is_group"`
 		} `json:"releaser"`
-	} `json:"author_nicks"` //nolint:tagliatelle
+	} `json:"author_nicks"`
 	// Platforms is the production platform.
 	Platforms []struct {
 		Name string `json:"name"`
@@ -795,20 +796,20 @@ type Production struct {
 				URL     string `json:"url"`
 				Name    string `json:"name"`
 				ID      int    `json:"id"`
-				IsGroup bool   `json:"is_group"` //nolint:tagliatelle
+				IsGroup bool   `json:"is_group"`
 			} `json:"releaser"`
 		} `json:"nick"`
 	} `json:"credits"`
 	// Download links to the remotely hosted files.
 	DownloadLinks []struct {
-		LinkClass string `json:"link_class"` //nolint:tagliatelle
+		LinkClass string `json:"link_class"`
 		URL       string `json:"url"`
-	} `json:"download_links"` //nolint:tagliatelle
+	} `json:"download_links"`
 	// ExternalLinks links to the remotely hosted files.
 	ExternalLinks []struct {
-		LinkClass string `json:"link_class"` //nolint:tagliatelle
+		LinkClass string `json:"link_class"`
 		URL       string `json:"url"`
-	} `json:"external_links"` //nolint:tagliatelle
+	} `json:"external_links"`
 	// ID is the production ID.
 	ID int `json:"id"`
 }

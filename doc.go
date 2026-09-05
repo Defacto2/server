@@ -208,4 +208,5 @@ An example configuration to exclusively use HTTPS and only accept local connecti
 // ["sub"]: https://developers.google.com/identity/account-linking/oauth-with-sign-in-linking#validate_and_decode_the_jwt_assertion
 // [X-Robots-Tag]: https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag
 // [systemd]: https://systemd.io/
+//nolint:lll
 package main

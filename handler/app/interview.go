@@ -1,3 +1,4 @@
+//nolint:funlen,mnd
 package app
 
 // Package file interview.go contains the functions for the interview page.
@@ -26,7 +27,7 @@ type Interviewee struct {
 
 // Interviewees returns a list of interviewees and their interviews.
 // These are categorized by the group they were in at the time of the interview.
-func Interviewees() Groups { //nolint:funlen
+func Interviewees() Groups {
 	i := Groups{
 		{
 			Name: "EMPRESS",

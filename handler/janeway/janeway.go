@@ -1,5 +1,7 @@
 // Package janeway provides data about releasers and groups from the Janeway Amiga Scene [website].
 // [website]: https://janeway.exotica.org.uk/
+//
+//nolint:gochecknoglobals,mnd
 package janeway
 
 // URI is the URL slug of the releaser.
@@ -11,7 +13,6 @@ type GroupID int
 // Groups is a map of releasers URIs mapped to their janeway author/group id.
 type Groups map[string]GroupID
 
-//nolint:gochecknoglobals
 var groups = Groups{
 	"abandon":                          2327,
 	"accumulators":                     5964,

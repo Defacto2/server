@@ -1,4 +1,6 @@
 // Package querymod provides the query mod expressions for the file database.
+//
+//nolint:ireturn
 package querymod
 
 import (
