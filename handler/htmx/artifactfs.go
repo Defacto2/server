@@ -54,20 +54,19 @@ func (cp Copy) MkCopy(c *echo.Context, dirs command.Dirs) error {
 		return fmt.Errorf(format, err)
 	}
 
-	unid, name, err := Path(c)
+	unid, fname, err := Paths(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 
-	// FIX: logic ?
-	// I believe originally the temp directory was fixed based on the unid?
-	tmp, err := dir.MkdirTemp(unid)
+	// NOTE: this was refactored, previously it used randomized dir.MkdirTemp
+	tmp, err := dir.MkdirStale(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}
 
-	name = filepath.Clean(name)
-	src := filepath.Join(tmp, name)
+	fname = filepath.Clean(fname)
+	src := filepath.Join(tmp, fname)
 	st, err := os.Stat(src)
 	if err != nil {
 		return badRequest(c, err)
@@ -107,12 +106,13 @@ func FSCopyReadme(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 		return fmt.Errorf(format, err)
 	}
 
-	unid, name, err := Path(c)
+	unid, name, err := Paths(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 
-	tmp, err := dir.MkdirTemp(unid)
+	// NOTE: this was refactored, previously it used randomized dir.MkdirTemp
+	tmp, err := dir.MkdirStale(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -354,12 +354,12 @@ func FSUseReadme(sl *slog.Logger, c *echo.Context, amigaFont bool, dirs command.
 		return fmt.Errorf(format, err)
 	}
 
-	unid, name, err := Path(c)
+	unid, name, err := Paths(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 
-	tmp, err := dir.MkdirTemp(unid)
+	tmp, err := dir.MkdirStale(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}
@@ -420,13 +420,13 @@ func (fp useProcess) process(sl *slog.Logger, c *echo.Context,
 		return fmt.Errorf("%s: %w", fp.format, err)
 	}
 
-	unid, name, err := Path(c)
+	unid, name, err := Paths(c)
 	if err != nil {
 		return badRequest(c, err)
 	}
 
 	name = filepath.Clean(name)
-	tmp, err := dir.MkdirTemp(unid)
+	tmp, err := dir.MkdirStale(unid)
 	if err != nil {
 		return badRequest(c, err)
 	}

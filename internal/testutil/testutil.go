@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"embed"
 	"errors"
 	"io/fs"
 	"log/slog"
@@ -32,10 +33,16 @@ import (
 // INFO:Check test durability, run:
 // go test . -count=1000 -race -cover
 
+//go:embed testdata/*
+var testdata embed.FS
+
 // Helper values
 
 const (
-	YT = "3V8rpJDpbKg" // YTID is an example YouTube video ID
+	YT        = "3V8rpJDpbKg"                          // YTID is an example YouTube video ID
+	UID       = "123e4567-e89b-12d3-a456-426614174000" // UUID is a generic Universal Unique ID
+	UID4      = "bb2310e1-93aa-475e-8b88-59eb1fb984a4" // UID4 is a UUID version 4
+	SCREENPNG = 328_468                                // SCREENPNG is the byte file size of testdata/SCREEN.PNG
 )
 
 // PostgreSQL database helpers
@@ -440,4 +447,31 @@ func (l *Logger) Contains(substr string) bool {
 	l.tb.Helper()
 
 	return strings.Contains(l.buf.String(), substr)
+}
+
+// Testdata
+
+func CopyPNG(tb testing.TB, dest string) {
+	tb.Helper()
+
+	copyembed(tb, dest, "SCREEN.PNG")
+}
+
+func CopyTXT(tb testing.TB, dest string) {
+	tb.Helper()
+
+	copyembed(tb, dest, "LOGO.TXT")
+}
+
+func copyembed(tb testing.TB, dest, name string) {
+	tb.Helper()
+
+	data, err := testdata.ReadFile("testdata/" + name)
+	if err != nil {
+		tb.Fatal(err)
+	}
+	err = os.WriteFile(dest, data, 0o600)
+	if err != nil {
+		tb.Fatal(err)
+	}
 }

@@ -1,18 +1,23 @@
 package htmx_test
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/htmx"
+	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/testutil"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
 const (
-	unid = "123e4567-e89b-12d3-a456-426614174000"
-	unv4 = "bb2310e1-93aa-475e-8b88-59eb1fb984a4"
+	unid = testutil.UID
 )
 
 func TestValidate(t *testing.T) {
@@ -24,29 +29,19 @@ func TestValidate(t *testing.T) {
 		want error
 	}{
 		{
-			name: "absolute path",
-			path: "/absolute/path",
-			want: htmx.ErrPath,
+			name: "absolute path", path: "/absolute/path", want: htmx.ErrPath,
 		},
 		{
-			name: "clean path",
-			path: "relative/path",
-			want: nil,
+			name: "clean path", path: "relative/path", want: nil,
 		},
 		{
-			name: "clean path",
-			path: "relative/path/",
-			want: nil,
+			name: "clean path", path: "relative/path/", want: nil,
 		},
 		{
-			name: "unclean path 1",
-			path: "relative/../path",
-			want: htmx.ErrPath,
+			name: "unclean path 1", path: "relative/../path", want: htmx.ErrPath,
 		},
 		{
-			name: "unclean path 2",
-			path: "./relative/path",
-			want: htmx.ErrPath,
+			name: "unclean path 2", path: "./relative/path", want: htmx.ErrPath,
 		},
 	}
 
@@ -62,6 +57,7 @@ func TestValidate(t *testing.T) {
 
 func TestPath(t *testing.T) {
 	t.Parallel()
+
 	tests := []struct {
 		name     string
 		unid     string
@@ -106,7 +102,7 @@ func TestPath(t *testing.T) {
 				{Name: "path", Value: tt.path},
 			})
 
-			gotUnid, gotName, err := htmx.Path(c)
+			gotUnid, gotName, err := htmx.Paths(c)
 			got := (err != nil)
 			be.Equal(t, got, tt.wantErr)
 			be.Equal(t, tt.wantUnid, gotUnid)
@@ -220,7 +216,7 @@ func TestHTMLLinkTo(t *testing.T) {
 	const prefix = "artifact-editor-"
 	formInputs := testutil.Input{
 		htmx.EditorKey:     "1",
-		prefix + "youtube": "abcdefghijk", // FIX: create a global in testutil
+		prefix + "youtube": testutil.YT,
 	}
 	c := testutil.NewInputs(t, "", formInputs)
 	got := htmx.HTMLLinkTo(c, nil)
@@ -235,7 +231,7 @@ func TestLinksUndo(t *testing.T) {
 	const prefix = "artifact-editor-"
 	formInputs := testutil.Input{
 		htmx.EditorKey:        "1",
-		prefix + "youtubeval": "abcdefghijk",
+		prefix + "youtubeval": testutil.YT,
 	}
 	c := testutil.NewInputs(t, "", formInputs)
 	got := htmx.TxLinksUndo(c, tx)
@@ -378,4 +374,210 @@ func TestCopy(t *testing.T) {
 	be.Equal(t, fid.Ext(), ".diz")
 	be.Equal(t, txt.Ext(), ".txt")
 	be.Equal(t, hlp.Ext(), ".hlp")
+	be.Equal(t, fid.String(), "DIZ")
+}
+
+func TestMkCopy(t *testing.T) {
+	t.Parallel()
+	// example params: htmx/copy/:unid/:path
+
+	const (
+		fname = "filename.txt"
+	)
+	tmp := t.TempDir()
+
+	pathValues := echo.PathValues{
+		{Name: "unid", Value: unid},
+		{Name: "path", Value: fname},
+	}
+
+	cp := htmx.FileID
+	dirs := command.Dirs{
+		Extra: dir.Directory(tmp),
+	}
+	c := testutil.NewPath(t, "", pathValues)
+	got := cp.MkCopy(c, dirs)
+	be.Err(t, got, nil)
+
+	// mkcopy will exit early without a valid file with content to stat
+	stale, err := dir.MkdirStale(unid)
+	be.Err(t, err, nil)
+
+	r, err := os.OpenRoot(stale)
+	be.Err(t, err, nil)
+
+	b := []byte("hello world")
+	n, err := helper.TouchWR(r, fname, b...)
+	be.Err(t, err, nil)
+	be.Equal(t, n, len(b))
+
+	got = cp.MkCopy(c, dirs)
+	be.Err(t, got, nil)
+
+	t.Cleanup(func() {
+		r, err := os.OpenRoot(os.TempDir())
+		if err != nil {
+			t.Log(err)
+			return
+		}
+		if err = r.RemoveAll(filepath.Base(stale)); err != nil {
+			t.Log(err)
+		}
+	})
+}
+
+func TestFSCopyReadme(t *testing.T) {
+	t.Parallel()
+
+	const (
+		fname = "readme.txt"
+	)
+	tmp := t.TempDir()
+
+	pathValues := echo.PathValues{
+		{Name: "unid", Value: unid},
+		{Name: "path", Value: fname},
+	}
+
+	sl := logs.Discard()
+	dirs := command.Dirs{
+		Extra:     dir.Directory(tmp),
+		Preview:   dir.Directory(tmp),
+		Thumbnail: dir.Directory(tmp),
+	}
+	c := testutil.NewPath(t, "", pathValues)
+
+	stale, err := dir.MkdirStale(unid)
+	be.Err(t, err, nil)
+
+	r, err := os.OpenRoot(stale)
+	be.Err(t, err, nil)
+
+	b := []byte("hello world")
+	n, err := helper.TouchWR(r, fname, b...)
+	be.Err(t, err, nil)
+	be.Equal(t, n, len(b))
+
+	got := htmx.FSCopyReadme(sl, c, dirs)
+	be.Err(t, got, nil)
+
+	t.Cleanup(func() {
+		r, err := os.OpenRoot(os.TempDir())
+		if err != nil {
+			t.Log(err)
+			return
+		}
+		if err = r.RemoveAll(filepath.Base(stale)); err != nil {
+			t.Log(err)
+		}
+	})
+}
+
+func TestFSImageManipulation(t *testing.T) {
+	t.Parallel()
+
+	pathValues := echo.PathValues{
+		{Name: "unid", Value: unid},
+	}
+
+	tmp := t.TempDir()
+	sl := logs.Discard()
+	dirs := command.Dirs{
+		Extra:     dir.Directory(tmp),
+		Preview:   dir.Directory(tmp),
+		Thumbnail: dir.Directory(tmp),
+	}
+
+	dest := filepath.Join(tmp, unid+".png")
+	testutil.CopyPNG(t, dest)
+	st, err := os.Stat(dest)
+	be.Err(t, err, nil)
+	be.Equal(t, st.Size(), testutil.SCREENPNG)
+
+	c := testutil.NewPath(t, "", pathValues)
+	crop := command.OneTwo
+	got := htmx.FSCrop(sl, c, crop, dirs)
+	be.Err(t, got, nil)
+
+	c = testutil.NewPath(t, "", pathValues)
+	align := command.Left
+	got = htmx.FSAlign(sl, c, align, dirs)
+	be.Err(t, got, nil)
+
+	c = testutil.NewPath(t, "", pathValues)
+	thumb := command.Pixel
+	got = htmx.FSThumb(sl, c, thumb, dirs)
+	be.Err(t, got, nil)
+
+	got = htmx.FSPixelate(sl, c, dirs.Preview)
+	be.Err(t, got, nil)
+
+	got = htmx.FSRemoveImages(c, dirs.Preview)
+	be.Err(t, got, nil)
+}
+
+func TestFSUseReadme(t *testing.T) {
+	t.Parallel()
+
+	unid := uuid.New().String() // need an actual unique value
+
+	pathValues := echo.PathValues{
+		{Name: "unid", Value: unid},
+		{Name: "path", Value: "LOGO.TXT"},
+	}
+
+	tmp := t.TempDir()
+	sl := logs.Discard()
+	dirs := command.Dirs{
+		Extra:     dir.Directory(tmp),
+		Preview:   dir.Directory(tmp),
+		Thumbnail: dir.Directory(tmp),
+	}
+
+	stale, err := dir.MkdirStale(unid)
+	be.Err(t, err, nil)
+
+	dest := filepath.Join(stale, "LOGO.TXT")
+	testutil.CopyTXT(t, dest)
+
+	st, err := os.Stat(dest)
+	be.Err(t, err, nil)
+	be.True(t, st.Size() > 0)
+
+	c := testutil.NewPath(t, "", pathValues)
+	got := htmx.FSUseReadme(sl, c, false, dirs)
+	be.Err(t, got, nil)
+}
+
+func TestFSUseImage(t *testing.T) {
+	t.Parallel()
+
+	unid := uuid.New().String() // need an actual unique valid
+
+	pathValues := echo.PathValues{
+		{Name: "unid", Value: unid},
+		{Name: "path", Value: "SCREEN.PNG"},
+	}
+
+	tmp := t.TempDir()
+	sl := logs.Discard()
+	dirs := command.Dirs{
+		Extra:     dir.Directory(tmp),
+		Preview:   dir.Directory(tmp),
+		Thumbnail: dir.Directory(tmp),
+	}
+
+	stale, err := dir.MkdirStale(unid)
+	be.Err(t, err, nil)
+
+	dest := filepath.Join(stale, "SCREEN.PNG")
+	testutil.CopyPNG(t, dest)
+
+	st, err := os.Stat(dest)
+	be.Err(t, err, nil)
+	be.True(t, st.Size() > 0)
+
+	c := testutil.NewPath(t, "", pathValues)
+	got := htmx.FSUseImage(sl, c, dirs)
+	be.Err(t, got, nil)
 }

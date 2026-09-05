@@ -1,3 +1,4 @@
+//nolint:nonamedreturns
 package htmx
 
 // Package file artifact.go provides functions for handling the HTMX requests for the artifact editor.
@@ -26,10 +27,13 @@ const (
 	successSpan = `<span class="text-success">✓</span>`
 )
 
-// Path returns the uuid and directory path.
-// The named unid and the path are sourced from the URL parameters.
-// It returns an error if the unid or name is invalid.
-func Path(c *echo.Context) (unid, name string, err error) { //nolint:nonamedreturns
+// Paths returns two values provided by the URL parameters:
+//
+//	The UUID unique identifier for the file assets storage.
+//	The original filename of the artifact, however this maybe modified to be friendly with URL queries.
+//
+// An error is returned if the unid or filename values are invalid.
+func Paths(c *echo.Context) (unid, filename string, err error) {
 	const format = "htmx path %s: %w"
 	if err := nils.Check(c); err != nil {
 		return "", "", fmt.Errorf(format, "check", err)
@@ -37,23 +41,23 @@ func Path(c *echo.Context) (unid, name string, err error) { //nolint:nonamedretu
 
 	unid = c.Param("unid")
 	if err := form.Checkname(unid); err != nil {
-		return "", "", fmt.Errorf(format, "invalid unid format", err)
+		return "", "", fmt.Errorf(format, "invalid uuid format", err)
 	}
 	if err := uuid.Validate(unid); err != nil {
 		return "", "", fmt.Errorf(format, "invalid uuid", err)
 	}
 
 	path := c.Param("path")
-	name, err = url.QueryUnescape(path)
+	filename, err = url.QueryUnescape(path)
 	if err != nil {
 		return "", "", fmt.Errorf(format, "failed to unescape path", err)
 	}
 
-	if err := Validate(name); err != nil {
+	if err := Validate(filename); err != nil {
 		return "", "", err
 	}
 
-	return unid, name, nil
+	return unid, filename, nil
 }
 
 // Validate checks that the path is not absolute and does not allow
@@ -82,7 +86,7 @@ func UUID(c *echo.Context) (string, error) {
 
 	unid := c.Param("unid")
 	if err := form.Checkname(unid); err != nil {
-		return "", fmt.Errorf(format, "invalid unid format", err)
+		return "", fmt.Errorf(format, "invalid uuid format", err)
 	}
 
 	if err := uuid.Validate(unid); err != nil {

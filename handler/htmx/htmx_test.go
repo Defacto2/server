@@ -73,7 +73,7 @@ func TestDeleteForever(t *testing.T) {
 	err := htmx.DeleteForever(sl, testutil.NewContext(t, "/delete/forever/0"), tx, "0")
 	be.Err(t, err, nil)
 	_ = tx.Rollback()
-	// despite the rollback option, it is probably best not to test the delete forever on an actual record
+	// despite the rollback option, it is probably best not to test the delete forever func on an actual record
 }
 
 func TestPings(t *testing.T) {
