@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io/fs"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/echotest"
 )
 
 // INFO: Check untested funcs, run:
@@ -29,6 +31,12 @@ import (
 //
 // INFO:Check test durability, run:
 // go test . -count=1000 -race -cover
+
+// Helper values
+
+const (
+	YT = "3V8rpJDpbKg" // YTID is an example YouTube video ID
+)
 
 // PostgreSQL database helpers
 
@@ -136,6 +144,55 @@ func EchoContext(tb testing.TB, e *echo.Echo, target string) *echo.Context {
 	return e.NewContext(req, rec)
 }
 
+type Input map[string]string
+
+func newEchoTest(t *testing.T, target, fieldname, filename string, formInputs Input, pathValues echo.PathValues) *echo.Context {
+	t.Helper()
+	if target == "" {
+		target = "/"
+	}
+
+	var body bytes.Buffer
+	w := multipart.NewWriter(&body)
+
+	// must be done before closing
+	if size := len(formInputs); size > 0 {
+		for fieldname, value := range formInputs {
+			err := w.WriteField(fieldname, value)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+
+	if fieldname != "" && filename != "" {
+		p := []byte("Hello world!")
+		part, err := w.CreateFormFile(fieldname, filename)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = part.Write(p); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// closing the file/form writer must always be done last
+	if err := w.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	r := httptest.NewRequest(http.MethodPost, target, &body)
+	r.Header.Set(echo.HeaderContentType, w.FormDataContentType())
+
+	c, _ := echotest.ContextConfig{}.ToContextRecorder(t)
+	if len(pathValues) > 0 {
+		c.SetPathValues(pathValues)
+	}
+	c.SetRequest(r)
+
+	return c
+}
+
 // NewContext creates a new instance of Echo and returns a response using the target url.
 // If no target is provided, it is set to root "/".
 func NewContext(tb testing.TB, target string) *echo.Context {
@@ -148,10 +205,10 @@ func NewContext(tb testing.TB, target string) *echo.Context {
 	return EchoContext(tb, e, target)
 }
 
-// NewForm creates a new instance of Echo and returns a response using the target url.
+// NewInput creates a new instance of Echo and returns a response using the target url.
 // It sets the key and value that are mapped as both query paramaters and form values.
 // If no target is provided, it is set to root "/".
-func NewForm(tb testing.TB, target, key, value string) *echo.Context {
+func NewInput(tb testing.TB, target, key, value string) *echo.Context {
 	tb.Helper()
 	if target == "" {
 		target = "/"
@@ -160,13 +217,42 @@ func NewForm(tb testing.TB, target, key, value string) *echo.Context {
 	form := url.Values{}
 	form.Set(key, value)
 
-	req := httptest.NewRequest(http.MethodPost, target, strings.NewReader(form.Encode()))
+	body := strings.NewReader(form.Encode())
+	req := httptest.NewRequest(http.MethodPost, target, body)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	rec := httptest.NewRecorder()
-
 	e := echo.New()
 	return e.NewContext(req, rec)
+}
+
+func NewInputs(t *testing.T, target string, formInputs Input) *echo.Context {
+	t.Helper()
+
+	return newEchoTest(t, target, "", "", formInputs, nil)
+}
+
+func NewInputsPath(t *testing.T, target string, formInputs Input, pathValues echo.PathValues) *echo.Context {
+	t.Helper()
+
+	return newEchoTest(t, target, "", "", formInputs, pathValues)
+}
+
+func NewFile(t *testing.T, target, fieldname, filename string) *echo.Context {
+	t.Helper()
+	return newEchoTest(t, target, fieldname, filename, nil, nil)
+}
+
+func NewFileInputs(t *testing.T, target, fieldname, filename string, formInputs Input,
+) *echo.Context {
+	t.Helper()
+	return newEchoTest(t, target, fieldname, filename, formInputs, nil)
+}
+
+func NewPath(t *testing.T, target string, pathValues echo.PathValues) *echo.Context {
+	t.Helper()
+
+	return newEchoTest(t, target, "", "", nil, pathValues)
 }
 
 // File system helpers

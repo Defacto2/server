@@ -192,23 +192,25 @@ func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error { /
 	upload := g.Group("/upload")
 	// /upload/file
 	upload.POST("/file", func(c *echo.Context) error {
-		u := htmx.Upload{
+		u := htmx.Submit{
 			Download:  dirs.Download,
 			Extra:     dirs.Extra,
 			Preview:   "",
 			Thumbnail: "",
 		}
-		return u.Replacement(sl, c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return u.Replacement(sl, c, tx)
+		})
 	})
 	// /upload/preview
 	upload.POST("/preview", func(c *echo.Context) error { //nolint:contextcheck
-		u := htmx.Upload{
+		u := htmx.Submit{
 			Download:  "",
 			Extra:     "",
 			Preview:   dirs.Preview,
 			Thumbnail: dirs.Thumbnail,
 		}
-		return u.ImagePreview(sl, c)
+		return u.Image(sl, c)
 	})
 
 	editorPatch(sl, g, db)

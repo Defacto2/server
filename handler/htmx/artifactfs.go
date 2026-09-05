@@ -59,6 +59,8 @@ func (cp Copy) MkCopy(c *echo.Context, dirs command.Dirs) error {
 		return badRequest(c, err)
 	}
 
+	// FIX: logic ?
+	// I believe originally the temp directory was fixed based on the unid?
 	tmp, err := dir.MkdirTemp(unid)
 	if err != nil {
 		return badRequest(c, err)

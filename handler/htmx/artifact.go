@@ -19,9 +19,10 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+const EditorKey = "artifact-editor-key"
+
 const (
 	checkMark   = "&#x2713;"
-	editorKey   = "artifact-editor-key"
 	successSpan = `<span class="text-success">✓</span>`
 )
 
@@ -101,6 +102,7 @@ func PageReload(c *echo.Context) *echo.Context {
 	return c
 }
 
+// func CommitUpload(sl *slog.Logger, c *echo.Context, tx.*sql.Tx, )
 func CommitSanitize(c *echo.Context, tx *sql.Tx, name string,
 	sanitize func(string) string,
 	fn func(context.Context, boil.ContextExecutor, int64, string) error,
@@ -238,10 +240,10 @@ func StatusOK(c *echo.Context, name string) error {
 }
 
 func Key(c *echo.Context) (int64, error) {
-	sid := c.FormValue(editorKey)
+	sid := c.FormValue(EditorKey)
 	key, err := strconv.Atoi(sid)
 	if err != nil {
-		return 0, fmt.Errorf("%s: %w", editorKey, err)
+		return 0, fmt.Errorf("%s: %w", EditorKey, err)
 	}
 
 	return int64(key), nil

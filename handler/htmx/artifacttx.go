@@ -229,7 +229,7 @@ func TxLinksUndo(c *echo.Context, tx *sql.Tx) error {
 		return badRequest(c, fmt.Errorf(format, "key", err))
 	}
 
-	youtube := c.FormValue("artifact-editor-youtubeval")
+	youtube := c.FormValue("artifact-editor-youtubeval") // FIX: replace tailname with undo
 	if ok := form.ValidYouTube(youtube); !ok {
 		return badRequest(c, fmt.Errorf(format, youtube, ErrYouTube))
 	}
@@ -320,7 +320,7 @@ func TxCreditUndo(c *echo.Context, tx *sql.Tx) error {
 		Audio: audio,
 	}
 
-	// form values must be the "name" value of html elements
+	// INFO: form values match the "name" attribute of html elements
 	textval := c.FormValue("artifact-editor-credittext")
 	illval := c.FormValue("artifact-editor-creditill")
 	progval := c.FormValue("artifact-editor-creditprog")
