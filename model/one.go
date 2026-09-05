@@ -93,25 +93,20 @@ func OneFile(ctx context.Context, exec boil.ContextExecutor, key int64) (*models
 	return f, nil
 }
 
-// OneDemozoo retrieves the ID or key of a single file record from the database using a Demozoo production ID.
-// This function will also return records that have been marked as deleted and flag those with the boolean.
-// If the record is not found then the function will return an ID of 0 but without an error.
-func OneDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int64) (
+func OneFn(ctx context.Context, exec boil.ContextExecutor, sanity, prodID int64, mod qm.QueryMod) (
 	deleted bool, key int64, err error,
 ) {
-	const format = "one record by demozoo %s: %w"
+	const format = "one record by onefn %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return false, 0, fmt.Errorf(format, "check", err)
 	}
 
-	if prodID < 1 || prodID > demozoo.Sanity {
+	if prodID < 1 || prodID > sanity {
 		return false, 0, nil
 	}
 
 	f, err := models.Files(
-		qm.Select("id", "deletedat"),
-		models.FileWhere.WebIDDemozoo.EQ(null.Int64From(prodID)),
-		qm.WithDeleted()).One(ctx, exec)
+		qm.Select("id", "deletedat"), mod, qm.WithDeleted()).One(ctx, exec)
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, 0, nil
 	}
@@ -125,36 +120,24 @@ func OneDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int64) (
 	return deleted, key, nil
 }
 
+// OneDemozoo retrieves the ID or key of a single file record from the database using a Demozoo production ID.
+// This function will also return records that have been marked as deleted and flag those with the boolean.
+// If the record is not found then the function will return an ID of 0 but without an error.
+func OneDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int64) (
+	deleted bool, key int64, err error,
+) {
+	mod := models.FileWhere.WebIDDemozoo.EQ(null.Int64From(prodID))
+	return OneFn(ctx, exec, demozoo.Sanity, prodID, mod)
+}
+
 // OnePouet retrieves the ID or key of a single file record from the database using a Pouet production ID.
 // This function will also return records that have been marked as deleted and flag those with the boolean.
 // If the record is not found then the function will return an ID of 0 but without an error.
 func OnePouet(ctx context.Context, exec boil.ContextExecutor, prodID int64) (
 	deleted bool, key int64, err error,
 ) {
-	const format = "one record by pouet %s: %w"
-	if err := nils.Check(ctx, exec); err != nil {
-		return false, 0, fmt.Errorf(format, "check", err)
-	}
-
-	if prodID < 1 || prodID > pouet.Sanity {
-		return false, 0, nil
-	}
-
-	f, err := models.Files(
-		qm.Select("id", "deletedat"),
-		models.FileWhere.WebIDPouet.EQ(null.Int64From(prodID)),
-		qm.WithDeleted()).One(ctx, exec)
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, 0, nil
-	}
-	if err != nil {
-		return false, 0, fmt.Errorf(format, "get record", err)
-	}
-
-	deleted = !f.Deletedat.IsZero()
-	key = f.ID
-
-	return deleted, key, nil
+	mod := models.FileWhere.WebIDPouet.EQ(null.Int64From(prodID))
+	return OneFn(ctx, exec, pouet.Sanity, prodID, mod)
 }
 
 // OneEditByKey retrieves a single file record from the database using the obfuscated record key.

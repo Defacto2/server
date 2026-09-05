@@ -1500,11 +1500,12 @@ func Page404(sl *slog.Logger, c *echo.Context, uri, page string) error {
 	return nil
 }
 
-// PlatformEdit handles the post submission for the Platform selection field.
-func PlatformEdit(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const format = "platform edit context: %w"
+func EditFn(sl *slog.Logger, c *echo.Context, db *sql.DB,
+	fn func(context.Context, boil.ContextExecutor, int64, string) error,
+) error {
+	const format = "editfn context %s: %w"
 	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf(format, "check", err)
 	}
 	var f Form
 	if err := c.Bind(&f); err != nil {
@@ -1513,14 +1514,14 @@ func PlatformEdit(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	ctx := c.Request().Context()
 	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
-		return fmt.Errorf("platform edit %w: %d", err, f.ID)
+		return fmt.Errorf(format, strconv.Itoa(f.ID), err)
 	}
 
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return badRequest(c, err)
 	}
-	if err = model.Platform.Update(ctx, tx, int64(f.ID), f.Value); err != nil {
+	if err = fn(ctx, tx, int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
 	if err = tx.Commit(); err != nil {
@@ -1528,6 +1529,16 @@ func PlatformEdit(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	}
 
 	return c.JSON(http.StatusOK, r)
+}
+
+// PlatformEdit handles the post submission for the Platform selection field.
+func PlatformEdit(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return EditFn(sl, c, db, model.Platform.Update)
+}
+
+// TagEdit handles the post submission for the Tag selection field.
+func TagEdit(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	return EditFn(sl, c, db, model.Section.Update)
 }
 
 // PlatformTagInfo handles the POST submission for the platform and tag info.
@@ -2341,36 +2352,6 @@ func remove(sl *slog.Logger, c *echo.Context, name string, data map[string]any) 
 	return nil
 }
 
-// TagEdit handles the post submission for the Tag selection field.
-func TagEdit(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const format = "tag edit context: %w"
-	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	var f Form
-	if err := c.Bind(&f); err != nil {
-		return badRequest(c, err)
-	}
-	ctx := c.Request().Context()
-	r, err := model.One(ctx, db, true, f.ID)
-	if err != nil {
-		return fmt.Errorf("tag edit %w: %d", err, f.ID)
-	}
-
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return badRequest(c, err)
-	}
-	if err = model.Section.Update(ctx, tx, int64(f.ID), f.Value); err != nil {
-		return badRequest(c, err)
-	}
-	if err = tx.Commit(); err != nil {
-		return badRequest(c, err)
-	}
-
-	return c.JSON(http.StatusOK, r)
-}
-
 // TagInfo handles the POST submission for the platform and tag info.
 func TagInfo(c *echo.Context) error {
 	const format = "tag info context: %w"
@@ -2448,7 +2429,7 @@ func Fixers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 }
 
 // FixNumericSuffix handles the fixing of numeric suffixes in filenames.
-func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
 	const format = "fix numeric suffix: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)

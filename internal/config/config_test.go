@@ -149,6 +149,8 @@ func TestReArchive(t *testing.T) {
 }
 
 func TestReArchiveImplode(t *testing.T) {
+	t.Parallel()
+
 	r := config.Zip
 	ctx := t.Context()
 

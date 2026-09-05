@@ -134,6 +134,7 @@ func Slog(msg string, args ...any) bool {
 	for _, arg := range args {
 		if logger, ok := arg.(*slog.Logger); ok && logger != nil {
 			sl = logger
+
 			break
 		}
 	}

@@ -376,7 +376,7 @@ func (serv *Server) HTTP() echo.StartConfig {
 //
 // Any returned errors should be fatal.
 func (serv *Server) Local(ctx context.Context, sl *slog.Logger) (
-	config echo.StartConfig, cert []byte, key []byte, err error,
+	config echo.StartConfig, cert, key []byte, err error,
 ) {
 	const format = "local handler configuration: %w"
 	if err := nils.Check(ctx, sl); err != nil {
@@ -410,7 +410,7 @@ func (serv *Server) Local(ctx context.Context, sl *slog.Logger) (
 //
 // Any returned errors should be fatal.
 func (serv *Server) TLS(ctx context.Context, sl *slog.Logger) (
-	config echo.StartConfig, cert []byte, key []byte, err error,
+	config echo.StartConfig, cert, key []byte, err error,
 ) {
 	const format = "tls handler configuration: %w"
 	if err := nils.Check(ctx, sl); err != nil {

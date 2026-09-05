@@ -145,7 +145,7 @@ type Transfer struct {
 	Download dir.Directory
 }
 
-func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error { //nolint:funlen
 	const format = "htmx submit %s: %w"
 	const msg = "htmx submit"
 	if err := nils.Check(sl, c, tx); err != nil {

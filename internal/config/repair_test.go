@@ -11,7 +11,7 @@ import (
 
 const perm = 0o600
 
-func TestRemove(t *testing.T) {
+func TestRemove(t *testing.T) { //nolint:tparallel,paralleltest
 	// TestRemove cannot be run in parallel.
 	tmpdiz := filepath.Join(t.TempDir(), "file_id.diz")
 	tmptxt := filepath.Join(t.TempDir(), "readme.txt")
@@ -70,6 +70,7 @@ func TestRemove(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel() // TODO: may need removal?
 			if err := tt.setup(); err != nil {
 				t.Fatalf("setup failed: %v", err)
 			}

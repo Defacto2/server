@@ -5,8 +5,7 @@ linters:
     # conflicts
     - contextcheck # conflicts with echo patterns
     - depguard # too complex to maintain with this app
-    - gomoddirectives # required at the moment (see go.mod)
-    - paralleltest # breaks some tests
+    - gomoddirectives # required at the moment (for: task doc)
     # retired
     - exhaustruct
     - gomodguard
@@ -16,9 +15,7 @@ linters:
     - varnamelen
     - wsl
     - wsl_v5
-    - dupl # FIX: temp
     - godox # FIX: remove
-    - funlen # FIX: remove
   settings:
     cyclop:
       max-complexity: 20

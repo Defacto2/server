@@ -1,3 +1,4 @@
+//nolint:contextcheck,funlen
 package handler
 
 import (
@@ -176,7 +177,7 @@ func date(g *echo.Group, db *sql.DB) error {
 	return nil
 }
 
-func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error { //nolint:funlen
+func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error {
 	if err := nils.Check(sl, g, db); err != nil {
 		return fmt.Errorf("editor router: %w", err)
 	}
@@ -203,7 +204,7 @@ func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error { /
 		})
 	})
 	// /upload/preview
-	upload.POST("/preview", func(c *echo.Context) error { //nolint:contextcheck
+	upload.POST("/preview", func(c *echo.Context) error {
 		u := htmx.Submit{
 			Download:  "",
 			Extra:     "",
@@ -466,10 +467,10 @@ func editorThumb(sl *slog.Logger, g *echo.Group, paths command.Dirs, dirs app.Di
 	thumb.PATCH("/right/:unid", func(c *echo.Context) error {
 		return htmx.FSAlign(sl, c, command.Right, paths)
 	})
-	thumb.PATCH("/pixel/:unid", func(c *echo.Context) error { //nolint:contextcheck
+	thumb.PATCH("/pixel/:unid", func(c *echo.Context) error {
 		return htmx.FSThumb(sl, c, command.Pixel, paths)
 	})
-	thumb.PATCH("/photo/:unid", func(c *echo.Context) error { //nolint:contextcheck
+	thumb.PATCH("/photo/:unid", func(c *echo.Context) error {
 		return htmx.FSThumb(sl, c, command.Photo, paths)
 	})
 	thumb.PATCH("/remove/:unid", func(c *echo.Context) error {
@@ -479,7 +480,7 @@ func editorThumb(sl *slog.Logger, g *echo.Group, paths command.Dirs, dirs app.Di
 
 func editorImgs(sl *slog.Logger, g *echo.Group, dirs app.Dirs) {
 	imgs := g.Group("/images")
-	imgs.PATCH("/pixelate/:unid", func(c *echo.Context) error { //nolint:contextcheck
+	imgs.PATCH("/pixelate/:unid", func(c *echo.Context) error {
 		return htmx.FSPixelate(sl, c, dirs.Preview, dirs.Thumbnail)
 	})
 	imgs.PATCH("/remove/:unid", func(c *echo.Context) error {

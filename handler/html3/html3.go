@@ -396,58 +396,117 @@ func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c *echo.Contex
 	return 0, total, byteSum, records, nil
 }
 
-// QueryBySection returns a slice of all the records filtered by the section id, "by Category".
-func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
+type execute struct {
+	label string
+	fetch func(ctx context.Context, exec boil.ContextExecutor, offset, limit int, slug string) (models.FileSlice, error)
+	count func(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error)
+	sum   func(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error)
+}
+
+func (exe execute) query(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
 	if err := nils.Check(ctx, exec, c); err != nil {
 		return argsNil(err)
 	}
 	const limit = model.Maximum
-	order := Clauses(c.QueryString())
 	slug := ID(c)
-	records, err := order.ByCategory(ctx, exec, offset, limit, slug)
+
+	records, err := exe.fetch(ctx, exec, offset, limit, slug)
 	if err != nil {
-		return queryErr("by category:", err)
+		return queryErr(exe.label+":", err)
 	}
+
 	tag := tags.TagByURI(slug)
-	total, err := model.CountSection(ctx, exec, tag)
+	total, err := exe.count(ctx, exec, tag)
 	if err != nil {
-		return statErr("total by category:", err)
+		return statErr("total "+exe.label+":", err)
 	}
-	byteSum, err := model.SumSection(ctx, exec, tag)
+
+	byteSum, err := exe.sum(ctx, exec, tag)
 	if err != nil {
-		return statErr("byte by category:", err)
+		return statErr("bytes "+exe.label+":", err)
 	}
+
 	return limit, int(total), byteSum, records, nil
+}
+
+// QueryBySection returns a slice of all the records filtered by the section id, "by Category".
+func QueryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
+	int, int, int64, models.FileSlice, error,
+) {
+	return execute{
+		label: "by category",
+		fetch: Clauses(c.QueryString()).ByCategory,
+		count: model.CountSection,
+		sum:   model.SumSection,
+	}.query(ctx, exec, c, offset)
 }
 
 // QueryByPlatform returns a slice of all the records filtered by the platform id, "by Platform and media".
 func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
 	int, int, int64, models.FileSlice, error,
 ) {
-	if err := nils.Check(ctx, exec, c); err != nil {
-		return argsNil(err)
-	}
-	const limit = model.Maximum
-	order := Clauses(c.QueryString())
-	slug := ID(c)
-	records, err := order.ByPlatform(ctx, exec, offset, limit, slug)
-	if err != nil {
-		return queryErr("by platform:", err)
-	}
-
-	tag := tags.TagByURI(slug)
-	total, err := model.CountPlatform(ctx, exec, tag)
-	if err != nil {
-		return statErr("total by platform:", err)
-	}
-	byteSum, err := model.SumPlatform(ctx, exec, tag)
-	if err != nil {
-		return statErr("bytes by platform:", err)
-	}
-	return limit, int(total), byteSum, records, nil
+	return execute{
+		label: "by platform",
+		fetch: Clauses(c.QueryString()).ByPlatform,
+		count: model.CountPlatform,
+		sum:   model.SumPlatform,
+	}.query(ctx, exec, c, offset)
 }
+
+// QueryBySection returns a slice of all the records filtered by the section id, "by Category".
+// func _queryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
+// 	int, int, int64, models.FileSlice, error,
+// ) {
+// 	if err := nils.Check(ctx, exec, c); err != nil {
+// 		return argsNil(err)
+// 	}
+// 	const limit = model.Maximum
+// 	order := Clauses(c.QueryString())
+// 	slug := ID(c)
+// 	records, err := order.ByCategory(ctx, exec, offset, limit, slug)
+// 	if err != nil {
+// 		return queryErr("by category:", err)
+// 	}
+// 	tag := tags.TagByURI(slug)
+// 	total, err := model.CountSection(ctx, exec, tag)
+// 	if err != nil {
+// 		return statErr("total by category:", err)
+// 	}
+// 	byteSum, err := model.SumSection(ctx, exec, tag)
+// 	if err != nil {
+// 		return statErr("byte by category:", err)
+// 	}
+// 	return limit, int(total), byteSum, records, nil
+// }
+
+// QueryByPlatform returns a slice of all the records filtered by the platform id, "by Platform and media".
+// func _queryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
+// 	int, int, int64, models.FileSlice, error,
+// ) {
+// 	if err := nils.Check(ctx, exec, c); err != nil {
+// 		return argsNil(err)
+// 	}
+// 	const limit = model.Maximum
+// 	order := Clauses(c.QueryString())
+// 	slug := ID(c)
+// 	records, err := order.ByPlatform(ctx, exec, offset, limit, slug)
+// 	if err != nil {
+// 		return queryErr("by platform:", err)
+// 	}
+//
+// 	tag := tags.TagByURI(slug)
+// 	total, err := model.CountPlatform(ctx, exec, tag)
+// 	if err != nil {
+// 		return statErr("total by platform:", err)
+// 	}
+// 	byteSum, err := model.SumPlatform(ctx, exec, tag)
+// 	if err != nil {
+// 		return statErr("bytes by platform:", err)
+// 	}
+// 	return limit, int(total), byteSum, records, nil
+// }
 
 // QueryEverything returns a slice of all the records, "Everything".
 func QueryEverything(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (

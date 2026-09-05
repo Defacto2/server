@@ -153,6 +153,7 @@ func Amp(s string) string {
 				}
 				builder.WriteByte('&')
 			}
+
 			continue
 		}
 

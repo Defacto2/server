@@ -29,7 +29,7 @@ const (
 // Path returns the uuid and directory path.
 // The named unid and the path are sourced from the URL parameters.
 // It returns an error if the unid or name is invalid.
-func Path(c *echo.Context) (unid string, name string, err error) { //nolint:nonamedreturns
+func Path(c *echo.Context) (unid, name string, err error) { //nolint:nonamedreturns
 	const format = "htmx path %s: %w"
 	if err := nils.Check(c); err != nil {
 		return "", "", fmt.Errorf(format, "check", err)

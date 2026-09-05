@@ -457,7 +457,11 @@ func TestLegacyString(t *testing.T) {
 }
 
 func TestWalkerChmod(t *testing.T) {
+	t.Parallel()
+
 	t.Run("should set directory permissions to 0o755", func(t *testing.T) {
+		t.Parallel()
+
 		tmpDir := t.TempDir()
 		testDir := filepath.Join(tmpDir, "testdir")
 		if err := os.Mkdir(testDir, 0o700); err != nil {
@@ -484,6 +488,8 @@ func TestWalkerChmod(t *testing.T) {
 	})
 
 	t.Run("should set file permissions to 0o644", func(t *testing.T) {
+		t.Parallel()
+
 		tmpDir := t.TempDir()
 		testFile := filepath.Join(tmpDir, "testfile.txt")
 		if err := os.WriteFile(testFile, []byte("test"), 0o600); err != nil {
@@ -510,6 +516,8 @@ func TestWalkerChmod(t *testing.T) {
 	})
 
 	t.Run("should return fs.SkipDir when error is passed", func(t *testing.T) {
+		t.Parallel()
+
 		tmpDir := t.TempDir()
 		root, err := os.OpenRoot(tmpDir)
 		be.Err(t, err, nil)
@@ -523,6 +531,8 @@ func TestWalkerChmod(t *testing.T) {
 	})
 
 	t.Run("should handle Chmod errors gracefully", func(t *testing.T) {
+		t.Parallel()
+
 		tmpDir := t.TempDir()
 		root, err := os.OpenRoot(tmpDir)
 		be.Err(t, err, nil)

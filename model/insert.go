@@ -27,15 +27,14 @@ import (
 	"golang.org/x/text/transform"
 )
 
-// InsertDemozoo inserts a new file record into the database using a Demozoo production ID.
-// This will not check if the Demozoo production ID already exists in the database.
-// When successful the function will return the new record ID.
-func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int) (key int64, unid string, err error) {
-	const format = "insert by demozoo %s: %w"
+func prodFn(ctx context.Context, exec boil.ContextExecutor, sanity, prodID int, f models.File) (
+	key int64, unid string, err error,
+) {
+	const format = "insert by prodfn %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return 0, "", fmt.Errorf(format, "check", err)
 	}
-	if prodID < startID || prodID > demozoo.Sanity {
+	if prodID < startID || prodID > sanity {
 		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrBadID)
 	}
 
@@ -45,12 +44,9 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int) (
 	}
 	unid = newUUID.String()
 
-	//nolint:exhaustruct_v5 // Only setting essential fields for database insertion
-	f := models.File{
-		UUID:         null.StringFrom(unid),
-		WebIDDemozoo: null.Int64From(int64(math.Abs(float64(prodID)))),
-		Deletedat:    null.TimeFromPtr(&now),
-	}
+	// Only setting essential fields for database insertion
+	f.UUID = null.StringFrom(unid)
+	f.Deletedat = null.TimeFromPtr(&now)
 
 	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
 		return 0, "", fmt.Errorf(format, "infer", err)
@@ -61,38 +57,82 @@ func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int) (
 	return key, unid, nil
 }
 
+// InsertDemozoo inserts a new file record into the database using a Demozoo production ID.
+// This will not check if the Demozoo production ID already exists in the database.
+// When successful the function will return the new record ID.
+func InsertDemozoo(ctx context.Context, exec boil.ContextExecutor, prodID int) (key int64, unid string, err error) {
+	f := models.File{ //nolint:exhaustruct_v5
+		WebIDDemozoo: null.Int64From(int64(math.Abs(float64(prodID)))),
+	}
+	return prodFn(ctx, exec, demozoo.Sanity, prodID, f)
+
+	// const format = "insert by demozoo %s: %w"
+	// if err := nils.Check(ctx, exec); err != nil {
+	// 	return 0, "", fmt.Errorf(format, "check", err)
+	// }
+	// if prodID < startID || prodID > demozoo.Sanity {
+	// 	return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrBadID)
+	// }
+	//
+	// now, newUUID, err := NewV7()
+	// if err != nil {
+	// 	return 0, "", fmt.Errorf(format, "uuid v7", err)
+	// }
+	// unid = newUUID.String()
+	//
+	// //nolint:exhaustruct_v5 // Only setting essential fields for database insertion
+	// f := models.File{
+	// 	UUID:         null.StringFrom(unid),
+	// 	WebIDDemozoo: null.Int64From(int64(math.Abs(float64(prodID)))),
+	// 	Deletedat:    null.TimeFromPtr(&now),
+	// }
+	//
+	// if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
+	// 	return 0, "", fmt.Errorf(format, "infer", err)
+	// }
+	//
+	// key = f.ID
+	//
+	// return key, unid, nil
+}
+
 // InsertPouet inserts a new file record into the database using a Pouet production ID.
 // This will not check if the Pouet production ID already exists in the database.
 // When successful the function will return the new record ID.
 func InsertPouet(ctx context.Context, exec boil.ContextExecutor, prodID int) (key int64, unid string, err error) {
-	const format = "insert by pouet %s: %w"
-	if err := nils.Check(ctx, exec); err != nil {
-		return 0, "", fmt.Errorf(format, "check", err)
-	}
-	if prodID < startID || prodID > pouet.Sanity {
-		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrBadID)
-	}
-
-	now, newUUID, err := NewV7()
-	if err != nil {
-		return 0, "", fmt.Errorf(format, "uuid v7", err)
-	}
-	unid = newUUID.String()
-
-	//nolint:exhaustruct_v5 // Only setting essential fields for database insertion
-	f := models.File{
-		UUID:       null.StringFrom(unid),
+	f := models.File{ //nolint:exhaustruct_v5
 		WebIDPouet: null.Int64From(int64(math.Abs(float64(prodID)))),
-		Deletedat:  null.TimeFromPtr(&now),
 	}
-
-	if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
-		return 0, "", fmt.Errorf(format, "infer", err)
-	}
-
-	key = f.ID
-
-	return key, unid, nil
+	return prodFn(ctx, exec, pouet.Sanity, prodID, f)
+	//
+	// const format = "insert by pouet %s: %w"
+	// if err := nils.Check(ctx, exec); err != nil {
+	// 	return 0, "", fmt.Errorf(format, "check", err)
+	// }
+	// if prodID < startID || prodID > pouet.Sanity {
+	// 	return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrBadID)
+	// }
+	//
+	// now, newUUID, err := NewV7()
+	// if err != nil {
+	// 	return 0, "", fmt.Errorf(format, "uuid v7", err)
+	// }
+	// unid = newUUID.String()
+	//
+	// //nolint:exhaustruct_v5 // Only setting essential fields for database insertion
+	// f := models.File{
+	// 	UUID:       null.StringFrom(unid),
+	// 	WebIDPouet: null.Int64From(int64(math.Abs(float64(prodID)))),
+	// 	Deletedat:  null.TimeFromPtr(&now),
+	// }
+	//
+	// if err = f.Insert(ctx, exec, boil.Infer()); err != nil {
+	// 	return 0, "", fmt.Errorf(format, "infer", err)
+	// }
+	//
+	// key = f.ID
+	//
+	// return key, unid, nil
 }
 
 // InsertUpload inserts a new file record into the database using a URL values map.

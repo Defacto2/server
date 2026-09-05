@@ -1,3 +1,4 @@
+//nolint:paralleltest
 package querymod_test
 
 import (

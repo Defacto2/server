@@ -1,3 +1,4 @@
+//nolint:paralleltest
 package cache_test
 
 import (

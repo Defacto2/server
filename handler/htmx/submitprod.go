@@ -43,7 +43,7 @@ func (prod Prod) String() string {
 // Submit handles the PUT production routes for Demozoo and Pouet.
 // This will attempt to insert a new file record into the database using
 // the production ID. If the ID is already in use, an error message is returned.
-func (prod Prod) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
+func (prod Prod) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error { //nolint:funlen
 	const msg = "htmx transfer submit"
 	if err := nils.Check(sl, c, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)

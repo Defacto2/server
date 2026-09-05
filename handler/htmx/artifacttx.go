@@ -532,7 +532,7 @@ func TxLastMod(c *echo.Context, tx *sql.Tx) error {
 	return DateLast.commit(c, tx)
 }
 
-func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error { //nolint:cyclop
+func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error { //nolint:cyclop,funlen
 	const format = "tx ymd commit %s: %w"
 	if err := nils.Check(c, tx); err != nil {
 		return fmt.Errorf(format, "check", err)

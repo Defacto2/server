@@ -100,6 +100,7 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, exec boil.
 		if err := trainers(ctx, sl, exec); err != nil {
 			return fmt.Errorf(format, "trainers", err)
 		}
+
 		fallthrough
 	case Releaser:
 		if err := releasers(ctx, sl, exec); err != nil {

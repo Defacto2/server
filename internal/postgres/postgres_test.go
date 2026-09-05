@@ -1,3 +1,4 @@
+//nolint:paralleltest
 package postgres_test
 
 import (

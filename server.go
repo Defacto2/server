@@ -176,7 +176,7 @@ func main() {
 }
 
 func setupWriters(envConfig config.Config, lf logs.Files) (
-	sl *slog.Logger, cl *slog.Logger, logo io.Writer,
+	sl, cl *slog.Logger, logo io.Writer,
 ) {
 	// configure logo to stdout so it is ignored by systemd and the operating system
 	logo = os.Stdout

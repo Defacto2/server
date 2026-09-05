@@ -15,6 +15,8 @@ import (
 
 // TestTagsCaching tests that the TagsAPI properly caches results.
 func TestTagsCaching(t *testing.T) {
+	t.Parallel()
+
 	// This test requires a configured test, database connection
 	const dataSourceName = "postgres://root:example@localhost:5432/defacto2_ps?sslmode=disable" //nolint:gosec
 	db, err := sql.Open("pgx", dataSourceName)

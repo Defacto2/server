@@ -152,7 +152,7 @@ func configTrailSlash() middleware.RemoveTrailingSlashConfig {
 //
 // If Configuration.LogAll is false then this returns a nil.
 // Otherwise it logs all web server HTTP requests to info logs.
-func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig {
+func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig { //nolint:funlen
 	if !serv.Environment.LogAll {
 		exitRequest := func(_ *echo.Context, _ middleware.RequestLoggerValues) error {
 			return nil
