@@ -1,3 +1,4 @@
+//nolint:exhaustruct_v5
 package remote
 
 import (
@@ -59,7 +60,7 @@ func GetFile(ctx context.Context, sl *slog.Logger, timeout time.Duration, rawURL
 	}
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	client := http.Client{} //nolint:exhaustruct
+	client := http.Client{}
 	return getFile(ctx, sl, rawURL, client)
 }
 
@@ -228,7 +229,7 @@ func FixURL(sl *slog.Logger, rawURL string) string {
 func sceneorg(x []string) *url.URL {
 	const minimum = 2
 	if len(x) < minimum {
-		return &url.URL{} //nolint:exhaustruct
+		return &url.URL{}
 	}
 	x[1] = "get"
 	return refactor("files.scene.org", x)

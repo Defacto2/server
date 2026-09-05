@@ -1,3 +1,4 @@
+//nolint:exhaustruct_v5
 package app
 
 import (
@@ -844,7 +845,7 @@ func ReleasersAPI(rels model.Releasers) []EntityAPI {
 // artifactSum creates an ArtifactSumAPI from a file model.
 func artifactSum(f *models.File) artifactAPI {
 	if f == nil {
-		return artifactAPI{} //nolint:exhaustruct
+		return artifactAPI{}
 	}
 	category := filerecord.TagCategory(f)
 	platform := filerecord.TagProgram(f)
@@ -852,7 +853,7 @@ func artifactSum(f *models.File) artifactAPI {
 	platformTag := tags.TagByURI(platform)
 	humanized := tags.Humanize(platformTag, categoryTag)
 
-	art := &models.File{ //nolint:exhaustruct
+	art := &models.File{
 		Filename:       f.Filename,
 		RecordTitle:    f.RecordTitle,
 		GroupBrandBy:   f.GroupBrandBy,
@@ -923,8 +924,7 @@ func ReleaserAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		})
 	}
 
-	sum := model.Summary{ //nolint:exhaustruct // Fields are set by ByReleaser method
-	}
+	sum := model.Summary{}
 	if err := sum.ByReleaser(ctx, db, name); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			er: "Failed to get releaser statistics",
@@ -1025,8 +1025,7 @@ func ScenerAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		})
 	}
 
-	sum := model.Summary{ //nolint:exhaustruct // Fields are set by ByReleaser method
-	}
+	sum := model.Summary{}
 	if err := sum.ByScener(ctx, db, name); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			er: "Failed to get scener statistics",
@@ -1407,8 +1406,7 @@ func TagAPI(sl *slog.Logger, c *echo.Context, db *sql.DB, name string) error { /
 }
 
 func datePublished(record *models.File) publishedAPI {
-	dp := publishedAPI{ //nolint:exhaustruct
-	}
+	dp := publishedAPI{}
 	if record == nil {
 		return dp
 	}
@@ -1432,8 +1430,7 @@ func datePublished(record *models.File) publishedAPI {
 
 func artifact(art *models.File) ArtifactAPI {
 	if art == nil {
-		return ArtifactAPI{ //nolint:exhaustruct
-		}
+		return ArtifactAPI{}
 	}
 	return ArtifactAPI{
 		Summary: artifactSummary(art),
@@ -1628,8 +1625,7 @@ func artifactSummaries(fs []*models.File) []artifactAPI {
 
 func artifactSummary(art *models.File) artifactAPI {
 	if art == nil {
-		return artifactAPI{ //nolint:exhaustruct
-		}
+		return artifactAPI{}
 	}
 	// Handle postedDate using Createdat field
 	var postedDate *time.Time
@@ -1638,7 +1634,7 @@ func artifactSummary(art *models.File) artifactAPI {
 		postedDate = &t
 	}
 
-	fileRecord := &models.File{ //nolint:exhaustruct
+	fileRecord := &models.File{
 		Filename:       art.Filename,
 		Section:        art.Section,
 		Platform:       art.Platform,

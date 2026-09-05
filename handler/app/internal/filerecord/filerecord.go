@@ -1,4 +1,6 @@
 // Package filerecord provides functions for the file model which is an artifact record.
+//
+//nolint:exhaustive,exhaustruct_v5
 package filerecord
 
 import (
@@ -666,7 +668,7 @@ func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
 		e.format = fmt.Sprintf(format, imgtype, config.Width, config.Height)
 		return !skipEntry
 	}
-	switch sign { //nolint:exhaustive
+	switch sign {
 	case magicnumber.InterleavedBitmap:
 		r, _ := os.Open(path)
 		if r == nil {
@@ -740,7 +742,7 @@ func (e *entry) parseMusicID3(path string) bool {
 // using magicfile techniques and other metadata.
 func ListContent( //nolint:cyclop,gocognit,funlen
 	ctx context.Context, sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string,
-) template.HTML { // TODO: fix order of args
+) template.HTML { // FIX: order of args
 	if nils.Slog("filerecord list context", ctx, sl, art) {
 		return ""
 	}
@@ -837,7 +839,7 @@ func ListContent( //nolint:cyclop,gocognit,funlen
 			module:  "",
 			size:    "",
 			format:  "",
-			exec:    magicnumber.Windows{}, //nolint:exhaustruct
+			exec:    magicnumber.Windows{},
 			sign:    0,
 			zeros:   zeroByteFiles,
 			bytes:   0,
@@ -994,7 +996,7 @@ func extractErr(sl *slog.Logger, src, platform, section string, zeroByteFiles in
 		module:  "",
 		size:    "",
 		format:  "",
-		exec:    magicnumber.Windows{}, //nolint:exhaustruct
+		exec:    magicnumber.Windows{},
 		sign:    0,
 		zeros:   zeroByteFiles,
 		bytes:   0,

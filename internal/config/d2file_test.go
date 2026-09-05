@@ -9,6 +9,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+const testdata = "testdata"
+
 func TestFileX(t *testing.T) {
 	t.Parallel()
 
@@ -27,7 +29,6 @@ func TestFileX(t *testing.T) {
 func TestFileDirectory(t *testing.T) {
 	t.Parallel()
 
-	testdata := filepath.Join("testdata")
 	got := config.File(testdata)
 
 	be.Err(t, got.Check())

@@ -79,7 +79,6 @@ func TestAbbreviations(t *testing.T) {
 		case 4, 5:
 			be.Equal(t, got, "ISO")
 		}
-
 	}
 }
 

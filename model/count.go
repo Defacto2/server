@@ -293,7 +293,7 @@ func UUIDs(ctx context.Context, exec boil.ContextExecutor) (UUIDVers, error) {
 		return UUIDVers{}, fmt.Errorf(format, "all uuids", err)
 	}
 	if len(fs) == 0 {
-		return UUIDVers{}, nil //nolint:exhaustruct
+		return UUIDVers{}, nil //nolint:exhaustruct_v5
 	}
 
 	uuids := UUIDVers{

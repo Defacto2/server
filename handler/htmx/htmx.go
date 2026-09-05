@@ -85,7 +85,8 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 		return fmt.Errorf(format, err)
 	}
 
-	conns, maxConn, err := postgres.Connections(db)
+	ctx := c.Request().Context()
+	conns, maxConn, err := postgres.Connections(ctx, db)
 	if err != nil {
 		return c.String(http.StatusOK, err.Error())
 	}

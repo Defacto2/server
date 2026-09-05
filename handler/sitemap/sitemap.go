@@ -13,6 +13,8 @@
 // [Search Central, Learn about sitemaps]: https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview
 // [XML Validator]: https://codebeautify.org/xmlvalidator
 // [Sitemaps XML protocol]: https://www.sitemaps.org/protocol.html
+//
+//nolint:exhaustruct_v5
 package sitemap
 
 import (
@@ -157,7 +159,8 @@ func MapSite(ctx context.Context, sl *slog.Logger, db *sql.DB) *Sitemap {
 	for _, loc := range staticLocs {
 		maps = append(maps, Loc{Loc: RootURL + "/" + loc})
 	}
-	for p := int64(2); p <= pages; p++ {
+	const count = int64(2)
+	for p := count; p <= pages; p++ {
 		maps = append(maps, Loc{Loc: RootURL + "/files/oldest/" + strconv.FormatInt(p, 10)})
 	}
 

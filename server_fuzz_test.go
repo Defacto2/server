@@ -17,8 +17,8 @@ import (
 // go test -fuzz=FuzzSearch -fuzztime=10000x
 
 var (
-	ts   fulltext.Tidbits //nolint:gochecknoglobals
-	once sync.Once        //nolint:gochecknoglobals
+	ts   fulltext.Tidbits
+	once sync.Once
 	//go:embed public/**/*
 	publicFS embed.FS
 )

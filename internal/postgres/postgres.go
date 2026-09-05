@@ -6,6 +6,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -17,7 +18,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // Use a lowlevel PostgreSQL driver.
 )
 
-var ErrEnvValue = errors.New("environment variable probably contains an invalid value")
+var ErrEnvValue = errors.New("postgresL: environment variable probably contains an invalid value")
 
 const (
 	// DefaultURL is an example PostgreSQL connection string, it must not be used in production.
@@ -30,9 +31,9 @@ const (
 
 // Connections returns the number of active connections and the maximum allowed connections.
 // Negative values are returned if there is an error.
-func Connections(db *sql.DB) (active, maxConn int64, err error) { //nolint:nonamedreturns
+func Connections(ctx context.Context, db *sql.DB) (active, maxConn int64, err error) { //nolint:nonamedreturns
 	const format = "postgresql connections: %w"
-	if err := nils.Check(db); err != nil {
+	if err := nils.Check(ctx, db); err != nil {
 		return -1, -1, fmt.Errorf(format, err)
 	}
 	// query active connections for current DB and max_connections in a single round-trip
@@ -41,7 +42,7 @@ func Connections(db *sql.DB) (active, maxConn int64, err error) { //nolint:nonam
 			(SELECT COUNT(*) FROM pg_stat_activity WHERE datname = current_database()),
 			(SELECT setting::bigint FROM pg_settings WHERE name = 'max_connections');`
 
-	if err := db.QueryRow(query).Scan(&active, &maxConn); err != nil {
+	if err := db.QueryRowContext(ctx, query).Scan(&active, &maxConn); err != nil {
 		return -1, -1, fmt.Errorf(format, err)
 	}
 

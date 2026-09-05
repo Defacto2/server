@@ -192,7 +192,7 @@ const (
 	reSGR     = `\x1b\[`
 )
 
-var reANSI = regexp.MustCompile("(?:" + reMove + "|" + reMovePos + "|" + reSGR + ")") //, reMove, reMovePos, reSGR))
+var reANSI = regexp.MustCompile("(?:" + reMove + "|" + reMovePos + "|" + reSGR + ")")
 
 func hasANSI00(r io.Reader) (bool, error) {
 	if r == nil {
@@ -234,7 +234,7 @@ func hasANSI00(r io.Reader) (bool, error) {
 }
 
 var (
-	ErrTooLong   = fmt.Errorf("reader is larger than 1MB")
+	ErrTooLong   = errors.New("reader is larger than 1MB")
 	ansiSequence = []byte("\x1b[")
 )
 
@@ -321,7 +321,7 @@ func hasANSI02(r io.Reader) (bool, error) {
 }
 
 func matchCSI(b []byte) bool {
-	for i := range len(b) {
+	for i := range b {
 		if b[i] != '\x1b' {
 			continue
 		}

@@ -161,6 +161,86 @@ func (prod Prod) Lookup(c *echo.Context, db *sql.DB, useCache bool) error {
 	return nil
 }
 
+func (prod Prod) ButtonOK(c *echo.Context, prodID int, info ...string) error {
+	demozoo := func() string {
+		const format = `<button type="button" class="btn btn-outline-success" ` +
+			`hx-put="/demozoo/production/%d" ` +
+			`hx-indicator="#demozoo-remote-indicator" ` +
+			`hx-target="#demozoo-submission-results" ` +
+			`hx-swap="innerHTML" ` +
+			`hx-trigger="click once delay:500ms" ` +
+			`hx-target-error="#demozoo-submission-error" ` +
+			`autofocus>Submit ID %d</button>`
+
+		const did = `demozoo-remote-indicator`
+		const dclass = `htmx-indicator text-secondary pt-2`
+		const sclass = `spinner-border spinner-border-sm`
+		const text = `Fetching Download linked by Demozoo...`
+
+		button := fmt.Sprintf(format, prodID, prodID)
+		button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
+			`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
+		button += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
+
+		return `<form class="d-grid">` + button + `</form>`
+	}
+
+	pouet := func() string {
+		const format = `<button type="button" class="btn btn-outline-success" ` +
+			`hx-put="/pouet/production/%d" ` +
+			`hx-indicator="#pouet-remote-indicator" ` +
+			`hx-target="#pouet-submission-results" ` +
+			`hx-swap="innerHTML" ` +
+			`hx-trigger="click once delay:500ms" ` +
+			`hx-target-error="#pouet-submission-error" ` +
+			`autofocus>Submit ID %d</button>`
+		const did = `pouet-remote-indicator`
+		const dclass = `htmx-indicator text-secondary pt-2`
+		const sclass = `spinner-border spinner-border-sm`
+		const text = `Fetching Download linked by Pouet...`
+
+		button := fmt.Sprintf(format, prodID, prodID)
+		button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
+			`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
+		button += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
+		return `<form class="d-grid">` + button + `</form>`
+	}
+
+	const code = http.StatusOK
+	switch prod {
+	case Demozoo:
+		return c.HTML(code, demozoo())
+	case Pouet:
+		return c.HTML(code, pouet())
+	default:
+		return nil
+	}
+}
+
+func (prod Prod) ValidFn(c *echo.Context, prodID int, useCache bool,
+	fn func(string) (string, error),
+) (bool, error) {
+	const format = "valid fn: %w"
+	if err := nils.Check(c); err != nil {
+		return false, fmt.Errorf(format, err)
+	}
+
+	sid := strconv.Itoa(prodID)
+	if ok := prodID > 0; !ok {
+		s := "invalid id: " + sid
+		return true, c.String(http.StatusNotAcceptable, s)
+	}
+
+	if useCache {
+		if s, err := fn(sid); err == nil && s != "" {
+			s := "Production " + sid + " is probably not suitable for Defacto2!<br>" +
+				"Types: " + s
+			return true, c.String(http.StatusOK, s)
+		}
+	}
+	return false, nil
+}
+
 // Looks up the Demozoo production ID and returns a form button to submit
 // the ID to the server for processing. If the Demozoo production ID is
 // already in use, an error message is returned.
@@ -309,86 +389,6 @@ func (prod Prod) lookupPouet(c *echo.Context, db *sql.DB, useCache bool) error {
 	return prod.ButtonOK(c, prodID, info...)
 }
 
-func (prod Prod) ButtonOK(c *echo.Context, prodID int, info ...string) error {
-	demozoo := func() string {
-		const format = `<button type="button" class="btn btn-outline-success" ` +
-			`hx-put="/demozoo/production/%d" ` +
-			`hx-indicator="#demozoo-remote-indicator" ` +
-			`hx-target="#demozoo-submission-results" ` +
-			`hx-swap="innerHTML" ` +
-			`hx-trigger="click once delay:500ms" ` +
-			`hx-target-error="#demozoo-submission-error" ` +
-			`autofocus>Submit ID %d</button>`
-
-		const did = `demozoo-remote-indicator`
-		const dclass = `htmx-indicator text-secondary pt-2`
-		const sclass = `spinner-border spinner-border-sm`
-		const text = `Fetching Download linked by Demozoo...`
-
-		button := fmt.Sprintf(format, prodID, prodID)
-		button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
-			`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
-		button += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
-
-		return `<form class="d-grid">` + button + `</form>`
-	}
-
-	pouet := func() string {
-		const format = `<button type="button" class="btn btn-outline-success" ` +
-			`hx-put="/pouet/production/%d" ` +
-			`hx-indicator="#pouet-remote-indicator" ` +
-			`hx-target="#pouet-submission-results" ` +
-			`hx-swap="innerHTML" ` +
-			`hx-trigger="click once delay:500ms" ` +
-			`hx-target-error="#pouet-submission-error" ` +
-			`autofocus>Submit ID %d</button>`
-		const did = `pouet-remote-indicator`
-		const dclass = `htmx-indicator text-secondary pt-2`
-		const sclass = `spinner-border spinner-border-sm`
-		const text = `Fetching Download linked by Pouet...`
-
-		button := fmt.Sprintf(format, prodID, prodID)
-		button += `<div id="` + did + `" class="` + dclass + `" role="status">` +
-			`  <span class="` + sclass + `"></span> <span>` + text + `</span></div>`
-		button += fmt.Sprintf(`<div>%s</div>`, strings.Join(info, " "))
-		return `<form class="d-grid">` + button + `</form>`
-	}
-
-	const code = http.StatusOK
-	switch prod {
-	case Demozoo:
-		return c.HTML(code, demozoo())
-	case Pouet:
-		return c.HTML(code, pouet())
-	default:
-		return nil
-	}
-}
-
-func (prod Prod) ValidFn(c *echo.Context, prodID int, useCache bool,
-	fn func(string) (string, error),
-) (bool, error) {
-	const format = "valid fn: %w"
-	if err := nils.Check(c); err != nil {
-		return false, fmt.Errorf(format, err)
-	}
-
-	sid := strconv.Itoa(prodID)
-	if ok := prodID > 0; !ok {
-		s := "invalid id: " + sid
-		return true, c.String(http.StatusNotAcceptable, s)
-	}
-
-	if useCache {
-		if s, err := fn(sid); err == nil && s != "" {
-			s := "Production " + sid + " is probably not suitable for Defacto2!<br>" +
-				"Types: " + s
-			return true, c.String(http.StatusOK, s)
-		}
-	}
-	return false, nil
-}
-
 // ValidateDemozoo looks up the Demozoo production ID and confirms that the
 // production is suitable for Defacto2. If a production is not suitable,
 // an message is returned.
@@ -396,7 +396,7 @@ func (prod Prod) ValidFn(c *echo.Context, prodID int, useCache bool,
 // A valid production requires at least one download link and must be a suitable type
 // such as an intro, demo or cracktro for MS-DOS, Windows etc.
 func ValidateDemozoo(c *echo.Context, prodID int, useCache bool) (demozoo.Production, error) {
-	none := demozoo.Production{} //nolint:exhaustruct
+	none := demozoo.Production{} //nolint:exhaustruct_v5
 	const format = "htmx demozoo valid: %w"
 	if err := nils.Check(c); err != nil {
 		return none, fmt.Errorf(format, err)
@@ -451,7 +451,7 @@ func ValidatePouet(c *echo.Context, prodID int, useCache bool) (pouet.Response, 
 	const msg = "htmx pouet valid context"
 	const format = `Production %d is probably not suitable for Defacto2.`
 	const helper = `<br>A production must an intro, demo or cracktro either for MsDos or Windows.`
-	none := pouet.Response{} //nolint:exhaustruct
+	none := pouet.Response{} //nolint:exhaustruct_v5
 	if err := nils.Check(c); err != nil {
 		return none, fmt.Errorf("%s: %w", msg, err)
 	}

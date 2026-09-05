@@ -43,8 +43,8 @@ func Test_dirs_editorContent(t *testing.T) {
 }
 
 var (
-	latin1 encoding.Encoding = charmap.ISO8859_1   //nolint:gochecknoglobals
-	cp437  encoding.Encoding = charmap.CodePage437 //nolint:gochecknoglobals
+	latin1 encoding.Encoding = charmap.ISO8859_1
+	cp437  encoding.Encoding = charmap.CodePage437
 )
 
 func TestEncoder(t *testing.T) {

@@ -394,7 +394,7 @@ type useProcess struct {
 // FSUseImage handles the htmx request to use an image file artifact as a preview.
 func FSUseImage(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	up := useProcess{
-		"record image copier: %w",
+		"record image copier",
 		"The file is empty and was not copied.",
 		"Images copied, the browser will refresh.",
 	}
@@ -404,7 +404,7 @@ func FSUseImage(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 // FSUseBinText handles the htmx request to use the text file artifact as a preview.
 func FSUseBinText(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	up := useProcess{
-		"record binary text readme imager: %w",
+		"record binary text readme imager",
 		"The file is empty and was not used.",
 		"Binary text imaged, the browser will refresh.",
 	}
@@ -417,7 +417,7 @@ func (fp useProcess) process(sl *slog.Logger, c *echo.Context,
 	processFunc func(context.Context, *slog.Logger, string, string) error,
 ) error {
 	if err := nils.Check(sl, c); err != nil {
-		return fmt.Errorf(fp.format, err)
+		return fmt.Errorf("%s: %w", fp.format, err)
 	}
 
 	unid, name, err := Path(c)

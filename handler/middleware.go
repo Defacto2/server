@@ -1,4 +1,4 @@
-//nolint:gochecknoglobals,exhaustruct
+//nolint:gochecknoglobals,exhaustruct_v5
 package handler
 
 // Package file middleware.go contains the custom middleware functions for the Echo web framework.

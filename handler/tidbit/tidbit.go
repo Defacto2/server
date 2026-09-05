@@ -1,4 +1,6 @@
 // Package tidbit offers hyperlinked historical information about the Scene releasers and groups.
+//
+//nolint:exhaustruct_v5,gochecknoglobals
 package tidbit
 
 import (
@@ -60,7 +62,6 @@ type Tibits map[ID][]URI
 // Tidbit is a map of tidbits mapped to their descriptions.
 type Tidbit map[ID]string
 
-//nolint:gochecknoglobals
 var groups = Tibits{
 	1:    []URI{untouchables, "the-untouchables"},
 	1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance", "byt"},
@@ -561,7 +562,7 @@ func (id ID) Markdown(sl *slog.Logger, fsys fs.FS, dir string) []byte {
 
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse(b)
-	renderer := html.NewRenderer(html.RendererOptions{ //nolint:exhaustruct // too any optional fields
+	renderer := html.NewRenderer(html.RendererOptions{
 		Flags: html.CommonFlags | html.HrefTargetBlank,
 	})
 	return markdown.Render(doc, renderer)

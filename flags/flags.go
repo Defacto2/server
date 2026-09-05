@@ -1,6 +1,8 @@
 // Package flags provides the command line interface for the Defacto2 server application.
 // With the configuration of the application done using the environment variables,
 // the use of commands should be kept to a minimum.
+//
+//nolint:exhaustruct_v5
 package flags
 
 import (
@@ -59,7 +61,6 @@ will not display any thumbnails or previews or serve the file downloads.`, c.HTT
 //
 // [github.com/urfave.cli/v2]: https://github.com/urfave/cli
 func App(w io.Writer, ver string, c *config.Config) *cli.App {
-	//nolint:exhaustruct // External library struct with many optional fields
 	app := &cli.App{
 		Name:    Title,
 		Version: Version(ver),
@@ -90,7 +91,6 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 
 // Config command lists the server configuration.
 func Config(_ io.Writer, c *config.Config) *cli.Command {
-	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "config",
 		Aliases:     []string{"c"},
@@ -109,7 +109,6 @@ func Config(_ io.Writer, c *config.Config) *cli.Command {
 
 // Check command checks the server configuration.
 func Check(_ io.Writer, c *config.Config) *cli.Command {
-	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "check",
 		Aliases:     []string{"k"},
@@ -126,7 +125,6 @@ func Check(_ io.Writer, c *config.Config) *cli.Command {
 
 // Address command lists the server addresses.
 func Address(_ io.Writer, c *config.Config) *cli.Command {
-	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "address",
 		Aliases:     []string{"a"},
@@ -143,7 +141,6 @@ func Address(_ io.Writer, c *config.Config) *cli.Command {
 
 // TempDir command removes all tempoary directories created by this app.
 func TempDir(_ io.Writer, c *config.Config) *cli.Command {
-	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "temp",
 		Aliases:     []string{"t"},
@@ -157,7 +154,6 @@ func TempDir(_ io.Writer, c *config.Config) *cli.Command {
 
 // Fix command fixes the database and assets.
 func Fix(_ io.Writer, c *config.Config) *cli.Command {
-	//nolint:exhaustruct // External library struct with many optional fields
 	return &cli.Command{
 		Name:        "fix",
 		Aliases:     []string{"f"},

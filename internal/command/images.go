@@ -1,3 +1,4 @@
+//nolint:exhaustruct_v5,gochecknoglobals
 package command
 
 // Package file images.go contains the image conversion functions for
@@ -34,7 +35,7 @@ const (
 
 // ImagesExt returns args slice of image file extensions used by the website
 // preview and thumbnail images, including the legacy and modern formats.
-var imagesExt = [...]string{ //nolint:gochecknoglobals
+var imagesExt = [...]string{
 	gif, ".GIF", jpg, ".JPG", jpeg, ".JPEG", png, ".PNG", webp, ".WEBP", ".avif", ".AVIF",
 }
 
@@ -123,7 +124,7 @@ func ImagesPixelate(ctx context.Context, sl *slog.Logger, unid string, dirs ...s
 
 			arg := option.Opts{}
 			arg.Pixelate(name)
-			r := Runner{Log: sl} //nolint:exhaustruct
+			r := Runner{Log: sl}
 			if _, err := r.Run(ctx, Magick, arg...); err != nil {
 				return fmt.Errorf(format, "convert", err)
 			}
@@ -200,7 +201,7 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 		tmp := filepath.Join(tmpDir, unid+ext)
 		arg := option.Opts{}
 		arg.ThumbAlignment(src, tmp, int(align))
-		r := Runner{Log: sl} //nolint:exhaustruct
+		r := Runner{Log: sl}
 		if _, err := r.Run(ctx, Magick, arg...); err != nil {
 			return fmt.Errorf(format, "run magick", err)
 		}
@@ -261,7 +262,7 @@ func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, previ
 		arg := option.Opts{}
 		tmp := filepath.Join(path, unid+ext)
 		arg.CropAlignment(src, tmp, int(crop))
-		r := Runner{Log: sl} //nolint:exhaustruct
+		r := Runner{Log: sl}
 		_, err := r.Run(ctx, Magick, arg...)
 		if err != nil {
 			return fmt.Errorf(format, "", err)
@@ -518,7 +519,7 @@ func (t Thumb) make(ctx context.Context, sl *slog.Logger, thumb dir.Directory) e
 	} else {
 		arg.PNGPixel(true, t.Source, tmp)
 	}
-	r := Runner{Log: sl} //nolint:exhaustruct
+	r := Runner{Log: sl}
 	if out, err := r.Run(ctx, Magick, arg...); err != nil {
 		return fmt.Errorf(format, "run magick convert "+string(out), err)
 	}
@@ -560,7 +561,7 @@ func OptimizePNG(ctx context.Context, sl *slog.Logger, src string) error {
 		return nil
 	}
 
-	r := Runner{Log: sl} //nolint:exhaustruct
+	r := Runner{Log: sl}
 	if _, err := r.Run(ctx, Optipng, src); err != nil {
 		return fmt.Errorf(format, src, err)
 	}

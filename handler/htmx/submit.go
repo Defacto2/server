@@ -152,7 +152,7 @@ func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
 		return fmt.Errorf(format, "check", err)
 	}
 
-	// check directory before transfering
+	// check directory before transferring
 	if err := t.Download.Check(sl); err != nil {
 		return errUpload(c, err)
 	}
@@ -200,7 +200,7 @@ func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
 
 	readme := archive.Readme(fileHeader.Filename, content...)
 
-	insert := Insert{
+	insert := Insert{ //nolint:exhaustruct_v5
 		FileHeader: fileHeader,
 		Readme:     readme,
 		Key:        t.Key,

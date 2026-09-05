@@ -1,4 +1,6 @@
-// Package runner is used to build test images for a visual confirmationthat will be outputed to the terminal.
+// Package runner is used to build test images for a visual confirmation that will be outputted to the terminal.
+//
+//nolint:funlen,gochecknoglobals
 package main
 
 import (
@@ -35,8 +37,7 @@ func printOut(a ...any) {
 
 var testdata = filepath.Join("internal", "command", "testdata")
 
-func main() { //nolint:funlen
-
+func main() {
 	sl := slog.Default()
 	ctx := context.Background()
 

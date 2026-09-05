@@ -25,7 +25,7 @@ import (
 
 const code = http.StatusMovedPermanently
 
-func BeginTx(c *echo.Context, db *sql.DB, fn func(*sql.Tx) error) (err error) {
+func BeginTx(c *echo.Context, db *sql.DB, fn func(*sql.Tx) error) error {
 	const format = "router begin tx %s: %w"
 	if err := nils.Check(c, db, fn); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -61,7 +61,7 @@ func (serv *Server) RouteFS(sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.F
 	}
 
 	app.Caching.Records(serv.RecordCount)
-	dirs := app.Dirs{ //nolint:exhaustruct
+	dirs := app.Dirs{ //nolint:exhaustruct_v5
 		Download:  dir.Directory(serv.Environment.AbsDownload),
 		Preview:   dir.Directory(serv.Environment.AbsPreview),
 		Thumbnail: dir.Directory(serv.Environment.AbsThumbnail),

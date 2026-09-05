@@ -79,12 +79,6 @@ func TestPouetSubmit(t *testing.T) {
 	_ = tx.Rollback()
 }
 
-func TestFormData(t *testing.T) {
-	t.Parallel()
-
-	//c := testutil.NewContext(t, "/upload/preview")
-}
-
 func TestSubmitImage(t *testing.T) {
 	t.Parallel()
 

@@ -39,7 +39,7 @@ func TestConnValidate(t *testing.T) {
 		url  string
 		want bool
 	}{
-		{
+		{ //nolint:gosec
 			name: "valid URL",
 			url:  "postgres://testuser:testpass@localhost:5432/testdb",
 			want: false,
@@ -104,10 +104,10 @@ func TestConnections(t *testing.T) {
 
 	db := testutil.DB(t)
 
-	_, _, err := postgres.Connections(nil)
+	_, _, err := postgres.Connections(t.Context(), nil)
 	be.Err(t, err)
 
-	x, y, err := postgres.Connections(db)
+	x, y, err := postgres.Connections(t.Context(), db)
 	be.Err(t, err, nil)
 	be.True(t, x > 0)
 	be.True(t, y > 0)

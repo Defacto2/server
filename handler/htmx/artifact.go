@@ -29,7 +29,7 @@ const (
 // Path returns the uuid and directory path.
 // The named unid and the path are sourced from the URL parameters.
 // It returns an error if the unid or name is invalid.
-func Path(c *echo.Context) (unid string, name string, err error) {
+func Path(c *echo.Context) (unid string, name string, err error) { //nolint:nonamedreturns
 	const format = "htmx path %s: %w"
 	if err := nils.Check(c); err != nil {
 		return "", "", fmt.Errorf(format, "check", err)
@@ -102,7 +102,6 @@ func PageReload(c *echo.Context) *echo.Context {
 	return c
 }
 
-// func CommitUpload(sl *slog.Logger, c *echo.Context, tx.*sql.Tx, )
 func CommitSanitize(c *echo.Context, tx *sql.Tx, name string,
 	sanitize func(string) string,
 	fn func(context.Context, boil.ContextExecutor, int64, string) error,
@@ -190,7 +189,7 @@ func CommitStr(c *echo.Context, tx *sql.Tx, name string,
 	value := c.FormValue(name)
 
 	ctx := c.Request().Context()
-	if err := fn(ctx, tx, int64(key), value); err != nil {
+	if err := fn(ctx, tx, key, value); err != nil {
 		return badRequest(c, fmt.Errorf(format, "fn", err))
 	}
 

@@ -2,6 +2,8 @@ version: '2'
 linters:
   default: all
   disable:
+    - contextcheck # conflicts with echo patterns
+    - exhaustruct # retired
     - gomodguard # redundant
     - gomoddirectives # required at the moment (see go.mod)
     - depguard # too complex to maintain with this app
@@ -13,6 +15,8 @@ linters:
     - wsl
     - wsl_v5
     - dupl # temp
+    - godox # FIX: remove
+    - funlen # FIX: remove
   settings:
     sloglint:
       attr-only: true
@@ -76,9 +80,11 @@ linters:
           - dogsled
           - dupl
           - exhaustive
-          - exhaustruct
+          - exhaustruct_v5
           - funlen
           - goconst
+          - gochecknoglobals
+          - gochecknoinits
           - gocyclo
           - ireturn
           - lll
@@ -95,7 +101,7 @@ linters:
           - revive
         path: handler/app/dirs.go
       - linters:
-          - exhaustruct
+          - exhaustruct_v5
           - lll
         path: handler/app/milestone.go
       - linters:

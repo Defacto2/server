@@ -76,7 +76,7 @@ func JsDosConfig(f *models.File) ([]byte, error) {
 		return []byte{}, fmt.Errorf(format, ErrModel)
 	}
 
-	emulation := jsdos.Jsdos{} //nolint:exhaustruct
+	emulation := jsdos.Jsdos{} //nolint:exhaustruct_v5
 	cpu := f.DoseeHardwareCPU.String
 	if f.DoseeHardwareCPU.Valid && cpu != "" {
 		emulation.CPU(cpu)

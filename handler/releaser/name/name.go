@@ -452,12 +452,12 @@ func String(p Path) string {
 //	name.Valid("acid-productions") = true
 //	name.Valid("acid-productions!") = false
 func Valid(p Path) bool {
-	if len(Path(p)) == 0 {
+	if len(p) == 0 {
 		return false
 	}
 
-	for i := 0; i < len(Path(p)); i++ {
-		if !valid(Path(p)[i]) {
+	for i := range len(p) {
+		if !valid(p[i]) {
 			return false
 		}
 	}
@@ -470,7 +470,7 @@ func Valid(p Path) bool {
 // The f func can be [obfuscate], [valid], or a custom validator.
 func Clean(s string, f func(byte) bool) string {
 	idx := -1
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		if !f(s[i]) {
 			idx = i
 			break

@@ -368,7 +368,7 @@ func (ds *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any
 		return data, fmt.Errorf(format, "arguments", err)
 	}
 
-	text := readme.Text{ //nolint:exhaustruct
+	text := readme.Text{ //nolint:exhaustruct_v5
 		Download: ds.Download,
 		Extra:    ds.Extra,
 		UUID:     art.UUID.String,

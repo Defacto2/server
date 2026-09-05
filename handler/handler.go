@@ -2,6 +2,8 @@
 // Using the [Echo] web framework, the handler is the entry point for the web server.
 //
 // [Echo]: https://echo.labstack.com/
+//
+//nolint:exhaustruct_v5,nonamedreturns
 package handler
 
 import (
@@ -270,7 +272,7 @@ func (serv *Server) TemplRegistry(ctx context.Context, sl *slog.Logger, db *sql.
 	webapp := app.Templ{
 		Public:      serv.Public,
 		View:        serv.View,
-		Subresource: app.SRI{}, //nolint:exhaustruct // SRI fields are computed via Verify() method
+		Subresource: app.SRI{},
 		Version:     serv.Version,
 		Brand:       serv.Brand,
 		Environment: serv.Environment,
@@ -294,7 +296,7 @@ func (serv *Server) TemplRegistry(ctx context.Context, sl *slog.Logger, db *sql.
 
 // EchoConfig returns the base server start configuration.
 func (serv *Server) EchoConfig() echo.StartConfig {
-	config := echo.StartConfig{ //nolint:exhaustruct
+	config := echo.StartConfig{
 		HideBanner: true,
 		HidePort:   true,
 	}
@@ -530,7 +532,7 @@ func (serv *Server) startDual(ctx context.Context, sl *slog.Logger, h http.Handl
 	g, ctx := errgroup.WithContext(ctx)
 
 	httpConfig := serv.HTTP()
-	tlsConfig := echo.StartConfig{} //nolint:exhaustruct
+	tlsConfig := echo.StartConfig{}
 	certB, keyB := []byte{}, []byte{}
 	var err error
 	if local {

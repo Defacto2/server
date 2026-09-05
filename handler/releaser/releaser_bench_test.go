@@ -1,4 +1,3 @@
-//nolint:gochecknoglobals
 package releaser_test
 
 import (

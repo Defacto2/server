@@ -175,12 +175,16 @@ func Obf01(s string) name.Path {
 
 func Obf02(s string) name.Path {
 	idx := -1
-	for i := 0; i < len(s); i++ {
+OuterLoop:
+	for i := range len(s) {
 		b := s[i]
-		if !((b >= 'a' && b <= 'z') ||
-			(b >= '0' && b <= '9') || b == '&' || b == '-' || b == ',' || b == ' ') {
+		switch {
+		case b >= 'a' && b <= 'z',
+			b >= '0' && b <= '9',
+			b == '&', b == '-', b == ',', b == ' ':
 			idx = i
-			break
+			break OuterLoop
+		default:
 		}
 	}
 
@@ -208,7 +212,7 @@ func allowed(b byte) bool {
 
 func Obf03(s string) string {
 	idx := -1
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		if !allowed(s[i]) {
 			idx = i
 			break

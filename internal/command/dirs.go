@@ -1,3 +1,4 @@
+//nolint:exhaustive,exhaustruct_v5
 package command
 
 import (
@@ -73,7 +74,7 @@ func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, uni
 		return fmt.Errorf(format, "context", ctxErr)
 	}
 
-	switch magic { //nolint:exhaustive
+	switch magic {
 	case IFF, JPG, PNG, GIF, WebP, TIFF, BMP, PCX: // do nothing
 	default:
 		return fmt.Errorf(format, magic.Title(), ErrUnknownImg)
@@ -85,7 +86,7 @@ func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, uni
 		return fmt.Errorf(format, "delete existing images", err)
 	}
 
-	switch magic { //nolint:exhaustive
+	switch magic {
 	case IFF:
 		return ds.previewPixels(ctx, sl, srcImage, unid)
 	case JPG:
@@ -380,7 +381,7 @@ func (ds Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, amig
 		arg.AnsiDOS(srcPath, tmp)
 	}
 
-	r := Runner{Log: sl} //nolint:exhaustruct
+	r := Runner{Log: sl}
 	if _, err := r.Run(ctx, Ansilove, arg...); err != nil {
 		return fmt.Errorf(format, "run ansilove", err)
 	}
@@ -474,7 +475,7 @@ func (ds Dirs) gifPreview(ctx context.Context, sl *slog.Logger, src, unid string
 	// command arguments: [src, flags..., "-o", tmp]
 	arg := option.Opts{}
 	arg.Gif2webp(src, tmp)
-	r := Runner{Log: sl} //nolint:exhaustruct
+	r := Runner{Log: sl}
 	if _, err := r.Run(ctx, Gif2webp, arg...); err != nil {
 		return fmt.Errorf(format, "run gif2webp", err)
 	}
@@ -553,7 +554,7 @@ func (ds Dirs) webpPreview(ctx context.Context, sl *slog.Logger, src, unid strin
 	// cwebp arguments: [src, flags..., "-o", tmp]
 	arg := option.Opts{}
 	arg.WebpPixel(src, tmp)
-	r := Runner{Log: sl} //nolint:exhaustruct
+	r := Runner{Log: sl}
 	if out, err := r.Run(ctx, Cwebp, arg...); err != nil {
 		return fmt.Errorf(format, "run cwebp "+string(out), err)
 	}
@@ -597,7 +598,7 @@ func (ds Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid str
 	// command flags: [src, flags..., tmpPath]
 	arg := option.Opts{}
 	arg.PNGPixel(false, src, tmp)
-	r := Runner{Log: sl} //nolint:exhaustruct
+	r := Runner{Log: sl}
 	if _, err := r.Run(ctx, Magick, arg...); err != nil {
 		return fmt.Errorf(format, "run magick", err)
 	}
@@ -639,7 +640,7 @@ func (ds Dirs) previewPhoto(ctx context.Context, sl *slog.Logger, src, unid stri
 	jtmp := filepath.Join(tmpDir, filepath.Base(src)+jpg)
 	arg := option.Opts{}
 	arg.JPGPhoto(false, src, jtmp)
-	r := Runner{Log: sl} //nolint:exhaustruct
+	r := Runner{Log: sl}
 	if _, err := r.Run(ctx, Magick, arg...); err != nil {
 		return fmt.Errorf(format, "convert jpeg", err)
 	}

@@ -1,4 +1,6 @@
 // Package word provides functions for cleaning and formatting strings of known words and group names.
+//
+//nolint:gochecknoglobals,gochecknoinits,mnd
 package word
 
 import (
@@ -73,10 +75,14 @@ var engTitlePool = sync.Pool{
 
 // English is intended to safely return an English title using upper casing lead.
 func English(s string) string {
-	caserPtr := engTitlePool.Get().(*cases.Caser)
-	defer engTitlePool.Put(caserPtr)
+	caserPtr, ok := engTitlePool.Get().(*cases.Caser)
+	if !ok {
+		// Handle allocation fallback or error if the object isn't *cases.Caser
+		caser := cases.Title(language.English)
+		caserPtr = &caser
+	}
 
-	return (*caserPtr).String(s)
+	return caserPtr.String(s)
 }
 
 // Abbreviation applies upper casing to known acronyms, initialisms and abbreviations.
@@ -95,7 +101,7 @@ func Abbreviation(lcase string) string {
 	return abbreviations[lcase]
 }
 
-// Abbreviation applies upper casing to known acronyms, initialisms and abbreviations.
+// AbbreviationMix applies upper casing to known acronyms, initialisms and abbreviations.
 // It applies lower casing to ordinal numbers 1st through to 13th.
 // Otherwise it returns an empty string.
 //
@@ -136,7 +142,7 @@ func Amp(s string) string {
 	builder.Grow(len(s) + 4)
 
 	var inAmp bool
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		ch := s[i]
 
 		if ch == '&' {
@@ -308,11 +314,7 @@ func PreSuffix(s string) string {
 		return ""
 	}
 	suff := s[len(s)-2:]
-	if suff == "am" || suff == "AM" || suff == "Am" ||
-		suff == "pm" || suff == "PM" || suff == "Pm" ||
-		suff == "ad" || suff == "AD" || suff == "Ad" ||
-		suff == "bc" || suff == "BC" || suff == "Bc" {
-
+	if chkSuffix(suff) {
 		prefix := s[:len(s)-2]
 		if _, err := strconv.Atoi(prefix); err == nil {
 			return prefix + strings.ToUpper(suff)
@@ -337,12 +339,19 @@ func PreSuffix(s string) string {
 	return ""
 }
 
+func chkSuffix(suff string) bool {
+	return suff == "am" || suff == "AM" || suff == "Am" ||
+		suff == "pm" || suff == "PM" || suff == "Pm" ||
+		suff == "ad" || suff == "AD" || suff == "Ad" ||
+		suff == "bc" || suff == "BC" || suff == "Bc"
+}
+
 // Sequence formats the string when i is 0, meaning s is the first word.
 func Sequence(s string, i int) string {
 	if i != 0 {
 		return ""
 	}
-	switch s {
+	switch s { //nolint:gocritic
 	case "inc":
 		return "INC"
 	}
@@ -432,7 +441,7 @@ func TrimSP(s string) string {
 		return ""
 	}
 	hasDupes := false
-	for i := 0; i < len(s)-1; i++ {
+	for i := range len(s) - 1 {
 		if (s[i] == ' ' && s[i+1] == ' ') || s[i] == '\t' || s[i] == '\n' || s[i] == '\r' {
 			hasDupes = true
 			break
@@ -445,7 +454,7 @@ func TrimSP(s string) string {
 	var builder strings.Builder
 	builder.Grow(len(s))
 	inSpace := false
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		c := s[i]
 		if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
 			if !inSpace {

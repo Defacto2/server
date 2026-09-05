@@ -404,7 +404,7 @@ func abbr04(s string) string {
 	if res, ok := abbreviations4[s]; ok {
 		return res
 	}
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		if s[i] >= 'A' && s[i] <= 'Z' {
 			return abbreviations4[strings.ToLower(s)]
 		}
@@ -502,7 +502,7 @@ func amp02(s string) string {
 	builder.Grow(len(s) + 4)
 
 	var inAmp bool
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		ch := s[i]
 
 		if ch == '&' {
@@ -592,7 +592,7 @@ func cell02(s string) string {
 
 func toUpperFast(s string) string {
 	hasLower := false
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		if s[i] >= 'a' && s[i] <= 'z' {
 			hasLower = true
 			break
@@ -669,7 +669,7 @@ func hyp01(w string) string {
 	}
 
 	count := 0
-	for i := 0; i < len(w); i++ {
+	for i := range len(w) {
 		if w[i] == '-' {
 			count++
 		}
@@ -753,7 +753,6 @@ func pre01(s string, title cases.Caser) string {
 		sfx == "pm" || sfx == "PM" || sfx == "Pm" ||
 		sfx == "ad" || sfx == "AD" || sfx == "Ad" ||
 		sfx == "bc" || sfx == "BC" || sfx == "Bc" {
-
 		prefix := s[:len(s)-2]
 		if _, err := strconv.Atoi(prefix); err == nil {
 			return prefix + strings.ToUpper(sfx)
@@ -833,7 +832,7 @@ func TrimSPManual(s string) string {
 		return ""
 	}
 	hasDupes := false
-	for i := 0; i < len(s)-1; i++ {
+	for i := range len(s) - 1 {
 		if (s[i] == ' ' && s[i+1] == ' ') || s[i] == '\t' || s[i] == '\n' || s[i] == '\r' {
 			hasDupes = true
 			break
@@ -846,7 +845,7 @@ func TrimSPManual(s string) string {
 	var builder strings.Builder
 	builder.Grow(len(s))
 	inSpace := false
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		c := s[i]
 		if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
 			if !inSpace {

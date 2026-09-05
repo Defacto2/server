@@ -507,7 +507,7 @@ func txReleasers(c *echo.Context, tx *sql.Tx, undo bool) error {
 	return StatusOK(c, "artifact-editor-releasers")
 }
 
-// YMD are the date of release form input options
+// YMD are the date of release form input options.
 type YMD int
 
 const (
@@ -532,7 +532,7 @@ func TxLastMod(c *echo.Context, tx *sql.Tx) error {
 	return DateLast.commit(c, tx)
 }
 
-func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error {
+func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error { //nolint:cyclop
 	const format = "tx ymd commit %s: %w"
 	if err := nils.Check(c, tx); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -603,7 +603,9 @@ func (ymd YMD) commit(c *echo.Context, tx *sql.Tx) error {
 	switch ymd {
 	case DateUndo:
 		return StatusOK(c, "artifact-editor-date-undo")
-	default:
+	case DateLast, DateForm:
 		return StatusOK(c, "artifact-editor-date-update")
+	default:
+		return nil
 	}
 }

@@ -1,4 +1,4 @@
-//nolint:gochecknoglobals
+//nolint:exhaustruct_v5,gochecknoglobals,mnd,wrapcheck
 package testutil
 
 import (
@@ -24,7 +24,7 @@ import (
 )
 
 // INFO: Check untested funcs, run:
-// go test -coverprofile=cover.out . && go tool cover -html=cover.out
+// go test -coverprofile=coverage.out . && go tool cover -html=coverage.out
 //
 // INFO: To run benchmarks, run:
 // go test -bench=Benchmark -benchmem
@@ -72,7 +72,7 @@ func DBConns(tb testing.TB) {
 	if db == nil {
 		return
 	}
-	a, m, err := postgres.Connections(db)
+	a, m, err := postgres.Connections(tb.Context(), db)
 	if err != nil {
 		tb.Fatalf("connections err: %v", err)
 	}
@@ -119,7 +119,7 @@ func EchoStatus(tb testing.TB, e *echo.Echo, target string, status int) *echo.Co
 		target = "/" // NOTE: target cannot be empty or a race condition may occur.
 	}
 
-	req := httptest.NewRequest(http.MethodGet, target, nil)
+	req := httptest.NewRequestWithContext(tb.Context(), http.MethodGet, target, nil)
 	rec := httptest.NewRecorder()
 
 	c := e.NewContext(req, rec)
@@ -138,7 +138,7 @@ func EchoContext(tb testing.TB, e *echo.Echo, target string) *echo.Context {
 		target = "/"
 	}
 
-	req := httptest.NewRequest(http.MethodGet, target, nil)
+	req := httptest.NewRequestWithContext(tb.Context(), http.MethodGet, target, nil)
 	rec := httptest.NewRecorder()
 
 	return e.NewContext(req, rec)
@@ -146,7 +146,9 @@ func EchoContext(tb testing.TB, e *echo.Echo, target string) *echo.Context {
 
 type Input map[string]string
 
-func newEchoTest(t *testing.T, target, fieldname, filename string, formInputs Input, pathValues echo.PathValues) *echo.Context {
+func newEchoTest(t *testing.T,
+	target, fieldname, filename string, formInputs Input, pathValues echo.PathValues,
+) *echo.Context {
 	t.Helper()
 	if target == "" {
 		target = "/"
@@ -181,7 +183,7 @@ func newEchoTest(t *testing.T, target, fieldname, filename string, formInputs In
 		t.Fatal(err)
 	}
 
-	r := httptest.NewRequest(http.MethodPost, target, &body)
+	r := httptest.NewRequestWithContext(t.Context(), http.MethodPost, target, &body)
 	r.Header.Set(echo.HeaderContentType, w.FormDataContentType())
 
 	c, _ := echotest.ContextConfig{}.ToContextRecorder(t)
@@ -206,7 +208,7 @@ func NewContext(tb testing.TB, target string) *echo.Context {
 }
 
 // NewInput creates a new instance of Echo and returns a response using the target url.
-// It sets the key and value that are mapped as both query paramaters and form values.
+// It sets the key and value that are mapped as both query parameters and form values.
 // If no target is provided, it is set to root "/".
 func NewInput(tb testing.TB, target, key, value string) *echo.Context {
 	tb.Helper()
@@ -218,7 +220,7 @@ func NewInput(tb testing.TB, target, key, value string) *echo.Context {
 	form.Set(key, value)
 
 	body := strings.NewReader(form.Encode())
-	req := httptest.NewRequest(http.MethodPost, target, body)
+	req := httptest.NewRequestWithContext(tb.Context(), http.MethodPost, target, body)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 	rec := httptest.NewRecorder()
@@ -259,6 +261,8 @@ func NewPath(t *testing.T, target string, pathValues echo.PathValues) *echo.Cont
 
 // OpenFS opens the root directory of this Go project and closes on cleanup.
 func OpenFS(tb testing.TB) fs.FS {
+	tb.Helper()
+
 	return OpenRoot(tb).FS()
 }
 
@@ -267,7 +271,7 @@ func OpenRoot(tb testing.TB) *os.Root {
 	tb.Helper()
 
 	// open root of the repo relative to this file
-	root, err := os.OpenRoot(filepath.Join(".."))
+	root, err := os.OpenRoot("..")
 	if err != nil {
 		tb.Fatal("cannot open the root path", err)
 	}
@@ -347,7 +351,7 @@ type ANSITest struct {
 	Data []byte
 }
 
-// ANSITexts generates a set of testing data containing randomized data
+// ANSITests generates a set of testing data containing randomized data
 // embedded with ANSI escape codes. Being intended for use in tests
 // requiring detection and removal.
 func ANSITests(tb testing.TB) []ANSITest {

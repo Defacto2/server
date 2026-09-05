@@ -1,4 +1,6 @@
 // Package command provides interfaces for the shell commands and programs on the host.
+//
+//nolint:exhaustruct_v5,gochecknoglobals
 package command
 
 import (
@@ -64,7 +66,7 @@ const (
 )
 
 // Lookups returns a list of the execute command names used by the application.
-var Lookups = [...]string{ //nolint:gochecknoglobals
+var Lookups = [...]string{
 	Arc,
 	Arj,
 	Ansilove,
@@ -82,7 +84,7 @@ var Lookups = [...]string{ //nolint:gochecknoglobals
 }
 
 // Infos returns details for the list of the execute command names used by the application.
-var Infos = [...]string{ //nolint:gochecknoglobals
+var Infos = [...]string{
 	"archive utility ver 5+",
 	"arj32 ver 3+",
 	"ansilove/c ver 4+",

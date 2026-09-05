@@ -42,7 +42,7 @@ func TestDirectoryFile(t *testing.T) {
 func TestDirectory(t *testing.T) {
 	t.Parallel()
 
-	testdata := filepath.Join("testdata")
+	const testdata = "testdata"
 	got := config.Directory(testdata)
 
 	be.Err(t, got.Check(), nil)

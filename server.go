@@ -1,3 +1,4 @@
+//nolint:funlen,nonamedreturns
 package main
 
 /*
@@ -55,7 +56,7 @@ var (
 
 var ErrLog = errors.New("cannot save one or more log files")
 
-func main() { //nolint:funlen
+func main() {
 	const msg = "defacto2 startup"
 
 	// Initialize a temporary logger, and get then print the environment variable configurations.

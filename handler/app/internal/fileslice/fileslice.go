@@ -1,6 +1,6 @@
 // Package fileslice provides functions that return model FileSlices, which are multiple artifact records.
 //
-//nolint:wrapcheck
+//nolint:exhaustive,gochecknoglobals,wrapcheck
 package fileslice
 
 import (
@@ -20,7 +20,6 @@ import (
 
 var ErrCategory = errors.New("unknown artifacts categories")
 
-//nolint:gochecknoglobals
 var uriMap = func() map[string]URI {
 	m := make(map[string]URI)
 	for val := range int(WindowsPack) {
@@ -101,7 +100,7 @@ const (
 	WindowsPack // last value needs to be a global to allow testing
 )
 
-var uriStrings = [...]string{ //nolint:gochecknoglobals
+var uriStrings = [...]string{
 	0:  "",
 	1:  "advert",
 	2:  "announcement",
@@ -196,7 +195,7 @@ type fileMeta struct {
 	lead  string
 }
 
-var fileInfoMap = map[URI]fileMeta{ //nolint:gochecknoglobals
+var fileInfoMap = map[URI]fileMeta{
 	NewUploads: {
 		logo:  "new uploads",
 		h1sub: "the new uploads",
@@ -321,10 +320,10 @@ func RecordsSub(uri string) string {
 type queryFunc func(context.Context, boil.ContextExecutor, int, int) (models.FileSlice, error)
 
 var (
-	a model.Artifacts //nolint:gochecknoglobals
+	a model.Artifacts
 
 	// recordDispatch dispatch map for models.
-	recordDispatch = map[URI]queryFunc{ //nolint:gochecknoglobals
+	recordDispatch = map[URI]queryFunc{
 		ForApproval: model.OnlyApproval,
 		Deletions:   model.OnlyHidden,
 		Unwanted:    a.OnlyUnwanted,
@@ -350,7 +349,7 @@ func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, l
 }
 
 func records00(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) { //nolint:exhaustive
+	switch Match(uri) {
 	case advert:
 		var r model.Advert
 		return r.List(ctx, exec, page, limit)
@@ -392,7 +391,7 @@ func records00(ctx context.Context, exec boil.ContextExecutor, uri string, page,
 }
 
 func records11(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) { //nolint:exhaustive
+	switch Match(uri) {
 	case database:
 		var r model.Database
 		return r.List(ctx, exec, page, limit)
@@ -441,7 +440,7 @@ func records11(ctx context.Context, exec boil.ContextExecutor, uri string, page,
 }
 
 func records22(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) { //nolint:exhaustive
+	switch Match(uri) {
 	case macos:
 		var r model.Macos
 		return r.List(ctx, exec, page, limit)
@@ -496,7 +495,7 @@ func records22(ctx context.Context, exec boil.ContextExecutor, uri string, page,
 }
 
 func records33(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) { //nolint:exhaustive
+	switch Match(uri) {
 	case proof:
 		var r model.Proof
 		return r.List(ctx, exec, page, limit)
@@ -780,5 +779,5 @@ func (s *Stats) items() [21]Item {
 
 // newStats returns a new Stats struct initialized with zero values.
 func newStats() Stats {
-	return Stats{} //nolint:exhaustruct
+	return Stats{} //nolint:exhaustruct_v5
 }

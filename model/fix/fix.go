@@ -1,6 +1,6 @@
 // Package fix contains functions for repairing the database data.
 //
-//nolint:gochecknoglobals,gochecknoinits,exhaustruct
+//nolint:gochecknoglobals,gochecknoinits,exhaustruct_v5,exhaustive
 package fix
 
 import (
@@ -82,7 +82,7 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, exec boil.
 	if err := coldfusionIDs(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "coldfusion ids", err)
 	}
-	switch r { //nolint:exhaustive
+	switch r {
 	case Artifacts:
 		sl.Info("Database: Clean records of whitespace and null values")
 		if err := contentWhiteSpace(exec); err != nil {

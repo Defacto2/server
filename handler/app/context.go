@@ -1,3 +1,4 @@
+//nolint:exhaustruct_v5,wrapcheck
 package app
 
 // Package file context.go contains the router handlers for the Defacto2 website.
@@ -665,7 +666,7 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 		}
 		return nil
 	}
-	count, maximum, err := postgres.Connections(db)
+	count, maximum, err := postgres.Connections(ctx, db)
 	if err != nil {
 		data["dbConnections"] = err.Error()
 	} else {
@@ -1105,7 +1106,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	if err := nils.Check(sl, c, tx); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	got := remote.DemozooLink{} //nolint:exhaustruct
+	got := remote.DemozooLink{}
 	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
 		got.Error = "demozoo id must be a numeric value"
@@ -1119,7 +1120,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	}
 	got.UUID = unid
 	ctx := c.Request().Context()
-	return got.Download(ctx, sl, c, tx, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, sl, c, tx, download)
 }
 
 // GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
@@ -1130,11 +1131,11 @@ func GetDemozoo(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx,
 	demozooID int, defacto2UNID string, download dir.Directory,
 ) error {
-	got := remote.DemozooLink{ //nolint:exhaustruct
+	got := remote.DemozooLink{
 		ID:   demozooID,
 		UUID: defacto2UNID,
 	}
-	return got.Download(ctx, sl, c, tx, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, sl, c, tx, download)
 }
 
 // GetPouet fetches the download link from Pouet and saves it to the download directory.
@@ -1145,11 +1146,11 @@ func GetPouet(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx,
 	pouetID int, defacto2UNID string, download dir.Directory,
 ) error {
-	got := remote.PouetLink{ //nolint:exhaustruct
+	got := remote.PouetLink{
 		PouetID: pouetID,
 		UUID:    defacto2UNID,
 	}
-	return got.Download(ctx, sl, c, tx, download) //nolint:wrapcheck // thin wrapper
+	return got.Download(ctx, sl, c, tx, download)
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
@@ -1256,7 +1257,7 @@ func sessionHandler(c *echo.Context, maxAge int, claims map[string]any,
 	session.Values["emailVerified"] = claims["email_verified"]
 
 	// save the session
-	return session.Save(c.Request(), c.Response()) //nolint:wrapcheck // thin wrapper
+	return session.Save(c.Request(), c.Response())
 }
 
 // History is the handler for the History page.
@@ -1743,7 +1744,7 @@ func ProdPouet(c *echo.Context, id string) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	p := pouet.Production{} //nolint:exhaustruct
+	p := pouet.Production{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -1764,7 +1765,7 @@ func ProdZoo(c *echo.Context, id string) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	prod := demozoo.Production{} //nolint:exhaustruct
+	prod := demozoo.Production{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -2447,8 +2448,6 @@ func Fixers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 }
 
 // FixNumericSuffix handles the fixing of numeric suffixes in filenames.
-//
-//nolint:funlen // Complex handler with error handling and database operations
 func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const format = "fix numeric suffix: %w"
 	if err := nils.Check(sl, c, db); err != nil {

@@ -1,4 +1,6 @@
 // Package site proves links and titles for recommended websites.
+//
+//nolint:gochecknoinits
 package site
 
 import (
