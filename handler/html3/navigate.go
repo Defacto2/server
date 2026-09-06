@@ -37,6 +37,7 @@ func qs(s string) string {
 	if s == "" {
 		return ""
 	}
+
 	return "?" + s
 }
 
@@ -45,6 +46,7 @@ func previous(page int) int {
 	if page == 1 {
 		return 1
 	}
+
 	return page - 1
 }
 
@@ -53,5 +55,6 @@ func next(page, maxPage int) int {
 	if page >= maxPage {
 		return maxPage
 	}
+
 	return page + 1
 }

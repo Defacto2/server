@@ -1,4 +1,6 @@
 // Package ext contains common filename extensions used by the file records.
+//
+//nolint:gochecknoglobals
 package ext
 
 import (
@@ -90,52 +92,55 @@ const (
 	xvid = ".xvid"
 )
 
+var (
+	apps      = [...]string{com, exe}
+	archives  = [...]string{z7, arc, ark, arj, cab, gz, lha, lzh, rar, tar, tgz, zip}
+	documents = [...]string{fst, asc, ans, cpt, diz, doc, dox, me, nfo, pcb, pdf, txt, unp}
+	images    = [...]string{bmp, gif, ico, iff, jpg, jpeg, lbm, png, pcx}
+	htmls     = [...]string{htm, htmx}
+	audios    = [...]string{au, fla, mla, m2a, mid, midi, mp1, mp2, mp3, mpa, mpga, mpeg, ogg, snd, wav, wave, wma}
+	tunes     = [...]string{it, mod, s3m, xm}
+	videos    = [...]string{avi, divx, flv, gt, mov, m4a, m4v, mp4, swf, rm, ram, wmv, xvid}
+)
+
 // IsApp returns true if the named file uses a Windows application filename.
 func IsApp(name string) bool {
-	s := []string{com, exe}
-	return IsExt(name, s...)
+	return IsExt(name, apps[:]...)
 }
 
 // IsArchive returns true if the named file uses a common compressed or archived filename.
 func IsArchive(name string) bool {
-	s := []string{z7, arc, ark, arj, cab, gz, lha, lzh, rar, tar, tgz, zip}
-	return IsExt(name, s...)
+	return IsExt(name, archives[:]...)
 }
 
 // IsDocument returns true if the named file uses a common document or text filename.
 func IsDocument(name string) bool {
-	s := []string{fst, asc, ans, cpt, diz, doc, dox, me, nfo, pcb, pdf, txt, unp}
-	return IsExt(name, s...)
+	return IsExt(name, documents[:]...)
 }
 
 // IsImage returns true if the named file uses a common image or photo filename.
 func IsImage(name string) bool {
-	s := []string{bmp, gif, ico, iff, jpg, jpeg, lbm, png, pcx}
-	return IsExt(name, s...)
+	return IsExt(name, images[:]...)
 }
 
 // IsHTML returns true if the named file uses a HTML markup filename.
 func IsHTML(name string) bool {
-	s := []string{htm, htmx}
-	return IsExt(name, s...)
+	return IsExt(name, htmls[:]...)
 }
 
 // IsAudio returns true if the named file uses a common digital audio filename.
 func IsAudio(name string) bool {
-	s := []string{au, fla, mla, m2a, mid, midi, mp1, mp2, mp3, mpa, mpga, mpeg, ogg, snd, wav, wave, wma}
-	return IsExt(name, s...)
+	return IsExt(name, audios[:]...)
 }
 
 // IsTune returns true if the named file uses a common tracker music filename.
 func IsTune(name string) bool {
-	s := []string{it, mod, s3m, xm}
-	return IsExt(name, s...)
+	return IsExt(name, tunes[:]...)
 }
 
 // IsVideo returns true if the named file uses a common video filename.
 func IsVideo(name string) bool {
-	s := []string{avi, divx, flv, gt, mov, m4a, m4v, mp4, swf, rm, ram, wmv, xvid}
-	return IsExt(name, s...)
+	return IsExt(name, videos[:]...)
 }
 
 // IsExt returns true if the file extension of the named file is found in the collection of extensions.

@@ -27,8 +27,11 @@ const (
 
 func emptyFS(fsys fs.FS) bool {
 	entries, err := fs.ReadDir(fsys, ".")
+
 	result := err != nil || len(entries) == 0
+
 	clear(entries)
+
 	return result
 }
 
@@ -43,13 +46,16 @@ func index(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *templa
 	if emptyFS(fsys) {
 		return nil
 	}
+
+	const name = "index.html"
 	// this template is broken out to vars for easier debuging
-	patterns := []string{GlobTo(layout), GlobTo(dirs), GlobTo("index.html")}
+	patterns := []string{GlobTo(layout), GlobTo(dirs), GlobTo(name)}
 	funcMap := TemplateFuncMap(ctx, sl, db)
 	t, err := template.New("").Funcs(funcMap).ParseFS(fsys, patterns...)
 	if err != nil {
 		sl.Error("html3 template index", slog.Any("error", err))
 	}
+
 	return template.Must(t, err)
 }
 
@@ -58,6 +64,7 @@ func list(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *templat
 	if emptyFS(fsys) {
 		return nil
 	}
+
 	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fsys,
 		GlobTo(layout), GlobTo(files), GlobTo(pagination), GlobTo(files)))
 }
@@ -67,8 +74,10 @@ func listTags(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *tem
 	if emptyFS(fsys) {
 		return nil
 	}
+
+	const name = "tags.html"
 	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fsys,
-		GlobTo(layout), GlobTo(subDirs), GlobTo("tags.html")))
+		GlobTo(layout), GlobTo(subDirs), GlobTo(name)))
 }
 
 // List the distinct groups template.
@@ -76,8 +85,10 @@ func listGroups(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *t
 	if emptyFS(fsys) {
 		return nil
 	}
+
+	const name = "groups.html"
 	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fsys,
-		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo("groups.html")))
+		GlobTo(layout), GlobTo(dirs), GlobTo(pagination), GlobTo(name)))
 }
 
 // Template for displaying HTTP error codes and feedback.
@@ -85,23 +96,29 @@ func httpErr(ctx context.Context, db *sql.DB, sl *slog.Logger, fsys fs.FS) *temp
 	if emptyFS(fsys) {
 		return nil
 	}
+
 	return template.Must(template.New("").Funcs(TemplateFuncMap(ctx, sl, db)).ParseFS(fsys,
 		GlobTo(layout)))
 }
 
 func tagByName(t *tags.T, name string) (tags.TagData, error) {
+	const format = "html3 %s by name %w"
 	if t == nil {
-		return tags.TagData{}, fmt.Errorf("html3 template tag by name %w", tags.ErrNoTags)
+		return tags.TagData{}, fmt.Errorf(format, "tag template", tags.ErrNoTags)
 	}
+
 	data, err := t.ByName(name)
 	if err != nil {
-		return data, fmt.Errorf("html3 tag by name: %w", err)
+		return data, fmt.Errorf(format, "tag", err)
 	}
+
 	s := strings.TrimSpace(data.Info)
 	const tooSmall = 2
 	if len(s) < tooSmall {
 		return data, nil
 	}
+
 	data.Info = strings.ToUpper(string(s[0])) + s[1:]
+
 	return data, nil
 }

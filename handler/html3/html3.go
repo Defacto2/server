@@ -1,5 +1,7 @@
 // Package html3 renders the html3 sub-route of the website.
 // This generates pages for the website for browsing of the file database using HTML3 styled tables.
+//
+//nolint:exhaustive
 package html3
 
 import (
@@ -28,6 +30,13 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/labstack/echo/v5"
+)
+
+var (
+	ErrPage = errors.New("html3: unknown records by type")
+	ErrConn = errors.New("html3: the server cannot connect to the database")
+	ErrSQL  = errors.New("html3: database connection problem or a SQL error")
+	ErrTmpl = errors.New("html3: cannot render the template")
 )
 
 // Sort and order the records by the column name.
@@ -61,8 +70,6 @@ const (
 	pth         = "path"
 	titl        = "title"
 )
-
-var ErrPage = errors.New("unknown records by type")
 
 // Clauses for ordering file record queries.
 func Clauses(query string) html3.Order {
@@ -109,6 +116,7 @@ func Error(c *echo.Context, err error) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf("html3 custom http error page: %w", err)
 	}
+
 	start := helper.Latency()
 	code := http.StatusInternalServerError
 	msg := "This is a server problem"
@@ -116,8 +124,9 @@ func Error(c *echo.Context, err error) error {
 		code = httpError.Code
 		msg = httpError.Message
 	}
+
 	return c.Render(code, "html3_error", map[string]any{
-		titl:        fmt.Sprintf("%d error, there is a complication", code),
+		titl:        strconv.Itoa(code) + " error, there is a complication",
 		description: msg + ".",
 		latency:     time.Since(*start).String() + ".",
 	})
@@ -129,13 +138,15 @@ func FileHref(sl *slog.Logger, id int64) string {
 	if err := nils.Check(sl); err != nil {
 		return err.Error()
 	}
+
 	href, err := url.JoinPath("/", "html3", "d",
 		helper.ObfuscateID(id))
 	if err != nil {
-		sl.Error(msg, slog.String("invalid_id", "could not make id into a valid url"),
+		sl.Error(msg+" could not make id into a valid url",
 			slog.Int64("id", id), slog.Any("error", err))
 		return ""
 	}
+
 	return href
 }
 
@@ -144,6 +155,7 @@ func FileLinkPad(width int, name null.String) string {
 	if !name.Valid {
 		return Leading(width)
 	}
+
 	return File{
 		Filename: name.String,
 		Title:    "",
@@ -161,16 +173,20 @@ func Filename(width int, name null.String) string {
 
 // ID returns the ID from the URL path.
 // This is only used for the category and platform routes.
+//
+// A note for testing, it demands exactly 4 "/" elements.
 func ID(c *echo.Context) string {
 	if c == nil {
 		return ""
 	}
+
 	x := strings.TrimSuffix(c.Path(), ":offset")
 	s := strings.Split(x, "/")
 	const expected = 4
 	if len(s) != expected {
 		return ""
 	}
+
 	return s[3]
 }
 
@@ -216,32 +232,42 @@ func LeadInt(width, i int) string {
 	if l >= width {
 		return s
 	}
+
 	count := width - l
 	count = min(count, maxPad)
 	return strings.Repeat(padding, count) + s
 }
 
 // ListInfo returns the title and description for the RecordsBy grouping.
-func ListInfo(tt RecordsBy, current, id string) (string, string) {
+func (tt RecordsBy) ListInfo(current, id string) (string, string) {
 	var desc string
-	switch tt { //nolint:exhaustive
+	switch tt {
 	case BySection, ByPlatform:
 		key := tags.TagByURI(id)
+
 		info := tags.Infos()[key]
+		if info == "" {
+			info = "n/a"
+		}
 		name := tags.Names()[key]
-		desc = fmt.Sprintf("%s - %s.", name, info)
+		if name == "" {
+			name = "n/a"
+		}
+		desc = name + " - " + info + "."
 	case AsArt:
-		desc = fmt.Sprintf("%s, %s.", "Digital + pixel art", textArt)
+		desc = "Digital + pixel art, " + textArt + "."
 	case AsDocument:
-		desc = fmt.Sprintf("%s, %s.", "Document + text art", textDoc)
+		desc = "Document + text art, " + textDoc + "."
 	case AsSoftware:
-		desc = fmt.Sprintf("%s, %s.", "Software", textSof)
+		desc = "Software, " + textSof + "."
+	default:
+		desc = ""
 	}
-	title := fmt.Sprintf("%s/%s", title, current)
+
 	if tt == ByGroup && id != "" {
-		title = fmt.Sprintf("%s/%s", title, id)
+		return indexOf + "/" + id, desc
 	}
-	return title, desc
+	return indexOf + "/" + current, desc
 }
 
 // Pagi returns up to three page numbers for pagination links.
@@ -249,6 +275,7 @@ func ListInfo(tt RecordsBy, current, id string) (string, string) {
 // values of zero, which should be skipped.
 func Pagi(page, maxPage int) (int, int, int) {
 	const page1, page2, page3, page4 = 1, 2, 3, 4
+
 	limit := maxPage
 	switch limit {
 	case 0, page1, page2:
@@ -258,9 +285,11 @@ func Pagi(page, maxPage int) (int, int, int) {
 	case page4:
 		return page2, page3, 0
 	}
+
 	a := page + -1
 	b := page + 0
 	c := page + 1
+
 	if c > limit {
 		diff := c - limit
 		c = limit - diff
@@ -268,6 +297,7 @@ func Pagi(page, maxPage int) (int, int, int) {
 		a = limit - diff - page2
 		return a, b, c
 	}
+
 	if c == limit {
 		diff := c - limit + page1
 		c = limit - diff
@@ -275,6 +305,7 @@ func Pagi(page, maxPage int) (int, int, int) {
 		a = limit - diff - page2
 		return a, b, c
 	}
+
 	if a <= 1 {
 		a = page2
 		b = page3
@@ -285,9 +316,11 @@ func Pagi(page, maxPage int) (int, int, int) {
 
 // Query returns a slice of records based on the RecordsBy grouping.
 // The three integers returned are the limit, the total count of records and the file sizes summed.
-func Query(
-	ctx context.Context, c *echo.Context, db *sql.DB, tt RecordsBy, offset int,
+func (tt RecordsBy) Query(
+	ctx context.Context, c *echo.Context, db *sql.DB, offset int,
 ) (int, int, int64, models.FileSlice, error) {
+	const format = "html3 query %w: %d"
+
 	clause := c.QueryString()
 	switch tt {
 	case Everything:
@@ -304,8 +337,9 @@ func Query(
 		return QueryAsDocument(ctx, db, clause, offset)
 	case AsSoftware:
 		return QueryAsSoftware(ctx, db, clause, offset)
+	default:
+		return 0, 0, 0, nil, fmt.Errorf(format, ErrPage, tt)
 	}
-	return 0, 0, 0, nil, fmt.Errorf("html3 query %w: %d", ErrPage, tt)
 }
 
 // QueryAsArt returns a slice of all the records filtered by "Digital + pixel art".
@@ -315,18 +349,22 @@ func QueryAsArt(ctx context.Context, exec boil.ContextExecutor, clause string, o
 	if err := nils.Check(ctx, exec); err != nil {
 		return argsNil(err)
 	}
+
 	const limit = model.Maximum
 	order := Clauses(clause)
 	records, err := order.Art(ctx, exec, offset, limit)
 	if err != nil {
 		return queryErr("as art:", err)
 	}
+
 	var stat html3.Arts
 	if err := stat.Stat(ctx, exec); err != nil {
 		return statErr("as art:", err)
 	}
+
 	total := stat.Count
 	byteSum := int64(stat.Bytes)
+
 	return limit, total, byteSum, records, nil
 }
 
@@ -337,18 +375,22 @@ func QueryAsDocument(ctx context.Context, exec boil.ContextExecutor, clause stri
 	if err := nils.Check(ctx, exec); err != nil {
 		return argsNil(err)
 	}
+
 	const limit = model.Maximum
 	order := Clauses(clause)
 	records, err := order.Document(ctx, exec, offset, limit)
 	if err != nil {
 		return queryErr("as document:", err)
 	}
+
 	var stat html3.Documents
 	if err := stat.Stat(ctx, exec); err != nil {
 		return statErr("as document:", err)
 	}
+
 	total := stat.Count
 	byteSum := int64(stat.Bytes)
+
 	return limit, total, byteSum, records, nil
 }
 
@@ -359,18 +401,22 @@ func QueryAsSoftware(ctx context.Context, exec boil.ContextExecutor, clause stri
 	if err := nils.Check(ctx, exec); err != nil {
 		return argsNil(err)
 	}
+
 	const limit = model.Maximum
 	order := Clauses(clause)
 	records, err := order.Software(ctx, exec, offset, limit)
 	if err != nil {
 		return queryErr("as software:", err)
 	}
+
 	var stat html3.Softwares
 	if err := stat.Stat(ctx, exec); err != nil {
 		return statErr("as software:", err)
 	}
+
 	total := stat.Count
 	byteSum := int64(stat.Bytes)
+
 	return limit, total, byteSum, records, nil
 }
 
@@ -382,17 +428,20 @@ func QueryByGroup(ctx context.Context, exec boil.ContextExecutor, c *echo.Contex
 	if err := nils.Check(ctx, exec, c); err != nil {
 		return argsNil(err)
 	}
+
 	order := Clauses(c.QueryString())
 	name := c.Param("id")
 	records, err := order.ByGroup(ctx, exec, 0, 0, name)
 	if err != nil {
 		return queryErr("by group:", err)
 	}
+
 	total := len(records)
 	byteSum, err := model.SumReleaser(ctx, exec, name)
 	if err != nil {
 		return statErr("bytes by group:", err)
 	}
+
 	return 0, total, byteSum, records, nil
 }
 
@@ -455,59 +504,6 @@ func QueryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Con
 	}.query(ctx, exec, c, offset)
 }
 
-// QueryBySection returns a slice of all the records filtered by the section id, "by Category".
-// func _queryBySection(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
-// 	int, int, int64, models.FileSlice, error,
-// ) {
-// 	if err := nils.Check(ctx, exec, c); err != nil {
-// 		return argsNil(err)
-// 	}
-// 	const limit = model.Maximum
-// 	order := Clauses(c.QueryString())
-// 	slug := ID(c)
-// 	records, err := order.ByCategory(ctx, exec, offset, limit, slug)
-// 	if err != nil {
-// 		return queryErr("by category:", err)
-// 	}
-// 	tag := tags.TagByURI(slug)
-// 	total, err := model.CountSection(ctx, exec, tag)
-// 	if err != nil {
-// 		return statErr("total by category:", err)
-// 	}
-// 	byteSum, err := model.SumSection(ctx, exec, tag)
-// 	if err != nil {
-// 		return statErr("byte by category:", err)
-// 	}
-// 	return limit, int(total), byteSum, records, nil
-// }
-
-// QueryByPlatform returns a slice of all the records filtered by the platform id, "by Platform and media".
-// func _queryByPlatform(ctx context.Context, exec boil.ContextExecutor, c *echo.Context, offset int) (
-// 	int, int, int64, models.FileSlice, error,
-// ) {
-// 	if err := nils.Check(ctx, exec, c); err != nil {
-// 		return argsNil(err)
-// 	}
-// 	const limit = model.Maximum
-// 	order := Clauses(c.QueryString())
-// 	slug := ID(c)
-// 	records, err := order.ByPlatform(ctx, exec, offset, limit, slug)
-// 	if err != nil {
-// 		return queryErr("by platform:", err)
-// 	}
-//
-// 	tag := tags.TagByURI(slug)
-// 	total, err := model.CountPlatform(ctx, exec, tag)
-// 	if err != nil {
-// 		return statErr("total by platform:", err)
-// 	}
-// 	byteSum, err := model.SumPlatform(ctx, exec, tag)
-// 	if err != nil {
-// 		return statErr("bytes by platform:", err)
-// 	}
-// 	return limit, int(total), byteSum, records, nil
-// }
-
 // QueryEverything returns a slice of all the records, "Everything".
 func QueryEverything(ctx context.Context, exec boil.ContextExecutor, clause string, offset int) (
 	int, int, int64, models.FileSlice, error,
@@ -515,18 +511,22 @@ func QueryEverything(ctx context.Context, exec boil.ContextExecutor, clause stri
 	if err := nils.Check(ctx, exec); err != nil {
 		return argsNil(err)
 	}
+
 	const limit = model.Maximum
 	order := Clauses(clause)
 	records, err := order.Everything(ctx, exec, offset, limit)
 	if err != nil {
 		return queryErr("all releases:", err)
 	}
+
 	var stat model.Artifacts
 	if err = stat.Public(ctx, exec); err != nil {
 		return statErr("all releases:", err)
 	}
+
 	total := stat.Count
 	byteSum := int64(stat.Bytes)
+
 	return limit, total, byteSum, records, nil
 }
 
@@ -534,6 +534,7 @@ func QueryEverything(ctx context.Context, exec boil.ContextExecutor, clause stri
 // Replacing the O key value with the opposite value, either A or D.
 func Sorter(query string) map[string]string {
 	s := Sortings()
+
 	switch strings.ToUpper(query) {
 	case NameAsc:
 		s[Name] = desc
@@ -560,11 +561,13 @@ func Sorter(query string) map[string]string {
 		// ordered with Name ASC. So set DESC for the clickable Name link.
 		s[Name] = desc
 	}
+
 	// to be usable in the template, convert the map keys into strings
 	fix := make(map[string]string, len(s))
 	for key, value := range s {
 		fix[string(key)] = value
 	}
+
 	return fix
 }
 
@@ -585,6 +588,7 @@ func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fsys fs.FS) map
 	if err := nils.Check(ctx, db, sl, fsys); err != nil {
 		panic(fmt.Errorf("html3 templates: %w", err))
 	}
+
 	t["html3_index"] = index(ctx, db, sl, fsys)
 	t["html3_all"] = list(ctx, db, sl, fsys)
 	t["html3_art"] = list(ctx, db, sl, fsys)
@@ -596,6 +600,7 @@ func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fsys fs.FS) map
 	t["html3_platform"] = list(ctx, db, sl, fsys)
 	t["html3_category"] = list(ctx, db, sl, fsys)
 	t["html3_error"] = httpErr(ctx, db, sl, fsys)
+
 	return t
 }
 
@@ -605,6 +610,7 @@ func TemplateFuncMap(ctx context.Context, sl *slog.Logger, db *sql.DB) template.
 	if err := nils.Check(ctx, sl, db); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+
 	t := tags.T{
 		List: nil,
 		Mu:   sync.RWMutex{},
@@ -613,38 +619,40 @@ func TemplateFuncMap(ctx context.Context, sl *slog.Logger, db *sql.DB) template.
 		sl.Error(msg, slog.String("build", "could not map the template tags"), slog.Any("error", err))
 		return nil
 	}
-	return template.FuncMap{
-		"byteInt":  LeadFSInt,
-		"descript": Description,
-		"fmtByte":  LeadFS,
-		"fmtURI":   releaser.Link,
-		"icon":     html3.Icon,
-		"leading":  Leading,
-		"leadInt":  LeadInt,
-		"leadStr":  html3.LeadStr,
-		"linkPad":  FileLinkPad,
-		"linkFile": Filename,
-		"publish":  html3.PublishedFW,
-		"posted":   html3.Created,
-		"linkHref": func(id int64) string {
-			return FileHref(sl, id)
-		},
-		"metaByName": func(s string) tags.TagData {
-			data, err := tagByName(&t, s)
-			if err != nil {
-				sl.Error(msg, slog.String("tag_by_name", "could not create the meta by name func"), slog.Any("error", err))
-				return tags.TagData{
-					URI:   "",
-					Name:  "",
-					Info:  "",
-					Count: 0,
-				}
+
+	linkHref := func(id int64) string {
+		return FileHref(sl, id)
+	}
+	metaByName := func(s string) tags.TagData {
+		data, err := tagByName(&t, s)
+		if err != nil {
+			sl.Error(msg, slog.String("tag_by_name", "could not create the meta by name func"), slog.Any("error", err))
+			return tags.TagData{
+				URI: "", Name: "", Info: "", Count: 0,
 			}
-			return data
-		},
-		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
-		},
+		}
+		return data
+	}
+	safeHTML := func(s string) template.HTML {
+		return template.HTML(s)
+	}
+
+	return template.FuncMap{
+		"byteInt":    LeadFSInt,
+		"descript":   Description,
+		"fmtByte":    LeadFS,
+		"fmtURI":     releaser.Link,
+		"icon":       html3.Icon,
+		"leading":    Leading,
+		"leadInt":    LeadInt,
+		"leadStr":    html3.LeadStr,
+		"linkPad":    FileLinkPad,
+		"linkFile":   Filename,
+		"publish":    html3.PublishedFW,
+		"posted":     html3.Created,
+		"linkHref":   linkHref,
+		"metaByName": metaByName,
+		"safeHTML":   safeHTML,
 	}
 }
 

@@ -1,9 +1,9 @@
+//nolint:exhaustive
 package html3
 
 // Package file html3.go contains the file record detail functions.
 
 import (
-	"fmt"
 	"strings"
 	"unicode/utf8"
 
@@ -33,42 +33,50 @@ func (f File) Description() string {
 	if f.GroupBy == "" {
 		return ""
 	}
+
 	var desc string
 	category := strings.TrimSpace(f.Section)
 	if category == tags.Mag.String() {
-		desc = fmt.Sprintf("%s issue %s", f.GroupBy, f.Title)
+		desc = f.GroupBy + " issue " + f.Title
 		if f.IsOS() {
 			desc += f.OS()
 		}
 		return desc + "."
 	}
+
 	if t := helper.TrimPunct(f.Title); t == "" {
 		desc = "A release from "
 	} else {
 		desc = t + " from "
 	}
 	desc += f.GroupBy
+
 	if f.IsOS() {
 		desc += f.OS()
 	}
+
 	return desc + "."
 }
 
 // FileLinkPad adds whitespace padding after the hyperlinked filename.
 func (f File) FileLinkPad(width int) string {
 	s := helper.TruncFilename(width, f.Filename)
+
 	if utf8.RuneCountInString(s) < width {
 		return html3.LeadStr(width, s)
 	}
+
 	return ""
 }
 
 // IsOS returns true if the platform matches Windows, macOS, Linux, MS-DOS or Java.
 func (f File) IsOS() bool {
+	name := strings.TrimSpace(strings.ToLower(f.Platform))
+
 	s := tags.OSTags()
-	apps := s[:]
-	plat := strings.TrimSpace(strings.ToLower(f.Platform))
-	return helper.Finds(plat, apps...)
+	names := s[:]
+
+	return helper.Finds(name, names...)
 }
 
 // LeadFS formats the file size to the fixed-width length w value.
@@ -82,7 +90,7 @@ func (f File) LeadFS(width int) string {
 // or an empty string for generic platforms and media.
 func (f File) OS() string {
 	p := tags.TagByURI(strings.TrimSpace(f.Platform))
-	switch p { //nolint:exhaustive
+	switch p {
 	case tags.DOS,
 		tags.Java,
 		tags.Linux,

@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -266,19 +267,41 @@ func NewPath(t *testing.T, target string, pathValues echo.PathValues) *echo.Cont
 
 // File system helpers
 
-// OpenFS opens the root directory of this Go project and closes on cleanup.
+// OpenFS opens the root directory of the testutil package and closes on cleanup.
 func OpenFS(tb testing.TB) fs.FS {
 	tb.Helper()
 
 	return OpenRoot(tb).FS()
 }
 
-// OpenRoot opens the root directory of this Go project and closes on cleanup.
+// OpenRoot opens the root directory of the testutil package and closes on cleanup.
 func OpenRoot(tb testing.TB) *os.Root {
 	tb.Helper()
 
+	return openRoot(tb, "..")
+}
+
+// ProjectFS opens the root directory of this Go project and closes on cleanup.
+func ProjectFS(tb testing.TB) fs.FS {
+	tb.Helper()
+
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		tb.Fatal("runtime caller failed")
+	}
+	name := filepath.Join(filepath.Dir(filename), "..", "..")
+
+	return openRoot(tb, name).FS()
+}
+
+func openRoot(tb testing.TB, name string) *os.Root {
+	tb.Helper()
+	if name == "" {
+		name = ".."
+	}
+
 	// open root of the repo relative to this file
-	root, err := os.OpenRoot("..")
+	root, err := os.OpenRoot(name)
 	if err != nil {
 		tb.Fatal("cannot open the root path", err)
 	}

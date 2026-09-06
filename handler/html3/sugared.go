@@ -1,3 +1,4 @@
+//nolint:exhaustive
 package html3
 
 // Package file sugared.go contains the HTML3 website route functions.
@@ -19,12 +20,6 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-const (
-	ErrConn = "the server cannot connect to the database"
-	ErrSQL  = "database connection problem or a SQL error"
-	ErrTmpl = "cannot render the template"
-)
-
 // All method lists every release.
 func All(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	return List(sl, c, db, Everything)
@@ -42,9 +37,11 @@ func Categories(sl *slog.Logger, c *echo.Context) error {
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	start := helper.Latency()
+
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
-		titl:        title + "/categories",
+		titl:        indexOf + "/categories",
 		description: "Artifact categories and classification tags.",
 		latency:     time.Since(*start).String() + ".",
 		pth:         "category",
@@ -53,10 +50,11 @@ func Categories(sl *slog.Logger, c *echo.Context) error {
 		"tags":      tags.Names(),
 	})
 	if err != nil {
-		sl.Error(msg,
-			slog.String("render", ErrTmpl), slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		s := ErrTmpl.Error()
+		sl.Error(msg+" "+s, slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, s)
 	}
+
 	return nil
 }
 
@@ -82,44 +80,52 @@ func Groups(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	start := helper.Latency()
+
 	page := 1
 	offset := strings.TrimPrefix(c.Param("offset"), "/")
 	if offset != "" {
 		// this permits blank offsets param but returns 404 for a /0 value
 		page, _ = strconv.Atoi(offset)
 		if page < 1 {
-			return echo.NewHTTPError(http.StatusNotFound,
-				fmt.Sprintf("Page %d of %s doesn't exist", page, "/groups"))
+			return echo.NewHTTPError(http.StatusNotFound, "Page "+strconv.Itoa(page)+" of /groups does not exist")
 		}
 	}
+
 	// releasers are the distinct groups from the file table.
 	var unique model.ReleaserNames
 	ctx := c.Request().Context()
 	if err := unique.DistinctGroups(ctx, db); err != nil {
-		sl.Error(msg, slog.String("distinct", ErrSQL), slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
+		s := ErrSQL.Error()
+		sl.Error(msg+" distinct "+s, slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusNotFound, s)
 	}
+
 	count := len(unique)
 	maxPage := 0
 	limit := model.Maximum
 	if limit > 0 {
 		maxPage = helper.PageCount(count, limit)
 		if page > maxPage {
-			return echo.NewHTTPError(http.StatusNotFound,
-				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, " groups"))
+			return echo.NewHTTPError(http.StatusNotFound, "Page "+strconv.Itoa(page)+
+				" of "+strconv.Itoa(maxPage)+" for groups does not exist")
 		}
 	}
+
 	navi := Navi(limit, page, maxPage, "groups", qs(c.QueryString()))
 	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
+
 	// releasers are the distinct groups from the file table.
 	releasers := model.Releasers{}
 	if err := model.Alphabetical.Limit(ctx, db, &releasers, model.Maximum, page); err != nil {
-		sl.Error(msg, slog.String("alphabetical", ErrSQL), slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusNotFound, ErrSQL)
+		s := ErrSQL.Error()
+		sl.Error(msg+" alphabetical "+s, slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusNotFound, s)
 	}
+
 	err := c.Render(http.StatusOK, "html3_groups", map[string]any{
-		titl: title + "/groups",
+		titl: indexOf + "/groups",
 		description: "Listed is an exhaustive, distinct collection of scene groups and site brands." +
 			" Do note that Defacto2 is a file-serving site, so the list doesn't distinguish between" +
 			" different groups with the same name or brand.",
@@ -129,9 +135,11 @@ func Groups(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		"navigate":  navi,
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("template", ErrTmpl), slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		s := ErrTmpl.Error()
+		sl.Error(msg+" groups "+s, slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, s)
 	}
+
 	return nil
 }
 
@@ -142,8 +150,10 @@ func Index(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	start := helper.Latency()
-	const desc = firefox
+	const desc = welcome
+
 	// Stats are the database statistics.
 	var stats struct {
 		All      model.Artifacts
@@ -151,27 +161,33 @@ func Index(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		Document html3.Documents
 		Software html3.Softwares
 	}
+
 	ctx := c.Request().Context()
 	if err := stats.All.Public(ctx, db); err != nil {
 		sl.Warn(msg, slog.String("statistics", "results for all"), slog.Any("error", err))
 	}
+
 	if err := stats.Art.Stat(ctx, db); err != nil {
 		sl.Warn(msg, slog.String("statistics", "results for art"), slog.Any("error", err))
 	}
+
 	if err := stats.Document.Stat(ctx, db); err != nil {
 		sl.Warn(msg, slog.String("statistics", "results for documents"), slog.Any("error", err))
 	}
+
 	if err := stats.Software.Stat(ctx, db); err != nil {
 		sl.Warn(msg, slog.String("statistics", "results for software"), slog.Any("error", err))
 	}
+
 	descs := [4]string{
 		helper.Capitalize(textArt),
 		helper.Capitalize(textDoc),
 		helper.Capitalize(textSof),
 		helper.Capitalize(textAll),
 	}
+
 	err := c.Render(http.StatusOK, "html3_index", map[string]any{
-		titl:        title,
+		titl:        indexOf,
 		description: desc,
 		"descs":     descs,
 		"relstats":  stats,
@@ -180,9 +196,11 @@ func Index(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		latency:     time.Since(*start).String() + ".",
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("template", ErrTmpl), slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		s := ErrTmpl.Error()
+		sl.Error(msg+" index "+s, slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, s)
 	}
+
 	return nil
 }
 
@@ -193,14 +211,17 @@ func List(sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	start := helper.Latency()
+
 	var id string
-	switch tt { //nolint:exhaustive
+	switch tt {
 	case BySection, ByPlatform:
 		id = ID(c)
 	default:
 		id = c.Param("id")
 	}
+
 	// pagination offset and page number
 	page := 1
 	offset := strings.TrimPrefix(c.Param("offset"), "/")
@@ -209,42 +230,48 @@ func List(sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
 		page, _ = strconv.Atoi(offset)
 		if page < 1 {
 			return echo.NewHTTPError(http.StatusNotFound,
-				fmt.Sprintf("Page %d of %s doesn't exist", page, tt))
+				"Page "+strconv.Itoa(page)+" for "+tt.String()+" does not exist")
 		}
 	}
+
 	// query database to return records and statistics
 	ctx := c.Request().Context()
-	limit, count, byteSum, records, err := Query(ctx, c, db, tt, page)
+	limit, count, byteSum, records, err := tt.Query(ctx, c, db, page)
 	if err != nil {
-		sl.Error(msg, slog.String("database", "record and statistics query problem"), slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusServiceUnavailable, ErrConn)
+		s := ErrConn.Error()
+		sl.Error(msg+" list "+s, slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusServiceUnavailable, s)
 	}
 	if limit > 0 && count == 0 {
 		return echo.NewHTTPError(http.StatusNotFound,
-			fmt.Sprintf("The %s %q doesn't exist", tt, id))
+			"The "+tt.String()+" "+id+" does not exist")
 	}
+
 	// pagination maximum page number
 	maxPage := 0
 	if limit > 0 {
 		maxPage = helper.PageCount(count, limit)
 		if page > maxPage {
 			return echo.NewHTTPError(http.StatusNotFound,
-				fmt.Sprintf("Page %d of %d for %s doesn't exist", page, maxPage, tt))
+				"Page "+strconv.Itoa(page)+" of "+strconv.Itoa(maxPage)+" for "+tt.String()+" doesn't exist")
 		}
 	}
+
 	// pagination values
 	current := strings.TrimPrefix(tt.String(), "html3_")
-	switch tt { //nolint:exhaustive
+	switch tt {
 	case BySection:
 		current = "category/" + id
 	case ByPlatform:
 		current = "platform/" + id
 	}
+
 	navi := Navi(limit, page, maxPage, current, qs(c.QueryString()))
 	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
+
 	// string based values for use in templates
-	stat := fmt.Sprintf("%d files, %s", count, helper.ByteCountFloat(byteSum))
-	title, desc := ListInfo(tt, current, id)
+	stat := strconv.Itoa(count) + " files, " + helper.ByteCountFloat(byteSum)
+	title, desc := tt.ListInfo(current, id)
 	err = c.Render(http.StatusOK, tt.String(), map[string]any{
 		titl:        title,
 		"home":      "",
@@ -257,9 +284,11 @@ func List(sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
 		"navigate":  navi,
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("template", ErrTmpl), slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		s := ErrTmpl.Error()
+		sl.Error(msg+" list "+s, slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, s)
 	}
+
 	return nil
 }
 
@@ -275,9 +304,11 @@ func Platforms(sl *slog.Logger, c *echo.Context) error {
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	start := helper.Latency()
+
 	err := c.Render(http.StatusOK, string(tag), map[string]any{
-		titl:        title + "/platforms",
+		titl:        indexOf + "/platforms",
 		description: "File platforms, operating systems and media types.",
 		latency:     time.Since(*start).String() + ".",
 		pth:         "platform",
@@ -286,9 +317,11 @@ func Platforms(sl *slog.Logger, c *echo.Context) error {
 		"tags":      tags.Names(),
 	})
 	if err != nil {
-		sl.Error(msg, slog.String("template", ErrTmpl), slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
+		s := ErrTmpl.Error()
+		sl.Error(msg+" platforms "+s, slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, s)
 	}
+
 	return nil
 }
 

@@ -74,25 +74,27 @@ func Route(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Group {
 // getTags creates the get routes for the category and platform tags.
 func getTags(sl *slog.Logger, db *sql.DB, g *echo.Group) *echo.Group {
 	category := g.Group("/category")
-	hCategory := func(c *echo.Context) error {
+	h := func(c *echo.Context) error {
 		return Category(sl, c, db)
 	}
 	for tag := range slices.Values(tags.List[:]) {
 		if tags.IsCategory(tag.String()) {
-			category.GET(fmt.Sprintf("/%s:offset", tag), hCategory)
-			category.GET(fmt.Sprintf("/%s", tag), hCategory)
+			category.GET(fmt.Sprintf("/%s:offset", tag), h)
+			category.GET(fmt.Sprintf("/%s", tag), h)
 		}
 	}
+
 	platform := g.Group("/platform")
-	hPlatform := func(c *echo.Context) error {
+	h = func(c *echo.Context) error {
 		return Platform(sl, c, db)
 	}
 	for tag := range slices.Values(tags.List[:]) {
 		if tags.IsPlatform(tag.String()) {
-			platform.GET(fmt.Sprintf("/%s:offset", tag), hPlatform)
-			platform.GET(fmt.Sprintf("/%s", tag), hPlatform)
+			platform.GET(fmt.Sprintf("/%s:offset", tag), h)
+			platform.GET(fmt.Sprintf("/%s", tag), h)
 		}
 	}
+
 	return g
 }
 
@@ -103,12 +105,14 @@ func custom404(g *echo.Group) *echo.Group {
 		s := "The page cannot be found: /html3/" + c.Param("uri")
 		return echo.NewHTTPError(http.StatusNotFound, s)
 	})
+
 	return g
 }
 
 // moved handles the moved permanently redirects.
 func moved(g *echo.Group) *echo.Group {
 	const code = http.StatusMovedPermanently
+
 	redirect := g.Group("")
 	redirect.GET("/index", func(c *echo.Context) error {
 		return c.Redirect(code, "/html3")
@@ -119,5 +123,6 @@ func moved(g *echo.Group) *echo.Group {
 	redirect.GET("/platforms/index", func(c *echo.Context) error {
 		return c.Redirect(code, "/html3/platforms")
 	})
+
 	return g
 }
