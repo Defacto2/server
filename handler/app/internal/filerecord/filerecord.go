@@ -18,6 +18,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -58,6 +59,13 @@ const (
 	ini   = ".ini"
 )
 
+var enforceSimpleText = sync.OnceValue(func() map[string]struct{} {
+	return map[string]struct{}{
+		"aa97833330f4a27f0c7888ae633de652be5a37840fc87cc364b5c90908d027d855d66fe60d8b2b23b02fb0fe482ddcf1": {},
+		"d312eba8773eff6f6d535f55f4c8cbbe10977ce2075297efca4773186cd3630699a855a1172050aaa0e22375ed644ac6": {},
+	}
+})
+
 // ForceSimpleText returns true if an artifact should only display the readme
 // as a plain text file.
 //
@@ -70,17 +78,14 @@ func ForceSimpleText(art *models.File) bool {
 	if art == nil {
 		return false
 	}
-	// bname := Basename(art)
-	// readme := Readme(art)
+
 	hash := fileIntegrity(art)
-	// in the future, this switch might be replaced with a map or slice lookup
-	switch hash {
-	case
-		"aa97833330f4a27f0c7888ae633de652be5a37840fc87cc364b5c90908d027d855d66fe60d8b2b23b02fb0fe482ddcf1",
-		"d312eba8773eff6f6d535f55f4c8cbbe10977ce2075297efca4773186cd3630699a855a1172050aaa0e22375ed644ac6":
-		return true
+	if hash == "" {
+		return false
 	}
-	return false
+
+	_, found := enforceSimpleText()[hash]
+	return found
 }
 
 func fileIntegrity(art *models.File) string {
@@ -116,22 +121,30 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	m.bytes = bytes
 	m.platform = platform
 	m.section = section
+
 	title, err := simple.CleanFname(s)
 	if err != nil {
 		title = ""
 	}
-	if strings.EqualFold(platform, tags.DOS.String()) {
-		if msdos.Rename(title) != title {
-			title = `<span class="text-danger">` + title + `</span>`
-		}
+	if strings.EqualFold(platform, tags.DOS.String()) &&
+		msdos.Rename(title) != title {
+		title = `<span class="text-danger">` + title + `</span>`
 	}
 
-	htm := `<div class="col d-inline-block text-truncate">` + title + `</div>`
-	htm += m.column1()
-	htm += m.column2()
-	htm += m.column3()
-	htm += m.columnFooter()
-	return `<div class="border-bottom row mb-1">` + htm + `</div>`
+	var htm strings.Builder
+	const size = 512
+	htm.Grow(size)
+
+	htm.WriteString(`<div class="border-bottom row mb-1">`)
+	htm.WriteString(`<div class="col d-inline-block text-truncate">`)
+	htm.WriteString(title)
+	htm.WriteString(`</div>`)
+	htm.WriteString(m.column1())
+	htm.WriteString(m.column2())
+	htm.WriteString(m.column3())
+	htm.WriteString(m.columnFooter())
+	htm.WriteString(`</div>`)
+	return htm.String()
 }
 
 // systemfile returns true if the file extension matches the known operating system tools.
@@ -149,16 +162,17 @@ func systemfile(ext string) bool {
 
 // column1 is the list entry, first column button of the "Download content" list.
 func (m *ListEntry) column1() string {
-	ext := strings.ToLower(filepath.Ext(m.name))
-	useBinary := m.BINtexts || m.xbinary()
 	switch {
-	case systemfile(ext):
+	case systemfile(strings.ToLower(filepath.Ext(m.name))):
 		return blank
 	case m.Images:
+		// use Image
 		return buttonImage(m.UniqueID, m.name)
 	case m.Texts:
+		// use Text
 		return buttonText(m.UniqueID, m.name, m.platform, m.Signature)
-	case useBinary:
+	case m.BINtexts || m.xbinary():
+		// use Text
 		return buttonTextBinary(m.UniqueID, m.name)
 	default:
 		return blank
@@ -167,20 +181,20 @@ func (m *ListEntry) column1() string {
 
 // column2 is the list entry, second column button of the "Download content" list.
 func (m *ListEntry) column2() string {
-	name := url.QueryEscape(m.RelativeName)
-	ext := strings.ToLower(filepath.Ext(name))
-	useDIZ := m.briefDescription()
-	useEXE := m.Programs || ext == exe || ext == com
-	useText := m.Texts || m.BINtexts || m.textNFO()
+	filename := url.QueryEscape(m.RelativeName)
+	ext := strings.ToLower(filepath.Ext(filename))
 	switch {
 	case systemfile(ext):
 		return blank
-	case useDIZ:
-		return buttonDIZ(m.UniqueID, name)
-	case useEXE:
+	case m.briefDescription():
+		// use DIZ
+		return buttonDIZ(m.UniqueID, filename)
+	case m.Programs || ext == exe || ext == com: // FIX: conflicts with systemfile
+		// use EXE
 		return buttonEXE()
-	case useText:
-		return buttonReadme(m.UniqueID, name)
+	case m.Texts || m.BINtexts || m.textNFO():
+		// use TEXT
+		return buttonReadme(m.UniqueID, filename)
 	default:
 		return blank
 	}
@@ -188,32 +202,35 @@ func (m *ListEntry) column2() string {
 
 // column3 is the list entry, third column button of the "Download content" list.
 func (m *ListEntry) column3() string {
+	filename := url.QueryEscape(m.RelativeName)
+	ext := strings.ToLower(filepath.Ext(filename))
 	if useDIZ := m.briefDescription(); useDIZ {
 		return blank
 	}
-	s := url.QueryEscape(m.RelativeName)
-	return buttonExtra(m.UniqueID, s)
+	if systemfile(ext) {
+		return blank
+	}
+
+	return buttonExtra(m.UniqueID, url.QueryEscape(m.RelativeName))
 }
 
 // buttonText creates a link to "/editor/readme/URI/ID/FILENAME".
 func buttonText(id, filename, platform, sign string) string {
-	uri := "preview"
-	t1 := tags.TextAmiga.String()
-	t2 := tags.Console.String()
-	if strings.EqualFold(platform, t1) || strings.EqualFold(platform, t2) {
+	if strings.EqualFold(platform, tags.TextAmiga.String()) ||
+		strings.EqualFold(platform, tags.Console.String()) {
 		if !strings.Contains(strings.ToLower(sign), "ansi") {
 			// ansilove does not color ANSI using "ced" or "workbench"
 			// instead, it renders the files as ASCII text files
-			uri = "preview-amiga"
+			return buttonPreview("preview-amiga", id, filename)
 		}
 	}
-	return buttonPreview(uri, id, filename)
+
+	return buttonPreview("preview", id, filename)
 }
 
 // buttonTextBinary creates a link to "/editor/readme/URI/ID/FILENAME".
 func buttonTextBinary(id, filename string) string {
-	uri := "preview-binary"
-	return buttonPreview(uri, id, filename)
+	return buttonPreview("preview-binary", id, filename)
 }
 
 // buttonEXE returns a non-interactive terminal icon.
@@ -233,11 +250,11 @@ func buttonExtra(id, filename string) string {
 	const name = `artifact-editor-comp-hlpcopy`
 	const indicator = `#artifact-editor-comp-htmx-indicator`
 	const target = `#artifact-editor-comp-feedback`
-	const format = `<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/helper/copy/%s/%s">`
+	// while hard to read, this is the performant method of returning a complex string
 	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		fmt.Sprintf(format, id, filename) +
+		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/helper/copy/` + id + `/` + filename + `">` +
 		`<span class="badge bg-success text-dark">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg>` +
@@ -251,11 +268,10 @@ func buttonImage(id, filename string) string {
 	const name = `artifact-editor-comp-previewcopy`
 	const indicator = `#artifact-editor-comp-htmx-indicator`
 	const target = `#artifact-editor-comp-feedback`
-	const format = `<a class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/preview/copy/%s/%s">`
 	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		fmt.Sprintf(format, id, filename) +
+		`<a class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/preview/copy/` + id + `/` + filename + `">` +
 		`<span class="badge text-bg-primary">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
@@ -269,11 +285,10 @@ func buttonPreview(uri, id, filename string) string {
 	const name = `artifact-editor-comp-previewtext`
 	const indicator = `#artifact-editor-comp-htmx-indicator`
 	const target = `#artifact-editor-comp-feedback`
-	const format = `<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/readme/%s/%s/%s">`
 	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		fmt.Sprintf(format, uri, id, filename) +
+		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/readme/` + uri + `/` + id + `/` + filename + `">` +
 		`<span class="badge text-bg-secondary">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
@@ -287,11 +302,10 @@ func buttonReadme(id, filename string) string {
 	const name = `artifact-editor-comp-textcopy`
 	const indicator = `#artifact-editor-comp-htmx-indicator`
 	const target = `#artifact-editor-comp-feedback`
-	const format = `<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/readme/copy/%s/%s">`
 	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		fmt.Sprintf(format, id, filename) +
+		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/readme/copy/` + id + `/` + filename + `">` +
 		`<span class="badge text-bg-success">` +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
@@ -305,11 +319,10 @@ func buttonDIZ(id, filename string) string {
 	const name = `artifact-editor-comp-dizcopy`
 	const indicator = `#artifact-editor-comp-htmx-indicator`
 	const target = `#artifact-editor-comp-feedback`
-	const format = `<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/diz/copy/%s/%s">`
 	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		fmt.Sprintf(format, id, filename) +
+		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/diz/copy/` + id + `/` + filename + `">` +
 		`<span class="badge text-bg-primary">` +
 		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
@@ -318,30 +331,32 @@ func buttonDIZ(id, filename string) string {
 // columnFooter returns the brief metadata descriptions of the list entry.
 func (m *ListEntry) columnFooter() string {
 	ext := strings.ToLower(filepath.Ext(m.name))
-	const format = ` <small class="">%s</small>`
+
 	var sm string
 	switch {
 	case m.Texts && (ext == bat || ext == cmd):
-		sm = fmt.Sprintf(format, "command script")
+		sm = "command script"
 	case m.Texts && (ext == ini):
-		sm = fmt.Sprintf(format, "configuration textfile")
+		sm = "configuration textfile"
 	case m.Programs || ext == com:
 		sm = progr(m.Executable, ext, m.bytes)
 	case m.MusicConfig != "":
-		sm = fmt.Sprintf(format, m.MusicConfig)
+		sm = m.MusicConfig
 	case m.Images:
-		sm = fmt.Sprintf(format, m.ImageConfig)
+		sm = m.ImageConfig
 	default:
-		sm = fmt.Sprintf(format, m.Signature)
+		sm = m.Signature
 	}
-	const tooltip = `<div><small data-bs-toggle="tooltip" data-bs-title="%d bytes">%s</small>%s</div>`
-	return fmt.Sprintf(tooltip, m.bytes, m.Filesize, sm)
+
+	return `<div><small data-bs-toggle="tooltip" data-bs-title="` +
+		strconv.Itoa(int(m.bytes)) + ` bytes">` + m.Filesize + `</small><span>` + sm + `</span></div>`
 }
 
 func progr(exec magicnumber.Windows, ext string, bytes int64) string {
 	const epochYear = 1980
 	const x8086 = 64 * 1024
 	dosProg := (ext == exe || ext == com)
+
 	var s string
 	switch {
 	case dosProg && exec.PE != magicnumber.UnknownPE:
@@ -362,7 +377,7 @@ func progr(exec magicnumber.Windows, ext string, bytes int64) string {
 	if y := exec.TimeDateStamp.Year(); y >= epochYear && y <= time.Now().Year() {
 		s += ", built " + exec.TimeDateStamp.Format("2006-01-2")
 	}
-	return fmt.Sprintf(` <small class="">%s</small>`, s)
+	return ` <small>` + s + `</small>`
 }
 
 func progrDos(x8086 int, bytes int64) string {
@@ -375,12 +390,13 @@ func progrDos(x8086 int, bytes int64) string {
 // briefDescription returns true for known BBS/FTP site descriptor files.
 func (m *ListEntry) briefDescription() bool {
 	name := strings.TrimSpace(m.RelativeName)
-	names := []string{"file_id.diz"}
+	names := []string{"file_id.diz"} // FIX: add console and amiga
 	for valid := range slices.Values(names) {
 		if strings.EqualFold(name, valid) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -397,10 +413,12 @@ func (m *ListEntry) textNFO() bool {
 	if m.xbinary() {
 		return false // unsupported
 	}
+
 	simpleText := strings.EqualFold(m.platform, tags.Text.String()) || strings.EqualFold(m.platform, textamiga)
 	if !simpleText {
 		return false
 	}
+
 	return strings.EqualFold(m.section, tags.Nfo.String())
 }
 
@@ -413,17 +431,21 @@ func AlertURL(art *models.File) string {
 	if !art.FileSecurityAlertURL.Valid {
 		return ""
 	}
+
 	raw := strings.TrimSpace(art.FileSecurityAlertURL.String)
 	u, err := url.ParseRequestURI(raw)
 	if err != nil {
 		return ""
 	}
+
 	if host := u.Hostname(); host == "" {
 		u.Host = "www.virustotal.com"
 	}
+
 	if u.Scheme != "https" {
 		u.Scheme = "https"
 	}
+
 	return u.String()
 }
 

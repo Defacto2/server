@@ -21,6 +21,8 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/internal/postgres/models"
+	"github.com/aarondl/null/v8"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/echotest"
 )
@@ -114,6 +116,19 @@ func Tx(tb testing.TB) *sql.Tx {
 	})
 
 	return tx
+}
+
+// Model helpers
+
+func NewModel(tb testing.TB) *models.File {
+	tb.Helper()
+
+	art := models.File{}
+	art.ID = 1
+	art.UUID = null.StringFrom(UID4)
+	art.Filename = null.StringFrom("filename.txt")
+	art.Filesize = null.Int64From(9876)
+	return &art
 }
 
 // Echo package helpers

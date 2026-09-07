@@ -22,6 +22,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Defacto2/helper"
@@ -86,28 +87,49 @@ func BytesHuman(i int64) string {
 	return humanize.Bytes(uint64(math.Abs(float64(i))))
 }
 
+type templateData struct {
+	Fname string
+}
+
+var cleanTmpl = sync.OnceValue(func() *template.Template {
+	return template.Must(template.New("cleanTmpl").Parse(`{{.Fname}}`))
+})
+
 // CleanFname runs the string such as a filename through a HTML template
 // to remove any possible XSS problems such as < > characters.
 func CleanFname(s string) (string, error) {
-	const format = "simple clean fname %s tmpl: %w"
 	if s == "" {
 		return "", nil
 	}
-	// template placeholder
-	type TemplateData struct {
-		Fname string
-	}
-	tmpl, err := template.New("cleanTmpl").Parse(`{{.Fname}}`)
-	if err != nil {
-		return "", fmt.Errorf(format, "new", err)
-	}
-	data := TemplateData{Fname: s}
+
 	var wr bytes.Buffer
-	err = tmpl.Execute(&wr, data)
-	if err != nil {
-		return "", fmt.Errorf(format, "execute", err)
+	const size = 16
+	wr.Grow(len(s) + size)
+
+	if err := cleanTmpl().Execute(&wr, templateData{Fname: s}); err != nil {
+		return "", fmt.Errorf("simple clean fname execute: %w", err)
 	}
+
 	return wr.String(), nil
+	// const format = "simple clean fname %s tmpl: %w"
+	// if s == "" {
+	// 	return "", nil
+	// }
+	// // template placeholder
+	// type TemplateData struct {
+	// 	Fname string
+	// }
+	// tmpl, err := template.New("cleanTmpl").Parse(`{{.Fname}}`)
+	// if err != nil {
+	// 	return "", fmt.Errorf(format, "new", err)
+	// }
+	// data := TemplateData{Fname: s}
+	// var wr bytes.Buffer
+	// err = tmpl.Execute(&wr, data)
+	// if err != nil {
+	// 	return "", fmt.Errorf(format, "execute", err)
+	// }
+	// return wr.String(), nil
 }
 
 // CleanHTML removes all HTML tags from content, returning plain text.
