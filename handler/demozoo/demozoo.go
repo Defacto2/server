@@ -9,7 +9,7 @@
 // [production records]: https://demozoo.org/api/v1/productions/
 // [Demozoo]: https://demozoo.org
 //
-//nolint:gochecknoglobals,mnd,tagliatelle
+//nolint:gochecknoglobals,mnd,nonamedreturns,tagliatelle
 package demozoo
 
 import (
@@ -1064,7 +1064,7 @@ func Site(title string) string {
 }
 
 // Releasers parses Demozoo authors and reclassifies them into Defacto2 people rolls.
-func (p *Production) Releasers() (tx []string, co []string, gx []string, mu []string) {
+func (p *Production) Releasers() (tx, co, gx, mu []string) {
 	for _, c := range p.Credits {
 		if c.Nick.Releaser.IsGroup {
 			continue

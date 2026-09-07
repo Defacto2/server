@@ -1,4 +1,4 @@
-//nolint:exhaustive
+//nolint:dupl,exhaustive
 package html3
 
 // Package file sugared.go contains the HTML3 website route functions.
@@ -205,7 +205,7 @@ func Index(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 }
 
 // List all the records associated with the RecordsBy grouping.
-func List(sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error {
+func List(sl *slog.Logger, c *echo.Context, db *sql.DB, tt RecordsBy) error { //nolint:funlen
 	const msg = "htm3 list records by"
 	const format = msg + ": %w"
 	if err := nils.Check(sl, c, db); err != nil {

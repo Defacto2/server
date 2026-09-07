@@ -157,14 +157,6 @@ func TestQuery(t *testing.T) {
 		be.True(t, len(fs) > 0)
 		be.Err(t, err, nil)
 	}
-
-	//c = testutil.NewContext(t, "/platform/ansi")
-	// x, y, z, fs, err = html3.BySection.Query(ctx, c, db, -1)
-	// be.True(t, x == 0 || x == model.Maximum)
-	// be.True(t, y > 0)
-	// be.True(t, z > 0)
-	// be.True(t, len(fs) > 0)
-	// be.Err(t, err, nil)
 }
 
 func TestListInfo(t *testing.T) {
@@ -466,7 +458,7 @@ func testTmpl(t *testing.T, got error) {
 	t.Helper()
 
 	be.Err(t, got)
-	httpErr, ok := got.(*echo.HTTPError)
+	httpErr, ok := got.(*echo.HTTPError) //nolint:errorlint
 	be.True(t, ok)
 	be.Equal(t, httpErr.Code, http.StatusInternalServerError)
 	be.Equal(t, httpErr.Message, "html3: cannot render the template") // this is expected

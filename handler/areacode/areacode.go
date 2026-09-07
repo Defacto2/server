@@ -1,4 +1,6 @@
 // Package areacode provides information about North American Numbering Plan telephone area codes.
+//
+//nolint:exhaustruct_v5,gochecknoglobals
 package areacode
 
 import (
@@ -135,7 +137,8 @@ func (c NAN) HTML() template.HTML {
 	}
 
 	var html strings.Builder
-	html.Grow(128)
+	const size = 128
+	html.Grow(size)
 
 	html.WriteString("<span>")
 
