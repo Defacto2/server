@@ -1,16 +1,13 @@
 // Package filerecord provides functions for the file model which is an artifact record.
 //
-//nolint:exhaustive,exhaustruct_v5
+//nolint:exhaustive,exhaustruct_v5,gochecknoglobals,nonamedreturns
 package filerecord
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"html/template"
 	"image"
 	"io/fs"
-	"log/slog"
 	"math"
 	"net/url"
 	"os"
@@ -22,18 +19,14 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/handler/releaser"
-	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
-	"github.com/Defacto2/server/internal/logs"
-	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -526,7 +519,7 @@ func Comment(art *models.File) string {
 	return ""
 }
 
-type entry struct {
+type Entry struct {
 	module  string
 	size    string
 	format  string
@@ -540,32 +533,31 @@ type entry struct {
 	program bool
 }
 
-// ParseFile parses the file at the given path and returns true if it should be skipped.
-func (e *entry) ParseFile(path, platform string) bool {
-	const skipEntry = true
-	info, err := os.Stat(path)
+// SkipFile true if the named file should be skipped.
+func (e *Entry) SkipFile(name, platform string) bool {
+	info, err := os.Stat(name)
 	if err != nil {
-		return skipEntry
+		return true
 	}
 	if info.IsDir() {
-		return skipEntry
+		return true
 	}
-	return e.parse(path, platform, info)
+
+	return e.skipByInfo(name, platform, info)
 }
 
-// ParseDirEntry parses the directory entry and returns true if it should be skipped.
+// SkipEntry parses the directory entry and returns true if it should be skipped.
 // This is used to skip directories and files that are not relevant to the artifact,
 // such as common DOS file extensions like .bat, .com, .exe, .cmd and .ini files.
-func (e *entry) ParseDirEntry(path string, d fs.DirEntry, platform string) bool {
-	const skipEntry = true
+func (e *Entry) SkipEntry(path string, d fs.DirEntry, platform string) bool {
 	if d.IsDir() {
-		return skipEntry
+		return true
 	}
 	info, _ := d.Info()
 	if info == nil {
-		return skipEntry
+		return true
 	}
-	ext := strings.ToLower(filepath.Ext(path))
+
 	const (
 		batchScript = ".bat"
 		batchCmd    = ".cmd"
@@ -573,75 +565,87 @@ func (e *entry) ParseDirEntry(path string, d fs.DirEntry, platform string) bool 
 		executable  = ".exe"
 		config      = ".ini"
 	)
-	switch ext {
+	switch strings.ToLower(filepath.Ext(path)) {
 	case batchScript, batchCmd, command, executable, config:
-		return skipEntry
+		return true
 	}
-	return e.parse(path, platform, info)
+
+	return e.skipByInfo(path, platform, info)
 }
 
-func (e *entry) parse(path, platform string, info fs.FileInfo) bool {
-	const skipEntry = true
+func (e *Entry) skipByInfo(path, platform string, info fs.FileInfo) bool {
+	if path == "" {
+		return true
+	}
+
+	platform = strings.TrimSpace(platform)
+
 	e.bytes = info.Size()
 	if e.bytes == 0 {
 		e.zeros++
-		return skipEntry
+		return true
 	}
+
 	e.size = humanize.Bytes(uint64(math.Abs(float64(info.Size()))))
 	r, _ := os.Open(path)
 	if r == nil {
-		return skipEntry
+		return true
 	}
-	defer func() { _ = r.Close() }()
+	defer r.Close()
+
 	e.sign = magicnumber.Find(r)
-	platform = strings.TrimSpace(platform)
-	e.image = isImage(e.sign)
-	e.text = isText(e.sign)
-	e.bintext = isBinaryText(e.sign, platform)
-	e.program = isProgram(e.sign, platform)
+	e.image = e.isImage()
+	e.text = e.isText()
+	e.bintext = e.isBinaryText(platform)
+	e.program = e.isProgram(platform)
 	switch {
 	case e.image:
-		return e.parseImage(e.sign, path)
+		return e.skipImage(path)
 	case e.program:
-		return e.parseProgram(path)
+		return e.skipProgram(path)
 	case
 		e.sign == magicnumber.MusicExtendedModule,
 		e.sign == magicnumber.MusicMultiTrackModule,
 		e.sign == magicnumber.MusicImpulseTracker,
 		e.sign == magicnumber.MusicProTracker:
-		return e.parseMusicMod(path)
+		return e.skipMusicMOD(path)
 	case
 		e.sign == magicnumber.MPEG1AudioLayer3,
 		platform == tags.Audio.String():
-		return e.parseMusicID3(path)
+		return e.skipMusic(path)
 	}
-	return !skipEntry
+
+	return false
 }
 
 // isImage returns truf if the magic signature is a known image format,
 // both web friendly formats as well as obsolute formats.
-func isImage(sign magicnumber.Signature) bool {
+func (e *Entry) isImage() bool {
 	// unsupported formats that cannot be converted to browser friendly, .png,.webp,etc.
-	if sign == magicnumber.RIPscrip {
+	if e.sign == magicnumber.RIPscrip {
 		return false
 	}
+
 	for val := range slices.Values(magicnumber.Images()) {
-		if val == sign {
+		if val == e.sign {
 			return true
 		}
 	}
+
 	return false
 }
 
-func isProgram(sign magicnumber.Signature, platform string) bool {
+func (e *Entry) isProgram(platform string) bool {
 	for val := range slices.Values(magicnumber.Programs()) {
 		if strings.EqualFold(platform, tags.DOS.String()) {
 			break
 		}
-		if val == sign {
+
+		if val == e.sign {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -649,397 +653,120 @@ func isProgram(sign magicnumber.Signature, platform string) bool {
 // a known signature, and the platform is set to ANSI or Text.
 //
 // If unsupported XBIN binary text is detected, false is returned.
-func isBinaryText(sign magicnumber.Signature, platform string) bool {
-	if sign == magicnumber.XBinaryText {
+func (e *Entry) isBinaryText(platform string) bool {
+	if e.sign == magicnumber.XBinaryText {
 		return false
 	}
+
 	s := []tags.Tag{tags.Text, tags.ANSI}
 	for tag := range slices.Values(s) {
 		if strings.EqualFold(platform, tag.String()) {
-			// magicnumber.Unknown matches unknown binary data
-			if sign == magicnumber.Unknown {
+			// unknown binary data
+			if e.sign == magicnumber.Unknown {
 				return true
 			}
 		}
 	}
+
 	return false
 }
 
 // isText returns true if the magic signature is a
 // simple character encoded text file, or a
 // unicoded encoded text file, or a text file with ansi escape codes.
-func isText(sign magicnumber.Signature) bool {
+func (e *Entry) isText() bool {
 	for val := range slices.Values(magicnumber.Texts()) {
-		if val == sign {
+		if val == e.sign {
 			return true
 		}
 	}
+
 	return false
 }
 
-func (e *entry) parseImage(sign magicnumber.Signature, path string) bool {
-	const skipEntry = true
-	const format = "%s image, %dx%d"
+func (e *Entry) skipImage(path string) bool {
 	r, _ := os.Open(path)
 	if r == nil {
-		return skipEntry
+		return true
 	}
-	defer func() { _ = r.Close() }()
+	defer r.Close()
+
 	config, imgtype, err := image.DecodeConfig(r)
 	if err == nil {
-		e.format = fmt.Sprintf(format, imgtype, config.Width, config.Height)
-		return !skipEntry
+		e.format = imgtype + " image, " + strconv.Itoa(config.Width) + "x" + strconv.Itoa(config.Height)
+		return false
 	}
-	switch sign {
+
+	switch e.sign {
 	case magicnumber.InterleavedBitmap:
 		r, _ := os.Open(path)
 		if r == nil {
-			return skipEntry
+			return true
 		}
 		defer func() { _ = r.Close() }()
 		x, y := magicnumber.IlbmDecode(r)
-		e.format = fmt.Sprintf(format, "ILBM", x, y)
+		e.format = imgtype + "ILBM image, " + strconv.Itoa(x) + "x" + strconv.Itoa(y)
 	default:
-		e.format = sign.Title() + " image"
+		e.format = e.sign.Title() + " image"
 	}
-	return !skipEntry
+
+	return false
 }
 
-func (e *entry) parseProgram(path string) bool {
-	const skipEntry = true
+func (e *Entry) skipProgram(path string) bool {
 	r, _ := os.Open(path)
 	if r == nil {
-		return skipEntry
+		return true
 	}
-	defer func() { _ = r.Close() }()
+	defer r.Close()
+
 	exec, err := magicnumber.FindExecutable(r)
 	if err == nil {
 		e.exec = exec
 	}
-	return !skipEntry
+
+	return false
 }
 
-func (e *entry) parseMusicMod(path string) bool {
-	const skipEntry = true
+func (e *Entry) skipMusicMOD(path string) bool {
 	r, _ := os.Open(path)
 	if r == nil {
-		return skipEntry
+		return true
 	}
-	defer func() { _ = r.Close() }()
+	defer r.Close()
+
 	e.module = magicnumber.MusicTracker(r)
-	return !skipEntry
+
+	return false
 }
 
-// ParseMusicID3 parses the ID3 tag in the byte slice and returns the title, artist and year if available.
+// skipMusic parses the ID3 tag in the byte slice and returns the title, artist and year if available.
 // It looks up in order the ID3v2.3, ID3v2.2 and ID3v1 tags in the byte slice with the priority being
 // the newer versions of the tag.
 //
 // ID3v1 is a completely different tag format to ID3v2 and has serious limitations,
 // so it is only used as a last resort.
-func (e *entry) parseMusicID3(path string) bool {
-	const skipEntry = true
+func (e *Entry) skipMusic(path string) bool {
 	// ID3 v2.x tags are located at the start of the file.
 	id3, _ := os.Open(path)
 	if id3 == nil {
-		return skipEntry
+		return true
 	}
-	defer func() { _ = id3.Close() }()
+	defer id3.Close()
+
 	if s := magicnumber.MusicID3v2(id3); s != "" {
 		e.module = s
-		return !skipEntry
+		return false
 	}
+
 	// ID3 v1 tags are located at the end of the file.
 	if s := magicnumber.MusicID3v1(id3); s != "" {
 		e.module = s
-		return !skipEntry
 	}
-	return !skipEntry
+	return false
 }
 
-// ListContent returns a list of the files contained in the stored archive file.
-// This is used to generate the HTML for the "Download content" section of the File editor.
-//
-// This should only ever be used by the admin editor mode qw it extracts the file archve
-// to a temporary directory, to allow its extracted content can be parsed to determine usability
-// using magicfile techniques and other metadata.
-func ListContent( //nolint:cyclop,gocognit,funlen
-	ctx context.Context, sl *slog.Logger, maxItems int, art *models.File, dirs command.Dirs, src string,
-) template.HTML { // FIX: order of args
-	if nils.Slog("filerecord list context", ctx, sl, art) {
-		return ""
-	}
-	entries, files, zeroByteFiles := 0, 0, 0
-	unid := art.UUID.String
-	if !art.UUID.Valid {
-		return "error, no UUID"
-	}
-	platform := strings.TrimSpace(strings.ToLower(art.Platform.String))
-	if !tags.IsPlatform(platform) {
-		return "error, invalid platform"
-	}
-	section := strings.TrimSpace(strings.ToLower(art.Section.String))
-
-	tmpRoot, err := archive.ExtractTemp(ctx, src)
-	if err != nil {
-		return extractErr(sl, src, platform, section, zeroByteFiles, err)
-	}
-	walkerCount := func(_ string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return fs.SkipDir
-		}
-		if !d.IsDir() {
-			files++
-		}
-		return nil
-	}
-	// Create root-scoped filesystem for secure operations
-	root, err := os.OpenRoot(tmpRoot)
-	if err != nil {
-		return template.HTML(fmt.Sprintf("failed to open root directory: %v", err))
-	}
-	defer func() {
-		_ = root.Close()
-	}()
-	// Use root-scoped WalkerChmod to prevent path traversal attacks
-	walkerChmod := func(path string, d fs.DirEntry, err error) error {
-		return WalkerChmod(root, path, d, err)
-	}
-
-	if err := filepath.WalkDir(tmpRoot, walkerChmod); err != nil {
-		return template.HTML(err.Error())
-	}
-	if err := filepath.WalkDir(tmpRoot, walkerCount); err != nil {
-		return template.HTML(err.Error())
-	}
-
-	elms := make([]string, files)
-	index := -1
-	listFunc := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return filepath.SkipDir
-		}
-		var skipEntry error
-		if d.IsDir() {
-			return skipEntry
-		}
-		rel, err := filepath.Rel(tmpRoot, path)
-		if err != nil {
-			return skipEntry //nolint:nilerr
-		}
-		rel = strings.TrimSpace(rel)
-		if rel == "" {
-			return skipEntry
-		}
-		index++
-		elms[index] = rel
-		return nil
-	}
-	if err = filepath.WalkDir(tmpRoot, listFunc); err != nil {
-		return template.HTML(err.Error())
-	}
-	if len(elms) > maxItems {
-		elms = elms[:maxItems]
-	}
-	results := readme.SortList(false, strings.Join(elms[:index+1], "\n"))
-
-	var b strings.Builder
-	name := ""
-	names := []string{}
-	walkerFunc := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return filepath.SkipDir
-		}
-		var skipEntry error
-		rel, err := filepath.Rel(tmpRoot, path)
-		if err != nil {
-			return skipEntry //nolint:nilerr
-		}
-		if usefile := slices.Contains(results, rel); !usefile {
-			return skipEntry
-		}
-		e := entry{
-			module:  "",
-			size:    "",
-			format:  "",
-			exec:    magicnumber.Windows{},
-			sign:    0,
-			zeros:   zeroByteFiles,
-			bytes:   0,
-			image:   false,
-			text:    false,
-			bintext: false,
-			program: false,
-		}
-		if e.ParseDirEntry(path, d, platform) {
-			zeroByteFiles = e.zeros
-			return skipEntry
-		}
-		entries++
-		if e.text {
-			name = d.Name()
-			names = append(names, name)
-		}
-		le := listEntry(e, rel, unid)
-		b.WriteString(le.HTML(e.bytes, platform, section))
-		if entries > maxItems {
-			return filepath.SkipAll
-		}
-		return nil
-	}
-	if files > maxItems {
-		more := fmt.Sprintf(`<div class="border-bottom row mb-1">skipped %d other files</div>`, files-maxItems)
-		b.WriteString(more)
-	}
-	if err = filepath.WalkDir(tmpRoot, walkerFunc); err != nil {
-		b.Reset()
-		return template.HTML(err.Error())
-	}
-	c := content{
-		dirs:          dirs,
-		zeroByteFiles: zeroByteFiles,
-		dst:           tmpRoot,
-		src:           src,
-		unid:          unid,
-	}
-	names = helper.SortNames("/", names)
-	return c.renderContent(ctx, sl, &b, names...)
-}
-
-type content struct {
-	dirs          command.Dirs
-	dst           string
-	src           string
-	unid          string
-	zeroByteFiles int
-}
-
-func (c content) renderContent(
-	ctx context.Context, sl *slog.Logger, b *strings.Builder, names ...string,
-) template.HTML {
-	// always render a file_id.diz if it is found
-	diz := indexDiz(names...)
-	l := len(names)
-	if l == 0 {
-		b.WriteString(skippedEmpty(c.zeroByteFiles))
-		return template.HTML(b.String())
-	}
-	if useDiz := diz > -1; useDiz {
-		elms := ""
-		if len(names) > diz {
-			elms = names[diz]
-		}
-		srcDiz := filepath.Join(c.dst, elms)
-		if err := c.dirs.DizDeferred(sl, srcDiz, c.unid); err != nil {
-			b.Reset()
-			return template.HTML(err.Error())
-		}
-		if l == 1 {
-			b.WriteString(skippedEmpty(c.zeroByteFiles))
-			return template.HTML(b.String())
-		}
-	}
-	// render an NFO or text if only a single text is found,
-	// excluding any file_id.diz files
-	srcNFO := ""
-	if onlyNFO := diz == -1 && l == 1; onlyNFO {
-		elms := ""
-		if len(names) > 0 {
-			elms = names[0]
-		}
-		srcNFO = filepath.Join(c.dst, elms)
-	}
-	const maxItems = 2
-	if textPair := diz != -1 && l == maxItems; textPair {
-		invert := 1 - diz
-		elms := ""
-		if len(names) > invert {
-			elms = names[invert]
-		}
-		srcNFO = filepath.Join(c.dst, elms)
-	}
-	if srcNFO != "" {
-		if err := c.dirs.TextDeferred(ctx, sl, srcNFO, c.unid); err != nil {
-			b.Reset()
-			return template.HTML(err.Error())
-		}
-	}
-	b.WriteString(skippedEmpty(c.zeroByteFiles))
-	return template.HTML(b.String())
-}
-
-func indexDiz(names ...string) int {
-	for i, name := range names {
-		s := strings.TrimSpace(name)
-		if strings.EqualFold(s, "file_id.diz") {
-			return i
-		}
-	}
-	return -1
-}
-
-// WalkerChmod changes the file permissions for the extracted files.
-// There are odd cases where the extracted files from DOS era ZIP files have no permissions.
-// Uses os.Root to prevent path traversal attacks (fixes G122 security issue).
-func WalkerChmod(root *os.Root, path string, d fs.DirEntry, err error) error {
-	const dirRW, fileRW = 0o755, 0o644
-	if err != nil {
-		return fs.SkipDir
-	}
-
-	// Get relative path for root-scoped operations
-	relPath, err := filepath.Rel(root.Name(), path)
-	if err != nil {
-		return fmt.Errorf("failed to get relative path for %s: %w", path, err)
-	}
-
-	if d.IsDir() {
-		if err := root.Chmod(relPath, dirRW); err != nil {
-			return fmt.Errorf("failed to chmod directory %s: %w", relPath, err)
-		}
-		return nil
-	}
-	if err := root.Chmod(relPath, fileRW); err != nil {
-		return fmt.Errorf("failed to chmod file %s: %w", relPath, err)
-	}
-	return nil
-}
-
-func extractErr(sl *slog.Logger, src, platform, section string, zeroByteFiles int, err error) template.HTML {
-	if sl == nil {
-		sl = logs.Discard()
-	}
-	const msg = "list content of archive extraction"
-	if !errors.Is(err, archive.ErrNotArchive) && !errors.Is(err, archive.ErrNotImplemented) {
-		sl.Info(msg+" caused an error",
-			slog.String("src", src), slog.Any("error", err))
-		return template.HTML(err.Error())
-	}
-	e := entry{
-		module:  "",
-		size:    "",
-		format:  "",
-		exec:    magicnumber.Windows{},
-		sign:    0,
-		zeros:   zeroByteFiles,
-		bytes:   0,
-		image:   false,
-		text:    false,
-		bintext: false,
-		program: false,
-	}
-	if e.ParseFile(src, platform) {
-		return "error, empty byte file"
-	}
-	le := listErr(e)
-	var b strings.Builder
-	_, err = b.WriteString(le.HTML(e.bytes, platform, section))
-	if err != nil {
-		sl.Info(msg+" caused a write string error", slog.Any("error", err))
-	}
-	return template.HTML(b.String())
-}
-
-func listErr(e entry) ListEntry {
+func listErr(e Entry) ListEntry {
 	return ListEntry{
 		RelativeName: "",
 		Signature:    e.sign.String(),
@@ -1059,7 +786,7 @@ func listErr(e entry) ListEntry {
 	}
 }
 
-func listEntry(e entry, rel, unid string) ListEntry {
+func listEntry(e Entry, rel, unid string) ListEntry {
 	return ListEntry{
 		RelativeName: LegacyString(rel),
 		Signature:    e.sign.String(),
@@ -1086,10 +813,12 @@ func LegacyString(s string) string {
 	if valid := utf8.ValidString(s); valid {
 		return s
 	}
+
 	undefinedChr := func(b byte) bool {
 		const euroSymbol, yDiaeresis = 0x80, 0x9f
 		return b >= euroSymbol && b <= yDiaeresis
 	}
+
 	if windows1252 := slices.ContainsFunc([]byte(s), undefinedChr); windows1252 {
 		decoder := charmap.Windows1252.NewDecoder()
 		x, _ := decoder.String(s)
@@ -1097,11 +826,13 @@ func LegacyString(s string) string {
 			return x
 		}
 	}
+
 	decoder := charmap.ISO8859_1.NewDecoder()
 	x, _ := decoder.String(s)
 	if valid := utf8.ValidString(x); valid {
 		return x
 	}
+
 	return s
 }
 
@@ -1118,6 +849,7 @@ func Date(art *models.File) template.HTML {
 	if art == nil {
 		return template.HTML(model.ErrModel.Error())
 	}
+
 	ys, ms, ds := "", "", ""
 	if art.DateIssuedYear.Valid {
 		if i := int(art.DateIssuedYear.Int16); helper.Year(i) {
@@ -1134,27 +866,32 @@ func Date(art *models.File) template.HTML {
 			ds = strconv.Itoa(i)
 		}
 	}
+
 	strong := func(s string) template.HTML {
 		return template.HTML("<strong>" + s + "</strong>")
 	}
+
 	if isYearOnly := ys != "" && ms == "" && ds == ""; isYearOnly {
 		return strong(ys)
 	}
+
 	if isInvalidDay := ys != "" && ms != "" && ds == ""; isInvalidDay {
 		return strong(ys) + template.HTML(" "+ms)
 	}
+
 	if isInvalid := ys == "" && ms == "" && ds == ""; isInvalid {
 		return "unknown date"
 	}
-	return strong(ys) + template.HTML(fmt.Sprintf(" %s %s", ms, ds))
+
+	return strong(ys) + template.HTML(" "+ms+" "+ds)
 }
 
 // Dates returns the year, month and day for the published date for the artifact.
-func Dates(art *models.File) (int16, int16, int16) {
+func Dates(art *models.File) (y int16, m int16, d int16) {
 	if art == nil {
 		return 0, 0, 0
 	}
-	y, m, d := int16(0), int16(0), int16(0)
+
 	if art.DateIssuedYear.Valid {
 		y = art.DateIssuedYear.Int16
 	}
@@ -1164,6 +901,7 @@ func Dates(art *models.File) (int16, int16, int16) {
 	if art.DateIssuedDay.Valid {
 		d = art.DateIssuedDay.Int16
 	}
+
 	return y, m, d
 }
 
@@ -1173,30 +911,35 @@ func Description(art *models.File) string {
 	if art == nil {
 		return ""
 	}
+
 	s := art.Filename.String
 	if art.RecordTitle.String != "" {
 		s = FirstHeader(art)
 	}
+
 	r1 := releaser.Clean(strings.ToLower(art.GroupBrandBy.String))
 	r2 := releaser.Clean(strings.ToLower(art.GroupBrandFor.String))
 	r := ""
 	switch {
 	case r1 != "" && r2 != "":
-		r = fmt.Sprintf("%s + %s", r1, r2)
+		r = r1 + ` + ` + r2
 	case r1 != "":
 		r = r1
 	case r2 != "":
 		r = r2
 	}
+
 	if strings.EqualFold(r, "independent") {
 		s += " independently released"
 	} else if !strings.EqualFold(r, "none") {
-		s = fmt.Sprintf("%s released by %s", s, r)
+		s = s + " released by " + r
 	}
+
 	y := art.DateIssuedYear.Int16
 	if y > 0 {
-		s = fmt.Sprintf("%s in %d", s, y)
+		s = s + " in " + strconv.Itoa(int(y))
 	}
+
 	return s + "."
 }
 
@@ -1219,13 +962,16 @@ func ExtraZip(art *models.File, extra dir.Directory) bool {
 	if art == nil {
 		return false
 	}
-	extraZip := 0
+
 	unid := UnID(art)
 	name := filepath.Join(extra.Path(), unid+".zip")
 	st, err := os.Stat(name)
+
+	extraZip := 0
 	if err == nil && !st.IsDir() {
 		extraZip = int(st.Size())
 	}
+
 	return extraZip > 0
 }
 
@@ -1237,15 +983,18 @@ func FileEntry(art *models.File) string {
 	if art == nil {
 		return ""
 	}
+
 	switch {
 	case art.Createdat.Valid && art.Updatedat.Valid:
 		c := simple.Updated(art.Createdat.Time, "")
 		u := simple.Updated(art.Updatedat.Time, "")
+
 		if c != u {
 			c = simple.Updated(art.Createdat.Time, "Created")
 			u = simple.Updated(art.Updatedat.Time, "Updated")
 			return c + br + u
 		}
+
 		c = simple.Updated(art.Createdat.Time, "Created")
 		return c
 	case art.Createdat.Valid:
@@ -1255,6 +1004,7 @@ func FileEntry(art *models.File) string {
 		u := simple.Updated(art.Updatedat.Time, "Updated")
 		return u
 	}
+
 	return ""
 }
 
@@ -1384,21 +1134,22 @@ func JsdosMachine(art *models.File) string {
 }
 
 // JsdosMemory returns true if js-dos should disable the XMS, EMS and UMB memory options.
-func JsdosMemory(art *models.File) (bool, bool, bool) {
+func JsdosMemory(art *models.File) (xms bool, ems bool, umb bool) {
 	if art == nil {
 		return false, false, false
 	}
-	x, e, u := false, false, false
+
 	if art.DoseeNoXMS.Valid {
-		x = art.DoseeNoXMS.Int16 == 0
+		xms = art.DoseeNoXMS.Int16 == 0
 	}
 	if art.DoseeNoEms.Valid {
-		e = art.DoseeNoEms.Int16 == 0
+		ems = art.DoseeNoEms.Int16 == 0
 	}
 	if art.DoseeNoUmb.Valid {
-		u = art.DoseeNoUmb.Int16 == 0
+		umb = art.DoseeNoUmb.Int16 == 0
 	}
-	return x, e, u
+
+	return xms, ems, umb
 }
 
 // JsdosRun returns the program name or sequence of commands to launch in the js-dos emulator.
@@ -1433,14 +1184,16 @@ func JsdosUse(art *models.File) bool {
 	if strings.TrimSpace(strings.ToLower(art.Platform.String)) != "dos" {
 		return false
 	}
+
 	if JsdosArchive(art) {
 		return true
 	}
+
 	ext := filepath.Ext(strings.ToLower(art.Filename.String))
 	switch ext {
-	case exe, com:
+	case exe, com: // programs
 		return true
-	case bat, cmd:
+	case bat, cmd: // scripts
 		return false
 	default:
 		return false
@@ -1449,20 +1202,20 @@ func JsdosUse(art *models.File) bool {
 
 // JsdosUsage returns true if the js-dos emulator should be used with the filename.
 func JsdosUsage(filename, platform string) bool {
-	filename = strings.ToLower(filename)
-	ext := filepath.Ext(filename)
 	platform = strings.TrimSpace(strings.ToLower(platform))
 	if platform != "dos" {
 		return false
 	}
+
+	ext := filepath.Ext(strings.ToLower(filename))
 	switch ext {
 	case ".zip", ".lhz", ".lzh", ".arc", ".arj":
 		return true
 	}
 	switch ext {
-	case exe, com:
+	case exe, com: // programs
 		return true
-	case bat, cmd:
+	case bat, cmd: // scripts
 		return false
 	default:
 		return false
@@ -1486,18 +1239,22 @@ func LastModification(art *models.File) string {
 	if art == nil {
 		return ""
 	}
+
 	const none = "no timestamp"
 	if !art.FileLastModified.Valid {
 		return none
 	}
+
 	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
 	if year <= epoch {
 		return none
 	}
+
 	lm := art.FileLastModified.Time.Format("2006 Jan 2, 15:04")
 	if lm == "0001 Jan 1, 00:00" {
 		return none
 	}
+
 	return lm
 }
 
@@ -1506,32 +1263,38 @@ func LastModificationDate(art *models.File) string {
 	if art == nil {
 		return ""
 	}
+
 	const none = "no timestamp"
 	if !art.FileLastModified.Valid {
 		return none
 	}
+
 	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
 	if year <= epoch {
 		return none
 	}
+
 	lm := art.FileLastModified.Time.Format(YYYYMMDD)
 	if lm == "0001-01-01" {
 		return none
 	}
+
 	return lm
 }
 
 // LastModifications returns the year, month and day for the last modified date for the file record.
-func LastModifications(art *models.File) (int, int, int) {
+func LastModifications(art *models.File) (y int, m int, d int) {
 	if art == nil {
 		return 0, 0, 0
 	}
 	if !art.FileLastModified.Valid || art.FileLastModified.IsZero() {
 		return 0, 0, 0
 	}
-	y := art.FileLastModified.Time.Year()
-	m := int(art.FileLastModified.Time.Month())
-	d := art.FileLastModified.Time.Day()
+
+	y = art.FileLastModified.Time.Year()
+	m = int(art.FileLastModified.Time.Month())
+	d = art.FileLastModified.Time.Day()
+
 	return y, m, d
 }
 
@@ -1540,14 +1303,17 @@ func LastModificationAgo(art *models.File) string {
 	if art == nil {
 		return ""
 	}
+
 	const none = "No recorded timestamp"
 	if !art.FileLastModified.Valid {
 		return none
 	}
+
 	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
 	if year <= epoch {
 		return none
 	}
+
 	return simple.Updated(art.FileLastModified.Time, "Modified")
 }
 
@@ -1558,6 +1324,7 @@ func LinkPreview(art *models.File) string {
 	if art == nil || art.ID == 0 {
 		return ""
 	}
+
 	id := art.ID
 	name := ""
 	platform := ""
@@ -1567,6 +1334,7 @@ func LinkPreview(art *models.File) string {
 	if art.Platform.Valid {
 		platform = art.Platform.String
 	}
+
 	return LinkPreviewHref(id, name, platform)
 }
 
@@ -1577,7 +1345,9 @@ func LinkPreviewHref(id any, name, platform string) string {
 	if id == nil || name == "" {
 		return ""
 	}
+
 	platform = strings.TrimSpace(platform)
+
 	// supported formats
 	// https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
 	ext := strings.ToLower(filepath.Ext(name))
@@ -1596,10 +1366,12 @@ func LinkPreviewHref(id any, name, platform string) string {
 	default:
 		return ""
 	}
+
 	s, err := simple.LinkID(id, "v")
 	if err != nil {
 		return fmt.Sprint("error: ", err)
 	}
+
 	return s
 }
 
@@ -1640,6 +1412,7 @@ func Readme(r *models.File) string {
 	if r == nil {
 		return ""
 	}
+
 	filename := r.Filename.String
 	group := r.GroupBrandFor.String
 	if group == "" {
@@ -1648,9 +1421,11 @@ func Readme(r *models.File) string {
 	if x := strings.IndexByte(group, ' '); x > 0 {
 		group = group[:x]
 	}
-	cont := strings.ReplaceAll(r.FileZipContent.String, "\r\n", "\n")
+
+	entries := strings.ReplaceAll(r.FileZipContent.String, "\r\n", "\n")
+
 	// Avoid splitting the entire content into a slice to save memory
-	return readme.Suggest(filename, group, cont)
+	return readme.Suggest(filename, group, entries)
 }
 
 // RecordIsNew returns true if the file record is a new upload.
@@ -1687,6 +1462,7 @@ func RecordProblems(art *models.File) string {
 	if validate == nil {
 		return ""
 	}
+
 	s := strings.Split(validate.Error(), ",")
 	vals := make([]string, 0, len(s))
 	for val := range slices.Values(s) {
@@ -1695,6 +1471,7 @@ func RecordProblems(art *models.File) string {
 		}
 		vals = append(vals, val)
 	}
+
 	vals = slices.Clip(vals)
 	return strings.Join(vals, " + ")
 }
@@ -1704,36 +1481,43 @@ func Relations(art *models.File) template.HTML {
 	if art == nil {
 		return ""
 	}
+
 	rels := art.ListRelations.String
 	if rels == "" {
 		return ""
 	}
+
 	links := strings.Split(rels, "|")
 	if len(links) == 0 {
 		return ""
 	}
-	var rows strings.Builder
+
 	const expected = 2
 	const title = `Link to`
 	const route = `/f/`
 	const class = `fw-light text-secondary`
-	const format = `<tr><th scope="row"><small class="` + class + `">` + title + `</small></th>` +
-		`<td><small><a class="text-truncate" href="%s">%s</a></small></td></tr>`
+
+	var rows strings.Builder
 	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
 		if len(s) != expected {
 			continue
 		}
+
 		name, href := s[0], s[1]
 		id := helper.DeObfuscate(href)
 		if invalidID := id == href; invalidID {
 			continue
 		}
+
 		if !strings.HasPrefix(href, route) {
 			href = route + href
 		}
-		fmt.Fprintf(&rows, format, href, name)
+
+		rows.WriteString(`<tr><th scope="row"><small class="` + class + `">` + title + `</small></th>` +
+			`<td><small><a class="text-truncate" href="` + href + `">` + name + `</a></small></td></tr>`)
 	}
+
 	return template.HTML(rows.String())
 }
 
@@ -1750,7 +1534,7 @@ func RelationsStr(art *models.File) string {
 
 // ReleaserPair returns the pair of releaser names for the file record.
 // The first name is the releaser "for" and the second name is the releaser "by".
-func ReleaserPair(art *models.File) (string, string) {
+func ReleaserPair(art *models.File) (relfor string, relby string) {
 	if art == nil {
 		return "", ""
 	}
@@ -1818,28 +1602,33 @@ func UnsupportedFile(art *models.File) bool {
 	if art == nil {
 		return true
 	}
+
 	const bbsRipImage = ".rip"
 	if filepath.Ext(strings.ToLower(art.Filename.String)) == bbsRipImage {
 		// the bbs era, remote images protcol is not supported
 		// example: /f/b02392f
 		return true
 	}
+
 	switch strings.TrimSpace(art.Platform.String) {
 	case "markup", "pdf":
 		return true
 	}
+
 	magic := strings.ToLower(strings.TrimSpace(art.FileMagicType.String))
 	skips := slices.Concat(
 		magicnumber.Images(),
 		magicnumber.Programs(),
 		magicnumber.Videos(),
 	)
+
 	// skips = append(skips, magicnumber.Unknown) // "Binary data"
 	for skip := range slices.Values(skips) {
 		if strings.EqualFold(skip.Title(), magic) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -1857,6 +1646,7 @@ func Websites(art *models.File) template.HTML {
 	if art == nil {
 		return ""
 	}
+
 	lls := art.ListLinks.String
 	if lls == "" {
 		return ""
@@ -1865,18 +1655,19 @@ func Websites(art *models.File) template.HTML {
 	if len(links) == 0 {
 		return ""
 	}
-	var rows strings.Builder
+
 	const expected = 2
 	const title = `Link to`
 	const class = `fw-light text-secondary`
 	const aclass = `link-offset-3 icon-link icon-link-hover`
-	const format = `<tr><th scope="row"><small class="` + class + `">` + title + `</small></th>` +
-		`<td><small><a class="` + aclass + `" href="%s">%s %s</a></small></td></tr>`
+
+	var rows strings.Builder
 	for link := range slices.Values(links) {
 		s := strings.Split(link, ";")
 		if len(s) != expected {
 			continue
 		}
+
 		name, href := s[0], s[1]
 		// Generally a stored URL will not include the protocol,
 		// and will need to be prefixed with "https://".
@@ -1888,8 +1679,12 @@ func Websites(art *models.File) template.HTML {
 		if val, err := url.Parse(href); err != nil || val.Host == "" {
 			continue
 		}
-		fmt.Fprintf(&rows, format, href, name, LinkSVG())
+
+		rows.WriteString(`<tr><th scope="row"><small class="` + class + `">` + title + `</small></th>` +
+			`<td><small><a class="` + aclass + `" href="` + href + `">` + name + ` ` +
+			string(LinkSVG()) + `</a></small></td></tr>`)
 	}
+
 	return template.HTML(rows.String())
 }
 

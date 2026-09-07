@@ -243,6 +243,9 @@ func (ds *Dirs) addEditor(
 	}
 	unid := filerecord.UnID(art)
 	path := filepath.Join(ds.Download.Path(), unid)
+	dlc := filerecord.DownloadContent{
+		Source: path, MaxItems: ds.Maximum.Items, Dirs: paths,
+	}
 
 	data["epochYear"] = PcEpoch
 	data["readonlymode"] = false
@@ -258,7 +261,7 @@ func (ds *Dirs) addEditor(
 	data["modMagicNumber"] = simple.MagicAsTitle(sl, path)
 	data["modDBModify"] = filerecord.LastModificationDate(art)
 	data["modStatModify"], data["modStatSizeB"], data["modStatSizeF"] = simple.StatHumanize(path)
-	data["modDecompress"] = filerecord.ListContent(ctx, sl, ds.Maximum.Items, art, paths, path)
+	data["modDecompress"] = dlc.List(ctx, sl, art)
 	if sess.Editor(c) {
 		data["modDecompressLoc"] = simple.MkdirStale(sl, path)
 	}

@@ -18,8 +18,9 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was good at under 65%
+
 const (
-	r0          = "00000000-0000-0000-0000-000000000000"
 	flaggedHash = "aa97833330f4a27f0c7888ae633de652be5a37840fc87cc364b5c90908d027d855d66fe60d8b2b23b02fb0fe482ddcf1"
 )
 
@@ -447,14 +448,14 @@ func TestExtraZip(t *testing.T) {
 	got := filerecord.ExtraZip(art, "")
 	be.True(t, !got)
 
-	art.UUID = null.StringFrom(r0)
+	art.UUID = null.StringFrom(testutil.UID4)
 	got = filerecord.ExtraZip(art, "")
 	be.True(t, !got)
 
 	extra := dir.Directory(t.TempDir())
 	err := command.CopyFile(sl,
 		filepath.Join("testdata", "archive.zip"),
-		filepath.Join(extra.Path(), r0+".zip"))
+		filepath.Join(extra.Path(), testutil.UID4+".zip"))
 	be.Err(t, err, nil)
 }
 
@@ -522,13 +523,18 @@ func TestListContent(t *testing.T) {
 	dirs := command.Dirs{}
 	sl := logs.Discard()
 
-	s := filerecord.ListContent(ctx, sl, -1, art, dirs, "")
+	dlc := filerecord.DownloadContent{
+		Source: "", MaxItems: -1, Dirs: dirs,
+	}
+
+	s := dlc.List(ctx, sl, art)
 	got := strings.Contains(string(s), "invalid platform")
 	be.True(t, got)
 
 	src, err := filepath.Abs("testdata")
 	be.Err(t, err, nil)
-	s = filerecord.ListContent(ctx, sl, -1, art, dirs, src)
+	dlc.Source = src
+	s = dlc.List(ctx, sl, art)
 	got = strings.Contains(string(s), "error, ")
 	be.True(t, got)
 
@@ -536,7 +542,7 @@ func TestListContent(t *testing.T) {
 	err = command.CopyFile(sl, filepath.Join("testdata", "archive.zip"), filepath.Join(src, "archive.zip"))
 	be.Err(t, err, nil)
 
-	s = filerecord.ListContent(ctx, sl, -1, art, dirs, src)
+	s = dlc.List(ctx, sl, art)
 	got = strings.Contains(string(s), "error, ")
 	be.True(t, got)
 }
@@ -566,7 +572,10 @@ func TestListContentHappyPath(t *testing.T) {
 
 	// Call ListContent - it may error due to extraction issues, but we verify
 	// the function handles the slice bounds correctly (doesn't crash or return nil)
-	result := filerecord.ListContent(ctx, sl, -1, art, dirs, tmpDir)
+	dlc := filerecord.DownloadContent{
+		Source: tmpDir, MaxItems: -1, Dirs: dirs,
+	}
+	result := dlc.List(ctx, sl, art)
 
 	// The key test: result is not nil/empty (function executed)
 	// and doesn't have unexpected format issues from the slice bug
@@ -721,3 +730,38 @@ func (m *mockDirEntry) Name() string               { return m.name }
 func (m *mockDirEntry) IsDir() bool                { return m.isDir }
 func (m *mockDirEntry) Type() fs.FileMode          { return m.mode }
 func (m *mockDirEntry) Info() (fs.FileInfo, error) { return nil, fs.ErrInvalid }
+
+func TestSkipFile(t *testing.T) {
+	t.Parallel()
+
+	e := filerecord.Entry{}
+	be.True(t, e.SkipFile("", ""))
+
+	name := filepath.Join("testdata", "readme.txt")
+	be.True(t, !e.SkipFile(name, ""))
+}
+
+func TestSkipEntry(t *testing.T) {
+	t.Parallel()
+
+	e := filerecord.Entry{}
+	name := filepath.Join("testdata", "readme.txt")
+	info, err := os.Stat(name)
+	be.Err(t, err, nil)
+	d := fs.FileInfoToDirEntry(info)
+	be.True(t, e.SkipEntry("", d, ""))
+	be.True(t, !e.SkipEntry(name, d, ""))
+
+	name = filepath.Join("testdata", "TEST.png")
+	info, err = os.Stat(name)
+	be.Err(t, err, nil)
+	d = fs.FileInfoToDirEntry(info)
+	be.True(t, e.SkipEntry("", d, ""))
+	be.True(t, !e.SkipEntry(name, d, ""))
+
+	name = filepath.Join("testdata", "defacto2.com")
+	info, err = os.Stat(name)
+	be.Err(t, err, nil)
+	d = fs.FileInfoToDirEntry(info)
+	be.True(t, e.SkipEntry(name, d, ""))
+}

@@ -1,4 +1,6 @@
 // Package simple provides functions for handling string or integer input data.
+//
+//nolint:gochecknoglobals
 package simple
 
 import (
