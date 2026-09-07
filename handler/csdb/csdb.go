@@ -1,7 +1,7 @@
 // Package csdb provides data about releasers and groups on The C-64 Scene Database [website].
 // [website]: https://csdb.dk
 //
-//nolint:mnd
+//nolint:mnd,gochecknoglobals
 package csdb
 
 // URI is the URL slug of the releaser.
@@ -13,7 +13,7 @@ type GroupID int
 // Groups is a map of releasers URIs mapped to their csdb group id.
 type Groups map[string]GroupID
 
-var groups = Groups{ //nolint:gochecknoglobals
+var groups = Groups{
 	"2000ad":                           261,
 	"alpha-flight":                     215,
 	"censor-design":                    2310,

@@ -22,7 +22,7 @@ func BenchmarkOrderStringNew(b *testing.B) {
 
 // BenchmarkOrderStringLookup tests rapid order lookups.
 func BenchmarkOrderStringLookup(b *testing.B) {
-	orders := []html3.Order{
+	orders := [...]html3.Order{
 		html3.NameAsc, html3.NameDes,
 		html3.PublAsc, html3.PublDes,
 		html3.PostAsc, html3.PostDes,

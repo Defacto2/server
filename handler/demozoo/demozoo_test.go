@@ -1,8 +1,6 @@
 package demozoo_test
 
 import (
-	"context"
-	"errors"
 	"testing"
 
 	"github.com/Defacto2/server/handler/demozoo"
@@ -10,41 +8,42 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was fine at under 40%
+
 // Set to true to test against the remote servers.
 const testRemoteServers = false
 
 func TestDemozoo_Get(t *testing.T) {
 	t.Parallel()
-	ctx := context.TODO()
-	prod := demozoo.Production{}
-	_, err := prod.Get(ctx, -1)
-	be.Err(t, err)
-	ok := errors.Is(err, demozoo.ErrID)
-	be.True(t, ok)
-	if !testRemoteServers {
-		return
-	}
 
-	_, err = prod.Get(ctx, 1)
-	be.Err(t, err, nil)
-	ok = errors.Is(err, demozoo.ErrSuccess)
-	be.True(t, ok)
+	ctx := t.Context()
+	prod := demozoo.Production{}
+	_, got := prod.Get(ctx, -1)
+	be.Err(t, got, demozoo.ErrID)
+
+	if testRemoteServers {
+		_, got = prod.Get(ctx, 1)
+		be.Err(t, got, demozoo.ErrSuccess)
+	}
 }
 
 func TestFind(t *testing.T) {
 	t.Parallel()
-	prod := demozoo.Find("defacto2")
-	want := demozoo.GroupID(10000)
-	be.Equal(t, want, prod)
 
-	prod = demozoo.Find("notfound")
-	be.Equal(t, prod, demozoo.GroupID(0))
+	got := demozoo.Find("defacto2")
+	wants := demozoo.GroupID(10000)
+	be.Equal(t, got, wants)
+
+	got = demozoo.Find("notfound")
+	wants = demozoo.GroupID(0)
+	be.Equal(t, got, wants)
 }
 
 func TestExternalLinks(t *testing.T) {
 	t.Parallel()
+
 	d := demozoo.Production{}
-	be.Equal(t, 0, d.PouetProd())
+	be.Equal(t, d.PouetProd(), 0)
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {
 		LinkClass string `json:"link_class"`
@@ -53,7 +52,7 @@ func TestExternalLinks(t *testing.T) {
 		LinkClass: "class1",
 		URL:       "http://example.com/1",
 	})
-	be.Equal(t, 0, d.PouetProd())
+	be.Equal(t, d.PouetProd(), 0)
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {
 		LinkClass string `json:"link_class"`
@@ -62,7 +61,7 @@ func TestExternalLinks(t *testing.T) {
 		LinkClass: "PouetProduction",
 		URL:       "http://example.com/1",
 	})
-	be.Equal(t, 0, d.PouetProd())
+	be.Equal(t, d.PouetProd(), 0)
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {
 		LinkClass string `json:"link_class"`
@@ -71,7 +70,7 @@ func TestExternalLinks(t *testing.T) {
 		LinkClass: "PouetProduction",
 		URL:       "https://www.pouet.net/prod.php?which=71562",
 	})
-	be.Equal(t, 71562, d.PouetProd())
+	be.Equal(t, d.PouetProd(), 71562)
 	be.Equal(t, d.GithubRepo(), "")
 
 	d.ExternalLinks = append(d.ExternalLinks, struct {
@@ -81,8 +80,9 @@ func TestExternalLinks(t *testing.T) {
 		LinkClass: "GithubRepo",
 		URL:       "https://github.com/Defacto2/server",
 	})
-	be.Equal(t, "/Defacto2/server", d.GithubRepo())
+	be.Equal(t, d.GithubRepo(), "/Defacto2/server")
 	be.Equal(t, d.YouTubeVideo(), "")
+
 	d.ExternalLinks = append(d.ExternalLinks, struct {
 		LinkClass string `json:"link_class"`
 		URL       string `json:"url"`
@@ -90,37 +90,43 @@ func TestExternalLinks(t *testing.T) {
 		LinkClass: "YoutubeVideo",
 		URL:       "https://www.youtube.com/watch?v=x6QrKsBOERA",
 	})
-	be.Equal(t, "x6QrKsBOERA", d.YouTubeVideo())
+	be.Equal(t, d.YouTubeVideo(), "x6QrKsBOERA")
 }
 
 func TestUnmarshal(t *testing.T) {
 	t.Parallel()
+
 	prod := demozoo.Production{}
-	err := prod.Unmarshal(nil)
-	be.Err(t, err, nil)
+	got := prod.Unmarshal(nil)
+	be.Err(t, got, nil)
 }
 
 func TestSuperType(t *testing.T) {
 	t.Parallel()
+
 	prod := demozoo.Production{}
 	x, y := prod.SuperType()
-	const want tags.Tag = -1
-	be.Equal(t, want, x)
-	be.Equal(t, want, y)
+
+	const wants tags.Tag = -1
+	be.Equal(t, x, wants)
+	be.Equal(t, y, wants)
 }
 
 func TestReleased(t *testing.T) {
 	t.Parallel()
+
 	prod := demozoo.Production{}
 	y, m, d := prod.Released()
-	const want int16 = 0
-	be.Equal(t, want, y)
-	be.Equal(t, want, m)
-	be.Equal(t, want, d)
+
+	const wants int16 = 0
+	be.Equal(t, y, wants)
+	be.Equal(t, m, wants)
+	be.Equal(t, d, wants)
 }
 
 func TestGroups(t *testing.T) {
 	t.Parallel()
+
 	prod := demozoo.Production{}
 	a, b := prod.Groups()
 	be.Equal(t, a, "")
@@ -129,16 +135,20 @@ func TestGroups(t *testing.T) {
 
 func TestSite(t *testing.T) {
 	t.Parallel()
+
 	s := demozoo.Site("")
 	be.Equal(t, s, "")
+
 	s = demozoo.Site("the cool bbs")
-	be.Equal(t, "cool BBS", s)
+	be.Equal(t, s, "cool BBS")
+
 	s = demozoo.Site("Cool BBS")
-	be.Equal(t, "Cool BBS", s)
+	be.Equal(t, s, "Cool BBS")
 }
 
 func TestReleasers(t *testing.T) {
 	t.Parallel()
+
 	prod := demozoo.Production{}
 	a, b, c, d := prod.Releasers()
 	be.Equal(t, len(a), 0)
@@ -149,14 +159,19 @@ func TestReleasers(t *testing.T) {
 
 func TestCategory(t *testing.T) {
 	t.Parallel()
+
 	c := demozoo.TextC.String()
-	be.Equal(t, "text", c)
+	be.Equal(t, c, "text")
+
 	c = demozoo.CodeC.String()
-	be.Equal(t, "code", c)
+	be.Equal(t, c, "code")
+
 	c = demozoo.GraphicsC.String()
-	be.Equal(t, "graphics", c)
+	be.Equal(t, c, "graphics")
+
 	c = demozoo.MusicC.String()
-	be.Equal(t, "music", c)
+	be.Equal(t, c, "music")
+
 	c = demozoo.MagazineC.String()
-	be.Equal(t, "magazine", c)
+	be.Equal(t, c, "magazine")
 }

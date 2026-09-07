@@ -22,9 +22,9 @@ import (
 )
 
 var (
-	ErrNoBody  = errors.New("body is empty or only contains white space")
-	ErrNoIndex = errors.New("the blaze index is empty and must be created before using this func")
-	ErrNoName  = errors.New("filename is empty")
+	ErrNoBody  = errors.New("fulltext: body is empty or only contains white space")
+	ErrNoIndex = errors.New("fulltext: the blaze index is empty and must be created before using this func")
+	ErrNoName  = errors.New("fulltext: filename is empty")
 )
 
 const Window = 40 // Window is number of characters to display either side of a snippet
@@ -64,6 +64,7 @@ func (ts *Tidbits) Add(filename, body string) error {
 	if filename == "" {
 		return fmt.Errorf(format, ErrNoName)
 	}
+
 	body = strings.TrimSpace(body)
 	if body == "" {
 		return fmt.Errorf(format, ErrNoBody)
@@ -72,13 +73,16 @@ func (ts *Tidbits) Add(filename, body string) error {
 	// remove any embedded html including <a href> links etc.
 	htm := bluemonday.StrictPolicy()
 	s := htm.Sanitize(body)
+
 	// remove markdown styling
 	s = stripmd.Strip(s)
+
 	// remove any non-standard characters like box and line drawing chars
 	s = strings.Map(filter, s)
 
 	docID := len(ts.store)
 	ts.engine.Index(docID, s)
+
 	ts.store = append(ts.store, Index{
 		Name: filename,
 		Body: s,
@@ -128,6 +132,7 @@ func (ts *Tidbits) NewIndex(fsys fs.FS, root string) error {
 	if err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	ts.TotalDocs = ts.engine.TotalDocs
 	ts.TotalTerms = ts.engine.TotalTerms
 
@@ -159,6 +164,7 @@ func (ts *Tidbits) Search(query string, maxResults int) []Result {
 			qb.And().Term(queries[i])
 		}
 	}
+
 	matches := qb.ExecuteWithBM25(maxResults)
 	results := make([]Result, len(matches))
 
@@ -188,11 +194,13 @@ func id(name string) int {
 	if !strings.HasSuffix(name, md) {
 		return invalid
 	}
+
 	s := strings.TrimSuffix(name, md)
 	i, err := strconv.Atoi(s)
 	if err != nil {
 		return invalid
 	}
+
 	return i
 }
 
@@ -317,5 +325,6 @@ func truncateByWords(s string, maxWords int) string {
 	if len(words) > maxWords {
 		return strings.Join(words[:maxWords], " ")
 	}
+
 	return s
 }

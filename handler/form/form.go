@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -20,18 +21,14 @@ import (
 	"github.com/aarondl/sqlboiler/v4/boil"
 )
 
-var ErrFilename = errors.New("invalid filename")
+var ErrFilename = errors.New("form: invalid filename")
 
-const ReSanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the URL path.
-
-// Checkname returns an error if the named file contains any
-// directory traversal characters.
+// Checkname returns an error if the named file has directory traversal characters.
 func Checkname(name string) error {
-	if strings.Contains(name, "/") ||
-		strings.Contains(name, "\\") ||
-		strings.Contains(name, "..") {
+	if !filepath.IsLocal(name) {
 		return ErrFilename
 	}
+
 	return nil
 }
 
@@ -44,10 +41,12 @@ func HumanizeCount(ctx context.Context, exec boil.ContextExecutor, section, plat
 	if err := nils.Check(ctx, exec); err != nil {
 		return "", fmt.Errorf(format, err)
 	}
+
 	count, tag, err := humanizeCount(ctx, exec, section, platform)
 	if err != nil {
 		return "", err
 	}
+
 	var html string
 	switch count {
 	case 0:
@@ -59,6 +58,7 @@ func HumanizeCount(ctx context.Context, exec boil.ContextExecutor, section, plat
 	default:
 		html = fmt.Sprintf("%s, %d existing artifacts", tag, count)
 	}
+
 	return template.HTML(html), nil
 }
 
@@ -69,6 +69,7 @@ func HumanizeCountStr(ctx context.Context, db *sql.DB, section, platform string)
 	if err != nil {
 		return err.Error()
 	}
+
 	return fmt.Sprintf("%s, %d existing artifacts", tag, count)
 }
 
@@ -88,11 +89,13 @@ func humanizeCount(ctx context.Context, exec boil.ContextExecutor, section, plat
 			return 0, "unknown classification", nil
 		}
 	}
+
 	count, err := model.CountTags(ctx, exec, s, p)
 	if err != nil {
 		return 0, "cannot count the classification",
 			fmt.Errorf("form humanize and count classification %w", err)
 	}
+
 	return count, tag, nil
 }
 
@@ -114,15 +117,23 @@ func SanitizeCredit(s string) string {
 // and any parent directory references are removed. Any Linux or
 // Windows directory separators are replaced with a "-" hyphen.
 func SanitizeFilename(name string) string {
-	const hyphen = "-"
 	s := strings.TrimSpace(name)
-	const parentDir = "../"
-	s = strings.ReplaceAll(s, parentDir, "")
-	const linuxDir = "/"
-	s = strings.ReplaceAll(s, linuxDir, hyphen)
-	const windowsDir = "\\"
-	s = strings.ReplaceAll(s, windowsDir, hyphen)
-	return s
+	if s == "" {
+		return ""
+	}
+
+	s = strings.ReplaceAll(s, "../", "")
+	if s == "." || s == ".." {
+		return ""
+	}
+	return strings.Map(mapper, s)
+}
+
+func mapper(r rune) rune {
+	if r == '/' || r == '\\' {
+		return '-'
+	}
+	return r
 }
 
 // SanitizeSeparators returns a sanitized version of the URL path.
@@ -130,15 +141,21 @@ func SanitizeFilename(name string) string {
 // as any invalid path separators.
 func SanitizeSeparators(rawPath string) string {
 	const separator = "/"
-	raw := strings.TrimSpace(rawPath)
-	raw = strings.ReplaceAll(raw, separator+separator, separator)
-	raw = strings.Trim(raw, separator)
-	u, err := url.Parse(raw)
+
+	s := strings.TrimSpace(rawPath)
+	s = strings.ReplaceAll(s, separator+separator, separator)
+	s = strings.Trim(s, separator)
+
+	u, err := url.Parse(s)
 	if err != nil {
 		return "sanitize separators url parse error: " + err.Error()
 	}
+
 	return u.Path
 }
+
+const sanitizePath = "[^a-zA-Z0-9-._/]+" // Regular expression to sanitize the URL path.
+var reSanitizePath = regexp.MustCompile(sanitizePath)
 
 // SanitizeURLPath returns a sanitized version of the URL path.
 // Invalid characters are removed as are as incorrect path separators.
@@ -146,18 +163,15 @@ func SanitizeURLPath(rawPath string) string {
 	if strings.Contains(rawPath, "://") {
 		return ""
 	}
-	re := regexp.MustCompile(ReSanitizePath)
-	s := re.ReplaceAllString(rawPath, "")
-	s = SanitizeSeparators(s)
-	return s
+
+	return SanitizeSeparators(
+		reSanitizePath.ReplaceAllString(rawPath, ""))
 }
 
 // SanitizeGitHub returns a sanitized version of the GitHub repository.
 // The repo is trimmed of any invalid characters listed in the GitHub documentation.
 func SanitizeGitHub(repo string) string {
-	s := SanitizeURLPath(repo)
-	s = strings.TrimPrefix(s, "refs/")
-	return s
+	return strings.TrimPrefix(SanitizeURLPath(repo), "refs/")
 }
 
 // ValidDate returns three boolean values that indicate if the year, month, and day are valid.
@@ -169,36 +183,39 @@ func SanitizeGitHub(repo string) string {
 //
 // A not in use value is either "0" or an empty string.
 func ValidDate(y, m, d string) (bool, bool, bool) { //nolint:cyclop
-	yok, mok, dok := true, true, true
 	current := time.Now().Year()
+
+	// NOTE: about the logic, by default no value is considered valid.
+	yok, mok, dok := true, true, true
 
 	year, err := strconv.Atoi(y)
 	if err != nil {
 		yok = false
 	}
-	useYear := year != 0 && y != ""
-	validYear := year >= model.EpochYear && year <= current
-	if useYear && !validYear {
-		yok = false
-	}
-
 	month, err := strconv.Atoi(m)
 	if err != nil {
 		mok = false
 	}
-	useMonth := month != 0 && m != ""
-	const jan, dec = 1, 12
-	validMonth := month >= jan && month <= dec
-	if useMonth && !validMonth {
-		mok = false
-	}
-
 	day, err := strconv.Atoi(d)
 	if err != nil {
 		dok = false
 	}
+
+	useYear := year != 0 && y != ""
+	useMonth := month != 0 && m != ""
 	useDay := day != 0 && d != ""
+
+	const jan, dec = 1, 12
 	const first, last = 1, 31
+
+	validYear := year >= model.EpochYear && year <= current
+	if useYear && !validYear {
+		yok = false
+	}
+	validMonth := month >= jan && month <= dec
+	if useMonth && !validMonth {
+		mok = false
+	}
 	validDay := day >= first && day <= last
 	if useDay && !validDay {
 		dok = false
@@ -210,22 +227,17 @@ func ValidDate(y, m, d string) (bool, bool, bool) { //nolint:cyclop
 	if !useMonth && validDay {
 		mok = false
 	}
+
 	return yok, mok, dok
 }
 
 // ValidVT returns true if the link is a valid VirusTotal URL
 // or if it is an empty string.
 func ValidVT(link string) bool {
+	const prefix = "https://www.virustotal.com/"
+
 	link = strings.TrimSpace(link)
-	const expect = "https://www.virustotal.com/"
-	if len(link) > 0 && !strings.HasPrefix(link, expect) {
-		return false
-	}
-	// const hash = 64
-	// if len(link) > (len(expect) + hash) {
-	// 	return true
-	// }
-	return true
+	return len(link) > 0 && strings.HasPrefix(link, prefix)
 }
 
 // ValidYouTube returns true when the string is either

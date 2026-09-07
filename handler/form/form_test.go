@@ -1,7 +1,6 @@
 package form_test
 
 import (
-	"context"
 	"strconv"
 	"strings"
 	"testing"
@@ -11,13 +10,18 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was great at 75%+
+
 func TestHumanizeCount(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+
+	ctx := t.Context()
 	html, err := form.HumanizeCount(ctx, nil, "", "")
 	be.Err(t, err)
+
 	found := strings.Contains(string(html), `0 existing artifacts`)
 	be.True(t, !found)
+
 	htm := form.HumanizeCountStr(ctx, nil, "", "")
 	be.Err(t, err)
 	found = strings.Contains(htm, `0 existing artifacts`)
@@ -26,20 +30,28 @@ func TestHumanizeCount(t *testing.T) {
 
 func TestSanitizeFilename(t *testing.T) {
 	t.Parallel()
+
 	s := form.SanitizeFilename("")
 	be.Equal(t, s, "")
+
 	s = form.SanitizeFilename(`c:\Windows\System32\cmd.exe`)
 	be.Equal(t, "c:-Windows-System32-cmd.exe", s)
+
 	s = form.SanitizeFilename(`../tmp/somefile.txt`)
-	be.Equal(t, "tmp-somefile.txt", s)
+	be.Equal(t, s, "tmp-somefile.txt")
 }
 
 func TestSanitizePath(t *testing.T) {
 	t.Parallel()
+
 	s := form.SanitizeSeparators("")
 	be.Equal(t, s, "")
+
 	s = form.SanitizeSeparators(`///some//messy/path////`)
 	be.Equal(t, "some/messy/path", s)
+
+	s = form.SanitizeSeparators("example.com/hello/")
+	be.Equal(t, s, "example.com/hello")
 }
 
 func TestSanitizeURLPath(t *testing.T) {
@@ -61,45 +73,56 @@ func TestSanitizeURLPath(t *testing.T) {
 
 func TestValidDate(t *testing.T) {
 	t.Parallel()
+
 	x := time.Now().Year()
 	year := strconv.Itoa(x)
 	next := strconv.Itoa(x + 1)
+
 	y, m, d := form.ValidDate("", "", "")
 	be.True(t, !y)
 	be.True(t, !m)
 	be.True(t, !d)
+
 	y, m, d = form.ValidDate(year, "", "")
 	be.True(t, y)
 	be.True(t, !m)
 	be.True(t, !d)
+
 	y, m, d = form.ValidDate(next, "", "")
 	be.True(t, !y)
 	be.True(t, !m)
 	be.True(t, !d)
+
 	y, m, d = form.ValidDate(year, "-10", "")
 	be.True(t, y)
 	be.True(t, !m)
 	be.True(t, !d)
+
 	y, m, d = form.ValidDate(year, "1", "")
 	be.True(t, y)
 	be.True(t, m)
 	be.True(t, !d)
+
 	y, m, d = form.ValidDate("", "1", "")
 	be.True(t, !y)
 	be.True(t, m)
 	be.True(t, !d)
+
 	y, m, d = form.ValidDate(year, "30", "")
 	be.True(t, y)
 	be.True(t, !m)
 	be.True(t, !d)
+
 	y, m, d = form.ValidDate("", "1", "1")
 	be.True(t, !y)
 	be.True(t, m)
 	be.True(t, d)
+
 	y, m, d = form.ValidDate(next, "13", "32")
 	be.True(t, !y)
 	be.True(t, !m)
 	be.True(t, !d)
+
 	y, m, d = form.ValidDate("abc", "efg", "hij")
 	be.True(t, !y)
 	be.True(t, !m)
@@ -108,6 +131,7 @@ func TestValidDate(t *testing.T) {
 
 func TestValidVT(t *testing.T) {
 	t.Parallel()
+
 	be.True(t, !form.ValidVT("https://example.com"))
 	be.True(t, !form.ValidVT("https://virustotal.com"))
 	be.True(t, form.ValidVT("https://www.virustotal.com/gui/file/"+

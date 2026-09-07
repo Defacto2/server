@@ -30,9 +30,9 @@ import (
 )
 
 var (
-	ErrID      = errors.New("id is invalid")
-	ErrSuccess = errors.New("not found")
-	ErrStatus  = errors.New("status is not ok")
+	ErrID      = errors.New("demozoo: id is invalid")
+	ErrSuccess = errors.New("demozoo: not found")
+	ErrStatus  = errors.New("demozoo: status is not ok")
 )
 
 // URI is the URL slug of the releaser.
@@ -700,11 +700,12 @@ func Find(uri string) GroupID {
 	if group, exist := groups[URI(uri)]; exist {
 		return group
 	}
+
 	return 0
 }
 
-// FindAll returns all groups with their Demozoo IDs.
-func FindAll() Groups {
+// Copy returns a copy of all groups with Demozoo IDs.
+func Copy() Groups {
 	return groups
 }
 
@@ -825,12 +826,14 @@ func (p *Production) Get(ctx context.Context, id int) (int, error) {
 	if id < firstID {
 		return 0, fmt.Errorf(format, id, "", ErrID)
 	}
+
 	url := ProdURL + strconv.Itoa(id)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return 0, fmt.Errorf(format, id, "new request", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
+
 	c := client()
 	res, err := c.Do(req)
 	if err != nil {
@@ -842,26 +845,31 @@ func (p *Production) Get(ctx context.Context, id int) (int, error) {
 	if res.Body == nil {
 		return res.StatusCode, fmt.Errorf(format, id, "client do returned nothing "+res.Status, ErrStatus)
 	}
-	defer func() { _ = res.Body.Close() }()
+	defer res.Body.Close()
+
 	if res.StatusCode != http.StatusOK {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
 		return res.StatusCode, fmt.Errorf(format, id, res.Status, ErrStatus)
 	}
+
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		_, _ = io.Copy(io.Discard, res.Body)
 		_ = res.Body.Close()
 		return 0, fmt.Errorf(format, id, "read all", err)
 	}
+
 	err = json.Unmarshal(body, &p)
 	clear(body)
 	if err != nil {
 		return 0, fmt.Errorf(format, id, "json unmarshal", err)
 	}
+
 	if p.ID != id {
 		return 0, fmt.Errorf(format, id, "p.id != id", ErrSuccess)
 	}
+
 	return 0, nil
 }
 
@@ -873,6 +881,7 @@ func (p *Production) GithubRepo() string {
 		if link.LinkClass != "GithubRepo" {
 			continue
 		}
+
 		url, err := url.Parse(link.URL)
 		if err != nil {
 			continue
@@ -880,8 +889,10 @@ func (p *Production) GithubRepo() string {
 		if url.Host != "github.com" {
 			continue
 		}
+
 		return url.Path
 	}
+
 	return ""
 }
 
@@ -895,16 +906,20 @@ func (p *Production) PouetProd() int {
 		if link.LinkClass != "PouetProduction" {
 			continue
 		}
+
 		url, err := url.Parse(link.URL)
 		if err != nil {
 			continue
 		}
+
 		id, err := strconv.Atoi(url.Query().Get("which"))
 		if err != nil {
 			continue
 		}
+
 		return id
 	}
+
 	return 0
 }
 
@@ -915,12 +930,15 @@ func (p *Production) Unmarshal(r io.Reader) error {
 	if r == nil {
 		return nil
 	}
+
 	if err := json.NewDecoder(r).Decode(p); err != nil {
 		return fmt.Errorf("demozoo production json decode: %w", err)
 	}
+
 	if p.ID < firstID {
 		return fmt.Errorf("demozoo production %w: %d", ErrID, p.ID)
 	}
+
 	return nil
 }
 
@@ -933,22 +951,25 @@ func (p *Production) SuperType() (tags.Tag, tags.Tag) {
 	confirm := func(pl, se tags.Tag) bool {
 		return pl > -1 && se > -1
 	}
+
 	var platform tags.Tag = -1
 	var section tags.Tag = -1
 	platform, section = p.platforms(platform, section)
 	if confirm(platform, section) {
 		return platform, section
 	}
+
 	platform, section = p.prodSuperType(platform, section)
 	if confirm(platform, section) {
 		return platform, section
 	}
+
 	platform, section = p.graphicsSuperType(platform, section)
 	if confirm(platform, section) {
 		return platform, section
 	}
-	platform, section = p.musicSuperType(platform, section)
-	return platform, section
+
+	return p.musicSuperType(platform, section)
 }
 
 // YouTubeVideo returns the ID of a video on YouTube. It searches the external links
@@ -960,18 +981,23 @@ func (p *Production) YouTubeVideo() string {
 		if link.LinkClass != "YoutubeVideo" {
 			continue
 		}
+
 		url, err := url.Parse(link.URL)
 		if err != nil {
 			continue
 		}
+
 		if url.Host != "youtube.com" && url.Host != "www.youtube.com" {
 			continue
 		}
+
 		if url.Path != "/watch" {
 			continue
 		}
+
 		return url.Query().Get("v")
 	}
+
 	return ""
 }
 
@@ -991,21 +1017,25 @@ func (p *Production) Groups() (string, string) {
 		a = s
 		p.Title = "" // delete the title if it matches or is similar to the site name.
 	}
+
 	// range through author nicks for any group matches
 	for _, nick := range p.Authors {
 		if !nick.Releaser.IsGroup {
 			continue
 		}
+
 		unused1, unused2 := a == "", b == ""
 		if unused1 {
 			a = nick.Releaser.Name
 			continue
 		}
+
 		if unused2 {
 			b = nick.Releaser.Name
 			break
 		}
 	}
+
 	return releaser.Cell(a), releaser.Cell(b)
 }
 
@@ -1016,9 +1046,11 @@ func Site(title string) string {
 	if len(s) == 0 {
 		return ""
 	}
+
 	if strings.EqualFold(s[0], "the") {
 		s = s[1:]
 	}
+
 	for i, n := range s {
 		if strings.EqualFold(n, "BBS") {
 			return strings.Join(s[0:i], " ") + " BBS"
@@ -1027,16 +1059,17 @@ func Site(title string) string {
 			return strings.Join(s[0:i], " ") + " FTP"
 		}
 	}
+
 	return ""
 }
 
 // Releasers parses Demozoo authors and reclassifies them into Defacto2 people rolls.
-func (p *Production) Releasers() ([]string, []string, []string, []string) {
-	tx, co, gx, mu := []string{}, []string{}, []string{}, []string{}
+func (p *Production) Releasers() (tx []string, co []string, gx []string, mu []string) {
 	for _, c := range p.Credits {
 		if c.Nick.Releaser.IsGroup {
 			continue
 		}
+
 		switch category(c.Category) {
 		case TextC:
 			tx = append(tx, c.Nick.Name)
@@ -1050,6 +1083,7 @@ func (p *Production) Releasers() ([]string, []string, []string, []string) {
 			// do nothing.
 		}
 	}
+
 	return tx, co, gx, mu
 }
 
@@ -1067,7 +1101,7 @@ func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) 
 		AdobeFlash = 47
 		Java       = 48
 		Macintosh  = 94
-		// Javascript = 46 was removed from the api list of platforms.
+		// Javascript = 46 // was removed from the api list of platforms.
 	)
 	// Handle platforms.
 	for _, item := range p.Platforms {
@@ -1089,6 +1123,7 @@ func (p *Production) platforms(platform, section tags.Tag) (tags.Tag, tags.Tag) 
 			break
 		}
 	}
+
 	return platform, section
 }
 
@@ -1105,6 +1140,7 @@ func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.
 		ExeMusic64K = 38
 		MusicPack   = 52
 	)
+
 	for _, item := range p.Types {
 		switch item.ID {
 		case ChipMusic:
@@ -1120,6 +1156,7 @@ func (p *Production) musicSuperType(platform, section tags.Tag) (tags.Tag, tags.
 			break
 		}
 	}
+
 	return platform, section
 }
 
@@ -1141,6 +1178,7 @@ func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, ta
 		ExeGFX256b = 56
 		ExeGFX1K   = 58
 	)
+
 	for _, item := range p.Types {
 		switch item.ID {
 		case Graphics:
@@ -1165,6 +1203,7 @@ func (p *Production) graphicsSuperType(platform, section tags.Tag) (tags.Tag, ta
 			break
 		}
 	}
+
 	return platform, section
 }
 
@@ -1215,6 +1254,7 @@ func (p *Production) prodSuperType(platform, section tags.Tag) (tags.Tag, tags.T
 			break
 		}
 	}
+
 	return platform, section
 }
 

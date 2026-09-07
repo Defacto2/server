@@ -306,7 +306,7 @@ func BenchmarkChars02(b *testing.B) {
 // others, are custom, or from online sources.
 //
 
-var testAbbr = []string{"ISO", "iso", "1st", "example", "running", "BBS", "something"}
+var testAbbr = [...]string{"ISO", "iso", "1st", "example", "running", "BBS", "something"}
 
 func abbr00(s string) string {
 	x := strings.ToLower(s)

@@ -26,26 +26,26 @@ import (
 )
 
 var (
-	ErrNone = errors.New("not found")
-	ErrStat = errors.New("file download stored on this server cannot be found")
+	ErrNone = errors.New("download: not found")
+	ErrStat = errors.New("download: file kept on this server cannot be found")
 )
 
 // Checksum serves the checksums for the requested file.
 // The response is a text file named "checksums.txt" with the checksum and filename.
 // The id string is the UID filename of the requested file.
-func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error {
+func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, obfsKey string) error {
 	const format = "download checksum id %v: %w"
 	if err := nils.Check(ctx, c, db); err != nil {
-		return fmt.Errorf(format, id, err)
+		return fmt.Errorf(format, obfsKey, err)
 	}
 
-	art, err := model.OneFileByKey(ctx, db, id)
+	art, err := model.OneFileByKey(ctx, db, obfsKey)
 	if err != nil {
 		if sess.Editor(c) {
-			art, err = model.OneEditByKey(ctx, db, id)
+			art, err = model.OneEditByKey(ctx, db, obfsKey)
 		}
 		if err != nil {
-			return fmt.Errorf(format, id, err)
+			return fmt.Errorf(format, obfsKey, err)
 		}
 	}
 
@@ -61,16 +61,18 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, id string) error
 	const fmtinf = "%s for " + format
 	file, err := dir.CreateTemp("checksum-server.*.txt")
 	if err != nil {
-		return fmt.Errorf(fmtinf, "create temp file", id, err)
+		return fmt.Errorf(fmtinf, "create temp file", obfsKey, err)
 	}
+
 	defer os.Remove(file.Name())
 
 	if _, err := file.Write(body); err != nil {
-		return fmt.Errorf("%s: write: %w", format, err)
+		return fmt.Errorf(format, "write", err)
 	}
+
 	err = c.Attachment(file.Name(), "checksums.txt")
 	if err != nil {
-		return fmt.Errorf(fmtinf, "attachment", id, err)
+		return fmt.Errorf(fmtinf, "attachment", obfsKey, err)
 	}
 
 	return nil
@@ -88,20 +90,19 @@ func LastModified(art *models.File) string {
 	if art == nil {
 		return none
 	}
+
 	if !art.FileLastModified.Valid {
 		return none
 	}
+
 	const epoch = 1980
 	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
 	if year <= epoch {
 		return none
 	}
+
 	t := art.FileLastModified.Time.UTC()
-	lm := t.Format(time.RFC1123)
-	// if lm == "0001 Jan 1, 00:00" {
-	// 	return none
-	// }
-	return lm
+	return t.Format(time.RFC1123)
 }
 
 // Download configuration.
@@ -118,42 +119,43 @@ func (d Download) HTTPSend(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	key := c.Param("id")
+
+	logWarn := func(s, path, filename string, id int64) {
+		sl.Warn(msg+" "+s, slog.String("path", path), slog.Int64("id", id),
+			slog.String("filename", filename))
+	}
+
+	obfsKey := c.Param("id")
 	ctx := c.Request().Context()
-	art, err := model.OneFileByKey(ctx, db, key)
+	art, err := model.OneFileByKey(ctx, db, obfsKey)
 	switch {
 	case err != nil && sess.Editor(c):
-		art, err = model.OneEditByKey(ctx, db, key)
+		art, err = model.OneEditByKey(ctx, db, obfsKey)
 		if err != nil {
 			return fmt.Errorf(format, "one edit by key", err)
 		}
 	case err != nil:
 		return fmt.Errorf(format, "one file by key", err)
 	}
+
 	name := art.Filename.String
 	uid := strings.TrimSpace(art.UUID.String)
 	file := d.Dir.Join(uid)
 	if !helper.Stat(file) {
-		sl.Warn(msg,
-			slog.String("issue", "could not find the file download"),
-			slog.String("path", file),
-			slog.Int64("id", art.ID),
-			slog.String("filename", art.Filename.String))
+		logWarn("cannot find the download file", file, art.Filename.String, art.ID)
 		return fmt.Errorf("%s, %w: %s", msg, ErrStat, name)
 	}
 	if name == "" {
-		sl.Warn(msg,
-			slog.String("issue", "does not have a filename for the record"),
-			slog.String("path", file),
-			slog.Int64("id", art.ID),
-			slog.String("filename", art.Filename.String))
+		logWarn("cannot find the download filename", file, art.Filename.String, art.ID)
 		name = file
 	}
+
 	if d.Inline {
 		text := tags.IsText(art.Platform.String)
 		ext := filepath.Ext(art.Filename.String)
 		return inline(c, text, file, name, ext)
 	}
+
 	lastmod := LastModified(art)
 	if lastmod != "" {
 		// echo/v5 requires unwrapping to insert a header
@@ -165,9 +167,11 @@ func (d Download) HTTPSend(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 			resp.Header().Set(echo.HeaderLastModified, lastmod)
 		})
 	}
+
 	if err := c.Attachment(file, name); err != nil {
 		return fmt.Errorf(format, "attachment", err)
 	}
+
 	return nil
 }
 
@@ -176,6 +180,7 @@ func inline(c *echo.Context, text bool, file, name, ext string) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	if text && slices.Contains(extensions.Image(), ext) {
 		text = false
 	}
@@ -188,16 +193,20 @@ func inline(c *echo.Context, text bool, file, name, ext string) error {
 		}
 		return nil
 	}
+
 	modernText, err := helper.UTF8(file)
 	if err != nil {
 		return fmt.Errorf(format, "utf-8", err)
 	}
+
 	if !modernText {
 		c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=iso-8859-1")
 	}
+
 	if err := c.Inline(file, name); err != nil {
 		return fmt.Errorf(format, "text as inline", err)
 	}
+
 	return nil
 }
 
@@ -217,17 +226,19 @@ func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) err
 	if err := nils.Check(ctx, c, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
-	key := c.Param("id")
-	art, err := model.OneFileByKey(ctx, db, key)
+
+	obfsKey := c.Param("id")
+	art, err := model.OneFileByKey(ctx, db, obfsKey)
 	switch {
 	case err != nil && sess.Editor(c):
-		art, err = model.OneEditByKey(ctx, db, key)
+		art, err = model.OneEditByKey(ctx, db, obfsKey)
 		if err != nil {
 			return fmt.Errorf(format, "one edit by key", err)
 		}
 	case err != nil:
 		return fmt.Errorf(format, "one file by key", err)
 	}
+
 	ext := ".zip"
 	name := filepath.Base(art.Filename.String) + ext
 	uid := strings.TrimSpace(art.UUID.String)
@@ -239,5 +250,6 @@ func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) err
 	if err := c.Attachment(file, name); err != nil {
 		return fmt.Errorf(format, "attachment", err)
 	}
+
 	return nil
 }

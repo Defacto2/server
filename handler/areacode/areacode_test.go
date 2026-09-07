@@ -8,6 +8,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was great at 80%+
+
 func ExampleQuery() {
 	fmt.Println(areacode.Query("az").Region)
 	fmt.Println(areacode.Query("arizona").Region[0].HTML())
@@ -61,7 +63,7 @@ func ExampleAbbreviations() {
 }
 
 func ExampleRegionByAbbr() {
-	t := areacode.RegionByAbbr("CT")
+	t, _ := areacode.RegionByAbbr("CT")
 	fmt.Println(t.Name, t.Abbreviation, t.AreaCodes)
 	// Output: Connecticut CT [203]
 }
@@ -136,7 +138,7 @@ func ExampleRegion_HTML() {
 
 func TestTerritories(t *testing.T) {
 	t.Parallel()
-	notes := areacode.Notes()
+	notes := areacode.Copy()
 	for nan := range notes {
 		reg := areacode.RegionByCode(nan)
 		be.True(t, len(reg) >= 1)

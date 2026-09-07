@@ -11,7 +11,7 @@ import (
 // go test -bench=Benchmark -benchmem
 
 func BenchmarkTagByURI00(b *testing.B) {
-	slugs := []string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
+	slugs := [...]string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, slug := range slugs {
@@ -22,7 +22,7 @@ func BenchmarkTagByURI00(b *testing.B) {
 }
 
 func BenchmarkTagByURI01(b *testing.B) {
-	slugs := []string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
+	slugs := [...]string{"dos", "windows", "demo", "ansi", "text", "image", "java", "linux"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, slug := range slugs {
@@ -93,7 +93,7 @@ func BenchmarkBuildSimulation(b *testing.B) {
 }
 
 func BenchmarkIsCat00(b *testing.B) {
-	names := []string{"announcements", "demo", "text", "ansi", "linux"}
+	names := [...]string{"announcements", "demo", "text", "ansi", "linux"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, name := range names {
@@ -104,7 +104,7 @@ func BenchmarkIsCat00(b *testing.B) {
 }
 
 func BenchmarkIsCat01(b *testing.B) {
-	names := []string{"announcements", "demo", "text", "ansi", "linux"}
+	names := [...]string{"announcements", "demo", "text", "ansi", "linux"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, name := range names {
@@ -128,7 +128,7 @@ func iscat00(name string) bool {
 }
 
 func BenchmarkIsPlatform(b *testing.B) {
-	names := []string{"ansi", "dos", "windows", "linux", "java"}
+	names := [...]string{"ansi", "dos", "windows", "linux", "java"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, name := range names {
@@ -139,7 +139,7 @@ func BenchmarkIsPlatform(b *testing.B) {
 }
 
 func BenchmarkIsTag(b *testing.B) {
-	names := []string{"ansi", "demo", "windows", "text", "java"}
+	names := [...]string{"ansi", "demo", "windows", "text", "java"}
 	b.Run("", func(b *testing.B) {
 		for range b.N {
 			for _, name := range names {

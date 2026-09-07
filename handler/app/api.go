@@ -397,7 +397,7 @@ func AreacodesAPI(c *echo.Context) error {
 			Regions: names,
 			Notes:   "",
 		}
-		if note, ok := areacode.Notes()[code]; ok {
+		if note, ok := areacode.Copy()[code]; ok {
 			apiCode.Notes = note
 		}
 		result = append(result, apiCode)
@@ -434,7 +434,7 @@ func AreaCodeAPI(c *echo.Context) error {
 		Regions: names,
 		Notes:   "",
 	}
-	if note, ok := areacode.Notes()[nancode]; ok {
+	if note, ok := areacode.Copy()[nancode]; ok {
 		result.Notes = note
 	}
 
@@ -465,7 +465,7 @@ func AreacodeSearchAPI(c *echo.Context) error {
 				Regions: names,
 				Notes:   "",
 			}
-			if note, ok := areacode.Notes()[nancode]; ok {
+			if note, ok := areacode.Copy()[nancode]; ok {
 				result.Notes = note
 			}
 			return c.JSON(http.StatusOK, map[string]any{
@@ -1722,8 +1722,8 @@ func RegionAPI(c *echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "abbreviation must be 2 characters")
 	}
 
-	region := areacode.RegionByAbbr(areacode.Abbreviation(abbr))
-	if region.Name == "" {
+	region, ok := areacode.RegionByAbbr(areacode.Abbreviation(abbr))
+	if !ok {
 		return c.JSON(http.StatusNotFound, "region not found")
 	}
 	areaCodes := make([]int, 0, len(region.AreaCodes))
@@ -1778,7 +1778,7 @@ func DemozooAPI(c *echo.Context) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf("demozoo api: %w", err)
 	}
-	groups := demozoo.FindAll()
+	groups := demozoo.Copy()
 	if len(groups) == 0 {
 		return c.JSON(http.StatusOK, map[string]any{
 			"groups": []map[string]any{},
