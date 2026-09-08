@@ -258,7 +258,7 @@ func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]any {
 	data["noindex"] = true
-	switch fileslice.Match(uri) {
+	switch fileslice.Match(uri) { //nolint:exhaustive
 	case fileslice.NewUploads:
 		data["description"] = "These are the most recent additions of scene history to the site."
 		data["title"] = "New additions"
@@ -285,8 +285,8 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 		data["title"] = "Recent artifacts"
 	case fileslice.Sensenstahl:
 		data["title"] = "Sensenstahl artifacts"
-	case fileslice.WindowsPack:
-		data["title"] = "Windows Pack artifacts"
+	// case fileslice.WindowsPack:
+	// 	data["title"] = "Windows Pack artifacts"
 	case -1:
 		return data
 	default:
@@ -2731,7 +2731,7 @@ func statsByURI(ctx context.Context, exec boil.ContextExecutor, uri string, m *m
 	if err := nils.Check(ctx, exec, m); err != nil {
 		return fmt.Errorf(format, "check", uri, err)
 	}
-	switch fileslice.Match(uri) {
+	switch fileslice.Match(uri) { //nolint:exhaustive
 	case fileslice.ForApproval:
 		if err := m.ByForApproval(ctx, exec); err != nil {
 			return fmt.Errorf(format, "by for approval", uri, err)
@@ -2744,8 +2744,12 @@ func statsByURI(ctx context.Context, exec boil.ContextExecutor, uri string, m *m
 		if err := m.ByUnwanted(ctx, exec); err != nil {
 			return fmt.Errorf(format, "by unwanted", uri, err)
 		}
-	case fileslice.NewUploads, fileslice.NewUpdates, fileslice.Oldest,
-		fileslice.Newest, fileslice.Sensenstahl, fileslice.WindowsPack:
+	case
+		fileslice.NewUploads,
+		fileslice.NewUpdates,
+		fileslice.Oldest,
+		fileslice.Newest,
+		fileslice.Sensenstahl:
 		// For these cases, use the public artifacts method as fallback
 		if err := m.ByPublic(ctx, exec); err != nil {
 			return fmt.Errorf(format, "by public fallback", uri, err)

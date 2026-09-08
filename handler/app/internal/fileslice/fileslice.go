@@ -1,28 +1,30 @@
 // Package fileslice provides functions that return model FileSlices, which are multiple artifact records.
 //
-//nolint:exhaustive,gochecknoglobals,wrapcheck
+//nolint:gochecknoglobals,nonamedreturns,wrapcheck
 package fileslice
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
-	"sort"
+	"strconv"
+	"sync"
 
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"golang.org/x/sync/errgroup"
 )
 
-var ErrCategory = errors.New("unknown artifacts categories")
+var (
+	ErrCategory = errors.New("fileslice: unknown artifacts categories")
+	ErrPagi     = errors.New("fileslice: pagination page and limit cannot be less than 1")
+)
 
 var uriMap = func() map[string]URI {
 	m := make(map[string]URI)
-	for val := range int(WindowsPack) {
+	for val := range int(LastURI) {
 		i := val + 1
 		m[URI(i).String()] = URI(i)
 	}
@@ -31,6 +33,8 @@ var uriMap = func() map[string]URI {
 
 // URI is a type for the files URI path.
 type URI int
+
+const LastURI = _maxURI - 1
 
 const (
 	root URI = iota
@@ -97,7 +101,8 @@ const (
 	Unwanted
 	video
 	windows
-	WindowsPack // last value needs to be a global to allow testing
+	windowsPack
+	_maxURI // used to determine the last value
 )
 
 var uriStrings = [...]string{
@@ -240,7 +245,7 @@ var fileInfoMap = map[URI]fileMeta{
 }
 
 // FileInfo is a helper function for Files that returns the page title, h1 title and lead text.
-func FileInfo(uri string) (string, string, string) {
+func FileInfo(uri string) (logo string, h1sub string, lead string) {
 	if meta, ok := fileInfoMap[Match(uri)]; ok {
 		return meta.logo, meta.h1sub, meta.lead
 	}
@@ -251,8 +256,15 @@ func FileInfo(uri string) (string, string, string) {
 
 // RecordsSub returns the records for the artifacts category URI.
 func RecordsSub(uri string) string {
+	if value, ok := recordsSubMap()[Match(uri)]; ok {
+		return value
+	}
+	return "unknown uri"
+}
+
+var recordsSubMap = sync.OnceValue(func() map[URI]string {
 	const none = tags.Tag(-1)
-	subs := map[URI]string{
+	return map[URI]string{
 		advert:       none.Humanizes(tags.ForSale),
 		announcement: none.Humanizes(tags.Announcement),
 		ansi:         tags.ANSI.Humanizes(none),
@@ -271,7 +283,7 @@ func RecordsSub(uri string) string {
 		drama:        none.Humanizes(tags.Drama),
 		ftp:          none.Humanizes(tags.Ftp),
 		hack:         none.Humanizes(tags.GameHack),
-		htm:          uri,
+		htm:          "htm", // FIX:
 		howTo:        none.Humanizes(tags.Guide),
 		imageFile:    tags.Image.Humanizes(none),
 		imagePack:    tags.Image.Humanizes(tags.Pack),
@@ -308,14 +320,9 @@ func RecordsSub(uri string) string {
 		trialCrackme: tags.Windows.Humanizes(tags.Job),
 		video:        tags.Video.Humanizes(none),
 		windows:      tags.Windows.Humanizes(none),
-		WindowsPack:  tags.Windows.Humanizes(tags.Pack),
+		windowsPack:  tags.Windows.Humanizes(tags.Pack),
 	}
-	if value, found := subs[Match(uri)]; found {
-		return value
-	}
-
-	return "unknown uri"
-}
+})
 
 type queryFunc func(context.Context, boil.ContextExecutor, int, int) (models.FileSlice, error)
 
@@ -324,460 +331,102 @@ var (
 
 	// recordDispatch dispatch map for models.
 	recordDispatch = map[URI]queryFunc{
-		ForApproval: model.OnlyApproval,
-		Deletions:   model.OnlyHidden,
-		Unwanted:    a.OnlyUnwanted,
-		NewUploads:  a.ByKey,
-		NewUpdates:  a.ByUpdated,
-		Oldest:      a.ByOldest,
-		Newest:      a.ByNewest,
+		ForApproval:  model.OnlyApproval,
+		Deletions:    model.OnlyHidden,
+		Unwanted:     a.OnlyUnwanted,
+		NewUploads:   a.ByKey,
+		NewUpdates:   a.ByUpdated,
+		Oldest:       a.ByOldest,
+		Newest:       a.ByNewest,
+		advert:       list[model.Advert],
+		announcement: list[model.Announcement],
+		ansi:         list[model.Ansi],
+		ansiBrand:    list[model.AnsiBrand],
+		ansiBBS:      list[model.AnsiBBS],
+		ansiFTP:      list[model.AnsiFTP],
+		ansiNfo:      list[model.AnsiNfo],
+		ansiPack:     list[model.AnsiPack],
+		bbs:          list[model.BBS],
+		bbsImage:     list[model.BBSImage],
+		bbstro:       list[model.BBStro],
+		bbsText:      list[model.BBSText],
+		console:      list[model.Console],
+		database:     list[model.Database],
+		demoscene:    list[model.Demoscene],
+		drama:        list[model.Drama],
+		ftp:          list[model.FTP],
+		hack:         list[model.Hack],
+		htm:          list[model.HTML],
+		howTo:        list[model.HowTo],
+		imageFile:    list[model.Image],
+		imagePack:    list[model.ImagePack],
+		installer:    list[model.Installer],
+		intro:        list[model.Intro],
+		linux:        list[model.Linux],
+		java:         list[model.Java],
+		jobAdvert:    list[model.JobAdvert],
+		macos:        list[model.Macos],
+		msdosPack:    list[model.MsDosPack],
+		music:        list[model.Music],
+		newsArticle:  list[model.NewsArticle],
+		nfo:          list[model.Nfo],
+		nfoTool:      list[model.NfoTool],
+		standards:    list[model.Standards],
+		script:       list[model.Script],
+		introMsdos:   list[model.IntroMsDos],
+		introWindows: list[model.IntroWindows],
+		magazine:     list[model.Magazine],
+		msdos:        list[model.MsDos],
+		pcb:          list[model.PCBoard],
+		pcbPPE:       list[model.PCBoardPPE],
+		pcbText:      list[model.PCBoardText],
+		pdf:          list[model.PDF],
+		proof:        list[model.Proof],
+		restrict:     list[model.Restrict],
+		takedown:     list[model.Takedown],
+		text:         list[model.Text],
+		textAmiga:    list[model.TextAmiga],
+		textApple2:   list[model.TextApple2],
+		textAtariST:  list[model.TextAtariST],
+		textPack:     list[model.TextPack],
+		tool:         list[model.Tool],
+		trialCrackme: list[model.TrialCrackme],
+		video:        list[model.Video],
+		windows:      list[model.Windows],
+		windowsPack:  list[model.WindowsPack],
 	}
 )
+
+func list[T any, PT interface {
+	*T
+	List(ctx context.Context, exec boil.ContextExecutor, page, limit int) (models.FileSlice, error)
+}](ctx context.Context, exec boil.ContextExecutor, page, limit int) (models.FileSlice, error) {
+	return PT(new(T)).List(ctx, exec, page, limit)
+}
 
 // Records returns the records for the artifacts category URI.
 // Note that the record statistics and counts get cached.
 func Records(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
+	const format = "records %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
-		return nil, fmt.Errorf("fileslice records check: %w", err)
+		return nil, fmt.Errorf(format, "fileslice check", err)
+	}
+
+	if page < 1 {
+		return nil, fmt.Errorf(format, "page "+strconv.Itoa(page), ErrPagi)
+	}
+	if limit < 1 {
+		return nil, fmt.Errorf(format, "page "+strconv.Itoa(limit), ErrPagi)
 	}
 
 	if fn, ok := recordDispatch[Match(uri)]; ok {
 		return fn(ctx, exec, page, limit)
 	}
 
-	return records00(ctx, exec, uri, page, limit)
-}
-
-func records00(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	case advert:
-		var r model.Advert
-		return r.List(ctx, exec, page, limit)
-	case announcement:
-		var r model.Announcement
-		return r.List(ctx, exec, page, limit)
-	case ansi:
-		var r model.Ansi
-		return r.List(ctx, exec, page, limit)
-	case ansiBrand:
-		var r model.AnsiBrand
-		return r.List(ctx, exec, page, limit)
-	case ansiBBS:
-		var r model.AnsiBBS
-		return r.List(ctx, exec, page, limit)
-	case ansiFTP:
-		var r model.AnsiFTP
-		return r.List(ctx, exec, page, limit)
-	case ansiNfo:
-		var r model.AnsiNfo
-		return r.List(ctx, exec, page, limit)
-	case ansiPack:
-		var r model.AnsiPack
-		return r.List(ctx, exec, page, limit)
-	case bbs:
-		var r model.BBS
-		return r.List(ctx, exec, page, limit)
-	case bbsImage:
-		var r model.BBSImage
-		return r.List(ctx, exec, page, limit)
-	case bbstro:
-		var r model.BBStro
-		return r.List(ctx, exec, page, limit)
-	case bbsText:
-		var r model.BBSText
-		return r.List(ctx, exec, page, limit)
-	}
-	return records11(ctx, exec, uri, page, limit)
-}
-
-func records11(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	case database:
-		var r model.Database
-		return r.List(ctx, exec, page, limit)
-	case demoscene:
-		var r model.Demoscene
-		return r.List(ctx, exec, page, limit)
-	case drama:
-		var r model.Drama
-		return r.List(ctx, exec, page, limit)
-	case ftp:
-		var r model.FTP
-		return r.List(ctx, exec, page, limit)
-	case hack:
-		var r model.Hack
-		return r.List(ctx, exec, page, limit)
-	case htm:
-		var r model.HTML
-		return r.List(ctx, exec, page, limit)
-	case howTo:
-		var r model.HowTo
-		return r.List(ctx, exec, page, limit)
-	case imageFile:
-		var r model.Image
-		return r.List(ctx, exec, page, limit)
-	case imagePack:
-		var r model.ImagePack
-		return r.List(ctx, exec, page, limit)
-	case installer:
-		var r model.Installer
-		return r.List(ctx, exec, page, limit)
-	case intro:
-		var r model.Intro
-		return r.List(ctx, exec, page, limit)
-	case linux:
-		var r model.Linux
-		return r.List(ctx, exec, page, limit)
-	case java:
-		var r model.Java
-		return r.List(ctx, exec, page, limit)
-	case jobAdvert:
-		var r model.JobAdvert
-		return r.List(ctx, exec, page, limit)
-	}
-
-	return records22(ctx, exec, uri, page, limit)
-}
-
-func records22(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	case macos:
-		var r model.Macos
-		return r.List(ctx, exec, page, limit)
-	case msdosPack:
-		var r model.MsDosPack
-		return r.List(ctx, exec, page, limit)
-	case music:
-		var r model.Music
-		return r.List(ctx, exec, page, limit)
-	case newsArticle:
-		var r model.NewsArticle
-		return r.List(ctx, exec, page, limit)
-	case nfo:
-		var r model.Nfo
-		return r.List(ctx, exec, page, limit)
-	case nfoTool:
-		var r model.NfoTool
-		return r.List(ctx, exec, page, limit)
-	case standards:
-		var r model.Standards
-		return r.List(ctx, exec, page, limit)
-	case script:
-		var r model.Script
-		return r.List(ctx, exec, page, limit)
-	case introMsdos:
-		var r model.IntroMsDos
-		return r.List(ctx, exec, page, limit)
-	case introWindows:
-		var r model.IntroWindows
-		return r.List(ctx, exec, page, limit)
-	case magazine:
-		var r model.Magazine
-		return r.List(ctx, exec, page, limit)
-	case msdos:
-		var r model.MsDos
-		return r.List(ctx, exec, page, limit)
-	case pcb:
-		var r model.PCBoard
-		return r.List(ctx, exec, page, limit)
-	case pcbPPE:
-		var r model.PCBoardPPE
-		return r.List(ctx, exec, page, limit)
-	case pcbText:
-		var r model.PCBoardText
-		return r.List(ctx, exec, page, limit)
-	case pdf:
-		var r model.PDF
-		return r.List(ctx, exec, page, limit)
-	}
-
-	return records33(ctx, exec, uri, page, limit)
-}
-
-func records33(ctx context.Context, exec boil.ContextExecutor, uri string, page, limit int) (models.FileSlice, error) {
-	switch Match(uri) {
-	case proof:
-		var r model.Proof
-		return r.List(ctx, exec, page, limit)
-	case restrict:
-		var r model.Restrict
-		return r.List(ctx, exec, page, limit)
-	case takedown:
-		var r model.Takedown
-		return r.List(ctx, exec, page, limit)
-	case text:
-		var r model.Text
-		return r.List(ctx, exec, page, limit)
-	case textAmiga:
-		var r model.TextAmiga
-		return r.List(ctx, exec, page, limit)
-	case textApple2:
-		var r model.TextApple2
-		return r.List(ctx, exec, page, limit)
-	case textAtariST:
-		var r model.TextAtariST
-		return r.List(ctx, exec, page, limit)
-	case textPack:
-		var r model.TextPack
-		return r.List(ctx, exec, page, limit)
-	case tool:
-		var r model.Tool
-		return r.List(ctx, exec, page, limit)
-	case trialCrackme:
-		var r model.TrialCrackme
-		return r.List(ctx, exec, page, limit)
-	case video:
-		var r model.Video
-		return r.List(ctx, exec, page, limit)
-	case windows:
-		var r model.Windows
-		return r.List(ctx, exec, page, limit)
-	case WindowsPack:
-		var r model.WindowsPack
-		return r.List(ctx, exec, page, limit)
-	case Sensenstahl:
+	if Match(uri) == Sensenstahl {
 		var r model.BBStro
 		return r.Sensenstahl(ctx, exec, page, limit)
-	case console:
-		var r model.Console
-		return r.List(ctx, exec, page, limit)
-	default:
-		const format = "artifacts category %s: %w"
-		return nil, fmt.Errorf(format, uri, ErrCategory)
-	}
-}
-
-// Counter returns the statistics for the artifacts categories.
-func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
-	const format = "artifacts categories counter %s: %w"
-
-	if err := nils.Check(ctx, db); err != nil {
-		return Stats{}, fmt.Errorf(format, "check", err)
 	}
 
-	counter := newStats()
-	if err := counter.Get(ctx, db); err != nil {
-		return Stats{}, fmt.Errorf(format, "get", err)
-	}
-
-	return counter, nil
-}
-
-// Stats are the database statistics for the artifacts categories.
-type Stats struct {
-	Record    model.Artifacts
-	Ansi      model.Ansi
-	AnsiBBS   model.AnsiBBS
-	BBS       model.BBS
-	BBSText   model.BBSText
-	BBStro    model.BBStro
-	Console   model.Console
-	Demoscene model.Demoscene
-	MsDos     model.MsDos
-	Intro     model.Intro
-	IntroD    model.IntroMsDos
-	IntroW    model.IntroWindows
-	Installer model.Installer
-	Java      model.Java
-	Linux     model.Linux
-	Magazine  model.Magazine
-	Macos     model.Macos
-	Nfo       model.Nfo
-	NfoTool   model.NfoTool
-	Proof     model.Proof
-	Script    model.Script
-	Text      model.Text
-	Windows   model.Windows
-}
-
-// Era is used to provide sorted statistics for artifact categories.
-type Era struct {
-	Name    string
-	MinYear int
-	MaxYear int
-}
-
-// SortYear returns the Eras sorted from oldest to newest.
-// If multiple Era share the same year, then the shortest to longest time span is used.
-//
-// For example:
-//   - 1. 1980 - 1982
-//   - 2. 1980 - 1990
-//   - 3. 1981 - 1985
-func (s *Stats) SortYear() [20]Era {
-	items := s.eras()
-	sort.Slice(items[:], func(i, j int) bool {
-		if items[i].MinYear == items[j].MinYear {
-			return items[i].MaxYear < items[j].MaxYear
-		}
-		return items[i].MinYear < items[j].MinYear
-	})
-
-	return items
-}
-
-// Item is used to provided sorted statistics for artifact categories.
-type Item struct {
-	Name  string
-	Bytes int
-	Count int
-}
-
-// SortByte returns the Items sorted from highest to lowest bytes.
-func (s *Stats) SortByte() [21]Item {
-	items := s.items()
-	sort.Slice(items[:], func(i, j int) bool {
-		if items[i].Bytes == items[j].Bytes {
-			return items[i].Count > items[j].Count
-		}
-		return items[i].Bytes > items[j].Bytes
-	})
-
-	return items
-}
-
-// SortCount returns the Items sorted by highest to lowest counts.
-func (s *Stats) SortCount() [21]Item {
-	items := s.items()
-	sort.Slice(items[:], func(i, j int) bool {
-		if items[i].Count == items[j].Count {
-			return items[i].Bytes > items[j].Bytes
-		}
-		return items[i].Count > items[j].Count
-	})
-
-	return items
-}
-
-// SortName returns the Items sorted alphabetically by their name.
-func (s *Stats) SortName() [21]Item {
-	items := s.items()
-	sort.Slice(items[:], func(i, j int) bool {
-		return items[i].Name < items[j].Name
-	})
-	return items
-}
-
-// Statistics returns the empty database statistics for the artifacts categories.
-func Statistics() Stats {
-	return newStats()
-}
-
-// Get and store the database statistics for the artifacts categories.
-func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
-	const format = "category get stats %s: %w"
-	if err := nils.Check(ctx, exec); err != nil {
-		return fmt.Errorf(format, "check", err)
-	}
-
-	g, ctx := errgroup.WithContext(ctx)
-
-	// fetch record
-	g.Go(func() error {
-		if err := s.Record.Public(ctx, exec); err != nil {
-			return fmt.Errorf(format, "record", err)
-		}
-		return nil
-	})
-
-	// concurrent, individual category stats
-	stats := []struct {
-		name string
-		fn   func(context.Context, boil.ContextExecutor) error
-	}{
-		{"ansi", s.Ansi.Stat},
-		{"ansi bbs", s.AnsiBBS.Stat},
-		{"bbs", s.BBS.Stat},
-		{"bbs text", s.BBSText.Stat},
-		{"bbstro", s.BBStro.Stat},
-		{"console", s.Console.Stat},
-		{"ms-dos", s.MsDos.Stat},
-		{"intro", s.Intro.Stat},
-		{"intro ms-dos", s.IntroD.Stat},
-		{"intro windows", s.IntroW.Stat},
-		{"installer", s.Installer.Stat},
-		{"java", s.Java.Stat},
-		{"linux", s.Linux.Stat},
-		{"demoscene", s.Demoscene.Stat},
-		{"macos", s.Macos.Stat},
-		{"magazine", s.Magazine.Stat},
-		{"nfo", s.Nfo.Stat},
-		{"nfo tool", s.NfoTool.Stat},
-		{"proof", s.Proof.Stat},
-		{"script", s.Script.Stat},
-		{"text", s.Text.Stat},
-		{"windows", s.Windows.Stat},
-	}
-
-	for _, st := range stats {
-		g.Go(func() error {
-			if err := st.fn(ctx, exec); err != nil {
-				return fmt.Errorf(format, st.name, err)
-			}
-			return nil
-		})
-	}
-
-	if err := g.Wait(); err != nil {
-		return fmt.Errorf(format, "wait", err)
-	}
-
-	return nil
-}
-
-func (s *Stats) eras() [20]Era {
-	return [...]Era{
-		{s.Ansi.String(), s.Ansi.MinYear, s.Ansi.MaxYear},
-		{s.AnsiBBS.String(), s.AnsiBBS.MinYear, s.AnsiBBS.MaxYear},
-		{s.BBS.String(), s.BBS.MinYear, s.BBS.MaxYear},
-		{s.BBSText.String(), s.BBSText.MinYear, s.BBSText.MaxYear},
-		{s.BBStro.String(), s.BBStro.MinYear, s.BBStro.MaxYear},
-		//	{s.Console.String(), s.Console.MinYear, s.Console.MaxYear},
-		{s.Demoscene.String(), s.Demoscene.MinYear, s.Demoscene.MaxYear},
-		{s.MsDos.String(), s.MsDos.MinYear, s.MsDos.MaxYear},
-		{s.Intro.String(), s.Intro.MinYear, s.Intro.MaxYear},
-		{s.IntroD.String(), s.IntroD.MinYear, s.IntroD.MaxYear},
-		{s.IntroW.String(), s.IntroW.MinYear, s.IntroW.MaxYear},
-		{s.Installer.String(), s.Installer.MinYear, s.Installer.MaxYear},
-		{s.Java.String(), s.Java.MinYear, s.Java.MaxYear},
-		{s.Linux.String(), s.Linux.MinYear, s.Linux.MaxYear},
-		{s.Magazine.String(), s.Magazine.MinYear, s.Magazine.MaxYear},
-		{s.Macos.String(), s.Macos.MinYear, s.Macos.MaxYear},
-		{s.Nfo.String(), s.Nfo.MinYear, s.Nfo.MaxYear},
-		{s.NfoTool.String(), s.NfoTool.MinYear, s.NfoTool.MaxYear},
-		{s.Proof.String(), s.Proof.MinYear, s.Proof.MaxYear},
-		{s.Script.String(), s.Script.MinYear, s.Script.MaxYear},
-		{s.Windows.String(), s.Windows.MinYear, s.Windows.MaxYear},
-	}
-}
-
-func (s *Stats) items() [21]Item {
-	return [...]Item{
-		{s.Ansi.String(), s.Ansi.Bytes, s.Ansi.Count},
-		{s.AnsiBBS.String(), s.AnsiBBS.Bytes, s.AnsiBBS.Count},
-		{s.BBS.String(), s.BBS.Bytes, s.BBS.Count},
-		{s.BBSText.String(), s.BBSText.Bytes, s.BBSText.Count},
-		{s.BBStro.String(), s.BBStro.Bytes, s.BBStro.Count},
-		{s.Console.String(), s.Console.Bytes, s.Console.Count},
-		{s.Demoscene.String(), s.Demoscene.Bytes, s.Demoscene.Count},
-		{s.MsDos.String(), s.MsDos.Bytes, s.MsDos.Count},
-		{s.Intro.String(), s.Intro.Bytes, s.Intro.Count},
-		{s.IntroD.String(), s.IntroD.Bytes, s.IntroD.Count},
-		{s.IntroW.String(), s.IntroW.Bytes, s.IntroW.Count},
-		{s.Installer.String(), s.Installer.Bytes, s.Installer.Count},
-		{s.Java.String(), s.Java.Bytes, s.Java.Count},
-		{s.Linux.String(), s.Linux.Bytes, s.Linux.Count},
-		{s.Magazine.String(), s.Magazine.Bytes, s.Magazine.Count},
-		{s.Macos.String(), s.Macos.Bytes, s.Macos.Count},
-		{s.Nfo.String(), s.Nfo.Bytes, s.Nfo.Count},
-		{s.NfoTool.String(), s.NfoTool.Bytes, s.NfoTool.Count},
-		{s.Proof.String(), s.Proof.Bytes, s.Proof.Count},
-		{s.Script.String(), s.Script.Bytes, s.Script.Count},
-		{s.Windows.String(), s.Windows.Bytes, s.Windows.Count},
-	}
-}
-
-// newStats returns a new Stats struct initialized with zero values.
-func newStats() Stats {
-	return Stats{} //nolint:exhaustruct_v5
+	return nil, fmt.Errorf(format, "categories "+uri, ErrCategory)
 }

@@ -15,6 +15,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage was good at over 85%
+
 func imagefiler(t *testing.T) string {
 	t.Helper()
 
@@ -140,7 +142,7 @@ func TestDownloadB(t *testing.T) {
 	be.True(t, strings.Contains(string(x), "received an invalid type"))
 
 	x = simple.DownloadInBytes(null.Int64From(1))
-	be.True(t, strings.Contains(string(x), "1 B"))
+	be.True(t, strings.Contains(string(x), "1B"))
 
 	x = simple.DownloadInBytes(1024)
 	be.True(t, strings.Contains(string(x), "(1k)"))

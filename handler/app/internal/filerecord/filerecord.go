@@ -1,6 +1,6 @@
 // Package filerecord provides functions for the file model which is an artifact record.
 //
-//nolint:exhaustive,exhaustruct_v5,gochecknoglobals,nonamedreturns
+//nolint:exhaustive,gochecknoglobals,nonamedreturns
 package filerecord
 
 import (
