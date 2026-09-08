@@ -1106,7 +1106,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	if err := nils.Check(sl, c, tx); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	got := remote.DemozooLink{}
+	got := remote.Link(download)
 	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
 		got.Error = "demozoo id must be a numeric value"
@@ -1120,7 +1120,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	}
 	got.UUID = unid
 	ctx := c.Request().Context()
-	return got.Download(ctx, sl, c, tx, download)
+	return got.Download(ctx, sl, c, tx)
 }
 
 // GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
@@ -1131,11 +1131,10 @@ func GetDemozoo(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx,
 	demozooID int, defacto2UNID string, download dir.Directory,
 ) error {
-	got := remote.DemozooLink{
-		ID:   demozooID,
-		UUID: defacto2UNID,
-	}
-	return got.Download(ctx, sl, c, tx, download)
+	got := remote.Link(download)
+	got.ID = demozooID
+	got.UUID = defacto2UNID
+	return got.Download(ctx, sl, c, tx)
 }
 
 // GetPouet fetches the download link from Pouet and saves it to the download directory.

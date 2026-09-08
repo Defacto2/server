@@ -5,107 +5,133 @@ package remote_test
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"mime"
 	"path"
 	"testing"
 	"time"
 
 	"github.com/Defacto2/server/handler/app/remote"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
 func TestDownload(t *testing.T) {
 	t.Parallel()
-	sl := slog.Default()
-	dl := remote.DemozooLink{}
-	err := dl.Download(t.Context(), sl, nil, nil, "")
-	be.Err(t, err)
+
+	sl := logs.Discard()
+	tx := testutil.Tx(t)
+	c := testutil.NewContext(t, "")
+
+	dl := remote.Link("")
+	got := dl.Download(t.Context(), sl, c, tx)
+	be.Err(t, got)
 }
 
 func TestStat(t *testing.T) {
 	t.Parallel()
-	sl := slog.Default()
-	dl := remote.DemozooLink{}
-	err := dl.Stat(t.Context(), sl, nil, nil, "")
-	be.Err(t, err)
+
+	sl := logs.Discard()
+	tx := testutil.Tx(t)
+	c := testutil.NewContext(t, "")
+
+	dl := remote.Link("")
+	got := dl.Stat(t.Context(), sl, c, tx)
+	be.Err(t, got)
 }
 
 func TestArchiveContent(t *testing.T) {
 	t.Parallel()
+
+	sl := logs.Discard()
+	tx := testutil.Tx(t)
+	c := testutil.NewContext(t, "")
 	dl := remote.DemozooLink{}
-	sl := slog.Default()
-	err := dl.ArchiveContent(t.Context(), sl, nil, nil, "")
-	be.Err(t, err)
+
+	got := dl.ArchiveDo(t.Context(), sl, c, tx, "")
+	be.Err(t, got, nil)
 }
 
 func TestUpdate(t *testing.T) {
 	t.Parallel()
+
+	tx := testutil.Tx(t)
+	c := testutil.NewContext(t, "")
 	dl := remote.DemozooLink{}
-	err := dl.Update(t.Context(), nil, nil)
+
+	err := dl.Update(t.Context(), c, tx)
 	be.Err(t, err)
 }
 
 func TestFileURL(t *testing.T) {
 	t.Parallel()
-	sl := slog.Default()
+
+	sl := logs.Discard()
 	const fix1 = "http://files.scene.org/view/demos/groups/trsi/ms-dos/trsiscxt.zip"
 	const wan1 = "https://files.scene.org/get/demos/groups/trsi/ms-dos/trsiscxt.zip"
-	got := remote.FixURL(sl, fix1)
+	got := remote.ReplaceURL(sl, fix1)
 	be.Equal(t, got, wan1)
 
 	const fix2 = "https://discmaster.textfiles.com/view/4699/AmigaCD_One.bin/photos_1/screen.pic"
 	const wan5 = "https://discmaster.textfiles.com/file/4699/AmigaCD_One.bin/photos_1/screen.pic"
-	got = remote.FixURL(sl, fix2)
+	got = remote.ReplaceURL(sl, fix2)
 	be.Equal(t, got, wan5)
 
 	const ftp2 = "ftp://ftp.scene.org/pub/mirrors/ftp_klosz_art_pl/purgatory/Symphony2k3_Invitanimation_by_Brygada%251F_RR/RR-Symphony2k3.avi"
 	const wan2 = "https://files.scene.org/get/mirrors/ftp_klosz_art_pl/purgatory/Symphony2k3_Invitanimation_by_Brygada%251F_RR/RR-Symphony2k3.avi"
-	got = remote.FixURL(sl, ftp2)
+	got = remote.ReplaceURL(sl, ftp2)
 	be.Equal(t, got, wan2)
 
 	const ftp3 = "ftp://ftp.pl.scene.org/pub/scene.org/parties/2003/assembly03/in64/zoom3_v1_02_final.zip"
 	const wan3 = "https://files.scene.org/get/scene.org/parties/2003/assembly03/in64/zoom3_v1_02_final.zip"
-	got = remote.FixURL(sl, ftp3)
+	got = remote.ReplaceURL(sl, ftp3)
 	be.Equal(t, got, wan3)
 
 	const ftp4 = "ftp://sceneorg.retropc.se/scene.org/parties/2003/assembly03/in64/zoom3_v1_02_final.zip"
 	const wan4 = "https://files.scene.org/get/scene.org/parties/2003/assembly03/in64/zoom3_v1_02_final.zip"
-	got = remote.FixURL(sl, ftp4)
+	got = remote.ReplaceURL(sl, ftp4)
 	be.Equal(t, got, wan4)
 
 	s := "this-is-an-invalid-url"
-	got = remote.FixURL(sl, s)
+	got = remote.ReplaceURL(sl, s)
 	be.Equal(t, got, s)
 }
 
 func TestGetFile_invalid(t *testing.T) {
 	t.Parallel()
-	sl := slog.Default()
 
-	r, err := remote.GetFile(t.Context(), sl, remote.TimeoutShort, "://example.com")
+	sl := logs.Discard()
+	const timeout = remote.TimeoutShort
+
+	r, err := remote.GetFile(t.Context(), sl, timeout, "://example.com")
 	be.Err(t, err)
 	be.Equal(t, r.Path, "")
-	r, err = remote.GetFile(t.Context(), sl, remote.TimeoutShort, "example.com")
+
+	r, err = remote.GetFile(t.Context(), sl, timeout, "example.com")
 	be.Err(t, err)
 	be.Equal(t, r.Path, "")
-	r, err = remote.GetFile(t.Context(), sl, remote.TimeoutShort, "ftp://example.com")
+
+	r, err = remote.GetFile(t.Context(), sl, timeout, "ftp://example.com")
 	be.Err(t, err)
 	be.Equal(t, r.Path, "")
-	r, err = remote.GetFile(t.Context(), sl, remote.TimeoutShort, "http://example")
+
+	r, err = remote.GetFile(t.Context(), sl, timeout, "http://example")
 	be.Err(t, err)
 	be.Equal(t, r.Path, "")
 }
 
 func TestResponse(t *testing.T) {
 	t.Parallel()
-	sl := slog.Default()
+
+	sl := logs.Discard()
 
 	r, err := remote.GetFile(t.Context(), sl, remote.TimeoutShort, "http://example.com")
 	be.True(t, (err == nil || errors.Is(err, context.DeadlineExceeded)))
 	if err != nil {
+		t.Log(err)
 		return
 	}
+
 	/*
 		ContentLength string // ContentLength is the size of the file in bytes.
 		ContentType   string // ContentType is the MIME type of the file.
