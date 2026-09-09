@@ -15,10 +15,10 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/handler/app/internal/filerecord"
-	"github.com/Defacto2/server/handler/app/internal/simple"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/form"
+	"github.com/Defacto2/server/handler/internal/filerecord"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/handler/releaser/lism"

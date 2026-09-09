@@ -1,4 +1,4 @@
-package app_test
+package api_test
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/handler/api"
 	"github.com/nalgeon/be"
 )
 
@@ -65,7 +65,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 		t.Run(endpoint.name, func(t *testing.T) {
 			t.Parallel()
 
-			url := api + endpoint.path
+			url := apiv1 + endpoint.path
 			resp, err := clientDo(t, url)
 			be.Equal(t, err, nil)
 			defer func() {
@@ -169,18 +169,18 @@ func TestAPIEndpointExamples(t *testing.T) {
 		name string
 		url  string
 	}{
-		{"artifacts", api + "/artifacts"},
-		{"artifacts/new", api + "/artifacts/new"},
-		{"categories", api + "/categories"},
-		{"category/announcements", api + "/category/announcements"},
-		{"magazines", api + "/magazines"},
-		{"releaser/defacto2", api + "/releaser/defacto2"},
-		{"milestones/year/1971", api + "/milestones/year/1971"},
-		{"areacodes/region/CA", api + "/areacodes/region/CA"},
-		{"sceners/artist", api + "/sceners/artist"},
-		{"scener/dubmood", api + "/scener/dubmood"},
-		{"websites", api + "/websites"},
-		{"demozoo", api + "/demozoo"},
+		{"artifacts", apiv1 + "/artifacts"},
+		{"artifacts/new", apiv1 + "/artifacts/new"},
+		{"categories", apiv1 + "/categories"},
+		{"category/announcements", apiv1 + "/category/announcements"},
+		{"magazines", apiv1 + "/magazines"},
+		{"releaser/defacto2", apiv1 + "/releaser/defacto2"},
+		{"milestones/year/1971", apiv1 + "/milestones/year/1971"},
+		{"areacodes/region/CA", apiv1 + "/areacodes/region/CA"},
+		{"sceners/artist", apiv1 + "/sceners/artist"},
+		{"scener/dubmood", apiv1 + "/scener/dubmood"},
+		{"websites", apiv1 + "/websites"},
+		{"demozoo", apiv1 + "/demozoo"},
 	}
 
 	for _, example := range examples {
@@ -264,7 +264,7 @@ func TestAPIResponseValidation(t *testing.T) {
 	t.Run("websites", func(t *testing.T) {
 		t.Parallel()
 
-		resp, err := clientDo(t, api+"/websites")
+		resp, err := clientDo(t, apiv1+"/websites")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
@@ -307,7 +307,7 @@ func TestAPIResponseValidation(t *testing.T) {
 	t.Run("demozoo", func(t *testing.T) {
 		t.Parallel()
 
-		resp, err := clientDo(t, api+"/demozoo")
+		resp, err := clientDo(t, apiv1+"/demozoo")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
@@ -348,7 +348,7 @@ func TestAPIResponseValidation(t *testing.T) {
 	t.Run("groups", func(t *testing.T) {
 		t.Parallel()
 
-		resp, err := clientDo(t, api+"/groups")
+		resp, err := clientDo(t, apiv1+"/groups")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
@@ -394,7 +394,7 @@ func TestAPIResponseValidation(t *testing.T) {
 			be.True(t, len(releaser.ID) > 0)
 			be.True(t, len(releaser.Name) > 0)
 			// be.True(t, len(releaser.Title) > 0) // Title may be empty for some releasers
-			be.True(t, strings.HasPrefix(releaser.URLs.API, app.APIBase+"/releaser/"))
+			be.True(t, strings.HasPrefix(releaser.URLs.API, api.APIBase+"/releaser/"))
 			be.True(t, strings.HasPrefix(releaser.URLs.HTML, "/g/"))
 			be.True(t, releaser.Statistics.TotalFiles >= 0)
 			be.True(t, releaser.Statistics.TotalSizeBytes >= 0)
@@ -405,7 +405,7 @@ func TestAPIResponseValidation(t *testing.T) {
 	t.Run("areacodes", func(t *testing.T) {
 		t.Parallel()
 
-		resp, err := clientDo(t, api+"/areacodes")
+		resp, err := clientDo(t, apiv1+"/areacodes")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
@@ -442,7 +442,7 @@ func TestAPIResponseValidation(t *testing.T) {
 		t.Parallel()
 		reqLocalHost(t)
 
-		resp, err := clientDo(t, api+"/milestones")
+		resp, err := clientDo(t, apiv1+"/milestones")
 		be.Equal(t, err, nil)
 		defer func() {
 			if err := resp.Body.Close(); err != nil {

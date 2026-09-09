@@ -1,4 +1,4 @@
-package app_test
+package api_test
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/handler/api"
 	_ "github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
@@ -38,7 +38,7 @@ func TestTagsCaching(t *testing.T) {
 	c := e.NewContext(r, w)
 
 	// should not be cached
-	err = app.CategoriesAPI(c, db)
+	err = api.CategoriesAPI(c, db)
 	be.Equal(t, err, nil)
 	be.Equal(t, w.Code, http.StatusOK)
 	firstResponse := w.Body.String()
@@ -49,7 +49,7 @@ func TestTagsCaching(t *testing.T) {
 	c2 := e.NewContext(r2, w2)
 
 	start := time.Now()
-	err = app.CategoriesAPI(c2, db)
+	err = api.CategoriesAPI(c2, db)
 	elapsed := time.Since(start)
 	be.Equal(t, err, nil)
 	be.Equal(t, w2.Code, http.StatusOK)

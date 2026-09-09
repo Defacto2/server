@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/Defacto2/server/handler/app/internal/fileslice"
+	"github.com/Defacto2/server/handler/internal/fileslice"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"

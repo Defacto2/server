@@ -15,7 +15,7 @@ import (
 	"github.com/Defacto2/archive/pkzip"
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
-	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"

@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/Defacto2/server/handler/api"
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/nils"
@@ -298,7 +299,7 @@ func APIMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {
 		start := time.Now()
 
-		c.Response().Header().Set(XApiVersion, app.APIVer)
+		c.Response().Header().Set(XApiVersion, api.APIVer)
 		// use a custom response writer to capture the timing
 		resp, err := echo.UnwrapResponse(c.Response())
 		if err != nil {

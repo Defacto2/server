@@ -21,7 +21,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
-	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/handler/jsdos/msdos"
 	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/handler/releaser"

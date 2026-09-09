@@ -15,7 +15,7 @@ import (
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"

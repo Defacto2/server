@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/handler/app/internal/filerecord"
-	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/internal/filerecord"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"

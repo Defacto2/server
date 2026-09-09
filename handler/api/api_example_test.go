@@ -1,4 +1,4 @@
-package app_test
+package api_test
 
 import (
 	"context"
@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/Defacto2/server/handler/api"
 	"github.com/Defacto2/server/handler/app"
-	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/labstack/echo/v5"
 )
 
@@ -16,7 +17,7 @@ import (
 func Example_milestonesAll() {
 	e := echo.New()
 	apiGroup := e.Group("/api/v1")
-	apiGroup.GET("/milestones", app.MilestonesAPI)
+	apiGroup.GET("/milestones", api.MilestonesAPI)
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/milestones", nil)
 	rec := httptest.NewRecorder()
@@ -52,7 +53,7 @@ func Example_milestonesAll() {
 func Example_milestonesYear() {
 	e := echo.New()
 	apiGroup := e.Group("/api/v1")
-	apiGroup.GET("/milestones/year/:year", app.MilestoneYearAPI)
+	apiGroup.GET("/milestones/year/:year", api.MilestoneYearAPI)
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/milestones/year/1995", nil)
 	rec := httptest.NewRecorder()
@@ -80,7 +81,7 @@ func Example_milestonesYear() {
 func Example_milestonesRange() {
 	e := echo.New()
 	apiGroup := e.Group("/api/v1")
-	apiGroup.GET("/milestones/range/:range", app.MilestoneYearsAPI)
+	apiGroup.GET("/milestones/range/:range", api.MilestoneYearsAPI)
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/milestones/range/1990-2000", nil)
 	rec := httptest.NewRecorder()
@@ -108,7 +109,7 @@ func Example_milestonesRange() {
 func Example_milestonesHighlights() {
 	e := echo.New()
 	apiGroup := e.Group("/api/v1")
-	apiGroup.GET("/milestones/highlights", app.MilestoneHighlightsAPI)
+	apiGroup.GET("/milestones/highlights", api.MilestoneHighlightsAPI)
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/milestones/highlights", nil)
 	rec := httptest.NewRecorder()
@@ -136,7 +137,7 @@ func Example_milestonesHighlights() {
 func Example_milestonesDecade() {
 	e := echo.New()
 	apiGroup := e.Group("/api/v1")
-	apiGroup.GET("/milestones/decade/:decade", app.MilestoneDecadeAPI)
+	apiGroup.GET("/milestones/decade/:decade", api.MilestoneDecadeAPI)
 
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/milestones/decade/1990s", nil)
 	rec := httptest.NewRecorder()
@@ -163,7 +164,7 @@ func Example_milestonesDecade() {
 // Example_htmlCleaning demonstrates the HTML cleaning functions.
 func Example_htmlCleaning() {
 	html := `<p class="test">This has <a href="https://example.com" class="link">a link</a> and <span style="color: red;">formatting</span>.</p>`
-	cleaned := app.APIMarkup(html)
+	cleaned := api.APIMarkup(html)
 	plain := simple.CleanHTML(html)
 
 	fmt.Println("✓ HTML Cleaning Functions:")
@@ -197,7 +198,7 @@ func Example_cleaning() {
 
 // Example_apiMarkup demonstrates the HTML cleaning function.
 func Example_apiMarkup() {
-	cleaned := app.APIMarkup(src)
+	cleaned := api.APIMarkup(src)
 	fmt.Println("Original HTML:")
 	fmt.Println(src)
 	fmt.Println("\nCleaned HTML (preserves structure, removes presentation):")
@@ -219,8 +220,8 @@ func Example_apiMarkup() {
 func Example_errorHandling() {
 	e := echo.New()
 	apiGroup := e.Group("/api/v1")
-	apiGroup.GET("/milestones/year/:year", app.MilestoneYearAPI)
-	apiGroup.GET("/milestones/range/:range", app.MilestoneYearsAPI)
+	apiGroup.GET("/milestones/year/:year", api.MilestoneYearAPI)
+	apiGroup.GET("/milestones/range/:range", api.MilestoneYearsAPI)
 
 	// Example 1: Invalid year format
 	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/v1/milestones/year/invalid", nil)

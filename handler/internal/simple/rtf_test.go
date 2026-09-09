@@ -3,7 +3,7 @@ package simple_test
 import (
 	"testing"
 
-	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/internal/simple"
 )
 
 func TestIsRTF(t *testing.T) {

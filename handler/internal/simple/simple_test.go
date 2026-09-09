@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"

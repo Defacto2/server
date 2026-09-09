@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Defacto2/server/handler/app/internal/simple"
+	"github.com/Defacto2/server/handler/internal/simple"
 )
 
 func BenchmarkHash(b *testing.B) {

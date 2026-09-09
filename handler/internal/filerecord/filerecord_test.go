@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Defacto2/server/handler/app/internal/filerecord"
+	"github.com/Defacto2/server/handler/internal/filerecord"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"

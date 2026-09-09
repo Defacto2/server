@@ -1,10 +1,10 @@
-package app_test
+package api_test
 
 import (
 	"database/sql"
 	"testing"
 
-	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/handler/api"
 )
 
 func BenchmarkApiMarkup(b *testing.B) {
@@ -15,14 +15,14 @@ func BenchmarkApiMarkup(b *testing.B) {
 
 	b.Run("", func(b *testing.B) {
 		for range b.N {
-			app.APIMarkup(html)
+			api.APIMarkup(html)
 		}
 	})
 }
 
 // BenchmarkCategoriesAPI benchmarks the CategoriesAPI with realistic stats calculation.
 func BenchmarkCategoriesAPI(b *testing.B) {
-	w, c := newRequest(b, api+"/categories")
+	w, c := newRequest(b, apiv1+"/categories")
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
 		b.Skipf("Could not create database connection: %v", err)
@@ -39,7 +39,7 @@ func BenchmarkCategoriesAPI(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		_ = app.CategoriesAPI(c, db)
+		_ = api.CategoriesAPI(c, db)
 		w.Body.Reset()
 	}
 }
