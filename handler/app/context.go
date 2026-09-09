@@ -113,24 +113,25 @@ const (
 //   - "cachefiles" is the total number of records and used by the defacto2:file-count meta element.
 //   - "editor" is true if the editor mode is enabled for the browser session.
 func empty(c *echo.Context) map[string]any {
-	return map[string]any{
-		"cachefiles":   Caching.RecordCount, // autofilled
-		canonical:      "",
-		"carousel":     "",
-		"databaseErr":  false,
-		"description":  "",
-		"editor":       sess.Editor(c), // autofilled
-		"h1":           "",
-		"subheading":   "",
-		"jsdos6":       false,
-		"lead":         "",
-		"logo":         "",
-		"readonlymode": true,
-		"title":        "",
-		"ogtitle":      "",    // opengraph title
-		"noindex":      false, // flag the layout to include robots=noindex metatag
-		"uploader":     true,  // enable uploader js and keyboard shortcuts
-	}
+	const minSize = 20
+	m := make(map[string]any, minSize)
+	m["cachefiles"] = Caching.RecordCount
+	m[canonical] = ""
+	m["carousel"] = ""
+	m["databaseErr"] = false
+	m["description"] = ""
+	m["editor"] = sess.Editor(c)
+	m["h1"] = ""
+	m["subheading"] = ""
+	m["jsdos6"] = false
+	m["lead"] = ""
+	m["logo"] = ""
+	m["readonlymode"] = true
+	m["title"] = ""
+	m["ogtitle"] = ""
+	m["noindex"] = false
+	m["uploader"] = true
+	return m
 }
 
 // NOTE:

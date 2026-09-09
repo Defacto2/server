@@ -32,9 +32,8 @@ import (
 )
 
 const (
-	closeAnchor = "</a>"
-	favicon     = "/image/layout/defacto2-ascii.png"
-	lrClass     = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
+	favicon   = "/image/layout/defacto2-ascii.png"
+	linkClass = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
 )
 
 // WebApp is the configuration and status of the web application templates.
@@ -552,7 +551,7 @@ func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string)
 	}
 
 	rel := func(url string) string {
-		return `<a href="https://` + url + `">` + url + closeAnchor
+		return `<a href="https://` + url + `">` + url + `</a>`
 	}
 
 	links := make([]string, 0, 1) // there will be at least one link
@@ -633,13 +632,13 @@ func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 	var err error
 
 	if x != "" {
-		prime, err = simple.MakeLink("1", x, lrClass, performant)
+		prime, err = simple.MakeLink("1", x, linkClass, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf(format, err))
 		}
 	}
 	if y != "" {
-		second, err = simple.MakeLink("2", y, lrClass, performant)
+		second, err = simple.MakeLink("2", y, linkClass, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf(format, err))
 		}

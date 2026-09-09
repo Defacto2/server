@@ -275,7 +275,7 @@ func TestMilestone(t *testing.T) {
 	ms := app.Collection()
 
 	const expectedMileStones = 100
-	be.True(t, ms.Len() > expectedMileStones)
+	be.True(t, ms.Count() > expectedMileStones)
 
 	one := ms[0]
 	const expectedYear = 1971
