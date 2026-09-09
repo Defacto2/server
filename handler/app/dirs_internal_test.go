@@ -30,7 +30,7 @@ func echoCtx(t *testing.T) *echo.Context {
 func Test_artifact404(t *testing.T) {
 	t.Parallel()
 
-	got := artifact404(nil, echoCtx(t), "")
+	got := ArtifactErr(nil, echoCtx(t), "")
 	be.Err(t, got)
 }
 

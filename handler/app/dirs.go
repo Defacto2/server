@@ -1013,7 +1013,7 @@ func (ds *Dirs) oneByKey(ctx context.Context, sl *slog.Logger, c *echo.Context, 
 	}
 	if err != nil {
 		if errors.Is(err, model.ErrBadID) {
-			return nil, artifact404(sl, c, ds.URI)
+			return nil, ArtifactErr(sl, c, ds.URI)
 		}
 		return nil, DatabaseErr(sl, c, "f/"+ds.URI, err)
 	}

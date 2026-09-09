@@ -6,8 +6,6 @@ import (
 	"cmp"
 	"fmt"
 	"io"
-	"log/slog"
-	"net/http"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -16,11 +14,9 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/internal/simple"
-	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/bengarrett/bbs"
-	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -58,7 +54,14 @@ func LockIn80Columns(year int16, src ...byte) bool {
 }
 
 func SortContent(content string) []string {
+	if content == "" {
+		return nil
+	}
+
 	x := strings.Split(content, "\n")
+	if len(x) == 1 {
+		return x
+	}
 
 	slices.SortFunc(x, func(a, b string) int {
 		// sort by filename, but behave like Windows and ignore case ordering
@@ -92,32 +95,6 @@ func SortContent(content string) []string {
 	return items
 }
 
-// artifact404 renders the error page for the artifact links.
-func artifact404(sl *slog.Logger, c *echo.Context, id string) error {
-	const title = "Artifact not found"
-	const probl = "The artifact page does not exist, there is probably a typo with the URL."
-	const msg = "artifact 404 context"
-	const format = msg + ": %w"
-	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = "status"
-	data := empty(c)
-	data["title"] = fmt.Sprintf("%d error, artifact page not found", http.StatusNotFound)
-	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
-	data["code"] = http.StatusNotFound
-	data["logo"] = title
-	data["alert"] = fmt.Sprintf("Artifact %q cannot be found", strings.ToLower(id))
-	data["probl"] = probl
-	data["uriOkay"] = "f/"
-	data["uriErr"] = id
-	err := c.Render(http.StatusNotFound, name, data)
-	if err != nil {
-		return InternalErr(sl, c, name, errorWithID(err, id, nil))
-	}
-	return nil
-}
-
 // decode decodes the text content from the reader.
 func decode(src io.Reader) (string, error) {
 	if src == nil {
@@ -143,7 +120,9 @@ func errorWithID(err error, key string, id any) error {
 	if err == nil {
 		return nil
 	}
+
 	key = strings.TrimSpace(key)
+
 	const format = "%w: caused by artifact %s (%v)"
 	switch id.(type) {
 	case int, int64:
@@ -160,26 +139,24 @@ func firstLead(art *models.File) string {
 	if art == nil {
 		return ""
 	}
+
 	fname, err := simple.CleanFname(art.Filename.String)
 	if err != nil {
 		fname = ""
 	}
+
 	a := helper.MaskTerm([]byte(fname)...)
-	const format = `<span class="font-monospace fs-5 fw-light">%s</span> `
-	span := fmt.Sprintf(format, a)
-	return fmt.Sprintf("%s<br>%s", releasersHrefs(art), span)
+	return releasersHrefs(art) +
+		`<br>` +
+		`<span class="font-monospace fs-5 fw-light">` + string(a) + `</span>`
 }
 
 func legacyArchiving(modMagic any) bool {
-	switch modMagic.(type) {
-	case string:
-	default:
+	val, ok := modMagic.(string)
+	if !ok {
 		return false
 	}
-	val, valid := modMagic.(string)
-	if !valid {
-		return false
-	}
+
 	switch val {
 	case
 		magicnumber.ARChiveSEA.Title(),
@@ -201,17 +178,21 @@ func legacyArchiving(modMagic any) bool {
 func lockWidth(maxWidth int, b []byte) []byte {
 	tabs := 0
 	index := 0
-	const size, unmod = 2, 3
+
+	const unmod = 3
 	for index < len(b) {
 		if tabs >= unmod {
 			return b
 		}
+
 		index = bytes.IndexByte(b[index:], byte('\t'))
 		if index < 0 {
 			break
 		}
 		tabs++
 	}
+
+	const size = 2
 	var builder bytes.Buffer
 	for line := range bytes.Lines(b) {
 		// builder.Write(line) // uncomment to debug
@@ -220,6 +201,7 @@ func lockWidth(maxWidth int, b []byte) []byte {
 			builder.Write(line)
 			continue
 		}
+
 		cut := 0
 		for n := range line {
 			if n%maxWidth == 0 {
@@ -230,6 +212,7 @@ func lockWidth(maxWidth int, b []byte) []byte {
 				cut = n
 				continue
 			}
+
 			if n >= total {
 				p := make([]byte, 1, len(line[cut:n])+size)
 				p[0] = '\n'
@@ -240,19 +223,14 @@ func lockWidth(maxWidth int, b []byte) []byte {
 			}
 		}
 	}
+
 	return builder.Bytes()
 }
 
-// plainText returns true when matching utf8 text,
-// ansi escape text, and plain text.
+// plainText returns true when matching utf8 text, ansi escape text, and plain text.
 func plainText(modMagic any) bool {
-	switch modMagic.(type) {
-	case string:
-	default:
-		return false
-	}
-	val, valid := modMagic.(string)
-	if !valid {
+	val, ok := modMagic.(string)
+	if !ok {
 		return false
 	}
 	switch val {
@@ -271,19 +249,27 @@ func releasersHrefs(art *models.File) string {
 	if art == nil {
 		return ""
 	}
+
 	magazine := strings.TrimSpace(art.Section.String) == tags.Mag.String()
+
 	return string(LinkRelrs(magazine, art.GroupBrandBy, art.GroupBrandFor))
 }
 
 func requireReplacementZip(name string) bool {
+	if name == "" {
+		return false
+	}
+
 	methods, err := pkzip.Methods(name)
 	if err != nil {
 		return false
 	}
+
 	for method := range slices.Values(methods) {
 		if !method.Zip() {
 			return true
 		}
 	}
+
 	return false
 }

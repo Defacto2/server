@@ -22,6 +22,33 @@ func logErr(sl *slog.Logger, msg, uri string, code int, err error) {
 		slog.String("uri", uri), slog.Any("error", err))
 }
 
+// ArtifactErr renders the error page for the artifact links.
+func ArtifactErr(sl *slog.Logger, c *echo.Context, id string) error {
+	const msg = "artifact 404 context"
+	if cErr := nils.Check(c, sl); cErr != nil {
+		return fmt.Errorf("%s: %w", msg, cErr)
+	}
+
+	const code = http.StatusNotFound
+	scode := strconv.Itoa(code)
+	data := empty(c)
+	data["title"] = scode + " error, artifact page not found"
+	data["description"] = "HTTP status " + scode + " error"
+	data["code"] = code
+	data["logo"] = "Artifact not found"
+	data["alert"] = "Artifact '" + strings.ToLower(id) + "' cannot be found"
+	data["probl"] = "The artifact page does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "f/"
+	data["uriErr"] = id
+
+	if rErr := c.Render(code, "status", data); rErr != nil {
+		logErr(sl, msg, id, code, rErr)
+		return InternalErr(sl, c, "status", errorWithID(rErr, id, nil))
+	}
+
+	return nil
+}
+
 // BadRequestErr is the handler for handling Bad Request Errors,
 // caused by invalid user input or a malformed client requests.
 func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {

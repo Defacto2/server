@@ -65,10 +65,10 @@ const (
 
 // FixNumericSuffix errors.
 var (
-	ErrMissingObfuscatedID    = errors.New("missing obfuscated ID")
-	ErrInvalidObfuscatedID    = errors.New("invalid obfuscated ID")
-	ErrFileNotFound           = errors.New("file not found")
-	ErrInvalidFilenamePattern = errors.New("filename does not match numeric suffix pattern")
+	ErrMissingObfuscatedID    = errors.New("app: missing obfuscated ID")
+	ErrInvalidObfuscatedID    = errors.New("app: invalid obfuscated ID")
+	ErrFileNotFound           = errors.New("app: file not found")
+	ErrInvalidFilenamePattern = errors.New("app: filename does not match numeric suffix pattern")
 )
 
 type Pagination struct {
@@ -152,10 +152,6 @@ func APIInfo(sl *slog.Logger, c *echo.Context) error {
 	const title = "API Information"
 	const descr = "A special thanks to the hundreds of contributors and the thousands of contributions."
 	const leadr = "Basic information on how to use the Defacto2 API."
-	const format = "api helper context: %w"
-	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
-	}
 	const name = "api-info"
 	data := empty(c)
 	data["description"] = descr
@@ -179,21 +175,22 @@ func Artifacts(sl *slog.Logger, c *echo.Context, db *sql.DB, uri, page string) e
 		return fmt.Errorf(format, err)
 	}
 
-	if !fileslice.Valid(uri) {
-		return Artifacts404(sl, c, uri)
-	}
-
 	ctx := c.Request().Context()
-	if page == "" {
+	switch {
+	case !fileslice.Valid(uri):
+		return Artifacts404(sl, c, uri)
+
+	case page == "":
 		return artifacts(ctx, sl, c, db, uri, 1)
-	}
 
-	p, err := strconv.Atoi(page)
-	if err != nil {
-		return Page404(sl, c, uri, page)
-	}
+	default:
+		p, err := strconv.Atoi(page)
+		if err != nil {
+			return Page404(sl, c, uri, page)
+		}
 
-	return artifacts(ctx, sl, c, db, uri, p)
+		return artifacts(ctx, sl, c, db, uri, p)
+	}
 }
 
 // artifacts is a helper function for Artifacts that returns the data map for the files page.
@@ -202,10 +199,12 @@ func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	const title = "Artifacts"
 	const descr = "Table of contents for the collection of artifacts."
 	const name = "artifacts"
 	logo, subhead, lead := fileslice.FileInfo(uri)
+
 	data := emptyFiles(c)
 	data["title"] = title
 	data[canonical] = strings.Join([]string{files, uri}, "/")
@@ -214,32 +213,37 @@ func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	data["h1"] = title
 	data["subheading"] = subhead
 	data["lead"] = lead
-	data[records] = []models.FileSlice{}
 	data["unknownYears"] = true
 	data["forApproval"] = false
-	errs := fmt.Sprintf("artifacts page %d for %q", page, uri)
-	r, err := fileslice.Records(ctx, db, uri, page, limit)
-	if err != nil {
-		return DatabaseErr(sl, c, errs, err)
-	}
-	data[records] = r
+
+	spage := strconv.Itoa(page)
+	errURI := "artifacts page " + spage + " for '" + uri + "'"
+
 	d, sum, err := stats(ctx, db, uri)
 	if err != nil {
-		return DatabaseErr(sl, c, errs, err)
+		return DatabaseErr(sl, c, errURI, err)
 	}
+	lastPage := math.Ceil(float64(sum) / float64(limit))
+	if page > int(lastPage) {
+		return Page404(sl, c, uri, spage)
+	}
+
 	data = artifactsDesc(uri, d[years], sum, data)
 	data["stats"] = d
-	lastPage := math.Ceil(float64(sum) / float64(limit))
+
+	data[records] = []models.FileSlice{}
+	r, err := fileslice.Records(ctx, db, uri, page, limit)
+	if err != nil {
+		return DatabaseErr(sl, c, errURI, err)
+	}
 	if len(r) == 0 {
 		if err = c.Render(http.StatusOK, name, data); err != nil {
-			return InternalErr(sl, c, errs, err)
+			return InternalErr(sl, c, errURI, err)
 		}
 		return nil
 	}
-	if page > int(lastPage) {
-		i := strconv.Itoa(page)
-		return Page404(sl, c, uri, i)
-	}
+	data[records] = r
+
 	const pages = 2
 	data["Pagination"] = Pagination{
 		TwoAfter:  page + pages,
@@ -251,15 +255,23 @@ func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 		BaseURL:   "/files/" + uri,
 		RangeStep: steps(lastPage),
 	}
+
 	if err = c.Render(http.StatusOK, name, data); err != nil {
-		return InternalErr(sl, c, errs, err)
+		return InternalErr(sl, c, errURI, err)
 	}
+
 	return nil
 }
 
 func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]any {
+	match := fileslice.Match(uri)
+	if match == -1 {
+		return data
+	}
+
 	data["noindex"] = true
-	switch fileslice.Match(uri) { //nolint:exhaustive
+
+	switch match { //nolint:exhaustive
 	case fileslice.NewUploads:
 		data["description"] = "These are the most recent additions of scene history to the site."
 		data["title"] = "New additions"
@@ -286,14 +298,11 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 		data["title"] = "Recent artifacts"
 	case fileslice.Sensenstahl:
 		data["title"] = "Sensenstahl artifacts"
-	// case fileslice.WindowsPack:
-	// 	data["title"] = "Windows Pack artifacts"
-	case -1:
-		return data
 	default:
 		// catch all other matches
 		s := strings.TrimSpace(fileslice.RecordsSub(uri))
 		data["title"] = helper.Capitalize(s) + " artifacts"
+
 		desc := "The collection of " +
 			strconv.Itoa(sum) + " " + s + " artifacts"
 		if years != "" {
@@ -301,6 +310,7 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 		}
 		data["description"] = desc + "."
 	}
+
 	return data
 }
 
