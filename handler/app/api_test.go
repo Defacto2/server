@@ -35,9 +35,8 @@ func newRequest(tb testing.TB, target string) (*httptest.ResponseRecorder, *echo
 func clientDo(tb testing.TB, url string) (*http.Response, error) {
 	tb.Helper()
 
-	client := http.Client{}
 	req, _ := http.NewRequestWithContext(tb.Context(), http.MethodGet, url, nil)
-	return client.Do(req)
+	return http.DefaultClient.Do(req)
 }
 
 func TestApiMarkup(t *testing.T) {

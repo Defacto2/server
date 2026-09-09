@@ -14,6 +14,7 @@ import (
 // TestAllAPIEndpoints tests all API endpoints from apiinfo.tmpl.
 func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 	t.Parallel()
+	reqLocalHost(t)
 
 	endpoints := []struct {
 		name        string
@@ -162,6 +163,7 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 // TestAPIEndpointExamples tests the specific examples from apiinfo.tmpl.
 func TestAPIEndpointExamples(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	examples := []struct {
 		name string
@@ -256,6 +258,7 @@ func TestAPIEndpointExamples(t *testing.T) {
 // TestAPIResponseValidation tests JSON validation and expected values for key endpoints.
 func TestAPIResponseValidation(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	// Test websites endpoint
 	t.Run("websites", func(t *testing.T) {
@@ -437,6 +440,7 @@ func TestAPIResponseValidation(t *testing.T) {
 	// Test milestones endpoint
 	t.Run("milestones", func(t *testing.T) {
 		t.Parallel()
+		reqLocalHost(t)
 
 		resp, err := clientDo(t, api+"/milestones")
 		be.Equal(t, err, nil)

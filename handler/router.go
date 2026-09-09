@@ -120,7 +120,7 @@ func (serv *Server) html(e *echo.Echo, fsys fs.FS) *echo.Echo {
 		panic(fmt.Errorf(format, err))
 	}
 
-	paths, names := *app.Hrefs(), *app.Names()
+	paths, names := app.Hrefs(), app.Names()
 	for key, path := range paths {
 		e.FileFS(path, names[key], fsys)
 	}
@@ -141,7 +141,7 @@ func (serv *Server) font(e *echo.Echo, fsys fs.FS) *echo.Echo {
 		panic(fmt.Errorf(format, err))
 	}
 
-	paths, names := *app.FontRefs(), *app.FontNames()
+	paths, names := app.FontRefs(), app.FontNames()
 	font := e.Group("/font")
 	for key, path := range paths {
 		font.FileFS(path, names[key], fsys)

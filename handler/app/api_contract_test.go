@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"testing"
 
@@ -23,25 +22,21 @@ const (
 	api = lh + app.APIBase
 )
 
-// TestMain checks server availability before running tests.
-func TestMain(m *testing.M) {
-	client := http.Client{}
+func reqLocalHost(t *testing.T) {
+	t.Helper()
+
 	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, lh+"/health-check", nil)
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		_, _ = os.Stderr.WriteString("SKIP: Server not running at localhost\n")
-		os.Exit(0)
+		t.Skip("api tests skipped: server not running at localhost")
 	}
 	_ = resp.Body.Close()
-
-	// Run tests if server is available.
-	code := m.Run()
-	os.Exit(code)
 }
 
 // TestAnnouncementsContract verifies the announcements endpoint contract.
 func TestAnnouncementsContract(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	resp, err := clientDo(t, api+"/category/announcements")
 	be.Equal(t, err, nil)
@@ -86,6 +81,7 @@ func TestAnnouncementsContract(t *testing.T) {
 // TestCategoriesContract verifies the categories endpoint contract.
 func TestCategoriesContract(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	resp, err := clientDo(t, api+"/categories")
 	be.Equal(t, err, nil)
@@ -126,6 +122,7 @@ func TestCategoriesContract(t *testing.T) {
 // TestPlatformsContract verifies the platforms endpoint contract.
 func TestPlatformsContract(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	resp, err := clientDo(t, api+"/platforms")
 	be.Equal(t, err, nil)
@@ -167,6 +164,7 @@ func TestPlatformsContract(t *testing.T) {
 // TestGenericCategoryContract verifies the generic category endpoint contract.
 func TestGenericCategoryContract(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	testCases := [...]string{"demo", "scenerules", "magazine"}
 
@@ -215,6 +213,8 @@ func TestGenericCategoryContract(t *testing.T) {
 // TestPlatformQueries verifies that platform queries work correctly.
 func TestPlatformQueries(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
+
 	// Test a few different platform types
 	platforms := [...]string{"ansi", "audio", "dos", "windows", "image"}
 
@@ -264,6 +264,7 @@ func TestPlatformQueries(t *testing.T) {
 // TestURLPatterns verifies consistent URL patterns across all endpoints.
 func TestURLPatterns(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	endpoints := [...]string{
 		"announcements",
@@ -296,6 +297,7 @@ func TestURLPatterns(t *testing.T) {
 // TestScenersContract verifies the sceners endpoint contract.
 func TestScenersContract(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	resp, err := clientDo(t, api+"/sceners")
 	be.Equal(t, err, nil)
@@ -346,6 +348,8 @@ func TestScenersContract(t *testing.T) {
 // TestScenerRolesContract verifies the scener role endpoints contract.
 func TestScenerRolesContract(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
+
 	roles := [...]string{"artist", "coder", "musician", "writer"}
 
 	for _, role := range roles {
@@ -404,6 +408,7 @@ func TestScenerRolesContract(t *testing.T) {
 // TestScenerDetailsContract verifies the individual scener details endpoint contract.
 func TestScenerDetailsContract(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	resp, err := clientDo(t, api+"/scener/006")
 	be.Equal(t, err, nil)
@@ -488,6 +493,7 @@ func TestScenerDetailsContract(t *testing.T) {
 // TestScenerNotFound verifies the 404 response for non-existent sceners.
 func TestScenerNotFound(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	url := api + "/scener/nonexistent-scener-12345"
 	resp, err := clientDo(t, url)
@@ -510,6 +516,7 @@ func TestScenerNotFound(t *testing.T) {
 // TestFileContract verifies the file endpoint contract.
 func TestFileContract(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	// Test with a known file hash from the files endpoint
 	// First, get a file from the files endpoint to use as a test case
@@ -578,6 +585,7 @@ func TestFileContract(t *testing.T) {
 // TestArtifactNotFound tests the artifact endpoint with a non-existent ID.
 func TestArtifactNotFound(t *testing.T) {
 	t.Parallel()
+	reqLocalHost(t)
 
 	url := api + "/artifact/nonexistent"
 	resp, err := clientDo(t, url)

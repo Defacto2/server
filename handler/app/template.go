@@ -211,24 +211,14 @@ func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap 
 		return nil
 	}
 
-	hrefs := *Hrefs()
+	hrefs := Hrefs()
 	return &template.FuncMap{
-		"bootstrap5": func() string {
-			return hrefs[Bootstrap5]
-		},
-		"bootstrap5JS": func() string {
-			return hrefs[Bootstrap5JS]
-		},
-		"bootstrapIcons": func() string {
-			return hrefs[BootstrapIcons]
-		},
-		"capitalize": helper.Capitalize,
-		"canvasAnsi": func() string {
-			return hrefs[ContentBinary]
-		},
-		"canvasReadme": func() string {
-			return hrefs[ContentText]
-		},
+		"bootstrap5":     func() string { return hrefs[Bootstrap5] },
+		"bootstrap5JS":   func() string { return hrefs[Bootstrap5JS] },
+		"bootstrapIcons": func() string { return hrefs[BootstrapIcons] },
+		"capitalize":     helper.Capitalize,
+		"canvasAnsi":     func() string { return hrefs[ContentBinary] },
+		"canvasReadme":   func() string { return hrefs[ContentText] },
 		"classification": func(s, p string) string {
 			count, _ := form.HumanizeCount(ctx, db, s, p)
 			return string(count)
@@ -236,33 +226,15 @@ func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap 
 		"classificationStr": func(s, p string) string {
 			return form.HumanizeCountStr(ctx, db, s, p)
 		},
-		"demozooSanity": func() string {
-			return strconv.Itoa(demozoo.Sanity)
-		},
-		"chiptunePlayer": func() string {
-			return hrefs[ChiptunePlayer]
-		},
-		"editArtifact": func() string {
-			return hrefs[EditArtifact]
-		},
-		"editAssets": func() string {
-			return hrefs[EditAssets]
-		},
-		"editForApproval": func() string {
-			return hrefs[EditForApproval]
-		},
-		"exampleDay": func() string {
-			return time.Now().Format("2")
-		},
-		"exampleMonth": func() string {
-			return time.Now().Format("1")
-		},
-		"exampleYear": func() string {
-			return time.Now().Format("2006")
-		},
-		"fmtName": func(s string) string {
-			return helper.Capitalize(strings.ToLower(s))
-		},
+		"demozooSanity":   func() string { return strconv.Itoa(demozoo.Sanity) },
+		"chiptunePlayer":  func() string { return hrefs[ChiptunePlayer] },
+		"editArtifact":    func() string { return hrefs[EditArtifact] },
+		"editAssets":      func() string { return hrefs[EditAssets] },
+		"editForApproval": func() string { return hrefs[EditForApproval] },
+		"exampleDay":      func() string { return time.Now().Format("2") },
+		"exampleMonth":    func() string { return time.Now().Format("1") },
+		"exampleYear":     func() string { return time.Now().Format("2006") },
+		"fmtName":         func(s string) string { return helper.Capitalize(strings.ToLower(s)) },
 		"fmtRangeURI": func(s string) string {
 			x, err := name.Humanize(name.Path(s))
 			if err != nil {
@@ -270,39 +242,17 @@ func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap 
 			}
 			return helper.Titleize(x)
 		},
-		"htmx": func() string {
-			return hrefs[Htmx]
-		},
-		"htmxRespTargets": func() string {
-			return hrefs[HtmxRespTargets]
-		},
-		"initialisms": func(s string) string {
-			return lism.String(lism.Path(s))
-		},
-		"indexJS": func() string {
-			return hrefs[IndexJS]
-		},
-		"jsdos6JS": func() string {
-			return hrefs[Jsdos6JS]
-		},
-		"dosboxJS": func() string {
-			return hrefs[DosboxJS]
-		},
-		"layout": func() string {
-			return hrefs[Layout]
-		},
-		"layoutJS": func() string {
-			return hrefs[LayoutJS]
-		},
-		"logo": func() string {
-			return string(t.Brand)
-		},
-		"pouet": func() string {
-			return hrefs[Pouet]
-		},
-		"pouetSanity": func() string {
-			return strconv.Itoa(pouet.Sanity)
-		},
+		"htmx":            func() string { return hrefs[Htmx] },
+		"htmxRespTargets": func() string { return hrefs[HtmxRespTargets] },
+		"initialisms":     func(s string) string { return lism.String(lism.Path(s)) },
+		"indexJS":         func() string { return hrefs[IndexJS] },
+		"jsdos6JS":        func() string { return hrefs[Jsdos6JS] },
+		"dosboxJS":        func() string { return hrefs[DosboxJS] },
+		"layout":          func() string { return hrefs[Layout] },
+		"layoutJS":        func() string { return hrefs[LayoutJS] },
+		"logo":            func() string { return string(t.Brand) },
+		"pouet":           func() string { return hrefs[Pouet] },
+		"pouetSanity":     func() string { return strconv.Itoa(pouet.Sanity) },
 		"recordImgSampleStat": func(unid string) bool {
 			return simple.ImageSampleStat(unid, dir.Directory(t.Environment.AbsPreview))
 		},

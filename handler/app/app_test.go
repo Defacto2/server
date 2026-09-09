@@ -359,13 +359,7 @@ func TestList(t *testing.T) {
 	list := app.List()
 	const expectedCount = 9
 	be.True(t, len(list) == expectedCount)
-}
-
-func TestNames(t *testing.T) {
-	t.Parallel()
-
-	x := *app.Names()
-	be.Equal(t, "public/css/bootstrap.min.css", x[0])
+	be.Equal(t, list[0].Name, "Text art scene")
 }
 
 func TestGlobTo(t *testing.T) {

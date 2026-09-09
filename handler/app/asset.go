@@ -27,52 +27,57 @@ const (
 	LayoutJS                     // LayoutJS is the path to the minified layout JS file.
 	Pouet                        // Pouet is the path to the minified Pouet JS file.
 	Uploader                     // Uploader is the path to the minified Uploader JS file.
+	_maxAsset
 )
+
+// Assets is the total number of public facing asset files.
+const Assets = int(_maxAsset)
 
 // Paths are a map of the public facing CSS, JS and WASM files.
 type Paths map[Asset]string
 
+var hrefPaths = Paths{
+	Bootstrap5:      "/css/bootstrap.min.css",
+	Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
+	BootstrapIcons:  "/svg/bootstrap-icons.svg",
+	ContentBinary:   "/js/content-binary.min.js",
+	ContentText:     "/js/content-text.min.js",
+	DosboxJS:        "/js/wdosbox.js",
+	DosboxWasm:      "/js/wdosbox.wasm",
+	ChiptunePlayer:  "/js/chiptune-player.min.js",
+	EditArtifact:    "/js/editor-artifact.min.js",
+	EditAssets:      "/js/editor-assets.min.js",
+	EditForApproval: "/js/editor-forapproval.min.js",
+	Htmx:            "/js/htmx.v2.min.js",
+	HtmxRespTargets: "/js/htmx.v2.ext-response-targets.min.js",
+	IndexJS:         "/js/index.min.js",
+	Jsdos6JS:        "/js/js-dos.js",
+	Layout:          "/css/layout.min.css",
+	LayoutJS:        "/js/layout.min.js",
+	Pouet:           "/js/votes-pouet.min.js",
+	Uploader:        "/js/uploader.min.js",
+}
+
 // Hrefs returns the relative path of the public facing CSS, JS and WASM files.
 // The strings are intended for href attributes in HTML link elements and
 // the src attribute in HTML script elements.
-func Hrefs() *Paths {
-	return &Paths{
-		Bootstrap5:      "/css/bootstrap.min.css",
-		Bootstrap5JS:    "/js/bootstrap.bundle.min.js",
-		BootstrapIcons:  "/svg/bootstrap-icons.svg",
-		ContentBinary:   "/js/content-binary.min.js",
-		ContentText:     "/js/content-text.min.js",
-		DosboxJS:        "/js/wdosbox.js",
-		DosboxWasm:      "/js/wdosbox.wasm",
-		ChiptunePlayer:  "/js/chiptune-player.min.js",
-		EditArtifact:    "/js/editor-artifact.min.js",
-		EditAssets:      "/js/editor-assets.min.js",
-		EditForApproval: "/js/editor-forapproval.min.js",
-		Htmx:            "/js/htmx.v2.min.js",                      // renamed on 21-Jul-25 "/js/htmx.min.js",
-		HtmxRespTargets: "/js/htmx.v2.ext-response-targets.min.js", // "/js/htmx-response-targets.min.js",
-		IndexJS:         "/js/index.min.js",
-		Jsdos6JS:        "/js/js-dos.js",
-		Layout:          "/css/layout.min.css",
-		LayoutJS:        "/js/layout.min.js",
-		Pouet:           "/js/votes-pouet.min.js",
-		Uploader:        "/js/uploader.min.js",
-	}
+func Hrefs() Paths {
+	return hrefPaths
 }
 
 // Names returns the absolute path of the public facing CSS, JS and WASM files
 // relative to the [embed.FS] or [fs.FS] root.
-func Names() *Paths {
+func Names() Paths {
 	const public = "public"
-	hrefs := Hrefs()
-	paths := make(Paths, len(*hrefs))
-	for key, href := range *hrefs {
+	paths := make(Paths, len(hrefPaths))
+	for key, href := range hrefPaths {
 		paths[key] = public + href
 	}
-	return &paths
+	return paths
 }
 
-// Fonts are a map of the public facing font files.
-type Fonts map[Font]string
+// FontPaths are a map of the public facing font files.
+type FontPaths map[Font]string
 
 // Font is a relative path to a public facing font file.
 type Font int
@@ -94,40 +99,45 @@ const (
 	IBMCGA
 	IBMMDATt
 	IBMMDA
+	_maxFont
 )
+
+// Fonts is the total number of public facing font files.
+const Fonts = int(_maxFont)
+
+var fontRefs = FontPaths{
+	A1200:            "/topazplus_a1200.woff2",
+	A1200Woff:        "/topazplus_a1200.woff",
+	A1200Tt:          "/topazplus_a1200.ttf",
+	MicroKnight:      "/MicroKnightPlus_v1.0.woff2",
+	MicroKnightTt:    "/MicroKnightPlus_v1.0.ttf",
+	CascadiaMono:     "/CascadiaMono.woff2",
+	CascadiaMonoWoff: "/CascadiaMono.woff",
+	CascadiaMonoTt:   "/CascadiaMono.ttf",
+	IBMVGA8x16Tt:     "/Ac437_IBM_VGA_8x16.ttf",
+	IBMVGA8x16:       "/Ac437_IBM_VGA_8x16.woff2",
+	IBMEGA8x8Tt:      "/Ac437_IBM_EGA_8x8.ttf",
+	IBMEGA8x8:        "/Ac437_IBM_EGA_8x8.woff2",
+	IBMCGATt:         "/Ac437_IBM_CGA.ttf",
+	IBMCGA:           "/Ac437_IBM_CGA.woff2",
+	IBMMDATt:         "/Ac437_IBM_MDA.ttf",
+	IBMMDA:           "/Ac437_IBM_MDA.woff2",
+}
 
 // FontNames returns the absolute path of the public facing font files
 // relative to the embed.FS root.
-func FontNames() *Fonts {
+func FontNames() FontPaths {
 	const public = "public/font"
-	hrefs := FontRefs()
-	paths := make(Fonts, len(*hrefs))
-	for key, href := range *hrefs {
+	paths := make(FontPaths, len(fontRefs))
+	for key, href := range fontRefs {
 		paths[key] = public + href
 	}
-	return &paths
+	return paths
 }
 
 // FontRefs returns the relative path of the public facing font files.
 // The strings are intended for href attributes in HTML link elements and
 // the src attribute in HTML script elements.
-func FontRefs() *Fonts {
-	return &Fonts{
-		A1200:            "/topazplus_a1200.woff2",
-		A1200Woff:        "/topazplus_a1200.woff",
-		A1200Tt:          "/topazplus_a1200.ttf",
-		MicroKnight:      "/MicroKnightPlus_v1.0.woff2",
-		MicroKnightTt:    "/MicroKnightPlus_v1.0.ttf",
-		CascadiaMono:     "/CascadiaMono.woff2",
-		CascadiaMonoWoff: "/CascadiaMono.woff",
-		CascadiaMonoTt:   "/CascadiaMono.ttf",
-		IBMVGA8x16Tt:     "/Ac437_IBM_VGA_8x16.ttf",
-		IBMVGA8x16:       "/Ac437_IBM_VGA_8x16.woff2",
-		IBMEGA8x8Tt:      "/Ac437_IBM_EGA_8x8.ttf",
-		IBMEGA8x8:        "/Ac437_IBM_EGA_8x8.woff2",
-		IBMCGATt:         "/Ac437_IBM_CGA.ttf",
-		IBMCGA:           "/Ac437_IBM_CGA.woff2",
-		IBMMDATt:         "/Ac437_IBM_MDA.ttf",
-		IBMMDA:           "/Ac437_IBM_MDA.woff2",
-	}
+func FontRefs() FontPaths {
+	return fontRefs
 }

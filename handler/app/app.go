@@ -1160,7 +1160,7 @@ func (s *SRI) Verify(fsys fs.FS) error { //nolint:funlen
 	}
 
 	const format = "%s: %w"
-	names := *Names()
+	names := Names()
 	var err error
 	name := names[Bootstrap5]
 	s.Bootstrap5, err = helper.Integrity(name, fsys)
