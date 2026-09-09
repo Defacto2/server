@@ -15,7 +15,7 @@ func BenchmarkApiMarkup(b *testing.B) {
 
 	b.Run("", func(b *testing.B) {
 		for range b.N {
-			api.APIMarkup(html)
+			api.Markup(html)
 		}
 	})
 }

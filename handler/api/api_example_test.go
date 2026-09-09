@@ -164,7 +164,7 @@ func Example_milestonesDecade() {
 // Example_htmlCleaning demonstrates the HTML cleaning functions.
 func Example_htmlCleaning() {
 	html := `<p class="test">This has <a href="https://example.com" class="link">a link</a> and <span style="color: red;">formatting</span>.</p>`
-	cleaned := api.APIMarkup(html)
+	cleaned := api.Markup(html)
 	plain := simple.CleanHTML(html)
 
 	fmt.Println("✓ HTML Cleaning Functions:")
@@ -198,7 +198,7 @@ func Example_cleaning() {
 
 // Example_apiMarkup demonstrates the HTML cleaning function.
 func Example_apiMarkup() {
-	cleaned := api.APIMarkup(src)
+	cleaned := api.Markup(src)
 	fmt.Println("Original HTML:")
 	fmt.Println(src)
 	fmt.Println("\nCleaned HTML (preserves structure, removes presentation):")
