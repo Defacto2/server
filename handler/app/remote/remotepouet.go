@@ -1,4 +1,4 @@
-//nolint:tagliatelle
+//nolint:exhaustruct_v5,tagliatelle
 package remote
 
 import (
@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -44,122 +45,100 @@ type PouetLink struct {
 	IssuedYear  int16  `json:"issued_year"`  // Year is the year the file was issued.
 	IssuedMonth int16  `json:"issued_month"` // Month is the month the file was issued.
 	IssuedDay   int16  `json:"issued_day"`   // Day is the day the file was issued.
+	download    dir.Directory
+	prod        pouet.Production
+	msg         string
+	timeout     time.Duration
+}
+
+// Pouet initializes a new [PouetLink] for use with [Download].
+//
+// The prodID is the pouet production id to probe.
+// The uuid is the local artifact record unique id to update.
+// The download directory is where the fetched remote file download will be saved.
+//
+// The timeout is optional and is for the remote file download,
+// but can usually be set to 0 to use the default 15 second value.
+func Pouet(prodID int, unid string, download dir.Directory, timeout time.Duration) *PouetLink {
+	got := PouetLink{}
+	got.PouetID = prodID
+	got.UUID = unid
+	got.download = download
+	got.timeout = timeout
+	return &got
 }
 
 // Download fetches the download link from Pouet and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Pouet record API data.
-func (got *PouetLink) Download(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory,
-) error {
-	const msg = "pouet link download"
+func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
 	const format = "%s for id %d: %w"
-	id := got.PouetID
 	if err := nils.Check(ctx, sl, c, tx); err != nil {
-		return fmt.Errorf(format, "check", id, err)
+		return fmt.Errorf(format, "check", got.PouetID, err)
 	}
-	var prod pouet.Production
-	if _, err := prod.Get(ctx, id); err != nil {
-		sl.Info(msg+" get production error", slog.Int("id", id), slog.Any("error", err))
-		return fmt.Errorf(format, "but could not get record", id, err)
-	}
-	downloadURL := prod.Download
-	if downloadURL == "" {
-		sl.Info(msg+" offers no download url", slog.Int("id", id))
-		return nil
-	}
-	resp, err := GetFile(ctx, sl, TimeoutLong, downloadURL)
+
+	got.msg = "pouet link download"
+
+	errStatus, err := got.prod.Get(ctx, got.PouetID)
 	if err != nil {
-		sl.Info(msg+" get file download error",
-			slog.Int("id", id), slog.String("url", downloadURL), slog.Any("error", err))
-		return fmt.Errorf(format, "but could not get the file download "+downloadURL, id, err)
+		const s = " could not get record from pouet api"
+		got.log(sl, s, err)
+		return fmt.Errorf(format, s, got.PouetID, err)
 	}
-	base := filepath.Base(downloadURL)
-	dst := filepath.Join(download.Path(), got.UUID)
-	got.Filename = base
-	if err := helper.RenameFileOW(resp.Path, dst); err != nil {
-		sameFiles, err := helper.FileMatch(resp.Path, dst)
-		if err != nil {
-			sl.Info(msg+" got file but cannot rename error", slog.Int("id", id),
-				slog.String("dst", dst), slog.Any("error", err))
-			return fmt.Errorf(format, "but could not rename the file download to "+dst, id, err)
-		}
-		if !sameFiles {
-			const s = "was successful but will not overwrite the existing file"
-			sl.Info(msg+" "+s, slog.Int("id", id), slog.String("dst", dst))
-			return fmt.Errorf(format, s+" "+dst, id, ErrExist)
-		}
+
+	if errStatus > 0 {
+		s := "status was not okay: " + strconv.Itoa(errStatus)
+		got.log(sl, s, ErrNoRecord)
+		return fmt.Errorf(format, s, got.PouetID, ErrNoRecord)
 	}
-	got.Filename = base
-	got.Error = ""
-	if i, err := strconv.Atoi(prod.Demozoo); err == nil && i > 0 {
-		got.DemozooID = i
+
+	const notUsable = "no usable download link found"
+
+	if got.prod.Download == "" {
+		got.log(sl, notUsable, nil)
+		got.Error = notUsable
+		return c.JSON(http.StatusNotModified, got)
 	}
-	y, m, d := prod.Released()
-	got.IssuedYear = y
-	got.IssuedMonth = m
-	got.IssuedDay = d
-	r1, r2 := prod.Releasers()
-	got.Releaser1 = r1
-	got.Releaser2 = r2
-	got.Title = prod.Title
-	plat, sect := prod.PlatformType()
-	got.Platform = plat.String()
-	got.Section = sect.String()
-	if err := got.Stat(ctx, sl, c, tx, download); err != nil {
-		sl.Info(msg, slog.Int("id", id), slog.Any("error", err))
+
+	if err := got.remoteDo(ctx, sl, c, tx); err != nil {
+		return err
 	}
-	return nil
+
+	if got.FileSize <= 0 {
+		got.Error = notUsable
+	}
+
+	return c.JSON(http.StatusNotModified, got)
 }
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
-func (got *PouetLink) Stat(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory,
-) error {
-	const format = "pouet link stat %s: %w"
+func (got *PouetLink) Stat(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+	const format = "demozoo link stat file and integrity %s: %w"
 	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
-	name := filepath.Join(download.Path(), got.UUID)
+
+	name := filepath.Join(got.download.Path(), got.UUID)
 	if got.FileSize == 0 {
 		stat, err := os.Stat(name)
 		if err != nil {
-			return fmt.Errorf(format, "file download "+name, err)
+			return fmt.Errorf(format, "but could not stat file "+name, err)
 		}
+
 		got.FileSize = int(stat.Size())
 	}
+
 	strong, err := helper.StrongIntegrity(name)
 	if err != nil {
-		return fmt.Errorf(format, "file download strong integrity hash "+name, err)
+		return fmt.Errorf(format, "but could not get the strong integrity hash "+name, err)
 	}
 	got.FileHash = strong
+
 	if got.FileType == "" {
 		got.FileType = simple.MagicAsTitle(sl, name)
 	}
-	return got.ArchiveContent(ctx, sl, c, tx, name)
-}
 
-// ArchiveContent sets the archive content and readme text of the source file.
-func (got *PouetLink) ArchiveContent(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, src string,
-) error {
-	const msg = "pouet link archive content"
-	const format = msg + " %s: %w"
-	if err := nils.Check(ctx, sl, c, tx); err != nil {
-		return fmt.Errorf(format, "check", err)
-	}
-	files, err := archive.Lists(ctx, src)
-	if err != nil {
-		sl.Info(msg+" list caused an error",
-			slog.String("src", src), slog.String("filename", got.Filename), slog.Any("error", err))
-		return c.JSON(http.StatusOK, got)
-	}
-	got.Content = strings.Join(files, "\n")
-	if err := got.Update(ctx, c, tx); err != nil {
-		sl.Info(msg + " update caused an error")
-	}
-	const html = `<p class="text-success">Successful Pouet update</p>`
-	return c.HTML(http.StatusOK, html)
+	return nil
 }
 
 // Update modifies the database record using data provided by the DemozooLink struct.
@@ -170,17 +149,22 @@ func (got *PouetLink) Update(ctx context.Context, c *echo.Context, tx *sql.Tx) e
 	if err := nils.Check(ctx, c, tx); err != nil {
 		return fmt.Errorf(format, "check", uid, err)
 	}
+
 	f, err := model.OneByUUID(ctx, tx, true, uid)
 	if err != nil {
 		return fmt.Errorf(format, "one record by", uid, err)
 	}
+
 	got.updateValues(f)
+
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "infer", uid, err)
 	}
+
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", uid, err)
 	}
+
 	return nil
 }
 
@@ -230,4 +214,84 @@ func (got *PouetLink) updateValues(f *models.File) {
 	if s := strings.TrimSpace(got.Section); s != "" {
 		f.Section = null.StringFrom(s)
 	}
+}
+
+func (got *PouetLink) log(sl *slog.Logger, s string, err error) {
+	args := []any{slog.Int("id", got.PouetID)}
+	if got.prod.Download != "" {
+		args = append(args, slog.String("link_url", got.prod.Download))
+	}
+	if got.Filename != "" {
+		args = append(args, slog.String("filename", got.Filename))
+	}
+	if err != nil {
+		args = append(args, slog.Any("error", err))
+	}
+	sl.Info(got.msg+" "+s, args...)
+}
+
+func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+	got.Filename = filepath.Base(got.prod.Download)
+	if id, err := strconv.Atoi(got.prod.Demozoo); err == nil && id > 0 {
+		got.DemozooID = id
+	}
+	y, m, d := got.prod.Released()
+	got.IssuedYear = y
+	got.IssuedMonth = m
+	got.IssuedDay = d
+	r1, r2 := got.prod.Releasers()
+	got.Releaser1 = r1
+	got.Releaser2 = r2
+	got.Title = got.prod.Title
+	plat, sect := got.prod.PlatformType()
+	got.Platform = plat.String()
+	got.Section = sect.String()
+
+	timeout := got.timeout
+	if timeout == 0 {
+		timeout = TimeoutLong
+	}
+
+	response, err := GetFile(ctx, sl, timeout, got.prod.Download)
+	if err != nil {
+		got.log(sl, "remote file issue: "+response.Path, err)
+		if err1 := got.Update(ctx, c, tx); err1 != nil {
+			got.log(sl, "download update", err1)
+			return err1
+		}
+		return err
+	} else if response == (Response{}) {
+		got.log(sl, "download remote but it is empty", ErrBodyNil)
+		return ErrBodyNil
+	}
+
+	dst := filepath.Join(got.download.Path(), got.UUID)
+	if err := renameOW(response.Path, dst); err != nil {
+		got.log(sl, "downloaded rename", err)
+		return err
+	}
+	cl := response.ContentLength
+	if size, err := strconv.Atoi(cl); err != nil {
+		got.log(sl, "downloaded content length", err)
+	} else {
+		got.FileSize = size
+	}
+	if err := got.Stat(ctx, sl, c, tx); err != nil {
+		got.log(sl, "download stat", err)
+		return nil
+	}
+
+	files, err := archive.Lists(ctx, dst)
+	if err != nil {
+		got.log(sl, "archive lists issue", err)
+		return nil
+	}
+
+	got.Content = strings.Join(files, "\n")
+	if err := got.Update(ctx, c, tx); err != nil {
+		got.log(sl, "archive lists update", err)
+		return err
+	}
+
+	return c.HTML(http.StatusOK, `<p class="text-success">Successful Pouet update</p>`)
 }

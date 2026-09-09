@@ -18,8 +18,8 @@ const (
 	// UserAgent to send with the HTTP request.
 	UserAgent = "Defacto2 Uploader form submission, thanks!"
 
-	TimeoutShort = 5 * time.Second
-	TimeoutLong  = 10 * time.Second
+	TimeoutShort = 8 * time.Second
+	TimeoutLong  = 15 * time.Second
 )
 
 // Response contains the details of a fetched downloaded file.
@@ -32,7 +32,7 @@ type Response struct {
 
 // GetFile downloads a file from a remote URL and saves it to the default temp directory.
 // The timeout is used both for the context and the http client and should be either [TimeoutShort]
-// or [TimeoutLong]. There is a timeout sanity check of 2 to 60 seconds.
+// or [TimeoutLong]. There is a maximum timeout limit of 60 seconds.
 //
 // The returned [Response.Path] is the path to the downloaded file and it should be removed after use.
 func GetFile(ctx context.Context, sl *slog.Logger, timeout time.Duration, rawURL string) (Response, error) {
@@ -40,9 +40,10 @@ func GetFile(ctx context.Context, sl *slog.Logger, timeout time.Duration, rawURL
 		return Response{}, fmt.Errorf("request get file check: %w", err)
 	}
 
-	const minimum = 2
+	// the tiny minimum is for unit testing
+	const minimum = 0
 	if timeout.Seconds() < minimum {
-		timeout = minimum
+		timeout = 1 * time.Millisecond
 	}
 
 	const maximum = 60
@@ -68,9 +69,9 @@ type got struct {
 
 func (g *got) clientDo() (err error) {
 	// handle the response including anything unexpected
-	g.response, err = g.client.Do(g.request)
+	g.response, err = g.client.Do(g.request) //nolint:bodyclose // closed by caller func
 	if err != nil {
-		return err
+		return fmt.Errorf("http.client: %w", err)
 	}
 	if g.response == nil {
 		return http.ErrBodyNotAllowed
@@ -84,7 +85,7 @@ func (g *got) clientDo() (err error) {
 func (g *got) newRequest(ctx context.Context, url string) (err error) {
 	g.request, err = http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("http new request: %w", err)
 	}
 	g.request.Header.Set("User-Agent", UserAgent)
 

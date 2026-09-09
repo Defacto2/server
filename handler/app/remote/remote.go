@@ -5,11 +5,13 @@ package remote
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/url"
 	"slices"
 	"strings"
 
+	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/logs"
 )
 
@@ -112,4 +114,19 @@ func refactor(host string, elem []string) *url.URL {
 		Host:   host,
 		Path:   strings.Join(elem, "/"),
 	}
+}
+
+func renameOW(src, dst string) error {
+	const format = "cannot rename dst file %s %s: %w"
+	if err := helper.RenameFileOW(src, dst); err != nil {
+		sameFiles, err := helper.FileMatch(src, dst)
+		if err != nil {
+			return fmt.Errorf(format, "file match error", dst, err)
+		}
+		if !sameFiles {
+			return fmt.Errorf(format, "as existing files will be overwritten", dst, err)
+		}
+	}
+
+	return nil
 }

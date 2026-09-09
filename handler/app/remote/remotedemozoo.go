@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -54,11 +55,24 @@ type DemozooLink struct {
 	prod        demozoo.Production
 	linkURL     string
 	msg         string
+	timeout     time.Duration
 }
 
-func Link(download dir.Directory) *DemozooLink {
+// Demozoo initializes a new [DemozooLink] for use with [Download].
+//
+// The prodID is the demozoo production id to probe.
+// The uuid is the local artifact record unique id to update.
+// The download directory is where the fetched remote file download will be saved.
+//
+// The timeout is optional and is for the remote file downloads.
+// It can usually be set to 0 to use the default 15 second value for single links,
+// and 8 seconds per-link for productions with multiple downloads.
+func Demozoo(prodID int, unid string, download dir.Directory, timeout time.Duration) *DemozooLink {
 	got := DemozooLink{}
+	got.ID = prodID
+	got.UUID = unid
 	got.download = download
+	got.timeout = timeout
 	return &got
 }
 
@@ -74,8 +88,8 @@ func (got *DemozooLink) Download(ctx context.Context, sl *slog.Logger, c *echo.C
 
 	errStatus, err := got.prod.Get(ctx, got.ID)
 	if err != nil {
-		const s = " could not get record from api"
-		got.log(sl, s, ErrNoRecord)
+		const s = " could not get record from demozoo api"
+		got.log(sl, s, err)
 		return fmt.Errorf(format, s, got.ID, err)
 	}
 
@@ -206,8 +220,7 @@ func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.C
 			continue
 		}
 		// append demozoo record metadata
-		base := filepath.Base(link.URL)
-		got.Filename = base
+		got.Filename = filepath.Base(link.URL)
 		got.Github = got.prod.GithubRepo()
 		got.Pouet = got.prod.PouetProd()
 		got.YouTube = got.prod.YouTubeVideo()
@@ -238,14 +251,14 @@ func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.C
 				return err1
 			}
 			return err
-		} else if response == (Response{ContentLength: "", ContentType: "", LastModified: "", Path: ""}) {
+		} else if response == (Response{}) {
 			got.log(sl, "download remote but it is empty", nil)
 			continue
 		}
 		// assuming the download link was successful in being fetched,
 		// we now obtain the file's metadata and incorporate those into the database record.
 		dst := filepath.Join(got.download.Path(), got.UUID)
-		if err := got.renameOW(response.Path, dst); err != nil {
+		if err := renameOW(response.Path, dst); err != nil {
 			got.log(sl, "downloaded rename", err)
 			return err
 		}
@@ -267,21 +280,6 @@ func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.C
 	return nil
 }
 
-func (got *DemozooLink) renameOW(src, dst string) error {
-	const format = "cannot rename dst file %s %s: %w"
-	if err := helper.RenameFileOW(src, dst); err != nil {
-		sameFiles, err := helper.FileMatch(src, dst)
-		if err != nil {
-			return fmt.Errorf(format, "file match error", dst, err)
-		}
-		if !sameFiles {
-			return fmt.Errorf(format, "as existing files will be overwritten", dst, err)
-		}
-	}
-
-	return nil
-}
-
 // remote fetches the download link from Demozoo and saves it to the download directory.
 // If the DownloadResponse is empty due to a production without a download link or a timeout,
 // then it should be handled as a continue in the calling function.
@@ -291,9 +289,14 @@ func (got *DemozooLink) remote(ctx context.Context, sl *slog.Logger, index int) 
 		return Response{}, fmt.Errorf("get remove file check: %w", err)
 	}
 
-	timeout := TimeoutShort
-	if len(got.prod.DownloadLinks) == 1 {
+	timeout := got.timeout
+	count := len(got.prod.DownloadLinks)
+	switch {
+	case timeout == 0 && count == 1:
 		timeout = TimeoutLong
+	case timeout == 0 && count > 1:
+		// keep the timeout short, and move onto the next possible link
+		timeout = TimeoutShort
 	}
 
 	resp, err := GetFile(ctx, sl, timeout, got.linkURL)
@@ -305,7 +308,7 @@ func (got *DemozooLink) remote(ctx context.Context, sl *slog.Logger, index int) 
 			return Response{}, fmt.Errorf(format, "any linked url "+got.linkURL, err)
 		}
 
-		return Response{ContentLength: "", ContentType: "", LastModified: "", Path: ""}, nil
+		return Response{}, nil
 	}
 
 	return resp, nil

@@ -23,7 +23,7 @@ func TestDownload(t *testing.T) {
 	tx := testutil.Tx(t)
 	c := testutil.NewContext(t, "")
 
-	dl := remote.Link("")
+	dl := remote.Demozoo(0, "", "", 0)
 	got := dl.Download(t.Context(), sl, c, tx)
 	be.Err(t, got)
 }
@@ -35,7 +35,7 @@ func TestStat(t *testing.T) {
 	tx := testutil.Tx(t)
 	c := testutil.NewContext(t, "")
 
-	dl := remote.Link("")
+	dl := remote.Demozoo(0, "", "", 0)
 	got := dl.Stat(t.Context(), sl, c, tx)
 	be.Err(t, got)
 }

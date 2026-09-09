@@ -1106,7 +1106,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	if err := nils.Check(sl, c, tx); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	got := remote.Link(download)
+	got := remote.Demozoo(0, "", download, 0)
 	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
 		got.Error = "demozoo id must be a numeric value"
@@ -1129,11 +1129,9 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 // This function is a wrapper for the remote.DemozooLink.Download method.
 func GetDemozoo(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx,
-	demozooID int, defacto2UNID string, download dir.Directory,
+	prodID int, unid string, download dir.Directory,
 ) error {
-	got := remote.Link(download)
-	got.ID = demozooID
-	got.UUID = defacto2UNID
+	got := remote.Demozoo(prodID, unid, download, 0)
 	return got.Download(ctx, sl, c, tx)
 }
 
@@ -1143,13 +1141,10 @@ func GetDemozoo(
 // This function is a wrapper for the remote.PouetLink.Download method.
 func GetPouet(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx,
-	pouetID int, defacto2UNID string, download dir.Directory,
+	prodID int, unid string, download dir.Directory,
 ) error {
-	got := remote.PouetLink{
-		PouetID: pouetID,
-		UUID:    defacto2UNID,
-	}
-	return got.Download(ctx, sl, c, tx, download)
+	got := remote.Pouet(prodID, unid, download, 0)
+	return got.Download(ctx, sl, c, tx)
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify
