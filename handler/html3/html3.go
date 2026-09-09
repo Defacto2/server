@@ -583,10 +583,10 @@ func Sortings() map[Sort]string {
 }
 
 // Templates returns a map of the templates used by the HTML3 sub-group route.
-func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fsys fs.FS) map[string]*template.Template {
+func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fsys fs.FS) (map[string]*template.Template, error) {
 	t := make(map[string]*template.Template)
 	if err := nils.Check(ctx, db, sl, fsys); err != nil {
-		panic(fmt.Errorf("html3 templates: %w", err))
+		return nil, fmt.Errorf("html3 templates: %w", err)
 	}
 
 	t["html3_index"] = index(ctx, db, sl, fsys)
@@ -601,7 +601,7 @@ func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fsys fs.FS) map
 	t["html3_category"] = list(ctx, db, sl, fsys)
 	t["html3_error"] = httpErr(ctx, db, sl, fsys)
 
-	return t
+	return t, nil
 }
 
 // TemplateFuncMap are a collection of mapped functions that can be used in a template.

@@ -250,10 +250,10 @@ func TestByteFileS(t *testing.T) {
 func TestFuncMap(t *testing.T) {
 	t.Parallel()
 
-	w := app.Templ{}
+	w := app.WebApp{}
 	db := &sql.DB{}
-	x := w.FuncMap(t.Context(), db)
-	keys := slices.Sorted(maps.Keys(*x))
+	m := w.FuncMap(t.Context(), db)
+	keys := slices.Sorted(maps.Keys(m))
 	be.True(t, slices.Contains(keys, "add"))
 	be.True(t, slices.Contains(keys, "version"))
 	be.True(t, slices.Contains(keys, "az"))
@@ -372,7 +372,7 @@ func TestGlobTo(t *testing.T) {
 func TestTemplates(t *testing.T) {
 	t.Parallel()
 
-	w := app.Templ{}
+	w := app.WebApp{}
 	_, err := w.Templates(t.Context(), nil)
 	be.Err(t, err)
 }

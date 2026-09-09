@@ -53,19 +53,6 @@ func TestGlobTo(t *testing.T) {
 	be.Equal(t, got, "view/html3/file")
 }
 
-func TestTemplatesPanic(t *testing.T) {
-	t.Parallel()
-
-	defer func() {
-		r := recover()
-		if r == nil {
-			t.Fatal("expected html3 templates to panic")
-		}
-	}()
-
-	_ = html3.Templates(t.Context(), nil, nil, embed.FS{})
-}
-
 func TestTemplates(t *testing.T) {
 	t.Parallel()
 
@@ -73,7 +60,11 @@ func TestTemplates(t *testing.T) {
 	db := testutil.DB(t)
 	fsys := testutil.ProjectFS(t)
 
-	_ = html3.Templates(t.Context(), sl, db, fsys)
+	_, err := html3.Templates(t.Context(), nil, nil, embed.FS{})
+	be.Err(t, err)
+
+	_, err = html3.Templates(t.Context(), sl, db, fsys)
+	be.Err(t, err, nil)
 }
 
 func TestError(t *testing.T) {

@@ -269,7 +269,7 @@ func (serv *Server) TemplRegistry(ctx context.Context, sl *slog.Logger, db *sql.
 		return nil, fmt.Errorf(format, err)
 	}
 
-	webapp := app.Templ{
+	webapp := app.WebApp{
 		Public:      serv.Public,
 		View:        serv.View,
 		Subresource: app.SRI{},
@@ -278,20 +278,26 @@ func (serv *Server) TemplRegistry(ctx context.Context, sl *slog.Logger, db *sql.
 		Environment: serv.Environment,
 		RecordCount: serv.RecordCount,
 	}
-	tmpls, err := webapp.Templates(ctx, db)
+	dst, err := webapp.Templates(ctx, db)
 	if err != nil {
 		return nil, fmt.Errorf(format, err)
 	}
+	if dst == nil {
+		dst = make(map[string]*template.Template)
+	}
 
 	// copy HTML3 templates
-	src := html3.Templates(ctx, sl, db, serv.View)
-	maps.Copy(tmpls, src)
+	src, err := html3.Templates(ctx, sl, db, serv.View)
+	if err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	maps.Copy(dst, src)
 
 	// copy HTMX templates
 	src = htmx.Templates(serv.View)
-	maps.Copy(tmpls, src)
+	maps.Copy(dst, src)
 
-	return &TemplateRegistry{Templates: tmpls}, nil
+	return &TemplateRegistry{Templates: dst}, nil
 }
 
 // EchoConfig returns the base server start configuration.

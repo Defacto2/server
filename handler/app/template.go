@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals
 package app
 
 // Package file template.go contains the template functions for the application.
@@ -9,7 +10,6 @@ import (
 	"html/template"
 	"io/fs"
 	"maps"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -33,12 +33,12 @@ import (
 
 const (
 	closeAnchor = "</a>"
-	input       = `<input class="form-check-input"`
-	radio       = `<input type="radio" class="btn-check" name="artifact-editor-record"`
+	favicon     = "/image/layout/defacto2-ascii.png"
+	lrClass     = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
 )
 
-// Templ is the configuration and status of the web application templates.
-type Templ struct {
+// WebApp is the configuration and status of the web application templates.
+type WebApp struct {
 	Public      fs.FS         // Public facing files.
 	View        fs.FS         // Views are Go templates.
 	Subresource SRI           // SRI are the Subresource Integrity hashes for the layout.
@@ -49,23 +49,22 @@ type Templ struct {
 }
 
 // Templates returns a map of the templates used by the route.
-func (t *Templ) Templates(ctx context.Context, db *sql.DB) (map[string]*template.Template, error) {
+func (wa *WebApp) Templates(ctx context.Context, db *sql.DB) (map[string]*template.Template, error) {
 	const format = "templates mapper %s: %w"
 	if err := nils.Check(ctx, db); err != nil {
 		return nil, fmt.Errorf(format, "check", err)
 	}
 
-	if err := t.Subresource.Verify(t.Public); err != nil {
+	if err := wa.Subresource.Verify(wa.Public); err != nil {
 		return nil, fmt.Errorf(format, "verify", err)
 	}
 
-	tmpls := make(map[string]*template.Template)
-	for key, name := range *t.Pages() {
-		tmpl := t.parseFS(ctx, db, name)
-		tmpls[key] = tmpl
+	templates := make(map[string]*template.Template)
+	for key, name := range wa.Pages() {
+		templates[key] = wa.parseFS(ctx, db, name)
 	}
 
-	return tmpls, nil
+	return templates, nil
 }
 
 const (
@@ -82,8 +81,46 @@ type filename string // filename is the name of the template file in the view di
 
 type Page map[string]filename
 
+var pages = Page{
+	"api-info":      "apiinfo.tmpl",
+	"apps":          "apps.tmpl",
+	"areacodes":     "areacodes.tmpl",
+	"artifact":      artifactTmpl,
+	"artifacts":     artifactsTmpl,
+	"bbs":           releaserTmpl,
+	"bbs-year":      releaseryearTmpl,
+	"brokentexts":   "brokentexts.tmpl",
+	"categories":    categoriesTmpl,
+	"configs":       "configurations.tmpl",
+	"coder":         scenerTmpl,
+	"compression":   "compression.tmpl",
+	"ftp":           releaserTmpl,
+	"fixers":        "fixers.tmpl",
+	"fixes":         "fixes.tmpl",
+	"history":       "history.tmpl",
+	"index":         "index.tmpl",
+	"interview":     "interview.tmpl",
+	"magazine":      releaseryearTmpl,
+	"magazine-az":   releaserTmpl,
+	"new":           "new.tmpl",
+	"releaser":      releaserTmpl,
+	"releaser-year": releaseryearTmpl,
+	"routes":        "routes.tmpl",
+	"scener":        scenerTmpl,
+	"searchhtmx":    "searchhtmx.tmpl",
+	"searchpost":    "searchpost.tmpl",
+	"signin":        "signin.tmpl",
+	"signout":       "signout.tmpl",
+	"status":        "status.tmpl",
+	"terms":         "terms.tmpl",
+	"thanks":        "thanks.tmpl",
+	"thescene":      "thescene.tmpl",
+	"titles":        "titles.tmpl",
+	websites:        websitesTmpl,
+}
+
 // Pages returns a map of the template names and their corresponding filenames.
-func (t *Templ) Pages() *Page {
+func (wa *WebApp) Pages() Page {
 	// To embed a template within one of these .tmpl pages,
 	// use the parseFS() func found later in this file.
 	//
@@ -95,47 +132,10 @@ func (t *Templ) Pages() *Page {
 	//
 	// Or to pass a maximum of one value:
 	// {{ template "abc" $myVar }}
-
-	return &Page{
-		"api-info":      "apiinfo.tmpl",
-		"apps":          "apps.tmpl",
-		"areacodes":     "areacodes.tmpl",
-		"artifact":      artifactTmpl,
-		"artifacts":     artifactsTmpl,
-		"bbs":           releaserTmpl,
-		"bbs-year":      releaseryearTmpl,
-		"brokentexts":   "brokentexts.tmpl",
-		"categories":    categoriesTmpl,
-		"configs":       "configurations.tmpl",
-		"coder":         scenerTmpl,
-		"compression":   "compression.tmpl",
-		"ftp":           releaserTmpl,
-		"fixers":        "fixers.tmpl",
-		"fixes":         "fixes.tmpl",
-		"history":       "history.tmpl",
-		"index":         "index.tmpl",
-		"interview":     "interview.tmpl",
-		"magazine":      releaseryearTmpl,
-		"magazine-az":   releaserTmpl,
-		"new":           "new.tmpl",
-		"releaser":      releaserTmpl,
-		"releaser-year": releaseryearTmpl,
-		"routes":        "routes.tmpl",
-		"scener":        scenerTmpl,
-		"searchhtmx":    "searchhtmx.tmpl",
-		"searchpost":    "searchpost.tmpl",
-		"signin":        "signin.tmpl",
-		"signout":       "signout.tmpl",
-		"status":        "status.tmpl",
-		"terms":         "terms.tmpl",
-		"thanks":        "thanks.tmpl",
-		"thescene":      "thescene.tmpl",
-		"titles":        "titles.tmpl",
-		websites:        websitesTmpl,
-	}
+	return pages
 }
 
-func (t *Templ) Layout(name filename) []string {
+func (wa *WebApp) Layout(name filename) []string {
 	return []string{
 		GlobTo("layout.tmpl"),
 		GlobTo("modal.tmpl"),
@@ -151,74 +151,72 @@ func (t *Templ) Layout(name filename) []string {
 //
 // The "fmtURI" function is not performant for large lists,
 // instead use "fmtRangeURI" in TemplateStrings().
-func (t *Templ) Funcs() template.FuncMap {
-	return template.FuncMap{
-		"add":                helper.Add1,
-		"attribute":          Attribute,
-		"brief":              Brief,
-		"describe":           Describe,
-		"downloadB":          simple.DownloadInBytes,
-		"byteBytes":          ByteBytes,
-		"byteFile":           ByteFile,
-		"byteFileS":          ByteFileS,
-		"demozooGetLink":     simple.DemozooGetLink,
-		"fmtDay":             Day,
-		"fmtMonth":           Month,
-		"fmtPrefix":          Prefix,
-		"fmtRoles":           helper.FmtSlice,
-		"fmtURI":             releaser.Link,
-		"hasSuffix":          HasSuffix,
-		"lastUpdated":        LastUpdated,
-		"linkDownload":       LinkDownload,
-		"linkHref":           LinkHref,
-		"linkInterview":      LinkInterview,
-		"linkPage":           LinkPage,
-		"linkPreview":        LinkPreview,
-		"linkRemote":         LinkRemote,
-		"linkRemoteTip":      LinkRemoteTip,
-		"linkRunApp":         LinkRunApp,
-		"linkRelrs":          LinkRels,
-		"linkScnr":           LinkScnr,
-		"linkScnrs":          LinkScnrs,
-		"linkSVG":            filerecord.LinkSVG,
-		"linkWiki":           LinkWiki,
-		"linkWikiTip":        LinkWikiTip,
-		"logoText":           LogoText,
-		"mask":               Mask,
-		"musicMod":           MusicModule,
-		"jsdosUsage":         filerecord.JsdosUsage,
-		"recordInfoOSTag":    TagWithOS,
-		"recordLinkPreviews": LinkPreviews,
-		"recordTagInfo":      TagBrief,
-		"safeBBS":            SafeBBS,
-		"safeDocument":       SafeDocument,
-		"safeHTML":           SafeHTML,
-		"safeJS":             SafeJS,
-		"safety":             Safety,
-		"slugify":            helper.Slug,
-		"stripSup":           StripSup,
-		"subTitle":           SubTitle,
-		"tagOption":          TagOption,
-		"trimSpace":          TrimSpace,
-		"websiteIcon":        WebsiteIcon,
-		"urlEncode":          URLEncode,
-	}
+func (wa *WebApp) Funcs() template.FuncMap {
+	return funcMap
 }
 
-// FuncClosures returns a map of closures that return converted type or modified strings.
-func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap { //nolint:funlen
-	if db == nil {
-		return nil
+var funcMap = template.FuncMap{
+	"add":                helper.Add1,
+	"attribute":          Attribute,
+	"brief":              Brief,
+	"capitalize":         helper.Capitalize,
+	"describe":           Describe,
+	"downloadB":          simple.DownloadInBytes,
+	"byteBytes":          ByteBytes,
+	"byteFile":           ByteFile,
+	"byteFileS":          ByteFileS,
+	"demozooGetLink":     simple.DemozooGetLink,
+	"fmtDay":             Day,
+	"fmtMonth":           Month,
+	"fmtPrefix":          Prefix,
+	"fmtRoles":           helper.FmtSlice,
+	"fmtURI":             releaser.Link,
+	"hasSuffix":          HasSuffix,
+	"lastUpdated":        LastUpdated,
+	"linkDownload":       LinkDownload,
+	"linkHref":           LinkHref,
+	"linkInterview":      LinkInterview,
+	"linkPage":           LinkPage,
+	"linkPreview":        LinkPreview,
+	"linkRemote":         LinkRemote,
+	"linkRemoteTip":      LinkRemoteTip,
+	"linkRunApp":         LinkRunApp,
+	"linkRelrs":          LinkRels,
+	"linkScnr":           LinkScnr,
+	"linkScnrs":          LinkScnrs,
+	"linkSVG":            filerecord.LinkSVG,
+	"linkWiki":           LinkWiki,
+	"linkWikiTip":        LinkWikiTip,
+	"logoText":           LogoText,
+	"mask":               Mask,
+	"musicMod":           MusicModule,
+	"jsdosUsage":         filerecord.JsdosUsage,
+	"recordInfoOSTag":    TagWithOS,
+	"recordLinkPreviews": LinkPreviews,
+	"recordTagInfo":      TagBrief,
+	"safeBBS":            SafeBBS,
+	"safeDocument":       SafeDocument,
+	"safeHTML":           SafeHTML,
+	"safeJS":             SafeJS,
+	"safety":             Safety,
+	"slugify":            helper.Slug,
+	"stripSup":           StripSup,
+	"subTitle":           SubTitle,
+	"tagOption":          TagOption,
+	"tidbitMissing":      tidbit.Missing,
+	"toLower":            strings.ToLower,
+	"trimSpace":          TrimSpace,
+	"websiteIcon":        WebsiteIcon,
+	"urlEncode":          URLEncode,
+	"yearRange":          yearRange,
+}
+
+func (wa *WebApp) FuncDB(ctx context.Context, db *sql.DB) template.FuncMap {
+	if ctx == nil || db == nil {
+		return template.FuncMap{}
 	}
 
-	hrefs := Hrefs()
-	return &template.FuncMap{
-		"bootstrap5":     func() string { return hrefs[Bootstrap5] },
-		"bootstrap5JS":   func() string { return hrefs[Bootstrap5JS] },
-		"bootstrapIcons": func() string { return hrefs[BootstrapIcons] },
-		"capitalize":     helper.Capitalize,
-		"canvasAnsi":     func() string { return hrefs[ContentBinary] },
-		"canvasReadme":   func() string { return hrefs[ContentText] },
+	return template.FuncMap{
 		"classification": func(s, p string) string {
 			count, _ := form.HumanizeCount(ctx, db, s, p)
 			return string(count)
@@ -226,6 +224,18 @@ func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap 
 		"classificationStr": func(s, p string) string {
 			return form.HumanizeCountStr(ctx, db, s, p)
 		},
+	}
+}
+
+var (
+	hrefs = Hrefs()
+
+	staticFuncMap = template.FuncMap{
+		"bootstrap5":      func() string { return hrefs[Bootstrap5] },
+		"bootstrap5JS":    func() string { return hrefs[Bootstrap5JS] },
+		"bootstrapIcons":  func() string { return hrefs[BootstrapIcons] },
+		"canvasAnsi":      func() string { return hrefs[ContentBinary] },
+		"canvasReadme":    func() string { return hrefs[ContentText] },
 		"demozooSanity":   func() string { return strconv.Itoa(demozoo.Sanity) },
 		"chiptunePlayer":  func() string { return hrefs[ChiptunePlayer] },
 		"editArtifact":    func() string { return hrefs[EditArtifact] },
@@ -250,105 +260,70 @@ func (t *Templ) FuncClosures(ctx context.Context, db *sql.DB) *template.FuncMap 
 		"dosboxJS":        func() string { return hrefs[DosboxJS] },
 		"layout":          func() string { return hrefs[Layout] },
 		"layoutJS":        func() string { return hrefs[LayoutJS] },
-		"logo":            func() string { return string(t.Brand) },
 		"pouet":           func() string { return hrefs[Pouet] },
 		"pouetSanity":     func() string { return strconv.Itoa(pouet.Sanity) },
+		"tagGameHack":     func() string { return tags.GameHack.String() },
+		"tagInstall":      func() string { return tags.Install.String() },
+		"tagWindows":      func() string { return tags.Windows.String() },
+		"tagDOS":          func() string { return tags.DOS.String() },
+		"tagLogo":         func() string { return tags.Logo.String() },
+		"tagProof":        func() string { return tags.Proof.String() },
+		"tagText":         func() string { return tags.Text.String() },
+		"tagTextAmiga":    func() string { return tags.TextAmiga.String() },
+		"uploader":        func() string { return hrefs[Uploader] },
+		"sub":             func(start, end int) int { return end - start },
+	}
+)
+
+func (wa *WebApp) FuncStatic() template.FuncMap {
+	return staticFuncMap
+}
+
+// FuncClosure returns a map of closures that return converted type or modified strings.
+func (wa *WebApp) FuncClosure() template.FuncMap {
+	return template.FuncMap{
+		"logo": func() string { return string(wa.Brand) },
 		"recordImgSampleStat": func(unid string) bool {
-			return simple.ImageSampleStat(unid, dir.Directory(t.Environment.AbsPreview))
+			return simple.ImageSampleStat(unid, dir.Directory(wa.Environment.AbsPreview))
 		},
 		"recordImgSample": func(unid string) template.HTML {
-			return simple.ImageSample(unid, dir.Directory(t.Environment.AbsPreview))
+			return simple.ImageSample(unid, dir.Directory(wa.Environment.AbsPreview))
 		},
 		"recordThumbSample": func(unid string) template.HTML {
-			return simple.ThumbSample(unid, dir.Directory(t.Environment.AbsThumbnail))
+			return simple.ThumbSample(unid, dir.Directory(wa.Environment.AbsThumbnail))
 		},
 		"screenshot": func(unid, desc string) template.HTML {
-			return simple.Screenshot(unid, desc, dir.Directory(t.Environment.AbsPreview))
+			return simple.Screenshot(unid, desc, dir.Directory(wa.Environment.AbsPreview))
 		},
-		"sri_bootstrap5": func() string {
-			return t.Subresource.Bootstrap5
-		},
-		"sri_bootstrap5JS": func() string {
-			return t.Subresource.Bootstrap5JS
-		},
-		"sri_bootstrapIcons": func() string {
-			return t.Subresource.BootstrapIcons
-		},
-		"sri_canvasAnsi": func() string {
-			return t.Subresource.CanvasAnsi
-		},
-		"sri_canvasReadme": func() string {
-			return t.Subresource.CanvasReadme
-		},
-		"sri_chiptunePlayer": func() string {
-			return t.Subresource.ChiptunePlayer
-		},
-		"sri_editArtifact": func() string {
-			return t.Subresource.EditArtifact
-		},
-		"sri_editAssets": func() string {
-			return t.Subresource.EditAssets
-		},
-		"sri_editForApproval": func() string {
-			return t.Subresource.EditForApproval
-		},
-		"sri_htmx": func() string {
-			return t.Subresource.Htmx
-		},
-		"sri_htmxRespTargets": func() string {
-			return t.Subresource.HtmxRespTargets
-		},
-		"sri_indexJS": func() string {
-			return t.Subresource.IndexJS
-		},
-		"sri_jsdos6JS": func() string {
-			return t.Subresource.Jsdos6JS
-		},
-		"sri_dosboxJS": func() string {
-			return t.Subresource.DosboxJS
-		},
-		"sri_layout": func() string {
-			return t.Subresource.Layout
-		},
-		"sri_layoutJS": func() string {
-			return t.Subresource.LayoutJS
-		},
-		"sri_pouet": func() string {
-			return t.Subresource.Pouet
-		},
-		"sri_uploader": func() string {
-			return t.Subresource.Uploader
-		},
-		"toLower": strings.ToLower,
-		"uploader": func() string {
-			return hrefs[Uploader]
-		},
-		"version": func() string {
-			return t.Version
-		},
-		"tagGameHack":   func() string { return tags.GameHack.String() },
-		"tagInstall":    func() string { return tags.Install.String() },
-		"tagWindows":    func() string { return tags.Windows.String() },
-		"tagDOS":        func() string { return tags.DOS.String() },
-		"tagLogo":       func() string { return tags.Logo.String() },
-		"tagProof":      func() string { return tags.Proof.String() },
-		"tagText":       func() string { return tags.Text.String() },
-		"tagTextAmiga":  func() string { return tags.TextAmiga.String() },
-		"tidbitMissing": tidbit.Missing,
+		"sri_bootstrap5":      func() string { return wa.Subresource.Bootstrap5 },
+		"sri_bootstrap5JS":    func() string { return wa.Subresource.Bootstrap5JS },
+		"sri_bootstrapIcons":  func() string { return wa.Subresource.BootstrapIcons },
+		"sri_canvasAnsi":      func() string { return wa.Subresource.CanvasAnsi },
+		"sri_canvasReadme":    func() string { return wa.Subresource.CanvasReadme },
+		"sri_chiptunePlayer":  func() string { return wa.Subresource.ChiptunePlayer },
+		"sri_editArtifact":    func() string { return wa.Subresource.EditArtifact },
+		"sri_editAssets":      func() string { return wa.Subresource.EditAssets },
+		"sri_editForApproval": func() string { return wa.Subresource.EditForApproval },
+		"sri_htmx":            func() string { return wa.Subresource.Htmx },
+		"sri_htmxRespTargets": func() string { return wa.Subresource.HtmxRespTargets },
+		"sri_indexJS":         func() string { return wa.Subresource.IndexJS },
+		"sri_jsdos6JS":        func() string { return wa.Subresource.Jsdos6JS },
+		"sri_dosboxJS":        func() string { return wa.Subresource.DosboxJS },
+		"sri_layout":          func() string { return wa.Subresource.Layout },
+		"sri_layoutJS":        func() string { return wa.Subresource.LayoutJS },
+		"sri_pouet":           func() string { return wa.Subresource.Pouet },
+		"sri_uploader":        func() string { return wa.Subresource.Uploader },
+		"version":             func() string { return wa.Version },
 		"thumb": func(unid, desc string, bottom bool) template.HTML {
-			return simple.Thumb(unid, desc, dir.Directory(t.Environment.AbsThumbnail), bottom)
+			return simple.Thumb(unid, desc, dir.Directory(wa.Environment.AbsThumbnail), bottom)
 		},
 		"recordPreviewSrc": func(unid, ext string) string {
-			return simple.AssetSrc(config.AbsPreview, t.Environment.AbsPreview.String(), unid, ext)
+			return simple.AssetSrc(config.AbsPreview, wa.Environment.AbsPreview.String(), unid, ext)
 		},
 		"recordThumbnailSrc": func(unid, ext string) string {
-			return simple.AssetSrc(config.AbsThumbnail, t.Environment.AbsThumbnail.String(), unid, ext)
+			return simple.AssetSrc(config.AbsThumbnail, wa.Environment.AbsThumbnail.String(), unid, ext)
 		},
-		"og_image":  t.ogImage,
-		"yearRange": yearRange,
-		"sub": func(start, end int) int {
-			return end - start
-		},
+		"og_image": wa.ogImage,
 	}
 }
 
@@ -373,56 +348,52 @@ func yearRange(start, end int) []int {
 	return years
 }
 
-// Elements returns a map of functions that return HTML elements.
-func (t *Templ) Elements() *template.FuncMap {
-	return &template.FuncMap{
-		"az": func() template.HTML {
-			return template.HTML(`<small><small class="fw-lighter">A-Z</small></small>`)
-		},
-		"year": func() template.HTML {
-			return template.HTML(`<small><small class="fw-lighter">YEARS</small></small>`)
-		},
-		"mergeIcon": func() template.HTML {
-			return template.HTML(`<svg class="bi" aria-hidden="true" fill="currentColor">` +
-				`<use xlink:href="/svg/bootstrap-icons.svg#forward"></use></svg>`)
-		},
-		"msdos": func() template.HTML {
-			return template.HTML(`<span class="text-nowrap">MS Dos</span>`)
-		},
-		"recordLastMod": recordLastMod,
-		"radioPublic":   radioPublic,
-		"radioHidden":   radioHidden,
-		"recordOnline":  recordOnline,
-		"recordReadme":  recordReadme,
-	}
+const (
+	htmlAZ        = template.HTML(`<small><small class="fw-lighter">A-Z</small></small>`)
+	htmlYear      = template.HTML(`<small><small class="fw-lighter">YEARS</small></small>`)
+	htmlMSDos     = template.HTML(`<span class="text-nowrap">MS Dos</span>`)
+	htmlMergeIcon = template.HTML(`<svg class="bi" aria-hidden="true" fill="currentColor">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#forward"></use></svg>`)
+)
+
+var elementFuncs = template.FuncMap{
+	"az":          func() template.HTML { return htmlAZ },
+	"year":        func() template.HTML { return htmlYear },
+	"msdos":       func() template.HTML { return htmlMSDos },
+	"mergeIcon":   func() template.HTML { return htmlMergeIcon },
+	"radioPublic": radioPublic,
+	"radioHidden": radioHidden,
+}
+
+// FuncElem returns a map of functions that return HTML elements.
+func (wa *WebApp) FuncElem() template.FuncMap {
+	return elementFuncs
 }
 
 // FuncMap returns a map of all the template functions.
-func (t *Templ) FuncMap(ctx context.Context, db *sql.DB) *template.FuncMap {
+func (wa *WebApp) FuncMap(ctx context.Context, db *sql.DB) template.FuncMap {
 	if db == nil {
 		return nil
 	}
 
-	src := t.FuncClosures(ctx, db)
-	if src == nil {
-		return nil
-	}
+	dst := wa.Funcs()
 
-	dst := t.Funcs()
-	maps.Copy(dst, *src)
+	src := wa.FuncDB(ctx, db)
+	maps.Copy(dst, src)
 
-	src = t.Elements()
-	if src == nil {
-		return nil
-	}
-	maps.Copy(dst, *src)
+	src = wa.FuncStatic()
+	maps.Copy(dst, src)
 
-	return &dst
+	src = wa.FuncClosure()
+	maps.Copy(dst, src)
+
+	src = wa.FuncElem()
+	maps.Copy(dst, src)
+
+	return dst
 }
 
-func (t *Templ) ogImage(unid any) string {
-	const favicon = "/image/layout/defacto2-ascii.png"
-
+func (wa *WebApp) ogImage(unid any) string {
 	val, ok := unid.(string)
 	if !ok {
 		return favicon
@@ -432,11 +403,11 @@ func (t *Templ) ogImage(unid any) string {
 	}
 
 	return simple.OpenGraphImg(val,
-		dir.Directory(t.Environment.AbsPreview),
-		dir.Directory(t.Environment.AbsThumbnail))
+		dir.Directory(wa.Environment.AbsPreview),
+		dir.Directory(wa.Environment.AbsThumbnail))
 }
 
-func (t *Templ) artifact(lock bool, files ...string) []string {
+func (wa *WebApp) artifact(lock bool, files ...string) []string {
 	files = append(
 		files,
 		GlobTo("artifactinfo.tmpl"),
@@ -462,7 +433,7 @@ func (t *Templ) artifact(lock bool, files ...string) []string {
 	)
 }
 
-func (t *Templ) locked(lock bool, files ...string) []string {
+func (wa *WebApp) locked(lock bool, files ...string) []string {
 	if lock {
 		return append(
 			files,
@@ -478,7 +449,7 @@ func (t *Templ) locked(lock bool, files ...string) []string {
 	)
 }
 
-func (t *Templ) lockLayout(lock bool, files ...string) []string {
+func (wa *WebApp) lockLayout(lock bool, files ...string) []string {
 	if lock {
 		return append(
 			files,
@@ -499,22 +470,22 @@ func (t *Templ) lockLayout(lock bool, files ...string) []string {
 
 // parseFS returns a layout template for the given named view.
 // Note that the name is relative to the view/defaults directory.
-func (t *Templ) parseFS(ctx context.Context, db *sql.DB, name filename) *template.Template {
+func (wa *WebApp) parseFS(ctx context.Context, db *sql.DB, name filename) *template.Template {
 	if db == nil {
 		return nil
 	}
 
-	files := t.Layout(name)
-	config := t.Environment
+	files := wa.Layout(name)
+	config := wa.Environment
 	readonly := bool(config.ReadOnly)
 
-	files = t.locked(readonly, files...)
-	files = t.lockLayout(readonly, files...)
+	files = wa.locked(readonly, files...)
+	files = wa.lockLayout(readonly, files...)
 
 	// append any additional and embedded templates
 	switch name {
 	case artifactTmpl:
-		files = t.artifact(readonly, files...)
+		files = wa.artifact(readonly, files...)
 	case artifactsTmpl:
 		files = append(files, GlobTo("artifactsedit.tmpl"))
 	case categoriesTmpl:
@@ -526,88 +497,65 @@ func (t *Templ) parseFS(ctx context.Context, db *sql.DB, name filename) *templat
 		files = append(files, GlobTo(individualWebsite))
 	}
 
-	funcMap := t.FuncMap(ctx, db)
+	funcMap := wa.FuncMap(ctx, db)
 	if funcMap == nil {
 		return nil
 	}
 
-	return template.Must(template.New("").Funcs(
-		*funcMap,
-	).ParseFS(t.View, files...))
+	return template.Must(template.New("").Funcs(funcMap).ParseFS(
+		wa.View, files...),
+	)
 }
 
-func recordLastMod(b bool) template.HTML {
-	const id = `recordLMBtn`
-	const class = `btn btn-outline-secondary`
-	const button = `button`
+// radio name value must be the same for all inputs.
+// 	id: artifact-editor-public
+// 	id: artifact-editor-hidden
 
-	if b {
-		// tooltips do not work on disabled buttons
-		const title = `No last modification date found`
-		return template.HTML(`<button id="` + id + `" class="` + class + `" type="` + button + `" ` +
-			`data-bs-toggle="tooltip" data-bs-title="` + title + `" disabled>`)
+const (
+	radio         = `<input type="radio" class="btn-check" name="artifact-editor-record"`
+	radiopubicChk = template.HTML(
+		radio + ` hx-patch="/editor/online/true" hx-include="[name='artifact-editor-key']" ` +
+			`id="artifact-editor-public" autocomplete="off" checked>`,
+	)
+	radiopubic = template.HTML(
+		radio + ` hx-patch="/editor/online/true" hx-include="[name='artifact-editor-key']" ` +
+			`id="artifact-editor-public" autocomplete="off">`,
+	)
+	radiohideChk = template.HTML(
+		radio + ` hx-patch="/editor/online/false" hx-include="[name='artifact-editor-key']" ` +
+			`id="artifact-editor-hidden" autocomplete="off" checked>`,
+	)
+	radiohide = template.HTML(
+		radio + ` hx-patch="/editor/online/false" hx-include="[name='artifact-editor-key']" ` +
+			`id="artifact-editor-hidden" autocomplete="off">`,
+	)
+)
+
+func radioPublic(checked bool) template.HTML {
+	if checked {
+		return radiopubicChk
 	}
-
-	const title = `Apply the file last modified date`
-	return template.HTML(`<button id="` + id + `" class="` + class + `" type="` + button + `" ` +
-		`data-bs-toggle="tooltip" data-bs-title="` + title + `">`)
+	return radiopubic
 }
 
-func radioPublic(b bool) template.HTML {
-	const patch = `/editor/online/true`
-	const include = `[name='artifact-editor-key']`
-	const id = `artifact-editor-public`
-	const htmx = ` hx-patch="` + patch + `"	hx-include="` + include + `" id="` + id +
-		`" autocomplete="off"`
-
-	if b {
-		return template.HTML(radio + htmx + ` checked>`)
+func radioHidden(checked bool) template.HTML {
+	if checked {
+		return radiohideChk
 	}
-
-	return template.HTML(radio + htmx + `>`)
-}
-
-func radioHidden(b bool) template.HTML {
-	const patch = `/editor/online/false`
-	const include = `[name='artifact-editor-key']`
-	const id = `artifact-editor-hidden`
-	const htmx = ` hx-patch="` + patch + `"	hx-include="` + include + `" id="` + id +
-		`" autocomplete="off"`
-
-	if !b {
-		return template.HTML(radio + htmx + ` checked>`)
-	}
-
-	return template.HTML(radio + htmx + `>`)
-}
-
-func recordOnline(b bool) template.HTML {
-	const htm = ` name="online" type="checkbox" role="switch" id="recordOnline"`
-
-	if b {
-		return template.HTML(input + htm + ` checked>`)
-	}
-
-	return template.HTML((input + htm + `>`))
-}
-
-func recordReadme(b bool) template.HTML {
-	const htm = ` name="hide-readme" type="checkbox" role="switch" id="edHideMe"`
-
-	if b {
-		return template.HTML(input + htm + ` checked>`)
-	}
-
-	return template.HTML((input + htm + `>`))
+	return radiohide
 }
 
 // LinkPreviews returns a slice of HTML formatted links for the artifact editor.
 func LinkPreviews(youtube, demozoo, pouet, colors16, github, rels, sites string) []string {
+	if youtube == "" && demozoo == "" && pouet == "" && colors16 == "" && github == "" && rels == "" && sites == "" {
+		return nil
+	}
+
 	rel := func(url string) string {
 		return `<a href="https://` + url + `">` + url + closeAnchor
 	}
 
-	links := []string{}
+	links := make([]string, 0, 1) // there will be at least one link
 	if youtube != "" {
 		links = append(links, rel("youtube.com/watch?v="+youtube))
 	}
@@ -661,44 +609,37 @@ func LinkRelsPerf(a, b any) template.HTML {
 // LinkReleasers returns the groups associated with a release and a link to each group.
 // The performant flag will use the group name instead of the much slower group slug formatter.
 func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
-	const class = "text-nowrap link-offset-2 link-underline link-underline-opacity-25"
-
-	var x, y string
-	switch i := a.(type) {
-	case string:
-		x = reflect.ValueOf(i).String()
-	case null.String:
-		if i.Valid {
-			x = i.String
-		}
-	}
-	switch i := b.(type) {
-	case string:
-		y = reflect.ValueOf(i).String()
-	case null.String:
-		if i.Valid {
-			y = i.String
-		}
+	if a == nil && b == nil {
+		return ""
 	}
 
+	x := toString(a)
 	x = strings.TrimSpace(x)
+	y := toString(b)
 	y = strings.TrimSpace(y)
-	if x == "" && y != "" {
+
+	if x == "" && y == "" {
+		return ""
+	}
+
+	if x == "" {
 		x = y
 		y = ""
 	}
 
 	const format = "error: %s"
+
 	var prime, second string
 	var err error
+
 	if x != "" {
-		prime, err = simple.MakeLink("1", x, class, performant)
+		prime, err = simple.MakeLink("1", x, lrClass, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf(format, err))
 		}
 	}
 	if y != "" {
-		second, err = simple.MakeLink("2", y, class, performant)
+		second, err = simple.MakeLink("2", y, lrClass, performant)
 		if err != nil {
 			return template.HTML(fmt.Sprintf(format, err))
 		}
@@ -709,4 +650,27 @@ func LinkReleasers(performant, magazine bool, a, b any) template.HTML {
 
 func Mask(s string) string {
 	return string(helper.MaskTerm([]byte(s)...))
+}
+
+func toString(val any) string {
+	if val == nil {
+		return ""
+	}
+
+	switch v := val.(type) {
+	case string:
+		return v
+	case null.String:
+		if v.Valid {
+			return v.String
+		}
+	case *string:
+		if v != nil {
+			return *v
+		}
+	case fmt.Stringer:
+		return v.String()
+	}
+
+	return ""
 }

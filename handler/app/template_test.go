@@ -12,7 +12,7 @@ import (
 func TestTemplTemplates(t *testing.T) {
 	t.Parallel()
 
-	tpl := app.Templ{}
+	tpl := app.WebApp{}
 	x, err := tpl.Templates(t.Context(), nil)
 	be.Err(t, err)
 	be.True(t, x == nil)
@@ -21,8 +21,8 @@ func TestTemplTemplates(t *testing.T) {
 func TestFuncClosures(t *testing.T) {
 	t.Parallel()
 
-	tpl := app.Templ{}
-	x := tpl.FuncClosures(t.Context(), nil)
+	tpl := app.WebApp{}
+	x := tpl.FuncClosure()
 	be.True(t, x == nil)
 }
 
@@ -42,14 +42,14 @@ func TestLinkRelrs(t *testing.T) {
 func TestTempls(t *testing.T) {
 	t.Parallel()
 
-	x := app.Templ{}
+	x := app.WebApp{}
 	pages := x.Pages()
 
 	p := filepath.Join("../", "../", "view", "app")
 	view, err := filepath.Abs(p)
 	be.Err(t, err, nil)
 
-	for _, page := range *pages {
+	for _, page := range pages {
 		be.True(t, page != "")
 
 		ext := filepath.Ext(string(page))
