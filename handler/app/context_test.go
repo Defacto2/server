@@ -184,7 +184,7 @@ func TestNew(t *testing.T) {
 
 func TestPage404(t *testing.T) {
 	t.Parallel()
-	x := app.Page404(nil, newContext(), "", "")
+	x := app.PageErr(nil, newContext(), "", "")
 	be.Err(t, x)
 }
 
@@ -240,25 +240,25 @@ func TestProdZoo(t *testing.T) {
 
 func TestReleaser(t *testing.T) {
 	t.Parallel()
-	x := app.Releaser(nil, newContext(), nil)
+	x := app.Releasers(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestReleaserAZ(t *testing.T) {
 	t.Parallel()
-	x := app.ReleaserAZ(nil, newContext(), nil)
+	x := app.ReleasersAZ(nil, newContext(), nil)
 	be.Err(t, x)
 }
 
 func TestReleaser404(t *testing.T) {
 	t.Parallel()
-	x := app.Releaser404(nil, newContext(), "")
+	x := app.ReleaserErr(nil, newContext(), "")
 	be.Err(t, x)
 }
 
 func TestReleasers(t *testing.T) {
 	t.Parallel()
-	x := app.Releasers(nil, newContext(), nil, "", embed.FS{})
+	x := app.Releaser(nil, newContext(), nil, "", embed.FS{})
 	be.Err(t, x)
 }
 
@@ -270,7 +270,7 @@ func TestScener(t *testing.T) {
 
 func TestScener404(t *testing.T) {
 	t.Parallel()
-	x := app.Scener404(nil, newContext(), "")
+	x := app.ScenerErr(nil, newContext(), "")
 	be.Err(t, x)
 }
 

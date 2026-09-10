@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"io/fs"
 	"net/http"
 	"net/url"
@@ -42,32 +41,44 @@ const (
 )
 
 var (
-	ErrArtifact = errors.New("app: artifact response is nil")
-	ErrClaims   = errors.New("no sub id in the claims payload")
-	ErrCorrupt  = errors.New("cache data is invalid or corrupt")
-	ErrDownload = errors.New("cannot stat the downloaded file")
-	ErrMisMatch = errors.New("token mismatch")
-	ErrNegative = errors.New("value cannot be a negative number")
-	ErrSession  = errors.New("no sub id in session")
-	ErrStatus   = errors.New("the http status code is not valid")
-	ErrType     = errors.New("wrong type of value")
-	ErrUser     = errors.New("unknown user")
-	ErrValue    = errors.New("value is empty")
+	ErrArtifact               = errors.New("app: artifact response is nil")
+	ErrClaims                 = errors.New("app: no sub id in the claims payload")
+	ErrCorrupt                = errors.New("app: cache data is invalid or corrupt")
+	ErrDownload               = errors.New("app: cannot stat the downloaded file")
+	ErrMisMatch               = errors.New("app: token mismatch")
+	ErrNegative               = errors.New("app: value cannot be a negative number")
+	ErrSession                = errors.New("app: no sub id in session")
+	ErrStatus                 = errors.New("app: http status code is not valid")
+	ErrType                   = errors.New("app: wrong type of value")
+	ErrUser                   = errors.New("app: unknown user")
+	ErrValue                  = errors.New("app: value is empty")
+	ErrMissingObfuscatedID    = errors.New("app: missing obfuscated ID")
+	ErrInvalidObfuscatedID    = errors.New("app: invalid obfuscated ID")
+	ErrFileNotFound           = errors.New("app: file not found")
+	ErrInvalidFilenamePattern = errors.New("app: filename does not match numeric suffix pattern")
 )
 
 func errVal(name string) template.HTML {
-	const format = `error, %s: %s`
-	return template.HTML(fmt.Sprintf(format, ErrValue, name))
+	return template.HTML("error, " + ErrValue.Error() + ": " + name)
 }
 
 const (
-	attr  = " attributions"
-	br    = "<br>"
-	div1  = "</div>"
-	sect0 = "<section>"
-	sect1 = "</section>"
-	ul0   = "<ul>"
-	ul1   = "</ul>"
+	pathSeparator               = "/"
+	attr                        = " attributions"
+	br                          = "<br>"
+	div1                        = "</div>"
+	sect0                       = "<section>"
+	sect1                       = "</section>"
+	ul0                         = "<ul>"
+	ul1                         = "</ul>"
+	lessThan                    = "<"
+	ltEntity                    = "&lt;"
+	clearScreen                 = "@CLS@"
+	typeErr                     = "error: received an invalid type to "
+	arrowLink     template.HTML = `<svg class="bi" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
+	arrowRight template.HTML = `<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"/></svg>`
+	svg        template.HTML = `<svg class="bi text-black" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">`
 )
 
 const (
@@ -96,12 +107,6 @@ const (
 	years     = "years"
 )
 
-const (
-	typeErr                 = "error: received an invalid type to "
-	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
-)
-
 // Caching are values that are used throughout the app or layouts.
 var Caching = Cache{RecordCount: 0} //nolint:gochecknoglobals
 
@@ -116,7 +121,10 @@ func (c *Cache) Records(i int64) {
 //
 //	"Writer and programmer attributions"
 func Attribute(write, code, art, music, name string) string {
-	name = strings.ToLower(name)
+	if name == "" {
+		return ""
+	}
+
 	const sep = `,`
 	w, c, a, m := strings.Split(strings.ToLower(write), sep),
 		strings.Split(strings.ToLower(code), sep),
@@ -125,9 +133,8 @@ func Attribute(write, code, art, music, name string) string {
 	if len(w) == 0 && len(c) == 0 && len(a) == 0 && len(m) == 0 {
 		return ""
 	}
-	if name == "" {
-		return ""
-	}
+
+	name = strings.ToLower(name)
 	match := []string{}
 	if slices.Contains(w, name) {
 		match = append(match, "writer")
@@ -145,14 +152,17 @@ func Attribute(write, code, art, music, name string) string {
 		all := []string{write, code, art, music}
 		return fmt.Sprintf("error: %q, %s", name, strings.Join(all, sep))
 	}
+
 	match[0] = helper.Capitalize(match[0])
 	if len(match) == 1 {
 		return match[0] + " attribution"
 	}
+
 	const and = 2
 	if len(match) == and {
 		return strings.Join(match, " and ") + attr
 	}
+
 	last := len(match) - 1
 	match[last] = "and " + match[last]
 	return strings.Join(match, ", ") + attr
@@ -163,134 +173,76 @@ func Attribute(write, code, art, music, name string) string {
 //
 //	"a Windows intro"
 func Brief(platform, section any) string {
-	p, s := "", ""
-	const format = `%s %s %T`
-	switch val := platform.(type) {
-	case string:
-		p = val
-	case null.String:
-		if val.Valid {
-			p = val.String
-		}
-	default:
-		s := fmt.Sprintf(format, typeErr, "describe", platform)
-		return s
+	p, ok := parseValS(platform)
+	if !ok {
+		return fmt.Sprintf("%s describe %T", typeErr, platform)
 	}
-	p = strings.TrimSpace(p)
-	switch val := section.(type) {
-	case string:
-		s = val
-	case null.String:
-		if val.Valid {
-			s = val.String
-		}
-	default:
-		s := fmt.Sprintf(format, typeErr, "describe", section)
-		return s
+	s, ok := parseValS(section)
+	if !ok {
+		return fmt.Sprintf("%s describe %T", typeErr, section)
 	}
-	s = strings.TrimSpace(s)
 	if p == "" && s == "" {
 		return "an unknown release"
 	}
-	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s)) + "."
-	return x
+
+	return tags.Humanize(tags.TagByURI(p), tags.TagByURI(s)) + "."
 }
 
 // ByteBytes returns both the bytes and a human readable string of the bytes.
 func ByteBytes(bytes any) template.HTML {
-	var s string
-	switch val := bytes.(type) {
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		const format = `%s <small>(%dB)</small>`
-		s = fmt.Sprintf(format, helper.ByteCountFloat(i), i)
-	default:
-		const format = `%sByteBytes: %s`
-		s = fmt.Sprintf(format, typeErr, reflect.TypeOf(bytes).String())
-		return template.HTML(s)
+	n, ok := parseValI(bytes)
+	if !ok {
+		return template.HTML(fmt.Sprintf("%sByteBytes: %s",
+			typeErr, reflect.TypeOf(bytes).String()))
 	}
-	return template.HTML(s)
+
+	return template.HTML(helper.ByteCountFloat(int64(n)) +
+		` <small>(` + strconv.Itoa(n) + `B)</small>`)
 }
 
 // ByteFile returns a human readable string of the file count and bytes.
-func ByteFile(cnt, bytes any) template.HTML {
-	var s string
-	switch val := cnt.(type) {
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		p := message.NewPrinter(language.English)
-		s = p.Sprintf("%d", i)
-	default:
-		const format = `%sByteBytes: %s`
-		s = fmt.Sprintf(format, typeErr, reflect.TypeOf(cnt).String())
-		return template.HTML(s)
-	}
-	switch val := bytes.(type) {
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		const format = `%s <small>(%s)</small>`
-		s = fmt.Sprintf(format, s, helper.ByteCountFloat(i))
-	default:
-		const format = `%sByteFile: %s`
-		s = fmt.Sprintf(format, typeErr, reflect.TypeOf(bytes).String())
-		return template.HTML(s)
-	}
-	return template.HTML(s)
+func ByteFile(count, bytes any) template.HTML {
+	return ByteFileS("", count, bytes)
 }
 
 // ByteFileS returns a human readable string of the byte count with a named description.
 func ByteFileS(name string, count, bytes any) template.HTML {
-	var s string
-	switch val := count.(type) {
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		name = names(name)
-		if i != 1 {
-			name += "s"
-		}
-		p := message.NewPrinter(language.English)
-		s = p.Sprintf("%d", i)
-	default:
-		const format = `%sByteFileS: %s`
-		s = fmt.Sprintf(format, typeErr, reflect.TypeOf(count).String())
-		return template.HTML(s)
+	n, ok := parseValI(count)
+	if !ok {
+		return template.HTML(fmt.Sprintf("%sByteFile cnt: %s",
+			typeErr, reflect.TypeOf(count).String()))
 	}
-	switch val := bytes.(type) {
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		const format = `%s %s <small>(%s)</small>`
-		s = fmt.Sprintf(format, s, name, helper.ByteCount(i))
-	default:
-		const format = `%sByteFileS: %s`
-		s = fmt.Sprintf(format, typeErr, reflect.TypeOf(bytes).String())
-		return template.HTML(s)
+
+	p := message.NewPrinter(language.English)
+	s := p.Sprint(strconv.Itoa(n))
+
+	b, ok := parseValI64(bytes)
+	if !ok {
+		return template.HTML(fmt.Sprintf("%sByteFile bytes: %s",
+			typeErr, reflect.TypeOf(bytes).String()))
 	}
-	return template.HTML(s)
+
+	name = names(name)
+	if n < 2 {
+		return template.HTML(s + ` ` + name + ` <small>(` + helper.ByteCountFloat(b) + `)</small>`)
+	}
+	name += "s"
+
+	return template.HTML(s + ` ` + name + ` <small>(` + helper.ByteCountFloat(b) + `)</small>`)
 }
 
 // Day returns a string representation of the day number, a value between 1 and 31.
 func Day(d any) string {
-	var s string
-	switch val := d.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		if i == 0 {
-			return ""
-		}
-		if i < 0 || i > 31 {
-			s = fmt.Sprintf(" error: day out of range %d", i)
-			return s
-		}
-		s = fmt.Sprintf(" %d", i)
-	default:
-		s = fmt.Sprintf("%sDay: %s", typeErr, reflect.TypeOf(d).String())
+	n, ok := parseValI(d)
+	if !ok {
+		return fmt.Sprintf("%sDay: %s", typeErr, reflect.TypeOf(d).String())
 	}
-	return s
+
+	if n < 0 || n > 31 {
+		return " error: day out of range " + strconv.Itoa(n)
+	}
+
+	return " " + strconv.Itoa(n)
 }
 
 // Describe returns a human readable description of a release.
@@ -301,56 +253,36 @@ func Day(d any) string {
 //	"a Windows intro published in Jan, 1990."
 func Describe(platform, section, year, month any) template.HTML {
 	const tmpl = "describe"
-	p, s, y, m := "", "", "", ""
-	switch val := platform.(type) {
-	case string:
-		p = val
-	case null.String:
-		if val.Valid {
-			p = val.String
-		}
-	default:
+
+	p, ok := parseValS(platform)
+	if !ok {
 		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, platform))
 	}
 	p = strings.TrimSpace(p)
-	switch val := section.(type) {
-	case string:
-		s = val
-	case null.String:
-		if val.Valid {
-			s = val.String
-		}
-	default:
+
+	s, ok := parseValS(section)
+	if !ok {
 		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, section))
 	}
 	s = strings.TrimSpace(s)
-	switch val := year.(type) {
-	case int, int8, int16, int32, int64:
-		y = fmt.Sprintf("%v", val)
-	case null.Int16:
-		if val.Valid {
-			y = strconv.Itoa(int(val.Int16))
-		}
-	default:
+
+	n, ok := parseValI(year)
+	if !ok {
 		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, year))
 	}
-	switch val := month.(type) {
-	case int, int8, int16, int32, int64:
-		i := reflect.ValueOf(val).Int()
-		m = helper.ShortMonth(int(i))
-	case null.Int16:
-		if val.Valid {
-			m = helper.ShortMonth(int(val.Int16))
-		}
-	default:
+	y := strconv.Itoa(n)
+
+	n, ok = parseValI(month)
+	if !ok {
 		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, month))
 	}
+	m := helper.ShortMonth(n)
+
 	return template.HTML(desc(p, s, y, m))
 }
 
 // GlobTo returns the path to the template file.
 func GlobTo(name string) string {
-	const pathSeparator = "/"
 	return strings.Join([]string{"view", "app", name}, pathSeparator)
 }
 
@@ -366,8 +298,8 @@ func LastUpdated(t any) string {
 	if t == nil {
 		return ""
 	}
-	const s = "Last updated"
-	return simple.Updated(t, s)
+
+	return simple.Updated(t, "Last updated")
 }
 
 // LinkDownload creates a URL to link to the file download of the record.
@@ -380,25 +312,27 @@ func LinkDownload(id any, securityAlert string) template.HTML {
 	if id == nil {
 		return ""
 	}
+
 	s, err := simple.LinkID(id, "d")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
+
 	if securityAlert != "" {
 		return template.HTML(`<s class="card-link text-warning-emphasis" data-bs-toggle="tooltip" ` +
 			`data-bs-title="Use the link to access this file download">Download</s>`)
 	}
-	const format = `<a class="card-link" href="%s" rel="nofollow">Download</a>`
-	return template.HTML(fmt.Sprintf(format, s))
+
+	return template.HTML(`<a class="card-link" href="` + s + `" rel="nofollow">Download</a>`)
 }
 
 // LinkHref creates a URL path to link to the file page for the record.
 // The id needs to be a valid integer.
 func LinkHref(id any) (string, error) {
 	if id == nil {
-		const format = `id is nil, %w`
-		return "", fmt.Errorf(format, ErrNegative)
+		return "", fmt.Errorf("id is nil, %w", ErrNegative)
 	}
+
 	return simple.LinkID(id, "f") //nolint:wrapcheck
 }
 
@@ -408,8 +342,9 @@ func LinkInterview(href string) template.HTML {
 	if href == "" {
 		return errVal("href")
 	}
+
 	p, err := url.Parse(href)
-	if err != nil || p.Scheme == "" {
+	if err != nil || (p != nil && p.Scheme == "") {
 		// if href is not a valid URL, then it is a relative path to the site.
 		return template.HTML("")
 	}
@@ -417,27 +352,27 @@ func LinkInterview(href string) template.HTML {
 }
 
 // LinkPage creates a URL anchor element to link to the file page for the record.
-// The id needs to be a valid integer. For example providing 1 would return:
-//
+// The id needs to be a valid integer.
 // The keyboard shortcut is "kboard" and is used to link to the file page with the keyboard focus.
 // It can be left empty to not include the keyboard shortcut.
 func LinkPage(id, kboard any) template.HTML {
 	if id == nil {
 		return ""
 	}
-	s, err := simple.LinkID(id, "f")
+
+	href, err := simple.LinkID(id, "f")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	kb, valid := kboard.(int64)
-	if !valid {
-		const format = `<a class="card-link" href="%s" rel="nofollow">Artifact</a>`
-		return template.HTML(fmt.Sprintf(format, s))
+
+	n, ok := parseValI64(kboard)
+	if !ok {
+		return template.HTML(`<a class="card-link" href="` + href + `" rel="nofollow">Artifact</a>`)
 	}
-	keypress := strconv.FormatInt(kb, 10)
-	const format = `<a data-bs-toggle="tooltip" data-bs-title="control + alt + %s" ` +
-		`id="artifact-card-link-%s" class="card-link" href="%s" rel="nofollow">Artifact</a>`
-	return template.HTML(fmt.Sprintf(format, keypress, keypress, s))
+
+	keypress := strconv.FormatInt(n, 10)
+	return template.HTML(`<a data-bs-toggle="tooltip" data-bs-title="control + alt + ` + keypress + `" ` +
+		`id="artifact-card-link-` + keypress + `" class="card-link" href="` + href + `" rel="nofollow">Artifact</a>`)
 }
 
 // LinkRunApp creates a URL anchor element to link to the artifact page to launch the js-dos emulator.
@@ -448,12 +383,13 @@ func LinkRunApp(id any) template.HTML {
 	if id == nil {
 		return ""
 	}
-	s, err := simple.LinkID(id, "f")
+
+	href, err := simple.LinkID(id, "f")
 	if err != nil {
 		return template.HTML(err.Error())
 	}
-	const format = `&nbsp; &nbsp; <a class="card-link" href="%s#runapp" rel="nofollow">Run app</a>`
-	return template.HTML(fmt.Sprintf(format, s))
+
+	return template.HTML(`&nbsp; &nbsp; <a class="card-link" href="` + href + `#runapp" rel="nofollow">Run app</a>`)
 }
 
 // LinkPreview creates a URL to link to the file record in-tab to use as a preview.
@@ -470,12 +406,13 @@ func LinkPreview(id any, name, platform string) template.HTML {
 	if id == nil || name == "" {
 		return template.HTML("")
 	}
-	s := filerecord.LinkPreviewHref(id, name, platform)
-	if s == "" {
+
+	href := filerecord.LinkPreviewHref(id, name, platform)
+	if href == "" {
 		return template.HTML("")
 	}
-	const format = `&nbsp; <a class="card-link" href="%s">Preview</a>`
-	return template.HTML(fmt.Sprintf(format, s))
+
+	return template.HTML(`&nbsp; <a class="card-link" href="` + href + `">Preview</a>`)
 }
 
 // LinkRemote returns a HTML link with an embedded SVG icon to an external website.
@@ -487,8 +424,9 @@ func LinkRemote(href, name string) template.HTML {
 	if name == "" {
 		return errVal("name")
 	}
-	const format = `<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`
-	return template.HTML(fmt.Sprintf(format, href, name, arrowLink))
+
+	return template.HTML(`<a class="dropdown-item icon-link icon-link-hover link-light" href="` + href + `">` +
+		name + ` ` + string(arrowLink) + `</a>`)
 }
 
 // LinkRemoteTip returns a HTML link with an embedded SVG icon to an external website.
@@ -504,9 +442,10 @@ func LinkRemoteTip(href, name, tooltip string) template.HTML {
 	if tooltip == "" {
 		return LinkRemote(href, name)
 	}
-	const format = `<a class="dropdown-item icon-link icon-link-hover link-light" ` +
-		`data-bs-toggle="tooltip" data-bs-title="%s" href="%s">%s %s</a>`
-	return template.HTML(fmt.Sprintf(format, tooltip, href, name, arrowLink))
+
+	return template.HTML(`<a class="dropdown-item icon-link icon-link-hover link-light" ` +
+		`data-bs-toggle="tooltip" data-bs-title="` + tooltip +
+		`" href="` + href + `">` + name + ` ` + string(arrowLink) + `</a>`)
 }
 
 // LinkScnr returns a link to the named scener page.
@@ -518,11 +457,12 @@ func LinkScnr(name string) (string, error) {
 	if name == "" {
 		return "", nil
 	}
+
 	href, err := url.JoinPath("/", "p", helper.Slug(name))
 	if err != nil {
-		const format = "name %q could not be made into a valid url: %w"
-		return "", fmt.Errorf(format, name, err)
+		return "", fmt.Errorf("name %q could not be made into a valid url: %w", name, err)
 	}
+
 	return href, nil
 }
 
@@ -530,11 +470,9 @@ func LinkScnr(name string) (string, error) {
 // Multiple names can be provided as a comma separated string.
 // If the name is empty then an empty string is returned with no error.
 func LinkScnrs(names string) template.HTML {
-	links := []string{}
 	vals := strings.Split(names, ",")
-	cls := "link-dark link-offset-2 link-offset-3-hover link-underline " +
-		"link-underline-opacity-0 link-underline-opacity-75-hover"
-	for val := range slices.Values(vals) {
+	links := make([]string, 0, len(vals))
+	for _, val := range vals {
 		val = strings.TrimSpace(val)
 		if val == "" {
 			continue
@@ -544,15 +482,12 @@ func LinkScnrs(names string) template.HTML {
 			discard(err)
 			continue
 		}
-		const format = `<a class="%s" href="%s">%s</a>`
-		linkr := fmt.Sprintf(format, cls, scnr, val)
+		linkr := `<a class="link-dark link-offset-2 link-offset-3-hover link-underline ` +
+			`link-underline-opacity-0 link-underline-opacity-75-hover" href="` + scnr + `">` + val + `</a>`
 		links = append(links, linkr)
 	}
-	return template.HTML(strings.Join(links, ", "))
-}
 
-func discard(err error) {
-	_, _ = fmt.Fprint(io.Discard, err)
+	return template.HTML(strings.Join(links, ", "))
 }
 
 const wikiBase = "https://github.com/Defacto2/defacto2.net/wiki"
@@ -566,16 +501,17 @@ func LinkWiki(uri, name string) template.HTML {
 	if name == "" {
 		return errVal("name")
 	}
-	var href string
+
 	href, err := url.JoinPath(wikiBase, uri)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
 	if strings.HasPrefix(uri, "#") {
-		href = fmt.Sprintf("%s%s", wikiBase, uri)
+		href = wikiBase + uri
 	}
-	const format = `<a class="dropdown-item icon-link icon-link-hover link-light" href="%s">%s %s</a>`
-	return template.HTML(fmt.Sprintf(format, href, name, arrowLink))
+
+	return template.HTML(`<a class="dropdown-item icon-link icon-link-hover link-light" href="` + href + `">` +
+		name + ` ` + string(arrowLink) + `</a>`)
 }
 
 // LinkWikiTip returns a HTML link with an embedded SVG icon to the Defacto2 wiki on GitHub.
@@ -591,17 +527,18 @@ func LinkWikiTip(uri, name, tooltip string) template.HTML {
 	if tooltip == "" {
 		return LinkWiki(uri, name)
 	}
-	var href string
+
 	href, err := url.JoinPath(wikiBase, uri)
 	if err != nil {
 		return template.HTML(err.Error())
 	}
+
 	if strings.HasPrefix(uri, "#") {
-		href = fmt.Sprintf("%s%s", wikiBase, uri)
+		href = wikiBase + uri
 	}
-	const format = `<a class="dropdown-item icon-link icon-link-hover link-light" ` +
-		`data-bs-toggle="tooltip" data-bs-title="%s" href="%s">%s %s</a>`
-	return template.HTML(fmt.Sprintf(format, tooltip, href, name, arrowLink))
+	return template.HTML(`<a class="dropdown-item icon-link icon-link-hover link-light" ` +
+		`data-bs-toggle="tooltip" data-bs-title="` + tooltip +
+		`" href="` + href + `">` + name + ` ` + string(arrowLink) + `</a>`)
 }
 
 // LogoText returns a string of text padded with spaces to center it in the logo.
@@ -616,37 +553,44 @@ func LogoText(s string) string {
 	if s == "" {
 		return indent + Welcome
 	}
-	// odd returns true if the given integer is odd.
-	odd := func(i int) bool {
-		return i%2 != 0
-	}
-	const padder = " ·· "
-	const wl, pl = len(Welcome), len(padder)
-	const limit = wl - (pl + pl) - 3
-	s = strings.ToUpper(s)
 
-	truncateStr := len(s) > limit
-	if truncateStr {
-		return fmt.Sprintf("%s:%s%s%s·",
-			indent, padder, s[:limit], padder)
+	// odd returns true if the given number is odd.
+	odd := func(n int) bool {
+		return n%2 != 0
 	}
-	styled := fmt.Sprintf("%s%s%s", padder, s, padder)
+
+	const padder = " ·· "
+	const wl = len(Welcome)
+	const pl = len(padder)
+	const limit = wl - (pl + pl) - 3
+
+	s = strings.ToUpper(s)
+	truncate := len(s) > limit
+	if truncate {
+		return indent + ":" + padder + s[:limit] + padder + "·"
+	}
+
+	styled := padder + s + padder
 	if !odd(len(s)) {
-		styled = fmt.Sprintf(" %s%s%s", padder, s, padder)
+		styled = " " + styled
 	}
+
 	const split = 2
-	padding := (wl / split) - (len(styled) / split) - split
-	text := fmt.Sprintf(":%s%s%s·",
-		strings.Repeat(" ", padding),
-		styled,
-		strings.Repeat(" ", padding))
-	return indent + text
+	count := (wl / split) - (len(styled) / split) - split
+	pad := strings.Repeat(" ", count)
+	return indent + ":" + pad + styled + pad + "·"
 }
 
 // MarkAll surrounds all occurrences of highlight in the string with <mark> elements.
-func MarkAll(highlight, s string) string {
+func MarkAll(highlight, s string) string { // TODO: test against emoji
+	if highlight == "" || s == "" {
+		return s
+	}
+
 	substr := strings.ToLower(highlight)
 	var builder strings.Builder
+	const size = 13
+	builder.Grow(len(s) + size)
 
 	pos := 0
 	for {
@@ -680,33 +624,28 @@ func Month(m any) string {
 	if m == nil {
 		return ""
 	}
-	var s string
-	switch val := m.(type) {
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64:
-		i := reflect.ValueOf(val).Int()
-		if i == 0 {
-			return ""
-		}
-		if i < 0 || i > 12 {
-			const format = " error: month out of range %d"
-			return fmt.Sprintf(format, i)
-		}
-		s = " " + time.Month(i).String()
-	default:
-		s = fmt.Sprintf("%sFmtMonth: %s", typeErr, reflect.TypeOf(m).String())
+
+	n, ok := parseValI(m)
+	if !ok {
+		return ""
 	}
-	return s
+
+	if n < 1 || n > 12 {
+		return ""
+	}
+
+	return " " + time.Month(n).String()
 }
 
 // MusicModule returns true if the magic string indicates a music file.
 // Only tracker music is valid, MIDI, MP3, return false.
 func MusicModule(magic any) bool {
-	magicStr, ok := magic.(string)
+	s, ok := parseValS(magic)
 	if !ok {
 		return false
 	}
-	musicPatterns := []string{
+
+	patterns := [...]string{
 		"Extended Module",
 		"Multi-Track Module",
 		"Impulse Tracker",
@@ -718,12 +657,14 @@ func MusicModule(magic any) bool {
 		"IT music",
 		"XM music",
 	}
-	magicLower := strings.ToLower(magicStr)
-	for _, pattern := range musicPatterns {
-		if strings.Contains(magicLower, strings.ToLower(pattern)) {
+
+	s = strings.ToLower(s)
+	for _, pattern := range patterns {
+		if strings.Contains(s, strings.ToLower(pattern)) {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -732,7 +673,7 @@ func Prefix(s string) string {
 	if s == "" {
 		return ""
 	}
-	return s + " "
+	return " " + s
 }
 
 // RecordRels returns the groups associated with a release and joins them using a plus sign.
@@ -740,34 +681,23 @@ func Prefix(s string) string {
 //
 //	"Group 1 + Group 2"
 func RecordRels(a, b any) string {
-	av, bv, s := "", "", ""
-	switch val := a.(type) {
-	case string:
-		av = reflect.ValueOf(val).String()
-	case null.String:
-		if val.Valid {
-			av = val.String
-		}
-	}
-	switch val := b.(type) {
-	case string:
-		bv = reflect.ValueOf(val).String()
-	case null.String:
-		if val.Valid {
-			bv = val.String
-		}
-	}
-	av = strings.TrimSpace(av)
-	bv = strings.TrimSpace(bv)
+	x, _ := parseValS(a)
+	x = strings.TrimSpace(x)
+	y, _ := parseValS(b)
+	y = strings.TrimSpace(y)
+
 	switch {
-	case av != "" && bv != "":
-		s = strings.Join([]string{av, bv}, " + ")
-	case av != "":
-		s = av
-	case bv != "":
-		s = bv
+	case x == "" && y == "":
+		return ""
+	case x != "" && y != "":
+		return strings.Join([]string{x, y}, " + ")
+	case x != "":
+		return x
+	case y != "":
+		return y
+	default:
+		return ""
 	}
-	return s
 }
 
 // SafeBBS returns a string as a template.HTML type to prevent HTML escaping in the template.
@@ -779,46 +709,46 @@ func RecordRels(a, b any) string {
 //
 // If any value is not a valid string then an empty string is returned.
 func SafeBBS(a any) template.HTML {
-	const lessThan = "<"
-	const ltEntity = "&lt;"
-	const clearScreen = "@CLS@"
-	switch val := a.(type) {
-	case string:
-		src := []byte(val)
-		// Check for and strip RTF formatting first, before any other processing
-		if simple.RTF(src) {
-			// Strip RTF formatting if detected
-			src = simple.StripRTF(src)
-		}
-		// remove any html elements false positives
-		rene, pcb := bbs.IsRenegade(src), bbs.IsPCBoard(src)
-		if !rene && !pcb {
-			// return plain text
-			// only plain text needs this manual replacement
-			src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
-			s := string(src)
-			return SafeHTML(s)
-		}
-		// build stylized text
-		src = bytes.ReplaceAll(src, []byte(clearScreen), []byte("\n"))
-		var buf bytes.Buffer
-		if pcb {
-			if err := bbs.PCBoardHTML(&buf, src...); err != nil {
-				const format = "PCBoard conversion error: %v"
-				return template.HTML(fmt.Sprintf(format, err))
-			}
-		}
-		if rene {
-			if err := bbs.RenegadeHTML(&buf, src...); err != nil {
-				const format = "Renegade conversion error: %v"
-				return template.HTML(fmt.Sprintf(format, err))
-			}
-		}
-		// return the stylized text
-		return SafeHTML(buf.String())
-	default:
-		return template.HTML("")
+	val, ok := parseValS(a)
+	if !ok {
+		return ""
 	}
+
+	src := []byte(val)
+
+	// Check for and strip RTF formatting first, before any other processing
+	if simple.RTF(src) {
+		// Strip RTF formatting if detected
+		src = simple.StripRTF(src)
+	}
+
+	// remove any html elements false positives
+	rene := bbs.IsRenegade(src)
+	pcb := bbs.IsPCBoard(src)
+	if !rene && !pcb {
+		// return plain text, which also needs replacements
+		src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
+		return SafeHTML(string(src))
+	}
+
+	// build stylized text
+	src = bytes.ReplaceAll(src, []byte(clearScreen), []byte("\n"))
+
+	var buf bytes.Buffer
+	if pcb {
+		if err := bbs.PCBoardHTML(&buf, src...); err != nil {
+			return template.HTML(fmt.Sprintf("PCBoard conversion error: %v", err))
+		}
+	}
+
+	if rene {
+		if err := bbs.RenegadeHTML(&buf, src...); err != nil {
+			return template.HTML(fmt.Sprintf("Renegade conversion error: %v", err))
+		}
+	}
+
+	// return the stylized text
+	return SafeHTML(buf.String())
 }
 
 // SafeDocument returns a string as a template.HTML type to prevent HTML escaping in the template.
@@ -826,28 +756,28 @@ func SafeBBS(a any) template.HTML {
 //
 // If any value is not a valid string then an empty string is returned.
 func SafeDocument(a any) template.HTML {
-	const lessThan = "<"
-	const ltEntity = "&lt;"
-	switch val := a.(type) {
-	case string:
-		src := []byte(val)
-		// Check for and strip RTF formatting first, before any other processing
-		if simple.RTF(src) {
-			src = simple.StripRTF(src)
-		}
-		// remove any html elements false positives
-		src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
-		s := string(src)
-		return SafeHTML(s)
-	default:
-		return template.HTML("")
+	val, ok := parseValS(a)
+	if !ok {
+		return ""
 	}
+
+	src := []byte(val)
+
+	// Check for and strip RTF formatting first, before any other processing
+	if simple.RTF(src) {
+		src = simple.StripRTF(src)
+	}
+
+	// remove any html elements false positives
+	src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
+	return SafeHTML(string(src))
 }
+
+var rePCBoard = regexp.MustCompile(bbs.PCBoardRe)
 
 // RemovePCBoard removes any PCBoard sequences from the byte slice.
 func RemovePCBoard(b []byte) []byte {
-	re := regexp.MustCompile(bbs.PCBoardRe)
-	return re.ReplaceAll(b, []byte(""))
+	return rePCBoard.ReplaceAll(b, []byte(""))
 }
 
 // SafeHTML returns a string as a template.HTML type to prevent HTML escaping in the template.
@@ -862,27 +792,15 @@ func SafeJS(s string) template.JS {
 
 // Safety returns true if SafeDocument should be used instead of SafeBBS.
 func Safety(platform, section any) bool {
-	p, s := "", ""
-	switch val := platform.(type) {
-	case string:
-		p = val
-	case null.String:
-		if val.Valid {
-			p = val.String
-		}
-	default:
+	p, ok := parseValS(platform)
+	if !ok {
 		return false
 	}
-	switch val := section.(type) {
-	case string:
-		s = val
-	case null.String:
-		if val.Valid {
-			s = val.String
-		}
-	default:
+	s, ok := parseValS(section)
+	if !ok {
 		return false
 	}
+
 	switch s {
 	case "internaldocument", magazine:
 		return true
@@ -900,32 +818,22 @@ func Safety(platform, section any) bool {
 //
 //	`<h3 class="card-subtitle mb-2 text-body-secondary fs-6">Some Cool Stuff</h3>`
 func SubTitle(section null.String, title any, large bool) template.HTML {
-	val := ""
-	switch v := title.(type) {
-	case string:
-		val = v
-	case null.String:
-		if !v.Valid {
-			return ""
-		}
-		val = v.String
-	}
-	if val == "" {
+	val, ok := parseValS(title)
+	if !ok || val == "" {
 		return ""
 	}
+
 	if strings.TrimSpace(strings.ToLower(section.String)) == magazine {
-		const format = "Issue %d"
 		if i, err := strconv.Atoi(val); err == nil {
-			val = fmt.Sprintf(format, i)
+			val = "Issue " + strconv.Itoa(i)
 		}
 	}
+
 	fs := "fs-6"
 	if large {
 		fs = "fs-5"
 	}
-	cls := "card-subtitle mb-2 text-body-secondary " + fs
-	const format = `<h3 class="%s">%s</h3>`
-	return template.HTML(fmt.Sprintf(format, cls, val))
+	return template.HTML(`<h3 class="card-subtitle mb-2 text-body-secondary ` + fs + `">` + val + `</h3>`)
 }
 
 // TagBrief returns a small summary of the tag.
@@ -933,9 +841,10 @@ func SubTitle(section null.String, title any, large bool) template.HTML {
 //
 //	"Conversations with the personalities of The Scene"
 func TagBrief(tag string) string {
-	t := tags.TagByURI(tag)
-	s := tags.Infos()[t]
-	return s
+	if tag == "" {
+		return ""
+	}
+	return tags.Infos()[tags.TagByURI(tag)]
 }
 
 // TagOption returns a HTML option tag with a "selected" attribute if the s matches the value.
@@ -943,31 +852,23 @@ func TagBrief(tag string) string {
 //
 //	`<option value="interview" selected>`
 func TagOption(s, value any) template.HTML {
-	sel, val := "", ""
-	switch i := s.(type) {
-	case string:
-		sel = reflect.ValueOf(i).String()
-	case null.String:
-		if i.Valid {
-			sel = i.String
-		}
+	selected, ok := parseValS(s)
+	if !ok {
+		return ""
 	}
-	switch i := value.(type) {
-	case string:
-		val = reflect.ValueOf(i).String()
-	case null.String:
-		if i.Valid {
-			val = i.String
-		}
+	selected = strings.TrimSpace(selected)
+
+	val, ok := parseValS(value)
+	if !ok {
+		return ""
 	}
-	sel = strings.TrimSpace(sel)
 	val = strings.TrimSpace(val)
-	if sel != "" && sel == val {
-		const format = `<option value="%s" selected>`
-		return template.HTML(fmt.Sprintf(format, val))
+
+	if selected != "" && selected == val {
+		return template.HTML(`<option value="` + val + `" selected>`)
 	}
-	const format = `<option value="%s">`
-	return template.HTML(fmt.Sprintf(format, val))
+
+	return template.HTML(`<option value="` + val + `">`)
 }
 
 // TagWithOS returns a small summary of the tag with the operating system.
@@ -976,9 +877,10 @@ func TagOption(s, value any) template.HTML {
 //
 //	"a Dos magazine"
 func TagWithOS(os, tag string) string {
-	p, t := tags.TagByURI(os), tags.TagByURI(tag)
-	s := tags.Humanize(p, t)
-	return s
+	return tags.Humanize(
+		tags.TagByURI(os),
+		tags.TagByURI(tag),
+	)
 }
 
 // TrimSiteSuffix returns a string with the last 4 characters removed if they are " FTP" or " BBS".
@@ -987,14 +889,17 @@ func TagWithOS(os, tag string) string {
 //	"My super"
 func TrimSiteSuffix(s string) string {
 	n := strings.ToLower(strings.TrimSpace(s))
+
 	const chrs = 4
-	if len(s) < chrs {
+	count := len(s)
+	if count < chrs {
 		return s
 	}
-	switch n[len(s)-chrs:] {
+	switch n[count-chrs:] {
 	case " ftp", " bbs":
-		return s[:len(s)-chrs]
+		return s[:count-chrs]
 	}
+
 	return s
 }
 
@@ -1004,18 +909,12 @@ func TrimSpace(a any) string {
 	if a == nil {
 		return ""
 	}
-	switch val := a.(type) {
-	case string:
-		return strings.TrimSpace(val)
-	case null.String:
-		if val.Valid {
-			return strings.TrimSpace(val.String)
-		}
-		return ""
-	default:
-		const format = `%s trim site suffix: %s`
-		return fmt.Sprintf(format, typeErr, reflect.TypeOf(a).String())
+
+	s, ok := parseValS(a)
+	if !ok {
+		return fmt.Sprintf("%s trim site suffix: %s", typeErr, reflect.TypeOf(a).String())
 	}
+	return strings.TrimSpace(s)
 }
 
 // URLEncode returns a URL encoded string from the given string.
@@ -1024,42 +923,40 @@ func URLEncode(a any) string {
 	if a == nil {
 		return ""
 	}
-	switch val := a.(type) {
-	case string:
-		return url.QueryEscape(val)
-	case null.String:
-		if val.Valid {
-			return url.QueryEscape(val.String)
-		}
-		return ""
-	default:
-		const format = `%s url encode: %s`
-		return fmt.Sprintf(format, typeErr, reflect.TypeOf(a).String())
+
+	s, ok := parseValS(a)
+	if !ok {
+		return fmt.Sprintf("%s url encode: %s", typeErr, reflect.TypeOf(a).String())
 	}
+	return url.QueryEscape(s)
 }
 
 // WebsiteIcon returns a Bootstrap icon name for the given website url.
 // For example if the url contains "archive.org" then the Bootstrap icon "bank2" svg icon is returned.
 func WebsiteIcon(url string) template.HTML {
-	icon := websiteIcon(url)
-	const svg = `<svg class="bi text-black" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">`
-	if icon == "arrow-right" {
-		const right = `<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"/></svg>`
-		return template.HTML(svg + right)
+	if url == "" {
+		return ""
 	}
-	const format = `<use xlink:href="/svg/bootstrap-icons.svg#%s"/></svg>`
-	html := svg + fmt.Sprintf(format, icon)
-	return template.HTML(html)
+
+	icon := websiteIcon(url)
+
+	if icon == "arrow-right" {
+		return svg + arrowRight
+	}
+
+	return svg + template.HTML(`<use xlink:href="/svg/bootstrap-icons.svg#`+icon+`"/></svg>`)
 }
 
 func websiteIcon(url string) string {
 	switch {
-	case strings.Contains(url, "archive.org"),
+	case
+		strings.Contains(url, "archive.org"),
 		strings.Contains(url, "wayback.defacto2.net"):
 		return "bank2"
 	case strings.Contains(url, "reddit.com"):
 		return "reddit"
-	case strings.Contains(url, "yalebooks.yale.edu"),
+	case
+		strings.Contains(url, "yalebooks.yale.edu"),
 		strings.Contains(url, "explodingthephone.com"),
 		strings.Contains(url, "punctumbooks"):
 		return "book"
@@ -1075,51 +972,54 @@ func websiteIcon(url string) string {
 		return "wikipedia"
 	case strings.Contains(url, "textfiles.com"):
 		return "textfiles"
+	default:
+		return "arrow-right"
 	}
-	return "arrow-right"
 }
+
+var reSupElems = regexp.MustCompile(`<sup>.*?</sup>`)
 
 // StripSup removes <sup>...</sup> tags from a string and returns the cleaned string.
 // The sup tags are returned separately if present, otherwise empty string.
+//
 // Usage in templates: {{ $result := stripSup .Title }} returns a map with "text" and "sup" keys.
-func StripSup(s string) (map[string]template.HTML, error) {
-	re := regexp.MustCompile(`<sup>.*?</sup>`)
-	sup := template.HTML(re.FindString(s))
-	cleaned := strings.TrimSpace(re.ReplaceAllString(s, ""))
+func StripSup(s string) (map[string]template.HTML, error) { // TODO: remove error
+	clean := strings.TrimSpace(reSupElems.ReplaceAllString(s, ""))
 	return map[string]template.HTML{
-		text:  template.HTML(cleaned),
-		"sup": sup,
+		text:  template.HTML(clean),
+		"sup": template.HTML(reSupElems.FindString(s)),
 	}, nil
 }
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.
-func YMDEdit(c *echo.Context, db *sql.DB) error {
+func YMDEdit(c *echo.Context, tx *sql.Tx) error {
 	const format = "year month day edit %s: %w"
-	if err := nils.Check(c, db); err != nil {
+	if err := nils.Check(c, tx); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
+
 	ctx := c.Request().Context()
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf(format, "begin tx", err)
-	}
-	r, err := model.One(ctx, tx, true, f.ID)
+	key := f.ID
+	r, err := model.One(ctx, tx, true, key)
 	if err != nil {
 		return fmt.Errorf(format, "model one", err)
 	}
+
 	y := model.ValidY(f.Year)
 	m := model.ValidM(f.Month)
 	d := model.ValidD(f.Day)
-	if err = model.UpdateYMD(ctx, tx, int64(f.ID), y, m, d); err != nil {
+	if err = model.UpdateYMD(ctx, tx, int64(key), y, m, d); err != nil {
 		return badRequest(c, err)
 	}
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf(format, "tx commit", err)
 	}
+
 	return c.JSON(http.StatusOK, r)
 }
 
@@ -1159,19 +1059,23 @@ func (s *SRI) Verify(fsys fs.FS) error { //nolint:funlen
 		return fmt.Errorf("sri verify: %w", err)
 	}
 
-	const format = "%s: %w"
 	names := Names()
+
 	var err error
+	const format = "%s: %w"
+
 	name := names[Bootstrap5]
 	s.Bootstrap5, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[Bootstrap5JS]
 	s.Bootstrap5JS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[BootstrapIcons]
 	s.BootstrapIcons, err = helper.Integrity(name, fsys)
 	if err != nil {
@@ -1183,6 +1087,7 @@ func (s *SRI) Verify(fsys fs.FS) error { //nolint:funlen
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[ContentText]
 	s.CanvasReadme, err = helper.Integrity(name, fsys)
 	if err != nil {
@@ -1194,66 +1099,79 @@ func (s *SRI) Verify(fsys fs.FS) error { //nolint:funlen
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[ChiptunePlayer]
 	s.ChiptunePlayer, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[EditArtifact]
 	s.EditArtifact, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[EditAssets]
 	s.EditAssets, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[EditForApproval]
 	s.EditForApproval, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[IndexJS]
 	s.IndexJS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[Jsdos6JS]
 	s.Jsdos6JS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[DosboxJS]
 	s.DosboxJS, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[Layout]
 	s.Layout, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[Pouet]
 	s.Pouet, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[Uploader]
 	s.Uploader, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[Htmx]
 	s.Htmx, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	name = names[HtmxRespTargets]
 	s.HtmxRespTargets, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}
+
 	return nil
 }
 
@@ -1263,22 +1181,28 @@ func badRequest(c *echo.Context, err error) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf("app bad request: %w", err)
 	}
-	return c.JSON(http.StatusBadRequest,
-		map[string]string{"error": "bad request " + err.Error()})
+
+	const code = http.StatusBadRequest
+	s := ""
+	if err != nil {
+		s = " " + err.Error()
+	}
+	return c.JSON(code, map[string]string{"error": "bad request" + s})
 }
 
-func desc(p, s, y, m string) string {
-	if p == "" && s == "" {
+func desc(platform, section, year, month string) string {
+	if platform == "" && section == "" {
 		return "An unknown release."
 	}
-	x := tags.Humanize(tags.TagByURI(p), tags.TagByURI(s))
+
+	x := tags.Humanize(tags.TagByURI(platform), tags.TagByURI(section))
 	x = helper.Capitalize(x)
-	if m != "" && y != "" {
-		const format = `%s published in <span class="text-nowrap">%s, %s</span>`
-		x = fmt.Sprintf(format, x, m, y)
-	} else if y != "" {
-		const format = `%s published in %s`
-		x = fmt.Sprintf(format, x, y)
+
+	if month != "" && year != "" {
+		return x + ` published in <span class="text-nowrap">` + month + `, ` + year + `</span>.`
+	}
+	if year != "" {
+		return x + ` published in ` + year + "."
 	}
 	return x + "."
 }

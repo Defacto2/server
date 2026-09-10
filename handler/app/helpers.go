@@ -4,8 +4,10 @@ package app
 import (
 	"bytes"
 	"cmp"
+	"database/sql"
 	"fmt"
 	"io"
+	"math"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -16,6 +18,7 @@ import (
 	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/aarondl/null/v8"
 	"github.com/bengarrett/bbs"
 )
 
@@ -111,6 +114,10 @@ func decode(src io.Reader) (string, error) {
 	}
 
 	return out.String(), nil
+}
+
+func discard(err error) {
+	_, _ = fmt.Fprint(io.Discard, err)
 }
 
 // errorWithID returns an error with the artifact ID appended to the error message.
@@ -272,4 +279,151 @@ func requireReplacementZip(name string) bool {
 	}
 
 	return false
+}
+
+func parseValS(val any) (string, bool) {
+	switch v := val.(type) {
+	case string:
+		return v, true
+	case null.String:
+		if v.Valid {
+			return v.String, true
+		}
+		return "", true
+	default:
+		return "", false
+	}
+}
+
+func parseValI(val any) (int, bool) {
+	switch v := val.(type) {
+	case int:
+		return castSigned(v)
+	case int8:
+		return castSigned(v)
+	case int16:
+		return castSigned(v)
+	case int32:
+		return castSigned(v)
+	case int64:
+		return castSigned(v)
+	case uint:
+		return castUnsigned(v)
+	case uint8:
+		return castUnsigned(v)
+	case uint16:
+		return castUnsigned(v)
+	case uint32:
+		return castUnsigned(v)
+	case uint64:
+		return castUnsigned(v)
+	case null.Int:
+		if !v.Valid {
+			return 0, false
+		}
+		return castSigned(v.Int)
+	case null.Int16:
+		if !v.Valid {
+			return 0, false
+		}
+		return castSigned(v.Int16)
+	case null.Int32:
+		if !v.Valid {
+			return 0, false
+		}
+		return castSigned(v.Int32)
+	case null.Int64:
+		if !v.Valid {
+			return 0, false
+		}
+		return castSigned(v.Int64)
+	case null.Byte:
+		if !v.Valid {
+			return 0, false
+		}
+		return castUnsigned(v.Byte)
+	case sql.NullInt16:
+		if !v.Valid {
+			return 0, false
+		}
+		return castSigned(v.Int16)
+	case sql.NullInt32:
+		if !v.Valid {
+			return 0, false
+		}
+		return castSigned(v.Int32)
+	case sql.NullInt64:
+		if !v.Valid {
+			return 0, false
+		}
+		return castSigned(v.Int64)
+	case sql.NullByte:
+		if !v.Valid {
+			return 0, false
+		}
+		return castUnsigned(v.Byte)
+
+	default:
+		return 0, false
+	}
+}
+
+func parseValI64(val any) (int64, bool) {
+	switch v := val.(type) {
+	case int:
+		return castSigned64(v)
+	case int8:
+		return castSigned64(v)
+	case int16:
+		return castSigned64(v)
+	case int32:
+		return castSigned64(v)
+	case int64:
+		return castSigned64(v)
+	case uint:
+		return castUnsigned64(v)
+	case uint8:
+		return castUnsigned64(v)
+	case uint16:
+		return castUnsigned64(v)
+	case uint32:
+		return castUnsigned64(v)
+	case uint64:
+		return castUnsigned64(v)
+	default:
+		return 0, false
+	}
+}
+
+func castSigned64[T Integer](val T) (int64, bool) {
+	if val < 0 {
+		return 0, false
+	}
+	return int64(val), true
+}
+
+func castUnsigned64[T Integer](val T) (int64, bool) {
+	if uint64(val) > math.MaxInt64 {
+		return 0, false // Protects against overflow
+	}
+	return int64(val), true
+}
+
+type Integer interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
+}
+
+func castSigned[T Integer](val T) (int, bool) {
+	if val < 0 {
+		return 0, false
+	}
+	return int(val), true
+}
+
+func castUnsigned[T Integer](val T) (int, bool) {
+	if uint64(val) > math.MaxInt {
+		return 0, false
+	}
+	return int(val), true
 }

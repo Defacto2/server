@@ -46,6 +46,9 @@ const (
 	UID       = "123e4567-e89b-12d3-a456-426614174000" // UUID is a generic Universal Unique ID
 	UID4      = "bb2310e1-93aa-475e-8b88-59eb1fb984a4" // UID4 is a UUID version 4
 	SCREENPNG = 328_468                                // SCREENPNG is the byte file size of testdata/SCREEN.PNG
+	RTF       = `{\rtf1\ansi{\fonttbl\f0\fswiss Helvetica;}\f0\pard
+ This is some {\b bold} text.\par
+}`
 )
 
 // PostgreSQL database helpers

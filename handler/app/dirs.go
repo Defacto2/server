@@ -1,4 +1,4 @@
-//nolint:revive
+//nolint:exhaustruct_v5,ireturn,revive
 package app
 
 // Package file dirs.go contains the artifact page directories and handlers.
@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/Defacto2/archive/rezip"
@@ -84,7 +85,6 @@ type Dirs struct {
 // and is rendered by the app/artifact.tmpl and app/artifactedit.tmpl views.
 func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
 	const format = "dirs artifact context %s: %w"
-	const uri = "artifact"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, "arguments", err)
 	}
@@ -148,7 +148,7 @@ func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { /
 	data["filentry"] = filerecord.FileEntry(art)
 
 	if ok := ds.screenshot(); !ok {
-		data["noScreenshot"] = true
+		data["screenshotNone"] = true
 	}
 
 	if text := !filerecord.UnsupportedFile(art); text {
@@ -161,10 +161,10 @@ func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { /
 		data = ds.addSAUCE(art, data)
 	}
 
-	err = c.Render(http.StatusOK, uri, data)
+	err = c.Render(http.StatusOK, artifact, data)
 	defer clear(data)
 	if err != nil {
-		return InternalErr(sl, c, uri, errorWithID(err, ds.URI, art.ID))
+		return InternalErr(sl, c, artifact, errorWithID(err, ds.URI, art.ID))
 	}
 
 	return nil
@@ -372,7 +372,7 @@ func (ds *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any
 		return data, fmt.Errorf(format, "arguments", err)
 	}
 
-	text := readme.Text{ //nolint:exhaustruct_v5
+	text := readme.Text{
 		Download: ds.Download,
 		Extra:    ds.Extra,
 		UUID:     art.UUID.String,
@@ -457,8 +457,7 @@ func (ds *Dirs) addSAUCE(art *models.File, data map[string]any) map[string]any {
 //
 // All text content, either CP437, ISO, or UTF-8, also goes through a normalization process,
 // to replace any "special" characters, such as non-breaking-spaces with standard spaces.
-func (ds *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
-	textBuf *bytes.Buffer, data map[string]any,
+func (ds *Dirs) addText8bit(sl *slog.Logger, art *models.File, textBuf *bytes.Buffer, data map[string]any,
 ) map[string]any {
 	if nils.Slog("dirs add text 8bit", sl, art, textBuf) {
 		return data
@@ -466,6 +465,7 @@ func (ds *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
 	if disable := art.RetrotxtNoReadme.Int16 != 0; disable {
 		return data
 	}
+
 	const maxWidth = 80
 
 	// strip any RTF formatting
@@ -502,7 +502,10 @@ func (ds *Dirs) addText8bit(sl *slog.Logger, art *models.File, //nolint:funlen
 	if LockIn80Columns(year, b...) {
 		b = lockWidth(maxWidth, b)
 	}
+	return ds.addtext8bit(sl, b, data)
+}
 
+func (ds *Dirs) addtext8bit(sl *slog.Logger, b []byte, data map[string]any) map[string]any {
 	byteEnc := ds.encoding(bytes.NewReader(b))
 	switch byteEnc {
 	case charmap.ISO8859_1:
@@ -620,7 +623,6 @@ func (ds *Dirs) addTextUTF8(textBuf, runeBuf *bytes.Buffer, data map[string]any)
 	}
 
 	data["contentUTF8"] = textBuf.String()
-
 	return data
 }
 
@@ -653,7 +655,7 @@ func (ds *Dirs) addZip(content string, data map[string]any) map[string]any {
 	case 1:
 		data["contentDesc"] = "contains one file"
 	default:
-		data["contentDesc"] = fmt.Sprintf("contains %d files", count)
+		data["contentDesc"] = "contains " + strconv.Itoa(count) + " files"
 	}
 
 	return data
@@ -662,7 +664,7 @@ func (ds *Dirs) addZip(content string, data map[string]any) map[string]any {
 // encoding returns the encoding for the model file entry.
 // Based on the platform and section.
 // Otherwise it will attempt to determine the encoding from the file byte content.
-func (ds *Dirs) encoding(r io.Reader) encoding.Encoding { //nolint:ireturn
+func (ds *Dirs) encoding(r io.Reader) encoding.Encoding {
 	platform := strings.TrimSpace(ds.Platform)
 	section := strings.TrimSpace(ds.Section)
 
@@ -802,7 +804,7 @@ func (ds *Dirs) makeAssets(ctx context.Context, sl *slog.Logger, root string, mo
 		ds.logErr(sl, msg, err)
 		return data
 	}
-	slog.Info(msg+" success", slog.String("uuid", ds.UUID), slog.Int64("bytes extracted", i))
+	sl.Info(msg+" success", slog.String("uuid", ds.UUID), slog.Int64("bytes extracted", i))
 	data["extraZip"] = true
 
 	return data

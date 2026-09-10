@@ -331,19 +331,19 @@ func (serv *Server) releasers(sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.
 		if unwanted := c.QueryString(); unwanted != "" {
 			return c.Redirect(moved, "/g/"+uri)
 		}
-		return app.Releasers(sl, c, db, uri, serv.Public)
+		return app.Releaser(sl, c, db, uri, serv.Public)
 	}
 
 	s.GET("/g/:id", releaser)
 
 	s.GET("/releaser", func(c *echo.Context) error {
-		return app.Releaser(sl, c, db)
+		return app.Releasers(sl, c, db)
 	})
 	s.GET("/releaser/a-z", func(c *echo.Context) error {
-		return app.ReleaserAZ(sl, c, db)
+		return app.ReleasersAZ(sl, c, db)
 	})
 	s.GET("/releaser/year", func(c *echo.Context) error {
-		return app.ReleaserYear(sl, c, db)
+		return app.ReleasersYear(sl, c, db)
 	})
 
 	s.GET("/magazine", func(c *echo.Context) error {

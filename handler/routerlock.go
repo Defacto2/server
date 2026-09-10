@@ -329,7 +329,9 @@ func editorPatch(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 		})
 	})
 	g.PATCH("/ymd", func(c *echo.Context) error {
-		return app.YMDEdit(c, db)
+		return BeginTx(c, db, func(tx *sql.Tx) error {
+			return app.YMDEdit(c, tx)
+		})
 	})
 	g.PATCH("/youtube", func(c *echo.Context) error {
 		return BeginTx(c, db, func(tx *sql.Tx) error {

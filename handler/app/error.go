@@ -11,15 +11,21 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/labstack/echo/v5"
 )
 
-const ErrTmpl = "app: cannot render the html template for this page"
+const ErrTmpl = "cannot render the html template for this page"
 
 func logErr(sl *slog.Logger, msg, uri string, code int, err error) {
 	sl.Error(msg, slog.Int("code", code),
 		slog.String("uri", uri), slog.Any("error", err))
+}
+
+func logID(sl *slog.Logger, msg, uri string, id int64, err error) {
+	sl.Error(msg, slog.Int64("file_id", id),
+		slog.String("file_uri", uri), slog.Any("error", err))
 }
 
 // ArtifactErr renders the error page for the artifact links.
@@ -43,7 +49,36 @@ func ArtifactErr(sl *slog.Logger, c *echo.Context, id string) error {
 
 	if rErr := c.Render(code, "status", data); rErr != nil {
 		logErr(sl, msg, id, code, rErr)
-		return InternalErr(sl, c, "status", errorWithID(rErr, id, nil))
+		return InternalErr(sl, c, status, errorWithID(rErr, id, nil))
+	}
+
+	return nil
+}
+
+// ArtifactsErr renders the files error page for the Artifacts menu and categories.
+// It provides different error messages to the standard error page.
+func ArtifactsErr(sl *slog.Logger, c *echo.Context, uri string) error {
+	const msg = "artifacts 404 context"
+	if err := nils.Check(sl, c); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	const code = http.StatusNotFound
+	scode := strconv.Itoa(code)
+	errs := fmt.Sprint("artifact page not found for,", uri)
+	data := empty(c)
+	data["title"] = scode + " error, files page not found"
+	data["description"] = "HTTP status " + scode + " error"
+	data["code"] = code
+	data["logo"] = "Artifacts not found"
+	data["alert"] = "Artifacts page cannot be found"
+	data["probl"] = "The files category or menu option does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "files/"
+	data["uriErr"] = uri
+
+	if rErr := c.Render(code, status, data); rErr != nil {
+		logErr(sl, msg, uri, code, rErr)
+		return InternalErr(sl, c, errs, rErr)
 	}
 
 	return nil
@@ -70,7 +105,7 @@ func BadRequestErr(sl *slog.Logger, c *echo.Context, uri string, err error) erro
 	if err != nil {
 		logErr(sl, msg, uri, code, err)
 	}
-	if rErr := c.Render(code, "status", data); rErr != nil {
+	if rErr := c.Render(code, status, data); rErr != nil {
 		logErr(sl, msg, uri, code, rErr)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
@@ -101,7 +136,7 @@ func DatabaseErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 	if err != nil {
 		logErr(sl, msg+" cannot connect to the database", uri, code, err)
 	}
-	if rErr := c.Render(code, "status", data); rErr != nil {
+	if rErr := c.Render(code, status, data); rErr != nil {
 		logErr(sl, msg, uri, code, rErr)
 		return echo.NewHTTPError(code, ErrTmpl)
 	}
@@ -131,7 +166,7 @@ func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 	if err != nil {
 		logErr(sl, msg+" for record "+id, uri, code, err)
 	}
-	if rErr := c.Render(code, "status", data); rErr != nil {
+	if rErr := c.Render(code, status, data); rErr != nil {
 		logErr(sl, msg, uri, code, rErr)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
@@ -161,7 +196,7 @@ func FileMissingErr(sl *slog.Logger, c *echo.Context, uri string, err error) err
 	if err != nil {
 		logErr(sl, msg+" for record "+id, uri, code, err)
 	}
-	if rErr := c.Render(code, "status", data); rErr != nil {
+	if rErr := c.Render(code, status, data); rErr != nil {
 		logErr(sl, msg, uri, code, rErr)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
@@ -190,7 +225,7 @@ func ForbiddenErr(sl *slog.Logger, c *echo.Context, uri string, err error) error
 		data["probl"] = "This page is not intended for the general public, " + err.Error() + "."
 		logErr(sl, msg, uri, code, err)
 	}
-	if rErr := c.Render(code, "status", data); rErr != nil {
+	if rErr := c.Render(code, status, data); rErr != nil {
 		logErr(sl, msg, uri, code, rErr)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
@@ -233,11 +268,91 @@ func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 	if err != nil {
 		logErr(sl, msg, uri, code, err)
 	}
-	if rErr := c.Render(code, "status", data); rErr != nil {
+	if rErr := c.Render(code, status, data); rErr != nil {
 		logErr(sl, msg, uri, code, rErr)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}
 
+	return nil
+}
+
+// PageErr renders the files page error page for the Artifacts menu and categories.
+// It provides different error messages to the standard error page.
+func PageErr(sl *slog.Logger, c *echo.Context, uri, page string) error {
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf("page 404 context: %w", err)
+	}
+
+	const code = http.StatusNotFound
+	scode := strconv.Itoa(code)
+
+	data := empty(c)
+	data["title"] = scode + " error, files page not found"
+	data["description"] = "HTTP status " + scode + " error"
+	data["code"] = code
+	data["logo"] = "Page not found"
+	data["alert"] = "Artifacts " + uri + " page does not exist"
+	data["probl"] = "The files page does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "files/" + uri + "/"
+	data["uriErr"] = page
+
+	err := c.Render(code, status, data)
+	if err != nil {
+		return InternalErr(sl, c, "page not found for '"+page+"' at "+uri, err)
+	}
+
+	return nil
+}
+
+// ReleaserErr renders the files error page for the Groups menu and invalid releasers.
+func ReleaserErr(sl *slog.Logger, c *echo.Context, invalidID string) error {
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf("releaser 404 context: %w", err)
+	}
+
+	const code = http.StatusNotFound
+	scode := strconv.Itoa(code)
+
+	data := empty(c)
+	data["title"] = scode + " error, releaser page not found"
+	data["description"] = "HTTP status " + scode + " error"
+	data["code"] = code
+	data["logo"] = "Releaser not found"
+	data["alert"] = "Releaser '" + invalidID + "' cannot be found"
+	data["probl"] = "The releaser page does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "g/"
+	data["uriErr"] = invalidID
+
+	err := c.Render(code, status, data)
+	if err != nil {
+		return InternalErr(sl, c, "releaser page not found for, "+invalidID, err)
+	}
+	return nil
+}
+
+// ScenerErr renders the files error page for the People menu and invalid sceners.
+func ScenerErr(sl *slog.Logger, c *echo.Context, id string) error {
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf("scene 404 context: %w", err)
+	}
+
+	code := http.StatusNotFound
+	scode := strconv.Itoa(code)
+
+	data := empty(c)
+	data["title"] = scode + " error, scener page not found"
+	data["description"] = "HTTP status " + scode + " error"
+	data["code"] = code
+	data["logo"] = "Scener not found"
+	data["alert"] = "Scener '" + releaser.Humanize(id) + "' cannot be found"
+	data["probl"] = "The scener page does not exist, there is probably a typo with the URL."
+	data["uriOkay"] = "p/"
+	data["uriErr"] = id
+
+	err := c.Render(code, status, data)
+	if err != nil {
+		return InternalErr(sl, c, "scener page not found for, "+id, err)
+	}
 	return nil
 }
 
@@ -270,7 +385,6 @@ func StatusErr(sl *slog.Logger, c *echo.Context, code int, uri string) error {
 	case http.StatusInternalServerError:
 		return InternalErr(sl, c, uri, nil)
 	default:
-
 		s := http.StatusText(code)
 		if s == "" {
 			logErr(sl, msg, uri, code, ErrStatus)
@@ -292,7 +406,7 @@ func StatusErr(sl *slog.Logger, c *echo.Context, code int, uri string) error {
 	data["probl"] = probl
 	data["uriErr"] = uri
 
-	if rErr := c.Render(code, "status", data); rErr != nil {
+	if rErr := c.Render(code, status, data); rErr != nil {
 		logErr(sl, msg, uri, code, rErr)
 		return echo.NewHTTPError(http.StatusInternalServerError, ErrTmpl)
 	}

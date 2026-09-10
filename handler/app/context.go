@@ -1,4 +1,4 @@
-//nolint:exhaustruct_v5,wrapcheck
+//nolint:exhaustive,exhaustruct_v5,wrapcheck
 package app
 
 // Package file context.go contains the router handlers for the Defacto2 website.
@@ -63,14 +63,6 @@ const (
 	Descriptions                   // Descriptions is the search for file descriptions and titles.
 )
 
-// FixNumericSuffix errors.
-var (
-	ErrMissingObfuscatedID    = errors.New("app: missing obfuscated ID")
-	ErrInvalidObfuscatedID    = errors.New("app: invalid obfuscated ID")
-	ErrFileNotFound           = errors.New("app: file not found")
-	ErrInvalidFilenamePattern = errors.New("app: filename does not match numeric suffix pattern")
-)
-
 type Pagination struct {
 	BaseURL   string // BaseURL is the base URL for the pagination links.
 	CurrPage  int    // CurrPage is the current page number.
@@ -83,10 +75,45 @@ type Pagination struct {
 }
 
 const (
-	limit  = 198 // per-page record limit
-	sep    = ";"
-	az     = ", a-z"
-	byyear = " by year"
+	limit       = 198 // per-page record limit
+	sep         = ";"
+	az          = ", a-z"
+	byyear      = " by year"
+	apps        = "apps"
+	areacodes   = "areacodes"
+	artifact    = "artifact"
+	artifacts   = "artifacts"
+	bbsx        = "bbs"
+	brokentexts = "brokentexts"
+	callback    = "google_callback"
+	categories  = "categories"
+	compression = "compression"
+	configs     = "configs"
+	dx          = "d"
+	fixes       = "fixes"
+	fixers      = "fixers"
+	ftp         = "ftp"
+	history     = "history"
+	index       = "index"
+	interview   = "interview"
+	jsdos       = "jsdos"
+	mag         = "magazine"
+	newx        = "new"
+	pouetx      = "pouet"
+	releaserx   = "releaser"
+	scener      = "scener"
+	searchhtmx  = "searchhtmx"
+	searchpost  = "searchpost"
+	signedout   = "signedout"
+	signin      = "signin"
+	signout     = "signout"
+	status      = "status"
+	routes      = "routes"
+	terms       = "terms"
+	titles      = "titles"
+	thanks      = "thanks"
+	thescene    = "thescene"
+	vx          = "v"
 )
 
 // Empty is a map of default values for an app template that are used by the layout template,
@@ -149,16 +176,19 @@ func APIInfo(sl *slog.Logger, c *echo.Context) error {
 	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf("context api info: %w", err)
 	}
+
 	const title = "API Information"
 	const descr = "A special thanks to the hundreds of contributors and the thousands of contributions."
 	const leadr = "Basic information on how to use the Defacto2 API."
 	const name = "api-info"
+
 	data := empty(c)
 	data["description"] = descr
 	data["h1"] = "RESTful API"
 	data["logo"] = "application programming interface"
 	data["lead"] = leadr
 	data["title"] = title
+
 	err := c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -178,23 +208,23 @@ func Artifacts(sl *slog.Logger, c *echo.Context, db *sql.DB, uri, page string) e
 	ctx := c.Request().Context()
 	switch {
 	case !fileslice.Valid(uri):
-		return Artifacts404(sl, c, uri)
+		return ArtifactsErr(sl, c, uri)
 
 	case page == "":
-		return artifacts(ctx, sl, c, db, uri, 1)
+		return artifactsTable(ctx, sl, c, db, uri, 1)
 
 	default:
 		p, err := strconv.Atoi(page)
 		if err != nil {
-			return Page404(sl, c, uri, page)
+			return PageErr(sl, c, uri, page)
 		}
 
-		return artifacts(ctx, sl, c, db, uri, p)
+		return artifactsTable(ctx, sl, c, db, uri, p)
 	}
 }
 
-// artifacts is a helper function for Artifacts that returns the data map for the files page.
-func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, page int) error {
+// artifactsTable is a helper function for Artifacts that returns the data map for the files page.
+func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, page int) error {
 	const format = "sub-artifacts context: %w"
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
@@ -202,7 +232,6 @@ func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 	const title = "Artifacts"
 	const descr = "Table of contents for the collection of artifacts."
-	const name = "artifacts"
 	logo, subhead, lead := fileslice.FileInfo(uri)
 
 	data := emptyFiles(c)
@@ -225,7 +254,7 @@ func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	}
 	lastPage := math.Ceil(float64(sum) / float64(limit))
 	if page > int(lastPage) {
-		return Page404(sl, c, uri, spage)
+		return PageErr(sl, c, uri, spage)
 	}
 
 	data = artifactsDesc(uri, d[years], sum, data)
@@ -237,7 +266,7 @@ func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 		return DatabaseErr(sl, c, errURI, err)
 	}
 	if len(r) == 0 {
-		if err = c.Render(http.StatusOK, name, data); err != nil {
+		if err = c.Render(http.StatusOK, artifacts, data); err != nil {
 			return InternalErr(sl, c, errURI, err)
 		}
 		return nil
@@ -256,7 +285,7 @@ func artifacts(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 		RangeStep: steps(lastPage),
 	}
 
-	if err = c.Render(http.StatusOK, name, data); err != nil {
+	if err = c.Render(http.StatusOK, artifacts, data); err != nil {
 		return InternalErr(sl, c, errURI, err)
 	}
 
@@ -271,7 +300,7 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 
 	data["noindex"] = true
 
-	switch match { //nolint:exhaustive
+	switch match {
 	case fileslice.NewUploads:
 		data["description"] = "These are the most recent additions of scene history to the site."
 		data["title"] = "New additions"
@@ -314,69 +343,45 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 	return data
 }
 
-// Artifacts404 renders the files error page for the Artifacts menu and categories.
-// It provides different error messages to the standard error page.
-func Artifacts404(sl *slog.Logger, c *echo.Context, uri string) error {
-	const title = "Artifacts not found"
-	const descr = "Artifacts page cannot be found"
-	const probl = "The files category or menu option does not exist, there is probably a typo with the URL."
-	const format = "artifacts 404 context: %w"
+// Apps is the handler for the modern applications and tools page.
+func Apps(sl *slog.Logger, c *echo.Context) error {
+	const format = "apps handler context: %w"
 	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "status"
-	errs := fmt.Sprint("artifact page not found for,", uri)
-	data := empty(c)
-	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
-	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
-	data["code"] = http.StatusNotFound
-	data["logo"] = title
-	data["alert"] = descr
-	data["probl"] = probl
-	data["uriOkay"] = "files/"
-	data["uriErr"] = uri
-	err := c.Render(http.StatusNotFound, name, data)
-	if err != nil {
-		return InternalErr(sl, c, errs, err)
-	}
-	return nil
-}
 
-// Apps is the handler for the modern applications and tools page.
-func Apps(sl *slog.Logger, c *echo.Context) error {
 	const title = "Use current apps"
 	const descr = "Software and application suggestions for using the historic artifacts and " +
 		"file downloads on modern systems."
 	const leadr = "Here are some software suggestions and Windows, Linux, macOS tools for running out-of-date programs " +
 		"and using legacy media formats."
-	const format = "apps handler context: %w"
-	if err := nils.Check(sl, c); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = "apps"
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
 	data["logo"] = "Software suggestions"
 	data["h1"] = "Modern Applications and Tools"
 	data["lead"] = leadr
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, apps, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, apps, err)
 	}
 	return nil
 }
 
 // Areacodes is the handler for the BBS and telephone area codes page.
 func Areacodes(sl *slog.Logger, c *echo.Context) error {
-	const title = "BBS and telephone area codes"
-	const descr = "Lookup and list the North American Numbering Plan (NANP) area codes in common use until 1994."
-	const leadr = "North American Numbering Plan (+1-XXX) telephone area codes until 1994."
-	const logo = "BBS area codes"
 	const format = "areacodes context: %w"
 	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
+	const title = "BBS and telephone area codes"
+	const descr = "Lookup and list the North American Numbering Plan (NANP) area codes in common use until 1994."
+	const leadr = "North American Numbering Plan (+1-XXX) telephone area codes until 1994."
+	const logo = "BBS area codes"
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
@@ -386,39 +391,43 @@ func Areacodes(sl *slog.Logger, c *echo.Context) error {
 	data["telephonecodes"] = areacode.AreaCodes()
 	data["territories"] = areacode.Regions()
 	data["abbreviations"] = areacode.Abbreviations()
-	err := c.Render(http.StatusOK, "areacodes", data)
+
+	err := c.Render(http.StatusOK, areacodes, data)
 	if err != nil {
-		return InternalErr(sl, c, "areacodes", err)
+		return InternalErr(sl, c, areacodes, err)
 	}
 	return nil
 }
 
 // Artist is the handler for the Artist sceners page.
 func Artist(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const title = "Pixel artists and graphic designers"
 	const format = "artist context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
+	const title = "Pixel artists and graphic designers"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["noindex"] = true
+
 	ctx := c.Request().Context()
-	return scener(ctx, sl, c, db, postgres.Artist, data)
+	return scenerPage(ctx, sl, c, db, postgres.Artist, data)
 }
 
-// scener is the handler for the scener pages.
-func scener(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role,
+// scenerPage is the handler for the scenerPage pages.
+func scenerPage(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role,
 	data map[string]any,
 ) error {
-	const descr = "This is a massive but incomplete list of aliases and pseudonyms used " +
-		"in the Scene and offers links to individual profiles."
-	const name = "scener"
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("scener context: %w", err)
 	}
+
+	const descr = "This is a massive but incomplete list of aliases and pseudonyms used " +
+		"in the Scene and offers links to individual profiles."
+
 	s := model.Sceners{}
 	var err error
 	switch r {
@@ -437,8 +446,9 @@ func scener(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, r
 		err = fmt.Errorf("unknown role %s: %w", r, model.ErrModel)
 	}
 	if err != nil {
-		return DatabaseErr(sl, c, name, err)
+		return DatabaseErr(sl, c, scener, err)
 	}
+
 	data["sceners"] = s.Sort()
 	data["description"] = descr
 	data["lead"] = "This page shows the sceners and people credited for their work in The Scene." +
@@ -448,9 +458,10 @@ func scener(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, r
 		" Sceners often used different names or spellings on their work, including character" +
 		" swaps, aliases, initials, and even single-letter signatures." +
 		"</small>"
-	err = c.Render(http.StatusOK, name, data)
+
+	err = c.Render(http.StatusOK, scener, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, scener, err)
 	}
 	return nil
 }
@@ -475,16 +486,17 @@ func BBSYear(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // bbsHandler is the handler for the BBS page.
 func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
-	const title = "BBS"
-	const leadr = "Bulletin Board Systems were personal computers networked using the copper telephone network " +
-		"and provided communication services, file hosting and exchanges."
-	const logo = "Bulletin Board Systems"
 	const format = "bbs handler context: %w"
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "bbs"
+
+	const title = "BBS"
+	const leadr = "Bulletin Board Systems were personal computers networked using the copper telephone network " +
+		"and provided communication services, file hosting and exchanges."
+	const logo = "Bulletin Board Systems"
 	const key = "releasers"
+
 	data := empty(c)
 	data["noindex"] = true
 	data["title"] = "Former " + title
@@ -492,15 +504,17 @@ func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	data["logo"] = logo
 	data["h1"] = title
 	data["lead"] = leadr
-	data["itemName"] = name
+	data["itemName"] = bbsx
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
+
 	r := model.Releasers{}
 	if err := orderBy.BBS(ctx, db, &r); err != nil {
-		return DatabaseErr(sl, c, name, err)
+		return DatabaseErr(sl, c, bbsx, err)
 	}
+
 	data[key] = r
-	tmpl := name
+	tmpl := bbsx
 	var order string
 	switch orderBy {
 	case model.Alphabetical:
@@ -523,38 +537,42 @@ func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 		// Handle unknown order types
 		order = alpha
 	}
+
 	data["stats"] = map[string]string{
 		pubs:   fmt.Sprintf("%d boards", len(r)),
 		ordrby: order,
 	}
+
 	err := c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, bbsx, err)
 	}
 	return nil
 }
 
 // BrokenTexts is the handler for the Broken texts page.
 func BrokenTexts(sl *slog.Logger, c *echo.Context) error {
+	const format = "broken texts context: %w"
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
 	const title = "Broken texts!?"
 	const descr = "Learn why there are broken encodings, unreadable texts and corrupted nfo files."
 	const leadr = "Unfortunately, there are large numbers of incomplete, inaccurate, " +
 		"or corrupted information texts (NFOs). While we'd prefer to offer a pristine copy of a Scene text, " +
 		"hosting a broken text is more useful than offering nothing."
-	const format = "broken texts context: %w"
-	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = "brokentexts"
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
 	data["logo"] = "Broken text files and NFOs"
 	data["h1"] = "Broken text files"
 	data["lead"] = leadr
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, brokentexts, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, brokentexts, err)
 	}
 	return nil
 }
@@ -565,8 +583,11 @@ func Checksum(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	const uri = "sum"
+
 	ctx := c.Request().Context()
+
 	if err := download.Checksum(ctx, c, db, id); err != nil {
 		if errors.Is(err, download.ErrStat) {
 			return FileMissingErr(sl, c, uri, err)
@@ -578,55 +599,59 @@ func Checksum(sl *slog.Logger, c *echo.Context, db *sql.DB, id string) error {
 
 // Coder is the handler for the Coder sceners page.
 func Coder(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const title = "Coder and programmers"
 	const format = "coder context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
+	const title = "Coder and programmers"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["noindex"] = true
-	ctx := c.Request().Context()
 
-	return scener(ctx, sl, c, db, postgres.Writer, data)
+	ctx := c.Request().Context()
+	return scenerPage(ctx, sl, c, db, postgres.Writer, data)
 }
 
 // Compression is the handler for information on historic compression tools page.
 func Compression(sl *slog.Logger, c *echo.Context) error {
-	const title = "Compression and archiving formats"
-	const descr = "Old file archives and compression methods used in the 1980s on the PC."
-	const leadr = "Compression and archiving formats of the 1980s were evolving by the month, " +
-		"and today, are hard to parse."
 	const format = "compression context: %w"
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "compression"
+
+	const title = "Compression and archiving formats"
+	const descr = "Old file archives and compression methods used in the 1980s on the PC."
+	const leadr = "Compression and archiving formats of the 1980s were evolving by the month, " +
+		"and today, are hard to parse."
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
 	data["logo"] = "Old archives"
 	data["h1"] = "File compression formats"
 	data["lead"] = leadr
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, compression, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, compression, err)
 	}
 	return nil
 }
 
 // Configurations is the handler for the Configuration page.
 func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Config) error {
-	const title = "Configs"
-	const descr = "Defacto2 configurations."
-	const leadr = "The web application configurations, tools and links to special records."
 	const format = "configurations context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "configs"
+
+	const title = "Configs"
+	const descr = "Defacto2 configurations."
+	const leadr = "The web application configurations, tools and links to special records."
+
 	data := empty(c)
 	data["description"] = descr
 	data["h1"] = "Configurations"
@@ -638,10 +663,12 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 	data["countNewUpload"] = 0
 	data["countHidden"] = 0
 	data["uuidVersions"] = ""
+
 	ctx := c.Request().Context()
 	// As we are collecting stats of both the file system and database, we may as well do it cocurrently
 	var wg sync.WaitGroup
 	var mu sync.Mutex
+
 	wg.Go(func() {
 		mu.Lock()
 		ca, cp, cnu, err := model.Counts(ctx, db)
@@ -654,11 +681,13 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 		data["countHidden"] = ca - cp - cnu
 		mu.Unlock()
 	})
+
 	wg.Go(func() {
 		mu.Lock()
 		data = configurations(data, conf)
 		mu.Unlock()
 	})
+
 	wg.Go(func() {
 		mu.Lock()
 		vers, err := model.UUIDs(ctx, db)
@@ -668,24 +697,27 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 		data["uuidVersions"] = vers
 		mu.Unlock()
 	})
+
 	wg.Wait()
 	if db == nil {
 		data["dbConnections"] = "database not set"
-		err := c.Render(http.StatusOK, name, data)
+		err := c.Render(http.StatusOK, configs, data)
 		if err != nil {
-			return InternalErr(sl, c, name, err)
+			return InternalErr(sl, c, configs, err)
 		}
 		return nil
 	}
+
 	count, maximum, err := postgres.Connections(ctx, db)
 	if err != nil {
 		data["dbConnections"] = err.Error()
 	} else {
 		data["dbConnections"] = fmt.Sprintf("%d of %d", count, maximum)
 	}
-	err = c.Render(http.StatusOK, name, data)
+
+	err = c.Render(http.StatusOK, configs, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, configs, err)
 	}
 	return nil
 }
@@ -694,31 +726,37 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 func configurations(data map[string]any, conf config.Config) map[string]any {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
+
 	wg.Go(func() {
 		mu.Lock()
 		data = downloader(data, conf)
 		mu.Unlock()
 	})
+
 	wg.Go(func() {
 		mu.Lock()
 		data = previewer(data, conf)
 		mu.Unlock()
 	})
+
 	wg.Go(func() {
 		mu.Lock()
 		data = thumbnailer(data, conf)
 		mu.Unlock()
 	})
+
 	wg.Go(func() {
 		mu.Lock()
 		data = extraer(data, conf)
 		mu.Unlock()
 	})
+
 	wg.Go(func() {
 		mu.Lock()
 		data = orphaneder(data, conf)
 		mu.Unlock()
 	})
+
 	wg.Go(func() {
 		mu.Lock()
 		wdt, wdu, _, wdp, _ := helper.DiskStat(conf.AbsDownload.String())
@@ -727,17 +765,20 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 		data["wdPercent"] = wdp
 		mu.Unlock()
 	})
+
 	wg.Wait()
+
 	return data
 }
 
 func downloader(data map[string]any, conf config.Config) map[string]any {
-	download := dir.Directory(string(conf.AbsDownload))
-	check := config.CheckDir(download, "downloads")
-	data["checkDownloads"] = check
 	data["countDownloads"] = 0
 	data["usageDownloads"] = 0
 	data["extsDownloads"] = []helper.Extension{}
+
+	download := dir.Directory(string(conf.AbsDownload))
+	check := config.CheckDir(download, "downloads")
+	data["checkDownloads"] = check
 	if check == nil {
 		c, _ := helper.Count(string(conf.AbsDownload))
 		data["countDownloads"] = humanize.Comma(int64(c))
@@ -746,16 +787,18 @@ func downloader(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(string(conf.AbsDownload))
 		data["extsDownloads"] = exts
 	}
+
 	return data
 }
 
 func previewer(data map[string]any, conf config.Config) map[string]any {
-	preview := dir.Directory(conf.AbsPreview)
-	check := config.CheckDir(preview, "previews")
-	data["checkPreviews"] = check
 	data["countPreviews"] = 0
 	data["usagePreviews"] = 0
 	data["extsPreviews"] = []helper.Extension{}
+
+	preview := dir.Directory(conf.AbsPreview)
+	check := config.CheckDir(preview, "previews")
+	data["checkPreviews"] = check
 	if check == nil {
 		c, _ := helper.Count(conf.AbsPreview.String())
 		data["countPreviews"] = humanize.Comma(int64(c))
@@ -764,16 +807,18 @@ func previewer(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(conf.AbsPreview.String())
 		data["extsPreviews"] = exts
 	}
+
 	return data
 }
 
 func thumbnailer(data map[string]any, conf config.Config) map[string]any {
-	thumbnail := dir.Directory(conf.AbsThumbnail)
-	check := config.CheckDir(thumbnail, "thumbnails")
-	data["checkThumbnails"] = check
 	data["countThumbnails"] = 0
 	data["usageThumbnails"] = 0
 	data["extsThumbnails"] = []helper.Extension{}
+
+	thumbnail := dir.Directory(conf.AbsThumbnail)
+	check := config.CheckDir(thumbnail, "thumbnails")
+	data["checkThumbnails"] = check
 	if check == nil {
 		c, _ := helper.Count(conf.AbsThumbnail.String())
 		data["countThumbnails"] = humanize.Comma(int64(c))
@@ -782,16 +827,18 @@ func thumbnailer(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(conf.AbsThumbnail.String())
 		data["extsThumbnails"] = exts
 	}
+
 	return data
 }
 
 func extraer(data map[string]any, conf config.Config) map[string]any {
-	extra := dir.Directory(conf.AbsExtra)
-	check := config.CheckDir(extra, "extra")
-	data["checkExtras"] = check
 	data["countExtras"] = 0
 	data["usageExtras"] = 0
 	data["extsExtras"] = []helper.Extension{}
+
+	extra := dir.Directory(conf.AbsExtra)
+	check := config.CheckDir(extra, "extra")
+	data["checkExtras"] = check
 	if check == nil {
 		c, _ := helper.Count(conf.AbsExtra.String())
 		data["countExtras"] = humanize.Comma(int64(c))
@@ -800,16 +847,18 @@ func extraer(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(conf.AbsExtra.String())
 		data["extsExtras"] = exts
 	}
+
 	return data
 }
 
 func orphaneder(data map[string]any, conf config.Config) map[string]any {
-	orphaned := dir.Directory(conf.AbsOrphaned.String())
-	check := config.CheckDir(orphaned, "orphaned")
-	data["checkOrphaned"] = check
 	data["countOrphaned"] = 0
 	data["usageOrphaned"] = 0
 	data["extsOrphaned"] = []helper.Extension{}
+
+	orphaned := dir.Directory(conf.AbsOrphaned.String())
+	check := config.CheckDir(orphaned, "orphaned")
+	data["checkOrphaned"] = check
 	if check == nil {
 		c, _ := helper.Count(conf.AbsOrphaned.String())
 		data["countOrphaned"] = humanize.Comma(int64(c))
@@ -818,6 +867,7 @@ func orphaneder(data map[string]any, conf config.Config) map[string]any {
 		exts, _ := helper.CountExts(conf.AbsOrphaned.String())
 		data["extsOrphaned"] = exts
 	}
+
 	return data
 }
 
@@ -825,24 +875,24 @@ func orphaneder(data map[string]any, conf config.Config) map[string]any {
 // mounted as a C: hard drive in the emulation. js-dos only supports common zip compression methods,
 // so this func first attempts to offer a re-archived zip file found in the extra directory, and
 // only if that fails does it offer the original download file.
-func DownloadJsDos(
-	sl *slog.Logger, c *echo.Context, db *sql.DB, extra, downl dir.Directory,
+func DownloadJsDos(sl *slog.Logger, c *echo.Context, db *sql.DB, extra, downl dir.Directory,
 ) error {
 	const format = "download jsdos context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	e := download.ExtraZip{
 		Extra:    extra,
 		Download: downl,
 	}
-	const uri = "jsdos"
+
 	ctx := c.Request().Context()
 	if err := e.HTTPSend(ctx, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
-			return FileMissingErr(sl, c, uri, err)
+			return FileMissingErr(sl, c, jsdos, err)
 		}
-		return DownloadErr(sl, c, uri, err)
+		return DownloadErr(sl, c, jsdos, err)
 	}
 	return nil
 }
@@ -853,72 +903,78 @@ func Download(sl *slog.Logger, c *echo.Context, db *sql.DB, path dir.Directory) 
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	d := download.Download{
 		Inline: false,
 		Dir:    path,
 	}
-	const uri = "d"
+
 	if id := c.Param("id"); id != "" {
 		r := c.Response()
-		const format = `<https://defacto2.net/%s/%s; rel=canon>`
-		r.Header().Set("Link", fmt.Sprintf(format, uri, id))
+		r.Header().Set("Link", `<https://defacto2.net/`+dx+`/`+id+`; rel=canon>`)
 	}
+
 	if err := d.HTTPSend(sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
-			return FileMissingErr(sl, c, uri, err)
+			return FileMissingErr(sl, c, dx, err)
 		}
-		return DownloadErr(sl, c, uri, err)
+		return DownloadErr(sl, c, dx, err)
 	}
 	return nil
 }
 
 // FTP is the handler for the FTP page.
 func FTP(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const title = "FTP"
-	const descr = "FTP sites were Internet-based file exchange servers that would host and share Scene releases."
 	const format = "ftp context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "ftp"
+
+	const title = "FTP"
+	const descr = "FTP sites were Internet-based file exchange servers that would host and share Scene releases."
 	data := empty(c)
-	const key = "releasers"
 	data["title"] = "Former " + title + " sites"
 	data["description"] = descr
 	data["logo"] = "FTP sites, A-Z"
 	data["h1"] = title
 	data["lead"] = descr
+
 	// releaser.html specific data items
-	data["itemName"] = name
+	data["itemName"] = ftp
+	const key = "releasers"
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
+
 	r := model.Releasers{}
 	ctx := c.Request().Context()
 	if err := r.FTP(ctx, db); err != nil {
-		return DatabaseErr(sl, c, name, err)
+		return DatabaseErr(sl, c, ftp, err)
 	}
 	data[key] = r
+
 	data["stats"] = map[string]string{
 		pubs:   fmt.Sprintf("%d sites", len(r)),
 		ordrby: alpha,
 	}
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, ftp, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, ftp, err)
 	}
 	return nil
 }
 
 // Categories is the handler for the artifact categories page.
 func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error {
-	const title = "Artifact categories"
-	const descr = "A table of contents for the collection."
-	const leadr = "This page shows the categories and platforms in the collection of file artifacts."
 	const format = "categories context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "categories"
+
+	const title = "Artifact categories"
+	const descr = "A table of contents for the collection."
+	const leadr = "This page shows the categories and platforms in the collection of file artifacts."
+
 	data := empty(c)
 	data["noindex"] = true
 	data["title"] = title
@@ -935,32 +991,36 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 		sl.Warn("context_categories", slog.Any("error", err))
 		data["databaseErr"] = true
 	}
-	err = c.Render(http.StatusOK, name, data)
+
+	err = c.Render(http.StatusOK, categories, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, categories, err)
 	}
 	return nil
 }
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
 func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
-	const title = "Artifact category statistics"
-	const descr = "This page shows the artifacts categories with selected statistics, " +
-		"such as the number of files in the category or platform."
 	empty := make(map[string]any)
 	if err := nils.Check(ctx, db); err != nil {
 		return empty, fmt.Errorf("file with stats: %w", err)
 	}
+
+	const title = "Artifact category statistics"
+	const descr = "This page shows the artifacts categories with selected statistics, " +
+		"such as the number of files in the category or platform."
 	if data == nil {
 		data = empty
 	}
 	if !stats {
 		return data, nil
 	}
+
 	c, err := fileslice.Counter(ctx, db)
 	if err != nil {
 		return data, fmt.Errorf("counter: %w", err)
 	}
+
 	data["counter"] = c
 	data["orderByBytes"] = c.SortByte()
 	data["orderByCount"] = c.SortCount()
@@ -968,6 +1028,7 @@ func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool
 	data["orderByYear"] = c.SortYear()
 	data["logo"] = title
 	data["lead"] = descr
+
 	return data, nil
 }
 
@@ -977,85 +1038,95 @@ func Deletions(sl *slog.Logger, c *echo.Context, db *sql.DB, page string) error 
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	uri := fileslice.Deletions.String()
 	if !fileslice.Valid(uri) {
-		return Artifacts404(sl, c, uri)
+		return ArtifactsErr(sl, c, uri)
 	}
+
 	ctx := c.Request().Context()
 	if page == "" {
-		return artifacts(ctx, sl, c, db, uri, 1)
+		return artifactsTable(ctx, sl, c, db, uri, 1)
 	}
+
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return Page404(sl, c, uri, page)
+		return PageErr(sl, c, uri, page)
 	}
-	return artifacts(ctx, sl, c, db, uri, p)
+
+	return artifactsTable(ctx, sl, c, db, uri, p)
 }
 
 // Fixes is the handler for the problems and fixes page.
 func Fixes(sl *slog.Logger, c *echo.Context) error {
-	const title = "Problems and fixes"
-	const descr = "Fix common errors found in applications and tools authored by the Scene for Windows and DOS."
-	const leadr = "Shrinker dispatcher or runtime 200 errors, or missing NPMOD32.DLL or D3DRM.DLL files?"
 	const format = "fixes for programs context: %w"
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "fixes"
+
+	const title = "Problems and fixes"
+	const descr = "Fix common errors found in applications and tools authored by the Scene for Windows and DOS."
+	const leadr = "Shrinker dispatcher or runtime 200 errors, or missing NPMOD32.DLL or D3DRM.DLL files?"
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
 	data["logo"] = title
 	data["h1"] = "Common problems and fixes"
 	data["lead"] = leadr
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, fixes, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, fixes, err)
 	}
 	return nil
 }
 
 // Routes is the handler for the listing of all the routes page.
 func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
-	const title = "List of routes"
-	const descr = "Lists the web browser routes and parameters registered by the web application."
 	const format = "routes context: %w"
 	if err := nils.Check(sl, c, r); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "routes"
+
+	const title = "List of routes"
+	const descr = "Lists the web browser routes and parameters registered by the web application."
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
 	data["logo"] = "Routes"
 	data["routesList"] = r
 	data["routesCount"] = len(r)
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, routes, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, routes, err)
 	}
 	return nil
 }
 
 // Terms is the handler for the problems and fixes page.
 func Terms(sl *slog.Logger, c *echo.Context) error {
-	const title = "Common terms"
-	const descr = "This is a list of the unique and common terms used in the scene."
-	const leadr = "A glossary of unique and common terms used in The Scene."
 	const format = "glossary of terms context: %w"
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "terms"
+
+	const title = "Common terms"
+	const descr = "This is a list of the unique and common terms used in the scene."
+	const leadr = "A glossary of unique and common terms used in The Scene."
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
 	data["logo"] = "Glossary of terms"
 	data["h1"] = "Glossary of common terms"
 	data["lead"] = leadr
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, terms, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, terms, err)
 	}
 	return nil
 }
@@ -1066,19 +1137,23 @@ func Unwanted(sl *slog.Logger, c *echo.Context, db *sql.DB, page string) error {
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	uri := fileslice.Unwanted.String()
 	if !fileslice.Valid(uri) {
-		return Artifacts404(sl, c, uri)
+		return ArtifactsErr(sl, c, uri)
 	}
+
 	ctx := c.Request().Context()
 	if page == "" {
-		return artifacts(ctx, sl, c, db, uri, 1)
+		return artifactsTable(ctx, sl, c, db, uri, 1)
 	}
+
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return Page404(sl, c, uri, page)
+		return PageErr(sl, c, uri, page)
 	}
-	return artifacts(ctx, sl, c, db, uri, p)
+
+	return artifactsTable(ctx, sl, c, db, uri, p)
 }
 
 // ForApproval is the handler for the list and preview of the files page.
@@ -1089,19 +1164,23 @@ func ForApproval(sl *slog.Logger, c *echo.Context, db *sql.DB, page string) erro
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	uri := fileslice.ForApproval.String()
 	if !fileslice.Valid(uri) {
-		return Artifacts404(sl, c, uri)
+		return ArtifactsErr(sl, c, uri)
 	}
+
 	ctx := c.Request().Context()
 	if page == "" {
-		return artifacts(ctx, sl, c, db, uri, 1)
+		return artifactsTable(ctx, sl, c, db, uri, 1)
 	}
+
 	p, err := strconv.Atoi(page)
 	if err != nil {
-		return Page404(sl, c, uri, page)
+		return PageErr(sl, c, uri, page)
 	}
-	return artifacts(ctx, sl, c, db, uri, p)
+
+	return artifactsTable(ctx, sl, c, db, uri, p)
 }
 
 // GetDemozooParam fetches the multiple download_links values from the
@@ -1117,6 +1196,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	if err := nils.Check(sl, c, tx); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	got := remote.Demozoo(0, "", download, 0)
 	id, err := echo.PathParam[int](c, "id")
 	if err != nil {
@@ -1124,12 +1204,14 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.ID = id
+
 	unid := c.QueryParam("unid")
 	if err = uuid.Validate(unid); err != nil {
 		got.Error = "uuid syntax did not validate, " + unid
 		return c.JSON(http.StatusBadRequest, got)
 	}
 	got.UUID = unid
+
 	ctx := c.Request().Context()
 	return got.Download(ctx, sl, c, tx)
 }
@@ -1168,7 +1250,7 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "google/callback"
+
 	// Cross-Site Request Forgery cookie token
 	const csrf = "g_csrf_token"
 	cookie, err := c.Cookie(csrf)
@@ -1176,14 +1258,14 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 		if errors.Is(err, http.ErrNoCookie) {
 			return c.Redirect(http.StatusForbidden, "/signin")
 		}
-		return BadRequestErr(sl, c, name, err)
+		return BadRequestErr(sl, c, callback, err)
 	}
 	token := cookie.Value
 
 	// Cross-Site Request Forgery post token
 	bodyToken := c.FormValue(csrf)
 	if token != bodyToken {
-		return BadRequestErr(sl, c, name, ErrMisMatch)
+		return BadRequestErr(sl, c, callback, ErrMisMatch)
 	}
 
 	// Create a new token verifier.
@@ -1191,14 +1273,14 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 	ctx := c.Request().Context()
 	validator, err := idtoken.NewValidator(ctx)
 	if err != nil {
-		return BadRequestErr(sl, c, name, err)
+		return BadRequestErr(sl, c, callback, err)
 	}
 
 	// Verify the ID token and using the client ID from the Google API.
 	credential := c.FormValue("credential")
 	playload, err := validator.Validate(ctx, credential, clientID)
 	if err != nil {
-		return BadRequestErr(sl, c, name, err)
+		return BadRequestErr(sl, c, callback, err)
 	}
 
 	// Verify the sub value against the list of allowed accounts.
@@ -1214,11 +1296,11 @@ func GoogleCallback(sl *slog.Logger, c *echo.Context, clientID string, maxAge in
 	if !check {
 		sub := playload.Claims["sub"]
 		const format = "%w. If this is a mistake, contact Defacto2 admin and give them this Google account ID: %s"
-		return ForbiddenErr(sl, c, name, fmt.Errorf(format, ErrUser, sub))
+		return ForbiddenErr(sl, c, callback, fmt.Errorf(format, ErrUser, sub))
 	}
 
 	if err = sessionHandler(c, maxAge, playload.Claims); err != nil {
-		return BadRequestErr(sl, c, name, err)
+		return BadRequestErr(sl, c, callback, err)
 	}
 	return c.Redirect(http.StatusFound, "/")
 }
@@ -1234,10 +1316,12 @@ func sessionHandler(c *echo.Context, maxAge int, claims map[string]any,
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	session, err := session.Get(sess.Name, c)
 	if err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	// session Options are cookie options and are all optional
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
 	const hour = 60 * 60
@@ -1267,15 +1351,16 @@ func sessionHandler(c *echo.Context, maxAge int, claims map[string]any,
 
 // History is the handler for the History page.
 func History(sl *slog.Logger, c *echo.Context) error {
-	const title = "The history of the brand"
-	const descr = "Learn about the many iterations of Defacto2 and the original DeFacto magazine from 1996."
-	const leadr = "In the past, alternative iterations of the name have included" +
-		" De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
 	const format = "history context: %w"
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "history"
+
+	const title = "The history of the brand"
+	const descr = "Learn about the many iterations of Defacto2 and the original DeFacto magazine from 1996."
+	const leadr = "In the past, alternative iterations of the name have included" +
+		" De Facto, DF, DeFacto, Defacto II, Defacto 2, and the defacto2.com domain."
+
 	data := empty(c)
 	data["carousel"] = `#carouselDf2Artpacks`
 	data["description"] = descr
@@ -1283,24 +1368,26 @@ func History(sl *slog.Logger, c *echo.Context) error {
 	data["h1"] = title
 	data["lead"] = leadr
 	data["title"] = title
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, history, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, history, err)
 	}
 	return nil
 }
 
 // Index is the handler for the Home page.
 func Index(sl *slog.Logger, c *echo.Context) error {
-	const title = "Introduction and milestones"
-	const h1 = "The subcultures of obsolete microcomputers"
 	const format = "index context: %w"
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "index"
+
+	const title = "Introduction and milestones"
+	const h1 = "The subcultures of obsolete microcomputers"
+
 	data := empty(c)
-	// note: if the title get's changed, the indexJS conditional in layout.tmpl needs updating
+	// NOTE: if the title get's changed, the indexJS conditional in layout.tmpl needs updating
 	data["title"] = title
 	data[canonical] = "/"
 	data["h1"] = h1
@@ -1316,9 +1403,10 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 			}
 		}
 	}
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, index, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, index, err)
 	}
 	return nil
 }
@@ -1329,31 +1417,33 @@ func Inline(sl *slog.Logger, c *echo.Context, db *sql.DB, path dir.Directory) er
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	d := download.Download{
 		Inline: true,
 		Dir:    path,
 	}
-	const uri = "v"
+
 	if err := d.HTTPSend(sl, c, db); err != nil {
 		if errors.Is(err, download.ErrStat) {
-			return FileMissingErr(sl, c, uri, err)
+			return FileMissingErr(sl, c, vx, err)
 		}
-		return DownloadErr(sl, c, uri, err)
+		return DownloadErr(sl, c, vx, err)
 	}
 	return nil
 }
 
 // Interview is the handler for the People Interviews page.
 func Interview(sl *slog.Logger, c *echo.Context) error {
-	const title = "Interviews with former Sceners"
-	const descr = "A collection of historical interviews and discussions with former members of the Scene."
-	const leadr = "Here is a centralized page for the discussions and unedited" +
-		" interviews with former sceners, crackers, and demo makers."
 	const format = "interview context: %w"
 	if err := nils.Check(c, sl); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "interview"
+
+	const title = "Interviews with former Sceners"
+	const descr = "A collection of historical interviews and discussions with former members of the Scene."
+	const leadr = "Here is a centralized page for the discussions and unedited" +
+		" interviews with former sceners, crackers, and demo makers."
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
@@ -1361,9 +1451,10 @@ func Interview(sl *slog.Logger, c *echo.Context) error {
 	data["h1"] = title
 	data["lead"] = leadr
 	data["interviews"] = Interviewees()
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, interview, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, interview, err)
 	}
 	return nil
 }
@@ -1380,16 +1471,17 @@ func MagazineAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // magazines is the handler for the magazine page.
 func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, chronological bool) error {
-	const title = "Magazines"
-	const descr = "Scene magazines are the newsletters, reports, " +
-		"and publications on the activities of the subculture community."
 	const format = "magazines context: %w"
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "magazine"
+
+	const title = "Magazines"
+	const descr = "Scene magazines are the newsletters, reports, " +
+		"and publications on the activities of the subculture community."
 	const issue = "issue"
 	const key = "releasers"
+
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
@@ -1402,20 +1494,21 @@ func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 	var order string
 	r := model.Releasers{}
-	render := name
+	render := mag
+
 	switch chronological {
 	case true:
 		if err := r.Magazine(ctx, db); err != nil {
-			return DatabaseErr(sl, c, name, err)
+			return DatabaseErr(sl, c, mag, err)
 		}
 		s := title + byyear
 		data["logo"] = s
 		data["title"] = title + byyear
 		order = byYear
 	case false:
-		render = name + "-az"
+		render = mag + "-az"
 		if err := r.MagazineAZ(ctx, db); err != nil {
-			return DatabaseErr(sl, c, name, err)
+			return DatabaseErr(sl, c, mag, err)
 		}
 		data["noindex"] = true
 		s := title + az
@@ -1426,43 +1519,49 @@ func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 		// Handle unknown order types
 		order = alpha
 	}
+
 	data[key] = r
 	data["stats"] = map[string]string{
 		pubs:   fmt.Sprintf("%d publications", len(r)),
 		ordrby: order,
 	}
+
 	err := c.Render(http.StatusOK, render, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, mag, err)
 	}
 	return nil
 }
 
 // Musician is the handler for the Musiciansceners page.
 func Musician(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const title = "Musicians and composers"
 	const format = "musician context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
+	const title = "Musicians and composers"
+
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["noindex"] = true
+
 	ctx := c.Request().Context()
-	return scener(ctx, sl, c, db, postgres.Musician, data)
+	return scenerPage(ctx, sl, c, db, postgres.Musician, data)
 }
 
 // New is the handler for the what is new page.
 func New(sl *slog.Logger, c *echo.Context) error {
-	const title = "New stuff"
-	const descr = `What is new on the Defacto2 website?`
-	const leadr = `This quaint page does not appeal to algorithms, so who will see it?`
 	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf("new context: %w", err)
 	}
-	const name = "new"
+
+	const title = "New stuff"
+	const descr = `What is new on the Defacto2 website?`
+	const leadr = `This quaint page does not appeal to algorithms, so who will see it?`
+
 	data := empty(c)
 	data["noindex"] = true // apply noindex to what's new, so we don't have to worry using about <a href rel="nofollow">
 	data["description"] = descr
@@ -1471,36 +1570,10 @@ func New(sl *slog.Logger, c *echo.Context) error {
 	data["lead"] = leadr
 	data["title"] = title
 	data["carousel"] = "#carouselWhatsNew"
-	err := c.Render(http.StatusOK, name, data)
-	if err != nil {
-		return InternalErr(sl, c, name, err)
-	}
-	return nil
-}
 
-// Page404 renders the files page error page for the Artifacts menu and categories.
-// It provides different error messages to the standard error page.
-func Page404(sl *slog.Logger, c *echo.Context, uri, page string) error {
-	const title = "Page not found"
-	const descr = "The files page does not exist, there is probably a typo with the URL."
-	const format = "page 404 context: %w"
-	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = "status"
-	errs := fmt.Sprintf("page not found for %q at %q", page, uri)
-	data := empty(c)
-	data["title"] = fmt.Sprintf("%d error, files page not found", http.StatusNotFound)
-	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
-	data["code"] = http.StatusNotFound
-	data["logo"] = title
-	data["alert"] = fmt.Sprintf("Artifacts %s page does not exist", uri)
-	data["probl"] = descr
-	data["uriOkay"] = fmt.Sprintf("files/%s/", uri)
-	data["uriErr"] = page
-	err := c.Render(http.StatusNotFound, name, data)
+	err := c.Render(http.StatusOK, newx, data)
 	if err != nil {
-		return InternalErr(sl, c, errs, err)
+		return InternalErr(sl, c, newx, err)
 	}
 	return nil
 }
@@ -1512,10 +1585,12 @@ func EditFn(sl *slog.Logger, c *echo.Context, db *sql.DB,
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
+
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
+
 	ctx := c.Request().Context()
 	r, err := model.One(ctx, db, true, f.ID)
 	if err != nil {
@@ -1552,14 +1627,17 @@ func PlatformTagInfo(c *echo.Context) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
+
 	info, err := tags.Platform(f.Platform, f.Tag)
 	if err != nil {
 		return badRequest(c, err)
 	}
+
 	return c.String(http.StatusOK, info)
 }
 
@@ -1569,12 +1647,13 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	if s := strings.TrimSpace(input); s == "" {
 		// Redirect back to the search form
 		return c.Redirect(http.StatusFound, "/search/desc")
 	}
-	const name = "artifacts"
-	errs := fmt.Sprint("post desc search for,", input)
+
+	errs := "post desc search for, " + input
 	inputs := helper.SearchTerm(input)
 	// Clean terms by removing empty strings from trailing commas
 	terms := make([]string, 0, len(inputs))
@@ -1583,10 +1662,12 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 			terms = append(terms, trimmed)
 		}
 	}
+
 	ctx := c.Request().Context()
 	fs, _ := model.OnlyDescriptions(ctx, sl, db, terms)
 	d := Descriptions.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
+
 	data := emptyFiles(c)
 	const brief = "Game or app titles"
 	data["title"] = brief + " results"
@@ -1597,7 +1678,8 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 	data["unknownYears"] = false
 	data[records] = fs
 	data["stats"] = d
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, artifacts, data)
 	if err != nil {
 		return InternalErr(sl, c, errs, err)
 	}
@@ -1611,18 +1693,18 @@ func PostFilename(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // PostName is the handler for the Search for filenames form post page.
 func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) error {
-	const title = "Filename results"
-	const h1 = "Filename search"
 	const format = "post name context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
+	const title = "Filename results"
+	const h1 = "Filename search"
 	input := c.FormValue("search-term-query")
 	if s := strings.TrimSpace(input); s == "" {
 		// Redirect back to the search form
 		return c.Redirect(http.StatusFound, "/search/file")
 	}
-	const name = "artifacts"
 	errs := fmt.Sprint("post name search for,", mode)
 	inputs := helper.SearchTerm(input)
 	// Clean terms by removing empty strings from trailing commas
@@ -1632,10 +1714,12 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 			terms = append(terms, trimmed)
 		}
 	}
+
 	ctx := c.Request().Context()
 	fs, _ := model.OnlyFilenames(ctx, db, terms)
 	d := mode.postStats(ctx, db, terms)
 	s := strings.Join(terms, ", ")
+
 	data := emptyFiles(c)
 	data["title"] = title
 	data["h1"] = h1
@@ -1645,7 +1729,8 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 	data["unknownYears"] = false
 	data[records] = fs
 	data["stats"] = d
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, artifacts, data)
 	if err != nil {
 		return InternalErr(sl, c, errs, err)
 	}
@@ -1654,20 +1739,17 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 
 // postStats is a helper function for PostName that returns the statistics for the files page.
 func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
-	// TODO: log errors
 	none := func() map[string]string {
-		return map[string]string{
-			files: "no files found",
-			years: "",
-		}
+		// TODO: log errors
+		return map[string]string{files: "no files found", years: ""}
+	}
+	if len(terms) == 0 {
+		return none()
 	}
 	if err := nils.Check(ctx, db); err != nil {
 		return none()
 	}
 
-	if len(terms) == 0 {
-		return none()
-	}
 	// trim whitespace and recheck
 	empty := true
 	for _, term := range terms {
@@ -1702,6 +1784,7 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 	if m.SumCount.Int64 == 0 {
 		return none()
 	}
+
 	d := map[string]string{
 		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
@@ -1714,40 +1797,47 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 // If the cache is invalid or corrupt an error will be returned
 // and a API request should be made to Pouet.
 func PouetCache(c *echo.Context, data string) error {
-	const format = "pouet cache context: %w"
+	const msg = "pouet cache context"
 	if err := nils.Check(c); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("%s: %w", msg, err)
 	}
 	if data == "" {
 		return nil
 	}
+
 	pv := pouet.Votes{ID: 0, Stars: 0.0, VotesAvg: 0.0, VotesUp: 0, VotesMeh: 0, VotesDown: 0}
-	x := strings.Split(data, sep)
+	votes := strings.Split(data, sep)
 	const req = 4
-	if len(x) < req {
-		return fmt.Errorf(format+": %d, want %d", ErrCorrupt, len(x), req)
+	if len(votes) < req {
+		return fmt.Errorf("%s: %d, want %d: %w", msg, len(votes), req, ErrCorrupt)
 	}
-	const fmts = format + ": %s"
-	stars, err := strconv.ParseFloat(x[0], 64)
+
+	const format = msg + "%s: %w"
+	stars, err := strconv.ParseFloat(votes[0], 64)
 	if err != nil {
-		return fmt.Errorf(fmts, err, x[0])
+		return fmt.Errorf(format, votes[0], err)
 	}
-	vd, err := strconv.Atoi(x[1])
+
+	down, err := strconv.Atoi(votes[1])
 	if err != nil {
-		return fmt.Errorf(fmts, err, x[1])
+		return fmt.Errorf(format, votes[1], err)
 	}
-	vu, err := strconv.Atoi(x[2])
+
+	up, err := strconv.Atoi(votes[2])
 	if err != nil {
-		return fmt.Errorf(fmts, err, x[2])
+		return fmt.Errorf(format, votes[2], err)
 	}
-	vm, err := strconv.Atoi(x[3])
+
+	meh, err := strconv.Atoi(votes[3])
 	if err != nil {
-		return fmt.Errorf(fmts, err, x[3])
+		return fmt.Errorf(format, votes[3], err)
 	}
+
 	pv.Stars = stars
-	pv.VotesDown = uint64(math.Abs(float64(vd)))
-	pv.VotesUp = uint64(math.Abs(float64(vu)))
-	pv.VotesMeh = uint64(math.Abs(float64(vm)))
+	pv.VotesDown = uint64(math.Abs(float64(down)))
+	pv.VotesUp = uint64(math.Abs(float64(up)))
+	pv.VotesMeh = uint64(math.Abs(float64(meh)))
+
 	if err = c.JSON(http.StatusOK, pv); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -1760,11 +1850,13 @@ func ProdPouet(c *echo.Context, id string) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	p := pouet.Production{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
+
 	ctx := c.Request().Context()
 	if _, err = p.Get(ctx, i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -1772,6 +1864,7 @@ func ProdPouet(c *echo.Context, id string) error {
 	if err = c.JSON(http.StatusOK, p); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
@@ -1781,50 +1874,55 @@ func ProdZoo(c *echo.Context, id string) error {
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
 	prod := demozoo.Production{}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
+
 	ctx := c.Request().Context()
 	if code, err := prod.Get(ctx, i); err != nil {
 		return c.String(code, err.Error())
 	}
+
 	if err = c.JSON(http.StatusOK, prod); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
 	return nil
 }
 
-// Releaser is the handler for the releaser page ordered by the most files.
-func Releaser(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+// Releasers is the handler for the releaser page ordered by the most files.
+func Releasers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	return releasers(c.Request().Context(), sl, c, db, model.Prolific)
 }
 
-// ReleaserAZ is the handler for the releaser page ordered alphabetically.
-func ReleaserAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+// ReleasersAZ is the handler for the releaser page ordered alphabetically.
+func ReleasersAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	return releasers(c.Request().Context(), sl, c, db, model.Alphabetical)
 }
 
-// ReleaserYear is the handler for the releaser page ordered by year of the first release.
-func ReleaserYear(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+// ReleasersYear is the handler for the releaser page ordered by year of the first release.
+func ReleasersYear(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	return releasers(c.Request().Context(), sl, c, db, model.Oldest)
 }
 
 // releasers is the handler for the Releaser page.
 func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, orderBy model.OrderBy) error {
+	const format = "releaser context: %w"
+	if err := nils.Check(ctx, sl, c, db); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
 	const title = "Releaser"
 	const descr = "A linked list of the former Scene releasers and groups, that were collectives of people " +
 		"who would work together and operate under a common brand."
 	const leadr = "A releaser is a brand or a collective group of " +
 		"sceners responsible for releasing or distributing products."
 	const logo = "Former groups and releasers"
-	const format = "releaser context: %w"
-	if err := nils.Check(ctx, sl, c, db); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = "releaser"
 	const key = "releasers"
+
 	data := empty(c)
 	data["noindex"] = true
 	data["title"] = title + "s and groups"
@@ -1838,10 +1936,11 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 
 	var r model.Releasers
 	if err := orderBy.Limit(ctx, db, &r, 0, 0); err != nil {
-		return DatabaseErr(sl, c, name, err)
+		return DatabaseErr(sl, c, releaserx, err)
 	}
+
 	data[key] = r
-	tmpl := name
+	tmpl := releaserx
 	var order string
 	switch orderBy {
 	case model.Alphabetical:
@@ -1864,10 +1963,12 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 		// Handle unknown order types
 		order = alpha
 	}
+
 	data["stats"] = map[string]string{
 		pubs:   fmt.Sprintf("%d releasers and groups", len(r)),
 		ordrby: order,
 	}
+
 	err := c.Render(http.StatusOK, tmpl, data)
 	if err != nil {
 		return InternalErr(sl, c, tmpl, err)
@@ -1875,52 +1976,26 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	return nil
 }
 
-// Releaser404 renders the files error page for the Groups menu and invalid releasers.
-func Releaser404(sl *slog.Logger, c *echo.Context, invalidID string) error {
-	const title = "Releaser not found"
-	const probl = "The releaser page does not exist, there is probably a typo with the URL."
-	const format = "releaser 404 context: %w"
-	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = "status"
-	errs := fmt.Sprint("releaser page not found for,", invalidID)
-	data := empty(c)
-	data["title"] = fmt.Sprintf("%d error, releaser page not found", http.StatusNotFound)
-	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
-	data["code"] = http.StatusNotFound
-	data["logo"] = title
-	data["alert"] = fmt.Sprintf("Releaser %q cannot be found", invalidID)
-	data["probl"] = probl
-	data["uriOkay"] = "g/"
-	data["uriErr"] = invalidID
-	err := c.Render(http.StatusNotFound, name, data)
-	if err != nil {
-		return InternalErr(sl, c, errs, err)
-	}
-	return nil
-}
-
-// Releasers is the handler for the list and preview of files credited to a releaser.
-func Releasers(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public fs.FS) error {
+// Releaser is the handler for the list and preview of files credited to a releaser.
+func Releaser(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public fs.FS) error {
 	const msg = "releasers context handler"
 	const format = msg + ": %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
-	const name = "artifacts"
-	errs := fmt.Sprint("releasers page for, ", uri)
-	relname := releaser.Link(uri)
+
+	const code = http.StatusNotFound
 	ctx := c.Request().Context()
 	fs, err := model.ReleasersWhere(ctx, db, uri)
 	if err != nil {
-		sl.Error(msg, slog.String("database", "releasers lookup problem"),
-			slog.String("uri", uri), slog.Any("error", err))
-		return Releaser404(sl, c, uri)
+		logErr(sl, msg+" cannot lookup releaser", uri, code, err)
+		return ReleaserErr(sl, c, uri)
 	}
 	if len(fs) == 0 {
-		return Releaser404(sl, c, uri)
+		return ReleaserErr(sl, c, uri)
 	}
+
+	relname := releaser.Link(uri)
 	data := emptyFiles(c)
 	data["title"] = relname + " artifacts"
 	data[canonical] = strings.Join([]string{"g", uri}, "/")
@@ -1933,10 +2008,12 @@ func Releasers(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public 
 	data["csdb"] = csdb.Find(uri)
 	data["janeway"] = janeway.Find(uri)
 	data["website"] = site.Find(uri)
+
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
 	htm := tibits(sl, uri, public)
 	data["tidbits"] = template.HTML(htm)
+
 	if strings.HasSuffix(uri, "-bbs") {
 		data["bbs"] = true
 		relname = "the " + relname
@@ -1944,31 +2021,34 @@ func Releasers(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public 
 	if strings.HasSuffix(uri, "-ftp") {
 		relname = "the " + relname
 	}
+
 	data["uploader-releaser-index"] = releaser.Index(uri)
 	data[records] = fs
 	data = releaserLead(uri, data)
+
 	d, err := releaserSum(ctx, db, uri)
 	if err != nil {
-		sl.Error(msg, slog.String("database", "releasers statistics problem"),
-			slog.String("uri", uri), slog.Any("error", err))
-		return Releaser404(sl, c, uri)
+		logErr(sl, msg+" cannot lookup releaser stats", uri, code, err)
+		return ReleaserErr(sl, c, uri)
 	}
+
 	data = releasersDesc(relname, altnames, d, data)
-	err = c.Render(http.StatusOK, name, data)
+
+	err = c.Render(http.StatusOK, artifacts, data)
 	if err != nil {
-		return InternalErr(sl, c, errs, err)
+		return InternalErr(sl, c, "releasers page for, "+uri, err)
 	}
 	return nil
 }
 
 // releasersDesc appends stats to the description.
-func releasersDesc(relname, altnames string,
-	d map[string]string, data map[string]any,
+func releasersDesc(relname, altnames string, d map[string]string, data map[string]any,
 ) map[string]any {
 	data["stats"] = d
 	// append stats to the description
 	dfiles := d["sum"]
 	dyears := d[years]
+
 	var desc string
 	switch {
 	case strings.EqualFold(relname, "independent"):
@@ -1991,6 +2071,7 @@ func releasersDesc(relname, altnames string,
 		desc += " from " + dyears
 	}
 	data["description"] = desc + "."
+
 	return data
 }
 
@@ -1998,19 +2079,20 @@ func tibits(sl *slog.Logger, uri string, public fs.FS) string {
 	if sl == nil {
 		sl = logs.Discard()
 	}
+
 	var htm strings.Builder
+
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
 	for value := range slices.Values(tidbits) {
 		s := value.String(sl, public)
 		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
-			const format = `<li class="list-group-item">%s%s</li>`
-			fmt.Fprintf(&htm, format, s, value.URL(uri))
+			htm.WriteString(`<li class="list-group-item">` + s + string(value.URL(uri)) + `</li>`)
 			continue
 		}
-		const format = `<li class="list-group-item">%s<br>%s</li>`
-		fmt.Fprintf(&htm, format, s, value.URL(uri))
+		htm.WriteString(`<li class="list-group-item">` + s + `<br>` + string(value.URL(uri)) + `</li>`)
 	}
+
 	return htm.String()
 }
 
@@ -2038,6 +2120,7 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, uri, err)
 	}
+
 	m := model.Summary{
 		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
 		SumCount: sql.NullInt64{Int64: 0, Valid: false},
@@ -2047,6 +2130,7 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 	if err := m.ByReleaser(ctx, exec, uri); err != nil {
 		return nil, fmt.Errorf(format, uri, err)
 	}
+
 	d := map[string]string{
 		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
@@ -2057,55 +2141,28 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 
 // Scener is the handler for the page to list all the sceners.
 func Scener(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const title = "Sceners, people who were apart of the Scene"
 	const format = "scener context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)
 	}
+
+	const title = "Sceners, people who were apart of the Scene"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
-	ctx := c.Request().Context()
-	return scener(ctx, sl, c, db, postgres.Roles(), data)
-}
 
-// Scener404 renders the files error page for the People menu and invalid sceners.
-func Scener404(sl *slog.Logger, c *echo.Context, id string) error {
-	const title = "Scener not found"
-	const probl = "The scener page does not exist, there is probably a typo with the URL."
-	const format = "scene 404 context: %w"
-	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = "status"
-	errs := fmt.Sprint("scener page not found for,", id)
-	data := empty(c)
-	data["title"] = fmt.Sprintf("%d error, scener page not found", http.StatusNotFound)
-	data["description"] = fmt.Sprintf("HTTP status %d error", http.StatusNotFound)
-	data["code"] = http.StatusNotFound
-	data["logo"] = title
-	data["alert"] = fmt.Sprintf("Scener %q cannot be found", releaser.Humanize(id))
-	data["probl"] = probl
-	data["uriOkay"] = "p/"
-	data["uriErr"] = id
-	err := c.Render(http.StatusNotFound, name, data)
-	if err != nil {
-		return InternalErr(sl, c, errs, err)
-	}
-	return nil
+	ctx := c.Request().Context()
+	return scenerPage(ctx, sl, c, db, postgres.Roles(), data)
 }
 
 // Sceners is the handler for the list and preview of files credited to a scener.
 func Sceners(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error {
-	const leadr = "Artifacts attributed to "
-	const descr = "These are the documented artifacts attributed to the person known as "
-	const format = "sceners context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("sceners context: %w", err)
 	}
-	const name = "artifacts"
-	errs := fmt.Sprint("sceners page for,", uri)
+
+	errs := "sceners page for, " + uri
 	s := releaser.Link(uri)
 	var ms model.Scener
 	ctx := c.Request().Context()
@@ -2114,23 +2171,26 @@ func Sceners(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error {
 		return InternalErr(sl, c, errs, err)
 	}
 	if len(fs) == 0 {
-		return Scener404(sl, c, uri)
+		return ScenerErr(sl, c, uri)
 	}
+
 	data := emptyFiles(c)
 	data[canonical] = strings.Join([]string{"p", uri}, "/")
 	data["title"] = s + attr
 	data["h1"] = s
-	data["lead"] = leadr + s + "."
+	data["lead"] = "Artifacts attributed to " + s + "."
 	data["logo"] = s
-	data["description"] = descr + s + "."
+	data["description"] = "These are the documented artifacts attributed to the person known as " + s + "."
 	data["scener"] = s
 	data[records] = fs
+
 	d, err := scenerSum(ctx, db, uri)
 	if err != nil {
 		return InternalErr(sl, c, errs, err)
 	}
 	data["stats"] = d
-	err = c.Render(http.StatusOK, name, data)
+
+	err = c.Render(http.StatusOK, artifacts, data)
 	if err != nil {
 		return InternalErr(sl, c, errs, err)
 	}
@@ -2143,6 +2203,7 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, uri, err)
 	}
+
 	m := model.Summary{
 		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
 		SumCount: sql.NullInt64{Int64: 0, Valid: false},
@@ -2152,6 +2213,7 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 	if err := m.ByScener(ctx, exec, uri); err != nil {
 		return nil, fmt.Errorf(format, uri, err)
 	}
+
 	d := map[string]string{
 		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
 		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
@@ -2161,187 +2223,181 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 
 // SearchDesc is the handler for the Search for file descriptions page.
 func SearchDesc(sl *slog.Logger, c *echo.Context) error {
-	const title = "Game or app titles search"
-	const descr = "Use this search to uncover named applications, games, and descriptions of artifacts."
-	const format = "search desc context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("search desc context: %w", err)
 	}
-	const name = "searchpost"
+
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = descr
+	data["description"] = "Use this search to uncover named applications, games, and descriptions of artifacts."
 	data["logo"] = search
-	data["title"] = title
-	err := c.Render(http.StatusOK, name, data)
+	data["title"] = "Game or app titles search"
+
+	err := c.Render(http.StatusOK, searchpost, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, searchpost, err)
 	}
 	return nil
 }
 
 // SearchID is the handler for the Record by ID Search page.
 func SearchID(sl *slog.Logger, c *echo.Context) error {
-	const title = "Search the IDs of artifacts"
-	const descr = "Use this search to lookup artifacts by their database identities."
-	const format = "search id context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("search id context: %w", err)
 	}
-	const name = "searchhtmx"
+
+	const title = "Search the IDs of artifacts"
+
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = descr
+	data["description"] = "Use this search to lookup artifacts by their database identities."
 	data["logo"] = title
 	data["title"] = title
 	data["info"] = "search for artifacts by their record id, uuid or URL key"
 	data["hxPost"] = "/editor/search/id"
 	data["inputPlaceholder"] = "Type to search for an artifact…"
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, searchhtmx, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, searchhtmx, err)
 	}
 	return nil
 }
 
 // SearchFile is the handler for the Search for files page.
 func SearchFile(sl *slog.Logger, c *echo.Context) error {
-	const title = "Filename or extensions search"
-	const descr = "Use this search to lookup artifacts by their filenames."
-	const format = "search file context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("search file context: %w", err)
 	}
-	const name = "searchpost"
+
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = descr
+	data["description"] = "Use this search to lookup artifacts by their filenames."
 	data["logo"] = search
-	data["title"] = title
-	err := c.Render(http.StatusOK, name, data)
+	data["title"] = "Filename or extensions search"
+
+	err := c.Render(http.StatusOK, searchpost, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, searchpost, err)
 	}
 	return nil
 }
 
 // SearchReleaser is the handler for the Releaser Search page.
 func SearchReleaser(sl *slog.Logger, c *echo.Context) error {
-	const title = "Lookup releasers"
-	const descr = "Lookup groups, magazines, bbs boards, and ftp sites, by their names."
-	const format = "search releaser context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("search releaser context: %w", err)
 	}
-	const name = "searchhtmx"
+
 	data := empty(c)
 	data["noindex"] = true
-	data["description"] = descr
+	data["description"] = "Lookup groups, magazines, bbs boards, and ftp sites, by their names."
 	data["logo"] = search
-	data["title"] = title
+	data["title"] = "Lookup releasers"
 	data["info"] = "find groups, names, magazines, bbs boards, ftp sites"
 	data["helpText"] = "acronyms only match exact finds: 'rc' and 'rcn' are treated different"
 	data["hxPost"] = "/search/releaser"
 	data["inputPlaceholder"] = "Type to search for a releaser…"
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, searchhtmx, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, searchhtmx, err)
 	}
 	return nil
 }
 
 // SignedOut is the handler to sign out and remove the current session.
 func SignedOut(sl *slog.Logger, c *echo.Context) error {
-	const format = "signed out context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("signed out context: %w", err)
 	}
-	const name = "signedout"
 	{ // get any existing session
 		sess, err := session.Get(sess.Name, c)
 		if err != nil {
-			return BadRequestErr(sl, c, name, err)
+			return BadRequestErr(sl, c, signedout, err)
 		}
-		id, subExists := sess.Values["sub"]
-		if !subExists || id == "" {
-			return ForbiddenErr(sl, c, name, ErrSession)
+
+		id, ok := sess.Values["sub"]
+		if !ok || id == "" {
+			return ForbiddenErr(sl, c, signedout, ErrSession)
 		}
+
 		const remove = -1
 		sess.Options.MaxAge = remove
 		err = sess.Save(c.Request(), c.Response())
 		if err != nil {
-			return InternalErr(sl, c, name, err)
+			return InternalErr(sl, c, signedout, err)
 		}
 	}
+
 	return c.Redirect(http.StatusFound, "/")
 }
 
 // SignOut is the handler for the Sign out of Defacto2 page.
 func SignOut(sl *slog.Logger, c *echo.Context) error {
-	const title = "Sign out"
-	const descr = "Sign out of Defacto2."
-	const format = "sign out context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("sign out context: %w", err)
 	}
-	const name = "signout"
+
+	const title = "Sign out"
 	data := empty(c)
 	data["noindex"] = true
 	data["title"] = title
-	data["description"] = descr
+	data["description"] = "Sign out of Defacto2."
 	data["h1"] = title
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, signout, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, signout, err)
 	}
 	return nil
 }
 
 // Signin is the handler for the Sign in session page.
 func Signin(sl *slog.Logger, c *echo.Context, clientID string, nonce []byte) error {
-	const title = "Sign in"
-	const descr = "Sign in to Defacto2."
-	const leadr = "This is not open to the general public."
-	const format = "signin context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("signin context: %w", err)
 	}
-	const name = "signin"
+
+	const title = "Sign in"
 	data := empty(c)
 	data["noindex"] = true
 	data["title"] = title
-	data["description"] = descr
+	data["description"] = "Sign in to Defacto2."
 	data["h1"] = title
-	data["lead"] = leadr
+	data["lead"] = "This is not open to the general public."
 	data["callback"] = "/google/callback"
 	data["clientID"] = clientID
 	data["nonce"] = string(nonce)
 	{ // get any existing session
 		sess, err := session.Get(sess.Name, c)
 		if err != nil {
-			return remove(sl, c, name, data)
+			return expireCookie(sl, c, signin, data)
 		}
-		subID, subExists := sess.Values["sub"]
-		if !subExists {
-			return remove(sl, c, name, data)
+
+		id, ok := sess.Values["sub"]
+		if !ok {
+			return expireCookie(sl, c, signin, data)
 		}
-		val, valExists := subID.(string)
-		if valExists && val != "" {
+		val, find := id.(string)
+		if find && val != "" {
 			return SignOut(sl, c)
 		}
 	}
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, signin, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, signin, err)
 	}
 	return nil
 }
 
-// remove is a helper function to remove the session cookie by setting the MaxAge to -1.
-func remove(sl *slog.Logger, c *echo.Context, name string, data map[string]any) error {
+// expireCookie is a helper function to remove the session cookie by setting the MaxAge to -1.
+func expireCookie(sl *slog.Logger, c *echo.Context, name string, data map[string]any) error {
 	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf("context remove cookie: %w", err)
 	}
+
 	sess, err := session.Get(sess.Name, c)
 	if err == nil {
 		const remove = -1
@@ -2350,6 +2406,7 @@ func remove(sl *slog.Logger, c *echo.Context, name string, data map[string]any) 
 			_ = sess.Save(c.Request(), c.Response())
 		}
 	}
+
 	err = c.Render(http.StatusOK, name, data)
 	if err != nil {
 		return InternalErr(sl, c, name, err)
@@ -2359,14 +2416,15 @@ func remove(sl *slog.Logger, c *echo.Context, name string, data map[string]any) 
 
 // TagInfo handles the POST submission for the platform and tag info.
 func TagInfo(c *echo.Context) error {
-	const format = "tag info context: %w"
 	if err := nils.Check(c); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("tag info context: %w", err)
 	}
+
 	var f Form
 	if err := c.Bind(&f); err != nil {
 		return badRequest(c, err)
 	}
+
 	info, err := tags.Description(f.Tag)
 	if err != nil {
 		return badRequest(c, err)
@@ -2376,82 +2434,78 @@ func TagInfo(c *echo.Context) error {
 
 // Titles is the handler for the Titles page.
 func Titles(sl *slog.Logger, c *echo.Context) error {
-	const title = "Titles"
-	const descr = "Titles are important."
-	const format = "titles context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("titles context: %w", err)
 	}
-	const name = "titles"
+
+	const title = "Titles"
 	data := empty(c)
 	data["title"] = title
-	data["description"] = descr
+	data["description"] = "Titles are important."
 	data["logo"] = title
 	data["h1"] = "Titles and naming are important"
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, titles, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, titles, err)
 	}
 	return nil
 }
 
 // Fixers is the handler for the editor, batch-fixers page.
 func Fixers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const title = "Fixers"
-	const descr = "Defacto2 fixers tool."
-	const leadr = "Artifact fixes using batch-friendly tools."
-	const format = "fixers context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("fixers context: %w", err)
 	}
-	const name = "fixers"
+
+	const title = "Fixers"
 	data := empty(c)
-	data["description"] = descr
+	data["description"] = "Defacto2 fixers tool."
 	data["h1"] = title
-	data["lead"] = leadr
+	data["lead"] = "Artifact fixes using batch-friendly tools."
 	data["title"] = title
+
 	// Get files with numeric suffixes
 	ctx := c.Request().Context()
-	fixData, err := fix.NumSuffix(ctx, db)
+	filesFix, err := fix.NumSuffix(ctx, db)
 	if err != nil {
 		sl.Error("failed to get files with numeric suffixes", slog.String("error", err.Error()))
 		// Don't return error, just continue without the data
 	} else {
-		data["numericSuffixCount"] = fixData.Count
+		data["numericSuffixCount"] = filesFix.Count
 		// Add obfuscated IDs for the /f/ route
-		for i := range fixData.Files {
-			fixData.Files[i].ObfuscatedID = helper.ObfuscateID(fixData.Files[i].ID)
+		for i := range filesFix.Files {
+			filesFix.Files[i].ObfuscatedID = helper.ObfuscateID(filesFix.Files[i].ID)
 		}
 		// Pass the full file data (including ID, UUID, and obfuscated ID) to the template
-		data["numericSuffixFiles"] = fixData.Files
+		data["numericSuffixFiles"] = filesFix.Files
 	}
 
-	err = c.Render(http.StatusOK, name, data)
+	err = c.Render(http.StatusOK, fixers, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, fixers, err)
 	}
 	return nil
 }
 
+var numericSuffixRegexes = []*regexp.Regexp{
+	regexp.MustCompile(` \([0-9]{1,3}\)`), // Pattern with space: " (123)"
+	regexp.MustCompile(`\([0-9]{1,3}\)`),  // Pattern without space: "(123)"
+}
+
 // FixNumericSuffix handles the fixing of numeric suffixes in filenames.
-func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error { //nolint:funlen
-	const format = "fix numeric suffix: %w"
+func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("fix numeric suffix: %w", err)
 	}
 
-	// Get the obfuscated ID from the URL
 	obfuscatedID := c.Param("id")
 	if obfuscatedID == "" {
-		const format = `%w: missing obfuscated ID`
-		return fmt.Errorf(format, ErrMissingObfuscatedID)
+		return fmt.Errorf("missing obfuscated ID: %w", ErrMissingObfuscatedID)
 	}
-
-	// Deobfuscate the ID
 	fileID := int64(helper.DeobfuscateID(obfuscatedID))
 	if fileID == 0 {
-		const format = `%w: invalid obfuscated ID: %s`
-		return fmt.Errorf(format, ErrInvalidObfuscatedID, obfuscatedID)
+		return fmt.Errorf("invalid obfuscated ID %s: %w", obfuscatedID, ErrInvalidObfuscatedID)
 	}
 
 	// Get the file from the database using the standard One function
@@ -2459,29 +2513,17 @@ func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error { //no
 	ctx := c.Request().Context()
 	file, err := model.One(ctx, db, true, int(fileID))
 	if err != nil {
-		sl.Error("failed to find file in fix handler",
-			slog.String("error", err.Error()),
-			slog.Int64("file_id", fileID),
-			slog.String("obfuscated_id", obfuscatedID))
-		const format = `%s: failed to find file: %w`
-		return fmt.Errorf(format, format, err)
+		logID(sl, "failure to find file in fix handler", obfuscatedID, fileID, err)
+		return fmt.Errorf("failed to find file %s: %w", obfuscatedID, err)
 	}
 	if file == nil {
-		sl.Error("file not found in fix handler",
-			slog.Int64("file_id", fileID),
-			slog.String("obfuscated_id", obfuscatedID))
-		const format = `%w: file not found`
-		return fmt.Errorf(format, ErrFileNotFound)
+		logID(sl, "failure to find file in fix handler", obfuscatedID, fileID, ErrFileNotFound)
+		return fmt.Errorf("file not found: %w", ErrFileNotFound)
 	}
 
 	// Remove the numeric suffix from the filename
 	originalFilename := file.Filename.String
 	// Try both patterns: with space and without space before the parenthesis
-	numericSuffixRegexes := []*regexp.Regexp{
-		regexp.MustCompile(` \([0-9]{1,3}\)`), // Pattern with space: " (123)"
-		regexp.MustCompile(`\([0-9]{1,3}\)`),  // Pattern without space: "(123)"
-	}
-
 	var matched bool
 	baseFilename := originalFilename
 	for _, regex := range numericSuffixRegexes {
@@ -2493,115 +2535,110 @@ func FixNumericSuffix(sl *slog.Logger, c *echo.Context, db *sql.DB) error { //no
 	}
 
 	if !matched {
-		const format = `%w: filename does not match numeric suffix pattern: %s`
-		return fmt.Errorf(format, ErrInvalidFilenamePattern, originalFilename)
+		return fmt.Errorf("filename does not match numeric suffix pattern: %s: %w",
+			originalFilename, ErrInvalidFilenamePattern)
 	}
 
 	// Update the filename in the database
 	file.Filename = null.StringFrom(baseFilename)
 	_, err = file.Update(ctx, db, boil.Infer())
 	if err != nil {
-		const format = `%s: failed to update filename: %w`
-		return fmt.Errorf(format, format, err)
+		return fmt.Errorf("failed to update filename %s: %w", baseFilename, err)
 	}
 
 	// Return the updated file info as HTML to replace the list item
 	obfuscatedID = helper.ObfuscateID(file.ID)
-	const entry = `
+	id := strconv.Itoa(int(file.ID))
+	return c.HTML(http.StatusOK, `
 		<div class="list-group-item list-group-item-success">
 			<div class="d-flex justify-content-between align-items-center">
 				<div>
-					<code>%s</code>
+					<code>`+baseFilename+`</code>
 					<small class="text-muted d-block">
-						ID: %d | UUID: %s
+						ID: `+id+` | UUID: `+file.UUID.String+`
 					</small>
 					<small class="text-success d-block">
-						Fixed: %s → %s
+						Fixed: `+originalFilename+` → `+baseFilename+`
 					</small>
 				</div>
 				<div>
-					<a href="/f/%s" class="btn btn-sm btn-outline-secondary" target="_blank">View</a>
+					<a href="/f/`+obfuscatedID+`" class="btn btn-sm btn-outline-secondary" target="_blank">View</a>
 				</div>
 			</div>
 		</div>
-		`
-	html := fmt.Sprintf(entry, baseFilename, file.ID, file.UUID.String, originalFilename, baseFilename, obfuscatedID)
-	return c.HTML(http.StatusOK, html)
+		`)
 }
 
 // Thanks is the handler for the Thanks page.
 func Thanks(sl *slog.Logger, c *echo.Context) error {
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf("thanks context: %w", err)
+	}
+
 	const title = "Thank you!"
-	const descr = "A special thanks to the hundreds of contributors and the thousands of contributions."
-	const leadr = "Thanks to the hundreds of people who have contributed to" +
+	data := empty(c)
+	data["description"] = "A special thanks to the hundreds of contributors and the thousands of contributions."
+	data["h1"] = title
+	data["lead"] = "Thanks to the hundreds of people who have contributed to" +
 		" Defacto2 over the decades with file submissions, " +
 		"hard drive donations, interviews, corrections, artwork, and monetary contributions!"
-	const format = "thanks context: %w"
-	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = "thanks"
-	data := empty(c)
-	data["description"] = descr
-	data["h1"] = title
-	data["lead"] = leadr
 	data["title"] = title
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, thanks, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, thanks, err)
 	}
 	return nil
 }
 
 // TheScene is the handler for the The Scene page.
 func TheScene(sl *slog.Logger, c *echo.Context) error {
-	const title = "The Scene"
-	const descr = "A short introduction on The Scene, the online subcultures and its underground origins."
-	const leadr = "The Scene is broad church of people and online communities that is collectively grouped;" +
-		" it is subculture of niche activities using personal computers, " +
-		"where the participants share creations and exchange ideas."
-	const format = "the scene context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("the scene context: %w", err)
 	}
-	const name = "thescene"
+
+	const title = "The Scene"
 	data := empty(c)
-	data["description"] = descr
+	data["description"] = "A short introduction on The Scene, the online subcultures and its underground origins."
 	data["logo"] = "The underground"
 	data["h1"] = title
-	data["lead"] = leadr
+	data["lead"] = "The Scene is broad church of people and online communities that is collectively grouped;" +
+		" it is subculture of niche activities using personal computers, " +
+		"where the participants share creations and exchange ideas."
 	data["title"] = title
-	err := c.Render(http.StatusOK, name, data)
+
+	err := c.Render(http.StatusOK, thescene, data)
 	if err != nil {
-		return InternalErr(sl, c, name, err)
+		return InternalErr(sl, c, thescene, err)
 	}
 	return nil
 }
 
 // VotePouet is the handler for the Pouet production votes JSON page.
 func VotePouet(sl *slog.Logger, c *echo.Context, id string) error {
-	const format = "vote pouet context: %w"
 	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("vote pouet context: %w", err)
 	}
-	const title, name, sep = "Pouet", "pouet", ";"
+
+	const (
+		title = "Pouet"
+		sep   = ";"
+	)
 	pv := pouet.Votes{ID: 0, Stars: 0.0, VotesAvg: 0.0, VotesUp: 0, VotesMeh: 0, VotesDown: 0}
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		return c.String(http.StatusNotFound, err.Error())
 	}
+
 	cp := cache.PouetVote
 	if s, err := cp.Read(id); err == nil {
 		if err := PouetCache(c, s); err == nil {
-			if sl != nil {
-				sl.Debug("vote.pouet", slog.String("cache.hit.id", id))
-			}
+			sl.Debug("vote.pouet", slog.String("cache.hit.id", id))
 			return nil
 		}
 	}
-	if sl != nil {
-		sl.Debug("vote.pouet", slog.String("cache.miss.for.pouet.id", id))
-	}
+	sl.Debug("vote.pouet", slog.String("cache.miss.for.pouet.id", id))
+
 	ctx := c.Request().Context()
 	if err = pv.Votes(ctx, i); err != nil {
 		return c.String(http.StatusNotFound, err.Error())
@@ -2609,14 +2646,10 @@ func VotePouet(sl *slog.Logger, c *echo.Context, id string) error {
 	if err = c.JSON(http.StatusOK, pv); err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	val := fmt.Sprintf("%.1f%s%d%s%d%s%d",
-		pv.Stars, sep, pv.VotesDown, sep, pv.VotesUp, sep, pv.VotesMeh)
-	if err := cp.Write(id, val, cache.ExpiredAt); err != nil {
-		if sl != nil {
-			sl.Error("vote_pouet",
-				slog.String("failed", "could not write to the cache database"),
-				slog.String("id", id), slog.Any("error", err))
-		}
+
+	value := fmt.Sprintf("%.1f%s%d%s%d%s%d", pv.Stars, sep, pv.VotesDown, sep, pv.VotesUp, sep, pv.VotesMeh)
+	if err := cp.Write(id, value, cache.ExpiredAt); err != nil {
+		logID(sl, "vote pouet cache failure", id, 0, err)
 	}
 	return nil
 }
@@ -2624,17 +2657,17 @@ func VotePouet(sl *slog.Logger, c *echo.Context, id string) error {
 // Website is the handler for the websites page.
 // Open is the ID of the accordion section to open.
 func Website(sl *slog.Logger, c *echo.Context, open string) error {
+	if err := nils.Check(c, sl); err != nil {
+		return fmt.Errorf("website context: %w", err)
+	}
+
 	const title = "Websites"
 	const logo = "Videos, Books, Films, Sites, Podcasts"
-	const format = "website context: %w"
-	if err := nils.Check(c, sl); err != nil {
-		return fmt.Errorf(format, err)
-	}
-	const name = websites
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = logo
 	data["description"] = "Our curated collection of " + strings.ToLower(logo) + ", with topics about the Scene."
+
 	accordion := List()
 	// Open the accordion section.
 	closeAll := true
@@ -2653,33 +2686,36 @@ func Website(sl *slog.Logger, c *echo.Context, open string) error {
 		data["noindex"] = true
 		data["title"] = title + " categories"
 	}
+
 	// If a section was requested but not found, return a 404.
 	if open != "hide" && closeAll {
 		return StatusErr(sl, c, http.StatusNotFound, open)
 	}
+
 	// Render the page.
 	data["accordion"] = accordion
-	err := c.Render(http.StatusOK, name, data)
+	err := c.Render(http.StatusOK, websites, data)
 	if err != nil {
-		return InternalErr(sl, c, fmt.Sprint("render open website,", open), err)
+		return InternalErr(sl, c, "render open website, "+open, err)
 	}
 	return nil
 }
 
 // Writer is the handler for the Writer page.
 func Writer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	const title = "Writers, editors, and authors"
-	const format = "writer context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
-		return fmt.Errorf(format, err)
+		return fmt.Errorf("writer context: %w", err)
 	}
+
+	const title = "Writers, editors, and authors"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
 	data["h1"] = title
 	data["noindex"] = true
+
 	ctx := c.Request().Context()
-	return scener(ctx, sl, c, db, postgres.Writer, data)
+	return scenerPage(ctx, sl, c, db, postgres.Writer, data)
 }
 
 // stats is a helper function for Artifacts that returns the statistics for the files page.
@@ -2688,9 +2724,11 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, 0, fmt.Errorf(format, uri, err)
 	}
+
 	if !fileslice.Valid(uri) {
 		return nil, 0, nil
 	}
+
 	m := model.Summary{
 		SumBytes: sql.NullInt64{Int64: 0, Valid: false},
 		SumCount: sql.NullInt64{Int64: 0, Valid: false},
@@ -2706,20 +2744,22 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 			return nil, 0, err
 		}
 	}
+
 	d := map[string]string{
 		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
-		years: fmt.Sprintf("%d - %d", m.MinYear.Int16, m.MaxYear.Int16),
-	}
-	switch uri {
-	case "new-updates", "new-uploads", "newest", "for-approval":
-		d[years] = fmt.Sprintf("%d - %d", m.MaxYear.Int16, m.MinYear.Int16)
+		years: strconv.Itoa(int(m.MinYear.Int16)) + " - " + strconv.Itoa(int(m.MaxYear.Int16)),
 	}
 	return d, int(m.SumCount.Int64), nil
 }
 
 func steps(lastPage float64) int {
-	const one, two, four = 1, 2, 4
-	const skip2Pages, skip4Pages = 39, 99
+	const (
+		one        = 1
+		two        = 2
+		four       = 4
+		skip2Pages = 39
+		skip4Pages = 99
+	)
 	switch {
 	case lastPage > skip4Pages:
 		return four
@@ -2736,7 +2776,8 @@ func statsByURI(ctx context.Context, exec boil.ContextExecutor, uri string, m *m
 	if err := nils.Check(ctx, exec, m); err != nil {
 		return fmt.Errorf(format, "check", uri, err)
 	}
-	switch fileslice.Match(uri) { //nolint:exhaustive
+
+	switch fileslice.Match(uri) {
 	case fileslice.ForApproval:
 		if err := m.ByForApproval(ctx, exec); err != nil {
 			return fmt.Errorf(format, "by for approval", uri, err)
@@ -2764,6 +2805,7 @@ func statsByURI(ctx context.Context, exec boil.ContextExecutor, uri string, m *m
 			return fmt.Errorf(format, "by public", uri, err)
 		}
 	}
+
 	return nil
 }
 

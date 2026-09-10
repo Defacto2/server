@@ -6,7 +6,7 @@
 {{- $description := index . "description"}}
 {{- $classification := brief (index . "platform") (index . "section")}}
 {{- $screenElm := screenshot (index . "unid") ($description)}}
-{{- $screenNone := index . "noScreenshot"}}
+{{- $screenNone := index . "screenshotNone"}}
 {{- $topaz := index . "topazCheck"}}
 {{- $vga := index . "vgaCheck"}}
 {{- $mimetype := index . "magic"}}

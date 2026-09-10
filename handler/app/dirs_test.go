@@ -54,7 +54,7 @@ func TestSortContent(t *testing.T) {
 		{
 			name:     "empty input",
 			content:  "",
-			expected: []string{""},
+			expected: nil,
 		},
 		{
 			name:     "single file",
