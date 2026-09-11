@@ -1,6 +1,6 @@
 // Package runner is used to build test images for a visual confirmation that will be outputted to the terminal.
 //
-//nolint:funlen,gochecknoglobals
+//nolint:funlen
 package main
 
 import (

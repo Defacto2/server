@@ -1,4 +1,4 @@
-//nolint:funlen,mnd
+//nolint:gochecknoglobals,mnd
 package app
 
 // Package file interview.go contains the functions for the interview page.

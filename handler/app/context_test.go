@@ -1,3 +1,4 @@
+//nolint:gocritic
 package app_test
 
 // Most of these tests are for nil values to ensure there are no panics.
@@ -234,7 +235,6 @@ func TestExec(t *testing.T) {
 	}
 }
 
-// exec boil.ContextExecutor
 type Fn7 func(sl *slog.Logger, c *echo.Context, db *sql.DB, path dir.Directory) error
 
 func TestDirs(t *testing.T) {

@@ -277,7 +277,7 @@ func TestImageSample(t *testing.T) {
 
 	const filenameNoExt = "TEST"
 	abs := dir.Directory(filepath.Dir(testpng(t)))
-	x = simple.ImageSample(filenameNoExt, dir.Directory(abs))
+	x = simple.ImageSample(filenameNoExt, abs)
 	be.True(t, strings.Contains(string(x), "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI"))
 }
 

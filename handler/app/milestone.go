@@ -1,4 +1,4 @@
-//nolint:exhaustruct_v5,funlen,lll,maintidx,mnd
+//nolint:exhaustruct_v5,gochecknoglobals,lll,mnd
 package app
 
 // Package file milestone.go contains the listings of the milestone page.

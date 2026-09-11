@@ -9,6 +9,7 @@ import (
 	"errors"
 	"io/fs"
 	"log/slog"
+	"maps"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -565,9 +566,7 @@ func FileData(s string) Testfile {
 
 func Files() TestData {
 	data := make(TestData, len(testdata))
-	for k, v := range testdata {
-		data[k] = v
-	}
+	maps.Copy(data, testdata)
 	return data
 }
 

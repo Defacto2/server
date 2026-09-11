@@ -1,4 +1,4 @@
-//nolint:exhaustive,exhaustruct_v5,wrapcheck
+//nolint:exhaustive,exhaustruct_v5,gochecknoglobals,wrapcheck
 package app
 
 // Package file context.go contains the router handlers for the Defacto2 website.
@@ -642,7 +642,7 @@ func Compression(sl *slog.Logger, c *echo.Context) error {
 }
 
 // Configurations is the handler for the Configuration page.
-func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Config) error {
+func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Config) error { //nolint:funlen
 	const format = "configurations context: %w"
 	if err := nils.Check(sl, c, db); err != nil {
 		return fmt.Errorf(format, err)

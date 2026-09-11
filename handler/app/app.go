@@ -223,7 +223,8 @@ func ByteFileS(name string, count, bytes any) template.HTML {
 	}
 
 	name = names(name)
-	if n < 2 {
+	const size = 2
+	if n < size {
 		return template.HTML(s + ` ` + name + ` <small>(` + helper.ByteCountFloat(b) + `)</small>`)
 	}
 	name += "s"

@@ -1,3 +1,4 @@
+//nolint:paralleltest
 package config_test
 
 import (
@@ -11,7 +12,7 @@ import (
 
 const perm = 0o600
 
-func TestRemove(t *testing.T) { //nolint:tparallel,paralleltest
+func TestRemove(t *testing.T) {
 	// TestRemove cannot be run in parallel.
 	tmpdiz := filepath.Join(t.TempDir(), "file_id.diz")
 	tmptxt := filepath.Join(t.TempDir(), "readme.txt")
@@ -71,7 +72,6 @@ func TestRemove(t *testing.T) { //nolint:tparallel,paralleltest
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// INFO: parallel causes test failures
-			// t.Parallel()
 			if err := tt.setup(); err != nil {
 				t.Fatalf("setup failed: %v", err)
 			}

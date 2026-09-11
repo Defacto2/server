@@ -1,4 +1,4 @@
-//nolint:gochecknoglobals
+//nolint:cyclop,gochecknoglobals
 package app
 
 import (
@@ -188,7 +188,8 @@ func lockWidth(maxWidth int, b []byte) []byte {
 	}
 
 	// Exit early if 3 or more tabs are present
-	if bytes.Count(b, []byte{'\t'}) >= 3 {
+	const tabs = 3
+	if bytes.Count(b, []byte{'\t'}) >= tabs {
 		return b
 	}
 
@@ -208,10 +209,7 @@ func lockWidth(maxWidth int, b []byte) []byte {
 
 		// Chunk line into maxWidth pieces
 		for i := 0; i < len(line); i += maxWidth {
-			end := i + maxWidth
-			if end > len(line) {
-				end = len(line)
-			}
+			end := min(i+maxWidth, len(line))
 			builder.WriteByte('\n')
 			builder.Write(line[i:end])
 		}
@@ -281,7 +279,7 @@ func parseValS(val any) (string, bool) {
 	}
 }
 
-func parseValI(val any) (int, bool) {
+func parseValI(val any) (int, bool) { //nolint:funlen
 	switch v := val.(type) {
 	case int:
 		return castSigned(v)
