@@ -3,29 +3,18 @@ package testutil
 
 import (
 	"bytes"
-	"context"
-	"database/sql"
 	"embed"
 	"errors"
 	"io/fs"
 	"log/slog"
-	"maps"
-	"mime/multipart"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 	"testing"
 
-	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
-	"github.com/labstack/echo/v5"
-	"github.com/labstack/echo/v5/echotest"
 )
 
 // INFO: Check untested funcs, run:
@@ -47,83 +36,20 @@ const (
 	UID       = "123e4567-e89b-12d3-a456-426614174000" // UUID is a generic Universal Unique ID
 	UID4      = "bb2310e1-93aa-475e-8b88-59eb1fb984a4" // UID4 is a UUID version 4
 	SCREENPNG = 328_468                                // SCREENPNG is the byte file size of testdata/SCREEN.PNG
-	RTF       = `{\rtf1\ansi{\fonttbl\f0\fswiss Helvetica;}\f0\pard
+	// RTF is an example of Rich-Text-Format encoded text.
+	RTF = `{\rtf1\ansi{\fonttbl\f0\fswiss Helvetica;}\f0\pard
  This is some {\b bold} text.\par
 }`
 )
 
-// PostgreSQL database helpers
-
-var share = sync.OnceValue(func() *sql.DB {
-	db, err := postgres.Open()
-	if err != nil {
-		return nil
-	}
-	if err := db.Ping(); err != nil {
-		_ = db.Close()
-		return nil
-	}
-	return db
-})
-
-// DB returns a shared Postgres database connection for use with tests.
-// If no connection can be made, the test is skipped.
-func DB(tb testing.TB) *sql.DB {
-	tb.Helper()
-
-	db := share()
-	if db == nil {
-		tb.SkipNow()
-	}
-	return db
-}
-
-// DBConns logs the active and maximum Postgres database connections.
-func DBConns(tb testing.TB) {
-	tb.Helper()
-
-	db := share()
-	if db == nil {
-		return
-	}
-	a, m, err := postgres.Connections(tb.Context(), db)
-	if err != nil {
-		tb.Fatalf("connections err: %v", err)
-	}
-	tb.Log("active database connections:", a, "maximum:", m)
-}
-
-// Tx returns a shared Postgres database connection for use with tests.
-// The transaction with any database edits get rolled back during the test cleanup.
-// If no connection can be made, the test is skipped.
-//
-// Note: Only one Tx should be used per-test otherwise the test may never resolve.
-func Tx(tb testing.TB) *sql.Tx {
-	tb.Helper()
-
-	db := DB(tb)
-
-	// leave the context to background, however it might be useful to create
-	// a TxWithContext() in the future.
-	ctx := context.Background()
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		tb.Skip("tx failed")
-	}
-
-	tb.Cleanup(func() {
-		// returning errors for rollback is important due to the sensitivity
-		// it has with contexts, timeouts, etc.
-		if err := tx.Rollback(); err != nil && !errors.Is(err, sql.ErrTxDone) {
-			tb.Errorf("tx rollback: %v", err)
-		}
-	})
-
-	return tx
-}
-
 // Model helpers
 
+// NewModel returns a new [models.File] entry with the following boilerplate:
+//
+//   - ID:				1
+//   - UUID:			bb2310e1-93aa-475e-8b88-59eb1fb984a4
+//   - Filename:	filename.txt
+//   - Filesize:	9876
 func NewModel(tb testing.TB) *models.File {
 	tb.Helper()
 
@@ -135,163 +61,7 @@ func NewModel(tb testing.TB) *models.File {
 	return &art
 }
 
-// Echo package helpers
-
-// EchoStatus returns an echo response using http request using the target url and http status.
-//
-// The echo.Echo can be provided using [echo.New].
-func EchoStatus(tb testing.TB, e *echo.Echo, target string, status int) *echo.Context {
-	tb.Helper()
-	if target == "" {
-		target = "/" // NOTE: target cannot be empty or a race condition may occur.
-	}
-
-	req := httptest.NewRequestWithContext(tb.Context(), http.MethodGet, target, nil)
-	rec := httptest.NewRecorder()
-
-	c := e.NewContext(req, rec)
-	c.Response().WriteHeader(status)
-
-	return c
-}
-
-// EchoContext returns an echo response using the target url.
-// If no target is provided, it is set to root "/".
-//
-// The echo.Echo can be provided using [echo.New].
-func EchoContext(tb testing.TB, e *echo.Echo, target string) *echo.Context {
-	tb.Helper()
-	if target == "" {
-		target = "/"
-	}
-
-	req := httptest.NewRequestWithContext(tb.Context(), http.MethodGet, target, nil)
-	rec := httptest.NewRecorder()
-
-	return e.NewContext(req, rec)
-}
-
-type Input map[string]string
-
-func newEchoTest(t *testing.T,
-	target, fieldname, filename string, formInputs Input, pathValues echo.PathValues,
-) *echo.Context {
-	t.Helper()
-	if target == "" {
-		target = "/"
-	}
-
-	var body bytes.Buffer
-	w := multipart.NewWriter(&body)
-
-	// must be done before closing
-	if size := len(formInputs); size > 0 {
-		for fieldname, value := range formInputs {
-			err := w.WriteField(fieldname, value)
-			if err != nil {
-				t.Fatal(err)
-			}
-		}
-	}
-
-	if fieldname != "" && filename != "" {
-		p := []byte("Hello world!")
-		part, err := w.CreateFormFile(fieldname, filename)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if _, err = part.Write(p); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	// closing the file/form writer must always be done last
-	if err := w.Close(); err != nil {
-		t.Fatal(err)
-	}
-
-	r := httptest.NewRequestWithContext(t.Context(), http.MethodPost, target, &body)
-	r.Header.Set(echo.HeaderContentType, w.FormDataContentType())
-
-	c, _ := echotest.ContextConfig{}.ToContextRecorder(t)
-	if len(pathValues) > 0 {
-		c.SetPathValues(pathValues)
-	}
-	c.SetRequest(r)
-
-	return c
-}
-
-// NewContext creates a new instance of Echo and returns a response using the target url.
-// If no target is provided, it is set to root "/".
-func NewContext(tb testing.TB, target string) *echo.Context {
-	tb.Helper()
-	if target == "" {
-		target = "/"
-	}
-
-	e := echo.New()
-	return EchoContext(tb, e, target)
-}
-
-// NewInput creates a new instance of Echo and returns a response using the target url.
-// It sets the key and value that are mapped as both query parameters and form values.
-// If no target is provided, it is set to root "/".
-func NewInput(tb testing.TB, target, key, value string) *echo.Context {
-	tb.Helper()
-	if target == "" {
-		target = "/"
-	}
-
-	form := url.Values{}
-	form.Set(key, value)
-
-	body := strings.NewReader(form.Encode())
-	req := httptest.NewRequestWithContext(tb.Context(), http.MethodPost, target, body)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-
-	rec := httptest.NewRecorder()
-	e := echo.New()
-	return e.NewContext(req, rec)
-}
-
-func NewInputs(t *testing.T, target string, formInputs Input) *echo.Context {
-	t.Helper()
-
-	return newEchoTest(t, target, "", "", formInputs, nil)
-}
-
-func NewInputsPath(t *testing.T, target string, formInputs Input, pathValues echo.PathValues) *echo.Context {
-	t.Helper()
-
-	return newEchoTest(t, target, "", "", formInputs, pathValues)
-}
-
-func NewFile(t *testing.T, target, fieldname, filename string) *echo.Context {
-	t.Helper()
-	return newEchoTest(t, target, fieldname, filename, nil, nil)
-}
-
-func NewFileInputs(t *testing.T, target, fieldname, filename string, formInputs Input,
-) *echo.Context {
-	t.Helper()
-	return newEchoTest(t, target, fieldname, filename, formInputs, nil)
-}
-
-func NewPath(t *testing.T, target string, pathValues echo.PathValues) *echo.Context {
-	t.Helper()
-
-	return newEchoTest(t, target, "", "", nil, pathValues)
-}
-
 // File system helpers
-//
-
-func EmbedFS(tb testing.TB) fs.FS {
-	tb.Helper()
-
-	return testdataFS
-}
 
 // OpenFS opens the root directory of the testutil package and closes on cleanup.
 func OpenFS(tb testing.TB) fs.FS {
@@ -469,6 +239,7 @@ type Logger struct {
 	Log *slog.Logger
 }
 
+// Buffer returns a custom debug logger that writes to [Logger].
 func Buffer(tb testing.TB) *Logger {
 	tb.Helper()
 
@@ -484,113 +255,19 @@ func Buffer(tb testing.TB) *Logger {
 	}
 }
 
+// String returns the content of the logger.
 func (l *Logger) String() string {
 	return l.buf.String()
 }
 
+// Reset empties the content of the logger.
 func (l *Logger) Reset() {
 	l.buf.Reset()
 }
 
+// Contains returns true if the substr is found in the content of the logger.
 func (l *Logger) Contains(substr string) bool {
 	l.tb.Helper()
 
 	return strings.Contains(l.buf.String(), substr)
-}
-
-// Testdata
-
-func CopyPNG(tb testing.TB, dest string) {
-	tb.Helper()
-
-	copyembed(tb, dest, "SCREEN.PNG")
-}
-
-func CopyTXT(tb testing.TB, dest string) {
-	tb.Helper()
-
-	copyembed(tb, dest, "LOGO.TXT")
-}
-
-func copyembed(tb testing.TB, dest, name string) {
-	tb.Helper()
-
-	data, err := testdataFS.ReadFile("testdata/" + name)
-	if err != nil {
-		tb.Fatal(err)
-	}
-	err = os.WriteFile(dest, data, 0o600)
-	if err != nil {
-		tb.Fatal(err)
-	}
-}
-
-type (
-	Testfile string
-	TestData = map[string]Testfile
-)
-
-var testdata = TestData{
-	"implodezip":  "IMPLODE.ZIP",
-	"logotxt":     "LOGO.TXT",
-	"screenpng":   "SCREEN.PNG",
-	"testascii":   "TEST.ASCII",
-	"testbmp":     "TEST.BMP",
-	"testgif":     "TEST.GIF",
-	"testjpg":     "TEST.JPG",
-	"testpcx":     "TEST.PCX",
-	"testpng":     "TEST.PNG",
-	"testwebp":    "TEST.WEBP",
-	"readmetxt":   "readme.txt",
-	"archivezip":  "archive.zip",
-	"defacto2com": "defacto2.com",
-}
-
-func Count() int {
-	return len(testdata)
-}
-
-func CountTest() int {
-	cnt := 0
-	for _, name := range testdata {
-		if strings.HasPrefix(string(name), "TEST.") {
-			cnt++
-		}
-	}
-	return cnt
-}
-
-func FileData(s string) Testfile {
-	return testdata[s]
-}
-
-func Files() TestData {
-	data := make(TestData, len(testdata))
-	maps.Copy(data, testdata)
-	return data
-}
-
-func Testdata() string {
-	path, _ := filepath.Abs(filepath.Join(Project(), "testutil", "testdata"))
-	return path
-}
-
-func Project() string {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		return ""
-	}
-	return filepath.Dir(filepath.Dir(filename))
-}
-
-func (tf Testfile) Abs() string {
-	path, _ := filepath.Abs(filepath.Join(Project(), "testutil", "testdata", string(tf)))
-	return path
-}
-
-func (tf Testfile) Dir() string {
-	if tf == "" {
-		return ""
-	}
-	return filepath.Dir(string(tf))
 }

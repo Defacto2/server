@@ -48,7 +48,7 @@ func TestFiles2(t *testing.T) {
 	e, err := serv.RouteFS(sl, e, db, fsys)
 	be.Err(t, err, nil)
 
-	c := testutil.EchoContext(t, e, "/want-404")
+	c := testutil.Middleware(t, e, "/want-404")
 	err = c.NoContent(http.StatusNotFound)
 	be.Err(t, err, nil)
 	res, ok := c.Response().(*echo.Response)

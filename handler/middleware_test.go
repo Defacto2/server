@@ -33,7 +33,7 @@ func TestSkipPaths(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		c := testutil.EchoStatus(t, e, tt.target, tt.status)
+		c := testutil.MiddlewareStatus(t, e, tt.target, tt.status)
 		got := handler.SkipPaths(c)
 		be.Equal(t, got, tt.want)
 	}
@@ -55,7 +55,7 @@ func TestNoCrawl(t *testing.T) {
 		Environment: env,
 	}
 
-	c := testutil.EchoContext(t, e, "/")
+	c := testutil.Middleware(t, e, "/")
 	funcHandler := h.NoCrawl(next)
 	err := funcHandler(c)
 	be.Err(t, err, nil)
@@ -77,7 +77,7 @@ func TestReadOnlyLock(t *testing.T) {
 		Environment: env,
 	}
 
-	c := testutil.EchoContext(t, e, "/")
+	c := testutil.Middleware(t, e, "/")
 	funcHandler := h.ReadOnlyLock(next, sl)
 	err := funcHandler(c)
 	be.Err(t, err, nil)
@@ -93,14 +93,14 @@ func TestCacheMiddleware(t *testing.T) {
 	e := echo.New()
 	e.Use(handler.CacheMiddleware())
 
-	c := testutil.EchoContext(t, e, "/categories")
+	c := testutil.Middleware(t, e, "/categories")
 	err := handler.CacheMiddleware()(next)(c)
 	be.Err(t, err, nil)
 	const day = 60 * 60 * 24
 	got := c.Response().Header().Get(handler.CacheControl)
 	be.Equal(t, got, "public, max-age="+strconv.Itoa(day))
 
-	c = testutil.EchoContext(t, e, "/boards")
+	c = testutil.Middleware(t, e, "/boards")
 	err = handler.CacheMiddleware()(next)(c)
 	be.Err(t, err, nil)
 	const hour = 60 * 60
