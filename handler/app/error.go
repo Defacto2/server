@@ -253,7 +253,11 @@ func InternalErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 		return nil
 	case errors.Is(err, echo.ErrRendererNotRegistered):
 		logErr(sl, msg, uri, code, err)
-		return echo.NewHTTPError(code, err.Error())
+		message := ""
+		if err != nil {
+			message = err.Error()
+		}
+		return echo.NewHTTPError(code, message)
 	}
 
 	data := empty(c)

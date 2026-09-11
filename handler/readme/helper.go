@@ -84,21 +84,16 @@ func trimEOF(s []byte) []byte {
 		e   = 0x8a // CP437: è
 		eof = 0x1a // MSDOS: end-of-file mark
 	)
-	n := len(s)
-	if n == 0 {
-		return s
+
+	for len(s) > 0 && s[len(s)-1] == eof {
+		s = s[:len(s)-1]
 	}
 
-	i := n - 1
-	for i >= 0 && s[i] == eof {
-		i--
+	if len(s) > 0 && s[len(s)-1] == e {
+		s = s[:len(s)-1]
 	}
 
-	if i >= 0 && s[i] == e {
-		i--
-	}
-
-	return s[:i+1]
+	return s
 }
 
 // trimBytes removes ending standard space characters and MS-DOS EOF marker (0x1a).
