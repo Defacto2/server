@@ -452,10 +452,10 @@ func TestExtraZip(t *testing.T) {
 	got = filerecord.ExtraZip(art, "")
 	be.True(t, !got)
 
+	src := testutil.FileData("archivezip").Abs()
 	extra := dir.Directory(t.TempDir())
 	err := command.CopyFile(sl,
-		filepath.Join("testdata", "archive.zip"),
-		filepath.Join(extra.Path(), testutil.UID4+".zip"))
+		src, filepath.Join(extra.Path(), testutil.UID4+".zip"))
 	be.Err(t, err, nil)
 }
 
@@ -531,15 +531,13 @@ func TestListContent(t *testing.T) {
 	got := strings.Contains(string(s), "invalid platform")
 	be.True(t, got)
 
-	src, err := filepath.Abs("testdata")
-	be.Err(t, err, nil)
-	dlc.Source = src
+	dlc.Source = testutil.Testdata()
 	s = dlc.List(ctx, sl, art)
 	got = strings.Contains(string(s), "error, ")
 	be.True(t, got)
 
-	src = t.TempDir()
-	err = command.CopyFile(sl, filepath.Join("testdata", "archive.zip"), filepath.Join(src, "archive.zip"))
+	src := testutil.FileData("archivezip").Abs()
+	err := command.CopyFile(sl, src, filepath.Join(t.TempDir(), "archive.zip"))
 	be.Err(t, err, nil)
 
 	s = dlc.List(ctx, sl, art)
@@ -565,7 +563,7 @@ func TestListContentHappyPath(t *testing.T) {
 
 	// Create temp directory and copy test archive
 	tmpDir := t.TempDir()
-	src := filepath.Join("testdata", "archive.zip")
+	src := testutil.FileData("archivezip").Abs()
 	dst := filepath.Join(tmpDir, "archive.zip")
 	err := command.CopyFile(logs.Discard(), src, dst)
 	be.Err(t, err, nil)
@@ -737,7 +735,7 @@ func TestSkipFile(t *testing.T) {
 	e := filerecord.Entry{}
 	be.True(t, e.SkipFile("", ""))
 
-	name := filepath.Join("testdata", "readme.txt")
+	name := testutil.FileData("readmetxt").Abs()
 	be.True(t, !e.SkipFile(name, ""))
 }
 
@@ -745,21 +743,21 @@ func TestSkipEntry(t *testing.T) {
 	t.Parallel()
 
 	e := filerecord.Entry{}
-	name := filepath.Join("testdata", "readme.txt")
+	name := testutil.FileData("readmetxt").Abs()
 	info, err := os.Stat(name)
 	be.Err(t, err, nil)
 	d := fs.FileInfoToDirEntry(info)
 	be.True(t, e.SkipEntry("", d, ""))
 	be.True(t, !e.SkipEntry(name, d, ""))
 
-	name = filepath.Join("testdata", "TEST.png")
+	name = testutil.FileData("testpng").Abs()
 	info, err = os.Stat(name)
 	be.Err(t, err, nil)
 	d = fs.FileInfoToDirEntry(info)
 	be.True(t, e.SkipEntry("", d, ""))
 	be.True(t, !e.SkipEntry(name, d, ""))
 
-	name = filepath.Join("testdata", "defacto2.com")
+	name = testutil.FileData("defacto2com").Abs()
 	info, err = os.Stat(name)
 	be.Err(t, err, nil)
 	d = fs.FileInfoToDirEntry(info)

@@ -1,19 +1,16 @@
 package tidbit_test
 
 import (
-	"embed"
 	"path/filepath"
 	"testing"
 
 	"github.com/Defacto2/server/handler/tidbit"
 	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
 // checked in Sep 26, test coverage was fine at around 55%+
-
-//go:embed testdata/*
-var testdata embed.FS
 
 func TestID(t *testing.T) {
 	t.Parallel()
@@ -30,8 +27,9 @@ func TestID(t *testing.T) {
 func TestMarkdown(t *testing.T) {
 	t.Parallel()
 
-	dir := filepath.Join("testdata", "public", "md", "tidbit")
-	b := tidbit.ID(1).Markdown(logs.Discard(), testdata, dir)
+	fsys := testutil.EmbedFS(t)
+	dir := filepath.Join("testdata", "tidbit")
+	b := tidbit.ID(1).Markdown(logs.Discard(), fsys, dir)
 	if b == nil {
 		t.Error("tidbit: 1 markdown is nil")
 	}

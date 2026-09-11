@@ -13,6 +13,8 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// checked in Sep 26, test coverage with an active database was fine at around 65%
+
 //go:embed*
 var emptyFS embed.FS
 

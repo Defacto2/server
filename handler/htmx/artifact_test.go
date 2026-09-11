@@ -258,7 +258,7 @@ func TestTxTags(t *testing.T) {
 	t.Parallel()
 
 	tx := testutil.Tx(t)
-	sl := logs.Default()
+	sl := logs.Discard()
 
 	const prefix = "artifact-editor-"
 	formInputs0 := testutil.Input{

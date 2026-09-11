@@ -183,51 +183,37 @@ func legacyArchiving(modMagic any) bool {
 //
 // The maxWidth should usually be a value of 80 representing the standard terminal column value.
 func lockWidth(maxWidth int, b []byte) []byte {
-	tabs := 0
-	index := 0
-
-	const unmod = 3
-	for index < len(b) {
-		if tabs >= unmod {
-			return b
-		}
-
-		index = bytes.IndexByte(b[index:], byte('\t'))
-		if index < 0 {
-			break
-		}
-		tabs++
+	if maxWidth <= 0 {
+		return b
 	}
 
-	const size = 2
+	// Exit early if 3 or more tabs are present
+	if bytes.Count(b, []byte{'\t'}) >= 3 {
+		return b
+	}
+
 	var builder bytes.Buffer
+	firstLine := true
+
 	for line := range bytes.Lines(b) {
-		// builder.Write(line) // uncomment to debug
-		total := len(line) - 1
-		if total <= maxWidth {
+		if !firstLine {
+			builder.WriteByte('\n')
+		}
+		firstLine = false
+
+		if len(line) <= maxWidth {
 			builder.Write(line)
 			continue
 		}
 
-		cut := 0
-		for n := range line {
-			if n%maxWidth == 0 {
-				p := make([]byte, 1, len(line[cut:n])+1)
-				p[0] = '\n'
-				p = append(p, line[cut:n]...)
-				builder.Write(p)
-				cut = n
-				continue
+		// Chunk line into maxWidth pieces
+		for i := 0; i < len(line); i += maxWidth {
+			end := i + maxWidth
+			if end > len(line) {
+				end = len(line)
 			}
-
-			if n >= total {
-				p := make([]byte, 1, len(line[cut:n])+size)
-				p[0] = '\n'
-				p = append(p, line[cut:n]...)
-				p = append(p, byte('\n'))
-				builder.Write(p)
-				break
-			}
+			builder.WriteByte('\n')
+			builder.Write(line[i:end])
 		}
 	}
 

@@ -2,7 +2,6 @@ package readme_test
 
 import (
 	"bytes"
-	"log/slog"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -43,20 +42,20 @@ func TestBuffers0(t *testing.T) {
 
 	sl := logs.Discard()
 	txt := readme.Text{}
+	unused := new(bytes.Buffer)
 	got0, got1, err := txt.Buffers(sl)
 	be.Err(t, err, nil)
-	be.Equal(t, got0, nil)
-	be.Equal(t, got1, nil)
+	be.Equal(t, got0, unused)
+	be.Equal(t, got1, unused)
 }
 
 func TestBuffers1(t *testing.T) {
 	t.Parallel()
 
 	const unid = "d9c025c8-44be-4ec5-a9ec-40463a39a722"
-	testdata, err := filepath.Abs("testdata")
-	be.Err(t, err, nil)
+	testdata := filepath.Join(testutil.Testdata(), "uuid")
 
-	sl := slog.Default()
+	sl := logs.Discard()
 	txt := readme.Text{
 		Download: dir.Directory(testdata),
 		Extra:    dir.Directory(testdata),
@@ -98,10 +97,9 @@ func TestBuffers2(t *testing.T) {
 	t.Parallel()
 
 	const unid = "3e54b770-e71c-4e95-aa8c-f898e6b18f77"
-	testdata, err := filepath.Abs("testdata")
-	be.Err(t, err, nil)
+	testdata := filepath.Join(testutil.Testdata(), "uuid")
 
-	sl := slog.Default()
+	sl := logs.Discard()
 	txt := readme.Text{
 		Download: dir.Directory(testdata),
 		Extra:    dir.Directory(testdata),
@@ -135,7 +133,7 @@ func TestBuffers3(t *testing.T) {
 	be.Err(t, err, nil)
 	temp := filepath.Dir(dest)
 
-	sl := slog.Default()
+	sl := logs.Discard()
 	txt := readme.Text{
 		Download: dir.Directory(temp),
 		Extra:    dir.Directory(temp),

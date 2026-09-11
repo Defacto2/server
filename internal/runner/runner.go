@@ -15,6 +15,7 @@ import (
 
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/testutil"
 )
 
 // Runner runs through all the methods and funcs that manipulate photos and images.
@@ -34,8 +35,6 @@ func printOut(a ...any) {
 		log.Fatal(a, err)
 	}
 }
-
-var testdata = filepath.Join("internal", "command", "testdata")
 
 func main() {
 	sl := slog.Default()
@@ -105,7 +104,7 @@ func main() {
 	}
 
 	const webp = "OPTIMIZE.PNG"
-	srcWebp := filepath.Join(testdata, "TEST.PNG")
+	srcWebp := testutil.FileData("testpng").Abs()
 	dstWebp := filepath.Join(dstDir, webp)
 	err = command.CopyFile(sl, srcWebp, dstWebp)
 	if err != nil {
@@ -120,8 +119,7 @@ func main() {
 
 	// Text file handlers
 
-	txt := filepath.Join(testdata, "TEST.ASCII")
-
+	txt := testutil.FileData("testascii").Abs()
 	err = d.TextDeferred(ctx, sl, txt, "DEFERRED_TXT")
 	if err != nil {
 		cancel()
@@ -167,7 +165,8 @@ func main() {
 }
 
 func initData() (src, dstDir string) { //nolint:nonamedreturns
-	src = filepath.Join(testdata, screenshot)
+	src = testutil.FileData("screenpng").Abs()
+
 	st, err := os.Stat(src)
 	if err != nil {
 		log.Fatal(err)
@@ -232,7 +231,7 @@ func alignThumbs(ctx context.Context, sl *slog.Logger, src, dst, dstDir string) 
 	for _, align := range aligns {
 		s := align.String()
 		printOut("Running Align Thumbs:", s)
-		preview := dir.Directory(testdata)
+		preview := dir.Directory(testutil.Testdata())
 		thumbnail := dir.Directory(dstDir)
 		err := align.Thumbs(ctx, sl, "SCREEN", preview, thumbnail)
 		if err != nil {

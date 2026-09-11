@@ -1,45 +1,50 @@
 package app_test
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/testutil"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
+
+func c(t *testing.T) *echo.Context {
+	t.Helper()
+
+	e := echo.New()
+	r := httptest.NewRequestWithContext(
+		t.Context(), http.MethodPost, "/", strings.NewReader("{}"))
+	r.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	w := httptest.NewRecorder()
+
+	return e.NewContext(r, w)
+}
 
 func TestArtifact(t *testing.T) {
 	t.Parallel()
 
-	dir := app.Dirs{}
-	err := dir.Artifact(nil, echoCtx(t), nil)
-	be.Err(t, err)
-}
+	ds := app.Dirs{
+		ID:  1,
+		URI: "9b1c6",
+	}
 
-func TestFileMissingErr(t *testing.T) {
-	t.Parallel()
+	sl := logs.Discard()
+	db := testutil.DB(t)
 
-	err := app.FileMissingErr(nil, echoCtx(t), "", nil)
-	be.Err(t, err)
-}
-
-func TestForbiddenErr(t *testing.T) {
-	t.Parallel()
-
-	err := app.ForbiddenErr(nil, echoCtx(t), "", nil)
-	be.Err(t, err)
-}
-
-func TestInternalErr(t *testing.T) {
-	t.Parallel()
-
-	err := app.InternalErr(nil, echoCtx(t), "", nil)
+	err := ds.Artifact(sl, c(t), db)
 	be.Err(t, err)
 }
 
 func TestStatusErr(t *testing.T) {
 	t.Parallel()
 
-	err := app.StatusErr(nil, echoCtx(t), -1, "")
+	sl := logs.Discard()
+	err := app.StatusErr(sl, c(t), 1, "x")
 	be.Err(t, err)
 }
 

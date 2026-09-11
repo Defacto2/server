@@ -12,15 +12,18 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/google/uuid"
 	"github.com/nalgeon/be"
 )
 
 const (
-	testdata      = "testdata"
-	testdataCount = 9
-	testCount     = 7
-	invalid       = "this-is#invalid!"
+	invalid = "this-is#invalid!"
+)
+
+var (
+	testdata      = testutil.Testdata()
+	testdataCount = testutil.CountTest()
 )
 
 // setupTestDir copies all files from testdata/ to tempDir. A string that should normally
@@ -85,8 +88,9 @@ func setupTestDir(t *testing.T, tempDir string) (string, string) {
 		t.Fatalf("setupTestDir: no files found in %s", testdata)
 	}
 	n := countFiles(t, tempDir)
-	if n != testCount {
-		t.Fatalf("found %d test files in the temp directory, wanted %d: %s", n, testCount, tempDir)
+	if n != testdataCount {
+		t.Fatalf("found %d test files in the temp directory, wanted %d: %s",
+			n, testdataCount, tempDir)
 	}
 
 	return baseN, tempDir
@@ -103,7 +107,7 @@ func countFiles(t *testing.T, dir string) int {
 
 	count := 0
 	for _, entry := range entries {
-		if entry.Type().IsRegular() {
+		if entry.Type().IsRegular() && strings.HasPrefix(entry.Name(), "TEST.") {
 			count++
 		}
 	}
@@ -360,6 +364,7 @@ func TestCropText(t *testing.T) {
 	src := filepath.Join(textdir, "TEST.ASCII")
 	srcSt, err := os.Stat(src)
 	be.Err(t, err, nil)
+
 	const srcSize = 931
 	be.Equal(t, srcSt.Size(), srcSize)
 
@@ -369,8 +374,10 @@ func TestCropText(t *testing.T) {
 	txt := command.Text{UUID: id.String()}
 	dst, err := txt.Crop(sl, src)
 	be.Err(t, err, nil)
+
 	dstSt, err := os.Stat(dst)
 	be.Err(t, err, nil)
+
 	wants := int64(481)
 	be.Equal(t, dstSt.Size(), wants)
 

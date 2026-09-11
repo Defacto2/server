@@ -1,15 +1,15 @@
 package config_test
 
 import (
-	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
-const testdata = "testdata"
+var testdata = testutil.FileData("implodezip")
 
 func TestFileX(t *testing.T) {
 	t.Parallel()
@@ -29,7 +29,7 @@ func TestFileX(t *testing.T) {
 func TestFileDirectory(t *testing.T) {
 	t.Parallel()
 
-	got := config.File(testdata)
+	got := config.File(testdata.Dir())
 
 	be.Err(t, got.Check())
 
@@ -37,14 +37,13 @@ func TestFileDirectory(t *testing.T) {
 	be.True(t, strings.Contains(s, "points to a directory"))
 
 	s = got.String()
-	be.Equal(t, s, testdata)
+	be.Equal(t, s, testdata.Dir())
 }
 
-func TestFileasFile(t *testing.T) {
+func TestConfigFile(t *testing.T) {
 	t.Parallel()
 
-	testdata := filepath.Join("testdata", "IMPLODE.ZIP")
-	got := config.File(testdata)
+	got := config.File(testdata.Abs())
 
 	be.Err(t, got.Check(), nil)
 
@@ -52,5 +51,5 @@ func TestFileasFile(t *testing.T) {
 	be.Equal(t, s, "")
 
 	s = got.String()
-	be.Equal(t, s, testdata)
+	be.Equal(t, s, testdata.Abs())
 }

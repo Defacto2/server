@@ -555,6 +555,8 @@ func (id ID) Markdown(sl *slog.Logger, fsys fs.FS, dir string) []byte {
 
 	b, err := fs.ReadFile(fsys, name)
 	if err != nil {
+		fmt.Println("ERR", err)
+		fmt.Println(fs.ReadDir(fsys, "."))
 		name := fmt.Sprintf("%d.md", id)
 		sl.Error(msg, slog.String("read_error", name), slog.Any("error", err))
 		return nil

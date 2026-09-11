@@ -2,10 +2,10 @@ package fix_test
 
 import (
 	"context"
-	"log/slog"
 	"strings"
 	"testing"
 
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model/fix"
@@ -22,7 +22,7 @@ func TestRepairRunInvalid(t *testing.T) {
 	got := r.Run(t.Context(), nil, nil, nil)
 	be.Err(t, got)
 
-	sl := slog.Default()
+	sl := logs.Discard()
 	r = fix.Releaser
 	got = r.Run(t.Context(), sl, nil, nil)
 	be.Err(t, got)
@@ -33,7 +33,7 @@ func TestRepairArtifactsRun(t *testing.T) {
 
 	db := testutil.DB(t)
 	tx := testutil.Tx(t)
-	sl := slog.Default()
+	sl := logs.Discard()
 
 	got := fix.Artifacts.Run(t.Context(), sl, nil, tx)
 	be.Err(t, got, nil)

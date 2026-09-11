@@ -12,6 +12,7 @@ import (
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
@@ -154,12 +155,7 @@ func TestReArchiveImplode(t *testing.T) {
 	r := config.Zip
 	ctx := t.Context()
 
-	// test an archive that uses the defunct implode zip method
-	src, err := filepath.Abs(filepath.Join("testdata", "IMPLODE.ZIP"))
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	src := testutil.FileData("implodezip").Abs()
 
 	f1, err := os.Open(src)
 	if err != nil {

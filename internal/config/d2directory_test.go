@@ -1,7 +1,6 @@
 package config_test
 
 import (
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -27,8 +26,7 @@ func TestDirectoryX(t *testing.T) {
 func TestDirectoryFile(t *testing.T) {
 	t.Parallel()
 
-	testdata := filepath.Join("testdata", "IMPLODE.ZIP")
-	got := config.Directory(testdata)
+	got := config.Directory(testdata.Abs())
 
 	be.Err(t, got.Check())
 
@@ -36,14 +34,13 @@ func TestDirectoryFile(t *testing.T) {
 	be.True(t, strings.Contains(s, "points to a file"))
 
 	s = got.String()
-	be.Equal(t, s, testdata)
+	be.Equal(t, s, testdata.Abs())
 }
 
-func TestDirectory(t *testing.T) {
+func TestConfigDirectory(t *testing.T) {
 	t.Parallel()
 
-	const testdata = "testdata"
-	got := config.Directory(testdata)
+	got := config.Directory(testdata.Dir())
 
 	be.Err(t, got.Check(), nil)
 
@@ -51,5 +48,5 @@ func TestDirectory(t *testing.T) {
 	be.Equal(t, s, "")
 
 	s = got.String()
-	be.Equal(t, s, testdata)
+	be.Equal(t, s, ".")
 }

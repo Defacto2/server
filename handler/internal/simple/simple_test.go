@@ -11,18 +11,17 @@ import (
 
 	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
 )
 
 // checked in Sep 26, test coverage was good at over 85%
 
-func imagefiler(t *testing.T) string {
+func testpng(t *testing.T) string {
 	t.Helper()
 
-	_, file, _, ok := runtime.Caller(0)
-	be.True(t, ok)
-	return filepath.Join(filepath.Dir(file), "testdata", "TEST.png")
+	return filepath.Join(testutil.Testdata(), "thumb", "TEST.png")
 }
 
 func TestAssetSrc(t *testing.T) {
@@ -272,12 +271,12 @@ func TestImageSample(t *testing.T) {
 	be.True(t, strings.Contains(string(x), missing))
 
 	// note: the filename extension is case-sensitive.
-	x = simple.ImageSample("", dir.Directory(filepath.Join("testdata", "TEST.png")))
+	preview := dir.Directory(testpng(t))
+	x = simple.ImageSample("", preview)
 	be.True(t, strings.Contains(string(x), missing))
-	abs, err := filepath.Abs("testdata")
-	be.Err(t, err, nil)
 
 	const filenameNoExt = "TEST"
+	abs := dir.Directory(filepath.Dir(testpng(t)))
 	x = simple.ImageSample(filenameNoExt, dir.Directory(abs))
 	be.True(t, strings.Contains(string(x), "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI"))
 }
@@ -288,9 +287,9 @@ func TestImageSampleStat(t *testing.T) {
 	x := simple.ImageSampleStat("", "")
 	be.True(t, !x)
 
-	name := filepath.Base(imagefiler(t))
+	name := filepath.Base(testpng(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	prev := filepath.Dir(imagefiler(t))
+	prev := filepath.Dir(testpng(t))
 	x = simple.ImageSampleStat(name, dir.Directory(prev))
 	be.True(t, x)
 }
@@ -303,7 +302,7 @@ func TestImageXY(t *testing.T) {
 	s := simple.ImageXY(sl, "")
 	be.Equal(t, missing, s)
 
-	img := imagefiler(t)
+	img := testpng(t)
 	s = simple.ImageXY(sl, img)
 	be.Equal(t, "4,163", s[0])
 	be.Equal(t, "500x500", s[1])
@@ -360,7 +359,7 @@ func TestMagicAsTitle(t *testing.T) {
 	s := simple.MagicAsTitle(sl, "")
 	be.Equal(t, "file not found", s)
 
-	s = simple.MagicAsTitle(sl, imagefiler(t))
+	s = simple.MagicAsTitle(sl, testpng(t))
 	be.True(t, strings.Contains(s, "Portable Network Graphics"))
 }
 
@@ -371,7 +370,7 @@ func TestMIME(t *testing.T) {
 	s := simple.MIME(sl, "")
 	be.Equal(t, "file not found", s)
 
-	s = simple.MIME(sl, imagefiler(t))
+	s = simple.MIME(sl, testpng(t))
 	be.Equal(t, "image/png", s)
 }
 
@@ -417,7 +416,7 @@ func TestScreenshot(t *testing.T) {
 	s := simple.Screenshot("", "", "")
 	be.Equal(t, s, "")
 
-	prev := filepath.Dir(imagefiler(t))
+	prev := filepath.Dir(testpng(t))
 	s = simple.Screenshot("TEST", "test", dir.Directory(prev))
 	be.True(t, strings.Contains(string(s), `alt="test screenshot"`))
 	be.True(t, strings.Contains(string(s), `<img src="/public/image`))
@@ -431,7 +430,7 @@ func TestStatHumanize(t *testing.T) {
 	be.Equal(t, none, x)
 	be.Equal(t, none, y)
 	be.Equal(t, none, z)
-	x, y, z = simple.StatHumanize(imagefiler(t))
+	x, y, z = simple.StatHumanize(testpng(t))
 	be.True(t, strings.Contains(x, "202")) // a year prefix
 	be.Equal(t, "4,163", y)
 	be.True(t, strings.Contains(z, "4.2 kB"))
@@ -443,9 +442,9 @@ func TestThumb(t *testing.T) {
 	s := simple.Thumb("", "", "", false)
 	be.True(t, strings.Contains(string(s), "<!-- no thumbnail found -->"))
 
-	name := filepath.Base(imagefiler(t))
+	name := filepath.Base(testpng(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	thumb := dir.Directory(filepath.Dir(imagefiler(t)))
+	thumb := dir.Directory(filepath.Dir(testpng(t)))
 	s = simple.Thumb(name, "a description", thumb, false)
 	be.True(t, strings.Contains(string(s), `alt="a description thumbnail"`))
 }
@@ -457,9 +456,9 @@ func TestThumbSample(t *testing.T) {
 	x := simple.ThumbSample("", "")
 	be.True(t, strings.Contains(string(x), missing))
 
-	name := filepath.Base(imagefiler(t))
+	name := filepath.Base(testpng(t))
 	name = strings.TrimSuffix(name, filepath.Ext(name))
-	thumb := filepath.Dir(imagefiler(t))
+	thumb := filepath.Dir(testpng(t))
 	x = simple.ThumbSample(name, dir.Directory(thumb))
 	be.True(t, strings.Contains(string(x), "sha384-SK3qCpS11QMhNxUUnyeUeWWXBMPORDgLTI"))
 }

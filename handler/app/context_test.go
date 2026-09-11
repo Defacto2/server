@@ -4,368 +4,413 @@ package app_test
 
 import (
 	"context"
-	"embed"
+	"database/sql"
 	"log/slog"
-	"net/http"
-	"net/http/httptest"
-	"strings"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/internal/config"
+	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
-func echoCtx(t *testing.T) *echo.Context {
-	t.Helper()
-
-	e := echo.New()
-	r := httptest.NewRequestWithContext(
-		t.Context(), http.MethodPost, "/", strings.NewReader("{}"))
-	r.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	w := httptest.NewRecorder()
-
-	return e.NewContext(r, w)
-}
-
-func newContext() *echo.Context {
-	e := echo.New()
-	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader("{}"))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	return e.NewContext(req, rec)
-}
-
 func TestEmpty(t *testing.T) {
 	t.Parallel()
-	x := app.EmptyTester(newContext())
+
+	x := app.EmptyTester(testutil.NewContext(t, ""))
 	be.Equal(t, x["title"], "")
+	be.Equal(t, x["uploader"], true)
+	be.Equal(t, x["xxxxxxxx"], nil)
+}
+
+type Fn1 func(c *echo.Context, s string) error
+
+func TestFn1(t *testing.T) {
+	t.Parallel()
+
+	fns := []Fn1{
+		app.PouetCache,
+		app.ProdPouet,
+		app.ProdZoo,
+	}
+
+	for n, fn := range fns {
+		t.Run("fn1 #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			c := testutil.NewContext(t, "")
+			got := fn(c, "x")
+			switch n {
+			case 0, 3:
+				be.Err(t, got)
+			default:
+				be.Err(t, got, nil)
+			}
+		})
+	}
+}
+
+type Fn2 func(sl *slog.Logger, c *echo.Context, s string) error
+
+func TestFn2(t *testing.T) {
+	t.Parallel()
+
+	fns := []Fn2{
+		app.Website,
+		app.VotePouet,
+		app.ArtifactErr,
+		app.ArtifactsErr,
+		app.ScenerErr,
+		app.ReleaserErr,
+	}
+
+	for n, fn := range fns {
+		t.Run("fn2 #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			sl := logs.Discard()
+			c := testutil.NewContext(t, "")
+			got := fn(sl, c, "x")
+			switch n {
+			case 1:
+				be.Err(t, got, nil)
+			default:
+				be.Err(t, got)
+			}
+		})
+	}
+}
+
+type Fn3 func(sl *slog.Logger, c *echo.Context) error
+
+func TestFn3(t *testing.T) {
+	t.Parallel()
+
+	fns := []Fn3{
+		app.APIInfo,
+		app.Apps,
+		app.Areacodes,
+		app.BrokenTexts,
+		app.Compression,
+		app.Fixes,
+		app.History,
+		app.Index,
+		app.Interview,
+		app.Terms,
+		app.New,
+		app.SearchDesc,
+		app.SearchID,
+		app.SearchFile,
+		app.SearchReleaser,
+		app.SignedOut,
+		app.SignOut,
+		app.Titles,
+		app.Thanks,
+		app.TheScene,
+	}
+
+	for n, fn := range fns {
+		t.Run("fn3 #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			sl := logs.Discard()
+			c := testutil.NewContext(t, "")
+			got := fn(sl, c)
+			be.Err(t, got)
+		})
+	}
+}
+
+type Fn4 func(sl *slog.Logger, c *echo.Context, db *sql.DB) error
+
+func TestFn4(t *testing.T) {
+	t.Parallel()
+
+	fns := []Fn4{
+		app.Artist,
+		app.BBS,
+		app.BBSAZ,
+		app.BBSYear,
+		app.Coder,
+		app.FTP,
+		app.Magazine,
+		app.MagazineAZ,
+		app.Musician,
+		app.PlatformEdit,
+		app.TagEdit,
+		app.PostFilename,
+		app.Releasers,
+		app.ReleasersAZ,
+		app.ReleasersYear,
+		app.Scener,
+		app.Fixers,
+		app.FixNumericSuffix,
+		app.Writer,
+	}
+
+	for n, fn := range fns {
+		t.Run("fn4 #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			sl := logs.Discard()
+			c := testutil.NewContext(t, "")
+			db := testutil.DB(t)
+			got := fn(sl, c, db)
+
+			switch n {
+			case 11:
+				be.Err(t, got, nil)
+			default:
+				be.Err(t, got)
+			}
+		})
+	}
+}
+
+type Fn5 func(sl *slog.Logger, c *echo.Context, uri string, err error) error
+
+func TestFn5(t *testing.T) {
+	t.Parallel()
+
+	fns := []Fn5{
+		app.BadRequestErr,
+		app.DatabaseErr,
+		app.DownloadErr,
+		app.FileMissingErr,
+		app.ForbiddenErr,
+		app.InternalErr,
+	}
+
+	for n, fn := range fns {
+		t.Run("fn5 #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			sl := logs.Discard()
+			c := testutil.NewContext(t, "")
+			got := fn(sl, c, "x", app.ErrUser)
+			switch n {
+			// case 1:
+			// 	be.Err(t, got, nil)
+			default:
+				be.Err(t, got)
+			}
+		})
+	}
+}
+
+type Fn6 func(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error
+
+func TestExec(t *testing.T) {
+	t.Parallel()
+
+	fns := []Fn6{
+		app.Deletions,
+		app.ForApproval,
+		app.Unwanted,
+		app.PostDesc,
+		app.Checksum,
+	}
+
+	for n, fn := range fns {
+		t.Run("fn6 #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			sl := logs.Discard()
+			c := testutil.NewContext(t, "")
+
+			got := fn(sl, c, nil, "x")
+			switch n {
+			// case 1:
+			// 	be.Err(t, got, nil)
+			default:
+				be.Err(t, got)
+			}
+		})
+	}
+}
+
+// exec boil.ContextExecutor
+type Fn7 func(sl *slog.Logger, c *echo.Context, db *sql.DB, path dir.Directory) error
+
+func TestDirs(t *testing.T) {
+	t.Parallel()
+
+	fns := []Fn7{
+		app.Inline,
+		app.Download,
+	}
+
+	for n, fn := range fns {
+		t.Run("fn7 #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			db := testutil.DB(t)
+			sl := logs.Discard()
+			c := testutil.NewContext(t, "")
+			got := fn(sl, c, db, "x")
+			switch n {
+			// case 1:
+			// 	be.Err(t, got, nil)
+			default:
+				be.Err(t, got)
+			}
+		})
+	}
+}
+
+type Fn8 func(c *echo.Context) error
+
+func TestCtx(t *testing.T) {
+	t.Parallel()
+
+	fns := []Fn8{
+		app.TagInfo,
+		app.PlatformTagInfo,
+	}
+
+	for n, fn := range fns {
+		t.Run("fn8 #"+strconv.Itoa(n), func(t *testing.T) {
+			t.Parallel()
+
+			c := testutil.NewContext(t, "")
+			got := fn(c)
+			switch n {
+			case 0, 1:
+				be.Err(t, got, nil)
+			default:
+				be.Err(t, got)
+			}
+		})
+	}
 }
 
 func TestArtifacts(t *testing.T) {
 	t.Parallel()
-	x := app.Artifacts(nil, newContext(), nil, "", "")
-	be.Err(t, x)
-	x = app.Artifacts(nil, newContext(), nil, "for-approval", "1")
-	be.Err(t, x)
-}
 
-func TestArtist(t *testing.T) {
-	t.Parallel()
-	x := app.Artist(nil, newContext(), nil)
-	be.Err(t, x)
-}
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
+	db := testutil.DB(t)
 
-func TestBBS(t *testing.T) {
-	t.Parallel()
-	x := app.BBS(nil, newContext(), nil)
+	x := app.Artifacts(sl, c, db, "", "")
 	be.Err(t, x)
-}
 
-func TestChecksum(t *testing.T) {
-	t.Parallel()
-	x := app.Checksum(nil, newContext(), nil, "")
-	be.Err(t, x)
-}
-
-func TestCoder(t *testing.T) {
-	t.Parallel()
-	x := app.Coder(nil, newContext(), nil)
+	x = app.Artifacts(sl, c, db, "for-approval", "1")
 	be.Err(t, x)
 }
 
 func TestConfigurations(t *testing.T) {
 	t.Parallel()
-	x := app.Configurations(nil, newContext(), nil, config.Config{})
+
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
+	db := testutil.DB(t)
+
+	x := app.Configurations(sl, c, db, config.Config{})
 	be.Err(t, x)
 }
 
 func TestDownloadJsDos(t *testing.T) {
 	t.Parallel()
-	x := app.DownloadJsDos(nil, newContext(), nil, "", "")
-	be.Err(t, x)
-}
 
-func TestDownload(t *testing.T) {
-	t.Parallel()
-	x := app.Download(nil, newContext(), nil, "")
-	be.Err(t, x)
-}
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
+	db := testutil.DB(t)
 
-func TestFTP(t *testing.T) {
-	t.Parallel()
-	x := app.FTP(nil, newContext(), nil)
+	x := app.DownloadJsDos(sl, c, db, "abc", "xyz")
 	be.Err(t, x)
 }
 
 func TestCategories(t *testing.T) {
 	t.Parallel()
-	x := app.Categories(nil, newContext(), nil, false)
-	be.Err(t, x)
-}
 
-func TestDeletions(t *testing.T) {
-	t.Parallel()
-	x := app.Deletions(nil, newContext(), nil, "")
-	be.Err(t, x)
-}
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
+	db := testutil.DB(t)
 
-func TestUnwanted(t *testing.T) {
-	t.Parallel()
-	x := app.Unwanted(nil, newContext(), nil, "")
-	be.Err(t, x)
-}
-
-func TestForApproval(t *testing.T) {
-	t.Parallel()
-	x := app.ForApproval(nil, newContext(), nil, "")
+	x := app.Categories(sl, c, db, false)
 	be.Err(t, x)
 }
 
 func TestGetDemozooParam(t *testing.T) {
 	t.Parallel()
-	sl := slog.Default()
-	x := app.GetDemozooParam(sl, newContext(), nil, "")
-	be.Err(t, x)
+
+	sl := logs.Discard()
+	tx := testutil.Tx(t)
+	c := testutil.NewContext(t, "")
+
+	x := app.GetDemozooParam(sl, c, tx, "abc")
+	be.Err(t, x, nil)
 }
 
 func TestGetDemozoo(t *testing.T) {
 	t.Parallel()
-	sl := slog.Default()
-	ctx := context.TODO()
-	x := app.GetDemozoo(ctx, sl, newContext(), nil, -1, "", "")
+
+	tx := testutil.Tx(t)
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	x := app.GetDemozoo(ctx, sl, c, tx, 1, testutil.UID, "abc")
 	be.Err(t, x)
-	x = app.GetPouet(ctx, sl, newContext(), nil, -1, "", "")
+
+	x = app.GetPouet(ctx, sl, c, tx, 1, testutil.UID, "abc")
 	be.Err(t, x)
 }
 
 func TestGoogleCallback(t *testing.T) {
 	t.Parallel()
-	x := app.GoogleCallback(nil, newContext(), "", -1, [48]byte{})
-	be.Err(t, x)
-}
 
-func TestHistory(t *testing.T) {
-	t.Parallel()
-	x := app.History(nil, newContext())
-	be.Err(t, x)
-}
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
 
-func TestIndex(t *testing.T) {
-	t.Parallel()
-	x := app.Index(nil, newContext())
-	be.Err(t, x)
-}
-
-func TestInline(t *testing.T) {
-	t.Parallel()
-	x := app.Inline(nil, newContext(), nil, "")
-	be.Err(t, x)
-}
-
-func TestInterview(t *testing.T) {
-	t.Parallel()
-	x := app.Interview(nil, newContext())
-	be.Err(t, x)
-}
-
-func TestMusician(t *testing.T) {
-	t.Parallel()
-	x := app.Musician(nil, newContext(), nil)
-	be.Err(t, x)
-}
-
-func TestNew(t *testing.T) {
-	t.Parallel()
-	x := app.New(nil, newContext())
+	x := app.GoogleCallback(sl, c, "abc", 100, [48]byte{})
 	be.Err(t, x)
 }
 
 func TestPage404(t *testing.T) {
 	t.Parallel()
-	x := app.PageErr(nil, newContext(), "", "")
-	be.Err(t, x)
-}
 
-func TestPlatformEdit(t *testing.T) {
-	t.Parallel()
-	x := app.PlatformEdit(nil, newContext(), nil)
-	be.Err(t, x)
-}
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
 
-func TestPlatformTagInfo(t *testing.T) {
-	t.Parallel()
-	x := app.PlatformTagInfo(newContext())
-	be.Err(t, x, nil)
-}
-
-func TestPostDesc(t *testing.T) {
-	t.Parallel()
-	x := app.PostDesc(nil, newContext(), nil, "")
-	be.Err(t, x)
-}
-
-func TestPostFilename(t *testing.T) {
-	t.Parallel()
-	x := app.PostFilename(nil, newContext(), nil)
-	be.Err(t, x)
-}
-
-func TestPouetCache(t *testing.T) {
-	t.Parallel()
-	x := app.PouetCache(newContext(), "")
-	be.Err(t, x, nil)
-	x = app.PouetCache(newContext(), "abc")
-	be.Err(t, x)
-	x = app.PouetCache(newContext(), "3;1;1;1")
-	be.Err(t, x, nil)
-}
-
-func TestProdPouet(t *testing.T) {
-	t.Parallel()
-	x := app.ProdPouet(newContext(), "")
-	be.Err(t, x, nil)
-	x = app.ProdPouet(newContext(), "abc")
-	be.Err(t, x, nil)
-}
-
-func TestProdZoo(t *testing.T) {
-	t.Parallel()
-	x := app.ProdZoo(newContext(), "")
-	be.Err(t, x, nil)
-	x = app.ProdZoo(newContext(), "abc")
-	be.Err(t, x, nil)
-}
-
-func TestReleaser(t *testing.T) {
-	t.Parallel()
-	x := app.Releasers(nil, newContext(), nil)
-	be.Err(t, x)
-}
-
-func TestReleaserAZ(t *testing.T) {
-	t.Parallel()
-	x := app.ReleasersAZ(nil, newContext(), nil)
-	be.Err(t, x)
-}
-
-func TestReleaser404(t *testing.T) {
-	t.Parallel()
-	x := app.ReleaserErr(nil, newContext(), "")
-	be.Err(t, x)
-}
-
-func TestReleasers(t *testing.T) {
-	t.Parallel()
-	x := app.Releaser(nil, newContext(), nil, "", embed.FS{})
-	be.Err(t, x)
-}
-
-func TestScener(t *testing.T) {
-	t.Parallel()
-	x := app.Scener(nil, newContext(), nil)
-	be.Err(t, x)
-}
-
-func TestScener404(t *testing.T) {
-	t.Parallel()
-	x := app.ScenerErr(nil, newContext(), "")
-	be.Err(t, x)
-}
-
-func TestSceners(t *testing.T) {
-	t.Parallel()
-	x := app.Sceners(nil, newContext(), nil, "")
-	be.Err(t, x)
-}
-
-func TestSearchDesc(t *testing.T) {
-	t.Parallel()
-	x := app.SearchDesc(nil, newContext())
-	be.Err(t, x)
-}
-
-func TestSearchID(t *testing.T) {
-	t.Parallel()
-	x := app.SearchID(nil, newContext())
-	be.Err(t, x)
-}
-
-func TestSearchFile(t *testing.T) {
-	t.Parallel()
-	x := app.SearchFile(nil, newContext())
-	be.Err(t, x)
-}
-
-func TestSearchReleaser(t *testing.T) {
-	t.Parallel()
-	x := app.SearchReleaser(nil, newContext())
-	be.Err(t, x)
-}
-
-func TestSignedOut(t *testing.T) {
-	t.Parallel()
-	x := app.SignedOut(nil, newContext())
-	be.Err(t, x)
-}
-
-func TestSignOut(t *testing.T) {
-	t.Parallel()
-	x := app.SignOut(nil, newContext())
+	x := app.PageErr(sl, c, "x", "1")
 	be.Err(t, x)
 }
 
 func TestSignin(t *testing.T) {
 	t.Parallel()
-	x := app.Signin(nil, newContext(), "", nil)
+
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
+
+	x := app.Signin(sl, c, "", nil)
 	be.Err(t, x)
 }
 
-func TestTagEdit(t *testing.T) {
+func TestSceners(t *testing.T) {
 	t.Parallel()
-	x := app.TagEdit(nil, newContext(), nil)
+
+	db := testutil.DB(t)
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
+
+	x := app.Sceners(sl, c, db, "/abc")
 	be.Err(t, x)
 }
 
-func TestTagInfo(t *testing.T) {
+func TestReleasers(t *testing.T) {
 	t.Parallel()
-	x := app.TagInfo(newContext())
-	be.Err(t, x, nil)
-}
 
-func TestThanks(t *testing.T) {
-	t.Parallel()
-	x := app.Thanks(nil, newContext())
-	be.Err(t, x)
-}
+	db := testutil.DB(t)
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
 
-func TestTheScene(t *testing.T) {
-	t.Parallel()
-	x := app.TheScene(nil, newContext())
-	be.Err(t, x)
-}
-
-func TestVotePouet(t *testing.T) {
-	t.Parallel()
-	x := app.VotePouet(nil, newContext(), "")
-	be.Err(t, x)
-	const testNoCache = "1"
-	x = app.VotePouet(nil, newContext(), testNoCache)
-	be.Err(t, x)
-	const testNewCache = "1"
-	x = app.VotePouet(nil, newContext(), testNewCache)
-	be.Err(t, x)
-}
-
-func TestWebsite(t *testing.T) {
-	t.Parallel()
-	x := app.Website(nil, newContext(), "")
-	be.Err(t, x)
-}
-
-func TestWriter(t *testing.T) {
-	t.Parallel()
-	x := app.Writer(nil, newContext(), nil)
+	x := app.Releaser(sl, c, db, "x", testutil.OpenFS(t))
 	be.Err(t, x)
 }

@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"testing"
 
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
@@ -21,7 +22,7 @@ import (
 func TestChecks(t *testing.T) {
 	t.Parallel()
 
-	sl := slog.Default()
+	sl := logs.Discard()
 	sl1 := func(sl *slog.Logger) error {
 		return nils.Check(sl)
 	}
@@ -62,7 +63,7 @@ func TestChecks(t *testing.T) {
 func TestSlog(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()
-	sl := slog.Default()
+	sl := logs.Discard()
 	multi := func(
 		ctx context.Context, sl *slog.Logger, fh *multipart.FileHeader,
 	) (bool, error) {

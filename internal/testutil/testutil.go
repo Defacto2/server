@@ -37,7 +37,7 @@ import (
 // go test . -count=1000 -race -cover
 
 //go:embed testdata/*
-var testdata embed.FS
+var testdataFS embed.FS
 
 // Helper values
 
@@ -284,6 +284,13 @@ func NewPath(t *testing.T, target string, pathValues echo.PathValues) *echo.Cont
 }
 
 // File system helpers
+//
+
+func EmbedFS(tb testing.TB) fs.FS {
+	tb.Helper()
+
+	return testdataFS
+}
 
 // OpenFS opens the root directory of the testutil package and closes on cleanup.
 func OpenFS(tb testing.TB) fs.FS {
@@ -507,7 +514,7 @@ func CopyTXT(tb testing.TB, dest string) {
 func copyembed(tb testing.TB, dest, name string) {
 	tb.Helper()
 
-	data, err := testdata.ReadFile("testdata/" + name)
+	data, err := testdataFS.ReadFile("testdata/" + name)
 	if err != nil {
 		tb.Fatal(err)
 	}
@@ -515,4 +522,76 @@ func copyembed(tb testing.TB, dest, name string) {
 	if err != nil {
 		tb.Fatal(err)
 	}
+}
+
+type (
+	Testfile string
+	TestData = map[string]Testfile
+)
+
+var testdata = TestData{
+	"implodezip":  "IMPLODE.ZIP",
+	"logotxt":     "LOGO.TXT",
+	"screenpng":   "SCREEN.PNG",
+	"testascii":   "TEST.ASCII",
+	"testbmp":     "TEST.BMP",
+	"testgif":     "TEST.GIF",
+	"testjpg":     "TEST.JPG",
+	"testpcx":     "TEST.PCX",
+	"testpng":     "TEST.PNG",
+	"testwebp":    "TEST.WEBP",
+	"readmetxt":   "readme.txt",
+	"archivezip":  "archive.zip",
+	"defacto2com": "defacto2.com",
+}
+
+func Count() int {
+	return len(testdata)
+}
+
+func CountTest() int {
+	cnt := 0
+	for _, name := range testdata {
+		if strings.HasPrefix(string(name), "TEST.") {
+			cnt++
+		}
+	}
+	return cnt
+}
+
+func FileData(s string) Testfile {
+	return testdata[s]
+}
+
+func Files() TestData {
+	data := make(TestData, len(testdata))
+	for k, v := range testdata {
+		data[k] = v
+	}
+	return data
+}
+
+func Testdata() string {
+	path, _ := filepath.Abs(filepath.Join(Project(), "testutil", "testdata"))
+	return path
+}
+
+func Project() string {
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		return ""
+	}
+	return filepath.Dir(filepath.Dir(filename))
+}
+
+func (tf Testfile) Abs() string {
+	path, _ := filepath.Abs(filepath.Join(Project(), "testutil", "testdata", string(tf)))
+	return path
+}
+
+func (tf Testfile) Dir() string {
+	if tf == "" {
+		return ""
+	}
+	return filepath.Dir(string(tf))
 }

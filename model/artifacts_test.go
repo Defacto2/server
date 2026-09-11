@@ -1,9 +1,9 @@
 package model_test
 
 import (
-	"log/slog"
 	"testing"
 
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/google/uuid"
@@ -84,7 +84,7 @@ func TestOnlys(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, len(got) == limit)
 
-	sl := slog.Default()
+	sl := logs.Discard()
 	got, err = model.OnlyDescriptions(t.Context(), sl, db, []string{})
 	be.Err(t, err, nil)
 	be.True(t, len(got) == 0)

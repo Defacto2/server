@@ -70,7 +70,8 @@ func TestRemove(t *testing.T) { //nolint:tparallel,paralleltest
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel() // TODO: may need removal?
+			// INFO: parallel causes test failures
+			// t.Parallel()
 			if err := tt.setup(); err != nil {
 				t.Fatalf("setup failed: %v", err)
 			}
