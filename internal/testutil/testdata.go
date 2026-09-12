@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals,mnd
 package testutil
 
 import (

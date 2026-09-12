@@ -662,7 +662,7 @@ func OpenGraphImg(unid string, preview, thumbnail dir.Directory) string {
 	return src + "?" + integrity
 }
 
-func ogImage(unid, path string, dd dir.Directory) (name string, src string) {
+func ogImage(unid, path string, dd dir.Directory) (name, src string) {
 	exts := [...]string{avif, webp, png}
 	for _, ext := range exts {
 		name = dd.Join(unid + ext)
@@ -797,7 +797,7 @@ func Screenshot(unid, desc string, preview dir.Directory) template.HTML {
 // An example of the returned values are:
 //
 //	"2024-Sep-03", "4,163", "4.2 kB"
-func StatHumanize(name string) (date string, bytes string, size string) {
+func StatHumanize(name string) (date, bytes, size string) {
 	st, err := os.Stat(name)
 	if err != nil {
 		return noFile, noFile, noFile

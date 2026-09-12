@@ -245,7 +245,7 @@ var fileInfoMap = map[URI]fileMeta{
 }
 
 // FileInfo is a helper function for Files that returns the page title, h1 title and lead text.
-func FileInfo(uri string) (logo string, h1sub string, lead string) {
+func FileInfo(uri string) (logo, h1sub, lead string) {
 	if meta, ok := fileInfoMap[Match(uri)]; ok {
 		return meta.logo, meta.h1sub, meta.lead
 	}

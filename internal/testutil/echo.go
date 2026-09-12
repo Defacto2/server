@@ -1,3 +1,4 @@
+//nolint:exhaustruct_v5
 package testutil
 
 import (
@@ -76,7 +77,7 @@ func NewFile(t *testing.T, target, fieldname, filename string) *echo.Context {
 	return newEchoTest(t, target, fieldname, filename, nil, nil)
 }
 
-// NewFileInputs functions the same as [NewFile] but also allows for addtional
+// NewFileInputs functions the same as [NewFile] but also allows for additional
 // form inputs using [Input], for example:
 //
 //	Input["id"] = 1

@@ -4,19 +4,59 @@ linters:
   disable:
     # conflicts
     - contextcheck # conflicts with echo patterns
-    - depguard # too complex to maintain with this app
+    #- depguard # too complex to maintain with this app
     - gomoddirectives # required at the moment (for: task doc)
     # retired
     - exhaustruct
     - gomodguard
+    - wsl
     # the linters below are unwanted
     - nlreturn
     - noinlineerr
     - varnamelen
-    - wsl
     - wsl_v5
     - godox # FIX: remove
   settings:
+    depguard:
+      rules:
+        main:
+          allow:
+            - $gostd
+            - 'github.com/Defacto2/server'
+            - 'github.com/Defacto2/archive'
+            - 'github.com/Defacto2/helper'
+            - 'github.com/Defacto2/magicnumber'
+            - 'github.com/bengarrett/ansibump'
+            - 'github.com/bengarrett/binbump'
+            - 'github.com/bengarrett/bbs'
+            - 'github.com/bengarrett/sauce'
+            - 'github.com/aarondl/null/v8'
+            - 'github.com/aarondl/sqlboiler/v4'
+            - 'github.com/aarondl/strmangle'
+            - 'github.com/caarlos0/env/v11'
+            - 'github.com/carlmjohnson/versioninfo'
+            - 'github.com/dustin/go-humanize'
+            - 'github.com/labstack/echo/v5'
+            - 'github.com/labstack/echo-contrib/v5'
+            - 'github.com/lmittmann/tint'
+            - 'github.com/jackc/pgx/v5'
+            - 'github.com/h2non/filetype'
+            - 'github.com/gomarkdown/markdown'
+            - 'github.com/gorilla/sessions'
+            - 'github.com/mattn/go-isatty'
+            - 'github.com/microcosm-cc/bluemonday'
+            - 'github.com/nalgeon/be'
+            - 'github.com/rosedblabs/rosedb/v2'
+            - 'github.com/samber/slog-multi'
+            - 'github.com/subpop/go-ini'
+            - 'github.com/google/uuid'
+            - 'github.com/urfave/cli/v2'
+            - 'github.com/wizenheimer/blaze'
+            - 'github.com/writeas/go-strip-markdown'
+            - 'golang.org/x/image'
+            - 'golang.org/x/sync'
+            - 'golang.org/x/text'
+            - 'google.golang.org/api'
     cyclop:
       max-complexity: 20
     funlen:

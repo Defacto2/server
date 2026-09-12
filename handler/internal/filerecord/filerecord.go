@@ -887,7 +887,7 @@ func Date(art *models.File) template.HTML {
 }
 
 // Dates returns the year, month and day for the published date for the artifact.
-func Dates(art *models.File) (y int16, m int16, d int16) {
+func Dates(art *models.File) (y, m, d int16) {
 	if art == nil {
 		return 0, 0, 0
 	}
@@ -1134,7 +1134,7 @@ func JsdosMachine(art *models.File) string {
 }
 
 // JsdosMemory returns true if js-dos should disable the XMS, EMS and UMB memory options.
-func JsdosMemory(art *models.File) (xms bool, ems bool, umb bool) {
+func JsdosMemory(art *models.File) (xms, ems, umb bool) {
 	if art == nil {
 		return false, false, false
 	}
@@ -1283,7 +1283,7 @@ func LastModificationDate(art *models.File) string {
 }
 
 // LastModifications returns the year, month and day for the last modified date for the file record.
-func LastModifications(art *models.File) (y int, m int, d int) {
+func LastModifications(art *models.File) (y, m, d int) {
 	if art == nil {
 		return 0, 0, 0
 	}
@@ -1534,7 +1534,7 @@ func RelationsStr(art *models.File) string {
 
 // ReleaserPair returns the pair of releaser names for the file record.
 // The first name is the releaser "for" and the second name is the releaser "by".
-func ReleaserPair(art *models.File) (relfor string, relby string) {
+func ReleaserPair(art *models.File) (relfor, relby string) {
 	if art == nil {
 		return "", ""
 	}

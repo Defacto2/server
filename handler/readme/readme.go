@@ -284,13 +284,15 @@ func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 		Color:       palette,
 		CharSet:     charset,
 	}
-	ansitext, err := config.Buffer(bytes.NewReader(textBuf.Bytes()))
+	ansitext, err := config.Bytes(bytes.NewReader(textBuf.Bytes()))
 	if err != nil {
 		return nil, fmt.Errorf(format, "customizer", err)
 	}
+
 	// reset all other buffers and return the ansi buffer
 	textBuf.Reset()
-	return ansitext, nil
+	textBuf.Write(ansitext)
+	return textBuf, nil
 }
 
 func (t *Text) handleSAUCE(textBuf *bytes.Buffer) {
