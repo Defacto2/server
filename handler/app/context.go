@@ -986,7 +986,7 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 	data["counter"] = fileslice.Statistics()
 
 	ctx := c.Request().Context()
-	data, err := fileWStats(ctx, db, data, stats)
+	data, err := fileWStats(ctx, sl, db, data, stats)
 	if err != nil {
 		sl.Warn("context_categories", slog.Any("error", err))
 		data["databaseErr"] = true
@@ -1000,9 +1000,9 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 }
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
-func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
+func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
 	empty := make(map[string]any)
-	if err := nils.Check(ctx, db); err != nil {
+	if err := nils.Check(ctx, sl, db); err != nil {
 		return empty, fmt.Errorf("file with stats: %w", err)
 	}
 
@@ -1016,7 +1016,7 @@ func fileWStats(ctx context.Context, db *sql.DB, data map[string]any, stats bool
 		return data, nil
 	}
 
-	c, err := fileslice.Counter(ctx, db)
+	c, err := fileslice.Counter(ctx, sl, db)
 	if err != nil {
 		return data, fmt.Errorf("counter: %w", err)
 	}
@@ -2737,7 +2737,7 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 	}
 	err := m.ByMatch(ctx, exec, uri)
 	if err != nil && !errors.Is(err, model.ErrURI) {
-		return nil, 0, fmt.Errorf(format, uri, err)
+		return nil, 0, nil
 	}
 	if errors.Is(err, model.ErrURI) {
 		if err := statsByURI(ctx, exec, uri, &m); err != nil {

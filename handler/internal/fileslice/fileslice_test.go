@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/internal/fileslice"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/nalgeon/be"
@@ -82,7 +83,8 @@ func TestCounter(t *testing.T) {
 	t.Parallel()
 
 	db := testutil.DB(t)
-	got, err := fileslice.Counter(t.Context(), db)
+	sl := logs.Discard()
+	got, err := fileslice.Counter(t.Context(), sl, db)
 	be.Err(t, err, nil)
 	be.True(t, got.Record.Bytes > 0)
 	be.True(t, got.Record.Count > 0)
@@ -94,7 +96,8 @@ func TestSorts(t *testing.T) {
 	t.Parallel()
 
 	db := testutil.DB(t)
-	st, err := fileslice.Counter(t.Context(), db)
+	sl := logs.Discard()
+	st, err := fileslice.Counter(t.Context(), sl, db)
 	be.Err(t, err, nil)
 
 	got := st.SortName()

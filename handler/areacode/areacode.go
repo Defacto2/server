@@ -169,6 +169,7 @@ func (c NAN) HTML() template.HTML {
 	}
 
 	if note, ok := Copy()[c]; ok {
+		html.WriteString(" ") // intentional space
 		html.WriteString("<small><em>")
 		html.WriteString(note)
 		html.WriteString("</em></small>")

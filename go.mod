@@ -29,7 +29,7 @@ go 1.26.8 // latest: https://go.dev/dl/
 //
 require (
 	github.com/Defacto2/archive v1.2.1
-	github.com/Defacto2/helper v1.7.1
+	github.com/Defacto2/helper v1.7.2
 	github.com/Defacto2/magicnumber v1.4.1
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7

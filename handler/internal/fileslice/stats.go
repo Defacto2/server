@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"slices"
 	"strings"
 	"sync"
@@ -53,9 +54,9 @@ type Stats struct {
 }
 
 // Get and store the database statistics for the artifacts categories.
-func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
+func (s *Stats) Get(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const format = "category get stats %s: %w"
-	if err := nils.Check(ctx, exec); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 
@@ -103,7 +104,8 @@ func (s *Stats) Get(ctx context.Context, exec boil.ContextExecutor) error {
 	for _, st := range stats {
 		g.Go(func() error {
 			if err := st.fn(ctx, exec); err != nil {
-				return fmt.Errorf(format, st.name, err)
+				sl.Warn("category get stats failure",
+					slog.String("name", st.name), slog.Any("error", err))
 			}
 			return nil
 		})
@@ -245,10 +247,10 @@ func (s *Stats) items() [21]Item {
 }
 
 // Counter returns the statistics for the artifacts categories, cached for 10 minutes.
-func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
+func Counter(ctx context.Context, sl *slog.Logger, db *sql.DB) (Stats, error) {
 	const format = "artifacts categories counter %s: %w"
 
-	if err := nils.Check(ctx, db); err != nil {
+	if err := nils.Check(ctx, sl, db); err != nil {
 		return Stats{}, fmt.Errorf(format, "check", err)
 	}
 
@@ -268,7 +270,7 @@ func Counter(ctx context.Context, db *sql.DB) (Stats, error) {
 	}
 
 	counter := Statistics()
-	if err := counter.Get(ctx, db); err != nil {
+	if err := counter.Get(ctx, sl, db); err != nil {
 		return Stats{}, fmt.Errorf(format, "get", err)
 	}
 

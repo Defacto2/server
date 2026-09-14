@@ -150,8 +150,9 @@ tasks:
     aliases:
       - 'list'
     silent: false
-    desc: List the updates for the web server dependencies.
-      To update run, go get github.com/example/package@latest && go mod tidy.
+    desc:
+      List the updates for the web server dependencies.
+      # To update run, go get github.com/example/package@latest && go mod tidy.
     cmds:
       - |
         go list -u -m $(go list -m -f '{{`{{if not .Indirect}}{{.Path}}{{end}}`}}' all)

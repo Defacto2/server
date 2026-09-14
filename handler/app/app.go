@@ -173,14 +173,8 @@ func Attribute(write, code, art, music, name string) string {
 //
 //	"a Windows intro"
 func Brief(platform, section any) string {
-	p, ok := parseValS(platform)
-	if !ok {
-		return fmt.Sprintf("%s describe %T", typeErr, platform)
-	}
-	s, ok := parseValS(section)
-	if !ok {
-		return fmt.Sprintf("%s describe %T", typeErr, section)
-	}
+	p, _ := parseValS(platform)
+	s, _ := parseValS(section)
 	if p == "" && s == "" {
 		return "an unknown release"
 	}
@@ -236,11 +230,10 @@ func ByteFileS(name string, count, bytes any) template.HTML {
 func Day(d any) string {
 	n, ok := parseValI(d)
 	if !ok {
-		return fmt.Sprintf("%sDay: %s", typeErr, reflect.TypeOf(d).String())
+		return ""
 	}
-
-	if n < 0 || n > 31 {
-		return " error: day out of range " + strconv.Itoa(n)
+	if n < 1 || n > 31 {
+		return ""
 	}
 
 	return " " + strconv.Itoa(n)
@@ -255,29 +248,28 @@ func Day(d any) string {
 func Describe(platform, section, year, month any) template.HTML {
 	const tmpl = "describe"
 
-	p, ok := parseValS(platform)
-	if !ok {
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, platform))
-	}
-	p = strings.TrimSpace(p)
+	var p, s, y, m string
+	var ok bool
 
-	s, ok := parseValS(section)
-	if !ok {
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, section))
+	p, ok = parseValS(platform)
+	if ok {
+		p = strings.TrimSpace(p)
 	}
-	s = strings.TrimSpace(s)
+
+	s, ok = parseValS(section)
+	if ok {
+		s = strings.TrimSpace(s)
+	}
 
 	n, ok := parseValI(year)
-	if !ok {
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, year))
+	if ok {
+		y = strconv.Itoa(n)
 	}
-	y := strconv.Itoa(n)
 
 	n, ok = parseValI(month)
-	if !ok {
-		return template.HTML(fmt.Sprintf("%s %s %s", typeErr, tmpl, month))
+	if ok {
+		m = helper.ShortMonth(n)
 	}
-	m := helper.ShortMonth(n)
 
 	return template.HTML(desc(p, s, y, m))
 }
@@ -674,7 +666,7 @@ func Prefix(s string) string {
 	if s == "" {
 		return ""
 	}
-	return " " + s
+	return s + " " // whitespace is for a possible year suffix
 }
 
 // RecordRels returns the groups associated with a release and joins them using a plus sign.
