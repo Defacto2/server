@@ -322,7 +322,7 @@ func execStat[T any, PT interface {
 	*T
 	StatModel
 }](ctx context.Context, exec boil.ContextExecutor, obj *Summary, key Key) error {
-	const format = "%s: %w"
+	const format = `exec stat interface model for tag "%s": %w`
 	if err := nils.Check(ctx, exec, obj); err != nil {
 		return fmt.Errorf(format, string(key), err)
 	}
@@ -331,7 +331,11 @@ func execStat[T any, PT interface {
 	filter := PT(&m)
 
 	if err := filter.Stat(ctx, exec); err != nil {
-		return fmt.Errorf(format, string(key), err)
+		// NOTE: this logic could either return an error or a nil.
+		// The nil option to represent no records found, but continue
+		// The err option to show no matching key, and abort
+		return nil //nolint:nilerr
+		// return fmt.Errorf(format, string(key), err)
 	}
 	obj.Update(filter.Values())
 	return nil

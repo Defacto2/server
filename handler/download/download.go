@@ -95,9 +95,8 @@ func LastModified(art *models.File) string {
 		return none
 	}
 
-	const epoch = 1980
 	year, _ := strconv.Atoi(art.FileLastModified.Time.Format("2006"))
-	if year <= epoch {
+	if year <= model.EpochYear {
 		return none
 	}
 

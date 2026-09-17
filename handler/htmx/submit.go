@@ -570,7 +570,6 @@ func (u Submit) Replacement(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error 
 
 	destDownload := filepath.Join(u.Download.Path(), upload.unid)
 	if _, err = helper.DuplicateOW(destTemp, destDownload); err != nil {
-		// TODO: test the name for a manual rollback
 		return badRequest(c, err)
 	}
 

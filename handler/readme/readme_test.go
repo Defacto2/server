@@ -67,9 +67,9 @@ func TestBuffers1(t *testing.T) {
 	got0, got1, err := txt.Buffers(sl)
 	be.Err(t, err, nil)
 
-	const diz = ":DIZ BEGIN:\n\n  <- TAB\n  A placeholder FILE_ID.DIZ\n\n: DIZ END :\n\n\n" // TODO: research the 3 * newline
+	const diz = ":DIZ BEGIN:\n\n  <- TAB\n  A placeholder FILE_ID.DIZ\n\n: DIZ END :\n\n"
 	const body = ":TXT BEGIN:\n\nHELLO WORLD!\n\n: TXT END :\n"
-	const help = "\n:HLP BEGIN:\n\nhelper text...\n\n: HLP END :\n"
+	const help = "\n:HLP BEGIN:\n\nhelper text...\n\n: HLP END :"
 	const long = "skipped, text is too long\n"
 
 	wants := diz + body + help
@@ -90,7 +90,7 @@ func TestBuffers1(t *testing.T) {
 	be.Equal(t, got, wants)
 
 	got = got1.String()
-	be.Equal(t, got, "") // TODO: expected?
+	be.Equal(t, got, "")
 }
 
 func TestBuffers2(t *testing.T) {

@@ -380,6 +380,7 @@ func (t *Text) secondary(buf *bytes.Buffer, extension string) error {
 	}
 
 	b := buf.Bytes()
+	b = bytes.TrimSpace(b)
 	b = bytes.ReplaceAll(b, byteNull, byteSpace)
 	b = bytes.ReplaceAll(b, byteEOF, emptyBytes)
 	b = bytes.ReplaceAll(b, byteCR, byteLF) // must go first before crlf

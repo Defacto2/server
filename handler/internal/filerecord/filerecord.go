@@ -346,7 +346,6 @@ func (m *ListEntry) columnFooter() string {
 }
 
 func progr(exec magicnumber.Windows, ext string, bytes int64) string {
-	const epochYear = 1980
 	const x8086 = 64 * 1024
 	dosProg := (ext == exe || ext == com)
 
@@ -367,7 +366,7 @@ func progr(exec magicnumber.Windows, ext string, bytes int64) string {
 	default:
 		s = "PE program data"
 	}
-	if y := exec.TimeDateStamp.Year(); y >= epochYear && y <= time.Now().Year() {
+	if y := exec.TimeDateStamp.Year(); y >= epoch && y <= time.Now().Year() {
 		s += ", built " + exec.TimeDateStamp.Format("2006-01-2")
 	}
 	return ` <small>` + s + `</small>`

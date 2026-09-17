@@ -127,26 +127,27 @@ func TestDay(t *testing.T) {
 	t.Parallel()
 
 	got := app.Day("")
-	be.True(t, strings.Contains(got, "error"))
+	be.Equal(t, got, "")
 
 	got = app.Day("1")
-	be.True(t, strings.Contains(got, "error"))
+	be.Equal(t, got, "")
 
 	got = app.Day(1)
 	be.True(t, strings.Contains(got, " 1"))
 
 	got = app.Day(100)
-	be.True(t, strings.Contains(got, "error"))
+	be.Equal(t, got, "")
 }
 
 func TestDescribe(t *testing.T) {
 	t.Parallel()
 
+	const unknown = "An unknown release."
 	s := app.Describe("", "", "", "")
-	be.True(t, strings.Contains(string(s), "error"))
+	be.Equal(t, s, unknown)
 
 	s = app.Describe("", "", 1900, 50)
-	be.True(t, strings.Contains(string(s), "unknown release"))
+	be.Equal(t, s, unknown)
 
 	s = app.Describe("x", "y", 1980, 1)
 	be.True(t, strings.Contains(string(s), "Unknown platform"))
@@ -418,7 +419,7 @@ func TestPrefix(t *testing.T) {
 	be.Equal(t, got, "")
 
 	got = app.Prefix("abc")
-	be.Equal(t, got, " abc")
+	be.Equal(t, got, "abc ")
 }
 
 func TestRecordRels(t *testing.T) {
@@ -602,14 +603,14 @@ func TestWebsiteIcon(t *testing.T) {
 	}
 }
 
-func TestStripSub(t *testing.T) {
+func TestStripSup(t *testing.T) {
 	t.Parallel()
 
-	got, _ := app.StripSup("xyz")
+	got := app.StripSup("xyz")
 	be.Equal(t, got["text"], "xyz")
 	be.Equal(t, got["sup"], "")
 
-	got, _ = app.StripSup("x<sup>y</sup>z")
+	got = app.StripSup("x<sup>y</sup>z")
 	be.Equal(t, got["text"], "xz")
 	be.Equal(t, got["sup"], "<sup>y</sup>")
 }

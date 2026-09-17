@@ -50,13 +50,13 @@ func TestProdID(t *testing.T) {
 	be.True(t, !del)
 	be.Equal(t, key, 0)
 
-	const keyn = 56097
-	const dzblacklotus = 12
+	const keyn = 56086
+	const dzblacklotus = 11
 	_, key, got = model.OneDemozoo(t.Context(), db, dzblacklotus)
 	be.Err(t, got, nil)
 	be.Equal(t, key, keyn)
 
-	const ptblacklotus = 2
+	const ptblacklotus = 1
 	_, key, got = model.OnePouet(t.Context(), db, ptblacklotus)
 	be.Err(t, got, nil)
 	be.Equal(t, key, keyn)

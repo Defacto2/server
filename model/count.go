@@ -18,6 +18,7 @@ import (
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
 )
 
 // Count returns the total numbers of public artifact records.
@@ -46,25 +47,35 @@ func Counts(ctx context.Context, exec boil.ContextExecutor) (total, public, wait
 		return 0, 0, 0, fmt.Errorf(format, "check", err)
 	}
 
-	// todo: waitgroup?
+	g, ctx := errgroup.WithContext(ctx)
 
-	total, err = models.Files(qm.WithDeleted()).Count(ctx, exec)
-	if err != nil {
-		return total, public, waiting, err
+	g.Go(func() error {
+		var tErr error
+		total, tErr = models.Files(qm.WithDeleted()).Count(ctx, exec)
+		return tErr
+	})
+
+	g.Go(func() error {
+		var pErr error
+		public, pErr = models.Files(qm.Where(ClauseNoSoftDel)).Count(ctx, exec)
+		return pErr
+	})
+
+	g.Go(func() error {
+		var dErr error
+		waiting, dErr = models.Files(
+			models.FileWhere.Deletedat.IsNotNull(),
+			models.FileWhere.Deletedby.IsNull(),
+			qm.WithDeleted(),
+		).Count(ctx, exec)
+		return dErr
+	})
+
+	if wErr := g.Wait(); wErr != nil {
+		return total, public, waiting, fmt.Errorf(format, "models exec", wErr)
 	}
 
-	public, err = models.Files(qm.Where(ClauseNoSoftDel)).Count(ctx, exec)
-	if err != nil {
-		return total, public, waiting, err
-	}
-
-	waiting, err = models.Files(
-		models.FileWhere.Deletedat.IsNotNull(),
-		models.FileWhere.Deletedby.IsNull(),
-		qm.WithDeleted(),
-	).Count(ctx, exec)
-
-	return total, public, waiting, err
+	return total, public, waiting, nil
 }
 
 // CountTags counts the files that match the named category and platform.

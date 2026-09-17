@@ -89,7 +89,7 @@ func TestCounter(t *testing.T) {
 	be.True(t, got.Record.Bytes > 0)
 	be.True(t, got.Record.Count > 0)
 	be.True(t, got.Record.MinYear >= model.EpochYear)
-	be.True(t, got.Record.MaxYear >= model.EpochYear) // TODO: apply model const site wide
+	be.True(t, got.Record.MaxYear >= model.EpochYear)
 }
 
 func TestSorts(t *testing.T) {

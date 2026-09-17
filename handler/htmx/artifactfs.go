@@ -264,24 +264,36 @@ func FSPixelate(sl *slog.Logger, c *echo.Context, directory ...dir.Directory) er
 // FSRemoveDIZ handles the request to remove the uuid named file_id.diz text file
 // from the provided extra directory.
 func FSRemoveDIZ(c *echo.Context, extra dir.Directory) error {
-	return extrasDeleter(c, FileID.Ext(), extra)
+	return Diz.extrasDeleter(c, extra)
 }
 
 // FSRemoveHelp handles the request to remove the uuid named helper (.hlp) text file
 // from the provided extra directory.
 func FSRemoveHelp(c *echo.Context, extra dir.Directory) error {
-	return extrasDeleter(c, Helper.Ext(), extra)
+	return Hlp.extrasDeleter(c, extra)
 }
 
 // FSRemoveReadme handles the request to remove the uuid named readme text file
 // from the provided extra directory.
 func FSRemoveReadme(c *echo.Context, extra dir.Directory) error {
-	return extrasDeleter(c, Text.Ext(), extra)
+	return Txt.extrasDeleter(c, extra)
 }
 
-// TODO: struct?
-func extrasDeleter(c *echo.Context, ext string, extra dir.Directory) error {
+type Ext int
+
+const (
+	Diz Ext = iota
+	Hlp
+	Txt
+)
+
+func (e Ext) String() string {
+	return [...]string{FileID.Ext(), Helper.Ext(), Text.Ext()}[e]
+}
+
+func (e Ext) extrasDeleter(c *echo.Context, extra dir.Directory) error {
 	const format = "extras deleter %s: %w"
+	ext := e.String()
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, ext, err)
 	}

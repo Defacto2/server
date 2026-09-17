@@ -28,6 +28,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
 )
 
@@ -327,7 +328,7 @@ func (wa *WebApp) FuncClosure() template.FuncMap {
 }
 
 func yearRange(start, end int) []int {
-	const epoch = 1980
+	const epoch = model.EpochYear
 	if start < epoch {
 		start = epoch
 	}

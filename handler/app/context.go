@@ -1000,7 +1000,9 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 }
 
 // fileWStats is a helper function for File that adds the statistics to the data map.
-func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any, stats bool) (map[string]any, error) {
+func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any, stats bool) (
+	map[string]any, error,
+) {
 	empty := make(map[string]any)
 	if err := nils.Check(ctx, sl, db); err != nil {
 		return empty, fmt.Errorf("file with stats: %w", err)
@@ -1665,7 +1667,7 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 
 	ctx := c.Request().Context()
 	fs, _ := model.OnlyDescriptions(ctx, sl, db, terms)
-	d := Descriptions.postStats(ctx, db, terms)
+	d := Descriptions.postStats(ctx, sl, db, terms)
 	s := strings.Join(terms, ", ")
 
 	data := emptyFiles(c)
@@ -1717,7 +1719,7 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 
 	ctx := c.Request().Context()
 	fs, _ := model.OnlyFilenames(ctx, db, terms)
-	d := mode.postStats(ctx, db, terms)
+	d := mode.postStats(ctx, sl, db, terms)
 	s := strings.Join(terms, ", ")
 
 	data := emptyFiles(c)
@@ -1738,16 +1740,21 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 }
 
 // postStats is a helper function for PostName that returns the statistics for the files page.
-func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string) map[string]string {
-	none := func() map[string]string {
-		// TODO: log errors
+func (mode FileSearch) postStats(ctx context.Context, sl *slog.Logger, db *sql.DB, terms []string) map[string]string {
+	none := func(err error) map[string]string {
+		if sl == nil {
+			sl = slog.Default()
+		}
+		if err != nil {
+			sl.Warn("file search post stats, no files find", slog.Any("error", err))
+		}
 		return map[string]string{files: "no files found", years: ""}
 	}
 	if len(terms) == 0 {
-		return none()
+		return none(nil)
 	}
 	if err := nils.Check(ctx, db); err != nil {
-		return none()
+		return none(err)
 	}
 
 	// trim whitespace and recheck
@@ -1759,7 +1766,7 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 		}
 	}
 	if empty {
-		return none()
+		return none(nil)
 	}
 
 	m := model.Summary{
@@ -1771,18 +1778,18 @@ func (mode FileSearch) postStats(ctx context.Context, db *sql.DB, terms []string
 	switch mode {
 	case Filenames:
 		if err := m.ByFilename(ctx, db, terms); err != nil {
-			return none()
+			return none(err)
 		}
 	case Descriptions:
 		if err := m.ByDescription(ctx, db, terms); err != nil {
-			return none()
+			return none(err)
 		}
 	default:
 		// Handle unknown search modes
-		return none()
+		return none(nil)
 	}
 	if m.SumCount.Int64 == 0 {
-		return none()
+		return none(nil)
 	}
 
 	d := map[string]string{

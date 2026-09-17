@@ -15,7 +15,7 @@ linters:
     - noinlineerr
     - varnamelen
     - wsl_v5
-    - godox # FIX: remove
+    #- godox # FIX: remove
   settings:
     depguard:
       rules:

@@ -246,8 +246,6 @@ func Day(d any) string {
 //
 //	"a Windows intro published in Jan, 1990."
 func Describe(platform, section, year, month any) template.HTML {
-	const tmpl = "describe"
-
 	var p, s, y, m string
 	var ok bool
 
@@ -575,7 +573,7 @@ func LogoText(s string) string {
 }
 
 // MarkAll surrounds all occurrences of highlight in the string with <mark> elements.
-func MarkAll(highlight, s string) string { // TODO: test against emoji
+func MarkAll(highlight, s string) string {
 	if highlight == "" || s == "" {
 		return s
 	}
@@ -976,12 +974,12 @@ var reSupElems = regexp.MustCompile(`<sup>.*?</sup>`)
 // The sup tags are returned separately if present, otherwise empty string.
 //
 // Usage in templates: {{ $result := stripSup .Title }} returns a map with "text" and "sup" keys.
-func StripSup(s string) (map[string]template.HTML, error) { // TODO: remove error
+func StripSup(s string) map[string]template.HTML {
 	clean := strings.TrimSpace(reSupElems.ReplaceAllString(s, ""))
 	return map[string]template.HTML{
 		text:  template.HTML(clean),
 		"sup": template.HTML(reSupElems.FindString(s)),
-	}, nil
+	}
 }
 
 // YMDEdit handles the post submission for the Year, Month, Day selection fields.

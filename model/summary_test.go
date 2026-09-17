@@ -157,9 +157,9 @@ func TestByMatches(t *testing.T) {
 			t.Log(n, key, string(key))
 
 			s1 := model.Summary{}
-			got := s1.ByMatch(t.Context(), db, uri)
+			err := s1.ByMatch(t.Context(), db, uri)
 
-			be.Err(t, got, nil)
+			be.Err(t, err, nil)
 			be.True(t, s1.SumBytes.Int64 > 0)
 			be.True(t, s1.SumCount.Int64 > 0)
 			be.True(t, s1.MinYear.Int16 > 0)
