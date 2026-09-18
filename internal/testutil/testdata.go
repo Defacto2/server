@@ -21,6 +21,8 @@ var testdata = TestData{
 	"logotxt":     "LOGO.TXT",
 	"screenpng":   "SCREEN.PNG",
 	"testascii":   "TEST.ASCII",
+	"testcp437":   "TEST.CP437",
+	"testuni":     "TEST.UNICODE",
 	"testbmp":     "TEST.BMP",
 	"testgif":     "TEST.GIF",
 	"testjpg":     "TEST.JPG",

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
+	"time"
 
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -18,10 +19,11 @@ import (
 
 // Artifacts statistics.
 type Artifacts struct {
-	Bytes   int `boil:"size_total"`
-	Count   int `boil:"count_total"`
-	MinYear int `boil:"min_year"`
-	MaxYear int `boil:"max_year"`
+	Bytes     int       `boil:"size_total"`
+	Count     int       `boil:"count_total"`
+	MinYear   int       `boil:"min_year"`
+	MaxYear   int       `boil:"max_year"`
+	UpdatedAt time.Time `boil:"-"`
 }
 
 // Public sets the [Artifacts] statistics for file artifacts that are not marked as hidden.
@@ -40,6 +42,7 @@ func (obj *Artifacts) Public(ctx context.Context, exec boil.ContextExecutor) err
 	if err != nil {
 		return fmt.Errorf(format, "new query", err)
 	}
+	obj.UpdatedAt = time.Now()
 
 	return nil
 }
@@ -148,6 +151,7 @@ func (obj *Artifacts) OnlyUnwanted(ctx context.Context, exec boil.ContextExecuto
 	if err := obj.onlyUnwantedStats(ctx, exec, mods); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, err)
 	}
+	obj.UpdatedAt = time.Now()
 
 	// ordering mods
 	const clause = "id DESC"
@@ -171,8 +175,8 @@ func (obj *Artifacts) onlyUnwantedStats(ctx context.Context, exec boil.ContextEx
 }
 
 func (obj *Artifacts) useCache() bool {
-	// TODO add cache time.Time value?
-	return obj.Bytes > 0 && obj.Count > 0
+	// return obj.Bytes > 0 && obj.Count > 0
+	return !obj.UpdatedAt.IsZero() && time.Since(obj.UpdatedAt) < 10*time.Minute
 }
 
 // OnlyApproval returns all of the file records that are waiting to be marked for approval.

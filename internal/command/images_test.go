@@ -360,8 +360,7 @@ func TestPictureImager(t *testing.T) {
 func TestCropText(t *testing.T) {
 	t.Parallel()
 
-	_, textdir := setupTestDir(t, t.TempDir())
-	src := filepath.Join(textdir, "TEST.ASCII")
+	src := testutil.FileData("testascii").Abs()
 	srcSt, err := os.Stat(src)
 	be.Err(t, err, nil)
 
@@ -422,11 +421,10 @@ func TestTextImagerVgaFont(t *testing.T) {
 	sl := slog.Default()
 	id := uuid.New()
 	unid := id.String()
-	src, got := filepath.Abs(filepath.Join(testdata, "TEST.ASCII"))
-	be.Err(t, got, nil)
+	src := testutil.FileData("testascii").Abs()
 
 	const amigaFont = false
-	got = dirs.TextImager(t.Context(), sl, "", unid, amigaFont)
+	got := dirs.TextImager(t.Context(), sl, "", unid, amigaFont)
 	be.Err(t, got)
 
 	got = dirs.TextImager(t.Context(), sl, src, "", amigaFont)
@@ -463,11 +461,10 @@ func TestTextImagerAmigaFont(t *testing.T) {
 	sl := slog.Default()
 	id := uuid.New()
 	unid := id.String()
-	src, got := filepath.Abs(filepath.Join(testdata, "TEST.ASCII"))
-	be.Err(t, got, nil)
+	src := testutil.FileData("testascii").Abs()
 
 	const amigaFont = true
-	got = dirs.TextImager(t.Context(), sl, "", unid, amigaFont)
+	got := dirs.TextImager(t.Context(), sl, "", unid, amigaFont)
 	be.Err(t, got)
 	got = dirs.TextImager(t.Context(), sl, src, "", amigaFont)
 	be.Err(t, got)
@@ -528,10 +525,9 @@ func TestTextDeferred(t *testing.T) {
 	sl := slog.Default()
 	id := uuid.New()
 	unid := id.String()
-	src, got := filepath.Abs(filepath.Join(testdata, "TEST.ASCII"))
-	be.Err(t, got, nil)
+	src := testutil.FileData("testascii").Abs()
 
-	got = dirs.TextDeferred(t.Context(), sl, "", "")
+	got := dirs.TextDeferred(t.Context(), sl, "", "")
 	be.Err(t, got)
 	got = dirs.TextDeferred(t.Context(), sl, src, "")
 	be.Err(t, got)

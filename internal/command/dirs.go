@@ -157,6 +157,9 @@ func (ds Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, un
 // TextImager generates two images based on the text file provided by the src path.
 // The provided unid must be a valid universal unique identifier.
 //
+// Note that TextImager uses ansilove which doesn't support modern Unicode,
+// this includes the common UTF-8 encoding or multibyte characters like emojis.
+//
 // If the amigaFont is set to true, a Commodore Amiga Tapaz font is used to represent
 // the text, otherwise an IBM VGA font is used. The amigaFont also displays less rows
 // of text due to the Topaz font being taller.
@@ -362,7 +365,7 @@ func (ds Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, amig
 	}
 
 	// create an isolated temporary PNG destination
-	tmpFile, err := dir.CreateTemp("aldos-*.png")
+	tmpFile, err := dir.CreateTemp("ansiloved-*.png")
 	if err != nil {
 		return fmt.Errorf(format, "create temp", err)
 	}

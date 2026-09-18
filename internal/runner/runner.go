@@ -119,24 +119,25 @@ func main() {
 
 	// Text file handlers
 
-	txt := testutil.FileData("testascii").Abs()
-	err = d.TextDeferred(ctx, sl, txt, "DEFERRED_TXT")
+	ascii := testutil.FileData("testascii").Abs()
+	err = d.TextDeferred(ctx, sl, ascii, "DEFERRED_TXT")
 	if err != nil {
 		cancel()
 		log.Fatal(err)
 	}
-	err = d.DizDeferred(sl, txt, "DEFERRED_DIZ")
+	err = d.DizDeferred(sl, ascii, "DEFERRED_DIZ")
 	if err != nil {
 		cancel()
 		log.Fatal(err)
 	}
 
-	err = d.TextImager(ctx, sl, txt, "ASCII-DOS", false) // TODO: broken output
+	cp437 := testutil.FileData("testcp437").Abs()
+	err = d.TextImager(ctx, sl, cp437, "ASCII-DOS", false)
 	if err != nil {
 		cancel()
 		log.Fatal(err)
 	}
-	err = d.TextImager(ctx, sl, txt, "ASCII-AMIGA", true) // TODO: broken output
+	err = d.TextImager(ctx, sl, ascii, "ASCII-AMIGA", true)
 	if err != nil {
 		cancel()
 		log.Fatal(err)
@@ -148,7 +149,7 @@ func main() {
 		MaxCols: 0,
 		UTF8:    false,
 	}
-	loc, err := t.Crop(sl, txt)
+	loc, err := t.Crop(sl, ascii)
 	if err != nil {
 		cancel()
 		log.Fatal(err)
