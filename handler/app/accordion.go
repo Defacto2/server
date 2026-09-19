@@ -407,4 +407,9 @@ var videos = Sites{
 		"https://archive.org/search?query=%22Teh%20Scene%22%20AND%20collection%3Acomputersandtechvideos",
 		"Teh Scene is a parody of the online movie piracy scene.",
 	},
+	Site{
+		"The Art of Warez <sup>2019</sup>", "https://archive.org/details/artofwarez",
+		"A documentary by Oliver Payne in collaboration with former ANSI artist Kevin Bouton-Scott. " +
+			`Who for Motherboard said of the ANSI art scene, "It was a self-contained labor of love, pro-crime, anti-copyright, facilitating the very real need of free-software for young computer users."`,
+	},
 }
