@@ -115,12 +115,15 @@ func main() {
 	if err != nil {
 		logErr("cannot initialize the database", err)
 	}
+	if db == nil {
+		db, _ = sql.Open("pgx", "")
+	}
 	defer func() {
-		err := db.Close()
-		if err != nil {
+		if err := db.Close(); err != nil {
 			warnErr("close database connection failure", err)
 		}
 	}()
+
 	var database postgres.Version
 	if err := database.Query(db); err != nil {
 		logErr("postgres cannot run the version query", err)
