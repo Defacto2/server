@@ -342,7 +342,7 @@ func (m *ListEntry) columnFooter() string {
 	}
 
 	return `<div><small data-bs-toggle="tooltip" data-bs-title="` +
-		strconv.Itoa(int(m.bytes)) + ` bytes">` + m.Filesize + `</small><span>` + sm + `</span></div>`
+		strconv.Itoa(int(m.bytes)) + ` bytes">` + m.Filesize + `</small>, <span>` + sm + `</span></div>`
 }
 
 func progr(exec magicnumber.Windows, ext string, bytes int64) string {
