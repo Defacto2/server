@@ -175,12 +175,15 @@ func (ds *Dirs) logErr(sl *slog.Logger, msg string, err error) {
 	if sl == nil {
 		return
 	}
-	sl.Error(msg,
+	args := []any{
 		slog.String("uri", ds.URI),
 		slog.Int64("id", ds.ID),
 		slog.String("uuid", ds.UUID),
-		// slog.String("name", dir.Filename),
-		slog.Any("error", err))
+	}
+	if err != nil {
+		args = append(args, slog.Any("error", err))
+	}
+	sl.Error(msg, args...)
 }
 
 // addAttribution returns the authors and attributions of the artifact.
@@ -377,8 +380,8 @@ func (ds *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any
 		Extra:    ds.Extra,
 		UUID:     art.UUID.String,
 		Filename: art.Filename.String,
-		Platform: art.Platform.String,
-		Section:  art.Section.String,
+		Platform: strings.TrimSpace(art.Platform.String),
+		Section:  strings.TrimSpace(art.Section.String),
 		Year:     art.DateIssuedYear.Int16,
 		MaxSize:  ds.Maximum.Readme,
 	}
@@ -541,8 +544,8 @@ func (ds *Dirs) addtext8bit(sl *slog.Logger, b []byte, data map[string]any) map[
 		// codepage-437 text
 		cpmap := charmap.CodePage437.NewDecoder().Reader(bytes.NewReader(b))
 		cpbody, err := decode(cpmap)
-		ds.logErr(sl, "cp-437", err)
 		if err != nil {
+			ds.logErr(sl, "cp-437", err)
 			return data
 		}
 		data["contentLines"] = strings.Count(cpbody, "\n")

@@ -842,19 +842,18 @@ func TagBrief(tag string) string {
 // For example providing "interview" and "interview" would return:
 //
 //	`<option value="interview" selected>`
-func TagOption(s, value any) template.HTML {
-	selected, ok := parseValS(s)
-	if !ok {
-		return ""
+func TagOption(sel, value any) template.HTML {
+	selected, ok := parseValS(sel)
+	if ok {
+		selected = strings.TrimSpace(selected)
 	}
-	selected = strings.TrimSpace(selected)
 
 	val, ok := parseValS(value)
 	if !ok {
-		return ""
+		return `<option value="">`
 	}
-	val = strings.TrimSpace(val)
 
+	val = strings.TrimSpace(val)
 	if selected != "" && selected == val {
 		return template.HTML(`<option value="` + val + `" selected>`)
 	}

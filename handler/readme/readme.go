@@ -507,13 +507,12 @@ func (t *Text) useViewer() bool {
 		return true
 	}
 
-	section := strings.TrimSpace(t.Section)
-	if strings.EqualFold(section, "package") {
+	if strings.EqualFold(t.Section, "package") {
 		return false
 	}
 
-	platform := strings.TrimSpace(t.Platform)
-	return strings.EqualFold(platform, "text") || strings.EqualFold(platform, "textamiga")
+	s := t.Platform
+	return strings.EqualFold(s, "text") || strings.EqualFold(s, "textamiga")
 }
 
 // Normalize applies a number of replacements and sanity checks to the
