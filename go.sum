@@ -10,10 +10,10 @@ github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69 h1:+tu3HOoMXB7RX
 github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69/go.mod h1:L1AbZdiDllfyYH5l5OkAaZtk7VkWe89bPJFmnDBNHxg=
 github.com/DATA-DOG/go-sqlmock v1.4.1 h1:ThlnYciV1iM/V0OSF/dtkqWb6xo5qITT1TJBG1MRDJM=
 github.com/DATA-DOG/go-sqlmock v1.4.1/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/Defacto2/archive v1.2.1 h1:oipTD1zynhGyQrgu5ELlfsVckdu9Lk6U8sVqNfhScqg=
-github.com/Defacto2/archive v1.2.1/go.mod h1:E1QXLL6S3eOh1RSSyHDOCNBqDezmMyBvYz3rFCodNSI=
-github.com/Defacto2/helper v1.7.2 h1:D2HQaawXe/Gus7bYfH9nIffNLE6eWTr7t1m+EP1ambA=
-github.com/Defacto2/helper v1.7.2/go.mod h1:31Rfdr2elFrNkN2bIJ9b7MwDOars9M6oJ2JhCBM7UjU=
+github.com/Defacto2/archive v1.2.2 h1:cLS9zONdICmW2z3HARtXwcalUV7vcoWuD8pjnUu3LeU=
+github.com/Defacto2/archive v1.2.2/go.mod h1:v5U9BBW5AW51m4H6zna/KCBkwu9c+IgSygbP6Q8y4Gc=
+github.com/Defacto2/helper v1.7.3 h1:C5j6x3D99+EAJuhWC05jqFj/a9dx/37dd87iarbypIU=
+github.com/Defacto2/helper v1.7.3/go.mod h1:31Rfdr2elFrNkN2bIJ9b7MwDOars9M6oJ2JhCBM7UjU=
 github.com/Defacto2/magicnumber v1.4.1 h1:tsjloiCqXz1mMQy3aMpqOlSbmbN2sGkkYt4FSSUaarY=
 github.com/Defacto2/magicnumber v1.4.1/go.mod h1:jhHaTPIqYUTc3G2pVqqzoPso+mgmN4x0wgQXmYwnxUs=
 github.com/RoaringBitmap/roaring v1.9.4 h1:yhEIoH4YezLYT04s1nHehNO64EKFTop/wBhxv2QzDdQ=
