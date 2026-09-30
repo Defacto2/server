@@ -73,7 +73,8 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	runeBuf := new(bytes.Buffer)
 	descBuf := new(bytes.Buffer)
 	helpBuf := new(bytes.Buffer)
-	// WARN: always use unused instead of returning nil for either textBuf or runeBuf
+	// WARN: always return the named unused var,
+	// instead of returning nil for either textBuf or runeBuf
 	unused := new(bytes.Buffer)
 
 	defer func() {
@@ -383,8 +384,9 @@ func (t *Text) secondary(buf *bytes.Buffer, extension string) error {
 	b = bytes.TrimSpace(b)
 	b = bytes.ReplaceAll(b, byteNull, byteSpace)
 	b = bytes.ReplaceAll(b, byteEOF, emptyBytes)
-	b = bytes.ReplaceAll(b, byteCR, byteLF) // must go first before crlf
-	b = bytes.ReplaceAll(b, byteCRLF, byteLF)
+	// INFO: by deleting all CR characters,
+	// all Windows CRLF newlines get converted to common LF newlines.
+	b = bytes.ReplaceAll(b, byteCR, emptyBytes)
 	b = helper.MaskTerm(b...)
 
 	buf.Reset()

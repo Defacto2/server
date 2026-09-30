@@ -194,13 +194,9 @@ func lockWidth(maxWidth int, b []byte) []byte {
 	}
 
 	var builder bytes.Buffer
-	firstLine := true
 
 	for line := range bytes.Lines(b) {
-		if !firstLine {
-			builder.WriteByte('\n')
-		}
-		firstLine = false
+		// INFO: line includes all terminating newlines.
 
 		if len(line) <= maxWidth {
 			builder.Write(line)

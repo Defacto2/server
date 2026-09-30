@@ -473,6 +473,7 @@ func (ds *Dirs) addText8bit(sl *slog.Logger, art *models.File, textBuf *bytes.Bu
 
 	// strip any RTF formatting
 	b := textBuf.Bytes()
+
 	if simple.RTF(b) {
 		b = simple.StripRTF(b)
 	}
