@@ -1215,7 +1215,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	got.UUID = unid
 
 	ctx := c.Request().Context()
-	return got.Download(ctx, sl, c, tx)
+	return got.Download(ctx, sl, c, tx, true)
 }
 
 // GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
@@ -1227,7 +1227,7 @@ func GetDemozoo(
 	prodID int, unid string, download dir.Directory,
 ) error {
 	got := remote.Demozoo(prodID, unid, download, 0)
-	return got.Download(ctx, sl, c, tx)
+	return got.Download(ctx, sl, c, tx, false)
 }
 
 // GetPouet fetches the download link from Pouet and saves it to the download directory.
@@ -1235,11 +1235,11 @@ func GetDemozoo(
 //
 // This function is a wrapper for the remote.PouetLink.Download method.
 func GetPouet(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx,
+	ctx context.Context, sl *slog.Logger, tx *sql.Tx,
 	prodID int, unid string, download dir.Directory,
 ) error {
 	got := remote.Pouet(prodID, unid, download, 0)
-	return got.Download(ctx, sl, c, tx)
+	return got.Download(ctx, sl, tx)
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify

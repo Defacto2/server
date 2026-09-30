@@ -4,6 +4,7 @@ package htmx
 // for submitting Demozoo and Pouet productions.
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -43,9 +44,11 @@ func (prod Prod) String() string {
 // Submit handles the PUT production routes for Demozoo and Pouet.
 // This will attempt to insert a new file record into the database using
 // the production ID. If the ID is already in use, an error message is returned.
-func (prod Prod) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error { //nolint:funlen
+//
+// Note both a sql.Tx and sql.DB are required as there are two separate commit stages.
+func (prod Prod) Submit(sl *slog.Logger, c *echo.Context, db *sql.DB, tx *sql.Tx, download dir.Directory) error { //nolint:funlen
 	const msg = "htmx transfer submit"
-	if err := nils.Check(sl, c, tx); err != nil {
+	if err := nils.Check(sl, c, db, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -98,22 +101,34 @@ func (prod Prod) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download d
 	}
 
 	// see Download in handler/app/internal/remote/remote.go
-	switch prod {
-	case Demozoo:
-		if err := app.GetDemozoo(ctx, sl, c, tx, prodID, unid, download); err != nil {
-			logErr("cannot fetch remote demozoo api", err)
-			const format = `<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`
-			html += fmt.Sprintf(format, prod.String())
-			return c.String(http.StatusServiceUnavailable, html)
+	go func() {
+		// INFO:
+		// As the reliability of the file download servers can be vastly different to the API provider.
+		// This runs a second query to fetch the linked download in the background.
+		bgCtx := context.WithoutCancel(c.Request().Context())
+		bgTx, bErr := db.BeginTx(bgCtx, nil)
+		if bErr != nil {
+			logErr("cannot start background tx for fetch remote api", bErr)
+			return
 		}
-	case Pouet:
-		if err := app.GetPouet(ctx, sl, c, tx, prodID, unid, download); err != nil {
-			logErr("cannot fetch remote pouet api", err)
-			const format = `<p class="text-danger">error, cannot fetch the remote download linked by %s</p>`
-			html += fmt.Sprintf(format, prod.String())
-			return c.String(http.StatusServiceUnavailable, html)
+		defer bgTx.Rollback()
+		switch prod {
+		case Demozoo:
+			if err := app.GetDemozoo(bgCtx, sl, c, bgTx, prodID, unid, download); err != nil {
+				logErr("cannot fetch remote demozoo api", err)
+				return
+			}
+		case Pouet:
+			if err := app.GetPouet(bgCtx, sl, bgTx, prodID, unid, download); err != nil {
+				logErr("cannot fetch remote pouet api", err)
+				return
+			}
 		}
-	}
+		cErr := bgTx.Commit()
+		if cErr != nil {
+			logErr("cannot commit background tx for fetch remote api", cErr)
+		}
+	}()
 
 	sl.Info(msg,
 		slog.String("okay", "the production has been submitted"),

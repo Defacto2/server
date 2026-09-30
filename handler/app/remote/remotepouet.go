@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -23,7 +22,6 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/labstack/echo/v5"
 )
 
 // PouetLink is the response from the task of GetDemozooFile.
@@ -70,9 +68,9 @@ func Pouet(prodID int, unid string, download dir.Directory, timeout time.Duratio
 
 // Download fetches the download link from Pouet and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Pouet record API data.
-func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 	const format = "%s for id %d: %w"
-	if err := nils.Check(ctx, sl, c, tx); err != nil {
+	if err := nils.Check(ctx, sl, tx); err != nil {
 		return fmt.Errorf(format, "check", got.PouetID, err)
 	}
 
@@ -96,10 +94,10 @@ func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, c *echo.Con
 	if got.prod.Download == "" {
 		got.log(sl, notUsable, nil)
 		got.Error = notUsable
-		return c.JSON(http.StatusNotModified, got)
+		return nil
 	}
 
-	if err := got.remoteDo(ctx, sl, c, tx); err != nil {
+	if err := got.remoteDo(ctx, sl, tx); err != nil {
 		return err
 	}
 
@@ -107,14 +105,14 @@ func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, c *echo.Con
 		got.Error = notUsable
 	}
 
-	return c.JSON(http.StatusNotModified, got)
+	return nil
 }
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
-func (got *PouetLink) Stat(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+func (got *PouetLink) Stat(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 	const format = "demozoo link stat file and integrity %s: %w"
-	if err := nils.Check(ctx, sl, c, tx); err != nil {
+	if err := nils.Check(ctx, sl, tx); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 
@@ -143,10 +141,10 @@ func (got *PouetLink) Stat(ctx context.Context, sl *slog.Logger, c *echo.Context
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
-func (got *PouetLink) Update(ctx context.Context, c *echo.Context, tx *sql.Tx) error {
+func (got *PouetLink) Update(ctx context.Context, tx *sql.Tx) error {
 	const format = "pouet link update %s uuid %s: %w"
 	uid := got.UUID
-	if err := nils.Check(ctx, c, tx); err != nil {
+	if err := nils.Check(ctx, tx); err != nil {
 		return fmt.Errorf(format, "check", uid, err)
 	}
 
@@ -230,7 +228,7 @@ func (got *PouetLink) log(sl *slog.Logger, s string, err error) {
 	sl.Info(got.msg+" "+s, args...)
 }
 
-func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
 	got.Filename = filepath.Base(got.prod.Download)
 	if id, err := strconv.Atoi(got.prod.Demozoo); err == nil && id > 0 {
 		got.DemozooID = id
@@ -255,7 +253,7 @@ func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.Con
 	response, err := GetFile(ctx, sl, timeout, got.prod.Download)
 	if err != nil {
 		got.log(sl, "remote file issue: "+response.Path, err)
-		if err1 := got.Update(ctx, c, tx); err1 != nil {
+		if err1 := got.Update(ctx, tx); err1 != nil {
 			got.log(sl, "download update", err1)
 			return err1
 		}
@@ -276,7 +274,7 @@ func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.Con
 	} else {
 		got.FileSize = size
 	}
-	if err := got.Stat(ctx, sl, c, tx); err != nil {
+	if err := got.Stat(ctx, sl, tx); err != nil {
 		got.log(sl, "download stat", err)
 		return nil
 	}
@@ -288,10 +286,10 @@ func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.Con
 	}
 
 	got.Content = strings.Join(files, "\n")
-	if err := got.Update(ctx, c, tx); err != nil {
+	if err := got.Update(ctx, tx); err != nil {
 		got.log(sl, "archive lists update", err)
 		return err
 	}
 
-	return c.HTML(http.StatusOK, `<p class="text-success">Successful Pouet update</p>`)
+	return nil
 }

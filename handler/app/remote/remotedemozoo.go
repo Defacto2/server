@@ -78,7 +78,7 @@ func Demozoo(prodID int, unid string, download dir.Directory, timeout time.Durat
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
-func (got *DemozooLink) Download(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+func (got *DemozooLink) Download(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, forJSON bool) error {
 	const format = "%s for id %d: %w"
 	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, "check", 0, err)
@@ -100,14 +100,16 @@ func (got *DemozooLink) Download(ctx context.Context, sl *slog.Logger, c *echo.C
 	}
 
 	if err := got.remoteDo(ctx, sl, c, tx); err != nil {
-		return err
+		return fmt.Errorf(format, "remote do", got.ID, err)
 	}
 
 	if got.FileSize <= 0 {
 		got.Error = "no usable download links found, they all returned a 404 error or were empty"
 	}
-
-	return c.JSON(http.StatusNotModified, got)
+	if forJSON {
+		return c.JSON(http.StatusNotModified, got)
+	}
+	return nil
 }
 
 // Stat sets the file size, hash, type, and archive content of the file.
@@ -162,7 +164,7 @@ func (got *DemozooLink) ArchiveDo(
 		return err
 	}
 
-	return c.HTML(http.StatusOK, `<p class="text-success">Successful Demozoo update</p>`)
+	return nil
 }
 
 // Update modifies the database record using data provided by the DemozooLink struct.
@@ -185,9 +187,6 @@ func (got *DemozooLink) Update(ctx context.Context, c *echo.Context, tx *sql.Tx)
 
 	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "infer", uid, err)
-	}
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf(format, "tx commit", uid, err)
 	}
 
 	return nil
@@ -259,19 +258,19 @@ func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.C
 		// we now obtain the file's metadata and incorporate those into the database record.
 		dst := filepath.Join(got.download.Path(), got.UUID)
 		if err := renameOW(response.Path, dst); err != nil {
-			got.log(sl, "downloaded rename", err)
+			got.log(sl, "downloaded remote rename", err)
 			return err
 		}
 		cl := response.ContentLength
 		if size, err := strconv.Atoi(cl); err != nil {
-			got.log(sl, "downloaded content length", err)
+			got.log(sl, "downloaded remote content length", err)
 		} else {
 			got.FileSize = size
 		}
 
 		got.Error = ""
 		if err := got.Stat(ctx, sl, c, tx); err != nil {
-			got.log(sl, "download stat", err)
+			got.log(sl, "downloaded remote and stat", err)
 		}
 
 		return nil

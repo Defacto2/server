@@ -46,7 +46,7 @@ func (h configHTMX) routeHTMX(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.E
 	})
 	demozoo.PUT("/production/:id", func(c *echo.Context) error {
 		return BeginTx(c, db, func(tx *sql.Tx) error {
-			return htmx.Demozoo.Submit(sl, c, tx, h.download)
+			return htmx.Demozoo.Submit(sl, c, db, tx, h.download)
 		})
 	})
 
@@ -57,7 +57,7 @@ func (h configHTMX) routeHTMX(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.E
 	})
 	pouet.PUT("/production/:id", func(c *echo.Context) error {
 		return BeginTx(c, db, func(tx *sql.Tx) error {
-			return htmx.Pouet.Submit(sl, c, tx, h.download)
+			return htmx.Pouet.Submit(sl, c, db, tx, h.download)
 		})
 	})
 

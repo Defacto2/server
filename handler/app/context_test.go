@@ -359,7 +359,7 @@ func TestGetDemozoo(t *testing.T) {
 	x := app.GetDemozoo(ctx, sl, c, tx, 1, testutil.UID, "abc")
 	be.Err(t, x)
 
-	x = app.GetPouet(ctx, sl, c, tx, 1, testutil.UID, "abc")
+	x = app.GetPouet(ctx, sl, tx, 1, testutil.UID, "abc")
 	be.Err(t, x)
 }
 

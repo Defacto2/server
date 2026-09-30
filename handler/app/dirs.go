@@ -91,11 +91,11 @@ func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { /
 
 	ctx := c.Request().Context()
 	art, err := ds.oneByKey(ctx, sl, c, db)
-	if art == nil {
-		return fmt.Errorf(format, "", ErrArtifact)
-	}
 	if err != nil {
 		return fmt.Errorf(format, "one by key", err)
+	}
+	if art == nil {
+		return nil // exit as a 404 or 503 template has been rendered
 	}
 
 	ds.ID = art.ID
