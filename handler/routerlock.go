@@ -3,6 +3,7 @@ package handler
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -40,7 +41,6 @@ func (serv *Server) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dir
 	}
 
 	lock := e.Group("/editor") // lock this group route
-
 	lock.Use(readonlylock, sessionlock)
 
 	if err := serv.configurations(sl, lock, db); err != nil {
@@ -68,6 +68,55 @@ func (serv *Server) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dir
 	fixers(sl, lock, db)
 
 	routes(sl, lock, e.Router().Routes())
+
+	// routes to test the output of the app/error.go handlers.
+	err := errors.New("placeholder error")
+	const uri = "placeholder-error"
+	const zeros = "000000"
+	errs := e.Group("/errs")
+	errs.Use(readonlylock, sessionlock)
+	errs.GET("/ae", func(c *echo.Context) error {
+		return app.ArtifactErr(sl, c, zeros)
+	})
+	errs.GET("/as", func(c *echo.Context) error {
+		return app.ArtifactsErr(sl, c, uri)
+	})
+	errs.GET("/br", func(c *echo.Context) error {
+		return app.BadRequestErr(sl, c, uri, err)
+	})
+	errs.GET("/db", func(c *echo.Context) error {
+		return app.DatabaseErr(sl, c, uri, err)
+	})
+	errs.GET("/dl", func(c *echo.Context) error {
+		return app.DownloadErr(sl, c, uri, err)
+	})
+	errs.GET("/fm", func(c *echo.Context) error {
+		return app.FileMissingErr(sl, c, uri, err)
+	})
+	errs.GET("/fb", func(c *echo.Context) error {
+		return app.ForbiddenErr(sl, c, uri, err)
+	})
+	errs.GET("/in", func(c *echo.Context) error {
+		return app.InternalErr(sl, c, uri, err)
+	})
+	errs.GET("/pg", func(c *echo.Context) error {
+		return app.PageErr(sl, c, uri, zeros)
+	})
+	errs.GET("/rl", func(c *echo.Context) error {
+		return app.ReleaserErr(sl, c, zeros)
+	})
+	errs.GET("/sr", func(c *echo.Context) error {
+		return app.ScenerErr(sl, c, zeros)
+	})
+	errs.GET("/st0", func(c *echo.Context) error {
+		return app.StatusErr(sl, c, 0, uri)
+	})
+	errs.GET("/st404", func(c *echo.Context) error {
+		return app.StatusErr(sl, c, 404, uri)
+	})
+	errs.GET("/st403", func(c *echo.Context) error {
+		return app.StatusErr(sl, c, 403, uri)
+	})
 
 	return e, nil
 }

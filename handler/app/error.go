@@ -17,6 +17,15 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+// INFO:
+// The following error templates can be testing in browser using
+// the /errs router group prefix that is found in routerlock.go.
+//
+// ArtifactErr:		http://localhost:1323/errs/ae
+// ArtifactsErr:	http://localhost:1323/errs/as
+// etc...
+//
+
 const ErrTmpl = "cannot render the html template for this page"
 
 func logErr(sl *slog.Logger, msg, uri string, code int, err error) {
@@ -147,7 +156,7 @@ func DatabaseErr(sl *slog.Logger, c *echo.Context, uri string, err error) error 
 
 // DownloadErr is the handler for missing download files and database ID errors.
 func DownloadErr(sl *slog.Logger, c *echo.Context, uri string, err error) error {
-	const msg = "download not found"
+	const msg = "download error, not found"
 	if cErr := nils.Check(sl, c); cErr != nil {
 		return fmt.Errorf("%s %q: %w", msg, uri, cErr)
 	}
