@@ -59,18 +59,20 @@ func Checksum(ctx context.Context, c *echo.Context, db *sql.DB, obfsKey string) 
 	body := []byte(sum + " " + name)
 
 	const fmtinf = "%s for " + format
-	file, err := dir.CreateTemp("checksum-server.*.txt")
+	f, err := dir.CreateTemp("checksum-server.*.txt")
 	if err != nil {
 		return fmt.Errorf(fmtinf, "create temp file", obfsKey, err)
 	}
 
-	defer os.Remove(file.Name())
+	file := f.Name()
+	defer os.Remove(file)
 
-	if _, err := file.Write(body); err != nil {
+	if _, err := f.Write(body); err != nil {
 		return fmt.Errorf(format, "write", err)
 	}
 
-	err = c.Attachment(file.Name(), "checksums.txt")
+	file = strings.TrimPrefix(file, "/")
+	err = c.Attachment(file, "checksums.txt")
 	if err != nil {
 		return fmt.Errorf(fmtinf, "attachment", obfsKey, err)
 	}
@@ -167,6 +169,7 @@ func (d Download) HTTPSend(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		})
 	}
 
+	file = strings.TrimPrefix(file, "/")
 	if err := c.Attachment(file, name); err != nil {
 		return fmt.Errorf(format, "attachment", err)
 	}
@@ -187,6 +190,7 @@ func inline(c *echo.Context, text bool, file, name, ext string) error {
 		text = false
 	}
 	if !text {
+		file = strings.TrimPrefix(file, "/")
 		if err := c.Inline(file, name); err != nil {
 			return fmt.Errorf(format, "inline", err)
 		}
@@ -202,6 +206,7 @@ func inline(c *echo.Context, text bool, file, name, ext string) error {
 		c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=iso-8859-1")
 	}
 
+	file = strings.TrimPrefix(file, "/")
 	if err := c.Inline(file, name); err != nil {
 		return fmt.Errorf(format, "text as inline", err)
 	}
@@ -246,6 +251,8 @@ func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) err
 		name = art.Filename.String
 		file = e.Download.Join(uid)
 	}
+
+	file = strings.TrimPrefix(file, "/")
 	if err := c.Attachment(file, name); err != nil {
 		return fmt.Errorf(format, "attachment", err)
 	}

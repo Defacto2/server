@@ -110,7 +110,7 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 			UseEscapedPathForMatching: false,
 		}),
 		OnAddRoute:                      onAddRoute,
-		Filesystem:                      nil,
+		Filesystem:                      os.DirFS("/"), // TODO: keep v4 behavour for now
 		Binder:                          nil,
 		Validator:                       nil,
 		Renderer:                        templates,

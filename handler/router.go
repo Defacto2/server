@@ -176,8 +176,11 @@ func (serv *Server) static(e *echo.Echo) *echo.Echo {
 		panic(fmt.Errorf(format, err))
 	}
 
-	e.Static(config.StaticThumb(), serv.Environment.AbsThumbnail.String())
-	e.Static(config.StaticOriginal(), serv.Environment.AbsPreview.String())
+	fsRoot := strings.TrimPrefix(serv.Environment.AbsThumbnail.String(), "/")
+	e.Static(config.StaticThumb(), fsRoot)
+
+	fsRoot = strings.TrimPrefix(serv.Environment.AbsPreview.String(), "/")
+	e.Static(config.StaticOriginal(), fsRoot)
 
 	return e
 }
