@@ -266,6 +266,7 @@ var (
 		"tagInstall":      func() string { return tags.Install.String() },
 		"tagWindows":      func() string { return tags.Windows.String() },
 		"tagDOS":          func() string { return tags.DOS.String() },
+		"tagConsole":      func() string { return tags.Console.String() },
 		"tagLogo":         func() string { return tags.Logo.String() },
 		"tagProof":        func() string { return tags.Proof.String() },
 		"tagText":         func() string { return tags.Text.String() },
