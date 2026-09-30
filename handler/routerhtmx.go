@@ -16,7 +16,7 @@ import (
 // Package file routerhtmx.go contains the custom router URIs for the website
 // that use the htmx ajax library and require a rate limiter middleware.
 
-const seconds = 2
+const requestsPerSec = 20
 
 type configHTMX struct {
 	prodMode bool
@@ -31,7 +31,7 @@ func (h configHTMX) routeHTMX(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.E
 		panic(fmt.Errorf(format, err))
 	}
 
-	store := middleware.NewRateLimiterMemoryStore(seconds)
+	store := middleware.NewRateLimiterMemoryStore(requestsPerSec)
 	// htmx/
 	g := e.Group("", middleware.RateLimiter(store))
 	// htmx/areacodes
