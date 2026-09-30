@@ -7,6 +7,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -274,5 +275,6 @@ func badRequest(c *echo.Context, err error) error {
 	if err == nil {
 		return c.String(code, "something went wrong")
 	}
+	slog.Warn("bad request", slog.Any("error", err))
 	return c.String(code, err.Error())
 }
