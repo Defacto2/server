@@ -93,18 +93,18 @@ func fileIntegrity(art *models.File) string {
 
 // ListEntry is a struct for the directory item that is used to generate the HTML.
 type ListEntry struct {
-	RelativeName                      string
-	Signature                         string
-	Filesize                          string
-	ImageConfig                       string
-	MusicConfig                       string
-	UniqueID                          string
-	name                              string
-	platform                          string
-	section                           string
-	Executable                        magicnumber.Windows
-	bytes                             int64
-	Images, Programs, Texts, BINtexts bool
+	RelativeName                                  string
+	Signature                                     string
+	Filesize                                      string
+	ImageConfig                                   string
+	MusicConfig                                   string
+	UniqueID                                      string
+	name                                          string
+	platform                                      string
+	section                                       string
+	Executable                                    magicnumber.Windows
+	bytes                                         int64
+	Images, Programs, Texts, BINtexts, NonArchive bool
 }
 
 // HTML returns the HTML for an file item in the "Download content" section of the File editor.
@@ -181,12 +181,18 @@ func (m *ListEntry) column2() string {
 		return blank
 	case m.briefDescription():
 		// use DIZ
+		if m.NonArchive {
+			return blank
+		}
 		return buttonDIZ(m.UniqueID, filename)
 	case m.Programs || ext == exe || ext == com: // FIX: conflicts with systemfile
 		// use EXE
 		return buttonEXE()
 	case m.Texts || m.BINtexts || m.textNFO():
 		// use TEXT
+		if m.NonArchive {
+			return blank
+		}
 		return buttonReadme(m.UniqueID, filename)
 	default:
 		return blank
@@ -195,11 +201,14 @@ func (m *ListEntry) column2() string {
 
 // column3 is the list entry, third column button of the "Download content" list.
 func (m *ListEntry) column3() string {
-	filename := url.QueryEscape(m.RelativeName)
-	ext := strings.ToLower(filepath.Ext(filename))
+	if m.NonArchive {
+		return blank
+	}
 	if useDIZ := m.briefDescription(); useDIZ {
 		return blank
 	}
+	filename := url.QueryEscape(m.RelativeName)
+	ext := strings.ToLower(filepath.Ext(filename))
 	if systemfile(ext) {
 		return blank
 	}
@@ -565,7 +574,7 @@ func (e *Entry) SkipEntry(path string, d fs.DirEntry, platform string) bool {
 		config      = ".ini"
 	)
 	switch strings.ToLower(filepath.Ext(path)) {
-	case batchScript, batchCmd, command, executable, config:
+	case batchScript, batchCmd, config:
 		return true
 	}
 

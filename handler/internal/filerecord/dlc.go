@@ -19,6 +19,7 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/internal/command"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -125,6 +126,23 @@ func (dlc *DownloadContent) init(
 
 	dlc.tempRoot, err = archive.ExtractTemp(ctx, dlc.Source)
 	if err != nil {
+		if errors.Is(err, archive.ErrNotArchive) {
+			// handle non-archive files
+			dlc.name = art.Filename.String
+			elem, mErr := dir.MkdirStale(dlc.unid)
+			if mErr == nil {
+				newpath := filepath.Join(elem, dlc.name)
+				_, hErr := helper.Duplicate(dlc.Source, newpath)
+				if hErr != nil {
+					if errors.Is(hErr, fs.ErrExist) {
+						sl.Info("non-archive file already exists", slog.String("path", newpath))
+					} else {
+						sl.Error("non-archive file duplicate", slog.Any("error", hErr))
+					}
+				}
+			}
+			return dlc.extractNone(dlc.Source)
+		}
 		return dlc.extractErr(sl, err)
 	}
 
@@ -158,7 +176,6 @@ func (dlc *DownloadContent) extractErr(sl *slog.Logger, err error) template.HTML
 	if e.SkipFile(dlc.Source, dlc.platform) {
 		return "error, empty byte file"
 	}
-
 	le := listErr(e)
 	var b strings.Builder
 	_, err = b.WriteString(le.HTML(e.bytes, dlc.platform, dlc.section))
@@ -167,6 +184,34 @@ func (dlc *DownloadContent) extractErr(sl *slog.Logger, err error) template.HTML
 	}
 
 	return template.HTML(b.String())
+}
+
+func (dlc *DownloadContent) extractNone(path string) template.HTML {
+	e := Entry{
+		module:  "",
+		size:    "",
+		format:  "",
+		exec:    magicnumber.Windows{},
+		sign:    0,
+		zeros:   dlc.zeroByteFiles,
+		bytes:   0,
+		image:   false,
+		text:    false,
+		bintext: false,
+		program: false,
+	}
+
+	info, _ := os.Stat(path)
+	d := fs.FileInfoToDirEntry(info)
+
+	if e.SkipEntry(path, d, dlc.platform) {
+		return template.HTML("")
+	}
+
+	le := listEntry(e, dlc.name, dlc.unid)
+	le.NonArchive = true
+	dlc.html.WriteString(le.HTML(e.bytes, dlc.platform, dlc.section))
+	return template.HTML(dlc.html.String())
 }
 
 // countFn quickly sums the number of found files to [DownloadContent.files].
