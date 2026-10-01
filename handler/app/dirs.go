@@ -412,7 +412,7 @@ func (ds *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any
 	data["preElementClass"] = strings.Join(classElems[:], " ")
 
 	// ansi and binary text files are handled by a different template
-	if notRAW := runeBuf == nil; notRAW {
+	if notRAW := runeBuf.Len() == 0; notRAW {
 		data = ds.addTextBinary(art, textBuf, classElems[:], data)
 		return data, nil
 	}
