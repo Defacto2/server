@@ -794,6 +794,7 @@ func listErr(e Entry) ListEntry {
 		Programs:     e.program,
 		Texts:        e.text,
 		BINtexts:     e.bintext,
+		NonArchive:   false,
 	}
 }
 
@@ -814,6 +815,7 @@ func listEntry(e Entry, rel, unid string) ListEntry {
 		Programs:     e.program,
 		Texts:        e.text,
 		BINtexts:     e.bintext,
+		NonArchive:   false,
 	}
 }
 

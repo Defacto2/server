@@ -70,8 +70,8 @@ func (serv *Server) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dir
 	routes(sl, lock, e.Router().Routes())
 
 	// routes to test the output of the app/error.go handlers.
-	err := errors.New("placeholder error")
 	const uri = "placeholder-error"
+	err := errors.New("placeholder error") //nolint:err113
 	const zeros = "000000"
 	errs := e.Group("/errs")
 	errs.Use(readonlylock, sessionlock)
@@ -109,13 +109,16 @@ func (serv *Server) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dir
 		return app.ScenerErr(sl, c, zeros)
 	})
 	errs.GET("/st0", func(c *echo.Context) error {
-		return app.StatusErr(sl, c, 0, uri)
+		const code = 0
+		return app.StatusErr(sl, c, code, uri)
 	})
 	errs.GET("/st404", func(c *echo.Context) error {
-		return app.StatusErr(sl, c, 404, uri)
+		const code = 404
+		return app.StatusErr(sl, c, code, uri)
 	})
 	errs.GET("/st403", func(c *echo.Context) error {
-		return app.StatusErr(sl, c, 403, uri)
+		const code = 403
+		return app.StatusErr(sl, c, code, uri)
 	})
 
 	return e, nil

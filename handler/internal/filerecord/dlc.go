@@ -122,27 +122,32 @@ func (dlc *DownloadContent) init(
 	if !tags.IsPlatform(dlc.platform) {
 		return "error, invalid platform"
 	}
-	dlc.section = strings.TrimSpace(strings.ToLower(art.Section.String))
 
-	dlc.tempRoot, err = archive.ExtractTemp(ctx, dlc.Source)
-	if err != nil {
-		if errors.Is(err, archive.ErrNotArchive) {
-			// handle non-archive files
-			dlc.name = art.Filename.String
-			elem, mErr := dir.MkdirStale(dlc.unid)
-			if mErr == nil {
-				newpath := filepath.Join(elem, dlc.name)
-				_, hErr := helper.Duplicate(dlc.Source, newpath)
-				if hErr != nil {
-					if errors.Is(hErr, fs.ErrExist) {
-						sl.Info("non-archive file already exists", slog.String("path", newpath))
-					} else {
-						sl.Error("non-archive file duplicate", slog.Any("error", hErr))
-					}
-				}
-			}
-			return dlc.extractNone(dlc.Source)
+	dupe := func(elem string, mErr error) {
+		if mErr != nil {
+			return
 		}
+		newpath := filepath.Join(elem, dlc.name)
+		_, err := helper.Duplicate(dlc.Source, newpath)
+		if err != nil {
+			if errors.Is(err, fs.ErrExist) {
+				sl.Info("non-archive file already exists", slog.String("path", newpath))
+				return
+			}
+			sl.Error("non-archive file duplicate", slog.Any("error", err))
+		}
+	}
+
+	dlc.section = strings.TrimSpace(strings.ToLower(art.Section.String))
+	dlc.tempRoot, err = archive.ExtractTemp(ctx, dlc.Source)
+	if errors.Is(err, archive.ErrNotArchive) {
+		// handle non-archive files
+		dlc.name = art.Filename.String
+		elem, mErr := dir.MkdirStale(dlc.unid)
+		dupe(elem, mErr)
+		return dlc.extractNone(dlc.Source)
+	}
+	if err != nil {
 		return dlc.extractErr(sl, err)
 	}
 

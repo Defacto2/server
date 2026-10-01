@@ -46,7 +46,9 @@ func (prod Prod) String() string {
 // the production ID. If the ID is already in use, an error message is returned.
 //
 // Note both a sql.Tx and sql.DB are required as there are two separate commit stages.
-func (prod Prod) Submit(sl *slog.Logger, c *echo.Context, db *sql.DB, tx *sql.Tx, download dir.Directory) error { //nolint:funlen
+func (prod Prod) Submit( //nolint:funlen
+	sl *slog.Logger, c *echo.Context, db *sql.DB, tx *sql.Tx, download dir.Directory,
+) error {
 	const msg = "htmx transfer submit"
 	if err := nils.Check(sl, c, db, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -111,7 +113,12 @@ func (prod Prod) Submit(sl *slog.Logger, c *echo.Context, db *sql.DB, tx *sql.Tx
 			logErr("cannot start background tx for fetch remote api", bErr)
 			return
 		}
-		defer bgTx.Rollback()
+		defer func() {
+			rErr := bgTx.Rollback()
+			if rErr != nil {
+				logErr("cannot fetch remote rollback", rErr)
+			}
+		}()
 		switch prod {
 		case Demozoo:
 			if err := app.GetDemozoo(bgCtx, sl, c, bgTx, prodID, unid, download); err != nil {

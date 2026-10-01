@@ -10,9 +10,7 @@ import (
 
 var (
 	byteCR     = []byte("\r")
-	byteCRLF   = []byte("\r\n")
 	byteEOF    = []byte("\x1a")
-	byteLF     = []byte("\n")
 	byteNull   = []byte{0x00}
 	byteSpace  = []byte(" ")
 	emptyBytes = []byte{}

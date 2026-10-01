@@ -78,7 +78,9 @@ func Demozoo(prodID int, unid string, download dir.Directory, timeout time.Durat
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
-func (got *DemozooLink) Download(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, forJSON bool) error {
+func (got *DemozooLink) Download(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, forJSON bool,
+) error {
 	const format = "%s for id %d: %w"
 	if err := nils.Check(ctx, sl, c, tx); err != nil {
 		return fmt.Errorf(format, "check", 0, err)
