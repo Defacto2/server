@@ -520,7 +520,7 @@ func TestTagOption(t *testing.T) {
 	t.Parallel()
 
 	s := app.TagOption(nil, nil)
-	be.Equal(t, s, "")
+	be.Equal(t, s, `<option value="">`)
 
 	s = app.TagOption("", tags.Interview.String())
 	be.True(t, strings.Contains(string(s), `<option value="interview">`))

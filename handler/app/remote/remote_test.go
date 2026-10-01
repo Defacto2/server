@@ -24,7 +24,7 @@ func TestDownload(t *testing.T) {
 	c := testutil.NewContext(t, "")
 
 	dl := remote.Demozoo(0, "", "", 0)
-	got := dl.Download(t.Context(), sl, c, tx)
+	got := dl.Download(t.Context(), sl, c, tx, false)
 	be.Err(t, got)
 }
 

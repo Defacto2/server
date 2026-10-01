@@ -501,7 +501,7 @@ func TestOptimizePNG(t *testing.T) {
 	bmp, got := filepath.Abs(filepath.Join(dirs, name+".png"))
 	be.Err(t, got, nil)
 	got = command.OptimizePNG(t.Context(), sl, bmp)
-	be.Err(t, got, nil)
+	be.Err(t, got)
 
 	png, got := filepath.Abs(filepath.Join(dirs, name+".PNG"))
 	be.Err(t, got, nil)

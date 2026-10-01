@@ -558,6 +558,9 @@ func (e *Entry) SkipFile(name, platform string) bool {
 // This is used to skip directories and files that are not relevant to the artifact,
 // such as common DOS file extensions like .bat, .com, .exe, .cmd and .ini files.
 func (e *Entry) SkipEntry(path string, d fs.DirEntry, platform string) bool {
+	if d == nil {
+		return false
+	}
 	if d.IsDir() {
 		return true
 	}

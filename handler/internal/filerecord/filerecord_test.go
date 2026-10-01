@@ -761,5 +761,5 @@ func TestSkipEntry(t *testing.T) {
 	info, err = os.Stat(name)
 	be.Err(t, err, nil)
 	d = fs.FileInfoToDirEntry(info)
-	be.True(t, e.SkipEntry(name, d, ""))
+	be.True(t, !e.SkipEntry(name, d, ""))
 }

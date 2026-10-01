@@ -203,7 +203,6 @@ func (dlc *DownloadContent) extractNone(path string) template.HTML {
 
 	info, _ := os.Stat(path)
 	d := fs.FileInfoToDirEntry(info)
-
 	if e.SkipEntry(path, d, dlc.platform) {
 		return template.HTML("")
 	}

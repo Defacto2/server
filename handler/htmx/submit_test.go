@@ -68,10 +68,11 @@ func TestPouetSubmit(t *testing.T) {
 	t.Parallel()
 
 	sl := logs.Discard()
+	db := testutil.DB(t)
 	tx := testutil.Tx(t)
 	c := testutil.NewInput(t,
 		"/pouet/production", "pouet-submission", "9999")
-	err := htmx.Pouet.Submit(sl, c, tx, "")
+	err := htmx.Pouet.Submit(sl, c, db, tx, "")
 	be.Err(t, err, nil)
 	_ = tx.Rollback()
 }
@@ -134,6 +135,7 @@ func TestProdSubmit(t *testing.T) {
 	t.Parallel()
 
 	sl := logs.Discard()
+	db := testutil.DB(t)
 	tx := testutil.Tx(t)
 
 	const target = "/pouet/production"
@@ -144,24 +146,24 @@ func TestProdSubmit(t *testing.T) {
 
 	download := dir.Directory(wd)
 	prod := htmx.Demozoo
-	err = prod.Submit(sl, c, tx, download)
+	err = prod.Submit(sl, c, db, tx, download)
 	be.Err(t, err, nil)
 
 	pathValues := echo.PathValues{
 		{Name: "id", Value: "10101"},
 	}
 	c = testutil.NewPath(t, target, pathValues)
-	err = prod.Submit(sl, c, tx, download)
+	err = prod.Submit(sl, c, db, tx, download)
 	be.Err(t, err, nil)
 
 	prod = htmx.Pouet
-	err = prod.Submit(sl, c, tx, download)
+	err = prod.Submit(sl, c, db, tx, download)
 	be.Err(t, err, nil)
 
 	pathValues = echo.PathValues{
 		{Name: "id", Value: "10101"},
 	}
 	c = testutil.NewPath(t, target, pathValues)
-	err = prod.Submit(sl, c, tx, download)
+	err = prod.Submit(sl, c, db, tx, download)
 	be.Err(t, err, nil)
 }
