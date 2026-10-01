@@ -91,20 +91,15 @@
     });
     document
       .getElementById(`jsdosScreenshot`)
-      .addEventListener("click", screenshot);
+      .addEventListener("click", ()=>{
+        screenshot({{$filename}})
+      });
 {{- if $unlocked }}
     const replaceImageButton = document.getElementById('jsdosReplaceImage');
     replaceImageButton.addEventListener('click', function() {
       try {
         replaceImageButton.disabled = true;
-        console.log("replacement image: for canvas of {{$filename}}");
-        let dataURL = canvas.toDataURL("image/png");
-        let a = document.createElement('a');
-        a.href = dataURL;
-        a.download = "{{$filename}}-replace-image.png";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        screenshot("{{$filename}}-replace-image.png")
         // stop JS-DOS emulation
         if (window.ci) {
           ci.exit();
@@ -117,8 +112,6 @@
         }
         const jsdosModal = bootstrap.Modal.getInstance(document.getElementById('js-dos-modal'));
         jsdosModal.hide();
-        // store screenshot for potential use
-        window.lastJSDOSScreenshot = dataURL;
         // open asset editor modal
         const assetModal = new bootstrap.Modal(document.getElementById('asset-editor-modal'));
         assetModal.show();
@@ -134,15 +127,48 @@
       }
     });
 {{- end }}
-    function screenshot() {
-      console.log("screenshot: for canvas of {{$filename}}");
-      let dataURL = canvas.toDataURL("image/png");
-      let a = document.createElement("a");
-      a.href = dataURL;
-      a.download = "{{$filename}}.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+    function screenshot(filename = 'screenshot') {
+      console.log(`screenshot: for canvas of ${filename}`);
+
+      const scale = 3;
+      const baseWidth = canvas.width;
+      const baseHeight = Math.round(baseWidth * (3 / 4)); // 320 * (3/4) = 240
+      let targetWidth = baseWidth * scale;
+      let targetHeight = baseHeight * scale;
+      const maxWidth = 1280
+      const maxHeight = 960
+      if (targetWidth > maxWidth || targetHeight > maxHeight) {
+        const widthRatio = maxWidth / targetWidth;
+        const heightRatio = maxHeight / targetHeight;
+        const constrainRatio = Math.min(widthRatio, heightRatio);
+
+        targetWidth = Math.round(targetWidth * constrainRatio);
+        targetHeight = Math.round(targetHeight * constrainRatio);
+      }
+
+      // canvas setup
+      const offscreen = document.createElement("canvas");
+      offscreen.width = targetWidth;
+      offscreen.height = targetHeight;
+      const ctx = offscreen.getContext("2d");
+      ctx.imageSmoothingEnabled = false;
+      // stretch the original DOS resolution by the scale value
+      ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, targetWidth, targetHeight);
+
+      offscreen.toBlob((blob) => {
+        if (!blob) return;
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = `${filename}.png`;
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // clean up memory after use
+        URL.revokeObjectURL(url);
+      }, "image/png")
     }
     function startBinary(options) {
       Dos(canvas, options).ready((fs, main) => {
