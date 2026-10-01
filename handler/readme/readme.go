@@ -176,14 +176,14 @@ func (t *Text) handleRAW(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) (
 
 	if descBuf.Len() > 0 { // usually the file_id or other header text
 		// avoid edge cases where two buffers might have the same content
-		if !bytes.Equal(descBuf.Bytes(), textBuf.Bytes()) {
+		if !bytes.Equal(bytes.TrimSpace(descBuf.Bytes()), bytes.TrimSpace(textBuf.Bytes())) {
 			b = AddPrefix(b, descBuf.Bytes())
 		}
 		descBuf.Reset()
 	}
 
 	if helpBuf.Len() > 0 { // usually a manual or secondary text
-		if !bytes.Equal(helpBuf.Bytes(), textBuf.Bytes()) {
+		if !bytes.Equal(bytes.TrimSpace(helpBuf.Bytes()), bytes.TrimSpace(textBuf.Bytes())) {
 			b = AddSuffix(b, helpBuf.Bytes())
 		}
 		helpBuf.Reset()
