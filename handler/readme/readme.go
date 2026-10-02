@@ -10,7 +10,6 @@ import (
 	"os"
 	"slices"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
@@ -105,9 +104,10 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	// Note that MSDOS binary texts do not have any form of magic bytes detection.
 	// So the [Text.Sign] must remain as [magicnumber.Unknown], otherwise binary texts
 	// get treated as raw, plain text or get ignored.
-	if skip, find := t.problematic(sl, textBuf); skip {
+	skip, find := t.problematic(sl, textBuf)
+	t.Sign = find
+	if skip {
 		t.Error(sl, err)
-		t.Sign = find
 		textBuf.Reset()
 		runeBuf.Reset()
 		return unused, unused, nil
@@ -133,7 +133,12 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	// NOTE: Binary texts will cause false positives.
 	// There maybe a need in the future to set a database flag to handle them.
 	// For example, when t.problematic returns magicnumber.PlainText and platform is set to "ansi".
-	if t.Sign == magicnumber.Unknown {
+	//	- 1985 binary text:		https://defacto2.net/f/aa2be75
+	//	- 1990 ansi encoded:	https://defacto2.net/f/b82bf46
+	//	- 1995 binary text:		https://defacto2.net/f/a21d50b
+	//	- 1995 PCBoard text:	https://defacto2.net/f/a821636
+	binaryDump := t.Platform == "ansi" && t.Sign == magicnumber.PlainText
+	if t.Sign == magicnumber.Unknown || t.Sign == magicnumber.CGAVideoDump || binaryDump {
 		sl.Info("readme will render the buffer as binary text")
 		buf, err := t.handleBIN(textBuf)
 		if err != nil {
@@ -327,12 +332,13 @@ func (t *Text) problematic(sl *slog.Logger, textBuf *bytes.Buffer) (bool, magicn
 	}
 
 	// skip known images and XBinary text without dynamic slice allocations
-	if find == magicnumber.XBinaryText || slices.Contains(magicnumber.Images(), find) {
+	if find == magicnumber.XBinaryText ||
+		slices.Contains(magicnumber.Images(), find) {
 		sl.Info("readme found known image or binary format", slog.String("sign", find.String()))
 		return true, find
 	}
 
-	return false, t.Sign
+	return false, find
 }
 
 // descriptor (File ID - Description In ZIP) returns the content of archive file descriptor.
@@ -463,10 +469,13 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 	textBuf.Reset()
 	p = trimEOF(p)
 	textBuf.Write(p)
+	runeBuf.Write(p)
 
-	if utf8.Valid(p) {
-		runeBuf.Write(p)
-	}
+	// note this causes CP437 textfiles to not pass,
+	// if runeBuf.Size() == 0, then the text readme will not be used.
+	//	if utf8.Valid(p) {
+	//		runeBuf.Write(p)
+	//	}
 
 	return nil
 }
