@@ -122,7 +122,7 @@ func UPMagazine(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Direc
 
 // UPText is a handler for the /uploader/text route.
 func UPText(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
-	const key = "uploader-trainer" // FIX: Incorrect?
+	const key = "uploader-text"
 	return Transfer{Key: key, Download: download}.Submit(sl, c, tx)
 }
 
