@@ -556,20 +556,20 @@ import {
   if (dateLastMod === null) {
     // do nothing as the date last mod input is optional
   } else {
-    const dateLastModder = document.getElementById(
-      'artifact-editor-date-lastmodder'
+    const dateLastMods = document.getElementById(
+      'artifact-editor-date-lastmods'
     );
-    if (dateLastModder === null) {
-      throw new Error('The date last modder input is missing.');
+    if (dateLastMods === null) {
+      throw new Error('The date last mod revert input is missing.');
     }
     dateLastMod.addEventListener('click', () => {
       year.classList.remove('is-invalid', 'is-valid');
       month.classList.remove('is-invalid', 'is-valid');
       day.classList.remove('is-invalid', 'is-valid');
-      const value = dateLastModder.value;
+      const value = dateLastMods.value;
       const values = value.split('-');
       if (values.length != 3) {
-        throw new Error('The date last modder values are invalid.');
+        throw new Error('The date last mod revert inputs are invalid.');
       }
       year.value = values[0];
       month.value = values[1];
