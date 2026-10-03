@@ -20,6 +20,7 @@ const dos = 'application/x-msdos-program';
 
 const bmp = 'image/bmp',
   gif = 'image/gif',
+  iff = 'image/x-ilbm',
   jpeg = 'image/jpeg',
   pcx = 'image/vnd.zbrush.pcx',
   png = 'image/png',
@@ -77,7 +78,7 @@ export function binaries() {
 }
 
 export function images() {
-  const allowedTypes = [bmp, gif, jpeg, pcx, png, tiff, webp];
+  const allowedTypes = [bmp, gif, iff, jpeg, pcx, png, tiff, webp];
   return allowedTypes;
 }
 
