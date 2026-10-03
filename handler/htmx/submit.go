@@ -196,7 +196,12 @@ func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error { /
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be created")
 	}
 
-	content := t.content(ctx, sl, msg, fileHeader.Filename, tempDest)
+	_, _ = fileMultipart.Seek(0, io.SeekStart)
+	magic := magicnumber.Find(fileMultipart)
+	content := []string{}
+	if slices.Contains(magicnumber.Archives(), magic) {
+		content = t.content(ctx, sl, msg, fileHeader.Filename, tempDest)
+	}
 
 	readme := archive.Readme(fileHeader.Filename, content...)
 
@@ -205,6 +210,7 @@ func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error { /
 		Readme:     readme,
 		Key:        t.Key,
 		Content:    content,
+		Magic:      magic,
 	}
 	copy(insert.Checksum[:], sha384)
 	id, uid, err := insert.Upload(sl, c, tx)
@@ -347,6 +353,7 @@ type Insert struct {
 	Key        string
 	Content    []string
 	Checksum   [48]byte
+	Magic      magicnumber.Signature
 }
 
 func (in Insert) Upload(sl *slog.Logger, c *echo.Context, tx *sql.Tx) (int64, uuid.UUID, error) {
@@ -371,6 +378,7 @@ func (in Insert) Upload(sl *slog.Logger, c *echo.Context, tx *sql.Tx) (int64, uu
 	values.Add(prefix+"-size", strconv.FormatInt(in.FileHeader.Size, 10))
 	values.Add(prefix+"-content", strings.Join(in.Content, "\n"))
 	values.Add(prefix+"-readme", in.Readme)
+	values.Add(prefix+"-magic", in.Magic.Title())
 
 	checks := [...]string{
 		prefix + "-operating-system",
