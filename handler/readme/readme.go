@@ -534,7 +534,7 @@ func (t *Text) filename() (string, error) {
 }
 
 // useViewer returns true if the file entry should display the file download in the browser plain text viewer.
-// The result is based on the platform and section such as "text" or "textamiga" will return true.
+// The result is based on the platform and section such as "ansi", "text" or "textamiga" will return true.
 func (t *Text) useViewer() bool {
 	if strings.EqualFold(strings.TrimSpace(t.Filename), "file_id.diz") {
 		return true
@@ -545,7 +545,10 @@ func (t *Text) useViewer() bool {
 	}
 
 	s := t.Platform
-	return strings.EqualFold(s, "text") || strings.EqualFold(s, "textamiga")
+	// INFO: this behavior was changed in Oct 26 to include "ansi".
+	return strings.EqualFold(s, "text") ||
+		strings.EqualFold(s, "textamiga") ||
+		strings.EqualFold(s, "ansi")
 }
 
 // Normalize applies a number of replacements and sanity checks to the
