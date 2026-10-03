@@ -11,8 +11,6 @@ import (
 var (
 	byteCR     = []byte("\r")
 	byteEOF    = []byte("\x1a")
-	byteNull   = []byte{0x00}
-	byteSpace  = []byte(" ")
 	emptyBytes = []byte{}
 	trimCutset = " \x1a" // Space + SUB character
 )
@@ -69,25 +67,24 @@ func AddSuffix(p, suffix []byte) []byte {
 	return buf
 }
 
-// trimEOF to handle some edge cases whereby an è followed
-// by a number of DOS-era end-of-file markers tail the text.
-//
-// Maybe these introduced by some specific bbs software in the day.
+// trimE handles an edge case whereby an e-grave "è" marker
+// is found, followed by a number of DOS-era end-of-file markers.
+// Maybe these got introduced by bbs software in the day?
 //
 // Some examples from 1985:
 //   - https://defacto2.net/f/b22621c
 //   - https://defacto2.net/f/b328b2c
-func trimEOF(s []byte) []byte {
+func trimE(s []byte) []byte {
 	const (
-		e   = 0x8a // CP437: è
-		eof = 0x1a // MSDOS: end-of-file mark
+		egrave = 0x8a // CP437: è
+		eof    = 0x1a // MSDOS: end-of-file mark
 	)
 
 	for len(s) > 0 && s[len(s)-1] == eof {
 		s = s[:len(s)-1]
 	}
 
-	if len(s) > 0 && s[len(s)-1] == e {
+	if len(s) > 0 && s[len(s)-1] == egrave {
 		s = s[:len(s)-1]
 	}
 

@@ -113,38 +113,42 @@ func openRoot(tb testing.TB, name string) *os.Root {
 
 // Binary text helpers
 
-// DOSBIN converts the string into a single line, MS-DOS BIN [binary text].
+// DOSBIN converts the string into a single page, MS-DOS BIN [binary text].
 // If s is left empty, "hello world" will be used.
-// Long strings will be cropped to fit the 80 column per line limit.
+// Long strings will be cropped to fit the 80 column * 25 row per page limit.
 //
 // [binary text]: http://fileformats.archiveteam.org/wiki/BIN_(Binary_Text)
-func DOSBIN(tb testing.TB, s string) [161]byte {
+func DOSBIN(tb testing.TB, s string) [4000]byte {
 	tb.Helper()
 
 	const (
 		text = "hello world"
-		cols = 80
+		page = 4000
 		attr = byte(0x0F) // bright white on black background
-		eof  = byte(0x1A) // MS-DOS end-of-file marker
+		rows = 80
 	)
 
 	if s == "" {
 		s = text
 	}
-	if len(s) > 80 {
-		s = s[:80]
+
+	count := len(s)
+	if count > page {
+		s = s[:page]
 	}
 
-	var buf [161]byte
-	for i := range cols {
-		char := byte(' ')
-		if i < len(s) {
-			char = s[i]
-		}
-		buf[i*2] = char
-		buf[i*2+1] = attr
+	var buf [page]byte
+	for i := range count {
+		x := i * 2      // jump to every second byte of the page
+		buf[x] = s[i]   // but read every character of s
+		buf[x+1] = attr // append the same attribute for each character
 	}
-	buf[len(buf)-1] = eof
+	// fill the remainder of the page with space characters
+	// to complete the 80*25=4000 character requirement
+	for i := count * 2; i < page-1; i += 2 {
+		buf[i] = byte(' ')
+		buf[i+1] = attr
+	}
 
 	return buf
 }

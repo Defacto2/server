@@ -157,10 +157,10 @@ func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { /
 			defer clear(data)
 			ds.logErr(sl, "dirs artifact add readme", err)
 		}
-	} else {
+	}
+	if data != nil {
 		data = ds.addSAUCE(art, data)
 	}
-
 	err = c.Render(http.StatusOK, artifact, data)
 	defer clear(data)
 	if err != nil {

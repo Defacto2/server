@@ -10,6 +10,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"unicode"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
@@ -130,15 +131,15 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	// log any previous errors
 	t.Error(sl, err)
 
-	// NOTE: Binary texts will cause false positives.
-	// There maybe a need in the future to set a database flag to handle them.
-	// For example, when t.problematic returns magicnumber.PlainText and platform is set to "ansi".
+	// NOTE: Video RAM screen dumps and binary texts will cause false positives.
+	// There maybe a future need to use a database column boolean to flag them.
+	// For example, when find returns magicnumber.PlainText and the database tag is set to "ansi".
+	//	- https://defacto2.net/f/aa29dd6
 	//	- 1985 binary text:		https://defacto2.net/f/aa2be75
 	//	- 1990 ansi encoded:	https://defacto2.net/f/b82bf46
 	//	- 1995 binary text:		https://defacto2.net/f/a21d50b
 	//	- 1995 PCBoard text:	https://defacto2.net/f/a821636
-	binaryDump := t.Platform == "ansi" && t.Sign == magicnumber.PlainText
-	if t.Sign == magicnumber.Unknown || t.Sign == magicnumber.CGAVideoDump || binaryDump {
+	if t.Sign == magicnumber.Unknown || t.Sign == magicnumber.CGAVideoDump {
 		sl.Info("readme will render the buffer as binary text")
 		buf, err := t.handleBIN(textBuf)
 		if err != nil {
@@ -195,16 +196,25 @@ func (t *Text) handleRAW(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) (
 	}
 
 	b = removeControls(b)
+	size := len(b)
 
-	if len(bytes.TrimSpace(b)) == 0 {
+	if size == 0 {
 		textBuf.Reset()
 		runeBuf.Reset()
 		return nil, nil, nil
 	}
-	if len(b) > 0 {
-		textBuf.Reset()
-		textBuf.Write(b)
-	}
+
+	textBuf.Reset()
+	textBuf.Grow(size)
+	textBuf.Write(b)
+
+	// INFO: runeBuf.Len() must not be 0,
+	// otherwise the "ANSI encoded or binary text" readme gets used
+	// instead of the "Readme or information text".
+	runeBuf.Reset()
+	runeBuf.Grow(size)
+	runeBuf.Write(b)
+
 	return textBuf, runeBuf, nil
 }
 
@@ -381,22 +391,40 @@ func (t *Text) secondary(buf *bytes.Buffer, extension string) error {
 	}
 	defer src.Close()
 
+	st, err := src.Stat()
+	if err != nil {
+		buf.WriteString("error could not describe the information text file")
+		return nil
+	}
+
+	if st.Size() > t.MaxSize {
+		buf.WriteString("skipped, text is too long")
+		return nil
+	}
+
 	buf.Reset()
+	buf.Grow(int(st.Size()))
 	if _, err = io.Copy(buf, src); err != nil {
 		return fmt.Errorf(format, "io copy", err)
 	}
 
-	b := buf.Bytes()
-	b = bytes.TrimSpace(b)
-	b = bytes.ReplaceAll(b, byteNull, byteSpace)
-	b = bytes.ReplaceAll(b, byteEOF, emptyBytes)
-	// INFO: by deleting all CR characters,
-	// all Windows CRLF newlines get converted to common LF newlines.
-	b = bytes.ReplaceAll(b, byteCR, emptyBytes)
-	b = helper.MaskTerm(b...)
-
+	p := buf.Bytes()
 	buf.Reset()
-	buf.Write(b)
+
+	if extension == ".diz" {
+		// INFO:
+		// These aggressive fixes are probably not suitable for general texts.
+		// Amiga, Unix, and MS-DOS computers use different newlines and would
+		// often corrupt the FILE_ID metadata file when originally written
+		// on the other platform. These fixes do the following:
+		//	- remove all EOF markers embedded in the whole text, not just at the end.
+		//	- remove all instances of CR to fix zebra-line, repeating newline corruptions.
+		p = bytes.ReplaceAll(p, byteEOF, emptyBytes)
+		p = bytes.ReplaceAll(p, byteCR, emptyBytes)
+	}
+
+	p = Normalize(p)
+	buf.Write(p)
 
 	return nil
 }
@@ -449,33 +477,27 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 		return fmt.Errorf(format, "information text copy", err)
 	}
 
-	b := textBuf.Bytes()
-	r := bytes.NewReader(b)
-	var p []byte
-
-	if sign, _ := magicnumber.Text(r); sign != magicnumber.Unknown {
-		p = textBuf.Bytes()
-		p = Normalize(p)
-	} else {
-		_, _ = r.Seek(0, io.SeekStart)
-		if sign, _ := magicnumber.Archive(r); sign != magicnumber.Unknown {
-			textBuf.Reset()
-			return nil
-		}
-		p = b
+	p := textBuf.Bytes()
+	// INFO: because there is no reliable way to detect binary text files,
+	// we instead look for known file types that should not be treated as text.
+	r := bytes.NewReader(p)
+	if sign, _ := magicnumber.Archive(r); sign != magicnumber.Unknown {
+		textBuf.Reset()
+		return nil
 	}
 
-	// update textBuf only if normalized bytes modified the slice
-	textBuf.Reset()
-	p = trimEOF(p)
-	textBuf.Write(p)
-	runeBuf.Write(p)
+	p = Normalize(p)
+	// _, _ = r.Seek(0, io.SeekStart)
+	// if sign, _ := magicnumber.Text(r); sign != magicnumber.Unknown {
+	// 	p = textBuf.Bytes()
+	// 	p = Normalize(p)
+	// }
 
-	// note this causes CP437 textfiles to not pass,
-	// if runeBuf.Size() == 0, then the text readme will not be used.
-	//	if utf8.Valid(p) {
-	//		runeBuf.Write(p)
-	//	}
+	textBuf.Reset()
+	textBuf.Write(p)
+
+	runeBuf.Grow(len(p))
+	runeBuf.Write(p)
 
 	return nil
 }
@@ -529,16 +551,30 @@ func (t *Text) useViewer() bool {
 // Normalize applies a number of replacements and sanity checks to the
 // byte slice to make it ready for use to display on a user's browser.
 //
-//   - removes EOF marker
-//   - replaces ASCII NULL with spaces
-//   - replaces CFLF with LF newlines
-//   - applies helper masking with pattern matching
+//   - EOF marker is removed
+//   - ASCII NULLs are swapped with spaces
+//   - CFLF newlines are swapped with LF newlines
+//   - Keywords are masked
+//   - SAUCE metadata and comments are removed
+//   - E-grave end of file marker is removed
 func Normalize(b []byte) []byte {
 	if len(b) == 0 {
 		return nil
 	}
 
-	// trim the end of file marker
+	trimRight := func(b []byte) []byte {
+		return bytes.TrimRightFunc(b, unicode.IsSpace)
+	}
+
+	// some example files:
+	// 	- SAUCE: https://defacto2.net/f/b62db00
+	// 	- TrimSpace breaks text: https://defacto2.net/f/b62f13e
+
+	b = trimRight(b)
+	b = trimE(b)
+	b = sauce.Trim(b)
+
+	// trim the end of file marker, but only when found at the end of the text
 	end := len(b)
 	for end > 0 && b[end-1] == '\x1a' {
 		end--

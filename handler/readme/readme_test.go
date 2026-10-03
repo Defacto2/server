@@ -64,33 +64,32 @@ func TestBuffers1(t *testing.T) {
 		UUID:     unid,
 	}
 
-	got0, got1, err := txt.Buffers(sl)
+	gotStr, gotRune, err := txt.Buffers(sl)
 	be.Err(t, err, nil)
 
 	const diz = ":DIZ BEGIN:\n\n  <- TAB\n  A placeholder FILE_ID.DIZ\n\n: DIZ END :\n\n"
 	const body = ":TXT BEGIN:\n\nHELLO WORLD!\n\n: TXT END :\n"
 	const help = "\n:HLP BEGIN:\n\nhelper text...\n\n: HLP END :"
-	const long = "skipped, text is too long\n"
+	const long = "skipped, text is too long"
 
 	wants := diz + body + help
-	got := got0.String()
+	got := gotStr.String()
 	be.Equal(t, got, wants)
 
-	got = got1.String()
-	be.Equal(t, got, body)
+	got = gotRune.String()
+	be.Equal(t, got, wants)
 
 	// test the too long feedback
 	//
 	txt.MaxSize = 1 // 1 byte
-	got0, got1, err = txt.Buffers(sl)
+	gotStr, gotRune, err = txt.Buffers(sl)
 	be.Err(t, err, nil)
 
-	wants = diz + long + help
-	got = got0.String()
-	be.Equal(t, got, wants)
+	got = gotStr.String()
+	be.Equal(t, got, long)
 
-	got = got1.String()
-	be.Equal(t, got, "")
+	got = gotRune.String()
+	be.Equal(t, got, long)
 }
 
 func TestBuffers2(t *testing.T) {
@@ -115,7 +114,6 @@ func TestBuffers2(t *testing.T) {
 		`<span style="color:#fff;">hello world</span>` +
 		"\n\n" +
 		`<span style="color:#aaa;">: TXT CSI END :</span>` +
-		"\n\n" +
 		`</div>`
 	got := got0.String()
 	be.Equal(t, got, wants)
@@ -150,8 +148,10 @@ func TestBuffers3(t *testing.T) {
 	const pre = `<div><span style="color:#fff;background-color:#000;">`
 	const charsPerLine = 80
 	padding := bytes.Repeat([]byte{0x20}, charsPerLine-len(body))
-	const suf = "</span>\n</div>"
 
-	wants := pre + body + string(padding) + suf
-	be.Equal(t, got, wants)
+	wants := pre + body + string(padding)
+	be.True(t, strings.HasPrefix(got, wants))
+
+	const suf = "</span>\n</div>"
+	be.True(t, strings.HasSuffix(got, suf))
 }

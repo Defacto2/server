@@ -38,13 +38,13 @@ func Test_trimEOF(t *testing.T) {
 	t.Parallel()
 
 	wants := []byte("hello world")
-	got := trimEOF(wants)
+	got := trimE(wants)
 	be.Equal(t, got, wants)
 
 	wants = []byte("requires._____")
 	s := wants
 	s = append(s, []byte("\x8a\x1a")...)
-	got = trimEOF(s)
+	got = trimE(s)
 	be.Equal(t, got, wants)
 }
 
