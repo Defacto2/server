@@ -165,10 +165,12 @@ func recordObf(ctx context.Context, exec boil.ContextExecutor, withDeleted bool,
 
 	// get record id, filename, uuid
 	art, err := One(ctx, exec, withDeleted, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf(format, obfsKey, ErrBadID)
+	}
 	if err != nil {
 		return nil, fmt.Errorf(format, obfsKey, err)
 	}
-
 	if art.ID != int64(id) {
 		return nil, fmt.Errorf(format, obfsKey, ErrBadID)
 	}
