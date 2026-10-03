@@ -63,6 +63,7 @@ func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, uni
 		TIFF = magicnumber.TaggedImageFileFormat
 		BMP  = magicnumber.BMPFileFormat
 		PCX  = magicnumber.PersonalComputereXchange
+		ILBM = magicnumber.InterleavedBitmap
 		AVI  = magicnumber.MicrosoftAudioVideoInterleave
 	)
 
@@ -75,7 +76,7 @@ func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, uni
 	}
 
 	switch magic {
-	case IFF, JPG, PNG, GIF, WebP, TIFF, BMP, PCX: // do nothing
+	case IFF, JPG, PNG, GIF, WebP, TIFF, BMP, PCX, ILBM: // do nothing
 	default:
 		return fmt.Errorf(format, magic.Title(), ErrUnknownImg)
 	}
@@ -103,6 +104,8 @@ func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, uni
 	case BMP:
 		return ds.previewPixels(ctx, sl, srcImage, unid)
 	case PCX:
+		return ds.previewPixels(ctx, sl, srcImage, unid)
+	case ILBM:
 		return ds.previewPixels(ctx, sl, srcImage, unid)
 	default:
 		return fmt.Errorf(format, magic.Title(), ErrUnknownImg)
