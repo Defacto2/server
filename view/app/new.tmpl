@@ -4,6 +4,25 @@
 {{- define "content" }}
 {{- $lsMoney := " bg-light" }}
 {{- $padding := "p-0 m-0 px-5 pb-1" }}
+<h4 class="index-section-header index-section-header-alt">Mid-Late 2026</h4>
+<div class="index-intro-section index-intro-section-alt">
+<p>
+Recently there has been some significant code rewrites for performance and compatibility improvements while handling uploads of obscure media image, text, and compression formats for the Commodore Amiga and MS-DOS systems. 
+There should now be less warnings when submitting images stored in IFF, ILBM, and PBM containers (EA Deluxe Paint) and ZIP, LHA, and LZH archives.
+</p>
+<p>
+Also introduced is native support for the oddball PKZIP methods that existed in the BBS era before "DEFLATE" became the default. 
+Previously, the website relied on <a href="https://www.hanshq.net/zip.html">hwzip</a>, which while functional, didn't support the preservation of archive sub-folders or file last modification dates. 
+This has been fixed with a native Go implementation of  "EXPAND", "EXPLODE", and "UNSHINK"! 
+</p>
+<p>
+Finally, there is a new, better way of detecting binary texts, so hopefully there are far fewer instances of the web application displaying raw and binary text files incorrectly. 
+Binary texts are data dumps of the video memory for CGA, EGA, and VGA text screens which use a byte pair for each character on screen. 
+The first byte is (usually) a <a href="https://en.wikipedia.org/wiki/Code_page_437">CP-437 character code point</a> that uses all 256 possible codes, and the second attribute byte, also uses all 256 possible bit combinations. 
+Each screen dump is usually 80 columns by 25 rows, leading to 80*25=2000 characters with 2000 attribute bytes being dump to a 4000 byte file or 4096 bytes with 96 appended placeholder bytes. 
+While ANSI art and binary texts outputs look similar, due to the simplicity of binary text, it was far easier to parse and more performant on PCs of the 1980s.
+</p>
+</div>
 <h4 class="index-section-header index-section-header-alt">Mid 2026</h4>
 <div class="index-intro-section index-intro-section-alt">
 <p>
