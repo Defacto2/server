@@ -9,7 +9,7 @@
         <div class="col-lg-10">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Base URL</h2>
+                    <h2 class="h5 mb-0">Base URL and example links</h2>
                 </div>
                 <div class="card-body">
                     <label for="baseUrl" class="form-label">Base URL is for all the API endpoints</label>
@@ -18,8 +18,8 @@
                         <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('baseUrl')">Copy</button>
                     </div>
                     <p class="text-secondary">
-                      The web server code is open sourced: <a href="https://github.com/Defacto2/server">github.com/Defacto2/server</a><br>
-                      The API data is available for download as a single SQL document: <a href="https://defacto2.net/sql/files.sql">defacto2.net/sql/files.sql</a>
+                      The web application code is open sourced: <a href="https://github.com/Defacto2/server">github.com/Defacto2/server</a><br>
+                      The API source data is available for download as a single file, SQL database dump: <a href="https://defacto2.net/sql/files.sql">defacto2.net/sql/files.sql</a>
                     </p>
                     <p class="text-muted">Examples:</p>
                       <ul>
@@ -34,21 +34,21 @@
                         <li><a href="{{$api}}artifacts/new">{{$baseUrl}}artifacts/new</a> <span class="text-secondary">(recently added)</span></li>
                         <!-- categories -->
                         <li><a href="{{$api}}categories">{{$baseUrl}}categories</a> <span class="text-secondary">(all categories)</span></li>
-                        <li><a href="{{$api}}category/demo">{{$baseUrl}}category/demo</a> <span class="text-secondary">(lookup demo programs)</span></li>
-                        <li><a href="{{$api}}category/releaseadvert">{{$baseUrl}}category/releaseadvert</a> <span class="text-secondary">(lookup NFOs)</span></li>
-                        <li><a href="{{$api}}category/magazine">{{$baseUrl}}category/magazine</a> <span class="text-secondary">(magazines)</span></li>
+                        <li><a href="{{$api}}category/demo">{{$baseUrl}}category/demo</a> <span class="text-secondary">(list demo programs)</span></li>
+                        <li><a href="{{$api}}category/releaseadvert">{{$baseUrl}}category/releaseadvert</a> <span class="text-secondary">(list NFOs)</span></li>
+                        <li><a href="{{$api}}category/magazine">{{$baseUrl}}category/magazine</a> <span class="text-secondary">(list magazines)</span></li>
                         <!-- platforms -->
                         <li><a href="{{$api}}platforms">{{$baseUrl}}platforms</a> <span class="text-secondary">(all platforms)</span></li>
-                        <li><a href="{{$api}}platform/dos">{{$baseUrl}}platform/dos</a> <span class="text-secondary">(DOS artifacts)</span></li>
-                        <li><a href="{{$api}}platform/ansi">{{$baseUrl}}platform/ansi</a> <span class="text-secondary">(ANSI artifacts)</span></li>
+                        <li><a href="{{$api}}platform/dos">{{$baseUrl}}platform/dos</a> <span class="text-secondary">(list programs for MS-DOS)</span></li>
+                        <li><a href="{{$api}}platform/ansi">{{$baseUrl}}platform/ansi</a> <span class="text-secondary">(list ANSI texts)</span></li>
                         <!-- releasers, groups -->
                         <li><a href="{{$api}}groups">{{$baseUrl}}groups</a> <span class="text-secondary">(all groups, paginated)</span></li>
-                        <li><a href="{{$api}}releaser/razor-1911">{{$baseUrl}}releaser/razor-1911</a> <span class="text-secondary">(list the releases of Razor 1911)</span></li>
-                        <li><a href="{{$api}}artifact/ab1f158">{{$baseUrl}}artifact/ab1f158</a> <span class="text-secondary">(list Razor's oldest PC release)</span></li>
+                        <li><a href="{{$api}}releaser/razor-1911">{{$baseUrl}}releaser/razor-1911</a> <span class="text-secondary">(lookup Razor 1911)</span></li>
+                        <li><a href="{{$api}}artifact/ab1f158">{{$baseUrl}}artifact/ab1f158</a> <span class="text-secondary">(list the first Razor PC release)</span></li>
                         <li><a href="{{$api}}boards">{{$baseUrl}}boards</a> <span class="text-secondary">(all bulletin board systems)</span></li>
-                        <li><a href="{{$api}}releaser/chicago-bbs">{{$baseUrl}}releaser/chicago-bbs</a> <span class="text-secondary">(list the releases of 1983's Chicago BBS)</span></li>
+                        <li><a href="{{$api}}releaser/chicago-bbs">{{$baseUrl}}releaser/chicago-bbs</a> <span class="text-secondary">(list the releases of Chicago BBS)</span></li>
                         <li><a href="{{$api}}magazines">{{$baseUrl}}magazines</a> <span class="text-secondary">(all magazines)</span></li>
-                        <li><a href="{{$api}}releaser/the-zapper">{{$baseUrl}}releaser/the-zapper</a> <span class="text-secondary">(list the releases of the magazine The Zapper)</span></li>
+                        <li><a href="{{$api}}releaser/the-zapper">{{$baseUrl}}releaser/the-zapper</a> <span class="text-secondary">(list the issue for The Zapper magazine)</span></li>
                         <li><a href="{{$api}}sites">{{$baseUrl}}sites</a> <span class="text-secondary">(all FTP sites)</span></li>
                         <!-- sceners -->
                         <li><a href="{{$api}}sceners">{{$baseUrl}}sceners</a> <span class="text-secondary">(all sceners, paginated)</span></li>
@@ -58,16 +58,17 @@
                         <!-- milestones -->
                         <li><a href="{{$api}}milestones">{{$baseUrl}}milestones</a> <span class="text-secondary">(all milestones)</span></li>
                         <li><a href="{{$api}}milestones/highlights">{{$baseUrl}}milestones/highlights</a> <span class="text-secondary">(milestone highlights)</span></li>
-                        <li><a href="{{$api}}milestones/year/1995">{{$baseUrl}}milestones/year/1995</a> <span class="text-secondary">(1995 milestones)</span></li>
+                        <li><a href="{{$api}}milestones/year/1995">{{$baseUrl}}milestones/year/1995</a> <span class="text-secondary">(lookup milestones by year)</span></li>
                         <!-- other -->
                         <li><a href="{{$api}}demozoo">{{$baseUrl}}demozoo</a> <span class="text-secondary">(Demozoo mappings)</span></li>
                         <li><a href="{{$api}}websites">{{$baseUrl}}websites</a> <span class="text-secondary">(curated websites)</span></li>
                       </ul>
-                    <p>No authentication is required for read-only API endpoints.</p>
+                    <p>No authentication is required for the read-only API endpoints.</p>
                     <div class="alert alert-success" role="alert">
-                      19-May-2025, The API v1 is live! The response header <var>X-Api-Version</var> contains the current version value.
+                      04-Oct-2026, Typo fix v1.0.1 : "group" > "urls" > "api" was returning "/api/v1releaser/".
+                      <br>19-May-2025, The API v1 is live! The response header <var>X-Api-Version</var> contains the current version value.
                       <div class="text-secondary">
-                        You could use the <a href="https://chromewebstore.google.com/detail/json-beautifier-and-edito/lpopeocbeepakdnipejhlpcmifheolpl">JSON-beautifier</a> browser extension to view this data.
+                        You could use <a href="https://chromewebstore.google.com/detail/json-beautifier-and-edito/lpopeocbeepakdnipejhlpcmifheolpl">JSON-beautifier</a> browser extension to make this data readable.
                       </div>
                     </div>
                 </div>
@@ -286,7 +287,9 @@
                                 <tr>
                                     <td><code>description</code></td>
                                     <td>string</td>
-                                    <td>Detailed description of the specific artifact, typically following the pattern "[Title] released by [Group] in [Year]". This field provides historical context about the original release, including the releasing group and year. Examples: "Time To Say Goodbye released by Audiofile in 2023" or "Space Quest unprotect independently released in 1987".</td>
+                                    <td>Detailed description of the specific artifact, typically following the pattern <em>"Title" released by "Group" in "Year"</em>. 
+                                    The description field provides historical context about the original release or file artifact, including the release groups and year.<br> 
+                                    Examples: "Time To Say Goodbye released by Audiofile in 2023" or "Space Quest unprotect independently released in 1987".</td>
                                 </tr>
                                 <tr>
                                     <td><code>datePublished</code></td>
@@ -296,27 +299,28 @@
                                 <tr>
                                     <td><code>download.checksum</code></td>
                                     <td>string</td>
-                                    <td>SHA384 cryptographic hash of the file content, represented as a hexadecimal string. This can be used to verify file integrity and authenticity.</td>
+                                    <td>SHA384 cryptographic hash of the file content, represented as a hexadecimal string. This can be used to verify file integrity.</td>
                                 </tr>
                                 <tr>
                                     <td><code>download.lastModAgo</code></td>
                                     <td>string</td>
-                                    <td>A representation of how long ago the file was last modified (e.g., "Modified 7 years ago").</td>
+                                    <td>A representation of how long ago the file was last modified.<br>Example: "Modified 7 years ago".</td>
                                 </tr>
                                 <tr>
                                     <td><code>download.lastModified</code></td>
                                     <td>string</td>
-                                    <td>ISO 8601 formatted timestamp indicating when the original file was last modified, based on the file's internal metadata. This represents the historical modification date, not when it was added to Defacto2.</td>
+                                    <td>ISO 8601 formatted timestamp indicating when the original file was last modified, based on the internal metadata of the file. 
+                                    It represents the historical modification date, not when it was added to Defacto2.</td>
                                 </tr>
                                 <tr>
                                     <td><code>download.mimeType</code></td>
                                     <td>string</td>
-                                    <td>MIME type classification of the file content (e.g., "Zip archive", "MS-DOS executable", "Plain text").</td>
+                                    <td>MIME type classification of the file content<br>Example: "Zip archive", "MS-DOS executable", "Plain text".</td>
                                 </tr>
                                 <tr>
                                     <td><code>id</code></td>
                                     <td>string</td>
-                                    <td>Unique identifier for resources for sceners and groups that use hash-based stable identifiers derived from their names to ensure consistency across API versions.</td>
+                                    <td>Unique identifier for resources for sceners and groups. These are derived from the names and titles using hash-based stable identifiers.</td>
                                 </tr>
                                 <tr>
                                     <td><code>meta.comment</code></td>
@@ -326,7 +330,7 @@
                                 <tr>
                                     <td><code>meta.releasers</code></td>
                                     <td>array</td>
-                                    <td>Array of two objects containing one or two releasers involved with this artifact. A releaser can be a group, magazine, BBS board or FTP site.</td>
+                                    <td>Array of two objects containing one or two releasers involved with the artifact. A releaser can be a group, a magazine title, the name of a BBS, or the name of a FTP site.</td>
                                 </tr>
                                 <tr>
                                     <td><code>meta.releasers[].api</code></td>
@@ -366,22 +370,22 @@
                                 <tr>
                                     <td><code>relationships[].description</code></td>
                                     <td>string</td>
-                                    <td>A brief description explaining the nature of the relationship (e.g., "Original 1982 release", Demozoo production").</td>
+                                    <td>A brief description explaining the nature of the relationship.<br>Examples: "Original 1982 release", "Demozoo production".</td>
                                 </tr>
                                 <tr>
                                     <td><code>relationships[].link</code></td>
                                     <td>string</td>
-                                    <td>Full URL pointing to the related resource. This can be an external website, another Defacto2 artifact page, or any relevant online resource that provides additional context or information about the artifact.</td>
+                                    <td>Full URL pointing to the related resource. This can be an external website, another Defacto2 artifact page, or any relevant online resource that provides additional context and information about the artifact.</td>
                                 </tr>
                                 <tr>
                                     <td><code>size.bytes</code></td>
                                     <td>number</td>
-                                    <td>Exact file size in bytes for programmatic use. Intended for calculations, comparisons, etc.</td>
+                                    <td>Exact file size in bytes for programmatic use.</td>
                                 </tr>
                                 <tr>
                                     <td><code>size.formatted</code></td>
                                     <td>string</td>
-                                    <td>Human-readable representation of file size using standard units (bytes, KB, MB, GB).</td>
+                                    <td>Human readable representation of file size using standard units (bytes, KB, MB, GB).</td>
                                 </tr>
                                 <tr>
                                     <td><code>statistics.totalFiles</code></td>
@@ -391,54 +395,56 @@
                                 <tr>
                                     <td><code>statistics.totalSize</code></td>
                                     <td>string</td>
-                                    <td>Human-readable representation of the combined size of all files associated with the entity.</td>
+                                    <td>Human readable representation of the combined size of all files associated with the entity.</td>
                                 </tr>
                                 <tr>
                                     <td><code>statistics.totalSizeBytes</code></td>
                                     <td>number</td>
-                                    <td>Exact total size in bytes of all files associated with athe entity.</td>
+                                    <td>Total size in bytes of all files associated with the entity.</td>
                                 </tr>
                                 <tr>
                                     <td><code>tags.category</code></td>
                                     <td>string</td>
-                                    <td>Classification of the artifact type using Defacto2's tagging system.<br>All categories are found in <a href="{{$api}}categories">http://defacto2.net{{$api}}categories</a></td>
+                                    <td>Classification of the artifact type using the Defacto2 tagging system.
+                                    <br>All categories are found in <a href="{{$api}}categories">defacto2.net{{$api}}categories</a></td>
                                 </tr>
                                 <tr>
                                     <td><code>tags.description</code></td>
                                     <td>string</td>
-                                    <td>Human-readable combination of category and platform that describes what the artifact is and its format in natural language.</td>
+                                    <td>Human readable combination of category and platform that describes the artifact and its format.</td>
                                 </tr>
                                 <tr>
                                     <td><code>tags.platform</code></td>
                                     <td>string</td>
-                                    <td>Technical platform or format of the artifact indicating the original system or format type.<br>All platforms are found in <a href="{{$api}}platforms">http://defacto2.net{{$api}}platforms</a></td>
+                                    <td>Micro-computing platform or the technical format of the artifact indicating the system or format type.
+                                    <br>All platforms are found in <a href="{{$api}}platforms">defacto2.net{{$api}}platforms</a></td>
                                 </tr>
                                 <tr>
                                     <td><code>urls.api</code></td>
                                     <td>string</td>
-                                    <td>Direct API URI to access this artifact's detailed information.</td>
+                                    <td>Direct API URI to access the detailed information of the artifact.</td>
                                 </tr>
                                 <tr>
                                     <td><code>urls.download</code></td>
                                     <td>string</td>
-                                    <td>Direct download link for the file artifact. <br>For example, <q>/d/[id]</q> results to 
-                                    <a href="/d/ab3cee">https://defacto2.net/d/ab3cee</a></td>
+                                    <td>Direct download link for the file artifact.
+                                    <br>Example: <code>/d/[id]</code> results as <a href="/d/ab3cee">defacto2.net/d/ab3cee</a></td>
                                 </tr>
                                 <tr>
                                     <td><code>urls.html</code></td>
                                     <td>string</td>
                                     <td>Web page URL showing detailed information about the artifact with preview capabilities.<br>
-                                    Uses obfuscated ID format as a permanent URL. For example, <q>/f/[id]</q> results to 
-                                    <a href="/f/ab3cee">https://defacto2.net/f/ab3cee</a></td>
+                                    Uses obfuscated ID format as a permanent URL.
+                                    <br>Example: <code>/f/[id]</code> results as <a href="/f/ab3cee">defacto2.net/f/ab3cee</a></td>
                                 </tr>
                                 <tr>
                                     <td><code>urls.thumbnail</code></td>
                                     <td>string</td>
                                     <td>URI to a thumbnail image preview that needs a file extension.
-                                        Generally thumbnails use a <code>.png</code> extension. 
+                                        Generally thumbnails use the <code>.png</code> extension. 
                                         However, if the request returns a <small>404&nbsp;NOT&nbsp;FOUND</small>, a <code>.webp</code> maybe required.
-                                        <br>Example, <a href="/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp">https://defacto2.net/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp</a>
-                                        <br><span class="text-secondary">Some artifacts, such as tracker music files, have no thumbnails.</span>
+                                        And some artifacts, such as music files, have no thumbnails.
+                                        <br>Example: <code>/public/image/thumb/[uuid].webp</code> results as <a href="/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp">defacto2.net/public/image/thumb/c8e1be87-2f54-11e0-8827-cc1607e15609.webp</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1385,11 +1391,11 @@ fetch('{{$baseUrl}}areacode/search/602')
                                 </tr>
                                 <tr>
                                     <td><code>404 Not Found</code></td>
-                                    <td>No milestones found for the specified criteria</td>
+                                    <td>No item or object found for the request</td>
                                 </tr>
                                 <tr>
                                     <td><code>500 Internal Server Error</code></td>
-                                    <td>Server-side error</td>
+                                    <td>Server side error</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1403,7 +1409,7 @@ fetch('{{$baseUrl}}areacode/search/602')
                 <div class="card-body">
                     <p>For detailed API documentation in OpenAPI format:</p>
                     <a href="/openapi.json" class="btn btn-primary">Download OpenAPI JSON</a>
-                    <p class="mt-3 text-muted">The OpenAPI specification provides machine-readable API documentation that can be used with tools.</p>
+                    <p class="mt-3 text-muted">The OpenAPI specification provides machine readable documentation for some utilities and tools.</p>
                 </div>
             </div>
         </div>

@@ -44,7 +44,7 @@ import (
 
 const (
 	APIBase = "/api/v1" // API Base URI (any changes need to be reflected in apiinfo.tmpl)
-	APIVer  = "1.0.0"   // API Version gets shown in the HTTP header replies
+	APIVer  = "1.0.1"   // API Version gets shown in the HTTP header replies
 
 	apiLimit = 1000
 )
@@ -980,7 +980,7 @@ func ReleaserAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 			Name:  name,
 			Title: releaser.Link(name),
 			URLs: enityURLs{
-				API:   APIBase + "releaser/" + name,
+				API:   APIBase + "/releaser/" + name,
 				HTML3: "/html3/group/" + name,
 				HTML:  "/g/" + name,
 			},
