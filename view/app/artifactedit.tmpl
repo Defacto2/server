@@ -567,7 +567,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
 
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-youtubeval" id="artifact-editor-youtube-undo" value="{{$youtube}}" readonly>
+                <input type="hidden" name="artifact-editor-youtubeundo" id="artifact-editor-youtube-undo" value="{{$youtube}}" readonly>
                 {{- /*  maxlength/minlength values means htmx will only ever trigger with 11 chars  */}}
                 <input type="text" class="form-control" name="artifact-editor-youtube" id="artifact-editor-youtube" 
                   autocomplete="off" minlength="11" value="{{$youtube}}" placeholder="62BuDfBIcMo"
@@ -583,7 +583,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 185828">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-demozooval" id="artifact-editor-demozoo-undo" value="{{$demozoo}}" readonly>
+                <input type="hidden" name="artifact-editor-demozooundo" id="artifact-editor-demozoo-undo" value="{{$demozoo}}" readonly>
                 {{- /*  do not use a min=1 input element, otherwise htmx will never save when deleting a value  */}}
                 <input type="number" class="form-control" name="artifact-editor-demozoo" id="artifact-editor-demozoo" 
                   autocomplete="off" max="{{ demozooSanity }}" value="{{$demozoo}}" placeholder="185828"
@@ -598,7 +598,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 75854">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-pouetval" id="artifact-editor-pouet-undo" value="{{$pouet}}" readonly>
+                <input type="hidden" name="artifact-editor-pouetundo" id="artifact-editor-pouet-undo" value="{{$pouet}}" readonly>
                 <input type="number" class="form-control" name="artifact-editor-pouet" id="artifact-editor-pouet" 
                   autocomplete="off" max="{{ pouetSanity }}" value="{{$pouet}}" placeholder="75854"
                   hx-patch="/editor/pouet"
@@ -610,7 +610,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A URL path, example: tags/magazine/dreadloc">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-16colorstval" id="artifact-editor-16colors-undo" value="{{$sixteen}}" readonly>
+                <input type="hidden" name="artifact-editor-16colorsundo" id="artifact-editor-16colors-undo" value="{{$sixteen}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-16colors" id="artifact-editor-16colors" 
                   autocomplete="off" maxlength="{{$oneK}}" value="{{$sixteen}}" placeholder="tags/magazine/dreadloc"
                   hx-patch="/editor/16colors"
@@ -621,7 +621,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: Defacto2/server">
               <div class="form-floating">
-                <input type="hidden" name="artifact-editor-githubval" id="artifact-editor-github-undo" value="{{$github}}" readonly>
+                <input type="hidden" name="artifact-editor-githubundo" id="artifact-editor-github-undo" value="{{$github}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
                   autocomplete="off" maxlength="{{$oneK}}" value="{{$github}}" placeholder="Defacto2/server"
                   hx-patch="/editor/github"
@@ -638,7 +638,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         <div class="row row-cols-1 row-cols-lg-2 gy-2 pt-2">
           <div class="col">
             <div class="form-floating" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Info and a Defacto2 ID, example: NFO;9f1c2">
-              <input type="hidden" name="artifact-editor-relationsval" id="artifact-editor-relations-undo" value="{{$relations}}" readonly>
+              <input type="hidden" name="artifact-editor-relationsundo" id="artifact-editor-relations-undo" value="{{$relations}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-relations" id="artifact-editor-relations" 
                 autocomplete="off" maxlength="255" value="{{$relations}}"
                 placeholder="example: NFO;9f1c2" aria-describedby="artifact-editor-relations-help"
@@ -658,7 +658,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div> 
           <div class="col">
             <div class="form-floating">
-              <input type="hidden" name="artifact-editor-websitesval" id="artifact-editor-websites-undo" value="{{$websites}}" readonly>
+              <input type="hidden" name="artifact-editor-websitesundo" id="artifact-editor-websites-undo" value="{{$websites}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-websites" id="artifact-editor-websites" 
                 autocomplete="off" maxlength="2048" value="{{$websites}}"
                 placeholder="Website;example.com" aria-describedby="artifact-editor-websites-help"
@@ -688,12 +688,13 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-patch="/editor/links/reset"
               hx-target="#artifact-editor-link-examples"
               hx-include="[name='artifact-editor-key'],
-              [name='artifact-editor-youtubeval'],
-              [name='artifact-editor-demozooval'],
-              [name='artifact-editor-pouetval'],
-              [name='artifact-editor-16colorstval'],
-              [name='artifact-editor-relationsval'],
-              [name='artifact-editor-websitesval']">
+              [name='artifact-editor-youtubeundo'],
+              [name='artifact-editor-githubundo'],
+              [name='artifact-editor-demozooundo'],
+              [name='artifact-editor-pouetundo'],
+              [name='artifact-editor-16colorsundo'],
+              [name='artifact-editor-relationsundo'],
+              [name='artifact-editor-websitesundo']">
               <small class="{{$reverter}}">Revert <u>all</u> links <em id="artifact-editor-links-quote"></em></small>
           </button>
         </div>

@@ -28,6 +28,7 @@ import (
 	"github.com/Defacto2/server/internal/config/fixlha"
 	"github.com/Defacto2/server/internal/config/fixzip"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -547,7 +548,7 @@ func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.Conte
 		if err != nil {
 			sl.Error(msg,
 				slog.String("problem", "Cannot remove file duplicates"),
-				slog.String("file_id.diz", diz), slog.String("readme_text", txt),
+				slog.String(extensions.FileID, diz), slog.String("readme_text", txt),
 				slog.Any("error", err),
 			)
 			continue

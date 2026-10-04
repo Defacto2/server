@@ -11,6 +11,7 @@ import (
 	"github.com/Defacto2/server/handler/internal/filerecord"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/internal/testutil"
@@ -181,7 +182,7 @@ func TestListEntry(t *testing.T) {
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "/editor/readme/copy/"))
 
-	le.RelativeName = "file_id.diz"
+	le.RelativeName = extensions.FileID
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "/editor/diz/copy/"))
 

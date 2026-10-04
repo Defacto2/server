@@ -229,18 +229,18 @@ func TxLinksUndo(c *echo.Context, tx *sql.Tx) error {
 		return badRequest(c, fmt.Errorf(format, "key", err))
 	}
 
-	youtube := c.FormValue("artifact-editor-youtubeval") // FIX: replace tailname with undo
+	youtube := c.FormValue("artifact-editor-youtubeundo")
 	if ok := form.ValidYouTube(youtube); !ok {
 		return badRequest(c, fmt.Errorf(format, youtube, ErrYouTube))
 	}
 
-	colors16 := c.FormValue("artifact-editor-16colorstval")
+	colors16 := c.FormValue("artifact-editor-16colorsundo")
 	colors16 = form.SanitizeURLPath(colors16)
 
-	github := c.FormValue("artifact-editor-githubval")
+	github := c.FormValue("artifact-editor-githubundo")
 	github = form.SanitizeGitHub(github)
 
-	demozooVal := c.FormValue("artifact-editor-demozooval")
+	demozooVal := c.FormValue("artifact-editor-demozooundo")
 	var demozooID int64
 	if demozooVal != "" {
 		demozooID, err = strconv.ParseInt(demozooVal, 10, 64)
@@ -252,7 +252,7 @@ func TxLinksUndo(c *echo.Context, tx *sql.Tx) error {
 		}
 	}
 
-	pouetVal := c.FormValue("artifact-editor-pouetval")
+	pouetVal := c.FormValue("artifact-editor-pouetundo")
 	var pouetID int64
 	if pouetVal != "" {
 		pouetID, err = strconv.ParseInt(pouetVal, 10, 64)
@@ -264,8 +264,8 @@ func TxLinksUndo(c *echo.Context, tx *sql.Tx) error {
 		}
 	}
 
-	rels := c.FormValue("artifact-editor-relationsval")
-	sites := c.FormValue("artifact-editor-websitesval")
+	rels := c.FormValue("artifact-editor-relationsundo")
+	sites := c.FormValue("artifact-editor-websitesundo")
 	lnks := model.Links{
 		ID:        key,
 		Demozoo:   demozooID,

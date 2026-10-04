@@ -283,7 +283,7 @@ var recordsSubMap = sync.OnceValue(func() map[URI]string {
 		drama:        none.Humanizes(tags.Drama),
 		ftp:          none.Humanizes(tags.Ftp),
 		hack:         none.Humanizes(tags.GameHack),
-		htm:          "htm", // FIX:
+		htm:          "Websites and HTML documents",
 		howTo:        none.Humanizes(tags.Guide),
 		imageFile:    tags.Image.Humanizes(none),
 		imagePack:    tags.Image.Humanizes(tags.Pack),

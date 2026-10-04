@@ -33,7 +33,9 @@ type Dirs struct {
 //
 // Thumbnails are generated as .webp or .png files, while the preview image format depends
 // on the input format (.png, .jpeg, .avif, .webp, etc.).
-func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, unid string) error {
+func (ds Dirs) PictureImager( //nolint:cyclop,funlen
+	ctx context.Context, sl *slog.Logger, srcImage, unid string,
+) error {
 	const format = "picture imager %s: %w"
 
 	if err := nils.Check(ctx, sl); err != nil {

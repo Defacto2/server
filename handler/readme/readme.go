@@ -15,6 +15,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/bengarrett/ansibump"
@@ -536,7 +537,7 @@ func (t *Text) filename() (string, error) {
 // useViewer returns true if the file entry should display the file download in the browser plain text viewer.
 // The result is based on the platform and section such as "ansi", "text" or "textamiga" will return true.
 func (t *Text) useViewer() bool {
-	if strings.EqualFold(strings.TrimSpace(t.Filename), "file_id.diz") {
+	if strings.EqualFold(strings.TrimSpace(t.Filename), extensions.FileID) {
 		return true
 	}
 

@@ -20,6 +20,7 @@ import (
 	"github.com/Defacto2/server/handler/readme"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -365,7 +366,7 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 func (dlc *DownloadContent) indexDiz() int {
 	for i, name := range dlc.names {
 		s := strings.TrimSpace(name)
-		if strings.EqualFold(s, "file_id.diz") { // FIX: create a shared universal file_id. ref?
+		if strings.EqualFold(s, extensions.FileID) {
 			return i
 		}
 	}

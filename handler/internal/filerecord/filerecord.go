@@ -177,7 +177,7 @@ func (m *ListEntry) column2() string {
 	filename := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(filename))
 	switch {
-	case systemfile(ext):
+	case ext == bat || ext == ini:
 		return blank
 	case m.briefDescription():
 		// use DIZ
@@ -185,8 +185,8 @@ func (m *ListEntry) column2() string {
 			return blank
 		}
 		return buttonDIZ(m.UniqueID, filename)
-	case m.Programs || ext == exe || ext == com: // FIX: conflicts with systemfile
-		// use EXE
+	case m.Programs || ext == exe || ext == com:
+		// highlight EXE
 		return buttonEXE()
 	case m.Texts || m.BINtexts || m.textNFO():
 		// use TEXT
@@ -391,7 +391,7 @@ func progrDos(x8086 int, bytes int64) string {
 // briefDescription returns true for known BBS/FTP site descriptor files.
 func (m *ListEntry) briefDescription() bool {
 	name := strings.TrimSpace(m.RelativeName)
-	names := []string{"file_id.diz"} // FIX: add console and amiga
+	names := []string{extensions.FileID, extensions.DisplayMe}
 	for valid := range slices.Values(names) {
 		if strings.EqualFold(name, valid) {
 			return true

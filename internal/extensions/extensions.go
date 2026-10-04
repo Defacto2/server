@@ -4,6 +4,11 @@
 package extensions
 
 const (
+	FileID    = "file_id.diz"      // Description In Zipfile BBS file descriptor
+	DisplayMe = "readme.displayme" // Amiga and Console Scenes BBS file descriptor
+)
+
+const (
 	avif = ".avif"
 	fzip = ".zip"
 	gif  = ".gif"

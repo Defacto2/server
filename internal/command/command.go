@@ -200,7 +200,6 @@ func (r *Runner) Run(ctx context.Context, name string, arg ...string) ([]byte, e
 	if err != nil {
 		const format = "command run %s: %w"
 		if len(out) > 0 {
-			fmt.Println(string(out))
 			return out, fmt.Errorf(format, name, err)
 		}
 		return out, fmt.Errorf(format, name, err)

@@ -330,7 +330,7 @@ func SaveTemp(sl *slog.Logger, c *echo.Context, key string, fileHeader *multipar
 
 	// create temporary destination file
 	const pattern = "upload-*.zip"
-	tempDest, err := dir.CreateTemp(pattern) // FIX:
+	tempDest, err := dir.CreateTemp(pattern)
 	if err != nil {
 		return internalErr("The temporary save cannot be created", err)
 	}
