@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -65,6 +66,8 @@ func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, uni
 		PCX  = magicnumber.PersonalComputereXchange
 		ILBM = magicnumber.InterleavedBitmap
 		AVI  = magicnumber.MicrosoftAudioVideoInterleave
+		ANM  = magicnumber.ElectronicArtsAnim
+		PBM  = magicnumber.PlanarBitMap
 	)
 
 	if magic == AVI {
@@ -76,7 +79,7 @@ func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, uni
 	}
 
 	switch magic {
-	case IFF, JPG, PNG, GIF, WebP, TIFF, BMP, PCX, ILBM: // do nothing
+	case IFF, JPG, PNG, GIF, WebP, TIFF, BMP, PCX, ILBM, ANM, PBM: // do nothing
 	default:
 		return fmt.Errorf(format, magic.Title(), ErrUnknownImg)
 	}
@@ -100,13 +103,25 @@ func (ds Dirs) PictureImager(ctx context.Context, sl *slog.Logger, srcImage, uni
 		const makeThumb = true
 		return ds.webpPreview(ctx, sl, srcImage, unid, makeThumb)
 	case TIFF:
+		// example: https://defacto2.net/f/ac219a6
 		return ds.previewPhoto(ctx, sl, srcImage, unid)
 	case BMP:
+		// example: https://defacto2.net/f/b01ec50
 		return ds.previewPixels(ctx, sl, srcImage, unid)
 	case PCX:
+		// example: https://defacto2.net/f/b5275d6
 		return ds.previewPixels(ctx, sl, srcImage, unid)
 	case ILBM:
+		// example: https://defacto2.net/f/ac20cef
 		return ds.previewPixels(ctx, sl, srcImage, unid)
+	case ANM:
+		// example: https://defacto2.net/f/b526ffe
+		return fmt.Errorf(format, magic.Title()+
+			` has no support using standard Linux tools. `+
+			`Use "entropymine.com/deark" to extract the frames to PNG`, ErrNoSupport)
+	case PBM:
+		// example: https://defacto2.net/f/be2715a
+		return ds.netpdmPreview(ctx, sl, srcImage, unid, ilbmRun)
 	default:
 		return fmt.Errorf(format, magic.Title(), ErrUnknownImg)
 	}
@@ -496,6 +511,74 @@ func (ds Dirs) gifPreview(ctx context.Context, sl *slog.Logger, src, unid string
 	return nil
 }
 
+// netpdmPreview converts IFF Amiga and PC images to optimized pixel PNG and Webp images.
+// It relies on a subset of tools provided by Netpdm rather than ImageMagick.
+func (ds Dirs) netpdmPreview(
+	ctx context.Context, sl *slog.Logger, src, unid string,
+	proc func(ctx context.Context, input, output string) error,
+) error {
+	const msg = "netpdm image preview"
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
+	}
+
+	tmpDir, err := dir.MkdirTemp("pixel")
+	if err != nil {
+		return fmt.Errorf(format, "create temp directory", err)
+	}
+	defer func() {
+		if err := dir.RemoveAll(tmpDir); err != nil {
+			sl.Error(msg+" could not apply remove all to temporary directory",
+				slog.String("directory", tmpDir), slog.Any("error", err))
+		}
+	}()
+
+	name := filepath.Base(src) + png
+	tmp := filepath.Join(tmpDir, name)
+	if err := proc(ctx, src, tmp); err != nil {
+		return fmt.Errorf(format, "proc", err)
+	}
+
+	dst := filepath.Join(ds.Preview.Path(), unid+png)
+	if err := CopyFile(sl, tmp, dst); err != nil {
+		return fmt.Errorf(format, "copyfile png preview", err)
+	}
+	if err := ds.optiAnsilove(ctx, sl, unid, tmp); err != nil {
+		return fmt.Errorf(format, "optimize ansilove", err)
+	}
+	return nil
+}
+
+// ilbmRun uses Netpdm to convert an IFF ILBM image to a modern format.
+// It also uses the "pamscale" command to adjust the image aspect ratio.
+func ilbmRun(ctx context.Context, src, dst string) error {
+	const format = "ilbm run combined output: %w: %s"
+
+	// INFO:
+	// Instead of running three Go execs, use the shell to pipe the commands.
+	// $1 refers to src, $2 refers to dst.
+	// $0 is set to "sh".
+	// The -yscale might need to be passed as a argument in the future.
+	run := Ilbmtoppm + ` "$1" | ` + Pamscale + ` -yscale 1.2 | ` + Magick + ` pnm:- "$2"`
+
+	cmd := exec.CommandContext(
+		ctx,
+		"/bin/sh",
+		"-c",
+		run,
+		"sh", // $0
+		src,  // $1
+		dst,  // $2
+	)
+
+	if output, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf(format, err, string(output))
+	}
+
+	return nil
+}
+
 // pngPreview copies the src PNG image to the preview directory.
 // It concurrently optimizes the preview and generates a WebP thumbnail .
 func (ds Dirs) pngPreview(ctx context.Context, sl *slog.Logger, src, unid string) error {
@@ -605,8 +688,8 @@ func (ds Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid str
 	arg := option.Opts{}
 	arg.PNGPixel(false, src, tmp)
 	r := Runner{Log: sl}
-	if _, err := r.Run(ctx, Magick, arg...); err != nil {
-		return fmt.Errorf(format, "run magick", err)
+	if output, err := r.Run(ctx, Magick, arg...); err != nil {
+		return fmt.Errorf(format, "run magick: "+string(output), err)
 	}
 
 	dst := filepath.Join(ds.Preview.Path(), unid+png)

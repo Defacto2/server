@@ -38,6 +38,7 @@ var (
 	ErrIsFile     = errors.New("command: directory path points to a file")
 	ErrNoImages   = errors.New("command: no images found")
 	ErrNoMatch    = errors.New("command: no match value is present")
+	ErrNoSupport  = errors.New("command: file format has no support")
 	ErrUnknownImg = errors.New("command: file is not a known image format")
 	ErrValue      = errors.New("command: argument is empty")
 	ErrVersion    = errors.New("command: application version mismatch")
@@ -49,20 +50,22 @@ var (
 // "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
 
 const (
-	Arc      = "arc"      // Arc is the arc decompression command.
-	Arj      = "arj"      // Arj is the arj decompression command.
-	Ansilove = "ansilove" // Ansilove is the ansilove text to image command.
-	Cwebp    = "cwebp"    // Cwebp is the Google create webp command.
-	Gif2webp = "gif2webp" // Gif2webp is the Google gif to webp command.
-	HWZip    = "hwzip"    // Hwzip the zip decompression command for files using obsolete methods.
-	Lha      = "lha"      // Lha is the lha/lzh decompression command.
-	Magick   = "magick"   // Magick is the ImageMagick v7+ command.
-	Optipng  = "optipng"  // Optipng is the PNG optimizer command.
-	Tar      = "tar"      // Tar is the tar decompression command.
-	Unrar    = "unrar"    // Unrar is the rar decompression command.
-	Unzip    = "unzip"    // Unzip is the zip decompression command.
-	Zip7     = "7zz"      // Zip7 is the 7-Zip decompression command.
-	ZipInfo  = "zipinfo"  // ZipInfo is the zip information command.
+	Arc       = "arc"       // Arc is the arc decompression command.
+	Arj       = "arj"       // Arj is the arj decompression command.
+	Ansilove  = "ansilove"  // Ansilove is the ansilove text to image command.
+	Cwebp     = "cwebp"     // Cwebp is the Google create webp command.
+	Gif2webp  = "gif2webp"  // Gif2webp is the Google gif to webp command.
+	HWZip     = "hwzip"     // Hwzip the zip decompression command for files using obsolete methods.
+	Lha       = "lha"       // Lha is the lha/lzh decompression command.
+	Ilbmtoppm = "ilbmtoppm" // ilbmtoppm belongs to Netpdm for ILBM image conversion.
+	Magick    = "magick"    // Magick is the ImageMagick v7+ command.
+	Optipng   = "optipng"   // Optipng is the PNG optimizer command.
+	Pamscale  = "pamscale"  // Pamscale is used by Netpdm for ILBM image conversion.
+	Tar       = "tar"       // Tar is the tar decompression command.
+	Unrar     = "unrar"     // Unrar is the rar decompression command.
+	Unzip     = "unzip"     // Unzip is the zip decompression command.
+	Zip7      = "7zz"       // Zip7 is the 7-Zip decompression command.
+	ZipInfo   = "zipinfo"   // ZipInfo is the zip information command.
 )
 
 // Lookups returns a list of the execute command names used by the application.
@@ -74,8 +77,10 @@ var Lookups = [...]string{
 	Gif2webp,
 	HWZip,
 	Lha,
+	Ilbmtoppm,
 	Magick,
 	Optipng,
+	Pamscale,
 	Tar,
 	Unrar,
 	Unzip,
@@ -92,8 +97,10 @@ var Infos = [...]string{
 	"Google GIF to WebP ver 1+",
 	"HWZip ver 2+",
 	"Lhasa command line LHA tool",
+	"ILBM image Netpdm converter",
 	"ImageMagick ver 7+",
 	"OptiPNG optimizer ver 0.7+",
+	"Netpdm image scaler",
 	"GNU tar ver 1+",
 	"UNRAR freeware (c) Alexander Roshal",
 	"UnZip Info-ZIP ver 6+",
@@ -193,6 +200,7 @@ func (r *Runner) Run(ctx context.Context, name string, arg ...string) ([]byte, e
 	if err != nil {
 		const format = "command run %s: %w"
 		if len(out) > 0 {
+			fmt.Println(string(out))
 			return out, fmt.Errorf(format, name, err)
 		}
 		return out, fmt.Errorf(format, name, err)
