@@ -8,7 +8,7 @@
 <div class="index-intro-section index-intro-section-alt">
 <p>
 Recently there has been some significant code rewrites for performance and compatibility improvements while handling uploads of obscure media image, text, and compression formats for the Commodore Amiga and MS-DOS systems. 
-There should now be less warnings when submitting images stored in IFF, ILBM, and PBM containers (EA Deluxe Paint) and ZIP, LHA, and LZH archives.
+There should now be fewer warnings when submitting images stored in IFF, ILBM, and PBM containers (EA Deluxe Paint) and ZIP, LHA, and LZH archives.
 </p>
 <p>
 Also introduced is native support for the oddball PKZIP methods that existed in the BBS era before "DEFLATE" became the default. 
@@ -16,11 +16,13 @@ Previously, the website relied on <a href="https://www.hanshq.net/zip.html">hwzi
 This has been fixed with a native Go implementation of  "EXPAND", "EXPLODE", and "UNSHINK"! 
 </p>
 <p>
-Finally, there is a new, better way of detecting binary texts, so hopefully there are far fewer instances of the web application displaying raw and binary text files incorrectly. 
-Binary texts are data dumps of the video memory for CGA, EGA, and VGA text screens which use a byte pair for each character on screen. 
-The first byte is (usually) a <a href="https://en.wikipedia.org/wiki/Code_page_437">CP-437 character code point</a> that uses all 256 possible codes, and the second attribute byte, also uses all 256 possible bit combinations. 
-Each screen dump is usually 80 columns by 25 rows, leading to 80*25=2000 characters with 2000 attribute bytes being dump to a 4000 byte file or 4096 bytes with 96 appended placeholder bytes. 
-While ANSI art and binary texts outputs look similar, due to the simplicity of binary text, it was far easier to parse and more performant on PCs of the 1980s.
+Finally, there is a new, better way of detecting binary texts, hopefully leading to fewer instances of the web application displaying raw and binary text files incorrectly. 
+Binary texts are screen data dumps of the video memory for CGA, EGA, and VGA text modes, which use a byte-pair for each character on screen. 
+The first byte is usually a <a href="https://en.wikipedia.org/wiki/Code_page_437">CP-437 character code point</a> that uses 256 possible codes.
+The second byte is an attribute value for foreground, background colors, text blinking, and color intensity, that also uses all 256 possible bit combinations. 
+Each screen dump is usually 80 columns by 25 rows. 80*25 equals 2000 characters, combined with 2000 attribute bytes being saved as a 4000 byte file, or 4096 bytes (4KB) with 96 appended placeholder bytes. 
+While ANSI art and binary texts outputs look similar, the simplicity of binary text meant it was far easier to parse and more performant on PCs of the 1980s.
+However, this was at the expense of the fixed file size, as even displaying a single character onscreen would require the 4000 byte file size.
 </p>
 </div>
 <h4 class="index-section-header index-section-header-alt">Mid 2026</h4>
