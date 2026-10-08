@@ -65,7 +65,6 @@ const (
 	Unrar     = "unrar"     // Unrar is the rar decompression command.
 	Unzip     = "unzip"     // Unzip is the zip decompression command.
 	Zip7      = "7zz"       // Zip7 is the 7-Zip decompression command.
-	ZipInfo   = "zipinfo"   // ZipInfo is the zip information command.
 )
 
 // Lookups returns a list of the execute command names used by the application.
@@ -85,7 +84,6 @@ var Lookups = [...]string{
 	Unrar,
 	Unzip,
 	Zip7,
-	ZipInfo,
 }
 
 // Infos returns details for the list of the execute command names used by the application.
@@ -105,7 +103,6 @@ var Infos = [...]string{
 	"UNRAR freeware (c) Alexander Roshal",
 	"UnZip Info-ZIP ver 6+",
 	"7-Zip ver 24+",
-	"ZipInfo Info-ZIP ver 3+",
 }
 
 // Lookup returns an error if the command is not found in the system path.
