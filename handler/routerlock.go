@@ -547,6 +547,10 @@ func get(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error {
 		return fmt.Errorf("get router: %w", err)
 	}
 
+	g.GET("/dependencies", func(c *echo.Context) error {
+		return app.Dependencies(sl, c)
+	})
+
 	g.GET("/deletions",
 		func(c *echo.Context) error {
 			return app.Deletions(sl, c, db, "1")

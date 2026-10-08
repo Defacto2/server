@@ -20,6 +20,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/app/remote"
 	"github.com/Defacto2/server/handler/areacode"
@@ -89,6 +90,7 @@ const (
 	categories  = "categories"
 	compression = "compression"
 	configs     = "configs"
+	dep         = "dependencies"
 	dx          = "d"
 	fixes       = "fixes"
 	fixers      = "fixers"
@@ -869,6 +871,37 @@ func orphaneder(data map[string]any, conf config.Config) map[string]any {
 	}
 
 	return data
+}
+
+// Dependencies is the handler for the dependencies page.
+func Dependencies(sl *slog.Logger, c *echo.Context) error {
+	const format = "dependencies context: %w"
+	if err := nils.Check(sl, c); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	const title = "Dependencies"
+	const descr = "Defacto2 dependencies."
+	const leadr = "The web application host system dependencies and tools."
+
+	data := empty(c)
+	data["description"] = descr
+	data["h1"] = "Dependencies"
+	data["lead"] = leadr
+	data["title"] = title
+
+	ctx := c.Request().Context()
+	ap, pErr := archive.ProgInfos(ctx)
+	if pErr != nil {
+		return InternalErr(sl, c, dep, pErr)
+	}
+	data["arcProgs"] = ap
+
+	err := c.Render(http.StatusOK, dep, data)
+	if err != nil {
+		return InternalErr(sl, c, dep, err)
+	}
+	return nil
 }
 
 // DownloadJsDos is the handler for the js-dos emulator to download zip files that are then

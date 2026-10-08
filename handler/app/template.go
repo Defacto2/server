@@ -94,6 +94,7 @@ var pages = Page{
 	"configs":       "configurations.tmpl",
 	"coder":         scenerTmpl,
 	"compression":   "compression.tmpl",
+	"dependencies":  "dependencies.tmpl",
 	"ftp":           releaserTmpl,
 	"fixers":        "fixers.tmpl",
 	"fixes":         "fixes.tmpl",

@@ -1,0 +1,34 @@
+
+{{- /* 
+    dependencies.tmpl ~ Dependencies page template.
+*/ -}}
+{{- define "content" }}
+{{- $progs := index . "arcProgs"}}
+<table class="table table-hover">
+  <caption>File and directory archive, compression, and package tools.</caption>
+  <thead>
+    <tr>
+      <th scope="col">Tool</th>
+      <th scope="col">Permissions</th>
+      <th scope="col">Regular</th>
+      <th scope="col">Size</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{range $progs}}
+    <tr>
+      <th scope="row">{{.Prog}}</th>
+      <td>{{.Perm}}</td>
+      <td>{{.Regular}}</td>
+      <td>{{.Size}}</td>
+    </tr>
+    <tr>
+      <td colspan="4">
+        <p><span class="text-muted">{{.Abs}}</span><br>{{.Output}}</p>
+      </td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+{{- end }}
+
