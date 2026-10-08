@@ -225,6 +225,10 @@ func Artifacts(sl *slog.Logger, c *echo.Context, db *sql.DB, uri, page string) e
 	}
 }
 
+func zeroOk(uri string) bool {
+	return uri == "for-approval"
+}
+
 // artifactsTable is a helper function for Artifacts that returns the data map for the files page.
 func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, page int) error {
 	const format = "sub-artifacts context: %w"
@@ -255,7 +259,7 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 		return DatabaseErr(sl, c, errURI, err)
 	}
 	lastPage := math.Ceil(float64(sum) / float64(limit))
-	if page > int(lastPage) {
+	if page > int(lastPage) && !zeroOk(uri) {
 		return PageErr(sl, c, uri, spage)
 	}
 
