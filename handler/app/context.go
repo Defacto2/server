@@ -891,10 +891,7 @@ func Dependencies(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = title
 
 	ctx := c.Request().Context()
-	ap, pErr := archive.ProgInfos(ctx)
-	if pErr != nil {
-		return InternalErr(sl, c, dep, pErr)
-	}
+	ap := archive.ProgInfos(ctx)
 	data["arcProgs"] = ap
 
 	err := c.Render(http.StatusOK, dep, data)

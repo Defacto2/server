@@ -50,59 +50,70 @@ var (
 // "UNRAR 6.24 freeware, Copyright (c) 1993-2023 Alexander Roshal".
 
 const (
+	HWZip     = "hwzip"     // Hwzip the zip decompression command for files using obsolete methods.
 	Arc       = "arc"       // Arc is the arc decompression command.
 	Arj       = "arj"       // Arj is the arj decompression command.
+	BSDTar    = "bsdtar"    // BSDTar is the tar decompression command.
+	Cab       = "gcab"      // Cab is the gcab decompression command for Microsoft Cabinet.
+	Lha       = "lha"       // Lha is the lha/lzh decompression command.
+	Lsar      = "lsar"      // Lsar is The Unarchive list command usable on multiple types.
+	Unar      = "unar"      // Unar is The Unarchiver decompression command usable on multiple types.
+	Unrar     = "unrar"     // Unrar is the rar decompression command.
+	Unzip     = "unzip"     // Unzip is the zip decompression command.
+	Zip7      = "7zz"       // Zip7 is the 7-Zip decompression command.
 	Ansilove  = "ansilove"  // Ansilove is the ansilove text to image command.
 	Cwebp     = "cwebp"     // Cwebp is the Google create webp command.
 	Gif2webp  = "gif2webp"  // Gif2webp is the Google gif to webp command.
-	HWZip     = "hwzip"     // Hwzip the zip decompression command for files using obsolete methods.
-	Lha       = "lha"       // Lha is the lha/lzh decompression command.
 	Ilbmtoppm = "ilbmtoppm" // ilbmtoppm belongs to Netpdm for ILBM image conversion.
 	Magick    = "magick"    // Magick is the ImageMagick v7+ command.
 	Optipng   = "optipng"   // Optipng is the PNG optimizer command.
 	Pamscale  = "pamscale"  // Pamscale is used by Netpdm for ILBM image conversion.
-	Tar       = "tar"       // Tar is the tar decompression command.
-	Unrar     = "unrar"     // Unrar is the rar decompression command.
-	Unzip     = "unzip"     // Unzip is the zip decompression command.
-	Zip7      = "7zz"       // Zip7 is the 7-Zip decompression command.
 )
 
 // Lookups returns a list of the execute command names used by the application.
 var Lookups = [...]string{
+	HWZip, // retired elsewhere
+	// archive and package tools
 	Arc,
 	Arj,
+	BSDTar,
+	Cab,
+	Lha,
+	Lsar,
+	Unar,
+	Unrar,
+	Unzip,
+	Zip7,
+	// image and photo manipulation
 	Ansilove,
 	Cwebp,
 	Gif2webp,
-	HWZip,
-	Lha,
 	Ilbmtoppm,
 	Magick,
 	Optipng,
 	Pamscale,
-	Tar,
-	Unrar,
-	Unzip,
-	Zip7,
 }
 
 // Infos returns details for the list of the execute command names used by the application.
 var Infos = [...]string{
+	"HWZip ver 2+",
 	"archive utility ver 5+",
 	"arj32 ver 3+",
+	"BSDTar 3+",
+	"gcab ver 1.6+",
+	"Lhasa command line LHA tool",
+	"The Unarchiver v1.10+",
+	"The Unarchiver v1.10+",
+	"UNRAR freeware (c) Alexander Roshal",
+	"UnZip Info-ZIP ver 6+",
+	"7-Zip ver 24+",
 	"ansilove/c ver 4+",
 	"Google WebP ver 1+",
 	"Google GIF to WebP ver 1+",
-	"HWZip ver 2+",
-	"Lhasa command line LHA tool",
 	"ILBM image Netpdm converter",
 	"ImageMagick ver 7+",
 	"OptiPNG optimizer ver 0.7+",
 	"Netpdm image scaler",
-	"GNU tar ver 1+",
-	"UNRAR freeware (c) Alexander Roshal",
-	"UnZip Info-ZIP ver 6+",
-	"7-Zip ver 24+",
 }
 
 // Lookup returns an error if the command is not found in the system path.
