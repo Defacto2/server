@@ -99,7 +99,7 @@
     replaceImageButton.addEventListener('click', function() {
       try {
         replaceImageButton.disabled = true;
-        screenshot("{{$filename}}-replace-image.png")
+        screenshot("{{$filename}}-replace-image")
         // stop JS-DOS emulation
         if (window.ci) {
           ci.exit();
