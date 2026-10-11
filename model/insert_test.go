@@ -4,12 +4,12 @@ import (
 	"net/url"
 	"testing"
 	"time"
+	"uuid"
 
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
-	"github.com/google/uuid"
 	"github.com/nalgeon/be"
 )
 
@@ -21,7 +21,8 @@ func TestInsertDemozoo(t *testing.T) {
 	key, unid, got := model.InsertDemozoo(t.Context(), tx0, newProd)
 	be.Err(t, got, nil)
 	be.True(t, key > 0)
-	be.Err(t, uuid.Validate(unid), nil)
+	_, err := uuid.Parse(unid)
+	be.Err(t, err, nil)
 }
 
 func TestInsertPouet(t *testing.T) {
@@ -32,7 +33,8 @@ func TestInsertPouet(t *testing.T) {
 	key, unid, got := model.InsertPouet(t.Context(), tx0, newProd)
 	be.Err(t, got, nil)
 	be.True(t, key > 0)
-	be.Err(t, uuid.Validate(unid), nil)
+	_, err := uuid.Parse(unid)
+	be.Err(t, err, nil)
 }
 
 func TestInsertUpload(t *testing.T) {
@@ -82,14 +84,14 @@ func TestSiteAd(t *testing.T) {
 func TestValidNewV7(t *testing.T) {
 	t.Parallel()
 
-	now1, unid, err := model.NewV7()
-	be.Err(t, err, nil)
+	now1 := time.Now()
+	unid := uuid.NewV7().String()
 
 	now2 := time.Now()
 	diff := now2.Sub(now1).Minutes()
 
 	const oneMinute = 1.0
 	be.True(t, diff <= oneMinute)
-	err = uuid.Validate(unid.String())
+	_, err := uuid.Parse(unid)
 	be.Err(t, err, nil)
 }

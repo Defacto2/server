@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"uuid"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/demozoo"
@@ -18,7 +19,6 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
-	"github.com/google/uuid"
 )
 
 // One retrieves a single file record from the database using the record key.

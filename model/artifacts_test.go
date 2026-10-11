@@ -2,11 +2,11 @@ package model_test
 
 import (
 	"testing"
+	"uuid"
 
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
-	"github.com/google/uuid"
 	"github.com/nalgeon/be"
 )
 

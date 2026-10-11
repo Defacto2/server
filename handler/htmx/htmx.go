@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"uuid"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/areacode"
@@ -22,7 +23,6 @@ import (
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 )
 

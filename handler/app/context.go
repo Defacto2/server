@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"uuid"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -49,7 +50,6 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/dustin/go-humanize"
-	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/v5/session"
 	"github.com/labstack/echo/v5"
@@ -1242,7 +1242,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	got.ID = id
 
 	unid := c.QueryParam("unid")
-	if err = uuid.Validate(unid); err != nil {
+	if _, err = uuid.Parse(unid); err != nil {
 		got.Error = "uuid syntax did not validate, " + unid
 		return c.JSON(http.StatusBadRequest, got)
 	}

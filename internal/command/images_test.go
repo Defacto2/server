@@ -7,13 +7,13 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"uuid"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/testutil"
-	"github.com/google/uuid"
 	"github.com/nalgeon/be"
 )
 

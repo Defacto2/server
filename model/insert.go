@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+	"uuid"
 
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
@@ -22,7 +23,6 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/google/uuid"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
 )
@@ -38,11 +38,8 @@ func prodFn(ctx context.Context, exec boil.ContextExecutor, sanity, prodID int, 
 		return 0, "", fmt.Errorf(format, strconv.Itoa(prodID), ErrBadID)
 	}
 
-	now, newUUID, err := NewV7()
-	if err != nil {
-		return 0, "", fmt.Errorf(format, "uuid v7", err)
-	}
-	unid = newUUID.String()
+	now := time.Now()
+	unid = uuid.NewV7().String()
 
 	// Only setting essential fields for database insertion
 	f.UUID = null.StringFrom(unid)
@@ -148,11 +145,8 @@ func InsertUpload(ctx context.Context, exec boil.ContextExecutor, values url.Val
 		return 0, none, fmt.Errorf(format, "check", err)
 	}
 
-	now, unid, err := NewV7()
-	if err != nil {
-		return 0, none, fmt.Errorf(format, "uuid v7", err)
-	}
-	uid := unid.String()
+	now := time.Now()
+	uid := uuid.NewV7().String()
 
 	unique := null.StringFrom(uid)
 	if exist, err := ExistUUID(ctx, exec, uid); err != nil {
@@ -318,21 +312,7 @@ func decodeEntries(p []byte) ([]byte, error) {
 }
 
 // NewV7 generates a new UUID version 7,
-// if it fails then it fallbacks to a UUID version 1.
-//
 // It also returns the current time.
-func NewV7() (time.Time, uuid.UUID, error) {
-	now := time.Now()
-	uid, err := uuid.NewV7()
-	if err == nil {
-		return now, uid, nil
-	}
-
-	const format = "new uuid v7 %w: %w"
-	uid, err = uuid.NewUUID()
-	if err != nil {
-		return now, uuid.Nil, fmt.Errorf(format, ErrUUID, err)
-	}
-
-	return now, uid, nil
+func NewV7() (time.Time, uuid.UUID) {
+	return time.Now(), uuid.NewV7()
 }

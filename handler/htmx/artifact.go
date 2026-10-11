@@ -13,11 +13,11 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"uuid"
 
 	"github.com/Defacto2/server/handler/form"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 )
 
@@ -44,7 +44,7 @@ func Paths(c *echo.Context) (unid, filename string, err error) {
 	if err := form.Checkname(unid); err != nil {
 		return "", "", fmt.Errorf(format, "invalid uuid format", err)
 	}
-	if err := uuid.Validate(unid); err != nil {
+	if _, err := uuid.Parse(unid); err != nil {
 		return "", "", fmt.Errorf(format, "invalid uuid", err)
 	}
 
@@ -90,7 +90,7 @@ func UUID(c *echo.Context) (string, error) {
 		return "", fmt.Errorf(format, "invalid uuid format", err)
 	}
 
-	if err := uuid.Validate(unid); err != nil {
+	if _, err := uuid.Parse(unid); err != nil {
 		return "", fmt.Errorf(format, "invalid uuid", err)
 	}
 

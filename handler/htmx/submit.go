@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"uuid"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -33,7 +34,6 @@ import (
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/Defacto2/server/model/fix"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 )
 
@@ -634,7 +634,8 @@ func (rec *Record) FormData(c *echo.Context) string {
 	if err := form.Checkname(s); err != nil {
 		return invalid
 	}
-	if err := uuid.Validate(s); err != nil {
+	uid, err := uuid.Parse(s)
+	if err != nil {
 		return invalid
 	}
 
@@ -644,7 +645,7 @@ func (rec *Record) FormData(c *echo.Context) string {
 		return "The editor file upload record key is invalid"
 	}
 
-	rec.unid = s
+	rec.unid = uid.String()
 	rec.key = key
 	rec.id = id
 	rec.platform = c.FormValue("artifact-editor-download-classify")

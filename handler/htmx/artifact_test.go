@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"uuid"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/htmx"
@@ -11,7 +12,6 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/testutil"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )

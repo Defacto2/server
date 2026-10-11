@@ -17,7 +17,7 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
-	"github.com/google/uuid"
+	"github.com/google/uuid" // requirement for uuid.Version()
 	"golang.org/x/sync/errgroup"
 )
 

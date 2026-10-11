@@ -17,6 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 	"unicode/utf8"
+	"uuid"
 
 	"github.com/Defacto2/archive/rezip"
 	"github.com/Defacto2/helper"
@@ -35,7 +36,6 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
-	"github.com/google/uuid"
 )
 
 const (
@@ -43,9 +43,8 @@ const (
 )
 
 const (
-	unid      = "00000000-0000-0000-0000-000000000000" // common universal unique identifier example
-	cfid      = "00000000-0000-0000-0000000000000000"  // coldfusion uuid example
-	syncthing = ".stfolder"                            // syncthing directory name
+	cfid      = "00000000-0000-0000-0000000000000000" // coldfusion uuid example
+	syncthing = ".stfolder"                           // syncthing directory name
 )
 
 // RepairArchives checks the download directory for any legacy and obsolete archives.
@@ -926,7 +925,7 @@ func RenameDownload(sl *slog.Logger, basename, absPath string) error {
 		return nil
 	}
 	newname, _ := helper.CfUUID(rawname)
-	if err := uuid.Validate(newname); err != nil {
+	if _, err := uuid.Parse(newname); err != nil {
 		return fmt.Errorf("%s uuid validate %q: %w", msg, newname, err)
 	}
 	dir := filepath.Dir(absPath)
@@ -1006,7 +1005,6 @@ func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) e
 	const (
 		png   = ".png"    // png file extension
 		webp  = ".webp"   // webp file extension
-		valid = len(unid) // valid uuid length
 		cflen = len(cfid) // coldfusion uuid length
 	)
 	ext := filepath.Ext(basename)
@@ -1020,7 +1018,7 @@ func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) e
 				return nil
 			}
 		}
-		if err := uuid.Validate(filename); err != nil {
+		if _, err := uuid.Parse(filename); err != nil {
 			remove(sl, basename, "remove invalid uuid image", path, backup)
 			return nil //nolint:nilerr
 		}
