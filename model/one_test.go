@@ -50,19 +50,19 @@ func TestProdID(t *testing.T) {
 	be.True(t, !del)
 	be.Equal(t, key, 0)
 
-	const keyn = 56086
-	const dzblacklotus = 11
-	_, key, got = model.OneDemozoo(t.Context(), db, dzblacklotus)
+	const sharedID = 4148
+	const demozoo = 77
+	_, key, got = model.OneDemozoo(t.Context(), db, demozoo)
 	be.Err(t, got, nil)
-	be.Equal(t, key, keyn)
+	be.Equal(t, key, sharedID)
 
-	const ptblacklotus = 1
-	_, key, got = model.OnePouet(t.Context(), db, ptblacklotus)
+	const pouet = 9108
+	_, key, got = model.OnePouet(t.Context(), db, pouet)
 	be.Err(t, got, nil)
-	be.Equal(t, key, keyn)
+	be.Equal(t, key, sharedID)
 
-	obf := helper.ObfuscateID(keyn)
+	obf := helper.ObfuscateID(sharedID)
 	fs, got := model.OneEditByKey(t.Context(), db, obf)
 	be.Err(t, got, nil)
-	be.Equal(t, fs.ID, keyn)
+	be.Equal(t, fs.ID, sharedID)
 }

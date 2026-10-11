@@ -18,7 +18,7 @@ func TestLookups(t *testing.T) {
 	t.Parallel()
 
 	be.Equal(t, len(command.Lookups), len(command.Infos))
-	be.True(t, strings.Contains(command.Infos[0], command.Arc))
+	be.True(t, strings.Contains(command.Infos[0], "HWZip"))
 }
 
 func TestCopyFile(t *testing.T) {

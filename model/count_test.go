@@ -23,9 +23,9 @@ func TestCount(t *testing.T) {
 
 	gotx, goty, gotz, err := model.Counts(t.Context(), db)
 	be.Err(t, err, nil)
-	be.True(t, gotx > 2)
-	be.True(t, goty > 2)
-	be.True(t, gotz > 2)
+	be.True(t, gotx > 2)                 // total
+	be.True(t, goty > 2 && goty < gotx)  // public
+	be.True(t, gotz >= 0 && gotz < goty) // waiting approve
 
 	got, err = model.CountSection(t.Context(), db, -1)
 	be.Err(t, err)
