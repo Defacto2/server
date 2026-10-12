@@ -146,7 +146,8 @@ func InsertUpload(ctx context.Context, exec boil.ContextExecutor, values url.Val
 	}
 
 	now := time.Now()
-	uid := uuid.NewV7().String()
+	unid = uuid.NewV7()
+	uid := unid.String()
 
 	unique := null.StringFrom(uid)
 	if exist, err := ExistUUID(ctx, exec, uid); err != nil {
