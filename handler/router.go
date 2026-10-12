@@ -685,6 +685,9 @@ func fixes(e *echo.Echo) *echo.Echo {
 	fixes.GET("/united-software-association", func(c *echo.Context) error {
 		return c.Redirect(code, g+"united-software-association*fairlight")
 	})
+	fixes.GET("/akira-project-bbs", func(c *echo.Context) error {
+		return c.Redirect(code, g+"beyond-akira-bbs")
+	})
 
 	return e
 	// THESE ARE NOT WORKING, public-enemy/ and the-dream-team/ get redirected
