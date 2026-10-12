@@ -102,6 +102,7 @@ type ListEntry struct {
 	name                                          string
 	platform                                      string
 	section                                       string
+	modtime                                       time.Time
 	Executable                                    magicnumber.Windows
 	bytes                                         int64
 	Images, Programs, Texts, BINtexts, NonArchive bool
@@ -349,9 +350,9 @@ func (m *ListEntry) columnFooter() string {
 	default:
 		sm = m.Signature
 	}
-
-	return `<div><small data-bs-toggle="tooltip" data-bs-title="` +
-		strconv.Itoa(int(m.bytes)) + ` bytes">` + m.Filesize + `</small>, <span>` + sm + `</span></div>`
+	modtime := m.modtime.Format(simple.YYYYMMDD)
+	return `<div><small class="font-monospace">` + modtime + `, </small><small class="font-monospace" data-bs-toggle="tooltip" data-bs-title="` +
+		strconv.Itoa(int(m.bytes)) + ` bytes">` + strings.ReplaceAll(m.Filesize, " ", "") + `, </small><small>` + sm + `</small></div>`
 }
 
 func progr(exec magicnumber.Windows, ext string, bytes int64) string {
@@ -533,6 +534,7 @@ type Entry struct {
 	format  string
 	exec    magicnumber.Windows
 	sign    magicnumber.Signature
+	modtime time.Time
 	zeros   int
 	bytes   int64
 	image   bool
@@ -591,6 +593,7 @@ func (e *Entry) skipByInfo(path, platform string, info fs.FileInfo) bool {
 
 	platform = strings.TrimSpace(platform)
 
+	e.modtime = info.ModTime()
 	e.bytes = info.Size()
 	if e.bytes == 0 {
 		e.zeros++
@@ -788,6 +791,7 @@ func listErr(e Entry) ListEntry {
 		name:         "",
 		platform:     "",
 		section:      "",
+		modtime:      e.modtime,
 		Executable:   e.exec,
 		bytes:        e.bytes,
 		Images:       e.image,
@@ -809,6 +813,7 @@ func listEntry(e Entry, rel, unid string) ListEntry {
 		name:         "",
 		platform:     "",
 		section:      "",
+		modtime:      e.modtime,
 		Executable:   e.exec,
 		bytes:        e.bytes,
 		Images:       e.image,

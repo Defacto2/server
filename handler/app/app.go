@@ -725,19 +725,19 @@ func SafeBBS(a any) template.HTML {
 	// build stylized text
 	src = bytes.ReplaceAll(src, []byte(clearScreen), []byte("\n"))
 
+	// INFO: if PCBoard or Renegade codes  rendering to HTML causes an error,
+	// assume it is a false positive detection instead of a general error
 	var buf bytes.Buffer
-	if pcb {
+	switch {
+	case pcb:
 		if err := bbs.PCBoardHTML(&buf, src...); err != nil {
-			return template.HTML(fmt.Sprintf("PCBoard conversion error: %v", err))
+			return SafeHTML(string(src))
 		}
-	}
-
-	if rene {
+	case rene:
 		if err := bbs.RenegadeHTML(&buf, src...); err != nil {
-			return template.HTML(fmt.Sprintf("Renegade conversion error: %v", err))
+			return SafeHTML(string(src))
 		}
 	}
-
 	// return the stylized text
 	return SafeHTML(buf.String())
 }
