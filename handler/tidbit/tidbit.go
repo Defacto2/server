@@ -274,7 +274,6 @@ var groups = Tibits{
 	188:  []URI{"ameriboards"},
 	189:  []URI{"copiers-newsletter"},
 	190:  []URI{"apex"},
-	191:  []URI{"dmacks-lost-classics"},
 	192:  []URI{"dmz-review"},
 	193:  []URI{"eliteslst"},
 	194:  []URI{"euro_bbs_list"},
@@ -660,8 +659,9 @@ func Startup(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 
 	const msg = "Tidbit cannot "
 	var names model.ReleaserNames
-	if err := names.DistinctGroups(ctx, db); err != nil {
-		sl.Warn(msg+"get the distinct groups", slog.Any("error", err))
+	// INFO: Use distinct names instead of distinct groups, otherwise magazines titles will cause false errors.
+	if err := names.Distinct(ctx, db); err != nil {
+		sl.Warn(msg+"get the distinct groups or magazines", slog.Any("error", err))
 	}
 	if len(names) == 0 {
 		return
@@ -673,7 +673,7 @@ func Startup(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 		for n, uri := range uris {
 			key := string(uri)
 			if !releaserSet.Has(string(uri)) {
-				sl.Warn(msg+"find releaser", slog.String("url", key),
+				sl.Warn(msg+"find releaser", slog.String("uri / key", key),
 					slog.Int("tidbit_id", int(id)), slog.Int("item_index", n))
 			}
 		}
