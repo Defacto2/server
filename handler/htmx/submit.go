@@ -37,6 +37,21 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+// Blacklisted contains a collection of hashes for blocked files, either for being:
+// unwanted files that people have uploaded for self promotion, slop, or just out of out of scope.
+// and also socalled "humor" junk that we do not want or cannot host online, because of common sense.
+var blacklisted = []string{
+	// problematic stuff
+	"2b30249f68451c1673a39df7ede108a23bf09bf4ba36e0b1b843115b98a851f44e589f087dde959eb1d30e9b3723a845", // __ELITE.NDO used term kp
+	"d59c5f83b66c6bf63d9d959737e5698a6229e90d831bc4ba0b4c9edd449f60e9c921735216a6152fde6f6a132137fec5", // same
+	"ed0c080f3e3a215c3fb9f3bb4883c15f8cb9342dfc0621f2951050bb54f18194f03cfb0f977996f1d1e6a74e2f114f0d", // ¨¦·AH·¦¨.BBS used term kp
+	"dfc5402e2fe765a82cf847cb826b939934e490ebca364672474f8dc175e4ea928cbd78171fa206629f2b483e1d51a5c7", // hEIkAIKKIhOMOT dumb ascii
+	// unwanted
+	"7d684902740ab145125d7b2c0cf5246a9425562e5c6fd2e936f0b7fe1f7c4a6d4abd79acb7fcb1849b504cd28936ff7d", //
+	"7fa9a3dea27ec50a015f277e2758574e54410f8c877d9d2becc6884aaa6b4588ef768f01a6b39ad33f3cdb1480d254d8", // belongs on youtube
+	//
+}
+
 // UPCount handles the post submission for the Uploader classification,
 // such as the platform, operating system, section or category tags.
 // The return value is either the humanized and counted classification or an error.
@@ -178,6 +193,13 @@ func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error { /
 	}
 
 	sha384 := hasher.Sum(nil)
+	hexHash := hex.EncodeToString(sha384)
+	blocked := slices.Contains(blacklisted, hexHash)
+	if blocked {
+		const block = "<p>This file is unwanted, either it is not on topic for the site, or cannot be hosted due to its 'humor' content</p>"
+		return c.HTML(http.StatusOK, block)
+	}
+
 	ctx := c.Request().Context()
 	exist, err := model.ExistSHA(ctx, tx, sha384)
 	if err != nil {
