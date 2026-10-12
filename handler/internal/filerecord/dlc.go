@@ -315,8 +315,8 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 	idx := dlc.indexDiz()
 	if useDiz := idx >= 0; useDiz {
 		elms := ""
-		if len(dlc.names) > idx {
-			elms = dlc.names[idx]
+		if len(dlc.elems) > idx {
+			elms = dlc.elems[idx]
 		}
 
 		srcDIZ := filepath.Join(dlc.tempRoot, elms)
@@ -336,8 +336,8 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 	srcNFO := ""
 	if onlyNFO := idx == -1 && count == 1; onlyNFO {
 		elms := ""
-		if len(dlc.names) > 0 {
-			elms = dlc.names[0]
+		if len(dlc.elems) > 0 {
+			elms = dlc.elems[0]
 		}
 		srcNFO = filepath.Join(dlc.tempRoot, elms)
 	}
@@ -346,10 +346,11 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 	if textPair := idx != -1 && count == maxItems; textPair {
 		invert := 1 - idx
 		elms := ""
-		if len(dlc.names) > invert {
-			elms = dlc.names[invert]
+		if len(dlc.elems) > invert {
+			elms = dlc.elems[invert]
 		}
 		srcNFO = filepath.Join(dlc.tempRoot, elms)
+
 	}
 
 	if srcNFO != "" {
