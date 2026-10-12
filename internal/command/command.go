@@ -4,6 +4,7 @@
 package command
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"errors"
@@ -12,8 +13,10 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"slices"
 	"time"
 
+	"github.com/Defacto2/archive"
 	"github.com/Defacto2/server/internal/nils"
 )
 
@@ -250,4 +253,98 @@ func CopyFile(sl *slog.Logger, src, dst string) error {
 
 	sl.Debug("file.copied", slog.String("path", dst), slog.Int64("bytes", n))
 	return nil
+}
+
+//
+
+func progOutput(name string, b []byte) string {
+	firsts := []string{
+		Ansilove,
+		Cwebp,
+		Ilbmtoppm,
+		Optipng,
+		Pamscale,
+	}
+
+	switch {
+	case slices.Contains(firsts, name):
+		scanner := bufio.NewScanner(bytes.NewReader(b))
+		firstLine := []byte{}
+		for scanner.Scan() {
+			b := bytes.TrimSpace(scanner.Bytes())
+			if len(b) > 0 {
+				firstLine = b
+				break
+			}
+		}
+		return string(firstLine)
+	case name == Magick:
+		scanner := bufio.NewScanner(bytes.NewReader(b))
+		output := []byte{}
+		line := 0
+		for scanner.Scan() {
+			b := bytes.TrimSpace(scanner.Bytes())
+			if len(b) == 0 {
+				continue
+			}
+			line++
+			if line == 1 {
+				x := bytes.Split(b, []byte(" "))
+				if len(x) < 4 {
+					continue
+				}
+				s := [][]byte{x[1], x[2]}
+				output = bytes.Join(s, []byte(" "))
+				output = append(output, []byte(". ")...)
+				continue
+			}
+			if line == 5 {
+				output = append(output, b...)
+			}
+		}
+		return string(output)
+	default:
+		return string(b)
+	}
+}
+
+// Cwebp     = "cwebp"     // Cwebp is the Google create webp command.
+// Gif2webp  = "gif2webp"  // Gif2webp is the Google gif to webp command.
+// Ilbmtoppm = "ilbmtoppm" // ilbmtoppm belongs to Netpdm for ILBM image conversion.
+// Magick    = "magick"    // Magick is the ImageMagick v7+ command.
+// Optipng   = "optipng"   // Optipng is the PNG optimizer command.
+// Pamscale  = "pamscale"  // Pamscale is used by Netpdm for ILBM image conversion.
+
+const n = 7
+
+func ProgInfos(ctx context.Context) [n]archive.ProgInfo {
+	vers := [n]archive.ProgInfo{}
+	cmds := [...]string{
+		Ansilove,
+		Cwebp,
+		Gif2webp,
+		Magick,
+		Optipng,
+		Ilbmtoppm,
+		Pamscale,
+	}
+	const v = "-version"
+	flgs := [n]string{
+		"-v",
+		v,
+		v,
+		v,
+		"-v",
+		v,
+		v,
+	}
+	for i, name := range cmds {
+		var inf archive.ProgInfo
+		err := inf.Lookup(ctx, name, flgs[i], progOutput)
+		if err != nil {
+			inf.Output += " " + err.Error()
+		}
+		vers[i] = inf
+	}
+	return vers
 }

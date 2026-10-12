@@ -87,6 +87,7 @@ const (
 var initialisms = List{
 	//
 	// BBS initialisms are usually upper-case and should generally not include a " BBS" suffix.
+	"starglider-bbs":                       {"Starglider Elite BBS"},
 	"micro-machine-bbs":                    {"Micromachine", "MM"},
 	"addiction-bbs":                        {"TAD"},
 	"switchboard-bbs":                      {"Switch Board"},

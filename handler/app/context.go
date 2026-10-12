@@ -38,6 +38,7 @@ import (
 	"github.com/Defacto2/server/handler/site"
 	"github.com/Defacto2/server/handler/sixteen"
 	"github.com/Defacto2/server/handler/tidbit"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
@@ -897,6 +898,8 @@ func Dependencies(sl *slog.Logger, c *echo.Context) error {
 	ctx := c.Request().Context()
 	ap := archive.ProgInfos(ctx)
 	data["arcProgs"] = ap
+	ip := command.ProgInfos(ctx)
+	data["imgProgs"] = ip
 
 	err := c.Render(http.StatusOK, dep, data)
 	if err != nil {
