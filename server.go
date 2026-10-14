@@ -260,6 +260,7 @@ func environmentVars(ctx context.Context, l *slog.Logger) *config.Config {
 		// 3rd party
 		GoogleClientID: "",
 		GoogleIDs:      "",
+		DemozooAuth:    "",
 		// server
 		MatchHost:      "",
 		TLSCert:        "",

@@ -13,7 +13,6 @@ coverage.out
 profile*.*
 defacto2_serve_*.log
 /logs/
-.vibe/
 *.test
 
 # temp directories

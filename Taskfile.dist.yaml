@@ -9,7 +9,7 @@
 version: '3'
 vars:
   BINNAME: dist/defacto2-server # build output, binary filename (without any extensions)
-dotenv: ['./init/.env.local']
+dotenv: ['./init/.env.local'] # INFO: some IDEs hide the file, it is in the repo root: "init/.env.local"
 tasks:
   default:
     aliases:

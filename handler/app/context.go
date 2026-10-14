@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"log/slog"
 	"math"
@@ -1913,7 +1914,7 @@ func ProdPouet(c *echo.Context, id string) error {
 }
 
 // ProdZoo is the handler for the Demozoo production JSON page.
-func ProdZoo(c *echo.Context, id string) error {
+func ProdZoo(c *echo.Context, auth, id string) error {
 	const format = "prod zoo context: %w"
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
@@ -1926,7 +1927,7 @@ func ProdZoo(c *echo.Context, id string) error {
 	}
 
 	ctx := c.Request().Context()
-	if code, err := prod.Get(ctx, i); err != nil {
+	if code, err := prod.Get(ctx, auth, i); err != nil {
 		return c.String(code, err.Error())
 	}
 
@@ -1935,6 +1936,29 @@ func ProdZoo(c *echo.Context, id string) error {
 	}
 
 	return nil
+}
+
+// TestZoo is the handler for the Demozoo API authorization test.
+// Introduced in October 2026, it returns either 200 OK or 403 Forbidden.
+func TestZoo(c *echo.Context, auth string) error {
+	const url = "https://demozoo.org/api/v1/auth_test/"
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	req.Header.Set("User-Agent", helper.UserAgent)
+	req.Header.Set("Authorization", "Api-Key "+auth)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	return c.String(resp.StatusCode, resp.Status+": "+string(b))
 }
 
 // Releasers is the handler for the releaser page ordered by the most files.

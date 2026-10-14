@@ -821,7 +821,7 @@ type Production struct {
 // A status code is returned when the response status is not OK.
 //
 // [Demozoo API]: https://demozoo.org/api/v1/productions/
-func (p *Production) Get(ctx context.Context, id int) (int, error) {
+func (p *Production) Get(ctx context.Context, auth string, id int) (int, error) {
 	const format = "get demozoo production id %d %s: %w"
 	if id < firstID {
 		return 0, fmt.Errorf(format, id, "", ErrID)
@@ -833,6 +833,7 @@ func (p *Production) Get(ctx context.Context, id int) (int, error) {
 		return 0, fmt.Errorf(format, id, "new request", err)
 	}
 	req.Header.Set("User-Agent", helper.UserAgent)
+	req.Header.Set("Authorization", "Api-Key "+auth)
 
 	c := client()
 	res, err := c.Do(req)

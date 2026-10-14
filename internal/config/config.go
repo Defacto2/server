@@ -49,6 +49,7 @@ var informations = map[string]string{
 	"DatabaseURL":    "Database connection, URL",
 	"GoogleClientID": "Google OAuth2 client ID",
 	"GoogleIDs":      "Google IDs for sign-in",
+	"DemozooAuth":    "Demozoo API authorization key",
 	"LogAll":         "Log all HTTP requests",
 	"MaxProcs":       "Maximum CPU processes",
 	"MatchHost":      "Match hostname, domain or IP address",
@@ -75,30 +76,31 @@ func information(name string) string {
 //
 // [caarlos0/env]:https://github.com/caarlos0/env
 type Config struct { //nolint:recvcheck
-	AbsLog         Abslog     `env:"D2_DIR_LOG"`                // absolute directory path to store log files
-	AbsDownload    Absdown    `env:"D2_DIR_DOWNLOAD"`           // absolute directory path to the artifact file downloads
-	AbsPreview     Absprev    `env:"D2_DIR_PREVIEW"`            // absolute directory path to the preview images
-	AbsThumbnail   Absthumb   `env:"D2_DIR_THUMBNAIL"`          // absolute directory path to the thumbnail images
-	AbsExtra       Absextra   `env:"D2_DIR_EXTRA"`              // absolute directory path to the artifact extras
-	AbsOrphaned    Absorphan  `env:"D2_DIR_ORPHANED"`           // absolute directory path to the retired artifacts
-	DatabaseURL    Connection `env:"D2_DATABASE_URL"`           // url to the database
-	SessionKey     Sessionkey `env:"D2_SESSION_KEY,unset"`      // key or random value used for cookie encryption
-	SessionMaxAge  Hours      `env:"D2_SESSION_MAX_AGE"`        // number of hours to keep a cookie session
-	GoogleClientID GoogleAuth `env:"D2_GOOGLE_CLIENT_ID,unset"` // google oauth2 clien id
-	GoogleIDs      GoogleID   `env:"D2_GOOGLE_IDS,unset"`       // google accounts
-	HTTPPort       PortHTTP   `env:"D2_HTTP_PORT"`              // port value for serving the website using http
-	TLSPort        PortTLS    `env:"D2_TLS_PORT"`               // port value for serving the website using https
-	TLSCert        Abstlscrt  `env:"D2_TLS_CERT"`               // absolute path to the tls certificate file
-	TLSKey         Abstlskey  `env:"D2_TLS_KEY"`                // absolute path to the tls key file
-	MatchHost      Matchhost  `env:"D2_MATCH_HOST"`             // restrict connections to specific internet hosts or ip addresses
-	MaxProcs       Threads    `env:"D2_MAX_PROCS"`              // retrict the number of os threads the server can use
-	Quiet          Toggle     `env:"D2_QUIET"`                  // suppress startup terminal text
-	Compression    Toggle     `env:"D2_COMPRESSION"`            // enable gzip compression when serving webpages
-	ProdMode       Toggle     `env:"D2_PROD_MODE"`              // production mode, save log files and always recover from panics
-	ReadOnly       Toggle     `env:"D2_READ_ONLY"`              // read only mode, disables all post, put, delete http requests
-	NoCrawl        Toggle     `env:"D2_NO_CRAWL"`               // always insert a http header to ask search engines not to crawl the site
-	LogAll         Toggle     `env:"D2_LOG_ALL"`                // log all client requests, both errors and successful responses
-	GoogleAccounts OAuth2s    // GoogleAccounts is the data store for the GoogleIDs.
+	AbsLog         Abslog      `env:"D2_DIR_LOG"`                // absolute directory path to store log files
+	AbsDownload    Absdown     `env:"D2_DIR_DOWNLOAD"`           // absolute directory path to the artifact file downloads
+	AbsPreview     Absprev     `env:"D2_DIR_PREVIEW"`            // absolute directory path to the preview images
+	AbsThumbnail   Absthumb    `env:"D2_DIR_THUMBNAIL"`          // absolute directory path to the thumbnail images
+	AbsExtra       Absextra    `env:"D2_DIR_EXTRA"`              // absolute directory path to the artifact extras
+	AbsOrphaned    Absorphan   `env:"D2_DIR_ORPHANED"`           // absolute directory path to the retired artifacts
+	DatabaseURL    Connection  `env:"D2_DATABASE_URL"`           // url to the database
+	SessionKey     Sessionkey  `env:"D2_SESSION_KEY,unset"`      // key or random value used for cookie encryption
+	SessionMaxAge  Hours       `env:"D2_SESSION_MAX_AGE"`        // number of hours to keep a cookie session
+	GoogleClientID GoogleAuth  `env:"D2_GOOGLE_CLIENT_ID,unset"` // google oauth2 client id
+	GoogleIDs      GoogleID    `env:"D2_GOOGLE_IDS,unset"`       // google accounts
+	DemozooAuth    DemozooAuth `env:"D2_DEMOZOO_KEY,unset"`      // demozoo api authorization key
+	HTTPPort       PortHTTP    `env:"D2_HTTP_PORT"`              // port value for serving the website using http
+	TLSPort        PortTLS     `env:"D2_TLS_PORT"`               // port value for serving the website using https
+	TLSCert        Abstlscrt   `env:"D2_TLS_CERT"`               // absolute path to the tls certificate file
+	TLSKey         Abstlskey   `env:"D2_TLS_KEY"`                // absolute path to the tls key file
+	MatchHost      Matchhost   `env:"D2_MATCH_HOST"`             // restrict connections to specific internet hosts or ip addresses
+	MaxProcs       Threads     `env:"D2_MAX_PROCS"`              // retrict the number of os threads the server can use
+	Quiet          Toggle      `env:"D2_QUIET"`                  // suppress startup terminal text
+	Compression    Toggle      `env:"D2_COMPRESSION"`            // enable gzip compression when serving webpages
+	ProdMode       Toggle      `env:"D2_PROD_MODE"`              // production mode, save log files and always recover from panics
+	ReadOnly       Toggle      `env:"D2_READ_ONLY"`              // read only mode, disables all post, put, delete http requests
+	NoCrawl        Toggle      `env:"D2_NO_CRAWL"`               // always insert a http header to ask search engines not to crawl the site
+	LogAll         Toggle      `env:"D2_LOG_ALL"`                // log all client requests, both errors and successful responses
+	GoogleAccounts OAuth2s     // GoogleAccounts is the data store for the GoogleIDs.
 }
 
 // Help returns a mapped inventory of description texts for documentation/CLI usage.
@@ -114,6 +116,7 @@ func (c Config) Help() map[string]string {
 		"D2_SESSION_KEY":      "Use a fixed session key for the cookie store, which can be left blank to generate a random key",
 		"D2_GOOGLE_CLIENT_ID": "The Google OAuth2 client ID",
 		"D2_GOOGLE_IDS":       "Create a comma-separated list of Google account IDs to permit access to the editor mode",
+		"D2_DEMOZOO_KEY":      "The Demozoo authorization API key",
 		"D2_MATCH_HOST":       "Limits connections to the specific host or domain name; leave blank to permit connections from anywhere",
 		"D2_TLS_CERT":         "An absolute file path to the TLS certificate, or leave blank to use a self-signed, localhost certificate",
 		"D2_TLS_KEY":          "An absolute file path to the TLS key, or leave blank to use a self-signed, localhost key",
