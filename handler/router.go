@@ -519,10 +519,6 @@ func sites(sl *slog.Logger, s *echo.Group, db *sql.DB, auth string) *echo.Group 
 		c.Set("zooauth", auth)
 		return app.ProdZoo(c, c.Param("id"))
 	})
-	s.GET("/zoo/test", func(c *echo.Context) error {
-		c.Set("zooauth", auth)
-		return app.TestZoo(c)
-	})
 
 	return s
 }

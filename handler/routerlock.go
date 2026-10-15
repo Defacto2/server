@@ -43,6 +43,11 @@ func (serv *Server) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dir
 	lock := e.Group("/editor") // lock this group route
 	lock.Use(readonlylock, sessionlock)
 
+	lock.GET("/zoo/test", func(c *echo.Context) error {
+		c.Set("zooauth", serv.Environment.DemozooAuth.String())
+		return app.TestZoo(c)
+	})
+
 	if err := serv.configurations(sl, lock, db); err != nil {
 		return nil, fmt.Errorf(format, err)
 	}

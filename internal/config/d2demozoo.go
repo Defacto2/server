@@ -21,7 +21,7 @@ func (s DemozooAuth) Help() string {
 	if len(s) <= i {
 		return "Authorization key is too short"
 	}
-	if s[8] != '!' {
+	if s[8] != '.' {
 		return "Authorization key expects the 9th character to be a period (.)"
 	}
 	return ""
