@@ -202,7 +202,7 @@ func (m *ListEntry) column2() string {
 
 // column3 is the list entry, third column button of the "Download content" list.
 func (m *ListEntry) column3() string {
-	if m.NonArchive {
+	if m.NonArchive || m.Images {
 		return blank
 	}
 	if useDIZ := m.briefDescription(); useDIZ {
