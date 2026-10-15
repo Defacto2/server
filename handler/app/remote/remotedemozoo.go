@@ -17,6 +17,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/internal/simple"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -78,6 +79,8 @@ func Demozoo(prodID int, unid string, download dir.Directory, timeout time.Durat
 
 // Download fetches the download link from Demozoo and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Demozoo record API data.
+//
+// It requires a zooAuth value to be set using echo context.
 func (got *DemozooLink) Download(
 	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, forJSON bool,
 ) error {
@@ -88,7 +91,11 @@ func (got *DemozooLink) Download(
 
 	got.msg = "demozoo link download"
 
-	errStatus, err := got.prod.Get(ctx, got.ID)
+	auth, ok := c.Get(config.ZooAuth).(string)
+	if !ok {
+		return fmt.Errorf(format, "auth", got.ID, config.ErrNoZooAuth)
+	}
+	errStatus, err := got.prod.Get(ctx, auth, got.ID)
 	if err != nil {
 		const s = " could not get record from demozoo api"
 		got.log(sl, s, err)

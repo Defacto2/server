@@ -279,6 +279,8 @@ func progOutput(name string, b []byte) string {
 		}
 		return string(firstLine)
 	case name == Magick:
+		const verLine = 5
+		const splits = 4
 		scanner := bufio.NewScanner(bytes.NewReader(b))
 		output := []byte{}
 		line := 0
@@ -290,7 +292,7 @@ func progOutput(name string, b []byte) string {
 			line++
 			if line == 1 {
 				x := bytes.Split(b, []byte(" "))
-				if len(x) < 4 {
+				if len(x) < splits {
 					continue
 				}
 				s := [][]byte{x[1], x[2]}
@@ -298,7 +300,7 @@ func progOutput(name string, b []byte) string {
 				output = append(output, []byte(". ")...)
 				continue
 			}
-			if line == 5 {
+			if line == verLine {
 				output = append(output, b...)
 			}
 		}

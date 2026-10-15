@@ -154,6 +154,7 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 	configHTMX{
 		prodMode: prodMode,
 		download: dir.Directory(serv.Environment.AbsDownload),
+		zooAuth:  serv.Environment.DemozooAuth.String(),
 	}.routeHTMX(sl, e, db)
 	e, err = serv.RouteFS(sl, e, db, serv.Public)
 	if err != nil {

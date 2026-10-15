@@ -82,7 +82,7 @@ func TestOnlys(t *testing.T) {
 
 	got, err = model.OnlyApproval(t.Context(), db, 0, limit)
 	be.Err(t, err, nil)
-	be.True(t, len(got) >= 0 && len(got) <= limit)
+	be.True(t, len(got) <= limit)
 
 	sl := logs.Discard()
 	got, err = model.OnlyDescriptions(t.Context(), sl, db, []string{})

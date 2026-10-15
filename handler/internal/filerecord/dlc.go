@@ -350,7 +350,6 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 			elms = dlc.elems[invert]
 		}
 		srcNFO = filepath.Join(dlc.tempRoot, elms)
-
 	}
 
 	if srcNFO != "" {

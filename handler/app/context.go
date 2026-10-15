@@ -1914,7 +1914,9 @@ func ProdPouet(c *echo.Context, id string) error {
 }
 
 // ProdZoo is the handler for the Demozoo production JSON page.
-func ProdZoo(c *echo.Context, auth, id string) error {
+//
+// It requires a zooAuth value to be set using echo context.
+func ProdZoo(c *echo.Context, id string) error {
 	const format = "prod zoo context: %w"
 	if err := nils.Check(c); err != nil {
 		return fmt.Errorf(format, err)
@@ -1927,6 +1929,10 @@ func ProdZoo(c *echo.Context, auth, id string) error {
 	}
 
 	ctx := c.Request().Context()
+	auth, ok := c.Get(config.ZooAuth).(string)
+	if !ok {
+		return fmt.Errorf(format, config.ErrNoZooAuth)
+	}
 	if code, err := prod.Get(ctx, auth, i); err != nil {
 		return c.String(code, err.Error())
 	}
@@ -1940,9 +1946,15 @@ func ProdZoo(c *echo.Context, auth, id string) error {
 
 // TestZoo is the handler for the Demozoo API authorization test.
 // Introduced in October 2026, it returns either 200 OK or 403 Forbidden.
-func TestZoo(c *echo.Context, auth string) error {
+func TestZoo(c *echo.Context) error {
 	const url = "https://demozoo.org/api/v1/auth_test/"
-	req, err := http.NewRequest("GET", url, nil)
+
+	auth, ok := c.Get(config.ZooAuth).(string)
+	if !ok {
+		return c.String(http.StatusInternalServerError, config.ErrNoZooAuth.Error())
+	}
+	req, err := http.NewRequestWithContext(
+		c.Request().Context(), http.MethodGet, url, nil)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

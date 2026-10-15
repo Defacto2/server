@@ -304,7 +304,7 @@ func (serv *Server) mainsite(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app
 	e = health(e)
 	e = sitemaps(sl, e, db)
 	s := e.Group("")
-	s = sites(sl, s, db)
+	s = sites(sl, s, db, serv.Environment.DemozooAuth.String())
 	s = serv.files(sl, s, db, dirs)
 	s = serv.sceners(sl, s, db)
 	s = serv.releasers(sl, s, db)
@@ -490,7 +490,7 @@ func sitemaps(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo {
 	return e
 }
 
-func sites(sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.Group {
+func sites(sl *slog.Logger, s *echo.Group, db *sql.DB, auth string) *echo.Group {
 	s.GET("/bbs", func(c *echo.Context) error {
 		return app.BBS(sl, c, db)
 	})
@@ -516,7 +516,12 @@ func sites(sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.Group {
 		return app.ProdPouet(c, c.Param("id"))
 	})
 	s.GET("/zoo/prod/:id", func(c *echo.Context) error {
+		c.Set("zooauth", auth)
 		return app.ProdZoo(c, c.Param("id"))
+	})
+	s.GET("/zoo/test", func(c *echo.Context) error {
+		c.Set("zooauth", auth)
+		return app.TestZoo(c)
 	})
 
 	return s

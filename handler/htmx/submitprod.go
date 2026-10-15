@@ -19,6 +19,7 @@ import (
 	"github.com/Defacto2/server/handler/demozoo"
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/handler/sess"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/model"
@@ -417,6 +418,8 @@ func (prod Prod) lookupPouet(c *echo.Context, db *sql.DB, useCache bool) error {
 //
 // A valid production requires at least one download link and must be a suitable type
 // such as an intro, demo or cracktro for MS-DOS, Windows etc.
+//
+// It requires a zooAuth value to be set using echo context.
 func ValidateDemozoo(c *echo.Context, prodID int, useCache bool) (demozoo.Production, error) {
 	none := demozoo.Production{} //nolint:exhaustruct_v5
 	const format = "htmx demozoo valid: %w"
@@ -431,7 +434,11 @@ func ValidateDemozoo(c *echo.Context, prodID int, useCache bool) (demozoo.Produc
 
 	var prod demozoo.Production
 	ctx := c.Request().Context()
-	if code, err := prod.Get(ctx, prodID); err != nil {
+	auth, ok := c.Get(config.ZooAuth).(string)
+	if !ok {
+		return none, fmt.Errorf(format, config.ErrNoZooAuth)
+	}
+	if code, err := prod.Get(ctx, auth, prodID); err != nil {
 		return none, c.String(code, err.Error())
 	}
 

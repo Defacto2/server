@@ -21,6 +21,7 @@ const requestsPerSec = 20
 type configHTMX struct {
 	prodMode bool
 	download dir.Directory
+	zooAuth  string
 }
 
 // routeHTMX is the /htmx sub-routeHTMX group that returns HTML fragments
@@ -42,9 +43,11 @@ func (h configHTMX) routeHTMX(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.E
 	// htmx/demozoo/production
 	demozoo := g.Group("/demozoo")
 	demozoo.GET("/production", func(c *echo.Context) error {
+		c.Set("zooauth", h.zooAuth)
 		return htmx.Demozoo.Lookup(c, db, h.prodMode)
 	})
 	demozoo.PUT("/production/:id", func(c *echo.Context) error {
+		c.Set("zooauth", h.zooAuth)
 		return BeginTx(c, db, func(tx *sql.Tx) error {
 			return htmx.Demozoo.Submit(sl, c, db, tx, h.download)
 		})

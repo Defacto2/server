@@ -35,7 +35,7 @@ func TestRanges(t *testing.T) {
 
 	help.Configurations(sl)
 
-	const want = 24
+	const want = 25
 	names := help.Names()
 	be.True(t, len(names) == want)
 	t.Log(len(names))

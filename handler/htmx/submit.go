@@ -1,3 +1,4 @@
+//nolint:gochecknoglobals,lll
 package htmx
 
 // Package file submit.go provides functions for handling the HTMX requests for uploading files.
@@ -526,7 +527,7 @@ func (u Submit) StatusOK(c *echo.Context, filename string) error {
 // Replacement is the file transfer handler that uploads, validates a new file upload
 // and updates the existing artifact record with the new file information.
 func (u Submit) Replacement(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error { //nolint:funlen
-	const msg = "htmx submix replacement"
+	const msg = "htmx submit replacement"
 	if err := nils.Check(sl, c, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}

@@ -351,8 +351,10 @@ func (m *ListEntry) columnFooter() string {
 		sm = m.Signature
 	}
 	modtime := m.modtime.Format(simple.YYYYMMDD)
-	return `<div><small class="font-monospace">` + modtime + `, </small><small class="font-monospace" data-bs-toggle="tooltip" data-bs-title="` +
-		strconv.Itoa(int(m.bytes)) + ` bytes">` + strings.ReplaceAll(m.Filesize, " ", "") + `, </small><small>` + sm + `</small></div>`
+	return `<div><small class="font-monospace">` + modtime +
+		`, </small><small class="font-monospace" data-bs-toggle="tooltip" data-bs-title="` +
+		strconv.Itoa(int(m.bytes)) + ` bytes">` + strings.ReplaceAll(m.Filesize, " ", "") +
+		`, </small><small>` + sm + `</small></div>`
 }
 
 func progr(exec magicnumber.Windows, ext string, bytes int64) string {

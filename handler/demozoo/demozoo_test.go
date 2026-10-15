@@ -18,11 +18,12 @@ func TestDemozoo_Get(t *testing.T) {
 
 	ctx := t.Context()
 	prod := demozoo.Production{}
-	_, got := prod.Get(ctx, -1)
+	_, got := prod.Get(ctx, "", -1)
 	be.Err(t, got, demozoo.ErrID)
 
 	if testRemoteServers {
-		_, got = prod.Get(ctx, 1)
+		auth := "" // NOTE: required for remote acccess
+		_, got = prod.Get(ctx, auth, 1)
 		be.Err(t, got, demozoo.ErrSuccess)
 	}
 }

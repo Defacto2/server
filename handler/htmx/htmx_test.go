@@ -37,10 +37,15 @@ func TestDemozooLookup(t *testing.T) {
 	c := testutil.NewInput(t,
 		"/demozoo/production", "demozoo-submission", existing)
 	err := htmx.Demozoo.Lookup(c, db, false)
+	be.Err(t, err)
+
+	c.Set("zooauth", "")
+	err = htmx.Demozoo.Lookup(c, db, false)
 	be.Err(t, err, nil)
 
 	c = testutil.NewInput(t,
 		"/demozoo/production", "demozoo-submission", newrecord)
+	c.Set("zooauth", "")
 	err = htmx.Demozoo.Lookup(c, db, false)
 	be.Err(t, err, nil)
 }
@@ -51,7 +56,13 @@ func TestDemozooValid(t *testing.T) {
 	c := testutil.NewInput(t,
 		"/demozoo/production", "demozoo-submission", "1")
 	got, err := htmx.ValidateDemozoo(c, 1, false)
+	be.Err(t, err)
+	t.Log(got)
+
+	c.Set("zooauth", "")
+	got, err = htmx.ValidateDemozoo(c, 1, false)
 	be.Err(t, err, nil)
+
 	t.Log(got)
 }
 
