@@ -1636,12 +1636,12 @@ func UnsupportedFile(art *models.File) bool {
 	}
 
 	magic := strings.ToLower(strings.TrimSpace(art.FileMagicType.String))
+
 	skips := slices.Concat(
 		magicnumber.Images(),
 		magicnumber.Programs(),
 		magicnumber.Videos(),
 	)
-
 	// skips = append(skips, magicnumber.Unknown) // "Binary data"
 	for skip := range slices.Values(skips) {
 		if strings.EqualFold(skip.Title(), magic) {

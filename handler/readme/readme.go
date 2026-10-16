@@ -515,7 +515,6 @@ func (t *Text) filename() (string, error) {
 
 	readmePath := t.Extra.Join(t.UUID + ".txt")
 	readmeOkay := helper.Stat(readmePath)
-
 	if readmeOkay {
 		return readmePath, nil
 	}
@@ -545,11 +544,10 @@ func (t *Text) useViewer() bool {
 		return false
 	}
 
-	s := t.Platform
-	// INFO: this behavior was changed in Oct 26 to include "ansi".
-	return strings.EqualFold(s, "text") ||
-		strings.EqualFold(s, "textamiga") ||
-		strings.EqualFold(s, "ansi")
+	v := strings.ToLower(t.Platform)
+	// INFO: this behavior was changed in Oct 26 to include "ansi", "console".
+	s := []string{"ansi", "console", "text", "textamiga"}
+	return slices.Contains(s, v)
 }
 
 // Normalize applies a number of replacements and sanity checks to the
