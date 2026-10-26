@@ -4,11 +4,11 @@
 {{- define "content" }}
 <div class="index-intro-section">
   <p class="lead">
-    Titles are important, and <em>bad titles make it hard to dupe check future uploads</em>.
+    Titles are important, but <em>bad titles make it hard to dupe check uploads and search</em>.
   </p>
   <p class="mb-0">
     <strong class="text-primary">
-      The current site policy is to keep titles simple, concise and clean.<br>
+      The current site policy is to <u>keep titles simple</u>, concise and clean.<br>
       Game titles should match the publisher's official name.
     </strong>
   </p>
@@ -29,49 +29,74 @@
 <div class="index-intro-section">
   <ol>
     <li><q>Visual Studio v1.1</q></li>
-    <li><q>Sim City 2000</q></li>
+    <li><q>SimCity 2000</q></li>
     <li><q>Zool 2</q></li>
     <li><q>Windows 95</q></li>
     <li><q>NFL 98 fix</q></li>
   </ol>
 </div>
 
-<h4 class="index-section-header">❓ Why not copy and paste?</h4>
+<h4 class="index-section-header">Why not copy and paste?</h4>
 <div class="index-intro-section">
-  <p class="text-muted small mb-2"><em>Why not copy and paste the NFO, file_diz.diz, or directory path?</em></p>
+  <p class="text-muted small mb-2"><em>Why not copy and paste from the NFO, file_diz.diz, or the directory path?</em></p>
   <p>
-  It's pretty common for packaged releases to have incorrect or mismatched information, 
-  spelling mistakes, or to use lazy acronyms.
-  And it is much better to be able to run a single search for "Sim City 2000" and get all the results,
-  rather than needing to guess the possible name variations, "simcity 2000" "sim city 2000" "simcity 2k" etc.
+  It is common for Scene releases to use mismatched details, bad spellings, and lazy acronyms.
+  These make it difficult to run searches for software and game names.
   </p>
   <p>
-    For example, this <a href="/f/aa1d41e">release</a> has <em>TINTIN</em> for the diz and the incorrect title <em>Spirou</em> for the NFO, but the proper name is <em>The Adventures of Tintin : Prisoners of the Sun</em>.
-    <br>This <a href="/f/ad24ace">release</a> for the reprinting of the two first X-com games forgot to include a title in the NFO.
-    <br>And this <a href="/f/ae273de">release</a> uses the meaningless, <em>JNG 4 Course Addon</em> in the diz and a spelling mistake for the NFO, <em>Jack <mark>Nickalaus</mark> Golf 4</em>, 
-    neither would result with a <a href="/search/desc">search</a> for the game, <q>Jack&nbsp;Nicklaus</q>.
+    For example, this <a href="/f/aa1d41e">release</a> for <em>The Adventures of Tintin : Prisoners of the Sun</em>.<br>
+    Uses <em>TINTIN (c) INFOGRAMES</em> for the DIZ, and the title <em>Spirou (c) Infogrames</em> for the NFO.
+  </p>
+  <p>This <a href="/f/ae273de">release</a> for <q>Jack&nbsp;Nicklaus 4</q> addon uses the meaningless <em><mark>JNG</mark> 4</em> in the DIZ, 
+    and has multiple typos in the NFO, <em>Jack <mark>Nick<u>a</u>laus <strike>Golf</strike></mark> 4</em>. 
   </p>
 </div>
 
-<h4 class="index-section-header">📋 Naming and title guide:</h4>
+<h4 class="index-section-header">Naming guide:</h4>
 <div class="index-intro-section">
   <ul class="list-group list-group-flush">
-    <li class="list-group-item">Don't use any of these text styles:
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">all capitalized text, this is hard to read: <q>ALL CAPS IS ANNOYING</q></li>
-        <li class="list-group-item">copy and pasted directories, this is hard to read: <q>a.copy.and.pasted.directory</q></li>
-        <li class="list-group-item">illegible elite text, this is stupid and cryptic: <q>1337 73X7</q></li>
-        <li class="list-group-item">file names, this has no context on the website: <q>SIMCTY2K.ZIP</q></li>
-      </ul>
+    <li class="list-group-item">
+      List the name of the game or software before any minimal supplementary info.
+      <br>
+      <small class="text-body-secondary"><mark>SimCity</mark> fix</small>, 
+      <small class="text-body-secondary"><mark>SimCity</mark> addon</small>
     </li>
-    <li class="list-group-item">List the <strong>name</strong> of the game or application <strong>before</strong> any supplementary info.</li>
-    <li class="list-group-item">Do not include the publisher as these can attract DMCA bot take downs when shown on search engines.<br><small class="text-body-secondary">Exceptions for generic named products, ie: <q>Norton Backup</q> <q>Atari Football</q>.</small></li>
-    <li class="list-group-item">Use the prefix <q>fix</q> when needed.<br><small class="text-body-secondary">But avoid too specific terms like <q>cracked</q>, <q>patched</q>, <q>bytecrack</q>, <q>hack</q>, etc.</small></li>
-    <li class="list-group-item">Don't include unnecessary information.<br><small class="text-body-secondary">Semantic software versions, build numbers; or release justifications, <q>100% final</q>, <q>US release</q>, <q>multilanguage</q>, etc.</small></li>
-    <li class="list-group-item">Don't include redundant information.<br><small class="text-body-secondary">Words such as <q>trainer</q>, <q>installer</q>, <q>cracktro</q>, <q>keymaker</q>, <q>serial generator</q>, using the group name, etc.</small></li>
-    <li class="list-group-item">Only ignore the above when it is required for the clarity of the artifact.</li>
-    <li class="list-group-item">It's fine to have an empty title if the other artifact metadata or screenshot provides enough information.
-        <br><small class="text-body-secondary">Text and image art, courier group NFOs, BBS ads, etc., often don't need a title.</small>
+    <li class="list-group-item">It is fine to use an empty title if the other data or the screenshots provide enough context.
+        <br><small class="text-body-secondary">These types of files often do not need a title. Art, logos, courier group NFOs, BBS/FTP adverts, etc.</small>
+    </li>
+    <li class="list-group-item">
+      Do not include unnecessary information.
+      <br><small class="text-body-secondary">Semantic software versions, build numbers, or release justifications, <q>100% final</q>, <q>US release</q>, <q>multilanguage</q>, etc.
+      <br><strike>SimCity 100% final, SimCity US release, SimCity 1.500.001</strike>
+      </small>
+    </li>
+    <li class="list-group-item">
+      Do not include too specific or problematic details, instead append <q>fix</q> or <q>addon</q>.
+      <br><small class="text-body-secondary">Avoid terms like, <q>cracked</q>, <q>patched</q>, <q>bytecrack</q>, <q>hack</q>, <q>key</q>, <q>keymaker</q>, <q>generator</q>, <q>serial</q>, etc.</small>
+    </li>
+    <li class="list-group-item">
+      Do not include redundant information.
+      <br><small class="text-body-secondary">Words such as <q>trainer</q>, <q>cheat</q>, <q>hint</q>, <q>installer</q>, <q>cracktro</q>, <q>docs</q>, <q>documentation</q>, <q>manual</q>, using the group name, etc.
+      <br><strike>SimCity trainer, SimCity +4 cheat, SimCity installer, Manual for SimCity, SimCity by Razor</strike></small>
+    </li>
+    <li class="list-group-item">
+      Do not include the publisher as these can attract DMCA bot take downs when shown on search engines.
+      <br><small class="text-body-secondary">
+      <strike>EA SimCity, Sim City (C) Electronic Arts, SimCity by Maxis, Sega's Sonic</strike>.<br>
+      Exceptions are made for titles using generic nouns and verbs.<br>
+      For example, <q>Norton Backup</q>, <q>Atari Football</q>.</small>
+    </li>
+    <li class="list-group-item">Please do not use:
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">Elite text, it's silly and cannot be searched:
+        <br><small class="text-body-secondary"><q>εLεε7 τεxτ !s ßαd</q></small></li>
+        <li class="list-group-item">File names give no context when used as titles:
+        <br><small class="text-body-secondary"><q>R-SCTY2K.ZIP</q></small></li>
+        <li class="list-group-item">All capitalized text, as it's hard to read:
+        <br><small class="text-body-secondary"><q>ALL CAPS IS ANNOYING</q></small></li>
+        <li class="list-group-item">Copy and paste FTP site directories, as it's hard to read and are DMCA triggers:
+        <br><small class="text-body-secondary"><q>using.a.copy.and.pasted.directory.name.is.also.annoying.to.read</q></small></li>
+      </ul>
     </li>
   </ul>
 </div>
