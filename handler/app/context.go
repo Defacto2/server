@@ -1965,6 +1965,9 @@ func TestZoo(c *echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+	if resp == nil {
+		return c.String(http.StatusInternalServerError, "demozoo response body is empty")
+	}
 	defer resp.Body.Close()
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
