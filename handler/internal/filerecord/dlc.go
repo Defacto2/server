@@ -94,7 +94,7 @@ func (dlc *DownloadContent) List(ctx context.Context, sl *slog.Logger, art *mode
 		strings.Join(dlc.elems[:dlc.index+1], "\n"))
 
 	if dlc.files > dlc.MaxItems {
-		dlc.html.WriteString(`<div class="border-bottom row mb-1">skipped` +
+		dlc.html.WriteString(`<div class="border-bottom row mb-1">skipped ` +
 			strconv.Itoa(dlc.files-dlc.MaxItems) + ` other files</div>`)
 	}
 
