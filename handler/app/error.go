@@ -1,4 +1,4 @@
-//nolint:dupl
+//nolint:dupl,wrapcheck
 package app
 
 // Package file error.go contains the error handlers for the application.

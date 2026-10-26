@@ -101,7 +101,7 @@ func UUID(c *echo.Context) (string, error) {
 //
 // [HTMX header]: https://htmx.org/reference/#response_headers
 func PageReload(c *echo.Context) *echo.Context {
-	c.Response().Header().Set("HX-Refresh", "true")
+	c.Response().Header().Set("Hx-Refresh", "true")
 	c.Response().WriteHeader(http.StatusFound)
 
 	return c
