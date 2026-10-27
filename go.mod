@@ -1,7 +1,7 @@
 module github.com/Defacto2/server
 
 // NOTE: Don't forget update the go-version found in .github/workflows/gorelease.yml
-go 1.27.2 // latest: https://go.dev/dl/
+go 1.27.3 // latest: https://go.dev/dl/
 
 // Uncomment to use the local repository
 //	replace github.com/Defacto2/archive => ../archive
@@ -10,6 +10,7 @@ go 1.27.2 // latest: https://go.dev/dl/
 //	replace github.com/Defacto2/releaser => ../releaser
 //	replace github.com/bengarrett/ansibump => ../ansibump
 //	replace github.com/bengarrett/sauce => ../sauce
+
 //	replace github.com/bengarrett/binbump => ../binbump
 
 // Lock down the markdown package for 'task doc' command compatibility
@@ -49,7 +50,7 @@ require (
 	github.com/bengarrett/ansibump v1.1.4
 	github.com/bengarrett/bbs v1.0.9
 	github.com/bengarrett/binbump v1.0.5
-	github.com/bengarrett/sauce v1.2.9
+	github.com/bengarrett/sauce v1.2.10
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.1.0

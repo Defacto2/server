@@ -697,11 +697,11 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 	})
 
 	wg.Go(func() {
-		mu.Lock()
-		vers, err := model.UUIDs(ctx, db)
+		vers, err := uuidCache.Get(ctx, db)
 		if err != nil {
 			return
 		}
+		mu.Lock()
 		data["uuidVersions"] = vers
 		mu.Unlock()
 	})
@@ -728,6 +728,41 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 		return InternalErr(sl, c, configs, err)
 	}
 	return nil
+}
+
+// UUIDCache caches the stats for the different UUID versions in use.
+type UUIDCache struct {
+	sync.RWMutex
+
+	vers model.UUIDVers
+	used bool
+}
+
+var uuidCache UUIDCache
+
+// Get returns cached versions or gets them from the database.
+func (c *UUIDCache) Get(ctx context.Context, db *sql.DB) (model.UUIDVers, error) {
+	c.RLock()
+	if c.used {
+		v := c.vers
+		c.RUnlock()
+		return v, nil
+	}
+	c.RUnlock()
+
+	c.Lock()
+	defer c.Unlock()
+
+	if !c.used {
+		vers, err := model.UUIDs(ctx, db)
+		if err != nil {
+			return model.UUIDVers{}, err
+		}
+		c.vers = vers
+	}
+	c.used = true
+
+	return c.vers, nil
 }
 
 // configurations handles the host system drive queries for free and used space.
@@ -779,104 +814,109 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 	return data
 }
 
+// AssetCache holds the file content stats for any asset directory.
+type AssetCache struct {
+	sync.RWMutex
+
+	c    int
+	b    int64
+	exts []helper.Extension
+}
+
+var (
+	downloadCache  = &AssetCache{c: -1, b: -1}
+	previewCache   = &AssetCache{c: -1, b: -1}
+	thumbnailCache = &AssetCache{c: -1, b: -1}
+	extraCache     = &AssetCache{c: -1, b: -1}
+	orphanCache    = &AssetCache{c: -1, b: -1}
+)
+
+// processAsset handles directory validation, caching, and metric population generically.
+func processAsset(data map[string]any, absPath, desc, prefix string, cache *AssetCache) map[string]any {
+	countKey := "count" + prefix
+	usageKey := "usage" + prefix
+	extsKey := "exts" + prefix
+	checkKey := "check" + prefix
+
+	// Initialize defaults
+	data[countKey] = 0
+	data[usageKey] = 0
+	data[extsKey] = []helper.Extension{}
+
+	name := dir.Directory(absPath)
+	check := config.CheckDir(name, desc)
+	data[checkKey] = check
+	if check != nil {
+		return data
+	}
+
+	cache.RLock()
+	if cache.c != -1 {
+		c := cache.c
+		b := cache.b
+		exts := cache.exts
+		cache.RUnlock()
+
+		data[countKey] = humanize.Comma(int64(c))
+		data[usageKey] = helper.ByteCountFloat(b)
+		data[extsKey] = exts
+		return data
+	}
+	cache.RUnlock()
+
+	cache.Lock()
+	defer cache.Unlock()
+
+	if cache.c == -1 {
+		c, _ := helper.Count(absPath)
+		b, _ := helper.DiskUsage(absPath)
+		exts, _ := helper.CountExts(absPath)
+
+		cache.c = c
+		cache.b = b
+		cache.exts = exts
+	}
+
+	data[countKey] = humanize.Comma(int64(cache.c))
+	data[usageKey] = helper.ByteCountFloat(cache.b)
+	data[extsKey] = cache.exts
+
+	return data
+}
+
 func downloader(data map[string]any, conf config.Config) map[string]any {
 	data["countDownloads"] = 0
 	data["usageDownloads"] = 0
 	data["extsDownloads"] = []helper.Extension{}
-
-	download := dir.Directory(string(conf.AbsDownload))
-	check := config.CheckDir(download, "downloads")
-	data["checkDownloads"] = check
-	if check == nil {
-		c, _ := helper.Count(string(conf.AbsDownload))
-		data["countDownloads"] = humanize.Comma(int64(c))
-		b, _ := helper.DiskUsage(string(conf.AbsDownload))
-		data["usageDownloads"] = helper.ByteCountFloat(b)
-		exts, _ := helper.CountExts(string(conf.AbsDownload))
-		data["extsDownloads"] = exts
-	}
-
-	return data
+	return processAsset(data, string(conf.AbsDownload), "downloads", "Downloads", downloadCache)
 }
 
 func previewer(data map[string]any, conf config.Config) map[string]any {
 	data["countPreviews"] = 0
 	data["usagePreviews"] = 0
 	data["extsPreviews"] = []helper.Extension{}
-
-	preview := dir.Directory(conf.AbsPreview)
-	check := config.CheckDir(preview, "previews")
-	data["checkPreviews"] = check
-	if check == nil {
-		c, _ := helper.Count(conf.AbsPreview.String())
-		data["countPreviews"] = humanize.Comma(int64(c))
-		b, _ := helper.DiskUsage(string(conf.AbsPreview))
-		data["usagePreviews"] = helper.ByteCountFloat(b)
-		exts, _ := helper.CountExts(conf.AbsPreview.String())
-		data["extsPreviews"] = exts
-	}
-
-	return data
+	return processAsset(data, conf.AbsPreview.String(), "previews", "Previews", previewCache)
 }
 
 func thumbnailer(data map[string]any, conf config.Config) map[string]any {
 	data["countThumbnails"] = 0
 	data["usageThumbnails"] = 0
 	data["extsThumbnails"] = []helper.Extension{}
-
-	thumbnail := dir.Directory(conf.AbsThumbnail)
-	check := config.CheckDir(thumbnail, "thumbnails")
-	data["checkThumbnails"] = check
-	if check == nil {
-		c, _ := helper.Count(conf.AbsThumbnail.String())
-		data["countThumbnails"] = humanize.Comma(int64(c))
-		b, _ := helper.DiskUsage(string(conf.AbsThumbnail))
-		data["usageThumbnails"] = helper.ByteCountFloat(b)
-		exts, _ := helper.CountExts(conf.AbsThumbnail.String())
-		data["extsThumbnails"] = exts
-	}
-
-	return data
+	return processAsset(data, conf.AbsThumbnail.String(), "thumbnails", "Thumbnails", thumbnailCache)
 }
 
 func extraer(data map[string]any, conf config.Config) map[string]any {
 	data["countExtras"] = 0
 	data["usageExtras"] = 0
 	data["extsExtras"] = []helper.Extension{}
-
-	extra := dir.Directory(conf.AbsExtra)
-	check := config.CheckDir(extra, "extra")
-	data["checkExtras"] = check
-	if check == nil {
-		c, _ := helper.Count(conf.AbsExtra.String())
-		data["countExtras"] = humanize.Comma(int64(c))
-		b, _ := helper.DiskUsage(string(conf.AbsExtra))
-		data["usageExtras"] = helper.ByteCountFloat(b)
-		exts, _ := helper.CountExts(conf.AbsExtra.String())
-		data["extsExtras"] = exts
-	}
-
-	return data
+	return processAsset(data, conf.AbsExtra.String(), "extra", "Extras", extraCache)
 }
 
 func orphaneder(data map[string]any, conf config.Config) map[string]any {
 	data["countOrphaned"] = 0
 	data["usageOrphaned"] = 0
 	data["extsOrphaned"] = []helper.Extension{}
-
-	orphaned := dir.Directory(conf.AbsOrphaned.String())
-	check := config.CheckDir(orphaned, "orphaned")
-	data["checkOrphaned"] = check
-	if check == nil {
-		c, _ := helper.Count(conf.AbsOrphaned.String())
-		data["countOrphaned"] = humanize.Comma(int64(c))
-		b, _ := helper.DiskUsage(string(conf.AbsOrphaned))
-		data["usageOrphaned"] = helper.ByteCountFloat(b)
-		exts, _ := helper.CountExts(conf.AbsOrphaned.String())
-		data["extsOrphaned"] = exts
-	}
-
-	return data
+	return processAsset(data, conf.AbsOrphaned.String(), "orphaned", "Orphaned", orphanCache)
 }
 
 // Dependencies is the handler for the dependencies page.
