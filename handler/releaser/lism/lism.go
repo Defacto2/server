@@ -298,6 +298,8 @@ var initialisms = List{
 	"7th-heaven-bbs":                       {"Seventh Heaven", "Seven Th Heaven"},
 	"biomechanic-dreams-bbs":               {"BIOMECH"},
 	"gml-state-bbs":                        {"GML"},
+	"celerity-bbs":                         {"Celerity Utilities Division", "CUD"},
+	"tcs-bbs":                              {"TCS", "TCS Programming Team"},
 	//
 	// FTP and file sites often used lower-case initialisms
 	"last-resort-ftp":         {"TLR", "The Last Resort"},
@@ -368,6 +370,9 @@ var initialisms = List{
 		"NWR", "NetMonkey Report", "Netmonkey Weekly Report", "Netmonkey Courier Report",
 		"Netmonkey Weekend Report",
 	},
+	"k_rad-and-elite":                        {"K&E", "K-Rad & Elite"},
+	"neon":                                   {"NE"},
+	"designated-couriering-specialists":      {"DCS"},
 	"poseidon":                               {"PSN"},
 	"no_fear":                                {"NOF"},
 	"purple-turtle":                          {"PTL"},

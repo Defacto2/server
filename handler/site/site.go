@@ -44,6 +44,14 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	"tcs-bbs": []Website{
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/TCS/", NotWorking: false, Name: "BBS Documentary downloads"},
+	},
+	"celerity-bbs": []Website{
+		{URL: "https://demozoo.org/bbs/tagged/celerity-bbs", NotWorking: false, Name: "Celerity BBS tagged on Demozoo"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/CELERITY/", NotWorking: false, Name: "BBS Documentary downloads"},
+		{URL: "https://www.infania.net/misc1/shareware/Simtel-MSDOS-Oct1995-CD1/DISC1/CELERITY/00_INDEX.HTM", NotWorking: false, Name: "Simtel 1995 CD listing"},
+	},
 	"shining-8": []Website{
 		{URL: "members.magic-web.net/home/Shining8", NotWorking: true, Name: "1998 C-64 site"},
 		{URL: "https://www.shining8.de", NotWorking: false, Name: "Shining 8"},

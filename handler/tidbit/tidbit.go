@@ -537,6 +537,9 @@ var groups = Tibits{
 	467:  []URI{"united-cracking-force"},
 	468:  []URI{"the-crazed-asylum"},
 	469:  []URI{"phrozen-crew"},
+	470:  []URI{"k_rad-and-elite"},
+	471:  []URI{"celerity-bbs"},
+	472:  []URI{"tcs-bbs"},
 }
 
 // Markdown returns the markdown content of the tidbit that is stored in the directory
