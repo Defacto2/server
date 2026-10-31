@@ -1,6 +1,5 @@
 module github.com/Defacto2/server
 
-// NOTE: Don't forget update the go-version found in .github/workflows/gorelease.yml
 go 1.27.3 // latest: https://go.dev/dl/
 
 // Uncomment to use the local repository
@@ -41,8 +40,8 @@ replace rsc.io/markdown => rsc.io/markdown v0.0.0-20231214224604-88bb533a6020
 // urface/cli is used with the flags package for command line interactions.
 //
 require (
-	github.com/Defacto2/archive v1.3.5
-	github.com/Defacto2/helper v1.7.4
+	github.com/Defacto2/archive v1.3.6
+	github.com/Defacto2/helper v1.7.5
 	github.com/Defacto2/magicnumber v1.4.6
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7
