@@ -8,6 +8,8 @@ import (
 )
 
 const (
+	bbsdoc    = "BBS Documentary downloads"
+	dztag     = "BBS tagged on Demozoo"
 	inqAD     = "INQ ad"
 	razor1911 = "Razor 1911"
 	shock     = "Shock"
@@ -44,12 +46,58 @@ type Groups map[URI][]Website
 //
 //nolint:gochecknoglobals
 var websites = Groups{
+	//			{URL: "", NotWorking: false, Name: ""},
+	//			{URL: "", NotWorking: true, Name: ""},
+	//
+	"vision_x-bbs": []Website{
+		{URL: "https://demozoo.org/bbs/tagged/vision-x/", NotWorking: false, Name: "Vision-X " + dztag},
+		{URL: "https://demozoo.org/bbs/tagged/vision2/", NotWorking: false, Name: "Vision2 " + dztag},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/VISION/", NotWorking: false, Name: bbsdoc + " Vision"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/VISIONX/", NotWorking: false, Name: bbsdoc + " VisionX"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/VISION2/", NotWorking: false, Name: bbsdoc + " Vision2"},
+	},
+	"lush-software-designs-bbs": []Website{
+		{URL: "https://demozoo.org/bbs/tagged/lsd-bbs/", NotWorking: false, Name: "LSD " + dztag},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/LSDBBS/", NotWorking: false, Name: bbsdoc + " LSDBBS"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/LSD/", NotWorking: false, Name: bbsdoc + " LSD"},
+	},
+	"emulex-bbs": []Website{
+		{URL: "https://demozoo.org/bbs/tagged/emulex-bbs/", NotWorking: false, Name: "Emulex " + dztag},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/EMULEX2/", NotWorking: false, Name: bbsdoc + " Emulex2"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/EMULEX/", NotWorking: false, Name: bbsdoc + " Emulex"},
+	},
+	"monarch-bbs": []Website{
+		{URL: "https://demozoo.org/bbs/tagged/monarch-bbs/", NotWorking: false, Name: "Monarch " + dztag},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/MONARCH2/", NotWorking: false, Name: bbsdoc + " Monarch2"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/MONARCH/", NotWorking: false, Name: bbsdoc + " Monarch"},
+	},
+	"oblivion-2-bbs": []Website{
+		{URL: "https://demozoo.org/bbs/tagged/oblivion2", NotWorking: false, Name: "Oblivion2 " + dztag},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/OBLIVION2/", NotWorking: false, Name: bbsdoc},
+		{URL: "https://web.archive.org/web/20021016081152/http://members.darktech.org/obv2/", NotWorking: false, Name: "Oblivion/2 website mirror"},
+		{URL: "http://www.darktech.org/obv2/", NotWorking: true, Name: "Oblivion/2 1999 website"},
+		{URL: "http://oblivionbbs.home.ml.org/", NotWorking: true, Name: "Oblivion/2 1998 website"},
+	},
+	"wwiv-bbs": []Website{
+		{URL: "https://demozoo.org/bbs/tagged/wwiv", NotWorking: false, Name: "WWIV " + dztag},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/WWIV/", NotWorking: false, Name: bbsdoc},
+		{URL: "https://docs.wwivbbs.org/en/latest/misc/history/", NotWorking: false, Name: "History of WWIV"},
+		{URL: "https://www.wwivbbs.org/", NotWorking: false, Name: "WWIV BBS Software"},
+		{URL: "http://www.textfiles.com/bbs/WWIVNEWS/", NotWorking: false, Name: "WWIV Newsletters (1991-94)"},
+	},
+	"forum_pc-bbs": []Website{
+		{URL: "https://demozoo.org/bbs/tagged/forum-bbs", NotWorking: false, Name: "Forum " + dztag},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/FORUM/", NotWorking: false, Name: bbsdoc + " for Forum"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/GENESISPROJECT/", NotWorking: false, Name: bbsdoc + " for Genesis"},
+	},
 	"tcs-bbs": []Website{
-		{URL: "http://software.bbsdocumentary.com/IBM/DOS/TCS/", NotWorking: false, Name: "BBS Documentary downloads"},
+		{URL: "https://demozoo.org/groups/159601/", NotWorking: false, Name: "TCS Staff on Demozoo"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/TCS/", NotWorking: false, Name: bbsdoc},
 	},
 	"celerity-bbs": []Website{
-		{URL: "https://demozoo.org/bbs/tagged/celerity-bbs", NotWorking: false, Name: "Celerity BBS tagged on Demozoo"},
-		{URL: "http://software.bbsdocumentary.com/IBM/DOS/CELERITY/", NotWorking: false, Name: "BBS Documentary downloads"},
+		{URL: "https://demozoo.org/bbs/tagged/celerity-bbs", NotWorking: false, Name: "Celerity " + dztag},
+		{URL: "https://demozoo.org/groups/135333/", NotWorking: false, Name: "CUD on Demozoo"},
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/CELERITY/", NotWorking: false, Name: bbsdoc},
 		{URL: "https://www.infania.net/misc1/shareware/Simtel-MSDOS-Oct1995-CD1/DISC1/CELERITY/00_INDEX.HTM", NotWorking: false, Name: "Simtel 1995 CD listing"},
 	},
 	"shining-8": []Website{

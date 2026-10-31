@@ -53,8 +53,6 @@ const (
 )
 
 var groups = Groups{
-	"tcs-bbs":                               159601,
-	"celerity-bbs":                          135333,
 	"pc-freelancers":                        79851,
 	"hot-pizza":                             118073,
 	"pop":                                   159135,

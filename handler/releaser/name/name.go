@@ -228,6 +228,7 @@ var lowercase = [...]string{
 
 // uppercase are a collection of styled names that use all uppercasing.
 var uppercase = [...]string{
+	"wwiv-bbs",
 	"tcs-bbs",
 	"rpgca",
 	"smeg",

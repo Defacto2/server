@@ -147,7 +147,7 @@ func main() {
 	go func() {
 		fsys := serv.Public
 		root := tidbit.Dir
-		if err := serv.TidbitIndex.NewIndex(fsys, root); err != nil {
+		if err := serv.TidbitIndex.NewIndex(sl, fsys, root); err != nil {
 			logErr("tidbit indexs", err)
 		}
 		stat := serv.TidbitIndex

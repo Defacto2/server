@@ -145,6 +145,8 @@ export function titleize(text) {
     'la',
     'lego',
     'ls',
+    'lsd',
+    'l.s.d.',
     'masm',
     'mbl',
     'ms',
@@ -187,6 +189,7 @@ export function titleize(text) {
     'vga',
     'vr',
     'whq',
+    'wwiv',
     'ww1',
     'ww2',
     'ww3',
@@ -293,7 +296,7 @@ export function titleize(text) {
   text = text.replace(/ \)/g, ')');
   // lowercase all text between square brackets
   text = text.replace(/\[([^)]+)\]/g, function (match) {
-    return match.toUpperCase();
+    return match.toLowerCase();
   });
   text = text.replace(/(\s\s)/g, ' ');
   text = text.trim();
