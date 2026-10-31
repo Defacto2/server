@@ -175,8 +175,12 @@ func emptyBufs(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) bool {
 func (t *Text) handleRAW(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) (
 	*bytes.Buffer, *bytes.Buffer, error,
 ) {
+	// WARN: always return the named unused var,
+	// instead of returning nil for bytes buffer
+	unused := new(bytes.Buffer)
+
 	if err := nils.Check(textBuf, descBuf, helpBuf, runeBuf); err != nil {
-		return nil, nil, fmt.Errorf("plain texts: %w", err)
+		return unused, unused, fmt.Errorf("plain texts: %w", err)
 	}
 
 	b := trimBytes(textBuf.Bytes()) // usually the readme or nfo text
@@ -202,7 +206,7 @@ func (t *Text) handleRAW(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) (
 	if size == 0 {
 		textBuf.Reset()
 		runeBuf.Reset()
-		return nil, nil, nil
+		return textBuf, runeBuf, nil
 	}
 
 	textBuf.Reset()
@@ -248,9 +252,13 @@ func (t *Text) handleUnknown(sl *slog.Logger) error {
 }
 
 func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
+	// WARN: always return the named unused var,
+	// instead of returning nil for bytes buffer
+	unused := new(bytes.Buffer)
+
 	const format = "handle binary text %s: %w"
 	if err := nils.Check(textBuf); err != nil {
-		return nil, fmt.Errorf(format, "buffer", err)
+		return unused, fmt.Errorf(format, "buffer", err)
 	}
 
 	width := 0 // use default
@@ -267,16 +275,23 @@ func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 		bytes.NewReader(textBuf.Bytes()), width, maxRows, palette, nil,
 	)
 	if err != nil {
-		return nil, fmt.Errorf(format, "binbump", err)
+		return unused, fmt.Errorf(format, "binbump", err)
+	}
+	if bintext == nil {
+		bintext = new(bytes.Buffer)
 	}
 	textBuf.Reset()
 	return bintext, nil
 }
 
 func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
+	// WARN: always return the named unused var,
+	// instead of returning nil for bytes buffer
+	unused := new(bytes.Buffer)
+
 	const format = "handle ansi %s: %w"
 	if err := nils.Check(textBuf); err != nil {
-		return nil, fmt.Errorf(format, "buffers", err)
+		return unused, fmt.Errorf(format, "buffers", err)
 	}
 
 	const defaultColumns = 80
@@ -303,7 +318,7 @@ func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 	}
 	ansitext, err := config.Bytes(bytes.NewReader(textBuf.Bytes()))
 	if err != nil {
-		return nil, fmt.Errorf(format, "customizer", err)
+		return unused, fmt.Errorf(format, "customizer", err)
 	}
 
 	// reset all other buffers and return the ansi buffer
