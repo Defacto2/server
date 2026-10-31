@@ -126,7 +126,11 @@ func (ts *Tidbits) NewIndex(fsys fs.FS, root string) error {
 		if err != nil {
 			return fmt.Errorf(format+": %s", err, path)
 		}
-		return ts.Add(d.Name(), string(b))
+		if aErr := ts.Add(d.Name(), string(b)); err != nil &&
+			!errors.Is(aErr, ErrNoBody) {
+			return fmt.Errorf(format+": %s", err, path)
+		}
+		return nil
 	})
 	slog.SetDefault(restore)
 	if err != nil {
