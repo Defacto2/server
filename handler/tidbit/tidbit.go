@@ -541,7 +541,7 @@ var groups = Tibits{
 	471:  []URI{"celerity-bbs"},
 	472:  []URI{"tcs-bbs"},
 	473:  []URI{"emulex-bbs"},
-	474:  []URI{"tcs-bbs", "emulex-bbs", "forum_pc-bbs"},
+	474:  []URI{"tcs-bbs", "emulex-bbs"},
 	490:  []URI{"k_rad-and-elite"},
 }
 
