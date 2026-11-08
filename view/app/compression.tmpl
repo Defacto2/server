@@ -5,32 +5,55 @@
 <h4 class="index-section-header">Squeeze</h4>
 <div class="index-intro-section">
 <p>
-One of the original compression formats used on the PC was known as File Squeezer, which was introduced in May 1981 for the CP/M systems and later ported to the Microsoft disk operating systems by various authors. 
-<a href="http://fileformats.archiveteam.org/wiki/Squeeze">Squeezing</a> comprises two programs, <code>SQ.EXE</code>, the file squeezer for compression, and <code>USQ.EXE</code>, the file unsqueezer for decompression. 
-Squeeze initially did not preserve file modification dates and could not group collections of files into archives; instead, this was handled separately by an unrelated program, Library Utility (<code>LU.EXE</code>), which created ".LBR" files.
+One of the original compression formats used on the PC was known as File Squeezer, which was introduced in May 1981 for the CP/M systems and later ported to the MicroSoft Disk Operating System by various authors. 
+CP/M was the first universal microcomputer operating system, existing before Microsoft's Windows, MS-DOS, and even the PC as a platform.
+On the PC, <a href="http://fileformats.archiveteam.org/wiki/Squeeze">Squeezing</a> comprises two programs, <code>SQ.EXE</code>, the file squeezer for compression, and <code>USQ.EXE</code>, the file unsqueezer for decompression. 
+Squeeze initially did not preserve file modification dates and could only compress individual files.
 </p>
 </div>
-
+<h4 class="index-section-header">LBR (Library Utility)</h4>
+<div class="index-intro-section">
+<p>
+The Library Utility is another CP/M tool, originally authored by Gary Novosielski in 1982
+and later ported to MS-DOS as <code>LU.EXE</code>.
+LBR files are simply uncompressed packages containing a collection of files, the microcomputer equivalent of an uncompressed TAR package.
+However, unlike today's TAR archives that preserve everything of the file system, LBR archive had major limitations.
+LBR archives could not preserve the file dates, file permissions, or any sub-directories.
+As the whole concept of sub-directories and folders didn't exist on either the CP/M or MS-DOS platforms in 1982.
+</p>
+<p>
+Jim Kloss author of NoChange BBS <a href="/f/be268e1">writes</a>,
+<q>one of the best things to happen to us BBS'ers is the use of libraries to put many
+commonly related programs together for one simple download. This gets rid
+of the aggrevation you feel when you try to download all 9-10 files required
+to run some systems (i.e. RBBS). By putting them in a library, you can get them all in one pass.</q>
+</p>
+</div>
 <h4 class="index-section-header">ARC (File Archive Utility)</h4>
 <div class="index-intro-section">
 <p>
-This process was convoluted, and several solutions arrived on the PC to simplify the archiving and sharing of software online. 
-But the one of the first was ARC, "File Archive Utility" by Thom Henderson under the company, System Enhancement Associates. 
+The process of needing multiple unrelated utilities to archive, compress, and share packages online over bulletin boards was convoluted, 
+and several solutions arrived on the PC to simplify the process. 
+One of the first was ARC, "File Archive Utility" by Thom Henderson under the company, System Enhancement Associates. 
 This tool archived and compressed groups of files using a single command, and <a href="http://www.textfiles.com/programming/FORMATS/arc-lbr.pro">caught on</a> 
 in the PC BBS community, with many boards adopting it as a standard and re-packaging their existing file offerings.
-</p>
-<p>
-Unfortunately, this means today there are no known original PC scene releases compressed with File Squeezer or packaged with the Library Utility. 
-They have all been repackaged using the ARC tool. 
-For example, a release by the Duplicators for the game Bluebush Chess (BBCHESS.COM) was modified in September 1984; 
-however, the package we have (<a href="https://defacto2.net/f/b627a2c">BLUEBUSH.ARC</a>) was created in June 1986. 
-Another example is the SPI release of Shamus, which proclaims "<span class="font-monospace">(C) Copyright invalid in 1984</span>"; however, our <a href="https://defacto2.net/f/b92e146">SHAMUS.ARC</a> package was made in December 1985. 
-Both examples were probably repackaged by a third party to use the newer ARC tools, which didn't exist in 1984.
 </p>
 <p>
 The author of UNARC for the CP/M systems <a href="https://www.cpc-power.com/index.php?page=detail&onglet=notices&num=13880">notes</a> in May 1986, 
 <q>The files which UNARC processes are the product of a utility program, ARC, which executes on 16-bit computers running the MS-DOS (or PC-DOS) operating system. 
 This program has achieved widespread popularity since it was first introduced in March 1985.</q>
+</p>
+</p>
+</div>
+<h4 class="index-section-header"><small>Lost history</small></h4>
+<div class="index-intro-section">
+<p>
+Unfortunately, all this means there are no known Scene releases compressed with File Squeezer or packaged with the Library Utility. 
+Everything preserved today has been repackaged using the ARC tool at a later date. 
+For example, a release by the Duplicators for the game Bluebush Chess (BBCHESS.COM) was modified in September 1984; 
+however, the package we have (<a href="https://defacto2.net/f/b627a2c">BLUEBUSH.ARC</a>) was created in June 1986. 
+Another example is the SPI release of Shamus, which proclaims <q>&copy; Copyright invalid in 1984</q>, but our <a href="https://defacto2.net/f/b92e146">SHAMUS.ARC</a> package was made in December 1985. 
+Both examples were probably repackaged by the group, a BBS, or a user, to use the more convenient ARC tools.
 </p>
 </div>
 
@@ -38,7 +61,8 @@ This program has achieved widespread popularity since it was first introduced in
 <div class="index-intro-section">
 <p>
 A competing compression format known as <a href="http://fileformats.archiveteam.org/wiki/Zoo">Zoo</a>, "A Fast File Archiver," by Rahul Dhesi, was released on the PC in August 1986. 
-And, while it never caught on with the PC scene due to ARC, it did prove to be more popular on the Commodore Amiga microcomputer and Unix systems.
+While it never caught on with the PC BBS Scene due to the popularity of ARC, Zoo did prove to be more popular on the Commodore Amiga microcomputer, Unix, and early Linux.
+And unlike the earlier archiving tools, it did preserve file and folder directory structures.
 </p>
 </div>
 
@@ -206,4 +230,16 @@ and an <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkxarc.zip">early</a> rele
 </div>
 </div>
 
+<h4 class="index-section-header"><small>More information</small></h4>
+<div class="index-intro-section">
+<ul>
+<li>
+  <a href="https://techtinkering.com/articles/working-with-lbr-files-on-cpm/">Working with .LBR files on CP/M</a> and
+  <a href="https://techtinkering.com/articles/advanced-use-of-lbr-files-on-cpm/">Advanced use of .LBR files</a>
+</i>
+<li><a href="https://www.skrause.org/computers/dos_history.shtml">A short history of MS-DOS</a>
+<li><a href="https://www.seasip.info/Cpm/ludef5.html">LBR file format</a></li>
+</ul>
+
+</div>
 {{- end }}
