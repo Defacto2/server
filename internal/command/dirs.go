@@ -238,7 +238,8 @@ func (ds Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, srcText, unid 
 		return fmt.Errorf(format, srcText, err)
 	}
 	if st.Size() == 0 {
-		return fmt.Errorf(format, srcText, ErrIsEmpty)
+		// do not return an error or it will abort the rest of the file listing
+		return nil
 	}
 
 	base := filepath.Base(unid)
