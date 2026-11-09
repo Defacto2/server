@@ -305,6 +305,8 @@ var initialisms = List{
 	"emulex-bbs":                           {"Emulex/2", "EMU", "EM", "EM2"},
 	"lush-software-designs-bbs":            {lsd, lsd + " BBS", "L.S.D."},
 	"vision_x-bbs":                         {"Vision", "VIS", "VISX", "VX", "Vision X BBS Software", "Vision/2", "V2", "V/2"},
+	"pha-elite-bbs":                        {"PHA", "Phreakers/Hackers/Anarchists"},
+	"lakeside-park-bbs":                    {"LSP"},
 	//
 	// FTP and file sites often used lower-case initialisms
 	"last-resort-ftp":         {"TLR", "The Last Resort"},
@@ -375,6 +377,11 @@ var initialisms = List{
 		"NWR", "NetMonkey Report", "Netmonkey Weekly Report", "Netmonkey Courier Report",
 		"Netmonkey Weekend Report",
 	},
+	"united-pirate-syndicate":                {"UPS"},
+	"world-association-of-software-pirates":  {"WASP"},
+	"pc-players-guild":                       {"PCPG"},
+	"ipl":                                    {"The Illinois Pirates League"},
+	"international-rogues-guild":             {"IRG"},
 	"k_rad-and-elite":                        {"K&E", "K-Rad & Elite"},
 	"neon":                                   {"NE"},
 	"designated-couriering-specialists":      {"DCS"},

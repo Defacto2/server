@@ -215,6 +215,7 @@ var names = List{
 	"oldskool":                              "OldSkool",
 	"addiction-bbs":                         "The Addiction BBS",
 	"gml-state-bbs":                         "GML State BBS",
+	"pha-elite-bbs":                         "PHA Elite BBS",
 }
 
 // lowercase are a collection of styled names that use all lowercasing.
@@ -228,7 +229,10 @@ var lowercase = [...]string{
 
 // uppercase are a collection of styled names that use all uppercasing.
 var uppercase = [...]string{
+	"fb-ampersand-t",
+	"acs-bbs",
 	"wwiv-bbs",
+	"nochange-bbs",
 	"tcs-bbs",
 	"rpgca",
 	"smeg",
