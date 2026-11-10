@@ -281,7 +281,7 @@ func editor(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error {
 		Thumbnail: dirs.Thumbnail,
 		Extra:     dirs.Extra,
 	}
-	editorReadme(sl, g, db, paths, dirs)
+	editorExtra(sl, g, db, paths, dirs)
 	editorPreview(sl, g, paths, dirs)
 	editorThumb(sl, g, paths, dirs)
 
@@ -441,7 +441,7 @@ func editorEmu(g *echo.Group, db *sql.DB) {
 	})
 }
 
-func editorReadme(sl *slog.Logger, g *echo.Group, db *sql.DB, paths command.Dirs, dirs app.Dirs) {
+func editorExtra(sl *slog.Logger, g *echo.Group, db *sql.DB, paths command.Dirs, dirs app.Dirs) {
 	diz := g.Group("/diz")
 	// /editor/diz/copy
 	diz.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
@@ -483,6 +483,16 @@ func editorReadme(sl *slog.Logger, g *echo.Group, db *sql.DB, paths command.Dirs
 	})
 	readme.DELETE("/:unid", func(c *echo.Context) error {
 		return htmx.FSRemoveReadme(c, dirs.Extra)
+	})
+
+	zippack := g.Group("/zippack")
+	zippack.DELETE("/:unid", func(c *echo.Context) error {
+		return htmx.FSRemoveZipRepack(c, dirs.Extra)
+	})
+
+	contentcache := g.Group("/content-cache")
+	contentcache.DELETE("/:unid", func(c *echo.Context) error {
+		return htmx.FSRemoveCache(c)
 	})
 }
 

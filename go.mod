@@ -41,7 +41,7 @@ replace rsc.io/markdown => rsc.io/markdown v0.0.0-20231214224604-88bb533a6020
 require (
 	github.com/Defacto2/archive v1.3.7
 	github.com/Defacto2/helper v1.7.5
-	github.com/Defacto2/magicnumber v1.4.7
+	github.com/Defacto2/magicnumber v1.4.8
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9

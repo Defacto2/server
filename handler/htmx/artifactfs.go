@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"uuid"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/handler/form"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
@@ -279,16 +281,28 @@ func FSRemoveReadme(c *echo.Context, extra dir.Directory) error {
 	return Txt.extrasDeleter(c, extra)
 }
 
+// FSRemoveZipRepack handles the request to remove the uuid named zip repack file
+// from the provided extra directory.
+func FSRemoveZipRepack(c *echo.Context, extra dir.Directory) error {
+	return Zip.extrasDeleter(c, extra)
+}
+
 type Ext int
 
 const (
 	Diz Ext = iota
 	Hlp
 	Txt
+	Zip
 )
 
 func (e Ext) String() string {
-	return [...]string{FileID.Ext(), Helper.Ext(), Text.Ext()}[e]
+	return [...]string{
+		FileID.Ext(),
+		Helper.Ext(),
+		Text.Ext(),
+		".zip",
+	}[e]
 }
 
 func (e Ext) extrasDeleter(c *echo.Context, extra dir.Directory) error {
@@ -459,4 +473,25 @@ func (fp useProcess) process(sl *slog.Logger, c *echo.Context,
 	c = PageReload(c)
 
 	return c.String(http.StatusOK, fp.success)
+}
+
+func FSRemoveCache(c *echo.Context) error {
+	unid := c.Param("unid")
+	if err := form.Checkname(unid); err != nil {
+		return badRequest(c, err)
+	}
+	if _, err := uuid.Parse(unid); err != nil {
+		return badRequest(c, err)
+	}
+
+	s := dir.Pattern + "-" + unid
+	name := filepath.Join(os.TempDir(), s)
+	err := dir.RemoveAll(name)
+	if err != nil {
+		return badRequest(c, err)
+	}
+
+	c = PageReload(c)
+
+	return c.String(http.StatusOK, "cache removed")
 }

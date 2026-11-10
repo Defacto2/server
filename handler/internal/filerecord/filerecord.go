@@ -574,14 +574,14 @@ func (e *Entry) SkipEntry(path string, d fs.DirEntry, platform string) bool {
 	}
 
 	const (
-		batchScript = ".bat"
+		batchScript = ".bat" // dont skip as sometimes BAT scripts have embed NFO text
 		batchCmd    = ".cmd"
 		command     = ".com"
 		executable  = ".exe"
 		config      = ".ini"
 	)
 	switch strings.ToLower(filepath.Ext(path)) {
-	case batchScript, batchCmd, config:
+	case batchCmd, config:
 		return true
 	}
 

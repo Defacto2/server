@@ -353,7 +353,7 @@
                 <div class="card">
                   <div class="card-body">
                     <div class="card-text">
-                    <p class="lead">README or information texts</p>
+                    <p class="lead">Extras and caching</p>
                       <div class="form-text" id="editor-copy-readme-result"></div>
                       <div class="row">
                       {{- if eq (len .modAssetExtra) 0}}
@@ -372,6 +372,14 @@
                             hx-target="#editor-copy-readme-result"
                             hx-delete="/editor/readme/{{$unid}}">
                             <span class="badge text-bg-danger">Delete <em>README</em></span></button>
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-delete="/editor/zippack/{{$unid}}">
+                            <span class="badge text-bg-danger">Delete <em>REPACK ZIP</em></span></button>
+                          <button class="btn btn-link m-0 p-0" 
+                            hx-target="#editor-copy-readme-result"
+                            hx-delete="/editor/content-cache/{{$unid}}">
+                            <span class="badge text-bg-danger">Delete <em>DOWNLOAD CONTENT CACHE</em></span></button>
                         </div>
                       <div class="form-text">
                         After deletion, text files may automatically reappear.
