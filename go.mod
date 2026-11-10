@@ -9,7 +9,6 @@ go 1.27.3 // latest: https://go.dev/dl/
 //	replace github.com/Defacto2/releaser => ../releaser
 //	replace github.com/bengarrett/ansibump => ../ansibump
 //	replace github.com/bengarrett/sauce => ../sauce
-
 //	replace github.com/bengarrett/binbump => ../binbump
 
 // Lock down the markdown package for 'task doc' command compatibility
@@ -40,9 +39,9 @@ replace rsc.io/markdown => rsc.io/markdown v0.0.0-20231214224604-88bb533a6020
 // urface/cli is used with the flags package for command line interactions.
 //
 require (
-	github.com/Defacto2/archive v1.3.6
+	github.com/Defacto2/archive v1.3.7
 	github.com/Defacto2/helper v1.7.5
-	github.com/Defacto2/magicnumber v1.4.6
+	github.com/Defacto2/magicnumber v1.4.7
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
@@ -72,8 +71,8 @@ require (
 	github.com/wizenheimer/blaze v0.0.0-20251014083344-98727d655839
 	github.com/writeas/go-strip-markdown v2.0.1+incompatible
 	golang.org/x/image v0.47.0
-	golang.org/x/sync v0.24.0
-	golang.org/x/text v0.43.0
+	golang.org/x/sync v0.25.0
+	golang.org/x/text v0.44.0
 	google.golang.org/api v0.311.0
 )
 
@@ -145,7 +144,7 @@ require (
 	golang.org/x/pkgsite v0.0.0-20260116214158-550788255d99 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
-	golang.org/x/tools v0.51.0 // indirect
+	golang.org/x/tools v0.52.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261104224025-d1e00e9f33ab // indirect
 	google.golang.org/grpc v1.85.0 // indirect
