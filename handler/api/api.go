@@ -970,7 +970,7 @@ func ReleaserAPI(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		websites[i] = webpageAPI{
 			URL:     site.URL,
 			Name:    site.Name,
-			Working: !site.NotWorking,
+			Working: !site.Error,
 		}
 	}
 

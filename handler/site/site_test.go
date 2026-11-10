@@ -16,7 +16,7 @@ func TestFind(t *testing.T) {
 	be.True(t, len(website) == 5)
 	be.Equal(t, "https://defacto2.net", website[0].URL)
 	be.Equal(t, "Defacto2", website[0].Name)
-	be.True(t, !website[0].NotWorking)
+	be.True(t, !website[0].Error)
 
 	website = site.Find("notfound")
 	be.True(t, len(website) == 0)

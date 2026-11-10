@@ -50,9 +50,13 @@ const (
 	nappa = "north-american-pirate_phreak-association"
 	mash  = "microcomputer-assembly-software-hackers"
 	uart  = "ultimate-association-of-reckless-talent"
+	heat  = "hackers-enterprising-across-telecommunications"
 )
 
 var groups = Groups{
+	heat:                                    147362,
+	"the-cellar-elite":                      159777,
+	"dominous-productions":                  144045,
 	"pc-freelancers":                        79851,
 	"hot-pizza":                             118073,
 	"pop":                                   159135,

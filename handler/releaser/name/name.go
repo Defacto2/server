@@ -29,6 +29,8 @@ or converted due to their unique uses within the name.
 
 // names is a list of well-known, styled names.
 var names = List{
+	"mccluskys-bar-bbs":                     "McClusky's Bar BBS",
+	"nitronet":                              "NitroNet",
 	"leech-bbs":                             "The Leech BBS",
 	"pit-bbs":                               "The Pit BBS",
 	"at-ampersand-t":                        "AT&T",

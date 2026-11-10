@@ -377,6 +377,8 @@ var initialisms = List{
 		"NWR", "NetMonkey Report", "Netmonkey Weekly Report", "Netmonkey Courier Report",
 		"Netmonkey Weekend Report",
 	},
+	"lamer-release-report":                   {"LAME"},
+	"acs":                                    {"Advanced Communication Systems"},
 	"united-pirate-syndicate":                {"UPS"},
 	"world-association-of-software-pirates":  {"WASP"},
 	"pc-players-guild":                       {"PCPG"},
