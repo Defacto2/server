@@ -53,11 +53,11 @@
   {{- if $linkWeb}}
     {{- $notworking := false }}
     {{- range $web }}
-      {{- if and (ne .URL "") (eq .NotWorking false ) }}
+      {{- if and (ne .URL "") (eq .Error false ) }}
       {{- $breakline = true }}
       <small><small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a></small> &nbsp; </small>
       {{- end}}
-      {{- if and (ne .URL "") (eq .NotWorking true ) }}
+      {{- if and (ne .URL "") (eq .Error true ) }}
       {{- if eq $notworking false }}
         {{- $notworking = true }}
         {{- if eq $breakline true }}<br>{{- end}}<small><small> &nbsp; ex-sites &nbsp; </small></small>
