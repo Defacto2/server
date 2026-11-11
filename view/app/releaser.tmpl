@@ -10,6 +10,46 @@
 {{- $path := "g" }}
 {{- $pubs := index .stats.pubs }}
 <div class="container px-4 text-center">
+{{- if eq $name "bbs" }}
+    <p class="text-start text-muted">
+      Some historic platforms {{$name}}
+      <small>
+      • 1984
+      <a href="/g/nochange-bbs">NoChange</a>
+      • 1985
+      <a href="/g/colossus-bbs">Colossus</a>
+      • 1986
+      <a href="/g/emulex-bbs">Emulex</a>
+      <a href="/g/forum_pc-bbs">Forum-PC</a>
+      <a href="/g/genesis-pc-bbs">Genesis&nbsp;PC</a>
+      • 1988
+      <a href="/g/monarch-bbs">Monarch</a>
+      <a href="/g/tcs-bbs">TCS</a>
+      <a href="/g/telegard-bbs">Telegard</a>
+      <a href="/g/wwiv-bbs">WWIV</a>
+      • 1990
+      <a href="/g/acs-bbs">ACS</a>
+      <a href="/g/aftershock-bbs">AfterShock</a>
+      <a href="/g/celerity-bbs">Celerity</a>
+      <a href="/g/pha-elite-bbs">ELITE</a>
+      <a href="/g/lush-software-designs-bbs">L.S.D.</a>
+      • 1991
+      <a href="/g/extreme-bbs">Extreme</a>
+      <a href="/g/forum-3-bbs">Forum&nbsp;III</a>
+      <a href="/g/images-bbs">IMaGEs</a> 
+      <a href="/g/orion-software-bbs">ORiON</a> 
+      <a href="/g/vision_x-bbs">ViSiON</a>
+      • 1992
+      <a href="/g/liquid-bbs">LiQUiD</a>
+      <a href="/g/oblivion-2-bbs">Oblivion/2</a>
+      • 1993
+      <a href="/g/dominous-productions">Dominous</a>
+      <a href="/g/otera-bbs">OTERA</a>
+      • 1994
+      <a href="/g/evolution-software-bbs">EVOLUTiON</a>
+      </small>
+    </p>
+{{- end }}
     <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
     <div class="row row-cols-1 row-cols-sm-2 g-2">
 {{- range $rel := .releasers -}}

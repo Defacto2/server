@@ -133,10 +133,12 @@ var websites = Groups{
 		{URL: "https://www.wwivbbs.org/", Error: false, Name: "WWIV BBS Software"},
 		{URL: "http://www.textfiles.com/bbs/WWIVNEWS/", Error: false, Name: "WWIV Newsletters (1991-94)"},
 	},
+	"genesis-pc-bbs": []Website{
+		{URL: "http://software.bbsdocumentary.com/IBM/DOS/GENESISPROJECT/", Error: false, Name: bbsdoc + " for Genesis"},
+	},
 	"forum_pc-bbs": []Website{
 		{URL: "https://demozoo.org/bbs/tagged/forum-bbs", Error: false, Name: "Forum " + dztag},
 		{URL: "http://software.bbsdocumentary.com/IBM/DOS/FORUM/", Error: false, Name: bbsdoc + " for Forum"},
-		{URL: "http://software.bbsdocumentary.com/IBM/DOS/GENESISPROJECT/", Error: false, Name: bbsdoc + " for Genesis"},
 	},
 	"tcs-bbs": []Website{
 		{URL: "https://demozoo.org/groups/159601/", Error: false, Name: "TCS Staff on Demozoo"},
