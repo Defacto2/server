@@ -4,6 +4,7 @@ package app
 // Package file context.go contains the router handlers for the Defacto2 website.
 
 import (
+	"bufio"
 	"context"
 	"crypto/sha512"
 	"database/sql"
@@ -15,7 +16,9 @@ import (
 	"log/slog"
 	"math"
 	"net/http"
+	"os"
 	"regexp"
+	"runtime/metrics"
 	"slices"
 	"strconv"
 	"strings"
@@ -806,6 +809,110 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 		data["wdTotal"] = helper.ByteCount(int64(wdt))
 		data["wdFree"] = helper.ByteCount(int64(wdu))
 		data["wdPercent"] = wdp
+		mu.Unlock()
+	})
+
+	wg.Go(func() {
+		mu.Lock()
+		wdt, wdu, _, wdp, _ := helper.DiskStat(os.TempDir())
+		data["tmpTotal"] = helper.ByteCount(int64(wdt))
+		data["tmpFree"] = helper.ByteCount(int64(wdu))
+		data["tmpPercent"] = wdp
+		mu.Unlock()
+	})
+
+	wg.Go(func() {
+		mu.Lock()
+		wdt, wdu, _, wdp, _ := helper.DiskStat("/")
+		data["osTotal"] = helper.ByteCount(int64(wdt))
+		data["osFree"] = helper.ByteCount(int64(wdu))
+		data["osPercent"] = wdp
+		mu.Unlock()
+	})
+
+	const unit = 1024
+
+	wg.Go(func() {
+		mu.Lock()
+		samples := []metrics.Sample{
+			{Name: "/memory/classes/heap/objects:bytes"}, // Live heap objects
+			{Name: "/memory/classes/total:bytes"},        // Total memory managed by runtime
+		}
+		metrics.Read(samples)
+		data["metric0"] = samples[0].Value.Uint64() / (unit * unit)
+		data["metric1"] = samples[1].Value.Uint64() / (unit * unit)
+		mu.Unlock()
+	})
+
+	wg.Go(func() {
+		mu.Lock()
+		data["memTotal"] = "n/a"
+		data["memFree"] = "n/a"
+		data["memPercent"] = "0%"
+		data["swapTotal"] = "n/a"
+		data["swapFree"] = "n/a"
+		data["swapPercent"] = "0%"
+		file, err := os.Open("/proc/meminfo")
+		if err != nil {
+			return
+		}
+		defer file.Close()
+
+		space := regexp.MustCompile(`\s+`)
+		sep := func(line string) []string {
+			line = space.ReplaceAllString(line, ";")
+			return strings.Split(line, ";")
+		}
+
+		const calc = float64(100.0)
+		perc := func(f, t string) string {
+			free, _ := strconv.Atoi(f)
+			total, _ := strconv.Atoi(t)
+			x := (float64(free) / float64(total)) * calc
+			return fmt.Sprintf("%d%%", int64(math.Round(x)))
+		}
+
+		mb := func(s string) string {
+			kb, _ := strconv.Atoi(s)
+			return fmt.Sprintf("%d MB", kb/unit)
+		}
+
+		mf, mt, sf, st := "", "", "", ""
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if strings.HasPrefix(line, "MemTotal:") {
+				if s := sep(line); len(s) > 2 {
+					data["memTotal"] = mb(s[1])
+					mt = s[1]
+				}
+				continue
+			}
+			if strings.HasPrefix(line, "MemFree:") {
+				if s := sep(line); len(s) > 2 {
+					data["memFree"] = mb(s[1])
+					mf = s[1]
+				}
+				continue
+			}
+			if strings.HasPrefix(line, "SwapTotal:") {
+				if s := sep(line); len(s) > 2 {
+					data["swapTotal"] = mb(s[1])
+					st = s[1]
+				}
+				continue
+			}
+			if strings.HasPrefix(line, "SwapFree:") {
+				if s := sep(line); len(s) > 2 {
+					data["swapFree"] = mb(s[1])
+					sf = s[1]
+				}
+				continue
+			}
+		}
+		data["memPercent"] = perc(mf, mt)
+		data["swapPercent"] = perc(sf, st)
+
 		mu.Unlock()
 	})
 
