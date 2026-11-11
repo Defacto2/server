@@ -65,18 +65,20 @@
 <table class="table align-middle">
   <caption class="p-4">
     Disk space free &nbsp;  
-    <u>STORE</u> <b>{{index . "osFree"}}</b> <small>({{index . "osPercent"}})</small> of <b>{{index . "osTotal"}}</b>
+    <small>STORE</small> <b>{{index . "osFree"}}</b> <small>({{index . "osPercent"}})</small> of <b>{{index . "osTotal"}}</b>
      &nbsp; | &nbsp;
-    <u>SYSTEM</u> <b>{{index . "wdFree"}}</b> <small>({{index . "wdPercent"}})</small> of <b>{{index . "wdTotal"}}</b>
+    <small>SYSTEM</small> <b>{{index . "wdFree"}}</b> <small>({{index . "wdPercent"}})</small> of <b>{{index . "wdTotal"}}</b>
      &nbsp; | &nbsp;
-    <u>TMP</u> <b>{{index . "tmpFree"}}</b> free <small>({{index . "tmpPercent"}})</small> of <b>{{index . "tmpTotal"}}</b>
+    <small>TMP</small> <b>{{index . "tmpFree"}}</b> free <small>({{index . "tmpPercent"}})</small> of <b>{{index . "tmpTotal"}}</b>
     <br>
     Memory free &nbsp;
-    <u>SYSTEM</u> <b>{{index . "memFree"}}</b> <small>({{index . "memPercent"}})</small> of <b>{{index . "memTotal"}}</b> 
+    <small>SYSTEM</small> <b>{{index . "memFree"}}</b> <small>({{index . "memPercent"}})</small> of <b>{{index . "memTotal"}}</b> 
     &nbsp; | &nbsp;
-    <u>SWAP</u> <b>{{index . "swapFree"}}</b> <small>({{index . "swapPercent"}})</small> of <b>{{index . "swapTotal"}}</b>
+    <small>SWAP</small> <b>{{index . "swapFree"}}</b> <small>({{index . "swapPercent"}})</small> of <b>{{index . "swapTotal"}}</b>
     <br>
-    Application <b>{{index . "metric0"}} MB</b> heap, of <b>{{index . "metric1"}} MB</b> usage
+    Application &nbsp; 
+    <small>HEAP</small> <b>{{index . "metric0"}} MB</b> &nbsp; 
+    <small>USAGE</small> <b>{{index . "metric1"}} MB</b>
   </caption>
   <thead>
     <tr class="table-secondary">
