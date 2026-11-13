@@ -543,6 +543,13 @@ var groups = Tibits{
 	473:  []URI{"emulex-bbs"},
 	474:  []URI{"tcs-bbs", "emulex-bbs"},
 	490:  []URI{"k_rad-and-elite"},
+	491:  []URI{"marinate-high-council"},
+	492:  []URI{"taran"},
+	493:  []URI{"the-cellar-elite"},
+	494:  []URI{"the-cellar-elite", "krack"},
+	495:  []URI{"the-cellar-elite", "cracking-101"},
+	496:  []URI{"leechsoft"},
+	497:  []URI{"ritz-crackers", "boys-from-company-c"},
 }
 
 // Markdown returns the markdown content of the tidbit that is stored in the directory
