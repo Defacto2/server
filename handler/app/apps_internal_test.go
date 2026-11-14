@@ -134,16 +134,6 @@ func Test_firstLead(t *testing.T) {
 		`filename.txt</span>`)
 }
 
-func Test_legacyArchiving(t *testing.T) {
-	t.Parallel()
-
-	got := legacyArchiving(nil)
-	be.True(t, !got)
-
-	got = legacyArchiving(magicnumber.PKWAREZipImplode.Title())
-	be.True(t, got)
-}
-
 func Test_lockWidth(t *testing.T) {
 	t.Parallel()
 

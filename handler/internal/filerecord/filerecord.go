@@ -27,6 +27,7 @@ import (
 	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
+	"github.com/Defacto2/server/internal/legacy"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
@@ -1111,11 +1112,7 @@ func JsdosArchive(art *models.File) bool {
 	if art == nil {
 		return false
 	}
-	switch filepath.Ext(strings.ToLower(art.Filename.String)) {
-	case ".zip", ".lhz", ".lzh", ".arc", ".arj":
-		return true
-	}
-	return false
+	return legacy.ArchiveExt(art.Filename.String)
 }
 
 // JsdosBroken returns true if the MsDos artifact is known to be incompatible with the js-dos emulator.

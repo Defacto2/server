@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Defacto2/server/handler/jsdos/msdos"
+	"github.com/Defacto2/server/internal/legacy"
 )
 
 const AudioRate = "44100" // AudioRate is the sample rate of the audio that is emulated.
@@ -415,9 +416,7 @@ func FindBinary(filename, zipContent string) string {
 		return filename
 	}
 
-	archives := []string{".zip", ".lha", ".lzh", ".arc", ".arj"}
-	ext := strings.ToLower(filepath.Ext(filename))
-	if !slices.Contains(archives, ext) {
+	if !legacy.ArchiveExt(filename) {
 		return filename
 	}
 	paths := Paths(zipContent)

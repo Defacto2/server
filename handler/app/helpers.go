@@ -158,26 +158,6 @@ func firstLead(art *models.File) string {
 		`<span class="font-monospace fs-5 fw-light">` + string(a) + `</span>`
 }
 
-func legacyArchiving(modMagic any) bool {
-	val, ok := modMagic.(string)
-	if !ok {
-		return false
-	}
-
-	switch val {
-	case
-		magicnumber.ARChiveSEA.Title(),
-		magicnumber.YoshiLHA.Title(),
-		magicnumber.ArchiveRobertJung.Title(),
-		magicnumber.PKWAREZipImplode.Title(),
-		magicnumber.PKWAREZipReduce.Title(),
-		magicnumber.PKWAREZipShrink.Title():
-		return true
-	default:
-		return false
-	}
-}
-
 // lockWidth returns the byte array with an enforced maximum width of printed characters per line.
 // If there are 3 or more tabs found in the byte array, it will be returned unmodified.
 //

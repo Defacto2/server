@@ -34,6 +34,7 @@ import (
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/legacy"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
@@ -790,7 +791,7 @@ func (ds *Dirs) makeAssets(ctx context.Context, sl *slog.Logger, root string, mo
 	name := filepath.Join(ds.Download.Path(), ds.UUID)
 	zipArchiving := modMagic == magicnumber.PKWAREZip.Title()
 	switch {
-	case legacyArchiving(modMagic):
+	case legacy.Archive(modMagic):
 		// requires repacking
 	case zipArchiving:
 		if !requireReplacementZip(name) {
