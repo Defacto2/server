@@ -218,12 +218,12 @@ func (ds Dirs) CGAImager(ctx context.Context, sl *slog.Logger, srcDump, unid str
 // TextImager generates two images based on the text file provided by the src path.
 // The provided unid must be a valid universal unique identifier.
 //
-// Note that TextImager uses ansilove which doesn't support modern Unicode,
-// this includes the common UTF-8 encoding or multibyte characters like emojis.
+// Multibyte UTF-8 text files are rendered using the Cascadia Mono font, while
+// legacy 8-bit, ASCII, and ANSI text files are rendered using ansilove.
 //
-// If the amigaFont is set to true, a Commodore Amiga Tapaz font is used to represent
-// the text, otherwise an IBM VGA font is used. The amigaFont also displays less rows
-// of text due to the Topaz font being taller.
+// For ansilove files, if amigaFont is set to true, a Commodore Amiga Topaz font
+// is used to represent the text, otherwise an IBM VGA font is used. The amigaFont
+// also displays fewer rows of text due to the Topaz font being taller.
 func (ds Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string, amigaFont bool) error {
 	const format = "dirs text imager %s: %w"
 	if err := nils.Check(ctx, sl); err != nil {
@@ -243,7 +243,7 @@ func (ds Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string
 		UUID:    unid,
 		MaxRows: vgaRows,
 		MaxCols: maxColumns,
-		UTF8:    false,
+		UTF8:    useUTF8(src),
 	}
 
 	if amigaFont {
@@ -413,7 +413,8 @@ func (ds Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, amig
 	if srcPath != src {
 		defer func() {
 			if err := os.Remove(srcPath); err != nil && !os.IsNotExist(err) {
-				sl.Error("text imager could not remove source", slog.String("file", srcPath), slog.Any("error", err))
+				sl.Error("text imager could not remove source",
+					slog.String("file", srcPath), slog.Any("error", err))
 			}
 		}()
 	}
@@ -435,9 +436,25 @@ func (ds Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, amig
 	_ = tmpFile.Close()
 	defer func() {
 		if err := os.Remove(tmp); err != nil && !os.IsNotExist(err) {
-			sl.Error("text imager could not remove temporary file", slog.String("file", tmp), slog.Any("error", err))
+			sl.Error("text imager could not remove temporary file",
+				slog.String("file", tmp), slog.Any("error", err))
 		}
 	}()
+
+	if err := renderTextImage(ctx, sl, srcPath, tmp, amigaFont, t); err != nil {
+		return fmt.Errorf(format, "render", err)
+	}
+
+	if err := ds.optiAnsilove(ctx, sl, t.UUID, tmp); err != nil {
+		return fmt.Errorf(format, "optimize ansilove", err)
+	}
+	return nil
+}
+
+func renderTextImage(ctx context.Context, sl *slog.Logger, srcPath, tmp string, amigaFont bool, t Text) error {
+	if t.UTF8 {
+		return renderUTF8(srcPath, tmp, t.MaxCols)
+	}
 
 	arg := option.Opts{}
 	if amigaFont {
@@ -448,11 +465,7 @@ func (ds Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, amig
 
 	r := Runner{Log: sl}
 	if _, err := r.Run(ctx, Ansilove, arg...); err != nil {
-		return fmt.Errorf(format, "run ansilove", err)
-	}
-
-	if err := ds.optiAnsilove(ctx, sl, t.UUID, tmp); err != nil {
-		return fmt.Errorf(format, "optimize ansilove", err)
+		return fmt.Errorf("run ansilove: %w", err)
 	}
 	return nil
 }

@@ -10,17 +10,26 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
+	"image/draw"
+	imgpng "image/png"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"unicode/utf8"
 
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/command/option"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
+	publicfont "github.com/Defacto2/server/public/font"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/math/fixed"
 )
 
 const (
@@ -418,7 +427,7 @@ func (t Text) crop(sl *slog.Logger, src, dst string) error { //nolint:funlen
 	skip := true
 
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimPrefix(scanner.Text(), "\uFEFF")
 		if skip {
 			// skip leading empty lines
 			if strings.TrimSpace(line) == "" {
@@ -429,6 +438,9 @@ func (t Text) crop(sl *slog.Logger, src, dst string) error { //nolint:funlen
 		if rows >= t.MaxRows {
 			// end of crop
 			break
+		}
+		if t.UTF8 {
+			line = strings.ReplaceAll(line, "\t", "    ")
 		}
 		line = t.truncate(line)
 
@@ -469,6 +481,144 @@ func (t Text) truncate(line string) string {
 	}
 	r := []rune(line)
 	return string(r[:cols])
+}
+
+var parseCascadiaFont = sync.OnceValues(func() (*opentype.Font, error) {
+	return opentype.Parse(publicfont.CascadiaMono())
+})
+
+func useUTF8(src string) bool {
+	if src == "" {
+		return false
+	}
+	f, err := os.Open(filepath.Clean(src))
+	if err != nil {
+		return false
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+	if magicnumber.CSI(f) {
+		return false
+	}
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		return false
+	}
+	b, err := io.ReadAll(f)
+	if err != nil || !utf8.Valid(b) {
+		return false
+	}
+	for _, c := range b {
+		if c >= utf8.RuneSelf {
+			return true
+		}
+	}
+	return false
+}
+
+func renderUTF8(src, dst string, cols int) error {
+	const format = "render utf8 %s: %w"
+	const (
+		fontSize = 13.33
+		fontDPI  = 72
+	)
+
+	otf, err := parseCascadiaFont()
+	if err != nil {
+		return fmt.Errorf(format, "parse font", err)
+	}
+	face, err := opentype.NewFace(otf, &opentype.FaceOptions{
+		Size:    fontSize,
+		DPI:     fontDPI,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		return fmt.Errorf(format, "new face", err)
+	}
+	defer func() {
+		_ = face.Close()
+	}()
+
+	lines, err := readTextLines(src)
+	if err != nil {
+		return fmt.Errorf(format, "read", err)
+	}
+
+	img := drawUTF8Lines(lines, cols, face)
+	if err := writePNG(dst, img); err != nil {
+		return fmt.Errorf(format, "write", err)
+	}
+	return nil
+}
+
+func readTextLines(src string) ([]string, error) {
+	in, err := os.Open(filepath.Clean(src))
+	if err != nil {
+		return nil, fmt.Errorf("open: %w", err)
+	}
+	defer func() {
+		_ = in.Close()
+	}()
+
+	var lines []string
+	scanner := bufio.NewScanner(in)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("scan: %w", err)
+	}
+	return lines, nil
+}
+
+func drawUTF8Lines(lines []string, cols int, face font.Face) image.Image {
+	const (
+		cellWidth   = 8
+		rowHeight   = 16
+		defaultCols = 80
+		minRows     = 1
+		fgChannel   = 170
+		alphaOpaque = 255
+	)
+
+	if cols < 1 {
+		cols = defaultCols
+	}
+	rows := max(len(lines), minRows)
+	img := image.NewRGBA(image.Rect(0, 0, cols*cellWidth, rows*rowHeight))
+	bg := color.RGBA{R: 0, G: 0, B: 0, A: alphaOpaque}
+	draw.Draw(img, img.Bounds(), image.NewUniform(bg), image.Point{}, draw.Src)
+
+	fg := image.NewUniform(color.RGBA{R: fgChannel, G: fgChannel, B: fgChannel, A: alphaOpaque})
+	ascent := face.Metrics().Ascent
+	drawer := &font.Drawer{
+		Dst:  img,
+		Src:  fg,
+		Face: face,
+	}
+	for row, line := range lines {
+		drawer.Dot = fixed.Point26_6{
+			X: 0,
+			Y: fixed.I(row*rowHeight) + ascent,
+		}
+		drawer.DrawString(line)
+	}
+	return img
+}
+
+func writePNG(dst string, img image.Image) error {
+	out, err := os.Create(filepath.Clean(dst))
+	if err != nil {
+		return fmt.Errorf("create: %w", err)
+	}
+	if err := imgpng.Encode(out, img); err != nil {
+		_ = out.Close()
+		return fmt.Errorf("encode: %w", err)
+	}
+	if err := out.Close(); err != nil {
+		return fmt.Errorf("close: %w", err)
+	}
+	return nil
 }
 
 type Thumb struct {

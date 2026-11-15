@@ -486,6 +486,36 @@ func TestTextImagerAmigaFont(t *testing.T) {
 	be.True(t, tst.Size() >= tstSize)
 }
 
+func TestTextImagerUTF8(t *testing.T) {
+	t.Parallel()
+
+	prevdir := t.TempDir()
+	thumbdir := t.TempDir()
+	dirs := command.Dirs{
+		Preview:   dir.Directory(prevdir),
+		Thumbnail: dir.Directory(thumbdir),
+	}
+
+	sl := slog.Default()
+	unid := uuid.New().String()
+	src := testutil.FileData("testuni").Abs()
+
+	got := dirs.TextImager(t.Context(), sl, src, unid, false)
+	be.Err(t, got, nil)
+
+	// check for the preview image
+	name := filepath.Join(prevdir, unid+".png")
+	pst, got := os.Stat(name)
+	be.Err(t, got, nil)
+	be.True(t, pst.Size() > 0)
+
+	// check for the thumbnail
+	name = filepath.Join(thumbdir, unid+".webp")
+	tst, got := os.Stat(name)
+	be.Err(t, got, nil)
+	be.True(t, tst.Size() > 0)
+}
+
 func TestOptimizePNG(t *testing.T) {
 	t.Parallel()
 
