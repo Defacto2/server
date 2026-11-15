@@ -728,18 +728,24 @@ func SafeBBS(a any) template.HTML {
 	// INFO: if PCBoard or Renegade codes  rendering to HTML causes an error,
 	// assume it is a false positive detection instead of a general error
 	var buf bytes.Buffer
+	var err error
 	switch {
 	case pcb:
-		if err := bbs.PCBoardHTML(&buf, src...); err != nil {
-			return SafeHTML(string(src))
-		}
+		err = bbs.PCBoardHTML(&buf, src...)
 	case rene:
-		if err := bbs.RenegadeHTML(&buf, src...); err != nil {
-			return SafeHTML(string(src))
-		}
+		err = bbs.RenegadeHTML(&buf, src...)
+	}
+	if err != nil {
+		src = bytes.ReplaceAll(src, []byte(lessThan), []byte(ltEntity))
+		return SafeHTML(string(src))
+	}
+	// If bbs emitted no color tags (false positive detection), escape raw '<'
+	out := buf.Bytes()
+	if !bytes.Contains(out, []byte("<i class=")) {
+		out = bytes.ReplaceAll(out, []byte(lessThan), []byte(ltEntity))
 	}
 	// return the stylized text
-	return SafeHTML(buf.String())
+	return SafeHTML(string(out))
 }
 
 // SafeDocument returns a string as a template.HTML type to prevent HTML escaping in the template.

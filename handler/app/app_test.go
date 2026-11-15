@@ -449,6 +449,15 @@ func TestSafeBBS(t *testing.T) {
 
 	got = app.SafeBBS("<strong>xyz</strong>")
 	be.Equal(t, got, "&lt;strong>xyz&lt;/strong>")
+
+	got = app.SafeBBS("|01<S>CROLL")
+	be.Equal(t, got, `<i class="P0 P1">&lt;S&gt;CROLL</i>`)
+
+	got = app.SafeBBS("|0|<S>CROLL")
+	be.Equal(t, got, `|0|&lt;S>CROLL`)
+
+	got = app.SafeBBS("@X0F<S>CROLL")
+	be.Equal(t, got, `<i class="PB0 PFF">&lt;S&gt;CROLL</i>`)
 }
 
 func TestSafeDocument(t *testing.T) {
