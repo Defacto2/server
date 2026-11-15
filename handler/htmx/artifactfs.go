@@ -427,6 +427,16 @@ func FSUseImage(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	return up.process(sl, c, dirs.PictureImager)
 }
 
+// FSUseCGA handles the htmx request to use a CGA data dump as a preview.
+func FSUseCGA(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
+	up := useProcess{
+		"record cga preview",
+		"The file is empty and was not used.",
+		"CGA dump imaged, the browser will refresh.",
+	}
+	return up.process(sl, c, dirs.CGAImager)
+}
+
 // FSUseBinText handles the htmx request to use the text file artifact as a preview.
 func FSUseBinText(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	up := useProcess{

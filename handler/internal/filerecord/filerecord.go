@@ -162,7 +162,8 @@ func (m *ListEntry) column1() string {
 		// use Image
 		return buttonImage(m.UniqueID, m.name)
 	case m.cgaDump():
-		return buttonCGA()
+		// use CGA data
+		return buttonCGA(m.UniqueID, m.name)
 	case systemfile(strings.ToLower(filepath.Ext(m.name))):
 		return blank
 	case m.Texts:
@@ -189,7 +190,7 @@ func (m *ListEntry) column2() string {
 			return blank
 		}
 		return buttonDIZ(m.UniqueID, filename)
-	case m.Programs || ext == exe || m.isComUnknown(ext):
+	case m.Programs || ext == exe || m.unknownCOM(ext):
 		// highlight EXE
 		return buttonEXE()
 	case m.Texts || m.BINtexts || m.textNFO():
@@ -220,6 +221,15 @@ func (m *ListEntry) column3() string {
 	return buttonExtra(m.UniqueID, url.QueryEscape(m.RelativeName))
 }
 
+func (m *ListEntry) cgaDump() bool {
+	return m.Signature == magicnumber.CGAGraphicsDump.String() ||
+		m.Signature == magicnumber.SPICGADump.String()
+}
+
+func (m *ListEntry) unknownCOM(ext string) bool {
+	return ext == com && (m.Signature == "" || m.Signature == magicnumber.Unknown.String())
+}
+
 // buttonText creates a link to "/editor/readme/URI/ID/FILENAME".
 func buttonText(id, filename, platform, sign string) string {
 	if strings.EqualFold(platform, tags.TextAmiga.String()) ||
@@ -239,23 +249,21 @@ func buttonTextBinary(id, filename string) string {
 	return buttonPreview("preview-binary", id, filename)
 }
 
-// buttonCGA returns a placeholder badge for CGA graphics dumps.
-func buttonCGA() string {
+// buttonCGA creates a placeholder link to "/editor/preview/cga/ID/FILENAME".
+func buttonCGA(id, filename string) string {
 	const title = `Use file for a preview`
-	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		`<span class="badge text-bg-secondary opacity-50">` +
+	const href = `#file-editor`
+	const class = `icon-link align-text-bottom`
+	const name = `artifact-editor-comp-previewcga`
+	const indicator = `#artifact-editor-comp-htmx-indicator`
+	const target = `#artifact-editor-comp-feedback`
+	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
+		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
+		`hx-patch="/editor/preview/cga/` + id + `/` + filename + `">` +
+		`<span class="badge text-bg-secondary">` +
 		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></div>`
-}
-
-func (m *ListEntry) cgaDump() bool {
-	return m.Signature == magicnumber.CGAGraphicsDump.String() ||
-		m.Signature == magicnumber.SPICGADump.String()
-}
-
-func (m *ListEntry) isComUnknown(ext string) bool {
-	return ext == com && (m.Signature == "" || m.Signature == magicnumber.Unknown.String())
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
 }
 
 // buttonEXE returns a non-interactive terminal icon.
@@ -363,7 +371,7 @@ func (m *ListEntry) columnFooter() string {
 		sm = "command script"
 	case m.Texts && (ext == ini):
 		sm = "configuration textfile"
-	case m.Programs || m.isComUnknown(ext):
+	case m.Programs || m.unknownCOM(ext):
 		sm = progr(m.Executable, ext, m.bytes)
 	case m.MusicConfig != "":
 		sm = m.MusicConfig

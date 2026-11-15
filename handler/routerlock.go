@@ -500,6 +500,10 @@ func editorPreview(sl *slog.Logger, g *echo.Group, paths command.Dirs, dirs app.
 	pre.PATCH("/copy/:unid/:path", func(c *echo.Context) error {
 		return htmx.FSUseImage(sl, c, paths)
 	})
+	// /editor/preview/cga
+	pre.PATCH("/cga/:unid/:path", func(c *echo.Context) error {
+		return htmx.FSUseCGA(sl, c, paths)
+	})
 	pre.PATCH("/crop11/:unid", func(c *echo.Context) error {
 		return htmx.FSCrop(sl, c, command.SquareTop, paths)
 	})

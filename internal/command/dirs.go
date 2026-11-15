@@ -15,6 +15,7 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/command/option"
 	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/dump"
 	"github.com/Defacto2/server/internal/nils"
 	"golang.org/x/sync/errgroup"
 )
@@ -171,6 +172,46 @@ func (ds Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, un
 		return fmt.Errorf(format, "optimize ansilove", err)
 	}
 
+	return nil
+}
+
+// CGAImager extracts, decompresses, and converts a CGA graphic dumps into a preview image.
+func (ds Dirs) CGAImager(ctx context.Context, sl *slog.Logger, srcDump, unid string) error {
+	const format = "cga imager %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, "", err)
+	}
+
+	src := filepath.Clean(srcDump)
+	st, err := os.Stat(src)
+	if err != nil {
+		return fmt.Errorf(format, "stat source", err)
+	}
+	if st.Size() == 0 {
+		return fmt.Errorf(format, "zero size: "+src, ErrIsEmpty)
+	}
+
+	// create an isolated, safe temporary file
+	f, err := dir.CreateTemp("cga")
+	if err != nil {
+		return fmt.Errorf(format, "create temp", err)
+	}
+	dst := f.Name()
+	_ = f.Close()
+
+	defer func() {
+		if err := os.Remove(dst); !errors.Is(err, os.ErrNotExist) {
+			sl.Error("cga imager could not remove temporary file",
+				slog.String("file", dst), slog.Any("error", err))
+		}
+	}()
+
+	if err := dump.ConvertToPNG(src, dst); err != nil {
+		return fmt.Errorf(format, "convert cga", err)
+	}
+	if err := ds.PictureImager(ctx, sl, dst, unid); err != nil {
+		return fmt.Errorf(format, "image preview", err)
+	}
 	return nil
 }
 
