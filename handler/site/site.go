@@ -63,7 +63,10 @@ var websites = Groups{
 		{URL: "https://en.wikipedia.org/wiki/Telegard", Error: false, Name: "Wikipedia"},
 		{URL: "http://software.bbsdocumentary.com/IBM/DOS/TELEGARD/", Error: false, Name: bbsdoc},
 		{URL: "https://bbsfiles.org/browse/bbs-software/telegard", Error: false, Name: "BBS Files"},
-		{URL: "https://joeldare.com/a-tour-of-the-telegard-bbs-system", Error: false, Name: "A Tour of the Telegard BBS System"},
+		{
+			URL: "https://joeldare.com/a-tour-of-the-telegard-bbs-system", Error: false,
+			Name: "A Tour of the Telegard BBS System",
+		},
 	},
 	"extreme-bbs": []Website{
 		{URL: "http://software.bbsdocumentary.com/IBM/DOS/EXTREME", Error: false, Name: bbsdoc},
@@ -122,7 +125,10 @@ var websites = Groups{
 	"oblivion-2-bbs": []Website{
 		{URL: "https://demozoo.org/bbs/tagged/oblivion2", Error: false, Name: "Oblivion2 " + dztag},
 		{URL: "http://software.bbsdocumentary.com/IBM/DOS/OBLIVION2/", Error: false, Name: bbsdoc},
-		{URL: "https://web.archive.org/web/20021016081152/http://members.darktech.org/obv2/", Error: false, Name: "Oblivion/2 website mirror"},
+		{
+			URL: "https://web.archive.org/web/20021016081152/http://members.darktech.org/obv2/", Error: false,
+			Name: "Oblivion/2 website mirror",
+		},
 		{URL: "http://www.darktech.org/obv2/", Error: true, Name: "Oblivion/2 1999 website"},
 		{URL: "http://oblivionbbs.home.ml.org/", Error: true, Name: "Oblivion/2 1998 website"},
 	},
@@ -148,7 +154,10 @@ var websites = Groups{
 		{URL: "https://demozoo.org/bbs/tagged/celerity-bbs", Error: false, Name: "Celerity " + dztag},
 		{URL: "https://demozoo.org/groups/135333/", Error: false, Name: "CUD on Demozoo"},
 		{URL: "http://software.bbsdocumentary.com/IBM/DOS/CELERITY/", Error: false, Name: bbsdoc},
-		{URL: "https://www.infania.net/misc1/shareware/Simtel-MSDOS-Oct1995-CD1/DISC1/CELERITY/00_INDEX.HTM", Error: false, Name: "Simtel 1995 CD listing"},
+		{
+			URL:   "https://www.infania.net/misc1/shareware/Simtel-MSDOS-Oct1995-CD1/DISC1/CELERITY/00_INDEX.HTM",
+			Error: false, Name: "Simtel 1995 CD listing",
+		},
 	},
 	"shining-8": []Website{
 		{URL: "members.magic-web.net/home/Shining8", Error: true, Name: "1998 C-64 site"},

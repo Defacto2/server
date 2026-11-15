@@ -64,6 +64,7 @@ const (
 	sos = "SOS"
 	tca = "TCA"
 	tcc = "TCC"
+	tcs = "TCS"
 	tpc = "TPC"
 	trs = "TRS"
 	unt = "UNT"
@@ -264,7 +265,7 @@ var initialisms = List{
 	"inner-sanctum-bbs":                    {"TIS", "The Inner Sanctum"},
 	"black-circle-bbs":                     {"TBC"},
 	"sphere-of-speed-bbs":                  {"sos"},
-	"crime-syndicate-bbs":                  {"TCS", "The Crime Syndicate BBS"},
+	"crime-syndicate-bbs":                  {tcs, "The Crime Syndicate BBS"},
 	"palace-of-exile-bbs":                  {"The Palace of Exile BBS"},
 	"cartel-bbs":                           {"The Cartel BBS"},
 	"crime-cartel-bbs":                     {"TCC", "The Crime Cartel BBS"},
@@ -297,16 +298,19 @@ var initialisms = List{
 	"biomechanic-dreams-bbs":               {"BIOMECH"},
 	"gml-state-bbs":                        {"GML"},
 	"celerity-bbs":                         {"CEL", "Celerity Utilities Division", "CUD"},
-	"tcs-bbs":                              {"TCS", "TCS Programming Team", "TCS Staff", "TCS/2"},
+	"tcs-bbs":                              {tcs, "TCS Programming Team", "TCS Staff", "TCS/2"},
 	"oblivion-2-bbs":                       {"Oblivion/2", "OBV2", "OBV/2"},
 	"forum_pc-bbs":                         {"FORUM", "Forum PC"},
 	"forum-3-bbs":                          {"Forum-III", "Forum III", "FIII"},
 	"monarch-bbs":                          {"MON", "MON2", "Monarch/2"},
 	"emulex-bbs":                           {"Emulex/2", "EMU", "EM", "EM2"},
 	"lush-software-designs-bbs":            {lsd, lsd + " BBS", "L.S.D."},
-	"vision_x-bbs":                         {"Vision", "VIS", "VISX", "VX", "Vision X BBS Software", "Vision/2", "V2", "V/2"},
-	"pha-elite-bbs":                        {"PHA", "Phreakers/Hackers/Anarchists"},
-	"lakeside-park-bbs":                    {"LSP"},
+	"vision_x-bbs": {
+		"Vision", "VIS", "VISX", "VX",
+		"Vision X BBS Software", "Vision/2", "V2", "V/2",
+	},
+	"pha-elite-bbs":     {"PHA", "Phreakers/Hackers/Anarchists"},
+	"lakeside-park-bbs": {"LSP"},
 	//
 	// FTP and file sites often used lower-case initialisms
 	"last-resort-ftp":         {"TLR", "The Last Resort"},
@@ -792,7 +796,7 @@ var initialisms = List{
 	"crackers-ampersand-whackers":            {"C&W", "CW"},
 	"crazyworld":                             {"CZW"},
 	"creeping-death-software":                {cds},
-	"crime-syndicate-net":                    {"TCS"},
+	"crime-syndicate-net":                    {tcs},
 	"crystal-phasematics":                    {"CPM"},
 	"cryptonics-crew":                        {"CTC"},
 	"creators-of-revolutionary-pictures":     {"CORP", "CφRP", "CRP", "C.O.R.P"},
@@ -1055,7 +1059,10 @@ var initialisms = List{
 	"legacy":                                 {"LGC", "LGY"},
 	"legend":                                 {"LGD", "Legend PC", "PC/Legend"},
 	"legends-never-die":                      {"LND"},
-	"legion-of-doom":                         {"LOD", "LOH", "LOD/H", "Doom Of Legions", "DOH", "DOH/H", "Lords Anonymous", "Legion of Hackers"},
+	"legion-of-doom": {
+		"LOD", "LOH", "LOD/H", "Doom Of Legions",
+		"DOH", "DOH/H", "Lords Anonymous", "Legion of Hackers",
+	},
 	"legion-of-dynamic-discord":              {"LODD"},
 	"legion-of-rising-distributors":          {"LORD"},
 	"inferno":                                {inf},

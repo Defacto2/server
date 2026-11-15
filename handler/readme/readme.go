@@ -330,11 +330,16 @@ func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 
 // decodeUTF16 converts UTF-16 both LE/BE bytes with a BOM to UTF-8.
 func decodeUTF16(b []byte) ([]byte, error) {
-	if len(b) < 2 {
+	const bom = 2
+	if len(b) < bom {
 		return b, nil
 	}
-	le := b[0] == 0xff && b[1] == 0xfe
-	be := b[0] == 0xfe && b[1] == 0xff
+	const (
+		ff = 0xff
+		fe = 0xfe
+	)
+	le := b[0] == ff && b[1] == fe
+	be := b[0] == fe && b[1] == ff
 	if !le && !be {
 		return b, nil
 	}

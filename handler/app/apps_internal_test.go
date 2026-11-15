@@ -86,11 +86,11 @@ func Test_dirs_encoding_textutf8(t *testing.T) {
 	d := Dirs{}
 	r := strings.NewReader("Hello\nworld\nthis is some text. 👾\n")
 	got := d.encoding(r)
-	be.Equal(t, got, encoding.Encoding(unicode.UTF8))
+	be.Equal(t, got, unicode.UTF8)
 
 	r = strings.NewReader("Denuvo взяла на работу хакера\n")
 	got = d.encoding(r)
-	be.Equal(t, got, encoding.Encoding(unicode.UTF8))
+	be.Equal(t, got, unicode.UTF8)
 
 	// Legacy CP437 box drawing and ISO-8859-1 accented bytes are not valid UTF-8
 	// and must continue to be handled as CP437 / ISO-8859-1.

@@ -491,9 +491,7 @@ func editorExtra(sl *slog.Logger, g *echo.Group, db *sql.DB, paths command.Dirs,
 	})
 
 	contentcache := g.Group("/content-cache")
-	contentcache.DELETE("/:unid", func(c *echo.Context) error {
-		return htmx.FSRemoveCache(c)
-	})
+	contentcache.DELETE("/:unid", htmx.FSRemoveCache)
 }
 
 func editorPreview(sl *slog.Logger, g *echo.Group, paths command.Dirs, dirs app.Dirs) {

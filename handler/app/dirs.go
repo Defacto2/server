@@ -492,17 +492,20 @@ func (ds *Dirs) addText8bit(sl *slog.Logger, art *models.File, textBuf *bytes.Bu
 	data["webCheck"] = ""
 	data["topazCheck"] = ""
 	data["vgaCheck"] = ""
-	data["preClassUTF8"] = "d-none "
-	data["preClassLatin1"] = "d-none "
-	data["preClassCP437"] = "d-none " + fontname
+
+	const dnone = "d-none "
+	data["preClassUTF8"] = dnone
+	data["preClassLatin1"] = dnone
+	data["preClassCP437"] = dnone + fontname
 
 	platform, _ := data["platform"].(string)
 	topazFont := platform == textamiga || platform == "console"
+	const checked = "checked"
 	if topazFont {
-		data["topazCheck"] = "checked"
+		data["topazCheck"] = checked
 		data["preClassLatin1"] = ""
 	} else {
-		data["vgaCheck"] = "checked"
+		data["vgaCheck"] = checked
 		data["preClassCP437"] = fontname
 	}
 	data["forceSimpleText"] = filerecord.ForceSimpleText(art)

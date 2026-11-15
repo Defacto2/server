@@ -846,11 +846,12 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 
 	wg.Go(func() {
 		mu.Lock()
-		data["memTotal"] = "n/a"
-		data["memFree"] = "n/a"
+		const na = "n/a"
+		data["memTotal"] = na
+		data["memFree"] = na
 		data["memPercent"] = "0%"
-		data["swapTotal"] = "n/a"
-		data["swapFree"] = "n/a"
+		data["swapTotal"] = na
+		data["swapFree"] = na
 		data["swapPercent"] = "0%"
 		file, err := os.Open("/proc/meminfo")
 		if err != nil {
@@ -879,31 +880,32 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 
 		mf, mt, sf, st := "", "", "", ""
 		scanner := bufio.NewScanner(file)
+		const req = 2
 		for scanner.Scan() {
 			line := scanner.Text()
 			if strings.HasPrefix(line, "MemTotal:") {
-				if s := sep(line); len(s) > 2 {
+				if s := sep(line); len(s) > req {
 					data["memTotal"] = mb(s[1])
 					mt = s[1]
 				}
 				continue
 			}
 			if strings.HasPrefix(line, "MemFree:") {
-				if s := sep(line); len(s) > 2 {
+				if s := sep(line); len(s) > req {
 					data["memFree"] = mb(s[1])
 					mf = s[1]
 				}
 				continue
 			}
 			if strings.HasPrefix(line, "SwapTotal:") {
-				if s := sep(line); len(s) > 2 {
+				if s := sep(line); len(s) > req {
 					data["swapTotal"] = mb(s[1])
 					st = s[1]
 				}
 				continue
 			}
 			if strings.HasPrefix(line, "SwapFree:") {
-				if s := sep(line); len(s) > 2 {
+				if s := sep(line); len(s) > req {
 					data["swapFree"] = mb(s[1])
 					sf = s[1]
 				}

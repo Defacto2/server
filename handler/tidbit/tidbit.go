@@ -28,6 +28,8 @@ const extensions = parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEm
 
 const (
 	acidProd     = "acid-productions"
+	bcc          = "boys-from-company-c"
+	cellar       = "the-cellar-elite"
 	cia          = "crackers-in-action"
 	copyright    = "copyright-infiltration-agency"
 	cws          = "courier-weektop-scorecard"
@@ -67,7 +69,7 @@ var groups = Tibits{
 	1111: []URI{"the-racketeers", "digital-gang", "strata_crackers", "usalliance", "byt"},
 	111:  []URI{theFirm},
 	2:    []URI{fiveO},
-	200:  []URI{fiveO, "boys-from-company-c", "pirates-r-us", theFirm},
+	200:  []URI{fiveO, bcc, "pirates-r-us", theFirm},
 	3:    []URI{fairlight, "united-software-association*fairlight"},
 	4:    []URI{"the-zapper"},
 	5:    []URI{"ipl"},
@@ -102,7 +104,7 @@ var groups = Tibits{
 	// end
 	21:   []URI{"public-domain"},
 	22:   []URI{"bentley-sidwell-productions"},
-	23:   []URI{"boys-from-company-c"},
+	23:   []URI{bcc},
 	24:   []URI{fairlight},
 	25:   []URI{"future-crew"},
 	27:   []URI{"vortex-software"},
@@ -545,11 +547,11 @@ var groups = Tibits{
 	490:  []URI{"k_rad-and-elite"},
 	491:  []URI{"marinate-high-council"},
 	492:  []URI{"taran"},
-	493:  []URI{"the-cellar-elite"},
-	494:  []URI{"the-cellar-elite", "krack"},
-	495:  []URI{"the-cellar-elite", "cracking-101"},
+	493:  []URI{cellar},
+	494:  []URI{cellar, "krack"},
+	495:  []URI{cellar, "cracking-101"},
 	496:  []URI{"leechsoft"},
-	497:  []URI{"ritz-crackers", "boys-from-company-c"},
+	497:  []URI{"ritz-crackers", bcc},
 }
 
 // Markdown returns the markdown content of the tidbit that is stored in the directory
