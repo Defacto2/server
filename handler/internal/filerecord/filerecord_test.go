@@ -156,6 +156,13 @@ func TestListEntry(t *testing.T) {
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "Dos command"))
 
+	le.RelativeName = "MARBLE.COM"
+	le.Programs = false
+	le.Signature = "CGA graphics dump"
+	got = le.HTML(bytes, platform, section)
+	be.True(t, strings.Contains(got, "CGA graphics dump"))
+	be.True(t, !strings.Contains(got, "Dos command"))
+
 	le.RelativeName = "filename.png"
 	le.Images = true
 	le.Programs = false

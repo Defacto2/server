@@ -158,11 +158,13 @@ func systemfile(ext string) bool {
 // column1 is the list entry, first column button of the "Download content" list.
 func (m *ListEntry) column1() string {
 	switch {
-	case systemfile(strings.ToLower(filepath.Ext(m.name))):
-		return blank
 	case m.Images:
 		// use Image
 		return buttonImage(m.UniqueID, m.name)
+	case m.cgaDump():
+		return buttonCGA()
+	case systemfile(strings.ToLower(filepath.Ext(m.name))):
+		return blank
 	case m.Texts:
 		// use Text
 		return buttonText(m.UniqueID, m.name, m.platform, m.Signature)
@@ -187,7 +189,7 @@ func (m *ListEntry) column2() string {
 			return blank
 		}
 		return buttonDIZ(m.UniqueID, filename)
-	case m.Programs || ext == exe || ext == com:
+	case m.Programs || ext == exe || m.isComUnknown(ext):
 		// highlight EXE
 		return buttonEXE()
 	case m.Texts || m.BINtexts || m.textNFO():
@@ -235,6 +237,25 @@ func buttonText(id, filename, platform, sign string) string {
 // buttonTextBinary creates a link to "/editor/readme/URI/ID/FILENAME".
 func buttonTextBinary(id, filename string) string {
 	return buttonPreview("preview-binary", id, filename)
+}
+
+// buttonCGA returns a placeholder badge for CGA graphics dumps.
+func buttonCGA() string {
+	const title = `Use file for a preview`
+	return `<div class="col col-1 text-end" ` +
+		`data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
+		`<span class="badge text-bg-secondary opacity-50">` +
+		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></div>`
+}
+
+func (m *ListEntry) cgaDump() bool {
+	return m.Signature == magicnumber.CGAGraphicsDump.String() ||
+		m.Signature == magicnumber.SPICGADump.String()
+}
+
+func (m *ListEntry) isComUnknown(ext string) bool {
+	return ext == com && (m.Signature == "" || m.Signature == magicnumber.Unknown.String())
 }
 
 // buttonEXE returns a non-interactive terminal icon.
@@ -342,7 +363,7 @@ func (m *ListEntry) columnFooter() string {
 		sm = "command script"
 	case m.Texts && (ext == ini):
 		sm = "configuration textfile"
-	case m.Programs || ext == com:
+	case m.Programs || m.isComUnknown(ext):
 		sm = progr(m.Executable, ext, m.bytes)
 	case m.MusicConfig != "":
 		sm = m.MusicConfig
