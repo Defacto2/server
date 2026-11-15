@@ -58,3 +58,22 @@ func Test_viewer(t *testing.T) {
 	text.Platform = "textamiga"
 	be.True(t, text.useViewer())
 }
+
+func Test_decodeUTF16(t *testing.T) {
+	t.Parallel()
+
+	le := []byte{0xff, 0xfe, 'H', 0x00, 'i', 0x00}
+	got, err := decodeUTF16(le)
+	be.Err(t, err, nil)
+	be.Equal(t, got, []byte("Hi"))
+
+	beBytes := []byte{0xfe, 0xff, 0x00, 'H', 0x00, 'i'}
+	got, err = decodeUTF16(beBytes)
+	be.Err(t, err, nil)
+	be.Equal(t, got, []byte("Hi"))
+
+	plain := []byte("Hi")
+	got, err = decodeUTF16(plain)
+	be.Err(t, err, nil)
+	be.Equal(t, got, plain)
+}

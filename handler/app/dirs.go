@@ -679,7 +679,8 @@ func (ds *Dirs) encoding(r io.Reader) encoding.Encoding {
 		return charmap.ISO8859_1
 	}
 
-	if strings.Contains(strings.ToLower(ds.Magic), "utf-8") {
+	magic := strings.ToLower(ds.Magic)
+	if strings.Contains(magic, "utf-8") || strings.Contains(magic, "utf-16") {
 		return unicode.UTF8
 	}
 

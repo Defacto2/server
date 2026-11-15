@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -197,13 +198,12 @@ func inline(c *echo.Context, text bool, file, name, ext string) error {
 		return nil
 	}
 
-	modernText, err := helper.UTF8(file)
+	contentType, err := textContentType(file)
 	if err != nil {
-		return fmt.Errorf(format, "utf-8", err)
+		return fmt.Errorf(format, "content type", err)
 	}
-
-	if !modernText {
-		c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=iso-8859-1")
+	if contentType != "" {
+		c.Response().Header().Set(echo.HeaderContentType, contentType)
 	}
 
 	file = strings.TrimPrefix(file, "/")
@@ -212,6 +212,37 @@ func inline(c *echo.Context, text bool, file, name, ext string) error {
 	}
 
 	return nil
+}
+
+func textContentType(file string) (string, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return "", fmt.Errorf("open file: %w", err)
+	}
+	defer f.Close()
+
+	var bom [2]byte
+	n, err := f.Read(bom[:])
+	if err != nil && !errors.Is(err, io.EOF) {
+		return "", fmt.Errorf("read bom: %w", err)
+	}
+	if n == len(bom) {
+		switch {
+		case bom[0] == 0xff && bom[1] == 0xfe:
+			return "text/plain; charset=utf-16le", nil
+		case bom[0] == 0xfe && bom[1] == 0xff:
+			return "text/plain; charset=utf-16be", nil
+		}
+	}
+
+	modernText, err := helper.UTF8(file)
+	if err != nil {
+		return "", fmt.Errorf("utf-8: %w", err)
+	}
+	if !modernText {
+		return "text/plain; charset=iso-8859-1", nil
+	}
+	return "", nil
 }
 
 // ExtraZip configuration.

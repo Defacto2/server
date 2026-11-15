@@ -22,6 +22,7 @@ import (
 	"github.com/bengarrett/binbump"
 	"github.com/bengarrett/sauce"
 	"golang.org/x/text/encoding/charmap"
+	xunicode "golang.org/x/text/encoding/unicode"
 )
 
 var (
@@ -327,6 +328,24 @@ func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 	return textBuf, nil
 }
 
+// decodeUTF16 converts UTF-16 both LE/BE bytes with a BOM to UTF-8.
+func decodeUTF16(b []byte) ([]byte, error) {
+	if len(b) < 2 {
+		return b, nil
+	}
+	le := b[0] == 0xff && b[1] == 0xfe
+	be := b[0] == 0xfe && b[1] == 0xff
+	if !le && !be {
+		return b, nil
+	}
+	dec := xunicode.UTF16(xunicode.LittleEndian, xunicode.UseBOM).NewDecoder()
+	out, err := dec.Bytes(b)
+	if err != nil {
+		return nil, fmt.Errorf("decode utf-16: %w", err)
+	}
+	return out, nil
+}
+
 func (t *Text) handleSAUCE(textBuf *bytes.Buffer) {
 	const minimum = 128 // SAUCE records are exactly 128 bytes at EOF
 	if textBuf == nil || textBuf.Len() < minimum {
@@ -439,6 +458,10 @@ func (t *Text) secondary(buf *bytes.Buffer, extension string) error {
 		p = bytes.ReplaceAll(p, byteCR, emptyBytes)
 	}
 
+	if decoded, decErr := decodeUTF16(p); decErr == nil {
+		p = decoded
+	}
+
 	p = Normalize(p)
 	buf.Write(p)
 
@@ -500,6 +523,10 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 	if sign, _ := magicnumber.Archive(r); sign != magicnumber.Unknown {
 		textBuf.Reset()
 		return nil
+	}
+
+	if decoded, decErr := decodeUTF16(p); decErr == nil {
+		p = decoded
 	}
 
 	p = Normalize(p)
