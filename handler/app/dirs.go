@@ -24,6 +24,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/Defacto2/archive/rezip"
 	"github.com/Defacto2/helper"
@@ -488,8 +489,10 @@ func (ds *Dirs) addText8bit(sl *slog.Logger, art *models.File, textBuf *bytes.Bu
 		fontname = "font-dos-mda"
 	}
 
+	data["webCheck"] = ""
 	data["topazCheck"] = ""
 	data["vgaCheck"] = ""
+	data["preClassUTF8"] = "d-none "
 	data["preClassLatin1"] = "d-none "
 	data["preClassCP437"] = "d-none " + fontname
 
@@ -526,6 +529,14 @@ func (ds *Dirs) addtext8bit(sl *slog.Logger, b []byte, data map[string]any) map[
 		if err != nil {
 			ds.logErr(sl, "unicode utf-8", err)
 			return data
+		}
+		data["webCheck"] = "checked"
+		data["topazCheck"] = ""
+		data["vgaCheck"] = ""
+		data["preClassUTF8"] = ""
+		data["preClassLatin1"] = "d-none "
+		if cpClass, ok := data["preClassCP437"].(string); ok && !strings.HasPrefix(cpClass, "d-none ") {
+			data["preClassCP437"] = "d-none " + cpClass
 		}
 		data["contentLatin1"] = body
 		data["contentCP437"] = body
@@ -685,12 +696,27 @@ func (ds *Dirs) encoding(r io.Reader) encoding.Encoding {
 	}
 
 	if r != nil {
+		if b, err := io.ReadAll(r); err == nil {
+			if hasHighBit(b) && utf8.Valid(b) {
+				return unicode.UTF8
+			}
+			r = bytes.NewReader(b)
+		}
 		if guess := helper.Determine(r); guess != nil {
 			return guess
 		}
 	}
 
 	return charmap.CodePage437
+}
+
+func hasHighBit(b []byte) bool {
+	for _, c := range b {
+		if c >= utf8.RuneSelf {
+			return true
+		}
+	}
+	return false
 }
 
 // fixANSI uses the magicnumber data to match ansi texts and update the artifact platform classification.

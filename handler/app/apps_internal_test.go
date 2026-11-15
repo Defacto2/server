@@ -15,6 +15,7 @@ import (
 	"github.com/nalgeon/be"
 	"golang.org/x/text/encoding"
 	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/unicode"
 )
 
 var (
@@ -85,9 +86,42 @@ func Test_dirs_encoding_textutf8(t *testing.T) {
 	d := Dirs{}
 	r := strings.NewReader("Hello\nworld\nthis is some text. 👾\n")
 	got := d.encoding(r)
-	// without a byte-order-mark we cannot reliably determine 8-bit CP-437 over UTF-8,
-	// as both rely on 8-bit character sets. so the priority is to render legacy text.
+	be.Equal(t, got, encoding.Encoding(unicode.UTF8))
+
+	r = strings.NewReader("Denuvo взяла на работу хакера\n")
+	got = d.encoding(r)
+	be.Equal(t, got, encoding.Encoding(unicode.UTF8))
+
+	// Legacy CP437 box drawing and ISO-8859-1 accented bytes are not valid UTF-8
+	// and must continue to be handled as CP437 / ISO-8859-1.
+	r = strings.NewReader("\xc4\xc4\xc4\n")
+	got = d.encoding(r)
 	be.Equal(t, got, cp437)
+
+	r = strings.NewReader("caf\xe9\n")
+	got = d.encoding(r)
+	be.Equal(t, got, latin1)
+}
+
+func Test_dirs_addtext8bit_utf8_defaults_web(t *testing.T) {
+	t.Parallel()
+
+	d := Dirs{}
+	data := map[string]any{
+		"webCheck":       "",
+		"topazCheck":     "",
+		"vgaCheck":       "checked",
+		"preClassUTF8":   "d-none ",
+		"preClassLatin1": "d-none ",
+		"preClassCP437":  "font-dos font-large",
+	}
+	got := d.addtext8bit(nil, []byte("Denuvo взяла на работу хакера\n"), data)
+	be.Equal(t, got["webCheck"], "checked")
+	be.Equal(t, got["topazCheck"], "")
+	be.Equal(t, got["vgaCheck"], "")
+	be.Equal(t, got["preClassUTF8"], "")
+	be.Equal(t, got["preClassLatin1"], "d-none ")
+	be.Equal(t, got["preClassCP437"], "d-none font-dos font-large")
 }
 
 func Test_screenshot(t *testing.T) {

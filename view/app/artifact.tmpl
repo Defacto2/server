@@ -7,6 +7,7 @@
 {{- $classification := brief (index . "platform") (index . "section")}}
 {{- $screenElm := screenshot (index . "unid") ($description)}}
 {{- $screenNone := index . "screenshotNone"}}
+{{- $web := index . "webCheck"}}
 {{- $topaz := index . "topazCheck"}}
 {{- $vga := index . "vgaCheck"}}
 {{- $mimetype := index . "magic"}}
@@ -36,6 +37,7 @@
   {{- $textcontentCP437 = index . "contentCP437" | safeBBS }}
   {{- $textcontentUTF8 = index . "contentUTF8" | safeBBS }}
 {{- end}}
+{{- $preclassUTF8 := index . "preClassUTF8" }}
 {{- $preclassLatin1 := index . "preClassLatin1" }}
 {{- $preclassCP437 := index . "preClassCP437" }}
 {{- $preClass := index . "preElementClass" }}
@@ -137,7 +139,7 @@
           <div>
             <span class="text-body-secondary fw-light d-block mb-2">Display style</span>
             <div class="btn-group" role="group">
-              <input type="radio" class="btn-check" name="readme-base" id="textcontBtnWeb" rel="nofollow" autocomplete="off">
+              <input type="radio" class="btn-check" name="readme-base" id="textcontBtnWeb" rel="nofollow" autocomplete="off"{{if ne $web ""}} {{$web}}{{end}}>
               <label class="btn btn-outline-dark" for="textcontBtnWeb" 
                   data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with UTF-8 encoding">Web style</label>
               <input type="radio" class="btn-check" name="readme-base" id="textcontBtnAmiga" rel="nofollow" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
@@ -166,7 +168,7 @@
             </div>
           </div>
         {{- if $textcontentUTF8 -}}
-          <pre id="precontentUTF8" class="d-none font-cascadia-mono render {{$preClass}}">{{$textcontentUTF8}}</pre>
+          <pre id="precontentUTF8" class="{{$preclassUTF8}}font-cascadia-mono render {{$preClass}}">{{$textcontentUTF8}}</pre>
         {{- end -}}
         {{- if $textcontentLatin1 -}}
           <pre id="precontentLatin1" style="background-color:#999;color:#000;" class="{{$preclassLatin1}} font-amiga font-large render {{$preClass}}">{{$textcontentLatin1}}</pre>
