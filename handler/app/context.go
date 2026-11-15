@@ -14,6 +14,7 @@ import (
 	"io"
 	"io/fs"
 	"log/slog"
+	"maps"
 	"math"
 	"net/http"
 	"os"
@@ -773,154 +774,103 @@ func configurations(data map[string]any, conf config.Config) map[string]any {
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 
-	wg.Go(func() {
-		mu.Lock()
-		data = downloader(data, conf)
-		mu.Unlock()
-	})
+	for _, fn := range []func(map[string]any, config.Config) map[string]any{
+		downloader, previewer, thumbnailer, extraer, orphaneder,
+	} {
+		wg.Go(func() {
+			mu.Lock()
+			_ = fn(data, conf)
+			mu.Unlock()
+		})
+	}
 
-	wg.Go(func() {
-		mu.Lock()
-		data = previewer(data, conf)
-		mu.Unlock()
-	})
-
-	wg.Go(func() {
-		mu.Lock()
-		data = thumbnailer(data, conf)
-		mu.Unlock()
-	})
-
-	wg.Go(func() {
-		mu.Lock()
-		data = extraer(data, conf)
-		mu.Unlock()
-	})
-
-	wg.Go(func() {
-		mu.Lock()
-		data = orphaneder(data, conf)
-		mu.Unlock()
-	})
-
-	wg.Go(func() {
-		mu.Lock()
-		wdt, wdu, _, wdp, _ := helper.DiskStat(conf.AbsDownload.String())
-		data["wdTotal"] = helper.ByteCount(int64(wdt))
-		data["wdFree"] = helper.ByteCount(int64(wdu))
-		data["wdPercent"] = wdp
-		mu.Unlock()
-	})
-
-	wg.Go(func() {
-		mu.Lock()
-		wdt, wdu, _, wdp, _ := helper.DiskStat(os.TempDir())
-		data["tmpTotal"] = helper.ByteCount(int64(wdt))
-		data["tmpFree"] = helper.ByteCount(int64(wdu))
-		data["tmpPercent"] = wdp
-		mu.Unlock()
-	})
-
-	wg.Go(func() {
-		mu.Lock()
-		wdt, wdu, _, wdp, _ := helper.DiskStat("/")
-		data["osTotal"] = helper.ByteCount(int64(wdt))
-		data["osFree"] = helper.ByteCount(int64(wdu))
-		data["osPercent"] = wdp
-		mu.Unlock()
-	})
+	disks := [...]struct{ prefix, path string }{
+		{"wd", conf.AbsDownload.String()},
+		{"tmp", os.TempDir()},
+		{"os", "/"},
+	}
+	for _, d := range disks {
+		wg.Go(func() {
+			total, free, _, pct, _ := helper.DiskStat(d.path)
+			mu.Lock()
+			data[d.prefix+"Total"] = helper.ByteCount(int64(total))
+			data[d.prefix+"Free"] = helper.ByteCount(int64(free))
+			data[d.prefix+"Percent"] = pct
+			mu.Unlock()
+		})
+	}
 
 	const unit = 1024
-
 	wg.Go(func() {
-		mu.Lock()
 		samples := []metrics.Sample{
 			{Name: "/memory/classes/heap/objects:bytes"}, // Live heap objects
 			{Name: "/memory/classes/total:bytes"},        // Total memory managed by runtime
 		}
 		metrics.Read(samples)
-		data["metric0"] = samples[0].Value.Uint64() / (unit * unit)
-		data["metric1"] = samples[1].Value.Uint64() / (unit * unit)
-		mu.Unlock()
-	})
-
-	wg.Go(func() {
+		m0 := samples[0].Value.Uint64() / (unit * unit)
+		m1 := samples[1].Value.Uint64() / (unit * unit)
 		mu.Lock()
-		const na = "n/a"
-		data["memTotal"] = na
-		data["memFree"] = na
-		data["memPercent"] = "0%"
-		data["swapTotal"] = na
-		data["swapFree"] = na
-		data["swapPercent"] = "0%"
-		file, err := os.Open("/proc/meminfo")
-		if err != nil {
-			return
-		}
-		defer file.Close()
-
-		space := regexp.MustCompile(`\s+`)
-		sep := func(line string) []string {
-			line = space.ReplaceAllString(line, ";")
-			return strings.Split(line, ";")
-		}
-
-		const calc = float64(100.0)
-		perc := func(f, t string) string {
-			free, _ := strconv.Atoi(f)
-			total, _ := strconv.Atoi(t)
-			x := (float64(free) / float64(total)) * calc
-			return fmt.Sprintf("%d%%", int64(math.Round(x)))
-		}
-
-		mb := func(s string) string {
-			kb, _ := strconv.Atoi(s)
-			return fmt.Sprintf("%d MB", kb/unit)
-		}
-
-		mf, mt, sf, st := "", "", "", ""
-		scanner := bufio.NewScanner(file)
-		const req = 2
-		for scanner.Scan() {
-			line := scanner.Text()
-			if strings.HasPrefix(line, "MemTotal:") {
-				if s := sep(line); len(s) > req {
-					data["memTotal"] = mb(s[1])
-					mt = s[1]
-				}
-				continue
-			}
-			if strings.HasPrefix(line, "MemFree:") {
-				if s := sep(line); len(s) > req {
-					data["memFree"] = mb(s[1])
-					mf = s[1]
-				}
-				continue
-			}
-			if strings.HasPrefix(line, "SwapTotal:") {
-				if s := sep(line); len(s) > req {
-					data["swapTotal"] = mb(s[1])
-					st = s[1]
-				}
-				continue
-			}
-			if strings.HasPrefix(line, "SwapFree:") {
-				if s := sep(line); len(s) > req {
-					data["swapFree"] = mb(s[1])
-					sf = s[1]
-				}
-				continue
-			}
-		}
-		data["memPercent"] = perc(mf, mt)
-		data["swapPercent"] = perc(sf, st)
-
+		data["metric0"] = m0
+		data["metric1"] = m1
 		mu.Unlock()
 	})
+
+	wg.Go(func() { memInfo(&mu, data) })
 
 	wg.Wait()
 
 	return data
+}
+
+func memInfo(mu *sync.Mutex, data map[string]any) {
+	const (
+		na   = "n/a"
+		unit = 1024
+		calc = float64(100.0)
+		req  = 2
+	)
+	vals := map[string]any{
+		"memTotal": na, "memFree": na, "memPercent": "0%",
+		"swapTotal": na, "swapFree": na, "swapPercent": "0%",
+	}
+	if file, err := os.Open("/proc/meminfo"); err == nil {
+		defer func() { _ = file.Close() }()
+		mb := func(s string) string {
+			kb, _ := strconv.Atoi(s)
+			return fmt.Sprintf("%d MB", kb/unit)
+		}
+		perc := func(f, t string) string {
+			free, _ := strconv.Atoi(f)
+			total, _ := strconv.Atoi(t)
+			if total == 0 {
+				return "0%"
+			}
+			return fmt.Sprintf("%d%%", int64(math.Round((float64(free)/float64(total))*calc)))
+		}
+		raw := map[string]string{}
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			s := strings.Fields(scanner.Text())
+			if len(s) > req {
+				raw[s[0]] = s[1]
+			}
+		}
+		for _, k := range [][2]string{
+			{"MemTotal:", "memTotal"},
+			{"MemFree:", "memFree"},
+			{"SwapTotal:", "swapTotal"},
+			{"SwapFree:", "swapFree"},
+		} {
+			if v, ok := raw[k[0]]; ok {
+				vals[k[1]] = mb(v)
+			}
+		}
+		vals["memPercent"] = perc(raw["MemFree:"], raw["MemTotal:"])
+		vals["swapPercent"] = perc(raw["SwapFree:"], raw["SwapTotal:"])
+	}
+	mu.Lock()
+	maps.Copy(data, vals)
+	mu.Unlock()
 }
 
 // AssetCache holds the file content stats for any asset directory.

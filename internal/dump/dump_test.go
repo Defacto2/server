@@ -3,6 +3,7 @@ package dump_test
 import (
 	"encoding/binary"
 	"image"
+	"image/color"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -95,7 +96,7 @@ func TestExtractCGACom(t *testing.T) {
 	be.Equal(t, got[8192], byte(0x33))
 }
 
-func TestConvertToPNG(t *testing.T) {
+func TestCGAImage(t *testing.T) {
 	t.Parallel()
 
 	raw := make([]byte, 16384)
@@ -107,7 +108,7 @@ func TestConvertToPNG(t *testing.T) {
 	dst := filepath.Join(dir, "test.png")
 	be.Err(t, os.WriteFile(src, raw, 0o600), nil)
 
-	be.Err(t, dump.ConvertToPNG(src, dst), nil)
+	be.Err(t, dump.CGAImage(src, dst), nil)
 
 	f, err := os.Open(dst)
 	be.Err(t, err, nil)
@@ -127,4 +128,28 @@ func TestConvertToPNG(t *testing.T) {
 	// Odd bank byte 0x1B => row 1 (y=4..7) first pixel index 0, second index 1.
 	be.Equal(t, pal.ColorIndexAt(0, 4), uint8(0))
 	be.Equal(t, pal.ColorIndexAt(4, 7), uint8(1))
+}
+
+func TestPalettes(t *testing.T) {
+	t.Parallel()
+
+	raw := make([]byte, 16384)
+	palettes := []color.Palette{
+		dump.PaletteCyan,
+		dump.PaletteCyanLow,
+		dump.PaletteGreen,
+		dump.PaletteGreenLow,
+		dump.PaletteRed,
+		dump.PaletteRedLow,
+	}
+	for _, pal := range palettes {
+		be.Equal(t, len(pal), 4)
+		img := dump.DecodeCGA(raw, pal, dump.Scale)
+		be.Equal(t, len(img.Palette), 4)
+		be.Equal(t, img.Palette[1], pal[1])
+	}
+
+	def := dump.DecodeCGA(raw, nil, dump.Scale)
+	be.Equal(t, len(def.Palette), 4)
+	be.Equal(t, def.Palette[1], dump.PaletteCyan[1])
 }

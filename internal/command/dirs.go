@@ -206,7 +206,7 @@ func (ds Dirs) CGAImager(ctx context.Context, sl *slog.Logger, srcDump, unid str
 		}
 	}()
 
-	if err := dump.ConvertToPNG(src, dst); err != nil {
+	if err := dump.CGAImage(src, dst); err != nil {
 		return fmt.Errorf(format, "convert cga", err)
 	}
 	if err := ds.PictureImager(ctx, sl, dst, unid); err != nil {

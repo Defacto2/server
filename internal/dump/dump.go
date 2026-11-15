@@ -1,4 +1,19 @@
 // Package dump extracts and decodes retro CGA graphics dumps into modern images.
+// These can be found from a number of sources in programs for PC/MS-DOS:
+//
+//   - saved raw 16KB dumps.
+//   - saved BSAVE files.
+//   - DOS .COM files with embedded dumps.
+//   - DOS .COM files with "SPI" RLE-compressed dumps.
+//
+// These forms of hidden art were commonly used by PC game developers of
+// the 1980s, especially with titles that only supported CGA graphics.
+// And briefly by software pirates on the PC from possibly 1987-1990.
+// Who would use tools such as PC Paint to create draw their own
+// crack-screens, then ship them in their own .COM files to act as
+// static crack-tros.
+//
+//nolint:gochecknoglobals
 package dump
 
 import (
@@ -24,7 +39,7 @@ const (
 	cgaSize       = 16384
 	bankSize      = 8192
 	bankActive    = 8000
-	rowBytesCount = 80
+	rows          = 80
 	pixelsPerByte = 4
 
 	minSPIDecoded = 16000
@@ -34,7 +49,7 @@ const (
 	bsaveMagic      = 0xFD
 	cgaSegment      = 0xB800
 	linearHeaderLen = 6
-	linearCGALen    = Height * rowBytesCount // 16000 bytes
+	linearCGALen    = Height * rows // 16000 bytes
 	linearBPP       = 2
 
 	comOrg  = 0x0100
@@ -42,40 +57,76 @@ const (
 	jmpShrt = 0xEB
 )
 
+// ErrUnsupported indicates the input does not contain a recognized CGA graphics dump.
+var ErrUnsupported = errors.New("unsupported CGA graphics dump")
+
+// Standard IBM CGA RGBI hardware colors.
+//
+//nolint:mnd
 var (
-	// ErrUnsupported indicates the input does not contain a recognized CGA graphics dump.
-	ErrUnsupported = errors.New("unsupported CGA graphics dump")
+	cgaBlack        = color.NRGBA{R: 0, G: 0, B: 0, A: 255}       // #000000
+	cgaGreen        = color.NRGBA{R: 0, G: 170, B: 0, A: 255}     // #00AA00
+	cgaCyan         = color.NRGBA{R: 0, G: 170, B: 170, A: 255}   // #00AAAA
+	cgaRed          = color.NRGBA{R: 170, G: 0, B: 0, A: 255}     // #AA0000
+	cgaMagenta      = color.NRGBA{R: 170, G: 0, B: 170, A: 255}   // #AA00AA
+	cgaBrown        = color.NRGBA{R: 170, G: 85, B: 0, A: 255}    // #AA5500
+	cgaLightGray    = color.NRGBA{R: 170, G: 170, B: 170, A: 255} // #AAAAAA
+	cgaLightGreen   = color.NRGBA{R: 85, G: 255, B: 85, A: 255}   // #55FF55
+	cgaLightCyan    = color.NRGBA{R: 85, G: 255, B: 255, A: 255}  // #55FFFF
+	cgaLightRed     = color.NRGBA{R: 255, G: 85, B: 85, A: 255}   // #FF5555
+	cgaLightMagenta = color.NRGBA{R: 255, G: 85, B: 255, A: 255}  // #FF55FF
+	cgaYellow       = color.NRGBA{R: 255, G: 255, B: 85, A: 255}  // #FFFF55
+	cgaWhite        = color.NRGBA{R: 255, G: 255, B: 255, A: 255} // #FFFFFF
 )
 
-// Palette selects one of the standard 4-color CGA graphics palettes.
-type Palette string
-
-const (
-	// PaletteCyan is CGA mode 4 palette 1 (black, light cyan, light magenta, white).
-	PaletteCyan Palette = "cyan"
-	// PaletteGreen is CGA mode 4 palette 0 (black, light green, light red, yellow).
-	PaletteGreen Palette = "green"
+// Standard 4-color CGA graphics palettes (Mode 4 Palettes 0 & 1 and Mode 5, high and low intensity).
+// For a visualization of the palettes, see https://en.wikipedia.org/wiki/Color_Graphics_Adapter#320_%C3%97_200
+var (
+	// PaletteCyan is CGA mode 4, palette 1, high intensity.
+	PaletteCyan = color.Palette{cgaBlack, cgaLightCyan, cgaLightMagenta, cgaWhite}
+	// PaletteCyanLow is CGA mode 4, palette 1, low intensity.
+	PaletteCyanLow = color.Palette{cgaBlack, cgaCyan, cgaMagenta, cgaLightGray}
+	// PaletteGreen is CGA mode 4, palette 0, high intensity.
+	PaletteGreen = color.Palette{cgaBlack, cgaLightGreen, cgaLightRed, cgaYellow}
+	// PaletteGreenLow is CGA mode 4, palette 0, low intensity.
+	PaletteGreenLow = color.Palette{cgaBlack, cgaGreen, cgaRed, cgaBrown}
+	// PaletteRed is CGA mode 5, high intensity.
+	PaletteRed = color.Palette{cgaBlack, cgaLightCyan, cgaLightRed, cgaWhite}
+	// PaletteRedLow is CGA mode 5, low intensity.
+	PaletteRedLow = color.Palette{cgaBlack, cgaCyan, cgaRed, cgaLightGray}
 )
 
-func colorPalette(p Palette) color.Palette {
-	if p == PaletteGreen {
-		return color.Palette{
-			color.NRGBA{R: 0, G: 0, B: 0, A: 255},
-			color.NRGBA{R: 85, G: 255, B: 85, A: 255},
-			color.NRGBA{R: 255, G: 85, B: 85, A: 255},
-			color.NRGBA{R: 255, G: 255, B: 85, A: 255},
-		}
-	}
-	return color.Palette{
-		color.NRGBA{R: 0, G: 0, B: 0, A: 255},
-		color.NRGBA{R: 85, G: 255, B: 255, A: 255},
-		color.NRGBA{R: 255, G: 85, B: 255, A: 255},
-		color.NRGBA{R: 255, G: 255, B: 255, A: 255},
-	}
+// CGAImage reads a CGA graphics dump from the src path, decodes it, and writes the dst PNG path.
+// It uses the default cyan palette and scales the graphics by x4 to create a 1280x800 pixel image.
+func CGAImage(src, dst string) error {
+	return CGACustom(src, dst, PaletteCyan, Scale)
 }
 
-// ExtractCGA extracts or decompresses a 16KB CGA graphics VRAM buffer from raw 16KB dumps,
-// BSAVE files, DOS .COM embedded dumps, or "SPI" RLE-compressed .COM dumps.
+// CGACustom reads a CGA graphics dump from the src path, decodes it, and writes the dst PNG path.
+func CGACustom(src, dst string, pal color.Palette, scale int) error {
+	data, err := os.ReadFile(filepath.Clean(src))
+	if err != nil {
+		return fmt.Errorf("read cga dump: %w", err)
+	}
+	cga, err := ExtractCGA(data)
+	if err != nil {
+		return fmt.Errorf("extract cga dump: %w", err)
+	}
+	img := DecodeCGA(cga, pal, scale)
+
+	f, err := os.Create(filepath.Clean(dst))
+	if err != nil {
+		return fmt.Errorf("create png: %w", err)
+	}
+	defer f.Close()
+
+	if err := png.Encode(f, img); err != nil {
+		return fmt.Errorf("encode png: %w", err)
+	}
+	return nil
+}
+
+// ExtractCGA extracts or decompresses a 16KB CGA graphics VRAM buffer.
 func ExtractCGA(data []byte) ([]byte, error) {
 	if len(data) == 0 {
 		return nil, ErrUnsupported
@@ -101,27 +152,40 @@ func ExtractCGA(data []byte) ([]byte, error) {
 	return nil, ErrUnsupported
 }
 
-// DecodeCGA renders a 16KB interleaved CGA graphics VRAM buffer into a pixel-exact
-// 4x-scaled (1280x800) paletted image.
-func DecodeCGA(cga []byte, pal Palette) *image.Paletted {
-	const outW = Width * Scale
-	img := image.NewPaletted(image.Rect(0, 0, outW, Height*Scale), colorPalette(pal))
+// DecodeCGA to a pixel-exact x-scaled (1280x800) paletted image.
+// By default it uses a 4x scale value, meaning a 320x200 dump
+// will be resized into a 1280x800 image.
+func DecodeCGA(data []byte, pal color.Palette, scale int) *image.Paletted {
+	if len(pal) == 0 {
+		pal = PaletteCyan
+	}
+	if scale < 1 || scale > Scale {
+		scale = Scale
+	}
+
+	x1 := Width * scale
+	y1 := Height * Scale
+	img := image.NewPaletted(image.Rect(0, 0, x1, y1), pal)
+	const banks = 2
+	const mask = 3 // 2-bit mask
+	const bpp = 2  // bits per pixel
+	const shift = 6
 	for y := range Height {
-		bankOffset := (y / 2) * rowBytesCount
-		if y%2 == 1 {
+		bankOffset := (y / banks) * rows
+		if y%banks == 1 {
 			bankOffset += bankSize
 		}
-		if bankOffset+rowBytesCount > len(cga) {
+		if bankOffset+rows > len(data) {
 			break
 		}
-		row := cga[bankOffset : bankOffset+rowBytesCount]
+		row := data[bankOffset : bankOffset+rows]
 		dstRow := y * Scale * img.Stride
-		firstLine := img.Pix[dstRow : dstRow+outW]
-		for bx := range rowBytesCount {
+		firstLine := img.Pix[dstRow : dstRow+x1]
+		for bx := range rows {
 			b := row[bx]
 			baseX := bx * pixelsPerByte * Scale
 			for p := range pixelsPerByte {
-				idx := (b >> (6 - 2*p)) & 3
+				idx := (b >> (shift - bpp*p)) & mask
 				px := baseX + p*Scale
 				firstLine[px+0] = idx
 				firstLine[px+1] = idx
@@ -131,34 +195,10 @@ func DecodeCGA(cga []byte, pal Palette) *image.Paletted {
 		}
 		for sy := 1; sy < Scale; sy++ {
 			nextRow := dstRow + sy*img.Stride
-			copy(img.Pix[nextRow:nextRow+outW], firstLine)
+			copy(img.Pix[nextRow:nextRow+x1], firstLine)
 		}
 	}
 	return img
-}
-
-// ConvertToPNG reads a CGA graphics dump from srcPath, decodes it, and writes a PNG to dstPath.
-func ConvertToPNG(srcPath, dstPath string) error {
-	src, err := os.ReadFile(filepath.Clean(srcPath))
-	if err != nil {
-		return fmt.Errorf("read cga dump: %w", err)
-	}
-	cga, err := ExtractCGA(src)
-	if err != nil {
-		return fmt.Errorf("extract cga dump: %w", err)
-	}
-	img := DecodeCGA(cga, PaletteCyan)
-
-	f, err := os.Create(filepath.Clean(dstPath))
-	if err != nil {
-		return fmt.Errorf("create png: %w", err)
-	}
-	defer f.Close()
-
-	if err := png.Encode(f, img); err != nil {
-		return fmt.Errorf("encode png: %w", err)
-	}
-	return nil
 }
 
 func extractSPI(data []byte) ([]byte, bool) {
@@ -237,13 +277,14 @@ func extractLinear(data []byte) ([]byte, bool) {
 	}
 	linear := data[linearHeaderLen : linearHeaderLen+linearCGALen]
 	out := make([]byte, cgaSize)
+	const banks = 2
 	for y := range Height {
 		srcRow := Height - 1 - y
-		dstOff := (y / 2) * rowBytesCount
-		if y%2 == 1 {
+		dstOff := (y / banks) * rows
+		if y%banks == 1 {
 			dstOff += bankSize
 		}
-		copy(out[dstOff:dstOff+rowBytesCount], linear[srcRow*rowBytesCount:(srcRow+1)*rowBytesCount])
+		copy(out[dstOff:dstOff+rows], linear[srcRow*rows:(srcRow+1)*rows])
 	}
 	return out, true
 }
@@ -281,8 +322,10 @@ func comB800Offset(data []byte) (int, bool) {
 		opMovReg    = 0x8B
 		modRmSiAx   = 0xF0
 	)
+
+	const minBytes = 8
 	n := min(len(data), scanMax)
-	if n < 8 {
+	if n < minBytes {
 		return 0, false
 	}
 	pointsToCGA := func(i int) bool {
@@ -315,40 +358,41 @@ func comB800Offset(data []byte) (int, bool) {
 
 func comViewerOffset(data []byte) (int, bool) {
 	const (
-		headerScan    = 24
-		opMovSi       = 0xBE
-		movAxInt10Len = 5
-		movAlInt10Len = 4
+		headerScan = 24
+		sanity     = 16
+		opMovSi    = 0xBE
 	)
-	if len(data) < 16 {
-		return 0, false
-	}
-	hdr := data[:min(len(data), headerScan)]
-	start := 0
-	switch {
-	case hdr[0] == 0xB8 && hdr[1] == 0x04 && hdr[2] == 0x00 && hdr[3] == 0xCD && hdr[4] == 0x10:
-		start = movAxInt10Len
-	case hdr[0] == 0xB0 && hdr[1] == 0x04 && hdr[2] == 0xCD && hdr[3] == 0x10:
-		start = movAlInt10Len
-	default:
+	if len(data) < sanity {
 		return 0, false
 	}
 
-	var hasB800 bool
-	siOff := -1
-	for i := start; i+2 < len(hdr); i++ {
-		if hdr[i] == 0xB8 && hdr[i+1] == 0x00 && hdr[i+2] == 0xB8 {
-			hasB800 = true
-		}
-		if siOff < 0 && hdr[i] == opMovSi {
-			si := int(binary.LittleEndian.Uint16(hdr[i+1 : i+3]))
-			if si >= comOrg {
-				siOff = si - comOrg
-			}
-		}
-	}
-	if !hasB800 || siOff < 0 || siOff+bankSize+bankActive > len(data) {
+	hdr := data[:min(len(data), headerScan)]
+	rest, ok := trimMode4Prefix(hdr)
+	if !ok || !bytes.Contains(rest, []byte{0xB8, 0x00, 0xB8}) {
 		return 0, false
 	}
-	return siOff, true
+
+	for i := 0; i+2 < len(rest); i++ {
+		if rest[i] != opMovSi {
+			continue
+		}
+		si := int(binary.LittleEndian.Uint16(rest[i+1 : i+3]))
+		if si >= comOrg {
+			off := si - comOrg
+			return off, off+bankSize+bankActive <= len(data)
+		}
+	}
+	return 0, false
+}
+
+func trimMode4Prefix(hdr []byte) ([]byte, bool) {
+	movAxMode4 := []byte{0xB8, 0x04, 0x00, 0xCD, 0x10}
+	if bytes.HasPrefix(hdr, movAxMode4) {
+		return hdr[len(movAxMode4):], true
+	}
+	movAlMode4 := []byte{0xB0, 0x04, 0xCD, 0x10}
+	if bytes.HasPrefix(hdr, movAlMode4) {
+		return hdr[len(movAlMode4):], true
+	}
+	return nil, false
 }
