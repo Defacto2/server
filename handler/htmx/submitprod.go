@@ -12,6 +12,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"testing"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/app"
@@ -104,11 +105,10 @@ func (prod Prod) Submit( //nolint:funlen
 	}
 
 	// see Download in handler/app/internal/remote/remote.go
-	go func() {
+	fetchRemote := func(bgCtx context.Context) {
 		// INFO:
 		// As the reliability of the file download servers can be vastly different to the API provider.
 		// This runs a second query to fetch the linked download in the background.
-		bgCtx := context.WithoutCancel(c.Request().Context())
 		bgTx, bErr := db.BeginTx(bgCtx, nil)
 		if bErr != nil {
 			logErr("cannot start background tx for fetch remote api", bErr)
@@ -136,7 +136,12 @@ func (prod Prod) Submit( //nolint:funlen
 		if cErr != nil {
 			logErr("cannot commit background tx for fetch remote api", cErr)
 		}
-	}()
+	}
+	if testing.Testing() {
+		fetchRemote(c.Request().Context())
+	} else {
+		go fetchRemote(context.WithoutCancel(c.Request().Context()))
+	}
 
 	sl.Info(msg,
 		slog.String("okay", "the production has been submitted"),

@@ -1,7 +1,6 @@
 package htmx_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/Defacto2/server/handler/htmx"
@@ -137,16 +136,14 @@ func TestProdSubmit(t *testing.T) {
 	sl := logs.Discard()
 	db := testutil.DB(t)
 	tx := testutil.Tx(t)
+	defer func() { _ = tx.Rollback() }()
 
 	const target = "/pouet/production"
 	c := testutil.NewContext(t, target)
 
-	wd, err := os.Getwd()
-	be.Err(t, err, nil)
-
-	download := dir.Directory(wd)
+	download := dir.Directory(t.TempDir())
 	prod := htmx.Demozoo
-	err = prod.Submit(sl, c, db, tx, download)
+	err := prod.Submit(sl, c, db, tx, download)
 	be.Err(t, err, nil)
 
 	pathValues := echo.PathValues{
