@@ -310,12 +310,17 @@ func (t *Text) handleANSI(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 		palette = ansibump.DP2
 		amiga = true
 	}
+	blinkMode := ansibump.BlinkText
+	if t.Record.Info.Flags.B.Flag == "1" {
+		blinkMode = ansibump.BlinkICE
+	}
 	config := ansibump.Customizer{
 		Width:       width,
 		AmigaParser: amiga,
 		Strict:      false,
 		Color:       palette,
 		CharSet:     charset,
+		Blink:       blinkMode,
 	}
 	ansitext, err := config.Bytes(bytes.NewReader(textBuf.Bytes()))
 	if err != nil {

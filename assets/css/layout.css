@@ -341,9 +341,20 @@ canvas,
   animation: blink 1s steps(1) infinite;
 }
 
+.ansi-blink {
+  animation: blink 1s steps(1) infinite;
+}
+
 @keyframes blink {
   50% {
     color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blinking,
+  .ansi-blink {
+    animation: none;
   }
 }
 

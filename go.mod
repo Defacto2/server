@@ -45,7 +45,7 @@ require (
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
-	github.com/bengarrett/ansibump v1.1.5
+	github.com/bengarrett/ansibump v1.1.6
 	github.com/bengarrett/bbs v1.0.11
 	github.com/bengarrett/binbump v1.0.6
 	github.com/bengarrett/sauce v1.2.11
