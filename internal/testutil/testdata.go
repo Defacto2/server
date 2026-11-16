@@ -32,6 +32,7 @@ var testdata = TestData{
 	"readmetxt":   "readme.txt",
 	"archivezip":  "archive.zip",
 	"defacto2com": "defacto2.com",
+	"maximum3ans": "MAXIMUM3.ANS",
 }
 
 // Abs returns an absolute representation of the testfile path.

@@ -10,6 +10,7 @@ go 1.27.4 // latest: https://go.dev/dl/
 //	replace github.com/bengarrett/ansibump => ../ansibump
 //	replace github.com/bengarrett/sauce => ../sauce
 //	replace github.com/bengarrett/binbump => ../binbump
+//	replace github.com/bengarrett/ansimate => ../ansimate
 
 // Lock down the markdown package for 'task doc' command compatibility
 replace rsc.io/markdown => rsc.io/markdown v0.0.0-20231214224604-88bb533a6020
@@ -46,6 +47,7 @@ require (
 	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
 	github.com/bengarrett/ansibump v1.1.6
+	github.com/bengarrett/ansimate v1.0.0
 	github.com/bengarrett/bbs v1.0.11
 	github.com/bengarrett/binbump v1.0.6
 	github.com/bengarrett/sauce v1.2.11
@@ -92,6 +94,7 @@ require (
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
+	github.com/deepteams/webp v1.2.9 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect

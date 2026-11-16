@@ -38,6 +38,8 @@ github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuP
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/bengarrett/ansibump v1.1.6 h1:f184LyZxzoD2u/rsYnvzfp+SG23O9lw/kc+OSd/0oRo=
 github.com/bengarrett/ansibump v1.1.6/go.mod h1:12r/njG3tvC5R8qTMXtx6s2pVR10lgit3rF8UtD4i1Y=
+github.com/bengarrett/ansimate v1.0.0 h1:Tg2NmsFFR9S0F8Vh7K52JLR1EosCcMAGttEFRq2W4UQ=
+github.com/bengarrett/ansimate v1.0.0/go.mod h1:AajWRDysXpIF1iA39bsZPYUyYH4hMJDitOVxcebqFso=
 github.com/bengarrett/bbs v1.0.11 h1:QHgcU9PKUgS5+EU2iVSjIfv6itgzAPFOWyFy/BeqwzA=
 github.com/bengarrett/bbs v1.0.11/go.mod h1:HUq//vZdttFm9l9F2GyGt7pP0KL9y6Hw7tryY7Lv84c=
 github.com/bengarrett/binbump v1.0.6 h1:FMhFEJd2flJeD+4JjTlwdT2JTylLQibF6Bo4pdqXcJw=
@@ -90,6 +92,8 @@ github.com/cpuguy83/go-md2man/v2 v2.0.7/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6N
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/deepteams/webp v1.2.9 h1:aAPpVeSmkE6hHtH0wOOTzTS0qtJqytL0l8l/MvjTbns=
+github.com/deepteams/webp v1.2.9/go.mod h1:J8Ap+HAixxpKKRN9IpEeSKlfvhsef1v43jKTO7m3f4c=
 github.com/disintegration/gift v1.2.1 h1:Y005a1X4Z7Uc+0gLpSAsKhWi4qLtsdEcMIbbdvdZ6pc=
 github.com/disintegration/gift v1.2.1/go.mod h1:Jh2i7f7Q2BM7Ezno3PhfezbR1xpUg9dUg3/RlKGr4HI=
 github.com/dlclark/regexp2 v1.11.5 h1:Q/sSnsKerHeCkc/jSTNq1oCm7KiVgUMZRDUoRu0JQZQ=

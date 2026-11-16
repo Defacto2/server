@@ -26,6 +26,7 @@ linters:
             - 'github.com/Defacto2/helper'
             - 'github.com/Defacto2/magicnumber'
             - 'github.com/bengarrett/ansibump'
+            - 'github.com/bengarrett/ansimate'
             - 'github.com/bengarrett/binbump'
             - 'github.com/bengarrett/bbs'
             - 'github.com/bengarrett/sauce'

@@ -17,6 +17,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/dump"
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/bengarrett/ansimate"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -215,11 +216,100 @@ func (ds Dirs) CGAImager(ctx context.Context, sl *slog.Logger, srcDump, unid str
 	return nil
 }
 
-// TextImager generates two images based on the text file provided by the src path.
+// ANSImation converts an ANSI animation source file to an animated WebP animation
+// in the preview directory, and generates a static thumbnail in the thumbnail directory.
+func (ds Dirs) ANSImation(ctx context.Context, sl *slog.Logger, src, unid string) error {
+	const msg = "ansi animation"
+	const format = msg + " %s: %w"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf(format, check, err)
+	}
+	if unid == "" {
+		return fmt.Errorf(format, "unid", ErrValue)
+	}
+	if err := ds.Thumbnail.Check(sl); err != nil {
+		return fmt.Errorf(format, thumbChk, err)
+	}
+	if err := ds.Preview.Check(sl); err != nil {
+		return fmt.Errorf(format, prevChk, err)
+	}
+
+	src = filepath.Clean(src)
+	st, err := os.Stat(src)
+	if err != nil {
+		return fmt.Errorf(format, "stat source", err)
+	}
+	if st.Size() == 0 {
+		return fmt.Errorf(format, "zero size: "+src, ErrIsEmpty)
+	}
+
+	f, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf(format, "open source", err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil && sl != nil {
+			sl.Debug(msg+" closing source file", slog.String("file", src), slog.Any("error", err))
+		}
+	}()
+
+	tmpFile, err := dir.CreateTemp("ansimated-*.webp")
+	if err != nil {
+		return fmt.Errorf(format, "create temp", err)
+	}
+	tmp := tmpFile.Name()
+	defer func() {
+		if err := os.Remove(tmp); err != nil && !os.IsNotExist(err) && sl != nil {
+			sl.Error(msg+" could not remove temporary file", slog.String("file", tmp), slog.Any("error", err))
+		}
+	}()
+
+	if err := ansimate.Animate(tmpFile, f, nil); err != nil {
+		_ = tmpFile.Close()
+		return fmt.Errorf(format, "animate", err)
+	}
+	if err := tmpFile.Close(); err != nil {
+		return fmt.Errorf(format, "close temp", err)
+	}
+
+	// remove existing preview & thumbnail images
+	if err := ImagesDelete(unid, ds.Preview.Path(), ds.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
+		return fmt.Errorf(format, "delete existing", err)
+	}
+
+	dst := filepath.Join(ds.Preview.Path(), unid+webp)
+	if err := CopyFile(sl, tmp, dst); err != nil {
+		return fmt.Errorf(format, "copy preview", err)
+	}
+
+	if err := ds.thumbPixels(ctx, sl, tmp, unid); err != nil {
+		return fmt.Errorf(format, "thumbnail", err)
+	}
+
+	return nil
+}
+
+func isANSImation(src string) (bool, error) {
+	clean := filepath.Clean(src)
+	f, err := os.Open(clean)
+	if err != nil {
+		return false, fmt.Errorf("open: %w", err)
+	}
+	defer f.Close()
+
+	anim, err := ansimate.Detect(f)
+	if err != nil {
+		return false, fmt.Errorf("detect: %w", err)
+	}
+	return anim, nil
+}
+
+// TextImager generates images based on the text file provided by the src path.
 // The provided unid must be a valid universal unique identifier.
 //
 // Multibyte UTF-8 text files are rendered using the Cascadia Mono font, while
 // legacy 8-bit, ASCII, and ANSI text files are rendered using ansilove.
+// Animated ANSI files (ANSImations) are converted to animated WebP previews.
 //
 // For ansilove files, if amigaFont is set to true, a Commodore Amiga Topaz font
 // is used to represent the text, otherwise an IBM VGA font is used. The amigaFont
@@ -250,6 +340,12 @@ func (ds Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string
 		const topazRows = 35
 		t.MaxRows = topazRows
 		return ds.textImager(ctx, sl, src, true, t)
+	}
+
+	if !t.UTF8 {
+		if ok, err := isANSImation(src); err == nil && ok {
+			return ds.ANSImation(ctx, sl, src, unid)
+		}
 	}
 
 	return ds.textImager(ctx, sl, src, false, t)
