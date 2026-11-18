@@ -132,6 +132,11 @@ func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { /
 	data = ds.addDownload(art, data)
 	if fix := !ds.ReadOnly && sess.Editor(c); fix {
 		data = ds.fixMagic(ctx, sl, db, data)
+	} else if data["magic"] == magicnumber.ANSIEscapeText.Title() {
+		path := filepath.Join(ds.Download.Path(), ds.UUID)
+		if helper.Stat(path) {
+			data["magic"] = simple.MagicAsTitle(sl, path)
+		}
 	}
 
 	data = ds.addAttribution(art, data)
@@ -739,7 +744,10 @@ func (ds *Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data m
 	}
 
 	textfile := strings.EqualFold(platform, tags.Text.String())
-	if !textfile || magic != magicnumber.ANSIEscapeText.Title() {
+	ansiMagic := magic == magicnumber.ANSIEscapeText.Title() ||
+		magic == magicnumber.ANSIEscapeText.Title()+simple.ANSIBlink ||
+		magic == simple.ANSImation
+	if !textfile || !ansiMagic {
 		return data
 	}
 

@@ -14,6 +14,7 @@ import (
 	_ "image/gif"  // gif format decoder
 	_ "image/jpeg" // jpeg format decoder
 	_ "image/png"  // png format decoder
+	"io"
 	"log/slog"
 	"math"
 	"net/http"
@@ -37,6 +38,7 @@ import (
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/null/v8"
+	"github.com/bengarrett/ansimate"
 	"github.com/dustin/go-humanize"
 	"github.com/h2non/filetype"
 	_ "golang.org/x/image/webp" // webp format decoder
@@ -58,6 +60,8 @@ const (
 	closeAnchor = "</a>"
 	noFile      = "file not found"
 	YYYYMMDD    = "2006-Jan-02"
+	ANSImation  = "ANSImation"
+	ANSIBlink   = " with blinking"
 )
 
 // AssetSrc returns a URL to an artifact asset with an cache busting hash.
@@ -535,6 +539,25 @@ func MakeLink(id, name, class string, performant bool) (string, error) {
 	return s, nil
 }
 
+// MagicTitle returns the magic number description, refining ANSI escaped text
+// as static, blinking, or an ANSImation using ansimate.
+func MagicTitle(r io.ReadSeeker, sign magicnumber.Signature) string {
+	if sign != magicnumber.ANSIEscapeText || r == nil {
+		return sign.Title()
+	}
+	if _, err := r.Seek(0, io.SeekStart); err == nil {
+		if ok, err := ansimate.Detect(r); err == nil && ok {
+			return ANSImation
+		}
+	}
+	if _, err := r.Seek(0, io.SeekStart); err == nil {
+		if ok, err := ansimate.DetectBlink(r); err == nil && ok {
+			return sign.Title() + ANSIBlink
+		}
+	}
+	return sign.Title()
+}
+
 // MagicAsTitle returns the magic number description for the named file.
 func MagicAsTitle(sl *slog.Logger, name string) string {
 	if sl == nil {
@@ -553,12 +576,13 @@ func MagicAsTitle(sl *slog.Logger, name string) string {
 	}
 
 	sign := magicnumber.Find(r)
+	title := MagicTitle(r, sign)
 
 	if err := r.Close(); err != nil {
 		logInfo("close", err)
 	}
 
-	return sign.Title()
+	return title
 }
 
 // MIME returns the [MIME type] for the named file.

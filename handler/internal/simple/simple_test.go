@@ -361,6 +361,18 @@ func TestMagicAsTitle(t *testing.T) {
 
 	s = simple.MagicAsTitle(sl, testpng(t))
 	be.True(t, strings.Contains(s, "Portable Network Graphics"))
+
+	dir := t.TempDir()
+
+	staticANSI := filepath.Join(dir, "static.ans")
+	be.Err(t, os.WriteFile(staticANSI, []byte("\x1b[31mHello World\x1b[0m\r\n"), 0o600), nil)
+	be.Equal(t, simple.MagicAsTitle(sl, staticANSI), "ANSI escaped text")
+
+	blinkANSI := filepath.Join(dir, "blink.ans")
+	be.Err(t, os.WriteFile(blinkANSI, []byte("\x1b[5;31mHello World\x1b[0m\r\n"), 0o600), nil)
+	be.Equal(t, simple.MagicAsTitle(sl, blinkANSI), "ANSI escaped text with blinking")
+
+	be.Equal(t, simple.MagicAsTitle(sl, testutil.FileData("maximum3ans").Abs()), simple.ANSImation)
 }
 
 func TestMIME(t *testing.T) {

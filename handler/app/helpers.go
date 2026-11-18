@@ -204,6 +204,8 @@ func plainText(modMagic any) bool {
 	case
 		magicnumber.UTF8Text.Title(),
 		magicnumber.ANSIEscapeText.Title(),
+		magicnumber.ANSIEscapeText.Title() + simple.ANSIBlink,
+		simple.ANSImation,
 		magicnumber.PlainText.Title():
 		return true
 	default:

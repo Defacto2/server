@@ -36,6 +36,7 @@ import (
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
+	"github.com/bengarrett/ansimate"
 )
 
 const (
@@ -703,6 +704,18 @@ func inspectMagic(path string) (string, error) {
 	defer file.Close()
 
 	magic := magicnumber.Find(file)
+	if magic == magicnumber.ANSIEscapeText {
+		if _, err := file.Seek(0, io.SeekStart); err == nil {
+			if ok, err := ansimate.Detect(file); err == nil && ok {
+				return "ANSImation", nil
+			}
+		}
+		if _, err := file.Seek(0, io.SeekStart); err == nil {
+			if ok, err := ansimate.DetectBlink(file); err == nil && ok {
+				return magic.Title() + " with blinking", nil
+			}
+		}
+	}
 	return magic.Title(), nil
 }
 

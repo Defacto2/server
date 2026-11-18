@@ -9,6 +9,7 @@ import (
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/labstack/echo/v5"
@@ -189,4 +190,7 @@ func Test_plainText(t *testing.T) {
 
 	got := plainText(magicnumber.PlainText.Title())
 	be.True(t, got)
+	be.True(t, plainText(magicnumber.ANSIEscapeText.Title()))
+	be.True(t, plainText(magicnumber.ANSIEscapeText.Title()+simple.ANSIBlink))
+	be.True(t, plainText(simple.ANSImation))
 }

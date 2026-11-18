@@ -27,6 +27,7 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/form"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/handler/sess"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
@@ -234,6 +235,7 @@ func (t Transfer) Submit(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error { /
 		Key:        t.Key,
 		Content:    content,
 		Magic:      magic,
+		MagicTitle: simple.MagicTitle(fileMultipart, magic),
 	}
 	copy(insert.Checksum[:], sha384)
 	id, uid, err := insert.Upload(sl, c, tx)
@@ -377,6 +379,7 @@ type Insert struct {
 	Content    []string
 	Checksum   [48]byte
 	Magic      magicnumber.Signature
+	MagicTitle string
 }
 
 func (in Insert) Upload(sl *slog.Logger, c *echo.Context, tx *sql.Tx) (int64, uuid.UUID, error) {
@@ -401,7 +404,11 @@ func (in Insert) Upload(sl *slog.Logger, c *echo.Context, tx *sql.Tx) (int64, uu
 	values.Add(prefix+"-size", strconv.FormatInt(in.FileHeader.Size, 10))
 	values.Add(prefix+"-content", strings.Join(in.Content, "\n"))
 	values.Add(prefix+"-readme", in.Readme)
-	values.Add(prefix+"-magic", in.Magic.Title())
+	magicTitle := in.MagicTitle
+	if magicTitle == "" {
+		magicTitle = in.Magic.Title()
+	}
+	values.Add(prefix+"-magic", magicTitle)
 
 	checks := [...]string{
 		prefix + "-operating-system",
@@ -584,7 +591,7 @@ func (u Submit) Replacement(sl *slog.Logger, c *echo.Context, tx *sql.Tx) error 
 	}
 
 	sign := magicnumber.Find(fileMultipart)
-	replacement.MagicNumber = sign.Title()
+	replacement.MagicNumber = simple.MagicTitle(fileMultipart, sign)
 	destTemp, err := SaveTemp(sl, c, upload.key, fileHeader)
 	if err != nil || destTemp == "" {
 		return c.HTML(http.StatusInternalServerError, "The temporary save cannot be copied")
