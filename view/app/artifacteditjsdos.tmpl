@@ -89,7 +89,6 @@
         <fieldset class="row my-2"
             hx-patch="/editor/emulate/machine/{{$id}}"
             hx-target="#emulate-machine-result"
-            hx-trigger="click delay:50ms"
             hx-include="[name='emulate-machine']"
             hx-trigger="click delay:50ms" hx-swap="swap:50ms" hx-on:click="document.getElementById('emulate-machine-result').textContent=''"> 
             <legend>

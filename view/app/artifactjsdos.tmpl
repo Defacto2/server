@@ -54,13 +54,13 @@
         </div>
     </div>
 </div>
-<input type="hidden" id="jsdos-utilties" name="jsdos-utilties" value="{{$loadUtils}}">
+<input type="hidden" id="jsdos-utilities" name="jsdos-utilities" value="{{$loadUtils}}">
 <script>
     const canvas = document.getElementById("jsdos6");
     const ctx = canvas.getContext("2d");
-    const loadUtils = document.getElementById("jsdos-utilties").value;
+    const loadUtils = document.getElementById("jsdos-utilities").value;
     const mountApp = [{ url: "/jsdos/{{$download}}", mountPoint: "/" }];
-    const mountDOS4GW = { url: "/jsdos/bin/DOS4GW.EXE", mountPoint: "/dos4gw" };
+    const mountDOS4GW = { url: "/jsdos/bin/DOS4GW.zip", mountPoint: "/dos4gw" };
     const startDOS = [
       "-conf", "dosbox.conf"
     ];
@@ -80,8 +80,10 @@
     const stopButton = document.getElementById("jsdosStop");
     stopButton.addEventListener("click", () => {
       try {
-        ci.exit();
-        stopButton.disabled = true;
+        if (window.ci) {
+          window.ci.exit();
+          stopButton.disabled = true;
+        }
       } catch (error) {
         console.log("ci.exit() error: ", error);
       }
@@ -121,7 +123,7 @@
           if (replacementInput) {
             replacementInput.click();
           }
-        });
+        }, { once: true });
       } catch (error) {
         console.log("Replace image error: ", error);
       }
@@ -174,15 +176,24 @@
       Dos(canvas, options).ready((fs, main) => {
         fs.createFile("dosbox.conf", "{{$config}}");      // create DOSBox configuration file in virtual file system
         fetch("/d/{{$download}}")                         // fetch the artifact file download
-          .then((response) => response.arrayBuffer())
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Failed to fetch binary (${response.status})`);
+            }
+            return response.arrayBuffer();
+          })
           .then((arrayBuffer) => {
             fs.createFile("{{$filename}}", arrayBuffer);  // recreate file in virtual file system
-            main(startDOS).then((ci) => {
-              window.ci = ci;
-              console.log(
-                `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
-              );
-            });
+            return main(startDOS);
+          })
+          .then((ci) => {
+            window.ci = ci;
+            console.log(
+              `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
+            );
+          })
+          .catch((error) => {
+            console.error("js-dos binary start error:", error);
           });
       });
     }
@@ -193,25 +204,30 @@
         if (loadUtils === "true") {
           mountApp.push(mountDOS4GW);                     // mount the DOS4GW.EXE file
         }
-        fs.extractAll(mountApp).then(() => {              // download and extract the artifact and any utilities
-          let params = startDOS;
-          if (loadUtils === "true") {
-            params = startWithDOS4GW;
-          }
-          main(params).then((ci) => {                     // start the application
+        fs.extractAll(mountApp)                           // download and extract the artifact and any utilities
+          .then(() => {
+            let params = startDOS;
+            if (loadUtils === "true") {
+              params = startWithDOS4GW;
+            }
+            return main(params);                          // start the application
+          })
+          .then((ci) => {
             window.ci = ci;
             console.log(
               `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
             );
+          })
+          .catch((error) => {
+            console.error("js-dos zip start error:", error);
           });
-        });
       });
     }
     const jsdos = document.getElementById("js-dos-run-app");
     jsdos.addEventListener("click", function () {
       this.style.pointerEvents = "none";
       this.textContent = "Running app";
-      DosBoxConfig = {
+      const DosBoxConfig = {
         wdosboxUrl: "/js/wdosbox.js",
         cycles: "auto", // int value, "max" or "auto"
         autolock: false,

@@ -211,6 +211,14 @@ func TestFinds(t *testing.T) {
 	p = jsdos.Paths(x)
 	s = jsdos.Finds("filename.zip", p...)
 	be.Equal(t, "FILENAME.EXE", s)
+
+	p = jsdos.Paths("sub/filename.exe\napp.exe")
+	s = jsdos.Finds("filename.zip", p...)
+	be.Equal(t, "", s)
+
+	p = jsdos.Paths(`sub\filename.exe` + "\nFILENAME.BAT")
+	s = jsdos.Finds("filename.zip", p...)
+	be.Equal(t, "FILENAME.BAT", s)
 }
 
 func TestFindBinary(t *testing.T) {
@@ -237,6 +245,15 @@ func TestFindBinary(t *testing.T) {
 
 	s = jsdos.FindBinary("filename.zip", example+"\n"+"filename.exe")
 	be.Equal(t, "filename.exe", s)
+
+	s = jsdos.FindBinary("filename.zip", "sub/dir/setup.bat\nrun.bat")
+	be.Equal(t, "run.bat", s)
+
+	s = jsdos.FindBinary("filename.zip", "sub/dir/setup.exe\napp.exe")
+	be.Equal(t, "app.exe", s)
+
+	s = jsdos.FindBinary("filename.zip", `sub\dir\setup.com`+"\napp.com")
+	be.Equal(t, "app.com", s)
 }
 
 func TestValid(t *testing.T) {

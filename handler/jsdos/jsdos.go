@@ -375,6 +375,11 @@ func Binaries(paths ...string) []string {
 	return executables
 }
 
+// pathDepth returns the directory depth of an archive entry path.
+func pathDepth(p string) int {
+	return strings.Count(p, "/") + strings.Count(p, `\`)
+}
+
 // Binary returns a path to the most likely executable file from the archive paths.
 // The search order is .bat, .exe, .com, with the root paths having priority.
 // If no executable is found then an empty string is returned.
@@ -383,21 +388,22 @@ func Binary(paths ...string) string {
 		return ""
 	}
 	// sort by the number of directories in the path, to prioritize binaries in the root of the archive
-	sort.Slice(paths, func(i, j int) bool {
-		return len(filepath.SplitList(paths[i])) < len(filepath.SplitList(paths[j]))
+	sorted := slices.Clone(paths)
+	sort.SliceStable(sorted, func(i, j int) bool {
+		return pathDepth(sorted[i]) < pathDepth(sorted[j])
 	})
 	// in the future we could limit the directory depth of the search
-	for path := range slices.Values(paths) {
+	for path := range slices.Values(sorted) {
 		if strings.EqualFold(filepath.Ext(path), ".bat") {
 			return path
 		}
 	}
-	for path := range slices.Values(paths) {
+	for path := range slices.Values(sorted) {
 		if strings.EqualFold(filepath.Ext(path), ".exe") {
 			return path
 		}
 	}
-	for path := range slices.Values(paths) {
+	for path := range slices.Values(sorted) {
 		if strings.EqualFold(filepath.Ext(path), ".com") {
 			return path
 		}
@@ -440,18 +446,16 @@ func Finds(filename string, paths ...string) string {
 	if filename == "" || len(paths) == 0 {
 		return ""
 	}
-	// sort by the number of directories in the path, to prioritize binaries in the root of the archive
-	sort.Slice(paths, func(i, j int) bool {
-		return len(filepath.SplitList(paths[i])) < len(filepath.SplitList(paths[j]))
-	})
 	// prioritize the most likely executable that matches the archive name
 	// e.g. if the archive is 'myapp.zip' then the most likely executable order are
 	// 'myapp.exe', 'myapp.com', 'myapp.bat'
-	root := paths
-	sort.Slice(root, func(i, _ int) bool { // unused j variable
-		// only consider executables in the root of the archive
-		return len(filepath.SplitList(root[i])) == 0
-	})
+	// only consider executables in the root of the archive
+	root := make([]string, 0, len(paths))
+	for path := range slices.Values(paths) {
+		if pathDepth(path) == 0 {
+			root = append(root, path)
+		}
+	}
 	if len(root) == 0 {
 		return ""
 	}
