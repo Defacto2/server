@@ -153,9 +153,21 @@ func firstLead(art *models.File) string {
 	}
 
 	a := helper.MaskTerm([]byte(fname)...)
-	return releasersHrefs(art) +
-		`<br>` +
-		`<span class="font-monospace fs-5 fw-light">` + string(a) + `</span>`
+	chip := ""
+	if len(a) > 0 {
+		chip = `<span class="bg-body-tertiary border rounded px-2 py-0 font-monospace fs-6 text-body-secondary">` +
+			string(a) + `</span>`
+	}
+
+	rel := releasersHrefs(art)
+	switch {
+	case rel != "" && chip != "":
+		return `<span class="d-inline-flex flex-wrap align-items-center gap-2">` + rel + chip + `</span>`
+	case rel != "":
+		return rel
+	default:
+		return chip
+	}
 }
 
 // lockWidth returns the byte array with an enforced maximum width of printed characters per line.
