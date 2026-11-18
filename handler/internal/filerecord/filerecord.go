@@ -131,11 +131,11 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 
 	htm.WriteString(`<div class="border-bottom row mb-1 pb-1 align-items-center">`)
 	htm.WriteString(`<div class="col text-truncate">`)
+	htm.WriteString(title)
+	htm.WriteString(`</div>`)
 	if m.isExecutable() {
 		htm.WriteString(buttonEXE())
 	}
-	htm.WriteString(title)
-	htm.WriteString(`</div>`)
 	if actions := m.column1() + m.column2() + m.column3(); actions != "" {
 		htm.WriteString(`<div class="col-auto"><div class="btn-group btn-group-sm" role="group" aria-label="File actions">`)
 		htm.WriteString(actions)
@@ -146,13 +146,13 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	return htm.String()
 }
 
-// systemfile returns true if the file extension matches the known operating system tools.
-// This includes batch scripts, executables, commands and ini configurations files.
+// systemfile returns true if the file extension matches known non-text operating system files.
+// This includes executables, commands and ini configuration files.
 //
-// This is to stop the preview text content button being displayed for known false-positives.
+// Batch scripts (.bat) are excluded because they sometimes embed instructions or artwork.
 func systemfile(ext string) bool {
 	switch ext {
-	case bat, exe, com, ini:
+	case exe, com, ini:
 		return true
 	default:
 		return false
@@ -277,10 +277,10 @@ func buttonCGA(id, filename string) string {
 // buttonEXE returns a non-interactive terminal icon for executables.
 func buttonEXE() string {
 	const title = `Known program or executable`
-	return `<span class="text-body-secondary me-1" data-bs-toggle="tooltip" ` +
+	return `<div class="col-auto text-body-secondary" data-bs-toggle="tooltip" ` +
 		`data-bs-container="body" data-bs-placement="top" data-bs-title="` + title + `">` +
-		`<svg class="bi align-text-bottom" width="14" height="14" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></span>`
+		`<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
 }
 
 // buttonExtra creates a button to "/editor/helper/copy/ID/FILENAME".

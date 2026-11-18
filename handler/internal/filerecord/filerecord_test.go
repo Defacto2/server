@@ -206,6 +206,9 @@ func TestListEntry(t *testing.T) {
 	le.RelativeName = "runme.bat"
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "command script"))
+	be.True(t, strings.Contains(got, ">Preview</button>"))
+	be.True(t, strings.Contains(got, ">Readme</button>"))
+	be.True(t, strings.Contains(got, ">Extra</button>"))
 
 	le.RelativeName = "runme.ini"
 	got = le.HTML(bytes, platform, section)
