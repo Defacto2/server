@@ -40,40 +40,88 @@
 {{- $sauceDate := index . "sauceDate"}}
             {{- /*  [FILENAME] Content  */}}
             {{- if $content}}
+            {{- $fileCount := len $content}}
             <div class="modal fade" id="view-content-modal" tabindex="-1" aria-labelledby="view-content-modal-label" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
-                        <div class="modal-header bg-dark text-white">
-                            <h5 class="modal-title">📁 {{$filename}} - Content</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-header py-2 px-3">
+                            <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+                                <svg class="flex-shrink-0 text-secondary" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                                    <use xlink:href="/svg/bootstrap-icons.svg#file-text"/>
+                                </svg>
+                                <h5 class="modal-title fs-6 fw-semibold text-truncate mb-0" id="view-content-modal-label">{{$filename}}</h5>
+                                <span class="badge text-bg-secondary fw-normal flex-shrink-0" id="view-content-count">{{$fileCount}} {{if eq $fileCount 1}}file{{else}}files{{end}}</span>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            <div class="table-responsive">
-                            <table class="table table-sm table-striped table-hover align-middle mb-0">
-                                <thead class="table-dark">
-                                <tr>
-                                    <th scope="col" class="fw-light">#</th>
-                                    <th scope="col" class="fw-light">File path</th>
-                                </tr>
+                        <div class="px-3 py-2 bg-body-tertiary border-bottom">
+                            <div class="input-group input-group-sm">
+                                <input type="search" class="form-control" id="view-content-filter" placeholder="Filter files..." aria-label="Filter files">
+                                <button type="button" class="btn btn-outline-secondary d-none" id="view-content-filter-clear">Clear</button>
+                            </div>
+                        </div>
+                        <div class="modal-body p-0">
+                            <table class="table table-sm table-hover align-middle mb-0" id="view-content-table">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th scope="col" class="fw-normal text-secondary text-end ps-3" style="width: 1%;">#</th>
+                                        <th scope="col" class="fw-normal text-secondary pe-3">File path</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                 {{- range $i, $v := $content }}
-                                <tr>
-                                    <th scope="row" class="fw-light text-muted">{{add $i}}</th>
-                                    <td><code class="text-info">{{trimSpace $v}}</code></td>
-                                </tr>
+                                    <tr>
+                                        <th scope="row" class="fw-normal text-body-tertiary font-monospace small text-end ps-3">{{add $i}}</th>
+                                        <td class="font-monospace small text-body text-break pe-3">{{trimSpace $v}}</td>
+                                    </tr>
                                 {{- end }}
+                                    <tr id="view-content-empty" class="d-none">
+                                        <td colspan="2" class="text-center text-body-secondary small py-3">No matching files</td>
+                                    </tr>
                                 </tbody>
                             </table>
-                            </div>
                         </div>
-                        {{- /*  Switch to assets and Close button  */}}
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" data-bs-dismiss="modal">✕ Close</button>
+                        <div class="modal-footer py-2">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
             </div>
+            <script>
+              (() => {
+                const filterInput = document.getElementById('view-content-filter');
+                const clearBtn = document.getElementById('view-content-filter-clear');
+                const countBadge = document.getElementById('view-content-count');
+                const emptyRow = document.getElementById('view-content-empty');
+                const table = document.getElementById('view-content-table');
+                if (!filterInput || !table) return;
+                const rows = Array.from(table.querySelectorAll('tbody tr')).filter((tr) => tr !== emptyRow);
+                const total = rows.length;
+                const unit = total === 1 ? 'file' : 'files';
+                function applyFilter() {
+                  const q = filterInput.value.trim().toLowerCase();
+                  if (clearBtn) clearBtn.classList.toggle('d-none', q === '');
+                  let shown = 0;
+                  for (const row of rows) {
+                    const match = q === '' || row.lastElementChild.textContent.toLowerCase().includes(q);
+                    row.classList.toggle('d-none', !match);
+                    if (match) shown++;
+                  }
+                  if (emptyRow) emptyRow.classList.toggle('d-none', shown > 0);
+                  if (countBadge) {
+                    countBadge.textContent = q === '' ? `${total} ${unit}` : `${shown} / ${total} ${unit}`;
+                  }
+                }
+                filterInput.addEventListener('input', applyFilter);
+                if (clearBtn) {
+                  clearBtn.addEventListener('click', () => {
+                    filterInput.value = '';
+                    applyFilter();
+                    filterInput.focus();
+                  });
+                }
+              })();
+            </script>
             {{- end}}
             {{- /*  Primary artifact actions  */}}
             <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
