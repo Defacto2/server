@@ -189,47 +189,40 @@ func (m *ListEntry) column1() string {
 	}
 }
 
+// isTextCandidate returns true if the archive entry is a displayable text or readme file.
+func (m *ListEntry) isTextCandidate(ext string) bool {
+	if m.NonArchive || m.Images || m.briefDescription() || m.isExecutable() {
+		return false
+	}
+	if systemfile(ext) || slices.Contains(extensions.Archive(), ext) {
+		return false
+	}
+	return m.Texts || m.BINtexts || m.textNFO()
+}
+
 // column2 is the list entry, second action button of the "Download content" list.
 func (m *ListEntry) column2() string {
-	filename := url.QueryEscape(m.RelativeName)
-	ext := strings.ToLower(filepath.Ext(filename))
-	switch {
-	case ext == bat || ext == ini:
-		return ""
-	case m.briefDescription():
+	ext := strings.ToLower(filepath.Ext(m.RelativeName))
+	if m.briefDescription() {
 		// use DIZ
 		if m.NonArchive {
 			return ""
 		}
-		return buttonDIZ(m.UniqueID, filename)
-	case m.isExecutable():
-		return ""
-	case m.Texts || m.BINtexts || m.textNFO():
-		// use TEXT
-		if m.NonArchive {
-			return ""
-		}
-		return buttonReadme(m.UniqueID, filename)
-	default:
+		return buttonDIZ(m.UniqueID, m.name)
+	}
+	if !m.isTextCandidate(ext) {
 		return ""
 	}
+	return buttonReadme(m.UniqueID, m.name)
 }
 
 // column3 is the list entry, third action button of the "Download content" list.
 func (m *ListEntry) column3() string {
-	if m.NonArchive || m.Images {
+	ext := strings.ToLower(filepath.Ext(m.RelativeName))
+	if !m.isTextCandidate(ext) {
 		return ""
 	}
-	if useDIZ := m.briefDescription(); useDIZ {
-		return ""
-	}
-	filename := url.QueryEscape(m.RelativeName)
-	ext := strings.ToLower(filepath.Ext(filename))
-	if systemfile(ext) {
-		return ""
-	}
-
-	return buttonExtra(m.UniqueID, url.QueryEscape(m.RelativeName))
+	return buttonExtra(m.UniqueID, m.name)
 }
 
 func (m *ListEntry) cgaDump() bool {

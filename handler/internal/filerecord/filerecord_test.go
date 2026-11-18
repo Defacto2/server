@@ -215,6 +215,17 @@ func TestListEntry(t *testing.T) {
 	le.RelativeName = "music.cfg"
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "placeholder"))
+
+	le = filerecord.ListEntry{
+		UniqueID:     "888",
+		RelativeName: "NOCH#1.ZIP",
+		Signature:    "pkzip shrunk archive",
+	}
+	got = le.HTML(bytes, tags.Text.String(), tags.Nfo.String())
+	be.True(t, strings.Contains(got, "pkzip shrunk archive"))
+	be.True(t, !strings.Contains(got, ">Extra</button>"))
+	be.True(t, !strings.Contains(got, ">Readme</button>"))
+	be.True(t, !strings.Contains(got, "btn-group"))
 }
 
 func TestWebsites(t *testing.T) {
