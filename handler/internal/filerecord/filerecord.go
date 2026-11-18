@@ -815,7 +815,7 @@ func (e *Entry) skipMusic(path string) bool {
 	return false
 }
 
-func (e Entry) signature() string {
+func (e *Entry) signature() string {
 	if !e.image && e.format != "" {
 		return e.format
 	}

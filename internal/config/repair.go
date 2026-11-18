@@ -704,19 +704,23 @@ func inspectMagic(path string) (string, error) {
 	defer file.Close()
 
 	magic := magicnumber.Find(file)
-	if magic == magicnumber.ANSIEscapeText {
-		if _, err := file.Seek(0, io.SeekStart); err == nil {
-			if ok, err := ansimate.Detect(file); err == nil && ok {
-				return "ANSImation", nil
-			}
-		}
-		if _, err := file.Seek(0, io.SeekStart); err == nil {
-			if ok, err := ansimate.DetectBlink(file); err == nil && ok {
-				return magic.Title() + " with blinking", nil
-			}
-		}
+	title := magic.Title()
+	if magic != magicnumber.ANSIEscapeText {
+		return title, nil
 	}
-	return magic.Title(), nil
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		return title, nil
+	}
+	if ok, err := ansimate.Detect(file); err == nil && ok {
+		return "ANSImation", nil
+	}
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		return title, nil
+	}
+	if ok, err := ansimate.DetectBlink(file); err == nil && ok {
+		return title + " with blinking", nil
+	}
+	return title, nil
 }
 
 // Previews on startup check the preview directory for any unnecessary preview images such as textfile artifacts.

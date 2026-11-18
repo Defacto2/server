@@ -245,37 +245,15 @@ func (ds Dirs) ANSImation(ctx context.Context, sl *slog.Logger, src, unid string
 		return fmt.Errorf(format, "zero size: "+src, ErrIsEmpty)
 	}
 
-	f, err := os.Open(src)
+	tmp, err := animateToTemp(sl, src)
 	if err != nil {
-		return fmt.Errorf(format, "open source", err)
+		return err
 	}
 	defer func() {
-		if err := f.Close(); err != nil && sl != nil {
-			sl.Debug(msg+" closing source file", slog.String("file", src), slog.Any("error", err))
-		}
-	}()
-
-	tmpFile, err := dir.CreateTemp("ansimated-*.webp")
-	if err != nil {
-		return fmt.Errorf(format, "create temp", err)
-	}
-	tmp := tmpFile.Name()
-	defer func() {
-		if err := os.Remove(tmp); err != nil && !os.IsNotExist(err) && sl != nil {
+		if err := os.Remove(tmp); err != nil && !os.IsNotExist(err) {
 			sl.Error(msg+" could not remove temporary file", slog.String("file", tmp), slog.Any("error", err))
 		}
 	}()
-
-	cfg := &ansimate.Config{
-		EndDelay: 5 * time.Second,
-	}
-	if err := ansimate.Animate(tmpFile, f, cfg); err != nil {
-		_ = tmpFile.Close()
-		return fmt.Errorf(format, "animate", err)
-	}
-	if err := tmpFile.Close(); err != nil {
-		return fmt.Errorf(format, "close temp", err)
-	}
 
 	// remove existing preview & thumbnail images
 	if err := ImagesDelete(unid, ds.Preview.Path(), ds.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
@@ -292,6 +270,42 @@ func (ds Dirs) ANSImation(ctx context.Context, sl *slog.Logger, src, unid string
 	}
 
 	return nil
+}
+
+func animateToTemp(sl *slog.Logger, src string) (string, error) {
+	const msg = "ansi animation"
+	const format = msg + " %s: %w"
+	f, err := os.Open(src)
+	if err != nil {
+		return "", fmt.Errorf(format, "open source", err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			sl.Debug(msg+" closing source file", slog.String("file", src), slog.Any("error", err))
+		}
+	}()
+
+	tmpFile, err := dir.CreateTemp("ansimated-*.webp")
+	if err != nil {
+		return "", fmt.Errorf(format, "create temp", err)
+	}
+	tmp := tmpFile.Name()
+
+	const endDelay = 5
+	cfg := &ansimate.Config{
+		EndDelay: endDelay * time.Second,
+	}
+	if err := ansimate.Animate(tmpFile, f, cfg); err != nil {
+		_ = tmpFile.Close()
+		_ = os.Remove(tmp)
+		return "", fmt.Errorf(format, "animate", err)
+	}
+	if err := tmpFile.Close(); err != nil {
+		_ = os.Remove(tmp)
+		return "", fmt.Errorf(format, "close temp", err)
+	}
+
+	return tmp, nil
 }
 
 func isANSImation(src string) (bool, error) {

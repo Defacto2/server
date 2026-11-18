@@ -543,15 +543,17 @@ func magicANSI(r io.ReadSeeker, sign magicnumber.Signature, base string) string 
 	if sign != magicnumber.ANSIEscapeText || r == nil {
 		return base
 	}
-	if _, err := r.Seek(0, io.SeekStart); err == nil {
-		if ok, err := ansimate.Detect(r); err == nil && ok {
-			return ANSImation
-		}
+	if _, err := r.Seek(0, io.SeekStart); err != nil {
+		return base
 	}
-	if _, err := r.Seek(0, io.SeekStart); err == nil {
-		if ok, err := ansimate.DetectBlink(r); err == nil && ok {
-			return base + ANSIBlink
-		}
+	if ok, err := ansimate.Detect(r); err == nil && ok {
+		return ANSImation
+	}
+	if _, err := r.Seek(0, io.SeekStart); err != nil {
+		return base
+	}
+	if ok, err := ansimate.DetectBlink(r); err == nil && ok {
+		return base + ANSIBlink
 	}
 	return base
 }
