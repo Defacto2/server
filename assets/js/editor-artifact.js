@@ -315,6 +315,23 @@ import {
     validateReleaser(rel2);
   }
 
+  const saveRels = document.getElementById('artifact-editor-releaser-update');
+  function setReleaserPreset(value) {
+    rel1.value = value;
+    validateReleaser(rel1);
+    rel2.value = '';
+    validateReleaser(rel2);
+    if (saveRels) {
+      htmx.trigger(saveRels, 'submit-releasers');
+    }
+  }
+  document
+    .getElementById('artifact-editor-releaser-independent')
+    ?.addEventListener('click', () => setReleaserPreset('Independent'));
+  document
+    .getElementById('artifact-editor-releaser-none')
+    ?.addEventListener('click', () => setReleaserPreset('None'));
+
   document.addEventListener('change', (e) => {
     const target = e.target;
     if (
@@ -325,13 +342,8 @@ import {
       const isSelectedFromList = Array.from(options).some(
         (opt) => opt.value === target.value
       );
-      if (isSelectedFromList) {
-        const saveBtn = document.getElementById(
-          'artifact-editor-releaser-update'
-        );
-        if (saveBtn) {
-          htmx.trigger(saveBtn, 'submit-releasers');
-        }
+      if (isSelectedFromList && saveRels) {
+        htmx.trigger(saveRels, 'submit-releasers');
       }
     }
   });

@@ -122,15 +122,23 @@ export function htmxEvents() {
   });
 }
 
+function getEditorAlert(elt) {
+  const modalAlert = elt
+    ?.closest('.modal-content')
+    ?.querySelector('.artifact-editor-alert');
+  if (modalAlert) return modalAlert;
+  const liveAlert = document.querySelector('.artifact-editor-alert');
+  if (typeof liveAlert === 'undefined' || liveAlert === null) {
+    throw new Error('The htmx alert element .artifact-editor-alert is null');
+  }
+  return liveAlert;
+}
+
 function afterLinks(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = 'artifact-editor-alert';
-  const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === 'undefined' || liveAlert === null) {
-    throw new Error(`The htmx alert element ${alertId} is null`);
-  }
+  const liveAlert = getEditorAlert(event.detail.elt);
   if (event.detail.successful) {
     console.log('okay');
   }
@@ -144,11 +152,7 @@ function afterCreators(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = 'artifact-editor-alert';
-  const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === 'undefined' || liveAlert === null) {
-    throw new Error(`The htmx alert element ${alertId} is null`);
-  }
+  const liveAlert = getEditorAlert(event.detail.elt);
   if (event.detail.successful) {
     updateSuccess(liveAlert, `artifact-editor-credit-text`);
     updateSuccess(liveAlert, `artifact-editor-credit-ill`);
@@ -168,11 +172,7 @@ function afterUpdateDate(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = 'artifact-editor-alert';
-  const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === 'undefined' || liveAlert === null) {
-    throw new Error(`The htmx alert element ${alertId} is null`);
-  }
+  const liveAlert = getEditorAlert(event.detail.elt);
   const year = 'artifact-editor-year';
   const month = 'artifact-editor-month';
   const day = 'artifact-editor-day';
@@ -193,11 +193,7 @@ function afterUpdateRels(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = 'artifact-editor-alert';
-  const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === 'undefined' || liveAlert === null) {
-    throw new Error(`The htmx alert element ${alertId} is null`);
-  }
+  const liveAlert = getEditorAlert(event.detail.elt);
 
   const rel1 = 'artifact-editor-releaser-1';
   const rel2 = 'artifact-editor-releaser-2';
@@ -234,11 +230,7 @@ function afterUpdate(event, inputId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
-  const alertId = 'artifact-editor-alert';
-  const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === 'undefined' || liveAlert === null) {
-    throw new Error(`The htmx alert element ${alertId} is null`);
-  }
+  const liveAlert = getEditorAlert(event.detail.elt);
 
   if (event.detail.successful) {
     return updateSuccess(liveAlert, inputId);
@@ -253,14 +245,10 @@ function afterClassifications(event, buttonId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = 'artifact-editor-alert';
   const select1Id = 'artifact-editor-operating-system';
   const select2Id = 'artifact-editor-category';
 
-  const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === 'undefined' || liveAlert === null) {
-    throw new Error(`The htmx alert element ${alertId} is null`);
-  }
+  const liveAlert = getEditorAlert(event.detail.elt);
 
   if (event.detail.successful) {
     updateSuccess(liveAlert, select1Id);
@@ -277,11 +265,7 @@ function afterReset(event, buttonId, inputId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${buttonId}`) return;
 
-  const alertId = 'artifact-editor-alert';
-  const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === 'undefined' || liveAlert === null) {
-    throw new Error(`The htmx alert element ${alertId} is null`);
-  }
+  const liveAlert = getEditorAlert(event.detail.elt);
   console.log(`afterReset ${buttonId} ${inputId}`, event.detail);
   if (event.detail.successful) {
     console.log(event.detail.successful, `sucessful`);
@@ -333,11 +317,7 @@ function afterRecord(event, inputId, revertId) {
   if (event.detail.elt === null) return;
   if (event.detail.elt.id !== `${inputId}`) return;
 
-  const alertId = 'artifact-editor-alert';
-  const liveAlert = document.getElementById(alertId);
-  if (typeof liveAlert === 'undefined' || liveAlert === null) {
-    throw new Error(`The htmx alert element ${alertId} is null`);
-  }
+  const liveAlert = getEditorAlert(event.detail.elt);
 
   if (event.detail.successful) {
     return recordSuccess(event, inputId, liveAlert);
@@ -352,24 +332,31 @@ function afterRecord(event, inputId, revertId) {
  * Handles the successful event.
  *
  * @param {Event} event - The event object.
+ * @param {string} inputId - The ID of the input element.
  * @param {HTMLElement} alertElm - The alert element.
  */
 function recordSuccess(event, inputId, alertElm) {
   alertElm.classList.add('d-none');
   alertElm.innerText = '';
   const elm = document.getElementById(`artifact-editor-modal-header`);
-  switch (inputId) {
-    case 'artifact-editor-hidden':
-      elm.classList.remove('bg-success-subtle');
-      elm.classList.add('bg-danger-subtle');
-      break;
-    case 'artifact-editor-public':
-      elm.classList.add('bg-success-subtle');
-      elm.classList.remove('bg-danger-subtle');
-      break;
-    default:
-      console.error(`The record success ${inputId} is not supported.`);
+  if (!elm) return;
+
+  const state = event.detail.xhr?.responseText?.trim();
+  const isOnline =
+    state === 'online' ||
+    (state !== 'offline' && inputId === 'artifact-editor-public');
+
+  if (isOnline) {
+    elm.classList.add('bg-success-subtle');
+    elm.classList.remove('bg-danger-subtle');
+    return;
   }
+  if (state === 'offline' || inputId === 'artifact-editor-hidden') {
+    elm.classList.remove('bg-success-subtle');
+    elm.classList.add('bg-danger-subtle');
+    return;
+  }
+  console.error(`The record success ${inputId} is not supported.`);
 }
 
 /**

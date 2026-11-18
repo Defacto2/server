@@ -90,7 +90,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
         <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
           <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
         </svg>
-        <h2 class="modal-title fs-4 ps-2" id="artifact-editor-modal-label">Data editor for record key, {{$key}}</h2><br>
+        <h2 class="modal-title fs-4 ps-2" id="artifact-editor-modal-label">Data editor for record key, {{$key}}</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-target="#artifact-editor-modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container">
@@ -327,7 +327,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                     hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                     hx-target="#artifact-editor-list-1" minlength="2" maxlength="{{$hundred}}" required>
               </div>
-              <div class="col-6 col-lg-4 text-center"><small class="text-secondary">alt+shift 🢁🢃</small></div>
+              <div class="col-6 col-lg-4 d-flex flex-wrap justify-content-center align-items-center gap-1">
+                <button class="btn btn-link btn-sm p-0" type="button" id="artifact-editor-releaser-independent"><span class="badge text-bg-secondary">Independent</span></button>
+                <button class="btn btn-link btn-sm p-0" type="button" id="artifact-editor-releaser-none"><span class="badge text-bg-dark">None</span></button>
+              </div>
               <div class="col-6 col-lg-8">
                 <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
                     aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" class="form-control" 

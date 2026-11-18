@@ -194,3 +194,21 @@ func Test_plainText(t *testing.T) {
 	be.True(t, plainText(magicnumber.ANSIEscapeText.Title()+simple.ANSIBlink))
 	be.True(t, plainText(simple.ANSImation))
 }
+
+func Test_radioPublicHidden(t *testing.T) {
+	t.Parallel()
+
+	pubOn := string(radioPublic(true))
+	hidOn := string(radioHidden(true))
+	be.True(t, strings.Contains(pubOn, "checked"))
+	be.True(t, !strings.Contains(hidOn, "checked"))
+	be.True(t, strings.Contains(pubOn, `hx-swap="none"`))
+	be.True(t, strings.Contains(hidOn, `hx-swap="none"`))
+	be.True(t, strings.Contains(pubOn, `hx-sync="closest .row:replace"`))
+	be.True(t, strings.Contains(hidOn, `hx-sync="closest .row:replace"`))
+
+	pubOff := string(radioPublic(false))
+	hidOff := string(radioHidden(false))
+	be.True(t, !strings.Contains(pubOff, "checked"))
+	be.True(t, strings.Contains(hidOff, "checked"))
+}

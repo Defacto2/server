@@ -514,22 +514,19 @@ func (wa *WebApp) parseFS(ctx context.Context, db *sql.DB, name filename) *templ
 // 	id: artifact-editor-hidden
 
 const (
-	radio         = `<input type="radio" class="btn-check" name="artifact-editor-record"`
+	radio = `<input type="radio" class="btn-check" name="artifact-editor-record" ` +
+		`hx-include="[name='artifact-editor-key']" hx-swap="none" hx-sync="closest .row:replace" autocomplete="off"`
 	radiopubicChk = template.HTML(
-		radio + ` hx-patch="/editor/online/true" hx-include="[name='artifact-editor-key']" ` +
-			`id="artifact-editor-public" autocomplete="off" checked>`,
+		radio + ` hx-patch="/editor/online/true" id="artifact-editor-public" checked>`,
 	)
 	radiopubic = template.HTML(
-		radio + ` hx-patch="/editor/online/true" hx-include="[name='artifact-editor-key']" ` +
-			`id="artifact-editor-public" autocomplete="off">`,
+		radio + ` hx-patch="/editor/online/true" id="artifact-editor-public">`,
 	)
 	radiohideChk = template.HTML(
-		radio + ` hx-patch="/editor/online/false" hx-include="[name='artifact-editor-key']" ` +
-			`id="artifact-editor-hidden" autocomplete="off" checked>`,
+		radio + ` hx-patch="/editor/online/false" id="artifact-editor-hidden" checked>`,
 	)
 	radiohide = template.HTML(
-		radio + ` hx-patch="/editor/online/false" hx-include="[name='artifact-editor-key']" ` +
-			`id="artifact-editor-hidden" autocomplete="off">`,
+		radio + ` hx-patch="/editor/online/false" id="artifact-editor-hidden">`,
 	)
 )
 
@@ -541,7 +538,7 @@ func radioPublic(checked bool) template.HTML {
 }
 
 func radioHidden(checked bool) template.HTML {
-	if checked {
+	if !checked {
 		return radiohideChk
 	}
 	return radiohide
