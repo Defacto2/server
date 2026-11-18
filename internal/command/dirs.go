@@ -722,10 +722,6 @@ func (ds Dirs) netpdmPreview(
 		return fmt.Errorf(format, "proc", err)
 	}
 
-	dst := filepath.Join(ds.Preview.Path(), unid+png)
-	if err := CopyFile(sl, tmp, dst); err != nil {
-		return fmt.Errorf(format, "copyfile png preview", err)
-	}
 	if err := ds.optiAnsilove(ctx, sl, unid, tmp); err != nil {
 		return fmt.Errorf(format, "optimize ansilove", err)
 	}
@@ -874,10 +870,6 @@ func (ds Dirs) previewPixels(ctx context.Context, sl *slog.Logger, src, unid str
 		return fmt.Errorf(format, "run magick: "+string(output), err)
 	}
 
-	dst := filepath.Join(ds.Preview.Path(), unid+png)
-	if err := CopyFile(sl, tmp, dst); err != nil {
-		return fmt.Errorf(format, "copyfile png preview", err)
-	}
 	if err := ds.optiAnsilove(ctx, sl, unid, tmp); err != nil {
 		return fmt.Errorf(format, "optimize ansilove", err)
 	}

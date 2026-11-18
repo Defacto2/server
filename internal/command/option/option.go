@@ -190,7 +190,9 @@ func (o *Opts) PNGPixel(thumbnail bool, src, tmp string) {
 		"-posterize", "136", // reduce the image to 136 color levels per channel
 	)
 	if thumbnail {
-		o.Thumb()
+		o.thumb("Box")
+		// Quantize after resizing so downscale anti-aliasing stays within a 256-color palette for lossless WebP.
+		*o = append(*o, "+dither", "-colors", "256")
 	}
 	if tmp != "" {
 		*o = append(*o, tmp)
@@ -221,7 +223,7 @@ func (o *Opts) JPGPhoto(thumbnail bool, src, tmp string) {
 }
 
 // WebpPhoto appends the command line arguments for the [cwebp command] to transform
-// a photo to the WebP format.
+// a photo to the WebP format using lossy compression.
 //
 // [cwebp command]: https://developers.google.com/speed/webp/docs/cwebp
 func (o *Opts) WebpPhoto(src, tmp string) {
@@ -229,9 +231,9 @@ func (o *Opts) WebpPhoto(src, tmp string) {
 		return
 	}
 	*o = append(*o,
-		"-lossless", // use lossless compression
-		"-exact",    // preserve RGB values
-		"-mt",       // use multi-threading
+		"-preset", "photo",
+		"-q", "75", // lossy compression quality
+		"-mt", // use multi-threading
 	)
 	// input
 	if src != "" {
@@ -273,8 +275,12 @@ func (o *Opts) WebpPixel(src, tmp string) {
 // Thumb appends the command line arguments for magick to transform
 // an image into a squared, 400 x 400 pixel thumbnail.
 func (o *Opts) Thumb() {
+	o.thumb("Triangle")
+}
+
+func (o *Opts) thumb(filter string) {
 	*o = append(*o,
-		"-filter", "Triangle", // resize filter
+		"-filter", filter, // resize filter
 		"-thumbnail", size400x400, // the use of thumbnail is more performant than other flags
 		"-background", "#999",
 		gravity, "center",

@@ -192,8 +192,10 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 	}()
 
 	// remove existing thumbnails
-	if err := ImagesDelete(unid, thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
-		return fmt.Errorf(format, "delete existing thumbs", err)
+	if thumbnail.Path() != preview.Path() {
+		if err := ImagesDelete(unid, thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
+			return fmt.Errorf(format, "delete existing thumbs", err)
+		}
 	}
 
 	// range each image file extension looking for matches
@@ -207,7 +209,7 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 			continue
 		}
 
-		tmp := filepath.Join(tmpDir, unid+ext)
+		tmp := filepath.Join(tmpDir, unid+png)
 		arg := option.Opts{}
 		arg.ThumbAlignment(src, tmp, int(align))
 		r := Runner{Log: sl}
@@ -215,10 +217,11 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 			return fmt.Errorf(format, "run magick", err)
 		}
 
-		// copy thumbs to their final destination
-		finalDst := thumbnail.Join(unid + ext)
-		if err := CopyFile(sl, tmp, finalDst); err != nil {
-			return fmt.Errorf(format, "copy file", err)
+		finalDst := thumbnail.Join(unid + webp)
+		arg = option.Opts{}
+		arg.WebpPixel(tmp, finalDst)
+		if _, err := r.Run(ctx, Cwebp, arg...); err != nil {
+			return fmt.Errorf(format, "run cwebp", err)
 		}
 
 		return nil
@@ -681,7 +684,11 @@ func (t Thumb) make(ctx context.Context, sl *slog.Logger, thumb dir.Directory) e
 	// convert intermediate image to WebP
 	dst := filepath.Join(thumb.Path(), base+webp)
 	arg = option.Opts{}
-	arg.WebpPhoto(tmp, dst)
+	if t.JPEG {
+		arg.WebpPhoto(tmp, dst)
+	} else {
+		arg.WebpPixel(tmp, dst)
+	}
 	if _, err := r.Run(ctx, Cwebp, arg...); err != nil {
 		return fmt.Errorf(format, "run cwebp", err)
 	}

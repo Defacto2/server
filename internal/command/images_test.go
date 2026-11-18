@@ -716,7 +716,38 @@ func TestThumbs(t *testing.T) {
 	name := filepath.Join(thumbdir, unid+".webp")
 	st, got := os.Stat(name)
 	be.Err(t, got, nil)
-	be.True(t, st.Size() > 10_000)
+	be.True(t, st.Size() > 0)
+	be.True(t, st.Size() < 10_000)
+}
+
+func TestThumbsPixelAndPhoto(t *testing.T) {
+	t.Parallel()
+
+	prevdir := t.TempDir()
+	thumbdir := t.TempDir()
+	sl := logs.Discard()
+	unid := uuid.New().String()
+	src := filepath.Join(prevdir, unid+".png")
+	testutil.CopyPNG(t, src)
+
+	dirs := command.Dirs{
+		Preview:   dir.Directory(prevdir),
+		Thumbnail: dir.Directory(thumbdir),
+	}
+
+	got := dirs.Thumbs(t.Context(), sl, unid, command.Pixel)
+	be.Err(t, got, nil)
+	pixelSt, err := os.Stat(filepath.Join(thumbdir, unid+".webp"))
+	be.Err(t, err, nil)
+	be.True(t, pixelSt.Size() > 0)
+	be.True(t, pixelSt.Size() < 45_000)
+
+	got = dirs.Thumbs(t.Context(), sl, unid, command.Photo)
+	be.Err(t, got, nil)
+	photoSt, err := os.Stat(filepath.Join(thumbdir, unid+".webp"))
+	be.Err(t, err, nil)
+	be.True(t, photoSt.Size() > 0)
+	be.True(t, photoSt.Size() < 25_000)
 }
 
 func TestAlign(t *testing.T) {
