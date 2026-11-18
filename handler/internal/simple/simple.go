@@ -539,11 +539,9 @@ func MakeLink(id, name, class string, performant bool) (string, error) {
 	return s, nil
 }
 
-// MagicTitle returns the magic number description, refining ANSI escaped text
-// as static, blinking, or an ANSImation using ansimate.
-func MagicTitle(r io.ReadSeeker, sign magicnumber.Signature) string {
+func magicANSI(r io.ReadSeeker, sign magicnumber.Signature, base string) string {
 	if sign != magicnumber.ANSIEscapeText || r == nil {
-		return sign.Title()
+		return base
 	}
 	if _, err := r.Seek(0, io.SeekStart); err == nil {
 		if ok, err := ansimate.Detect(r); err == nil && ok {
@@ -552,10 +550,22 @@ func MagicTitle(r io.ReadSeeker, sign magicnumber.Signature) string {
 	}
 	if _, err := r.Seek(0, io.SeekStart); err == nil {
 		if ok, err := ansimate.DetectBlink(r); err == nil && ok {
-			return sign.Title() + ANSIBlink
+			return base + ANSIBlink
 		}
 	}
-	return sign.Title()
+	return base
+}
+
+// MagicTitle returns the magic number description, refining ANSI escaped text
+// as static, blinking, or an ANSImation using ansimate.
+func MagicTitle(r io.ReadSeeker, sign magicnumber.Signature) string {
+	return magicANSI(r, sign, sign.Title())
+}
+
+// MagicString returns the short magic number description, refining ANSI text
+// as static, blinking, or an ANSImation using ansimate.
+func MagicString(r io.ReadSeeker, sign magicnumber.Signature) string {
+	return magicANSI(r, sign, sign.String())
 }
 
 // MagicAsTitle returns the magic number description for the named file.

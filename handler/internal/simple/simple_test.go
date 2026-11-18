@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/testutil"
@@ -373,6 +374,21 @@ func TestMagicAsTitle(t *testing.T) {
 	be.Equal(t, simple.MagicAsTitle(sl, blinkANSI), "ANSI escaped text with blinking")
 
 	be.Equal(t, simple.MagicAsTitle(sl, testutil.FileData("maximum3ans").Abs()), simple.ANSImation)
+
+	f, err := os.Open(staticANSI)
+	be.Err(t, err, nil)
+	be.Equal(t, simple.MagicString(f, magicnumber.ANSIEscapeText), "ANSI text")
+	be.Err(t, f.Close(), nil)
+
+	f, err = os.Open(blinkANSI)
+	be.Err(t, err, nil)
+	be.Equal(t, simple.MagicString(f, magicnumber.ANSIEscapeText), "ANSI text with blinking")
+	be.Err(t, f.Close(), nil)
+
+	f, err = os.Open(testutil.FileData("maximum3ans").Abs())
+	be.Err(t, err, nil)
+	be.Equal(t, simple.MagicString(f, magicnumber.ANSIEscapeText), simple.ANSImation)
+	be.Err(t, f.Close(), nil)
 }
 
 func TestMIME(t *testing.T) {

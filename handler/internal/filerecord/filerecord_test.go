@@ -1,6 +1,7 @@
 package filerecord_test
 
 import (
+	"archive/zip"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/handler/internal/filerecord"
+	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
@@ -770,4 +772,43 @@ func TestSkipEntry(t *testing.T) {
 	be.Err(t, err, nil)
 	d = fs.FileInfoToDirEntry(info)
 	be.True(t, !e.SkipEntry(name, d, ""))
+}
+
+func TestListContentANSImation(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	zipPath := filepath.Join(tmpDir, "ansi.zip")
+	zf, err := os.Create(zipPath)
+	be.Err(t, err, nil)
+
+	zw := zip.NewWriter(zf)
+	writeEntry := func(name string, data []byte) {
+		t.Helper()
+		w, err := zw.Create(name)
+		be.Err(t, err, nil)
+		_, err = w.Write(data)
+		be.Err(t, err, nil)
+	}
+	writeEntry("STATIC.ANS", []byte("\x1b[31mHello World\x1b[0m\r\n"))
+	writeEntry("BLINK.ANS", []byte("\x1b[5;31mHello World\x1b[0m\r\n"))
+	animData, err := os.ReadFile(testutil.FileData("maximum3ans").Abs())
+	be.Err(t, err, nil)
+	writeEntry("MAXIMUM3.ANS", animData)
+	be.Err(t, zw.Close(), nil)
+	be.Err(t, zf.Close(), nil)
+
+	art := testutil.NewModel(t)
+	art.Platform = null.StringFrom("dos")
+	art.Section = null.StringFrom("bbs")
+	art.Filename = null.StringFrom("ansi.zip")
+
+	dlc := filerecord.DownloadContent{
+		Source:   zipPath,
+		MaxItems: 10,
+	}
+	got := string(dlc.List(t.Context(), logs.Discard(), art))
+	be.True(t, strings.Contains(got, "<small>ANSI text</small>"))
+	be.True(t, strings.Contains(got, "<small>ANSI text with blinking</small>"))
+	be.True(t, strings.Contains(got, "<small>"+simple.ANSImation+"</small>"))
 }

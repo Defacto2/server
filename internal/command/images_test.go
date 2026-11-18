@@ -546,6 +546,40 @@ func TestTextImagerANSImation(t *testing.T) {
 	be.True(t, tst.Size() > 0)
 }
 
+func TestTextImagerANSIBlink(t *testing.T) {
+	t.Parallel()
+
+	prevdir := t.TempDir()
+	thumbdir := t.TempDir()
+	dirs := command.Dirs{
+		Preview:   dir.Directory(prevdir),
+		Thumbnail: dir.Directory(thumbdir),
+	}
+
+	sl := slog.Default()
+	unid := uuid.New().String()
+	blinkSrc := filepath.Join(t.TempDir(), "blink.ans")
+	be.Err(t, os.WriteFile(blinkSrc, []byte("\x1b[5;31mHello World\x1b[0m\r\n"), 0o600), nil)
+
+	got := dirs.TextImager(t.Context(), sl, blinkSrc, unid, false)
+	be.Err(t, got, nil)
+
+	// check for the animated preview image (.webp) and absence of ansilove .png
+	name := filepath.Join(prevdir, unid+".webp")
+	pst, err := os.Stat(name)
+	be.Err(t, err, nil)
+	be.True(t, pst.Size() > 0)
+
+	_, err = os.Stat(filepath.Join(prevdir, unid+".png"))
+	be.True(t, os.IsNotExist(err))
+
+	// check for the thumbnail (.webp)
+	name = filepath.Join(thumbdir, unid+".webp")
+	tst, err := os.Stat(name)
+	be.Err(t, err, nil)
+	be.True(t, tst.Size() > 0)
+}
+
 func TestAnsiAnimation(t *testing.T) {
 	t.Parallel()
 

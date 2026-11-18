@@ -640,6 +640,9 @@ func (e *Entry) skipByInfo(path, platform string, info fs.FileInfo) bool {
 	defer r.Close()
 
 	e.sign = magicnumber.Find(r)
+	if e.sign == magicnumber.ANSIEscapeText {
+		e.format = simple.MagicString(r, e.sign)
+	}
 	e.image = e.isImage()
 	e.text = e.isText()
 	e.bintext = e.isBinaryText(platform)
@@ -812,10 +815,17 @@ func (e *Entry) skipMusic(path string) bool {
 	return false
 }
 
+func (e Entry) signature() string {
+	if !e.image && e.format != "" {
+		return e.format
+	}
+	return e.sign.String()
+}
+
 func listErr(e Entry) ListEntry {
 	return ListEntry{
 		RelativeName: "",
-		Signature:    e.sign.String(),
+		Signature:    e.signature(),
 		Filesize:     e.size,
 		ImageConfig:  e.format,
 		MusicConfig:  e.module,
@@ -837,7 +847,7 @@ func listErr(e Entry) ListEntry {
 func listEntry(e Entry, rel, unid string) ListEntry {
 	return ListEntry{
 		RelativeName: LegacyString(rel),
-		Signature:    e.sign.String(),
+		Signature:    e.signature(),
 		Filesize:     e.size,
 		ImageConfig:  e.format,
 		MusicConfig:  e.module,

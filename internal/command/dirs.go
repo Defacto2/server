@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -301,7 +302,17 @@ func isANSImation(src string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("detect: %w", err)
 	}
-	return anim, nil
+	if anim {
+		return true, nil
+	}
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		return false, fmt.Errorf("seek: %w", err)
+	}
+	blink, err := ansimate.DetectBlink(f)
+	if err != nil {
+		return false, fmt.Errorf("detect blink: %w", err)
+	}
+	return blink, nil
 }
 
 // TextImager generates images based on the text file provided by the src path.
