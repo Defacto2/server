@@ -44,7 +44,6 @@ const (
 	textamiga               = "textamiga"
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
-	blank = `<div class="col col-1"></div>`
 	br    = "<br>"
 	bat   = ".bat"
 	cmd   = ".cmd"
@@ -130,13 +129,18 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	const size = 512
 	htm.Grow(size)
 
-	htm.WriteString(`<div class="border-bottom row mb-1">`)
-	htm.WriteString(`<div class="col d-inline-block text-truncate">`)
+	htm.WriteString(`<div class="border-bottom row mb-1 pb-1 align-items-center">`)
+	htm.WriteString(`<div class="col text-truncate">`)
+	if m.isExecutable() {
+		htm.WriteString(buttonEXE())
+	}
 	htm.WriteString(title)
 	htm.WriteString(`</div>`)
-	htm.WriteString(m.column1())
-	htm.WriteString(m.column2())
-	htm.WriteString(m.column3())
+	if actions := m.column1() + m.column2() + m.column3(); actions != "" {
+		htm.WriteString(`<div class="col-auto"><div class="btn-group btn-group-sm" role="group" aria-label="File actions">`)
+		htm.WriteString(actions)
+		htm.WriteString(`</div></div>`)
+	}
 	htm.WriteString(m.columnFooter())
 	htm.WriteString(`</div>`)
 	return htm.String()
@@ -155,7 +159,15 @@ func systemfile(ext string) bool {
 	}
 }
 
-// column1 is the list entry, first column button of the "Download content" list.
+func (m *ListEntry) isExecutable() bool {
+	ext := strings.ToLower(filepath.Ext(m.name))
+	if ext == bat || ext == ini || m.briefDescription() {
+		return false
+	}
+	return m.Programs || ext == exe || m.unknownCOM(ext)
+}
+
+// column1 is the list entry, first action button of the "Download content" list.
 func (m *ListEntry) column1() string {
 	switch {
 	case m.Images:
@@ -165,7 +177,7 @@ func (m *ListEntry) column1() string {
 		// use CGA data
 		return buttonCGA(m.UniqueID, m.name)
 	case systemfile(strings.ToLower(filepath.Ext(m.name))):
-		return blank
+		return ""
 	case m.Texts:
 		// use Text
 		return buttonText(m.UniqueID, m.name, m.platform, m.Signature)
@@ -173,49 +185,48 @@ func (m *ListEntry) column1() string {
 		// use Text
 		return buttonTextBinary(m.UniqueID, m.name)
 	default:
-		return blank
+		return ""
 	}
 }
 
-// column2 is the list entry, second column button of the "Download content" list.
+// column2 is the list entry, second action button of the "Download content" list.
 func (m *ListEntry) column2() string {
 	filename := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(filename))
 	switch {
 	case ext == bat || ext == ini:
-		return blank
+		return ""
 	case m.briefDescription():
 		// use DIZ
 		if m.NonArchive {
-			return blank
+			return ""
 		}
 		return buttonDIZ(m.UniqueID, filename)
-	case m.Programs || ext == exe || m.unknownCOM(ext):
-		// highlight EXE
-		return buttonEXE()
+	case m.isExecutable():
+		return ""
 	case m.Texts || m.BINtexts || m.textNFO():
 		// use TEXT
 		if m.NonArchive {
-			return blank
+			return ""
 		}
 		return buttonReadme(m.UniqueID, filename)
 	default:
-		return blank
+		return ""
 	}
 }
 
-// column3 is the list entry, third column button of the "Download content" list.
+// column3 is the list entry, third action button of the "Download content" list.
 func (m *ListEntry) column3() string {
 	if m.NonArchive || m.Images {
-		return blank
+		return ""
 	}
 	if useDIZ := m.briefDescription(); useDIZ {
-		return blank
+		return ""
 	}
 	filename := url.QueryEscape(m.RelativeName)
 	ext := strings.ToLower(filepath.Ext(filename))
 	if systemfile(ext) {
-		return blank
+		return ""
 	}
 
 	return buttonExtra(m.UniqueID, url.QueryEscape(m.RelativeName))
@@ -249,116 +260,89 @@ func buttonTextBinary(id, filename string) string {
 	return buttonPreview("preview-binary", id, filename)
 }
 
-// buttonCGA creates a placeholder link to "/editor/preview/cga/ID/FILENAME".
-func buttonCGA(id, filename string) string {
-	const title = `Use file for a preview`
-	const href = `#file-editor`
-	const class = `icon-link align-text-bottom`
-	const name = `artifact-editor-comp-previewcga`
+// actionButton builds a compact HTMX button for a "Download content" list entry.
+func actionButton(name, variant, title, label, patch string) string {
 	const indicator = `#artifact-editor-comp-htmx-indicator`
 	const target = `#artifact-editor-comp-feedback`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
+	return `<button type="button" class="btn ` + variant + ` py-0 px-2" name="` + name + `" ` +
+		`data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="top" data-bs-title="` + title + `" ` +
 		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/preview/cga/` + id + `/` + filename + `">` +
-		`<span class="badge text-bg-secondary">` +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
+		`hx-patch="` + patch + `">` + label + `</button>`
 }
 
-// buttonEXE returns a non-interactive terminal icon.
+// buttonCGA creates a placeholder button to "/editor/preview/cga/ID/FILENAME".
+func buttonCGA(id, filename string) string {
+	return actionButton(
+		`artifact-editor-comp-previewcga`,
+		`btn-outline-secondary`,
+		`Use file for a preview`,
+		`Preview`,
+		`/editor/preview/cga/`+id+`/`+filename,
+	)
+}
+
+// buttonEXE returns a non-interactive terminal icon for executables.
 func buttonEXE() string {
 	const title = `Known program or executable`
-	return `<div class="col col-1 text-end" ` +
-		`data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></div>`
+	return `<span class="text-body-secondary me-1" data-bs-toggle="tooltip" ` +
+		`data-bs-container="body" data-bs-placement="top" data-bs-title="` + title + `">` +
+		`<svg class="bi align-text-bottom" width="14" height="14" fill="currentColor" aria-hidden="true">` +
+		`<use xlink:href="/svg/bootstrap-icons.svg#terminal-plus"></use></svg></span>`
 }
 
-// buttonExtra creates a link to "/editor/helper/copy/ID/FILENAME".
+// buttonExtra creates a button to "/editor/helper/copy/ID/FILENAME".
 func buttonExtra(id, filename string) string {
-	const title = `Use file as an extra readme`
-	const href = `#file-editor`
-	const class = `icon-link align-text-bottom`
-	const name = `artifact-editor-comp-hlpcopy`
-	const indicator = `#artifact-editor-comp-htmx-indicator`
-	const target = `#artifact-editor-comp-feedback`
-	// while hard to read, this is the performant method of returning a complex string
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/helper/copy/` + id + `/` + filename + `">` +
-		`<span class="badge bg-success text-dark">` +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg>` +
-		`</span></a></div>`
+	return actionButton(
+		`artifact-editor-comp-hlpcopy`,
+		`btn-outline-secondary`,
+		`Use file as an extra readme`,
+		`Extra`,
+		`/editor/helper/copy/`+id+`/`+filename,
+	)
 }
 
-// buttonImage creates a link to "/editor/preview/copy/ID/FILENAME".
+// buttonImage creates a button to "/editor/preview/copy/ID/FILENAME".
 func buttonImage(id, filename string) string {
-	const title = `Use image for preview`
-	const class = `icon-link align-text-bottom`
-	const name = `artifact-editor-comp-previewcopy`
-	const indicator = `#artifact-editor-comp-htmx-indicator`
-	const target = `#artifact-editor-comp-feedback`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		`<a class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/preview/copy/` + id + `/` + filename + `">` +
-		`<span class="badge text-bg-primary">` +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
+	return actionButton(
+		`artifact-editor-comp-previewcopy`,
+		`btn-outline-primary`,
+		`Use image for preview`,
+		`Preview`,
+		`/editor/preview/copy/`+id+`/`+filename,
+	)
 }
 
-// buttonPreview creates a link to "/editor/readme/URI/ID/FILENAME".
+// buttonPreview creates a button to "/editor/readme/URI/ID/FILENAME".
 func buttonPreview(uri, id, filename string) string {
-	const title = `Use file for preview`
-	const href = `#file-editor`
-	const class = `icon-link align-text-bottom`
-	const name = `artifact-editor-comp-previewtext`
-	const indicator = `#artifact-editor-comp-htmx-indicator`
-	const target = `#artifact-editor-comp-feedback`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/readme/` + uri + `/` + id + `/` + filename + `">` +
-		`<span class="badge text-bg-secondary">` +
-		`<svg width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#images"></use></svg></span></a></div>`
+	return actionButton(
+		`artifact-editor-comp-previewtext`,
+		`btn-outline-secondary`,
+		`Use file for preview`,
+		`Preview`,
+		`/editor/readme/`+uri+`/`+id+`/`+filename,
+	)
 }
 
-// buttonReadme creates a link to "/editor/readme/copy/ID/FILENAME".
+// buttonReadme creates a button to "/editor/readme/copy/ID/FILENAME".
 func buttonReadme(id, filename string) string {
-	const title = `Use file as the readme`
-	const href = `#file-editor`
-	const class = `icon-link align-text-bottom`
-	const name = `artifact-editor-comp-textcopy`
-	const indicator = `#artifact-editor-comp-htmx-indicator`
-	const target = `#artifact-editor-comp-feedback`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/readme/copy/` + id + `/` + filename + `">` +
-		`<span class="badge text-bg-success">` +
-		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
+	return actionButton(
+		`artifact-editor-comp-textcopy`,
+		`btn-outline-success`,
+		`Use file as the readme`,
+		`Readme`,
+		`/editor/readme/copy/`+id+`/`+filename,
+	)
 }
 
-// buttonDIZ creates a link to "/editor/diz/copy/ID/FILENAME".
+// buttonDIZ creates a button to "/editor/diz/copy/ID/FILENAME".
 func buttonDIZ(id, filename string) string {
-	const title = `Use file as the FILE_ID.DIZ`
-	const href = `#file-editor`
-	const class = `icon-link align-text-bottom`
-	const name = `artifact-editor-comp-dizcopy`
-	const indicator = `#artifact-editor-comp-htmx-indicator`
-	const target = `#artifact-editor-comp-feedback`
-	return `<div class="col col-1 text-end" data-bs-toggle="tooltip" data-bs-title="` + title + `">` +
-		`<a href="` + href + `" class="` + class + `" name="` + name + `" ` +
-		`hx-indicator="` + indicator + `" hx-target="` + target + `" ` +
-		`hx-patch="/editor/diz/copy/` + id + `/` + filename + `">` +
-		`<span class="badge text-bg-primary">` +
-		`<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true">` +
-		`<use xlink:href="/svg/bootstrap-icons.svg#file-text"></use></svg></span></a></div>`
+	return actionButton(
+		`artifact-editor-comp-dizcopy`,
+		`btn-outline-primary`,
+		`Use file as the FILE_ID.DIZ`,
+		`DIZ`,
+		`/editor/diz/copy/`+id+`/`+filename,
+	)
 }
 
 // columnFooter returns the brief metadata descriptions of the list entry.

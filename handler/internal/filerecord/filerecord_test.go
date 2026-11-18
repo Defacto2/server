@@ -157,6 +157,8 @@ func TestListEntry(t *testing.T) {
 	le.Programs = true
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "Dos command"))
+	be.True(t, strings.Contains(got, "terminal-plus"))
+	be.True(t, !strings.Contains(got, "btn-group"))
 
 	le.RelativeName = "MARBLE.COM"
 	le.Programs = false
@@ -170,12 +172,17 @@ func TestListEntry(t *testing.T) {
 	le.Programs = false
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "/editor/preview/copy/"))
+	be.True(t, strings.Contains(got, ">Preview</button>"))
 
 	le.RelativeName = "filename.txt"
 	le.Texts = true
 	le.Images = false
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "/editor/readme/copy/"))
+	be.True(t, strings.Contains(got, "btn-group"))
+	be.True(t, strings.Contains(got, ">Preview</button>"))
+	be.True(t, strings.Contains(got, ">Readme</button>"))
+	be.True(t, strings.Contains(got, ">Extra</button>"))
 	x := le.HTML(bytes, tags.TextAmiga.String(), section)
 	be.True(t, got != x)
 
@@ -194,6 +201,7 @@ func TestListEntry(t *testing.T) {
 	le.RelativeName = extensions.FileID
 	got = le.HTML(bytes, platform, section)
 	be.True(t, strings.Contains(got, "/editor/diz/copy/"))
+	be.True(t, strings.Contains(got, ">DIZ</button>"))
 
 	le.RelativeName = "runme.bat"
 	got = le.HTML(bytes, platform, section)
