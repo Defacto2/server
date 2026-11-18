@@ -28,8 +28,19 @@
       <div class="modal-body bg-body-tertiary">
         {{- /*  shown when platform != "dos"  */}}
         {{- if eq $msdos false}}
-        <div class="alert alert-secondary mb-0" role="alert">
-            The emulator editor is not in use, only the artifacts set as <strong title="use Microsoft or IBM DOS">for MsDos PC</strong> use this.
+        <div class="card text-center">
+          <div class="card-body py-5 px-3">
+            <svg class="text-secondary mb-3" width="32" height="32" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+              <use xlink:href="/svg/bootstrap-icons.svg#terminal"/>
+            </svg>
+            <p class="text-body-secondary mb-3">
+              The emulator is not in use, only artifacts with 
+              <em>System or type</em> set to <strong class="text-body" title="use Microsoft or IBM DOS">for Dos on PC</strong> use this
+            </p>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal">
+              Open Data editor
+            </button>
+          </div>
         </div>
         {{- else}}
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
