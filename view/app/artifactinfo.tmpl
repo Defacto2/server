@@ -30,7 +30,6 @@
 {{- $filebyte := index . "filebyte"}}
 {{- $filename := index . "filename"}}
 {{- $download := index . "download"}}
-{{- $downloadText := print "Download &nbsp; " print $filesize}}
 {{- $fileEntry := index . "filentry"}}
 {{- $extraZip := index . "extraZip"}}
 {{- $editor := index . "editor"}}
@@ -39,7 +38,6 @@
 {{- $sauceAuthor := index . "sauceAuthor"}}
 {{- $sauceGroup := index . "sauceGroup"}}
 {{- $sauceDate := index . "sauceDate"}}
-{{- if $noDownload}}{{$downloadText = print `<span class="text-decoration-line-through">` print $downloadText print "</span>"}}{{end}}
             {{- /*  [FILENAME] Content  */}}
             {{- if $content}}
             <div class="modal fade" id="view-content-modal" tabindex="-1" aria-labelledby="view-content-modal-label" aria-hidden="true">
@@ -77,107 +75,97 @@
                 </div>
             </div>
             {{- end}}
-            {{- /*  Artifact file download link  */}} 
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-auto g-3 justify-content-center">
+            {{- /*  Primary artifact actions  */}}
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
             {{- if eq $alertURL "" }}
-                {{- /*  standard download  */}}
-                <div class="col">
-                    <div class="d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + d">
-                        <div>
-                            <a class="btn btn-success btn-lg w-100" id="artifact-download-link" href="/d/{{$download}}" rel="nofollow" role="button">📥 Download file</a>
-                            <small class="d-block text-center text-muted mt-1">{{$downloadText | safeHTML}}</small>
-                        </div>
-                    </div>
-                </div>
-                {{- if eq $extraZip true }}
-                <div class="col">
-                    <div class="d-grid">
-                        <div>
-                            <a class="btn btn-outline-success btn-lg w-100" href="/jsdos/{{$download}}" rel="nofollow" role="button">📦 ZIP repack</a>
-                            <small class="d-block text-center text-muted mt-1">Repacked for usability</small>
-                        </div>
-                    </div>
-                </div>{{end}}
-                {{- /*  chiptune player for music files  */}}
-                {{- if and (musicMod $mimetype) (not $noDownload)}}
-                <div class="col">
-                    <div class="d-grid">
-                        <div>
-                            <button class="btn btn-primary btn-lg w-100" id="chiptune-play-button">🎵 Play music</button>
-                            <small class="d-block text-center text-muted mt-1">Preview in browser</small>
-                        </div>
-                    </div>
-                </div>
-                {{- end }}
+              {{- /*  standard download  */}}
+              <a class="btn btn-success d-inline-flex align-items-center gap-2" id="artifact-download-link" href="/d/{{$download}}" rel="nofollow" role="button" data-bs-toggle="tooltip" data-bs-title="alt + shift + d">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <use xlink:href="/svg/bootstrap-icons.svg#cloud-download"/>
+                </svg>
+                <span{{if $noDownload}} class="text-decoration-line-through"{{end}}>Download</span>
+                <span class="small{{if $noDownload}} text-decoration-line-through{{end}}">({{$filesize}})</span>
+              </a>
+              {{- if eq $extraZip true }}
+              <a class="btn btn-outline-success d-inline-flex align-items-center gap-2" href="/jsdos/{{$download}}" rel="nofollow" role="button" data-bs-toggle="tooltip" data-bs-title="Repacked for usability">
+                <span>ZIP repack</span>
+              </a>
+              {{- end}}
+              {{- /*  chiptune player for music files  */}}
+              {{- if and (musicMod $mimetype) (not $noDownload)}}
+              <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" id="chiptune-play-button" data-bs-toggle="tooltip" data-bs-title="Preview in browser">Play music</button>
+              {{- end }}
             {{- else }}
-                {{- /*  google download warning  */}}
-                <div class="col">
-                    <div class="d-grid">
-                        <div>
-                            <a class="btn btn-outline-danger btn-lg w-100" data-bs-toggle="modal" data-bs-target="#download-unwanted-modal">⚠️ Download</a>
-                            <small class="d-block text-center text-danger mt-1">Security warning</small>
-                        </div>
+              {{- /*  google download warning  */}}
+              <button type="button" class="btn btn-outline-danger d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#download-unwanted-modal">
+                <span>Download warning</span>
+              </button>
+              <div class="modal fade" id="download-unwanted-modal" tabindex="-1" aria-labelledby="download-unwanted-modal-label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title fs-5" id="download-unwanted-modal-label">Download warning</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </div>
-                <div class="modal fade" id="download-unwanted-modal" tabindex="-1" aria-labelledby="download-unwanted-modal-label" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title fs-5" id="download-unwanted-modal-label">Download warning</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body text-start">
-                                Google Search or Microsoft Defender flags this download as unsafe or as an unwanted download. 
-                                It maybe be a false positive, however we recommend being careful! 
-                                Either run the file in a virtualized environment or in an isolated emulator.
-                                <p class="m-3 text-center h6"><a class="link-offset-2" href="{{$alertURL}}">You should read this scan report before downloading</a></p>
-                                <p class="m-5 text-center">
-                                    <small><a class="link-secondary link-offset-3" href="/d/{{$download}}" rel="nofollow" role="button">I understand, download anyway</a></small></p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
-                            </div>
-                        </div>
+                    <div class="modal-body text-start">
+                      Google Search or Microsoft Defender flags this download as unsafe or as an unwanted download.
+                      It maybe be a false positive, however we recommend being careful!
+                      Either run the file in a virtualized environment or in an isolated emulator.
+                      <p class="m-3 text-center h6"><a class="link-offset-2" href="{{$alertURL}}">You should read this scan report before downloading</a></p>
+                      <p class="m-5 text-center">
+                        <small><a class="link-secondary link-offset-3" href="/d/{{$download}}" rel="nofollow" role="button">I understand, download anyway</a></small>
+                      </p>
                     </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                  </div>
                 </div>
+              </div>
             {{- end }}
             {{- if eq $jsdos6 true}}
-            <div class="col">
-                <div class="d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + r">
-                    <div>
-                        <a href="#" id="js-dos-run-app" class="btn btn-outline-dark btn-lg w-100" data-bs-toggle="modal" data-bs-target="#js-dos-modal" rel="nofollow">🎮 Run in browser</a>
-                        <small class="d-block text-center text-muted mt-1">Using DOSBox</small>
-                    </div>
-                </div>
-            </div>
+              <span class="d-inline-block" data-bs-toggle="tooltip" data-bs-title="alt + shift + r">
+                <button type="button" id="js-dos-run-app" class="btn btn-outline-dark d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#js-dos-modal">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#terminal"/>
+                  </svg>
+                  <span>Run in browser</span>
+                </button>
+              </span>
             {{- end}}
             </div>
-            {{- /*  Additional artifact actions  */}}
-            <div class="mt-4 mb-3">
-                <h6 class="fw-light text-secondary mb-3">More actions</h6>
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
-            {{- if ne "" $checksum}}
-                <div class="col d-none d-sm-grid">
-                    <a class="btn btn-sm btn-link text-truncate" href="/sum/{{$download}}" role="button" 
-                        data-bs-toggle="tooltip" data-bs-title="{{$checksum}}" rel="nofollow">🔐 Checksum</a>
-                </div>
-                <div class="col d-grid d-sm-none">
-                    <a class="btn btn-sm btn-link" href="/sum/{{$download}}" role="button" rel="nofollow">🔐 Checksum</a>
-                </div>
-            {{- end}}
+            {{- /*  Secondary artifact utilities  */}}
+            {{- if or $content (ne "" $checksum) (ne "" $preview)}}
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
             {{- if $content}}
-                <div class="col d-grid" data-bs-toggle="tooltip" data-bs-title="alt + shift + v">
-                    <a id="artifact-view-content" class="btn btn-sm btn-link" data-bs-toggle="modal" data-bs-target="#view-content-modal">📋 View content</a>
-                </div>
+              <span class="d-inline-block" data-bs-toggle="tooltip" data-bs-title="alt + shift + v">
+                <button type="button" id="artifact-view-content" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#view-content-modal">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#file-text"/>
+                  </svg>
+                  <span>View content</span>
+                  <span class="badge text-bg-secondary">{{len $content}}</span>
+                </button>
+              </span>
+            {{- end}}
+            {{- if ne "" $checksum}}
+              <a class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" href="/sum/{{$download}}" role="button" data-bs-toggle="tooltip" data-bs-title="{{$checksum}}" rel="nofollow">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
+                </svg>
+                <span>Checksum</span>
+              </a>
             {{- end}}
             {{- if ne "" $preview}}
-                <div class="col d-grid">
-                    <a class="btn btn-sm btn-link" href="{{$preview}}" role="button" 
-                        data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}" rel="nofollow">🔍 View artifact</a>
-                </div>
+              <a class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" href="{{$preview}}" role="button" data-bs-toggle="tooltip" data-bs-title="{{$previewTip}}" rel="nofollow">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <use xlink:href="/svg/bootstrap-icons.svg#images"/>
+                </svg>
+                <span>View artifact</span>
+              </a>
             {{- end}}
-                </div>
             </div>
+            {{- end}}
             {{- /*  Comment on the artifact  */}}
             {{- if ne $comment ""}}
             <div class="border-start border-4 border-info ps-3 py-2 my-3">
