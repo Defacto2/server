@@ -260,6 +260,8 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           <div class="col-xl-6">
             <label for="artifact-editor-title" class="col-form-label-lg">Title <small>or magazine issue</small></label>
             <small class="text-secondary">alt+shift 🢁🢃</small>
+              <div class="form-text my-1"><strong>Good titles are important</strong>, 
+                <a href="/titles">please follow this guide</a>.</div>
             <input type="text" name="artifact-editor-title" id="artifact-editor-title" autocomplete="off" maxlength="{{$hundred}}"
               aria-describedby="artifact-editor-title-help" placeholder="example: 500000th release!" class="form-control form-control-lg" 
               value="{{$title}}"
@@ -269,8 +271,6 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             <div id="artifact-editor-title-help" class="form-text mb-2">
               Optional brief or name of the release.<br>
               Or, a magazine issue, example: <em>1</em>. Or magazine volume, example: <em>1, volume 1</em>.
-              <div><strong>Good titles are important</strong>, 
-                <a href="/titles">please follow this guide</a>.</div>
             </div>
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-title-undo" value="{{$title}}" readonly>
@@ -328,8 +328,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                     hx-target="#artifact-editor-list-1" minlength="2" maxlength="{{$hundred}}" required>
               </div>
               <div class="col-6 col-lg-4 d-flex flex-wrap justify-content-center align-items-center gap-1">
-                <button class="btn btn-link btn-sm p-0" type="button" id="artifact-editor-releaser-independent"><span class="badge text-bg-secondary">Independent</span></button>
-                <button class="btn btn-link btn-sm p-0" type="button" id="artifact-editor-releaser-none"><span class="badge text-bg-dark">None</span></button>
+                <button class="btn btn-link btn-sm p-0" type="button" id="artifact-editor-releaser-independent"
+                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Use when the releaser is unknown"><span class="badge text-uppercase text-bg-secondary">Independent</span></button>
+                <button class="btn btn-link btn-sm p-0" type="button" id="artifact-editor-releaser-none"
+                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Use if N/A, for real names etc."><span class="badge text-uppercase text-bg-dark">None</span></button>
               </div>
               <div class="col-6 col-lg-8">
                 <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
@@ -347,11 +349,10 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               A releaser is required, for example: <q>Razor 1911</q>.
             </div>
             <div id="artifact-editor-releasers-help" class="form-text">
-              Releasers can be a group, magazine title, bulletin board or ftp site.<br>
-              If <u>unknown</u>, use <code class="text-uppercase">Independent</code>.
-              If <u>not applicable</u>, use <code class="text-uppercase">None</code>.<br>
+              Releasers are groups, magazine titles, BBS or FTP names. 
+              They can be the authors, publishers, and subjects of this artifact.<br>
               BBS/FTP <u>must</u> end with <code>BBS</code> &amp; <code>FTP</code>, 
-              examples: <em class="text-uppercase">Dark&nbsp;Domain&nbsp;BBS</em>, <em class="text-uppercase">Dark&nbsp;Domain&nbsp;FTP</em>.
+              examples: <em class="text-uppercase">My&nbsp;Domain&nbsp;BBS</em>, <em class="text-uppercase">My&nbsp;Domain&nbsp;FTP</em>.
             </div>
             <div class="btn-group" role="group">
               <button class="btn btn-link" type="button" id="artifact-editor-releaser-undo"
@@ -369,7 +370,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
           </div>
           {{- /*  Date of release  */}}
           <div class="col-xl-6">
-            <div class="form-label col-form-label-lg">Date of release</div>
+            <label class="form-label col-form-label-lg">Date of release</label>
             <small class="text-secondary">alt+shift 🡸🢂</small>
             <div class="row row-cols-2 row-cols-lg-4 g-1">
               <div class="col-6 col-lg-4 d-grid d-block">
@@ -381,6 +382,25 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                             [name='artifact-editor-month'],
                             [name='artifact-editor-day']">Save</button>
               </div>
+
+              {{- if gt $lmYear $epochY}}
+              <div class="col-6 col-lg-8 d-flex justify-content-center align-items-center">
+                <input type="hidden" id="artifact-editor-date-lastmods" name="artifact-editor-date-lastmods" 
+                  value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
+                <button type="button" class="btn btn-link p-0" id="artifact-editor-date-lastmod"
+                    hx-patch="/editor/date/lastmod"
+                    hx-target="find span"
+                    hx-include="[name='artifact-editor-key'],
+                                [name='artifact-editor-date-lastmods']">
+                    <small class="badge text-bg-primary">Use last modification&nbsp;
+                  {{- if ne $lmYear 0}}<em>{{$lmYear}}
+                  {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
+                  {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</em>{{end}}
+                  <span><!-- lastmod target --></span></small>
+                </button>
+              </div>
+              {{- end}}
+
               <div class="w-100 d-none d-lg-block"></div>
               <div class="col-6 col-lg-4">
                 <div class="input-group">
@@ -427,21 +447,6 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   <small class="{{$reverter}}">Revert <em>{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}</em>
                 <span><!-- reset target --></span></small>
               </button>
-              {{- if gt $lmYear $epochY}}
-              <input type="hidden" id="artifact-editor-date-lastmods" name="artifact-editor-date-lastmods" 
-                value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
-              <button type="button" class="btn btn-link" id="artifact-editor-date-lastmod"
-                  hx-patch="/editor/date/lastmod"
-                  hx-target="find span"
-                  hx-include="[name='artifact-editor-key'],
-                              [name='artifact-editor-date-lastmods']">
-                  <small class="badge text-bg-primary">Use last modification&nbsp;
-                {{- if ne $lmYear 0}}<em>{{$lmYear}}
-                {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
-                {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</em>{{end}}
-                <span><!-- lastmod target --></span></small>
-              </button>
-              {{- end}}
             </div>
           </div>
         </div>
