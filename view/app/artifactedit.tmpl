@@ -282,8 +282,8 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-title-help" class="form-text mb-2">
-              Optional brief or name of the release.<br>
-              Or, a magazine issue, example: <em>1</em>. Or magazine volume, example: <em>1, volume 1</em>.
+              Optional name or a brief of the release.<br>
+              For magazines, use the issue number, or volume and issue. See: "<em>1</em>", "<em>1, volume 1</em>".
             </div>
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-title-undo" value="{{$title}}" readonly>
@@ -292,7 +292,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-title-undo']">
-                  <span class="{{$reverter}}">Revert <em id="artifact-editor-title-quote">{{$title}}</em></span></button>
+              <span class="{{$reverter}}">Revert <em id="artifact-editor-title-quote">{{$title}}</em></span></button>
               <button class="btn btn-link" type="button" id="artifact-editor-title-delete"><span class="badge text-bg-primary">None</span></button>
               <button class="btn btn-link" type="button" id="artifact-editor-titleize"><span class="badge text-bg-primary">Capitalize</span></button>
             </div>
@@ -305,7 +305,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-patch="/editor/comment" 
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
-            <div class="form-text" id="artifact-editor-comment-help">Optional, comments can be used to store longer form notes about the artifact.</div>
+            <div class="form-text" id="artifact-editor-comment-help">Optional comments can offer notes of the history, origin, or sources.</div>
             <div class="row">
               <div class="col-12 col-lg-6">
                 <input type="hidden" name="artifact-editor-comment-undo" value="{{$comment}}" readonly>
@@ -365,7 +365,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               Releasers are groups, magazine titles, BBS or FTP names. 
               They can be the authors, publishers, and subjects of this artifact.<br>
               BBS/FTP <u>must</u> end with <code>BBS</code> &amp; <code>FTP</code>, 
-              examples: <em class="text-uppercase">My&nbsp;Domain&nbsp;BBS</em>, <em class="text-uppercase">My&nbsp;Domain&nbsp;FTP</em>.
+              See: <em class="text-uppercase">My&nbsp;Domain&nbsp;BBS</em>, <em class="text-uppercase">My&nbsp;Domain&nbsp;FTP</em>.
             </div>
             <div class="btn-group" role="group">
               <button class="btn btn-link" type="button" id="artifact-editor-releaser-undo"
@@ -476,7 +476,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
               hx-include="[name='artifact-editor-key']">
             <div id="artifact-editor-filename-help" class="form-text">
               The filename should usually be left unchanged and is required.<br>
-              <span class="text-warning-emphasis">A file extension is always advisable</span>, example: <em>example.zip</em>
+              <span class="text-warning-emphasis">A file extension is always advisable</span>. See: <em>example.zip</em>
             </div>
             <div class="btn-group" role="group">
               <input type="hidden" name="artifact-editor-filename-undo" value="{{$filename}}" readonly>
@@ -525,7 +525,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/creator/ill" 
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
-              <label for="artifact-editor-credit-ill">Visual artists</label>
+              <label for="artifact-editor-credit-ill">Visual artists or designers</label>
             </div>
             </div>
             <div class="col">
@@ -535,7 +535,7 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 hx-patch="/editor/creator/prog" 
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
-              <label for="artifact-editor-credit-prog">Programmers</label>
+              <label for="artifact-editor-credit-prog">Programmers or crackers</label>
             </div>
             </div>
             <div class="col">
@@ -549,7 +549,9 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
             </div>
             </div>
           </div>
-          <div class="form-text" id="artifact-editor-credit-help">Join multiple creators with commas, format: <code>Name,Name,Name</code>. example: <em>Name,Name Two,Name3</em></div>
+          <div class="form-text" id="artifact-editor-credit-help">
+            List multiple creators with commas, format: <code>Name1,Name2,Name3</code>. 
+            See: <em>Firstname,Name Two,Name3</em></div>
           <div>
             {{- /* NOTE: the "-creditsundo" with an "s" */}}
             <button type="button" class="btn btn-link" id="artifact-editor-credit-undo"
@@ -580,13 +582,67 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                         input from:#artifact-editor-websites"
             hx-include="[name='artifact-editor-key']"
             hx-target="#artifact-editor-link-examples">
-        <div class="row">
+        <div>
           <div class="form-label col-form-label-lg mb-0 pb-0">
-            Links
+            Links <small>to related webpages and artifacts</small>
           </div>
-          <div class="row row-cols-2 row-cols-lg-3 row-cols-xl-6 justify-content-center">
+          <div class="row g-2 justify-content-center">
 
-            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
+            <div class="col-6 col-lg-3 col-xl-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 185828">
+              <div class="form-floating">
+                <input type="hidden" name="artifact-editor-demozooundo" id="artifact-editor-demozoo-undo" value="{{$demozoo}}" readonly>
+                {{- /*  do not use a min=1 input element, otherwise htmx will never save when deleting a value  */}}
+                <input type="number" class="form-control" name="artifact-editor-demozoo" id="artifact-editor-demozoo" 
+                  autocomplete="off" max="{{ demozooSanity }}" value="{{$demozoo}}" placeholder="185828"
+                  hx-patch="/editor/demozoo"
+                  hx-trigger="keyup changed delay:{{$lDelay}}"
+                  hx-include="[name='artifact-editor-key']">
+                <label for="artifact-editor-demozoo">
+                <svg class="bi" width="16" height="22" fill="currentColor">
+                  <use xlink:href="/svg/bootstrap-icons.svg#demozoo"/>
+                </svg> Demozoo prod</label>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3 col-xl-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 75854">
+              <div class="form-floating">
+                <input type="hidden" name="artifact-editor-pouetundo" id="artifact-editor-pouet-undo" value="{{$pouet}}" readonly>
+                <input type="number" class="form-control" name="artifact-editor-pouet" id="artifact-editor-pouet" 
+                  autocomplete="off" max="{{ pouetSanity }}" value="{{$pouet}}" placeholder="75854"
+                  hx-patch="/editor/pouet"
+                  hx-trigger="keyup changed delay:{{$lDelay}}"
+                  hx-include="[name='artifact-editor-key']">
+                <label for="artifact-editor-pouet">
+                <img src="/svg/pouet-icon.svg" width="16" height="16" alt="Pouet"> Pouet prod</label>
+              </div>
+            </div>
+
+            <div class="col-6 col-lg-4 col-xl-3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A URL path, example: tags/magazine/dreadloc">
+              <div class="form-floating">
+                <input type="hidden" name="artifact-editor-16colorsundo" id="artifact-editor-16colors-undo" value="{{$sixteen}}" readonly>
+                <input type="text" class="form-control" name="artifact-editor-16colors" id="artifact-editor-16colors" 
+                  autocomplete="off" maxlength="{{$oneK}}" value="{{$sixteen}}" placeholder="tags/magazine/dreadloc"
+                  hx-patch="/editor/16colors"
+                  hx-trigger="keyup changed delay:{{$lDelay}}"
+                  hx-include="[name='artifact-editor-key']">
+                <label for="artifact-editor-16colors">16colo(rs) partial</label>
+              </div>
+            </div>
+            <div class="col-6 col-lg-4 col-xl-3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: Defacto2/server">
+              <div class="form-floating">
+                <input type="hidden" name="artifact-editor-githubundo" id="artifact-editor-github-undo" value="{{$github}}" readonly>
+                <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
+                  autocomplete="off" maxlength="{{$oneK}}" value="{{$github}}" placeholder="Defacto2/server"
+                  hx-patch="/editor/github"
+                  hx-trigger="keyup changed delay:{{$lDelay}}"
+                  hx-include="[name='artifact-editor-key']">
+                <label for="artifact-editor-github">
+                  <svg class="bi" width="16" height="20" fill="currentColor">
+                    <use xlink:href="/svg/bootstrap-icons.svg#github"/>
+                  </svg> GitHub repo</label>
+              </div>
+            </div>
+
+            <div class="col-6 col-lg-3 col-xl-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
               <div class="form-floating">
                 <input type="hidden" name="artifact-editor-youtubeundo" id="artifact-editor-youtube-undo" value="{{$youtube}}" readonly>
                 {{- /*  maxlength/minlength values means htmx will only ever trigger with 11 chars  */}}
@@ -602,87 +658,36 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                   </svg> YouTube ID</label>
               </div>
             </div>
-            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 185828">
-              <div class="form-floating">
-                <input type="hidden" name="artifact-editor-demozooundo" id="artifact-editor-demozoo-undo" value="{{$demozoo}}" readonly>
-                {{- /*  do not use a min=1 input element, otherwise htmx will never save when deleting a value  */}}
-                <input type="number" class="form-control" name="artifact-editor-demozoo" id="artifact-editor-demozoo" 
-                  autocomplete="off" max="{{ demozooSanity }}" value="{{$demozoo}}" placeholder="185828"
-                  hx-patch="/editor/demozoo"
-                  hx-trigger="keyup changed delay:{{$lDelay}}"
-                  hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-demozoo">
-                <svg class="bi" width="16" height="22" fill="currentColor">
-                  <use xlink:href="/svg/bootstrap-icons.svg#demozoo"/>
-                </svg> Demozoo prod</label>
-              </div>
-            </div>
-            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 75854">
-              <div class="form-floating">
-                <input type="hidden" name="artifact-editor-pouetundo" id="artifact-editor-pouet-undo" value="{{$pouet}}" readonly>
-                <input type="number" class="form-control" name="artifact-editor-pouet" id="artifact-editor-pouet" 
-                  autocomplete="off" max="{{ pouetSanity }}" value="{{$pouet}}" placeholder="75854"
-                  hx-patch="/editor/pouet"
-                  hx-trigger="keyup changed delay:{{$lDelay}}"
-                  hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-pouet">
-                <img src="/svg/pouet-icon.svg" width="16" height="16" alt="Pouet"> Pouet prod</label>
-              </div>
-            </div>
-            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A URL path, example: tags/magazine/dreadloc">
-              <div class="form-floating">
-                <input type="hidden" name="artifact-editor-16colorsundo" id="artifact-editor-16colors-undo" value="{{$sixteen}}" readonly>
-                <input type="text" class="form-control" name="artifact-editor-16colors" id="artifact-editor-16colors" 
-                  autocomplete="off" maxlength="{{$oneK}}" value="{{$sixteen}}" placeholder="tags/magazine/dreadloc"
-                  hx-patch="/editor/16colors"
-                  hx-trigger="keyup changed delay:{{$lDelay}}"
-                  hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-16colors">16colo(rs) partial</label>
-              </div>
-            </div>
-            <div class="col" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: Defacto2/server">
-              <div class="form-floating">
-                <input type="hidden" name="artifact-editor-githubundo" id="artifact-editor-github-undo" value="{{$github}}" readonly>
-                <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
-                  autocomplete="off" maxlength="{{$oneK}}" value="{{$github}}" placeholder="Defacto2/server"
-                  hx-patch="/editor/github"
-                  hx-trigger="keyup changed delay:{{$lDelay}}"
-                  hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-github">
-                  <svg class="bi" width="16" height="20" fill="currentColor">
-                    <use xlink:href="/svg/bootstrap-icons.svg#github"/>
-                  </svg> GitHub repo</label>
-              </div>
-            </div>
+
           </div>
         </div>
         <div class="row row-cols-1 row-cols-lg-2 gy-2 pt-2">
           <div class="col">
-            <div class="form-floating" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Info and a Defacto2 ID, example: NFO;9f1c2">
+            <div class="form-floating" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Link related Defacto2 releases as Label;RecordKey, separated by |">
               <input type="hidden" name="artifact-editor-relationsundo" id="artifact-editor-relations-undo" value="{{$relations}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-relations" id="artifact-editor-relations" 
                 autocomplete="off" maxlength="255" value="{{$relations}}"
-                placeholder="example: NFO;9f1c2" aria-describedby="artifact-editor-relations-help"
+                placeholder="NFO;9f1c2" aria-describedby="artifact-editor-relations-help"
                 hx-patch="/editor/relations"
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
               <label for="artifact-editor-relations">
                 <svg class="bi" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
                   <use xlink:href="/svg/bootstrap-icons.svg#floppy"/>
-                </svg> Link to releases</label>
+                </svg> Link to other Defacto2 artifacts</label>
             </div>
             <div class="form-text" id="artifact-editor-relations-help">
-              format: <code>Title;FileID|Title;FileID</code>. 
-              example: <em>NFO;9f1c2|Intro;a92116e</em> 
-              <div class="d-none d-lg-block">creates: • Link to <a href="/f/9f1c2">NFO</a> • Link to <a href="/f/a92116e">Intro</a></div>
+              Pair a label and record key with "<code>;</code>" <code>Label;Key</code>, and separate multiple links with "<code>|</code>".<br>
+              See: <code>NFO;9f1c2|Intro;a92116e</code>
+              <div class="d-none d-lg-block">Result: • Link to <a href="/f/9f1c2">NFO</a> • Link to <a href="/f/a92116e">Intro</a></div>
             </div>
           </div> 
           <div class="col">
-            <div class="form-floating">
+            <div class="form-floating" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Link external sites as Label;URL (without https://), separated by |">
               <input type="hidden" name="artifact-editor-websitesundo" id="artifact-editor-websites-undo" value="{{$websites}}" readonly>
               <input type="text" class="form-control" name="artifact-editor-websites" id="artifact-editor-websites" 
                 autocomplete="off" maxlength="2048" value="{{$websites}}"
-                placeholder="Website;example.com" aria-describedby="artifact-editor-websites-help"
+                placeholder="Site;example.com" aria-describedby="artifact-editor-websites-help"
                 hx-patch="/editor/sites"
                 hx-trigger="keyup changed delay:{{$lDelay}}"
                 hx-include="[name='artifact-editor-key']">
@@ -692,10 +697,9 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
                 </svg> Link to websites</label>
             </div>
             <div class="form-text" id="artifact-editor-websites-help">
-              format: <code>Title;URL|Title;URL</code>. 
-              example: 
-              <em>Site;example.com|Docs;example.com/doc</em>
-              <div class="d-none d-lg-block">creates: • Link to <a href="https://example.com">Site</a> • Link to <a href="https://example.com/doc">Docs</a></div>
+              Pair a label and URL with "<code>;</code>", separate multiple links with "<code>|</code>".<br>
+              See: <code>Webpage;example.com|Documentation;example.com/docs</code>
+              <div class="d-none d-lg-block">Result: • Link to <a href="https://example.com">Site</a> • Link to <a href="https://example.com/doc">Docs</a></div>
             </div>
           </div>
         </div>
