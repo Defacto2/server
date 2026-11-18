@@ -77,15 +77,38 @@ import {
     if (egp === null) {
       throw new Error('The guess program input is missing.');
     }
-    erp.addEventListener('input', () => {
-      erp.value = erp.value.toUpperCase().replace(/\s{2,}/g, ' ');
+    const syncGuessState = () => {
       const val = erp.value;
-      if (val !== '' && val !== ' ') {
-        egp.disabled = true;
-        return;
+      egp.disabled = val !== '' && val !== ' ';
+    };
+    erp.addEventListener('input', () => {
+      const prev = erp.value;
+      const start = erp.selectionStart;
+      const end = erp.selectionEnd;
+      const next = prev.toUpperCase().replace(/\s{2,}/g, ' ');
+      if (next !== prev) {
+        erp.value = next;
+        if (start !== null && end !== null) {
+          const shift = prev.length - next.length;
+          erp.setSelectionRange(
+            Math.max(0, start - shift),
+            Math.max(0, end - shift)
+          );
+        }
       }
-      egp.disabled = false;
+      syncGuessState();
     });
+    const erpClear = document.getElementById('emulate-run-program-clear');
+    if (erpClear !== null) {
+      erpClear.addEventListener('click', () => {
+        if (erp.value === '') {
+          return;
+        }
+        erp.value = '';
+        syncGuessState();
+        erp.dispatchEvent(new Event('clear'));
+      });
+    }
   }
 
   const embTitle = document.getElementById(`artifact-embed-title`);
