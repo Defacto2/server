@@ -98,8 +98,8 @@ tasks:
     cmds:
       - cmd: clear
         platforms: [linux, darwin, freebsd]
-      - cmd: gci write ./..
-        platforms: [linux]
+      #- cmd: gci write ./.. # this is redundant and conflicts with gofumpt
+      #  platforms: [linux]
       - cmd: go tool gofumpt -l -w -extra .
       - cmd: go fix ./...
       - cmd: pnpm exec eslint assets/js/
