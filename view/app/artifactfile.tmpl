@@ -385,20 +385,32 @@
                 <div class="card">
                   <div class="card-body">
                     <div class="card-text">
-                      <p class="lead">Files</p>
-                      {{- if eq (len .modAssetExtra) 0}}No extras in use
+                      <p class="lead mb-2">Files</p>
+                      {{- if eq (len .modAssetExtra) 0}}
+                      <div class="text-body-secondary small">No extras in use</div>
                       {{- else}}
-                      <table class="table table-hover">
+                      <table class="table table-sm table-hover align-middle mb-0">
                         <tbody>
                           {{- range $name, $info := .modAssetExtra}}
+                          {{- $deletePath := ""}}
+                          {{- if eq $name "FILE_ID"}}{{- $deletePath = printf "/editor/diz/%s" $unid}}
+                          {{- else if eq $name "HELPER"}}{{- $deletePath = printf "/editor/helper/%s" $unid}}
+                          {{- else if eq $name "README"}}{{- $deletePath = printf "/editor/readme/%s" $unid}}
+                          {{- else if eq $name "Repacked ZIP"}}{{- $deletePath = printf "/editor/zippack/%s" $unid}}{{end}}
                           <tr>
                             <th scope="row">{{$name}}</th>
                             <td>{{index $info 0}}B</td>
-                            {{- $ext := printf ".%s" $name}}
-                            {{- if eq $name "README"}}{{- $ext := printf ".txt"}}
-                            {{- else if eq $name "Repack ZIP"}}{{- $ext := ".zip"}}{{end}}
                             <td>{{index $info 1}}</td>
-                          </tr>{{- end}}
+                            <td class="text-end">
+                              {{- if ne $deletePath ""}}
+                              <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2"
+                                hx-target="#editor-copy-readme-result"
+                                hx-delete="{{$deletePath}}">Delete</button>
+                              {{- end}}
+                            </td>
+                          </tr>
+                          {{- end}}
+                        </tbody>
                       </table>
                       {{- end}}
                     </div>
@@ -412,47 +424,20 @@
                 <div class="card">
                   <div class="card-body">
                     <div class="card-text">
-                    <p class="lead">Extras and caching</p>
-                      <div class="form-text" id="editor-copy-readme-result"></div>
-                      <div class="row">
-                      {{- if eq (len .modAssetExtra) 0}}
-                        <div>No extras in use</div>
-                      {{- else}}
-                        <div class="col-12">
-                          <button class="btn btn-link m-0 p-0" 
-                            hx-target="#editor-copy-readme-result"
-                            hx-delete="/editor/diz/{{$unid}}">
-                            <span class="badge text-bg-danger">Delete <em>FILE_ID.DIZ</em></span></button>
-                          <button class="btn btn-link m-0 p-0" 
-                            hx-target="#editor-copy-readme-result"
-                            hx-delete="/editor/helper/{{$unid}}">
-                            <span class="badge text-bg-danger">Delete <em>HELPER</em></span></button>
-                          <button class="btn btn-link m-0 p-0" 
-                            hx-target="#editor-copy-readme-result"
-                            hx-delete="/editor/readme/{{$unid}}">
-                            <span class="badge text-bg-danger">Delete <em>README</em></span></button>
-                          <button class="btn btn-link m-0 p-0" 
-                            hx-target="#editor-copy-readme-result"
-                            hx-delete="/editor/zippack/{{$unid}}">
-                            <span class="badge text-bg-danger">Delete <em>REPACK ZIP</em></span></button>
-                          <button class="btn btn-link m-0 p-0" 
-                            hx-target="#editor-copy-readme-result"
-                            hx-delete="/editor/content-cache/{{$unid}}">
-                            <span class="badge text-bg-danger">Delete <em>DOWNLOAD CONTENT CACHE</em></span></button>
-                        </div>
-                      <div class="form-text">
-                        After deletion, text files may automatically reappear.
-                        Instead, use the <em>Never&nbsp;display</em> toggle to hide any README, DIZ, or HELPER.
+                      <p class="lead mb-2">Extras and caching</p>
+                      <div class="form-text mb-2" id="editor-copy-readme-result"></div>
+                      <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                          hx-target="#editor-copy-readme-result"
+                          hx-delete="/editor/content-cache/{{$unid}}">Clear download content cache</button>
+                        {{- if ne "" $modReadmeSuggest}}
+                        <button type="button" class="btn btn-sm btn-outline-success"
+                          hx-target="#editor-copy-readme-result"
+                          hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">Use guessed README: {{$modReadmeSuggest}}</button>
+                        {{- end}}
                       </div>
-                      {{- end}}
-                      {{- if ne "" (index . "modReadmeSuggest")}}
-                        <div class="col-6">
-                          <button class="btn btn-link m-0 p-0" 
-                            hx-target="#editor-copy-readme-result"
-                            hx-patch="/editor/readme/copy/{{$unid}}/{{$modReadmeSuggest | urlEncode }}">
-                            <span class="badge text-bg-success">Use guessed README file <em>{{$modReadmeSuggest}}</em></span></button>
-                        </div> 
-                      {{- end}}
+                      <div class="form-text mt-2 mb-0">
+                        After deletion, text files may automatically reappear. Use <em>Never display text files</em> above to keep them hidden.
                       </div>
                     </div>
                   </div>
