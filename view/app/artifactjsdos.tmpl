@@ -27,29 +27,38 @@
 {{- /*  js-dos v6.22 ~ canvas and user interface. */}}
 <div class="modal fade" id="js-dos-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="jsDOSModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-              <h5 class="modal-title">
-                🎮 &nbsp; {{- if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
-              </h5>
-              {{- if eq true (index . "modEmulateBroken")}}<span class="badge bg-danger ms-2">⚠️ Incompatible</span>{{end}}
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-secondary py-2 px-3">
+              <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+                <svg class="flex-shrink-0 text-secondary" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <use xlink:href="/svg/bootstrap-icons.svg#terminal"/>
+                </svg>
+                <h5 class="modal-title fs-6 fw-semibold text-truncate mb-0" id="jsDOSModalLabel">
+                  {{- if ne $prog $fname}}{{toLower $prog}} - {{else}}{{end}}{{toLower $fname}}
+                </h5>
+                {{- if eq true (index . "modEmulateBroken")}}<span class="badge text-bg-danger fw-normal flex-shrink-0">Incompatible</span>{{end}}
+              </div>
               <button type="button" name="jsdosCloser" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                {{- if eq "covox" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for a sound device option, choose "LPT1" for Covox, Disney, Soundplayer or Soundthing</p>{{end}}
-                {{- if eq "gus" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Gravis Ultrasound config, choose IRQ <var>5</var>, DMA <var>1</var>, Base address <var>240h</var> or Port <var>240</var></p>{{end}}
-                {{- if eq "sb1" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster config, choose IRQ <var>7</var>, DMA <var>1</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
-                {{- if eq "sb16" (index . "modEmulateAudio")}}<p class="text-info-emphasis">If asked for the Sound Blaster 16 config, choose IRQ <var>7</var>, DMA <var>1</var>, HDMA <var>5</var>, Base address <var>220h</var> or Port <var>220</var></p>{{end}}
+            <div class="modal-body p-0 bg-black">
+                {{- if eq "covox" (index . "modEmulateAudio")}}<div class="px-3 py-2 border-bottom border-secondary small text-info bg-dark">If asked for a sound device option, choose "LPT1" for Covox, Disney, Soundplayer or Soundthing.</div>{{end}}
+                {{- if eq "gus" (index . "modEmulateAudio")}}<div class="px-3 py-2 border-bottom border-secondary small text-info bg-dark">If asked for the Gravis Ultrasound config, choose IRQ <var>5</var>, DMA <var>1</var>, Base address <var>240h</var> or Port <var>240</var>.</div>{{end}}
+                {{- if eq "sb1" (index . "modEmulateAudio")}}<div class="px-3 py-2 border-bottom border-secondary small text-info bg-dark">If asked for the Sound Blaster config, choose IRQ <var>7</var>, DMA <var>1</var>, Base address <var>220h</var> or Port <var>220</var>.</div>{{end}}
+                {{- if eq "sb16" (index . "modEmulateAudio")}}<div class="px-3 py-2 border-bottom border-secondary small text-info bg-dark">If asked for the Sound Blaster 16 config, choose IRQ <var>7</var>, DMA <var>1</var>, HDMA <var>5</var>, Base address <var>220h</var> or Port <var>220</var>.</div>{{end}}
                 <canvas id="jsdos6"></canvas>
             </div>
-            <div class="modal-footer">
-                <button id="jsdosFullscreen" class="btn btn-outline-info">&#x2922; Full Screen</button>
-                <button id="jsdosScreenshot" class="btn btn-outline-info">&#x26F6; Screenshot</button>
-                {{- if $unlocked }}
-                <button id="jsdosReplaceImage" class="btn btn-outline-warning">&#x26ED; Replace Image</button>
-                {{- end }}
-                <button id="jsdosStop" class="btn btn-danger">&#x25A0; Stop</button>
-                <button type="button" name="jsdosCloser" class="btn btn-secondary" data-bs-dismiss="modal">✕ Close</button>
+            <div class="modal-footer border-secondary justify-content-between flex-wrap gap-2 py-2 px-3">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Emulator display and capture">
+                  <button type="button" id="jsdosFullscreen" class="btn btn-outline-light">Full screen</button>
+                  <button type="button" id="jsdosScreenshot" class="btn btn-outline-light" disabled>Screenshot</button>
+                  {{- if $unlocked }}
+                  <button type="button" id="jsdosReplaceImage" class="btn btn-outline-warning" disabled>Replace image</button>
+                  {{- end }}
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <button type="button" id="jsdosStop" class="btn btn-sm btn-outline-danger" disabled>Stop</button>
+                  <button type="button" name="jsdosCloser" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -87,13 +96,24 @@
       startDOS.push("-c", trimmed);
       startWithDOS4GW.push("-c", trimmed);
     });
-    ctx.font = "14px serif";
+    ctx.fillStyle = "#adb5bd";
+    ctx.font = "14px monospace";
     ctx.fillText("Stuck and not loading?", 10, 50);
     ctx.fillText("1) try refreshing this tab.", 13, 70);
     ctx.fillText("2) view the tab Console for errors.", 13, 90);
     let emulatorStarted = false;
     const captureBaseName = ("{{$filename}}".split(/[\\/]/).pop() || "screenshot").replace(/\.[^/.]+$/, "") || "screenshot";
+    const screenshotButton = document.getElementById("jsdosScreenshot");
     const stopButton = document.getElementById("jsdosStop");
+    function onEmulatorReady(ci) {
+      window.ci = ci;
+      emulatorStarted = true;
+      screenshotButton.disabled = false;
+      stopButton.disabled = false;
+      const replaceBtn = document.getElementById("jsdosReplaceImage");
+      if (replaceBtn) replaceBtn.disabled = false;
+      console.log(`width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`);
+    }
     function exitEmulator() {
       try {
         if (window.ci && !stopButton.disabled) {
@@ -350,11 +370,7 @@
             return main(startDOS);
           })
           .then((ci) => {
-            window.ci = ci;
-            emulatorStarted = true;
-            console.log(
-              `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
-            );
+            onEmulatorReady(ci);
           })
           .catch((error) => {
             console.error("js-dos binary start error:", error);
@@ -377,11 +393,7 @@
             return main(params);                          // start the application
           })
           .then((ci) => {
-            window.ci = ci;
-            emulatorStarted = true;
-            console.log(
-              `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
-            );
+            onEmulatorReady(ci);
           })
           .catch((error) => {
             console.error("js-dos zip start error:", error);
