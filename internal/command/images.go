@@ -191,13 +191,6 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 		}
 	}()
 
-	// remove existing thumbnails
-	if thumbnail.Path() != preview.Path() {
-		if err := ImagesDelete(unid, thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
-			return fmt.Errorf(format, "delete existing thumbs", err)
-		}
-	}
-
 	// range each image file extension looking for matches
 	for _, ext := range imagesExt[:] {
 		if ctxErr := ctx.Err(); ctxErr != nil {
@@ -207,6 +200,13 @@ func (align Align) Thumbs(ctx context.Context, sl *slog.Logger, unid string, pre
 		src := preview.Join(unid + ext)
 		if _, err := os.Stat(src); err != nil {
 			continue
+		}
+
+		// remove existing thumbnails
+		if thumbnail.Path() != preview.Path() {
+			if err := ImagesDelete(unid, thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
+				return fmt.Errorf(format, "delete existing thumbs", err)
+			}
 		}
 
 		tmp := filepath.Join(tmpDir, unid+png)
@@ -262,9 +262,19 @@ func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, previ
 	if err != nil {
 		return fmt.Errorf(format, "make "+unid+" temp directory", err)
 	}
+	defer func() {
+		if err := dir.RemoveAll(path); err != nil {
+			sl.Info("crop images remove all temporary directory",
+				slog.String("directory", path), slog.Any("error", err))
+		}
+	}()
 
 	find := false
 	for _, ext := range imagesExt {
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return fmt.Errorf(format, "context canceled", ctxErr)
+		}
+
 		src := preview.Join(unid + ext)
 		if _, err := os.Stat(src); err != nil {
 			continue
@@ -282,9 +292,7 @@ func (crop Crop) Images(ctx context.Context, sl *slog.Logger, unid string, previ
 
 		dst := preview.Join(unid + ext)
 		if err := CopyFile(sl, tmp, dst); err != nil {
-			slog.Info("crop image copyfile error", slog.String("source", tmp),
-				slog.String("dest", dst), slog.Any("error", err))
-			return nil
+			return fmt.Errorf(format, "copy file", err)
 		}
 	}
 
@@ -668,7 +676,7 @@ func (t Thumb) make(ctx context.Context, sl *slog.Logger, thumb dir.Directory) e
 	// render source to an intermediate image
 	arg := option.Opts{}
 	if t.JPEG {
-		arg.JPGPhoto(true, t.Source, tmp)
+		arg.PhotoThumb(t.Source, tmp)
 	} else {
 		arg.PNGPixel(true, t.Source, tmp)
 	}

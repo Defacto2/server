@@ -47,3 +47,37 @@ func TestWebpPixel(t *testing.T) {
 	be.True(t, slices.Contains(opts, "in.png"))
 	be.True(t, slices.Contains(opts, "out.webp"))
 }
+
+func TestPhotoOptions(t *testing.T) {
+	t.Parallel()
+
+	var jpg option.Opts
+	jpg.JPGPhoto(false, "in.jpg", "out.jpg")
+	be.True(t, slices.Contains(jpg, "-flatten"))
+	be.True(t, slices.Contains(jpg, "-quality"))
+
+	var thumb option.Opts
+	thumb.PhotoThumb("in.webp", "out.png")
+	be.True(t, slices.Contains(thumb, "-flatten"))
+	be.True(t, slices.Contains(thumb, "-strip"))
+	be.True(t, slices.Contains(thumb, "Triangle"))
+	be.True(t, slices.Contains(thumb, "400x400"))
+	be.True(t, !slices.Contains(thumb, "-quality"))
+}
+
+func TestThumbAlignment(t *testing.T) {
+	t.Parallel()
+
+	var opts option.Opts
+	opts.ThumbAlignment("in.png", "out.png", 1)
+	be.True(t, slices.Contains(opts, "-flatten"))
+	be.True(t, slices.Contains(opts, "-strip"))
+	be.True(t, slices.Contains(opts, "-trim"))
+	be.True(t, slices.Contains(opts, "+repage"))
+	be.True(t, slices.Contains(opts, "400x400^>"))
+	be.True(t, slices.Contains(opts, "#999"))
+	be.True(t, slices.Contains(opts, "center"))
+	be.True(t, slices.Contains(opts, "+dither"))
+	be.True(t, slices.Contains(opts, "-colors"))
+	be.True(t, slices.Contains(opts, "256"))
+}

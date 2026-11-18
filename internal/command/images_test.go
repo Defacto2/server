@@ -1,6 +1,7 @@
 package command_test
 
 import (
+	"errors"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -203,6 +204,11 @@ func TestDirsThumbs(t *testing.T) {
 	dirs.Thumbnail = dir.Directory(invalid)
 	err = dirs.Thumbs(t.Context(), sl, unid, command.Pixel)
 	be.Err(t, err)
+
+	dirs.Preview = dir.Directory(t.TempDir())
+	dirs.Thumbnail = dir.Directory(thumbdir)
+	err = dirs.Thumbs(t.Context(), sl, "missing-preview", command.Pixel)
+	be.True(t, errors.Is(err, command.ErrNoImages))
 }
 
 func TestAlignThumbs(t *testing.T) {
@@ -245,6 +251,12 @@ func TestAlignThumbs(t *testing.T) {
 	align = -1
 	err = align.Thumbs(t.Context(), sl, unid, preview, thumbnail)
 	be.Err(t, err)
+
+	// Alignment with missing preview should return ErrNoImages without deleting existing thumbnail.
+	err = command.Middle.Thumbs(t.Context(), sl, "missing-preview", preview, thumbnail)
+	be.True(t, errors.Is(err, command.ErrNoImages))
+	_, statErr := os.Stat(filepath.Join(thumbdir, unid+".webp"))
+	be.Err(t, statErr, nil)
 }
 
 func TestCropImages(t *testing.T) {
@@ -748,6 +760,15 @@ func TestThumbsPixelAndPhoto(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, photoSt.Size() > 0)
 	be.True(t, photoSt.Size() < 25_000)
+
+	// Verify multi-frame preview (e.g. animated WebP) succeeds in Photo mode.
+	animID := uuid.New().String()
+	animSrc := testutil.FileData("maximum3ans").Abs()
+	be.Err(t, dirs.ANSImation(t.Context(), sl, animSrc, animID), nil)
+	be.Err(t, dirs.Thumbs(t.Context(), sl, animID, command.Photo), nil)
+	animThumbSt, err := os.Stat(filepath.Join(thumbdir, animID+".webp"))
+	be.Err(t, err, nil)
+	be.True(t, animThumbSt.Size() > 0)
 }
 
 func TestAlign(t *testing.T) {

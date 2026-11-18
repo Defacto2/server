@@ -495,18 +495,17 @@ func (ds Dirs) Thumbs(ctx context.Context, sl *slog.Logger, unid string, generat
 		return fmt.Errorf(format, prevChk, err)
 	}
 
-	// remove any existing thumbnails; ignore expected "not found" errors
-	if ds.Thumbnail.Path() != ds.Preview.Path() {
-		if err := ImagesDelete(unid, ds.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
-			return fmt.Errorf(format, "delete existing", err)
-		}
-	}
-
 	// range each image file extension looking for matches
 	for _, ext := range imagesExt[:] {
 		src := filepath.Join(ds.Preview.Path(), unid+ext)
 		if _, err := os.Stat(src); err != nil {
 			continue
+		}
+		// remove any existing thumbnails; ignore expected "not found" errors
+		if ds.Thumbnail.Path() != ds.Preview.Path() {
+			if err := ImagesDelete(unid, ds.Thumbnail.Path()); err != nil && !errors.Is(err, ErrNoImages) {
+				return fmt.Errorf(format, "delete existing", err)
+			}
 		}
 		var err error
 		switch generate {
@@ -520,7 +519,7 @@ func (ds Dirs) Thumbs(ctx context.Context, sl *slog.Logger, unid string, generat
 		}
 		return nil
 	}
-	return nil
+	return fmt.Errorf(format, "none", ErrNoImages)
 }
 
 func (ds Dirs) textImager(ctx context.Context, sl *slog.Logger, src string, amigaFont bool, t Text) error {
@@ -972,7 +971,7 @@ func (ds Dirs) thumbPhoto(ctx context.Context, sl *slog.Logger, src, unid string
 	t := Thumb{
 		Source:  src,
 		UUID:    unid,
-		Pattern: "thumb-photo-*.jpg",
+		Pattern: "thumb-photo-*.png",
 		JPEG:    true,
 	}
 	return t.make(ctx, sl, ds.Thumbnail)

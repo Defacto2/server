@@ -98,6 +98,14 @@ func (o *Opts) ThumbAlignment(src, tmp string, align int) {
 	if src != "" {
 		*o = append(*o, src)
 	}
+	*o = append(*o,
+		"-flatten",
+		"-strip",
+		trim, "+repage",
+		"-filter", "Box",
+		"-thumbnail", size400x400+"^>",
+		"-background", "#999",
+	)
 	switch align {
 	case 0: // top
 		*o = append(*o, gravity, "North")
@@ -112,8 +120,8 @@ func (o *Opts) ThumbAlignment(src, tmp string, align int) {
 	default:
 	}
 	*o = append(*o,
-		trim, extent,
-		size400x400,
+		extent, size400x400,
+		"+dither", "-colors", "256",
 	)
 	if tmp != "" {
 		*o = append(*o, tmp)
@@ -211,12 +219,32 @@ func (o *Opts) JPGPhoto(thumbnail bool, src, tmp string) {
 	// previously the gaussian blur flag was used to improve compression,
 	// however it caused some images to break and it shouldn't be used.
 	*o = append(*o,
+		"-flatten",
 		"-strip",         // strip the image of any profiles or comments
 		"-quality", "75", // lossy compression quality
 	)
 	if thumbnail {
 		o.Thumb()
 	}
+	if tmp != "" {
+		*o = append(*o, tmp)
+	}
+}
+
+// PhotoThumb appends the command line arguments for the magick command to transform
+// an image into a lossless 400 x 400 intermediate thumbnail for lossy WebP encoding.
+func (o *Opts) PhotoThumb(src, tmp string) {
+	if o == nil {
+		return
+	}
+	if src != "" {
+		*o = append(*o, src)
+	}
+	*o = append(*o,
+		"-flatten",
+		"-strip", // strip the image of any profiles or comments
+	)
+	o.Thumb()
 	if tmp != "" {
 		*o = append(*o, tmp)
 	}
