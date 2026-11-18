@@ -175,7 +175,148 @@
       const offCtx = offscreen.getContext("2d");
       offCtx.imageSmoothingEnabled = false;
       offCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, targetWidth, targetHeight);
+
+      if (typeof CompressionStream === "function") {
+        const rgba = offCtx.getImageData(0, 0, targetWidth, targetHeight).data;
+        encodeOptimizedPNG(rgba, targetWidth, targetHeight)
+          .then((blob) => {
+            if (blob) {
+              callback(blob);
+              return;
+            }
+            offscreen.toBlob(callback, "image/png");
+          })
+          .catch(() => {
+            offscreen.toBlob(callback, "image/png");
+          });
+        return;
+      }
       offscreen.toBlob(callback, "image/png");
+    }
+    const pngCrcTable = (() => {
+      const table = new Uint32Array(256);
+      for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+          c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+        }
+        table[n] = c >>> 0;
+      }
+      return table;
+    })();
+    function pngChunk(type, data) {
+      const out = new Uint8Array(12 + data.length);
+      new DataView(out.buffer).setUint32(0, data.length, false);
+      for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+      out.set(data, 8);
+      let crc = 0xffffffff;
+      for (let i = 4; i < 8 + data.length; i++) {
+        crc = pngCrcTable[(crc ^ out[i]) & 0xff] ^ (crc >>> 8);
+      }
+      new DataView(out.buffer).setUint32(8 + data.length, (crc ^ 0xffffffff) >>> 0, false);
+      return out;
+    }
+    async function encodeOptimizedPNG(rgba, width, height) {
+      const paletteMap = new Map();
+      const palette = [];
+      let indexed = true;
+      let lastRgb = -1;
+      for (let i = 0; i < rgba.length; i += 4) {
+        if (rgba[i + 3] !== 255) return null;
+        if (!indexed) continue;
+        const rgb = (rgba[i] << 16) | (rgba[i + 1] << 8) | rgba[i + 2];
+        if (rgb === lastRgb) continue;
+        if (!paletteMap.has(rgb)) {
+          if (palette.length >= 256) {
+            indexed = false;
+          } else {
+            paletteMap.set(rgb, palette.length);
+            palette.push(rgb);
+          }
+        }
+        lastRgb = rgb;
+      }
+
+      const bitDepth = !indexed ? 8 : (palette.length <= 2 ? 1 : (palette.length <= 16 ? 4 : 8));
+      const colorType = indexed ? 3 : 2;
+      const bpp = indexed ? 1 : 3;
+      const rowBytes = indexed ? Math.ceil((width * bitDepth) / 8) : width * 3;
+      const filtered = new Uint8Array(height * (1 + rowBytes));
+      let curRow = new Uint8Array(rowBytes);
+      let prevRow = new Uint8Array(rowBytes);
+
+      for (let y = 0; y < height; y++) {
+        const srcStart = y * width * 4;
+        if (indexed) {
+          curRow.fill(0);
+          let rowLastRgb = -1;
+          let rowLastIdx = 0;
+          for (let x = 0; x < width; x++) {
+            const p = srcStart + x * 4;
+            const rgb = (rgba[p] << 16) | (rgba[p + 1] << 8) | rgba[p + 2];
+            if (rgb !== rowLastRgb) {
+              rowLastIdx = paletteMap.get(rgb);
+              rowLastRgb = rgb;
+            }
+            if (bitDepth === 8) curRow[x] = rowLastIdx;
+            else if (bitDepth === 4) curRow[x >> 1] |= rowLastIdx << ((1 - (x & 1)) * 4);
+            else curRow[x >> 3] |= rowLastIdx << (7 - (x & 7));
+          }
+        } else {
+          for (let x = 0; x < width; x++) {
+            const p = srcStart + x * 4;
+            const d = x * 3;
+            curRow[d] = rgba[p];
+            curRow[d + 1] = rgba[p + 1];
+            curRow[d + 2] = rgba[p + 2];
+          }
+        }
+
+        let same = y > 0;
+        if (same) {
+          for (let x = 0; x < rowBytes; x++) {
+            if (curRow[x] !== prevRow[x]) {
+              same = false;
+              break;
+            }
+          }
+        }
+        const rowOut = y * (1 + rowBytes);
+        if (same) {
+          filtered[rowOut] = 2; // Up filter: repeated upscaled rows become zero bytes
+        } else {
+          filtered[rowOut] = 1; // Sub filter
+          for (let x = 0; x < rowBytes; x++) {
+            filtered[rowOut + 1 + x] = (curRow[x] - (x >= bpp ? curRow[x - bpp] : 0)) & 0xff;
+          }
+        }
+        const tmp = prevRow;
+        prevRow = curRow;
+        curRow = tmp;
+      }
+
+      const compressed = new Uint8Array(
+        await new Response(new Blob([filtered]).stream().pipeThrough(new CompressionStream("deflate"))).arrayBuffer()
+      );
+      const ihdr = new Uint8Array(13);
+      const ihdrView = new DataView(ihdr.buffer);
+      ihdrView.setUint32(0, width, false);
+      ihdrView.setUint32(4, height, false);
+      ihdr[8] = bitDepth;
+      ihdr[9] = colorType;
+
+      const parts = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]), pngChunk("IHDR", ihdr)];
+      if (indexed) {
+        const plte = new Uint8Array(palette.length * 3);
+        for (let i = 0; i < palette.length; i++) {
+          plte[i * 3] = (palette[i] >> 16) & 0xff;
+          plte[i * 3 + 1] = (palette[i] >> 8) & 0xff;
+          plte[i * 3 + 2] = palette[i] & 0xff;
+        }
+        parts.push(pngChunk("PLTE", plte));
+      }
+      parts.push(pngChunk("IDAT", compressed), pngChunk("IEND", new Uint8Array(0)));
+      return new Blob(parts, { type: "image/png" });
     }
     function downloadBlob(blob, downloadName) {
       const url = URL.createObjectURL(blob);
