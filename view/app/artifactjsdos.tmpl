@@ -91,100 +91,108 @@
     ctx.fillText("Stuck and not loading?", 10, 50);
     ctx.fillText("1) try refreshing this tab.", 13, 70);
     ctx.fillText("2) view the tab Console for errors.", 13, 90);
+    let emulatorStarted = false;
+    const captureBaseName = ("{{$filename}}".split(/[\\/]/).pop() || "screenshot").replace(/\.[^/.]+$/, "") || "screenshot";
     const stopButton = document.getElementById("jsdosStop");
-    stopButton.addEventListener("click", () => {
+    function exitEmulator() {
       try {
-        if (window.ci) {
+        if (window.ci && !stopButton.disabled) {
           window.ci.exit();
           stopButton.disabled = true;
         }
       } catch (error) {
         console.log("ci.exit() error: ", error);
       }
-    });
+    }
+    stopButton.addEventListener("click", exitEmulator);
     document.getElementById(`jsdosFullscreen`).addEventListener("click", () => {
       canvas.requestFullscreen();
     });
     document
       .getElementById(`jsdosScreenshot`)
-      .addEventListener("click", ()=>{
-        screenshot({{$filename}})
+      .addEventListener("click", () => {
+        screenshot(captureBaseName);
       });
 {{- if $unlocked }}
     const replaceImageButton = document.getElementById('jsdosReplaceImage');
-    replaceImageButton.addEventListener('click', function() {
-      try {
-        replaceImageButton.disabled = true;
-        screenshot("{{$filename}}-replace-image")
-        // stop JS-DOS emulation
-        if (window.ci) {
-          ci.exit();
-          stopButton.disabled = true;
-          const runAppButton = document.getElementById('js-dos-run-app');
-          if (runAppButton) {
-            runAppButton.textContent = 'Refresh page to rerun';
-            runAppButton.style.pointerEvents = 'none';
-          }
+    replaceImageButton.addEventListener('click', () => {
+      captureCanvasBlob((blob) => {
+        if (!blob) return;
+        const replacementInput = document.querySelector('input[name="artifact-editor-replace-preview"]');
+        let attached = false;
+        if (replacementInput && typeof DataTransfer !== 'undefined') {
+          const dt = new DataTransfer();
+          dt.items.add(new File([blob], `${captureBaseName}-screenshot.png`, { type: 'image/png' }));
+          replacementInput.files = dt.files;
+          attached = replacementInput.files.length > 0;
         }
-        const jsdosModal = bootstrap.Modal.getInstance(document.getElementById('js-dos-modal'));
-        jsdosModal.hide();
-        // open asset editor modal
-        const assetModal = new bootstrap.Modal(document.getElementById('asset-editor-modal'));
-        assetModal.show();
-        // open replacement image file dialog
-        document.getElementById('asset-editor-modal').addEventListener('shown.bs.modal', function() {
-          const replacementInput = document.querySelector('input[name="artifact-editor-replace-preview"]');
-          if (replacementInput) {
-            replacementInput.click();
-          }
+        if (!attached) {
+          downloadBlob(blob, `${captureBaseName}-replace-image.png`);
+        }
+        replaceImageButton.disabled = true;
+        // Stop JS-DOS emulation cleanly before switching modals
+        exitEmulator();
+        const runAppButton = document.getElementById('js-dos-run-app');
+        if (runAppButton) {
+          runAppButton.textContent = 'Refresh page to rerun';
+          runAppButton.style.pointerEvents = 'none';
+        }
+        const jsdosModalEl = document.getElementById('js-dos-modal');
+        const assetModalEl = document.getElementById('asset-editor-modal');
+        const jsdosModal = bootstrap.Modal.getOrCreateInstance(jsdosModalEl);
+        const assetModal = bootstrap.Modal.getOrCreateInstance(assetModalEl);
+        jsdosModalEl.addEventListener('hidden.bs.modal', () => {
+          assetModal.show();
         }, { once: true });
-      } catch (error) {
-        console.log("Replace image error: ", error);
-      }
+        jsdosModal.hide();
+      });
     });
 {{- end }}
-    function screenshot(filename = 'screenshot') {
-      console.log(`screenshot: for canvas of ${filename}`);
-
-      const scale = 3;
+    function captureCanvasBlob(callback) {
+      if (!emulatorStarted || canvas.width === 0 || canvas.height === 0) {
+        return;
+      }
       const baseWidth = canvas.width;
-      const baseHeight = Math.round(baseWidth * (3 / 4)); // 320 * (3/4) = 240
-      let targetWidth = baseWidth * scale;
-      let targetHeight = baseHeight * scale;
-      const maxWidth = 1280
-      const maxHeight = 960
+      const srcHeight = canvas.height;
+      // Apply 4:3 CRT pixel aspect correction for classic non-square DOS modes (e.g. 320x200, 640x350, 720x400).
+      const aspect = baseWidth / srcHeight;
+      const needsCRTCorrection = Math.abs(aspect - 4 / 3) > 0.05 && baseWidth <= 720 && srcHeight <= 400;
+      const baseHeight = needsCRTCorrection ? Math.round(baseWidth * (3 / 4)) : srcHeight;
+      const maxWidth = 1280;
+      const maxHeight = 960;
+      const intScale = Math.max(1, Math.min(3, Math.floor(maxWidth / baseWidth), Math.floor(maxHeight / baseHeight)));
+      let targetWidth = baseWidth * intScale;
+      let targetHeight = baseHeight * intScale;
       if (targetWidth > maxWidth || targetHeight > maxHeight) {
-        const widthRatio = maxWidth / targetWidth;
-        const heightRatio = maxHeight / targetHeight;
-        const constrainRatio = Math.min(widthRatio, heightRatio);
-
-        targetWidth = Math.round(targetWidth * constrainRatio);
-        targetHeight = Math.round(targetHeight * constrainRatio);
+        const ratio = Math.min(maxWidth / targetWidth, maxHeight / targetHeight);
+        targetWidth = Math.round(targetWidth * ratio);
+        targetHeight = Math.round(targetHeight * ratio);
       }
 
-      // canvas setup
       const offscreen = document.createElement("canvas");
       offscreen.width = targetWidth;
       offscreen.height = targetHeight;
-      const ctx = offscreen.getContext("2d");
-      ctx.imageSmoothingEnabled = false;
-      // stretch the original DOS resolution by the scale value
-      ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, targetWidth, targetHeight);
-
-      offscreen.toBlob((blob) => {
+      const offCtx = offscreen.getContext("2d");
+      offCtx.imageSmoothingEnabled = false;
+      offCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, targetWidth, targetHeight);
+      offscreen.toBlob(callback, "image/png");
+    }
+    function downloadBlob(blob, downloadName) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    function screenshot(filename = 'screenshot') {
+      console.log(`screenshot: for canvas of ${filename}`);
+      captureCanvasBlob((blob) => {
         if (!blob) return;
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement("a");
-        a.href = url;
-        a.download = `${filename}.png`;
-
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        // clean up memory after use
-        URL.revokeObjectURL(url);
-      }, "image/png")
+        downloadBlob(blob, `${filename}.png`);
+      });
     }
     function startBinary(options) {
       Dos(canvas, options).ready((fs, main) => {
@@ -202,6 +210,7 @@
           })
           .then((ci) => {
             window.ci = ci;
+            emulatorStarted = true;
             console.log(
               `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
             );
@@ -228,6 +237,7 @@
           })
           .then((ci) => {
             window.ci = ci;
+            emulatorStarted = true;
             console.log(
               `width: ${ci.dos.canvas.width}, height: ${ci.dos.canvas.height}`
             );
