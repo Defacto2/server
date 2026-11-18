@@ -187,134 +187,149 @@
             {{- if eq $editor true }}
             <style>.selection:hover { cursor: pointer; }</style>
             {{- end }}
-            {{- /*  Table with details  */}}
-            <table class="table table-hover table-sm align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col" class="fw-light text-body-tertiary"></th>
-                        <th scope="col" class="fw-light text-body-tertiary">Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row"><span class="text-nowrap fw-light text-secondary">Download info</span></th>
-                        <td><span data-bs-toggle="tooltip" data-bs-title="{{$filebyte}} bytes">{{$filesize}}</span>
-                            {{- if ne "" $contentDesc}}, {{$contentDesc}}{{end -}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><span class="text-nowrap fw-light text-secondary">Last modification</span></th>
-                        <td><span data-bs-toggle="tooltip" data-bs-title="{{$lastModAgo}}">{{$lastMod}}</span></td>
-                    </tr>
-                    {{- if ne $mimetype ""}}
-                    <tr>
-                        <th scope="row"><span class="text-nowrap fw-light text-secondary">Mime or file type</span></th>
-                        <td>{{$mimetype}}</td>
-                    </tr>
-                    {{- end}}
-                    {{- if $contentLatin1}}
-                    <tr>
-                        <th scope="row"><span class="text-nowrap fw-light text-secondary">Text dimensions</span></th>
-                        <td><span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{$contentLines}}</span> x 
-                            <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{$contentRows}}</span></td>
-                    </tr>
-                    {{- end}}
+            {{- /*  Summary stats  */}}
+            <div class="bg-body-tertiary border rounded p-3 mb-3">
+              <div class="row row-cols-2 g-3">
+                <div class="col">
+                  <div class="text-secondary text-uppercase" style="font-size: 0.72rem; letter-spacing: .04em;">Download</div>
+                  <div data-bs-toggle="tooltip" data-bs-title="{{$filebyte}} bytes">{{$filesize}}
+                    {{- if ne "" $contentDesc}}<span class="text-body-secondary">, {{$contentDesc}}</span>{{end -}}
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="text-secondary text-uppercase" style="font-size: 0.72rem; letter-spacing: .04em;">Modified</div>
+                  <div data-bs-toggle="tooltip" data-bs-title="{{$lastModAgo}}">{{$lastMod}}</div>
+                </div>
+                {{- if ne $mimetype ""}}
+                <div class="col">
+                  <div class="text-secondary text-uppercase" style="font-size: 0.72rem; letter-spacing: .04em;">File type</div>
+                  <div>{{$mimetype}}</div>
+                </div>
+                {{- end}}
+                {{- if $contentLatin1}}
+                <div class="col">
+                  <div class="text-secondary text-uppercase" style="font-size: 0.72rem; letter-spacing: .04em;">Text dimensions</div>
+                  <div class="font-monospace">
+                    <span data-bs-toggle="tooltip" data-bs-title="Number of lines in the text">{{$contentLines}}</span>
+                    <span class="text-secondary">&times;</span>
+                    <span data-bs-toggle="tooltip" data-bs-title="Maximum number of rows or characters per-line">{{$contentRows}}</span>
+                  </div>
+                </div>
+                {{- end}}
+              </div>
+            </div>
+            {{- /*  Credits, SAUCE and external links  */}}
+            {{- $websites := index . "websites"}}
+            {{- $relations := index . "relations"}}
+            {{- $hasSauce := and $sauce (or (ne $sauceTitle "") (ne $sauceAuthor "") (ne $sauceGroup "") (ne $sauceDate ""))}}
+            {{- $hasDetails := or $hasSauce $writers $artists $programmers $musicians $pouet $demozoo $sixteenColors $youtube $github $websites $relations}}
+            {{- if $hasDetails}}
+            <style>
+              .artifact-details-table th[scope="row"] { width: 38%; }
+              .artifact-details-table > tbody:last-child > tr:last-child > * { border-bottom-width: 0; }
+            </style>
+            <div class="card mb-3">
+              <div class="card-body py-2 px-3">
+                <table class="table table-hover table-sm align-middle mb-0 artifact-details-table">
+                  <tbody>
                     {{- if $sauce}}
                     {{- if ne $sauceTitle ""}}
                     <tr class="selection" id="artifact-embed-title">
-                        <th scope="row"><span class="text-nowrap fw-light text-info">Embed title</span></th>
-                        <td id="artifact-embed-title-value">{{$sauceTitle}}</td>
+                      <th scope="row"><small class="text-nowrap fw-light text-info-emphasis">Embed title</small></th>
+                      <td id="artifact-embed-title-value">{{$sauceTitle}}</td>
                     </tr>
                     {{- end}}{{ if ne $sauceAuthor ""}}
                     <tr class="selection" id="artifact-embed-author">
-                        <th scope="row"><span class="text-nowrap fw-light text-info">Embed author</span></th>
-                        <td id="artifact-embed-author-value">{{$sauceAuthor}}</td>
+                      <th scope="row"><small class="text-nowrap fw-light text-info-emphasis">Embed author</small></th>
+                      <td id="artifact-embed-author-value">{{$sauceAuthor}}</td>
                     </tr>
                     {{- end}}{{ if ne $sauceGroup ""}}
                     <tr class="selection" id="artifact-embed-group">
-                        <th scope="row"><span class="text-nowrap fw-light text-info">Embed group</span></th>
-                        <td id="artifact-embed-group-value">{{$sauceGroup}}</td>
+                      <th scope="row"><small class="text-nowrap fw-light text-info-emphasis">Embed group</small></th>
+                      <td id="artifact-embed-group-value">{{$sauceGroup}}</td>
                     </tr>
                     {{- end}}
                     <tr>
-                        <th scope="row"><span class="text-nowrap fw-light text-info">Embed date</span></th>
-                        <td>{{$sauceDate}}</td>
+                      <th scope="row"><small class="text-nowrap fw-light text-info-emphasis">Embed date</small></th>
+                      <td>{{$sauceDate}}</td>
                     </tr>
                     {{- end}}
-                    <tr>
-                        <th scope="row">&nbsp;</th>
-                        <td></td>
-                    </tr>
                     {{- /*  Authors and attributions  */}}
                     {{- if ne $writers "" }}
                     <tr>
-                        <th scope="row"><span class="fw-light text-secondary">Writers <em>or people mentioned</em></span></th>
-                        <td>{{linkScnrs $writers}}</td>
+                      <th scope="row"><small class="fw-light text-secondary">Writers <em>or people mentioned</em></small></th>
+                      <td>{{linkScnrs $writers}}</td>
                     </tr>{{- end}}
                     {{- if ne $artists "" }}
                     <tr>
-                        <th scope="row"><span class="fw-light text-secondary">Artists</span></th>
-                        <td>{{linkScnrs $artists}}</td>
+                      <th scope="row"><small class="fw-light text-secondary">Artists</small></th>
+                      <td>{{linkScnrs $artists}}</td>
                     </tr>{{- end}}
                     {{- if ne $programmers "" }}
                     <tr>
-                        <th scope="row"><span class="fw-light text-secondary">Programmers</span></th>
-                        <td>{{linkScnrs $programmers}}</td>
+                      <th scope="row"><small class="fw-light text-secondary">Programmers</small></th>
+                      <td>{{linkScnrs $programmers}}</td>
                     </tr>{{- end}}
                     {{- if ne $musicians "" }}
                     <tr>
-                        <th scope="row"><span class="fw-light text-secondary">Musicians</span></th>
-                        <td>{{linkScnrs $musicians}}</td>
+                      <th scope="row"><small class="fw-light text-secondary">Musicians</small></th>
+                      <td>{{linkScnrs $musicians}}</td>
                     </tr>{{- end}}
                     {{- /*  Pouet, Demozoo, 16colors links  */}}
                     {{- if ne $pouet ""}}
                     <tr id="pouetRow" class="d-none">
-                        <th scope="row"><small class="fw-light text-secondary">Pouët reviews</small></th>
-                        <td>
-                            <a id="pouetStars" href="https://www.pouet.net/prod.php?which={{$pouet}}">? stars</a>
-                            &nbsp; <small id="pouetVotes">? votes</small>
-                            <span class="d-none" id="pouetVoteID">{{$pouet}}</span>
-                        </td>
+                      <th scope="row"><small class="fw-light text-secondary">Pouët reviews</small></th>
+                      <td>
+                        <a id="pouetStars" href="https://www.pouet.net/prod.php?which={{$pouet}}">? stars</a>
+                        &nbsp; <small id="pouetVotes">? votes</small>
+                        <span class="d-none" id="pouetVoteID">{{$pouet}}</span>
+                      </td>
                     </tr>{{- end}}
                     {{- if ne $demozoo ""}}
                     <tr>
-                        <th scope="row"><small class="fw-light text-secondary">Demozoo</small></th>
-                        <td>
-                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://demozoo.org/productions/{{$demozoo}}">Extras, links and downloads{{linkSVG}}</a></small>
-                        </td>
+                      <th scope="row"><small class="fw-light text-secondary">Demozoo</small></th>
+                      <td>
+                        <small><a class="link-offset-3 icon-link icon-link-hover" href="https://demozoo.org/productions/{{$demozoo}}">Extras, links and downloads{{linkSVG}}</a></small>
+                      </td>
                     </tr>{{- end}}
                     {{- if ne $sixteenColors ""}}
                     <tr>
-                        <th scope="row"><small class="fw-light text-secondary">16colors</small></th>
-                        <td>
-                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteenColors}}">Browse art and play animations{{linkSVG}}</a></small>
-                        </td>
+                      <th scope="row"><small class="fw-light text-secondary">16colors</small></th>
+                      <td>
+                        <small><a class="link-offset-3 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteenColors}}">Browse art and play animations{{linkSVG}}</a></small>
+                      </td>
                     </tr>{{- end}}
                     {{- /*  YouTube, GitHub and other links  */}}
                     {{- if ne $youtube ""}}
                     <tr>
-                        <th scope="row"><small class="fw-light text-secondary">YouTube</small></th>
-                        <td>
-                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://www.youtube.com/watch?v={{$youtube}}">Watch on YouTube{{linkSVG}}</a></small>
-                        </td>
+                      <th scope="row"><small class="fw-light text-secondary">YouTube</small></th>
+                      <td>
+                        <small><a class="link-offset-3 icon-link icon-link-hover" href="https://www.youtube.com/watch?v={{$youtube}}">Watch on YouTube{{linkSVG}}</a></small>
+                      </td>
                     </tr>{{- end}}
                     {{- if ne $github ""}}
                     <tr>
-                        <th scope="row"><small class="fw-light text-secondary">GitHub</small></th>
-                        <td>
-                            <small><a class="link-offset-3 icon-link icon-link-hover" href="https://github.com/{{$github}}"><var>{{$github}}</var>{{linkSVG}}</a></small>
-                        </td>
+                      <th scope="row"><small class="fw-light text-secondary">GitHub</small></th>
+                      <td>
+                        <small><a class="link-offset-3 icon-link icon-link-hover" href="https://github.com/{{$github}}"><var>{{$github}}</var>{{linkSVG}}</a></small>
+                      </td>
                     </tr>{{- end}}
                     {{- /*  "Link to" items  */}}
-                    {{- index . "websites" }}
-                    {{- index . "relations" }}
-                    {{- /*  File created and updated dates  */}}
-                    {{- if $fileEntry}}
-                    <tr>
-                        <th scope="row"><span class="fw-light text-secondary">Artifact</span></th>
-                        <td><small>{{$fileEntry | safeHTML}}</small></td>
-                    </tr>
-                    {{- end}}
-                </tbody>
-            </table>
+                    {{- $websites }}
+                    {{- $relations }}
+                  </tbody>
+                </table>
+              </div>
+              {{- /*  File created and updated dates  */}}
+              {{- if $fileEntry}}
+              <div class="card-footer bg-body-tertiary py-2 px-3 small text-body-secondary">
+                <span class="fw-light me-2">Artifact:</span>{{$fileEntry | safeHTML}}
+              </div>
+              {{- end}}
+            </div>
+            {{- else if $fileEntry}}
+            <div class="small text-body-secondary px-1 mb-3">
+              <span class="fw-light me-2">Artifact:</span>{{$fileEntry | safeHTML}}
+            </div>
+            {{- end}}
 {{- end}}
