@@ -281,7 +281,7 @@ func ImageSample(unid string, preview dir.Directory) template.HTML {
 
 	integrity, err := helper.IntegrityFile(name)
 	if err != nil {
-		return template.HTML(`<div class="card-body">No preview image file</div>`)
+		return template.HTML(`<div class="card-body">No preview</div>`)
 	}
 
 	const format = `<img src="%s?%s" loading="lazy" class="%s" alt="%s sample" integrity="%s" />`
@@ -909,7 +909,7 @@ func ThumbSample(unid string, thumbnail dir.Directory) template.HTML {
 
 	integrity, err := helper.IntegrityFile(name)
 	if err != nil {
-		return template.HTML(`<div class="card-body">No thumbnail picture file</div>`)
+		return template.HTML(`<div class="card-body">No thumbnail</div>`)
 	}
 
 	const format = `<img src="%s?%s" loading="lazy" class="%s" alt="%s sample" integrity="%s" />`

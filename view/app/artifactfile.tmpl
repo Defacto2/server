@@ -90,15 +90,18 @@
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25 text-secondary" for="artifact-editor-dl-lm">Last modified</label>
-              <input type="text" class="form-control" id="artifact-editor-dl-lm" value="{{$statMod}}" 
-                data-bs-toggle="tooltip" data-bs-title="On file system" autocomplete="off" readonly>
               <input type="text" class="form-control" id="artifact-editor-dl-lmdb" value="{{$databaseMod}}" 
                 data-bs-toggle="tooltip" data-bs-title="Stored in the database" autocomplete="off" readonly>
+              <input type="text" class="form-control" id="artifact-editor-dl-lm" value="{{$statMod}}" 
+                data-bs-toggle="tooltip" data-bs-title="On file system" autocomplete="off" readonly>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-25 text-secondary" for="artifact-editor-dl-mb">Magic bytes</label>
               <input type="text" class="form-control" id="artifact-editor-dl-mb" value="{{$magicNum}}" 
                 data-bs-toggle="tooltip" data-bs-title="Guessed type of file" autocomplete="off" readonly>
+            </div>
+            <div class="input-group mb-1">
+              <label class="input-group-text w-25 text-secondary" for="artifact-editor-dl-mb">Internet MIME</label>
               <input type="text" class="form-control" id="artifact-editor-dl-mime" value="{{$magicMIME}}"
                 data-bs-toggle="tooltip" data-bs-title="Guessed MIME type" autocomplete="off" readonly>
             </div>
@@ -303,25 +306,6 @@
                         </tbody>
                       </table>
                       <div class="mt-auto d-flex flex-column gap-2">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                          <div class="d-flex align-items-center gap-2">
-                            <span class="small text-secondary" style="min-width: 3.25rem;">Quality</span>
-                            <div class="btn-group btn-group-sm" role="group" aria-label="Thumbnail quality">
-                              <button type="button" class="btn btn-outline-success"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Lossless WebP for pixel art &amp; text"
-                                hx-target="#artifact-editor-image-assets-feedback"
-                                hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel</button>
-                              <button type="button" class="btn btn-outline-secondary"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Lossy WebP for photos &amp; gradients"
-                                hx-target="#artifact-editor-image-assets-feedback"
-                                hx-patch="/editor/thumbnail/photo/{{$unid}}">Photo</button>
-                            </div>
-                          </div>
-                          <button type="button" class="btn btn-sm btn-outline-danger"
-                            id="artifact-editor-imagethumb-delete"
-                            hx-target="#artifact-editor-image-assets-feedback"
-                            hx-patch="/editor/thumbnail/remove/{{$unid}}">Delete</button>
-                        </div>
                         <div class="d-flex align-items-center gap-2">
                           <span class="small text-secondary" style="min-width: 3.25rem;">Align</span>
                           <div class="btn-group btn-group-sm" role="group" aria-label="Thumbnail crop alignment">
@@ -341,6 +325,26 @@
                               hx-target="#artifact-editor-image-assets-feedback"
                               hx-patch="/editor/thumbnail/right/{{$unid}}">Right</button>
                           </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="small text-secondary" style="min-width: 3.25rem;">Quality</span>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Thumbnail quality">
+                              <button type="button" class="btn btn-outline-success"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Lossless WebP for pixel art &amp; text"
+                                hx-target="#artifact-editor-image-assets-feedback"
+                                hx-patch="/editor/thumbnail/pixel/{{$unid}}">Pixel</button>
+                              <button type="button" class="btn btn-outline-secondary"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Lossy WebP for photos &amp; gradients"
+                                hx-target="#artifact-editor-image-assets-feedback"
+                                hx-patch="/editor/thumbnail/photo/{{$unid}}">Photo</button>
+                            </div>
+                          </div>
+                          <button type="button" class="btn btn-sm btn-outline-danger"
+                            id="artifact-editor-imagethumb-delete"
+                            hx-target="#artifact-editor-image-assets-feedback"
+                            hx-patch="/editor/thumbnail/remove/{{$unid}}">Delete</button>
                         </div>
                       </div>
                     </div>
