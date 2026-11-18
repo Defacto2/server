@@ -161,88 +161,76 @@
         </script>
         {{- end}}
         <style>.font-large{font-size:131%;line-height:100%;}</style>
-        {{if and (eq (index . "platform") "textamiga") ($textcontentBinary) }}
-        <div class="col-12">
-          <div>
-              <span class="text-body-secondary fw-light d-block mb-2">Font</span>
-              <div class="btn-group btn-group-sm" role="group">
-                  <button type="button" id="textcontBtnTopaz" class="btn btn-outline-dark active">Topaz</button>
-                  <button type="button" id="textcontBtnMicroKnight" class="btn btn-outline-dark">MicroKnight</button>
+        {{- $isAmigaBinary := and (eq (index . "platform") "textamiga") ($textcontentBinary) }}
+        {{- $isOtherBinary := and (not $isAmigaBinary) ($textcontentBinary) }}
+        {{- $isReadme := or ($textcontentLatin1) ($textcontentCP437) }}
+        {{- if or $isAmigaBinary $isOtherBinary $isReadme }}
+        <div class="col-12 mt-2">
+          <h6 class="text-body-secondary fs-6 fw-normal mb-2">
+            {{- if $isAmigaBinary}}Commodore Amiga ANSI text
+            {{- else if $isOtherBinary}}ANSI encoded or binary text
+            {{- else if not $screenNone}}Readme or information text{{if $readmeName}} <small class="text-body-tertiary font-monospace ms-1">{{$readmeName}}</small>{{end}}
+            {{- else}}Textfile content
+            {{- end}}
+          </h6>
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 bg-body-tertiary border rounded px-3 py-2 mb-2">
+            {{- if $isAmigaBinary}}
+            <div class="d-flex align-items-center gap-2">
+              <span class="small text-secondary">Font</span>
+              <div class="btn-group btn-group-sm" role="group" aria-label="Font">
+                <button type="button" id="textcontBtnTopaz" class="btn btn-outline-secondary active">Topaz</button>
+                <button type="button" id="textcontBtnMicroKnight" class="btn btn-outline-secondary">MicroKnight</button>
               </div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mt-3 mb-1">
-            <h6 class="text-body-secondary fs-5 fw-light">Commodore Amiga ANSI text</h6>
-            <div>
-                <button class="btn btn-outline-dark" id="artifact-copy-textbody" 
-                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">📋 Copy text</button>
+            </div>
+            {{- else if and $isOtherBinary (eq true $contentBinarySwappers)}}
+            <div class="d-flex align-items-center gap-2">
+              <span class="small text-secondary">Display</span>
+              <div class="btn-group btn-group-sm" role="group" aria-label="Display style">
+                <button type="button" id="textcontBtnZoom" class="btn btn-outline-secondary active">Zoom</button>
+                <button type="button" id="textcontBtn16px" class="btn btn-outline-secondary">16 px</button>
+                <button type="button" id="textcontBtn08px" class="btn btn-outline-secondary">8 px</button>
+              </div>
+            </div>
+            {{- else if $isReadme}}
+            <div class="d-flex align-items-center gap-2">
+              <span class="small text-secondary">Style</span>
+              <div class="btn-group btn-group-sm" role="group" aria-label="Display style">
+                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnWeb" rel="nofollow" autocomplete="off"{{if ne $web ""}} {{$web}}{{end}}>
+                <label class="btn btn-outline-secondary" for="textcontBtnWeb"
+                  data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with UTF-8 encoding">Web</label>
+                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnAmiga" rel="nofollow" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
+                <label class="btn btn-outline-secondary" for="textcontBtnAmiga"
+                  data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga</label>
+                <input type="radio" class="btn-check" name="readme-base" id="textcontBtnDOS" rel="nofollow" autocomplete="off"{{if ne $vga ""}} {{$vga}}{{end}}>
+                <label class="btn btn-outline-secondary" for="textcontBtnDOS"
+                  data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS</label>
+              </div>
+            </div>
+            {{- end}}
+            <div class="d-flex align-items-center gap-2 ms-auto">
+              {{- if $isReadme}}
+              <input type="checkbox" class="btn-check" id="toggle-pre-wrap" autocomplete="off">
+              <label class="btn btn-sm btn-outline-secondary" for="toggle-pre-wrap"
+                data-bs-toggle="tooltip" data-bs-title="Overflow text wrapping">Wrap text</label>
+              {{- end}}
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="artifact-copy-textbody"
+                data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">Copy text</button>
             </div>
           </div>
+          {{- if or $isAmigaBinary $isOtherBinary}}
           <pre id="precontentBinary" class="{{$preClass}}">{{$textcontentBinary}}</pre>
-        </div>
-        {{- else if $textcontentBinary -}}
-        <div class="col-12">
-          {{- if eq true $contentBinarySwappers }}
-          <div>
-              <span class="text-body-secondary fw-light d-block mb-2">Display style</span>
-              <div class="btn-group btn-group-sm" role="group">
-                  <button type="button" id="textcontBtnZoom" class="btn btn-outline-dark active">Zoom</button>
-                  <button type="button" id="textcontBtn16px" class="btn btn-outline-dark">16 pixels</button>
-                  <button type="button" id="textcontBtn08px" class="btn btn-outline-dark">8 pixels</button>
-              </div>
-          </div>
-          {{- end }}
-          <div class="d-flex justify-content-between align-items-center mt-3 mb-1">
-            <h6 class="text-body-secondary fs-5 fw-light">ANSI encoded or binary text</h6>
-              <div class="mb-3">
-                  <button class="btn btn-outline-dark" id="artifact-copy-textbody" 
-                      data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">📋 Copy text</button>
-              </div>
-            </div>
-            <pre id="precontentBinary" class="{{$preClass}}">{{$textcontentBinary}}</pre>
-        </div>
-        {{- end -}}
-        {{- if or ($textcontentLatin1) ($textcontentCP437)}}
-        <div class="col-12">
-          <div>
-            <span class="text-body-secondary fw-light d-block mb-2">Display style</span>
-            <div class="btn-group" role="group">
-              <input type="radio" class="btn-check" name="readme-base" id="textcontBtnWeb" rel="nofollow" autocomplete="off"{{if ne $web ""}} {{$web}}{{end}}>
-              <label class="btn btn-outline-dark" for="textcontBtnWeb" 
-                  data-bs-toggle="tooltip" data-bs-title="Use the Cascadia Mono font with UTF-8 encoding">Web style</label>
-              <input type="radio" class="btn-check" name="readme-base" id="textcontBtnAmiga" rel="nofollow" autocomplete="off"{{if ne $topaz ""}} {{$topaz}}{{end}}>
-              <label class="btn btn-outline-dark" for="textcontBtnAmiga" 
-                  data-bs-toggle="tooltip" data-bs-title="Use the TopazPlus font with Latin-1 encoding">Amiga style</label>
-              <input type="radio" class="btn-check" name="readme-base" id="textcontBtnDOS" rel="nofollow" autocomplete="off"{{if ne $vga ""}} {{$vga}}{{end}}>
-              <label class="btn btn-outline-dark" for="textcontBtnDOS"
-                  data-bs-toggle="tooltip" data-bs-title="Use a classic IBM VGA font with OEM-US encoding">DOS style</label>
-            </div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mt-3 mb-1">
-            {{- if not $screenNone}}
-            <h6 class="text-body-secondary fs-5 fw-light">Readme or information text <small>{{$readmeName}}</small></h6>
-            {{- end}}
-            {{- if $screenNone}}
-            <h6 class="text-body-secondary fs-5 fw-light">Textfile content</h6>
-            {{- end}}
-            <div>
-            <input type="checkbox" class="btn-check" id="toggle-pre-wrap" autocomplete="off">
-                <label class="btn btn-outline-dark me-1" for="toggle-pre-wrap" 
-                      data-bs-toggle="tooltip" data-bs-title="Overflow text wrapping">
-                      Wrap text
-                </label>
-                <button class="btn btm-sm btn-outline-dark" id="artifact-copy-textbody" 
-                    data-bs-toggle="tooltip" data-bs-title="Copy the text to the clipboard" rel="nofollow">📋 Copy text</button>
-            </div>
-          </div>
-        {{- if $textcontentUTF8 -}}
+          {{- end}}
+          {{- if $isReadme}}
+          {{- if $textcontentUTF8 -}}
           <pre id="precontentUTF8" class="{{$preclassUTF8}}font-cascadia-mono render {{$preClass}}">{{$textcontentUTF8}}</pre>
-        {{- end -}}
-        {{- if $textcontentLatin1 -}}
+          {{- end -}}
+          {{- if $textcontentLatin1 -}}
           <pre id="precontentLatin1" style="background-color:#999;color:#000;" class="{{$preclassLatin1}} font-amiga font-large render {{$preClass}}">{{$textcontentLatin1}}</pre>
-        {{- end -}}
-        {{- if $textcontentCP437 -}}
+          {{- end -}}
+          {{- if $textcontentCP437 -}}
           <pre id="precontentCP437" class="{{$preclassCP437}} render {{$preClass}}">{{$textcontentCP437}}</pre>
-        {{- end -}}
+          {{- end -}}
+          {{- end}}
         </div>
         {{- end}}
     </div>
