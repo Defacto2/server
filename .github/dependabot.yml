@@ -5,7 +5,9 @@
 version: 2
 updates:
   - package-ecosystem: "gomod"
-    directory: "/"
+    directories:
+      - "/"
+      - "/runner"
     schedule:
       interval: "monthly"
     groups:
@@ -29,5 +31,6 @@ updates:
     groups:
       updates:
         update-types:
+          - "major"
           - "minor"
           - "patch"

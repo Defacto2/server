@@ -14,14 +14,12 @@ on:
         required: false
         type: boolean
         default: false
-      skip_tests:
-        description: 'Skip running tests'
-        required: false
-        type: boolean
-        default: false
   push:
     tags:
       - '*' # run on new tags
+      - '!*alpha*'
+      - '!*beta*'
+      - '!*rc*'
 permissions:
   contents: write
   id-token: write
@@ -39,30 +37,18 @@ jobs:
         with:
           go-version-file: 'go.mod'
           cache: true
-      - name: Cache Go modules
-        uses: actions/cache@v6
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: Validate GoReleaser config
         run: |
           if [ ! -f init/.goreleaser.yaml ]; then
             echo "Error: init/.goreleaser.yaml not found"
             exit 1
           fi
-      - name: Skip pre-release tags
-        if: contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc')
-        run: |
-          echo "Skipping pre-release tag: ${{ github.ref }}"
-          exit 0
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
           version: latest
-          args: release --clean --config init/.goreleaser.yaml
+          args: release --clean ${{ inputs.dry_run && '--snapshot' || '' }} ${{ inputs.verbose && '--verbose' || '' }} --config init/.goreleaser.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_DEBUG: true # leave on, because this workflow is fickle
@@ -71,6 +57,11 @@ jobs:
           ./dist/server_linux_amd64_v1/defacto2-server --help > /dev/null
           echo "✓ Binary smoke test passed"
       - name: Generate SLSA provenance
+        if: ${{ !inputs.dry_run }}
         uses: actions/attest-build-provenance@v4
         with:
-          subject-path: 'dist/*'
+          subject-path: |
+            dist/*.tgz
+            dist/*.zip
+            dist/*.deb
+            dist/*_checksums.txt
