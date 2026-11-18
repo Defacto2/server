@@ -38,8 +38,8 @@ github.com/aymerick/douceur v0.2.0 h1:Mv+mAeH1Q+n9Fr+oyamOlAkUNPWPlA8PPGR0QAaYuP
 github.com/aymerick/douceur v0.2.0/go.mod h1:wlT5vV2O3h55X9m7iVYN0TBM0NH/MmbLnd30/FjWUq4=
 github.com/bengarrett/ansibump v1.1.6 h1:f184LyZxzoD2u/rsYnvzfp+SG23O9lw/kc+OSd/0oRo=
 github.com/bengarrett/ansibump v1.1.6/go.mod h1:12r/njG3tvC5R8qTMXtx6s2pVR10lgit3rF8UtD4i1Y=
-github.com/bengarrett/ansimate v1.1.0 h1:eqnb/eNTWLVxjBF5PBzw8ypFuR8TManltboUAO+ZPnU=
-github.com/bengarrett/ansimate v1.1.0/go.mod h1:AajWRDysXpIF1iA39bsZPYUyYH4hMJDitOVxcebqFso=
+github.com/bengarrett/ansimate v1.1.6 h1:nfbxxGzpzjsvy4tpdB/NTpeAOx4zIHpfxUr934RjFEs=
+github.com/bengarrett/ansimate v1.1.6/go.mod h1:AajWRDysXpIF1iA39bsZPYUyYH4hMJDitOVxcebqFso=
 github.com/bengarrett/bbs v1.0.11 h1:QHgcU9PKUgS5+EU2iVSjIfv6itgzAPFOWyFy/BeqwzA=
 github.com/bengarrett/bbs v1.0.11/go.mod h1:HUq//vZdttFm9l9F2GyGt7pP0KL9y6Hw7tryY7Lv84c=
 github.com/bengarrett/binbump v1.0.6 h1:FMhFEJd2flJeD+4JjTlwdT2JTylLQibF6Bo4pdqXcJw=

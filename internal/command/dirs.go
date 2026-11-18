@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
@@ -265,7 +266,10 @@ func (ds Dirs) ANSImation(ctx context.Context, sl *slog.Logger, src, unid string
 		}
 	}()
 
-	if err := ansimate.Animate(tmpFile, f, nil); err != nil {
+	cfg := &ansimate.Config{
+		EndDelay: 5 * time.Second,
+	}
+	if err := ansimate.Animate(tmpFile, f, cfg); err != nil {
 		_ = tmpFile.Close()
 		return fmt.Errorf(format, "animate", err)
 	}
