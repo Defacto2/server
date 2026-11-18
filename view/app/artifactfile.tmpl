@@ -357,19 +357,26 @@
             <div class="row row-cols-2 g-1">
               {{/*  Never display README  */}}
               <div class="col-12">
-                <div class="alert alert-secondary" role="alert">
-                  <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" role="switch" 
+                <div class="card" style="border-left: 4px solid var(--bs-warning) !important;">
+                  <div class="card-body py-2 px-3 d-flex align-items-center justify-content-between gap-3">
+                    <div>
+                      <label class="form-check-label fw-semibold" for="readme-is-off">
+                        Never display text files
+                      </label>
+                      <span class="ms-2" id="readme-is-off-result"></span>
+                      <div class="form-text mt-0">Hides README, FILE_ID.DIZ, and HELPER files on the artifact page.</div>
+                    </div>
+                    <div class="form-check form-switch fs-5 mb-0 flex-shrink-0">
+                      <input class="form-check-input" type="checkbox" role="switch"
                           hx-patch="/editor/readme/disable/{{$key}}"
-                          hx-trigger="click delay:50ms" 
-                          hx-swap="swap:50ms" 
+                          hx-trigger="click delay:50ms"
+                          hx-swap="swap:50ms"
                           hx-on:click="document.getElementById('readme-is-off-result').textContent=''"
                           hx-include="[name='readme-is-off']"
                           hx-target="#readme-is-off-result"
                           name="readme-is-off"
                           id="readme-is-off"{{if eq true $noReadme}} checked{{end}}>
-                      <span id="readme-is-off-result"></span>
-                      <label class="form-check-label text-warning-emphasis" for="readme-is-off"><u>Never</u> display text files.</label>
+                    </div>
                   </div>
                 </div>
               </div>
