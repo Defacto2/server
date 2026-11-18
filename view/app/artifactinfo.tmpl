@@ -8,6 +8,7 @@
 {{- $preview := index . "linkpreview"}}
 {{- $previewTip := index . "linkpreviewTip"}}
 {{- $jsdos6 := index . "jsdos6"}}
+{{- $screenNone := index . "screenshotNone"}}
 {{- $writers := trimSpace (index . "writers") }}
 {{- $artists := trimSpace (index . "artists") }}
 {{- $contentLatin1 := index . "contentLatin1"}}
@@ -183,7 +184,7 @@
             {{- end}}
             </div>
             {{- /*  Secondary artifact utilities  */}}
-            {{- if or $content (ne "" $checksum) (ne "" $preview)}}
+            {{- if or $content (ne "" $checksum) (ne "" $preview) (not $screenNone)}}
             <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
             {{- if $content}}
               <span class="d-inline-block" data-bs-toggle="tooltip" data-bs-title="alt + shift + v">
@@ -211,6 +212,17 @@
                 </svg>
                 <span>View artifact</span>
               </a>
+            {{- end}}
+            {{- if not $screenNone}}
+              <span class="d-inline-block" data-bs-toggle="tooltip" data-bs-title="alt + shift + e">
+                <button type="button" id="artifact-enlarge-screenshot" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                    data-bs-toggle="modal" data-bs-target="#artifact-screenshot-modal">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#images"/>
+                  </svg>
+                  <span>Enlarge</span>
+                </button>
+              </span>
             {{- end}}
             </div>
             {{- end}}

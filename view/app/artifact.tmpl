@@ -68,30 +68,97 @@
             {{- template "artifactinfo" . }}
         </div>
         {{- if not $screenNone}}
+        <style>
+          @media (min-width: 576px) {
+            .artifact-lightbox-dialog {
+              --bs-modal-width: fit-content;
+              min-width: min(320px, 92vw);
+              max-width: 92vw;
+            }
+          }
+          .artifact-lightbox-stage > picture,
+          .artifact-lightbox-stage > img {
+            margin: auto;
+          }
+          .artifact-lightbox-stage img {
+            max-width: 100%;
+            max-height: calc(100vh - 7rem);
+            width: auto;
+            height: auto;
+          }
+          .artifact-lightbox-stage.is-actual img {
+            max-width: none;
+            max-height: none;
+          }
+        </style>
         <div class="{{$columnClass}}">
             {{- /*  Screenshot of the file  */}}
             <div class="p-3 text-center">
-                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#artifact-screenshot-modal">{{$screenElm}}</a>
-                <span data-bs-toggle="tooltip" data-bs-title="alt + shift + e">
-                    <a id="artifact-enlarge-screenshot" class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#artifact-screenshot-modal">Enlarge</a>
-                </span>
+                <button type="button" class="btn btn-link p-0 border-0 d-block mx-auto text-decoration-none"
+                    data-bs-toggle="modal" data-bs-target="#artifact-screenshot-modal" aria-label="Enlarge preview image">{{$screenElm}}</button>
             </div>
         </div>
-        {{- /*  Modal for the full screen screenshot  */}}
+        {{- /*  Minimal image-sized lightbox modal  */}}
         <div class="modal fade" id="artifact-screenshot-modal" tabindex="-1" aria-labelledby="artifact-screenshot-modal-label" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen">
-                <div class="modal-content">
-                    <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" id="artifact-screenshot-modal-label">🖼️ Preview, {{$description}}</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable artifact-lightbox-dialog">
+                <div class="modal-content bg-black text-white border-secondary">
+                    <div class="modal-header border-0 bg-dark bg-opacity-75 py-2 px-3 gap-2">
+                        <h5 class="modal-title fs-6 fw-normal text-truncate mb-0 flex-grow-1" style="width: 0;" id="artifact-screenshot-modal-label">{{$description}}</h5>
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                            <button type="button" id="artifact-lightbox-zoom" class="btn btn-sm btn-outline-light d-none">Actual size</button>
+                            <button type="button" class="btn-close btn-close-white m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
                     </div>
-                    <div class="modal-body d-flex justify-content-center align-items-center">{{$screenElm}}</div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">✕ Close</button>
-                    </div>
-                </div>  
+                    <div class="modal-body p-2 overflow-auto d-flex artifact-lightbox-stage" id="artifact-lightbox-stage">{{$screenElm}}</div>
+                </div>
             </div>
         </div>
+        <script>
+          (() => {
+            const modalEl = document.getElementById('artifact-screenshot-modal');
+            const stage = document.getElementById('artifact-lightbox-stage');
+            const zoomBtn = document.getElementById('artifact-lightbox-zoom');
+            if (!modalEl || !stage || !zoomBtn) return;
+            const img = stage.querySelector('img');
+            function setActual(actual) {
+              stage.classList.toggle('is-actual', actual);
+              zoomBtn.textContent = actual ? 'Fit to screen' : 'Actual size';
+            }
+            function syncZoomVisibility() {
+              if (!img || !img.complete || img.naturalWidth === 0) {
+                zoomBtn.classList.add('d-none');
+                return;
+              }
+              const isScaled = stage.classList.contains('is-actual') ||
+                img.naturalWidth > img.clientWidth ||
+                img.naturalHeight > img.clientHeight;
+              zoomBtn.classList.toggle('d-none', !isScaled);
+            }
+            zoomBtn.addEventListener('click', () => {
+              setActual(!stage.classList.contains('is-actual'));
+            });
+            stage.addEventListener('click', (event) => {
+              if (event.target === stage) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+              }
+            });
+            if (img) {
+              img.addEventListener('load', () => {
+                if (modalEl.classList.contains('show')) syncZoomVisibility();
+              });
+            }
+            window.addEventListener('resize', () => {
+              if (modalEl.classList.contains('show') && !stage.classList.contains('is-actual')) {
+                syncZoomVisibility();
+              }
+            });
+            modalEl.addEventListener('shown.bs.modal', syncZoomVisibility);
+            modalEl.addEventListener('hidden.bs.modal', () => {
+              setActual(false);
+              zoomBtn.classList.add('d-none');
+            });
+          })();
+        </script>
         {{- end}}
         <style>.font-large{font-size:131%;line-height:100%;}</style>
         {{if and (eq (index . "platform") "textamiga") ($textcontentBinary) }}
