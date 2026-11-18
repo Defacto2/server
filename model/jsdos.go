@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -41,8 +42,8 @@ func JsDosBinary(f *models.File) (string, error) {
 		return "", nil
 	}
 
-	path := strings.ToLower(f.Filename.String)
-	switch filepath.Ext(path) {
+	lower := strings.ToLower(f.Filename.String)
+	switch filepath.Ext(lower) {
 	case ".com", ".exe", ".bat":
 		// okay
 	default:
@@ -62,9 +63,10 @@ func JsDosBinary(f *models.File) (string, error) {
 	// Replace all path separators with DOS path separators.
 	// Often the FileZipContent paths use non-DOS path separators
 	// despite the zipfile being a DOS file.
-	dir := filepath.Dir(findname)
+	normalized := strings.ReplaceAll(findname, separatorDOS, separatorUnix)
+	dir := path.Dir(normalized)
 	dir = strings.ReplaceAll(dir, separatorUnix, separatorDOS)
-	base := msdos.Truncate(filepath.Base(findname))
+	base := msdos.Truncate(path.Base(normalized))
 
 	return strings.Join([]string{dir, base}, separatorDOS), nil
 }

@@ -1,6 +1,7 @@
 package download_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/Defacto2/helper"
@@ -54,4 +55,11 @@ func TestExtraHTTPSend(t *testing.T) {
 	c := testutil.NewPath(t, "", pathValues)
 	err := ez.HTTPSend(t.Context(), c, db)
 	be.Err(t, err)
+
+	pathValues = echo.PathValues{
+		{Name: "id", Value: helper.Obfuscate("1")},
+	}
+	c = testutil.NewPath(t, "", pathValues)
+	err = ez.HTTPSend(t.Context(), c, db)
+	be.True(t, errors.Is(err, download.ErrStat))
 }

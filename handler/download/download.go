@@ -281,6 +281,12 @@ func (e ExtraZip) HTTPSend(ctx context.Context, c *echo.Context, db *sql.DB) err
 	if !helper.Stat(file) {
 		name = art.Filename.String
 		file = e.Download.Join(uid)
+		if !helper.Stat(file) {
+			return fmt.Errorf("%s, %w: %s", msg, ErrStat, name)
+		}
+	}
+	if name == "" {
+		name = file
 	}
 
 	file = strings.TrimPrefix(file, "/")
