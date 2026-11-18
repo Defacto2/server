@@ -29,7 +29,7 @@ import {
       elms.forEach((e) => {
         e.disabled = true;
         e.classList.remove('btn-outline-primary');
-        e.classList.add('btn-light');
+        e.classList.add('btn-primary', 'active');
       });
     };
   }
@@ -37,7 +37,7 @@ import {
     return function () {
       elms.forEach((e) => {
         e.disabled = false;
-        e.classList.remove('btn-light');
+        e.classList.remove('btn-primary', 'active');
         e.classList.add('btn-outline-primary');
       });
     };

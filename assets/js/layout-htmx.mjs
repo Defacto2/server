@@ -339,6 +339,7 @@ function recordSuccess(event, inputId, alertElm) {
   alertElm.classList.add('d-none');
   alertElm.innerText = '';
   const elm = document.getElementById(`artifact-editor-modal-header`);
+  const statusElm = document.getElementById(`artifact-editor-modal-status`);
   if (!elm) return;
 
   const state = event.detail.xhr?.responseText?.trim();
@@ -347,13 +348,23 @@ function recordSuccess(event, inputId, alertElm) {
     (state !== 'offline' && inputId === 'artifact-editor-public');
 
   if (isOnline) {
-    elm.classList.add('bg-success-subtle');
-    elm.classList.remove('bg-danger-subtle');
+    elm.classList.add('border-success');
+    elm.classList.remove('border-danger');
+    if (statusElm) {
+      statusElm.classList.add('text-bg-success');
+      statusElm.classList.remove('text-bg-danger');
+      statusElm.textContent = 'Public';
+    }
     return;
   }
   if (state === 'offline' || inputId === 'artifact-editor-hidden') {
-    elm.classList.remove('bg-success-subtle');
-    elm.classList.add('bg-danger-subtle');
+    elm.classList.remove('border-success');
+    elm.classList.add('border-danger');
+    if (statusElm) {
+      statusElm.classList.remove('text-bg-success');
+      statusElm.classList.add('text-bg-danger');
+      statusElm.textContent = 'Hidden';
+    }
     return;
   }
   console.error(`The record success ${inputId} is not supported.`);

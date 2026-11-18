@@ -86,11 +86,15 @@ aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     {{- /*  Data editor for record key, ...  */}}
     <div class="modal-content">
-      <div id="artifact-editor-modal-header" class="modal-header {{if eq $record true}}bg-success-subtle{{else}}bg-danger-subtle{{end}}">
-        <svg class="bi" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-          <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
-        </svg>
-        <h2 class="modal-title fs-4 ps-2" id="artifact-editor-modal-label">Data editor for record key, {{$key}}</h2>
+      <div id="artifact-editor-modal-header"
+        class="modal-header bg-body-tertiary py-2 px-3 border-start border-4 {{if eq $record true}}border-success{{else}}border-danger{{end}}">
+        <div class="d-flex align-items-center gap-2">
+          <svg class="flex-shrink-0 text-secondary" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+            <use xlink:href="/svg/bootstrap-icons.svg#file-binary"/>
+          </svg>
+          <h2 class="modal-title fs-5 fw-semibold mb-0" id="artifact-editor-modal-label">Data editor <span class="text-body-secondary fw-normal">&middot; {{$key}}</span></h2>
+          <span id="artifact-editor-modal-status" class="badge {{if eq $record true}}text-bg-success{{else}}text-bg-danger{{end}} fw-normal">{{if eq $record true}}Public{{else}}Hidden{{end}}</span>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-target="#artifact-editor-modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container">

@@ -3,44 +3,28 @@
 */ -}}
 {{- define "artifactfooter" }}
 {{- $download := index . "download"}}
-<style>
-    .editor-btn:hover,
-    .editor-btn.active {
-        background-color: #0d6efd;
-        color: white;
-        border-color: #0d6efd;
-    }
-    .editor-btn.active {
-        font-weight: 600;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
-</style>
-<div class="modal-footer bg-dark-subtle">
-    <div class="artifact-editor-alert d-none alert alert-warning w-100" role="alert">
+<div class="modal-footer bg-body-tertiary flex-column align-items-stretch gap-2 py-2 px-3">
+    <div class="artifact-editor-alert d-none alert alert-warning w-100 mb-0" role="alert">
         <div class="d-none">This is a placeholder <strong>alert text</strong>!</div>
     </div>
-    <div class="row col-12 text-center">
-        <div class="col-lg-4 text-lg-start d-none d-lg-inline">
-            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + del">
-                <a href="#" data-bs-toggle="modal" data-bs-target="#artifact-delete-forever-modal" class="btn btn-sm btn-warning">&#x2717; Delete forever</a>
-            </span>
-        </div>
-        <div class="col-lg-8 text-lg-end">
-            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + enter">
-                <a href="/f/{{$download}}" class="btn btn-success d-none d-xl-inline me-3">Reload &amp; goto the artifact</a>
-            </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + home">
-                <button name="artifact-editor-dataeditor" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal" class="btn btn-outline-primary editor-btn">Data editor</button>
-            </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + pgdn">
-                <button name="artifact-editor-fileeditor" data-bs-toggle="modal" data-bs-target="#asset-editor-modal" class="btn btn-outline-primary editor-btn">File editor</button>
-            </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + pgup">
-                <button name="artifact-editor-emueditor" data-bs-toggle="modal" data-bs-target="#emulate-editor-modal" class="btn btn-outline-primary editor-btn">Emulate editor</button>
-            </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + backspace">
-                <button type="button" data-bs-dismiss="modal" 
-                    class="btn btn-sm btn-secondary d-none d-lg-inline ms-3">Close</button>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span class="d-inline-block" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + del">
+            <button type="button" data-bs-toggle="modal" data-bs-target="#artifact-delete-forever-modal"
+                class="btn btn-sm btn-outline-danger">Delete forever</button>
+        </span>
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Switch editor">
+                <button type="button" name="artifact-editor-dataeditor" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal"
+                    title="alt + shift + home" class="btn btn-outline-primary editor-btn">Data editor</button>
+                <button type="button" name="artifact-editor-fileeditor" data-bs-toggle="modal" data-bs-target="#asset-editor-modal"
+                    title="alt + shift + pgdn" class="btn btn-outline-primary editor-btn">File editor</button>
+                <button type="button" name="artifact-editor-emueditor" data-bs-toggle="modal" data-bs-target="#emulate-editor-modal"
+                    title="alt + shift + pgup" class="btn btn-outline-primary editor-btn">Emulate editor</button>
+            </div>
+            <a href="/f/{{$download}}" class="btn btn-sm btn-outline-success"
+                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + enter">Reload &amp; view</a>
+            <span class="d-inline-block" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="alt + shift + backspace">
+                <button type="button" data-bs-dismiss="modal" class="btn btn-sm btn-secondary">Close</button>
             </span>
         </div>
     </div>
