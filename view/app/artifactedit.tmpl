@@ -43,39 +43,50 @@
 {{- $replace := "refresh the page to see the changes"}}
 {{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
 {{- $reverter := "badge bg-secondary"}}
-<div class="modal fade bg-warning-subtle" id="artifact-delete-forever-modal" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1" 
-aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+<div class="modal fade" id="artifact-delete-forever-modal" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
+  aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Delete forever, this artifact</h5>
+      <div class="modal-header bg-body-tertiary py-2 px-3 border-start border-4 border-danger">
+        <div class="d-flex align-items-center gap-2">
+          <svg class="flex-shrink-0 text-danger" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+            <use xlink:href="/svg/bootstrap-icons.svg#slash-circle"/>
+          </svg>
+          <h2 class="modal-title fs-5 fw-semibold mb-0" id="artifact-delete-forever-modal-label">Delete artifact forever</h2>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div> 
-      <div class="modal-body container">
-        <p class="lead">This action is intended for unwanted uploads.</p>
-        <p>
-          <strong>It will remove the artifact from the database and the server.</strong>
-          You should always keep artifacts, as deleting them is irreversible and will break search engine links and any existing references to the artifact on third-party sites such as Demozoo or Wikipedia.
-          Instead, replace the existing artifact with new content. 
+      </div>
+      <div class="modal-body">
+        <p class="fw-medium mb-2">This action is intended for unwanted uploads.</p>
+        <p class="small text-body-secondary mb-3">
+          Consider replacing the download file instead,
+          as this action permanently removes the artifact from the database and server. 
+          Deleting this record is irreversible and will break links on search engines 
+          and any external resources such as Demozoo or Wikipedia.
         </p>
-        <div hx-ext="response-targets" class="text-center my-5" id="artifact-delete-forever">
-          I understand, <a role="button" class="link-body-emphasis link-offset-2 link-underline-opacity-25 link-underline-opacity-75-hover" 
-            hx-confirm="Confirm, this is the last chance to back out"
-            hx-delete="/editor/delete/forever/{{$key}}" 
-            hx-target="#artifact-delete-forever" 
-            hx-target-error="#artifact-delete-forever-errors"
-            hx-swap="innerHTML">remove and delete forever</a>:
-          <p class="mt-2">
-            <q>{{$title}}</q><br><code>{{$filename}}</code>
-          </p>
-          <div class="text-danger" id="artifact-delete-forever-errors"></div>
+        <div hx-ext="response-targets" id="artifact-delete-forever">
+          <div class="bg-body-tertiary border rounded p-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div style="min-width: 0;">
+              <div class="text-secondary text-uppercase mb-1" style="font-size: 0.72rem; letter-spacing: .04em;">Target artifact &middot; ID {{$key}}</div>
+              {{- if ne "" $title}}
+              <div class="text-truncate">{{$title}}</div>
+              {{- end}}
+              <code class="small text-break">{{$filename}}</code>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger flex-shrink-0"
+              hx-confirm="Confirm, this is the last chance to back out"
+              hx-delete="/editor/delete/forever/{{$key}}"
+              hx-target="#artifact-delete-forever"
+              hx-target-error="#artifact-delete-forever-errors"
+              hx-swap="innerHTML">Delete forever</button>
+          </div>
+          <div class="text-danger small mt-2" id="artifact-delete-forever-errors"></div>
         </div>
       </div>
-      <div class="modal-footer bg-dark-subtle mt-1">
-        <div class="d-grid col-12 mx-auto">
-          <a href="#artifact-editor-modal" data-bs-toggle="modal" class="btn btn-primary">
-          Back to the Data editor</a>
-        </div>
+      <div class="modal-footer bg-body-tertiary py-2 px-3 justify-content-between">
+        <button type="button" data-bs-toggle="modal" data-bs-target="#artifact-editor-modal"
+          class="btn btn-sm btn-outline-primary">Back to Data editor</button>
+        <button type="button" data-bs-dismiss="modal" class="btn btn-sm btn-secondary">Cancel</button>
       </div>
     </div>
   </div>
