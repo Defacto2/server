@@ -165,6 +165,10 @@ func (serv *Server) embed(e *echo.Echo, fsys fs.FS) *echo.Echo {
 	e.FileFS("/robots.txt", "public/text/robots.txt", fsys)
 	// wdosbox is required by `js-dos.js`
 	e.FileFS("/js/wdosbox.wasm.js", "public/js/wdosbox.wasm", fsys)
+	// chiptune3 and libopenmpt worklet files are required by `chiptune-player.min.js`
+	e.FileFS("/js/chiptune3.js", "public/js/chiptune3.js", fsys)
+	e.FileFS("/js/chiptune3.worklet.js", "public/js/chiptune3.worklet.js", fsys)
+	e.FileFS("/js/libopenmpt.worklet.js", "public/js/libopenmpt.worklet.js", fsys)
 
 	return e
 }
