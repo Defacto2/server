@@ -40,6 +40,13 @@ func TestJsDosBinary(t *testing.T) {
 	})
 	be.Err(t, err, nil)
 	be.Equal(t, `SUB\LONGPR~1.EXE`, got)
+
+	got, err = model.JsDosBinary(&models.File{
+		Filename:       null.StringFrom("demo.zip"),
+		FileZipContent: null.StringFrom("readme.txt\nLONGDIRECTORY/LONGPROGRAM.EXE"),
+	})
+	be.Err(t, err, nil)
+	be.Equal(t, `LONGDI~1\LONGPR~1.EXE`, got)
 }
 
 func TestJsDosCommand(t *testing.T) {

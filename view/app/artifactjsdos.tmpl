@@ -70,8 +70,22 @@
     ];
     const runCommands = "{{$runProgram}}".split("&&");
     runCommands.forEach(cmd => {
-      startDOS.push("-c", cmd.trim());
-      startWithDOS4GW.push("-c", cmd.trim());
+      const trimmed = cmd.trim();
+      if (!trimmed) {
+        return;
+      }
+      if (trimmed.includes("\\") && !trimmed.includes(" ")) {
+        const sep = trimmed.lastIndexOf("\\");
+        const dir = trimmed.slice(0, sep);
+        const exe = trimmed.slice(sep + 1);
+        if (dir && exe) {
+          startDOS.push("-c", `CD ${dir}`, "-c", exe);
+          startWithDOS4GW.push("-c", `CD ${dir}`, "-c", exe);
+          return;
+        }
+      }
+      startDOS.push("-c", trimmed);
+      startWithDOS4GW.push("-c", trimmed);
     });
     ctx.font = "14px serif";
     ctx.fillText("Stuck and not loading?", 10, 50);

@@ -64,8 +64,11 @@ func JsDosBinary(f *models.File) (string, error) {
 	// Often the FileZipContent paths use non-DOS path separators
 	// despite the zipfile being a DOS file.
 	normalized := strings.ReplaceAll(findname, separatorDOS, separatorUnix)
-	dir := path.Dir(normalized)
-	dir = strings.ReplaceAll(dir, separatorUnix, separatorDOS)
+	dirs := strings.Split(path.Dir(normalized), separatorUnix)
+	for i, d := range dirs {
+		dirs[i] = msdos.Truncate(d)
+	}
+	dir := strings.Join(dirs, separatorDOS)
 	base := msdos.Truncate(path.Base(normalized))
 
 	return strings.Join([]string{dir, base}, separatorDOS), nil

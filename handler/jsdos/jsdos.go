@@ -502,11 +502,17 @@ func Valid(s string) bool {
 			if arg == "" || arg[0] == dosArg || arg[0] == linuxArg {
 				continue
 			}
-			if msdos.Rename(arg) != arg {
-				return false
-			}
-			if msdos.Truncate(arg) != arg {
-				return false
+			parts := strings.Split(arg, `\`)
+			for part := range slices.Values(parts) {
+				if part == "" {
+					return false
+				}
+				if msdos.Rename(part) != part {
+					return false
+				}
+				if msdos.Truncate(part) != part {
+					return false
+				}
 			}
 		}
 	}

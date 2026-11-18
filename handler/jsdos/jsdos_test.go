@@ -263,8 +263,13 @@ func TestValid(t *testing.T) {
 	be.True(t, jsdos.Valid("filename.zip"))
 	be.True(t, jsdos.Valid("dir mygame"))
 	be.True(t, jsdos.Valid("dir mygame && cd mygame && runme.bat"))
+	be.True(t, jsdos.Valid(`MYGAME\RUNME.BAT`))
+	be.True(t, jsdos.Valid(`CD SUB\MYGAME && RUNME.BAT`))
 	be.True(t, !jsdos.Valid("dir mygamë && cd mygamë && runme.bat"))
 	be.True(t, !jsdos.Valid("dir mygame && cd mygame && mysuperlongcommand"))
 	be.True(t, !jsdos.Valid(".TXT"))
 	be.True(t, !jsdos.Valid(".HIDDEN"))
+	be.True(t, !jsdos.Valid(`\MYGAME\RUNME.BAT`))
+	be.True(t, !jsdos.Valid(`MYGAME\\RUNME.BAT`))
+	be.True(t, !jsdos.Valid(`MYSUPERLONGDIR\RUNME.BAT`))
 }
