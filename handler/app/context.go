@@ -2868,6 +2868,8 @@ func Website(sl *slog.Logger, c *echo.Context, open string) error {
 	const logo = "Videos, Books, Films, Sites, Podcasts"
 	data := empty(c)
 	data["title"] = title
+	data["h1"] = title
+	data["lead"] = "A curated collection of videos, books, films, websites, podcasts, and AMAs about The Scene."
 	data["logo"] = logo
 	data["description"] = "Our curated collection of " + strings.ToLower(logo) + ", with topics about the Scene."
 

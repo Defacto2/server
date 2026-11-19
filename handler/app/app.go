@@ -981,9 +981,12 @@ var reSupElems = regexp.MustCompile(`<sup>.*?</sup>`)
 // Usage in templates: {{ $result := stripSup .Title }} returns a map with "text" and "sup" keys.
 func StripSup(s string) map[string]template.HTML {
 	clean := strings.TrimSpace(reSupElems.ReplaceAllString(s, ""))
+	sup := reSupElems.FindString(s)
+	tag := strings.TrimSuffix(strings.TrimPrefix(sup, "<sup>"), "</sup>")
 	return map[string]template.HTML{
 		text:  template.HTML(clean),
-		"sup": template.HTML(reSupElems.FindString(s)),
+		"sup": template.HTML(sup),
+		"tag": template.HTML(tag),
 	}
 }
 

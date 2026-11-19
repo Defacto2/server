@@ -13,6 +13,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/areacode"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
@@ -217,4 +218,117 @@ func TestAreacodesTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `>212</span>`))
 	be.True(t, strings.Contains(out, `>NY</span>`))
 	be.True(t, strings.Contains(out, `New York (NY)`))
+}
+
+func TestWebsitesTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("websites.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(
+			filepath.Join("../", "../", "view", "app", "websites.tmpl"),
+			filepath.Join("../", "../", "view", "app", "website.tmpl"),
+		)
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"accordion": app.List(),
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `id="websites-expand-all"`))
+	be.True(t, strings.Contains(out, `row-cols-xl-3`))
+	be.True(t, strings.Contains(out, `<h3 class="h5 card-title mb-0">`))
+	be.True(t, strings.Contains(out, `>2022</span>`))
+}
+
+func TestArtifactTemplatesRender(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	files := []string{
+		"layout.tmpl", "modal.tmpl", "option_os.tmpl", "option_tag.tmpl",
+		"artifact.tmpl", "pagination.tmpl", "opengraph.tmpl",
+		"layoutlock.tmpl", "layoutjs.tmpl", "layoutup.tmpl", "layoutjsup.tmpl",
+		"uploader.tmpl", "uploader_modal.tmpl",
+		"artifactinfo.tmpl", "artifactjsdos.tmpl", "artifactfile.tmpl",
+		"artifactedit.tmpl", "artifacteditjsdos.tmpl", "artifactfooter.tmpl", "artifactlock.tmpl",
+	}
+	paths := make([]string, len(files))
+	for i, f := range files {
+		paths[i] = filepath.Join("..", "..", "view", "app", f)
+	}
+	funcs := wa.FuncMap(t.Context(), db)
+	funcs["classification"] = func(s, p string) string { return "MS-DOS" }
+	funcs["classificationStr"] = func(s, p string) string { return "MS-DOS" }
+	tmpl, err := template.New("").Funcs(funcs).ParseFiles(paths...)
+	be.Err(t, err, nil)
+
+	c := testutil.NewContext(t, "/f/b32729e")
+	data := app.EmptyTester(c)
+	data["editor"] = true
+	data["readonlymode"] = false
+	data["modID"] = int64(59506)
+	data["unid"] = "c8cd0b4c-2f54-11e0-8827-cc1607e15609"
+	data["download"] = "b32729e"
+	data["modOnline"] = true
+	data["filename"] = "test.zip"
+	data["modTitle"] = "Test Artifact"
+	data["modReleaser1"] = "Razor 1911"
+	data["modReleaser2"] = ""
+	data["modYear"] = int16(1995)
+	data["modMonth"] = int16(1)
+	data["modDay"] = int16(2)
+	data["modLMYear"] = int16(1995)
+	data["modLMMonth"] = int16(1)
+	data["modLMDay"] = int16(2)
+	data["epochYear"] = int16(1980)
+	data["modOS"] = "dos"
+	data["modTag"] = "releaseadvert"
+	data["modRelations"] = ""
+	data["modWebsites"] = ""
+	data["writers"] = ""
+	data["artists"] = ""
+	data["programmers"] = ""
+	data["musicians"] = ""
+	data["youtube"] = ""
+	data["sixteenColors"] = ""
+	data["demozoo"] = ""
+	data["pouet"] = ""
+	data["github"] = ""
+	data["comment"] = ""
+	data["alertURL"] = ""
+	data["magic"] = ""
+	data["modAbsDownload"] = ""
+	data["modMagicMime"] = ""
+	data["modMagicNumber"] = ""
+	data["modDBModify"] = ""
+	data["modStatModify"] = ""
+	data["modStatSizeB"] = ""
+	data["modStatSizeF"] = ""
+	data["modAssetPreview"] = false
+	data["modAssetThumbnail"] = false
+	data["modAssetExtra"] = []string{}
+	data["missingAssets"] = ""
+	data["modReadmeSuggest"] = ""
+	data["disableReadme"] = false
+	data["modZipContent"] = ""
+	data["modReleasers"] = ""
+	data["forApproval"] = false
+	data["disableApproval"] = ""
+	data["disableRecord"] = ""
+	data["modEmulateBroken"] = false
+	data["modEmulateRun"] = ""
+	data["modEmulateCPU"] = ""
+	data["modEmulateMachine"] = ""
+	data["modEmulateAudio"] = ""
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "layout", data)
+	be.Err(t, err, nil)
+	be.True(t, strings.Contains(buf.String(), `name="artifact-editor-pouetundo"`))
 }

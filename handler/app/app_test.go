@@ -640,6 +640,7 @@ func TestStripSup(t *testing.T) {
 	got = app.StripSup("x<sup>y</sup>z")
 	be.Equal(t, got["text"], "xz")
 	be.Equal(t, got["sup"], "<sup>y</sup>")
+	be.Equal(t, got["tag"], "y")
 }
 
 func TestYMDEdit(t *testing.T) {

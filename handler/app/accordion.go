@@ -283,7 +283,10 @@ var demos = Sites{
 		"Pouët", "https://www.pouet.net/",
 		"Pouët is a website dedicated to the art of demoscene and the demoscene culture.",
 	},
-	Site{"Scene.org", "https://www.scene.org/", ""},
+	Site{
+		"Scene.org", "https://www.scene.org/",
+		"The largest public archive of demoscene productions, party releases, and scene files.",
+	},
 	Site{
 		"Demoscene Documentary", "https://www.youtube.com/user/demoscenedoc",
 		"A ten episode documentary about the Finnish demoscene, subtitled in English.",
@@ -341,7 +344,7 @@ var pir8 = Sites{
 		"Interviews de Pirates",
 		"https://textfiles.meulie.net/exhibits/frenchunderground/Deplombage/Interviews/Introduction_Interviews.html",
 		"Covering the French Apple II Scene of the early and mid-1980s, " +
-			"it has interviews with key Sceners, some of who were active in the USA.",
+			"it has interviews with key Sceners, some of whom were active in the USA.",
 	},
 }
 
@@ -359,7 +362,7 @@ var podcasts = Sites{
 			"presented by historian Jason Scott at the 5th Rubi-Con conference.",
 	},
 	Site{
-		"Open Apple #66:Glenda Adams <sup>2016</sup>",
+		"Open Apple #66: Glenda Adams <sup>2016</sup>",
 		"https://www.open-apple.net/2016/12/28/show-066-glenda-the-atom-adams-software-piracy/",
 		"Glenda Adams, also known as The Atom, was a cracker of some note back in the 1980s, " +
 			"and she shares great stories with us of her exploits in boot tracing, cracking, " +
@@ -409,8 +412,8 @@ var videos = Sites{
 	},
 	Site{
 		"The Art of Warez <sup>2019</sup>", "https://archive.org/details/artofwarez",
-		"A documentary by Oliver Payne in collaboration with former ANSI artist Kevin Bouton-Scott. " +
-			`Who for Motherboard said of the ANSI art scene, "It was a self-contained labor of love, pro-crime, ` +
+		"A documentary by Oliver Payne in collaboration with former ANSI artist Kevin Bouton-Scott, " +
+			`who told Motherboard, "It was a self-contained labor of love, pro-crime, ` +
 			`anti-copyright, facilitating the very real need of free-software for young computer users."`,
 	},
 }

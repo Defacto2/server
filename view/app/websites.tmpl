@@ -2,18 +2,33 @@
     websites.tmpl ~ List of websites with accordion.
 */ -}}
 {{- define "content" }}
+<div class="bg-body-tertiary border rounded py-2 px-3 mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <nav class="nav nav-pills gap-1" aria-label="Website categories">
+      {{- range .accordion }}
+      <a class="nav-link py-1 px-2 small website-jump" data-collapse-target="collapse{{ .ID }}" href="#website-sec-{{ .ID }}">{{ .Title }}</a>
+      {{- end }}
+    </nav>
+    <div class="btn-group btn-group-sm flex-shrink-0 ms-auto" role="group" aria-label="Toggle all sections">
+      <button type="button" class="btn btn-outline-secondary" id="websites-expand-all">Expand all</button>
+      <button type="button" class="btn btn-outline-secondary" id="websites-collapse-all">Collapse all</button>
+    </div>
+  </div>
+</div>
+
 <div class="accordion accordion-flush" id="websitesAccordion">
 {{- range .accordion -}}
-    <div class="accordion-item">
+    <div class="accordion-item" id="website-sec-{{ .ID }}" style="scroll-margin-top: 4.5rem;">
         <h2 class="accordion-header">
           <button class="accordion-button{{- if .Open }}{{else}} collapsed{{end}} fs-5" type="button" 
             data-bs-toggle="collapse" data-bs-target="#collapse{{ .ID }}" aria-expanded="{{ .Open }}" aria-controls="collapse{{ .ID }}">
-            {{ .Name }}
+            <span>{{ .Name }}</span>
+            <span class="badge text-bg-secondary ms-2 fw-normal fs-6">{{ len .Sites }}</span>
           </button>
         </h2>
         <div id="collapse{{ .ID }}" class="accordion-collapse collapse{{- if .Open }} show{{end}}">
           <div class="accordion-body">
-            <div class="row row-cols-1 row-cols-md-2 g-4">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
               {{- range .Sites -}}
                   {{- template "website" . -}}
               {{- end}}
@@ -23,4 +38,35 @@
       </div>
 {{- end}}
 </div>
+
+<script>
+(() => {
+  const accordion = document.getElementById('websitesAccordion');
+  if (!accordion) return;
+
+  function setAll(show) {
+    if (!window.bootstrap?.Collapse) return;
+    accordion.querySelectorAll('.accordion-collapse').forEach((el) => {
+      const instance = bootstrap.Collapse.getOrCreateInstance(el, { toggle: false });
+      if (show) {
+        instance.show();
+      } else {
+        instance.hide();
+      }
+    });
+  }
+
+  document.getElementById('websites-expand-all')?.addEventListener('click', () => setAll(true));
+  document.getElementById('websites-collapse-all')?.addEventListener('click', () => setAll(false));
+  document.querySelectorAll('.website-jump').forEach((link) => {
+    link.addEventListener('click', () => {
+      const targetId = link.dataset.collapseTarget;
+      const target = targetId ? document.getElementById(targetId) : null;
+      if (target && window.bootstrap?.Collapse) {
+        bootstrap.Collapse.getOrCreateInstance(target, { toggle: false }).show();
+      }
+    });
+  });
+})();
+</script>
 {{- end}}
