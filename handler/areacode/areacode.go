@@ -187,15 +187,16 @@ func (a Abbreviation) HTML() template.HTML {
 
 	var html strings.Builder
 	html.WriteString("<span>")
+	if !ok {
+		html.WriteString(string(a))
+		html.WriteString(" - n/a</span><br>")
+		return template.HTML(html.String())
+	}
+
 	html.WriteString(string(t.Abbreviation))
 	html.WriteString(" (")
 	html.WriteString(t.Name)
 	html.WriteString(")")
-
-	if !ok {
-		html.WriteString(" - n/a</span><br>")
-		return template.HTML(html.String())
-	}
 
 	html.WriteString(" - ")
 	for i, ac := range t.AreaCodes {
@@ -224,11 +225,11 @@ func (t Region) HTML() template.HTML {
 	html.WriteString(s)
 
 	if len(t.Abbreviation) > 0 {
-		s := " (" + string(t.Abbreviation) + ") "
+		s := " (" + string(t.Abbreviation) + ")"
 		html.WriteString(s)
 	}
 	if len(t.AreaCodes) == 0 {
-		html.WriteString("- n/a</span><br>")
+		html.WriteString(" - n/a</span><br>")
 		return template.HTML(html.String())
 	}
 
@@ -270,7 +271,7 @@ var notes = map[NAN]string{
 	714: "Orange County.",                                                    // 1951
 	805: "Central California, including Santa Barbara and Ventura Counties.", // 1957
 	415: "San Francisco Bay Area, however in September 1991 " +
-		"East Bay and Oakland split to from the 510 area code.", // 1958
+		"East Bay and Oakland split to form the 510 area code.", // 1958
 	408: "Silicon Valley including San Benito, Santa Cruz, Santa Clara.",                  // 1959
 	707: "Northern California, including Napa and Sonoma.",                                // 1959
 	619: "Southern California, including San Diego, however it came online in 1982.",      // 1982
@@ -299,7 +300,7 @@ var notes = map[NAN]string{
 		"it came online in 1983.", // 1983
 	512: "Central Texas, including Austin, however in November 1992, " +
 		"the Southern region including San Antonio split to form 210.", // 1947
-	713: "Southern Texas, including Houston, however in 1983 it split to from the 409 area code.", // 1947
+	713: "Southern Texas, including Houston, however in 1983 it split to form the 409 area code.", // 1947
 	806: "Northern Texas, including Amarillo.",                                                    // 1957
 	817: "Western Texas, including Fort Worth.",                                                   // 1953
 	903: "Northeastern Texas, including Tyler, coming online in November 1990. " + // 1990
@@ -630,19 +631,22 @@ func Query(a any) Result {
 func Queries(s ...string) []Result {
 	const maximum = 99
 
-	queries := make([]any, len(s))
-	for i, val := range s {
-		if i > maximum {
+	queries := make([]any, 0, min(len(s), maximum+1))
+	for _, val := range s {
+		if len(queries) > maximum {
 			break
 		}
 
 		val = strings.TrimSpace(val)
-		x, err := strconv.Atoi(val)
-		if err != nil {
-			queries[i] = val
+		if val == "" {
 			continue
 		}
-		queries[i] = x
+		x, err := strconv.Atoi(val)
+		if err != nil {
+			queries = append(queries, val)
+			continue
+		}
+		queries = append(queries, x)
 	}
 
 	r := make([]Result, 0, len(queries))

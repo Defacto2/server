@@ -8,6 +8,9 @@ import (
 	"bytes"
 	"embed"
 	"html/template"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -21,6 +24,7 @@ import (
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
@@ -31,6 +35,17 @@ func TestAreacodes(t *testing.T) {
 		"/areacodes", "htmx-search", "CA,201")
 	err := htmx.Areacodes(c)
 	be.Err(t, err, nil)
+
+	form := url.Values{}
+	form.Set("htmx-search", "201")
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/areacodes", strings.NewReader(form.Encode()))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c2 := echo.New().NewContext(req, rec)
+	err = htmx.Areacodes(c2)
+	be.Err(t, err, nil)
+	be.True(t, !strings.Contains(rec.Body.String(), "<br><br>"))
+	be.True(t, strings.Contains(rec.Body.String(), "201 - New Jersey (NJ)"))
 }
 
 func TestDemozooLookup(t *testing.T) {

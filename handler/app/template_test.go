@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/app"
+	"github.com/Defacto2/server/handler/areacode"
 	"github.com/nalgeon/be"
 )
 
@@ -187,4 +188,27 @@ func TestSearchHtmxTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `href="/search/releaser" rel="nofollow" aria-current="page"`))
 	be.True(t, strings.Contains(out, `id="search-htmx-clear" class="btn btn-outline-secondary" disabled`))
 	be.True(t, strings.Contains(out, `hx-post="/search/releaser"`))
+}
+
+func TestAreacodesTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("areacodes.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("../", "../", "view", "app", "areacodes.tmpl"))
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"telephonecodes": areacode.AreaCodes(),
+		"territories":    areacode.Regions(),
+		"abbreviations":  areacode.Abbreviations(),
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `hx-trigger="input changed delay:150ms, search"`))
+	be.True(t, strings.Contains(out, `id="areacodes-clear" disabled`))
+	be.True(t, strings.Contains(out, `212 - New York (NY)`))
 }

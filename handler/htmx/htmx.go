@@ -66,16 +66,16 @@ func Areacodes(c *echo.Context) error {
 
 	for val := range slices.Values(query) {
 		if val.AreaCode.Valid() {
-			htm += val.AreaCode.HTML() + "<br>"
+			htm += val.AreaCode.HTML()
 		}
 		if len(val.Region) > 0 {
 			for terr := range slices.Values(val.Region) {
-				htm += terr.HTML() + "<br>"
+				htm += terr.HTML()
 			}
 		}
 	}
 
-	htm += "<hr>"
+	htm += `<hr class="my-4">`
 	return c.HTML(http.StatusOK, string(htm))
 }
 

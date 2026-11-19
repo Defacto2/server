@@ -16,8 +16,8 @@ func ExampleQuery() {
 	fmt.Println(areacode.Query("ut").Region[0].HTML())
 	fmt.Println(areacode.Query("602").AreaCode.HTML())
 	// Output: [{Arizona AZ [602]}]
-	// <span>Arizona (AZ)  - 602</span><br>
-	// <span>Utah (UT)  - 801</span><br>
+	// <span>Arizona (AZ) - 602</span><br>
+	// <span>Utah (UT) - 801</span><br>
 	// <span>602 - Arizona (AZ)</span><br>
 }
 
@@ -32,9 +32,9 @@ func ExampleQueries() {
 			fmt.Println(t.HTML())
 		}
 	}
-	// Output: <span>Arizona (AZ)  - 602</span><br>
-	// <span>Arizona (AZ)  - 602</span><br>
-	// <span>Utah (UT)  - 801</span><br>
+	// Output: <span>Arizona (AZ) - 602</span><br>
+	// <span>Arizona (AZ) - 602</span><br>
+	// <span>Utah (UT) - 801</span><br>
 	// <span>602 - Arizona (AZ)</span><br>
 }
 
@@ -143,4 +143,6 @@ func TestTerritories(t *testing.T) {
 		reg := areacode.RegionByCode(nan)
 		be.True(t, len(reg) >= 1)
 	}
+	be.Equal(t, string(areacode.Abbreviation("ZZ").HTML()), "<span>ZZ - n/a</span><br>")
+	be.Equal(t, len(areacode.Queries("CA", "", "201")), 2)
 }

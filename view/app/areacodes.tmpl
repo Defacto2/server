@@ -5,25 +5,47 @@
 {{- $placeholder := "Lookup multiple area codes and states; use comma separators"}}
 {{/*former input value: hx-trigger="input delay:50ms, keyup[key=='Enter'], load"*/}}
 {{/*delay:150ms is probably the lowest value, as anything lower and the changes can be skipped*/}}
-<form class="row">
-    <div class="col">
-      <input type="search" class="form-control" name="htmx-search" 
-        id="areacodes-search"
-        placeholder="{{$placeholder}}" 
-        aria-label="{{$placeholder}} and display the results below"
-        hx-trigger="keyup changed delay:150ms"
-        hx-post="/areacodes"
-        hx-target="#areacodes-results" autofocus>
-    </div>
-    <div class="col">
-    <button type="button" class="btn btn-link"
-      hx-post="/areacodes"
-      hx-target="#areacodes-results"
-      onclick="document.getElementById('areacodes-search').value=''; document.getElementById('areacodes-search').focus({focusVisible:true})">Clear</button>
-    </div>
-</form>
+<div class="input-group mb-3" style="max-width: 40rem;">
+  <input type="search" class="form-control" name="htmx-search"
+    id="areacodes-search"
+    placeholder="{{$placeholder}}"
+    aria-label="{{$placeholder}} and display the results below"
+    hx-trigger="input changed delay:150ms, search"
+    hx-post="/areacodes"
+    hx-target="#areacodes-results" autofocus>
+  <button type="button" class="btn btn-outline-secondary" id="areacodes-clear" disabled>Clear</button>
+</div>
 
-<div id="areacodes-results" class="my-5"></div>
+<div id="areacodes-results" class="mt-3"></div>
+<script>
+(() => {
+  const input = document.getElementById('areacodes-search');
+  const clearBtn = document.getElementById('areacodes-clear');
+  const results = document.getElementById('areacodes-results');
+  if (!input || !clearBtn || !results) return;
+
+  function syncClear() {
+    clearBtn.disabled = input.value === '';
+  }
+  function resetSearch() {
+    input.value = '';
+    results.innerHTML = '';
+    syncClear();
+    input.focus();
+  }
+
+  input.addEventListener('input', syncClear);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value !== '') {
+      e.preventDefault();
+      resetSearch();
+    }
+  });
+  clearBtn.addEventListener('click', resetSearch);
+  window.addEventListener('pageshow', syncClear);
+  syncClear();
+})();
+</script>
 
 <h2 class="{{$hcls}}">By area code</h2>
 {{- if $telephonecodes}}
@@ -55,7 +77,7 @@
     <li>The data was then cross-referenced with a 1991 MS-DOS application titled Find Area Code v1.0 (c) 1991 by MPM Enterprises.</li>
     <li>Complicated data for California was sourced from the <a href="https://www.cpuc.ca.gov/industries-and-topics/internet-and-phone/area-codes-and-numbering">CA Public Utilities Commission</a>.</li>
     <li>Finally the gaps between 1990 and 1994 were filled with <a href="https://en.wikipedia.org/wiki/List_of_North_American_Numbering_Plan_area_codes">Wikipedia data</a>.</li>
-    <li>Also old articles <small>(<a href="https://www.nytimes.com/1984/12/29/nyregion/shift-from-212-to-718-code-pains-3-boroughs.html">1984</a>,<a href="https://www.nytimes.com/1991/06/02/nyregion/201-609-and-now-oh-my-908.html">1991</a>)</small> in the New York Times helped confirm some dates.</li>
+    <li>Also old articles <small>(<a href="https://www.nytimes.com/1984/12/29/nyregion/shift-from-212-to-718-code-pains-3-boroughs.html">1984</a>, <a href="https://www.nytimes.com/1991/06/02/nyregion/201-609-and-now-oh-my-908.html">1991</a>)</small> in the New York Times helped confirm some dates.</li>
 </ul>
 <p>
     If you're after other international dialing codes the <a href="https://www.itu.int/oth/T0202.aspx?parent=T0202">International Telecommunication Union has a complete list</a>.
