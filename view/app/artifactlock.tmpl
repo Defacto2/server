@@ -23,7 +23,7 @@
           {{- if eq $disableApproval ""}}
           <span class="d-inline-block" data-bs-toggle="tooltip" data-bs-title="alt + shift + enter">
             <button type="button" id="editor-online-true" class="btn btn-sm btn-success py-0 px-2"
-              hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden">Approve</button>
+              hx-get="/editor/online/true/{{$modID}}" hx-target="#record-is-hidden" autofocus>Approve</button>
           </span>
           {{- end}}
         </div>
