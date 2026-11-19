@@ -136,11 +136,20 @@
           </div>
         </div>
         <div class="row bg-light mt-3 align-items-center">
-          <div class="col-xl-6 pt-1">
+          <div class="col-xl-6 py-2">
             {{- /*  Classifications  */}}
-            <div class="form-label">
-              <span class="col-form-label-lg">Classifications</span>, 
-              <small id="artifact-editor-classification-help">{{classification $tag $os | safeHTML}}</small>.
+            <div class="form-label d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <span class="col-form-label-lg">Classifications</span>, 
+                <small id="artifact-editor-classification-help">{{classification $tag $os | safeHTML}}</small>.
+              </div>
+              <button class="btn btn-sm btn-outline-secondary ms-auto" name="prereset-classifications" id="artifact-editor-classifications-undo" type="button"
+                data-preset-os="{{$os}}" data-preset-tag="{{$tag}}"
+                data-bs-toggle="tooltip" data-bs-title="Revert to: {{$os}} + {{$tag}}"
+                hx-patch="/editor/classifications"
+                hx-trigger="click delay:500ms"
+                hx-target="#artifact-editor-classification-help"
+                hx-include="{{$hxClassification}}">Revert</button>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">System or type</label>
@@ -161,15 +170,6 @@
                 hx-include="{{$hxClassification}}">
               {{- template "optionTag" . }}
               </select>
-            </div>
-            <div class="mt-2">
-              <button class="btn btn-sm btn-outline-secondary" name="prereset-classifications" id="artifact-editor-classifications-undo" type="button"
-                data-preset-os="{{$os}}" data-preset-tag="{{$tag}}"
-                data-bs-toggle="tooltip" data-bs-title="Revert to: {{$os}} + {{$tag}}"
-                hx-patch="/editor/classifications"
-                hx-trigger="click delay:500ms"
-                hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Revert</button>
             </div>
           </div>
           <div class="col-xl-6 py-2">
@@ -313,22 +313,24 @@
           </div>
           {{/*  Comments  */}}
           <div class="col-xl-6">
-            <label class="form-label col-form-label-lg" for="artifact-editor-comment">Comment</label> <small class="text-secondary">alt+shift \</small>
-            <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
-              style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help" 
-              hx-patch="/editor/comment" 
-              hx-trigger="keyup changed delay:{{$lDelay}}"
-              hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
-            <div class="form-text" id="artifact-editor-comment-help">Optional comments can offer notes of the history, origin, or sources.</div>
-            <div class="mt-2">
+            <div class="form-label d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <div>
+                <label class="col-form-label-lg" for="artifact-editor-comment">Comment</label> <small class="text-secondary">alt+shift \</small>
+              </div>
               <input type="hidden" name="artifact-editor-comment-undo" value="{{$comment}}" readonly>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="artifact-editor-comment-undo"
+              <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" id="artifact-editor-comment-undo"
                 data-bs-toggle="tooltip" data-bs-title="Revert to saved comment"
                 hx-patch="/editor/comment/reset"
                 hx-target="#artifact-editor-comment-quote"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-comment-undo']">Revert <span id="artifact-editor-comment-quote"></span></button>
             </div>
+            <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
+              style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help" 
+              hx-patch="/editor/comment" 
+              hx-trigger="keyup changed delay:{{$lDelay}}"
+              hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
+            <div class="form-text" id="artifact-editor-comment-help">Optional comments can offer notes of the history, origin, or sources.</div>
           </div>
         </div>
         <div class="row bg-light my-3">
