@@ -534,3 +534,33 @@ func TestThanksTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `aria-hidden="true"`))
 	be.True(t, strings.Contains(out, `PayPal<sup class="text-danger">*</sup>`))
 }
+
+func TestAPIInfoTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("apiinfo.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("..", "..", "view", "app", "apiinfo.tmpl"))
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `<div class="container-xxl">`))
+	be.True(t, strings.Contains(out, `aria-label="API sections"`))
+	be.True(t, strings.Contains(out, `id="sec-endpoints"`))
+	be.True(t, strings.Contains(out, `Example endpoint links`))
+	be.True(t, !strings.Contains(out, `bg-primary text-white`))
+	be.True(t, strings.Contains(out, `text-bg-success`))
+	be.True(t, !strings.Contains(out, `class="col-lg-10"`))
+	be.True(t, strings.Contains(out, `GET /api/v1/areacode/212`))
+	be.True(t, !strings.Contains(out, `GET /api/v1/areacodes/212`))
+	be.True(t, strings.Contains(out, `areacodes/search/602`))
+	be.True(t, !strings.Contains(out, `areacode/search/602`))
+	be.True(t, !strings.Contains(out, `maybe required`))
+	be.True(t, !strings.Contains(out, `Unique Universally Unique Identifier`))
+	be.True(t, strings.Contains(out, `navigator.clipboard`))
+}

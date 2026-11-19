@@ -186,7 +186,7 @@ func APIInfo(sl *slog.Logger, c *echo.Context) error {
 	}
 
 	const title = "API Information"
-	const descr = "A special thanks to the hundreds of contributors and the thousands of contributions."
+	const descr = "Read-only RESTful JSON API documentation, endpoints, and examples for Defacto2."
 	const leadr = "Basic information on how to use the Defacto2 API."
 	const name = "api-info"
 
