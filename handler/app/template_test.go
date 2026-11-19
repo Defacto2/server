@@ -509,3 +509,28 @@ func TestYearRange(t *testing.T) {
 		})
 	}
 }
+
+func TestThanksTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("thanks.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("..", "..", "view", "app", "thanks.tmpl"))
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `<div class="container-xxl">`))
+	be.True(t, !strings.Contains(out, `<h1`))
+	be.True(t, strings.Contains(out, `<h2 class="h3 mb-2">Support Defacto2</h2>`))
+	be.True(t, strings.Contains(out, `https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=PBV5H45GG5L8G`))
+	be.True(t, strings.Contains(out, `https://ko-fi.com/codebyben`))
+	be.True(t, strings.Contains(out, `https://www.buymeacoffee.com/4rtEGvUIY`))
+	be.True(t, strings.Contains(out, `https://m.do.co/c/a9270bdb9e74`))
+	be.True(t, strings.Contains(out, `aria-hidden="true"`))
+	be.True(t, strings.Contains(out, `PayPal<sup class="text-danger">*</sup>`))
+}

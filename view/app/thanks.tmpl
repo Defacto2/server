@@ -2,91 +2,98 @@
     thanks.tmpl ~ Thank you page template.
 */ -}}
 {{- define "content" }}
-<h1 class="display-5 mb-4">Support Defacto2</h1>
+<div class="container-xxl">
+  <h2 class="h3 mb-2">Support Defacto2</h2>
+  <p class="text-body-secondary mb-4">
+    As the Defacto2 website costs over a hundred dollars annually, all tips are greatly appreciated and go to the website's operations, no matter how large or small.
+  </p>
 
-<div class="index-intro-section">
-<p class="lead">
-  As the Defacto2 website costs over a hundred dollars annually, all tips are greatly appreciated and go to the website's operations, no matter how large or small.
-</p>
-</div>
+  <section class="bg-body-tertiary border rounded p-3 p-md-4 mb-4">
+    <div class="mb-3">
+      <h3 class="h5 mb-1">Tip with</h3>
+      <p class="small text-body-secondary mb-0">
+        No signup or accounts are required, and no financial details are given to us.
+      </p>
+    </div>
 
-<div class="donation-card">
-  <div class="text-center mb-4">
-    <p class="fs-5 text-muted mb-3">
-      <em>No signup or accounts are required, and no financial details are given to us</em>
-    </p>
-    <h3 class="mb-4">Tip with</h3>
-  </div>
-  <div class="container mb-5">
-    <div class="row text-center">
-      <div class="col-12 col-md-4 mb-3">
-        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PBV5H45GG5L8G" class="btn btn-outline-success btn-lg w-100">
-        <span style="font-size: 2rem;">
-          <svg class="bi" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; height: 1em;">
-          <use xlink:href="/svg/bootstrap-icons.svg#paypal"/></svg>
-        </span><br>PayPal
+    <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+      <div class="col">
+        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=PBV5H45GG5L8G" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 bg-body border rounded h-100 text-decoration-none link-body-emphasis fw-medium">
+          <svg class="bi" fill="currentColor" viewBox="0 0 16 16" style="height: 1.75rem; width: auto;" aria-hidden="true">
+            <use xlink:href="/svg/bootstrap-icons.svg#paypal"/>
+          </svg>
+          <span>PayPal<sup class="text-danger">*</sup></span>
         </a>
       </div>
-      <div class="col-12 col-md-4 mb-3">
-        <a href="https://ko-fi.com/codebyben" class="btn btn-outline-success btn-lg w-100">
-        <span style="font-size: 2rem;">
-          <svg class="bi" fill="currentColor" viewBox="0 0 241 194" style="vertical-align: middle; height: 1em;">
-          <use xlink:href="/svg/bootstrap-icons.svg#kofi"/></svg>
-        </span><br>Ko-fi
+      <div class="col">
+        <a href="https://ko-fi.com/codebyben" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 bg-body border rounded h-100 text-decoration-none link-body-emphasis fw-medium">
+          <svg class="bi" fill="currentColor" viewBox="0 0 241 194" style="height: 1.75rem; width: auto;" aria-hidden="true">
+            <use xlink:href="/svg/bootstrap-icons.svg#kofi"/>
+          </svg>
+          <span>Ko-fi</span>
         </a>
       </div>
-      <div class="col-12 col-md-4 mb-3">
-        <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="btn btn-outline-success btn-lg w-100">
-          <span style="font-size: 2rem;">
-            <svg class="bi" fill="currentColor" viewBox="0 0 884 1279" style="vertical-align: middle; height: 1em;">
-            <use xlink:href="/svg/bootstrap-icons.svg#buymeacoffee"/></svg>
-          </span><br>Buy Me a Coffee
+      <div class="col">
+        <a href="https://www.buymeacoffee.com/4rtEGvUIY" class="d-flex flex-column align-items-center justify-content-center gap-2 p-3 bg-body border rounded h-100 text-decoration-none link-body-emphasis fw-medium">
+          <svg class="bi" fill="currentColor" viewBox="0 0 884 1279" style="height: 1.75rem; width: auto;" aria-hidden="true">
+            <use xlink:href="/svg/bootstrap-icons.svg#buymeacoffee"/>
+          </svg>
+          <span>Buy Me a Coffee</span>
         </a>
       </div>
     </div>
-  </div>
 
-  <div class="index-intro-section mb-4">
-    <h5 class="mb-3">💸 Merchant Fees</h5>
-    <ul class="list-unstyled">
-      <li><strong>PayPal:</strong> 2.9% fee plus 30¢ flat fee</li>
-      <li><strong>Ko-fi + Stripe:</strong> 3.5% plus 30¢ flat fee</li>
-      <li><strong>Buy Me a Coffee + Stripe:</strong> 8.5% plus 30¢ flat fee</li>
-    </ul>
-  </div>
+    <div class="row g-4 mt-3 pt-3 border-top">
+      <div class="col-md-6">
+        <h3 class="h6 text-body-secondary text-uppercase mb-3">Merchant fees</h3>
+        <ul class="list-group list-group-flush border rounded overflow-hidden small mb-2">
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+            <span>PayPal<sup class="text-danger">*</sup></span>
+            <span class="text-body-secondary text-end">2.9% fee plus 30¢ flat fee</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+            <span>Ko-fi + Stripe</span>
+            <span class="text-body-secondary text-end">3.5% plus 30¢ flat fee</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+            <span>Buy Me a Coffee + Stripe</span>
+            <span class="text-body-secondary text-end">8.5% plus 30¢ flat fee</span>
+          </li>
+        </ul>
+        <p class="small text-body-secondary mb-0">
+          <span class="text-danger">*</span> PayPal will share the name of the account holder.
+        </p>
+      </div>
 
-  <div class="mb-4">
-    <h5 class="mb-3">📊 Monthly Costs (in US dollars)</h5>
-    <div style="background-color: #f8f9fa; padding: 0; border-radius: 0.5rem; overflow: hidden;">
-      <div class="cost-item">
-        <span><strong>Monthly hosting</strong></span>
-        <div class="cost-amount">$11.83</div>
-      </div>
-      <div class="cost-item" style="padding-left: 2rem;">
-        <span>Website hosting</span>
-        <div class="cost-amount" style="color: #495057; background-color: transparent; border: 1px solid #dee2e6;">$7.70</div>
-      </div>
-      <div class="cost-item" style="padding-left: 2rem;">
-        <span>Online hosting of file downloads and images</span>
-        <div class="cost-amount" style="color: #495057; background-color: transparent; border: 1px solid #dee2e6;">$3.30</div>
-      </div>
-      <div class="cost-item" style="padding-left: 2rem;">
-        <span>Domain name</span>
-        <div class="cost-amount" style="color: #495057; background-color: transparent; border: 1px solid #dee2e6;">$0.83</div>
+      <div class="col-md-6">
+        <h3 class="h6 text-body-secondary text-uppercase mb-3">Monthly costs (USD)</h3>
+        <ul class="list-group list-group-flush border rounded overflow-hidden small mb-0">
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2 fw-semibold">
+            <span>Monthly hosting</span>
+            <span class="font-monospace">$11.83</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2 text-body-secondary">
+            <span>Website hosting</span>
+            <span class="font-monospace">$7.70</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2 text-body-secondary">
+            <span>Online hosting of file downloads and images</span>
+            <span class="font-monospace">$3.30</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2 text-body-secondary">
+            <span>Domain name</span>
+            <span class="font-monospace">$0.83</span>
+          </li>
+        </ul>
       </div>
     </div>
-    <p class="text-muted small mt-2 mb-0">
-      <span class="text-danger">*</span> PayPal will share the name of the account holder
-    </p>
-  </div>
+  </section>
 
-  <div class="index-intro-section">
-    <h5 class="mb-3">Affiliate Bonus</h5>
+  <section class="bg-body-tertiary border rounded p-3 p-md-4">
+    <h3 class="h5 mb-2">Affiliate bonus</h3>
     <p class="mb-0">
-      Spend <strong>$25 or more</strong> at <a href="https://m.do.co/c/a9270bdb9e74" class="link-offset-2 link-underline link-underline-opacity-25">DigitalOcean with this affiliate link</a>
-      <br>You'll get <strong>$200 of bonus credit for 60 days</strong>, and we'll get a <strong>$25 hosting discount</strong>
+      Spend <strong>$25 or more</strong> at <a href="https://m.do.co/c/a9270bdb9e74" class="link-underline link-underline-opacity-25 link-underline-opacity-100-hover">DigitalOcean with this affiliate link</a>: you'll get <strong>$200 of bonus credit for 60 days</strong>, and Defacto2 gets a <strong>$25 hosting discount</strong>.
     </p>
-  </div>
+  </section>
 </div>
-
 {{- end}}
