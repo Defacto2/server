@@ -403,6 +403,9 @@ func Areacodes(sl *slog.Logger, c *echo.Context) error {
 	data["telephonecodes"] = areacode.AreaCodes()
 	data["territories"] = areacode.Regions()
 	data["abbreviations"] = areacode.Abbreviations()
+	data["areaCodeEntries"] = BuildAreaCodeEntries()
+	data["regionEntries"] = BuildAreaRegionEntries()
+	data["abbrEntries"] = BuildAreaAbbrEntries()
 
 	err := c.Render(http.StatusOK, areacodes, data)
 	if err != nil {

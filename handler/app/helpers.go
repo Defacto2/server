@@ -10,6 +10,7 @@ import (
 	"math"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -17,6 +18,7 @@ import (
 	"github.com/Defacto2/archive/pkzip"
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
+	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/handler/internal/simple"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
@@ -464,4 +466,86 @@ func scenerBucketKey(name string) string {
 		return string(u)
 	}
 	return "#"
+}
+
+// AreaCodeEntry holds structured display fields for a single NANP area code.
+type AreaCodeEntry struct {
+	Code    areacode.NAN
+	Regions string
+	Note    string
+}
+
+// AreaRegionEntry holds structured display fields for a NANP state, province, or territory.
+type AreaRegionEntry struct {
+	Name  string
+	Abbr  string
+	Codes string
+}
+
+// BuildAreaCodeEntries returns structured entries for all NANP area codes sorted ascending.
+func BuildAreaCodeEntries() []AreaCodeEntry {
+	codes := areacode.AreaCodes()
+	notes := areacode.Copy()
+	entries := make([]AreaCodeEntry, 0, len(codes))
+	for _, code := range codes {
+		regs := areacode.RegionByCode(code)
+		names := make([]string, 0, len(regs))
+		for _, r := range regs {
+			if r.Abbreviation != "" {
+				names = append(names, fmt.Sprintf("%s (%s)", r.Name, r.Abbreviation))
+			} else {
+				names = append(names, r.Name)
+			}
+		}
+		entries = append(entries, AreaCodeEntry{
+			Code:    code,
+			Regions: strings.Join(names, " + "),
+			Note:    notes[code],
+		})
+	}
+	return entries
+}
+
+// BuildAreaRegionEntries returns structured entries for all NANP regions sorted by name.
+func BuildAreaRegionEntries() []AreaRegionEntry {
+	regs := areacode.Regions()
+	entries := make([]AreaRegionEntry, 0, len(regs))
+	for _, r := range regs {
+		entries = append(entries, AreaRegionEntry{
+			Name:  r.Name,
+			Abbr:  string(r.Abbreviation),
+			Codes: formatAreaCodes(r.AreaCodes),
+		})
+	}
+	return entries
+}
+
+// BuildAreaAbbrEntries returns structured entries for all 2-letter NANP abbreviations.
+func BuildAreaAbbrEntries() []AreaRegionEntry {
+	abbrs := areacode.Abbreviations()
+	entries := make([]AreaRegionEntry, 0, len(abbrs))
+	for _, abbr := range abbrs {
+		r, ok := areacode.RegionByAbbr(abbr)
+		if !ok {
+			entries = append(entries, AreaRegionEntry{Abbr: string(abbr), Codes: "n/a"})
+			continue
+		}
+		entries = append(entries, AreaRegionEntry{
+			Name:  r.Name,
+			Abbr:  string(r.Abbreviation),
+			Codes: formatAreaCodes(r.AreaCodes),
+		})
+	}
+	return entries
+}
+
+func formatAreaCodes(codes []areacode.NAN) string {
+	if len(codes) == 0 {
+		return "n/a"
+	}
+	parts := make([]string, len(codes))
+	for i, c := range codes {
+		parts[i] = strconv.Itoa(int(c))
+	}
+	return strings.Join(parts, ", ")
 }

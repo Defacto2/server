@@ -201,14 +201,20 @@ func TestAreacodesTemplate(t *testing.T) {
 
 	var buf bytes.Buffer
 	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
-		"telephonecodes": areacode.AreaCodes(),
-		"territories":    areacode.Regions(),
-		"abbreviations":  areacode.Abbreviations(),
+		"telephonecodes":  areacode.AreaCodes(),
+		"territories":     areacode.Regions(),
+		"abbreviations":   areacode.Abbreviations(),
+		"areaCodeEntries": app.BuildAreaCodeEntries(),
+		"regionEntries":   app.BuildAreaRegionEntries(),
+		"abbrEntries":     app.BuildAreaAbbrEntries(),
 	})
 	be.Err(t, err, nil)
 
 	out := buf.String()
 	be.True(t, strings.Contains(out, `hx-trigger="input changed delay:150ms, search"`))
 	be.True(t, strings.Contains(out, `id="areacodes-clear" disabled`))
-	be.True(t, strings.Contains(out, `212 - New York (NY)`))
+	be.True(t, strings.Contains(out, `href="#sec-codes"`))
+	be.True(t, strings.Contains(out, `>212</span>`))
+	be.True(t, strings.Contains(out, `>NY</span>`))
+	be.True(t, strings.Contains(out, `New York (NY)`))
 }

@@ -61,9 +61,10 @@ func Areacodes(c *echo.Context) error {
 	query := areacode.Queries(searches...)
 	if len(query) == 0 {
 		return c.HTML(http.StatusOK,
-			`<small>No results for '`+html.EscapeString(search)+`'.</small><br>`)
+			`<div class="alert alert-light border small mb-4">No results for '`+html.EscapeString(search)+`'.</div>`)
 	}
 
+	htm += `<div class="p-3 rounded border bg-body-tertiary mb-4">`
 	for val := range slices.Values(query) {
 		if val.AreaCode.Valid() {
 			htm += val.AreaCode.HTML()
@@ -74,8 +75,7 @@ func Areacodes(c *echo.Context) error {
 			}
 		}
 	}
-
-	htm += `<hr class="my-4">`
+	htm += `</div>`
 	return c.HTML(http.StatusOK, string(htm))
 }
 

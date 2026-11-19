@@ -1,22 +1,131 @@
 {{- define "content" }}
-{{- $telephonecodes := index . "telephonecodes"}}
-{{- $hcls := "h4 my-3"}}
-{{- $leadcls := "lead mt-5"}}
-{{- $placeholder := "Lookup multiple area codes and states; use comma separators"}}
-{{/*former input value: hx-trigger="input delay:50ms, keyup[key=='Enter'], load"*/}}
+{{- $codes := index . "areaCodeEntries" }}
+{{- $regions := index . "regionEntries" }}
+{{- $abbrs := index . "abbrEntries" }}
+{{- $placeholder := "Lookup area codes, states, or abbreviations (e.g. CA, 201, Texas)" }}
 {{/*delay:150ms is probably the lowest value, as anything lower and the changes can be skipped*/}}
-<div class="input-group mb-3" style="max-width: 40rem;">
-  <input type="search" class="form-control" name="htmx-search"
-    id="areacodes-search"
-    placeholder="{{$placeholder}}"
-    aria-label="{{$placeholder}} and display the results below"
-    hx-trigger="input changed delay:150ms, search"
-    hx-post="/areacodes"
-    hx-target="#areacodes-results" autofocus>
-  <button type="button" class="btn btn-outline-secondary" id="areacodes-clear" disabled>Clear</button>
+<div class="bg-body-tertiary border rounded p-3 mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="input-group input-group-sm" style="max-width: 34rem;">
+      <span class="input-group-text">
+        <span id="areacodes-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
+          <span class="visually-hidden">Searching...</span>
+        </span>
+      </span>
+      <input type="search" class="form-control" name="htmx-search"
+        id="areacodes-search"
+        placeholder="{{$placeholder}}"
+        aria-label="{{$placeholder}}"
+        autocomplete="off" spellcheck="false"
+        hx-trigger="input changed delay:150ms, search"
+        hx-post="/areacodes"
+        hx-target="#areacodes-results"
+        hx-indicator="#areacodes-indicator" autofocus>
+      <button type="button" class="btn btn-outline-secondary" id="areacodes-clear" disabled>Clear</button>
+    </div>
+    <span class="small text-body-secondary">Comma-separate multiple lookups</span>
+  </div>
+  <nav class="d-flex flex-wrap align-items-center gap-1 pt-2 border-top" aria-label="Area code sections">
+    <a class="btn btn-sm btn-outline-secondary py-0 px-2" href="#sec-codes">By area code{{if $codes}} ({{len $codes}}){{end}}</a>
+    <a class="btn btn-sm btn-outline-secondary py-0 px-2" href="#sec-regions">By state &amp; province{{if $regions}} ({{len $regions}}){{end}}</a>
+    <a class="btn btn-sm btn-outline-secondary py-0 px-2" href="#sec-abbr">By 2-letter code{{if $abbrs}} ({{len $abbrs}}){{end}}</a>
+    <a class="btn btn-sm btn-outline-secondary py-0 px-2" href="#sec-about">About</a>
+    <a class="btn btn-sm btn-outline-secondary py-0 px-2" href="#sec-sources">Data sources</a>
+  </nav>
 </div>
 
-<div id="areacodes-results" class="mt-3"></div>
+<div id="areacodes-results"></div>
+
+<section id="sec-codes" class="mb-5" style="scroll-margin-top: 4.5rem;">
+  <h2 class="h4 border-bottom pb-2 mb-3 d-flex align-items-baseline justify-content-between">
+    <span>By area code</span>
+    {{- if $codes}}<span class="small fw-normal text-body-secondary">{{len $codes}} codes</span>{{end}}
+  </h2>
+  <div style="column-width: 24rem; column-gap: 0.75rem;">
+  {{- range $codes }}
+    <div class="pb-2" style="break-inside: avoid;">
+      <div class="d-flex align-items-start gap-3 p-2 px-3 rounded border bg-body-tertiary">
+        <span class="font-monospace fw-bold fs-5 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded px-2 py-1 lh-1 flex-shrink-0">{{.Code}}</span>
+        <div>
+          <div class="fw-medium">{{.Regions}}</div>
+          {{- if ne .Note "" }}
+          <div class="small text-body-secondary mt-1">{{.Note}}</div>
+          {{- end }}
+        </div>
+      </div>
+    </div>
+  {{- end }}
+  </div>
+</section>
+
+<section id="sec-regions" class="mb-5" style="scroll-margin-top: 4.5rem;">
+  <h2 class="h4 border-bottom pb-2 mb-3 d-flex align-items-baseline justify-content-between">
+    <span>By state, province, or territory</span>
+    {{- if $regions}}<span class="small fw-normal text-body-secondary">{{len $regions}} regions</span>{{end}}
+  </h2>
+  <div style="column-width: 22rem; column-gap: 0.75rem;">
+  {{- range $regions }}
+    <div class="pb-2" style="break-inside: avoid;">
+      <div class="d-flex justify-content-between align-items-start gap-2 p-2 px-3 rounded border bg-body-tertiary">
+        <div class="d-flex align-items-center gap-2">
+          {{- if ne .Abbr "" }}
+          <span class="badge font-monospace fw-semibold text-primary-emphasis bg-primary-subtle border border-primary-subtle">{{.Abbr}}</span>
+          {{- end }}
+          <span class="fw-medium text-nowrap">{{.Name}}</span>
+        </div>
+        <span class="font-monospace small text-body-secondary text-end">{{.Codes}}</span>
+      </div>
+    </div>
+  {{- end }}
+  </div>
+</section>
+
+<section id="sec-abbr" class="mb-5" style="scroll-margin-top: 4.5rem;">
+  <h2 class="h4 border-bottom pb-2 mb-3 d-flex align-items-baseline justify-content-between">
+    <span>By 2-letter abbreviations</span>
+    {{- if $abbrs}}<span class="small fw-normal text-body-secondary">{{len $abbrs}} codes</span>{{end}}
+  </h2>
+  <div style="column-width: 18rem; column-gap: 0.75rem;">
+  {{- range $abbrs }}
+    <div class="pb-2" style="break-inside: avoid;">
+      <div class="d-flex align-items-start gap-3 p-2 px-3 rounded border bg-body-tertiary">
+        <span class="font-monospace fw-bold fs-5 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded px-2 py-1 lh-1 flex-shrink-0">{{.Abbr}}</span>
+        <div>
+          <div class="fw-medium">{{.Name}}</div>
+          <div class="font-monospace small text-body-secondary">{{.Codes}}</div>
+        </div>
+      </div>
+    </div>
+  {{- end }}
+  </div>
+</section>
+
+<section id="sec-about" class="mb-4" style="scroll-margin-top: 4.5rem;">
+  <h2 class="h4 border-bottom pb-2 mb-3">About</h2>
+  <p class="mb-0">
+    The telephone numbering plan of 1994 uses a 3-digit area code and a 7-digit telephone number within the United States, Canada, the Caribbean and the U.S. territories.
+    Using the format of <em>2xx ... 8xx, 9xx</em>, whereby <u>xx</u> could only be <em>01-19</em>, ie 201-219, 301-319, etc.
+    Some sequences were reserved, such as <em>x11</em>, ie 411 and 911.
+    <br>
+    This page lists the area codes that were in use during the BBS era from the 1970s until the end of 1994. 
+    1995 and the following years saw the introduction of new area codes formats and overlay sharing, but they are not covered here.
+  </p>
+</section>
+
+<section id="sec-sources" class="mb-3" style="scroll-margin-top: 4.5rem;">
+  <h2 class="h4 border-bottom pb-2 mb-3">Data sources</h2>
+  <ul class="list-unstyled mb-2">
+    <li>The initial area code data was sourced from the 1990, <a href="https://defacto2.net/f/ac1cb6a">NAP/PA Area Code Listing</a> which was somewhat incomplete.</li>
+    <li>The data was then cross-referenced with a 1991 MS-DOS application titled Find Area Code v1.0 (c) 1991 by MPM Enterprises.</li>
+    <li>Complicated data for California was sourced from the <a href="https://www.cpuc.ca.gov/industries-and-topics/internet-and-phone/area-codes-and-numbering">CA Public Utilities Commission</a>.</li>
+    <li>Finally the gaps between 1990 and 1994 were filled with <a href="https://en.wikipedia.org/wiki/List_of_North_American_Numbering_Plan_area_codes">Wikipedia data</a>.</li>
+    <li>Also old articles <small>(<a href="https://www.nytimes.com/1984/12/29/nyregion/shift-from-212-to-718-code-pains-3-boroughs.html">1984</a>, <a href="https://www.nytimes.com/1991/06/02/nyregion/201-609-and-now-oh-my-908.html">1991</a>)</small> in the New York Times helped confirm some dates.</li>
+  </ul>
+  <p class="mb-0">
+    If you're after other international dialing codes the <a href="https://www.itu.int/oth/T0202.aspx?parent=T0202">International Telecommunication Union has a complete list</a>.
+  </p>
+</section>
+
 <script>
 (() => {
   const input = document.getElementById('areacodes-search');
@@ -46,40 +155,4 @@
   syncClear();
 })();
 </script>
-
-<h2 class="{{$hcls}}">By area code</h2>
-{{- if $telephonecodes}}
-{{- range $code := $telephonecodes }}
-{{$code.HTML}}
-{{- end}}
-{{- end}}
-<h2 class="{{$hcls}}">By state, province, or territory</h2>
-{{- range $territory := .territories }}
-{{$territory.HTML}}
-{{- end}}
-<h2 class="{{$hcls}}">By 2-letter abbreviations</h2>
-{{- range $code := .abbreviations }}
-{{$code.HTML}}
-{{- end}}
-
-<h2 class="{{$leadcls}}">About</h2>
-<p>
-    The telephone numbering plan of 1994 uses a 3-digit area code and a 7-digit telephone number within the United States, Canada, the Caribbean and the U.S. territories.
-    Using the format of <em>2xx ... 8xx, 9xx</em>, whereby <u>xx</u> could only be <em>01-19</em>, ie 201-219, 301-319, etc.
-    Some sequences were reserved, such as <em>x11</em>, ie 411 and 911.
-    <br>
-    This page lists the area codes that were in use during the BBS era from the 1970s until the end of 1994. 
-    1995 and the following years saw the introduction of new area codes formats and overlay sharing, but they are not covered here.
-</p>
-<h2 class="{{$leadcls}}">Data sources</h2>
-<ul class="list-unstyled">
-    <li>The initial area code data was sourced from the 1990, <a href="https://defacto2.net/f/ac1cb6a">NAP/PA Area Code Listing</a> which was somewhat incomplete.</li>
-    <li>The data was then cross-referenced with a 1991 MS-DOS application titled Find Area Code v1.0 (c) 1991 by MPM Enterprises.</li>
-    <li>Complicated data for California was sourced from the <a href="https://www.cpuc.ca.gov/industries-and-topics/internet-and-phone/area-codes-and-numbering">CA Public Utilities Commission</a>.</li>
-    <li>Finally the gaps between 1990 and 1994 were filled with <a href="https://en.wikipedia.org/wiki/List_of_North_American_Numbering_Plan_area_codes">Wikipedia data</a>.</li>
-    <li>Also old articles <small>(<a href="https://www.nytimes.com/1984/12/29/nyregion/shift-from-212-to-718-code-pains-3-boroughs.html">1984</a>, <a href="https://www.nytimes.com/1991/06/02/nyregion/201-609-and-now-oh-my-908.html">1991</a>)</small> in the New York Times helped confirm some dates.</li>
-</ul>
-<p>
-    If you're after other international dialing codes the <a href="https://www.itu.int/oth/T0202.aspx?parent=T0202">International Telecommunication Union has a complete list</a>.
-</p>
 {{- end}}
