@@ -108,30 +108,31 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-target="#artifact-editor-modal" aria-label="Close"></button>
       </div>
       <div class="modal-body container">
-        <div class="row row-cols-4 g-1">
+        <div class="row g-2 align-items-center justify-content-between">
           {{- /*  Public or hidden record */}}
-          <div class="col-12 col-xl-2 col-lg-6 d-grid">
-            {{radioPublic ($record)}}
-            <label class="btn btn-outline-success" for="artifact-editor-public">Public record</label>
-          </div>
-          <div class="col-12 col-xl-2 col-lg-6 d-grid">
-            {{radioHidden ($record)}}
-            <label class="btn btn-outline-danger" for="artifact-editor-hidden">⛔ Hidden record</label>
-          </div>
-          <div class="col-12 col-xl-2 col-lg-6 offset-xl-1">
-            <div class="input-group">
-              <button type="button" class="btn btn-secondary" id="artifact-dataeditor-key-label"
-                data-bs-toggle="tooltip" data-bs-title="Copy the key">Record key</button>
-              <input type="text" value='{{$key}}' class="form-control" name="artifact-editor-key" id="artifact-dataeditor-key-value"
-                aria-describedby="artifact-dataeditor-key-label" readonly>
+          <div class="col-12 col-xl-auto">
+            <div class="input-group input-group-sm" role="group" aria-label="Record visibility">
+              <span class="input-group-text">Artifact Visibility</span>
+              {{radioHidden ($record)}}
+              <label class="btn btn-outline-danger flex-fill" for="artifact-editor-hidden">Hidden</label>
+              {{radioPublic ($record)}}
+              <label class="btn btn-outline-success flex-fill" for="artifact-editor-public">Public</label>
             </div>
           </div>
-          <div class="col-12 col-xl-5 col-lg-6">
-            <div class="input-group">
-              <button type="button" class="btn btn-secondary" id="artifact-dataeditor-unique-id-label"
-                data-bs-toggle="tooltip" data-bs-title="Copy the ID">Unique ID</button>
-              <input type="text" value='{{$unid}}' class="form-control" 
-                aria-describedby="artifact-dataeditor-unique-id-label" id="artifact-dataeditor-unique-id-value" readonly>
+          <div class="col-12 col-xl-auto">
+            <div class="d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-xl-end gap-2">
+              <div class="input-group input-group-sm" style="width: 11.5rem; max-width: 100%;">
+                <button type="button" class="btn btn-outline-secondary text-nowrap" id="artifact-dataeditor-key-label"
+                  data-bs-toggle="tooltip" data-bs-container="body" data-bs-title="Copy the key">Record key</button>
+                <input type="text" value='{{$key}}' class="form-control font-monospace" name="artifact-editor-key" id="artifact-dataeditor-key-value"
+                  aria-describedby="artifact-dataeditor-key-label" readonly>
+              </div>
+              <div class="input-group input-group-sm" style="width: 26rem; max-width: 100%;">
+                <button type="button" class="btn btn-outline-secondary text-nowrap" id="artifact-dataeditor-unique-id-label"
+                  data-bs-toggle="tooltip" data-bs-container="body" data-bs-title="Copy the ID">Unique ID</button>
+                <input type="text" value='{{$unid}}' class="form-control font-monospace" 
+                  aria-describedby="artifact-dataeditor-unique-id-label" id="artifact-dataeditor-unique-id-value" readonly>
+              </div>
             </div>
           </div>
         </div>
@@ -610,7 +611,7 @@
                 <label for="artifact-editor-demozoo">
                 <svg class="bi" width="16" height="22" fill="currentColor">
                   <use xlink:href="/svg/bootstrap-icons.svg#demozoo"/>
-                </svg> Demozoo prod</label>
+                </svg> Demozoo production</label>
               </div>
             </div>
             <div class="col-6 col-lg-3 col-xl-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Numeric production ID, example: 75854">
@@ -622,7 +623,7 @@
                   hx-trigger="keyup changed delay:{{$lDelay}}"
                   hx-include="[name='artifact-editor-key']">
                 <label for="artifact-editor-pouet">
-                <img src="/svg/pouet-icon.svg" width="16" height="16" alt="Pouet"> Pouet prod</label>
+                <img src="/svg/pouet-icon.svg" width="16" height="16" alt="Pouet"> Pouet production</label>
               </div>
             </div>
 
@@ -648,7 +649,7 @@
                 <label for="artifact-editor-github">
                   <svg class="bi" width="16" height="20" fill="currentColor">
                     <use xlink:href="/svg/bootstrap-icons.svg#github"/>
-                  </svg> GitHub repo</label>
+                  </svg> GitHub repository</label>
               </div>
             </div>
 
