@@ -423,7 +423,8 @@ type ScenerIndexItem struct {
 // BuildScenerIndex groups sorted scener names into "#" and "A"-"Z" sections and returns
 // the non-empty groups alongside the full 27-entry quick-jump index.
 func BuildScenerIndex(names []string) ([]ScenerGroup, []ScenerIndexItem) {
-	buckets := make(map[string][]string, 27)
+	const size = 27
+	buckets := make(map[string][]string, size)
 	for _, name := range names {
 		key := scenerBucketKey(name)
 		buckets[key] = append(buckets[key], name)
@@ -527,7 +528,7 @@ func BuildAreaAbbrEntries() []AreaRegionEntry {
 	for _, abbr := range abbrs {
 		r, ok := areacode.RegionByAbbr(abbr)
 		if !ok {
-			entries = append(entries, AreaRegionEntry{Abbr: string(abbr), Codes: "n/a"})
+			entries = append(entries, AreaRegionEntry{Name: "", Abbr: string(abbr), Codes: "n/a"})
 			continue
 		}
 		entries = append(entries, AreaRegionEntry{

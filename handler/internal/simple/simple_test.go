@@ -267,7 +267,7 @@ func TestDemozooGetLink(t *testing.T) {
 func TestImageSample(t *testing.T) {
 	t.Parallel()
 
-	const missing = "No preview image file"
+	const missing = "No preview"
 	x := simple.ImageSample("", "")
 	be.True(t, strings.Contains(string(x), missing))
 

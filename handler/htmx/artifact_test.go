@@ -381,6 +381,7 @@ func TestMkCopy(t *testing.T) {
 	t.Parallel()
 	// example params: htmx/copy/:unid/:path
 
+	unid := uuid.New().String()
 	const (
 		fname = "filename.txt"
 	)
@@ -405,6 +406,7 @@ func TestMkCopy(t *testing.T) {
 
 	r, err := os.OpenRoot(stale)
 	be.Err(t, err, nil)
+	defer func() { _ = r.Close() }()
 
 	b := []byte("hello world")
 	n, err := helper.TouchWR(r, fname, b...)
@@ -429,6 +431,7 @@ func TestMkCopy(t *testing.T) {
 func TestFSCopyReadme(t *testing.T) {
 	t.Parallel()
 
+	unid := uuid.New().String()
 	const (
 		fname = "readme.txt"
 	)
@@ -452,6 +455,7 @@ func TestFSCopyReadme(t *testing.T) {
 
 	r, err := os.OpenRoot(stale)
 	be.Err(t, err, nil)
+	defer func() { _ = r.Close() }()
 
 	b := []byte("hello world")
 	n, err := helper.TouchWR(r, fname, b...)

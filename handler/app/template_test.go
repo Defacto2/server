@@ -267,8 +267,8 @@ func TestArtifactTemplatesRender(t *testing.T) {
 		paths[i] = filepath.Join("..", "..", "view", "app", f)
 	}
 	funcs := wa.FuncMap(t.Context(), db)
-	funcs["classification"] = func(s, p string) string { return "MS-DOS" }
-	funcs["classificationStr"] = func(s, p string) string { return "MS-DOS" }
+	funcs["classification"] = func(_, _ string) string { return "MS-DOS" }
+	funcs["classificationStr"] = func(_, _ string) string { return "MS-DOS" }
 	tmpl, err := template.New("").Funcs(funcs).ParseFiles(paths...)
 	be.Err(t, err, nil)
 

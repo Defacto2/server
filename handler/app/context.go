@@ -98,6 +98,7 @@ const (
 	configs     = "configs"
 	dep         = "dependencies"
 	dx          = "d"
+	ffile       = "file"
 	fixes       = "fixes"
 	fixers      = "fixers"
 	ftp         = "ftp"
@@ -1950,7 +1951,7 @@ func (mode FileSearch) postStats(ctx context.Context, sl *slog.Logger, db *sql.D
 	}
 
 	d := map[string]string{
-		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		files: string(ByteFileS(ffile, m.SumCount.Int64, m.SumBytes.Int64)),
 		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d
@@ -2132,7 +2133,7 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	data["logo"] = logo
 	data["h1"] = title + "s"
 	data["lead"] = leadr
-	data["itemName"] = "file"
+	data["itemName"] = ffile
 	data[key] = model.Releasers{}
 	data["stats"] = map[string]string{}
 
@@ -2334,7 +2335,7 @@ func releaserSum(ctx context.Context, exec boil.ContextExecutor, uri string) (ma
 	}
 
 	d := map[string]string{
-		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		files: string(ByteFileS(ffile, m.SumCount.Int64, m.SumBytes.Int64)),
 		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 		"sum": strconv.Itoa(int(m.SumCount.Int64)),
 	}
@@ -2417,7 +2418,7 @@ func scenerSum(ctx context.Context, exec boil.ContextExecutor, uri string) (map[
 	}
 
 	d := map[string]string{
-		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		files: string(ByteFileS(ffile, m.SumCount.Int64, m.SumBytes.Int64)),
 		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d, nil
@@ -2481,7 +2482,7 @@ func SearchFile(sl *slog.Logger, c *echo.Context) error {
 	data["logo"] = search
 	data["title"] = "Filename or extensions search"
 	data["info"] = "Search archive filenames and extensions"
-	data["searchMode"] = "file"
+	data["searchMode"] = ffile
 
 	err := c.Render(http.StatusOK, searchpost, data)
 	if err != nil {
@@ -2956,7 +2957,7 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 	}
 
 	d := map[string]string{
-		files: string(ByteFileS("file", m.SumCount.Int64, m.SumBytes.Int64)),
+		files: string(ByteFileS(ffile, m.SumCount.Int64, m.SumBytes.Int64)),
 		years: strconv.Itoa(int(m.MinYear.Int16)) + " - " + strconv.Itoa(int(m.MaxYear.Int16)),
 	}
 	return d, int(m.SumCount.Int64), nil

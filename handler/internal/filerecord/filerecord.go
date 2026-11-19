@@ -44,12 +44,12 @@ const (
 	textamiga               = "textamiga"
 	arrowLink template.HTML = `<svg class="bi" aria-hidden="true">` +
 		`<use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use></svg>`
-	br    = "<br>"
-	bat   = ".bat"
-	cmd   = ".cmd"
-	com   = ".com"
-	exe   = ".exe"
-	ini   = ".ini"
+	br  = "<br>"
+	bat = ".bat"
+	cmd = ".cmd"
+	com = ".com"
+	exe = ".exe"
+	ini = ".ini"
 )
 
 var enforceSimpleText = sync.OnceValue(func() map[string]struct{} {

@@ -256,7 +256,7 @@ func TestSearchReleasersTemplate(t *testing.T) {
 	out := buf.String()
 	be.True(t, strings.Contains(out, "row-cols-md-3"))
 	be.True(t, !strings.Contains(out, "row-col-md-3"))
-	be.True(t, !strings.Contains(out, "border border "))
+	be.True(t, !strings.Contains(out, "border border ")) //nolint:dupword
 }
 
 func TestParseSearchIDs(t *testing.T) {

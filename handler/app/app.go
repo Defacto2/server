@@ -830,7 +830,8 @@ func SubTitle(section null.String, title any, large bool) template.HTML {
 	if large {
 		fs = "fs-5"
 	}
-	return template.HTML(`<h3 class="card-subtitle mb-2 text-body-secondary ` + fs + `">` + template.HTMLEscapeString(val) + `</h3>`)
+	return template.HTML(`<h3 class="card-subtitle mb-2 text-body-secondary ` + fs + `">` +
+		template.HTMLEscapeString(val) + `</h3>`)
 }
 
 // TagBrief returns a small summary of the tag.
