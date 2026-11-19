@@ -3,6 +3,7 @@ package model
 // Package scener.go contains the database queries for the sceners.
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
@@ -116,6 +117,11 @@ func (obj *Sceners) Sort() []string {
 		}
 	}
 
-	slices.Sort(sceners)
-	return slices.Compact(sceners)
+	slices.SortFunc(sceners, func(a, b string) int {
+		if c := cmp.Compare(strings.ToLower(a), strings.ToLower(b)); c != 0 {
+			return c
+		}
+		return cmp.Compare(a, b)
+	})
+	return slices.CompactFunc(sceners, strings.EqualFold)
 }

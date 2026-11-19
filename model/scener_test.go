@@ -71,3 +71,17 @@ func TestSceners(t *testing.T) {
 	first := sorted[0]
 	be.True(t, string(preSort.Name) != first)
 }
+
+func TestScenersSort(t *testing.T) {
+	t.Parallel()
+
+	s := model.Sceners{
+		{Name: "zeta, Beta"},
+		{Name: "ace"},
+		{Name: "ACE"},
+		{Name: "007"},
+	}
+	got := s.Sort()
+	want := []string{"007", "ACE", "Beta", "zeta"}
+	be.Equal(t, got, want)
+}

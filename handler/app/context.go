@@ -616,7 +616,7 @@ func Coder(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		return fmt.Errorf(format, err)
 	}
 
-	const title = "Coder and programmers"
+	const title = "Coders and programmers"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
@@ -624,7 +624,7 @@ func Coder(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	data["noindex"] = true
 
 	ctx := c.Request().Context()
-	return scenerPage(ctx, sl, c, db, postgres.Writer, data)
+	return scenerPage(ctx, sl, c, db, postgres.Coder, data)
 }
 
 // Compression is the handler for information on historic compression tools page.
@@ -2328,7 +2328,7 @@ func Scener(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		return fmt.Errorf(format, err)
 	}
 
-	const title = "Sceners, people who were apart of the Scene"
+	const title = "Sceners, people who were a part of the Scene"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
