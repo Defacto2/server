@@ -8,6 +8,7 @@
 {{- /* note row-cols-sm-* is the smallest row-cols value */}}
 {{- $rowCols := "row row-cols-1 row-cols-sm-2 row-cols-md-5 g-3 p-3 g-md-0 p-md-0"}}
 {{/*  hashtags  */}}
+<div class="container-xxl">
 <div class="row row-cols-1 g-1">
     <div class="h-100">
         <div class="card">
@@ -110,7 +111,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Publishing years</h5>
+                <h2 class="h5 card-title">Publishing years</h2>
                 <div class="fs-6">
                     <div class="mb-3 pb-2 border-bottom">
                         {{$rels.Record.MinYear}} <span class="fw-light">through to</span> {{$rels.Record.MaxYear}}
@@ -127,7 +128,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Counts and bytes</h5>
+                <h2 class="h5 card-title">Counts and bytes</h2>
                 <div class="fs-6">
                     <div class="mb-3 pb-2 border-bottom">
                         <span class="fw-light">Totals</span> {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
@@ -144,11 +145,11 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Sort by counts</h5>
-                    <div class="mb-3 pb-2 border-bottom">
-                        <span class="fw-light">Total</span> {{ $rels.Record.Count }}
-                    </div>
+                <h2 class="h5 card-title">Sort by counts</h2>
                 <div class="fs-6">
+                    <div class="mb-3 pb-2 border-bottom">
+                        <span class="fw-light">Total</span> {{ $rels.Record.Count }} files
+                    </div>
                     <div class="lh-lg" style="font-size: 0.95rem;">
 {{- range .orderByCount -}}
                         <div><span class="fw-light">{{.Name}}</span> {{ byteFile .Count .Bytes }}</div>
@@ -161,10 +162,10 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Sort by bytes</h5>
+                <h2 class="h5 card-title">Sort by bytes</h2>
                 <div class="fs-6">
                     <div class="mb-3 pb-2 border-bottom">
-                        <span class="fw-light">Total</span> {{ $rels.Record.Bytes }}
+                        <span class="fw-light">Total</span> {{ byteBytes $rels.Record.Bytes }}
                     </div>
                     <div class="lh-lg" style="font-size: 0.95rem;">
 {{- range .orderByBytes -}}
@@ -180,14 +181,14 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Included programs</h5>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">cracktro, loader, intro, crack-screen</h5>
+                <h2 class="h5 card-title">Included programs</h2>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">cracktro, loader, intro, crack-screen</h3>
                 <p class="card-text">
                     Cracktros and loaders are mini adverts created by cracking groups to announce their
                     releases to the community.
                     Initially, these inserted ads launched whenever the cracked software was in use.
                 </p>
-                <div class="container text-left">
+                <div class="text-start">
                 <span class="card-link text-secondary">Runs on Microsoft</span>
                     <div class="{{$rowCols}}">
                         <div class="col-sm">
@@ -202,7 +203,7 @@
                     </div>
                 </div>
                 <hr>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">installation program</h5>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">installation program</h3>
                 <p class="card-text">
                     As software repackaging by Scene groups became more complicated, there was a need to develop installation programs that walk the users through installing their ill-gotten wares.
                 </p>
@@ -213,25 +214,25 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Release text</h5>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">NFO, information text, README</h5>
+                <h2 class="h5 card-title">Release text</h2>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">NFO, information text, README</h3>
                 <p class="card-text">
                     Text files are generally in every scene release.
                     Often, they are stylised with text art and arranged in a standard format.
-                    In the early days, these texts included detailed group information, but now they focus more on the
+                    In the early days, these texts included detailed group information, but now they focus more on
                     describing the software.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/nfo" class="{{$linkClass}}">nfo files</a></span>
                 <hr>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">release proof</h5>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">release proof</h3>
                 <p class="card-text">
                     A proof of a release is usually a photograph to verify that physical media sold in retail stores is the source of the warez release.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/proof" class="{{$linkClass}}">proofs</a></span>
                 <hr>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">Demoscene production</h5>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">Demoscene production</h3>
                 <p class="card-text">
-                    Demoscene productions are artistic apps that generate visuals and audio to show the creators' programming, audio, and graphic abilities. Early demo productions developed within warez scene before they distanced themselves and spun into their own community.
+                    Demoscene productions are artistic apps that generate visuals and audio to show the creators' programming, audio, and graphic abilities. Early demo productions developed within the warez scene before they distanced themselves and spun into their own community.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/demoscene" class="{{$linkClass}}">demos</a></span>
             </div>
@@ -240,23 +241,23 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Text art advertisements</h5>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">ANSI color text</h5>
+                <h2 class="h5 card-title">Text art advertisements</h2>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">ANSI color text</h3>
                 <p class="card-text">
                     Stylized ANSI text art was commonly created for the theming and advertising of Bulletin Board Systems.
                 </p>
                 <span class="{{$linkClass}}">Browse all the <a href="/files/ansi" class="{{$linkClass}}">ansi files</a></span>
                 <hr>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">branding &amp; logo</h5>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">branding &amp; logo</h3>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-brand" class="{{$linkClass}}">ansi logos</a></span>
                 <hr>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">BBS board advert</h5>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">BBS board advert</h3>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-bbs" class="{{$linkClass}}">ansi board ads</a></span>
                 <hr>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">FTP site advert</h5>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">FTP site advert</h3>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-ftp" class="{{$linkClass}}">ansi site ads</a></span>
                 <hr>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">ANSI color NFO</h5>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">ANSI color NFO</h3>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-nfo" class="{{$linkClass}}">ansi nfos</a></span>
             </div>
         </div>
@@ -264,8 +265,8 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">BBS</h5>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">bulletin board system</h5>
+                <h2 class="h5 card-title">BBS</h2>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">bulletin board system</h3>
                 <p class="card-text">
                     Bulletin Board Systems were like proto web-forums that offered message boards, real-time chat, and file sharing but used a text user interface and ran on the landline telephone network. 
                     Users had to use their PCs or microcomputers with a modem peripheral to dial and connect to the individual boards.
@@ -289,10 +290,10 @@
                     </div>
                 </div>
                 <hr>
-                <h5 class="card-title">PCB</h5>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">PCBoard</h5>
+                <h2 class="h5 card-title">PCB</h2>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">PCBoard</h3>
                 <p class="card-text">
-                    PCBoard was a bulletin board application by the Clark Development Company that was often used the "elite" PC boards of the 1990s.
+                    PCBoard was a bulletin board application by the Clark Development Company that was often used by the "elite" PC boards of the 1990s.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/pcboard" class="{{$linkClass}}">files</a></span> 
                 <div class="{{$rowCols}} mt-2">
@@ -307,8 +308,8 @@
                   </div>
                 </div>
                 <hr>
-                <h5 class="card-title">FTP</h5>
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">file site</h5>
+                <h2 class="h5 card-title">FTP</h2>
+                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">file site</h3>
                 <p class="card-text">
                     FTP sites eventually supplanted BBS boards as The Scene moved onto the Internet in the early to mid-1990s. The utilitarian sites were more efficient at organizing and transferring files but lacked the social features of the earlier boards.
                 </p>
@@ -321,14 +322,14 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">Magazine</h5>
+                <h2 class="h5 card-subtitle lead mb-2 text-body-secondary">Magazine</h2>
                 <p class="card-text">
                     Before the web and social media existed, groups and individuals used to exchange ideas and write articles on their communities in digitally distributed magazines and newsletters.
                 </p>
-                <p class="{{$linkClass}}">Browse the
-                 <a href="/files/magazine" class="{{$linkClass}}">issues</a>
-                 <hr>
-                 <p class="{{$linkClass}}">Or the
+                <p class="{{$linkClass}} mb-0">Browse the
+                 <a href="/files/magazine" class="{{$linkClass}}">issues</a></p>
+                <hr>
+                <p class="{{$linkClass}} mb-0">Or the
                  <a href="/magazine" class="{{$linkClass}}">magazine titles</a>
                 </p>
             </div>
@@ -337,12 +338,12 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">File pack</h5>
+                <h2 class="h5 card-subtitle lead mb-2 text-body-secondary">File pack</h2>
                 <p class="card-text">
                     Curated file packs are collections of files with a common theme.
                 </p>
                 <p class="{{$linkClass}}">Browse the packs containing</p>
-                <div class="container text-left">
+                <div class="text-start">
                     <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
                       <div class="col">
                 <a href="/files/ansi-pack" class="{{$linkClass}}">ansi art</a>
@@ -367,7 +368,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-subtitle lead mb-2 text-body-secondary">Database</h5>
+                <h2 class="h5 card-subtitle lead mb-2 text-body-secondary">Database</h2>
                 <p class="card-text">
                     Scene databases are often private datasets of cracked software titles, release dates and
                     associated groups.
@@ -382,13 +383,13 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h5 class="card-title">Text file</h5>
+                <h2 class="h5 card-title">Text file</h2>
                 <p class="card-text">
                     The vast majority of scene releases involve text and documents.
                     Plain text files have the advantage of being platform-agnostic and small in file size.
                 </p>
                 <p class="{{$linkClass}}">Browse the text</p>
-                <div class="container text-left">
+                <div class="text-start">
                     <div class="row row-cols-1 row-cols-sm-2 g-3 p-3 g-md-0 p-md-0">
                         <div class="col">
                 <a href="/files/text" class="{{$linkClass}}">files, everything</a>
@@ -415,4 +416,5 @@
     </div>
 </div>
 {{- block "morecategories" . -}}{{ "<!-- More categories -->" | safeHTML -}}{{end}}
+</div>
 {{- end}}

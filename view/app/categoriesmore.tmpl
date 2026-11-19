@@ -21,39 +21,39 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="windows-tab" data-bs-toggle="tab"
                                 data-bs-target="#windows-tab-pane" type="button" role="tab"
-                                aria-controls="windows-tab-pane" aria-selected="true">Windows</button>
+                                aria-controls="windows-tab-pane" aria-selected="false">Windows</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="console-tab" data-bs-toggle="tab"
                                 data-bs-target="#console-tab-pane" type="button" role="tab"
-                                aria-controls="console-tab-pane" aria-selected="true">consoles</button>
+                                aria-controls="console-tab-pane" aria-selected="false">Consoles</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="mac-tab" data-bs-toggle="tab"
                                 data-bs-target="#mac-tab-pane" type="button" role="tab"
-                                aria-controls="mac-tab-pane" aria-selected="true">macOS</button>
+                                aria-controls="mac-tab-pane" aria-selected="false">macOS</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="linux-tab" data-bs-toggle="tab"
                                 data-bs-target="#linux-tab-pane" type="button" role="tab"
-                                aria-controls="linux-tab-pane" aria-selected="true">Linux</button>
+                                aria-controls="linux-tab-pane" aria-selected="false">Linux</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="script-tab" data-bs-toggle="tab"
                                 data-bs-target="#script-tab-pane" type="button" role="tab"
-                                aria-controls="script-tab-pane" aria-selected="true">Scripts</button>
+                                aria-controls="script-tab-pane" aria-selected="false">Scripts</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="java-tab" data-bs-toggle="tab"
                                 data-bs-target="#java-tab-pane" type="button" role="tab"
-                                aria-controls="java-tab-pane" aria-selected="true">Java</button>
+                                aria-controls="java-tab-pane" aria-selected="false">Java</button>
                         </li>
                     </ul>
                 </nav>
-                <div class="card-body tab-content" id="nav-tabContent">
+                <div class="tab-content pt-3" id="nav-tabContent">
                     <div class="tab-pane fade show active" id="dos-tab-pane" role="tabpanel" aria-labelledby="dos-tab"
                         tabindex="0">
-                        <h5 class="{{$otherClass}}">{{msdos}} <small>PC</small></h5>
+                        <h2 class="{{$otherClass}}">{{msdos}} <small>PC</small></h2>
                         <p>
                             Microsoft MS-DOS and IBM PC DOS were interoperable operating systems for the Intel x86 <u>P</u>ersonal <u>C</u>omputer platform of the 1980s. 
                             In the early days, games listed the platform as <q>IBM</q> or <q>IBM PC</q>, but this naming evolved to <q>IBM/Tandy and compatibles</q> before eventually settling on <q>MS-DOS</q> in the 1990s.
@@ -64,7 +64,7 @@
                     </div>
                     <div class="tab-pane fade" id="windows-tab-pane" role="tabpanel" aria-labelledby="windows-tab"
                         tabindex="0">
-                        <h5 class="{{$otherClass}}">Windows <small>PC</small></h5>
+                        <h2 class="{{$otherClass}}">Windows <small>PC</small></h2>
                         <p>
                             Microsoft Windows became the unavoidable replacement for MS-DOS on the Intel x86 <u>P</u>ersonal <u>C</u>omputer platform. 
                             Most of the Windows software hosted on this site released in the 1990s will target Windows 95 or 98, while the releases from the 2000s should be for Windows XP or 7.
@@ -75,9 +75,9 @@
                     </div>
                     <div class="tab-pane fade" id="console-tab-pane" role="tabpanel" aria-labelledby="console-tab"
                         tabindex="0">
-                        <h5 class="{{$otherClass}}">Console <small>various systems</small></h5>
+                        <h2 class="{{$otherClass}}">Console <small>various systems</small></h2>
                         <p>
-                            A console is video game system designed to be used on a television and is mostly interacted with using a controller or a joystick.
+                            A console is a video game system designed to be used on a television and is mostly interacted with using a controller or a joystick.
                             For simplicity, we do not differentiate between the various companies or system generations.
                         </p>
                         <p>
@@ -86,7 +86,7 @@
                     </div>
                     <div class="tab-pane fade" id="mac-tab-pane" role="tabpanel" aria-labelledby="mac-tab"
                         tabindex="0">
-                        <h5 class="{{$otherClass}}">macOS</h5>
+                        <h2 class="{{$otherClass}}">macOS</h2>
                         <p>
                             Software for the proprietary line of computers by Apple, initially created for the Apple Macintosh System Software, but has been renamed to Mac OS and now macOS. 
                             Unlike Microsoft Windows, Apple has used different hardware architectures over the years, so the Apple platforms lack backward compatibility.
@@ -97,7 +97,7 @@
                     </div>
                     <div class="tab-pane fade" id="linux-tab-pane" role="tabpanel" aria-labelledby="linux-tab"
                         tabindex="0">
-                        <h5 class="{{$otherClass}}">Linux</h5>
+                        <h2 class="{{$otherClass}}">Linux</h2>
                         <p>
                             Software created for Linux or Unix platforms. Obsolete software targeting the desktop will likely fail on modern distributions, but terminal apps may still work.
                         </p>
@@ -107,7 +107,7 @@
                     </div>
                     <div class="tab-pane fade" id="script-tab-pane" role="tabpanel" aria-labelledby="script-tab"
                         tabindex="0">
-                        <h5 class="{{$otherClass}}">Scripts</h5>
+                        <h2 class="{{$otherClass}}">Scripts</h2>
                         <p>
                             Shell scripts and software created in interpreted programming languages such as PHP, Perl, TCL, Python and Ruby.
                         </p>
@@ -117,7 +117,7 @@
                     </div>
                     <div class="tab-pane fade" id="java-tab-pane" role="tabpanel" aria-labelledby="java-tab"
                         tabindex="0">
-                        <h5 class="{{$otherClass}}">Java</h5>
+                        <h2 class="{{$otherClass}}">Java</h2>
                         <p>
                             Software written in Java is a popular language for cross-platform applications, though unrelated to JavaScript.
                         </p>

@@ -564,3 +564,45 @@ func TestAPIInfoTemplate(t *testing.T) {
 	be.True(t, !strings.Contains(out, `Unique Universally Unique Identifier`))
 	be.True(t, strings.Contains(out, `navigator.clipboard`))
 }
+
+func TestCategoriesTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("categories.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(
+			filepath.Join("..", "..", "view", "app", "categories.tmpl"),
+			filepath.Join("..", "..", "view", "app", "categoriesmore.tmpl"),
+		)
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"stats": true,
+		"counter": map[string]any{
+			"Record": map[string]any{
+				"MinYear": 1981,
+				"MaxYear": 2024,
+				"Count":   42,
+				"Bytes":   2048,
+			},
+		},
+		"orderByYear":  []map[string]any{{"Name": "MS-DOS", "MinYear": 1984, "MaxYear": 1999}},
+		"orderByName":  []map[string]any{{"Name": "ANSI", "Count": 10, "Bytes": 1024}},
+		"orderByCount": []map[string]any{{"Name": "ANSI", "Count": 10, "Bytes": 1024}},
+		"orderByBytes": []map[string]any{{"Name": "ANSI", "Bytes": 1024}},
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `<div class="container-xxl">`))
+	be.True(t, !strings.Contains(out, `text-left`))
+	be.True(t, strings.Contains(out, `42 files`))
+	be.True(t, strings.Contains(out, `<span class="fw-light">Total</span>`))
+	be.True(t, strings.Contains(out, `aria-controls="windows-tab-pane" aria-selected="false"`))
+	be.True(t, !strings.Contains(out, `on the describing`))
+	be.True(t, !strings.Contains(out, `within warez scene`))
+	be.True(t, !strings.Contains(out, `often used the "elite"`))
+	be.True(t, !strings.Contains(out, `is video game system`))
+}

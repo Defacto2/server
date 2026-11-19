@@ -1140,6 +1140,7 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, stats bool) error 
 	if err != nil {
 		sl.Warn("context_categories", slog.Any("error", err))
 		data["databaseErr"] = true
+		data["stats"] = false
 	}
 
 	err = c.Render(http.StatusOK, categories, data)
@@ -1178,8 +1179,10 @@ func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[strin
 	data["orderByCount"] = c.SortCount()
 	data["orderByName"] = c.SortName()
 	data["orderByYear"] = c.SortYear()
+	data["h1"] = title
 	data["logo"] = title
 	data["lead"] = descr
+	data["title"] = title
 
 	return data, nil
 }
