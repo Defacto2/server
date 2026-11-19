@@ -337,6 +337,17 @@ func TestCategories(t *testing.T) {
 	be.Err(t, x)
 }
 
+func TestRoutes(t *testing.T) {
+	t.Parallel()
+
+	sl := logs.Discard()
+	c := testutil.NewContext(t, "")
+
+	be.Err(t, app.Routes(nil, c, nil))
+	be.Err(t, app.Routes(sl, nil, nil))
+	be.Err(t, app.Routes(sl, c, echo.Routes{{Method: "GET", Path: "/"}}))
+}
+
 func TestGetDemozooParam(t *testing.T) {
 	t.Parallel()
 

@@ -37,7 +37,18 @@ func TestHandler(t *testing.T) {
 		View:        root.FS(),
 	}
 
-	_ = h.Handler(t.Context(), sl, db)
+	e := h.Handler(t.Context(), sl, db)
+	var hasRoutes, hasErrs bool
+	for _, rt := range e.Router().Routes() {
+		switch rt.Path {
+		case "/editor/routes":
+			hasRoutes = true
+		case "/errs/ae":
+			hasErrs = true
+		}
+	}
+	be.True(t, hasRoutes)
+	be.True(t, hasErrs)
 }
 
 func TestStart(t *testing.T) {

@@ -262,6 +262,38 @@ func TestDependenciesTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, "102 kB"))
 }
 
+func TestRoutesTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("routes.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("../", "../", "view", "app", "routes.tmpl"))
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"routesCount": 3,
+		"routeMethods": []map[string]any{
+			{"Method": "GET", "Badge": "bg-success-subtle text-success-emphasis", "Count": 2},
+			{"Method": "DELETE", "Badge": "bg-danger-subtle text-danger-emphasis", "Count": 1},
+		},
+		"routesList": []map[string]any{
+			{"Method": "GET", "Path": "/editor/routes", "Badge": "bg-success-subtle text-success-emphasis", "Linkable": true},
+			{"Method": "GET", "Path": "/f/:id", "Badge": "bg-success-subtle text-success-emphasis", "Linkable": false},
+			{"Method": "DELETE", "Path": "/editor/delete/forever/:key", "Badge": "bg-danger-subtle text-danger-emphasis", "Linkable": false},
+		},
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, "3 routes"))
+	be.True(t, strings.Contains(out, `<a href="/editor/routes"`))
+	be.True(t, strings.Contains(out, `<code class="small text-break">/f/:id</code>`))
+	be.True(t, strings.Contains(out, `<code class="small text-break">/editor/delete/forever/:key</code>`))
+	be.True(t, !strings.Contains(out, "https://defacto2.net"))
+}
+
 func TestAreacodesTemplate(t *testing.T) {
 	t.Parallel()
 

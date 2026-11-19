@@ -72,7 +72,7 @@ func (serv *Server) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dir
 
 	fixers(sl, lock, db)
 
-	routes(sl, lock, e.Router().Routes())
+	routes(sl, lock, e)
 
 	// routes to test the output of the app/error.go handlers.
 	const uri = "placeholder-error"
@@ -129,9 +129,9 @@ func (serv *Server) lock(sl *slog.Logger, e *echo.Echo, db *sql.DB, dirs app.Dir
 	return e, nil
 }
 
-func routes(sl *slog.Logger, g *echo.Group, r echo.Routes) {
+func routes(sl *slog.Logger, g *echo.Group, e *echo.Echo) {
 	g.GET("/routes", func(c *echo.Context) error {
-		return app.Routes(sl, c, r)
+		return app.Routes(sl, c, e.Router().Routes())
 	})
 }
 

@@ -2,32 +2,50 @@
     routes.tmpl ~ Listing of routes page template.
 */ -}}
 {{- define "content" }}
-{{- $routing := index . "routes" }}
-    <p>Web browser routes and parameters registered by the web application.</p>
-    {{ if .routesCount }}
-    <div class="card mb-4">
-        <div class="card-header">
-            <strong>{{ .routesCount }}</strong> routes registered.<br>
-            This value doesn't mean all are working Uniform Resource Identifiers or Locators.
-        </div>
-        <div class="card-body">
-            <div class="list-group">
-                {{ range .routesList }}
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <code>{{ .Method }} {{ .Path }}</code>
-                            <small class="text-muted d-block">
-                                https://defacto2.net{{ .Path }}
-                            </small>
-                        </div>
-                    </div>
-                </div>
-                {{ end }}
-            </div>
-        </div>
+  {{ if .routesCount }}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <span class="px-2 py-1 rounded bg-dark-subtle text-dark-emphasis border border-dark-subtle fw-semibold">{{ .routesCount }} routes</span>
+      {{ range .routeMethods }}
+      <span class="px-2 py-1 rounded small fw-semibold {{ .Badge }}">{{ .Method }} {{ .Count }}</span>
+      {{ end }}
     </div>
-    {{ else }}
-    <div class="alert alert-info">No routes found.</div>
+    <div style="min-width: 16rem;">
+      <label class="visually-hidden" for="routes-filter">Filter routes</label>
+      <input type="search" id="routes-filter" class="form-control form-control-sm" placeholder="Filter by method or path…">
+    </div>
+  </div>
+  <p class="small text-body-secondary mb-3">
+    Static <code>GET</code> paths link directly; routes with <code>:param</code> or <code>*</code> segments require runtime parameters.
+  </p>
+  <div class="row row-cols-1 row-cols-lg-2 g-2" id="routes-list">
+    {{ range .routesList }}
+    <div class="col">
+      <div class="border rounded px-2 py-1 d-flex align-items-center gap-2 h-100">
+        <span class="px-2 py-0 rounded small fw-semibold text-center flex-shrink-0 {{ .Badge }}" style="min-width: 4.5rem;">{{ .Method }}</span>
+        {{- if .Linkable }}
+        <a href="{{ .Path }}" class="font-monospace small text-decoration-none text-break">{{ .Path }}</a>
+        {{- else }}
+        <code class="small text-break">{{ .Path }}</code>
+        {{- end }}
+      </div>
+    </div>
     {{ end }}
+  </div>
+  <script>
+    (() => {
+      const input = document.getElementById('routes-filter');
+      const items = document.querySelectorAll('#routes-list > .col');
+      if (!input || !items.length) return;
+      input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
+        for (const item of items) {
+          item.classList.toggle('d-none', q !== '' && !item.textContent.toLowerCase().includes(q));
+        }
+      });
+    })();
+  </script>
+  {{ else }}
+  <div class="alert alert-info">No routes found.</div>
+  {{ end }}
 {{- end}}

@@ -1271,22 +1271,109 @@ func Fixes(sl *slog.Logger, c *echo.Context) error {
 	return nil
 }
 
+type routeEntry struct {
+	Method   string
+	Path     string
+	Badge    string
+	Linkable bool
+}
+
+type routeMethodCount struct {
+	Method string
+	Badge  string
+	Count  int
+}
+
+func routeBadge(method string) string {
+	switch method {
+	case http.MethodGet:
+		return "bg-success-subtle text-success-emphasis border border-success-subtle"
+	case http.MethodPost:
+		return "bg-primary-subtle text-primary-emphasis border border-primary-subtle"
+	case http.MethodPatch:
+		return "bg-warning-subtle text-warning-emphasis border border-warning-subtle"
+	case http.MethodPut:
+		return "bg-info-subtle text-info-emphasis border border-info-subtle"
+	case http.MethodDelete:
+		return "bg-danger-subtle text-danger-emphasis border border-danger-subtle"
+	default:
+		return "bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle"
+	}
+}
+
+func buildRoutes(r echo.Routes) ([]routeEntry, []routeMethodCount) {
+	entries := make([]routeEntry, 0, len(r))
+	counts := make(map[string]int)
+	for _, rt := range r {
+		entries = append(entries, routeEntry{
+			Method:   rt.Method,
+			Path:     rt.Path,
+			Badge:    routeBadge(rt.Method),
+			Linkable: rt.Method == http.MethodGet && !strings.ContainsAny(rt.Path, ":*"),
+		})
+		counts[rt.Method]++
+	}
+	slices.SortFunc(entries, func(a, b routeEntry) int {
+		if cmp := strings.Compare(a.Path, b.Path); cmp != 0 {
+			return cmp
+		}
+		return strings.Compare(a.Method, b.Method)
+	})
+
+	preferred := []string{
+		http.MethodGet,
+		http.MethodPost,
+		http.MethodPatch,
+		http.MethodPut,
+		http.MethodDelete,
+	}
+	methodCounts := make([]routeMethodCount, 0, len(counts))
+	for _, m := range preferred {
+		if cnt, ok := counts[m]; ok {
+			methodCounts = append(methodCounts, routeMethodCount{
+				Method: m,
+				Badge:  routeBadge(m),
+				Count:  cnt,
+			})
+			delete(counts, m)
+		}
+	}
+	var extra []string
+	for m := range counts {
+		extra = append(extra, m)
+	}
+	slices.Sort(extra)
+	for _, m := range extra {
+		methodCounts = append(methodCounts, routeMethodCount{
+			Method: m,
+			Badge:  routeBadge(m),
+			Count:  counts[m],
+		})
+	}
+	return entries, methodCounts
+}
+
 // Routes is the handler for the listing of all the routes page.
 func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
 	const format = "routes context: %w"
-	if err := nils.Check(sl, c, r); err != nil {
+	if err := nils.Check(sl, c); err != nil {
 		return fmt.Errorf(format, err)
 	}
 
 	const title = "List of routes"
-	const descr = "Lists the web browser routes and parameters registered by the web application."
+	const descr = "Web browser routes and parameters registered by the web application."
+
+	entries, methodCounts := buildRoutes(r)
 
 	data := empty(c)
 	data["title"] = title
 	data["description"] = descr
 	data["logo"] = "Routes"
-	data["routesList"] = r
-	data["routesCount"] = len(r)
+	data["h1"] = title
+	data["lead"] = descr
+	data["routesList"] = entries
+	data["routesCount"] = len(entries)
+	data["routeMethods"] = methodCounts
 
 	err := c.Render(http.StatusOK, routes, data)
 	if err != nil {
