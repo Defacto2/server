@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
 	"slices"
 	"strings"
 
@@ -289,65 +290,61 @@ func releasers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) 
 	const msg = "database repair : releasers"
 	sl.Info(msg,
 		slog.String("task", "Clean up the named releasers in group_brand_by and group_brand_for"))
-	f, err := models.Files(
-		qm.Where("group_brand_for = group_brand_by"),
-		qm.WithDeleted(),
-	).All(ctx, exec)
+	res, err := queries.Raw(
+		"UPDATE files SET group_brand_by = '' WHERE group_brand_for = group_brand_by AND group_brand_by <> '';",
+	).ExecContext(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("update group_brand_for = group_brand_by: %w", err)
 	}
-	if len(f) > 0 {
-		empty := null.NewString("", true)
-		rowsAff, err := f.UpdateAll(ctx, exec, models.M{groupBrandBy: empty})
-		if err != nil {
-			return fmt.Errorf("update all to null group_brand_by: %w", err)
-		}
-		if rowsAff > 0 {
-			sl.Info(msg,
-				slog.String("task", "Update the group_brand_by values to be null"),
-				slog.Int64("updated", rowsAff))
-		}
+	if rowsAff, err := res.RowsAffected(); err == nil && rowsAff > 0 {
+		sl.Info(msg,
+			slog.String("task", "Update the group_brand_by values to be null"),
+			slog.Int64("updated", rowsAff))
 	}
-	for bad, fix := range replacements {
-		f, err = models.Files(
-			qm.Where("group_brand_for = ?", bad),
-			qm.WithDeleted(),
-		).All(ctx, exec)
-		if err != nil {
-			return fmt.Errorf("where group_brand_for is bad: %w", err)
-		}
-		if len(f) > 0 {
-			rowsAff, err := f.UpdateAll(ctx, exec, models.M{"group_brand_for": fix})
-			if err != nil {
-				return fmt.Errorf("update all group_brand_for fix: %w", err)
-			}
-			if rowsAff > 0 {
-				sl.Info(msg,
-					slog.String("task", "Fix the group_brand_for column"),
-					slog.Int64("updated", rowsAff))
-			}
-		}
-		f, err = models.Files(
-			qm.Where("group_brand_by = ?", bad),
-			qm.WithDeleted(),
-		).All(ctx, exec)
-		if err != nil {
-			return fmt.Errorf("where group_brand_by is bad: %w", err)
-		}
-		if len(f) > 0 {
-			rowsAff, err := f.UpdateAll(ctx, exec, models.M{groupBrandBy: fix})
-			if err != nil {
-				return fmt.Errorf("update all to null group_brand_by fix: %w", err)
-			}
-			if rowsAff > 0 {
-				sl.Info(msg,
-					slog.String("task", "Fix the group_brand_by column"),
-					slog.Int64("updated", rowsAff))
-			}
-		}
+	if err := replaceColumn(ctx, sl, exec, "group_brand_for", "Fix the group_brand_for column"); err != nil {
+		return fmt.Errorf("update all group_brand_for fix: %w", err)
+	}
+	if err := replaceColumn(ctx, sl, exec, groupBrandBy, "Fix the group_brand_by column"); err != nil {
+		return fmt.Errorf("update all group_brand_by fix: %w", err)
 	}
 	if err := moreReleases(ctx, exec); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
+	}
+	return nil
+}
+
+// replaceColumn rewrites any legacy bad releaser names in column in a single UPDATE query.
+func replaceColumn(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, column, task string) error {
+	if len(replacements) == 0 {
+		return nil
+	}
+
+	keys := slices.Sorted(maps.Keys(replacements))
+	args := make([]any, 0, len(keys)*2)
+	var whens, ins strings.Builder
+	for i, bad := range keys {
+		pBad := len(args) + 1
+		pFix := pBad + 1
+		args = append(args, bad, string(replacements[bad]))
+		fmt.Fprintf(&whens, "WHEN $%d THEN $%d ", pBad, pFix)
+		if i > 0 {
+			ins.WriteString(", ")
+		}
+		fmt.Fprintf(&ins, "$%d", pBad)
+	}
+
+	query := fmt.Sprintf(
+		"UPDATE files SET %s = CASE %s %sELSE %s END WHERE %s IN (%s);",
+		column, column, whens.String(), column, column, ins.String(),
+	)
+	res, err := queries.Raw(query, args...).ExecContext(ctx, exec)
+	if err != nil {
+		return err
+	}
+	if rowsAff, err := res.RowsAffected(); err == nil && rowsAff > 0 {
+		sl.Info("database repair : releasers",
+			slog.String("task", task),
+			slog.Int64("updated", rowsAff))
 	}
 	return nil
 }
@@ -376,47 +373,18 @@ func moreReleases(_ context.Context, exec boil.ContextExecutor) error {
 //
 //	"Awesome Cool BBS (1) for Awesome Cool BBS"
 func demozooTitles(exec boil.ContextExecutor) error {
-	// cleanup the XXX (?) titles
-	// UPDATE files
-	// SET record_title = NULL
-	// WHERE record_title ILIKE group_brand_for || ' (%)';
 	_, err := queries.Raw(`UPDATE files SET record_title = NULL ` +
-		`WHERE record_title ILIKE group_brand_for || ' (%)';`).Exec(exec)
+		`WHERE record_title IS NOT NULL AND (` +
+		`(group_brand_for IS NOT NULL AND (` +
+		`record_title ILIKE group_brand_for || ' (%)' OR ` +
+		`record_title ILIKE group_brand_for OR ` +
+		`record_title ILIKE 'the ' || group_brand_for || ' (%)')) OR ` +
+		`(group_brand_by IS NOT NULL AND (` +
+		`record_title ILIKE group_brand_by || ' (%)' OR ` +
+		`record_title ILIKE group_brand_by OR ` +
+		`record_title ILIKE 'the ' || group_brand_by || ' (%)')));`).Exec(exec)
 	if err != nil {
-		return fmt.Errorf("set title redundant group for: %w", err)
-	}
-	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
-		`WHERE record_title ILIKE group_brand_by || ' (%)';`).Exec(exec)
-	if err != nil {
-		return fmt.Errorf("set title redundant group by: %w", err)
-	}
-	// cleanup the XXX == titles
-	// UPDATE files
-	// SET record_title = NULL
-	// WHERE record_title ILIKE group_brand_for;
-	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
-		`WHERE record_title ILIKE group_brand_for;`).Exec(exec)
-	if err != nil {
-		return fmt.Errorf("set title redundant title = group for: %w", err)
-	}
-	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
-		`WHERE record_title ILIKE group_brand_by;`).Exec(exec)
-	if err != nil {
-		return fmt.Errorf("set title redundant title = group by: %w", err)
-	}
-	// cleanup the The XXX (?) titles
-	// UPDATE files
-	// SET record_title = NULL
-	// WHERE record_title ILIKE 'the ' || group_brand_for || ' (%)';
-	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
-		`WHERE record_title ILIKE 'the ' || group_brand_for || ' (%)';`).Exec(exec)
-	if err != nil {
-		return fmt.Errorf("set title redundant the group for: %w", err)
-	}
-	_, err = queries.Raw(`UPDATE files SET record_title = NULL ` +
-		`WHERE record_title ILIKE 'the ' || group_brand_by || ' (%)';`).Exec(exec)
-	if err != nil {
-		return fmt.Errorf("set title redundant the group by: %w", err)
+		return fmt.Errorf("clear redundant demozoo titles: %w", err)
 	}
 	return nil
 }
@@ -436,7 +404,9 @@ func Magics(exec boil.ContextExecutor) error {
 // contentWhiteSpace will remove any duplicate newline white space from file_zip_content.
 func contentWhiteSpace(exec boil.ContextExecutor) error {
 	_, err := queries.Raw("UPDATE files SET file_zip_content = " +
-		"RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r');").Exec(exec)
+		"RTRIM(regexp_replace(file_zip_content, '\n+', '\n', 'g'), '\r') " +
+		"WHERE file_zip_content IS NOT NULL AND " +
+		"(strpos(file_zip_content, '\n\n') > 0 OR right(file_zip_content, 1) = '\r');").Exec(exec)
 	if err != nil {
 		return fmt.Errorf("queries raw %w", err)
 	}
@@ -482,9 +452,27 @@ func invalidUUIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecuto
 	return nil
 }
 
-func nullifyEmpty(exec boil.ContextExecutor) error {
-	var query strings.Builder
+// nullifyCols sets any column in columns matching emptyLiteral to NULL in a single UPDATE.
+func nullifyCols(exec boil.ContextExecutor, columns []string, emptyLiteral string) error {
+	var sets, conds strings.Builder
+	for i, column := range columns {
+		if i > 0 {
+			sets.WriteString(", ")
+			conds.WriteString(" OR ")
+		}
+		fmt.Fprintf(&sets, "%s = NULLIF(%s, %s)", column, column, emptyLiteral)
+		fmt.Fprintf(&conds, "%s = %s", column, emptyLiteral)
+	}
 
+	query := fmt.Sprintf("UPDATE files SET %s WHERE %s;", sets.String(), conds.String())
+	if _, err := queries.Raw(query).Exec(exec); err != nil {
+		return fmt.Errorf("query execute: %w", err)
+	}
+
+	return nil
+}
+
+func nullifyEmpty(exec boil.ContextExecutor) error {
 	columns := []string{
 		"list_relations", "web_id_github", "web_id_youtube",
 		"group_brand_for", groupBrandBy, "record_title",
@@ -492,34 +480,16 @@ func nullifyEmpty(exec boil.ContextExecutor) error {
 		"dosee_hardware_cpu", "dosee_hardware_graphic", "dosee_hardware_audio",
 	}
 
-	for column := range slices.Values(columns) {
-		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = ''; ", updateSet, column, column)
-	}
-
-	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
-		return fmt.Errorf("query execute: %w", err)
-	}
-
-	return nil
+	return nullifyCols(exec, columns, "''")
 }
 
 func nullifyZero(exec boil.ContextExecutor) error {
-	var query strings.Builder
-
 	columns := []string{
 		"web_id_pouet", "web_id_demozoo",
 		"date_issued_year", "date_issued_month", "date_issued_day",
 	}
 
-	for column := range slices.Values(columns) {
-		fmt.Fprintf(&query, "%s%s = NULL WHERE %s = 0; ", updateSet, column, column)
-	}
-
-	if _, err := queries.Raw(query.String()).Exec(exec); err != nil {
-		return fmt.Errorf("query execute: %w", err)
-	}
-
-	return nil
+	return nullifyCols(exec, columns, "0")
 }
 
 func trimFwdSlash(exec boil.ContextExecutor) error {

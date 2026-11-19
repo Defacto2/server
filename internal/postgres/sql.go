@@ -407,8 +407,10 @@ func SumPlatform() SQL {
 
 // SetUpper is an SQL statement to update a column with uppercase values.
 func SetUpper(column string) string {
-	return "UPDATE files " +
-		fmt.Sprintf("SET %s = UPPER(%s);", column, column)
+	return fmt.Sprintf(
+		"UPDATE files SET %s = UPPER(%s) WHERE %s IS NOT NULL AND %s::text <> UPPER(%s::text);",
+		column, column, column, column, column,
+	)
 }
 
 // SetFilesize0 is an SQL statement to update filesize column NULLs with 0 values.

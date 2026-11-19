@@ -31,14 +31,13 @@ func TestRepairRunInvalid(t *testing.T) {
 func TestRepairArtifactsRun(t *testing.T) {
 	t.Parallel()
 
-	db := testutil.DB(t)
 	tx := testutil.Tx(t)
 	sl := logs.Discard()
 
 	got := fix.Artifacts.Run(t.Context(), sl, nil, tx)
 	be.Err(t, got, nil)
 
-	got = fix.Releaser.Run(t.Context(), sl, db, tx)
+	got = fix.Releaser.Run(t.Context(), sl, nil, tx)
 	be.Err(t, got, nil)
 }
 
