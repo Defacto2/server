@@ -392,6 +392,22 @@ func TestReleaserTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `position-relative p-3 border`))
 	be.True(t, strings.Contains(out, `<h2 class="h5 mb-0">`))
 	be.True(t, !strings.Contains(out, `badge rounded-pill text-bg-warning`))
+
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"h1":       "BBS",
+		"itemName": "bbs",
+		"editor":   false,
+		"stats":    map[string]string{"pubs": "1 board", "orderBy": "by file artifact count"},
+		"releasers": model.Releasers{
+			{Unique: model.Releaser{URI: "cbbs", Name: "CBBS", Count: 1, Bytes: 512}},
+		},
+	})
+	be.Err(t, err, nil)
+	bbsOut := buf.String()
+	be.True(t, strings.Contains(bbsOut, `Historic BBS platforms (1984&ndash;1994)`))
+	be.True(t, strings.Contains(bbsOut, `href="/g/nochange-bbs"`))
+	be.True(t, strings.Contains(bbsOut, `href="/g/evolution-software-bbs"`))
 }
 
 func TestReleaserYearTemplate(t *testing.T) {

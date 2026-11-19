@@ -9,47 +9,92 @@
 {{- $path := "g" }}
 {{- $pubs := index .stats.pubs }}
 <div class="container-xxl">
-{{- if eq $name "bbs" }}
-    <p class="text-body-secondary">
-      A few historic BBS platforms
-      <small>
-      • 1984
-      <a href="/g/nochange-bbs">NoChange</a>
-      • 1985
-      <a href="/g/colossus-bbs">Colossus</a>
-      • 1986
-      <a href="/g/emulex-bbs">Emulex</a>
-      <a href="/g/forum_pc-bbs">Forum-PC</a>
-      <a href="/g/genesis-pc-bbs">Genesis&nbsp;PC</a>
-      • 1988
-      <a href="/g/monarch-bbs">Monarch</a>
-      <a href="/g/tcs-bbs">TCS</a>
-      <a href="/g/telegard-bbs">Telegard</a>
-      <a href="/g/wwiv-bbs">WWIV</a>
-      • 1990
-      <a href="/g/acs-bbs">ACS</a>
-      <a href="/g/aftershock-bbs">AfterShock</a>
-      <a href="/g/celerity-bbs">Celerity</a>
-      <a href="/g/pha-elite-bbs">ELITE</a>
-      <a href="/g/lush-software-designs-bbs">L.S.D.</a>
-      • 1991
-      <a href="/g/extreme-bbs">Extreme</a>
-      <a href="/g/forum-3-bbs">Forum&nbsp;III</a>
-      <a href="/g/images-bbs">IMaGEs</a> 
-      <a href="/g/orion-software-bbs">ORiON</a> 
-      <a href="/g/vision_x-bbs">ViSiON</a>
-      • 1992
-      <a href="/g/liquid-bbs">LiQUiD</a>
-      <a href="/g/oblivion-2-bbs">Oblivion/2</a>
-      • 1993
-      <a href="/g/dominous-productions">Dominous</a>
-      <a href="/g/otera-bbs">OTERA</a>
-      • 1994
-      <a href="/g/evolution-software-bbs">EVOLUTiON</a>
-      </small>
-    </p>
-{{- end }}
     <p class="lead mb-3"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+{{- if eq $name "bbs" }}
+    <details class="bg-body-tertiary border rounded px-3 py-2 mb-3 small">
+      <summary class="text-body-secondary fw-medium">Historic BBS platforms (1984&ndash;1994)</summary>
+      <ul class="list-unstyled mb-0 mt-2 pt-2 border-top d-flex flex-column gap-1">
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1984</span>
+          <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/nochange-bbs">NoChange</a>
+        </li>
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1985</span>
+          <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/colossus-bbs">Colossus</a>
+        </li>
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1986</span>
+          <span class="d-flex flex-wrap align-items-baseline column-gap-2 row-gap-1">
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/emulex-bbs">Emulex</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/forum_pc-bbs">Forum-PC</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/genesis-pc-bbs">Genesis&nbsp;PC</a>
+          </span>
+        </li>
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1988</span>
+          <span class="d-flex flex-wrap align-items-baseline column-gap-2 row-gap-1">
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/monarch-bbs">Monarch</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/tcs-bbs">TCS</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/telegard-bbs">Telegard</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/wwiv-bbs">WWIV</a>
+          </span>
+        </li>
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1990</span>
+          <span class="d-flex flex-wrap align-items-baseline column-gap-2 row-gap-1">
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/acs-bbs">ACS</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/aftershock-bbs">AfterShock</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/celerity-bbs">Celerity</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/pha-elite-bbs">ELITE</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/lush-software-designs-bbs">L.S.D.</a>
+          </span>
+        </li>
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1991</span>
+          <span class="d-flex flex-wrap align-items-baseline column-gap-2 row-gap-1">
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/extreme-bbs">Extreme</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/forum-3-bbs">Forum&nbsp;III</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/images-bbs">IMaGEs</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/orion-software-bbs">ORiON</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/vision_x-bbs">ViSiON</a>
+          </span>
+        </li>
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1992</span>
+          <span class="d-flex flex-wrap align-items-baseline column-gap-2 row-gap-1">
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/liquid-bbs">LiQUiD</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/oblivion-2-bbs">Oblivion/2</a>
+          </span>
+        </li>
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1993</span>
+          <span class="d-flex flex-wrap align-items-baseline column-gap-2 row-gap-1">
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/dominous-productions">Dominous</a>
+            <span class="text-body-tertiary" aria-hidden="true">&middot;</span>
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/otera-bbs">OTERA</a>
+          </span>
+        </li>
+        <li class="d-flex flex-wrap align-items-baseline gap-2">
+          <span class="font-monospace text-body-secondary" style="min-width: 2.75rem;">1994</span>
+          <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/g/evolution-software-bbs">EVOLUTiON</a>
+        </li>
+      </ul>
+    </details>
+{{- end }}
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
 {{- range $rel := .releasers -}}
 {{- $initialism := initialisms $rel.Unique.URI }}
