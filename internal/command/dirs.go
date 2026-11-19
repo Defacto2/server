@@ -5,6 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"image"
+	imgpng "image/png"
 	"io"
 	"log/slog"
 	"os"
@@ -245,7 +247,7 @@ func (ds Dirs) ANSImation(ctx context.Context, sl *slog.Logger, src, unid string
 		return fmt.Errorf(format, "zero size: "+src, ErrIsEmpty)
 	}
 
-	tmp, err := animateToTemp(sl, src)
+	tmp, frame, err := animateToTemp(sl, src)
 	if err != nil {
 		return err
 	}
@@ -265,19 +267,52 @@ func (ds Dirs) ANSImation(ctx context.Context, sl *slog.Logger, src, unid string
 		return fmt.Errorf(format, "copy preview", err)
 	}
 
-	if err := ds.thumbPixels(ctx, sl, tmp, unid); err != nil {
+	thumbSrc := tmp
+	if frame != nil {
+		framePNG, err := writeFramePNG(sl, frame)
+		if err != nil {
+			return fmt.Errorf(format, "encode frame", err)
+		}
+		defer func() {
+			if err := os.Remove(framePNG); err != nil && !os.IsNotExist(err) {
+				sl.Error(msg+" could not remove temporary frame", slog.String("file", framePNG), slog.Any("error", err))
+			}
+		}()
+		thumbSrc = framePNG
+	}
+
+	if err := ds.thumbPixels(ctx, sl, thumbSrc, unid); err != nil {
 		return fmt.Errorf(format, "thumbnail", err)
 	}
 
 	return nil
 }
 
-func animateToTemp(sl *slog.Logger, src string) (string, error) {
+func writeFramePNG(sl *slog.Logger, frame image.Image) (string, error) {
+	tmpFile, err := dir.CreateTemp("ansimate-frame-*.png")
+	if err != nil {
+		return "", fmt.Errorf("create temp frame: %w", err)
+	}
+	tmp := tmpFile.Name()
+	if err := imgpng.Encode(tmpFile, frame); err != nil {
+		_ = tmpFile.Close()
+		_ = os.Remove(tmp)
+		return "", fmt.Errorf("encode png: %w", err)
+	}
+	if err := tmpFile.Close(); err != nil {
+		_ = os.Remove(tmp)
+		return "", fmt.Errorf("close temp frame: %w", err)
+	}
+	sl.Debug("ansi animation frame written", slog.String("file", tmp))
+	return tmp, nil
+}
+
+func animateToTemp(sl *slog.Logger, src string) (string, image.Image, error) {
 	const msg = "ansi animation"
 	const format = msg + " %s: %w"
 	f, err := os.Open(src)
 	if err != nil {
-		return "", fmt.Errorf(format, "open source", err)
+		return "", nil, fmt.Errorf(format, "open source", err)
 	}
 	defer func() {
 		if err := f.Close(); err != nil {
@@ -287,7 +322,7 @@ func animateToTemp(sl *slog.Logger, src string) (string, error) {
 
 	tmpFile, err := dir.CreateTemp("ansimated-*.webp")
 	if err != nil {
-		return "", fmt.Errorf(format, "create temp", err)
+		return "", nil, fmt.Errorf(format, "create temp", err)
 	}
 	tmp := tmpFile.Name()
 
@@ -295,17 +330,18 @@ func animateToTemp(sl *slog.Logger, src string) (string, error) {
 	cfg := &ansimate.Config{
 		EndDelay: endDelay * time.Second,
 	}
-	if err := ansimate.Animate(tmpFile, f, cfg); err != nil {
+	frame, err := ansimate.AnimateFrame(tmpFile, f, cfg)
+	if err != nil {
 		_ = tmpFile.Close()
 		_ = os.Remove(tmp)
-		return "", fmt.Errorf(format, "animate", err)
+		return "", nil, fmt.Errorf(format, "animate", err)
 	}
 	if err := tmpFile.Close(); err != nil {
 		_ = os.Remove(tmp)
-		return "", fmt.Errorf(format, "close temp", err)
+		return "", nil, fmt.Errorf(format, "close temp", err)
 	}
 
-	return tmp, nil
+	return tmp, frame, nil
 }
 
 func isANSImation(src string) (bool, error) {
