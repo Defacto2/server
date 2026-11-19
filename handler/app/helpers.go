@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/Defacto2/archive/pkzip"
 	"github.com/Defacto2/helper"
@@ -400,4 +402,66 @@ func castUnsigned[T Integer](val T) (int, bool) {
 		return 0, false
 	}
 	return int(val), true
+}
+
+// ScenerGroup holds a single alphabetical bucket of sceners for directory rendering.
+type ScenerGroup struct {
+	ID    string
+	Label string
+	Names []string
+}
+
+// ScenerIndexItem represents an entry in the alphabetical quick-jump index.
+type ScenerIndexItem struct {
+	ID     string
+	Label  string
+	Active bool
+}
+
+// BuildScenerIndex groups sorted scener names into "#" and "A"-"Z" sections and returns
+// the non-empty groups alongside the full 27-entry quick-jump index.
+func BuildScenerIndex(names []string) ([]ScenerGroup, []ScenerIndexItem) {
+	buckets := make(map[string][]string, 27)
+	for _, name := range names {
+		key := scenerBucketKey(name)
+		buckets[key] = append(buckets[key], name)
+	}
+
+	const letters = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	groups := make([]ScenerGroup, 0, len(letters))
+	index := make([]ScenerIndexItem, 0, len(letters))
+	for _, r := range letters {
+		label := string(r)
+		id := label
+		if label == "#" {
+			id = "num"
+		}
+		items := buckets[label]
+		index = append(index, ScenerIndexItem{
+			ID:     id,
+			Label:  label,
+			Active: len(items) > 0,
+		})
+		if len(items) > 0 {
+			groups = append(groups, ScenerGroup{
+				ID:    id,
+				Label: label,
+				Names: items,
+			})
+		}
+	}
+	return groups, index
+}
+
+func scenerBucketKey(name string) string {
+	trimmed := strings.TrimSpace(name)
+	if trimmed == "" {
+		return "#"
+	}
+	r, _ := utf8.DecodeRuneInString(trimmed)
+	u := unicode.ToUpper(r)
+	if u >= 'A' && u <= 'Z' {
+		return string(u)
+	}
+	return "#"
 }

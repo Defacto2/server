@@ -300,6 +300,24 @@ func TestLinkScnr(t *testing.T) {
 	be.Equal(t, got, "/p/some-scener")
 }
 
+func TestBuildScenerIndex(t *testing.T) {
+	t.Parallel()
+
+	groups, letters := app.BuildScenerIndex([]string{"007", "-x-", "ACE", "Beta", "zeta"})
+	be.Equal(t, len(letters), 27)
+	be.Equal(t, letters[0], app.ScenerIndexItem{ID: "num", Label: "#", Active: true})
+	be.Equal(t, letters[1], app.ScenerIndexItem{ID: "A", Label: "A", Active: true})
+	be.Equal(t, letters[3], app.ScenerIndexItem{ID: "C", Label: "C", Active: false})
+
+	wantGroups := []app.ScenerGroup{
+		{ID: "num", Label: "#", Names: []string{"007", "-x-"}},
+		{ID: "A", Label: "A", Names: []string{"ACE"}},
+		{ID: "B", Label: "B", Names: []string{"Beta"}},
+		{ID: "Z", Label: "Z", Names: []string{"zeta"}},
+	}
+	be.Equal(t, groups, wantGroups)
+}
+
 func TestLinkScnrs(t *testing.T) {
 	t.Parallel()
 

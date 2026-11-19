@@ -3,12 +3,133 @@
 */ -}}
 {{- define "content" }}
 {{- $ppl := len .sceners }}
-<div class="container px-4 text-center">
-    <p class="text-start lead"><small>There are {{$ppl}} sceners.</small></p>
-    <div class="row row-cols-1 row-cols-sm-4 row-cols-md-6 g-2 text-start">
-    {{- range $rel := .sceners -}}
-    <div class="col"><a href="{{ linkScnr $rel }}">{{ fmtName $rel }}</a></div>
-    {{- end}}
+{{- $role := index . "scenerRole" }}
+{{- $groups := index . "scenerGroups" }}
+{{- $letters := index . "scenerLetters" }}
+<div class="bg-body-tertiary border rounded p-3 mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2{{if $letters}} mb-3{{end}}">
+    <nav class="nav nav-pills gap-1" aria-label="Scener role filters">
+      <a class="nav-link py-1 px-2 small{{if eq $role "all"}} active{{end}}" href="/scener"{{if eq $role "all"}} aria-current="page"{{end}}>All</a>
+      <a class="nav-link py-1 px-2 small{{if eq $role "artist"}} active{{end}}" href="/artist" rel="nofollow"{{if eq $role "artist"}} aria-current="page"{{end}}>Artists</a>
+      <a class="nav-link py-1 px-2 small{{if eq $role "coder"}} active{{end}}" href="/coder" rel="nofollow"{{if eq $role "coder"}} aria-current="page"{{end}}>Coders</a>
+      <a class="nav-link py-1 px-2 small{{if eq $role "musician"}} active{{end}}" href="/musician" rel="nofollow"{{if eq $role "musician"}} aria-current="page"{{end}}>Musicians</a>
+      <a class="nav-link py-1 px-2 small{{if eq $role "writer"}} active{{end}}" href="/writer" rel="nofollow"{{if eq $role "writer"}} aria-current="page"{{end}}>Writers</a>
+    </nav>
+    <div class="d-flex flex-wrap align-items-center gap-2 ms-xl-auto">
+      <span class="small text-body-secondary text-nowrap" id="scener-count">{{$ppl}} {{if eq $ppl 1}}scener{{else}}sceners{{end}}</span>
+      <div class="input-group input-group-sm" style="width: 17rem; max-width: 100%;">
+        <input type="search" id="scener-filter" class="form-control" placeholder="Filter by name..." aria-label="Filter sceners by name" autocomplete="off">
+        <button type="button" id="scener-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
+      </div>
     </div>
+  </div>
+  {{- if $letters }}
+  <div class="d-flex flex-wrap align-items-center gap-1 pt-2 border-top" aria-label="Alphabetical index">
+    {{- range $letters }}
+      {{- if .Active }}
+      <a class="btn btn-sm btn-outline-secondary py-0 px-2 scener-jump" data-group-id="scener-sec-{{.ID}}" href="#scener-sec-{{.ID}}">{{.Label}}</a>
+      {{- else }}
+      <span class="btn btn-sm border-0 text-body-tertiary py-0 px-2 disabled" aria-disabled="true">{{.Label}}</span>
+      {{- end }}
+    {{- end }}
+  </div>
+  {{- end }}
 </div>
+
+<div id="scener-empty" class="alert alert-light border text-center my-4 d-none" role="status">
+  No sceners matched <strong id="scener-empty-query"></strong>.
+  <button type="button" id="scener-empty-clear" class="btn btn-link btn-sm p-0 ms-1 align-baseline">Clear filter</button>
+</div>
+
+{{- range $groups }}
+<section class="mb-4 scener-group" id="scener-sec-{{.ID}}" style="scroll-margin-top: 4.5rem;">
+  <h2 class="h5 fw-semibold border-bottom pb-1 mb-2 d-flex align-items-baseline justify-content-between">
+    <span>{{.Label}}</span>
+    <span class="small fw-normal text-body-secondary scener-group-count">{{len .Names}}</span>
+  </h2>
+  <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2">
+  {{- range .Names }}
+    {{- $label := fmtName . }}
+    <div class="col scener-item" data-scener="{{toLower $label}}">
+      <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover d-block text-truncate" title="{{$label}}" href="{{linkScnr .}}">{{$label}}</a>
+    </div>
+  {{- end }}
+  </div>
+</section>
+{{- end }}
+
+<script>
+(() => {
+  const input = document.getElementById('scener-filter');
+  const clearBtn = document.getElementById('scener-filter-clear');
+  const emptyClearBtn = document.getElementById('scener-empty-clear');
+  const countEl = document.getElementById('scener-count');
+  const emptyEl = document.getElementById('scener-empty');
+  const emptyQueryEl = document.getElementById('scener-empty-query');
+  const groups = Array.from(document.querySelectorAll('.scener-group'));
+  const jumps = new Map(
+    Array.from(document.querySelectorAll('.scener-jump')).map((el) => [el.dataset.groupId, el])
+  );
+  if (!input) return;
+
+  const total = {{$ppl}};
+
+  function applyFilter() {
+    const raw = input.value.trim();
+    const query = raw.toLowerCase();
+    let visible = 0;
+
+    for (const group of groups) {
+      const items = group.querySelectorAll('.scener-item');
+      let groupVisible = 0;
+      for (const item of items) {
+        const match = query === '' || (item.dataset.scener || '').includes(query);
+        item.classList.toggle('d-none', !match);
+        if (match) groupVisible += 1;
+      }
+      visible += groupVisible;
+      const groupCountEl = group.querySelector('.scener-group-count');
+      if (groupCountEl) groupCountEl.textContent = String(groupVisible);
+      group.classList.toggle('d-none', groupVisible === 0);
+
+      const jump = jumps.get(group.id);
+      if (jump) {
+        jump.classList.toggle('disabled', groupVisible === 0);
+        if (groupVisible === 0) {
+          jump.setAttribute('aria-disabled', 'true');
+        } else {
+          jump.removeAttribute('aria-disabled');
+        }
+      }
+    }
+
+    if (clearBtn) clearBtn.disabled = input.value === '';
+    if (countEl) {
+      countEl.textContent = query === ''
+        ? `${total} ${total === 1 ? 'scener' : 'sceners'}`
+        : `Showing ${visible} of ${total}`;
+    }
+    if (emptyEl) {
+      emptyEl.classList.toggle('d-none', query === '' || visible > 0);
+      if (emptyQueryEl) emptyQueryEl.textContent = raw;
+    }
+  }
+
+  function resetFilter() {
+    input.value = '';
+    applyFilter();
+    input.focus();
+  }
+
+  input.addEventListener('input', applyFilter);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value !== '') {
+      e.preventDefault();
+      resetFilter();
+    }
+  });
+  clearBtn?.addEventListener('click', resetFilter);
+  emptyClearBtn?.addEventListener('click', resetFilter);
+})();
+</script>
 {{- end }}

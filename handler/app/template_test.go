@@ -1,7 +1,9 @@
 package app_test
 
 import (
+	"bytes"
 	"database/sql"
+	"html/template"
 	"maps"
 	"os"
 	"path/filepath"
@@ -106,4 +108,32 @@ func TestTempls(t *testing.T) {
 		be.Err(t, err, nil)
 		be.True(t, stat.Size() > 0)
 	}
+}
+
+func TestScenerTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("scener.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("../", "../", "view", "app", "scener.tmpl"))
+	be.Err(t, err, nil)
+
+	names := []string{"007", "ACE"}
+	groups, letters := app.BuildScenerIndex(names)
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"sceners":       names,
+		"scenerRole":    "coder",
+		"scenerGroups":  groups,
+		"scenerLetters": letters,
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `href="/coder" rel="nofollow" aria-current="page"`))
+	be.True(t, strings.Contains(out, `id="scener-sec-num"`))
+	be.True(t, strings.Contains(out, `id="scener-sec-A"`))
+	be.True(t, strings.Contains(out, `id="scener-filter-clear" class="btn btn-outline-secondary"`))
+	be.True(t, strings.Contains(out, `2 sceners`))
 }

@@ -418,7 +418,7 @@ func Artist(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		return fmt.Errorf(format, err)
 	}
 
-	const title = "Pixel artists and graphic designers"
+	const title = "Artist and design"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
@@ -440,18 +440,24 @@ func scenerPage(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	const descr = "This is a massive but incomplete list of aliases and pseudonyms used " +
 		"in the Scene and offers links to individual profiles."
 
+	role := ""
 	s := model.Sceners{}
 	var err error
 	switch r {
 	case postgres.Writer:
+		role = "writer"
 		err = s.Writer(ctx, db)
 	case postgres.Artist:
+		role = "artist"
 		err = s.Artist(ctx, db)
 	case postgres.Musician:
+		role = "musician"
 		err = s.Musician(ctx, db)
 	case postgres.Coder:
+		role = "coder"
 		err = s.Coder(ctx, db)
 	case postgres.Roles():
+		role = "all"
 		err = s.Distinct(ctx, db)
 	default:
 		// Handle unknown roles gracefully
@@ -461,14 +467,18 @@ func scenerPage(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 		return DatabaseErr(sl, c, scener, err)
 	}
 
-	data["sceners"] = s.Sort()
+	sorted := s.Sort()
+	groups, letters := BuildScenerIndex(sorted)
+	data["sceners"] = sorted
+	data["scenerRole"] = role
+	data["scenerGroups"] = groups
+	data["scenerLetters"] = letters
 	data["description"] = descr
-	data["lead"] = "This page shows the sceners and people credited for their work in The Scene." +
-		`<br><small class="fw-lighter">` +
-		"The list will never be complete or accurate due to the amount of data and the lack of a" +
-		" common format for crediting people. " +
-		" Sceners often used different names or spellings on their work, including character" +
-		" swaps, aliases, initials, and even single-letter signatures." +
+	data["lead"] = `<small class="fw-lighter">` +
+		"Here are Sceners and people credited in the artifacts we hold. " +
+		"However, these lists will never be accurate due to the sheer numbers, " +
+		"and the lack of a consistency by Sceners. " +
+		"Who often used different names and spellings in their work." +
 		"</small>"
 
 	err = c.Render(http.StatusOK, scener, data)
@@ -616,7 +626,7 @@ func Coder(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		return fmt.Errorf(format, err)
 	}
 
-	const title = "Coders and programmers"
+	const title = "Programmer, code, and hacking"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
@@ -1679,7 +1689,7 @@ func Musician(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		return fmt.Errorf(format, err)
 	}
 
-	const title = "Musicians and composers"
+	const title = "Composer, music, or audio presenter"
 
 	data := empty(c)
 	data["title"] = title
@@ -2889,7 +2899,7 @@ func Writer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		return fmt.Errorf("writer context: %w", err)
 	}
 
-	const title = "Writers, editors, and authors"
+	const title = "Writer or magazine, author, interviewee, or mention"
 	data := empty(c)
 	data["title"] = title
 	data["logo"] = title
