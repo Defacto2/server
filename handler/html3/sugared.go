@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Defacto2/helper"
@@ -94,35 +95,31 @@ func Groups(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	}
 
 	// releasers are the distinct groups from the file table.
-	var unique model.ReleaserNames
+	allReleasers := model.Releasers{}
 	ctx := c.Request().Context()
-	if err := unique.DistinctGroups(ctx, db); err != nil {
+	if err := model.Alphabetical.Limit(ctx, db, &allReleasers, 0, 0); err != nil {
 		s := ErrSQL.Error()
-		sl.Error(msg+" distinct "+s, slog.Any("error", err))
+		sl.Error(msg+" alphabetical "+s, slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusNotFound, s)
 	}
 
-	count := len(unique)
+	count := len(allReleasers)
 	maxPage := 0
 	limit := model.Maximum
+	releasers := allReleasers
 	if limit > 0 {
 		maxPage = helper.PageCount(count, limit)
 		if page > maxPage {
 			return echo.NewHTTPError(http.StatusNotFound, "Page "+strconv.Itoa(page)+
 				" of "+strconv.Itoa(maxPage)+" for groups does not exist")
 		}
+		startIdx := min((page-1)*limit, count)
+		endIdx := min(startIdx+limit, count)
+		releasers = allReleasers[startIdx:endIdx]
 	}
 
 	navi := Navi(limit, page, maxPage, "groups", qs(c.QueryString()))
 	navi.Link1, navi.Link2, navi.Link3 = Pagi(page, maxPage)
-
-	// releasers are the distinct groups from the file table.
-	releasers := model.Releasers{}
-	if err := model.Alphabetical.Limit(ctx, db, &releasers, model.Maximum, page); err != nil {
-		s := ErrSQL.Error()
-		sl.Error(msg+" alphabetical "+s, slog.Any("error", err))
-		return echo.NewHTTPError(http.StatusNotFound, s)
-	}
 
 	err := c.Render(http.StatusOK, "html3_groups", map[string]any{
 		titl: indexOf + "/groups",
@@ -163,21 +160,26 @@ func Index(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	}
 
 	ctx := c.Request().Context()
-	if err := stats.All.Public(ctx, db); err != nil {
-		sl.Warn(msg, slog.String("statistics", "results for all"), slog.Any("error", err))
+	statQueries := []struct {
+		label string
+		run   func() error
+	}{
+		{"results for all", func() error { return stats.All.Public(ctx, db) }},
+		{"results for art", func() error { return stats.Art.Stat(ctx, db) }},
+		{"results for documents", func() error { return stats.Document.Stat(ctx, db) }},
+		{"results for software", func() error { return stats.Software.Stat(ctx, db) }},
 	}
-
-	if err := stats.Art.Stat(ctx, db); err != nil {
-		sl.Warn(msg, slog.String("statistics", "results for art"), slog.Any("error", err))
+	var wait sync.WaitGroup
+	wait.Add(len(statQueries))
+	for _, sq := range statQueries {
+		go func() {
+			defer wait.Done()
+			if err := sq.run(); err != nil {
+				sl.Warn(msg, slog.String("statistics", sq.label), slog.Any("error", err))
+			}
+		}()
 	}
-
-	if err := stats.Document.Stat(ctx, db); err != nil {
-		sl.Warn(msg, slog.String("statistics", "results for documents"), slog.Any("error", err))
-	}
-
-	if err := stats.Software.Stat(ctx, db); err != nil {
-		sl.Warn(msg, slog.String("statistics", "results for software"), slog.Any("error", err))
-	}
+	wait.Wait()
 
 	descs := [4]string{
 		helper.Capitalize(textArt),

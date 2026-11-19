@@ -71,16 +71,22 @@ func (o Order) ByCategory(
 
 	mods := models.FileWhere.Section.EQ(null.StringFrom(name))
 	if limit == all {
-		return models.Files(mods,
+		return models.Files(
+			SelectExpr(),
+			mods,
 			qm.Where(clause),
-			qm.OrderBy(o.String())).All(ctx, exec)
+			qm.OrderBy(o.String()),
+		).All(ctx, exec)
 	}
 
-	return models.Files(mods,
+	return models.Files(
+		SelectExpr(),
+		mods,
 		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // ByGroup returns all the files that match an exact named group with optional pagination.
@@ -104,23 +110,28 @@ func (o Order) ByGroup(
 	mods := models.FileWhere.GroupBrandFor.EQ(null.StringFrom(group))
 
 	if limit == all {
-		return models.Files(mods,
+		return models.Files(
+			SelectExpr(),
+			mods,
 			qm.Where(clause),
-			qm.OrderBy(o.String())).All(ctx, exec)
+			qm.OrderBy(o.String()),
+		).All(ctx, exec)
 	}
 
-	return models.Files(mods,
+	return models.Files(
+		SelectExpr(),
+		mods,
 		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // ByPlatform returns all the files that match the named platform.
 func (o Order) ByPlatform(
-	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string) (
-	models.FileSlice, error,
-) {
+	ctx context.Context, exec boil.ContextExecutor, offset, limit int, name string,
+) (models.FileSlice, error) {
 	const format = "html3 all by platform: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf(format, err)
@@ -132,16 +143,22 @@ func (o Order) ByPlatform(
 	mods := models.FileWhere.Platform.EQ(null.StringFrom(name))
 
 	if limit == all {
-		return models.Files(mods,
+		return models.Files(
+			SelectExpr(),
+			mods,
 			qm.Where(clause),
-			qm.OrderBy(o.String())).All(ctx, exec)
+			qm.OrderBy(o.String()),
+		).All(ctx, exec)
 	}
 
-	return models.Files(mods,
+	return models.Files(
+		SelectExpr(),
+		mods,
 		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
-		qm.Limit(limit)).All(ctx, exec)
+		qm.Limit(limit),
+	).All(ctx, exec)
 }
 
 // Document returns all the files that are considered to be documents.
@@ -153,6 +170,7 @@ func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, 
 
 	if limit == all {
 		return models.Files(
+			SelectExpr(),
 			DocumentExpr(),
 			qm.Where(clause),
 			qm.OrderBy(o.String()),
@@ -160,6 +178,7 @@ func (o Order) Document(ctx context.Context, exec boil.ContextExecutor, offset, 
 	}
 
 	return models.Files(
+		SelectExpr(),
 		DocumentExpr(),
 		qm.Where(clause),
 		qm.OrderBy(o.String()),
@@ -176,6 +195,7 @@ func (o Order) Everything(ctx context.Context, exec boil.ContextExecutor, offset
 	}
 
 	return models.Files(
+		SelectExpr(),
 		qm.Where(clause),
 		qm.OrderBy(o.String()),
 		qm.Offset(calc(offset, limit)),
@@ -192,6 +212,7 @@ func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, 
 
 	if limit == all {
 		return models.Files(
+			SelectExpr(),
 			SoftwareExpr(),
 			qm.Where(clause),
 			qm.OrderBy(o.String()),
@@ -199,6 +220,7 @@ func (o Order) Software(ctx context.Context, exec boil.ContextExecutor, offset, 
 	}
 
 	return models.Files(
+		SelectExpr(),
 		SoftwareExpr(),
 		qm.Where(clause),
 		qm.OrderBy(o.String()),

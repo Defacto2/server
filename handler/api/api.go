@@ -1273,36 +1273,53 @@ func TagsAPI(c *echo.Context, db *sql.DB, category, platform bool) error {
 		return c.JSON(http.StatusOK, []tagAPI{})
 	}
 
+	ctx := c.Request().Context()
+	var sectionStats, platformStats map[string]model.TagStat
+	if category {
+		var err error
+		sectionStats, err = model.SectionStats(ctx, db)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				er: "Failed to query category statistics",
+			})
+		}
+	}
+	if platform {
+		var err error
+		platformStats, err = model.PlatformStats(ctx, db)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				er: "Failed to query platform statistics",
+			})
+		}
+	}
+
 	results := make([]tagAPI, 0, len(tags.List))
 	for _, tag := range tags.List {
 		slug := tag.String()
-		title := tags.NameByURI(slug)
-		switch {
-		case category && !tags.IsCategory(slug):
+		isCat := tags.IsCategory(slug)
+		isPlat := tags.IsPlatform(slug)
+		if (!category || !isCat) && (!platform || !isPlat) {
 			continue
-		case platform && !tags.IsPlatform(slug):
-			continue
-		default:
-			// return all tags
 		}
-		var byteSum int64
-		var count int64
-		ctx := c.Request().Context()
-		if category {
-			count, _ = model.CountSection(ctx, db, tag)
-			byteSum, _ = model.SumSection(ctx, db, tag)
+
+		var count, byteSum int64
+		if category && isCat {
+			st := sectionStats[slug]
+			count += st.Count
+			byteSum += st.Bytes
 		}
-		if platform {
-			c, _ := model.CountPlatform(ctx, db, tag)
-			count = c + count
-			b, _ := model.SumPlatform(ctx, db, tag)
-			byteSum = b + byteSum
+		if platform && isPlat {
+			st := platformStats[slug]
+			count += st.Count
+			byteSum += st.Bytes
 		}
+
 		result := tagAPI{
 			ID:          int(tag),
 			Name:        slug,
 			Description: infos[tag],
-			Title:       title,
+			Title:       tags.NameByURI(slug),
 			Stats: totalsAPI{
 				TotalFiles:     count,
 				TotalSize:      helper.ByteCount(byteSum),

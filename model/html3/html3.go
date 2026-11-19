@@ -54,13 +54,12 @@ func ArtExpr() qm.QueryMod {
 
 // DocumentExpr returns a query modifier for the document category.
 func DocumentExpr() qm.QueryMod { //nolint:ireturn
-	return qm.Expr(
-		qm.Where(clause),
-		models.FileWhere.Platform.EQ(querymod.PAnsi()),
-		qm.Or2(models.FileWhere.Platform.EQ(querymod.PText())),
-		qm.Or2(models.FileWhere.Platform.EQ(querymod.PTextAmiga())),
-		qm.Or2(models.FileWhere.Platform.EQ(querymod.PPdf())),
-	)
+	return models.FileWhere.Platform.IN([]string{
+		querymod.PAnsi().String,
+		querymod.PText().String,
+		querymod.PTextAmiga().String,
+		querymod.PPdf().String,
+	})
 }
 
 // SelectExpr selects only the columns required by the HTML3 template.
@@ -82,14 +81,13 @@ func SelectExpr() qm.QueryMod { //nolint:ireturn
 
 // SoftwareExpr returns a query modifier for the software category.
 func SoftwareExpr() qm.QueryMod { //nolint:ireturn
-	return qm.Expr(
-		qm.Where(clause),
-		models.FileWhere.Platform.EQ(querymod.PJava()),
-		qm.Or2(models.FileWhere.Platform.EQ(querymod.PLinux())),
-		qm.Or2(models.FileWhere.Platform.EQ(querymod.PDos())),
-		qm.Or2(models.FileWhere.Platform.EQ(querymod.PScript())),
-		qm.Or2(models.FileWhere.Platform.EQ(querymod.PWindows())),
-	)
+	return models.FileWhere.Platform.IN([]string{
+		querymod.PJava().String,
+		querymod.PLinux().String,
+		querymod.PDos().String,
+		querymod.PScript().String,
+		querymod.PWindows().String,
+	})
 }
 
 // Created returns the Createdat time to use a dd-mmm-yyyy format.

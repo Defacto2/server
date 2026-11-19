@@ -131,22 +131,28 @@ func TestQuery(t *testing.T) {
 		{Name: "limit", Value: "2"},
 	}
 	c = testutil.NewPath(t, "/html3", pathValues)
-	queries := []func(context.Context, *echo.Context, *sql.DB, int) (int, int, int64, models.FileSlice, error){
-		html3.Everything.Query,
-		html3.AsArt.Query,
-		html3.AsDocument.Query,
-		html3.AsSoftware.Query,
+	queries := []struct {
+		name string
+		fn   func(context.Context, *echo.Context, *sql.DB, int) (int, int, int64, models.FileSlice, error)
+	}{
+		{"everything", html3.Everything.Query},
+		{"as art", html3.AsArt.Query},
+		{"as document", html3.AsDocument.Query},
+		{"as software", html3.AsSoftware.Query},
 		// html3.BySection.Query,
 		// html3.ByPlatform.Query,
-		html3.ByGroup.Query,
+		{"by group", html3.ByGroup.Query},
 	}
-	for _, fn := range queries {
-		x, y, z, fs, err = fn(ctx, c, db, -1)
-		be.True(t, x == 0 || x == model.Maximum)
-		be.True(t, y > 0)
-		be.True(t, z > 0)
-		be.True(t, len(fs) > 0)
-		be.Err(t, err, nil)
+	for _, q := range queries {
+		t.Run(q.name, func(t *testing.T) {
+			t.Parallel()
+			x, y, z, fs, err := q.fn(ctx, c, db, -1)
+			be.True(t, x == 0 || x == model.Maximum)
+			be.True(t, y > 0)
+			be.True(t, z > 0)
+			be.True(t, len(fs) > 0)
+			be.Err(t, err, nil)
+		})
 	}
 }
 

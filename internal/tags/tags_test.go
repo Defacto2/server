@@ -33,6 +33,10 @@ func TestBuild(t *testing.T) {
 	be.Err(t, got, nil)
 	be.True(t, len(obj.List) > 1)
 
+	nfo, err := obj.ByName(tags.Names()[tags.Nfo])
+	be.Err(t, err, nil)
+	be.True(t, nfo.Count > 0)
+
 	for _, tag := range tags.List {
 		listed, err := obj.ByName(tag.String())
 		be.Err(t, err, nil)

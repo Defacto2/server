@@ -40,6 +40,20 @@ func TestCount(t *testing.T) {
 	be.True(t, total > 2)
 	be.True(t, count != total) // technically this could return a false positive
 
+	_, err = model.SectionStats(t.Context(), nil)
+	be.Err(t, err)
+	secStats, err := model.SectionStats(t.Context(), db)
+	be.Err(t, err, nil)
+	be.Equal(t, secStats[tags.Nfo.String()].Count, count)
+
+	_, err = model.PlatformStats(t.Context(), nil)
+	be.Err(t, err)
+	platStats, err := model.PlatformStats(t.Context(), db)
+	be.Err(t, err, nil)
+	textCount, err := model.CountPlatform(t.Context(), db, tags.Text)
+	be.Err(t, err, nil)
+	be.Equal(t, platStats[tags.Text.String()].Count, textCount)
+
 	count, err = model.CountTags(t.Context(), db, -1, -1)
 	be.Err(t, err)
 	be.Equal(t, count, 0)

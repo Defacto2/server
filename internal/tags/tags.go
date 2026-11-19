@@ -13,9 +13,7 @@ import (
 	"sync"
 
 	"github.com/Defacto2/server/internal/nils"
-	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
 var (
@@ -784,6 +782,11 @@ func (t *T) ByName(name string) (TagData, error) {
 	}, nil
 }
 
+const (
+	sectionCountSQL  = "SELECT LOWER(BTRIM(section)), COUNT(*) FROM files WHERE deletedat IS NULL AND section IS NOT NULL GROUP BY LOWER(BTRIM(section))"
+	platformCountSQL = "SELECT LOWER(BTRIM(platform)), COUNT(*) FROM files WHERE deletedat IS NULL AND platform IS NOT NULL GROUP BY LOWER(BTRIM(platform))"
+)
+
 // Build the tags and collect the statistical data sourced from the database.
 func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) (err error) { //nolint:nonamedreturns
 	const format = "tags builder %s: %w"
@@ -792,41 +795,62 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) (err error) { 
 	}
 
 	if InvalidExec(exec) {
-		err = errors.Join(err, fmt.Errorf(format, "", ErrNoDB))
+		return fmt.Errorf(format, "", ErrNoDB)
 	}
-	t.List = make([]TagData, LastPlatform+1)
-	i := -1
-	for key, val := range URIs() {
-		i++
-		count64, cErr := counter(ctx, exec, key)
-		if err != nil {
-			err = errors.Join(err, fmt.Errorf(format, "counter", cErr))
+
+	sections, sErr := groupCounts(ctx, exec, sectionCountSQL)
+	if sErr != nil {
+		err = errors.Join(err, fmt.Errorf(format, "section counter", sErr))
+	}
+	platforms, pErr := groupCounts(ctx, exec, platformCountSQL)
+	if pErr != nil {
+		err = errors.Join(err, fmt.Errorf(format, "platform counter", pErr))
+	}
+
+	uris, names, infos := URIs(), Names(), Infos()
+	list := make([]TagData, 0, len(List))
+	for _, key := range List {
+		val := uris[key]
+		count := sections[val]
+		if key >= FirstPlatform {
+			count = platforms[val]
 		}
-		count := int(count64)
-		t.Mu.Lock()
-		t.List[i] = TagData{
+		list = append(list, TagData{
 			URI:   val,
-			Name:  Names()[key],
-			Info:  Infos()[key],
+			Name:  names[key],
+			Info:  infos[key],
 			Count: count,
-		}
-		t.Mu.Unlock()
+		})
 	}
+	t.Mu.Lock()
+	t.List = list
+	t.Mu.Unlock()
 	return err
 }
 
-// counter counts the number of files with the tag.
-func counter(ctx context.Context, exec boil.ContextExecutor, t Tag) (int64, error) {
-	const format = "tags counter %s: %w"
-	clause := "section = ?"
-	if t >= FirstPlatform {
-		clause = "platform = ?"
-	}
-	sum, err := models.Files(qm.Where(clause, URIs()[t])).Count(ctx, exec)
+// groupCounts returns the number of non-deleted files grouped by the column in query.
+func groupCounts(ctx context.Context, exec boil.ContextExecutor, query string) (map[string]int, error) {
+	rows, err := exec.QueryContext(ctx, query)
 	if err != nil {
-		return -1, fmt.Errorf(format, "could not count the tag", err)
+		return nil, fmt.Errorf("tags group counts: %w", err)
 	}
-	return sum, nil
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	counts := make(map[string]int)
+	for rows.Next() {
+		var key string
+		var count int
+		if err := rows.Scan(&key, &count); err != nil {
+			return nil, fmt.Errorf("tags group scan: %w", err)
+		}
+		counts[key] = count
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("tags group rows: %w", err)
+	}
+	return counts, nil
 }
 
 // IsCategory returns true if the named tag is a category.

@@ -167,6 +167,37 @@ func SumPlatform(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (
 	return n, nil
 }
 
+// TagStat holds the artifact count and total byte size for a single tag.
+type TagStat struct {
+	Count int64
+	Bytes int64
+}
+
+const (
+	sectionStatsSQL  = "SELECT LOWER(BTRIM(section)), COUNT(*), COALESCE(SUM(filesize), 0) FROM files WHERE deletedat IS NULL AND section IS NOT NULL GROUP BY LOWER(BTRIM(section))"
+	platformStatsSQL = "SELECT LOWER(BTRIM(platform)), COUNT(*), COALESCE(SUM(filesize), 0) FROM files WHERE deletedat IS NULL AND platform IS NOT NULL GROUP BY LOWER(BTRIM(platform))"
+)
+
+// PlatformStats returns the file count and total byte size grouped by platform tag.
+func PlatformStats(ctx context.Context, exec boil.ContextExecutor) (map[string]TagStat, error) {
+	const format = "platform stats: %w"
+	stats, err := plat.stats(ctx, exec)
+	if err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	return stats, nil
+}
+
+// SectionStats returns the file count and total byte size grouped by section tag.
+func SectionStats(ctx context.Context, exec boil.ContextExecutor) (map[string]TagStat, error) {
+	const format = "section stats: %w"
+	stats, err := sect.stats(ctx, exec)
+	if err != nil {
+		return nil, fmt.Errorf(format, err)
+	}
+	return stats, nil
+}
+
 // SumSection sums the file byte sizes of the files that match the section tag.
 func SumSection(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error) {
 	const format = "section: %w"
@@ -184,6 +215,41 @@ const (
 	plat category = iota
 	sect
 )
+
+func (cat category) stats(ctx context.Context, exec boil.ContextExecutor) (map[string]TagStat, error) {
+	const format = "tag stats %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf(format, "check", err)
+	}
+
+	query := sectionStatsSQL
+	if cat == plat {
+		query = platformStatsSQL
+	}
+
+	rows, err := exec.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf(format, "query", err)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	stats := make(map[string]TagStat)
+	for rows.Next() {
+		var key string
+		var stat TagStat
+		if err := rows.Scan(&key, &stat.Count, &stat.Bytes); err != nil {
+			return nil, fmt.Errorf(format, "scan", err)
+		}
+		stats[key] = stat
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf(format, "rows", err)
+	}
+
+	return stats, nil
+}
 
 func (cat category) count(ctx context.Context, exec boil.ContextExecutor, tag tags.Tag) (int64, error) {
 	const format = "count tag category %s: %w"

@@ -589,17 +589,18 @@ func Templates(ctx context.Context, sl *slog.Logger, db *sql.DB, fsys fs.FS) (ma
 		return nil, fmt.Errorf("html3 templates: %w", err)
 	}
 
-	t["html3_index"] = index(ctx, db, sl, fsys)
-	t["html3_all"] = list(ctx, db, sl, fsys)
-	t["html3_art"] = list(ctx, db, sl, fsys)
-	t["html3_documents"] = list(ctx, db, sl, fsys)
-	t["html3_software"] = list(ctx, db, sl, fsys)
-	t["html3_groups"] = listGroups(ctx, db, sl, fsys)
-	t["html3_group"] = list(ctx, db, sl, fsys)
-	t[string(tag)] = listTags(ctx, db, sl, fsys)
-	t["html3_platform"] = list(ctx, db, sl, fsys)
-	t["html3_category"] = list(ctx, db, sl, fsys)
-	t["html3_error"] = httpErr(ctx, db, sl, fsys)
+	funcMap := TemplateFuncMap(ctx, sl, db)
+	t["html3_index"] = index(sl, fsys, funcMap)
+	t["html3_all"] = list(fsys, funcMap)
+	t["html3_art"] = list(fsys, funcMap)
+	t["html3_documents"] = list(fsys, funcMap)
+	t["html3_software"] = list(fsys, funcMap)
+	t["html3_groups"] = listGroups(fsys, funcMap)
+	t["html3_group"] = list(fsys, funcMap)
+	t[string(tag)] = listTags(fsys, funcMap)
+	t["html3_platform"] = list(fsys, funcMap)
+	t["html3_category"] = list(fsys, funcMap)
+	t["html3_error"] = httpErr(fsys, funcMap)
 
 	return t, nil
 }

@@ -11,6 +11,24 @@ import (
 	"github.com/nalgeon/be"
 )
 
+// decodeObjectOrArray reads resp.Body once and unmarshals it as either a JSON object or array.
+func decodeObjectOrArray(t *testing.T, body io.Reader) (map[string]any, []map[string]any, bool) {
+	t.Helper()
+
+	raw, err := io.ReadAll(body)
+	be.Equal(t, err, nil)
+
+	var obj map[string]any
+	if err := json.Unmarshal(raw, &obj); err == nil {
+		return obj, nil, false
+	}
+
+	var arr []map[string]any
+	err = json.Unmarshal(raw, &arr)
+	be.Equal(t, err, nil)
+	return nil, arr, true
+}
+
 // TestAllAPIEndpoints tests all API endpoints from apiinfo.tmpl.
 func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 	t.Parallel()
@@ -78,23 +96,8 @@ func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
 			be.Equal(t, http.StatusOK, resp.StatusCode)
 
 			// Try to parse as object first, fall back to array if that fails
-			var result map[string]any
-			err = json.NewDecoder(resp.Body).Decode(&result)
-			if err != nil {
-				// Try parsing as array
-				var arrayResult []map[string]any
-				if err := resp.Body.Close(); err != nil {
-					t.Log(err)
-				}
-				resp2, err2 := clientDo(t, url)
-				be.Equal(t, err2, nil)
-				defer func() {
-					if err := resp2.Body.Close(); err != nil {
-						t.Log(err)
-					}
-				}()
-				err = json.NewDecoder(resp2.Body).Decode(&arrayResult)
-				be.Equal(t, err, nil)
+			result, arrayResult, isArray := decodeObjectOrArray(t, resp.Body)
+			if isArray {
 				be.True(t, len(arrayResult) > 0)
 
 				// Check for expected fields based on endpoint type for array responses
@@ -199,23 +202,8 @@ func TestAPIEndpointExamples(t *testing.T) {
 			be.Equal(t, http.StatusOK, resp.StatusCode)
 
 			// Try to parse as object first, fall back to array if that fails
-			var result map[string]any
-			err = json.NewDecoder(resp.Body).Decode(&result)
-			if err != nil {
-				// Try parsing as array
-				var arrayResult []map[string]any
-				if err := resp.Body.Close(); err != nil {
-					t.Log(err)
-				}
-				resp2, err2 := clientDo(t, example.url)
-				be.Equal(t, err2, nil)
-				defer func() {
-					if err := resp2.Body.Close(); err != nil {
-						t.Log(err)
-					}
-				}()
-				err = json.NewDecoder(resp2.Body).Decode(&arrayResult)
-				be.Equal(t, err, nil)
+			result, arrayResult, isArray := decodeObjectOrArray(t, resp.Body)
+			if isArray {
 				be.True(t, len(arrayResult) > 0)
 				// Verify content based on endpoint type for array responses
 				switch example.name {
