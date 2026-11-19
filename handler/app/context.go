@@ -26,7 +26,6 @@ import (
 	"sync"
 	"uuid"
 
-	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/handler/app/remote"
 	"github.com/Defacto2/server/handler/areacode"
@@ -992,6 +991,30 @@ func orphaneder(data map[string]any, conf config.Config) map[string]any {
 	return processAsset(data, conf.AbsOrphaned.String(), "orphaned", "Orphaned", orphanCache)
 }
 
+type depSection struct {
+	Title   string
+	Caption string
+	Tools   []command.ToolInfo
+	OK      int
+	Total   int
+}
+
+func newDepSection(title, caption string, tools []command.ToolInfo) depSection {
+	ok := 0
+	for _, tool := range tools {
+		if tool.Found && !tool.Warning {
+			ok++
+		}
+	}
+	return depSection{
+		Title:   title,
+		Caption: caption,
+		Tools:   tools,
+		OK:      ok,
+		Total:   len(tools),
+	}
+}
+
 // Dependencies is the handler for the dependencies page.
 func Dependencies(sl *slog.Logger, c *echo.Context) error {
 	const format = "dependencies context: %w"
@@ -1010,10 +1033,20 @@ func Dependencies(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = title
 
 	ctx := c.Request().Context()
-	ap := archive.ProgInfos(ctx)
-	data["arcProgs"] = ap
-	ip := command.ProgInfos(ctx)
-	data["imgProgs"] = ip
+	arcTools, imgTools := command.DependencyInfos(ctx)
+	arcSec := newDepSection(
+		"Archive & Compression Tools",
+		"File and directory archive, compression, and package tools.",
+		arcTools,
+	)
+	imgSec := newDepSection(
+		"Image & Text Tools",
+		"Image and text conversion tools.",
+		imgTools,
+	)
+	data["depSections"] = []depSection{arcSec, imgSec}
+	data["depOK"] = arcSec.OK + imgSec.OK
+	data["depTotal"] = arcSec.Total + imgSec.Total
 
 	err := c.Render(http.StatusOK, dep, data)
 	if err != nil {

@@ -13,10 +13,13 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"slices"
+	"strings"
+	"sync"
 	"time"
 
-	"github.com/Defacto2/archive"
+	archcmd "github.com/Defacto2/archive/command"
 	"github.com/Defacto2/server/internal/nils"
 )
 
@@ -65,6 +68,7 @@ const (
 	Unzip     = "unzip"     // Unzip is the zip decompression command.
 	Zip7      = "7zz"       // Zip7 is the 7-Zip decompression command.
 	Ansilove  = "ansilove"  // Ansilove is the ansilove text to image command.
+	Ansimate  = "ansimate"  // Ansimate is the ansimate ansimation to image command.
 	Cwebp     = "cwebp"     // Cwebp is the Google create webp command.
 	Gif2webp  = "gif2webp"  // Gif2webp is the Google gif to webp command.
 	Ilbmtoppm = "ilbmtoppm" // ilbmtoppm belongs to Netpdm for ILBM image conversion.
@@ -89,6 +93,7 @@ var Lookups = [...]string{
 	Zip7,
 	// image and photo manipulation
 	Ansilove,
+	Ansimate,
 	Cwebp,
 	Gif2webp,
 	Ilbmtoppm,
@@ -111,6 +116,7 @@ var Infos = [...]string{
 	"UnZip Info-ZIP ver 6+",
 	"7-Zip ver 24+",
 	"ansilove/c ver 4+",
+	"ansimate v1+",
 	"Google WebP ver 1+",
 	"Google GIF to WebP ver 1+",
 	"ILBM image Netpdm converter",
@@ -158,9 +164,14 @@ func LookupS(ctx context.Context, name, flag, match string) error {
 	return nil
 }
 
+const (
+	unrarAuthor   = "Alexander Roshal"
+	lookupTimeout = 3 * time.Second
+)
+
 // LookupUnrar returns an error if the name Alexander Roshal is not found in the unrar version output.
 func LookupUnrar(ctx context.Context) error {
-	return LookupS(ctx, Unrar, "", "Alexander Roshal")
+	return LookupS(ctx, Unrar, "", unrarAuthor)
 }
 
 type Runner struct {
@@ -257,10 +268,105 @@ func CopyFile(sl *slog.Logger, src, dst string) error {
 
 //
 
-func progOutput(name string, b []byte) string {
+// ToolInfo describes a host binary dependency and its runtime lookup status.
+type ToolInfo struct {
+	Prog     string      // Basename of the program.
+	Expected string      // Expected version or role description from Infos.
+	Abs      string      // Resolved path on disk when Found is true.
+	Found    bool        // True if the executable was found.
+	Warning  bool        // True if found but execution, stat, or version validation failed.
+	Regular  bool        // True if the resolved target (following symlinks) is a regular file.
+	Symlink  bool        // True if the path on disk is a symlink.
+	Perm     os.FileMode // File permissions (following symlinks via os.Stat).
+	Size     int64       // File size in bytes (following symlinks via os.Stat).
+	Output   string      // Parsed single-line version or usage output.
+	Err      string      // Error detail when missing or warning is set.
+}
+
+type toolSpec struct {
+	name string
+	arg  string
+}
+
+func archiveSpecs() []toolSpec {
+	return []toolSpec{
+		{name: HWZip, arg: "-h"},
+		{name: Zip7, arg: ""},
+		{name: Arc, arg: ""},
+		{name: Arj, arg: ""},
+		{name: BSDTar, arg: "--version"},
+		{name: Cab, arg: "--version"},
+		{name: Lha, arg: ""},
+		{name: Lsar, arg: "-version"},
+		{name: Unar, arg: "-version"},
+		{name: Unrar, arg: ""},
+		{name: Unzip, arg: "-h"},
+	}
+}
+
+func imageSpecs() []toolSpec {
+	const ver = "-version"
+	return []toolSpec{
+		{name: Ansilove, arg: "-v"},
+		{name: Ansimate, arg: "-v"},
+		{name: Cwebp, arg: ver},
+		{name: Gif2webp, arg: ver},
+		{name: Ilbmtoppm, arg: ver},
+		{name: Magick, arg: ver},
+		{name: Optipng, arg: "-v"},
+		{name: Pamscale, arg: ver},
+	}
+}
+
+func expectedInfo(name string) string {
+	if len(Lookups) != len(Infos) {
+		return "error: command lookups and infos data mismatch"
+	}
+	for i, cmd := range Lookups {
+		if cmd == name {
+			return Infos[i]
+		}
+	}
+	return ""
+}
+
+func firstNonEmptyLine(b []byte) string {
+	scanner := bufio.NewScanner(bytes.NewReader(b))
+	for scanner.Scan() {
+		line := bytes.TrimSpace(scanner.Bytes())
+		if len(line) > 0 {
+			return string(line)
+		}
+	}
+	return ""
+}
+
+func formatMagickOutput(b []byte) string {
+	line := firstNonEmptyLine(b)
+	if line == "" {
+		return ""
+	}
+	line = strings.TrimPrefix(line, "Version: ")
+	if idx := strings.Index(line, " http"); idx > 0 {
+		line = strings.TrimSpace(line[:idx])
+	}
+	return line
+}
+
+// FormatOutput parses raw command output into a concise version summary string.
+func FormatOutput(name string, b []byte) string {
 	firsts := []string{
+		HWZip,
+		Arc,
+		Arj,
+		BSDTar,
+		Lha,
+		Unrar,
+		Unzip,
+		Zip7,
 		Ansilove,
 		Cwebp,
+		Gif2webp,
 		Ilbmtoppm,
 		Optipng,
 		Pamscale,
@@ -268,85 +374,101 @@ func progOutput(name string, b []byte) string {
 
 	switch {
 	case slices.Contains(firsts, name):
-		scanner := bufio.NewScanner(bytes.NewReader(b))
-		firstLine := []byte{}
-		for scanner.Scan() {
-			b := bytes.TrimSpace(scanner.Bytes())
-			if len(b) > 0 {
-				firstLine = b
-				break
-			}
-		}
-		return string(firstLine)
+		return firstNonEmptyLine(b)
 	case name == Magick:
-		const verLine = 5
-		const splits = 4
-		scanner := bufio.NewScanner(bytes.NewReader(b))
-		output := []byte{}
-		line := 0
-		for scanner.Scan() {
-			b := bytes.TrimSpace(scanner.Bytes())
-			if len(b) == 0 {
-				continue
-			}
-			line++
-			if line == 1 {
-				x := bytes.Split(b, []byte(" "))
-				if len(x) < splits {
-					continue
-				}
-				s := [][]byte{x[1], x[2]}
-				output = bytes.Join(s, []byte(" "))
-				output = append(output, []byte(". ")...)
-				continue
-			}
-			if line == verLine {
-				output = append(output, b...)
-			}
-		}
-		return string(output)
+		return formatMagickOutput(b)
 	default:
-		return string(b)
+		return strings.TrimSpace(string(b))
 	}
 }
 
-// Cwebp     = "cwebp"     // Cwebp is the Google create webp command.
-// Gif2webp  = "gif2webp"  // Gif2webp is the Google gif to webp command.
-// Ilbmtoppm = "ilbmtoppm" // ilbmtoppm belongs to Netpdm for ILBM image conversion.
-// Magick    = "magick"    // Magick is the ImageMagick v7+ command.
-// Optipng   = "optipng"   // Optipng is the PNG optimizer command.
-// Pamscale  = "pamscale"  // Pamscale is used by Netpdm for ILBM image conversion.
+func lookupTool(ctx context.Context, spec toolSpec) ToolInfo {
+	expected := expectedInfo(spec.name)
+	prog := archcmd.Bottle(spec.name)
 
-const n = 7
-
-func ProgInfos(ctx context.Context) [n]archive.ProgInfo {
-	vers := [n]archive.ProgInfo{}
-	cmds := [...]string{
-		Ansilove,
-		Cwebp,
-		Gif2webp,
-		Magick,
-		Optipng,
-		Ilbmtoppm,
-		Pamscale,
-	}
-	const v = "-version"
-	flgs := [n]string{
-		"-v",
-		v,
-		v,
-		v,
-		"-v",
-		v,
-		v,
-	}
-	for i, name := range cmds {
-		var inf archive.ProgInfo
-		err := inf.Lookup(ctx, name, flgs[i], progOutput)
+	var abs string
+	if filepath.IsAbs(prog) {
+		abs = prog
+	} else {
+		foundPath, err := Lookup(prog)
 		if err != nil {
-			inf.Output += " " + err.Error()
+			return ToolInfo{
+				Prog:     spec.name,
+				Expected: expected,
+				Err:      err.Error(),
+			}
 		}
-		vers[i] = inf
+		abs = foundPath
 	}
-	return vers
+
+	linfo, lerr := os.Lstat(abs)
+	isSymlink := lerr == nil && linfo.Mode()&os.ModeSymlink != 0
+
+	info, err := os.Stat(abs)
+	if err != nil {
+		return ToolInfo{
+			Prog:     spec.name,
+			Expected: expected,
+			Abs:      abs,
+			Found:    true,
+			Warning:  true,
+			Symlink:  isSymlink,
+			Err:      err.Error(),
+		}
+	}
+
+	cmdCtx, cancel := context.WithTimeout(ctx, lookupTimeout)
+	defer cancel()
+
+	var args []string
+	if spec.arg != "" {
+		args = []string{spec.arg}
+	}
+	b, err := exec.CommandContext(cmdCtx, abs, args...).CombinedOutput()
+
+	var warning bool
+	var errMsg string
+	var exitErr *exec.ExitError
+	if err != nil && !errors.As(err, &exitErr) {
+		warning = true
+		errMsg = err.Error()
+	} else if spec.name == Unrar && !bytes.Contains(b, []byte(unrarAuthor)) {
+		warning = true
+		errMsg = "not " + unrarAuthor + " freeware (possible unrar-free)"
+	}
+
+	return ToolInfo{
+		Prog:     spec.name,
+		Expected: expected,
+		Abs:      abs,
+		Found:    true,
+		Warning:  warning,
+		Regular:  info.Mode().IsRegular(),
+		Symlink:  isSymlink,
+		Perm:     info.Mode().Perm(),
+		Size:     info.Size(),
+		Output:   FormatOutput(spec.name, b),
+		Err:      errMsg,
+	}
+}
+
+func lookupGroup(ctx context.Context, wg *sync.WaitGroup, specs []toolSpec) []ToolInfo {
+	infos := make([]ToolInfo, len(specs))
+	for i, spec := range specs {
+		wg.Add(1)
+		go func(idx int, s toolSpec) {
+			defer wg.Done()
+			infos[idx] = lookupTool(ctx, s)
+		}(i, spec)
+	}
+	return infos
+}
+
+// DependencyInfos concurrently looks up all archive and image/text host dependencies.
+func DependencyInfos(ctx context.Context) (arc, img []ToolInfo) {
+	var wg sync.WaitGroup
+	arc = lookupGroup(ctx, &wg, archiveSpecs())
+	img = lookupGroup(ctx, &wg, imageSpecs())
+	wg.Wait()
+	return arc, img
 }

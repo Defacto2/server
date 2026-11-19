@@ -14,6 +14,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/areacode"
+	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
@@ -193,6 +194,72 @@ func TestSearchHtmxTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `href="/search/releaser" rel="nofollow" aria-current="page"`))
 	be.True(t, strings.Contains(out, `id="search-htmx-clear" class="btn btn-outline-secondary" disabled`))
 	be.True(t, strings.Contains(out, `hx-post="/search/releaser"`))
+}
+
+func TestDependenciesTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("dependencies.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("../", "../", "view", "app", "dependencies.tmpl"))
+	be.Err(t, err, nil)
+
+	arcTools := []command.ToolInfo{
+		{
+			Prog:     command.HWZip,
+			Expected: "HWZip ver 2+",
+			Abs:      "/usr/local/sbin/hwzip",
+			Found:    true,
+			Regular:  true,
+			Perm:     0o755,
+			Size:     102400,
+			Output:   "HWZIP 2.4",
+		},
+		{
+			Prog:     command.Unrar,
+			Expected: "UNRAR freeware (c) Alexander Roshal",
+			Abs:      "/usr/bin/unrar",
+			Found:    true,
+			Warning:  true,
+			Regular:  true,
+			Symlink:  true,
+			Perm:     0o755,
+			Size:     204800,
+			Output:   "unrar-free 0.1.1",
+			Err:      "not Alexander Roshal freeware (possible unrar-free)",
+		},
+		{
+			Prog:     command.Cab,
+			Expected: "gcab ver 1.6+",
+			Found:    false,
+			Err:      `exec: "gcab": executable file not found in $PATH`,
+		},
+	}
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"depOK":    1,
+		"depTotal": 3,
+		"depSections": []map[string]any{
+			{
+				"Title":   "Archive & Compression Tools",
+				"Caption": "File and directory archive, compression, and package tools.",
+				"Tools":   arcTools,
+				"OK":      1,
+				"Total":   3,
+			},
+		},
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, "1 / 3 available"))
+	be.True(t, strings.Contains(out, `<span class="badge text-bg-success">OK</span>`))
+	be.True(t, strings.Contains(out, `<span class="badge text-bg-warning">Warning</span>`))
+	be.True(t, strings.Contains(out, `<span class="badge text-bg-danger">Missing</span>`))
+	be.True(t, strings.Contains(out, `<span class="badge text-bg-secondary">symlink</span>`))
+	be.True(t, strings.Contains(out, "102 kB"))
 }
 
 func TestAreacodesTemplate(t *testing.T) {

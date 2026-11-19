@@ -98,6 +98,7 @@ func TestFn3(t *testing.T) {
 		app.Areacodes,
 		app.BrokenTexts,
 		app.Compression,
+		app.Dependencies,
 		app.Fixes,
 		app.History,
 		app.Index,

@@ -1,63 +1,93 @@
-
 {{- /* 
     dependencies.tmpl ~ Dependencies page template.
 */ -}}
 {{- define "content" }}
-{{- $progs := index . "arcProgs"}}
-<table class="table table-hover">
-  <caption>File and directory archive, compression, and package tools.</caption>
-  <thead>
-    <tr>
-      <th scope="col">Tool</th>
-      <th scope="col">Permissions</th>
-      <th scope="col">Regular</th>
-      <th scope="col">Size</th>
-    </tr>
-  </thead>
-  <tbody>
-  {{range $progs}}
-    <tr>
-      <th scope="row">{{.Prog}}</th>
-      <td>{{.Perm}}</td>
-      <td>{{.Regular}}</td>
-      <td>{{.Size}}</td>
-    </tr>
-    <tr>
-      <td colspan="4">
-        <p><span class="text-muted">{{.Abs}}</span><br>{{.Output}}</p>
-      </td>
-    </tr>
-  {{end}}
-  </tbody>
-</table>
-<hr>
-{{- $progs := index . "imgProgs"}}
-<table class="table table-hover">
-  <caption>Image and text conversion tools.</caption>
-  <thead>
-    <tr>
-      <th scope="col">Tool</th>
-      <th scope="col">Permissions</th>
-      <th scope="col">Regular</th>
-      <th scope="col">Size</th>
-    </tr>
-  </thead>
-  <tbody>
-  {{range $progs}}
-    <tr>
-      <th scope="row">{{.Prog}}</th>
-      <td>{{.Perm}}</td>
-      <td>{{.Regular}}</td>
-      <td>{{.Size}}</td>
-    </tr>
-    <tr>
-      <td colspan="4">
-        <p><span class="text-muted">{{.Abs}}</span><br>{{.Output}}</p>
-      </td>
-    </tr>
-  {{end}}
-  </tbody>
-</table>
-
+{{- $sections := index . "depSections"}}
+{{- $ok := index . "depOK"}}
+{{- $total := index . "depTotal"}}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+  <div class="text-secondary">
+    Runtime binaries discovered on <code>$PATH</code> (or Linuxbrew bottle overrides).
+  </div>
+  <div>
+    {{- if eq $ok $total}}
+    <span class="badge text-bg-success fs-6">{{$ok}} / {{$total}} available</span>
+    {{- else}}
+    <span class="badge text-bg-warning fs-6">{{$ok}} / {{$total}} available</span>
+    {{- end}}
+  </div>
+</div>
+{{range $idx, $sec := $sections}}
+{{- if gt $idx 0}}<hr class="my-4">{{end}}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+  <h2 class="lead mb-0">{{$sec.Title}}</h2>
+  <span class="badge {{if eq $sec.OK $sec.Total}}text-bg-success{{else}}text-bg-warning{{end}}">{{$sec.OK}} / {{$sec.Total}}</span>
+</div>
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <caption>{{$sec.Caption}}</caption>
+    <thead>
+      <tr class="table-secondary">
+        <th scope="col">Tool</th>
+        <th scope="col">Status</th>
+        <th scope="col">Path &amp; Version</th>
+        <th scope="col">Permissions</th>
+        <th scope="col">Size</th>
+      </tr>
+    </thead>
+    <tbody>
+    {{range $sec.Tools}}
+      <tr{{if not .Found}} class="table-danger"{{else if .Warning}} class="table-warning"{{end}}>
+        <th scope="row">
+          <div>{{.Prog}}</div>
+          {{- if ne "" .Expected}}
+          <div class="small fw-normal text-body-secondary">{{.Expected}}</div>
+          {{- end}}
+        </th>
+        <td>
+          {{- if not .Found}}
+          <span class="badge text-bg-danger">Missing</span>
+          {{- else if .Warning}}
+          <span class="badge text-bg-warning">Warning</span>
+          {{- else}}
+          <span class="badge text-bg-success">OK</span>
+          {{- end}}
+        </td>
+        <td>
+          {{- if .Found}}
+          <div>
+            <code>{{.Abs}}</code>
+            {{- if .Symlink}} <span class="badge text-bg-secondary">symlink</span>{{end}}
+          </div>
+          {{- if ne "" .Output}}
+          <div class="small text-body-secondary">{{.Output}}</div>
+          {{- end}}
+          {{- if ne "" .Err}}
+          <div class="small text-warning-emphasis">{{.Err}}</div>
+          {{- end}}
+          {{- else}}
+          <div class="small text-danger">{{.Err}}</div>
+          {{- end}}
+        </td>
+        <td>
+          {{- if .Found}}
+          <code>{{.Perm}}</code>
+          {{- if not .Regular}} <span class="badge text-bg-warning">non-regular</span>{{end}}
+          {{- else}}
+          <span class="text-body-secondary">&mdash;</span>
+          {{- end}}
+        </td>
+        <td class="text-nowrap">
+          {{- if .Found}}
+          {{byteBytes .Size}}
+          {{- else}}
+          <span class="text-body-secondary">&mdash;</span>
+          {{- end}}
+        </td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}
 {{- end }}
-

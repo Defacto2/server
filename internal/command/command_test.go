@@ -107,3 +107,39 @@ func TestRun(t *testing.T) {
 
 	// test timeout
 }
+
+func TestFormatOutput(t *testing.T) {
+	t.Parallel()
+
+	gifOut := []byte("WebP Encoder version: 1.6.0\nWebP Mux version: 1.6.0\nlibsharpyuv: 0.4.2\n")
+	be.Equal(t, command.FormatOutput(command.Gif2webp, gifOut), "WebP Encoder version: 1.6.0")
+
+	hwOut := []byte("\nHWZIP 2.4 -- A simple ZIP program from https://www.hanshq.net/zip.html\n\nUsage:\n")
+	be.Equal(t, command.FormatOutput(command.HWZip, hwOut), "HWZIP 2.4 -- A simple ZIP program from https://www.hanshq.net/zip.html")
+
+	magickOut := []byte("Version: ImageMagick 7.1.2-36 Q16-HDRI x86_64 25140 https://imagemagick.org\nCopyright: ...\nDelegates (built-in): bzlib cairo\n")
+	be.Equal(t, command.FormatOutput(command.Magick, magickOut), "ImageMagick 7.1.2-36 Q16-HDRI x86_64 25140")
+
+	be.Equal(t, command.FormatOutput(command.Lsar, []byte("v1.10.7\n")), "v1.10.7")
+}
+
+func TestDependencyInfos(t *testing.T) {
+	t.Parallel()
+
+	arc, img := command.DependencyInfos(t.Context())
+	be.Equal(t, len(arc), 11)
+	be.Equal(t, len(img), 7)
+	be.Equal(t, arc[0].Prog, command.HWZip)
+	be.True(t, arc[0].Expected != "")
+
+	for _, info := range append(arc, img...) {
+		be.True(t, info.Prog != "")
+		be.True(t, info.Expected != "")
+		if info.Found {
+			be.True(t, info.Abs != "")
+		} else {
+			be.Equal(t, info.Abs, "")
+			be.True(t, info.Err != "")
+		}
+	}
+}
