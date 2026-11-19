@@ -419,7 +419,10 @@ func TestReleaserYearTemplate(t *testing.T) {
 	be.Err(t, err, nil)
 
 	out := buf.String()
-	be.True(t, strings.Contains(out, `<h2 class="text-end display-6 mt-3 p-3">1992</h2>`))
+	be.True(t, strings.Contains(out, `<h2 id="year-1992" class="text-end display-6 mt-3 p-3" style="scroll-margin-top: 4.5rem;">1992</h2>`))
+	be.True(t, strings.Contains(out, `aria-label="Jump to decade"`))
+	be.True(t, strings.Contains(out, `href="#year-1981">1980s</a>`))
+	be.True(t, strings.Contains(out, `href="#year-1990">1990s</a>`))
 	be.True(t, strings.Contains(out, `position-relative p-3 border`))
 	be.True(t, strings.Contains(out, `<h3 class="h5 mb-0">`))
 	be.True(t, !strings.Contains(out, `badge rounded-pill text-bg-warning`))
@@ -435,7 +438,8 @@ func TestReleaserYearTemplate(t *testing.T) {
 		},
 	})
 	be.Err(t, err, nil)
-	be.True(t, strings.Contains(buf.String(), `<h2 class="text-end display-6 mt-3 p-3">1980</h2>`))
+	be.True(t, strings.Contains(buf.String(), `<h2 id="year-1980" class="text-end display-6 mt-3 p-3" style="scroll-margin-top: 4.5rem;">1980</h2>`))
+	be.True(t, !strings.Contains(buf.String(), `aria-label="Jump to decade"`))
 
 	buf.Reset()
 	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
@@ -452,7 +456,8 @@ func TestReleaserYearTemplate(t *testing.T) {
 	})
 	be.Err(t, err, nil)
 	gapOut := buf.String()
-	be.True(t, strings.Contains(gapOut, `<h2 class="text-end display-6 mt-3 p-3">2000</h2>`))
+	be.True(t, strings.Contains(gapOut, `<h2 id="year-2000" class="text-end display-6 mt-3 p-3" style="scroll-margin-top: 4.5rem;">2000</h2>`))
+	be.True(t, strings.Contains(gapOut, `href="#year-2000">2000s</a>`))
 	be.True(t, !strings.Contains(gapOut, `>1999</h2>`))
 	be.True(t, !strings.Contains(gapOut, `>2005</h2>`))
 }

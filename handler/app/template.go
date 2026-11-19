@@ -196,6 +196,7 @@ var funcMap = template.FuncMap{
 	"recordInfoOSTag":    TagWithOS,
 	"recordLinkPreviews": LinkPreviews,
 	"recordTagInfo":      TagBrief,
+	"releaseDecades":     releaseDecades,
 	"safeBBS":            SafeBBS,
 	"safeDocument":       SafeDocument,
 	"safeHTML":           SafeHTML,
@@ -357,6 +358,57 @@ func yearRange(start, end int) []int {
 func hasTimeline(year int) bool {
 	const firstTimeline, gapYear, lastTimeline = 1981, 1999, 2004
 	return year >= firstTimeline && year <= lastTimeline && year != gapYear
+}
+
+type decadeLink struct {
+	Label string
+	Year  int
+}
+
+// releaseDecades returns the distinct decades and their first rendered year anchor.
+func releaseDecades(releasers model.Releasers) []decadeLink {
+	if len(releasers) == 0 {
+		return nil
+	}
+	const yearsPerDecade = 10
+	decades := make([]decadeLink, 0, len(releasers))
+	seen := make(map[int]struct{})
+	addYear := func(y int) {
+		if y <= 0 {
+			return
+		}
+		decade := (y / yearsPerDecade) * yearsPerDecade
+		if _, ok := seen[decade]; ok {
+			return
+		}
+		seen[decade] = struct{}{}
+		decades = append(decades, decadeLink{
+			Label: fmt.Sprintf("%ds", decade),
+			Year:  y,
+		})
+	}
+	prevYear := 0
+	for _, rel := range releasers {
+		if rel == nil {
+			continue
+		}
+		y := rel.Unique.Year.Int
+		if y <= 0 {
+			continue
+		}
+		if prevYear == 0 || y > prevYear {
+			if y-prevYear > 1 {
+				for _, gy := range yearRange(prevYear, y) {
+					if hasTimeline(gy) {
+						addYear(gy)
+					}
+				}
+			}
+			addYear(y)
+		}
+		prevYear = y
+	}
+	return decades
 }
 
 const (

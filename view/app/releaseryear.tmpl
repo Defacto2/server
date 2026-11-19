@@ -16,8 +16,19 @@
 {{- $path := "g" }}
 {{- $prevYear := 0 }}
 {{- $pubs := index .stats.pubs }}
+{{- $decades := releaseDecades .releasers }}
 <div class="container-xxl">
-    <p class="lead mb-3"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+    <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
+      <p class="lead mb-0"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+      {{- if gt (len $decades) 1 }}
+      <nav class="d-flex flex-wrap align-items-center gap-2 small" aria-label="Jump to decade">
+        <span class="text-body-secondary">Decades:</span>
+        {{- range $decades }}
+        <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="#year-{{.Year}}">{{.Label}}</a>
+        {{- end }}
+      </nav>
+      {{- end }}
+    </div>
 {{- range $index, $rel := .releasers -}}
     {{- $mdMissing := false }}
     {{- if and (ne $h1 "BBS") (ne $h1 "FTP") (eq true $editor)}}{{- $mdMissing = tidbitMissing $rel.Unique.URI }}{{end}}
@@ -33,13 +44,13 @@
       <!-- we iterate through any missing years -->
       {{- range yearRange $prevYear $year }}
         {{- if hasTimeline . }}
-        <h2 class="text-end fw-light fs-4 mt-3 me-3">{{.}}</h2>
+        <h2 id="year-{{.}}" class="text-end fw-light fs-4 mt-3 me-3" style="scroll-margin-top: 4.5rem;">{{.}}</h2>
         {{- template "timeline" . }}
         {{- end }}
       {{- end }}
     {{- end }}
     <!-- but also display timelines of the years with artifact records -->
-    <h2 class="text-end display-6 mt-3 p-3">{{$year}}</h2>
+    <h2 id="year-{{$year}}" class="text-end display-6 mt-3 p-3" style="scroll-margin-top: 4.5rem;">{{$year}}</h2>
     {{- template "timeline" $year }}
     <div class="{{$class}}"><!-- this is the opening element -->
   {{- end}}
