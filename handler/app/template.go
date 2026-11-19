@@ -341,6 +341,9 @@ func yearRange(start, end int) []int {
 
 	// dont include start or end range years in the results
 	start++
+	if start >= end {
+		return []int{}
+	}
 	years := make([]int, end-start)
 
 	for i := range years {

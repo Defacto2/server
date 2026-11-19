@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/areacode"
@@ -422,4 +423,49 @@ func TestReleaserYearTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `position-relative p-3 border`))
 	be.True(t, strings.Contains(out, `<h3 class="h5 mb-0">`))
 	be.True(t, !strings.Contains(out, `badge rounded-pill text-bg-warning`))
+
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"h1":       "Releasers",
+		"itemName": "file",
+		"editor":   false,
+		"stats":    map[string]string{"pubs": "1 releaser", "orderBy": "by year"},
+		"releasers": model.Releasers{
+			{Unique: model.Releaser{URI: "cbbs", Name: "CBBS", Count: 1, Bytes: 512, Year: null.IntFrom(1980)}},
+		},
+	})
+	be.Err(t, err, nil)
+	be.True(t, strings.Contains(buf.String(), `<h2 class="text-end display-6 mt-3 p-3">1980</h2>`))
+}
+
+func TestYearRange(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	fn, ok := wa.FuncMap(t.Context(), &sql.DB{})["yearRange"].(func(int, int) []int)
+	be.True(t, ok)
+
+	now := time.Now().Year()
+	tests := []struct {
+		name  string
+		start int
+		end   int
+		want  []int
+	}{
+		{"gap", 1984, 1987, []int{1985, 1986}},
+		{"initial zero from 1984", 0, 1984, []int{1981, 1982, 1983}},
+		{"initial zero at 1981", 0, 1981, []int{}},
+		{"epoch year 1980 does not panic", 0, 1980, []int{}},
+		{"pre-epoch 1978 does not panic", 0, 1978, []int{}},
+		{"equal start and end", 1990, 1990, []int{}},
+		{"reversed range", 1992, 1990, []int{}},
+		{"future end clamped to now", now, now + 5, []int{}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := fn(tc.start, tc.end)
+			be.True(t, slices.Equal(got, tc.want))
+		})
+	}
 }
