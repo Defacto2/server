@@ -3,6 +3,7 @@
 */ -}}
 {{- define "content" -}}
 {{- $total := index . "interviewCount" }}
+<div class="container-xxl">
 <div class="bg-body-tertiary border rounded p-3 mb-4">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <nav class="nav nav-pills gap-1" aria-label="Interview groups">
@@ -55,6 +56,7 @@
     </div>
     {{- end }}
   {{- end }}
+</div>
 </div>
 
 <script>

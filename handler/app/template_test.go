@@ -14,6 +14,8 @@ import (
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/internal/testutil"
+	"github.com/Defacto2/server/model"
+	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
 )
 
@@ -327,10 +329,17 @@ func TestArtifactTemplatesRender(t *testing.T) {
 	data["modEmulateMachine"] = ""
 	data["modEmulateAudio"] = ""
 
+	data["h1"] = "Beyond Akira BBS"
+	data["lead"] = "BBS artifacts"
+
 	var buf bytes.Buffer
 	err = tmpl.ExecuteTemplate(&buf, "layout", data)
 	be.Err(t, err, nil)
-	be.True(t, strings.Contains(buf.String(), `name="artifact-editor-pouetundo"`))
+	out := buf.String()
+	be.True(t, strings.Contains(out, `name="artifact-editor-pouetundo"`))
+	be.True(t, strings.Contains(out, `<h1 class="fs-1 fw-light mb-2 container-xxl">Beyond Akira BBS</h1>`))
+	be.True(t, strings.Contains(out, `<p class="lead mb-3 container-xxl">`))
+	be.True(t, strings.Contains(out, `<div class="container-xxl">`))
 }
 
 func TestInterviewTemplate(t *testing.T) {
@@ -354,4 +363,63 @@ func TestInterviewTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `id="interview-filter-clear" class="btn btn-outline-secondary"`))
 	be.True(t, strings.Contains(out, `<h2 class="h5 card-title mb-0">EMPRESS</h2>`))
 	be.True(t, !strings.Contains(out, `media savy`))
+}
+
+func TestReleaserTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("releaser.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("..", "..", "view", "app", "releaser.tmpl"))
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"h1":       "Releasers",
+		"itemName": "file",
+		"editor":   true,
+		"stats":    map[string]string{"pubs": "1 releaser", "orderBy": "by file artifact count"},
+		"releasers": model.Releasers{
+			{Unique: model.Releaser{URI: "razor-1911", Name: "Razor 1911", Count: 5, Bytes: 1024, Year: null.IntFrom(1992)}},
+		},
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `row-cols-lg-3`))
+	be.True(t, strings.Contains(out, `position-relative p-3 border`))
+	be.True(t, strings.Contains(out, `<h2 class="h5 mb-0">`))
+	be.True(t, !strings.Contains(out, `badge rounded-pill text-bg-warning`))
+}
+
+func TestReleaserYearTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("releaseryear.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(
+			filepath.Join("..", "..", "view", "app", "releaseryear.tmpl"),
+			filepath.Join("..", "..", "view", "app", "releasertimeline.tmpl"),
+		)
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"h1":       "Releasers",
+		"itemName": "file",
+		"editor":   true,
+		"stats":    map[string]string{"pubs": "1 releaser", "orderBy": "by year"},
+		"releasers": model.Releasers{
+			{Unique: model.Releaser{URI: "razor-1911", Name: "Razor 1911", Count: 5, Bytes: 1024, Year: null.IntFrom(1992)}},
+		},
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `<h2 class="text-end display-6 mt-3 p-3">1992</h2>`))
+	be.True(t, strings.Contains(out, `position-relative p-3 border`))
+	be.True(t, strings.Contains(out, `<h3 class="h5 mb-0">`))
+	be.True(t, !strings.Contains(out, `badge rounded-pill text-bg-warning`))
 }

@@ -4,6 +4,7 @@
 {{- $abbrs := index . "abbrEntries" }}
 {{- $placeholder := "Lookup area codes, states, or abbreviations (e.g. CA, 201, Texas)" }}
 {{/*delay:150ms is probably the lowest value, as anything lower and the changes can be skipped*/}}
+<div class="container-xxl">
 <div class="bg-body-tertiary border rounded p-3 mb-4">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div class="input-group input-group-sm" style="max-width: 34rem;">
@@ -125,6 +126,7 @@
     If you're after other international dialing codes the <a href="https://www.itu.int/oth/T0202.aspx?parent=T0202">International Telecommunication Union has a complete list</a>.
   </p>
 </section>
+</div>
 
 <script>
 (() => {

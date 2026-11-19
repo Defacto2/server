@@ -341,10 +341,10 @@
 {{- end }}
 <main>
     {{- if ne $h1 ""}}
-    <h1 class="fs-1 fw-normal mb-2">{{$h1}}{{if ne $h1sub ""}} <small class="text-body-secondary fw-light">{{$h1sub}}</small>{{end}}</h1>
+    <h1 class="fs-1 fw-light mb-2 container-xxl">{{$h1}}{{if ne $h1sub ""}} <small class="text-body-secondary fw-light">{{$h1sub}}</small>{{end}}</h1>
     {{- end}}
     {{- if ne $lead ""}}
-    <p class="lead mb-3">
+    <p class="lead mb-3 container-xxl">
       {{ $lead | safeHTML }}
     </p>
     {{- end}}

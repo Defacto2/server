@@ -2127,7 +2127,7 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	data["title"] = title + "s and groups"
 	data["description"] = descr
 	data["logo"] = logo
-	data["h1"] = title
+	data["h1"] = title + "s"
 	data["lead"] = leadr
 	data["itemName"] = "file"
 	data[key] = model.Releasers{}

@@ -8,20 +8,20 @@
     Timelines can be found in releasertimeline.tmpl
 */ -}}
 {{- define "content" }}
-{{- $class := "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2"}}
+{{- $class := "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"}}
 {{- $editor := index . "editor"}}
 {{- $eraClass := "text-start text-secondary mx-5 mb-4"}}
 {{- $h1 := index . "h1"}}
 {{- $orderBy := index .stats.orderBy }}
-{{- $mdMissing := false}}
 {{- $name := .itemName }}
 {{- $path := "g" }}
 {{- $prevYear := 0 }}
 {{- $pubs := index .stats.pubs }}
 {{- $timeline := 1981 }}
-<div class="container px-4 text-center">
-    <p class="text-start lead"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+<div class="container-xxl">
+    <p class="lead mb-3"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
 {{- range $index, $rel := .releasers -}}
+    {{- $mdMissing := false }}
     {{- if and (ne $h1 "BBS") (ne $h1 "FTP") (eq true $editor)}}{{- $mdMissing = tidbitMissing $rel.Unique.URI }}{{end}}
     {{- $year := $rel.Unique.Year.Int }}
     {{- $difference := sub $prevYear $year}}
@@ -34,25 +34,35 @@
     {{- if gt $difference 1 }}
       <!-- we iterate through any missing years -->
       {{- range yearRange $prevYear $year }}
-        <h3 class="text-end fw-light fs-4 mt-3 me-3">{{.}}</h3>
+        <h2 class="text-end fw-light fs-4 mt-3 me-3">{{.}}</h2>
         {{- template "timeline" . }}
       {{- end }}
     {{- end }}
     <!-- but also display timelines of the years with artifact records -->
-    <h3 class="text-end display-6 mt-3 p-3">{{$year}}</h3>
+    <h2 class="text-end display-6 mt-3 p-3">{{$year}}</h2>
     {{- template "timeline" $year }}
     <div class="{{$class}}"><!-- this is the opening element -->
   {{- end}}
         <div class="col">
-            <div class="p-3 border bg-light h-100 rounded-1">
-              <h5><a href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a></h5>
-              <span class="text-muted">{{ $initialism }} &nbsp; </span>
-              {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
-{{- if eq $mdMissing true }}
-            <small class="badge rounded-pill text-bg-warning">❌ markdown</small>{{end}}
+            <div class="position-relative p-3 border bg-body-tertiary h-100 rounded d-flex flex-column justify-content-between gap-2">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <h3 class="h5 mb-0">
+                  <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover stretched-link" href="/{{ $path }}/{{ $rel.Unique.URI }}">{{fmtURI $rel.Unique.URI}}</a>
+                </h3>
+                {{- if eq $mdMissing true }}
+                <small class="small fw-medium text-warning-emphasis bg-warning-subtle border border-warning-subtle rounded-pill px-2 py-0 flex-shrink-0">❌ markdown</small>
+                {{- end }}
+              </div>
+              <div class="small text-body-secondary">
+                {{- if ne $initialism "" }}<span class="fw-medium">{{ $initialism }}</span> &middot; {{end}}
+                {{- byteFileS $name $rel.Unique.Count $rel.Unique.Bytes }}
+              </div>
             </div>
         </div>
     {{- $prevYear = $year }}
 {{- end}}
+{{- if gt (len .releasers) 0 }}
+    </div>
+{{- end }}
 </div>
 {{- end }}
