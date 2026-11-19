@@ -1,9 +1,8 @@
 {{- define "timeline" }}
 {{- $year := . }}
 {{- $eraClass := "text-start text-secondary mx-5 mb-4"}}
-{{- $skipped := or (eq $year 1999) (gt $year 2004) }}
-  {{- if $skipped }}
-    <!-- display nothing --->
+{{- if not (hasTimeline $year) }}
+  {{- /* no timeline commentary for this year */ -}}
   {{- else if eq $year 1981 }}
     <div class="{{$eraClass}}">
     <small><em class="text-primary">Pre Scene</em>.

@@ -10,14 +10,12 @@
 {{- define "content" }}
 {{- $class := "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"}}
 {{- $editor := index . "editor"}}
-{{- $eraClass := "text-start text-secondary mx-5 mb-4"}}
 {{- $h1 := index . "h1"}}
 {{- $orderBy := index .stats.orderBy }}
 {{- $name := .itemName }}
 {{- $path := "g" }}
 {{- $prevYear := 0 }}
 {{- $pubs := index .stats.pubs }}
-{{- $timeline := 1981 }}
 <div class="container-xxl">
     <p class="lead mb-3"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
 {{- range $index, $rel := .releasers -}}
@@ -34,8 +32,10 @@
     {{- if gt $difference 1 }}
       <!-- we iterate through any missing years -->
       {{- range yearRange $prevYear $year }}
+        {{- if hasTimeline . }}
         <h2 class="text-end fw-light fs-4 mt-3 me-3">{{.}}</h2>
         {{- template "timeline" . }}
+        {{- end }}
       {{- end }}
     {{- end }}
     <!-- but also display timelines of the years with artifact records -->

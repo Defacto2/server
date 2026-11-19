@@ -173,6 +173,7 @@ var funcMap = template.FuncMap{
 	"fmtRoles":           helper.FmtSlice,
 	"fmtURI":             releaser.Link,
 	"hasSuffix":          HasSuffix,
+	"hasTimeline":        hasTimeline,
 	"lastUpdated":        LastUpdated,
 	"linkDownload":       LinkDownload,
 	"linkHref":           LinkHref,
@@ -351,6 +352,11 @@ func yearRange(start, end int) []int {
 	}
 
 	return years
+}
+
+func hasTimeline(year int) bool {
+	const firstTimeline, gapYear, lastTimeline = 1981, 1999, 2004
+	return year >= firstTimeline && year <= lastTimeline && year != gapYear
 }
 
 const (

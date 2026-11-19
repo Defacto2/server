@@ -436,6 +436,25 @@ func TestReleaserYearTemplate(t *testing.T) {
 	})
 	be.Err(t, err, nil)
 	be.True(t, strings.Contains(buf.String(), `<h2 class="text-end display-6 mt-3 p-3">1980</h2>`))
+
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"h1":       "Releasers",
+		"itemName": "file",
+		"editor":   false,
+		"stats":    map[string]string{"pubs": "3 releasers", "orderBy": "by year"},
+		"releasers": model.Releasers{
+			{Unique: model.Releaser{URI: "grp-1998", Name: "Grp 1998", Count: 1, Bytes: 512, Year: null.IntFrom(1998)}},
+			{Unique: model.Releaser{URI: "grp-2000", Name: "Grp 2000", Count: 1, Bytes: 512, Year: null.IntFrom(2000)}},
+			{Unique: model.Releaser{URI: "grp-2004", Name: "Grp 2004", Count: 1, Bytes: 512, Year: null.IntFrom(2004)}},
+			{Unique: model.Releaser{URI: "grp-2006", Name: "Grp 2006", Count: 1, Bytes: 512, Year: null.IntFrom(2006)}},
+		},
+	})
+	be.Err(t, err, nil)
+	gapOut := buf.String()
+	be.True(t, strings.Contains(gapOut, `<h2 class="text-end display-6 mt-3 p-3">2000</h2>`))
+	be.True(t, !strings.Contains(gapOut, `>1999</h2>`))
+	be.True(t, !strings.Contains(gapOut, `>2005</h2>`))
 }
 
 func TestYearRange(t *testing.T) {
