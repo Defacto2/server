@@ -149,7 +149,7 @@
                 hx-patch="/editor/classifications"
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">Revert</button>
+                hx-include="{{$hxClassification}}">Undo</button>
             </div>
             <div class="input-group mb-1">
               <label class="input-group-text w-50" for="artifact-editor-operating-system" id="artifact-editor-os-label">System or type</label>
@@ -306,8 +306,8 @@
                 hx-patch="/editor/title/reset"
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-title-undo']">Revert <span id="artifact-editor-title-quote"></span></button>
-              <button class="btn btn-outline-secondary" type="button" id="artifact-editor-title-delete">None</button>
+                            [name='artifact-editor-title-undo']">Undo <span id="artifact-editor-title-quote"></span></button>
+              <button class="btn btn-outline-secondary" type="button" id="artifact-editor-title-delete">Blank</button>
               <button class="btn btn-outline-secondary" type="button" id="artifact-editor-titleize">Capitalize</button>
             </div>
           </div>
@@ -323,7 +323,7 @@
                 hx-patch="/editor/comment/reset"
                 hx-target="#artifact-editor-comment-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-comment-undo']">Revert <span id="artifact-editor-comment-quote"></span></button>
+                            [name='artifact-editor-comment-undo']">Undo <span id="artifact-editor-comment-quote"></span></button>
             </div>
             <textarea class="form-control" name="artifact-editor-comment" id="artifact-editor-comment" 
               style="height:6em;" autocomplete="off" aria-describedby="artifact-editor-comment-help" 
@@ -377,7 +377,7 @@
                     hx-include="[name='artifact-editor-key'],
                                 [name='artifact-editor-releaser1'],
                                 [name='artifact-editor-releaser2']"
-                    hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Revert <span><!-- reset releasers --></span></button>
+                    hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Undo <span><!-- reset releasers --></span></button>
                 </div>
               </div>
             </form>
@@ -416,7 +416,7 @@
                     hx-patch="/editor/date/reset"
                     hx-target="find span"
                     hx-include="[name='artifact-editor-key'],
-                                [name='artifact-editor-date-undos']">Revert <span><!-- reset target --></span></button>
+                                [name='artifact-editor-date-undos']">Undo <span><!-- reset target --></span></button>
                 </div>
                 {{- if gt $lmYear $epochY}}
                 <div>
@@ -492,7 +492,7 @@
                 hx-patch="/editor/filename/reset"
                 hx-target="#artifact-editor-filename-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-filename-undo']">Revert <span id="artifact-editor-filename-quote"></span></button>
+                            [name='artifact-editor-filename-undo']">Undo <span id="artifact-editor-filename-quote"></span></button>
             </div>
             <div id="artifact-editor-filename-help" class="form-text">
               The filename should usually be left unchanged and is required.<br>
@@ -569,7 +569,7 @@
                   [name='artifact-editor-credittext'],
                   [name='artifact-editor-creditill'],
                   [name='artifact-editor-creditprog'],
-                  [name='artifact-editor-creditaudio']">Revert all <span id="artifact-editor-credits-quote"></span></button>
+                  [name='artifact-editor-creditaudio']">Undo all <span id="artifact-editor-credits-quote"></span></button>
               </div>
             </div>
           </div>
@@ -679,7 +679,7 @@
                   [name='artifact-editor-pouetundo'],
                   [name='artifact-editor-16colorsundo'],
                   [name='artifact-editor-relationsundo'],
-                  [name='artifact-editor-websitesundo']">Revert all <span id="artifact-editor-links-quote"></span></button>
+                  [name='artifact-editor-websitesundo']">Undo all <span id="artifact-editor-links-quote"></span></button>
               </div>
             </div>
 
