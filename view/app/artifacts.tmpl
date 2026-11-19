@@ -71,7 +71,7 @@
 </div>
 {{- if eq $cnt 0}}{{else -}}
 <div class="text-center mb-2 d-none d-lg-block">
-  <a href="#" id="fluid-button" class="btn btn-sm btn-light" onclick="event.preventDefault()">Unlock columns</a>
+  <button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button>
 </div>
 {{- end}}
 {{- $rowCols := "d-grid gap-3 justify-content-center" }}
@@ -107,7 +107,7 @@
   <div class="col">
     <div class="card {{$cardClass}}">
       <div class="card-header text-body-secondary text-center">
-        <code class="h6 text-break">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
+        <code class="h6 mb-0 text-break">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
       </div>
       <div class="card-body">
         {{- if eq $group true}}
@@ -122,10 +122,12 @@
         {{- if ne $attr ""}}
         <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
         {{- end}}
-        {{if and (gt $counter 0) (le $counter 9)}}{{- linkPage .ID $counter}}{{else}}{{- linkPage .ID ""}}{{end}}
-        {{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}
-        {{- linkPreview .ID .Filename.String .Platform.String}}
-        {{- if eq $jsdos true}} {{- linkRunApp .ID}}{{end}}
+        <div class="d-flex flex-wrap align-items-baseline gap-3">
+          {{if and (gt $counter 0) (le $counter 9)}}{{- linkPage .ID $counter}}{{else}}{{- linkPage .ID ""}}{{end}}
+          <span class="text-nowrap">{{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}</span>
+          {{- linkPreview .ID .Filename.String .Platform.String}}
+          {{- if eq $jsdos true}}{{- linkRunApp .ID}}{{end}}
+        </div>
       </div>
       {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
       {{- $thumb := thumb .UUID.String .Filename.String true }}

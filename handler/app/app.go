@@ -369,7 +369,7 @@ func LinkPage(id, kboard any) template.HTML {
 // LinkRunApp creates a URL anchor element to link to the artifact page to launch the js-dos emulator.
 // The id needs to be a valid integer. For example providing 1 would return:
 //
-//	&nbsp; &nbsp; <a class="card-link" href="/f/9b1c6#runapp">Run app</a>
+//	<a class="card-link ms-0" href="/f/9b1c6#runapp">Run app</a>
 func LinkRunApp(id any) template.HTML {
 	if id == nil {
 		return ""
@@ -380,7 +380,7 @@ func LinkRunApp(id any) template.HTML {
 		return template.HTML(err.Error())
 	}
 
-	return template.HTML(`&nbsp; &nbsp; <a class="card-link" href="` + href + `#runapp" rel="nofollow">Run app</a>`)
+	return template.HTML(`<a class="card-link ms-0" href="` + href + `#runapp" rel="nofollow">Run app</a>`)
 }
 
 // LinkPreview creates a URL to link to the file record in-tab to use as a preview.
@@ -390,7 +390,7 @@ func LinkRunApp(id any) template.HTML {
 //
 // For example providing 1, "readme.txt" and "text" would return:
 //
-//	&nbsp; <a class="card-link" href="/v/9b1c6">Preview</a>
+//	<a class="card-link ms-0" href="/v/9b1c6">Preview</a>
 //
 // But providing 1, "file.zip" and "text" would return an empty string.
 func LinkPreview(id any, name, platform string) template.HTML {
@@ -403,7 +403,7 @@ func LinkPreview(id any, name, platform string) template.HTML {
 		return template.HTML("")
 	}
 
-	return template.HTML(`&nbsp; <a class="card-link" href="` + href + `">Preview</a>`)
+	return template.HTML(`<a class="card-link ms-0" href="` + href + `">Preview</a>`)
 }
 
 // LinkRemote returns a HTML link with an embedded SVG icon to an external website.

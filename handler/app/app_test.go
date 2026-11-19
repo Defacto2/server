@@ -248,7 +248,7 @@ func TestLinkRunApp(t *testing.T) {
 	be.Equal(t, got, "")
 
 	got = app.LinkRunApp(1)
-	be.True(t, strings.HasPrefix(string(got), `&nbsp; &nbsp; <a class="card-link" href="`))
+	be.True(t, strings.HasPrefix(string(got), `<a class="card-link ms-0" href="`))
 	be.True(t, strings.Contains(string(got), "#runapp"))
 	be.True(t, strings.Contains(string(got), "Run app"))
 }
@@ -260,6 +260,7 @@ func TestLinkPreview(t *testing.T) {
 	be.Equal(t, s, "")
 
 	s = app.LinkPreview(1, "readme.txt", "text")
+	be.True(t, strings.HasPrefix(string(s), `<a class="card-link ms-0" href="`))
 	be.True(t, strings.Contains(string(s), "Preview"))
 }
 

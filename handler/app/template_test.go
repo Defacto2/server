@@ -668,11 +668,14 @@ func TestArtifactsTemplate(t *testing.T) {
 
 	out := buf.String()
 	be.True(t, strings.Contains(out, `minmax(min(100%, 320px), 400px)`))
-	be.True(t, strings.Contains(out, `<code class="h6 text-break">`))
+	be.True(t, strings.Contains(out, `<code class="h6 mb-0 text-break">`))
 	be.True(t, strings.Contains(out, `<h2 class="card-title text-truncate fs-6">`))
 	be.True(t, !strings.Contains(out, `><!-- no thumbnail found --></a>`))
 	be.True(t, strings.Contains(out, `<!-- no thumbnail found -->`))
 	be.True(t, strings.Contains(out, `text-info-emphasis`))
 	be.True(t, !strings.Contains(out, `text-body-info`))
 	be.True(t, strings.Contains(out, `href="/f/`))
+	be.True(t, strings.Contains(out, `<button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button>`))
+	be.True(t, strings.Contains(out, `<div class="d-flex flex-wrap align-items-baseline gap-3">`))
+	be.True(t, !strings.Contains(out, `&nbsp; <a class="card-link"`))
 }
