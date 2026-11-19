@@ -73,8 +73,18 @@ func (obj *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, t
 		return fmt.Errorf(format, err)
 	}
 
-	const size = 4
-	args := make([]any, 0, len(terms)*size)
+	whereClause, args := byFilenameWhere(terms)
+	if whereClause == "" {
+		return fmt.Errorf(format, ErrSearch)
+	}
+
+	query := string(postgres.Summary()) + whereClause
+
+	return queries.Raw(query, args...).Bind(ctx, exec, obj)
+}
+
+func byFilenameWhere(terms []string) (string, []any) {
+	args := make([]any, 0, len(terms))
 	orConditions := make([]string, 0, len(terms))
 
 	for _, term := range terms {
@@ -83,30 +93,16 @@ func (obj *Summary) ByFilename(ctx context.Context, exec boil.ContextExecutor, t
 			continue
 		}
 
-		const (
-			seq1 = iota + 1
-			seq2
-			seq3
-			seq4
-		)
-		idx := len(args)
-		// note using the sequence '~*' makes it non case-sensitive
-		cond := "(filename ~* $" + strconv.Itoa(idx+seq1) +
-			" OR filename ILIKE $" + strconv.Itoa(idx+seq2) +
-			" OR filename ILIKE $" + strconv.Itoa(idx+seq3) +
-			" OR filename ILIKE $" + strconv.Itoa(idx+seq4) + ")"
-		orConditions = append(orConditions, cond)
-
-		args = append(args, term, term+"%", "%"+term, "%"+term+"%")
+		idx := len(args) + 1
+		orConditions = append(orConditions, `filename ILIKE $`+strconv.Itoa(idx)+` ESCAPE '\'`)
+		args = append(args, "%"+escapeILIKE(term)+"%")
 	}
 
 	if len(orConditions) == 0 {
-		return fmt.Errorf(format, ErrSearch)
+		return "", nil
 	}
 
-	query := string(postgres.Summary()) + "(" + strings.Join(orConditions, " OR ") + ") AND " + ClauseNoSoftDel
-
-	return queries.Raw(query, args...).Bind(ctx, exec, obj)
+	return "(" + strings.Join(orConditions, " OR ") + ") AND " + ClauseNoSoftDel, args
 }
 
 // ByForApproval returns the summary statistics for files that require approval.

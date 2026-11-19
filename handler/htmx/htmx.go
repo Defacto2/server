@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 	"uuid"
 
 	"github.com/Defacto2/helper"
@@ -239,38 +240,29 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	}
 
 	const maxResults = 50
-	ids := []int{}
-	uuids := []uuid.UUID{}
-	search := c.FormValue("htmx-search")
-	inputs := strings.Split(search, " ")
-	for input := range slices.Values(inputs) {
-		s := strings.ToLower(strings.TrimSpace(input))
-		if id, _ := strconv.Atoi(s); id > 0 {
-			ids = append(ids, id)
-			continue
-		}
-		if id := helper.DeobfuscateID(s); id > 0 {
-			ids = append(ids, id)
-			continue
-		}
-		if uid, err := uuid.Parse(s); err == nil {
-			uuids = append(uuids, uid)
-			continue
-		}
+	search := strings.TrimSpace(c.FormValue("htmx-search"))
+	if search == "" {
+		return c.HTML(http.StatusOK, `<!-- empty search query -->`)
+	}
+
+	ids, uuids := ParseSearchIDs(search)
+	if len(ids) == 0 && len(uuids) == 0 {
+		return c.HTML(http.StatusOK, "No artifacts found.")
 	}
 
 	ctx := c.Request().Context()
 	fs, err := model.OnlyUniqueIDs(ctx, db, ids, uuids...)
 	if err != nil {
-		if sl != nil {
-			sl.Error("something went wrong with the pouet lookup search", slog.Any("error", err))
-		}
+		sl.Error("search by id query failed", slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
 			"the search by id query failed")
 	}
 
 	if len(fs) == 0 {
 		return c.HTML(http.StatusOK, "No artifacts found.")
+	}
+	if len(fs) > maxResults {
+		fs = fs[:maxResults]
 	}
 
 	err = c.Render(http.StatusOK, "searchids", map[string]any{
@@ -279,13 +271,39 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		result:  fs,
 	})
 	if err != nil {
-		if sl != nil {
-			sl.Error("could not render the pouet htmx search template", slog.Any("error", err))
-		}
+		sl.Error("cannot render htmx search by id template", slog.Any("error", err))
 		return c.String(http.StatusInternalServerError, "cannot render the htmx search by id template")
 	}
 
 	return nil
+}
+
+// ParseSearchIDs splits space- or comma-separated tokens into numeric record IDs
+// (including deobfuscated URL keys) and non-nil UUIDs.
+func ParseSearchIDs(search string) ([]int, []uuid.UUID) {
+	inputs := strings.FieldsFunc(search, func(r rune) bool {
+		return unicode.IsSpace(r) || r == ',' || r == ';'
+	})
+	ids := make([]int, 0, len(inputs))
+	uuids := make([]uuid.UUID, 0, len(inputs))
+	for _, input := range inputs {
+		s := strings.ToLower(strings.TrimSpace(input))
+		if s == "" {
+			continue
+		}
+		if id, _ := strconv.Atoi(s); id > 0 {
+			ids = append(ids, id)
+			continue
+		}
+		if id := helper.DeobfuscateID(s); id > 0 {
+			ids = append(ids, id)
+			continue
+		}
+		if uid, err := uuid.Parse(s); err == nil && uid != uuid.Nil() {
+			uuids = append(uuids, uid)
+		}
+	}
+	return ids, uuids
 }
 
 // Alternatives returns a slice of possible matching alternative names,
@@ -364,14 +382,15 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.T
 			"the search exact query failed")
 	}
 
-	// lookup similar named releasers
-	remaining := limit - len(r)
-	if remaining > 0 {
-		if err := r.Similar(ctx, db, remaining, lookup...); err != nil {
+	// lookup similar named releasers using a fresh slice (Lookup.releasers skips if len > 0)
+	if len(r) < limit {
+		var sim model.Releasers
+		if err := sim.Similar(ctx, db, limit, lookup...); err != nil {
 			sl.Error("task similar named releaser matches", slog.Any("error", err))
 			return c.String(http.StatusServiceUnavailable,
 				"the search similar query failed")
 		}
+		r = AppendUniqueReleasers(r, sim, limit)
 	}
 	// lookup markdown
 	const maxResults = 50
@@ -395,6 +414,29 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.T
 	}
 
 	return nil
+}
+
+// AppendUniqueReleasers merges additional releasers into dst without duplicate URIs,
+// stopping once limit entries are reached.
+func AppendUniqueReleasers(dst, add model.Releasers, limit int) model.Releasers {
+	if len(dst) >= limit || len(add) == 0 {
+		return dst
+	}
+	seen := make(map[string]struct{}, len(dst))
+	for _, rel := range dst {
+		seen[rel.Unique.URI] = struct{}{}
+	}
+	for _, rel := range add {
+		if _, ok := seen[rel.Unique.URI]; ok {
+			continue
+		}
+		seen[rel.Unique.URI] = struct{}{}
+		dst = append(dst, rel)
+		if len(dst) >= limit {
+			break
+		}
+	}
+	return dst
 }
 
 // DataListReleasers is a handler for the /datalist/releasers route.

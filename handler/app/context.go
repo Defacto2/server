@@ -1790,6 +1790,18 @@ func PlatformTagInfo(c *echo.Context) error {
 	return c.String(http.StatusOK, info)
 }
 
+// cleanSearchTerms splits and trims comma-separated search terms, dropping blanks.
+func cleanSearchTerms(input string) []string {
+	inputs := helper.SearchTerm(input)
+	terms := make([]string, 0, len(inputs))
+	for _, term := range inputs {
+		if trimmed := strings.TrimSpace(term); trimmed != "" {
+			terms = append(terms, trimmed)
+		}
+	}
+	return terms
+}
+
 // PostDesc is the handler for the Search for file descriptions form post page.
 func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error {
 	const format = "post desc context: %w"
@@ -1797,23 +1809,18 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 		return fmt.Errorf(format, err)
 	}
 
-	if s := strings.TrimSpace(input); s == "" {
+	terms := cleanSearchTerms(input)
+	if len(terms) == 0 {
 		// Redirect back to the search form
 		return c.Redirect(http.StatusFound, "/search/desc")
 	}
 
 	errs := "post desc search for, " + input
-	inputs := helper.SearchTerm(input)
-	// Clean terms by removing empty strings from trailing commas
-	terms := make([]string, 0, len(inputs))
-	for _, term := range inputs {
-		if trimmed := strings.TrimSpace(term); trimmed != "" {
-			terms = append(terms, trimmed)
-		}
-	}
-
 	ctx := c.Request().Context()
-	fs, _ := model.OnlyDescriptions(ctx, sl, db, terms)
+	fs, err := model.OnlyDescriptions(ctx, sl, db, terms)
+	if err != nil {
+		return DatabaseErr(sl, c, errs, err)
+	}
 	d := Descriptions.postStats(ctx, sl, db, terms)
 	s := strings.Join(terms, ", ")
 
@@ -1828,7 +1835,7 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 	data[records] = fs
 	data["stats"] = d
 
-	err := c.Render(http.StatusOK, artifacts, data)
+	err = c.Render(http.StatusOK, artifacts, data)
 	if err != nil {
 		return InternalErr(sl, c, errs, err)
 	}
@@ -1850,22 +1857,17 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 	const title = "Filename results"
 	const h1 = "Filename search"
 	input := c.FormValue("search-term-query")
-	if s := strings.TrimSpace(input); s == "" {
+	terms := cleanSearchTerms(input)
+	if len(terms) == 0 {
 		// Redirect back to the search form
 		return c.Redirect(http.StatusFound, "/search/file")
 	}
-	errs := fmt.Sprint("post name search for,", mode)
-	inputs := helper.SearchTerm(input)
-	// Clean terms by removing empty strings from trailing commas
-	terms := make([]string, 0, len(inputs))
-	for _, term := range inputs {
-		if trimmed := strings.TrimSpace(term); trimmed != "" {
-			terms = append(terms, trimmed)
-		}
-	}
-
+	errs := "post name search for, " + input
 	ctx := c.Request().Context()
-	fs, _ := model.OnlyFilenames(ctx, db, terms)
+	fs, err := model.OnlyFilenames(ctx, db, terms)
+	if err != nil {
+		return DatabaseErr(sl, c, errs, err)
+	}
 	d := mode.postStats(ctx, sl, db, terms)
 	s := strings.Join(terms, ", ")
 
@@ -1879,7 +1881,7 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 	data[records] = fs
 	data["stats"] = d
 
-	err := c.Render(http.StatusOK, artifacts, data)
+	err = c.Render(http.StatusOK, artifacts, data)
 	if err != nil {
 		return InternalErr(sl, c, errs, err)
 	}
@@ -2423,7 +2425,9 @@ func SearchDesc(sl *slog.Logger, c *echo.Context) error {
 	data["noindex"] = true
 	data["description"] = "Use this search to uncover named applications, games, and descriptions of artifacts."
 	data["logo"] = search
-	data["title"] = "Game or app titles search"
+	data["title"] = "Game or app titles"
+	data["info"] = "Search artifact titles, descriptions, and comments"
+	data["searchMode"] = "desc"
 
 	err := c.Render(http.StatusOK, searchpost, data)
 	if err != nil {
@@ -2443,11 +2447,12 @@ func SearchID(sl *slog.Logger, c *echo.Context) error {
 	data := empty(c)
 	data["noindex"] = true
 	data["description"] = "Use this search to lookup artifacts by their database identities."
-	data["logo"] = title
+	data["logo"] = search
 	data["title"] = title
-	data["info"] = "search for artifacts by their record id, uuid or URL key"
+	data["info"] = "Search for artifacts by their record id, uuid or URL key"
 	data["hxPost"] = "/editor/search/id"
-	data["inputPlaceholder"] = "Type to search for an artifact…"
+	data["searchMode"] = "id"
+	data["inputPlaceholder"] = "Type ID, URL key, or UUID (space or comma separated)…"
 
 	err := c.Render(http.StatusOK, searchhtmx, data)
 	if err != nil {
@@ -2467,6 +2472,8 @@ func SearchFile(sl *slog.Logger, c *echo.Context) error {
 	data["description"] = "Use this search to lookup artifacts by their filenames."
 	data["logo"] = search
 	data["title"] = "Filename or extensions search"
+	data["info"] = "Search archive filenames and extensions"
+	data["searchMode"] = "file"
 
 	err := c.Render(http.StatusOK, searchpost, data)
 	if err != nil {
@@ -2486,9 +2493,10 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context) error {
 	data["description"] = "Lookup groups, magazines, bbs boards, and ftp sites, by their names."
 	data["logo"] = search
 	data["title"] = "Lookup releasers"
-	data["info"] = "find groups, names, magazines, bbs boards, ftp sites"
-	data["helpText"] = "acronyms only match exact finds: 'rc' and 'rcn' are treated different"
+	data["info"] = "Find groups, names, magazines, bbs boards, ftp sites"
+	data["helpText"] = "Acronyms only match exact finds: 'rc' and 'rcn' are different"
 	data["hxPost"] = "/search/releaser"
+	data["searchMode"] = "releaser"
 	data["inputPlaceholder"] = "Type to search for a releaser…"
 
 	err := c.Render(http.StatusOK, searchhtmx, data)

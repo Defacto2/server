@@ -5,14 +5,22 @@ package htmx_test
 // checked in Sep 26, test coverage was great at under 70%
 
 import (
+	"bytes"
 	"embed"
+	"html/template"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
+	"uuid"
 
 	"github.com/Defacto2/server/handler/fulltext"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
+	"github.com/Defacto2/server/model"
+	"github.com/aarondl/null/v8"
 	"github.com/nalgeon/be"
 )
 
@@ -189,4 +197,82 @@ func TestSuggestion(t *testing.T) {
 	const count = 10
 	got = htmx.Suggestion("a group", "grp", count)
 	be.Equal(t, got, "a group, grp ("+strconv.Itoa(count)+" items)")
+}
+
+func TestAppendUniqueReleasers(t *testing.T) {
+	t.Parallel()
+
+	dst := model.Releasers{
+		{Unique: model.Releaser{URI: "razor-1911", Name: "Razor 1911"}},
+	}
+	add := model.Releasers{
+		{Unique: model.Releaser{URI: "razor-1911", Name: "Razor 1911"}},
+		{Unique: model.Releaser{URI: "class", Name: "Class"}},
+		{Unique: model.Releaser{URI: "paradigm", Name: "Paradigm"}},
+	}
+	got := htmx.AppendUniqueReleasers(dst, add, 2)
+	be.Equal(t, len(got), 2)
+	be.Equal(t, got[0].Unique.URI, "razor-1911")
+	be.Equal(t, got[1].Unique.URI, "class")
+}
+
+func TestSearchReleasersTemplate(t *testing.T) {
+	t.Parallel()
+
+	tmpl, err := template.New("").Funcs(htmx.TemplateFuncMap()).ParseFiles(
+		filepath.Join("..", "..", "view", "htmx", "layout.tmpl"),
+		filepath.Join("..", "..", "view", "htmx", "searchreleasers.tmpl"),
+	)
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"name":    "razor",
+		"input":   "razor",
+		"maximum": 14,
+		"result": model.Releasers{
+			{Unique: model.Releaser{URI: "razor-1911", Name: "Razor 1911", Count: 5, Bytes: 1024}},
+			{Unique: model.Releaser{URI: "class", Name: "Class", Count: 2, Bytes: 512}},
+		},
+		"fulltext": []fulltext.Result{},
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, "row-cols-md-3"))
+	be.True(t, !strings.Contains(out, "row-col-md-3"))
+	be.True(t, !strings.Contains(out, "border border "))
+}
+
+func TestParseSearchIDs(t *testing.T) {
+	t.Parallel()
+
+	uid := "c8cd0b4c-2f54-11e0-8827-cc1607e15609"
+	ids, uuids := htmx.ParseSearchIDs("1, 0, -5, " + uid + ", 00000000-0000-0000-0000-000000000000, invalid")
+	be.Equal(t, ids, []int{1})
+	be.Equal(t, uuids, []uuid.UUID{uuid.MustParse(uid)})
+}
+
+func TestSearchIDsTemplate(t *testing.T) {
+	t.Parallel()
+
+	tmpl, err := template.New("").Funcs(htmx.TemplateFuncMap()).ParseFiles(
+		filepath.Join("..", "..", "view", "htmx", "layout.tmpl"),
+		filepath.Join("..", "..", "view", "htmx", "searchids.tmpl"),
+	)
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"result": models.FileSlice{
+			{ID: 1, UUID: null.StringFrom("c8cd0b4c-2f54-11e0-8827-cc1607e15609"), Filename: null.StringFrom("a.zip")},
+			{ID: 2, UUID: null.StringFrom("c8cd0f9e-2f54-11e0-8827-cc1607e15609"), Filename: null.StringFrom("b.zip")},
+		},
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `class="table-responsive"`))
+	be.Equal(t, strings.Count(out, "<tbody>"), 1)
+	be.Equal(t, strings.Count(out, "</tbody>"), 1)
 }

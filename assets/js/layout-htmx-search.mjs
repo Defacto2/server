@@ -11,12 +11,27 @@ const searchAlert = "search-htmx-alert",
  * Handles search specific events such as the Clear button.
  */
 export function searchEvents() {
+  const input = document.getElementById(searchInput);
   const clear = document.getElementById(searchReset);
-  if (clear !== null) {
-    clear.addEventListener("click", function () {
-      clearer(searchAlert, searchInput, searchIndic);
-    });
+  if (input === null || clear === null) {
+    return;
   }
+
+  function syncClear() {
+    clear.disabled = input.value === "";
+  }
+
+  input.addEventListener("input", syncClear);
+  input.addEventListener("search", syncClear);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && input.value !== "") {
+      event.preventDefault();
+      clearer();
+    }
+  });
+  clear.addEventListener("click", clearer);
+  window.addEventListener("pageshow", syncClear);
+  syncClear();
 }
 
 /**
@@ -42,7 +57,13 @@ export function clearer() {
   }
   input.value = "";
   input.focus();
-  alert.setAttribute("hidden", "true");
-  indicator.style.opacity = 0;
+  alert.classList.add("d-none");
+  alert.innerText = "";
+  indicator.classList.remove("htmx-request");
+  indicator.style.removeProperty("opacity");
   results.innerHTML = "";
+  const clear = document.getElementById(searchReset);
+  if (clear !== null) {
+    clear.disabled = true;
+  }
 }

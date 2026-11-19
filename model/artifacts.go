@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
+	"strings"
 	"time"
 	"uuid"
 
@@ -204,7 +205,7 @@ func OnlyApproval(ctx context.Context, exec boil.ContextExecutor, offset, limit 
 }
 
 // OnlyDescriptions returns a list of files that match the search terms.
-// The search terms are matched against the record_title column.
+// The search terms are matched against the record_title and comment columns.
 // The results are ordered by the filename column in ascending order.
 func OnlyDescriptions(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, terms []string) (
 	models.FileSlice, error,
@@ -213,11 +214,11 @@ func OnlyDescriptions(ctx context.Context, sl *slog.Logger, exec boil.ContextExe
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, "check", err)
 	}
-	if len(terms) == 0 {
+	mods := onlyDescriptions(terms)
+	if len(mods) == 0 {
 		return models.FileSlice{}, nil
 	}
 
-	mods := onlyDescriptions(terms)
 	sl.Debug("only descriptions", slog.Any("terms", terms), slog.Any("mods", mods))
 
 	fs, err := models.Files(mods...).All(ctx, exec)
@@ -229,22 +230,28 @@ func OnlyDescriptions(ctx context.Context, sl *slog.Logger, exec boil.ContextExe
 }
 
 func onlyDescriptions(terms []string) []qm.QueryMod {
-	mods := []qm.QueryMod{}
-	mods = append(mods, qm.Where(ClauseNoSoftDel))
-	const title = "to_tsvector(record_title) @@ websearch_to_tsquery(?)"
-	const comment = "to_tsvector(comment) @@ websearch_to_tsquery(?)"
-	for i, term := range terms {
-		term = fmt.Sprintf("'%s'", term) // the single quotes are required for terms containing spaces
-		if i == 0 {
-			mods = append(mods, qm.Where(title, term))
-			mods = append(mods, qm.Or(comment, term))
+	orMods := make([]qm.QueryMod, 0, len(terms))
+	const clause = "to_tsvector('english', concat_ws(' ', record_title, comment)) @@ plainto_tsquery('english', ?)"
+	for _, term := range terms {
+		term = strings.TrimSpace(term)
+		if term == "" {
 			continue
 		}
-		mods = append(mods, qm.Or(title, term))
-		mods = append(mods, qm.Or(comment, term))
+		if len(orMods) == 0 {
+			orMods = append(orMods, qm.Where(clause, term))
+			continue
+		}
+		orMods = append(orMods, qm.Or(clause, term))
 	}
-	mods = append(mods, qm.Limit(Maximum))
-	return mods
+	if len(orMods) == 0 {
+		return nil
+	}
+	return []qm.QueryMod{
+		qm.Where(ClauseNoSoftDel),
+		qm.Expr(orMods...),
+		qm.OrderBy("filename ASC"),
+		qm.Limit(Maximum),
+	}
 }
 
 // OnlyFilenames returns a list of files that match the search terms.
@@ -257,11 +264,10 @@ func OnlyFilenames(ctx context.Context, exec boil.ContextExecutor, terms []strin
 	if err := nils.Check(ctx, exec); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, "check", err)
 	}
-	if len(terms) == 0 {
+	mods := onlyFilenames(terms)
+	if len(mods) == 0 {
 		return models.FileSlice{}, nil
 	}
-
-	mods := onlyFilenames(terms)
 
 	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
@@ -271,19 +277,35 @@ func OnlyFilenames(ctx context.Context, exec boil.ContextExecutor, terms []strin
 	return fs, nil
 }
 
+// escapeILIKE escapes PostgreSQL LIKE/ILIKE wildcard characters using '\' as the escape character.
+func escapeILIKE(s string) string {
+	return strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(s)
+}
+
 func onlyFilenames(terms []string) []qm.QueryMod {
-	mods := []qm.QueryMod{}
-	mods = append(mods, qm.Where(ClauseNoSoftDel))
-	const clause = "filename ~ ? OR filename ILIKE ? OR filename ILIKE ? OR filename ILIKE ?"
-	for i, term := range terms {
-		if i == 0 {
-			mods = append(mods, qm.Where(clause, term, term+"%", "%"+term, "%"+term+"%"))
+	orMods := make([]qm.QueryMod, 0, len(terms))
+	const clause = `filename ILIKE ? ESCAPE '\'`
+	for _, term := range terms {
+		term = strings.TrimSpace(term)
+		if term == "" {
 			continue
 		}
-		mods = append(mods, qm.Or(clause, term, term+"%", "%"+term, "%"+term+"%"))
+		pattern := "%" + escapeILIKE(term) + "%"
+		if len(orMods) == 0 {
+			orMods = append(orMods, qm.Where(clause, pattern))
+			continue
+		}
+		orMods = append(orMods, qm.Or(clause, pattern))
 	}
-	mods = append(mods, qm.OrderBy("filename ASC"), qm.Limit(Maximum))
-	return mods
+	if len(orMods) == 0 {
+		return nil
+	}
+	return []qm.QueryMod{
+		qm.Where(ClauseNoSoftDel),
+		qm.Expr(orMods...),
+		qm.OrderBy("filename ASC"),
+		qm.Limit(Maximum),
+	}
 }
 
 // OnlyHidden returns all of the file records that are marked as hidden using soft delete.
@@ -339,6 +361,9 @@ func OnlyUniqueIDs(
 	}
 
 	mods := onlyUniqueIDs(ids, uuids...)
+	if len(mods) == 0 {
+		return models.FileSlice{}, nil
+	}
 	fs, err := models.Files(mods...).All(ctx, exec)
 	if err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, "all", err)
@@ -353,10 +378,24 @@ func onlyUniqueIDs(ids []int, uuids ...uuid.UUID) []qm.QueryMod {
 		if id < 1 {
 			continue
 		}
+		if len(mods) == 0 {
+			mods = append(mods, qm.Where("id = ?", id))
+			continue
+		}
 		mods = append(mods, qm.Or("id = ?", id))
 	}
-	for uuid := range slices.Values(uuids) {
-		mods = append(mods, qm.Or("uuid = ?", uuid.String()))
+	for u := range slices.Values(uuids) {
+		if u == uuid.Nil() {
+			continue
+		}
+		if len(mods) == 0 {
+			mods = append(mods, qm.Where("uuid = ?", u.String()))
+			continue
+		}
+		mods = append(mods, qm.Or("uuid = ?", u.String()))
+	}
+	if len(mods) == 0 {
+		return nil
 	}
 	mods = append(mods, qm.Limit(Maximum), qm.WithDeleted())
 	return mods

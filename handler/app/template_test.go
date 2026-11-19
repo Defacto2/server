@@ -137,3 +137,54 @@ func TestScenerTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `id="scener-filter-clear" class="btn btn-outline-secondary"`))
 	be.True(t, strings.Contains(out, `2 sceners`))
 }
+
+func TestSearchPostTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("searchpost.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("../", "../", "view", "app", "searchpost.tmpl"))
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"title":      "Game or app titles search",
+		"info":       "search artifact titles, descriptions, and comments",
+		"searchMode": "desc",
+		"editor":     true,
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `href="/search/desc" rel="nofollow" aria-current="page"`))
+	be.True(t, strings.Contains(out, `href="/editor/search/id"`))
+	be.True(t, strings.Contains(out, `name="search-term-query"`))
+	be.True(t, strings.Contains(out, `ultima 7, ultima 8`))
+}
+
+func TestSearchHtmxTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("searchhtmx.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("../", "../", "view", "app", "searchhtmx.tmpl"))
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"title":            "Lookup releasers",
+		"info":             "find groups, names, magazines, bbs boards, ftp sites",
+		"helpText":         "acronyms only match exact finds: 'rc' and 'rcn' are treated different",
+		"hxPost":           "/search/releaser",
+		"searchMode":       "releaser",
+		"inputPlaceholder": "Type to search for a releaser…",
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `href="/search/releaser" rel="nofollow" aria-current="page"`))
+	be.True(t, strings.Contains(out, `id="search-htmx-clear" class="btn btn-outline-secondary" disabled`))
+	be.True(t, strings.Contains(out, `hx-post="/search/releaser"`))
+}

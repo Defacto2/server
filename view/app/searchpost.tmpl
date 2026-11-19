@@ -2,36 +2,74 @@
     searchpost.tmpl ~ Search form for artifacts.
 */ -}}
 {{- define "content" }}
-<div class="row justify-content-md-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card border-dark">
-            <div class="card-body">
-                <h5 class="card-title text-info-emphasis fs-2 lead">
-                    {{index . "title"}}<br>
-                    <small class="fs-5 fw-lighter">{{index . "info"}}</small>
-                </h5>
-                <p class="fs-6">
-                    {{- if eq (index . "title") "Game or app titles search"}}
-                        use commas for multiple queries: <code>ultima 7, ultima 8</code>
-                    {{- else}}
-                        use commas for multiple queries: <code>.iff, .tif, read.me</code>
-                    {{- end}}
-                </p>
-                <div class="card-text p-0">
-                <form class="row g-3 p-0" method="post">
-                    <div class="col-12">
-                        <input autofocus class="form-control" id="relDataList" name="search-term-query" placeholder="Type in the search terms…">
-                    </div>
-                    <div class="col-12">
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-around" role="group">
-                            <button type="submit" class="btn btn-outline-primary w-100">Submit</button>
-                            <button type="reset" class="btn btn-outline-dark">Clear</button>
-                        </div>
-                    </div>
-                </form>
-                </div>
-            </div>
-        </div>
+{{- $title := index . "title" }}
+{{- $mode := index . "searchMode" }}
+{{- $isDesc := or (eq $mode "desc") (eq $title "Game or app titles search") }}
+{{- $isFile := or (eq $mode "file") (eq $title "Filename or extensions search") }}
+<div class="row justify-content-center my-2">
+  <div class="col-md-10 col-lg-8 col-xl-7">
+    <div class="card shadow-sm">
+      <div class="card-header bg-body-tertiary py-2 px-3">
+        <nav class="nav nav-pills gap-1" aria-label="Search categories">
+          <a class="nav-link py-1 px-2 small{{if $isDesc}} active{{end}}" href="/search/desc" rel="nofollow"{{if $isDesc}} aria-current="page"{{end}}>Titles &amp; comments</a>
+          <a class="nav-link py-1 px-2 small" href="/search/releaser" rel="nofollow">Groups &amp; names</a>
+          <a class="nav-link py-1 px-2 small{{if $isFile}} active{{end}}" href="/search/file" rel="nofollow"{{if $isFile}} aria-current="page"{{end}}>Filenames</a>
+          {{- if index . "editor" }}
+          <a class="nav-link py-1 px-2 small" href="/editor/search/id" rel="nofollow">ID / UUID</a>
+          {{- end }}
+        </nav>
+      </div>
+      <div class="card-body p-4">
+        <h1 class="h3 fw-normal mb-1">{{$title}}</h1>
+        {{- with index . "info" }}
+        <p class="text-body-secondary mb-3">{{.}}</p>
+        {{- end }}
+        <form method="post">
+          <label class="visually-hidden" for="search-term-query">{{$title}}</label>
+          <div class="input-group mb-2">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <input type="search" autofocus spellcheck="false" autocomplete="off" class="form-control"
+              id="search-term-query" name="search-term-query"
+              placeholder="{{if $isDesc}}Example: ultima 7, ultima 8{{else}}Example: .iff, .tif, read.me{{end}}">
+            <button type="button" id="search-post-clear" class="btn btn-outline-secondary" disabled>Clear</button>
+          </div>
+          <div class="form-text">
+            {{- if $isDesc }}
+              Separate multiple queries with commas
+            {{- else }}
+              Separate multiple queries with commas
+            {{- end }}
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
+<script>
+(() => {
+  const input = document.getElementById('search-term-query');
+  const clearBtn = document.getElementById('search-post-clear');
+  if (!input || !clearBtn) return;
+
+  function syncClear() {
+    clearBtn.disabled = input.value === '';
+  }
+
+  input.addEventListener('input', syncClear);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value !== '') {
+      e.preventDefault();
+      input.value = '';
+      syncClear();
+    }
+  });
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    syncClear();
+    input.focus();
+  });
+  window.addEventListener('pageshow', syncClear);
+  syncClear();
+})();
+</script>
 {{- end }}

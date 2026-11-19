@@ -5,48 +5,56 @@
 {{- $slug := index . "name" }}
 {{- $maximum := index . "maximum" }}
 {{- $path := "g" }}
-{{- $border := "border-success"}}
-{{- $class := "row-cols-1"}}
-{{- $limit := "d-none" }}
-{{- $keyboard := "d-none"}}
-{{- if gt (len .result) 1}}
-  {{ $class = "row-cols-1 row-cols-sm-2 row-col-md-3"}}
-  {{ $keyboard = "text-center"}}
-{{end}}
-{{- $marker := .input}}
-{{- if ge (len .result) $maximum}}{{ $limit = "" }}{{end}}
-<div class="row {{ $class }} g-2 mb-2">
-    {{- range $index, $rel := .result -}}
-        {{- $title := fmtPath $rel.Unique.URI }}
-        {{- $initialism := initialisms $rel.Unique.URI }}
-        {{- $border = borderClass $slug $rel.Unique.URI }}
-        <div class="col">
-            <div class="p-3 border {{$border}} bg-light h-100">
-                <div class="row">
-                    <h5 class="col-11"><a id="search-result-{{searchResult $index}}" href="/{{ $path }}/{{ $rel.Unique.URI }}">{{$title}}</a></h5>
-                    <div class="col-1 text-end"><kbd>{{searchResult $index}}</kbd></div>
-                    <div class="col-12">
-                        <span class="text-muted">{{ $initialism }} &nbsp; </span>
-                        {{- byteFileS "file" $rel.Unique.Count $rel.Unique.Bytes }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    {{- end}}
+{{- $cols := "row-cols-1" }}
+{{- if gt (len .result) 1 }}
+  {{- $cols = "row-cols-1 row-cols-sm-2 row-cols-md-3" }}
+{{- end }}
+{{- $marker := .input }}
+{{- if gt (len .result) 0 }}
+<div class="row {{$cols}} g-2 mb-3">
+  {{- range $index, $rel := .result }}
+    {{- $title := fmtPath $rel.Unique.URI }}
+    {{- $initialism := initialisms $rel.Unique.URI }}
+    {{- $border := borderClass $slug $rel.Unique.URI }}
+    {{- $shortcut := searchResult $index }}
+  <div class="col">
+    <div class="p-3 rounded bg-body-tertiary {{$border}} h-100 d-flex flex-column justify-content-between gap-2">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <h2 class="h5 mb-0">
+          <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" id="search-result-{{$shortcut}}" href="/{{$path}}/{{$rel.Unique.URI}}">{{$title}}</a>
+        </h2>
+        {{- if ne $shortcut "" }}
+        <kbd class="flex-shrink-0 text-bg-secondary">{{$shortcut}}</kbd>
+        {{- end }}
+      </div>
+      <div class="small text-body-secondary">
+        {{- if ne $initialism "" }}
+        <span class="fw-medium">{{$initialism}}</span> &middot; 
+        {{- end }}
+        {{- byteFileS "file" $rel.Unique.Count $rel.Unique.Bytes }}
+      </div>
+    </div>
+  </div>
+  {{- end }}
 </div>
-<p class="{{$limit}}">A limit of {{$maximum}} results has been reached.</p>
-<div class="{{$keyboard}}">Open results using a keyboard: <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>...</kbd></div>
-{{- if gt (len .fulltext) 0}}
-<hr>
-{{- range $index, $rel := .fulltext -}}
-<figure class="text-start">
-  <blockquote class="">
+{{- end }}
+{{- if ge (len .result) $maximum }}
+<p class="small text-body-secondary text-center mb-1">Showing the first {{$maximum}} releaser matches.</p>
+{{- end }}
+{{- if gt (len .result) 1 }}
+<div class="small text-body-secondary text-center">Open results using a keyboard: <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>...</kbd></div>
+{{- end }}
+{{- if and .fulltext (gt (len .fulltext) 0) }}
+<hr class="my-4">
+{{- range $index, $rel := .fulltext }}
+<figure class="border-start border-3 ps-3 text-start mb-3">
+  <blockquote class="mb-1">
     <div>{{mark $marker $rel.Snip}}</div>
   </blockquote>
-  <figcaption class="blockquote-footer">
+  <figcaption class="blockquote-footer mb-0">
     {{tidbits $rel.ID}}
   </figcaption>
 </figure>
-{{- end}}
-{{- end}}
+{{- end }}
+{{- end }}
 {{- end}}

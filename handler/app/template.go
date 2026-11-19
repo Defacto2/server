@@ -378,7 +378,7 @@ func (wa *WebApp) FuncMap(ctx context.Context, db *sql.DB) template.FuncMap {
 		return nil
 	}
 
-	dst := wa.Funcs()
+	dst := maps.Clone(wa.Funcs())
 
 	src := wa.FuncDB(ctx, db)
 	maps.Copy(dst, src)
