@@ -161,10 +161,21 @@
         const assetModalEl = document.getElementById('asset-editor-modal');
         const jsdosModal = bootstrap.Modal.getOrCreateInstance(jsdosModalEl);
         const assetModal = bootstrap.Modal.getOrCreateInstance(assetModalEl);
-        jsdosModalEl.addEventListener('hidden.bs.modal', () => {
+        const showAndSubmitAssetEditor = () => {
+          if (attached && replacementInput) {
+            assetModalEl.addEventListener('shown.bs.modal', () => {
+              replacementInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              replacementInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }, { once: true });
+          }
           assetModal.show();
-        }, { once: true });
-        jsdosModal.hide();
+        };
+        if (jsdosModalEl.classList.contains('show')) {
+          jsdosModalEl.addEventListener('hidden.bs.modal', showAndSubmitAssetEditor, { once: true });
+          jsdosModal.hide();
+        } else {
+          showAndSubmitAssetEditor();
+        }
       });
     });
 {{- end }}

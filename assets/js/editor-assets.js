@@ -514,7 +514,8 @@ import { getElmById } from './helper.mjs';
 
   // Automatically submit the preview form when a file is selected.
   previewInput.addEventListener('change', function (evt) {
-    if (evt.target.value.trim() === ``) {
+    const hasFiles = evt.target.files && evt.target.files.length > 0;
+    if (!hasFiles && evt.target.value.trim() === ``) {
       return;
     }
     console.log(`Submitting the image or photo preview form`);
