@@ -42,7 +42,6 @@
 {{- $linkExamples := recordLinkPreviews $youtube $demozoo $pouet $sixteen $github $relations $websites }}
 {{- $replace := "refresh the page to see the changes"}}
 {{- $hxClassification := "[name='artifact-editor-categories'],[name='artifact-editor-operatingsystem'],[name='artifact-editor-key']"}}
-{{- $reverter := "badge bg-secondary"}}
 <div class="modal fade" id="artifact-delete-forever-modal" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
   aria-labelledby="artifact-delete-forever-modal-label" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -163,14 +162,14 @@
               {{- template "optionTag" . }}
               </select>
             </div>
-            <div class="btn-group" role="group" aria-label="Reset classifications">
-              <button class="btn btn-link" name="prereset-classifications" id="artifact-editor-classifications-undo" type="button" 
+            <div class="mt-2">
+              <button class="btn btn-sm btn-outline-secondary" name="prereset-classifications" id="artifact-editor-classifications-undo" type="button"
                 data-preset-os="{{$os}}" data-preset-tag="{{$tag}}"
-                hx-patch="/editor/classifications" 
+                data-bs-toggle="tooltip" data-bs-title="Revert to: {{$os}} + {{$tag}}"
+                hx-patch="/editor/classifications"
                 hx-trigger="click delay:500ms"
                 hx-target="#artifact-editor-classification-help"
-                hx-include="{{$hxClassification}}">
-                  <span class="{{$reverter}}">Revert <em>{{$os}}</em> + <em>{{$tag}}</em></span></button>
+                hx-include="{{$hxClassification}}">Revert</button>
             </div>
           </div>
           <div class="col-xl-6 py-2">
@@ -300,16 +299,16 @@
               Optional name or a brief of the release.<br>
               For magazines, use the issue number, or volume and issue. See: "<em>1</em>", "<em>1, volume 1</em>".
             </div>
-            <div class="btn-group" role="group">
-              <input type="hidden" name="artifact-editor-title-undo" value="{{$title}}" readonly>
-              <button class="btn btn-link" type="button" id="artifact-editor-title-undo"
+            <input type="hidden" name="artifact-editor-title-undo" value="{{$title}}" readonly>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Title actions">
+              <button class="btn btn-outline-secondary" type="button" id="artifact-editor-title-undo"
+                data-bs-toggle="tooltip" data-bs-container="body" data-bs-title="Revert to: {{if ne $title ""}}{{$title}}{{else}}(empty){{end}}"
                 hx-patch="/editor/title/reset"
                 hx-target="#artifact-editor-title-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-title-undo']">
-              <span class="{{$reverter}}">Revert <em id="artifact-editor-title-quote">{{$title}}</em></span></button>
-              <button class="btn btn-link" type="button" id="artifact-editor-title-delete"><span class="badge text-bg-primary">None</span></button>
-              <button class="btn btn-link" type="button" id="artifact-editor-titleize"><span class="badge text-bg-primary">Capitalize</span></button>
+                            [name='artifact-editor-title-undo']">Revert <span id="artifact-editor-title-quote"></span></button>
+              <button class="btn btn-outline-secondary" type="button" id="artifact-editor-title-delete">None</button>
+              <button class="btn btn-outline-secondary" type="button" id="artifact-editor-titleize">Capitalize</button>
             </div>
           </div>
           {{/*  Comments  */}}
@@ -321,15 +320,14 @@
               hx-trigger="keyup changed delay:{{$lDelay}}"
               hx-include="[name='artifact-editor-key']">{{$comment}}</textarea>
             <div class="form-text" id="artifact-editor-comment-help">Optional comments can offer notes of the history, origin, or sources.</div>
-            <div class="row">
-              <div class="col-12 col-lg-6">
-                <input type="hidden" name="artifact-editor-comment-undo" value="{{$comment}}" readonly>
-                <button type="button" class="btn btn-link" id="artifact-editor-comment-undo"
+            <div class="mt-2">
+              <input type="hidden" name="artifact-editor-comment-undo" value="{{$comment}}" readonly>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="artifact-editor-comment-undo"
+                data-bs-toggle="tooltip" data-bs-title="Revert to saved comment"
                 hx-patch="/editor/comment/reset"
                 hx-target="#artifact-editor-comment-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-comment-undo']"><span class="{{$reverter}}">Revert <em id="artifact-editor-comment-quote"></em></span></button>
-              </div>
+                            [name='artifact-editor-comment-undo']">Revert <span id="artifact-editor-comment-quote"></span></button>
             </div>
           </div>
         </div>
@@ -382,18 +380,15 @@
               BBS/FTP <u>must</u> end with <code>BBS</code> &amp; <code>FTP</code>, 
               See: <em class="text-uppercase">My&nbsp;Domain&nbsp;BBS</em>, <em class="text-uppercase">My&nbsp;Domain&nbsp;FTP</em>.
             </div>
-            <div class="btn-group" role="group">
-              <button class="btn btn-link" type="button" id="artifact-editor-releaser-undo"
+            <div class="mt-2">
+              <button class="btn btn-sm btn-outline-secondary" type="button" id="artifact-editor-releaser-undo"
+                data-bs-toggle="tooltip" data-bs-title="Revert to: {{if ne $rel1 ""}}{{$rel1}}{{if ne $rel2 ""}} + {{$rel2}}{{end}}{{else}}(empty){{end}}"
                 hx-patch="/editor/releasers/reset"
                 hx-target="find span"
                 hx-include="[name='artifact-editor-key'],
                             [name='artifact-editor-releaser1'],
                             [name='artifact-editor-releaser2']"
-                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>
-                <small class="{{$reverter}}">Revert  
-                  <em>{{$rel1}}</em>{{if ne $rel2 ""}}+<em>{{$rel2}}</em>{{end}}
-                  <span><!-- reset releasers --></span></small>
-              </button>
+                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Revert <span><!-- reset releasers --></span></button>
             </div>
           </div>
           {{- /*  Date of release  */}}
@@ -464,17 +459,15 @@
             <div id="artifact-editor-date-help" class="form-text">
               A year of release is recommended.
             </div>
-            <div class="d-flex flex-row">
-              <input type="hidden" id="artifact-editor-date-undos" name="artifact-editor-date-undos" 
+            <div class="mt-2">
+              <input type="hidden" id="artifact-editor-date-undos" name="artifact-editor-date-undos"
                 value="{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}" readonly>
-              <button type="button" class="btn btn-link" id="artifact-editor-date-undo"
-                  hx-patch="/editor/date/reset"
-                  hx-target="find span"
-                  hx-include="[name='artifact-editor-key'],
-                              [name='artifact-editor-date-undos']">
-                  <small class="{{$reverter}}">Revert <em>{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}</em>
-                <span><!-- reset target --></span></small>
-              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="artifact-editor-date-undo"
+                data-bs-toggle="tooltip" data-bs-title="Revert to: {{$dateYear}}-{{$dateMonth}}-{{$dateDay}}"
+                hx-patch="/editor/date/reset"
+                hx-target="find span"
+                hx-include="[name='artifact-editor-key'],
+                            [name='artifact-editor-date-undos']">Revert <span><!-- reset target --></span></button>
             </div>
           </div>
         </div>
@@ -483,24 +476,24 @@
           <div class="col-xl-6">
             <label for="artifact-editor-filename" class="col-form-label-lg">Filename</label>
             <small class="text-secondary">alt+shift 🢁🢃</small>
-            <input type="text" class="form-control{{if eq $filename ""}} is-invalid{{end}}" 
-              name="artifact-editor-filename" id="artifact-editor-filename" autocomplete="off" maxlength="255"
-              value="{{$filename}}" aria-describedby="artifact-editor-filename-help"
-              hx-patch="/editor/filename" 
-              hx-trigger="keyup changed delay:{{$lDelay}}"
-              hx-include="[name='artifact-editor-key']">
-            <div id="artifact-editor-filename-help" class="form-text">
-              The filename should usually be left unchanged and is required.<br>
-              <span class="text-warning-emphasis">A file extension is always advisable</span>. See: <em>example.zip</em>
-            </div>
-            <div class="btn-group" role="group">
-              <input type="hidden" name="artifact-editor-filename-undo" value="{{$filename}}" readonly>
-              <button class="btn btn-link" type="button" id="artifact-editor-filename-undo"
+            <input type="hidden" name="artifact-editor-filename-undo" value="{{$filename}}" readonly>
+            <div class="input-group">
+              <input type="text" class="form-control{{if eq $filename ""}} is-invalid{{end}}" 
+                name="artifact-editor-filename" id="artifact-editor-filename" autocomplete="off" maxlength="255"
+                value="{{$filename}}" aria-describedby="artifact-editor-filename-help"
+                hx-patch="/editor/filename" 
+                hx-trigger="keyup changed delay:{{$lDelay}}"
+                hx-include="[name='artifact-editor-key']">
+              <button class="btn btn-outline-secondary" type="button" id="artifact-editor-filename-undo"
+                data-bs-toggle="tooltip" data-bs-container="body" data-bs-title="Revert to: {{$filename}}"
                 hx-patch="/editor/filename/reset"
                 hx-target="#artifact-editor-filename-quote"
                 hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-filename-undo']">
-                  <small class="{{$reverter}}">Revert <em id="artifact-editor-filename-quote">{{$filename}}</em></small></button>
+                            [name='artifact-editor-filename-undo']">Revert <span id="artifact-editor-filename-quote"></span></button>
+            </div>
+            <div id="artifact-editor-filename-help" class="form-text">
+              The filename should usually be left unchanged and is required.<br>
+              <span class="text-warning-emphasis">A file extension is always advisable</span>. See: <em>example.zip</em>
             </div>
           </div>
           {{/*  VirusTotal  */}}
@@ -554,36 +547,35 @@
             </div>
             </div>
             <div class="col">
-            <div class="form-floating">
-              <input type="text" class="form-control" name="artifact-editor-creditaudio" id="artifact-editor-credit-audio" autocomplete="off" maxlength="{{$hundred}}"
-                value="{{$musicians}}" data-reset-credit-audio="{{$musicians}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
-                hx-patch="/editor/creator/audio" 
-                hx-trigger="keyup changed delay:{{$lDelay}}"
-                hx-include="[name='artifact-editor-key']">
-              <label for="artifact-editor-credit-audio">Musicians</label>
-            </div>
+              <div class="input-group">
+                <div class="form-floating">
+                  <input type="text" class="form-control" name="artifact-editor-creditaudio" id="artifact-editor-credit-audio" autocomplete="off" maxlength="{{$hundred}}"
+                    value="{{$musicians}}" data-reset-credit-audio="{{$musicians}}" placeholder="example: Name" aria-details="artifact-editor-credit-help"
+                    hx-patch="/editor/creator/audio" 
+                    hx-trigger="keyup changed delay:{{$lDelay}}"
+                    hx-include="[name='artifact-editor-key']">
+                  <label for="artifact-editor-credit-audio">Musicians</label>
+                </div>
+                {{- /* NOTE: the "-creditsundo" with an "s" */}}
+                <button type="button" class="btn btn-outline-secondary" id="artifact-editor-credit-undo"
+                  data-bs-toggle="tooltip" data-bs-container="body" data-bs-title="Revert all creators to saved values"
+                  hx-patch="/editor/creator/reset"
+                  hx-target="#artifact-editor-credits-quote"
+                  hx-include="[name='artifact-editor-key'],
+                  [name='artifact-editor-credits-undo'],
+                  [name='artifact-editor-credittext'],
+                  [name='artifact-editor-creditill'],
+                  [name='artifact-editor-creditprog'],
+                  [name='artifact-editor-creditaudio']">Revert all <span id="artifact-editor-credits-quote"></span></button>
+              </div>
             </div>
           </div>
-          <div class="form-text" id="artifact-editor-credit-help">
+          <div class="form-text mb-2" id="artifact-editor-credit-help">
             List multiple creators with commas, format: <code>Name1,Name2,Name3</code>. 
             See: <em>Firstname,Name Two,Name3</em></div>
-          <div>
-            {{- /* NOTE: the "-creditsundo" with an "s" */}}
-            <button type="button" class="btn btn-link" id="artifact-editor-credit-undo"
-                hx-patch="/editor/creator/reset"
-                hx-target="#artifact-editor-credits-quote"
-                hx-include="[name='artifact-editor-key'],
-                [name='artifact-editor-credits-undo'],
-                [name='artifact-editor-credittext'],
-                [name='artifact-editor-creditill'],
-                [name='artifact-editor-creditprog'],
-                [name='artifact-editor-creditaudio']"><small class="{{$reverter}}">Revert <u>all</u> creators <em id="artifact-editor-credits-quote"></em></small></button>
-            </div>
         </div>
-        <div class="btn-group" role="group">
-          <input type="hidden" id="artifact-editor-credits-undo" name="artifact-editor-credits-undo" 
-            value="{{$writers}};{{$artists}};{{$programmers}};{{$musicians}}" readonly>
-        </div>
+        <input type="hidden" id="artifact-editor-credits-undo" name="artifact-editor-credits-undo" 
+          value="{{$writers}};{{$artists}};{{$programmers}};{{$musicians}}" readonly>
         <hr class="d-block d-lg-none">
         {{- /*  Links  */}}
         <form autocomplete="off" 
@@ -642,7 +634,7 @@
                 <label for="artifact-editor-16colors">16colo(rs) partial</label>
               </div>
             </div>
-            <div class="col-6 col-lg-4 col-xl-3" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: Defacto2/server">
+            <div class="col-6 col-lg-4 col-xl-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="A repository path, example: Defacto2/server">
               <div class="form-floating">
                 <input type="hidden" name="artifact-editor-githubundo" id="artifact-editor-github-undo" value="{{$github}}" readonly>
                 <input type="text" class="form-control" name="artifact-editor-github" id="artifact-editor-github" 
@@ -657,20 +649,34 @@
               </div>
             </div>
 
-            <div class="col-6 col-lg-3 col-xl-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
-              <div class="form-floating">
-                <input type="hidden" name="artifact-editor-youtubeundo" id="artifact-editor-youtube-undo" value="{{$youtube}}" readonly>
-                {{- /*  maxlength/minlength values means htmx will only ever trigger with 11 chars  */}}
-                <input type="text" class="form-control" name="artifact-editor-youtube" id="artifact-editor-youtube" 
-                  autocomplete="off" minlength="11" value="{{$youtube}}" placeholder="62BuDfBIcMo"
-                  hx-patch="/editor/youtube"
-                  hx-validate="true"
-                  hx-trigger="keyup changed delay:{{$lDelay}}"
-                  hx-include="[name='artifact-editor-key']">
-                <label for="artifact-editor-youtube">
-                  <svg class="bi bi-youtube" width="16" height="20" fill="currentColor">
-                    <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
-                  </svg> YouTube ID</label>
+            <div class="col-12 col-lg-4 col-xl-3">
+              <input type="hidden" name="artifact-editor-youtubeundo" id="artifact-editor-youtube-undo" value="{{$youtube}}" readonly>
+              <div class="input-group">
+                <div class="form-floating" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="YouTube watch ID, example: 62BuDfBIcMo">
+                  {{- /*  maxlength/minlength values means htmx will only ever trigger with 11 chars  */}}
+                  <input type="text" class="form-control" name="artifact-editor-youtube" id="artifact-editor-youtube" 
+                    autocomplete="off" minlength="11" value="{{$youtube}}" placeholder="62BuDfBIcMo"
+                    hx-patch="/editor/youtube"
+                    hx-validate="true"
+                    hx-trigger="keyup changed delay:{{$lDelay}}"
+                    hx-include="[name='artifact-editor-key']">
+                  <label for="artifact-editor-youtube">
+                    <svg class="bi bi-youtube" width="16" height="20" fill="currentColor">
+                      <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
+                    </svg> YouTube ID</label>
+                </div>
+                <button type="button" class="btn btn-outline-secondary" id="artifact-editor-links-undo"
+                  data-bs-toggle="tooltip" data-bs-container="body" data-bs-title="Revert all links to saved values"
+                  hx-patch="/editor/links/reset"
+                  hx-target="#artifact-editor-link-examples"
+                  hx-include="[name='artifact-editor-key'],
+                  [name='artifact-editor-youtubeundo'],
+                  [name='artifact-editor-githubundo'],
+                  [name='artifact-editor-demozooundo'],
+                  [name='artifact-editor-pouetundo'],
+                  [name='artifact-editor-16colorsundo'],
+                  [name='artifact-editor-relationsundo'],
+                  [name='artifact-editor-websitesundo']">Revert all <span id="artifact-editor-links-quote"></span></button>
               </div>
             </div>
 
@@ -718,25 +724,10 @@
             </div>
           </div>
         </div>
-        <div id="artifact-editor-link-examples" class="mt-3">
+        <div id="artifact-editor-link-examples" class="mt-3 mb-2">
           {{range $linkExamples}}
               <small><span class="text-secondary">• Link to</span></small> {{. | safeHTML}} &nbsp; 
           {{end}}
-        </div>
-        <div>
-          <button type="button" class="btn btn-link" id="artifact-editor-links-undo"
-              hx-patch="/editor/links/reset"
-              hx-target="#artifact-editor-link-examples"
-              hx-include="[name='artifact-editor-key'],
-              [name='artifact-editor-youtubeundo'],
-              [name='artifact-editor-githubundo'],
-              [name='artifact-editor-demozooundo'],
-              [name='artifact-editor-pouetundo'],
-              [name='artifact-editor-16colorsundo'],
-              [name='artifact-editor-relationsundo'],
-              [name='artifact-editor-websitesundo']">
-              <small class="{{$reverter}}">Revert <u>all</u> links <em id="artifact-editor-links-quote"></em></small>
-          </button>
         </div>
         </form>
         <hr class="d-block d-lg-none">
