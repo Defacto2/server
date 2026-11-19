@@ -4,185 +4,195 @@
 {{- define "content" }}
 {{- $cardClass := " h-100"}}
 {{- $rels := index . "counter" }}
-{{- $linkClass := "lead card-link text-nowrap"}}
+{{- $linkClass := "card-link text-nowrap"}}
 {{- /* note row-cols-sm-* is the smallest row-cols value */}}
 {{- $rowCols := "row row-cols-1 row-cols-sm-2 row-cols-md-5 g-3 p-3 g-md-0 p-md-0"}}
-{{/*  hashtags  */}}
 <div class="container-xxl">
+{{- if .stats }}
+<div class="row row-cols-1 row-cols-lg-2 g-4 mb-4">
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h2 class="h5 card-title mb-3">Publishing years</h2>
+                <div class="d-flex justify-content-between align-items-baseline gap-2 pb-2 mb-2 border-bottom">
+                    <span class="text-body-secondary">Range</span>
+                    <span class="font-monospace fw-medium">{{$rels.Record.MinYear}} &ndash; {{$rels.Record.MaxYear}}</span>
+                </div>
+                <ul class="list-group list-group-flush small mb-0">
+                    {{- range .orderByYear }}
+                    <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-baseline gap-3">
+                        <span class="text-body-secondary">{{ .Name }}</span>
+                        <span class="font-monospace text-end text-nowrap">{{ .MinYear }} &ndash; {{ .MaxYear }}</span>
+                    </li>
+                    {{- end }}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h2 class="h5 card-title mb-3">Counts and bytes</h2>
+                <div class="d-flex justify-content-between align-items-baseline gap-2 pb-2 mb-2 border-bottom">
+                    <span class="text-body-secondary">Totals</span>
+                    <span class="font-monospace fw-medium text-end">{{ byteFile $rels.Record.Count $rels.Record.Bytes }}</span>
+                </div>
+                <ul class="list-group list-group-flush small mb-0">
+                    {{- range .orderByName }}
+                    <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-baseline gap-3">
+                        <span class="text-body-secondary">{{ .Name }}</span>
+                        <span class="font-monospace text-end text-nowrap">{{ byteFile .Count .Bytes }}</span>
+                    </li>
+                    {{- end }}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h2 class="h5 card-title mb-3">Sort by counts</h2>
+                <div class="d-flex justify-content-between align-items-baseline gap-2 pb-2 mb-2 border-bottom">
+                    <span class="text-body-secondary">Total</span>
+                    <span class="font-monospace fw-medium text-end">{{ $rels.Record.Count }} files</span>
+                </div>
+                <ul class="list-group list-group-flush small mb-0">
+                    {{- range .orderByCount }}
+                    <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-baseline gap-3">
+                        <span class="text-body-secondary">{{ .Name }}</span>
+                        <span class="font-monospace text-end text-nowrap">{{ byteFile .Count .Bytes }}</span>
+                    </li>
+                    {{- end }}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card{{$cardClass}}">
+            <div class="card-body">
+                <h2 class="h5 card-title mb-3">Sort by bytes</h2>
+                <div class="d-flex justify-content-between align-items-baseline gap-2 pb-2 mb-2 border-bottom">
+                    <span class="text-body-secondary">Total</span>
+                    <span class="font-monospace fw-medium text-end">{{ byteBytes $rels.Record.Bytes }}</span>
+                </div>
+                <ul class="list-group list-group-flush small mb-0">
+                    {{- range .orderByBytes }}
+                    <li class="list-group-item px-0 py-1 d-flex justify-content-between align-items-baseline gap-3">
+                        <span class="text-body-secondary">{{ .Name }}</span>
+                        <span class="font-monospace text-end text-nowrap">{{ byteBytes .Bytes }}</span>
+                    </li>
+                    {{- end }}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{{- end}}
+{{/*  hashtags  */}}
 <div class="row row-cols-1 g-1">
     <div class="h-100">
         <div class="card">
             <div class="card-body fs-6 fw-light">
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                <a class="badge bg-success" rel="nofollow" href="/files/text-amiga">amiga text</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/announcement">announcement</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/ansi">ansi</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/ansi-bbs">ansi bbs advert</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/ansi-ftp">ansi ftp advert</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/ansi-brand">ansi logo</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/ansi-nfo">ansi nfo</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/ansi-pack">ansi pack</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/text-apple2">apple 2</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/job-advert">application ad</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/image">art</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/text-atari-st">atari</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/bbs">BBS</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/bbstro">BBStro</a>
-                <a class="badge bg-danger" rel="nofollow" href="/files/restrict">behind the scenes</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/bbs">board</a>
-                <a class="badge bg-danger" rel="nofollow" href="/files/takedown">bust</a>
-                <a class="badge bg-info" rel="nofollow" href="/files/hack">cheat</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/ansi">color text</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/console">console</a>
-                <a class="badge bg-info" rel="nofollow" href="/files/trial-crackme">crackme</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/intro">cracktro</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/intro">crack intro</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/intro">crack screen</a>
-                <a class="badge bg-info" rel="nofollow" href="/files/database">database</a>
-                <a class="badge bg-info" rel="nofollow" href="/files/database">db</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/demoscene">demo</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/demoscene">demoscene</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/magazine">disk mag</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/msdos">dos</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/msdos-pack">dos pack</a>
-                <a class="badge bg-danger" rel="nofollow" href="/files/drama">drama</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/magazine">emag</a>
-                <a class="badge bg-info" rel="nofollow" href="/files/hack">exploit</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/advert">for sale</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/ftp">FTP</a>
-                <a class="badge bg-info" rel="nofollow" href="/files/hack">game hack</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/how-to">guide</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/how-to">how-to</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/html">html</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/image">image</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/image-pack">image pack</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/nfo">information text</a>
-                <a class="badge bg-danger" rel="nofollow" href="/files/restrict">insider</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/installer">installer</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/installer">installation app</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/how-to">instruction</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/intro">intro</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/java">java</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/job-advert">job ad</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/linux">linux</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/intro">loader</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/macos">macOS</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/magazine">magazine</a>
-                <a class="badge bg-warning" rel="nofollow" href="/magazine">magazine title</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/music">mod</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/msdos">ms-dos</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/music">music</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/news-article">news media</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/nfo">NFO</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/macos">os x</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/pcboard">PCBoard</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/pcboard-ppe">PPE</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/msdos">pc-dos</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/pdf">pdf</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/image">picture</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/proof">proof</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/nfo">readme</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/proof">release proof</a>
-                <a class="badge bg-danger" rel="nofollow" href="/files/restrict">restricted</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/standards">scene rules</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/script">script</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/script">shell</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/ftp">site</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/standards">standards</a>
-                <a class="badge bg-danger" rel="nofollow" href="/files/takedown">takedown</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/text">text</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/text-pack">text pack</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/music">tracker</a>
-                <a class="badge bg-info" rel="nofollow" href="/files/hack">trainer</a>
-                <a class="badge bg-secondary" rel="nofollow" href="/files/how-to">unprotect</a>
-                <a class="badge bg-success" rel="nofollow" href="/files/video">video</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/console">video games</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/windows">windows</a>
-                <a class="badge bg-primary" rel="nofollow" href="/files/windows-pack">windows pack</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/magazine">zine</a>
-                <a class="badge bg-warning" rel="nofollow" href="/files/pcboard-text">@X</a>
+            <div class="d-flex flex-wrap gap-2 mb-0">
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/text-amiga">amiga text</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/announcement">announcement</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi">ansi</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-bbs">ansi bbs advert</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-ftp">ansi ftp advert</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-brand">ansi logo</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-nfo">ansi nfo</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi-pack">ansi pack</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/text-apple2">apple 2</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/job-advert">application ad</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/image">art</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/text-atari-st">atari</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/bbs">BBS</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/bbstro">BBStro</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/restrict">behind the scenes</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/bbs">board</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/takedown">bust</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/hack">cheat</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/ansi">color text</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/console">console</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/trial-crackme">crackme</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">cracktro</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">crack intro</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">crack screen</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/database">database</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/database">db</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/demoscene">demo</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/demoscene">demoscene</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/magazine">disk mag</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/msdos">dos</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/msdos-pack">dos pack</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/drama">drama</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/magazine">emag</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/hack">exploit</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/advert">for sale</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/ftp">FTP</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/hack">game hack</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/how-to">guide</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/how-to">how-to</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/html">html</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/image">image</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/image-pack">image pack</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/nfo">information text</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/restrict">insider</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/installer">installer</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/installer">installation app</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/how-to">instruction</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">intro</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/java">java</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/job-advert">job ad</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/linux">linux</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/intro">loader</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/macos">macOS</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/magazine">magazine</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/magazine">magazine title</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/music">mod</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/msdos">ms-dos</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/music">music</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/news-article">news media</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/nfo">NFO</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/macos">os x</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/pcboard">PCBoard</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/pcboard-ppe">PPE</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/msdos">pc-dos</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/pdf">pdf</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/image">picture</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/proof">proof</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/nfo">readme</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/proof">release proof</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/restrict">restricted</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/standards">scene rules</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/script">script</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/script">shell</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/ftp">site</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/standards">standards</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-danger-subtle text-danger-emphasis border-danger-subtle" rel="nofollow" href="/files/takedown">takedown</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/text">text</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/text-pack">text pack</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/music">tracker</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-info-subtle text-info-emphasis border-info-subtle" rel="nofollow" href="/files/hack">trainer</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-secondary-subtle text-secondary-emphasis border-secondary-subtle" rel="nofollow" href="/files/how-to">unprotect</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-success-subtle text-success-emphasis border-success-subtle" rel="nofollow" href="/files/video">video</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/console">video games</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/windows">windows</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-primary-subtle text-primary-emphasis border-primary-subtle" rel="nofollow" href="/files/windows-pack">windows pack</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/magazine">zine</a>
+                <a class="small fw-medium px-2 py-1 rounded border text-decoration-none bg-warning-subtle text-warning-emphasis border-warning-subtle" rel="nofollow" href="/files/pcboard-text">@X</a>
             </div>
             </div>
         </div>
     </div>
 </div>
 <div class="row row-cols-1 row-cols-lg-2 g-4 mt-1">
-    {{- if .stats }}
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">Publishing years</h2>
-                <div class="fs-6">
-                    <div class="mb-3 pb-2 border-bottom">
-                        {{$rels.Record.MinYear}} <span class="fw-light">through to</span> {{$rels.Record.MaxYear}}
-                    </div>
-                    <div class="lh-lg" style="font-size: 0.95rem;">
-                    {{ range .orderByYear }}
-                        <div><span class="fw-light">{{ .Name }}</span> {{ .MinYear }} - {{ .MaxYear }}</div>
-                    {{ end }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">Counts and bytes</h2>
-                <div class="fs-6">
-                    <div class="mb-3 pb-2 border-bottom">
-                        <span class="fw-light">Totals</span> {{ byteFile $rels.Record.Count $rels.Record.Bytes }}
-                    </div>
-                    <div class="lh-lg" style="font-size: 0.95rem;">
-                    {{ range .orderByName }}
-                        <div><span class="fw-light">{{ .Name }}</span> {{ byteFile .Count .Bytes }}</div>
-                    {{ end }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">Sort by counts</h2>
-                <div class="fs-6">
-                    <div class="mb-3 pb-2 border-bottom">
-                        <span class="fw-light">Total</span> {{ $rels.Record.Count }} files
-                    </div>
-                    <div class="lh-lg" style="font-size: 0.95rem;">
-{{- range .orderByCount -}}
-                        <div><span class="fw-light">{{.Name}}</span> {{ byteFile .Count .Bytes }}</div>
-{{- end }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="card{{$cardClass}}">
-            <div class="card-body">
-                <h2 class="h5 card-title">Sort by bytes</h2>
-                <div class="fs-6">
-                    <div class="mb-3 pb-2 border-bottom">
-                        <span class="fw-light">Total</span> {{ byteBytes $rels.Record.Bytes }}
-                    </div>
-                    <div class="lh-lg" style="font-size: 0.95rem;">
-{{- range .orderByBytes -}}
-                        <div><span class="fw-light">{{.Name}}</span> {{ byteBytes .Bytes }}</div>
-{{- end }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {{- end}}
     {{/*  descriptions  */}}
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
                 <h2 class="h5 card-title">Included programs</h2>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">cracktro, loader, intro, crack-screen</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">cracktro, loader, intro, crack-screen</h3>
                 <p class="card-text">
                     Cracktros and loaders are mini adverts created by cracking groups to announce their
                     releases to the community.
@@ -203,7 +213,7 @@
                     </div>
                 </div>
                 <hr>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">installation program</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">installation program</h3>
                 <p class="card-text">
                     As software repackaging by Scene groups became more complicated, there was a need to develop installation programs that walk the users through installing their ill-gotten wares.
                 </p>
@@ -215,7 +225,7 @@
         <div class="card{{$cardClass}}">
             <div class="card-body">
                 <h2 class="h5 card-title">Release text</h2>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">NFO, information text, README</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">NFO, information text, README</h3>
                 <p class="card-text">
                     Text files are generally in every scene release.
                     Often, they are stylised with text art and arranged in a standard format.
@@ -224,13 +234,13 @@
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/nfo" class="{{$linkClass}}">nfo files</a></span>
                 <hr>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">release proof</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">release proof</h3>
                 <p class="card-text">
                     A proof of a release is usually a photograph to verify that physical media sold in retail stores is the source of the warez release.
                 </p>
                 <span class="{{$linkClass}}">Browse the <a href="/files/proof" class="{{$linkClass}}">proofs</a></span>
                 <hr>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">Demoscene production</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">Demoscene production</h3>
                 <p class="card-text">
                     Demoscene productions are artistic apps that generate visuals and audio to show the creators' programming, audio, and graphic abilities. Early demo productions developed within the warez scene before they distanced themselves and spun into their own community.
                 </p>
@@ -242,22 +252,22 @@
         <div class="card{{$cardClass}}">
             <div class="card-body">
                 <h2 class="h5 card-title">Text art advertisements</h2>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">ANSI color text</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">ANSI color text</h3>
                 <p class="card-text">
                     Stylized ANSI text art was commonly created for the theming and advertising of Bulletin Board Systems.
                 </p>
                 <span class="{{$linkClass}}">Browse all the <a href="/files/ansi" class="{{$linkClass}}">ansi files</a></span>
                 <hr>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">branding &amp; logo</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">branding &amp; logo</h3>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-brand" class="{{$linkClass}}">ansi logos</a></span>
                 <hr>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">BBS board advert</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">BBS board advert</h3>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-bbs" class="{{$linkClass}}">ansi board ads</a></span>
                 <hr>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">FTP site advert</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">FTP site advert</h3>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-ftp" class="{{$linkClass}}">ansi site ads</a></span>
                 <hr>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">ANSI color NFO</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">ANSI color NFO</h3>
                 <span class="{{$linkClass}}">Browse the <a href="/files/ansi-nfo" class="{{$linkClass}}">ansi nfos</a></span>
             </div>
         </div>
@@ -266,7 +276,7 @@
         <div class="card{{$cardClass}}">
             <div class="card-body">
                 <h2 class="h5 card-title">BBS</h2>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">bulletin board system</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">bulletin board system</h3>
                 <p class="card-text">
                     Bulletin Board Systems were like proto web-forums that offered message boards, real-time chat, and file sharing but used a text user interface and ran on the landline telephone network. 
                     Users had to use their PCs or microcomputers with a modem peripheral to dial and connect to the individual boards.
@@ -291,7 +301,7 @@
                 </div>
                 <hr>
                 <h2 class="h5 card-title">PCB</h2>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">PCBoard</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">PCBoard</h3>
                 <p class="card-text">
                     PCBoard was a bulletin board application by the Clark Development Company that was often used by the "elite" PC boards of the 1990s.
                 </p>
@@ -309,7 +319,7 @@
                 </div>
                 <hr>
                 <h2 class="h5 card-title">FTP</h2>
-                <h3 class="h5 card-subtitle lead mb-2 text-body-secondary">file site</h3>
+                <h3 class="h6 card-subtitle mb-2 text-body-secondary">file site</h3>
                 <p class="card-text">
                     FTP sites eventually supplanted BBS boards as The Scene moved onto the Internet in the early to mid-1990s. The utilitarian sites were more efficient at organizing and transferring files but lacked the social features of the earlier boards.
                 </p>
@@ -322,7 +332,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="h5 card-subtitle lead mb-2 text-body-secondary">Magazine</h2>
+                <h2 class="h5 card-title mb-2">Magazine</h2>
                 <p class="card-text">
                     Before the web and social media existed, groups and individuals used to exchange ideas and write articles on their communities in digitally distributed magazines and newsletters.
                 </p>
@@ -338,7 +348,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="h5 card-subtitle lead mb-2 text-body-secondary">File pack</h2>
+                <h2 class="h5 card-title mb-2">File pack</h2>
                 <p class="card-text">
                     Curated file packs are collections of files with a common theme.
                 </p>
@@ -368,7 +378,7 @@
     <div class="col">
         <div class="card{{$cardClass}}">
             <div class="card-body">
-                <h2 class="h5 card-subtitle lead mb-2 text-body-secondary">Database</h2>
+                <h2 class="h5 card-title mb-2">Database</h2>
                 <p class="card-text">
                     Scene databases are often private datasets of cracked software titles, release dates and
                     associated groups.
