@@ -852,7 +852,7 @@ func StatHumanize(name string) (date, bytes, size string) {
 // The bottom flag is true if the image should be displayed at the bottom of the container element.
 func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTML {
 	img := func(src, class string) string {
-		alt := strings.ToLower(desc) + " thumbnail"
+		alt := template.HTMLEscapeString(strings.ToLower(desc) + " thumbnail")
 		return `<img src="` + src + `" loading="lazy" alt="` + alt +
 			`" class="` + class + `" style="max-height:400px;" />`
 	}

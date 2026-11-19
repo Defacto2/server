@@ -75,7 +75,7 @@
 </div>
 {{- end}}
 {{- $rowCols := "d-grid gap-3 justify-content-center" }}
-<div id="fluid-artifacts" class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(auto, 400px));">
+<div id="fluid-artifacts" class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 400px));">
   {{- /*  Begin the iteration of the records  */}}
   {{- range .records }}
   {{- if eq true $editor}}{{- $counter = add $counter }}{{end}}
@@ -91,7 +91,7 @@
     {{- $noYears = true}}
 </div>
 <hr class="mt-5 mb-4"><p class="text-center lead"><small>These are files from an unknown year</small></p>
-<div class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(auto, 400px));">
+<div class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 400px));">
   {{- end}}
   {{- /*  Card for an individual artifact record  */}}
   {{- $attr := attribute .CreditText.String .CreditProgram.String .CreditIllustration.String .CreditAudio.String $scener}}
@@ -107,15 +107,14 @@
   <div class="col">
     <div class="card {{$cardClass}}">
       <div class="card-header text-body-secondary text-center">
-        <code class="h6">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
+        <code class="h6 text-break">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
       </div>
-      {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
       <div class="card-body">
         {{- if eq $group true}}
-        <h6 class="card-title text-truncate fs-6">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h6>
+        <h2 class="card-title text-truncate fs-6">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
         {{subTitle .Section .RecordTitle true}}
         {{- else}}
-        <h5 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h5>
+        <h2 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
         {{subTitle .Section .RecordTitle false}}
         {{- end}}
         <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
@@ -128,7 +127,11 @@
         {{- linkPreview .ID .Filename.String .Platform.String}}
         {{- if eq $jsdos true}} {{- linkRunApp .ID}}{{end}}
       </div>
-      <a href="{{linkHref .ID}}">{{thumb .UUID.String .Filename.String true }}</a>
+      {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
+      {{- $thumb := thumb .UUID.String .Filename.String true }}
+      {{- if ne (print $thumb) "<!-- no thumbnail found -->" }}
+      <a href="{{linkHref .ID}}">{{$thumb}}</a>
+      {{- else }}{{$thumb}}{{- end }}
     </div>
   </div>
   {{- /*  End of the iteration of the records */}}

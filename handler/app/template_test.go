@@ -14,6 +14,7 @@ import (
 
 	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/areacode"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/null/v8"
@@ -619,4 +620,59 @@ func TestCategoriesTemplate(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, !strings.Contains(buf.String(), `Publishing years`))
 	be.True(t, strings.Contains(buf.String(), `/files/text-amiga`))
+}
+
+func TestArtifactsTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("artifacts.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(
+			filepath.Join("..", "..", "view", "app", "artifacts.tmpl"),
+			filepath.Join("..", "..", "view", "app", "artifactsedit.tmpl"),
+		)
+	be.Err(t, err, nil)
+
+	c := testutil.NewContext(t, "/files/bbs")
+	data := app.EmptyTester(c)
+	data["title"] = "Bulletin Board Systems artifacts"
+	data["editor"] = true
+	data["demozoo"] = "0"
+	data["sixteen"] = ""
+	data["csdb"] = 0
+	data["janeway"] = 0
+	data["bbs"] = false
+	data["scener"] = ""
+	data["tidbits"] = template.HTML("")
+	data["website"] = []any{}
+	data["unknownYears"] = false
+	data["stats"] = map[string]string{"files": "1 file", "years": "1990 - 1990"}
+	data["records"] = models.FileSlice{
+		{
+			ID:             1,
+			Filename:       null.StringFrom("VERYLONG_BBS_ADVERT_FILE_1990.ZIP"),
+			GroupBrandFor:  null.StringFrom("The BBS"),
+			RecordTitle:    null.StringFrom("BBS Ad"),
+			Section:        null.StringFrom("bbs"),
+			Platform:       null.StringFrom("text"),
+			DateIssuedYear: null.Int16From(1990),
+			WebIDDemozoo:   null.Int64From(42),
+			UUID:           null.StringFrom("00000000-0000-0000-0000-000000000000"),
+		},
+	}
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", data)
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `minmax(min(100%, 320px), 400px)`))
+	be.True(t, strings.Contains(out, `<code class="h6 text-break">`))
+	be.True(t, strings.Contains(out, `<h2 class="card-title text-truncate fs-6">`))
+	be.True(t, !strings.Contains(out, `><!-- no thumbnail found --></a>`))
+	be.True(t, strings.Contains(out, `<!-- no thumbnail found -->`))
+	be.True(t, strings.Contains(out, `text-info-emphasis`))
+	be.True(t, !strings.Contains(out, `text-body-info`))
+	be.True(t, strings.Contains(out, `href="/f/`))
 }

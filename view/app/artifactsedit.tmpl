@@ -11,9 +11,9 @@
     <br>
   {{- if gt $zooID 0}}
     {{- /*  Demozoo production ID  */}}
-    <div class="card-text"><small class="text-body-info" id="editorFeedback{{ .WebIDDemozoo.Int64 }}">
+    <div class="card-text"><small class="text-info-emphasis" id="editorFeedback{{ .WebIDDemozoo.Int64 }}">
       Demozoo production <a class="{{$editorLink}}" href="https://demozoo.org/productions/{{ .WebIDDemozoo.Int64 }}" rel="nofollow">{{ .WebIDDemozoo.Int64 }}</a>
-      {{- if ne $syncLink ""}}, <a class="{{$editorLink}}" href="" rel="nofollow">{{$syncLink}}</a>{{end}}</small>
+      {{- if ne $syncLink ""}}, <a class="{{$editorLink}}" href="{{linkHref .ID}}#file-editor" rel="nofollow">{{$syncLink}}</a>{{end}}</small>
     </div>
   {{- end}}
   </div>

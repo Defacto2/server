@@ -223,7 +223,7 @@ func Artifacts(sl *slog.Logger, c *echo.Context, db *sql.DB, uri, page string) e
 
 	default:
 		p, err := strconv.Atoi(page)
-		if err != nil {
+		if err != nil || p < 1 {
 			return PageErr(sl, c, uri, page)
 		}
 
@@ -265,7 +265,7 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 		return DatabaseErr(sl, c, errURI, err)
 	}
 	lastPage := math.Ceil(float64(sum) / float64(limit))
-	if page > int(lastPage) && !zeroOk(uri) {
+	if page < 1 || (page > int(lastPage) && !zeroOk(uri)) {
 		return PageErr(sl, c, uri, spage)
 	}
 

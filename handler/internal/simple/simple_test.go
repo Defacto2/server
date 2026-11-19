@@ -475,6 +475,9 @@ func TestThumb(t *testing.T) {
 	thumb := dir.Directory(filepath.Dir(testpng(t)))
 	s = simple.Thumb(name, "a description", thumb, false)
 	be.True(t, strings.Contains(string(s), `alt="a description thumbnail"`))
+
+	s = simple.Thumb(name, `quoted "title" <tag>`, thumb, false)
+	be.True(t, strings.Contains(string(s), `alt="quoted &#34;title&#34; &lt;tag&gt; thumbnail"`))
 }
 
 func TestThumbSample(t *testing.T) {

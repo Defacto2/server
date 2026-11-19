@@ -50,7 +50,7 @@ function fluidColumns() {
     if (el) {
       const fluid = localStorage.getItem(key);
       const bc = document.getElementById(box)
-      if (fluid === "1" && box) {
+      if (fluid === "1" && bc && btn) {
         bc.classList.toggle('container-xxl');
         bc.classList.toggle('container-fluid');
         btn.textContent = 'Fix columns'
@@ -59,8 +59,10 @@ function fluidColumns() {
   });
   if (btn) {
     btn.addEventListener('click', () => {
-      document.getElementById(box).classList.toggle('container-xxl');
-      document.getElementById(box).classList.toggle('container-fluid');
+      const bc = document.getElementById(box);
+      if (!bc) return;
+      bc.classList.toggle('container-xxl');
+      bc.classList.toggle('container-fluid');
       const item = localStorage.getItem(key);
       if (item === "1") {
         localStorage.removeItem(key)

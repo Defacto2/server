@@ -531,6 +531,9 @@ func TestSubTitle(t *testing.T) {
 
 	s = app.SubTitle(mag, 1, false)
 	be.Equal(t, s, "")
+
+	s = app.SubTitle(x, `<b>xss</b> & "quote"`, false)
+	be.True(t, strings.Contains(string(s), `&lt;b&gt;xss&lt;/b&gt; &amp; &#34;quote&#34;`))
 }
 
 func TestTagBrief(t *testing.T) {
