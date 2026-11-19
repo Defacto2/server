@@ -31,6 +31,15 @@ func Interviewees() Groups {
 	return interviewees
 }
 
+// InterviewCount returns the total number of interviews across all groups.
+func InterviewCount(groups Groups) int {
+	total := 0
+	for _, g := range groups {
+		total += len(g.Interviews)
+	}
+	return total
+}
+
 var interviewees = Groups{
 	{
 		Name: "EMPRESS",
@@ -198,7 +207,7 @@ var interviewees = Groups{
 				Scener: "Minor Threat",
 				Year:   1994, Month: 9,
 				Content: "\"This guy is a real Renaissance Man, hacker, programmer, " +
-					"burglar, convict, star of stage and screen..\"",
+					"burglar, convict, star of stage and screen.\"",
 				Link: "http://phrack.org/issues/46/5.html#article",
 			},
 		},
@@ -258,7 +267,7 @@ var interviewees = Groups{
 				Scener: "Aldo Reset",
 				Year:   2008, Month: 5,
 				Content: "Beginning in 1982, he is one of the earliest crackers on any Scene, " +
-					"Aldo Reset was both media savy and a famous French cracker.",
+					"Aldo Reset was both media savvy and a famous French cracker.",
 				Link: "https://textfiles.meulie.net/exhibits/frenchunderground/" +
 					"Deplombage/Interviews/Aldo_Reset/Interview_Aldo_Reset.html",
 			},

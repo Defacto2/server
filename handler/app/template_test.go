@@ -332,3 +332,26 @@ func TestArtifactTemplatesRender(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, strings.Contains(buf.String(), `name="artifact-editor-pouetundo"`))
 }
+
+func TestInterviewTemplate(t *testing.T) {
+	t.Parallel()
+
+	wa := app.WebApp{}
+	db := &sql.DB{}
+	tmpl, err := template.New("interview.tmpl").Funcs(wa.FuncMap(t.Context(), db)).
+		ParseFiles(filepath.Join("..", "..", "view", "app", "interview.tmpl"))
+	be.Err(t, err, nil)
+
+	items := app.Interviewees()
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"interviews":     items,
+		"interviewCount": app.InterviewCount(items),
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, `id="interview-filter-clear" class="btn btn-outline-secondary"`))
+	be.True(t, strings.Contains(out, `<h2 class="h5 card-title mb-0">EMPRESS</h2>`))
+	be.True(t, !strings.Contains(out, `media savy`))
+}

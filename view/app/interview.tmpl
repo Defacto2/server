@@ -2,29 +2,139 @@
     interview.tmpl ~ Generates the content for the people interviews page.
 */ -}}
 {{- define "content" -}}
-<div class="mb-5 text-center">
-    This list of interviews and discussions is incomplete, and some of these interviews are amateur and cringe.
-</div>
-<div class="container mt-4">
-    <div class="row justify-content-md-center row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    {{- range $relIndex, $releaser := .interviews }}
-      {{- range $index, $interview := $releaser.Interviews }}
-      <div class="col">
-        <div class="card h-100 shadow-sm rounded-3 border-0">
-            <div class="card-body">
-                <h5 class="card-title text-center fw-bold mb-2">{{$interview.Scener}}</h5>    
-                <h6 class="card-subtitle mb-3 text-muted text-center fs-6">
-                  {{- if ne $releaser.Link ""}}{{$releaser.Name}} • {{end}}{{$interview.Year}} {{fmtMonth $interview.Month}}
-                </h6>
-                <p class="card-text">{{$interview.Content}}</p>
-            </div>
-            <div class="card-footer text-center pt-3 border-top">
-                <a href="{{$interview.Link}}" class="icon-link icon-link-hover fw-medium">Read the interview {{linkInterview $interview.Link}}</a> 
-            </div>
-          </div>
+{{- $total := index . "interviewCount" }}
+<div class="bg-body-tertiary border rounded p-3 mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <nav class="nav nav-pills gap-1" aria-label="Interview groups">
+      <button type="button" class="nav-link py-1 px-2 small interview-group-btn active" data-group="" aria-pressed="true">All</button>
+      {{- range .interviews }}
+      <button type="button" class="nav-link py-1 px-2 small interview-group-btn" data-group="{{.Name}}" aria-pressed="false">{{.Name}}</button>
+      {{- end }}
+    </nav>
+  </div>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+    <span class="small text-body-secondary">This list is incomplete, and some interviews are unedited or amateur.</span>
+    <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+      <span class="small text-body-secondary text-nowrap" id="interview-count">{{$total}} {{if eq $total 1}}interview{{else}}interviews{{end}}</span>
+      <div class="input-group input-group-sm" style="width: 18rem; max-width: 100%;">
+        <input type="search" id="interview-filter" class="form-control" placeholder="Filter by person, group, or note..." aria-label="Filter interviews" autocomplete="off">
+        <button type="button" id="interview-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
       </div>
-      {{- end}}
-    {{- end}}
     </div>
   </div>
+</div>
+
+<div id="interview-empty" class="alert alert-light border text-center my-4 d-none" role="status">
+  No interviews matched <strong id="interview-empty-query"></strong>.
+  <button type="button" id="interview-empty-clear" class="btn btn-link btn-sm p-0 ms-1 align-baseline">Reset filters</button>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+  {{- range $relIndex, $releaser := .interviews }}
+    {{- range $index, $interview := $releaser.Interviews }}
+    <div class="col interview-item" data-group="{{$releaser.Name}}" data-search="{{toLower $interview.Scener}} {{toLower $releaser.Name}} {{toLower $interview.Content}} {{$interview.Year}}">
+      <div class="card h-100 bg-body-tertiary border">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+            <h2 class="h5 card-title mb-0">{{$interview.Scener}}</h2>
+            <span class="small bg-body border rounded px-2 py-1 lh-1 text-body-secondary flex-shrink-0">
+              {{- $interview.Year}}{{if gt $interview.Month 0}} {{fmtMonth $interview.Month}}{{end -}}
+            </span>
+          </div>
+          <div class="small text-body-secondary mb-2">
+            2{{- if ne $releaser.Link ""}}{{$releaser.Name}}{{else}}Retirement{{end -}}
+          </div>
+          <p class="card-text small mb-3">{{$interview.Content}}</p>
+          <div class="mt-auto pt-1">
+            <a href="{{$interview.Link}}" class="icon-link icon-link-hover stretched-link small fw-medium">
+              {{- with linkInterview $interview.Link}}Read the interview {{.}}{{else}}<svg class="bi" width="16" height="16" fill="currentColor" aria-hidden="true"><use xlink:href="/svg/bootstrap-icons.svg#file-text"/></svg> Read the interview{{end -}}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{- end }}
+  {{- end }}
+</div>
+
+<script>
+(() => {
+  const input = document.getElementById('interview-filter');
+  const clearBtn = document.getElementById('interview-filter-clear');
+  const emptyClearBtn = document.getElementById('interview-empty-clear');
+  const countEl = document.getElementById('interview-count');
+  const emptyEl = document.getElementById('interview-empty');
+  const emptyQueryEl = document.getElementById('interview-empty-query');
+  const groupBtns = Array.from(document.querySelectorAll('.interview-group-btn'));
+  const items = Array.from(document.querySelectorAll('.interview-item'));
+  if (!input || items.length === 0) return;
+
+  const total = items.length;
+  let activeGroup = '';
+
+  function applyFilters() {
+    const raw = input.value.trim();
+    const query = raw.toLowerCase();
+    let visible = 0;
+
+    for (const item of items) {
+      const groupMatch = activeGroup === '' || item.dataset.group === activeGroup;
+      const textMatch = query === '' || (item.dataset.search || '').includes(query);
+      const match = groupMatch && textMatch;
+      item.classList.toggle('d-none', !match);
+      if (match) visible += 1;
+    }
+
+    if (clearBtn) clearBtn.disabled = input.value === '';
+    if (countEl) {
+      countEl.textContent = (query === '' && activeGroup === '')
+        ? `${total} ${total === 1 ? 'interview' : 'interviews'}`
+        : `Showing ${visible} of ${total}`;
+    }
+    if (emptyEl) {
+      emptyEl.classList.toggle('d-none', visible > 0);
+      if (emptyQueryEl) {
+        emptyQueryEl.textContent = raw || activeGroup;
+      }
+    }
+  }
+
+  function setGroup(group) {
+    activeGroup = group;
+    for (const btn of groupBtns) {
+      const isSelected = (btn.dataset.group || '') === group;
+      btn.classList.toggle('active', isSelected);
+      btn.setAttribute('aria-pressed', String(isSelected));
+    }
+    applyFilters();
+  }
+
+  function resetAll() {
+    input.value = '';
+    setGroup('');
+    input.focus();
+  }
+
+  for (const btn of groupBtns) {
+    btn.addEventListener('click', () => setGroup(btn.dataset.group || ''));
+  }
+
+  input.addEventListener('input', applyFilters);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value !== '') {
+      e.preventDefault();
+      input.value = '';
+      applyFilters();
+    }
+  });
+  clearBtn?.addEventListener('click', () => {
+    input.value = '';
+    applyFilters();
+    input.focus();
+  });
+  emptyClearBtn?.addEventListener('click', resetAll);
+  window.addEventListener('pageshow', applyFilters);
+  applyFilters();
+})();
+</script>
 {{- end -}}

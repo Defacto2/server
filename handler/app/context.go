@@ -1602,7 +1602,9 @@ func Interview(sl *slog.Logger, c *echo.Context) error {
 	data["logo"] = title
 	data["h1"] = title
 	data["lead"] = leadr
-	data["interviews"] = Interviewees()
+	items := Interviewees()
+	data["interviews"] = items
+	data["interviewCount"] = InterviewCount(items)
 
 	err := c.Render(http.StatusOK, interview, data)
 	if err != nil {

@@ -9,7 +9,7 @@
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                             <h3 class="h5 card-title mb-0">{{ $parts.text }}</h3>
                             {{- with index $parts "tag" }}
-                            <span class="badge text-bg-light border text-body-secondary fw-normal flex-shrink-0">{{ . }}</span>
+                            <span class="small bg-body border rounded px-2 py-1 lh-1 text-body-secondary flex-shrink-0">{{ . }}</span>
                             {{- end }}
                         </div>
                         {{- if ne .Info "" }}
