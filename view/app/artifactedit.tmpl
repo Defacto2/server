@@ -353,20 +353,30 @@
                     hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                     hx-target="#artifact-editor-list-1" minlength="2" maxlength="{{$hundred}}" required>
               </div>
-              <div class="col-6 col-lg-4 d-flex flex-wrap justify-content-center align-items-center gap-1">
+              <div class="col-12 col-sm-5 col-lg-4 d-flex flex-wrap justify-content-center align-items-center gap-1">
                 <button class="btn btn-link btn-sm p-0" type="button" id="artifact-editor-releaser-independent"
                   data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Use when the releaser is unknown"><span class="badge text-uppercase text-bg-primary">Independent</span></button>
                 <button class="btn btn-link btn-sm p-0" type="button" id="artifact-editor-releaser-none"
                   data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Use if N/A, for real names etc."><span class="badge text-uppercase text-bg-primary">None</span></button>
               </div>
-              <div class="col-6 col-lg-8">
-                <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
-                    aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" class="form-control" 
-                    value="{{$rel2}}" data-reset-rel2="{{$rel2}}"
-                    hx-patch="/uploader/releaser/2" 
-                    hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
-                    hx-target="#artifact-editor-list-2" minlength="2" maxlength="{{$hundred}}">
-                    <div class="input-group col-xl-3"></div>
+              <div class="col-12 col-sm-7 col-lg-8">
+                <div class="input-group">
+                  <input type="text" list="artifact-editor-list-2" name="artifact-editor-releaser2" id="artifact-editor-releaser-2" autocomplete="off"
+                      aria-describedby="artifact-editor-releasers-help" placeholder="example: Titan" class="form-control" 
+                      value="{{$rel2}}" data-reset-rel2="{{$rel2}}"
+                      hx-patch="/uploader/releaser/2" 
+                      hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
+                      hx-target="#artifact-editor-list-2" minlength="2" maxlength="{{$hundred}}">
+                  <button class="btn btn-outline-secondary" type="button" id="artifact-editor-releaser-undo"
+                    data-bs-toggle="tooltip" data-bs-container="body"
+                    data-bs-title="Revert to: {{if ne $rel1 ""}}{{$rel1}}{{if ne $rel2 ""}} + {{$rel2}}{{end}}{{else}}(empty){{end}}"
+                    hx-patch="/editor/releasers/reset"
+                    hx-target="find span"
+                    hx-include="[name='artifact-editor-key'],
+                                [name='artifact-editor-releaser1'],
+                                [name='artifact-editor-releaser2']"
+                    hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Revert <span><!-- reset releasers --></span></button>
+                </div>
               </div>
             </form>
             <datalist id="artifact-editor-list-1"></datalist>
@@ -379,16 +389,6 @@
               They can be the authors, publishers, and subjects of this artifact.<br>
               BBS/FTP <u>must</u> end with <code>BBS</code> &amp; <code>FTP</code>, 
               See: <em class="text-uppercase">My&nbsp;Domain&nbsp;BBS</em>, <em class="text-uppercase">My&nbsp;Domain&nbsp;FTP</em>.
-            </div>
-            <div class="mt-2">
-              <button class="btn btn-sm btn-outline-secondary" type="button" id="artifact-editor-releaser-undo"
-                data-bs-toggle="tooltip" data-bs-title="Revert to: {{if ne $rel1 ""}}{{$rel1}}{{if ne $rel2 ""}} + {{$rel2}}{{end}}{{else}}(empty){{end}}"
-                hx-patch="/editor/releasers/reset"
-                hx-target="find span"
-                hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-releaser1'],
-                            [name='artifact-editor-releaser2']"
-                hx-vals='{"releaser1": "{{$rel1}}","releaser2": "{{$rel2}}"}'>Revert <span><!-- reset releasers --></span></button>
             </div>
           </div>
           {{- /*  Date of release  */}}
