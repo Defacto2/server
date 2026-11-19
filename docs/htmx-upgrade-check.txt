@@ -1,0 +1,3 @@
+./assets/js/editor-assets.js:312: [old-event] old event name "htmx:afterRequest" → "htmx:after:request"
+./assets/js/htmx-response-targets.js:75: [old-api] htmx.defineExtension() is removed → use htmx.registerExtension()
+./assets/js/htmx-response-targets.js:100: [old-event] old event name "htmx:beforeSwap" → "htmx:before:swap"
