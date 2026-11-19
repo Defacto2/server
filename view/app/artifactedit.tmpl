@@ -385,10 +385,9 @@
               A releaser is required, for example: <q>Razor 1911</q>.
             </div>
             <div id="artifact-editor-releasers-help" class="form-text">
-              Releasers are groups, magazine titles, BBS or FTP names. 
-              They can be the authors, publishers, and subjects of this artifact.<br>
-              BBS/FTP <u>must</u> end with <code>BBS</code> &amp; <code>FTP</code>, 
-              See: <em class="text-uppercase">My&nbsp;Domain&nbsp;BBS</em>, <em class="text-uppercase">My&nbsp;Domain&nbsp;FTP</em>.
+              Releasers are names of a group, magazine, BBS, FTP. 
+              They are the authors, publishers, subjects of this artifact. 
+              BBS / FTP <u>must</u> end with <code>BBS</code> or <code>FTP</code>.
             </div>
           </div>
           {{- /*  Date of release  */}}
@@ -406,23 +405,35 @@
                             [name='artifact-editor-day']">Save</button>
               </div>
 
-              {{- if gt $lmYear $epochY}}
-              <div class="col-6 col-lg-8 d-flex justify-content-center align-items-center">
-                <input type="hidden" id="artifact-editor-date-lastmods" name="artifact-editor-date-lastmods" 
-                  value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
-                <button type="button" class="btn btn-link p-0" id="artifact-editor-date-lastmod"
-                    hx-patch="/editor/date/lastmod"
+              <div class="col-6 col-lg-8 d-flex flex-wrap justify-content-start justify-content-lg-between align-items-center gap-2">
+                <div>
+                  <input type="hidden" id="artifact-editor-date-undos" name="artifact-editor-date-undos"
+                    value="{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}" readonly>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="artifact-editor-date-undo"
+                    data-bs-toggle="tooltip" data-bs-title="Revert to: {{$dateYear}}-{{$dateMonth}}-{{$dateDay}}"
+                    hx-patch="/editor/date/reset"
                     hx-target="find span"
                     hx-include="[name='artifact-editor-key'],
-                                [name='artifact-editor-date-lastmods']">
-                    <small class="badge text-bg-primary">Use last modification&nbsp;
-                  {{- if ne $lmYear 0}}<em>{{$lmYear}}
-                  {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
-                  {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</em>{{end}}
-                  <span><!-- lastmod target --></span></small>
-                </button>
+                                [name='artifact-editor-date-undos']">Revert <span><!-- reset target --></span></button>
+                </div>
+                {{- if gt $lmYear $epochY}}
+                <div>
+                  <input type="hidden" id="artifact-editor-date-lastmods" name="artifact-editor-date-lastmods" 
+                    value="{{$lmYear}}-{{$lmMonth}}-{{$lmDay}}" readonly>
+                  <button type="button" class="btn btn-link p-0" id="artifact-editor-date-lastmod"
+                      hx-patch="/editor/date/lastmod"
+                      hx-target="find span"
+                      hx-include="[name='artifact-editor-key'],
+                                  [name='artifact-editor-date-lastmods']">
+                      <small class="badge text-bg-primary">Use last modification&nbsp;
+                    {{- if ne $lmYear 0}}<em>{{$lmYear}}
+                    {{- if ne $lmMonth 0}}-{{$lmMonth}}{{end}}
+                    {{- if ne $lmDay 0}}-{{$lmDay}}{{end}}</em>{{end}}
+                    <span><!-- lastmod target --></span></small>
+                  </button>
+                </div>
+                {{- end}}
               </div>
-              {{- end}}
 
               <div class="w-100 d-none d-lg-block"></div>
               <div class="col-6 col-lg-4">
@@ -458,16 +469,6 @@
             </div>
             <div id="artifact-editor-date-help" class="form-text">
               A year of release is recommended.
-            </div>
-            <div class="mt-2">
-              <input type="hidden" id="artifact-editor-date-undos" name="artifact-editor-date-undos"
-                value="{{$dateYear}}-{{$dateMonth}}-{{$dateDay}}" readonly>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="artifact-editor-date-undo"
-                data-bs-toggle="tooltip" data-bs-title="Revert to: {{$dateYear}}-{{$dateMonth}}-{{$dateDay}}"
-                hx-patch="/editor/date/reset"
-                hx-target="find span"
-                hx-include="[name='artifact-editor-key'],
-                            [name='artifact-editor-date-undos']">Revert <span><!-- reset target --></span></button>
             </div>
           </div>
         </div>
@@ -698,8 +699,8 @@
                 </svg> Link to other Defacto2 artifacts</label>
             </div>
             <div class="form-text" id="artifact-editor-relations-help">
-              Pair a label and record key with "<code>;</code>" <code>Label;Key</code>, and separate multiple links with "<code>|</code>".<br>
-              See: <code>NFO;9f1c2|Intro;a92116e</code>
+              Pair a label and record key with "<code>;</code>". See: <code>Label;Key</code><br>
+              Separate multiple links with "<code>|</code>". See: <code>NFO;9f1c2|Intro;a92116e</code>
               <div class="d-none d-lg-block">Result: • Link to <a href="/f/9f1c2">NFO</a> • Link to <a href="/f/a92116e">Intro</a></div>
             </div>
           </div> 
@@ -718,7 +719,7 @@
                 </svg> Link to websites</label>
             </div>
             <div class="form-text" id="artifact-editor-websites-help">
-              Pair a label and URL with "<code>;</code>", separate multiple links with "<code>|</code>".<br>
+              Pair a label and URL with "<code>;</code>". Separate multiple links with "<code>|</code>"<br>
               See: <code>Webpage;example.com|Documentation;example.com/docs</code>
               <div class="d-none d-lg-block">Result: • Link to <a href="https://example.com">Site</a> • Link to <a href="https://example.com/doc">Docs</a></div>
             </div>
