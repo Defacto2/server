@@ -11,6 +11,7 @@ import (
 	"uuid"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/form"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
@@ -136,9 +137,12 @@ func FSCopyReadme(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	missingPNG := !helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".png"))
 	missingWebp := !helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".webp"))
 	if missingPNG && missingWebp {
-		const amigaFont = false
 		ctx := c.Request().Context()
-		if err := dirs.TextImager(ctx, sl, src, unid, amigaFont); err != nil {
+		if isCGAVideoDump(src) {
+			if err := dirs.BinTextImager(ctx, sl, src, unid); err != nil {
+				return badRequest(c, err)
+			}
+		} else if err := dirs.TextImager(ctx, sl, src, unid, false); err != nil {
 			return badRequest(c, err)
 		}
 	}
@@ -504,4 +508,13 @@ func FSRemoveCache(c *echo.Context) error {
 	c = PageReload(c)
 
 	return c.String(http.StatusOK, "cache removed")
+}
+
+func isCGAVideoDump(src string) bool {
+	f, err := os.Open(src)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+	return magicnumber.Find(f) == magicnumber.CGAVideoDump
 }

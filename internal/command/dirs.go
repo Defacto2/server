@@ -167,9 +167,15 @@ func (ds Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, un
 		}
 	}()
 
-	// command line arguments: [src, "-o", dst]
-	arg := []string{src, "-o", dst}
-	if _, err := Run(ctx, sl, Ansilove, arg...); err != nil {
+	args, cleanup, err := binTextArgs(sl, src, dst)
+	if err != nil {
+		return fmt.Errorf(format, "prepare input", err)
+	}
+	if cleanup != nil {
+		defer cleanup()
+	}
+
+	if _, err := Run(ctx, sl, Ansilove, args...); err != nil {
 		return fmt.Errorf(format, "run ansilove", err)
 	}
 
@@ -178,6 +184,65 @@ func (ds Dirs) BinTextImager(ctx context.Context, sl *slog.Logger, srcBinary, un
 	}
 
 	return nil
+}
+
+// binTextArgs builds the ansilove arguments for binary text sources, forcing 80-column
+// binary mode for CGA video RAM dumps and stripping any 7-byte BSAVE header first.
+func binTextArgs(sl *slog.Logger, src, dst string) ([]string, func(), error) {
+	f, err := os.Open(src)
+	if err != nil {
+		return []string{src, "-o", dst}, nil, nil //nolint:nilerr // fall back to src directly
+	}
+	sign := magicnumber.Find(f)
+	_ = f.Close()
+
+	if sign != magicnumber.CGAVideoDump {
+		return []string{src, "-o", dst}, nil, nil
+	}
+
+	input, cleanup, err := stripBSAVEHeader(sl, src)
+	if err != nil {
+		return nil, nil, err
+	}
+	return []string{"-t", "bin", "-c", "80", input, "-o", dst}, cleanup, nil
+}
+
+func stripBSAVEHeader(sl *slog.Logger, src string) (string, func(), error) {
+	const (
+		bsaveHeader = 7
+		bsaveMagic  = 0xFD
+		byteShift   = 8
+	)
+	data, err := os.ReadFile(src)
+	if err != nil || len(data) <= bsaveHeader || data[0] != bsaveMagic {
+		return src, nil, nil //nolint:nilerr // not a BSAVE file
+	}
+	payloadLen := int(data[5]) | int(data[6])<<byteShift
+	if payloadLen <= 0 || bsaveHeader+payloadLen > len(data) {
+		return src, nil, nil
+	}
+
+	tmpFile, err := dir.CreateTemp("cgabin")
+	if err != nil {
+		return "", nil, fmt.Errorf("create temp raw cga dump: %w", err)
+	}
+	tmpPath := tmpFile.Name()
+	if _, err := tmpFile.Write(data[bsaveHeader : bsaveHeader+payloadLen]); err != nil {
+		_ = tmpFile.Close()
+		_ = os.Remove(tmpPath)
+		return "", nil, fmt.Errorf("write raw cga dump: %w", err)
+	}
+	if err := tmpFile.Close(); err != nil {
+		_ = os.Remove(tmpPath)
+		return "", nil, fmt.Errorf("close raw cga dump: %w", err)
+	}
+	cleanup := func() {
+		if err := os.Remove(tmpPath); !errors.Is(err, os.ErrNotExist) && sl != nil {
+			sl.Error("binary text imager could not remove temporary raw dump",
+				slog.String("file", tmpPath), slog.Any("error", err))
+		}
+	}
+	return tmpPath, cleanup, nil
 }
 
 // CGAImager extracts, decompresses, and converts a CGA graphic dumps into a preview image.

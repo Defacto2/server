@@ -167,6 +167,39 @@ func TestListEntry(t *testing.T) {
 	be.True(t, strings.Contains(got, "CGA graphics dump"))
 	be.True(t, !strings.Contains(got, "Dos command"))
 
+	// .com file detected as ANSI text should offer Preview/Readme/Extra actions
+	le.RelativeName = "RUNTHIS!.COM"
+	le.Texts = true
+	le.Programs = false
+	le.Signature = "ANSI text with blinking"
+	got = le.HTML(bytes, platform, section)
+	be.True(t, strings.Contains(got, "/editor/readme/preview/"))
+	be.True(t, strings.Contains(got, ">Preview</button>"))
+	be.True(t, strings.Contains(got, ">Readme</button>"))
+	be.True(t, strings.Contains(got, ">Extra</button>"))
+	be.True(t, !strings.Contains(got, "Dos command"))
+
+	// .com file detected as plain text should offer Preview/Readme/Extra actions
+	le.RelativeName = "README.COM"
+	le.Texts = true
+	le.Signature = "plain text"
+	got = le.HTML(bytes, platform, section)
+	be.True(t, strings.Contains(got, "/editor/readme/preview/"))
+	be.True(t, strings.Contains(got, ">Preview</button>"))
+	be.True(t, strings.Contains(got, ">Readme</button>"))
+	be.True(t, strings.Contains(got, ">Extra</button>"))
+	be.True(t, !strings.Contains(got, "Dos command"))
+
+	// .com file with no/unknown signature stays an executable without text actions
+	le.RelativeName = "PROGRAM.COM"
+	le.Texts = false
+	le.Signature = ""
+	got = le.HTML(bytes, platform, section)
+	be.True(t, strings.Contains(got, "Dos command"))
+	be.True(t, strings.Contains(got, "terminal-plus"))
+	be.True(t, !strings.Contains(got, "btn-group"))
+	le.Signature = "CGA graphics dump"
+
 	le.RelativeName = "filename.png"
 	le.Images = true
 	le.Programs = false
@@ -825,12 +858,110 @@ func TestListContentANSImation(t *testing.T) {
 	art.Section = null.StringFrom("bbs")
 	art.Filename = null.StringFrom("ansi.zip")
 
+	thumbDir := t.TempDir()
+	err = os.WriteFile(filepath.Join(thumbDir, art.UUID.String+".png"), []byte("png"), 0o600)
+	be.Err(t, err, nil)
+
 	dlc := filerecord.DownloadContent{
 		Source:   zipPath,
 		MaxItems: 10,
+		Dirs: command.Dirs{
+			Preview:   dir.Directory(t.TempDir()),
+			Thumbnail: dir.Directory(thumbDir),
+			Extra:     dir.Directory(t.TempDir()),
+		},
 	}
 	got := string(dlc.List(t.Context(), logs.Discard(), art))
 	be.True(t, strings.Contains(got, "<small>ANSI text</small>"))
 	be.True(t, strings.Contains(got, "<small>ANSI text with blinking</small>"))
 	be.True(t, strings.Contains(got, "<small>"+simple.ANSImation+"</small>"))
+}
+
+func TestListContentCOMFiles(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	zipPath := filepath.Join(tmpDir, "comfiles.zip")
+	zf, err := os.Create(zipPath)
+	be.Err(t, err, nil)
+
+	zw := zip.NewWriter(zf)
+	writeEntry := func(name string, data []byte) {
+		t.Helper()
+		w, err := zw.Create(name)
+		be.Err(t, err, nil)
+		_, err = w.Write(data)
+		be.Err(t, err, nil)
+	}
+	writeEntry("README.COM", []byte("Hello BBS!\r\nRead this info file.\r\n"))
+	writeEntry("STUB.COM", []byte{0xB4, 0x09, 0xBA, 0x10, 0x01, 0xCD, 0x21, 0xC3, 0x00, 0x01, 0x02, 0x03})
+	be.Err(t, zw.Close(), nil)
+	be.Err(t, zf.Close(), nil)
+
+	art := testutil.NewModel(t)
+	art.Platform = null.StringFrom("dos")
+	art.Section = null.StringFrom("bbs")
+	art.Filename = null.StringFrom("comfiles.zip")
+
+	thumbDir := t.TempDir()
+	err = os.WriteFile(filepath.Join(thumbDir, art.UUID.String+".png"), []byte("png"), 0o600)
+	be.Err(t, err, nil)
+
+	dlc := filerecord.DownloadContent{
+		Source:   zipPath,
+		MaxItems: 10,
+		Dirs: command.Dirs{
+			Preview:   dir.Directory(t.TempDir()),
+			Thumbnail: dir.Directory(thumbDir),
+			Extra:     dir.Directory(t.TempDir()),
+		},
+	}
+	got := string(dlc.List(t.Context(), logs.Discard(), art))
+	be.True(t, strings.Contains(got, "README.COM"))
+	be.True(t, strings.Contains(got, "<small>plain text</small>"))
+	be.True(t, strings.Contains(got, "/README.COM\""))
+	be.True(t, strings.Contains(got, "STUB.COM"))
+	be.True(t, strings.Contains(got, "Dos command"))
+	be.True(t, !strings.Contains(got, "/STUB.COM\""))
+}
+
+func TestListContentCGAVideoDump(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	zipPath := filepath.Join(tmpDir, "tpg.zip")
+	zf, err := os.Create(zipPath)
+	be.Err(t, err, nil)
+
+	zw := zip.NewWriter(zf)
+	w, err := zw.Create("SPYHUNT.TPG")
+	be.Err(t, err, nil)
+
+	// Build a 4,096-byte 80x25 CGA text-mode dump (4000 bytes + 96 bytes padding) with black background.
+	dump := make([]byte, 4096)
+	for i := 0; i < len(dump); i += 2 {
+		dump[i] = ' '
+		dump[i+1] = 0x07
+	}
+	copy(dump[0:], []byte{'S', 0x0B, 'P', 0x0B, 'Y', 0x0B})
+	_, err = w.Write(dump)
+	be.Err(t, err, nil)
+	be.Err(t, zw.Close(), nil)
+	be.Err(t, zf.Close(), nil)
+
+	art := testutil.NewModel(t)
+	art.Platform = null.StringFrom("dos")
+	art.Section = null.StringFrom("release")
+	art.Filename = null.StringFrom("tpg.zip")
+
+	dlc := filerecord.DownloadContent{
+		Source:   zipPath,
+		MaxItems: 10,
+	}
+	got := string(dlc.List(t.Context(), logs.Discard(), art))
+	be.True(t, strings.Contains(got, "SPYHUNT.TPG"))
+	be.True(t, strings.Contains(got, "<small>CGA screen dump</small>"))
+	be.True(t, strings.Contains(got, "/editor/readme/preview-binary/"))
+	be.True(t, strings.Contains(got, "/editor/readme/copy/"))
+	be.True(t, strings.Contains(got, "/editor/helper/copy/"))
 }

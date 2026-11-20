@@ -4,9 +4,11 @@
 package filerecord
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"image"
+	"io"
 	"io/fs"
 	"math"
 	"net/url"
@@ -146,14 +148,17 @@ func (m *ListEntry) HTML(bytes int64, platform, section string) string {
 	return htm.String()
 }
 
-// systemfile returns true if the file extension matches known non-text operating system files.
+// systemFile returns true if the file extension matches known non-text operating system files.
 // This includes executables, commands and ini configuration files.
 //
-// Batch scripts (.bat) are excluded because they sometimes embed instructions or artwork.
-func systemfile(ext string) bool {
+// Batch scripts (.bat) are excluded because they sometimes embed instructions or artwork,
+// and .com files detected as text (ANSI or plain text) are also excluded.
+func (m *ListEntry) systemFile(ext string) bool {
 	switch ext {
-	case exe, com, ini:
+	case exe, ini:
 		return true
+	case com:
+		return !m.Texts
 	default:
 		return false
 	}
@@ -176,7 +181,7 @@ func (m *ListEntry) column1() string {
 	case m.cgaDump():
 		// use CGA data
 		return buttonCGA(m.UniqueID, m.name)
-	case systemfile(strings.ToLower(filepath.Ext(m.name))):
+	case m.systemFile(strings.ToLower(filepath.Ext(m.name))):
 		return ""
 	case m.Texts:
 		// use Text
@@ -194,7 +199,7 @@ func (m *ListEntry) isTextCandidate(ext string) bool {
 	if m.NonArchive || m.Images || m.briefDescription() || m.isExecutable() {
 		return false
 	}
-	if systemfile(ext) || slices.Contains(extensions.Archive(), ext) {
+	if m.systemFile(ext) || slices.Contains(extensions.Archive(), ext) {
 		return false
 	}
 	return m.Texts || m.BINtexts || m.textNFO()
@@ -617,6 +622,11 @@ func (e *Entry) skipByInfo(path, platform string, info fs.FileInfo) bool {
 	defer r.Close()
 
 	e.sign = magicnumber.Find(r)
+	if e.sign == magicnumber.PlainText &&
+		strings.EqualFold(filepath.Ext(path), com) &&
+		!likelyPlainTextCOM(r) {
+		e.sign = magicnumber.Unknown
+	}
 	if e.sign == magicnumber.ANSIEscapeText {
 		e.format = simple.MagicString(r, e.sign)
 	}
@@ -675,13 +685,16 @@ func (e *Entry) isProgram(platform string) bool {
 	return false
 }
 
-// isBinaryText returns true if the magic signature is binary data that does not match
-// a known signature, and the platform is set to ANSI or Text.
+// isBinaryText returns true if the magic signature is a CGA video RAM dump,
+// or binary data that does not match a known signature when the platform is set to ANSI or Text.
 //
 // If unsupported XBIN binary text is detected, false is returned.
 func (e *Entry) isBinaryText(platform string) bool {
 	if e.sign == magicnumber.XBinaryText {
 		return false
+	}
+	if e.sign == magicnumber.CGAVideoDump {
+		return true
 	}
 
 	s := []tags.Tag{tags.Text, tags.ANSI}
@@ -708,6 +721,42 @@ func (e *Entry) isText() bool {
 	}
 
 	return false
+}
+
+// likelyPlainTextCOM rejects binary MS-DOS .com executables that match
+// PlainText heuristics (e.g. <=80-byte stubs or opcode streams with NULs/control bytes).
+func likelyPlainTextCOM(r *os.File) bool {
+	if _, err := r.Seek(0, io.SeekStart); err != nil {
+		return false
+	}
+	const maxSample = 64 * 1024
+	data, err := io.ReadAll(io.LimitReader(r, maxSample))
+	if err != nil {
+		return false
+	}
+	const dosEOF = 0x1A
+	data = bytes.TrimRight(data, "\x00")
+	if len(data) > 0 && data[len(data)-1] == dosEOF {
+		data = bytes.TrimRight(data[:len(data)-1], "\x00")
+	}
+	if len(data) == 0 || bytes.IndexByte(data, 0) != -1 {
+		return false
+	}
+
+	asciiPrintable := 0
+	ctrlUnexpected := 0
+	for _, b := range data {
+		switch {
+		case (b >= 0x20 && b <= 0x7E) || b == '\t' || b == '\n' || b == '\r':
+			asciiPrintable++
+		case b < 0x20 && b != '\a' && b != 0x10 && b != 0x11 && b != dosEOF && b != 0x1E && b != 0x1F:
+			ctrlUnexpected++
+		case b == 0x7F:
+			ctrlUnexpected++
+		}
+	}
+	const maxCtrlDenom = 50 // allow < 2% unexpected control bytes
+	return asciiPrintable*2 >= len(data) && ctrlUnexpected*maxCtrlDenom <= len(data)
 }
 
 func (e *Entry) skipImage(path string) bool {
