@@ -21,6 +21,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/dump"
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/Defacto2/server/internal/thedraw"
 	"github.com/bengarrett/ansimate"
 	"golang.org/x/sync/errgroup"
 )
@@ -208,6 +209,7 @@ func binTextArgs(sl *slog.Logger, src, dst string) ([]string, func(), error) {
 }
 
 func stripBSAVEHeader(sl *slog.Logger, src string) (string, func(), error) {
+	const format = "raw cga dump %s: %w"
 	const (
 		bsaveHeader = 7
 		bsaveMagic  = 0xFD
@@ -224,17 +226,17 @@ func stripBSAVEHeader(sl *slog.Logger, src string) (string, func(), error) {
 
 	tmpFile, err := dir.CreateTemp("cgabin")
 	if err != nil {
-		return "", nil, fmt.Errorf("create temp raw cga dump: %w", err)
+		return "", nil, fmt.Errorf(format, "create temp", err)
 	}
 	tmpPath := tmpFile.Name()
 	if _, err := tmpFile.Write(data[bsaveHeader : bsaveHeader+payloadLen]); err != nil {
 		_ = tmpFile.Close()
 		_ = os.Remove(tmpPath)
-		return "", nil, fmt.Errorf("write raw cga dump: %w", err)
+		return "", nil, fmt.Errorf(format, "write", err)
 	}
 	if err := tmpFile.Close(); err != nil {
 		_ = os.Remove(tmpPath)
-		return "", nil, fmt.Errorf("close raw cga dump: %w", err)
+		return "", nil, fmt.Errorf(format, "close", err)
 	}
 	cleanup := func() {
 		if err := os.Remove(tmpPath); !errors.Is(err, os.ErrNotExist) && sl != nil {
@@ -243,6 +245,35 @@ func stripBSAVEHeader(sl *slog.Logger, src string) (string, func(), error) {
 		}
 	}
 	return tmpPath, cleanup, nil
+}
+
+func thedrawCOM(sl *slog.Logger, src string) (string, func(), bool, error) {
+	const format = "thedraw com to ansi %s: %w"
+	ans, err := thedraw.Decode(src)
+	if err != nil {
+		return "", nil, false, nil //nolint:nilerr // non-TheDraw files fall back cleanly
+	}
+	tmpFile, err := dir.CreateTemp("thedraw-*.ans")
+	if err != nil {
+		return "", nil, false, fmt.Errorf(format, "create temp", err)
+	}
+	tmpPath := tmpFile.Name()
+	if _, err := tmpFile.Write(ans); err != nil {
+		_ = tmpFile.Close()
+		_ = os.Remove(tmpPath)
+		return "", nil, false, fmt.Errorf(format, "write temp", err)
+	}
+	if err := tmpFile.Close(); err != nil {
+		_ = os.Remove(tmpPath)
+		return "", nil, false, fmt.Errorf(format, "close temp", err)
+	}
+	cleanup := func() {
+		if err := os.Remove(tmpPath); !errors.Is(err, os.ErrNotExist) && sl != nil {
+			sl.Error("text imager could not remove temporary thedraw file",
+				slog.String("file", tmpPath), slog.Any("error", err))
+		}
+	}
+	return tmpPath, cleanup, true, nil
 }
 
 // CGAImager extracts, decompresses, and converts a CGA graphic dumps into a preview image.
@@ -457,6 +488,13 @@ func (ds Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string
 		return fmt.Errorf(format, prevChk, err)
 	}
 
+	if tmpANS, cleanup, ok, err := thedrawCOM(sl, src); err != nil {
+		return fmt.Errorf(format, "thedraw decode", err)
+	} else if ok {
+		defer cleanup()
+		src = tmpANS
+	}
+
 	const maxColumns = 80
 	const vgaRows = 50
 	t := Text{
@@ -507,6 +545,13 @@ func (ds Dirs) TextDeferred(ctx context.Context, sl *slog.Logger, srcText, unid 
 	if st.Size() == 0 {
 		// do not return an error or it will abort the rest of the file listing
 		return nil
+	}
+
+	if tmpANS, cleanup, ok, err := thedrawCOM(sl, srcText); err != nil {
+		return fmt.Errorf(format, "thedraw decode", err)
+	} else if ok {
+		defer cleanup()
+		srcText = tmpANS
 	}
 
 	base := filepath.Base(unid)

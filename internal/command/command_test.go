@@ -128,7 +128,7 @@ func TestDependencyInfos(t *testing.T) {
 
 	arc, img := command.DependencyInfos(t.Context())
 	be.Equal(t, len(arc), 11)
-	be.Equal(t, len(img), 7)
+	be.Equal(t, len(img), 8)
 	be.Equal(t, arc[0].Prog, command.HWZip)
 	be.True(t, arc[0].Expected != "")
 

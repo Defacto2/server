@@ -10,6 +10,42 @@ import (
 	"github.com/nalgeon/be"
 )
 
+func TestTheDrawTempANS(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	plain := filepath.Join(tmpDir, "plain.ans")
+	be.Err(t, os.WriteFile(plain, []byte("\x1b[32mhi\x1b[0m\r\n"), 0o600), nil)
+
+	_, cleanup, ok, err := thedrawCOM(nil, plain)
+	be.Err(t, err, nil)
+	be.True(t, !ok)
+	be.True(t, cleanup == nil)
+
+	const stubLen = 0xF0
+	payload := []byte{0x0E, 'Y', 'O'}
+	td := make([]byte, stubLen+len(payload))
+	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
+	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
+	copy(td[stubLen:], payload)
+
+	tdPath := filepath.Join(tmpDir, "TD.COM")
+	be.Err(t, os.WriteFile(tdPath, td, 0o600), nil)
+
+	outPath, cleanup, ok, err := thedrawCOM(nil, tdPath)
+	be.Err(t, err, nil)
+	be.True(t, ok)
+	be.True(t, cleanup != nil)
+
+	decoded, err := os.ReadFile(outPath)
+	be.Err(t, err, nil)
+	be.True(t, len(decoded) > 0)
+	cleanup()
+	_, err = os.Stat(outPath)
+	be.True(t, os.IsNotExist(err))
+}
+
 func TestBinTextArgs(t *testing.T) {
 	t.Parallel()
 
