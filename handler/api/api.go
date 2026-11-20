@@ -1263,59 +1263,72 @@ func TagsAPI(c *echo.Context, db *sql.DB, category, platform bool) error {
 		return fmt.Errorf("tags api: %w", err)
 	}
 
-	// Try to get cached results first
 	if i, found := cachedTags(category, platform); found {
 		return c.JSON(http.StatusOK, i)
 	}
-
-	infos := tags.Infos()
-	if len(tags.List) == 0 || !category && !platform {
+	if len(tags.List) == 0 || (!category && !platform) {
 		return c.JSON(http.StatusOK, []tagAPI{})
 	}
 
-	ctx := c.Request().Context()
+	sectionStats, platformStats, errMsg := queryTagStats(c.Request().Context(), db, category, platform)
+	if errMsg != "" {
+		return c.JSON(http.StatusInternalServerError, map[string]string{er: errMsg})
+	}
+
+	results := buildTags(tags.Infos(), category, platform, sectionStats, platformStats)
+	tagsCache(category, platform, results)
+
+	return c.JSON(http.StatusOK, results)
+}
+
+func queryTagStats(
+	ctx context.Context, db *sql.DB, category, platform bool,
+) (map[string]model.TagStat, map[string]model.TagStat, string) {
 	var sectionStats, platformStats map[string]model.TagStat
 	if category {
 		var err error
 		sectionStats, err = model.SectionStats(ctx, db)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				er: "Failed to query category statistics",
-			})
+			return nil, nil, "Failed to query category statistics"
 		}
 	}
 	if platform {
 		var err error
 		platformStats, err = model.PlatformStats(ctx, db)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				er: "Failed to query platform statistics",
-			})
+			return nil, nil, "Failed to query platform statistics"
 		}
 	}
+	return sectionStats, platformStats, ""
+}
 
+func buildTags(
+	infos map[tags.Tag]string,
+	category, platform bool,
+	sectionStats, platformStats map[string]model.TagStat,
+) []tagAPI {
 	results := make([]tagAPI, 0, len(tags.List))
 	for _, tag := range tags.List {
 		slug := tag.String()
-		isCat := tags.IsCategory(slug)
-		isPlat := tags.IsPlatform(slug)
-		if (!category || !isCat) && (!platform || !isPlat) {
+		useCat := category && tags.IsCategory(slug)
+		usePlat := platform && tags.IsPlatform(slug)
+		if !useCat && !usePlat {
 			continue
 		}
 
 		var count, byteSum int64
-		if category && isCat {
+		if useCat {
 			st := sectionStats[slug]
 			count += st.Count
 			byteSum += st.Bytes
 		}
-		if platform && isPlat {
+		if usePlat {
 			st := platformStats[slug]
 			count += st.Count
 			byteSum += st.Bytes
 		}
 
-		result := tagAPI{
+		results = append(results, tagAPI{
 			ID:          int(tag),
 			Name:        slug,
 			Description: infos[tag],
@@ -1330,14 +1343,9 @@ func TagsAPI(c *echo.Context, db *sql.DB, category, platform bool) error {
 				HTML3: "/html3/" + slug,
 				HTML:  "/files/" + slug,
 			},
-		}
-		results = append(results, result)
+		})
 	}
-
-	// Cache the results before returning
-	tagsCache(category, platform, results)
-
-	return c.JSON(http.StatusOK, results)
+	return results
 }
 
 // CategoryAPI returns a list of files from any category tag.

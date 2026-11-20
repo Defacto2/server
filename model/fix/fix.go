@@ -319,8 +319,9 @@ func replaceColumn(ctx context.Context, sl *slog.Logger, exec boil.ContextExecut
 		return nil
 	}
 
+	const argCapacity = 2
 	keys := slices.Sorted(maps.Keys(replacements))
-	args := make([]any, 0, len(keys)*2)
+	args := make([]any, 0, len(keys)*argCapacity)
 	var whens, ins strings.Builder
 	for i, bad := range keys {
 		pBad := len(args) + 1

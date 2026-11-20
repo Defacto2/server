@@ -940,7 +940,7 @@ func TestListContentCGAVideoDump(t *testing.T) {
 
 	// Build a 4,096-byte 80x25 CGA text-mode dump (4000 bytes + 96 bytes padding) with black background.
 	dump := make([]byte, 4096)
-	for i := 0; i < len(dump); i += 2 {
+	for i := 0; i+1 < len(dump); i += 2 {
 		dump[i] = ' '
 		dump[i+1] = 0x07
 	}
@@ -976,10 +976,12 @@ func TestListContentTheDrawCOM(t *testing.T) {
 	be.Err(t, err, nil)
 
 	const stubLen = 0xF0
+	const payloadLen = 6
 	payload := []byte{0x0B, 'T', 'D', 0x1B, '!', 0x18}
-	td := make([]byte, stubLen+len(payload))
+	be.Equal(t, len(payload), payloadLen)
+	td := make([]byte, stubLen+payloadLen)
 	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
-	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	binary.LittleEndian.PutUint16(td[4:6], payloadLen)
 	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
 	copy(td[stubLen:], payload)
 
@@ -1022,10 +1024,12 @@ func TestListContentTheDrawCOMNonArchive(t *testing.T) {
 	t.Parallel()
 
 	const stubLen = 0xF0
+	const payloadLen = 4
 	payload := []byte{0x0F, 'H', 'I', 0x18}
-	td := make([]byte, stubLen+len(payload))
+	be.Equal(t, len(payload), payloadLen)
+	td := make([]byte, stubLen+payloadLen)
 	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
-	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	binary.LittleEndian.PutUint16(td[4:6], payloadLen)
 	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
 	copy(td[stubLen:], payload)
 

@@ -30,7 +30,7 @@ func decodeObjectOrArray(t *testing.T, body io.Reader) (map[string]any, []map[st
 }
 
 // TestAllAPIEndpoints tests all API endpoints from apiinfo.tmpl.
-func TestAllAPIEndpoints(t *testing.T) { //nolint:gocognit
+func TestAllAPIEndpoints(t *testing.T) {
 	t.Parallel()
 	reqLocalHost(t)
 

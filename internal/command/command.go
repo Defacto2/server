@@ -465,6 +465,8 @@ func lookupGroup(ctx context.Context, wg *sync.WaitGroup, specs []toolSpec) []To
 }
 
 // DependencyInfos concurrently looks up all archive and image/text host dependencies.
+//
+//nolint:nonamedreturns
 func DependencyInfos(ctx context.Context) (arc, img []ToolInfo) {
 	var wg sync.WaitGroup
 	arc = lookupGroup(ctx, &wg, archiveSpecs())

@@ -1338,7 +1338,8 @@ func buildRoutes(r echo.Routes) ([]routeEntry, []routeMethodCount) {
 			delete(counts, m)
 		}
 	}
-	var extra []string
+
+	extra := make([]string, 0, len(counts))
 	for m := range counts {
 		extra = append(extra, m)
 	}
@@ -1350,6 +1351,7 @@ func buildRoutes(r echo.Routes) ([]routeEntry, []routeMethodCount) {
 			Count:  counts[m],
 		})
 	}
+
 	return entries, methodCounts
 }
 

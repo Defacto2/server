@@ -521,10 +521,16 @@ func cgaDump(src string) bool {
 }
 
 func duplicate(src, dst string) error {
+	const format = "artifact fs duplicate: %w"
 	if ans, err := thedraw.Decode(src); err == nil {
 		const fileMode = 0o600
-		return os.WriteFile(filepath.Clean(dst), ans, fileMode)
+		err := os.WriteFile(filepath.Clean(dst), ans, fileMode)
+		if err != nil {
+			return fmt.Errorf(format, err)
+		}
+		return nil
 	}
+
 	_, err := helper.DuplicateOW(src, dst)
-	return err
+	return fmt.Errorf(format, err)
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -414,7 +415,7 @@ func buildTestPKLITECOM(raw []byte) []byte {
 		dataOff  = 0x60
 		pktTotal = dataOff
 	)
-	hdr := make([]byte, pktTotal)
+	var hdr [pktTotal]byte
 	// Copier pattern matched by pklite.findDataPos: and ax,fff0; mov di,ax; mov cx,N; mov si,decomp+100h
 	copy(hdr[0x0f:], []byte{0x25, 0xf0, 0xff, 0x8b, 0xf8, 0xb9, 0x10, 0x00, 0xbe})
 	binary.LittleEndian.PutUint16(hdr[0x18:], uint16(comBase+decomp))
@@ -424,7 +425,7 @@ func buildTestPKLITECOM(raw []byte) []byte {
 	binary.LittleEndian.PutUint16(hdr[decomp+6:], uint16(comBase+dataOff-2))
 
 	// Encode bitstream: control bits live in 16-bit LE words; bit() refills eagerly as soon as nbits reaches 16.
-	stream := make([]byte, 2)
+	stream := []byte{0, 0}
 	var word uint16
 	wordOff := 0
 	var nbits uint
@@ -455,7 +456,7 @@ func buildTestPKLITECOM(raw []byte) []byte {
 	if wordOff >= 0 {
 		binary.LittleEndian.PutUint16(stream[wordOff:], word)
 	}
-	return append(hdr, stream...)
+	return slices.Concat(hdr[:], stream)
 }
 
 func TestMIME(t *testing.T) {

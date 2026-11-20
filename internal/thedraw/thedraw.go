@@ -1,3 +1,4 @@
+//nolint:exhaustruct_v5,nonamedreturns
 package thedraw
 
 import (
@@ -15,17 +16,35 @@ import (
 const header = "TheDraw COM file Screen Save\x1A"
 
 const (
-	rawStub    = 0xB0 // 176-byte header + raw VRAM copy stub
-	rleStub    = 0xF0 // 240-byte header + 8086 RLE decoder stub
-	sigOff     = 9
-	payloadOff = 4
-	rowsOff    = 4
-	colsOff    = 5
-	startOff   = 7
-	Cols       = 80
-	maxCols    = 160
-	maxRows    = 2000
-	maxBytes   = 65536
+	rawStub      = 0xB0 // 176-byte header + raw VRAM copy stub
+	rleStub      = 0xF0 // 240-byte header + 8086 RLE decoder stub
+	stubEntryOff = 0x3F // offset of entry code after JMP 013Fh and error string
+	sigOff       = 9
+	payloadOff   = 4
+	rowsOff      = 4
+	colsOff      = 5
+	startOff     = 7
+	wordBytes    = 2
+	cellBytes    = 2 // bytes per VGA text cell (character + attribute)
+	Cols         = 80
+	maxCols      = 160
+	maxRows      = 2000
+	maxBytes     = 65536
+)
+
+const (
+	attrBGShift   = 4
+	attrMaskFG    = 0x07
+	attrMaskBold  = 0x08
+	attrMaskHi    = 0xF0 // background + blink nibble mask
+	attrMaskNoBG  = 0x8F // foreground + blink mask (clears background)
+	attrMaskBlink = 0x80
+	defaultAttr   = 0x07
+	defaultFG     = 7
+	defaultBG     = 0
+	sgrFGBase     = 30
+	sgrBGBase     = 40
+	charESC       = 0x1B
 )
 
 // ErrNotCOM is returned when a file does not match the TheDraw .COM screen save format.
@@ -39,7 +58,7 @@ func IsCOM(data []byte) bool {
 	if _, _, _, ok := rawSpan(data); ok {
 		return true
 	}
-	payloadLen := int(binary.LittleEndian.Uint16(data[payloadOff : payloadOff+2]))
+	payloadLen := int(binary.LittleEndian.Uint16(data[payloadOff : payloadOff+wordBytes]))
 	return len(data) >= rleStub && payloadLen > 0 && rleStub+payloadLen <= len(data)
 }
 
@@ -57,19 +76,22 @@ func rawSpan(data []byte) (rows, cols, need int, ok bool) {
 	if len(data) < rawStub {
 		return 0, 0, 0, false
 	}
+
 	// The 176-byte uncompressed stub loads SI from CS:01B0h (file offset 0xB0).
 	leaRaw := []byte{0x8D, 0x36, 0xB0, 0x01}
 	movRaw := []byte{0xBE, 0xB0, 0x01}
-	stub := data[0x3F:rawStub]
+	stub := data[stubEntryOff:rawStub]
 	if !bytes.Contains(stub, leaRaw) && !bytes.Contains(stub, movRaw) {
 		return 0, 0, 0, false
 	}
+
 	rows = int(data[rowsOff])
-	cols = int(binary.LittleEndian.Uint16(data[colsOff : colsOff+2]))
+	cols = int(binary.LittleEndian.Uint16(data[colsOff : colsOff+wordBytes]))
 	if rows <= 0 || rows > maxRows || cols <= 0 || cols > maxCols {
 		return 0, 0, 0, false
 	}
-	need = rows * cols * 2
+
+	need = rows * cols * cellBytes
 	if rawStub+need > len(data) {
 		return 0, 0, 0, false
 	}
@@ -101,13 +123,15 @@ func Extract(data []byte) ([]byte, error) {
 	if !IsCOM(data) {
 		return nil, ErrNotCOM
 	}
+
 	if rows, cols, need, ok := rawSpan(data); ok {
 		grid := decodeRaw(data[rawStub:rawStub+need], rows, cols)
 		return makeANSI(grid, cols), nil
 	}
-	pl := int(binary.LittleEndian.Uint16(data[payloadOff : payloadOff+2]))
+
+	pl := int(binary.LittleEndian.Uint16(data[payloadOff : payloadOff+wordBytes]))
 	payload := data[rleStub : rleStub+pl]
-	startOff := int(binary.LittleEndian.Uint16(data[startOff : startOff+2]))
+	startOff := int(binary.LittleEndian.Uint16(data[startOff : startOff+wordBytes]))
 
 	rows := decodeGrid(payload, startOff)
 	return makeANSI(rows, Cols), nil
@@ -120,7 +144,7 @@ func decodeRaw(payload []byte, rowCount, cols int) [][]theDrawCell {
 		row := make([]theDrawCell, cols)
 		for c := range cols {
 			row[c] = theDrawCell{ch: payload[pos], attr: payload[pos+1]}
-			pos += 2
+			pos += cellBytes
 		}
 		rows[r] = row
 	}
@@ -132,9 +156,57 @@ type theDrawCell struct {
 	attr byte
 }
 
+type rleGrid struct {
+	baseRow int
+	curRow  int
+	curCol  int
+	attr    byte
+	rows    [][]theDrawCell
+}
+
 func decodeGrid(payload []byte, startOff int) [][]theDrawCell {
+	const rowStride = Cols * cellBytes
+	baseRow := min(startOff/rowStride, maxRows-1)
+	g := &rleGrid{
+		baseRow: baseRow,
+		curRow:  baseRow,
+		curCol:  (startOff % rowStride) / cellBytes,
+	}
+	for i := 0; i < len(payload); {
+		var ok bool
+		if i, ok = g.step(payload, i); !ok {
+			return g.rows
+		}
+	}
+	return g.rows
+}
+
+func (g *rleGrid) putCell(ch byte) {
+	if g.curRow >= maxRows {
+		return
+	}
+	if g.curCol >= Cols {
+		g.curRow += g.curCol / Cols
+		g.curCol %= Cols
+		if g.curRow >= maxRows {
+			return
+		}
+	}
+	for len(g.rows) <= g.curRow {
+		g.rows = append(g.rows, make([]theDrawCell, Cols))
+	}
+	g.rows[g.curRow][g.curCol] = theDrawCell{ch: ch, attr: g.attr}
+	g.curCol++
+}
+
+func (g *rleGrid) putRepeat(ch byte, count int) {
+	for range count {
+		g.putCell(ch)
+	}
+}
+
+func (g *rleGrid) step(payload []byte, i int) (int, bool) {
 	const (
-		rowStride = Cols * 2
 		opFGMax   = 0x10
 		opBGMax   = 0x18
 		opNewline = 0x18
@@ -143,75 +215,39 @@ func decodeGrid(payload []byte, startOff int) [][]theDrawCell {
 		opBlink   = 0x1B
 	)
 
-	baseRow := min(startOff/rowStride, maxRows-1)
-	curRow := baseRow
-	curCol := (startOff % rowStride) / 2
-	var attr byte
-	var rows [][]theDrawCell
-
-	ensureRow := func(r int) {
-		for len(rows) <= r {
-			rows = append(rows, make([]theDrawCell, Cols))
+	b := payload[i]
+	i++
+	switch {
+	case b == opBlink:
+		g.attr ^= attrMaskBlink
+	case b < opFGMax:
+		g.attr = (g.attr & attrMaskHi) | b
+	case b == opNewline:
+		g.baseRow++
+		g.curRow = g.baseRow
+		g.curCol = 0
+	case b < opBGMax:
+		g.attr = (g.attr & attrMaskNoBG) | ((b - opFGMax) << attrBGShift)
+	case b == opSpace:
+		if i >= len(payload) {
+			return i, false
 		}
-	}
-	putCell := func(ch, a byte) {
-		if curRow >= maxRows {
-			return
-		}
-		if curCol >= Cols {
-			curRow += curCol / Cols
-			curCol %= Cols
-			if curRow >= maxRows {
-				return
-			}
-		}
-		ensureRow(curRow)
-		rows[curRow][curCol] = theDrawCell{ch: ch, attr: a}
-		curCol++
-	}
-
-	for i := 0; i < len(payload); {
-		b := payload[i]
+		g.putRepeat(' ', int(payload[i])+1)
 		i++
-		switch {
-		case b == opBlink:
-			attr ^= 0x80
-		case b < opFGMax:
-			attr = (attr & 0xF0) | b
-		case b == opNewline:
-			baseRow++
-			curRow = baseRow
-			curCol = 0
-		case b < opBGMax:
-			attr = (attr & 0x8F) | ((b - opFGMax) << 4)
-		case b == opSpace:
-			if i >= len(payload) {
-				return rows
-			}
-			count := int(payload[i]) + 1
-			i++
-			for range count {
-				putCell(' ', attr)
-			}
-		case b == opRepeat:
-			if i+1 >= len(payload) {
-				return rows
-			}
-			count := int(payload[i]) + 1
-			ch := payload[i+1]
-			i += 2
-			for range count {
-				putCell(ch, attr)
-			}
-		default:
-			putCell(b, attr)
+	case b == opRepeat:
+		if i+1 >= len(payload) {
+			return i, false
 		}
+		g.putRepeat(payload[i+1], int(payload[i])+1)
+		i += wordBytes
+	default:
+		g.putCell(b)
 	}
-	return rows
+	return i, true
 }
 
 func isBlankCell(c theDrawCell) bool {
-	return (c.ch == 0 || c.ch == ' ') && (c.attr&0xF0) == 0
+	return (c.ch == 0 || c.ch == ' ') && (c.attr&attrMaskHi) == 0
 }
 
 func trimBlank(rows [][]theDrawCell) [][]theDrawCell {
@@ -243,36 +279,43 @@ func usedLen(row []theDrawCell) int {
 func sanitize(b byte) byte {
 	const dosEOF = 0x1A
 	switch b {
-	case 0, '\r', '\n', dosEOF, 0x1B:
+	case 0, '\r', '\n', dosEOF, charESC:
 		return ' '
 	default:
 		return b
 	}
 }
 
-func appendSGR(buf []byte, prevAttr int, next byte) ([]byte, int) {
+type attrState struct {
+	bold  bool
+	blink bool
+	fg    int
+	bg    int
+}
+
+func parseAttr(a byte) attrState {
+	return attrState{
+		bold:  (a & attrMaskBold) != 0,
+		blink: (a & attrMaskBlink) != 0,
+		fg:    int(a & attrMaskFG),
+		bg:    int((a >> attrBGShift) & attrMaskFG),
+	}
+}
+
+func appendSGR(buf []byte, prev byte, hasPrev bool, next byte) ([]byte, byte) {
 	// CGA attribute bits: 0..2 FG (BGR), 3 bold/bright, 4..6 BG (BGR), 7 blink.
 	cgaToANSI := [8]int{0, 4, 2, 6, 1, 5, 3, 7}
-	const defaultAttr = 0x07
 
-	if prevAttr == int(next) {
-		return buf, prevAttr
+	if hasPrev && prev == next {
+		return buf, prev
 	}
 
-	nextBold := (next & 0x08) != 0
-	nextBlink := (next & 0x80) != 0
-	nextFG := int(next & 0x07)
-	nextBG := int((next >> 4) & 0x07)
-
-	needReset := prevAttr < 0
-	var curBold, curBlink bool
-	curFG, curBG := 7, 0
-	if !needReset {
-		curBold = (prevAttr & 0x08) != 0
-		curBlink = (prevAttr & 0x80) != 0
-		curFG = prevAttr & 0x07
-		curBG = (prevAttr >> 4) & 0x07
-		if (curBold && !nextBold) || (curBlink && !nextBlink) || next == defaultAttr {
+	nxt := parseAttr(next)
+	needReset := !hasPrev
+	cur := attrState{bold: false, blink: false, fg: defaultFG, bg: defaultBG}
+	if hasPrev {
+		cur = parseAttr(prev)
+		if (cur.bold && !nxt.bold) || (cur.blink && !nxt.blink) || next == defaultAttr {
 			needReset = true
 		}
 	}
@@ -280,20 +323,19 @@ func appendSGR(buf []byte, prevAttr int, next byte) ([]byte, int) {
 	var params []string
 	if needReset {
 		params = append(params, "0")
-		curBold, curBlink = false, false
-		curFG, curBG = 7, 0
+		cur = attrState{bold: false, blink: false, fg: defaultFG, bg: defaultBG}
 	}
-	if nextBold && !curBold {
+	if nxt.bold && !cur.bold {
 		params = append(params, "1")
 	}
-	if nextBlink && !curBlink {
+	if nxt.blink && !cur.blink {
 		params = append(params, "5")
 	}
-	if nextFG != curFG {
-		params = append(params, strconv.Itoa(30+cgaToANSI[nextFG]))
+	if nxt.fg != cur.fg {
+		params = append(params, strconv.Itoa(sgrFGBase+cgaToANSI[nxt.fg]))
 	}
-	if nextBG != curBG {
-		params = append(params, strconv.Itoa(40+cgaToANSI[nextBG]))
+	if nxt.bg != cur.bg {
+		params = append(params, strconv.Itoa(sgrBGBase+cgaToANSI[nxt.bg]))
 	}
 
 	if len(params) > 0 {
@@ -301,34 +343,35 @@ func appendSGR(buf []byte, prevAttr int, next byte) ([]byte, int) {
 		buf = append(buf, strings.Join(params, ";")...)
 		buf = append(buf, 'm')
 	}
-	return buf, int(next)
+	return buf, next
 }
 
 func makeANSI(rows [][]theDrawCell, cols int) []byte {
-	const defaultAttr = 0x07
 	rows = trimBlank(rows)
 	if len(rows) == 0 {
 		return nil
 	}
 
 	var out []byte
-	curAttr := -1
+	var curAttr byte
+	hasAttr := false
 
 	for i, row := range rows {
 		used := usedLen(row)
 		for _, cell := range row[:used] {
-			out, curAttr = appendSGR(out, curAttr, cell.attr)
+			out, curAttr = appendSGR(out, curAttr, hasAttr, cell.attr)
+			hasAttr = true
 			out = append(out, sanitize(cell.ch))
 		}
 		if i < len(rows)-1 && used < cols {
-			if curAttr >= 0 && (curAttr&0xF0) != 0 {
+			if hasAttr && (curAttr&attrMaskHi) != 0 {
 				out = append(out, "\x1b[0m"...)
 				curAttr = defaultAttr
 			}
 			out = append(out, "\r\n"...)
 		}
 	}
-	if curAttr >= 0 && curAttr != defaultAttr {
+	if hasAttr && curAttr != defaultAttr {
 		out = append(out, "\x1b[0m"...)
 	}
 	return out

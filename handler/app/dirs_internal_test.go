@@ -3,6 +3,7 @@ package app
 import (
 	"bytes"
 	"encoding/binary"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/aarondl/null/v8"
+	"github.com/labstack/echo/v5"
 	"github.com/nalgeon/be"
 )
 
@@ -18,10 +20,12 @@ func TestAddTextBinaryTheDrawCOM(t *testing.T) {
 	t.Parallel()
 
 	const stubLen = 0xF0
+	const payloadLen = 4
 	payload := []byte{0x0F, 'H', 'I', 0x18}
-	td := make([]byte, stubLen+len(payload))
+	be.Equal(t, len(payload), payloadLen)
+	td := make([]byte, stubLen+payloadLen)
 	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
-	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	binary.LittleEndian.PutUint16(td[4:6], payloadLen)
 	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
 	copy(td[stubLen:], payload)
 
@@ -49,4 +53,21 @@ func TestAddTextBinaryTheDrawCOM(t *testing.T) {
 	be.True(t, strings.Contains(classes, "font-dos"))
 	be.True(t, strings.Contains(classes, "render"))
 	be.True(t, !strings.Contains(classes, "text-bg-dark"))
+}
+
+func TestBuildRoutesExtraMethods(t *testing.T) {
+	t.Parallel()
+
+	entries, counts := buildRoutes(echo.Routes{
+		{Method: http.MethodHead, Path: "/ping"},
+		{Method: http.MethodGet, Path: "/"},
+		{Method: http.MethodOptions, Path: "/ping"},
+	})
+	be.Equal(t, len(entries), 3)
+	be.Equal(t, len(counts), 3)
+	be.Equal(t, counts[0].Method, http.MethodGet)
+	be.Equal(t, counts[1].Method, http.MethodHead)
+	be.Equal(t, counts[1].Count, 1)
+	be.Equal(t, counts[2].Method, http.MethodOptions)
+	be.Equal(t, counts[2].Count, 1)
 }

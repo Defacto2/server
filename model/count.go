@@ -174,8 +174,10 @@ type TagStat struct {
 }
 
 const (
-	sectionStatsSQL  = "SELECT LOWER(BTRIM(section)), COUNT(*), COALESCE(SUM(filesize), 0) FROM files WHERE deletedat IS NULL AND section IS NOT NULL GROUP BY LOWER(BTRIM(section))"
-	platformStatsSQL = "SELECT LOWER(BTRIM(platform)), COUNT(*), COALESCE(SUM(filesize), 0) FROM files WHERE deletedat IS NULL AND platform IS NOT NULL GROUP BY LOWER(BTRIM(platform))"
+	sectionStatsSQL = "SELECT LOWER(BTRIM(section)), COUNT(*), COALESCE(SUM(filesize), 0) " +
+		"FROM files WHERE deletedat IS NULL AND section IS NOT NULL GROUP BY LOWER(BTRIM(section))"
+	platformStatsSQL = "SELECT LOWER(BTRIM(platform)), COUNT(*), COALESCE(SUM(filesize), 0) " +
+		"FROM files WHERE deletedat IS NULL AND platform IS NOT NULL GROUP BY LOWER(BTRIM(platform))"
 )
 
 // PlatformStats returns the file count and total byte size grouped by platform tag.

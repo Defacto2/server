@@ -87,10 +87,12 @@ func Test_buffersTheDrawCOM(t *testing.T) {
 	t.Parallel()
 
 	const stubLen = 0xF0
+	const payloadLen = 8
 	payload := []byte{0x0B, 'T', 'D', 0x18, 0x0E, 'B', 'B', 'S'}
-	td := make([]byte, stubLen+len(payload))
+	be.Equal(t, len(payload), payloadLen)
+	td := make([]byte, stubLen+payloadLen)
 	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
-	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	binary.LittleEndian.PutUint16(td[4:6], payloadLen)
 	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
 	copy(td[stubLen:], payload)
 

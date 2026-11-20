@@ -23,10 +23,12 @@ func TestTheDrawTempANS(t *testing.T) {
 	be.True(t, cleanup == nil)
 
 	const stubLen = 0xF0
+	const payloadLen = 3
 	payload := []byte{0x0E, 'Y', 'O'}
-	td := make([]byte, stubLen+len(payload))
+	be.Equal(t, len(payload), payloadLen)
+	td := make([]byte, stubLen+payloadLen)
 	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
-	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	binary.LittleEndian.PutUint16(td[4:6], payloadLen)
 	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
 	copy(td[stubLen:], payload)
 
@@ -63,12 +65,22 @@ func TestBinTextArgs(t *testing.T) {
 	be.True(t, slices.Equal(args, []string{plain, "-o", dst}))
 
 	// Raw 4096-byte CGA video RAM dump (e.g. .tpg) uses 80-col binary mode.
-	raw := make([]byte, 4096)
-	for i := 0; i < len(raw); i += 2 {
+	const (
+		dumpSize    = 4096
+		screenBytes = 4000
+		cellBytes   = 2
+		attrDefault = 0x07
+		attrCyan    = 0x0B
+		bsaveHeader = 7
+		bsaveSeg    = 0xB800
+		expectedArg = 7
+	)
+	raw := make([]byte, dumpSize)
+	for i := 0; i+1 < len(raw); i += cellBytes {
 		raw[i] = ' '
-		raw[i+1] = 0x07
+		raw[i+1] = attrDefault
 	}
-	raw[0], raw[1] = 'A', 0x0B
+	raw[0], raw[1] = 'A', attrCyan
 	tpg := filepath.Join(tmpDir, "SPYHUNT.TPG")
 	err = os.WriteFile(tpg, raw, 0o600)
 	be.Err(t, err, nil)
@@ -79,11 +91,11 @@ func TestBinTextArgs(t *testing.T) {
 	be.True(t, slices.Equal(args, []string{"-t", "bin", "-c", "80", tpg, "-o", dst}))
 
 	// BSAVE-wrapped CGA video RAM dump strips the 7-byte header into a temp file.
-	bsave := make([]byte, 7+4000)
+	bsave := make([]byte, bsaveHeader+screenBytes)
 	bsave[0] = 0xFD
-	binary.LittleEndian.PutUint16(bsave[1:3], 0xB800)
-	binary.LittleEndian.PutUint16(bsave[5:7], 4000)
-	copy(bsave[7:], raw[:4000])
+	binary.LittleEndian.PutUint16(bsave[1:3], bsaveSeg)
+	binary.LittleEndian.PutUint16(bsave[5:7], screenBytes)
+	copy(bsave[bsaveHeader:], raw[:screenBytes])
 	bsavePath := filepath.Join(tmpDir, "BSAVE.BIN")
 	err = os.WriteFile(bsavePath, bsave, 0o600)
 	be.Err(t, err, nil)
@@ -91,14 +103,14 @@ func TestBinTextArgs(t *testing.T) {
 	args, cleanup, err = binTextArgs(nil, bsavePath, dst)
 	be.Err(t, err, nil)
 	be.True(t, cleanup != nil)
-	be.Equal(t, len(args), 7)
+	be.Equal(t, len(args), expectedArg)
 	be.True(t, slices.Equal(args[:4], []string{"-t", "bin", "-c", "80"}))
 	be.True(t, args[4] != bsavePath)
 	be.True(t, slices.Equal(args[5:], []string{"-o", dst}))
 
 	stripped, err := os.ReadFile(args[4])
 	be.Err(t, err, nil)
-	be.Equal(t, len(stripped), 4000)
+	be.Equal(t, len(stripped), screenBytes)
 	cleanup()
 	_, err = os.Stat(args[4])
 	be.True(t, os.IsNotExist(err))

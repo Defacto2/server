@@ -783,8 +783,10 @@ func (t *T) ByName(name string) (TagData, error) {
 }
 
 const (
-	sectionCountSQL  = "SELECT LOWER(BTRIM(section)), COUNT(*) FROM files WHERE deletedat IS NULL AND section IS NOT NULL GROUP BY LOWER(BTRIM(section))"
-	platformCountSQL = "SELECT LOWER(BTRIM(platform)), COUNT(*) FROM files WHERE deletedat IS NULL AND platform IS NOT NULL GROUP BY LOWER(BTRIM(platform))"
+	sectionCountSQL = "SELECT LOWER(BTRIM(section)), COUNT(*) FROM files " +
+		"WHERE deletedat IS NULL AND section IS NOT NULL GROUP BY LOWER(BTRIM(section))"
+	platformCountSQL = "SELECT LOWER(BTRIM(platform)), COUNT(*) FROM files " +
+		"WHERE deletedat IS NULL AND platform IS NOT NULL GROUP BY LOWER(BTRIM(platform))"
 )
 
 // Build the tags and collect the statistical data sourced from the database.

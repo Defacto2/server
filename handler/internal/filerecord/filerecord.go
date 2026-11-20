@@ -629,7 +629,7 @@ func (e *Entry) skipByInfo(path, platform string, info fs.FileInfo) bool {
 	e.sign = magicnumber.Find(r)
 	if e.sign == magicnumber.PlainText &&
 		strings.EqualFold(filepath.Ext(path), com) &&
-		!likelyPlainTextCOM(r) {
+		!likeTextCOM(r) {
 		e.sign = magicnumber.Unknown
 	}
 	if e.sign == magicnumber.ANSIEscapeText {
@@ -731,40 +731,85 @@ func (e *Entry) isText() bool {
 	return false
 }
 
-// likelyPlainTextCOM rejects binary MS-DOS .com executables that match
+// likeTextCOM rejects binary MS-DOS .com executables that match
 // PlainText heuristics (e.g. <=80-byte stubs or opcode streams with NULs/control bytes).
-func likelyPlainTextCOM(r *os.File) bool {
-	if _, err := r.Seek(0, io.SeekStart); err != nil {
+func likeTextCOM(r *os.File) bool {
+	const (
+		multiplier = 2
+		maxContr   = 50 // allow < 2% unexpected control bytes
+	)
+	data, ok := readCOM(r)
+	if !ok {
 		return false
 	}
-	const maxSample = 64 * 1024
+
+	asc := 0
+	contr := 0
+	for _, b := range data {
+		if isCOMPrintable(b) {
+			asc++
+		} else if isCOMUnexpectedCtrl(b) {
+			contr++
+		}
+	}
+	return asc*multiplier >= len(data) &&
+		contr*maxContr <= len(data)
+}
+
+func readCOM(r *os.File) ([]byte, bool) {
+	const (
+		maxSample = 64 * 1024
+		dosEOF    = 0x1A
+	)
+	if _, err := r.Seek(0, io.SeekStart); err != nil {
+		return nil, false
+	}
+
 	data, err := io.ReadAll(io.LimitReader(r, maxSample))
 	if err != nil {
-		return false
+		return nil, false
 	}
-	const dosEOF = 0x1A
+
 	data = bytes.TrimRight(data, "\x00")
 	if len(data) > 0 && data[len(data)-1] == dosEOF {
 		data = bytes.TrimRight(data[:len(data)-1], "\x00")
 	}
 	if len(data) == 0 || bytes.IndexByte(data, 0) != -1 {
-		return false
+		return nil, false
 	}
 
-	asciiPrintable := 0
-	ctrlUnexpected := 0
-	for _, b := range data {
-		switch {
-		case (b >= 0x20 && b <= 0x7E) || b == '\t' || b == '\n' || b == '\r':
-			asciiPrintable++
-		case b < 0x20 && b != '\a' && b != 0x10 && b != 0x11 && b != dosEOF && b != 0x1E && b != 0x1F:
-			ctrlUnexpected++
-		case b == 0x7F:
-			ctrlUnexpected++
-		}
+	return data, true
+}
+
+func isCOMPrintable(b byte) bool {
+	const (
+		asciiMin = 0x20
+		asciiMax = 0x7E
+	)
+	if b >= asciiMin && b <= asciiMax {
+		return true
 	}
-	const maxCtrlDenom = 50 // allow < 2% unexpected control bytes
-	return asciiPrintable*2 >= len(data) && ctrlUnexpected*maxCtrlDenom <= len(data)
+	return b == '\t' || b == '\n' || b == '\r'
+}
+
+func isCOMUnexpectedCtrl(b byte) bool {
+	const (
+		asciiMin   = 0x20
+		asciiDEL   = 0x7F
+		arrowRight = 0x10
+		arrowLeft  = 0x11
+		dosEOF     = 0x1A
+		triUp      = 0x1E
+		triDown    = 0x1F
+	)
+	if b == asciiDEL {
+		return true
+	}
+	if b >= asciiMin {
+		return false
+	}
+	allowed := []byte{'\a', '\t', '\n', '\r', arrowRight, arrowLeft, dosEOF, triUp, triDown}
+	return !slices.Contains(allowed, b)
 }
 
 func (e *Entry) skipImage(path string) bool {
