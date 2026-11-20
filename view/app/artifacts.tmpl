@@ -106,7 +106,7 @@
   {{- if $unwanted}}{{$cardClass = print $cardClass $unwantedClass}}{{end}}
   <div class="col">
     <div class="card {{$cardClass}}">
-      <div class="card-header text-body-secondary text-center">
+      <div class="card-header text-body-secondary text-center text-truncate">
         <code class="h6 mb-0 text-break">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
       </div>
       <div class="card-body">
