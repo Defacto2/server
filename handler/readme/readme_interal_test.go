@@ -2,9 +2,14 @@
 package readme
 
 import (
+	"encoding/binary"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/nalgeon/be"
 )
 
@@ -76,4 +81,37 @@ func Test_decodeUTF16(t *testing.T) {
 	got, err = decodeUTF16(plain)
 	be.Err(t, err, nil)
 	be.Equal(t, got, plain)
+}
+
+func Test_buffersTheDrawCOM(t *testing.T) {
+	t.Parallel()
+
+	const stubLen = 0xF0
+	payload := []byte{0x0B, 'T', 'D', 0x18, 0x0E, 'B', 'B', 'S'}
+	td := make([]byte, stubLen+len(payload))
+	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
+	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
+	copy(td[stubLen:], payload)
+
+	dlDir := t.TempDir()
+	extraDir := t.TempDir()
+	const unid = "b13e2a00-0000-0000-0000-000000000001"
+	be.Err(t, os.WriteFile(filepath.Join(dlDir, unid), td, 0o600), nil)
+
+	text := Text{
+		Download: dir.Directory(dlDir),
+		Extra:    dir.Directory(extraDir),
+		UUID:     unid,
+		Filename: "!README!.COM",
+		Platform: "dos",
+		MaxSize:  1024 * 1024,
+	}
+	textBuf, runeBuf, err := text.Buffers(logs.Discard())
+	be.Err(t, err, nil)
+	be.True(t, textBuf.Len() > 0)
+	be.Equal(t, runeBuf.Len(), 0)
+	s := textBuf.String()
+	be.True(t, strings.Contains(s, "TD"))
+	be.True(t, strings.Contains(s, "BBS"))
 }

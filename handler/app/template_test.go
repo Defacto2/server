@@ -756,6 +756,7 @@ func TestArtifactsTemplate(t *testing.T) {
 			Section:        null.StringFrom("bbs"),
 			Platform:       null.StringFrom("text"),
 			DateIssuedYear: null.Int16From(1990),
+			FileMagicType:  null.StringFrom("PKLITE compressed executable of a TheDraw COM screen"),
 			WebIDDemozoo:   null.Int64From(42),
 			UUID:           null.StringFrom("00000000-0000-0000-0000-000000000000"),
 		},
@@ -772,6 +773,7 @@ func TestArtifactsTemplate(t *testing.T) {
 	be.True(t, !strings.Contains(out, `><!-- no thumbnail found --></a>`))
 	be.True(t, strings.Contains(out, `<!-- no thumbnail found -->`))
 	be.True(t, strings.Contains(out, `text-info-emphasis`))
+	be.True(t, strings.Contains(out, `<div class="card-text"><small class="text-body-secondary">PKLITE compressed executable of a TheDraw COM screen</small></div>`))
 	be.True(t, !strings.Contains(out, `text-body-info`))
 	be.True(t, strings.Contains(out, `href="/f/`))
 	be.True(t, strings.Contains(out, `<button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button>`))

@@ -40,6 +40,7 @@ import (
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/Defacto2/server/internal/thedraw"
 	"github.com/Defacto2/server/model"
 	"github.com/bengarrett/sauce"
 	"github.com/dustin/go-humanize"
@@ -132,7 +133,8 @@ func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { /
 	data = ds.addDownload(art, data)
 	if fix := !ds.ReadOnly && sess.Editor(c); fix {
 		data = ds.fixMagic(ctx, sl, db, data)
-	} else if data["magic"] == magicnumber.ANSIEscapeText.Title() {
+	} else if data["magic"] == magicnumber.ANSIEscapeText.Title() ||
+		data["magic"] == magicnumber.PKLITE.Title() {
 		path := filepath.Join(ds.Download.Path(), ds.UUID)
 		if helper.Stat(path) {
 			data["magic"] = simple.MagicAsTitle(sl, path)
@@ -607,8 +609,8 @@ func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 		fontlarge = ""
 	}
 
-	// ansi encoded texts
-	if data["magic"] != "Binary data or binary text" {
+	// ansi encoded texts or thedraw texts
+	if data["magic"] != "Binary data or binary text" || ds.theDraw(art) {
 		class := append([]string{fontname, fontlarge, "render"}, elems...)
 		data["preElementClass"] = strings.Join(class, " ")
 		return data
@@ -630,6 +632,14 @@ func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 	data["contentBinarySwappers"] = false
 
 	return data
+}
+
+func (ds *Dirs) theDraw(art *models.File) bool {
+	if art == nil || art.UUID.String == "" || ds.Download == "" {
+		return false
+	}
+	_, err := thedraw.Decode(filepath.Join(ds.Download.Path(), art.UUID.String))
+	return err == nil
 }
 
 // addTextUTF8 adds the appropriate buffer for the "Web style" text.

@@ -1,6 +1,7 @@
 package simple_test
 
 import (
+	"encoding/binary"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -389,6 +390,72 @@ func TestMagicAsTitle(t *testing.T) {
 	be.Err(t, err, nil)
 	be.Equal(t, simple.MagicString(f, magicnumber.ANSIEscapeText), simple.ANSImation)
 	be.Err(t, f.Close(), nil)
+
+	// Single-file PKLITE COM wrapping a TheDraw screen appends the inner type.
+	td := make([]byte, 40)
+	td[0], td[1], td[2] = 0xEB, 0x3D, 0x90
+	copy(td[9:], "TheDraw COM file Screen Save\x1A")
+	pkTheDraw := filepath.Join(dir, "thedraw_pk.com")
+	be.Err(t, os.WriteFile(pkTheDraw, buildTestPKLITECOM(td), 0o600), nil)
+	be.Equal(t, simple.MagicAsTitle(sl, pkTheDraw),
+		"PKLITE compressed executable of a TheDraw COM screen")
+
+	// Single-file PKLITE COM wrapping unknown binary code keeps base PKLITE title.
+	pkUnknown := filepath.Join(dir, "unknown_pk.com")
+	be.Err(t, os.WriteFile(pkUnknown, buildTestPKLITECOM([]byte{0xB4, 0x09, 0xCD, 0x21, 0xC3}), 0o600), nil)
+	be.Equal(t, simple.MagicAsTitle(sl, pkUnknown), "PKLITE compressed executable")
+}
+
+// buildTestPKLITECOM encodes raw as literal-only small-mode PKLITE v1.12 COM data.
+func buildTestPKLITECOM(raw []byte) []byte {
+	const (
+		comBase  = 0x100
+		decomp   = 0x50
+		dataOff  = 0x60
+		pktTotal = dataOff
+	)
+	hdr := make([]byte, pktTotal)
+	// Copier pattern matched by pklite.findDataPos: and ax,fff0; mov di,ax; mov cx,N; mov si,decomp+100h
+	copy(hdr[0x0f:], []byte{0x25, 0xf0, 0xff, 0x8b, 0xf8, 0xb9, 0x10, 0x00, 0xbe})
+	binary.LittleEndian.PutUint16(hdr[0x18:], uint16(comBase+decomp))
+	copy(hdr[46:], "PKLITE Copr. 1991")
+	// Decompressor sig matched by pklite.findDataPos: std; mov di,ax; dec di; dec di; mov si,dataOff-2+100h
+	copy(hdr[decomp:], []byte{0xfd, 0x8b, 0xf8, 0x4f, 0x4f, 0xbe})
+	binary.LittleEndian.PutUint16(hdr[decomp+6:], uint16(comBase+dataOff-2))
+
+	// Encode bitstream: control bits live in 16-bit LE words; bit() refills eagerly as soon as nbits reaches 16.
+	stream := make([]byte, 2)
+	var word uint16
+	wordOff := 0
+	var nbits uint
+	pushBit := func(b uint16, refill bool) {
+		word |= (b & 1) << nbits
+		nbits++
+		if nbits == 16 {
+			binary.LittleEndian.PutUint16(stream[wordOff:], word)
+			word, nbits = 0, 0
+			if refill {
+				wordOff = len(stream)
+				stream = append(stream, 0, 0)
+			} else {
+				wordOff = -1
+			}
+		}
+	}
+	for _, b := range raw {
+		pushBit(0, true)
+		stream = append(stream, b)
+	}
+	// Match flag 1 + smallLengthCodes[7] (3 bits: 0, 1, 1 -> MSB-first code 0b011) + byte 0xFF stop marker.
+	pushBit(1, true)
+	pushBit(0, true)
+	pushBit(1, true)
+	pushBit(1, false)
+	stream = append(stream, 0xFF)
+	if wordOff >= 0 {
+		binary.LittleEndian.PutUint16(stream[wordOff:], word)
+	}
+	return append(hdr, stream...)
 }
 
 func TestMIME(t *testing.T) {

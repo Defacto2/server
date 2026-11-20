@@ -2,6 +2,7 @@ package filerecord_test
 
 import (
 	"archive/zip"
+	"encoding/binary"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -964,4 +965,88 @@ func TestListContentCGAVideoDump(t *testing.T) {
 	be.True(t, strings.Contains(got, "/editor/readme/preview-binary/"))
 	be.True(t, strings.Contains(got, "/editor/readme/copy/"))
 	be.True(t, strings.Contains(got, "/editor/helper/copy/"))
+}
+
+func TestListContentTheDrawCOM(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	zipPath := filepath.Join(tmpDir, "thedraw.zip")
+	zf, err := os.Create(zipPath)
+	be.Err(t, err, nil)
+
+	const stubLen = 0xF0
+	payload := []byte{0x0B, 'T', 'D', 0x1B, '!', 0x18}
+	td := make([]byte, stubLen+len(payload))
+	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
+	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
+	copy(td[stubLen:], payload)
+
+	zw := zip.NewWriter(zf)
+	w, err := zw.Create("SCREEN.COM")
+	be.Err(t, err, nil)
+	_, err = w.Write(td)
+	be.Err(t, err, nil)
+	be.Err(t, zw.Close(), nil)
+	be.Err(t, zf.Close(), nil)
+
+	art := testutil.NewModel(t)
+	art.Platform = null.StringFrom("dos")
+	art.Section = null.StringFrom("bbs")
+	art.Filename = null.StringFrom("thedraw.zip")
+
+	thumbDir := t.TempDir()
+	err = os.WriteFile(filepath.Join(thumbDir, art.UUID.String+".png"), []byte("png"), 0o600)
+	be.Err(t, err, nil)
+
+	dlc := filerecord.DownloadContent{
+		Source:   zipPath,
+		MaxItems: 10,
+		Dirs: command.Dirs{
+			Preview:   dir.Directory(t.TempDir()),
+			Thumbnail: dir.Directory(thumbDir),
+			Extra:     dir.Directory(t.TempDir()),
+		},
+	}
+	got := string(dlc.List(t.Context(), logs.Discard(), art))
+	be.True(t, strings.Contains(got, "SCREEN.COM"))
+	be.True(t, strings.Contains(got, "<small>TheDraw COM screen</small>"))
+	be.True(t, strings.Contains(got, "/editor/readme/preview/"))
+	be.True(t, strings.Contains(got, "/editor/readme/copy/"))
+	be.True(t, strings.Contains(got, "/editor/helper/copy/"))
+	be.True(t, !strings.Contains(got, "Dos command"))
+}
+
+func TestListContentTheDrawCOMNonArchive(t *testing.T) {
+	t.Parallel()
+
+	const stubLen = 0xF0
+	payload := []byte{0x0F, 'H', 'I', 0x18}
+	td := make([]byte, stubLen+len(payload))
+	copy(td[0:3], []byte{0xEB, 0x3D, 0x90})
+	binary.LittleEndian.PutUint16(td[4:6], uint16(len(payload)))
+	copy(td[9:], []byte("TheDraw COM file Screen Save\x1A"))
+	copy(td[stubLen:], payload)
+
+	art := testutil.NewModel(t)
+	art.Platform = null.StringFrom("dos")
+	art.Section = null.StringFrom("bbs")
+	art.Filename = null.StringFrom("!README!.COM")
+
+	// Standalone artifact downloads are stored under their UUID with no file extension.
+	srcPath := filepath.Join(t.TempDir(), art.UUID.String)
+	be.Err(t, os.WriteFile(srcPath, td, 0o600), nil)
+
+	dlc := filerecord.DownloadContent{
+		Source:   srcPath,
+		MaxItems: 10,
+	}
+	got := string(dlc.List(t.Context(), logs.Discard(), art))
+	be.True(t, strings.Contains(got, "!README!.COM"))
+	be.True(t, strings.Contains(got, "<small>TheDraw COM screen</small>"))
+	be.True(t, strings.Contains(got, "/editor/readme/preview/"))
+	be.True(t, strings.Contains(got, "/editor/readme/copy/"))
+	be.True(t, !strings.Contains(got, "/editor/helper/copy/"))
+	be.True(t, !strings.Contains(got, "Dos command"))
 }

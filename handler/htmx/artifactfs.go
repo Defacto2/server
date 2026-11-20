@@ -16,6 +16,7 @@ import (
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/Defacto2/server/internal/thedraw"
 	"github.com/labstack/echo/v5"
 )
 
@@ -79,7 +80,7 @@ func (cp Copy) MkCopy(c *echo.Context, dirs command.Dirs) error {
 	}
 
 	dst := filepath.Join(dirs.Extra.Path(), unid+cp.Ext())
-	if _, err = helper.DuplicateOW(src, dst); err != nil {
+	if err := duplicate(src, dst); err != nil {
 		return badRequest(c, err)
 	}
 
@@ -130,7 +131,7 @@ func FSCopyReadme(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	}
 
 	dst := filepath.Join(dirs.Extra.Path(), unid+Text.Ext())
-	if _, err = helper.DuplicateOW(src, dst); err != nil {
+	if err := duplicate(src, dst); err != nil {
 		return badRequest(c, err)
 	}
 
@@ -138,11 +139,11 @@ func FSCopyReadme(sl *slog.Logger, c *echo.Context, dirs command.Dirs) error {
 	missingWebp := !helper.File(filepath.Join(dirs.Thumbnail.Path(), unid+".webp"))
 	if missingPNG && missingWebp {
 		ctx := c.Request().Context()
-		if isCGAVideoDump(src) {
+		if cgaDump(src) {
 			if err := dirs.BinTextImager(ctx, sl, src, unid); err != nil {
 				return badRequest(c, err)
 			}
-		} else if err := dirs.TextImager(ctx, sl, src, unid, false); err != nil {
+		} else if err := dirs.TextImager(ctx, sl, dst, unid, false); err != nil {
 			return badRequest(c, err)
 		}
 	}
@@ -510,11 +511,20 @@ func FSRemoveCache(c *echo.Context) error {
 	return c.String(http.StatusOK, "cache removed")
 }
 
-func isCGAVideoDump(src string) bool {
+func cgaDump(src string) bool {
 	f, err := os.Open(src)
 	if err != nil {
 		return false
 	}
 	defer f.Close()
 	return magicnumber.Find(f) == magicnumber.CGAVideoDump
+}
+
+func duplicate(src, dst string) error {
+	if ans, err := thedraw.Decode(src); err == nil {
+		const fileMode = 0o600
+		return os.WriteFile(filepath.Clean(dst), ans, fileMode)
+	}
+	_, err := helper.DuplicateOW(src, dst)
+	return err
 }

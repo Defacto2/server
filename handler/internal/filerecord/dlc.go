@@ -151,8 +151,46 @@ func (dlc *DownloadContent) init(
 	if err != nil {
 		return dlc.extractErr(sl, err)
 	}
+	renUUID(sl, dlc.tempRoot, dlc.Source, art.Filename.String)
 
 	return ""
+}
+
+// renUUID renames single-file unpacker outputs (such as PKLITE COM files)
+// from the source UUID basename to the artifact's display filename.
+func renUUID(sl *slog.Logger, tempDir, srcDir, filename string) {
+	const maxEntries = 2
+	srcBase := filepath.Base(srcDir)
+	target := filepath.Base(strings.TrimSpace(filename))
+	if tempDir == "" || target == "" || target == "." || target == ".." || target == srcBase {
+		return
+	}
+
+	entries, err := os.ReadDir(tempDir)
+	if err != nil || len(entries) == 0 || len(entries) > maxEntries {
+		return
+	}
+
+	hasSrc := false
+	for _, entry := range entries {
+		name := entry.Name()
+		if name == srcBase && !entry.IsDir() {
+			hasSrc = true
+			continue
+		}
+		if name != target {
+			return
+		}
+	}
+	if !hasSrc {
+		return
+	}
+
+	dst := filepath.Join(tempDir, target)
+	err = os.Rename(filepath.Join(tempDir, srcBase), dst)
+	if err != nil && sl != nil {
+		sl.Warn("rename extracted uuid file", slog.String("src", srcBase), slog.String("dst", target), slog.Any("error", err))
+	}
 }
 
 func (dlc *DownloadContent) extractErr(sl *slog.Logger, err error) template.HTML {

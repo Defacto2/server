@@ -215,10 +215,14 @@ func (m *ListEntry) column2() string {
 		}
 		return buttonDIZ(m.UniqueID, m.name)
 	}
-	if !m.isTextCandidate(ext) {
+	if !m.isTextCandidate(ext) && !m.theDrawStandalone() {
 		return ""
 	}
 	return buttonReadme(m.UniqueID, m.name)
+}
+
+func (m *ListEntry) theDrawStandalone() bool {
+	return m.NonArchive && m.Signature == magicnumber.TheDrawCOM.String()
 }
 
 // column3 is the list entry, third action button of the "Download content" list.
@@ -243,7 +247,8 @@ func (m *ListEntry) unknownCOM(ext string) bool {
 func buttonText(id, filename, platform, sign string) string {
 	if strings.EqualFold(platform, tags.TextAmiga.String()) ||
 		strings.EqualFold(platform, tags.Console.String()) {
-		if !strings.Contains(strings.ToLower(sign), "ansi") {
+		ls := strings.ToLower(sign)
+		if !strings.Contains(ls, "ansi") && !strings.Contains(ls, "thedraw") {
 			// ansilove does not color ANSI using "ced" or "workbench"
 			// instead, it renders the files as ASCII text files
 			return buttonPreview("preview-amiga", id, filename)
@@ -711,9 +716,12 @@ func (e *Entry) isBinaryText(platform string) bool {
 }
 
 // isText returns true if the magic signature is a
-// simple character encoded text file, or a
-// unicoded encoded text file, or a text file with ansi escape codes.
+// simple character encoded text file, a unicode encoded text file,
+// a text file with ansi escape codes, or a TheDraw COM screen save.
 func (e *Entry) isText() bool {
+	if e.sign == magicnumber.TheDrawCOM {
+		return true
+	}
 	for val := range slices.Values(magicnumber.Texts()) {
 		if val == e.sign {
 			return true

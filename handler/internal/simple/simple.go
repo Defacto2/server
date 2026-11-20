@@ -29,6 +29,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Defacto2/archive/pklite"
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/handler/releaser"
@@ -559,15 +560,78 @@ func magicANSI(r io.ReadSeeker, sign magicnumber.Signature, base string) string 
 }
 
 // MagicTitle returns the magic number description, refining ANSI escaped text
-// as static, blinking, or an ANSImation using ansimate.
+// as static, blinking, or an ANSImation using ansimate, and appending the
+// inner signature for single-file PKLITE compressed COM executables.
 func MagicTitle(r io.ReadSeeker, sign magicnumber.Signature) string {
-	return magicANSI(r, sign, sign.Title())
+	return magicRefine(r, sign, sign.Title(), true)
 }
 
 // MagicString returns the short magic number description, refining ANSI text
-// as static, blinking, or an ANSImation using ansimate.
+// as static, blinking, or an ANSImation using ansimate, and appending the
+// inner signature for single-file PKLITE compressed COM executables.
 func MagicString(r io.ReadSeeker, sign magicnumber.Signature) string {
-	return magicANSI(r, sign, sign.String())
+	return magicRefine(r, sign, sign.String(), false)
+}
+
+func magicRefine(r io.ReadSeeker, sign magicnumber.Signature, base string, useTitle bool) string {
+	switch sign {
+	case magicnumber.ANSIEscapeText:
+		return magicANSI(r, sign, base)
+	case magicnumber.PKLITE, magicnumber.Unknown:
+		return magicPKLITE(r, sign, base, useTitle)
+	default:
+		return base
+	}
+}
+
+func magicPKLITE(r io.ReadSeeker, sign magicnumber.Signature, base string, useTitle bool) string {
+	if r == nil {
+		return base
+	}
+	if _, err := r.Seek(0, io.SeekStart); err != nil {
+		return base
+	}
+
+	const comMax = 64 * 1024
+	data, err := io.ReadAll(io.LimitReader(r, comMax+1))
+	if err != nil || len(data) == 0 || len(data) > comMax {
+		return base
+	}
+	if pklite.IsEXE(data) || !pklite.IsCOM(data) {
+		return base
+	}
+
+	out, err := pklite.Decompress(data)
+	if err != nil {
+		return base
+	}
+
+	if sign == magicnumber.Unknown {
+		if useTitle {
+			base = magicnumber.PKLITE.Title()
+		} else {
+			base = magicnumber.PKLITE.String()
+		}
+	}
+
+	inner := magicnumber.Find(bytes.NewReader(out))
+	if inner == magicnumber.Unknown {
+		return base
+	}
+	innerDesc := magicANSI(bytes.NewReader(out), inner, inner.String())
+	return base + " of " + indefiniteArticle(innerDesc) + " " + innerDesc
+}
+
+func indefiniteArticle(s string) string {
+	if s == "" {
+		return "a"
+	}
+	switch strings.ToLower(s[:1]) {
+	case "a", "e", "i", "o":
+		return "an"
+	default:
+		return "a"
+	}
 }
 
 // MagicAsTitle returns the magic number description for the named file.

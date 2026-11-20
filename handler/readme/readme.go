@@ -18,6 +18,7 @@ import (
 	"github.com/Defacto2/server/internal/extensions"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/Defacto2/server/internal/thedraw"
 	"github.com/bengarrett/ansibump"
 	"github.com/bengarrett/binbump"
 	"github.com/bengarrett/sauce"
@@ -456,6 +457,10 @@ func (t *Text) secondary(buf *bytes.Buffer, extension string) error {
 	p := buf.Bytes()
 	buf.Reset()
 
+	if ans, decErr := thedraw.Extract(p); decErr == nil {
+		p = ans
+	}
+
 	if extension == ".diz" {
 		// INFO:
 		// These aggressive fixes are probably not suitable for general texts.
@@ -527,6 +532,9 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 	}
 
 	p := textBuf.Bytes()
+	if ans, decErr := thedraw.Extract(p); decErr == nil {
+		p = ans
+	}
 	// INFO: because there is no reliable way to detect binary text files,
 	// we instead look for known file types that should not be treated as text.
 	r := bytes.NewReader(p)
@@ -573,11 +581,16 @@ func (t *Text) filename() (string, error) {
 
 	// when the readme text file does not exist
 	// check if we should fall back to using the artifact
+	artifactPath := t.Download.Join(t.UUID)
 	if !t.useViewer() {
+		if helper.Stat(artifactPath) {
+			if _, decErr := thedraw.Decode(artifactPath); decErr == nil {
+				return artifactPath, nil
+			}
+		}
 		return "", nil
 	}
 
-	artifactPath := t.Download.Join(t.UUID)
 	if !helper.Stat(artifactPath) {
 		return "", fmt.Errorf(format, artifactPath, ErrDownload)
 	}
