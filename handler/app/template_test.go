@@ -779,4 +779,27 @@ func TestArtifactsTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `<button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button>`))
 	be.True(t, strings.Contains(out, `<div class="d-flex flex-wrap align-items-baseline gap-3">`))
 	be.True(t, !strings.Contains(out, `&nbsp; <a class="card-link"`))
+	be.True(t, !strings.Contains(out, `id="batch-open-menu"`))
+	be.True(t, strings.Contains(out, `data-artifact-url="/f/`))
+
+	recs := data["records"].(models.FileSlice)
+	for i := 2; i <= 5; i++ {
+		rec := recs[0]
+		rec.ID = int64(i)
+		recs = append(recs, rec)
+	}
+	data["records"] = recs
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "content", data)
+	be.Err(t, err, nil)
+	fiveOut := buf.String()
+	be.True(t, strings.Contains(fiveOut, `id="batch-open-menu"`))
+
+	data["editor"] = false
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "content", data)
+	be.Err(t, err, nil)
+	nonEditorOut := buf.String()
+	be.True(t, !strings.Contains(nonEditorOut, `id="batch-open-menu"`))
+	be.True(t, !strings.Contains(nonEditorOut, `data-artifact-url=`))
 }

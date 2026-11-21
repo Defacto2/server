@@ -70,9 +70,21 @@
 {{- end}}
 </div>
 {{- if eq $cnt 0}}{{else -}}
-<div class="text-center mb-2 d-none d-lg-block">
-  <button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button>
+<div class="d-flex flex-wrap justify-content-center align-items-center gap-2 mb-2">
+  <span class="d-none d-lg-inline-block"><button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button></span>
+  {{- if and (eq $editor true) (ge $cnt 5)}}
+  <div class="dropdown" id="batch-open-dropdown">
+    <button type="button" id="batch-open-button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+      Open mutltiple tabs
+    </button>
+    <ul class="dropdown-menu" id="batch-open-menu" aria-labelledby="batch-open-button"></ul>
+  </div>
+  <span class="text-body-secondary small">Multiple tabs requires <em>Allowed to send pop-ups</em></span>
+  {{- end}}
 </div>
+{{- if and (eq $editor true) (ge $cnt 5)}}
+<div id="batch-open-alert" class="alert alert-warning text-center py-1 px-2 small mx-auto mb-2 d-none" style="max-width: 36rem;" role="alert"></div>
+{{- end}}
 {{- end}}
 {{- $rowCols := "d-grid gap-3 justify-content-center" }}
 <div id="fluid-artifacts" class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 400px));">
@@ -105,7 +117,7 @@
   {{- $unwanted := (ne .FileSecurityAlertURL.String "")}}
   {{- if $unwanted}}{{$cardClass = print $cardClass $unwantedClass}}{{end}}
   <div class="col">
-    <div class="card {{$cardClass}}">
+    <div class="card {{$cardClass}}"{{- if eq $editor true}} data-artifact-url="{{linkHref .ID}}"{{- end}}>
       <div class="card-header text-body-secondary text-center text-truncate">
         <code class="h6 mb-0 text-break">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
       </div>

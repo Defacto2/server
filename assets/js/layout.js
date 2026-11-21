@@ -7,6 +7,7 @@ import {
   pagination,
 } from "./layout-keyboard.mjs";
 import htmxEvents from "./layout-htmx.mjs";
+import batchOpenTabs from "./layout-batch.mjs";
 
 (() => {
   "use strict";
@@ -15,6 +16,7 @@ import htmxEvents from "./layout-htmx.mjs";
   pagination("paginationRange");
   toolTips();
   fluidColumns();
+  batchOpenTabs();
 })();
 
 /**
