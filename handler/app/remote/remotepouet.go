@@ -282,10 +282,10 @@ func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, tx *sql.Tx)
 	files, err := archive.Lists(ctx, dst)
 	if err != nil {
 		got.log(sl, "archive lists issue", err)
-		return nil
+	} else {
+		got.Content = strings.Join(files, "\n")
 	}
 
-	got.Content = strings.Join(files, "\n")
 	if err := got.Update(ctx, tx); err != nil {
 		got.log(sl, "archive lists update", err)
 		return err

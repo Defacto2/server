@@ -6,6 +6,7 @@ package htmx
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -116,7 +117,7 @@ func (prod Prod) Submit( //nolint:funlen
 		}
 		defer func() {
 			rErr := bgTx.Rollback()
-			if rErr != nil {
+			if rErr != nil && !errors.Is(rErr, sql.ErrTxDone) {
 				logErr("cannot fetch remote rollback", rErr)
 			}
 		}()

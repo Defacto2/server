@@ -168,11 +168,6 @@ func (got *DemozooLink) ArchiveDo(
 	}
 
 	got.Content = strings.Join(files, "\n")
-	if err := got.Update(ctx, c, tx); err != nil {
-		got.log(sl, "archive lists update", err)
-		return err
-	}
-
 	return nil
 }
 
@@ -280,6 +275,10 @@ func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.C
 		got.Error = ""
 		if err := got.Stat(ctx, sl, c, tx); err != nil {
 			got.log(sl, "downloaded remote and stat", err)
+		}
+		if err := got.Update(ctx, c, tx); err != nil {
+			got.log(sl, "downloaded remote update", err)
+			return err
 		}
 
 		return nil
