@@ -348,7 +348,7 @@ func (dlc *DownloadContent) htmlFn(path string, d fs.DirEntry, err error) error 
 	dlc.entries++
 	if e.text {
 		dlc.name = d.Name()
-		dlc.names = append(dlc.names, dlc.name)
+		dlc.names = append(dlc.names, rel)
 	}
 
 	le := listEntry(e, rel, dlc.unid)
@@ -374,8 +374,8 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 	idx := dlc.indexDiz()
 	if useDiz := idx >= 0; useDiz {
 		elms := ""
-		if len(dlc.elems) > idx {
-			elms = dlc.elems[idx]
+		if len(dlc.names) > idx {
+			elms = dlc.names[idx]
 		}
 
 		srcDIZ := filepath.Join(dlc.tempRoot, elms)
@@ -395,8 +395,8 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 	srcNFO := ""
 	if onlyNFO := idx == -1 && count == 1; onlyNFO {
 		elms := ""
-		if len(dlc.elems) > 0 {
-			elms = dlc.elems[0]
+		if len(dlc.names) > 0 {
+			elms = dlc.names[0]
 		}
 		srcNFO = filepath.Join(dlc.tempRoot, elms)
 	}
@@ -405,8 +405,8 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 	if textPair := idx != -1 && count == maxItems; textPair {
 		invert := 1 - idx
 		elms := ""
-		if len(dlc.elems) > invert {
-			elms = dlc.elems[invert]
+		if len(dlc.names) > invert {
+			elms = dlc.names[invert]
 		}
 		srcNFO = filepath.Join(dlc.tempRoot, elms)
 	}
@@ -425,7 +425,7 @@ func (dlc *DownloadContent) renderHTML(ctx context.Context, sl *slog.Logger) tem
 func (dlc *DownloadContent) indexDiz() int {
 	for i, name := range dlc.names {
 		s := strings.TrimSpace(name)
-		if strings.EqualFold(s, extensions.FileID) {
+		if strings.EqualFold(filepath.Base(s), extensions.FileID) {
 			return i
 		}
 	}

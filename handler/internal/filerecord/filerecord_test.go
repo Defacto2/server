@@ -1094,3 +1094,104 @@ func TestListContentSingleFileOldestModTime(t *testing.T) {
 	be.True(t, strings.Contains(got, "2025-Jan-10"))
 	be.True(t, !strings.Contains(got, "1970-Jan-01"))
 }
+
+func TestListContentTextDeferredSelection(t *testing.T) {
+	t.Parallel()
+
+	writeZip := func(t *testing.T, zipPath string, entries map[string][]byte) {
+		t.Helper()
+		zf, err := os.Create(zipPath)
+		be.Err(t, err, nil)
+		zw := zip.NewWriter(zf)
+		for name, data := range entries {
+			w, err := zw.Create(name)
+			be.Err(t, err, nil)
+			_, err = w.Write(data)
+			be.Err(t, err, nil)
+		}
+		be.Err(t, zw.Close(), nil)
+		be.Err(t, zf.Close(), nil)
+	}
+
+	t.Run("binary before single text file", func(t *testing.T) {
+		t.Parallel()
+
+		tmpDir := t.TempDir()
+		zipPath := filepath.Join(tmpDir, "release.zip")
+		exeBytes := []byte{'M', 'Z', 0x90, 0x00, 0x03, 0x00, 0x00, 0x00}
+		txtBytes := []byte("Release notes\r\nHello world!\r\n")
+		writeZip(t, zipPath, map[string][]byte{
+			"app.exe":    exeBytes,
+			"readme.txt": txtBytes,
+		})
+
+		art := testutil.NewModel(t)
+		art.Platform = null.StringFrom("windows")
+		art.Section = null.StringFrom("release")
+		art.Filename = null.StringFrom("release.zip")
+
+		thumbDir := t.TempDir()
+		extraDir := t.TempDir()
+		be.Err(t, os.WriteFile(filepath.Join(thumbDir, art.UUID.String+".png"), []byte("png"), 0o600), nil)
+
+		dlc := filerecord.DownloadContent{
+			Source:   zipPath,
+			MaxItems: 10,
+			Dirs: command.Dirs{
+				Preview:   dir.Directory(t.TempDir()),
+				Thumbnail: dir.Directory(thumbDir),
+				Extra:     dir.Directory(extraDir),
+			},
+		}
+		got := string(dlc.List(t.Context(), logs.Discard(), art))
+		be.True(t, strings.Contains(got, "readme.txt"))
+
+		savedTxt, err := os.ReadFile(filepath.Join(extraDir, art.UUID.String+".txt"))
+		be.Err(t, err, nil)
+		be.Equal(t, string(savedTxt), string(txtBytes))
+	})
+
+	t.Run("binary before diz and nested text file", func(t *testing.T) {
+		t.Parallel()
+
+		tmpDir := t.TempDir()
+		zipPath := filepath.Join(tmpDir, "nested.zip")
+		exeBytes := []byte{'M', 'Z', 0x90, 0x00, 0x03, 0x00, 0x00, 0x00}
+		dizBytes := []byte("FILE_ID.DIZ content\r\n")
+		nfoBytes := []byte("Nested NFO content\r\n")
+		writeZip(t, zipPath, map[string][]byte{
+			"000_app.exe":      exeBytes,
+			"file_id.diz":      dizBytes,
+			"docs/readme.txt":  nfoBytes,
+		})
+
+		art := testutil.NewModel(t)
+		art.Platform = null.StringFrom("windows")
+		art.Section = null.StringFrom("release")
+		art.Filename = null.StringFrom("nested.zip")
+
+		thumbDir := t.TempDir()
+		extraDir := t.TempDir()
+		be.Err(t, os.WriteFile(filepath.Join(thumbDir, art.UUID.String+".png"), []byte("png"), 0o600), nil)
+
+		dlc := filerecord.DownloadContent{
+			Source:   zipPath,
+			MaxItems: 10,
+			Dirs: command.Dirs{
+				Preview:   dir.Directory(t.TempDir()),
+				Thumbnail: dir.Directory(thumbDir),
+				Extra:     dir.Directory(extraDir),
+			},
+		}
+		got := string(dlc.List(t.Context(), logs.Discard(), art))
+		be.True(t, strings.Contains(got, "docs/readme.txt"))
+
+		savedDiz, err := os.ReadFile(filepath.Join(extraDir, art.UUID.String+".diz"))
+		be.Err(t, err, nil)
+		be.Equal(t, string(savedDiz), string(dizBytes))
+
+		savedTxt, err := os.ReadFile(filepath.Join(extraDir, art.UUID.String+".txt"))
+		be.Err(t, err, nil)
+		be.Equal(t, string(savedTxt), string(nfoBytes))
+	})
+}
