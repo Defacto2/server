@@ -386,11 +386,9 @@ func lookupTool(ctx context.Context, spec toolSpec) ToolInfo {
 	expected := expectedInfo(spec.name)
 	prog := archcmd.Bottle(spec.name)
 
-	var abs string
-	if filepath.IsAbs(prog) {
-		abs = prog
-	} else {
-		foundPath, err := Lookup(prog)
+	abs := prog
+	if !filepath.IsAbs(prog) {
+		found, err := Lookup(prog)
 		if err != nil {
 			return ToolInfo{
 				Prog:     spec.name,
@@ -398,11 +396,13 @@ func lookupTool(ctx context.Context, spec toolSpec) ToolInfo {
 				Err:      err.Error(),
 			}
 		}
-		abs = foundPath
+		abs = found
 	}
 
-	linfo, lerr := os.Lstat(abs)
-	isSymlink := lerr == nil && linfo.Mode()&os.ModeSymlink != 0
+	var symlink bool
+	if linfo, lerr := os.Lstat(abs); lerr == nil && linfo != nil {
+		symlink = linfo.Mode()&os.ModeSymlink != 0
+	}
 
 	info, err := os.Stat(abs)
 	if err != nil {
@@ -412,7 +412,7 @@ func lookupTool(ctx context.Context, spec toolSpec) ToolInfo {
 			Abs:      abs,
 			Found:    true,
 			Warning:  true,
-			Symlink:  isSymlink,
+			Symlink:  symlink,
 			Err:      err.Error(),
 		}
 	}
@@ -444,7 +444,7 @@ func lookupTool(ctx context.Context, spec toolSpec) ToolInfo {
 		Found:    true,
 		Warning:  warning,
 		Regular:  info.Mode().IsRegular(),
-		Symlink:  isSymlink,
+		Symlink:  symlink,
 		Perm:     info.Mode().Perm(),
 		Size:     info.Size(),
 		Output:   FormatOutput(spec.name, b),
