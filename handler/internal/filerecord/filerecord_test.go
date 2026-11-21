@@ -1054,3 +1054,43 @@ func TestListContentTheDrawCOMNonArchive(t *testing.T) {
 	be.True(t, !strings.Contains(got, "/editor/helper/copy/"))
 	be.True(t, !strings.Contains(got, "Dos command"))
 }
+
+func TestListContentSingleFileOldestModTime(t *testing.T) {
+	t.Parallel()
+
+	oldDB := time.Date(1994, time.May, 12, 10, 0, 0, 0, time.UTC)
+	newerDisk := time.Date(2025, time.January, 10, 12, 0, 0, 0, time.UTC)
+	olderDisk := time.Date(1992, time.March, 1, 8, 0, 0, 0, time.UTC)
+	epochDB := time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)
+
+	art := testutil.NewModel(t)
+	art.Platform = null.StringFrom("text")
+	art.Section = null.StringFrom("bbs")
+	art.Filename = null.StringFrom("README.TXT")
+
+	srcPath := filepath.Join(t.TempDir(), art.UUID.String)
+	be.Err(t, os.WriteFile(srcPath, []byte("hello bbs world\n"), 0o600), nil)
+	be.Err(t, os.Chtimes(srcPath, newerDisk, newerDisk), nil)
+
+	// DB timestamp is older than disk mtime -> should display DB date.
+	art.FileLastModified = null.TimeFrom(oldDB)
+	dlc := filerecord.DownloadContent{Source: srcPath, MaxItems: 10}
+	got := string(dlc.List(t.Context(), logs.Discard(), art))
+	be.True(t, strings.Contains(got, "1994-May-12"))
+	be.True(t, !strings.Contains(got, "2025-Jan-10"))
+
+	// Disk mtime is older than DB timestamp -> should display disk date.
+	be.Err(t, os.Chtimes(srcPath, olderDisk, olderDisk), nil)
+	dlc = filerecord.DownloadContent{Source: srcPath, MaxItems: 10}
+	got = string(dlc.List(t.Context(), logs.Discard(), art))
+	be.True(t, strings.Contains(got, "1992-Mar-01"))
+	be.True(t, !strings.Contains(got, "1994-May-12"))
+
+	// Invalid/epoch DB timestamp should be ignored in favor of disk mtime.
+	be.Err(t, os.Chtimes(srcPath, newerDisk, newerDisk), nil)
+	art.FileLastModified = null.TimeFrom(epochDB)
+	dlc = filerecord.DownloadContent{Source: srcPath, MaxItems: 10}
+	got = string(dlc.List(t.Context(), logs.Discard(), art))
+	be.True(t, strings.Contains(got, "2025-Jan-10"))
+	be.True(t, !strings.Contains(got, "1970-Jan-01"))
+}

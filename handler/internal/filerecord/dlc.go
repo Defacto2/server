@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Defacto2/archive"
 	"github.com/Defacto2/helper"
@@ -25,6 +26,7 @@ import (
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
+	"github.com/aarondl/null/v8"
 )
 
 type DownloadContent struct {
@@ -44,6 +46,7 @@ type DownloadContent struct {
 	elems         []string
 	results       []string
 	names         []string
+	dbLastMod     null.Time
 	html          strings.Builder
 }
 
@@ -114,6 +117,7 @@ func (dlc *DownloadContent) init(
 ) template.HTML {
 	var err error
 
+	dlc.dbLastMod = art.FileLastModified
 	dlc.unid = art.UUID.String
 	if !art.UUID.Valid {
 		return "error, no UUID"
@@ -253,8 +257,22 @@ func (dlc *DownloadContent) extractNone(path string) template.HTML {
 
 	le := listEntry(e, dlc.name, dlc.unid)
 	le.NonArchive = true
+	le.modtime = oldestModTime(le.modtime, dlc.dbLastMod)
 	dlc.html.WriteString(le.HTML(e.bytes, dlc.platform, dlc.section))
 	return template.HTML(dlc.html.String())
+}
+
+func oldestModTime(fileMod time.Time, dbMod null.Time) time.Time {
+	if !dbMod.Valid || dbMod.IsZero() || dbMod.Time.Year() <= epoch {
+		return fileMod
+	}
+	if fileMod.IsZero() || fileMod.Year() <= epoch {
+		return dbMod.Time
+	}
+	if dbMod.Time.Before(fileMod) {
+		return dbMod.Time
+	}
+	return fileMod
 }
 
 // countFn quickly sums the number of found files to [DownloadContent.files].
@@ -334,6 +352,9 @@ func (dlc *DownloadContent) htmlFn(path string, d fs.DirEntry, err error) error 
 	}
 
 	le := listEntry(e, rel, dlc.unid)
+	if dlc.files == 1 {
+		le.modtime = oldestModTime(le.modtime, dlc.dbLastMod)
+	}
 	dlc.html.WriteString(le.HTML(e.bytes, dlc.platform, dlc.section))
 	if dlc.entries > dlc.MaxItems {
 		return filepath.SkipAll
