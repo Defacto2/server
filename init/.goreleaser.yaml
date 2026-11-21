@@ -25,38 +25,14 @@ builds:
     env:
       - CGO_ENABLED=0
     targets:
-      # keep the number of targets to a minimum to improve the build time.
       - linux_amd64
-      - darwin_arm64  # apple silicon
-      - windows_amd64
 archives:
-  - formats: ['tgz'] # create tar.gz archive for simplicity (zip for Windows)
-    format_overrides:
-      - goos: windows
-        formats: ['zip']
-    name_template: >-
-      {{ tolower .ProjectName }}_{{- tolower .Os }}
-    files:
-      - src: public/text/defacto2.txt
-        dst: defacto2.txt
-        info:
-          mtime: "{{ .CommitDate }}"
-          mode: 0644 # rw-r--r--
-      - src: init/defacto2.service
-        dst: defacto2.service
-        info:
-          mtime: "{{ .CommitDate }}"
-          mode: 0644 # rw-r--r--
-      - src: init/example.env.local
-        dst: example.env
-        info:
-          mtime: "{{ .CommitDate }}"
-          mode: 0644 # rw-r--r--
+  - formats: ['none']
 nfpms:
   - id: deb # create a .deb package for use with dpkg
-    ids: ["server"]
+    ids: ['server']
     package_name: defacto2-server
-    file_name_template: "{{ tolower .ProjectName }}_{{- tolower .Os }}"
+    file_name_template: '{{ tolower .ProjectName }}_{{- tolower .Os }}'
     vendor: Defacto2
     homepage: https://github.com/Defacto2/server
     maintainer: Ben Garrett <contact@defacto2.net>
@@ -71,17 +47,26 @@ nfpms:
       - caddy
       - postgresql
 checksum:
-  name_template: "{{ .ProjectName }}_checksums.txt"
+  name_template: '{{ .ProjectName }}_checksums.txt'
 changelog:
   sort: asc
   filters:
     exclude:
-      - "^build:"
-      - "^chore:"
-      - "^ci:"
-      - "^docs:"
-      - "^refactor:"
-      - "^test:"
-      - "^tmp:"
+      - '^build:'
+      - '^chore:'
+      - '^ci:'
+      - '^docs:'
+      - '^refactor:'
+      - '^test:'
+      - '^tmp:'
 release:
-  footer: "---\n_defacto2-server_ is a standalone web server application.  It works out of the box without installation or configuration. However, to browse any records such as the artifacts, releasers and sceners, a running [defacto2 database](https://github.com/Defacto2/database) is required.\n\nmacos users will probably need to remove the quarantine attribute before use: \n`$ xattr -d com.apple.quarantine defacto2-server`\n\nWindows support is limited to browsing. Features such as image regeneration or file uploading are untested and will probably not work.\n\nReleased by [GoReleaser](https://github.com/goreleaser/goreleaser)."
+  footer: |-
+    ---
+    _defacto2-server_ is a portable, web application and server.
+
+    To improve the speed of GitHub Actions, 
+    generic pre-compiled binaries are no longer provided.
+    But, building the web server using Go is a simple 
+    and relatively quick task, see _Development Setup_ in the README.md.
+
+    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
