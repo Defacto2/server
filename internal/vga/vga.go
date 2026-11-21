@@ -132,6 +132,9 @@ func writeRow(out *bytes.Buffer, row []Cell, pal Palette, opts Options) {
 
 // trim strips trailing rows containing only NUL/space characters and zero high attribute bits.
 func trim(rows [][]Cell) [][]Cell {
+	if len(rows) == 0 {
+		return nil
+	}
 	end := len(rows)
 	for end > 0 {
 		blank := true
@@ -145,6 +148,9 @@ func trim(rows [][]Cell) [][]Cell {
 			break
 		}
 		end--
+	}
+	if end == 0 {
+		return nil
 	}
 	return rows[:end]
 }

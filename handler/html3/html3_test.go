@@ -10,6 +10,7 @@ import (
 
 	"github.com/Defacto2/server/handler/html3"
 	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
@@ -507,4 +508,18 @@ func TestPlatforms(t *testing.T) {
 	c := testutil.NewContext(t, "")
 	got := html3.Platforms(sl, c)
 	testTmpl(t, got)
+}
+
+func TestTemplatesOfflineDB(t *testing.T) {
+	t.Parallel()
+
+	db, err := sql.Open(postgres.DriverName, "")
+	be.Err(t, err, nil)
+	defer func() { _ = db.Close() }()
+
+	fsys := testutil.ProjectFS(t)
+	sl := logs.Discard()
+	tmpls, err := html3.Templates(t.Context(), sl, db, fsys)
+	be.Err(t, err, nil)
+	be.True(t, tmpls["html3_index"] != nil)
 }

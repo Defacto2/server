@@ -832,9 +832,14 @@ func (t *T) Build(ctx context.Context, exec boil.ContextExecutor) (err error) { 
 
 // groupCounts returns the number of non-deleted files grouped by the column in query.
 func groupCounts(ctx context.Context, exec boil.ContextExecutor, query string) (map[string]int, error) {
+	const format = "tags group counts %s: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return nil, fmt.Errorf(format, "check", err)
+	}
+
 	rows, err := exec.QueryContext(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("tags group counts: %w", err)
+		return nil, fmt.Errorf(format, "counts", err)
 	}
 	defer func() {
 		_ = rows.Close()
@@ -845,12 +850,12 @@ func groupCounts(ctx context.Context, exec boil.ContextExecutor, query string) (
 		var key string
 		var count int
 		if err := rows.Scan(&key, &count); err != nil {
-			return nil, fmt.Errorf("tags group scan: %w", err)
+			return nil, fmt.Errorf(format, "scan", err)
 		}
 		counts[key] = count
 	}
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("tags group rows: %w", err)
+		return nil, fmt.Errorf(format, "rows", err)
 	}
 	return counts, nil
 }

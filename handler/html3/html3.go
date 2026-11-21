@@ -618,7 +618,6 @@ func TemplateFuncMap(ctx context.Context, sl *slog.Logger, db *sql.DB) template.
 	}
 	if err := t.Build(ctx, db); err != nil {
 		sl.Error(msg, slog.String("build", "could not map the template tags"), slog.Any("error", err))
-		return nil
 	}
 
 	linkHref := func(id int64) string {

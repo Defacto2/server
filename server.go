@@ -116,7 +116,12 @@ func main() {
 		logErr("cannot initialize the database", err)
 	}
 	if db == nil {
-		db, _ = sql.Open("pgx", "")
+		var soErr error
+		db, soErr = sql.Open("pgx", "")
+		if soErr != nil || db == nil {
+			logErr("cannot initalize the placeholder database", soErr)
+			return
+		}
 	}
 	defer func() {
 		if err := db.Close(); err != nil {

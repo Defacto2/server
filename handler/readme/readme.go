@@ -783,11 +783,17 @@ func Normalize(b []byte) []byte {
 	b = trimRight(b)
 	b = trimE(b)
 	b = sauce.Trim(b)
+	if len(b) == 0 {
+		return nil
+	}
 
 	// trim the end of file marker, but only when found at the end of the text
 	end := len(b)
 	for end > 0 && b[end-1] == '\x1a' {
 		end--
+	}
+	if end == 0 {
+		return nil
 	}
 
 	w := 0

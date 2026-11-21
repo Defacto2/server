@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/Defacto2/server/handler/api"
+	"github.com/Defacto2/server/internal/testutil"
 	"github.com/nalgeon/be"
 )
 
@@ -21,6 +22,7 @@ func reqLocalHost(t *testing.T) {
 		t.Skip("api tests skipped: server not running at localhost")
 	}
 	_ = resp.Body.Close()
+	_ = testutil.DB(t)
 }
 
 // TestAnnouncementsContract verifies the announcements endpoint contract.
@@ -101,6 +103,9 @@ func TestCategoriesContract(t *testing.T) {
 	be.Equal(t, err, nil)
 
 	be.True(t, len(result) > 0)
+	if len(result) == 0 {
+		return
+	}
 
 	// Verify at least one category has proper structure
 	be.True(t, len(result[0].Name) > 0)
@@ -143,6 +148,9 @@ func TestPlatformsContract(t *testing.T) {
 	be.Equal(t, err, nil)
 
 	be.True(t, len(result) > 0)
+	if len(result) == 0 {
+		return
+	}
 
 	// Verify at least one platform has proper structure
 	be.True(t, len(result[0].Name) > 0)
@@ -528,6 +536,9 @@ func TestFileContract(t *testing.T) {
 	artifactsArray, ok := artifactsResult["artifacts"].([]any)
 	be.True(t, ok)
 	be.True(t, len(artifactsArray) > 0)
+	if !ok || len(artifactsArray) == 0 {
+		return
+	}
 
 	// Get the first artifact's hash
 	firstArtifact, ok := artifactsArray[0].(map[string]any)
@@ -542,6 +553,9 @@ func TestFileContract(t *testing.T) {
 	// Extract the hash part from "/d/ab1dab0" to "ab1dab0"
 	hashParts := strings.Split(hash, "/")
 	be.Equal(t, len(hashParts), 3)
+	if len(hashParts) < 3 {
+		return
+	}
 	fileHash := hashParts[2]
 
 	// Now test the artifact endpoint with this hash
