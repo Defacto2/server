@@ -262,13 +262,21 @@ pre.wrap-overflow {
 }
 
 .reader {
-  white-space: pre-wrap;
+  white-space: pre;
+  overflow-x: auto;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
   hyphens: manual;
   line-height: normal;
 }
 
 .reader-hires {
-  white-space: pre-wrap;
+  white-space: pre;
+  overflow-x: auto;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
   hyphens: manual;
   line-height: 8px;
   font-size: 8px;

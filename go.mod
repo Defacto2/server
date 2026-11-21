@@ -42,7 +42,7 @@ replace rsc.io/markdown => rsc.io/markdown v0.0.0-20231214224604-88bb533a6020
 require (
 	github.com/Defacto2/archive v1.4.2
 	github.com/Defacto2/helper v1.7.5
-	github.com/Defacto2/magicnumber v1.4.11
+	github.com/Defacto2/magicnumber v1.4.12
 	github.com/aarondl/null/v8 v8.1.3
 	github.com/aarondl/sqlboiler/v4 v4.19.7
 	github.com/aarondl/strmangle v0.0.9
@@ -138,7 +138,7 @@ require (
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
-	go.uber.org/nilaway v0.0.0-20261119204003-79b344b77cf5 // indirect
+	go.uber.org/nilaway v0.0.0-20261121035759-acfaaab8a67f // indirect
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260908205506-85c1c2202aba // indirect
 	golang.org/x/mod v0.43.0 // indirect

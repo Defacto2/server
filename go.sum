@@ -14,8 +14,8 @@ github.com/Defacto2/archive v1.4.2 h1:BZh3DvC2ssmXk6oJvFUzs0g4blHJfYrUd5NV11t1of
 github.com/Defacto2/archive v1.4.2/go.mod h1:qCKFmvF7h4BTGQEzxbe83fKc4j4d96KexaM2G94rczk=
 github.com/Defacto2/helper v1.7.5 h1:gL+d9O9pJayfWPTygCBmzBqmMyd0ALYIXiPbbefZiP0=
 github.com/Defacto2/helper v1.7.5/go.mod h1:v1kvutwTF3LhR+hIgsR142IyUh7zqUKVq2IDJINU/5A=
-github.com/Defacto2/magicnumber v1.4.11 h1:kIQjYDTQAu2iXpgYQEujsj6mJ87tz95cZ2NlXqmz788=
-github.com/Defacto2/magicnumber v1.4.11/go.mod h1:wFLFI/RoKob9UCGFfWKmZSnimB5JYjf3YLFJQMcUTes=
+github.com/Defacto2/magicnumber v1.4.12 h1:gM1YBMjU1/deWWI+BlZaQ/nuLFfl1kc6Ytr5AjXv6MU=
+github.com/Defacto2/magicnumber v1.4.12/go.mod h1:6prBNMzNkTfiuOAzB4axiDiKVvNuG5umv5Q6m40itCk=
 github.com/RoaringBitmap/roaring v1.9.4 h1:yhEIoH4YezLYT04s1nHehNO64EKFTop/wBhxv2QzDdQ=
 github.com/RoaringBitmap/roaring v1.9.4/go.mod h1:6AXUsoIEzDTFFQCe1RbGA6uFONMhvejWj5rqITANK90=
 github.com/aarondl/inflect v0.0.2 h1:XvH8K5g1wKS921tMmDOUsZ3zS1Eo8WwK5RHC0IGGT2s=
@@ -346,8 +346,8 @@ go.opentelemetry.io/otel/trace v1.47.0 h1:JOjX/Oci8K94QHddo+bbfya/Ai/nf6/dt9ZfrF
 go.opentelemetry.io/otel/trace v1.47.0/go.mod h1:jNaSLa2PZEYFG6fRjJABAu+bw4FS08uDmPg28lTghu0=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
-go.uber.org/nilaway v0.0.0-20261119204003-79b344b77cf5 h1:V/KVGLORQOgm6rRewg3Cunil1Yci/D37K34S+KuR68s=
-go.uber.org/nilaway v0.0.0-20261119204003-79b344b77cf5/go.mod h1:h/Z4MnNYOaqAjgJglu/yah/YzvCdcJDvDth5TWUqIJc=
+go.uber.org/nilaway v0.0.0-20261121035759-acfaaab8a67f h1:VgjmUJ9VQD3m493gBCVmPUI/Vmt/FbLraWJ0RZRZLOk=
+go.uber.org/nilaway v0.0.0-20261121035759-acfaaab8a67f/go.mod h1:h/Z4MnNYOaqAjgJglu/yah/YzvCdcJDvDth5TWUqIJc=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
 golang.org/x/crypto v0.59.0 h1:xS2jhqYbzNrpvkWP2YTDf4TJwBy3ykR03i8vFDxEc7c=

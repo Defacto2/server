@@ -2,6 +2,8 @@ package readme_test
 
 import (
 	"bytes"
+	"encoding/binary"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -154,4 +156,64 @@ func TestBuffers3(t *testing.T) {
 
 	const suf = "</span>\n</div>"
 	be.True(t, strings.HasSuffix(got, suf))
+}
+
+func TestBuffersSAUCEBinaryText(t *testing.T) {
+	t.Parallel()
+
+	makeSAUCEBin := func(cols int, rows int, fillChar, fillAttr byte) []byte {
+		payload := make([]byte, cols*rows*2)
+		for i := 0; i < len(payload); i += 2 {
+			payload[i] = fillChar
+			payload[i+1] = fillAttr
+		}
+		// Place a cell with 0x00 attr, a 0x0D char + 0x0A attr (CRLF pair), a 0x00 char (NUL blank), and 'Z'.
+		payload[0], payload[1] = 'A', 0x00
+		payload[2], payload[3] = 0x0D, 0x0A
+		payload[4], payload[5] = 0x00, 0x07
+		payload[6], payload[7] = 'Z', 0x0F
+
+		sauce := make([]byte, 128)
+		copy(sauce[:7], "SAUCE00")
+		binary.LittleEndian.PutUint32(sauce[90:94], uint32(len(payload)))
+		sauce[94] = 5 // BinaryText
+		sauce[95] = byte(cols / 2)
+
+		out := append(payload, 0x1A)
+		return append(out, sauce...)
+	}
+
+	for _, cols := range []int{160, 320} {
+		data := makeSAUCEBin(cols, 2, ' ', 0x07)
+		dlDir := t.TempDir()
+		extraDir := t.TempDir()
+		const unid = "a1b2c3d4-0000-0000-0000-000000000001"
+		be.Err(t, os.WriteFile(filepath.Join(dlDir, unid), data, 0o600), nil)
+
+		txt := readme.Text{
+			Download: dir.Directory(dlDir),
+			Extra:    dir.Directory(extraDir),
+			Filename: "test.bin",
+			Platform: "ansi",
+			Year:     1996,
+			MaxSize:  1024 * 1024,
+			UUID:     unid,
+		}
+		got0, got1, err := txt.Buffers(logs.Discard())
+		be.Err(t, err, nil)
+		be.Equal(t, got1.Len(), 0)
+
+		html := got0.String()
+		// Must preserve 0x00 black-on-black attribute on 'A', convert 0x00 char to space (no \x00), and keep 'Z' at cell 4.
+		be.True(t, !strings.Contains(html, "\x00"))
+		be.True(t, strings.Contains(html, `<span style="color:#000;background-color:#000;">A</span>`))
+		be.True(t, strings.Contains(html, `<span style="color:#aaa;background-color:#000;"> </span>`))
+		be.True(t, strings.Contains(html, `<span style="color:#fff;background-color:#000;">Z`))
+		// Exactly 2 rows -> 2 newlines inside <div>...</div>.
+		be.Equal(t, strings.Count(html, "\n"), 2)
+		// First row must contain all cols characters (no CRLF collapse or wrong wrap).
+		firstLine, _, ok := strings.Cut(html, "\n")
+		be.True(t, ok)
+		be.True(t, strings.HasSuffix(firstLine, strings.Repeat(" ", cols-4)+"</span>"))
+	}
 }

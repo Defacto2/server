@@ -55,6 +55,32 @@ func TestAddTextBinaryTheDrawCOM(t *testing.T) {
 	be.True(t, !strings.Contains(classes, "text-bg-dark"))
 }
 
+func TestAddTextBinarySAUCE(t *testing.T) {
+	t.Parallel()
+
+	ds := Dirs{}
+	art := &models.File{
+		UUID:           null.StringFrom("b13e2a00-0000-0000-0000-000000000002"),
+		DateIssuedYear: null.Int16From(1995),
+	}
+	elems := []string{"reader-invert", "border"}
+	buf := bytes.NewBufferString("<span>BIN</span>")
+
+	for _, magic := range []string{"Binary data or binary text", "SAUCE binary text", "IBM CGA video RAM dump"} {
+		data := map[string]any{
+			"magic":    magic,
+			"platform": "ansi",
+		}
+		got := ds.addTextBinary(art, buf, elems, data)
+		be.Equal(t, got["contentBinarySwappers"], false)
+		classes, ok := got["preElementClass"].(string)
+		be.True(t, ok)
+		be.True(t, strings.Contains(classes, "font-squared"))
+		be.True(t, strings.Contains(classes, "reader-hires"))
+		be.True(t, strings.Contains(classes, "text-bg-dark"))
+	}
+}
+
 func TestBuildRoutesExtraMethods(t *testing.T) {
 	t.Parallel()
 

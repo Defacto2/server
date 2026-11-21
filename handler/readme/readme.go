@@ -3,6 +3,7 @@ package readme
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -102,6 +103,16 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		}
 		t.Error(sl, err)
 		return unused, unused, nil
+	}
+
+	if t.isSAUCEBinaryText() {
+		t.Error(sl, err)
+		sl.Info("readme will render the buffer as sauce binary text")
+		buf, bErr := t.handleBIN(textBuf)
+		if bErr != nil {
+			return unused, unused, bErr
+		}
+		return buf, unused, nil
 	}
 
 	// Check the textBuf to confirm it doesn't contain unusable text or image data.
@@ -253,6 +264,11 @@ func (t *Text) handleUnknown(sl *slog.Logger) error {
 	return nil
 }
 
+func (t *Text) isSAUCEBinaryText() bool {
+	const sauceBinaryText = 5
+	return t.Record.ID == "SAUCE" && t.Record.Data.Type == sauceBinaryText
+}
+
 func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 	// WARN: always return the named unused var,
 	// instead of returning nil for bytes buffer
@@ -263,18 +279,39 @@ func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 		return unused, fmt.Errorf(format, "buffer", err)
 	}
 
-	width := 0 // use default
+	const (
+		cgaCols  = 80
+		cgaRows  = 25
+		cgaEpoch = 1992
+	)
+	width := 0 // use binbump default (160)
 	maxRows := 0
 	palette := binbump.StandardCGA
-	year := t.Year
-	if y := int(year); helper.Year(y) && y < 1992 {
-		width = 80
-		maxRows = 25
+	if y := int(t.Year); helper.Year(y) && y < cgaEpoch {
+		width = cgaCols
+		maxRows = cgaRows
 		palette = binbump.RevisedCGA
+	}
+	if t.Sign == magicnumber.CGAVideoDump {
+		width = cgaCols
+	}
+	if t.isSAUCEBinaryText() && t.Record.File.Type > 0 {
+		width = int(t.Record.File.Type) * 2
+		maxRows = 0
+	}
+
+	// In VGA/CGA text memory, 0x00 in the character byte (even index) is a blank cell,
+	// whereas 0x00 in the attribute byte (odd index) is black-on-black. Replace 0x00
+	// characters with 0x20 because browsers collapse U+0000 to zero width in HTML.
+	raw := bytes.Clone(textBuf.Bytes())
+	for i := 0; i < len(raw); i += 2 {
+		if raw[i] == 0x00 {
+			raw[i] = ' '
+		}
 	}
 
 	bintext, err := binbump.Buffer(
-		bytes.NewReader(textBuf.Bytes()), width, maxRows, palette, nil,
+		bytes.NewReader(raw), width, maxRows, palette, nil,
 	)
 	if err != nil {
 		return unused, fmt.Errorf(format, "binbump", err)
@@ -543,16 +580,28 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 		return nil
 	}
 
-	if decoded, decErr := decodeUTF16(p); decErr == nil {
-		p = decoded
+	// Decode SAUCE before any trimming/normalization so BinaryText metadata is preserved.
+	if len(p) >= 128 {
+		if sr := sauce.Decode(p); sr.ID == "SAUCE" {
+			t.Record = sr
+		}
 	}
 
-	p = Normalize(p)
-	// _, _ = r.Seek(0, io.SeekStart)
-	// if sign, _ := magicnumber.Text(r); sign != magicnumber.Unknown {
-	// 	p = textBuf.Bytes()
-	// 	p = Normalize(p)
-	// }
+	rawFind := magicnumber.Find(bytes.NewReader(p))
+	ansi, _ := hasANSI(bytes.NewReader(p))
+	if t.isSAUCEBinaryText() || rawFind == magicnumber.CGAVideoDump || (rawFind == magicnumber.Unknown && !ansi) {
+		// Binary screen dumps use raw [char, attr] byte pairs; only strip SAUCE/BSAVE framing
+		// because Normalize mutates 0x00 attributes and collapses 0x0D 0x0A pairs.
+		p = sauce.Trim(p)
+		if rawFind == magicnumber.CGAVideoDump {
+			p = trimBSAVE(p)
+		}
+	} else {
+		if decoded, decErr := decodeUTF16(p); decErr == nil {
+			p = decoded
+		}
+		p = Normalize(p)
+	}
 
 	textBuf.Reset()
 	textBuf.Write(p)
@@ -561,6 +610,27 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 	runeBuf.Write(p)
 
 	return nil
+}
+
+func trimBSAVE(b []byte) []byte {
+	const (
+		header     = 7
+		bsaveMagic = 0xFD
+		segCGA     = 0xB800
+		segMDA     = 0xB000
+	)
+	if len(b) <= header || b[0] != bsaveMagic {
+		return b
+	}
+	seg := binary.LittleEndian.Uint16(b[1:3])
+	if seg != segCGA && seg != segMDA {
+		return b
+	}
+	payloadLen := int(binary.LittleEndian.Uint16(b[5:7]))
+	if payloadLen <= 0 || header+payloadLen > len(b) {
+		return b
+	}
+	return b[header : header+payloadLen]
 }
 
 func (t *Text) filename() (string, error) {

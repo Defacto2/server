@@ -610,7 +610,10 @@ func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 	}
 
 	// ansi encoded texts or thedraw texts
-	if data["magic"] != "Binary data or binary text" || ds.theDraw(art) {
+	isBinaryMagic := data["magic"] == magicnumber.Unknown.Title() ||
+		data["magic"] == magicnumber.CGAVideoDump.Title() ||
+		data["magic"] == "SAUCE binary text"
+	if !isBinaryMagic || ds.theDraw(art) {
 		class := append([]string{fontname, fontlarge, "render"}, elems...)
 		data["preElementClass"] = strings.Join(class, " ")
 		return data
@@ -618,7 +621,7 @@ func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 
 	// everything else is treated as binary text
 	class := elems
-	class = append(class, "text-bg-dark", "text-center")
+	class = append(class, "text-bg-dark")
 	if year > CgaEpoch {
 		// use high-res squared font
 		fontname = "font-squared"
