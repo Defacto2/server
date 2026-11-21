@@ -17,9 +17,11 @@ import (
 	"github.com/Defacto2/magicnumber"
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/extensions"
+	"github.com/Defacto2/server/internal/icedraw"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/thedraw"
+	"github.com/Defacto2/server/internal/xbin"
 	"github.com/bengarrett/ansibump"
 	"github.com/bengarrett/binbump"
 	"github.com/bengarrett/sauce"
@@ -35,16 +37,17 @@ var (
 )
 
 type Text struct {
-	Download dir.Directory
-	Extra    dir.Directory
-	UUID     string
-	Filename string
-	Platform string
-	Section  string
-	Year     int16
-	MaxSize  int64
-	Sign     magicnumber.Signature
-	Record   sauce.Record
+	Download   dir.Directory
+	Extra      dir.Directory
+	UUID       string
+	Filename   string
+	Platform   string
+	Section    string
+	Year       int16
+	MaxSize    int64
+	Sign       magicnumber.Signature
+	CustomFont bool
+	Record     sauce.Record
 }
 
 // Buffers parses the text files assigned to an artifact.
@@ -71,7 +74,6 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 	if sl == nil {
 		sl = logs.Discard()
 	}
-	const format = "readme %s: %w"
 
 	textBuf := new(bytes.Buffer)
 	runeBuf := new(bytes.Buffer)
@@ -86,17 +88,7 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		helpBuf.Reset()
 	}()
 
-	var err error
-	if dErr := t.descriptor(descBuf); dErr != nil {
-		err = errors.Join(err, fmt.Errorf(format, "descriptor", dErr))
-	}
-	if pErr := t.primary(textBuf, runeBuf); pErr != nil {
-		err = errors.Join(err, fmt.Errorf(format, "primary", pErr))
-	}
-	if hErr := t.helper(helpBuf); hErr != nil {
-		err = errors.Join(err, fmt.Errorf(format, "helper", hErr))
-	}
-
+	err := t.loadSources(textBuf, runeBuf, descBuf, helpBuf)
 	if emptyBufs(textBuf, runeBuf, descBuf, helpBuf) {
 		if uErr := t.handleUnknown(sl); uErr != nil {
 			err = errors.Join(err, uErr)
@@ -105,12 +97,9 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		return unused, unused, nil
 	}
 
-	if t.isSAUCEBinaryText() {
-		t.Error(sl, err)
-		sl.Info("readme will render the buffer as sauce binary text")
-		buf, bErr := t.handleBIN(textBuf)
-		if bErr != nil {
-			return unused, unused, bErr
+	if buf, handled, aErr := t.renderArtFormat(sl, textBuf, err); handled {
+		if aErr != nil {
+			return unused, unused, aErr
 		}
 		return buf, unused, nil
 	}
@@ -128,42 +117,7 @@ func (t *Text) Buffers(sl *slog.Logger) (*bytes.Buffer, *bytes.Buffer, error) {
 		return unused, unused, nil
 	}
 
-	t.handleSAUCE(textBuf)
-
-	// text with ANSI escape codes use a custom readme template
-	if ansi, aErr := hasANSI(bytes.NewReader(textBuf.Bytes())); aErr != nil {
-		// handle the error and continue to try to display the buffer elsewhere
-		err = errors.Join(err, fmt.Errorf(format, "incompatible ansi", aErr))
-	} else if ansi {
-		sl.Info("readme will render the buffer as ansi encoded")
-		buf, err := t.handleANSI(textBuf)
-		if err != nil {
-			return unused, unused, err
-		}
-		return buf, unused, nil
-	}
-	// log any previous errors
-	t.Error(sl, err)
-
-	// NOTE: Video RAM screen dumps and binary texts will cause false positives.
-	// There maybe a future need to use a database column boolean to flag them.
-	// For example, when find returns magicnumber.PlainText and the database tag is set to "ansi".
-	//	- https://defacto2.net/f/aa29dd6
-	//	- 1985 binary text:		https://defacto2.net/f/aa2be75
-	//	- 1990 ansi encoded:	https://defacto2.net/f/b82bf46
-	//	- 1995 binary text:		https://defacto2.net/f/a21d50b
-	//	- 1995 PCBoard text:	https://defacto2.net/f/a821636
-	if t.Sign == magicnumber.Unknown || t.Sign == magicnumber.CGAVideoDump {
-		sl.Info("readme will render the buffer as binary text")
-		buf, err := t.handleBIN(textBuf)
-		if err != nil {
-			return unused, unused, err
-		}
-		return buf, unused, nil
-	}
-
-	sl.Info("readme will render the buffer as raw or plain text")
-	return t.handleRAW(textBuf, runeBuf, descBuf, helpBuf)
+	return t.renderBody(sl, textBuf, runeBuf, descBuf, helpBuf, unused, err)
 }
 
 // Error logs the error as a warning with useful Text metadata.
@@ -176,6 +130,97 @@ func (t *Text) Error(sl *slog.Logger, err error) {
 		slog.String("platform", t.Platform), slog.String("section", t.Section),
 		slog.Int("year", int(t.Year)), slog.Any("errors", err),
 	)
+}
+
+func (t *Text) loadSources(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) error {
+	const format = "readme %s: %w"
+	var err error
+	if dErr := t.descriptor(descBuf); dErr != nil {
+		err = errors.Join(err, fmt.Errorf(format, "descriptor", dErr))
+	}
+	if pErr := t.primary(textBuf, runeBuf); pErr != nil {
+		err = errors.Join(err, fmt.Errorf(format, "primary", pErr))
+	}
+	if hErr := t.helper(helpBuf); hErr != nil {
+		err = errors.Join(err, fmt.Errorf(format, "helper", hErr))
+	}
+	return err
+}
+
+func (t *Text) renderArtFormat(
+	sl *slog.Logger, textBuf *bytes.Buffer, loadErr error,
+) (*bytes.Buffer, bool, error) {
+	switch {
+	case t.isSAUCEBinaryText():
+		t.Error(sl, loadErr)
+		sl.Info("readme will render the buffer as sauce binary text")
+		buf, err := t.handleBIN(textBuf)
+		return buf, true, err
+	case magicnumber.IceDraw(bytes.NewReader(textBuf.Bytes())):
+		return t.renderFontedArt(sl, textBuf, loadErr, "icedraw", magicnumber.ICEDraw, true, icedraw.HTML)
+	case magicnumber.XBin(bytes.NewReader(textBuf.Bytes())):
+		raw := textBuf.Bytes()
+		return t.renderFontedArt(sl, textBuf, loadErr, "xbin", magicnumber.XBinaryText, xbin.HasFont(raw), xbin.Render)
+	}
+	return nil, false, nil
+}
+
+func (t *Text) renderFontedArt(
+	sl *slog.Logger, textBuf *bytes.Buffer, loadErr error,
+	label string, sign magicnumber.Signature, customFont bool,
+	render func([]byte) (*bytes.Buffer, error),
+) (*bytes.Buffer, bool, error) {
+	t.Error(sl, loadErr)
+	sl.Info("readme will render the buffer as " + label)
+	t.Sign = sign
+	t.CustomFont = customFont
+	buf, err := render(textBuf.Bytes())
+	if err != nil {
+		return nil, true, err
+	}
+	textBuf.Reset()
+	return buf, true, nil
+}
+
+func (t *Text) renderBody(
+	sl *slog.Logger, textBuf, runeBuf, descBuf, helpBuf, unused *bytes.Buffer, loadErr error,
+) (*bytes.Buffer, *bytes.Buffer, error) {
+	t.handleSAUCE(textBuf)
+
+	// text with ANSI escape codes use a custom readme template
+	if ansi, aErr := hasANSI(bytes.NewReader(textBuf.Bytes())); aErr != nil {
+		// handle the error and continue to try to display the buffer elsewhere
+		loadErr = errors.Join(loadErr, fmt.Errorf("readme incompatible ansi: %w", aErr))
+	} else if ansi {
+		sl.Info("readme will render the buffer as ansi encoded")
+		buf, err := t.handleANSI(textBuf)
+		if err != nil {
+			return unused, unused, err
+		}
+		return buf, unused, nil
+	}
+	// log any previous errors
+	t.Error(sl, loadErr)
+
+	// NOTE: Video RAM screen dumps and binary texts will cause false positives.
+	// There maybe a future need to use a database column boolean to flag them.
+	// For example, when find returns magicnumber.PlainText and the database tag is set to "ansi".
+	//	- https://defacto2.net/f/aa29dd6
+	//	- 1985 binary text:		https://defacto2.net/f/aa2be75
+	//	- 1990 ansi encoded:	https://defacto2.net/f/b82bf46
+	//	- 1995 binary text:		https://defacto2.net/f/a21d50b
+	//	- 1995 PCBoard text:	https://defacto2.net/f/a821636
+	if t.Sign == magicnumber.Unknown || t.Sign == magicnumber.CGAVideoDump || t.Sign == magicnumber.SAUCEBinaryText {
+		sl.Info("readme will render the buffer as binary text")
+		buf, err := t.handleBIN(textBuf)
+		if err != nil {
+			return unused, unused, err
+		}
+		return buf, unused, nil
+	}
+
+	sl.Info("readme will render the buffer as raw or plain text")
+	return t.handleRAW(textBuf, runeBuf, descBuf, helpBuf)
 }
 
 func emptyBufs(textBuf, runeBuf, descBuf, helpBuf *bytes.Buffer) bool {
@@ -258,7 +303,7 @@ func (t *Text) handleUnknown(sl *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf(format, "sauce read", err)
 	}
-	if rec != nil && rec.ID == "SAUCE" {
+	if rec != nil && rec.ID == sauce.ID {
 		t.Record = *rec
 	}
 	return nil
@@ -266,7 +311,7 @@ func (t *Text) handleUnknown(sl *slog.Logger) error {
 
 func (t *Text) isSAUCEBinaryText() bool {
 	const sauceBinaryText = 5
-	return t.Record.ID == "SAUCE" && t.Record.Data.Type == sauceBinaryText
+	return t.Record.ID == sauce.ID && t.Record.Data.Type == sauceBinaryText
 }
 
 func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
@@ -280,9 +325,11 @@ func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 	}
 
 	const (
+		null     = 0x00
 		cgaCols  = 80
 		cgaRows  = 25
 		cgaEpoch = 1992
+		cellB    = 2
 	)
 	width := 0 // use binbump default (160)
 	maxRows := 0
@@ -296,7 +343,7 @@ func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 		width = cgaCols
 	}
 	if t.isSAUCEBinaryText() && t.Record.File.Type > 0 {
-		width = int(t.Record.File.Type) * 2
+		width = int(t.Record.File.Type) * cellB
 		maxRows = 0
 	}
 
@@ -304,8 +351,8 @@ func (t *Text) handleBIN(textBuf *bytes.Buffer) (*bytes.Buffer, error) {
 	// whereas 0x00 in the attribute byte (odd index) is black-on-black. Replace 0x00
 	// characters with 0x20 because browsers collapse U+0000 to zero width in HTML.
 	raw := bytes.Clone(textBuf.Bytes())
-	for i := 0; i < len(raw); i += 2 {
-		if raw[i] == 0x00 {
+	for i := 0; i < len(raw); i += cellB {
+		if raw[i] == null {
 			raw[i] = ' '
 		}
 	}
@@ -401,7 +448,7 @@ func (t *Text) handleSAUCE(textBuf *bytes.Buffer) {
 	}
 
 	b := textBuf.Bytes()
-	if sr := sauce.Decode(b); sr.ID == "SAUCE" {
+	if sr := sauce.Decode(b); sr.ID == sauce.ID {
 		t.Record = sr
 	}
 }
@@ -424,8 +471,9 @@ func (t *Text) problematic(sl *slog.Logger, textBuf *bytes.Buffer) (bool, magicn
 		return true, find
 	}
 
-	// skip known images and XBinary text without dynamic slice allocations
+	// skip known images, XBinary text, and ICEDraw without dynamic slice allocations
 	if find == magicnumber.XBinaryText ||
+		find == magicnumber.ICEDraw ||
 		slices.Contains(magicnumber.Images(), find) {
 		sl.Info("readme found known image or binary format", slog.String("sign", find.String()))
 		return true, find
@@ -526,7 +574,6 @@ func (t *Text) secondary(buf *bytes.Buffer, extension string) error {
 // Both the buf buffer and the ruf rune buffer are reset before writing.
 func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 	const format = "render primary text %s: %w"
-
 	if err := nils.Check(textBuf, runeBuf); err != nil {
 		return fmt.Errorf(format, "buffers", err)
 	}
@@ -543,73 +590,99 @@ func (t *Text) primary(textBuf, runeBuf *bytes.Buffer) error {
 		return nil
 	}
 
+	ok, err := t.readPrimary(name, textBuf)
+	if err != nil {
+		return fmt.Errorf(format, "information text copy", err)
+	}
+	if !ok {
+		return nil
+	}
+
+	p, ok := t.decodePrimary(textBuf.Bytes())
+	if !ok {
+		textBuf.Reset()
+		return nil
+	}
+
+	textBuf.Reset()
+	textBuf.Write(p)
+	runeBuf.Grow(len(p))
+	runeBuf.Write(p)
+	return nil
+}
+
+func (t *Text) readPrimary(name string, textBuf *bytes.Buffer) (bool, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		textBuf.WriteString("error could not read the information text file")
-		return nil
+		return false, nil
 	}
 	defer f.Close()
 
 	st, err := f.Stat()
 	if err != nil {
 		textBuf.WriteString("error could not describe the information text file")
-		return nil
+		return false, nil
 	}
-
 	if st.Size() > t.MaxSize {
 		textBuf.WriteString("skipped, text is too long")
-		return nil
+		return false, nil
 	}
 
 	// read directly into memory once
 	textBuf.Grow(int(st.Size()))
 	if _, err := io.Copy(textBuf, f); err != nil {
 		textBuf.Reset()
-		return fmt.Errorf(format, "information text copy", err)
+		return false, fmt.Errorf("read primary io copy: %w", err)
 	}
+	return true, nil
+}
 
-	p := textBuf.Bytes()
+func (t *Text) decodePrimary(p []byte) ([]byte, bool) {
 	if ans, decErr := thedraw.Extract(p); decErr == nil {
 		p = ans
 	}
 	// INFO: because there is no reliable way to detect binary text files,
 	// we instead look for known file types that should not be treated as text.
-	r := bytes.NewReader(p)
-	if sign, _ := magicnumber.Archive(r); sign != magicnumber.Unknown {
-		textBuf.Reset()
-		return nil
+	if sign, _ := magicnumber.Archive(bytes.NewReader(p)); sign != magicnumber.Unknown {
+		return nil, false
 	}
 
 	// Decode SAUCE before any trimming/normalization so BinaryText metadata is preserved.
-	if len(p) >= 128 {
-		if sr := sauce.Decode(p); sr.ID == "SAUCE" {
+	const extends = 128
+	if len(p) >= extends {
+		if sr := sauce.Decode(p); sr.ID == sauce.ID {
 			t.Record = sr
 		}
 	}
 
 	rawFind := magicnumber.Find(bytes.NewReader(p))
 	ansi, _ := hasANSI(bytes.NewReader(p))
-	if t.isSAUCEBinaryText() || rawFind == magicnumber.CGAVideoDump || (rawFind == magicnumber.Unknown && !ansi) {
-		// Binary screen dumps use raw [char, attr] byte pairs; only strip SAUCE/BSAVE framing
+	if t.isBinaryScreen(rawFind, ansi) {
+		// Binary screen dumps use raw bytes/RLE framing; only strip SAUCE/BSAVE framing
 		// because Normalize mutates 0x00 attributes and collapses 0x0D 0x0A pairs.
-		p = sauce.Trim(p)
+		if rawFind != magicnumber.ICEDraw && rawFind != magicnumber.XBinaryText {
+			p = sauce.Trim(p)
+		}
 		if rawFind == magicnumber.CGAVideoDump {
 			p = trimBSAVE(p)
 		}
-	} else {
-		if decoded, decErr := decodeUTF16(p); decErr == nil {
-			p = decoded
-		}
-		p = Normalize(p)
+		return p, true
 	}
 
-	textBuf.Reset()
-	textBuf.Write(p)
+	if decoded, decErr := decodeUTF16(p); decErr == nil {
+		p = decoded
+	}
+	return Normalize(p), true
+}
 
-	runeBuf.Grow(len(p))
-	runeBuf.Write(p)
-
-	return nil
+func (t *Text) isBinaryScreen(rawFind magicnumber.Signature, ansi bool) bool {
+	if t.isSAUCEBinaryText() || (rawFind == magicnumber.Unknown && !ansi) {
+		return true
+	}
+	return rawFind == magicnumber.ICEDraw ||
+		rawFind == magicnumber.XBinaryText ||
+		rawFind == magicnumber.CGAVideoDump
 }
 
 func trimBSAVE(b []byte) []byte {

@@ -49,16 +49,12 @@ func (prod Prod) String() string {
 // the production ID. If the ID is already in use, an error message is returned.
 //
 // Note both a sql.Tx and sql.DB are required as there are two separate commit stages.
-func (prod Prod) Submit( //nolint:funlen
+func (prod Prod) Submit(
 	sl *slog.Logger, c *echo.Context, db *sql.DB, tx *sql.Tx, download dir.Directory,
 ) error {
 	const msg = "htmx transfer submit"
 	if err := nils.Check(sl, c, db, tx); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
-	}
-
-	logErr := func(s string, err error) {
-		sl.Error(msg, slog.String("problem", s), slog.Any("error", err))
 	}
 
 	prodID, err := prod.ID(c)
@@ -67,88 +63,31 @@ func (prod Prod) Submit( //nolint:funlen
 	}
 
 	ctx := c.Request().Context()
-	var exist bool
-	var eErr error
-	switch prod {
-	case Demozoo:
-		exist, eErr = model.ExistDemozoo(ctx, tx, prodID)
-	case Pouet:
-		exist, eErr = model.ExistPouet(ctx, tx, prodID)
-	}
-	if eErr != nil {
+	exist, err := prod.exists(ctx, tx, prodID)
+	if err != nil {
 		return c.String(http.StatusServiceUnavailable, "error, the database query failed")
 	}
 	if exist {
 		return c.String(http.StatusForbidden, "error, the "+prod.String()+" key is already in use")
 	}
 
-	var key int64
-	var unid string
-	switch prod {
-	case Demozoo:
-		key, unid, err = model.InsertDemozoo(ctx, tx, prodID)
-	case Pouet:
-		key, unid, err = model.InsertPouet(ctx, tx, prodID)
-	}
+	key, unid, err := prod.insert(ctx, tx, prodID)
 	if err != nil || key == 0 {
-		logErr(fmt.Sprintf("cannot insert record id %d", prodID), err)
+		sl.Error(msg, slog.String("problem", fmt.Sprintf("cannot insert record id %d", prodID)), slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable, "error, the database insert failed")
 	}
 
-	name := strings.ToTitle(prod.String())
-	const format = `<div class="text-success">Thanks for the submission of %s production, %d</div>`
-	html := fmt.Sprintf(format, name, prodID)
-	if sess.Editor(c) {
-		uri := helper.ObfuscateID(key)
-		const format = `<p data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="ctrl + alt + enter">` +
-			`<a id="go-to-the-new-artifact-record" href="/f/%s" autofocus>Go to the new artifact record</a></p>`
-		html += fmt.Sprintf(format, uri)
-	}
-
-	// see Download in handler/app/internal/remote/remote.go
-	fetchRemote := func(bgCtx context.Context) {
-		// INFO:
-		// As the reliability of the file download servers can be vastly different to the API provider.
-		// This runs a second query to fetch the linked download in the background.
-		bgTx, bErr := db.BeginTx(bgCtx, nil)
-		if bErr != nil {
-			logErr("cannot start background tx for fetch remote api", bErr)
-			return
-		}
-		defer func() {
-			rErr := bgTx.Rollback()
-			if rErr != nil && !errors.Is(rErr, sql.ErrTxDone) {
-				logErr("cannot fetch remote rollback", rErr)
-			}
-		}()
-		switch prod {
-		case Demozoo:
-			if err := app.GetDemozoo(bgCtx, sl, c, bgTx, prodID, unid, download); err != nil {
-				logErr("cannot fetch remote demozoo api", err)
-				return
-			}
-		case Pouet:
-			if err := app.GetPouet(bgCtx, sl, bgTx, prodID, unid, download); err != nil {
-				logErr("cannot fetch remote pouet api", err)
-				return
-			}
-		}
-		cErr := bgTx.Commit()
-		if cErr != nil {
-			logErr("cannot commit background tx for fetch remote api", cErr)
-		}
-	}
 	if testing.Testing() {
-		fetchRemote(c.Request().Context())
+		prod.fetchRemote(ctx, sl, c, db, prodID, unid, download)
 	} else {
-		go fetchRemote(context.WithoutCancel(c.Request().Context()))
+		go prod.fetchRemote(context.WithoutCancel(ctx), sl, c, db, prodID, unid, download)
 	}
 
 	sl.Info(msg,
 		slog.String("okay", "the production has been submitted"),
-		slog.String("remote", name), slog.Int("new_id", prodID))
+		slog.String("remote", strings.ToTitle(prod.String())), slog.Int("new_id", prodID))
 
-	return c.String(http.StatusOK, html)
+	return c.String(http.StatusOK, prod.submitHTML(c, prodID, key))
 }
 
 // ID validates the production ID and ensures that it is a valid numeric value.
@@ -268,6 +207,78 @@ func (prod Prod) ValidFn(c *echo.Context, prodID int, useCache bool,
 		}
 	}
 	return false, nil
+}
+
+func (prod Prod) exists(ctx context.Context, tx *sql.Tx, prodID int) (bool, error) {
+	switch prod {
+	case Demozoo:
+		return model.ExistDemozoo(ctx, tx, prodID) //nolint:wrapcheck
+	case Pouet:
+		return model.ExistPouet(ctx, tx, prodID) //nolint:wrapcheck
+	}
+	return false, nil
+}
+
+func (prod Prod) insert(ctx context.Context, tx *sql.Tx, prodID int) (int64, string, error) {
+	switch prod {
+	case Demozoo:
+		return model.InsertDemozoo(ctx, tx, prodID) //nolint:wrapcheck
+	case Pouet:
+		return model.InsertPouet(ctx, tx, prodID) //nolint:wrapcheck
+	}
+	return 0, "", nil
+}
+
+func (prod Prod) submitHTML(c *echo.Context, prodID int, key int64) string {
+	const format = `<div class="text-success">Thanks for the submission of %s production, %d</div>`
+	html := fmt.Sprintf(format, strings.ToTitle(prod.String()), prodID)
+	if sess.Editor(c) {
+		uri := helper.ObfuscateID(key)
+		const linkFmt = `<p data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="ctrl + alt + enter">` +
+			`<a id="go-to-the-new-artifact-record" href="/f/%s" autofocus>Go to the new artifact record</a></p>`
+		html += fmt.Sprintf(linkFmt, uri)
+	}
+	return html
+}
+
+// fetchRemote runs a second transaction to fetch the linked download from the remote API.
+// Download server reliability can differ vastly from the API provider, so this runs asynchronously in production.
+// See Download in handler/app/internal/remote/remote.go.
+func (prod Prod) fetchRemote(
+	bgCtx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
+	prodID int, unid string, download dir.Directory,
+) {
+	const msg = "htmx transfer submit"
+	logErr := func(s string, err error) {
+		sl.Error(msg, slog.String("problem", s), slog.Any("error", err))
+	}
+
+	bgTx, bErr := db.BeginTx(bgCtx, nil)
+	if bErr != nil {
+		logErr("cannot start background tx for fetch remote api", bErr)
+		return
+	}
+	defer func() {
+		rErr := bgTx.Rollback()
+		if rErr != nil && !errors.Is(rErr, sql.ErrTxDone) {
+			logErr("cannot fetch remote rollback", rErr)
+		}
+	}()
+	switch prod {
+	case Demozoo:
+		if err := app.GetDemozoo(bgCtx, sl, c, bgTx, prodID, unid, download); err != nil {
+			logErr("cannot fetch remote demozoo api", err)
+			return
+		}
+	case Pouet:
+		if err := app.GetPouet(bgCtx, sl, bgTx, prodID, unid, download); err != nil {
+			logErr("cannot fetch remote pouet api", err)
+			return
+		}
+	}
+	if cErr := bgTx.Commit(); cErr != nil {
+		logErr("cannot commit background tx for fetch remote api", cErr)
+	}
 }
 
 // Looks up the Demozoo production ID and returns a form button to submit

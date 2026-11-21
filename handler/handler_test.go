@@ -153,12 +153,12 @@ func TestRouteFS(t *testing.T) {
 	root := testutil.OpenRoot(t)
 	e := handler.RouteFS(echo.New(), root.FS())
 
-	req := httptest.NewRequest(http.MethodGet, "/image/new", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/image/new", nil)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 	be.Equal(t, rec.Code, http.StatusNotFound)
 
-	req = httptest.NewRequest(http.MethodGet, "/image/new/navbar.webp", nil)
+	req = httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/image/new/navbar.webp", nil)
 	rec = httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 	be.Equal(t, rec.Code, http.StatusOK)

@@ -441,6 +441,14 @@ func TestArtifactTemplatesRender(t *testing.T) {
 	be.True(t, strings.Contains(out, `<h1 class="fs-1 fw-light mb-2 container-xxl">Beyond Akira BBS</h1>`))
 	be.True(t, strings.Contains(out, `<p class="lead mb-3 container-xxl">`))
 	be.True(t, strings.Contains(out, `<div class="container-xxl">`))
+
+	data["contentBinary"] = "<div><span>XB</span></div>"
+	data["customFont"] = true
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "layout", data)
+	be.Err(t, err, nil)
+	out = buf.String()
+	be.True(t, strings.Contains(out, `XBIN or ICEDraw text <small class="text-body-tertiary ms-1">This file includes custom fonts that cannot be shown in browser.</small>`))
 }
 
 func TestInterviewTemplate(t *testing.T) {
@@ -782,7 +790,8 @@ func TestArtifactsTemplate(t *testing.T) {
 	be.True(t, !strings.Contains(out, `id="batch-open-menu"`))
 	be.True(t, strings.Contains(out, `data-artifact-url="/f/`))
 
-	recs := data["records"].(models.FileSlice)
+	recs, ok := data["records"].(models.FileSlice)
+	be.True(t, ok)
 	for i := 2; i <= 5; i++ {
 		rec := recs[0]
 		rec.ID = int64(i)

@@ -629,7 +629,7 @@ func (e *Entry) skipByInfo(path, platform string, info fs.FileInfo) bool {
 	e.sign = magicnumber.Find(r)
 	if e.sign == magicnumber.PlainText &&
 		strings.EqualFold(filepath.Ext(path), com) &&
-		!likeTextCOM(r) {
+		simpleCOM(r) {
 		e.sign = magicnumber.Unknown
 	}
 	if e.sign == magicnumber.ANSIEscapeText {
@@ -717,9 +717,11 @@ func (e *Entry) isBinaryText(platform string) bool {
 
 // isText returns true if the magic signature is a
 // simple character encoded text file, a unicode encoded text file,
-// a text file with ansi escape codes, or a TheDraw COM screen save.
+// a text file with ansi escape codes, or TheDraw COM screen save.
 func (e *Entry) isText() bool {
-	if e.sign == magicnumber.TheDrawCOM {
+	if e.sign == magicnumber.TheDrawCOM ||
+		e.sign == magicnumber.ICEDraw ||
+		e.sign == magicnumber.XBinaryText {
 		return true
 	}
 	for val := range slices.Values(magicnumber.Texts()) {
@@ -731,16 +733,16 @@ func (e *Entry) isText() bool {
 	return false
 }
 
-// likeTextCOM rejects binary MS-DOS .com executables that match
-// PlainText heuristics (e.g. <=80-byte stubs or opcode streams with NULs/control bytes).
-func likeTextCOM(r *os.File) bool {
+// simpleCOM reports whether the reader is a simple MS-DOS .COM executable
+// that incorrectly matches PlainText heuristics.
+func simpleCOM(r *os.File) bool {
 	const (
 		multiplier = 2
 		maxContr   = 50 // allow < 2% unexpected control bytes
 	)
 	data, ok := readCOM(r)
 	if !ok {
-		return false
+		return true
 	}
 
 	asc := 0
@@ -752,8 +754,8 @@ func likeTextCOM(r *os.File) bool {
 			contr++
 		}
 	}
-	return asc*multiplier >= len(data) &&
-		contr*maxContr <= len(data)
+	return asc*multiplier < len(data) ||
+		contr*maxContr > len(data)
 }
 
 func readCOM(r *os.File) ([]byte, bool) {

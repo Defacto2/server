@@ -411,6 +411,7 @@ func (ds *Dirs) addReadme(sl *slog.Logger, art *models.File, data map[string]any
 		data["sauceGroup"] = rec.Group
 		data["sauceDate"] = rec.Date.Time.Format("2006 Jan 02")
 	}
+	data["customFont"] = text.CustomFont
 
 	// handle edge cases where the textBuf is empty
 	if ok := textBuf.Len() > 0; !ok {
@@ -612,7 +613,7 @@ func (ds *Dirs) addTextBinary(art *models.File, textBuf *bytes.Buffer,
 	// ansi encoded texts or thedraw texts
 	isBinaryMagic := data["magic"] == magicnumber.Unknown.Title() ||
 		data["magic"] == magicnumber.CGAVideoDump.Title() ||
-		data["magic"] == "SAUCE binary text"
+		data["magic"] == magicnumber.SAUCEBinaryText.Title()
 	if !isBinaryMagic || ds.theDraw(art) {
 		class := append([]string{fontname, fontlarge, "render"}, elems...)
 		data["preElementClass"] = strings.Join(class, " ")

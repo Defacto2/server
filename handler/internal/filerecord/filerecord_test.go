@@ -1160,9 +1160,9 @@ func TestListContentTextDeferredSelection(t *testing.T) {
 		dizBytes := []byte("FILE_ID.DIZ content\r\n")
 		nfoBytes := []byte("Nested NFO content\r\n")
 		writeZip(t, zipPath, map[string][]byte{
-			"000_app.exe":      exeBytes,
-			"file_id.diz":      dizBytes,
-			"docs/readme.txt":  nfoBytes,
+			"000_app.exe":     exeBytes,
+			"file_id.diz":     dizBytes,
+			"docs/readme.txt": nfoBytes,
 		})
 
 		art := testutil.NewModel(t)

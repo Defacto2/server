@@ -161,30 +161,34 @@ func TestBuffers3(t *testing.T) {
 func TestBuffersSAUCEBinaryText(t *testing.T) {
 	t.Parallel()
 
-	makeSAUCEBin := func(cols int, rows int, fillChar, fillAttr byte) []byte {
-		payload := make([]byte, cols*rows*2)
-		for i := 0; i < len(payload); i += 2 {
-			payload[i] = fillChar
-			payload[i+1] = fillAttr
+	makeSAUCEBin := func(halfCols, rows, fillChar, fillAttr byte) []byte {
+		payloadLen := uint32(halfCols) * 2 * uint32(rows) * 2
+		const sauceLen = 128
+		out := make([]byte, payloadLen+1+sauceLen)
+		for i := uint32(0); i < payloadLen; i += 2 {
+			out[i] = fillChar
+			out[i+1] = fillAttr
 		}
 		// Place a cell with 0x00 attr, a 0x0D char + 0x0A attr (CRLF pair), a 0x00 char (NUL blank), and 'Z'.
-		payload[0], payload[1] = 'A', 0x00
-		payload[2], payload[3] = 0x0D, 0x0A
-		payload[4], payload[5] = 0x00, 0x07
-		payload[6], payload[7] = 'Z', 0x0F
+		out[0], out[1] = 'A', 0x00
+		out[2], out[3] = 0x0D, 0x0A
+		out[4], out[5] = 0x00, 0x07
+		out[6], out[7] = 'Z', 0x0F
 
-		sauce := make([]byte, 128)
+		out[payloadLen] = 0x1A
+
+		sauce := out[payloadLen+1:]
 		copy(sauce[:7], "SAUCE00")
-		binary.LittleEndian.PutUint32(sauce[90:94], uint32(len(payload)))
+		binary.LittleEndian.PutUint32(sauce[90:94], payloadLen)
 		sauce[94] = 5 // BinaryText
-		sauce[95] = byte(cols / 2)
+		sauce[95] = halfCols
 
-		out := append(payload, 0x1A)
-		return append(out, sauce...)
+		return out
 	}
 
-	for _, cols := range []int{160, 320} {
-		data := makeSAUCEBin(cols, 2, ' ', 0x07)
+	for _, halfCols := range []byte{80, 160} {
+		cols := int(halfCols) * 2
+		data := makeSAUCEBin(halfCols, 2, ' ', 0x07)
 		dlDir := t.TempDir()
 		extraDir := t.TempDir()
 		const unid = "a1b2c3d4-0000-0000-0000-000000000001"
@@ -216,4 +220,81 @@ func TestBuffersSAUCEBinaryText(t *testing.T) {
 		be.True(t, ok)
 		be.True(t, strings.HasSuffix(firstLine, strings.Repeat(" ", cols-4)+"</span>"))
 	}
+}
+
+func TestBuffersICEDraw(t *testing.T) {
+	t.Parallel()
+
+	const (
+		hdrLen  = 12
+		fontLen = 4096
+		palLen  = 48
+	)
+	body := []byte{'I', 0x03, 'D', 0x0F, 'F', 0x0F, 0x00, 0x00}
+	idf := make([]byte, hdrLen+len(body)+fontLen+palLen)
+	copy(idf[:4], "\x041.4")
+	binary.LittleEndian.PutUint16(idf[8:10], 3) // width = 4
+	copy(idf[hdrLen:], body)
+	palOff := hdrLen + len(body) + fontLen
+	idf[palOff+3*3], idf[palOff+3*3+1], idf[palOff+3*3+2] = 33, 19, 1
+	idf[palOff+15*3], idf[palOff+15*3+1], idf[palOff+15*3+2] = 63, 63, 63
+
+	dlDir := t.TempDir()
+	extraDir := t.TempDir()
+	const unid = "c1d2e3f4-0000-0000-0000-000000000001"
+	be.Err(t, os.WriteFile(filepath.Join(dlDir, unid), idf, 0o600), nil)
+
+	txt := readme.Text{
+		Download: dir.Directory(dlDir),
+		Extra:    dir.Directory(extraDir),
+		Filename: "LS-ICE.IDF",
+		Platform: "ansi",
+		MaxSize:  1024 * 1024,
+		UUID:     unid,
+	}
+	got0, got1, err := txt.Buffers(logs.Discard())
+	be.Err(t, err, nil)
+	be.Equal(t, got1.Len(), 0)
+	be.Equal(t, txt.Sign, magicnumber.ICEDraw)
+	be.True(t, txt.CustomFont)
+
+	html := got0.String()
+	be.True(t, strings.Contains(html, `<span style="color:#864d04;background-color:#000000;">I</span>`))
+	be.True(t, strings.Contains(html, `<span style="color:#ffffff;background-color:#000000;">DF</span>`))
+}
+
+func TestBuffersXBIN(t *testing.T) {
+	t.Parallel()
+
+	xb := []byte{
+		'X', 'B', 'I', 'N', 0x1A,
+		0x02, 0x00, // width = 2
+		0x01, 0x00, // height = 1
+		16,   // fontHeight
+		0x0C, // Compress(4) | NonBlink(8)
+		0x01, 'X', 0x9F, 'B', 0x0F,
+	}
+
+	dlDir := t.TempDir()
+	extraDir := t.TempDir()
+	const unid = "d1e2f3a4-0000-0000-0000-000000000001"
+	be.Err(t, os.WriteFile(filepath.Join(dlDir, unid), xb, 0o600), nil)
+
+	txt := readme.Text{
+		Download: dir.Directory(dlDir),
+		Extra:    dir.Directory(extraDir),
+		Filename: "CT-XBIN.XB",
+		Platform: "ansi",
+		MaxSize:  1024 * 1024,
+		UUID:     unid,
+	}
+	got0, got1, err := txt.Buffers(logs.Discard())
+	be.Err(t, err, nil)
+	be.Equal(t, got1.Len(), 0)
+	be.Equal(t, txt.Sign, magicnumber.XBinaryText)
+	be.True(t, !txt.CustomFont)
+
+	html := got0.String()
+	be.True(t, strings.Contains(html, `<span style="color:#ffffff;background-color:#5555ff;">X</span>`))
+	be.True(t, strings.Contains(html, `<span style="color:#ffffff;background-color:#000000;">B</span>`))
 }
