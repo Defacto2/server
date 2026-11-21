@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 
@@ -144,4 +146,20 @@ func TestRegistry(t *testing.T) {
 	x, err := c.TemplRegistry(ctx, nil, nil)
 	be.Err(t, err)
 	be.True(t, x == nil)
+}
+
+func TestRouteFS(t *testing.T) {
+	t.Parallel()
+	root := testutil.OpenRoot(t)
+	e := handler.RouteFS(echo.New(), root.FS())
+
+	req := httptest.NewRequest(http.MethodGet, "/image/new", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	be.Equal(t, rec.Code, http.StatusNotFound)
+
+	req = httptest.NewRequest(http.MethodGet, "/image/new/navbar.webp", nil)
+	rec = httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+	be.Equal(t, rec.Code, http.StatusOK)
 }

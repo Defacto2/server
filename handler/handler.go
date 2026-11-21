@@ -191,9 +191,11 @@ func RouteFS(e *echo.Echo, fsys fs.FS) *echo.Echo {
 		"/js":              "public/js",
 	}
 	// allows the files to be served, but return a 404 for root directories.
+	// Register GET before StaticFS so Echo v5.4.7+ does not auto-register the
+	// directory prefix as a redirect route and collide with the 404 handler.
 	for path, fsRoot := range dirs {
-		e.StaticFS(path, echo.MustSubFS(fsys, fsRoot))
 		e.GET(path, missing)
+		e.StaticFS(path, echo.MustSubFS(fsys, fsRoot))
 	}
 
 	return e
