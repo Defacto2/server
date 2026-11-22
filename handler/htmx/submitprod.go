@@ -138,6 +138,7 @@ func (prod Prod) ButtonOK(c *echo.Context, prodID int, info ...string) error {
 			`hx-swap="innerHTML" ` +
 			`hx-trigger="click once delay:500ms" ` +
 			`hx-disable="this" ` +
+			`hx-config="timeout:0" ` +
 			`hx-status:4xx="target:#demozoo-submission-error swap:innerHTML" ` +
 			`hx-status:5xx="target:#demozoo-submission-error swap:innerHTML" ` +
 			`autofocus>Submit ID %d</button>`
@@ -163,6 +164,7 @@ func (prod Prod) ButtonOK(c *echo.Context, prodID int, info ...string) error {
 			`hx-swap="innerHTML" ` +
 			`hx-trigger="click once delay:500ms" ` +
 			`hx-disable="this" ` +
+			`hx-config="timeout:0" ` +
 			`hx-status:4xx="target:#pouet-submission-error swap:innerHTML" ` +
 			`hx-status:5xx="target:#pouet-submission-error swap:innerHTML" ` +
 			`autofocus>Submit ID %d</button>`

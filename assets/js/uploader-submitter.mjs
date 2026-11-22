@@ -32,6 +32,11 @@ export function submitter(elementId, api) {
   clear.addEventListener('click', reset);
 
   function reset() {
+    htmx.trigger(input, 'htmx:abort');
+    const submitBtn = results.querySelector('[hx-put]');
+    if (submitBtn) {
+      htmx.trigger(submitBtn, 'htmx:abort');
+    }
     input.value = '';
     input.focus();
     input.classList.remove(invalid);

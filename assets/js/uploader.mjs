@@ -125,7 +125,10 @@ export function progress(formId, elementId) {
   if (elementId == null) {
     throw new Error(`The elementId value of progress is null.`);
   }
-  function resetBar() {
+  function abortAndReset() {
+    if (form) {
+      htmx.trigger(form, "htmx:abort");
+    }
     const bar = document.getElementById(elementId);
     if (bar) {
       bar.setAttribute("value", "0");
@@ -133,11 +136,15 @@ export function progress(formId, elementId) {
   }
   const form = document.getElementById(formId);
   if (form) {
-    form.addEventListener("reset", resetBar);
+    form.addEventListener("reset", abortAndReset);
+    const modal = form.closest(".modal");
+    if (modal) {
+      modal.addEventListener("hide.bs.modal", abortAndReset);
+    }
   }
   const resetBtn = document.getElementById(formId.replace("-form", "-reset"));
   if (resetBtn) {
-    resetBtn.addEventListener("click", resetBar);
+    resetBtn.addEventListener("click", abortAndReset);
   }
   document.body.addEventListener("htmx:before:request", function (event) {
     const elt = event.detail?.ctx?.sourceElement;
