@@ -9,7 +9,20 @@
 {{- $path := "g" }}
 {{- $pubs := index .stats.pubs }}
 <div class="container-xxl">
-    <p class="lead mb-3"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <p class="lead mb-0"><small>Showing {{$pubs}}{{if ne $orderBy ""}}, ordered {{$orderBy | safeHTML}}{{end}}.</small></p>
+      <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+        <span class="small text-body-secondary text-nowrap" id="releaser-count">{{$pubs}}</span>
+        <div class="input-group input-group-sm" style="width: 17rem; max-width: 100%;">
+          <input type="search" id="releaser-filter" class="form-control" placeholder="Filter by name..." aria-label="Filter by name" autocomplete="off">
+          <button type="button" id="releaser-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
+        </div>
+      </div>
+    </div>
+    <div id="releaser-empty" class="alert alert-light border text-center my-4 d-none" role="status">
+      No matches for <strong id="releaser-empty-query"></strong>.
+      <button type="button" id="releaser-empty-clear" class="btn btn-link btn-sm p-0 ms-1 align-baseline">Clear filter</button>
+    </div>
 {{- if eq $name "bbs" }}
     <details class="bg-body-tertiary border rounded px-3 py-2 mb-3 small">
       <summary class="text-body-secondary fw-medium">Historic BBS platforms (1984&ndash;1994)</summary>
@@ -100,7 +113,7 @@
 {{- $initialism := initialisms $rel.Unique.URI }}
 {{- $mdMissing := false }}
 {{- if and (ne $h1 "BBS") (ne $h1 "FTP") (eq true $editor)}}{{- $mdMissing = tidbitMissing $rel.Unique.URI }}{{end}}
-        <div class="col">
+        <div class="col releaser-item">
             <div class="position-relative p-3 border bg-body-tertiary h-100 rounded d-flex flex-column justify-content-between gap-2">
               <div class="d-flex justify-content-between align-items-start gap-2">
                 <h2 class="h5 mb-0">

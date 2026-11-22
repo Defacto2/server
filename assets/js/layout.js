@@ -8,6 +8,11 @@ import {
 } from "./layout-keyboard.mjs";
 import htmxEvents from "./layout-htmx.mjs";
 import batchOpenTabs from "./layout-batch.mjs";
+import artifactFilter from "./layout-filter.mjs";
+import releaserFilter from "./layout-releaser.mjs";
+import scenerFilter from "./layout-scener.mjs";
+import interviewFilter from "./layout-interview.mjs";
+import routesFilter from "./layout-routes.mjs";
 
 (() => {
   "use strict";
@@ -17,6 +22,11 @@ import batchOpenTabs from "./layout-batch.mjs";
   toolTips();
   fluidColumns();
   batchOpenTabs();
+  artifactFilter();
+  releaserFilter();
+  scenerFilter();
+  interviewFilter();
+  routesFilter();
 })();
 
 /**

@@ -32,19 +32,6 @@
     </div>
     {{ end }}
   </div>
-  <script>
-    (() => {
-      const input = document.getElementById('routes-filter');
-      const items = document.querySelectorAll('#routes-list > .col');
-      if (!input || !items.length) return;
-      input.addEventListener('input', () => {
-        const q = input.value.trim().toLowerCase();
-        for (const item of items) {
-          item.classList.toggle('d-none', q !== '' && !item.textContent.toLowerCase().includes(q));
-        }
-      });
-    })();
-  </script>
   {{ else }}
   <div class="alert alert-info">No routes found.</div>
   {{ end }}
