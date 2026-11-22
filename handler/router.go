@@ -418,6 +418,12 @@ func (serv *Server) files(sl *slog.Logger, s *echo.Group, db *sql.DB, dirs app.D
 		return app.Categories(sl, c, db, true)
 	})
 
+	s.GET("/files/one-offs/a-z/:page", func(c *echo.Context) error {
+		return app.Artifacts(sl, c, db, "one-offs-az", c.Param("page"))
+	})
+	s.GET("/files/one-offs/a-z", func(c *echo.Context) error {
+		return app.Artifacts(sl, c, db, "one-offs-az", "1")
+	})
 	s.GET("/files/:id/:page", func(c *echo.Context) error {
 		uri := c.Param("id")
 		switch uri {

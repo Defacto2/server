@@ -304,6 +304,7 @@ var matches = map[Key]StatFunc{
 	KeyIntroWindows: (*Summary).introWindows,
 	KeyConsole:      (*Summary).console,
 	KeyOneOffs:      (*Summary).oneOffs,
+	KeyOneOffsAZ:    (*Summary).oneOffs,
 }
 
 // Keys is intended for testing boilerplate and returns the keys used in matches.

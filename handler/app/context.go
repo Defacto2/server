@@ -237,10 +237,12 @@ func zeroOk(uri string) bool {
 
 func pageLimit(uri string) int {
 	const oneOffsLimit = 250
-	if fileslice.Match(uri) == fileslice.OneOffs {
+	switch fileslice.Match(uri) {
+	case fileslice.OneOffs, fileslice.OneOffsAZ:
 		return oneOffsLimit
+	default:
+		return limit
 	}
-	return limit
 }
 
 // artifactsTable is a helper function for Artifacts that returns the data map for the files page.
@@ -294,6 +296,12 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 	}
 	data[records] = r
 
+	baseURL := "/files/" + uri
+	if fileslice.Match(uri) == fileslice.OneOffsAZ {
+		baseURL = "/files/one-offs/a-z"
+		data[canonical] = "files/one-offs/a-z"
+	}
+
 	const pages = 2
 	data["Pagination"] = Pagination{
 		TwoAfter:  page + pages,
@@ -302,7 +310,7 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 		PrevPage:  page - 1,
 		TwoBelow:  page - pages,
 		SumPages:  int(lastPage),
-		BaseURL:   "/files/" + uri,
+		BaseURL:   baseURL,
 		RangeStep: steps(lastPage),
 	}
 
@@ -349,6 +357,10 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 	case fileslice.OneOffs:
 		data["description"] = "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file."
 		data["title"] = "One-off releases"
+	case fileslice.OneOffsAZ:
+		data["description"] = "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file, ordered alphabetically."
+		data["title"] = "One-off releases, A-Z"
+		data["unknownYears"] = false
 	case fileslice.Sensenstahl:
 		data["title"] = "Sensenstahl artifacts"
 	default:

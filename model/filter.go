@@ -75,6 +75,7 @@ const (
 	KeyIntroWindows Key = "intro-windows"
 	KeyConsole      Key = "console"
 	KeyOneOffs      Key = "one-offs"
+	KeyOneOffsAZ    Key = "one-offs-az"
 )
 
 // String implements the fmt.Stringer interface for Key.
@@ -248,6 +249,42 @@ func (q *OneOffs) List(ctx context.Context, exec boil.ContextExecutor, offset, l
 		querymod.OneOffsExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, exec)
+}
+
+// OneOffsAZ is the model for one-off artifacts ordered alphabetically by releaser and filename.
+type OneOffsAZ struct {
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
+}
+
+func (q *OneOffsAZ) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *OneOffsAZ) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
+	return models.NewQuery(
+		qm.Select(SummCols()...),
+		qm.Where(ClauseNoSoftDel),
+		querymod.OneOffsExpr(),
+		qm.From(From),
+	).Bind(ctx, exec, q)
+}
+
+func (q *OneOffsAZ) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
+	return models.Files(
+		querymod.OneOffsExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.OrderBy("LOWER(COALESCE(NULLIF(group_brand_for, ''), group_brand_by)) ASC, LOWER(filename) ASC"),
 		qm.Limit(limit),
 	).All(ctx, exec)
 }
