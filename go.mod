@@ -8,6 +8,7 @@ go 1.27.4 // latest: https://go.dev/dl/
 //	replace github.com/Defacto2/magicnumber => ../magicnumber
 //	replace github.com/Defacto2/releaser => ../releaser
 //	replace github.com/bengarrett/ansibump => ../ansibump
+//	replace github.com/bengarrett/bbs => ../bbs
 //	replace github.com/bengarrett/sauce => ../sauce
 //	replace github.com/bengarrett/binbump => ../binbump
 //	replace github.com/bengarrett/ansimate => ../ansimate
@@ -48,7 +49,7 @@ require (
 	github.com/aarondl/strmangle v0.0.9
 	github.com/bengarrett/ansibump v1.1.6
 	github.com/bengarrett/ansimate v1.2.1
-	github.com/bengarrett/bbs v1.0.11
+	github.com/bengarrett/bbs v1.1.1
 	github.com/bengarrett/binbump v1.0.6
 	github.com/bengarrett/sauce v1.2.12
 	github.com/caarlos0/env/v11 v11.4.2
@@ -138,7 +139,7 @@ require (
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
-	go.uber.org/nilaway v0.0.0-20261121035759-acfaaab8a67f // indirect
+	go.uber.org/nilaway v0.0.0-20261122021050-7f797c9f2b67 // indirect
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260908205506-85c1c2202aba // indirect
 	golang.org/x/mod v0.43.0 // indirect

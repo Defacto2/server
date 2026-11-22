@@ -62,6 +62,16 @@ func Test_viewer(t *testing.T) {
 
 	text.Platform = "textamiga"
 	be.True(t, text.useViewer())
+
+	text.Platform = "pcb"
+	text.Section = "bbs"
+	be.True(t, text.useViewer())
+
+	text.Section = "tool"
+	be.True(t, !text.useViewer())
+
+	text.Section = "package"
+	be.True(t, !text.useViewer())
 }
 
 func Test_decodeUTF16(t *testing.T) {

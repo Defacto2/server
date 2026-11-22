@@ -40,8 +40,8 @@ github.com/bengarrett/ansibump v1.1.6 h1:f184LyZxzoD2u/rsYnvzfp+SG23O9lw/kc+OSd/
 github.com/bengarrett/ansibump v1.1.6/go.mod h1:12r/njG3tvC5R8qTMXtx6s2pVR10lgit3rF8UtD4i1Y=
 github.com/bengarrett/ansimate v1.2.1 h1:o6tLKXE8lMeKZLFqqjapn8mRrh4M+vWNUJf43BG5Ohw=
 github.com/bengarrett/ansimate v1.2.1/go.mod h1:AajWRDysXpIF1iA39bsZPYUyYH4hMJDitOVxcebqFso=
-github.com/bengarrett/bbs v1.0.11 h1:QHgcU9PKUgS5+EU2iVSjIfv6itgzAPFOWyFy/BeqwzA=
-github.com/bengarrett/bbs v1.0.11/go.mod h1:HUq//vZdttFm9l9F2GyGt7pP0KL9y6Hw7tryY7Lv84c=
+github.com/bengarrett/bbs v1.1.1 h1:dijtAzZ504CaC7wDwWOO2AZfRNv9XhAYo4ST/kjWpYI=
+github.com/bengarrett/bbs v1.1.1/go.mod h1:XZF5UMcTJkmNcHp5zMMZvrCAvRItxgvstgHa8I9Y15Q=
 github.com/bengarrett/binbump v1.0.6 h1:FMhFEJd2flJeD+4JjTlwdT2JTylLQibF6Bo4pdqXcJw=
 github.com/bengarrett/binbump v1.0.6/go.mod h1:twfVMOI0ciP6fekxyohZwfcdqN02ClGUxm++So7DrTE=
 github.com/bengarrett/sauce v1.2.12 h1:VqyK3flauqs+PmvC0gWTiVeRGfX2HJeUjP99tHZKnfA=
@@ -346,8 +346,8 @@ go.opentelemetry.io/otel/trace v1.47.0 h1:JOjX/Oci8K94QHddo+bbfya/Ai/nf6/dt9ZfrF
 go.opentelemetry.io/otel/trace v1.47.0/go.mod h1:jNaSLa2PZEYFG6fRjJABAu+bw4FS08uDmPg28lTghu0=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
-go.uber.org/nilaway v0.0.0-20261121035759-acfaaab8a67f h1:VgjmUJ9VQD3m493gBCVmPUI/Vmt/FbLraWJ0RZRZLOk=
-go.uber.org/nilaway v0.0.0-20261121035759-acfaaab8a67f/go.mod h1:h/Z4MnNYOaqAjgJglu/yah/YzvCdcJDvDth5TWUqIJc=
+go.uber.org/nilaway v0.0.0-20261122021050-7f797c9f2b67 h1:nK3GgX7liTstjGD0BsmRl8XDJLN0T/SX9BYMyEUB8A4=
+go.uber.org/nilaway v0.0.0-20261122021050-7f797c9f2b67/go.mod h1:h/Z4MnNYOaqAjgJglu/yah/YzvCdcJDvDth5TWUqIJc=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
 golang.org/x/crypto v0.59.0 h1:xS2jhqYbzNrpvkWP2YTDf4TJwBy3ykR03i8vFDxEc7c=

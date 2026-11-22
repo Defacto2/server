@@ -510,6 +510,12 @@ func (ds Dirs) TextImager(ctx context.Context, sl *slog.Logger, src, unid string
 		return ds.textImager(ctx, sl, src, true, t)
 	}
 
+	if ok, err := ds.bbsImager(ctx, sl, src, unid); err != nil {
+		return fmt.Errorf(format, "bbs imager", err)
+	} else if ok {
+		return nil
+	}
+
 	if !t.UTF8 {
 		if ok, err := isANSImation(src); err == nil && ok {
 			return ds.ANSImation(ctx, sl, src, unid)

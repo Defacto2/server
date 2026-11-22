@@ -742,7 +742,7 @@ func (t *Text) filename() (string, error) {
 }
 
 // useViewer returns true if the file entry should display the file download in the browser plain text viewer.
-// The result is based on the platform and section such as "ansi", "text" or "textamiga" will return true.
+// The result is based on the platform and section such as "ansi", "console", "pcb", "text" or "textamiga".
 func (t *Text) useViewer() bool {
 	if strings.EqualFold(strings.TrimSpace(t.Filename), extensions.FileID) {
 		return true
@@ -753,6 +753,10 @@ func (t *Text) useViewer() bool {
 	}
 
 	v := strings.ToLower(t.Platform)
+	if v == "pcb" {
+		return !strings.EqualFold(t.Section, "tool")
+	}
+
 	// INFO: this behavior was changed in Oct 26 to include "ansi", "console".
 	s := []string{"ansi", "console", "text", "textamiga"}
 	return slices.Contains(s, v)
