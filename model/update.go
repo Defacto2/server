@@ -407,8 +407,14 @@ func (link Links) Update(ctx context.Context, exec boil.ContextExecutor) error {
 	f.WebIDGithub = null.StringFrom(link.GitHub)
 	f.ListRelations = null.StringFrom(link.Relations)
 	f.ListLinks = null.StringFrom(link.Sites)
-	f.WebIDDemozoo = null.Int64From(link.Demozoo)
-	f.WebIDPouet = null.Int64From(link.Pouet)
+	f.WebIDDemozoo = null.Int64FromPtr(nil)
+	if link.Demozoo > 0 {
+		f.WebIDDemozoo = null.Int64From(link.Demozoo)
+	}
+	f.WebIDPouet = null.Int64FromPtr(nil)
+	if link.Pouet > 0 {
+		f.WebIDPouet = null.Int64From(link.Pouet)
+	}
 
 	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "update", err)
@@ -557,13 +563,13 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, key int64, y, m, 
 
 	const formatd = "update ymd (%s=%d): %w"
 	if !y.IsZero() && !helper.Year(int(y.Int16)) {
-		return fmt.Errorf(formatd, "d", y.Int16, ErrBadDYear)
+		return fmt.Errorf(formatd, "y", y.Int16, ErrBadDYear)
 	}
 	if !m.IsZero() && helper.ShortMonth(int(m.Int16)) == "" {
 		return fmt.Errorf(formatd, "m", m.Int16, ErrBadDMonth)
 	}
 	if !d.IsZero() && !helper.Day(int(d.Int16)) {
-		return fmt.Errorf(formatd, "y", d.Int16, ErrBadDDay)
+		return fmt.Errorf(formatd, "d", d.Int16, ErrBadDDay)
 	}
 
 	f, err := OneFile(ctx, exec, key)

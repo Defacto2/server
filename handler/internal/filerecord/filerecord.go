@@ -1186,7 +1186,9 @@ func IdenficationDZ(art *models.File) string {
 	}
 	if art.WebIDDemozoo.Valid {
 		id := art.WebIDDemozoo.Int64
-		return strconv.FormatInt(id, 10)
+		if valid := id > 0; valid {
+			return strconv.FormatInt(id, 10)
+		}
 	}
 	return ""
 }
