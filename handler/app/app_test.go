@@ -670,3 +670,20 @@ func TestVerify(t *testing.T) {
 	err := sri.Verify(emptyFS)
 	be.Err(t, err)
 }
+
+func TestHasPrefix(t *testing.T) {
+	t.Parallel()
+
+	be.True(t, app.HasPrefix("https://defacto2.net", "https://"))
+	be.True(t, app.HasPrefix("/public/image", "/"))
+	be.True(t, !app.HasPrefix("http://defacto2.net", "https://"))
+	be.True(t, !app.HasPrefix("", "https://"))
+}
+
+func TestHasSuffix(t *testing.T) {
+	t.Parallel()
+
+	be.True(t, app.HasSuffix("archive.zip", ".zip"))
+	be.True(t, !app.HasSuffix("archive.zip", ".rar"))
+	be.True(t, !app.HasSuffix("", ".zip"))
+}

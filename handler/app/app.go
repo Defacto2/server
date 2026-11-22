@@ -277,6 +277,11 @@ func GlobTo(name string) string {
 	return strings.Join([]string{"view", "app", name}, pathSeparator)
 }
 
+// HasPrefix returns true if the string s starts with the prefix.
+func HasPrefix(s, prefix string) bool {
+	return strings.HasPrefix(s, prefix)
+}
+
 // HasSuffix returns true if the string s ends with the suffix.
 func HasSuffix(s, suffix string) bool {
 	return strings.HasSuffix(s, suffix)

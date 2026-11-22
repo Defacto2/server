@@ -67,6 +67,13 @@ og:image:alt	Defacto2 floppy disc logo
 - "twitter:card" is used by Discord.
 - "fediverse:creator" is used by Mastodon.
 
+IMPORTANT REQUIREMENT - ABSOLUTE URLS FOR SOCIAL SCRAPERS:
+Social media link scrapers and unfurling services (Discord, Twitter/X, Facebook Open Graph,
+LinkedIn, Slack, Mastodon, Telegram, etc.) REQUIRE fully-qualified absolute URLs
+(beginning with "https://defacto2.net/...") for elements like og:url, og:image, and twitter:image.
+Relative paths (such as "/public/image/..." or "f/...") are ignored or rejected by most crawlers,
+resulting in broken cards and missing preview images. Never emit relative URLs here.
+
 */ -}}
 {{- $ogtitle := index . "ogtitle"}}
 {{- if eq $ogtitle ""}}{{- $ogtitle = index . "title"}}{{end}}
@@ -74,20 +81,44 @@ og:image:alt	Defacto2 floppy disc logo
 {{- $subheading := index . "subheading"}}
 {{- $unid := index . "unid"}}
 {{- $ogimage := og_image $unid}}
+{{- if and (ne $ogimage "") (not (hasPrefix $ogimage "http://")) (not (hasPrefix $ogimage "https://"))}}
+    {{- if not (hasPrefix $ogimage "/")}}
+        {{- $ogimage = printf "/%s" $ogimage}}
+    {{- end}}
+    {{- $ogimage = printf "https://defacto2.net%s" $ogimage}}
+{{- end}}
 {{- $desc := index . "description"}}
 {{- $canonical := index . "canonical"}}
+{{- $ogurl := ""}}
+{{- if eq $canonical "/"}}
+    {{- $ogurl = "https://defacto2.net/"}}
+{{- else if ne $canonical ""}}
+    {{- if hasPrefix $canonical "https://" }}
+        {{- $ogurl = $canonical}}
+    {{- else if hasPrefix $canonical "/"}}
+        {{- $ogurl = printf "https://defacto2.net%s" $canonical}}
+    {{- else}}
+        {{- $ogurl = printf "https://defacto2.net/%s" $canonical}}
+    {{- end}}
+{{- end}}
     <meta property="og:title" content="{{$ogtitle | safeHTML}}">
     <meta property="og:site_name" content="Defacto2">
     <meta property="og:type" content="website">
-{{- if ne $canonical ""}}
-    <meta property="og:url" content="{{$canonical | safeHTML}}">
+{{- if ne $ogurl ""}}
+    <meta property="og:url" content="{{$ogurl | safeHTML}}">
 {{- end}}
+{{- if ne $ogimage ""}}
     <meta property="og:image" content="{{$ogimage | safeHTML}}">
     <meta property="og:image:alt" content="Defacto2 scene artifact">
+{{- end}}
 {{- if ne $desc ""}}
     <meta property="og:description" content="{{$desc | safeHTML}}">
 {{- end}}
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@Defacto2">
+{{- if ne $ogimage ""}}
+    <meta name="twitter:image" content="{{$ogimage | safeHTML}}">
+{{- end}}
     <meta name="fediverse:creator" content="@defacto2@mas.to">
 {{ end }}
 

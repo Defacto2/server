@@ -373,6 +373,7 @@ func TestArtifactTemplatesRender(t *testing.T) {
 
 	c := testutil.NewContext(t, "/f/b32729e")
 	data := app.EmptyTester(c)
+	data["canonical"] = "f/b32729e"
 	data["editor"] = true
 	data["readonlymode"] = false
 	data["modID"] = int64(59506)
@@ -437,6 +438,11 @@ func TestArtifactTemplatesRender(t *testing.T) {
 	err = tmpl.ExecuteTemplate(&buf, "layout", data)
 	be.Err(t, err, nil)
 	out := buf.String()
+	be.True(t, strings.Contains(out, `<meta property="og:url" content="https://defacto2.net/f/b32729e">`))
+	be.True(t, strings.Contains(out, `<meta property="og:image" content="https://defacto2.net/`))
+	be.True(t, strings.Contains(out, `<meta name="twitter:card" content="summary_large_image">`))
+	be.True(t, strings.Contains(out, `<meta name="twitter:site" content="@Defacto2">`))
+	be.True(t, strings.Contains(out, `<meta name="twitter:image" content="https://defacto2.net/`))
 	be.True(t, strings.Contains(out, `name="artifact-editor-pouetundo"`))
 	be.True(t, strings.Contains(out, `<h1 class="fs-1 fw-light mb-2 container-xxl">Beyond Akira BBS</h1>`))
 	be.True(t, strings.Contains(out, `<p class="lead mb-3 container-xxl">`))

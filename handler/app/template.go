@@ -172,6 +172,7 @@ var funcMap = template.FuncMap{
 	"fmtPrefix":          Prefix,
 	"fmtRoles":           helper.FmtSlice,
 	"fmtURI":             releaser.Link,
+	"hasPrefix":          HasPrefix,
 	"hasSuffix":          HasSuffix,
 	"hasTimeline":        hasTimeline,
 	"lastUpdated":        LastUpdated,
