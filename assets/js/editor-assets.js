@@ -308,8 +308,24 @@ import { getElmById } from './helper.mjs';
     }
   });
 
+  function parseHtmxEvent(event) {
+    const ctx = event.detail?.ctx;
+    const elt = ctx?.sourceElement ?? event.detail?.elt ?? null;
+    const status = ctx?.response?.status ?? event.detail?.xhr?.status ?? 0;
+    const text = ctx?.text ?? event.detail?.xhr?.responseText ?? '';
+    const isOk =
+      ctx?.response !== undefined
+        ? status >= 200 && status < 400
+        : Boolean(event.detail?.successful);
+    const isFailed =
+      ctx?.response !== undefined
+        ? status >= 400
+        : Boolean(event.detail?.failed && event.detail?.xhr);
+    return { elt, status, text, isOk, isFailed };
+  }
+
   // New file download form event listener.
-  document.body.addEventListener('htmx:afterRequest', function (event) {
+  document.body.addEventListener('htmx:after:request', function (event) {
     afterFormRequest(
       event,
       `artifact-editor-dl-form`,
@@ -368,12 +384,9 @@ import { getElmById } from './helper.mjs';
    * @returns {void}
    **/
   function afterLinkRequest(event, inputId, feedbackId) {
-    if (event.detail.elt === null) return;
-    if (
-      event.detail.elt.id !== `${inputId}` &&
-      event.detail.elt.name !== inputId
-    )
-      return;
+    const { elt, status, text, isOk, isFailed } = parseHtmxEvent(event);
+    if (elt === null) return;
+    if (elt.id !== `${inputId}` && elt.name !== inputId) return;
     const feedback = document.getElementById(feedbackId);
     if (feedback === null) {
       throw new Error(
@@ -381,23 +394,17 @@ import { getElmById } from './helper.mjs';
       );
     }
     const errClass = 'text-danger';
-    const xhr = event.detail.xhr;
-    const statusFound = xhr.status === 200 || xhr.status === 302;
-    if ((event.detail && event.detail.successful) || statusFound) {
-      feedback.innerText = `${xhr.responseText}`;
+    const statusFound = status === 200 || status === 302;
+    if (isOk || statusFound) {
+      feedback.innerText = `${text}`;
       feedback.classList.remove(errClass);
       return;
     }
-    if (
-      event.detail &&
-      event.detail.failed !== undefined &&
-      event.detail.failed &&
-      event.detail.xhr
-    ) {
+    if (isFailed) {
       feedback.classList.add(errClass);
       feedback.innerText =
         `Something on the server is not working, ` +
-        `${xhr.status} status: ${xhr.responseText}.`;
+        `${status} status: ${text}.`;
       return;
     }
     feedback.classList.add(errClass);
@@ -407,8 +414,9 @@ import { getElmById } from './helper.mjs';
   }
 
   function afterRefreshRequest(event, inputId, feedbackId) {
-    if (event.detail.elt === null) return;
-    if (event.detail.elt.id !== `${inputId}`) return;
+    const { elt, status, text, isOk, isFailed } = parseHtmxEvent(event);
+    if (elt === null) return;
+    if (elt.id !== `${inputId}`) return;
     const feedback = document.getElementById(feedbackId);
     if (feedback === null) {
       throw new Error(
@@ -417,8 +425,7 @@ import { getElmById } from './helper.mjs';
     }
     const errClass = 'text-danger';
     const okClass = 'text-success';
-    const xhr = event.detail.xhr;
-    if (event.detail.successful) {
+    if (isOk) {
       feedback.innerText = `About to refresh the page.`;
       feedback.classList.remove(errClass);
       feedback.classList.add(okClass);
@@ -427,11 +434,11 @@ import { getElmById } from './helper.mjs';
       }, 500);
       return;
     }
-    if (event.detail.failed && event.detail.xhr) {
+    if (isFailed) {
       feedback.classList.add(errClass);
       feedback.innerText =
         `Something on the server is not working, ` +
-        `${xhr.status} status: ${xhr.responseText}.`;
+        `${status} status: ${text}.`;
       return;
     }
     feedback.classList.add(errClass);
@@ -449,8 +456,9 @@ import { getElmById } from './helper.mjs';
    * @returns {void}
    **/
   function afterFormRequest(event, formId, inputName, feedbackName) {
-    if (event.detail.elt === null) return;
-    if (event.detail.elt.id !== `${formId}`) return;
+    const { elt, status, text, isOk, isFailed } = parseHtmxEvent(event);
+    if (elt === null) return;
+    if (elt.id !== `${formId}`) return;
     const input = document.getElementById(inputName);
     if (input === null) {
       throw new Error(`The htmx successful input element ${inputName} is null`);
@@ -461,18 +469,17 @@ import { getElmById } from './helper.mjs';
         `The htmx successful feedback element ${feedbackName} is null`
       );
     }
-    if (event.detail.successful) {
-      return successful(event, input, feedback);
+    if (isOk) {
+      return successful(text, input, feedback);
     }
-    if (event.detail.failed && event.detail.xhr) {
-      return errorXhr(event, input, feedback);
+    if (isFailed) {
+      return errorXhr(status, text, input, feedback);
     }
     errorBrowser(input, feedback);
   }
 
-  function successful(event, input, feedback) {
-    const xhr = event.detail.xhr;
-    feedback.innerText = `${xhr.responseText}`;
+  function successful(text, input, feedback) {
+    feedback.innerText = `${text}`;
     feedback.classList.remove('invalid-feedback');
     feedback.classList.add('valid-feedback');
     input.classList.remove('is-invalid');
@@ -482,9 +489,8 @@ import { getElmById } from './helper.mjs';
     }, 500);
   }
 
-  function errorXhr(event, input, feedback) {
-    const xhr = event.detail.xhr;
-    feedback.innerText = `Something on the server is not working, ${xhr.status} status: ${xhr.responseText}.`;
+  function errorXhr(status, text, input, feedback) {
+    feedback.innerText = `Something on the server is not working, ${status} status: ${text}.`;
     feedback.classList.remove('valid-feedback');
     feedback.classList.add('invalid-feedback');
     input.classList.remove('is-valid');

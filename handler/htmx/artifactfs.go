@@ -531,6 +531,8 @@ func duplicate(src, dst string) error {
 		return nil
 	}
 
-	_, err := helper.DuplicateOW(src, dst)
-	return fmt.Errorf(format, err)
+	if _, err := helper.DuplicateOW(src, dst); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	return nil
 }

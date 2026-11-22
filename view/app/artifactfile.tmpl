@@ -367,7 +367,7 @@
                       <input class="form-check-input" type="checkbox" role="switch"
                           hx-patch="/editor/readme/disable/{{$key}}"
                           hx-trigger="click delay:50ms"
-                          hx-swap="swap:50ms"
+                          hx-swap="innerHTML swap:50ms"
                           hx-on:click="document.getElementById('readme-is-off-result').textContent=''"
                           hx-include="[name='readme-is-off']"
                           hx-target="#readme-is-off-result"
