@@ -1,0 +1,45 @@
+File extensions: .html, .php, .js, .ts, .jinja, .jinja2, .j2, .erb, .hbs, .tmpl, .mjs, .go
+Use --ext to add more (e.g. --ext .vue --ext .svelte)
+
+Scanning 238 file(s)...
+
+./assets/js/editor-assets.js:312: [old-event] old event name "htmx:afterRequest" → "htmx:after:request"
+./assets/js/htmx-response-targets.js:75: [old-api] htmx.defineExtension() is removed → use htmx.registerExtension()
+./assets/js/htmx-response-targets.js:100: [old-event] old event name "htmx:beforeSwap" → "htmx:before:swap"
+./assets/js/layout-htmx.mjs:13: [old-api] htmx.logAll() is removed → use htmx.config.logAll = true
+./assets/js/layout-htmx.mjs:17: [old-event] old event name "htmx:beforeRequest" → "htmx:before:request"
+./assets/js/layout-htmx.mjs:36: [old-event] old event name "htmx:afterRequest" → "htmx:after:request"
+./assets/js/layout-htmx.mjs:37: [old-event] old event name "htmx:afterRequest" → "htmx:after:request"
+./assets/js/uploader-submitter.mjs:54: [old-event] old event name "htmx:beforeRequest" → "htmx:before:request"
+./assets/js/uploader-submitter.mjs:55: [old-event] old event name "htmx:beforeRequest" → "htmx:before:request"
+./assets/js/uploader-submitter.mjs:59: [old-event] old event name "htmx:beforeSwap" → "htmx:before:swap"
+./assets/js/uploader-submitter.mjs:61: [old-event] old event name "htmx:beforeSwap" → "htmx:before:swap"
+./assets/js/uploader-submitter.mjs:68: [old-event] old event name "htmx:afterRequest" → "htmx:after:request"
+./assets/js/uploader-submitter.mjs:70: [old-event] old event name "htmx:afterRequest" → "htmx:after:request"
+./assets/js/uploader.mjs:119: [removed-event] removed event "htmx:xhr:progress"
+./assets/js/uploader.mjs:128: [removed-event] removed event "htmx:xhr:progress"
+./view/app/artifactedit.tmpl:66: [removed-attr] hx-ext is removed → include extension scripts directly (no attribute needed in v4)
+./view/app/artifactedit.tmpl:585: [inheritance] hx-include needs :inherited suffix (descendant on line 606 has hx-patch)
+./view/app/artifactedit.tmpl:585: [inheritance] hx-target needs :inherited suffix (descendant on line 606 has hx-patch)
+./view/app/uploader_modal.tmpl:30: [removed-attr] hx-ext is removed → include extension scripts directly (no attribute needed in v4)
+./view/app/uploader_modal.tmpl:71: [removed-attr] hx-ext is removed → include extension scripts directly (no attribute needed in v4)
+./view/app/uploader_modal.tmpl:111: [inheritance] hx-encoding needs :inherited suffix (descendant on line 127 has hx-patch)
+./view/app/uploader_modal.tmpl:111: [inheritance] hx-target needs :inherited suffix (descendant on line 127 has hx-patch)
+./view/app/uploader_modal.tmpl:111: [inheritance] hx-swap needs :inherited suffix (descendant on line 127 has hx-patch)
+./view/app/uploader_modal.tmpl:200: [inheritance] hx-encoding needs :inherited suffix (descendant on line 217 has hx-patch)
+./view/app/uploader_modal.tmpl:200: [inheritance] hx-target needs :inherited suffix (descendant on line 217 has hx-patch)
+./view/app/uploader_modal.tmpl:200: [inheritance] hx-swap needs :inherited suffix (descendant on line 217 has hx-patch)
+./view/app/uploader_modal.tmpl:293: [inheritance] hx-encoding needs :inherited suffix (descendant on line 310 has hx-patch)
+./view/app/uploader_modal.tmpl:293: [inheritance] hx-target needs :inherited suffix (descendant on line 310 has hx-patch)
+./view/app/uploader_modal.tmpl:293: [inheritance] hx-swap needs :inherited suffix (descendant on line 310 has hx-patch)
+./view/app/uploader_modal.tmpl:393: [inheritance] hx-encoding needs :inherited suffix (descendant on line 409 has hx-patch)
+./view/app/uploader_modal.tmpl:393: [inheritance] hx-target needs :inherited suffix (descendant on line 409 has hx-patch)
+./view/app/uploader_modal.tmpl:393: [inheritance] hx-swap needs :inherited suffix (descendant on line 409 has hx-patch)
+./view/app/uploader_modal.tmpl:478: [inheritance] hx-encoding needs :inherited suffix (descendant on line 489 has hx-patch)
+./view/app/uploader_modal.tmpl:478: [inheritance] hx-target needs :inherited suffix (descendant on line 489 has hx-patch)
+./view/app/uploader_modal.tmpl:478: [inheritance] hx-swap needs :inherited suffix (descendant on line 489 has hx-patch)
+./view/app/uploader_modal.tmpl:564: [inheritance] hx-encoding needs :inherited suffix (descendant on line 580 has hx-patch)
+./view/app/uploader_modal.tmpl:564: [inheritance] hx-target needs :inherited suffix (descendant on line 580 has hx-patch)
+./view/app/uploader_modal.tmpl:564: [inheritance] hx-swap needs :inherited suffix (descendant on line 580 has hx-patch)
+
+Found 38 issue(s) in 7 of 238 file(s).
