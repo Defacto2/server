@@ -3,11 +3,11 @@
 */ -}}
 {{- define "layoutup" }}
 {{- $editor := index . "editor" }}
-<div class="btn-group">
-  <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+<div class="btn-group ms-lg-auto">
+  <button class="btn btn-link dropdown-toggle ps-0 ps-lg-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     {{- if not $editor}}Uploader{{else}}Site editor{{end}}
   </button>
-  <ul class="dropdown-menu dropdown-menu-end">
+  <ul class="dropdown-menu dropdown-menu-lg-end">
     {{- template "layoutlock" . }}
     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-about">{{if not $editor}}About{{else}}Uploader shortcuts{{end}}</a></li>
     {{- if not $editor}}<li><hr class="dropdown-divider"></li>{{end}}

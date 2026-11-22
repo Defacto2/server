@@ -213,7 +213,8 @@
               </ul>
             </li>
           </ul>
-          <ul class="navbar-nav">
+          <hr class="d-lg-none my-1 text-secondary">
+          <ul class="navbar-nav d-none d-lg-flex">
             <li class="nav-item">
               <a class="nav-link disabled" aria-disabled="true">|</a>
             </li>
@@ -306,8 +307,8 @@
               <a class="nav-link" href="/thanks">Thanks</a>
             </li>
           </ul>
+          {{- template "layoutup" . }}
         </div>
-        {{- template "layoutup" . }}
       </div>
     </nav>
   </div>
