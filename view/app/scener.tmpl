@@ -18,10 +18,12 @@
     </nav>
     <div class="d-flex flex-wrap align-items-center gap-2 ms-xl-auto">
       <span class="small text-body-secondary text-nowrap" id="scener-count">{{$ppl}} {{if eq $ppl 1}}scener{{else}}sceners{{end}}</span>
+      {{- if ge $ppl 3 }}
       <div class="input-group input-group-sm" style="width: 17rem; max-width: 100%;">
         <input type="search" id="scener-filter" class="form-control" placeholder="Filter by name..." aria-label="Filter sceners by name" autocomplete="off">
         <button type="button" id="scener-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
       </div>
+      {{- end }}
     </div>
   </div>
   {{- if $letters }}
@@ -37,10 +39,12 @@
   {{- end }}
 </div>
 
+{{- if ge $ppl 3 }}
 <div id="scener-empty" class="alert alert-light border text-center my-4 d-none" role="status">
   No sceners matched <strong id="scener-empty-query"></strong>.
   <button type="button" id="scener-empty-clear" class="btn btn-link btn-sm p-0 ms-1 align-baseline">Clear filter</button>
 </div>
+{{- end }}
 
 {{- range $groups }}
 <section class="mb-4 scener-group" id="scener-sec-{{.ID}}" style="scroll-margin-top: 4.5rem;">

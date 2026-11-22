@@ -26,6 +26,9 @@ export default function scenerFilter() {
     }
 
     const items = Array.from(document.querySelectorAll('.scener-item'));
+    if (items.length < 3) {
+      return;
+    }
     const total = items.length;
 
     const applyFilter = () => {

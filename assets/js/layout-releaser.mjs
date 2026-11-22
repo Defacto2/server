@@ -15,7 +15,7 @@ export default function releaserFilter() {
     const emptyEl = document.getElementById('releaser-empty');
     const emptyQueryEl = document.getElementById('releaser-empty-query');
     const items = Array.from(document.querySelectorAll('.releaser-item'));
-    if (!input || items.length === 0) {
+    if (!input || items.length < 3) {
       return;
     }
 

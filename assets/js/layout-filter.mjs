@@ -16,7 +16,7 @@ export default function artifactFilter() {
     const emptyQueryEl = document.getElementById('artifact-empty-query');
     const unkHeader = document.getElementById('artifact-unknown-years-header');
     const items = Array.from(document.querySelectorAll('.artifact-item'));
-    if (!input || items.length === 0) {
+    if (!input || items.length < 3) {
       return;
     }
 

@@ -85,6 +85,7 @@
       <span class="text-body-secondary small">Multiple tabs requires <em>Allowed to send pop-ups</em></span>
       {{- end}}
     </div>
+    {{- if ge $cnt 3}}
     <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
       <span class="small text-body-secondary text-nowrap" id="artifact-count">{{$cnt}} {{if eq $cnt 1}}artifact{{else}}artifacts{{end}}</span>
       <div class="input-group input-group-sm" style="width: 17rem; max-width: 100%;">
@@ -92,17 +93,20 @@
         <button type="button" id="artifact-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
       </div>
     </div>
+    {{- end}}
   </div>
   {{- if and (eq $editor true) (ge $cnt 5)}}
   <div id="batch-open-alert" class="alert alert-warning text-center py-1 px-2 small mx-auto mt-2 mb-0 d-none" style="max-width: 36rem;" role="alert"></div>
   {{- end}}
 </div>
+{{- if ge $cnt 3}}
 <div class="container-xxl">
   <div id="artifact-empty" class="alert alert-light border text-center my-4 d-none" role="status">
     No artifacts matched <strong id="artifact-empty-query"></strong> on this page.
     <button type="button" id="artifact-empty-clear" class="btn btn-link btn-sm p-0 ms-1 align-baseline">Clear filter</button>
   </div>
 </div>
+{{- end}}
 {{- end}}
 {{- $rowCols := "d-grid gap-3 justify-content-center" }}
 <div id="fluid-artifacts" class="{{$rowCols}}" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 400px));">

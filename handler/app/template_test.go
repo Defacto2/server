@@ -141,8 +141,20 @@ func TestScenerTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `href="/coder" rel="nofollow" aria-current="page"`))
 	be.True(t, strings.Contains(out, `id="scener-sec-num"`))
 	be.True(t, strings.Contains(out, `id="scener-sec-A"`))
-	be.True(t, strings.Contains(out, `id="scener-filter-clear" class="btn btn-outline-secondary"`))
+	be.True(t, !strings.Contains(out, `id="scener-filter-clear"`))
 	be.True(t, strings.Contains(out, `2 sceners`))
+
+	names = []string{"007", "ACE", "ZERO"}
+	groups, letters = app.BuildScenerIndex(names)
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"sceners":       names,
+		"scenerRole":    "coder",
+		"scenerGroups":  groups,
+		"scenerLetters": letters,
+	})
+	be.Err(t, err, nil)
+	be.True(t, strings.Contains(buf.String(), `id="scener-filter-clear" class="btn btn-outline-secondary"`))
 }
 
 func TestSearchPostTemplate(t *testing.T) {
@@ -505,12 +517,29 @@ func TestReleaserTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `row-cols-lg-3`))
 	be.True(t, strings.Contains(out, `position-relative p-3 border`))
 	be.True(t, strings.Contains(out, `<h2 class="h5 mb-0">`))
-	be.True(t, strings.Contains(out, `id="releaser-filter"`))
-	be.True(t, strings.Contains(out, `id="releaser-filter-clear"`))
-	be.True(t, strings.Contains(out, `id="releaser-count"`))
-	be.True(t, strings.Contains(out, `id="releaser-empty"`))
+	be.True(t, !strings.Contains(out, `id="releaser-filter"`))
 	be.True(t, strings.Contains(out, `releaser-item`))
+	be.True(t, strings.Contains(out, `data-count="5"`))
 	be.True(t, !strings.Contains(out, `badge rounded-pill text-bg-warning`))
+
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"h1":       "Releasers",
+		"itemName": "file",
+		"editor":   false,
+		"stats":    map[string]string{"pubs": "3 releasers", "orderBy": "by file artifact count"},
+		"releasers": model.Releasers{
+			{Unique: model.Releaser{URI: "a", Name: "A", Count: 5, Bytes: 1024}},
+			{Unique: model.Releaser{URI: "b", Name: "B", Count: 3, Bytes: 1024}},
+			{Unique: model.Releaser{URI: "c", Name: "C", Count: 2, Bytes: 1024}},
+		},
+	})
+	be.Err(t, err, nil)
+	threeRelOut := buf.String()
+	be.True(t, strings.Contains(threeRelOut, `id="releaser-filter"`))
+	be.True(t, strings.Contains(threeRelOut, `id="releaser-filter-clear"`))
+	be.True(t, strings.Contains(threeRelOut, `id="releaser-count"`))
+	be.True(t, strings.Contains(threeRelOut, `id="releaser-empty"`))
 
 	buf.Reset()
 	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
@@ -796,10 +825,7 @@ func TestArtifactsTemplate(t *testing.T) {
 	be.True(t, !strings.Contains(out, `text-body-info`))
 	be.True(t, strings.Contains(out, `href="/f/`))
 	be.True(t, strings.Contains(out, `<button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button>`))
-	be.True(t, strings.Contains(out, `id="artifact-filter"`))
-	be.True(t, strings.Contains(out, `id="artifact-filter-clear"`))
-	be.True(t, strings.Contains(out, `id="artifact-count"`))
-	be.True(t, strings.Contains(out, `id="artifact-empty"`))
+	be.True(t, !strings.Contains(out, `id="artifact-filter"`))
 	be.True(t, strings.Contains(out, `artifact-item`))
 	be.True(t, strings.Contains(out, `<div class="d-flex flex-wrap align-items-baseline gap-3">`))
 	be.True(t, !strings.Contains(out, `&nbsp; <a class="card-link"`))
@@ -819,6 +845,10 @@ func TestArtifactsTemplate(t *testing.T) {
 	be.Err(t, err, nil)
 	fiveOut := buf.String()
 	be.True(t, strings.Contains(fiveOut, `id="batch-open-menu"`))
+	be.True(t, strings.Contains(fiveOut, `id="artifact-filter"`))
+	be.True(t, strings.Contains(fiveOut, `id="artifact-filter-clear"`))
+	be.True(t, strings.Contains(fiveOut, `id="artifact-count"`))
+	be.True(t, strings.Contains(fiveOut, `id="artifact-empty"`))
 
 	data["editor"] = false
 	buf.Reset()
