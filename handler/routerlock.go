@@ -142,8 +142,12 @@ func fixers(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	fixID := func(c *echo.Context) error {
 		return app.FixNumericSuffix(sl, c, db)
 	}
+	dups := func(c *echo.Context) error {
+		return app.Duplicates(sl, c, db)
+	}
 	g.GET("/fixers", fixers)
 	g.POST("/fixers/fix/:id", fixID)
+	g.GET("/duplicates", dups)
 }
 
 func (serv *Server) configurations(sl *slog.Logger, g *echo.Group, db *sql.DB) error {

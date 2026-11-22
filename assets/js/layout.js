@@ -13,6 +13,7 @@ import releaserFilter from "./layout-releaser.mjs";
 import scenerFilter from "./layout-scener.mjs";
 import interviewFilter from "./layout-interview.mjs";
 import routesFilter from "./layout-routes.mjs";
+import duplicatesFilter from "./layout-duplicates.mjs";
 
 (() => {
   "use strict";
@@ -27,6 +28,7 @@ import routesFilter from "./layout-routes.mjs";
   scenerFilter();
   interviewFilter();
   routesFilter();
+  duplicatesFilter();
 })();
 
 /**

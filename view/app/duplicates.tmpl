@@ -1,0 +1,90 @@
+{{- /*
+    duplicates.tmpl ~ Potential duplicate releasers, BBSes, and FTP sites report.
+*/ -}}
+{{- define "content" }}
+{{- $rep := index . "dupReport" }}
+<div class="container-xxl">
+  {{- if not $rep }}
+  <div class="alert alert-warning">Could not load duplicates report.</div>
+  {{- else }}
+  <div class="bg-body-tertiary border rounded p-3 mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+      <div class="d-flex flex-wrap align-items-center gap-1" role="group" aria-label="Filter by confidence tier">
+        <button type="button" class="btn btn-sm btn-outline-secondary active dup-tier-btn" data-tier="all" aria-pressed="true">
+          All <span class="badge text-bg-secondary ms-1">{{$rep.TotalClusters}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary dup-tier-btn" data-tier="1" aria-pressed="false">
+          Tier 1: Normalized <span class="badge text-bg-secondary ms-1">{{len $rep.Tier1}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary dup-tier-btn" data-tier="2" aria-pressed="false">
+          Tier 2: Word Swaps <span class="badge text-bg-secondary ms-1">{{len $rep.Tier2}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary dup-tier-btn" data-tier="3" aria-pressed="false">
+          Tier 3: 1-Char Typos <span class="badge text-bg-secondary ms-1">{{len $rep.Tier3}}</span>
+        </button>
+      </div>
+      <div class="d-flex flex-wrap align-items-center gap-1" role="group" aria-label="Filter by category">
+        <button type="button" class="btn btn-sm btn-outline-secondary active dup-kind-btn" data-kind="all" aria-pressed="true">All types</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary dup-kind-btn" data-kind="Group" aria-pressed="false">Groups</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary dup-kind-btn" data-kind="BBS" aria-pressed="false">BBS</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary dup-kind-btn" data-kind="FTP" aria-pressed="false">FTP</button>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+      <span class="small text-body-secondary">Scanned <strong>{{$rep.TotalReleasers}}</strong> distinct public groups, BBSes, and FTP sites in memory.</span>
+      <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+        <span class="small text-body-secondary text-nowrap" id="dup-count">{{$rep.TotalClusters}} clusters</span>
+        <div class="input-group input-group-sm" style="width: 18rem; max-width: 100%;">
+          <input type="search" id="dup-filter" class="form-control" placeholder="Filter by name..." aria-label="Filter duplicate clusters" autocomplete="off">
+          <button type="button" id="dup-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dup-empty" class="alert alert-light border text-center my-4 d-none" role="status">
+    No duplicate clusters matched <strong id="dup-empty-query"></strong>.
+    <button type="button" id="dup-empty-clear" class="btn btn-link btn-sm p-0 ms-1 align-baseline">Reset filters</button>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" id="dup-grid">
+    {{- range $rep.Tier1 }}
+      {{- template "dupcard" . }}
+    {{- end }}
+    {{- range $rep.Tier2 }}
+      {{- template "dupcard" . }}
+    {{- end }}
+    {{- range $rep.Tier3 }}
+      {{- template "dupcard" . }}
+    {{- end }}
+  </div>
+  {{- end }}
+</div>
+{{- end }}
+
+{{- define "dupcard" }}
+<div class="col dup-item" data-tier="{{.Tier}}" data-kind="{{.Kind}}">
+  <div class="card h-100 bg-body-tertiary border">
+    <div class="card-header d-flex justify-content-between align-items-center py-2 px-3 small">
+      <span class="fw-medium text-body-secondary">{{.Reason}}</span>
+      <div class="d-flex align-items-center gap-1">
+        <span class="badge {{if eq .Kind "BBS"}}text-bg-info{{else if eq .Kind "FTP"}}text-bg-warning{{else}}text-bg-primary{{end}} fw-normal">{{.Kind}}</span>
+        <span class="badge text-bg-secondary fw-normal">Tier {{.Tier}}</span>
+      </div>
+    </div>
+    <ul class="list-group list-group-flush">
+      {{- range .Entries }}
+      <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center gap-2 py-2 px-3">
+        <div class="text-truncate">
+          <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-medium" href="/g/{{.URI}}" target="_blank" rel="noopener">{{.Display}}</a>
+          <code class="d-block small text-body-secondary text-truncate">{{.Name}}</code>
+        </div>
+        <span class="badge {{if eq .Count 1}}text-bg-warning{{else}}text-bg-secondary{{end}} rounded-pill flex-shrink-0">
+          {{.Count}} {{if eq .Count 1}}file{{else}}files{{end}}
+        </span>
+      </li>
+      {{- end }}
+    </ul>
+  </div>
+</div>
+{{- end }}

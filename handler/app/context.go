@@ -100,6 +100,7 @@ const (
 	ffile       = "file"
 	fixes       = "fixes"
 	fixers      = "fixers"
+	duplicates  = "duplicates"
 	ftp         = "ftp"
 	history     = "history"
 	index       = "index"
@@ -2841,6 +2842,35 @@ func Fixers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	err = c.Render(http.StatusOK, fixers, data)
 	if err != nil {
 		return InternalErr(sl, c, fixers, err)
+	}
+	return nil
+}
+
+// Duplicates is the handler for the potential duplicate releasers, BBSes, and FTP sites report.
+func Duplicates(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	if err := nils.Check(sl, c, db); err != nil {
+		return fmt.Errorf("duplicates context: %w", err)
+	}
+
+	const title = "Potential duplicate releasers"
+	data := empty(c)
+	data["noindex"] = true
+	data["description"] = "In-memory similarity report for detecting duplicate groups, BBSes, and FTP sites."
+	data["logo"] = "Duplicate releasers"
+	data["h1"] = title
+	data["lead"] = "Groups, BBSes, and FTP sites with matching normalized fingerprints, swapped words, or 1-character typos."
+	data["title"] = title
+
+	ctx := c.Request().Context()
+	rep, err := fix.Duplicates(ctx, db)
+	if err != nil {
+		sl.Error("failed to analyze duplicate releasers", slog.String("error", err.Error()))
+	} else {
+		data["dupReport"] = rep
+	}
+
+	if err := c.Render(http.StatusOK, duplicates, data); err != nil {
+		return InternalErr(sl, c, duplicates, err)
 	}
 	return nil
 }

@@ -352,6 +352,9 @@ func (serv *Server) releasers(sl *slog.Logger, s *echo.Group, db *sql.DB) *echo.
 	s.GET("/releaser/year", func(c *echo.Context) error {
 		return app.ReleasersYear(sl, c, db)
 	})
+	s.GET("/releaser/duplicates", func(c *echo.Context) error {
+		return app.Duplicates(sl, c, db)
+	})
 
 	s.GET("/magazine", func(c *echo.Context) error {
 		return app.Magazine(sl, c, db)

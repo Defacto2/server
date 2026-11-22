@@ -95,6 +95,7 @@ var pages = Page{
 	"coder":         scenerTmpl,
 	"compression":   "compression.tmpl",
 	"dependencies":  "dependencies.tmpl",
+	"duplicates":    "duplicates.tmpl",
 	"ftp":           releaserTmpl,
 	"fixers":        "fixers.tmpl",
 	"fixes":         "fixes.tmpl",

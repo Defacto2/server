@@ -301,6 +301,19 @@ func Releasers() SQL {
 		"ORDER BY releaser ASC"
 }
 
+// AllReleasersCounts selects all distinct releasers (groups, BBS, FTP) and their public file counts.
+func AllReleasersCounts() SQL {
+	return distReleaser +
+		"COUNT(files.filename) AS count_sum " +
+		fromFiles +
+		combineGroup +
+		whereRelNull +
+		deletedatIsNull +
+		"GROUP BY releaser " +
+		havingCount +
+		orderSumDesc
+}
+
 // Summary is an SQL statement to count the number of files, sum the filesize,
 // select the oldest year and the newest year.
 func Summary() SQL {
