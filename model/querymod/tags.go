@@ -179,3 +179,10 @@ func PVideo() null.String {
 func PWindows() null.String {
 	return null.String{String: uris[tags.Windows], Valid: true}
 }
+
+// Methods that begin with M are for the file_magic_type column.
+
+func MAnimation() null.String {
+	return null.String{String: "ANSImation", Valid: true}
+}
+

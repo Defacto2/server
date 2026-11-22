@@ -22,6 +22,13 @@ func AnnouncementExpr() qm.QueryMod {
 	)
 }
 
+// AnimationExpr is a query mod expression for ANSImation releases.
+func AnimationExpr() qm.QueryMod {
+	return qm.Expr(
+		models.FileWhere.FileMagicType.EQ(MAnimation()),
+	)
+}
+
 // AnsiExpr is a query mod expression for ANSI art releases.
 func AnsiExpr() qm.QueryMod {
 	return qm.Expr(

@@ -246,3 +246,10 @@ func TestPWindowsReturnsValidTag(t *testing.T) {
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, tags.URIs()[tags.Windows])
 }
+
+func TestMAnimationReturnsValidMagic(t *testing.T) {
+	result := querymod.MAnimation()
+	be.True(t, result.Valid)
+	be.Equal(t, result.String, "ANSImation")
+}
+

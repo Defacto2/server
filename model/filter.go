@@ -65,6 +65,7 @@ const (
 	KeyANSIBBS      Key = "ansi-bbs"
 	KeyANSIBrand    Key = "ansi-brand"
 	KeyANSI         Key = "ansi"
+	KeyAnimation    Key = "animation"
 	KeyProof        Key = "proof"
 	KeyNFO          Key = "nfo"
 	KeyDemoscene    Key = "demoscene"
@@ -172,6 +173,42 @@ func (q *Announcement) List(ctx context.Context, exec boil.ContextExecutor, offs
 	}
 	return models.Files(
 		querymod.AnnouncementExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, exec)
+}
+
+// Animation is the model for ANSImation text art files.
+type Animation struct {
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
+}
+
+func (q *Animation) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *Animation) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
+	return models.NewQuery(
+		qm.Select(SummCols()...),
+		qm.Where(ClauseNoSoftDel),
+		querymod.AnimationExpr(),
+		qm.From(From),
+	).Bind(ctx, exec, q)
+}
+
+func (q *Animation) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
+	return models.Files(
+		querymod.AnimationExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),

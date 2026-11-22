@@ -294,6 +294,7 @@ var matches = map[Key]StatFunc{
 	KeyANSIBBS:      (*Summary).ansiBBS,
 	KeyANSIBrand:    (*Summary).ansiBrand,
 	KeyANSI:         (*Summary).ansi,
+	KeyAnimation:    (*Summary).animation,
 	KeyProof:        (*Summary).proof,
 	KeyNFO:          (*Summary).nfo,
 	KeyDemoscene:    (*Summary).demoscene,
@@ -387,6 +388,10 @@ func (obj *Summary) proof(ctx context.Context, exec boil.ContextExecutor) error 
 
 func (obj *Summary) ansi(ctx context.Context, exec boil.ContextExecutor) error {
 	return execStat[Ansi](ctx, exec, obj, KeyANSI)
+}
+
+func (obj *Summary) animation(ctx context.Context, exec boil.ContextExecutor) error {
+	return execStat[Animation](ctx, exec, obj, KeyAnimation)
 }
 
 func (obj *Summary) ansiBrand(ctx context.Context, exec boil.ContextExecutor) error {

@@ -21,6 +21,11 @@ func TestAnnouncementExpr(t *testing.T) {
 	be.True(t, expr != nil)
 }
 
+func TestAnimationExpr(t *testing.T) {
+	expr := querymod.AnimationExpr()
+	be.True(t, expr != nil)
+}
+
 func TestAnsiExpr(t *testing.T) {
 	expr := querymod.AnsiExpr()
 	be.True(t, expr != nil)
