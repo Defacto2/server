@@ -24,6 +24,7 @@
 {{- $noYears := false}}
 {{- $unYears := index .unknownYears }}
 {{- $editor := index .editor}}
+{{- $noGroupLinks := index . "noGroupLinks"}}
 {{- $group := hasSuffix (index .title) " artifacts"}}
 {{- $breakline := false}}
 <div class="container-xxl">
@@ -139,11 +140,13 @@
         <code class="h6 mb-0 text-break">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
       </div>
       <div class="card-body">
+        {{- $relrs := "" }}
+        {{- if eq $noGroupLinks true }}{{ $relrs = nameRelrs .GroupBrandFor .GroupBrandBy }}{{ else }}{{ $relrs = linkRelrs .GroupBrandFor .GroupBrandBy }}{{ end }}
         {{- if eq $group true}}
-        <h2 class="card-title text-truncate fs-6">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
+        <h2 class="card-title text-truncate fs-6">{{$relrs}}</h2>
         {{subTitle .Section .RecordTitle true}}
         {{- else}}
-        <h2 class="card-title text-truncate fs-5">{{linkRelrs .GroupBrandFor .GroupBrandBy }}</h2>
+        <h2 class="card-title text-truncate fs-5">{{$relrs}}</h2>
         {{subTitle .Section .RecordTitle false}}
         {{- end}}
         <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>

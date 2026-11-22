@@ -357,10 +357,12 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 	case fileslice.OneOffs:
 		data["description"] = "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file."
 		data["title"] = "One-off releases"
+		data["noGroupLinks"] = true
 	case fileslice.OneOffsAZ:
 		data["description"] = "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file, ordered alphabetically."
 		data["title"] = "One-off releases, A-Z"
 		data["unknownYears"] = false
+		data["noGroupLinks"] = true
 	case fileslice.Sensenstahl:
 		data["title"] = "Sensenstahl artifacts"
 	default:
@@ -3178,5 +3180,6 @@ func emptyFiles(c *echo.Context) map[string]any {
 	data["tidbits"] = ""
 	data["website"] = ""
 	data["unknownYears"] = true
+	data["noGroupLinks"] = false
 	return data
 }

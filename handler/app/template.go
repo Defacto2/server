@@ -193,6 +193,7 @@ var funcMap = template.FuncMap{
 	"logoText":           LogoText,
 	"mask":               Mask,
 	"musicMod":           MusicModule,
+	"nameRelrs":          NameRels,
 	"jsdosUsage":         filerecord.JsdosUsage,
 	"recordInfoOSTag":    TagWithOS,
 	"recordLinkPreviews": LinkPreviews,
@@ -656,6 +657,35 @@ func LinkRels(a, b any) template.HTML {
 		return ""
 	}
 	return LinkReleasers(false, false, a, b)
+}
+
+// NameRels returns the formatted group names associated with a release without anchor links.
+func NameRels(a, b any) template.HTML {
+	if a == nil && b == nil {
+		return ""
+	}
+
+	x := strings.TrimSpace(toString(a))
+	y := strings.TrimSpace(toString(b))
+	if x == "" && y == "" {
+		return ""
+	}
+	if x == "" {
+		x = y
+		y = ""
+	}
+
+	formatName := func(s string) string {
+		if s == "" {
+			return ""
+		}
+		if v := releaser.Link(helper.Slug(s)); v != "" {
+			return v
+		}
+		return template.HTMLEscapeString(s)
+	}
+
+	return simple.Releasers(formatName(x), formatName(y), false)
 }
 
 // LinkRelsPerf returns the groups associated with a release and a link to each group.

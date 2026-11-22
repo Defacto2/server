@@ -824,7 +824,16 @@ func TestArtifactsTemplate(t *testing.T) {
 	buf.Reset()
 	err = tmpl.ExecuteTemplate(&buf, "content", data)
 	be.Err(t, err, nil)
-	nonEditorOut := buf.String()
-	be.True(t, !strings.Contains(nonEditorOut, `id="batch-open-menu"`))
-	be.True(t, !strings.Contains(nonEditorOut, `data-artifact-url=`))
+	noEd := buf.String()
+	be.True(t, strings.Contains(noEd, `named-group-page-1`))
+
+	data["noGroupLinks"] = true
+	buf.Reset()
+	err = tmpl.ExecuteTemplate(&buf, "content", data)
+	be.Err(t, err, nil)
+	noLinks := buf.String()
+	be.True(t, !strings.Contains(noLinks, `named-group-page-1`))
+	be.True(t, strings.Contains(noLinks, `BBS`))
+	be.True(t, !strings.Contains(noLinks, `id="batch-open-menu"`))
+	be.True(t, !strings.Contains(noLinks, `data-artifact-url=`))
 }
