@@ -505,6 +505,9 @@ func txReleasers(c *echo.Context, tx *sql.Tx, undo bool) error {
 		return badRequest(c, err)
 	}
 
+	if undo {
+		return StatusOK(c, "artifact-editor-releaser-undo")
+	}
 	return StatusOK(c, "artifact-editor-releasers")
 }
 

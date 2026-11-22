@@ -10,11 +10,11 @@ export default htmxEvents;
  * Initializes the htmx event listeners.
  */
 export function htmxEvents() {
-  //htmx.logAll(); // uncomment, to debug but spam
+  //htmx.config.logAll = true; // uncomment, to debug but spam
 
   searchEvents();
 
-  document.body.addEventListener('htmx:beforeRequest', function (event) {
+  document.body.addEventListener('htmx:before:request', function (event) {
     removeSelectsValid(event, `artifact-editor-classifications-undo`);
     removeSelectsValid(event, `artifact-editor-text-for-dos`);
     removeSelectsValid(event, `artifact-editor-text-for-amiga`);
@@ -33,30 +33,10 @@ export function htmxEvents() {
     removeSelectsValid(event, `artifact-editor-inst-for-win`);
   });
   // This event is triggered after an AJAX request has finished.
-  // https://htmx.org/events/#htmx:afterRequest
-  document.body.addEventListener('htmx:afterRequest', function (event) {
+  // https://four.htmx.org/reference/events/htmx-after-request/
+  document.body.addEventListener('htmx:after:request', function (event) {
     // searches.
     afterRequest(event, `search-htmx-input`, `search-htmx-alert`);
-    // image uploader.
-    const alertImg = `uploader-image-alert`;
-    afterRequest(event, `uploader-image-form`, alertImg);
-    afterRequest(event, `uploader-image-releaser-1`, alertImg);
-    afterRequest(event, `uploader-image-releaser-2`, alertImg);
-    // intro uploader.
-    const alertIntro = `uploader-intro-alert`;
-    afterRequest(event, `uploader-intro-form`, alertIntro);
-    afterRequest(event, `uploader-intro-releaser-1`, alertIntro);
-    afterRequest(event, `uploader-intro-releaser-2`, alertIntro);
-    // text uploader.
-    const alertText = `uploader-text-alert`;
-    afterRequest(event, `uploader-text-form`, alertText);
-    afterRequest(event, `uploader-text-releaser-1`, alertText);
-    afterRequest(event, `uploader-text-releaser-2`, alertText);
-    // trainer uploader.
-    const alertTrainer = `uploader-trainer-alert`;
-    afterRequest(event, `uploader-trainer-form`, alertTrainer);
-    afterRequest(event, `uploader-trainer-releaser-1`, alertTrainer);
-    afterRequest(event, `uploader-trainer-releaser-2`, alertTrainer);
     // record toggle.
     afterRecord(event, `artifact-editor-hidden`, `artifact-editor-public`);
     afterRecord(event, `artifact-editor-public`, `artifact-editor-hidden`);
@@ -79,7 +59,7 @@ export function htmxEvents() {
     afterClassifications(event, `artifact-editor-inst-for-dos`);
     afterClassifications(event, `artifact-editor-inst-for-win`);
     // record releaser.
-    afterUpdate(event, `artifact-editor-releaser-undo`);
+    afterUpdateRels(event, `artifact-editor-releaser-undo`);
     afterUpdateRels(event, `artifact-editor-releaser-update`);
     // record title.
     afterUpdate(event, `artifact-editor-title`);
@@ -94,15 +74,15 @@ export function htmxEvents() {
     // record virustotal.
     afterUpdate(event, `artifact-editor-virustotal`);
     // record date.
-    afterUpdate(event, `artifact-editor-date-undo`);
-    afterUpdate(event, `artifact-editor-date-lastmod`);
+    afterUpdateDate(event, `artifact-editor-date-undo`);
+    afterUpdateDate(event, `artifact-editor-date-lastmod`);
     afterUpdateDate(event, `artifact-editor-date-update`);
     // record creators.
     afterUpdate(event, `artifact-editor-credit-text`);
     afterUpdate(event, `artifact-editor-credit-ill`);
     afterUpdate(event, `artifact-editor-credit-prog`);
     afterUpdate(event, `artifact-editor-credit-audio`);
-    afterCreators(event, `artifact-editor-credit-undo"`);
+    afterCreators(event, `artifact-editor-credit-undo`);
     // record comment.
     afterUpdate(event, `artifact-editor-comment`);
     afterReset(
@@ -120,6 +100,28 @@ export function htmxEvents() {
     afterUpdate(event, `artifact-editor-websites`);
     afterLinks(event, `artifact-editor-links-undo`);
   });
+  document.body.addEventListener('htmx:afterRequest', function (event) {
+    // image uploader.
+    const alertImg = `uploader-image-alert`;
+    afterRequest(event, `uploader-image-form`, alertImg);
+    afterRequest(event, `uploader-image-releaser-1`, alertImg);
+    afterRequest(event, `uploader-image-releaser-2`, alertImg);
+    // intro uploader.
+    const alertIntro = `uploader-intro-alert`;
+    afterRequest(event, `uploader-intro-form`, alertIntro);
+    afterRequest(event, `uploader-intro-releaser-1`, alertIntro);
+    afterRequest(event, `uploader-intro-releaser-2`, alertIntro);
+    // text uploader.
+    const alertText = `uploader-text-alert`;
+    afterRequest(event, `uploader-text-form`, alertText);
+    afterRequest(event, `uploader-text-releaser-1`, alertText);
+    afterRequest(event, `uploader-text-releaser-2`, alertText);
+    // trainer uploader.
+    const alertTrainer = `uploader-trainer-alert`;
+    afterRequest(event, `uploader-trainer-form`, alertTrainer);
+    afterRequest(event, `uploader-trainer-releaser-1`, alertTrainer);
+    afterRequest(event, `uploader-trainer-releaser-2`, alertTrainer);
+  });
 }
 
 function getEditorAlert(elt) {
@@ -135,82 +137,89 @@ function getEditorAlert(elt) {
 }
 
 function afterLinks(event, buttonId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${buttonId}`) return;
+  const { elt, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${buttonId}`) return;
 
-  const liveAlert = getEditorAlert(event.detail.elt);
-  if (event.detail.successful) {
+  const liveAlert = getEditorAlert(elt);
+  if (isOk) {
     console.log('okay');
+    return;
   }
-  if (event.detail.failed && event.detail.xhr) {
+  if (isFailed) {
     console.log('error');
+    return;
   }
   errorBrowser(liveAlert);
 }
 
 function afterCreators(event, buttonId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${buttonId}`) return;
+  const { elt, text, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${buttonId}`) return;
 
-  const liveAlert = getEditorAlert(event.detail.elt);
-  if (event.detail.successful) {
+  const liveAlert = getEditorAlert(elt);
+  if (isOk) {
     updateSuccess(liveAlert, `artifact-editor-credit-text`);
     updateSuccess(liveAlert, `artifact-editor-credit-ill`);
     updateSuccess(liveAlert, `artifact-editor-credit-prog`);
     return updateSuccess(liveAlert, `artifact-editor-credit-audio`);
   }
-  if (event.detail.failed && event.detail.xhr) {
-    updateError(event, `artifact-editor-credit-text`, liveAlert);
-    updateError(event, `artifact-editor-credit-ill`, liveAlert);
-    updateError(event, `artifact-editor-credit-prog`, liveAlert);
-    return updateError(event, `artifact-editor-credit-audio`, liveAlert);
+  if (isFailed) {
+    updateError(text, `artifact-editor-credit-text`, liveAlert);
+    updateError(text, `artifact-editor-credit-ill`, liveAlert);
+    updateError(text, `artifact-editor-credit-prog`, liveAlert);
+    return updateError(text, `artifact-editor-credit-audio`, liveAlert);
   }
   errorBrowser(liveAlert);
 }
 
 function afterUpdateDate(event, buttonId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${buttonId}`) return;
+  const { elt, text, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${buttonId}`) return;
 
-  const liveAlert = getEditorAlert(event.detail.elt);
+  const liveAlert = getEditorAlert(elt);
   const year = 'artifact-editor-year';
   const month = 'artifact-editor-month';
   const day = 'artifact-editor-day';
-  if (event.detail.successful) {
+  if (isOk) {
     updateSuccess(liveAlert, year);
     updateSuccess(liveAlert, month);
     return updateSuccess(liveAlert, day);
   }
-  if (event.detail.failed && event.detail.xhr) {
-    updateError(event, year, liveAlert);
-    updateError(event, month, liveAlert);
-    return updateError(event, day, liveAlert);
+  if (isFailed) {
+    updateError(text, year, liveAlert);
+    updateError(text, month, liveAlert);
+    return updateError(text, day, liveAlert);
   }
   errorBrowser(liveAlert);
 }
 
 function afterUpdateRels(event, buttonId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${buttonId}`) return;
+  const { elt, text, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${buttonId}`) return;
 
-  const liveAlert = getEditorAlert(event.detail.elt);
+  const liveAlert = getEditorAlert(elt);
 
   const rel1 = 'artifact-editor-releaser-1';
   const rel2 = 'artifact-editor-releaser-2';
-  if (event.detail.successful) {
+  if (isOk) {
     updateSuccess(liveAlert, rel1);
     return updateSuccess(liveAlert, rel2);
   }
-  if (event.detail.failed && event.detail.xhr) {
-    updateError(event, rel1, liveAlert);
-    return updateError(event, rel2, liveAlert);
+  if (isFailed) {
+    updateError(text, rel1, liveAlert);
+    return updateError(text, rel2, liveAlert);
   }
   errorBrowser(liveAlert);
 }
 
 function removeSelectsValid(event, buttonId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${buttonId}`) return;
+  const { elt } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${buttonId}`) return;
 
   const select1Id = 'artifact-editor-operating-system';
   const select2Id = 'artifact-editor-category';
@@ -227,53 +236,56 @@ function removeSelectsValid(event, buttonId) {
 }
 
 function afterUpdate(event, inputId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${inputId}`) return;
+  const { elt, text, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${inputId}`) return;
 
-  const liveAlert = getEditorAlert(event.detail.elt);
+  const liveAlert = getEditorAlert(elt);
 
-  if (event.detail.successful) {
+  if (isOk) {
     return updateSuccess(liveAlert, inputId);
   }
-  if (event.detail.failed && event.detail.xhr) {
-    return updateError(event, inputId, liveAlert);
+  if (isFailed) {
+    return updateError(text, inputId, liveAlert);
   }
   errorBrowser(liveAlert);
 }
 
 function afterClassifications(event, buttonId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${buttonId}`) return;
+  const { elt, text, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${buttonId}`) return;
 
   const select1Id = 'artifact-editor-operating-system';
   const select2Id = 'artifact-editor-category';
 
-  const liveAlert = getEditorAlert(event.detail.elt);
+  const liveAlert = getEditorAlert(elt);
 
-  if (event.detail.successful) {
+  if (isOk) {
     updateSuccess(liveAlert, select1Id);
     updateSuccess(liveAlert, select2Id);
     return;
   }
-  if (event.detail.failed && event.detail.xhr) {
-    return updateError(event, null, liveAlert);
+  if (isFailed) {
+    return updateError(text, null, liveAlert);
   }
   errorBrowser(liveAlert);
 }
 
 function afterReset(event, buttonId, inputId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${buttonId}`) return;
+  const { elt, text, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${buttonId}`) return;
 
-  const liveAlert = getEditorAlert(event.detail.elt);
+  const liveAlert = getEditorAlert(elt);
   console.log(`afterReset ${buttonId} ${inputId}`, event.detail);
-  if (event.detail.successful) {
-    console.log(event.detail.successful, `sucessful`);
+  if (isOk) {
+    console.log(isOk, `sucessful`);
     return updateSuccess(liveAlert, inputId);
   }
-  if (event.detail.failed && event.detail.xhr) {
-    console.log(event.detail.failed, `failed`);
-    return updateError(event, inputId, liveAlert);
+  if (isFailed) {
+    console.log(isFailed, `failed`);
+    return updateError(text, inputId, liveAlert);
   }
   errorBrowser(liveAlert);
 }
@@ -293,9 +305,8 @@ function updateSuccess(alertElm, successId) {
   elm.classList.add('is-valid');
 }
 
-function updateError(event, inputId, alertElm) {
-  const xhr = event.detail.xhr;
-  alertElm.innerText = `${timeNow()} Could not update the database record, ${xhr.responseText}.`;
+function updateError(responseText, inputId, alertElm) {
+  alertElm.innerText = `${timeNow()} Could not update the database record, ${responseText}.`;
   alertElm.classList.remove('d-none');
   if (inputId !== null) {
     const inputElm = document.getElementById(inputId);
@@ -314,16 +325,17 @@ function updateError(event, inputId, alertElm) {
  * @throws {Error} If the htmx alert element is null.
  */
 function afterRecord(event, inputId, revertId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${inputId}`) return;
+  const { elt, text, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${inputId}`) return;
 
-  const liveAlert = getEditorAlert(event.detail.elt);
+  const liveAlert = getEditorAlert(elt);
 
-  if (event.detail.successful) {
-    return recordSuccess(event, inputId, liveAlert);
+  if (isOk) {
+    return recordSuccess(text, inputId, liveAlert);
   }
-  if (event.detail.failed && event.detail.xhr) {
-    return recordError(event, revertId, liveAlert);
+  if (isFailed) {
+    return recordError(text, revertId, liveAlert);
   }
   errorBrowser(liveAlert);
 }
@@ -331,18 +343,18 @@ function afterRecord(event, inputId, revertId) {
 /**
  * Handles the successful event.
  *
- * @param {Event} event - The event object.
+ * @param {string} responseText - The response body text.
  * @param {string} inputId - The ID of the input element.
  * @param {HTMLElement} alertElm - The alert element.
  */
-function recordSuccess(event, inputId, alertElm) {
+function recordSuccess(responseText, inputId, alertElm) {
   alertElm.classList.add('d-none');
   alertElm.innerText = '';
   const elm = document.getElementById(`artifact-editor-modal-header`);
   const statusElm = document.getElementById(`artifact-editor-modal-status`);
   if (!elm) return;
 
-  const state = event.detail.xhr?.responseText?.trim();
+  const state = responseText?.trim();
   const isOnline =
     state === 'online' ||
     (state !== 'offline' && inputId === 'artifact-editor-public');
@@ -371,14 +383,14 @@ function recordSuccess(event, inputId, alertElm) {
 }
 
 /**
- * Handles the error response from an XHR request.
+ * Handles the error response from a request.
  *
- * @param {CustomEvent} event - The event object containing the XHR details.
+ * @param {string} responseText - The response body text.
+ * @param {string} revertId - The ID of the radio button to revert to.
  * @param {HTMLElement} alertElm - The alert element to display the error message.
  */
-function recordError(event, revertId, alertElm) {
-  const xhr = event.detail.xhr;
-  alertElm.innerText = `${timeNow()} Could not update the database record, ${xhr.responseText}.`;
+function recordError(responseText, revertId, alertElm) {
+  alertElm.innerText = `${timeNow()} Could not update the database record, ${responseText}.`;
   alertElm.classList.remove('d-none');
   document.getElementById(revertId).checked = true;
 }
@@ -393,6 +405,23 @@ function timeNow() {
   return hours + ':' + minutes + ':' + seconds;
 }
 
+function parseHtmxEvent(event) {
+  const ctx = event.detail?.ctx;
+  const elt = ctx?.sourceElement ?? event.detail?.elt ?? null;
+  const status = ctx?.response?.status ?? event.detail?.xhr?.status ?? 0;
+  const text = ctx?.text ?? event.detail?.xhr?.responseText ?? '';
+  const hasResponse = Boolean(ctx?.response || event.detail?.xhr);
+  const isOk =
+    ctx?.response !== undefined
+      ? status >= 200 && status < 400
+      : Boolean(event.detail?.successful);
+  const isFailed =
+    ctx?.response !== undefined
+      ? status >= 400
+      : Boolean(event.detail?.failed && event.detail?.xhr);
+  return { elt, status, text, hasResponse, isOk, isFailed };
+}
+
 /**
  * Handles the response after an htmx request.
  * Any error messages are displayed in the alert element.
@@ -403,19 +432,20 @@ function timeNow() {
  * @throws {Error} If the htmx alert element is null.
  */
 function afterRequest(event, inputId, alertId) {
-  if (event.detail.elt === null) return;
-  if (event.detail.elt.id !== `${inputId}`) return;
+  const { elt, status, text, isOk, isFailed } = parseHtmxEvent(event);
+  if (elt === null) return;
+  if (elt.id !== `${inputId}`) return;
 
   const liveAlert = document.getElementById(alertId);
   if (typeof liveAlert === 'undefined' || liveAlert === null) {
     throw new Error(`The htmx alert element ${alertId} is null`);
   }
 
-  if (event.detail.successful) {
+  if (isOk) {
     return successful(event, liveAlert);
   }
-  if (event.detail.failed && event.detail.xhr) {
-    return errorXhr(liveAlert, event);
+  if (isFailed) {
+    return errorXhr(liveAlert, status, text);
   }
   errorBrowser(liveAlert);
 }
@@ -429,12 +459,13 @@ function afterRequest(event, inputId, alertId) {
 function successful(event, alertElm) {
   alertElm.classList.add('d-none');
   alertElm.innerText = '';
+  const { elt } = parseHtmxEvent(event);
   const match = '-form',
-    id = event.target.id;
+    id = (elt ?? event.target).id;
   const suffix = id.slice(-match.length);
   if (suffix == match) {
     const select = id.replace(match, '-file');
-    resetFile(event, `#${select}`);
+    resetFile(elt ?? event.target, `#${select}`);
 
     // Show the results div by removing d-none class
     const resultsId = id.replace(match, '-results');
@@ -447,11 +478,11 @@ function successful(event, alertElm) {
 
 /**
  * Resets the value of the file input element.
- * @param {Event} event - The event object.
+ * @param {HTMLElement} formElm - The form element.
  * @param {string} selector - The selector of the file input element.
  */
-function resetFile(event, selector) {
-  const input = event.target.querySelector(selector);
+function resetFile(formElm, selector) {
+  const input = formElm.querySelector(selector);
   if (input) {
     input.value = '';
     input.innerText = '';
@@ -461,17 +492,15 @@ function resetFile(event, selector) {
 }
 
 /**
- * Handles the error response from an XHR request.
+ * Handles the error response from a request.
  *
  * @param {HTMLElement} alertElm - The alert element to display the error message.
- * @param {CustomEvent} event - The event object containing the XHR details.
+ * @param {number} status - The HTTP response status code.
+ * @param {string} text - The HTTP response body text.
  */
-function errorXhr(alertElm, event) {
-  const xhr = event.detail.xhr;
+function errorXhr(alertElm, status, text) {
   alertElm.innerText = `Our server is not working at the moment.`;
-  console.log(
-    `XHR request did not work, ${xhr.status} status: ${xhr.responseText}.`
-  );
+  console.log(`Request did not work, ${status} status: ${text}.`);
   alertElm.classList.remove('d-none');
 }
 

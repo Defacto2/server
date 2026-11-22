@@ -232,8 +232,9 @@ func StatusOK(c *echo.Context, name string) error {
 		"artifact-editor-comment-undo",
 		"artifact-editor-date-undo",
 		"artifact-editor-filename-undo",
+		"artifact-editor-releaser-undo",
 		"artifact-editor-title-undo":
-		return c.String(code, " "+checkMark)
+		return c.NoContent(http.StatusNoContent)
 	case
 		"artifact-editor-date-update",
 		"artifact-editor-releasers":
