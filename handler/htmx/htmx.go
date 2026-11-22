@@ -8,7 +8,9 @@ import (
 	"html"
 	"html/template"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"slices"
 	"strconv"
 	"strings"
@@ -193,6 +195,7 @@ func pings() []string {
 }
 
 // Pings is a handler for the /pings route.
+// It streams each route ping result as a multipart/mixed HTML part for htmx hx-multipart.
 //
 // The proto string should either be "http" or "https".
 func Pings(c *echo.Context, proto string, port int) error {
@@ -203,11 +206,39 @@ func Pings(c *echo.Context, proto string, port int) error {
 
 	ctx := c.Request().Context()
 	pings := pings()
-	results := make([]string, 0, len(pings))
+
+	w := c.Response()
+	mw := multipart.NewWriter(w)
+	w.Header().Set("Content-Type", "multipart/mixed; boundary="+mw.Boundary())
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("X-Accel-Buffering", "no")
+	w.WriteHeader(http.StatusOK)
+
+	rc := http.NewResponseController(w)
+	partHeader := textproto.MIMEHeader{"Content-Type": {"text/html; charset=utf-8"}}
+	writePart := func(body string) error {
+		part, err := mw.CreatePart(partHeader)
+		if err != nil {
+			return err
+		}
+		if _, err := part.Write([]byte(body)); err != nil {
+			return err
+		}
+		_ = rc.Flush()
+		return nil
+	}
+
+	count := 0
 	for ping := range slices.Values(pings) {
+		if ctx.Err() != nil {
+			break
+		}
+		count++
 		code, size, err := helper.LocalHostPing(ctx, ping, proto, port)
 		if err != nil {
-			results = append(results, fmt.Sprintf("%s: %v", ping, err))
+			if werr := writePart(fmt.Sprintf("<div>%s: %v</div>", html.EscapeString(ping), err)); werr != nil {
+				return fmt.Errorf(format, werr)
+			}
 			continue
 		}
 
@@ -223,15 +254,22 @@ func Pings(c *echo.Context, proto string, port int) error {
 			class = `text-warning-emphasis`
 		}
 
-		const format = `<span class="%s">%d</span> %s <span class="text-secondary">%s</span>`
-		spans := fmt.Sprintf(format, class, code, ping, helper.ByteCount(size))
-		results = append(results, "<div>", spans, "</div>")
+		const spanFmt = `<div><span class="%s">%d</span> %s <span class="text-secondary">%s</span></div>`
+		if werr := writePart(fmt.Sprintf(spanFmt, class, code, ping, helper.ByteCount(size))); werr != nil {
+			return fmt.Errorf(format, werr)
+		}
 	}
 
-	output := strings.Join(results, "")
-	output += `<div><small>` + strconv.Itoa(len(pings)) + `  URLs were pinged</small></div>`
+	summary := `<div><small>` + strconv.Itoa(count) + ` URLs were pinged</small></div>`
+	if err := writePart(summary); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if err := mw.Close(); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	_ = rc.Flush()
 
-	return c.HTML(http.StatusOK, output)
+	return nil
 }
 
 // SearchByID is a handler for the /editor/search/id route.

@@ -30,7 +30,7 @@
       </button>
     </div>
     <div class="col-md-6">
-      <button class="btn btn-dark w-75" hx-get="/editor/configurations/pings" hx-target="#ping-response">
+      <button class="btn btn-dark w-75" hx-get="/editor/configurations/pings" hx-target="#ping-response" hx-swap="beforeend" hx-disable="this" hx-config="timeout:0" hx-on:click="document.getElementById('ping-response').innerHTML=''">
         <span class="me-2">&#8634;</span> Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
       </button>
     </div>

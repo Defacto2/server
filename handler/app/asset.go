@@ -21,6 +21,7 @@ const (
 	EditAssets                   // EditAssets is the path to the minified Editor assets JS file.
 	EditForApproval              // EditForApproval is the path to the minified Editor for-approval JS file.
 	Htmx                         // Htmx is the path to the minified htmx AJAX JS file.
+	HtmxMultipart                // HtmxMultipart is the path to the minified htmx multipart streaming extension file.
 	IndexJS                      // IndexJS is the path to the minified JS file used by the index template.
 	Jsdos6JS                     // Jsdos6JS is the path to the minified js-dos v6 JS file.
 	Layout                       // Layout is the path to the minified layout CSS file.
@@ -49,6 +50,7 @@ var hrefPaths = Paths{
 	EditAssets:      "/js/editor-assets.min.js",
 	EditForApproval: "/js/editor-forapproval.min.js",
 	Htmx:            "/js/htmx.v4.min.js",
+	HtmxMultipart:   "/js/htmx.v4.ext-multipart.min.js",
 	IndexJS:         "/js/index.min.js",
 	Jsdos6JS:        "/js/js-dos.js",
 	Layout:          "/css/layout.min.css",

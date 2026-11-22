@@ -136,7 +136,11 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 
 	// use middleware
 	if settings.Compression {
-		e.Use(middleware.Gzip())
+		e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+			Skipper: func(c *echo.Context) bool {
+				return c.Path() == "/editor/configurations/pings"
+			},
+		}))
 	}
 	if settings.ProdMode {
 		e.Use(middleware.Recover())
