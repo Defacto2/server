@@ -114,10 +114,10 @@
         <span class="navbar-brand mb-0 h1" data-bs-toggle="tooltip" data-bs-title="Jump to home introduction">
           <a class="nav-link active" aria-current="page" href="/">Defacto2</a>
         </span>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation-menu" aria-controls="navigation-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler order-1 order-md-2" type="button" data-bs-toggle="collapse" data-bs-target=".multi-collapse" aria-controls="navigation-primary navigation-secondary" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navigation-menu">
+        <div class="collapse navbar-collapse multi-collapse order-2 order-md-1 flex-lg-grow-0" id="navigation-primary">
           <ul class="navbar-nav">
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -213,6 +213,8 @@
               </ul>
             </li>
           </ul>
+        </div>
+        <div class="collapse navbar-collapse multi-collapse order-3 flex-lg-grow-1" id="navigation-secondary">
           <hr class="d-lg-none my-1 text-secondary">
           <ul class="navbar-nav d-none d-lg-flex">
             <li class="nav-item">

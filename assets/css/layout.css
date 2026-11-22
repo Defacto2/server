@@ -845,3 +845,32 @@ pre#precontentCP437 {
 }
 /* stylelint-enable selector-id-pattern */
 /* stylelint-enable selector-class-pattern */
+
+/* ============================================================
+ * HYBRID NAVBAR (768px to 991.98px)
+ * Primary navigation items stay horizontal on the top bar while
+ * secondary items collapse into the hamburger drawer.
+ * ============================================================ */
+
+@media (768px <= width < 992px) {
+  #navigation-primary {
+    display: flex !important;
+    flex-basis: auto;
+    flex-grow: 1;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #navigation-primary .navbar-nav {
+    flex-direction: row;
+  }
+
+  #navigation-primary .navbar-nav .nav-link {
+    padding-right: var(--bs-navbar-nav-link-padding-x);
+    padding-left: var(--bs-navbar-nav-link-padding-x);
+  }
+
+  #navigation-primary .navbar-nav .dropdown-menu {
+    position: absolute;
+  }
+}
