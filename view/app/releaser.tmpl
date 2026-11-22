@@ -113,7 +113,7 @@
 {{- $initialism := initialisms $rel.Unique.URI }}
 {{- $mdMissing := false }}
 {{- if and (ne $h1 "BBS") (ne $h1 "FTP") (eq true $editor)}}{{- $mdMissing = tidbitMissing $rel.Unique.URI }}{{end}}
-        <div class="col releaser-item">
+        <div class="col releaser-item" data-count="{{$rel.Unique.Count}}">
             <div class="position-relative p-3 border bg-body-tertiary h-100 rounded d-flex flex-column justify-content-between gap-2">
               <div class="d-flex justify-content-between align-items-start gap-2">
                 <h2 class="h5 mb-0">

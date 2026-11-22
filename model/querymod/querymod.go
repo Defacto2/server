@@ -265,6 +265,18 @@ func MacExpr() qm.QueryMod {
 	)
 }
 
+// OneOffsExpr is a query mod expression for artifacts from releasers with only 1 file
+// (including BBS and FTP releasers).
+func OneOffsExpr() qm.QueryMod {
+	const singleReleasers = "SELECT releaser FROM files f2 " +
+		"CROSS JOIN LATERAL (VALUES (f2.group_brand_for), (f2.group_brand_by)) AS T(releaser) " +
+		"WHERE f2.deletedat IS NULL AND NULLIF(releaser, '') IS NOT NULL " +
+		"GROUP BY releaser HAVING COUNT(f2.filename) = 1"
+	return qm.Where(
+		"(files.group_brand_for IN (" + singleReleasers + ") OR files.group_brand_by IN (" + singleReleasers + "))",
+	)
+}
+
 // MagExpr is a query mod expression for magazine releases.
 func MagExpr() qm.QueryMod {
 	return qm.Expr(

@@ -82,6 +82,7 @@ const (
 	nfo
 	nfoTool
 	Oldest
+	OneOffs
 	pcb
 	pcbPPE
 	pcbText
@@ -152,27 +153,28 @@ var uriStrings = [...]string{
 	42: "nfo",
 	43: "nfo-tool",
 	44: "oldest",
-	45: "pcboard",
-	46: "pcboard-ppe",
-	47: "pcboard-text",
-	48: "pdf",
-	49: "proof",
-	50: "restrict",
-	51: "script",
-	52: "sensenstahl",
-	53: "standards",
-	54: "takedown",
-	55: "text",
-	56: "text-amiga",
-	57: "text-apple2",
-	58: "text-atari-st",
-	59: "text-pack",
-	60: "tool",
-	61: "trial-crackme",
-	62: "unwanted",
-	63: "video",
-	64: "windows",
-	65: "windows-pack",
+	45: "one-offs",
+	46: "pcboard",
+	47: "pcboard-ppe",
+	48: "pcboard-text",
+	49: "pdf",
+	50: "proof",
+	51: "restrict",
+	52: "script",
+	53: "sensenstahl",
+	54: "standards",
+	55: "takedown",
+	56: "text",
+	57: "text-amiga",
+	58: "text-apple2",
+	59: "text-atari-st",
+	60: "text-pack",
+	61: "tool",
+	62: "trial-crackme",
+	63: "unwanted",
+	64: "video",
+	65: "windows",
+	66: "windows-pack",
 }
 
 func (u URI) String() string {
@@ -233,6 +235,11 @@ var fileInfoMap = map[URI]fileMeta{
 		logo:  "oldest releases",
 		h1sub: "the oldest releases",
 		lead:  "These are the earliest, historical file artifacts in the collection.",
+	},
+	OneOffs: {
+		logo:  "one-off releases",
+		h1sub: "the one-off releases",
+		lead:  "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file.",
 	},
 	Newest: {
 		logo:  "newest releases",
@@ -341,6 +348,7 @@ var (
 		NewUpdates:   a.ByUpdated,
 		Oldest:       a.ByOldest,
 		Newest:       a.ByNewest,
+		OneOffs:      list[model.OneOffs],
 		advert:       list[model.Advert],
 		animation:    list[model.Animation],
 		announcement: list[model.Announcement],

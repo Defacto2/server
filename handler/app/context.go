@@ -235,6 +235,14 @@ func zeroOk(uri string) bool {
 	return uri == "for-approval"
 }
 
+func pageLimit(uri string) int {
+	const oneOffsLimit = 250
+	if fileslice.Match(uri) == fileslice.OneOffs {
+		return oneOffsLimit
+	}
+	return limit
+}
+
 // artifactsTable is a helper function for Artifacts that returns the data map for the files page.
 func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, page int) error {
 	const format = "sub-artifacts context: %w"
@@ -264,7 +272,8 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 	if err != nil {
 		return DatabaseErr(sl, c, errURI, err)
 	}
-	lastPage := math.Ceil(float64(sum) / float64(limit))
+	lim := pageLimit(uri)
+	lastPage := math.Ceil(float64(sum) / float64(lim))
 	if page < 1 || (page > int(lastPage) && !zeroOk(uri)) {
 		return PageErr(sl, c, uri, spage)
 	}
@@ -273,7 +282,7 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 	data["stats"] = d
 
 	data[records] = []models.FileSlice{}
-	r, err := fileslice.Records(ctx, db, uri, page, limit)
+	r, err := fileslice.Records(ctx, db, uri, page, lim)
 	if err != nil {
 		return DatabaseErr(sl, c, errURI, err)
 	}
@@ -337,6 +346,9 @@ func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]a
 	case fileslice.Newest:
 		data["description"] = "These are more recent artifacts held by the site."
 		data["title"] = "Recent artifacts"
+	case fileslice.OneOffs:
+		data["description"] = "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file."
+		data["title"] = "One-off releases"
 	case fileslice.Sensenstahl:
 		data["title"] = "Sensenstahl artifacts"
 	default:

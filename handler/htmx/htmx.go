@@ -157,6 +157,7 @@ func pings() []string {
 		"/files/new-updates",
 		"/files/oldest",
 		"/files/newest",
+		"/files/one-offs",
 		"/file",
 		"/file/stats",
 		"/files/installer",

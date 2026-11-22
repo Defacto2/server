@@ -74,6 +74,7 @@ const (
 	KeyIntroMSDOS   Key = "intro-msdos"
 	KeyIntroWindows Key = "intro-windows"
 	KeyConsole      Key = "console"
+	KeyOneOffs      Key = "one-offs"
 )
 
 // String implements the fmt.Stringer interface for Key.
@@ -209,6 +210,42 @@ func (q *Animation) List(ctx context.Context, exec boil.ContextExecutor, offset,
 	}
 	return models.Files(
 		querymod.AnimationExpr(),
+		qm.Offset(calc(offset, limit)),
+		qm.OrderBy(ClauseOldDate),
+		qm.Limit(limit),
+	).All(ctx, exec)
+}
+
+// OneOffs is the model for artifacts from releasers with only 1 file (including BBS and FTP).
+type OneOffs struct {
+	Bytes   int `boil:"size_total"`
+	Count   int `boil:"count_total"`
+	MinYear int `boil:"min_year"`
+	MaxYear int `boil:"max_year"`
+}
+
+func (q *OneOffs) Values() (int, int, int, int) { return q.Count, q.Bytes, q.MinYear, q.MaxYear }
+
+func (q *OneOffs) Stat(ctx context.Context, exec boil.ContextExecutor) error {
+	if err := nils.Check(ctx, exec); err != nil {
+		return fmt.Errorf(statfmt, err)
+	}
+	return models.NewQuery(
+		qm.Select(SummCols()...),
+		qm.Where(ClauseNoSoftDel),
+		querymod.OneOffsExpr(),
+		qm.From(From),
+	).Bind(ctx, exec, q)
+}
+
+func (q *OneOffs) List(ctx context.Context, exec boil.ContextExecutor, offset, limit int) (
+	models.FileSlice, error,
+) {
+	if err := nils.Check(ctx, exec); err != nil {
+		return models.FileSlice{}, fmt.Errorf(listfmt, err)
+	}
+	return models.Files(
+		querymod.OneOffsExpr(),
 		qm.Offset(calc(offset, limit)),
 		qm.OrderBy(ClauseOldDate),
 		qm.Limit(limit),

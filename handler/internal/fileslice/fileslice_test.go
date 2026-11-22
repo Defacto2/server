@@ -31,6 +31,7 @@ func TestValid(t *testing.T) {
 	be.True(t, fileslice.Valid("windows-pack"))
 	be.True(t, fileslice.Valid("advert"))
 	be.True(t, fileslice.Valid("animation"))
+	be.True(t, fileslice.Valid("one-offs"))
 }
 
 func TestMatch(t *testing.T) {

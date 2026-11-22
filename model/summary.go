@@ -303,6 +303,7 @@ var matches = map[Key]StatFunc{
 	KeyIntroMSDOS:   (*Summary).introMsdos,
 	KeyIntroWindows: (*Summary).introWindows,
 	KeyConsole:      (*Summary).console,
+	KeyOneOffs:      (*Summary).oneOffs,
 }
 
 // Keys is intended for testing boilerplate and returns the keys used in matches.
@@ -392,6 +393,10 @@ func (obj *Summary) ansi(ctx context.Context, exec boil.ContextExecutor) error {
 
 func (obj *Summary) animation(ctx context.Context, exec boil.ContextExecutor) error {
 	return execStat[Animation](ctx, exec, obj, KeyAnimation)
+}
+
+func (obj *Summary) oneOffs(ctx context.Context, exec boil.ContextExecutor) error {
+	return execStat[OneOffs](ctx, exec, obj, KeyOneOffs)
 }
 
 func (obj *Summary) ansiBrand(ctx context.Context, exec boil.ContextExecutor) error {
