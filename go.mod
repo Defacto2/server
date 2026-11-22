@@ -50,7 +50,7 @@ require (
 	github.com/bengarrett/ansimate v1.2.1
 	github.com/bengarrett/bbs v1.0.11
 	github.com/bengarrett/binbump v1.0.6
-	github.com/bengarrett/sauce v1.2.11
+	github.com/bengarrett/sauce v1.2.12
 	github.com/caarlos0/env/v11 v11.4.2
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.1.0

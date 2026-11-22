@@ -119,7 +119,7 @@ func main() {
 		var soErr error
 		db, soErr = sql.Open("pgx", "")
 		if soErr != nil || db == nil {
-			logErr("cannot initalize the placeholder database", soErr)
+			logErr("cannot initialize the placeholder database", soErr)
 			return
 		}
 	}
