@@ -137,7 +137,8 @@ func (prod Prod) ButtonOK(c *echo.Context, prodID int, info ...string) error {
 			`hx-target="#demozoo-submission-results" ` +
 			`hx-swap="innerHTML" ` +
 			`hx-trigger="click once delay:500ms" ` +
-			`hx-target-error="#demozoo-submission-error" ` +
+			`hx-status:4xx="target:#demozoo-submission-error swap:innerHTML" ` +
+			`hx-status:5xx="target:#demozoo-submission-error swap:innerHTML" ` +
 			`autofocus>Submit ID %d</button>`
 
 		const did = `demozoo-remote-indicator`
@@ -160,7 +161,8 @@ func (prod Prod) ButtonOK(c *echo.Context, prodID int, info ...string) error {
 			`hx-target="#pouet-submission-results" ` +
 			`hx-swap="innerHTML" ` +
 			`hx-trigger="click once delay:500ms" ` +
-			`hx-target-error="#pouet-submission-error" ` +
+			`hx-status:4xx="target:#pouet-submission-error swap:innerHTML" ` +
+			`hx-status:5xx="target:#pouet-submission-error swap:innerHTML" ` +
 			`autofocus>Submit ID %d</button>`
 		const did = `pouet-remote-indicator`
 		const dclass = `htmx-indicator text-secondary pt-2`

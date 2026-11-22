@@ -30,7 +30,6 @@ var namedCSS = [...]string{
 var namedJS = [...]string{
 	"chiptune-player",
 	"editor-forapproval",
-	"htmx-response-targets",
 	"index",
 	"votes-pouet",
 }
@@ -169,22 +168,6 @@ func Layout() api.BuildOptions {
 	}
 }
 
-func HtmxExts() api.BuildOptions {
-	min := "htmx-response-targets.min.js"
-	entryjs := filepath.Join("assets", "js", "htmx-response-targets.js")
-	output := filepath.Join("public", "js", min)
-	return api.BuildOptions{
-		EntryPoints:       []string{entryjs},
-		Outfile:           output,
-		Target:            ECMAScript,
-		Write:             true,
-		Bundle:            true,
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-	}
-}
-
 func Uploader() api.BuildOptions {
 	min := "uploader.min.js"
 	entryjs := filepath.Join("assets", "js", "uploader.js")
@@ -227,7 +210,6 @@ func main() {
 		ContentText(),
 		EditorAssets(),
 		Artifact(),
-		HtmxExts(),
 		Layout(),
 		Uploader(),
 	}

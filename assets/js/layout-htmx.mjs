@@ -99,8 +99,6 @@ export function htmxEvents() {
     afterUpdate(event, `artifact-editor-relations`);
     afterUpdate(event, `artifact-editor-websites`);
     afterLinks(event, `artifact-editor-links-undo`);
-  });
-  document.body.addEventListener('htmx:afterRequest', function (event) {
     // image uploader.
     const alertImg = `uploader-image-alert`;
     afterRequest(event, `uploader-image-form`, alertImg);

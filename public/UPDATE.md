@@ -18,5 +18,5 @@ curl -O https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.mi
 
 ```sh
 cd public/js
-curl -o htmx.v2.min.js https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js
+curl -o htmx.v4.min.js https://cdn.jsdelivr.net/npm/htmx.org@4.0.0/dist/htmx.min.js
 ```

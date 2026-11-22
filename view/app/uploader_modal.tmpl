@@ -27,7 +27,7 @@
               <h5 class="modal-title" id="uploader-demozoo-label">Demozoo <span class="small text-muted">production, or graphic</span></h5>
               <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" hx-ext="response-targets">
+            <div class="modal-body">
               <form>
                 <p>
                   Know a <a href="https://demozoo.org/productions/?platform=1">Windows</a>, 
@@ -40,7 +40,8 @@
                     <input type="number" spellcheck="false" autofocus required min="1" max="{{ demozooSanity }}" value=""
                         class="form-control" id="demozoo-submission" name="demozoo-submission" 
                         hx-get="/demozoo/production" 
-                        hx-target-error="#demozoo-submission-error"
+                        hx-status:4xx="target:#demozoo-submission-error swap:innerHTML"
+                        hx-status:5xx="target:#demozoo-submission-error swap:innerHTML"
                         hx-target="#demozoo-submission-results" 
                         hx-swap="innerHTML"
                         hx-trigger="input changed delay:{{$delay}}, search" 
@@ -68,7 +69,7 @@
             <h5 class="modal-title" id="uploader-pouet-label">Pouët <span class="small text-muted">Windows or DOS production</span></h5>
             <button type="button" id="pouet-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body" hx-ext="response-targets">
+          <div class="modal-body">
             <form>
               <p>
                 Know a <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=Windows&page=1">Windows</a>, 
@@ -80,7 +81,8 @@
                   <input type="number" spellcheck="false" autofocus required min="1" max="{{ pouetSanity }}" value=""
                       class="form-control" id="pouet-submission" name="pouet-submission" 
                       hx-get="/pouet/production" 
-                      hx-target-error="#pouet-submission-error"
+                      hx-status:4xx="target:#pouet-submission-error swap:innerHTML"
+                      hx-status:5xx="target:#pouet-submission-error swap:innerHTML"
                       hx-target="#pouet-submission-results" 
                       hx-trigger="input changed delay:{{$delay}}, search" 
                       hx-indicator="#pouet-indicator"
@@ -181,7 +183,7 @@
                 </div>
               </div>
               <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-intro-results"
-                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
+                   hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -274,7 +276,7 @@
                 </div>
               </div>
               <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-trainer-results"
-                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
+                   hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -374,7 +376,7 @@
                 </div>
               </div>
               <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-text-results"
-                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
+                   hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -459,7 +461,7 @@
                 </div>
               </div>
               <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-image-results"
-                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
+                   hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -545,7 +547,7 @@
                 </div>
               </div>
               <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-magazine-results"
-                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
+                   hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
@@ -661,7 +663,7 @@
                 </div>
               </div>
               <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-advanced-results"
-                   hx-swap="innerHTML" hx-on::after-swap="this.classList.remove('d-none')"></div>
+                   hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
             </form>
           </div>
           <div class="modal-footer"></div>
