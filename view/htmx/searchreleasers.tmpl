@@ -49,9 +49,9 @@
 {{- range $index, $rel := .fulltext }}
 <figure class="border-start border-3 ps-3 text-start mb-3">
   <blockquote class="mb-1">
-    <div>{{mark $marker $rel.Snip}}</div>
+    <div class="text-break">{{mark $marker $rel.Snip}}</div>
   </blockquote>
-  <figcaption class="blockquote-footer mb-0">
+  <figcaption class="blockquote-footer mt-0 mb-0">
     {{tidbits $rel.ID}}
   </figcaption>
 </figure>
