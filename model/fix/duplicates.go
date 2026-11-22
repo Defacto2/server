@@ -54,6 +54,8 @@ func Duplicates(ctx context.Context, exec boil.ContextExecutor) (*DupReport, err
 	if err := nils.Check(ctx, exec); err != nil {
 		return nil, fmt.Errorf("fix duplicates: %w", err)
 	}
+	_, _ = queries.Raw(postgres.SetUpper("group_brand_for")).ExecContext(ctx, exec)
+	_, _ = queries.Raw(postgres.SetUpper(groupBrandBy)).ExecContext(ctx, exec)
 	var rows []ReleaserCount
 	if err := queries.Raw(string(postgres.AllReleasersCounts())).Bind(ctx, exec, &rows); err != nil {
 		return nil, fmt.Errorf("fix duplicates query: %w", err)

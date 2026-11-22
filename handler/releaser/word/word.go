@@ -213,10 +213,10 @@ func Cell(s string) string {
 			}
 			elems[n] = Fix(elem, n, last)
 		}
-		groups[i] = strings.Join(elems, space)
+		groups[i] = strings.TrimSpace(strings.Join(elems, space))
 	}
 
-	return strings.ToUpper(strings.Join(groups, ", "))
+	return strings.TrimSpace(strings.ToUpper(strings.Join(groups, ", ")))
 }
 
 // Fix formats the s string based on its position in the words slice.
