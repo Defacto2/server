@@ -119,6 +119,15 @@ export function htmxEvents() {
     afterRequest(event, `uploader-trainer-form`, alertTrainer);
     afterRequest(event, `uploader-trainer-releaser-1`, alertTrainer);
     afterRequest(event, `uploader-trainer-releaser-2`, alertTrainer);
+    // magazine uploader.
+    const alertMag = `uploader-magazine-alert`;
+    afterRequest(event, `uploader-magazine-form`, alertMag);
+    afterRequest(event, `uploader-magazine-releaser-1`, alertMag);
+    // advanced uploader.
+    const alertAdv = `uploader-advanced-alert`;
+    afterRequest(event, `uploader-advanced-form`, alertAdv);
+    afterRequest(event, `uploader-advanced-releaser-1`, alertAdv);
+    afterRequest(event, `uploader-advanced-releaser-2`, alertAdv);
   });
 }
 
@@ -443,7 +452,7 @@ function afterRequest(event, inputId, alertId) {
     return successful(event, liveAlert);
   }
   if (isFailed) {
-    return errorXhr(liveAlert, status, text);
+    return errorXhr(liveAlert, status, text, inputId);
   }
   errorBrowser(liveAlert);
 }
@@ -496,8 +505,11 @@ function resetFile(formElm, selector) {
  * @param {number} status - The HTTP response status code.
  * @param {string} text - The HTTP response body text.
  */
-function errorXhr(alertElm, status, text) {
-  alertElm.innerText = `Our server is not working at the moment.`;
+function errorXhr(alertElm, status, text, inputId) {
+  const isUploadForm = inputId.endsWith('-form');
+  if (!isUploadForm || !text.trim()) {
+    alertElm.innerText = `Our server is not working at the moment.`;
+  }
   console.log(`Request did not work, ${status} status: ${text}.`);
   alertElm.classList.remove('d-none');
 }

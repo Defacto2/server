@@ -116,6 +116,8 @@
                   hx-target="#uploader-intro-results"
                   hx-disable="#uploader-intro-submit"
                   hx-config="timeout:0"
+                  hx-status:4xx="target:#uploader-intro-alert swap:innerHTML"
+                  hx-status:5xx="target:#uploader-intro-alert swap:innerHTML"
                   hx-validate="true"
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-intro-lastmodified" id="uploader-intro-last-modified">
@@ -207,6 +209,8 @@
                   hx-target="#uploader-trainer-results"
                   hx-disable="#uploader-trainer-submit"
                   hx-config="timeout:0"
+                  hx-status:4xx="target:#uploader-trainer-alert swap:innerHTML"
+                  hx-status:5xx="target:#uploader-trainer-alert swap:innerHTML"
                   hx-validate="true"
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-trainer-lastmodified" id="uploader-trainer-last-modified">
@@ -302,6 +306,8 @@
                   hx-target="#uploader-text-results"
                   hx-disable="#uploader-text-submit"
                   hx-config="timeout:0"
+                  hx-status:4xx="target:#uploader-text-alert swap:innerHTML"
+                  hx-status:5xx="target:#uploader-text-alert swap:innerHTML"
                   hx-validate="true"
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-text-lastmodified" id="uploader-text-last-modified">
@@ -404,6 +410,8 @@
                   hx-target="#uploader-image-results"
                   hx-disable="#uploader-image-submit"
                   hx-config="timeout:0"
+                  hx-status:4xx="target:#uploader-image-alert swap:innerHTML"
+                  hx-status:5xx="target:#uploader-image-alert swap:innerHTML"
                   hx-validate="true"
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-image-lastmodified" id="uploader-image-last-modified">
@@ -491,6 +499,8 @@
                   hx-target="#uploader-magazine-results"
                   hx-disable="#uploader-magazine-submit"
                   hx-config="timeout:0"
+                  hx-status:4xx="target:#uploader-magazine-alert swap:innerHTML"
+                  hx-status:5xx="target:#uploader-magazine-alert swap:innerHTML"
                   hx-validate="true"
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-magazine-lastmodified" id="uploader-magazine-last-modified">
@@ -579,6 +589,8 @@
                   hx-target="#uploader-advanced-results"
                   hx-disable="#uploader-advanced-submit"
                   hx-config="timeout:0"
+                  hx-status:4xx="target:#uploader-advanced-alert swap:innerHTML"
+                  hx-status:5xx="target:#uploader-advanced-alert swap:innerHTML"
                   hx-validate="true"
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-advanced-lastmodified" id="uploader-advanced-last-modified">
