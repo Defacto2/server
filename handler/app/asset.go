@@ -49,7 +49,7 @@ var hrefPaths = Paths{
 	EditArtifact:    "/js/editor-artifact.min.js",
 	EditAssets:      "/js/editor-assets.min.js",
 	EditForApproval: "/js/editor-forapproval.min.js",
-	Htmx:            "/js/htmx.v2.min.js",
+	Htmx:            "/js/htmx.v4.min.js",
 	HtmxRespTargets: "/js/htmx.v2.ext-response-targets.min.js",
 	IndexJS:         "/js/index.min.js",
 	Jsdos6JS:        "/js/js-dos.js",
