@@ -526,7 +526,7 @@ func BBS(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 // BBSAZ is the handler for the BBS page ordered alphabetically.
 func BBSAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	ctx := c.Request().Context()
-	return bbsHandler(ctx, sl, c, db, model.Alphabetical)
+	return bbsHandler(ctx, sl, c, db, model.AlphabeticalTwo)
 }
 
 // BBSYear is the handler for the BBS page ordered by the year.
@@ -568,7 +568,7 @@ func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	tmpl := bbsx
 	var order string
 	switch orderBy {
-	case model.Alphabetical:
+	case model.Alphabetical, model.AlphabeticalTwo:
 		s := logo + az
 		data["logo"] = s
 		data["title"] = title + az
@@ -2251,7 +2251,7 @@ func Releasers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // ReleasersAZ is the handler for the releaser page ordered alphabetically.
 func ReleasersAZ(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
-	return releasers(c.Request().Context(), sl, c, db, model.Alphabetical)
+	return releasers(c.Request().Context(), sl, c, db, model.AlphabeticalTwo)
 }
 
 // ReleasersYear is the handler for the releaser page ordered by year of the first release.
@@ -2294,7 +2294,7 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	tmpl := releaserx
 	var order string
 	switch orderBy {
-	case model.Alphabetical:
+	case model.Alphabetical, model.AlphabeticalTwo:
 		s := logo + az
 		data["logo"] = s
 		data["title"] = title + az

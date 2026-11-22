@@ -104,7 +104,8 @@ const (
 	// order the list by the oldest year and the releaser name.
 	orderReleaser SQL = "ORDER BY releaser ASC "
 	// require the releaser name to be not empty.
-	havingCount SQL = "HAVING (COUNT(files.filename) > 0) "
+	havingCount    SQL = "HAVING (COUNT(files.filename) > 0) "
+	havingCountTwo SQL = "HAVING (COUNT(files.filename) > 1) "
 	// group the results by the releaser name and deleteat.
 	groupbyRel SQL = "GROUP BY releaser, files.deletedat "
 	// exclude BBS and FTP sites.
@@ -143,12 +144,33 @@ func ReleasersAlphabetical() SQL {
 		orderReleaser
 }
 
+// ReleasersAlphabeticalTwo selects a list of distinct releasers or groups with 2 or more artifacts,
+// excluding BBS and FTP sites.
+func ReleasersAlphabeticalTwo() SQL {
+	return releaserSEL +
+		bbsFTPRel +
+		groupbyRel +
+		havingCountTwo +
+		deletedatIsNull +
+		orderReleaser
+}
+
 // BBSsAlphabetical selects a list of distinct BBS names.
 func BBSsAlphabetical() SQL {
 	return releaserSEL +
 		bbsRel + // require BBS sites
 		groupbyRel +
 		havingCount +
+		deletedatIsNull +
+		orderReleaser
+}
+
+// BBSsAlphabeticalTwo selects a list of distinct BBS names with 2 or more artifacts.
+func BBSsAlphabeticalTwo() SQL {
+	return releaserSEL +
+		bbsRel + // require BBS sites
+		groupbyRel +
+		havingCountTwo +
 		deletedatIsNull +
 		orderReleaser
 }
@@ -174,23 +196,23 @@ func MagazinesAlphabetical() SQL {
 }
 
 // ReleasersProlific selects a list of distinct releasers or groups,
-// excluding BBS and FTP sites and ordered by the file count.
+// excluding BBS and FTP sites and ordered by the file count (2 or more artifacts).
 func ReleasersProlific() SQL {
 	return releaserSEL +
 		bbsFTPRel +
 		groupbyRel +
-		havingCount +
+		havingCountTwo +
 		deletedatIsNull +
 		orderSumDesc
 }
 
 // BBSsProlific selects a list of distinct releasers or groups,
-// only showing BBS sites and ordered by the file count.
+// only showing BBS sites with 2 or more artifacts and ordered by the file count.
 func BBSsProlific() SQL {
 	return releaserSEL +
 		bbsRel + // require BBS sites
 		groupbyRel +
-		havingCount +
+		havingCountTwo +
 		deletedatIsNull +
 		orderSumDesc
 }

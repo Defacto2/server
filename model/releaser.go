@@ -150,9 +150,10 @@ func ReleasersWhere(ctx context.Context, exec boil.ContextExecutor, releasers st
 type OrderBy uint
 
 const (
-	Prolific     OrderBy = iota // Prolific orders by the total artifact count.
-	Alphabetical                // Alphabetical orders by the releaser name.
-	Oldest                      // Oldest orders by the year of the first artifact.
+	Prolific        OrderBy = iota // Prolific orders by the total artifact count.
+	Alphabetical                   // Alphabetical orders by the releaser name.
+	AlphabeticalTwo                // AlphabeticalTwo orders by the releaser name for releasers with 2 or more files.
+	Oldest                         // Oldest orders by the year of the first artifact.
 )
 
 // BBS gets the unique BBS site names and their total file count and file sizes.
@@ -171,6 +172,8 @@ func (order OrderBy) BBS(ctx context.Context, exec boil.ContextExecutor, obj *Re
 		query = string(postgres.BBSsProlific())
 	case Alphabetical:
 		query = string(postgres.BBSsAlphabetical())
+	case AlphabeticalTwo:
+		query = string(postgres.BBSsAlphabeticalTwo())
 	case Oldest:
 		query = string(postgres.BBSsOldest())
 	default:
@@ -202,6 +205,8 @@ func (order OrderBy) Limit(ctx context.Context, exec boil.ContextExecutor, obj *
 		query = string(postgres.ReleasersProlific())
 	case Alphabetical:
 		query = string(postgres.ReleasersAlphabetical())
+	case AlphabeticalTwo:
+		query = string(postgres.ReleasersAlphabeticalTwo())
 	case Oldest:
 		query = string(postgres.ReleasersOldest())
 	default:
