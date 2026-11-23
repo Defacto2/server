@@ -286,13 +286,13 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 		return c.HTML(http.StatusOK, `<!-- empty search query -->`)
 	}
 
-	ids, uuids := ParseSearchIDs(search)
-	if len(ids) == 0 && len(uuids) == 0 {
+	ids, uuids, prefixes := ParseSearchIDs(search)
+	if len(ids) == 0 && len(uuids) == 0 && len(prefixes) == 0 {
 		return c.HTML(http.StatusOK, "No artifacts found.")
 	}
 
 	ctx := c.Request().Context()
-	fs, err := model.OnlyUniqueIDs(ctx, db, ids, uuids...)
+	fs, err := model.OnlyUniqueIDsWithPrefixes(ctx, db, ids, uuids, prefixes)
 	if err != nil {
 		sl.Error("search by id query failed", slog.Any("error", err))
 		return c.String(http.StatusServiceUnavailable,
@@ -320,13 +320,14 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 }
 
 // ParseSearchIDs splits space- or comma-separated tokens into numeric record IDs
-// (including deobfuscated URL keys) and non-nil UUIDs.
-func ParseSearchIDs(search string) ([]int, []uuid.UUID) {
+// (including deobfuscated URL keys), exact non-nil UUIDs, and partial UUID prefixes (6-35 chars).
+func ParseSearchIDs(search string) ([]int, []uuid.UUID, []string) {
 	inputs := strings.FieldsFunc(search, func(r rune) bool {
 		return unicode.IsSpace(r) || r == ',' || r == ';'
 	})
 	ids := make([]int, 0, len(inputs))
 	uuids := make([]uuid.UUID, 0, len(inputs))
+	prefixes := make([]string, 0, len(inputs))
 	for _, input := range inputs {
 		s := strings.ToLower(strings.TrimSpace(input))
 		if s == "" {
@@ -336,15 +337,39 @@ func ParseSearchIDs(search string) ([]int, []uuid.UUID) {
 			ids = append(ids, id)
 			continue
 		}
-		if id := helper.DeobfuscateID(s); id > 0 {
-			ids = append(ids, id)
-			continue
-		}
 		if uid, err := uuid.Parse(s); err == nil && uid != uuid.Nil() {
 			uuids = append(uuids, uid)
+			continue
+		}
+		if id := helper.DeobfuscateID(s); id > 0 {
+			ids = append(ids, id)
+		}
+		if isUUIDPrefix(s) {
+			prefixes = append(prefixes, s)
 		}
 	}
-	return ids, uuids
+	return ids, uuids, prefixes
+}
+
+// isUUIDPrefix reports whether s is a valid canonical UUID prefix of 6 to 35 lowercase hex/hyphen characters.
+func isUUIDPrefix(s string) bool {
+	const minPrefix, maxPrefix = 6, 35
+	if len(s) < minPrefix || len(s) > maxPrefix {
+		return false
+	}
+	for i := range len(s) {
+		c := s[i]
+		if i == 8 || i == 13 || i == 18 || i == 23 {
+			if c != '-' {
+				return false
+			}
+			continue
+		}
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 // Alternatives returns a slice of possible matching alternative names,

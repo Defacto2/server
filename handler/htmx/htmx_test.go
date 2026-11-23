@@ -263,9 +263,12 @@ func TestParseSearchIDs(t *testing.T) {
 	t.Parallel()
 
 	uid := "c8cd0b4c-2f54-11e0-8827-cc1607e15609"
-	ids, uuids := htmx.ParseSearchIDs("1, 0, -5, " + uid + ", 00000000-0000-0000-0000-000000000000, invalid")
+	ids, uuids, prefixes := htmx.ParseSearchIDs(
+		"1, 0, -5, " + uid + ", 00000000-0000-0000-0000-000000000000, c8cd0b4c, c8cd0b4c-2f54, c8cd, invalid",
+	)
 	be.Equal(t, ids, []int{1})
 	be.Equal(t, uuids, []uuid.UUID{uuid.MustParse(uid)})
+	be.Equal(t, prefixes, []string{"c8cd0b4c", "c8cd0b4c-2f54"})
 }
 
 func TestSearchIDsTemplate(t *testing.T) {

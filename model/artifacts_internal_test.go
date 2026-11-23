@@ -57,13 +57,13 @@ func TestByFilenameWhere(t *testing.T) {
 func TestOnlyUniqueIDsQuery(t *testing.T) {
 	t.Parallel()
 
-	be.True(t, onlyUniqueIDs(nil) == nil)
-	be.True(t, onlyUniqueIDs([]int{0, -1}, uuid.Nil()) == nil)
+	be.True(t, onlyUniqueIDs(nil, nil, nil) == nil)
+	be.True(t, onlyUniqueIDs([]int{0, -1}, []uuid.UUID{uuid.Nil()}, []string{" ", ""}) == nil)
 
 	uid := uuid.MustParse("c8cd0b4c-2f54-11e0-8827-cc1607e15609")
-	mods := onlyUniqueIDs([]int{0, 42, 99}, uuid.Nil(), uid)
+	mods := onlyUniqueIDs([]int{0, 42, 99}, []uuid.UUID{uuid.Nil(), uid}, []string{"c8cd0b4c"})
 	sql, args := queries.BuildQuery(models.Files(mods...).Query)
 
-	be.True(t, strings.Contains(sql, `WHERE ("files"."id" IN ($1,$2)) OR ("files"."uuid" IN ($3))`))
-	be.Equal(t, args, []any{int64(42), int64(99), uid.String()})
+	be.True(t, strings.Contains(sql, `WHERE ("files"."id" IN ($1,$2)) OR ("files"."uuid" IN ($3)) OR (uuid ILIKE $4 ESCAPE '\')`))
+	be.Equal(t, args, []any{int64(42), int64(99), uid.String(), "c8cd0b4c%"})
 }

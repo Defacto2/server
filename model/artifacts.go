@@ -351,16 +351,24 @@ func OnlyUniqueIDs(
 	ctx context.Context, exec boil.ContextExecutor, ids []int, uuids ...uuid.UUID) (
 	models.FileSlice, error,
 ) {
+	return OnlyUniqueIDsWithPrefixes(ctx, exec, ids, uuids, nil)
+}
+
+// OnlyUniqueIDsWithPrefixes returns a list of files matching exact IDs, exact UUIDs,
+// or case-insensitive UUID prefixes (e.g. "c8cd0b4c").
+func OnlyUniqueIDsWithPrefixes(
+	ctx context.Context, exec boil.ContextExecutor, ids []int, uuids []uuid.UUID, prefixes []string,
+) (models.FileSlice, error) {
 	const format = "only unique ids %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return models.FileSlice{}, fmt.Errorf(format, "check", err)
 	}
 
-	if len(ids) == 0 && len(uuids) == 0 {
+	if len(ids) == 0 && len(uuids) == 0 && len(prefixes) == 0 {
 		return models.FileSlice{}, nil
 	}
 
-	mods := onlyUniqueIDs(ids, uuids...)
+	mods := onlyUniqueIDs(ids, uuids, prefixes)
 	if len(mods) == 0 {
 		return models.FileSlice{}, nil
 	}
@@ -372,7 +380,7 @@ func OnlyUniqueIDs(
 	return fs, nil
 }
 
-func onlyUniqueIDs(ids []int, uuids ...uuid.UUID) []qm.QueryMod {
+func onlyUniqueIDs(ids []int, uuids []uuid.UUID, prefixes []string) []qm.QueryMod {
 	validIDs := make([]int64, 0, len(ids))
 	for id := range slices.Values(ids) {
 		if id >= 1 {
@@ -385,6 +393,12 @@ func onlyUniqueIDs(ids []int, uuids ...uuid.UUID) []qm.QueryMod {
 			validUUIDs = append(validUUIDs, u.String())
 		}
 	}
+	validPrefixes := make([]string, 0, len(prefixes))
+	for p := range slices.Values(prefixes) {
+		if trimmed := strings.TrimSpace(p); trimmed != "" {
+			validPrefixes = append(validPrefixes, trimmed)
+		}
+	}
 
 	var mods []qm.QueryMod
 	if len(validIDs) > 0 {
@@ -395,6 +409,15 @@ func onlyUniqueIDs(ids []int, uuids ...uuid.UUID) []qm.QueryMod {
 			mods = append(mods, models.FileWhere.UUID.IN(validUUIDs))
 		} else {
 			mods = append(mods, qm.Or2(models.FileWhere.UUID.IN(validUUIDs)))
+		}
+	}
+	const prefixClause = `uuid ILIKE ? ESCAPE '\'`
+	for _, p := range validPrefixes {
+		pattern := escapeILIKE(p) + "%"
+		if len(mods) == 0 {
+			mods = append(mods, qm.Where(prefixClause, pattern))
+		} else {
+			mods = append(mods, qm.Or(prefixClause, pattern))
 		}
 	}
 	if len(mods) == 0 {
