@@ -429,6 +429,7 @@ func (in Insert) Upload(sl *slog.Logger, c *echo.Context, tx *sql.Tx) (int64, uu
 	if err != nil {
 		return uploadErr(ErrFormInsert, err)
 	}
+	fix.InvalidateSuggestCache()
 
 	return id, unid, nil
 }

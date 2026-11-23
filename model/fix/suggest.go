@@ -92,9 +92,9 @@ func loadSuggestEntries(
 	}
 	releaserSuggestCache.mu.RUnlock()
 
-	query := string(postgres.AllReleasersCounts())
+	query := string(postgres.SuggestReleasersCounts())
 	if magazine {
-		query = string(postgres.MagazinesAlphabetical())
+		query = string(postgres.SuggestMagazinesCounts())
 	}
 
 	var rows []ReleaserCount

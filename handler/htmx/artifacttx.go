@@ -15,6 +15,7 @@ import (
 	"github.com/Defacto2/server/handler/pouet"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/fix"
 	"github.com/labstack/echo/v5"
 )
 
@@ -396,6 +397,7 @@ func TxPublic(c *echo.Context, tx *sql.Tx, state bool) error {
 	if err := model.UpdateOnline(ctx, tx, state, key); err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
+	fix.InvalidateSuggestCache()
 
 	if state {
 		return c.String(http.StatusOK, "online")
@@ -421,6 +423,7 @@ func TxPublicByKey(c *echo.Context, tx *sql.Tx, key string, state bool) error {
 	if err := model.UpdateOnline(ctx, tx, state, id); err != nil {
 		return fmt.Errorf(format, id, "update", err)
 	}
+	fix.InvalidateSuggestCache()
 
 	if state {
 		return c.HTML(http.StatusOK,
@@ -504,6 +507,7 @@ func txReleasers(c *echo.Context, tx *sql.Tx, undo bool) error {
 	if err := model.UpdateReleasers(ctx, tx, key, relFor, relBy); err != nil {
 		return badRequest(c, err)
 	}
+	fix.InvalidateSuggestCache()
 
 	if undo {
 		return StatusOK(c, "artifact-editor-releaser-undo")

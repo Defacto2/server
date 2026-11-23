@@ -312,6 +312,34 @@ func AllReleasersCounts() SQL {
 		orderSumDesc
 }
 
+// SuggestReleasersCounts selects distinct releasers and counts across public and pending-approval records
+// (excluding records explicitly deleted by a user).
+func SuggestReleasersCounts() SQL {
+	return distReleaser +
+		"COUNT(files.filename) AS count_sum " +
+		fromFiles +
+		combineGroup +
+		whereRelNull +
+		"AND files.deletedby IS NULL " +
+		"GROUP BY releaser " +
+		havingCount +
+		orderSumDesc
+}
+
+// SuggestMagazinesCounts selects distinct magazine titles and counts across public and pending-approval records.
+func SuggestMagazinesCounts() SQL {
+	return distReleaser +
+		"COUNT(files.filename) AS count_sum " +
+		fromFiles +
+		onlyGroup +
+		whereRelNull +
+		magazine +
+		"AND files.deletedby IS NULL " +
+		"GROUP BY releaser " +
+		havingCount +
+		orderSumDesc
+}
+
 // Summary is an SQL statement to count the number of files, sum the filesize,
 // select the oldest year and the newest year.
 func Summary() SQL {
