@@ -106,8 +106,8 @@ const (
 	// require the releaser name to be not empty.
 	havingCount    SQL = "HAVING (COUNT(files.filename) > 0) "
 	havingCountTwo SQL = "HAVING (COUNT(files.filename) > 1) "
-	// group the results by the releaser name and deleteat.
-	groupbyRel SQL = "GROUP BY releaser, files.deletedat "
+	// group the results by the releaser name.
+	groupbyRel SQL = "GROUP BY releaser "
 	// exclude BBS and FTP sites.
 	bbsFTPRel SQL = "AND releaser !~ 'BBS\\M' AND releaser !~ 'FTP\\M' "
 	// require BBS sites.
@@ -137,10 +137,10 @@ const (
 // excluding BBS and FTP sites.
 func ReleasersAlphabetical() SQL {
 	return releaserSEL +
+		deletedatIsNull +
 		bbsFTPRel +
 		groupbyRel +
 		havingCount +
-		deletedatIsNull +
 		orderReleaser
 }
 
@@ -148,50 +148,50 @@ func ReleasersAlphabetical() SQL {
 // excluding BBS and FTP sites.
 func ReleasersAlphabeticalTwo() SQL {
 	return releaserSEL +
+		deletedatIsNull +
 		bbsFTPRel +
 		groupbyRel +
 		havingCountTwo +
-		deletedatIsNull +
 		orderReleaser
 }
 
 // BBSsAlphabetical selects a list of distinct BBS names.
 func BBSsAlphabetical() SQL {
 	return releaserSEL +
+		deletedatIsNull +
 		bbsRel + // require BBS sites
 		groupbyRel +
 		havingCount +
-		deletedatIsNull +
 		orderReleaser
 }
 
 // BBSsAlphabeticalTwo selects a list of distinct BBS names with 2 or more artifacts.
 func BBSsAlphabeticalTwo() SQL {
 	return releaserSEL +
+		deletedatIsNull +
 		bbsRel + // require BBS sites
 		groupbyRel +
 		havingCountTwo +
-		deletedatIsNull +
 		orderReleaser
 }
 
 // FTPsAlphabetical selects a list of distinct FTP site names.
 func FTPsAlphabetical() SQL {
 	return releaserSEL +
+		deletedatIsNull +
 		"AND releaser ~ 'FTP\\M' " + // require FTP sites
 		groupbyRel +
 		havingCount +
-		deletedatIsNull +
 		orderReleaser
 }
 
 // MagazinesAlphabetical selects a list of distinct magazine titles.
 func MagazinesAlphabetical() SQL {
 	return releaserForSEL + // we previously used: releaserSEL +
+		deletedatIsNull +
 		magazine +
 		groupbyRel +
 		havingCount +
-		deletedatIsNull +
 		orderReleaser
 }
 
@@ -199,10 +199,10 @@ func MagazinesAlphabetical() SQL {
 // excluding BBS and FTP sites and ordered by the file count (2 or more artifacts).
 func ReleasersProlific() SQL {
 	return releaserSEL +
+		deletedatIsNull +
 		bbsFTPRel +
 		groupbyRel +
 		havingCountTwo +
-		deletedatIsNull +
 		orderSumDesc
 }
 
@@ -210,10 +210,10 @@ func ReleasersProlific() SQL {
 // only showing BBS sites with 2 or more artifacts and ordered by the file count.
 func BBSsProlific() SQL {
 	return releaserSEL +
+		deletedatIsNull +
 		bbsRel + // require BBS sites
 		groupbyRel +
 		havingCountTwo +
-		deletedatIsNull +
 		orderSumDesc
 }
 
@@ -227,10 +227,10 @@ func ReleasersOldest() SQL {
 		fromFiles +
 		combineGroup +
 		whereRelNull +
+		deletedatIsNull +
 		bbsFTPRel +
 		groupbyRel +
 		filterCountAndYear +
-		deletedatIsNull +
 		orderMinYearRel
 }
 
@@ -244,10 +244,10 @@ func BBSsOldest() SQL {
 		fromFiles +
 		combineGroup +
 		whereRelNull +
+		deletedatIsNull +
 		bbsRel +
 		groupbyRel +
 		filterCountAndYear +
-		deletedatIsNull +
 		orderMinYearRel
 }
 
@@ -261,10 +261,10 @@ func MagazinesOldest() SQL {
 		fromFiles +
 		onlyGroup + // we previously used: combineGroup +
 		whereRelNull +
+		deletedatIsNull +
 		magazine +
 		groupbyRel +
 		filterCountAndYear +
-		deletedatIsNull +
 		orderMinYearRel
 }
 
@@ -393,9 +393,9 @@ func (r Role) Distinct() SQL {
 		// combine the Role column name as sceners
 		"CROSS JOIN LATERAL (values" + string(r) + ") AS T(scener) " +
 		"WHERE NULLIF(scener, '') IS NOT NULL " + // exclude empty scener names
-		"GROUP BY scener, files.deletedat " + // group the results by the scener name and deleteat
-		// filter the results by the file count and only include releasers with public records
-		"HAVING (COUNT(files.filename) > 0) AND files.deletedat IS NULL " +
+		"AND files.deletedat IS NULL " + // only include public records
+		"GROUP BY scener " + // group the results by the scener name
+		"HAVING (COUNT(files.filename) > 0) " +
 		"ORDER BY upper(scener) ASC" // order by the scener name
 	return SQL(s)
 }
