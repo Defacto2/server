@@ -18,6 +18,8 @@ func TestMatchSuggestions(t *testing.T) {
 		{Releaser: "EDIE'S BBS", Count: 50},
 		{Releaser: "GROUP 2", Count: 40},
 		{Releaser: "THE SILENTS", Count: 120},
+		{Releaser: "PSYKLE FTP", Count: 30},
+		{Releaser: "LORDS OF DARKNESS", Count: 25},
 	}
 	entries := fix.BuildSuggestEntries(rows)
 
@@ -39,10 +41,19 @@ func TestMatchSuggestions(t *testing.T) {
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "THE SILENTS")
 
+	// Tier 2b: word-order swap match
+	got = fix.MatchSuggestions(entries, 10, "Darkness of Lords")
+	be.Equal(t, len(got), 1)
+	be.Equal(t, got[0].Releaser, "LORDS OF DARKNESS")
+
 	// Tier 3: 1-char typo match (>= 6 chars)
 	got = fix.MatchSuggestions(entries, 10, "defcto2")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "DEFACTO2")
+
+	got = fix.MatchSuggestions(entries, 10, "Psycle ftp")
+	be.Equal(t, len(got), 1)
+	be.Equal(t, got[0].Releaser, "PSYKLE FTP")
 
 	// Stop-word-only input should not match unrelated entries via normalization
 	got = fix.MatchSuggestions(entries, 10, "the ")

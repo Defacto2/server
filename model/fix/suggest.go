@@ -27,6 +27,7 @@ type suggestEntry struct {
 	name        string
 	count       int
 	fingerprint string
+	sortedWords string
 	core        string
 }
 
@@ -125,11 +126,12 @@ func BuildSuggestEntries(rows []ReleaserCount) []suggestEntry {
 			continue
 		}
 		kind := classifyKind(raw)
-		fp, _, core := normalizeTokens(raw, kind)
+		fp, sortedW, core := normalizeTokens(raw, kind)
 		entries = append(entries, suggestEntry{
 			name:        strings.ToUpper(raw),
 			count:       r.Count,
 			fingerprint: fp,
+			sortedWords: sortedW,
 			core:        core,
 		})
 	}
@@ -153,6 +155,7 @@ func MatchSuggestions(entries []suggestEntry, limit int, lookups ...string) []Re
 
 	rawPrefixes := make([]string, 0, len(lookups)*3)
 	normPrefixes := make([]string, 0, len(lookups))
+	normSorted := make([]string, 0, len(lookups))
 	for _, name := range lookups {
 		trimmed := strings.TrimSpace(name)
 		if trimmed == "" {
@@ -164,8 +167,12 @@ func MatchSuggestions(entries []suggestEntry, limit int, lookups ...string) []Re
 			strings.ToUpper(releaser.Cell(trimmed)),
 		)
 		kind := classifyKind(trimmed)
-		if fp, _, _ := normalizeTokens(trimmed, kind); len(fp) >= minNormPrefixLen {
+		fp, sortedW, _ := normalizeTokens(trimmed, kind)
+		if len(fp) >= minNormPrefixLen {
 			normPrefixes = append(normPrefixes, fp)
+		}
+		if sortedW != "" {
+			normSorted = append(normSorted, sortedW)
 		}
 	}
 	if len(rawPrefixes) == 0 {
@@ -175,6 +182,8 @@ func MatchSuggestions(entries []suggestEntry, limit int, lookups ...string) []Re
 	rawPrefixes = slices.Compact(rawPrefixes)
 	slices.Sort(normPrefixes)
 	normPrefixes = slices.Compact(normPrefixes)
+	slices.Sort(normSorted)
+	normSorted = slices.Compact(normSorted)
 
 	tier1 := make([]ReleaserCount, 0, limit)
 	tier2 := make([]ReleaserCount, 0, limit)
@@ -193,7 +202,9 @@ func MatchSuggestions(entries []suggestEntry, limit int, lookups ...string) []Re
 			continue
 		}
 
-		if len(tier1)+len(tier2) < limit && hasAnyPrefix(item.fingerprint, normPrefixes) {
+		if len(tier1)+len(tier2) < limit &&
+			(hasAnyPrefix(item.fingerprint, normPrefixes) ||
+				(item.sortedWords != "" && slices.Contains(normSorted, item.sortedWords))) {
 			tier2 = append(tier2, ReleaserCount{Releaser: item.name, Count: item.count})
 			continue
 		}

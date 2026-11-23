@@ -127,6 +127,7 @@ func TemplateFuncMap() template.FuncMap {
 		},
 		"searchResult": SearchResult,
 		"state":        state,
+		"suggestHint":  suggestHint,
 		"suggestion":   Suggestion,
 		"tidbits": func(id int) template.HTML {
 			return tidbit.ID(id).URL("")
@@ -184,4 +185,18 @@ func Suggestion(name, initialism string, count any) string {
 		return s
 	}
 	return s
+}
+
+// suggestHint appends the user's typed query to a datalist option label when it is not
+// already a substring of the option's value or label, so browsers do not hide fuzzy/typo matches.
+func suggestHint(value, label, query string) string {
+	q := strings.TrimSpace(query)
+	if q == "" {
+		return ""
+	}
+	lq := strings.ToLower(q)
+	if strings.Contains(strings.ToLower(value), lq) || strings.Contains(strings.ToLower(label), lq) {
+		return ""
+	}
+	return " ≈ " + q
 }

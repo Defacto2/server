@@ -541,6 +541,7 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 	err = c.Render(http.StatusOK, "datalistreleasers", map[string]any{
 		maximum: maxResults,
 		nme:     slug,
+		"query": strings.TrimSpace(input),
 		result:  r,
 	})
 	if err != nil {
