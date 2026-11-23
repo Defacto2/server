@@ -722,11 +722,11 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 	var mu sync.Mutex
 
 	wg.Go(func() {
-		mu.Lock()
 		ca, cp, cnu, err := model.Counts(ctx, db)
 		if err != nil {
 			return
 		}
+		mu.Lock()
 		data["countArtifacts"] = ca
 		data["countPublic"] = cp
 		data["countNewUpload"] = cnu

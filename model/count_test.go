@@ -104,3 +104,15 @@ func TestUUIDs(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, got.Count > 2)
 }
+
+func BenchmarkCounts(b *testing.B) {
+	db := testutil.DB(b)
+	ctx := b.Context()
+	b.ResetTimer()
+	for range b.N {
+		_, _, _, err := model.Counts(ctx, db)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
