@@ -376,6 +376,7 @@ func SimilarToReleaser(like ...string) (SQL, []any) {
 
 	clause, args := likeOrClause(like)
 	return releaserSEL +
+		deletedatIsNull +
 		"AND " + SQL(clause) +
 		groupbyRel +
 		orderSumDesc, args
@@ -389,6 +390,7 @@ func SimilarToMagazine(like ...string) (SQL, []any) {
 
 	clause, args := likeOrClause(like)
 	return releaserSEL +
+		deletedatIsNull +
 		magazine +
 		"AND " + SQL(clause) +
 		groupbyRel +
@@ -408,6 +410,7 @@ func SimilarToExact(like ...string) (SQL, []any) {
 		args[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
 	return releaserSEL +
+		deletedatIsNull +
 		"AND releaser IN (" + SQL(strings.Join(placeholders, ", ")) + ") " +
 		groupbyRel +
 		orderSumDesc, args
