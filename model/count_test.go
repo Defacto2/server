@@ -45,6 +45,7 @@ func TestCount(t *testing.T) {
 	secStats, err := model.SectionStats(t.Context(), db)
 	be.Err(t, err, nil)
 	be.Equal(t, secStats[tags.Nfo.String()].Count, count)
+	be.Equal(t, secStats[tags.Nfo.String()].Bytes, total)
 
 	_, err = model.PlatformStats(t.Context(), nil)
 	be.Err(t, err)
@@ -53,6 +54,9 @@ func TestCount(t *testing.T) {
 	textCount, err := model.CountPlatform(t.Context(), db, tags.Text)
 	be.Err(t, err, nil)
 	be.Equal(t, platStats[tags.Text.String()].Count, textCount)
+	textSum, err := model.SumPlatform(t.Context(), db, tags.Text)
+	be.Err(t, err, nil)
+	be.Equal(t, platStats[tags.Text.String()].Bytes, textSum)
 
 	count, err = model.CountTags(t.Context(), db, -1, -1)
 	be.Err(t, err)
@@ -81,6 +85,11 @@ func TestCount(t *testing.T) {
 	count, err = model.SumReleaser(t.Context(), db, "defacto")
 	be.Err(t, err, nil)
 	be.True(t, count > 2)
+
+	// Non-existent releaser should return 0 instead of a NULL scan error
+	count, err = model.SumReleaser(t.Context(), db, "nonexistentgroupname12345")
+	be.Err(t, err, nil)
+	be.Equal(t, count, int64(0))
 }
 
 func TestUUIDs(t *testing.T) {

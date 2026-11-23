@@ -457,19 +457,19 @@ func Musicians() SQL {
 	return Musician.Distinct()
 }
 
-// SumSection is an SQL statement to sum the filesizes of records matching the section.
+// SumSection is an SQL statement to sum the filesizes of public records matching the section.
 func SumSection() SQL {
-	return "SELECT SUM(files.filesize) AS size_total FROM files WHERE section = $1"
+	return "SELECT COALESCE(SUM(files.filesize), 0) AS size_total FROM files WHERE section = $1 AND deletedat IS NULL"
 }
 
-// SumGroup is an SQL statement to sum the filesizes of records matching the group.
+// SumGroup is an SQL statement to sum the filesizes of public records matching the group.
 func SumGroup() SQL {
-	return "SELECT SUM(filesize) AS size_total FROM files WHERE group_brand_for = $1"
+	return "SELECT COALESCE(SUM(filesize), 0) AS size_total FROM files WHERE (group_brand_for = $1 OR group_brand_by = $1) AND deletedat IS NULL"
 }
 
-// SumPlatform is an SQL statement to sum the filesizes of records matching the platform.
+// SumPlatform is an SQL statement to sum the filesizes of public records matching the platform.
 func SumPlatform() SQL {
-	return "SELECT SUM(filesize) AS size_total FROM files WHERE platform = $1"
+	return "SELECT COALESCE(SUM(filesize), 0) AS size_total FROM files WHERE platform = $1 AND deletedat IS NULL"
 }
 
 // SetUpper is an SQL statement to update a column with trimmed uppercase values.
