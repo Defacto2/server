@@ -122,6 +122,8 @@
                 hx-encoding="multipart/form-data"
                 hx-post="/editor/upload/file"
                 hx-target="#artifact-editor-dl-feedback"
+                hx-disable="#artifact-editor-dl-submit"
+                hx-config="timeout:0"
                 {{- if not $missingDownload}} hx-confirm="OK, to replace the existing artifact file download on the server?"{{end}}
                 hx-validate="true"
                 class="mt-2 p-3 rounded border bg-body-tertiary {{if $missingDownload}}border-success-subtle{{else}}border-danger-subtle{{end}}"
@@ -184,6 +186,8 @@
               hx-encoding="multipart/form-data"
               hx-post="/editor/upload/preview"
               hx-target="#artifact-editor-image-assets-feedback"
+              hx-disable="#artifact-editor-preview-submit"
+              hx-config="timeout:0"
               {{- if eq $previewImgStat true}} hx-confirm="OK, to replace the existing preview image on the server?"{{end}}
               hx-validate="true">
               <div class="d-flex justify-content-between align-items-center mb-1">
@@ -367,7 +371,7 @@
                       <input class="form-check-input" type="checkbox" role="switch"
                           hx-patch="/editor/readme/disable/{{$key}}"
                           hx-trigger="click delay:50ms"
-                          hx-swap="swap:50ms"
+                          hx-swap="innerHTML swap:50ms"
                           hx-on:click="document.getElementById('readme-is-off-result').textContent=''"
                           hx-include="[name='readme-is-off']"
                           hx-target="#readme-is-off-result"

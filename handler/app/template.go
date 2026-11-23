@@ -259,7 +259,7 @@ var (
 			return helper.Titleize(x)
 		},
 		"htmx":            func() string { return hrefs[Htmx] },
-		"htmxRespTargets": func() string { return hrefs[HtmxRespTargets] },
+		"htmxMultipart":   func() string { return hrefs[HtmxMultipart] },
 		"initialisms":     func(s string) string { return lism.String(lism.Path(s)) },
 		"indexJS":         func() string { return hrefs[IndexJS] },
 		"jsdos6JS":        func() string { return hrefs[Jsdos6JS] },
@@ -312,7 +312,7 @@ func (wa *WebApp) FuncClosure() template.FuncMap {
 		"sri_editAssets":      func() string { return wa.Subresource.EditAssets },
 		"sri_editForApproval": func() string { return wa.Subresource.EditForApproval },
 		"sri_htmx":            func() string { return wa.Subresource.Htmx },
-		"sri_htmxRespTargets": func() string { return wa.Subresource.HtmxRespTargets },
+		"sri_htmxMultipart":   func() string { return wa.Subresource.HtmxMultipart },
 		"sri_indexJS":         func() string { return wa.Subresource.IndexJS },
 		"sri_jsdos6JS":        func() string { return wa.Subresource.Jsdos6JS },
 		"sri_dosboxJS":        func() string { return wa.Subresource.DosboxJS },

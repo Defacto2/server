@@ -163,7 +163,7 @@ Because htmx 2 and htmx 4 cannot be loaded simultaneously on the same page (both
    * **Area Codes** (`/areacodes` — [view/app/areacodes.tmpl](../view/app/areacodes.tmpl)): Type an area code (`212`, `415`) and verify live results and spinner.
    * **Configurations** (`/editor/configurations` — [view/app/configurations.tmpl](../view/app/configurations.tmpl)): Click **Refresh the connections** and **Ping the routes**.
    * **Fixers** (`/editor/fixers` — [view/app/fixers.tmpl](../view/app/fixers.tmpl)): Test the **Fix** button swap.
-   * **Approve Banner** ([view/app/artifactlock.tmpl](../view/app/artifactlock.tmpl)): Click **Approve** on a hidden artifact page.
+   * **Approve Banner** ([view/app/artifactlock.tmpl](../view/app/artifactlock.tmpl)): Click **Approve** on a hidden artifact page. *(Note: `TxPublicByKey` in [handler/htmx/artifacttx.go](../handler/htmx/artifacttx.go) was updated from returning plain text `"Record is visible to the public."` to returning the Bootstrap `<span class="badge text-bg-success">Public</span>` fragment matching `artifactlock.tmpl`.)*
 
 ### Stage 2 — Live Search (`/search/releaser`, `/search/desc`, `/search/id`)
 

@@ -1053,7 +1053,7 @@ type SRI struct {
 	Pouet           string // Pouet JS verification hash.
 	Uploader        string // Uploader JS verification hash.
 	Htmx            string // htmx JS verification hash.
-	HtmxRespTargets string // htmx response targets extension JS verification hash.
+	HtmxMultipart   string // htmx multipart extension JS verification hash.
 }
 
 // Verify checks the integrity of the embedded CSS and JS files.
@@ -1171,8 +1171,8 @@ func (s *SRI) Verify(fsys fs.FS) error { //nolint:funlen
 		return fmt.Errorf(format, name, err)
 	}
 
-	name = names[HtmxRespTargets]
-	s.HtmxRespTargets, err = helper.Integrity(name, fsys)
+	name = names[HtmxMultipart]
+	s.HtmxMultipart, err = helper.Integrity(name, fsys)
 	if err != nil {
 		return fmt.Errorf(format, name, err)
 	}

@@ -115,8 +115,8 @@ async function sha384(file) {
 }
 
 /**
- * Updates the progress bar based on the upload progress.
- * Based on the htmx:xhr:progress example from https://htmx.org/examples/file-upload/.
+ * Animates the progress bar in indeterminate mode during upload and completes it when finished.
+ * htmx 4 uses fetch(), which does not emit upload progress events (htmx:xhr:progress was removed).
  */
 export function progress(formId, elementId) {
   if (formId == null) {
@@ -125,14 +125,45 @@ export function progress(formId, elementId) {
   if (elementId == null) {
     throw new Error(`The elementId value of progress is null.`);
   }
-  htmx.on(`#${formId}`, "htmx:xhr:progress", function (event) {
-    if (event.target.id != `${formId}`) return;
-    htmx
-      .find(`#${elementId}`)
-      .setAttribute(
-        "value",
-        (event.detail.loaded / event.detail.total) * percentage,
-      );
+  function abortAndReset() {
+    if (form) {
+      htmx.trigger(form, "htmx:abort");
+    }
+    const bar = document.getElementById(elementId);
+    if (bar) {
+      bar.setAttribute("value", "0");
+    }
+  }
+  const form = document.getElementById(formId);
+  if (form) {
+    form.addEventListener("reset", abortAndReset);
+    const modal = form.closest(".modal");
+    if (modal) {
+      modal.addEventListener("hide.bs.modal", abortAndReset);
+    }
+  }
+  const resetBtn = document.getElementById(formId.replace("-form", "-reset"));
+  if (resetBtn) {
+    resetBtn.addEventListener("click", abortAndReset);
+  }
+  document.body.addEventListener("htmx:before:request", function (event) {
+    const elt = event.detail?.ctx?.sourceElement;
+    if (!elt || elt.id !== `${formId}`) return;
+    const bar = document.getElementById(elementId);
+    if (bar) {
+      bar.removeAttribute("value");
+    }
+  });
+  document.body.addEventListener("htmx:finally:request", function (event) {
+    const ctx = event.detail?.ctx;
+    const elt = ctx?.sourceElement;
+    if (!elt || elt.id !== `${formId}`) return;
+    const bar = document.getElementById(elementId);
+    if (bar) {
+      const status = ctx?.response?.status ?? 0;
+      const ok = status >= 200 && status < 400;
+      bar.setAttribute("value", ok ? `${percentage}` : "0");
+    }
   });
 }
 

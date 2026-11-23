@@ -45,6 +45,7 @@
     <meta name="monetization" content="$ilp.uphold.com/RpWPnb88yLaF">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
+    <meta name="htmx-config" content='{"noSwap":[204,304,"4xx","5xx"],"defaultTimeout":30000}'>
 {{- template "opengraph" . }}
 {{- /*  https://schema.org linked data, see:
         - https://json-ld.org/playground/
@@ -383,7 +384,7 @@
 </div>
 {{- /*  Do not async load the htmx JS  */}}
 <script src="{{ htmx }}?{{ sri_htmx }}" integrity="{{ sri_htmx }}" crossorigin="anonymous"></script>
-<script defer src="{{ htmxRespTargets }}?{{ sri_htmxRespTargets }}" integrity="{{ sri_htmxRespTargets }}" crossorigin="anonymous"></script>
+<script defer src="{{ htmxMultipart }}?{{ sri_htmxMultipart }}" integrity="{{ sri_htmxMultipart }}" crossorigin="anonymous"></script>
 {{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
 <script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
 {{- if eq $metatitle "Introduction and milestones" }}

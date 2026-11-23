@@ -405,7 +405,7 @@ func TxPublic(c *echo.Context, tx *sql.Tx, state bool) error {
 
 // TxPublicByKey handles the post submission for the file artifact record toggle.
 // The key string is converted into an integer and used as the artifact id.
-// The return value is either "online" or "offline" depending on the state.
+// It returns an HTML badge fragment matching view/app/artifactlock.tmpl.
 func TxPublicByKey(c *echo.Context, tx *sql.Tx, key string, state bool) error {
 	const format = "tx public by key %d, %s: %w"
 	if err := nils.Check(c, tx); err != nil {
@@ -423,12 +423,13 @@ func TxPublicByKey(c *echo.Context, tx *sql.Tx, key string, state bool) error {
 	}
 
 	if state {
-		return c.String(http.StatusOK,
-			"Record is visible to the public.")
+		return c.HTML(http.StatusOK,
+			`<span class="badge text-bg-success">Public</span>`+
+				`<span class="small text-body-secondary">Approved, visible to the public</span>`)
 	}
-	const prohibited = "🚫"
-	return c.String(http.StatusOK,
-		prohibited+" Record is disabled and hidden from public access. "+prohibited)
+	return c.HTML(http.StatusOK,
+		`<span class="badge text-bg-danger">Disabled</span>`+
+			`<span class="small text-body-secondary">Hidden from public access</span>`)
 }
 
 // TxYouTube handles the post submission for the file artifact YouTube watch video link.
@@ -504,6 +505,9 @@ func txReleasers(c *echo.Context, tx *sql.Tx, undo bool) error {
 		return badRequest(c, err)
 	}
 
+	if undo {
+		return StatusOK(c, "artifact-editor-releaser-undo")
+	}
 	return StatusOK(c, "artifact-editor-releasers")
 }
 

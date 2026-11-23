@@ -32,6 +32,11 @@ export function submitter(elementId, api) {
   clear.addEventListener('click', reset);
 
   function reset() {
+    htmx.trigger(input, 'htmx:abort');
+    const submitBtn = results.querySelector('[hx-put]');
+    if (submitBtn) {
+      htmx.trigger(submitBtn, 'htmx:abort');
+    }
     input.value = '';
     input.focus();
     input.classList.remove(invalid);
@@ -51,37 +56,42 @@ export function submitter(elementId, api) {
       break;
   }
 
-  // The htmx:beforeRequest event is triggered before the request is made.
-  document.body.addEventListener('htmx:beforeRequest', function () {
+  // The htmx:before:request event is triggered before the request is made.
+  document.body.addEventListener('htmx:before:request', function () {
     beforeReset(alert, results);
   });
 
-  // The htmx:beforeSwap event is triggered before the content is swapped.
+  // The htmx:before:swap event is triggered before the content is swapped.
   // This is the best place to check the status of the request and display an error message.
-  document.body.addEventListener('htmx:beforeSwap', function (evt) {
+  document.body.addEventListener('htmx:before:swap', function (evt) {
     const badRequest = 400;
-    if (evt.detail.xhr.status >= badRequest) {
+    const status = evt.detail?.ctx?.response?.status ?? 0;
+    if (status >= badRequest) {
       alert.classList.remove(none);
     }
   });
 
-  // The htmx:afterRequest event is triggered after the request is completed.
+  // The htmx:after:request event is triggered after the request is completed.
   // Multiple requests can be made, so we need to check if the request is the one we are interested in.
-  document.body.addEventListener('htmx:afterRequest', function (evt) {
-    if (evt.detail.elt === null || evt.detail.elt.id !== `${elementId}`) {
+  document.body.addEventListener('htmx:after:request', function (evt) {
+    const ctx = evt.detail?.ctx;
+    const elt = ctx?.sourceElement ?? null;
+    if (elt === null || elt.id !== `${elementId}`) {
       return;
     }
-    if (evt.detail.successful) {
+    const response = ctx?.response;
+    const status = response?.status ?? 0;
+    const text = ctx?.text ?? '';
+    if (response && status >= 200 && status < 400) {
       return successful(input);
     }
-    const xhr = evt.detail.xhr;
-    if (evt.detail.failed && xhr) {
-      if (xhr.status === 404) {
+    if (response && status >= 400) {
+      if (status === 404) {
         return error404(alert, results, api);
       }
-      return errorXhr(alert, xhr);
+      return errorXhr(alert, results, status, text);
     }
-    errorBrowser(alert);
+    errorBrowser(alert, results);
   });
 }
 
@@ -109,12 +119,14 @@ function error404(alert, results, api) {
   results.innerText = `Production not found on ${api}.`;
 }
 
-function errorBrowser(alert) {
+function errorBrowser(alert, results) {
+  results.innerHTML = '';
   alert.innerText = `Something with the browser is not working, please refresh the page.`;
   alert.classList.remove(none);
 }
 
-function errorXhr(alert, xhr) {
-  alert.innerText = `Something went wrong, ${xhr.status} status: ${xhr.responseText}.`;
+function errorXhr(alert, results, status, text) {
+  results.innerHTML = '';
+  alert.innerText = `Something went wrong, ${status} status: ${text}.`;
   alert.classList.remove(none);
 }
