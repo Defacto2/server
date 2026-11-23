@@ -435,10 +435,6 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.T
 	slices.Sort(lookup)
 	lookup = slices.Compact(lookup)
 
-	// matchZeroOrMore is an SQL "LIKE" expression, to return zero (exact match) or more matches.
-	// see: https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE
-	const matchZeroOrMore = "%"
-	lookup = slices.Insert(lookup, 0, name+matchZeroOrMore)
 	// lookup exact match initialisms
 	var r model.Releasers
 	ctx := c.Request().Context()
