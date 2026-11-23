@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/url"
+	"time"
 
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/caarlos0/env/v11"
@@ -27,6 +28,11 @@ const (
 	DriverName = "pgx"
 	// Protocol of the database driver.
 	Protocol = "postgres"
+
+	maxOpenConns    = 25
+	maxIdleConns    = 10
+	connMaxLifetime = 30 * time.Minute
+	connMaxIdleTime = 5 * time.Minute
 )
 
 // Connections returns the number of active connections and the maximum allowed connections.
@@ -66,6 +72,11 @@ func Open() (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf(format, "open", err)
 	}
+
+	conn.SetMaxOpenConns(maxOpenConns)
+	conn.SetMaxIdleConns(maxIdleConns)
+	conn.SetConnMaxLifetime(connMaxLifetime)
+	conn.SetConnMaxIdleTime(connMaxIdleTime)
 
 	if err := conn.Ping(); err != nil { //nolint:noctx
 		_ = conn.Close()

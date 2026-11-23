@@ -112,4 +112,5 @@ func TestConnections(t *testing.T) {
 	be.Err(t, err, nil)
 	be.True(t, x > 0)
 	be.True(t, y > 0)
+	be.Equal(t, db.Stats().MaxOpenConnections, 25)
 }
