@@ -19,12 +19,12 @@ func TestRepairRunInvalid(t *testing.T) {
 
 	const invalid = -2
 	r := fix.Repair(invalid)
-	got := r.Run(t.Context(), nil, nil, nil)
+	got := r.Run(t.Context(), nil, nil)
 	be.Err(t, got)
 
 	sl := logs.Discard()
 	r = fix.Releaser
-	got = r.Run(t.Context(), sl, nil, nil)
+	got = r.Run(t.Context(), sl, nil)
 	be.Err(t, got)
 }
 
@@ -34,10 +34,10 @@ func TestRepairArtifactsRun(t *testing.T) {
 	tx := testutil.Tx(t)
 	sl := logs.Discard()
 
-	got := fix.Artifacts.Run(t.Context(), sl, nil, tx)
+	got := fix.Artifacts.Run(t.Context(), sl, tx)
 	be.Err(t, got, nil)
 
-	got = fix.Releaser.Run(t.Context(), sl, nil, tx)
+	got = fix.Releaser.Run(t.Context(), sl, tx)
 	be.Err(t, got, nil)
 }
 

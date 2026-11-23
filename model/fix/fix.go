@@ -59,9 +59,8 @@ const (
 
 // Run the database repair based on the repair option.
 //
-// The exec boil context executor is required.
-// The db sql DB pointer is optional for a VACUUM statement that cannot be used in a transaction block.
-func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, exec boil.ContextExecutor) error {
+// Call [Optimize] after committing the transaction to run VACUUM ANALYZE.
+func (r Repair) Run(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const format = "repair database %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -106,11 +105,6 @@ func (r Repair) Run(ctx context.Context, sl *slog.Logger, db *sql.DB, exec boil.
 	case Releaser:
 		if err := releasers(ctx, sl, exec); err != nil {
 			return fmt.Errorf(format, "releasers", err)
-		}
-	}
-	if db != nil {
-		if err := optimize(db); err != nil {
-			return fmt.Errorf(format, "optimize", err)
 		}
 	}
 	if err := SyncFilesIDSeq(exec); err != nil {
@@ -417,13 +411,14 @@ func contentWhiteSpace(exec boil.ContextExecutor) error {
 // Optimize reclaims storage occupied by dead tuples in the database and
 // also analyzes the most efficient execution plans for queries.
 //
-// Optimize runs the VACUUM query which cannot be used in a transaction.
-func optimize(db *sql.DB) error {
-	if err := nils.Check(db); err != nil {
+// Optimize runs VACUUM ANALYZE which cannot be executed inside a transaction block
+// and should be called after any repair transaction has been committed.
+func Optimize(ctx context.Context, db *sql.DB) error {
+	if err := nils.Check(ctx, db); err != nil {
 		return fmt.Errorf("fix optimize check: %w", err)
 	}
 
-	_, err := queries.Raw("VACUUM ANALYZE files").Exec(db)
+	_, err := queries.Raw("VACUUM ANALYZE files").ExecContext(ctx, db)
 	if err != nil {
 		return fmt.Errorf("execute vacuum and analyze: %w", err)
 	}

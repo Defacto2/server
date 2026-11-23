@@ -164,7 +164,7 @@ func databaseFix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 		return fmt.Errorf(format, "begin transaction", err)
 	}
 
-	if err := fix.Artifacts.Run(ctx, sl, db, tx); err != nil {
+	if err := fix.Artifacts.Run(ctx, sl, tx); err != nil {
 		if err := tx.Rollback(); err != nil {
 			const msg = "Cannot rollback database transaction during a repair"
 			sl.Error(msg, slog.Any("error", err))
@@ -174,6 +174,10 @@ func databaseFix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf(format, "cannot commit transaction", err)
+	}
+
+	if err := fix.Optimize(ctx, db); err != nil {
+		return fmt.Errorf(format, "optimize", err)
 	}
 
 	return nil
