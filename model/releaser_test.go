@@ -113,6 +113,11 @@ func TestReleasersSimilar(t *testing.T) {
 	got = obj.Similar(t.Context(), db, 1, "razor")
 	be.Err(t, got, nil)
 	be.True(t, len(obj) == 1)
+
+	// Regex metacharacters and apostrophes must not error
+	obj = model.Releasers{}
+	got = obj.Similar(t.Context(), db, 5, "test[", "group (", "o'brien")
+	be.Err(t, got, nil)
 }
 
 func TestReleasersInit(t *testing.T) {

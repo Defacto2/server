@@ -97,8 +97,6 @@ const (
 	countSum SQL = "COUNT(files.filename) AS count_sum, "
 	// exclude empty releaser names.
 	whereRelNull SQL = "WHERE NULLIF(releaser, '') IS NOT NULL "
-	// releaserBy is a partial SQL statement to group the results by the releaser name.
-	releaserBy SQL = "GROUP BY releaser ORDER BY releaser ASC "
 	// only include releasers with public records.
 	deletedatIsNull SQL = "AND files.deletedat IS NULL "
 	// order the list by the oldest year and the releaser name.
@@ -325,12 +323,21 @@ func Summary() SQL {
 		"WHERE "
 }
 
-const (
-	// SimilarTo matches exact and incomplete tailing strings.
-	// For example, "he" would match "hello", "help" but would not match "the" or "she".
-	SimilarTo = "($1 || '%')"
-	Exact     = "('(' || $1 || ')')" // Exact matches exact strings.
-)
+// escapeLike escapes SQL LIKE wildcard characters using '\' as the escape character.
+func escapeLike(s string) string {
+	return strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(s)
+}
+
+// likeOrClause builds "(releaser LIKE $1 ESCAPE '\' OR ...)" and matching prefix args.
+func likeOrClause(like []string) (string, []any) {
+	conds := make([]string, len(like))
+	args := make([]any, len(like))
+	for i, val := range like {
+		conds[i] = "releaser LIKE $" + strconv.Itoa(i+1) + ` ESCAPE '\'`
+		args[i] = escapeLike(strings.ToUpper(strings.TrimSpace(val))) + "%"
+	}
+	return "(" + strings.Join(conds, " OR ") + ") ", args
+}
 
 // SimilarToReleaser returns a parameterized SQL query for finding similar releasers.
 func SimilarToReleaser(like ...string) (SQL, []any) {
@@ -338,14 +345,11 @@ func SimilarToReleaser(like ...string) (SQL, []any) {
 		return "", nil
 	}
 
-	query := make([]string, len(like))
-	for i, val := range like {
-		query[i] = strings.ToUpper(strings.TrimSpace(val))
-	}
-	// Build the pattern as a single parameter containing alternation
-	pattern := strings.Join(query, "|")
-	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + string(releaserSEL) + string(releaserBy) +
-		") sub WHERE sub.releaser SIMILAR TO " + SimilarTo + " ORDER BY sub.count_sum DESC"), []any{pattern}
+	clause, args := likeOrClause(like)
+	return releaserSEL +
+		"AND " + SQL(clause) +
+		groupbyRel +
+		orderSumDesc, args
 }
 
 // SimilarToMagazine returns a parameterized SQL query for finding similar magazines.
@@ -354,15 +358,12 @@ func SimilarToMagazine(like ...string) (SQL, []any) {
 		return "", nil
 	}
 
-	query := make([]string, len(like))
-	for i, val := range like {
-		query[i] = strings.ToUpper(strings.TrimSpace(val))
-	}
-	// Build the pattern as a single parameter containing alternation
-	pattern := strings.Join(query, "|")
-	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" +
-		string(releaserSEL) + string(magazine) + string(releaserBy) +
-		") sub WHERE sub.releaser SIMILAR TO " + SimilarTo + " ORDER BY sub.count_sum DESC"), []any{pattern}
+	clause, args := likeOrClause(like)
+	return releaserSEL +
+		magazine +
+		"AND " + SQL(clause) +
+		groupbyRel +
+		orderSumDesc, args
 }
 
 // SimilarToExact returns a parameterized SQL query for exact releaser matches.
@@ -371,14 +372,16 @@ func SimilarToExact(like ...string) (SQL, []any) {
 		return "", nil
 	}
 
-	query := make([]string, len(like))
+	placeholders := make([]string, len(like))
+	args := make([]any, len(like))
 	for i, val := range like {
-		query[i] = strings.ToUpper(strings.TrimSpace(val))
+		placeholders[i] = "$" + strconv.Itoa(i+1)
+		args[i] = strings.ToUpper(strings.TrimSpace(val))
 	}
-	// Build the pattern as a single parameter containing alternation
-	pattern := strings.Join(query, "|")
-	return SQL("SELECT sub.releaser, sub.count_sum, sub.size_total FROM (" + string(releaserSEL) + string(releaserBy) +
-		") sub WHERE sub.releaser SIMILAR TO " + Exact + " ORDER BY sub.count_sum DESC"), []any{pattern}
+	return releaserSEL +
+		"AND releaser IN (" + SQL(strings.Join(placeholders, ", ")) + ") " +
+		groupbyRel +
+		orderSumDesc, args
 }
 
 // Roles returns all of the sceners reguardless of the attribution.

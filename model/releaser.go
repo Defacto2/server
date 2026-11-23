@@ -344,14 +344,12 @@ func (match Lookup) releasers(
 		return nil
 	}
 
-	const escapedChar = "''"
 	const size = 3
 	likes := make([]string, 0, len(names)*size)
 	for _, name := range names {
-		s := strings.ReplaceAll(name, "'", escapedChar)
-		likes = append(likes, strings.ToUpper(s))
-		likes = append(likes, strings.ToUpper(releaser.Title(s)))
-		likes = append(likes, strings.ToUpper(releaser.Cell(s)))
+		likes = append(likes, strings.ToUpper(name))
+		likes = append(likes, strings.ToUpper(releaser.Title(name)))
+		likes = append(likes, strings.ToUpper(releaser.Cell(name)))
 	}
 	slices.Sort(likes)
 	likes = slices.Compact(likes)
