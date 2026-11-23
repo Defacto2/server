@@ -38,6 +38,12 @@ func TestByDescription(t *testing.T) {
 
 	be.True(t, s2.SumBytes.Int64 > s1.SumBytes.Int64)
 	be.True(t, s2.SumCount.Int64 > s1.SumCount.Int64)
+
+	s3 := model.Summary{}
+	got = s3.ByDescription(t.Context(), db, []string{"", "  ", term0})
+	be.Err(t, got, nil)
+	be.Equal(t, s3.SumCount.Int64, s1.SumCount.Int64)
+	be.Equal(t, s3.SumBytes.Int64, s1.SumBytes.Int64)
 }
 
 func TestByFilename(t *testing.T) {

@@ -41,7 +41,7 @@ func (obj *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor
 	size := len(terms)
 	args := make([]any, 0, size)
 	orConditions := make([]string, 0, size)
-	for i, term := range terms {
+	for _, term := range terms {
 		term = strings.TrimSpace(term)
 		if term == "" {
 			continue
@@ -51,7 +51,7 @@ func (obj *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor
 		orConditions = append(
 			orConditions,
 			"to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ "+
-				"plainto_tsquery('english', $"+strconv.Itoa(i+1)+")",
+				"plainto_tsquery('english', $"+strconv.Itoa(len(args))+")",
 		)
 	}
 	if len(orConditions) == 0 {
