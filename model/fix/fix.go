@@ -437,7 +437,7 @@ func invalidUUIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecuto
 	const msg = "Database repair"
 
 	mods := qm.SQL("SELECT COUNT(*) FROM files WHERE files.uuid" +
-		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}';")
+		" !~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$';")
 	i, err := models.Files(mods).Count(ctx, exec)
 	if err != nil {
 		return fmt.Errorf("query count: %w", err)
