@@ -768,15 +768,9 @@ func (ds *Dirs) fixANSI(ctx context.Context, sl *slog.Logger, db *sql.DB, data m
 	id := ds.ID
 	val := tags.ANSI.String()
 
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		ds.logErr(sl, "dirs fix ansi update begin tx", err)
-	}
-	if err := model.Platform.Update(ctx, tx, id, val); err != nil {
+	if err := model.Platform.Update(ctx, db, id, val); err != nil {
 		ds.logErr(sl, "dirs fix ansi update platform", err)
-	}
-	if err = tx.Commit(); err != nil {
-		ds.logErr(sl, "dirs fix ansi update tx commit", err)
+		return data
 	}
 
 	data["platform"] = val

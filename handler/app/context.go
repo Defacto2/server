@@ -1908,6 +1908,10 @@ func EditFn(sl *slog.Logger, c *echo.Context, db *sql.DB,
 	if err != nil {
 		return badRequest(c, err)
 	}
+	// Rollback is a no-op once tx.Commit succeeds; ensures cleanup on early return or panic.
+	defer func() {
+		_ = tx.Rollback()
+	}()
 	if err = fn(ctx, tx, int64(f.ID), f.Value); err != nil {
 		return badRequest(c, err)
 	}
