@@ -123,9 +123,7 @@ func SyncFilesIDSeq(exec boil.ContextExecutor) error {
 		return fmt.Errorf(format, "check", err)
 	}
 
-	query := `SELECT MAX(id) FROM files;` +
-		`SELECT nextVal('"files_id_seq"');` +
-		`SELECT setval('"files_id_seq"', (SELECT MAX(id) FROM files)+1);`
+	const query = `SELECT setval('"files_id_seq"', COALESCE((SELECT MAX(id) FROM files), 1));`
 	_, err := queries.Raw(query).Exec(exec)
 	if err != nil {
 		return fmt.Errorf(format, "execute", err)
