@@ -321,6 +321,9 @@ func (wa *WebApp) FuncClosure() template.FuncMap {
 		"sri_pouet":           func() string { return wa.Subresource.Pouet },
 		"sri_uploader":        func() string { return wa.Subresource.Uploader },
 		"version":             func() string { return wa.Version },
+		"animPreview": func(unid string) string {
+			return simple.AnimPreview(unid, dir.Directory(wa.Environment.AbsPreview))
+		},
 		"thumb": func(unid, desc string, bottom bool) template.HTML {
 			return simple.Thumb(unid, desc, dir.Directory(wa.Environment.AbsThumbnail), bottom)
 		},

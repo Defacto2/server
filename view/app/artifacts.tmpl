@@ -138,8 +138,10 @@
   {{- $unwantedClass := " border border-1 border-warning"}}
   {{- $unwanted := (ne .FileSecurityAlertURL.String "")}}
   {{- if $unwanted}}{{$cardClass = print $cardClass $unwantedClass}}{{end}}
+  {{- $anim := ""}}
+  {{- if eq .FileMagicType.String "ANSImation"}}{{$anim = animPreview .UUID.String}}{{end}}
   <div class="col artifact-item">
-    <div class="card {{$cardClass}}"{{- if eq $editor true}} data-artifact-url="{{linkHref .ID}}"{{- end}}>
+    <div class="card {{$cardClass}}"{{- if eq $editor true}} data-artifact-url="{{linkHref .ID}}"{{- end}}{{- if ne $anim ""}} data-anim-src="{{$anim}}"{{- end}}>
       <div class="card-header text-body-secondary text-center text-truncate">
         <code class="h6 mb-0 text-break">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
       </div>
@@ -168,7 +170,11 @@
       {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}
       {{- $thumb := thumb .UUID.String .Filename.String true }}
       {{- if ne (print $thumb) "<!-- no thumbnail found -->" }}
+      {{- if ne $anim "" }}
+      <a class="position-relative d-block" href="{{linkHref .ID}}">{{$thumb}}<span class="anim-badge badge text-bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-2 pe-none" aria-hidden="true">&#9654;</span></a>
+      {{- else }}
       <a href="{{linkHref .ID}}">{{$thumb}}</a>
+      {{- end }}
       {{- else }}{{$thumb}}{{- end }}
     </div>
   </div>

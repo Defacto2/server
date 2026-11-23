@@ -914,6 +914,18 @@ func StatHumanize(name string) (date, bytes, size string) {
 // The desc is the description of the image.
 // The thumbnail is the directory where the thumbnail images are stored.
 // The bottom flag is true if the image should be displayed at the bottom of the container element.
+// AnimPreview returns the static URL of the animated WebP preview image for an ANSImation
+// if it exists on disk, or an empty string otherwise.
+func AnimPreview(unid string, preview dir.Directory) string {
+	if unid == "" {
+		return ""
+	}
+	if !helper.Stat(preview.Join(unid + webp)) {
+		return ""
+	}
+	return strings.Join([]string{config.StaticOriginal(), unid + webp}, "/")
+}
+
 func Thumb(unid, desc string, thumbnail dir.Directory, bottom bool) template.HTML {
 	img := func(src, class string) string {
 		alt := template.HTMLEscapeString(strings.ToLower(desc) + " thumbnail")

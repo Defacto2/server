@@ -14,6 +14,7 @@ import scenerFilter from "./layout-scener.mjs";
 import interviewFilter from "./layout-interview.mjs";
 import routesFilter from "./layout-routes.mjs";
 import duplicatesFilter from "./layout-duplicates.mjs";
+import animPreviewHover from "./layout-anim.mjs";
 
 (() => {
   "use strict";
@@ -29,6 +30,7 @@ import duplicatesFilter from "./layout-duplicates.mjs";
   interviewFilter();
   routesFilter();
   duplicatesFilter();
+  animPreviewHover();
 })();
 
 /**
