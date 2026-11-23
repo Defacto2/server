@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
@@ -230,15 +231,46 @@ func TestUpdateReleasers(t *testing.T) {
 
 	tx0 := testutil.Tx(t)
 	const safeUpdate = "defacto2net"
+	const safeBy = "razor 1911"
 	const safeID = 1
+
+	before, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+
 	got := model.UpdateReleasers(t.Context(), tx0, 0, "", "")
 	be.Err(t, got)
+
+	got = model.UpdateReleasers(t.Context(), tx0, missingID, safeUpdate, "")
+	be.True(t, errors.Is(got, sql.ErrNoRows))
 
 	got = model.UpdateReleasers(t.Context(), tx0, safeID, "", safeUpdate)
 	be.Err(t, got)
 
+	// Set both
+	got = model.UpdateReleasers(t.Context(), tx0, safeID, safeUpdate, safeBy)
+	be.Err(t, got, nil)
+	after, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, after.GroupBrandFor, null.StringFrom("DEFACTO2NET"))
+	be.Equal(t, after.GroupBrandBy, null.StringFrom("RAZOR 1911"))
+	be.Equal(t, after.UUID, before.UUID)
+	be.Equal(t, after.Filename, before.Filename)
+
+	// Set for only (clears by)
 	got = model.UpdateReleasers(t.Context(), tx0, safeID, safeUpdate, "")
 	be.Err(t, got, nil)
+	after, err = model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, after.GroupBrandFor, null.StringFrom("DEFACTO2NET"))
+	be.Equal(t, after.GroupBrandBy, null.StringFrom(""))
+
+	// Clear both
+	got = model.UpdateReleasers(t.Context(), tx0, safeID, "", "")
+	be.Err(t, got, nil)
+	after, err = model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, after.GroupBrandFor, null.StringFrom(""))
+	be.Equal(t, after.GroupBrandBy, null.StringFrom(""))
 }
 
 func TestFileUploadUpdate(t *testing.T) {
@@ -248,16 +280,41 @@ func TestFileUploadUpdate(t *testing.T) {
 	const safeFname = "Defacto2_ISO_2007.7z"
 	const safeSize = 499022368
 	const safeID = 1
+	lastMod := time.Date(2007, 6, 12, 10, 30, 0, 0, time.UTC)
+
+	before, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
 
 	fu := model.FileUpload{}
 	got := fu.Update(t.Context(), tx0)
 	be.Err(t, got)
 
-	fu.Filename = safeFname
-	fu.Filesize = safeSize
-	fu.ID = safeID
+	fu.ID = missingID
+	got = fu.Update(t.Context(), tx0)
+	be.True(t, errors.Is(got, sql.ErrNoRows))
+
+	fu = model.FileUpload{
+		ID:          safeID,
+		LastMod:     lastMod,
+		Filename:    safeFname,
+		Integrity:   "sha384hashvalue",
+		MagicNumber: "7-zip archive",
+		Content:     "README.TXT\nFILE_ID.DIZ",
+		Filesize:    safeSize,
+	}
 	got = fu.Update(t.Context(), tx0)
 	be.Err(t, got, nil)
+
+	after, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, after.Filename, null.StringFrom(safeFname))
+	be.Equal(t, strings.TrimSpace(after.FileIntegrityStrong.String), "sha384hashvalue")
+	be.Equal(t, after.FileMagicType, null.StringFrom("7-zip archive"))
+	be.Equal(t, after.FileZipContent, null.StringFrom("README.TXT\nFILE_ID.DIZ"))
+	be.Equal(t, after.Filesize, null.Int64From(safeSize))
+	be.True(t, after.FileLastModified.Valid)
+	be.True(t, after.FileLastModified.Time.Equal(lastMod))
+	be.Equal(t, after.UUID, before.UUID)
 }
 
 func TestUpdateYMD(t *testing.T) {
@@ -269,6 +326,9 @@ func TestUpdateYMD(t *testing.T) {
 	const safeDay = 12
 	const safeID = 1
 
+	before, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+
 	y := null.Int16From(safeYear)
 	m := null.Int16From(safeMonth)
 	d := null.Int16From(safeDay)
@@ -277,11 +337,22 @@ func TestUpdateYMD(t *testing.T) {
 	got := model.UpdateYMD(t.Context(), tx0, 0, y, m, d)
 	be.Err(t, got)
 
+	got = model.UpdateYMD(t.Context(), tx0, missingID, y, m, d)
+	be.True(t, errors.Is(got, sql.ErrNoRows))
+
 	got = model.UpdateYMD(t.Context(), tx0, safeID, x, m, d)
 	be.Err(t, got)
 
 	got = model.UpdateYMD(t.Context(), tx0, safeID, y, m, d)
 	be.Err(t, got, nil)
+
+	after, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, after.DateIssuedYear, y)
+	be.Equal(t, after.DateIssuedMonth, m)
+	be.Equal(t, after.DateIssuedDay, d)
+	be.Equal(t, after.UUID, before.UUID)
+	be.Equal(t, after.Filename, before.Filename)
 }
 
 func TestUpdateYMDS(t *testing.T) {
@@ -293,6 +364,9 @@ func TestUpdateYMDS(t *testing.T) {
 	const safeDay = "12"
 	const safeID = 1
 
+	before, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+
 	y := safeYear
 	m := safeMonth
 	d := safeDay
@@ -300,11 +374,26 @@ func TestUpdateYMDS(t *testing.T) {
 	got := model.UpdateYMDS(t.Context(), tx0, 0, y, m, d)
 	be.Err(t, got)
 
+	got = model.UpdateYMDS(t.Context(), tx0, missingID, y, m, d)
+	be.True(t, errors.Is(got, sql.ErrNoRows))
+
 	got = model.UpdateYMDS(t.Context(), tx0, safeID, "", m, d)
 	be.Err(t, got, nil) // NOTE: this behavour does not match UpdateYMD()
+	after, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.True(t, !after.DateIssuedYear.Valid)
+	be.Equal(t, after.DateIssuedMonth, null.Int16From(6))
+	be.Equal(t, after.DateIssuedDay, null.Int16From(12))
 
 	got = model.UpdateYMDS(t.Context(), tx0, safeID, y, m, d)
 	be.Err(t, got, nil)
+	after, err = model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, after.DateIssuedYear, null.Int16From(2007))
+	be.Equal(t, after.DateIssuedMonth, null.Int16From(6))
+	be.Equal(t, after.DateIssuedDay, null.Int16From(12))
+	be.Equal(t, after.UUID, before.UUID)
+	be.Equal(t, after.Filename, before.Filename)
 }
 
 func TestUpdateOnline(t *testing.T) {
@@ -312,12 +401,35 @@ func TestUpdateOnline(t *testing.T) {
 
 	tx0 := testutil.Tx(t)
 	const safeID = 1
-	const safeStatus = true
-	got := model.UpdateOnline(t.Context(), tx0, safeStatus, 0)
+
+	before, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+
+	got := model.UpdateOnline(t.Context(), tx0, true, 0)
 	be.Err(t, got)
 
-	got = model.UpdateOnline(t.Context(), tx0, safeStatus, safeID)
+	got = model.UpdateOnline(t.Context(), tx0, true, missingID)
+	be.True(t, errors.Is(got, sql.ErrNoRows))
+
+	// Take offline (soft-delete)
+	got = model.UpdateOnline(t.Context(), tx0, false, safeID)
 	be.Err(t, got, nil)
+	after, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.True(t, after.Deletedat.Valid)
+	be.True(t, after.Deletedby.Valid)
+	be.Equal(t, after.UUID, before.UUID)
+	be.Equal(t, after.Filename, before.Filename)
+
+	// Bring back online
+	got = model.UpdateOnline(t.Context(), tx0, true, safeID)
+	be.Err(t, got, nil)
+	after, err = model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.True(t, !after.Deletedat.Valid)
+	be.True(t, !after.Deletedby.Valid)
+	be.Equal(t, after.UUID, before.UUID)
+	be.Equal(t, after.Filename, before.Filename)
 }
 
 func TestClassicationUpdate(t *testing.T) {
@@ -326,6 +438,11 @@ func TestClassicationUpdate(t *testing.T) {
 	tx0 := testutil.Tx(t)
 	const safeID = 1
 	const safePlatform = "dos"
+	const safeTag = "magazine"
+
+	before, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+
 	class := model.Classification{}
 	got := class.Update(t.Context(), tx0)
 	be.Err(t, got)
@@ -334,6 +451,22 @@ func TestClassicationUpdate(t *testing.T) {
 	class.Platform = safePlatform
 	got = class.Update(t.Context(), tx0)
 	be.Err(t, got)
+
+	class.ID = missingID
+	class.Tag = safeTag
+	got = class.Update(t.Context(), tx0)
+	be.True(t, errors.Is(got, sql.ErrNoRows))
+
+	class.ID = safeID
+	got = class.Update(t.Context(), tx0)
+	be.Err(t, got, nil)
+
+	after, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, strings.TrimSpace(after.Platform.String), safePlatform)
+	be.Equal(t, strings.TrimSpace(after.Section.String), safeTag)
+	be.Equal(t, after.UUID, before.UUID)
+	be.Equal(t, after.Filename, before.Filename)
 }
 
 func TestLinksUpdate(t *testing.T) {
@@ -343,15 +476,52 @@ func TestLinksUpdate(t *testing.T) {
 	const safeID = 1
 	const safeGitHub = "defacto2"
 	const safeYouTube = "62BuDfBIcMo"
+
+	before, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+
 	links := model.Links{}
 	got := links.Update(t.Context(), tx0)
 	be.Err(t, got)
 
-	links.ID = safeID
-	links.GitHub = safeGitHub
-	links.YouTube = safeYouTube
+	links.ID = missingID
+	got = links.Update(t.Context(), tx0)
+	be.True(t, errors.Is(got, sql.ErrNoRows))
+
+	links = model.Links{
+		ID:        safeID,
+		Demozoo:   1234,
+		Pouet:     5678,
+		YouTube:   safeYouTube,
+		Colors16:  "pack/1995",
+		GitHub:    safeGitHub,
+		Relations: "relA;relB",
+		Sites:     "https://defacto2.net",
+	}
 	got = links.Update(t.Context(), tx0)
 	be.Err(t, got, nil)
+
+	after, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, after.WebIDDemozoo, null.Int64From(1234))
+	be.Equal(t, after.WebIDPouet, null.Int64From(5678))
+	be.Equal(t, after.WebIDYoutube, null.StringFrom(safeYouTube))
+	be.Equal(t, after.WebID16colors, null.StringFrom("pack/1995"))
+	be.Equal(t, after.WebIDGithub, null.StringFrom(safeGitHub))
+	be.Equal(t, after.ListRelations, null.StringFrom("relA;relB"))
+	be.Equal(t, after.ListLinks, null.StringFrom("https://defacto2.net"))
+	be.Equal(t, after.UUID, before.UUID)
+	be.Equal(t, after.Filename, before.Filename)
+
+	// Zeroing Demozoo/Pouet clears them to NULL
+	links.Demozoo = 0
+	links.Pouet = 0
+	got = links.Update(t.Context(), tx0)
+	be.Err(t, got, nil)
+	after, err = model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.True(t, !after.WebIDDemozoo.Valid)
+	be.True(t, !after.WebIDPouet.Valid)
 }
 
 func TestCreatorsUpdate(t *testing.T) {
@@ -359,15 +529,36 @@ func TestCreatorsUpdate(t *testing.T) {
 
 	tx0 := testutil.Tx(t)
 	const safeID = 1
-	const safeWriters = "ipggi"
+
+	before, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+
 	creators := model.Creators{}
 	got := creators.Update(t.Context(), tx0)
 	be.Err(t, got)
 
-	creators.ID = safeID
-	creators.Text = safeWriters
+	creators.ID = missingID
+	got = creators.Update(t.Context(), tx0)
+	be.True(t, errors.Is(got, sql.ErrNoRows))
+
+	creators = model.Creators{
+		ID:    safeID,
+		Text:  "ipggi",
+		Ill:   "rad man",
+		Prog:  "coder1",
+		Audio: "composer1",
+	}
 	got = creators.Update(t.Context(), tx0)
 	be.Err(t, got, nil)
+
+	after, err := model.OneFile(t.Context(), tx0, safeID)
+	be.Err(t, err, nil)
+	be.Equal(t, after.CreditText, null.StringFrom("ipggi"))
+	be.Equal(t, after.CreditIllustration, null.StringFrom("rad man"))
+	be.Equal(t, after.CreditProgram, null.StringFrom("coder1"))
+	be.Equal(t, after.CreditAudio, null.StringFrom("composer1"))
+	be.Equal(t, after.UUID, before.UUID)
+	be.Equal(t, after.Filename, before.Filename)
 }
 
 func TestUpdateMagic(t *testing.T) {
