@@ -26,6 +26,7 @@ import (
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
+	"github.com/Defacto2/server/model/fix"
 	"github.com/labstack/echo/v5"
 )
 
@@ -511,14 +512,8 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 	lookups = append(lookups, slug) // slug is the last lookup and must be present.
 
 	const maxResults = 14
-	var r model.Releasers
-	var err error
 	ctx := c.Request().Context()
-	if magazine {
-		err = r.SimilarMagazine(ctx, db, maxResults, lookups...)
-	} else {
-		err = r.Similar(ctx, db, maxResults, lookups...)
-	}
+	matches, err := fix.SuggestReleasers(ctx, db, magazine, maxResults, lookups...)
 	if err != nil {
 		sl.Error("model similar releasers lookup failure",
 			slog.String("lookups", strings.Join(lookups, ",")),
@@ -526,8 +521,21 @@ func datalist(sl *slog.Logger, c *echo.Context, db *sql.DB, input string, magazi
 		return c.String(http.StatusServiceUnavailable,
 			"cannot connect to the database")
 	}
-	if len(r) == 0 {
+	if len(matches) == 0 {
 		return c.HTML(http.StatusOK, "")
+	}
+
+	r := make(model.Releasers, len(matches))
+	for i, m := range matches {
+		r[i] = &struct {
+			Unique model.Releaser `boil:",bind"`
+		}{
+			Unique: model.Releaser{
+				Name:  m.Releaser,
+				URI:   helper.Slug(m.Releaser),
+				Count: m.Count,
+			},
+		}
 	}
 
 	err = c.Render(http.StatusOK, "datalistreleasers", map[string]any{

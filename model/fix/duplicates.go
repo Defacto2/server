@@ -109,6 +109,7 @@ func MergeReleaser(ctx context.Context, exec boil.ContextExecutor, from, to stri
 		return 0, fmt.Errorf(format, err)
 	}
 
+	InvalidateSuggestCache()
 	return nFor + nBy, nil
 }
 
