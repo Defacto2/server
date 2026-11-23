@@ -114,3 +114,12 @@ func TestConnections(t *testing.T) {
 	be.True(t, y > 0)
 	be.Equal(t, db.Stats().MaxOpenConnections, 25)
 }
+
+func TestScenerSQL(t *testing.T) {
+	clause, args := postgres.ScenerSQL("ace")
+	be.Equal(t, len(args), 2)
+	be.Equal(t, args[0], "ACE")
+	be.Equal(t, args[1], "ACE")
+	be.True(t, strings.Contains(clause, `LIKE '%,'||$2||',%' ESCAPE '\'`))
+	be.True(t, !strings.Contains(clause, `LIKE '%'||`))
+}

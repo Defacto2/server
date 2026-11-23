@@ -270,24 +270,25 @@ func MagazinesOldest() SQL {
 // This prevents SQL injection by separating the query structure from user input.
 func ScenerSQL(name string) (string, []any) {
 	n := strings.ToUpper(releaser.Humanize(name))
-	// Use $1 placeholders for parameterized queries (safe from injection)
+	escaped := escapeLike(n)
+	// $1 is the exact uppercase handle; $2 is LIKE-escaped for comma-delimited list matching.
 	exact := "(upper(credit_text) = $1)" +
 		" OR (upper(credit_program) = $1)" +
 		" OR (upper(credit_illustration) = $1)" +
 		" OR (upper(credit_audio) = $1)"
-	first := "(upper(credit_text) LIKE $1||',%')" +
-		" OR (upper(credit_program) LIKE $1||',%')" +
-		" OR (upper(credit_illustration) LIKE $1||',%')" +
-		" OR (upper(credit_audio) LIKE $1||',%')"
-	middle := "(upper(credit_text) LIKE '%'||$1||',%')" +
-		" OR (upper(credit_program) LIKE '%'||$1||',%')" +
-		" OR (upper(credit_illustration) LIKE '%'||$1||',%')" +
-		" OR (upper(credit_audio) LIKE '%'||$1||',%')"
-	last := "(upper(credit_text) LIKE '%,'||$1)" +
-		" OR (upper(credit_program) LIKE '%,'||$1)" +
-		" OR (upper(credit_illustration) LIKE '%,'||$1)" +
-		" OR (upper(credit_audio) LIKE '%,'||$1)"
-	return "(" + exact + ") OR (" + first + ") OR (" + middle + ") OR (" + last + ")", []any{n}
+	first := `(upper(credit_text) LIKE $2||',%' ESCAPE '\')` +
+		` OR (upper(credit_program) LIKE $2||',%' ESCAPE '\')` +
+		` OR (upper(credit_illustration) LIKE $2||',%' ESCAPE '\')` +
+		` OR (upper(credit_audio) LIKE $2||',%' ESCAPE '\')`
+	middle := `(upper(credit_text) LIKE '%,'||$2||',%' ESCAPE '\')` +
+		` OR (upper(credit_program) LIKE '%,'||$2||',%' ESCAPE '\')` +
+		` OR (upper(credit_illustration) LIKE '%,'||$2||',%' ESCAPE '\')` +
+		` OR (upper(credit_audio) LIKE '%,'||$2||',%' ESCAPE '\')`
+	last := `(upper(credit_text) LIKE '%,'||$2 ESCAPE '\')` +
+		` OR (upper(credit_program) LIKE '%,'||$2 ESCAPE '\')` +
+		` OR (upper(credit_illustration) LIKE '%,'||$2 ESCAPE '\')` +
+		` OR (upper(credit_audio) LIKE '%,'||$2 ESCAPE '\')`
+	return "(" + exact + ") OR (" + first + ") OR (" + middle + ") OR (" + last + ")", []any{n, escaped}
 }
 
 func Releasers() SQL {
