@@ -3,7 +3,6 @@ package remote
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log/slog"
 	"os"
@@ -68,9 +67,9 @@ func Pouet(prodID int, unid string, download dir.Directory, timeout time.Duratio
 
 // Download fetches the download link from Pouet and saves it to the download directory.
 // It then runs Update to modify the database record with various metadata from the file and Pouet record API data.
-func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
+func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const format = "%s for id %d: %w"
-	if err := nils.Check(ctx, sl, tx); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", got.PouetID, err)
 	}
 
@@ -97,7 +96,7 @@ func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, tx *sql.Tx)
 		return nil
 	}
 
-	if err := got.remoteDo(ctx, sl, tx); err != nil {
+	if err := got.remoteDo(ctx, sl, exec); err != nil {
 		return err
 	}
 
@@ -110,9 +109,9 @@ func (got *PouetLink) Download(ctx context.Context, sl *slog.Logger, tx *sql.Tx)
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
-func (got *PouetLink) Stat(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
+func (got *PouetLink) Stat(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const format = "demozoo link stat file and integrity %s: %w"
-	if err := nils.Check(ctx, sl, tx); err != nil {
+	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 
@@ -139,28 +138,23 @@ func (got *PouetLink) Stat(ctx context.Context, sl *slog.Logger, tx *sql.Tx) err
 	return nil
 }
 
-// Update modifies the database record using data provided by the DemozooLink struct.
-// A JSON response is returned with the success status of the update.
-func (got *PouetLink) Update(ctx context.Context, tx *sql.Tx) error {
+// Update modifies the database record using data provided by the PouetLink struct.
+func (got *PouetLink) Update(ctx context.Context, exec boil.ContextExecutor) error {
 	const format = "pouet link update %s uuid %s: %w"
 	uid := got.UUID
-	if err := nils.Check(ctx, tx); err != nil {
+	if err := nils.Check(ctx, exec); err != nil {
 		return fmt.Errorf(format, "check", uid, err)
 	}
 
-	f, err := model.OneByUUID(ctx, tx, true, uid)
+	f, err := model.OneByUUID(ctx, exec, true, uid)
 	if err != nil {
 		return fmt.Errorf(format, "one record by", uid, err)
 	}
 
 	got.updateValues(f)
 
-	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "infer", uid, err)
-	}
-
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf(format, "tx commit", uid, err)
 	}
 
 	return nil
@@ -228,7 +222,7 @@ func (got *PouetLink) log(sl *slog.Logger, s string, err error) {
 	sl.Info(got.msg+" "+s, args...)
 }
 
-func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, tx *sql.Tx) error {
+func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	got.Filename = filepath.Base(got.prod.Download)
 	if id, err := strconv.Atoi(got.prod.Demozoo); err == nil && id > 0 {
 		got.DemozooID = id
@@ -253,7 +247,7 @@ func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, tx *sql.Tx)
 	response, err := GetFile(ctx, sl, timeout, got.prod.Download)
 	if err != nil {
 		got.log(sl, "remote file issue: "+response.Path, err)
-		if err1 := got.Update(ctx, tx); err1 != nil {
+		if err1 := got.Update(ctx, exec); err1 != nil {
 			got.log(sl, "download update", err1)
 			return err1
 		}
@@ -274,7 +268,7 @@ func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, tx *sql.Tx)
 	} else {
 		got.FileSize = size
 	}
-	if err := got.Stat(ctx, sl, tx); err != nil {
+	if err := got.Stat(ctx, sl, exec); err != nil {
 		got.log(sl, "download stat", err)
 		return nil
 	}
@@ -286,7 +280,7 @@ func (got *PouetLink) remoteDo(ctx context.Context, sl *slog.Logger, tx *sql.Tx)
 		got.Content = strings.Join(files, "\n")
 	}
 
-	if err := got.Update(ctx, tx); err != nil {
+	if err := got.Update(ctx, exec); err != nil {
 		got.log(sl, "archive lists update", err)
 		return err
 	}

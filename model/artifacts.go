@@ -373,26 +373,29 @@ func OnlyUniqueIDs(
 }
 
 func onlyUniqueIDs(ids []int, uuids ...uuid.UUID) []qm.QueryMod {
-	mods := []qm.QueryMod{}
+	validIDs := make([]int64, 0, len(ids))
 	for id := range slices.Values(ids) {
-		if id < 1 {
-			continue
+		if id >= 1 {
+			validIDs = append(validIDs, int64(id))
 		}
-		if len(mods) == 0 {
-			mods = append(mods, qm.Where("id = ?", id))
-			continue
-		}
-		mods = append(mods, qm.Or("id = ?", id))
 	}
+	validUUIDs := make([]string, 0, len(uuids))
 	for u := range slices.Values(uuids) {
-		if u == uuid.Nil() {
-			continue
+		if u != uuid.Nil() {
+			validUUIDs = append(validUUIDs, u.String())
 		}
+	}
+
+	var mods []qm.QueryMod
+	if len(validIDs) > 0 {
+		mods = append(mods, models.FileWhere.ID.IN(validIDs))
+	}
+	if len(validUUIDs) > 0 {
 		if len(mods) == 0 {
-			mods = append(mods, qm.Where("uuid = ?", u.String()))
-			continue
+			mods = append(mods, models.FileWhere.UUID.IN(validUUIDs))
+		} else {
+			mods = append(mods, qm.Or2(models.FileWhere.UUID.IN(validUUIDs)))
 		}
-		mods = append(mods, qm.Or("uuid = ?", u.String()))
 	}
 	if len(mods) == 0 {
 		return nil

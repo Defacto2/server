@@ -207,15 +207,11 @@ func trainers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) e
 		return nil
 	}
 
-	mods = mods[:0]
+	ids := make([]int64, len(fs))
 	for i, f := range fs {
-		if i == 0 {
-			mods = append(mods, qm.Where("id = ?", f.ID))
-			continue
-		}
-		mods = append(mods, qm.Or("id = ?", f.ID))
+		ids[i] = f.ID
 	}
-	rowsAff, err := models.Files(mods...).UpdateAll(ctx, exec, models.M{"section": Trainer})
+	rowsAff, err := models.Files(models.FileWhere.ID.IN(ids)).UpdateAll(ctx, exec, models.M{"section": Trainer})
 	if err != nil {
 		return fmt.Errorf(format, "models files update all", err)
 	}

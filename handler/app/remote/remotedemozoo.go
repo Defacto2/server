@@ -3,7 +3,6 @@ package remote
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -82,10 +81,10 @@ func Demozoo(prodID int, unid string, download dir.Directory, timeout time.Durat
 //
 // It requires a zooAuth value to be set using echo context.
 func (got *DemozooLink) Download(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, forJSON bool,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, exec boil.ContextExecutor, forJSON bool,
 ) error {
 	const format = "%s for id %d: %w"
-	if err := nils.Check(ctx, sl, c, tx); err != nil {
+	if err := nils.Check(ctx, sl, c, exec); err != nil {
 		return fmt.Errorf(format, "check", 0, err)
 	}
 
@@ -108,7 +107,7 @@ func (got *DemozooLink) Download(
 		return fmt.Errorf(format, s, got.ID, ErrNoRecord)
 	}
 
-	if err := got.remoteDo(ctx, sl, c, tx); err != nil {
+	if err := got.remoteDo(ctx, sl, c, exec); err != nil {
 		return fmt.Errorf(format, "remote do", got.ID, err)
 	}
 
@@ -123,9 +122,9 @@ func (got *DemozooLink) Download(
 
 // Stat sets the file size, hash, type, and archive content of the file.
 // The UUID is used to locate the file in the download directory.
-func (got *DemozooLink) Stat(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+func (got *DemozooLink) Stat(ctx context.Context, sl *slog.Logger, c *echo.Context, exec boil.ContextExecutor) error {
 	const format = "demozoo link stat file and integrity %s: %w"
-	if err := nils.Check(ctx, sl, c, tx); err != nil {
+	if err := nils.Check(ctx, sl, c, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 
@@ -149,15 +148,15 @@ func (got *DemozooLink) Stat(ctx context.Context, sl *slog.Logger, c *echo.Conte
 		got.FileType = simple.MagicAsTitle(sl, name)
 	}
 
-	return got.ArchiveDo(ctx, sl, c, tx, name)
+	return got.ArchiveDo(ctx, sl, c, exec, name)
 }
 
 // ArchiveDo sets the archive content and readme text of the source file.
 func (got *DemozooLink) ArchiveDo(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx, src string,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, exec boil.ContextExecutor, src string,
 ) error {
 	const format = "archive do: %w"
-	if err := nils.Check(ctx, sl, c, tx); err != nil {
+	if err := nils.Check(ctx, sl, c, exec); err != nil {
 		return fmt.Errorf(format, err)
 	}
 
@@ -173,14 +172,14 @@ func (got *DemozooLink) ArchiveDo(
 
 // Update modifies the database record using data provided by the DemozooLink struct.
 // A JSON response is returned with the success status of the update.
-func (got *DemozooLink) Update(ctx context.Context, c *echo.Context, tx *sql.Tx) error {
+func (got *DemozooLink) Update(ctx context.Context, c *echo.Context, exec boil.ContextExecutor) error {
 	const format = "demozoo link update %s uuid %s: %w"
-	if err := nils.Check(ctx, c, tx); err != nil {
+	if err := nils.Check(ctx, c, exec); err != nil {
 		return fmt.Errorf(format, "check", "n/a", err)
 	}
 
 	uid := got.UUID
-	f, err := model.OneByUUID(ctx, tx, true, uid)
+	f, err := model.OneByUUID(ctx, exec, true, uid)
 	if err != nil {
 		return fmt.Errorf(format, "one record by", uid, err)
 	}
@@ -189,7 +188,7 @@ func (got *DemozooLink) Update(ctx context.Context, c *echo.Context, tx *sql.Tx)
 	got.setSceners(f)
 	got.setMisc(f)
 
-	if _, err = f.Update(ctx, tx, boil.Infer()); err != nil {
+	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
 		return fmt.Errorf(format, "infer", uid, err)
 	}
 
@@ -210,7 +209,7 @@ func (got *DemozooLink) log(sl *slog.Logger, s string, err error) {
 	sl.Info(got.msg+" "+s, args...)
 }
 
-func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx) error {
+func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.Context, exec boil.ContextExecutor) error {
 	// Originally we would return an error and abort the database record update if the download link
 	// could not be fetched. However, this happens too frequently with some of the more popular Scene
 	// websites. Sites such as scene.org frequently time out requests. So, as of 20-Jul-25, the
@@ -249,7 +248,7 @@ func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.C
 		response, err := got.remote(ctx, sl, i)
 		if err != nil {
 			got.log(sl, "download remote", err)
-			if err1 := got.Update(ctx, c, tx); err1 != nil {
+			if err1 := got.Update(ctx, c, exec); err1 != nil {
 				got.log(sl, "download update", err1)
 				return err1
 			}
@@ -273,10 +272,10 @@ func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.C
 		}
 
 		got.Error = ""
-		if err := got.Stat(ctx, sl, c, tx); err != nil {
+		if err := got.Stat(ctx, sl, c, exec); err != nil {
 			got.log(sl, "downloaded remote and stat", err)
 		}
-		if err := got.Update(ctx, c, tx); err != nil {
+		if err := got.Update(ctx, c, exec); err != nil {
 			got.log(sl, "downloaded remote update", err)
 			return err
 		}

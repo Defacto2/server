@@ -6,7 +6,6 @@ package htmx
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -247,9 +246,10 @@ func (prod Prod) submitHTML(c *echo.Context, prodID int, key int64) string {
 	return html
 }
 
-// fetchRemote runs a second transaction to fetch the linked download from the remote API.
-// Download server reliability can differ vastly from the API provider, so this runs asynchronously in production.
-// See Download in handler/app/internal/remote/remote.go.
+// fetchRemote fetches the linked download from the remote API and updates the database record.
+// Download server reliability can differ vastly from the API provider, so this runs asynchronously in production
+// without holding an open database transaction during the network download.
+// See Download in handler/app/remote/remotedemozoo.go and remotepouet.go.
 func (prod Prod) fetchRemote(
 	bgCtx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB,
 	prodID int, unid string, download dir.Directory,
@@ -259,31 +259,15 @@ func (prod Prod) fetchRemote(
 		sl.Error(msg, slog.String("problem", s), slog.Any("error", err))
 	}
 
-	bgTx, bErr := db.BeginTx(bgCtx, nil)
-	if bErr != nil {
-		logErr("cannot start background tx for fetch remote api", bErr)
-		return
-	}
-	defer func() {
-		rErr := bgTx.Rollback()
-		if rErr != nil && !errors.Is(rErr, sql.ErrTxDone) {
-			logErr("cannot fetch remote rollback", rErr)
-		}
-	}()
 	switch prod {
 	case Demozoo:
-		if err := app.GetDemozoo(bgCtx, sl, c, bgTx, prodID, unid, download); err != nil {
+		if err := app.GetDemozoo(bgCtx, sl, c, db, prodID, unid, download); err != nil {
 			logErr("cannot fetch remote demozoo api", err)
-			return
 		}
 	case Pouet:
-		if err := app.GetPouet(bgCtx, sl, bgTx, prodID, unid, download); err != nil {
+		if err := app.GetPouet(bgCtx, sl, db, prodID, unid, download); err != nil {
 			logErr("cannot fetch remote pouet api", err)
-			return
 		}
-	}
-	if cErr := bgTx.Commit(); cErr != nil {
-		logErr("cannot commit background tx for fetch remote api", cErr)
 	}
 }
 

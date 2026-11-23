@@ -1496,9 +1496,9 @@ func ForApproval(sl *slog.Logger, c *echo.Context, db *sql.DB, page string) erro
 // Both the Demozoo production ID param and the Defacto2 UUID query
 // param values are required as params to fetch the production data and
 // to save the file to the correct filename.
-func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.Directory) error {
+func GetDemozooParam(sl *slog.Logger, c *echo.Context, exec boil.ContextExecutor, download dir.Directory) error {
 	const format = "get demozoo param context: %w"
-	if err := nils.Check(sl, c, tx); err != nil {
+	if err := nils.Check(sl, c, exec); err != nil {
 		return fmt.Errorf(format, err)
 	}
 
@@ -1518,7 +1518,7 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 	got.UUID = unid
 
 	ctx := c.Request().Context()
-	return got.Download(ctx, sl, c, tx, true)
+	return got.Download(ctx, sl, c, exec, true)
 }
 
 // GetDemozoo fetches the download link from Demozoo and saves it to the download directory.
@@ -1526,11 +1526,11 @@ func GetDemozooParam(sl *slog.Logger, c *echo.Context, tx *sql.Tx, download dir.
 //
 // This function is a wrapper for the remote.DemozooLink.Download method.
 func GetDemozoo(
-	ctx context.Context, sl *slog.Logger, c *echo.Context, tx *sql.Tx,
+	ctx context.Context, sl *slog.Logger, c *echo.Context, exec boil.ContextExecutor,
 	prodID int, unid string, download dir.Directory,
 ) error {
 	got := remote.Demozoo(prodID, unid, download, 0)
-	return got.Download(ctx, sl, c, tx, false)
+	return got.Download(ctx, sl, c, exec, false)
 }
 
 // GetPouet fetches the download link from Pouet and saves it to the download directory.
@@ -1538,11 +1538,11 @@ func GetDemozoo(
 //
 // This function is a wrapper for the remote.PouetLink.Download method.
 func GetPouet(
-	ctx context.Context, sl *slog.Logger, tx *sql.Tx,
+	ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor,
 	prodID int, unid string, download dir.Directory,
 ) error {
 	got := remote.Pouet(prodID, unid, download, 0)
-	return got.Download(ctx, sl, tx)
+	return got.Download(ctx, sl, exec)
 }
 
 // GoogleCallback is the handler for the Google OAuth2 callback page to verify

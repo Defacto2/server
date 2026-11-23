@@ -582,9 +582,7 @@ func get(sl *slog.Logger, g *echo.Group, db *sql.DB, dirs app.Dirs) error {
 		})
 	g.GET("/get/demozoo/download/:unid/:id",
 		func(c *echo.Context) error {
-			return BeginTx(c, db, func(tx *sql.Tx) error {
-				return app.GetDemozooParam(sl, c, tx, dirs.Download)
-			})
+			return app.GetDemozooParam(sl, c, db, dirs.Download)
 		})
 	g.GET("/for-approval",
 		func(c *echo.Context) error {

@@ -61,9 +61,9 @@ func TestOnlyUniqueIDsQuery(t *testing.T) {
 	be.True(t, onlyUniqueIDs([]int{0, -1}, uuid.Nil()) == nil)
 
 	uid := uuid.MustParse("c8cd0b4c-2f54-11e0-8827-cc1607e15609")
-	mods := onlyUniqueIDs([]int{0, 42}, uuid.Nil(), uid)
+	mods := onlyUniqueIDs([]int{0, 42, 99}, uuid.Nil(), uid)
 	sql, args := queries.BuildQuery(models.Files(mods...).Query)
 
-	be.True(t, strings.Contains(sql, "WHERE (id = $1) OR (uuid = $2)"))
-	be.Equal(t, args, []any{42, uid.String()})
+	be.True(t, strings.Contains(sql, `WHERE ("files"."id" IN ($1,$2)) OR ("files"."uuid" IN ($3))`))
+	be.Equal(t, args, []any{int64(42), int64(99), uid.String()})
 }
