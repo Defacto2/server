@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/Defacto2/server/internal/tags"
 	"github.com/Defacto2/server/model"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"golang.org/x/sync/errgroup"
 )
 
 const StatsTTL = 10 * time.Minute // Stats time to live
@@ -53,67 +53,131 @@ type Stats struct {
 	Windows   model.Windows
 }
 
-// Get and store the database statistics for the artifacts categories.
+const categoryStatsSQL = `SELECT
+	COALESCE(BTRIM(section), ''),
+	COALESCE(BTRIM(platform), ''),
+	COUNT(*),
+	COALESCE(SUM(filesize), 0),
+	COALESCE(MIN(date_issued_year), 0),
+	COALESCE(MAX(date_issued_year), 0)
+FROM files
+WHERE deletedat IS NULL
+GROUP BY BTRIM(section), BTRIM(platform)`
+
+func addStat(bytes, count, minYear, maxYear *int, rowBytes, rowCount, rowMin, rowMax int) {
+	*bytes += rowBytes
+	*count += rowCount
+	if rowMin > 0 && (*minYear == 0 || rowMin < *minYear) {
+		*minYear = rowMin
+	}
+	if rowMax > *maxYear {
+		*maxYear = rowMax
+	}
+}
+
+// Get and store the database statistics for the artifacts categories in a single scan.
 func (s *Stats) Get(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
 	const format = "category get stats %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
-	const limit = 10 // max database connections
-	g.SetLimit(limit)
+	rows, err := exec.QueryContext(ctx, categoryStatsSQL)
+	if err != nil {
+		return fmt.Errorf(format, "query", err)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
 
-	// fetch record
-	g.Go(func() error {
-		if err := s.Record.Public(ctx, exec); err != nil {
-			return fmt.Errorf(format, "record", err)
+	uris := tags.URIs()
+	var (
+		sBBS     = uris[tags.BBS]
+		sDemo    = uris[tags.Demo]
+		sInstall = uris[tags.Install]
+		sIntro   = uris[tags.Intro]
+		sMag     = uris[tags.Mag]
+		sNfo     = uris[tags.Nfo]
+		sNfoTool = uris[tags.NfoTool]
+		sProof   = uris[tags.Proof]
+		pANSI    = uris[tags.ANSI]
+		pConsole = uris[tags.Console]
+		pDOS     = uris[tags.DOS]
+		pJava    = uris[tags.Java]
+		pLinux   = uris[tags.Linux]
+		pMac     = uris[tags.Mac]
+		pScript  = uris[tags.PHP]
+		pText    = uris[tags.Text]
+		pWindows = uris[tags.Windows]
+	)
+
+	for rows.Next() {
+		var sect, plat string
+		var cnt, sz, minY, maxY int
+		if err := rows.Scan(&sect, &plat, &cnt, &sz, &minY, &maxY); err != nil {
+			return fmt.Errorf(format, "scan", err)
 		}
-		return nil
-	})
 
-	// concurrent, individual category stats
-	stats := []struct {
-		name string
-		fn   func(context.Context, boil.ContextExecutor) error
-	}{
-		{"ansi", s.Ansi.Stat},
-		{"ansi bbs", s.AnsiBBS.Stat},
-		{"bbs", s.BBS.Stat},
-		{"bbs text", s.BBSText.Stat},
-		{"bbstro", s.BBStro.Stat},
-		{"console", s.Console.Stat},
-		{"ms-dos", s.MsDos.Stat},
-		{"intro", s.Intro.Stat},
-		{"intro ms-dos", s.IntroD.Stat},
-		{"intro windows", s.IntroW.Stat},
-		{"installer", s.Installer.Stat},
-		{"java", s.Java.Stat},
-		{"linux", s.Linux.Stat},
-		{"demoscene", s.Demoscene.Stat},
-		{"macos", s.Macos.Stat},
-		{"magazine", s.Magazine.Stat},
-		{"nfo", s.Nfo.Stat},
-		{"nfo tool", s.NfoTool.Stat},
-		{"proof", s.Proof.Stat},
-		{"script", s.Script.Stat},
-		{"text", s.Text.Stat},
-		{"windows", s.Windows.Stat},
-	}
+		addStat(&s.Record.Bytes, &s.Record.Count, &s.Record.MinYear, &s.Record.MaxYear, sz, cnt, minY, maxY)
 
-	for _, st := range stats {
-		g.Go(func() error {
-			if err := st.fn(ctx, exec); err != nil {
-				sl.Warn("category get stats failure",
-					slog.String("name", st.name), slog.Any("error", err))
+		switch sect {
+		case sBBS:
+			addStat(&s.BBS.Bytes, &s.BBS.Count, &s.BBS.MinYear, &s.BBS.MaxYear, sz, cnt, minY, maxY)
+			switch plat {
+			case pANSI:
+				addStat(&s.AnsiBBS.Bytes, &s.AnsiBBS.Count, &s.AnsiBBS.MinYear, &s.AnsiBBS.MaxYear, sz, cnt, minY, maxY)
+			case pText:
+				addStat(&s.BBSText.Bytes, &s.BBSText.Count, &s.BBSText.MinYear, &s.BBSText.MaxYear, sz, cnt, minY, maxY)
+			case pDOS:
+				addStat(&s.BBStro.Bytes, &s.BBStro.Count, &s.BBStro.MinYear, &s.BBStro.MaxYear, sz, cnt, minY, maxY)
 			}
-			return nil
-		})
-	}
+		case sDemo:
+			addStat(&s.Demoscene.Bytes, &s.Demoscene.Count, &s.Demoscene.MinYear, &s.Demoscene.MaxYear, sz, cnt, minY, maxY)
+		case sInstall:
+			addStat(&s.Installer.Bytes, &s.Installer.Count, &s.Installer.MinYear, &s.Installer.MaxYear, sz, cnt, minY, maxY)
+		case sIntro:
+			addStat(&s.Intro.Bytes, &s.Intro.Count, &s.Intro.MinYear, &s.Intro.MaxYear, sz, cnt, minY, maxY)
+			switch plat {
+			case pDOS:
+				addStat(&s.IntroD.Bytes, &s.IntroD.Count, &s.IntroD.MinYear, &s.IntroD.MaxYear, sz, cnt, minY, maxY)
+			case pWindows:
+				addStat(&s.IntroW.Bytes, &s.IntroW.Count, &s.IntroW.MinYear, &s.IntroW.MaxYear, sz, cnt, minY, maxY)
+			}
+		case sMag:
+			addStat(&s.Magazine.Bytes, &s.Magazine.Count, &s.Magazine.MinYear, &s.Magazine.MaxYear, sz, cnt, minY, maxY)
+		case sNfo:
+			addStat(&s.Nfo.Bytes, &s.Nfo.Count, &s.Nfo.MinYear, &s.Nfo.MaxYear, sz, cnt, minY, maxY)
+		case sNfoTool:
+			addStat(&s.NfoTool.Bytes, &s.NfoTool.Count, &s.NfoTool.MinYear, &s.NfoTool.MaxYear, sz, cnt, minY, maxY)
+		case sProof:
+			addStat(&s.Proof.Bytes, &s.Proof.Count, &s.Proof.MinYear, &s.Proof.MaxYear, sz, cnt, minY, maxY)
+		}
 
-	if err := g.Wait(); err != nil {
-		return fmt.Errorf(format, "wait", err)
+		switch plat {
+		case pANSI:
+			addStat(&s.Ansi.Bytes, &s.Ansi.Count, &s.Ansi.MinYear, &s.Ansi.MaxYear, sz, cnt, minY, maxY)
+		case pConsole:
+			addStat(&s.Console.Bytes, &s.Console.Count, &s.Console.MinYear, &s.Console.MaxYear, sz, cnt, minY, maxY)
+		case pDOS:
+			addStat(&s.MsDos.Bytes, &s.MsDos.Count, &s.MsDos.MinYear, &s.MsDos.MaxYear, sz, cnt, minY, maxY)
+		case pJava:
+			addStat(&s.Java.Bytes, &s.Java.Count, &s.Java.MinYear, &s.Java.MaxYear, sz, cnt, minY, maxY)
+		case pLinux:
+			addStat(&s.Linux.Bytes, &s.Linux.Count, &s.Linux.MinYear, &s.Linux.MaxYear, sz, cnt, minY, maxY)
+		case pMac:
+			addStat(&s.Macos.Bytes, &s.Macos.Count, &s.Macos.MinYear, &s.Macos.MaxYear, sz, cnt, minY, maxY)
+		case pScript:
+			addStat(&s.Script.Bytes, &s.Script.Count, &s.Script.MinYear, &s.Script.MaxYear, sz, cnt, minY, maxY)
+		case pText:
+			addStat(&s.Text.Bytes, &s.Text.Count, &s.Text.MinYear, &s.Text.MaxYear, sz, cnt, minY, maxY)
+		case pWindows:
+			addStat(&s.Windows.Bytes, &s.Windows.Count, &s.Windows.MinYear, &s.Windows.MaxYear, sz, cnt, minY, maxY)
+		}
 	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf(format, "rows", err)
+	}
+	s.Record.UpdatedAt = time.Now()
 
 	return nil
 }

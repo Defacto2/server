@@ -93,6 +93,23 @@ func TestCounter(t *testing.T) {
 	be.True(t, got.Record.Count > 0)
 	be.True(t, got.Record.MinYear >= model.EpochYear)
 	be.True(t, got.Record.MaxYear >= model.EpochYear)
+
+	// Cross-check single-scan results against individual category/platform queries
+	var ansi model.Ansi
+	be.Err(t, ansi.Stat(t.Context(), db), nil)
+	be.Equal(t, got.Ansi, ansi)
+
+	var ansiBBS model.AnsiBBS
+	be.Err(t, ansiBBS.Stat(t.Context(), db), nil)
+	be.Equal(t, got.AnsiBBS, ansiBBS)
+
+	var introD model.IntroMsDos
+	be.Err(t, introD.Stat(t.Context(), db), nil)
+	be.Equal(t, got.IntroD, introD)
+
+	var nfo model.Nfo
+	be.Err(t, nfo.Stat(t.Context(), db), nil)
+	be.Equal(t, got.Nfo, nfo)
 }
 
 func TestSorts(t *testing.T) {
