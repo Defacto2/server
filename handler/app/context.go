@@ -2875,6 +2875,47 @@ func Duplicates(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	return nil
 }
 
+// MergeDuplicate merges a duplicate releaser name into a canonical target name in a transaction.
+func MergeDuplicate(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
+	if err := nils.Check(sl, c, db); err != nil {
+		return fmt.Errorf("merge duplicate: %w", err)
+	}
+	from := c.FormValue("from")
+	to := c.FormValue("to")
+	if from == "" || to == "" || from == to {
+		return c.String(http.StatusBadRequest, "invalid merge parameters")
+	}
+
+	ctx := c.Request().Context()
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		sl.Error("merge duplicate begin tx", slog.Any("error", err))
+		return c.String(http.StatusServiceUnavailable, "database transaction failed")
+	}
+	defer func() {
+		if rErr := tx.Rollback(); rErr != nil && !errors.Is(rErr, sql.ErrTxDone) {
+			sl.Error("merge duplicate rollback", slog.Any("error", rErr))
+		}
+	}()
+
+	updated, err := fix.MergeReleaser(ctx, tx, from, to)
+	if err != nil {
+		sl.Error("merge duplicate update", slog.String("from", from), slog.String("to", to), slog.Any("error", err))
+		return c.String(http.StatusInternalServerError, "merge failed")
+	}
+	if err := tx.Commit(); err != nil {
+		sl.Error("merge duplicate commit", slog.Any("error", err))
+		return c.String(http.StatusServiceUnavailable, "database commit failed")
+	}
+
+	sl.Info("merged duplicate releaser", slog.String("from", from), slog.String("to", to), slog.Int64("updated", updated))
+	return c.HTML(http.StatusOK, fmt.Sprintf(
+		`<li class="list-group-item list-group-item-success py-2 px-3 small">`+
+			`Merged <code>%s</code> &rarr; <code>%s</code> (%d updated)</li>`,
+		template.HTMLEscapeString(from), template.HTMLEscapeString(to), updated,
+	))
+}
+
 var numericSuffixRegexes = []*regexp.Regexp{
 	regexp.MustCompile(` \([0-9]{1,3}\)`), // Pattern with space: " (123)"
 	regexp.MustCompile(`\([0-9]{1,3}\)`),  // Pattern without space: "(123)"

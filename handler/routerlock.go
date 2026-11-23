@@ -145,9 +145,13 @@ func fixers(sl *slog.Logger, g *echo.Group, db *sql.DB) {
 	dups := func(c *echo.Context) error {
 		return app.Duplicates(sl, c, db)
 	}
+	mergeDup := func(c *echo.Context) error {
+		return app.MergeDuplicate(sl, c, db)
+	}
 	g.GET("/fixers", fixers)
 	g.POST("/fixers/fix/:id", fixID)
 	g.GET("/duplicates", dups)
+	g.POST("/duplicates/merge", mergeDup)
 }
 
 func (serv *Server) configurations(sl *slog.Logger, g *echo.Group, db *sql.DB) error {

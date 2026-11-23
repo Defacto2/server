@@ -73,15 +73,39 @@
       </div>
     </div>
     <ul class="list-group list-group-flush">
-      {{- range .Entries }}
-      <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center gap-2 py-2 px-3">
-        <div class="text-truncate">
-          <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-medium" href="/g/{{.URI}}" target="_blank" rel="noopener">{{.Display}}</a>
-          <code class="d-block small text-body-secondary text-truncate">{{.Name}}</code>
+      {{- $primary := index .Entries 0 }}
+      {{- range $idx, $entry := .Entries }}
+      <li class="list-group-item bg-transparent py-2 px-3">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+          <div class="text-truncate" style="min-width: 0;">
+            <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-medium" href="/g/{{$entry.URI}}" target="_blank" rel="noopener">{{$entry.Display}}</a>
+            <code class="d-block small text-body-secondary text-truncate">{{$entry.Name}}</code>
+          </div>
+          <div class="d-flex align-items-center gap-1 flex-shrink-0">
+            <span class="badge {{if eq $entry.Count 1}}text-bg-warning{{else}}text-bg-secondary{{end}} rounded-pill">
+              {{$entry.Count}} {{if eq $entry.Count 1}}file{{else}}files{{end}}
+            </span>
+            {{- if gt $idx 0 }}
+            <form class="d-inline"
+                  hx-post="/editor/duplicates/merge"
+                  hx-target="closest .list-group-item"
+                  hx-swap="outerHTML"
+                  hx-disable="find button"
+                  hx-confirm="There is NO undo: merge &quot;{{$entry.RawName}}&quot; ({{$entry.Count}} {{if eq $entry.Count 1}}file{{else}}files{{end}}) into &quot;{{$primary.RawName}}&quot;?">
+              <input type="hidden" name="from" value="{{$entry.RawName}}">
+              <input type="hidden" name="to" value="{{$primary.RawName}}">
+              <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" title="Merge into {{$primary.RawName}}">Merge</button>
+            </form>
+            {{- end }}
+          </div>
         </div>
-        <span class="badge {{if eq .Count 1}}text-bg-warning{{else}}text-bg-secondary{{end}} rounded-pill flex-shrink-0">
-          {{.Count}} {{if eq .Count 1}}file{{else}}files{{end}}
-        </span>
+        {{- if $entry.Files }}
+        <div class="d-flex flex-wrap gap-1 mt-1">
+          {{- range $entry.Files }}
+          <a class="badge text-bg-success border text-decoration-none font-monospace fw-normal text-truncate" style="max-width: 100%;" href="/f/{{.ObfuscatedID}}" target="_blank" rel="noopener" title="{{.Filename}}">{{.Filename}}</a>
+          {{- end }}
+        </div>
+        {{- end }}
       </li>
       {{- end }}
     </ul>

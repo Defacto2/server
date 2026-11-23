@@ -3,6 +3,7 @@ package fix
 import (
 	"cmp"
 	"context"
+	"database/sql"
 	"fmt"
 	"slices"
 	"strings"
@@ -22,13 +23,21 @@ type ReleaserCount struct {
 	Count    int    `boil:"count_sum"`
 }
 
+// DupFile represents an individual artifact file belonging to a minor duplicate entry.
+type DupFile struct {
+	ObfuscatedID string
+	Filename     string
+}
+
 // DupEntry represents a single releaser candidate within a duplicate cluster.
 type DupEntry struct {
 	Name    string
+	RawName string
 	Display string
 	URI     string
 	Kind    string
 	Count   int
+	Files   []DupFile
 }
 
 // DupGroup represents a cluster of two or more potentially duplicate releaser names.
@@ -60,7 +69,142 @@ func Duplicates(ctx context.Context, exec boil.ContextExecutor) (*DupReport, err
 	if err := queries.Raw(string(postgres.AllReleasersCounts())).Bind(ctx, exec, &rows); err != nil {
 		return nil, fmt.Errorf("fix duplicates query: %w", err)
 	}
-	return AnalyzeDuplicates(rows), nil
+	report := AnalyzeDuplicates(rows)
+	if err := attachMinorFiles(ctx, exec, report); err != nil {
+		return nil, fmt.Errorf("fix duplicates files: %w", err)
+	}
+	return report, nil
+}
+
+// MergeReleaser renames all references of releaser "from" to "to" across group_brand_for
+// and group_brand_by, clearing group_brand_by if both columns become identical.
+func MergeReleaser(ctx context.Context, exec boil.ContextExecutor, from, to string) (int64, error) {
+	const format = "merge releaser: %w"
+	if err := nils.Check(ctx, exec); err != nil {
+		return 0, fmt.Errorf(format, err)
+	}
+	if from == "" || to == "" || from == to {
+		return 0, fmt.Errorf(format, ErrInvalidMerge)
+	}
+
+	resFor, err := queries.Raw(
+		"UPDATE files SET group_brand_for = $1 WHERE group_brand_for = $2", to, from,
+	).ExecContext(ctx, exec)
+	if err != nil {
+		return 0, fmt.Errorf(format, err)
+	}
+	nFor, _ := resFor.RowsAffected()
+
+	resBy, err := queries.Raw(
+		"UPDATE files SET group_brand_by = $1 WHERE group_brand_by = $2", to, from,
+	).ExecContext(ctx, exec)
+	if err != nil {
+		return 0, fmt.Errorf(format, err)
+	}
+	nBy, _ := resBy.RowsAffected()
+
+	if _, err := queries.Raw(
+		"UPDATE files SET group_brand_by = '' WHERE group_brand_for = group_brand_by AND group_brand_by <> ''",
+	).ExecContext(ctx, exec); err != nil {
+		return 0, fmt.Errorf(format, err)
+	}
+
+	return nFor + nBy, nil
+}
+
+// ErrInvalidMerge is returned when merge source or destination releaser names are invalid.
+var ErrInvalidMerge = fmt.Errorf("source and target releaser names must be non-empty and distinct")
+
+const maxMinorFiles = 10
+
+type dupFileRow struct {
+	ID            int64          `boil:"id"`
+	Filename      sql.NullString `boil:"filename"`
+	GroupBrandFor sql.NullString `boil:"group_brand_for"`
+	GroupBrandBy  sql.NullString `boil:"group_brand_by"`
+}
+
+// attachMinorFiles populates direct /f/:id links for any duplicate entry with <= maxMinorFiles files.
+func attachMinorFiles(ctx context.Context, exec boil.ContextExecutor, report *DupReport) error {
+	if report == nil {
+		return nil
+	}
+	tiers := [][]DupGroup{report.Tier1, report.Tier2, report.Tier3}
+	needed := make(map[string]struct{})
+	for _, groups := range tiers {
+		for _, g := range groups {
+			for _, e := range g.Entries {
+				if e.Count > 0 && e.Count <= maxMinorFiles && e.RawName != "" {
+					needed[e.RawName] = struct{}{}
+				}
+			}
+		}
+	}
+	if len(needed) == 0 {
+		return nil
+	}
+
+	placeholders := make([]string, 0, len(needed))
+	args := make([]any, 0, len(needed))
+	idx := 1
+	for name := range needed {
+		placeholders = append(placeholders, fmt.Sprintf("$%d", idx))
+		args = append(args, name)
+		idx++
+	}
+	inClause := strings.Join(placeholders, ",")
+	q := "SELECT id, filename, group_brand_for, group_brand_by FROM files " +
+		"WHERE deletedat IS NULL AND (group_brand_for IN (" + inClause + ") OR group_brand_by IN (" + inClause + ")) " +
+		"ORDER BY id ASC"
+
+	var fileRows []dupFileRow
+	if err := queries.Raw(q, args...).Bind(ctx, exec, &fileRows); err != nil {
+		return err
+	}
+
+	byName := make(map[string][]DupFile, len(needed))
+	addFile := func(name string, f DupFile) {
+		if _, ok := needed[name]; !ok {
+			return
+		}
+		if len(byName[name]) >= maxMinorFiles {
+			return
+		}
+		for _, existing := range byName[name] {
+			if existing.ObfuscatedID == f.ObfuscatedID {
+				return
+			}
+		}
+		byName[name] = append(byName[name], f)
+	}
+	for _, fr := range fileRows {
+		fname := strings.TrimSpace(fr.Filename.String)
+		if fname == "" {
+			fname = fmt.Sprintf("Record #%d", fr.ID)
+		}
+		df := DupFile{
+			ObfuscatedID: helper.ObfuscateID(fr.ID),
+			Filename:     fname,
+		}
+		if fr.GroupBrandFor.Valid {
+			addFile(fr.GroupBrandFor.String, df)
+		}
+		if fr.GroupBrandBy.Valid {
+			addFile(fr.GroupBrandBy.String, df)
+		}
+	}
+
+	for _, groups := range tiers {
+		for i := range groups {
+			for j := range groups[i].Entries {
+				e := &groups[i].Entries[j]
+				if files, ok := byName[e.RawName]; ok {
+					e.Files = files
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // AnalyzeDuplicates runs the 3-tier in-memory clustering pipeline on a slice of releaser counts.
@@ -99,6 +243,7 @@ func AnalyzeDuplicates(rows []ReleaserCount) *DupReport {
 		items = append(items, parsedItem{
 			entry: DupEntry{
 				Name:    rawLabel,
+				RawName: r.Releaser,
 				Display: disp,
 				URI:     uri,
 				Kind:    kind,
