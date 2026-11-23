@@ -1,7 +1,9 @@
+//nolint:exhaustruct_v5
 package model
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -17,6 +19,24 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 )
+
+// updateCols updates only the specified columns (plus updatedat) for f.ID in a single UPDATE query.
+func updateCols(ctx context.Context, exec boil.ContextExecutor, f *models.File, cols ...string) error {
+	if f.ID < startID {
+		return ErrBadIDInt
+	}
+	wl := make([]string, 0, len(cols)+1)
+	wl = append(wl, models.FileColumns.Updatedat)
+	wl = append(wl, cols...)
+	rowsAff, err := f.Update(ctx, exec, boil.Whitelist(wl...))
+	if err != nil {
+		return err
+	}
+	if rowsAff == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
 
 const (
 	auto        = "auto" // the auto value for the dosbox emulator
@@ -42,32 +62,36 @@ func (col BoolFrom) Update(ctx context.Context, exec boil.ContextExecutor, key i
 		return fmt.Errorf(format, "check", err)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "one file", err)
-	}
-
 	const yes, no = int16(1), int16(0)
 	i := yes
 	if val {
 		i = no
 	}
 
+	f := models.File{ID: key}
+	var colName string
 	switch col {
 	case EmulateUMB:
 		f.DoseeNoUmb = null.Int16From(i)
+		colName = models.FileColumns.DoseeNoUmb
 	case EmulateEMS:
 		f.DoseeNoEms = null.Int16From(i)
+		colName = models.FileColumns.DoseeNoEms
 	case EmulateXMS:
 		f.DoseeNoXMS = null.Int16From(i)
+		colName = models.FileColumns.DoseeNoXMS
 	case EmulateBroken:
 		f.DoseeIncompatible = null.Int16From(i)
+		colName = models.FileColumns.DoseeIncompatible
 	case ReadmeDisable:
 		f.RetrotxtNoReadme = null.Int16From(i)
+		colName = models.FileColumns.RetrotxtNoReadme
+	default:
+		return fmt.Errorf(format, col, ErrMethod)
 	}
 
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
-		return fmt.Errorf(format, "infer", err)
+	if err := updateCols(ctx, exec, &f, colName); err != nil {
+		return fmt.Errorf(format, "update", err)
 	}
 
 	return nil
@@ -80,15 +104,12 @@ func UpdateEmulateRunProgram(ctx context.Context, exec boil.ContextExecutor, key
 	}
 
 	s := strings.TrimSpace(strings.ToUpper(val))
-
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "one file", err)
+	f := models.File{
+		ID:              key,
+		DoseeRunProgram: null.StringFrom(s),
 	}
 
-	f.DoseeRunProgram = null.StringFrom(s)
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	if err := updateCols(ctx, exec, &f, models.FileColumns.DoseeRunProgram); err != nil {
 		return fmt.Errorf(format, s, err)
 	}
 
@@ -111,14 +132,12 @@ func UpdateEmulateMachine(ctx context.Context, exec boil.ContextExecutor, key in
 		return fmt.Errorf(format, val, ErrBadMachine)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "one file", err)
+	f := models.File{
+		ID:                   key,
+		DoseeHardwareGraphic: null.StringFrom(validate),
 	}
 
-	f.DoseeHardwareGraphic = null.StringFrom(validate)
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	if err := updateCols(ctx, exec, &f, models.FileColumns.DoseeHardwareGraphic); err != nil {
 		return fmt.Errorf(format, validate, err)
 	}
 
@@ -141,14 +160,12 @@ func UpdateEmulateCPU(ctx context.Context, exec boil.ContextExecutor, key int64,
 		return fmt.Errorf(format, val, ErrBadCPU)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "one file", err)
+	f := models.File{
+		ID:               key,
+		DoseeHardwareCPU: null.StringFrom(validate),
 	}
 
-	f.DoseeHardwareCPU = null.StringFrom(validate)
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	if err := updateCols(ctx, exec, &f, models.FileColumns.DoseeHardwareCPU); err != nil {
 		return fmt.Errorf(format, validate, err)
 	}
 
@@ -171,14 +188,12 @@ func UpdateEmulateSfx(ctx context.Context, exec boil.ContextExecutor, key int64,
 		return fmt.Errorf(format, val, ErrBadSFX)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "one file", err)
+	f := models.File{
+		ID:                 key,
+		DoseeHardwareAudio: null.StringFrom(validate),
 	}
 
-	f.DoseeHardwareAudio = null.StringFrom(validate)
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	if err := updateCols(ctx, exec, &f, models.FileColumns.DoseeHardwareAudio); err != nil {
 		return fmt.Errorf(format, validate, err)
 	}
 
@@ -203,11 +218,6 @@ func (col Int64From) Update(ctx context.Context, exec boil.ContextExecutor, key 
 		return fmt.Errorf(format, "check", err)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "one file", err)
-	}
-
 	if strings.TrimSpace(val) == "" {
 		val = "0"
 	}
@@ -216,22 +226,28 @@ func (col Int64From) Update(ctx context.Context, exec boil.ContextExecutor, key 
 		return fmt.Errorf(format, "parse int", err)
 	}
 
+	f := models.File{ID: key}
+	var colName string
 	var outOfRange bool
 	switch {
 	case n == 0 && col == Demozoo:
 		// remove demozoo entry
 		f.WebIDDemozoo = null.Int64FromPtr(nil)
+		colName = models.FileColumns.WebIDDemozoo
 	case n == 0 && col == Pouet:
 		// remove pouet entry
 		f.WebIDPouet = null.Int64FromPtr(nil)
+		colName = models.FileColumns.WebIDPouet
 	case col == Demozoo:
 		// update demozoo entry
 		outOfRange = n < 1 || n > demozoo.Sanity
 		f.WebIDDemozoo = null.Int64From(n)
+		colName = models.FileColumns.WebIDDemozoo
 	case col == Pouet:
 		// update pouet entry
 		outOfRange = n < 1 || n > pouet.Sanity
 		f.WebIDPouet = null.Int64From(n)
+		colName = models.FileColumns.WebIDPouet
 	default:
 		return fmt.Errorf(format, "parse", ErrMethod)
 	}
@@ -239,7 +255,7 @@ func (col Int64From) Update(ctx context.Context, exec boil.ContextExecutor, key 
 		return fmt.Errorf(format, "out of range", ErrBadID)
 	}
 
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	if err := updateCols(ctx, exec, &f, colName); err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 
@@ -278,25 +294,22 @@ func (sf StringFrom) Update(ctx context.Context, exec boil.ContextExecutor, key 
 		return fmt.Errorf(format, "check", err)
 	}
 
-	f, err := OneFile(ctx, exec, key)
+	f := models.File{ID: key}
+	colName, err := sf.cases(&f, val)
 	if err != nil {
-		return fmt.Errorf(format, "one file", err)
-	}
-
-	if err = sf.cases(f, val); err != nil {
 		return fmt.Errorf(format, "cases", err)
 	}
 
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	if err := updateCols(ctx, exec, &f, colName); err != nil {
 		return fmt.Errorf(format, val, err)
 	}
 
 	return nil
 }
 
-func (sf StringFrom) cases(f *models.File, val string) error { //nolint:cyclop
+func (sf StringFrom) cases(f *models.File, val string) (string, error) { //nolint:cyclop
 	if err := nils.Check(f); err != nil {
-		return fmt.Errorf("check: %w", err)
+		return "", fmt.Errorf("check: %w", err)
 	}
 
 	// strings must be sanitized otherwise there is a possibility of invalid
@@ -306,45 +319,61 @@ func (sf StringFrom) cases(f *models.File, val string) error { //nolint:cyclop
 	switch sf {
 	case Colors16:
 		f.WebID16colors = s
+		return models.FileColumns.WebID16colors, nil
 	case Comment:
 		f.Comment = s
+		return models.FileColumns.Comment, nil
 	case CreatorAudio:
 		f.CreditAudio = s
+		return models.FileColumns.CreditAudio, nil
 	case CreatorIll:
 		f.CreditIllustration = s
+		return models.FileColumns.CreditIllustration, nil
 	case CreatorProg:
 		f.CreditProgram = s
+		return models.FileColumns.CreditProgram, nil
 	case CreatorText:
 		f.CreditText = s
+		return models.FileColumns.CreditText, nil
 	case Filename:
 		f.Filename = s
+		return models.FileColumns.Filename, nil
 	case GitHub:
 		f.WebIDGithub = s
+		return models.FileColumns.WebIDGithub, nil
 	case Integrity:
 		f.FileIntegrityStrong = s
+		return models.FileColumns.FileIntegrityStrong, nil
 	case Magic:
 		f.FileMagicType = s
+		return models.FileColumns.FileMagicType, nil
 	case Platform:
 		f.Platform = s
+		return models.FileColumns.Platform, nil
 	case Relations:
 		f.ListRelations = s
+		return models.FileColumns.ListRelations, nil
 	case Section:
 		f.Section = s
+		return models.FileColumns.Section, nil
 	case Sites:
 		f.ListLinks = s
+		return models.FileColumns.ListLinks, nil
 	case Title:
 		f.RecordTitle = s
+		return models.FileColumns.RecordTitle, nil
 	case VirusTotal:
 		f.FileSecurityAlertURL = s
+		return models.FileColumns.FileSecurityAlertURL, nil
 	case YouTube:
 		f.WebIDYoutube = s
+		return models.FileColumns.WebIDYoutube, nil
 	case ZipContent:
 		f.FileZipContent = s
+		return models.FileColumns.FileZipContent, nil
 	default:
-		return ErrMethod
+		return "", ErrMethod
 	}
-
-	return nil
 }
 
 type Creators struct {
@@ -362,17 +391,21 @@ func (c Creators) Update(ctx context.Context, exec boil.ContextExecutor) error {
 		return fmt.Errorf(format, "check", err)
 	}
 
-	f, err := OneFile(ctx, exec, c.ID)
-	if err != nil {
-		return fmt.Errorf(format, "find file", err)
+	f := models.File{
+		ID:                 c.ID,
+		CreditText:         null.StringFrom(c.Text),
+		CreditIllustration: null.StringFrom(c.Ill),
+		CreditProgram:      null.StringFrom(c.Prog),
+		CreditAudio:        null.StringFrom(c.Audio),
 	}
 
-	f.CreditText = null.StringFrom(c.Text)
-	f.CreditIllustration = null.StringFrom(c.Ill)
-	f.CreditProgram = null.StringFrom(c.Prog)
-	f.CreditAudio = null.StringFrom(c.Audio)
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	err := updateCols(ctx, exec, &f,
+		models.FileColumns.CreditText,
+		models.FileColumns.CreditIllustration,
+		models.FileColumns.CreditProgram,
+		models.FileColumns.CreditAudio,
+	)
+	if err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 
@@ -397,26 +430,33 @@ func (link Links) Update(ctx context.Context, exec boil.ContextExecutor) error {
 		return fmt.Errorf(format, "check", err)
 	}
 
-	f, err := OneFile(ctx, exec, link.ID)
-	if err != nil {
-		return fmt.Errorf(format, "find file", err)
+	f := models.File{
+		ID:            link.ID,
+		WebIDYoutube:  null.StringFrom(link.YouTube),
+		WebID16colors: null.StringFrom(link.Colors16),
+		WebIDGithub:   null.StringFrom(link.GitHub),
+		ListRelations: null.StringFrom(link.Relations),
+		ListLinks:     null.StringFrom(link.Sites),
+		WebIDDemozoo:  null.Int64FromPtr(nil),
+		WebIDPouet:    null.Int64FromPtr(nil),
 	}
-
-	f.WebIDYoutube = null.StringFrom(link.YouTube)
-	f.WebID16colors = null.StringFrom(link.Colors16)
-	f.WebIDGithub = null.StringFrom(link.GitHub)
-	f.ListRelations = null.StringFrom(link.Relations)
-	f.ListLinks = null.StringFrom(link.Sites)
-	f.WebIDDemozoo = null.Int64FromPtr(nil)
 	if link.Demozoo > 0 {
 		f.WebIDDemozoo = null.Int64From(link.Demozoo)
 	}
-	f.WebIDPouet = null.Int64FromPtr(nil)
 	if link.Pouet > 0 {
 		f.WebIDPouet = null.Int64From(link.Pouet)
 	}
 
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	err := updateCols(ctx, exec, &f,
+		models.FileColumns.WebIDYoutube,
+		models.FileColumns.WebID16colors,
+		models.FileColumns.WebIDGithub,
+		models.FileColumns.ListRelations,
+		models.FileColumns.ListLinks,
+		models.FileColumns.WebIDDemozoo,
+		models.FileColumns.WebIDPouet,
+	)
+	if err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 
@@ -453,15 +493,17 @@ func (cl Classification) Update(ctx context.Context, exec boil.ContextExecutor) 
 		return fmt.Errorf(format, cl.Tag, tags.ErrTag)
 	}
 
-	f, err := OneFile(ctx, exec, cl.ID)
-	if err != nil {
-		return fmt.Errorf(format, "find file", err)
+	f := models.File{
+		ID:       cl.ID,
+		Platform: null.StringFrom(p.String()),
+		Section:  null.StringFrom(t.String()),
 	}
 
-	f.Platform = null.StringFrom(p.String())
-	f.Section = null.StringFrom(t.String())
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	err := updateCols(ctx, exec, &f,
+		models.FileColumns.Platform,
+		models.FileColumns.Section,
+	)
+	if err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 
@@ -475,11 +517,7 @@ func UpdateOnline(ctx context.Context, exec boil.ContextExecutor, status bool, k
 		return fmt.Errorf(format, " check", err)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "find file", err)
-	}
-
+	f := models.File{ID: key}
 	switch status {
 	case true:
 		f.Deletedat = null.TimeFromPtr(nil)
@@ -490,7 +528,11 @@ func UpdateOnline(ctx context.Context, exec boil.ContextExecutor, status bool, k
 		f.Deletedby = null.StringFrom(strings.ToLower(uidPlaceholder))
 	}
 
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	err := updateCols(ctx, exec, &f,
+		models.FileColumns.Deletedat,
+		models.FileColumns.Deletedby,
+	)
+	if err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
 
@@ -514,10 +556,6 @@ func UpdateReleasers(ctx context.Context, exec boil.ContextExecutor, key int64, 
 	if key < 1 {
 		return fmt.Errorf(format, "key check", ErrBadIDInt)
 	}
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "find file", err)
-	}
 
 	bx := strings.TrimSpace(relFor)
 	cx := releaser.Cell(bx)
@@ -525,6 +563,7 @@ func UpdateReleasers(ctx context.Context, exec boil.ContextExecutor, key int64, 
 	by := strings.TrimSpace(relBy)
 	cy := releaser.Cell(by)
 
+	f := models.File{ID: key}
 	switch {
 	case cx != "" && cy != "": // set both
 		f.GroupBrandFor = null.StringFrom(cx)
@@ -539,7 +578,11 @@ func UpdateReleasers(ctx context.Context, exec boil.ContextExecutor, key int64, 
 		return fmt.Errorf(format, "", ErrBadRel)
 	}
 
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	err := updateCols(ctx, exec, &f,
+		models.FileColumns.GroupBrandFor,
+		models.FileColumns.GroupBrandBy,
+	)
+	if err != nil {
 		return fmt.Errorf(format, strings.ToLower("for, "+cx+"by, "+cy), err)
 	}
 
@@ -572,16 +615,19 @@ func UpdateYMD(ctx context.Context, exec boil.ContextExecutor, key int64, y, m, 
 		return fmt.Errorf(formatd, "d", d.Int16, ErrBadDDay)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "one file "+id, err)
+	f := models.File{
+		ID:              key,
+		DateIssuedYear:  y,
+		DateIssuedMonth: m,
+		DateIssuedDay:   d,
 	}
 
-	f.DateIssuedYear = y
-	f.DateIssuedMonth = m
-	f.DateIssuedDay = d
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	err := updateCols(ctx, exec, &f,
+		models.FileColumns.DateIssuedYear,
+		models.FileColumns.DateIssuedMonth,
+		models.FileColumns.DateIssuedDay,
+	)
+	if err != nil {
 		return fmt.Errorf(format, "update "+id, err)
 	}
 
@@ -598,17 +644,20 @@ func UpdateYMDS(ctx context.Context, exec boil.ContextExecutor, key int64, y, m,
 		return fmt.Errorf(format, "check", err)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "find file", err)
+	year, month, day := ValidDateIssue(y, m, d)
+	f := models.File{
+		ID:              key,
+		DateIssuedYear:  year,
+		DateIssuedMonth: month,
+		DateIssuedDay:   day,
 	}
 
-	year, month, day := ValidDateIssue(y, m, d)
-	f.DateIssuedYear = year
-	f.DateIssuedMonth = month
-	f.DateIssuedDay = day
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	err := updateCols(ctx, exec, &f,
+		models.FileColumns.DateIssuedYear,
+		models.FileColumns.DateIssuedMonth,
+		models.FileColumns.DateIssuedDay,
+	)
+	if err != nil {
 		const format = "update date issued (%s-%s-%s): %w"
 		return fmt.Errorf(format, y, m, d, err)
 	}
@@ -627,14 +676,12 @@ func UpdateMagic(ctx context.Context, exec boil.ContextExecutor, key int64, magi
 		return fmt.Errorf(format, "", key, ErrBadIDInt)
 	}
 
-	f, err := OneFile(ctx, exec, key)
-	if err != nil {
-		return fmt.Errorf(format, "find file", key, err)
+	f := models.File{
+		ID:            key,
+		FileMagicType: null.StringFrom(magic),
 	}
 
-	f.FileMagicType = null.StringFrom(magic)
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
+	if err := updateCols(ctx, exec, &f, models.FileColumns.FileMagicType); err != nil {
 		return fmt.Errorf(format, "update", key, err)
 	}
 
@@ -666,29 +713,35 @@ func (fu FileUpload) Update(ctx context.Context, exec boil.ContextExecutor) erro
 		return fmt.Errorf(format, "id value "+id, ErrBadIDInt)
 	}
 
-	f, err := OneFile(ctx, exec, fu.ID)
-	if err != nil {
-		return fmt.Errorf(format, "one file "+id, err)
+	f := models.File{
+		ID:               fu.ID,
+		Filesize:         null.Int64From(fu.Filesize),
+		FileLastModified: null.TimeFrom(fu.LastMod),
 	}
 
-	if err = Filename.cases(f, fu.Filename); err != nil {
+	if _, err := Filename.cases(&f, fu.Filename); err != nil {
 		return fmt.Errorf(format, "filename", err)
 	}
-	if err = Integrity.cases(f, fu.Integrity); err != nil {
+	if _, err := Integrity.cases(&f, fu.Integrity); err != nil {
 		return fmt.Errorf(format, "integrity", err)
 	}
-	if err = Magic.cases(f, fu.MagicNumber); err != nil {
+	if _, err := Magic.cases(&f, fu.MagicNumber); err != nil {
 		return fmt.Errorf(format, "magic number", err)
 	}
-	if err = ZipContent.cases(f, fu.Content); err != nil {
+	if _, err := ZipContent.cases(&f, fu.Content); err != nil {
 		return fmt.Errorf(format, "zip content", err)
 	}
 
-	f.Filesize = null.Int64From(fu.Filesize)
-	f.FileLastModified = null.TimeFrom(fu.LastMod)
-
-	if _, err = f.Update(ctx, exec, boil.Infer()); err != nil {
-		return fmt.Errorf(format, "infer update record "+id, err)
+	err := updateCols(ctx, exec, &f,
+		models.FileColumns.Filename,
+		models.FileColumns.FileIntegrityStrong,
+		models.FileColumns.FileMagicType,
+		models.FileColumns.FileZipContent,
+		models.FileColumns.Filesize,
+		models.FileColumns.FileLastModified,
+	)
+	if err != nil {
+		return fmt.Errorf(format, "update record "+id, err)
 	}
 
 	return nil
