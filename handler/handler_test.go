@@ -3,10 +3,12 @@ package handler_test
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/handler"
@@ -162,4 +164,37 @@ func TestRouteFS(t *testing.T) {
 	rec = httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 	be.Equal(t, rec.Code, http.StatusOK)
+}
+
+func TestIndexRender(t *testing.T) {
+	t.Parallel()
+
+	fsys := testutil.ProjectFS(t)
+	db, err := sql.Open("pgx", "")
+	be.Err(t, err, nil)
+	t.Cleanup(func() {
+		_ = db.Close()
+	})
+
+	h := handler.Server{
+		Environment: config.Config{
+			ReadOnly: true,
+			Quiet:    true,
+		},
+		Public: fsys,
+		View:   fsys,
+	}
+
+	e := h.Handler(t.Context(), logs.Discard(), db)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	be.Equal(t, rec.Code, http.StatusOK)
+	body := rec.Body.String()
+	be.Equal(t, strings.Count(body, `id="milestoneModal"`), 1)
+	be.Equal(t, strings.Count(body, `id=""`), 0)
+	be.True(t, strings.Contains(body, `<meta property="og:description"`))
+	be.True(t, strings.Contains(body, `/js/index.min.js`))
+	be.True(t, !strings.Contains(body, `<style scoped>`))
 }
