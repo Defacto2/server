@@ -4,242 +4,389 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
+	"io"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
-	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/dir"
+	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 )
 
-// Checks runs a number of sanity checks for the environment variable configurations.
-func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
-	const msg = "Config directory"
+type checkStatus int
+
+const (
+	statusOK checkStatus = iota
+	statusSkip
+	statusWarn
+	statusFail
+)
+
+type checkItem struct {
+	status checkStatus
+	name   string
+	detail string
+}
+
+type checkGroup struct {
+	title string
+	items []checkItem
+}
+
+// Checks runs sanity checks for the environment variable configurations
+// and writes a grouped report to w. Returns ErrCheckFailed if any check fails.
+func (c *Config) Checks(ctx context.Context, w io.Writer) error {
 	const format = "config checks %s: %w"
-	if err := nils.Check(ctx, sl); err != nil {
+	if err := nils.Check(ctx); err != nil {
 		return fmt.Errorf(format, "arguments", err)
 	}
-
-	var issues int
-	if !c.checkHTTP(ctx, sl) {
-		issues++
-	}
-	if !c.checkHTTPS(ctx, sl) {
-		issues++
+	if w == nil {
+		w = os.Stdout
 	}
 
-	c.production(sl)
-
-	const key = "check"
-	// Check the download, preview and thumbnail directories.
-	if err := CheckDir(dir.Directory(c.AbsDownload), "downloads"); err != nil {
-		s := helper.Capitalize(err.Error())
-		sl.Error(msg, slog.String(key, s))
-		issues++
-	}
-	if err := CheckDir(dir.Directory(c.AbsPreview), "previews"); err != nil {
-		s := helper.Capitalize(err.Error())
-		sl.Error(msg, slog.String(key, s))
-		issues++
-	}
-	if err := CheckDir(dir.Directory(c.AbsThumbnail), "thumbnails"); err != nil {
-		s := helper.Capitalize(err.Error())
-		sl.Error(msg, slog.String(key, s))
-		issues++
-	}
-	if err := CheckDir(dir.Directory(c.AbsOrphaned), "orphaned"); err != nil {
-		s := helper.Capitalize(err.Error())
-		sl.Error(msg, slog.String(key, s))
-		issues++
-	}
-	if err := CheckDir(dir.Directory(c.AbsExtra), "extra"); err != nil {
-		s := helper.Capitalize(err.Error())
-		sl.Error(msg, slog.String(key, s))
-		issues++
+	color := logs.Color(w)
+	style := func(code, s string) string {
+		if !color || s == "" {
+			return s
+		}
+		return code + s + ansiReset
 	}
 
-	// configuration reminders
-	inf := "Information"
-	if c.NoCrawl {
-		s := "Disallow search engine crawling is enabled"
-		sl.Warn(inf, slog.String(key, s))
-	}
-	if c.ReadOnly {
-		s := "The server is running in read-only mode, edits to the database are not allowed"
-		sl.Warn(inf, slog.String(key, s))
+	groups := []checkGroup{
+		c.checkDirs(),
+		c.checkNetwork(),
+		c.checkDatabase(),
+		c.checkModeAuth(),
+		c.checkTools(ctx),
 	}
 
-	if err := c.checkLogDir(sl); err != nil {
-		s := helper.Capitalize(err.Error())
-		sl.Error(msg, slog.String(key, s))
-		issues++
+	var failed, warned int
+	_, _ = fmt.Fprintln(w, style(ansiBold, "Web Server Configuration Checks"))
+
+	for _, group := range groups {
+		_, _ = fmt.Fprintln(w)
+		_, _ = fmt.Fprintln(w, style(ansiBold, group.title))
+		for _, item := range group.items {
+			var badge string
+			switch item.status {
+			case statusOK:
+				badge = style(ansiGreen, "OK  ")
+			case statusSkip:
+				badge = style(ansiDim, "SKIP")
+			case statusWarn:
+				warned++
+				badge = style(ansiYellow, "WARN")
+			case statusFail:
+				failed++
+				badge = style(ansiBoldRed, "FAIL")
+			}
+
+			name := fmt.Sprintf("%-*s", colWidth, item.name)
+			detail := item.detail
+			if item.status == statusSkip {
+				detail = style(ansiDim, detail)
+			}
+			_, _ = fmt.Fprintf(w, "  %s  %s %s\n", badge, style(ansiCyan, name), detail)
+		}
 	}
 
-	c.commands(ctx, sl)
+	_, _ = fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w, formatCheckSummary(failed, warned, style))
 
-	conn, err := postgres.New()
-	if err != nil {
-		sl.Error("Database",
-			slog.String("issue", "sanity checks could not initialize the database data"),
-			slog.Any("error", err))
-		issues++
-	} else if err := conn.Validate(sl); err != nil {
-		panic(fmt.Errorf(format, "conn validate", err))
-	}
-
-	if issues > 0 {
-		return fmt.Errorf("%w (%d found)", ErrCheckFailed, issues)
+	if failed > 0 {
+		return fmt.Errorf("%w (%d found)", ErrCheckFailed, failed)
 	}
 	return nil
 }
 
-// commands is used to confirm the required commands are available.
-// These are skipped if readonly is true.
-func (c *Config) commands(ctx context.Context, sl *slog.Logger) {
-	const msg = "command checks"
-	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
+func formatCheckSummary(failed, warned int, style func(string, string) string) string {
+	var parts []string
+	if failed > 0 {
+		parts = append(parts, fmt.Sprintf("%d failed", failed))
 	}
-	if c.ReadOnly.Bool() {
-		return
+	if warned > 0 {
+		label := "warnings"
+		if warned == 1 {
+			label = "warning"
+		}
+		parts = append(parts, fmt.Sprintf("%d %s", warned, label))
 	}
 
-	attrs := make([]slog.Attr, 0, len(command.Lookups))
+	switch {
+	case failed > 0:
+		return style(ansiBoldRed, "Result: "+strings.Join(parts, ", "))
+	case warned > 0:
+		return style(ansiYellow, "Result: all checks passed ("+strings.Join(parts, ", ")+")")
+	default:
+		return style(ansiGreen, "Result: all checks passed")
+	}
+}
+
+func (c *Config) checkDirs() checkGroup {
+	items := []checkItem{
+		checkAssetDir("D2_DIR_DOWNLOAD", Directory(c.AbsDownload)),
+		checkAssetDir("D2_DIR_PREVIEW", Directory(c.AbsPreview)),
+		checkAssetDir("D2_DIR_THUMBNAIL", Directory(c.AbsThumbnail)),
+		checkAssetDir("D2_DIR_EXTRA", Directory(c.AbsExtra)),
+		checkAssetDir("D2_DIR_ORPHANED", Directory(c.AbsOrphaned)),
+		c.checkLogDirItem(),
+	}
+	return checkGroup{title: "DIRECTORIES", items: items}
+}
+
+func checkAssetDir(env string, d Directory) checkItem {
+	if d == "" {
+		return checkItem{status: statusFail, name: env, detail: "not configured"}
+	}
+	if issue := d.Issue(); issue != "" {
+		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s — %s", d, issue)}
+	}
+	return checkItem{status: statusOK, name: env, detail: d.String()}
+}
+
+func (c *Config) checkLogDirItem() checkItem {
+	const env = "D2_DIR_LOG"
+	if c.AbsLog == "" {
+		return checkItem{status: statusSkip, name: env, detail: "not set — file logging disabled"}
+	}
+	if err := c.checkLogDir(); err != nil {
+		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s — %v", c.AbsLog, err)}
+	}
+	return checkItem{status: statusOK, name: env, detail: fmt.Sprintf("%s (writable)", c.AbsLog)}
+}
+
+func (c *Config) checkNetwork() checkGroup {
+	items := []checkItem{
+		checkPort("D2_HTTP_PORT", Port(c.HTTPPort)),
+		checkPort("D2_TLS_PORT", Port(c.TLSPort)),
+		checkTLSFile("D2_TLS_CERT", File(c.TLSCert), c.TLSKey != "", "D2_TLS_KEY"),
+		checkTLSFile("D2_TLS_KEY", File(c.TLSKey), c.TLSCert != "", "D2_TLS_CERT"),
+	}
+	return checkGroup{title: "NETWORK & TLS", items: items}
+}
+
+func checkPort(env string, p Port) checkItem {
+	if p == 0 {
+		return checkItem{status: statusSkip, name: env, detail: "disabled (0)"}
+	}
+	portStr := strconv.FormatUint(uint64(p), 10)
+	if err := p.Check(); err != nil {
+		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s — %v", portStr, err)}
+	}
+	return checkItem{status: statusOK, name: env, detail: portStr}
+}
+
+func checkTLSFile(env string, f File, pairSet bool, pairEnv string) checkItem {
+	if f == "" {
+		if pairSet {
+			return checkItem{status: statusFail, name: env, detail: "not set — required when " + pairEnv + " is set"}
+		}
+		return checkItem{status: statusSkip, name: env, detail: "not set"}
+	}
+	if issue := f.Issue(); issue != "" {
+		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s — %s", f, issue)}
+	}
+	return checkItem{status: statusOK, name: env, detail: f.String()}
+}
+
+func (c *Config) checkDatabase() checkGroup {
+	const env = "D2_DATABASE_URL"
+	rawURL := string(c.DatabaseURL)
+	if rawURL == "" {
+		return checkGroup{
+			title: "DATABASE",
+			items: []checkItem{{status: statusWarn, name: env, detail: "not set"}},
+		}
+	}
+
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		// Never include err.Error(), as url.Parse echoes the raw URL including credentials.
+		return checkGroup{
+			title: "DATABASE",
+			items: []checkItem{{status: statusWarn, name: env, detail: mask + " — database connection URL is invalid"}},
+		}
+	}
+	if u.Scheme != postgres.Protocol && u.Scheme != "postgresql" {
+		detail := fmt.Sprintf("%s — unexpected scheme %q (expected postgres or postgresql)",
+			c.DatabaseURL.String(), u.Scheme)
+		return checkGroup{
+			title: "DATABASE",
+			items: []checkItem{{status: statusWarn, name: env, detail: detail}},
+		}
+	}
+
+	return checkGroup{
+		title: "DATABASE",
+		items: []checkItem{{status: statusOK, name: env, detail: c.DatabaseURL.String()}},
+	}
+}
+
+func (c *Config) checkModeAuth() checkGroup {
+	items := []checkItem{
+		{status: statusOK, name: "D2_PROD_MODE", detail: boolLabel(c.ProdMode)},
+	}
+
+	if c.ReadOnly.Bool() {
+		items = append(items, checkItem{
+			status: statusWarn,
+			name:   "D2_READ_ONLY",
+			detail: "on — edits to the database are not allowed",
+		})
+	} else {
+		items = append(items, checkItem{
+			status: statusOK,
+			name:   "D2_READ_ONLY",
+			detail: "off — write mode enabled",
+		})
+	}
+
+	if c.NoCrawl.Bool() {
+		items = append(items, checkItem{
+			status: statusWarn,
+			name:   "D2_NO_CRAWL",
+			detail: "on — search engine crawling is disabled",
+		})
+	} else {
+		items = append(items, checkItem{
+			status: statusOK,
+			name:   "D2_NO_CRAWL",
+			detail: "off",
+		})
+	}
+
+	// Production write-mode auth requirements.
+	if c.ProdMode.Bool() && !c.ReadOnly.Bool() {
+		if c.GoogleClientID == "" {
+			items = append(items, checkItem{
+				status: statusWarn,
+				name:   "D2_GOOGLE_CLIENT_ID",
+				detail: "not set — required for admin sign-in",
+			})
+		} else {
+			items = append(items, checkItem{
+				status: statusOK,
+				name:   "D2_GOOGLE_CLIENT_ID",
+				detail: mask,
+			})
+		}
+
+		if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
+			items = append(items, checkItem{
+				status: statusWarn,
+				name:   "D2_GOOGLE_IDS",
+				detail: "not set — no admin accounts configured",
+			})
+		} else {
+			detail := mask
+			if s := c.GoogleAccounts.String(); s != "" {
+				detail = fmt.Sprintf("%s (%s)", mask, s)
+			}
+			items = append(items, checkItem{
+				status: statusOK,
+				name:   "D2_GOOGLE_IDS",
+				detail: detail,
+			})
+		}
+
+		if c.SessionMaxAge == 0 {
+			items = append(items, checkItem{
+				status: statusWarn,
+				name:   "D2_SESSION_MAX_AGE",
+				detail: "0 — admin sessions never expire",
+			})
+		} else {
+			items = append(items, checkItem{
+				status: statusOK,
+				name:   "D2_SESSION_MAX_AGE",
+				detail: c.SessionMaxAge.String(),
+			})
+		}
+	}
+
+	switch {
+	case c.DemozooAuth == "":
+		items = append(items, checkItem{status: statusSkip, name: "D2_DEMOZOO_KEY", detail: "not set"})
+	case c.DemozooAuth.Issue() != "":
+		items = append(items, checkItem{
+			status: statusFail,
+			name:   "D2_DEMOZOO_KEY",
+			detail: fmt.Sprintf("%s — %s", mask, c.DemozooAuth.Issue()),
+		})
+	default:
+		items = append(items, checkItem{status: statusOK, name: "D2_DEMOZOO_KEY", detail: mask})
+	}
+
+	return checkGroup{title: "MODE & AUTH", items: items}
+}
+
+func (c *Config) checkTools(ctx context.Context) checkGroup {
+	const groupTitle = "EXTERNAL TOOLS"
+	if c.ReadOnly.Bool() {
+		return checkGroup{
+			title: groupTitle,
+			items: []checkItem{{
+				status: statusSkip,
+				name:   "Write-mode tools",
+				detail: "skipped in read-only mode",
+			}},
+		}
+	}
+
+	var items []checkItem
 	hasUnrar := true
 	for i, file := range command.Lookups {
 		if _, err := command.Lookup(file); err != nil {
 			if file == command.Unrar {
 				hasUnrar = false
 			}
-			attrs = append(attrs, slog.String(file, command.Infos[i]))
-		}
-	}
-	if len(attrs) > 0 {
-		const msg = "The following tools are required for the server to run in WRITE MODE. " +
-			"These need to be installed and accessible on the system path."
-		sl.Warn(msg)
-		for n, attr := range attrs {
-			sl.Warn(fmt.Sprintf("missing tool #%2d", n+1),
-				slog.String("command", attr.Key),
-				slog.String("detail", attr.Value.String()))
+			items = append(items, checkItem{
+				status: statusWarn,
+				name:   file,
+				detail: "missing from PATH — " + command.Infos[i],
+			})
 		}
 	}
 
-	if !hasUnrar {
-		return
-	}
-	if err := command.LookupUnrar(ctx); err != nil {
-		if errors.Is(err, command.ErrVersion) {
-			const msg = "Found unrar but it is not authored by Alexander Roshal."
-			sl.Warn(msg, slog.String("command", command.Unrar),
-				slog.String("detail", "is unrar-free mistakenly installed and using the command?"))
-			return
+	if hasUnrar {
+		if err := command.LookupUnrar(ctx); err != nil {
+			detail := err.Error()
+			if errors.Is(err, command.ErrVersion) {
+				detail = "not authored by Alexander Roshal (is unrar-free installed?)"
+			}
+			items = append(items, checkItem{
+				status: statusWarn,
+				name:   command.Unrar,
+				detail: detail,
+			})
 		}
-		sl.Warn("command unrar", slog.Any("error", err))
 	}
+
+	if len(items) == 0 {
+		items = []checkItem{{
+			status: statusOK,
+			name:   "Write-mode tools",
+			detail: fmt.Sprintf("all %d tools available (unrar verified)", len(command.Lookups)),
+		}}
+	}
+
+	return checkGroup{title: groupTitle, items: items}
 }
 
-func (c *Config) Warn(sl *slog.Logger, msg, name string, err error) {
-	if sl == nil || err == nil {
-		return
+func boolLabel(t Toggle) string {
+	if t.Bool() {
+		return "on"
 	}
-	sl.Warn(msg, slog.String("name", name), slog.Any("error", err))
-}
-
-// checkHTTP logs an error and returns false if the HTTP port is invalid.
-func (c *Config) checkHTTP(ctx context.Context, sl *slog.Logger) bool {
-	const msg = "check http port"
-	if err := nils.Check(ctx, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
-	}
-
-	if c.HTTPPort == 0 {
-		return true
-	}
-
-	if err := c.HTTPPort.Check(); err != nil {
-		c.misconfigPort(sl, msg, "http_port", err)
-		return false
-	}
-	return true
-}
-
-// The production mode checks when not in read-only mode.
-// It expects the server to be configured with OAuth2 and Google IDs.
-// The server should be running over HTTPS and not unencrypted HTTP.
-func (c *Config) production(sl *slog.Logger) {
-	const msg = "production mode"
-	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
-	}
-	if !bool(c.ProdMode) || bool(c.ReadOnly) {
-		return
-	}
-	if c.GoogleClientID == "" {
-		c.Warn(sl, msg, "GoogleClientID", ErrNoOAuth2)
-	}
-	if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
-		c.Warn(sl, msg, "GoogleIDs, GoogleAccounts", ErrNoAccounts)
-	}
-	if c.SessionMaxAge == 0 {
-		c.Warn(sl, msg, "SessionMaxAge", ErrSession)
-	}
-}
-
-// checkHTTPS logs an error and returns false if the HTTPS port is invalid.
-func (c *Config) checkHTTPS(ctx context.Context, sl *slog.Logger) bool {
-	const msg = "check https port"
-	if err := nils.Check(ctx, sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
-	}
-
-	if c.TLSPort == 0 {
-		return true
-	}
-
-	if err := c.TLSPort.Check(); err != nil {
-		c.misconfigPort(sl, msg, "tls_port", err)
-		return false
-	}
-	return true
-}
-
-func (c *Config) misconfigPort(sl *slog.Logger, msg, key string, err error) {
-	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("config misconfig port: %w", err))
-	}
-
-	port := uint16(c.HTTPPort)
-
-	inf := "HTTP"
-	if key == "tls_port" {
-		inf = "HTTPS"
-		port = uint16(c.TLSPort)
-	}
-
-	value := "The server cannot use the system port"
-	if errors.Is(err, ErrPortMax) {
-		value = "The server cannot use the " + inf + " port"
-	}
-
-	if errors.Is(err, ErrPortMax) || errors.Is(err, ErrPortSys) {
-		sl.Error(msg, slog.String("issue", value), slog.Int(key, int(port)),
-			slog.String("error", err.Error()))
-	}
+	return "off"
 }
 
 // checkLogDir runs checks against the configured log directory.
 // If no log directory is configured, file logging is disabled and the check is skipped.
-func (c *Config) checkLogDir(sl *slog.Logger) error {
-	const msg = "setup log directory"
-	const format = msg + " %s: %w"
-	if err := nils.Check(sl); err != nil {
-		return fmt.Errorf(format, "", err)
-	}
-
+func (c *Config) checkLogDir() error {
 	if c.AbsLog == "" {
 		return nil
 	}
@@ -247,31 +394,29 @@ func (c *Config) checkLogDir(sl *slog.Logger) error {
 	path := string(c.AbsLog)
 	st, err := os.Stat(path)
 	if err != nil {
-		return fmt.Errorf(format, path, err)
+		return fmt.Errorf("stat %s: %w", path, err)
 	}
 	if !st.IsDir() {
-		return fmt.Errorf(format, st.Name(), ErrNotDir)
+		return ErrNotDir
 	}
 
 	// test write permissions by creating and removing a temp file directly
 	name := filepath.Join(path, ".defacto2_touch_test")
 	if _, sErr := os.Stat(name); sErr == nil {
 		if rErr := os.Remove(name); rErr != nil {
-			c.Warn(sl, msg+" cannot remove test touch file", name, rErr)
-			return nil
+			return fmt.Errorf("cannot remove test file: %w", rErr)
 		}
 	}
 
 	f, err := os.Create(name)
 	if err != nil {
-		err = errors.Join(err, fmt.Errorf(format, name, ErrTouch))
-		return err
+		return errors.Join(err, ErrTouch)
 	}
 	if err := f.Close(); err != nil {
-		c.Warn(sl, msg+" cannot close test touch file", name, err)
+		return fmt.Errorf("cannot close test file: %w", err)
 	}
 	if err := os.Remove(name); err != nil {
-		c.Warn(sl, msg+" cannot remove test touch file", name, err)
+		return fmt.Errorf("cannot remove test file: %w", err)
 	}
 	return nil
 }

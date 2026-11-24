@@ -151,7 +151,7 @@ func LookupS(ctx context.Context, name, flag, match string) error {
 		return ErrNoMatch
 	}
 
-	r := Runner{} //nolint:exhaustruct
+	r := Runner{Log: slog.New(slog.DiscardHandler)} //nolint:exhaustruct
 	out, err := r.Run(ctx, name, flag)
 	if err != nil {
 		return fmt.Errorf(format, name, err)

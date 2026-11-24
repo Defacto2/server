@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log/slog"
 	"os"
 	"testing"
 
@@ -12,13 +11,13 @@ func TestChecks(t *testing.T) {
 	t.Parallel()
 
 	c := Config{}
-	err := c.checkLogDir(slog.Default())
+	err := c.checkLogDir()
 	be.Err(t, err, nil)
 	be.Equal(t, "", c.AbsLog.String())
 
 	tmp := t.TempDir()
 	c.AbsLog = Abslog(tmp)
-	err = c.checkLogDir(slog.Default())
+	err = c.checkLogDir()
 	be.Err(t, err, nil)
 
 	st, err := os.Stat(c.AbsLog.String())

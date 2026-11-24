@@ -113,16 +113,14 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 }
 
 // Check command checks the server configuration.
-func Check(_ io.Writer, c *config.Config) *cli.Command {
+func Check(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "check",
 		Aliases:     []string{"k"},
 		Usage:       "check the server configuration",
 		Description: "Check the server configuration options and the settings against common problems.",
 		Action: func(_ *cli.Context) error {
-			sl := stdoutput()
-			sl.Info(configTitle)
-			return c.Checks(context.Background(), sl)
+			return c.Checks(context.Background(), w)
 		},
 	}
 }
