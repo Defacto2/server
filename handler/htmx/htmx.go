@@ -20,10 +20,12 @@ import (
 	"uuid"
 
 	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/handler/app"
 	"github.com/Defacto2/server/handler/areacode"
 	"github.com/Defacto2/server/handler/fulltext"
 	"github.com/Defacto2/server/handler/releaser"
 	"github.com/Defacto2/server/handler/releaser/lism"
+	"github.com/Defacto2/server/internal/config"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/model"
@@ -161,6 +163,23 @@ func DBIndexes(c *echo.Context, db *sql.DB) error {
 	wg.Wait()
 
 	return c.Render(http.StatusOK, "dbindexes", data)
+}
+
+// DBAssets renders the Web application assets and host telemetry panel.
+// Pass ?refresh=1 to bust the in-memory directory caches and rescan.
+func DBAssets(c *echo.Context, conf config.Config) error {
+	const format = "htmx db assets context: %w"
+	if err := nils.Check(c); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	refresh := c.QueryParam("refresh") == "1"
+	data := app.AssetsData(conf, refresh)
+	if refresh {
+		data["assetsRefreshed"] = time.Now().Format("15:04:05")
+	}
+
+	return c.Render(http.StatusOK, "dbassets", data)
 }
 
 // DeleteForever is a handler for the /delete/forever route.

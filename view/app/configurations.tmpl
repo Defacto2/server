@@ -2,17 +2,6 @@
     configurations.tmpl ~ Configurations page template.
 */ -}}
 {{- define "content" }}
-{{- $checkDownloads := index . "checkDownloads"}}
-{{- $checkPreviews := index . "checkPreviews"}}
-{{- $checkThumbnails := index . "checkThumbnails"}}
-{{- $checkExtras := index . "checkExtras"}}
-{{- $checkOrphaned := index . "checkOrphaned"}}
-{{- $extsDownloads := index . "extsDownloads"}}
-{{- $extsPreviews := index . "extsPreviews"}}
-{{- $extsThumbnails := index . "extsThumbnails"}}
-{{- $extsExtras := index . "extsExtras"}}
-{{- $extsOrphaned := index . "extsOrphaned"}}
-{{- $formats := "badge text-bg-secondary bg-opacity-25 text-body fw-normal"}}
 {{- /*  Database  */}}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-5 mb-3">
   <div>
@@ -67,146 +56,16 @@
       Served downloads, previews, thumbnails, extras, and host storage / memory telemetry.
     </div>
   </div>
+  <button type="button" class="btn btn-sm btn-outline-secondary"
+          hx-get="/editor/configurations/assets?refresh=1"
+          hx-target="#dbassets-response"
+          hx-indicator="#assets-htmx-indicator">
+    Refresh
+    <span id="assets-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-1" role="status"></span>
+  </button>
 </div>
-
-<div class="row row-cols-2 row-cols-lg-4 g-2 mb-3">
-  <div class="col">
-    <div class="bg-body-tertiary border rounded p-3 h-100">
-      <div class="text-body-secondary text-uppercase small fw-medium mb-1">Store disk free</div>
-      <div class="fs-4 fw-semibold lh-1 mb-1">{{index . "osFree"}}</div>
-      <div class="small text-body-secondary">{{index . "osPercent"}} of {{index . "osTotal"}}</div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="bg-body-tertiary border rounded p-3 h-100">
-      <div class="text-body-secondary text-uppercase small fw-medium mb-1">System disk free</div>
-      <div class="fs-4 fw-semibold lh-1 mb-1">{{index . "wdFree"}}</div>
-      <div class="small text-body-secondary">{{index . "wdPercent"}} of {{index . "wdTotal"}}</div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="bg-body-tertiary border rounded p-3 h-100">
-      <div class="text-body-secondary text-uppercase small fw-medium mb-1">Memory free</div>
-      <div class="fs-4 fw-semibold lh-1 mb-1">{{index . "memFree"}}</div>
-      <div class="small text-body-secondary">{{index . "memPercent"}} of {{index . "memTotal"}}</div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="bg-body-tertiary border rounded p-3 h-100">
-      <div class="text-body-secondary text-uppercase small fw-medium mb-1">App memory</div>
-      <div class="fs-4 fw-semibold lh-1 mb-1">{{index . "metric1"}} MB</div>
-      <div class="small text-body-secondary">Heap {{index . "metric0"}} MB</div>
-    </div>
-  </div>
-</div>
-
-<div class="card bg-body-tertiary border mb-4">
-  <div class="card-header bg-transparent d-flex flex-wrap justify-content-between align-items-center gap-2 py-2 px-3">
-    <span class="small fw-medium">Asset directories</span>
-    <span class="small text-body-secondary">Newer media formats (e.g. WebP) are skipped when larger than the original</span>
-  </div>
-  <div class="table-responsive">
-    <table class="table table-sm table-hover align-middle mb-0">
-      <thead>
-        <tr class="small text-body-secondary">
-          <th scope="col" class="fw-medium ps-3">Asset type</th>
-          <th scope="col" class="fw-medium text-end">Disk usage</th>
-          <th scope="col" class="fw-medium text-end">Files</th>
-          <th scope="col" class="fw-medium ps-3 pe-3">Formats</th>
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-        <tr>
-          <th scope="row" class="fw-medium ps-3 py-2 text-nowrap">Downloads</th>
-          <td class="text-end text-nowrap small font-monospace">{{index . "usageDownloads"}}</td>
-          <td class="text-end text-nowrap small">{{index . "countDownloads"}}</td>
-          <td class="ps-3 pe-3 py-2">
-            {{- if ne $checkDownloads nil}}
-            <span class="badge text-bg-danger fw-normal">{{$checkDownloads}}</span>
-            {{- else}}
-            <div class="d-flex flex-wrap gap-1">
-              {{- range $index, $value := $extsDownloads}}
-              <span class="{{$formats}}"><span class="font-monospace text-uppercase">{{$value.Name}}</span> <span class="text-body-secondary ms-1">{{$value.Count}}</span></span>
-              {{- end}}
-            </div>
-            {{- end}}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row" class="fw-medium ps-3 py-2 text-nowrap">Previews</th>
-          <td class="text-end text-nowrap small font-monospace">{{index . "usagePreviews"}}</td>
-          <td class="text-end text-nowrap small">{{index . "countPreviews"}}</td>
-          <td class="ps-3 pe-3 py-2">
-            {{- if ne $checkPreviews nil}}
-            <span class="badge text-bg-danger fw-normal">{{$checkPreviews}}</span>
-            {{- else}}
-            <div class="d-flex flex-wrap gap-1">
-              {{- range $index, $value := $extsPreviews}}
-              <span class="{{$formats}}"><span class="font-monospace text-uppercase">{{$value.Name}}</span> <span class="text-body-secondary ms-1">{{$value.Count}}</span></span>
-              {{- end}}
-            </div>
-            {{- end}}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row" class="fw-medium ps-3 py-2 text-nowrap">Thumbnails</th>
-          <td class="text-end text-nowrap small font-monospace">{{index . "usageThumbnails"}}</td>
-          <td class="text-end text-nowrap small">{{index . "countThumbnails"}}</td>
-          <td class="ps-3 pe-3 py-2">
-            {{- if ne $checkThumbnails nil}}
-            <span class="badge text-bg-danger fw-normal">{{$checkThumbnails}}</span>
-            {{- else}}
-            <div class="d-flex flex-wrap gap-1">
-              {{- range $index, $value := $extsThumbnails}}
-              <span class="{{$formats}}"><span class="font-monospace text-uppercase">{{$value.Name}}</span> <span class="text-body-secondary ms-1">{{$value.Count}}</span></span>
-              {{- end}}
-            </div>
-            {{- end}}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row" class="fw-medium ps-3 py-2 text-nowrap">Extras</th>
-          <td class="text-end text-nowrap small font-monospace">{{index . "usageExtras"}}</td>
-          <td class="text-end text-nowrap small">{{index . "countExtras"}}</td>
-          <td class="ps-3 pe-3 py-2">
-            {{- if ne $checkExtras nil}}
-            <span class="badge text-bg-danger fw-normal">{{$checkExtras}}</span>
-            {{- else}}
-            <div class="d-flex flex-wrap gap-1">
-              {{- range $index, $value := $extsExtras}}
-              <span class="{{$formats}}"><span class="font-monospace text-uppercase">{{$value.Name}}</span> <span class="text-body-secondary ms-1">{{$value.Count}}</span></span>
-              {{- end}}
-            </div>
-            {{- end}}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row" class="fw-medium ps-3 py-2 text-nowrap">Orphans</th>
-          <td class="text-end text-nowrap small font-monospace">{{index . "usageOrphaned"}}</td>
-          <td class="text-end text-nowrap small">{{index . "countOrphaned"}}</td>
-          <td class="ps-3 pe-3 py-2">
-            {{- if ne $checkOrphaned nil}}
-            <span class="badge text-bg-danger fw-normal">{{$checkOrphaned}}</span>
-            {{- else}}
-            <div class="d-flex flex-wrap gap-1">
-              {{- range $index, $value := $extsOrphaned}}
-              <span class="{{$formats}}"><span class="font-monospace text-uppercase">{{$value.Name}}</span> <span class="text-body-secondary ms-1">{{$value.Count}}</span></span>
-              {{- end}}
-            </div>
-            {{- end}}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="card-footer bg-transparent d-flex flex-wrap justify-content-between gap-2 py-2 px-3 small text-body-secondary">
-    <span>
-      Tmp disk: <strong class="text-body">{{index . "tmpFree"}}</strong> free ({{index . "tmpPercent"}}) of <strong class="text-body">{{index . "tmpTotal"}}</strong>
-    </span>
-    <span>
-      Swap: <strong class="text-body">{{index . "swapFree"}}</strong> free ({{index . "swapPercent"}}) of <strong class="text-body">{{index . "swapTotal"}}</strong>
-    </span>
-  </div>
+<div id="dbassets-response">
+  {{- template "dbassets" . }}
 </div>
 {{- /*  Links to records  */}}
 {{- $confirmed := `<span class="badge bg-success-subtle text-success-emphasis fw-normal" title="Confirmed">&#10003;</span>` | safeHTML }}

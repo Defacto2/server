@@ -33,6 +33,7 @@ func Templates(fsys fs.FS) map[string]*template.Template {
 	t["searchreleasers"] = releasers(fsys)
 	t["datalistreleasers"] = datalistReleasers(fsys)
 	t["dbindexes"] = dbIndexes(fsys)
+	t["dbassets"] = dbAssets(fsys)
 
 	return t
 }
@@ -79,6 +80,15 @@ func dbIndexes(fsys fs.FS) *template.Template {
 	}
 
 	patterns := []string{GlobTo("layout.tmpl"), GlobTo("dbindexes.tmpl"), app.GlobTo("dbindexes.tmpl")}
+	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fsys, patterns...))
+}
+
+func dbAssets(fsys fs.FS) *template.Template {
+	if emptyFS(fsys) {
+		return nil
+	}
+
+	patterns := []string{GlobTo("layout.tmpl"), GlobTo("dbassets.tmpl"), app.GlobTo("dbassets.tmpl")}
 	return template.Must(template.New("").Funcs(TemplateFuncMap()).ParseFS(fsys, patterns...))
 }
 

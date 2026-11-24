@@ -4,7 +4,6 @@ package app
 // Package file context.go contains the router handlers for the Defacto2 website.
 
 import (
-	"bufio"
 	"context"
 	"crypto/sha512"
 	"database/sql"
@@ -17,9 +16,7 @@ import (
 	"maps"
 	"math"
 	"net/http"
-	"os"
 	"regexp"
-	"runtime/metrics"
 	"slices"
 	"strconv"
 	"strings"
@@ -54,7 +51,6 @@ import (
 	"github.com/Defacto2/server/model/fix"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
-	"github.com/dustin/go-humanize"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/v5/session"
 	"github.com/labstack/echo/v5"
@@ -735,8 +731,19 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 	})
 
 	wg.Go(func() {
+		host := HostStats(conf)
+		var dirs map[string]any
+		loading := !AssetsCached()
+		if !loading {
+			dirs = AssetDirsData(conf, false)
+		}
 		mu.Lock()
-		data = configurations(data, conf)
+		maps.Copy(data, host)
+		if loading {
+			data["assetsLoading"] = true
+		} else {
+			maps.Copy(data, dirs)
+		}
 		mu.Unlock()
 	})
 
@@ -818,215 +825,6 @@ func (c *UUIDCache) Get(ctx context.Context, db *sql.DB) (model.UUIDVers, error)
 	c.used = true
 
 	return c.vers, nil
-}
-
-// configurations handles the host system drive queries for free and used space.
-func configurations(data map[string]any, conf config.Config) map[string]any {
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-
-	for _, fn := range []func(map[string]any, config.Config) map[string]any{
-		downloader, previewer, thumbnailer, extraer, orphaneder,
-	} {
-		wg.Go(func() {
-			mu.Lock()
-			_ = fn(data, conf)
-			mu.Unlock()
-		})
-	}
-
-	disks := [...]struct{ prefix, path string }{
-		{"wd", conf.AbsDownload.String()},
-		{"tmp", os.TempDir()},
-		{"os", "/"},
-	}
-	for _, d := range disks {
-		wg.Go(func() {
-			total, free, _, pct, _ := helper.DiskStat(d.path)
-			mu.Lock()
-			data[d.prefix+"Total"] = helper.ByteCount(int64(total))
-			data[d.prefix+"Free"] = helper.ByteCount(int64(free))
-			data[d.prefix+"Percent"] = pct
-			mu.Unlock()
-		})
-	}
-
-	const unit = 1024
-	wg.Go(func() {
-		samples := []metrics.Sample{
-			{Name: "/memory/classes/heap/objects:bytes"}, // Live heap objects
-			{Name: "/memory/classes/total:bytes"},        // Total memory managed by runtime
-		}
-		metrics.Read(samples)
-		m0 := samples[0].Value.Uint64() / (unit * unit)
-		m1 := samples[1].Value.Uint64() / (unit * unit)
-		mu.Lock()
-		data["metric0"] = m0
-		data["metric1"] = m1
-		mu.Unlock()
-	})
-
-	wg.Go(func() { memInfo(&mu, data) })
-
-	wg.Wait()
-
-	return data
-}
-
-func memInfo(mu *sync.Mutex, data map[string]any) {
-	const (
-		na   = "n/a"
-		unit = 1024
-		calc = float64(100.0)
-		req  = 2
-	)
-	vals := map[string]any{
-		"memTotal": na, "memFree": na, "memPercent": "0%",
-		"swapTotal": na, "swapFree": na, "swapPercent": "0%",
-	}
-	if file, err := os.Open("/proc/meminfo"); err == nil {
-		defer func() { _ = file.Close() }()
-		mb := func(s string) string {
-			kb, _ := strconv.Atoi(s)
-			return fmt.Sprintf("%d MB", kb/unit)
-		}
-		perc := func(f, t string) string {
-			free, _ := strconv.Atoi(f)
-			total, _ := strconv.Atoi(t)
-			if total == 0 {
-				return "0%"
-			}
-			return fmt.Sprintf("%d%%", int64(math.Round((float64(free)/float64(total))*calc)))
-		}
-		raw := map[string]string{}
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			s := strings.Fields(scanner.Text())
-			if len(s) > req {
-				raw[s[0]] = s[1]
-			}
-		}
-		for _, k := range [][2]string{
-			{"MemTotal:", "memTotal"},
-			{"MemFree:", "memFree"},
-			{"SwapTotal:", "swapTotal"},
-			{"SwapFree:", "swapFree"},
-		} {
-			if v, ok := raw[k[0]]; ok {
-				vals[k[1]] = mb(v)
-			}
-		}
-		vals["memPercent"] = perc(raw["MemFree:"], raw["MemTotal:"])
-		vals["swapPercent"] = perc(raw["SwapFree:"], raw["SwapTotal:"])
-	}
-	mu.Lock()
-	maps.Copy(data, vals)
-	mu.Unlock()
-}
-
-// AssetCache holds the file content stats for any asset directory.
-type AssetCache struct {
-	sync.RWMutex
-
-	c    int
-	b    int64
-	exts []helper.Extension
-}
-
-var (
-	downloadCache  = &AssetCache{c: -1, b: -1}
-	previewCache   = &AssetCache{c: -1, b: -1}
-	thumbnailCache = &AssetCache{c: -1, b: -1}
-	extraCache     = &AssetCache{c: -1, b: -1}
-	orphanCache    = &AssetCache{c: -1, b: -1}
-)
-
-// processAsset handles directory validation, caching, and metric population generically.
-func processAsset(data map[string]any, absPath, desc, prefix string, cache *AssetCache) map[string]any {
-	countKey := "count" + prefix
-	usageKey := "usage" + prefix
-	extsKey := "exts" + prefix
-	checkKey := "check" + prefix
-
-	// Initialize defaults
-	data[countKey] = 0
-	data[usageKey] = 0
-	data[extsKey] = []helper.Extension{}
-
-	name := dir.Directory(absPath)
-	check := config.CheckDir(name, desc)
-	data[checkKey] = check
-	if check != nil {
-		return data
-	}
-
-	cache.RLock()
-	if cache.c != -1 {
-		c := cache.c
-		b := cache.b
-		exts := cache.exts
-		cache.RUnlock()
-
-		data[countKey] = humanize.Comma(int64(c))
-		data[usageKey] = helper.ByteCountFloat(b)
-		data[extsKey] = exts
-		return data
-	}
-	cache.RUnlock()
-
-	cache.Lock()
-	defer cache.Unlock()
-
-	if cache.c == -1 {
-		c, _ := helper.Count(absPath)
-		b, _ := helper.DiskUsage(absPath)
-		exts, _ := helper.CountExts(absPath)
-
-		cache.c = c
-		cache.b = b
-		cache.exts = exts
-	}
-
-	data[countKey] = humanize.Comma(int64(cache.c))
-	data[usageKey] = helper.ByteCountFloat(cache.b)
-	data[extsKey] = cache.exts
-
-	return data
-}
-
-func downloader(data map[string]any, conf config.Config) map[string]any {
-	data["countDownloads"] = 0
-	data["usageDownloads"] = 0
-	data["extsDownloads"] = []helper.Extension{}
-	return processAsset(data, string(conf.AbsDownload), "downloads", "Downloads", downloadCache)
-}
-
-func previewer(data map[string]any, conf config.Config) map[string]any {
-	data["countPreviews"] = 0
-	data["usagePreviews"] = 0
-	data["extsPreviews"] = []helper.Extension{}
-	return processAsset(data, conf.AbsPreview.String(), "previews", "Previews", previewCache)
-}
-
-func thumbnailer(data map[string]any, conf config.Config) map[string]any {
-	data["countThumbnails"] = 0
-	data["usageThumbnails"] = 0
-	data["extsThumbnails"] = []helper.Extension{}
-	return processAsset(data, conf.AbsThumbnail.String(), "thumbnails", "Thumbnails", thumbnailCache)
-}
-
-func extraer(data map[string]any, conf config.Config) map[string]any {
-	data["countExtras"] = 0
-	data["usageExtras"] = 0
-	data["extsExtras"] = []helper.Extension{}
-	return processAsset(data, conf.AbsExtra.String(), "extra", "Extras", extraCache)
-}
-
-func orphaneder(data map[string]any, conf config.Config) map[string]any {
-	data["countOrphaned"] = 0
-	data["usageOrphaned"] = 0
-	data["extsOrphaned"] = []helper.Extension{}
-	return processAsset(data, conf.AbsOrphaned.String(), "orphaned", "Orphaned", orphanCache)
 }
 
 type depSection struct {

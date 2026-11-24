@@ -6,7 +6,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"slices"
 	"strings"
 
 	namer "github.com/Defacto2/server/handler/releaser/name"
@@ -17,7 +16,6 @@ import (
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
-	"github.com/google/uuid" // requirement for uuid.Version()
 )
 
 // Count returns the total numbers of public artifact records.
@@ -341,57 +339,66 @@ func (u UUIDVers) String() string {
 	return strings.Join(s, ", ")
 }
 
-// UUIDs counts the different UUID versions in use in the database, ranging from V1 to V8.
+// UUIDs counts the different UUID versions in use in the database, ranging from V1 to V8,
+// aggregated directly in PostgreSQL.
 func UUIDs(ctx context.Context, exec boil.ContextExecutor) (UUIDVers, error) {
 	const format = "count uuids %s: %w"
 	if err := nils.Check(ctx, exec); err != nil {
 		return UUIDVers{}, fmt.Errorf(format, "check", err)
 	}
 
-	fs, err := UUID(ctx, exec)
+	const query = `
+		SELECT
+			CASE
+				WHEN uuid IS NULL THEN 'err'
+				WHEN pg_input_is_valid(BTRIM(uuid), 'uuid')
+					THEN substr((BTRIM(uuid)::uuid)::text, 15, 1)
+				ELSE 'err'
+			END AS ver,
+			COUNT(*) AS cnt
+		FROM files
+		WHERE deletedat IS NULL
+		GROUP BY 1;`
+
+	rows, err := exec.QueryContext(ctx, query)
 	if err != nil {
-		return UUIDVers{}, fmt.Errorf(format, "all uuids", err)
+		return UUIDVers{}, fmt.Errorf(format, "query", err)
 	}
-	if len(fs) == 0 {
-		return UUIDVers{}, nil //nolint:exhaustruct_v5
-	}
+	defer func() { _ = rows.Close() }()
 
-	uuids := UUIDVers{
-		V1: 0, V2: 0, V3: 0, V4: 0, V5: 0, V6: 0, V7: 0, V8: 0, // counts
-		Count: 0, Error: 0, Unknown: 0, // stats
-	}
-
-	const v1, v2, v3, v4, v5, v6, v7, v8 = 1, 2, 3, 4, 5, 6, 7, 8
-	for record := range slices.Values(fs) {
-		uuids.Count++
-
-		s := record.UUID.String
-		id, err := uuid.Parse(s)
-		if err != nil {
-			uuids.Error++
-			continue
+	uuids := UUIDVers{} //nolint:exhaustruct_v5
+	for rows.Next() {
+		var ver string
+		var cnt int
+		if err := rows.Scan(&ver, &cnt); err != nil {
+			return UUIDVers{}, fmt.Errorf(format, "scan", err)
 		}
-
-		switch id.Version() {
-		case v1:
-			uuids.V1++
-		case v2:
-			uuids.V2++
-		case v3:
-			uuids.V3++
-		case v4:
-			uuids.V4++
-		case v5:
-			uuids.V5++
-		case v6:
-			uuids.V6++
-		case v7:
-			uuids.V7++
-		case v8:
-			uuids.V8++
+		uuids.Count += cnt
+		switch ver {
+		case "1":
+			uuids.V1 += cnt
+		case "2":
+			uuids.V2 += cnt
+		case "3":
+			uuids.V3 += cnt
+		case "4":
+			uuids.V4 += cnt
+		case "5":
+			uuids.V5 += cnt
+		case "6":
+			uuids.V6 += cnt
+		case "7":
+			uuids.V7 += cnt
+		case "8":
+			uuids.V8 += cnt
+		case "err":
+			uuids.Error += cnt
 		default:
-			uuids.Unknown++
+			uuids.Unknown += cnt
 		}
+	}
+	if err := rows.Err(); err != nil {
+		return UUIDVers{}, fmt.Errorf(format, "rows", err)
 	}
 
 	return uuids, nil

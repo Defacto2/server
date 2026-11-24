@@ -561,7 +561,7 @@ func (wa *WebApp) parseFS(ctx context.Context, db *sql.DB, name filename) *templ
 	case categoriesTmpl:
 		files = append(files, GlobTo("categoriesmore.tmpl"))
 	case configsTmpl:
-		files = append(files, GlobTo("dbindexes.tmpl"))
+		files = append(files, GlobTo("dbindexes.tmpl"), GlobTo("dbassets.tmpl"))
 	case releaseryearTmpl:
 		files = append(files, GlobTo("releasertimeline.tmpl"))
 	case websitesTmpl:

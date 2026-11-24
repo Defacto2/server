@@ -194,7 +194,7 @@ func TestTemplates(t *testing.T) {
 	t.Parallel()
 
 	x := htmx.Templates(embed.FS{})
-	be.True(t, len(x) == 4)
+	be.True(t, len(x) == 5)
 }
 
 func TestTemplateFuncMap(t *testing.T) {
@@ -361,4 +361,63 @@ func TestDBIndexesTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, "80.0%"))
 	be.True(t, strings.Contains(out, "2 of 100"))
 	be.True(t, strings.Contains(out, "Updated 12:34:56"))
+}
+
+func TestDBAssetsTemplate(t *testing.T) {
+	t.Parallel()
+
+	tmpl, err := template.New("").Funcs(htmx.TemplateFuncMap()).ParseFiles(
+		filepath.Join("..", "..", "view", "htmx", "layout.tmpl"),
+		filepath.Join("..", "..", "view", "htmx", "dbassets.tmpl"),
+		filepath.Join("..", "..", "view", "app", "dbassets.tmpl"),
+	)
+	be.Err(t, err, nil)
+
+	// Cold loading placeholder triggers HTMX fetch on load.
+	var loadingBuf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&loadingBuf, "content", map[string]any{
+		"assetsLoading": true,
+		"wdFree":        "120 GB",
+		"wdPercent":     "60%",
+		"wdTotal":       "200 GB",
+		"osFree":        "40 GB",
+		"osPercent":     "40%",
+		"osTotal":       "100 GB",
+		"memFree":       "8192 MB",
+		"memPercent":    "50%",
+		"memTotal":      "16384 MB",
+		"metric0":       uint64(42),
+		"metric1":       uint64(96),
+		"tmpFree":       "10 GB",
+		"tmpPercent":    "90%",
+		"tmpTotal":      "11 GB",
+		"swapFree":      "2048 MB",
+		"swapPercent":   "100%",
+		"swapTotal":     "2048 MB",
+	})
+	be.Err(t, err, nil)
+	loadingOut := loadingBuf.String()
+	be.True(t, strings.Contains(loadingOut, `hx-get="/editor/configurations/assets"`))
+	be.True(t, strings.Contains(loadingOut, `hx-trigger="load"`))
+	be.True(t, strings.Contains(loadingOut, "120 GB"))
+
+	// Populated response renders directory rows and refresh timestamp.
+	var loadedBuf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&loadedBuf, "content", map[string]any{
+		"assetsRefreshed": "12:34:56",
+		"usageDownloads":  "48.2 GB",
+		"countDownloads":  "64,500",
+		"usagePreviews":   "1.2 GB",
+		"countPreviews":   "12,000",
+		"usageThumbnails": "320 MB",
+		"countThumbnails": "12,000",
+		"usageExtras":     "50 MB",
+		"countExtras":     "120",
+		"usageOrphaned":   "0 B",
+		"countOrphaned":   "0",
+	})
+	be.Err(t, err, nil)
+	loadedOut := loadedBuf.String()
+	be.True(t, strings.Contains(loadedOut, "48.2 GB"))
+	be.True(t, strings.Contains(loadedOut, "Updated 12:34:56"))
 }

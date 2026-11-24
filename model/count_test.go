@@ -103,6 +103,11 @@ func TestUUIDs(t *testing.T) {
 	got, err = model.UUIDs(t.Context(), db)
 	be.Err(t, err, nil)
 	be.True(t, got.Count > 2)
+	sum := got.V1 + got.V2 + got.V3 + got.V4 + got.V5 + got.V6 + got.V7 + got.V8 + got.Error + got.Unknown
+	be.Equal(t, got.Count, sum)
+	pubCount, err := model.Count(t.Context(), db)
+	be.Err(t, err, nil)
+	be.Equal(t, int64(got.Count), pubCount)
 }
 
 func BenchmarkCounts(b *testing.B) {
