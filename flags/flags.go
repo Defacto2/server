@@ -26,12 +26,16 @@ import (
 )
 
 const (
-	Title      = "Defacto2 web application" // Title of this program.
-	Domain     = "defacto2.net"             // Domain of the website.
-	Program    = "defacto2-server"          // Program is the command line name of this program.
-	Author     = "Ben Garrett"              // Author is the primary programmer of this program.
-	Email      = "contact@defacto2.net"     // Email contact for public display.
-	RecentYear = 2026                       // Most recent year of compilation for this program.
+	Title      = "Defacto2 web application"         // Title of this program.
+	Domain     = "defacto2.net"                     // Domain of the website.
+	Repository = "https://github.com/Defacto2/server" // Repository is the GitHub URL for this project.
+	Program    = "defacto2-server"                  // Program is the command line name of this program.
+	Author     = "Ben Garrett"                      // Author is the primary programmer of this program.
+	Email      = "contact@defacto2.net"             // Email contact for public display.
+	RecentYear = 2026                               // Most recent year of compilation for this program.
+
+	catInspection  = "Inspection"
+	catMaintenance = "Maintenance"
 
 	fixesTitle = "Database and Asset Fixes"
 	indexTitle = "Database Index Rebuild"
@@ -44,13 +48,23 @@ func desc(c *config.Config) string {
 	if c == nil {
 		return ""
 	}
-	return fmt.Sprintf(`Launch the web server and listen on the configured port %d.
-The server expects the Defacto2 PostgreSQL database to run on the host system
-or in a container. But will run without a database connection, limiting functionality.
+	var ports string
+	switch {
+	case c.HTTPPort > 0 && c.TLSPort > 0:
+		ports = fmt.Sprintf("HTTP port %d and HTTPS port %d", c.HTTPPort, c.TLSPort)
+	case c.TLSPort > 0:
+		ports = fmt.Sprintf("HTTPS port %d", c.TLSPort)
+	default:
+		ports = fmt.Sprintf("HTTP port %d", c.HTTPPort)
+	}
+	return fmt.Sprintf(`Launch the web server and listen on the configured %s.
+The server expects the Defacto2 PostgreSQL database on the host or in a
+container, though it will start with limited functionality without one.
 
-The server relies on system environment variables for configuration and has limited 
-defaults for poor usability. Without the downloads and image directories, the server 
-will not display any thumbnails or previews or serve the file downloads.`, c.HTTPPort)
+Configuration is driven by D2_* environment variables (run "%s
+config --detail" to list all options). Without the download and image
+directories configured, the server cannot serve downloads, previews, or
+thumbnails.`, ports, Program)
 }
 
 // App returns the command line interface for this program.
@@ -58,31 +72,38 @@ will not display any thumbnails or previews or serve the file downloads.`, c.HTT
 //
 // [github.com/urfave.cli/v2]: https://github.com/urfave/cli
 func App(w io.Writer, ver string, c *config.Config) *cli.App {
+	color := logs.Color(w)
+	cmdTmpl := commandHelpTemplate(color)
+	cmds := []*cli.Command{
+		Config(w, c),
+		Check(w, c),
+		Address(w, c),
+		TempDir(w, c),
+		Fix(w, c),
+		Index(w, c),
+	}
+	for _, cmd := range cmds {
+		cmd.CustomHelpTemplate = cmdTmpl
+	}
+
 	app := &cli.App{
-		Name:    Title,
-		Version: Version(ver),
-		Usage:   "serve the Defacto2 web site",
-		UsageText: Program +
-			"\n" + Program + " [command]" +
-			"\n" + Program + " [command] --help" +
-			"\n" + Program + " [flag]",
-		Description: desc(c),
-		Copyright:   Copyright(),
-		HelpName:    Program,
+		Name:                  Title,
+		Version:               Version(ver),
+		Usage:                 "serve the Defacto2 web site",
+		Description:           desc(c),
+		Copyright:             Copyright(),
+		HelpName:              Program,
+		CustomAppHelpTemplate: appHelpTemplate(color),
 		Authors: []*cli.Author{
 			{
 				Name:  Author,
 				Email: Email,
 			},
 		},
-		Commands: []*cli.Command{
-			Config(w, c),
-			Check(w, c),
-			Address(w, c),
-			Fix(w, c),
-			Index(w, c),
-			TempDir(w, c),
-		},
+		Commands: cmds,
+	}
+	if w != nil {
+		app.Writer = w
 	}
 	return app
 }
@@ -92,6 +113,7 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "config",
 		Aliases:     []string{"c"},
+		Category:    catInspection,
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Flags: []cli.Flag{
@@ -113,6 +135,7 @@ func Check(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "check",
 		Aliases:     []string{"k"},
+		Category:    catInspection,
 		Usage:       "check the server configuration",
 		Description: "Check the server configuration options and the settings against common problems.",
 		Action: func(_ *cli.Context) error {
@@ -126,6 +149,7 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "address",
 		Aliases:     []string{"a"},
+		Category:    catInspection,
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
@@ -139,7 +163,8 @@ func TempDir(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "temp",
 		Aliases:     []string{"t"},
-		Usage:       "temporary directory purge",
+		Category:    catInspection,
+		Usage:       "purge temporary directories",
 		Description: "Purge all the subdirectories likely created by this application in " + os.TempDir() + ".",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -159,6 +184,7 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "fix",
 		Aliases:     []string{"f"},
+		Category:    catMaintenance,
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Flags: []cli.Flag{
@@ -197,6 +223,7 @@ func Index(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "index",
 		Aliases:     []string{"i"},
+		Category:    catMaintenance,
 		Usage:       "rebuild the database indexes",
 		Description: "Create missing PostgreSQL indexes, remove legacy indexes, rebuild indexes concurrently, and run VACUUM ANALYZE.",
 		Flags: []cli.Flag{
