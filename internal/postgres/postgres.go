@@ -118,15 +118,15 @@ func (c Connection) Validate(sl *slog.Logger) error {
 
 	u, err := url.Parse(c.URL)
 	if err != nil {
-		sl.Warn(msg, slog.String(key, "The database connection URL is invalid"),
-			slog.Any("error", err))
+		// Do not log err directly as url.Parse echoes the raw URL including credentials.
+		sl.Warn(msg, slog.String(key, "The database connection URL is invalid"))
 		return nil
 	}
 
-	if u.Scheme != Protocol {
+	if u.Scheme != Protocol && u.Scheme != "postgresql" {
 		sl.Warn(msg,
 			slog.String(key, "The database connection scheme is invalid"),
-			slog.String("requirement", Protocol), slog.String("scheme_in_use", u.Scheme))
+			slog.String("requirement", "postgres or postgresql"), slog.String("scheme_in_use", u.Scheme))
 	}
 
 	return nil

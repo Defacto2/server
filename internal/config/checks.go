@@ -11,7 +11,6 @@ import (
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/command"
 	"github.com/Defacto2/server/internal/dir"
-	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres"
 )
@@ -24,9 +23,13 @@ func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 		return fmt.Errorf(format, "arguments", err)
 	}
 
-	c.checkHTTP(ctx, sl)
-
-	c.checkHTTPS(ctx, sl)
+	var issues int
+	if !c.checkHTTP(ctx, sl) {
+		issues++
+	}
+	if !c.checkHTTPS(ctx, sl) {
+		issues++
+	}
 
 	c.production(sl)
 
@@ -35,22 +38,27 @@ func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 	if err := CheckDir(dir.Directory(c.AbsDownload), "downloads"); err != nil {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
+		issues++
 	}
 	if err := CheckDir(dir.Directory(c.AbsPreview), "previews"); err != nil {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
+		issues++
 	}
 	if err := CheckDir(dir.Directory(c.AbsThumbnail), "thumbnails"); err != nil {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
+		issues++
 	}
 	if err := CheckDir(dir.Directory(c.AbsOrphaned), "orphaned"); err != nil {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
+		issues++
 	}
 	if err := CheckDir(dir.Directory(c.AbsExtra), "extra"); err != nil {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
+		issues++
 	}
 
 	// configuration reminders
@@ -67,20 +75,24 @@ func (c *Config) Checks(ctx context.Context, sl *slog.Logger) error {
 	if err := c.checkLogDir(sl); err != nil {
 		s := helper.Capitalize(err.Error())
 		sl.Error(msg, slog.String(key, s))
+		issues++
 	}
 
 	c.commands(ctx, sl)
 
 	conn, err := postgres.New()
 	if err != nil {
-		sl.Error(msg,
+		sl.Error("Database",
 			slog.String("issue", "sanity checks could not initialize the database data"),
 			slog.Any("error", err))
-	}
-	if err := conn.Validate(sl); err != nil {
+		issues++
+	} else if err := conn.Validate(sl); err != nil {
 		panic(fmt.Errorf(format, "conn validate", err))
 	}
 
+	if issues > 0 {
+		return fmt.Errorf("%w (%d found)", ErrCheckFailed, issues)
+	}
 	return nil
 }
 
@@ -91,10 +103,17 @@ func (c *Config) commands(ctx context.Context, sl *slog.Logger) {
 	if err := nils.Check(sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
+	if c.ReadOnly.Bool() {
+		return
+	}
 
 	attrs := make([]slog.Attr, 0, len(command.Lookups))
+	hasUnrar := true
 	for i, file := range command.Lookups {
 		if _, err := command.Lookup(file); err != nil {
+			if file == command.Unrar {
+				hasUnrar = false
+			}
 			attrs = append(attrs, slog.String(file, command.Infos[i]))
 		}
 	}
@@ -103,16 +122,19 @@ func (c *Config) commands(ctx context.Context, sl *slog.Logger) {
 			"These need to be installed and accessible on the system path."
 		sl.Warn(msg)
 		for n, attr := range attrs {
-			sl.Warn(fmt.Sprintf("missing tool #%2d", n),
+			sl.Warn(fmt.Sprintf("missing tool #%2d", n+1),
 				slog.String("command", attr.Key),
 				slog.String("detail", attr.Value.String()))
 		}
 	}
 
+	if !hasUnrar {
+		return
+	}
 	if err := command.LookupUnrar(ctx); err != nil {
 		if errors.Is(err, command.ErrVersion) {
 			const msg = "Found unrar but it is not authored by Alexander Roshal."
-			sl.Warn(msg, slog.String("command", command.Lookups[10]),
+			sl.Warn(msg, slog.String("command", command.Unrar),
 				slog.String("detail", "is unrar-free mistakenly installed and using the command?"))
 			return
 		}
@@ -127,20 +149,22 @@ func (c *Config) Warn(sl *slog.Logger, msg, name string, err error) {
 	sl.Warn(msg, slog.String("name", name), slog.Any("error", err))
 }
 
-// checkHTTP logs a fatal error if the HTTP port is invalid.
-func (c *Config) checkHTTP(ctx context.Context, sl *slog.Logger) {
+// checkHTTP logs an error and returns false if the HTTP port is invalid.
+func (c *Config) checkHTTP(ctx context.Context, sl *slog.Logger) bool {
 	const msg = "check http port"
 	if err := nils.Check(ctx, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
 	if c.HTTPPort == 0 {
-		return
+		return true
 	}
 
 	if err := c.HTTPPort.Check(); err != nil {
-		c.misconfigPort(ctx, sl, msg, "http_port", err)
+		c.misconfigPort(sl, msg, "http_port", err)
+		return false
 	}
+	return true
 }
 
 // The production mode checks when not in read-only mode.
@@ -165,32 +189,33 @@ func (c *Config) production(sl *slog.Logger) {
 	}
 }
 
-// checkHTTPS logs a fatal error if the HTTPS port is invalid.
-func (c *Config) checkHTTPS(ctx context.Context, sl *slog.Logger) {
+// checkHTTPS logs an error and returns false if the HTTPS port is invalid.
+func (c *Config) checkHTTPS(ctx context.Context, sl *slog.Logger) bool {
 	const msg = "check https port"
 	if err := nils.Check(ctx, sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
 
 	if c.TLSPort == 0 {
-		return
+		return true
 	}
 
 	if err := c.TLSPort.Check(); err != nil {
-		c.misconfigPort(ctx, sl, msg, "tls_port", err)
+		c.misconfigPort(sl, msg, "tls_port", err)
+		return false
 	}
+	return true
 }
 
-func (c *Config) misconfigPort(ctx context.Context, sl *slog.Logger, msg, key string, err error) {
-	if err := nils.Check(ctx, sl); err != nil {
-		panic(fmt.Errorf("config fatal port: %w", err))
+func (c *Config) misconfigPort(sl *slog.Logger, msg, key string, err error) {
+	if err := nils.Check(sl); err != nil {
+		panic(fmt.Errorf("config misconfig port: %w", err))
 	}
 
-	var port uint16
-	port = uint16(c.HTTPPort)
+	port := uint16(c.HTTPPort)
 
 	inf := "HTTP"
-	if msg == "tls_port" {
+	if key == "tls_port" {
 		inf = "HTTPS"
 		port = uint16(c.TLSPort)
 	}
@@ -201,7 +226,7 @@ func (c *Config) misconfigPort(ctx context.Context, sl *slog.Logger, msg, key st
 	}
 
 	if errors.Is(err, ErrPortMax) || errors.Is(err, ErrPortSys) {
-		logs.Fatal(ctx, sl, msg, slog.String("issue", value), slog.Int(key, int(port)),
+		sl.Error(msg, slog.String("issue", value), slog.Int(key, int(port)),
 			slog.String("error", err.Error()))
 	}
 }

@@ -321,7 +321,7 @@ func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *h
 // If an error is returned, the application will exit with the error code.
 // Otherwise, a negative value is returned to indicate the application should continue.
 func flagParser(l *slog.Logger, w io.Writer, envConfig *config.Config) flags.ExitCode {
-	const msg = "server flag parser, there was a problem parsing the command arguments"
+	const msg = "command failed"
 	if l == nil || envConfig == nil {
 		return flags.GenericErr
 	}

@@ -2,6 +2,7 @@
 package postgres_test
 
 import (
+	"bytes"
 	"log/slog"
 	"strings"
 	"testing"
@@ -33,44 +34,57 @@ func TestErrEnvValue(t *testing.T) {
 }
 
 func TestConnValidate(t *testing.T) {
-	sl := slog.Default()
-
 	tests := []struct {
-		name string
-		url  string
-		want bool
+		name      string
+		url       string
+		wantWarn  bool
+		forbidStr string
 	}{
 		{ //nolint:gosec
-			name: "valid URL",
-			url:  "postgres://testuser:testpass@localhost:5432/testdb",
-			want: false,
+			name:     "valid postgres URL",
+			url:      "postgres://testuser:testpass@localhost:5432/testdb",
+			wantWarn: false,
+		},
+		{ //nolint:gosec
+			name:     "valid postgresql URL",
+			url:      "postgresql://testuser:testpass@localhost:5432/testdb",
+			wantWarn: false,
 		},
 		{
-			name: "empty URL",
-			url:  "",
-			want: false,
+			name:     "empty URL",
+			url:      "",
+			wantWarn: true,
 		},
 		{
-			name: "invalid URL scheme",
-			url:  "mysql://localhost/db",
-			want: false,
+			name:     "invalid URL scheme",
+			url:      "mysql://localhost/db",
+			wantWarn: true,
 		},
 		{
-			name: "malformed URL",
-			url:  "ht!tp://[invalid",
-			want: false,
+			name:      "malformed URL hides password",
+			url:       "postgres://user:supersecret@localhost:badport/db",
+			wantWarn:  true,
+			forbidStr: "supersecret",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			sl := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelWarn}))
+
 			conn := postgres.Connection{URL: tt.url}
 			err := conn.Validate(sl)
+			be.Err(t, err, nil)
 
-			if tt.want {
-				be.Err(t, err)
+			out := buf.String()
+			if tt.wantWarn {
+				be.True(t, len(out) > 0)
 			} else {
-				be.Err(t, err, nil)
+				be.Equal(t, "", out)
+			}
+			if tt.forbidStr != "" {
+				be.True(t, !strings.Contains(out, tt.forbidStr))
 			}
 		})
 	}

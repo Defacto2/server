@@ -30,8 +30,9 @@ var (
 	ErrNoPort     = errors.New("config: no port, server cannot start without a configured http or a tls port")
 	ErrNoPath     = errors.New("config: no path, path or name cannot be empty")
 	ErrFormat     = errors.New("config: unsupported format")
-	ErrNoZooAuth  = errors.New("config: demozoo auth must be set in echo context")
-	ErrPSVersion  = errors.New("postgres did not return a version value")
+	ErrNoZooAuth   = errors.New("config: demozoo auth must be set in echo context")
+	ErrPSVersion   = errors.New("postgres did not return a version value")
+	ErrCheckFailed = errors.New("config: one or more configuration checks failed")
 )
 
 // CustomErrorHandler handles edge case HTTP errors including
