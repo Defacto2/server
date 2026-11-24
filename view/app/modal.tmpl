@@ -3,156 +3,118 @@
 */ -}}
 {{- define "modal" -}}
 {{- /*  Modals  */}}
-    {{- /*  Email  */}}
-    <div class="modal fade" id="contacts-email-modal" tabindex="-1" aria-labelledby="contacts-email-modal-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+    {{- /*  Contact  */}}
+    <div class="modal fade" id="contact-modal" tabindex="-1" aria-labelledby="contact-modal-label" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi bi-envelope" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-              <use xlink:href="/svg/bootstrap-icons.svg#envelope"/>
-            </svg>
-            <div class="modal-title fs-4 ps-2" id="contacts-email-modal-label">Email</div>
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="contact-modal-label">Contact Defacto2</h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <h3 class="user-select-all"><span>contact</span><span>@</span><span>defacto2</span><span>.</span><span>net</span></h3>
-            <p>forwards to <span>defacto</span>_<span>two</span><span>@</span>proton<span>.</span><span>me</span></p>
-            <p>Emails to these addresses are checked regularly.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {{- /*  Discord  */}}
-    <div class="modal fade" id="contacts-discord-modal" tabindex="-1" aria-labelledby="contacts-discord-modal-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi bi-discord" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-              <use xlink:href="/svg/bootstrap-icons.svg#discord"/>
-            </svg>
-            <div class="modal-title fs-4 ps-2" id="contacts-discord-modal-label">Discord</div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <h3 class="user-select-all">
-              .defacto2
-            </h3>
-            <p>Discord <strong>DM</strong> direct messages are checked regularly.</p>
-            <p>Find us on the <a href="https://discord.gg/AJ2xV8X">Demozoo</a> server in channels #the-bbs-corner, #diskdumping, and #general.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {{- /*  Mastodon  */}}
-    <div class="modal fade" id="contacts-mastodon-modal" tabindex="-1" aria-labelledby="contacts-mastodon-modal-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi bi-mastodon" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-              <use xlink:href="/svg/bootstrap-icons.svg#mastodon"/>
-            </svg>
-            <div class="modal-title fs-4 ps-2" id="contacts-mastodon-modal-label">Mastodon</div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <h3><a href="https://mas.to/@defacto2">defacto2</a>@mas.to</h3>
-            <p>Mastodon direct messages are checked.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {{- /*  Bluesky  
-            NOTE: the former address was, https://bsky.app/profile/defacto2.bsky.social
-    */}}
-    <div class="modal fade" id="contacts-bluesky-modal" tabindex="-1" aria-labelledby="contacts-bluesky-modal-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi bi-bluesky" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-              <use xlink:href="/svg/bootstrap-icons.svg#bluesky"/>
-            </svg>
-            <div class="modal-title fs-4 ps-2" id="contacts-bluesky-modal-label">Bluesky</div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <h3>@<a href="https://bsky.app/profile/defacto2.net">defacto2.net</a></h3>
-            <p>Bluesky direct messages are checked.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {{- /*  Twitter  */}}
-    <div class="modal fade" id="contacts-twitter-modal" tabindex="-1" aria-labelledby="contacts-twitter-modal-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi bi-twitter" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-              <use xlink:href="/svg/bootstrap-icons.svg#twitter"/>
-            </svg>
-            <div class="modal-title fs-4 ps-2" id="contacts-twitter-modal-label">Twitter</div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <h3><a href="https://twitter.com/Defacto2">Defacto2</a></h3>
-            <p>Twitter is unused due to the X paid-verification requirement and outside links de-prioritization. 
-              Never pay subscriptions to the social media companies who sell and monetize <a href="https://x.com/en/privacy">your identity</a>.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {{- /*  Facebook  */}}
-    <div class="modal fade" id="contacts-facebook-modal" tabindex="-1" aria-labelledby="contacts-facebook-modal-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi bi-facebook" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-              <use xlink:href="/svg/bootstrap-icons.svg#facebook"/>
-            </svg>
-            <div class="modal-title fs-4 ps-2" id="contacts-facebook-modal-label">Facebook</div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <h3><a href="https://facebook.com/Defacto2">Defacto2</a></h3>
-            <p>Facebook direct messages will be read.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {{- /*  YouTube  */}}
-    <div class="modal fade" id="contacts-youtube-modal" tabindex="-1" aria-labelledby="contacts-youtube-modal-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <svg class="bi bi-youtube" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-              <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
-            </svg>
-            <div class="modal-title fs-4 ps-2" id="contacts-youtube-modal-label">YouTube</div>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <h3><a href="https://www.youtube.com/defacto2">defacto2</a></h3>
-            <p>The discontinued YouTube channel contains a few hundred intros and cracktros.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <div class="modal-body p-4">
+            <div class="text-uppercase small fw-semibold text-body-secondary mb-2">Recommended</div>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <svg class="bi bi-envelope flex-shrink-0" width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#envelope"/>
+                    </svg>
+                    <span class="fw-semibold">Email</span>
+                    <span class="badge text-bg-success ms-auto fw-normal">Best way</span>
+                  </div>
+                  <div class="fs-5 fw-semibold font-monospace user-select-all mb-1"><span>contact</span><span>@</span><span>defacto2</span><span>.</span><span>net</span></div>
+                  <p class="small text-body-secondary mb-1">Forwards to <span class="user-select-all"><span>defacto</span>_<span>two</span><span>@</span>proton<span>.</span><span>me</span></span></p>
+                  <p class="small text-body-secondary mb-0">Emails to these addresses are checked regularly.</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <svg class="bi bi-discord flex-shrink-0" width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#discord"/>
+                    </svg>
+                    <span class="fw-semibold">Discord</span>
+                  </div>
+                  <div class="fs-5 fw-semibold font-monospace user-select-all mb-1">.defacto2</div>
+                  <p class="small text-body-secondary mb-1">Discord <strong>DM</strong> direct messages are checked regularly.</p>
+                  <p class="small text-body-secondary mb-0">Find us on the <a href="https://discord.gg/AJ2xV8X" target="_blank" rel="noopener">Demozoo</a> server in <code>#the-bbs-corner</code>, <code>#diskdumping</code>, and <code>#general</code>.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-uppercase small fw-semibold text-body-secondary mb-2">Social</div>
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <svg class="bi bi-mastodon flex-shrink-0" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#mastodon"/>
+                    </svg>
+                    <span class="fw-semibold">Mastodon</span>
+                  </div>
+                  <div class="mb-1"><a href="https://mas.to/@defacto2" target="_blank" rel="noopener">defacto2</a>@mas.to</div>
+                  <p class="small text-body-secondary mb-0">Direct messages are checked.</p>
+                </div>
+              </div>
+              {{- /* NOTE: the former Bluesky address was https://bsky.app/profile/defacto2.bsky.social */}}
+              <div class="col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <svg class="bi bi-bluesky flex-shrink-0" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#bluesky"/>
+                    </svg>
+                    <span class="fw-semibold">Bluesky</span>
+                  </div>
+                  <div class="mb-1">@<a href="https://bsky.app/profile/defacto2.net" target="_blank" rel="noopener">defacto2.net</a></div>
+                  <p class="small text-body-secondary mb-0">Direct messages are checked.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <svg class="bi bi-facebook flex-shrink-0" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#facebook"/>
+                    </svg>
+                    <span class="fw-semibold">Facebook</span>
+                  </div>
+                  <div class="mb-1"><a href="https://facebook.com/Defacto2" target="_blank" rel="noopener">Defacto2</a></div>
+                  <p class="small text-body-secondary mb-0">Direct messages will be read.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-uppercase small fw-semibold text-body-secondary mb-2">Retired</div>
+            <div class="row g-3 text-body-secondary small">
+              <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                  <div class="d-flex align-items-center gap-2 mb-1 text-body">
+                    <svg class="bi bi-youtube flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
+                    </svg>
+                    <span class="fw-semibold">YouTube</span>
+                    <a class="ms-auto" href="https://www.youtube.com/defacto2" target="_blank" rel="noopener">defacto2</a>
+                  </div>
+                  <p class="mb-0">The discontinued YouTube channel contains a few hundred intros and cracktros.</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                  <div class="d-flex align-items-center gap-2 mb-1 text-body">
+                    <svg class="bi bi-twitter flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#twitter"/>
+                    </svg>
+                    <span class="fw-semibold">Twitter</span>
+                    <a class="ms-auto" href="https://twitter.com/Defacto2" target="_blank" rel="noopener">Defacto2</a>
+                  </div>
+                  <p class="mb-0">Unused due to the X paid-verification requirement and outside links de-prioritization. Never pay subscriptions to the social media companies who sell and monetize <a href="https://x.com/en/privacy" target="_blank" rel="noopener">your identity</a>.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-top mt-4 pt-3 d-flex justify-content-end">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
           </div>
         </div>
       </div>

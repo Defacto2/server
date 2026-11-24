@@ -269,46 +269,10 @@
                 <li>{{ linkRemoteTip "https://github.com/sceners" "Browse artifacts" "Over 150 repositories for scene demos, tools and apps" }}</li>
               </ul>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <li class="nav-item">
+              <button type="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#contact-modal">
                 Contact
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><h6 class="dropdown-header">Recommend</h6></li>
-                <li data-bs-toggle="tooltip" data-bs-title="Email is the best way to contact us"><button type="button" class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">
-                  <svg class="bi bi-envelope flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                    <use xlink:href="/svg/bootstrap-icons.svg#envelope"/>
-                  </svg> Email</button></li>
-                <li data-bs-toggle="tooltip" data-bs-title="Like IRC but without the klines and desyncing"><button type="button" class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#contacts-discord-modal">
-                  <svg class="bi bi-discord flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                    <use xlink:href="/svg/bootstrap-icons.svg#discord"/>
-                  </svg> Discord</button>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Lurk</h6></li>
-                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#contacts-mastodon-modal">
-                  <svg class="bi bi-mastodon flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                    <use xlink:href="/svg/bootstrap-icons.svg#mastodon"/>
-                  </svg> Mastodon</button></li>
-                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#contacts-bluesky-modal">
-                  <svg class="bi bi-bluesky flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                    <use xlink:href="/svg/bootstrap-icons.svg#bluesky"/>
-                  </svg> Bluesky</button></li>
-                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#contacts-facebook-modal">
-                  <svg class="bi bi-facebook flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                    <use xlink:href="/svg/bootstrap-icons.svg#facebook"/>
-                  </svg> Facebook</button></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Retire</h6></li>
-                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#contacts-twitter-modal">
-                  <svg class="bi bi-twitter flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                    <use xlink:href="/svg/bootstrap-icons.svg#twitter"/>
-                  </svg> Twitter</button></li>
-                <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#contacts-youtube-modal">
-                  <svg class="bi bi-youtube flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                    <use xlink:href="/svg/bootstrap-icons.svg#youtube"/>
-                  </svg> YouTube</button></li>
-              </ul>
+              </button>
             </li>
             <li class="nav-item d-none d-xl-block">
               <a class="nav-link" href="/api">API</a>
