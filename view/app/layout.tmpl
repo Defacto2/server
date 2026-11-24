@@ -13,6 +13,7 @@
 {{- $h1 := index . "h1"}}
 {{- $lead := index . "lead"}}
 {{- $editor := index . "editor"}}
+{{- $indexJS := index . "indexJS"}}
 {{- $jsdos := index . "jsdos6"}}
 {{- $logo := index . "logo"}}
 {{- $pouet := index . "pouet"}}
@@ -387,7 +388,7 @@
 <script defer src="{{ htmxMultipart }}?{{ sri_htmxMultipart }}" integrity="{{ sri_htmxMultipart }}" crossorigin="anonymous"></script>
 {{- /*  Do not defer, or async load the Bootstrap 5.x JS  */}}
 <script src="{{ bootstrap5JS }}?{{ sri_bootstrap5JS }}" integrity="{{ sri_bootstrap5JS }}" crossorigin="anonymous"></script>
-{{- if eq $metatitle "Introduction and milestones" }}
+{{- if $indexJS }}
 <script defer src="{{ indexJS }}?{{ sri_indexJS }}" integrity="{{ sri_indexJS }}" crossorigin="anonymous"></script>
 {{- end}}
 {{- if $pouet}}

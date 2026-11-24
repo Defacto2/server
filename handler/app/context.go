@@ -154,6 +154,7 @@ func empty(c *echo.Context) map[string]any {
 	m["description"] = ""
 	m["editor"] = sess.Editor(c)
 	m["h1"] = ""
+	m["indexJS"] = false
 	m["subheading"] = ""
 	m["jsdos6"] = false
 	m["lead"] = ""
@@ -1502,11 +1503,11 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 	const h1 = "The subcultures of obsolete microcomputers"
 
 	data := empty(c)
-	// NOTE: if the title get's changed, the indexJS conditional in layout.tmpl needs updating
 	data["title"] = title
 	data["description"] = descr
 	data[canonical] = "/"
 	data["h1"] = h1
+	data["indexJS"] = true
 	data["milestones"] = Collection()
 	{
 		// get the given name of the signed in session
