@@ -9,33 +9,33 @@
   </button>
   <ul class="dropdown-menu dropdown-menu-lg-end">
     {{- template "layoutlock" . }}
-    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-about">{{if not $editor}}About{{else}}Uploader shortcuts{{end}}</a></li>
+    <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-about">{{if not $editor}}About{{else}}Uploader shortcuts{{end}}</button></li>
     {{- if not $editor}}<li><hr class="dropdown-divider"></li>{{end}}
     <li><h6 class="dropdown-header">Submit a production</h6></li>
     <li data-bs-toggle="tooltip" data-bs-title="control + alt + z">
-      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-demozoo-modal">Demo<u>z</u>oo</a></li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-demozoo-modal">Demo<u>z</u>oo</button></li>
     <li>
-    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-pouet-modal">Pouët</a></li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-pouet-modal">Pouët</button></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">Upload files</h6></li>
     <li data-bs-toggle="tooltip" data-bs-title="control + alt + c">
-      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-intro-modal">
-      Intro, <u>C</u>racktro, BBStro</a></li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-intro-modal">
+      Intro, <u>C</u>racktro, BBStro</button></li>
     <li data-bs-toggle="tooltip" data-bs-title="control + alt + t">
-      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-trainer-modal">
-      <u>T</u>rainer or installer</a></li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-trainer-modal">
+      <u>T</u>rainer or installer</button></li>
     <li data-bs-toggle="tooltip" data-bs-title="control + alt + n">
-      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-text-modal">
-      Text, ANSI or <u>N</u>FO</a></li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-text-modal">
+      Text, ANSI or <u>N</u>FO</button></li>
     <li data-bs-toggle="tooltip" data-bs-title="control + alt + p">
-      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-image-modal">
-      Image or <u>p</u>hoto</a></li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-image-modal">
+      Image or <u>p</u>hoto</button></li>
     <li data-bs-toggle="tooltip" data-bs-title="control + alt + m">
-      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-magazine-modal">
-      <u>M</u>agazine</a></li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-magazine-modal">
+      <u>M</u>agazine</button></li>
     <li data-bs-toggle="tooltip" data-bs-title="control + alt + a">
-      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploader-advanced-modal">
-      <u>A</u>dvanced uploader</a></li>
+      <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#uploader-advanced-modal">
+      <u>A</u>dvanced uploader</button></li>
   </ul>
 </div>
 {{- end}}
