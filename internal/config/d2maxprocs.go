@@ -19,9 +19,12 @@ func (t Threads) Help() string {
 }
 
 func (t Threads) String() string {
-	if t == 0 {
-		return "are not set"
+	switch t {
+	case 0:
+		return "not set"
+	case 1:
+		return "1 thread"
+	default:
+		return fmt.Sprintf("%d threads", t)
 	}
-
-	return fmt.Sprintf("%d CPU threads", t)
 }

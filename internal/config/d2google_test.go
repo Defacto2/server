@@ -41,8 +41,8 @@ func TestGoogleLogging(t *testing.T) {
 	c.Configurations(sl)
 	out := buf.String()
 	be.True(t, strings.Contains(out, `msg="Google account(s):"`))
-	be.True(t, strings.Contains(out, `d2_google_ids,unset=""`))
-	be.True(t, strings.Contains(out, `d2_google_client_id,unset=""`))
+	be.True(t, strings.Contains(out, `D2_GOOGLE_IDS=""`))
+	be.True(t, strings.Contains(out, `D2_GOOGLE_CLIENT_ID=""`))
 
 	buf.Reset()
 	c.GoogleIDs = config.GoogleID("account-one")
@@ -50,5 +50,5 @@ func TestGoogleLogging(t *testing.T) {
 	c.Configurations(sl)
 	out = buf.String()
 	be.True(t, strings.Contains(out, `msg="Google account(s), single sign in account:"`))
-	be.True(t, strings.Contains(out, `d2_google_ids,unset=xxxxx`))
+	be.True(t, strings.Contains(out, `D2_GOOGLE_IDS=xxxxx`))
 }

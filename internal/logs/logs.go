@@ -204,36 +204,14 @@ func timeformat(flag int) string {
 
 // flagAttr formats the keys and values used by the config.Config struct.
 func flagAttr(a slog.Attr) slog.Attr {
-	a = ConfigUnsetAttr(a)
 	switch strings.ToLower(a.Key) {
 	case "":
 		return slog.Attr{Key: "", Value: slog.Value{}}
 	case "postgres", "repair":
 		a.Key = strings.ToUpper(a.Key)
-	case "help":
-		return configHelpAttr(a)
 	case "issue":
 		return ConfigIssueAttr(a)
-	case "msg":
-		return configMsgAttr(a)
 	}
-	return a
-}
-
-// ConfigUnsetAttr drops the ',unset' suffix found in some keys.
-func ConfigUnsetAttr(a slog.Attr) slog.Attr {
-	const unset = ",unset"
-	if trimmed, ok := strings.CutSuffix(a.Key, unset); ok {
-		a.Key = trimmed
-	}
-	return a
-}
-
-func configHelpAttr(a slog.Attr) slog.Attr {
-	if a.Value.String() == "" {
-		return slog.Attr{Key: "", Value: slog.Value{}}
-	}
-	a.Key = "Help"
 	return a
 }
 
@@ -244,16 +222,6 @@ func ConfigIssueAttr(a slog.Attr) slog.Attr {
 	}
 	a.Key = strings.ToUpper(a.Key)
 	return tint.Attr(ErrorRed, slog.String(a.Key, a.Value.String()))
-}
-
-// configMsgAttr drops values that are not intended for logging.
-func configMsgAttr(a slog.Attr) slog.Attr {
-	switch strings.ToLower(a.Value.String()) {
-	case "googleaccounts":
-		return slog.Attr{Key: "", Value: slog.Value{}}
-	default:
-		return a
-	}
 }
 
 // addsourceNoDirectory removes the directory path from the log output

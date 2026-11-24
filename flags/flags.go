@@ -92,17 +92,21 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 }
 
 // Config command lists the server configuration.
-func Config(_ io.Writer, c *config.Config) *cli.Command {
+func Config(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "config",
 		Aliases:     []string{"c"},
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
-		Action: func(_ *cli.Context) error {
-			sl := stdoutput()
-			sl.Info(configTitle)
-			c.Configurations(sl)
-
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "detail",
+				Aliases: []string{"d"},
+				Usage:   "include full descriptions for each environment variable",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			c.Print(w, ctx.Bool("detail"))
 			return nil
 		},
 	}

@@ -17,11 +17,18 @@ func (s DemozooAuth) Help() string {
 	if s == "" {
 		return "No authorization key, one can be generated at: https://demozoo.org/account/api_keys"
 	}
+	return ""
+}
+
+func (s DemozooAuth) Issue() string {
+	if s == "" {
+		return ""
+	}
 	const i = 8
 	if len(s) <= i {
 		return "Authorization key is too short"
 	}
-	if s[8] != '.' {
+	if s[i] != '.' {
 		return "Authorization key expects the 9th character to be a period (.)"
 	}
 	return ""
