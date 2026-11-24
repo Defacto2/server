@@ -34,11 +34,10 @@ const (
 	Email      = "contact@defacto2.net"     // Email contact for public display.
 	RecentYear = 2026                       // Most recent year of compilation for this program.
 
-	configTitle  = "Web Server Configurations"
-	addressTitle = "Web Server Addresses"
-	fixesTitle   = "Database and Asset Fixes"
-	indexTitle   = "Database Index Rebuild"
-	format       = "%s\n"
+	configTitle = "Web Server Configurations"
+	fixesTitle  = "Database and Asset Fixes"
+	indexTitle  = "Database Index Rebuild"
+	format      = "%s\n"
 )
 
 var ErrNoConfig = errors.New("cannot run command as config is nil")
@@ -126,16 +125,14 @@ func Check(w io.Writer, c *config.Config) *cli.Command {
 }
 
 // Address command lists the server addresses.
-func Address(_ io.Writer, c *config.Config) *cli.Command {
+func Address(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "address",
 		Aliases:     []string{"a"},
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
-			sl := stdoutput()
-			sl.Info(addressTitle)
-			return c.Addresses(sl)
+			return c.PrintAddresses(w)
 		},
 	}
 }

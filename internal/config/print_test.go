@@ -72,3 +72,25 @@ func TestPrintMaskingAndIssues(t *testing.T) {
 	be.True(t, strings.Contains(out, "ISSUE: File path points to a directory"))
 	be.True(t, strings.Contains(out, "ISSUE: Authorization key is too short"))
 }
+
+func TestPrintAddresses(t *testing.T) {
+	t.Parallel()
+
+	var empty bytes.Buffer
+	be.Err(t, (config.Config{}).PrintAddresses(&empty), config.ErrNoPort)
+
+	var buf bytes.Buffer
+	c := config.Config{
+		HTTPPort:  config.StdCustom,
+		TLSPort:   config.PortTLS(config.StdHTTPS),
+		MatchHost: config.Matchhost("127.0.0.1"),
+	}
+	be.Err(t, c.PrintAddresses(&buf), nil)
+	out := buf.String()
+	be.True(t, !strings.Contains(out, "\033["))
+	be.True(t, strings.Contains(out, "Bound to host: 127.0.0.1"))
+	be.True(t, strings.Contains(out, "HTTP (:1323)"))
+	be.True(t, strings.Contains(out, "http://127.0.0.1:1323"))
+	be.True(t, strings.Contains(out, "HTTPS (:443)"))
+	be.True(t, strings.Contains(out, "https://127.0.0.1"))
+}

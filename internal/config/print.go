@@ -190,3 +190,50 @@ func toggleItem(env string, t Toggle) printItem {
 	}
 	return printItem{env: env, value: "off", muted: true}
 }
+
+// PrintAddresses writes a grouped, human-readable list of server URLs to w.
+// ANSI styling is enabled automatically when w is a terminal.
+func (c Config) PrintAddresses(w io.Writer) error {
+	if w == nil {
+		w = os.Stdout
+	}
+	httpURLs, httpsURLs, err := c.addressURLs()
+	if err != nil {
+		return fmt.Errorf("config addresses: %w", err)
+	}
+
+	color := logs.Color(w)
+	style := func(code, s string) string {
+		if !color || s == "" {
+			return s
+		}
+		return code + s + ansiReset
+	}
+
+	_, _ = fmt.Fprintln(w, style(ansiBold, "Web Server Addresses"))
+	_, _ = fmt.Fprintln(w)
+	if host := c.MatchHost.String(); host != "" {
+		_, _ = fmt.Fprintf(w, "%s %s\n", style(ansiDim, "Bound to host:"), host)
+	} else {
+		_, _ = fmt.Fprintln(w, style(ansiDim,
+			"Depending on the firewall and operating system setup, the server may be accessible at:"))
+	}
+
+	if len(httpURLs) > 0 {
+		_, _ = fmt.Fprintln(w)
+		_, _ = fmt.Fprintln(w, style(ansiBold, fmt.Sprintf("HTTP (:%d)", c.HTTPPort)))
+		for _, link := range httpURLs {
+			_, _ = fmt.Fprintf(w, "  %s\n", style(ansiCyan, link))
+		}
+	}
+
+	if len(httpsURLs) > 0 {
+		_, _ = fmt.Fprintln(w)
+		_, _ = fmt.Fprintln(w, style(ansiBold, fmt.Sprintf("HTTPS (:%d)", c.TLSPort)))
+		for _, link := range httpsURLs {
+			_, _ = fmt.Fprintf(w, "  %s\n", style(ansiCyan, link))
+		}
+	}
+
+	return nil
+}
