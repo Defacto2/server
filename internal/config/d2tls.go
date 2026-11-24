@@ -8,7 +8,7 @@ import (
 
 // UseTLS returns true if the server is configured to use TLS.
 func (c Config) UseTLS() bool {
-	return c.TLSPort > 0 && c.TLSCert != "" || c.TLSKey != ""
+	return c.TLSPort > 0 && (c.TLSCert != "" || c.TLSKey != "")
 }
 
 // UseLocal returns true if the server is configured to use the local TSL-mode.
@@ -27,15 +27,15 @@ func (a Abstlskey) Help() string {
 }
 
 func (a Abstlskey) Issue() string {
-	return Directory(a).Issue()
+	return File(a).Issue()
 }
 
 func (a Abstlskey) LogValue() slog.Value {
-	return Directory(a).LogValue()
+	return File(a).LogValue()
 }
 
 func (a Abstlskey) String() string {
-	return Directory(a).String()
+	return File(a).String()
 }
 
 type Abstlscrt File
@@ -49,15 +49,15 @@ func (a Abstlscrt) Help() string {
 }
 
 func (a Abstlscrt) Issue() string {
-	return Directory(a).Issue()
+	return File(a).Issue()
 }
 
 func (a Abstlscrt) LogValue() slog.Value {
-	return Directory(a).LogValue()
+	return File(a).LogValue()
 }
 
 func (a Abstlscrt) String() string {
-	return Directory(a).String()
+	return File(a).String()
 }
 
 type PortTLS Port

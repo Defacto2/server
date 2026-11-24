@@ -114,8 +114,8 @@ func Check(_ io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "check",
 		Aliases:     []string{"k"},
-		Usage:       "Check the server configuration",
-		Description: "Check the server configuration options and the settings against common problems.",
+		Usage:       "check the server configuration",
+		Description: "Lheck the server configuration options and the settings against common problems.",
 		Action: func(_ *cli.Context) error {
 			log.Printf(format, configTitle)
 
