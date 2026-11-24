@@ -1174,6 +1174,50 @@ pre#precontentCP437 {
 }
 
 /* ============================================================
+ * KEYBOARD SHORTCUT CHEATSHEET (UPLOADER ABOUT MODAL)
+ * ============================================================ */
+
+.uploader-shortcut-heading {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.65rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+}
+
+.shortcut-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.shortcut-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.55rem;
+  padding: 0.15rem 0.4rem;
+  font-family: font-cascadia-mono, ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #212529;
+  background: #fff;
+  border: 1px solid #ced4da;
+  border-bottom-width: 2px;
+  border-radius: 0.25rem;
+}
+
+/* ============================================================
  * HYBRID NAVBAR (768px to 991.98px)
  * Primary navigation items stay horizontal on the top bar while
  * secondary items collapse into the hamburger drawer.

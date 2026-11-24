@@ -1,82 +1,153 @@
 {{- /* 
-    uploader.tmpl ~ About the uploader modal dialog.
+    uploader.tmpl ~ About the uploader and keyboard shortcuts modal dialogs.
 */ -}}
-{{- define "uploader" -}} 
+{{- define "uploader" -}}
     <div class="modal fade" id="uploader-about" tabindex="-1" aria-labelledby="uploader-about-label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="uploader-about-label">About the Uploader</h5>
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-about-label">About the Uploader</h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <p>
-              Do you have Scene files that Defacto2 could host? 
-              You can use the Uploader to send us files, but a human tests and approves all uploads which may take time.
-              <strong>No inappropriate files or modern tools that violate the <abbr title="Digital Millennium Copyright Act">DMCA</abbr></strong>.
+          <div class="modal-body p-4">
+            <p class="mb-3">
+              Do you have Scene files that Defacto2 could host?
+              Use the Uploader to submit files—a human tests and approves every upload, which may take some time.
             </p>
-            <p><a href="https://github.com/Defacto2/defacto2.net/wiki/Wanted-uploads">Check out the wanted files</a>.</p>
-            <p>There is a 100MB per file upload limit. Please <a href="#contacts-email-modal" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">contact us</a> if you need access to an SFTP server to bypass this limit.</p>
-            <hr>
-            <h6 class="text-muted mb-2">Keyboard shortcuts <small class="fw-normal">(ctrl + alt +)</small></h6>
-          <div class="row g-3">
-            <div class="col-6">
-              <dl class="mb-0">
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>d</kbd></dt>
-                  <dd class="d-inline mb-2"><small> intro for DOS</small></dd>
-                </div>
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>w</kbd></dt>
-                  <dd class="d-inline mb-2"><small> intro for Windows</small></dd>
-                </div>
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>b</kbd></dt>
-                  <dd class="d-inline mb-2"><small> bbstro (bbs intro)</small></dd>
-                </div>
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>c</kbd></dt>
-                  <dd class="d-inline mb-2"><small> intro or cracktro</small></dd>
-                </div>
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>t</kbd></dt>
-                  <dd class="d-inline mb-2"><small> trainer or game hack app</small></dd>
-                </div>
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>i</kbd></dt>
-                  <dd class="d-inline mb-2"><small> installer app</small></dd>
-                </div>
-                <div class="d-inline-block pt-2">
-                  <dt class="d-inline"><kbd class="small"><small>⌫</small></kbd></dt>
-                  <dd class="d-inline"><small> backspace, to close uploader</small></dd>
-                </div>
-              </dl>
+            <div class="bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-2 px-3 py-2 small mb-3">
+              <strong>No inappropriate files or modern tools that violate the <abbr title="Digital Millennium Copyright Act">DMCA</abbr>.</strong>
             </div>
-            <div class="col-6">
-              <dl class="mb-0">
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>n</kbd></dt>
-                  <dd class="d-inline mb-2"><small> nfo, ansi, diz, text</small></dd>
-                </div>
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>p</kbd></dt>
-                  <dd class="d-inline mb-2"><small> photo, picture or image art</small></dd>
-                </div>
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>m</kbd></dt>
-                  <dd class="d-inline mb-2"><small> magazines</small></dd>
-                </div>
-                <div class="d-inline-block me-3">
-                  <dt class="d-inline"><kbd>a</kbd></dt>
-                  <dd class="d-inline mb-2"><small> advance uploader</small></dd>
-                </div>
-                <div class="d-inline-block">
-                  <dt class="d-inline"><kbd>z</kbd></dt>
-                  <dd class="d-inline"><small> demozoo production</small></dd>
-                </div>
-              </dl>
-            </div>
+            <p class="small text-body-secondary mb-3">
+              There is a 100 MB per-file upload limit. Please
+              <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-bs-toggle="modal" data-bs-target="#contacts-email-modal">contact us</button>
+              if you need access to an SFTP server to bypass this limit.
+            </p>
+            <a href="https://github.com/Defacto2/defacto2.net/wiki/Wanted-uploads" target="_blank" rel="noopener noreferrer" class="small fw-medium text-decoration-none">
+              Check out the wanted uploads ↗
+            </a>
           </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#uploader-shortcuts">Keyboard shortcuts</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="uploader-shortcuts" tabindex="-1" aria-labelledby="uploader-shortcuts-label" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-shortcuts-label">Keyboard Shortcuts</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+              <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-0 uploader-shortcut-heading">Uploader &amp; quick jump</h3>
+              <span class="small text-body-secondary">Hold <kbd class="shortcut-kbd">Ctrl</kbd> + <kbd class="shortcut-kbd">Alt</kbd> + key</span>
+            </div>
+
+            <div class="small fw-semibold text-body-secondary mb-2">Upload files &amp; productions</div>
+            <div class="row row-cols-1 row-cols-md-2 g-2 mb-3">
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Intro, cracktro or BBStro (DOS)</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">c</kbd> <kbd class="shortcut-kbd">d</kbd> <kbd class="shortcut-kbd">b</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Intro or cracktro (Windows)</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">w</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Trainer or game hack</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">t</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Installer app</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">i</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Text, ANSI, NFO or DIZ</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">n</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Photo, picture or image art</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">p</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Magazine</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">m</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Advanced uploader</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">a</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Demozoo production</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">z</kbd></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="small fw-semibold text-body-secondary mb-2">Actions &amp; results</div>
+            <div class="row row-cols-1 row-cols-md-2 g-2 mb-3">
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Close open uploader</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">⌫ Backspace</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Open new artifact record</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">↵ Enter</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Open artifact card in new tab</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">1</kbd>–<kbd class="shortcut-kbd">9</kbd></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="small fw-semibold text-body-secondary mb-2">Quick search</div>
+            <div class="row row-cols-1 row-cols-sm-3 g-2">
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Releasers</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">r</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Filenames</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">f</kbd></span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="shortcut-row">
+                  <span>Descriptions</span>
+                  <span class="shortcut-keys"><kbd class="shortcut-kbd">x</kbd></span>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
