@@ -107,3 +107,25 @@ func TestCacheMiddleware(t *testing.T) {
 	got = c.Response().Header().Get(handler.CacheControl)
 	be.Equal(t, got, "public, max-age="+strconv.Itoa(hour))
 }
+
+func TestShortAgent(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		ua   string
+		want string
+	}{
+		{"", ""},
+		{"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36", "Chrome/158 (Linux)"},
+		{"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0", "Firefox/134 (Windows)"},
+		{"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15", "Safari/18 (macOS)"},
+		{"Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1", "Safari/18 (iOS)"},
+		{"Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.58 Mobile Safari/537.36", "Chrome/130 (Android)"},
+		{"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0", "Edge/130 (Windows)"},
+		{"curl/8.5.0", "curl/8.5"},
+		{"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", "Googlebot"},
+	}
+	for _, tt := range tests {
+		be.Equal(t, tt.want, handler.ShortAgent(tt.ua))
+	}
+}

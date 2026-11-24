@@ -8,10 +8,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"runtime"
 	"strconv"
 	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/Defacto2/server/handler/api"
@@ -23,8 +21,6 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
-
-var requestCounter atomic.Int64
 
 const (
 	CacheControl  = "Cache-Control"
@@ -39,13 +35,16 @@ const (
 // or required resource for every page request would be returned.
 func SkipPaths(c *echo.Context) bool {
 	_, status := echo.ResolveResponseStatus(c.Response(), nil)
+	return skipRequest(c.Request().RequestURI, status)
+}
 
-	if redirect := status == http.StatusMovedPermanently; redirect {
+func skipRequest(uri string, status int) bool {
+	if status == http.StatusMovedPermanently {
 		return true
 	}
-
-	uri := c.Request().RequestURI
-	statusOk := status == http.StatusOK
+	if status != http.StatusOK {
+		return false
+	}
 	switch {
 	case strings.HasPrefix(uri, "/public/"),
 		strings.HasPrefix(uri, "/css/"),
@@ -53,11 +52,8 @@ func SkipPaths(c *echo.Context) bool {
 		strings.HasPrefix(uri, "/image/"),
 		strings.HasPrefix(uri, "/svg/"),
 		strings.HasPrefix(uri, "/font/"):
-		if statusOk {
-			return true
-		}
+		return true
 	}
-
 	return false
 }
 
@@ -150,19 +146,13 @@ func configTrailSlash() middleware.RemoveTrailingSlashConfig {
 
 // RequestLoggerConfig handles logging for HTTP page requests.
 // A slog Logger is required otherwise it will panic.
-//
-// If Configuration.LogAll is false then this returns a nil.
-// Otherwise it logs all web server HTTP requests to info logs.
-func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig { //nolint:funlen
+func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLoggerConfig {
 	if !serv.Environment.LogAll {
-		exitRequest := func(_ *echo.Context, _ middleware.RequestLoggerValues) error {
-			return nil
-		}
 		return middleware.RequestLoggerConfig{
-			LogValuesFunc:  exitRequest,
-			Skipper:        nil,
-			BeforeNextFunc: nil,
-			HandleError:    true,
+			LogValuesFunc: func(_ *echo.Context, _ middleware.RequestLoggerValues) error {
+				return nil
+			},
+			HandleError: true,
 		}
 	}
 
@@ -171,78 +161,157 @@ func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLogge
 		panic(fmt.Errorf(format, "check", err))
 	}
 
-	// logValues is used by the returned middleware.RequestLoggerConfig().LogValuesFunc
 	logValues := func(_ *echo.Context, v middleware.RequestLoggerValues) error {
-		// memory usage - but only sample every 10th request
-		var alloc string
-		count := requestCounter.Add(1)
-		if count%10 == 0 {
-			var m runtime.MemStats
-			runtime.ReadMemStats(&m)
-			alloc = humanize.Bytes(m.Alloc)
+		if skipRequest(v.URI, v.Status) {
+			return nil
 		}
 
-		memory := func() slog.Attr {
-			if alloc == "" {
-				return slog.Attr{}
-			}
-			return slog.String("allocation", alloc)
+		const latencyUnit = 100 * time.Microsecond
+		rsize := uint64(max(v.ResponseSize, 0)) //nolint:gosec
+		attrs := make([]any, 0, 3)
+		attrs = append(attrs,
+			slog.Duration("latency", v.Latency.Round(latencyUnit)),
+			slog.String("size", humanize.Bytes(rsize)),
+		)
+		if agent := ShortAgent(v.UserAgent); agent != "" {
+			attrs = append(attrs, slog.String("agent", agent))
 		}
 
-		rsize := uint64(v.ResponseSize) //nolint:gosec // G115: ResponseSize is always non-negative (content length)
-		response := func() slog.Attr {
-			return slog.Group("response", slog.Int64("size", v.ResponseSize),
-				slog.String("humanize", humanize.Bytes(rsize)))
+		msg := fmt.Sprintf("%s %d %s", v.Method, v.Status, v.URI)
+		switch {
+		case v.Status >= http.StatusInternalServerError:
+			sl.Error(msg, attrs...)
+		case v.Status >= http.StatusBadRequest:
+			sl.Warn(msg, attrs...)
+		default:
+			sl.Info(msg, attrs...)
 		}
-
-		cpuinfo := func() slog.Attr {
-			return slog.Group("cpu", slog.Int("cores", runtime.NumCPU()),
-				slog.Int("go_routines", runtime.NumGoroutine()))
-		}
-
-		latency := func() slog.Attr {
-			return slog.Duration("latency", v.Latency)
-		}
-
-		// NOTE: Using using any new v middleware.RequestLoggerValues will require an update
-		// to middleware.RequestLoggerConfig values that are returned by this func.
-		requests := func() slog.Attr {
-			return slog.Group("request",
-				slog.String("agent", v.UserAgent), // browser agent used for debugging
-				slog.String("path", v.URIPath),    // uri path without any params
-				slog.String("route", v.RoutePath), // internal route path with values
-				slog.String("uri", v.URI),         // complete url request
-			)
-		}
-
-		// slog.Any("request", v), // add for verbose & debugging
-		msg := "HTTP(S) " + v.Method + " " + strconv.Itoa(v.Status)
-		sl.Info(msg, latency(), response(), cpuinfo(), memory(), requests())
 		return nil
 	}
 
 	return middleware.RequestLoggerConfig{
-		Skipper:          SkipPaths,
-		LogLatency:       true,
-		LogProtocol:      false,
-		LogRemoteIP:      false,
-		LogHost:          false,
-		LogMethod:        true,
-		LogURI:           true,
-		LogURIPath:       true,
-		LogRoutePath:     true,
-		LogRequestID:     false,
-		LogReferer:       false,
-		LogUserAgent:     true,
-		LogStatus:        true,
-		LogContentLength: false,
-		LogResponseSize:  true,
-		LogHeaders:       nil,
-		LogQueryParams:   nil,
-		LogFormValues:    nil,
-		LogValuesFunc:    logValues,
-		// LogError:         false,
+		LogLatency:      true,
+		LogMethod:       true,
+		LogURI:          true,
+		LogUserAgent:    true,
+		LogStatus:       true,
+		LogResponseSize: true,
+		LogValuesFunc:   logValues,
 	}
+}
+
+// ShortAgent condenses a verbose HTTP User-Agent string into a compact
+// "<client> (<os>)" label (e.g. "Chrome/158 (Linux)", "Safari/18 (iOS)", "curl/8.5").
+func ShortAgent(ua string) string {
+	ua = strings.TrimSpace(ua)
+	if ua == "" {
+		return ""
+	}
+
+	client := detectClient(ua)
+	platform := detectPlatform(ua)
+	if platform != "" {
+		return client + " (" + platform + ")"
+	}
+	return client
+}
+
+func detectClient(ua string) string {
+	lower := strings.ToLower(ua)
+	bots := [...]struct{ needle, label string }{
+		{"googlebot", "Googlebot"},
+		{"bingbot", "Bingbot"},
+		{"duckduckbot", "DuckDuckBot"},
+		{"ahrefsbot", "AhrefsBot"},
+		{"gptbot", "GPTBot"},
+		{"claudebot", "ClaudeBot"},
+	}
+	for _, b := range bots {
+		if strings.Contains(lower, b.needle) {
+			return b.label
+		}
+	}
+
+	cliTools := [...]struct{ prefix, label string }{
+		{"curl/", "curl"},
+		{"wget/", "wget"},
+		{"go-http-client/", "Go-http"},
+		{"python-requests/", "python-requests"},
+	}
+	for _, tool := range cliTools {
+		if ver := extractTokenVersion(ua, tool.prefix, 2); ver != "" {
+			return tool.label + "/" + ver
+		}
+	}
+
+	// Browser order matters: Edge/Opera include Chrome; Chrome includes Safari.
+	browsers := [...]struct{ token, label string }{
+		{"Edg/", "Edge"},
+		{"OPR/", "Opera"},
+		{"Firefox/", "Firefox"},
+		{"Chrome/", "Chrome"},
+	}
+	for _, br := range browsers {
+		if ver := extractTokenVersion(ua, br.token, 1); ver != "" {
+			return br.label + "/" + ver
+		}
+	}
+	if strings.Contains(ua, "Safari/") {
+		if ver := extractTokenVersion(ua, "Version/", 1); ver != "" {
+			return "Safari/" + ver
+		}
+		return "Safari"
+	}
+
+	if strings.Contains(lower, "bot") || strings.Contains(lower, "crawler") || strings.Contains(lower, "spider") {
+		return "bot"
+	}
+
+	first, _, _ := strings.Cut(ua, " ")
+	const maxLen = 24
+	if len(first) > maxLen {
+		return first[:maxLen]
+	}
+	return first
+}
+
+func detectPlatform(ua string) string {
+	switch {
+	case strings.Contains(ua, "iPhone") || strings.Contains(ua, "iPad") || strings.Contains(ua, "iPod"):
+		return "iOS"
+	case strings.Contains(ua, "Android"):
+		return "Android"
+	case strings.Contains(ua, "Windows"):
+		return "Windows"
+	case strings.Contains(ua, "Macintosh") || strings.Contains(ua, "Mac OS X"):
+		return "macOS"
+	case strings.Contains(ua, "CrOS"):
+		return "ChromeOS"
+	case strings.Contains(ua, "FreeBSD"):
+		return "FreeBSD"
+	case strings.Contains(ua, "Linux"):
+		return "Linux"
+	default:
+		return ""
+	}
+}
+
+func extractTokenVersion(ua, prefix string, parts int) string {
+	idx := strings.Index(strings.ToLower(ua), strings.ToLower(prefix))
+	if idx < 0 {
+		return ""
+	}
+	rest := ua[idx+len(prefix):]
+	ver, _, _ := strings.Cut(rest, " ")
+	ver = strings.TrimRight(ver, ";,)")
+	if ver == "" {
+		return ""
+	}
+	segs := strings.Split(ver, ".")
+	if len(segs) > parts {
+		segs = segs[:parts]
+	}
+	return strings.Join(segs, ".")
 }
 
 // CacheMiddleware sets appropriate Cache-Control headers for API responses.

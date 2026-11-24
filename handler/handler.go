@@ -138,9 +138,11 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 	if settings.ProdMode {
 		e.Use(middleware.Recover())
 	}
+	if settings.LogAll.Bool() {
+		e.Use(middleware.RequestLoggerWithConfig(serv.RequestLoggerConfig(sl)))
+	}
 	e.Use(
 		middleware.Secure(),
-		middleware.RequestLoggerWithConfig(serv.RequestLoggerConfig(sl)),
 		serv.NoCrawl,
 		middleware.RemoveTrailingSlashWithConfig(configTrailSlash()),
 	)
