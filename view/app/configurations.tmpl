@@ -1,8 +1,7 @@
-{{- /* 
+{{- /*
     configurations.tmpl ~ Configurations page template.
 */ -}}
 {{- define "content" }}
-{{- $configs := index . "configurations"}}
 {{- $checkDownloads := index . "checkDownloads"}}
 {{- $checkPreviews := index . "checkPreviews"}}
 {{- $checkThumbnails := index . "checkThumbnails"}}
@@ -13,9 +12,8 @@
 {{- $extsThumbnails := index . "extsThumbnails"}}
 {{- $extsExtras := index . "extsExtras"}}
 {{- $extsOrphaned := index . "extsOrphaned"}}
-{{- $responseRow := "row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-0"}}
 {{- $formats := "badge text-bg-secondary bg-opacity-25 text-body fw-normal"}}
-{{- /*    */}}
+{{- /*  Database  */}}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-5 mb-3">
   <div>
     <h2 class="lead mb-0">Database</h2>
@@ -39,7 +37,7 @@
   UUID versions: <span class="font-monospace">{{.}}</span>
 </div>
 {{- end}}
-{{- /*  Ping internal URIs */}}
+{{- /*  Ping internal URIs  */}}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-5 mb-2">
   <h2 class="lead mb-0">Routes</h2>
   <button type="button" class="btn btn-sm btn-outline-secondary"
@@ -211,426 +209,432 @@
   </div>
 </div>
 {{- /*  Links to records  */}}
-{{- $confirmed := `<span class="badge bg-success text-success-emphasis">&#10003;</span>` | safeHTML }}
-{{- $fixing := `<span class="badge bg-danger text-danger-emphasis">&#10005;</span>` | safeHTML }}
-{{- $fid := `text-uppercase` }}
-<h2 class="lead mt-3">Links to special records</h2>
-<div class="mb-3 text-secondary">
-  These are highlighted artifacts that have unusual edge cases. 
-  <br>Status badges indicate: 
-  <span class="badge bg-danger text-danger-emphasis">&#10005; needs fixing</span> or 
-  <span class="badge bg-success text-success-emphasis">&#10003; confirmed</span>
+{{- $confirmed := `<span class="badge bg-success-subtle text-success-emphasis fw-normal" title="Confirmed">&#10003;</span>` | safeHTML }}
+{{- $fixing := `<span class="badge bg-danger-subtle text-danger-emphasis fw-normal" title="Needs fixing">&#10005;</span>` | safeHTML }}
+{{- $fid := `text-uppercase link-underline link-underline-opacity-0 link-underline-opacity-75-hover` }}
+{{- $fitem := `list-group-item bg-transparent py-2 px-3` }}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-5 mb-3">
+  <div>
+    <h2 class="lead mb-0">Links to special records</h2>
+    <div class="small text-body-secondary">
+      Reference artifacts covering edge cases, bespoke formats, encodings, and emulation quirks.
+    </div>
+  </div>
+  <div class="d-flex align-items-center gap-2 small">
+    <span class="badge bg-success-subtle text-success-emphasis fw-normal">&#10003; confirmed</span>
+    <span class="badge bg-danger-subtle text-danger-emphasis fw-normal">&#10005; needs fixing</span>
+  </div>
 </div>
-<!--- capacity issues --->
-<div class="row row-cols-1 row-cols-md-2 g-2">
+
+<div class="row row-cols-1 row-cols-lg-2 g-3 mb-4">
+  {{- /* Capacity & edge cases */}}
   <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Download that is too large</strong></div>
-      <div class="small text-body-secondary mb-2">Cloudflare limits the download size to 1GB</div>
-      <div><a href="/f/aa256f1" class="{{$fid}}">aa256f1</a></div>
+    <div class="card h-100 bg-body-tertiary border">
+      <div class="card-header bg-transparent py-2 px-3 small fw-medium">Capacity &amp; edge cases</div>
+      <ul class="list-group list-group-flush">
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Download that is too large</div>
+          <div class="small text-body-secondary mb-1">Cloudflare limits the download size to 1 GB</div>
+          <div class="small"><a href="/f/aa256f1" class="{{$fid}}">aa256f1</a></div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Archive with too many files</div>
+          <div class="small text-body-secondary mb-1">Large archives containing thousands of files</div>
+          <div class="small">
+            <a href="/f/b31d5d7" class="{{$fid}}">b31d5d7</a>
+            <span class="text-body-secondary">(132 MB, contains 72,917 files)</span>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Readme that is extra long</div>
+          <div class="small text-body-secondary mb-1">Files that can overload the browser DOM</div>
+          <div class="small">
+            <a href="/f/ae219e8" class="{{$fid}}">ae219e8</a>
+            <span class="text-body-secondary">(129,178 lines, 5 MB)</span>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Magic number false positives</div>
+          <div class="small text-body-secondary mb-1">Files that caused magic number false positives</div>
+          <div class="small">
+            <a href="/f/b523780" class="{{$fid}}">1</a> ·
+            <a href="/f/b425062" class="{{$fid}}">2</a>
+            <span class="text-body-secondary">ANSI != plaintext</span>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Artifacts with <q>link to</q></div>
+          <div class="small text-body-secondary mb-1">Records with linking relationships</div>
+          <div class="small">
+            <a href="/f/b029330" class="{{$fid}}">b029330</a> ·
+            <a href="/f/ab27f81" class="{{$fid}}">ab27f81</a> ·
+            <a href="/f/ba4805" class="{{$fid}}">ba4805</a>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
+
+  {{- /* ANSI & binary text art */}}
   <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Archive with too many files</strong></div>
-      <div class="small text-body-secondary mb-2">Large archives containing thousands of files</div>
-      <div><a href="/f/b31d5d7" class="{{$fid}}">b31d5d7</a> <span class="small text-muted">(132 MB, contains 72917 files)</span></div>
+    <div class="card h-100 bg-body-tertiary border">
+      <div class="card-header bg-transparent py-2 px-3 small fw-medium">ANSI &amp; binary text art</div>
+      <ul class="list-group list-group-flush">
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">ANSImation</div>
+          <div class="small text-body-secondary mb-1">ANSI streams with animations</div>
+          <div class="small">
+            <a href="/f/ba2ff05" class="{{$fid}}">ba2ff05</a> ·
+            <a href="/f/b53028e" class="{{$fid}}">b53028e</a> ·
+            <a href="/f/a819aae" class="{{$fid}}">a819aae</a> ·
+            <a href="/f/b923cc5" class="{{$fid}}">b923cc5</a> ·
+            <a href="/f/ac2c5c0" class="{{$fid}}">ac2c5c0</a> <span class="text-body-secondary">Breakout</span>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">ANSImation with blink</div>
+          <div class="small text-body-secondary mb-1">ANSI streams with animations and blinking text</div>
+          <div class="small">
+            <a href="/f/af23902" class="{{$fid}}">af23902</a> <span class="text-body-secondary">Demon's Forge, 1989</span> ·
+            <a href="/f/b31cbfd" class="{{$fid}}">b31cbfd</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">ANSI with blink</div>
+          <div class="small text-body-secondary mb-1">ANSI art with blinking text</div>
+          <div class="small">
+            <a href="/f/a83199" class="{{$fid}}">a83199</a> ·
+            <a href="/f/ba2bcbb" class="{{$fid}}">ba2bcbb</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Other color texts</div>
+          <div class="small text-body-secondary mb-1">Other color text used by BBSes, exported as PNG and WebP images</div>
+          <div class="small">
+            <a href="/f/b02ecf1" class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Amiga ANSI</a> ·
+            <a href="/f/b92e111" class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover">@PCB</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">SAUCE BIN</div>
+          <div class="small text-body-secondary mb-1">Binary texts with SAUCE metadata that use custom rendering</div>
+          <div class="small">
+            <a href="/f/ab194e9" class="{{$fid}}">1</a> ·
+            <a href="/f/ae1c14d" class="{{$fid}}">2</a> ·
+            <a href="/f/b027559" class="{{$fid}}">3</a> ·
+            <a href="/f/b01d34f" class="{{$fid}}">4</a> ·
+            <a href="/f/b3220cb" class="{{$fid}}">5</a> ·
+            <a href="/f/ab1b63f" class="{{$fid}}">6</a> ·
+            <a href="/f/aa1ed87" class="{{$fid}}">7</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">eXtended BIN</div>
+          <div class="small text-body-secondary mb-1">XBIN files are not fully supported due to their custom fonts</div>
+          <div class="small">
+            <a href="/f/b23006f" class="{{$fid}}">1</a> ·
+            <a href="/f/b12db5f" class="{{$fid}}">2</a> ·
+            <a href="/f/ab1ccc7" class="{{$fid}}">3</a> ·
+            <a href="/f/ab1f1ff" class="{{$fid}}">4</a> ·
+            <a href="/f/b02b24f" class="{{$fid}}">5</a> ·
+            <a href="/f/ab229bf" class="{{$fid}}">6</a> <span class="text-body-secondary">ICEdraw</span>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
+
+  {{- /* Text files & readmes */}}
   <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme that is extra long</strong></div>
-      <div class="small text-body-secondary mb-2">Files that can overload the browser DOM</div>
-      <div><a href="/f/ae219e8" class="{{$fid}}">ae219e8</a> <span class="small text-muted">(129178 lines, 5MB)</span></div>
+    <div class="card h-100 bg-body-tertiary border">
+      <div class="card-header bg-transparent py-2 px-3 small fw-medium">Text files &amp; readmes</div>
+      <ul class="list-group list-group-flush">
+        <li class="{{$fitem}}">
+          <div class="fw-medium small d-flex align-items-center gap-2">Unknown or corrupt encoding {{$confirmed}}</div>
+          <div class="small text-body-secondary mb-1">Corrupt text files caused by saving to the wrong encoding</div>
+          <div class="small">
+            <a href="/f/ac2319e" class="{{$fid}}">ac2319e</a> ·
+            <a href="/f/b0269ca" class="{{$fid}}">b0269ca</a> <span class="text-body-secondary">vs</span>
+            <a href="/f/ac1d9d3" class="{{$fid}}">ac1d9d3</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Broken newlines</div>
+          <div class="small text-body-secondary mb-1">Text files with corrupted newline characters due to advertising injection</div>
+          <div class="small">
+            <a href="/f/b224d50" class="{{$fid}}">b224d50</a> ·
+            <a href="/f/ae1c03c" class="{{$fid}}">ae1c03c</a> <span class="text-body-secondary">(includes EOF marker)</span>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">CD keys and serials</div>
+          <div class="small text-body-secondary mb-1">Readme files with serials and CD keys that should be masked</div>
+          <div class="small">
+            <a href="/f/b91f23c" class="{{$fid}}">1</a> ·
+            <a href="/f/c0304ac" class="{{$fid}}">2</a> ·
+            <a href="/f/ad20232" class="{{$fid}}">3</a> ·
+            <a href="/f/b023312" class="{{$fid}}">4</a> ·
+            <a href="/f/af37fc" class="{{$fid}}">5</a> ·
+            <a href="/f/bd2b294" class="{{$fid}}">6</a> ·
+            <a href="/f/ba2609c" class="{{$fid}}">7</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Readme requires wrapping</div>
+          <div class="small text-body-secondary mb-1">Text that needs line wrapping</div>
+          <div class="small">
+            <a href="/f/b14bb1" class="{{$fid}}">b14bb1</a> ·
+            <a href="/f/b12fe37" class="{{$fid}}">b12fe37</a> ·
+            <a href="/f/b61f24f" class="{{$fid}}">b61f24f</a> ·
+            <a href="/f/b122787" class="{{$fid}}">b122787</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Readme requires trimming</div>
+          <div class="small text-body-secondary mb-1">Extraneous whitespace or content</div>
+          <div class="small"><a href="/f/b830654" class="{{$fid}}">b830654</a></div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Block art</div>
+          <div class="small text-body-secondary mb-1">CP437 "ASCII" art or visual content</div>
+          <div class="small">
+            <a href="/f/ad217af" class="{{$fid}}">ad217af</a> ·
+            <a href="/f/ae2a9cc" class="{{$fid}}">ae2a9cc</a> ·
+            <a href="/f/ad2b193" class="{{$fid}}">ad2b193</a> ·
+            <a href="/f/ac1a2dc" class="{{$fid}}">ac1a2dc</a>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
+
+  {{- /* Images & documents */}}
   <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Magic number false positives</strong></div>
-      <div class="small text-body-secondary mb-2">Files that caused magic number false positives</div>
-      <div>
-        <a href="/f/b523780" class="{{$fid}}">1</a> · 
-        <a href="/f/b425062" class="{{$fid}}">2</a> <span class="small text-muted">ANSI != plaintext</span></div>
+    <div class="card h-100 bg-body-tertiary border">
+      <div class="card-header bg-transparent py-2 px-3 small fw-medium">Images &amp; documents</div>
+      <ul class="list-group list-group-flush">
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Images <code>.IFF</code></div>
+          <div class="small text-body-secondary mb-1">Amiga-standard <q>Interchange File Format</q> images first introduced in 1988</div>
+          <div class="small">
+            <a href="/f/b32e8a7" class="{{$fid}}">SDC 1992</a> ·
+            <a href="/f/a71fd00" class="{{$fid}}">PD 1992</a> ·
+            <a href="/f/b522116" class="{{$fid}}">1994</a> ·
+            <a href="/f/ac2739d" class="{{$fid}}">1997</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Images <code>.GIF</code></div>
+          <div class="small text-body-secondary mb-1"><q>Graphics Interchange Format</q> images first introduced in 1987</div>
+          <div class="small">
+            <span class="text-body-secondary">1989</span>
+            <a href="/f/b0290da" class="{{$fid}}">PTL</a> ·
+            <a href="/f/ad1f972" class="{{$fid}}">PTL</a> ·
+            <a href="/f/ac3efa" class="{{$fid}}">ESI</a> ·
+            <a href="/f/ae267d2" class="{{$fid}}">MCM</a> ·
+            <a href="/f/b621fce" class="{{$fid}}">INC</a> ·
+            <span class="text-body-secondary">1988</span>
+            <a href="/f/b1438f" class="{{$fid}}">PTL</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Images <code>.RIP</code></div>
+          <div class="small text-body-secondary mb-1"><q>Remote Imaging Protocol</q> images first introduced in 1992</div>
+          <div class="small"><a href="/f/b02392f" class="{{$fid}}">b02392f</a></div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Other images</div>
+          <div class="small text-body-secondary mb-1">Exotic image formats common in the early 1990s</div>
+          <div class="small">
+            <a href="/f/b61a0e1" class="{{$fid}}">PCX</a> ·
+            <a href="/f/be2fd19" class="{{$fid}}">Gifs</a> ·
+            <a href="/f/ae1f9a2" class="{{$fid}}">TIFF</a> ·
+            <a href="/f/b8279a5" class="{{$fid}}">ILBM</a> ·
+            <a href="/f/ac1ddf6" class="{{$fid}}">IFFP</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Documents <code>.PDF</code></div>
+          <div class="small text-body-secondary mb-1">PDF documents</div>
+          <div class="small">
+            <a href="/f/b04139" class="{{$fid}}">web capture</a> ·
+            <a href="/f/ab24cd9" class="{{$fid}}">book as pdf</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Documents <code>.HTML</code></div>
+          <div class="small text-body-secondary mb-1">HTML and markdown documents</div>
+          <div class="small">
+            <a href="/f/ad3075" class="{{$fid}}">sodom.html</a> ·
+            <a href="/f/a722b1f" class="{{$fid}}">nbc.zip</a>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <!--- file formats with bespoke solutions --->
+
+  {{- /* Text encodings */}}
   <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>ANSImation</strong></div>
-      <div class="small text-body-secondary mb-2">ANSI streams with animations</div>
-      <div>
-          <a href="/f/ba2ff05" class="{{$fid}}">ba2ff05</a> · 
-          <a href="/f/b53028e" class="{{$fid}}">b53028e</a> · 
-          <a href="/f/a819aae" class="{{$fid}}">a819aae</a> · 
-          <a href="/f/b923cc5" class="{{$fid}}">b923cc5</a> · 
-          <a href="/f/ac2c5c0" class="{{$fid}}">ac2c5c0</a> <span class="small text-muted">Breakout</span>
-      </div>
+    <div class="card h-100 bg-body-tertiary border">
+      <div class="card-header bg-transparent py-2 px-3 small fw-medium">Text encodings</div>
+      <ul class="list-group list-group-flush">
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">UTF-16</div>
+          <div class="small text-body-secondary mb-1">Textfiles that require transformation</div>
+          <div class="small"><a href="/f/b22e849" class="{{$fid}}">b22e849</a></div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">UTF-8 with multi-bytes</div>
+          <div class="small text-body-secondary mb-1">The UTF-8 file magic must be set to display correctly</div>
+          <div class="small">
+            <a href="/f/b12d05f" class="{{$fid}}">b12d05f</a> ·
+            <a href="/f/b228a8e" class="{{$fid}}">b228a8e</a> ·
+            <a href="/f/b53028e" class="{{$fid}}">b53028e</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Code Page 437</div>
+          <div class="small text-body-secondary mb-1">Textfiles encoded in the IBM PC character set</div>
+          <div class="small">
+            <a href="/f/ab2f2b4" class="{{$fid}}">ab2f2b4</a> ·
+            <a href="/f/ba2db9e" class="{{$fid}}">ba2db9e</a> ·
+            <a href="/f/ab43cb" class="{{$fid}}">ab43cb</a> ·
+            <a href="/f/b42ccd8" class="{{$fid}}">b42ccd8</a> ·
+            <a href="/f/af2c260" class="{{$fid}}">af2c260</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">ISO 8859-1</div>
+          <div class="small text-body-secondary mb-1">Textfiles encoded in the Latin-1 character set</div>
+          <div class="small">
+            <a href="/f/a5191c3" class="{{$fid}}">a5191c3</a> ·
+            <a href="/f/ab1fc8b" class="{{$fid}}">ab1fc8b</a> ·
+            <a href="/f/b61f24f" class="{{$fid}}">b61f24f</a>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
+
+  {{- /* CGA crack-screens */}}
   <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>ANSImation with blink</strong></div>
-      <div class="small text-body-secondary mb-2">ANSI streams with animations and blinking text</div>
-      <div>
-          <a href="/f/af23902" class="{{$fid}}">af23902</a> <span class="small text-muted">Demon's Forge, 1989</span> · 
-          <a href="/f/b31cbfd" class="{{$fid}}">b31cbfd</a>
-      </div>
+    <div class="card h-100 bg-body-tertiary border">
+      <div class="card-header bg-transparent py-2 px-3 small fw-medium">CGA crack-screens</div>
+      <ul class="list-group list-group-flush">
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">CGA crack-screen</div>
+          <div class="small text-body-secondary mb-1">Bespoke CGA dumps as standalone files or as <code>.COM</code> loaders</div>
+          <div class="small">
+            <a href="/f/aa2be75" class="{{$fid}}">aa2be75</a> <span class="text-body-secondary">1985 text</span> ·
+            <a href="/f/ba2e5be" class="{{$fid}}">ba2e5be</a> <span class="text-body-secondary">Five0 1986</span> ·
+            <a href="/f/a6197ae" class="{{$fid}}">a6197ae</a> <span class="text-body-secondary">PIC file</span> ·
+            <a href="/f/b72d4fa" class="{{$fid}}">b72d4fa</a> <span class="text-body-secondary">-=C&amp;M=-</span>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">PTL crack-screen</div>
+          <div class="small text-body-secondary mb-1">Bespoke CGA dumps for PTL Club</div>
+          <div class="small">
+            <a href="/f/ae38d6" class="{{$fid}}">ae38d6</a> <span class="text-body-secondary">July 1987</span> ·
+            <a href="/f/ac37b2" class="{{$fid}}">ac37b2</a> <span class="text-body-secondary">Dec 1987</span> ·
+            <a href="/f/b72495a" class="{{$fid}}">b72495a</a> <span class="text-body-secondary">Oct 1988</span> ·
+            <a href="/f/b5261a6" class="{{$fid}}">b5261a6</a> <span class="text-body-secondary">May 1989</span>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">SPI crack-screen</div>
+          <div class="small text-body-secondary mb-1">Bespoke CGA dumps by SPI that used their own compression</div>
+          <div class="small">
+            <a href="/f/b33404" class="{{$fid}}">b33404</a> <span class="text-body-secondary">frogger 2</span> ·
+            <a href="/f/ad27738" class="{{$fid}}">ad27738</a> <span class="text-body-secondary">micro golf</span> ·
+            <a href="/f/b72b2d0" class="{{$fid}}">b72b2d0</a> <span class="text-body-secondary">commando</span>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
+
+  {{- /* Archives */}}
   <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>ANSI with blink</strong></div>
-      <div class="small text-body-secondary mb-2">ANSI art with blinking text</div>
-      <div>
-          <a href="/f/a83199" class="{{$fid}}">a83199</a> · 
-          <a href="/f/ba2bcbb" class="{{$fid}}">ba2bcbb</a>
-      </div>
+    <div class="card h-100 bg-body-tertiary border">
+      <div class="card-header bg-transparent py-2 px-3 small fw-medium">Archives</div>
+      <ul class="list-group list-group-flush">
+        <li class="{{$fitem}}">
+          <div class="fw-medium small d-flex align-items-center gap-2">Archive formats {{$confirmed}}</div>
+          <div class="small text-body-secondary mb-1">Various file archives, compression methods and packages</div>
+          <div class="small">
+            <a href="/f/af29b28" class="{{$fid}}">LBR</a> ·
+            <a href="/f/bc26ea1" class="{{$fid}}">PAK</a> ·
+            <a href="/f/b51f37f" class="{{$fid}}">Yoshi</a> ·
+            <a href="/f/b02b60e" class="{{$fid}}">RAR v2-v4</a> ·
+            <a href="/f/a91eda9" class="{{$fid}}">RAR v5</a> ·
+            <a href="/f/ad27440" class="{{$fid}}">7Z</a> ·
+            <a href="/f/b624887" class="{{$fid}}">7Z</a> {{$fixing}} ·
+            <a href="/f/ab2601" class="{{$fid}}">TAR</a> {{$fixing}} ·
+            <a href="/f/b44cdd" class="{{$fid}}">Gzip Tar</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Readme extraction</div>
+          <div class="small text-body-secondary mb-1">Textfiles contained within an archive that need to be extracted</div>
+          <div class="small">
+            <a href="/f/a92c1dc" class="{{$fid}}">a92c1dc</a> ·
+            <a href="/f/a734e9" class="{{$fid}}">a734e9</a> ·
+            <a href="/f/ac2a79" class="{{$fid}}">ac2a79</a> ·
+            <a href="/f/af31a9" class="{{$fid}}">af31a9</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small d-flex align-items-center gap-2">No preview image {{$confirmed}}</div>
+          <div class="small text-body-secondary mb-1">Images categorized as <u>text</u> should not preview in the readme app</div>
+          <div class="small">
+            <a href="/f/af20fcb" class="{{$fid}}">af20fcb</a> ·
+            <a href="/f/a73208" class="{{$fid}}">a73208</a> ·
+            <a href="/f/b34c2a" class="{{$fid}}">b34c2a</a>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
+
+  {{- /* js-dos emulation */}}
   <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Other color texts</strong></div>
-      <div class="small text-body-secondary mb-2">
-        Other color text used by BBSes, exported as PNG and WebP images.
-      </div>
-      <div>
-        <a href="/f/b02ecf1">Amiga ANSI</a> · 
-        <a href="/f/b92e111">@PCB</a> 
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>SAUCE BIN</strong></div>
-      <div class="small text-body-secondary mb-2">Binary texts with SAUCE metadata that use custom rendering</div>
-      <div>
-          <a href="/f/ab194e9" class="{{$fid}}">1</a> · 
-          <a href="/f/ae1c14d" class="{{$fid}}">2</a> · 
-          <a href="/f/b027559" class="{{$fid}}">3</a> ·
-          <a href="/f/b01d34f" class="{{$fid}}">4</a> ·
-          <a href="/f/b3220cb" class="{{$fid}}">5</a> ·
-          <a href="/f/ab1b63f" class="{{$fid}}">6</a> ·
-          <a href="/f/aa1ed87" class="{{$fid}}">7</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>eXtended BIN</strong></div>
-      <div class="small text-body-secondary mb-2">XBIN files are not fully supported due to their custom fonts</div>
-      <div>
-          <a href="/f/b23006f" class="{{$fid}}">1</a> · 
-          <a href="/f/b12db5f" class="{{$fid}}">2</a> · 
-          <a href="/f/ab1ccc7" class="{{$fid}}">3</a> ·
-          <a href="/f/ab1f1ff" class="{{$fid}}">4</a> ·
-          <a href="/f/b02b24f" class="{{$fid}}">5</a> ·
-          <a href="/f/ab229bf" class="{{$fid}}">6</a> <span class="small text-muted">ICEdraw</span> 
-      </div>
-    </div>
-  </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <!--- cga video memory dumps --->
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>CGA crack-screen</strong></div>
-      <div class="small text-body-secondary mb-2">Bespoke CGA dumps as standalone files or as <code>.COM</code> loaders</div>
-      <div><a href="/f/aa2be75" class="{{$fid}}">aa2be75</a> <span class="small text-muted">1985 text</span> · 
-           <a href="/f/ba2e5be" class="{{$fid}}">ba2e5be</a> <span class="small text-muted">Five0 1986</span> ·  
-           <a href="/f/a6197ae" class="{{$fid}}">a6197ae</a> <span class="small text-muted">PIC file</span> · 
-           <a href="/f/b72d4fa" class="{{$fid}}">b72d4fa</a> <span class="small text-muted">-=C&amp;M=-</span>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>PTL crack-screen</strong></div>
-      <div class="small text-body-secondary mb-2">Bespoke CGA dumps for PTL Club</div>
-      <div><a href="/f/ae38d6" class="{{$fid}}">ae38d6</a> <span class="small text-muted">July 1987</span> · 
-           <a href="/f/ac37b2" class="{{$fid}}">ac37b2</a> <span class="small text-muted">Dec 1987</span> ·  
-           <a href="/f/b72495a" class="{{$fid}}">b72495a</a> <span class="small text-muted">Oct 1988</span> · 
-           <a href="/f/b5261a6" class="{{$fid}}">b5261a6</a> <span class="small text-muted">May 1989</span>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>SPI crack-screen</strong></div>
-      <div class="small text-body-secondary mb-2">Bespoke CGA dumps by SPI that used their own compression</div>
-      <div><a href="/f/b33404" class="{{$fid}}">b33404</a> <span class="small text-muted">frogger 2</span> · 
-           <a href="/f/ad27738" class="{{$fid}}">ad27738</a> <span class="small text-muted">micro golf</span> ·  
-           <a href="/f/b72b2d0" class="{{$fid}}">b72b2d0</a> <span class="small text-muted">commando</span>
-      </div>
-    </div>
-  </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <!--- known broken or corrupted files --->
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Unknown or corrupt encoding</strong> {{$confirmed}}</div>
-      <div class="small text-body-secondary mb-2">Corrupt text files caused by saving to the wrong encoding</div>
-      <div>
-        <a href="/f/ac2319e" class="{{$fid}}">ac2319e</a> · 
-        <a href="/f/b0269ca" class="{{$fid}}">b0269ca</a> <small>vs</small> <a href="/f/ac1d9d3" class="{{$fid}}">ac1d9d3</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Broken newlines</strong></div>
-      <div class="small text-body-secondary mb-2">Text files with corrupted newline characters due to advertising injection</div>
-      <div><a href="/f/b224d50" class="{{$fid}}">b224d50</a> · <a href="/f/ae1c03c" class="{{$fid}}">ae1c03c</a> <span class="small text-muted">(includes EOF marker)</span></div>
-    </div>
-  </div>
-  <!--- text file masking --->
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>CD keys and serials</strong></div>
-      <div class="small text-body-secondary mb-2">Readme files with serials and CD keys that should be masked</div>
-      <div class="ms-2">
-        <a href="/f/b91f23c">1</a> · <a href="/f/c0304ac">2</a> · 
-        <a href="/f/ad20232">3</a> · <a href="/f/b023312">4</a> · 
-        <a href="/f/af37fc">5</a> · <a href="/f/bd2b294">6</a> · 
-        <a href="/f/ba2609c">7</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme requires wrapping</strong></div>
-      <div class="small text-body-secondary mb-2">Text that needs line wrapping</div>
-      <div>
-        <a href="/f/b14bb1" class="{{$fid}}">b14bb1</a> · <a href="/f/b12fe37" class="{{$fid}}">b12fe37</a> · 
-        <a href="/f/b61f24f" class="{{$fid}}">b61f24f</a> · <a href="/f/b122787" class="{{$fid}}">b122787</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme requires trimming</strong></div>
-      <div class="small text-body-secondary mb-2">Extraneous whitespace or content</div>
-      <div><a href="/f/b830654" class="{{$fid}}">b830654</a></div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Block art</strong></div>
-      <div class="small text-body-secondary mb-2">CP437 "ASCII" art or visual content</div>
-      <div>
-        <a href="/f/ad217af" class="{{$fid}}">ad217af</a> · <a href="/f/ae2a9cc" class="{{$fid}}">ae2a9cc</a> · 
-        <a href="/f/ad2b193" class="{{$fid}}">ad2b193</a> · <a href="/f/ac1a2dc" class="{{$fid}}">ac1a2dc</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <!--- text file encodings --->
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>UTF-16</strong></div>
-      <div class="small text-body-secondary mb-2">Textfiles that require transformation</div>
-      <div><a href="/f/b22e849" class="{{$fid}}">b22e849</a></div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>UTF-8 with multi-bytes</strong></div>
-      <div class="small text-body-secondary mb-2">The UTF-8 file magic must be set to display correctly</div>
-      <div>
-        <a href="/f/b12d05f" class="{{$fid}}">b12d05f</a> · <a href="/f/b228a8e" class="{{$fid}}">b228a8e</a> · 
-        <a href="/f/b53028e" class="{{$fid}}">b53028e</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Code Page 437</strong></div>
-      <div class="small text-body-secondary mb-2">Textfiles encoded in the IBM PC character set</div>
-      <div>
-        <a href="/f/ab2f2b4" class="{{$fid}}">ab2f2b4</a> · <a href="/f/ba2db9e" class="{{$fid}}">ba2db9e</a> · 
-        <a href="/f/ab43cb" class="{{$fid}}">ab43cb</a> · <a href="/f/b42ccd8" class="{{$fid}}">b42ccd8</a> · 
-        <a href="/f/af2c260" class="{{$fid}}">af2c260</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>ISO 8859-1</strong></div>
-      <div class="small text-body-secondary mb-2">Textfiles encoded in the Latin-1 character set</div>
-      <div>
-        <a href="/f/a5191c3" class="{{$fid}}">a5191c3</a> · <a href="/f/ab1fc8b" class="{{$fid}}">ab1fc8b</a> · 
-        <a href="/f/b61f24f" class="{{$fid}}">b61f24f</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <!--- archive formats --->
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Readme extraction</strong></div>
-      <div class="small text-body-secondary mb-2">Textfiles contained within an archive that need to be extracted</div>
-      <div>
-        <a href="/f/a92c1dc" class="{{$fid}}">a92c1dc</a> · <a href="/f/a734e9" class="{{$fid}}">a734e9</a> · 
-        <a href="/f/ac2a79" class="{{$fid}}">ac2a79</a> · <a href="/f/af31a9" class="{{$fid}}">af31a9</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>No preview image</strong> {{$confirmed}}</div>
-      <div class="small text-body-secondary mb-2">Images categorized as <u>text</u> should not preview in the readme app</div>
-      <div><a href="/f/af20fcb" class="{{$fid}}">af20fcb</a> · <a href="/f/a73208" class="{{$fid}}">a73208</a> · <a href="/f/b34c2a" class="{{$fid}}">b34c2a</a></div>
-    </div>
-  </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <!--- image, picture, and document formats --->
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Images <code>.IFF</code></strong></div>
-      <div class="small text-body-secondary mb-2">Amiga-standard <q>Interchange File Format</q> images first introduced in 1988</div>
-      <div>
-          <a href="/f/b32e8a7" class="{{$fid}}">SDC 1992</a> · 
-          <a href="/f/a71fd00" class="{{$fid}}">PD 1992</a> · 
-          <a href="/f/b522116" class="{{$fid}}">1994</a> · 
-          <a href="/f/ac2739d" class="{{$fid}}">1997</a> 
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Images <code>.GIF</code></strong></div>
-      <div class="small text-body-secondary mb-2"><q>Graphics Interchange Format</q> images first introduced in 1987</div>
-      <div>
-          1989
-          <a href="/f/b0290da" class="{{$fid}}">PTL</a> · 
-          <a href="/f/ad1f972" class="{{$fid}}">PTL</a> · 
-          <a href="/f/ac3efa" class="{{$fid}}">ESI</a> · 
-          <a href="/f/ae267d2" class="{{$fid}}">MCM</a> · 
-          <a href="/f/b621fce" class="{{$fid}}">INC</a> · 
-          1988
-          <a href="/f/b1438f" class="{{$fid}}">PTL</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Images <code>.RIP</code></strong></div>
-      <div class="small text-body-secondary mb-2"><q>Remote Imaging Protocol</q> images first introduced in 1992</div>
-      <div><a href="/f/b02392f" class="{{$fid}}">b02392f</a></div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Other images</strong></div>
-      <div class="small text-body-secondary mb-2">Other now exotic image formats that were common in the early 1990s</div>
-      <div>
-          <a href="/f/b61a0e1" class="{{$fid}}">PCX</a> · 
-          <a href="/f/be2fd19" class="{{$fid}}">Gifs</a> · 
-          <a href="/f/ae1f9a2" class="{{$fid}}">TIFF</a> · 
-          <a href="/f/b8279a5" class="{{$fid}}">ILBM</a> · 
-          <a href="/f/ac1ddf6" class="{{$fid}}">IFFP</a> 
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Documents <code>.PDF</code></strong></div>
-      <div class="small text-body-secondary mb-2">PDF documents</div>
-      <div>
-          <a href="/f/b04139" class="{{$fid}}">web capture</a> · 
-          <a href="/f/ab24cd9" class="{{$fid}}">book as pdf</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Documents <code>.HTML</code></strong></div>
-      <div class="small text-body-secondary mb-2">HTML and markdown documents</div>
-      <div>
-          <a href="/f/ad3075" class="{{$fid}}">sodom.html</a> · 
-          <a href="/f/a722b1f" class="{{$fid}}">nbc.zip</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>Archives</strong> {{$confirmed}}</div>
-      <div class="small text-body-secondary mb-2">Various file archives, compression methods and packages</div>
-      <div>
-        <a href="/f/af29b28" class="{{$fid}}">LBR</a> · 
-        <a href="/f/bc26ea1" class="{{$fid}}">PAK</a> · 
-        <a href="/f/b51f37f" class="{{$fid}}">Yoshi</a> · 
-        <a href="/f/b02b60e" class="{{$fid}}">RAR v2-v4</a> · 
-        <a href="/f/a91eda9" class="{{$fid}}">RAR v5</a> · 
-        <a href="/f/ad27440" class="{{$fid}}">7Z</a> · 
-        <a href="/f/b624887" class="{{$fid}}">7Z</a> {{$fixing}} · 
-        <a href="/f/ab2601" class="{{$fid}}">TAR</a> {{$fixing}} · 
-        <a href="/f/b44cdd" class="{{$fid}}">Gzip Tar</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <!--- jsdos emulation --->
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>js-dos standalone programs</strong></div>
-      <div class="small text-body-secondary mb-2">Executable files supported by JS emulator</div>
-      <div>
-        <code>.EXE</code>
-        <a href="/f/b23b9c" class="{{$fid}}">b23b9c</a> · 
-        <a href="/f/ad18cf0" class="{{$fid}}">ad18cf0</a> · 
-        <a href="/f/b030891" class="{{$fid}}">b030891</a> · 
-        <code>.COM</code>
-        <a href="/f/b33057" class="{{$fid}}">b030891</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2 d-flex gap-2 align-items-center"><strong>js-dos repack</strong> {{$confirmed}}</div>
-      <div class="small text-body-secondary mb-2">Archives using unsupported compression and need DEFLATE</div>
-      <div>
-        <a href="/f/a22af8" class="{{$fid}}">ARC</a> · 
-        <a href="/f/ae1c87b" class="{{$fid}}">ARJ</a> · 
-        <a href="/f/ab27d16" class="{{$fid}}">Reduce</a> · 
-        <a href="/f/b72d52b" class="{{$fid}}">Implode</a> · 
-        <a href="/f/af2c05c" class="{{$fid}}">Shrunk</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>js-dos no support</strong></div>
-      <div class="small text-body-secondary mb-2">Fails to load in the js-dos emulator</div>
-      <div>
-        <a href="/f/b526e44" class="{{$fid}}">B526E44</a> <span class="small text-muted">text file</span> · 
-        <a href="/f/a724be8" class="{{$fid}}">A724BE8</a> <span class="small text-muted">fat32 paths</span> · 
-        <a href="/f/aa26044" class="{{$fid}}">AA26044</a> <span class="small text-warning">crashes browser tab</span>
-      </div>
-    </div>
-  </div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <div class="col">&nbsp;</div>
-  <!--- other confirmations --->
-  <div class="col">
-    <div class="p-2 border rounded">
-      <div class="mb-2"><strong>Artifacts with <q>link to</q></strong></div>
-      <div class="small text-body-secondary mb-2">Records with linking relationships</div>
-      <div>
-        <a href="/f/b029330" class="{{$fid}}">b029330</a> · <a href="/f/ab27f81" class="{{$fid}}">ab27f81</a> · 
-        <a href="/f/ba4805" class="{{$fid}}">ba4805</a> · <a href="/f/b029330" class="{{$fid}}">b029330</a>
-      </div>
+    <div class="card h-100 bg-body-tertiary border">
+      <div class="card-header bg-transparent py-2 px-3 small fw-medium">js-dos emulation</div>
+      <ul class="list-group list-group-flush">
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">Standalone programs</div>
+          <div class="small text-body-secondary mb-1">Executable files supported by the JS emulator</div>
+          <div class="small">
+            <code>.EXE</code>
+            <a href="/f/b23b9c" class="{{$fid}}">b23b9c</a> ·
+            <a href="/f/ad18cf0" class="{{$fid}}">ad18cf0</a> ·
+            <a href="/f/b030891" class="{{$fid}}">b030891</a> ·
+            <code>.COM</code>
+            <a href="/f/b33057" class="{{$fid}}">b33057</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small d-flex align-items-center gap-2">Archive repack {{$confirmed}}</div>
+          <div class="small text-body-secondary mb-1">Archives using unsupported compression that need DEFLATE</div>
+          <div class="small">
+            <a href="/f/a22af8" class="{{$fid}}">ARC</a> ·
+            <a href="/f/ae1c87b" class="{{$fid}}">ARJ</a> ·
+            <a href="/f/ab27d16" class="{{$fid}}">Reduce</a> ·
+            <a href="/f/b72d52b" class="{{$fid}}">Implode</a> ·
+            <a href="/f/af2c05c" class="{{$fid}}">Shrunk</a>
+          </div>
+        </li>
+        <li class="{{$fitem}}">
+          <div class="fw-medium small">No support</div>
+          <div class="small text-body-secondary mb-1">Fails to load in the js-dos emulator</div>
+          <div class="small">
+            <a href="/f/b526e44" class="{{$fid}}">b526e44</a> <span class="text-body-secondary">text file</span> ·
+            <a href="/f/a724be8" class="{{$fid}}">a724be8</a> <span class="text-body-secondary">fat32 paths</span> ·
+            <a href="/f/aa26044" class="{{$fid}}">aa26044</a> <span class="text-warning-emphasis">crashes browser tab</span>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
 </div>
