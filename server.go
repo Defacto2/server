@@ -304,9 +304,7 @@ func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *h
 			TotalTerms: 0,
 		},
 	}
-	if c.Version == "" {
-		c.Version = flags.VersionCommit("")
-	}
+	c.Version = flags.VersionCommit(version)
 	if ctx != nil && db != nil {
 		c.RecordCount = config.RecordCount(ctx, db)
 	}

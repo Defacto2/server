@@ -43,6 +43,13 @@ const (
 
 var ErrNoConfig = errors.New("cannot run command as config is nil")
 
+//nolint:gochecknoinits
+func init() {
+	cli.VersionPrinter = func(c *cli.Context) {
+		_, _ = fmt.Fprintf(c.App.Writer, "%s %s\n", c.App.HelpName, c.App.Version)
+	}
+}
+
 // desc returns the description for this program.
 func desc(c *config.Config) string {
 	if c == nil {
@@ -265,7 +272,7 @@ func Arch() string {
 		return "ARM 32"
 	case "arm64":
 		return "ARM 64"
-	case "i386":
+	case "386":
 		return "x86"
 	case "wasm":
 		return "WebAssembly"
@@ -326,46 +333,35 @@ func VersionRelease(version string) string {
 		betaSym  = "β"
 	)
 
-	prefix := Program + " version "
 	if version == "" {
-		return prefix + "0.0.0 " + alphaSym + "lpha"
+		return "0.0.0 " + alphaSym + "lpha"
 	}
 
 	const next = "-next"
 	if before, found := strings.CutSuffix(version, next); found {
-		return prefix + before + " " + betaSym + "eta"
+		return before + " " + betaSym + "eta"
 	}
 
-	return prefix + version
+	return version
 }
 
-// VersionCommit returns a formatted, git commit description for the repository,
-// including git tag version and git commit date.
+// VersionCommit returns a formatted release or git commit version for the repository.
 func VersionCommit(ver string) string {
-	const msg = "n/a (not a build)"
+	const dev = "dev"
 
-	elems := []string{}
-	s := versioninfo.Short()
 	if ver != "" {
-		elems = append(elems, VersionRelease(ver))
-	} else if s != "" {
-		elems = append(elems, s)
+		return VersionRelease(ver)
 	}
-	if len(elems) == 0 || elems[0] == "devel" {
-		return msg
+	if s := versioninfo.Short(); s != "" && s != "devel" {
+		return s
 	}
-
-	return strings.Join(elems, ", ")
+	return dev
 }
 
 // Version returns a formatted version string for this program
-// including the [VersionCommit], [OS] and CPU [Arch].
+// including the [VersionCommit], [OS], CPU [Arch], and Go runtime version.
 func Version(s string) string {
-	const size = 2
-	elems := make([]string, 0, size)
-	elems = append(elems, VersionCommit(s))
-	elems = append(elems, OS()+" on "+Arch())
-	return strings.Join(elems, " for ")
+	return fmt.Sprintf("%s (%s on %s, %s)", VersionCommit(s), OS(), Arch(), runtime.Version())
 }
 
 type ExitCode int // ExitCode is the exit code for this program.

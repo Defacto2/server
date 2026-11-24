@@ -632,7 +632,7 @@ func (serv *Server) versionBrief() string {
 		return "  no version info, app compiled binary directly."
 	}
 
-	return "  " + flags.VersionCommit(ver) + "."
+	return "  " + flags.Program + " " + ver + "."
 }
 
 // Rewrites for assets.

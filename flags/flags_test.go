@@ -27,13 +27,20 @@ func TestVersionRelease(t *testing.T) {
 	t.Parallel()
 
 	s := flags.VersionRelease("")
-	be.Equal(t, "defacto2-server version 0.0.0 αlpha", s)
+	be.Equal(t, "0.0.0 αlpha", s)
 
 	s = flags.VersionRelease("1.2.3")
-	be.Equal(t, "defacto2-server version 1.2.3", s)
+	be.Equal(t, "1.2.3", s)
 
 	s = flags.VersionRelease("1.2.3-next")
-	be.Equal(t, "defacto2-server version 1.2.3 βeta", s)
+	be.Equal(t, "1.2.3 βeta", s)
+
+	var buf bytes.Buffer
+	app := flags.App(&buf, "1.2.3", &config.Config{HTTPPort: 1323})
+	be.Err(t, app.Run([]string{flags.Program, "--version"}), nil)
+	out := buf.String()
+	be.True(t, strings.HasPrefix(out, "defacto2-server 1.2.3 ("))
+	be.True(t, !strings.Contains(out, "version"))
 }
 
 func TestAppHelpDescriptionAndWriter(t *testing.T) {
