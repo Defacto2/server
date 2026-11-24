@@ -41,6 +41,9 @@ const (
 	indexTitle = "Database Index Rebuild"
 )
 
+// RoutePrinter prints registered HTTP routes to w, optionally filtered by HTTP method.
+type RoutePrinter func(w io.Writer, method string) error
+
 var ErrNoConfig = errors.New("cannot run command as config is nil")
 
 //nolint:gochecknoinits
@@ -78,13 +81,19 @@ thumbnails.`, ports, Program)
 // It uses the [github.com/urfave.cli/v2] package.
 //
 // [github.com/urfave.cli/v2]: https://github.com/urfave/cli
-func App(w io.Writer, ver string, c *config.Config) *cli.App {
+func App(w io.Writer, ver string, c *config.Config, routes ...RoutePrinter) *cli.App {
+	var routeFn RoutePrinter
+	if len(routes) > 0 {
+		routeFn = routes[0]
+	}
+
 	color := logs.Color(w)
 	cmdTmpl := commandHelpTemplate(color)
 	cmds := []*cli.Command{
 		Config(w, c),
 		Check(w, c),
 		Address(w, c),
+		Routes(w, routeFn),
 		TempDir(w, c),
 		Fix(w, c),
 		Index(w, c),
@@ -161,6 +170,30 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
 			return c.PrintAddresses(w)
+		},
+	}
+}
+
+// Routes command lists the registered web server routes.
+func Routes(w io.Writer, fn RoutePrinter) *cli.Command {
+	return &cli.Command{
+		Name:        "routes",
+		Aliases:     []string{"r"},
+		Category:    catInspection,
+		Usage:       "list the registered HTTP routes",
+		Description: "List all registered HTTP routes for the current configuration without starting the server.",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "method",
+				Aliases: []string{"m"},
+				Usage:   "filter routes by HTTP method (e.g. GET, POST, PUT, DELETE)",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			if fn == nil {
+				return errors.New("routes printer is not configured")
+			}
+			return fn(w, ctx.String("method"))
 		},
 	}
 }
@@ -374,7 +407,7 @@ const (
 )
 
 // Run parses optional command line arguments for this program.
-func Run(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
+func Run(w io.Writer, ver string, c *config.Config, routes ...RoutePrinter) (ExitCode, error) {
 	if c == nil {
 		return UsageErr, ErrNoConfig
 	}
@@ -383,14 +416,14 @@ func Run(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
 		return Continue, nil
 	}
 
-	return setup(w, ver, c)
+	return setup(w, ver, c, routes...)
 }
 
-func setup(w io.Writer, ver string, c *config.Config) (ExitCode, error) {
+func setup(w io.Writer, ver string, c *config.Config, routes ...RoutePrinter) (ExitCode, error) {
 	if c == nil {
 		return UsageErr, ErrNoConfig
 	}
-	app := App(w, ver, c)
+	app := App(w, ver, c, routes...)
 	app.EnableBashCompletion = true
 	app.HideHelpCommand = true
 	app.HideVersion = false

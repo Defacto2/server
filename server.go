@@ -337,7 +337,11 @@ func flagParser(l *slog.Logger, w io.Writer, envConfig *config.Config) flags.Exi
 		return flags.GenericErr
 	}
 
-	exitCode, err := flags.Run(w, version, envConfig)
+	routesFn := func(out io.Writer, method string) error {
+		serv := initialisation(context.Background(), nil, *envConfig)
+		return serv.PrintRoutes(out, method)
+	}
+	exitCode, err := flags.Run(w, version, envConfig, routesFn)
 	if err != nil {
 		l.Error(msg, slog.Int("exit_code", int(exitCode)), slog.Any("error", err))
 		return exitCode

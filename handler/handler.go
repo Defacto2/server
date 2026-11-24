@@ -21,7 +21,9 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/flags"
@@ -73,23 +75,12 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 	logFatal := func(k, v string, err error) {
 		logs.Fatal(ctx, sl, msg, slog.String(k, v), slog.Any("fatal", err))
 	}
-	logRoute := func(m, p string) {
-		sl.Info("route", slog.String("method", m), slog.String("path", p))
-	}
 
 	settings := serv.Environment
 	prodMode := bool(settings.ProdMode)
 
 	httpErr := func(c *echo.Context, err error) {
 		config.CustomErrorHandler(sl, c, err)
-	}
-
-	onAddRoute := func(route echo.Route) error {
-		if prodMode {
-			return nil
-		}
-		logRoute(route.Method, route.Path)
-		return nil
 	}
 
 	templates, err := serv.TemplRegistry(ctx, sl, db)
@@ -110,7 +101,7 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 			UnescapePathParamValues:   false,
 			UseEscapedPathForMatching: false,
 		}),
-		OnAddRoute:                      onAddRoute,
+		OnAddRoute:                      nil,
 		Filesystem:                      os.DirFS("/"), // TODO: keep v4 behavour for now
 		Binder:                          nil,
 		Validator:                       nil,
@@ -154,16 +145,24 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 	)
 
 	// browser paths and routes
+	if err := serv.registerRoutes(sl, e, db); err != nil {
+		logFatal("file route", "cannot register routes", err)
+	}
+
+	return e
+}
+
+func (serv *Server) registerRoutes(sl *slog.Logger, e *echo.Echo, db *sql.DB) error {
 	e = RouteFS(e, serv.Public)
 	e = RouteMoved(e)
 	configHTMX{
-		prodMode: prodMode,
+		prodMode: bool(serv.Environment.ProdMode),
 		download: dir.Directory(serv.Environment.AbsDownload),
 		zooAuth:  serv.Environment.DemozooAuth.String(),
 	}.routeHTMX(sl, e, db)
-	e, err = serv.RouteFS(sl, e, db, serv.Public)
+	e, err := serv.RouteFS(sl, e, db, serv.Public)
 	if err != nil {
-		logFatal("file route", "cannot register routes", err)
+		return err
 	}
 
 	group := html3.Route(sl, e, db)
@@ -171,7 +170,84 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 		return serv.downloader(sl, c, db)
 	})
 
-	return e
+	return nil
+}
+
+// PrintRoutes registers the server's Echo routes without starting the HTTP listener
+// and prints a sorted, aligned table of HTTP methods and paths to w.
+func (serv *Server) PrintRoutes(w io.Writer, methodFilter string) error {
+	if w == nil {
+		w = os.Stdout
+	}
+
+	db, err := sql.Open("pgx", "")
+	if err != nil {
+		return fmt.Errorf("print routes placeholder db: %w", err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	e := echo.NewWithConfig(echo.Config{
+		Logger:                       logs.Discard(),
+		Filesystem:                   os.DirFS("/"),
+		NoGroupAutoRegister404Routes: true,
+	})
+	if !serv.Environment.ProdMode.Bool() && serv.Environment.LogAll.Bool() {
+		pprof.Register(e)
+	}
+	if err := serv.registerRoutes(logs.Discard(), e, db); err != nil {
+		return fmt.Errorf("print routes: %w", err)
+	}
+
+	filter := strings.ToUpper(strings.TrimSpace(methodFilter))
+	routes := slices.Clone(e.Router().Routes())
+	if filter != "" {
+		routes = slices.DeleteFunc(routes, func(r echo.RouteInfo) bool {
+			return !strings.EqualFold(r.Method, filter)
+		})
+	}
+	slices.SortFunc(routes, func(a, b echo.RouteInfo) int {
+		if c := strings.Compare(a.Path, b.Path); c != 0 {
+			return c
+		}
+		return strings.Compare(a.Method, b.Method)
+	})
+
+	color := logs.Color(w)
+	style := func(code, s string) string {
+		if !color || s == "" {
+			return s
+		}
+		return code + s + "\033[0m"
+	}
+	methodStyle := func(m string) string {
+		padded := fmt.Sprintf("%-7s", m)
+		switch m {
+		case http.MethodGet:
+			return style("\033[32m", padded)
+		case http.MethodPost:
+			return style("\033[36m", padded)
+		case http.MethodPut, http.MethodPatch:
+			return style("\033[33m", padded)
+		case http.MethodDelete:
+			return style("\033[1;31m", padded)
+		default:
+			return style("\033[2m", padded)
+		}
+	}
+
+	title := fmt.Sprintf("Web Server Routes (%d)", len(routes))
+	if filter != "" {
+		title = fmt.Sprintf("Web Server Routes (%d %s)", len(routes), filter)
+	}
+	_, _ = fmt.Fprintln(w, style("\033[1m", title))
+	_, _ = fmt.Fprintln(w)
+	for _, r := range routes {
+		_, _ = fmt.Fprintf(w, "  %s %s\n", methodStyle(r.Method), r.Path)
+	}
+
+	return nil
 }
 
 // RouteFS serves the static files from the directories embed to the binary.
