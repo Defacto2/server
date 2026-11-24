@@ -312,3 +312,51 @@ func (c Config) PrintTempPurge(w io.Writer, dryRun bool) error {
 	}
 	return nil
 }
+
+// ConfigIssue describes a single configuration validation problem.
+type ConfigIssue struct {
+	Env   string
+	Value string
+	Issue string
+}
+
+// Issues returns all active validation problems across the configuration fields.
+func (c Config) Issues() []ConfigIssue {
+	var out []ConfigIssue
+	add := func(env, val, issue string) {
+		if issue != "" {
+			out = append(out, ConfigIssue{Env: env, Value: val, Issue: issue})
+		}
+	}
+
+	add("D2_DIR_LOG", c.AbsLog.String(), c.AbsLog.Issue())
+	add("D2_DIR_DOWNLOAD", c.AbsDownload.String(), c.AbsDownload.Issue())
+	add("D2_DIR_PREVIEW", c.AbsPreview.String(), c.AbsPreview.Issue())
+	add("D2_DIR_THUMBNAIL", c.AbsThumbnail.String(), c.AbsThumbnail.Issue())
+	add("D2_DIR_EXTRA", c.AbsExtra.String(), c.AbsExtra.Issue())
+	add("D2_DIR_ORPHANED", c.AbsOrphaned.String(), c.AbsOrphaned.Issue())
+	add("D2_TLS_CERT", c.TLSCert.String(), c.TLSCert.Issue())
+	add("D2_TLS_KEY", c.TLSKey.String(), c.TLSKey.Issue())
+	if c.TLSCert != "" && c.TLSKey == "" {
+		add("D2_TLS_KEY", unsetLabel, "required when D2_TLS_CERT is set")
+	}
+	if c.TLSKey != "" && c.TLSCert == "" {
+		add("D2_TLS_CERT", unsetLabel, "required when D2_TLS_KEY is set")
+	}
+	if issue := c.DemozooAuth.Issue(); issue != "" {
+		add("D2_DEMOZOO_KEY", mask, issue)
+	}
+	return out
+}
+
+// AllAddresses returns the combined HTTP and HTTPS URLs the server may be reachable at.
+func (c Config) AllAddresses() ([]string, error) {
+	httpURLs, httpsURLs, err := c.addressURLs()
+	if err != nil {
+		return nil, err
+	}
+	out := make([]string, 0, len(httpURLs)+len(httpsURLs))
+	out = append(out, httpURLs...)
+	out = append(out, httpsURLs...)
+	return out, nil
+}

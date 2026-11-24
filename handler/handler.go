@@ -59,6 +59,7 @@ type Server struct {
 	Public      fs.FS            // Public facing files.
 	View        fs.FS            // View contains Go templates.
 	Version     string           // Version is the results of GoReleaser build command.
+	DBVersion   string           // DBVersion is the connected PostgreSQL server version.
 	Brand       []byte           // Brand contains the Defacto2 ASCII logo.
 	Environment config.Config    // Environment configurations from the host system.
 	RecordCount int64            // The total number of file records in the database.
@@ -282,68 +283,179 @@ func RouteFS(e *echo.Echo, fsys fs.FS) *echo.Echo {
 	return e
 }
 
-// Print the application logo and software information to the w Writer.
-func (serv *Server) Print(w io.Writer) (errs error) {
+// Print writes the Defacto2 startup banner, system info, status summary, and any config issues to w.
+func (serv *Server) Print(w io.Writer) (errs error) { //nolint:funlen
 	if w == nil {
 		w = io.Discard
 	}
 
-	nr := bytes.NewReader(serv.Brand)
-	n, err := io.Copy(w, nr)
-	if err != nil {
-		errs = errors.Join(errs, err)
+	color := logs.Color(w)
+	style := func(code, s string) string {
+		if !color || s == "" {
+			return s
+		}
+		return code + s + "\033[0m"
 	}
-	if n > 0 {
-		_, err := fmt.Fprint(w, "\n\n")
+	const (
+		bold    = "\033[1m"
+		dim     = "\033[2m"
+		green   = "\033[32m"
+		yellow  = "\033[33m"
+		cyan    = "\033[36m"
+		boldRed = "\033[1;31m"
+	)
+	row := func(label, val string) {
+		_, err := fmt.Fprintf(w, "  %s %s\n", style(cyan, fmt.Sprintf("%-11s", label)), val)
 		if err != nil {
 			errs = errors.Join(errs, err)
 		}
 	}
 
-	_, err = fmt.Fprintf(w, "  %s.\n", flags.Copyright())
-	if err != nil {
+	if len(serv.Brand) > 0 {
+		if _, err := io.Copy(w, bytes.NewReader(serv.Brand)); err != nil {
+			errs = errors.Join(errs, err)
+		}
+		_, _ = fmt.Fprint(w, "\n\n")
+	}
+	_, _ = fmt.Fprintf(w, "  %s\n", style(dim, flags.Copyright()))
+
+	// SYSTEM section
+	_, _ = fmt.Fprintf(w, "\n%s\n", style(bold, "SYSTEM"))
+	ver := serv.Version
+	if ver == "" {
+		ver = "dev"
+	}
+	row("Version", flags.Program+" "+ver)
+	row("Runtime", fmt.Sprintf("Go %s (%s on %s, %d/%d CPU threads)",
+		strings.TrimPrefix(runtime.Version(), "go"),
+		flags.OS(), flags.Arch(), runtime.GOMAXPROCS(-1), runtime.NumCPU()))
+
+	if to, fr, _, pct, err := helper.DiskStat("/"); err != nil {
 		errs = errors.Join(errs, err)
+	} else {
+		row("Disk (/)", fmt.Sprintf("%s free / %s (%s)",
+			helper.ByteCount(int64(fr)), helper.ByteCount(int64(to)), pct))
 	}
 
-	_, err = fmt.Fprintf(w, "%s\n", serv.versionBrief())
-	if err != nil {
-		errs = errors.Join(errs, err)
+	if groups, usr, err := helper.Owner(); err == nil && usr != "" {
+		clean := slices.DeleteFunc(groups, func(e string) bool { return e == "" })
+		if len(clean) > 0 {
+			row("Process", fmt.Sprintf("%s (%s)", usr, strings.Join(clean, ", ")))
+		} else {
+			row("Process", usr)
+		}
 	}
 
-	fs := "  %d active routines sharing %d usable threads on %d CPU cores."
-	cpuInfo := fmt.Sprintf(fs, runtime.NumGoroutine(), runtime.GOMAXPROCS(-1), runtime.NumCPU())
-	_, err = fmt.Fprintln(w, cpuInfo)
-	if err != nil {
-		errs = errors.Join(errs, err)
+	if pattern, usage, err := config.TempUsage(); err == nil {
+		row("Temp dir", fmt.Sprintf("%s (%s)", pattern, usage))
 	}
 
-	fs = "  Compiled with Go v%s for %s on %s."
-	golangInfo := fmt.Sprintf(fs, runtime.Version()[2:], flags.OS(), flags.Arch())
-	_, err = fmt.Fprintln(w, golangInfo)
-	if err != nil {
-		errs = errors.Join(errs, err)
+	// STATUS section
+	_, _ = fmt.Fprintf(w, "\n%s\n", style(bold, "STATUS"))
+	row("Database", serv.formatDBStatus(style, green, yellow, boldRed))
+	row("Mode", serv.formatModeSummary())
+	row("Listeners", serv.formatListeners())
+
+	if addrs, err := serv.Environment.AllAddresses(); err == nil && len(addrs) > 0 {
+		row("Addresses", style(cyan, addrs[0]))
+		indent := strings.Repeat(" ", 14)
+		for _, a := range addrs[1:] {
+			_, _ = fmt.Fprintf(w, "%s%s\n", indent, style(cyan, a))
+		}
 	}
 
-	to, fr, _, s, err := helper.DiskStat("/")
-	if err != nil {
-		errs = errors.Join(errs, err)
+	// CONFIG ISSUES section (only when problems exist)
+	if issues := serv.Environment.Issues(); len(issues) > 0 {
+		_, _ = fmt.Fprintf(w, "\n%s\n", style(boldRed, "CONFIG ISSUES"))
+		for _, iss := range issues {
+			_, _ = fmt.Fprintf(w, "  %s %s — %s\n",
+				style(boldRed, fmt.Sprintf("%-19s", iss.Env)),
+				iss.Value, iss.Issue)
+		}
 	}
 
-	total := int64(to)
-	free := int64(fr)
-	// Disk (/): 300.28 GiB / 464.17 GiB (65%)
-	diskInfo := fmt.Sprintf("  Disk (/) %s / %s (%s).\n",
-		helper.ByteCount(free), helper.ByteCount(total),
-		s)
-	_, err = fmt.Fprintln(w, diskInfo)
-	if err != nil {
-		errs = errors.Join(errs, err)
-	}
-
+	_, _ = fmt.Fprintln(w)
 	return errs
-	//
-	// All additional feedback should go in internal/config/check.go (c *Config) Checks()
-	//
+}
+
+func (serv *Server) formatDBStatus(style func(string, string) string, green, yellow, boldRed string) string {
+	if serv.DBVersion == "" && serv.RecordCount == 0 {
+		return style(boldRed, "offline — limited functionality")
+	}
+	countStr := formatWithCommas(serv.RecordCount) + " artifacts"
+	label := countStr
+	if serv.DBVersion != "" {
+		label = serv.DBVersion + " · " + countStr
+	}
+	if serv.RecordCount < config.MinimumFiles {
+		return style(yellow, label+" (below minimum)")
+	}
+	return style(green, label)
+}
+
+func (serv *Server) formatModeSummary() string {
+	env := serv.Environment
+	parts := make([]string, 0, 5)
+	if env.ProdMode.Bool() {
+		parts = append(parts, "production")
+	} else {
+		parts = append(parts, "development")
+	}
+	if env.ReadOnly.Bool() {
+		parts = append(parts, "read-only")
+	} else {
+		parts = append(parts, "write mode")
+	}
+	if env.NoCrawl.Bool() {
+		parts = append(parts, "no-crawl")
+	}
+	if !env.Compression.Bool() {
+		parts = append(parts, "gzip off")
+	}
+	if env.LogAll.Bool() {
+		parts = append(parts, "log-all")
+	}
+	return strings.Join(parts, " · ")
+}
+
+func (serv *Server) formatListeners() string {
+	env := serv.Environment
+	parts := make([]string, 0, 2)
+	if env.UseHTTP() {
+		parts = append(parts, fmt.Sprintf("HTTP :%d", env.HTTPPort))
+	}
+	switch {
+	case env.UseTLS():
+		parts = append(parts, fmt.Sprintf("HTTPS :%d", env.TLSPort))
+	case env.UseLocal():
+		parts = append(parts, fmt.Sprintf("HTTPS :%d (self-signed)", env.TLSPort))
+	}
+	if len(parts) == 0 {
+		return "none"
+	}
+	if host := env.MatchHost.String(); host != "" {
+		return strings.Join(parts, " · ") + " (host " + host + ")"
+	}
+	return strings.Join(parts, " · ")
+}
+
+func formatWithCommas(n int64) string {
+	s := strconv.FormatInt(n, 10)
+	if len(s) <= 3 {
+		return s
+	}
+	var b strings.Builder
+	rem := len(s) % 3
+	if rem > 0 {
+		b.WriteString(s[:rem])
+	}
+	for i := rem; i < len(s); i += 3 {
+		if b.Len() > 0 {
+			b.WriteByte(',')
+		}
+		b.WriteString(s[i : i+3])
+	}
+	return b.String()
 }
 
 // TemplRegistry returns the template registry for the renderer.
@@ -699,16 +811,6 @@ func (serv *Server) downloader(sl *slog.Logger, c *echo.Context, db *sql.DB) err
 	}
 
 	return nil
-}
-
-// versionBrief returns the application version string.
-func (serv *Server) versionBrief() string {
-	ver := serv.Version
-	if ver == "" {
-		return "  no version info, app compiled binary directly."
-	}
-
-	return "  " + flags.Program + " " + ver + "."
 }
 
 // Rewrites for assets.

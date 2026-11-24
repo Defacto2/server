@@ -26,12 +26,10 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	"slices"
 	"strings"
 	"syscall"
 	"time"
 
-	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/flags"
 	"github.com/Defacto2/server/handler"
 	"github.com/Defacto2/server/handler/fulltext"
@@ -61,8 +59,6 @@ func main() {
 }
 
 func run() int {
-	const msg = "defacto2 startup"
-
 	// Initialize a temporary logger, and get then print the environment variable configurations.
 	l := logs.Default()
 	slog.SetDefault(l)
@@ -76,9 +72,9 @@ func run() int {
 		return int(exitCode)
 	}
 
-	// Configure the sl application logger, the cl startup configuration logger and the logo writer.
-	// Two separate loggers are used to avoid the system and file logs being cluttered with server
-	// startup information.
+	// Configure the sl application logger and the logo writer.
+	// Startup summary output is written to stdout (discarded in quiet mode) so
+	// system and file logs stay focused on runtime events and errors.
 	fileLog := logs.NoFiles()
 	if root := string(envConfig.AbsLog); root != "" && envConfig.ProdMode.Bool() {
 		const nothing = "" // replace the dname nothing argument with logs.NameDebug, to write debug log reports
@@ -105,11 +101,13 @@ func run() int {
 		sl.Warn(msg, slog.Any("error", err))
 	}
 
-	// Print the configurations.
-	envConfig.Configurations(cl)
+	// In quiet mode (e.g. systemd), surface any configuration issues immediately.
+	if envConfig.Quiet.Bool() {
+		envConfig.Configurations(cl)
+	}
 
-	// Connect to the database and perform some record repairs and sanity checks. Even if the
-	// database cannot connect the web server will continue to run with limited functionality.
+	// Connect to the database. Even if the database cannot connect,
+	// the web server will continue to run with limited functionality.
 	db, err := postgres.Open()
 	dbConnected := err == nil && db != nil
 	if err != nil {
@@ -129,12 +127,13 @@ func run() int {
 		}
 	}()
 
+	var dbVersion string
 	if dbConnected {
 		var database postgres.Version
 		if err := database.Query(db); err != nil {
 			logErr("postgres cannot run the version query", err)
-		} else if ver := strings.TrimPrefix(database.String(), "and using "); ver != "" {
-			sl.Info("Database", slog.String("version", ver))
+		} else {
+			dbVersion = strings.TrimPrefix(database.String(), "and using ")
 		}
 	}
 
@@ -143,7 +142,6 @@ func run() int {
 	if err := dir.CleanTemp(threeDays); err != nil {
 		logErr("abort clean stale temp", err)
 	}
-	config.TempInfo(sl)
 
 	// Start the web server.
 	parent := context.Background()
@@ -156,6 +154,7 @@ func run() int {
 		initDB = db
 	}
 	serv := initialisation(ctx, initDB, *envConfig)
+	serv.DBVersion = dbVersion
 
 	go func() {
 		if err := serv.TidbitIndex.NewIndex(serv.Public, tidbit.Dir); err != nil {
@@ -174,14 +173,18 @@ func run() int {
 		}()
 	}
 
-	display(logo)
-	printOpening(sl, serv.RecordCount)
 	h := serv.Handler(ctx, sl, db)
 	if err := serv.Print(logo); err != nil {
 		warnErr("print server startup", err)
 	}
-	printOwner(cl, msg)
-	printAddrs(cl, envConfig, msg)
+	if envConfig.Quiet.Bool() {
+		if dbVersion != "" {
+			sl.Info("Database", slog.String("version", dbVersion))
+		}
+		config.TempInfo(sl)
+		printOpening(sl, serv.RecordCount)
+	}
+
 	if err := serv.Start(ctx, sl, h, *envConfig); err != nil {
 		logErr("web server startup failure", err)
 		return int(flags.GenericErr)
@@ -221,37 +224,6 @@ func setupWriters(envConfig config.Config, lf logs.Files) (
 	cf := logs.NoFiles()
 	cl = cf.New(stdmin, flag)
 	return sl, cl, logo
-}
-
-func display(w io.Writer) {
-	_, _ = fmt.Fprintln(w)
-}
-
-// printOwner returns the owner and group of the current process and
-// writes them to the w io.writer.
-func printOwner(cl *slog.Logger, msg string) {
-	groups, usr, err := helper.Owner()
-	if err != nil {
-		cl.Error(msg, slog.String("own_and_group", "could not obtain the current user of this process"),
-			slog.Any("error", err))
-		return
-	}
-
-	clean := slices.DeleteFunc(groups, func(e string) bool {
-		return e == ""
-	})
-	cl.Info(msg, slog.String("permissions", "Server running as the following user and groups"),
-		slog.String("User", usr), slog.String("Groups", strings.Join(clean, ",")))
-}
-
-// printAddrs returns the local IP addresses in use by the application and
-// writes them to the w io.writer.
-func printAddrs(cl *slog.Logger, envConfig *config.Config, msg string) {
-	err := envConfig.Addresses(cl)
-	if err != nil {
-		cl.Error(msg, slog.String("local_address", "could not obtain the usable addresses"),
-			slog.Any("error", err))
-	}
 }
 
 // environmentVars is used to parse the environment variables and set the Go runtime.

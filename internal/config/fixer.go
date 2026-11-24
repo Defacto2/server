@@ -100,6 +100,30 @@ func (c *Config) Indexer(ctx context.Context, sl *slog.Logger, d time.Time, dryR
 	return nil
 }
 
+// TempUsage returns the application temp directory glob pattern and total disk usage.
+func TempUsage() (pattern, usage string, err error) { //nolint:nonamedreturns
+	tempDir := os.TempDir()
+	pattern = filepath.Join(tempDir, dir.Pattern+"-*")
+	entries, err := os.ReadDir(tempDir)
+	if err != nil {
+		return pattern, "", fmt.Errorf("read temp dir: %w", err)
+	}
+	var du int64
+	for _, d := range entries {
+		if !d.IsDir() || !dir.IsTemp(d) {
+			continue
+		}
+		path := filepath.Join(tempDir, d.Name())
+		n, duErr := helper.DiskUsage(path)
+		if duErr != nil {
+			slog.Debug("du cannot read path", slog.String("path", path), slog.Any("error", duErr))
+			continue
+		}
+		du += n
+	}
+	return pattern, helper.ByteCountFloat(du), nil
+}
+
 // TempInfo is used to print the temporary directory and its disk usage.
 func TempInfo(sl *slog.Logger) {
 	const format = "tmp info check %s: %w"
@@ -108,28 +132,11 @@ func TempInfo(sl *slog.Logger) {
 	}
 
 	const msg = "Temporary directory"
-	tempDir := os.TempDir()
-	entries, err := os.ReadDir(tempDir)
+	tmpdir, hdu, err := TempUsage()
 	if err != nil {
 		sl.Error(msg+" cannot read temp dir", slog.Any("error", err))
 		return
 	}
-	var du int64
-	for _, d := range entries {
-		if !d.IsDir() || !dir.IsTemp(d) {
-			continue
-		}
-		path := filepath.Join(tempDir, d.Name())
-		n, err := helper.DiskUsage(path)
-		if err != nil {
-			slog.Debug("du cannot read path", slog.String("path", path), slog.Any("error", err))
-			continue
-		}
-		du += n
-	}
-
-	hdu := helper.ByteCountFloat(du)
-	tmpdir := filepath.Join(tempDir, dir.Pattern+"-*")
 	sl.Info(msg, slog.String("Path", tmpdir), slog.String("Usage", hdu))
 }
 
