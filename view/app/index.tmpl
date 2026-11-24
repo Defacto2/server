@@ -2,7 +2,7 @@
     index.tmpl ~ Introductory page for the website.
 */ -}}
 {{- define "content" }}
-{{- $msCls := "milestone-link link-offset-2 link-offset-3-hover link-underline link-underline-opacity-25 link-underline-opacity-75-hover" }}
+{{- $msCls := "milestone-link w-100 h-100 d-flex align-items-center justify-content-between gap-2 text-start" }}
 {{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
 <a rel="me" href="https://mas.to/@defacto2" class="d-none"><!--mastodon verification--></a>
 {{- $heroTitle := index . "heroTitle" }}
@@ -46,359 +46,529 @@
     <span>Be aware occasional files hosted are not safe for work, with lewd commentary or imagery.</span>
   </div>
 </section>
-<h2 class="index-section-header index-section-header-alt">The Scene</h2>
-<div class="index-intro-section index-intro-section-alt">
-  <a href="/thescene"><em>The Scene</em></a> is often used to describe a digital and online community. 
-  But, this old descriptor was probably lifted from the bohemian and counterculture <q>The Freak Scene</q> <a href="https://asklewis.substack.com/p/a-short-history-of-the-freak-scene">movement</a> of the 1960s.
-  And appropriated by <a href="https://archive.org/details/YIPLTAP_1-91/mode/2up">social activists</a> and journalists in the 1970s, who wrote about the groups of technically minded, misfit kids and young adults whom the writers dubbed <q><u>ph</u>one f<u>reaks</u></q>, aka <em>phreaks</em>, who ran hacks on Ma Bell.
-  The <a href="https://www.fjc.gov/history/spotlight-judicial-history/breakup-ma-bell">monopoly</a> telephone network of the United States owned and operated by the Bell System, a century-old entity that at its peak was the largest company in the world.
-</div>
-<h2 class="index-section-header index-section-header-alt">Wares</h2>
-<div class="index-intro-section index-intro-section-alt">
-  At the same time, <em>ware</em>s, including soft<u>ware</u> and hard<u>ware</u> are used to describe goods.
-  We can make a good case that the <em>wares scene</em> was probably coined by phreakers or the microcomputer enthusiasts, 
-  who shared the same online spaces on early computer operated bulletin boards. 
-  And needed to differentiate their posts, to split the phreak scene discussions of the phone network from those wanting computing goods or wares, who'd met up in person to swap hardware and software media.
-<p>
-  The spelling of <em>warez</em> with a z is newer. An Apple II user under the pseudonym Rabid Rasta <a href="http://www.textfiles.com/100/realpira.hum">complained</a> in mid-1984 about the alternative spells for wares 
-  and their use by a new breed of kids getting online and spamming electronic message boards looking for free computer games.
-</p>
-</div>
-<div class="index-quote-box">
-  <small><strong>Some of the trading messages posted in 1980 to 8BBS#1 near San Jose, CA:</strong></small>
-  <hr class="my-2">
-Message number <a href="https://archive.org/details/8BBSArchiveP1V1/page/n8/mode/1up">3112</a> is 10 lines from Paul. 
-To ALL at 00:34:21 on <strong>15-Oct-80</strong>.<br>
-Subject: ALL PHREAKERS / HACKERS<br>
-TO ALL PHONE PHREAKS AND COMPUTER CRASHERS : 
-<mark>THIS BBS IS BECOMING QUITE A NICE PLACE TO TRADE INFO</mark>. 
-I HAVE TRIED GETTING INDIVIDUALS WHO MIGHT HAVE INFO 
-ON HERE TO CONTACT ME, BUT I SEEM TO HAVE BEEN 
-AVOIDED, POSSIBLY, BECAUSE PEOPLE WISH TO REMAIN 
-ANONYMOUS, IF THIS IS THE CASE. IT'S COOL, I UNDER- 
-STAND. LETS TRADE ON THE SYSTEM, THEN. <mark>IF YOU 
-HAVE ANY BELL SYSTEM 'PAPERS', I WILL GLADLY 
-TRADE WITH YOU</mark>. HAVE LOTS OF COMPUTER ACCOUNTS 
-TOO. LEAVE ME A MESSAGE. 
-<br><br>
-Message number <a href="https://archive.org/details/8BBSArchiveP1V1/page/n21/mode/1up">3794</a> is 8 lines from Stephen. 
-To ALL at 14:46:55 on <strong>14-Nov-80</strong>.<br>
-Subject: HP9845 SOFTWARE EXCHANGE<br>
-I HAVE AN HP9845 COMPUTER AND WOULD <mark>LIKE TO GET A HOLD OF SOME <a href="https://www.hp9845.net/9845/software/games/">NEW GAMES</a></mark>. 
-I HAVE NEVER PLAYED ADVENNTURE &amp; ESPECIALLY INTERESTED IN IT. 
-I HAVE SEVERAL GAMES ALREADY SUCH AS NIM, STAR TREK, SKI, WUMPUS, RACE, BIORYTHEM, AND OTHERS.
-<mark>I WOULD BE GLAD TO SHARE WHAT I HAVE</mark> WITH OTHERS.
-LEAVE A MESSAGE ON THIS BBS IF YOU TOO ARE INTERESTED. 
-I USUALLY CHECK EVERY WEEKDAY.
-<br><br>
-Message number <a href="https://archive.org/details/8BBSArchiveP1V1/page/n53/mode/1up">4291</a> is 10 lines from Barbara To RICK at 23:41:33 on <strong>01-Dec-80</strong>.<br>
-Subject: APPLE PROGRAM TRADING<br>
-RICK — IF YOU WANT TO TRADE APPLE PROGS., THE PERSON TO TALK TO WOULD BE DAN. HE HAS DISKS AND DISKS OF STUFF AND <mark>LIKES TO TRADE SO MUCH THAT HE EVEN HOLDS MEETINGS FOR THE PURPOSE</mark>... AREN'T THERE A LOT OF APPLE PEOPLE IN THOSE PARTS? BARB
-<br><br>
-Message number <a href="https://archive.org/details/8BBSArchiveP1V1/page/n55/mode/1up">4324</a> is 20 lines from Dan.
-** All ** at 16:30:20 on <strong>02-Dec-80</strong>.<br>
-Subject: Apple Software Trading.<br>
-As it has been stated in other 
-posts I am very interested in trading 
-software (Apple what else is there) 
-<mark>I have been trading for about 
-a year and deal with people in 
-Chicago, New York, Phoenix, 
-Boston, etc. I trade by modem, 
-mail or in person (in person is 
-preferable if feasable).</mark> I have 
-access to most major programs 
-packages, so if you are interested 
-joining *The Great Apple 
-American Pass Time* (TGAAPT), 
-leave me a msg. with your name,
-phone # (optional if your touchy 
-about it), What you are looking 
-for, Size of your library, Where 
-located, and how you wish to trade.
+<section class="row row-cols-1 row-cols-lg-2 g-4 mb-5" aria-label="Etymology and origins">
+  <div class="col">
+    <article class="index-topic-card h-100 p-4">
+      <div class="index-eyebrow mb-2">Etymology</div>
+      <h2 class="h4 fw-semibold mb-3">The Scene</h2>
+      <p class="mb-0">
+        <a href="/thescene"><em>The Scene</em></a> is often used to describe a digital and online community.
+        But, this old descriptor was probably lifted from the bohemian and counterculture <q>The Freak Scene</q> <a href="https://asklewis.substack.com/p/a-short-history-of-the-freak-scene">movement</a> of the 1960s.
+        And appropriated by <a href="https://archive.org/details/YIPLTAP_1-91/mode/2up">social activists</a> and journalists in the 1970s, who wrote about the groups of technically minded, misfit kids and young adults whom the writers dubbed <q><u>ph</u>one f<u>reaks</u></q>, aka <em>phreaks</em>, who ran hacks on Ma Bell.
+        The <a href="https://www.fjc.gov/history/spotlight-judicial-history/breakup-ma-bell">monopoly</a> telephone network of the United States owned and operated by the Bell System, a century-old entity that at its peak was the largest company in the world.
+      </p>
+    </article>
+  </div>
+  <div class="col">
+    <article class="index-topic-card h-100 p-4">
+      <div class="index-eyebrow mb-2">Terminology</div>
+      <h2 class="h4 fw-semibold mb-3">Wares</h2>
+      <p>
+        At the same time, <em>ware</em>s, including soft<u>ware</u> and hard<u>ware</u> are used to describe goods.
+        We can make a good case that the <em>wares scene</em> was probably coined by phreakers or the microcomputer enthusiasts,
+        who shared the same online spaces on early computer operated bulletin boards.
+        And needed to differentiate their posts, to split the phreak scene discussions of the phone network from those wanting computing goods or wares, who'd met up in person to swap hardware and software media.
+      </p>
+      <p class="mb-0">
+        The spelling of <em>warez</em> with a z is newer. An Apple II user under the pseudonym Rabid Rasta <a href="http://www.textfiles.com/100/realpira.hum">complained</a> in mid-1984 about the alternative spells for wares
+        and their use by a new breed of kids getting online and spamming electronic message boards looking for free computer games.
+      </p>
+    </article>
+  </div>
+</section>
+
+<section class="index-bbs-log mb-5" aria-label="1980 8BBS#1 trading messages">
+  <div class="index-bbs-header d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 px-md-4 py-2">
+    <span class="d-inline-flex align-items-center gap-2 fw-medium">
+      <svg class="bi" width="15" height="15" fill="currentColor" aria-hidden="true">
+        <use xlink:href="/svg/bootstrap-icons.svg#terminal"></use>
+      </svg>
+      Some of the trading messages posted in 1980 to 8BBS#1 near San Jose, CA
+    </span>
+    <span class="font-monospace small opacity-75">8BBS#1 · 1980</span>
+  </div>
+  <div class="index-bbs-body p-3 p-md-4">
+    <div class="row row-cols-1 row-cols-lg-2 g-3">
+      <div class="col">
+        <article class="index-bbs-msg h-100 p-3">
+          <header class="index-bbs-meta pb-2 mb-2">
+            <div class="d-flex flex-wrap justify-content-between gap-1">
+              <span>Message <a href="https://archive.org/details/8BBSArchiveP1V1/page/n8/mode/1up">#3112</a> · 10 lines · From Paul → ALL</span>
+              <strong>15-Oct-80 · 00:34:21</strong>
+            </div>
+            <div class="text-body-secondary">Subject: ALL PHREAKERS / HACKERS</div>
+          </header>
+          <p class="mb-0">
+            TO ALL PHONE PHREAKS AND COMPUTER CRASHERS :
+            <mark>THIS BBS IS BECOMING QUITE A NICE PLACE TO TRADE INFO</mark>.
+            I HAVE TRIED GETTING INDIVIDUALS WHO MIGHT HAVE INFO
+            ON HERE TO CONTACT ME, BUT I SEEM TO HAVE BEEN
+            AVOIDED, POSSIBLY, BECAUSE PEOPLE WISH TO REMAIN
+            ANONYMOUS, IF THIS IS THE CASE. IT'S COOL, I UNDER-
+            STAND. LETS TRADE ON THE SYSTEM, THEN. <mark>IF YOU
+            HAVE ANY BELL SYSTEM 'PAPERS', I WILL GLADLY
+            TRADE WITH YOU</mark>. HAVE LOTS OF COMPUTER ACCOUNTS
+            TOO. LEAVE ME A MESSAGE.
+          </p>
+        </article>
+      </div>
+      <div class="col">
+        <article class="index-bbs-msg h-100 p-3">
+          <header class="index-bbs-meta pb-2 mb-2">
+            <div class="d-flex flex-wrap justify-content-between gap-1">
+              <span>Message <a href="https://archive.org/details/8BBSArchiveP1V1/page/n21/mode/1up">#3794</a> · 8 lines · From Stephen → ALL</span>
+              <strong>14-Nov-80 · 14:46:55</strong>
+            </div>
+            <div class="text-body-secondary">Subject: HP9845 SOFTWARE EXCHANGE</div>
+          </header>
+          <p class="mb-0">
+            I HAVE AN HP9845 COMPUTER AND WOULD <mark>LIKE TO GET A HOLD OF SOME <a href="https://www.hp9845.net/9845/software/games/">NEW GAMES</a></mark>.
+            I HAVE NEVER PLAYED ADVENNTURE &amp; ESPECIALLY INTERESTED IN IT.
+            I HAVE SEVERAL GAMES ALREADY SUCH AS NIM, STAR TREK, SKI, WUMPUS, RACE, BIORYTHEM, AND OTHERS.
+            <mark>I WOULD BE GLAD TO SHARE WHAT I HAVE</mark> WITH OTHERS.
+            LEAVE A MESSAGE ON THIS BBS IF YOU TOO ARE INTERESTED.
+            I USUALLY CHECK EVERY WEEKDAY.
+          </p>
+        </article>
+      </div>
+      <div class="col">
+        <article class="index-bbs-msg h-100 p-3">
+          <header class="index-bbs-meta pb-2 mb-2">
+            <div class="d-flex flex-wrap justify-content-between gap-1">
+              <span>Message <a href="https://archive.org/details/8BBSArchiveP1V1/page/n53/mode/1up">#4291</a> · 10 lines · From Barbara → RICK</span>
+              <strong>01-Dec-80 · 23:41:33</strong>
+            </div>
+            <div class="text-body-secondary">Subject: APPLE PROGRAM TRADING</div>
+          </header>
+          <p class="mb-0">
+            RICK — IF YOU WANT TO TRADE APPLE PROGS., THE PERSON TO TALK TO WOULD BE DAN. HE HAS DISKS AND DISKS OF STUFF AND <mark>LIKES TO TRADE SO MUCH THAT HE EVEN HOLDS MEETINGS FOR THE PURPOSE</mark>... AREN'T THERE A LOT OF APPLE PEOPLE IN THOSE PARTS? BARB
+          </p>
+        </article>
+      </div>
+      <div class="col">
+        <article class="index-bbs-msg h-100 p-3">
+          <header class="index-bbs-meta pb-2 mb-2">
+            <div class="d-flex flex-wrap justify-content-between gap-1">
+              <span>Message <a href="https://archive.org/details/8BBSArchiveP1V1/page/n55/mode/1up">#4324</a> · 20 lines · From Dan → ** All **</span>
+              <strong>02-Dec-80 · 16:30:20</strong>
+            </div>
+            <div class="text-body-secondary">Subject: Apple Software Trading.</div>
+          </header>
+          <p class="mb-0">
+            As it has been stated in other
+            posts I am very interested in trading
+            software (Apple what else is there)
+            <mark>I have been trading for about
+            a year and deal with people in
+            Chicago, New York, Phoenix,
+            Boston, etc. I trade by modem,
+            mail or in person (in person is
+            preferable if feasable).</mark> I have
+            access to most major programs
+            packages, so if you are interested
+            joining *The Great Apple
+            American Pass Time* (TGAAPT),
+            leave me a msg. with your name,
+            phone # (optional if your touchy
+            about it), What you are looking
+            for, Size of your library, Where
+            located, and how you wish to trade.
+          </p>
+        </article>
+      </div>
+    </div>
 {{- /*
-<br><br>
 Message number <a href="https://archive.org/details/8BBSArchiveP1V1/page/n76/mode/1up">4496</a> is 12 lines from Susan To Keith at 03:39:32 on <strong>07-Dec-80</strong>.
 Subject! RE<br>
 DEAR KEITH, I HAVE BEEN A PHONE PHREAK FOR MANY YEARS NOW AND I WOULD LOVE TO TRADE INFO WITH YOU!! I THINK WE COULD HELP EACH OTHER ALOT AS I HAVE MORE PHONE INFO THAN EVEN THE PHONE COMPANY ITSELF PROBABLY KNOWS IT HAS, YET THIS COMPUTER PHREAKING IS RATHER NEW TO ME...SO IF YOU'D LIKE TO 'GET TOGETHER' SOMETIME ON A SYSTEM OR LINE, GIVE ME A WAY TO REACH YOU AS WELL AS A GOOD LATE LATE NIGHT TIME AND WE'LL TALK... LOOKING FORWARD TO A PROFITABLE ALLIANCE... —SUSAN.
 */ -}}
-</div>
-<hr>
-<div class="index-intro-section index-intro-section-alt history-section">
-  <h3 class="history-section-title">Apple II and the birth of cracking</h3>
-  <p>
-    The <em>wares scene</em> as we know it today, originated in the USA, most likely in 1979 or 1980, on the Apple II microcomputer. 
-  At this time, <a href="https://www.copyright.gov/timeline/timeline_1950-2000.html">US copyright</a> did not apply to software usage, 
-  and some industry publishers and authors were looking for ways to limit the copying and free exchange of the programs that they were creating to sell.
-  The mid-1978 offering and <a href="https://collections.museumsvictoria.com.au/articles/2787">rapid popularity</a> of the Apple "Disk ][" floppy drive ecosystem, 
-  combined with some experimentation, created the opportunity for the introduction of disk-copying restrictions into commercial software and games.
-</p>
-<p>
-At the same time, a burgeoning new communications medium was being developed for posting and messaging on early computerized bulletin boards. These were home to computer enthusiasts who had an insatiable desire for new and novel software. And for many, an entitlement that digital goods were for the public domain, which stemmed from a long-held tradition in the computing space. Where hardware was purchased, but the software was given away. 
-All combined, it probably led to a clash of cultures, capitalist vs freedom, and the birth of software <em>cracking</em> was the result. 
-With the computer-savvy using trial-and-error to <em><a href="/image/milestone/cyber_strike_the_tornato.webp">unlock</a></em> the programs shipped on <a href="https://www.ebay.com/itm/204747521812">floppies</a> containing disk copy-protections, and permit the duplication and swapping of software like it had always been.
-This newfound knowledge was forever changing, so it got discussed, posted and repeated elsewhere to evolve into digital communities.
-</p>
-</div>
-<div class="index-intro-section index-intro-section-alt history-section">
-  <h3 class="history-section-title">Atari and software demos</h3>
-  <p>
-  This period also saw the delayed introduction of Atari's 400 and 800 microcomputers. 
-  Atari felt it was late to the party in releasing its superior line of computers, so it created several non-interactive demonstration software titles with music and animation intended to help sell the machines in-store. 
-  To encourage development, Atari formed APX, the Atari Program Exchange, which allowed the company to publish user-written software. 
-  Some titles, such as 1981's Graphics/Sound Demonstration, include source code and instructions for various vanity programming effects. 
-  To encourage new Atari owners to develop on the computers and demonstrate the system capabilities, much like a Demoscene that later evolved on the Atari machines.
-</p>
-</div>
-<div class="index-intro-section index-intro-section-alt history-section">
-  <h3 class="history-section-title">Europe and the 16-bit microcomputers</h3>
-  <p>
-  The concept of a Scene spanned the Atlantic to Western Europe in 1984-85 to eventually thrive on the Commodore 64,  
-  the all-time, highest-selling microcomputer worldwide. 
-  Small collectives of Commodore owners in Sweden, West Germany, and elsewhere would team up to import boxed software from the USA to digitally duplicate, occasionally crack, and repackage titles to share between friends and users. 
-  Initially, this was due to the poor availability of microcomputer software in retail, but 
-  even after the software distribution improved, many found the communities that formed around exchanging pirated software too compelling.
-</p>
-<p>
-  Late in the 1980s, UK and European game developers and Sceners moved 
-  onto the more powerful 16-bit computer platforms led by Atari and Commodore. 
-  Due to the emphasis of sound and graphics on both machines, 
-  some in the European Scene pivoted to exclusively producing 
-  digital artwork and multimedia, creating the <a href="https://demozoo.org">Demoscene</a>.
-  In the USA, where Atari and Commodore were based, their 16-bit computers failed in the local marketplace. 
-  The failure and other poor decisions eventually finished both companies and their influence.
-  While Apple Computer Inc. was left as a niche player after it ditched its popular Apple II platform to favor the novel and high value, Macintosh computer line.
-</p>
-<p>
-  North American consumers moved on to the business-oriented IBM <abbr title="Personal Computer">PC</abbr> platform, 
-  later dominated by Intel and Microsoft with MS-<abbr title="Disk Operating System">DOS</abbr> and Windows.
-  Due to its modular and fragmented design, the PC wasn't the best gaming platform during the 1980s and much of the 1990s. 
-  And apart from the popular adventure and flight simulator genres in the 80s and the real-time strategy or Doom-clones of the 1990s, there were better choices for game development. 
-  Instead, many American and Canadian gamers shifted to the Japanese video game console offerings by Nintendo, Sega and later Sony. 
-</p>
-</div>
-<div class="index-intro-section index-intro-section-alt history-section">
-  <h3 class="history-section-title">IBM PC and the x86 platform</h3>
-  <p>
-    Numerous text file instructions survive for modifying PC software and removing its disk copy protection schemes. 
-  Instructions that once were commonplace on CompuServe and bulletin board posts that go back to 1983, possibly earlier.
-  But unlike the Apple II crackers, these <em>unprotect</em> authors were not computing ideologues or kids seeking free games. 
-  Instead, these copy-protection removal instructions were created for pricey business software, 
-  purchased legitimately, and the cracks were frequently credited to real-life contacts. 
-  As the copy protection found in early PC application software often seriously inconvenienced buyers, 
-  especially businesses, where damaged or lost disk media could mean being locked out of critical software.
-</p>
-<p>
-Separately, PC wares distributions did exist early in the IBM PC's lifecycle, at least in North America. Some bulletin boards offered a wide range of commercial and non-commercial PC software. However, they were uploaded as-is and usually without modification. End users of these dubious commercial downloads would presumably remove any copy protection using the freely available and legal unprotect instructions found on public message boards. How popular all this was is uncertain. Most application software from the 1980s is text-based and niche, with an unintuitive design. And really needed the printed manuals included in the retail product to get anything out of the software.
-</p>
-<p>
-  We know that crackers and later pirate groups didn't start modifying and redistributing cracked IBM PC games until 1984,
-  and it didn't pick up and evolve to a national distribution network until 1988 and 1989. 
-  Oddly, after the software industry mostly abandoned copy protection on business-oriented software, 
-  this became the most common form of pirated software found on the PC 'elite' file sharing boards. 
-  Yet, these wares were frequently packaged and distributed anonymously and even contained detailed installation instructions, which their authors often left uncredited.
-</p>
-<p>
-  The proliferation of bulletin boards running on IBM PCs and the sharing of all this software led to an <a href="http://artscene.textfiles.com/artscene.html">Art Scene</a>.
-  Digital artists using PCs and primitive software competed to create text art for the elite pirate and hacker bulletin board systems.
-  Eventually, like the Demoscene in Europe, the Art Scene artists broke away from piracy to form their own <a href="https://16colo.rs">community</a>.
-</p>
-<p>
-  Outside the US and Canada, where the PC was often more expensive and perceived as a business tool, there was little engagement from Europe or elsewhere. 
-  Some users from the <a href="/g/future-brain-inc">Netherlands</a> joined the PC Scene community in 1988, releasing demonstrations and software cracks. 
-  Others from <a href="/g/norwegian-cracking-company">Norway</a>, Austria, 
-  <a href="/g/coop">Germany</a>, <a href="/g/the-dream-team">Sweden</a>, 
-  <a href="/g/sorcerers">Finland</a>, and <a href="/g/katharsis">Poland</a>, 
-  came afterward, with some going all in on the platform but others seeing it as a secondary system.
-</p>
-<p>
-However, many Europeans avoided the PC platform and moved over to the Japanese consoles. 
-Others only reluctantly migrated to it after it became apparent that their favored systems from Commodore were dead-end platforms and that the software industry had long moved on.
-</p>
-<p>
-Curiously, this has led to a mistaken mythologization of the Scene in Europe, with many people believing that the online culture, conventions, and vocabulary originated in Western Europe on Commodore and trickled over to North America and elsewhere. 
-Yet, the Apple, Atari, and IBM PC existed well before the famed Commodore Amiga 500 and Commodore 64 microcomputers, and all these machines were designed and launched first in the United States.
-</p>
-</div>
-<div class="index-quote-box">
-  <small><strong>
-  An ancient post on 8BBS#1 to swap software for the 
-  <a href="https://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm">Seattle 8086</a> microcomputer, 
-  months before Microsoft DOS or the IBM PC
-  </strong></small>
-  <hr class="my-2">
-Message number <a href="https://archive.org/details/8BBSArchiveP1V1/page/n300/mode/1up">8281</a> is 6 lines from Joe. 
-To ALL 8086'ERS at 21.50:35 on <strong>14-Apr-81</strong>.<br>
-Subject: 8086 STUFF<br>
-HI: I JUST GOT A SEATTLE 8086 CPU SETUP. 96K RAM(16 BIT). 
-I WOULD LIKE TO TALK AND POSSIBLY <mark>SWAP SOFTWARE WITH OTHER 
-USERS/OWNERS OF 8086 SYSTEMS.</mark> CURRENTLY I RUN 86-DOS 
-BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
-</div>
-<h2 id="milestones" class="h3 mt-4 mb-4 text-start">An intertwining of the computer industry and the Scene</h2>
-<p>
-  The remainder of this introductory page chronologically shows the milestones for the microcomputer industry, 
-  the personal computer, software copyright and piracy, to offer historical insights into that Scene.
-  In the early days of modern computing, the terms <q>micro-computer</q> and <q>personal-computer</q> were interchangeable.
-  Both referred to the desk-friendly computers that evolved from the refrigerator-sized business <q>mini-computers</q> of the 1970s.
-  However, this site uses <em>microcomputer</em> to describe all the consumer-computers that are incompatible with Microsoft DOS and Windows operating systems.
-</p>
-{{/*  These links now open the modal with corresponding milestone content using anchor IDs */}}
-<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 mb-5 milestone-quick-links">
-  <div class="col"><a class="{{$msCls}}" href="#the-first-online-communities" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-online-communities">Online communities <small>1973</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#software-piracy" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="software-piracy">Bill Gates' letter to hobby pirates <small>1976</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-computerized-bulletin-board-system" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-computerized-bulletin-board-system">First computerized bulletin board <small>1978</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-copy-protections-1978" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-copy-protections-1978">Cassette copy protections <small>1978</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-copy-protections-1979" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-copy-protections-1979">Disk copy protections <small>1979</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-early-online-underground" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-early-online-underground">An early underground <small>1979</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-boards" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-boards">Underground bulletin boards <small>1979</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-software-crackers" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-software-crackers">Early software crackers <small>1979</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-birth-of-wares" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-birth-of-wares">The birth of wares <small>1980</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-earliest-dated-software-crack-and-text-art" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-dated-software-crack-and-text-art">First signed and dated crack <small>1980</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-earliest-cracktros" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-cracktros">The first cracktros <small>1981</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-pc" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-pc">The first IBM <u>P</u>ersonal <u>C</u>omputer <small>1981</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-demo" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-demo">The first demo <small>1981</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-groups" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-groups">Cracking groups &amp; pirate clubs <small>1981-82</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#earliest-unprotect-texts" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-unprotect-texts">First popular PC crack <small>1983</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-earliest-information-text-on-pc" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-information-text-on-pc">Early PC Scene textfiles <small>1984</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-earliest-pc-cracked-releases" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-pc-cracked-releases">Early PC cracked releases <small>1984</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-release-of-arc" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-release-of-arc">The ability to archive files <small>1985</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-earliest-text-loader-on-pc" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-text-loader-on-pc">Early PC, text-art loader <small>1985</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#earliest-ansi-ad" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-ansi-ad">Early ANSI art advert <small>1985</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-earliest-pc-loaders" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-earliest-pc-loaders">Early PC art loaders <small>1986</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#earliest-pc-intro" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-pc-intro">Early PC intros <small>1989</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#earliest-pc-cracktro" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-pc-cracktro">Early PC cracktros <small>1989</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#.nfo-file-extension-origins" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id=".nfo-file-extension-origins">Origin of the <i>nfo</i> <small>1990</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-first-application-and-utility-groups" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-application-and-utility-groups">The first <i>app</i> only groups <small>1991</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-contemporary-pc-cracktro" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-contemporary-pc-cracktro">The modern PC cracktro <small>1991</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#earliest-cd-release" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-cd-release">The first CD wares release <small>1992</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#first-mention-of-cd_rip" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="first-mention-of-cd_rip">Early <i>CD-RIP</i> releases <small>1994</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-scene-merch" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-scene-merch">Scene merch <small>1996</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#first-release-standards" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="first-release-standards"><i>SPA</i> release standards <small>1996</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#earliest-iso-release" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="earliest-iso-release">Early <i>ISO</i> releases <small>1997</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#overnight*warez-becomes-criminal" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="overnight*warez-becomes-criminal">Sharing software is criminal <small>1997</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#digital-only-scene-releases" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="digital-only-scene-releases">Digital only releases <small>2004</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#end-of-the-line-for-rips" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="end-of-the-line-for-rips">The <i>CD-RIP</i> era is over <small>2005</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-berlin-bear-controversy" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-berlin-bear-controversy">Faking history &amp; "first" pretenders <small>2005</small></a></div>
-  <div class="col"><a class="{{$msCls}}" href="#the-twilight-of-the-cracktro" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-twilight-of-the-cracktro">The end <small>2000s</small></a></div>
-</div>
+  </div>
+</section>
+
+<section class="row g-4 g-lg-5 mb-5" aria-label="Platform histories">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav sticky-top" aria-label="History chapters">
+      <div class="index-eyebrow mb-3">Early Platforms</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item">
+          <a class="nav-link index-chapter-link d-flex justify-content-between align-items-center" href="#history-apple-ii">
+            <span>Apple II &amp; cracking</span>
+            <span class="font-monospace small text-body-secondary">1978</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link index-chapter-link d-flex justify-content-between align-items-center" href="#history-atari">
+            <span>Atari &amp; demos</span>
+            <span class="font-monospace small text-body-secondary">1979</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link index-chapter-link d-flex justify-content-between align-items-center" href="#history-europe">
+            <span>Europe &amp; 16-bit</span>
+            <span class="font-monospace small text-body-secondary">1984</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link index-chapter-link d-flex justify-content-between align-items-center" href="#history-ibm-pc">
+            <span>IBM PC &amp; x86</span>
+            <span class="font-monospace small text-body-secondary">1983</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link index-chapter-link d-flex justify-content-between align-items-center" href="#bbs-seattle-8086">
+            <span>Seattle 8086 log</span>
+            <span class="font-monospace small text-body-secondary">1981</span>
+          </a>
+        </li>
+      </ul>
+      <hr class="my-3">
+      <a class="nav-link index-chapter-link fw-medium text-primary" href="#milestones">
+        Milestones timeline ↓
+      </a>
+    </nav>
+  </aside>
+
+  <div class="col-lg-9">
+    <div class="index-prose">
+      <article id="history-apple-ii" class="index-chapter pb-4 mb-4 border-bottom">
+        <div class="index-chapter-era font-monospace mb-2">1978–1980 · Apple II</div>
+        <h2 class="h4 fw-semibold mb-3">Apple II and the birth of cracking</h2>
+        <p>
+          The <em>wares scene</em> as we know it today, originated in the USA, most likely in 1979 or 1980, on the Apple II microcomputer.
+          At this time, <a href="https://www.copyright.gov/timeline/timeline_1950-2000.html">US copyright</a> did not apply to software usage,
+          and some industry publishers and authors were looking for ways to limit the copying and free exchange of the programs that they were creating to sell.
+          The mid-1978 offering and <a href="https://collections.museumsvictoria.com.au/articles/2787">rapid popularity</a> of the Apple "Disk ][" floppy drive ecosystem,
+          combined with some experimentation, created the opportunity for the introduction of disk-copying restrictions into commercial software and games.
+        </p>
+        <p class="mb-0">
+          At the same time, a burgeoning new communications medium was being developed for posting and messaging on early computerized bulletin boards. These were home to computer enthusiasts who had an insatiable desire for new and novel software. And for many, an entitlement that digital goods were for the public domain, which stemmed from a long-held tradition in the computing space. Where hardware was purchased, but the software was given away.
+          All combined, it probably led to a clash of cultures, capitalist vs freedom, and the birth of software <em>cracking</em> was the result.
+          With the computer-savvy using trial-and-error to <em><a href="/image/milestone/cyber_strike_the_tornato.webp">unlock</a></em> the programs shipped on <a href="https://www.ebay.com/itm/204747521812">floppies</a> containing disk copy-protections, and permit the duplication and swapping of software like it had always been.
+          This newfound knowledge was forever changing, so it got discussed, posted and repeated elsewhere to evolve into digital communities.
+        </p>
+      </article>
+
+      <article id="history-atari" class="index-chapter pb-4 mb-4 border-bottom">
+        <div class="index-chapter-era font-monospace mb-2">1979–1981 · Atari 400 / 800</div>
+        <h2 class="h4 fw-semibold mb-3">Atari and software demos</h2>
+        <p class="mb-0">
+          This period also saw the delayed introduction of Atari's 400 and 800 microcomputers.
+          Atari felt it was late to the party in releasing its superior line of computers, so it created several non-interactive demonstration software titles with music and animation intended to help sell the machines in-store.
+          To encourage development, Atari formed APX, the Atari Program Exchange, which allowed the company to publish user-written software.
+          Some titles, such as 1981's Graphics/Sound Demonstration, include source code and instructions for various vanity programming effects.
+          To encourage new Atari owners to develop on the computers and demonstrate the system capabilities, much like a Demoscene that later evolved on the Atari machines.
+        </p>
+      </article>
+
+      <article id="history-europe" class="index-chapter pb-4 mb-4 border-bottom">
+        <div class="index-chapter-era font-monospace mb-2">1984–1989 · Commodore &amp; Atari ST</div>
+        <h2 class="h4 fw-semibold mb-3">Europe and the 16-bit microcomputers</h2>
+        <p>
+          The concept of a Scene spanned the Atlantic to Western Europe in 1984-85 to eventually thrive on the Commodore 64,
+          the all-time, highest-selling microcomputer worldwide.
+          Small collectives of Commodore owners in Sweden, West Germany, and elsewhere would team up to import boxed software from the USA to digitally duplicate, occasionally crack, and repackage titles to share between friends and users.
+          Initially, this was due to the poor availability of microcomputer software in retail, but
+          even after the software distribution improved, many found the communities that formed around exchanging pirated software too compelling.
+        </p>
+        <p>
+          Late in the 1980s, UK and European game developers and Sceners moved
+          onto the more powerful 16-bit computer platforms led by Atari and Commodore.
+          Due to the emphasis of sound and graphics on both machines,
+          some in the European Scene pivoted to exclusively producing
+          digital artwork and multimedia, creating the <a href="https://demozoo.org">Demoscene</a>.
+          In the USA, where Atari and Commodore were based, their 16-bit computers failed in the local marketplace.
+          The failure and other poor decisions eventually finished both companies and their influence.
+          While Apple Computer Inc. was left as a niche player after it ditched its popular Apple II platform to favor the novel and high value, Macintosh computer line.
+        </p>
+        <p class="mb-0">
+          North American consumers moved on to the business-oriented IBM <abbr title="Personal Computer">PC</abbr> platform,
+          later dominated by Intel and Microsoft with MS-<abbr title="Disk Operating System">DOS</abbr> and Windows.
+          Due to its modular and fragmented design, the PC wasn't the best gaming platform during the 1980s and much of the 1990s.
+          And apart from the popular adventure and flight simulator genres in the 80s and the real-time strategy or Doom-clones of the 1990s, there were better choices for game development.
+          Instead, many American and Canadian gamers shifted to the Japanese video game console offerings by Nintendo, Sega and later Sony.
+        </p>
+      </article>
+
+      <article id="history-ibm-pc" class="index-chapter pb-4 mb-4">
+        <div class="index-chapter-era font-monospace mb-2">1983–1990 · IBM PC / x86</div>
+        <h2 class="h4 fw-semibold mb-3">IBM PC and the x86 platform</h2>
+        <p>
+          Numerous text file instructions survive for modifying PC software and removing its disk copy protection schemes.
+          Instructions that once were commonplace on CompuServe and bulletin board posts that go back to 1983, possibly earlier.
+          But unlike the Apple II crackers, these <em>unprotect</em> authors were not computing ideologues or kids seeking free games.
+          Instead, these copy-protection removal instructions were created for pricey business software,
+          purchased legitimately, and the cracks were frequently credited to real-life contacts.
+          As the copy protection found in early PC application software often seriously inconvenienced buyers,
+          especially businesses, where damaged or lost disk media could mean being locked out of critical software.
+        </p>
+        <p>
+          Separately, PC wares distributions did exist early in the IBM PC's lifecycle, at least in North America. Some bulletin boards offered a wide range of commercial and non-commercial PC software. However, they were uploaded as-is and usually without modification. End users of these dubious commercial downloads would presumably remove any copy protection using the freely available and legal unprotect instructions found on public message boards. How popular all this was is uncertain. Most application software from the 1980s is text-based and niche, with an unintuitive design. And really needed the printed manuals included in the retail product to get anything out of the software.
+        </p>
+        <p>
+          We know that crackers and later pirate groups didn't start modifying and redistributing cracked IBM PC games until 1984,
+          and it didn't pick up and evolve to a national distribution network until 1988 and 1989.
+          Oddly, after the software industry mostly abandoned copy protection on business-oriented software,
+          this became the most common form of pirated software found on the PC 'elite' file sharing boards.
+          Yet, these wares were frequently packaged and distributed anonymously and even contained detailed installation instructions, which their authors often left uncredited.
+        </p>
+        <p>
+          The proliferation of bulletin boards running on IBM PCs and the sharing of all this software led to an <a href="http://artscene.textfiles.com/artscene.html">Art Scene</a>.
+          Digital artists using PCs and primitive software competed to create text art for the elite pirate and hacker bulletin board systems.
+          Eventually, like the Demoscene in Europe, the Art Scene artists broke away from piracy to form their own <a href="https://16colo.rs">community</a>.
+        </p>
+        <p>
+          Outside the US and Canada, where the PC was often more expensive and perceived as a business tool, there was little engagement from Europe or elsewhere.
+          Some users from the <a href="/g/future-brain-inc">Netherlands</a> joined the PC Scene community in 1988, releasing demonstrations and software cracks.
+          Others from <a href="/g/norwegian-cracking-company">Norway</a>, Austria,
+          <a href="/g/coop">Germany</a>, <a href="/g/the-dream-team">Sweden</a>,
+          <a href="/g/sorcerers">Finland</a>, and <a href="/g/katharsis">Poland</a>,
+          came afterward, with some going all in on the platform but others seeing it as a secondary system.
+        </p>
+        <p>
+          However, many Europeans avoided the PC platform and moved over to the Japanese consoles.
+          Others only reluctantly migrated to it after it became apparent that their favored systems from Commodore were dead-end platforms and that the software industry had long moved on.
+        </p>
+        <p class="mb-0">
+          Curiously, this has led to a mistaken mythologization of the Scene in Europe, with many people believing that the online culture, conventions, and vocabulary originated in Western Europe on Commodore and trickled over to North America and elsewhere.
+          Yet, the Apple, Atari, and IBM PC existed well before the famed Commodore Amiga 500 and Commodore 64 microcomputers, and all these machines were designed and launched first in the United States.
+        </p>
+      </article>
+
+      <div id="bbs-seattle-8086" class="index-bbs-log">
+        <div class="index-bbs-header d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
+          <span class="d-inline-flex align-items-center gap-2 fw-medium">
+            <svg class="bi" width="15" height="15" fill="currentColor" aria-hidden="true">
+              <use xlink:href="/svg/bootstrap-icons.svg#terminal"></use>
+            </svg>
+            An ancient post on 8BBS#1 to swap software for the
+            <a class="link-light link-underline-opacity-50 link-underline-opacity-100-hover" href="https://www.s100computers.com/Hardware%20Folder/Seattle%20Computer%20Products/8086%20CPU%20Board/8086%20Board.htm">Seattle 8086</a>
+            microcomputer, months before MS-DOS or the IBM PC
+          </span>
+          <span class="font-monospace small opacity-75">8BBS#1 · 1981</span>
+        </div>
+        <div class="index-bbs-body p-3">
+          <article class="index-bbs-msg p-3">
+            <header class="index-bbs-meta pb-2 mb-2">
+              <div class="d-flex flex-wrap justify-content-between gap-1">
+                <span>Message <a href="https://archive.org/details/8BBSArchiveP1V1/page/n300/mode/1up">#8281</a> · 6 lines · From Joe → ALL 8086'ERS</span>
+                <strong>14-Apr-81 · 21.50:35</strong>
+              </div>
+              <div class="text-body-secondary">Subject: 8086 STUFF</div>
+            </header>
+            <p class="mb-0">
+              HI: I JUST GOT A SEATTLE 8086 CPU SETUP. 96K RAM(16 BIT).
+              I WOULD LIKE TO TALK AND POSSIBLY <mark>SWAP SOFTWARE WITH OTHER
+              USERS/OWNERS OF 8086 SYSTEMS.</mark> CURRENTLY I RUN 86-DOS
+              BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="milestones" class="border-top pt-5 mt-2" aria-labelledby="milestones-heading">
+  <div class="index-eyebrow mb-2">Timeline · 1971–2016</div>
+  <h2 id="milestones-heading" class="h3 fw-semibold mb-3 text-start">An intertwining of the computer industry and the Scene</h2>
+  <p class="index-milestones-lead text-body-secondary mb-4">
+    The remainder of this introductory page chronologically shows the milestones for the microcomputer industry,
+    the personal computer, software copyright and piracy, to offer historical insights into that Scene.
+    In the early days of modern computing, the terms <q>micro-computer</q> and <q>personal-computer</q> were interchangeable.
+    Both referred to the desk-friendly computers that evolved from the refrigerator-sized business <q>mini-computers</q> of the 1970s.
+    However, this site uses <em>microcomputer</em> to describe all the consumer-computers that are incompatible with Microsoft DOS and Windows operating systems.
+  </p>
+
+  <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
+    <span class="index-eyebrow">Key moments</span>
+    <span class="small text-body-secondary">Click any highlight to open in reader view</span>
+  </div>
+  {{/*  These links open the modal with corresponding milestone content using anchor IDs */}}
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-2 mb-5 milestone-quick-links">
+    <div class="col"><a class="{{$msCls}}" href="#the-first-online-communities" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-online-communities"><span>Online communities</span><small>1973</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#software-piracy" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="software-piracy"><span>Bill Gates' letter to hobby pirates</span><small>1976</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-computerized-bulletin-board-system" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-computerized-bulletin-board-system"><span>First computerized bulletin board</span><small>1978</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-copy-protections-1978" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-copy-protections-1978"><span>Cassette copy protections</span><small>1978</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-copy-protections-1979" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-copy-protections-1979"><span>Disk copy protections</span><small>1979</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-early-online-underground" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-early-online-underground"><span>An early underground</span><small>1979</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-boards" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-boards"><span>Underground bulletin boards</span><small>1979</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-software-crackers" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-software-crackers"><span>Early software crackers</span><small>1979</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-birth-of-wares" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-birth-of-wares"><span>The birth of wares</span><small>1980</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-earliest-dated-software-crack-and-text-art" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-earliest-dated-software-crack-and-text-art"><span>First signed and dated crack</span><small>1980</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-earliest-cracktros" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-earliest-cracktros"><span>The first cracktros</span><small>1981</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-pc" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-pc"><span>The first IBM <u>P</u>ersonal <u>C</u>omputer</span><small>1981</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-demo" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-demo"><span>The first demo</span><small>1981</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-groups" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-groups"><span>Cracking groups &amp; pirate clubs</span><small>1981-82</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#earliest-unprotect-texts" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="earliest-unprotect-texts"><span>First popular PC crack</span><small>1983</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-earliest-information-text-on-pc" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-earliest-information-text-on-pc"><span>Early PC Scene textfiles</span><small>1984</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-earliest-pc-cracked-releases" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-earliest-pc-cracked-releases"><span>Early PC cracked releases</span><small>1984</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-release-of-arc" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-release-of-arc"><span>The ability to archive files</span><small>1985</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-earliest-text-loader-on-pc" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-earliest-text-loader-on-pc"><span>Early PC, text-art loader</span><small>1985</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#earliest-ansi-ad" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="earliest-ansi-ad"><span>Early ANSI art advert</span><small>1985</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-earliest-pc-loaders" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-earliest-pc-loaders"><span>Early PC art loaders</span><small>1986</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#earliest-pc-intro" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="earliest-pc-intro"><span>Early PC intros</span><small>1989</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#earliest-pc-cracktro" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="earliest-pc-cracktro"><span>Early PC cracktros</span><small>1989</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#.nfo-file-extension-origins" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id=".nfo-file-extension-origins"><span>Origin of the <i>nfo</i></span><small>1990</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-first-application-and-utility-groups" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-first-application-and-utility-groups"><span>The first <i>app</i> only groups</span><small>1991</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-contemporary-pc-cracktro" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-contemporary-pc-cracktro"><span>The modern PC cracktro</span><small>1991</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#earliest-cd-release" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="earliest-cd-release"><span>The first CD wares release</span><small>1992</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#first-mention-of-cd_rip" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="first-mention-of-cd_rip"><span>Early <i>CD-RIP</i> releases</span><small>1994</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-scene-merch" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-scene-merch"><span>Scene merch</span><small>1996</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#first-release-standards" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="first-release-standards"><span><i>SPA</i> release standards</span><small>1996</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#earliest-iso-release" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="earliest-iso-release"><span>Early <i>ISO</i> releases</span><small>1997</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#overnight*warez-becomes-criminal" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="overnight*warez-becomes-criminal"><span>Sharing software is criminal</span><small>1997</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#digital-only-scene-releases" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="digital-only-scene-releases"><span>Digital only releases</span><small>2004</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#end-of-the-line-for-rips" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="end-of-the-line-for-rips"><span>The <i>CD-RIP</i> era is over</span><small>2005</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-berlin-bear-controversy" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-berlin-bear-controversy"><span>Faking history &amp; "first" pretenders</span><small>2005</small></a></div>
+    <div class="col"><a class="{{$msCls}}" href="#the-twilight-of-the-cracktro" data-bs-toggle="modal" data-bs-target="#milestoneModal"
+      data-milestone-id="the-twilight-of-the-cracktro"><span>The end</span><small>2000s</small></a></div>
+  </div>
+
+  <div class="milestone-toolbar sticky-top d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2 mb-4" role="toolbar" aria-label="Filter milestones">
+    <div class="d-flex flex-wrap align-items-center gap-1" role="group" aria-label="Filter by decade">
+      <button type="button" class="btn btn-sm btn-primary" data-decade-filter="all" aria-pressed="true">All</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-decade-filter="1970s" aria-pressed="false">1970s</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-decade-filter="1980s" aria-pressed="false">1980s</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-decade-filter="1990s" aria-pressed="false">1990s</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-decade-filter="2000s" aria-pressed="false">2000s+</button>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" role="switch" id="milestone-highlights-only">
+        <label class="form-check-label small fw-medium" for="milestone-highlights-only">Highlights only</label>
+      </div>
+      <span id="milestone-count" class="font-monospace small text-body-secondary">
+        {{len .milestones}} of {{len .milestones}} milestones
+      </span>
+    </div>
+  </div>
+
 {{- /*
   <!-- to add 3 columns, use class "row-cols-xl-3" -->
 */ -}}
-<div class="row row-cols-1 row-cols-lg-2 g-4">
+<div id="milestone-grid" class="row row-cols-1 row-cols-lg-2 g-4">
 {{- range $index, $mile := .milestones }}
   {{- $unique := slugify .Title }}
   {{- if eq $unique "the-first-copy-protections" }}{{ $unique = printf "%s-%d" $unique .Year }}<!-- hack to fix the use of two identical titles -->{{ end}}
-  <div class="col">
-    {{- if ne "" $unique}}<a id="{{$unique}}"></a>{{- end}}
-    <div class="card h-100 milestone-card{{ if .Highlight}} featured text-bg-light{{end}}">
-      {{- /*  Header & pictures  */}}
-      <div class="card-header milestone-card-header">
-        <button id="milestone-{{$index}}" class="btn btn-link p-0 w-100 text-start text-decoration-none stretched-link" 
+  {{- $decade := "2000s" }}
+  {{- if lt .Year 1980 }}{{ $decade = "1970s" }}
+  {{- else if lt .Year 1990 }}{{ $decade = "1980s" }}
+  {{- else if lt .Year 2000 }}{{ $decade = "1990s" }}{{ end }}
+  <div class="col milestone-item" data-decade="{{$decade}}" data-highlight="{{if .Highlight}}true{{else}}false{{end}}">
+    {{- if ne "" $unique}}<a id="{{$unique}}" class="milestone-anchor"></a>{{- end}}
+    <div class="card h-100 milestone-card{{ if .Highlight}} featured{{end}}">
+      {{- /*  Header  */}}
+      <div class="card-header milestone-card-header px-3 py-2">
+        <button id="milestone-{{$index}}" type="button" class="btn btn-link p-0 w-100 text-start text-decoration-none stretched-link d-flex align-items-center justify-content-between gap-2"
                 data-bs-toggle="modal" data-bs-target="#milestoneModal">
-          {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}
+          <span class="milestone-date font-monospace">
+            {{fmtPrefix .Prefix}}<strong>{{.Year}}</strong>{{fmtMonth .Month}}{{fmtDay .Day}}
+          </span>
+          <span class="d-inline-flex align-items-center gap-2 flex-shrink-0">
+            {{- if .Highlight}}<span class="badge milestone-highlight-badge fw-medium">Highlight</span>{{- end}}
+            <span class="milestone-expand-cue small">Read ↗</span>
+          </span>
         </button>
       </div>
       {{- /*  Lists, aligned to the top  */}}
       {{- if and (.List) (eq "" .Content)}}
-      <ul class="list-group list-group-flush text-center">
-        <li class="list-group-item">&nbsp;</li>
+      <ul class="list-group list-group-flush milestone-list">
         {{- range .List}}
-        <li class="list-group-item">
-          {{- if ne "" .Forward }}<small class="text-break">{{.Forward}}</small><br>{{end}}
-          <a href="{{.Link}}" class="{{$listCls}}">
+        <li class="list-group-item px-3 py-2">
+          {{- if ne "" .Forward }}<div class="small text-body-secondary text-break">{{.Forward}}</div>{{- end}}
+          <a href="{{.Link}}" class="{{$listCls}} fw-medium">
             {{- if ne "" .Forward }}{{mergeIcon}}{{end}}
             <span class="text-break">{{.LinkTitle | safeHTML}}</span>
-            {{- if ne "" .SubTitle }} <small>({{.SubTitle}})</small>{{end}}
+            {{- if ne "" .SubTitle }} <span class="font-monospace small text-body-secondary">({{.SubTitle}})</span>{{end}}
           </a>
         </li>
         {{- end}}
-      </ul> 
-      {{- end}} 
+      </ul>
+      {{- end}}
       {{- /*  Card body  */}}
-      <div class="card-body">
+      {{- if or (ne "" .Title) (ne "" .Content) (ne "" .Link) (ne "" .Picture.Attribution)}}
+      <div class="card-body d-flex flex-column p-3 p-md-4">
         {{- if (ne "" .Title)}}
-        <h3 class="h5 card-title{{if .Highlight}} text-primary{{end}}">
-          {{.Title}}<br><small class="text-body-secondary">{{.Lead}}</small>
+        <h3 class="h5 card-title fw-semibold mb-2">
+          {{.Title}}
+          {{- if ne "" .Lead}}<span class="d-block fs-6 fw-normal text-body-secondary mt-1">{{.Lead}}</span>{{- end}}
         </h3>
         {{- end}}
         {{- if (ne "" .Content)}}
-        <div class="card-text my-2"><small>{{.Content | safeHTML}}</small></div>
+        <div class="card-text milestone-body my-2">{{.Content | safeHTML}}</div>
         {{- end}}
         {{- if or (ne "" .Link) (ne "" .Picture.Attribution)}}
-        <p class="card-text">
-          <small>
-          {{- if ne "" .Link}}<a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a>{{- end}}
+        <div class="milestone-meta mt-auto pt-2 border-top small text-body-secondary">
+          {{- if ne "" .Link}}<div><a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a></div>{{- end}}
           {{- if ne "" .Picture.Attribution}}
-            <br>
-              Photo by {{.Picture.Attribution}} &nbsp;
-              <a href="{{.Picture.LicenseLink}}" class="link-offset-2 link-underline link-underline-opacity-50">{{.Picture.License}}</a>
-          {{- end -}}
-          </small>
-        </p>
+          <div>
+            Photo by {{.Picture.Attribution}} ·
+            <a href="{{.Picture.LicenseLink}}" class="link-offset-2 link-underline link-underline-opacity-50">{{.Picture.License}}</a>
+          </div>
+          {{- end}}
+        </div>
         {{- end}}
       </div>
+      {{- end}}
       {{- /*  Lists, aligned to the bottom  */}}
       {{- if and (.List) (ne "" .Content)}}
-      <ul class="list-group list-group-flush text-center">
+      <ul class="list-group list-group-flush milestone-list">
         {{- range .List}}
-        <li class="list-group-item">
-          {{- if ne "" .Forward }}<small class="text-break">{{.Forward}}</small><br>{{end}}
-          <a href="{{.Link}}" class="{{$listCls}}">
+        <li class="list-group-item px-3 py-2">
+          {{- if ne "" .Forward }}<div class="small text-body-secondary text-break">{{.Forward}}</div>{{- end}}
+          <a href="{{.Link}}" class="{{$listCls}} fw-medium">
             {{- if ne "" .Forward }}{{mergeIcon}}{{end}}
             <span class="text-break">{{.LinkTitle | safeHTML}}</span>
-            {{- if ne "" .SubTitle }} <small>({{.SubTitle}})</small>{{end}}
+            {{- if ne "" .SubTitle }} <span class="font-monospace small text-body-secondary">({{.SubTitle}})</span>{{end}}
           </a>
         </li>
         {{- end}}
-      </ul> 
+      </ul>
       {{- end}}
       {{- /*  Footer  */}}
       {{- if ne "" .Picture.Webm }}
       {{- $poster := .Picture.Webp }}{{- if eq "" $poster }}{{- $poster = .Picture.Png }}{{- end }}
-      <div class="card-footer text-center bg-dark">
-        <video autoplay muted loop controls playsinline class="img-fluid" title="{{.Picture.Title}}"{{- if ne "" $poster }} poster="/image/milestone/{{$poster}}"{{- end }}>
+      <div class="card-footer milestone-media text-center bg-dark p-2">
+        <video autoplay muted loop controls playsinline class="img-fluid rounded-1" title="{{.Picture.Title}}"{{- if ne "" $poster }} poster="/image/milestone/{{$poster}}"{{- end }}>
           <source src="/image/milestone/{{.Picture.Webm}}" type="video/webm">
         </video>
       </div>
       {{- else if or (ne "" .Picture.Png) (ne "" .Picture.Jpg)}}
-      <div class="card-footer">
+      <div class="card-footer milestone-media text-center p-2">
       <picture title="{{.Picture.Title}}">
         {{- if ne "" .Picture.Avif}}
         <source srcset="/image/milestone/{{.Picture.Avif}}" type="image/avif">
@@ -407,9 +577,9 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
         <source srcset="/image/milestone/{{.Picture.Webp}}" type="image/webp">
         {{- end}}
         {{- if ne "" .Picture.Jpg}}
-        <img src="/image/milestone/{{.Picture.Jpg}}" loading="lazy" class="card-img-bottom" alt="{{.Picture.Alt}}">
+        <img src="/image/milestone/{{.Picture.Jpg}}" loading="lazy" class="img-fluid rounded-1" alt="{{.Picture.Alt}}">
         {{- else if ne "" .Picture.Png}}
-        <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-bottom" alt="{{.Picture.Alt}}">
+        <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="img-fluid rounded-1" alt="{{.Picture.Alt}}">
         {{- end}}
       </picture></div>
       {{- end}}
@@ -417,6 +587,7 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
   </div>
 {{- end}}
 </div>
+</section>
 {{- /* 
   Milestone Modal Pop-up
   When a milestone title or date is clicked, this modal pops up with a copy of the milestone content.
@@ -426,11 +597,11 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
 <div class="modal fade" id="milestoneModal" tabindex="-1" aria-labelledby="milestoneModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title fs-5" id="milestoneModalLabel">Milestone Details</h2>
+      <div class="modal-header bg-body-tertiary">
+        <h2 class="modal-title fs-5 font-monospace" id="milestoneModalLabel">Milestone Details</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body lead" id="milestoneModalBody">
+      <div class="modal-body" id="milestoneModalBody">
         <!-- Content will be loaded here -->
       </div>
       <div class="modal-footer">
