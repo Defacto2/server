@@ -1498,11 +1498,13 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 	}
 
 	const title = "Introduction and milestones"
+	const descr = "Preserving the historic and defunct software cracking, wares, and Warez Scene subcultures on obsolete personal computers."
 	const h1 = "The subcultures of obsolete microcomputers"
 
 	data := empty(c)
 	// NOTE: if the title get's changed, the indexJS conditional in layout.tmpl needs updating
 	data["title"] = title
+	data["description"] = descr
 	data[canonical] = "/"
 	data["h1"] = h1
 	data["milestones"] = Collection()

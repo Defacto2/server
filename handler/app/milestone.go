@@ -132,7 +132,7 @@ var collection = Milestones{
 			Title:       "A child using the PLATO IV system",
 			Alt:         "A photo of a boy using the touch interface of the PLATO IV system.",
 			Jpg:         "plato-iv.jpg",
-			Avif:        "plato-iv.webp",
+			Webp:        "plato-iv.webp",
 			Attribution: `is uncertain; the owner maybe "University of Illinois developer", Raymond Ozzie or a university`,
 			License:     "source",
 			LicenseLink: "https://grainger.illinois.edu/news/magazine/plato",
@@ -152,7 +152,7 @@ var collection = Milestones{
 			`<a href="https://just.thinkofit.com/wp-content/uploads/1994/01/talko-comb.png">their own window</a>, ` +
 			"and the text characters printed as they typed. After its success, the PLATO staff incorporated a form of direct chat into the system, allowing people to notify and page others for a real-time one-on-one chat like an <strong>instant message service</strong>.</p>" +
 			"<p>At the start of 1976, Group Notes became the final evolution of the Notes concept, with the advice and feedback of many users and David's work. Groups allowed unlimited public and private notefiles for broad subject or <strong>topic-orientated discussions</strong>, such as books, music, movies, religion, science fiction, etc., years before Usenet or the " +
-			`<abbr title="Computerized Bulletin Board System">CBBS</abbr>.` +
+			`<abbr title="Computerized Bulletin Board System">CBBS</abbr>.</p>` +
 			`<p>Some people also used notefiles as a form of <strong>blogging</strong>, such as ` +
 			`<a href="https://distributedmuseum.illinois.edu/exhibit/bruce-parello/">The Red Sweater</a>'s Newsreport or ` +
 			`Dr. Gräper's <a href="http://www.grapenotes.com/">=grapenotes=</a>, and these could be inserted with <strong><a href="http://www.platopeople.com/emoticons.html">emoticons</a></strong>.</p>` +
@@ -219,6 +219,7 @@ var collection = Milestones{
 			"If so, you might like to come to a gathering of people with like-minded interests. Exchange information, swap ideas, talk shop, help work on a project, whatever...</q></p>",
 		Picture: Picture{
 			Title:       "Homebrew Computer Club invitation",
+			Alt:         "Homebrew Computer Club invitation flyer.",
 			Jpg:         "homebrew-computer-club.jpg",
 			Avif:        "homebrew-computer-club.avif",
 			Attribution: "Gotanero",
@@ -252,7 +253,7 @@ var collection = Milestones{
 			"<a href=\"https://spectrum.ieee.org/chip-hall-of-fame-mos-technology-6502-microprocessor\">MOS 6502</a> CPU, 4KB of RAM, and a 40-column display controller.</p>" +
 			"<p>Unlike the far more popular Altair&nbsp;8800, The Apple Computer wasn't usable out of the box and didn't come with a case. However, <a href=\"https://upload.wikimedia.org/wikipedia/commons/4/48/Apple_1_Advertisement_Oct_1976.jpg\">it did offer</a> a convenient video terminal, cassette, and keyboard interface, but requires owners to supply peripherals for input, output, and storage.</p>" +
 			"<p>The board is a commercial failure, selling less than 200 units, and could be considered more of a prototype for the company and third-party investors. The following year, the product line was <a href=\"https://www.applefritter.com/node/2706\">replaced with circuit boards</a> housing an Apple II.</p>" +
-			"<p>The choice of the new <strong>MOS 6502 CPU</strong> showed foresight, as it became the foundation of many successful microcomputers and consoles.<p>" +
+			"<p>The choice of the new <strong>MOS 6502 CPU</strong> showed foresight, as it became the foundation of many successful microcomputers and consoles.</p>" +
 			ul0 +
 			"<li>Atari&nbsp;2600 <sup>1977</sup></li>" +
 			"<li>Apple&nbsp;II <sup>1977</sup></li>" +
@@ -325,7 +326,8 @@ var collection = Milestones{
 		Picture: Picture{
 			Title:       "A recreation of CBBS",
 			Alt:         "A recreation screen capture of the first BBS.",
-			Png:         "cbbs.jpg",
+			Png:         "cbbs.png",
+			Avif:        "cbbs.avif",
 			Webp:        "cbbs.webp",
 			Attribution: "Aeroid",
 			License:     cc,
@@ -343,9 +345,9 @@ var collection = Milestones{
 			"<p>The development and launch of the 8086, a software-compatible 16-bit implementation of the 8080 and the 8085, is a direct response to the Z80 and the market of clone CPUs. " +
 			"However, the 8086 failed to dominate an industry saturated with more affordable 8-bit hardware.</p>",
 		Picture: Picture{
-			Title:       "A recreation of CBBS",
-			Alt:         "A recreation screen capture of the first BBS.",
-			Png:         "intel-8086.jpg",
+			Title:       "Intel 8086 CPU chip",
+			Alt:         "A photo of an Intel 8086 microprocessor.",
+			Jpg:         "intel-8086.jpg",
 			Avif:        "intel-8086.avif",
 			Attribution: "Thomas Nguyen",
 			License:     cc,
@@ -391,7 +393,7 @@ var collection = Milestones{
 			"<p>The October 1980 issue of Byte wrote, <em>While attempts to eliminate software piracy are commendable, they very often fail because of the cleverness of personal-computer users; many take the anticopy measures as a challenge. The problem lies in making the protection scheme easy enough to be affordable, but complex enough to work.</em></p>" +
 			"<p>SoftTalk <a href=\"https://vintageapple.org/softalk/pdf/SOFTALK_8101_v1_n05.pdf\">January 1981</a> interviews an executive of California Pacific. " +
 			"<em>Good copy protection has a high priority at California Pacific. <q>In areas where Super Invaders was sold on cassette and unprotected, Trilogy (ed: with disk copy protection) outsold Invaders ten to one</q></em>. " +
-			"The article writes, <em>California Pacific's Super Invaders hit northern California in mid-October of 1979 and Trilogy* followed in December.</em> <small>*Bill&nbsp;Budge's&nbsp;Trilogy&nbsp;of&nbsp;Games</small>" +
+			"The article writes, <em>California Pacific's Super Invaders hit northern California in mid-October of 1979 and Trilogy* followed in December.</em> <small>*Bill&nbsp;Budge's&nbsp;Trilogy&nbsp;of&nbsp;Games</small></p>" +
 			"<p>The debut of HardCore Computing was published in June 1981, with the articles written earlier. " +
 			"Of note is the piece found on page 10, <em>bit copy programs - that will copy the <q>uncopyables</q></em> by Karen Fitzpatrick. " +
 			"It writes, <em>A bit-copier is a MUST for anyone who purchases <q>protected</q> software</em> and goes on to review three floppy duplication programs:<br>" +
@@ -864,7 +866,7 @@ var collection = Milestones{
 		Picture: Picture{
 			Title: "Graphics/Sound Demonstration catalog page",
 			Alt:   "A photo snippet of the 1981, Atari Program Exchange catalog page for the Graphics/Sound Demonstration.",
-			Jpg:   "atari-graphics-sound-demonstration.png",
+			Png:   "atari-graphics-sound-demonstration.png",
 			Avif:  "atari-graphics-sound-demonstration.avif",
 		},
 	},
@@ -963,7 +965,7 @@ var collection = Milestones{
 	{
 		Title: "The great online reboot - the birth of an inter-network", Year: 1983, Month: 1, Day: 1,
 		Lead: "APRA Internet", LinkTitle: "the Notable computer networks", Link: "https://dl.acm.org/doi/pdf/10.1145/6617.6618",
-		Content: "On January 1, 1983, the US Department of Defense coordinated the massive shutdown of its existing experimental wide-area network, <abbr title=\"Advanced Research Projects Agency Network\">ARPAnet</abbr>. " +
+		Content: "<p>On January 1, 1983, the US Department of Defense coordinated the massive shutdown of its existing experimental wide-area network, <abbr title=\"Advanced Research Projects Agency Network\">ARPAnet</abbr>. " +
 			"Referred to as <q>Flag Day,</q> the event required all systems associated with the US military network to reconnect using a new <abbr title=\"Transfer Control Protocol\">TCP</abbr>/<abbr title=\"Internetwork Protocol\">IP</abbr> protocol. " +
 			"The replacement protocol decentralized the network's operations and is somewhat inspired by the earlier French " +
 			"<a href=\"https://www.inria.fr/en/between-stanford-and-cyclades-transatlantic-perspective-creation-internet\">CYCLADES</a> packet-switch network. " +
@@ -971,7 +973,7 @@ var collection = Milestones{
 			"<p>Later in the year, due to a <a href=\"https://www.washingtonpost.com/archive/business/1983/10/04/big-computer-network-split-by-pentagon/d12feaba-c0c7-45fb-a851-25267f8dca9c/\">fear of civilian hackers</a>, the systems associated with the US military were to disconnect again and join a new isolated Defense Data Network (MILnet). The few remaining non-military systems that adopted the TCP/IP protocol standard formed the basis of the new ARPA internetwork or APRA Internet.</p>" +
 			"<p>The other alternative networks of the era:</p>" +
 			ul0 +
-			"<li><abbr title=\"Because It's Time NETwork\">BITNet</abbr> <sup>1981</sup>, a cross-continental, research center and university network for file transfers and messaging." +
+			"<li><abbr title=\"Because It's Time NETwork\">BITNet</abbr> <sup>1981</sup>, a cross-continental, research center and university network for file transfers and messaging.</li>" +
 			"<li><abbr title=\"European Unix Network\">EUnet</abbr> <sup>1982</sup>, the first public wide area network of Europe.</li>" +
 			"<li>Janet <sup>1984</sup>, an extensive UK academic network.</li>" +
 			"<li>Corporate networks from Xerox Internet, DEC Easynet and IBM VNET.</li>" +
@@ -1083,7 +1085,7 @@ var collection = Milestones{
 			"<p><a href=\"http://nerdlypleasures.blogspot.com/2014/01/simcity-for-dos-swiss-army-knife-of.html\">With the odd exception</a>, most PC games that use <strong>EGA</strong> only ever support 160x200 or 320x200 resolutions with 4 or 16 colors on screen. " +
 			"There were complications with EGA and its expensive monitor displays, plus the expensive memory requirements needed for higher resolution graphic modes with <strong>16 colors</strong>.</p>" +
 			"<p>IBM would also create the first <strong>demo program</strong> on the PC, <a href=\"https://www.pcjs.org/software/pcx86/demo/ibm/ega/\">Fantasy Land EGA</a>, is released to demonstrate the new <strong>EGA</strong> graphics standard. " +
-			"The idea of a demo is to have the program run automatically, without user input, to show off the capabilities of the hardware.",
+			"The idea of a demo is to have the program run automatically, without user input, to show off the capabilities of the hardware.</p>",
 		Picture: Picture{
 			Title: "The 1984 PC game, Ancient Art of War, updated in 1987 with EGA colors",
 			Alt:   "Character selection screenshot for the EGA update to Ancient Art of War",
@@ -1353,7 +1355,7 @@ var collection = Milestones{
 		Picture: Picture{
 			Title:       "Amazing Demo I",
 			Alt:         "Amazing Demo I by Razor 1911 screenshot",
-			Jpg:         "razor-1911-is-founded.png",
+			Png:         "razor-1911-is-founded.png",
 			Attribution: "CSDb",
 			License:     "© Dr.Jekyll, Sector 9 of Razor 1911",
 			LicenseLink: "https://csdb.dk/release/?id=230004",
@@ -1437,6 +1439,7 @@ var collection = Milestones{
 			"the Philips&nbsp;P2000T and the <a href=\"https://www.dosdays.co.uk/computers/Olivetti%20M24/olivetti_m24.php\">Olivetti&nbsp;M24</a>.",
 		Picture: Picture{
 			Title:       "The Olivetti M24",
+			Alt:         "A photo of the Olivetti M24 personal computer.",
 			Jpg:         "olivetti-m24.jpg",
 			Avif:        "olivetti-m24.avif",
 			Attribution: "Federigo Federighi",
@@ -1519,7 +1522,7 @@ var collection = Milestones{
 		Picture: Picture{
 			Title:       "Fairlight Intro (the Legendary one)",
 			Alt:         "Commodore 64, Fairlight Intro (the Legendary one) screenshot",
-			Jpg:         "fairlight-is-founded.png",
+			Png:         "fairlight-is-founded.png",
 			Attribution: "CSDb",
 			License:     "© Woodo of Fairlight",
 			LicenseLink: "https://csdb.dk/release/index.php?id=53390",
@@ -1553,6 +1556,7 @@ var collection = Milestones{
 			"a clone of the AdLib card that included a simple digital sound processor for speech and sound effects.",
 		Picture: Picture{
 			Title:       "An AdLib Music Synthesizer ISA slot card",
+			Alt:         "A photo of an AdLib Music Synthesizer ISA slot card.",
 			Jpg:         "adlib-card.jpg",
 			Avif:        "adlib-card.avif",
 			Attribution: "TheAlmightyGuru",
@@ -1746,7 +1750,7 @@ var collection = Milestones{
 		Content: "<p>Created in Chicago, Pirate magazine was a bi-monthly text newsletter for the Scene on the PC platform and distributed through bulletin boards. " +
 			"It ran for at least five issues between June 1989 and April 1990.</p>" +
 			`<pre style="font-size:28px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1"><br>` +
-			"<p>What's a pirate? COMPUTER PIRACY is copying and distribution of copyright software (warez). Pirates are hobbyists who enjoy collecting and playing with the latest programs. " +
+			"What's a pirate? COMPUTER PIRACY is copying and distribution of copyright software (warez). Pirates are hobbyists who enjoy collecting and playing with the latest programs. " +
 			"Most pirates enjoy collecting warez, getting them running, and then generally archive them, or store them away. A PIRATE IS NOT A BOOTLEGGER. " +
 			"Bootleggers are to piracy what a chop-shop is to a home auto mechanic. Bootleggers are people who DEAL stolen merchandise for personal gain. " +
 			"Bootleggers are crooks. They sell stolen goods. Pirates are not crooks, and most pirates consider bootleggers to be lower life forms..." +
@@ -1890,12 +1894,12 @@ var collection = Milestones{
 			"Groups such as <a href=\"/g/nokturnal-trading-alliance\">Nokturnal Trading Alliance</a>, and later, <a href=\"/g/the-hill-people\">The Hill People</a> and " +
 			"<a href=\"/g/inc-utility-division\">IUD</a> <em><a href=\"/g/international-network-of-crackers\">International Network of Crackers</a> Utility Division</em> start to package, " +
 			"crack and exclusively release commercial applications, system utilities and productivity software.</p>" +
-			"<p>Yet this form of software piracy <a href=\"f/ab25292\">dominated</a> the elite bulletin boards for the PC and had done so for a long while. " +
+			"<p>Yet this form of software piracy <a href=\"/f/ab25292\">dominated</a> the elite bulletin boards for the PC and had done so for a long while. " +
 			"Typically, individuals compiled these \"app\" releases anonymously or for upload to their local bulletin boards instead of under a Scene group for competition. " +
 			"Was this solo anonymity the legacy of do-it-yourself cracking and <a href=\"/files/how-to\">Unprotection documentation</a> common on the PC in the 1980s, or maybe a fear of big tech and their lawyers?</p>" +
 			"<p>The most famous application group, <a href=\"/g/pirates-with-attitudes\">Pirates with Attitudes</a> (PWA), also was founded in 1991 but focused on game titles for their first two years.</p>" +
-			"<p>A typical PC piracy BBS from the 1980s would mostly have system utilities and the occasional application uploaded with no individual or group credited and no additional help textfiles." +
-			`<p><pre style="font-size:21px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
+			"<p>A typical PC piracy BBS from the 1980s would mostly have system utilities and the occasional application uploaded with no individual or group credited and no additional help textfiles.</p>" +
+			`<pre style="font-size:21px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
 			"IBMSPLIT.ARC   9200 01/05/89 Get WARPUTIL instead - handles MFM too!!\n" +
 			"COPY606.ARC   28672 01/18/89 \n" +
 			"NODMON25.ZIP  45028 01/18/89 \n" +
@@ -1914,14 +1918,14 @@ var collection = Milestones{
 			"TDRAW320.EXE 189659 04/27/89 \n" +
 			"DRDOOM1.ZIP  269384 05/25/89  \n" +
 			"DRDOOM2.ZIP  340992 05/25/89 " +
-			"</pre></p>",
+			"</pre>",
 	},
 	{
 		Title: "Earliest BBS VGA loader", Year: 1991, Month: 3,
 		Lead: "So far, XTC Systems BBS", LinkTitle: "the loader", Link: "/f/a41dcd9",
 		Content: "<p><code>XTC-AD.COM</code></p>" +
 			"<p>This <strong>VGA loader</strong> is an advert for the well-known bulletin board <a href=\"https://demozoo.org/bbs/4009/\">XTC Systems</a> in Dallas, Texas. " +
-			"It served as the <em>World Headquarters</em> for the famed art group <a href=\"/g/acid-productions\">ACiD Productions</a> and as a distribution board for <a href=\"/g/fairlight\">Fairlight</a>, <a href=\"/g/razor-1911\">Razor 1911</a>, and some popular magazines.",
+			"It served as the <em>World Headquarters</em> for the famed art group <a href=\"/g/acid-productions\">ACiD Productions</a> and as a distribution board for <a href=\"/g/fairlight\">Fairlight</a>, <a href=\"/g/razor-1911\">Razor 1911</a>, and some popular magazines.</p>",
 		Picture: Picture{
 			Title: "XTC Systems BBS VGA loader",
 			Alt:   "XTC Systems BBS VGA loader screenshot",
@@ -2047,6 +2051,7 @@ var collection = Milestones{
 		},
 		Picture: Picture{
 			Title: "The One and Only",
+			Alt:   "The One and Only screenshot.",
 			Avif:  "b13a93.avif",
 			Png:   "b13a93.png",
 		},
@@ -2072,12 +2077,12 @@ var collection = Milestones{
 		Content: "<p>A play on the media, CD-ROM, the earliest mention of <strong>CD-RIP</strong> (later simplified to <q>rip</q>) release, " +
 			"was by TDU-Jam! for the game Great Naval Battles 3 \"CD-RIP\" <a href=\"/f/ae413f\">released</a> on 8th February 1995. " +
 			"But, this was probably derived from the word strip, where in the November 1994 <a href=\"/f/b61d166\">release</a> of Lemmings they wrote " +
-			"<em>In order to send you this CD release, we took the liberty to st<u>rip</u> a couple of the large animations.</em>" +
+			"<em>In order to send you this CD release, we took the liberty to st<u>rip</u> a couple of the large animations.</em></p>" +
 			"<p>Great Navel Battles would describe, <em>What is this CD-RIP? Contains the full game, with sound effects</em>, and " +
 			"<em>What is a FULL CD? The full game, including EVERYTHING, playable from the hard disk (and cracked, of course).</em></p>" +
-			"The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
+			"<p>The <u>CD RIP</u> type came about due to CD-ROM-only games being unable to get a proper Scene release. For PC game publishers, " +
 			"CD-ROMs were cheaper to produce and had far more storage capacity than the standard floppy disks. However, large hard drives were too expensive to store the content of complete CD images. " +
-			"So, for many pirates to play a game published on CD, the disc's content had to be ripped and repackaged to a hard drive, but with the removal of the game's fluff, such as intro videos, music, and speech.",
+			"So, for many pirates to play a game published on CD, the disc's content had to be ripped and repackaged to a hard drive, but with the removal of the game's fluff, such as intro videos, music, and speech.</p>",
 	},
 	{
 		Title: "Copyright infringement legal precedent", Year: 1994, Month: 12, Day: 28, Highlight: true,
@@ -2102,6 +2107,7 @@ var collection = Milestones{
 		},
 		Picture: Picture{
 			Title: "TDU-Jam! branding",
+			Alt:   "TDU-Jam! branding screenshot.",
 			Webp:  "af2b6a5.webp",
 			Png:   "af2b6a5.png",
 		},
@@ -2118,7 +2124,7 @@ var collection = Milestones{
 			"However, a global, coordinated law enforcement effort would take down both groups in the following decade.<sup><a href=\"#windows-95-warez-release-fn1\">[1]</a></sup></p>" +
 			"<p>The other Microsoft-sourced releases from DOD during these two weeks were the Windows&nbsp;95 <a href=\"/f/b82406f\" class=\"text-nowrap\">floppy edition</a>, <a href=\"/f/b721b5\" class=\"text-nowrap\">upgrade edition</a>, <a href=\"/f/b92697\" class=\"text-nowrap\">Plus Pack</a>, Microsoft <a href=\"/f/ba28e0f\">BOB</a>, and <a href=\"/f/bc2dc2f\">Word</a>.</p>" +
 			sect0 +
-			"<div id=\"windows-95-warez-release-fn1\">[1] In <a href=\"#the-copy-party-is-over\">Operation Cyberstrike</a> and <a href=\"#the-global-takedown-of-drink-or-die\">Operation Buccaneer</a>.</div>" +
+			"<div id=\"windows-95-warez-release-fn1\">[1] In <a href=\"#the-giveaway-safe-harbor-is-over\">Operation Cyberstrike</a> and <a href=\"#the-global-takedown-of-drink-or-die\">Operation Buccaneer</a>.</div>" +
 			sect1,
 	},
 	{
@@ -2153,6 +2159,7 @@ var collection = Milestones{
 		},
 		Picture: Picture{
 			Title: "Hoodlum cracktro",
+			Alt:   "Hoodlum cracktro screenshot.",
 			Webp:  "a8450c.webp",
 			Png:   "a8450c.png",
 		},
@@ -2225,7 +2232,7 @@ var collection = Milestones{
 	{
 		Title: "Earliest ISO release", Year: 1997, Month: 11, Day: 27, Highlight: true,
 		Lead: "So far, CD Images For the Elite (CiFE)", LinkTitle: theRelease, Link: "/f/ad40ce",
-		Content: "An <a href=\"https://www.loc.gov/preservation/digital/formats/fdd/fdd000348.shtml\">ISO</a> is a standard file archive format containing the entire CD and later DVD data. It enables the copying and exact replication of data onto consumable blank discs. " +
+		Content: "<p>An <a href=\"https://www.loc.gov/preservation/digital/formats/fdd/fdd000348.shtml\">ISO</a> is a standard file archive format containing the entire CD and later DVD data. It enables the copying and exact replication of data onto consumable blank discs. " +
 			"Trading <strong>ISO images</strong> between individuals has happened for years prior, but <a href=\"https://www.mobygames.com/game/2082/lords-of-magic/covers/\">Lords of Magic</a> was the earliest known ISO release pushed to the Scene.</p>" +
 			"<p>A formalization of an ISO trading scene occurred sometime in late 1997, but it took years before the medium became the dominant format in the Scene.</p>",
 	},
@@ -2245,6 +2252,7 @@ var collection = Milestones{
 		},
 		Picture: Picture{
 			Title: "Divine cracktro",
+			Alt:   "Divine cracktro screenshot.",
 			Avif:  "a424a4c.avif",
 			Png:   "a424a4c.png",
 		},
@@ -2280,6 +2288,7 @@ var collection = Milestones{
 		},
 		Picture: Picture{
 			Title: "Razor 1911 Starcraft Broodwar cracktro",
+			Alt:   "Razor 1911 Starcraft Broodwar cracktro screenshot.",
 			Avif:  "b22b15d.avif",
 			Png:   "b22b15d.png",
 		},
@@ -2333,13 +2342,14 @@ var collection = Milestones{
 		},
 		Picture: Picture{
 			Title: "Razor 1911 Demo production",
+			Alt:   "Razor 1911 Demo production screenshot.",
 			Webp:  "a92f47.webp",
 			Png:   "a92f47.png",
 			Avif:  "a92f47.avif",
 		},
 	},
 	{
-		Title: "The giveaway safe habor is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
+		Title: "The giveaway safe harbor is over", Year: 2000, Month: 5, Day: 5, Highlight: true,
 		Lead: "The end of Pirates with Attitude", LinkTitle: "the US DOJ press release", Link: "https://web.archive.org/web/20120114174415/http://www.justice.gov/criminal/cybercrime/pirates.htm",
 		Content: "<p>The US Department of Justice <strong>indicted 17 members</strong> of <a href=\"/g/pirates-with-attitudes\">Pirates&nbsp;with&nbsp;Attitudes</a> " +
 			"who got caught up in a honey pot scheme where, for months, Canadian law enforcement had taken control of the primary " +

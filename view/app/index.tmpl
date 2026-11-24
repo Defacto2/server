@@ -2,142 +2,9 @@
     index.tmpl ~ Introductory page for the website.
 */ -}}
 {{- define "content" }}
-<style scoped>
-  /* NOTE: These styles are highly page-specific for the index page's unique layout
-     (milestones, quotes, history sections) and should remain scoped to avoid conflicts. */
-  .index-intro-section {
-    border-left: 4px solid #0d6efd;
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 0.375rem;
-    margin-bottom: 2rem;
-  }
-  .index-section-header {
-    color: #0d6efd;
-    font-weight: 600;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #e9ecef;
-  }
-  .index-quote-box {
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
-    padding: 1rem;
-    margin: 1.5rem 0;
-    border-radius: 0.375rem;
-    font-family: 'Courier New', monospace;
-    font-size: 0.875rem;
-    line-height: 1.6;
-  }
-  .index-quote-box small {
-    color: #664d03;
-  }
-  .milestone-link {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    color: #0d6efd;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s ease-in-out;
-    font-size: 0.95rem;
-  }
-  .milestone-link:hover {
-    background: #0d6efd;
-    color: #fff;
-    border-color: #0d6efd;
-    text-decoration: none;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
-  }
-  .milestone-link:active {
-    transform: translateY(0);
-  }
-  .milestone-card {
-    border: 1px solid #dee2e6;
-    border-left: 4px solid #0d6efd;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-  .milestone-card:hover {
-    border-left-color: #0d6efd;
-    box-shadow: 0 8px 16px rgba(13, 110, 253, 0.15);
-  }
-  .milestone-card-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #f0f1f3 100%);
-    border-bottom: 2px solid #e9ecef;
-    font-weight: 600;
-    color: #0d6efd;
-  }
-  .milestone-card.featured {
-    border-left-color: #ffc107;
-    background: #fffbf0;
-  }
-  .milestone-card.featured:hover {
-    border-left-color: #ffc107;
-    box-shadow: 0 8px 16px rgba(255, 193, 7, 0.2);
-  }
-  .milestone-card.featured .milestone-card-header {
-    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
-    color: #997404;
-  }
-  .mastodon-verify {
-    display: none;
-  }
-  .bbs-historic-text {
-    font-family: 'Times New Roman', Times, Baskerville, Georgia, serif;
-    text-align: justify;
-  }
-  .history-section {
-    margin-top: 2rem;
-    margin-bottom: 1.5rem;
-  }
-  .history-section-title {
-    color: #0d6efd;
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid #e9ecef;
-  }
-  .history-section p {
-    margin-bottom: 1rem;
-    line-height: 1.7;
-  }
-  .row.row-cols-2.row-cols-md-3.row-cols-lg-4 .col {
-    text-align: center;
-  }
-  .row.row-cols-2.row-cols-md-3.row-cols-lg-4 .col a {
-    display: inline-block;
-  }
-  /* milestone popup modal */
-  .card-header button.btn-link {
-    text-align: left;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-  } 
-  .card-header button.btn-link:hover {
-    background-color: rgba(13, 110, 253, 0.1);
-    text-decoration: none;
-  }
-  .card-header {
-    /* ensure card header maintains proper sizing */
-    position: relative;
-  }
-  #milestoneModal .modal-content {
-  /* modal content scrolling */
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-</style>
 {{- $msCls := "milestone-link link-offset-2 link-offset-3-hover link-underline link-underline-opacity-25 link-underline-opacity-75-hover" }}
 {{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
-<a rel="me" href="https://mas.to/@defacto2" class="mastodon-verify"><!--mastodon verification--></a>
+<a rel="me" href="https://mas.to/@defacto2" class="d-none"><!--mastodon verification--></a>
 <div class="index-intro-section index-intro-section-alt">
   <p class="lead">
     You're at the website conserving defunct software cracking, wares, and Warez Scene subcultures of people with obsolete Personal Computers. 
@@ -335,7 +202,7 @@ I WOULD LIKE TO TALK AND POSSIBLY <mark>SWAP SOFTWARE WITH OTHER
 USERS/OWNERS OF 8086 SYSTEMS.</mark> CURRENTLY I RUN 86-DOS 
 BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
 </div>
-<h3 class="mt-4 mb-4 text-left">An intertwining of the computer industry and the Scene</h3>
+<h3 class="mt-4 mb-4 text-start">An intertwining of the computer industry and the Scene</h3>
 <p>
   The remainder of this introductory page chronologically shows the milestones for the microcomputer industry, 
   the personal computer, software copyright and piracy, to offer historical insights into that Scene.
@@ -344,7 +211,7 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
   However, this site uses <em>microcomputer</em> to describe all the consumer-computers that are incompatible with Microsoft DOS and Windows operating systems.
 </p>
 {{/*  These links now open the modal with corresponding milestone content using anchor IDs */}}
-<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 mb-5">
+<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 mb-5 milestone-quick-links">
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
     data-milestone-id="the-first-online-communities">Online communities <small>1973</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
@@ -387,20 +254,20 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
     data-milestone-id="earliest-ansi-ad">Early ANSI art advert <small>1985</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
     data-milestone-id="the-earliest-pc-loaders">Early PC art loaders <small>1986</small></a></div>
-  <div class="col"><a class="milestone-link m{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
+  <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
     data-milestone-id="earliest-pc-intro">Early PC intros <small>1989</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
     data-milestone-id="earliest-pc-cracktro">Early PC cracktros <small>1989</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
     data-milestone-id=".nfo-file-extension-origins">Origin of the <i>nfo</i> <small>1990</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="the-first-application-and-utility-groups">The first <i>app</i> only groups <small>1990</small></a></div>
+    data-milestone-id="the-first-application-and-utility-groups">The first <i>app</i> only groups <small>1991</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
     data-milestone-id="the-contemporary-pc-cracktro">The modern PC cracktro <small>1991</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
     data-milestone-id="earliest-cd-release">The first CD wares release <small>1992</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
-    data-milestone-id="first-mention-of-cd_rip">Early <i>CD-RIP</i> releases <small>1995</small></a></div>
+    data-milestone-id="first-mention-of-cd_rip">Early <i>CD-RIP</i> releases <small>1994</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
     data-milestone-id="the-scene-merch">Scene merch <small>1996</small></a></div>
   <div class="col"><a class="{{$msCls}}" href="#" data-bs-toggle="modal" data-bs-target="#milestoneModal" 
@@ -426,8 +293,8 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
   {{- $unique := slugify .Title }}
   {{- if eq $unique "the-first-copy-protections" }}{{ $unique = printf "%s-%d" $unique .Year }}<!-- hack to fix the use of two identical titles -->{{ end}}
   <div class="col">
-    <a id="{{$unique}}"></a>
-    <div class="card h-100 milestone-card{{ if .Highlight}} featured{{end}}{{ if .Highlight}} text-bg-light{{end}}">
+    {{- if ne "" $unique}}<a id="{{$unique}}"></a>{{- end}}
+    <div class="card h-100 milestone-card{{ if .Highlight}} featured text-bg-light{{end}}">
       {{- /*  Header & pictures  */}}
       <div class="card-header milestone-card-header">
         <button id="milestone-{{$index}}" class="btn btn-link p-0 w-100 text-start text-decoration-none stretched-link" 
@@ -461,7 +328,7 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
         {{- if (ne "" .Content)}}
         <div class="card-text my-2"><small>{{.Content | safeHTML}}</small></div>
         {{- end}}
-        {{- if or (ne "" .Link) (ne "" .Picture.Attribution) (ne "" .Title)}}
+        {{- if or (ne "" .Link) (ne "" .Picture.Attribution)}}
         <p class="card-text">
           <small>
           {{- if ne "" .Link}}<a href="{{.Link}}" class="link-offset-2 link-underline link-underline-opacity-50">Read {{.LinkTitle}}</a>{{- end}}
@@ -491,12 +358,10 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
       {{- end}}
       {{- /*  Footer  */}}
       {{- if ne "" .Picture.Webm }}
+      {{- $poster := .Picture.Webp }}{{- if eq "" $poster }}{{- $poster = .Picture.Png }}{{- end }}
       <div class="card-footer text-center bg-dark">
-        <video autoplay loop controls playsinline>
-          <source src="/image/milestone/{{.Picture.Webm}}" type="video/webm" />
-                {{- if ne "" .Picture.Png}}
-                <img src="/image/milestone/{{.Picture.Png}}" loading="lazy" class="card-img-bottom" alt="{{.Picture.Alt}}">
-                {{- end}}
+        <video autoplay muted loop controls playsinline class="img-fluid" title="{{.Picture.Title}}"{{- if ne "" $poster }} poster="/image/milestone/{{$poster}}"{{- end }}>
+          <source src="/image/milestone/{{.Picture.Webm}}" type="video/webm">
         </video>
       </div>
       {{- else if or (ne "" .Picture.Png) (ne "" .Picture.Jpg)}}
@@ -517,6 +382,8 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
       {{- end}}
     </div>
   </div>
+{{- end}}
+</div>
 {{- /* 
   Milestone Modal Pop-up
   When a milestone title or date is clicked, this modal pops up with a copy of the milestone content.
@@ -538,7 +405,5 @@ BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
       </div>
     </div>
   </div>
-</div>
-{{- end}}
 </div>
 {{- end}}
