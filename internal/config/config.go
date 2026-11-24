@@ -146,6 +146,9 @@ func Configured(name string, value any) string {
 	// special cases
 	switch name {
 	case "GoogleAccounts":
+		if fmt.Sprint(value) == "" {
+			return "Google account(s)"
+		}
 		return fmt.Sprintf("Google account(s), %v", value)
 	case "SessionMaxAge":
 		return fmt.Sprintf("%s, %v", s, value)
@@ -355,9 +358,13 @@ func (c Config) googleIDs(sl *slog.Logger, key string) {
 		return
 	}
 
+	val := ""
+	if len(accounts) > 0 {
+		val = mask
+	}
 	const name = "GoogleAccounts"
 	msg := Configured(name, accounts.String()) + ":"
-	sl.Info(msg, slog.Any(key, mask), slog.String("tip", tip))
+	sl.Info(msg, slog.String(key, val), slog.String("tip", tip))
 }
 
 // StaticThumb returns the path to the thumbnail directory.

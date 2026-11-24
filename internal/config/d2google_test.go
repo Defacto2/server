@@ -1,6 +1,9 @@
 package config_test
 
 import (
+	"bytes"
+	"log/slog"
+	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/config"
@@ -23,4 +26,29 @@ func TestOverride(t *testing.T) {
 
 	be.True(t, len(c.GoogleIDs) == 0)
 	be.True(t, c.HTTPPort == config.StdCustom)
+}
+
+func TestGoogleLogging(t *testing.T) {
+	t.Parallel()
+
+	be.Equal(t, "", config.GoogleAuth("").LogValue().String())
+	be.Equal(t, "xxxxx", config.GoogleAuth("client-id").LogValue().String())
+
+	var buf bytes.Buffer
+	sl := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
+	c := config.Config{}
+	c.Configurations(sl)
+	out := buf.String()
+	be.True(t, strings.Contains(out, `msg="Google account(s):"`))
+	be.True(t, strings.Contains(out, `d2_google_ids,unset=""`))
+	be.True(t, strings.Contains(out, `d2_google_client_id,unset=""`))
+
+	buf.Reset()
+	c.GoogleIDs = config.GoogleID("account-one")
+	c.Override()
+	c.Configurations(sl)
+	out = buf.String()
+	be.True(t, strings.Contains(out, `msg="Google account(s), single sign in account:"`))
+	be.True(t, strings.Contains(out, `d2_google_ids,unset=xxxxx`))
 }

@@ -78,7 +78,7 @@ type GoogleAuth string
 
 func (g GoogleAuth) LogValue() slog.Value {
 	if string(g) == "" {
-		return slog.StringValue("Empty")
+		return slog.StringValue("")
 	}
 
 	return slog.StringValue(mask)
