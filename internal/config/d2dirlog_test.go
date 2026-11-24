@@ -10,13 +10,13 @@ import (
 func TestAbsLog(t *testing.T) {
 	t.Parallel()
 
-	c := config.Config{}
-	got := c.LogStore()
-	be.Err(t, got, nil)
+	var empty config.Abslog
+	be.Equal(t, "No logs will be saved", empty.Help())
+	be.Equal(t, "", empty.Issue())
 
 	tmp := t.TempDir()
-	c.AbsLog = config.Abslog(tmp)
-	got = c.LogStore()
-	be.Err(t, got, nil)
-	be.Equal(t, c.AbsLog.String(), tmp)
+	set := config.Abslog(tmp)
+	be.Equal(t, "", set.Help())
+	be.Equal(t, "", set.Issue())
+	be.Equal(t, tmp, set.String())
 }

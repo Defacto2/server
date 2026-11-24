@@ -76,26 +76,22 @@ func main() {
 	// Configure the sl application logger, the cl startup configuration logger and the logo writer.
 	// Two separate loggers are used to avoid the system and file logs being cluttered with server
 	// startup information.
-	const nothing = "" // replace the dname nothing argument with logs.NameDebug, to write debug log reports
-	root := string(envConfig.AbsLog)
-	ename, iname := logs.NameErr, logs.NameInfo
-	fileLog, err := logs.OpenFiles(root, ename, iname, nothing)
-	switch {
-	case err != nil:
-		// log file errors
-		log.Println(fmt.Errorf("%w: %w", ErrLog, err))
-	case envConfig.ProdMode.Bool():
-		// log file use in production mode
-		defer func() {
-			if err := fileLog.Close(); err != nil {
-				log.Println(err)
-			}
-		}()
-	default:
-		// log file in development mode
-		// simulate the creation and closing of the log file
-		_ = fileLog.Close()
-		fileLog = logs.NoFiles()
+	fileLog := logs.NoFiles()
+	if root := string(envConfig.AbsLog); root != "" && envConfig.ProdMode.Bool() {
+		const nothing = "" // replace the dname nothing argument with logs.NameDebug, to write debug log reports
+		ename, iname := logs.NameErr, logs.NameInfo
+		var err error
+		fileLog, err = logs.OpenFiles(root, ename, iname, nothing)
+		if err != nil {
+			log.Println(fmt.Errorf("%w: %w", ErrLog, err))
+			fileLog = logs.NoFiles()
+		} else {
+			defer func() {
+				if err := fileLog.Close(); err != nil {
+					log.Println(err)
+				}
+			}()
+		}
 	}
 
 	sl, cl, logo := setupWriters(*envConfig, fileLog)

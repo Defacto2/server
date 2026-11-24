@@ -14,6 +14,12 @@ func TestChecks(t *testing.T) {
 	c := Config{}
 	err := c.checkLogDir(slog.Default())
 	be.Err(t, err, nil)
+	be.Equal(t, "", c.AbsLog.String())
+
+	tmp := t.TempDir()
+	c.AbsLog = Abslog(tmp)
+	err = c.checkLogDir(slog.Default())
+	be.Err(t, err, nil)
 
 	st, err := os.Stat(c.AbsLog.String())
 	be.Err(t, err, nil)

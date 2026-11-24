@@ -144,8 +144,7 @@ func NoFiles() Files {
 //   - iname will be used to write fatal, error, warnings and info reports.
 //   - dname will be used to write all reports including debug level reports.
 //
-// The root should be the named directory to store the logs. If root is left empty
-// the home directory of the user account will be used.
+// The root must be the directory path to store the logs; an empty root returns an error.
 //
 // If any errors occur they will be returned as a wrapped error and
 // must be handled appropriately.
@@ -155,11 +154,7 @@ func OpenFiles(root, ename, iname, dname string) (Files, error) {
 	const perm = 0o644
 
 	if root == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return Files{}, fmt.Errorf(format, "user home dir", err)
-		}
-		root = home
+		return Files{}, fmt.Errorf(format, "root directory", os.ErrInvalid)
 	}
 
 	r, err := os.OpenRoot(root)

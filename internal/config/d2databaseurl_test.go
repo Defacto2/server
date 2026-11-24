@@ -17,4 +17,7 @@ func TestDatabaseURL(t *testing.T) {
 
 	got := config.Connection(testurl).String()
 	be.True(t, strings.HasPrefix(got, mask))
+
+	bad := config.Connection("postgres://root:secret@localhost:badport/db").String()
+	be.Equal(t, "xxxxx", bad)
 }

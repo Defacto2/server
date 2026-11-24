@@ -207,18 +207,16 @@ func (c *Config) misconfigPort(ctx context.Context, sl *slog.Logger, msg, key st
 }
 
 // checkLogDir runs checks against the configured log directory.
-// If no log directory is configured, a default directory is used.
+// If no log directory is configured, file logging is disabled and the check is skipped.
 func (c *Config) checkLogDir(sl *slog.Logger) error {
 	const msg = "setup log directory"
-	const format = msg + "%s: %w"
+	const format = msg + " %s: %w"
 	if err := nils.Check(sl); err != nil {
 		return fmt.Errorf(format, "", err)
 	}
 
 	if c.AbsLog == "" {
-		if err := c.LogStore(); err != nil {
-			return fmt.Errorf(format, "abslog was empty, attempted log store", err)
-		}
+		return nil
 	}
 
 	path := string(c.AbsLog)

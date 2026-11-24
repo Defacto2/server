@@ -113,7 +113,7 @@ An example download setting:
 
 When the application runs in production mode, errors or warnings caused by the web server are saved to a log file.
 The location can be provided using the D2_DIR_LOG variable, which must point to an absolute directory path.
-Otherwise, the server will create a subdirectory using [os.UserConfigDir].
+If left unset, no log files are saved.
 
 An example log setting:
 

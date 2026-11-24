@@ -18,7 +18,10 @@ func (c Connection) String() string {
 	}
 
 	u, err := url.Parse(rawURL)
-	if err != nil || u.User == nil {
+	if err != nil {
+		return mask
+	}
+	if u.User == nil {
 		return rawURL
 	}
 

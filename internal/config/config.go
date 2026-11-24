@@ -19,8 +19,6 @@ import (
 )
 
 const (
-	// ConfigDir is the subdirectory for the home user ".config".
-	ConfigDir = "defacto2-app"
 	// MinimumFiles is the minimum number of unique filenames expected in an asset subdirectory.
 	MinimumFiles = 40_000
 	// SessionHours is the default number of hours for the session cookie to remain active.

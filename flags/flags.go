@@ -99,9 +99,8 @@ func Config(_ io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Action: func(_ *cli.Context) error {
-			log.Printf(format, configTitle)
-
 			sl := stdoutput()
+			sl.Info(configTitle)
 			c.Configurations(sl)
 
 			return nil
@@ -115,11 +114,10 @@ func Check(_ io.Writer, c *config.Config) *cli.Command {
 		Name:        "check",
 		Aliases:     []string{"k"},
 		Usage:       "check the server configuration",
-		Description: "Lheck the server configuration options and the settings against common problems.",
+		Description: "Check the server configuration options and the settings against common problems.",
 		Action: func(_ *cli.Context) error {
-			log.Printf(format, configTitle)
-
 			sl := stdoutput()
+			sl.Info(configTitle)
 			return c.Checks(context.Background(), sl)
 		},
 	}
@@ -133,9 +131,8 @@ func Address(_ io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
-			log.Printf(format, addressTitle)
-
 			sl := stdoutput()
+			sl.Info(addressTitle)
 			return c.Addresses(sl)
 		},
 	}
@@ -166,14 +163,13 @@ func Fix(_ io.Writer, c *config.Config) *cli.Command {
 				_, _ = fmt.Fprintln(os.Stdout)
 			}
 
-			log.Printf(format, configTitle)
-
 			cl := stdoutput()
 			slog.SetDefault(cl)
+			cl.Info(configTitle)
 			d := time.Now()
 			c.Configurations(cl)
 			nl()
-			log.Println(fixesTitle)
+			cl.Info(fixesTitle)
 			sl := logs.Default()
 			slog.SetDefault(sl)
 			if err := c.Fixer(context.Background(), sl, d); err != nil {
