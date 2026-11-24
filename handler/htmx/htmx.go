@@ -14,6 +14,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 	"uuid"
@@ -100,6 +101,66 @@ func DBConnections(c *echo.Context, db *sql.DB) error {
 	const feedback = `%d of %d, <small>%s</small>`
 	return c.String(http.StatusOK, fmt.Sprintf(feedback,
 		conns, maxConn, currentTime.Format("15:04:05")))
+}
+
+// DBIndexes renders the integrated Database overview and PostgreSQL index statistics panel.
+func DBIndexes(c *echo.Context, db *sql.DB) error {
+	const format = "htmx db indexes context: %w"
+	if err := nils.Check(c, db); err != nil {
+		return fmt.Errorf(format, err)
+	}
+
+	ctx := c.Request().Context()
+	data := map[string]any{
+		"countArtifacts":     0,
+		"countPublic":        0,
+		"countNewUpload":     0,
+		"countHidden":        0,
+		"dbConnections":      "",
+		"dbIndexesRefreshed": time.Now().Format("15:04:05"),
+	}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	wg.Go(func() {
+		ca, cp, cnu, err := model.Counts(ctx, db)
+		if err != nil {
+			return
+		}
+		mu.Lock()
+		data["countArtifacts"] = ca
+		data["countPublic"] = cp
+		data["countNewUpload"] = cnu
+		data["countHidden"] = ca - cp - cnu
+		mu.Unlock()
+	})
+
+	wg.Go(func() {
+		conns, maxConn, err := postgres.Connections(ctx, db)
+		mu.Lock()
+		if err != nil {
+			data["dbConnections"] = err.Error()
+		} else {
+			data["dbConnections"] = fmt.Sprintf("%d of %d", conns, maxConn)
+		}
+		mu.Unlock()
+	})
+
+	wg.Go(func() {
+		idxStats, err := postgres.Indexes(ctx, db)
+		mu.Lock()
+		if err != nil {
+			data["dbIndexesErr"] = err.Error()
+		} else {
+			data["dbIndexes"] = idxStats
+		}
+		mu.Unlock()
+	})
+
+	wg.Wait()
+
+	return c.Render(http.StatusOK, "dbindexes", data)
 }
 
 // DeleteForever is a handler for the /delete/forever route.

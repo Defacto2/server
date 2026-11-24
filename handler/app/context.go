@@ -750,6 +750,17 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 		mu.Unlock()
 	})
 
+	wg.Go(func() {
+		idxStats, err := postgres.Indexes(ctx, db)
+		mu.Lock()
+		if err != nil {
+			data["dbIndexesErr"] = err.Error()
+		} else {
+			data["dbIndexes"] = idxStats
+		}
+		mu.Unlock()
+	})
+
 	wg.Wait()
 	if db == nil {
 		data["dbConnections"] = "database not set"

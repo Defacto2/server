@@ -20,6 +20,7 @@ import (
 	"github.com/Defacto2/server/handler/fulltext"
 	"github.com/Defacto2/server/handler/htmx"
 	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/postgres"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
@@ -193,7 +194,7 @@ func TestTemplates(t *testing.T) {
 	t.Parallel()
 
 	x := htmx.Templates(embed.FS{})
-	be.True(t, len(x) == 3)
+	be.True(t, len(x) == 4)
 }
 
 func TestTemplateFuncMap(t *testing.T) {
@@ -293,4 +294,71 @@ func TestSearchIDsTemplate(t *testing.T) {
 	be.True(t, strings.Contains(out, `class="table-responsive"`))
 	be.Equal(t, strings.Count(out, "<tbody>"), 1)
 	be.Equal(t, strings.Count(out, "</tbody>"), 1)
+}
+
+func TestDBIndexesTemplate(t *testing.T) {
+	t.Parallel()
+
+	tmpl, err := template.New("").Funcs(htmx.TemplateFuncMap()).ParseFiles(
+		filepath.Join("..", "..", "view", "htmx", "layout.tmpl"),
+		filepath.Join("..", "..", "view", "htmx", "dbindexes.tmpl"),
+		filepath.Join("..", "..", "view", "app", "dbindexes.tmpl"),
+	)
+	be.Err(t, err, nil)
+
+	var buf bytes.Buffer
+	err = tmpl.ExecuteTemplate(&buf, "content", map[string]any{
+		"countArtifacts":     66112,
+		"countPublic":        64500,
+		"countNewUpload":     12,
+		"countHidden":        1600,
+		"dbConnections":      "2 of 100",
+		"dbIndexesRefreshed": "12:34:56",
+		"dbIndexes": postgres.TableIndexStats{
+			TableName:   "files",
+			TableSize:   "29 MB",
+			IndexesSize: "26 MB",
+			TotalSize:   "55 MB",
+			SeqScan:     5,
+			IdxScan:     95,
+			LiveTuples:  66112,
+			DeadTuples:  0,
+			Updates:     10,
+			HotUpdates:  8,
+			Indexes: []postgres.IndexStat{
+				{
+					Name:       "idx_16386_primary",
+					Method:     "btree",
+					Primary:    true,
+					Valid:      true,
+					Size:       "1464 kB",
+					Scans:      1200,
+					TupRead:    1200,
+					TupFetch:   1200,
+					BlocksHit:  99,
+					BlocksRead: 1,
+					Definition: "CREATE UNIQUE INDEX idx_16386_primary ON public.files USING btree (id)",
+				},
+				{
+					Name:       "idx_files_desc_fts",
+					Method:     "gin",
+					Valid:      false,
+					Partial:    true,
+					Size:       "3440 kB",
+					Scans:      0,
+					Definition: "CREATE INDEX idx_files_desc_fts ON public.files USING gin (to_tsvector('english', comment)) WHERE (deletedat IS NULL)",
+				},
+			},
+		},
+	})
+	be.Err(t, err, nil)
+
+	out := buf.String()
+	be.True(t, strings.Contains(out, "idx_16386_primary"))
+	be.True(t, strings.Contains(out, "idx_files_desc_fts"))
+	be.True(t, strings.Contains(out, "INVALID"))
+	be.True(t, strings.Contains(out, "95.0%"))
+	be.True(t, strings.Contains(out, "80.0%"))
+	be.True(t, strings.Contains(out, "2 of 100"))
+	be.True(t, strings.Contains(out, "Updated 12:34:56"))
 }

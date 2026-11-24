@@ -1,0 +1,134 @@
+{{- /*
+    dbindexes.tmpl ~ Integrated Database overview & PostgreSQL index statistics panel.
+*/ -}}
+{{- define "dbindexes" }}
+{{- $idxStats := index . "dbIndexes"}}
+{{- $idxErr := index . "dbIndexesErr"}}
+{{- $idxRefreshed := index . "dbIndexesRefreshed"}}
+{{- $dbConns := index . "dbConnections"}}
+{{- $countPublic := index . "countPublic"}}
+{{- $countNewUpload := index . "countNewUpload"}}
+{{- $countHidden := index . "countHidden"}}
+{{- $countArtifacts := index . "countArtifacts"}}
+
+<div class="row row-cols-2 row-cols-lg-4 g-2 mb-3">
+  <div class="col">
+    <div class="bg-body-tertiary border rounded p-3 h-100">
+      <div class="text-body-secondary text-uppercase small fw-medium mb-1">Public artifacts</div>
+      <div class="fs-4 fw-semibold lh-1 mb-1">{{$countPublic}}</div>
+      <div class="small text-body-secondary">
+        <span class="text-info-emphasis">{{$countNewUpload}} new</span> · {{$countHidden}} hidden · {{$countArtifacts}} total
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="bg-body-tertiary border rounded p-3 h-100" title="Active PostgreSQL sessions should remain low; high counts usually indicate slow or stalled queries.">
+      <div class="text-body-secondary text-uppercase small fw-medium mb-1">Connections</div>
+      <div class="fs-4 fw-semibold lh-1 mb-1" id="database-response">{{$dbConns}}</div>
+      <div class="small text-body-secondary">Active PostgreSQL sessions</div>
+    </div>
+  </div>
+  {{- if $idxStats}}
+  <div class="col">
+    <div class="bg-body-tertiary border rounded p-3 h-100">
+      <div class="text-body-secondary text-uppercase small fw-medium mb-1">Storage</div>
+      <div class="fs-4 fw-semibold lh-1 mb-1">{{$idxStats.TotalSize}}</div>
+      <div class="small text-body-secondary">
+        {{$idxStats.TableSize}} table · {{$idxStats.IndexesSize}} indexes
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="bg-body-tertiary border rounded p-3 h-100" title="Index scan share vs sequential scans, and PostgreSQL Heap-Only Tuple (HOT) update ratio.">
+      <div class="text-body-secondary text-uppercase small fw-medium mb-1">Index usage</div>
+      <div class="fs-4 fw-semibold lh-1 mb-1">{{$idxStats.IdxScanPct}}</div>
+      <div class="small text-body-secondary">
+        HOT updates {{$idxStats.HotUpdatePct}} · {{$idxStats.DeadTuplesFormatted}} dead
+      </div>
+    </div>
+  </div>
+  {{- end}}
+</div>
+
+{{- if $idxErr}}
+<div class="alert alert-danger py-2 px-3 small mb-0" role="alert">
+  Could not load PostgreSQL index statistics: <code>{{$idxErr}}</code>
+</div>
+{{- else if $idxStats}}
+<div class="card bg-body-tertiary border">
+  <div class="card-header bg-transparent d-flex flex-wrap justify-content-between align-items-center gap-2 py-2 px-3">
+    <div class="small">
+      <span class="fw-medium">Active indexes</span>
+      <span class="text-body-secondary ms-1">({{len $idxStats.Indexes}} on <code>{{$idxStats.TableName}}</code>)</span>
+    </div>
+    <div class="small text-body-secondary">
+      {{$idxStats.IdxScanFormatted}} idx / {{$idxStats.SeqScanFormatted}} seq scans
+      {{- if $idxRefreshed}}
+      <span class="ms-2 text-success-emphasis">Updated {{$idxRefreshed}}</span>
+      {{- end}}
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle mb-0">
+      <thead>
+        <tr class="small text-body-secondary">
+          <th scope="col" class="fw-medium ps-3">Index</th>
+          <th scope="col" class="fw-medium text-end">Size</th>
+          <th scope="col" class="fw-medium text-end">Scans</th>
+          <th scope="col" class="fw-medium text-end">Cache</th>
+          <th scope="col" class="fw-medium text-end pe-3">Last scan</th>
+        </tr>
+      </thead>
+      <tbody class="table-group-divider">
+        {{- range $idxStats.Indexes}}
+        <tr>
+          <td class="ps-3 py-2" style="max-width: 30rem;">
+            <div class="d-flex flex-wrap align-items-center gap-1">
+              <code class="text-body-emphasis">{{.Name}}</code>
+              <span class="badge text-bg-secondary bg-opacity-25 text-body-secondary fw-normal text-uppercase">{{.Method}}</span>
+              {{- if .Primary}}
+              <span class="badge bg-primary-subtle text-primary-emphasis fw-normal">PK</span>
+              {{- end}}
+              {{- if .Partial}}
+              <span class="badge bg-info-subtle text-info-emphasis fw-normal">partial</span>
+              {{- end}}
+              {{- if not .Valid}}
+              <span class="badge text-bg-danger fw-normal">INVALID</span>
+              {{- end}}
+            </div>
+            <div class="small text-body-secondary font-monospace text-truncate" title="{{.Definition}}">
+              {{.ExprSummary}}
+            </div>
+          </td>
+          <td class="text-end text-nowrap small font-monospace">{{.Size}}</td>
+          <td class="text-end text-nowrap small" title="Tuples read: {{.TupReadFormatted}} · fetched: {{.TupFetchFormatted}}">
+            {{- if eq .Scans 0}}
+            <span class="text-warning-emphasis fw-medium">0</span>
+            {{- else}}
+            <span>{{.ScansFormatted}}</span>
+            {{- end}}
+          </td>
+          <td class="text-end text-nowrap small text-body-secondary">{{.CacheHitPct}}</td>
+          <td class="text-end text-nowrap small text-body-secondary pe-3">{{.LastScanString}}</td>
+        </tr>
+        {{- end}}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-transparent d-flex flex-wrap justify-content-between gap-2 py-2 px-3 small text-body-secondary">
+    <span>
+      Tuples: <strong class="text-body">{{$idxStats.LiveTuplesFormatted}}</strong> live ·
+      <strong class="text-body">{{$idxStats.DeadTuplesFormatted}}</strong> dead ·
+      HOT: <strong class="text-body">{{$idxStats.HotUpdatesFormatted}}</strong>/{{$idxStats.UpdatesFormatted}}
+    </span>
+    <span>
+      Vacuum: <strong class="text-body">{{$idxStats.LastVacuumString}}</strong> ·
+      Analyze: <strong class="text-body">{{$idxStats.LastAnalyzeString}}</strong>
+      {{- if $idxStats.StatsResetString}}
+       · Stats since <strong class="text-body">{{$idxStats.StatsResetString}}</strong>
+      {{- end}}
+    </span>
+  </div>
+</div>
+{{- end}}
+{{- end}}

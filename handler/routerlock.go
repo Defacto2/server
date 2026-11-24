@@ -169,6 +169,10 @@ func (serv *Server) configurations(sl *slog.Logger, g *echo.Group, db *sql.DB) e
 		return htmx.DBConnections(c, db)
 	})
 
+	conf.GET("/dbindexes", func(c *echo.Context) error {
+		return htmx.DBIndexes(c, db)
+	})
+
 	conf.GET("/pings", func(c *echo.Context) error {
 		proto := "http"
 		port := serv.Environment.HTTPPort.Value()

@@ -123,3 +123,43 @@ func TestScenerSQL(t *testing.T) {
 	be.True(t, strings.Contains(clause, `LIKE '%,'||$2||',%' ESCAPE '\'`))
 	be.True(t, !strings.Contains(clause, `LIKE '%'||`))
 }
+
+func TestIndexes(t *testing.T) {
+	t.Parallel()
+
+	_, err := postgres.Indexes(t.Context(), nil)
+	be.Err(t, err)
+
+	idx := postgres.IndexStat{
+		Method:     "gin",
+		BlocksHit:  95,
+		BlocksRead: 5,
+		Scans:      1234567,
+		Definition: "CREATE INDEX idx_files_desc_fts ON public.files USING gin (to_tsvector('english'::regconfig, COALESCE(record_title, ''::character varying)::text)) WHERE (deletedat IS NULL)",
+	}
+	be.Equal(t, idx.CacheHitPct(), "95.0%")
+	be.Equal(t, idx.LastScanString(), "never")
+	be.Equal(t, idx.ScansFormatted(), "1,234,567")
+	be.Equal(t, idx.ExprSummary(), "(to_tsvector('english', COALESCE(record_title, ''))) WHERE (deletedat IS NULL)")
+
+	summary := postgres.TableIndexStats{SeqScan: 1, IdxScan: 9, Updates: 10, HotUpdates: 8}
+	be.Equal(t, summary.IdxScanPct(), "90.0%")
+	be.Equal(t, summary.HotUpdatePct(), "80.0%")
+	be.Equal(t, summary.LastVacuumString(), "never")
+	be.Equal(t, summary.LastAnalyzeString(), "never")
+
+	db := testutil.DB(t)
+	got, err := postgres.Indexes(t.Context(), db)
+	be.Err(t, err, nil)
+	be.Equal(t, got.TableName, "files")
+	be.True(t, got.TableSize != "")
+	be.True(t, got.IndexesSize != "")
+	be.True(t, got.TotalSize != "")
+	be.True(t, len(got.Indexes) > 0)
+	for _, item := range got.Indexes {
+		be.True(t, item.Name != "")
+		be.True(t, item.Method != "")
+		be.True(t, item.Size != "")
+		be.True(t, item.Definition != "")
+	}
+}

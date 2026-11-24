@@ -13,43 +13,50 @@
 {{- $extsThumbnails := index . "extsThumbnails"}}
 {{- $extsExtras := index . "extsExtras"}}
 {{- $extsOrphaned := index . "extsOrphaned"}}
-{{- $checkDBConns := index . "dbConnections"}}
 {{- $responseRow := "row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-0"}}
 {{- $formats := "badge bg-success text-body-emphasis"}}
 {{- /*    */}}
-<h2 class="lead mt-5">Database</h2>
-<div class="pb-3 text-secondary">
-  The number of active connections should always be as low as possible. 
-  Having too many connections open are problematic and usually means some SQL queries are waiting to time out.
-</div>
-<div class="container text-center pb-3">
-  <div class="row">
-    <div class="col-md-6">
-      <button class="btn btn-dark w-75" hx-get="/editor/configurations/dbconns" hx-target="#database-response">
-        <span class="me-2">&#128907;</span> Refresh the connections <span id="database-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
-      </button>
-    </div>
-    <div class="col-md-6">
-      <button class="btn btn-dark w-75" hx-get="/editor/configurations/pings" hx-target="#ping-response" hx-swap="beforeend" hx-disable="this" hx-config="timeout:0" hx-on:click="document.getElementById('ping-response').innerHTML=''">
-        <span class="me-2">&#8634;</span> Ping the routes <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></span>
-      </button>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-5 mb-3">
+  <div>
+    <h2 class="lead mb-0">Database</h2>
+    <div class="small text-body-secondary">
+      PostgreSQL live counts, active sessions, storage footprint, and index usage.
     </div>
   </div>
+  <button type="button" class="btn btn-sm btn-outline-secondary"
+          hx-get="/editor/configurations/dbindexes"
+          hx-target="#dbindexes-response"
+          hx-indicator="#dbindexes-htmx-indicator">
+    Refresh
+    <span id="dbindexes-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-1" role="status"></span>
+  </button>
 </div>
-<div class="p-2 lead">
-  <div>{{index . "countPublic"}} public artifacts</div>
-  <div class="ps-2"><small class="text-info-emphasis">{{index . "countNewUpload"}} new uploads</small></div>
-  <div class="ps-2"><small>{{index . "countHidden"}} unavailable of {{index . "countArtifacts"}}</small></div>
-  <div class="ps-2"><small>Universal Unique ID version counts {{index . "uuidVersions"}}</small></div>
-  <div><span id="database-response">{{$checkDBConns}}</span> active database connections</div>
+<div id="dbindexes-response">
+  {{- template "dbindexes" . }}
 </div>
+{{- with index . "uuidVersions"}}
+<div class="small text-body-secondary mt-2 px-1">
+  UUID versions: <span class="font-monospace">{{.}}</span>
+</div>
+{{- end}}
 {{- /*  Ping internal URIs */}}
-<h2 class="lead mt-5">Routes</h2>
-<div class="pb-3 text-secondary">
-  The web application routes runs a stress test that fetches dozens of local URLs to confirm they work.
-  <br>
-  All the pinged URLs should return <span class="text-success">200</span> HTTP status, 
-  except those that require signing in, which returns <span class="text-warning-emphasis">403</span>, <q>the requested resource is forbidden</q>.
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-5 mb-2">
+  <h2 class="lead mb-0">Routes</h2>
+  <button type="button" class="btn btn-sm btn-outline-secondary"
+          hx-get="/editor/configurations/pings"
+          hx-target="#ping-response"
+          hx-swap="beforeend"
+          hx-disable="this"
+          hx-config="timeout:0"
+          hx-indicator="#ping-htmx-indicator"
+          hx-on:click="document.getElementById('ping-response').innerHTML=''">
+    Ping routes
+    <span id="ping-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm ms-1" role="status"></span>
+  </button>
+</div>
+<div class="pb-3 small text-body-secondary">
+  Fetches local URLs to verify they respond with <span class="text-success">200</span> OK
+  (or <span class="text-warning-emphasis">403</span> Forbidden for signed-in routes).
 </div>
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2 p-2" id="ping-response">
   <!-- ping response will be rendered here -->

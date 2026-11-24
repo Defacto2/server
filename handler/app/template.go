@@ -71,6 +71,7 @@ const (
 	artifactTmpl     = "artifact.tmpl"
 	artifactsTmpl    = "artifacts.tmpl"
 	categoriesTmpl   = "categories.tmpl"
+	configsTmpl      = "configurations.tmpl"
 	releaserTmpl     = "releaser.tmpl"
 	releaseryearTmpl = "releaseryear.tmpl"
 	scenerTmpl       = "scener.tmpl"
@@ -91,7 +92,7 @@ var pages = Page{
 	"bbs-year":      releaseryearTmpl,
 	"brokentexts":   "brokentexts.tmpl",
 	"categories":    categoriesTmpl,
-	"configs":       "configurations.tmpl",
+	"configs":       configsTmpl,
 	"coder":         scenerTmpl,
 	"compression":   "compression.tmpl",
 	"dependencies":  "dependencies.tmpl",
@@ -559,6 +560,8 @@ func (wa *WebApp) parseFS(ctx context.Context, db *sql.DB, name filename) *templ
 		files = append(files, GlobTo("artifactsedit.tmpl"))
 	case categoriesTmpl:
 		files = append(files, GlobTo("categoriesmore.tmpl"))
+	case configsTmpl:
+		files = append(files, GlobTo("dbindexes.tmpl"))
 	case releaseryearTmpl:
 		files = append(files, GlobTo("releasertimeline.tmpl"))
 	case websitesTmpl:
