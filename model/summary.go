@@ -50,7 +50,7 @@ func (obj *Summary) ByDescription(ctx context.Context, exec boil.ContextExecutor
 		args = append(args, term)
 		orConditions = append(
 			orConditions,
-			"to_tsvector('english', concat_ws(' ', files.record_title, files.comment)) @@ "+
+			"to_tsvector('english', COALESCE(files.record_title, '') || ' ' || COALESCE(files.comment, '')) @@ "+
 				"plainto_tsquery('english', $"+strconv.Itoa(len(args))+")",
 		)
 	}

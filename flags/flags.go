@@ -37,6 +37,7 @@ const (
 	configTitle  = "Web Server Configurations"
 	addressTitle = "Web Server Addresses"
 	fixesTitle   = "Database and Asset Fixes"
+	indexTitle   = "Database Index Rebuild"
 	format       = "%s\n"
 )
 
@@ -83,6 +84,7 @@ func App(w io.Writer, ver string, c *config.Config) *cli.App {
 			Check(w, c),
 			Address(w, c),
 			Fix(w, c),
+			Index(w, c),
 			TempDir(w, c),
 		},
 	}
@@ -176,6 +178,28 @@ func Fix(_ io.Writer, c *config.Config) *cli.Command {
 			slog.SetDefault(sl)
 			if err := c.Fixer(context.Background(), sl, d); err != nil {
 				const format = "fix command: %w"
+				return fmt.Errorf(format, err)
+			}
+			return nil
+		},
+	}
+}
+
+// Index command rebuilds the PostgreSQL database indexes.
+func Index(_ io.Writer, c *config.Config) *cli.Command {
+	return &cli.Command{
+		Name:        "index",
+		Aliases:     []string{"i"},
+		Usage:       "rebuild the database indexes",
+		Description: "Create missing PostgreSQL indexes, remove legacy indexes, rebuild indexes concurrently, and run VACUUM ANALYZE.",
+		Action: func(_ *cli.Context) error {
+			log.Printf(format, indexTitle)
+
+			d := time.Now()
+			sl := logs.Default()
+			slog.SetDefault(sl)
+			if err := c.Indexer(context.Background(), sl, d); err != nil {
+				const format = "index command: %w"
 				return fmt.Errorf(format, err)
 			}
 			return nil

@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"uuid"
 
 	"github.com/Defacto2/helper"
@@ -61,7 +62,7 @@ func OneByUUID(ctx context.Context, exec boil.ContextExecutor, withDeleted bool,
 		return nil, fmt.Errorf(format, uid, err)
 	}
 
-	mods := models.FileWhere.UUID.EQ(null.NewString(val.String(), true))
+	mods := qm.Where("lower(uuid) = ?", strings.ToLower(val.String()))
 
 	var file *models.File
 	if withDeleted {

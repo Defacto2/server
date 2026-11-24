@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/Defacto2/helper"
 	"github.com/Defacto2/server/internal/nils"
@@ -152,7 +153,7 @@ func ExistUUID(ctx context.Context, exec boil.ContextExecutor, uuid string) (boo
 		return false, nil
 	}
 
-	ok, err := models.Files(models.FileWhere.UUID.EQ(null.StringFrom(uuid)),
+	ok, err := models.Files(qm.Where("lower(uuid) = ?", strings.ToLower(uuid)),
 		qm.WithDeleted()).Exists(ctx, exec)
 	if err != nil {
 		return false, fmt.Errorf("exists file uuid %s: %w", uuid, err)

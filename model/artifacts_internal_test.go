@@ -64,6 +64,6 @@ func TestOnlyUniqueIDsQuery(t *testing.T) {
 	mods := onlyUniqueIDs([]int{0, 42, 99}, []uuid.UUID{uuid.Nil(), uid}, []string{"c8cd0b4c"})
 	sql, args := queries.BuildQuery(models.Files(mods...).Query)
 
-	be.True(t, strings.Contains(sql, `WHERE ("files"."id" IN ($1,$2)) OR ("files"."uuid" IN ($3)) OR (uuid ILIKE $4 ESCAPE '\')`))
+	be.True(t, strings.Contains(sql, `WHERE ("files"."id" IN ($1,$2)) OR (lower(uuid) IN ($3)) OR (lower(uuid) LIKE $4 ESCAPE '\')`))
 	be.Equal(t, args, []any{int64(42), int64(99), uid.String(), "c8cd0b4c%"})
 }

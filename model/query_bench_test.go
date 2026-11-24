@@ -1,12 +1,16 @@
 package model_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/logs"
+	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model"
+	"github.com/aarondl/null/v8"
+	"github.com/aarondl/sqlboiler/v4/boil"
 )
 
 // Run all index benchmarks with:
@@ -134,6 +138,128 @@ func BenchmarkIndexDedupeLookups(b *testing.B) {
 			b.Fatal(err)
 		}
 		if _, _, err := model.OnePouet(ctx, db, 1000); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkIndexCategoryRare(b *testing.B) {
+	db := testutil.DB(b)
+	ctx := b.Context()
+	var java model.Java
+	var console model.Console
+	var mac model.Macos
+	var trial model.TrialCrackme
+
+	b.ResetTimer()
+	for range b.N {
+		if _, err := java.List(ctx, db, 1, 25); err != nil {
+			b.Fatal(err)
+		}
+		if _, err := console.List(ctx, db, 1, 25); err != nil {
+			b.Fatal(err)
+		}
+		if _, err := mac.List(ctx, db, 1, 25); err != nil {
+			b.Fatal(err)
+		}
+		if _, err := trial.List(ctx, db, 1, 25); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkIndexWriteInsert(b *testing.B) {
+	db := testutil.DB(b)
+	ctx := b.Context()
+	b.Cleanup(func() {
+		_, _ = db.ExecContext(ctx, `SELECT setval('"files_id_seq"', COALESCE((SELECT MAX(id) FROM files), 1))`)
+	})
+
+	b.ResetTimer()
+	for i := range b.N {
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+		f := models.File{
+			UUID:                null.StringFrom(fmt.Sprintf("01900000-0000-7000-8000-%012d", i)),
+			Filename:            null.StringFrom(fmt.Sprintf("razor1911-bench-%d.zip", i)),
+			RecordTitle:         null.StringFrom("Razor 1911 Benchmark Release Title"),
+			Comment:             null.StringFrom("A typical scene release description mentioning defacto2, dos cracktro, and nfo artwork."),
+			Section:             null.StringFrom("demo"),
+			Platform:            null.StringFrom("dos"),
+			GroupBrandFor:       null.StringFrom("RAZOR 1911"),
+			GroupBrandBy:        null.StringFrom("DEFACTO2"),
+			DateIssuedYear:      null.Int16From(1996),
+			DateIssuedMonth:     null.Int16From(7),
+			DateIssuedDay:       null.Int16From(4),
+			FileIntegrityStrong: null.StringFrom(fmt.Sprintf("%096x", i+1)),
+			WebIDDemozoo:        null.Int64From(999000 + int64(i)),
+			WebIDPouet:          null.Int64From(888000 + int64(i)),
+		}
+		if err := f.Insert(ctx, tx, boil.Infer()); err != nil {
+			_ = tx.Rollback()
+			b.Fatal(err)
+		}
+		if err := tx.Rollback(); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkIndexWriteUpdateHOT(b *testing.B) {
+	db := testutil.DB(b)
+	ctx := b.Context()
+
+	b.ResetTimer()
+	for range b.N {
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+		if err := model.UpdateEmulateRunProgram(ctx, tx, 1, "BENCH.EXE"); err != nil {
+			_ = tx.Rollback()
+			b.Fatal(err)
+		}
+		if err := tx.Rollback(); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkIndexWriteUpdateIndexed(b *testing.B) {
+	db := testutil.DB(b)
+	ctx := b.Context()
+	wl := boil.Whitelist(
+		models.FileColumns.Updatedat,
+		models.FileColumns.Filename,
+		models.FileColumns.RecordTitle,
+		models.FileColumns.Comment,
+		models.FileColumns.Section,
+		models.FileColumns.Platform,
+		models.FileColumns.GroupBrandFor,
+	)
+
+	b.ResetTimer()
+	for i := range b.N {
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+		f := models.File{
+			ID:            1,
+			Filename:      null.StringFrom(fmt.Sprintf("razor-edited-%d.nfo", i)),
+			RecordTitle:   null.StringFrom("Edited Benchmark Title"),
+			Comment:       null.StringFrom("Updated scene release comment referencing razor 1911 and defacto2 archive."),
+			Section:       null.StringFrom("releaseinformation"),
+			Platform:      null.StringFrom("text"),
+			GroupBrandFor: null.StringFrom("RAZOR 1911"),
+		}
+		if _, err := f.Update(ctx, tx, wl); err != nil {
+			_ = tx.Rollback()
+			b.Fatal(err)
+		}
+		if err := tx.Rollback(); err != nil {
 			b.Fatal(err)
 		}
 	}

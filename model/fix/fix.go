@@ -167,7 +167,7 @@ func coldfusionIDs(ctx context.Context, sl *slog.Logger, exec boil.ContextExecut
 			sl.Warn("Convert ID failure", slog.String(key, old), slog.Any("error", err))
 			continue
 		}
-		file, err := models.Files(qm.Where("uuid = ?", old)).One(ctx, exec)
+		file, err := models.Files(qm.Where("lower(uuid) = ?", strings.ToLower(old))).One(ctx, exec)
 		if err != nil {
 			sl.Warn("Failed to find a record using the uuid",
 				slog.String("uuid", old), slog.Any("error", err))

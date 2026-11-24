@@ -67,6 +67,35 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 	return nil
 }
 
+// Indexer creates missing PostgreSQL indexes, drops legacy MySQL indexes,
+// rebuilds all indexes on files concurrently, and runs VACUUM ANALYZE.
+func (c *Config) Indexer(ctx context.Context, sl *slog.Logger, d time.Time) error {
+	const psl = "PostgreSQL"
+	if err := nils.Check(ctx, sl); err != nil {
+		return fmt.Errorf("%s: %w", psl, err)
+	}
+	const msg = "Database indexes"
+
+	db, err := postgres.Open()
+	if err != nil {
+		return fmt.Errorf("%s open: %w", msg, err)
+	}
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			sl.Error(msg+" failed to close the database", slog.Any("error", closeErr))
+		}
+	}()
+
+	if err := fix.Indexes(ctx, sl, db); err != nil {
+		return fmt.Errorf("%s: %w", msg, err)
+	}
+
+	sl.Info(msg, slog.String("task", "Time taken"),
+		slog.Duration("time", time.Since(d).Round(time.Millisecond)))
+
+	return nil
+}
+
 // TempInfo is used to print the temporary directory and its disk usage.
 func TempInfo(sl *slog.Logger) {
 	const format = "tmp info check %s: %w"

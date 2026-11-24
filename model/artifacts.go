@@ -231,7 +231,7 @@ func OnlyDescriptions(ctx context.Context, sl *slog.Logger, exec boil.ContextExe
 
 func onlyDescriptions(terms []string) []qm.QueryMod {
 	orMods := make([]qm.QueryMod, 0, len(terms))
-	const clause = "to_tsvector('english', concat_ws(' ', record_title, comment)) @@ plainto_tsquery('english', ?)"
+	const clause = "to_tsvector('english', COALESCE(record_title, '') || ' ' || COALESCE(comment, '')) @@ plainto_tsquery('english', ?)"
 	for _, term := range terms {
 		term = strings.TrimSpace(term)
 		if term == "" {
@@ -387,10 +387,10 @@ func onlyUniqueIDs(ids []int, uuids []uuid.UUID, prefixes []string) []qm.QueryMo
 			validIDs = append(validIDs, int64(id))
 		}
 	}
-	validUUIDs := make([]string, 0, len(uuids))
+	validUUIDs := make([]any, 0, len(uuids))
 	for u := range slices.Values(uuids) {
 		if u != uuid.Nil() {
-			validUUIDs = append(validUUIDs, u.String())
+			validUUIDs = append(validUUIDs, strings.ToLower(u.String()))
 		}
 	}
 	validPrefixes := make([]string, 0, len(prefixes))
@@ -405,15 +405,16 @@ func onlyUniqueIDs(ids []int, uuids []uuid.UUID, prefixes []string) []qm.QueryMo
 		mods = append(mods, models.FileWhere.ID.IN(validIDs))
 	}
 	if len(validUUIDs) > 0 {
+		uuidMod := qm.WhereIn("lower(uuid) IN ?", validUUIDs...)
 		if len(mods) == 0 {
-			mods = append(mods, models.FileWhere.UUID.IN(validUUIDs))
+			mods = append(mods, uuidMod)
 		} else {
-			mods = append(mods, qm.Or2(models.FileWhere.UUID.IN(validUUIDs)))
+			mods = append(mods, qm.Or2(uuidMod))
 		}
 	}
-	const prefixClause = `uuid ILIKE ? ESCAPE '\'`
+	const prefixClause = `lower(uuid) LIKE ? ESCAPE '\'`
 	for _, p := range validPrefixes {
-		pattern := escapeILIKE(p) + "%"
+		pattern := escapeILIKE(strings.ToLower(p)) + "%"
 		if len(mods) == 0 {
 			mods = append(mods, qm.Where(prefixClause, pattern))
 		} else {
