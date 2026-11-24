@@ -14,6 +14,7 @@ import (
 	"log/slog"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode"
 
 	"github.com/microcosm-cc/bluemonday"
@@ -43,6 +44,7 @@ type Result struct {
 
 // Tidbits are the index for the group biographies stored as markdown texts.
 type Tidbits struct {
+	mu         sync.RWMutex
 	TotalDocs  int   // Total number of indexed documents
 	TotalTerms int64 // Total number of terms across all docs
 	engine     *blaze.InvertedIndex
@@ -109,11 +111,14 @@ func filter(r rune) rune {
 // so this func temporary mutes all slogs while indexing.
 func (ts *Tidbits) NewIndex(fsys fs.FS, root string) error {
 	const format = "tidbits new index: %w"
-	ts.engine = blaze.NewInvertedIndex()
+	tmp := Tidbits{
+		engine: blaze.NewInvertedIndex(),
+	}
 
 	mute := slog.New(slog.DiscardHandler)
 	restore := slog.Default()
 	slog.SetDefault(mute)
+	defer slog.SetDefault(restore)
 
 	err := fs.WalkDir(fsys, root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -126,27 +131,41 @@ func (ts *Tidbits) NewIndex(fsys fs.FS, root string) error {
 		if err != nil {
 			return fmt.Errorf(format+": %s", err, path)
 		}
-		if aErr := ts.Add(d.Name(), string(b)); err != nil &&
+		if aErr := tmp.Add(d.Name(), string(b)); aErr != nil &&
 			!errors.Is(aErr, ErrNoBody) {
-			return fmt.Errorf(format+": %s", err, path)
+			return fmt.Errorf(format+": %s", aErr, path)
 		}
 		return nil
 	})
-	slog.SetDefault(restore)
 	if err != nil {
 		return fmt.Errorf(format, err)
 	}
 
-	ts.TotalDocs = ts.engine.TotalDocs
-	ts.TotalTerms = ts.engine.TotalTerms
+	ts.mu.Lock()
+	ts.engine = tmp.engine
+	ts.store = tmp.store
+	ts.TotalDocs = tmp.engine.TotalDocs
+	ts.TotalTerms = tmp.engine.TotalTerms
+	ts.mu.Unlock()
 
 	return nil
+}
+
+// Stats returns the total indexed documents and search terms safely.
+func (ts *Tidbits) Stats() (int, int64) {
+	ts.mu.RLock()
+	defer ts.mu.RUnlock()
+	return ts.TotalDocs, ts.TotalTerms
 }
 
 // Search the tidbits index for the query and return the results.
 // An empty Result means no results were found.
 func (ts *Tidbits) Search(query string, maxResults int) []Result {
 	noresult := []Result{}
+
+	ts.mu.RLock()
+	defer ts.mu.RUnlock()
+
 	if ts.engine == nil {
 		return noresult
 	}
@@ -173,8 +192,8 @@ func (ts *Tidbits) Search(query string, maxResults int) []Result {
 	results := make([]Result, len(matches))
 
 	for i, match := range matches {
-		name := ts.Name(match.DocID)
-		body := ts.Body(match.DocID)
+		name := ts.nameLocked(match.DocID)
+		body := ts.bodyLocked(match.DocID)
 		results[i].ID = id(name)
 		results[i].Name = name
 		results[i].Score = match.Score
@@ -211,6 +230,12 @@ func id(name string) int {
 // Body value of the document id is returned from the index.
 // If the id doesn't exist, an empty string is returned.
 func (ts *Tidbits) Body(docID int) string {
+	ts.mu.RLock()
+	defer ts.mu.RUnlock()
+	return ts.bodyLocked(docID)
+}
+
+func (ts *Tidbits) bodyLocked(docID int) string {
 	if !ts.find(docID) {
 		return ""
 	}
@@ -220,6 +245,12 @@ func (ts *Tidbits) Body(docID int) string {
 // Name value of the document id is returned from the index.
 // If the id doesn't exist, an "error" string is returned.
 func (ts *Tidbits) Name(docID int) string {
+	ts.mu.RLock()
+	defer ts.mu.RUnlock()
+	return ts.nameLocked(docID)
+}
+
+func (ts *Tidbits) nameLocked(docID int) string {
 	if ts.engine == nil {
 		return "error"
 	}
@@ -232,11 +263,15 @@ func (ts *Tidbits) Name(docID int) string {
 
 // New creates an empty inverted index.
 func (ts *Tidbits) New() {
+	ts.mu.Lock()
+	defer ts.mu.Unlock()
 	ts.engine = blaze.NewInvertedIndex()
 }
 
 // Stores returns the number of items in the index store.
 func (ts *Tidbits) Stores() int {
+	ts.mu.RLock()
+	defer ts.mu.RUnlock()
 	return len(ts.store)
 }
 

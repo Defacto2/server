@@ -85,7 +85,7 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 	}
 
 	onAddRoute := func(route echo.Route) error {
-		if !prodMode {
+		if prodMode {
 			return nil
 		}
 		logRoute(route.Method, route.Path)
@@ -124,8 +124,8 @@ func (serv *Server) Handler(ctx context.Context, sl *slog.Logger, db *sql.DB) *e
 	}
 
 	e := echo.NewWithConfig(config)
-	if settings.LogAll {
-		// echo prefix options that get used by RequestLoggerConfig
+	if !prodMode && settings.LogAll.Bool() {
+		// Only expose /debug/pprof in development mode when verbose logging is enabled.
 		pprof.Register(e)
 	}
 

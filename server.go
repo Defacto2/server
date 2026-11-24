@@ -57,6 +57,10 @@ var (
 var ErrLog = errors.New("server: cannot save one or more log files")
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	const msg = "defacto2 startup"
 
 	// Initialize a temporary logger, and get then print the environment variable configurations.
@@ -69,8 +73,7 @@ func main() {
 	// the terminal.
 	const quit = 0
 	if exitCode := flagParser(l, os.Stdout, envConfig); exitCode >= quit {
-		code := int(exitCode)
-		os.Exit(code)
+		return int(exitCode)
 	}
 
 	// Configure the sl application logger, the cl startup configuration logger and the logo writer.
@@ -116,7 +119,7 @@ func main() {
 		db, soErr = sql.Open("pgx", "")
 		if soErr != nil || db == nil {
 			logErr("cannot initialize the placeholder database", soErr)
-			return
+			return int(flags.GenericErr)
 		}
 	}
 	defer func() {
@@ -146,15 +149,14 @@ func main() {
 	serv := initialisation(ctx, db, *envConfig)
 
 	go func() {
-		fsys := serv.Public
-		root := tidbit.Dir
-		if err := serv.TidbitIndex.NewIndex(fsys, root); err != nil {
-			logErr("tidbit indexs", err)
+		if err := serv.TidbitIndex.NewIndex(serv.Public, tidbit.Dir); err != nil {
+			logErr("tidbit index", err)
+			return
 		}
-		stat := serv.TidbitIndex
-		slog.Info("Indexed Tidbits",
-			slog.Int("Documents", stat.TotalDocs),
-			slog.Int64("SearchTerms", stat.TotalTerms),
+		docs, terms := serv.TidbitIndex.Stats()
+		sl.Info("Indexed Tidbits",
+			slog.Int("Documents", docs),
+			slog.Int64("SearchTerms", terms),
 		)
 	}()
 	go func() {
@@ -171,9 +173,11 @@ func main() {
 	printAddrs(cl, envConfig, msg)
 	if err := serv.Start(ctx, sl, h, *envConfig); err != nil {
 		logErr("web server startup failure", err)
+		return int(flags.GenericErr)
 	}
 
-	slog.Info("Shutdown", slog.String("Triggered", "Signal received"))
+	sl.Info("Shutdown", slog.String("Triggered", "Signal received"))
+	return int(flags.ExitOK)
 }
 
 func setupWriters(envConfig config.Config, lf logs.Files) (
