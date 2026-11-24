@@ -38,6 +38,7 @@ import (
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 	"github.com/Defacto2/server/internal/postgres"
+	"github.com/Defacto2/server/model"
 	"github.com/caarlos0/env/v11"
 	_ "github.com/jackc/pgx/v5"
 )
@@ -294,7 +295,13 @@ func initialisation(ctx context.Context, db *sql.DB, envConfig config.Config) *h
 	}
 	c.Version = flags.VersionCommit(version)
 	if ctx != nil && db != nil {
-		c.RecordCount = config.RecordCount(ctx, db)
+		var stats model.Artifacts
+		if err := stats.Public(ctx, db); err == nil {
+			c.RecordCount = int64(stats.Count)
+			c.TotalBytes = int64(stats.Bytes)
+			c.MinYear = stats.MinYear
+			c.MaxYear = stats.MaxYear
+		}
 	}
 
 	return &c

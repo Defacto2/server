@@ -6,18 +6,18 @@
 {{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
 <a rel="me" href="https://mas.to/@defacto2" class="d-none"><!--mastodon verification--></a>
 {{- $heroTitle := index . "heroTitle" }}
-{{- $artifactCount := index . "artifactCount" }}
+{{- $archiveMeta := index . "archiveMeta" }}
 <section class="index-hero p-4 p-lg-5 mb-5" aria-labelledby="index-hero-heading">
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <span class="index-hero-eyebrow d-inline-flex align-items-center gap-2">
-      <svg class="bi" width="14" height="14" fill="currentColor" aria-hidden="true">
+      <svg class="bi flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
         <use xlink:href="/svg/bootstrap-icons.svg#floppy"></use>
       </svg>
       Digital Preservation Archive
     </span>
-    <span class="index-hero-meta font-monospace small text-body-secondary">
-      {{- if $artifactCount }}{{$artifactCount}} artifacts · {{end}}1971–2016
-    </span>
+    {{- if $archiveMeta }}
+    <span class="index-hero-meta font-monospace small text-body-secondary">{{$archiveMeta}}</span>
+    {{- end }}
   </div>
   <h1 id="index-hero-heading" class="display-6 fw-semibold text-body-emphasis mb-3">
     {{- if $heroTitle }}{{$heroTitle}}{{else}}The subcultures of obsolete microcomputers{{end -}}
@@ -30,7 +30,7 @@
   <div class="d-flex flex-wrap align-items-center gap-2">
     <a href="/files/new-uploads" class="btn btn-primary d-inline-flex align-items-center gap-2">
       New uploads
-      <svg class="bi" width="14" height="14" fill="currentColor" aria-hidden="true">
+      <svg class="bi flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
         <use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use>
       </svg>
     </a>
@@ -80,7 +80,7 @@
 <section class="index-bbs-log mb-5" aria-label="1980 8BBS#1 trading messages">
   <div class="index-bbs-header d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 px-md-4 py-2">
     <span class="d-inline-flex align-items-center gap-2 fw-medium">
-      <svg class="bi" width="15" height="15" fill="currentColor" aria-hidden="true">
+      <svg class="bi flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
         <use xlink:href="/svg/bootstrap-icons.svg#terminal"></use>
       </svg>
       Some of the trading messages posted in 1980 to 8BBS#1 near San Jose, CA
@@ -187,7 +187,7 @@ DEAR KEITH, I HAVE BEEN A PHONE PHREAK FOR MANY YEARS NOW AND I WOULD LOVE TO TR
 
 <section class="row g-4 g-lg-5 mb-5" aria-label="Platform histories">
   <aside class="col-lg-3 d-none d-lg-block">
-    <nav class="index-chapter-nav sticky-top" aria-label="History chapters">
+    <nav class="index-chapter-nav" aria-label="History chapters">
       <div class="index-eyebrow mb-3">Early Platforms</div>
       <ul class="nav flex-column gap-1">
         <li class="nav-item">
@@ -337,7 +337,7 @@ DEAR KEITH, I HAVE BEEN A PHONE PHREAK FOR MANY YEARS NOW AND I WOULD LOVE TO TR
       <div id="bbs-seattle-8086" class="index-bbs-log">
         <div class="index-bbs-header d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
           <span class="d-inline-flex align-items-center gap-2 fw-medium">
-            <svg class="bi" width="15" height="15" fill="currentColor" aria-hidden="true">
+            <svg class="bi flex-shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
               <use xlink:href="/svg/bootstrap-icons.svg#terminal"></use>
             </svg>
             An ancient post on 8BBS#1 to swap software for the
@@ -458,7 +458,7 @@ DEAR KEITH, I HAVE BEEN A PHONE PHREAK FOR MANY YEARS NOW AND I WOULD LOVE TO TR
       data-milestone-id="the-twilight-of-the-cracktro"><span>The end</span><small>2000s</small></a></div>
   </div>
 
-  <div class="milestone-toolbar sticky-top d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2 mb-4" role="toolbar" aria-label="Filter milestones">
+  <div class="milestone-toolbar d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2 mb-4" role="toolbar" aria-label="Filter milestones">
     <div class="d-flex flex-wrap align-items-center gap-1" role="group" aria-label="Filter by decade">
       <button type="button" class="btn btn-sm btn-primary" data-decade-filter="all" aria-pressed="true">All</button>
       <button type="button" class="btn btn-sm btn-outline-secondary" data-decade-filter="1970s" aria-pressed="false">1970s</button>

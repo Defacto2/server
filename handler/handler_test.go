@@ -181,8 +181,12 @@ func TestIndexRender(t *testing.T) {
 			ReadOnly: true,
 			Quiet:    true,
 		},
-		Public: fsys,
-		View:   fsys,
+		Public:      fsys,
+		View:        fsys,
+		RecordCount: 66082,
+		TotalBytes:  21_000_000_000,
+		MinYear:     1981,
+		MaxYear:     2026,
 	}
 
 	e := h.Handler(t.Context(), logs.Discard(), db)
@@ -194,6 +198,7 @@ func TestIndexRender(t *testing.T) {
 	body := rec.Body.String()
 	be.Equal(t, strings.Count(body, `id="milestoneModal"`), 1)
 	be.Equal(t, strings.Count(body, `id=""`), 0)
+	be.True(t, strings.Contains(body, `66,082 artifacts · 21.0 GB · 1981–2026`))
 	be.True(t, strings.Contains(body, `<meta property="og:description"`))
 	be.True(t, strings.Contains(body, `/js/index.min.js`))
 	be.True(t, !strings.Contains(body, `<style scoped>`))

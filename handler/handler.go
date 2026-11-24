@@ -63,6 +63,9 @@ type Server struct {
 	Brand       []byte           // Brand contains the Defacto2 ASCII logo.
 	Environment config.Config    // Environment configurations from the host system.
 	RecordCount int64            // The total number of file records in the database.
+	TotalBytes  int64            // The total size in bytes of all public file records.
+	MinYear     int              // The earliest issue year among public file records.
+	MaxYear     int              // The latest issue year among public file records.
 	TidbitIndex fulltext.Tidbits // Fulltext search index of the tidbit markdown files.
 }
 

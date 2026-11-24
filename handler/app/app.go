@@ -115,6 +115,13 @@ func (c *Cache) Records(i int64) {
 	c.RecordCount = i
 }
 
+func (c *Cache) Stats(count, bytes int64, minYear, maxYear int) {
+	c.RecordCount = count
+	c.TotalBytes = bytes
+	c.MinYear = minYear
+	c.MaxYear = maxYear
+}
+
 // Attribute returns a formatted string of the roles for the given scener name.
 // For example if the name is "ben", write is "ben" and code is "bianca,ben" then
 // the following would return:
@@ -1032,6 +1039,9 @@ func YMDEdit(c *echo.Context, tx *sql.Tx) error {
 // but do not change frequently enough to warrant a database query on every page load.
 type Cache struct {
 	RecordCount int64 // The total number of file records in the database.
+	TotalBytes  int64 // The total size in bytes of all public file records.
+	MinYear     int   // The earliest issue year among public file records.
+	MaxYear     int   // The latest issue year among public file records.
 }
 
 // SRI are the Sub-Resource Integrity hashes for the layout.

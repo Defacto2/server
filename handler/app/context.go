@@ -1509,8 +1509,8 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 	data[canonical] = "/"
 	data["h1"] = ""
 	data["heroTitle"] = h1
-	if Caching.RecordCount > 0 {
-		data["artifactCount"] = humanize.Comma(Caching.RecordCount)
+	if meta := archiveMeta(); meta != "" {
+		data["archiveMeta"] = meta
 	}
 	data["indexJS"] = true
 	data["milestones"] = Collection()
@@ -1531,6 +1531,20 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 		return InternalErr(sl, c, index, err)
 	}
 	return nil
+}
+
+func archiveMeta() string {
+	parts := make([]string, 0, 3)
+	if Caching.RecordCount > 0 {
+		parts = append(parts, humanize.Comma(Caching.RecordCount)+" artifacts")
+	}
+	if Caching.TotalBytes > 0 {
+		parts = append(parts, helper.ByteCountFloat(Caching.TotalBytes))
+	}
+	if Caching.MinYear > 0 && Caching.MaxYear > 0 {
+		parts = append(parts, fmt.Sprintf("%d–%d", Caching.MinYear, Caching.MaxYear))
+	}
+	return strings.Join(parts, " · ")
 }
 
 // Inline is the handler for the Download file record page.

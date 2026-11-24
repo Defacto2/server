@@ -565,7 +565,9 @@ a {
 }
 
 .index-chapter-nav {
+  position: sticky;
   top: 5rem;
+  z-index: 1;
   padding-right: 1rem;
   border-right: 1px solid #e9ecef;
 }
@@ -652,8 +654,9 @@ a {
 }
 
 .milestone-toolbar {
+  position: sticky;
   top: 4rem;
-  z-index: 1010;
+  z-index: 10;
   background: rgb(255 255 255 / 95%);
   backdrop-filter: blur(6px);
   border: 1px solid #dee2e6;

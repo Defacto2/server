@@ -61,7 +61,7 @@ func (serv *Server) RouteFS(sl *slog.Logger, e *echo.Echo, db *sql.DB, fsys fs.F
 		return nil, fmt.Errorf(format, "read dir", nils.ErrFS)
 	}
 
-	app.Caching.Records(serv.RecordCount)
+	app.Caching.Stats(serv.RecordCount, serv.TotalBytes, serv.MinYear, serv.MaxYear)
 	dirs := app.Dirs{ //nolint:exhaustruct_v5
 		Download:  dir.Directory(serv.Environment.AbsDownload),
 		Preview:   dir.Directory(serv.Environment.AbsPreview),
