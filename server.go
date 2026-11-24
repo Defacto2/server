@@ -111,6 +111,7 @@ func run() int {
 	// Connect to the database and perform some record repairs and sanity checks. Even if the
 	// database cannot connect the web server will continue to run with limited functionality.
 	db, err := postgres.Open()
+	dbConnected := err == nil && db != nil
 	if err != nil {
 		logErr("cannot initialize the database", err)
 	}
@@ -128,9 +129,13 @@ func run() int {
 		}
 	}()
 
-	var database postgres.Version
-	if err := database.Query(db); err != nil {
-		logErr("postgres cannot run the version query", err)
+	if dbConnected {
+		var database postgres.Version
+		if err := database.Query(db); err != nil {
+			logErr("postgres cannot run the version query", err)
+		} else if ver := strings.TrimPrefix(database.String(), "and using "); ver != "" {
+			sl.Info("Database", slog.String("version", ver))
+		}
 	}
 
 	// Clean stale temporary directories created by this application.
@@ -146,7 +151,11 @@ func run() int {
 	ctx, stop := signal.NotifyContext(parent, signals...)
 	defer stop()
 
-	serv := initialisation(ctx, db, *envConfig)
+	var initDB *sql.DB
+	if dbConnected {
+		initDB = db
+	}
+	serv := initialisation(ctx, initDB, *envConfig)
 
 	go func() {
 		if err := serv.TidbitIndex.NewIndex(serv.Public, tidbit.Dir); err != nil {
@@ -159,9 +168,11 @@ func run() int {
 			slog.Int64("SearchTerms", terms),
 		)
 	}()
-	go func() {
-		tidbit.Startup(ctx, sl, db)
-	}()
+	if dbConnected {
+		go func() {
+			tidbit.Startup(ctx, sl, db)
+		}()
+	}
 
 	display(logo)
 	printOpening(sl, serv.RecordCount)
@@ -223,6 +234,7 @@ func printOwner(cl *slog.Logger, msg string) {
 	if err != nil {
 		cl.Error(msg, slog.String("own_and_group", "could not obtain the current user of this process"),
 			slog.Any("error", err))
+		return
 	}
 
 	clean := slices.DeleteFunc(groups, func(e string) bool {
