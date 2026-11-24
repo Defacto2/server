@@ -107,8 +107,8 @@
     <link href="{{ bootstrapIcons }}?{{ sri_bootstrapIcons }}" as="image" type="image/svg+xml" integrity="{{ sri_bootstrapIcons }}" crossorigin="anonymous">
   </head>
   <body>
-    <div class="container-xxl p-0 sticky-top">
-    <nav class="navbar bg-dark navbar-expand-lg bg-body-tertiary rounded-bottom-1" data-bs-theme="dark">
+    <header class="container-xxl p-0 sticky-top">
+    <nav class="navbar navbar-expand-lg site-navbar" data-bs-theme="dark">
       <div class="container-fluid">
         <span class="navbar-brand me-2 mb-0 h1 font-dos-mda" data-bs-toggle="tooltip" data-bs-title="Jump to home introduction">
           <a class="nav-link active" aria-current="page" href="/">Defacto2</a>
@@ -328,12 +328,11 @@
         </div>
       </div>
     </nav>
-  </div>
-  <div class="container-xxl" id="box-container">
+  </header>
+  <div class="container-xxl pt-3 pt-lg-4" id="box-container">
   {{- block "modal" . -}}{{ "<!-- Modal popup content here -->" | safeHTML -}}{{end}}
   {{- block "uploader" . -}}{{ "<!-- Uploader content here -->" | safeHTML -}}{{end}}
   {{- block "uploadermodal" . -}}{{ "<!-- Uploader modal content here -->" | safeHTML -}}{{end}}
-  <hr>
 {{- if eq $databaseErr true -}}
 <div class="alert alert-danger" role="alert">
   The database is down, this means the website is not fully working. We are working on it.
