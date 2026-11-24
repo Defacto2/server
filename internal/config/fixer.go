@@ -34,10 +34,12 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 	if err != nil {
 		s := psl + " fix could not initialize the database data"
 		sl.Error(s, slog.Any("error", err))
+		return fmt.Errorf("%s open: %w", msg, err)
 	}
 	defer func() {
-		err := db.Close()
-		sl.Info(msg+" failed to close the database", slog.Any("error", err))
+		if closeErr := db.Close(); closeErr != nil {
+			sl.Error(msg+" failed to close the database", slog.Any("error", closeErr))
+		}
 	}()
 
 	var database postgres.Version
@@ -50,7 +52,7 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 	switch {
 	case count == 0:
 		s := psl + " " + msg + " with no database records"
-		sl.Error(s, slog.Any("error", err))
+		sl.Error(s)
 	case MinimumFiles > count:
 		s := welcome + " too few database records"
 		sl.Warn(s, slog.Int64("record_count", count))
@@ -58,13 +60,13 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 		sl.Info(welcome, slog.Int64("records", count))
 	}
 
-	c.fix(ctx, sl, db)
+	fixErr := c.fix(ctx, sl, db)
 	TempInfo(sl)
 
 	sl.Info(msg, slog.String("task", "Time taken"),
 		slog.Duration("time", time.Since(d).Round(time.Millisecond)))
 
-	return nil
+	return fixErr
 }
 
 // Indexer creates missing PostgreSQL indexes, drops legacy MySQL indexes,
@@ -159,13 +161,13 @@ func RecordCount(ctx context.Context, exec boil.ContextExecutor) int64 {
 }
 
 // fix is used to repair any known issues with the file assets and the database entries.
-// These are skipped if the Production mode environment variable is set to false.
-func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB) {
+func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 	const format = "config fix %s: %w"
 	if err := nils.Check(ctx, sl, db); err != nil {
 		panic(fmt.Errorf(format, "check", err))
 	}
 
+	var errs []error
 	const msg = "Fixing"
 	if err := databaseFix(ctx, sl, db); err != nil {
 		if errors.Is(err, ErrPSVersion) {
@@ -174,12 +176,16 @@ func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB) {
 		}
 		sl.Error(msg, slog.String("database", "could not initialize the database data"),
 			slog.Any("error", err))
+		errs = append(errs, err)
 	}
 
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
 	if err := c.assets(ctx, sl, db); err != nil {
 		sl.Error(msg, slog.Any("error", err))
+		errs = append(errs, err)
 	}
+
+	return errors.Join(errs...)
 }
 
 // databaseFix on startup checks the database connection and make any data corrections.

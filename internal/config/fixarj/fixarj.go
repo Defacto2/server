@@ -5,17 +5,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/fs"
 	"log/slog"
-	"os"
 	"os/exec"
-	"path/filepath"
-	"slices"
-	"strings"
 	"time"
 
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
@@ -23,30 +17,7 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
-// Check returns the UUID of the zipped file if it requires re-archiving because it uses a
-// legacy compression method that is not supported by Go or JS libraries.
-//
-// Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
-	if d.IsDir() {
-		return ""
-	}
-	ext := filepath.Ext(d.Name())
-	if strings.ToLower(ext) != ".zip" && ext != "" {
-		return ""
-	}
-	uid := strings.TrimSuffix(d.Name(), ext)
-	if _, found := slices.BinarySearch(artifacts, uid); !found {
-		return ""
-	}
-	extraZip := extra.Join(uid + ".zip")
-	if _, err := os.Stat(extraZip); err == nil {
-		return ""
-	}
-	return uid
-}
-
-// Files returns all the DOS platform artifacts using a .zip extension filename.
+// Files returns all the DOS platform artifacts using a .arj extension filename.
 func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
 	const msg = "fix arj files"
 	if err := nils.Check(ctx, exec); err != nil {

@@ -34,10 +34,9 @@ const (
 	Email      = "contact@defacto2.net"     // Email contact for public display.
 	RecentYear = 2026                       // Most recent year of compilation for this program.
 
-	configTitle = "Web Server Configurations"
-	fixesTitle  = "Database and Asset Fixes"
-	indexTitle  = "Database Index Rebuild"
-	format      = "%s\n"
+	fixesTitle = "Database and Asset Fixes"
+	indexTitle = "Database Index Rebuild"
+	format     = "%s\n"
 )
 
 var ErrNoConfig = errors.New("cannot run command as config is nil")
@@ -158,25 +157,21 @@ func TempDir(w io.Writer, c *config.Config) *cli.Command {
 }
 
 // Fix command fixes the database and assets.
-func Fix(_ io.Writer, c *config.Config) *cli.Command {
+func Fix(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "fix",
 		Aliases:     []string{"f"},
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Action: func(_ *cli.Context) error {
-			nl := func() {
-				_, _ = fmt.Fprintln(os.Stdout)
+			if w == nil {
+				w = os.Stdout
 			}
-
-			cl := stdoutput()
-			slog.SetDefault(cl)
-			cl.Info(configTitle)
 			d := time.Now()
-			c.Configurations(cl)
-			nl()
-			cl.Info(fixesTitle)
-			sl := logs.Default()
+			c.Print(w, false)
+			_, _ = fmt.Fprintf(w, "\n%s\n", fixesTitle)
+
+			sl := logs.NoFiles().New(logs.LevelInfo, logs.Defaults)
 			slog.SetDefault(sl)
 			if err := c.Fixer(context.Background(), sl, d); err != nil {
 				const format = "fix command: %w"
@@ -207,13 +202,6 @@ func Index(_ io.Writer, c *config.Config) *cli.Command {
 			return nil
 		},
 	}
-}
-
-func stdoutput() *slog.Logger {
-	lf := logs.NoFiles()
-	sl := lf.New(logs.LevelInfo, logs.Flags)
-	slog.SetDefault(sl)
-	return sl
 }
 
 // Arch returns the program CPU architecture.

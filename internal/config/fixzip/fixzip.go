@@ -4,17 +4,13 @@ package fixzip
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"log/slog"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"slices"
 	"strings"
 
 	"github.com/Defacto2/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
@@ -22,43 +18,25 @@ import (
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
 
-// Check returns the UUID of the name zipped file if it requires re-archiving because it uses a
-// legacy compression method that is not supported by Go or JS libraries.
-//
-// Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(sl *slog.Logger, name string, extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
+// Legacy returns true if the zip file at path uses a legacy compression method
+// that is not supported by standard Go or JS DEFLATE zip readers.
+func Legacy(sl *slog.Logger, path string) bool {
 	const msg = "fix hwzip check"
 	if err := nils.Check(sl); err != nil {
 		panic(fmt.Errorf("%s: %w", msg, err))
 	}
-	if d.IsDir() {
-		return ""
-	}
-	ext := filepath.Ext(d.Name())
-	lowerExt := strings.ToLower(ext)
-	if lowerExt != ".zip" && lowerExt != "" {
-		return ""
-	}
-	uid := strings.TrimSuffix(d.Name(), ext)
-	if _, found := slices.BinarySearch(artifacts, uid); !found {
-		return ""
-	}
-	extraZip := extra.Join(uid + ".zip")
-	if _, err := os.Stat(extraZip); err == nil {
-		return ""
-	}
-	methods, err := pkzip.Methods(name)
+	methods, err := pkzip.Methods(path)
 	if err != nil {
 		sl.Error(msg,
-			slog.String("filename", name), slog.Any("error", err))
-		return ""
+			slog.String("filename", path), slog.Any("error", err))
+		return false
 	}
 	for method := range slices.Values(methods) {
 		if !method.Zip() {
-			return uid
+			return true
 		}
 	}
-	return ""
+	return false
 }
 
 // Files returns all the DOS platform artifacts using a .zip extension filename.

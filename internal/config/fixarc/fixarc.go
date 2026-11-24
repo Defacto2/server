@@ -4,67 +4,18 @@ package fixarc
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"log/slog"
-	"os"
 	"os/exec"
-	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
-	"github.com/Defacto2/archive/pkzip"
 	"github.com/Defacto2/server/internal/command"
-	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/tags"
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries/qm"
 )
-
-// Check returns the UUID of the named zipped file if it requires re-archiving because it uses a
-// legacy compression method that is not supported by Go or JS libraries.
-//
-// Check UUID named files are moved to the extra directory and are given a .zip extension.
-func Check(sl *slog.Logger, name string, extra dir.Directory, d fs.DirEntry, artifacts ...string) string {
-	const msg = "fix arc check"
-	if err := nils.Check(sl); err != nil {
-		panic(fmt.Errorf("%s: %w", msg, err))
-	}
-	if d.IsDir() {
-		return ""
-	}
-
-	const zipext = ".zip"
-	ext := filepath.Ext(d.Name())
-	if strings.ToLower(ext) != zipext && ext != "" {
-		return ""
-	}
-
-	uid := strings.TrimSuffix(d.Name(), ext)
-	if _, found := slices.BinarySearch(artifacts, uid); !found {
-		return ""
-	}
-
-	extraZip := extra.Join(uid + zipext)
-	if f, err := os.Stat(extraZip); err == nil && !f.IsDir() {
-		return ""
-	}
-
-	methods, err := pkzip.Methods(name)
-	if err != nil {
-		sl.Error(msg, slog.String("named_file", name), slog.Any("error", err))
-		return ""
-	}
-	for method := range slices.Values(methods) {
-		if !method.Zip() {
-			return uid
-		}
-	}
-
-	return ""
-}
 
 // Files returns all the DOS platform artifacts using a .arc extension filename.
 func Files(ctx context.Context, exec boil.ContextExecutor) (models.FileSlice, error) {
