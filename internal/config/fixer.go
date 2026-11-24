@@ -22,7 +22,8 @@ import (
 )
 
 // Fixer is used to fix any known issues with the file assets and the database entries.
-func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error {
+// When dryRun is true, database changes are rolled back and no filesystem writes are performed.
+func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time, dryRun bool) error {
 	psl := "PostgreSQL"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf("%s: %w", psl, err)
@@ -60,7 +61,7 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 		sl.Info(welcome, slog.Int64("records", count))
 	}
 
-	fixErr := c.fix(ctx, sl, db)
+	fixErr := c.fix(ctx, sl, db, dryRun)
 	TempInfo(sl)
 
 	sl.Info(msg, slog.String("task", "Time taken"),
@@ -71,7 +72,8 @@ func (c *Config) Fixer(ctx context.Context, sl *slog.Logger, d time.Time) error 
 
 // Indexer creates missing PostgreSQL indexes, drops legacy MySQL indexes,
 // rebuilds all indexes on files concurrently, and runs VACUUM ANALYZE.
-func (c *Config) Indexer(ctx context.Context, sl *slog.Logger, d time.Time) error {
+// When dryRun is true, it inspects the catalog read-only and logs planned operations.
+func (c *Config) Indexer(ctx context.Context, sl *slog.Logger, d time.Time, dryRun bool) error {
 	const psl = "PostgreSQL"
 	if err := nils.Check(ctx, sl); err != nil {
 		return fmt.Errorf("%s: %w", psl, err)
@@ -88,7 +90,7 @@ func (c *Config) Indexer(ctx context.Context, sl *slog.Logger, d time.Time) erro
 		}
 	}()
 
-	if err := fix.Indexes(ctx, sl, db); err != nil {
+	if err := fix.RunIndexes(ctx, sl, db, dryRun); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
 
@@ -161,7 +163,7 @@ func RecordCount(ctx context.Context, exec boil.ContextExecutor) int64 {
 }
 
 // fix is used to repair any known issues with the file assets and the database entries.
-func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
+func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB, dryRun bool) error {
 	const format = "config fix %s: %w"
 	if err := nils.Check(ctx, sl, db); err != nil {
 		panic(fmt.Errorf(format, "check", err))
@@ -169,7 +171,7 @@ func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 
 	var errs []error
 	const msg = "Fixing"
-	if err := databaseFix(ctx, sl, db); err != nil {
+	if err := databaseFix(ctx, sl, db, dryRun); err != nil {
 		if errors.Is(err, ErrPSVersion) {
 			value := fmt.Sprintf("a %s, is the database server down?", ErrPSVersion)
 			sl.Warn(msg, slog.String("database", value))
@@ -180,7 +182,7 @@ func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 	}
 
 	// repair assets should be run after the database has been repaired, as it may rely on database data.
-	if err := c.assets(ctx, sl, db); err != nil {
+	if err := c.assets(ctx, sl, db, dryRun); err != nil {
 		sl.Error(msg, slog.Any("error", err))
 		errs = append(errs, err)
 	}
@@ -188,8 +190,9 @@ func (c *Config) fix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 	return errors.Join(errs...)
 }
 
-// databaseFix on startup checks the database connection and make any data corrections.
-func databaseFix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
+// databaseFix checks the database connection and makes any data corrections.
+// When dryRun is true, the transaction is rolled back and VACUUM ANALYZE is skipped.
+func databaseFix(ctx context.Context, sl *slog.Logger, db *sql.DB, dryRun bool) error {
 	const format = "database fix %s: %w"
 	if err := nils.Check(ctx, sl, db); err != nil {
 		panic(fmt.Errorf(format, "check", err))
@@ -201,11 +204,19 @@ func databaseFix(ctx context.Context, sl *slog.Logger, db *sql.DB) error {
 	}
 
 	if err := fix.Artifacts.Run(ctx, sl, tx); err != nil {
-		if err := tx.Rollback(); err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
 			const msg = "Cannot rollback database transaction during a repair"
-			sl.Error(msg, slog.Any("error", err))
+			sl.Error(msg, slog.Any("error", rbErr))
 		}
 		return fmt.Errorf(format, "cannot fix all artifacts", err)
+	}
+
+	if dryRun {
+		if err := tx.Rollback(); err != nil {
+			return fmt.Errorf(format, "cannot rollback dry-run transaction", err)
+		}
+		sl.Info("[dry-run] Database repair rolled back; skipped VACUUM ANALYZE")
+		return nil
 	}
 
 	if err := tx.Commit(); err != nil {

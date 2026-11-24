@@ -52,6 +52,10 @@ const (
 // Obsolete archives are those that use a legacy compression method
 // that is not supported by Go or JS libraries used by the website.
 func (c *Config) RepairArchives(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+	return c.repairArchives(ctx, sl, exec, false)
+}
+
+func (c *Config) repairArchives(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, dryRun bool) error {
 	const format = "config archives repair: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, err)
@@ -77,7 +81,7 @@ func (c *Config) RepairArchives(ctx context.Context, sl *slog.Logger, exec boil.
 			continue
 		}
 
-		if err := c.repairArtifacts(ctx, sl, repair, artifacts); err != nil {
+		if err := c.repairArtifacts(ctx, sl, repair, artifacts, dryRun); err != nil {
 			sl.Error("Archives repair",
 				slog.Any("error", err),
 				slog.String("path", download.Path()),
@@ -93,7 +97,7 @@ func (c *Config) RepairArchives(ctx context.Context, sl *slog.Logger, exec boil.
 
 // repairArtifacts inspects each candidate artifact directly in the download directory
 // and repacks legacy archives into the extra directory.
-func (c *Config) repairArtifacts(ctx context.Context, sl *slog.Logger, repair Repair, artifacts []string) error {
+func (c *Config) repairArtifacts(ctx context.Context, sl *slog.Logger, repair Repair, artifacts []string, dryRun bool) error {
 	root := c.AbsDownload.String()
 	extra := dir.Directory(c.AbsExtra)
 	if root == "" {
@@ -132,6 +136,15 @@ func (c *Config) repairArtifacts(ctx context.Context, sl *slog.Logger, repair Re
 			invalid = fixarj.Invalid(ctx, sl, path)
 		}
 		if invalid {
+			continue
+		}
+
+		if dryRun {
+			sl.Info("[dry-run] would repack archive",
+				slog.String("format", repair.String()),
+				slog.String("uuid", uid),
+				slog.String("source", path),
+				slog.String("destination", extra.Join(uid+".zip")))
 			continue
 		}
 
@@ -342,7 +355,11 @@ func (r Repair) artifacts(ctx context.Context, sl *slog.Logger, exec boil.Contex
 // to the orphaned directory without warning.
 //
 // There are no checks on the 3 directories that get scanned.
-func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error { //nolint:funlen
+func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+	return c.assetsScan(ctx, sl, exec, false)
+}
+
+func (c *Config) assetsScan(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, dryRun bool) error { //nolint:funlen
 	const format = "repair assets %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -401,7 +418,7 @@ func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 				localCount++
 				uid := strings.TrimSuffix(d.Name(), filepath.Ext(d.Name()))
 				if _, found := slices.BinarySearch(artifacts, uid); !found {
-					unknownAsset(sl, path, d.Name(), uid, orphaned)
+					unknownAsset(sl, path, d.Name(), uid, orphaned, dryRun)
 				}
 				return nil
 			})
@@ -425,11 +442,18 @@ func (c *Config) Assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 }
 
 // unknownAsset logs a warning message for an unknown asset file and moves it to the orphaned directory.
-func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Directory) {
+func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Directory, dryRun bool) {
 	const msg = "unknown file"
 
 	if sl == nil {
 		sl = slog.Default()
+	}
+
+	if dryRun {
+		sl.Warn("[dry-run] "+msg, slog.String("issue", "no matching artifact in the database; would move to orphaned"),
+			slog.String("uuid", uid), slog.String("filename", name),
+		)
+		return
 	}
 
 	sl.Warn(msg, slog.String("issue", "no matching artifact in the database for the found file"),
@@ -451,15 +475,19 @@ func unknownAsset(sl *slog.Logger, oldpath, name, uid string, orphaned dir.Direc
 }
 
 // assets checks the file system directories for any invalid or unknown files.
-// If any are found, they are removed without warning.
-func (c *Config) assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+// If any are found, they are removed without warning (or only reported when dryRun is true).
+func (c *Config) assets(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, dryRun bool) error {
 	const format = "config assets repair %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
 	}
 
 	backup := dir.Directory(c.AbsOrphaned)
-	if err := backup.Check(sl); err != nil {
+	if dryRun {
+		if err := backup.IsDir(); err != nil {
+			return fmt.Errorf(format, "backup directory", err)
+		}
+	} else if err := backup.Check(sl); err != nil {
 		return fmt.Errorf(format, "backup directory", err)
 	}
 
@@ -467,15 +495,15 @@ func (c *Config) assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 		name string
 		fn   func() error
 	}{
-		{"images directories", func() error { return c.ImageDirs(sl) }},
+		{"images directories", func() error { return c.imageDirs(sl, dryRun) }},
 		{"download directory", func() error {
-			return DownloadDir(sl, dir.Directory(c.AbsDownload), backup, dir.Directory(c.AbsExtra))
+			return downloadDir(sl, dir.Directory(c.AbsDownload), backup, dir.Directory(c.AbsExtra), dryRun)
 		}},
-		{"assets", func() error { return c.Assets(ctx, sl, exec) }},
-		{"archives", func() error { return c.RepairArchives(ctx, sl, exec) }},
-		{"previews", func() error { return c.Previews(ctx, sl, exec) }},
-		{"magic numbers", func() error { return c.MagicNumbers(ctx, sl, exec) }},
-		{"textfiles", func() error { return c.TextFiles(ctx, sl, exec) }},
+		{"assets", func() error { return c.assetsScan(ctx, sl, exec, dryRun) }},
+		{"archives", func() error { return c.repairArchives(ctx, sl, exec, dryRun) }},
+		{"previews", func() error { return c.previews(ctx, sl, exec, dryRun) }},
+		{"magic numbers", func() error { return c.magicNumbers(ctx, sl, exec, dryRun) }},
+		{"textfiles", func() error { return c.textFiles(ctx, sl, exec, dryRun) }},
 	}
 
 	for _, step := range steps {
@@ -492,7 +520,11 @@ func (c *Config) assets(ctx context.Context, sl *slog.Logger, exec boil.ContextE
 }
 
 // TextFiles checks the extra directory for any readme text files that are duplicates of the diz text files.
-func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error { //nolint:funlen
+func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+	return c.textFiles(ctx, sl, exec, false)
+}
+
+func (c *Config) textFiles(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, dryRun bool) error { //nolint:funlen
 	const format = "repair text files %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -548,6 +580,17 @@ func (c *Config) TextFiles(ctx context.Context, sl *slog.Logger, exec boil.Conte
 		}
 
 		dupes++
+
+		if dryRun {
+			target := filepath.Base(diz)
+			if descriptor, err := isFileID(diz); err == nil && descriptor {
+				target = filepath.Base(txt)
+			}
+			sl.Info("[dry-run] "+msg, slog.String("action", "would remove duplicate text: fileid == readme"),
+				slog.String("filename", target),
+			)
+			continue
+		}
 
 		// remove duplicate file
 		dupe, err := Remove(diz, txt)
@@ -645,6 +688,10 @@ func FileID(r io.Reader) bool {
 // legacy values with the current method of detection. Previous detection methods were
 // done using the `file` command line utility, which is a bit too verbose for our needs.
 func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+	return c.magicNumbers(ctx, sl, exec, false)
+}
+
+func (c *Config) magicNumbers(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, dryRun bool) error {
 	const format = "config magic numbers %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -681,6 +728,12 @@ func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.Co
 		if err != nil {
 			continue
 		}
+		if dryRun {
+			sl.Info("[dry-run] would update magic number",
+				slog.Int64("id", val.ID), slog.String("magic", magicTitle))
+			count++
+			continue
+		}
 		if err := model.UpdateMagic(ctx, exec, val.ID, magicTitle); err != nil {
 			if sl != nil {
 				sl.Error(msg+" failed to update magic number", slog.Int64("id", val.ID), slog.Any("error", err))
@@ -692,7 +745,11 @@ func (c *Config) MagicNumbers(ctx context.Context, sl *slog.Logger, exec boil.Co
 	}
 
 	if count > 0 && sl != nil {
-		sl.Info(msg, slog.Int("values_update", count),
+		label := msg
+		if dryRun {
+			label = "[dry-run] " + msg
+		}
+		sl.Info(label, slog.Int("values_update", count),
 			slog.Duration("time", time.Since(tick).Round(time.Millisecond)))
 	}
 
@@ -729,6 +786,10 @@ func inspectMagic(path string) (string, error) {
 
 // Previews checks the preview directory for any unnecessary preview images such as textfile artifacts.
 func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor) error {
+	return c.previews(ctx, sl, exec, false)
+}
+
+func (c *Config) previews(ctx context.Context, sl *slog.Logger, exec boil.ContextExecutor, dryRun bool) error {
 	const format = "config previews %s: %w"
 	if err := nils.Check(ctx, sl, exec); err != nil {
 		return fmt.Errorf(format, "check", err)
@@ -761,12 +822,14 @@ func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.Contex
 				continue
 			}
 
-			if err := os.Remove(file); err != nil {
-				if sl != nil {
-					sl.Error("previews could not remove unwanted file",
-						slog.String("path", file), slog.Any("error", err))
+			if !dryRun {
+				if err := os.Remove(file); err != nil {
+					if sl != nil {
+						sl.Error("previews could not remove unwanted file",
+							slog.String("path", file), slog.Any("error", err))
+					}
+					continue
 				}
-				continue
 			}
 
 			count++
@@ -779,7 +842,11 @@ func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.Contex
 	}
 
 	if sl != nil {
-		sl.Info("Erased textfile previews", slog.Int64("count", count), slog.String("sum", helper.ByteCountFloat(totals)))
+		msg := "Erased textfile previews"
+		if dryRun {
+			msg = "[dry-run] Would erase textfile previews"
+		}
+		sl.Info(msg, slog.Int64("count", count), slog.String("sum", helper.ByteCountFloat(totals)))
 	}
 
 	return nil
@@ -787,6 +854,10 @@ func (c *Config) Previews(ctx context.Context, sl *slog.Logger, exec boil.Contex
 
 // ImageDirs checks the image directories for any invalid or unknown files.
 func (c *Config) ImageDirs(sl *slog.Logger) error {
+	return c.imageDirs(sl, false)
+}
+
+func (c *Config) imageDirs(sl *slog.Logger, dryRun bool) error {
 	const msg = "image directories"
 	if err := nils.Check(sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -801,7 +872,11 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 			continue
 		}
 		if !backupChecked {
-			if err := backup.Check(sl); err != nil {
+			if dryRun {
+				if err := backup.IsDir(); err != nil {
+					return fmt.Errorf("%s: %w: %s", msg, err, backup)
+				}
+			} else if err := backup.Check(sl); err != nil {
 				return fmt.Errorf("%s: %w: %s", msg, err, backup)
 			}
 			backupChecked = true
@@ -812,7 +887,7 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 			}
 			name := d.Name()
 			if d.IsDir() {
-				return RemoveDir(sl, name, path, dir)
+				return removeDir(sl, name, path, dir, dryRun)
 			}
 			switch dir {
 			case c.AbsPreview.String():
@@ -824,7 +899,7 @@ func (c *Config) ImageDirs(sl *slog.Logger) error {
 					t++
 				}
 			}
-			return RemoveImage(sl, name, path, backup)
+			return removeImage(sl, name, path, backup, dryRun)
 		})
 		if err != nil {
 			return fmt.Errorf("%s walk directory %w: %s", msg, err, dir)
@@ -868,17 +943,27 @@ func containsInfo(sl *slog.Logger, name string, count int) {
 
 // DownloadDir checks the download directory for any invalid or unknown files.
 func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
+	return downloadDir(sl, src, dest, extra, false)
+}
+
+func downloadDir(sl *slog.Logger, src, dest, extra dir.Directory, dryRun bool) error {
 	const msg = "download directory"
 	if err := nils.Check(sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
 	}
-	if err := src.Check(sl); err != nil {
+	checkDir := func(d dir.Directory) error {
+		if dryRun {
+			return d.IsDir()
+		}
+		return d.Check(sl)
+	}
+	if err := checkDir(src); err != nil {
 		return fmt.Errorf("%s %w: %s", msg, err, src)
 	}
-	if err := dest.Check(sl); err != nil {
+	if err := checkDir(dest); err != nil {
 		return fmt.Errorf("%s %w: %s", msg, err, dest)
 	}
-	if err := extra.Check(sl); err != nil {
+	if err := checkDir(extra); err != nil {
 		return fmt.Errorf("%s %w: %s", msg, err, extra)
 	}
 	count := 0
@@ -888,15 +973,15 @@ func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
 		}
 		name := d.Name()
 		if d.IsDir() {
-			return RemoveDir(sl, name, path, src.Path())
+			return removeDir(sl, name, path, src.Path(), dryRun)
 		}
-		if err = RemoveDownload(sl, name, path, dest, extra); err != nil {
+		if err = removeDownload(sl, name, path, dest, extra, dryRun); err != nil {
 			return fmt.Errorf("%s remove download: %w", msg, err)
 		}
 		if filepath.Ext(name) == "" {
 			count++
 		}
-		return RenameDownload(sl, name, path)
+		return renameDownload(sl, name, path, dryRun)
 	})
 	if err != nil {
 		return fmt.Errorf("%s walk directory %w: %s", msg, err, src.Path())
@@ -907,6 +992,10 @@ func DownloadDir(sl *slog.Logger, src, dest, extra dir.Directory) error {
 
 // RenameDownload rename the download file if the basename uses an invalid coldfusion uuid.
 func RenameDownload(sl *slog.Logger, basename, absPath string) error {
+	return renameDownload(sl, basename, absPath, false)
+}
+
+func renameDownload(sl *slog.Logger, basename, absPath string, dryRun bool) error {
 	const msg = "rename download"
 	if err := nils.Check(sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -930,7 +1019,7 @@ func RenameDownload(sl *slog.Logger, basename, absPath string) error {
 	dir := filepath.Dir(absPath)
 	oldpath := filepath.Join(dir, basename)
 	newpath := filepath.Join(dir, newname+ext)
-	rename(sl, oldpath, "renamed invalid cfid", newpath)
+	renameFile(sl, oldpath, "renamed invalid cfid", newpath, dryRun)
 	return nil
 }
 
@@ -938,6 +1027,10 @@ func RenameDownload(sl *slog.Logger, basename, absPath string) error {
 // If any are found, they are printed to stderr.
 // Any directory that matches the name ".stfolder" is removed.
 func RemoveDir(sl *slog.Logger, name, path, root string) error {
+	return removeDir(sl, name, path, root, false)
+}
+
+func removeDir(sl *slog.Logger, name, path, root string, dryRun bool) error {
 	const msg = "repair remove directory"
 	if err := nils.Check(sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -950,6 +1043,10 @@ func RemoveDir(sl *slog.Logger, name, path, root string) error {
 	case rootDir:
 		return nil
 	case syncthing:
+		if dryRun {
+			sl.Info("[dry-run] "+msg, slog.String("would_remove", path))
+			return filepath.SkipDir
+		}
 		if err := os.RemoveAll(path); err != nil {
 			sl.Error(msg, slog.Any("error", err))
 		} else {
@@ -968,6 +1065,10 @@ func RemoveDir(sl *slog.Logger, name, path, root string) error {
 //
 // Valid file extensions are none, .chiptune, .txt, and .zip.
 func RemoveDownload(sl *slog.Logger, basename, path string, backup, extra dir.Directory) error {
+	return removeDownload(sl, basename, path, backup, extra, false)
+}
+
+func removeDownload(sl *slog.Logger, basename, path string, backup, extra dir.Directory, dryRun bool) error {
 	const msg = "remove download"
 	if err := nils.Check(sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -981,9 +1082,9 @@ func RemoveDownload(sl *slog.Logger, basename, path string, backup, extra dir.Di
 	case filedownload:
 		return nil
 	case ".txt", ".zip", ".chiptune":
-		rename(sl, path, "rename valid ext", extra.Join(basename))
+		renameFile(sl, path, "rename valid ext", extra.Join(basename), dryRun)
 	default:
-		remove(sl, basename, "remove invalid ext", path, backup)
+		removeFile(sl, basename, "remove invalid ext", path, backup, dryRun)
 	}
 	return nil
 }
@@ -995,6 +1096,10 @@ func RemoveDownload(sl *slog.Logger, basename, path string, backup, extra dir.Di
 // Valid file extensions are .png and .webp, and basename must be a
 // valid uuid or cfid with the correct length.
 func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) error {
+	return removeImage(sl, basename, path, backup, false)
+}
+
+func removeImage(sl *slog.Logger, basename, path string, backup dir.Directory, dryRun bool) error {
 	const msg = "remove image"
 	if err := nils.Check(sl); err != nil {
 		return fmt.Errorf("%s: %w", msg, err)
@@ -1014,12 +1119,12 @@ func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) e
 			newpath := filepath.Dir(path)
 			switch ext {
 			case png, webp:
-				rename(sl, path, "rename cfid "+ext, filepath.Join(newpath, filename+ext))
+				renameFile(sl, path, "rename cfid "+ext, filepath.Join(newpath, filename+ext), dryRun)
 				return nil
 			}
 		}
 		if _, err := uuid.Parse(filename); err != nil {
-			remove(sl, basename, "remove invalid uuid image", path, backup)
+			removeFile(sl, basename, "remove invalid uuid image", path, backup, dryRun)
 			return nil //nolint:nilerr
 		}
 	}
@@ -1027,16 +1132,20 @@ func RemoveImage(sl *slog.Logger, basename, path string, backup dir.Directory) e
 	case png, webp:
 		return nil
 	default:
-		remove(sl, basename, "remove invalid uuid ext", path, backup)
+		removeFile(sl, basename, "remove invalid uuid ext", path, backup, dryRun)
 	}
 	return nil
 }
 
-// remove the file without warning.
-func remove(sl *slog.Logger, name, info, path string, backup dir.Directory) {
+// removeFile moves the file to backup without warning, or only logs when dryRun is true.
+func removeFile(sl *slog.Logger, name, info, path string, backup dir.Directory, dryRun bool) {
 	const msg = "Remove file"
 	if sl == nil {
 		sl = logs.Discard()
+	}
+	if dryRun {
+		sl.Info("[dry-run] "+msg, slog.String("name", name), slog.String("detail", info))
+		return
 	}
 	sl.Info(msg, slog.String("name", name), slog.String("detail", info))
 	defer func() {
@@ -1049,11 +1158,15 @@ func remove(sl *slog.Logger, name, info, path string, backup dir.Directory) {
 	}()
 }
 
-// rename the file without warning.
-func rename(sl *slog.Logger, oldpath, info, newpath string) {
+// renameFile moves or renames the file without warning, or only logs when dryRun is true.
+func renameFile(sl *slog.Logger, oldpath, info, newpath string, dryRun bool) {
 	const msg = "Rename or move file"
 	if sl == nil {
 		sl = logs.Discard()
+	}
+	if dryRun {
+		sl.Info("[dry-run] "+msg, slog.String("original_path", oldpath), slog.String("new_path", newpath), slog.String("detail", info))
+		return
 	}
 	sl.Info(msg, slog.String("original_path", oldpath), slog.String("new_path", newpath), slog.String("detail", info))
 	defer func() {

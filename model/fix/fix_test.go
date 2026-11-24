@@ -129,3 +129,18 @@ func TestReplacementsCase(t *testing.T) {
 		}
 	}
 }
+
+func TestPlanIndexes(t *testing.T) {
+	t.Parallel()
+
+	_, err := fix.PlanIndexes(t.Context(), nil)
+	be.Err(t, err)
+
+	db := testutil.DB(t)
+	plan, err := fix.PlanIndexes(t.Context(), db)
+	be.Err(t, err, nil)
+	be.True(t, len(plan.Existing)+len(plan.Create) >= 9)
+
+	err = fix.RunIndexes(t.Context(), logs.Discard(), db, true)
+	be.Err(t, err, nil)
+}

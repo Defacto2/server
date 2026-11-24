@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"log/slog"
 	"os"
 	"runtime"
@@ -36,7 +35,6 @@ const (
 
 	fixesTitle = "Database and Asset Fixes"
 	indexTitle = "Database Index Rebuild"
-	format     = "%s\n"
 )
 
 var ErrNoConfig = errors.New("cannot run command as config is nil")
@@ -163,17 +161,29 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 		Aliases:     []string{"f"},
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
-		Action: func(_ *cli.Context) error {
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "dry-run",
+				Aliases: []string{"n"},
+				Usage:   "report database and asset repairs without making any changes",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
 			if w == nil {
 				w = os.Stdout
 			}
+			dryRun := ctx.Bool("dry-run")
+			title := fixesTitle
+			if dryRun {
+				title += " (dry run)"
+			}
 			d := time.Now()
 			c.Print(w, false)
-			_, _ = fmt.Fprintf(w, "\n%s\n", fixesTitle)
+			_, _ = fmt.Fprintf(w, "\n%s\n", title)
 
 			sl := logs.NoFiles().New(logs.LevelInfo, logs.Defaults)
 			slog.SetDefault(sl)
-			if err := c.Fixer(context.Background(), sl, d); err != nil {
+			if err := c.Fixer(context.Background(), sl, d, dryRun); err != nil {
 				const format = "fix command: %w"
 				return fmt.Errorf(format, err)
 			}
@@ -183,19 +193,34 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 }
 
 // Index command rebuilds the PostgreSQL database indexes.
-func Index(_ io.Writer, c *config.Config) *cli.Command {
+func Index(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "index",
 		Aliases:     []string{"i"},
 		Usage:       "rebuild the database indexes",
 		Description: "Create missing PostgreSQL indexes, remove legacy indexes, rebuild indexes concurrently, and run VACUUM ANALYZE.",
-		Action: func(_ *cli.Context) error {
-			log.Printf(format, indexTitle)
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "dry-run",
+				Aliases: []string{"n"},
+				Usage:   "inspect PostgreSQL indexes and report planned changes without modifying the database",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			if w == nil {
+				w = os.Stdout
+			}
+			dryRun := ctx.Bool("dry-run")
+			title := indexTitle
+			if dryRun {
+				title += " (dry run)"
+			}
+			_, _ = fmt.Fprintln(w, title)
 
 			d := time.Now()
-			sl := logs.Default()
+			sl := logs.NoFiles().New(logs.LevelInfo, logs.Defaults)
 			slog.SetDefault(sl)
-			if err := c.Indexer(context.Background(), sl, d); err != nil {
+			if err := c.Indexer(context.Background(), sl, d, dryRun); err != nil {
 				const format = "index command: %w"
 				return fmt.Errorf(format, err)
 			}
