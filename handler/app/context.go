@@ -51,6 +51,7 @@ import (
 	"github.com/Defacto2/server/model/fix"
 	"github.com/aarondl/null/v8"
 	"github.com/aarondl/sqlboiler/v4/boil"
+	"github.com/dustin/go-humanize"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/v5/session"
 	"github.com/labstack/echo/v5"
@@ -1506,7 +1507,11 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 	data["title"] = title
 	data["description"] = descr
 	data[canonical] = "/"
-	data["h1"] = h1
+	data["h1"] = ""
+	data["heroTitle"] = h1
+	if Caching.RecordCount > 0 {
+		data["artifactCount"] = humanize.Comma(Caching.RecordCount)
+	}
 	data["indexJS"] = true
 	data["milestones"] = Collection()
 	{
@@ -1515,7 +1520,7 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 		if err == nil {
 			if givenName, givenExists := sess.Values["givenName"]; givenExists {
 				if name, nameStr := givenName.(string); nameStr && name != "" {
-					data["h1"] = "Welcome, " + name
+					data["heroTitle"] = "Welcome, " + name
 				}
 			}
 		}

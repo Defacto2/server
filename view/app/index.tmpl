@@ -5,14 +5,47 @@
 {{- $msCls := "milestone-link link-offset-2 link-offset-3-hover link-underline link-underline-opacity-25 link-underline-opacity-75-hover" }}
 {{- $listCls := "link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover icon-link icon-link-hover"}}
 <a rel="me" href="https://mas.to/@defacto2" class="d-none"><!--mastodon verification--></a>
-<div class="index-intro-section index-intro-section-alt">
-  <p class="lead">
-    You're at the website conserving defunct software cracking, wares, and Warez Scene subcultures of people with obsolete Personal Computers. 
-    The nature of historic software piracy, with high churn and elusiveness, meant the topic was once undocumented. 
+{{- $heroTitle := index . "heroTitle" }}
+{{- $artifactCount := index . "artifactCount" }}
+<section class="index-hero p-4 p-lg-5 mb-5" aria-labelledby="index-hero-heading">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <span class="index-hero-eyebrow d-inline-flex align-items-center gap-2">
+      <svg class="bi" width="14" height="14" fill="currentColor" aria-hidden="true">
+        <use xlink:href="/svg/bootstrap-icons.svg#floppy"></use>
+      </svg>
+      Digital Preservation Archive
+    </span>
+    <span class="index-hero-meta font-monospace small text-body-secondary">
+      {{- if $artifactCount }}{{$artifactCount}} artifacts · {{end}}1971–2016
+    </span>
+  </div>
+  <h1 id="index-hero-heading" class="display-6 fw-semibold text-body-emphasis mb-3">
+    {{- if $heroTitle }}{{$heroTitle}}{{else}}The subcultures of obsolete microcomputers{{end -}}
+  </h1>
+  <p class="index-hero-lead fs-5 text-body-secondary mb-4">
+    You're at the website conserving defunct software cracking, wares, and Warez Scene subcultures of people with obsolete Personal Computers.
+    The nature of historic software piracy, with high churn and elusiveness, meant the topic was once undocumented.
     Defacto2 helps to solve this by hosting digital artifacts, including text files, demos, music, art, magazines, and other projects.
-    <small class="text-warning-emphasis">Be aware occasional files hosted are <abbr title="not safe for work" class="initialism">NSFW</abbr>, with lewd commentary or imagery.</small>
   </p>
-</div>
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <a href="/files/new-uploads" class="btn btn-primary d-inline-flex align-items-center gap-2">
+      New uploads
+      <svg class="bi" width="14" height="14" fill="currentColor" aria-hidden="true">
+        <use xlink:href="/svg/bootstrap-icons.svg#arrow-right"></use>
+      </svg>
+    </a>
+    <a href="/file" class="btn btn-outline-secondary">Categories</a>
+    <a href="/releaser" class="btn btn-outline-secondary">Releasers &amp; groups</a>
+    <a href="/search/desc" class="btn btn-outline-secondary">Search</a>
+    <a href="#milestones" class="btn btn-link text-decoration-none ms-sm-auto px-2">Milestones timeline ↓</a>
+  </div>
+  <div class="border-top pt-3 mt-4 d-flex flex-wrap align-items-center gap-2 small text-body-secondary">
+    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-semibold">
+      <abbr title="not safe for work" class="text-decoration-none">NSFW</abbr>
+    </span>
+    <span>Be aware occasional files hosted are not safe for work, with lewd commentary or imagery.</span>
+  </div>
+</section>
 <h2 class="index-section-header index-section-header-alt">The Scene</h2>
 <div class="index-intro-section index-intro-section-alt">
   <a href="/thescene"><em>The Scene</em></a> is often used to describe a digital and online community. 
@@ -202,7 +235,7 @@ I WOULD LIKE TO TALK AND POSSIBLY <mark>SWAP SOFTWARE WITH OTHER
 USERS/OWNERS OF 8086 SYSTEMS.</mark> CURRENTLY I RUN 86-DOS 
 BUT SOON WILL HAVE BOTH 86-DOS AND CP/M-86. JOE
 </div>
-<h2 class="h3 mt-4 mb-4 text-start">An intertwining of the computer industry and the Scene</h2>
+<h2 id="milestones" class="h3 mt-4 mb-4 text-start">An intertwining of the computer industry and the Scene</h2>
 <p>
   The remainder of this introductory page chronologically shows the milestones for the microcomputer industry, 
   the personal computer, software copyright and piracy, to offer historical insights into that Scene.
