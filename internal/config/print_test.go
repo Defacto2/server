@@ -94,3 +94,14 @@ func TestPrintAddresses(t *testing.T) {
 	be.True(t, strings.Contains(out, "HTTPS (:443)"))
 	be.True(t, strings.Contains(out, "https://127.0.0.1"))
 }
+
+func TestPrintTempPurge(t *testing.T) {
+	t.Setenv("TMPDIR", t.TempDir())
+
+	var buf bytes.Buffer
+	be.Err(t, (config.Config{}).PrintTempPurge(&buf, true), nil)
+	out := buf.String()
+	be.True(t, strings.Contains(out, "Temporary Directory Purge (dry run)"))
+	be.True(t, strings.Contains(out, "Found"))
+	be.True(t, strings.Contains(out, "0 directories"))
+}

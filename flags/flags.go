@@ -137,15 +137,22 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 	}
 }
 
-// TempDir command removes all tempoary directories created by this app.
-func TempDir(_ io.Writer, c *config.Config) *cli.Command {
+// TempDir command removes all temporary directories created by this app.
+func TempDir(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "temp",
 		Aliases:     []string{"t"},
 		Usage:       "temporary directory purge",
 		Description: "Purge all the subdirectories likely created by this application in " + os.TempDir() + ".",
-		Action: func(_ *cli.Context) error {
-			return c.PurgeTemp()
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "dry-run",
+				Aliases: []string{"n"},
+				Usage:   "report matching temporary directories without removing them",
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			return c.PrintTempPurge(w, ctx.Bool("dry-run"))
 		},
 	}
 }

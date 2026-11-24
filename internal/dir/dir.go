@@ -5,6 +5,7 @@ package dir
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -211,18 +212,50 @@ func IsTemp(d os.DirEntry) bool {
 	return strings.HasPrefix(name, Pattern+"-")
 }
 
+// TempReport summarizes a scan or purge of application temporary directories.
+type TempReport struct {
+	Pattern      string
+	Found        int
+	FoundBytes   int64
+	Removed      int
+	RemovedBytes int64
+	Skipped      int
+	Failed       int
+}
+
 // CleanTemp removes the temporary directories likely created using [MkdirTemp],
 // that are older than the stale time value. An error is returned if a directory
 // cannot be removed.
 func CleanTemp(stale time.Duration) error {
+	_, err := PurgeTemp(stale, false)
+	return err
+}
+
+// PurgeTemp scans [os.TempDir] for application temporary directories older than stale,
+// removes them (unless dryRun is true), and returns a summary report.
+func PurgeTemp(stale time.Duration, dryRun bool) (TempReport, error) {
 	const format = "dir clean temp (%s) %s: %w"
 
 	tempDir := os.TempDir()
-	entries, err := os.ReadDir(tempDir)
-	if err != nil {
-		return fmt.Errorf(format, tempDir, "read dir", err)
+	report := TempReport{
+		Pattern: filepath.Join(tempDir, Pattern+"-*"),
 	}
 
+	entries, err := os.ReadDir(tempDir)
+	if err != nil {
+		return report, fmt.Errorf(format, tempDir, "read dir", err)
+	}
+
+	var root *os.Root
+	if !dryRun {
+		root, err = os.OpenRoot(tempDir)
+		if err != nil {
+			return report, fmt.Errorf(format, tempDir, "open root", err)
+		}
+		defer root.Close()
+	}
+
+	var errs []error
 	for _, d := range entries {
 		if !d.IsDir() || !IsTemp(d) {
 			continue
@@ -233,17 +266,46 @@ func CleanTemp(stale time.Duration) error {
 			continue
 		}
 
-		if time.Since(info.ModTime()) < stale {
+		fullPath := filepath.Join(tempDir, d.Name())
+		size := dirSize(fullPath)
+		report.Found++
+		report.FoundBytes += size
+
+		if stale > 0 && time.Since(info.ModTime()) < stale {
+			report.Skipped++
 			continue
 		}
 
-		path := filepath.Join(tempDir, d.Name())
-		if err := os.RemoveAll(path); err != nil {
-			return fmt.Errorf(format, path, "remove all", err)
+		if dryRun {
+			report.Removed++
+			report.RemovedBytes += size
+			continue
 		}
+
+		if err := root.RemoveAll(d.Name()); err != nil {
+			report.Failed++
+			errs = append(errs, fmt.Errorf(format, fullPath, "remove all", err))
+			continue
+		}
+		report.Removed++
+		report.RemovedBytes += size
 	}
 
-	return nil
+	return report, errors.Join(errs...)
+}
+
+func dirSize(path string) int64 {
+	var total int64
+	_ = filepath.WalkDir(path, func(_ string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		if info, infoErr := d.Info(); infoErr == nil {
+			total += info.Size()
+		}
+		return nil
+	})
+	return total
 }
 
 // RemoveAll removes the named directory.

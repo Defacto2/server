@@ -104,17 +104,18 @@ func TempInfo(sl *slog.Logger) {
 	}
 
 	const msg = "Temporary directory"
-	entries, err := os.ReadDir(os.TempDir())
+	tempDir := os.TempDir()
+	entries, err := os.ReadDir(tempDir)
 	if err != nil {
 		sl.Error(msg+" cannot read temp dir", slog.Any("error", err))
 		return
 	}
 	var du int64
 	for _, d := range entries {
-		path := d.Name()
 		if !d.IsDir() || !dir.IsTemp(d) {
 			continue
 		}
+		path := filepath.Join(tempDir, d.Name())
 		n, err := helper.DiskUsage(path)
 		if err != nil {
 			slog.Debug("du cannot read path", slog.String("path", path), slog.Any("error", err))
@@ -124,7 +125,7 @@ func TempInfo(sl *slog.Logger) {
 	}
 
 	hdu := helper.ByteCountFloat(du)
-	tmpdir := filepath.Join(os.TempDir(), dir.Pattern+"-*")
+	tmpdir := filepath.Join(tempDir, dir.Pattern+"-*")
 	sl.Info(msg, slog.String("Path", tmpdir), slog.String("Usage", hdu))
 }
 

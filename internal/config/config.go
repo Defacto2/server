@@ -11,10 +11,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Defacto2/helper"
-	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/nils"
 )
 
@@ -252,14 +250,6 @@ func (c Config) Addresses(sl *slog.Logger) error {
 
 	if err := c.addresses(sl); err != nil {
 		return fmt.Errorf(format, err)
-	}
-	return nil
-}
-
-func (c Config) PurgeTemp() error {
-	const stale = 1 * time.Second
-	if err := dir.CleanTemp(stale); err != nil {
-		return fmt.Errorf("purge temp dirs: %w", err)
 	}
 	return nil
 }

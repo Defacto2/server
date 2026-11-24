@@ -6,7 +6,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/Defacto2/helper"
+	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
 )
 
@@ -235,5 +238,77 @@ func (c Config) PrintAddresses(w io.Writer) error {
 		}
 	}
 
+	return nil
+}
+
+// PrintTempPurge purges (or previews purging when dryRun is true) application
+// temporary directories and writes a summary report to w.
+func (c Config) PrintTempPurge(w io.Writer, dryRun bool) error {
+	if w == nil {
+		w = os.Stdout
+	}
+	const stale = 1 * time.Second
+	report, err := dir.PurgeTemp(stale, dryRun)
+
+	color := logs.Color(w)
+	style := func(code, s string) string {
+		if !color || s == "" {
+			return s
+		}
+		return code + s + ansiReset
+	}
+
+	title := "Temporary Directory Purge"
+	if dryRun {
+		title += " (dry run)"
+	}
+
+	pluralDir := func(n int) string {
+		if n == 1 {
+			return "1 directory"
+		}
+		return fmt.Sprintf("%d directories", n)
+	}
+
+	pad := func(code, label string) string {
+		return style(code, fmt.Sprintf("%-11s", label))
+	}
+
+	_, _ = fmt.Fprintln(w, style(ansiBold, title))
+	_, _ = fmt.Fprintln(w)
+	_, _ = fmt.Fprintf(w, "  %s %s\n", pad(ansiCyan, "Pattern"), report.Pattern)
+	_, _ = fmt.Fprintf(w, "  %s %s (%s)\n",
+		pad(ansiCyan, "Found"),
+		pluralDir(report.Found),
+		helper.ByteCountFloat(report.FoundBytes))
+
+	if report.Found > 0 {
+		if dryRun {
+			_, _ = fmt.Fprintf(w, "  %s %s (%s)\n",
+				pad(ansiYellow, "Would purge"),
+				pluralDir(report.Removed),
+				helper.ByteCountFloat(report.RemovedBytes))
+		} else {
+			_, _ = fmt.Fprintf(w, "  %s %s (%s reclaimed)\n",
+				pad(ansiGreen, "Removed"),
+				pluralDir(report.Removed),
+				helper.ByteCountFloat(report.RemovedBytes))
+		}
+	}
+
+	if report.Skipped > 0 {
+		_, _ = fmt.Fprintf(w, "  %s %s\n",
+			pad(ansiDim, "Skipped"),
+			style(ansiDim, fmt.Sprintf("%s (modified < %s ago)", pluralDir(report.Skipped), stale)))
+	}
+	if report.Failed > 0 {
+		_, _ = fmt.Fprintf(w, "  %s %s\n",
+			pad(ansiBoldRed, "Failed"),
+			style(ansiBoldRed, pluralDir(report.Failed)))
+	}
+
+	if err != nil {
+		return fmt.Errorf("purge temp dirs: %w", err)
+	}
 	return nil
 }

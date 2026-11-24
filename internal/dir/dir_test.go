@@ -3,9 +3,11 @@ package dir_test
 import (
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
+	"time"
 
 	"github.com/Defacto2/server/internal/dir"
 	"github.com/Defacto2/server/internal/logs"
@@ -366,4 +368,37 @@ func TestMkdirStale(t *testing.T) {
 		err = dir.RemoveAll(emoji)
 		be.Err(t, err, nil)
 	})
+}
+
+func TestPurgeTemp(t *testing.T) {
+	t.Setenv("TMPDIR", t.TempDir())
+
+	tmp, err := dir.MkdirTemp("purgetest")
+	be.Err(t, err, nil)
+	be.Err(t, os.WriteFile(filepath.Join(tmp, "file.bin"), make([]byte, 512), 0o600), nil)
+
+	// Fresh dir is skipped when stale threshold is large.
+	rep, err := dir.PurgeTemp(time.Hour, false)
+	be.Err(t, err, nil)
+	be.Equal(t, 1, rep.Found)
+	be.Equal(t, int64(512), rep.FoundBytes)
+	be.Equal(t, 1, rep.Skipped)
+	be.Equal(t, 0, rep.Removed)
+
+	// Dry run reports removal without deleting.
+	rep, err = dir.PurgeTemp(0, true)
+	be.Err(t, err, nil)
+	be.Equal(t, 1, rep.Found)
+	be.Equal(t, 1, rep.Removed)
+	_, statErr := os.Stat(tmp)
+	be.Err(t, statErr, nil)
+
+	// Real purge deletes the directory.
+	rep, err = dir.PurgeTemp(0, false)
+	be.Err(t, err, nil)
+	be.Equal(t, 1, rep.Found)
+	be.Equal(t, 1, rep.Removed)
+	be.Equal(t, int64(512), rep.RemovedBytes)
+	_, statErr = os.Stat(tmp)
+	be.True(t, os.IsNotExist(statErr))
 }
