@@ -1217,6 +1217,10 @@ pre#precontentCP437 {
   border-radius: 0.25rem;
 }
 
+.uploader-credit-label {
+  min-width: 6.75rem;
+}
+
 /* ============================================================
  * HYBRID NAVBAR (768px to 991.98px)
  * Primary navigation items stay horizontal on the top bar while

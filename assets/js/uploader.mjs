@@ -203,7 +203,6 @@ export function checkDay() {
  * @returns {boolean} Returns true if the month value is valid, false otherwise.
  */
 export function checkMonth() {
-  console.log(`The month value is ${this.value}.`);
   if (validMonth(this.value) == false) {
     this.classList.add(invalid);
     return false;
@@ -253,7 +252,6 @@ export function checkErrors(errors, alert, fileInput, results) {
   }
   alert.innerText = errors.join(" ");
   alert.classList.remove(none);
-  fileInput.innerText = "";
   fileInput.classList.add(invalid);
   results.classList.add(none);
 }
@@ -283,7 +281,7 @@ export async function checkDuplicate(file, alert, fileInput, results) {
 
   const alerter = () => {
     alert.classList.remove(none);
-    fileInput.innerText = "";
+    fileInput.value = "";
     fileInput.classList.add(invalid);
     results.classList.add(none);
   };
@@ -295,14 +293,14 @@ export async function checkDuplicate(file, alert, fileInput, results) {
       // 19-Jul-25: This resetting of the innerText was causing issue #35.
       // https://github.com/Defacto2/server/issues/35
       //alert.innerText = ``;
-      return;
+      return false;
     }
     uriID = alreadyExists;
   } catch (e) {
     console.log(`${e}`);
     alert.innerText = `${e}`;
     alerter();
-    return;
+    return true;
   }
 
   alert.innerText = `The chosen file already exists in the database: `;
@@ -311,6 +309,7 @@ export async function checkDuplicate(file, alert, fileInput, results) {
   anchor.innerText = `${file.name}`;
   alert.appendChild(anchor);
   alerter();
+  return true;
 }
 
 /**
@@ -393,7 +392,6 @@ export function resetInput(fileInput, alert, results) {
   if (results == null) {
     throw new Error(`The results value of resetInput is null.`);
   }
-  fileInput.innerText = "";
   fileInput.classList.remove(invalid);
   alert.innerText = "";
   alert.classList.add(none);
