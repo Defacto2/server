@@ -57,7 +57,7 @@ month.addEventListener('input', checkMonth);
  */
 export function submit(elementId) {
   const element = getElmById(elementId);
-  element.addEventListener('click', function () {
+  element.addEventListener('click', function (event) {
     let pass = true;
     if (releaser1.value == '') {
       releaser1.classList.add(invalid);
@@ -80,6 +80,7 @@ export function submit(elementId) {
       pass = false;
     }
     if (pass == false) {
+      event.preventDefault();
       return submitError(alert, results);
     }
     resetForm();
@@ -91,16 +92,23 @@ export function submit(elementId) {
 async function checkFile() {
   resetInput(fileInput, alert, results);
   const file1 = this.files[0];
-  let errors = [checkSize(file1), checkMime(file1)];
-  checkErrors(errors, alert, fileInput, results);
-  checkDuplicate(file1, alert, fileInput, results);
+  if (!file1) {
+    return;
+  }
+  const sizeErr = checkSize(file1);
+  const mimeErr = checkMime(file1);
+  checkErrors([sizeErr, mimeErr], alert, fileInput, results);
+  const isDuplicate =
+    sizeErr === ''
+      ? await checkDuplicate(file1, alert, fileInput, results)
+      : false;
   try {
     hiddenDetails(file1, lastMod, magic);
   } catch (e) {
     console.error('Error in hiddenDetails:', e);
     // Continue even if hiddenDetails fails
   }
-  if (errors[0] === '' && errors[1] === '') {
+  if (sizeErr === '' && mimeErr === '' && !isDuplicate) {
     document
       .getElementById('uploader-image-submit')
       .focus({ focusVisible: true });
@@ -139,11 +147,4 @@ function resetForm() {
   month.classList.remove(invalid);
   releaser1.classList.remove(invalid);
   fileInput.classList.remove(invalid);
-
-  // Also clear and hide the results div
-  const resultsDiv = document.getElementById('uploader-image-results');
-  if (resultsDiv) {
-    resultsDiv.innerHTML = '';
-    resultsDiv.classList.add('d-none');
-  }
 }

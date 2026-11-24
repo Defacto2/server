@@ -75,6 +75,7 @@ year.addEventListener('input', function () {
   }
   if (validYear(this.value) == false) {
     this.classList.add(invalid);
+    return;
   }
   this.classList.remove(invalid);
 });
@@ -85,7 +86,7 @@ year.addEventListener('input', function () {
  */
 export function submit(elementId) {
   const element = getElmById(elementId);
-  element.addEventListener('click', function () {
+  element.addEventListener('click', function (event) {
     let pass = true;
     if (releaser1.value == '') {
       releaser1.classList.add(invalid);
@@ -103,11 +104,15 @@ export function submit(elementId) {
       year.classList.add(invalid);
       pass = false;
     }
+    if (checkYouTube.call(youtube) == false) {
+      pass = false;
+    }
     if (fileInput.value == '') {
       fileInput.classList.add(invalid);
       pass = false;
     }
     if (pass == false) {
+      event.preventDefault();
       return submitError(alert, results);
     }
     resetForm();
@@ -119,16 +124,19 @@ export function submit(elementId) {
 async function checkFile() {
   resetInput(fileInput, alert, results);
   const file1 = this.files[0];
+  if (!file1) {
+    return;
+  }
   let errors = [checkSize(file1), checkMime(file1)];
   checkErrors(errors, alert, fileInput, results);
-  checkDuplicate(file1, alert, fileInput, results);
+  const isDuplicate = await checkDuplicate(file1, alert, fileInput, results);
   try {
     hiddenDetails(file1, lastMod, magic);
   } catch (e) {
     console.error('Error in hiddenDetails:', e);
     // Continue even if hiddenDetails fails
   }
-  if (errors[0] === '' && errors[1] === '') {
+  if (!isDuplicate && errors[0] === '' && errors[1] === '') {
     document
       .getElementById('uploader-intro-submit')
       .focus({ focusVisible: true });
@@ -167,12 +175,5 @@ function resetForm() {
   month.classList.remove(invalid);
   releaser1.classList.remove(invalid);
   youtube.classList.remove(invalid);
-
-  // Also clear and hide the results div
-  const resultsDiv = document.getElementById('uploader-intro-results');
-  if (resultsDiv) {
-    resultsDiv.innerHTML = '';
-    resultsDiv.classList.add('d-none');
-  }
   fileInput.classList.remove(invalid);
 }

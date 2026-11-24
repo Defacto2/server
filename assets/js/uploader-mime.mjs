@@ -18,7 +18,8 @@ const arc = 'application/x-freearc',
 
 const dos = 'application/x-msdos-program';
 
-const bmp = 'image/bmp',
+const avif = 'image/avif',
+  bmp = 'image/bmp',
   gif = 'image/gif',
   iff = 'image/x-ilbm',
   jpeg = 'image/jpeg',
@@ -78,7 +79,7 @@ export function binaries() {
 }
 
 export function images() {
-  const allowedTypes = [bmp, gif, iff, jpeg, pcx, png, tiff, webp];
+  const allowedTypes = [avif, bmp, gif, iff, jpeg, pcx, png, tiff, webp];
   return allowedTypes;
 }
 
@@ -129,7 +130,7 @@ export function checkIntro(mime) {
  */
 export function checkMagazine(mime) {
   if (mime === '') return true;
-  const allowedTypes = texts().concat(archives(), apps(), binaries());
+  const allowedTypes = texts().concat(archives(), apps(), binaries(), ['application/pdf']);
   return allowedTypes.includes(mime);
 }
 

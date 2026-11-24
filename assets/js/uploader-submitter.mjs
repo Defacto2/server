@@ -25,45 +25,65 @@ export function submitter(elementId, api) {
   const input = getElmById(elementId);
   const alert = getElmById(`${elementId}-error`);
   const results = getElmById(`${elementId}-results`);
+  const form = input.closest('form');
+  const modal = input.closest('.modal');
+  const scope = modal ?? document.body;
+
+  if (form) {
+    form.addEventListener('submit', function (evt) {
+      evt.preventDefault();
+    });
+  }
 
   const close = getElmById(`${elementId}-close`);
-  close.addEventListener('click', reset);
+  close.addEventListener('click', () => reset(false));
   const clear = getElmById(`${elementId}-clear`);
-  clear.addEventListener('click', reset);
+  clear.addEventListener('click', () => reset(true));
+  if (modal) {
+    modal.addEventListener('hidden.bs.modal', () => reset(false));
+  }
 
-  function reset() {
+  function reset(focusInput = false) {
     htmx.trigger(input, 'htmx:abort');
     const submitBtn = results.querySelector('[hx-put]');
     if (submitBtn) {
       htmx.trigger(submitBtn, 'htmx:abort');
     }
     input.value = '';
-    input.focus();
+    if (focusInput) {
+      input.focus();
+    }
     input.classList.remove(invalid);
     alert.innerText = '';
     alert.classList.add(none);
     results.innerHTML = '';
   }
 
-  const demozooSanity = 450000,
-    pouetSanity = 200000;
-  switch (elementId) {
-    case 'demozoo-submission':
-      validate(input, demozooSanity);
-      break;
-    case 'pouet-submission':
-      validate(input, pouetSanity);
-      break;
-  }
+  const fallbackSanity =
+    elementId === 'demozoo-submission' ? 450000 : 200000;
+  const sanity = Number(input.max) || fallbackSanity;
+  validate(input, sanity, alert, results);
 
   // The htmx:before:request event is triggered before the request is made.
-  document.body.addEventListener('htmx:before:request', function () {
-    beforeReset(alert, results);
+  scope.addEventListener('htmx:before:request', function (evt) {
+    const elt = evt.detail?.ctx?.sourceElement ?? evt.target ?? null;
+    if (elt === input) {
+      beforeReset(alert, results);
+    } else if (elt !== null && results.contains(elt)) {
+      beforeReset(alert);
+    }
   });
 
   // The htmx:before:swap event is triggered before the content is swapped.
   // This is the best place to check the status of the request and display an error message.
-  document.body.addEventListener('htmx:before:swap', function (evt) {
+  scope.addEventListener('htmx:before:swap', function (evt) {
+    const elt = evt.detail?.ctx?.sourceElement ?? evt.target ?? null;
+    if (
+      elt === null ||
+      (elt !== input && elt !== alert && !results.contains(elt))
+    ) {
+      return;
+    }
     const badRequest = 400;
     const status = evt.detail?.ctx?.response?.status ?? 0;
     if (status >= badRequest) {
@@ -73,7 +93,7 @@ export function submitter(elementId, api) {
 
   // The htmx:after:request event is triggered after the request is completed.
   // Multiple requests can be made, so we need to check if the request is the one we are interested in.
-  document.body.addEventListener('htmx:after:request', function (evt) {
+  scope.addEventListener('htmx:after:request', function (evt) {
     const ctx = evt.detail?.ctx;
     const elt = ctx?.sourceElement ?? null;
     if (elt === null || elt.id !== `${elementId}`) {
@@ -95,8 +115,13 @@ export function submitter(elementId, api) {
   });
 }
 
-function validate(input, sanity) {
+function validate(input, sanity, alert, results) {
   input.addEventListener('input', function () {
+    if (input.value === '') {
+      input.classList.remove(invalid);
+      beforeReset(alert, results);
+      return;
+    }
     if (!validId(input.value, sanity)) {
       input.classList.add(invalid);
       return;
@@ -105,10 +130,12 @@ function validate(input, sanity) {
   });
 }
 
-function beforeReset(alert) {
+function beforeReset(alert, results = null) {
   alert.innerText = '';
   alert.classList.add(none);
-  // results.innerHTML = ""; // Uncomment and inject results as an argument, if we want to clear results too
+  if (results !== null) {
+    results.innerHTML = '';
+  }
 }
 
 function successful(input) {
@@ -116,7 +143,9 @@ function successful(input) {
 }
 
 function error404(alert, results, api) {
-  results.innerText = `Production not found on ${api}.`;
+  results.innerHTML = '';
+  alert.innerText = `Production not found on ${api}.`;
+  alert.classList.remove(none);
 }
 
 function errorBrowser(alert, results) {

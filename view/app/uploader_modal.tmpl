@@ -21,97 +21,103 @@
     </script>
     {{- /*  demozoo production or graphic  */}}
     <div class="modal fade" id="uploader-demozoo-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-demozoo-label" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="uploader-demozoo-label">Demozoo <span class="small text-muted">production, or graphic</span></h5>
-              <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-demozoo-label">Demozoo <span class="text-body-secondary fw-normal">production, or graphic</span></h2>
+            <button type="button" id="demozoo-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <form>
+              <p class="text-body-secondary small mb-3">
+                Know a <a href="https://demozoo.org/productions/?platform=1" target="_blank" rel="noopener">Windows</a>,
+                <a href="https://demozoo.org/productions/?platform=4" target="_blank" rel="noopener">MS-DOS</a> production or a
+                <a href="https://demozoo.org/graphics/" target="_blank" rel="noopener">graphic</a> on
+                <a href="https://demozoo.org" target="_blank" rel="noopener">Demozoo</a> that should be on this site?
+                Submit its ID.
+              </p>
+              <label for="demozoo-submission" id="demozoo-submission-label" class="form-label small fw-medium mb-1">Demozoo production ID</label>
+              <div class="input-group">
+                <input type="number" spellcheck="false" required min="1" max="{{ demozooSanity }}" value=""
+                    class="form-control" id="demozoo-submission" name="demozoo-submission"
+                    hx-get="/demozoo/production"
+                    hx-status:4xx="target:#demozoo-submission-error swap:innerHTML"
+                    hx-status:5xx="target:#demozoo-submission-error swap:innerHTML"
+                    hx-target="#demozoo-submission-results"
+                    hx-swap="innerHTML"
+                    hx-trigger="input changed delay:{{$delay}}, search"
+                    hx-indicator="#demozoo-indicator"
+                    hx-validate="true"
+                    placeholder="Lookup a production…">
+                <button type="reset" id="demozoo-submission-clear" class="btn btn-outline-secondary">Clear</button>
+              </div>
+              <div id="demozoo-indicator" class="htmx-indicator text-body-secondary small pt-2" role="status">
+                <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span><span>Fetching data from Demozoo...</span>
+              </div>
+            </form>
+            <div id="demozoo-submission-error" class="d-none alert alert-danger mt-3 mb-0" role="alert"></div>
+            <div id="demozoo-submission-results" class="mt-3"></div>
+            <div class="border-top mt-3 pt-3 d-flex justify-content-end">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
             </div>
-            <div class="modal-body">
-              <form>
-                <p>
-                  Know a <a href="https://demozoo.org/productions/?platform=1">Windows</a>, 
-                  <a href="https://demozoo.org/productions/?platform=4">MS-Dos</a> production or a 
-                  <a href="https://demozoo.org/graphics/">graphic</a> on <a href="https://demozoo.org">Demozoo</a> that should be on this site?
-                  Submit its ID.
-                </p>
-                <label for="demozoo-submission" id="demozoo-submission-label" class="form-label">Demozoo production ID</label>
-                <div class="input-group">
-                    <input type="number" spellcheck="false" autofocus required min="1" max="{{ demozooSanity }}" value=""
-                        class="form-control" id="demozoo-submission" name="demozoo-submission" 
-                        hx-get="/demozoo/production" 
-                        hx-status:4xx="target:#demozoo-submission-error swap:innerHTML"
-                        hx-status:5xx="target:#demozoo-submission-error swap:innerHTML"
-                        hx-target="#demozoo-submission-results" 
-                        hx-swap="innerHTML"
-                        hx-trigger="input changed delay:{{$delay}}, search" 
-                        hx-indicator="#demozoo-indicator"
-                        hx-validate="true"
-                        placeholder="Lookup a production…">
-                    <button type="reset" id="demozoo-submission-clear" class="btn btn-outline-dark">Clear</button>
-                </div>
-                <div id="demozoo-indicator" class="htmx-indicator text-secondary pt-2" role="status">
-                    <span class="spinner-border spinner-border-sm"></span> <span>Fetching data from Demozoo...</span>
-                </div>
-              </form>
-              <div id="demozoo-submission-error" class="text-danger"></div>
-              <div id="demozoo-submission-results" class="justify-content-center"></div>
-            </div>
-            <div class="modal-footer"></div>
           </div>
         </div>
+      </div>
     </div>
     {{- /*  pouët production  */}}
     <div class="modal fade" id="uploader-pouet-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-pouet-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="uploader-pouet-label">Pouët <span class="small text-muted">Windows or DOS production</span></h5>
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-pouet-label">Pouët <span class="text-body-secondary fw-normal">Windows or DOS production</span></h2>
             <button type="button" id="pouet-submission-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body p-4">
             <form>
-              <p>
-                Know a <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=Windows&page=1">Windows</a>, 
-                <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=MS-Dos&page=1">MS-Dos</a> production 
-                on <a href="https://www.pouet.net">Pouët</a> that should be on this site? Submit its ID.
+              <p class="text-body-secondary small mb-3">
+                Know a <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=Windows&page=1" target="_blank" rel="noopener">Windows</a> or
+                <a href="https://www.pouet.net/prodlist.php?platform%5B%5D=MS-Dos&page=1" target="_blank" rel="noopener">MS-DOS</a> production
+                on <a href="https://www.pouet.net" target="_blank" rel="noopener">Pouët</a> that should be on this site? Submit its ID.
               </p>
-              <label for="pouet-submission" id="pouet-submission-label" class="form-label">Pouët production ID</label>
+              <label for="pouet-submission" id="pouet-submission-label" class="form-label small fw-medium mb-1">Pouët production ID</label>
               <div class="input-group">
-                  <input type="number" spellcheck="false" autofocus required min="1" max="{{ pouetSanity }}" value=""
-                      class="form-control" id="pouet-submission" name="pouet-submission" 
-                      hx-get="/pouet/production" 
-                      hx-status:4xx="target:#pouet-submission-error swap:innerHTML"
-                      hx-status:5xx="target:#pouet-submission-error swap:innerHTML"
-                      hx-target="#pouet-submission-results" 
-                      hx-trigger="input changed delay:{{$delay}}, search" 
-                      hx-indicator="#pouet-indicator"
-                      hx-validate="true"
-                      placeholder="Lookup a production…">
-                  <button type="reset" id="pouet-submission-clear" class="btn btn-outline-dark">Clear</button>
+                <input type="number" spellcheck="false" required min="1" max="{{ pouetSanity }}" value=""
+                    class="form-control" id="pouet-submission" name="pouet-submission"
+                    hx-get="/pouet/production"
+                    hx-status:4xx="target:#pouet-submission-error swap:innerHTML"
+                    hx-status:5xx="target:#pouet-submission-error swap:innerHTML"
+                    hx-target="#pouet-submission-results"
+                    hx-swap="innerHTML"
+                    hx-trigger="input changed delay:{{$delay}}, search"
+                    hx-indicator="#pouet-indicator"
+                    hx-validate="true"
+                    placeholder="Lookup a production…">
+                <button type="reset" id="pouet-submission-clear" class="btn btn-outline-secondary">Clear</button>
               </div>
-              <div id="pouet-indicator" class="htmx-indicator text-secondary pt-2" role="status">
-                <span class="spinner-border spinner-border-sm"></span> <span>Fetching data from Pouët...</span>
+              <div id="pouet-indicator" class="htmx-indicator text-body-secondary small pt-2" role="status">
+                <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span><span>Fetching data from Pouët...</span>
               </div>
             </form>
-            <div id="pouet-submission-error" class="text-danger"></div>
-            <div id="pouet-submission-results" class="justify-content-center"></div>
+            <div id="pouet-submission-error" class="d-none alert alert-danger mt-3 mb-0" role="alert"></div>
+            <div id="pouet-submission-results" class="mt-3"></div>
+            <div class="border-top mt-3 pt-3 d-flex justify-content-end">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
           </div>
-          <div class="modal-footer"></div>
         </div>
       </div>
     </div>
     {{- /*  intro, cracktro, bbs/ftptro  */}}
     <div class="modal fade" id="uploader-intro-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-intro-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="uploader-intro-label">Intro <span class="small text-muted">or cracktro, or BBStro, or sitetro</span></h5>
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-intro-label">Intro <span class="text-body-secondary fw-normal">or cracktro, or BBStro, or sitetro</span></h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <form id="uploader-intro-form" 
-                  hx-encoding="multipart/form-data" 
+          <div class="modal-body p-4">
+            <form id="uploader-intro-form"
+                  hx-encoding="multipart/form-data"
                   hx-post="/uploader/intro"
                   hx-target="#uploader-intro-results"
                   hx-disable="#uploader-intro-submit"
@@ -122,24 +128,43 @@
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-intro-lastmodified" id="uploader-intro-last-modified">
               <input type="hidden" name="uploader-intro-magic" id="uploader-intro-magic">
-              <div class="form-floating mb-3">
-                <input type="text" name="uploader-intro-title" class="form-control" id="uploader-intro-title" aria-describedby="uploader-intro-title-help" placeholder="example: 500000th release!">
-                <label for="uploader-intro-title">Title</label>
-                <div id="uploader-intro-title-help" class="form-text">Optional name of the release or a brief description</div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                  <label for="uploader-intro-title" class="form-label small fw-medium mb-1">
+                    Title <span class="text-body-secondary fw-normal">(optional)</span>
+                  </label>
+                  <input type="text" name="uploader-intro-title" class="form-control" id="uploader-intro-title"
+                    aria-describedby="uploader-intro-title-help" placeholder="example: 500000th release!">
+                  <div id="uploader-intro-title-help" class="form-text">Name of the release or a brief description</div>
+                </div>
+                <div class="col-md-5">
+                  <div class="form-label small fw-medium mb-1">Date of release <span class="text-body-secondary fw-normal">(optional)</span></div>
+                  <div class="input-group">
+                    <input type="number" name="uploader-intro-year" min="1980" max="{{exampleYear}}"
+                      id="uploader-intro-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                    <input type="number" name="uploader-intro-month" min="1" max="12"
+                      id="uploader-intro-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+                  </div>
+                  <div class="form-text">Year and month</div>
+                </div>
               </div>
-              <div class="mb-4">
-                <label for="uploader-intro-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
+
+              <div class="mb-3">
+                <label for="uploader-intro-releaser-1" class="form-label small fw-medium mb-1">
+                  Releasers <span class="text-danger" aria-hidden="true">*</span> <span class="text-body-secondary fw-normal">(maximum of 2)</span>
+                </label>
                 <div class="input-group">
-                  <input type="text" list="uploader-intro-list-1" name="uploader-intro-releaser1" class="form-control" id="uploader-intro-releaser-1" 
-                      aria-describedby="uploader-intro-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}" 
-                      hx-patch="/uploader/releaser/1" 
+                  <input type="text" list="uploader-intro-list-1" name="uploader-intro-releaser1" class="form-control" id="uploader-intro-releaser-1"
+                      aria-describedby="uploader-intro-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}"
+                      hx-patch="/uploader/releaser/1"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
-                      hx-target="#uploader-intro-list-1" 
+                      hx-target="#uploader-intro-list-1"
                       required>
                   <span class="input-group-text">+</span>
-                  <input type="text" list="uploader-intro-list-2" name="uploader-intro-releaser2" class="form-control" id="uploader-intro-releaser-2" 
-                      aria-describedby="uploader-intro-releasers-help" placeholder="example: Titan" 
-                      hx-patch="/uploader/releaser/2" 
+                  <input type="text" list="uploader-intro-list-2" name="uploader-intro-releaser2" class="form-control" id="uploader-intro-releaser-2"
+                      aria-describedby="uploader-intro-releasers-help" placeholder="example: Titan (optional)"
+                      hx-patch="/uploader/releaser/2"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-intro-list-2">
                 </div>
@@ -147,64 +172,68 @@
                 <datalist id="uploader-intro-list-2"></datalist>
                 <div id="uploader-intro-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
-              <div class="input-group mb-3">
-                <span class="input-group-text">Year and month of release</span>
-                <input type="number" name="uploader-intro-year" min="1980" max="{{exampleYear}}" 
-                  id="uploader-intro-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
-                <input type="number" name="uploader-intro-month" min="1" max="12" 
-                  id="uploader-intro-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
-              </div>
-              <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text w-25" id="uploader-intro-youtube-help">YouTube ID</span>
-                <input type="text" name="uploader-intro-youtube" minlength="11" maxlength="11" class="form-control" id="uploader-intro-youtube" 
-                  aria-describedby="uploader-intro-youtube-help" spellcheck="false" placeholder="example: 62BuDfBIcMo">
-              </div>
-              <div class="input-group mb-3">
-                <div class="form-label">Operating system</div>
-                <div class="btn-group w-100" role="group" aria-label="Operating system selection">
-                  <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" checked>
-                  <label class="btn btn-outline-primary" for="uploader-intro-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="IBM&nbsp;PC or MS-DOS compatible">Dos PC</label>
-                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows">
-                  <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
-                  <input type="radio" value="{{tagConsole}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-console">
-                  <label class="btn btn-outline-primary" for="uploader-intro-console" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="1990s era consoles and handhelds">'90s console</label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-5">
+                  <label for="uploader-intro-youtube" class="form-label small fw-medium mb-1">
+                    YouTube ID <span class="text-body-secondary fw-normal">(optional)</span>
+                  </label>
+                  <input type="text" name="uploader-intro-youtube" minlength="11" maxlength="11" class="form-control" id="uploader-intro-youtube"
+                    aria-describedby="uploader-intro-youtube-help" spellcheck="false" placeholder="example: 62BuDfBIcMo">
+                  <div id="uploader-intro-youtube-help" class="form-text">11-character YouTube video ID</div>
+                </div>
+                <div class="col-md-7">
+                  <div class="form-label small fw-medium mb-1">Operating system</div>
+                  <div class="btn-group w-100" role="group" aria-label="Operating system selection">
+                    <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-msdos" checked>
+                    <label class="btn btn-outline-primary" for="uploader-intro-msdos" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="IBM&nbsp;PC or MS-DOS compatible">DOS PC</label>
+                    <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-windows">
+                    <label class="btn btn-outline-primary" for="uploader-intro-windows" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
+                    <input type="radio" value="{{tagConsole}}" class="btn-check" name="uploader-intro-operating-system" id="uploader-intro-console">
+                    <label class="btn btn-outline-primary" for="uploader-intro-console" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="1990s era consoles and handhelds">'90s console</label>
+                  </div>
                 </div>
               </div>
-              <div class="row g-2">
-                <div class="input-group mt-3">
-                  <input type="file" name="uploader-introfile" id="uploader-intro-file" class="form-control" required>
+
+              <div class="mb-3">
+                <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-1">
+                  <label for="uploader-intro-file" class="form-label small fw-medium mb-0">
+                    File or archive <span class="text-danger" aria-hidden="true">*</span>
+                  </label>
+                  <span class="form-text mt-0">{{$screenshot}}</span>
                 </div>
-                <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-intro-alert"></div>
-                <progress id="uploader-intro-progress" value="0" max="100"></progress>
-                <button id="uploader-intro-submit" class="btn btn-success">Upload</button>
-                <div class="col-8 form-text">{{$screenshot}}</div>
-                <div class="col-4 text-end">
-                  <button type="button" id="uploader-intro-reset" class="btn btn-outline-danger">Reset</button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+                <input type="file" name="uploader-introfile" id="uploader-intro-file" class="form-control" required>
+                <div class="d-none alert alert-danger mt-2 mb-0" role="alert" id="uploader-intro-alert"></div>
+                <progress id="uploader-intro-progress" class="w-100 mt-2" value="0" max="100"></progress>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-intro-results"
+
+              <div class="d-none alert alert-primary mb-3" role="alert" id="uploader-intro-results"
                    hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
+
+              <div class="border-top pt-3 d-flex align-items-center gap-2">
+                <button type="submit" id="uploader-intro-submit" class="btn btn-success">Upload</button>
+                <button type="button" id="uploader-intro-reset" class="btn btn-outline-danger">Reset</button>
+                <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+              </div>
             </form>
           </div>
-          <div class="modal-footer"></div>
         </div>
       </div>
     </div>
     {{- /*  Trainer, game hack or installer app  */}}
     <div class="modal fade" id="uploader-trainer-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-trainer-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="uploader-trainer-label">Trainer <span class="small text-muted">or game hack, or installer app</span></h5>
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-trainer-label">Trainer <span class="text-body-secondary fw-normal">or game hack, or installer app</span></h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <form id="uploader-trainer-form" 
-                  hx-encoding="multipart/form-data" 
+          <div class="modal-body p-4">
+            <form id="uploader-trainer-form"
+                  hx-encoding="multipart/form-data"
                   hx-post="/uploader/trainer"
                   hx-target="#uploader-trainer-results"
                   hx-disable="#uploader-trainer-submit"
@@ -215,25 +244,43 @@
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-trainer-lastmodified" id="uploader-trainer-last-modified">
               <input type="hidden" name="uploader-trainer-magic" id="uploader-trainer-magic">
-              <div class="form-floating mb-3">
-                <input type="text" name="uploader-trainer-title" class="form-control" id="uploader-trainer-title" 
-                aria-describedby="uploader-trainer-title-help" placeholder="example: 500000th release!" required>
-                <label for="uploader-trainer-title">Title</label>
-                <div id="uploader-trainer-title-help" class="form-text">The name of the release</div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                  <label for="uploader-trainer-title" class="form-label small fw-medium mb-1">
+                    Title <span class="text-danger" aria-hidden="true">*</span>
+                  </label>
+                  <input type="text" name="uploader-trainer-title" class="form-control" id="uploader-trainer-title"
+                    aria-describedby="uploader-trainer-title-help" placeholder="example: Doom +5 Trainer" required>
+                  <div id="uploader-trainer-title-help" class="form-text">The name of the release</div>
+                </div>
+                <div class="col-md-5">
+                  <div class="form-label small fw-medium mb-1">Date of release <span class="text-body-secondary fw-normal">(optional)</span></div>
+                  <div class="input-group">
+                    <input type="number" name="uploader-trainer-year" min="1980" max="{{exampleYear}}"
+                      id="uploader-trainer-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                    <input type="number" name="uploader-trainer-month" min="1" max="12"
+                      id="uploader-trainer-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+                  </div>
+                  <div class="form-text">Year and month</div>
+                </div>
               </div>
-              <div class="mb-4">
-                <label for="uploader-trainer-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
+
+              <div class="mb-3">
+                <label for="uploader-trainer-releaser-1" class="form-label small fw-medium mb-1">
+                  Releasers <span class="text-danger" aria-hidden="true">*</span> <span class="text-body-secondary fw-normal">(maximum of 2)</span>
+                </label>
                 <div class="input-group">
-                  <input type="text" list="uploader-trainer-list-1" name="uploader-trainer-releaser1" class="form-control" id="uploader-trainer-releaser-1" 
+                  <input type="text" list="uploader-trainer-list-1" name="uploader-trainer-releaser1" class="form-control" id="uploader-trainer-releaser-1"
                       aria-describedby="uploader-trainer-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}"
-                      hx-patch="/uploader/releaser/1" 
+                      hx-patch="/uploader/releaser/1"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
-                      hx-target="#uploader-trainer-list-1" 
+                      hx-target="#uploader-trainer-list-1"
                       required>
                   <span class="input-group-text">+</span>
-                  <input type="text" list="uploader-trainer-list-2" name="uploader-trainer-releaser2" class="form-control" id="uploader-trainer-releaser-2" 
-                      aria-describedby="uploader-trainer-releasers-help" placeholder="example: Titan" 
-                      hx-patch="/uploader/releaser/2" 
+                  <input type="text" list="uploader-trainer-list-2" name="uploader-trainer-releaser2" class="form-control" id="uploader-trainer-releaser-2"
+                      aria-describedby="uploader-trainer-releasers-help" placeholder="example: Titan (optional)"
+                      hx-patch="/uploader/releaser/2"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-trainer-list-2">
                 </div>
@@ -241,67 +288,71 @@
                 <datalist id="uploader-trainer-list-2"></datalist>
                 <div id="uploader-trainer-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
-              <div class="input-group mb-3">
-                <span class="input-group-text">Year and month of release</span>
-                <input type="number" name="uploader-trainer-year" min="1980" max="{{exampleYear}}" 
-                  id="uploader-trainer-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
-                <input type="number" name="uploader-trainer-month" min="1" max="12" 
-                  id="uploader-trainer-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
-              </div>
-              <div class="input-group mb-3">
-                <div class="form-label">Type of release and operating system</div>
-                <div class="btn-group w-100" role="group" aria-label="Type of release and operating system selection">
-                  <input type="radio" value="{{tagGameHack}}" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-gamehack" checked>
-                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-gamehack" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="A game cheat, trainer or hack">Trainer</label>
-                  <input type="radio" value="{{tagInstall}}" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-installer">
-                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-installer" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="A installation app for a release">Installer</label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-5">
+                  <div class="form-label small fw-medium mb-1">Type of release</div>
+                  <div class="btn-group w-100" role="group" aria-label="Type of release selection">
+                    <input type="radio" value="{{tagGameHack}}" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-gamehack" checked>
+                    <label class="btn btn-outline-primary" for="uploader-trainer-gamehack" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="A game cheat, trainer or hack">Trainer</label>
+                    <input type="radio" value="{{tagInstall}}" class="btn-check" name="uploader-trainer-category" id="uploader-trainer-installer">
+                    <label class="btn btn-outline-primary" for="uploader-trainer-installer" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="An installation app for a release">Installer</label>
+                  </div>
                 </div>
-                <div class="btn-group w-100 mt-1" role="group" aria-label="Basic radio toggle button group">
-                  <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-msdos" checked>
-                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="IBM&nbsp;PC or MS-DOS compatible">Dos PC</label>
-                  <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-windows">
-                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
-                  <input type="radio" value="{{tagConsole}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-console">
-                  <label class="btn btn-outline-primary w-50" for="uploader-trainer-console" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="1990s era consoles and handhelds">'90s console</label>
-                </div>
-              </div>
-              <div class="row g-2">
-                <div class="input-group mt-3">
-                  <input type="file" name="uploader-trainerfile" id="uploader-trainer-file" class="form-control" required>
-                </div>
-                <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-trainer-alert"></div>
-                <progress id="uploader-trainer-progress" value="0" max="100"></progress>
-                <button id="uploader-trainer-submit" class="btn btn-success">Upload</button>     
-                <div class="col-8 form-text">{{$screenshot}}</div>
-                <div class="col-4 text-end">
-                  <button type="button" id="uploader-trainer-reset" class="btn btn-outline-danger">Reset</button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="col-md-7">
+                  <div class="form-label small fw-medium mb-1">Operating system</div>
+                  <div class="btn-group w-100" role="group" aria-label="Operating system selection">
+                    <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-msdos" checked>
+                    <label class="btn btn-outline-primary" for="uploader-trainer-msdos" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="IBM&nbsp;PC or MS-DOS compatible">DOS PC</label>
+                    <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-windows">
+                    <label class="btn btn-outline-primary" for="uploader-trainer-windows" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Microsoft&nbsp;Windows">Windows PC</label>
+                    <input type="radio" value="{{tagConsole}}" class="btn-check" name="uploader-trainer-operating-system" id="uploader-trainer-console">
+                    <label class="btn btn-outline-primary" for="uploader-trainer-console" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="1990s era consoles and handhelds">'90s console</label>
+                  </div>
                 </div>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-trainer-results"
+
+              <div class="mb-3">
+                <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-1">
+                  <label for="uploader-trainer-file" class="form-label small fw-medium mb-0">
+                    File or archive <span class="text-danger" aria-hidden="true">*</span>
+                  </label>
+                  <span class="form-text mt-0">{{$screenshot}}</span>
+                </div>
+                <input type="file" name="uploader-trainerfile" id="uploader-trainer-file" class="form-control" required>
+                <div class="d-none alert alert-danger mt-2 mb-0" role="alert" id="uploader-trainer-alert"></div>
+                <progress id="uploader-trainer-progress" class="w-100 mt-2" value="0" max="100"></progress>
+              </div>
+
+              <div class="d-none alert alert-primary mb-3" role="alert" id="uploader-trainer-results"
                    hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
+
+              <div class="border-top pt-3 d-flex align-items-center gap-2">
+                <button type="submit" id="uploader-trainer-submit" class="btn btn-success">Upload</button>
+                <button type="button" id="uploader-trainer-reset" class="btn btn-outline-danger">Reset</button>
+                <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+              </div>
             </form>
           </div>
-          <div class="modal-footer"></div>
         </div>
       </div>
     </div>
     {{- /*  text writer, text art  */}}
     <div class="modal fade" id="uploader-text-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-text-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="uploader-text-label">Text <span class="small text-muted">including NFO, or ANSI</span></h5>
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-text-label">Text <span class="text-body-secondary fw-normal">including NFO, or ANSI</span></h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <form id="uploader-text-form" 
-                  hx-encoding="multipart/form-data" 
+          <div class="modal-body p-4">
+            <form id="uploader-text-form"
+                  hx-encoding="multipart/form-data"
                   hx-post="/uploader/text"
                   hx-target="#uploader-text-results"
                   hx-disable="#uploader-text-submit"
@@ -312,25 +363,44 @@
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-text-lastmodified" id="uploader-text-last-modified">
               <input type="hidden" name="uploader-text-magic" id="uploader-text-magic">
-              <div class="form-floating mb-3">
-                <input type="text" name="uploader-text-title" class="form-control" id="uploader-text-title" 
-                aria-describedby="uploader-text-title-help" placeholder="example: 500000th release!">
-                <label for="uploader-text-title">Title</label>
-                <div id="uploader-text-title-help" class="form-text">An optional brief description or name of the release</div>
+              <input type="hidden" value="releaseinformation" name="uploader-text-category" id="uploader-text-category">
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                  <label for="uploader-text-title" class="form-label small fw-medium mb-1">
+                    Title <span class="text-body-secondary fw-normal">(optional)</span>
+                  </label>
+                  <input type="text" name="uploader-text-title" class="form-control" id="uploader-text-title"
+                    aria-describedby="uploader-text-title-help" placeholder="example: 500000th release!">
+                  <div id="uploader-text-title-help" class="form-text">Brief description or name of the release</div>
+                </div>
+                <div class="col-md-5">
+                  <div class="form-label small fw-medium mb-1">Date of release <span class="text-body-secondary fw-normal">(optional)</span></div>
+                  <div class="input-group">
+                    <input type="number" name="uploader-text-year" min="1980" max="{{exampleYear}}"
+                      id="uploader-text-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                    <input type="number" name="uploader-text-month" min="1" max="12"
+                      id="uploader-text-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+                  </div>
+                  <div class="form-text">Year and month</div>
+                </div>
               </div>
-              <div class="mb-4">
-                <label for="uploader-text-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
+
+              <div class="mb-3">
+                <label for="uploader-text-releaser-1" class="form-label small fw-medium mb-1">
+                  Releasers <span class="text-danger" aria-hidden="true">*</span> <span class="text-body-secondary fw-normal">(maximum of 2)</span>
+                </label>
                 <div class="input-group">
-                  <input type="text" list="uploader-text-list-1" name="uploader-text-releaser1" class="form-control" id="uploader-text-releaser-1" 
-                      aria-describedby="uploader-text-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}" 
-                      hx-patch="/uploader/releaser/1" 
+                  <input type="text" list="uploader-text-list-1" name="uploader-text-releaser1" class="form-control" id="uploader-text-releaser-1"
+                      aria-describedby="uploader-text-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}"
+                      hx-patch="/uploader/releaser/1"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
-                      hx-target="#uploader-text-list-1" 
+                      hx-target="#uploader-text-list-1"
                       required>
                   <span class="input-group-text">+</span>
-                  <input type="text" list="uploader-text-list-2" name="uploader-text-releaser2" class="form-control" id="uploader-text-releaser-2" 
-                      aria-describedby="uploader-text-releasers-help" placeholder="example: Titan" 
-                      hx-patch="/uploader/releaser/2" 
+                  <input type="text" list="uploader-text-list-2" name="uploader-text-releaser2" class="form-control" id="uploader-text-releaser-2"
+                      aria-describedby="uploader-text-releasers-help" placeholder="example: Titan (optional)"
+                      hx-patch="/uploader/releaser/2"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-text-list-2">
                 </div>
@@ -338,74 +408,77 @@
                 <datalist id="uploader-text-list-2"></datalist>
                 <div id="uploader-text-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
-              <div class="input-group mb-3">
-                <span class="input-group-text">Year and month of release</span>
-                <input type="number" name="uploader-text-year" min="1980" max="{{exampleYear}}" 
-                  id="uploader-text-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
-                <input type="number" name="uploader-text-month" min="1" max="12" 
-                  id="uploader-text-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+
+              <div class="form-label small fw-medium mb-1">Creators <span class="text-body-secondary fw-normal">(optional, comma-separated)</span></div>
+              <div class="row row-cols-1 row-cols-md-2 g-2 mb-3">
+                <div class="col">
+                  <div class="input-group input-group-sm">
+                    <label class="input-group-text uploader-credit-label" for="uploader-text-credit">Writers</label>
+                    <input type="text" name="uploader-text-credittext" class="form-control" id="uploader-text-credit"
+                      spellcheck="false" placeholder="Name1, Name2">
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="input-group input-group-sm">
+                    <label class="input-group-text uploader-credit-label" for="uploader-text-artist">Text artists</label>
+                    <input type="text" name="uploader-text-creditill" class="form-control" id="uploader-text-artist"
+                      spellcheck="false" placeholder="Name1, Name2">
+                  </div>
+                </div>
               </div>
-              <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text w-25" id="uploader-text-credit-help">Writers</span>
-                <input type="text" name="uploader-text-credittext" class="form-control" id="uploader-text-credit" 
-                  aria-describedby="uploader-text-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
-              </div>
-              <div class="input-group input-group-sm mb-3">
-                <label class="input-group-text w-25" for="uploader-text-artist">Text artists</label>
-                <input type="text" name="uploader-text-creditill" class="form-control" id="uploader-text-artist" 
-                  spellcheck="false" placeholder="example: Name1, Name2">
-              </div>
-              <div class="input-group mb-3">
-                <div class="form-label">Format</div>
-                <input type="hidden" value="releaseinformation" name="uploader-text-category" id="uploader-text-category">
-                <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
+
+              <div class="mb-3">
+                <div class="form-label small fw-medium mb-1">Format</div>
+                <div class="btn-group w-100" role="group" aria-label="Text format selection">
                   <input type="radio" value="{{tagText}}" class="btn-check" name="uploader-text-operating-system" id="uploader-text-msdos" checked>
-                  <label class="btn btn-outline-primary" for="uploader-text-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
+                  <label class="btn btn-outline-primary" for="uploader-text-msdos" data-bs-toggle="tooltip" data-bs-placement="top"
                       data-bs-title="Text written on Microsoft&nbsp;Windows, IBM&nbsp;PC, or MS-DOS">PC text</label>
                   <input type="radio" value="{{tagTextAmiga}}" class="btn-check" name="uploader-text-operating-system" id="uploader-text-amiga">
-                  <label class="btn btn-outline-primary" for="uploader-text-amiga" data-bs-toggle="tooltip" data-bs-placement="top" 
+                  <label class="btn btn-outline-primary" for="uploader-text-amiga" data-bs-toggle="tooltip" data-bs-placement="top"
                       data-bs-title="Text written on the Commodore&nbsp;Amiga">Amiga text</label>
                   <input type="radio" value="{{tagConsole}}" class="btn-check" name="uploader-text-operating-system" id="uploader-text-console">
-                  <label class="btn btn-outline-primary" for="uploader-text-console" data-bs-toggle="tooltip" data-bs-placement="top" 
+                  <label class="btn btn-outline-primary" for="uploader-text-console" data-bs-toggle="tooltip" data-bs-placement="top"
                       data-bs-title="Text about a console or handheld release">'90 console</label>
                 </div>
                 <div class="form-text">Most texts can be left as PC text</div>
               </div>
-              <div class="row g-2">
-                <div class="input-group mt-3">
-                  <input type="file" name="uploader-textfile" id="uploader-text-file" class="form-control" required>
+
+              <div class="mb-3">
+                <label for="uploader-text-file" class="form-label small fw-medium mb-1">
+                  Text or archive <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <input type="file" name="uploader-textfile" id="uploader-text-file" class="form-control" required>
+                <div class="form-text">
+                  <strong>Do not upload separate .NFO and .DIZ files</strong> — keep the texts of a release in a single zip archive and upload that here.
                 </div>
-                <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-text-alert"></div>
-                <progress id="uploader-text-progress" value="0" max="100"></progress>
-                <button id="uploader-text-submit" class="btn btn-success">Upload</button>     
-                <div class="col-8 form-text">
-                  <strong>Do not upload separate .NFO and .DIZ files</strong>!
-                  Keep the texts of a release in a single zip archive and upload that here.
-                </div>
-                <div class="col-4 text-end">
-                  <button type="button" id="uploader-text-reset" class="btn btn-outline-danger">Reset</button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+                <div class="d-none alert alert-danger mt-2 mb-0" role="alert" id="uploader-text-alert"></div>
+                <progress id="uploader-text-progress" class="w-100 mt-2" value="0" max="100"></progress>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-text-results"
+
+              <div class="d-none alert alert-primary mb-3" role="alert" id="uploader-text-results"
                    hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
+
+              <div class="border-top pt-3 d-flex align-items-center gap-2">
+                <button type="submit" id="uploader-text-submit" class="btn btn-success">Upload</button>
+                <button type="button" id="uploader-text-reset" class="btn btn-outline-danger">Reset</button>
+                <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+              </div>
             </form>
           </div>
-          <div class="modal-footer"></div>
         </div>
       </div>
     </div>
     {{- /*  files Image or photo  */}}
     <div class="modal fade" id="uploader-image-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-image-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="uploader-image-label">Image <span class="small text-muted">or photo, or artwork</span></h5>
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-image-label">Image <span class="text-body-secondary fw-normal">or photo, or artwork</span></h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <form id="uploader-image-form" 
-                  hx-encoding="multipart/form-data" 
+          <div class="modal-body p-4">
+            <form id="uploader-image-form"
+                  hx-encoding="multipart/form-data"
                   hx-post="/uploader/image"
                   hx-target="#uploader-image-results"
                   hx-disable="#uploader-image-submit"
@@ -416,24 +489,42 @@
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-image-lastmodified" id="uploader-image-last-modified">
               <input type="hidden" name="uploader-image-magic" id="uploader-image-magic">
-              <div class="form-floating mb-3">
-                <input type="text" name="uploader-image-title" class="form-control" id="uploader-image-title" aria-describedby="uploader-image-title-help" placeholder="example: 500000th release!">
-                <label for="uploader-image-title">Title</label>
-                <div id="uploader-image-title-help" class="form-text">An optional brief description or name of the release</div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                  <label for="uploader-image-title" class="form-label small fw-medium mb-1">
+                    Title <span class="text-body-secondary fw-normal">(optional)</span>
+                  </label>
+                  <input type="text" name="uploader-image-title" class="form-control" id="uploader-image-title" aria-describedby="uploader-image-title-help" placeholder="example: 500000th release!">
+                  <div id="uploader-image-title-help" class="form-text">Brief description or name of the release</div>
+                </div>
+                <div class="col-md-5">
+                  <div class="form-label small fw-medium mb-1">Date of release <span class="text-body-secondary fw-normal">(optional)</span></div>
+                  <div class="input-group">
+                    <input type="number" name="uploader-image-year" min="1980" max="{{exampleYear}}"
+                      id="uploader-image-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                    <input type="number" name="uploader-image-month" min="1" max="12"
+                      id="uploader-image-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+                  </div>
+                  <div class="form-text">Year and month</div>
+                </div>
               </div>
-              <div class="mb-4">
-                <label for="uploader-image-releaser-1" class="form-label">Releasers <small>maximum of 2</small></label>
+
+              <div class="mb-3">
+                <label for="uploader-image-releaser-1" class="form-label small fw-medium mb-1">
+                  Releasers <span class="text-danger" aria-hidden="true">*</span> <span class="text-body-secondary fw-normal">(maximum of 2)</span>
+                </label>
                 <div class="input-group">
-                  <input type="text" list="uploader-image-list-1" name="uploader-image-releaser1" class="form-control" id="uploader-image-releaser-1" 
+                  <input type="text" list="uploader-image-list-1" name="uploader-image-releaser1" class="form-control" id="uploader-image-releaser-1"
                       aria-describedby="uploader-image-releasers-help" placeholder="example: Razor 1911" value="{{$releasername}}"
-                      hx-patch="/uploader/releaser/1" 
+                      hx-patch="/uploader/releaser/1"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
-                      hx-target="#uploader-image-list-1" 
+                      hx-target="#uploader-image-list-1"
                       required>
                   <span class="input-group-text">+</span>
-                  <input type="text" list="uploader-image-list-2" name="uploader-image-releaser2" class="form-control" id="uploader-image-releaser-2" 
-                      aria-describedby="uploader-image-releasers-help" placeholder="example: Titan" 
-                      hx-patch="/uploader/releaser/2" 
+                  <input type="text" list="uploader-image-list-2" name="uploader-image-releaser2" class="form-control" id="uploader-image-releaser-2"
+                      aria-describedby="uploader-image-releasers-help" placeholder="example: Titan (optional)"
+                      hx-patch="/uploader/releaser/2"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
                       hx-target="#uploader-image-list-2">
                 </div>
@@ -441,60 +532,61 @@
                 <datalist id="uploader-image-list-2"></datalist>
                 <div id="uploader-image-releasers-help" class="form-text">{{$helpRelr|safeHTML}}</div>
               </div>
-              <div class="input-group mb-3">
-                <span class="input-group-text">Year and month of release</span>
-                <input type="number" name="uploader-image-year" min="1980" max="{{exampleYear}}" 
-                  id="uploader-image-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
-                <input type="number" name="uploader-image-month" min="1" max="12" 
-                  id="uploader-image-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
-              </div>
-              <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text w-25" id="uploader-image-credit-help">Creators</span>
-                <input type="text" name="uploader-image-creditill" class="form-control" id="uploader-image-credit" 
-                  aria-describedby="uploader-image-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
-              </div>
-              <div class="input-group mb-3">
-                <div class="form-label">Purpose</div>
-                <div class="btn-group w-100" role="group" aria-label="Purpose selection">
-                  <input type="radio" value="{{tagLogo}}" class="btn-check" name="uploader-image-category" id="uploader-image-adbrand" checked>
-                  <label class="btn btn-outline-primary" for="uploader-image-adbrand" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="Advertising, branding or a logo for a releaser">Ad or brand</label>
-                  <input type="radio" value="{{tagProof}}" class="btn-check" name="uploader-image-category" id="uploader-image-proof">
-                  <label class="btn btn-outline-primary" for="uploader-image-proof" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="A photo of the physical media used for a scene release">Proof of release</label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label for="uploader-image-credit" class="form-label small fw-medium mb-1">
+                    Creators <span class="text-body-secondary fw-normal">(optional, comma-separated)</span>
+                  </label>
+                  <input type="text" name="uploader-image-creditill" class="form-control" id="uploader-image-credit"
+                    spellcheck="false" placeholder="Name1, Name2">
+                </div>
+                <div class="col-md-6">
+                  <div class="form-label small fw-medium mb-1">Purpose</div>
+                  <div class="btn-group w-100" role="group" aria-label="Purpose selection">
+                    <input type="radio" value="{{tagLogo}}" class="btn-check" name="uploader-image-category" id="uploader-image-adbrand" checked>
+                    <label class="btn btn-outline-primary" for="uploader-image-adbrand" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Advertising, branding or a logo for a releaser">Ad or brand</label>
+                    <input type="radio" value="{{tagProof}}" class="btn-check" name="uploader-image-category" id="uploader-image-proof">
+                    <label class="btn btn-outline-primary" for="uploader-image-proof" data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="A photo of the physical media used for a scene release">Proof of release</label>
+                  </div>
                 </div>
               </div>
-              <div class="row g-2">
-                <div class="input-group mt-3">
-                  <input type="file" name="uploader-imagefile" id="uploader-image-file" class="form-control" required>
-                </div>
-                <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-image-alert"></div>
-                <progress id="uploader-image-progress" value="0" max="100"></progress>
-                <button id="uploader-image-submit" class="btn btn-success">Upload</button>     
-                <div class="col text-end">
-                  <button type="button" id="uploader-image-reset" class="btn btn-outline-danger">Reset</button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+
+              <div class="mb-3">
+                <label for="uploader-image-file" class="form-label small fw-medium mb-1">
+                  Image or archive <span class="text-danger" aria-hidden="true">*</span>
+                </label>
+                <input type="file" name="uploader-imagefile" id="uploader-image-file" class="form-control" required>
+                <div class="d-none alert alert-danger mt-2 mb-0" role="alert" id="uploader-image-alert"></div>
+                <progress id="uploader-image-progress" class="w-100 mt-2" value="0" max="100"></progress>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-image-results"
+
+              <div class="d-none alert alert-primary mb-3" role="alert" id="uploader-image-results"
                    hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
+
+              <div class="border-top pt-3 d-flex align-items-center gap-2">
+                <button type="submit" id="uploader-image-submit" class="btn btn-success">Upload</button>
+                <button type="button" id="uploader-image-reset" class="btn btn-outline-danger">Reset</button>
+                <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+              </div>
             </form>
           </div>
-          <div class="modal-footer"></div>
         </div>
       </div>
     </div>
     {{- /*  magazine  */}}
     <div class="modal fade" id="uploader-magazine-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploader-magazine-label" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="uploader-magazine-label">Magazine <span class="small text-muted">or a newsletter</span></h5>
+          <div class="modal-header bg-body-tertiary">
+            <h2 class="modal-title fs-5" id="uploader-magazine-label">Magazine <span class="text-body-secondary fw-normal">or newsletter</span></h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <form id="uploader-magazine-form" 
-                  hx-encoding="multipart/form-data" 
+          <div class="modal-body p-4">
+            <form id="uploader-magazine-form"
+                  hx-encoding="multipart/form-data"
                   hx-post="/uploader/magazine"
                   hx-target="#uploader-magazine-results"
                   hx-disable="#uploader-magazine-submit"
@@ -505,72 +597,90 @@
                   hx-swap="innerHTML">
               <input type="hidden" name="uploader-magazine-lastmodified" id="uploader-magazine-last-modified">
               <input type="hidden" name="uploader-magazine-magic" id="uploader-magazine-magic">
-              <div class="mb-4">
-                <label for="uploader-magazine-releaser-1" class="form-label">Title <small>name of the magazine</small></label>
-                <div class="input-group mb-3">
-                  <input type="text" list="uploader-magazine-list-1" name="uploader-magazine-releaser1" class="form-control" id="uploader-magazine-releaser-1" 
-                      aria-describedby="uploader-magazine-releasers-help" placeholder="example: Reality Check Network" value="{{$releasername}}"
-                      hx-patch="/uploader/releaser/magazine" 
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                  <label for="uploader-magazine-releaser-1" class="form-label small fw-medium mb-1">
+                    Magazine title <span class="text-danger" aria-hidden="true">*</span>
+                  </label>
+                  <input type="text" list="uploader-magazine-list-1" name="uploader-magazine-releaser1" class="form-control" id="uploader-magazine-releaser-1"
+                      placeholder="example: Reality Check Network" value="{{$releasername}}"
+                      hx-patch="/uploader/releaser/magazine"
                       hx-trigger="keyup[checkUserKeydown.call(this, event)] changed delay:{{$delay}}"
-                      hx-target="#uploader-magazine-list-1" 
+                      hx-target="#uploader-magazine-list-1"
                       required>
+                  <datalist id="uploader-magazine-list-1"></datalist>
+                  <div class="form-text">Name of the magazine or newsletter</div>
                 </div>
-                <datalist id="uploader-magazine-list-1"></datalist>
-                <div class="form-floating mb-3">
+                <div class="col-md-5">
+                  <label for="uploader-magazine-title" class="form-label small fw-medium mb-1">
+                    Issue <span class="text-danger" aria-hidden="true">*</span>
+                  </label>
                   <input type="text" name="uploader-magazine-title" class="form-control" id="uploader-magazine-title"
-                   aria-describedby="uploader-magazine-title-help" placeholder="example: 500000th release!" required>
-                  <label for="uploader-magazine-title">Issue</label>
+                      aria-describedby="uploader-magazine-title-help" placeholder="example: 1" required>
                   <div id="uploader-magazine-title-help" class="form-text">
-                    Provide an issue number, example: <em>1</em><br>
-                    Or the volume and issue, example: <em>1, volume 1</em><br>
-                    Or a description, example: <em>The complete collection</em>
+                    Issue number (<em>1</em>), volume (<em>1, volume 1</em>), or description (<em>The complete collection</em>)
                   </div>
                 </div>
               </div>
-              <div class="input-group mb-3">
-                <span class="input-group-text">Year and month of release</span>
-                <input type="number" name="uploader-magazine-year" min="1980" max="{{exampleYear}}" 
-                  id="uploader-magazine-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
-                <input type="number" name="uploader-magazine-month" min="1" max="12" 
-                  id="uploader-magazine-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-5">
+                  <div class="form-label small fw-medium mb-1">Date of release <span class="text-body-secondary fw-normal">(optional)</span></div>
+                  <div class="input-group">
+                    <input type="number" name="uploader-magazine-year" min="1980" max="{{exampleYear}}"
+                      id="uploader-magazine-year" aria-label="Year of release" class="form-control input-date" placeholder="{{exampleYear}}">
+                    <input type="number" name="uploader-magazine-month" min="1" max="12"
+                      id="uploader-magazine-month" aria-label="Month of release" class="form-control input-date" placeholder="{{exampleMonth}}">
+                  </div>
+                  <div class="form-text">Year and month</div>
+                </div>
+                <div class="col-md-7">
+                  <label for="uploader-magazine-credit" class="form-label small fw-medium mb-1">
+                    Writers <span class="text-body-secondary fw-normal">(optional, comma-separated)</span>
+                  </label>
+                  <input type="text" name="uploader-magazine-credittext" class="form-control" id="uploader-magazine-credit"
+                    spellcheck="false" placeholder="Name1, Name2">
+                </div>
               </div>
-              <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text w-25" id="uploader-magazine-credit-help">Writers</span>
-                <input type="text" name="uploader-magazine-credittext" class="form-control" id="uploader-magazine-credit" 
-                  aria-describedby="uploader-magazine-credit-help" spellcheck="false" placeholder="example: Name1, Name2">
-              </div>
-              <div class="input-group mb-3">
-                <div class="form-label">Operating system</div>
+
+              <div class="mb-3">
+                <div class="form-label small fw-medium mb-1">Platform or format</div>
                 <div class="btn-group w-100" role="group" aria-label="Operating system selection">
                   <input type="radio" value="{{tagText}}" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-text" checked>
-                  <label class="btn btn-outline-primary" for="uploader-magazine-text" data-bs-toggle="tooltip" data-bs-placement="top" 
+                  <label class="btn btn-outline-primary" for="uploader-magazine-text" data-bs-toggle="tooltip" data-bs-placement="top"
                       data-bs-title="Plain text or stylized text">Universal text</label>
                   <input type="radio" value="{{tagDOS}}" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-msdos">
-                  <label class="btn btn-outline-primary" for="uploader-magazine-msdos" data-bs-toggle="tooltip" data-bs-placement="top" 
-                      data-bs-title="An application for the IBM&nbsp;PC or MS-DOS">MsDos app</label>
+                  <label class="btn btn-outline-primary" for="uploader-magazine-msdos" data-bs-toggle="tooltip" data-bs-placement="top"
+                      data-bs-title="An application for the IBM&nbsp;PC or MS-DOS">MS-DOS app</label>
                   <input type="radio" value="{{tagWindows}}" class="btn-check" name="uploader-magazine-operating-system" id="uploader-magazine-windows">
-                  <label class="btn btn-outline-primary" for="uploader-magazine-windows" data-bs-toggle="tooltip" data-bs-placement="top" 
+                  <label class="btn btn-outline-primary" for="uploader-magazine-windows" data-bs-toggle="tooltip" data-bs-placement="top"
                       data-bs-title="An application for Microsoft&nbsp;Windows">Windows app</label>
                 </div>
               </div>
-              <div class="row g-2">
-                <div class="input-group mt-3">
-                  <input type="file" name="uploader-magazinefile" id="uploader-magazine-file" class="form-control" required>
+
+              <div class="mb-3">
+                <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-1">
+                  <label for="uploader-magazine-file" class="form-label small fw-medium mb-0">
+                    File or archive <span class="text-danger" aria-hidden="true">*</span>
+                  </label>
+                  <span class="form-text mt-0">{{$screenshot}}</span>
                 </div>
-                <div class="d-none alert alert-danger mt-2" role="alert" id="uploader-magazine-alert"></div>
-                <progress id="uploader-magazine-progress" value="0" max="100"></progress>
-                <button id="uploader-magazine-submit" class="btn btn-success">Upload</button>     
-                <div class="col-8 form-text">{{$screenshot}}</div>
-                <div class="col-4 text-end">
-                  <button type="button" id="uploader-magazine-reset" class="btn btn-outline-danger">Reset</button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+                <input type="file" name="uploader-magazinefile" id="uploader-magazine-file" class="form-control" required>
+                <div class="d-none alert alert-danger mt-2 mb-0" role="alert" id="uploader-magazine-alert"></div>
+                <progress id="uploader-magazine-progress" class="w-100 mt-2" value="0" max="100"></progress>
               </div>
-              <div class="d-none alert alert-primary mt-2" role="alert" id="uploader-magazine-results"
+
+              <div class="d-none alert alert-primary mb-3" role="alert" id="uploader-magazine-results"
                    hx-swap="innerHTML" hx-on:htmx:after:swap="this.classList.remove('d-none')"></div>
+
+              <div class="border-top pt-3 d-flex align-items-center gap-2">
+                <button type="submit" id="uploader-magazine-submit" class="btn btn-success">Upload</button>
+                <button type="button" id="uploader-magazine-reset" class="btn btn-outline-danger">Reset</button>
+                <button type="button" class="btn btn-outline-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+              </div>
             </form>
           </div>
-          <div class="modal-footer"></div>
         </div>
       </div>
     </div>
