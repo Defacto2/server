@@ -17,6 +17,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"maps"
+	"net"
 	"net/http"
 	"os"
 	"runtime"
@@ -600,7 +601,7 @@ func (serv *Server) address(port uint16) string {
 
 	p := strconv.Itoa(int(port))
 	if host := serv.Environment.MatchHost; host != "" {
-		return string(host) + ":" + p
+		return net.JoinHostPort(string(host), p)
 	}
 
 	return ":" + p

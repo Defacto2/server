@@ -167,14 +167,11 @@ func main() {
 	if err := serv.Print(logo); err != nil {
 		warnErr("print server startup", err)
 	}
+	printOwner(cl, msg)
+	printAddrs(cl, envConfig, msg)
 	if err := serv.Start(ctx, sl, h, *envConfig); err != nil {
 		logErr("web server startup failure", err)
 	}
-
-	go func() {
-		printOwner(cl, msg)
-		printAddrs(cl, envConfig, msg)
-	}()
 
 	slog.Info("Shutdown", slog.String("Triggered", "Signal received"))
 }

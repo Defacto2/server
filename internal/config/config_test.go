@@ -58,6 +58,26 @@ func TestAddresses(t *testing.T) {
 	c.HTTPPort = config.StdCustom
 	got = c.Addresses(sl)
 	be.Err(t, got, nil)
+
+	// MatchHost with IP, domain, and IPv6
+	var buf bytes.Buffer
+	h := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	m := config.Config{
+		HTTPPort:  config.PortHTTP(config.StdHTTP),
+		TLSPort:   config.PortTLS(config.StdHTTPS),
+		MatchHost: config.Matchhost("127.0.0.1"),
+	}
+	be.Err(t, m.Addresses(h), nil)
+	be.True(t, strings.Contains(buf.String(), "link=http://127.0.0.1"))
+	be.True(t, strings.Contains(buf.String(), "link=https://127.0.0.1"))
+
+	buf.Reset()
+	m.MatchHost = config.Matchhost("::1")
+	m.HTTPPort = config.StdCustom
+	m.TLSPort = config.PortTLS(config.StdHTTPS)
+	be.Err(t, m.Addresses(h), nil)
+	be.True(t, strings.Contains(buf.String(), "link=http://[::1]:1323"))
+	be.True(t, strings.Contains(buf.String(), "link=https://[::1]"))
 }
 
 func TestCheckDir(t *testing.T) {

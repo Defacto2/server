@@ -266,77 +266,78 @@ func (c Config) PurgeTemp() error {
 
 // addresses prints a list of URLs that the server is accessible from.
 func (c Config) addresses(sl *slog.Logger) error {
-	const intro = "Depending on the firewall and operating system setup, " +
-		"the Defacto2 web server application maybe accessible from these links:"
-	sl.Info(intro)
-
-	// Access fields directly without reflection
-	port := uint64(c.HTTPPort)
-	tls := uint64(c.TLSPort)
-
-	if port == 0 && tls == 0 {
-		return ErrNoPort
-	}
-
-	hosts, err := helper.LocalHosts()
+	httpURLs, httpsURLs, err := c.addressURLs()
 	if err != nil {
-		return fmt.Errorf("the server cannot get the local host names: %w", err)
+		return err
 	}
 
 	const (
-		disable = 0
-		port80  = 80
-		port443 = 443
-		msg     = "URL"
+		intro = "Depending on the firewall and operating system setup, " +
+			"the Defacto2 web server application may be accessible from these links:"
+		msg = "URL"
 	)
+	sl.Info(intro)
 
-	matchHostStr := c.MatchHost.String()
-
-	for host := range slices.Values(hosts) {
-		if matchHostStr != "" && host != matchHostStr {
-			continue
-		}
-
-		// Process HTTP
-		if port != disable {
-			var s string
-			if port == port80 {
-				s = "http://" + host
-			} else {
-				s = "http://" + net.JoinHostPort(host, strconv.FormatUint(port, 10))
-			}
-			sl.Info(msg, slog.Uint64("port", port), slog.String("link", s))
-		}
-
-		// Process HTTPS
-		if tls != disable {
-			var s string
-			if tls == port443 {
-				s = "https://" + host
-			} else {
-				s = "https://" + net.JoinHostPort(host, strconv.FormatUint(tls, 10))
-			}
-			sl.Info(msg, slog.Uint64("port", tls), slog.String("link", s))
-		}
+	port := uint64(c.HTTPPort)
+	for link := range slices.Values(httpURLs) {
+		sl.Info(msg, slog.Uint64("port", port), slog.String("link", link))
 	}
 
-	if matchHostStr != "" {
-		return nil
-	}
-
-	ips, err := helper.LocalIPs()
-	if err != nil {
-		return fmt.Errorf("the server cannot get the local IP addresses: %w", err)
-	}
-
-	if port != disable {
-		for ip := range slices.Values(ips) {
-			s := "http://" + net.JoinHostPort(ip.String(), strconv.FormatUint(port, 10))
-			sl.Info(msg, slog.Uint64("port", port), slog.String("link", s))
-		}
+	tls := uint64(c.TLSPort)
+	for link := range slices.Values(httpsURLs) {
+		sl.Info(msg, slog.Uint64("port", tls), slog.String("link", link))
 	}
 
 	return nil
+}
+
+func (c Config) addressURLs() (httpURLs, httpsURLs []string, err error) {
+	port := uint64(c.HTTPPort)
+	tls := uint64(c.TLSPort)
+	if port == 0 && tls == 0 {
+		return nil, nil, ErrNoPort
+	}
+
+	var targets []string
+	if matchHost := c.MatchHost.String(); matchHost != "" {
+		targets = []string{matchHost}
+	} else {
+		hosts, err := helper.LocalHosts()
+		if err != nil {
+			return nil, nil, fmt.Errorf("the server cannot get the local host names: %w", err)
+		}
+		ips, err := helper.LocalIPs()
+		if err != nil {
+			return nil, nil, fmt.Errorf("the server cannot get the local IP addresses: %w", err)
+		}
+		targets = make([]string, 0, len(hosts)+len(ips))
+		targets = append(targets, hosts...)
+		for ip := range slices.Values(ips) {
+			targets = append(targets, ip.String())
+		}
+	}
+
+	const disable = 0
+	for host := range slices.Values(targets) {
+		if port != disable {
+			httpURLs = append(httpURLs, formatAddrURL("http", host, port, uint64(StdHTTP)))
+		}
+		if tls != disable {
+			httpsURLs = append(httpsURLs, formatAddrURL("https", host, tls, uint64(StdHTTPS)))
+		}
+	}
+
+	return httpURLs, httpsURLs, nil
+}
+
+func formatAddrURL(scheme, host string, port, stdPort uint64) string {
+	if port == stdPort {
+		if strings.Contains(host, ":") && !strings.HasPrefix(host, "[") {
+			host = "[" + host + "]"
+		}
+		return scheme + "://" + host
+	}
+	return scheme + "://" + net.JoinHostPort(host, strconv.FormatUint(port, 10))
 }
 
 // googleIDs uses vague formatting to mask the configuration so it is not printed or logged.
