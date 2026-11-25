@@ -120,14 +120,14 @@ func (ds *Dirs) Artifact(sl *slog.Logger, c *echo.Context, db *sql.DB) error { /
 	// webpage template metadata
 	downloadURI := filerecord.DownloadID(art)
 	h1 := filerecord.FirstHeader(art)
-	data["canonical"] = strings.Join([]string{"f", downloadURI}, "/")
+	data.SetCanonical(strings.Join([]string{"f", downloadURI}, "/"))
 	data["unid"] = ds.UUID
 	data["download"] = downloadURI
-	data["title"] = filerecord.Basename(art)
-	data["description"] = filerecord.Description(art)
-	data["h1"] = h1
-	data["ogtitle"] = h1
-	data["lead"] = firstLead(art)
+	data.SetTitle(filerecord.Basename(art))
+	data.SetDescription(filerecord.Description(art))
+	data.SetH1(h1)
+	data.SetOGTitle(h1)
+	data.SetLeadHTML(firstLead(art))
 	data["comment"] = string(helper.MaskTerm([]byte(filerecord.Comment(art))...))
 
 	data = ds.addDownload(art, data)

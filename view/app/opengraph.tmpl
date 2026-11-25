@@ -77,8 +77,6 @@ resulting in broken cards and missing preview images. Never emit relative URLs h
 */ -}}
 {{- $ogtitle := index . "ogtitle"}}
 {{- if eq $ogtitle ""}}{{- $ogtitle = index . "title"}}{{end}}
-{{- $metatitle := .title}}
-{{- $subheading := index . "subheading"}}
 {{- $unid := index . "unid"}}
 {{- $ogimage := og_image $unid}}
 {{- if and (ne $ogimage "") (not (hasPrefix $ogimage "http://")) (not (hasPrefix $ogimage "https://"))}}
@@ -101,23 +99,23 @@ resulting in broken cards and missing preview images. Never emit relative URLs h
         {{- $ogurl = printf "https://defacto2.net/%s" $canonical}}
     {{- end}}
 {{- end}}
-    <meta property="og:title" content="{{$ogtitle | safeHTML}}">
+    <meta property="og:title" content="{{$ogtitle}}">
     <meta property="og:site_name" content="Defacto2">
     <meta property="og:type" content="website">
 {{- if ne $ogurl ""}}
-    <meta property="og:url" content="{{$ogurl | safeHTML}}">
+    <meta property="og:url" content="{{$ogurl}}">
 {{- end}}
 {{- if ne $ogimage ""}}
-    <meta property="og:image" content="{{$ogimage | safeHTML}}">
+    <meta property="og:image" content="{{$ogimage}}">
     <meta property="og:image:alt" content="Defacto2 scene artifact">
 {{- end}}
 {{- if ne $desc ""}}
-    <meta property="og:description" content="{{$desc | safeHTML}}">
+    <meta property="og:description" content="{{$desc}}">
 {{- end}}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@Defacto2">
 {{- if ne $ogimage ""}}
-    <meta name="twitter:image" content="{{$ogimage | safeHTML}}">
+    <meta name="twitter:image" content="{{$ogimage}}">
 {{- end}}
     <meta name="fediverse:creator" content="@defacto2@mas.to">
 {{ end }}

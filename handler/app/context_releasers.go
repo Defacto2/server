@@ -71,15 +71,11 @@ func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	const key = "releasers"
 
 	data := empty(c)
-	data["noindex"] = true
-	data["title"] = "Former " + title
-	data["description"] = leadr
-	data["logo"] = logo
-	data["h1"] = title
-	data["lead"] = leadr
+	data.SetNoIndex(true)
+	data.SetHeader("Former "+title, title, leadr, logo, leadr)
 	data["itemName"] = bbsx
 	data[key] = model.Releasers{}
-	data["stats"] = map[string]string{}
+	data.SetStats(map[string]string{})
 
 	r := model.Releasers{}
 	if err := orderBy.BBS(ctx, db, &r); err != nil {
@@ -91,30 +87,27 @@ func bbsHandler(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	var order string
 	switch orderBy {
 	case model.Alphabetical, model.AlphabeticalTwo:
-		s := logo + az
-		data["logo"] = s
-		data["title"] = title + az
+		data.SetLogo(logo + az)
+		data.SetTitle(title + az)
 		order = alpha
 	case model.Prolific:
-		data["noindex"] = false
-		s := logo + ", by count"
-		data["logo"] = s
+		data.SetNoIndex(false)
+		data.SetLogo(logo + ", by count")
 		order = "by file artifact count"
 	case model.Oldest:
 		tmpl = "bbs-year"
-		s := logo + byyear
-		data["title"] = title + byyear
-		data["logo"] = s
+		data.SetTitle(title + byyear)
+		data.SetLogo(logo + byyear)
 		order = byYear
 	default:
 		// Handle unknown order types
 		order = alpha
 	}
 
-	data["stats"] = map[string]string{
+	data.SetStats(map[string]string{
 		pubs:   fmt.Sprintf("%d boards", len(r)),
 		ordrby: order,
-	}
+	})
 
 	if err := c.Render(http.StatusOK, tmpl, data); err != nil {
 		return InternalErr(sl, c, bbsx, err)
@@ -132,17 +125,13 @@ func FTP(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	const title = "FTP"
 	const descr = "FTP sites were Internet-based file exchange servers that would host and share Scene releases."
 	data := empty(c)
-	data["title"] = "Former " + title + " sites"
-	data["description"] = descr
-	data["logo"] = "FTP sites, A-Z"
-	data["h1"] = title
-	data["lead"] = descr
+	data.SetHeader("Former "+title+" sites", title, descr, "FTP sites, A-Z", descr)
 
 	// releaser.tmpl specific data items
 	data["itemName"] = ftp
 	const key = "releasers"
 	data[key] = model.Releasers{}
-	data["stats"] = map[string]string{}
+	data.SetStats(map[string]string{})
 
 	r := model.Releasers{}
 	ctx := c.Request().Context()
@@ -151,10 +140,10 @@ func FTP(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	}
 	data[key] = r
 
-	data["stats"] = map[string]string{
+	data.SetStats(map[string]string{
 		pubs:   fmt.Sprintf("%d sites", len(r)),
 		ordrby: alpha,
-	}
+	})
 
 	if err := c.Render(http.StatusOK, ftp, data); err != nil {
 		return InternalErr(sl, c, ftp, err)
@@ -186,14 +175,10 @@ func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	const key = "releasers"
 
 	data := empty(c)
-	data["title"] = title
-	data["description"] = descr
-	data["logo"] = title
-	data["h1"] = title
-	data["lead"] = descr
+	data.SetHeader(title, title, descr, title, descr)
 	data["itemName"] = issue
 	data[key] = model.Releasers{}
-	data["stats"] = map[string]string{}
+	data.SetStats(map[string]string{})
 
 	var order string
 	r := model.Releasers{}
@@ -203,27 +188,25 @@ func magazines(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 		if err := r.Magazine(ctx, db); err != nil {
 			return DatabaseErr(sl, c, mag, err)
 		}
-		s := title + byyear
-		data["logo"] = s
-		data["title"] = title + byyear
+		data.SetLogo(title + byyear)
+		data.SetTitle(title + byyear)
 		order = byYear
 	} else {
 		render = mag + "-az"
 		if err := r.MagazineAZ(ctx, db); err != nil {
 			return DatabaseErr(sl, c, mag, err)
 		}
-		data["noindex"] = true
-		s := title + az
-		data["logo"] = s
-		data["title"] = title + az
+		data.SetNoIndex(true)
+		data.SetLogo(title + az)
+		data.SetTitle(title + az)
 		order = alpha
 	}
 
 	data[key] = r
-	data["stats"] = map[string]string{
+	data.SetStats(map[string]string{
 		pubs:   fmt.Sprintf("%d publications", len(r)),
 		ordrby: order,
-	}
+	})
 
 	if err := c.Render(http.StatusOK, render, data); err != nil {
 		return InternalErr(sl, c, mag, err)
@@ -262,15 +245,11 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	const key = "releasers"
 
 	data := empty(c)
-	data["noindex"] = true
-	data["title"] = title + "s and groups"
-	data["description"] = descr
-	data["logo"] = logo
-	data["h1"] = title + "s"
-	data["lead"] = leadr
+	data.SetNoIndex(true)
+	data.SetHeader(title+"s and groups", title+"s", leadr, logo, descr)
 	data["itemName"] = ffile
 	data[key] = model.Releasers{}
-	data["stats"] = map[string]string{}
+	data.SetStats(map[string]string{})
 
 	var r model.Releasers
 	if err := orderBy.Limit(ctx, db, &r, 0, 0); err != nil {
@@ -282,30 +261,27 @@ func releasers(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB
 	var order string
 	switch orderBy {
 	case model.Alphabetical, model.AlphabeticalTwo:
-		s := logo + az
-		data["logo"] = s
-		data["title"] = title + az
+		data.SetLogo(logo + az)
+		data.SetTitle(title + az)
 		order = alpha
 	case model.Prolific:
-		s := logo + ", by count"
-		data["logo"] = s
+		data.SetLogo(logo + ", by count")
 		order = "by file artifact count"
 	case model.Oldest:
-		data["noindex"] = false
+		data.SetNoIndex(false)
 		tmpl = "releaser-year"
-		s := logo + byyear
-		data["logo"] = s
-		data["title"] = title + byyear
+		data.SetLogo(logo + byyear)
+		data.SetTitle(title + byyear)
 		order = byYear
 	default:
 		// Handle unknown order types
 		order = alpha
 	}
 
-	data["stats"] = map[string]string{
+	data.SetStats(map[string]string{
 		pubs:   fmt.Sprintf("%d releasers and groups", len(r)),
 		ordrby: order,
-	}
+	})
 
 	if err := c.Render(http.StatusOK, tmpl, data); err != nil {
 		return InternalErr(sl, c, tmpl, err)
@@ -333,13 +309,10 @@ func Releaser(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public f
 	}
 
 	relname := releaser.Link(uri)
-	data := emptyFiles(c)
-	data["title"] = relname + " artifacts"
-	data[canonical] = strings.Join([]string{"g", uri}, "/")
-	data["h1"] = relname
 	altnames := lism.String(lism.Path(uri))
-	data["lead"] = altnames
-	data["logo"] = relname
+	data := emptyFiles(c)
+	data.SetHeader(relname+" artifacts", relname, altnames, relname, "")
+	data.SetCanonical(strings.Join([]string{"g", uri}, "/"))
 	data["demozoo"] = strconv.Itoa(int(demozoo.Find(uri)))
 	data["sixteen"] = sixteen.Find(uri)
 	data["csdb"] = csdb.Find(uri)
@@ -356,7 +329,7 @@ func Releaser(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public f
 	}
 
 	data["uploader-releaser-index"] = releaser.Index(uri)
-	data[records] = fs
+	data.SetRecords(fs)
 	data = releaserLead(uri, data)
 
 	d, err := releaserSum(ctx, db, uri)
@@ -374,9 +347,9 @@ func Releaser(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string, public f
 }
 
 // releasersDesc appends stats to the description.
-func releasersDesc(relname, altnames string, d map[string]string, data map[string]any,
-) map[string]any {
-	data["stats"] = d
+func releasersDesc(relname, altnames string, d map[string]string, data PageData,
+) PageData {
+	data.SetStats(d)
 	// append stats to the description
 	dfiles := d["sum"]
 	dyears := d[years]
@@ -387,8 +360,8 @@ func releasersDesc(relname, altnames string, d map[string]string, data map[strin
 		desc = "The collection of " + dfiles + " unaffiliated artifacts"
 	case strings.EqualFold(relname, "none"):
 		desc = "The collection of the " + dfiles + " artifacts that were not authored by the Scene,"
-		data["title"] = "Non-Scene artifacts"
-		data["h1"] = "Non-Scene artifacts"
+		data.SetTitle("Non-Scene artifacts")
+		data.SetH1("Non-Scene artifacts")
 	case dfiles == "1":
 		desc = "The single artifact for " + relname
 	case dfiles != "":
@@ -402,7 +375,7 @@ func releasersDesc(relname, altnames string, d map[string]string, data map[strin
 	if dyears != "" {
 		desc += " from " + dyears
 	}
-	data["description"] = desc + "."
+	data.SetDescription(desc + ".")
 
 	return data
 }
@@ -431,16 +404,16 @@ func renderTidbits(sl *slog.Logger, uri string, public fs.FS) string {
 	return htm.String()
 }
 
-func releaserLead(uri string, data map[string]any) map[string]any {
+func releaserLead(uri string, data PageData) PageData {
 	switch uri {
 	case "independent":
-		data["lead"] = lism.String(lism.Path(uri)) +
+		data.SetLead(lism.String(lism.Path(uri)) +
 			", independent releases with no group or releaser affiliation. " +
 			"In the Scene's early years, releasing documents or software cracks under a personal alias " +
-			"or real-name attribution was commonplace."
+			"or real-name attribution was commonplace.")
 	case "none":
-		data["lead"] = "Files never intended for the Scene, including commercial or free software " +
-			"applications and general-public articles often credited to a real-name author."
+		data.SetLead("Files never intended for the Scene, including commercial or free software " +
+			"applications and general-public articles often credited to a real-name author.")
 	default:
 		// placeholder to handle other releaser types
 	}

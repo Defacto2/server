@@ -77,11 +77,7 @@ func Areacodes(sl *slog.Logger, c *echo.Context) error {
 	const logo = "BBS area codes"
 
 	data := empty(c)
-	data["title"] = title
-	data["description"] = descr
-	data["logo"] = logo
-	data["h1"] = logo
-	data["lead"] = leadr
+	data.SetHeader(title, logo, leadr, logo, descr)
 	data["telephonecodes"] = areacode.AreaCodes()
 	data["territories"] = areacode.Regions()
 	data["abbreviations"] = areacode.Abbreviations()
@@ -177,10 +173,10 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 	const h1 = "The subcultures of obsolete microcomputers"
 
 	data := empty(c)
-	data["title"] = title
-	data["description"] = descr
-	data[canonical] = "/"
-	data["h1"] = ""
+	data.SetTitle(title)
+	data.SetDescription(descr)
+	data.SetCanonical("/")
+	data.SetH1("")
 	data["heroTitle"] = h1
 	if meta := archiveMeta(); meta != "" {
 		data["archiveMeta"] = meta
@@ -232,11 +228,7 @@ func Interview(sl *slog.Logger, c *echo.Context) error {
 		" interviews with former sceners, crackers, and demo makers."
 
 	data := empty(c)
-	data["title"] = title
-	data["description"] = descr
-	data["logo"] = title
-	data["h1"] = title
-	data["lead"] = leadr
+	data.SetHeader(title, title, leadr, title, descr)
 	items := Interviewees()
 	data["interviews"] = items
 	data["interviewCount"] = InterviewCount(items)
@@ -340,11 +332,13 @@ func Website(sl *slog.Logger, c *echo.Context, open string) error {
 	const title = "Websites"
 	const logo = "Videos, Books, Films, Sites, Podcasts"
 	data := empty(c)
-	data["title"] = title
-	data["h1"] = title
-	data["lead"] = "A curated collection of videos, books, films, websites, podcasts, and AMAs about The Scene."
-	data["logo"] = logo
-	data["description"] = "Our curated collection of " + strings.ToLower(logo) + ", with topics about the Scene."
+	data.SetHeader(
+		title,
+		title,
+		"A curated collection of videos, books, films, websites, podcasts, and AMAs about The Scene.",
+		logo,
+		"Our curated collection of "+strings.ToLower(logo)+", with topics about the Scene.",
+	)
 
 	accordion := List()
 	// Open the accordion section.
@@ -361,8 +355,8 @@ func Website(sl *slog.Logger, c *echo.Context, open string) error {
 		}
 	}
 	if closeAll {
-		data["noindex"] = true
-		data["title"] = title + " categories"
+		data.SetNoIndex(true)
+		data.SetTitle(title + " categories")
 	}
 
 	// If a section was requested but not found, return a 404.

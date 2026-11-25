@@ -32,10 +32,10 @@ func Artist(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	const title = "Artist and design"
 	data := empty(c)
-	data["title"] = title
-	data["logo"] = title
-	data["h1"] = title
-	data["noindex"] = true
+	data.SetTitle(title)
+	data.SetLogo(title)
+	data.SetH1(title)
+	data.SetNoIndex(true)
 
 	ctx := c.Request().Context()
 	return scenerPage(ctx, sl, c, db, postgres.Artist, data)
@@ -50,10 +50,10 @@ func Coder(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	const title = "Programmer, code, and hacking"
 	data := empty(c)
-	data["title"] = title
-	data["logo"] = title
-	data["h1"] = title
-	data["noindex"] = true
+	data.SetTitle(title)
+	data.SetLogo(title)
+	data.SetH1(title)
+	data.SetNoIndex(true)
 
 	ctx := c.Request().Context()
 	return scenerPage(ctx, sl, c, db, postgres.Coder, data)
@@ -68,10 +68,10 @@ func Musician(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	const title = "Composer, music, or audio presenter"
 	data := empty(c)
-	data["title"] = title
-	data["logo"] = title
-	data["h1"] = title
-	data["noindex"] = true
+	data.SetTitle(title)
+	data.SetLogo(title)
+	data.SetH1(title)
+	data.SetNoIndex(true)
 
 	ctx := c.Request().Context()
 	return scenerPage(ctx, sl, c, db, postgres.Musician, data)
@@ -85,10 +85,10 @@ func Writer(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	const title = "Writer or magazine, author, interviewee, or mention"
 	data := empty(c)
-	data["title"] = title
-	data["logo"] = title
-	data["h1"] = title
-	data["noindex"] = true
+	data.SetTitle(title)
+	data.SetLogo(title)
+	data.SetH1(title)
+	data.SetNoIndex(true)
 
 	ctx := c.Request().Context()
 	return scenerPage(ctx, sl, c, db, postgres.Writer, data)
@@ -103,9 +103,9 @@ func Scener(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	const title = "Sceners, people who were a part of the Scene"
 	data := empty(c)
-	data["title"] = title
-	data["logo"] = title
-	data["h1"] = title
+	data.SetTitle(title)
+	data.SetLogo(title)
+	data.SetH1(title)
 
 	ctx := c.Request().Context()
 	return scenerPage(ctx, sl, c, db, postgres.Roles(), data)
@@ -113,7 +113,7 @@ func Scener(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 // scenerPage renders a scener directory page for the given role.
 func scenerPage(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.DB, r postgres.Role,
-	data map[string]any,
+	data PageData,
 ) error {
 	if err := nils.Check(ctx, sl, c, db); err != nil {
 		return fmt.Errorf("scener context: %w", err)
@@ -155,9 +155,9 @@ func scenerPage(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	data["scenerRole"] = role
 	data["scenerGroups"] = groups
 	data["scenerLetters"] = letters
-	data["description"] = descr
-	data["lead"] = "Sceners and contributors credited in the archive. " +
-		"Because sceners often used multiple aliases and spellings, these lists are inherently incomplete."
+	data.SetDescription(descr)
+	data.SetLead("Sceners and contributors credited in the archive. " +
+		"Because sceners often used multiple aliases and spellings, these lists are inherently incomplete.")
 
 	if err = c.Render(http.StatusOK, scener, data); err != nil {
 		return InternalErr(sl, c, scener, err)
@@ -184,20 +184,22 @@ func Sceners(sl *slog.Logger, c *echo.Context, db *sql.DB, uri string) error {
 	}
 
 	data := emptyFiles(c)
-	data[canonical] = strings.Join([]string{"p", uri}, "/")
-	data["title"] = s + attr
-	data["h1"] = s
-	data["lead"] = "Artifacts attributed to " + s + "."
-	data["logo"] = s
-	data["description"] = "These are the documented artifacts attributed to the person known as " + s + "."
+	data.SetCanonical(strings.Join([]string{"p", uri}, "/"))
+	data.SetHeader(
+		s+attr,
+		s,
+		"Artifacts attributed to "+s+".",
+		s,
+		"These are the documented artifacts attributed to the person known as "+s+".",
+	)
 	data["scener"] = s
-	data[records] = fs
+	data.SetRecords(fs)
 
 	d, err := scenerSum(ctx, db, uri)
 	if err != nil {
 		return DatabaseErr(sl, c, errs, err)
 	}
-	data["stats"] = d
+	data.SetStats(d)
 
 	if err = c.Render(http.StatusOK, artifacts, data); err != nil {
 		return InternalErr(sl, c, errs, err)

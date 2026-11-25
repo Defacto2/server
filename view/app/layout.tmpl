@@ -21,7 +21,6 @@
 {{- $contentLatin1 := index . "contentLatin1"}}
 {{- $contentCP437 := index . "contentCP437"}}
 {{- $databaseErr := index . "databaseErr"}}
-{{- $subheading := index . "subheading"}}
 {{- $metatitle := .title}}
 {{- /* if ne $subheading ""}}{{$metatitle = printf "%s %s" (capitalize $subheading) (toLower .title)}}{{end}} */ -}}
 {{- $metadesc := $desc}}
@@ -314,9 +313,9 @@
     {{- if ne $h1 ""}}
     <h1 class="h2 fw-semibold mb-1 container-xxl">{{$h1}}{{if ne $h1sub ""}} <span class="text-body-secondary fw-normal">{{$h1sub}}</span>{{end}}</h1>
     {{- end}}
-    {{- if ne $lead ""}}
+    {{- if $lead}}
     <p class="text-body-secondary mb-2 container-xxl">
-      {{ $lead | safeHTML }}
+      {{ $lead }}
     </p>
     {{- end}}
     {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}

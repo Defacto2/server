@@ -1,11 +1,12 @@
 //nolint:exhaustruct_v5,wrapcheck
 package app
 
-// Package file context.go contains shared template data helpers and pagination types
-// used by the domain-specific route handlers in context_*.go.
+// Package file context.go contains the typed PageData template wrapper,
+// shared defaults, and pagination types used by context_*.go handlers.
 
 import (
 	"fmt"
+	"html/template"
 	"log/slog"
 	"net/http"
 
@@ -26,6 +27,36 @@ type Pagination struct {
 	TwoAfter int    // TwoAfter is the page number two after the current page.
 }
 
+// PageData is a typed wrapper around map[string]any for layout template data.
+// Because its underlying type is map[string]any, existing templates continue to
+// read keys directly while Go handlers benefit from compile-time key and type safety.
+type PageData map[string]any
+
+func (p PageData) SetTitle(s string)           { p["title"] = s }
+func (p PageData) SetH1(s string)              { p["h1"] = s }
+func (p PageData) SetSubheading(s string)      { p["subheading"] = s }
+func (p PageData) SetLead(s string)            { p["lead"] = s }
+func (p PageData) SetLeadHTML(h template.HTML) { p["lead"] = h }
+func (p PageData) SetLogo(s string)            { p["logo"] = s }
+func (p PageData) SetDescription(s string)     { p["description"] = s }
+func (p PageData) SetCanonical(s string)       { p[canonical] = s }
+func (p PageData) SetCarousel(s string)        { p["carousel"] = s }
+func (p PageData) SetOGTitle(s string)         { p["ogtitle"] = s }
+func (p PageData) SetNoIndex(v bool)           { p["noindex"] = v }
+func (p PageData) SetDatabaseErr(v bool)       { p["databaseErr"] = v }
+func (p PageData) SetPagination(pg Pagination) { p["Pagination"] = pg }
+func (p PageData) SetStats(s map[string]string) { p["stats"] = s }
+func (p PageData) SetRecords(r any)            { p[records] = r }
+
+// SetHeader sets the core page metadata fields in a single call.
+func (p PageData) SetHeader(title, h1, lead, logo, description string) {
+	p.SetTitle(title)
+	p.SetH1(h1)
+	p.SetLead(lead)
+	p.SetLogo(logo)
+	p.SetDescription(description)
+}
+
 const (
 	az        = ", a-z"
 	byyear    = " by year"
@@ -35,8 +66,7 @@ const (
 	status    = "status"
 )
 
-// empty is a map of default values for an app template that are used by the layout template,
-// which is the base template for all pages.
+// empty returns a PageData populated with default values for layout.tmpl.
 //
 // All keys are optional except for "description" and "title":
 //   - "description" is used by the meta description element.
@@ -58,9 +88,9 @@ const (
 // These keys are autofilled:
 //   - "cachefiles" is the total number of records and used by the defacto2:file-count meta element.
 //   - "editor" is true if the editor mode is enabled for the browser session.
-func empty(c *echo.Context) map[string]any {
+func empty(c *echo.Context) PageData {
 	const minSize = 20
-	m := make(map[string]any, minSize)
+	m := make(PageData, minSize)
 	m["cachefiles"] = Caching.RecordCount
 	m[canonical] = ""
 	m["carousel"] = ""
@@ -81,8 +111,8 @@ func empty(c *echo.Context) map[string]any {
 	return m
 }
 
-// emptyFiles is a map of default values specific to the artifact listing templates.
-func emptyFiles(c *echo.Context) map[string]any {
+// emptyFiles returns a PageData populated with defaults specific to artifact listing templates.
+func emptyFiles(c *echo.Context) PageData {
 	data := empty(c)
 	data["bbs"] = false
 	data["demozoo"] = "0"
@@ -121,16 +151,12 @@ func renderStatic(sl *slog.Logger, c *echo.Context, p staticPage) error {
 	}
 
 	data := empty(c)
-	data["title"] = p.title
-	data["description"] = p.description
-	data["h1"] = p.h1
-	data["lead"] = p.lead
-	data["logo"] = p.logo
+	data.SetHeader(p.title, p.h1, p.lead, p.logo, p.description)
 	if p.carousel != "" {
-		data["carousel"] = p.carousel
+		data.SetCarousel(p.carousel)
 	}
 	if p.noindex {
-		data["noindex"] = true
+		data.SetNoIndex(true)
 	}
 
 	if err := c.Render(http.StatusOK, p.template, data); err != nil {

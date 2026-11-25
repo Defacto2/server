@@ -161,20 +161,20 @@ func Test_firstLead(t *testing.T) {
 	t.Parallel()
 
 	got := firstLead(nil)
-	be.Equal(t, got, "")
+	be.Equal(t, string(got), "")
 
 	art := testutil.NewModel(t)
 	got = firstLead(art)
-	be.Equal(t, got, `<span class="bg-body-tertiary border rounded px-2 py-0 font-monospace fs-6 text-body-secondary">`+
+	be.Equal(t, string(got), `<span class="bg-body-tertiary border rounded px-2 py-0 font-monospace fs-6 text-body-secondary">`+
 		`filename.txt</span>`)
 
 	art.GroupBrandBy.String = "NOCHANGE BBS"
 	art.GroupBrandBy.Valid = true
 	got = firstLead(art)
-	be.True(t, strings.Contains(got, `d-inline-flex flex-wrap align-items-center gap-2`))
-	be.True(t, strings.Contains(got, `NOCHANGE BBS`))
-	be.True(t, strings.Contains(got, `filename.txt`))
-	be.True(t, !strings.Contains(got, `<br>`))
+	be.True(t, strings.Contains(string(got), `d-inline-flex flex-wrap align-items-center gap-2`))
+	be.True(t, strings.Contains(string(got), `NOCHANGE BBS`))
+	be.True(t, strings.Contains(string(got), `filename.txt`))
+	be.True(t, !strings.Contains(string(got), `<br>`))
 }
 
 func Test_lockWidth(t *testing.T) {

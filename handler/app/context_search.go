@@ -66,19 +66,21 @@ func PostDesc(sl *slog.Logger, c *echo.Context, db *sql.DB, input string) error 
 
 	data := emptyFiles(c)
 	const brief = "Search titles & comments"
-	data["noindex"] = true
-	data["title"] = brief + " results"
-	data["h1"] = brief
-	data["lead"] = "Find games, apps, descriptions, and artifact comments."
-	data["logo"] = s + " results"
-	data["description"] = "Game or app titles search results for " + s + "."
+	data.SetNoIndex(true)
+	data.SetHeader(
+		brief+" results",
+		brief,
+		"Find games, apps, descriptions, and artifact comments.",
+		s+" results",
+		"Game or app titles search results for "+s+".",
+	)
 	data["unknownYears"] = false
 	data["searchMode"] = "desc"
 	data["searchQuery"] = s
 	data["searchLimit"] = model.Maximum
 	data["searchTruncated"] = len(fs) >= model.Maximum
-	data[records] = fs
-	data["stats"] = d
+	data.SetRecords(fs)
+	data.SetStats(d)
 
 	if err = c.Render(http.StatusOK, artifacts, data); err != nil {
 		return InternalErr(sl, c, errs, err)
@@ -119,19 +121,21 @@ func PostName(sl *slog.Logger, c *echo.Context, db *sql.DB, mode FileSearch) err
 	s := strings.Join(terms, ", ")
 
 	data := emptyFiles(c)
-	data["noindex"] = true
-	data["title"] = title
-	data["h1"] = h1
-	data["lead"] = "Find artifacts by archive filename or file extension."
-	data["logo"] = s + " results"
-	data["description"] = "Filename search results for " + s + "."
+	data.SetNoIndex(true)
+	data.SetHeader(
+		title,
+		h1,
+		"Find artifacts by archive filename or file extension.",
+		s+" results",
+		"Filename search results for "+s+".",
+	)
 	data["unknownYears"] = false
 	data["searchMode"] = ffile
 	data["searchQuery"] = s
 	data["searchLimit"] = model.Maximum
 	data["searchTruncated"] = len(fs) >= model.Maximum
-	data[records] = fs
-	data["stats"] = d
+	data.SetRecords(fs)
+	data.SetStats(d)
 
 	if err = c.Render(http.StatusOK, artifacts, data); err != nil {
 		return InternalErr(sl, c, errs, err)
@@ -197,12 +201,9 @@ func SearchDesc(sl *slog.Logger, c *echo.Context) error {
 	const lead = "Find games, apps, descriptions, and artifact comments."
 
 	data := empty(c)
-	data["noindex"] = true
-	data["description"] = "Use this search to uncover named applications, games, and descriptions of artifacts."
-	data["logo"] = search
-	data["title"] = title
-	data["h1"] = title
-	data["lead"] = lead
+	data.SetNoIndex(true)
+	data.SetHeader(title, title, lead, search,
+		"Use this search to uncover named applications, games, and descriptions of artifacts.")
 	data["searchMode"] = "desc"
 
 	if err := c.Render(http.StatusOK, searchpost, data); err != nil {
@@ -221,12 +222,9 @@ func SearchID(sl *slog.Logger, c *echo.Context) error {
 	const lead = "Look up artifacts by record ID, URL key, or UUID."
 
 	data := empty(c)
-	data["noindex"] = true
-	data["description"] = "Use this search to lookup artifacts by their database identities."
-	data["logo"] = search
-	data["title"] = title
-	data["h1"] = title
-	data["lead"] = lead
+	data.SetNoIndex(true)
+	data.SetHeader(title, title, lead, search,
+		"Use this search to lookup artifacts by their database identities.")
 	data["hxPost"] = "/editor/search/id"
 	data["searchMode"] = "id"
 	data["inputPlaceholder"] = "Type ID, URL key, or UUID (space or comma separated)..."
@@ -247,12 +245,9 @@ func SearchFile(sl *slog.Logger, c *echo.Context) error {
 	const lead = "Find artifacts by archive filename or file extension."
 
 	data := empty(c)
-	data["noindex"] = true
-	data["description"] = "Use this search to lookup artifacts by their filenames."
-	data["logo"] = search
-	data["title"] = title
-	data["h1"] = title
-	data["lead"] = lead
+	data.SetNoIndex(true)
+	data.SetHeader(title, title, lead, search,
+		"Use this search to lookup artifacts by their filenames.")
 	data["searchMode"] = ffile
 
 	if err := c.Render(http.StatusOK, searchpost, data); err != nil {
@@ -271,12 +266,9 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context) error {
 	const lead = "Find groups, magazines, BBS boards, and FTP sites."
 
 	data := empty(c)
-	data["noindex"] = true
-	data["description"] = "Lookup groups, magazines, BBS boards, and FTP sites by their names."
-	data["logo"] = search
-	data["title"] = title
-	data["h1"] = title
-	data["lead"] = lead
+	data.SetNoIndex(true)
+	data.SetHeader(title, title, lead, search,
+		"Lookup groups, magazines, BBS boards, and FTP sites by their names.")
 	data["helpText"] = "Acronyms match exact initialisms: 'rc' and 'rcn' return different results."
 	data["hxPost"] = "/search/releaser"
 	data["searchMode"] = "releaser"

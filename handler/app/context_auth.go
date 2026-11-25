@@ -166,10 +166,8 @@ func SignOut(sl *slog.Logger, c *echo.Context) error {
 
 	const title = "Sign out"
 	data := empty(c)
-	data["noindex"] = true
-	data["title"] = title
-	data["description"] = "Sign out of Defacto2."
-	data["h1"] = title
+	data.SetNoIndex(true)
+	data.SetHeader(title, title, "", "", "Sign out of Defacto2.")
 
 	if err := c.Render(http.StatusOK, signout, data); err != nil {
 		return InternalErr(sl, c, signout, err)
@@ -185,11 +183,8 @@ func Signin(sl *slog.Logger, c *echo.Context, clientID string, nonce []byte) err
 
 	const title = "Sign in"
 	data := empty(c)
-	data["noindex"] = true
-	data["title"] = title
-	data["description"] = "Sign in to Defacto2."
-	data["h1"] = title
-	data["lead"] = "This is not open to the general public."
+	data.SetNoIndex(true)
+	data.SetHeader(title, title, "This is not open to the general public.", "", "Sign in to Defacto2.")
 	data["callback"] = "/google/callback"
 	data["clientID"] = clientID
 	data["nonce"] = string(nonce)

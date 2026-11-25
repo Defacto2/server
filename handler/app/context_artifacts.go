@@ -103,13 +103,9 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 	logo, subhead, lead := fileslice.FileInfo(uri)
 
 	data := emptyFiles(c)
-	data["title"] = title
-	data[canonical] = strings.Join([]string{files, uri}, "/")
-	data["description"] = descr
-	data["logo"] = logo
-	data["h1"] = title
-	data["subheading"] = subhead
-	data["lead"] = lead
+	data.SetHeader(title, title, lead, logo, descr)
+	data.SetCanonical(strings.Join([]string{files, uri}, "/"))
+	data.SetSubheading(subhead)
 	data["unknownYears"] = true
 	data["forApproval"] = false
 
@@ -130,9 +126,9 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 	}
 
 	data = artifactsDesc(uri, d[years], sum, data)
-	data["stats"] = d
+	data.SetStats(d)
 
-	data[records] = []models.FileSlice{}
+	data.SetRecords([]models.FileSlice{})
 	r, err := fileslice.Records(ctx, db, uri, page, lim)
 	if err != nil {
 		return DatabaseErr(sl, c, errURI, err)
@@ -143,16 +139,16 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 		}
 		return nil
 	}
-	data[records] = r
+	data.SetRecords(r)
 
 	baseURL := "/files/" + uri
 	if fileslice.Match(uri) == fileslice.OneOffsAZ {
 		baseURL = "/files/one-offs/a-z"
-		data[canonical] = "files/one-offs/a-z"
+		data.SetCanonical("files/one-offs/a-z")
 	}
 
 	const pages = 2
-	data["Pagination"] = Pagination{
+	data.SetPagination(Pagination{
 		TwoAfter: page + pages,
 		NextPage: page + 1,
 		CurrPage: page,
@@ -160,7 +156,7 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 		TwoBelow: page - pages,
 		SumPages: lastPage,
 		BaseURL:  baseURL,
-	}
+	})
 
 	if err = c.Render(http.StatusOK, artifacts, data); err != nil {
 		return InternalErr(sl, c, errURI, err)
@@ -169,61 +165,61 @@ func artifactsTable(ctx context.Context, sl *slog.Logger, c *echo.Context, db *s
 	return nil
 }
 
-func artifactsDesc(uri, years string, sum int, data map[string]any) map[string]any {
+func artifactsDesc(uri, years string, sum int, data PageData) PageData {
 	match := fileslice.Match(uri)
 	if match == -1 {
 		return data
 	}
 
-	data["noindex"] = true
+	data.SetNoIndex(true)
 
 	switch match {
 	case fileslice.NewUploads:
-		data["description"] = "These are the most recent additions of scene history to the site."
-		data["title"] = "New additions"
+		data.SetDescription("These are the most recent additions of scene history to the site.")
+		data.SetTitle("New additions")
 		data["unknownYears"] = false
 	case fileslice.NewUpdates:
-		data["description"] = "Artifacts that have been recently updated or revised."
-		data["title"] = "Artifact revisions and changes"
+		data.SetDescription("Artifacts that have been recently updated or revised.")
+		data.SetTitle("Artifact revisions and changes")
 		data["unknownYears"] = false
 	case fileslice.Deletions:
-		data["title"] = "Deleted artifacts"
+		data.SetTitle("Deleted artifacts")
 		data["unknownYears"] = false
 	case fileslice.Unwanted:
-		data["title"] = "Dangerous files artifacts"
+		data.SetTitle("Dangerous files artifacts")
 		data["unknownYears"] = false
 	case fileslice.ForApproval:
-		data["title"] = "For Approval artifacts"
+		data.SetTitle("For Approval artifacts")
 		data["forApproval"] = true
 	case fileslice.Oldest:
-		data["description"] = "These are the oldest known artifacts held by the site."
-		data["title"] = "Oldest artifacts"
-		data["noindex"] = false
+		data.SetDescription("These are the oldest known artifacts held by the site.")
+		data.SetTitle("Oldest artifacts")
+		data.SetNoIndex(false)
 	case fileslice.Newest:
-		data["description"] = "These are more recent artifacts held by the site."
-		data["title"] = "Recent artifacts"
+		data.SetDescription("These are more recent artifacts held by the site.")
+		data.SetTitle("Recent artifacts")
 	case fileslice.OneOffs:
-		data["description"] = "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file."
-		data["title"] = "One-off releases"
+		data.SetDescription("Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file.")
+		data.SetTitle("One-off releases")
 		data["noGroupLinks"] = true
 	case fileslice.OneOffsAZ:
-		data["description"] = "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file, ordered alphabetically."
-		data["title"] = "One-off releases, A-Z"
+		data.SetDescription("Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file, ordered alphabetically.")
+		data.SetTitle("One-off releases, A-Z")
 		data["unknownYears"] = false
 		data["noGroupLinks"] = true
 	case fileslice.Sensenstahl:
-		data["title"] = "Sensenstahl artifacts"
+		data.SetTitle("Sensenstahl artifacts")
 	default:
 		// catch all other matches
 		s := strings.TrimSpace(fileslice.RecordsSub(uri))
-		data["title"] = helper.Capitalize(s) + " artifacts"
+		data.SetTitle(helper.Capitalize(s) + " artifacts")
 
 		desc := "The collection of " +
 			strconv.Itoa(sum) + " " + s + " artifacts"
 		if years != "" {
 			desc += " from " + years
 		}
-		data["description"] = desc + "."
+		data.SetDescription(desc + ".")
 	}
 
 	return data
@@ -241,12 +237,8 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, withStats bool) er
 	const leadr = "This page shows the categories and platforms in the collection of file artifacts."
 
 	data := empty(c)
-	data["noindex"] = true
-	data["title"] = title
-	data["description"] = descr
-	data["logo"] = title
-	data["h1"] = title
-	data["lead"] = leadr
+	data.SetNoIndex(true)
+	data.SetHeader(title, title, leadr, title, descr)
 	data["stats"] = withStats
 	data["counter"] = fileslice.Statistics()
 
@@ -254,7 +246,7 @@ func Categories(sl *slog.Logger, c *echo.Context, db *sql.DB, withStats bool) er
 	data, err := fileWStats(ctx, sl, db, data, withStats)
 	if err != nil {
 		sl.Warn("context_categories", slog.Any("error", err))
-		data["databaseErr"] = true
+		data.SetDatabaseErr(true)
 		data["stats"] = false
 	}
 
@@ -337,10 +329,10 @@ func buildStatRows(c fileslice.Stats) (categoryStatSummary, []categoryStatRow) {
 }
 
 // fileWStats is a helper function for Categories that adds the statistics to the data map.
-func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[string]any, withStats bool) (
-	map[string]any, error,
+func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data PageData, withStats bool) (
+	PageData, error,
 ) {
-	emptyMap := make(map[string]any)
+	emptyMap := make(PageData)
 	if err := nils.Check(ctx, sl, db); err != nil {
 		return emptyMap, fmt.Errorf("file with stats: %w", err)
 	}
@@ -364,11 +356,7 @@ func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data map[strin
 	data["counter"] = c
 	data["statSummary"] = summary
 	data["statRows"] = rows
-	data["description"] = descr
-	data["h1"] = title
-	data["logo"] = title
-	data["lead"] = descr
-	data["title"] = title
+	data.SetHeader(title, title, descr, title, descr)
 
 	return data, nil
 }

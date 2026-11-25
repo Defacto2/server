@@ -52,10 +52,7 @@ func Configurations(sl *slog.Logger, c *echo.Context, db *sql.DB, conf config.Co
 	const leadr = "The web application configurations, tools and links to special records."
 
 	data := empty(c)
-	data["description"] = descr
-	data["h1"] = "Configurations"
-	data["lead"] = leadr
-	data["title"] = title
+	data.SetHeader(title, "Configurations", leadr, "", descr)
 	data["configurations"] = conf
 	data["countArtifacts"] = 0
 	data["countPublic"] = 0
@@ -205,10 +202,7 @@ func Dependencies(sl *slog.Logger, c *echo.Context) error {
 	const leadr = "The web application host system dependencies and tools."
 
 	data := empty(c)
-	data["description"] = descr
-	data["h1"] = "Dependencies"
-	data["lead"] = leadr
-	data["title"] = title
+	data.SetHeader(title, "Dependencies", leadr, "", descr)
 
 	ctx := c.Request().Context()
 	arcTools, imgTools := command.DependencyInfos(ctx)
@@ -329,11 +323,7 @@ func Routes(sl *slog.Logger, c *echo.Context, r echo.Routes) error {
 	entries, methodCounts := buildRoutes(r)
 
 	data := empty(c)
-	data["title"] = title
-	data["description"] = descr
-	data["logo"] = "Routes"
-	data["h1"] = title
-	data["lead"] = descr
+	data.SetHeader(title, title, descr, "Routes", descr)
 	data["routesList"] = entries
 	data["routesCount"] = len(entries)
 	data["routeMethods"] = methodCounts
@@ -437,10 +427,7 @@ func Fixers(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	const title = "Fixers"
 	data := empty(c)
-	data["description"] = "Defacto2 fixers tool."
-	data["h1"] = title
-	data["lead"] = "Artifact fixes using batch-friendly tools."
-	data["title"] = title
+	data.SetHeader(title, title, "Artifact fixes using batch-friendly tools.", "", "Defacto2 fixers tool.")
 
 	// Get files with numeric suffixes
 	ctx := c.Request().Context()
@@ -472,12 +459,14 @@ func Duplicates(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	const title = "Potential duplicate releasers"
 	data := empty(c)
-	data["noindex"] = true
-	data["description"] = "In-memory similarity report for detecting duplicate groups, BBSes, and FTP sites."
-	data["logo"] = "Duplicate releasers"
-	data["h1"] = title
-	data["lead"] = "Groups, BBSes, and FTP sites with matching normalized fingerprints, swapped words, or 1-character typos."
-	data["title"] = title
+	data.SetNoIndex(true)
+	data.SetHeader(
+		title,
+		title,
+		"Groups, BBSes, and FTP sites with matching normalized fingerprints, swapped words, or 1-character typos.",
+		"Duplicate releasers",
+		"In-memory similarity report for detecting duplicate groups, BBSes, and FTP sites.",
+	)
 
 	ctx := c.Request().Context()
 	rep, err := fix.Duplicates(ctx, db)

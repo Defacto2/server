@@ -6,6 +6,7 @@ import (
 	"cmp"
 	"database/sql"
 	"fmt"
+	"html/template"
 	"io"
 	"math"
 	"path/filepath"
@@ -145,8 +146,8 @@ func errorWithID(err error, key string, id any) error {
 	}
 }
 
-// firstLead returns the lead for the file record which is the filename and releasers.
-func firstLead(art *models.File) string {
+// firstLead returns the trusted HTML lead for a single artifact page (filename chip and releaser links).
+func firstLead(art *models.File) template.HTML {
 	if art == nil {
 		return ""
 	}
@@ -160,17 +161,17 @@ func firstLead(art *models.File) string {
 	chip := ""
 	if len(a) > 0 {
 		chip = `<span class="bg-body-tertiary border rounded px-2 py-0 font-monospace fs-6 text-body-secondary">` +
-			string(a) + `</span>`
+			template.HTMLEscapeString(string(a)) + `</span>`
 	}
 
 	rel := releasersHrefs(art)
 	switch {
 	case rel != "" && chip != "":
-		return `<span class="d-inline-flex flex-wrap align-items-center gap-2">` + rel + chip + `</span>`
+		return template.HTML(`<span class="d-inline-flex flex-wrap align-items-center gap-2">` + rel + chip + `</span>`)
 	case rel != "":
-		return rel
+		return template.HTML(rel)
 	default:
-		return chip
+		return template.HTML(chip)
 	}
 }
 
