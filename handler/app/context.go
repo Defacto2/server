@@ -2393,12 +2393,15 @@ func tibits(sl *slog.Logger, uri string, public fs.FS) string {
 	tidbits := tidbit.Find(uri)
 	slices.Sort(tidbits)
 	for value := range slices.Values(tidbits) {
-		s := value.String(sl, public)
-		if strings.HasSuffix(strings.TrimSpace(s), "</p>") {
-			htm.WriteString(`<li class="list-group-item">` + s + string(value.URL(uri)) + `</li>`)
+		s := strings.TrimSpace(value.String(sl, public))
+		if s == "" {
 			continue
 		}
-		htm.WriteString(`<li class="list-group-item">` + s + `<br>` + string(value.URL(uri)) + `</li>`)
+		htm.WriteString(`<div class="tidbit-entry"><div class="tidbit-prose">` + s + `</div>`)
+		if rel := strings.TrimSpace(string(value.URL(uri))); rel != "" {
+			htm.WriteString(`<div class="tidbit-related"><span class="tidbit-related-label">Related:</span> ` + rel + `</div>`)
+		}
+		htm.WriteString(`</div>`)
 	}
 
 	return htm.String()

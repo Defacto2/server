@@ -26,48 +26,87 @@
 {{- $editor := index .editor}}
 {{- $noGroupLinks := index . "noGroupLinks"}}
 {{- $group := hasSuffix (index .title) " artifacts"}}
-{{- $breakline := false}}
 <div class="container-xxl">
 {{- if eq $cnt 0}}<p class="small text-body-secondary mb-2">There are no artifacts to display.</p>{{else -}}
 <p class="small text-body-secondary mb-2">There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if and (ne $years "0 - 0") (ne $years "the year 0")}} from {{$years | safeHTML}}{{end}}.</p>
 {{- end}}
 {{- if $linkTidbit}}
-  <small class="fw-light">Additional information</small>
-  <ul class="list-group list-group-flush mb-2">{{$tidbit}}</ul>
+<section class="tidbit-section border-top border-bottom py-3 mb-3" id="tidbit-card">
+  <div class="tidbit-body" id="tidbit-body">
+    {{$tidbit}}
+  </div>
+  <div class="mt-2 d-none" id="tidbit-toggle-bar">
+    <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none fw-medium" id="tidbit-toggle" aria-expanded="false" aria-controls="tidbit-body">Read more</button>
+  </div>
+</section>
+<script>
+(() => {
+  const body = document.getElementById('tidbit-body');
+  const bar = document.getElementById('tidbit-toggle-bar');
+  const btn = document.getElementById('tidbit-toggle');
+  if (!body || !bar || !btn) return;
+
+  for (const prose of body.querySelectorAll('.tidbit-prose')) {
+    if (prose.textContent.trim().length > 320) {
+      prose.classList.add('tidbit-columns');
+    }
+  }
+
+  const threshold = 360;
+  if (body.scrollHeight <= threshold) return;
+
+  let expanded = false;
+  const setState = (open) => {
+    expanded = open;
+    body.classList.toggle('is-collapsed', !open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = open ? 'Show less' : 'Read more';
+  };
+
+  bar.classList.remove('d-none');
+  setState(window.location.hash.startsWith('#fn'));
+
+  btn.addEventListener('click', () => setState(!expanded));
+  body.addEventListener('click', (evt) => {
+    const link = evt.target.closest('a[href^="#"]');
+    if (link && !expanded) setState(true);
+  });
+})();
+</script>
 {{- end}}
 {{- if or $linkZoo $link16C $linkjaneway $linkcsdb $linkWeb}}
-<div class="text-start text-sm-center text-md-end small text-body-secondary mb-2">
-  {{-  if and (eq $bbs false) (eq $linkZoo true)}}
-  <div>Production and member lists: <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/" target="_blank" rel="noopener"><strong>Demozoo</strong>{{linkSVG}}</a></div>
+<div class="d-flex flex-wrap align-items-baseline gap-3 small text-body-secondary mb-3">
+  <span class="fw-medium">External links:</span>
+  {{- if and (eq $bbs false) (eq $linkZoo true)}}
+  <a class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/" target="_blank" rel="noopener" data-bs-toggle="tooltip" data-bs-title="Production and member lists">Demozoo{{linkSVG}}</a>
   {{- else if and (eq $bbs true) (eq $linkZoo true)}}
-  <div>Staff, numbers, and affiliations: <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/bbs/{{$zoo}}/" target="_blank" rel="noopener"><strong>Demozoo</strong>{{linkSVG}}</a></div>
+  <a class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover icon-link icon-link-hover" href="https://demozoo.org/bbs/{{$zoo}}/" target="_blank" rel="noopener" data-bs-toggle="tooltip" data-bs-title="Staff, numbers, and affiliations">Demozoo{{linkSVG}}</a>
   {{- end}}
   {{- if $link16C}}
-  <div>ANSI and text artworks: <a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}" target="_blank" rel="noopener"><strong>16colors</strong>{{linkSVG}}</a></div>
+  <a class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}" target="_blank" rel="noopener" data-bs-toggle="tooltip" data-bs-title="ANSI and text artworks">16colors{{linkSVG}}</a>
   {{- end}}
   {{- if $linkjaneway}}
-  <div>Amiga releases: <a class="link-offset-2 icon-link icon-link-hover" href="https://janeway.exotica.org.uk/author.php?id={{$janeway}}" target="_blank" rel="noopener"><strong>Kestra</strong>{{linkSVG}}</a></div>
+  <a class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover icon-link icon-link-hover" href="https://janeway.exotica.org.uk/author.php?id={{$janeway}}" target="_blank" rel="noopener" data-bs-toggle="tooltip" data-bs-title="Amiga releases">Kestra{{linkSVG}}</a>
   {{- end}}
   {{- if $linkcsdb}}
-  <div>C-64 releases: <a class="link-offset-2 icon-link icon-link-hover" href="https://csdb.dk/group/?id={{$csdb}}" target="_blank" rel="noopener"><strong>csdb</strong>{{linkSVG}}</a></div>
+  <a class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover icon-link icon-link-hover" href="https://csdb.dk/group/?id={{$csdb}}" target="_blank" rel="noopener" data-bs-toggle="tooltip" data-bs-title="C-64 releases">CSDb{{linkSVG}}</a>
   {{- end}}
   {{- if $linkWeb}}
     {{- $notworking := false }}
-    <div class="mt-1">
     {{- range $web }}
       {{- if and (ne .URL "") (eq .Error false ) }}
-      {{- $breakline = true }}
-      <a class="link-offset-2 icon-link icon-link-hover me-2" href="{{.URL}}" target="_blank" rel="noopener"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a>
+      <a class="link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover icon-link icon-link-hover" href="{{.URL}}" target="_blank" rel="noopener">{{.Name}}{{websiteIcon .URL}}</a>
       {{- end}}
+    {{- end}}
+    {{- range $web }}
       {{- if and (ne .URL "") (eq .Error true ) }}
       {{- if eq $notworking false }}
         {{- $notworking = true }}
-        {{- if eq $breakline true }}<br>{{- end}}<span class="me-2">ex-sites:</span>
+        <span class="ms-1">Ex-sites:</span>
       {{- end }}
-      <span class="text-nowrap me-2"><strong>{{.Name}}</strong> <span class="text-body-tertiary">{{.URL}}</span></span>
+      <span class="text-nowrap"><strong>{{.Name}}</strong> <span class="text-body-tertiary">{{.URL}}</span></span>
       {{- end}}
     {{- end}}
-    </div>
   {{- end}}
 </div>
 {{- end}}

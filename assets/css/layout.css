@@ -657,6 +657,145 @@ a {
   border-top: 1px solid #e9ecef;
 }
 
+.tidbit-body.is-collapsed {
+  max-height: 20rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.tidbit-body.is-collapsed::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 4rem;
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0%), #fff);
+  pointer-events: none;
+}
+
+.tidbit-entry + .tidbit-entry {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.tidbit-prose {
+  font-size: 0.94rem;
+  line-height: 1.62;
+  color: #212529;
+}
+
+@media (width >= 992px) {
+  .tidbit-prose.tidbit-columns {
+    column-count: 2;
+    column-gap: 2.25rem;
+    column-rule: 1px solid #e9ecef;
+  }
+}
+
+.tidbit-prose p {
+  margin-bottom: 0.7rem;
+}
+
+.tidbit-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.tidbit-prose h2,
+.tidbit-prose h3,
+.tidbit-prose h4,
+.tidbit-prose h5,
+.tidbit-prose h6 {
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin: 0.9rem 0 0.35rem;
+  color: #212529;
+  break-after: avoid;
+}
+
+.tidbit-prose ul,
+.tidbit-prose ol {
+  padding-left: 1.35rem;
+  margin-bottom: 0.7rem;
+}
+
+.tidbit-prose li {
+  margin-bottom: 0.2rem;
+}
+
+.tidbit-prose blockquote {
+  border-left: 3px solid #dee2e6;
+  padding: 0.15rem 0 0.15rem 0.9rem;
+  margin: 0.7rem 0;
+  color: #495057;
+  font-style: italic;
+  break-inside: avoid;
+}
+
+.tidbit-prose pre {
+  background: #212529;
+  color: #f8f9fa;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  font-size: 0.84rem;
+  margin-bottom: 0.7rem;
+  break-inside: avoid;
+}
+
+.tidbit-prose table {
+  width: 100%;
+  margin-bottom: 0.7rem;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  break-inside: avoid;
+}
+
+.tidbit-prose th,
+.tidbit-prose td {
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #dee2e6;
+}
+
+.tidbit-prose th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.tidbit-prose .footnotes {
+  column-span: all;
+  margin-top: 0.85rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #e9ecef;
+  font-size: 0.82rem;
+  color: #495057;
+}
+
+.tidbit-prose .footnotes hr {
+  display: none;
+}
+
+.tidbit-prose .footnotes ol {
+  margin-bottom: 0;
+}
+
+.tidbit-related {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #dee2e6;
+  font-size: 0.84rem;
+  color: #6c757d;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.6rem;
+}
+
+.tidbit-related-label {
+  font-weight: 600;
+  color: #495057;
+}
+
 #milestones {
   scroll-margin-top: 5rem;
 }
