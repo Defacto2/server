@@ -1,12 +1,10 @@
 package fix_test
 
 import (
-	"context"
 	"strings"
 	"testing"
 
 	"github.com/Defacto2/server/internal/logs"
-	"github.com/Defacto2/server/internal/postgres/models"
 	"github.com/Defacto2/server/internal/testutil"
 	"github.com/Defacto2/server/model/fix"
 	"github.com/nalgeon/be"
@@ -14,7 +12,7 @@ import (
 
 // checked in Aug 26, test coverage was fine at around 60%+
 
-func TestRepairRunInvalid(t *testing.T) {
+func TestRepairInvalid(t *testing.T) {
 	t.Parallel()
 
 	const invalid = -2
@@ -28,7 +26,7 @@ func TestRepairRunInvalid(t *testing.T) {
 	be.Err(t, got)
 }
 
-func TestRepairArtifactsRun(t *testing.T) {
+func TestRepairRun(t *testing.T) {
 	t.Parallel()
 
 	tx := testutil.Tx(t)
@@ -41,26 +39,23 @@ func TestRepairArtifactsRun(t *testing.T) {
 	be.Err(t, got, nil)
 }
 
-func TestGetNumericSuffix(t *testing.T) {
+func TestNumSuffix(t *testing.T) {
 	t.Parallel()
 
-	got, err := fix.NumSuffix(context.TODO(), nil)
+	got, err := fix.NumSuffix(t.Context(), nil)
 	be.Err(t, err)
 	be.True(t, got != nil)
-	be.True(t, got.Count == 0)
-	be.True(t, len(got.Files) == 0)
-
-	_, err = fix.NumSuffix(t.Context(), nil)
-	be.Err(t, err)
+	be.Equal(t, got.Count, 0)
+	be.Equal(t, len(got.Files), 0)
 
 	db := testutil.DB(t)
 	got, err = fix.NumSuffix(t.Context(), db)
 	be.Err(t, err, nil)
 	be.True(t, got != nil)
-	be.True(t, got.Count >= 0)
+	be.Equal(t, got.Count, int64(len(got.Files)))
 }
 
-func TestSyncFilesIDSeqNoDB(t *testing.T) {
+func TestSyncIDSeq(t *testing.T) {
 	t.Parallel()
 
 	got := fix.SyncFilesIDSeq(nil)
@@ -91,50 +86,27 @@ func TestRepairString(t *testing.T) {
 	}
 }
 
-func TestFileModelCreation(t *testing.T) {
-	t.Parallel()
-
-	const id = 123
-	f := &models.File{ID: id}
-	be.Equal(t, f.ID, int64(id))
-}
-
-func TestReplacement(t *testing.T) {
+func TestReplacements(t *testing.T) {
 	t.Parallel()
 
 	replacements := fix.Replacements()
+	be.True(t, len(replacements) > 0)
 
 	for old, val := range replacements {
+		be.True(t, old != "")
+		be.Equal(t, old, strings.ToUpper(old))
+		be.True(t, strings.TrimSpace(string(val)) != "")
 		be.True(t, old != string(val))
 	}
 }
 
-func TestReplacementsCase(t *testing.T) {
-	t.Parallel()
-
-	replacements := fix.Replacements()
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"lowercase", "LOWERCASE"},
-		{"UPPERCASE", "UPPERCASE"},
-		{"MixedCase", "MIXEDCASE"},
-	}
-
-	for _, tc := range tests {
-		lookup := strings.ToUpper(tc.input)
-		if val, exists := replacements[lookup]; exists {
-			be.True(t, string(val) == tc.expected)
-		}
-	}
-}
-
-func TestPlanIndexes(t *testing.T) {
+func TestIndexes(t *testing.T) {
 	t.Parallel()
 
 	_, err := fix.PlanIndexes(t.Context(), nil)
 	be.Err(t, err)
+	be.Err(t, fix.RunIndexes(t.Context(), nil, nil, true))
+	be.Err(t, fix.Indexes(t.Context(), nil, nil))
 
 	db := testutil.DB(t)
 	plan, err := fix.PlanIndexes(t.Context(), db)

@@ -8,7 +8,7 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestMatchSuggestions(t *testing.T) {
+func TestSuggests(t *testing.T) {
 	t.Parallel()
 
 	rows := []fix.ReleaserCount{
@@ -77,7 +77,7 @@ func TestMatchSuggestions(t *testing.T) {
 	be.Err(t, err)
 }
 
-func TestSuggestsPriorityAndLimit(t *testing.T) {
+func TestSuggestsLimit(t *testing.T) {
 	t.Parallel()
 
 	entries := fix.Suggest([]fix.ReleaserCount{
@@ -104,7 +104,7 @@ func TestSuggestsPriorityAndLimit(t *testing.T) {
 	be.Equal(t, got[2].Releaser, "THE DEFACTO")
 }
 
-func TestSuggestReleasersLive(t *testing.T) {
+func TestSuggestReleasers(t *testing.T) {
 	t.Parallel()
 
 	db := testutil.DB(t)
@@ -125,7 +125,7 @@ func TestSuggestReleasersLive(t *testing.T) {
 	be.True(t, len(got) > 0)
 }
 
-func BenchmarkMatchSuggestions(b *testing.B) {
+func BenchmarkSuggests(b *testing.B) {
 	rows := make([]fix.ReleaserCount, 5000)
 	for i := range rows {
 		rows[i] = fix.ReleaserCount{Releaser: "SAMPLE GROUP NAME", Count: 5000 - i}
