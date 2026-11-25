@@ -1,4 +1,3 @@
-//nolint:exhaustive,exhaustruct_v5,wrapcheck
 package app
 
 // Package file context_artifacts.go contains handlers for paginated artifact listings

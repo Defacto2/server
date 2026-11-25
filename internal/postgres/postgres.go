@@ -19,7 +19,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // Use a lowlevel PostgreSQL driver.
 )
 
-var ErrEnvValue = errors.New("postgresL: environment variable probably contains an invalid value")
+var ErrEnvValue = errors.New("postgres: environment variable probably contains an invalid value")
 
 const (
 	// DefaultURL is an example PostgreSQL connection string, it must not be used in production.
@@ -120,7 +120,7 @@ func (c Connection) Validate(sl *slog.Logger) error {
 	if err != nil {
 		// Do not log err directly as url.Parse echoes the raw URL including credentials.
 		sl.Warn(msg, slog.String(key, "The database connection URL is invalid"))
-		return nil
+		return nil //nolint:nilerr
 	}
 
 	if u.Scheme != Protocol && u.Scheme != "postgresql" {

@@ -235,7 +235,7 @@ func CleanTemp(stale time.Duration) error {
 
 // PurgeTemp scans [os.TempDir] for application temporary directories older than stale,
 // removes them (unless dryRun is true), and returns a summary report.
-func PurgeTemp(stale time.Duration, dryRun bool) (TempReport, error) {
+func PurgeTemp(stale time.Duration, dryrun bool) (TempReport, error) {
 	const format = "dir clean temp (%s) %s: %w"
 
 	tempDir := os.TempDir()
@@ -249,7 +249,7 @@ func PurgeTemp(stale time.Duration, dryRun bool) (TempReport, error) {
 	}
 
 	var root *os.Root
-	if !dryRun {
+	if !dryrun {
 		root, err = os.OpenRoot(tempDir)
 		if err != nil {
 			return report, fmt.Errorf(format, tempDir, "open root", err)
@@ -278,7 +278,7 @@ func PurgeTemp(stale time.Duration, dryRun bool) (TempReport, error) {
 			continue
 		}
 
-		if dryRun {
+		if dryrun {
 			report.Removed++
 			report.RemovedBytes += size
 			continue
@@ -300,7 +300,7 @@ func dirSize(path string) int64 {
 	var total int64
 	_ = filepath.WalkDir(path, func(_ string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
-			return nil
+			return nil //nolint:nilerr
 		}
 		if info, infoErr := d.Info(); infoErr == nil {
 			total += info.Size()

@@ -1,3 +1,4 @@
+//nolint:paralleltest
 package flags_test
 
 import (

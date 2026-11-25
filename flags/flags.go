@@ -171,7 +171,7 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
-			return c.PrintAddresses(w)
+			return c.AddressGrouped(w)
 		},
 	}
 }
@@ -216,7 +216,7 @@ func TempDir(w io.Writer, c *config.Config) *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			return c.PrintTempPurge(w, ctx.Bool("dry-run"))
+			return c.PurgeTemp(w, ctx.Bool("dry-run"))
 		},
 	}
 }

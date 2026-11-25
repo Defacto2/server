@@ -116,7 +116,7 @@ func PlanIndexes(ctx context.Context, db *sql.DB) (IndexPlan, error) {
 	if err != nil {
 		return IndexPlan{}, fmt.Errorf(format, "query pg_index", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	present := make(map[string]bool)
 	var plan IndexPlan
@@ -211,20 +211,8 @@ func RunIndexes(ctx context.Context, sl *slog.Logger, db *sql.DB, dryRun bool) e
 		}
 	}
 
-	if plan.CreateTrgm {
-		if plan.NeedTrgm {
-			if _, err := db.ExecContext(ctx, "CREATE EXTENSION IF NOT EXISTS pg_trgm"); err != nil {
-				sl.Warn(msg, slog.String("skip", trgmIndexName),
-					slog.String("reason", "could not enable pg_trgm extension"), slog.Any("error", err))
-				plan.CreateTrgm = false
-			}
-		}
-		if plan.CreateTrgm {
-			sl.Info(msg, slog.String("create", trgmIndexName))
-			if _, err := db.ExecContext(ctx, trgmIndexDDL); err != nil {
-				return fmt.Errorf(format, trgmIndexName, err)
-			}
-		}
+	if err := createTrgmIndex(ctx, sl, db, plan); err != nil {
+		return err
 	}
 
 	for _, name := range plan.Drop {
@@ -244,6 +232,25 @@ func RunIndexes(ctx context.Context, sl *slog.Logger, db *sql.DB, dryRun bool) e
 		return fmt.Errorf(format, "optimize", err)
 	}
 
+	return nil
+}
+
+func createTrgmIndex(ctx context.Context, sl *slog.Logger, db *sql.DB, plan IndexPlan) error {
+	if !plan.CreateTrgm {
+		return nil
+	}
+	const msg = "Database indexes"
+	if plan.NeedTrgm {
+		if _, err := db.ExecContext(ctx, "CREATE EXTENSION IF NOT EXISTS pg_trgm"); err != nil {
+			sl.Warn(msg, slog.String("skip", trgmIndexName),
+				slog.String("reason", "could not enable pg_trgm extension"), slog.Any("error", err))
+			return nil
+		}
+	}
+	sl.Info(msg, slog.String("create", trgmIndexName))
+	if _, err := db.ExecContext(ctx, trgmIndexDDL); err != nil {
+		return fmt.Errorf("fix indexes %s: %w", trgmIndexName, err)
+	}
 	return nil
 }
 

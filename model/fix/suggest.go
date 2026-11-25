@@ -22,8 +22,8 @@ const (
 	minTypoLen       = 6
 )
 
-// suggestEntry is a pre-normalized releaser cached in memory for fast auto-suggestions.
-type suggestEntry struct {
+// Suggestion is a pre-normalized releaser cached in memory for fast auto-suggestions.
+type Suggestion struct {
 	name        string
 	count       int
 	fingerprint string
@@ -33,24 +33,24 @@ type suggestEntry struct {
 
 type suggestCache struct {
 	mu          sync.RWMutex
-	all         []suggestEntry
+	all         []Suggestion
 	allLoadedAt time.Time
-	mag         []suggestEntry
+	mag         []Suggestion
 	magLoadedAt time.Time
 }
 
 //nolint:gochecknoglobals
-var releaserSuggestCache suggestCache
+var relSug suggestCache
 
-// InvalidateSuggestCache clears the in-memory releaser suggestion cache so the next
+// Clear clears the in-memory releaser suggestion cache so the next
 // lookup refreshes from the database.
-func InvalidateSuggestCache() {
-	releaserSuggestCache.mu.Lock()
-	releaserSuggestCache.all = nil
-	releaserSuggestCache.allLoadedAt = time.Time{}
-	releaserSuggestCache.mag = nil
-	releaserSuggestCache.magLoadedAt = time.Time{}
-	releaserSuggestCache.mu.Unlock()
+func Clear() {
+	relSug.mu.Lock()
+	relSug.all = nil
+	relSug.allLoadedAt = time.Time{}
+	relSug.mag = nil
+	relSug.magLoadedAt = time.Time{}
+	relSug.mu.Unlock()
 }
 
 // SuggestReleasers returns up to limit releaser suggestions matching lookups,
@@ -66,31 +66,31 @@ func SuggestReleasers(
 		return nil, nil
 	}
 
-	entries, err := loadSuggestEntries(ctx, exec, magazine)
+	entries, err := suggestions(ctx, exec, magazine)
 	if err != nil {
 		return nil, fmt.Errorf("suggest releasers load: %w", err)
 	}
 
-	return MatchSuggestions(entries, limit, lookups...), nil
+	return Suggests(entries, limit, lookups...), nil
 }
 
-func loadSuggestEntries(
+func suggestions(
 	ctx context.Context, exec boil.ContextExecutor, magazine bool,
-) ([]suggestEntry, error) {
+) ([]Suggestion, error) {
 	now := time.Now()
 
-	releaserSuggestCache.mu.RLock()
-	if magazine && releaserSuggestCache.mag != nil && now.Sub(releaserSuggestCache.magLoadedAt) < suggestCacheTTL {
-		entries := releaserSuggestCache.mag
-		releaserSuggestCache.mu.RUnlock()
+	relSug.mu.RLock()
+	if magazine && relSug.mag != nil && now.Sub(relSug.magLoadedAt) < suggestCacheTTL {
+		entries := relSug.mag
+		relSug.mu.RUnlock()
 		return entries, nil
 	}
-	if !magazine && releaserSuggestCache.all != nil && now.Sub(releaserSuggestCache.allLoadedAt) < suggestCacheTTL {
-		entries := releaserSuggestCache.all
-		releaserSuggestCache.mu.RUnlock()
+	if !magazine && relSug.all != nil && now.Sub(relSug.allLoadedAt) < suggestCacheTTL {
+		entries := relSug.all
+		relSug.mu.RUnlock()
 		return entries, nil
 	}
-	releaserSuggestCache.mu.RUnlock()
+	relSug.mu.RUnlock()
 
 	query := string(postgres.SuggestReleasersCounts())
 	if magazine {
@@ -102,24 +102,24 @@ func loadSuggestEntries(
 		return nil, err
 	}
 
-	entries := BuildSuggestEntries(rows)
+	entries := Suggest(rows)
 
-	releaserSuggestCache.mu.Lock()
+	relSug.mu.Lock()
 	if magazine {
-		releaserSuggestCache.mag = entries
-		releaserSuggestCache.magLoadedAt = now
+		relSug.mag = entries
+		relSug.magLoadedAt = now
 	} else {
-		releaserSuggestCache.all = entries
-		releaserSuggestCache.allLoadedAt = now
+		relSug.all = entries
+		relSug.allLoadedAt = now
 	}
-	releaserSuggestCache.mu.Unlock()
+	relSug.mu.Unlock()
 
 	return entries, nil
 }
 
-// BuildSuggestEntries pre-normalizes releaser rows and sorts them by file count descending.
-func BuildSuggestEntries(rows []ReleaserCount) []suggestEntry {
-	entries := make([]suggestEntry, 0, len(rows))
+// Suggest pre-normalizes releaser rows and sorts them by file count descending.
+func Suggest(rows []ReleaserCount) []Suggestion {
+	entries := make([]Suggestion, 0, len(rows))
 	for _, r := range rows {
 		raw := strings.TrimSpace(r.Releaser)
 		if raw == "" {
@@ -127,7 +127,7 @@ func BuildSuggestEntries(rows []ReleaserCount) []suggestEntry {
 		}
 		kind := classifyKind(raw)
 		fp, sortedW, core := normalizeTokens(raw, kind)
-		entries = append(entries, suggestEntry{
+		entries = append(entries, Suggestion{
 			name:        strings.ToUpper(raw),
 			count:       r.Count,
 			fingerprint: fp,
@@ -135,7 +135,7 @@ func BuildSuggestEntries(rows []ReleaserCount) []suggestEntry {
 			core:        core,
 		})
 	}
-	slices.SortFunc(entries, func(a, b suggestEntry) int {
+	slices.SortFunc(entries, func(a, b Suggestion) int {
 		if c := cmp.Compare(b.count, a.count); c != 0 {
 			return c
 		}
@@ -144,11 +144,11 @@ func BuildSuggestEntries(rows []ReleaserCount) []suggestEntry {
 	return entries
 }
 
-// MatchSuggestions matches lookups against pre-normalized entries in 3 priority tiers:
+// Suggests matches lookups against pre-normalized entries in 3 priority tiers:
 //  1. Raw prefix match (exact existing behavior)
 //  2. Normalized fingerprint match (handles stop words, punctuation, apostrophes, numerals)
 //  3. 1-character typo or adjacent letter transposition (for normalized inputs >= 6 chars)
-func MatchSuggestions(entries []suggestEntry, limit int, lookups ...string) []ReleaserCount {
+func Suggests(entries []Suggestion, limit int, lookups ...string) []ReleaserCount {
 	if len(entries) == 0 || len(lookups) == 0 || limit <= 0 {
 		return nil
 	}
@@ -245,7 +245,7 @@ func matchesTypo(core string, normPrefixes []string) bool {
 		if diff < -1 || diff > 1 {
 			continue
 		}
-		if isSingleTypo(core, fp) {
+		if singleTypo(core, fp) {
 			return true
 		}
 	}

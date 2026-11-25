@@ -1,4 +1,4 @@
-//nolint:exhaustruct_v5,gochecknoglobals
+//nolint:gochecknoglobals
 package app
 
 import (
@@ -291,49 +291,56 @@ func memInfo(mu *sync.Mutex, data map[string]any) {
 		"memTotal": na, "memFree": na, "memPercent": "0%",
 		"swapTotal": na, "swapFree": na, "swapPercent": "0%",
 	}
-	if file, err := os.Open("/proc/meminfo"); err == nil {
-		defer func() { _ = file.Close() }()
-		mb := func(s string) string {
-			kb, _ := strconv.Atoi(s)
-			return fmt.Sprintf("%d MB", kb/unit)
-		}
-		perc := func(f, t string) string {
-			free, _ := strconv.Atoi(f)
-			total, _ := strconv.Atoi(t)
-			if total == 0 {
-				return "0%"
-			}
-			return fmt.Sprintf("%d%%", int64(math.Round((float64(free)/float64(total))*calc)))
-		}
-		raw := map[string]string{}
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			s := strings.Fields(scanner.Text())
-			if len(s) > req {
-				raw[s[0]] = s[1]
-			}
-		}
-		// Prefer MemAvailable on Linux (includes reclaimable page cache) over raw MemFree.
-		memAvail := raw["MemAvailable:"]
-		if memAvail == "" {
-			memAvail = raw["MemFree:"]
-		}
-		if v, ok := raw["MemTotal:"]; ok {
-			vals["memTotal"] = mb(v)
-		}
-		if memAvail != "" {
-			vals["memFree"] = mb(memAvail)
-		}
-		if v, ok := raw["SwapTotal:"]; ok {
-			vals["swapTotal"] = mb(v)
-		}
-		if v, ok := raw["SwapFree:"]; ok {
-			vals["swapFree"] = mb(v)
-		}
-		vals["memPercent"] = perc(memAvail, raw["MemTotal:"])
-		vals["swapPercent"] = perc(raw["SwapFree:"], raw["SwapTotal:"])
+	defer func() {
+		mu.Lock()
+		maps.Copy(data, vals)
+		mu.Unlock()
+	}()
+	file, err := os.Open("/proc/meminfo")
+	if err != nil {
+		return
 	}
-	mu.Lock()
-	maps.Copy(data, vals)
-	mu.Unlock()
+	defer func() { _ = file.Close() }()
+	mb := func(s string) string {
+		kb, _ := strconv.Atoi(s)
+		return fmt.Sprintf("%d MB", kb/unit)
+	}
+	perc := func(f, t string) string {
+		free, _ := strconv.Atoi(f)
+		total, _ := strconv.Atoi(t)
+		if total == 0 {
+			return "0%"
+		}
+		return fmt.Sprintf("%d%%", int64(math.Round((float64(free)/float64(total))*calc)))
+	}
+	raw := map[string]string{}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		s := strings.Fields(scanner.Text())
+		if len(s) >= req {
+			raw[s[0]] = s[1]
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return
+	}
+	// Prefer MemAvailable on Linux (includes reclaimable page cache) over raw MemFree.
+	memAvail := raw["MemAvailable:"]
+	if memAvail == "" {
+		memAvail = raw["MemFree:"]
+	}
+	if v, ok := raw["MemTotal:"]; ok {
+		vals["memTotal"] = mb(v)
+	}
+	if memAvail != "" {
+		vals["memFree"] = mb(memAvail)
+	}
+	if v, ok := raw["SwapTotal:"]; ok {
+		vals["swapTotal"] = mb(v)
+	}
+	if v, ok := raw["SwapFree:"]; ok {
+		vals["swapFree"] = mb(v)
+	}
+	vals["memPercent"] = perc(memAvail, raw["MemTotal:"])
+	vals["swapPercent"] = perc(raw["SwapFree:"], raw["SwapTotal:"])
 }

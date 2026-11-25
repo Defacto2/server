@@ -4,6 +4,7 @@
 package htmx
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -277,6 +278,43 @@ func pings() []string {
 	}
 }
 
+func writeHTMLPart(mw *multipart.Writer, rc *http.ResponseController, body string) error {
+	const format = "write html part: %w"
+	header := textproto.MIMEHeader{"Content-Type": {"text/html; charset=utf-8"}}
+	part, err := mw.CreatePart(header)
+	if err != nil {
+		return fmt.Errorf(format, err)
+	}
+	if _, err := part.Write([]byte(body)); err != nil {
+		return fmt.Errorf(format, err)
+	}
+	_ = rc.Flush()
+	return nil
+}
+
+func pingStatusClass(code int) string {
+	switch {
+	case code == http.StatusOK:
+		return `text-success`
+	case code == http.StatusNotFound:
+		return `text-danger-emphasis`
+	case code >= http.StatusInternalServerError:
+		return `text-danger`
+	default:
+		return `text-warning-emphasis`
+	}
+}
+
+func pingResultHTML(ctx context.Context, ping, proto string, port int) string {
+	escapedPing := html.EscapeString(ping)
+	code, size, err := helper.LocalHostPing(ctx, ping, proto, port)
+	if err != nil {
+		return fmt.Sprintf("<div>%s: %s</div>", escapedPing, html.EscapeString(err.Error()))
+	}
+	const spanFmt = `<div><span class="%s">%d</span> %s <span class="text-secondary">%s</span></div>`
+	return fmt.Sprintf(spanFmt, pingStatusClass(code), code, escapedPing, helper.ByteCount(size))
+}
+
 // Pings is a handler for the /pings route.
 // It streams each route ping result as a multipart/mixed HTML part for htmx hx-multipart.
 //
@@ -288,8 +326,6 @@ func Pings(c *echo.Context, proto string, port int) error {
 	}
 
 	ctx := c.Request().Context()
-	pings := pings()
-
 	w := c.Response()
 	mw := multipart.NewWriter(w)
 	w.Header().Set("Content-Type", "multipart/mixed; boundary="+mw.Boundary())
@@ -298,53 +334,19 @@ func Pings(c *echo.Context, proto string, port int) error {
 	w.WriteHeader(http.StatusOK)
 
 	rc := http.NewResponseController(w)
-	partHeader := textproto.MIMEHeader{"Content-Type": {"text/html; charset=utf-8"}}
-	writePart := func(body string) error {
-		part, err := mw.CreatePart(partHeader)
-		if err != nil {
-			return err
-		}
-		if _, err := part.Write([]byte(body)); err != nil {
-			return err
-		}
-		_ = rc.Flush()
-		return nil
-	}
-
 	count := 0
-	for ping := range slices.Values(pings) {
+	for ping := range slices.Values(pings()) {
 		if ctx.Err() != nil {
 			break
 		}
 		count++
-		code, size, err := helper.LocalHostPing(ctx, ping, proto, port)
-		if err != nil {
-			if werr := writePart(fmt.Sprintf("<div>%s: %v</div>", html.EscapeString(ping), err)); werr != nil {
-				return fmt.Errorf(format, werr)
-			}
-			continue
-		}
-
-		var class string
-		switch {
-		case code == http.StatusOK:
-			class = `text-success`
-		case code == http.StatusNotFound:
-			class = `text-danger-emphasis`
-		case code >= http.StatusInternalServerError:
-			class = `text-danger`
-		default:
-			class = `text-warning-emphasis`
-		}
-
-		const spanFmt = `<div><span class="%s">%d</span> %s <span class="text-secondary">%s</span></div>`
-		if werr := writePart(fmt.Sprintf(spanFmt, class, code, ping, helper.ByteCount(size))); werr != nil {
-			return fmt.Errorf(format, werr)
+		if err := writeHTMLPart(mw, rc, pingResultHTML(ctx, ping, proto, port)); err != nil {
+			return fmt.Errorf(format, err)
 		}
 	}
 
 	summary := `<div><small>` + strconv.Itoa(count) + ` URLs were pinged</small></div>`
-	if err := writePart(summary); err != nil {
+	if err := writeHTMLPart(mw, rc, summary); err != nil {
 		return fmt.Errorf(format, err)
 	}
 	if err := mw.Close(); err != nil {

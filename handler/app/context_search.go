@@ -1,4 +1,3 @@
-//nolint:wrapcheck
 package app
 
 // Package file context_search.go contains handlers for search forms and artifact search results.

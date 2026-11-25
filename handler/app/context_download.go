@@ -1,4 +1,3 @@
-//nolint:wrapcheck
 package app
 
 // Package file context_download.go contains handlers for binary artifact downloads,

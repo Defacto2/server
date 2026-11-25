@@ -21,47 +21,47 @@ func TestMatchSuggestions(t *testing.T) {
 		{Releaser: "PSYKLE FTP", Count: 30},
 		{Releaser: "LORDS OF DARKNESS", Count: 25},
 	}
-	entries := fix.BuildSuggestEntries(rows)
+	entries := fix.Suggest(rows)
 
 	// Tier 1: raw prefix match ordered by count
-	got := fix.MatchSuggestions(entries, 10, "razor")
+	got := fix.Suggests(entries, 10, "razor")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "RAZOR 1911")
 
 	// Tier 2: normalized match (stop words, punctuation, numerals, apostrophes)
-	got = fix.MatchSuggestions(entries, 10, "the acid prod")
+	got = fix.Suggests(entries, 10, "the acid prod")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "ACID PRODUCTIONS")
 
-	got = fix.MatchSuggestions(entries, 10, "edies")
+	got = fix.Suggests(entries, 10, "edies")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "EDIE'S BBS")
 
-	got = fix.MatchSuggestions(entries, 10, "silents")
+	got = fix.Suggests(entries, 10, "silents")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "THE SILENTS")
 
 	// Tier 2b: word-order swap match
-	got = fix.MatchSuggestions(entries, 10, "Darkness of Lords")
+	got = fix.Suggests(entries, 10, "Darkness of Lords")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "LORDS OF DARKNESS")
 
 	// Tier 3: 1-char typo match (>= 6 chars)
-	got = fix.MatchSuggestions(entries, 10, "defcto2")
+	got = fix.Suggests(entries, 10, "defcto2")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "DEFACTO2")
 
-	got = fix.MatchSuggestions(entries, 10, "Psycle ftp")
+	got = fix.Suggests(entries, 10, "Psycle ftp")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "PSYKLE FTP")
 
 	// Stop-word-only input should not match unrelated entries via normalization
-	got = fix.MatchSuggestions(entries, 10, "the ")
+	got = fix.Suggests(entries, 10, "the ")
 	be.Equal(t, len(got), 1)
 	be.Equal(t, got[0].Releaser, "THE SILENTS")
 
 	// Regex metacharacters must not fail
-	got = fix.MatchSuggestions(entries, 10, "test[", "group (")
+	got = fix.Suggests(entries, 10, "test[", "group (")
 	be.True(t, len(got) >= 0)
 }
 
@@ -69,7 +69,7 @@ func TestSuggestReleasersLive(t *testing.T) {
 	t.Parallel()
 
 	db := testutil.DB(t)
-	fix.InvalidateSuggestCache()
+	fix.Clear()
 
 	got, err := fix.SuggestReleasers(t.Context(), db, false, 14, "razor")
 	be.Err(t, err, nil)
@@ -92,10 +92,10 @@ func BenchmarkMatchSuggestions(b *testing.B) {
 		rows[i] = fix.ReleaserCount{Releaser: "SAMPLE GROUP NAME", Count: 5000 - i}
 	}
 	rows[2500] = fix.ReleaserCount{Releaser: "DEFACTO2", Count: 300}
-	entries := fix.BuildSuggestEntries(rows)
+	entries := fix.Suggest(rows)
 
 	b.ResetTimer()
 	for range b.N {
-		_ = fix.MatchSuggestions(entries, 14, "defcto2")
+		_ = fix.Suggests(entries, 14, "defcto2")
 	}
 }

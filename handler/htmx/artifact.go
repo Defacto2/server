@@ -234,7 +234,10 @@ func StatusOK(c *echo.Context, name string) error {
 		"artifact-editor-filename-undo",
 		"artifact-editor-releaser-undo",
 		"artifact-editor-title-undo":
-		return c.NoContent(http.StatusNoContent)
+		if err := c.NoContent(http.StatusNoContent); err != nil {
+			const format = "artifact status ok: %w"
+			return fmt.Errorf(format, err)
+		}
 	case
 		"artifact-editor-date-update",
 		"artifact-editor-releasers":
@@ -242,6 +245,7 @@ func StatusOK(c *echo.Context, name string) error {
 	default:
 		return c.String(code, successSpan)
 	}
+	return nil
 }
 
 func Key(c *echo.Context) (int64, error) {

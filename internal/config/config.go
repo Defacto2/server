@@ -1,6 +1,6 @@
 // Package config manages the environment variable configurations.
 //
-//nolint:lll
+//nolint:lll,nonamedreturns
 package config
 
 import (

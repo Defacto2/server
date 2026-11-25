@@ -361,7 +361,7 @@ func (serv *Server) Print(w io.Writer) (errs error) { //nolint:funlen
 	row("Mode", serv.formatModeSummary())
 	row("Listeners", serv.formatListeners())
 
-	if addrs, err := serv.Environment.AllAddresses(); err == nil && len(addrs) > 0 {
+	if addrs, err := serv.Environment.Address(); err == nil && len(addrs) > 0 {
 		row("Addresses", style(cyan, addrs[0]))
 		indent := strings.Repeat(" ", 14)
 		for _, a := range addrs[1:] {

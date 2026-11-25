@@ -145,16 +145,10 @@ func (t TableIndexStats) DeadTuplesFormatted() string { return formatInt64(t.Dea
 func (t TableIndexStats) UpdatesFormatted() string    { return formatInt64(t.Updates) }
 func (t TableIndexStats) HotUpdatesFormatted() string { return formatInt64(t.HotUpdates) }
 
-// Indexes queries PostgreSQL catalog and usage statistics for all active indexes on the files table.
-func Indexes(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
-	const format = "postgresql index stats %s: %w"
-	if err := nils.Check(ctx, db); err != nil {
-		return TableIndexStats{}, fmt.Errorf(format, "check", err)
-	}
+const (
+	indexStatsErrFmt = "postgresql index stats %s: %w"
 
-	stats := TableIndexStats{TableName: filesTableName}
-
-	const tableQuery = `
+	tableStatsSQL = `
 		SELECT
 			pg_size_pretty(pg_table_size('files')),
 			pg_size_pretty(pg_indexes_size('files')),
@@ -173,29 +167,7 @@ func Indexes(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
 		WHERE t.relname = $1
 		  AND d.datname = current_database();`
 
-	var lastVac, lastAnl, statsReset sql.NullTime
-	err := db.QueryRowContext(ctx, tableQuery, filesTableName).Scan(
-		&stats.TableSize,
-		&stats.IndexesSize,
-		&stats.TotalSize,
-		&stats.SeqScan,
-		&stats.IdxScan,
-		&stats.LiveTuples,
-		&stats.DeadTuples,
-		&stats.Updates,
-		&stats.HotUpdates,
-		&lastVac,
-		&lastAnl,
-		&statsReset,
-	)
-	if err != nil {
-		return TableIndexStats{}, fmt.Errorf(format, "table summary", err)
-	}
-	stats.LastVacuum = nullTimePtr(lastVac)
-	stats.LastAnalyze = nullTimePtr(lastAnl)
-	stats.StatsReset = nullTimePtr(statsReset)
-
-	const idxQuery = `
+	indexListSQL = `
 		SELECT
 			s.indexrelname,
 			am.amname,
@@ -218,13 +190,61 @@ func Indexes(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
 		LEFT JOIN pg_statio_user_indexes io ON io.indexrelid = s.indexrelid
 		WHERE s.relname = $1
 		ORDER BY pg_relation_size(s.indexrelid) DESC, s.indexrelname ASC;`
+)
 
-	rows, err := db.QueryContext(ctx, idxQuery, filesTableName)
+// Indexes queries PostgreSQL catalog and usage statistics for all active indexes on the files table.
+func Indexes(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
+	if err := nils.Check(ctx, db); err != nil {
+		return TableIndexStats{}, fmt.Errorf(indexStatsErrFmt, "check", err)
+	}
+
+	stats, err := tableSummary(ctx, db)
 	if err != nil {
-		return TableIndexStats{}, fmt.Errorf(format, "index list", err)
+		return TableIndexStats{}, err
+	}
+
+	stats.Indexes, err = indexList(ctx, db)
+	if err != nil {
+		return TableIndexStats{}, err
+	}
+
+	return stats, nil
+}
+
+func tableSummary(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
+	stats := TableIndexStats{TableName: filesTableName}
+	var lastVac, lastAnl, statsReset sql.NullTime
+	err := db.QueryRowContext(ctx, tableStatsSQL, filesTableName).Scan(
+		&stats.TableSize,
+		&stats.IndexesSize,
+		&stats.TotalSize,
+		&stats.SeqScan,
+		&stats.IdxScan,
+		&stats.LiveTuples,
+		&stats.DeadTuples,
+		&stats.Updates,
+		&stats.HotUpdates,
+		&lastVac,
+		&lastAnl,
+		&statsReset,
+	)
+	if err != nil {
+		return TableIndexStats{}, fmt.Errorf(indexStatsErrFmt, "table summary", err)
+	}
+	stats.LastVacuum = nullTimePtr(lastVac)
+	stats.LastAnalyze = nullTimePtr(lastAnl)
+	stats.StatsReset = nullTimePtr(statsReset)
+	return stats, nil
+}
+
+func indexList(ctx context.Context, db *sql.DB) ([]IndexStat, error) {
+	rows, err := db.QueryContext(ctx, indexListSQL, filesTableName)
+	if err != nil {
+		return nil, fmt.Errorf(indexStatsErrFmt, "index list", err)
 	}
 	defer func() { _ = rows.Close() }()
 
+	var indexes []IndexStat
 	for rows.Next() {
 		var idx IndexStat
 		var lastScan sql.NullTime
@@ -245,16 +265,15 @@ func Indexes(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
 			&idx.Definition,
 		)
 		if err != nil {
-			return TableIndexStats{}, fmt.Errorf(format, "scan row", err)
+			return nil, fmt.Errorf(indexStatsErrFmt, "scan row", err)
 		}
 		idx.LastScan = nullTimePtr(lastScan)
-		stats.Indexes = append(stats.Indexes, idx)
+		indexes = append(indexes, idx)
 	}
 	if err := rows.Err(); err != nil {
-		return TableIndexStats{}, fmt.Errorf(format, "rows", err)
+		return nil, fmt.Errorf(indexStatsErrFmt, "rows", err)
 	}
-
-	return stats, nil
+	return indexes, nil
 }
 
 func nullTimePtr(nt sql.NullTime) *time.Time {

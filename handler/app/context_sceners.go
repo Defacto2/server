@@ -1,4 +1,3 @@
-//nolint:wrapcheck
 package app
 
 // Package file context_sceners.go contains handlers for scener listings, role filters,

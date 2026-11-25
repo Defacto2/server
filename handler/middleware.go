@@ -1,4 +1,4 @@
-//nolint:gochecknoglobals,exhaustruct_v5
+//nolint:exhaustruct_v5
 package handler
 
 // Package file middleware.go contains the custom middleware functions for the Echo web framework.
@@ -167,7 +167,7 @@ func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLogge
 		}
 
 		const latencyUnit = 100 * time.Microsecond
-		rsize := uint64(max(v.ResponseSize, 0)) //nolint:gosec
+		rsize := uint64(max(v.ResponseSize, 0))
 		attrs := make([]any, 0, 3)
 		attrs = append(attrs,
 			slog.Duration("latency", v.Latency.Round(latencyUnit)),

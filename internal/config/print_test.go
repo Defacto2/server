@@ -77,7 +77,7 @@ func TestPrintAddresses(t *testing.T) {
 	t.Parallel()
 
 	var empty bytes.Buffer
-	be.Err(t, (config.Config{}).PrintAddresses(&empty), config.ErrNoPort)
+	be.Err(t, (config.Config{}).AddressGrouped(&empty), config.ErrNoPort)
 
 	var buf bytes.Buffer
 	c := config.Config{
@@ -85,7 +85,7 @@ func TestPrintAddresses(t *testing.T) {
 		TLSPort:   config.PortTLS(config.StdHTTPS),
 		MatchHost: config.Matchhost("127.0.0.1"),
 	}
-	be.Err(t, c.PrintAddresses(&buf), nil)
+	be.Err(t, c.AddressGrouped(&buf), nil)
 	out := buf.String()
 	be.True(t, !strings.Contains(out, "\033["))
 	be.True(t, strings.Contains(out, "Bound to host: 127.0.0.1"))
@@ -99,7 +99,7 @@ func TestPrintTempPurge(t *testing.T) {
 	t.Setenv("TMPDIR", t.TempDir())
 
 	var buf bytes.Buffer
-	be.Err(t, (config.Config{}).PrintTempPurge(&buf, true), nil)
+	be.Err(t, (config.Config{}).PurgeTemp(&buf, true), nil)
 	out := buf.String()
 	be.True(t, strings.Contains(out, "Temporary Directory Purge (dry run)"))
 	be.True(t, strings.Contains(out, "Found"))

@@ -61,7 +61,7 @@ func (c Config) Print(w io.Writer, detail bool) {
 
 	_, _ = fmt.Fprintln(w, style(ansiBold, "Web Server Configurations"))
 
-	for _, group := range c.printGroups() {
+	for _, group := range c.groups() {
 		_, _ = fmt.Fprintln(w)
 		_, _ = fmt.Fprintln(w, style(ansiBold, group.title))
 		for _, item := range group.items {
@@ -92,7 +92,7 @@ func (c Config) Print(w io.Writer, detail bool) {
 	}
 }
 
-func (c Config) printGroups() []printGroup {
+func (c Config) groups() []printGroup {
 	return []printGroup{
 		{
 			title: "DIRECTORIES",
@@ -115,7 +115,7 @@ func (c Config) printGroups() []printGroup {
 					value: c.SessionMaxAge.String(),
 				},
 				secretItem("D2_GOOGLE_CLIENT_ID", c.GoogleClientID.String(), c.GoogleClientID.Help(), ""),
-				c.googleAccountsItem(),
+				c.google(),
 				secretItem("D2_DEMOZOO_KEY", c.DemozooAuth.String(), c.DemozooAuth.Help(), c.DemozooAuth.Issue()),
 			},
 		},
@@ -163,7 +163,7 @@ func secretItem(env, value, tip, issue string) printItem {
 	return printItem{env: env, value: mask, tip: tip, issue: issue}
 }
 
-func (c Config) googleAccountsItem() printItem {
+func (c Config) google() printItem {
 	if len(c.GoogleAccounts) == 0 {
 		return printItem{
 			env:   "D2_GOOGLE_IDS",
@@ -195,9 +195,9 @@ func toggleItem(env string, t Toggle) printItem {
 	return printItem{env: env, value: "off", muted: true}
 }
 
-// PrintAddresses writes a grouped, human-readable list of server URLs to w.
+// AddressGrouped writes a grouped, human-readable list of server URLs to w.
 // ANSI styling is enabled automatically when w is a terminal.
-func (c Config) PrintAddresses(w io.Writer) error {
+func (c Config) AddressGrouped(w io.Writer) error {
 	if w == nil {
 		w = os.Stdout
 	}
@@ -242,14 +242,15 @@ func (c Config) PrintAddresses(w io.Writer) error {
 	return nil
 }
 
-// PrintTempPurge purges (or previews purging when dryRun is true) application
-// temporary directories and writes a summary report to w.
-func (c Config) PrintTempPurge(w io.Writer, dryRun bool) error {
+// PurgeTemp purges the application temporary directories and
+// writes a summary report to w.
+// When dryrun is true a preview is run.
+func (c Config) PurgeTemp(w io.Writer, dryrun bool) error {
 	if w == nil {
 		w = os.Stdout
 	}
 	const stale = 1 * time.Second
-	report, err := dir.PurgeTemp(stale, dryRun)
+	report, err := dir.PurgeTemp(stale, dryrun)
 
 	color := logs.Color(w)
 	style := func(code, s string) string {
@@ -260,7 +261,7 @@ func (c Config) PrintTempPurge(w io.Writer, dryRun bool) error {
 	}
 
 	title := "Temporary Directory Purge"
-	if dryRun {
+	if dryrun {
 		title += " (dry run)"
 	}
 
@@ -284,7 +285,7 @@ func (c Config) PrintTempPurge(w io.Writer, dryRun bool) error {
 		helper.ByteCountFloat(report.FoundBytes))
 
 	if report.Found > 0 {
-		if dryRun {
+		if dryrun {
 			_, _ = fmt.Fprintf(w, "  %s %s (%s)\n",
 				pad(ansiYellow, "Would purge"),
 				pluralDir(report.Removed),
@@ -300,7 +301,8 @@ func (c Config) PrintTempPurge(w io.Writer, dryRun bool) error {
 	if report.Skipped > 0 {
 		_, _ = fmt.Fprintf(w, "  %s %s\n",
 			pad(ansiDim, "Skipped"),
-			style(ansiDim, fmt.Sprintf("%s (modified < %s ago)", pluralDir(report.Skipped), stale)))
+			style(ansiDim, fmt.Sprintf("%s (modified < %s ago)",
+				pluralDir(report.Skipped), stale)))
 	}
 	if report.Failed > 0 {
 		_, _ = fmt.Fprintf(w, "  %s %s\n",
@@ -314,19 +316,19 @@ func (c Config) PrintTempPurge(w io.Writer, dryRun bool) error {
 	return nil
 }
 
-// ConfigIssue describes a single configuration validation problem.
-type ConfigIssue struct {
+// Issue describes a single configuration validation problem.
+type Issue struct {
 	Env   string
 	Value string
 	Issue string
 }
 
 // Issues returns all active validation problems across the configuration fields.
-func (c Config) Issues() []ConfigIssue {
-	var out []ConfigIssue
+func (c Config) Issues() []Issue {
+	var out []Issue
 	add := func(env, val, issue string) {
 		if issue != "" {
-			out = append(out, ConfigIssue{Env: env, Value: val, Issue: issue})
+			out = append(out, Issue{Env: env, Value: val, Issue: issue})
 		}
 	}
 
@@ -350,8 +352,8 @@ func (c Config) Issues() []ConfigIssue {
 	return out
 }
 
-// AllAddresses returns the combined HTTP and HTTPS URLs the server may be reachable at.
-func (c Config) AllAddresses() ([]string, error) {
+// Address returns the combined HTTP and HTTPS URLs the server may be reachable at.
+func (c Config) Address() ([]string, error) {
 	httpURLs, httpsURLs, err := c.addressURLs()
 	if err != nil {
 		return nil, err

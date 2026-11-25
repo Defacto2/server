@@ -229,99 +229,65 @@ func (c *Config) checkDatabase() checkGroup {
 func (c *Config) checkModeAuth() checkGroup {
 	items := []checkItem{
 		{status: statusOK, name: "D2_PROD_MODE", detail: boolLabel(c.ProdMode)},
+		checkToggleWarn("D2_READ_ONLY", c.ReadOnly,
+			"on — edits to the database are not allowed",
+			"off — write mode enabled"),
+		checkToggleWarn("D2_NO_CRAWL", c.NoCrawl,
+			"on — search engine crawling is disabled",
+			"off"),
 	}
-
-	if c.ReadOnly.Bool() {
-		items = append(items, checkItem{
-			status: statusWarn,
-			name:   "D2_READ_ONLY",
-			detail: "on — edits to the database are not allowed",
-		})
-	} else {
-		items = append(items, checkItem{
-			status: statusOK,
-			name:   "D2_READ_ONLY",
-			detail: "off — write mode enabled",
-		})
-	}
-
-	if c.NoCrawl.Bool() {
-		items = append(items, checkItem{
-			status: statusWarn,
-			name:   "D2_NO_CRAWL",
-			detail: "on — search engine crawling is disabled",
-		})
-	} else {
-		items = append(items, checkItem{
-			status: statusOK,
-			name:   "D2_NO_CRAWL",
-			detail: "off",
-		})
-	}
-
-	// Production write-mode auth requirements.
 	if c.ProdMode.Bool() && !c.ReadOnly.Bool() {
-		if c.GoogleClientID == "" {
-			items = append(items, checkItem{
-				status: statusWarn,
-				name:   "D2_GOOGLE_CLIENT_ID",
-				detail: "not set — required for admin sign-in",
-			})
-		} else {
-			items = append(items, checkItem{
-				status: statusOK,
-				name:   "D2_GOOGLE_CLIENT_ID",
-				detail: mask,
-			})
-		}
+		items = append(items, c.checkProdAuth()...)
+	}
+	items = append(items, c.checkDemozooKey())
+	return checkGroup{title: "MODE & AUTH", items: items}
+}
 
-		if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
-			items = append(items, checkItem{
-				status: statusWarn,
-				name:   "D2_GOOGLE_IDS",
-				detail: "not set — no admin accounts configured",
-			})
-		} else {
-			detail := mask
-			if s := c.GoogleAccounts.String(); s != "" {
-				detail = fmt.Sprintf("%s (%s)", mask, s)
-			}
-			items = append(items, checkItem{
-				status: statusOK,
-				name:   "D2_GOOGLE_IDS",
-				detail: detail,
-			})
-		}
+func checkToggleWarn(env string, t Toggle, onDetail, offDetail string) checkItem {
+	if t.Bool() {
+		return checkItem{status: statusWarn, name: env, detail: onDetail}
+	}
+	return checkItem{status: statusOK, name: env, detail: offDetail}
+}
 
-		if c.SessionMaxAge == 0 {
-			items = append(items, checkItem{
-				status: statusWarn,
-				name:   "D2_SESSION_MAX_AGE",
-				detail: "0 — admin sessions never expire",
-			})
-		} else {
-			items = append(items, checkItem{
-				status: statusOK,
-				name:   "D2_SESSION_MAX_AGE",
-				detail: c.SessionMaxAge.String(),
-			})
-		}
+func (c *Config) checkProdAuth() []checkItem {
+	clientID := checkItem{status: statusOK, name: "D2_GOOGLE_CLIENT_ID", detail: mask}
+	if c.GoogleClientID == "" {
+		clientID.status = statusWarn
+		clientID.detail = "not set — required for admin sign-in"
 	}
 
+	googleIDs := checkItem{status: statusOK, name: "D2_GOOGLE_IDS", detail: mask}
+	if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
+		googleIDs.status = statusWarn
+		googleIDs.detail = "not set — no admin accounts configured"
+	} else if s := c.GoogleAccounts.String(); s != "" {
+		googleIDs.detail = fmt.Sprintf("%s (%s)", mask, s)
+	}
+
+	sessionAge := checkItem{status: statusOK, name: "D2_SESSION_MAX_AGE", detail: c.SessionMaxAge.String()}
+	if c.SessionMaxAge == 0 {
+		sessionAge.status = statusWarn
+		sessionAge.detail = "0 — admin sessions never expire"
+	}
+
+	return []checkItem{clientID, googleIDs, sessionAge}
+}
+
+func (c *Config) checkDemozooKey() checkItem {
+	const env = "D2_DEMOZOO_KEY"
 	switch {
 	case c.DemozooAuth == "":
-		items = append(items, checkItem{status: statusSkip, name: "D2_DEMOZOO_KEY", detail: "not set"})
+		return checkItem{status: statusSkip, name: env, detail: "not set"}
 	case c.DemozooAuth.Issue() != "":
-		items = append(items, checkItem{
+		return checkItem{
 			status: statusFail,
-			name:   "D2_DEMOZOO_KEY",
+			name:   env,
 			detail: fmt.Sprintf("%s — %s", mask, c.DemozooAuth.Issue()),
-		})
+		}
 	default:
-		items = append(items, checkItem{status: statusOK, name: "D2_DEMOZOO_KEY", detail: mask})
+		return checkItem{status: statusOK, name: env, detail: mask}
 	}
-
-	return checkGroup{title: "MODE & AUTH", items: items}
 }
 
 func (c *Config) checkTools(ctx context.Context) checkGroup {

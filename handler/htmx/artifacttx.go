@@ -397,7 +397,7 @@ func TxPublic(c *echo.Context, tx *sql.Tx, state bool) error {
 	if err := model.UpdateOnline(ctx, tx, state, key); err != nil {
 		return fmt.Errorf(format, "update", err)
 	}
-	fix.InvalidateSuggestCache()
+	fix.Clear()
 
 	if state {
 		return c.String(http.StatusOK, "online")
@@ -423,7 +423,7 @@ func TxPublicByKey(c *echo.Context, tx *sql.Tx, key string, state bool) error {
 	if err := model.UpdateOnline(ctx, tx, state, id); err != nil {
 		return fmt.Errorf(format, id, "update", err)
 	}
-	fix.InvalidateSuggestCache()
+	fix.Clear()
 
 	if state {
 		return c.HTML(http.StatusOK,
@@ -507,7 +507,7 @@ func txReleasers(c *echo.Context, tx *sql.Tx, undo bool) error {
 	if err := model.UpdateReleasers(ctx, tx, key, relFor, relBy); err != nil {
 		return badRequest(c, err)
 	}
-	fix.InvalidateSuggestCache()
+	fix.Clear()
 
 	if undo {
 		return StatusOK(c, "artifact-editor-releaser-undo")

@@ -1,4 +1,3 @@
-//nolint:exhaustive,wrapcheck
 package app
 
 // Package file context_releasers.go contains handlers for scene groups, releasers,

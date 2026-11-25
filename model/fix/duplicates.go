@@ -1,10 +1,11 @@
-//nolint:exhaustruct_v5
+//nolint:exhaustruct_v5,nonamedreturns
 package fix
 
 import (
 	"cmp"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -17,6 +18,9 @@ import (
 	"github.com/aarondl/sqlboiler/v4/boil"
 	"github.com/aarondl/sqlboiler/v4/queries"
 )
+
+// ErrInvalidMerge is returned when merge source or destination releaser names are invalid.
+var ErrInvalidMerge = errors.New("source and target releaser names must be non-empty and distinct")
 
 // ReleaserCount holds a raw releaser name and its file count from the database.
 type ReleaserCount struct {
@@ -110,12 +114,9 @@ func MergeReleaser(ctx context.Context, exec boil.ContextExecutor, from, to stri
 		return 0, fmt.Errorf(format, err)
 	}
 
-	InvalidateSuggestCache()
+	Clear()
 	return nFor + nBy, nil
 }
-
-// ErrInvalidMerge is returned when merge source or destination releaser names are invalid.
-var ErrInvalidMerge = fmt.Errorf("source and target releaser names must be non-empty and distinct")
 
 const maxMinorFiles = 10
 
@@ -369,7 +370,7 @@ func AnalyzeDuplicates(rows []ReleaserCount) *DupReport {
 				if _, ok := seenPairs[pairKey(a.entry.Name, b.entry.Name)]; ok {
 					continue
 				}
-				if isSingleTypo(a.core, b.core) {
+				if singleTypo(a.core, b.core) {
 					pair := []DupEntry{a.entry, b.entry}
 					sortEntries(pair)
 					markCluster(pair)
@@ -417,7 +418,7 @@ func sortEntries(entries []DupEntry) {
 	})
 }
 
-func isStopWord(w string) bool {
+func stopWord(w string) bool {
 	switch w {
 	case "the", "a", "an", "and", "n", "of",
 		"inc", "incorporated", "ltd", "limited", "corp", "corporation",
@@ -482,7 +483,7 @@ func normalizeTokens(raw, kind string) (fingerprint, sortedWords, core string) {
 	filtered := make([]string, 0, len(rawWords))
 	for _, w := range rawWords {
 		w = normalizeNumeral(w)
-		if isStopWord(w) {
+		if stopWord(w) {
 			continue
 		}
 		filtered = append(filtered, w)
@@ -507,73 +508,48 @@ func normalizeTokens(raw, kind string) (fingerprint, sortedWords, core string) {
 	return fingerprint, sortedWords, core
 }
 
-// isSingleTypo returns true if a and b differ by exactly 1 edit (insertion, deletion,
+// singleTypo returns true if a and b differ by exactly 1 edit (insertion, deletion,
 // substitution, or adjacent transposition), and that edit does not involve a numeric digit.
-func isSingleTypo(a, b string) bool {
-	la, lb := len(a), len(b)
-	if la == lb {
-		// Check substitution or adjacent transposition
-		diffs := make([]int, 0, 3)
-		for i := range la {
-			if a[i] != b[i] {
-				diffs = append(diffs, i)
-				if len(diffs) > 2 {
-					return false
-				}
-			}
-		}
-		if len(diffs) == 1 {
-			idx := diffs[0]
-			if isDigit(a[idx]) || isDigit(b[idx]) {
-				return false
-			}
-			return true
-		}
-		if len(diffs) == 2 && diffs[1] == diffs[0]+1 {
-			i, j := diffs[0], diffs[1]
-			if a[i] == b[j] && a[j] == b[i] {
-				if isDigit(a[i]) || isDigit(a[j]) {
-					return false
-				}
-				return true
-			}
-		}
+func singleTypo(a, b string) bool {
+	switch len(b) - len(a) {
+	case 0:
+		return sameLenTypo(a, b)
+	case 1:
+		return insertTypo(a, b)
+	case -1:
+		return insertTypo(b, a)
+	default:
 		return false
 	}
+}
 
-	// Ensure a is the shorter string (len(b) == len(a) + 1)
-	if la > lb {
-		a, b = b, a
-		la, lb = lb, la
+func firstDiff(a, b string) int {
+	n := min(len(a), len(b))
+	for i := range n {
+		if a[i] != b[i] {
+			return i
+		}
 	}
-	if lb-la != 1 {
-		return false
-	}
+	return n
+}
 
-	i, j := 0, 0
-	var skipped byte
-	diffs := 0
-	for i < la && j < lb {
-		if a[i] == b[j] {
-			i++
-			j++
-			continue
-		}
-		diffs++
-		if diffs > 1 {
-			return false
-		}
-		skipped = b[j]
-		j++
-	}
-	if diffs == 0 {
-		skipped = b[lb-1]
-	}
-	if isDigit(skipped) {
+func sameLenTypo(a, b string) bool {
+	i := firstDiff(a, b)
+	if i == len(a) {
 		return false
 	}
-	// Avoid flagging simple plural 's' at the very end if short, or allow it as a valid duplicate candidate
-	return true
+	if a[i+1:] == b[i+1:] {
+		return !isDigit(a[i]) && !isDigit(b[i])
+	}
+	if i+1 < len(a) && a[i] == b[i+1] && a[i+1] == b[i] && a[i+2:] == b[i+2:] {
+		return !isDigit(a[i]) && !isDigit(a[i+1])
+	}
+	return false
+}
+
+func insertTypo(short, long string) bool {
+	i := firstDiff(short, long)
+	return !isDigit(long[i]) && short[i:] == long[i+1:]
 }
 
 func isDigit(c byte) bool {

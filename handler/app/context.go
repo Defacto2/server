@@ -1,4 +1,3 @@
-//nolint:exhaustruct_v5,wrapcheck
 package app
 
 // Package file context.go contains the typed PageData template wrapper,
