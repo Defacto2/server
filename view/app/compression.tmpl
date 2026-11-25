@@ -1,146 +1,200 @@
 {{- /*
-  compression.tmpl ~ File compression formats and history.
+    compression.tmpl ~ File compression formats and history.
 */ -}}
 {{- define "content" }}
-<h4 class="index-section-header">Squeeze</h4>
-<div class="index-intro-section">
-<p>
-One of the original compression formats used on the PC was known as File Squeezer, which was introduced in May 1981 for the CP/M systems and later ported to the MicroSoft Disk Operating System by various authors. 
-CP/M was the first universal microcomputer operating system, existing before Microsoft's Windows, MS-DOS, and even the PC as a platform.
-On the PC, <a href="http://fileformats.archiveteam.org/wiki/Squeeze">Squeezing</a> comprises two programs, <code>SQ.EXE</code>, the file squeezer for compression, and <code>USQ.EXE</code>, the file unsqueezer for decompression. 
-Squeeze initially did not preserve file modification dates and could only compress individual files.
-</p>
-</div>
-<h4 class="index-section-header">LBR (Library Utility)</h4>
-<div class="index-intro-section">
-<p>
-The Library Utility is another CP/M tool, originally authored by Gary Novosielski in 1982
-and later ported to MS-DOS as <code>LU.EXE</code>.
-LBR files are simply uncompressed packages containing a collection of files, the microcomputer equivalent of an uncompressed TAR package.
-However, unlike today's TAR archives that preserve everything of the file system, LBR archive had major limitations.
-LBR archives could not preserve the file dates, file permissions, or any sub-directories.
-As the whole concept of sub-directories and folders didn't exist on either the CP/M or MS-DOS platforms in 1982.
-</p>
-<p>
-Jim Kloss author of NoChange BBS <a href="/f/be268e1">writes</a>,
-<q>one of the best things to happen to us BBS'ers is the use of libraries to put many
-commonly related programs together for one simple download. This gets rid
-of the aggrevation you feel when you try to download all 9-10 files required
-to run some systems (i.e. RBBS). By putting them in a library, you can get them all in one pass.</q>
-</p>
-</div>
-<h4 class="index-section-header">ARC (File Archive Utility)</h4>
-<div class="index-intro-section">
-<p>
-The process of needing multiple unrelated utilities to archive, compress, and share packages online over bulletin boards was convoluted, 
-and several solutions arrived on the PC to simplify the process. 
-One of the first was ARC, "File Archive Utility" by Thom Henderson under the company, System Enhancement Associates. 
-This tool archived and compressed groups of files using a single command, and <a href="http://www.textfiles.com/programming/FORMATS/arc-lbr.pro">caught on</a> 
-in the PC BBS community, with many boards adopting it as a standard and re-packaging their existing file offerings.
-</p>
-<p>
-The author of UNARC for the CP/M systems <a href="https://www.cpc-power.com/index.php?page=detail&onglet=notices&num=13880">notes</a> in May 1986, 
-<q>The files which UNARC processes are the product of a utility program, ARC, which executes on 16-bit computers running the MS-DOS (or PC-DOS) operating system. 
-This program has achieved widespread popularity since it was first introduced in March 1985.</q>
-</p>
-</p>
-</div>
-<h4 class="index-section-header"><small>Lost history</small></h4>
-<div class="index-intro-section">
-<p>
-Unfortunately, all this means there are no known Scene releases compressed with File Squeezer or packaged with the Library Utility. 
-Everything preserved today has been repackaged using the ARC tool at a later date. 
-For example, a release by the Duplicators for the game Bluebush Chess (BBCHESS.COM) was modified in September 1984; 
-however, the package we have (<a href="https://defacto2.net/f/b627a2c">BLUEBUSH.ARC</a>) was created in June 1986. 
-Another example is the SPI release of Shamus, which proclaims <q>&copy; Copyright invalid in 1984</q>, but our <a href="https://defacto2.net/f/b92e146">SHAMUS.ARC</a> package was made in December 1985. 
-Both examples were probably repackaged by the group, a BBS, or a user, to use the more convenient ARC tools.
-</p>
-</div>
+<div class="row g-4 align-items-start mt-1 mb-5">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav" aria-label="Compression formats timeline">
+      <div class="index-eyebrow mb-2">Formats</div>
+      <ul class="nav flex-column gap-1 mb-4">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#squeeze">Squeeze <span class="text-body-secondary small font-monospace ms-1">1981</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#lbr">LBR <span class="text-body-secondary small font-monospace ms-1">1982</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#arc">ARC <span class="text-body-secondary small font-monospace ms-1">1985</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#zoo">Zoo <span class="text-body-secondary small font-monospace ms-1">1986</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#pkarc">PKARC <span class="text-body-secondary small font-monospace ms-1">1985</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#pkzip">PKPAK &amp; PKZIP <span class="text-body-secondary small font-monospace ms-1">1989</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#rar-ace">RAR &amp; ACE <span class="text-body-secondary small font-monospace ms-1">1994–97</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#historical-examples">Historical examples</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#more-information">More information</a></li>
+      </ul>
+      <div class="index-eyebrow mb-2">Related</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="/apps">Using apps today</a></li>
+      </ul>
+    </nav>
+  </aside>
 
-<h4 class="index-section-header">Zoo (A Fast File Archiver)</h4>
-<div class="index-intro-section">
-<p>
-A competing compression format known as <a href="http://fileformats.archiveteam.org/wiki/Zoo">Zoo</a>, "A Fast File Archiver," by Rahul Dhesi, was released on the PC in August 1986. 
-While it never caught on with the PC BBS Scene due to the popularity of ARC, Zoo did prove to be more popular on the Commodore Amiga microcomputer, Unix, and early Linux.
-And unlike the earlier archiving tools, it did preserve file and folder directory structures.
-</p>
-</div>
+  <div class="col-lg-9">
+    <div class="d-flex flex-column gap-4">
 
-<h4 class="index-section-header">PKARC (The Faster ARC)</h4>
-<div class="index-intro-section">
-<p>
-ARC had evolved into a standard on the PC by offering its source code for porting to other microcomputers and systems. 
-And while free, Thom, the author of ARC, asked for payments from users who thought the tools or the standard were useful.
-</p>
-<p>
-In late 1985, a programmer by the name of Phil Katz took a look at the source code and created a set of more optimized tools named PKARC 
-and <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkxarc.zip">PKXARC</a>, "Fast! Archive Create/Update/Extract Utility" that would handle ARC archives. 
-He, too, <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkx33a12.com">asked</a> for payments from the users who thought his more performant tools were useful, which put him in competition with Thom, the original author of ARC.
-</p>
-<p>
-Phil kept improving his tools and ultimately introduced new compression methods that broke compatibility with the ARC standard; however, he kept using the ARC branding and ".ARC" file extension. 
-This confused users, forcing the adoption of Phil's tools over Thom's originals by following the later Microsoft playbook of embrace, extend, and extinguish. 
-SEA responded by suing Phil for trademark and software likeness violations, where they ultimately settled.
-</p>
-<p>
-Paul Homchick, in October 1988, <a href="http://bbsdocumentary.com/library/CONTROVERSY/LAWSUITS/SEA/arc-hist.txt">wrote</a>, 
-<q>Phil Katz continued to produced new versions of PKARC, finally, in the latter part of 1987, introducing "SQUASHING" which was similar to zoo's 13-bit LZW compression. 
-Although PKARC was no longer "ARC-compatible" it retained the .ARC extension.
-This caused confusion for novice users and a lot of grief for BBS operators.
-This policy was regarding by many as "standard busting," and likely was a factor in the litigation that followed in the summer of 1988.</q>
-</p>
-<p>
-Unfortunately for Thom, the litigation initiated an online <a href="http://www.bbsdocumentary.com/library/CONTROVERSY/LAWSUITS/SEA/">flame war</a> and the cancellation of the SEA brand. 
-Many ARC users and BBS system operators sided with Phil, who presented himself as an underdog in a David and Goliath battle. 
-With his supporters ditching the use of the tools offered by SEA, and eventually leading to the demise of the tiny company with the abandonment of the ARC standard.
-</p>
-</div>
+      <article id="squeeze" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1981 · CP/M &amp; MS-DOS</div>
+        <h2 class="h4 fw-semibold mb-3">Squeeze</h2>
+        <div class="index-prose">
+          <p>
+            One of the original compression formats used on the PC was known as File Squeezer, which was introduced in May 1981 for CP/M systems and later ported to the Microsoft Disk Operating System by various authors.
+            CP/M was the first universal microcomputer operating system, existing before Microsoft's Windows, MS-DOS, and even the PC as a platform.
+            On the PC, <a href="http://fileformats.archiveteam.org/wiki/Squeeze" target="_blank" rel="noopener">Squeezing</a> comprises two programs: <code>SQ.EXE</code>, the file squeezer for compression, and <code>USQ.EXE</code>, the file unsqueezer for decompression.
+            Squeeze initially did not preserve file modification dates and could only compress individual files.
+          </p>
+        </div>
+      </article>
 
-<h4 class="index-section-header">PKPAK & PKZIP</h4>
-<div class="index-intro-section">
-<p>
-In the settlement, Phil agreed to rename his PKARC tools to PKPAK and PKUNPAK, but later retired them after introducing a new set of programs that were free of any source code or trademark violations. 
-These tools were released as PKZIP and PKUNZIP and became the standard archiver for online boards and later the World Wide Web.
-</p>
-<p>
-But much like Phil had done earlier with his PKARC toolset, newer releases of PKZIP would introduce incompatible compression methods while keeping to the ".ZIP" file extension. 
-This again led to confusion, with the users not always knowing which archiving tool version to use for a particular ZIP archive.
-</p>
-<p>
-By the end of 1992, the ZIP standard eventually <a href="https://www.hanshq.net/zip.html">settled</a> on the "deflate" compression method first introduced in 1990, and is still used today. 
-However, some of the more esoteric compression techniques that are found in the ZIP files created before 1993 are often not usable with modern archiving tools or operating systems.
-</p>
-<p>
-<img src="/image/new/zip-error.webp" class="rounded mx-auto d-block" alt="There was an error extracting 'CONQUEST.ZIP' screenshot">
-</p>
-</div>
+      <article id="lbr" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1982 · CP/M &amp; MS-DOS</div>
+        <h2 class="h4 fw-semibold mb-3">LBR (Library Utility)</h2>
+        <div class="index-prose">
+          <p>
+            The Library Utility is another CP/M tool, originally authored by Gary Novosielski in 1982
+            and later ported to MS-DOS as <code>LU.EXE</code>.
+            LBR files are simply uncompressed packages containing a collection of files, the microcomputer equivalent of an uncompressed TAR package.
+            However, unlike today's TAR archives that preserve everything of the file system, LBR archives had major limitations:
+            they could not preserve file dates, file permissions, or any sub-directories,
+            as the whole concept of sub-directories and folders didn't exist on either CP/M or MS-DOS in 1982.
+          </p>
+          <p>
+            Jim Kloss, author of NoChange BBS, <a href="/f/be268e1">writes</a>:
+            <q>one of the best things to happen to us BBS'ers is the use of libraries to put many
+            commonly related programs together for one simple download. This gets rid
+            of the aggrevation you feel when you try to download all 9-10 files required
+            to run some systems (i.e. RBBS). By putting them in a library, you can get them all in one pass.</q>
+          </p>
+        </div>
+      </article>
 
-<h4 class="index-section-header">RAR (Roshal Archive)</h4>
-<div class="index-intro-section">
-<p>
-The <a href="http://fileformats.archiveteam.org/wiki/RAR">Roshal Archive</a> is proprietary format developed by a sole engineer in 1994. 
-RAR compressed packages are commonly used with large files on online distributed networks such as BitTorrent where the hosting or transfer may not always be stable. 
-The reason for this is that RAR supports redundancy data that allows the recovery of individual files within a package even when the package itself is not complete. 
-RAR decompression software is free but file compression requires a commercial product.
-</p>
-</div>
+      <article id="arc" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1985 · System Enhancement Associates</div>
+        <h2 class="h4 fw-semibold mb-3">ARC (File Archive Utility)</h2>
+        <div class="index-prose">
+          <p>
+            The process of needing multiple unrelated utilities to archive, compress, and share packages online over bulletin boards was convoluted,
+            and several solutions arrived on the PC to simplify the process.
+            One of the first was ARC, "File Archive Utility", by Thom Henderson under the company System Enhancement Associates.
+            This tool archived and compressed groups of files using a single command, and <a href="http://www.textfiles.com/programming/FORMATS/arc-lbr.pro" target="_blank" rel="noopener">caught on</a>
+            in the PC BBS community, with many boards adopting it as a standard and repackaging their existing file offerings.
+          </p>
+          <p>
+            The author of UNARC for CP/M systems <a href="https://www.cpc-power.com/index.php?page=detail&amp;onglet=notices&amp;num=13880" target="_blank" rel="noopener">notes</a> in May 1986:
+            <q>The files which UNARC processes are the product of a utility program, ARC, which executes on 16-bit computers running the MS-DOS (or PC-DOS) operating system.
+            This program has achieved widespread popularity since it was first introduced in March 1985.</q>
+          </p>
+        </div>
 
-<h4 class="index-section-header">ACE</h4>
-<div class="index-intro-section">
-<p>
-ACE is another <a href="http://fileformats.archiveteam.org/wiki/ACE">proprietary</a> format that was developed by a sole engineer and first released in 1997. 
-It offers slightly better compression than RAR and briefly became popular when home Internet speeds were measured in the kbit/s. 
-Like RAR, ACE packages can be decompressed using free software but file compression requires a commercial product.
-</p>
-</div>
+        <div class="border rounded-3 bg-body-tertiary p-3 mt-4 index-prose">
+          <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-2">Lost history</h3>
+          <p class="small mb-0">
+            Unfortunately, all this means there are no known Scene releases compressed with File Squeezer or packaged with the Library Utility.
+            Everything preserved today has been repackaged using the ARC tool at a later date.
+            For example, a release by the Duplicators for the game Bluebush Chess (<code>BBCHESS.COM</code>) was modified in September 1984,
+            yet the package we have (<a href="/f/b627a2c">BLUEBUSH.ARC</a>) was created in June 1986.
+            Another example is the SPI release of Shamus, which proclaims <q>&copy; Copyright invalid in 1984</q>, but our <a href="/f/b92e146">SHAMUS.ARC</a> package was made in December 1985.
+            Both examples were probably repackaged by the group, a BBS, or a user to take advantage of the more convenient ARC tools.
+          </p>
+        </div>
+      </article>
 
-<h4 class="index-section-header">Historical Examples</h4>
-<div class="index-intro-section">
-<div class="row">
-<div class="col-12 col-xxl-6">
-<p class="text-muted small mb-2"><strong>Squeezing and unsqueezing</strong> a file using MS-DOS, circa 1983:</p>
-<pre style="font-size:22px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">
-C:\>SQ.EXE
+      <article id="zoo" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1986 · Rahul Dhesi</div>
+        <h2 class="h4 fw-semibold mb-3">Zoo (A Fast File Archiver)</h2>
+        <div class="index-prose">
+          <p>
+            A competing compression format known as <a href="http://fileformats.archiveteam.org/wiki/Zoo" target="_blank" rel="noopener">Zoo</a>, "A Fast File Archiver", by Rahul Dhesi, was released on the PC in August 1986.
+            While it never caught on with the PC BBS Scene due to the popularity of ARC, Zoo proved more popular on the Commodore Amiga microcomputer, Unix, and early Linux.
+            Unlike the earlier archiving tools, it also preserved file and folder directory structures.
+          </p>
+        </div>
+      </article>
+
+      <article id="pkarc" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1985–1988 · Phil Katz</div>
+        <h2 class="h4 fw-semibold mb-3">PKARC (The Faster ARC)</h2>
+        <div class="index-prose">
+          <p>
+            ARC had evolved into a standard on the PC by offering its source code for porting to other microcomputers and systems.
+            While free, Thom, the author of ARC, asked for payments from users who thought the tools or the standard were useful.
+          </p>
+          <p>
+            In late 1985, a programmer by the name of Phil Katz took a look at the source code and created a set of more optimized tools named PKARC
+            and <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkxarc.zip" target="_blank" rel="noopener">PKXARC</a>, "Fast! Archive Create/Update/Extract Utility", that handled ARC archives.
+            He, too, <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkx33a12.com" target="_blank" rel="noopener">asked</a> for payments from users who found his faster tools useful, putting him in direct competition with Thom, the original author of ARC.
+          </p>
+          <p>
+            Phil kept improving his tools and ultimately introduced new compression methods that broke compatibility with the ARC standard; however, he kept using the ARC branding and <code>.ARC</code> file extension.
+            This confused users, forcing the adoption of Phil's tools over Thom's originals by following the later Microsoft playbook of embrace, extend, and extinguish.
+            SEA responded by suing Phil for trademark and software likeness violations, and the two sides ultimately settled.
+          </p>
+          <p>
+            Paul Homchick, in October 1988, <a href="http://bbsdocumentary.com/library/CONTROVERSY/LAWSUITS/SEA/arc-hist.txt" target="_blank" rel="noopener">wrote</a>:
+            <q>Phil Katz continued to produced new versions of PKARC, finally, in the latter part of 1987, introducing "SQUASHING" which was similar to zoo's 13-bit LZW compression.
+            Although PKARC was no longer "ARC-compatible" it retained the .ARC extension.
+            This caused confusion for novice users and a lot of grief for BBS operators.
+            This policy was regarding by many as "standard busting," and likely was a factor in the litigation that followed in the summer of 1988.</q>
+          </p>
+          <p>
+            Unfortunately for Thom, the litigation initiated an online <a href="http://www.bbsdocumentary.com/library/CONTROVERSY/LAWSUITS/SEA/" target="_blank" rel="noopener">flame war</a> and the cancellation of the SEA brand.
+            Many ARC users and BBS system operators sided with Phil, who presented himself as an underdog in a David and Goliath battle,
+            with his supporters ditching SEA's tools and eventually leading to the demise of the tiny company and the abandonment of the ARC standard.
+          </p>
+        </div>
+      </article>
+
+      <article id="pkzip" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1989–1992 · PKWARE</div>
+        <h2 class="h4 fw-semibold mb-3">PKPAK &amp; PKZIP</h2>
+        <div class="index-prose">
+          <p>
+            In the settlement, Phil agreed to rename his PKARC tools to PKPAK and PKUNPAK, but later retired them after introducing a new set of programs that were free of any source code or trademark violations.
+            These tools were released as PKZIP and PKUNZIP and became the standard archiver for online boards and later the World Wide Web.
+          </p>
+          <p>
+            Much like Phil had done earlier with his PKARC toolset, newer releases of PKZIP introduced incompatible compression methods while keeping the <code>.ZIP</code> file extension.
+            This again led to confusion, with users not always knowing which archiving tool version to use for a particular ZIP archive.
+          </p>
+          <p>
+            By the end of 1992, the ZIP standard eventually <a href="https://www.hanshq.net/zip.html" target="_blank" rel="noopener">settled</a> on the "deflate" compression method first introduced in 1990, which is still used today.
+            However, some of the more esoteric compression techniques found in ZIP files created before 1993 are often not usable with modern archiving tools or operating systems.
+          </p>
+        </div>
+        <figure class="figure d-block text-center mt-4 mb-0">
+          <img src="/image/new/zip-error.webp" loading="lazy" class="img-fluid rounded border shadow-sm" alt="Error dialog extracting CONQUEST.ZIP">
+          <figcaption class="figure-caption mt-2">Modern OS extraction failure on a pre-1993 ZIP archive.</figcaption>
+        </figure>
+      </article>
+
+      <div id="rar-ace" class="row g-4" style="scroll-margin-top: 5rem;">
+        <div class="col-md-6">
+          <article class="changelog-entry p-4 h-100">
+            <div class="index-chapter-era font-monospace mb-1">1994 · Eugene Roshal</div>
+            <h2 class="h4 fw-semibold mb-3">RAR (Roshal Archive)</h2>
+            <p class="small mb-0">
+              The <a href="http://fileformats.archiveteam.org/wiki/RAR" target="_blank" rel="noopener">Roshal Archive</a> is a proprietary format developed by a sole engineer in 1994.
+              RAR compressed packages are commonly used with large files on distributed networks such as BitTorrent where hosting or transfers may not always be stable,
+              because RAR supports redundancy data that allows recovering individual files even when the package itself is incomplete.
+              RAR decompression software is free, but creating archives requires a commercial product.
+            </p>
+          </article>
+        </div>
+        <div class="col-md-6">
+          <article class="changelog-entry p-4 h-100">
+            <div class="index-chapter-era font-monospace mb-1">1997 · Marcel Lemke</div>
+            <h2 class="h4 fw-semibold mb-3">ACE</h2>
+            <p class="small mb-0">
+              ACE is another <a href="http://fileformats.archiveteam.org/wiki/ACE" target="_blank" rel="noopener">proprietary</a> format developed by a sole engineer and first released in 1997.
+              It offered slightly better compression than RAR and briefly became popular when home Internet speeds were measured in kbit/s.
+              Like RAR, ACE packages can be decompressed using free software, while compression required a commercial product.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <article id="historical-examples" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">DOS transcripts</div>
+        <h2 class="h4 fw-semibold mb-3">Historical examples</h2>
+
+        <section class="mb-4">
+          <h3 class="h6 fw-semibold mb-2">Squeezing and unsqueezing a file using MS-DOS, circa 1983</h3>
+          <div class="bg-dark text-light rounded-2 p-3 overflow-x-auto mb-2">
+<pre class="font-dos overflow-visible mb-0">C:\&gt;SQ.EXE
 File squeezer version 1.8u    10-10-83 (D. Galorath) by
         Richard Greenlaw
         251 Colony Ct.
@@ -148,12 +202,12 @@ File squeezer version 1.8u    10-10-83 (D. Galorath) by
 Usage: sq [-] pathname ...
         - squeezed output to stdout
 
-C:\>SQ.EXE INFO.DOC
+C:\&gt;SQ.EXE INFO.DOC
 
-INFO.DOC -> INFO.DQC: analyzing, squeezing,  done.
+INFO.DOC -&gt; INFO.DQC: analyzing, squeezing,  done.
 
 
-C:\>DIR INFO.DQC
+C:\&gt;DIR INFO.DQC
 
  Volume in drive C is DOSHD
  Directory of  C:\
@@ -162,31 +216,33 @@ INFO     DQC    17290  12-01-83  1:02p
         1 File(s)
 
 
-C:\>USQ.EXE
+C:\&gt;USQ.EXE
 Usage: usq [-nu] file ...MS-DOS VERSION 10-10-83 D. GALORATH
         -n Nlmode: remove carriage returns
         -u perserve Uppercase pathnames
 
-C:\>USQ.EXE INFO.DQC
-usq: INFO.DQC -> info.doc
+C:\&gt;USQ.EXE INFO.DQC
+usq: INFO.DQC -&gt; info.doc
 
 
-C:\>DIR INFO.DOC
+C:\&gt;DIR INFO.DOC
 
  Volume in drive C is DOSHD
  Directory of  C:\
 
 INFO     DOC    28511  12-01-83  1:03p
         1 File(s)</pre>
-<p class="text-muted small">
-<a href="http://cd.textfiles.com/pcsig08/101_200/DISK0115/SQUEEZE.EXE">Squeezing</a> and 
-<a href="http://cd.textfiles.com/pcsig08/101_200/DISK0115/UNSQUEEZ.EXE">unsqueezing</a> tools
-</p>
-</div>
-<div class="col-12 col-xxl-6">
-<p class="text-muted small mb-2"><strong>Early ARC and PKARC releases:</strong></p>
-<pre style="font-size:22px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">
-C:\>ARC.EXE
+          </div>
+          <p class="small text-body-secondary mb-0">
+            Source: <a href="http://cd.textfiles.com/pcsig08/101_200/DISK0115/SQUEEZE.EXE" target="_blank" rel="noopener">Squeezing</a> and
+            <a href="http://cd.textfiles.com/pcsig08/101_200/DISK0115/UNSQUEEZ.EXE" target="_blank" rel="noopener">unsqueezing</a> tools.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="h6 fw-semibold mb-2">Early ARC and PKARC releases (1985–1986)</h3>
+          <div class="bg-dark text-light rounded-2 p-3 overflow-x-auto mb-2">
+<pre class="font-dos overflow-visible mb-0">C:\&gt;ARC.EXE
 
 ARC - Archive utility, Version 3.10, created on 05/01/85 at 22:34:50
 (C) COPYRIGHT 1985 by System Enhancement Associates; ALL RIGHTS RESERVED
@@ -199,17 +255,17 @@ You may copy and distribute this program free of charge, provided that:
 Usage: ARC {aumdxerplvt}[bwn] [archive] [filename  .  .  .]
 
 
-C:\>PKXARC.EXE
+C:\&gt;PKXARC.EXE
 
 PKXARC FAST!  Archive Extract Utility  Version 1.1  10-21-85 by Phil Katz
                          PKXARC/h for help
 
-Extracts files from an ARChive to their original name, size, time, & date.
+Extracts files from an ARChive to their original name, size, time, &amp; date.
 
         PKXARC [/r] [d:path\]ARCfile [d:path\]
 
 
-C:\>PKARC.EXE
+C:\&gt;PKARC.EXE
 
 PKARC   FAST!  Archive Create/Update Utility   Version 1.2   10-23-86
 Copyright (c) 1986 PKWARE, Inc. All Rights Reserved. PKARC/h for help
@@ -218,28 +274,32 @@ Usage: PKARC options archive [filename...]
 
 If you find PKARC fast, easy, and convenient to use, a contribution of $20
 would be appreciated. With each contribution of $45 or more you will be
-registered to receive a diskette with the next versions of PKARC and 
-PKXARC when available. Please state the current versions of PKARC and 
+registered to receive a diskette with the next versions of PKARC and
+PKXARC when available. Please state the current versions of PKARC and
 PKXARC which you have.  Send contributions to:</pre>
-<p class="text-muted small">
-The partial outputs of an <a href="http://old-dos.ru/index.php?page=files&mode=files&do=show&id=699">early</a> release of ARC,
-an <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkx33a12.com">early</a> release of PKARC,
-and an <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkxarc.zip">early</a> release of PKXARC.
-</p>
-</div>
-</div>
-</div>
+          </div>
+          <p class="small text-body-secondary mb-0">
+            Partial outputs of an <a href="http://old-dos.ru/index.php?page=files&amp;mode=files&amp;do=show&amp;id=699" target="_blank" rel="noopener">early release of ARC</a>,
+            an <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkx33a12.com" target="_blank" rel="noopener">early release of PKARC</a>,
+            and an <a href="http://cd.textfiles.com/rbbsv3n1/pool/pkxarc.zip" target="_blank" rel="noopener">early release of PKXARC</a>.
+          </p>
+        </section>
+      </article>
 
-<h4 class="index-section-header"><small>More information</small></h4>
-<div class="index-intro-section">
-<ul>
-<li>
-  <a href="https://techtinkering.com/articles/working-with-lbr-files-on-cpm/">Working with .LBR files on CP/M</a> and
-  <a href="https://techtinkering.com/articles/advanced-use-of-lbr-files-on-cpm/">Advanced use of .LBR files</a>
-</i>
-<li><a href="https://www.skrause.org/computers/dos_history.shtml">A short history of MS-DOS</a>
-<li><a href="https://www.seasip.info/Cpm/ludef5.html">LBR file format</a></li>
-</ul>
+      <article id="more-information" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">References</div>
+        <h2 class="h4 fw-semibold mb-3">More information</h2>
+        <ul class="mb-0 d-flex flex-column gap-2 small">
+          <li>
+            <a href="https://techtinkering.com/articles/working-with-lbr-files-on-cpm/" target="_blank" rel="noopener">Working with .LBR files on CP/M</a> and
+            <a href="https://techtinkering.com/articles/advanced-use-of-lbr-files-on-cpm/" target="_blank" rel="noopener">Advanced use of .LBR files</a>
+          </li>
+          <li><a href="https://www.skrause.org/computers/dos_history.shtml" target="_blank" rel="noopener">A short history of MS-DOS</a></li>
+          <li><a href="https://www.seasip.info/Cpm/ludef5.html" target="_blank" rel="noopener">LBR file format</a></li>
+        </ul>
+      </article>
 
+    </div>
+  </div>
 </div>
 {{- end }}

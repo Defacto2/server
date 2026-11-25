@@ -1,189 +1,228 @@
-{{- /* 
+{{- /*
     thescene.tmpl ~ "The Scene?" page template.
 */ -}}
 {{- define "content" }}
-<div>
-    With its origins going back to the late 1970s, The Scene comes from an era when access to the Internet 
-    was restricted and the other major computer networks were inaccessible to the general public.  
-    Instead, <a href="https://en.wikipedia.org/wiki/Bulletin_board_system">Bulletin Board Systems</a> hosted on personal computers housed in
-    people's homes and connected to the copper voice-telephone network took on this online role for many savvy, early computer owners. 
-    Running specialized software and hardware, these boards enabled like-minded people to use their home computers to 
-    connect, communicate, and later exchange digital files.
-</div>
-<h4 class="index-section-header"> 🏴‍☠️ The naughty</h4>
-<div class="index-intro-section">
-<figure>
-    <blockquote class="blockquote fs-6">
-      <p>[The Scene] an anarchically governed free-for-all that has nonetheless developed its own codes of behavior, 
-      ethics, activities, and most, importantly, hierarchies of prestige.</p>
-    </blockquote>
-    <figcaption class="blockquote-footer">
-        <a href="https://eve.gd/books/">Martin Paul Eve</a> <cite title="Warez: The Infrastructure and Aesthetics of Piracy">Warez</cite>
-    </figcaption>
-</figure>
-<div class="scene-grid">
-  <div class="scene-card">
-    <div class="scene-card-title">🔓 The Cracking Scene</div>
-    <div class="scene-card-tags">
-      <span>cracking</span>
-      <span>training</span>
-      <span>pirating</span>
-      <span>wares</span>
-      <span>warez</span>
-    </div>
-    <div class="scene-card-content">
-        Cracking is the craft of modifying software for a particular purpose.
-        It can vary widely from the simple act of <a href="https://en.wikipedia.org/wiki/Trainer_(games)">creating cheats for games</a> (trainers) 
-        to the removal of <a href="https://en.wikipedia.org/wiki/Copy_protection">sophisticated software copy protection</a>.
-        The sharing of commercial software, often accompanied by the removal of copy protection, 
-        <a href="https://en.wikipedia.org/wiki/Warez">is defined as <strong>warez</strong></a>. 
-        But software cracking and warez were not always the same, or even illegal.
-        <br><br>
-        Until December 1980, authors in the US could not use copyright to restrict program usage on a computer, as software got defined as a literary work like a book.
-        Even after the missing law was rectified, it was uncertain if the copyright controls applied to the author's source code or also to the compiled program. 
-        However, other than the existing counterfeit and trademark laws, there were few legal restrictions on the use or modification of the software after it was in the hands of a customer.
-        <br><br>
-        This situation changed in the late 1990s and 2000s with the rise of the Internet, 
-        entertainment media moving to digital formats, and excessive lobbying by the US entertainment and media industries.
-        After which, one could argue with today's "copyright&nbsp;trolls", the law overcorrected, 
-        giving rights holders excessive legal power over media at the expense of customers and public fair use.
+<div class="row g-4 align-items-start mt-1 mb-5">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav" aria-label="The Scene sections">
+      <div class="index-eyebrow mb-2">Sections</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#origins">Origins</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#the-naughty">The naughty</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#further-reading">Further reading</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#the-creative">The creative</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#directories">Directories</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="col-lg-9">
+    <div class="d-flex flex-column gap-4">
+
+      <article id="origins" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Background</div>
+        <h2 class="h4 fw-semibold mb-3">Origins</h2>
+        <div class="index-prose">
+          <p>
+            With its origins going back to the late 1970s, The Scene comes from an era when access to the Internet
+            was restricted and the other major computer networks were inaccessible to the general public.
+            Instead, <a href="https://en.wikipedia.org/wiki/Bulletin_board_system" target="_blank" rel="noopener">Bulletin Board Systems</a> hosted on personal computers housed in
+            people's homes and connected to the copper voice-telephone network took on this online role for many savvy, early computer owners.
+            Running specialized software and hardware, these boards enabled like-minded people to use their home computers to
+            connect, communicate, and later exchange digital files.
+          </p>
+        </div>
+      </article>
+
+      <article id="the-naughty" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Underground</div>
+        <h2 class="h4 fw-semibold mb-3">The naughty</h2>
+
+        <figure class="border-start border-3 border-primary ps-3 py-1 mb-4 index-prose">
+          <blockquote class="mb-2 fst-italic">
+            <p class="mb-0">"An anarchically governed free-for-all that has nonetheless developed its own codes of behavior,
+            ethics, activities, and most importantly, hierarchies of prestige."</p>
+          </blockquote>
+          <figcaption class="small text-body-secondary mb-0">
+            <a href="https://eve.gd/books/" target="_blank" rel="noopener">Martin Paul Eve</a>, <cite title="Warez: The Infrastructure and Aesthetics of Piracy">Warez: The Infrastructure and Aesthetics of Piracy</cite>
+          </figcaption>
+        </figure>
+
+        <div class="d-flex flex-column gap-3">
+          <section class="border rounded-3 p-3 bg-body-tertiary">
+            <h3 class="h5 fw-semibold mb-1">The Cracking Scene</h3>
+            <div class="font-monospace small text-body-secondary mb-2">cracking &middot; training &middot; pirating &middot; wares &middot; warez</div>
+            <div class="index-prose small">
+              <p>
+                Cracking is the craft of modifying software for a particular purpose.
+                It can vary widely from the simple act of <a href="https://en.wikipedia.org/wiki/Trainer_(games)" target="_blank" rel="noopener">creating cheats for games</a> (trainers)
+                to the removal of <a href="https://en.wikipedia.org/wiki/Copy_protection" target="_blank" rel="noopener">sophisticated software copy protection</a>.
+                The sharing of commercial software, often accompanied by the removal of copy protection,
+                <a href="https://en.wikipedia.org/wiki/Warez" target="_blank" rel="noopener">is defined as <strong>warez</strong></a>.
+                But software cracking and warez were not always the same, or even illegal.
+              </p>
+              <p>
+                Until December 1980, authors in the US could not use copyright to restrict program usage on a computer, as software got defined as a literary work like a book.
+                Even after the missing law was rectified, it was uncertain if the copyright controls applied to the author's source code or also to the compiled program.
+                However, other than the existing counterfeit and trademark laws, there were few legal restrictions on the use or modification of the software after it was in the hands of a customer.
+              </p>
+              <p>
+                This situation changed in the late 1990s and 2000s with the rise of the Internet,
+                entertainment media moving to digital formats, and excessive lobbying by the US entertainment and media industries.
+                After which, one could argue with today's "copyright&nbsp;trolls", the law overcorrected,
+                giving rights holders excessive legal power over media at the expense of customers and public fair use.
+              </p>
+            </div>
+          </section>
+
+          <section class="border rounded-3 p-3 bg-body-tertiary">
+            <h3 class="h5 fw-semibold mb-1">The Hack Scene</h3>
+            <div class="font-monospace small text-body-secondary mb-2">hacking &middot; hpav &middot; computer phreaking</div>
+            <div class="index-prose small">
+              <p>
+                <a href="https://en.wikipedia.org/wiki/Hacker" target="_blank" rel="noopener">Hacking</a>
+                is the manipulation or exploration of most things computer-related, often online.
+                But hacking is not to be confused with software cracking, theft, or ransomware.
+                Originally, hacking had a more benign and innocent purpose of experimentation.
+                Unfortunately, nowadays, with the involvement of nation-state bad actors and organized crime, hacking is often associated with digital privateering.
+              </p>
+            </div>
+          </section>
+
+          <section class="border rounded-3 p-3 bg-body-tertiary">
+            <h3 class="h5 fw-semibold mb-1">The Phreak Scene</h3>
+            <div class="font-monospace small text-body-secondary mb-2">phone phreaking &middot; blue boxing</div>
+            <div class="index-prose small">
+              <p>
+                Today, <a href="https://en.wikipedia.org/wiki/Phreaking" target="_blank" rel="noopener">phone phreaking</a> is redundant,
+                but it was once a popular method of exploiting the landline telephone networks to make free phone calls back when these were often billed by the minute and pricey.
+              </p>
+              <p>
+                Phreaking was criminal but still popular with risk-taking computer users who were willing to use their home address to
+                connect gratis to remote boards located outside of their local metropolitan area, as well as boards based interstate and overseas.
+              </p>
+              <p>
+                Phreaking also allowed for "party lines". These were gratis group voice chats with people from around the world,
+                long before they became commonplace with broadband internet.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <div id="further-reading" class="border-top mt-4 pt-3 index-prose small" style="scroll-margin-top: 5rem;">
+          <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-2">Further reading</h3>
+          <p>
+            As of 2022, a couple of professionally published books cover The Scene and its influences on modern online culture:
+            <a href="https://punctumbooks.com/titles/warez-the-infrastructure-and-aesthetics-of-piracy/" target="_blank" rel="noopener">The Infrastructure and Aesthetics of Piracy</a>
+            and <a href="https://yalebooks.yale.edu/book/9780300248142/modem-world/" target="_blank" rel="noopener">The Modem World: A Prehistory of Social Media</a>.
+          </p>
+          <p>
+            Author of <em>The Future Was Here: The Commodore Amiga</em>, <a href="https://mitpress.mit.edu/9780262535694/the-future-was-here/" target="_blank" rel="noopener">Jimmy Maher</a>,
+            has written two excellent articles on early pirating and the pirate scenes on both the Apple II and Commodore 64 computers:
+            <br>A Pirate's Life for Me, Part 1: <a href="https://www.filfre.net/2015/12/a-pirates-life-for-me-part-1-dont-copy-that-floppy/" target="_blank" rel="noopener">Don't Copy That Floppy!</a>
+            <br>A Pirate's Life for Me, Part 2: <a href="https://www.filfre.net/2016/01/a-pirates-life-for-me-part-2-the-scene/" target="_blank" rel="noopener">The Scene</a>.
+          </p>
+        </div>
+      </article>
+
+      <article id="the-creative" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Art &amp; Demos</div>
+        <h2 class="h4 fw-semibold mb-3">The creative</h2>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <section class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h5 fw-semibold mb-1">The Art Scene</h3>
+              <div class="font-monospace small text-body-secondary mb-2">pixel &middot; raster &middot; vga &middot; ansi &middot; bbs art &middot; ascii</div>
+              <p class="small mb-0">
+                Art scene creations are a form of digital artworks drawn or painted using purpose-made software.
+                The common forms of this expression are pixel art, ray-tracing art, monochrome text or ASCII art, and colored text ANSI art.
+              </p>
+            </section>
+          </div>
+
+          <div class="col-md-6">
+            <section class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h5 fw-semibold mb-1">The Music Scene</h3>
+              <div class="font-monospace small text-body-secondary mb-2">chiptune &middot; mod &middot; streamer &middot; tracker</div>
+              <p class="small mb-0">
+                Songs of the Music Scene are music tracks composed using purpose-made home computer software,
+                often <a href="https://en.wikipedia.org/wiki/Tracker_(music_software)" target="_blank" rel="noopener">tracker software</a>,
+                to create <a href="https://en.wikipedia.org/wiki/Chiptune" target="_blank" rel="noopener">chiptune</a> or other genres of electronic music.
+                In the early era of 8-bit and 16-bit microcomputers, these songs were often used to demonstrate the audio capabilities of the computer platform.
+              </p>
+            </section>
+          </div>
+
+          <div class="col-md-6">
+            <section class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h5 fw-semibold mb-1">The Demoscene</h3>
+              <div class="font-monospace small text-body-secondary mb-2">intros &middot; demos &middot; games</div>
+              <p class="small mb-0">
+                <a href="https://en.wikipedia.org/wiki/Demoscene" target="_blank" rel="noopener">Demoscene</a> participants combine the art scenes, the music scenes, and
+                their own programming trickery to create visually appealing, non-interactive software demonstrations.
+                Created to demonstrate the graphic and audio capabilities of the chosen computer platform and the technical
+                programming skills of the creators. Nowadays, the Demoscene is more focused on art style and design.
+              </p>
+            </section>
+          </div>
+
+          <div class="col-md-6">
+            <section class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h5 fw-semibold mb-1">The Emulation Scene</h3>
+              <div class="font-monospace small text-body-secondary mb-2">emulators</div>
+              <p class="small mb-0">
+                Emulation software mimics hardware or operating systems to allow the running of software designed for a different platform.
+                For example, a Windows PC can use emulation software to run games created for the Commodore 64.
+                Emulator software has existed since the earliest days of computing, but the Emulation Scene probably came about in the early 1990s,
+                with hardware hackers who experimented with getting defunct video game console software to play on personal computers.
+              </p>
+            </section>
+          </div>
+        </div>
+      </article>
+
+      <article id="directories" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Resources</div>
+        <h2 class="h4 fw-semibold mb-3">Community directories</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <dl class="row g-2 mb-0">
+              <dt class="col-sm-4"><a href="https://demozoo.org/" target="_blank" rel="noopener" class="fw-semibold">Demozoo</a></dt>
+              <dd class="col-sm-8 text-body-secondary small mb-3">
+                The world's largest database of Scene-produced productions covering all fields, including art, demos, music, people, groups, and BBSes.
+              </dd>
+              <dt class="col-sm-4"><a href="https://www.pouet.net/" target="_blank" rel="noopener" class="fw-semibold">Pouët</a></dt>
+              <dd class="col-sm-8 text-body-secondary small mb-3">
+                A database of Scene-produced productions, including demos, intros, and music.
+              </dd>
+              <dt class="col-sm-4"><a href="https://16colo.rs/" target="_blank" rel="noopener" class="fw-semibold">16colors</a></dt>
+              <dd class="col-sm-8 text-body-secondary small mb-0">
+                The online gallery for ASCII, ANSI, and other text-based art forms. It is probably the most active corner on the Internet for ASCII art and its artists.
+              </dd>
+            </dl>
+          </div>
+          <div class="col-md-6">
+            <dl class="row g-2 mb-0">
+              <dt class="col-sm-4"><a href="https://files.scene.org" target="_blank" rel="noopener" class="fw-semibold">Scene.org</a></dt>
+              <dd class="col-sm-8 text-body-secondary small mb-3">
+                Most likely the largest repository of scene art on the Internet. Its primary purpose is to host files, so there is no fluff such as user ratings or reviews.
+              </dd>
+              <dt class="col-sm-4"><a href="https://text-mode.org" target="_blank" rel="noopener" class="fw-semibold">text-mode.org</a></dt>
+              <dd class="col-sm-8 text-body-secondary small mb-3">
+                A Tumblr-style gallery that takes classical text art and looks at how it relates to a modern context.
+              </dd>
+              <dt class="col-sm-4"><a href="http://textfiles.com" target="_blank" rel="noopener" class="fw-semibold">textfiles.com</a></dt>
+              <dd class="col-sm-8 text-body-secondary small mb-0">
+                The largest online resource of texts and information files, many written from the pre-Internet era.
+                <span class="d-block mt-1">Note: textfiles.com only supports unencrypted HTTP, which triggers browser warnings.</span>
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </article>
+
     </div>
   </div>
-  <div class="scene-card">
-    <div class="scene-card-title">💻 The Hack Scene</div>
-    <div class="scene-card-tags">
-      <span>hacking</span>
-      <span>hpav</span>
-      <span>computer phreaking</span>
-    </div>
-    <div class="scene-card-content">
-        <a href="https://en.wikipedia.org/wiki/Hacker">Hacking</a> 
-        is the manipulation or exploration of most things computer-related, often online. 
-        But hacking is not to be confused with software cracking, theft, or ransomware. 
-        Originally, hacking had a more benign and innocent purpose of experimentation. 
-        Unfortunately, nowadays, with the involvement of nation-state bad actors and organized crime, hacking is often associated with digital privateering.
-    </div>
-  </div>
-  <div class="scene-card">
-    <div class="scene-card-title">☎️ The Phreak Scene</div>
-    <div class="scene-card-tags">
-      <span>phone phreaking</span>
-      <span>blue boxing</span>
-    </div>
-    <div class="scene-card-content">
-        Today, <a href="https://en.wikipedia.org/wiki/Phreaking">phone phreaking</a> is redundant, 
-        but it was once a popular method of exploiting the landline telephone networks to make free phone calls back when these were often billed by the minute and pricey. 
-        <br><br>
-        Phreaking was criminal but still popular with risk-taking computer users who were willing to use their home address to 
-        connect gratis to remote boards located outside of their local metropolitan area, as well as boards based interstate and overseas.
-        <br><br>
-        Phreaking also allowed for "party lines". These were gratis group voice chats with people from around the world, 
-        but long before they became commonplace with broadband internet.
-    </div>
-  </div>
-</div>
-<p>
-    As of 2022, a couple of professional published books cover The Scene and its influences on modern online culture.
-    <br>
-    <a href="https://punctumbooks.com/titles/warez-the-infrastructure-and-aesthetics-of-piracy/">The Infrastructure and Aesthetics of Piracy</a>
-     and <a href="https://yalebooks.yale.edu/book/9780300248142/modem-world/">The Modem World: A Prehistory of Social Media</a>.
-</p>
-<p>
-    Author of <em>The Future Was Here - The Commodore Amiga</em>, <a href="https://mitpress.mit.edu/9780262535694/the-future-was-here/">Jimmy Maher</a>, 
-    has written two excellent articles on early pirating and the pirate scenes on both the Apple II and Commodore 64 computers.<br>
-    A Pirate’s Life for Me, Part 1: <a href="https://www.filfre.net/2015/12/a-pirates-life-for-me-part-1-dont-copy-that-floppy/">Don’t Copy That Floppy!</a><br> 
-    A Pirate’s Life for Me, Part 2: <a href="https://www.filfre.net/2016/01/a-pirates-life-for-me-part-2-the-scene/">The Scene</a>.
-</p>
-</div>
-<h4 class="index-section-header">🎭 The creative</h4>
-<div class="index-intro-section">
-<div class="scene-grid">
-  <div class="scene-card">
-    <div class="scene-card-title">🎨 The Art Scene</div>
-    <div class="scene-card-tags">
-      <span>pixel</span>
-      <span>raster</span>
-      <span>vga</span>
-      <span>ansi</span>
-      <span>bbs art</span>
-      <span>ascii</span>
-    </div>
-    <div class="scene-card-content">
-        Art scene creations are a form of digital artworks drawn or painted using purpose made software.
-        The common forms of this expression are pixel art, ray-tracing art, monochrome text or 'ascii' art, and colored text 'ansi' art.
-    </div>
-  </div>
-  <div class="scene-card">
-    <div class="scene-card-title">🎵 The Music Scene</div>
-    <div class="scene-card-tags">
-      <span>chiptune</span>
-      <span>mod</span>
-      <span>streamer</span>
-      <span>tracker</span>
-    </div>
-    <div class="scene-card-content">
-        Songs of the Music Scene are music tracks composed using purpose made home computer software, 
-        often <a href="https://en.wikipedia.org/wiki/Tracker_(music_software)">tracker software</a>,
-        to create <a href="https://en.wikipedia.org/wiki/Chiptune">chiptune</a> or other genres of electronic music. 
-        In the early era of 8-bit and 16-bit microcomputers, these songs were often used to demonstrate the audio capabilities of the computer platform.
-    </div>
-  </div>
-  <div class="scene-card">
-    <div class="scene-card-title">✨ The Demoscene</div>
-    <div class="scene-card-tags">
-      <span>intros</span>
-      <span>demos</span>
-      <span>games</span>
-    </div>
-    <div class="scene-card-content">
-        <a href="https://en.wikipedia.org/wiki/Demoscene">Demoscene</a> participants combine the art scenes, the music scenes, and 
-        their own programming trickery to create visually appealing, non-interactive software demonstrations. 
-        Created to demonstrate the graphic and audio capabilities of the chosen computer platform and the technical
-        programming skills of the creators. Nowadays, the Demoscene is more focused on art style and design.
-    </div>
-  </div>
-  <div class="scene-card">
-    <div class="scene-card-title">🖥️ The Emulation Scene</div>
-    <div class="scene-card-tags">
-      <span>emulators</span>
-    </div>
-    <div class="scene-card-content">
-        Emulation software mimics hardware or operating systems to allow the running of software designed for a different platform. 
-        For example, a Windows PC can use emulation software to run games created for the Commodore 64. 
-        Emulator software has existed since the earliest days of computing, but the Emulation Scene probably came about in the early 1990s. 
-        With hardware hackers who experimented with getting defunct video game console software to play on personal computers.
-    </div>
-  </div>
-</div>
-<dl class="row">
-    <dt class="col-sm-3 text-center"><a href="https://demozoo.org/">Demozoo</a></dt>
-    <dd class="col-sm-9">
-        <a href="https://demozoo.org/">Demozoo</a> is the world's largest database of Scene-produced productions covering all fields, including art, demo, music, people, groups, and BBSes.
-    </dd>
-    <dt class="col-sm-3 text-center"><a href="https://www.pouet.net/">Pouet</a></dt>
-    <dd class="col-sm-9">
-        <a href="https://www.pouet.net/">Pouet</a> is a database of Scene-produced productions, including demos, intros, and music.
-    </dd>
-    <dt class="col-sm-3 text-center"><a href="https://16colo.rs/">16colors</a></dt>
-    <dd class="col-sm-9">
-        <a href="https://16colo.rs/">16colo.rs</a> is the online gallery for ASCII, ANSI, and other text-based art forms. 
-        It is probably the most active corner on the Internet for ASCII art and its artists.
-    </dd>
-    <dt class="col-sm-3 text-center"><a href="https://files.scene.org">Scene.org</a></dt>
-    <dd class="col-sm-9">
-        The files at <a href="https://files.scene.org">Scene.org</a> are most likely the largest repository of scene art on the Internet.
-        Its primary purpose is to host files, so there is no fluff such as user ratings or reviews.
-        It is an excellent resource when knowing what to find but a little daunting for everyone else.
-    </dd>
-    <dt class="col-sm-3 text-center"><a href="https://text-mode.org">text-mode.org</a></dt>
-    <dd class="col-sm-9">
-        The <a href="https://text-mode.org">text-mode</a> website is a Tumblr style gallery that takes classical text art and looks at how it relates to a modern context.
-    </dd>
-    <dt class="col-sm-3 text-center"><a href="http://textfiles.com">textfiles.com</a></dt>
-    <dd class="col-sm-9">
-        As the name suggests the <a href="http://textfiles.com">textfiles.com</a> website is the largest online resource of online texts and information files, many written from the pre-Internet era.
-        <small>A little technical note, textfiles.com only supports unencrypted HTTP that triggers unnecessary browser warnings.</small>
-    </dd>
-</dl>
 </div>
 {{- end}}

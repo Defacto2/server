@@ -1,15 +1,45 @@
 {{- /*
-  apps.tmpl ~ Modern applications and tools.
+    apps.tmpl ~ Modern applications and tools.
 */ -}}
 {{- define "content" }}
-<h4 class="index-section-header">Easily identify files</h4>
-<div class="index-intro-section">
-<p>
-  In the DOS and Amiga era it was common for groups to use false filename extensions to either brand files with their acronyms or to obfuscate the purpose of the file.
-  Linux and Macs have the great but often forgotten, <code>file</code> terminal tool for determining file type.
-</p>
-<pre class="pre-mono-display">$ file ART.GRP
-  ART.GRP: ISO-8859 text, with CRLF line terminators, 
+<div class="row g-4 align-items-start mt-1 mb-5">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav" aria-label="Modern applications sections">
+      <div class="index-eyebrow mb-2">Tools &amp; guides</div>
+      <ul class="nav flex-column gap-1 mb-4">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#identify-files">Identify files</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#deark">Obscure files (Deark)</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#vscodium">Reading texts (VSCodium)</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#ansi-art">ANSI text art</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#dos-programs">DOS programs</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#old-windows">Old Windows programs</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#ansimations">ANSImations</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#images-videos">Old images &amp; videos</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#bonus-tools">Bonus tools</a></li>
+      </ul>
+      <div class="index-eyebrow mb-2">Related</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="/compression">Old file archiving</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="/brokentexts">Broken text files</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="col-lg-9">
+    <div class="d-flex flex-column gap-4">
+
+      <article id="identify-files" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Inspection</div>
+        <h2 class="h4 fw-semibold mb-3">Easily identify files</h2>
+        <div class="index-prose mb-3">
+          <p>
+            In the DOS and Amiga era it was common for groups to use false filename extensions to either brand files with their acronyms or to obfuscate the purpose of the file.
+            Linux and macOS include the great, often forgotten <code>file</code> terminal tool for determining file types.
+          </p>
+        </div>
+        <div class="bg-dark text-light rounded-2 p-3 overflow-x-auto">
+<pre class="font-monospace small mb-0">$ file ART.GRP
+  ART.GRP: ISO-8859 text, with CRLF line terminators,
   with escape sequences
 
 $ file VAL.DAT
@@ -17,194 +47,258 @@ $ file VAL.DAT
 
 $ file image.iff
   image.iff: IFF data, ILBM interleaved image, 320 x 54</pre>
-</div>
+        </div>
+      </article>
 
-<h4 class="index-section-header">Obscure files with Deark</h4>
-<div class="index-intro-section">
-<p>
-While the <code>file</code> tool is great, it is not always useful for ancient file content created on the microcomputers or PCs of the 1980s. 
-For this, the best tool is <a href="https://github.com/jsummers/deark">Deark</a>, <q>a utility for file format and metadata analysis</q>.
-</p>
-<p>
-This example is an image created in 1984's <a href="https://winworldpc.com/product/pc-paint/100a">PCPaint</a>. 
-Modern tools cannot recognize it, while Deark identifies the picture and converts it to a PNG image, <a href="/image/new/output.000.png">output.000.png</a>.
-</p>
-<pre class="pre-mono-display">$ file VIEW2KIL.PIC
+      <article id="deark" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Format analysis</div>
+        <h2 class="h4 fw-semibold mb-3">Obscure files with Deark</h2>
+        <div class="index-prose mb-3">
+          <p>
+            While the <code>file</code> tool is great, it is not always useful for ancient file content created on the microcomputers or PCs of the 1980s.
+            For this, the best tool is <a href="https://github.com/jsummers/deark" target="_blank" rel="noopener">Deark</a>, <q>a utility for file format and metadata analysis</q>.
+          </p>
+          <p>
+            This example is an image created in 1984's <a href="https://winworldpc.com/product/pc-paint/100a" target="_blank" rel="noopener">PCPaint</a>.
+            Modern tools cannot recognize it, while Deark identifies the picture and converts it to a PNG image, <a href="/image/new/output.000.png">output.000.png</a>.
+          </p>
+        </div>
+        <div class="bg-dark text-light rounded-2 p-3 overflow-x-auto">
+<pre class="font-monospace small mb-0">$ file VIEW2KIL.PIC
   VIEW2KIL.PIC: data
 
 $ deark VIEW2KIL.PIC
   Module: bsave
-  Format: BSAVE-PC 4-color, 320×200
-  Warning: BSAVE formats can't be reliably identified. 
+  Format: BSAVE-PC 4-color, 320x200
+  Warning: BSAVE formats can't be reliably identified.
   Writing output.000.png</pre>
-</div>
+        </div>
+      </article>
 
-<h4 class="index-section-header">Reading texts with VSCodium</h4>
-<div class="index-intro-section">
-<div class="clearfix">
-  <div class="float-end pe-3 pb-3">
-    <img src="/image/new/vscodium.webp" class="rounded img-fluid" style="max-width:270px;" alt="VSCodium app screenshot reading a text file">
+      <article id="vscodium" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Plain text &amp; NFOs</div>
+        <h2 class="h4 fw-semibold mb-3">Reading texts with VSCodium</h2>
+        <div class="row g-3 align-items-start mb-3">
+          <div class="col-md-8 index-prose">
+            <p>
+              <strong><a href="https://vscodium.com/" target="_blank" rel="noopener">VSCodium</a></strong> is the free, open-source build of Microsoft's VS Code editor,
+              without the bloat of Microsoft programming extensions, telemetry, or clanker AI integration.
+              VSCodium supports extremely large files, offers a mini-map preview, and provides <u>the best Code Page text support</u> of any modern editor.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <img src="/image/new/vscodium.webp" loading="lazy" class="img-fluid rounded border shadow-sm w-100" alt="VSCodium app screenshot reading a text file">
+          </div>
+        </div>
+        <div class="border-top pt-3 small">
+          <div class="fw-semibold mb-2">Recommended tweaks for VSCodium:</div>
+          <ol class="mb-0 text-body-secondary">
+            <li>Navigate to <code>File &gt; Preferences &gt; Settings</code></li>
+            <li>Search for <code>files:encoding</code>, then change <q>UTF-8</q> to <q>DOS (CP 437)</q></li>
+            <li>Search for <code>editor:language detection</code>, then uncheck <code>Workbench &gt; Editor: Language Detection</code></li>
+          </ol>
+        </div>
+      </article>
+
+      <article id="ansi-art" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Color text art</div>
+        <h2 class="h4 fw-semibold mb-3">Reading ANSI text art</h2>
+        <div class="row g-3 align-items-start mb-3">
+          <div class="col-md-8 index-prose">
+            <p>
+              <strong><a href="https://blocktronics.github.io/moebius/" target="_blank" rel="noopener">Moebius</a></strong> is a feature-complete ANSI art editor and a good choice to use as a viewer on modern systems.
+              I do not use it for plain text or NFO text files as it isn't as performant as VSCodium and does not handle long text files well.
+            </p>
+            <p>
+              <strong><a href="https://github.com/bengarrett/retrotxtgo" target="_blank" rel="noopener">retrotxtgo</a></strong> is a terminal application that correctly prints legacy CP-437 encoded text and ANSI files in a modern terminal emulator:
+            </p>
+            <div class="bg-dark text-light rounded-2 p-2 px-3 overflow-x-auto mb-3">
+<pre class="font-monospace small mb-0">$ retrotxt view RELEASE.NFO</pre>
+            </div>
+            <p>
+              There is also the <a href="https://retrotxt.com/" target="_blank" rel="noopener">RetroTxt web extension</a> that renders ANSI art and text in the browser like HTML.
+              However, because browsers are very cautious with rendering, not all ANSI art will work; at times the browser treats a file as binary data and refuses to render the page.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <img src="/image/new/moebius.webp" loading="lazy" class="img-fluid rounded border shadow-sm w-100" alt="Moebius app screenshot displaying ANSI art">
+          </div>
+        </div>
+      </article>
+
+      <article id="dos-programs" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Emulation</div>
+        <h2 class="h4 fw-semibold mb-3">Running DOS programs</h2>
+        <div class="row g-3 align-items-start mb-3">
+          <div class="col-md-8 index-prose">
+            <p>
+              DOS on the PC is the original operating system for the Intel x86 computer platform
+              and was in wide use from 1981 until the late 1990s, when Microsoft's Windows took over.
+              DOS lifted a number of ideas and syntax from the earlier CP/M, a system that was popular in the 1970s,
+              meaning its limited parser, hardware configurations, and usage are primitive,
+              which is why we don't usually bother <a href="https://86box.net" target="_blank" rel="noopener">emulating</a> full PC hardware for it.
+            </p>
+            <p class="small text-body-secondary">
+              Different companies offered DOS on the PC: the most famous is MS-DOS by Microsoft,
+              alongside IBM PC-DOS and Digital Research's DR-DOS, and they are all inter-compatible.
+              Confusingly, you may also read of Apple DOS or Atari DOS, but these are unrelated to the PC.
+            </p>
+            <p>
+              Instead, <strong><a href="https://dosbox-x.com" target="_blank" rel="noopener">DOSBox-X</a></strong> or <strong><a href="https://www.dosbox-staging.org" target="_blank" rel="noopener">DOSBox Staging</a></strong> are the easiest options for running DOS applications on modern systems.
+              While DOSBox still has a learning curve due to the quirks of the PC platform,
+              it is a great ecosystem for getting DOS software working and is generally simpler than using real hardware.
+            </p>
+            <p>
+              The original DOSBox software hasn't been updated in years,
+              but DOSBox Staging has taken the source and continued improvements.
+              DOSBox-X is also an option for those who want a graphical interface for configurations,
+              though its menus and dialogs can be hard to navigate.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <img src="/image/new/dosbox.webp" loading="lazy" class="img-fluid rounded border shadow-sm w-100" alt="DOSBox app running an intro screenshot">
+          </div>
+        </div>
+      </article>
+
+      <article id="old-windows" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Virtualization</div>
+        <h2 class="h4 fw-semibold mb-3">Running old Windows programs</h2>
+        <div class="index-prose mb-3">
+          <p>
+            Because there are multiple generations of Windows spanning decades (Windows 3.x, 9x, NT, 2000, XP, 7),
+            software compatibility depends on the Windows target and the programming APIs that the software uses:
+          </p>
+          <ul class="mb-3">
+            <li>For most software targeting the earlier Windows 3.x and Windows 9x era of the 1990s, <strong>Windows 2000</strong> is a reliable platform.</li>
+            <li>For Windows software from the 2000s and some of the 2010s, <strong>Windows XP</strong> often works best, as it was the longest-supported edition of that era.</li>
+          </ul>
+        </div>
+        <div class="row g-3 align-items-start mb-3">
+          <div class="col-md-8 index-prose">
+            <p>
+              I use an old Intel Mac combined with <strong>Parallels Desktop</strong> for running both Windows 2000 and Windows XP.
+              Parallels Desktop <a href="https://kb.parallels.com/129252" target="_blank" rel="noopener">up to release 18.x</a> (from 2022) offers sound, graphics, mouse, and networking for both Windows 2000 and XP,
+              as well as clipboard support for copying text and files between the Mac and Windows desktops, plus saved-state snapshots.
+              Parallels is much easier to set up for legacy Windows compared to the free but janky <a href="https://www.virtualbox.org" target="_blank" rel="noopener">VirtualBox</a> option.
+            </p>
+            <p>
+              Used Intel Macs are cheap these days; just make sure it has at least 8 GB of memory and a solid-state drive.
+              Old releases of Parallels Desktop were sold boxed at retailers (avoid the one-year subscription editions).
+              Older copies of Windows can be found second-hand, at <a href="https://winworldpc.com/library/operating-systems" target="_blank" rel="noopener">WinWorld</a>,
+              or on archive.org by searching <q>windows xp service pack 3</q>.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <img src="/image/new/parallel.webp" loading="lazy" class="img-fluid rounded border shadow-sm w-100" alt="Parallels Desktop app running Windows screenshot">
+          </div>
+        </div>
+        <div class="alert alert-warning small mb-0" role="alert">
+          <strong>Important:</strong> Do not connect ancient copies of Windows to the Internet.
+          Instead, use the host machine to download and extract files, then copy them into your offline Windows 2000 or XP virtual machine.
+        </div>
+      </article>
+
+      <article id="ansimations" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Animation</div>
+        <h2 class="h4 fw-semibold mb-3">ANSImations</h2>
+        <div class="index-prose">
+          <p>
+            In late 2026, Defacto2 incorporated ANSImation support into the website's ecosystem.
+            These are displayed as WebP animations (similar to a more optimized animated GIF)
+            and are generated using a purpose-built tool we created and you can use, <a href="https://github.com/bengarrett/ansimate" target="_blank" rel="noopener">ANSImate</a>.
+            There is also a <a href="https://bengarrett.github.io/ansimate/" target="_blank" rel="noopener">web interface</a> so you can preview and convert ANSImations right in your browser.
+          </p>
+          <p>
+            Another way to play them is inside DOSBox or one of its derivatives: slow down the CPU cycles by tapping <kbd>F12</kbd> <kbd>-</kbd>,
+            then use the <code>TYPE</code> command to play the ANSI animation:
+          </p>
+          <div class="bg-dark text-light rounded-2 p-2 px-3 overflow-x-auto mb-3">
+<pre class="font-monospace small mb-0">C:\&gt; TYPE JD-ANIM.ANS</pre>
+          </div>
+          <p>
+            You can also run one of the many ANSI art viewers written by the artscene in the 1990s under DOSBox,
+            such as <a href="https://demozoo.org/productions/270071/" target="_blank" rel="noopener">TRiBEview</a> or <a href="/f/ac44e5">ACiD View</a>.
+          </p>
+        </div>
+      </article>
+
+      <div id="images-videos" class="row g-4" style="scroll-margin-top: 5rem;">
+        <div class="col-md-6">
+          <article class="changelog-entry p-4 h-100">
+            <div class="index-chapter-era font-monospace mb-1">Graphics</div>
+            <h2 class="h4 fw-semibold mb-3">Viewing old image formats</h2>
+            <p class="small">
+              Many image formats that were commonplace in the 16-bit microcomputer era were never adopted by the web or digital photography and have been forgotten.
+              The most common incompatible format on the site is the Amiga IFF (Interchange File Format), which usually uses the <code>.iff</code> or <code>.lbm</code> filename extensions.
+            </p>
+            <p class="small mb-0">
+              <strong><a href="https://www.xnview.com/en/xnview/" target="_blank" rel="noopener">XnView</a></strong> is the best tool for viewing these legacy formats on modern systems.
+            </p>
+          </article>
+        </div>
+        <div class="col-md-6">
+          <article class="changelog-entry p-4 h-100">
+            <div class="index-chapter-era font-monospace mb-1">Video</div>
+            <h2 class="h4 fw-semibold mb-3">Viewing old videos</h2>
+            <p class="small mb-0">
+              Most of the old AVI video codecs used by sceners for promotional and bumper videos, etc., are compatible with <strong><a href="https://www.videolan.org/vlc/" target="_blank" rel="noopener">VLC media player</a></strong>.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <article id="bonus-tools" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Utilities</div>
+        <h2 class="h4 fw-semibold mb-3">Bonus tools</h2>
+
+        <section class="pb-4 mb-4 border-bottom">
+          <h3 class="h5 fw-semibold mb-2">Duplicate file eraser: <code>fdupes</code> <span class="small text-body-secondary fw-normal">by Adrian Lopez</span></h3>
+          <div class="index-prose mb-3">
+            <p>
+              The <code>fdupes</code> utility is the best duplicate finder we have used and is available on most Linux distributions as well as Homebrew for macOS.
+            </p>
+          </div>
+          <div class="bg-dark text-light rounded-2 p-3 overflow-x-auto">
+<pre class="font-monospace small mb-0"># List duplicate files
+fdupes --recurse --time --size .
+
+# Interactively select and remove dupes
+fdupes --recurse --order=time --delete .
+
+# Batch delete without prompts
+fdupes --recurse --order=time --delete --noprompt .</pre>
+          </div>
+        </section>
+
+        <section class="pb-4 mb-4 border-bottom">
+          <h3 class="h5 fw-semibold mb-2">Hex editor: <a href="https://github.com/WerWolv/ImHex" target="_blank" rel="noopener">ImHex</a></h3>
+          <div class="row g-3 align-items-start">
+            <div class="col-md-8 index-prose">
+              <p>
+                There are numerous hex editors on every platform, but the open-source, multi-platform ImHex is especially useful for browsing, categorizing, and searching string data inside a file.
+                It is amazing how much additional 1980s Scene history can be uncovered from embedded texts injected into binary files.
+              </p>
+            </div>
+            <div class="col-md-4">
+              <img src="/image/new/imhex.webp" loading="lazy" class="img-fluid rounded border shadow-sm w-100" alt="ImHex app viewing a hacked DOS binary screenshot">
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3 class="h5 fw-semibold mb-2">Old ZIP archive adverts: <a href="https://github.com/bengarrett/zipcmt" target="_blank" rel="noopener">zipcmt</a></h3>
+          <div class="index-prose">
+            <p>
+              In the BBS era, it was very common for boards and some early websites to embed adverts into ZIP archive comments.
+              The adverts were intended for display when extracted in a terminal or MS-DOS command prompt.
+              Zip Comment lets you view, browse, and save any of these forgotten adverts.
+            </p>
+          </div>
+        </section>
+      </article>
+
+    </div>
   </div>
-  VSCodium is the free, open source compile of the popular programming IDE, VS Code by Microsoft.
-  But without the bloat of the MS programming extensions, telemetry, or clanker AI integration.
-  VSCodium supports extremely large files, offers a mini-map preview, and provides <u>the best Code Page text support</u> of any modern editor.
 </div>
-<p>
-  <strong>Recommended tweaks for VSCodium:</strong><br>
-  1. Navigate to <small>File > Preferences > Settings</small><br>
-  2. Search for <small><q>files:encoding</q></small>, then change <q>UTF-8</q> to <q>DOS (CP 437)</q><br>
-  3. Search for <small><q>editor:language detection</q></small>, then uncheck <q>Workbench > Editor:Language Detection</q>
-</p>
-</div>
-
-<h4 class="index-section-header">Reading ANSI text art</h4>
-<div class="index-intro-section">
-<div class="clearfix">
-  <div class="float-end pe-3 pb-3">
-    <img src="/image/new/moebius.webp" class="rounded img-fluid" style="max-width:300px;" alt="Moebius app screenshot display ansi art">
-  </div>
-  <strong><a href="https://blocktronics.github.io/moebius/">Moebius</a></strong> is a feature complete ANSI art editor which is a good choice to use as a viewer on modern systems.
-  I do not use it for plain text or NFO text files as it isn't as performant as VSCodium, and does not handle long text files.
-</div>
-<p>
-  <strong><a href="https://github.com/bengarrett/retrotxtgo">retrotxtgo</a></strong> is a terminal application that will correctly print legacy CP-437 encoded text and ANSI files in a modern terminal emulator.
-  <br><code>$ retrotxt view RELEASE.NFO</code>
-</p>
-<p>
-  There's also the <a href="https://retrotxt.com/">RetroTxt web extension</a> that will render ANSI art and text in the browser like HTML. 
-  However, as browsers are very cautious with rendering, not all ANSI art will work. 
-  There are times the browser will treat a file as binary data and refuse to render the page.
-</p>
-</div>
-
-<h4 class="index-section-header">Running DOS programs</h4>
-<div class="index-intro-section">
-<div class="clearfix">
-  <div class="float-end pe-3 pb-3">
-    <img src="/image/new/dosbox.webp" class="rounded img-fluid" style="max-width:300px;" alt="DOSBox app running an intro screenshot">
-  </div>
-  DOS on the PC is the original operating system for the Intel x86 computer platform 
-  and was in wide use from 1981 until the late 1990s, when Microsoft's Windows took over.
-  DOS lifted a number of ideas and syntax from the earlier CP/M, a system that was popular in the 1970s!
-  Meaning its limited parser, hardware configurations, and usage is primitive, 
-  and why we don't bother <a href="https://86box.net">emulating</a> the platform.
-</div>
-<p>
-  <small>Different companies offered DOS on the PC, 
-  the most famous is MS-DOS by Microsoft, 
-  but there is PC-DOS for IBM, or DR-DOS by Digital Research, and they're all inter-compatible.
-  Confusingly, you may also read of Apple DOS or Atari DOS but these are unrelated to the PC.</small>
-</p>
-<p>
-  Instead, <strong><a href="https://dosbox-x.com">DOSBox-X</a></strong> or <strong><a href="https://www.dosbox-staging.org">DOSBox Staging</a></strong> are the easiest options for running DOS applications under modern systems.
-  While DOSBox still has a learning curve due to the poor design choices of the PC platform.
-  It is a great ecosystem to get DOS software working under, and generally simpler than using real hardware.
-</p>
-<p>
-  The original DOSBox software hasn't been updated in years, 
-  but DOSBox Staging has taken the source and continued improvements. 
-  Also, DOSBox-X is an option for those who want a user-interface for configurations.
-  Unfortunately, I find the menus and dialogues a mess of spaghetti and hard to navigate.
-</p>
-</div>
-
-<h4 class="index-section-header">Running old Windows programs</h4>
-<div class="index-intro-section">
-<p>
- As there are multiple generations of Windows operating systems spanning decades, Windows 3.x, Windows 9x, Windows NT, 2000, XP, 7...<br>
- Software compatibility depends on the Windows target and the programming APIs that the software uses.
-</p>
-<ul class="mb-3">
-  <li>A good platform for running most software that targets the earlier Windows 3.x and Windows 9x era of the 1990s would be to use <strong>Windows 2000</strong>.</li>
-  <li>For Windows software from the 2000s and some of the 2010s, <strong>Windows XP</strong> will often work, as it was the longest supported edition of Windows from that era.</li>
-</ul>
-<div class="clearfix">
-  <div class="float-end pe-3 pb-3">
-    <img src="/image/new/parallel.webp" class="rounded img-fluid" style="max-width:300px;" alt="Parallels Desktop app running Windows screenshot">
-  </div>
-  I use an old Intel Mac combined with <strong>Parallels Desktop</strong> for running both Windows 2000 and Windows XP. 
-  Parallels Desktop <a href="https://kb.parallels.com/129252">up to release</a> 18.x (from 2022) offers sound, graphics, mouse, and networking for both Windows 2000 and XP, 
-  as well as clipboard support for the copying of both text and files between the Mac and Windows desktops, and save state snapshots. 
-  I find Parallels is much easier to get up and running with legacy Windows compared to the free but jank <a href="https://www.virtualbox.org">VirtualBox</a> option.
-</div>
-<p>
-  Used Intel Macs are cheap these days, but make sure it has at least 8 GB of memory and a solid-state drive. 
-  Old releases of Parallels Desktop was sold boxed and at retailers; just avoid the one-year subscription editions.
-  Older copies of Windows can be found second-hand, and at <a href="https://winworldpc.com/library/operating-systems">WinWorld</a>,
-  or at archive.org searching <q>windows xp service pack 3</q>.
-</p>
-<p class="mb-0">
-  <strong class="text-warning">Important:</strong> Do not connect your ancient copies of Windows to the Internet. 
-  Instead, use the host Mac to download and extract any files and copy/paste those to the desktop of your running Windows 2000 or XP.
-</p>
-</div>
-
-<h4 class="index-section-header">ANSImations</h4>
-<div class="index-intro-section">
-<p>
-  In late 2026, Defacto2 incorporated ANSImation support into the website's ecosystem.
-  These are displayed as WebP animations (think of a more optimized, animated GIF image).
-  And are generated using a purpose tool we created and you can use, <a href="https://github.com/bengarrett/ansimate">ANSImate</a>.
-  But, there is also a <a href="https://bengarrett.github.io/ansimate/">web interface</a> so you can preview, and convert ANSImations within your browser!
-</p>
-<p>
-  <strike>The best</strike> <ins>Another</ins> way to animate these is to use DOSBox or one of its derivatives, 
-  and configure it to use very slow CPU cycles by tapping <kbd>F12</kbd> <kbd>-</kbd>.
-  <br>Then use the type command to play the ansi file animation:<br><code>C:\> TYPE JD-ANIM.ANS</code>
-</p>
-<p>
-  Or, you can download one of the many ANSI art viewers written by the artscene in the 1990s and run that under DOSBox, 
-  such as <a href="https://demozoo.org/productions/270071/">TRiBEview</a> or <a href="/f/ac44e5">ACiD View</a>.
-</p>
-</div>
-
-<h4 class="index-section-header">Viewing old image formats</h4>
-<div class="index-intro-section">
-<p>
-  There's a lot of image formats that were common place in the 16-bit microcomputer era, but
-  were not adopted by the worldwide web or digital photography, and have been forgotten.
-  The most common incompatible binary found on the site is the Amiga IFF (Interchangeable File Format)
-  which usually uses the <code>.iff</code> or <code>.lbm</code> filename extensions.
-</p>
-<p class="mb-0">
-  <strong><a href="https://www.xnview.com/en/xnview/">XnView</a></strong> is the best tool for viewing these legacy formats on modern systems.
-</p>
-</div>
-
-<h4 class="index-section-header">Viewing old videos</h4>
-<div class="index-intro-section">
-<p class="mb-0">
-  Most of the old AVI video codecs used by sceners for promotional and bumper videos etc are usually compatible with <strong><a href="https://www.videolan.org/vlc/">VLC media player</a></strong>.
-</p>
-</div>
-
-<h4 class="index-section-header">Bonus tools</h4>
-<div class="index-intro-section">
-<p><strong>Duplicate file eraser: <code>fdupes</code></strong> <small>by Adrian Lopez</small></p>
-<p>
-  The fdupes app is the best tool we have found and is on many Linux distributions plus offered by brew for macOS.
-</p>
-<p class="mb-3">
-  To list any duplicate files:<br><code>fdupes --recurse --time --size .</code><br>
-  To select and remove dupes:<br><code>fdupes --recurse --order=time --delete .</code><br>
-  To batch delete without prompts:<br><code>fdupes --recurse --order=time --delete --noprompt .</code>
-</p>
-
-<p><strong>Hex editor: <a href="https://github.com/WerWolv/ImHex">ImHex</a></strong></p>
-<div class="clearfix">
-  <div class="float-end pe-3 pb-3">
-    <img src="/image/new/imhex.webp" class="rounded img-fluid" style="max-width:250px;" alt="ImHex app viewing a hacked DOS binary screenshot">
-  </div>
-  There are numerous editors on every platform, but I find the open source, multi-platform ImHex useful for browsing, categorising and searching string data in a file.
-  It's amazing how much additional information can be gained from the Scene in the 1980s that is discovered hidden in embedding texts injected into binary files.
-</div>
-
-<p><strong>Old ZIP archive adverts: <a href="https://github.com/bengarrett/zipcmt">zipcmt</a></strong></p>
-<p class="mb-0">
-  In the BBS era, it was very common for boards and some early websites to embed adverts into the ZIP archive files.
-  The adverts were intended for display when extracted in a terminal or MS-DOS command prompt.
-  Zip Comment lets you view, browse, and save any of these forgotten adverts.
-</p>
-</div>
-
 {{- end}}

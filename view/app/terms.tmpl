@@ -1,116 +1,234 @@
 {{- /*
-  terms.tmpl ~ Glossary of common terms.
+    terms.tmpl ~ Glossary of common terms.
 */ -}}
 {{- define "content" }}
-<table class="table">
-  <thead class="table-dark">
-    <tr>
-      <th scope="col">Term</th>
-      <th scope="col">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">0day</th>
-      <td>The bleeding edge of pirated releases.</td>
-    </tr>
-    <tr>
-      <th scope="row">ansi</th>
-      <td>A legacy method to draw in color within text terminal screens and files.</td>
-    </tr>
-    <tr>
-      <th scope="row">ascii</th>
-      <td>A legacy method to draw raw text art in terminal screens and files.</td>
-    </tr>
-    <tr>
-      <th scope="row">BBS</th>
-      <td>An extinct, text only landline-networked computer board to share files, messages and chat.</td>
-    </tr>
-    <tr>
-      <th scope="row">courier</th>
-      <td>A person who digitally delivers pirated software to a BBS or file site.</td>
-    </tr>
-    <tr>
-      <th scope="row">crack</th>
-      <td>A software modification that removes copy protection from a retail program.</td>
-    </tr>
-    <tr>
-      <th scope="row">dupe</th>
-      <td>A duplicate release, software that has previously been released to The Scene.</td>
-    </tr>
-    <tr>
-      <th scope="row">elite</th>
-      <td>The elite Scene is the small clique who obtain, crack and release major games and software applications.</td>
-    </tr>
-    <tr>
-      <th scope="row">FTP</th>
-      <td>A legacy internet protocol for sending and receiving files.</td>
-    </tr>
-    <tr>
-      <th scope="row">hack</th>
-      <td>The unorthodox manipulation or exploration of most things computer-related.</td>
-    </tr>
-    <tr>
-      <th scope="row">HPAV</th>
-      <td>An old term for a board, site or group that focus on underground texts such as hacking and phone phreaking.</td>
-    </tr>
-    <tr>
-      <th scope="row">demo, intro<br>bbstro, cracktro</th>
-      <td>An non-interactive computer program demonstration to display or advertise art, music, code and often text.</td>
-    </tr>
-    <tr>
-      <th scope="row">keygen</th>
-      <td>A serial key generator, usually used to bypass licensing prompts in software.</td>
-    </tr>
-    <tr>
-      <th scope="row">NFO</th>
-      <td>A plain text file containing i<u>nfo</u>rmation about the release and sometimes the release group.</td>
-    </tr>
-    <tr>
-      <th scope="row">nuke</th>
-      <td>A release that has been marked for deletion, usually as a duplicate or a violation of rules.</td>
-    </tr>
-    <tr>
-      <th scope="row">phreaking</th>
-      <td>The redundant and illegal art of landline telephone network exploitation to obtain free calls.</td>
-    </tr>
-    <tr>
-      <th scope="row">pixel art</th>
-      <td>Also known as bitmap or raster graphics, it is the creation of an artwork or image drawn using a mouse or pen.</td>
-    </tr>
-    <tr>
-      <th scope="row">pre</th>
-      <td>A release that has been made available.</td>
-    </tr>
-    <tr>
-      <th scope="row">release</th>
-      <td>An artifact from The Scene, be it software, games or some other related item.</td>
-    </tr>
-    <tr>
-      <th scope="row">releaser<br>release group</th>
-      <td>A group or a collective of people working together under a shared brand.</td>
-    </tr>
-    <tr>
-      <th scope="row">The Scene</th>
-      <td>A community of individuals and groups that participate online in a common activity.</td>
-    </tr>
-    <tr>
-      <th scope="row">scener</th>
-      <td>An individual within The Scene.</td>
-    </tr>
-    <tr>
-      <th scope="row">site</th>
-      <td>An online server used for file distribution.</td>
-    </tr>
-    <tr>
-      <th scope="row">topsite</th>
-      <td>An 'elite' online file distribution server that first obtain the releases.</td>
-    </tr>
-    <tr>
-      <th scope="row">warez</th>
-      <td>The product or the act of sharing of software, with any copy-protection or other restrictions removed.</td>
-    </tr>
-  </tbody>
+<div class="row g-4 align-items-start mt-1 mb-5">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav" aria-label="Glossary index">
+      <div class="index-eyebrow mb-2">Index</div>
+      <div class="d-flex flex-wrap gap-1 mb-4">
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#pcboard-atx">@</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#0day">0</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#ansi">A</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#bbs">B</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#courier">C</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#diz">D</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#elite">E</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#ftp">F</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#hack">H</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#installer">I</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#keygen">K</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#mod">M</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#nfo">N</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#pcboard">P</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#release">R</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#the-scene">S</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#topsite">T</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#unprotect">U</a>
+        <a class="btn btn-sm btn-outline-secondary font-monospace" href="#warez">W</a>
+      </div>
+      <div class="index-eyebrow mb-2">Related</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="/thescene">Introduction to The Scene</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="/file">Browse file categories</a></li>
+      </ul>
+    </nav>
+  </aside>
 
-</table>
+  <div class="col-lg-9">
+    <div class="changelog-entry p-4">
+      <dl class="mb-0">
+        <div id="pcboard-atx" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/pcboard-text" rel="nofollow">@X</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">PCBoard BBS color markup codes (such as <code>@X0F</code>) used to format foreground and background colors in BBS text screens and files.</dd>
+        </div>
+
+        <div id="0day" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">0day</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Software cracked and released on the same day it became commercially available (or earlier), representing the fastest tier of warez distribution.</dd>
+        </div>
+
+        <div id="ansi" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/ansi" rel="nofollow">ANSI</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Text-based artwork using ANSI escape codes to render colors, cursor movement, and extended block characters on DOS and BBS terminals.</dd>
+        </div>
+
+        <div id="ansimation" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/animation" rel="nofollow">ANSImation</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Animated ANSI art that uses timed terminal escape sequences to draw moving graphics and text effects on BBS screens.</dd>
+        </div>
+
+        <div id="ascii" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">ASCII</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Monochrome text artwork created from standard printable characters, widely used in NFO headers and BBS menus.</dd>
+        </div>
+
+        <div id="bbs" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/bbs">BBS</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Bulletin Board System. A dial-up computer server accessed over telephone lines via modem, used to trade files, read message boards, and chat before the public internet.</dd>
+        </div>
+
+        <div id="bust" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/takedown" rel="nofollow">bust</a><br><span class="text-body-secondary fw-normal small">takedown</span></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A police raid or arrest targeting sceners, boards, or sites, often followed by community warning texts and security alerts.</dd>
+        </div>
+
+        <div id="courier" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">courier</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A person who digitally delivers pirated software to a BBS or file site.</dd>
+        </div>
+
+        <div id="crack" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">crack</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A software modification that removes copy protection from a retail program.</dd>
+        </div>
+
+        <div id="crackme" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/trial-crackme" rel="nofollow">crackme</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A small test program written specifically to challenge reverse engineers and crackers, often used as a trial for joining a release group.</dd>
+        </div>
+
+        <div id="diz" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">DIZ<br><span class="text-body-secondary fw-normal small">file_id.diz</span></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Description In Zip. A short plain-text summary (traditionally 45 columns wide) bundled inside release archives so BBSes could automatically import file descriptions.</dd>
+        </div>
+
+        <div id="dupe" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">dupe</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A duplicate release of software that another group has already released to The Scene, usually rejected or nuked.</dd>
+        </div>
+
+        <div id="elite" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">elite</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">The elite Scene is the small clique who obtain, crack, and release major games and software applications.</dd>
+        </div>
+
+        <div id="emag" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/magazine" rel="nofollow">e-mag</a><br><span class="text-body-secondary fw-normal small">disk mag, zine</span></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">An electronic magazine distributed on BBSes and FTP sites, either as plain text or as a standalone executable reader covering Scene news, reviews, and gossip.</dd>
+        </div>
+
+        <div id="ftp" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/ftp" rel="nofollow">FTP</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">File Transfer Protocol. An internet protocol that replaced dial-up BBSes in the mid-1990s as the main way Scene groups distributed releases between sites.</dd>
+        </div>
+
+        <div id="hack" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">hack</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">The unorthodox manipulation or exploration of most things computer-related.</dd>
+        </div>
+
+        <div id="hpav" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">HPAV</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Hacking, Phreaking, Anarchy, and Viruses. An older umbrella term for BBSes, groups, and textfile collections covering those underground topics.</dd>
+        </div>
+
+        <div id="installer" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/installer" rel="nofollow">installer</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A custom installation program created by a Scene group to unpack and configure multi-disk or heavily repackaged releases.</dd>
+        </div>
+
+        <div id="intro" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/intro" rel="nofollow">intro</a>, demo<br><span class="text-body-secondary fw-normal small">bbstro, cracktro, loader</span></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A non-interactive computer program demonstration to display or advertise art, music, code, and often text.</dd>
+        </div>
+
+        <div id="keygen" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">keygen</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A serial key generator, usually used to bypass licensing prompts in software.</dd>
+        </div>
+
+        <div id="mod" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/music" rel="nofollow">mod</a><br><span class="text-body-secondary fw-normal small">tracker</span></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Module music formats (such as MOD, S3M, XM, and IT) and the tracker software used to compose chiptune and electronic soundtracks for intros and demos.</dd>
+        </div>
+
+        <div id="nfo" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/nfo" rel="nofollow">NFO</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A plain text file containing i<u>nfo</u>rmation about the release and sometimes the release group.</dd>
+        </div>
+
+        <div id="nuke" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">nuke</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A release that has been marked for deletion, usually as a duplicate or a violation of rules.</dd>
+        </div>
+
+        <div id="pcboard" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/pcboard" rel="nofollow">PCBoard</a><br><span class="text-body-secondary fw-normal small"><a href="/files/pcboard-ppe" rel="nofollow">PPE</a></span></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A widely used DOS BBS software package and its PCBoard Programming Executable (PPE) add-ons, tools, and custom screens.</dd>
+        </div>
+
+        <div id="phreaking" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">phreaking</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">The redundant and illegal art of landline telephone network exploitation to obtain free calls.</dd>
+        </div>
+
+        <div id="pixel-art" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">pixel art</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Also known as bitmap or raster graphics, it is the creation of an artwork or image drawn using a mouse or pen.</dd>
+        </div>
+
+        <div id="pre" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">pre</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">The moment a group officially distributes a new release to its affiliated sites, marking the start of the race among couriers to spread it.</dd>
+        </div>
+
+        <div id="proof" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/proof" rel="nofollow">proof</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Usually a photograph of physical retail media (boxes, discs, or receipts) included to verify that a warez release came from an original retail copy.</dd>
+        </div>
+
+        <div id="release" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">release</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">An artifact from The Scene, be it software, games, or some other related item.</dd>
+        </div>
+
+        <div id="releaser" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/releaser">releaser</a><br><span class="text-body-secondary fw-normal small">release group</span></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A group or a collective of people working together under a shared brand.</dd>
+        </div>
+
+        <div id="the-scene" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/thescene">The Scene</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A community of individuals and groups that participate online in a common activity.</dd>
+        </div>
+
+        <div id="scener" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/scener">scener</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">An individual within The Scene.</dd>
+        </div>
+
+        <div id="site" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">site</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A private server, typically running FTP, used by Scene groups and couriers to store and trade releases.</dd>
+        </div>
+
+        <div id="sysop" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">sysop</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">System Operator. The person who ran, maintained, and moderated a Bulletin Board System.</dd>
+        </div>
+
+        <div id="topsite" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">topsite</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A high-speed, invite-only FTP server affiliated directly with major release groups, where new releases appear first before spreading elsewhere.</dd>
+        </div>
+
+        <div id="trainer" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/hack" rel="nofollow">trainer</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">A small cheat program or patch that modifies a game in memory to provide unlimited lives, ammo, invulnerability, or level skips.</dd>
+        </div>
+
+        <div id="unprotect" class="row g-2 pb-3 mb-3 border-bottom" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace"><a href="/files/how-to" rel="nofollow">unprotect</a></dt>
+          <dd class="col-sm-8 col-md-9 mb-0">Text guides and step-by-step instructions explaining how to analyze, patch, or remove copy protection from software.</dd>
+        </div>
+
+        <div id="warez" class="row g-2" style="scroll-margin-top: 5rem;">
+          <dt class="col-sm-4 col-md-3 font-monospace">warez</dt>
+          <dd class="col-sm-8 col-md-9 mb-0">The product or the act of sharing software, with any copy-protection or other restrictions removed.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>
 {{- end }}

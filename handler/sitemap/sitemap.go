@@ -148,7 +148,7 @@ func MapSite(ctx context.Context, sl *slog.Logger, db *sql.DB) *Sitemap {
 	staticLocs := [...]string{
 		"bbs/year", "ftp", "magazine", "releaser/year", "scener", "website",
 		"areacodes", "history", "brokentexts", "apps", "fixes",
-		"compression", "terms", "thescene", "thanks", "files/oldest",
+		"compression", "credits", "policy", "terms", "thescene", "thanks", "files/oldest",
 	}
 	total := len(staticLocs)
 	if pages > 1 {

@@ -92,6 +92,7 @@ const (
 	categories  = "categories"
 	compression = "compression"
 	configs     = "configs"
+	credits     = "credits"
 	dep         = "dependencies"
 	dx          = "d"
 	ffile       = "file"
@@ -105,6 +106,7 @@ const (
 	jsdos       = "jsdos"
 	mag         = "magazine"
 	newx        = "new"
+	policy      = "policy"
 	pouetx      = "pouet"
 	releaserx   = "releaser"
 	scener      = "scener"
@@ -1716,6 +1718,54 @@ func New(sl *slog.Logger, c *echo.Context) error {
 	return nil
 }
 
+// Policy is the handler for the privacy and copyright policy page.
+func Policy(sl *slog.Logger, c *echo.Context) error {
+	if err := nils.Check(sl, c); err != nil {
+		return fmt.Errorf("policy context: %w", err)
+	}
+
+	const title = "Privacy & copyright"
+	const descr = "Defacto2 privacy policy and Creative Commons copyright licensing."
+	const leadr = "How we handle visitor privacy and how Defacto2 content may be reused."
+
+	data := empty(c)
+	data["description"] = descr
+	data["logo"] = title
+	data["h1"] = title
+	data["lead"] = leadr
+	data["title"] = title
+
+	err := c.Render(http.StatusOK, policy, data)
+	if err != nil {
+		return InternalErr(sl, c, policy, err)
+	}
+	return nil
+}
+
+// Credits is the handler for the credits and acknowledgments page.
+func Credits(sl *slog.Logger, c *echo.Context) error {
+	if err := nils.Check(sl, c); err != nil {
+		return fmt.Errorf("credits context: %w", err)
+	}
+
+	const title = "Credits"
+	const descr = "Credits, core technologies, and scene contributors behind Defacto2."
+	const leadr = "The people, open-source projects, and scene contributors that power Defacto2."
+
+	data := empty(c)
+	data["description"] = descr
+	data["logo"] = title
+	data["h1"] = title
+	data["lead"] = leadr
+	data["title"] = title
+
+	err := c.Render(http.StatusOK, credits, data)
+	if err != nil {
+		return InternalErr(sl, c, credits, err)
+	}
+	return nil
+}
+
 func EditFn(sl *slog.Logger, c *echo.Context, db *sql.DB,
 	fn func(context.Context, boil.ContextExecutor, int64, string) error,
 ) error {
@@ -2634,9 +2684,10 @@ func Titles(sl *slog.Logger, c *echo.Context) error {
 	const title = "Titles"
 	data := empty(c)
 	data["title"] = title
-	data["description"] = "Titles are important."
+	data["description"] = "Naming and title guidelines for Defacto2 uploads and archive entries."
 	data["logo"] = title
 	data["h1"] = "Titles and naming are important"
+	data["lead"] = "A concise guide to naming software, games, and Scene releases cleanly."
 
 	err := c.Render(http.StatusOK, titles, data)
 	if err != nil {
@@ -2865,8 +2916,8 @@ func TheScene(sl *slog.Logger, c *echo.Context) error {
 	data["description"] = "A short introduction on The Scene, the online subcultures and its underground origins."
 	data["logo"] = "The underground"
 	data["h1"] = title
-	data["lead"] = "The Scene is broad church of people and online communities that is collectively grouped;" +
-		" it is subculture of niche activities using personal computers, " +
+	data["lead"] = "The Scene is a broad church of people and online communities that is collectively grouped;" +
+		" it is a subculture of niche activities using personal computers, " +
 		"where the participants share creations and exchange ideas."
 	data["title"] = title
 

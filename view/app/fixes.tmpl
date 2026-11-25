@@ -1,140 +1,235 @@
 {{- /*
-  fixes.tmpl ~ Problems and fixes.
+    fixes.tmpl ~ Problems and fixes.
 */ -}}
 {{- define "content" }}
-<h4 class="index-section-header">📅 Preserve file modification dates</h4>
-<div class="index-intro-section">
-<p>
-Unfortunately, web browsers ignore the last modification date metadata when it is attached to a file download.
-However, you can use other tools such as wget or curl for downloading to preserve the date.
-</p>
-<p>
-For example, the artifact "<a href="/f/b32455c">SYMCOLOR.COR</a>" was last modified in November 1985, to download and preserve it on your system:
-</p>
-<pre class="pre-mono-display">
-wget --content-disposition https://defacto2.net/d/b32455c
-curl -LOJR https://defacto2.net/d/b32455c
+<div class="row g-4 align-items-start mt-1 mb-5">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav" aria-label="Problems and fixes sections">
+      <div class="index-eyebrow mb-2">Fixes</div>
+      <ul class="nav flex-column gap-1 mb-4">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#harmful-downloads">Harmful downloads?</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#modification-dates">Modification dates</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#shrinker-err">Shrinker.err</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#runtime-error-200">Runtime error 200</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#invalid-page-fault">Invalid page fault</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#missing-dlls">Missing DLLs</a></li>
+      </ul>
+      <div class="index-eyebrow mb-2">Related</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="/apps">Using apps today</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="/compression">Old file archiving</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="col-lg-9">
+    <div class="d-flex flex-column gap-4">
+
+      <article id="harmful-downloads" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Safety &amp; browsers</div>
+        <h2 class="h4 fw-semibold mb-3">Harmful downloads?</h2>
+
+        <div class="alert alert-info mb-4" role="alert">
+          <strong>We do not distribute viruses, trojans, spyware, or malware.</strong>
+        </div>
+
+        <div class="index-prose mb-3">
+          <p>
+            Unfortunately, in their default setup, Chrome and Firefox block many downloads because Google Safe Browsing declares:
+            <em>Some pages on this site are unsafe. The site defacto2.net contains harmful content, including pages that: Contain unwanted or malicious software.</em>
+            See the <a href="https://transparencyreport.google.com/safe-browsing/search?url=defacto2.net&amp;hl=en" target="_blank" rel="noopener">Safe Browsing site status report</a>.
+          </p>
+          <p>
+            Many Scene intros and cracktros implement decompressing, self-decrypting, and self-modifying techniques, which is also typical behavior for malware.
+          </p>
+          <p>
+            Analyzing suspicious behavior in software is never foolproof, and an over-sensitive
+            <a href="https://usa.kaspersky.com/resource-center/definitions/heuristic-analysis" target="_blank" rel="noopener">heuristic scan</a> can report false positive results.
+            Some programs and applications offered on Defacto2 get flagged as potentially unwanted software, though we do not believe they are dangerous.
+          </p>
+        </div>
+
+        <div class="border-top pt-3">
+          <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-2">To stay safe</h3>
+          <ol class="small mb-3 d-flex flex-column gap-2">
+            <li>
+              <strong>Use the built-in browser emulator when available:</strong> Many MS-DOS intros, cracktros, and magazines on Defacto2 can be run safely inside the browser without executing anything on your computer.
+            </li>
+            <li>
+              <strong>Scan downloads with <a href="https://www.virustotal.com/" target="_blank" rel="noopener">VirusTotal</a>:</strong>
+              Keep in mind that packed 1990s executables (UPX, PKLite, Shrinker) often trigger generic heuristic or packer warnings (<code>Generic</code>, <code>PUA</code>, <code>Packer.*</code>) even when harmless. Multiple engines flagging a specific historical virus family (such as <code>CIH</code> or <code>Parite</code>) is a real warning sign.
+            </li>
+            <li>
+              <strong>Never run legacy executables on your primary Windows desktop:</strong> Use an isolated, offline virtual machine or emulator, and keep a clean snapshot to roll back to after testing.
+            </li>
+          </ol>
+          <ul class="small text-body-secondary mb-3 d-flex flex-column gap-1">
+            <li><a href="https://learn.microsoft.com/en-us/windows/security/application-security/application-isolation/windows-sandbox/" target="_blank" rel="noopener">Windows Sandbox</a> (Windows 10/11 Pro and Enterprise) for quick, disposable testing of 32-bit Windows executables.</li>
+            <li><a href="https://dosbox-staging.github.io/" target="_blank" rel="noopener">DOSBox Staging</a>, <a href="https://dosbox-x.com/" target="_blank" rel="noopener">DOSBox-X</a>, or <a href="https://www.dosbox.com/" target="_blank" rel="noopener">DOSBox</a> for MS-DOS emulation on all platforms (DOSBox Staging can also run Windows 95 and 98).</li>
+            <li><a href="https://www.parallels.com/products/desktop" target="_blank" rel="noopener">Parallels Desktop</a> 18.1 or earlier on Intel Macs, or <a href="https://mac.getutm.app/" target="_blank" rel="noopener">UTM</a> (QEMU) on Apple Silicon Macs.</li>
+            <li><a href="https://www.virtualbox.org/" target="_blank" rel="noopener">VirtualBox</a> for Windows Vista and newer (poor support for Windows NT and 2000).</li>
+            <li><a href="https://86box.net/" target="_blank" rel="noopener">86Box</a> or <a href="https://pcem-emulator.co.uk/" target="_blank" rel="noopener">PCem</a> for accurate retro PC hardware emulation of DOS and Windows 95/98.</li>
+          </ul>
+          <p class="small text-body-secondary mb-0">
+            See <a href="/apps#dos-programs">Running DOS programs</a> and <a href="/apps#old-windows">Running old Windows programs</a> for setup details.
+          </p>
+        </div>
+      </article>
+
+      <article id="modification-dates" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Downloads</div>
+        <h2 class="h4 fw-semibold mb-3">Preserve file modification dates</h2>
+        <div class="index-prose mb-3">
+          <p>
+            Unfortunately, web browsers ignore the last modification date metadata when it is attached to a file download.
+            However, you can use command-line tools such as <code>wget</code> or <code>curl</code> to preserve the original timestamp.
+          </p>
+          <p>
+            For example, the artifact <q><a href="/f/b32455c">SYMCOLOR.COR</a></q> was last modified in November 1985. To download and preserve its date on your system:
+          </p>
+        </div>
+        <div class="bg-dark text-light rounded-2 p-3 overflow-x-auto">
+<pre class="font-monospace small mb-0">$ wget --content-disposition https://defacto2.net/d/b32455c
+$ curl -LOJR https://defacto2.net/d/b32455c
 
   Saving 'SYMCOLOR.COR'
   HTTP response 200 OK [https://defacto2.net/d/b32455c]
   SYMCOLOR.COR         100%
 
 $ ls -l SYMCOLOR.COR
-  2560 Nov 28  1985  SYMCOLOR.COR
-</pre>
-</div>
+  2560 Nov 28  1985  SYMCOLOR.COR</pre>
+        </div>
+      </article>
 
-<h4 class="index-section-header">🔧 Shrinker.err Dispatcher initialization errors</h4>
-<div class="index-intro-section">
-<p>
-An ancient Windows program crashes with the cryptic error message.
-</p>
-<p>
-This is a common error that occurs with Windows 9x applications that are compressed with earlier versions of the Shrinker compression library. 
-Fortunately, there is an easy solution with decompressing the application using either <strong>DeShrink 1.6</strong> or <strong>UnShrinker</strong>. 
-DeShrink is a standard Windows application, while UnShrinker uses the command prompt.
-</p>
-<p>
-There will be occasions where these solutions cannot decrypt or fix the affected programs. 
-In these circumstances, you will not be able to solve this issue other than to run the applications generating the Dispatcher error on a Windows 95, 98, or ME system.
-</p>
-<p>
-<strong>Available tools:</strong>
-</p>
-<ul>
-  <li><a href="/f/a12f23">DeShrink 1.6</a></li>
-  <li><a href="/f/a2331b">UnShrinker</a></li>
-</ul>
-</div>
+      <article id="shrinker-err" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Windows 9x</div>
+        <h2 class="h4 fw-semibold mb-3">Shrinker.err Dispatcher initialization errors</h2>
+        <div class="index-prose mb-3">
+          <p>
+            This is a common error that occurs with Windows 9x applications compressed using earlier versions of the Shrinker compression library.
+            Fortunately, there is an easy solution: decompress the application using either <strong>DeShrink 1.6</strong> or <strong>UnShrinker</strong>.
+            DeShrink is a standard Windows application, while UnShrinker uses the command prompt.
+          </p>
+          <p>
+            There will be occasions where these tools cannot decrypt or fix the affected programs.
+            In those circumstances, the only solution is to run the affected application on a Windows 95, 98, or ME system.
+          </p>
+        </div>
+        <div class="border-top pt-3 d-flex flex-wrap align-items-center gap-2">
+          <span class="small fw-semibold text-body-secondary me-1">Available tools:</span>
+          <a href="/f/a12f23" class="btn btn-sm btn-outline-primary">DeShrink 1.6</a>
+          <a href="/f/a2331b" class="btn btn-sm btn-outline-primary">UnShrinker</a>
+        </div>
+      </article>
 
-<h4 class="index-section-header">💥 Runtime error 200</h4>
-<div class="index-intro-section">
-<p>
-An ancient DOS program crashed with the cryptic error message.
-</p>
-<p>
-A runtime error 200 message usually occurs with old DOS applications written in Turbo and Borland Pascal. 
-Turbo Pascal had a timing bug that caused its compiled programs to crash when they were executed on machines running at 200 MHz or faster. 
-It is known as the <q>CRT unit issue</q> and can be fixed by applying a patch to the affected application. 
-Otherwise, you can run the application in DOSBox, which can artificially slow down the speed of the emulated DOS session.
-</p>
-<p>
-<strong>Step-by-step patching guide:</strong>
-</p>
-<ol class="list-group list-group-numbered">
-  <li class="list-group-item d-flex justify-content-between align-items-start">
-    <div class="ms-2 me-auto"><div class="fw-bold">Download <a href="/f/a43b6b">UNP 4.11</a></div>A Turbo Pascal decompression program.</div>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-start">
-    <div class="ms-2 me-auto"><div class="fw-bold">Download <a href="/f/a33773">CRTFix 1.16</a></div>A CRT bug patching program.</div>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-start">
-    <div class="ms-2 me-auto"><div class="fw-bold">Create a temporary directory</div>
-    <code>$ MKDIR C:\TPATCH</code></div>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-start">
-    <div class="ms-2 me-auto"><div class="fw-bold">Unzip</div>Unzip both downloaded packages into the temporary directory.
-    <br><code>$ PKUNZIP TurboPascal-Unpack.zip C:\TPATCH
-    <br>$ PKUNZIP crtfix16.zip C:\TPATCH</code></div>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-start">
-    <div class="ms-2 me-auto"><div class="fw-bold">Decompress</div>
-    In our example, we are going to patch <code>defacto.exe</code>, which is the binary from an early Defacto magazine that suffers from this bug. 
-    Use the UNP program to decompress the binary.
-    <br><code>$ UNP DEFACTO.EXE</code></div>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-start">
-    <div class="ms-2 me-auto"><div class="fw-bold">Apply fix</div>
-    Once the decompression is complete run the crtfix program to patch the binary.
-    <br><code>$ CRTFIX DEFACTO.EXE</code><br>
-    That is it, if the crtfix returned a <q>Fixing code... Fixed</q> response then the binary is now patched and in future those annoying runtime error 200 messages should be gone.
+      <article id="runtime-error-200" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">MS-DOS · Turbo Pascal</div>
+        <h2 class="h4 fw-semibold mb-3">Runtime error 200</h2>
+        <div class="index-prose mb-4">
+          <p>
+            A runtime error 200 message usually occurs with old DOS applications written in Turbo Pascal or Borland Pascal.
+            Turbo Pascal had a timing bug that caused its compiled programs to crash when executed on machines running at 200 MHz or faster.
+            It is known as the <q>CRT unit issue</q> and can be fixed by patching the affected executable,
+            or by running the program in DOSBox with artificially reduced CPU cycles.
+          </p>
+        </div>
+
+        <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-3">Step-by-step patching guide</h3>
+        <ol class="list-group list-group-numbered">
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-semibold">Download <a href="/f/a43b6b">UNP 4.11</a></div>
+              <div class="small text-body-secondary">A DOS executable decompression program.</div>
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-semibold">Download <a href="/f/a33773">CRTFix 1.16</a></div>
+              <div class="small text-body-secondary">A CRT timing bug patching program.</div>
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-semibold mb-1">Create a temporary directory</div>
+              <code>C:\&gt; MKDIR C:\TPATCH</code>
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-semibold">Unzip both packages into the temporary directory</div>
+              <div class="small text-body-secondary mt-1">
+                <code>C:\&gt; PKUNZIP TurboPascal-Unpack.zip C:\TPATCH</code><br>
+                <code>C:\&gt; PKUNZIP crtfix16.zip C:\TPATCH</code>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-semibold">Decompress the target executable</div>
+              <div class="small text-body-secondary my-1">
+                In this example we patch <code>defacto.exe</code>, an early Defacto magazine binary that suffers from the bug.
+              </div>
+              <code>C:\&gt; UNP DEFACTO.EXE</code>
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div class="fw-semibold">Apply the fix</div>
+              <div class="my-1"><code>C:\&gt; CRTFIX DEFACTO.EXE</code></div>
+              <div class="small text-body-secondary">
+                If CRTFix returns <q>Fixing code... Fixed</q>, the binary is now patched and the runtime error 200 crashes should be gone.
+              </div>
+            </div>
+          </li>
+        </ol>
+      </article>
+
+      <article id="invalid-page-fault" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Windows 95 / 98</div>
+        <h2 class="h4 fw-semibold mb-3">Invalid page fault in module</h2>
+        <div class="index-prose">
+          <p>
+            The invalid page fault alert is an error caused by programs compiled for Windows 95 and 98 attempting to access restricted memory.
+            This is commonly an emulation or virtualization issue, and often the only solution is to run the program on real PC hardware.
+            Alternatively, the binary may be corrupt due to antiquated antivirus removal.
+          </p>
+        </div>
+        <figure class="figure d-block text-center mt-4 mb-0">
+          <img src="/image/new/pagefault.png" loading="lazy" class="img-fluid rounded border shadow-sm" alt="Screenshot of a program running in Windows 98 causing an invalid page fault prompt">
+          <figcaption class="figure-caption mt-2">Windows 98 invalid page fault dialog.</figcaption>
+        </figure>
+      </article>
+
+      <div id="missing-dlls" class="row g-4" style="scroll-margin-top: 5rem;">
+        <div class="col-md-6">
+          <article class="changelog-entry p-4 h-100 d-flex flex-column">
+            <div class="index-chapter-era font-monospace mb-1">Windows DLL · Audio</div>
+            <h2 class="h4 fw-semibold mb-3">NPMOD32.DLL is missing</h2>
+            <p class="small flex-grow-1">
+              <code>NPMOD32.DLL</code> is a Windows library designed to play older <a href="https://www.modarchive.com/" target="_blank" rel="noopener">module music</a> files popular in the demo and music scenes.
+              Sometimes coders forgot to bundle this file with their application. Copy the DLL into the same directory as the application to fix the error.
+            </p>
+            <div class="border-top pt-3 mt-2">
+              <a href="/f/a53f43" class="btn btn-sm btn-outline-primary">Download NPMOD32.DLL</a>
+            </div>
+          </article>
+        </div>
+        <div class="col-md-6">
+          <article class="changelog-entry p-4 h-100 d-flex flex-column">
+            <div class="index-chapter-era font-monospace mb-1">Windows DLL · DirectX</div>
+            <h2 class="h4 fw-semibold mb-3">D3DRM.DLL not loaded</h2>
+            <p class="small flex-grow-1">
+              <code>D3DRM.DLL</code> is a Windows DirectX library included in early versions of the API and removed in Windows XP and later.
+              Copy the DLL into the same directory as the application to resolve the missing library error.
+            </p>
+            <div class="border-top pt-3 mt-2">
+              <a href="/f/a643bb" class="btn btn-sm btn-outline-primary">Download D3DRM.DLL</a>
+            </div>
+          </article>
+        </div>
+      </div>
+
     </div>
-  </li>
-</ol>
+  </div>
 </div>
-
-<h4 class="index-section-header">⚠️ Invalid page fault in module</h4>
-<div class="index-intro-section">
-<p>
-The invalid page fault alert is a cryptic error caused by programs compiled for Windows 95 and 98 attempting to access restricted random-access memory. 
-This is commonly an emulation and virtualization error, and often, the only solution is to run the program on real PC hardware.
-Or the program might be corrupt due to antiquated antivirus removal.
-</p>
-<p>
-<img src="/image/new/pagefault.png" class="rounded mx-auto d-block" alt="A screenshot of a program running in Windows 98 causing an invalid page fault prompt">
-</p>
-</div>
-
-<h4 class="index-section-header">🎵 NPMOD32.DLL is missing</h4>
-<div class="index-intro-section">
-<p>
-An ancient Windows program crashes with the cryptic error message.
-</p>
-<p>
-NPMOD32.DLL is a Windows development library file designed to play older <a href="https://www.modarchive.com/">module music</a> files that were popular in the demo and music scenes. 
-Sometimes coders would forget to include this file while packaging their application. 
-Fortunately, we have a copy of <q>NPMOD32.DLL</q> for download. 
-To use, copy the DLL file to the same directory as the application.
-</p>
-<p>
-<a href="/f/a53f43"><strong>Download NPMOD32.DLL</strong></a>
-</p>
-</div>
-
-<h4 class="index-section-header">🎮 D3DRM.DLL not loaded</h4>
-<div class="index-intro-section">
-<p>
-An ancient Windows program crashes with the cryptic error message.
-</p>
-<p>
-D3DRM.DLL is a Windows Direct-X library file that was included in the original versions of the API. 
-Newer editions of DirectX found in Windows XP and later removed these libraries. 
-Fortunately, we have a copy of the D3DRM.DLL for download. 
-To use, copy the DLL file into the same directory as the application.
-</p>
-<p>
-<a href="/f/a643bb"><strong>Download D3DRM.DLL</strong></a>
-</p>
-</div>
-
 {{- end }}

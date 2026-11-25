@@ -1,0 +1,154 @@
+{{- /*
+    policy.tmpl ~ Privacy and copyright policy page template.
+*/ -}}
+{{- define "content" }}
+<div class="row g-4 align-items-start mt-1 mb-5">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav" aria-label="Policy sections">
+      <div class="index-eyebrow mb-2">Sections</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#privacy">Privacy</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#copyright">Copyright &amp; licensing</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="col-lg-9">
+    <div class="d-flex flex-column gap-4">
+
+      <article id="privacy" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Privacy</div>
+        <h2 class="h4 fw-semibold mb-3">Visitor privacy</h2>
+
+        <div class="alert alert-success mb-4" role="alert">
+          <strong>Defacto2 does not track visitors to this site.</strong>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-2">Privacy-first analytics</h3>
+              <p class="small mb-0">
+                We use <a href="https://www.cloudflare.com/web-analytics/" target="_blank" rel="noopener">Cloudflare Analytics</a>, which respects your privacy. No client-side tracking, no fingerprinting, and no personal data collection.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-2">No sessions</h3>
+              <p class="small mb-0">
+                Anonymous visitors do not create server sessions. No cookies are set unless you sign in to the admin panel.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-2">Self-hosted assets</h3>
+              <p class="small mb-0">
+                No remotely hosted scripts, trackers, or third-party analytics. All assets are served directly from our servers.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h6 text-uppercase text-body-secondary fw-semibold mb-2">Open source</h3>
+              <p class="small mb-0">
+                Our privacy practices are transparent. The <a href="https://github.com/Defacto2/server" target="_blank" rel="noopener">source code</a> is publicly available for review.
+              </p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article id="copyright" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">CC BY 4.0</div>
+        <h2 class="h4 fw-semibold mb-3 d-flex align-items-center gap-2">
+          <svg class="bi flex-shrink-0" width="22" height="22" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+            <use xlink:href="/svg/bootstrap-icons.svg#cc-circle"/>
+          </svg>
+          <span>Copyright &amp; licensing</span>
+        </h2>
+
+        <div class="index-prose mb-4">
+          <p class="lead fs-6 fw-normal">
+            This site uses the <strong>Creative Commons Attribution 4.0 International</strong> license.
+          </p>
+          <p>
+            It enables you to use much of the website content with your projects. The license is a liberal implementation of copyright — you are free to use the original content as-is or modify it to your needs.
+          </p>
+          <p>
+            <strong>The only requirement:</strong> give credit to <code>defacto2.net</code> for each piece of content you use. This attribution can be placed on the content itself or in a separate file.
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
+            <span>Read the "CC BY 4.0" license deed</span>
+            <svg class="bi flex-shrink-0" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+              <use xlink:href="/svg/bootstrap-icons.svg#arrow-right"/>
+            </svg>
+          </a>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100">
+              <h3 class="h6 text-success fw-semibold mb-3">You may use</h3>
+              <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+                <li class="d-flex align-items-start gap-2">
+                  <svg class="bi text-success flex-shrink-0 mt-1" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
+                  </svg>
+                  <span>Text and <a href="https://github.com/Defacto2/database" target="_blank" rel="noopener">database</a> website content</span>
+                </li>
+                <li class="d-flex align-items-start gap-2">
+                  <svg class="bi text-success flex-shrink-0 mt-1" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
+                  </svg>
+                  <span>Images, previews, and screenshots of artifacts</span>
+                </li>
+                <li class="d-flex align-items-start gap-2">
+                  <svg class="bi text-success flex-shrink-0 mt-1" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
+                  </svg>
+                  <span>Videos on the <a href="https://www.youtube.com/defacto2" target="_blank" rel="noopener">Defacto2 YouTube</a> channel</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100">
+              <h3 class="h6 text-danger fw-semibold mb-3">You cannot use</h3>
+              <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+                <li class="d-flex align-items-start gap-2">
+                  <svg class="bi text-danger flex-shrink-0 mt-1" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#x"/>
+                  </svg>
+                  <span>File artifacts and downloads <span class="text-body-secondary">(&copy; belongs to the original authors)</span></span>
+                </li>
+                <li class="d-flex align-items-start gap-2">
+                  <svg class="bi text-danger flex-shrink-0 mt-1" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#x"/>
+                  </svg>
+                  <span>Website <a href="https://github.com/Defacto2/server" target="_blank" rel="noopener">source code</a> <span class="text-body-secondary">(separate license)</span></span>
+                </li>
+                <li class="d-flex align-items-start gap-2">
+                  <svg class="bi text-danger flex-shrink-0 mt-1" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <use xlink:href="/svg/bootstrap-icons.svg#x"/>
+                  </svg>
+                  <span>Third-party assets: art, icons, fonts, and libraries <span class="text-body-secondary">(&copy; respective owners)</span></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <p class="small text-body-secondary border-top mt-4 pt-3 mb-0">
+          In some countries, screenshots of computer software are held under copyright by the software author or copyright owner.
+        </p>
+      </article>
+
+    </div>
+  </div>
+</div>
+{{- end}}

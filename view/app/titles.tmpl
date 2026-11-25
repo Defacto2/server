@@ -1,103 +1,192 @@
-{{- /* 
-    titles.tmpl ~ Titles are important template.
+{{- /*
+    titles.tmpl ~ Titles and naming guide template.
 */ -}}
 {{- define "content" }}
-<div class="index-intro-section">
-  <p class="lead">
-    Titles are important, but <em>bad titles make it hard to dupe check uploads and search</em>.
-  </p>
-  <p class="mb-0">
-    <strong class="text-primary">
-      The current site policy is to <u>keep titles simple</u>, concise and clean.<br>
-      Game titles should match the publisher's official name.
-    </strong>
-  </p>
-</div>
-
-<h4 class="index-section-header">❌ Bad examples:</h4>
-<div class="index-intro-section">
-  <ol>
-    <li><q>Microsoft Visual Studio for WinNT V1.1001.1</q></li>
-    <li><q>INC cracktro for EA's Sim City 2000!</q></li>
-    <li><q>Zool 2 by Virgin Interactive +16 MEGA trainer</q></li>
-    <li><q>Microsoft Windows 95 4.00.950 *STORE RELEASE FINAL*</q></li>
-    <li><q>EA NFL 98 100% BYTE PATCHED AND WORKING</q></li>
-  </ol>
-</div>
-
-<h4 class="index-section-header">✅ Good examples:</h4>
-<div class="index-intro-section">
-  <ol>
-    <li><q>Visual Studio v1.1</q></li>
-    <li><q>SimCity 2000</q></li>
-    <li><q>Zool 2</q></li>
-    <li><q>Windows 95</q></li>
-    <li><q>NFL 98 fix</q></li>
-  </ol>
-</div>
-
-<h4 class="index-section-header">Why not copy and paste?</h4>
-<div class="index-intro-section">
-  <p class="text-muted small mb-2"><em>Why not copy and paste from the NFO, file_diz.diz, or the directory path?</em></p>
-  <p>
-  It is common for Scene releases to use mismatched details, bad spellings, and lazy acronyms.
-  These make it difficult to run searches for software and game names.
-  </p>
-  <p>
-    For example, this <a href="/f/aa1d41e">release</a> for <em>The Adventures of Tintin : Prisoners of the Sun</em>.<br>
-    Uses <em>TINTIN (c) INFOGRAMES</em> for the DIZ, and the title <em>Spirou (c) Infogrames</em> for the NFO.
-  </p>
-  <p>This <a href="/f/ae273de">release</a> for <q>Jack&nbsp;Nicklaus 4</q> addon uses the meaningless <em><mark>JNG</mark> 4</em> in the DIZ, 
-    and has multiple typos in the NFO, <em>Jack <mark>Nick<u>a</u>laus <strike>Golf</strike></mark> 4</em>. 
-  </p>
-</div>
-
-<h4 class="index-section-header">Naming guide:</h4>
-<div class="index-intro-section">
-  <ul class="list-group list-group-flush">
-    <li class="list-group-item">
-      List the name of the game or software before any minimal supplementary info.
-      <br>
-      <small class="text-body-secondary"><mark>SimCity</mark> fix</small>, 
-      <small class="text-body-secondary"><mark>SimCity</mark> addon</small>
-    </li>
-    <li class="list-group-item">It is fine to use an empty title if the other data or the screenshots provide enough context.
-        <br><small class="text-body-secondary">These types of files often do not need a title. Art, logos, courier group NFOs, BBS/FTP adverts, etc.</small>
-    </li>
-    <li class="list-group-item">
-      Do not include unnecessary information.
-      <br><small class="text-body-secondary">Semantic software versions, build numbers, or release justifications, <q>100% final</q>, <q>US release</q>, <q>multilanguage</q>, etc.
-      <br><strike>SimCity 100% final, SimCity US release, SimCity 1.500.001</strike>
-      </small>
-    </li>
-    <li class="list-group-item">
-      Do not include too specific or problematic details, instead append <q>fix</q> or <q>addon</q>.
-      <br><small class="text-body-secondary">Avoid terms like, <q>cracked</q>, <q>patched</q>, <q>bytecrack</q>, <q>hack</q>, <q>key</q>, <q>keymaker</q>, <q>generator</q>, <q>serial</q>, etc.</small>
-    </li>
-    <li class="list-group-item">
-      Do not include redundant information.
-      <br><small class="text-body-secondary">Words such as <q>trainer</q>, <q>cheat</q>, <q>hint</q>, <q>installer</q>, <q>cracktro</q>, <q>docs</q>, <q>documentation</q>, <q>manual</q>, using the group name, etc.
-      <br><strike>SimCity trainer, SimCity +4 cheat, SimCity installer, Manual for SimCity, SimCity by Razor</strike></small>
-    </li>
-    <li class="list-group-item">
-      Do not include the publisher as these can attract DMCA bot take downs when shown on search engines.
-      <br><small class="text-body-secondary">
-      <strike>EA SimCity, Sim City (C) Electronic Arts, SimCity by Maxis, Sega's Sonic</strike>.<br>
-      Exceptions are made for titles using generic nouns and verbs.<br>
-      For example, <q>Norton Backup</q>, <q>Atari Football</q>.</small>
-    </li>
-    <li class="list-group-item">Please do not use:
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">Elite text, it's silly and cannot be searched:
-        <br><small class="text-body-secondary"><q>εLεε7 τεxτ !s ßαd</q></small></li>
-        <li class="list-group-item">File names give no context when used as titles:
-        <br><small class="text-body-secondary"><q>R-SCTY2K.ZIP</q></small></li>
-        <li class="list-group-item">All capitalized text, as it's hard to read:
-        <br><small class="text-body-secondary"><q>ALL CAPS IS ANNOYING</q></small></li>
-        <li class="list-group-item">Copy and paste FTP site directories, as it's hard to read and are DMCA triggers:
-        <br><small class="text-body-secondary"><q>using.a.copy.and.pasted.directory.name.is.also.annoying.to.read</q></small></li>
+<div class="row g-4 align-items-start mt-1 mb-5">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav" aria-label="Naming guide sections">
+      <div class="index-eyebrow mb-2">Sections</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#policy">Policy</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#examples">Good vs. bad examples</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#copy-paste">Why not copy &amp; paste</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#naming-rules">Naming rules</a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#avoid">What to avoid</a></li>
       </ul>
-    </li>
-  </ul>
+    </nav>
+  </aside>
+
+  <div class="col-lg-9">
+    <div class="d-flex flex-column gap-4">
+
+      <article id="policy" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Overview</div>
+        <h2 class="h4 fw-semibold mb-3">Title policy</h2>
+        <div class="index-prose">
+          <p class="lead fs-6 fw-normal">
+            Titles are important, and <em>bad titles make it hard to dupe-check uploads and search the archive</em>.
+          </p>
+        </div>
+        <div class="alert alert-primary mb-0" role="alert">
+          <strong>Keep titles simple, concise, and clean.</strong> Game titles should match the publisher's official name.
+        </div>
+      </article>
+
+      <article id="examples" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Comparison</div>
+        <h2 class="h4 fw-semibold mb-3">Good vs. bad examples</h2>
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr class="small text-uppercase text-body-secondary">
+                <th scope="col" class="w-50">
+                  <span class="d-inline-flex align-items-center gap-1 text-danger">
+                    <svg class="bi flex-shrink-0" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#x"/>
+                    </svg>
+                    <span>Avoid</span>
+                  </span>
+                </th>
+                <th scope="col" class="w-50">
+                  <span class="d-inline-flex align-items-center gap-1 text-success">
+                    <svg class="bi flex-shrink-0" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                      <use xlink:href="/svg/bootstrap-icons.svg#check2"/>
+                    </svg>
+                    <span>Use</span>
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="small">
+              <tr>
+                <td class="text-body-secondary">Microsoft Visual Studio for WinNT V1.1001.1</td>
+                <td class="fw-semibold">Visual Studio v1.1</td>
+              </tr>
+              <tr>
+                <td class="text-body-secondary">INC cracktro for EA's Sim City 2000!</td>
+                <td class="fw-semibold">SimCity 2000</td>
+              </tr>
+              <tr>
+                <td class="text-body-secondary">Zool 2 by Virgin Interactive +16 MEGA trainer</td>
+                <td class="fw-semibold">Zool 2</td>
+              </tr>
+              <tr>
+                <td class="text-body-secondary">Microsoft Windows 95 4.00.950 *STORE RELEASE FINAL*</td>
+                <td class="fw-semibold">Windows 95</td>
+              </tr>
+              <tr>
+                <td class="text-body-secondary">EA NFL 98 100% BYTE PATCHED AND WORKING</td>
+                <td class="fw-semibold">NFL 98 fix</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article id="copy-paste" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Common pitfalls</div>
+        <h2 class="h4 fw-semibold mb-2">Why not copy and paste?</h2>
+        <p class="small text-body-secondary mb-3">
+          Why not copy and paste from the NFO, <code>file_id.diz</code>, or the directory path?
+        </p>
+        <div class="index-prose">
+          <p>
+            It is common for Scene releases to use mismatched details, bad spellings, and lazy acronyms.
+            These make it difficult to run searches for software and game names.
+          </p>
+          <p>
+            For example, this <a href="/f/aa1d41e">release</a> for <em>The Adventures of Tintin: Prisoners of the Sun</em>
+            uses <em>TINTIN (c) INFOGRAMES</em> for the DIZ, and the wrong title <em>Spirou (c) Infogrames</em> for the NFO.
+          </p>
+          <p>
+            This <a href="/f/ae273de">release</a> for a <q>Jack&nbsp;Nicklaus 4</q> addon uses the meaningless <em><mark>JNG</mark> 4</em> in the DIZ,
+            and has multiple typos in the NFO: <em>Jack <mark>Nick<u>a</u>laus <s>Golf</s></mark> 4</em>.
+          </p>
+        </div>
+      </article>
+
+      <article id="naming-rules" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Guidelines</div>
+        <h2 class="h4 fw-semibold mb-3">Naming rules</h2>
+        <ol class="list-unstyled mb-0 d-flex flex-column gap-3">
+          <li class="pb-3 border-bottom">
+            <div class="fw-medium mb-1">List the name of the game or software before any minimal supplementary info.</div>
+            <div class="small text-body-secondary">
+              Examples: <mark>SimCity</mark> fix, <mark>SimCity</mark> addon
+            </div>
+          </li>
+          <li class="pb-3 border-bottom">
+            <div class="fw-medium mb-1">Leave the title empty if the other metadata or screenshots already provide enough context.</div>
+            <div class="small text-body-secondary">
+              Art, logos, courier group NFOs, and BBS/FTP adverts often do not need a title.
+            </div>
+          </li>
+          <li class="pb-3 border-bottom">
+            <div class="fw-medium mb-1">Do not include unnecessary information.</div>
+            <div class="small text-body-secondary">
+              Skip semantic software versions, build numbers, or release justifications like <q>100% final</q>, <q>US release</q>, or <q>multilanguage</q>.
+              <div class="mt-1"><s>SimCity 100% final, SimCity US release, SimCity 1.500.001</s></div>
+            </div>
+          </li>
+          <li class="pb-3 border-bottom">
+            <div class="fw-medium mb-1">Do not include overly specific or problematic details; append <q>fix</q> or <q>addon</q> instead.</div>
+            <div class="small text-body-secondary">
+              Avoid terms like <q>cracked</q>, <q>patched</q>, <q>bytecrack</q>, <q>hack</q>, <q>key</q>, <q>keymaker</q>, <q>generator</q>, or <q>serial</q>.
+            </div>
+          </li>
+          <li class="pb-3 border-bottom">
+            <div class="fw-medium mb-1">Do not include redundant information.</div>
+            <div class="small text-body-secondary">
+              Avoid words such as <q>trainer</q>, <q>cheat</q>, <q>hint</q>, <q>installer</q>, <q>cracktro</q>, <q>docs</q>, <q>documentation</q>, <q>manual</q>, or repeating the group name.
+              <div class="mt-1"><s>SimCity trainer, SimCity +4 cheat, SimCity installer, Manual for SimCity, SimCity by Razor</s></div>
+            </div>
+          </li>
+          <li>
+            <div class="fw-medium mb-1">Do not include the publisher, as it can attract automated DMCA takedowns in search engines.</div>
+            <div class="small text-body-secondary">
+              <div><s>EA SimCity, Sim City (C) Electronic Arts, SimCity by Maxis, Sega's Sonic</s></div>
+              <div class="mt-1">Exceptions are made for titles using generic nouns or verbs, such as <q>Norton Backup</q> or <q>Atari Football</q>.</div>
+            </div>
+          </li>
+        </ol>
+      </article>
+
+      <article id="avoid" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">Please do not use</div>
+        <h2 class="h4 fw-semibold mb-3">What to avoid</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h6 fw-semibold mb-1">Elite text</h3>
+              <p class="small text-body-secondary mb-2">It is hard to read and cannot be searched.</p>
+              <code class="small">εLεε7 τεxτ !s ßαd</code>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h6 fw-semibold mb-1">File names</h3>
+              <p class="small text-body-secondary mb-2">Filenames give no context when used as titles.</p>
+              <code class="small">R-SCTY2K.ZIP</code>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h6 fw-semibold mb-1">All capitalized text</h3>
+              <p class="small text-body-secondary mb-2">All-caps titles are harder to scan and read.</p>
+              <code class="small">ALL CAPS IS ANNOYING</code>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100 bg-body-tertiary">
+              <h3 class="h6 fw-semibold mb-1">FTP site directory names</h3>
+              <p class="small text-body-secondary mb-2">Hard to read and frequent DMCA bot triggers.</p>
+              <code class="small text-break">using.a.copy.and.pasted.directory.name</code>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
 </div>
 {{- end}}
