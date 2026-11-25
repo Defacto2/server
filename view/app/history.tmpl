@@ -1,247 +1,307 @@
-{{- /* 
+{{- /*
     history.tmpl ~ The history of the brand.
 */ -}}
 {{- define "content" }}
-
-{{- $carouselClass := "carousel-caption d-none d-md-block bg-dark rounded" -}}
-{{- $carouselImg := "d-block w-100 rounded" }}
 {{- $carouselID := "carouselDf2Artpacks" }}
-<h4 class="index-section-header index-section-header-alt">Defacto</h4>
-<div class="index-intro-section index-intro-section-alt">
-<h5>The magazine application of 1996</h5>
-<p>
-  The releaser or group <em>Defacto</em> started as a <a href="/magazine">digitally distributed magazine</a> in the last days of February or early March of 1996. 
-  As a free title, it wrote about the happenings and gossip on The Scene warez subculture and was shared using <a href="/ftp">FTP sites</a> and <a href="/bbs">online bulletin boards</a>. 
-  In that era, publishing on the web was expensive and complicated, so it was easier to compile the magazine as an app for Ms-Dos and distribute it as a Scene release.
-</p>
-<p>
-    As a side project for the PC piracy group  <a href="/g/sodom">Sodom</a>, 
-    the intention was to create an electronic magazine or e-mag to fill the gap left by an earlier retired publication, <a href="/f/a355e">Reality Check Network</a>. 
-    While the new magazine gained a smaller following than other <a href="/magazine">titles of that era</a>, it was considered a decent alternative. 
-    After eight issues, Defacto vanished but returned six months later in a new format titled <em>Defacto 2</em>.
-</p>
-<p class="lead">
-    <a href="/g/defacto">The issues of Defacto</a>
-    <br><small class="text-secondary">There was never a Defacto issue 1 as it was a lost internal prototype. These magazine issues must run on MS-Dos or DOSBox.</small>
-</p>
-</div>
-<h4 class="index-section-header index-section-header-alt">Defacto 2</h4>
-<div class="index-intro-section index-intro-section-alt">
-<h5>The text magazine of 1997</h5>
-<p>
-  The first <em>Defacto 2</em> iteration is a monthly magazine published in an OEM-US text format.
-  While plain text wasn't always desirable, other successful magazines, <a href="/g/the-week-in-warez">The Week In Warez</a>, <a href="/g/inquisition">Inquisition</a>, <a href="/g/the-naked-truth-magazine">The Naked Truth</a>, and <a href="/g/the-game-review">The Game Review,</a> used the format. 
-  Plus, text meant platform inclusivity with a broader audience, allowing readers of any micro, personal computer, or workstation, and most importantly, reliability over the web!
-  </p>
-  <p>
-    The publication was released over three issues but improved over the earlier Defacto electronic magazine due to the extensive articles and collections of interviews with scene personalities.
-  </p>
-<p class="lead">
-    <a href="/g/defacto2">The magazine releases of Defacto 2</a>
-    <br><small class="text-secondary">The magazine text encoding is OEM-US or code page 437, and while readable as UTF-8, the text-art logos won't display.</small>
-</p>
-</div>
-<h4 class="index-section-header index-section-header-alt">Defacto2 Design</h4>
-<div class="index-intro-section index-intro-section-alt">
-<h5>The art group of 1997 to 1999</h5>
-<p>
-    Due to time constraints, the Defacto 2 magazine stopped, but the brand continued. 
-    It morphed into a moderately successful <a href="https://demozoo.org/groups/10000/">art group</a> and website. 
-    Defacto2 Design operated as a collective of digital artists who did gratis commissions for groups and unrelated non-scene art. 
-    These commissions and works included web pages, logos, and text file NFO layouts. 
-</p>
-<p>
-    Initially led by <a href="https://demozoo.org/sceners/46994/">Ipggi</a> and later by <a href="https://demozoo.org/sceners/14474/">Seffren</a>, the group was unique because it didn't demand membership exclusivity. 
-    Many of our members were co-members of popular groups such as <a href="https://demozoo.org/groups/15984/">X-Pression</a> and <a href="https://demozoo.org/groups/7050/">Superior Art Creations</a>. 
-</p>
-<p>
-    While you can find some of our work below under Defacto2 Art Packs, many members were involved in side projects that would be familiar to The Scene of the late 1990s and early 2000s. 
-    For example, <a href="https://demozoo.org/sceners/47321/">Antibody</a>'s ASCII logo for <a href="/g/class">Class</a> can be seen all their NFOs from 1998 until retirement. 
-    If you ever see the tag <strong><code>[df2]</code></strong> contained within an old NFO or release package, the chances are that one of our members probably did it. 
-</p>
-<p>
-    Unfortunately, after three years of sporadic releases, the art group was put to rest on the 31st of December 1999 with one final release, <q>Art Pack Issue Five</q>. 
-    Seffren, the leader, had decided it was time to move on. 
-</p>
-<figure class="p-2">
-<pre class="font-dos">
-  .                 │░█████                                                    .
+<div class="row g-4 align-items-start mt-1 mb-5">
+  <aside class="col-lg-3 d-none d-lg-block">
+    <nav class="index-chapter-nav" aria-label="Brand history chapters">
+      <div class="index-eyebrow mb-2">Chapters</div>
+      <ul class="nav flex-column gap-1">
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#defacto-1996">Defacto <span class="text-body-secondary small font-monospace ms-1">1996</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#defacto-2-1997">Defacto 2 <span class="text-body-secondary small font-monospace ms-1">1997</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#defacto2-design">Defacto2 Design <span class="text-body-secondary small font-monospace ms-1">1997–99</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#art-packs">The art packs <span class="text-body-secondary small font-monospace ms-1">1998–00</span></a></li>
+        <li class="nav-item"><a class="nav-link index-chapter-link" href="#scene-archives">The Scene Archives <span class="text-body-secondary small font-monospace ms-1">1997–00s</span></a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="col-lg-9">
+    <div class="d-flex flex-column gap-4">
+
+      <article id="defacto-1996" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1996 · The magazine application</div>
+        <h2 class="h4 fw-semibold mb-3">Defacto</h2>
+        <div class="index-prose">
+          <p>
+            The releaser or group <em>Defacto</em> started as a <a href="/magazine">digitally distributed magazine</a> in the last days of February or early March of 1996.
+            As a free title, it wrote about the happenings and gossip on The Scene warez subculture and was shared using <a href="/ftp">FTP sites</a> and <a href="/bbs">online bulletin boards</a>.
+            In that era, publishing on the web was expensive and complicated, so it was easier to compile the magazine as an app for MS-DOS and distribute it as a Scene release.
+          </p>
+          <p>
+            As a side project for the PC piracy group <a href="/g/sodom">Sodom</a>,
+            the intention was to create an electronic magazine or e-mag to fill the gap left by an earlier retired publication, <a href="/f/a355e">Reality Check Network</a>.
+            While the new magazine gained a smaller following than other <a href="/magazine">titles of that era</a>, it was considered a decent alternative.
+            After eight issues, Defacto vanished but returned six months later in a new format titled <em>Defacto 2</em>.
+          </p>
+        </div>
+        <div class="border-top mt-3 pt-3">
+          <a href="/g/defacto" class="btn btn-sm btn-outline-primary">Browse the issues of Defacto</a>
+          <div class="form-text mt-2 mb-0">There was never a Defacto issue 1 as it was a lost internal prototype. These magazine issues must run on MS-DOS or DOSBox.</div>
+        </div>
+      </article>
+
+      <article id="defacto-2-1997" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1997 · The text magazine</div>
+        <h2 class="h4 fw-semibold mb-3">Defacto 2</h2>
+        <div class="index-prose">
+          <p>
+            The first <em>Defacto 2</em> iteration is a monthly magazine published in an OEM-US text format.
+            While plain text wasn't always desirable, other successful magazines, <a href="/g/the-week-in-warez">The Week In Warez</a>, <a href="/g/inquisition">Inquisition</a>, <a href="/g/the-naked-truth-magazine">The Naked Truth</a>, and <a href="/g/the-game-review">The Game Review</a>, used the format.
+            Plus, text meant platform inclusivity with a broader audience, allowing readers of any micro, personal computer, or workstation, and most importantly, reliability over the web!
+          </p>
+          <p>
+            The publication was released over three issues but improved over the earlier Defacto electronic magazine due to the extensive articles and collections of interviews with scene personalities.
+          </p>
+        </div>
+        <div class="border-top mt-3 pt-3">
+          <a href="/g/defacto2" class="btn btn-sm btn-outline-primary">Browse the magazine releases of Defacto 2</a>
+          <div class="form-text mt-2 mb-0">The magazine text encoding is OEM-US or code page 437, and while readable as UTF-8, the text-art logos won't display.</div>
+        </div>
+      </article>
+
+      <article id="defacto2-design" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1997 to 1999 · The art group</div>
+        <h2 class="h4 fw-semibold mb-3">Defacto2 Design</h2>
+        <div class="index-prose">
+          <p>
+            Due to time constraints, the Defacto 2 magazine stopped, but the brand continued.
+            It morphed into a moderately successful <a href="https://demozoo.org/groups/10000/" target="_blank" rel="noopener">art group</a> and website.
+            Defacto2 Design operated as a collective of digital artists who did gratis commissions for groups and unrelated non-scene art.
+            These commissions and works included web pages, logos, and text file NFO layouts.
+          </p>
+          <p>
+            Initially led by <a href="https://demozoo.org/sceners/46994/" target="_blank" rel="noopener">Ipggi</a> and later by <a href="https://demozoo.org/sceners/14474/" target="_blank" rel="noopener">Seffren</a>, the group was unique because it didn't demand membership exclusivity.
+            Many of our members were co-members of popular groups such as <a href="https://demozoo.org/groups/15984/" target="_blank" rel="noopener">X-Pression</a> and <a href="https://demozoo.org/groups/7050/" target="_blank" rel="noopener">Superior Art Creations</a>.
+          </p>
+          <p>
+            While you can find some of our work below under <a href="#art-packs">The art packs</a>, many members were involved in side projects that would be familiar to The Scene of the late 1990s and early 2000s.
+            For example, <a href="https://demozoo.org/sceners/47321/" target="_blank" rel="noopener">Antibody</a>'s ASCII logo for <a href="/g/class">Class</a> can be seen in all their NFOs from 1998 until retirement.
+            If you ever see the tag <strong><code>[df2]</code></strong> contained within an old NFO or release package, the chances are that one of our members probably did it.
+          </p>
+          <p>
+            Unfortunately, after three years of sporadic releases, the art group was put to rest on the 31st of December 1999 with one final release, <q>Art Pack Issue Five</q>.
+            Seffren, the leader, had decided it was time to move on.
+          </p>
+        </div>
+
+        <figure class="my-4">
+          <div class="bg-dark text-light rounded-3 p-3 overflow-x-auto">
+<pre class="font-dos mb-0">  .                 │░█████                                                    .
     │▓██▀█▀▀ ▀      │▒█████      ▀ ▀▀▓█████ │▓█████▀▀ ▀     │▓█████▀▀ ▀
   . │▓█████ │▓█████ │▓█████ │▓██▀█▀▀▀▓█████   ▀▀▀▀▀▀▀▓█████   ▀▀▀▀▀▀▀▓█████    .
   : │▓█████ │▓█████ │▓█████ │▓█████ │▓█████ │▓█████ │▓█████ │▓█████ │▓█████    :
   | │▓█████▄▄▓█████▄│▓█████▄│▓█████▄▄▓█████▄│▓██▄█▄▄▄▓█████▄│▓██▄█▄▄▄▓█████▄ ▄ |
   └─────────────·───────────────·───────────────────────·───────────────·──────┘
-                                [ P r e s e n t s ]                   AB!DF2^SAC
-</pre>
-<figcaption class="blockquote-footer">
-   Antibody's <cite>Class Presents</cite>
-  </figcaption>
-</figure>
-<ul class="list-inline lead">
-    <li class="list-inline-item text-nowrap"><a href="https://demozoo.org/groups/10000/" style="text-decoration-thickness: 0.5px;"><small>Defacto2 on</small> Demozoo</a></li>
-    <li class="list-inline-item text-nowrap"><a href="https://files.scene.org/browse/demos/groups/defacto2/" style="text-decoration-thickness: 0.5px;"><small>Defacto2 on</small> Scene.org</a></li>
-    <li class="list-inline-item text-nowrap"><span class="badge bg-info">1998</span> <a href="/wayback/defacto2-from-1998-september-8/index.html" rel="nofollow" style="text-decoration-thickness: 0.5px;">Defacto<sub>2</sub><small> website</small></a></li>
-    <li class="list-inline-item text-nowrap"><span class="badge bg-info">1999</span> <a href="/wayback/defacto2-from-1999-september-26/index.html" rel="nofollow" style="text-decoration-thickness: 0.5px;">Defacto 2<small> website</small></a></li>
-    <li class="list-inline-item text-nowrap"><span class="badge bg-info">2000</span> <a href="/wayback/defacto2-from-2000-july-11/index.html" rel="nofollow" style="text-decoration-thickness: 0.5px;">Defacto 2<small> website</small></a></li>
-</ul>
-</div>
-<h4 class="index-section-header index-section-header-alt">The art packs</h4>
-<div class="index-intro-section index-intro-section-alt">
-<h5>Releases of 1998 to 2000</h5>
-<div id="{{$carouselID}}" class="carousel slide mx-auto p-2" style="max-width: 50rem;">
-    <div class="carousel-indicators">
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="1" aria-label="Slide 2"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="2" aria-label="Slide 3"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="3" aria-label="Slide 4"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="4" aria-label="Slide 5"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="5" aria-label="Slide 6"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="6" aria-label="Slide 7"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="7" aria-label="Slide 8"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="8" aria-label="Slide 9"></button>
-      <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="9" aria-label="Slide 10"></button>
+                                [ P r e s e n t s ]                   AB!DF2^SAC</pre>
+          </div>
+          <figcaption class="figure-caption mt-2">Antibody's <cite>Class Presents</cite> ASCII logo</figcaption>
+        </figure>
+
+        <div class="border-top pt-3 d-flex flex-wrap gap-2">
+          <a href="https://demozoo.org/groups/10000/" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">Demozoo</a>
+          <a href="https://files.scene.org/browse/demos/groups/defacto2/" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">Scene.org</a>
+          <a href="/wayback/defacto2-from-1998-september-8/index.html" rel="nofollow" class="btn btn-sm btn-outline-secondary"><span class="font-monospace me-1">1998</span> Defacto<sub>2</sub> website</a>
+          <a href="/wayback/defacto2-from-1999-september-26/index.html" rel="nofollow" class="btn btn-sm btn-outline-secondary"><span class="font-monospace me-1">1999</span> Defacto 2 website</a>
+          <a href="/wayback/defacto2-from-2000-july-11/index.html" rel="nofollow" class="btn btn-sm btn-outline-secondary"><span class="font-monospace me-1">2000</span> Defacto 2 website</a>
+        </div>
+      </article>
+
+      <article id="art-packs" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1998 to 2000 · Releases</div>
+        <h2 class="h4 fw-semibold mb-3">The art packs</h2>
+
+        <div id="{{$carouselID}}" class="carousel slide changelog-carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/bhlz-01.jpg" alt="Art Pack One by Black Hazel - Beginning">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack One — <q>Beginning</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/27655/" target="_blank" rel="noopener">Black Hazel</a> · Published 10 January 1998</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack01.zip" rel="nofollow" target="_blank">Download df2pack01.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/npld-01.gif" loading="lazy" alt="Art Pack One by Napalm Death - Beginning">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack One — <q>Beginning</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/69444/" target="_blank" rel="noopener">Napalm Death</a> · Published 10 January 1998</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack01.zip" rel="nofollow" target="_blank">Download df2pack01.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/minds-01.jpg" loading="lazy" alt="Art Pack Two by MindsEye - 01001">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack Two — <q>01001</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/15453/" target="_blank" rel="noopener">MindsEye</a> · Published 1 May 1998</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack02.zip" rel="nofollow" target="_blank">Download df2pack02.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/sk8-01.jpg" loading="lazy" alt="Art Pack Two by Skateguy - 01001">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack Two — <q>01001</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/47319/" target="_blank" rel="noopener">Skateguy</a> · Published 1 May 1998</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack02.zip" rel="nofollow" target="_blank">Download df2pack02.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/parody-toor_extremis_3.jpg" loading="lazy" alt="Art Pack Three by Parody - Heaven">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack Three — <q>Heaven</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/69446/" target="_blank" rel="noopener">Parody</a> · Published 2 July 1999</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack3.zip" rel="nofollow" target="_blank">Download df2pack3.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/raven-planet_x.jpg" loading="lazy" alt="Art Pack Three by Raven - Heaven">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack Three — <q>Heaven</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/49459/" target="_blank" rel="noopener">Raven</a> · Published 2 July 1999</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack3.zip" rel="nofollow" target="_blank">Download df2pack3.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/hell-df2_promotional_pic.jpg" loading="lazy" alt="Art Pack Four by Hell - Bird">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack Four — <q>Bird</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/69448/" target="_blank" rel="noopener">Hell</a> · Published 14 October 1999</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack04.zip" rel="nofollow" target="_blank">Download df2pack04.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/mindseye-well_of_souls.jpg" loading="lazy" alt="Art Pack Four by MindsEye - Bird">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack Four — <q>Bird</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/15453/" target="_blank" rel="noopener">MindsEye</a> · Published 14 October 1999</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack04.zip" rel="nofollow" target="_blank">Download df2pack04.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/dawn-rosma_kenkä.jpg" loading="lazy" alt="Art Pack Five by Dawn - Millennium">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack Five — <q>Millennium</q></div>
+                  <div class="small text-body-secondary">Artist: Dawn · Published 31 December 1999</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2000.zip" rel="nofollow" target="_blank">Download df2000.zip</a>
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="changelog-carousel-stage">
+                <img src="/image/artpack/raven-boom.jpg" loading="lazy" alt="Art Pack Five by Raven - Millennium">
+              </div>
+              <div class="changelog-carousel-caption d-flex flex-wrap align-items-center justify-content-between gap-2 text-start">
+                <div>
+                  <div class="fw-semibold">Art Pack Five — <q>Millennium</q></div>
+                  <div class="small text-body-secondary">Artist: <a href="https://demozoo.org/sceners/49459/" target="_blank" rel="noopener">Raven</a> · Published 31 December 1999</div>
+                </div>
+                <a class="btn btn-sm btn-outline-primary text-nowrap" href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2000.zip" rel="nofollow" target="_blank">Download df2000.zip</a>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#{{$carouselID}}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon bg-dark bg-opacity-75 rounded-circle p-3" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#{{$carouselID}}" data-bs-slide="next">
+            <span class="carousel-control-next-icon bg-dark bg-opacity-75 rounded-circle p-3" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+          <div class="carousel-indicators" data-bs-theme="dark">
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="4" aria-label="Slide 5"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="5" aria-label="Slide 6"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="6" aria-label="Slide 7"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="7" aria-label="Slide 8"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="8" aria-label="Slide 9"></button>
+            <button type="button" data-bs-target="#{{$carouselID}}" data-bs-slide-to="9" aria-label="Slide 10"></button>
+          </div>
+        </div>
+      </article>
+
+      <article id="scene-archives" class="changelog-entry p-4">
+        <div class="index-chapter-era font-monospace mb-1">1997 through to the 2000s · The websites</div>
+        <h2 class="h4 fw-semibold mb-3">Defacto2 and The Scene Archives</h2>
+        <div class="index-prose">
+          <p>
+            The genesis for this current website started as <a href="/wayback/defacto2-from-1998-september-8/archive.html" rel="nofollow">The Scene Archives</a>* in around mid-1997, as a subgroup of Defacto 2 (<code>defacto2.org</code>).
+            Months later, in October, a gossip and news section known as <a href="/wayback/defacto2-from-1998-september-8/news.html" rel="nofollow">The Scene News</a>* joined the site. And in April of 1998 the domain name <code>defacto2.net</code> was registered.
+            The domain change reflected the move of the Defacto 2 brand from a scene group or <u>org</u>anization to an online-focused <u>net</u>work of websites.
+          </p>
+          <p>
+            Inspiration for The Scene News came from <a href="/wayback/scenelink-from-1998-june-25/index.html" rel="nofollow">SceneLink</a>*, a well-designed web publication by <a href="/f/a42815">some students from Yale University</a> that covered The Scene in a broader sense, not just online piracy but also art and the online underground.
+          </p>
+          <p>
+            The Scene Archives got heavily influenced by sites like <a href="http://zakalwe.fi/~shd/texts/imr/zimr.htm" target="_blank" rel="noopener">In Medias Res</a>*, a fantastic resource that, for a few years in the late 1990s, went around collecting interviews with active and retired members of The Scene on the Commodore 64 and Amiga microcomputers.
+          </p>
+          <p>
+            Another inspiration was the <a href="https://archaic-ruins.lngn.net/features/damaged/" target="_blank" rel="noopener">Damaged Cybernetics</a>* group page that covered gray area information on various topics that were not explicitly warez.
+            It showed there was a ready interest in other underground areas and even for redundant hardware and software, thanks to the new field of emulation.
+          </p>
+          <p>
+            The emphasis on PC scene history first existed with a Canadian named Toast of <a href="/g/razor-1911">Razor 1911</a>.
+            For years, he collected and organized thousands of text information files from deceased groups of The Scene on the PC.
+            While the <a href="/f/a11dc">Toast Scene History Archive</a> is for offline browsing, his 1995 website (<code class="text-nowrap">www.uoguelph.ca/~shost/toast.html</code>) offering the archive as a download was the first to document the history of the PC scene.
+          </p>
+          <p>
+            While Toast's collecting focused on NFO texts and BBS user logs, The Scene Archive wanted to cover a broader collection of items and digital artifacts.
+            Core parts of the original site included dedicated pages for some leading groups and bulletin boards.
+            The Cracktros galore page has a collection of hundred-plus cracktros, plus an e-mags page for the various PC Scene electronic magazines.
+            The scene bitchin', aka flaming files section, and a modest collection of NFOs for online viewing.
+          </p>
+          <p>
+            At some stage in the early 2000s, the other parts of the <code>defacto2.net</code> website were retired or archived, leaving only The Scene Archives as the active topic.
+            So, a decision was made to rebrand The Scene Archives collection as <strong>Defacto2</strong> to match the established domain name.
+          </p>
+          <p class="small text-body-secondary">* Links to an incomplete recreation of the original website.</p>
+        </div>
+
+        <figure class="figure d-block text-center mt-4 mb-0">
+          <img src="/image/artpack/defacto2-1998.png" loading="lazy" class="img-fluid rounded border shadow-sm" style="max-width: min(100%, 800px);" alt="Windows 2000 Internet Explorer viewing the late 1998 Defacto2 website revision">
+          <figcaption class="figure-caption mt-2">Windows 2000 Internet Explorer viewing the late 1998 website revision.</figcaption>
+        </figure>
+      </article>
+
     </div>
-    <div class="carousel-inner ratio ratio-4x3">
-      <div class="carousel-item active">
-        <img src="/image/artpack/bhlz-01.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack One by Black Hazel - Beginning">
-        <div class="{{$carouselClass}}">
-            <p><small>Artist, <a href="https://demozoo.org/sceners/27655/">Black Hazel</a></small></p>
-            <h5>Art Pack One - <q>Beginning</q></h5>
-            <p>Published on the 10th of January 1998</p>
-            <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack01.zip" rel="nofollow">Download df2pack01.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/npld-01.gif" loading="lazy" class="{{$carouselImg}}" alt="Art Pack One by Napalm Death - Beginning">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, <a href="https://demozoo.org/sceners/69444/">Napalm Death</a></small></p>
-          <h5>Art Pack One - <q>Beginning</q></h5>
-          <p>Published on the 10th of January 1998</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack01.zip" rel="nofollow">Download df2pack01.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/minds-01.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack Two by MindsEye - 01001">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, <a href="https://demozoo.org/sceners/15453/">MindsEye</a></small></p>
-          <h5>Art Pack Two - <q>01001</q></h5>
-          <p>Published on the 1st of May 1998</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack02.zip" rel="nofollow">Download df2pack02.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/sk8-01.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack Two by Skateguy - 01001">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, <a href="https://demozoo.org/sceners/47319/">Skateguy</a></small></p>
-          <h5>Art Pack Two - <q>01001</q></h5>
-          <p>Published on the 1st of May 1998</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack02.zip" rel="nofollow">Download df2pack02.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/parody-toor_extremis_3.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack Three by Parody - Heaven">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, <a href="https://demozoo.org/sceners/69446/">Parody</a></small></p>
-          <h5>Art Pack Three - <q>Heaven</q></h5>
-          <p>Published on the 2nd of July 1999</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack3.zip" rel="nofollow">Download df2pack3.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/raven-planet_x.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack Three by Raven - Heaven">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, <a href="https://demozoo.org/sceners/49459/">Raven</a></small></p>
-          <h5>Art Pack Three - <q>Heaven</q></h5>
-          <p>Published on the 2nd of July 1999</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack3.zip" rel="nofollow">Download df2pack3.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/hell-df2_promotional_pic.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack Four by Hell - Bird">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, <a href="https://demozoo.org/sceners/15453/">Hell</a></small></p>
-          <h5>Art Pack Four - <q>Bird</q></h5>
-          <p>Published on the 14th of October 1999</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack04.zip" rel="nofollow">Download df2pack04.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/mindseye-well_of_souls.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack Four by MindsEye - Bird">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, <a href="https://demozoo.org/sceners/15453/">MindsEye</a></small></p>
-          <h5>Art Pack Four - <q>Bird</q></h5>
-          <p>Published on the 14th of October 1999</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2pack04.zip" rel="nofollow">Download df2pack04.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/dawn-rosma_kenkä.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack Five by Dawn - Millennium">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, Dawn</small></p>
-          <h5>Art Pack Five - <q>Millennium</q></h5>
-          <p>Published on the 31st of December 1999</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2000.zip" rel="nofollow">Download df2000.zip</a></p>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img src="/image/artpack/raven-boom.jpg" loading="lazy" class="{{$carouselImg}}" alt="Art Pack Five by Raven - Millennium">
-        <div class="{{$carouselClass}}">
-          <p><small>Artist, <a href="https://demozoo.org/sceners/49459/">Raven</a></small></p>
-          <h5>Art Pack Five - <q>Millennium</q></h5>
-          <p>Published on the 31st of December 1999</p>
-          <p class="lead"><a href="https://files.scene.org/view/demos/groups/defacto2/artpacks/df2000.zip" rel="nofollow">Download df2000.zip</a></p>
-        </div>
-      </div>
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#{{$carouselID}}" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#{{$carouselID}}" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
   </div>
-</div>
-  <h4 class="index-section-header index-section-header-alt">Defacto2 and The Scene Archives</h4>
-<div class="index-intro-section index-intro-section-alt">
-  <h5>The websites of 1997 through to the 2000s</h5>
-  <p>
-    The genesis for this current website started as <a href="/wayback/defacto2-from-1998-september-8/archive.html" rel="nofollow">The Scene Archives</a>* in around mid-1997, as a subgroup of Defacto 2 (<var class="font-monospace">defacto2.org</var>). 
-    Months later, in October, a gossip and news section known as <a href="/wayback/defacto2-from-1998-september-8/news.html" rel="nofollow">The Scene News</a>* joined the site. And in April of 1998 the domain name <var class="font-monospace">defacto2.net</var> was registered. 
-    The domain change reflected the move of the Defacto 2 brand from a scene group or <u>org</u>anization to an online-focused <u>net</u>work of websites.
-  </p>
-  <p>
-    Inspiration for The Scene News came from <a href="/wayback/scenelink-from-1998-june-25/index.html" rel="nofollow">SceneLink</a>*, a well-designed web publication by <a href="/f/a42815">some students from Yale University</a> that covered The Scene in a broader sense, not just online piracy but also art and the online underground.
-  </p>
-  <p>
-    The Scene Archives got heavily influenced by sites like <a href="http://zakalwe.fi/~shd/texts/imr/zimr.htm">In Medias Res</a>*, a fantastic resource that, for a few years in the late 1990s, went around collecting interviews with active and retired members of The Scene on the Commodore 64 and Amiga microcomputers.
-  </p>
-  <p>
-    Another inspiration was the <a href="https://archaic-ruins.lngn.net/features/damaged/">Damaged Cybernetics</a>* group page that covered gray area information on various topics that were not explicitly warez. 
-    It showed there was a ready interest in other underground areas and even for redundant hardware and software, thanks to the new field of emulation.
-  </p>
-  <p>
-    The emphasis on PC scene history first existed with a Canadian named Toast of <a href="/g/razor-1911">Razor 1911</a>. 
-    For years, he collected and organized thousands of text information files from deceased groups of The Scene on the PC. 
-    While the <a href="/f/a11dc">Toast Scene History Archive</a> is for offline browsing, his 1995 website (<var class="font-monospace text-nowrap">www.uoguelph.ca/~shost/toast.html</var>) offering the archive as a download, was the first to document the history of the PC scene.
-  </p>
-  <p>
-    While Toast's collecting focused on NFO texts and BBS user logs, The Scene Archive wanted to cover a broader collection of items and digital artifacts. 
-    Core parts of the original site included dedicated pages for some leading groups and bulletin boards. 
-    The Cracktros galore page has a collection of hundred-plus cracktros, plus an e-mags page for the various PC Scene electronic magazines. 
-    The scene bitchin', aka flaming files section, and a modest collection of NFOs for online viewing.
-  </p>
-  <p>
-    At some stage in the early 2000s, the other parts of the <var class="font-monospace">defacto2.net</var> website were retired or archived, leaving only The Scene Archives as the active topic. 
-    So, a decision was made to rebrand The Scene Archives collection as <strong>Defacto2</strong> to match the established domain name.
-  </p>
-  <p>* <small class="text-secondary">Links to an incomplete recreation of the original website.</small></p>
-<div class="text-center">
-  <figure class="figure">
-    <img src="/image/artpack/defacto2-1998.png" loading="lazy" style="max-width:800px" class="img-fluid rounded mx-auto d-block" alt="Windows 2000 Internet Explorer viewing the late 1998 Defacto2 website revision">
-    <figcaption class="figure-caption">Windows 2000 Internet Explorer viewing the late 1998 website revision.</figcaption>
-  </figure>
-</div>
 </div>
 {{- end}}
