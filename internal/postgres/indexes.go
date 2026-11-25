@@ -5,18 +5,18 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Defacto2/server/internal/nils"
+	"github.com/dustin/go-humanize"
 )
 
 const (
-	filesTableName = "files"
-	timeFmt        = "2006-01-02 15:04"
-	neverLabel     = "never"
-	dashLabel      = "—"
+	table   = "files"
+	timeFmt = "2006-01-02 15:04"
+	never   = "never"
+	dash    = "-"
 )
 
 // IndexStat holds live PostgreSQL catalog and usage statistics for a single index.
@@ -41,7 +41,7 @@ type IndexStat struct {
 func (s IndexStat) CacheHitPct() string {
 	total := s.BlocksHit + s.BlocksRead
 	if total <= 0 {
-		return dashLabel
+		return dash
 	}
 	return fmt.Sprintf("%.1f%%", float64(s.BlocksHit)*100/float64(total))
 }
@@ -49,7 +49,7 @@ func (s IndexStat) CacheHitPct() string {
 // LastScanString returns the formatted timestamp of the last index scan, or "never".
 func (s IndexStat) LastScanString() string {
 	if s.LastScan == nil {
-		return neverLabel
+		return never
 	}
 	return s.LastScan.Format(timeFmt)
 }
@@ -71,13 +71,13 @@ func (s IndexStat) ExprSummary() string {
 }
 
 // ScansFormatted returns Scans formatted with thousand separators.
-func (s IndexStat) ScansFormatted() string { return formatInt64(s.Scans) }
+func (s IndexStat) ScansFormatted() string { return humanize.Comma(s.Scans) }
 
 // TupReadFormatted returns TupRead formatted with thousand separators.
-func (s IndexStat) TupReadFormatted() string { return formatInt64(s.TupRead) }
+func (s IndexStat) TupReadFormatted() string { return humanize.Comma(s.TupRead) }
 
 // TupFetchFormatted returns TupFetch formatted with thousand separators.
-func (s IndexStat) TupFetchFormatted() string { return formatInt64(s.TupFetch) }
+func (s IndexStat) TupFetchFormatted() string { return humanize.Comma(s.TupFetch) }
 
 // TableIndexStats holds table-level storage/scan/HOT/vacuum summary alongside all active indexes.
 type TableIndexStats struct {
@@ -101,7 +101,7 @@ type TableIndexStats struct {
 func (t TableIndexStats) IdxScanPct() string {
 	total := t.SeqScan + t.IdxScan
 	if total <= 0 {
-		return dashLabel
+		return dash
 	}
 	return fmt.Sprintf("%.1f%%", float64(t.IdxScan)*100/float64(total))
 }
@@ -109,7 +109,7 @@ func (t TableIndexStats) IdxScanPct() string {
 // HotUpdatePct returns the percentage of UPDATEs handled as Heap-Only Tuple (HOT) updates.
 func (t TableIndexStats) HotUpdatePct() string {
 	if t.Updates <= 0 {
-		return dashLabel
+		return dash
 	}
 	return fmt.Sprintf("%.1f%%", float64(t.HotUpdates)*100/float64(t.Updates))
 }
@@ -117,7 +117,7 @@ func (t TableIndexStats) HotUpdatePct() string {
 // LastVacuumString returns the formatted timestamp of the last vacuum/autovacuum.
 func (t TableIndexStats) LastVacuumString() string {
 	if t.LastVacuum == nil {
-		return neverLabel
+		return never
 	}
 	return t.LastVacuum.Format(timeFmt)
 }
@@ -125,7 +125,7 @@ func (t TableIndexStats) LastVacuumString() string {
 // LastAnalyzeString returns the formatted timestamp of the last analyze/autoanalyze.
 func (t TableIndexStats) LastAnalyzeString() string {
 	if t.LastAnalyze == nil {
-		return neverLabel
+		return never
 	}
 	return t.LastAnalyze.Format(timeFmt)
 }
@@ -138,12 +138,12 @@ func (t TableIndexStats) StatsResetString() string {
 	return t.StatsReset.Format(timeFmt)
 }
 
-func (t TableIndexStats) SeqScanFormatted() string    { return formatInt64(t.SeqScan) }
-func (t TableIndexStats) IdxScanFormatted() string    { return formatInt64(t.IdxScan) }
-func (t TableIndexStats) LiveTuplesFormatted() string { return formatInt64(t.LiveTuples) }
-func (t TableIndexStats) DeadTuplesFormatted() string { return formatInt64(t.DeadTuples) }
-func (t TableIndexStats) UpdatesFormatted() string    { return formatInt64(t.Updates) }
-func (t TableIndexStats) HotUpdatesFormatted() string { return formatInt64(t.HotUpdates) }
+func (t TableIndexStats) SeqScanFormatted() string    { return humanize.Comma(t.SeqScan) }
+func (t TableIndexStats) IdxScanFormatted() string    { return humanize.Comma(t.IdxScan) }
+func (t TableIndexStats) LiveTuplesFormatted() string { return humanize.Comma(t.LiveTuples) }
+func (t TableIndexStats) DeadTuplesFormatted() string { return humanize.Comma(t.DeadTuples) }
+func (t TableIndexStats) UpdatesFormatted() string    { return humanize.Comma(t.Updates) }
+func (t TableIndexStats) HotUpdatesFormatted() string { return humanize.Comma(t.HotUpdates) }
 
 const (
 	indexStatsErrFmt = "postgresql index stats %s: %w"
@@ -212,9 +212,9 @@ func Indexes(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
 }
 
 func tableSummary(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
-	stats := TableIndexStats{TableName: filesTableName}
+	stats := TableIndexStats{TableName: table}
 	var lastVac, lastAnl, statsReset sql.NullTime
-	err := db.QueryRowContext(ctx, tableStatsSQL, filesTableName).Scan(
+	err := db.QueryRowContext(ctx, tableStatsSQL, table).Scan(
 		&stats.TableSize,
 		&stats.IndexesSize,
 		&stats.TotalSize,
@@ -238,7 +238,7 @@ func tableSummary(ctx context.Context, db *sql.DB) (TableIndexStats, error) {
 }
 
 func indexList(ctx context.Context, db *sql.DB) ([]IndexStat, error) {
-	rows, err := db.QueryContext(ctx, indexListSQL, filesTableName)
+	rows, err := db.QueryContext(ctx, indexListSQL, table)
 	if err != nil {
 		return nil, fmt.Errorf(indexStatsErrFmt, "index list", err)
 	}
@@ -282,33 +282,4 @@ func nullTimePtr(nt sql.NullTime) *time.Time {
 	}
 	t := nt.Time
 	return &t
-}
-
-func formatInt64(n int64) string {
-	s := strconv.FormatInt(n, 10)
-	if len(s) <= 3 {
-		return s
-	}
-	neg := strings.HasPrefix(s, "-")
-	if neg {
-		s = s[1:]
-	}
-	var b strings.Builder
-	if neg {
-		b.WriteByte('-')
-	}
-	rem := len(s) % 3
-	if rem > 0 {
-		b.WriteString(s[:rem])
-		if len(s) > rem {
-			b.WriteByte(',')
-		}
-	}
-	for i := rem; i < len(s); i += 3 {
-		if i > rem {
-			b.WriteByte(',')
-		}
-		b.WriteString(s[i : i+3])
-	}
-	return b.String()
 }

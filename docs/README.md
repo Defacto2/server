@@ -19,7 +19,7 @@ All configurations are optional and any changes to the defaults are made through
 
 ## About
 
-Defacto2 is a digital archive of online history and artifacts from the Scene—a once global community of programmers, artists, and others who create releases. The platform preserves and showcases:
+Defacto2 is a digital archive of online history and artifacts from the Scene, a once global community of programmers, artists, and others who create releases. The platform preserves and showcases:
 
 - **Demos and intros** - Real-time computer graphics and music productions from the 1980s onward
 - **Software artifacts** - Utilities, and applications from various computer platforms
@@ -41,7 +41,7 @@ Defacto2 is built as a full-stack application:
 - **Database**: [PostgreSQL](https://www.postgresql.org/) with type-safe queries via [SQLBoiler](https://github.com/aarondl/sqlboiler) ORM
 - **Frontend**: Server-rendered HTML templates with [HTMX](https://htmx.org/) for interactivity
 - **Assets**: Node.js-based CSS/JS compilation and minification pipeline
-- **Configuration**: Entirely environment variable-based—no config files needed
+- **Configuration**: Entirely environment variable-based with no config files needed
 
 The server is a single self-contained binary that embeds all static files, templates, and assets. It can optionally serve file downloads, image previews, and software emulation (DOS intros via DOSBox).
 

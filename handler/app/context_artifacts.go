@@ -1,3 +1,4 @@
+//nolint:exhaustive
 package app
 
 // Package file context_artifacts.go contains handlers for paginated artifact listings
@@ -199,11 +200,13 @@ func artifactsDesc(uri, years string, sum int, data PageData) PageData {
 		data.SetDescription("These are more recent artifacts held by the site.")
 		data.SetTitle("Recent artifacts")
 	case fileslice.OneOffs:
-		data.SetDescription("Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file.")
+		data.SetDescription("Artifacts from groups, releasers, BBSes, " +
+			"and FTP sites with only a single documented file.")
 		data.SetTitle("One-off releases")
 		data["noGroupLinks"] = true
 	case fileslice.OneOffsAZ:
-		data.SetDescription("Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file, ordered alphabetically.")
+		data.SetDescription("Artifacts from groups, releasers, BBSes, " +
+			"and FTP sites with only a single documented file, ordered alphabetically.")
 		data.SetTitle("One-off releases, A-Z")
 		data["unknownYears"] = false
 		data["noGroupLinks"] = true
@@ -302,13 +305,14 @@ func buildStatRows(c fileslice.Stats) (categoryStatSummary, []categoryStatRow) {
 		}
 	}
 
+	const multiplier = 100
 	rows := make([]categoryStatRow, 0, len(sorted))
 	for _, item := range sorted {
-		countPct := item.Count * 100 / maxCount
+		countPct := item.Count * multiplier / maxCount
 		if item.Count > 0 && countPct == 0 {
 			countPct = 1
 		}
-		bytesPct := item.Bytes * 100 / maxBytes
+		bytesPct := item.Bytes * multiplier / maxBytes
 		if item.Bytes > 0 && bytesPct == 0 {
 			bytesPct = 1
 		}

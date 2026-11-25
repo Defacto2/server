@@ -20,6 +20,8 @@ import (
 
 // checked in Sep 26, test coverage was great at under 90%
 
+var errBoom = errors.New("boom")
+
 func TestRecordsSubs(t *testing.T) {
 	t.Parallel()
 
@@ -266,9 +268,8 @@ func TestStatsGet(t *testing.T) {
 	be.Equal(t, s.Yearly[len(s.Yearly)-1], fileslice.YearlyPoint{Year: 2010, Total: 6, Bytes: 600, Windows: 6})
 
 	// Query error paths (category query and yearly query)
-	queryErr := errors.New("boom")
 	errDB := sql.OpenDB(stubConnector{
-		queryFn: func(string) (driver.Rows, error) { return nil, queryErr },
+		queryFn: func(string) (driver.Rows, error) { return nil, errBoom },
 	})
 	defer func() { _ = errDB.Close() }()
 	var sErr fileslice.Stats
@@ -277,7 +278,7 @@ func TestStatsGet(t *testing.T) {
 	yearlyErrDB := sql.OpenDB(stubConnector{
 		queryFn: func(query string) (driver.Rows, error) {
 			if strings.Contains(query, "BETWEEN 1980 AND 2010") {
-				return nil, queryErr
+				return nil, errBoom
 			}
 			return &stubRows{
 				cols: []string{"section", "platform", "count", "sum", "min", "max"},

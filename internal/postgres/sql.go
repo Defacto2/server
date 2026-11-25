@@ -467,7 +467,8 @@ func SumSection() SQL {
 
 // SumGroup is an SQL statement to sum the filesizes of public records matching the group.
 func SumGroup() SQL {
-	return "SELECT COALESCE(SUM(filesize), 0) AS size_total FROM files WHERE (group_brand_for = $1 OR group_brand_by = $1) AND deletedat IS NULL"
+	return "SELECT COALESCE(SUM(filesize), 0) AS size_total FROM files " +
+		"WHERE (group_brand_for = $1 OR group_brand_by = $1) AND deletedat IS NULL"
 }
 
 // SumPlatform is an SQL statement to sum the filesizes of public records matching the platform.

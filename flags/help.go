@@ -21,7 +21,7 @@ func appHelpTemplate(color bool) string {
 	d := func(s string) string { return ansi(color, ansiDim, s) }
 	c := func(s string) string { return ansi(color, ansiCyan, s) }
 
-	return fmt.Sprintf(`%s — {{.Usage}}
+	return fmt.Sprintf(`%s - {{.Usage}}
 %s{{if .Description}}
 
 {{.Description}}{{end}}
@@ -60,7 +60,7 @@ func commandHelpTemplate(color bool) string {
 	h := func(s string) string { return ansi(color, ansiBold, s) }
 	c := func(s string) string { return ansi(color, ansiCyan, s) }
 
-	return fmt.Sprintf(`%s — {{.Usage}}{{if .Description}}
+	return fmt.Sprintf(`%s - {{.Usage}}{{if .Description}}
 
 {{.Description}}{{end}}
 

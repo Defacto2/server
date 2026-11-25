@@ -307,73 +307,49 @@ func (sf StringFrom) Update(ctx context.Context, exec boil.ContextExecutor, key 
 	return nil
 }
 
-func (sf StringFrom) cases(f *models.File, val string) (string, error) { //nolint:cyclop
+type stringTarget struct {
+	col   string
+	field *null.String
+}
+
+func stringTargets(f *models.File) [ZipContent + 1]stringTarget {
+	return [...]stringTarget{
+		Colors16:     {col: models.FileColumns.WebID16colors, field: &f.WebID16colors},
+		Comment:      {col: models.FileColumns.Comment, field: &f.Comment},
+		CreatorAudio: {col: models.FileColumns.CreditAudio, field: &f.CreditAudio},
+		CreatorIll:   {col: models.FileColumns.CreditIllustration, field: &f.CreditIllustration},
+		CreatorProg:  {col: models.FileColumns.CreditProgram, field: &f.CreditProgram},
+		CreatorText:  {col: models.FileColumns.CreditText, field: &f.CreditText},
+		Filename:     {col: models.FileColumns.Filename, field: &f.Filename},
+		GitHub:       {col: models.FileColumns.WebIDGithub, field: &f.WebIDGithub},
+		Integrity:    {col: models.FileColumns.FileIntegrityStrong, field: &f.FileIntegrityStrong},
+		Magic:        {col: models.FileColumns.FileMagicType, field: &f.FileMagicType},
+		Platform:     {col: models.FileColumns.Platform, field: &f.Platform},
+		Relations:    {col: models.FileColumns.ListRelations, field: &f.ListRelations},
+		Section:      {col: models.FileColumns.Section, field: &f.Section},
+		Sites:        {col: models.FileColumns.ListLinks, field: &f.ListLinks},
+		Title:        {col: models.FileColumns.RecordTitle, field: &f.RecordTitle},
+		VirusTotal:   {col: models.FileColumns.FileSecurityAlertURL, field: &f.FileSecurityAlertURL},
+		YouTube:      {col: models.FileColumns.WebIDYoutube, field: &f.WebIDYoutube},
+		ZipContent:   {col: models.FileColumns.FileZipContent, field: &f.FileZipContent},
+	}
+}
+
+func (sf StringFrom) cases(f *models.File, val string) (string, error) {
 	if err := nils.Check(f); err != nil {
 		return "", fmt.Errorf("check: %w", err)
+	}
+
+	targets := stringTargets(f)
+	if sf < 0 || int(sf) >= len(targets) || targets[sf].field == nil {
+		return "", ErrMethod
 	}
 
 	// strings must be sanitized otherwise there is a possibility of invalid
 	// characters being injected via FileZipContent, which will error the SQL update
 	val = strings.ToValidUTF8(val, "?")
-	s := null.StringFrom(strings.TrimSpace(val))
-	switch sf {
-	case Colors16:
-		f.WebID16colors = s
-		return models.FileColumns.WebID16colors, nil
-	case Comment:
-		f.Comment = s
-		return models.FileColumns.Comment, nil
-	case CreatorAudio:
-		f.CreditAudio = s
-		return models.FileColumns.CreditAudio, nil
-	case CreatorIll:
-		f.CreditIllustration = s
-		return models.FileColumns.CreditIllustration, nil
-	case CreatorProg:
-		f.CreditProgram = s
-		return models.FileColumns.CreditProgram, nil
-	case CreatorText:
-		f.CreditText = s
-		return models.FileColumns.CreditText, nil
-	case Filename:
-		f.Filename = s
-		return models.FileColumns.Filename, nil
-	case GitHub:
-		f.WebIDGithub = s
-		return models.FileColumns.WebIDGithub, nil
-	case Integrity:
-		f.FileIntegrityStrong = s
-		return models.FileColumns.FileIntegrityStrong, nil
-	case Magic:
-		f.FileMagicType = s
-		return models.FileColumns.FileMagicType, nil
-	case Platform:
-		f.Platform = s
-		return models.FileColumns.Platform, nil
-	case Relations:
-		f.ListRelations = s
-		return models.FileColumns.ListRelations, nil
-	case Section:
-		f.Section = s
-		return models.FileColumns.Section, nil
-	case Sites:
-		f.ListLinks = s
-		return models.FileColumns.ListLinks, nil
-	case Title:
-		f.RecordTitle = s
-		return models.FileColumns.RecordTitle, nil
-	case VirusTotal:
-		f.FileSecurityAlertURL = s
-		return models.FileColumns.FileSecurityAlertURL, nil
-	case YouTube:
-		f.WebIDYoutube = s
-		return models.FileColumns.WebIDYoutube, nil
-	case ZipContent:
-		f.FileZipContent = s
-		return models.FileColumns.FileZipContent, nil
-	default:
-		return "", ErrMethod
-	}
+	*targets[sf].field = null.StringFrom(strings.TrimSpace(val))
+	return targets[sf].col, nil
 }
 
 type Creators struct {

@@ -127,7 +127,7 @@ func Credits(sl *slog.Logger, c *echo.Context) error {
 		errContext:  "credits context",
 		title:       "Credits",
 		h1:          "Credits",
-		logo:        "Credits",
+		logo:        "Website credits",
 		lead:        "The people, open-source projects, and scene contributors that power Defacto2.",
 		description: "Credits, core technologies, and scene contributors behind Defacto2.",
 	})
@@ -169,7 +169,8 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 	}
 
 	const title = "Introduction and milestones"
-	const descr = "Preserving the historic and defunct software cracking, wares, and Warez Scene subcultures on obsolete personal computers."
+	const descr = "Preserving the historic and defunct software cracking, wares, " +
+		"and Warez Scene subcultures on obsolete personal computers."
 	const h1 = "The subcultures of obsolete microcomputers"
 
 	data := empty(c)
@@ -202,7 +203,8 @@ func Index(sl *slog.Logger, c *echo.Context) error {
 }
 
 func archiveMeta() string {
-	parts := make([]string, 0, 3)
+	const size = 3
+	parts := make([]string, 0, size)
 	if Caching.RecordCount > 0 {
 		parts = append(parts, humanize.Comma(Caching.RecordCount)+" artifacts")
 	}

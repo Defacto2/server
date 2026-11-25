@@ -22,6 +22,11 @@ import (
 // ErrInvalidMerge is returned when merge source or destination releaser names are invalid.
 var ErrInvalidMerge = errors.New("source and target releaser names must be non-empty and distinct")
 
+const (
+	xbbs = "BBS"
+	xftp = "FTP"
+)
+
 // ReleaserCount holds a raw releaser name and its file count from the database.
 type ReleaserCount struct {
 	Releaser string `boil:"releaser"`
@@ -134,19 +139,40 @@ func attachMinorFiles(ctx context.Context, exec boil.ContextExecutor, report *Du
 	}
 	tiers := [][]DupGroup{report.Tier1, report.Tier2, report.Tier3}
 	needed := make(map[string]struct{})
-	for _, groups := range tiers {
-		for _, g := range groups {
-			for _, e := range g.Entries {
-				if e.Count > 0 && e.Count <= maxMinorFiles && e.RawName != "" {
-					needed[e.RawName] = struct{}{}
-				}
-			}
+	visitDupEntries(tiers, func(e *DupEntry) {
+		if e.Count > 0 && e.Count <= maxMinorFiles && e.RawName != "" {
+			needed[e.RawName] = struct{}{}
 		}
-	}
+	})
 	if len(needed) == 0 {
 		return nil
 	}
 
+	fileRows, err := queryMinorFiles(ctx, exec, needed)
+	if err != nil {
+		return err
+	}
+
+	byName := groupMinorFiles(fileRows, needed)
+	visitDupEntries(tiers, func(e *DupEntry) {
+		if files, ok := byName[e.RawName]; ok {
+			e.Files = files
+		}
+	})
+	return nil
+}
+
+func visitDupEntries(tiers [][]DupGroup, fn func(*DupEntry)) {
+	for _, groups := range tiers {
+		for i := range groups {
+			for j := range groups[i].Entries {
+				fn(&groups[i].Entries[j])
+			}
+		}
+	}
+}
+
+func queryMinorFiles(ctx context.Context, exec boil.ContextExecutor, needed map[string]struct{}) ([]dupFileRow, error) {
 	placeholders := make([]string, 0, len(needed))
 	args := make([]any, 0, len(needed))
 	idx := 1
@@ -162,24 +188,13 @@ func attachMinorFiles(ctx context.Context, exec boil.ContextExecutor, report *Du
 
 	var fileRows []dupFileRow
 	if err := queries.Raw(q, args...).Bind(ctx, exec, &fileRows); err != nil {
-		return err
+		return nil, err
 	}
+	return fileRows, nil
+}
 
+func groupMinorFiles(fileRows []dupFileRow, needed map[string]struct{}) map[string][]DupFile {
 	byName := make(map[string][]DupFile, len(needed))
-	addFile := func(name string, f DupFile) {
-		if _, ok := needed[name]; !ok {
-			return
-		}
-		if len(byName[name]) >= maxMinorFiles {
-			return
-		}
-		for _, existing := range byName[name] {
-			if existing.ObfuscatedID == f.ObfuscatedID {
-				return
-			}
-		}
-		byName[name] = append(byName[name], f)
-	}
 	for _, fr := range fileRows {
 		fname := strings.TrimSpace(fr.Filename.String)
 		if fname == "" {
@@ -190,42 +205,102 @@ func attachMinorFiles(ctx context.Context, exec boil.ContextExecutor, report *Du
 			Filename:     fname,
 		}
 		if fr.GroupBrandFor.Valid {
-			addFile(fr.GroupBrandFor.String, df)
+			appendMinorFile(byName, needed, fr.GroupBrandFor.String, df)
 		}
 		if fr.GroupBrandBy.Valid {
-			addFile(fr.GroupBrandBy.String, df)
+			appendMinorFile(byName, needed, fr.GroupBrandBy.String, df)
 		}
 	}
+	return byName
+}
 
-	for _, groups := range tiers {
-		for i := range groups {
-			for j := range groups[i].Entries {
-				e := &groups[i].Entries[j]
-				if files, ok := byName[e.RawName]; ok {
-					e.Files = files
-				}
+func appendMinorFile(byName map[string][]DupFile, needed map[string]struct{}, name string, f DupFile) {
+	if _, ok := needed[name]; !ok {
+		return
+	}
+	if len(byName[name]) >= maxMinorFiles {
+		return
+	}
+	for _, existing := range byName[name] {
+		if existing.ObfuscatedID == f.ObfuscatedID {
+			return
+		}
+	}
+	byName[name] = append(byName[name], f)
+}
+
+type parsedItem struct {
+	entry       DupEntry
+	fingerprint string
+	sortedWords string
+	core        string
+}
+
+type pairTracker map[string]struct{}
+
+func (p pairTracker) has(a, b string) bool {
+	_, ok := p[pairKey(a, b)]
+	return ok
+}
+
+func (p pairTracker) markCluster(entries []DupEntry) {
+	for i := range entries {
+		for j := i + 1; j < len(entries); j++ {
+			p[pairKey(entries[i].Name, entries[j].Name)] = struct{}{}
+		}
+	}
+}
+
+func (p pairTracker) allSeen(entries []DupEntry) bool {
+	for i := range entries {
+		for j := i + 1; j < len(entries); j++ {
+			if !p.has(entries[i].Name, entries[j].Name) {
+				return false
 			}
 		}
 	}
-	return nil
+	return true
 }
 
 // AnalyzeDuplicates runs the 3-tier in-memory clustering pipeline on a slice of releaser counts.
 func AnalyzeDuplicates(rows []ReleaserCount) *DupReport {
+	const (
+		minRows    = 2
+		minFP      = 3
+		tier1      = 1
+		tier2      = 2
+		tier1Label = "Normalized match"
+		tier2Label = "Word / token swap"
+	)
 	report := &DupReport{
 		TotalReleasers: len(rows),
 	}
-	if len(rows) < 2 {
+	if len(rows) < minRows {
 		return report
 	}
 
-	type parsedItem struct {
-		entry       DupEntry
-		fingerprint string
-		sortedWords string
-		core        string
-	}
+	items := parseDupItems(rows)
+	seen := make(pairTracker)
 
+	report.Tier1 = clusterByKey(items, seen, tier1, tier1Label, false, func(it parsedItem) string {
+		if len(it.fingerprint) < minFP {
+			return ""
+		}
+		return it.fingerprint
+	})
+	report.Tier2 = clusterByKey(items, seen, tier2, tier2Label, true, func(it parsedItem) string {
+		if !strings.Contains(it.sortedWords, " ") {
+			return ""
+		}
+		return it.sortedWords
+	})
+	report.Tier3 = clusterTypos(items, seen)
+
+	report.TotalClusters = len(report.Tier1) + len(report.Tier2) + len(report.Tier3)
+	return report
+}
+
+func parseDupItems(rows []ReleaserCount) []parsedItem {
 	items := make([]parsedItem, 0, len(rows))
 	for _, r := range rows {
 		raw := strings.TrimSpace(r.Releaser)
@@ -237,7 +312,6 @@ func AnalyzeDuplicates(rows []ReleaserCount) *DupReport {
 			rawLabel = fmt.Sprintf("%q (untrimmed whitespace)", r.Releaser)
 		}
 		kind := classifyKind(raw)
-		uri := helper.Slug(raw)
 		disp := releaser.Index(raw)
 		if disp == "" {
 			disp = helper.Capitalize(strings.ToLower(raw))
@@ -248,7 +322,7 @@ func AnalyzeDuplicates(rows []ReleaserCount) *DupReport {
 				Name:    rawLabel,
 				RawName: r.Releaser,
 				Display: disp,
-				URI:     uri,
+				URI:     helper.Slug(raw),
 				Kind:    kind,
 				Count:   r.Count,
 			},
@@ -257,146 +331,111 @@ func AnalyzeDuplicates(rows []ReleaserCount) *DupReport {
 			core:        core,
 		})
 	}
+	return items
+}
 
-	// Track pairs already grouped in a higher tier so we don't repeat them.
-	seenPairs := make(map[string]struct{})
-	markCluster := func(entries []DupEntry) {
-		for i := range entries {
-			for j := i + 1; j < len(entries); j++ {
-				seenPairs[pairKey(entries[i].Name, entries[j].Name)] = struct{}{}
-			}
-		}
-	}
-	allSeen := func(entries []DupEntry) bool {
-		for i := range entries {
-			for j := i + 1; j < len(entries); j++ {
-				if _, ok := seenPairs[pairKey(entries[i].Name, entries[j].Name)]; !ok {
-					return false
-				}
-			}
-		}
-		return true
-	}
-
-	// Tier 1: Normalized fingerprint collisions.
-	tier1Buckets := make(map[string][]DupEntry)
-	tier1Order := make([]string, 0)
+func clusterByKey(
+	items []parsedItem, seen pairTracker, tier int, reason string, skipSeen bool, keyFn func(parsedItem) string,
+) []DupGroup {
+	const minGroup = 2
+	buckets := make(map[string][]DupEntry)
+	order := make([]string, 0)
 	for _, it := range items {
-		if len(it.fingerprint) < 3 {
+		sub := keyFn(it)
+		if sub == "" {
 			continue
 		}
-		k := it.entry.Kind + ":" + it.fingerprint
-		if _, exists := tier1Buckets[k]; !exists {
-			tier1Order = append(tier1Order, k)
+		k := it.entry.Kind + ":" + sub
+		if _, exists := buckets[k]; !exists {
+			order = append(order, k)
 		}
-		tier1Buckets[k] = append(tier1Buckets[k], it.entry)
+		buckets[k] = append(buckets[k], it.entry)
 	}
-	for _, k := range tier1Order {
-		group := tier1Buckets[k]
-		if len(group) < 2 {
+
+	var groups []DupGroup
+	for _, k := range order {
+		group := buckets[k]
+		if len(group) < minGroup || (skipSeen && seen.allSeen(group)) {
 			continue
 		}
 		sortEntries(group)
-		markCluster(group)
-		report.Tier1 = append(report.Tier1, DupGroup{
+		seen.markCluster(group)
+		groups = append(groups, DupGroup{
 			Key:     strings.TrimPrefix(k, group[0].Kind+":"),
 			Kind:    group[0].Kind,
-			Tier:    1,
-			Reason:  "Normalized match",
+			Tier:    tier,
+			Reason:  reason,
 			Entries: group,
 		})
 	}
+	return groups
+}
 
-	// Tier 2: Token order / word swaps.
-	tier2Buckets := make(map[string][]DupEntry)
-	tier2Order := make([]string, 0)
-	for _, it := range items {
-		if it.sortedWords == "" || !strings.Contains(it.sortedWords, " ") {
-			continue
-		}
-		k := it.entry.Kind + ":" + it.sortedWords
-		if _, exists := tier2Buckets[k]; !exists {
-			tier2Order = append(tier2Order, k)
-		}
-		tier2Buckets[k] = append(tier2Buckets[k], it.entry)
-	}
-	for _, k := range tier2Order {
-		group := tier2Buckets[k]
-		if len(group) < 2 || allSeen(group) {
-			continue
-		}
-		sortEntries(group)
-		markCluster(group)
-		report.Tier2 = append(report.Tier2, DupGroup{
-			Key:     strings.TrimPrefix(k, group[0].Kind+":"),
-			Kind:    group[0].Kind,
-			Tier:    2,
-			Reason:  "Word / token swap",
-			Entries: group,
-		})
-	}
-
-	// Tier 3: 1-character typo or adjacent letter transposition within (Kind, 2-char prefix) buckets.
-	const minCoreLen = 6
-	prefixBuckets := make(map[string][]parsedItem)
-	prefixOrder := make([]string, 0)
+func clusterTypos(items []parsedItem, seen pairTracker) []DupGroup {
+	const (
+		minCoreLen = 6
+		prefixLen  = 2
+		minBucket  = 2
+	)
+	buckets := make(map[string][]parsedItem)
+	order := make([]string, 0)
 	for _, it := range items {
 		if len(it.core) < minCoreLen {
 			continue
 		}
-		pk := it.entry.Kind + ":" + it.core[:2]
-		if _, exists := prefixBuckets[pk]; !exists {
-			prefixOrder = append(prefixOrder, pk)
+		pk := it.entry.Kind + ":" + it.core[:prefixLen]
+		if _, exists := buckets[pk]; !exists {
+			order = append(order, pk)
 		}
-		prefixBuckets[pk] = append(prefixBuckets[pk], it)
+		buckets[pk] = append(buckets[pk], it)
 	}
 
-	for _, pk := range prefixOrder {
-		bucket := prefixBuckets[pk]
-		if len(bucket) < 2 {
+	var groups []DupGroup
+	for _, pk := range order {
+		bucket := buckets[pk]
+		if len(bucket) < minBucket {
 			continue
 		}
-		for i := range bucket {
-			a := bucket[i]
-			for j := i + 1; j < len(bucket); j++ {
-				b := bucket[j]
-				if a.core == b.core {
-					continue
-				}
-				lenDiff := len(a.core) - len(b.core)
-				if lenDiff < -1 || lenDiff > 1 {
-					continue
-				}
-				if _, ok := seenPairs[pairKey(a.entry.Name, b.entry.Name)]; ok {
-					continue
-				}
-				if singleTypo(a.core, b.core) {
-					pair := []DupEntry{a.entry, b.entry}
-					sortEntries(pair)
-					markCluster(pair)
-					report.Tier3 = append(report.Tier3, DupGroup{
-						Key:     a.core + " ~ " + b.core,
-						Kind:    a.entry.Kind,
-						Tier:    3,
-						Reason:  "1-char typo / swap",
-						Entries: pair,
-					})
-				}
+		groups = append(groups, bucketTypos(bucket, seen)...)
+	}
+	return groups
+}
+
+func bucketTypos(bucket []parsedItem, seen pairTracker) []DupGroup {
+	const tier3 = 3
+	var groups []DupGroup
+	for i := range bucket {
+		a := bucket[i]
+		for j := i + 1; j < len(bucket); j++ {
+			b := bucket[j]
+			if a.core == b.core || !singleTypo(a.core, b.core) {
+				continue
 			}
+			if seen.has(a.entry.Name, b.entry.Name) {
+				continue
+			}
+			pair := []DupEntry{a.entry, b.entry}
+			sortEntries(pair)
+			seen.markCluster(pair)
+			groups = append(groups, DupGroup{
+				Key:     a.core + " ~ " + b.core,
+				Kind:    a.entry.Kind,
+				Tier:    tier3,
+				Reason:  "1-char typo / swap",
+				Entries: pair,
+			})
 		}
 	}
-
-	report.TotalClusters = len(report.Tier1) + len(report.Tier2) + len(report.Tier3)
-	return report
+	return groups
 }
 
 func classifyKind(name string) string {
 	u := strings.ToUpper(strings.TrimSpace(name))
 	switch {
-	case strings.HasSuffix(u, " BBS") || u == "BBS":
-		return "BBS"
-	case strings.HasSuffix(u, " FTP") || u == "FTP":
-		return "FTP"
+	case strings.HasSuffix(u, " BBS") || u == xbbs:
+		return xbbs
+	case strings.HasSuffix(u, " FTP") || u == xftp:
+		return xftp
 	default:
 		return "Group"
 	}
@@ -461,9 +500,9 @@ func normalizeNumeral(w string) string {
 func normalizeTokens(raw, kind string) (fingerprint, sortedWords, core string) {
 	s := strings.ToLower(strings.TrimSpace(raw))
 	switch kind {
-	case "BBS":
+	case xbbs:
 		s = strings.TrimSuffix(s, " bbs")
-	case "FTP":
+	case xftp:
 		s = strings.TrimSuffix(s, " ftp")
 	}
 

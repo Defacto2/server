@@ -2,6 +2,8 @@ package config_test
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -9,6 +11,31 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 	"github.com/nalgeon/be"
 )
+
+type checkRow struct {
+	status string
+	detail string
+}
+
+// parseCheckOutput extracts indented "STATUS  NAME  detail..." rows into a map keyed by NAME,
+// so tests do not depend on column padding or separator formatting.
+func parseCheckOutput(out string) map[string]checkRow {
+	rows := make(map[string]checkRow)
+	for line := range strings.SplitSeq(out, "\n") {
+		if !strings.HasPrefix(line, "  ") {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+		rows[fields[1]] = checkRow{
+			status: fields[0],
+			detail: strings.Join(fields[2:], " "),
+		}
+	}
+	return rows
+}
 
 func TestChecks(t *testing.T) {
 	t.Parallel()
@@ -43,6 +70,9 @@ func TestChecksMisconfigTLSPortAndPair(t *testing.T) {
 
 	var buf bytes.Buffer
 	tmp := t.TempDir()
+	certFile := filepath.Join(tmp, "cert.pem")
+	be.Err(t, os.WriteFile(certFile, []byte("dummy"), 0o600), nil)
+
 	c := config.Config{
 		AbsDownload:  config.Absdown(tmp),
 		AbsPreview:   config.Absprev(tmp),
@@ -52,7 +82,7 @@ func TestChecksMisconfigTLSPortAndPair(t *testing.T) {
 		DatabaseURL:  postgres.DefaultURL,
 		HTTPPort:     config.StdCustom,
 		TLSPort:      config.PortTLS(config.StdHTTPS),
-		TLSCert:      config.Abstlscrt(testdata.Abs()),
+		TLSCert:      config.Abstlscrt(certFile),
 		DemozooAuth:  config.DemozooAuth("badkey"),
 		ReadOnly:     true,
 	}
@@ -60,10 +90,18 @@ func TestChecksMisconfigTLSPortAndPair(t *testing.T) {
 	be.Err(t, got, config.ErrCheckFailed)
 
 	out := buf.String()
-	be.True(t, strings.Contains(out, "FAIL  D2_TLS_PORT           443"))
-	be.True(t, strings.Contains(out, "OK    D2_TLS_CERT"))
-	be.True(t, strings.Contains(out, "FAIL  D2_TLS_KEY            not set — required when D2_TLS_CERT is set"))
-	be.True(t, strings.Contains(out, "FAIL  D2_DEMOZOO_KEY        xxxxx — Authorization key is too short"))
+	rows := parseCheckOutput(out)
+
+	be.Equal(t, rows["D2_TLS_PORT"].status, "FAIL")
+	be.True(t, strings.Contains(rows["D2_TLS_PORT"].detail, "443"))
+
+	be.Equal(t, rows["D2_TLS_CERT"].status, "OK")
+
+	be.Equal(t, rows["D2_TLS_KEY"].status, "FAIL")
+	be.True(t, strings.Contains(rows["D2_TLS_KEY"].detail, "D2_TLS_CERT"))
+
+	be.Equal(t, rows["D2_DEMOZOO_KEY"].status, "FAIL")
+	be.True(t, strings.Contains(rows["D2_DEMOZOO_KEY"].detail, "too short"))
 	be.True(t, !strings.Contains(out, "badkey"))
 }
 

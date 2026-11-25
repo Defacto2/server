@@ -148,11 +148,16 @@ func (s *Stats) platformBuckets(uris map[tags.Tag]string) map[string]statBucket 
 
 func (s *Stats) pairBuckets(uris map[tags.Tag]string) map[[2]string]statBucket {
 	return map[[2]string]statBucket{
-		{uris[tags.BBS], uris[tags.ANSI]}:      newBucket(&s.AnsiBBS.Bytes, &s.AnsiBBS.Count, &s.AnsiBBS.MinYear, &s.AnsiBBS.MaxYear),
-		{uris[tags.BBS], uris[tags.Text]}:      newBucket(&s.BBSText.Bytes, &s.BBSText.Count, &s.BBSText.MinYear, &s.BBSText.MaxYear),
-		{uris[tags.BBS], uris[tags.DOS]}:       newBucket(&s.BBStro.Bytes, &s.BBStro.Count, &s.BBStro.MinYear, &s.BBStro.MaxYear),
-		{uris[tags.Intro], uris[tags.DOS]}:     newBucket(&s.IntroD.Bytes, &s.IntroD.Count, &s.IntroD.MinYear, &s.IntroD.MaxYear),
-		{uris[tags.Intro], uris[tags.Windows]}: newBucket(&s.IntroW.Bytes, &s.IntroW.Count, &s.IntroW.MinYear, &s.IntroW.MaxYear),
+		{uris[tags.BBS], uris[tags.ANSI]}: newBucket(
+			&s.AnsiBBS.Bytes, &s.AnsiBBS.Count, &s.AnsiBBS.MinYear, &s.AnsiBBS.MaxYear),
+		{uris[tags.BBS], uris[tags.Text]}: newBucket(
+			&s.BBSText.Bytes, &s.BBSText.Count, &s.BBSText.MinYear, &s.BBSText.MaxYear),
+		{uris[tags.BBS], uris[tags.DOS]}: newBucket(
+			&s.BBStro.Bytes, &s.BBStro.Count, &s.BBStro.MinYear, &s.BBStro.MaxYear),
+		{uris[tags.Intro], uris[tags.DOS]}: newBucket(
+			&s.IntroD.Bytes, &s.IntroD.Count, &s.IntroD.MinYear, &s.IntroD.MaxYear),
+		{uris[tags.Intro], uris[tags.Windows]}: newBucket(
+			&s.IntroW.Bytes, &s.IntroW.Count, &s.IntroW.MinYear, &s.IntroW.MaxYear),
 	}
 }
 

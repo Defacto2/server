@@ -909,7 +909,7 @@ func StatHumanize(name string) (date, bytes, size string) {
 		humanize.Bytes(u)
 }
 
-// Thumb returns a HTML image tag or picture element for the given unid.
+// AnimPreview returns a HTML image tag or picture element for the given unid.
 // The unid is the filename of the thumbnail image without an extension.
 // The desc is the description of the image.
 // The thumbnail is the directory where the thumbnail images are stored.

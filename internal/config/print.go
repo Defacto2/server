@@ -25,6 +25,10 @@ const (
 
 	unsetLabel = "(unset)"
 	colWidth   = 21
+
+	gid = "D2_GOOGLE_IDS"
+	sma = "D2_SESSION_MAX_AGE"
+	off = "off"
 )
 
 type printItem struct {
@@ -57,7 +61,9 @@ func (c Config) Print(w io.Writer, detail bool) {
 	}
 
 	help := c.Help()
-	indent := strings.Repeat(" ", colWidth+3)
+
+	const pad = 3
+	indent := strings.Repeat(" ", colWidth+pad)
 
 	_, _ = fmt.Fprintln(w, style(ansiBold, "Web Server Configurations"))
 
@@ -79,7 +85,7 @@ func (c Config) Print(w io.Writer, detail bool) {
 			case item.issue != "":
 				note = "  " + style(ansiBoldRed, "ISSUE: "+item.issue)
 			case item.tip != "":
-				note = " " + style(ansiDim, "— "+item.tip)
+				note = " " + style(ansiDim, "- "+item.tip)
 			}
 
 			_, _ = fmt.Fprintf(w, "  %s %s%s\n", style(ansiCyan, name), val, note)
@@ -111,7 +117,7 @@ func (c Config) groups() []printGroup {
 				pathItem("D2_DATABASE_URL", c.DatabaseURL.String(), "", ""),
 				secretItem("D2_SESSION_KEY", c.SessionKey.String(), c.SessionKey.Help(), ""),
 				{
-					env:   "D2_SESSION_MAX_AGE",
+					env:   sma,
 					value: c.SessionMaxAge.String(),
 				},
 				secretItem("D2_GOOGLE_CLIENT_ID", c.GoogleClientID.String(), c.GoogleClientID.Help(), ""),
@@ -166,14 +172,14 @@ func secretItem(env, value, tip, issue string) printItem {
 func (c Config) google() printItem {
 	if len(c.GoogleAccounts) == 0 {
 		return printItem{
-			env:   "D2_GOOGLE_IDS",
+			env:   gid,
 			value: unsetLabel,
 			muted: true,
 			tip:   c.GoogleAccounts.Help(),
 		}
 	}
 	return printItem{
-		env:   "D2_GOOGLE_IDS",
+		env:   gid,
 		value: fmt.Sprintf("%s (%s)", mask, c.GoogleAccounts.String()),
 		tip:   c.GoogleAccounts.Help(),
 	}
@@ -192,7 +198,7 @@ func toggleItem(env string, t Toggle) printItem {
 	if t.Bool() {
 		return printItem{env: env, value: "on", active: true}
 	}
-	return printItem{env: env, value: "off", muted: true}
+	return printItem{env: env, value: off, muted: true}
 }
 
 // AddressGrouped writes a grouped, human-readable list of server URLs to w.

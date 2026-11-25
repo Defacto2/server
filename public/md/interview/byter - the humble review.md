@@ -18,7 +18,7 @@ This is the interview with The Byter, the maker of the famous Celerity, Celerity
 
 > #### Could you tell us about the Apple days vs. IBM days and what’s the biggest change?
 
-The Apple days were.... Well, that can be a loaded question, because for me, the Apple days date back to 1981 or so, and a lot of changes have occurred. The early Apple days were mostly simple message systems and occasional transfer systems—100k disks with DOS 3.2 storage on the average. A few files were floating around, but it wasn't really 'piracy' yet. The real modern form of cracking appeared with the introduction of the Apple 1200bps modem, which was around 1980. This is where 'elite' Apple BBSes came online. It was a glorious time.
+The Apple days were.... Well, that can be a loaded question, because for me, the Apple days date back to 1981 or so, and a lot of changes have occurred. The early Apple days were mostly simple message systems and occasional transfer systems - 100k disks with DOS 3.2 storage on the average. A few files were floating around, but it wasn't really 'piracy' yet. The real modern form of cracking appeared with the introduction of the Apple 1200bps modem, which was around 1980. This is where 'elite' Apple BBSes came online. It was a glorious time.
 
 There wasn't anything which was cracking groups yet. Everything which was cracked was credited solely to individuals.
 
@@ -28,7 +28,7 @@ In the current world, things are very different from the Apple II days. The name
 
 As for cracking groups, they've changed as well. Apple's cracking groups (when they weren't simply individuals) were usually either one member or an initiator with a few affiliates helping. Nowadays, groups tend to have more than five members. This is because they are the "team" of BBSes, which support them no matter what. There often would be suppliers who never see the rest of the group, but supply their own titles in their own way.
 
-The ideal group would seem to be forming now, where it is a logical extension of the SYSOP. I am, of course, speaking of the tendency to have 10MB groups—the SYSOPs, suppliers, and other assorted baggage.
+The ideal group would seem to be forming now, where it is a logical extension of the SYSOP. I am, of course, speaking of the tendency to have 10MB groups - the SYSOPs, suppliers, and other assorted baggage.
 
 **BBS Programs**
 
@@ -70,7 +70,7 @@ The Warez Report initially began because I was a member of SCD's group and I had
 
 > #### What do you think could happen in the future to make the pirate world better then it already is?
 
-All kinds of things! Seriously, I think that the users, sysops and groups could all make things better by simply being more responsible. Cracking groups could put more effort into ensuring that their releases work the first time, emphasizing quality over speed. And they could also ensure that they produce documentation that is readable. There is also more responsibility in following ethical standards of the warez world—for example, avoiding destructive behavior (crashing other boards, Trojan horses, and spreading harmful viruses).
+All kinds of things! Seriously, I think that the users, sysops and groups could all make things better by simply being more responsible. Cracking groups could put more effort into ensuring that their releases work the first time, emphasizing quality over speed. And they could also ensure that they produce documentation that is readable. There is also more responsibility in following ethical standards of the warez world, for example, avoiding destructive behavior (crashing other boards, Trojan horses, and spreading harmful viruses).
 
 Another way is to support the pirate community by working with boards and groups to help keep quality high and most importantly by contributing to it. There are always lots of people who want to be involved, but not as many who contribute. If there were more of a network, it would be easier to counter bad members, complex release situations, and to make it a more responsible participation. In the board message bases, contributing good information about releases and cracking groups, and how they operate, helps a lot.
 

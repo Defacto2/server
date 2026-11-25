@@ -246,7 +246,8 @@ var fileInfoMap = map[URI]fileMeta{
 	OneOffsAZ: {
 		logo:  "one-off releases, A-Z",
 		h1sub: "the one-off releases, A–Z",
-		lead:  "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file, ordered alphabetically.",
+		lead: "Artifacts from groups, releasers, BBSes, and FTP sites with only a single documented file, " +
+			"ordered alphabetically.",
 	},
 	Newest: {
 		logo:  "newest releases",

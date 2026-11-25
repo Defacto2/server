@@ -17,6 +17,8 @@ import (
 	"github.com/Defacto2/server/internal/postgres"
 )
 
+const ns = "not set"
+
 type checkStatus int
 
 const (
@@ -143,7 +145,7 @@ func checkAssetDir(env string, d Directory) checkItem {
 		return checkItem{status: statusFail, name: env, detail: "not configured"}
 	}
 	if issue := d.Issue(); issue != "" {
-		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s — %s", d, issue)}
+		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s - %s", d, issue)}
 	}
 	return checkItem{status: statusOK, name: env, detail: d.String()}
 }
@@ -151,10 +153,10 @@ func checkAssetDir(env string, d Directory) checkItem {
 func (c *Config) checkLogDirItem() checkItem {
 	const env = "D2_DIR_LOG"
 	if c.AbsLog == "" {
-		return checkItem{status: statusSkip, name: env, detail: "not set — file logging disabled"}
+		return checkItem{status: statusSkip, name: env, detail: ns + " - file logging disabled"}
 	}
 	if err := c.checkLogDir(); err != nil {
-		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s — %v", c.AbsLog, err)}
+		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s - %v", c.AbsLog, err)}
 	}
 	return checkItem{status: statusOK, name: env, detail: fmt.Sprintf("%s (writable)", c.AbsLog)}
 }
@@ -175,7 +177,7 @@ func checkPort(env string, p Port) checkItem {
 	}
 	portStr := strconv.FormatUint(uint64(p), 10)
 	if err := p.Check(); err != nil {
-		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s — %v", portStr, err)}
+		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s - %v", portStr, err)}
 	}
 	return checkItem{status: statusOK, name: env, detail: portStr}
 }
@@ -183,23 +185,24 @@ func checkPort(env string, p Port) checkItem {
 func checkTLSFile(env string, f File, pairSet bool, pairEnv string) checkItem {
 	if f == "" {
 		if pairSet {
-			return checkItem{status: statusFail, name: env, detail: "not set — required when " + pairEnv + " is set"}
+			return checkItem{status: statusFail, name: env, detail: ns + " required when " + pairEnv + " is set"}
 		}
-		return checkItem{status: statusSkip, name: env, detail: "not set"}
+		return checkItem{status: statusSkip, name: env, detail: ns}
 	}
 	if issue := f.Issue(); issue != "" {
-		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s — %s", f, issue)}
+		return checkItem{status: statusFail, name: env, detail: fmt.Sprintf("%s - %s", f, issue)}
 	}
 	return checkItem{status: statusOK, name: env, detail: f.String()}
 }
 
 func (c *Config) checkDatabase() checkGroup {
 	const env = "D2_DATABASE_URL"
+	const xdb = "DATABASE"
 	rawURL := string(c.DatabaseURL)
 	if rawURL == "" {
 		return checkGroup{
 			title: "DATABASE",
-			items: []checkItem{{status: statusWarn, name: env, detail: "not set"}},
+			items: []checkItem{{status: statusWarn, name: env, detail: ns}},
 		}
 	}
 
@@ -207,21 +210,21 @@ func (c *Config) checkDatabase() checkGroup {
 	if err != nil {
 		// Never include err.Error(), as url.Parse echoes the raw URL including credentials.
 		return checkGroup{
-			title: "DATABASE",
-			items: []checkItem{{status: statusWarn, name: env, detail: mask + " — database connection URL is invalid"}},
+			title: xdb,
+			items: []checkItem{{status: statusWarn, name: env, detail: mask + " - database connection URL is invalid"}},
 		}
 	}
 	if u.Scheme != postgres.Protocol && u.Scheme != "postgresql" {
-		detail := fmt.Sprintf("%s — unexpected scheme %q (expected postgres or postgresql)",
+		detail := fmt.Sprintf("%s - unexpected scheme %q (expected postgres or postgresql)",
 			c.DatabaseURL.String(), u.Scheme)
 		return checkGroup{
-			title: "DATABASE",
+			title: xdb,
 			items: []checkItem{{status: statusWarn, name: env, detail: detail}},
 		}
 	}
 
 	return checkGroup{
-		title: "DATABASE",
+		title: xdb,
 		items: []checkItem{{status: statusOK, name: env, detail: c.DatabaseURL.String()}},
 	}
 }
@@ -230,10 +233,10 @@ func (c *Config) checkModeAuth() checkGroup {
 	items := []checkItem{
 		{status: statusOK, name: "D2_PROD_MODE", detail: boolLabel(c.ProdMode)},
 		checkToggleWarn("D2_READ_ONLY", c.ReadOnly,
-			"on — edits to the database are not allowed",
-			"off — write mode enabled"),
+			"on - edits to the database are not allowed",
+			"off - write mode enabled"),
 		checkToggleWarn("D2_NO_CRAWL", c.NoCrawl,
-			"on — search engine crawling is disabled",
+			"on - search engine crawling is disabled",
 			"off"),
 	}
 	if c.ProdMode.Bool() && !c.ReadOnly.Bool() {
@@ -254,13 +257,13 @@ func (c *Config) checkProdAuth() []checkItem {
 	clientID := checkItem{status: statusOK, name: "D2_GOOGLE_CLIENT_ID", detail: mask}
 	if c.GoogleClientID == "" {
 		clientID.status = statusWarn
-		clientID.detail = "not set — required for admin sign-in"
+		clientID.detail = ns + " - required for admin sign-in"
 	}
 
-	googleIDs := checkItem{status: statusOK, name: "D2_GOOGLE_IDS", detail: mask}
+	googleIDs := checkItem{status: statusOK, name: gid, detail: mask}
 	if c.GoogleIDs == "" && len(c.GoogleAccounts) == 0 {
 		googleIDs.status = statusWarn
-		googleIDs.detail = "not set — no admin accounts configured"
+		googleIDs.detail = ns + " - no admin accounts configured"
 	} else if s := c.GoogleAccounts.String(); s != "" {
 		googleIDs.detail = fmt.Sprintf("%s (%s)", mask, s)
 	}
@@ -268,7 +271,7 @@ func (c *Config) checkProdAuth() []checkItem {
 	sessionAge := checkItem{status: statusOK, name: "D2_SESSION_MAX_AGE", detail: c.SessionMaxAge.String()}
 	if c.SessionMaxAge == 0 {
 		sessionAge.status = statusWarn
-		sessionAge.detail = "0 — admin sessions never expire"
+		sessionAge.detail = "0 - admin sessions never expire"
 	}
 
 	return []checkItem{clientID, googleIDs, sessionAge}
@@ -278,12 +281,12 @@ func (c *Config) checkDemozooKey() checkItem {
 	const env = "D2_DEMOZOO_KEY"
 	switch {
 	case c.DemozooAuth == "":
-		return checkItem{status: statusSkip, name: env, detail: "not set"}
+		return checkItem{status: statusSkip, name: env, detail: ns}
 	case c.DemozooAuth.Issue() != "":
 		return checkItem{
 			status: statusFail,
 			name:   env,
-			detail: fmt.Sprintf("%s — %s", mask, c.DemozooAuth.Issue()),
+			detail: fmt.Sprintf("%s - %s", mask, c.DemozooAuth.Issue()),
 		}
 	default:
 		return checkItem{status: statusOK, name: env, detail: mask}
@@ -313,7 +316,7 @@ func (c *Config) checkTools(ctx context.Context) checkGroup {
 			items = append(items, checkItem{
 				status: statusWarn,
 				name:   file,
-				detail: "missing from PATH — " + command.Infos[i],
+				detail: "missing from PATH - " + command.Infos[i],
 			})
 		}
 	}

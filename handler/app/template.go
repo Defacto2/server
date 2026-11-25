@@ -82,7 +82,7 @@ type filename string // filename is the name of the template file in the view di
 
 type Page map[string]filename
 
-var pages = Page{
+var pages = Page{ //nolint:gosec // false positive
 	"api-info":      "apiinfo.tmpl",
 	"apps":          "apps.tmpl",
 	"areacodes":     "areacodes.tmpl",

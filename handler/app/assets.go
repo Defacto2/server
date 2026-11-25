@@ -1,4 +1,4 @@
-//nolint:gochecknoglobals
+//nolint:exhaustruct_v5,gochecknoglobals
 package app
 
 import (
@@ -208,62 +208,77 @@ func processAsset(spec assetSpec, refresh bool) map[string]any {
 	return out
 }
 
+type dirScan struct {
+	count     int
+	total     int64
+	extCounts map[string]int64
+	queue     []string
+}
+
+func (d *dirScan) recordEntry(cur string, entry os.DirEntry) {
+	name := entry.Name()
+	if entry.IsDir() {
+		d.queue = append(d.queue, filepath.Join(cur, name))
+		return
+	}
+	if !entry.Type().IsRegular() || name == helper.DSStore {
+		return
+	}
+	d.count++
+	if info, err := entry.Info(); err == nil {
+		d.total += info.Size()
+	}
+	ext := strings.ToLower(filepath.Ext(name))
+	if ext == "" {
+		ext = "uuid"
+	}
+	d.extCounts[ext]++
+}
+
+func (d *dirScan) scanDir(cur string, isRoot bool) error {
+	const batchSize = 1024
+	f, err := os.Open(cur)
+	if err != nil {
+		if isRoot {
+			return fmt.Errorf("scan asset dir open %s: %w", cur, err)
+		}
+		return nil
+	}
+	defer func() { _ = f.Close() }()
+
+	for {
+		entries, readErr := f.ReadDir(batchSize)
+		for _, entry := range entries {
+			d.recordEntry(cur, entry)
+		}
+		if errors.Is(readErr, io.EOF) {
+			return nil
+		}
+		if readErr != nil {
+			return fmt.Errorf("scan asset dir read %s: %w", cur, readErr)
+		}
+	}
+}
+
 // scanAssetDir computes file count, total bytes, and extension breakdown in a single
 // streaming pass without sorting directory entries in memory.
+// The returned values are the count, total, and sorted extensions.
 func scanAssetDir(root string) (int, int64, []helper.Extension, error) {
-	const batchSize = 1024
-	var (
-		count int
-		total int64
-	)
-	extCounts := make(map[string]int64)
-	queue := []string{root}
-
-	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
-
-		f, err := os.Open(cur)
-		if err != nil {
-			if cur == root {
-				return 0, 0, nil, fmt.Errorf("scan asset dir open %s: %w", cur, err)
-			}
-			continue
-		}
-
-		for {
-			entries, readErr := f.ReadDir(batchSize)
-			for _, entry := range entries {
-				name := entry.Name()
-				if entry.IsDir() {
-					queue = append(queue, filepath.Join(cur, name))
-					continue
-				}
-				if !entry.Type().IsRegular() || name == helper.DSStore {
-					continue
-				}
-				count++
-				if info, infoErr := entry.Info(); infoErr == nil {
-					total += info.Size()
-				}
-				ext := strings.ToLower(filepath.Ext(name))
-				if ext == "" {
-					ext = "uuid"
-				}
-				extCounts[ext]++
-			}
-			if errors.Is(readErr, io.EOF) {
-				break
-			}
-			if readErr != nil {
-				_ = f.Close()
-				return count, total, sortExtensions(extCounts), fmt.Errorf("scan asset dir read %s: %w", cur, readErr)
-			}
-		}
-		_ = f.Close()
+	d := dirScan{
+		extCounts: make(map[string]int64),
+		queue:     []string{root},
 	}
-
-	return count, total, sortExtensions(extCounts), nil
+	for len(d.queue) > 0 {
+		cur := d.queue[0]
+		d.queue = d.queue[1:]
+		if err := d.scanDir(cur, cur == root); err != nil {
+			if d.count == 0 && len(d.extCounts) == 0 {
+				return 0, 0, nil, err
+			}
+			return d.count, d.total, sortExtensions(d.extCounts), err
+		}
+	}
+	return d.count, d.total, sortExtensions(d.extCounts), nil
 }
 
 func sortExtensions(extCounts map[string]int64) []helper.Extension {

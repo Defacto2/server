@@ -361,9 +361,10 @@ func (serv *Server) Print(w io.Writer) (errs error) { //nolint:funlen
 	row("Mode", serv.formatModeSummary())
 	row("Listeners", serv.formatListeners())
 
+	const count = 14
 	if addrs, err := serv.Environment.Address(); err == nil && len(addrs) > 0 {
 		row("Addresses", style(cyan, addrs[0]))
-		indent := strings.Repeat(" ", 14)
+		indent := strings.Repeat(" ", count)
 		for _, a := range addrs[1:] {
 			_, _ = fmt.Fprintf(w, "%s%s\n", indent, style(cyan, a))
 		}
@@ -373,7 +374,7 @@ func (serv *Server) Print(w io.Writer) (errs error) { //nolint:funlen
 	if issues := serv.Environment.Issues(); len(issues) > 0 {
 		_, _ = fmt.Fprintf(w, "\n%s\n", style(boldRed, "CONFIG ISSUES"))
 		for _, iss := range issues {
-			_, _ = fmt.Fprintf(w, "  %s %s — %s\n",
+			_, _ = fmt.Fprintf(w, "  %s %s - %s\n",
 				style(boldRed, fmt.Sprintf("%-19s", iss.Env)),
 				iss.Value, iss.Issue)
 		}
@@ -385,7 +386,7 @@ func (serv *Server) Print(w io.Writer) (errs error) { //nolint:funlen
 
 func (serv *Server) formatDBStatus(style func(string, string) string, green, yellow, boldRed string) string {
 	if serv.DBVersion == "" && serv.RecordCount == 0 {
-		return style(boldRed, "offline — limited functionality")
+		return style(boldRed, "offline - limited functionality")
 	}
 	countStr := formatWithCommas(serv.RecordCount) + " artifacts"
 	label := countStr
@@ -399,8 +400,9 @@ func (serv *Server) formatDBStatus(style func(string, string) string, green, yel
 }
 
 func (serv *Server) formatModeSummary() string {
+	const size = 5
 	env := serv.Environment
-	parts := make([]string, 0, 5)
+	parts := make([]string, 0, size)
 	if env.ProdMode.Bool() {
 		parts = append(parts, "production")
 	} else {
@@ -424,8 +426,9 @@ func (serv *Server) formatModeSummary() string {
 }
 
 func (serv *Server) formatListeners() string {
+	const size = 2
 	env := serv.Environment
-	parts := make([]string, 0, 2)
+	parts := make([]string, 0, size)
 	if env.UseHTTP() {
 		parts = append(parts, fmt.Sprintf("HTTP :%d", env.HTTPPort))
 	}
@@ -445,20 +448,21 @@ func (serv *Server) formatListeners() string {
 }
 
 func formatWithCommas(n int64) string {
+	const size = 3 // group size
 	s := strconv.FormatInt(n, 10)
-	if len(s) <= 3 {
+	if len(s) <= size {
 		return s
 	}
 	var b strings.Builder
-	rem := len(s) % 3
+	rem := len(s) % size
 	if rem > 0 {
 		b.WriteString(s[:rem])
 	}
-	for i := rem; i < len(s); i += 3 {
+	for i := rem; i < len(s); i += size {
 		if b.Len() > 0 {
 			b.WriteByte(',')
 		}
-		b.WriteString(s[i : i+3])
+		b.WriteString(s[i : i+size])
 	}
 	return b.String()
 }

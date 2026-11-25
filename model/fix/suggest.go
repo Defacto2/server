@@ -144,6 +144,72 @@ func Suggest(rows []ReleaserCount) []Suggestion {
 	return entries
 }
 
+type suggestQuery struct {
+	raw    []string
+	norm   []string
+	sorted []string
+}
+
+func buildSuggestQuery(lookups []string) suggestQuery {
+	const rawVariants = 3
+	q := suggestQuery{
+		raw:    make([]string, 0, len(lookups)*rawVariants),
+		norm:   make([]string, 0, len(lookups)),
+		sorted: make([]string, 0, len(lookups)),
+	}
+	for _, name := range lookups {
+		trimmed := strings.TrimSpace(name)
+		if trimmed == "" {
+			continue
+		}
+		q.raw = append(q.raw,
+			strings.ToUpper(trimmed),
+			strings.ToUpper(releaser.Title(trimmed)),
+			strings.ToUpper(releaser.Cell(trimmed)),
+		)
+		kind := classifyKind(trimmed)
+		fp, sortedW, _ := normalizeTokens(trimmed, kind)
+		if len(fp) >= minNormPrefixLen {
+			q.norm = append(q.norm, fp)
+		}
+		if sortedW != "" {
+			q.sorted = append(q.sorted, sortedW)
+		}
+	}
+	q.raw = uniqueStrings(q.raw)
+	q.norm = uniqueStrings(q.norm)
+	q.sorted = uniqueStrings(q.sorted)
+	return q
+}
+
+func (q suggestQuery) matchesNorm(item Suggestion) bool {
+	if hasAnyPrefix(item.fingerprint, q.norm) {
+		return true
+	}
+	return item.sortedWords != "" && slices.Contains(q.sorted, item.sortedWords)
+}
+
+func uniqueStrings(s []string) []string {
+	slices.Sort(s)
+	return slices.Compact(s)
+}
+
+func mergeTiers(limit int, tiers ...[]ReleaserCount) []ReleaserCount {
+	total := 0
+	for _, t := range tiers {
+		total += len(t)
+	}
+	out := make([]ReleaserCount, 0, min(limit, total))
+	for _, t := range tiers {
+		rem := limit - len(out)
+		if rem <= 0 {
+			break
+		}
+		out = append(out, t[:min(rem, len(t))]...)
+	}
+	return out
+}
+
 // Suggests matches lookups against pre-normalized entries in 3 priority tiers:
 //  1. Raw prefix match (exact existing behavior)
 //  2. Normalized fingerprint match (handles stop words, punctuation, apostrophes, numerals)
@@ -153,78 +219,37 @@ func Suggests(entries []Suggestion, limit int, lookups ...string) []ReleaserCoun
 		return nil
 	}
 
-	rawPrefixes := make([]string, 0, len(lookups)*3)
-	normPrefixes := make([]string, 0, len(lookups))
-	normSorted := make([]string, 0, len(lookups))
-	for _, name := range lookups {
-		trimmed := strings.TrimSpace(name)
-		if trimmed == "" {
-			continue
-		}
-		rawPrefixes = append(rawPrefixes,
-			strings.ToUpper(trimmed),
-			strings.ToUpper(releaser.Title(trimmed)),
-			strings.ToUpper(releaser.Cell(trimmed)),
-		)
-		kind := classifyKind(trimmed)
-		fp, sortedW, _ := normalizeTokens(trimmed, kind)
-		if len(fp) >= minNormPrefixLen {
-			normPrefixes = append(normPrefixes, fp)
-		}
-		if sortedW != "" {
-			normSorted = append(normSorted, sortedW)
-		}
-	}
-	if len(rawPrefixes) == 0 {
+	q := buildSuggestQuery(lookups)
+	if len(q.raw) == 0 {
 		return nil
 	}
-	slices.Sort(rawPrefixes)
-	rawPrefixes = slices.Compact(rawPrefixes)
-	slices.Sort(normPrefixes)
-	normPrefixes = slices.Compact(normPrefixes)
-	slices.Sort(normSorted)
-	normSorted = slices.Compact(normSorted)
 
 	tier1 := make([]ReleaserCount, 0, limit)
 	tier2 := make([]ReleaserCount, 0, limit)
 	tier3 := make([]ReleaserCount, 0, limit)
 
 	for _, item := range entries {
-		if hasAnyPrefix(item.name, rawPrefixes) {
-			tier1 = append(tier1, ReleaserCount{Releaser: item.name, Count: item.count})
+		rc := ReleaserCount{Releaser: item.name, Count: item.count}
+		if hasAnyPrefix(item.name, q.raw) {
+			tier1 = append(tier1, rc)
 			if len(tier1) >= limit {
 				return tier1
 			}
 			continue
 		}
-
-		if len(normPrefixes) == 0 || len(item.fingerprint) < minNormPrefixLen {
+		if len(q.norm) == 0 || len(item.fingerprint) < minNormPrefixLen {
 			continue
 		}
-
-		if len(tier1)+len(tier2) < limit &&
-			(hasAnyPrefix(item.fingerprint, normPrefixes) ||
-				(item.sortedWords != "" && slices.Contains(normSorted, item.sortedWords))) {
-			tier2 = append(tier2, ReleaserCount{Releaser: item.name, Count: item.count})
+		if len(tier1)+len(tier2) < limit && q.matchesNorm(item) {
+			tier2 = append(tier2, rc)
 			continue
 		}
-
-		if len(tier1)+len(tier2)+len(tier3) < limit && len(item.core) >= minTypoLen {
-			if matchesTypo(item.core, normPrefixes) {
-				tier3 = append(tier3, ReleaserCount{Releaser: item.name, Count: item.count})
-			}
+		if len(tier1)+len(tier2)+len(tier3) < limit && len(item.core) >= minTypoLen && matchesTypo(item.core, q.norm) {
+			tier3 = append(tier3, rc)
 		}
 	}
 
-	out := make([]ReleaserCount, 0, min(limit, len(tier1)+len(tier2)+len(tier3)))
-	out = append(out, tier1...)
-	if rem := limit - len(out); rem > 0 && len(tier2) > 0 {
-		out = append(out, tier2[:min(rem, len(tier2))]...)
-	}
-	if rem := limit - len(out); rem > 0 && len(tier3) > 0 {
-		out = append(out, tier3[:min(rem, len(tier3))]...)
-	}
-	return out
+	return mergeTiers(limit, tier1, tier2, tier3)
 }
 
 func hasAnyPrefix(s string, prefixes []string) bool {
@@ -238,14 +263,7 @@ func hasAnyPrefix(s string, prefixes []string) bool {
 
 func matchesTypo(core string, normPrefixes []string) bool {
 	for _, fp := range normPrefixes {
-		if len(fp) < minTypoLen {
-			continue
-		}
-		diff := len(core) - len(fp)
-		if diff < -1 || diff > 1 {
-			continue
-		}
-		if singleTypo(core, fp) {
+		if len(fp) >= minTypoLen && singleTypo(core, fp) {
 			return true
 		}
 	}

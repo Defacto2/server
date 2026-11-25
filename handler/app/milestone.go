@@ -101,7 +101,7 @@ var collection = Milestones{
 		Year: 1972, Prefix: "Early", Title: "Blue boxes",
 		Link: "https://explodingthephone.com/", LinkTitle: "about the hackers of the telephone network",
 		Content: "Inspired by <a href=\"#secrets-of-the-little-blue-box\">The Secrets of the Little Blue Box</a> article, Steve Wozniak and a teenage Steve Jobs team up to build and sell dozens and dozens of the Wozniak-designed blue boxes to the students of the University of California, Berkeley. " +
-			"The devices allowed users to hack and manipulate the electromechanical machines that operated the national telephone network—enabling them to call anywhere worldwide without incurring the typical prohibitively expensive costs.",
+			"The devices allowed users to hack and manipulate the electromechanical machines that operated the national telephone network-enabling them to call anywhere worldwide without incurring the typical prohibitively expensive costs.",
 		Picture: Picture{
 			Title:       "A blue box device",
 			Alt:         "Blue box designed and built by Steve Wozniak.",
@@ -469,7 +469,7 @@ var collection = Milestones{
 			// Sherwood Forest
 			"<strong>Sherwood Forest</strong><br>" +
 			"<p>A very early, underground ABBS is the 1979-1981 New Jersey-based<sup><a href=\"#the-first-boards-fn1\">[1]</a></sup> board, <strong>Sherwood&nbsp;Forest</strong>, created by Magnetic Surfer. " +
-			"It runs off a floppy disk and a Micromodem and became a hub for some active telephone hackers who were early adopters of microcomputers in the New York Tri-state area—many became Scene pirates and notorious computer phreakers and hackers.</p>" +
+			"It runs off a floppy disk and a Micromodem and became a hub for some active telephone hackers who were early adopters of microcomputers in the New York Tri-state area, many became Scene pirates and notorious computer phreakers and hackers.</p>" +
 			// Modem over Manhattan
 			"<strong>Modem Over Manhattan</strong><br>" +
 			"<p>As its name suggests, <strong>MOM</strong>, or <strong>Modem&nbsp;Over&nbsp;Manhattan</strong> (+212-245-4363, +212-912-9141), was based in Manhattan, New York, and probably went online in 1980. " +
@@ -627,7 +627,7 @@ var collection = Milestones{
 			" that early microcomputer hobbyists used, and is home to posts by some early hackers, pirates, and named-drop phreaker personalities of the era<sup><a href=\"#8bbs-fn1\">[1]</a></sup>. " +
 			// message logs
 			"But what stands out about the board today is that we have survived thousands of posts " +
-			"from the earliest open online community that anyone in 1980 with the proper hardware could access from home—allowing for a more relaxed conversation that may not have been available in a work or academic environment. " +
+			"from the earliest open online community that anyone in 1980 with the proper hardware could access from home, allowing for a more relaxed conversation that may not have been available in a work or academic environment. " +
 			"These posts exist before Reddit, the web, Usenet, or the Internet.</p>" +
 			`<pre style="font-size:22px;" class="font-dos-mda reader reader-invert border border-black rounded-1 p-1">` +
 			"8BBS VER 5.5\n03-FEB-81 19:53:44\nPHONE: (408) 296-5799, 24 HOURS A DAY, EVERY DAY.\n" +
@@ -1605,7 +1605,7 @@ var collection = Milestones{
 		Lead: "Arcadia's Rockford: The Arcade Game", LinkTitle: "the discussion",
 		Link: "https://forum.winworldpc.com/discussion/comment/174818/#Comment_174818",
 		Content: "<p><a href=\"https://www.mobygames.com/game/4019/rockford-the-arcade-game/\">Rockford</a> is a strange game. " +
-			"It is a port of the arcade game of the same name—a machine created as a port of the then-popular microcomputer video game series, " +
+			"It is a port of the arcade game of the same name, a machine created as a port of the then-popular microcomputer video game series, " +
 			"<a href=\"https://boulder-dash.com/history/\">Boulder Dash</a>.</p>" +
 			"<p>More unusual is the use of <strong>32-color VGA</strong> for a home computer port of an arcade game on the PC in an era when ports were done on the cheap using the lowest common denominator four-color CGA graphics. " +
 			"The crossover of players who owned expensive VGA graphic cards and monitors in 1988 who were playing arcade ports was low.</p>",

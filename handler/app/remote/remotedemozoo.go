@@ -209,7 +209,9 @@ func (got *DemozooLink) log(sl *slog.Logger, s string, err error) {
 	sl.Info(got.msg+" "+s, args...)
 }
 
-func (got *DemozooLink) remoteDo(ctx context.Context, sl *slog.Logger, c *echo.Context, exec boil.ContextExecutor) error {
+func (got *DemozooLink) remoteDo(
+	ctx context.Context, sl *slog.Logger, c *echo.Context, exec boil.ContextExecutor,
+) error {
 	// Originally we would return an error and abort the database record update if the download link
 	// could not be fetched. However, this happens too frequently with some of the more popular Scene
 	// websites. Sites such as scene.org frequently time out requests. So, as of 20-Jul-25, the

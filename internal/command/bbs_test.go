@@ -45,15 +45,15 @@ func TestTextImagerPCBoard(t *testing.T) {
 
 	// Row 0 starts with @X1E (Yellow fg = 255,255,85 on Blue bg) and CP437 0xDB solid block.
 	r, g, b, _ := img.At(0, 0).RGBA()
-	be.Equal(t, uint8(r>>8), uint8(0xff))
-	be.Equal(t, uint8(g>>8), uint8(0xff))
-	be.Equal(t, uint8(b>>8), uint8(0x55))
+	be.Equal(t, r>>8, uint32(0xff))
+	be.Equal(t, g>>8, uint32(0xff))
+	be.Equal(t, b>>8, uint32(0x55))
 
 	// Row 2 starts with @X4C (CGA Red bg = 170,0,0) on top pixel row above 'R'.
 	r, g, b, _ = img.At(0, 32).RGBA()
-	be.Equal(t, uint8(r>>8), uint8(0xaa))
-	be.Equal(t, uint8(g>>8), uint8(0x00))
-	be.Equal(t, uint8(b>>8), uint8(0x00))
+	be.Equal(t, r>>8, uint32(0xaa))
+	be.Equal(t, g>>8, uint32(0x00))
+	be.Equal(t, b>>8, uint32(0x00))
 
 	webpPath := filepath.Join(prevdir, unid+".webp")
 	wst, err := os.Stat(webpPath)
@@ -105,9 +105,9 @@ func TestTextImagerPCBoardTallCropAndFullWidth(t *testing.T) {
 
 	// Verify row 0 (yellow solid block) was not scrolled off by 80-column wrapping on row 50.
 	r, g, b, _ := img.At(0, 0).RGBA()
-	be.Equal(t, uint8(r>>8), uint8(0xff))
-	be.Equal(t, uint8(g>>8), uint8(0xff))
-	be.Equal(t, uint8(b>>8), uint8(0x55))
+	be.Equal(t, r>>8, uint32(0xff))
+	be.Equal(t, g>>8, uint32(0xff))
+	be.Equal(t, b>>8, uint32(0x55))
 }
 
 func TestTextImagerPCBoardLargeOver4KB(t *testing.T) {

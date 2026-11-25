@@ -160,6 +160,7 @@ func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLogge
 	if err := nils.Check(sl); err != nil {
 		panic(fmt.Errorf(format, "check", err))
 	}
+	const size = 3
 
 	logValues := func(_ *echo.Context, v middleware.RequestLoggerValues) error {
 		if skipRequest(v.URI, v.Status) {
@@ -168,7 +169,7 @@ func (serv *Server) RequestLoggerConfig(sl *slog.Logger) middleware.RequestLogge
 
 		const latencyUnit = 100 * time.Microsecond
 		rsize := uint64(max(v.ResponseSize, 0))
-		attrs := make([]any, 0, 3)
+		attrs := make([]any, 0, size)
 		attrs = append(attrs,
 			slog.Duration("latency", v.Latency.Round(latencyUnit)),
 			slog.String("size", humanize.Bytes(rsize)),
@@ -238,8 +239,9 @@ func detectClient(ua string) string {
 		{"go-http-client/", "Go-http"},
 		{"python-requests/", "python-requests"},
 	}
+	const part2 = 2
 	for _, tool := range cliTools {
-		if ver := extractTokenVersion(ua, tool.prefix, 2); ver != "" {
+		if ver := tokenVersion(ua, tool.prefix, part2); ver != "" {
 			return tool.label + "/" + ver
 		}
 	}
@@ -252,12 +254,12 @@ func detectClient(ua string) string {
 		{"Chrome/", "Chrome"},
 	}
 	for _, br := range browsers {
-		if ver := extractTokenVersion(ua, br.token, 1); ver != "" {
+		if ver := tokenVersion(ua, br.token, 1); ver != "" {
 			return br.label + "/" + ver
 		}
 	}
 	if strings.Contains(ua, "Safari/") {
-		if ver := extractTokenVersion(ua, "Version/", 1); ver != "" {
+		if ver := tokenVersion(ua, "Version/", 1); ver != "" {
 			return "Safari/" + ver
 		}
 		return "Safari"
@@ -296,7 +298,7 @@ func detectPlatform(ua string) string {
 	}
 }
 
-func extractTokenVersion(ua, prefix string, parts int) string {
+func tokenVersion(ua, prefix string, parts int) string {
 	idx := strings.Index(strings.ToLower(ua), strings.ToLower(prefix))
 	if idx < 0 {
 		return ""

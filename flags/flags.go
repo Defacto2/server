@@ -34,11 +34,9 @@ const (
 	Email      = "contact@defacto2.net"               // Email contact for public display.
 	RecentYear = 2026                                 // Most recent year of compilation for this program.
 
-	catInspection  = "Inspection"
-	catMaintenance = "Maintenance"
-
-	fixesTitle = "Database and Asset Fixes"
-	indexTitle = "Database Index Rebuild"
+	catView = "Inspection"
+	catFix  = "Maintenance"
+	dryrun  = "dry-run"
 )
 
 var (
@@ -131,7 +129,7 @@ func Config(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "config",
 		Aliases:     []string{"c"},
-		Category:    catInspection,
+		Category:    catView,
 		Usage:       "list the server configuration",
 		Description: "List the available server configuration options and the settings.",
 		Flags: []cli.Flag{
@@ -153,7 +151,7 @@ func Check(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "check",
 		Aliases:     []string{"k"},
-		Category:    catInspection,
+		Category:    catView,
 		Usage:       "check the server configuration",
 		Description: "Check the server configuration options and the settings against common problems.",
 		Action: func(_ *cli.Context) error {
@@ -167,7 +165,7 @@ func Address(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "address",
 		Aliases:     []string{"a"},
-		Category:    catInspection,
+		Category:    catView,
 		Usage:       "list the server addresses",
 		Description: "List the IP, hostname and port addresses the server is most probably listening on.",
 		Action: func(_ *cli.Context) error {
@@ -181,7 +179,7 @@ func Routes(w io.Writer, fn RoutePrinter) *cli.Command {
 	return &cli.Command{
 		Name:        "routes",
 		Aliases:     []string{"r"},
-		Category:    catInspection,
+		Category:    catView,
 		Usage:       "list the registered HTTP routes",
 		Description: "List all registered HTTP routes for the current configuration without starting the server.",
 		Flags: []cli.Flag{
@@ -205,18 +203,18 @@ func TempDir(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "temp",
 		Aliases:     []string{"t"},
-		Category:    catInspection,
+		Category:    catView,
 		Usage:       "purge temporary directories",
 		Description: "Purge all the subdirectories likely created by this application in " + os.TempDir() + ".",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:    "dry-run",
+				Name:    dryrun,
 				Aliases: []string{"n"},
 				Usage:   "report matching temporary directories without removing them",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			return c.PurgeTemp(w, ctx.Bool("dry-run"))
+			return c.PurgeTemp(w, ctx.Bool(dryrun))
 		},
 	}
 }
@@ -226,12 +224,12 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
 		Name:        "fix",
 		Aliases:     []string{"f"},
-		Category:    catMaintenance,
+		Category:    catFix,
 		Usage:       "fix the database and assets",
 		Description: "Fix the database entries and file assets by running scans and checks.",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:    "dry-run",
+				Name:    dryrun,
 				Aliases: []string{"n"},
 				Usage:   "report database and asset repairs without making any changes",
 			},
@@ -240,8 +238,8 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 			if w == nil {
 				w = os.Stdout
 			}
-			dryRun := ctx.Bool("dry-run")
-			title := fixesTitle
+			dryRun := ctx.Bool(dryrun)
+			title := "Database and Asset Fixes"
 			if dryRun {
 				title += " (dry run)"
 			}
@@ -263,14 +261,15 @@ func Fix(w io.Writer, c *config.Config) *cli.Command {
 // Index command rebuilds the PostgreSQL database indexes.
 func Index(w io.Writer, c *config.Config) *cli.Command {
 	return &cli.Command{
-		Name:        "index",
-		Aliases:     []string{"i"},
-		Category:    catMaintenance,
-		Usage:       "rebuild the database indexes",
-		Description: "Create missing PostgreSQL indexes, remove legacy indexes, rebuild indexes concurrently, and run VACUUM ANALYZE.",
+		Name:     "index",
+		Aliases:  []string{"i"},
+		Category: catFix,
+		Usage:    "rebuild the database indexes",
+		Description: "Create missing PostgreSQL indexes, remove legacy indexes, rebuild indexes concurrently, " +
+			"and run VACUUM ANALYZE.",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:    "dry-run",
+				Name:    dryrun,
 				Aliases: []string{"n"},
 				Usage:   "inspect PostgreSQL indexes and report planned changes without modifying the database",
 			},
@@ -279,8 +278,8 @@ func Index(w io.Writer, c *config.Config) *cli.Command {
 			if w == nil {
 				w = os.Stdout
 			}
-			dryRun := ctx.Bool("dry-run")
-			title := indexTitle
+			dryRun := ctx.Bool(dryrun)
+			title := "Database Index Rebuild"
 			if dryRun {
 				title += " (dry run)"
 			}

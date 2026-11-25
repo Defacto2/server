@@ -231,7 +231,8 @@ func OnlyDescriptions(ctx context.Context, sl *slog.Logger, exec boil.ContextExe
 
 func onlyDescriptions(terms []string) []qm.QueryMod {
 	orMods := make([]qm.QueryMod, 0, len(terms))
-	const clause = "to_tsvector('english', COALESCE(record_title, '') || ' ' || COALESCE(comment, '')) @@ plainto_tsquery('english', ?)"
+	const clause = "to_tsvector('english', COALESCE(record_title, '')" +
+		" || ' ' || COALESCE(comment, '')) @@ plainto_tsquery('english', ?)"
 	for _, term := range terms {
 		term = strings.TrimSpace(term)
 		if term == "" {

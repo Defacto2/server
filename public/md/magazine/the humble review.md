@@ -201,7 +201,7 @@ The game. But when 5 BBS’s choke it with their VGA ad, it can get fucking anno
 I have even reduced some ZIPs by 40K after stripping loaders. No big deal if you put a 1K or 2K loader. That’s 320K a week! So, SVGA? Next time, think again. You don’t want boards to kill it! It could mean the death of your board or other ZIP file hell-makers. But I think I got my point across...
 
 As for replacing “SS” with a “Z”? Well, look at the title.
-— Celestial Hatebreeder
+Celestial Hatebreeder
 
 ---
 
@@ -289,15 +289,15 @@ Now, you’re gonna need to find the bottom 10 groups. But other than that, your
 
 While many magazines devote their entire rags to blasting newcomers to the pirate world, _The Humble Review_ is taking a different approach to this subject.
 
-Lately, there has been a new kind of war taking place, a war which a few new BBSes have taken into their own hands. This war is not about software, nor is it about politics—it is about _pornography_.
+Lately, there has been a new kind of war taking place, a war which a few new BBSes have taken into their own hands. This war is not about software, nor is it about politics it is about _pornography_.
 
 The simple fact is that tomorrow may be nesting on a foundation of BBSes that don’t call for file messages on each and every download. Since many pirates are getting into "hacking" porn to the extent of GIFs, animations, and "XXX-rated" pictures, unfortunately, unless something is done about it, the pirate world will never be the same.
 
-Porn-based BBSes offer little more than the same thing every other board has—one little "XXX" and what is this? Simple PD porn BBS? Let’s not fool ourselves here, the average pirate is 14, with a severe case of acne. Which would you want more—a feed to a board with a billion GIFs, more than you know what country you’ll be wife material for (without looking at sight), or a board on which man, breakthrough after a year in jail, will have even had trouble finding a SysOp who would submit to be one of your friends in good standing?
+Porn-based BBSes offer little more than the same thing every other board has one little "XXX" and what is this? Simple PD porn BBS? Let’s not fool ourselves here, the average pirate is 14, with a severe case of acne. Which would you want more-a feed to a board with a billion GIFs, more than you know what country you’ll be wife material for (without looking at sight), or a board on which man, breakthrough after a year in jail, will have even had trouble finding a SysOp who would submit to be one of your friends in good standing?
 
 Look at one of the ever-popular _XXX_ GIF smut shows. I spoke to one who believed me on this issue and asked him if he thought of what he must see every time he started up his collection. His first reaction after a slight thought was, “No, not to be wise.” His first reaction had been known to be wise, as a pirate must learn to be broken now.
 
-Look at it this way—if the FBI ever gets “one of them,” chances are that pirate world will have some converse and fall apart. Hard to know where, as the topic could be straight arrows where how names too should be. Stay tuned for part two of this series in an upcoming _Humble Review_!
+Look at it this way if the FBI ever gets “one of them,” chances are that pirate world will have some converse and fall apart. Hard to know where, as the topic could be straight arrows where how names too should be. Stay tuned for part two of this series in an upcoming _Humble Review_!
 
 Canseco Reporting.
 
@@ -315,7 +315,7 @@ In order to win, they have put up an elite BBS, have people who know how to crac
 
 The _THG_ movie show (which will be released in a couple of weeks) will highlight the fun.
 
-One thing is for sure—when a group is nonsense, and starts to lose big games, and turns into an info supplier just to keep themselves in the charts, they have lost. Knockers, a medium-sized game group, maintains respect as a competitor for the crown.
+One thing is for sure when a group is nonsense, and starts to lose big games, and turns into an info supplier just to keep themselves in the charts, they have lost. Knockers, a medium-sized game group, maintains respect as a competitor for the crown.
 
 THG-The big question mark. They will either fly or die.
 
@@ -327,7 +327,7 @@ THG-The big question mark. They will either fly or die.
 
 _The Humble Review_ is looking for more writers and more fresh ideas! We count on you guys to keep us abreast of your part of the pirate world. When we lag, it's also your fault!
 
-This issue we're bringing to you after finally here after a _4-month galactic issue_—at least more of you will contain this. We talk of the possibility of another mag coming in here, a _THG_ release feature panel, and other ideas. If you want to see _THG_ in a more personal form, although talks at this time are discreet, we want to hear your source for news and where _THG_ is moving. You want to see _THG_ in a new way? Then send in all your talks at this time, and I'll type them in next issue!
+This issue we're bringing to you after finally here after a _4-month galactic issue_ at least more of you will contain this. We talk of the possibility of another mag coming in here, a _THG_ release feature panel, and other ideas. If you want to see _THG_ in a more personal form, although talks at this time are discreet, we want to hear your source for news and where _THG_ is moving. You want to see _THG_ in a new way? Then send in all your talks at this time, and I'll type them in next issue!
 
 In the next issue, we plan on having a _WANT AD SECTION!_ Whether it's users, new _BBS_ connections, or something like a _SWAPPER_ ad, it'll be featured with good leads and links to find new people.
 
@@ -360,7 +360,7 @@ This is the interview with The Byter, the maker of the famous Celerity, Celerity
 
 > #### Could you tell us about the Apple days vs. IBM days and what’s the biggest change?
 
-The Apple days were.... Well, that can be a loaded question, because for me, the Apple days date back to 1981 or so, and a lot of changes have occurred. The early Apple days were mostly simple message systems and occasional transfer systems—100k disks with DOS 3.2 storage on the average. A few files were floating around, but it wasn't really 'piracy' yet. The real modern form of cracking appeared with the introduction of the Apple 1200bps modem, which was around 1980. This is where 'elite' Apple BBSes came online. It was a glorious time.
+The Apple days were.... Well, that can be a loaded question, because for me, the Apple days date back to 1981 or so, and a lot of changes have occurred. The early Apple days were mostly simple message systems and occasional transfer systems 100k disks with DOS 3.2 storage on the average. A few files were floating around, but it wasn't really 'piracy' yet. The real modern form of cracking appeared with the introduction of the Apple 1200bps modem, which was around 1980. This is where 'elite' Apple BBSes came online. It was a glorious time.
 
 There wasn't anything which was cracking groups yet. Everything which was cracked was credited solely to individuals.
 
@@ -370,7 +370,7 @@ In the current world, things are very different from the Apple II days. The name
 
 As for cracking groups, they've changed as well. Apple's cracking groups (when they weren't simply individuals) were usually either one member or an initiator with a few affiliates helping. Nowadays, groups tend to have more than five members. This is because they are the "team" of BBSes, which support them no matter what. There often would be suppliers who never see the rest of the group, but supply their own titles in their own way.
 
-The ideal group would seem to be forming now, where it is a logical extension of the SYSOP. I am, of course, speaking of the tendency to have 10MB groups—the SYSOPs, suppliers, and other assorted baggage.
+The ideal group would seem to be forming now, where it is a logical extension of the SYSOP. I am, of course, speaking of the tendency to have 10MB groups the SYSOPs, suppliers, and other assorted baggage.
 
 **BBS Programs**
 
@@ -412,7 +412,7 @@ The Warez Report initially began because I was a member of SCD's group and I had
 
 > #### What do you think could happen in the future to make the pirate world better then it already is?
 
-All kinds of things! Seriously, I think that the users, sysops and groups could all make things better by simply being more responsible. Cracking groups could put more effort into ensuring that their releases work the first time, emphasizing quality over speed. And they could also ensure that they produce documentation that is readable. There is also more responsibility in following ethical standards of the warez world—for example, avoiding destructive behavior (crashing other boards, Trojan horses, and spreading harmful viruses).
+All kinds of things! Seriously, I think that the users, sysops and groups could all make things better by simply being more responsible. Cracking groups could put more effort into ensuring that their releases work the first time, emphasizing quality over speed. And they could also ensure that they produce documentation that is readable. There is also more responsibility in following ethical standards of the warez world for example, avoiding destructive behavior (crashing other boards, Trojan horses, and spreading harmful viruses).
 
 Another way is to support the pirate community by working with boards and groups to help keep quality high and most importantly by contributing to it. There are always lots of people who want to be involved, but not as many who contribute. If there were more of a network, it would be easier to counter bad members, complex release situations, and to make it a more responsible participation. In the board message bases, contributing good information about releases and cracking groups, and how they operate, helps a lot.
 
