@@ -435,14 +435,12 @@ func releaserLead(uri string, data map[string]any) map[string]any {
 	switch uri {
 	case "independent":
 		data["lead"] = lism.String(lism.Path(uri)) +
-			", independent releases are files with no group or releaser affiliation." +
-			`<br><small class="fw-lighter">In the scene's early years,` +
-			` releasing documents or software cracks under a personal alias or a` +
-			` real-name attribution was commonplace.</small>`
+			", independent releases with no group or releaser affiliation. " +
+			"In the Scene's early years, releasing documents or software cracks under a personal alias " +
+			"or real-name attribution was commonplace."
 	case "none":
-		data["lead"] = "None, are files which were never intended for the scene." +
-			`<br><small class="fw-lighter">These can include commercial or free software` +
-			` applications, articles for the general public, and are often credited to a real name author.</small>`
+		data["lead"] = "Files never intended for the Scene, including commercial or free software " +
+			"applications and general-public articles often credited to a real-name author."
 	default:
 		// placeholder to handle other releaser types
 	}

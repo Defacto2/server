@@ -156,12 +156,8 @@ func scenerPage(ctx context.Context, sl *slog.Logger, c *echo.Context, db *sql.D
 	data["scenerGroups"] = groups
 	data["scenerLetters"] = letters
 	data["description"] = descr
-	data["lead"] = `<small class="fw-lighter">` +
-		"Here are Sceners and people credited in the artifacts we hold. " +
-		"However, these lists will never be accurate due to the sheer numbers, " +
-		"and the lack of a consistency by Sceners. " +
-		"Who often used different names and spellings in their work." +
-		"</small>"
+	data["lead"] = "Sceners and contributors credited in the archive. " +
+		"Because sceners often used multiple aliases and spellings, these lists are inherently incomplete."
 
 	if err = c.Render(http.StatusOK, scener, data); err != nil {
 		return InternalErr(sl, c, scener, err)
