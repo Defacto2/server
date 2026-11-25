@@ -1,40 +1,98 @@
-{{- /* 
+{{- /*
     pagination.tmpl ~ Pagination links for the lists of artifacts.
 */ -}}
 {{- define "paginationList" -}}
 {{- $base := .Pagination.BaseURL }}
 {{- if and (.Pagination) (gt .Pagination.SumPages 1)}}
     {{- if ge .Pagination.TwoBelow 2}}
-    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Control ←">
+    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Control + Left">
         <a class="page-link" href="{{$base}}/1" id="paginationStart">1</a>
     </li>
     {{- end}}
+    {{- if gt .Pagination.TwoBelow 2}}
+    <li class="page-item disabled" aria-hidden="true">
+        <span class="page-link">&hellip;</span>
+    </li>
+    {{- end}}
     {{- if ge .Pagination.TwoBelow 1}}
-    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Shift ←">
+    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Shift + Left">
         <a class="page-link" href="{{$base}}/{{.Pagination.TwoBelow}}" id="paginationPrev2">{{.Pagination.TwoBelow}}</a>
     </li>
     {{- end}}
     {{- if ge .Pagination.PrevPage 1}}
-    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="←">
+    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Left arrow">
         <a class="page-link" href="{{$base}}/{{.Pagination.PrevPage}}" id="paginationPrev">{{.Pagination.PrevPage}}</a>
     </li>
     {{- end -}}
     <li class="page-item active" aria-current="page">
-        <a class="page-link">{{.Pagination.CurrPage}}</a>
+        <span class="page-link">{{.Pagination.CurrPage}}</span>
     </li>
     {{- if (le .Pagination.NextPage .Pagination.SumPages)}}
-    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="→">
+    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Right arrow">
         <a class="page-link" href="{{$base}}/{{.Pagination.NextPage}}" id="paginationNext">{{.Pagination.NextPage}}</a>
     </li>
     {{- end}}
     {{- if (le .Pagination.TwoAfter .Pagination.SumPages)}}
-    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Shift →">
+    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Shift + Right">
         <a class="page-link" href="{{$base}}/{{.Pagination.TwoAfter}}" id="paginationNext2">{{.Pagination.TwoAfter}}</a>
     </li>
     {{- end}}
+    {{- if lt (add .Pagination.TwoAfter) .Pagination.SumPages}}
+    <li class="page-item disabled" aria-hidden="true">
+        <span class="page-link">&hellip;</span>
+    </li>
+    {{- end}}
     {{- if (lt .Pagination.TwoAfter .Pagination.SumPages)}}
-    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Control →">
+    <li class="page-item" data-bs-toggle="tooltip" data-bs-title="Control + Right">
         <a class="page-link" href="{{$base}}/{{.Pagination.SumPages}}" id="paginationEnd">{{.Pagination.SumPages}}</a>
+    </li>
+    {{- end}}
+{{- end}}
+{{- end}}
+{{- define "paginationListFooter" -}}
+{{- $base := .Pagination.BaseURL }}
+{{- if and (.Pagination) (gt .Pagination.SumPages 1)}}
+    {{- if ge .Pagination.TwoBelow 2}}
+    <li class="page-item">
+        <a class="page-link" href="{{$base}}/1">1</a>
+    </li>
+    {{- end}}
+    {{- if gt .Pagination.TwoBelow 2}}
+    <li class="page-item disabled" aria-hidden="true">
+        <span class="page-link">&hellip;</span>
+    </li>
+    {{- end}}
+    {{- if ge .Pagination.TwoBelow 1}}
+    <li class="page-item">
+        <a class="page-link" href="{{$base}}/{{.Pagination.TwoBelow}}">{{.Pagination.TwoBelow}}</a>
+    </li>
+    {{- end}}
+    {{- if ge .Pagination.PrevPage 1}}
+    <li class="page-item">
+        <a class="page-link" href="{{$base}}/{{.Pagination.PrevPage}}">{{.Pagination.PrevPage}}</a>
+    </li>
+    {{- end -}}
+    <li class="page-item active" aria-current="page">
+        <span class="page-link">{{.Pagination.CurrPage}}</span>
+    </li>
+    {{- if (le .Pagination.NextPage .Pagination.SumPages)}}
+    <li class="page-item">
+        <a class="page-link" href="{{$base}}/{{.Pagination.NextPage}}">{{.Pagination.NextPage}}</a>
+    </li>
+    {{- end}}
+    {{- if (le .Pagination.TwoAfter .Pagination.SumPages)}}
+    <li class="page-item">
+        <a class="page-link" href="{{$base}}/{{.Pagination.TwoAfter}}">{{.Pagination.TwoAfter}}</a>
+    </li>
+    {{- end}}
+    {{- if lt (add .Pagination.TwoAfter) .Pagination.SumPages}}
+    <li class="page-item disabled" aria-hidden="true">
+        <span class="page-link">&hellip;</span>
+    </li>
+    {{- end}}
+    {{- if (lt .Pagination.TwoAfter .Pagination.SumPages)}}
+    <li class="page-item">
+        <a class="page-link" href="{{$base}}/{{.Pagination.SumPages}}">{{.Pagination.SumPages}}</a>
     </li>
     {{- end}}
 {{- end}}

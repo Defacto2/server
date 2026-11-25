@@ -195,24 +195,31 @@ export function pagination(elementId) {
     return;
   }
   pageRange.addEventListener("change", function () {
-    changePage(pageRange.value);
+    changePage(pageRange.value, pageRange.dataset.baseUrl);
   });
   const label = `paginationRangeLabel`;
   const pageRangeLabel = document.getElementById(label);
   if (pageRangeLabel === null) {
     throw new Error(`The ${label} for pagination() element is null.`);
   }
+  const maxPages = pageRange.max;
   pageRange.addEventListener("input", function () {
-    pageRangeLabel.textContent = "Jump to page " + pageRange.value;
+    pageRangeLabel.textContent = maxPages
+      ? `Page ${pageRange.value} / ${maxPages}`
+      : `Page ${pageRange.value}`;
   });
 }
 
-function changePage(range) {
+function changePage(range, baseUrl) {
   const url = new URL(window.location.href);
-  const path = url.pathname;
-  const paths = path.split("/");
-  const page = paths[paths.length - 1];
-  if (!isNaN(page) && typeof Number(page) === "number") {
+  if (baseUrl) {
+    url.pathname = `${baseUrl.replace(/\/+$/, "")}/${range}`;
+    window.location.href = url.href;
+    return;
+  }
+  const paths = url.pathname.replace(/\/+$/, "").split("/");
+  const last = paths[paths.length - 1];
+  if (last !== "" && /^\d+$/.test(last)) {
     paths[paths.length - 1] = range;
   } else {
     paths.push(range);

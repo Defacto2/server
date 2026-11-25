@@ -28,71 +28,87 @@
 {{- $group := hasSuffix (index .title) " artifacts"}}
 {{- $breakline := false}}
 <div class="container-xxl">
-{{- if eq $cnt 0}}<p class="text-start lead"><small>There are no artifacts to display.</small></p>{{else -}}
-<p class="text-start lead"><small>There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if and (ne $years "0 - 0") (ne $years "the year 0")}} from {{$years | safeHTML}}{{end}}.</small></p>
+{{- if eq $cnt 0}}<p class="small text-body-secondary mb-2">There are no artifacts to display.</p>{{else -}}
+<p class="small text-body-secondary mb-2">There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if and (ne $years "0 - 0") (ne $years "the year 0")}} from {{$years | safeHTML}}{{end}}.</p>
 {{- end}}
 {{- if $linkTidbit}}
   <small class="fw-light">Additional information</small>
-  <ul class="list-group list-group-flush">{{$tidbit}}</ul>
+  <ul class="list-group list-group-flush mb-2">{{$tidbit}}</ul>
 {{- end}}
-{{- if or $linkZoo $link16C $linkWeb}}
-<div class="text-start text-sm-center text-md-end lead">
+{{- if or $linkZoo $link16C $linkjaneway $linkcsdb $linkWeb}}
+<div class="text-start text-sm-center text-md-end small text-body-secondary mb-2">
   {{-  if and (eq $bbs false) (eq $linkZoo true)}}
-  <small><small>Production and member lists</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
+  <div>Production and member lists: <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/groups/{{$zoo}}/" target="_blank" rel="noopener"><strong>Demozoo</strong>{{linkSVG}}</a></div>
   {{- else if and (eq $bbs true) (eq $linkZoo true)}}
-  <small><small>Staff, numbers, and affiliations</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/bbs/{{$zoo}}/"><strong>Demozoo</strong>{{linkSVG}}</a></small><br>
+  <div>Staff, numbers, and affiliations: <a class="link-offset-2 icon-link icon-link-hover" href="https://demozoo.org/bbs/{{$zoo}}/" target="_blank" rel="noopener"><strong>Demozoo</strong>{{linkSVG}}</a></div>
   {{- end}}
   {{- if $link16C}}
-  <small><small>ANSI and text artworks</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}"><strong>16colors</strong>{{linkSVG}}</a></small><br>
+  <div>ANSI and text artworks: <a class="link-offset-2 icon-link icon-link-hover" href="https://16colo.rs/{{$sixteen}}" target="_blank" rel="noopener"><strong>16colors</strong>{{linkSVG}}</a></div>
   {{- end}}
   {{- if $linkjaneway}}
-  <small><small>Amiga releases</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://janeway.exotica.org.uk/author.php?id={{$janeway}}"><strong>Kestra</strong>{{linkSVG}}</a></small><br>
+  <div>Amiga releases: <a class="link-offset-2 icon-link icon-link-hover" href="https://janeway.exotica.org.uk/author.php?id={{$janeway}}" target="_blank" rel="noopener"><strong>Kestra</strong>{{linkSVG}}</a></div>
   {{- end}}
   {{- if $linkcsdb}}
-  <small><small>C-64 releases</small> <a class="link-offset-2 icon-link icon-link-hover" href="https://csdb.dk/group/?id={{$csdb}}"><strong>csdb</strong>{{linkSVG}}</a></small><br>
+  <div>C-64 releases: <a class="link-offset-2 icon-link icon-link-hover" href="https://csdb.dk/group/?id={{$csdb}}" target="_blank" rel="noopener"><strong>csdb</strong>{{linkSVG}}</a></div>
   {{- end}}
   {{- if $linkWeb}}
     {{- $notworking := false }}
+    <div class="mt-1">
     {{- range $web }}
       {{- if and (ne .URL "") (eq .Error false ) }}
       {{- $breakline = true }}
-      <small><small><a class="link-offset-2 icon-link icon-link-hover" href="{{.URL}}"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a></small> &nbsp; </small>
+      <a class="link-offset-2 icon-link icon-link-hover me-2" href="{{.URL}}" target="_blank" rel="noopener"><strong>{{.Name}}</strong>{{websiteIcon .URL}}</a>
       {{- end}}
       {{- if and (ne .URL "") (eq .Error true ) }}
       {{- if eq $notworking false }}
         {{- $notworking = true }}
-        {{- if eq $breakline true }}<br>{{- end}}<small><small> &nbsp; ex-sites &nbsp; </small></small>
+        {{- if eq $breakline true }}<br>{{- end}}<span class="me-2">ex-sites:</span>
       {{- end }}
-      <small class="text-nowrap"><small><strong>{{.Name}}</strong> <span class="text-body-tertiary fw-lighter">{{.URL}}</span>.</small></small>
+      <span class="text-nowrap me-2"><strong>{{.Name}}</strong> <span class="text-body-tertiary">{{.URL}}</span></span>
       {{- end}}
     {{- end}}
+    </div>
   {{- end}}
 </div>
 {{- end}}
 </div>
 {{- if eq $cnt 0}}{{else -}}
 <div class="container-xxl mb-3">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-    <div class="d-flex flex-wrap align-items-center gap-2">
-      <span class="d-none d-lg-inline-block"><button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button></span>
-      {{- if and (eq $editor true) (ge $cnt 5)}}
-      <div class="dropdown" id="batch-open-dropdown">
-        <button type="button" id="batch-open-button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          Open mutltiple tabs
-        </button>
-        <ul class="dropdown-menu" id="batch-open-menu" aria-labelledby="batch-open-button"></ul>
+  <div class="bg-body-tertiary border rounded-2 px-2 py-2">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="d-none d-lg-inline-block"><button type="button" id="fluid-button" class="btn btn-sm btn-outline-secondary">Unlock columns</button></span>
+        {{- if and (eq $editor true) (ge $cnt 5)}}
+        <div class="dropdown" id="batch-open-dropdown">
+          <button type="button" id="batch-open-button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Open multiple tabs
+          </button>
+          <ul class="dropdown-menu" id="batch-open-menu" aria-labelledby="batch-open-button"></ul>
+        </div>
+        {{- end}}
       </div>
-      <span class="text-body-secondary small">Multiple tabs requires <em>Allowed to send pop-ups</em></span>
+      {{- if ge $cnt 3}}
+      <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+        <span class="small text-body-secondary text-nowrap font-monospace" id="artifact-count">{{$cnt}} {{if eq $cnt 1}}artifact{{else}}artifacts{{end}}</span>
+        <div class="input-group input-group-sm" style="width: 16rem; max-width: 100%;">
+          <input type="search" id="artifact-filter" class="form-control" placeholder="Filter this page..." aria-label="Filter artifacts on this page" autocomplete="off">
+          <button type="button" id="artifact-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
+        </div>
+      </div>
       {{- end}}
     </div>
-    {{- if ge $cnt 3}}
-    <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-      <span class="small text-body-secondary text-nowrap" id="artifact-count">{{$cnt}} {{if eq $cnt 1}}artifact{{else}}artifacts{{end}}</span>
-      <div class="input-group input-group-sm" style="width: 17rem; max-width: 100%;">
-        <input type="search" id="artifact-filter" class="form-control" placeholder="Filter this page..." aria-label="Filter artifacts on this page" autocomplete="off">
-        <button type="button" id="artifact-filter-clear" class="btn btn-outline-secondary" aria-label="Clear filter" disabled>Clear</button>
-      </div>
-    </div>
+    {{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
+    <nav class="border-top mt-2 pt-2 d-flex flex-wrap align-items-center gap-3" aria-label="Compact pagination navigation at the header">
+      <label for="paginationRange" id="paginationRangeLabel" class="form-label small font-monospace text-body-secondary text-nowrap mb-0">
+        Page {{.Pagination.CurrPage}} / {{.Pagination.SumPages}}
+      </label>
+      <input type="range" class="form-range w-auto flex-grow-1" style="min-width: 8rem;" id="paginationRange" name="paginationRange"
+        data-base-url="{{.Pagination.BaseURL}}"
+        min="1" max="{{index .Pagination.SumPages}}" value="{{index .Pagination.CurrPage}}" step="1">
+      <ul class="pagination pagination-sm mb-0 flex-shrink-0">
+        {{ template "paginationList" . }}
+      </ul>
+    </nav>
     {{- end}}
   </div>
   {{- if and (eq $editor true) (ge $cnt 5)}}
@@ -142,10 +158,10 @@
   {{- if eq .FileMagicType.String "ANSImation"}}{{$anim = animPreview .UUID.String}}{{end}}
   <div class="col artifact-item">
     <div class="card {{$cardClass}}"{{- if eq $editor true}} data-artifact-url="{{linkHref .ID}}"{{- end}}{{- if ne $anim ""}} data-anim-src="{{$anim}}"{{- end}}>
-      <div class="card-header text-body-secondary text-center text-truncate">
+      <div class="card-header bg-body-tertiary text-body-secondary text-center text-truncate py-2" title="{{$filename}}">
         <code class="h6 mb-0 text-break">{{if gt $counter 0}}{{$counter}} {{end}}{{$filename}}</code>
       </div>
-      <div class="card-body">
+      <div class="card-body py-3 d-flex flex-column">
         {{- $relrs := "" }}
         {{- if eq $noGroupLinks true }}{{ $relrs = nameRelrs .GroupBrandFor .GroupBrandBy }}{{ else }}{{ $relrs = linkRelrs .GroupBrandFor .GroupBrandBy }}{{ end }}
         {{- if eq $group true}}
@@ -155,16 +171,18 @@
         <h2 class="card-title text-truncate fs-5">{{$relrs}}</h2>
         {{subTitle .Section .RecordTitle false}}
         {{- end}}
-        <p class="card-text">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
-        <p class="card-text"><small class="text-body-secondary">{{lastUpdated .Updatedat}}</small></p>
+        <p class="card-text small mb-1">{{describe .Platform .Section .DateIssuedYear .DateIssuedMonth}}</p>
+        <p class="card-text mb-1"><small class="text-body-secondary">{{lastUpdated .Updatedat}}</small></p>
         {{- if ne $attr ""}}
-        <p class="card-text"><small class="text-body-secondary">{{$attr}}</small></p>
+        <p class="card-text mb-1"><small class="text-body-secondary">{{$attr}}</small></p>
         {{- end}}
-        <div class="d-flex flex-wrap align-items-baseline gap-3">
-          {{if and (gt $counter 0) (le $counter 9)}}{{- linkPage .ID $counter}}{{else}}{{- linkPage .ID ""}}{{end}}
-          <span class="text-nowrap">{{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}</span>
-          {{- linkPreview .ID .Filename.String .Platform.String}}
-          {{- if eq $jsdos true}}{{- linkRunApp .ID}}{{end}}
+        <div class="border-top pt-2 mt-auto">
+          <div class="d-flex flex-wrap align-items-baseline gap-3">
+            {{if and (gt $counter 0) (le $counter 9)}}{{- linkPage .ID $counter}}{{else}}{{- linkPage .ID ""}}{{end}}
+            <span class="text-nowrap">{{- linkDownload .ID .FileSecurityAlertURL.String }}{{ downloadB .Filesize}}</span>
+            {{- linkPreview .ID .Filename.String .Platform.String}}
+            {{- if eq $jsdos true}}{{- linkRunApp .ID}}{{end}}
+          </div>
         </div>
       </div>
       {{- if eq $editor true}}{{ template "artifactsedit" . }}{{end}}

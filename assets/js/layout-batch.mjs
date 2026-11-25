@@ -29,6 +29,13 @@ export default function batchOpenTabs() {
     const opened = loadOpened(storageKey);
     menu.textContent = '';
 
+    const note = document.createElement('li');
+    const noteHeader = document.createElement('h6');
+    noteHeader.className = 'dropdown-header text-wrap';
+    noteHeader.textContent = 'Requires Allowed to send pop-ups';
+    note.appendChild(noteHeader);
+    menu.appendChild(note);
+
     for (let start = 0; start < urls.length; start += BATCH_SIZE) {
       const end = Math.min(start + BATCH_SIZE, urls.length);
       const li = document.createElement('li');

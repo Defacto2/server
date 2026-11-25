@@ -456,8 +456,8 @@ func TestArtifactTemplatesRender(t *testing.T) {
 	be.True(t, strings.Contains(out, `<meta name="twitter:site" content="@Defacto2">`))
 	be.True(t, strings.Contains(out, `<meta name="twitter:image" content="https://defacto2.net/`))
 	be.True(t, strings.Contains(out, `name="artifact-editor-pouetundo"`))
-	be.True(t, strings.Contains(out, `<h1 class="fs-1 fw-light mb-2 container-xxl">Beyond Akira BBS</h1>`))
-	be.True(t, strings.Contains(out, `<p class="lead mb-3 container-xxl">`))
+	be.True(t, strings.Contains(out, `<h1 class="h2 fw-semibold mb-1 container-xxl">Beyond Akira BBS</h1>`))
+	be.True(t, strings.Contains(out, `<p class="text-body-secondary mb-2 container-xxl">`))
 	be.True(t, strings.Contains(out, `<div class="container-xxl">`))
 
 	data["contentBinary"] = "<div><span>XB</span></div>"
@@ -785,6 +785,7 @@ func TestArtifactsTemplate(t *testing.T) {
 		ParseFiles(
 			filepath.Join("..", "..", "view", "app", "artifacts.tmpl"),
 			filepath.Join("..", "..", "view", "app", "artifactsedit.tmpl"),
+			filepath.Join("..", "..", "view", "app", "pagination.tmpl"),
 		)
 	be.Err(t, err, nil)
 

@@ -294,8 +294,8 @@
   The database is down, this means the website is not fully working. We are working on it.
 </div>{{- end}}
 {{- if ne $logo "" -}}
-<div class="d-flex justify-content-center" id="logo-container">
-<pre class="text-start text-bg-dark rounded font-dos px-1 py-2" id="logo-text">
+<div class="d-flex justify-content-center mb-2" id="logo-container">
+<pre class="text-start text-bg-dark rounded font-dos px-1 py-2 mb-0" id="logo-text">
   {{- /*  
     the monospace brand logo should be padded with the Bootstrap classes
     and not with pre whitespace characters */ -}}
@@ -304,34 +304,25 @@
 </pre>
 </div>
 {{- end}}
-{{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
-<nav aria-label="Compact pagination navigation at the header">
-  <ul class="pagination pagination-sm justify-content-end mb-0">
-    {{ template "paginationList" . }}
-  </ul>
-  <div>
-    <input type="range" class="form-range" id="paginationRange" name="paginationRange" 
-      min="1" max="{{index .Pagination.SumPages}}" value="{{index .Pagination.CurrPage}}" step="{{index .Pagination.RangeStep}}" />
-    <label for="paginationRange" id="paginationRangeLabel" class="form-label">&nbsp;</label>
-  </div>
-</nav>
-{{- end }}
 <main>
     {{- if ne $h1 ""}}
-    <h1 class="fs-1 fw-light mb-2 container-xxl">{{$h1}}{{if ne $h1sub ""}} <small class="text-body-secondary fw-light">{{$h1sub}}</small>{{end}}</h1>
+    <h1 class="h2 fw-semibold mb-1 container-xxl">{{$h1}}{{if ne $h1sub ""}} <span class="text-body-secondary fw-normal">{{$h1sub}}</span>{{end}}</h1>
     {{- end}}
     {{- if ne $lead ""}}
-    <p class="lead mb-3 container-xxl">
+    <p class="text-body-secondary mb-2 container-xxl">
       {{ $lead | safeHTML }}
     </p>
     {{- end}}
     {{- block "content" . -}}{{ "<!-- Content here -->" | safeHTML -}}{{end}}
 </main>
 {{- if and (.Pagination) (gt (index .Pagination.SumPages) 1)}}
-<nav aria-label="Pagination navigation at the footer">
-  <ul class="pagination justify-content-end mt-4">
-    {{ template "paginationList" . }}
-  </ul>
+<nav class="container-xxl mt-4" aria-label="Pagination navigation at the footer">
+  <div class="bg-body-tertiary border rounded-2 px-3 py-1 d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <span class="small font-monospace text-body-secondary">Page {{.Pagination.CurrPage}} / {{.Pagination.SumPages}}</span>
+    <ul class="pagination pagination-sm mb-0">
+      {{ template "paginationListFooter" . }}
+    </ul>
+  </div>
 </nav>
 {{- end }}
 <footer class="font-dos text-end mt-3 me-1">

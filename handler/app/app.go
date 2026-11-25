@@ -215,7 +215,7 @@ func ByteFileS(name string, count, bytes any) template.HTML {
 	}
 
 	p := message.NewPrinter(language.English)
-	s := p.Sprint(strconv.Itoa(n))
+	s := p.Sprint(n)
 
 	b, ok := parseValI64(bytes)
 	if !ok {
