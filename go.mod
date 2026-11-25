@@ -56,7 +56,7 @@ require (
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/dustin/go-humanize v1.1.0
 	github.com/friendsofgo/errors v0.9.2
-	github.com/gomarkdown/markdown v0.0.0-20261117205700-e8c6d33a8b6c
+	github.com/gomarkdown/markdown v0.0.0-20261124143954-1814b856890d
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.4.0
 	github.com/h2non/filetype v1.1.3
@@ -76,11 +76,11 @@ require (
 	golang.org/x/image v0.48.0
 	golang.org/x/sync v0.25.0
 	golang.org/x/text v0.44.0
-	google.golang.org/api v0.316.0
+	google.golang.org/api v0.317.0
 )
 
 require (
-	cloud.google.com/go/auth v0.24.4 // indirect
+	cloud.google.com/go/auth v0.24.5 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.3.1 // indirect
 	cloud.google.com/go/compute/metadata v0.10.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
@@ -139,7 +139,7 @@ require (
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	go.opentelemetry.io/otel/trace v1.47.0 // indirect
-	go.uber.org/nilaway v0.0.0-20261122021050-7f797c9f2b67 // indirect
+	go.uber.org/nilaway v0.0.0-20261124161746-91ad9bf5d8e6 // indirect
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260908205506-85c1c2202aba // indirect
 	golang.org/x/mod v0.43.0 // indirect
@@ -150,7 +150,7 @@ require (
 	golang.org/x/time v0.16.0 // indirect
 	golang.org/x/tools v0.52.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261118221215-c8830f628b3f // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261123191846-1e707ab9fbc2 // indirect
 	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	mvdan.cc/gofumpt v0.9.2 // indirect

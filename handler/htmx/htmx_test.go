@@ -60,15 +60,15 @@ func TestDemozooLookup(t *testing.T) {
 	db := testutil.DB(t)
 	c := testutil.NewInput(t,
 		"/demozoo/production", "demozoo-submission", existing)
-	err := htmx.Demozoo.Lookup(c, db, false)
-	be.Err(t, err)
-
 	c.Set("zooauth", "")
-	err = htmx.Demozoo.Lookup(c, db, false)
+	err := htmx.Demozoo.Lookup(c, db, false)
 	be.Err(t, err, nil)
 
 	c = testutil.NewInput(t,
 		"/demozoo/production", "demozoo-submission", newrecord)
+	err = htmx.Demozoo.Lookup(c, db, false)
+	be.Err(t, err)
+
 	c.Set("zooauth", "")
 	err = htmx.Demozoo.Lookup(c, db, false)
 	be.Err(t, err, nil)

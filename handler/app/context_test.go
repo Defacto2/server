@@ -165,7 +165,8 @@ func TestFn4(t *testing.T) {
 			got := fn(sl, c, db)
 
 			switch n {
-			case 11:
+			case 9, 10, 11:
+				// PlatformEdit/TagEdit return HTTP 400 JSON; PostFilename redirects.
 				be.Err(t, got, nil)
 			default:
 				be.Err(t, got)

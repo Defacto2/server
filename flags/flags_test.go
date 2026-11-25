@@ -10,9 +10,10 @@ import (
 	"github.com/nalgeon/be"
 )
 
-func TestRun(t *testing.T) {
-	t.Parallel()
+// Note: urfave/cli/v2 mutates package-level HelpFlag and VersionFlag during
+// app.Run, so tests that invoke Run cannot use t.Parallel().
 
+func TestRun(t *testing.T) {
 	ec, err := flags.Run(nil, "", nil)
 	be.Err(t, err)
 	be.Equal(t, flags.UsageErr, ec)
@@ -24,8 +25,6 @@ func TestRun(t *testing.T) {
 }
 
 func TestVersionRelease(t *testing.T) {
-	t.Parallel()
-
 	s := flags.VersionRelease("")
 	be.Equal(t, "0.0.0 αlpha", s)
 
@@ -44,8 +43,6 @@ func TestVersionRelease(t *testing.T) {
 }
 
 func TestAppHelpDescriptionAndWriter(t *testing.T) {
-	t.Parallel()
-
 	var buf bytes.Buffer
 	app := flags.App(&buf, "1.0.0", &config.Config{TLSPort: 8443})
 	be.Err(t, app.Run([]string{flags.Program, "--help"}), nil)
