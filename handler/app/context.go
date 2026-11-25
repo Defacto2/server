@@ -3157,10 +3157,10 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 		MaxYear:  sql.NullInt16{Int16: 0, Valid: false},
 	}
 	err := m.ByMatch(ctx, exec, uri)
-	if err != nil && !errors.Is(err, model.ErrURI) {
-		return nil, 0, nil
-	}
-	if errors.Is(err, model.ErrURI) {
+	if err != nil {
+		if !errors.Is(err, model.ErrURI) {
+			return nil, 0, fmt.Errorf(format, uri, err)
+		}
 		if err := statsByURI(ctx, exec, uri, &m); err != nil {
 			return nil, 0, err
 		}
@@ -3168,7 +3168,7 @@ func stats(ctx context.Context, exec boil.ContextExecutor, uri string) (map[stri
 
 	d := map[string]string{
 		files: string(ByteFileS(ffile, m.SumCount.Int64, m.SumBytes.Int64)),
-		years: strconv.Itoa(int(m.MinYear.Int16)) + " - " + strconv.Itoa(int(m.MaxYear.Int16)),
+		years: helper.Years(m.MinYear.Int16, m.MaxYear.Int16),
 	}
 	return d, int(m.SumCount.Int64), nil
 }
