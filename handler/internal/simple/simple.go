@@ -206,7 +206,7 @@ func DemozooGetLink(filename, filesize, demozoo, unid any) template.HTML {
 		return ""
 	}
 
-	return template.HTML(`clone the demozoo assets`)
+	return template.HTML(`failed to fetch demozoo assets`)
 }
 
 // DownloadInBytes returns a human readable string of the file size.
