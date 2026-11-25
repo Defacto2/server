@@ -146,7 +146,6 @@
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Scene releases texts and NFO files" href="/files/nfo" rel="nofollow">Releases</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Text art of the 1990s" href="/files/ansi" rel="nofollow">Ansi art</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Text art of the 1990s for the Commodore" href="/files/text-amiga" rel="nofollow">Amiga art</a></li>
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Adverts for bulletin board systems" href="/files/bbs" rel="nofollow">BBS ads</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">More</h6></li>
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Artifact topics, tags, and classifications" href="/file" rel="nofollow">Categories</a></li>
@@ -168,18 +167,29 @@
                 <li><a class="dropdown-item" href="/releaser/year">Releasers {{year}}</a></li>
                 <li><a class="dropdown-item" href="/releaser/a-z" rel="nofollow">Releasers {{az}}</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Products</h6></li>
+                <li><h6 class="dropdown-header">Magazines</h6></li>
                 <li><a class="dropdown-item" href="/magazine">Magazines</a></li>
                 <li><a class="dropdown-item" href="/magazine/a-z" rel="nofollow">Magazines {{az}}</a></li>
                 <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">Releases</h6></li>
+                <li><a class="dropdown-item" href="/files/one-offs" rel="nofollow">One offs</a></li>
+                <li><a class="dropdown-item" href="/files/one-offs/a-z" rel="nofollow">One offs {{az}}</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                BBS
+              </a>
+              <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Sites</h6></li>
                 <li><a class="dropdown-item" href="/bbs">BBS sites</a></li>
                 <li><a class="dropdown-item" href="/bbs/year" rel="nofollow">BBS sites {{year}}</a></li>
                 <li><a class="dropdown-item" href="/bbs/a-z" rel="nofollow">BBS sites {{az}}</a></li>
                 <li><a class="dropdown-item" href="/ftp">FTP sites {{az}}</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Releases</h6></li>
-                <li><a class="dropdown-item" href="/files/one-offs" rel="nofollow">One offs</a></li>
-                <li><a class="dropdown-item" href="/files/one-offs/a-z" rel="nofollow">One offs {{az}}</a></li>
+                <li><h6 class="dropdown-header">Resources</h6></li>
+                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Adverts for bulletin board systems" href="/files/bbs" rel="nofollow">BBS ads</a></li>
+                <li><a class="dropdown-item" href="/areacodes">BBS area codes</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -208,21 +218,8 @@
                 <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="A wayback machine for defunct Scene webpages" href="https://wayback.defacto2.net/" rel="nofollow">Wayback mirrors</a></li>
               </ul>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Search
-              </a>
-              <ul class="dropdown-menu">
-                <li><a id="layout-search-program" class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for the name of a game or app, or the artifact comment" href="/search/desc" rel="nofollow">Games and a<u>p</u>ps</a></li>
-                <li><a id="layout-search-groups" class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup groups, magazines, BBS names, etc." href="/search/releaser" rel="nofollow"><u>G</u>roups<small> or names</small></a></li>
-                <li><a id="layout-search-filename" class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Search for filenames or file extensions" href="/search/file" rel="nofollow">File<u>n</u>ames</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Lookup</h6></li>
-                {{- if $editor }}
-                <li><a class="dropdown-item" data-bs-toggle="tooltip" data-bs-title="Lookup an artifact by its database keys" href="/editor/search/id" rel="nofollow"><em>ID</em> or <em>UUID</em></a></li>
-                {{- end }}
-                <li><a class="dropdown-item" href="/areacodes">BBS area codes</a></li>
-              </ul>
+            <li class="nav-item">
+              <a class="nav-link" href="/search/desc" rel="nofollow">Search</a>
             </li>
           </ul>
         </div>
@@ -238,8 +235,8 @@
                 <li><a class="dropdown-item" href="/new" rel="nofollow" data-bs-toggle="tooltip" data-bs-title="A casual list of updates to the website">What's new</a></li>
                 <li><a class="dropdown-item" href="/history" data-bs-toggle="tooltip" data-bs-title="Who or what is Defacto2?">Brand history</a></li>
                 <li><a class="dropdown-item" href="/credits">Credits</a></li>
+                <li><a class="dropdown-item" href="/thanks">Thanks</a></li>
                 <li><a class="dropdown-item" href="/policy">Privacy &amp; copyright</a></li>
-                <li class="d-xl-none"><a class="dropdown-item" href="/thanks">Thanks</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -258,9 +255,9 @@
                 <li><a class="dropdown-item" href="/apps">Using apps today</a></li>
                 <li><a class="dropdown-item" href="/compression">Old file archiving</a></li>
                 <li><a class="dropdown-item" href="/fixes">Problems and fixes</a></li>
-                <li class="d-xl-none"><hr class="dropdown-divider"></li>
-                <li class="d-xl-none"><h6 class="dropdown-header">API</h6></li>
-                <li class="d-xl-none"><a class="dropdown-item" href="/api">RESTful API</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><h6 class="dropdown-header">API</h6></li>
+                <li><a class="dropdown-item" href="/api">RESTful API</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">GitHub</h6></li>
                 <li>{{ linkRemoteTip "https://github.com/Defacto2/server" "Get the web code" "Our GitHub repository for this site" }}</li>
@@ -272,12 +269,6 @@
               <button type="button" class="nav-link" data-bs-toggle="modal" data-bs-target="#contact-modal">
                 Contact
               </button>
-            </li>
-            <li class="nav-item d-none d-xl-block">
-              <a class="nav-link" href="/api">API</a>
-            </li>
-            <li class="nav-item d-none d-xl-block">
-              <a class="nav-link" href="/thanks">Thanks</a>
             </li>
           </ul>
           {{- template "layoutup" . }}

@@ -10,10 +10,7 @@ const start = document.getElementById("paginationStart"),
   previousPair = document.getElementById("paginationPrev2"),
   next = document.getElementById("paginationNext"),
   nextPair = document.getElementById("paginationNext2"),
-  end = document.getElementById("paginationEnd"),
-  srchP = document.getElementById("layout-search-program"),
-  srchN = document.getElementById("layout-search-filename"),
-  srchG = document.getElementById("layout-search-groups");
+  end = document.getElementById("paginationEnd");
 /**
  * Binds keyboard shortcuts to specific actions.
  */
@@ -63,24 +60,18 @@ export function keyboardShortcuts() {
       switch (event.key) {
         case "P":
         case "p":
-          if (srchP) {
-            event.preventDefault();
-            srchP.click();
-          }
+          event.preventDefault();
+          window.location.href = "/search/desc";
           break;
         case "G":
         case "g":
-          if (srchG) {
-            event.preventDefault();
-            srchG.click();
-          }
+          event.preventDefault();
+          window.location.href = "/search/releaser";
           break;
         case "N":
         case "n":
-          if (srchN) {
-            event.preventDefault();
-            srchN.click();
-          }
+          event.preventDefault();
+          window.location.href = "/search/file";
           break;
         case "1":
         case "!":

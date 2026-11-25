@@ -368,7 +368,7 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 
 	ids, uuids, prefixes := ParseSearchIDs(search)
 	if len(ids) == 0 && len(uuids) == 0 && len(prefixes) == 0 {
-		return c.HTML(http.StatusOK, "No artifacts found.")
+		return c.HTML(http.StatusOK, `<p class="small text-body-secondary mb-0">No matching artifacts found.</p>`)
 	}
 
 	ctx := c.Request().Context()
@@ -380,7 +380,7 @@ func SearchByID(sl *slog.Logger, c *echo.Context, db *sql.DB) error {
 	}
 
 	if len(fs) == 0 {
-		return c.HTML(http.StatusOK, "No artifacts found.")
+		return c.HTML(http.StatusOK, `<p class="small text-body-secondary mb-0">No matching artifacts found.</p>`)
 	}
 	if len(fs) > maxResults {
 		fs = fs[:maxResults]
@@ -540,7 +540,7 @@ func SearchReleaser(sl *slog.Logger, c *echo.Context, db *sql.DB, ft *fulltext.T
 
 	// no results
 	if len(r) == 0 && len(tidbits) == 0 {
-		return c.HTML(http.StatusOK, "No initialisms or releasers found.")
+		return c.HTML(http.StatusOK, `<p class="small text-body-secondary mb-0">No matching groups or names found.</p>`)
 	}
 
 	err := c.Render(http.StatusOK, "searchreleasers", map[string]any{

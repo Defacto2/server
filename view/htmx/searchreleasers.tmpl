@@ -38,11 +38,15 @@
   {{- end }}
 </div>
 {{- end }}
-{{- if ge (len .result) $maximum }}
-<p class="small text-body-secondary text-center mb-1">Showing the first {{$maximum}} releaser matches.</p>
-{{- end }}
-{{- if gt (len .result) 1 }}
-<div class="small text-body-secondary text-center">Open results using a keyboard: <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>...</kbd></div>
+{{- if or (ge (len .result) $maximum) (gt (len .result) 1) }}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 small text-body-secondary">
+  {{- if ge (len .result) $maximum }}
+  <span>Showing the first {{$maximum}} releaser matches.</span>
+  {{- end }}
+  {{- if gt (len .result) 1 }}
+  <span class="d-none d-md-inline ms-auto">Open results with keyboard: <kbd>alt+shift</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>...</kbd></span>
+  {{- end }}
+</div>
 {{- end }}
 {{- if and .fulltext (gt (len .fulltext) 0) }}
 <hr class="my-4">

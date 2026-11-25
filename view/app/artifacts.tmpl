@@ -26,9 +26,76 @@
 {{- $editor := index .editor}}
 {{- $noGroupLinks := index . "noGroupLinks"}}
 {{- $group := hasSuffix (index .title) " artifacts"}}
+{{- $searchMode := index . "searchMode"}}
+{{- $searchQuery := index . "searchQuery"}}
+{{- $searchTruncated := index . "searchTruncated"}}
+{{- $searchLimit := index . "searchLimit"}}
+{{- $isSearchDesc := eq $searchMode "desc"}}
+{{- $isSearchFile := eq $searchMode "file"}}
+{{- $isSearch := or $isSearchDesc $isSearchFile}}
 <div class="container-xxl">
-{{- if eq $cnt 0}}<p class="small text-body-secondary mb-2">There are no artifacts to display.</p>{{else -}}
-<p class="small text-body-secondary mb-2">There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if and (ne $years "0 - 0") (ne $years "the year 0")}} from {{$years | safeHTML}}{{end}}.</p>
+{{- if $isSearch}}
+<div class="bg-body-tertiary border rounded-2 px-3 py-3 mb-3">
+  <nav class="d-flex flex-wrap align-items-center gap-3 small mb-2" aria-label="Search categories">
+    <span class="text-body-secondary fw-medium">Search in:</span>
+    <a class="{{if $isSearchDesc}}fw-semibold text-body text-decoration-none{{else}}link-underline link-underline-opacity-0 link-underline-opacity-75-hover{{end}}" href="/search/desc" rel="nofollow"{{if $isSearchDesc}} aria-current="page"{{end}}>Titles &amp; comments</a>
+    <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/search/releaser" rel="nofollow">Groups &amp; names</a>
+    <a class="{{if $isSearchFile}}fw-semibold text-body text-decoration-none{{else}}link-underline link-underline-opacity-0 link-underline-opacity-75-hover{{end}}" href="/search/file" rel="nofollow"{{if $isSearchFile}} aria-current="page"{{end}}>Filenames</a>
+    {{- if $editor}}
+    <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/editor/search/id" rel="nofollow">ID / UUID</a>
+    {{- end}}
+  </nav>
+  <form method="get" action="{{if $isSearchDesc}}/search/desc{{else}}/search/file{{end}}" id="search-post-form">
+    <label class="visually-hidden" for="search-term-query">{{index . "title"}}</label>
+    <div class="input-group">
+      <input type="search" spellcheck="false" autocomplete="off" class="form-control"
+        id="search-term-query" name="query" value="{{$searchQuery}}"
+        placeholder="{{if $isSearchDesc}}Example: ultima 7, ultima 8{{else}}Example: .iff, .tif, read.me{{end}}">
+      <button type="button" id="search-post-clear" class="btn btn-outline-secondary"{{if eq $searchQuery ""}} disabled{{end}}>Clear</button>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+    <div class="form-text mb-0">Separate multiple queries with commas.</div>
+  </form>
+</div>
+<script>
+(() => {
+  const form = document.getElementById('search-post-form');
+  const input = document.getElementById('search-term-query');
+  const clearBtn = document.getElementById('search-post-clear');
+  if (!form || !input || !clearBtn) return;
+
+  function syncClear() {
+    clearBtn.disabled = input.value === '';
+  }
+
+  form.addEventListener('submit', (e) => {
+    if (input.value.trim() === '') {
+      e.preventDefault();
+      input.focus();
+    }
+  });
+  input.addEventListener('input', syncClear);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && input.value !== '') {
+      e.preventDefault();
+      input.value = '';
+      syncClear();
+    }
+  });
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    syncClear();
+    input.focus();
+  });
+  window.addEventListener('pageshow', syncClear);
+  syncClear();
+})();
+</script>
+{{- end}}
+{{- if eq $cnt 0}}
+{{- if $isSearch}}<p class="small text-body-secondary mb-2">No artifacts matched <strong>{{$searchQuery}}</strong>.</p>{{else}}<p class="small text-body-secondary mb-2">There are no artifacts to display.</p>{{end}}
+{{- else -}}
+<p class="small text-body-secondary mb-2">There {{if eq $cnt 1}}is{{else}}are{{end}} {{$files | safeHTML}}{{if and (ne $years "0 - 0") (ne $years "the year 0")}} from {{$years | safeHTML}}{{end}}.{{if $searchTruncated}} Showing the first {{$searchLimit}} matches.{{end}}</p>
 {{- end}}
 {{- if $linkTidbit}}
 <section class="tidbit-section border-top border-bottom py-3 mb-3" id="tidbit-card">

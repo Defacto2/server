@@ -1,4 +1,4 @@
-{{- /* 
+{{- /*
     searchhtmx.tmpl ~ Search results using htmx.
 */ -}}
 {{- define "content" }}
@@ -9,58 +9,48 @@
 {{- $isID := or (eq $mode "id") (eq $hxpost "/editor/search/id") }}
 {{- $placeholder := index . "inputPlaceholder" }}
 {{- $helper := index . "helpText" }}
-<div class="row justify-content-center my-2">
-  <div class="col-md-10 col-lg-8 col-xl-7">
-    <div class="card shadow-sm">
-      <div class="card-header bg-body-tertiary py-2 px-3">
-        <nav class="nav nav-pills gap-1" aria-label="Search categories">
-          <a class="nav-link py-1 px-2 small" href="/search/desc" rel="nofollow">Titles &amp; comments</a>
-          <a class="nav-link py-1 px-2 small{{if $isReleaser}} active{{end}}" href="/search/releaser" rel="nofollow"{{if $isReleaser}} aria-current="page"{{end}}>Groups &amp; names</a>
-          <a class="nav-link py-1 px-2 small" href="/search/file" rel="nofollow">Filenames</a>
-          {{- if or (index . "editor") $isID }}
-          <a class="nav-link py-1 px-2 small{{if $isID}} active{{end}}" href="/editor/search/id" rel="nofollow"{{if $isID}} aria-current="page"{{end}}>ID / UUID</a>
-          {{- end }}
-        </nav>
-      </div>
-      <div class="card-body p-4">
-        <h1 class="h3 fw-normal mb-1">{{$title}}</h1>
-        {{- with index . "info" }}
-        <p class="text-body-secondary mb-3">{{.}}</p>
+<div class="container-xxl">
+  <div class="bg-body-tertiary border rounded-2 px-3 py-3 mb-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+      <nav class="d-flex flex-wrap align-items-center gap-3 small" aria-label="Search categories">
+        <span class="text-body-secondary fw-medium">Search in:</span>
+        <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/search/desc" rel="nofollow">Titles &amp; comments</a>
+        <a class="{{if $isReleaser}}fw-semibold text-body text-decoration-none{{else}}link-underline link-underline-opacity-0 link-underline-opacity-75-hover{{end}}" href="/search/releaser" rel="nofollow"{{if $isReleaser}} aria-current="page"{{end}}>Groups &amp; names</a>
+        <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/search/file" rel="nofollow">Filenames</a>
+        {{- if or (index . "editor") $isID }}
+        <a class="{{if $isID}}fw-semibold text-body text-decoration-none{{else}}link-underline link-underline-opacity-0 link-underline-opacity-75-hover{{end}}" href="/editor/search/id" rel="nofollow"{{if $isID}} aria-current="page"{{end}}>ID / UUID</a>
         {{- end }}
-        <label class="visually-hidden" for="search-htmx-input">{{$title}}</label>
-        <div class="input-group mb-2">
-          <span class="input-group-text">
-            <span id="search-htmx-indicator" class="htmx-indicator spinner-border spinner-border-sm text-secondary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </span>
-          </span>
-          {{/*  
-              1. use "input changed" to allow triggering from copy/paste text.
-              2. use "delay:500ms" to reduce the number of requests.
-              3. use "type:search" purely for aesthetics.
-              4. autofocus is used as the search is the main focus.
-              5. spellcheck is disabled to prevent red underlines with oddball scene names.
-              6. hx-post is a requirement otherwise the search will significantly slow down.
-          */}}
-          <input class="form-control" type="search"
-            spellcheck="false" autocomplete="off" autofocus
-            name="htmx-search" placeholder="{{$placeholder}}"
-            id="search-htmx-input"
-            hx-post="{{$hxpost}}"
-            hx-trigger="input changed delay:500ms, search"
-            hx-target="#search-htmx-results"
-            hx-indicator="#search-htmx-indicator">
-          <button type="button" id="search-htmx-clear" class="btn btn-outline-secondary" disabled>Clear</button>
-        </div>
-        {{- if ne $helper "" }}
-        <div class="form-text">{{$helper}}</div>
-        {{- end }}
-      </div>
+      </nav>
+      <span id="search-htmx-indicator" class="htmx-indicator small text-body-secondary d-inline-flex align-items-center gap-1" role="status">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>Searching...</span>
+      </span>
     </div>
-    <div id="search-htmx-alert" class="alert alert-danger d-none mt-3 mb-0" role="alert"></div>
+    <label class="visually-hidden" for="search-htmx-input">{{$title}}</label>
+    <div class="input-group">
+      {{/*
+          1. use "input changed" to allow triggering from copy/paste text.
+          2. use "delay:500ms" to reduce the number of requests.
+          3. use "type:search" purely for aesthetics.
+          4. autofocus is used as the search is the main focus.
+          5. spellcheck is disabled to prevent red underlines with oddball scene names.
+          6. hx-post is a requirement otherwise the search will significantly slow down.
+      */}}
+      <input class="form-control" type="search"
+        spellcheck="false" autocomplete="off" autofocus
+        name="htmx-search" placeholder="{{$placeholder}}"
+        id="search-htmx-input"
+        hx-post="{{$hxpost}}"
+        hx-trigger="input changed delay:500ms, search"
+        hx-target="#search-htmx-results"
+        hx-indicator="#search-htmx-indicator">
+      <button type="button" id="search-htmx-clear" class="btn btn-outline-secondary" disabled>Clear</button>
+    </div>
+    {{- if ne $helper "" }}
+    <div class="form-text mb-0">{{$helper}}</div>
+    {{- end }}
   </div>
-</div>
-<div class="row mt-4">
-  <div class="col-12" id="search-htmx-results"></div>
+  <div id="search-htmx-alert" class="alert alert-danger d-none mb-3" role="alert"></div>
+  <div id="search-htmx-results"></div>
 </div>
 {{- end }}

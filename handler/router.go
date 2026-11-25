@@ -561,12 +561,26 @@ func (serv *Server) search(sl *slog.Logger, e *echo.Echo, db *sql.DB) *echo.Echo
 	}
 
 	search := e.Group("/search")
-	search.GET("/desc", func(c *echo.Context) error { return app.SearchDesc(sl, c) })
-	search.GET("/file", func(c *echo.Context) error { return app.SearchFile(sl, c) })
+	search.GET("/desc", func(c *echo.Context) error {
+		if q := strings.TrimSpace(c.QueryParam("query")); q != "" {
+			return app.PostDesc(sl, c, db, q)
+		}
+		return app.SearchDesc(sl, c)
+	})
+	search.GET("/file", func(c *echo.Context) error {
+		if q := strings.TrimSpace(c.QueryParam("query")); q != "" {
+			return app.PostFilename(sl, c, db)
+		}
+		return app.SearchFile(sl, c)
+	})
 	search.GET("/releaser", func(c *echo.Context) error { return app.SearchReleaser(sl, c) })
 	search.GET("/result", opensearch)
 	search.POST("/desc", func(c *echo.Context) error {
-		return app.PostDesc(sl, c, db, c.FormValue("search-term-query"))
+		q := c.FormValue("search-term-query")
+		if q == "" {
+			q = c.FormValue("query")
+		}
+		return app.PostDesc(sl, c, db, q)
 	})
 	search.POST("/file", func(c *echo.Context) error {
 		return app.PostFilename(sl, c, db)

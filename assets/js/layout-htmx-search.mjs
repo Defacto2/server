@@ -19,6 +19,15 @@ export function searchEvents() {
 
   function syncClear() {
     clear.disabled = input.value === "";
+    if (input.value.trim() === "") {
+      if (typeof htmx !== "undefined") {
+        htmx.trigger(input, "htmx:abort");
+      }
+      const results = document.getElementById("search-htmx-results");
+      if (results !== null) {
+        results.innerHTML = "";
+      }
+    }
   }
 
   input.addEventListener("input", syncClear);
@@ -30,6 +39,14 @@ export function searchEvents() {
     }
   });
   clear.addEventListener("click", clearer);
+  document.body.addEventListener("htmx:before:swap", (event) => {
+    const ctx = event.detail?.ctx;
+    const elt = ctx?.sourceElement ?? event.detail?.elt ?? null;
+    if (elt !== input) return;
+    if (input.value.trim() === "") {
+      event.preventDefault();
+    }
+  });
   window.addEventListener("pageshow", syncClear);
   syncClear();
 }
@@ -53,7 +70,10 @@ export function clearer() {
   }
   const results = document.getElementById("search-htmx-results");
   if (results === null) {
-    throw new Error(`The htmx search indicator element is null`);
+    throw new Error(`The htmx search results element is null`);
+  }
+  if (typeof htmx !== "undefined") {
+    htmx.trigger(input, "htmx:abort");
   }
   input.value = "";
   input.focus();

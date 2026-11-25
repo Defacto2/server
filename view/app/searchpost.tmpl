@@ -4,53 +4,51 @@
 {{- define "content" }}
 {{- $title := index . "title" }}
 {{- $mode := index . "searchMode" }}
-{{- $isDesc := or (eq $mode "desc") (eq $title "Game or app titles search") }}
-{{- $isFile := or (eq $mode "file") (eq $title "Filename or extensions search") }}
-<div class="row justify-content-center my-2">
-  <div class="col-md-10 col-lg-8 col-xl-7">
-    <div class="card shadow-sm">
-      <div class="card-header bg-body-tertiary py-2 px-3">
-        <nav class="nav nav-pills gap-1" aria-label="Search categories">
-          <a class="nav-link py-1 px-2 small{{if $isDesc}} active{{end}}" href="/search/desc" rel="nofollow"{{if $isDesc}} aria-current="page"{{end}}>Titles &amp; comments</a>
-          <a class="nav-link py-1 px-2 small" href="/search/releaser" rel="nofollow">Groups &amp; names</a>
-          <a class="nav-link py-1 px-2 small{{if $isFile}} active{{end}}" href="/search/file" rel="nofollow"{{if $isFile}} aria-current="page"{{end}}>Filenames</a>
-          {{- if index . "editor" }}
-          <a class="nav-link py-1 px-2 small" href="/editor/search/id" rel="nofollow">ID / UUID</a>
-          {{- end }}
-        </nav>
+{{- $isDesc := eq $mode "desc" }}
+{{- $isFile := eq $mode "file" }}
+<div class="container-xxl">
+  <div class="bg-body-tertiary border rounded-2 px-3 py-3 mb-3">
+    <nav class="d-flex flex-wrap align-items-center gap-3 small mb-2" aria-label="Search categories">
+      <span class="text-body-secondary fw-medium">Search in:</span>
+      <a class="{{if $isDesc}}fw-semibold text-body text-decoration-none{{else}}link-underline link-underline-opacity-0 link-underline-opacity-75-hover{{end}}" href="/search/desc" rel="nofollow"{{if $isDesc}} aria-current="page"{{end}}>Titles &amp; comments</a>
+      <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/search/releaser" rel="nofollow">Groups &amp; names</a>
+      <a class="{{if $isFile}}fw-semibold text-body text-decoration-none{{else}}link-underline link-underline-opacity-0 link-underline-opacity-75-hover{{end}}" href="/search/file" rel="nofollow"{{if $isFile}} aria-current="page"{{end}}>Filenames</a>
+      {{- if index . "editor" }}
+      <a class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="/editor/search/id" rel="nofollow">ID / UUID</a>
+      {{- end }}
+    </nav>
+    <form method="get" action="{{if $isDesc}}/search/desc{{else}}/search/file{{end}}" id="search-post-form">
+      <label class="visually-hidden" for="search-term-query">{{$title}}</label>
+      <div class="input-group">
+        <input type="search" autofocus spellcheck="false" autocomplete="off" class="form-control"
+          id="search-term-query" name="query"
+          placeholder="{{if $isDesc}}Example: ultima 7, ultima 8{{else}}Example: .iff, .tif, read.me{{end}}">
+        <button type="button" id="search-post-clear" class="btn btn-outline-secondary" disabled>Clear</button>
+        <button type="submit" class="btn btn-primary">Search</button>
       </div>
-      <div class="card-body p-4">
-        <h1 class="h3 fw-normal mb-1">{{$title}}</h1>
-        {{- with index . "info" }}
-        <p class="text-body-secondary mb-3">{{.}}</p>
-        {{- end }}
-        <form method="post">
-          <label class="visually-hidden" for="search-term-query">{{$title}}</label>
-          <div class="input-group mb-2">
-            <button type="submit" class="btn btn-primary">Search</button>
-            <input type="search" autofocus spellcheck="false" autocomplete="off" class="form-control"
-              id="search-term-query" name="search-term-query"
-              placeholder="{{if $isDesc}}Example: ultima 7, ultima 8{{else}}Example: .iff, .tif, read.me{{end}}">
-            <button type="button" id="search-post-clear" class="btn btn-outline-secondary" disabled>Clear</button>
-          </div>
-          <div class="form-text">
-            Separate multiple queries with commas
-          </div>
-        </form>
+      <div class="form-text mb-0">
+        Separate multiple queries with commas.
       </div>
-    </div>
+    </form>
   </div>
 </div>
 <script>
 (() => {
+  const form = document.getElementById('search-post-form');
   const input = document.getElementById('search-term-query');
   const clearBtn = document.getElementById('search-post-clear');
-  if (!input || !clearBtn) return;
+  if (!form || !input || !clearBtn) return;
 
   function syncClear() {
     clearBtn.disabled = input.value === '';
   }
 
+  form.addEventListener('submit', (e) => {
+    if (input.value.trim() === '') {
+      e.preventDefault();
+      input.focus();
+    }
+  });
   input.addEventListener('input', syncClear);
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && input.value !== '') {
