@@ -18,7 +18,21 @@ import (
 	"github.com/aarondl/sqlboiler/v4/boil"
 )
 
-const StatsTTL = 10 * time.Minute // Stats time to live
+const (
+	StatsTTL  = 10 * time.Minute // Stats time to live
+	YearlyMin = 1980             // YearlyMin is the first year included in the yearly release series.
+	YearlyMax = 2010             // YearlyMax is the last year included in the yearly release series.
+)
+
+// YearlyPoint holds aggregate release counts and bytes for a single calendar year.
+type YearlyPoint struct {
+	Year    int   `json:"year"`
+	Total   int   `json:"total"`
+	Bytes   int64 `json:"bytes"`
+	DOS     int   `json:"dos"`
+	Windows int   `json:"windows"`
+	Text    int   `json:"text"`
+}
 
 var (
 	statsCache     Stats
@@ -51,6 +65,7 @@ type Stats struct {
 	Script    model.Script
 	Text      model.Text
 	Windows   model.Windows
+	Yearly    []YearlyPoint
 }
 
 const categoryStatsSQL = `SELECT
@@ -63,6 +78,17 @@ const categoryStatsSQL = `SELECT
 FROM files
 WHERE deletedat IS NULL
 GROUP BY BTRIM(section), BTRIM(platform)`
+
+const yearlyStatsSQL = `SELECT
+	date_issued_year,
+	COALESCE(BTRIM(platform), ''),
+	COUNT(*),
+	COALESCE(SUM(filesize), 0)
+FROM files
+WHERE deletedat IS NULL
+  AND date_issued_year BETWEEN 1980 AND 2010
+GROUP BY date_issued_year, BTRIM(platform)
+ORDER BY date_issued_year ASC`
 
 func addStat(bytes, count, minYear, maxYear *int, rowBytes, rowCount, rowMin, rowMax int) {
 	*bytes += rowBytes
@@ -177,8 +203,56 @@ func (s *Stats) Get(ctx context.Context, sl *slog.Logger, exec boil.ContextExecu
 	if err := rows.Err(); err != nil {
 		return fmt.Errorf(format, "rows", err)
 	}
+
+	if err := s.getYearly(ctx, exec, pDOS, pWindows, pANSI, pText); err != nil {
+		return fmt.Errorf(format, "yearly", err)
+	}
 	s.Record.UpdatedAt = time.Now()
 
+	return nil
+}
+
+func (s *Stats) getYearly(ctx context.Context, exec boil.ContextExecutor, pDOS, pWindows, pANSI, pText string) error {
+	rows, err := exec.QueryContext(ctx, yearlyStatsSQL)
+	if err != nil {
+		return fmt.Errorf("query: %w", err)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	points := make([]YearlyPoint, YearlyMax-YearlyMin+1)
+	for i := range points {
+		points[i].Year = YearlyMin + i
+	}
+
+	for rows.Next() {
+		var yr, cnt int
+		var plat string
+		var sz int64
+		if err := rows.Scan(&yr, &plat, &cnt, &sz); err != nil {
+			return fmt.Errorf("scan: %w", err)
+		}
+		if yr < YearlyMin || yr > YearlyMax {
+			continue
+		}
+		pt := &points[yr-YearlyMin]
+		pt.Total += cnt
+		pt.Bytes += sz
+		switch plat {
+		case pDOS:
+			pt.DOS += cnt
+		case pWindows:
+			pt.Windows += cnt
+		case pANSI, pText:
+			pt.Text += cnt
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("rows: %w", err)
+	}
+
+	s.Yearly = points
 	return nil
 }
 

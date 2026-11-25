@@ -37,6 +37,33 @@
         </div>
     </div>
 
+    {{- with index . "statYearly" }}
+    <div class="card mb-4" id="yearly-chart-card" data-yearly="{{ . }}">
+        <div class="card-header bg-body-tertiary d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
+            <div class="d-flex flex-wrap align-items-baseline gap-2">
+                <span class="small fw-semibold">Releases by year (1980&ndash;2010)</span>
+                <span class="small font-monospace text-body-secondary" id="yearly-chart-summary"></span>
+            </div>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Yearly chart view">
+                <button type="button" class="btn btn-primary" data-chart-mode="total" aria-pressed="true">All releases</button>
+                <button type="button" class="btn btn-outline-secondary" data-chart-mode="platform" aria-pressed="false">By platform</button>
+                <button type="button" class="btn btn-outline-secondary" data-chart-mode="bytes" aria-pressed="false">Archive size</button>
+            </div>
+        </div>
+        <div class="card-body px-3 py-3 position-relative">
+            <div id="yearly-chart-legend" class="d-none flex-wrap align-items-center gap-3 small text-body-secondary mb-2">
+                <span class="d-inline-flex align-items-center gap-1"><span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background: #0d6efd;"></span>MS-DOS</span>
+                <span class="d-inline-flex align-items-center gap-1"><span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background: #198754;"></span>ANSI &amp; Text</span>
+                <span class="d-inline-flex align-items-center gap-1"><span class="d-inline-block rounded-circle" style="width: 10px; height: 10px; background: #d97706;"></span>Windows</span>
+            </div>
+            <div class="position-relative" id="yearly-chart-wrap">
+                <svg id="yearly-chart-svg" viewBox="0 0 880 250" class="w-100 d-block" style="height: auto; overflow: visible;" role="img" aria-label="Line graph of scene releases per year from 1980 to 2010"></svg>
+                <div id="yearly-chart-tip" class="position-absolute bg-body border rounded shadow-sm px-2 py-1 small d-none pe-none" style="z-index: 5; min-width: 9.5rem;"></div>
+            </div>
+        </div>
+    </div>
+    {{- end }}
+
     <div class="card">
         <div class="card-header bg-body-tertiary d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
             <div class="d-flex flex-wrap align-items-center gap-2">
@@ -139,6 +166,293 @@
       sortRows(btn.dataset.statSort, btn.dataset.statDir);
     });
   });
+})();
+
+(() => {
+  const card = document.getElementById('yearly-chart-card');
+  const svg = document.getElementById('yearly-chart-svg');
+  const tip = document.getElementById('yearly-chart-tip');
+  const legend = document.getElementById('yearly-chart-legend');
+  const summaryEl = document.getElementById('yearly-chart-summary');
+  if (!card || !svg || !tip) return;
+
+  let data = [];
+  try {
+    data = JSON.parse(card.dataset.yearly || '[]');
+  } catch {
+    return;
+  }
+  if (!Array.isArray(data) || data.length < 2) return;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = 880, H = 250;
+  const pad = { top: 16, right: 18, bottom: 30, left: 60 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+
+  const modeBtns = Array.from(card.querySelectorAll('[data-chart-mode]'));
+  let mode = 'total';
+
+  function el(tag, attrs = {}, text = '') {
+    const node = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v));
+    if (text !== '') node.textContent = text;
+    return node;
+  }
+
+  function fmtBytes(b) {
+    if (b <= 0) return '0 B';
+    const units = ['B', 'kB', 'MB', 'GB', 'TB'];
+    const i = Math.min(units.length - 1, Math.floor(Math.log(b) / Math.log(1024)));
+    const val = b / Math.pow(1024, i);
+    return `${val >= 100 || i === 0 ? Math.round(val) : val.toFixed(1)} ${units[i]}`;
+  }
+
+  function fmtCount(n) {
+    return n.toLocaleString();
+  }
+
+  function niceMax(val) {
+    if (val <= 0) return 4;
+    const pow = Math.pow(10, Math.floor(Math.log10(val)));
+    const norm = val / pow;
+    const step = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10;
+    return step * pow;
+  }
+
+  function getSeries(m) {
+    if (m === 'platform') {
+      return [
+        { key: 'dos', label: 'MS-DOS', color: '#0d6efd' },
+        { key: 'text', label: 'ANSI & Text', color: '#198754' },
+        { key: 'windows', label: 'Windows', color: '#d97706' },
+      ];
+    }
+    if (m === 'bytes') {
+      return [{ key: 'bytes', label: 'Archive size', color: '#6c757d', fill: true }];
+    }
+    return [{ key: 'total', label: 'Releases', color: '#0d6efd', fill: true }];
+  }
+
+  function xFor(i) {
+    return pad.left + (i / (data.length - 1)) * plotW;
+  }
+
+  function render() {
+    svg.replaceChildren();
+    const series = getSeries(mode);
+    const isBytes = mode === 'bytes';
+
+    if (legend) {
+      legend.classList.toggle('d-none', mode !== 'platform');
+      legend.classList.toggle('d-flex', mode === 'platform');
+    }
+
+    let rawMax = 0;
+    let peakPt = data[0];
+    let peakVal = -1;
+    for (const pt of data) {
+      for (const s of series) {
+        if (pt[s.key] > rawMax) rawMax = pt[s.key];
+      }
+      const v = isBytes ? pt.bytes : pt.total;
+      if (v > peakVal) {
+        peakVal = v;
+        peakPt = pt;
+      }
+    }
+    const maxY = isBytes ? Math.max(1024, niceMax(rawMax)) : niceMax(rawMax);
+    const yFor = (v) => pad.top + plotH - (v / maxY) * plotH;
+
+    if (summaryEl && peakPt) {
+      summaryEl.textContent = isBytes
+        ? `Peak: ${peakPt.year} (${fmtBytes(peakPt.bytes)})`
+        : `Peak: ${peakPt.year} (${fmtCount(peakPt.total)} files)`;
+    }
+
+    const defs = el('defs');
+    for (const s of series) {
+      if (!s.fill) continue;
+      const grad = el('linearGradient', { id: `grad-${s.key}`, x1: '0', y1: '0', x2: '0', y2: '1' });
+      grad.appendChild(el('stop', { offset: '0%', 'stop-color': s.color, 'stop-opacity': '0.22' }));
+      grad.appendChild(el('stop', { offset: '100%', 'stop-color': s.color, 'stop-opacity': '0.02' }));
+      defs.appendChild(grad);
+    }
+    svg.appendChild(defs);
+
+    // Horizontal gridlines & Y labels
+    const ticks = 4;
+    for (let t = 0; t <= ticks; t++) {
+      const val = (maxY / ticks) * t;
+      const y = yFor(val);
+      svg.appendChild(el('line', {
+        x1: pad.left, y1: y, x2: W - pad.right, y2: y,
+        stroke: 'var(--bs-border-color, #dee2e6)',
+        'stroke-dasharray': t === 0 ? '' : '3 3',
+        'stroke-width': 1,
+      }));
+      const lbl = isBytes ? fmtBytes(val) : (val >= 1000 ? `${(val / 1000).toFixed(val % 1000 === 0 ? 0 : 1)}k` : String(Math.round(val)));
+      svg.appendChild(el('text', {
+        x: pad.left - 8, y: y + 4,
+        'text-anchor': 'end',
+        fill: 'var(--bs-secondary-color, #6c757d)',
+        'font-size': 11,
+        'font-family': 'var(--bs-font-monospace, monospace)',
+      }, lbl));
+    }
+
+    // X-axis 5-year labels
+    for (let i = 0; i < data.length; i++) {
+      const yr = data[i].year;
+      if (yr % 5 !== 0 && i !== 0 && i !== data.length - 1) continue;
+      const x = xFor(i);
+      svg.appendChild(el('line', {
+        x1: x, y1: pad.top + plotH, x2: x, y2: pad.top + plotH + 4,
+        stroke: 'var(--bs-border-color, #dee2e6)', 'stroke-width': 1,
+      }));
+      svg.appendChild(el('text', {
+        x, y: H - 8,
+        'text-anchor': 'middle',
+        fill: 'var(--bs-secondary-color, #6c757d)',
+        'font-size': 11,
+        'font-family': 'var(--bs-font-monospace, monospace)',
+      }, String(yr)));
+    }
+
+    // Area fills & lines
+    for (const s of series) {
+      const pts = data.map((pt, i) => `${xFor(i).toFixed(1)},${yFor(pt[s.key]).toFixed(1)}`);
+      if (s.fill) {
+        const areaD = `M ${xFor(0).toFixed(1)},${(pad.top + plotH).toFixed(1)} L ${pts.join(' L ')} L ${xFor(data.length - 1).toFixed(1)},${(pad.top + plotH).toFixed(1)} Z`;
+        svg.appendChild(el('path', { d: areaD, fill: `url(#grad-${s.key})` }));
+      }
+      svg.appendChild(el('path', {
+        d: `M ${pts.join(' L ')}`,
+        fill: 'none',
+        stroke: s.color,
+        'stroke-width': 2.25,
+        'stroke-linejoin': 'round',
+        'stroke-linecap': 'round',
+      }));
+    }
+
+    // Hover crosshair & dots
+    const hoverGroup = el('g', { style: 'display:none;' });
+    const vline = el('line', {
+      y1: pad.top, y2: pad.top + plotH,
+      stroke: 'var(--bs-secondary-color, #6c757d)',
+      'stroke-dasharray': '3 3',
+      'stroke-width': 1,
+    });
+    hoverGroup.appendChild(vline);
+    const dots = series.map((s) => {
+      const c = el('circle', { r: 4, fill: s.color, stroke: 'var(--bs-body-bg, #fff)', 'stroke-width': 2 });
+      hoverGroup.appendChild(c);
+      return c;
+    });
+    svg.appendChild(hoverGroup);
+
+    const hit = el('rect', {
+      x: pad.left, y: pad.top, width: plotW, height: plotH,
+      fill: 'transparent', style: 'cursor:crosshair;',
+    });
+    svg.appendChild(hit);
+
+    function showAt(clientX) {
+      const rect = svg.getBoundingClientRect();
+      const svgX = ((clientX - rect.left) / rect.width) * W;
+      const ratio = Math.max(0, Math.min(1, (svgX - pad.left) / plotW));
+      const idx = Math.round(ratio * (data.length - 1));
+      const pt = data[idx];
+      const cx = xFor(idx);
+
+      hoverGroup.style.display = '';
+      vline.setAttribute('x1', cx);
+      vline.setAttribute('x2', cx);
+      series.forEach((s, si) => {
+        dots[si].setAttribute('cx', cx);
+        dots[si].setAttribute('cy', yFor(pt[s.key]));
+      });
+
+      tip.replaceChildren();
+      const head = document.createElement('div');
+      head.className = 'fw-semibold font-monospace border-bottom pb-1 mb-1';
+      head.textContent = String(pt.year);
+      tip.appendChild(head);
+
+      if (mode === 'platform') {
+        for (const s of series) {
+          const row = document.createElement('div');
+          row.className = 'd-flex justify-content-between gap-3';
+          const lbl = document.createElement('span');
+          lbl.style.color = s.color;
+          lbl.textContent = s.label;
+          const val = document.createElement('span');
+          val.className = 'font-monospace';
+          val.textContent = fmtCount(pt[s.key]);
+          row.append(lbl, val);
+          tip.appendChild(row);
+        }
+        const tot = document.createElement('div');
+        tot.className = 'd-flex justify-content-between gap-3 border-top mt-1 pt-1 text-body-secondary';
+        const tLbl = document.createElement('span');
+        tLbl.textContent = 'Total';
+        const tVal = document.createElement('span');
+        tVal.className = 'font-monospace';
+        tVal.textContent = fmtCount(pt.total);
+        tot.append(tLbl, tVal);
+        tip.appendChild(tot);
+      } else {
+        const row1 = document.createElement('div');
+        row1.className = 'd-flex justify-content-between gap-3';
+        const l1 = document.createElement('span');
+        l1.className = 'text-body-secondary';
+        l1.textContent = 'Files';
+        const v1 = document.createElement('span');
+        v1.className = 'font-monospace';
+        v1.textContent = fmtCount(pt.total);
+        row1.append(l1, v1);
+
+        const row2 = document.createElement('div');
+        row2.className = 'd-flex justify-content-between gap-3';
+        const l2 = document.createElement('span');
+        l2.className = 'text-body-secondary';
+        l2.textContent = 'Size';
+        const v2 = document.createElement('span');
+        v2.className = 'font-monospace';
+        v2.textContent = fmtBytes(pt.bytes);
+        row2.append(l2, v2);
+        tip.append(row1, row2);
+      }
+
+      tip.classList.remove('d-none');
+      const pxX = (cx / W) * rect.width;
+      const flipLeft = idx > data.length * 0.65;
+      tip.style.left = flipLeft ? `${Math.max(8, pxX - tip.offsetWidth - 12)}px` : `${pxX + 12}px`;
+      tip.style.top = '12px';
+    }
+
+    hit.addEventListener('pointermove', (e) => showAt(e.clientX));
+    hit.addEventListener('pointerleave', () => {
+      hoverGroup.style.display = 'none';
+      tip.classList.add('d-none');
+    });
+  }
+
+  modeBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      mode = btn.dataset.chartMode;
+      modeBtns.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle('btn-primary', active);
+        b.classList.toggle('btn-outline-secondary', !active);
+        b.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      render();
+    });
+  });
+
+  render();
 })();
 </script>
 {{- else }}

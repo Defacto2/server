@@ -7,6 +7,7 @@ package app
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -356,6 +357,11 @@ func fileWStats(ctx context.Context, sl *slog.Logger, db *sql.DB, data PageData,
 	data["counter"] = c
 	data["statSummary"] = summary
 	data["statRows"] = rows
+	if len(c.Yearly) > 0 {
+		if b, mErr := json.Marshal(c.Yearly); mErr == nil {
+			data["statYearly"] = string(b)
+		}
+	}
 	data.SetHeader(title, title, descr, title, descr)
 
 	return data, nil
