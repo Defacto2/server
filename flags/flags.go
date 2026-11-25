@@ -26,13 +26,13 @@ import (
 )
 
 const (
-	Title      = "Defacto2 web application"         // Title of this program.
-	Domain     = "defacto2.net"                     // Domain of the website.
+	Title      = "Defacto2 web application"           // Title of this program.
+	Domain     = "defacto2.net"                       // Domain of the website.
 	Repository = "https://github.com/Defacto2/server" // Repository is the GitHub URL for this project.
-	Program    = "defacto2-server"                  // Program is the command line name of this program.
-	Author     = "Ben Garrett"                      // Author is the primary programmer of this program.
-	Email      = "contact@defacto2.net"             // Email contact for public display.
-	RecentYear = 2026                               // Most recent year of compilation for this program.
+	Program    = "defacto2-server"                    // Program is the command line name of this program.
+	Author     = "Ben Garrett"                        // Author is the primary programmer of this program.
+	Email      = "contact@defacto2.net"               // Email contact for public display.
+	RecentYear = 2026                                 // Most recent year of compilation for this program.
 
 	catInspection  = "Inspection"
 	catMaintenance = "Maintenance"

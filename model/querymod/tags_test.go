@@ -252,4 +252,3 @@ func TestMAnimationReturnsValidMagic(t *testing.T) {
 	be.True(t, result.Valid)
 	be.Equal(t, result.String, "ANSImation")
 }
-

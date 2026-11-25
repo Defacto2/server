@@ -32,21 +32,21 @@ type Pagination struct {
 // read keys directly while Go handlers benefit from compile-time key and type safety.
 type PageData map[string]any
 
-func (p PageData) SetTitle(s string)           { p["title"] = s }
-func (p PageData) SetH1(s string)              { p["h1"] = s }
-func (p PageData) SetSubheading(s string)      { p["subheading"] = s }
-func (p PageData) SetLead(s string)            { p["lead"] = s }
-func (p PageData) SetLeadHTML(h template.HTML) { p["lead"] = h }
-func (p PageData) SetLogo(s string)            { p["logo"] = s }
-func (p PageData) SetDescription(s string)     { p["description"] = s }
-func (p PageData) SetCanonical(s string)       { p[canonical] = s }
-func (p PageData) SetCarousel(s string)        { p["carousel"] = s }
-func (p PageData) SetOGTitle(s string)         { p["ogtitle"] = s }
-func (p PageData) SetNoIndex(v bool)           { p["noindex"] = v }
-func (p PageData) SetDatabaseErr(v bool)       { p["databaseErr"] = v }
-func (p PageData) SetPagination(pg Pagination) { p["Pagination"] = pg }
+func (p PageData) SetTitle(s string)            { p["title"] = s }
+func (p PageData) SetH1(s string)               { p["h1"] = s }
+func (p PageData) SetSubheading(s string)       { p["subheading"] = s }
+func (p PageData) SetLead(s string)             { p["lead"] = s }
+func (p PageData) SetLeadHTML(h template.HTML)  { p["lead"] = h }
+func (p PageData) SetLogo(s string)             { p["logo"] = s }
+func (p PageData) SetDescription(s string)      { p["description"] = s }
+func (p PageData) SetCanonical(s string)        { p[canonical] = s }
+func (p PageData) SetCarousel(s string)         { p["carousel"] = s }
+func (p PageData) SetOGTitle(s string)          { p["ogtitle"] = s }
+func (p PageData) SetNoIndex(v bool)            { p["noindex"] = v }
+func (p PageData) SetDatabaseErr(v bool)        { p["databaseErr"] = v }
+func (p PageData) SetPagination(pg Pagination)  { p["Pagination"] = pg }
 func (p PageData) SetStats(s map[string]string) { p["stats"] = s }
-func (p PageData) SetRecords(r any)            { p[records] = r }
+func (p PageData) SetRecords(r any)             { p[records] = r }
 
 // SetHeader sets the core page metadata fields in a single call.
 func (p PageData) SetHeader(title, h1, lead, logo, description string) {

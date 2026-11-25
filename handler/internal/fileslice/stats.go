@@ -90,14 +90,69 @@ WHERE deletedat IS NULL
 GROUP BY date_issued_year, BTRIM(platform)
 ORDER BY date_issued_year ASC`
 
-func addStat(bytes, count, minYear, maxYear *int, rowBytes, rowCount, rowMin, rowMax int) {
-	*bytes += rowBytes
-	*count += rowCount
-	if rowMin > 0 && (*minYear == 0 || rowMin < *minYear) {
-		*minYear = rowMin
+type statRow struct {
+	sect, plat          string
+	cnt, sz, minY, maxY int
+}
+
+type statBucket struct {
+	bytes, count, minYear, maxYear *int
+}
+
+func newBucket(bytes, count, minYear, maxYear *int) statBucket {
+	return statBucket{
+		bytes:   bytes,
+		count:   count,
+		minYear: minYear,
+		maxYear: maxYear,
 	}
-	if rowMax > *maxYear {
-		*maxYear = rowMax
+}
+
+func (b statBucket) add(r statRow) {
+	*b.bytes += r.sz
+	*b.count += r.cnt
+	if r.minY > 0 && (*b.minYear == 0 || r.minY < *b.minYear) {
+		*b.minYear = r.minY
+	}
+	if r.maxY > *b.maxYear {
+		*b.maxYear = r.maxY
+	}
+}
+
+func (s *Stats) sectionBuckets(uris map[tags.Tag]string) map[string]statBucket {
+	return map[string]statBucket{
+		uris[tags.BBS]:     newBucket(&s.BBS.Bytes, &s.BBS.Count, &s.BBS.MinYear, &s.BBS.MaxYear),
+		uris[tags.Demo]:    newBucket(&s.Demoscene.Bytes, &s.Demoscene.Count, &s.Demoscene.MinYear, &s.Demoscene.MaxYear),
+		uris[tags.Install]: newBucket(&s.Installer.Bytes, &s.Installer.Count, &s.Installer.MinYear, &s.Installer.MaxYear),
+		uris[tags.Intro]:   newBucket(&s.Intro.Bytes, &s.Intro.Count, &s.Intro.MinYear, &s.Intro.MaxYear),
+		uris[tags.Mag]:     newBucket(&s.Magazine.Bytes, &s.Magazine.Count, &s.Magazine.MinYear, &s.Magazine.MaxYear),
+		uris[tags.Nfo]:     newBucket(&s.Nfo.Bytes, &s.Nfo.Count, &s.Nfo.MinYear, &s.Nfo.MaxYear),
+		uris[tags.NfoTool]: newBucket(&s.NfoTool.Bytes, &s.NfoTool.Count, &s.NfoTool.MinYear, &s.NfoTool.MaxYear),
+		uris[tags.Proof]:   newBucket(&s.Proof.Bytes, &s.Proof.Count, &s.Proof.MinYear, &s.Proof.MaxYear),
+	}
+}
+
+func (s *Stats) platformBuckets(uris map[tags.Tag]string) map[string]statBucket {
+	return map[string]statBucket{
+		uris[tags.ANSI]:    newBucket(&s.Ansi.Bytes, &s.Ansi.Count, &s.Ansi.MinYear, &s.Ansi.MaxYear),
+		uris[tags.Console]: newBucket(&s.Console.Bytes, &s.Console.Count, &s.Console.MinYear, &s.Console.MaxYear),
+		uris[tags.DOS]:     newBucket(&s.MsDos.Bytes, &s.MsDos.Count, &s.MsDos.MinYear, &s.MsDos.MaxYear),
+		uris[tags.Java]:    newBucket(&s.Java.Bytes, &s.Java.Count, &s.Java.MinYear, &s.Java.MaxYear),
+		uris[tags.Linux]:   newBucket(&s.Linux.Bytes, &s.Linux.Count, &s.Linux.MinYear, &s.Linux.MaxYear),
+		uris[tags.Mac]:     newBucket(&s.Macos.Bytes, &s.Macos.Count, &s.Macos.MinYear, &s.Macos.MaxYear),
+		uris[tags.PHP]:     newBucket(&s.Script.Bytes, &s.Script.Count, &s.Script.MinYear, &s.Script.MaxYear),
+		uris[tags.Text]:    newBucket(&s.Text.Bytes, &s.Text.Count, &s.Text.MinYear, &s.Text.MaxYear),
+		uris[tags.Windows]: newBucket(&s.Windows.Bytes, &s.Windows.Count, &s.Windows.MinYear, &s.Windows.MaxYear),
+	}
+}
+
+func (s *Stats) pairBuckets(uris map[tags.Tag]string) map[[2]string]statBucket {
+	return map[[2]string]statBucket{
+		{uris[tags.BBS], uris[tags.ANSI]}:      newBucket(&s.AnsiBBS.Bytes, &s.AnsiBBS.Count, &s.AnsiBBS.MinYear, &s.AnsiBBS.MaxYear),
+		{uris[tags.BBS], uris[tags.Text]}:      newBucket(&s.BBSText.Bytes, &s.BBSText.Count, &s.BBSText.MinYear, &s.BBSText.MaxYear),
+		{uris[tags.BBS], uris[tags.DOS]}:       newBucket(&s.BBStro.Bytes, &s.BBStro.Count, &s.BBStro.MinYear, &s.BBStro.MaxYear),
+		{uris[tags.Intro], uris[tags.DOS]}:     newBucket(&s.IntroD.Bytes, &s.IntroD.Count, &s.IntroD.MinYear, &s.IntroD.MaxYear),
+		{uris[tags.Intro], uris[tags.Windows]}: newBucket(&s.IntroW.Bytes, &s.IntroW.Count, &s.IntroW.MinYear, &s.IntroW.MaxYear),
 	}
 }
 
@@ -117,94 +172,32 @@ func (s *Stats) Get(ctx context.Context, sl *slog.Logger, exec boil.ContextExecu
 	}()
 
 	uris := tags.URIs()
-	var (
-		sBBS     = uris[tags.BBS]
-		sDemo    = uris[tags.Demo]
-		sInstall = uris[tags.Install]
-		sIntro   = uris[tags.Intro]
-		sMag     = uris[tags.Mag]
-		sNfo     = uris[tags.Nfo]
-		sNfoTool = uris[tags.NfoTool]
-		sProof   = uris[tags.Proof]
-		pANSI    = uris[tags.ANSI]
-		pConsole = uris[tags.Console]
-		pDOS     = uris[tags.DOS]
-		pJava    = uris[tags.Java]
-		pLinux   = uris[tags.Linux]
-		pMac     = uris[tags.Mac]
-		pScript  = uris[tags.PHP]
-		pText    = uris[tags.Text]
-		pWindows = uris[tags.Windows]
-	)
+	record := newBucket(&s.Record.Bytes, &s.Record.Count, &s.Record.MinYear, &s.Record.MaxYear)
+	bySection := s.sectionBuckets(uris)
+	byPlatform := s.platformBuckets(uris)
+	byPair := s.pairBuckets(uris)
 
 	for rows.Next() {
-		var sect, plat string
-		var cnt, sz, minY, maxY int
-		if err := rows.Scan(&sect, &plat, &cnt, &sz, &minY, &maxY); err != nil {
+		var r statRow
+		if err := rows.Scan(&r.sect, &r.plat, &r.cnt, &r.sz, &r.minY, &r.maxY); err != nil {
 			return fmt.Errorf(format, "scan", err)
 		}
-
-		addStat(&s.Record.Bytes, &s.Record.Count, &s.Record.MinYear, &s.Record.MaxYear, sz, cnt, minY, maxY)
-
-		switch sect {
-		case sBBS:
-			addStat(&s.BBS.Bytes, &s.BBS.Count, &s.BBS.MinYear, &s.BBS.MaxYear, sz, cnt, minY, maxY)
-			switch plat {
-			case pANSI:
-				addStat(&s.AnsiBBS.Bytes, &s.AnsiBBS.Count, &s.AnsiBBS.MinYear, &s.AnsiBBS.MaxYear, sz, cnt, minY, maxY)
-			case pText:
-				addStat(&s.BBSText.Bytes, &s.BBSText.Count, &s.BBSText.MinYear, &s.BBSText.MaxYear, sz, cnt, minY, maxY)
-			case pDOS:
-				addStat(&s.BBStro.Bytes, &s.BBStro.Count, &s.BBStro.MinYear, &s.BBStro.MaxYear, sz, cnt, minY, maxY)
-			}
-		case sDemo:
-			addStat(&s.Demoscene.Bytes, &s.Demoscene.Count, &s.Demoscene.MinYear, &s.Demoscene.MaxYear, sz, cnt, minY, maxY)
-		case sInstall:
-			addStat(&s.Installer.Bytes, &s.Installer.Count, &s.Installer.MinYear, &s.Installer.MaxYear, sz, cnt, minY, maxY)
-		case sIntro:
-			addStat(&s.Intro.Bytes, &s.Intro.Count, &s.Intro.MinYear, &s.Intro.MaxYear, sz, cnt, minY, maxY)
-			switch plat {
-			case pDOS:
-				addStat(&s.IntroD.Bytes, &s.IntroD.Count, &s.IntroD.MinYear, &s.IntroD.MaxYear, sz, cnt, minY, maxY)
-			case pWindows:
-				addStat(&s.IntroW.Bytes, &s.IntroW.Count, &s.IntroW.MinYear, &s.IntroW.MaxYear, sz, cnt, minY, maxY)
-			}
-		case sMag:
-			addStat(&s.Magazine.Bytes, &s.Magazine.Count, &s.Magazine.MinYear, &s.Magazine.MaxYear, sz, cnt, minY, maxY)
-		case sNfo:
-			addStat(&s.Nfo.Bytes, &s.Nfo.Count, &s.Nfo.MinYear, &s.Nfo.MaxYear, sz, cnt, minY, maxY)
-		case sNfoTool:
-			addStat(&s.NfoTool.Bytes, &s.NfoTool.Count, &s.NfoTool.MinYear, &s.NfoTool.MaxYear, sz, cnt, minY, maxY)
-		case sProof:
-			addStat(&s.Proof.Bytes, &s.Proof.Count, &s.Proof.MinYear, &s.Proof.MaxYear, sz, cnt, minY, maxY)
+		record.add(r)
+		if b, ok := bySection[r.sect]; ok {
+			b.add(r)
 		}
-
-		switch plat {
-		case pANSI:
-			addStat(&s.Ansi.Bytes, &s.Ansi.Count, &s.Ansi.MinYear, &s.Ansi.MaxYear, sz, cnt, minY, maxY)
-		case pConsole:
-			addStat(&s.Console.Bytes, &s.Console.Count, &s.Console.MinYear, &s.Console.MaxYear, sz, cnt, minY, maxY)
-		case pDOS:
-			addStat(&s.MsDos.Bytes, &s.MsDos.Count, &s.MsDos.MinYear, &s.MsDos.MaxYear, sz, cnt, minY, maxY)
-		case pJava:
-			addStat(&s.Java.Bytes, &s.Java.Count, &s.Java.MinYear, &s.Java.MaxYear, sz, cnt, minY, maxY)
-		case pLinux:
-			addStat(&s.Linux.Bytes, &s.Linux.Count, &s.Linux.MinYear, &s.Linux.MaxYear, sz, cnt, minY, maxY)
-		case pMac:
-			addStat(&s.Macos.Bytes, &s.Macos.Count, &s.Macos.MinYear, &s.Macos.MaxYear, sz, cnt, minY, maxY)
-		case pScript:
-			addStat(&s.Script.Bytes, &s.Script.Count, &s.Script.MinYear, &s.Script.MaxYear, sz, cnt, minY, maxY)
-		case pText:
-			addStat(&s.Text.Bytes, &s.Text.Count, &s.Text.MinYear, &s.Text.MaxYear, sz, cnt, minY, maxY)
-		case pWindows:
-			addStat(&s.Windows.Bytes, &s.Windows.Count, &s.Windows.MinYear, &s.Windows.MaxYear, sz, cnt, minY, maxY)
+		if b, ok := byPlatform[r.plat]; ok {
+			b.add(r)
+		}
+		if b, ok := byPair[[2]string{r.sect, r.plat}]; ok {
+			b.add(r)
 		}
 	}
 	if err := rows.Err(); err != nil {
 		return fmt.Errorf(format, "rows", err)
 	}
 
-	if err := s.getYearly(ctx, exec, pDOS, pWindows, pANSI, pText); err != nil {
+	if err := s.getYearly(ctx, exec, uris[tags.DOS], uris[tags.Windows], uris[tags.ANSI], uris[tags.Text]); err != nil {
 		return fmt.Errorf(format, "yearly", err)
 	}
 	s.Record.UpdatedAt = time.Now()

@@ -185,4 +185,3 @@ func PWindows() null.String {
 func MAnimation() null.String {
 	return null.String{String: "ANSImation", Valid: true}
 }
-
